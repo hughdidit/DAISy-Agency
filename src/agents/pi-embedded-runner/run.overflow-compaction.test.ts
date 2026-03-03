@@ -144,21 +144,11 @@ vi.mock("../pi-embedded-helpers.js", async () => {
 });
 
 import { runEmbeddedPiAgent } from "./run.js";
-<<<<<<< HEAD
 import { runEmbeddedAttempt } from "./run/attempt.js";
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { log } from "./logger.js";
 
 import type { EmbeddedRunAttemptResult } from "./run/types.js";
-=======
-import { makeAttemptResult, mockOverflowRetrySuccess } from "./run.overflow-compaction.fixture.js";
-import { runEmbeddedAttempt } from "./run/attempt.js";
-import type { EmbeddedRunAttemptResult } from "./run/types.js";
-import {
-  sessionLikelyHasOversizedToolResults,
-  truncateOversizedToolResultsInSession,
-} from "./tool-result-truncation.js";
->>>>>>> b577228d6 (test(security): add overflow compaction truncation-budget regression)
 
 const mockedRunEmbeddedAttempt = vi.mocked(runEmbeddedAttempt);
 const mockedCompactDirect = vi.mocked(compactEmbeddedPiSessionDirect);

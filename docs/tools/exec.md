@@ -46,22 +46,11 @@ Notes:
 - `tools.exec.security` (default: `deny` for sandbox, `allowlist` for gateway + node when unset)
 - `tools.exec.ask` (default: `on-miss`)
 - `tools.exec.node` (default: unset)
-<<<<<<< HEAD
 - `tools.exec.pathPrepend`: list of directories to prepend to `PATH` for exec runs.
 - `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries.
 =======
-- `tools.exec.pathPrepend`: list of directories to prepend to `PATH` for exec runs (gateway + sandbox only).
-<<<<<<< HEAD
-- `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries (resolved path must come from trusted binary directories).
->>>>>>> 28bac46c9 (fix(security): harden safeBins path trust)
-=======
 - `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries. For behavior details, see [Safe bins](/tools/exec-approvals#safe-bins-stdin-only).
-<<<<<<< HEAD
 >>>>>>> ac0db6823 (refactor(security): extract safeBins trust resolver)
-=======
-- `tools.exec.safeBinTrustedDirs`: additional explicit directories trusted for `safeBins` path checks. `PATH` entries are never auto-trusted. Built-in defaults are `/bin` and `/usr/bin`.
-- `tools.exec.safeBinProfiles`: optional custom argv policy per safe bin (`minPositional`, `maxPositional`, `allowedValueFlags`, `deniedFlags`).
->>>>>>> b67e600bf (fix(security): restrict default safe-bin trusted dirs)
 
 Example:
 ```json5
@@ -131,8 +120,6 @@ allowlisted or a safe bin. Chaining (`;`, `&&`, `||`) and redirections are rejec
 allowlist mode unless every top-level segment satisfies the allowlist (including safe bins).
 Redirections remain unsupported.
 
-<<<<<<< HEAD
-=======
 `autoAllowSkills` is a separate convenience path in exec approvals. It is not the same as
 manual path allowlist entries. For strict explicit trust, keep `autoAllowSkills` disabled.
 
@@ -148,7 +135,6 @@ Do not treat `safeBins` as a generic allowlist, and do not add interpreter/runti
 
 For full policy details and examples, see [Exec approvals](/tools/exec-approvals#safe-bins-stdin-only) and [Safe bins versus allowlist](/tools/exec-approvals#safe-bins-versus-allowlist).
 
->>>>>>> f0f886ecc (docs(security): clarify gateway-node trust boundary in docs)
 ## Examples
 
 Foreground:
@@ -188,15 +174,9 @@ Enable it explicitly:
 {
   tools: {
     exec: {
-<<<<<<< HEAD
       applyPatch: { enabled: true, allowModels: ["gpt-5.2"] }
     }
   }
-=======
-      applyPatch: { enabled: true, workspaceOnly: true, allowModels: ["gpt-5.2"] },
-    },
-  },
->>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
 }
 ```
 

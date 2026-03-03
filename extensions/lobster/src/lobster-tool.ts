@@ -1,12 +1,7 @@
 import { Type } from "@sinclair/typebox";
 import { spawn } from "node:child_process";
-<<<<<<< HEAD
 import path from "node:path";
 
-=======
-import fs from "node:fs";
-import path from "node:path";
->>>>>>> ba7be018d (fix(security): remove lobster windows shell fallback)
 import type { OpenClawPluginApi } from "../../../src/plugins/types.js";
 
 type LobsterEnvelope =
@@ -34,46 +29,10 @@ function resolveExecutablePath(lobsterPathRaw: string | undefined) {
   return lobsterPath;
 }
 
-<<<<<<< HEAD
 function isWindowsSpawnEINVAL(err: unknown) {
   if (!err || typeof err !== "object") return false;
   const code = (err as { code?: unknown }).code;
   return code === "EINVAL";
-=======
-function normalizeForCwdSandbox(p: string): string {
-  const normalized = path.normalize(p);
-  return process.platform === "win32" ? normalized.toLowerCase() : normalized;
-}
-
-function resolveCwd(cwdRaw: unknown): string {
-  if (typeof cwdRaw !== "string" || !cwdRaw.trim()) {
-    return process.cwd();
-  }
-  const cwd = cwdRaw.trim();
-  if (path.isAbsolute(cwd)) {
-    throw new Error("cwd must be a relative path");
-  }
-  const base = process.cwd();
-  const resolved = path.resolve(base, cwd);
-
-  const rel = path.relative(normalizeForCwdSandbox(base), normalizeForCwdSandbox(resolved));
-  if (rel === "" || rel === ".") {
-    return resolved;
-  }
-  if (rel.startsWith("..") || path.isAbsolute(rel)) {
-    throw new Error("cwd must stay within the gateway working directory");
-  }
-  return resolved;
-}
-
-function isFilePath(value: string): boolean {
-  try {
-    const stat = fs.statSync(value);
-    return stat.isFile();
-  } catch {
-    return false;
-  }
->>>>>>> ba7be018d (fix(security): remove lobster windows shell fallback)
 }
 
 function resolveWindowsExecutablePath(execPath: string, env: NodeJS.ProcessEnv): string {
@@ -294,7 +253,6 @@ async function runLobsterSubprocess(params: {
   timeoutMs: number;
   maxStdoutBytes: number;
 }) {
-<<<<<<< HEAD
   try {
     return await runLobsterSubprocessOnce(params, false);
   } catch (err) {
@@ -303,9 +261,6 @@ async function runLobsterSubprocess(params: {
     }
     throw err;
   }
-=======
-  return await runLobsterSubprocessOnce(params);
->>>>>>> ba7be018d (fix(security): remove lobster windows shell fallback)
 }
 
 function parseEnvelope(stdout: string): LobsterEnvelope {

@@ -133,8 +133,6 @@ export const FIELD_HELP: Record<string, string> = {
   "gateway.remote.sshTarget":
     "Remote gateway over SSH (tunnels the gateway port to localhost). Format: user@host or user@host:port.",
   "gateway.remote.sshIdentity": "Optional SSH identity file path (passed to ssh -i).",
-<<<<<<< HEAD
-=======
   "talk.provider": 'Active Talk provider id (for example "elevenlabs").',
   "talk.providers":
     "Provider-specific Talk settings keyed by provider id. During migration, prefer this over legacy talk.* keys.",
@@ -177,7 +175,6 @@ export const FIELD_HELP: Record<string, string> = {
     "Idle runtime TTL in minutes for ACP session workers before eligible cleanup.",
   "acp.runtime.installCommand":
     "Optional operator install/setup command shown by `/acp install` and `/acp doctor` when ACP backend wiring is missing.",
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   "agents.list.*.skills":
     "Optional allowlist of skills for this agent (omit = all skills; empty = no skills).",
   "agents.list[].skills":

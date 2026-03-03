@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/CameraIPCTests.swift
-=======
 import OpenClawIPC
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/CameraIPCTests.swift
 import Foundation
 import MoltbotIPC
 import Testing

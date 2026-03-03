@@ -32,8 +32,6 @@ export type DiscordMessageHandler = (data: DiscordMessageEvent, client: Client) 
 
 type DiscordReactionEvent = Parameters<MessageReactionAddListener["handle"]>[0];
 
-<<<<<<< HEAD
-=======
 type DiscordReactionListenerParams = {
   cfg: LoadedConfig;
   accountId: string;
@@ -44,7 +42,6 @@ type DiscordReactionListenerParams = {
   logger: Logger;
 };
 
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 const DISCORD_SLOW_LISTENER_THRESHOLD_MS = 30_000;
 const discordEventQueueLog = createSubsystemLogger("discord/event-queue");
 
@@ -181,8 +178,6 @@ export class DiscordReactionRemoveListener extends MessageReactionRemoveListener
   }
 }
 
-<<<<<<< HEAD
-=======
 async function runDiscordReactionHandler(params: {
   data: DiscordReactionEvent;
   client: Client;
@@ -211,7 +206,6 @@ async function runDiscordReactionHandler(params: {
 }
 
 <<<<<<< HEAD
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 =======
 type DiscordReactionIngressAuthorizationParams = {
   accountId: string;
@@ -344,8 +338,6 @@ async function handleDiscordReactionEvent(params: {
       channelType === ChannelType.PublicThread ||
       channelType === ChannelType.PrivateThread ||
       channelType === ChannelType.AnnouncementThread;
-<<<<<<< HEAD
-=======
     const ingressAccess = await authorizeDiscordReactionIngress({
       accountId: params.accountId,
       user,
@@ -368,12 +360,9 @@ async function handleDiscordReactionEvent(params: {
       logVerbose(`discord reaction blocked sender=${user.id} (reason=${ingressAccess.reason})`);
       return;
     }
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
     let parentId = "parentId" in channel ? (channel.parentId ?? undefined) : undefined;
     let parentName: string | undefined;
     let parentSlug = "";
-<<<<<<< HEAD
-=======
     const memberRoleIds = Array.isArray(data.rawMember?.roles)
       ? data.rawMember.roles.map((roleId: string) => String(roleId))
       : [];
@@ -459,86 +448,15 @@ async function handleDiscordReactionEvent(params: {
       });
 
     // Parallelize async operations for thread channels
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
     if (isThreadChannel) {
       if (!parentId) {
         const channelInfo = await resolveDiscordChannelInfo(client, data.channel_id);
         parentId = channelInfo?.parentId;
-<<<<<<< HEAD
       }
       if (parentId) {
         const parentInfo = await resolveDiscordChannelInfo(client, parentId);
         parentName = parentInfo?.name;
         parentSlug = parentName ? normalizeDiscordSlug(parentName) : "";
-=======
-        await loadThreadParentInfo();
-
-        const channelConfig = resolveThreadChannelConfig();
-        const threadAccess = await authorizeDiscordReactionIngress({
-          accountId: params.accountId,
-          user,
-          isDirectMessage,
-          isGroupDm,
-          isGuildMessage,
-          channelId: data.channel_id,
-          channelName,
-          channelSlug,
-          dmEnabled: params.dmEnabled,
-          groupDmEnabled: params.groupDmEnabled,
-          groupDmChannels: params.groupDmChannels,
-          dmPolicy: params.dmPolicy,
-          allowFrom: params.allowFrom,
-          groupPolicy: params.groupPolicy,
-          allowNameMatching: params.allowNameMatching,
-          guildInfo,
-          channelConfig,
-        });
-        if (!threadAccess.allowed) {
-          return;
-        }
-
-        // For allowlist mode, check if user is in allowlist first
-        if (reactionMode === "allowlist") {
-          if (!shouldNotifyReaction({ mode: reactionMode })) {
-            return;
-          }
-        }
-
-        const { baseText } = resolveReactionBase();
-        emitReaction(baseText, parentId);
-        return;
-      }
-
-      // For "own" mode, we need to fetch the message to check the author
-      const messagePromise = data.message.fetch().catch(() => null);
-
-      const [channelInfo, message] = await Promise.all([channelInfoPromise, messagePromise]);
-      parentId = channelInfo?.parentId;
-      await loadThreadParentInfo();
-
-      const channelConfig = resolveThreadChannelConfig();
-      const threadAccess = await authorizeDiscordReactionIngress({
-        accountId: params.accountId,
-        user,
-        isDirectMessage,
-        isGroupDm,
-        isGuildMessage,
-        channelId: data.channel_id,
-        channelName,
-        channelSlug,
-        dmEnabled: params.dmEnabled,
-        groupDmEnabled: params.groupDmEnabled,
-        groupDmChannels: params.groupDmChannels,
-        dmPolicy: params.dmPolicy,
-        allowFrom: params.allowFrom,
-        groupPolicy: params.groupPolicy,
-        allowNameMatching: params.allowNameMatching,
-        guildInfo,
-        channelConfig,
-      });
-      if (!threadAccess.allowed) {
-        return;
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       }
     }
     const channelConfig = resolveDiscordChannelConfigWithFallback({
@@ -551,36 +469,9 @@ async function handleDiscordReactionEvent(params: {
       parentSlug,
       scope: isThreadChannel ? "thread" : "channel",
     });
-<<<<<<< HEAD
     if (channelConfig?.allowed === false) return;
 
     if (botUserId && user.id === botUserId) return;
-=======
-    if (isGuildMessage) {
-      const channelAccess = await authorizeDiscordReactionIngress({
-        accountId: params.accountId,
-        user,
-        isDirectMessage,
-        isGroupDm,
-        isGuildMessage,
-        channelId: data.channel_id,
-        channelName,
-        channelSlug,
-        dmEnabled: params.dmEnabled,
-        groupDmEnabled: params.groupDmEnabled,
-        groupDmChannels: params.groupDmChannels,
-        dmPolicy: params.dmPolicy,
-        allowFrom: params.allowFrom,
-        groupPolicy: params.groupPolicy,
-        allowNameMatching: params.allowNameMatching,
-        guildInfo,
-        channelConfig,
-      });
-      if (!channelAccess.allowed) {
-        return;
-      }
-    }
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
     const reactionMode = guildInfo?.reactionNotifications ?? "own";
     const message = await data.message.fetch().catch(() => null);

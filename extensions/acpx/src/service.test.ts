@@ -132,11 +132,8 @@ describe("createAcpxRuntimeService", () => {
         queueOwnerTtlSeconds: 0.25,
         pluginConfig: expect.objectContaining({
           command: ACPX_BUNDLED_BIN,
-<<<<<<< HEAD
-=======
           expectedVersion: ACPX_PINNED_VERSION,
           allowPluginLocalInstall: true,
->>>>>>> 63e607db9 (ACPX: pin plugin dependency to 0.1.14)
         }),
       }),
     );

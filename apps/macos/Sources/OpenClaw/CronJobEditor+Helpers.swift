@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CronJobEditor+Helpers.swift
-=======
 import OpenClawProtocol
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/CronJobEditor+Helpers.swift
 import Foundation
 import MoltbotProtocol
 import SwiftUI

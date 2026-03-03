@@ -141,8 +141,6 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
   });
   markDispatchIdle();
 
-<<<<<<< HEAD
-=======
   // -----------------------------------------------------------------------
   // Finalize the stream if one was started
   // -----------------------------------------------------------------------
@@ -155,7 +153,6 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     }
   }
 
->>>>>>> 06efbd231 (fix: resolve ChatStreamer import path and TypeScript narrowing issue)
   const anyReplyDelivered = queuedFinal || (counts.block ?? 0) > 0 || (counts.final ?? 0) > 0;
 
   if (!anyReplyDelivered) {

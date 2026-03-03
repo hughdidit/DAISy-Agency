@@ -1,9 +1,6 @@
 import fs from "node:fs";
-<<<<<<< HEAD
 import path from "node:path";
 import os from "node:os";
-=======
->>>>>>> a7c0aa94d (refactor(security): share safe temp media path builder (#20810))
 import { messagingApi } from "@line/bot-sdk";
 import { logVerbose } from "../globals.js";
 import { buildRandomTempFilePath } from "../plugin-sdk/temp-path.js";

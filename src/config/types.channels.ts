@@ -30,11 +30,7 @@ export type ChannelsConfig = {
   whatsapp?: WhatsAppConfig;
   telegram?: TelegramConfig;
   discord?: DiscordConfig;
-<<<<<<< HEAD
   feishu?: FeishuConfig;
-=======
-  irc?: IrcConfig;
->>>>>>> fa906b26a (feat: IRC — add first-class channel support)
   googlechat?: GoogleChatConfig;
   slack?: SlackConfig;
   signal?: SignalConfig;

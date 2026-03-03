@@ -23,11 +23,8 @@ import {
   resolveChatRunExpiresAtMs,
 } from "../chat-abort.js";
 import { type ChatImageContent, parseMessageWithAttachments } from "../chat-attachments.js";
-<<<<<<< HEAD
-=======
 import { stripEnvelopeFromMessages } from "../chat-sanitize.js";
 import { GATEWAY_CLIENT_CAPS, hasGatewayClientCap } from "../protocol/client-info.js";
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import {
   ErrorCodes,
   errorShape,

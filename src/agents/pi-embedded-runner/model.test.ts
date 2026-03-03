@@ -1,10 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-<<<<<<< HEAD
 vi.mock("@mariozechner/pi-coding-agent", () => ({
-=======
-vi.mock("../pi-model-discovery.js", () => ({
->>>>>>> 08ed62852 (chore: update deps and pi model discovery)
   discoverAuthStorage: vi.fn(() => ({ mocked: true })),
   discoverModels: vi.fn(() => ({ find: vi.fn(() => null) })),
 }));

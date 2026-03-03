@@ -364,14 +364,7 @@ export async function handleOpenAiHttpRequest(
         });
       }
     } catch (err) {
-<<<<<<< HEAD
       if (closed) return;
-=======
-      logWarn(`openai-compat: streaming chat completion failed: ${String(err)}`);
-      if (closed) {
-        return;
-      }
->>>>>>> f788de30c (fix(security): sanitize error responses to prevent information leakage (#5))
       writeSse(res, {
         id: runId,
         object: "chat.completion.chunk",

@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/GatewayChannelShutdownTests.swift
-=======
 import OpenClawKit
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/GatewayChannelShutdownTests.swift
 import Foundation
 import MoltbotKit
 import os

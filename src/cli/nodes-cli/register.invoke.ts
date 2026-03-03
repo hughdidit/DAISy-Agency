@@ -19,8 +19,6 @@ import {
   resolveExecApprovalsFromFile,
 } from "../../infra/exec-approvals.js";
 import { buildNodeShellCommand } from "../../infra/node-shell.js";
-<<<<<<< HEAD
-=======
 import { applyPathPrepend } from "../../infra/path-prepend.js";
 import { normalizeSystemRunApprovalPlanV2 } from "../../infra/system-run-approval-binding.js";
 import { defaultRuntime } from "../../runtime.js";
@@ -29,7 +27,6 @@ import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 import { parseNodeList } from "./format.js";
 import { callGatewayCli, nodesCallOpts, resolveNodeId, unauthorizedHintForMessage } from "./rpc.js";
 import type { NodesRpcOpts } from "./types.js";
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
 
 type NodesRunOpts = NodesRpcOpts & {
   node?: string;
@@ -302,7 +299,6 @@ export function registerNodesInvokeCommands(nodes: Command) {
 
           const requiresAsk = hostAsk === "always" || hostAsk === "on-miss";
           if (requiresAsk) {
-<<<<<<< HEAD
             const decisionResult = (await callGatewayCli("exec.approval.request", opts, {
               command: rawCommand ?? argv.join(" "),
               cwd: opts.cwd,
@@ -314,39 +310,6 @@ export function registerNodesInvokeCommands(nodes: Command) {
               sessionKey: undefined,
               timeoutMs: 120_000,
             })) as { decision?: string } | null;
-=======
-            approvalId = crypto.randomUUID();
-            const approvalTimeoutMs = DEFAULT_EXEC_APPROVAL_TIMEOUT_MS;
-            // The CLI transport timeout (opts.timeout) must be longer than the
-            // gateway-side approval wait so the connection stays alive while the
-            // user decides.  Without this override the default 35 s transport
-            // timeout races — and always loses — against the 120 s approval
-            // timeout, causing "gateway timeout after 35000ms" (#12098).
-            const transportTimeoutMs = Math.max(
-              parseTimeoutMs(opts.timeout) ?? 0,
-              approvalTimeoutMs + 10_000,
-            );
-            const decisionResult = (await callGatewayCli(
-              "exec.approval.request",
-              opts,
-              {
-                id: approvalId,
-                command: prepared.cmdText,
-                commandArgv: approvalPlan.argv,
-                systemRunPlanV2: approvalPlan,
-                cwd: approvalPlan.cwd,
-                nodeId,
-                host: "node",
-                security: hostSecurity,
-                ask: hostAsk,
-                agentId: approvalPlan.agentId ?? agentId,
-                resolvedPath: undefined,
-                sessionKey: approvalPlan.sessionKey ?? undefined,
-                timeoutMs: approvalTimeoutMs,
-              },
-              { transportTimeoutMs },
-            )) as { decision?: string } | null;
->>>>>>> f789f880c (fix(security): harden approval-bound node exec cwd handling)
             const decision =
               decisionResult && typeof decisionResult === "object"
                 ? (decisionResult.decision ?? null)

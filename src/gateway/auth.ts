@@ -1,45 +1,11 @@
-<<<<<<< HEAD
 import { timingSafeEqual } from "node:crypto";
 import type { IncomingMessage } from "node:http";
 import type { GatewayAuthConfig, GatewayTailscaleMode } from "../config/config.js";
 import { readTailscaleWhoisIdentity, type TailscaleWhoisIdentity } from "../infra/tailscale.js";
 import { isTrustedProxyAddress, parseForwardedForClientIp, resolveGatewayClientIp } from "./net.js";
-=======
-import type { IncomingMessage } from "node:http";
-import type { GatewayAuthConfig, GatewayTailscaleMode } from "../config/config.js";
-import { readTailscaleWhoisIdentity, type TailscaleWhoisIdentity } from "../infra/tailscale.js";
-import { safeEqualSecret } from "../security/secret-equal.js";
-import {
-<<<<<<< HEAD
-  isLoopbackAddress,
-  isTrustedProxyAddress,
-  parseForwardedForClientIp,
-  resolveGatewayClientIp,
-=======
-  AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET,
-  type AuthRateLimiter,
-  type RateLimitCheckResult,
-} from "./auth-rate-limit.js";
-import {
-  isLocalishHost,
-  isLoopbackAddress,
-  isTrustedProxyAddress,
-  resolveClientIp,
->>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
 } from "./net.js";
-<<<<<<< HEAD
 >>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 export type ResolvedGatewayAuthMode = "token" | "password";
-=======
-
-export type ResolvedGatewayAuthMode = "none" | "token" | "password" | "trusted-proxy";
-export type ResolvedGatewayAuthModeSource =
-  | "override"
-  | "config"
-  | "password"
-  | "token"
-  | "default";
->>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
 
 export type ResolvedGatewayAuth = {
   mode: ResolvedGatewayAuthMode;
@@ -69,14 +35,11 @@ type TailscaleUser = {
 
 type TailscaleWhoisLookup = (ip: string) => Promise<TailscaleWhoisIdentity | null>;
 
-<<<<<<< HEAD
 function safeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   return timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
 
-=======
->>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 function normalizeLogin(login: string): string {
   return login.trim().toLowerCase();
 }
@@ -129,13 +92,10 @@ export function isLocalDirectRequest(req?: IncomingMessage, trustedProxies?: str
   const clientIp = resolveRequestClientIp(req, trustedProxies) ?? "";
   if (!isLoopbackAddress(clientIp)) return false;
 
-<<<<<<< HEAD
   const host = getHostName(req.headers?.host);
   const hostIsLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
   const hostIsTailscaleServe = host.endsWith(".ts.net");
 
-=======
->>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
   const hasForwarded = Boolean(
     req.headers?.["x-forwarded-for"] ||
     req.headers?.["x-real-ip"] ||
@@ -237,7 +197,6 @@ export function resolveGatewayAuth(params: {
     }
   }
   const env = params.env ?? process.env;
-<<<<<<< HEAD
   const token =
     authConfig.token ?? env.OPENCLAW_GATEWAY_TOKEN ?? env.CLAWDBOT_GATEWAY_TOKEN ?? undefined;
   const password =
@@ -246,31 +205,6 @@ export function resolveGatewayAuth(params: {
     env.CLAWDBOT_GATEWAY_PASSWORD ??
     undefined;
   const mode: ResolvedGatewayAuth["mode"] = authConfig.mode ?? (password ? "password" : "token");
-=======
-  const token = authConfig.token ?? env.OPENCLAW_GATEWAY_TOKEN ?? undefined;
-  const password = authConfig.password ?? env.OPENCLAW_GATEWAY_PASSWORD ?? undefined;
-  const trustedProxy = authConfig.trustedProxy;
-
-  let mode: ResolvedGatewayAuth["mode"];
-  let modeSource: ResolvedGatewayAuth["modeSource"];
-  if (authOverride?.mode !== undefined) {
-    mode = authOverride.mode;
-    modeSource = "override";
-  } else if (authConfig.mode) {
-    mode = authConfig.mode;
-    modeSource = "config";
-  } else if (password) {
-    mode = "password";
-    modeSource = "password";
-  } else if (token) {
-    mode = "token";
-    modeSource = "token";
-  } else {
-    mode = "token";
-    modeSource = "default";
-  }
-
->>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
   const allowTailscale =
     authConfig.allowTailscale ?? (params.tailscaleMode === "serve" && mode !== "password");
   return {
@@ -305,8 +239,6 @@ export async function authorizeGatewayConnect(params: {
   const tailscaleWhois = params.tailscaleWhois ?? readTailscaleWhoisIdentity;
   const localDirect = isLocalDirectRequest(req, trustedProxies);
 
-<<<<<<< HEAD
-=======
   if (auth.mode === "trusted-proxy") {
     if (!auth.trustedProxy) {
       return { ok: false, reason: "trusted_proxy_config_missing" };
@@ -347,7 +279,6 @@ export async function authorizeGatewayConnect(params: {
     }
   }
 
->>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
   if (auth.allowTailscale && !localDirect) {
     const tailscaleCheck = await resolveVerifiedTailscaleUser({
       req,

@@ -19,17 +19,12 @@ import {
   type SessionEntry,
   type SessionScope,
 } from "../config/sessions.js";
-<<<<<<< HEAD
-=======
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
 import {
   normalizeAgentId,
   normalizeMainKey,
   parseAgentSessionKey,
 } from "../routing/session-key.js";
-<<<<<<< HEAD
-=======
 import { isCronRunSessionKey } from "../sessions/session-key-utils.js";
 import {
   AVATAR_MAX_BYTES,
@@ -39,7 +34,6 @@ import {
   isWorkspaceRelativeAvatarPath,
   resolveAvatarMime,
 } from "../shared/avatar-policy.js";
->>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 import { normalizeSessionDeliveryFields } from "../utils/delivery-context.js";
 import {
   readFirstUserMessageFromTranscript,
@@ -72,7 +66,6 @@ export type {
 } from "./session-utils.types.js";
 
 const DERIVED_TITLE_MAX_LEN = 60;
-<<<<<<< HEAD
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
 const AVATAR_DATA_RE = /^data:/i;
@@ -104,8 +97,6 @@ function isWorkspaceRelativePath(value: string): boolean {
   return true;
 }
 
-=======
->>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 function resolveIdentityAvatarUrl(
   cfg: OpenClawConfig,
   agentId: string,
@@ -113,7 +104,6 @@ function resolveIdentityAvatarUrl(
 ): string | undefined {
   if (!avatar) return undefined;
   const trimmed = avatar.trim();
-<<<<<<< HEAD
   if (!trimmed) return undefined;
   if (AVATAR_DATA_RE.test(trimmed) || AVATAR_HTTP_RE.test(trimmed)) return trimmed;
   if (!isWorkspaceRelativePath(trimmed)) return undefined;
@@ -122,50 +112,12 @@ function resolveIdentityAvatarUrl(
   const resolved = path.resolve(workspaceRoot, trimmed);
   const relative = path.relative(workspaceRoot, resolved);
   if (relative.startsWith("..") || path.isAbsolute(relative)) return undefined;
-=======
-  if (!trimmed) {
-    return undefined;
-  }
-  if (isAvatarDataUrl(trimmed) || isAvatarHttpUrl(trimmed)) {
-    return trimmed;
-  }
-  if (!isWorkspaceRelativeAvatarPath(trimmed)) {
-    return undefined;
-  }
-  const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId);
-  const workspaceRoot = path.resolve(workspaceDir);
-  const resolved = path.resolve(workspaceRoot, trimmed);
-  if (!isPathWithinRoot(workspaceRoot, resolved)) {
-    return undefined;
-  }
->>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
   try {
-<<<<<<< HEAD
     const stat = fs.statSync(resolved);
     if (!stat.isFile() || stat.size > AVATAR_MAX_BYTES) return undefined;
     const buffer = fs.readFileSync(resolved);
     const mime = resolveAvatarMime(resolved);
     return `data:${mime};base64,${buffer.toString("base64")}`;
-=======
-    const opened = openBoundaryFileSync({
-      absolutePath: resolvedCandidate,
-      rootPath: workspaceRoot,
-      rootRealPath: workspaceRoot,
-      boundaryLabel: "workspace root",
-      maxBytes: AVATAR_MAX_BYTES,
-      skipLexicalRootCheck: true,
-    });
-    if (!opened.ok) {
-      return undefined;
-    }
-    try {
-      const buffer = fs.readFileSync(opened.fd);
-      const mime = resolveAvatarMime(resolvedCandidate);
-      return `data:${mime};base64,${buffer.toString("base64")}`;
-    } finally {
-      fs.closeSync(opened.fd);
-    }
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
   } catch {
     return undefined;
   }

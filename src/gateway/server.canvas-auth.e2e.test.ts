@@ -9,7 +9,6 @@ import type { GatewayWsClient } from "./server/ws-types.js";
 import { A2UI_PATH, CANVAS_HOST_PATH, CANVAS_WS_PATH } from "../canvas-host/a2ui.js";
 import { createAuthRateLimiter } from "./auth-rate-limit.js";
 import { attachGatewayUpgradeHandler, createGatewayHttpServer } from "./server-http.js";
-<<<<<<< HEAD
 
 async function withTempConfig(params: { cfg: unknown; run: () => Promise<void> }): Promise<void> {
   const prevConfigPath = process.env.OPENCLAW_CONFIG_PATH;
@@ -38,9 +37,6 @@ async function withTempConfig(params: { cfg: unknown; run: () => Promise<void> }
     await rm(dir, { recursive: true, force: true });
   }
 }
-=======
-import { withTempConfig } from "./test-temp-config.js";
->>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
 
 async function listen(server: ReturnType<typeof createGatewayHttpServer>): Promise<{
   port: number;
@@ -84,8 +80,6 @@ async function expectWsRejected(
   });
 }
 
-<<<<<<< HEAD
-=======
 function makeWsClient(params: {
   connId: string;
   clientIp: string;
@@ -164,7 +158,6 @@ async function withCanvasGatewayHarness(params: {
   }
 }
 
->>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
 describe("gateway canvas host auth", () => {
   test("allows canvas IP fallback for private/CGNAT addresses and denies public fallback", async () => {
     const resolvedAuth: ResolvedGatewayAuth = {
@@ -318,7 +311,6 @@ describe("gateway canvas host auth", () => {
               ws.terminate();
               resolve();
             });
-<<<<<<< HEAD
             ws.once("unexpected-response", (_req, res) => {
               clearTimeout(timer);
               reject(new Error(`unexpected response ${res.statusCode}`));
@@ -330,105 +322,6 @@ describe("gateway canvas host auth", () => {
           canvasWss.close();
           wss.close();
         }
-=======
-
-            clients.add(
-              makeWsClient({
-                connId: "c-operator",
-                clientIp: privateIpA,
-                role: "operator",
-                mode: "backend",
-              }),
-            );
-
-            const operatorCanvasStillBlocked = await fetch(
-              `http://127.0.0.1:${listener.port}${CANVAS_HOST_PATH}/`,
-              {
-                headers: { "x-forwarded-for": privateIpA },
-              },
-            );
-            expect(operatorCanvasStillBlocked.status).toBe(401);
-
-            clients.add(
-              makeWsClient({
-                connId: "c-node",
-                clientIp: privateIpA,
-                role: "node",
-                mode: "node",
-              }),
-            );
-
-            const authCanvas = await fetch(
-              `http://127.0.0.1:${listener.port}${CANVAS_HOST_PATH}/`,
-              {
-                headers: { "x-forwarded-for": privateIpA },
-              },
-            );
-            expect(authCanvas.status).toBe(200);
-            expect(await authCanvas.text()).toBe("ok");
-
-            const otherIpStillBlocked = await fetch(
-              `http://127.0.0.1:${listener.port}${CANVAS_HOST_PATH}/`,
-              {
-                headers: { "x-forwarded-for": privateIpB },
-              },
-            );
-            expect(otherIpStillBlocked.status).toBe(401);
-
-            clients.add(
-              makeWsClient({
-                connId: "c-public",
-                clientIp: publicIp,
-                role: "node",
-                mode: "node",
-              }),
-            );
-            const publicIpStillBlocked = await fetch(
-              `http://127.0.0.1:${listener.port}${CANVAS_HOST_PATH}/`,
-              {
-                headers: { "x-forwarded-for": publicIp },
-              },
-            );
-            expect(publicIpStillBlocked.status).toBe(401);
-            await expectWsRejected(`ws://127.0.0.1:${listener.port}${CANVAS_WS_PATH}`, {
-              "x-forwarded-for": publicIp,
-            });
-
-            clients.add(
-              makeWsClient({
-                connId: "c-cgnat",
-                clientIp: cgnatIp,
-                role: "node",
-                mode: "node",
-              }),
-            );
-            const cgnatAllowed = await fetch(
-              `http://127.0.0.1:${listener.port}${CANVAS_HOST_PATH}/`,
-              {
-                headers: { "x-forwarded-for": cgnatIp },
-              },
-            );
-            expect(cgnatAllowed.status).toBe(200);
-
-            await new Promise<void>((resolve, reject) => {
-              const ws = new WebSocket(`ws://127.0.0.1:${listener.port}${CANVAS_WS_PATH}`, {
-                headers: { "x-forwarded-for": privateIpA },
-              });
-              const timer = setTimeout(() => reject(new Error("timeout")), 10_000);
-              ws.once("open", () => {
-                clearTimeout(timer);
-                ws.terminate();
-                resolve();
-              });
-              ws.once("unexpected-response", (_req, res) => {
-                clearTimeout(timer);
-                reject(new Error(`unexpected response ${res.statusCode}`));
-              });
-              ws.once("error", reject);
-            });
-          },
-        });
->>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
       },
     });
   }, 60_000);

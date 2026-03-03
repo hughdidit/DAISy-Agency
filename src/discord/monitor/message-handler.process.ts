@@ -21,8 +21,6 @@ import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.j
 import { createReplyDispatcherWithTyping } from "../../auto-reply/reply/reply-dispatcher.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import { recordInboundSession } from "../../channels/session.js";
-<<<<<<< HEAD
-=======
 import {
   createStatusReactionController,
   DEFAULT_TIMING,
@@ -32,7 +30,6 @@ import { createTypingCallbacks } from "../../channels/typing.js";
 import { isDangerousNameMatchingEnabled } from "../../config/dangerous-name-matching.js";
 import { resolveDiscordPreviewStreamMode } from "../../config/discord-preview-streaming.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
->>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
 import { resolveChunkMode } from "../../auto-reply/chunk.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
@@ -154,42 +151,19 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   const forumContextLine = isForumStarter ? `[Forum parent: #${forumParentSlug}]` : null;
   const groupChannel = isGuildMessage && displayChannelSlug ? `#${displayChannelSlug}` : undefined;
   const groupSubject = isDirectMessage ? undefined : groupChannel;
-<<<<<<< HEAD
   const channelDescription = channelInfo?.topic?.trim();
   const systemPromptParts = [
     channelDescription ? `Channel topic: ${channelDescription}` : null,
     channelConfig?.systemPrompt?.trim() || null,
   ].filter((entry): entry is string => Boolean(entry));
-=======
-  const untrustedChannelMetadata = isGuildMessage
-    ? buildUntrustedChannelMetadata({
-        source: "discord",
-        label: "Discord channel topic",
-        entries: [channelInfo?.topic],
-      })
-    : undefined;
-  const senderName = sender.isPluralKit
-    ? (sender.name ?? author.username)
-    : (data.member?.nickname ?? author.globalName ?? author.username);
-  const senderUsername = sender.isPluralKit
-    ? (sender.tag ?? sender.name ?? author.username)
-    : author.username;
-  const senderTag = sender.tag;
-  const systemPromptParts = [channelConfig?.systemPrompt?.trim() || null].filter(
-    (entry): entry is string => Boolean(entry),
-  );
->>>>>>> 35eb40a70 (fix(security): separate untrusted channel metadata from system prompt (thanks @KonstantinMirin))
   const groupSystemPrompt =
     systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
-<<<<<<< HEAD
-=======
   const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
     channelConfig,
     guildInfo,
     sender: { id: sender.id, name: sender.name, tag: sender.tag },
     allowNameMatching: isDangerousNameMatchingEnabled(discordConfig),
   });
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
   const storePath = resolveStorePath(cfg.session?.store, {
     agentId: route.agentId,
   });

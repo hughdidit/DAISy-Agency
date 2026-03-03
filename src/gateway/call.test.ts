@@ -29,8 +29,6 @@ vi.mock("../infra/tailnet.js", () => ({
   pickPrimaryTailnetIPv4,
 }));
 
-<<<<<<< HEAD
-=======
 vi.mock("./net.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./net.js")>();
   return {
@@ -39,7 +37,6 @@ vi.mock("./net.js", async (importOriginal) => {
   };
 });
 
->>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
 vi.mock("./client.js", () => ({
   describeGatewayCloseCode: (code: number) => {
     if (code === 1000) return "normal closure";
@@ -73,8 +70,6 @@ vi.mock("./client.js", () => ({
 const { buildGatewayConnectionDetails, callGateway, callGatewayCli, callGatewayScoped } =
   await import("./call.js");
 
-<<<<<<< HEAD
-=======
 function resetGatewayCallMocks() {
   loadConfig.mockReset();
   resolveGatewayPort.mockReset();
@@ -101,7 +96,6 @@ function makeRemotePasswordGatewayConfig(remotePassword: string, localPassword =
   };
 }
 
->>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
 describe("callGateway url resolution", () => {
   beforeEach(() => {
     loadConfig.mockReset();
@@ -113,20 +107,7 @@ describe("callGateway url resolution", () => {
     closeReason = "";
   });
 
-<<<<<<< HEAD
   it("keeps loopback when local bind is auto even if tailnet is present", async () => {
-=======
-  it.each([
-    {
-      label: "keeps loopback when local bind is auto even if tailnet is present",
-      tailnetIp: "100.64.0.1",
-    },
-    {
-      label: "falls back to loopback when local bind is auto without tailnet IP",
-      tailnetIp: undefined,
-    },
-  ])("local auto-bind: $label", async ({ tailnetIp }) => {
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
     loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "auto" } });
     resolveGatewayPort.mockReturnValue(18800);
     pickPrimaryTailnetIPv4.mockReturnValue("100.64.0.1");
@@ -158,8 +139,6 @@ describe("callGateway url resolution", () => {
     expect(lastClientOptions?.url).toBe("wss://100.64.0.1:18800");
   });
 
-<<<<<<< HEAD
-=======
   it("blocks ws:// to tailnet IP without TLS (CWE-319)", async () => {
     loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "tailnet" } });
     resolveGatewayPort.mockReturnValue(18800);
@@ -201,7 +180,6 @@ describe("callGateway url resolution", () => {
     expect(lastClientOptions?.url).toBe("ws://127.0.0.1:18800");
   });
 
->>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
   it("uses url override in remote mode even when remote url is missing", async () => {
     loadConfig.mockReturnValue({
       gateway: { mode: "remote", bind: "loopback", remote: {} },
@@ -218,8 +196,6 @@ describe("callGateway url resolution", () => {
     expect(lastClientOptions?.url).toBe("wss://override.example/ws");
     expect(lastClientOptions?.token).toBe("explicit-token");
   });
-<<<<<<< HEAD
-=======
 
 <<<<<<< HEAD
   it("uses least-privilege scopes by default for non-CLI callers", async () => {
@@ -260,7 +236,6 @@ describe("callGateway url resolution", () => {
     setLocalLoopbackGatewayConfig();
     await call();
     expect(lastClientOptions?.scopes).toEqual(expectedScopes);
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   });
 
   it("passes explicit scopes through, including empty arrays", async () => {
@@ -321,8 +296,6 @@ describe("buildGatewayConnectionDetails", () => {
     expect(details.message).toContain("Gateway target: ws://127.0.0.1:18789");
   });
 
-<<<<<<< HEAD
-=======
   it("uses LAN IP with TLS and reports lan source when bind is lan", () => {
     loadConfig.mockReturnValue({
       gateway: { mode: "local", bind: "lan", tls: { enabled: true } },
@@ -349,7 +322,6 @@ describe("buildGatewayConnectionDetails", () => {
     expect(() => buildGatewayConnectionDetails()).toThrow("SECURITY ERROR");
   });
 
->>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
   it("prefers remote url when configured", () => {
     loadConfig.mockReturnValue({
       gateway: {

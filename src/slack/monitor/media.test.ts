@@ -253,8 +253,6 @@ describe("resolveSlackMedia", () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-<<<<<<< HEAD
-=======
   it("overrides video/* MIME to audio/* for slack_audio voice messages", async () => {
     // saveMediaBuffer re-detects MIME from buffer bytes, so it may return
     // video/mp4 for MP4 containers.  Verify resolveSlackMedia preserves
@@ -332,7 +330,6 @@ describe("resolveSlackMedia", () => {
     expect(result![0]?.contentType).toBe("video/mp4");
   });
 
->>>>>>> c76288bdf (fix(slack): download all files in multi-image messages (#15447))
   it("falls through to next file when first file returns error", async () => {
     // Mock the store module
     vi.doMock("../../media/store.js", () => ({

@@ -7,11 +7,7 @@ import {
   resolvePinnedHostname,
   SsrFBlockedError,
 } from "../../infra/net/ssrf.js";
-<<<<<<< HEAD
 import type { Dispatcher } from "undici";
-=======
-import { wrapExternalContent, wrapWebContent } from "../../security/external-content.js";
->>>>>>> b796f6ec0 (Security: harden web tools and file parsing (#4058))
 import { stringEnum } from "../schema/typebox.js";
 import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";

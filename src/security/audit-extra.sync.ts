@@ -16,16 +16,8 @@ import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { AgentToolsConfig } from "../config/types.tools.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
-<<<<<<< HEAD
 import { resolveNodeCommandAllowlist } from "../gateway/node-command-policy.js";
 <<<<<<< HEAD
-=======
-=======
-import {
-  DEFAULT_DANGEROUS_NODE_COMMANDS,
-  resolveNodeCommandAllowlist,
-} from "../gateway/node-command-policy.js";
->>>>>>> 265da4dd2 (fix(security): harden gateway command/audit guardrails)
 import { inferParamBFromIdOrName } from "../shared/model-param-b.js";
 import { pickSandboxToolPolicy } from "./audit-tool-policy.js";
 >>>>>>> d7079b557 (refactor(security): share sandbox tool policy picker)

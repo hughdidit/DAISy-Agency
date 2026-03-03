@@ -467,16 +467,8 @@ async function ensureDmComponentAuthorized(params: {
     return true;
   }
 
-<<<<<<< HEAD
   const storeAllowFrom =
     dmPolicy === "allowlist" ? [] : await readChannelAllowFromStore("discord").catch(() => []);
-=======
-  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-    provider: "discord",
-    accountId: ctx.accountId,
-    dmPolicy,
-  });
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
   const effectiveAllowFrom = [...(ctx.allowFrom ?? []), ...storeAllowFrom];
   const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:", "pk:"]);
   const allowMatch = allowList

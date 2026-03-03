@@ -1,16 +1,8 @@
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/AnyCodableEncodingTests.swift
-=======
 import OpenClawProtocol
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/AnyCodableEncodingTests.swift
 import Foundation
 import MoltbotProtocol
 import Testing
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/AnyCodableEncodingTests.swift
 @testable import Moltbot
-=======
-
-@testable import OpenClaw
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/AnyCodableEncodingTests.swift
 
 @Suite struct AnyCodableEncodingTests {
     @Test func encodesSwiftArrayAndDictionaryValues() throws {

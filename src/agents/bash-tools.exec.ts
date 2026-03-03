@@ -31,7 +31,6 @@ import { enqueueSystemEvent } from "../infra/system-events.js";
 import { logInfo, logWarn } from "../logger.js";
 import { formatSpawnError, spawnWithFallback } from "../process/spawn-utils.js";
 import {
-<<<<<<< HEAD
   type ProcessSession,
   type SessionStdin,
   addSession,
@@ -42,29 +41,6 @@ import {
   tail,
 } from "./bash-process-registry.js";
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
-=======
-  DEFAULT_MAX_OUTPUT,
-  DEFAULT_PATH,
-  DEFAULT_PENDING_MAX_OUTPUT,
-  applyPathPrepend,
-  applyShellPath,
-  normalizeExecAsk,
-  normalizeExecHost,
-  normalizeExecSecurity,
-  normalizePathPrepend,
-  renderExecHostLabel,
-  resolveApprovalRunningNoticeMs,
-  runExecProcess,
-  sanitizeHostBaseEnv,
-  execSchema,
-  validateHostEnv,
-} from "./bash-tools.exec-runtime.js";
-import type {
-  ExecElevatedDefaults,
-  ExecToolDefaults,
-  ExecToolDetails,
-} from "./bash-tools.exec-types.js";
->>>>>>> 48b052322 (Security: sanitize inherited host exec env)
 import {
   buildDockerExecArgs,
   buildSandboxEnv,
@@ -1021,8 +997,6 @@ export function createExecTool(
           safeBins: new Set(),
           cwd: workdir,
           env,
-<<<<<<< HEAD
-=======
           requestedEnv: params.env,
           requestedNode: params.node?.trim(),
           boundNode: defaults?.node?.trim(),
@@ -1040,7 +1014,6 @@ export function createExecTool(
           warnings,
           notifySessionKey,
           trustedSafeBinDirs,
->>>>>>> da0ba1b73 (fix(security): harden channel auth path checks and exec approval routing)
         });
         let analysisOk = baseAllowlistEval.analysisOk;
         let allowlistSatisfied = false;
@@ -1262,7 +1235,6 @@ export function createExecTool(
       }
 
       if (host === "gateway" && !bypassApprovals) {
-<<<<<<< HEAD
         const approvals = resolveExecApprovals(agentId, { security, ask });
         const hostSecurity = minSecurity(security, approvals.agent.security);
         const hostAsk = maxAsk(ask, approvals.agent.ask);
@@ -1518,35 +1490,6 @@ export function createExecTool(
               allowlistEval.segments[0]?.resolution?.resolvedPath,
             );
           }
-=======
-        const gatewayResult = await processGatewayAllowlist({
-          command: params.command,
-          workdir,
-          env,
-          pty: params.pty === true && !sandbox,
-          timeoutSec: params.timeout,
-          defaultTimeoutSec,
-          security,
-          ask,
-          safeBins,
-          safeBinProfiles,
-          agentId,
-          sessionKey: defaults?.sessionKey,
-          turnSourceChannel: defaults?.messageProvider,
-          turnSourceTo: defaults?.currentChannelId,
-          turnSourceAccountId: defaults?.accountId,
-          turnSourceThreadId: defaults?.currentThreadTs,
-          scopeKey: defaults?.scopeKey,
-          warnings,
-          notifySessionKey,
-          approvalRunningNoticeMs,
-          maxOutput,
-          pendingMaxOutput,
-          trustedSafeBinDirs,
-        });
-        if (gatewayResult.pendingResult) {
-          return gatewayResult.pendingResult;
->>>>>>> da0ba1b73 (fix(security): harden channel auth path checks and exec approval routing)
         }
       }
 

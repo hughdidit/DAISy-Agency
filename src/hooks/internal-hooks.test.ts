@@ -182,8 +182,6 @@ describe("hooks", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   describe("isGatewayStartupEvent", () => {
     it("returns true for gateway:startup events with expected context", () => {
       const context: GatewayStartupHookContext = {
@@ -393,7 +391,6 @@ describe("hooks", () => {
     });
   });
 
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   describe("getRegisteredEventKeys", () => {
     it("should return all registered event keys", () => {
       registerInternalHook("command:new", vi.fn());

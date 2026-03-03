@@ -12,8 +12,6 @@ enum GatewaySettingsStore {
     private static let manualPortDefaultsKey = "gateway.manual.port"
     private static let manualTlsDefaultsKey = "gateway.manual.tls"
     private static let discoveryDebugLogsDefaultsKey = "gateway.discovery.debugLogs"
-<<<<<<< HEAD
-=======
     private static let lastGatewayKindDefaultsKey = "gateway.last.kind"
     private static let lastGatewayHostDefaultsKey = "gateway.last.host"
     private static let lastGatewayPortDefaultsKey = "gateway.last.port"
@@ -21,7 +19,6 @@ enum GatewaySettingsStore {
     private static let lastGatewayStableIDDefaultsKey = "gateway.last.stableID"
     private static let clientIdOverrideDefaultsPrefix = "gateway.clientIdOverride."
     private static let selectedAgentDefaultsPrefix = "gateway.selectedAgentId."
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
 
     private static let instanceIdAccount = "instanceId"
     private static let preferredGatewayStableIDAccount = "preferredStableID"
@@ -117,8 +114,6 @@ enum GatewaySettingsStore {
             account: self.gatewayPasswordAccount(instanceId: instanceId))
     }
 
-<<<<<<< HEAD
-=======
     enum LastGatewayConnection: Equatable {
         case manual(host: String, port: Int, useTLS: Bool, stableID: String)
         case discovered(stableID: String, useTLS: Bool)
@@ -232,7 +227,6 @@ enum GatewaySettingsStore {
         }
     }
 
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
     private static func gatewayTokenAccount(instanceId: String) -> String {
         "gateway-token.\(instanceId)"
     }

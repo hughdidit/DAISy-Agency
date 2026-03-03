@@ -82,8 +82,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Do not invent commands");
   });
 
-<<<<<<< HEAD
-=======
   it("marks system message blocks as internal and not user-visible", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/openclaw",
@@ -110,7 +108,6 @@ describe("buildAgentSystemPrompt", () => {
     );
   });
 
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   it("lists available tools when provided", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/openclaw",
@@ -445,8 +442,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Reactions are enabled for Telegram in MINIMAL mode.");
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("buildSubagentSystemPrompt", () => {
   it("renders depth-1 orchestrator guidance, labels, and recovery notes", () => {
@@ -540,4 +535,3 @@ describe("buildSubagentSystemPrompt", () => {
     }
   });
 });
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))

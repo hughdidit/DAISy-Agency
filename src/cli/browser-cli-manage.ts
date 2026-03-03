@@ -49,11 +49,7 @@ export function registerBrowserManageCommands(
         const detectedDisplay = detectedPath ? shortenHomePath(detectedPath) : "auto";
         defaultRuntime.log(
           [
-<<<<<<< HEAD
             `profile: ${status.profile ?? "daisy"}`,
-=======
-            `profile: ${status.profile ?? "openclaw"}`,
->>>>>>> 9a7160786 (refactor: rename to openclaw)
             `enabled: ${status.enabled}`,
             `running: ${status.running}`,
             `cdpPort: ${status.cdpPort}`,
@@ -97,11 +93,7 @@ export function registerBrowserManageCommands(
           defaultRuntime.log(JSON.stringify(status, null, 2));
           return;
         }
-<<<<<<< HEAD
         const name = status.profile ?? "daisy";
-=======
-        const name = status.profile ?? "openclaw";
->>>>>>> 9a7160786 (refactor: rename to openclaw)
         defaultRuntime.log(info(`🦞 browser [${name}] running: ${status.running}`));
       });
     });
@@ -135,11 +127,7 @@ export function registerBrowserManageCommands(
           defaultRuntime.log(JSON.stringify(status, null, 2));
           return;
         }
-<<<<<<< HEAD
         const name = status.profile ?? "daisy";
-=======
-        const name = status.profile ?? "openclaw";
->>>>>>> 9a7160786 (refactor: rename to openclaw)
         defaultRuntime.log(info(`🦞 browser [${name}] running: ${status.running}`));
       });
     });

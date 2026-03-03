@@ -16,11 +16,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
-=======
-  "version": "2026.1.30",
->>>>>>> 247fab47c (chore: bump version to 2026.1.30)
 =======
   "version": "2026.2.1",
 =======
@@ -71,20 +67,7 @@
   "description": "OpenClaw Matrix channel plugin",
 >>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
   "type": "module",
-<<<<<<< HEAD
   "description": "OpenClaw Matrix channel plugin",
-=======
-  "dependencies": {
-    "@matrix-org/matrix-sdk-crypto-nodejs": "^0.4.0",
-    "@vector-im/matrix-bot-sdk": "0.8.0-element.3",
-    "markdown-it": "14.1.1",
-    "music-metadata": "^11.12.1",
-    "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
->>>>>>> 9e3ea2687 (chore: Update deps.)
   "openclaw": {
     "extensions": [
       "./index.ts"

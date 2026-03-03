@@ -2,16 +2,11 @@ import Foundation
 import JavaScriptCore
 
 enum ModelCatalogLoader {
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ModelCatalogLoader.swift
     static var defaultPath: String {
         self.resolveDefaultPath()
     }
 
     private static let logger = Logger(subsystem: "bot.molt", category: "models")
-=======
-    static var defaultPath: String { self.resolveDefaultPath() }
-    private static let logger = Logger(subsystem: "ai.openclaw", category: "models")
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/ModelCatalogLoader.swift
     private nonisolated static let appSupportDir: URL = {
         let base = FileManager().urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         return base.appendingPathComponent("OpenClaw", isDirectory: true)

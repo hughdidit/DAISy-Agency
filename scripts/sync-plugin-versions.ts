@@ -7,7 +7,6 @@ type PackageJson = {
   devDependencies?: Record<string, string>;
 };
 
-<<<<<<< HEAD
 const root = resolve(".");
 const rootPackagePath = resolve("package.json");
 const rootPackage = JSON.parse(readFileSync(rootPackagePath, "utf8")) as PackageJson;
@@ -24,8 +23,6 @@ const updated: string[] = [];
 const changelogged: string[] = [];
 const skipped: string[] = [];
 
-=======
->>>>>>> 95e85e627 (fix(feishu): restore group command fallback and plugin deps)
 function ensureChangelogEntry(changelogPath: string, version: string): boolean {
   if (!existsSync(changelogPath)) return false;
   const content = readFileSync(changelogPath, "utf8");
@@ -53,77 +50,6 @@ function stripWorkspaceOpenclawDevDependency(pkg: PackageJson): boolean {
   return true;
 }
 
-<<<<<<< HEAD
 console.log(
   `Synced plugin versions to ${targetVersion}. Updated: ${updated.length}. Changelogged: ${changelogged.length}. Skipped: ${skipped.length}.`
 );
-=======
-export function syncPluginVersions(rootDir = resolve(".")) {
-  const rootPackagePath = join(rootDir, "package.json");
-  const rootPackage = JSON.parse(readFileSync(rootPackagePath, "utf8")) as PackageJson;
-  const targetVersion = rootPackage.version;
-  if (!targetVersion) {
-    throw new Error("Root package.json missing version.");
-  }
-
-  const extensionsDir = join(rootDir, "extensions");
-  const dirs = readdirSync(extensionsDir, { withFileTypes: true }).filter((entry) =>
-    entry.isDirectory(),
-  );
-
-  const updated: string[] = [];
-  const changelogged: string[] = [];
-  const skipped: string[] = [];
-  const strippedWorkspaceDevDeps: string[] = [];
-
-  for (const dir of dirs) {
-    const packagePath = join(extensionsDir, dir.name, "package.json");
-    let pkg: PackageJson;
-    try {
-      pkg = JSON.parse(readFileSync(packagePath, "utf8")) as PackageJson;
-    } catch {
-      continue;
-    }
-
-    if (!pkg.name) {
-      skipped.push(dir.name);
-      continue;
-    }
-
-    const changelogPath = join(extensionsDir, dir.name, "CHANGELOG.md");
-    if (ensureChangelogEntry(changelogPath, targetVersion)) {
-      changelogged.push(pkg.name);
-    }
-
-    const removedWorkspaceDevDependency = stripWorkspaceOpenclawDevDependency(pkg);
-    if (removedWorkspaceDevDependency) {
-      strippedWorkspaceDevDeps.push(pkg.name);
-    }
-
-    const versionChanged = pkg.version !== targetVersion;
-    if (!versionChanged && !removedWorkspaceDevDependency) {
-      skipped.push(pkg.name);
-      continue;
-    }
-
-    pkg.version = targetVersion;
-    writeFileSync(packagePath, `${JSON.stringify(pkg, null, 2)}\n`);
-    updated.push(pkg.name);
-  }
-
-  return {
-    targetVersion,
-    updated,
-    changelogged,
-    skipped,
-    strippedWorkspaceDevDeps,
-  };
-}
-
-if (import.meta.main) {
-  const summary = syncPluginVersions();
-  console.log(
-    `Synced plugin versions to ${summary.targetVersion}. Updated: ${summary.updated.length}. Changelogged: ${summary.changelogged.length}. Stripped workspace devDeps: ${summary.strippedWorkspaceDevDeps.length}. Skipped: ${summary.skipped.length}.`,
-  );
-}
->>>>>>> 95e85e627 (fix(feishu): restore group command fallback and plugin deps)

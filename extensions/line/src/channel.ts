@@ -135,13 +135,8 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
       accountId: account.accountId,
       name: account.name,
       enabled: account.enabled,
-<<<<<<< HEAD
       configured: Boolean(account.channelAccessToken?.trim()),
       tokenSource: account.tokenSource,
-=======
-      configured: Boolean(account.channelAccessToken?.trim() && account.channelSecret?.trim()),
-      tokenSource: account.tokenSource ?? undefined,
->>>>>>> beb77229c (fix (security/line): fail closed when webhook auth is missing)
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
       (getLineRuntime().channel.line.resolveLineAccount({ cfg, accountId }).config.allowFrom ?? []).map(

@@ -15,14 +15,11 @@ import { listChannelSupportedActions, resolveChannelMessageToolHints } from "../
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { getMachineDisplayName } from "../../infra/machine-name.js";
-<<<<<<< HEAD
-=======
 import { generateSecureToken } from "../../infra/secure-random.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { type enqueueCommand, enqueueCommandInLane } from "../../process/command-queue.js";
 import { isCronSessionKey, isSubagentSessionKey } from "../../routing/session-key.js";
 import { resolveSignalReactionLevel } from "../../signal/reaction-level.js";
->>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 import { resolveTelegramInlineButtonsScope } from "../../telegram/inline-buttons.js";
 import { resolveTelegramReactionLevel } from "../../telegram/reaction-level.js";
 import { resolveSignalReactionLevel } from "../../signal/reaction-level.js";
@@ -113,8 +110,6 @@ export type CompactEmbeddedPiSessionParams = {
   ownerNumbers?: string[];
 };
 
-<<<<<<< HEAD
-=======
 type CompactionMessageMetrics = {
   messages: number;
   historyTextChars: number;
@@ -231,7 +226,6 @@ function classifyCompactionReason(reason?: string): string {
   return "unknown";
 }
 
->>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 /**
  * Core compaction logic without lane queueing.
  * Use this when already inside a session/global lane to avoid deadlocks.

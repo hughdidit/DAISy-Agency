@@ -1,15 +1,10 @@
 import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-=======
 import { isDangerousHostEnvVarName } from "../../infra/host-env-security.js";
 import { sanitizeEnvVars, validateEnvVarValue } from "../sandbox/sanitize-env-vars.js";
->>>>>>> 2cdbadee1 (fix(security): block startup-file env injection across host execution paths)
 import { resolveSkillConfig } from "./config.js";
 import { resolveSkillKey } from "./frontmatter.js";
 import type { SkillEntry, SkillSnapshot } from "./types.js";
 
-<<<<<<< HEAD
-=======
 type EnvUpdate = { key: string; prev: string | undefined };
 type SkillConfig = NonNullable<ReturnType<typeof resolveSkillConfig>>;
 
@@ -149,7 +144,6 @@ function createEnvReverter(updates: EnvUpdate[]) {
   };
 }
 
->>>>>>> 2cdbadee1 (fix(security): block startup-file env injection across host execution paths)
 export function applySkillEnvOverrides(params: { skills: SkillEntry[]; config?: OpenClawConfig }) {
   const { skills, config } = params;
   const updates: Array<{ key: string; prev: string | undefined }> = [];

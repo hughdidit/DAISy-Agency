@@ -258,8 +258,6 @@ function applyPatchFile({ patchPath, targetDir }) {
   applyPatchSet({ patchText, targetDir });
 }
 
-<<<<<<< HEAD
-=======
 function trySetupCompletion(repoRoot) {
   // Skip in CI or if explicitly disabled
   if (process.env.CI || process.env.OPENCLAW_SKIP_COMPLETION_SETUP) return;
@@ -284,17 +282,12 @@ function trySetupCompletion(repoRoot) {
   }
 }
 
->>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
 function main() {
   const repoRoot = getRepoRoot();
   process.chdir(repoRoot);
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   ensureExecutable(path.join(repoRoot, "dist", "entry.js"));
-=======
-  ensureExecutable(path.join(repoRoot, 'dist', '/entry.js'));
->>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
 =======
   ensureExecutable(path.join(repoRoot, "dist", "entry.js"));
 >>>>>>> a03d852d6 (chore: Migrate to tsdown, speed up JS bundling by ~10x (thanks @hyf0).)

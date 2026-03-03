@@ -1,11 +1,8 @@
 import type { TUI } from "@mariozechner/pi-tui";
-<<<<<<< HEAD
-=======
 import type { SessionsPatchResult } from "../gateway/protocol/index.js";
 import type { ChatLog } from "./components/chat-log.js";
 import type { GatewayAgentsList, GatewayChatClient } from "./gateway-chat.js";
 import type { TuiOptions, TuiStateAccess } from "./tui-types.js";
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import {
   normalizeAgentId,
   normalizeMainKey,
@@ -128,7 +125,6 @@ export function createSessionActions(context: SessionActionContext) {
     }
   };
 
-<<<<<<< HEAD
   const refreshSessionInfo = async () => {
     if (refreshSessionInfoPromise) return refreshSessionInfoPromise;
     refreshSessionInfoPromise = (async () => {
@@ -170,108 +166,6 @@ export function createSessionActions(context: SessionActionContext) {
       updateFooter();
       tui.requestRender();
     })();
-=======
-  const resolveModelSelection = (entry?: SessionInfoEntry) => {
-    if (entry?.modelProvider || entry?.model) {
-      return {
-        modelProvider: entry.modelProvider ?? state.sessionInfo.modelProvider,
-        model: entry.model ?? state.sessionInfo.model,
-      };
-    }
-    const overrideModel = entry?.modelOverride?.trim();
-    if (overrideModel) {
-      const overrideProvider = entry?.providerOverride?.trim() || state.sessionInfo.modelProvider;
-      return { modelProvider: overrideProvider, model: overrideModel };
-    }
-    return {
-      modelProvider: state.sessionInfo.modelProvider,
-      model: state.sessionInfo.model,
-    };
-  };
-
-  const applySessionInfo = (params: {
-    entry?: SessionInfoEntry | null;
-    defaults?: SessionInfoDefaults | null;
-    force?: boolean;
-  }) => {
-    const entry = params.entry ?? undefined;
-    const defaults = params.defaults ?? lastSessionDefaults ?? undefined;
-    const previousDefaults = lastSessionDefaults;
-    const defaultsChanged = params.defaults
-      ? previousDefaults?.model !== params.defaults.model ||
-        previousDefaults?.modelProvider !== params.defaults.modelProvider ||
-        previousDefaults?.contextTokens !== params.defaults.contextTokens
-      : false;
-    if (params.defaults) {
-      lastSessionDefaults = params.defaults;
-    }
-
-    const entryUpdatedAt = entry?.updatedAt ?? null;
-    const currentUpdatedAt = state.sessionInfo.updatedAt ?? null;
-    const modelChanged =
-      (entry?.modelProvider !== undefined &&
-        entry.modelProvider !== state.sessionInfo.modelProvider) ||
-      (entry?.model !== undefined && entry.model !== state.sessionInfo.model);
-    if (
-      !params.force &&
-      entryUpdatedAt !== null &&
-      currentUpdatedAt !== null &&
-      entryUpdatedAt < currentUpdatedAt &&
-      !defaultsChanged &&
-      !modelChanged
-    ) {
-      return;
-    }
-
-    const next = { ...state.sessionInfo };
-    if (entry?.thinkingLevel !== undefined) {
-      next.thinkingLevel = entry.thinkingLevel;
-    }
-    if (entry?.verboseLevel !== undefined) {
-      next.verboseLevel = entry.verboseLevel;
-    }
-    if (entry?.reasoningLevel !== undefined) {
-      next.reasoningLevel = entry.reasoningLevel;
-    }
-    if (entry?.responseUsage !== undefined) {
-      next.responseUsage = entry.responseUsage;
-    }
-    if (entry?.inputTokens !== undefined) {
-      next.inputTokens = entry.inputTokens;
-    }
-    if (entry?.outputTokens !== undefined) {
-      next.outputTokens = entry.outputTokens;
-    }
-    if (entry?.totalTokens !== undefined) {
-      next.totalTokens = entry.totalTokens;
-    }
-    if (entry?.contextTokens !== undefined || defaults?.contextTokens !== undefined) {
-      next.contextTokens =
-        entry?.contextTokens ?? defaults?.contextTokens ?? state.sessionInfo.contextTokens;
-    }
-    if (entry?.displayName !== undefined) {
-      next.displayName = entry.displayName;
-    }
-    if (entry?.updatedAt !== undefined) {
-      next.updatedAt = entry.updatedAt;
-    }
-
-    const selection = resolveModelSelection(entry);
-    if (selection.modelProvider !== undefined) {
-      next.modelProvider = selection.modelProvider;
-    }
-    if (selection.model !== undefined) {
-      next.model = selection.model;
-    }
-
-    state.sessionInfo = next;
-    updateAutocompleteProvider();
-    updateFooter();
-    tui.requestRender();
-  };
-
-  const runRefreshSessionInfo = async () => {
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
     try {
       const resolveListAgentId = () => {
         if (state.currentSessionKey === "global" || state.currentSessionKey === "unknown") {

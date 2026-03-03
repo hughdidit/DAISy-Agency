@@ -1,8 +1,5 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/WebChatSwiftUISmokeTests.swift
-=======
 import OpenClawChatUI
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/WebChatSwiftUISmokeTests.swift
 import Foundation
 import MoltbotChatUI
 import Testing

@@ -1,16 +1,8 @@
 import { randomUUID } from "node:crypto";
-<<<<<<< HEAD
 
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import type { ModelCatalogEntry } from "../agents/model-catalog.js";
 import { resolveAllowedModelRef, resolveConfiguredModelRef } from "../agents/model-selection.js";
-=======
-import type { ModelCatalogEntry } from "../agents/model-catalog.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { SessionEntry } from "../config/sessions.js";
-import { resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { resolveAllowedModelRef, resolveDefaultModelForAgent } from "../agents/model-selection.js";
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import { normalizeGroupActivation } from "../auto-reply/group-activation.js";
 import {
   formatThinkingLevels,
@@ -21,17 +13,9 @@ import {
   normalizeUsageDisplay,
   supportsXHighThinking,
 } from "../auto-reply/thinking.js";
-<<<<<<< HEAD
 import type { OpenClawConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { isSubagentSessionKey } from "../routing/session-key.js";
-=======
-import {
-  isSubagentSessionKey,
-  normalizeAgentId,
-  parseAgentSessionKey,
-} from "../routing/session-key.js";
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import { applyVerboseOverride, parseVerboseOverride } from "../sessions/level-overrides.js";
 import { normalizeSendPolicy } from "../sessions/send-policy.js";
 import { parseSessionLabel } from "../sessions/session-label.js";

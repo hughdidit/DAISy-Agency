@@ -24,8 +24,6 @@ import type {
   SandboxScope,
 } from "./types.js";
 
-<<<<<<< HEAD
-=======
 export function resolveSandboxBrowserDockerCreateConfig(params: {
   docker: SandboxDockerConfig;
   browser: SandboxBrowserConfig;
@@ -42,7 +40,6 @@ export function resolveSandboxBrowserDockerCreateConfig(params: {
   return params.browser.binds !== undefined ? { ...base, binds: params.browser.binds } : base;
 }
 
->>>>>>> f48698a50 (fix(security): harden sandbox browser network defaults)
 export function resolveSandboxScope(params: {
   scope?: SandboxScope;
   perSession?: boolean;

@@ -3,8 +3,6 @@ import type { ChannelId } from "../channels/plugins/types.js";
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
 import { normalizeStringEntries } from "../shared/string-normalization.js";
 
-<<<<<<< HEAD
-=======
 export function resolveEffectiveAllowFromLists(params: {
   allowFrom?: Array<string | number> | null;
   groupAllowFrom?: Array<string | number> | null;
@@ -69,7 +67,6 @@ export async function readStoreAllowFromForDmPolicy(params: {
       readChannelAllowFromStore(provider, process.env, accountId));
   return await readStore(params.provider, params.accountId).catch(() => []);
 }
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
 export function resolveDmGroupAccessDecision(params: {
   isGroup: boolean;
@@ -171,17 +168,9 @@ export async function resolveDmAllowState(params: {
     Array.isArray(params.allowFrom) ? params.allowFrom : undefined,
   );
   const hasWildcard = configAllowFrom.includes("*");
-<<<<<<< HEAD
   const storeAllowFrom = await (params.readStore ?? readChannelAllowFromStore)(
     params.provider,
   ).catch(() => []);
-=======
-  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-    provider: params.provider,
-    accountId: params.accountId,
-    readStore: params.readStore,
-  });
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
   const normalizeEntry = params.normalizeEntry ?? ((value: string) => value);
   const normalizedCfg = configAllowFrom
     .filter((value) => value !== "*")

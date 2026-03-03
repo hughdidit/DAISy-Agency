@@ -16,16 +16,12 @@
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 <<<<<<< HEAD
-<<<<<<< HEAD
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	<string>2026.2.1</string>
-=======
-	<string>2026.2.3</string>
->>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
 =======
 	<string>2026.2.4</string>
 >>>>>>> 5031b283a (chore: bump version to 2026.2.4)
@@ -49,15 +45,9 @@
 			<key>CFBundleShortVersionString</key>
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 			<string>2026.2.24</string>
 			<key>CFBundleVersion</key>
 			<string>20260223</string>
-=======
-			<string>2026.2.26</string>
-			<key>CFBundleVersion</key>
-			<string>20260226</string>
->>>>>>> caace61ba (chore: bump versions to 2026.2.26)
 =======
 			<string>2026.2.27</string>
 			<key>CFBundleVersion</key>

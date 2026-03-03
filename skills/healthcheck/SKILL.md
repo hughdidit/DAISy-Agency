@@ -53,16 +53,9 @@ If you must ask, use non-technical prompts:
 - “Is disk encryption turned on (FileVault/BitLocker/LUKS)?”
 - “Are automatic security updates enabled?”
 - “How do you use this machine?”
-<<<<<<< HEAD
   1) Personal/workstation (mostly local dev)
   2) Headless server (always on, accessed remotely)
   3) Something else?
-=======
-  1. Personal machine shared with the assistant
-  2. Dedicated local machine for the assistant
-  3. Dedicated remote machine/server accessed remotely (always on)
-  4. Something else?
->>>>>>> 83715eca4 (Security: tune bootstrap healthcheck prompt + healthcheck wording)
 
 Only ask for the risk profile after system context is known.
 
@@ -78,16 +71,9 @@ If the user grants read-only permission, run the OS-appropriate checks by defaul
 
 ### 2) Run OpenClaw security audits (read-only)
 
-<<<<<<< HEAD
 As part of the default read-only checks, run `openclaw security audit --deep` without a separate permission prompt. Only offer alternatives if the user requests them:
 1) `openclaw security audit` (faster, non-probing)
 2) `openclaw security audit --json` (structured output)
-=======
-As part of the default read-only checks, run `openclaw security audit --deep`. Only offer alternatives if the user requests them:
-
-1. `openclaw security audit` (faster, non-probing)
-2. `openclaw security audit --json` (structured output)
->>>>>>> 83715eca4 (Security: tune bootstrap healthcheck prompt + healthcheck wording)
 
 Offer to apply OpenClaw safe defaults (numbered):
 1) `openclaw security audit --fix`
@@ -98,12 +84,8 @@ If browser control is enabled, recommend that 2FA be enabled on all important ac
 
 ### 3) Check OpenClaw version/update status (read-only)
 
-<<<<<<< HEAD
 If the user grants permission, run `openclaw update status` by default. Otherwise, offer it (numbered):
 1) `openclaw update status`
-=======
-As part of the default read-only checks, run `openclaw update status`.
->>>>>>> 83715eca4 (Security: tune bootstrap healthcheck prompt + healthcheck wording)
 
 Report the current channel and whether an update is available.
 

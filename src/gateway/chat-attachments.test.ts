@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
-=======
-import { describe, expect, it, vi } from "vitest";
->>>>>>> 31791233d (fix(security): reject oversized base64 before decode)
 import {
   buildMessageWithAttachments,
   type ChatAttachment,
@@ -37,7 +33,6 @@ describe("buildMessageWithAttachments", () => {
     };
     expect(() => buildMessageWithAttachments("x", [bad])).toThrow(/image/);
   });
-<<<<<<< HEAD
 
   it("rejects invalid base64 content", () => {
     const bad: ChatAttachment = {
@@ -65,8 +60,6 @@ describe("buildMessageWithAttachments", () => {
     expect(base64Calls).toHaveLength(0);
     fromSpy.mockRestore();
   });
-=======
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
 });
 
 describe("parseMessageWithAttachments", () => {
@@ -88,7 +81,6 @@ describe("parseMessageWithAttachments", () => {
     expect(parsed.images[0]?.data).toBe(PNG_1x1);
   });
 
-<<<<<<< HEAD
   it("rejects invalid base64 content", async () => {
     await expect(
       parseMessageWithAttachments(
@@ -128,8 +120,6 @@ describe("parseMessageWithAttachments", () => {
     fromSpy.mockRestore();
   });
 
-=======
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   it("sniffs mime when missing", async () => {
     const logs: string[] = [];
     const parsed = await parseMessageWithAttachments(

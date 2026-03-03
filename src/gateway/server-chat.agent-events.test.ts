@@ -1,15 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import { createAgentEventHandler, createChatRunState } from "./server-chat.js";
-=======
-import { registerAgentRunContext, resetAgentRunContextForTest } from "../infra/agent-events.js";
-import {
-  createAgentEventHandler,
-  createChatRunState,
-  createToolEventRecipientRegistry,
-} from "./server-chat.js";
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 
 describe("agent event handler", () => {
   it("emits chat delta for assistant text-only events", () => {

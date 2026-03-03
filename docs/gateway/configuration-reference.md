@@ -186,7 +186,6 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
         moderation: false,
       },
       replyToMode: "off", // off | first | all
-<<<<<<< HEAD
       dm: {
         enabled: true,
         policy: "pairing",
@@ -194,11 +193,6 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
         groupEnabled: false,
         groupChannels: ["openclaw-dm"],
       },
-=======
-      dmPolicy: "pairing",
-      allowFrom: ["1234567890", "123456789012345678"],
-      dm: { enabled: true, groupEnabled: false, groupChannels: ["openclaw-dm"] },
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
       guilds: {
         "123456789012345678": {
           slug: "friends-of-openclaw",
@@ -221,8 +215,6 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
       textChunkLimit: 2000,
       chunkMode: "length", // length | newline
       maxLinesPerMessage: 17,
-<<<<<<< HEAD
-=======
       ui: {
         components: {
           accentColor: "#5865F2",
@@ -243,7 +235,6 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
           openai: { voice: "alloy" },
         },
       },
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
       retry: {
         attempts: 3,
         minDelayMs: 500,
@@ -260,13 +251,10 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
 - Guild slugs are lowercase with spaces replaced by `-`; channel keys use the slugged name (no `#`). Prefer guild IDs.
 - Bot-authored messages are ignored by default. `allowBots: true` enables them (own messages still filtered).
 - `maxLinesPerMessage` (default 17) splits tall messages even when under 2000 chars.
-<<<<<<< HEAD
-=======
 - `channels.discord.ui.components.accentColor` sets the accent color for Discord components v2 containers.
 - `channels.discord.voice` enables Discord voice channel conversations and optional auto-join + TTS overrides.
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 =======
 =======
 - `channels.discord.voice.daveEncryption` and `channels.discord.voice.decryptionFailureTolerance` pass through to `@discordjs/voice` DAVE options.
@@ -978,18 +966,12 @@ Optional **Docker sandboxing** for the embedded agent. See [Sandboxing](/gateway
 **`docker.binds`** mounts additional host directories; global and per-agent binds are merged.
 
 **Sandboxed browser** (`sandbox.browser.enabled`): Chromium + CDP in a container. noVNC URL injected into system prompt. Does not require `browser.enabled` in main config.
-<<<<<<< HEAD
-=======
 noVNC observer access uses VNC auth by default and OpenClaw emits a short-lived token URL that serves a local bootstrap page; noVNC password is passed via URL fragment (instead of URL query).
->>>>>>> 002539c01 (fix(security): harden sandbox novnc observer flow)
 
 - `allowHostControl: false` (default) blocks sandboxed sessions from targeting the host browser.
-<<<<<<< HEAD
-=======
 - `network` defaults to `openclaw-sandbox-browser` (dedicated bridge network). Set to `bridge` only when you explicitly want global bridge connectivity.
 - `cdpSourceRange` optionally restricts CDP ingress at the container edge to a CIDR range (for example `172.21.0.1/32`).
 - `sandbox.browser.binds` mounts additional host directories into the sandbox browser container only. When set (including `[]`), it replaces `docker.binds` for the browser container.
->>>>>>> f48698a50 (fix(security): harden sandbox browser network defaults)
 
 </Accordion>
 

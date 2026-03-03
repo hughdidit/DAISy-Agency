@@ -1,15 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 import { resolveNativeSkillsEnabled } from "./commands.js";
-=======
-import {
-  isCommandFlagEnabled,
-  isRestartEnabled,
-  isNativeCommandsExplicitlyDisabled,
-  resolveNativeCommandsEnabled,
-  resolveNativeSkillsEnabled,
-} from "./commands.js";
->>>>>>> fbb79d401 (fix(security): harden runtime command override gating)
 
 describe("resolveNativeSkillsEnabled", () => {
   it("uses provider defaults for auto", () => {
@@ -56,8 +46,6 @@ describe("resolveNativeSkillsEnabled", () => {
     ).toBe(false);
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("resolveNativeCommandsEnabled", () => {
   it("follows the same provider default heuristic", () => {
@@ -138,4 +126,3 @@ describe("isCommandFlagEnabled", () => {
     ).toBe(false);
   });
 });
->>>>>>> fbb79d401 (fix(security): harden runtime command override gating)

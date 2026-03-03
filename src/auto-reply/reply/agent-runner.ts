@@ -14,13 +14,10 @@ import {
   updateSessionStoreEntry,
 } from "../../config/sessions.js";
 import type { TypingMode } from "../../config/types.js";
-<<<<<<< HEAD
-=======
 import { emitAgentEvent } from "../../infra/agent-events.js";
 import { emitDiagnosticEvent, isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
 import { generateSecureUuid } from "../../infra/secure-random.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
->>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 import { defaultRuntime } from "../../runtime.js";
 import { estimateUsageCost, resolveModelCostConfig } from "../../utils/usage-format.js";
 import type { OriginatingChannelType, TemplateContext } from "../templating.js";
@@ -40,12 +37,9 @@ import { appendUsageLine, formatResponseUsageLine } from "./agent-runner-utils.j
 import { createAudioAsVoiceBuffer, createBlockReplyPipeline } from "./block-reply-pipeline.js";
 import { resolveEffectiveBlockStreamingConfig } from "./block-streaming.js";
 import { createFollowupRunner } from "./followup-runner.js";
-<<<<<<< HEAD
-=======
 import { resolveOriginMessageProvider, resolveOriginMessageTo } from "./origin-routing.js";
 import { readPostCompactionContext } from "./post-compaction-context.js";
 import { resolveActiveRunQueueAction } from "./queue-policy.js";
->>>>>>> 70a4f25ab (fix(security): remove post-compaction audit injection message (#28507))
 import { enqueueFollowupRun, type FollowupRun, type QueueSettings } from "./queue.js";
 import { createReplyToModeFilterForChannel, resolveReplyToMode } from "./reply-threading.js";
 import { persistSessionUsageUpdate } from "./session-usage.js";
@@ -55,8 +49,6 @@ import { createTypingSignaler } from "./typing-mode.js";
 import { emitDiagnosticEvent, isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
 
 const BLOCK_REPLY_SEND_TIMEOUT_MS = 15_000;
-<<<<<<< HEAD
-=======
 const UNSCHEDULED_REMINDER_NOTE =
   "Note: I did not schedule a reminder in this turn, so this will not trigger automatically.";
 const REMINDER_COMMITMENT_PATTERNS: RegExp[] = [
@@ -92,7 +84,6 @@ function appendUnscheduledReminderNote(payloads: ReplyPayload[]): ReplyPayload[]
     };
   });
 }
->>>>>>> 70a4f25ab (fix(security): remove post-compaction audit injection message (#28507))
 
 export async function runReplyAgent(params: {
   commandBody: string;
@@ -540,8 +531,6 @@ export async function runReplyAgent(params: {
         sessionKey,
         storePath,
       });
-<<<<<<< HEAD
-=======
 
       // Inject post-compaction workspace context for the next agent turn
       if (sessionKey) {
@@ -557,7 +546,6 @@ export async function runReplyAgent(params: {
           });
       }
 
->>>>>>> 70a4f25ab (fix(security): remove post-compaction audit injection message (#28507))
       if (verboseEnabled) {
         const suffix = typeof count === "number" ? ` (count ${count})` : "";
         finalPayloads = [{ text: `🧹 Auto-compaction complete${suffix}.` }, ...finalPayloads];

@@ -134,14 +134,7 @@ Configure your tunnel's ingress rules to only route the webhook path:
 
 ## Targets
 Use these identifiers for delivery and allowlists:
-<<<<<<< HEAD
 - Direct messages: `users/<userId>` or `users/<email>` (email addresses are accepted).
-=======
-
-- Direct messages: `users/<userId>` (recommended).
-- Raw email `name@example.com` is mutable and only used for direct allowlist matching when `channels.googlechat.dangerouslyAllowNameMatching: true`.
-- Deprecated: `users/<email>` is treated as a user id, not an email allowlist.
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 - Spaces: `spaces/<spaceId>`.
 
 ## Config highlights
@@ -157,11 +150,7 @@ Use these identifiers for delivery and allowlists:
       botUser: "users/1234567890", // optional; helps mention detection
       dm: {
         policy: "pairing",
-<<<<<<< HEAD
         allowFrom: ["users/1234567890", "name@example.com"]
-=======
-        allowFrom: ["users/1234567890"],
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
       },
       groupPolicy: "allowlist",
       groups: {

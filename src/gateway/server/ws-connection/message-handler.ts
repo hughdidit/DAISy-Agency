@@ -1,17 +1,7 @@
 import type { IncomingMessage } from "node:http";
-<<<<<<< HEAD
 import os from "node:os";
 
 import type { WebSocket } from "ws";
-=======
-import type { WebSocket } from "ws";
-import os from "node:os";
-import type { createSubsystemLogger } from "../../../logging/subsystem.js";
-import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
-import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
-import type { GatewayWsClient } from "../ws-types.js";
-import { loadConfig } from "../../../config/config.js";
->>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
 import {
   deriveDeviceIdFromPublicKey,
   normalizeDevicePublicKeyBase64Url,
@@ -31,29 +21,11 @@ import { loadVoiceWakeConfig } from "../../../infra/voicewake.js";
 import { upsertPresence } from "../../../infra/system-presence.js";
 import { rawDataToString } from "../../../infra/ws.js";
 import { isGatewayCliClient, isWebchatClient } from "../../../utils/message-channel.js";
-<<<<<<< HEAD
 import type { ResolvedGatewayAuth } from "../../auth.js";
-=======
-import { resolveRuntimeServiceVersion } from "../../../version.js";
-import {
-  AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN,
-  AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET,
-  type AuthRateLimiter,
-} from "../../auth-rate-limit.js";
->>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
 import { loadConfig } from "../../../config/config.js";
 import { buildDeviceAuthPayload } from "../../device-auth.js";
-<<<<<<< HEAD
 import { isLoopbackAddress, isTrustedProxyAddress, resolveGatewayClientIp } from "../../net.js";
-=======
-import {
-  isLocalishHost,
-  isLoopbackAddress,
-  isTrustedProxyAddress,
-  resolveClientIp,
-} from "../../net.js";
->>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
 import { resolveNodeCommandAllowlist } from "../../node-command-policy.js";
 import {
   type ConnectParams,
@@ -68,10 +40,7 @@ import {
 } from "../../protocol/index.js";
 import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
 import { MAX_BUFFERED_BYTES, MAX_PAYLOAD_BYTES, TICK_INTERVAL_MS } from "../../server-constants.js";
-<<<<<<< HEAD
 import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
-=======
->>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
 import { handleGatewayRequest } from "../../server-methods.js";
 import { formatError } from "../../server-utils.js";
 import { formatForLog, logWs } from "../../ws-log.js";
@@ -84,11 +53,7 @@ import {
   incrementPresenceVersion,
   refreshGatewayHealthSnapshot,
 } from "../health-state.js";
-<<<<<<< HEAD
 import type { GatewayWsClient } from "../ws-types.js";
-=======
-import { formatGatewayAuthFailureMessage, type AuthProvidedKind } from "./auth-messages.js";
->>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
@@ -234,16 +199,11 @@ export function attachGatewayWsMessageHandler(params: {
   const hasProxyHeaders = Boolean(forwardedFor || realIp);
   const remoteIsTrustedProxy = isTrustedProxyAddress(remoteAddr, trustedProxies);
   const hasUntrustedProxyHeaders = hasProxyHeaders && !remoteIsTrustedProxy;
-<<<<<<< HEAD
   const hostName = resolveHostName(requestHost);
   const hostIsLocal = hostName === "localhost" || hostName === "127.0.0.1" || hostName === "::1";
   const hostIsTailscaleServe = hostName.endsWith(".ts.net");
   const hostIsLocalish = hostIsLocal || hostIsTailscaleServe;
   const isLocalClient = isLocalDirectRequest(upgradeReq, trustedProxies);
-=======
-  const hostIsLocalish = isLocalishHost(requestHost);
-  const isLocalClient = isLocalDirectRequest(upgradeReq, trustedProxies, allowRealIpFallback);
->>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
   const reportedClientIp =
     isLocalClient || hasUntrustedProxyHeaders
       ? undefined
@@ -391,7 +351,6 @@ export function attachGatewayWsMessageHandler(params: {
           close(1008, "invalid role");
           return;
         }
-<<<<<<< HEAD
         const requestedScopes = Array.isArray(connectParams.scopes) ? connectParams.scopes : [];
         const scopes =
           requestedScopes.length > 0
@@ -399,12 +358,6 @@ export function attachGatewayWsMessageHandler(params: {
             : role === "operator"
               ? ["operator.read"]
               : [];
-=======
-        // Default-deny: scopes must be explicit. Empty/missing scopes means no permissions.
-        // Note: If the client does not present a device identity, we can't bind scopes to a paired
-        // device/token, so we will clear scopes after auth to avoid self-declared permissions.
-        let scopes = Array.isArray(connectParams.scopes) ? connectParams.scopes : [];
->>>>>>> 35c0e66ed (fix(security): harden hooks module loading)
         connectParams.role = role;
         connectParams.scopes = scopes;
 
@@ -422,13 +375,7 @@ export function attachGatewayWsMessageHandler(params: {
         const device = disableControlUiDeviceAuth ? null : deviceRaw;
         if (!device) {
 <<<<<<< HEAD
-<<<<<<< HEAD
           const canSkipDevice = allowControlUiBypass ? hasSharedAuth : hasTokenAuth;
-=======
-          if (scopes.length > 0) {
-=======
-          if (scopes.length > 0 && !allowControlUiBypass) {
->>>>>>> eed02a2b5 (fix (security/gateway): preserve control-ui scopes in bypass mode)
             scopes = [];
             connectParams.scopes = scopes;
           }
@@ -776,54 +723,24 @@ export function attachGatewayWsMessageHandler(params: {
                 : [];
             const allowedRoles = new Set(pairedRoles);
             if (allowedRoles.size === 0) {
-<<<<<<< HEAD
               const ok = await requirePairing("role-upgrade", paired);
               if (!ok) return;
             } else if (!allowedRoles.has(role)) {
               const ok = await requirePairing("role-upgrade", paired);
               if (!ok) return;
-=======
-              logUpgradeAudit("role-upgrade", pairedRoles, paired.scopes);
-              const ok = await requirePairing("role-upgrade");
-              if (!ok) {
-                return;
-              }
-            } else if (!allowedRoles.has(role)) {
-              logUpgradeAudit("role-upgrade", pairedRoles, paired.scopes);
-              const ok = await requirePairing("role-upgrade");
-              if (!ok) {
-                return;
-              }
->>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
             }
 
             const pairedScopes = Array.isArray(paired.scopes) ? paired.scopes : [];
             if (scopes.length > 0) {
               if (pairedScopes.length === 0) {
-<<<<<<< HEAD
                 const ok = await requirePairing("scope-upgrade", paired);
                 if (!ok) return;
-=======
-                logUpgradeAudit("scope-upgrade", pairedRoles, pairedScopes);
-                const ok = await requirePairing("scope-upgrade");
-                if (!ok) {
-                  return;
-                }
->>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
               } else {
                 const allowedScopes = new Set(pairedScopes);
                 const missingScope = scopes.find((scope) => !allowedScopes.has(scope));
                 if (missingScope) {
-<<<<<<< HEAD
                   const ok = await requirePairing("scope-upgrade", paired);
                   if (!ok) return;
-=======
-                  logUpgradeAudit("scope-upgrade", pairedRoles, pairedScopes);
-                  const ok = await requirePairing("scope-upgrade");
-                  if (!ok) {
-                    return;
-                  }
->>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
                 }
               }
             }

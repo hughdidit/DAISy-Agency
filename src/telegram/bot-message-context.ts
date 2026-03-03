@@ -32,15 +32,12 @@ import { resolveMentionGatingWithBypass } from "../channels/mention-gating.js";
 import { resolveControlCommandGate } from "../channels/command-gating.js";
 import { logInboundDrop } from "../channels/logging.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
-<<<<<<< HEAD
-=======
 import {
   firstDefined,
   isSenderAllowed,
   normalizeAllowFrom,
   normalizeDmAllowFromWithStore,
 } from "./bot-access.js";
->>>>>>> c7352f6b3 (security(telegram): fail closed group allowlist against DM pairing store)
 import {
   buildGroupLabel,
   buildSenderLabel,
@@ -190,21 +187,12 @@ export const buildTelegramMessageContext = async ({
       : null;
   const sessionKey = threadKeys?.sessionKey ?? baseSessionKey;
   const mentionRegexes = buildMentionRegexes(cfg, route.agentId);
-<<<<<<< HEAD
   const effectiveDmAllow = normalizeAllowFromWithStore({ allowFrom, storeAllowFrom });
-=======
-  const effectiveDmAllow = normalizeDmAllowFromWithStore({ allowFrom, storeAllowFrom, dmPolicy });
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
   const groupAllowOverride = firstDefined(topicConfig?.allowFrom, groupConfig?.allowFrom);
-<<<<<<< HEAD
   const effectiveGroupAllow = normalizeAllowFromWithStore({
     allowFrom: groupAllowOverride ?? groupAllowFrom,
     storeAllowFrom,
   });
-=======
-  // Group sender checks are explicit and must not inherit DM pairing-store entries.
-  const effectiveGroupAllow = normalizeAllowFrom(groupAllowOverride ?? groupAllowFrom);
->>>>>>> c7352f6b3 (security(telegram): fail closed group allowlist against DM pairing store)
   const hasGroupAllowOverride = typeof groupAllowOverride !== "undefined";
 
   if (isGroup && groupConfig?.enabled === false) {

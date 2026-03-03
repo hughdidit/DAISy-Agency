@@ -17,47 +17,11 @@ import {
 import {
   DEFAULT_DOWNLOAD_DIR,
   DEFAULT_UPLOAD_DIR,
-<<<<<<< HEAD
   resolvePathWithinRoot,
   resolvePathsWithinRoot,
-=======
-  resolveWritablePathWithinRoot,
-  resolveExistingPathsWithinRoot,
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 } from "./path-output.js";
 import { jsonError, toBoolean, toNumber, toStringArray, toStringOrEmpty } from "./utils.js";
-<<<<<<< HEAD
 import type { BrowserRouteRegistrar } from "./types.js";
-=======
-
-async function resolveDownloadPathOrRespond(
-  res: BrowserResponse,
-  requestedPath: string,
-): Promise<string | null> {
-  const downloadPathResult = await resolveWritablePathWithinRoot({
-    rootDir: DEFAULT_DOWNLOAD_DIR,
-    requestedPath,
-    scopeLabel: "downloads directory",
-  });
-  if (!downloadPathResult.ok) {
-    res.status(400).json({ error: downloadPathResult.error });
-    return null;
-  }
-  return downloadPathResult.path;
-}
-
-function buildDownloadRequestBase(cdpUrl: string, targetId: string, timeoutMs: number | undefined) {
-  return {
-    cdpUrl,
-    targetId,
-    timeoutMs: timeoutMs ?? undefined,
-  };
-}
-
-function respondWithDownloadResult(res: BrowserResponse, targetId: string, result: unknown) {
-  res.json({ ok: true, targetId, download: result });
-}
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 
 export function registerBrowserAgentActRoutes(
   app: BrowserRouteRegistrar,
@@ -424,45 +388,11 @@ export function registerBrowserAgentActRoutes(
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const out = toStringOrEmpty(body.path) || "";
     const timeoutMs = toNumber(body.timeoutMs);
-<<<<<<< HEAD
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "wait for download");
 <<<<<<< HEAD
       if (!pw) return;
-=======
-      if (!pw) {
-        return;
-      }
-      let downloadPath: string | undefined;
-      if (out.trim()) {
-        const downloadPathResult = resolvePathWithinRoot({
-          rootDir: DEFAULT_DOWNLOAD_DIR,
-          requestedPath: out,
-          scopeLabel: "downloads directory",
-=======
-
-    await withPlaywrightRouteContext({
-      req,
-      res,
-      ctx,
-      targetId,
-      feature: "wait for download",
-      run: async ({ cdpUrl, tab, pw }) => {
-        await fs.mkdir(DEFAULT_DOWNLOAD_DIR, { recursive: true });
-        let downloadPath: string | undefined;
-        if (out.trim()) {
-          const resolvedDownloadPath = await resolveDownloadPathOrRespond(res, out);
-          if (!resolvedDownloadPath) {
-            return;
-          }
-          downloadPath = resolvedDownloadPath;
-        }
-        const requestBase = buildDownloadRequestBase(cdpUrl, tab.targetId, timeoutMs);
-        const result = await pw.waitForDownloadViaPlaywright({
-          ...requestBase,
-          path: downloadPath,
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
         });
         if (!downloadPathResult.ok) {
           res.status(400).json({ error: downloadPathResult.error });
@@ -517,8 +447,6 @@ export function registerBrowserAgentActRoutes(
     } catch (err) {
       handleRouteError(ctx, res, err);
     }
-<<<<<<< HEAD
-=======
     if (!out) {
       return jsonError(res, 400, "path is required");
     }
@@ -544,7 +472,6 @@ export function registerBrowserAgentActRoutes(
         respondWithDownloadResult(res, tab.targetId, result);
       },
     });
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
   });
 
   app.post("/response/body", async (req, res) => {

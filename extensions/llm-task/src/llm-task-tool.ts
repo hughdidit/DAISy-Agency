@@ -1,18 +1,10 @@
-<<<<<<< HEAD
 import os from "node:os";
-=======
-import fs from "node:fs/promises";
->>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
 import path from "node:path";
 import fs from "node:fs/promises";
 
 import Ajv from "ajv";
-<<<<<<< HEAD
 import { Type } from "@sinclair/typebox";
 
-=======
-import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk";
->>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
 // NOTE: This extension is intended to be bundled with OpenClaw.
 // When running from source (tests/dev), OpenClaw internals live under src/.
 // When running from a built install, internals live under dist/ (no src/ tree).

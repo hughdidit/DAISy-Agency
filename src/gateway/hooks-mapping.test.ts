@@ -63,17 +63,9 @@ describe("hooks mapping", () => {
   });
 
   it("runs transform module", async () => {
-<<<<<<< HEAD
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-hooks-"));
     const modPath = path.join(dir, "transform.mjs");
     const placeholder = "${" + "payload.name}";
-=======
-    const configDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-config-"));
-    const transformsRoot = path.join(configDir, "hooks", "transforms");
-    fs.mkdirSync(transformsRoot, { recursive: true });
-    const modPath = path.join(transformsRoot, "transform.mjs");
-    const placeholder = "${payload.name}";
->>>>>>> a0361b8ba (fix(security): restrict hook transform module loading)
     fs.writeFileSync(
       modPath,
       `export default ({ payload }) => ({ kind: "wake", text: \`Ping ${placeholder}\` });`,

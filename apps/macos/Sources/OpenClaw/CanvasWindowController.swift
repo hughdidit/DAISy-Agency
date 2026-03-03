@@ -1,13 +1,7 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CanvasWindowController.swift
 import Foundation
 import MoltbotIPC
 import MoltbotKit
-=======
-import OpenClawIPC
-import OpenClawKit
-import Foundation
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/CanvasWindowController.swift
 import WebKit
 
 @MainActor

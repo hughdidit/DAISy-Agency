@@ -5,15 +5,8 @@ import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import { detectMime } from "../../media/mime.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
 
-<<<<<<< HEAD
 // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
 export type AnyAgentTool = AgentTool<any, unknown>;
-=======
-// oxlint-disable-next-line typescript/no-explicit-any
-export type AnyAgentTool = AgentTool<any, unknown> & {
-  ownerOnly?: boolean;
-};
->>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
 
 export type StringParamOptions = {
   required?: boolean;
@@ -27,8 +20,6 @@ export type ActionGate<T extends Record<string, boolean | undefined>> = (
   defaultValue?: boolean,
 ) => boolean;
 
-<<<<<<< HEAD
-=======
 export const OWNER_ONLY_TOOL_ERROR = "Tool restricted to owner senders.";
 
 export class ToolInputError extends Error {
@@ -41,7 +32,6 @@ export class ToolInputError extends Error {
 }
 
 <<<<<<< HEAD
->>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 =======
 export class ToolAuthorizationError extends ToolInputError {
   override readonly status = 403;

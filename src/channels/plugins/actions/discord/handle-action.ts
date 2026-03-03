@@ -6,11 +6,7 @@ import {
   readStringParam,
 } from "../../../../agents/tools/common.js";
 import { handleDiscordAction } from "../../../../agents/tools/discord-actions.js";
-<<<<<<< HEAD
 import type { ChannelMessageActionContext } from "../../types.js";
-=======
-import { resolveDiscordChannelId } from "../../../../discord/targets.js";
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { tryHandleDiscordMessageActionGuildAdmin } from "./handle-action.guild-admin.js";
 import { resolveDiscordChannelId } from "../../../../discord/targets.js";
 

@@ -17,34 +17,8 @@ import { buildTtsSystemPromptHint } from "../../tts/tts.js";
 
 const CLI_RUN_QUEUE = new Map<string, Promise<unknown>>();
 
-<<<<<<< HEAD
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-=======
-function buildLooseArgOrderRegex(tokens: string[]): RegExp {
-  // Scan `ps` output lines. Keep matching flexible, but require whitespace arg boundaries
-  // to avoid substring matches like `codexx` or `/path/to/codexx`.
-  const [head, ...rest] = tokens.map((t) => String(t ?? "").trim()).filter(Boolean);
-  if (!head) {
-    return /$^/;
-  }
-
-  const headEscaped = escapeRegExp(head);
-  const headFragment = `(?:^|\\s)(?:${headEscaped}|\\S+\\/${headEscaped})(?=\\s|$)`;
-  const restFragments = rest.map((t) => `(?:^|\\s)${escapeRegExp(t)}(?=\\s|$)`);
-  return new RegExp([headFragment, ...restFragments].join(".*"));
-}
-
-async function psWithFallback(argsA: string[], argsB: string[]): Promise<string> {
-  try {
-    const { stdout } = await runExec("ps", argsA);
-    return stdout;
-  } catch {
-    // fallthrough
-  }
-  const { stdout } = await runExec("ps", argsB);
-  return stdout;
->>>>>>> eb60e2e1b (fix(security): harden CLI cleanup kill and matching)
 }
 
 export async function cleanupResumeProcesses(
@@ -175,7 +149,6 @@ export async function cleanupSuspendedCliProcesses(
     const suspended: number[] = [];
     for (const line of stdout.split("\n")) {
       const trimmed = line.trim();
-<<<<<<< HEAD
       if (!trimmed) continue;
       const match = /^(\d+)\s+(\S+)\s+(.*)$/.exec(trimmed);
       if (!match) continue;
@@ -185,31 +158,6 @@ export async function cleanupSuspendedCliProcesses(
       if (!Number.isFinite(pid)) continue;
       if (!stat.includes("T")) continue;
       if (!matchers.some((matcher) => matcher.test(command))) continue;
-=======
-      if (!trimmed) {
-        continue;
-      }
-      const match = /^(\d+)\s+(\d+)\s+(\S+)\s+(.*)$/.exec(trimmed);
-      if (!match) {
-        continue;
-      }
-      const pid = Number(match[1]);
-      const ppid = Number(match[2]);
-      const stat = match[3] ?? "";
-      const command = match[4] ?? "";
-      if (!Number.isFinite(pid)) {
-        continue;
-      }
-      if (ppid !== process.pid) {
-        continue;
-      }
-      if (!stat.includes("T")) {
-        continue;
-      }
-      if (!matchers.some((matcher) => matcher.test(command))) {
-        continue;
-      }
->>>>>>> 6084d13b9 (fix(security): scope CLI cleanup to owned child PIDs)
       suspended.push(pid);
     }
 

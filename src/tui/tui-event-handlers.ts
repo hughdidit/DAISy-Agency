@@ -162,14 +162,7 @@ export function createEventHandlers(context: EventHandlerContext) {
     // active chat run id, not the session id. Tool results can arrive after the chat
     // final event, so accept finalized runs for tool updates.
     const isActiveRun = evt.runId === state.activeChatRunId;
-<<<<<<< HEAD
     if (!isActiveRun && !sessionRuns.has(evt.runId)) return;
-=======
-    const isKnownRun = isActiveRun || sessionRuns.has(evt.runId) || finalizedRuns.has(evt.runId);
-    if (!isKnownRun) {
-      return;
-    }
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
     if (evt.stream === "tool") {
       const verbose = state.sessionInfo.verboseLevel ?? "off";
       const allowToolEvents = verbose !== "off";

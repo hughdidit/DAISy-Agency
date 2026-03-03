@@ -3,13 +3,10 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
-<<<<<<< HEAD
-=======
 import { DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "./protocol/client-info.js";
 import { startGatewayServerHarness, type GatewayServerHarness } from "./server.e2e-ws-harness.js";
 import { createToolSummaryPreviewTranscriptLines } from "./session-preview.test-helpers.js";
->>>>>>> 981d26648 (security(gateway): block webchat session mutators (#20800))
 import {
   connectOk,
   embeddedRunMock,

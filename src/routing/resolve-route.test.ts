@@ -18,7 +18,6 @@ describe("resolveAgentRoute", () => {
     expect(route.matchedBy).toBe("default");
   });
 
-<<<<<<< HEAD
   test("dmScope=per-peer isolates DM sessions by sender id", () => {
     const cfg: OpenClawConfig = {
       session: { dmScope: "per-peer" },
@@ -61,28 +60,6 @@ describe("resolveAgentRoute", () => {
       peer: { kind: "dm", id: "111111111" },
     });
     expect(route.sessionKey).toBe("agent:main:dm:alice");
-=======
-  test("dmScope controls direct-message session key isolation", () => {
-    const cases = [
-      { dmScope: "per-peer" as const, expected: "agent:main:direct:+15551234567" },
-      {
-        dmScope: "per-channel-peer" as const,
-        expected: "agent:main:whatsapp:direct:+15551234567",
-      },
-    ];
-    for (const testCase of cases) {
-      const cfg: OpenClawConfig = {
-        session: { dmScope: testCase.dmScope },
-      };
-      const route = resolveAgentRoute({
-        cfg,
-        channel: "whatsapp",
-        accountId: null,
-        peer: { kind: "direct", id: "+15551234567" },
-      });
-      expect(route.sessionKey).toBe(testCase.expected);
-    }
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   });
 
   test("identityLinks applies to direct-message scopes", () => {
@@ -93,7 +70,6 @@ describe("resolveAgentRoute", () => {
         peerId: "111111111",
         expected: "agent:main:direct:alice",
       },
-<<<<<<< HEAD
     };
     const route = resolveAgentRoute({
       cfg,
@@ -102,32 +78,6 @@ describe("resolveAgentRoute", () => {
       peer: { kind: "dm", id: "222222222222222222" },
     });
     expect(route.sessionKey).toBe("agent:main:discord:dm:alice");
-=======
-      {
-        dmScope: "per-channel-peer" as const,
-        channel: "discord",
-        peerId: "222222222222222222",
-        expected: "agent:main:discord:direct:alice",
-      },
-    ];
-    for (const testCase of cases) {
-      const cfg: OpenClawConfig = {
-        session: {
-          dmScope: testCase.dmScope,
-          identityLinks: {
-            alice: ["telegram:111111111", "discord:222222222222222222"],
-          },
-        },
-      };
-      const route = resolveAgentRoute({
-        cfg,
-        channel: testCase.channel,
-        accountId: null,
-        peer: { kind: "direct", id: testCase.peerId },
-      });
-      expect(route.sessionKey).toBe(testCase.expected);
-    }
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   });
 
   test("peer binding wins over account binding", () => {

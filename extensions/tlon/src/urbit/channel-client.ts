@@ -56,12 +56,7 @@ export class UrbitChannelClient {
       return;
     }
 
-<<<<<<< HEAD
     this.channelId = `${Math.floor(Date.now() / 1000)}-${Math.random().toString(36).substring(2, 8)}`;
-=======
-    const channelId = `${Math.floor(Date.now() / 1000)}-${randomUUID()}`;
-    this.channelId = channelId;
->>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 
     // Create the channel.
     {

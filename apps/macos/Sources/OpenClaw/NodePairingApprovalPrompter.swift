@@ -1,17 +1,9 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/NodePairingApprovalPrompter.swift
 import Foundation
 import MoltbotDiscovery
 import MoltbotIPC
 import MoltbotKit
 import MoltbotProtocol
-=======
-import OpenClawDiscovery
-import OpenClawIPC
-import OpenClawKit
-import OpenClawProtocol
-import Foundation
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/NodePairingApprovalPrompter.swift
 import Observation
 import OSLog
 import UserNotifications

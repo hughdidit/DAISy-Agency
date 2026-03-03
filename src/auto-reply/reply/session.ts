@@ -25,11 +25,8 @@ import {
   type SessionScope,
   updateSessionStore,
 } from "../../config/sessions.js";
-<<<<<<< HEAD
-=======
 import { deliverSessionMaintenanceWarning } from "../../infra/session-maintenance-warning.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
->>>>>>> 2655041f6 (fix: wire 9 unwired plugin hooks to core code (openclaw#14882) thanks @shtse8)
 import { normalizeMainKey } from "../../routing/session-key.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
 import type { MsgContext, TemplateContext } from "../templating.js";

@@ -102,8 +102,6 @@ describe("handleFeishuMessage command authorization", () => {
       }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("reads pairing allow store for non-command DMs when dmPolicy is pairing", async () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(false);
@@ -287,5 +285,4 @@ describe("handleFeishuMessage command authorization", () => {
       }),
     );
   });
->>>>>>> 95e85e627 (fix(feishu): restore group command fallback and plugin deps)
 });

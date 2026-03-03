@@ -1,17 +1,5 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ACPX_LOCAL_INSTALL_COMMAND, ACPX_PINNED_VERSION } from "./config.js";
-=======
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  ACPX_LOCAL_INSTALL_COMMAND,
-  ACPX_PINNED_VERSION,
-  buildAcpxLocalInstallCommand,
-} from "./config.js";
->>>>>>> b12c909ea (ACPX: pin 0.1.15 and tolerate missing --version in health check)
 
 const { resolveSpawnFailureMock, spawnAndCollectMock } = vi.hoisted(() => ({
   resolveSpawnFailureMock: vi.fn(() => null),
@@ -101,8 +89,6 @@ describe("acpx ensure", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("falls back to package.json version when --version is unsupported", async () => {
     const command = makeTempAcpxInstall(ACPX_PINNED_VERSION);
     spawnAndCollectMock.mockResolvedValueOnce({
@@ -151,7 +137,6 @@ describe("acpx ensure", () => {
     });
   });
 
->>>>>>> b12c909ea (ACPX: pin 0.1.15 and tolerate missing --version in health check)
   it("installs and verifies pinned acpx when precheck fails", async () => {
     spawnAndCollectMock
       .mockResolvedValueOnce({

@@ -17,15 +17,12 @@ import {
   upsertChannelPairingRequest,
 } from "../pairing/pairing-store.js";
 import type { RuntimeEnv } from "../runtime.js";
-<<<<<<< HEAD
-=======
 import {
   firstDefined,
   isSenderAllowed,
   normalizeAllowFrom,
   normalizeDmAllowFromWithStore,
 } from "./bot-access.js";
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 import {
   buildLineMessageContext,
   buildLinePostbackContext,
@@ -159,27 +156,9 @@ async function shouldProcessLineEvent(
     account.config.groupAllowFrom,
     fallbackGroupAllowFrom,
   );
-<<<<<<< HEAD
   const effectiveGroupAllow = normalizeAllowFromWithStore({
     allowFrom: groupAllowFrom,
     storeAllowFrom,
-=======
-  // Group authorization stays explicit to group allowlists and must not
-  // inherit DM pairing-store identities.
-  const effectiveGroupAllow = normalizeAllowFrom(groupAllowFrom);
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
-  const { groupPolicy, providerMissingFallbackApplied } =
-    resolveAllowlistProviderRuntimeGroupPolicy({
-      providerConfigPresent: cfg.channels?.line !== undefined,
-      groupPolicy: account.config.groupPolicy,
-      defaultGroupPolicy,
-    });
-  warnMissingProviderGroupPolicyFallbackOnce({
-    providerMissingFallbackApplied,
-    providerKey: "line",
-    accountId: account.accountId,
-    log: (message) => logVerbose(message),
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
   });
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;

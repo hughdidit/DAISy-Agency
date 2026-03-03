@@ -1,10 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 
-=======
-import { isPathInsideWithRealpath } from "../security/scan-paths.js";
->>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
 import { resolveConfigDir, resolveUserPath } from "../utils.js";
 import { resolveBundledPluginsDir } from "./bundled-dir.js";
 import {

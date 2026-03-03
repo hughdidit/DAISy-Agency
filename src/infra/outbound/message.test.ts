@@ -1,13 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD:src/infra/outbound/message.test.ts
-=======
 import type { ChannelOutboundAdapter, ChannelPlugin } from "../../channels/plugins/types.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
 import { createIMessageTestPlugin } from "../../test-utils/imessage-test-plugin.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 import { sendMessage, sendPoll } from "./message.js";
->>>>>>> c5406e1d2 (fix(security): prevent gatewayUrl SSRF):src/infra/outbound/message.e2e.test.ts
 
 import type { ChannelOutboundAdapter, ChannelPlugin } from "../../channels/plugins/types.js";
 import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";

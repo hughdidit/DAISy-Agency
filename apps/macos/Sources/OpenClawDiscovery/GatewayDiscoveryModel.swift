@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Sources/MoltbotDiscovery/GatewayDiscoveryModel.swift
-=======
 import OpenClawKit
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClawDiscovery/GatewayDiscoveryModel.swift
 import Foundation
 import MoltbotKit
 import Network

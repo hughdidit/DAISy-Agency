@@ -16,11 +16,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
-=======
-  "version": "2026.1.30",
->>>>>>> 247fab47c (chore: bump version to 2026.1.30)
 =======
   "version": "2026.2.1",
 =======
@@ -73,12 +69,8 @@
   "type": "module",
   "description": "OpenClaw Zalo Personal Account plugin via zca-cli",
   "dependencies": {
-<<<<<<< HEAD
     "@sinclair/typebox": "0.34.47",
     "openclaw": "workspace:*"
-=======
-    "@sinclair/typebox": "0.34.48"
->>>>>>> 28e1a65eb (chore: project hygiene — fix workspace:*, sandbox USER, dead config (#11289))
   },
   "devDependencies": {
     "openclaw": "workspace:*"

@@ -30,12 +30,8 @@ import { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
 import { setGatewaySigusr1RestartPolicy } from "../infra/restart.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
 import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js";
-<<<<<<< HEAD
 import type { PluginServicesHandle } from "../plugins/services.js";
 import type { RuntimeEnv } from "../runtime.js";
-=======
-import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
->>>>>>> 2655041f6 (fix: wire 9 unwired plugin hooks to core code (openclaw#14882) thanks @shtse8)
 import { runOnboardingWizard } from "../wizard/onboarding.js";
 import { startGatewayConfigReloader } from "./config-reload.js";
 import {
@@ -72,12 +68,8 @@ import { startGatewaySidecars } from "./server-startup.js";
 import { logGatewayStartup } from "./server-startup-log.js";
 import { startGatewayTailscaleExposure } from "./server-tailscale.js";
 import { loadGatewayTlsRuntime } from "./server/tls.js";
-<<<<<<< HEAD
 import { createWizardSessionTracker } from "./server-wizard-sessions.js";
 import { attachGatewayWsHandlers } from "./server-ws-runtime.js";
-=======
-import { ensureGatewayStartupAuth } from "./startup-auth.js";
->>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
 
 export { __resetModelCatalogCacheForTest } from "./server-model-catalog.js";
 

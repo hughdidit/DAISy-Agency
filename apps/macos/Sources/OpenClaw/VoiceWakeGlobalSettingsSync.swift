@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/VoiceWakeGlobalSettingsSync.swift
-=======
 import OpenClawKit
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/VoiceWakeGlobalSettingsSync.swift
 import Foundation
 import MoltbotKit
 import OSLog

@@ -17,8 +17,6 @@ vi.mock("./tools/gateway.js", () => ({
 }));
 
 describe("gateway tool", () => {
-<<<<<<< HEAD:src/agents/openclaw-gateway-tool.test.ts
-=======
   it("marks gateway as owner-only", async () => {
     const tool = createOpenClawTools({
       config: { commands: { restart: true } },
@@ -30,7 +28,6 @@ describe("gateway tool", () => {
     expect(tool.ownerOnly).toBe(true);
   });
 
->>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps):src/agents/openclaw-gateway-tool.e2e.test.ts
   it("schedules SIGUSR1 restart", async () => {
     vi.useFakeTimers();
     const kill = vi.spyOn(process, "kill").mockImplementation(() => true);

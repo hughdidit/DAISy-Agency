@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ShellExecutor.swift
-=======
 import OpenClawIPC
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/ShellExecutor.swift
 import Foundation
 import MoltbotIPC
 

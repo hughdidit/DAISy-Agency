@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/PermissionManagerTests.swift
-=======
 import OpenClawIPC
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/PermissionManagerTests.swift
 import CoreLocation
 import MoltbotIPC
 import Testing

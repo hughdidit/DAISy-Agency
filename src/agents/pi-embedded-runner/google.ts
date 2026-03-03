@@ -352,14 +352,8 @@ export async function sanitizeSessionHistory(params: {
     ? sanitizeAntigravityThinkingBlocks(sanitizedImages)
     : sanitizedImages;
   const repairedTools = policy.repairToolUseResultPairing
-<<<<<<< HEAD
     ? sanitizeToolUseResultPairing(sanitizedThinking)
     : sanitizedThinking;
-=======
-    ? sanitizeToolUseResultPairing(sanitizedToolCalls)
-    : sanitizedToolCalls;
-  const sanitizedToolResults = stripToolResultDetails(repairedTools);
->>>>>>> da55d70fb (fix(security): harden untrusted web tool transcripts)
 
   const isOpenAIResponsesApi =
     params.modelApi === "openai-responses" || params.modelApi === "openai-codex-responses";

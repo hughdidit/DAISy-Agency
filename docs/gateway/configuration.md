@@ -1455,7 +1455,6 @@ Set it to `"auto"` to derive `[{identity.name}]` for the routed agent (when set)
 
 The `responsePrefix` string can include template variables that resolve dynamically:
 
-<<<<<<< HEAD
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `{model}` | Short model name | `claude-opus-4-5`, `gpt-4o` |
@@ -1463,15 +1462,6 @@ The `responsePrefix` string can include template variables that resolve dynamica
 | `{provider}` | Provider name | `anthropic`, `openai` |
 | `{thinkingLevel}` | Current thinking level | `high`, `low`, `off` |
 | `{identity.name}` | Agent identity name | (same as `"auto"` mode) |
-=======
-| Variable          | Description            | Example                     |
-| ----------------- | ---------------------- | --------------------------- |
-| `{model}`         | Short model name       | `claude-opus-4-6`, `gpt-4o` |
-| `{modelFull}`     | Full model identifier  | `anthropic/claude-opus-4-6` |
-| `{provider}`      | Provider name          | `anthropic`, `openai`       |
-| `{thinkingLevel}` | Current thinking level | `high`, `low`, `off`        |
-| `{identity.name}` | Agent identity name    | (same as `"auto"` mode)     |
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 
 Variables are case-insensitive (`{MODEL}` = `{model}`). `{think}` is an alias for `{thinkingLevel}`.
 Unresolved variables remain as literal text.
@@ -1642,7 +1632,6 @@ Example: Opus 4.6 primary with MiniMax M2.1 fallback (hosted MiniMax):
   agents: {
     defaults: {
       models: {
-<<<<<<< HEAD
         "anthropic/claude-opus-4-5": { alias: "opus" },
         "minimax/MiniMax-M2.1": { alias: "minimax" }
       },
@@ -1652,17 +1641,6 @@ Example: Opus 4.6 primary with MiniMax M2.1 fallback (hosted MiniMax):
       }
     }
   }
-=======
-        "anthropic/claude-opus-4-6": { alias: "opus" },
-        "minimax/MiniMax-M2.1": { alias: "minimax" },
-      },
-      model: {
-        primary: "anthropic/claude-opus-4-6",
-        fallbacks: ["minimax/MiniMax-M2.1"],
-      },
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -2365,12 +2343,7 @@ the built-in `opencode` provider from pi-ai; set `OPENCODE_API_KEY` (or
 `OPENCODE_ZEN_API_KEY`) from https://opencode.ai/auth.
 
 Notes:
-<<<<<<< HEAD
 - Model refs use `opencode/<modelId>` (example: `opencode/claude-opus-4-5`).
-=======
-
-- Model refs use `opencode/<modelId>` (example: `opencode/claude-opus-4-6`).
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 - If you enable an allowlist via `agents.defaults.models`, add each model you plan to use.
 - Shortcut: `openclaw onboard --auth-choice opencode-zen`.
 
@@ -2378,17 +2351,10 @@ Notes:
 {
   agents: {
     defaults: {
-<<<<<<< HEAD
       model: { primary: "opencode/claude-opus-4-5" },
       models: { "opencode/claude-opus-4-5": { alias: "Opus" } }
     }
   }
-=======
-      model: { primary: "opencode/claude-opus-4-6" },
-      models: { "opencode/claude-opus-4-6": { alias: "Opus" } },
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -2561,15 +2527,9 @@ Use MiniMax M2.1 directly without LM Studio:
   agent: {
     model: { primary: "minimax/MiniMax-M2.1" },
     models: {
-<<<<<<< HEAD
       "anthropic/claude-opus-4-5": { alias: "Opus" },
       "minimax/MiniMax-M2.1": { alias: "Minimax" }
     }
-=======
-      "anthropic/claude-opus-4-6": { alias: "Opus" },
-      "minimax/MiniMax-M2.1": { alias: "Minimax" },
-    },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
   },
   models: {
     mode: "merge",

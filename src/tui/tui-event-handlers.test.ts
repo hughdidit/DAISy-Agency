@@ -1,11 +1,6 @@
 import type { TUI } from "@mariozechner/pi-tui";
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
-=======
-import type { ChatLog } from "./components/chat-log.js";
-import type { AgentEvent, ChatEvent, TuiStateAccess } from "./tui-types.js";
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import { createEventHandlers } from "./tui-event-handlers.js";
 import type { AgentEvent, ChatEvent, TuiStateAccess } from "./tui-types.js";
 
@@ -79,14 +74,9 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ currentSessionId: "session-xyz", activeChatRunId: "run-123" });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleAgentEvent } = createEventHandlers({
-<<<<<<< HEAD
       // Casts are fine here: TUI runtime shape is larger than we need in unit tests.
       chatLog: chatLog as any,
       tui: tui as any,
-=======
-      chatLog,
-      tui,
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
       state,
       setActivityStatus,
     });
@@ -112,13 +102,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ activeChatRunId: "run-1" });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleAgentEvent } = createEventHandlers({
-<<<<<<< HEAD
       chatLog: chatLog as any,
       tui: tui as any,
-=======
-      chatLog,
-      tui,
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
       state,
       setActivityStatus,
     });
@@ -140,19 +125,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ activeChatRunId: "run-9" });
     const { tui, setActivityStatus } = makeContext(state);
     const { handleAgentEvent } = createEventHandlers({
-<<<<<<< HEAD
       chatLog: { startTool: vi.fn(), updateToolResult: vi.fn() } as any,
       tui: tui as any,
-=======
-      chatLog: {
-        startTool: vi.fn(),
-        updateToolResult: vi.fn(),
-        addSystem: vi.fn(),
-        updateAssistant: vi.fn(),
-        finalizeAssistant: vi.fn(),
-      },
-      tui,
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
       state,
       setActivityStatus,
     });
@@ -173,13 +147,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ activeChatRunId: null });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
-<<<<<<< HEAD
       chatLog: chatLog as any,
       tui: tui as any,
-=======
-      chatLog,
-      tui,
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
       state,
       setActivityStatus,
     });
@@ -210,13 +179,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ activeChatRunId: null });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
-<<<<<<< HEAD
       chatLog: chatLog as any,
       tui: tui as any,
-=======
-      chatLog,
-      tui,
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
       state,
       setActivityStatus,
     });
@@ -273,13 +237,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ activeChatRunId: "run-active" });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
-<<<<<<< HEAD
       chatLog: chatLog as any,
       tui: tui as any,
-=======
-      chatLog,
-      tui,
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
       state,
       setActivityStatus,
     });

@@ -1,15 +1,8 @@
-<<<<<<< HEAD
 import {
   readConfigFileSnapshot,
   validateConfigObjectWithPlugins,
   writeConfigFile,
 } from "../../config/config.js";
-=======
-import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
-import { normalizeChannelId } from "../../channels/registry.js";
-<<<<<<< HEAD
-import { isCommandFlagEnabled } from "../../config/commands.js";
->>>>>>> fbb79d401 (fix(security): harden runtime command override gating)
 =======
 >>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 import {
@@ -24,13 +17,9 @@ import {
   setConfigOverride,
   unsetConfigOverride,
 } from "../../config/runtime-overrides.js";
-<<<<<<< HEAD
 import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
 import { normalizeChannelId } from "../../channels/registry.js";
 import { logVerbose } from "../../globals.js";
-=======
-import { rejectUnauthorizedCommand, requireCommandFlagEnabled } from "./command-gates.js";
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 import type { CommandHandler } from "./commands-types.js";
 import { parseConfigCommand } from "./config-commands.js";
 import { parseDebugCommand } from "./debug-commands.js";
@@ -38,21 +27,12 @@ import { parseDebugCommand } from "./debug-commands.js";
 export const handleConfigCommand: CommandHandler = async (params, allowTextCommands) => {
   if (!allowTextCommands) return null;
   const configCommand = parseConfigCommand(params.command.commandBodyNormalized);
-<<<<<<< HEAD
   if (!configCommand) return null;
   if (!params.command.isAuthorizedSender) {
     logVerbose(
       `Ignoring /config from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
     );
     return { shouldContinue: false };
-=======
-  if (!configCommand) {
-    return null;
-  }
-  const unauthorized = rejectUnauthorizedCommand(params, "/config");
-  if (unauthorized) {
-    return unauthorized;
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
   }
   const disabled = requireCommandFlagEnabled(params.cfg, {
     label: "/config",
@@ -196,21 +176,12 @@ export const handleConfigCommand: CommandHandler = async (params, allowTextComma
 export const handleDebugCommand: CommandHandler = async (params, allowTextCommands) => {
   if (!allowTextCommands) return null;
   const debugCommand = parseDebugCommand(params.command.commandBodyNormalized);
-<<<<<<< HEAD
   if (!debugCommand) return null;
   if (!params.command.isAuthorizedSender) {
     logVerbose(
       `Ignoring /debug from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
     );
     return { shouldContinue: false };
-=======
-  if (!debugCommand) {
-    return null;
-  }
-  const unauthorized = rejectUnauthorizedCommand(params, "/debug");
-  if (unauthorized) {
-    return unauthorized;
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
   }
   const disabled = requireCommandFlagEnabled(params.cfg, {
     label: "/debug",

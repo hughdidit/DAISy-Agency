@@ -58,11 +58,7 @@ export const TOOL_GROUPS: Record<string, string[]> = {
   ],
 };
 
-<<<<<<< HEAD
 const OWNER_ONLY_TOOL_NAMES = new Set<string>(["whatsapp_login"]);
-=======
-const OWNER_ONLY_TOOL_NAME_FALLBACKS = new Set<string>(["whatsapp_login", "cron", "gateway"]);
->>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
 
 const TOOL_PROFILES: Record<ToolProfileId, ToolProfilePolicy> = {
   minimal: {

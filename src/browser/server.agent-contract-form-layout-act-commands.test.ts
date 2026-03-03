@@ -1,25 +1,6 @@
-<<<<<<< HEAD
 import { type AddressInfo, createServer } from "node:net";
 import { fetch as realFetch } from "undici";
 <<<<<<< HEAD
-=======
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { fetch as realFetch } from "undici";
-import { describe, expect, it } from "vitest";
-import { DEFAULT_DOWNLOAD_DIR, DEFAULT_TRACE_DIR, DEFAULT_UPLOAD_DIR } from "./paths.js";
-import {
-  installAgentContractHooks,
-  postJson,
-  startServerAndBase,
-} from "./server.agent-contract.test-harness.js";
-import {
-  getBrowserControlServerTestState,
-  getPwMocks,
-  setBrowserControlServerEvaluateEnabled,
-} from "./server.control-server.test-harness.js";
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 =======

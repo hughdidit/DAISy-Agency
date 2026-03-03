@@ -89,15 +89,9 @@ export AWS_BEARER_TOKEN_BEDROCK="..."
   },
   agents: {
     defaults: {
-<<<<<<< HEAD
       model: { primary: "amazon-bedrock/anthropic.claude-opus-4-5-20251101-v1:0" }
     }
   }
-=======
-      model: { primary: "amazon-bedrock/us.anthropic.claude-opus-4-6-v1:0" },
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

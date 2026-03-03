@@ -6,16 +6,11 @@ export type TailnetAddresses = {
   ipv6: string[];
 };
 
-<<<<<<< HEAD
 function isTailnetIPv4(address: string): boolean {
   const parts = address.split(".");
   if (parts.length !== 4) return false;
   const octets = parts.map((p) => Number.parseInt(p, 10));
   if (octets.some((n) => !Number.isFinite(n) || n < 0 || n > 255)) return false;
-=======
-const TAILNET_IPV4_CIDR = "100.64.0.0/10";
-const TAILNET_IPV6_CIDR = "fd7a:115c:a1e0::/48";
->>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
 
 export function isTailnetIPv4(address: string): boolean {
   // Tailscale IPv4 range: 100.64.0.0/10

@@ -6,13 +6,7 @@ import type {
   ExecApprovalForwardTarget,
 } from "../config/types.approvals.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-<<<<<<< HEAD
 import { parseAgentSessionKey } from "../routing/session-key.js";
-=======
-import { normalizeAccountId, parseAgentSessionKey } from "../routing/session-key.js";
-import { compileSafeRegex } from "../security/safe-regex.js";
-<<<<<<< HEAD
->>>>>>> a2dfe9879 (fix(security): harden regex compilation for filters and redaction)
 import { isDeliverableMessageChannel, normalizeMessageChannel } from "../utils/message-channel.js";
 import type { ExecApprovalDecision } from "./exec-approvals.js";
 =======
@@ -125,43 +119,12 @@ function buildTargetKey(target: ExecApprovalForwardTarget): string {
 
 function buildRequestMessage(request: ExecApprovalRequest, nowMs: number) {
   const lines: string[] = ["🔒 Exec approval required", `ID: ${request.id}`];
-<<<<<<< HEAD
   lines.push(`Command: ${request.request.command}`);
   if (request.request.cwd) lines.push(`CWD: ${request.request.cwd}`);
   if (request.request.host) lines.push(`Host: ${request.request.host}`);
   if (request.request.agentId) lines.push(`Agent: ${request.request.agentId}`);
   if (request.request.security) lines.push(`Security: ${request.request.security}`);
   if (request.request.ask) lines.push(`Ask: ${request.request.ask}`);
-=======
-  const command = formatApprovalCommand(request.request.command);
-  if (command.inline) {
-    lines.push(`Command: ${command.text}`);
-  } else {
-    lines.push("Command:");
-    lines.push(command.text);
-  }
-  if (request.request.cwd) {
-    lines.push(`CWD: ${request.request.cwd}`);
-  }
-  if (request.request.nodeId) {
-    lines.push(`Node: ${request.request.nodeId}`);
-  }
-  if (Array.isArray(request.request.envKeys) && request.request.envKeys.length > 0) {
-    lines.push(`Env overrides: ${request.request.envKeys.join(", ")}`);
-  }
-  if (request.request.host) {
-    lines.push(`Host: ${request.request.host}`);
-  }
-  if (request.request.agentId) {
-    lines.push(`Agent: ${request.request.agentId}`);
-  }
-  if (request.request.security) {
-    lines.push(`Security: ${request.request.security}`);
-  }
-  if (request.request.ask) {
-    lines.push(`Ask: ${request.request.ask}`);
-  }
->>>>>>> 9a4b2266c (fix(security): bind node system.run approvals to env)
   const expiresIn = Math.max(0, Math.round((request.expiresAtMs - nowMs) / 1000));
   lines.push(`Expires in: ${expiresIn}s`);
   lines.push("Reply with: /approve <id> allow-once|allow-always|deny");
@@ -200,30 +163,10 @@ function defaultResolveSessionTarget(params: {
   const storePath = resolveStorePath(params.cfg.session?.store, { agentId });
   const store = loadSessionStore(storePath);
   const entry = store[sessionKey];
-<<<<<<< HEAD
   if (!entry) return null;
   const target = resolveSessionDeliveryTarget({ entry, requestedChannel: "last" });
   if (!target.channel || !target.to) return null;
   if (!isDeliverableMessageChannel(target.channel)) return null;
-=======
-  if (!entry) {
-    return null;
-  }
-  const target = resolveSessionDeliveryTarget({
-    entry,
-    requestedChannel: "last",
-    turnSourceChannel: normalizeTurnSourceChannel(params.request.request.turnSourceChannel),
-    turnSourceTo: params.request.request.turnSourceTo?.trim() || undefined,
-    turnSourceAccountId: params.request.request.turnSourceAccountId?.trim() || undefined,
-    turnSourceThreadId: params.request.request.turnSourceThreadId ?? undefined,
-  });
-  if (!target.channel || !target.to) {
-    return null;
-  }
-  if (!isDeliverableMessageChannel(target.channel)) {
-    return null;
-  }
->>>>>>> da0ba1b73 (fix(security): harden channel auth path checks and exec approval routing)
   return {
     channel: target.channel,
     to: target.to,

@@ -1,16 +1,11 @@
 import crypto from "node:crypto";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 
 import { Type } from "@sinclair/typebox";
 import { writeBase64ToFile } from "../../cli/nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../../cli/nodes-canvas.js";
 import { imageMimeFromFormat } from "../../media/mime.js";
-=======
-=======
-import fs from "node:fs/promises";
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 import path from "node:path";
 import { Type } from "@sinclair/typebox";
 import { writeBase64ToFile } from "../../cli/nodes-camera.js";
@@ -90,19 +85,7 @@ const CanvasToolSchema = Type.Object({
 });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export function createCanvasTool(): AnyAgentTool {
-=======
-export function createCanvasTool(options?: {
-  config?: OpenClawConfig;
-  agentSessionKey?: string;
-}): AnyAgentTool {
-  const imageSanitization = resolveImageSanitizationLimits(options?.config);
-  const agentId = options?.agentSessionKey
-    ? resolveSessionAgentId({ sessionKey: options.agentSessionKey, config: options?.config })
-    : undefined;
-  const localRoots = getAgentScopedMediaLocalRoots(options?.config ?? {}, agentId);
->>>>>>> 39816e61b (Security: restrict canvas jsonlPath file reads)
 =======
 export function createCanvasTool(options?: { config?: OpenClawConfig }): AnyAgentTool {
   const imageSanitization = resolveImageSanitizationLimits(options?.config);

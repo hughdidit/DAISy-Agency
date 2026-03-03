@@ -1,14 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
-=======
-import { PassThrough } from "node:stream";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> ba7be018d (fix(security): remove lobster windows shell fallback)
 import type { OpenClawPluginApi, OpenClawPluginToolContext } from "../../../src/plugins/types.js";
 import { createLobsterTool } from "./lobster-tool.js";
 
@@ -79,8 +74,6 @@ function setProcessPlatform(platform: NodeJS.Platform) {
 }
 
 describe("lobster plugin tool", () => {
-<<<<<<< HEAD
-=======
   let tempDir = "";
   let lobsterBinPath = "";
   let lobsterExePath = "";
@@ -167,7 +160,6 @@ describe("lobster plugin tool", () => {
     });
   });
 
->>>>>>> ba7be018d (fix(security): remove lobster windows shell fallback)
   it("runs lobster and returns parsed envelope in details", async () => {
     const fake = await writeFakeLobster({
       payload: { ok: true, status: "ok", output: [{ hello: "world" }], requiresApproval: null },

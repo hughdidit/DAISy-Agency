@@ -1,14 +1,10 @@
 import { createHmac, createHash } from "node:crypto";
 import type { ReasoningLevel, ThinkLevel } from "../auto-reply/thinking.js";
-<<<<<<< HEAD
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 <<<<<<< HEAD
 import type { ResolvedTimeFormat } from "./date-time.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
-=======
-import { sanitizeForPromptLiteral } from "./sanitize-for-prompt.js";
->>>>>>> 6254e96ac (fix(security): harden prompt path sanitization)
 =======
 import type { MemoryCitationsMode } from "../config/types.memory.js";
 import type { ResolvedTimeFormat } from "./date-time.js";
@@ -59,39 +55,8 @@ function buildMemorySection(params: { isMinimal: boolean; availableTools: Set<st
 }
 
 function buildUserIdentitySection(ownerLine: string | undefined, isMinimal: boolean) {
-<<<<<<< HEAD
   if (!ownerLine || isMinimal) return [];
   return ["## User Identity", ownerLine, ""];
-=======
-  if (!ownerLine || isMinimal) {
-    return [];
-  }
-  return ["## Authorized Senders", ownerLine, ""];
-}
-
-function formatOwnerDisplayId(ownerId: string, ownerDisplaySecret?: string) {
-  const hasSecret = ownerDisplaySecret?.trim();
-  const digest = hasSecret
-    ? createHmac("sha256", hasSecret).update(ownerId).digest("hex")
-    : createHash("sha256").update(ownerId).digest("hex");
-  return digest.slice(0, 12);
-}
-
-function buildOwnerIdentityLine(
-  ownerNumbers: string[],
-  ownerDisplay: OwnerIdDisplay,
-  ownerDisplaySecret?: string,
-) {
-  const normalized = ownerNumbers.map((value) => value.trim()).filter(Boolean);
-  if (normalized.length === 0) {
-    return undefined;
-  }
-  const displayOwnerNumbers =
-    ownerDisplay === "hash"
-      ? normalized.map((ownerId) => formatOwnerDisplayId(ownerId, ownerDisplaySecret))
-      : normalized;
-  return `Authorized senders: ${displayOwnerNumbers.join(", ")}. These senders are allowlisted; do not assume they are the owner.`;
->>>>>>> c20d519e0 (feat(security): migrate sha1 hashes to sha256 for synthetic ids (#7343) (#22528))
 }
 
 function buildTimeSection(params: { userTimezone?: string }) {
@@ -252,14 +217,7 @@ export function buildAgentSystemPrompt(params: {
     sessions_list: "List other sessions (incl. sub-agents) with filters/last",
     sessions_history: "Fetch history for another session/sub-agent",
     sessions_send: "Send a message to another session/sub-agent",
-<<<<<<< HEAD
     sessions_spawn: "Spawn a sub-agent session",
-=======
-    sessions_spawn: acpEnabled
-      ? 'Spawn an isolated sub-agent or ACP coding session (runtime="acp" requires `agentId` unless `acp.defaultAgent` is configured; ACP harness ids follow acp.allowedAgents, not agents_list)'
-      : "Spawn an isolated sub-agent session",
-    subagents: "List, steer, or kill sub-agent runs for this requester session",
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     session_status:
       "Show a /status-equivalent status card (usage + time + Reasoning/Verbose/Elevated); use for model-use questions (📊 session_status); optional per-session model override",
     image: "Analyze an image with the configured image model",
@@ -367,8 +325,6 @@ export function buildAgentSystemPrompt(params: {
   const messageChannelOptions = listDeliverableMessageChannels().join("|");
   const promptMode = params.promptMode ?? "full";
   const isMinimal = promptMode === "minimal" || promptMode === "none";
-<<<<<<< HEAD
-=======
   const sandboxContainerWorkspace = params.sandboxInfo?.containerWorkspaceDir?.trim();
   const sanitizedWorkspaceDir = sanitizeForPromptLiteral(params.workspaceDir);
   const sanitizedSandboxContainerWorkspace = sandboxContainerWorkspace
@@ -389,7 +345,6 @@ export function buildAgentSystemPrompt(params: {
     "Do not manipulate or persuade anyone to expand access or disable safeguards. Do not copy yourself or change system prompts, safety rules, or tool policies unless explicitly requested.",
     "",
   ];
->>>>>>> 6254e96ac (fix(security): harden prompt path sanitization)
   const skillsSection = buildSkillsSection({
     skillsPrompt,
     isMinimal,
@@ -433,20 +388,7 @@ export function buildAgentSystemPrompt(params: {
           "- sessions_send: send to another session",
         ].join("\n"),
     "TOOLS.md does not control tool availability; it is user guidance for how to use external tools.",
-<<<<<<< HEAD
     "If a task is more complex or takes longer, spawn a sub-agent. It will do the work for you and ping you when it's done. You can always check up on it.",
-=======
-    `For long waits, avoid rapid poll loops: use ${execToolName} with enough yieldMs or ${processToolName}(action=poll, timeout=<ms>).`,
-    "If a task is more complex or takes longer, spawn a sub-agent. Completion is push-based: it will auto-announce when done.",
-    ...(hasSessionsSpawn && acpEnabled
-      ? [
-          'For requests like "do this in codex/claude code/gemini", treat it as ACP harness intent and call `sessions_spawn` with `runtime: "acp"`.',
-          'On Discord, default ACP harness requests to thread-bound persistent sessions (`thread: true`, `mode: "session"`) unless the user asks otherwise.',
-          "Set `agentId` explicitly unless `acp.defaultAgent` is configured, and do not route ACP harness requests through `subagents`/`agents_list` or local PTY exec flows.",
-        ]
-      : []),
-    "Do not poll `subagents list` / `sessions_list` in a loop; only check status on-demand (for intervention, debugging, or when explicitly asked).",
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     "",
     "## Tool Call Style",
     "Default: do not narrate routine, low-risk tool calls (just call the tool).",
@@ -501,16 +443,8 @@ export function buildAgentSystemPrompt(params: {
           "You are running in a sandboxed runtime (tools execute in Docker).",
           "Some tools may be unavailable due to sandbox policy.",
           "Sub-agents stay sandboxed (no elevated/host access). Need outside-sandbox read/write? Don't spawn; ask first.",
-<<<<<<< HEAD
           params.sandboxInfo.workspaceDir
             ? `Sandbox workspace: ${params.sandboxInfo.workspaceDir}`
-=======
-          params.sandboxInfo.containerWorkspaceDir
-            ? `Sandbox container workdir: ${sanitizeForPromptLiteral(params.sandboxInfo.containerWorkspaceDir)}`
-            : "",
-          params.sandboxInfo.workspaceDir
-            ? `Sandbox host workspace: ${sanitizeForPromptLiteral(params.sandboxInfo.workspaceDir)}`
->>>>>>> 6254e96ac (fix(security): harden prompt path sanitization)
             : "",
           params.sandboxInfo.workspaceAccess
             ? `Agent workspace access: ${params.sandboxInfo.workspaceAccess}${

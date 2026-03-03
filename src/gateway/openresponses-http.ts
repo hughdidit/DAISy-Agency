@@ -13,7 +13,6 @@ import { buildHistoryContextFromEntries, type HistoryEntry } from "../auto-reply
 import { createDefaultDeps } from "../cli/deps.js";
 import { agentCommand } from "../commands/agent.js";
 import { emitAgentEvent, onAgentEvent } from "../infra/agent-events.js";
-<<<<<<< HEAD
 import { defaultRuntime } from "../runtime.js";
 import { authorizeGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
 import { getBearerToken, resolveAgentIdForRequest, resolveSessionKey } from "./http-utils.js";
@@ -38,9 +37,6 @@ import {
 import type { GatewayHttpResponsesConfig } from "../config/types.gateway.js";
 import type { ClientToolDefinition } from "../agents/pi-embedded-runner/run/params.js";
 import type { ImageContent } from "../commands/agent/types.js";
-=======
-import { logWarn } from "../logger.js";
->>>>>>> f788de30c (fix(security): sanitize error responses to prevent information leakage (#5))
 import {
   DEFAULT_INPUT_FILE_MAX_BYTES,
   DEFAULT_INPUT_FILE_MAX_CHARS,
@@ -852,14 +848,7 @@ export async function handleOpenResponsesHttpRequest(
         });
       }
     } catch (err) {
-<<<<<<< HEAD
       if (closed) return;
-=======
-      logWarn(`openresponses: streaming response failed: ${String(err)}`);
-      if (closed) {
-        return;
-      }
->>>>>>> f788de30c (fix(security): sanitize error responses to prevent information leakage (#5))
 
       finalUsage = finalUsage ?? createEmptyUsage();
       const errorResponse = createResponseResource({

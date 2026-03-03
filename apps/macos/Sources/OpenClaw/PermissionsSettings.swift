@@ -1,12 +1,6 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/PermissionsSettings.swift
 import CoreLocation
 import MoltbotIPC
 import MoltbotKit
-=======
-import OpenClawIPC
-import OpenClawKit
-import CoreLocation
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/PermissionsSettings.swift
 import SwiftUI
 
 struct PermissionsSettings: View {

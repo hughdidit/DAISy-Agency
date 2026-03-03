@@ -1,10 +1,6 @@
 import { createRequire } from "node:module";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-=======
->>>>>>> 2e421f32d (fix(security): restore trusted plugin runtime exec default)
 import type { PluginRuntime } from "./types.js";
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
 import { createMemoryGetTool, createMemorySearchTool } from "../../agents/tools/memory-tool.js";
@@ -83,41 +79,8 @@ import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { monitorIMessageProvider } from "../../imessage/monitor.js";
 import { probeIMessage } from "../../imessage/probe.js";
 import { sendMessageIMessage } from "../../imessage/send.js";
-<<<<<<< HEAD
 import { shouldLogVerbose } from "../../globals.js";
 import { convertMarkdownTables } from "../../markdown/tables.js";
-=======
-import { getChannelActivity, recordChannelActivity } from "../../infra/channel-activity.js";
-import { enqueueSystemEvent } from "../../infra/system-events.js";
-import {
-  listLineAccountIds,
-  normalizeAccountId as normalizeLineAccountId,
-  resolveDefaultLineAccountId,
-  resolveLineAccount,
-} from "../../line/accounts.js";
-import { monitorLineProvider } from "../../line/monitor.js";
-import { probeLineBot } from "../../line/probe.js";
-import {
-  createQuickReplyItems,
-  pushMessageLine,
-  pushMessagesLine,
-  pushFlexMessage,
-  pushTemplateMessage,
-  pushLocationMessage,
-  pushTextMessageWithQuickReplies,
-  sendMessageLine,
-} from "../../line/send.js";
-import { buildTemplateMessageFromPayload } from "../../line/template-messages.js";
-<<<<<<< HEAD
-import {
-  listLinqAccountIds,
-  resolveDefaultLinqAccountId,
-  resolveLinqAccount,
-} from "../../linq/accounts.js";
-import { monitorLinqProvider } from "../../linq/monitor.js";
-import { probeLinq } from "../../linq/probe.js";
-import { sendMessageLinq } from "../../linq/send.js";
->>>>>>> d4a142fd8 (feat: add Linq channel — real iMessage via API, no Mac required)
 =======
 >>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 import { getChildLogger } from "../../logging.js";
@@ -170,7 +133,6 @@ import { sendMessageWhatsApp, sendPollWhatsApp } from "../../web/outbound.js";
 import { registerMemoryCli } from "../../cli/memory-cli.js";
 import { formatNativeDependencyHint } from "./native-deps.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { textToSpeechTelephony } from "../../tts/tts.js";
 import {
   listLineAccountIds,
@@ -194,8 +156,6 @@ import { buildTemplateMessageFromPayload } from "../../line/template-messages.js
 
 import type { PluginRuntime } from "./types.js";
 =======
->>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
-=======
 >>>>>>> 2e421f32d (fix(security): restore trusted plugin runtime exec default)
 
 let cachedVersion: string | null = null;
@@ -213,8 +173,6 @@ function resolveVersion(): string {
   }
 }
 
-<<<<<<< HEAD
-=======
 const sendMessageWhatsAppLazy: PluginRuntime["channel"]["whatsapp"]["sendMessageWhatsApp"] = async (
   ...args
 ) => {
@@ -316,7 +274,6 @@ const runtimeCommandExecutionGuarded: PluginRuntime["system"]["runCommandWithTim
   return await runCommandWithTimeout(...args);
 };
 
->>>>>>> 45db2aa0c (Security: disable plugin runtime command execution primitive (#20828))
 =======
 >>>>>>> 2e421f32d (fix(security): restore trusted plugin runtime exec default)
 export function createPluginRuntime(): PluginRuntime {
@@ -326,42 +283,10 @@ export function createPluginRuntime(): PluginRuntime {
       loadConfig,
       writeConfigFile,
     },
-<<<<<<< HEAD
     system: {
       enqueueSystemEvent,
       runCommandWithTimeout,
       formatNativeDependencyHint,
-=======
-    reply: {
-      dispatchReplyWithBufferedBlockDispatcher,
-      createReplyDispatcherWithTyping,
-      resolveEffectiveMessagesConfig,
-      resolveHumanDelayConfig,
-      dispatchReplyFromConfig,
-      withReplyDispatcher,
-      finalizeInboundContext,
-      formatAgentEnvelope,
-      /** @deprecated Prefer `BodyForAgent` + structured user-context blocks (do not build plaintext envelopes for prompts). */
-      formatInboundEnvelope,
-      resolveEnvelopeFormatOptions,
-    },
-    routing: {
-      resolveAgentRoute,
-    },
-    pairing: {
-      buildPairingReply,
-      readAllowFromStore: ({ channel, accountId, env }) =>
-        readChannelAllowFromStore(channel, env, accountId),
-      upsertPairingRequest: ({ channel, id, accountId, meta, env, pairingAdapter }) =>
-        upsertChannelPairingRequest({
-          channel,
-          id,
-          accountId,
-          meta,
-          env,
-          pairingAdapter,
-        }),
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
     },
     media: {
       loadWebMedia,

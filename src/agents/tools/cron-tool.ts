@@ -4,15 +4,9 @@ import { loadConfig } from "../../config/config.js";
 import { truncateUtf16Safe } from "../../utils.js";
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool, type GatewayCallOptions } from "./gateway.js";
-=======
-import { assertOwnerSender, type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
-=======
-import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
->>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
 import { callGatewayTool, readGatewayCallOptions, type GatewayCallOptions } from "./gateway.js";
 >>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 import { resolveInternalSessionKey, resolveMainSessionAlias } from "./sessions-helpers.js";
@@ -190,17 +184,12 @@ Use jobId as the canonical identifier; id is accepted for compatibility. Use con
     parameters: CronToolSchema,
     execute: async (_toolCallId, args) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       const params = args as Record<string, unknown>;
       const action = readStringParam(params, "action", { required: true });
       const gatewayOpts: GatewayCallOptions = {
         gatewayUrl: readStringParam(params, "gatewayUrl", { trim: false }),
         gatewayToken: readStringParam(params, "gatewayToken", { trim: false }),
         timeoutMs: typeof params.timeoutMs === "number" ? params.timeoutMs : undefined,
-=======
-      assertOwnerSender(opts?.senderIsOwner);
-=======
->>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
       const params = args as Record<string, unknown>;
       const action = readStringParam(params, "action", { required: true });
       const gatewayOpts: GatewayCallOptions = {

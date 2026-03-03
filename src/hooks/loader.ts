@@ -5,32 +5,20 @@
  * and from directory-based discovery (bundled, managed, workspace)
  */
 
-<<<<<<< HEAD
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 import { registerInternalHook } from "./internal-hooks.js";
-=======
-import path from "node:path";
->>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
 import type { InternalHookHandler } from "./internal-hooks.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
-=======
-import { createSubsystemLogger } from "../logging/subsystem.js";
-import { isPathInsideWithRealpath } from "../security/scan-paths.js";
->>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
 import { resolveHookConfig } from "./config.js";
 import { shouldIncludeHook } from "./config.js";
-<<<<<<< HEAD
-=======
 import type { InternalHookHandler } from "./internal-hooks.js";
 import { registerInternalHook } from "./internal-hooks.js";
 import { importFileModule, resolveFunctionModuleExport } from "./module-loader.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
 
 const log = createSubsystemLogger("hooks:loader");
->>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
 
 /**
  * Load and register all hook handlers
@@ -99,15 +87,10 @@ export async function loadInternalHooks(
           exportName,
         });
 
-<<<<<<< HEAD
         if (typeof handler !== "function") {
           console.error(
             `Hook error: Handler '${exportName}' from ${entry.hook.name} is not a function`,
           );
-=======
-        if (!handler) {
-          log.error(`Handler '${exportName}' from ${entry.hook.name} is not a function`);
->>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
           continue;
         }
 
@@ -185,7 +168,6 @@ export async function loadInternalHooks(
         exportName,
       });
 
-<<<<<<< HEAD
       if (typeof handler !== "function") {
         console.error(`Hook error: Handler '${exportName}' from ${modulePath} is not a function`);
         continue;
@@ -194,15 +176,6 @@ export async function loadInternalHooks(
       // Register the handler
       registerInternalHook(handlerConfig.event, handler as InternalHookHandler);
       console.log(
-=======
-      if (!handler) {
-        log.error(`Handler '${exportName}' from ${modulePath} is not a function`);
-        continue;
-      }
-
-      registerInternalHook(handlerConfig.event, handler);
-      log.info(
->>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
         `Registered hook (legacy): ${handlerConfig.event} -> ${modulePath}${exportName !== "default" ? `#${exportName}` : ""}`,
       );
       loadedCount++;

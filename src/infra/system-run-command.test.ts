@@ -23,8 +23,6 @@ describe("system run command helpers", () => {
     expect(extractShellCommandFromArgv(["cmd.exe", "/d", "/s", "/c", "echo hi"])).toBe("echo hi");
   });
 
-<<<<<<< HEAD
-=======
   test("extractShellCommandFromArgv unwraps /usr/bin/env shell wrappers", () => {
     expect(extractShellCommandFromArgv(["/usr/bin/env", "bash", "-lc", "echo hi"])).toBe("echo hi");
     expect(extractShellCommandFromArgv(["/usr/bin/env", "FOO=bar", "zsh", "-c", "echo hi"])).toBe(
@@ -60,7 +58,6 @@ describe("system run command helpers", () => {
     expect(extractShellCommandFromArgv(["/usr/bin/env", "FOO=bar"])).toBe(null);
   });
 
->>>>>>> 24c954d97 (fix(security): harden allow-always wrapper persistence)
   test("extractShellCommandFromArgv includes trailing cmd.exe args after /c", () => {
     expect(extractShellCommandFromArgv(["cmd.exe", "/d", "/s", "/c", "echo", "SAFE&&whoami"])).toBe(
       "echo SAFE&&whoami",

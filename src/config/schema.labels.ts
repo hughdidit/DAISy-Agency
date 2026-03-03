@@ -185,8 +185,6 @@ export const FIELD_LABELS: Record<string, string> = {
   "memory.qmd.scope": "QMD Surface Scope",
   "auth.profiles": "Auth Profiles",
   "auth.order": "Auth Profile Order",
-<<<<<<< HEAD
-=======
   "auth.cooldowns": "Auth Cooldowns",
   acp: "ACP",
   "acp.enabled": "ACP Enabled",
@@ -217,7 +215,6 @@ export const FIELD_LABELS: Record<string, string> = {
   "models.bedrockDiscovery.refreshInterval": "Bedrock Discovery Refresh Interval (s)",
   "models.bedrockDiscovery.defaultContextWindow": "Bedrock Default Context Window",
   "models.bedrockDiscovery.defaultMaxTokens": "Bedrock Default Max Tokens",
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   "auth.cooldowns.billingBackoffHours": "Billing Backoff (hours)",
   "auth.cooldowns.billingBackoffHoursByProvider": "Billing Backoff Overrides",
   "auth.cooldowns.billingMaxHours": "Billing Backoff Cap (hours)",
@@ -247,14 +244,11 @@ export const FIELD_LABELS: Record<string, string> = {
   "browser.evaluateEnabled": "Browser Evaluate Enabled",
   "browser.snapshotDefaults": "Browser Snapshot Defaults",
   "browser.snapshotDefaults.mode": "Browser Snapshot Mode",
-<<<<<<< HEAD
-=======
   "browser.ssrfPolicy": "Browser SSRF Policy",
   "browser.ssrfPolicy.allowPrivateNetwork": "Browser Allow Private Network",
   "browser.ssrfPolicy.dangerouslyAllowPrivateNetwork": "Browser Dangerously Allow Private Network",
   "browser.ssrfPolicy.allowedHostnames": "Browser Allowed Hostnames",
   "browser.ssrfPolicy.hostnameAllowlist": "Browser Hostname Allowlist",
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
   "browser.remoteCdpTimeoutMs": "Remote CDP Timeout (ms)",
   "browser.remoteCdpHandshakeTimeoutMs": "Remote CDP Handshake Timeout (ms)",
   "session.dmScope": "DM Session Scope",
@@ -300,24 +294,18 @@ export const FIELD_LABELS: Record<string, string> = {
   "channels.discord.retry.maxDelayMs": "Discord Retry Max Delay (ms)",
   "channels.discord.retry.jitter": "Discord Retry Jitter",
   "channels.discord.maxLinesPerMessage": "Discord Max Lines Per Message",
-<<<<<<< HEAD
-=======
   "channels.discord.threadBindings.enabled": "Discord Thread Binding Enabled",
   "channels.discord.threadBindings.ttlHours": "Discord Thread Binding TTL (hours)",
   "channels.discord.threadBindings.spawnSubagentSessions": "Discord Thread-Bound Subagent Spawn",
   "channels.discord.threadBindings.spawnAcpSessions": "Discord Thread-Bound ACP Spawn",
   "channels.discord.ui.components.accentColor": "Discord Component Accent Color",
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   "channels.discord.intents.presence": "Discord Presence Intent",
   "channels.discord.intents.guildMembers": "Discord Guild Members Intent",
   "channels.discord.voice.enabled": "Discord Voice Enabled",
   "channels.discord.voice.autoJoin": "Discord Voice Auto-Join",
-<<<<<<< HEAD
-=======
   "channels.discord.voice.daveEncryption": "Discord Voice DAVE Encryption",
   "channels.discord.voice.decryptionFailureTolerance": "Discord Voice Decrypt Failure Tolerance",
   "channels.discord.voice.tts": "Discord Voice Text-to-Speech",
->>>>>>> 9cd50c51b (fix(discord): harden voice DAVE receive reliability (#25861))
   "channels.discord.pluralkit.enabled": "Discord PluralKit Enabled",
   "channels.discord.pluralkit.token": "Discord PluralKit Token",
   "channels.discord.activity": "Discord Presence Activity",

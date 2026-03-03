@@ -27,11 +27,7 @@ openclaw onboard --openai-api-key "$OPENAI_API_KEY"
 ```json5
 {
   env: { OPENAI_API_KEY: "sk-..." },
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "openai/gpt-5.2" } } }
-=======
-  agents: { defaults: { model: { primary: "openai/gpt-5.1-codex" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -54,11 +50,7 @@ openclaw models auth login --provider openai-codex
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "openai-codex/gpt-5.2" } } }
-=======
-  agents: { defaults: { model: { primary: "openai-codex/gpt-5.3-codex" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

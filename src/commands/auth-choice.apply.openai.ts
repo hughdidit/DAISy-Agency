@@ -7,12 +7,7 @@ import {
   normalizeApiKeyInput,
   validateApiKeyInput,
 } from "./auth-choice.api-key.js";
-<<<<<<< HEAD
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
-=======
-import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
-import { isRemoteEnvironment } from "./oauth-env.js";
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
 import { applyAuthProfileConfig, writeOAuthCredentials } from "./onboard-auth.js";
 import { openUrl } from "./onboard-helpers.js";

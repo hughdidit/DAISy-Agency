@@ -1,11 +1,6 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { IMessageAccountConfig } from "../config/types.js";
-<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
-=======
-import { resolveAccountEntry } from "../routing/account-lookup.js";
-import { normalizeAccountId } from "../routing/session-key.js";
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 
 export type ResolvedIMessageAccount = {
   accountId: string;
@@ -37,13 +32,9 @@ function resolveAccountConfig(
   cfg: OpenClawConfig,
   accountId: string,
 ): IMessageAccountConfig | undefined {
-<<<<<<< HEAD
   const accounts = cfg.channels?.imessage?.accounts;
   if (!accounts || typeof accounts !== "object") return undefined;
   return accounts[accountId] as IMessageAccountConfig | undefined;
-=======
-  return resolveAccountEntry(cfg.channels?.imessage?.accounts, accountId);
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 }
 
 function mergeIMessageAccountConfig(cfg: OpenClawConfig, accountId: string): IMessageAccountConfig {

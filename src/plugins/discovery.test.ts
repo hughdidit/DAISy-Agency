@@ -154,8 +154,6 @@ describe("discoverOpenClawPlugins", () => {
     const ids = candidates.map((c) => c.idHint);
     expect(ids).toContain("demo-plugin-dir");
   });
-<<<<<<< HEAD
-=======
   it("blocks extension entries that escape package directory", async () => {
     const stateDir = makeTempDir();
     const globalExt = path.join(stateDir, "extensions", "escape-pack");
@@ -255,5 +253,4 @@ describe("discoverOpenClawPlugins", () => {
       );
     },
   );
->>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
 });

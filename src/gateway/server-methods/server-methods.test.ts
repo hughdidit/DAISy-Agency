@@ -10,10 +10,7 @@ import { buildSystemRunApprovalBindingV1 } from "../../infra/system-run-approval
 import { resetLogger, setLoggerOverride } from "../../logging.js";
 import { ExecApprovalManager } from "../exec-approval-manager.js";
 import { validateExecApprovalRequestParams } from "../protocol/index.js";
-<<<<<<< HEAD
 import { buildSystemRunApprovalEnvBinding } from "../system-run-approval-env-binding.js";
-=======
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 import { waitForAgentJob } from "./agent-job.js";
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 import { normalizeRpcAttachmentsToChatAttachments } from "./attachment-normalize.js";

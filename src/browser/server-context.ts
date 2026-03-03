@@ -10,8 +10,6 @@ import {
 } from "./chrome.js";
 import type { ResolvedBrowserProfile } from "./config.js";
 import { resolveProfile } from "./config.js";
-<<<<<<< HEAD
-=======
 import {
   ensureChromeExtensionRelayServer,
   stopChromeExtensionRelayServer,
@@ -28,7 +26,6 @@ import {
   refreshResolvedBrowserConfigFromDisk,
   resolveBrowserProfileWithHotReload,
 } from "./resolved-config-refresh.js";
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 import type {
   BrowserRouteContext,
   BrowserTab,
@@ -189,14 +186,7 @@ function createProfileContext(
       while (Date.now() < deadline) {
         const tabs = await listTabs().catch(() => [] as BrowserTab[]);
         const found = tabs.find((t) => t.targetId === createdViaCdp);
-<<<<<<< HEAD
         if (found) return found;
-=======
-        if (found) {
-          await assertBrowserNavigationResultAllowed({ url: found.url, ...ssrfPolicyOpts });
-          return found;
-        }
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
         await new Promise((r) => setTimeout(r, 100));
       }
       return { targetId: createdViaCdp, title: "", url, type: "page" };

@@ -152,8 +152,6 @@ export async function startGatewaySidecars(params: {
     params.log.warn(`plugin services failed to start: ${String(err)}`);
   }
 
-<<<<<<< HEAD
-=======
   if (params.cfg.acp?.enabled) {
     void getAcpSessionManager()
       .reconcilePendingSessionIdentities({ cfg: params.cfg })
@@ -174,7 +172,6 @@ export async function startGatewaySidecars(params: {
     params.log.warn(`qmd memory startup initialization failed: ${String(err)}`);
   });
 
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   if (shouldWakeFromRestartSentinel()) {
     setTimeout(() => {
       void scheduleRestartSentinelWake({ deps: params.deps });

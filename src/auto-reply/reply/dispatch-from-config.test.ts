@@ -1,13 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { OpenClawConfig } from "../../config/config.js";
-=======
-import { AcpRuntimeError } from "../../acp/runtime/errors.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { SessionBindingRecord } from "../../infra/outbound/session-binding-service.js";
-import { createInternalHookEventPayload } from "../../test-utils/internal-hook-event-payload.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 import type { MsgContext } from "../templating.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { ReplyDispatcher } from "./reply-dispatcher.js";
@@ -31,8 +24,6 @@ const hookMocks = vi.hoisted(() => ({
     runMessageReceived: vi.fn(async () => {}),
   },
 }));
-<<<<<<< HEAD
-=======
 const internalHookMocks = vi.hoisted(() => ({
   createInternalHookEvent: vi.fn(),
   triggerInternalHook: vi.fn(async () => {}),
@@ -77,7 +68,6 @@ const ttsMocks = vi.hoisted(() => {
     resolveTtsConfig: vi.fn((_cfg: OpenClawConfig) => ({ mode: "final" })),
   };
 });
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 
 vi.mock("./route-reply.js", () => ({
   isRoutableChannel: (channel: string | undefined) =>
@@ -108,8 +98,6 @@ vi.mock("../../logging/diagnostic.js", () => ({
 vi.mock("../../plugins/hook-runner-global.js", () => ({
   getGlobalHookRunner: () => hookMocks.runner,
 }));
-<<<<<<< HEAD
-=======
 vi.mock("../../hooks/internal-hooks.js", () => ({
   createInternalHookEvent: internalHookMocks.createInternalHookEvent,
   triggerInternalHook: internalHookMocks.triggerInternalHook,
@@ -150,7 +138,6 @@ vi.mock("../../tts/tts.js", () => ({
   normalizeTtsAutoMode: (value: unknown) => ttsMocks.normalizeTtsAutoMode(value),
   resolveTtsConfig: (cfg: OpenClawConfig) => ttsMocks.resolveTtsConfig(cfg),
 }));
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 
 const { dispatchReplyFromConfig } = await import("./dispatch-from-config.js");
 const { resetInboundDedupe } = await import("./inbound-dedupe.js");
@@ -166,8 +153,6 @@ function createDispatcher(): ReplyDispatcher {
   };
 }
 
-<<<<<<< HEAD
-=======
 function setNoAbort() {
   mocks.tryFastAbortFromMessage.mockResolvedValue(noAbortResult);
 }
@@ -209,44 +194,16 @@ async function dispatchTwiceWithFreshDispatchers(params: Omit<DispatchReplyArgs,
   });
 }
 
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 describe("dispatchReplyFromConfig", () => {
   beforeEach(() => {
     acpManagerTesting.resetAcpSessionManagerForTests();
     resetInboundDedupe();
-<<<<<<< HEAD
     diagnosticMocks.logMessageQueued.mockReset();
     diagnosticMocks.logMessageProcessed.mockReset();
     diagnosticMocks.logSessionStateChange.mockReset();
     hookMocks.runner.hasHooks.mockReset();
     hookMocks.runner.hasHooks.mockReturnValue(false);
     hookMocks.runner.runMessageReceived.mockReset();
-=======
-    acpMocks.listAcpSessionEntries.mockReset().mockResolvedValue([]);
-    diagnosticMocks.logMessageQueued.mockClear();
-    diagnosticMocks.logMessageProcessed.mockClear();
-    diagnosticMocks.logSessionStateChange.mockClear();
-    hookMocks.runner.hasHooks.mockClear();
-    hookMocks.runner.hasHooks.mockReturnValue(false);
-    hookMocks.runner.runMessageReceived.mockClear();
-    internalHookMocks.createInternalHookEvent.mockClear();
-    internalHookMocks.createInternalHookEvent.mockImplementation(createInternalHookEventPayload);
-    internalHookMocks.triggerInternalHook.mockClear();
-    acpMocks.readAcpSessionEntry.mockReset();
-    acpMocks.readAcpSessionEntry.mockReturnValue(null);
-    acpMocks.upsertAcpSessionMeta.mockReset();
-    acpMocks.upsertAcpSessionMeta.mockResolvedValue(null);
-    acpMocks.requireAcpRuntimeBackend.mockReset();
-    sessionBindingMocks.listBySession.mockReset();
-    sessionBindingMocks.listBySession.mockReturnValue([]);
-    ttsMocks.state.synthesizeFinalAudio = false;
-    ttsMocks.maybeApplyTtsToPayload.mockClear();
-    ttsMocks.normalizeTtsAutoMode.mockClear();
-    ttsMocks.resolveTtsConfig.mockClear();
-    ttsMocks.resolveTtsConfig.mockReturnValue({
-      mode: "final",
-    });
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   });
   it("does not route when Provider matches OriginatingChannel (even if Surface is missing)", async () => {
     mocks.tryFastAbortFromMessage.mockResolvedValue({
@@ -317,40 +274,9 @@ describe("dispatchReplyFromConfig", () => {
     const cfg = {} as OpenClawConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
-<<<<<<< HEAD
       Provider: "slack",
       OriginatingChannel: "telegram",
       OriginatingTo: "telegram:999",
-=======
-      Provider: "telegram",
-      ChatType: "direct",
-    });
-
-    const replyResolver = async (
-      _ctx: MsgContext,
-      opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
-    ) => {
-      expect(opts?.onToolResult).toBeDefined();
-      expect(typeof opts?.onToolResult).toBe("function");
-      return { text: "hi" } satisfies ReplyPayload;
-    };
-
-    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
-    expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not provide onToolResult in group sessions", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
-    const cfg = {} as OpenClawConfig;
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({
-      Provider: "telegram",
-      ChatType: "group",
->>>>>>> 9a7160786 (refactor: rename to openclaw)
     });
 
     const replyResolver = async (
@@ -364,67 +290,11 @@ describe("dispatchReplyFromConfig", () => {
 
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
 
-<<<<<<< HEAD
     expect(mocks.routeReply).toHaveBeenCalledWith(
       expect.objectContaining({
         payload: expect.objectContaining({ text: "hi" }),
       }),
     );
-=======
-  it("sends tool results via dispatcher in DM sessions", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
-    const cfg = {} as OpenClawConfig;
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({
-      Provider: "telegram",
-      ChatType: "direct",
-    });
-
-    const replyResolver = async (
-      _ctx: MsgContext,
-      opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
-    ) => {
-      // Simulate tool result emission
-      await opts?.onToolResult?.({ text: "🔧 exec: ls" });
-      return { text: "done" } satisfies ReplyPayload;
-    };
-
-    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
-    expect(dispatcher.sendToolResult).toHaveBeenCalledWith(
-      expect.objectContaining({ text: "🔧 exec: ls" }),
-    );
-    expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not provide onToolResult for native slash commands", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
-    const cfg = {} as OpenClawConfig;
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({
-      Provider: "telegram",
-      ChatType: "direct",
-      CommandSource: "native",
-    });
-
-    const replyResolver = async (
-      _ctx: MsgContext,
-      opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
-    ) => {
-      expect(opts?.onToolResult).toBeUndefined();
-      return { text: "hi" } satisfies ReplyPayload;
-    };
-
-    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
-    expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
->>>>>>> 9a7160786 (refactor: rename to openclaw)
   });
 
   it("fast-aborts without calling the reply resolver", async () => {

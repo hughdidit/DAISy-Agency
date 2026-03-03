@@ -1,15 +1,8 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/Onboarding.swift
 import Combine
 import MoltbotChatUI
 import MoltbotDiscovery
 import MoltbotIPC
-=======
-import OpenClawChatUI
-import OpenClawDiscovery
-import OpenClawIPC
-import Combine
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/Onboarding.swift
 import Observation
 import SwiftUI
 

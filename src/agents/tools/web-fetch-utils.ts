@@ -94,24 +94,12 @@ export async function extractReadableContent(params: {
     }
     return { text: stripInvisibleUnicode(rendered.text), title: rendered.title };
   };
-<<<<<<< HEAD
   try {
     const [{ Readability }, { parseHTML }] = await Promise.all([
       import("@mozilla/readability"),
       import("linkedom"),
     ]);
     const { document } = parseHTML(params.html);
-=======
-  if (
-    cleanHtml.length > READABILITY_MAX_HTML_CHARS ||
-    exceedsEstimatedHtmlNestingDepth(cleanHtml, READABILITY_MAX_ESTIMATED_NESTING_DEPTH)
-  ) {
-    return fallback();
-  }
-  try {
-    const { Readability, parseHTML } = await loadReadabilityDeps();
-    const { document } = parseHTML(cleanHtml);
->>>>>>> 44727dc3a (security(web_fetch): strip hidden content to prevent indirect prompt injection (#21074))
     try {
       (document as { baseURI?: string }).baseURI = params.url;
     } catch {

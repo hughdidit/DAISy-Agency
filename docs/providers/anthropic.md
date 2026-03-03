@@ -29,11 +29,7 @@ openclaw onboard --anthropic-api-key "$ANTHROPIC_API_KEY"
 ```json5
 {
   env: { ANTHROPIC_API_KEY: "sk-ant-..." },
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
-=======
-  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-6" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -49,21 +45,12 @@ To set the TTL per model, use `cacheControlTtl` in the model `params`:
   agents: {
     defaults: {
       models: {
-<<<<<<< HEAD
         "anthropic/claude-opus-4-5": {
           params: { cacheControlTtl: "5m" } // or "1h"
         }
       }
     }
   }
-=======
-        "anthropic/claude-opus-4-6": {
-          params: { cacheRetention: "long" },
-        },
-      },
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -105,11 +92,7 @@ openclaw onboard --auth-choice setup-token
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
-=======
-  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-6" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

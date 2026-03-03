@@ -3,8 +3,6 @@ import { describe, expect, it } from "vitest";
 import { authorizeGatewayConnect } from "./auth.js";
 
 describe("gateway auth", () => {
-<<<<<<< HEAD
-=======
   it("resolves token/password from OPENCLAW gateway env vars", () => {
     expect(
       resolveGatewayAuth({
@@ -68,7 +66,6 @@ describe("gateway auth", () => {
     });
   });
 
->>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
   it("does not throw when req is missing socket", async () => {
     const res = await authorizeGatewayConnect({
       auth: { mode: "token", token: "secret", allowTailscale: false },

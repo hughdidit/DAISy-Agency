@@ -1,11 +1,7 @@
 import { getChannelPlugin, normalizeChannelId } from "../channels/plugins/index.js";
 import { truncateUtf16Safe } from "../utils.js";
 import { type MessagingToolSend } from "./pi-embedded-messaging.js";
-<<<<<<< HEAD
 import { normalizeTargetForProvider } from "../infra/outbound/target-normalization.js";
-=======
-import { normalizeToolName } from "./tool-policy.js";
->>>>>>> c37843924 (Security: harden tool media paths)
 
 const TOOL_RESULT_MAX_CHARS = 8000;
 const TOOL_ERROR_MAX_CHARS = 400;
@@ -88,8 +84,6 @@ export function extractToolResultText(result: unknown): string | undefined {
   return texts.join("\n");
 }
 
-<<<<<<< HEAD
-=======
 // Core tool names that are allowed to emit local MEDIA: paths.
 // Plugin/MCP tools are intentionally excluded to prevent untrusted file reads.
 const TRUSTED_TOOL_RESULT_MEDIA = new Set([
@@ -214,7 +208,6 @@ export function extractToolResultMediaPaths(result: unknown): string[] {
   return [];
 }
 
->>>>>>> c37843924 (Security: harden tool media paths)
 export function isToolResultError(result: unknown): boolean {
   if (!result || typeof result !== "object") return false;
   const record = result as { details?: unknown };

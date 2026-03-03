@@ -179,8 +179,6 @@ async function loadValidConfig() {
   return snapshot;
 }
 
-<<<<<<< HEAD
-=======
 function parseRequiredPath(path: string): PathSegment[] {
   const parsedPath = parsePath(path);
   if (parsedPath.length === 0) {
@@ -243,7 +241,6 @@ export async function runConfigUnset(opts: { path: string; runtime?: RuntimeEnv 
   }
 }
 
->>>>>>> 9c87b53c8 (security(cli): redact sensitive values in config get output (#23654))
 export function registerConfigCli(program: Command) {
   const cmd = program
     .command("config")

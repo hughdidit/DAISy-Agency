@@ -33,8 +33,6 @@ let listenerStarted = false;
 let listenerStop: (() => void) | null = null;
 // Use var to avoid TDZ when init runs across circular imports during bootstrap.
 var restoreAttempted = false;
-<<<<<<< HEAD
-=======
 const SUBAGENT_ANNOUNCE_TIMEOUT_MS = 120_000;
 const MIN_ANNOUNCE_RETRY_DELAY_MS = 1_000;
 const MAX_ANNOUNCE_RETRY_DELAY_MS = 8_000;
@@ -74,7 +72,6 @@ function logAnnounceGiveUp(entry: SubagentRunRecord, reason: "retry-limit" | "ex
     `[warn] Subagent announce give up (${reason}) run=${entry.runId} child=${entry.childSessionKey} requester=${entry.requesterSessionKey} retries=${retryCount} endedAgo=${endedAgoLabel}`,
   );
 }
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 
 function persistSubagentRuns() {
   try {
@@ -85,8 +82,6 @@ function persistSubagentRuns() {
 }
 
 const resumedRuns = new Set<string>();
-<<<<<<< HEAD
-=======
 const endedHookInFlightRunIds = new Set<string>();
 const pendingLifecycleErrorByRunId = new Map<
   string,
@@ -288,7 +283,6 @@ function startSubagentAnnounceCleanupFlow(runId: string, entry: SubagentRunRecor
     });
   return true;
 }
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 
 function resumeSubagentRun(runId: string) {
   if (!runId || resumedRuns.has(runId)) return;
@@ -386,14 +380,7 @@ async function sweepSubagentRuns() {
   const now = Date.now();
   let mutated = false;
   for (const [runId, entry] of subagentRuns.entries()) {
-<<<<<<< HEAD
     if (!entry.archiveAtMs || entry.archiveAtMs > now) continue;
-=======
-    if (!entry.archiveAtMs || entry.archiveAtMs > now) {
-      continue;
-    }
-    clearPendingLifecycleError(runId);
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     subagentRuns.delete(runId);
     mutated = true;
     try {
@@ -429,7 +416,6 @@ function ensureListener() {
         entry.startedAt = startedAt;
         persistSubagentRuns();
       }
-<<<<<<< HEAD
       return;
     }
     if (phase !== "end" && phase !== "error") return;
@@ -465,49 +451,6 @@ function ensureListener() {
     }).then((didAnnounce) => {
       finalizeSubagentCleanup(evt.runId, entry.cleanup, didAnnounce);
     });
-=======
-      const entry = subagentRuns.get(evt.runId);
-      if (!entry) {
-        return;
-      }
-      const phase = evt.data?.phase;
-      if (phase === "start") {
-        clearPendingLifecycleError(evt.runId);
-        const startedAt = typeof evt.data?.startedAt === "number" ? evt.data.startedAt : undefined;
-        if (startedAt) {
-          entry.startedAt = startedAt;
-          persistSubagentRuns();
-        }
-        return;
-      }
-      if (phase !== "end" && phase !== "error") {
-        return;
-      }
-      const endedAt = typeof evt.data?.endedAt === "number" ? evt.data.endedAt : Date.now();
-      const error = typeof evt.data?.error === "string" ? evt.data.error : undefined;
-      if (phase === "error") {
-        schedulePendingLifecycleError({
-          runId: evt.runId,
-          endedAt,
-          error,
-        });
-        return;
-      }
-      clearPendingLifecycleError(evt.runId);
-      const outcome: SubagentRunOutcome = evt.data?.aborted
-        ? { status: "timeout" }
-        : { status: "ok" };
-      await completeSubagentRun({
-        runId: evt.runId,
-        endedAt,
-        outcome,
-        reason: SUBAGENT_ENDED_REASON_COMPLETE,
-        sendFarewell: true,
-        accountId: entry.requesterOrigin?.accountId,
-        triggerCleanup: true,
-      });
-    })();
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   });
 }
 
@@ -527,8 +470,6 @@ function finalizeSubagentCleanup(runId: string, cleanup: "delete" | "keep", didA
   }
   entry.cleanupCompletedAt = Date.now();
   persistSubagentRuns();
-<<<<<<< HEAD
-=======
   if (deferredDecision.resumeDelayMs == null) {
     return;
   }
@@ -600,7 +541,6 @@ function retryDeferredCompletedAnnounces(excludeRunId?: string) {
     resumedRuns.delete(runId);
     resumeSubagentRun(runId);
   }
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 }
 
 function beginSubagentCleanup(runId: string) {
@@ -613,8 +553,6 @@ function beginSubagentCleanup(runId: string) {
   return true;
 }
 
-<<<<<<< HEAD
-=======
 export function markSubagentRunForSteerRestart(runId: string) {
   const key = runId.trim();
   if (!key) {
@@ -716,7 +654,6 @@ export function replaceSubagentRunAfterSteer(params: {
   return true;
 }
 
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 export function registerSubagentRun(params: {
   runId: string;
   childSessionKey: string;
@@ -814,12 +751,9 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
 export function resetSubagentRegistryForTests() {
   subagentRuns.clear();
   resumedRuns.clear();
-<<<<<<< HEAD
-=======
   endedHookInFlightRunIds.clear();
   clearAllPendingLifecycleErrors();
   resetAnnounceQueuesForTests();
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   stopSweeper();
   restoreAttempted = false;
   if (listenerStop) {
@@ -838,113 +772,8 @@ export function addSubagentRunForTests(entry: SubagentRunRecord) {
 export function releaseSubagentRun(runId: string) {
   clearPendingLifecycleError(runId);
   const didDelete = subagentRuns.delete(runId);
-<<<<<<< HEAD
   if (didDelete) persistSubagentRuns();
   if (subagentRuns.size === 0) stopSweeper();
-=======
-  if (didDelete) {
-    persistSubagentRuns();
-  }
-  if (subagentRuns.size === 0) {
-    stopSweeper();
-  }
-}
-
-function findRunIdsByChildSessionKey(childSessionKey: string): string[] {
-  return findRunIdsByChildSessionKeyFromRuns(subagentRuns, childSessionKey);
-}
-
-export function resolveRequesterForChildSession(childSessionKey: string): {
-  requesterSessionKey: string;
-  requesterOrigin?: DeliveryContext;
-} | null {
-  const resolved = resolveRequesterForChildSessionFromRuns(
-    getSubagentRunsSnapshotForRead(subagentRuns),
-    childSessionKey,
-  );
-  if (!resolved) {
-    return null;
-  }
-  return {
-    requesterSessionKey: resolved.requesterSessionKey,
-    requesterOrigin: normalizeDeliveryContext(resolved.requesterOrigin),
-  };
-}
-
-export function isSubagentSessionRunActive(childSessionKey: string): boolean {
-  const runIds = findRunIdsByChildSessionKey(childSessionKey);
-  for (const runId of runIds) {
-    const entry = subagentRuns.get(runId);
-    if (!entry) {
-      continue;
-    }
-    if (typeof entry.endedAt !== "number") {
-      return true;
-    }
-  }
-  return false;
-}
-
-export function markSubagentRunTerminated(params: {
-  runId?: string;
-  childSessionKey?: string;
-  reason?: string;
-}): number {
-  const runIds = new Set<string>();
-  if (typeof params.runId === "string" && params.runId.trim()) {
-    runIds.add(params.runId.trim());
-  }
-  if (typeof params.childSessionKey === "string" && params.childSessionKey.trim()) {
-    for (const runId of findRunIdsByChildSessionKey(params.childSessionKey)) {
-      runIds.add(runId);
-    }
-  }
-  if (runIds.size === 0) {
-    return 0;
-  }
-
-  const now = Date.now();
-  const reason = params.reason?.trim() || "killed";
-  let updated = 0;
-  const entriesByChildSessionKey = new Map<string, SubagentRunRecord>();
-  for (const runId of runIds) {
-    clearPendingLifecycleError(runId);
-    const entry = subagentRuns.get(runId);
-    if (!entry) {
-      continue;
-    }
-    if (typeof entry.endedAt === "number") {
-      continue;
-    }
-    entry.endedAt = now;
-    entry.outcome = { status: "error", error: reason };
-    entry.endedReason = SUBAGENT_ENDED_REASON_KILLED;
-    entry.cleanupHandled = true;
-    entry.cleanupCompletedAt = now;
-    entry.suppressAnnounceReason = "killed";
-    if (!entriesByChildSessionKey.has(entry.childSessionKey)) {
-      entriesByChildSessionKey.set(entry.childSessionKey, entry);
-    }
-    updated += 1;
-  }
-  if (updated > 0) {
-    persistSubagentRuns();
-    for (const entry of entriesByChildSessionKey.values()) {
-      void emitSubagentEndedHookOnce({
-        entry,
-        reason: SUBAGENT_ENDED_REASON_KILLED,
-        sendFarewell: true,
-        outcome: SUBAGENT_ENDED_OUTCOME_KILLED,
-        error: reason,
-        inFlightRunIds: endedHookInFlightRunIds,
-        persist: persistSubagentRuns,
-      }).catch(() => {
-        // Hook failures should not break termination flow.
-      });
-    }
-  }
-  return updated;
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 }
 
 export function listSubagentRunsForRequester(requesterSessionKey: string): SubagentRunRecord[] {

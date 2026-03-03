@@ -22,7 +22,6 @@ import { buildPairingReply } from "../../../pairing/pairing-messages.js";
 import { upsertChannelPairingRequest } from "../../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
-<<<<<<< HEAD
 import {
   shouldAckReaction as shouldAckReactionGate,
   type AckReactionScope,
@@ -36,9 +35,6 @@ import { recordInboundSession } from "../../../channels/session.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../../../config/sessions.js";
 
 import type { ResolvedSlackAccount } from "../../accounts.js";
-=======
-import { buildUntrustedChannelMetadata } from "../../../security/channel-metadata.js";
->>>>>>> 35eb40a70 (fix(security): separate untrusted channel metadata from system prompt (thanks @KonstantinMirin))
 import { reactSlackMessage } from "../../actions.js";
 import { sendMessageSlack } from "../../send.js";
 import type { SlackMessageEvent } from "../../types.js";
@@ -345,16 +341,8 @@ export async function prepareSlackMessage(params: {
     token: ctx.botToken,
     maxBytes: ctx.mediaMaxBytes,
   });
-<<<<<<< HEAD
   const rawBody = (message.text ?? "").trim() || media?.placeholder || "";
   if (!rawBody) return null;
-=======
-  const mediaPlaceholder = media ? media.map((m) => m.placeholder).join(" ") : undefined;
-  const rawBody = (message.text ?? "").trim() || mediaPlaceholder || "";
-  if (!rawBody) {
-    return null;
-  }
->>>>>>> c76288bdf (fix(slack): download all files in multi-image messages (#15447))
 
   const ackReaction = resolveAckReaction(cfg, route.agentId);
   const ackReactionValue = ackReaction ?? "";

@@ -2,16 +2,9 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
-=======
-import { beforeAll, describe, expect, it } from "vitest";
-import { captureEnv } from "../test-utils/env.js";
-import { startGatewayServer } from "./server.js";
-import { extractPayloadText } from "./test-helpers.agent-results.js";
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
 import {
   connectDeviceAuthReq,
   connectGatewayClient,

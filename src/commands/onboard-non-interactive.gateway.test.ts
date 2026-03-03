@@ -48,7 +48,6 @@ async function getFreePort(): Promise<number> {
       const srv = createServer();
       srv.on("error", (err) => {
         srv.close();
-<<<<<<< HEAD
         reject(new Error("failed to acquire free port"));
         return;
       }
@@ -56,25 +55,6 @@ async function getFreePort(): Promise<number> {
       srv.close((err) => {
         if (err) reject(err);
         else resolve(port);
-=======
-        reject(err);
-      });
-      srv.listen(0, "127.0.0.1", () => {
-        const addr = srv.address();
-        if (!addr || typeof addr === "string") {
-          srv.close();
-          reject(new Error("failed to acquire free port"));
-          return;
-        }
-        const port = addr.port;
-        srv.close((err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(port);
-          }
-        });
->>>>>>> b796f6ec0 (Security: harden web tools and file parsing (#4058))
       });
     });
   } catch (err) {

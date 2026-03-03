@@ -53,8 +53,6 @@ Use `--link` to avoid copying a local directory (adds to `plugins.load.paths`):
 openclaw plugins install -l ./my-plugin
 ```
 
-<<<<<<< HEAD
-=======
 Use `--pin` on npm installs to save the resolved exact spec (`name@version`) in
 `plugins.installs` while keeping the default behavior unpinned.
 
@@ -76,7 +74,6 @@ state dir extensions root (`$OPENCLAW_STATE_DIR/extensions/<id>`). Use
 
 `--keep-config` is supported as a deprecated alias for `--keep-files`.
 
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 ### Update
 
 ```bash

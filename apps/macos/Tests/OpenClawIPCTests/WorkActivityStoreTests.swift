@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/WorkActivityStoreTests.swift
-=======
 import OpenClawProtocol
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/WorkActivityStoreTests.swift
 import Foundation
 import MoltbotProtocol
 import Testing

@@ -1,8 +1,5 @@
-<<<<<<< HEAD:apps/macos/Sources/MoltbotMacCLI/WizardCommand.swift
-=======
 import OpenClawKit
 import OpenClawProtocol
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClawMacCLI/WizardCommand.swift
 import Darwin
 import Foundation
 import MoltbotKit

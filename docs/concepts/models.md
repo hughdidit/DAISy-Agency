@@ -80,15 +80,9 @@ Example allowlist config:
     model: { primary: "anthropic/claude-sonnet-4-5" },
     models: {
       "anthropic/claude-sonnet-4-5": { alias: "Sonnet" },
-<<<<<<< HEAD
       "anthropic/claude-opus-4-5": { alias: "Opus" }
     }
   }
-=======
-      "anthropic/claude-opus-4-6": { alias: "Opus" },
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

@@ -407,19 +407,8 @@ extension Request: Codable {
     }
 }
 
-<<<<<<< HEAD:apps/macos/Sources/MoltbotIPC/IPC.swift
 /// Shared transport settings
 public let controlSocketPath = FileManager()
     .homeDirectoryForCurrentUser
     .appendingPathComponent("Library/Application Support/moltbot/control.sock")
     .path
-=======
-// Shared transport settings
-public let controlSocketPath: String = {
-    let home = FileManager().homeDirectoryForCurrentUser
-    let preferred = home
-        .appendingPathComponent("Library/Application Support/OpenClaw/control.sock")
-        .path
-    return preferred
-}()
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClawIPC/IPC.swift

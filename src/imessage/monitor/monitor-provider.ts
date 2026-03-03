@@ -1,9 +1,5 @@
 import fs from "node:fs/promises";
-<<<<<<< HEAD
 
-=======
-import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
->>>>>>> 49d0def6d (fix(security): harden imessage remote scp/ssh handling)
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
@@ -351,7 +347,6 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     const kind = mediaKindFromMime(mediaType ?? undefined);
     const placeholder = kind ? `<media:${kind}>` : attachments?.length ? "<media:attachment>" : "";
     const bodyText = messageText || placeholder;
-<<<<<<< HEAD
     if (!bodyText) return;
     const replyContext = describeReplyContext(message);
     const createdAt = message.created_at ? Date.parse(message.created_at) : undefined;
@@ -360,15 +355,6 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
       : undefined;
     const mentioned = isGroup ? matchesMentionPatterns(messageText, mentionRegexes) : true;
     const requireMention = resolveChannelGroupRequireMention({
-=======
-
-    const storeAllowFrom = await readChannelAllowFromStore(
-      "imessage",
-      process.env,
-      accountInfo.accountId,
-    ).catch(() => []);
-    const decision = resolveIMessageInboundDecision({
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       cfg,
       channel: "imessage",
       accountId: accountInfo.accountId,
@@ -376,39 +362,12 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
       requireMentionOverride: opts.requireMention,
       overrideOrder: "before-config",
     });
-<<<<<<< HEAD
     const canDetectMention = mentionRegexes.length > 0;
     const useAccessGroups = cfg.commands?.useAccessGroups !== false;
     const ownerAllowedForCommands =
       effectiveDmAllowFrom.length > 0
         ? isAllowedIMessageSender({
             allowFrom: effectiveDmAllowFrom,
-=======
-
-    if (decision.kind === "drop") {
-      return;
-    }
-
-    const chatId = message.chat_id ?? undefined;
-    if (decision.kind === "pairing") {
-      const sender = (message.sender ?? "").trim();
-      if (!sender) {
-        return;
-      }
-      const { code, created } = await upsertChannelPairingRequest({
-        channel: "imessage",
-        id: decision.senderId,
-        accountId: accountInfo.accountId,
-        meta: {
-          sender: decision.senderId,
-          chatId: chatId ? String(chatId) : undefined,
-        },
-      });
-      if (created) {
-        logVerbose(`imessage pairing request sender=${decision.senderId}`);
-        try {
-          await sendMessageIMessage(
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
             sender,
             chatId: chatId ?? undefined,
             chatGuid,

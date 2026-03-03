@@ -2,8 +2,6 @@ import crypto from "node:crypto";
 
 import type { WebhookContext } from "./types.js";
 
-<<<<<<< HEAD
-=======
 const REPLAY_WINDOW_MS = 10 * 60 * 1000;
 const REPLAY_CACHE_MAX_ENTRIES = 10_000;
 const REPLAY_CACHE_PRUNE_INTERVAL = 64;
@@ -66,7 +64,6 @@ function markReplay(cache: ReplayCache, replayKey: string): boolean {
   return false;
 }
 
->>>>>>> a3c4f56b0 (security(voice-call): detect Telnyx webhook replay)
 /**
  * Validate Twilio webhook signature using HMAC-SHA1.
  *
@@ -213,8 +210,6 @@ export interface TwilioVerificationResult {
   verificationUrl?: string;
   /** Whether we're running behind ngrok free tier */
   isNgrokFreeTier?: boolean;
-<<<<<<< HEAD
-=======
   /** Request is cryptographically valid but was already processed recently. */
   isReplay?: boolean;
 }
@@ -340,7 +335,6 @@ export function verifyTelnyxWebhook(
       reason: `Verification error: ${err instanceof Error ? err.message : String(err)}`,
     };
   }
->>>>>>> a3c4f56b0 (security(voice-call): detect Telnyx webhook replay)
 }
 
 /**

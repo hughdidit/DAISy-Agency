@@ -15,8 +15,6 @@ vi.mock("./tools/nodes-utils.js", () => ({
   resolveNodeIdFromList: vi.fn((nodes: Array<{ nodeId: string }>) => nodes[0]?.nodeId),
 }));
 
-<<<<<<< HEAD
-=======
 vi.mock("../infra/exec-obfuscation-detect.js", () => ({
   detectCommandObfuscation: vi.fn(() => ({
     detected: false,
@@ -29,20 +27,16 @@ let callGatewayTool: typeof import("./tools/gateway.js").callGatewayTool;
 let createExecTool: typeof import("./bash-tools.exec.js").createExecTool;
 let detectCommandObfuscation: typeof import("../infra/exec-obfuscation-detect.js").detectCommandObfuscation;
 
->>>>>>> 0e28e50b4 (fix(security): detect obfuscated commands that bypass allowlist filters (#24287))
 describe("exec approvals", () => {
   let previousHome: string | undefined;
   let previousUserProfile: string | undefined;
 
-<<<<<<< HEAD
-=======
   beforeAll(async () => {
     ({ callGatewayTool } = await import("./tools/gateway.js"));
     ({ createExecTool } = await import("./bash-tools.exec.js"));
     ({ detectCommandObfuscation } = await import("../infra/exec-obfuscation-detect.js"));
   });
 
->>>>>>> 0e28e50b4 (fix(security): detect obfuscated commands that bypass allowlist filters (#24287))
   beforeEach(async () => {
     previousHome = process.env.HOME;
     previousUserProfile = process.env.USERPROFILE;

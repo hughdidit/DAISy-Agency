@@ -13,25 +13,8 @@ import {
   resolvePackedRootDir,
 } from "../infra/archive.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { installPackageDir } from "../infra/install-package-dir.js";
-import { resolveSafeInstallDir, unscopedPackageName } from "../infra/install-safe-path.js";
-import {
-  type NpmIntegrityDrift,
-  type NpmSpecResolution,
-  packNpmSpecToArchive,
-  resolveArchiveSourcePath,
-  withTempDir,
-} from "../infra/install-source-utils.js";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
-<<<<<<< HEAD
 import { runCommandWithTimeout } from "../process/exec.js";
-=======
-import { isPathInside, isPathInsideWithRealpath } from "../security/scan-paths.js";
->>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 >>>>>>> 6f7d31c42 (fix(security): harden plugin/hook npm installs)
 import { parseFrontmatter } from "./frontmatter.js";
@@ -402,14 +385,7 @@ export async function installHooksFromNpmSpec(params: {
   const dryRun = params.dryRun ?? false;
   const expectedHookPackId = params.expectedHookPackId;
   const spec = params.spec.trim();
-<<<<<<< HEAD
   if (!spec) return { ok: false, error: "missing npm spec" };
-=======
-  const specError = validateRegistryNpmSpec(spec);
-  if (specError) {
-    return { ok: false, error: specError };
-  }
->>>>>>> 6f7d31c42 (fix(security): harden plugin/hook npm installs)
 
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hook-pack-"));
   try {
@@ -426,7 +402,6 @@ export async function installHooksFromNpmSpec(params: {
       return { ok: false, error: `npm pack failed: ${res.stderr.trim() || res.stdout.trim()}` };
     }
 
-<<<<<<< HEAD
     const packed = (res.stdout || "")
       .split("\n")
       .map((l) => l.trim())
@@ -439,47 +414,6 @@ export async function installHooksFromNpmSpec(params: {
     const archivePath = path.join(tmpDir, packed);
     return await installHooksFromArchive({
       archivePath,
-=======
-    const npmResolution: NpmSpecResolution = {
-      ...packedResult.metadata,
-      resolvedAt: new Date().toISOString(),
-    };
-
-    let integrityDrift: NpmIntegrityDrift | undefined;
-    if (
-      params.expectedIntegrity &&
-      npmResolution.integrity &&
-      params.expectedIntegrity !== npmResolution.integrity
-    ) {
-      integrityDrift = {
-        expectedIntegrity: params.expectedIntegrity,
-        actualIntegrity: npmResolution.integrity,
-      };
-      const driftPayload: HookNpmIntegrityDriftParams = {
-        spec,
-        expectedIntegrity: integrityDrift.expectedIntegrity,
-        actualIntegrity: integrityDrift.actualIntegrity,
-        resolution: npmResolution,
-      };
-      let proceed = true;
-      if (params.onIntegrityDrift) {
-        proceed = await params.onIntegrityDrift(driftPayload);
-      } else {
-        logger.warn?.(
-          `Integrity drift detected for ${driftPayload.resolution.resolvedSpec ?? driftPayload.spec}: expected ${driftPayload.expectedIntegrity}, got ${driftPayload.actualIntegrity}`,
-        );
-      }
-      if (!proceed) {
-        return {
-          ok: false,
-          error: `aborted: npm package integrity drift detected for ${driftPayload.resolution.resolvedSpec ?? driftPayload.spec}`,
-        };
-      }
-    }
-
-    const installResult = await installHooksFromArchive({
-      archivePath: packedResult.archivePath,
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
       hooksDir: params.hooksDir,
       timeoutMs,
       logger,
@@ -487,22 +421,9 @@ export async function installHooksFromNpmSpec(params: {
       dryRun,
       expectedHookPackId,
     });
-<<<<<<< HEAD
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => undefined);
   }
-=======
-    if (!installResult.ok) {
-      return installResult;
-    }
-
-    return {
-      ...installResult,
-      npmResolution,
-      integrityDrift,
-    };
-  });
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 }
 
 export async function installHooksFromPath(params: {

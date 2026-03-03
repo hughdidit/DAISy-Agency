@@ -38,8 +38,6 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
 4. Point BlueBubbles webhooks to your gateway (example: `https://your-gateway-host:3000/bluebubbles-webhook?password=<password>`).
 5. Start the gateway; it will register the webhook handler and start pairing.
 
-<<<<<<< HEAD
-=======
 Security note:
 
 - Always set a webhook password.
@@ -119,7 +117,6 @@ launchctl unload ~/Library/LaunchAgents/com.user.poke-messages.plist 2>/dev/null
 launchctl load ~/Library/LaunchAgents/com.user.poke-messages.plist
 ```
 
->>>>>>> 743f4b284 (fix(security): harden BlueBubbles webhook auth behind proxies)
 ## Onboarding
 BlueBubbles is available in the interactive setup wizard:
 ```

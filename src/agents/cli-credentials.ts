@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import { execSync } from "node:child_process";
-=======
-import type { OAuthCredentials, OAuthProvider } from "@mariozechner/pi-ai";
-import { execFileSync, execSync } from "node:child_process";
->>>>>>> 9dce3d8bf (fix(security): prevent shell injection in macOS keychain credential write (#15924))
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";

@@ -74,14 +74,7 @@ export function registerBrowserFilesAndDownloadsCommands(
   browser
     .command("waitfordownload")
     .description("Wait for the next download (and save it)")
-<<<<<<< HEAD
     .argument("[path]", "Save path (default: /tmp/openclaw/downloads/...)")
-=======
-    .argument(
-      "[path]",
-      "Save path within openclaw temp downloads dir (default: /tmp/openclaw/downloads/...; fallback: os.tmpdir()/openclaw/downloads/...)",
-    )
->>>>>>> 7f0489e47 (Security/Browser: constrain trace and download output paths to OpenClaw temp roots (#15652))
     .option("--target-id <id>", "CDP target id (or unique prefix)")
     .option(
       "--timeout-ms <ms>",

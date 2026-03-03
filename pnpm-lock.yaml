@@ -397,7 +397,6 @@ importers:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   extensions/memory-mongodb:
     dependencies:
       '@sinclair/typebox':
@@ -409,9 +408,6 @@ importers:
       openai:
         specifier: ^6.16.0
         version: 6.16.0(ws@8.19.0)(zod@4.3.6)
-=======
-  extensions/minimax-portal-auth: {}
->>>>>>> 1287328b6 (feat: add MiniMax OAuth plugin (#4521) (thanks @Maosghoul))
 =======
   extensions/minimax-portal-auth:
     devDependencies:
@@ -433,15 +429,11 @@ importers:
         version: 5.2.1
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
       openclaw:
         specifier: workspace:*
 <<<<<<< HEAD
 <<<<<<< HEAD
         version: link:../..
-=======
-        version: link:../../packages/moltbot
->>>>>>> 9a7160786 (refactor: rename to openclaw)
 =======
         version: link:../..
 >>>>>>> c5d7d1110 (chore: update pnpm lockfile)
@@ -3166,16 +3158,11 @@ packages:
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
 
-<<<<<<< HEAD
   '@types/webidl-conversions@7.0.3':
     resolution: {integrity: sha512-CiJJvcRtIgzadHCYXw7dqEnMNRjhGZlYK05Mj9OyktqV8uVT8fD2BFOB7S1uwBE3Kj2Z+4UyPmFw/Ixgw/LAlA==}
 
   '@types/whatwg-url@11.0.5':
     resolution: {integrity: sha512-coYR071JRaHa+xoEvvYqvnIHaVqaYrLPbsufM9BF63HkwI5Lgmy2QR8Q5K/lYDYo5AK82wOvSOS0UsLTpTG7uQ==}
-=======
-  '@types/unist@3.0.3':
-    resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
->>>>>>> 612ed5b3e (diffs plugin)
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -3548,7 +3535,6 @@ packages:
     engines: {node: 18 || 20 || >=22}
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   browser-or-node@1.3.0:
     resolution: {integrity: sha512-0F2z/VSnLbmEeBcUrSuDH5l0HxTXdQQzLjkmBR4cYfvg1zJrKSlmIZFqyFR8oX0NrwPhy3c3HQ6i3OxMbew4Tg==}
 
@@ -3560,10 +3546,6 @@ packages:
   bson@6.10.4:
     resolution: {integrity: sha512-WIsKqkSC0ABoBJuT1LEX+2HEvNmNKKgnTAyd0fL8qzK4SH2i9NXg+t08YtdZp/V9IZ33cxe3iV4yM0qg8lMQng==}
     engines: {node: '>=16.20.1'}
-=======
-  buffer-crc32@0.2.13:
-    resolution: {integrity: sha512-VO9Ht/+p3SN7SKWqcrgEzjGbRSJYTx+Q1pTQC0wrWqHx0vpJraQ6GtHx8tvcg1rlK1byhU5gccxgOgj7B0TDkQ==}
->>>>>>> 08ed62852 (chore: update deps and pi model discovery)
 
 =======
 >>>>>>> 88fe4de15 (chore: Remove unused deps.)
@@ -4189,15 +4171,12 @@ packages:
 
   glob@10.5.0:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
-<<<<<<< HEAD
     deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@11.1.0:
     resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
     engines: {node: 20 || >=22}
-=======
->>>>>>> 460808e0c (Update deps.)
     deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
@@ -4759,15 +4738,12 @@ packages:
     resolution: {integrity: sha512-aisnrDP4GNe06UcKFnV5bfMNPBUw4jsLGaWwWfnH3v02GnBuXX2MCVn5RbrWo0j3pczUilYblq7fQ7Nw2t5XKw==}
     engines: {node: '>= 0.8'}
 
-<<<<<<< HEAD
   memory-pager@1.5.0:
     resolution: {integrity: sha512-ZS4Bp4r/Zoeq6+NLJpP+0Zzm0pR8whtGPf1XExKLJBAczGMnSi3It14OiNCStjQjM6NU1okjQGSxgEZN8eBYKg==}
 
   memory-stream@1.0.0:
     resolution: {integrity: sha512-Wm13VcsPIMdG96dzILfij09PvuS3APtcKNh7M28FsCA/w6+1mjR7hhPmfFNoilX9xU7wTdhsH5lJAm6XNzdtww==}
 
-=======
->>>>>>> 62fa65ec8 (Fix npm global install deprecation warnings (#28318))
   merge-descriptors@1.0.3:
     resolution: {integrity: sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ==}
 
@@ -5655,13 +5631,8 @@ packages:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
 
-<<<<<<< HEAD
   sparse-bitfield@3.0.3:
     resolution: {integrity: sha512-kvzhi7vqKTfkh0PZU+2D2PIllw2ymqJKujUcyPMd9Y75Nv4nPbGJZXNhxsgdQab2BmlDct1YnfQCguEvHr7VsQ==}
-=======
-  space-separated-tokens@2.0.2:
-    resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
->>>>>>> 612ed5b3e (diffs plugin)
 
   split2@4.2.0:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
@@ -5794,12 +5765,7 @@ packages:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-=======
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
-=======
->>>>>>> 7d89855c5 (fix: align npm publish metadata)
 =======
 >>>>>>> fb6dba205 (fix(ci): align tar override and lockfile to 7.5.9)
 =======
@@ -5808,13 +5774,10 @@ packages:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   text-decoder@1.2.3:
     resolution: {integrity: sha512-3/o9z3X0X0fTupwsYvR03pJ/DjWuqqrfwBgTQzdWDiQSm9KitAyz/9WqsT2JQW7KV2m+bC2ol/zqpW37NHxLaA==}
 >>>>>>> 08ed62852 (chore: update deps and pi model discovery)
 
-=======
->>>>>>> 88fe4de15 (chore: Remove unused deps.)
 =======
   tar@7.5.9:
     resolution: {integrity: sha512-BTLcK0xsDh2+PUe9F6c2TlRp4zOOBMTkoQHQIWSIzI0R7KG46uEwq4OPk2W7bZcprBMsuaeFsqwYr7pjh6CuHg==}
@@ -5883,15 +5846,9 @@ packages:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   tr46@5.1.1:
     resolution: {integrity: sha512-hdF5ZgjTqgAntKkklYw0R03MG2x/bSzTtkxmIRw/sTNV8YXsCJ1tfLAX23lhxhHJlEf3CRCOCGGWw3vI3GaSPw==}
     engines: {node: '>=18'}
-=======
-  tree-kill@1.2.2:
-    resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
-    hasBin: true
->>>>>>> 67945e8d6 (chore: Switch from TypeScript to build with `tsdown`, speeds up `pnpm build` by 5-10x.)
 
 =======
 >>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
@@ -5900,13 +5857,7 @@ packages:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
 
-<<<<<<< HEAD
 >>>>>>> a03d852d6 (chore: Migrate to tsdown, speed up JS bundling by ~10x (thanks @hyf0).)
-=======
-  trim-lines@3.0.1:
-    resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
-
->>>>>>> 612ed5b3e (diffs plugin)
   ts-algebra@2.0.0:
     resolution: {integrity: sha512-FPAhNPFMrkwz76P7cdjdmiShwMynZYN6SgOujD1urY4oNm80Ou9oMdmbR45LotcKOXoy7wSmHkRFE6Mxbrhefw==}
 
@@ -6167,7 +6118,6 @@ packages:
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
-<<<<<<< HEAD
   webidl-conversions@7.0.0:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
     engines: {node: '>=12'}
@@ -6179,8 +6129,6 @@ packages:
     resolution: {integrity: sha512-De72GdQZzNTUBBChsXueQUnPKDkg/5A5zp7pFDuQAj5UFoENpiACU0wlCvzpAGnTkj++ihpKwKyYewn/XNUbKw==}
     engines: {node: '>=18'}
 
-=======
->>>>>>> 55eab106a (chore: remove root long and rolldown deps (#22481))
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
 
@@ -9547,15 +9495,11 @@ snapshots:
 
   '@types/trusted-types@2.0.7': {}
 
-<<<<<<< HEAD
   '@types/webidl-conversions@7.0.3': {}
 
   '@types/whatwg-url@11.0.5':
     dependencies:
       '@types/webidl-conversions': 7.0.3
-=======
-  '@types/unist@3.0.3': {}
->>>>>>> 612ed5b3e (diffs plugin)
 
   '@types/ws@8.18.1':
     dependencies:
@@ -10003,7 +9947,6 @@ snapshots:
       balanced-match: 4.0.4
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   browser-or-node@1.3.0: {}
 
 <<<<<<< HEAD
@@ -10011,9 +9954,6 @@ snapshots:
 
 <<<<<<< HEAD
   bson@6.10.4: {}
-=======
-  buffer-crc32@0.2.13: {}
->>>>>>> 08ed62852 (chore: update deps and pi model discovery)
 
 =======
 >>>>>>> 88fe4de15 (chore: Remove unused deps.)
@@ -11295,15 +11235,12 @@ snapshots:
 
   media-typer@1.1.0: {}
 
-<<<<<<< HEAD
   memory-pager@1.5.0: {}
 
   memory-stream@1.0.0:
     dependencies:
       readable-stream: 3.6.2
 
-=======
->>>>>>> 62fa65ec8 (Fix npm global install deprecation warnings (#28318))
   merge-descriptors@1.0.3: {}
 
   merge-descriptors@2.0.0: {}
@@ -12458,13 +12395,9 @@ snapshots:
 
   source-map@0.6.1: {}
 
-<<<<<<< HEAD
   sparse-bitfield@3.0.3:
     dependencies:
       memory-pager: 1.5.0
-=======
-  space-separated-tokens@2.0.2: {}
->>>>>>> 612ed5b3e (diffs plugin)
 
   split2@4.2.0: {}
 
@@ -12668,25 +12601,16 @@ snapshots:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   tr46@5.1.1:
     dependencies:
       punycode: 2.3.1
-=======
-  tree-kill@1.2.2: {}
->>>>>>> 67945e8d6 (chore: Switch from TypeScript to build with `tsdown`, speeds up `pnpm build` by 5-10x.)
 
 =======
 >>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
 =======
   tree-kill@1.2.2: {}
 
-<<<<<<< HEAD
 >>>>>>> a03d852d6 (chore: Migrate to tsdown, speed up JS bundling by ~10x (thanks @hyf0).)
-=======
-  trim-lines@3.0.1: {}
-
->>>>>>> 612ed5b3e (diffs plugin)
   ts-algebra@2.0.0: {}
 
   tsdown@0.21.0-beta.2(@typescript/native-preview@7.0.0-dev.20260301.1)(typescript@5.9.3):
@@ -12902,7 +12826,6 @@ snapshots:
 
   webidl-conversions@3.0.1: {}
 
-<<<<<<< HEAD
   webidl-conversions@7.0.0: {}
 
   whatwg-fetch@3.6.20: {}
@@ -12912,8 +12835,6 @@ snapshots:
       tr46: 5.1.1
       webidl-conversions: 7.0.0
 
-=======
->>>>>>> 55eab106a (chore: remove root long and rolldown deps (#22481))
   whatwg-url@5.0.0:
     dependencies:
       tr46: 0.0.3

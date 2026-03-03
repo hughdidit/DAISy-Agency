@@ -20,11 +20,7 @@ import {
   DEFAULT_MAIN_KEY,
   normalizeAgentId,
 } from "../routing/session-key.js";
-<<<<<<< HEAD
 import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
-=======
-import { isWithinDir } from "./path-safety.js";
->>>>>>> 2363e1b08 (fix(security): restrict skill download target paths)
 import {
   ensureDir,
   existsDir,
@@ -309,8 +305,6 @@ function isDirPath(filePath: string): boolean {
   }
 }
 
-<<<<<<< HEAD
-=======
 function isLegacyTreeSymlinkMirror(currentDir: string, realTargetDir: string): boolean {
   let entries: fs.Dirent[];
   try {
@@ -368,7 +362,6 @@ function isLegacyDirSymlinkMirror(legacyDir: string, targetDir: string): boolean
   return isLegacyTreeSymlinkMirror(legacyDir, realTargetDir);
 }
 
->>>>>>> 2363e1b08 (fix(security): restrict skill download target paths)
 export async function autoMigrateLegacyStateDir(params: {
   env?: NodeJS.ProcessEnv;
   homedir?: () => string;

@@ -1,14 +1,8 @@
 import { logVerbose } from "../../globals.js";
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { shouldHandleTextCommands } from "../commands-registry.js";
-<<<<<<< HEAD
 import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
 import { routeReply } from "./route-reply.js";
-=======
-import { handleAcpCommand } from "./commands-acp.js";
-import { handleAllowlistCommand } from "./commands-allowlist.js";
-import { handleApproveCommand } from "./commands-approve.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 import { handleBashCommand } from "./commands-bash.js";
 import { handleCompactCommand } from "./commands-compact.js";
 import { handleConfigCommand, handleDebugCommand } from "./commands-config.js";
@@ -65,8 +59,6 @@ const HANDLERS: CommandHandler[] = [
 ];
 
 export async function handleCommands(params: HandleCommandsParams): Promise<CommandHandlerResult> {
-<<<<<<< HEAD
-=======
   if (HANDLERS === null) {
     HANDLERS = [
       // Plugin commands are processed first, before built-in commands
@@ -96,7 +88,6 @@ export async function handleCommands(params: HandleCommandsParams): Promise<Comm
       handleAbortTrigger,
     ];
   }
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   const resetMatch = params.command.commandBodyNormalized.match(/^\/(new|reset)(?:\s|$)/);
   const resetRequested = Boolean(resetMatch);
   if (resetRequested && !params.command.isAuthorizedSender) {

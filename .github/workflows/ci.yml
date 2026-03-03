@@ -40,8 +40,6 @@ jobs:
             command: pnpm protocol:check
           - task: format
             command: pnpm format
-<<<<<<< HEAD
-=======
           - runtime: bun
             task: test
             command: pnpm canvas:a2ui:bundle && bunx vitest run
@@ -49,7 +47,6 @@ jobs:
             task: build
 <<<<<<< HEAD
             command: bunx tsdown
->>>>>>> 762652279 (Switch from TypeScript to TypeScript Go. Use `pnpm tsgo` for Typechecks.)
 =======
             command: bunx tsc -p tsconfig.json --noEmit false
 >>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
@@ -107,8 +104,6 @@ jobs:
       - name: Run ${{ matrix.task }}
         run: ${{ matrix.command }}
 
-<<<<<<< HEAD
-=======
       - name: Summarize slowest tests
         if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
         run: |
@@ -202,7 +197,6 @@ jobs:
       - name: Check docs
         run: pnpm check:docs
 
->>>>>>> d3bb92470 (chore(deadcode): add deadcode scanning and remove unused lockfile deps (#22468))
   secrets:
     name: Secrets Scan
     runs-on: ubuntu-latest

@@ -71,10 +71,6 @@ export function createGatewayTool(opts?: {
     parameters: GatewayToolSchema,
     execute: async (_toolCallId, args) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-      assertOwnerSender(opts?.senderIsOwner);
->>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 =======
 >>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
       const params = args as Record<string, unknown>;
@@ -218,7 +214,6 @@ export function createGatewayTool(opts?: {
         return jsonResult({ ok: true, result });
       }
       if (action === "update.run") {
-<<<<<<< HEAD
         const sessionKey =
           typeof params.sessionKey === "string" && params.sessionKey.trim()
             ? params.sessionKey.trim()
@@ -234,19 +229,6 @@ export function createGatewayTool(opts?: {
           note,
           restartDelayMs,
           timeoutMs,
-=======
-        const { sessionKey, note, restartDelayMs } = resolveGatewayWriteMeta();
-        const updateTimeoutMs = gatewayOpts.timeoutMs ?? DEFAULT_UPDATE_TIMEOUT_MS;
-        const updateGatewayOpts = {
-          ...gatewayOpts,
-          timeoutMs: updateTimeoutMs,
-        };
-        const result = await callGatewayTool("update.run", updateGatewayOpts, {
-          sessionKey,
-          note,
-          restartDelayMs,
-          timeoutMs: updateTimeoutMs,
->>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
         });
         return jsonResult({ ok: true, result });
       }

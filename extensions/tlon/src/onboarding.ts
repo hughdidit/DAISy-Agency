@@ -8,12 +8,8 @@ import {
 } from "openclaw/plugin-sdk";
 
 import { listTlonAccountIds, resolveTlonAccount } from "./types.js";
-<<<<<<< HEAD
 import type { TlonResolvedAccount } from "./types.js";
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
-=======
-import { isBlockedUrbitHostname, validateUrbitBaseUrl } from "./urbit/base-url.js";
->>>>>>> bfa7d21e9 (fix(security): harden tlon Urbit requests against SSRF)
 
 const channel = "tlon" as const;
 

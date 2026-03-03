@@ -1,10 +1,6 @@
 import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
-=======
-import { loadSessionStore, resolveStorePath, type SessionEntry } from "../../config/sessions.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 import { logVerbose } from "../../globals.js";
 import { isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
 import {
@@ -13,11 +9,8 @@ import {
   logSessionStateChange,
 } from "../../logging/diagnostic.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
-<<<<<<< HEAD
-=======
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { maybeApplyTtsToPayload, normalizeTtsAutoMode, resolveTtsConfig } from "../../tts/tts.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 import { getReplyFromConfig } from "../reply.js";
 import type { FinalizedMsgContext } from "../templating.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
@@ -66,13 +59,7 @@ const resolveSessionStoreEntry = (
   const targetSessionKey =
     ctx.CommandSource === "native" ? ctx.CommandTargetSessionKey?.trim() : undefined;
   const sessionKey = (targetSessionKey ?? ctx.SessionKey)?.trim();
-<<<<<<< HEAD
   if (!sessionKey) return undefined;
-=======
-  if (!sessionKey) {
-    return {};
-  }
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   const agentId = resolveSessionAgentId({ sessionKey, config: cfg });
   const storePath = resolveStorePath(cfg.session?.store, { agentId });
   try {
@@ -341,8 +328,6 @@ export async function dispatchReplyFromConfig(params: {
     let accumulatedBlockText = "";
     let blockCount = 0;
 
-<<<<<<< HEAD
-=======
     const resolveToolDeliveryPayload = (payload: ReplyPayload): ReplyPayload | null => {
       if (shouldSendToolSummaries) {
         return payload;
@@ -356,7 +341,6 @@ export async function dispatchReplyFromConfig(params: {
       return { ...payload, text: undefined };
     };
 
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     const replyResult = await (params.replyResolver ?? getReplyFromConfig)(
       ctx,
       {

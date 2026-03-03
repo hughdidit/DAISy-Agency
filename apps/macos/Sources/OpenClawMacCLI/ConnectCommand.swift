@@ -1,12 +1,6 @@
-<<<<<<< HEAD:apps/macos/Sources/MoltbotMacCLI/ConnectCommand.swift
 import Foundation
 import MoltbotKit
 import MoltbotProtocol
-=======
-import OpenClawKit
-import OpenClawProtocol
-import Foundation
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClawMacCLI/ConnectCommand.swift
 #if canImport(Darwin)
 import Darwin
 #endif

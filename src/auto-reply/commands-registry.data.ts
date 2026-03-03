@@ -270,8 +270,6 @@ function buildChatCommands(): ChatCommandDefinition[] {
       argsMenu: "auto",
     }),
     defineChatCommand({
-<<<<<<< HEAD
-=======
       key: "acp",
       nativeName: "acp",
       description: "Manage ACP sessions and runtime options.",
@@ -376,7 +374,6 @@ function buildChatCommands(): ChatCommandDefinition[] {
       ],
     }),
     defineChatCommand({
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
       key: "config",
       nativeName: "config",
       description: "Show or set config values.",

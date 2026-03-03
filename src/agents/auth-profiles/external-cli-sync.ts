@@ -27,19 +27,9 @@ function shallowEqualOAuthCredentials(a: OAuthCredential | undefined, b: OAuthCr
 }
 
 function isExternalProfileFresh(cred: AuthProfileCredential | undefined, now: number): boolean {
-<<<<<<< HEAD
   if (!cred) return false;
   if (cred.type !== "oauth" && cred.type !== "token") return false;
   if (cred.provider !== "qwen-portal") {
-=======
-  if (!cred) {
-    return false;
-  }
-  if (cred.type !== "oauth" && cred.type !== "token") {
-    return false;
-  }
-  if (cred.provider !== "qwen-portal" && cred.provider !== "minimax-portal") {
->>>>>>> 1287328b6 (feat: add MiniMax OAuth plugin (#4521) (thanks @Maosghoul))
     return false;
   }
   if (typeof cred.expires !== "number") return true;

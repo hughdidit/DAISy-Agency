@@ -60,8 +60,6 @@ describe("ssrf pinning", () => {
     expect(fallback).toHaveBeenCalledTimes(1);
     expect(result.address).toBe("1.2.3.4");
   });
-<<<<<<< HEAD
-=======
 
   it("enforces hostname allowlist when configured", async () => {
     const lookup = vi.fn(async () => [
@@ -149,7 +147,6 @@ describe("ssrf pinning", () => {
     expect(lookup).toHaveBeenCalledTimes(1);
   });
 <<<<<<< HEAD
->>>>>>> baa335f25 (fix(security): harden SSRF IPv4 literal parsing)
 =======
 
   it("accepts dangerouslyAllowPrivateNetwork as an allowPrivateNetwork alias", async () => {

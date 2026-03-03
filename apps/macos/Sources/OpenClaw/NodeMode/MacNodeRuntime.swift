@@ -1,13 +1,7 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/NodeMode/MacNodeRuntime.swift
 import Foundation
 import MoltbotIPC
 import MoltbotKit
-=======
-import OpenClawIPC
-import OpenClawKit
-import Foundation
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/NodeMode/MacNodeRuntime.swift
 
 actor MacNodeRuntime {
     private let cameraCapture = CameraCaptureService()

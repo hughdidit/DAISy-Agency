@@ -2,8 +2,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
-=======
 import type {
   ChannelId,
   ChannelMessageActionName,
@@ -13,7 +11,6 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import {
   readNumberParam,
   readStringArrayParam,
@@ -22,7 +19,6 @@ import {
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
-<<<<<<< HEAD
 import type {
   ChannelId,
   ChannelMessageActionName,
@@ -30,21 +26,6 @@ import type {
 } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
-=======
-import type { OutboundSendDeps } from "./deliver.js";
-import type { MessagePollResult, MessageSendResult } from "./message.js";
-import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-import { assertMediaNotDataUrl, resolveSandboxedMediaSource } from "../../agents/sandbox-paths.js";
-import {
-  readNumberParam,
-  readStringArrayParam,
-  readStringParam,
-} from "../../agents/tools/common.js";
-import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
-import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
-import { extensionForMime } from "../../media/mime.js";
-import { parseSlackTarget } from "../../slack/targets.js";
->>>>>>> 4434cae56 (Security: harden sandboxed media handling (#9182))
 =======
 >>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import {
@@ -58,25 +39,9 @@ import {
   resolveMessageChannelSelection,
 } from "./channel-selection.js";
 import { applyTargetToParams } from "./channel-target.js";
-<<<<<<< HEAD
 import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
-=======
-import {
-  hydrateSendAttachmentParams,
-  hydrateSetGroupIconParams,
-  normalizeSandboxMediaList,
-  normalizeSandboxMediaParams,
-  parseButtonsParam,
-  parseCardParam,
-  parseComponentsParam,
-  readBooleanParam,
-  resolveSlackAutoThreadId,
-  resolveTelegramAutoThreadId,
-} from "./message-action-params.js";
-import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import {
   applyCrossContextDecoration,
   buildCrossContextDecoration,

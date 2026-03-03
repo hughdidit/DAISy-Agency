@@ -2,15 +2,9 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { afterEach, describe, expect, it } from "vitest";
 
 import { loadOpenClawPlugins } from "./loader.js";
-=======
-import { afterAll, afterEach, describe, expect, it } from "vitest";
-import { withEnv } from "../test-utils/env.js";
-import { __testing, loadOpenClawPlugins } from "./loader.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 
 type TempPlugin = { dir: string; file: string; id: string };
 
@@ -487,8 +481,6 @@ describe("loadOpenClawPlugins", () => {
     expect(loaded?.origin).toBe("config");
     expect(overridden?.origin).toBe("bundled");
   });
-<<<<<<< HEAD
-=======
   it("warns when plugins.allow is empty and non-bundled plugins are discoverable", () => {
     process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
@@ -605,7 +597,6 @@ describe("loadOpenClawPlugins", () => {
     expect(registry.diagnostics.some((entry) => entry.message.includes("escapes"))).toBe(true);
   });
 <<<<<<< HEAD
->>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
 =======
 
   it("prefers dist plugin-sdk alias when loader runs from dist", () => {

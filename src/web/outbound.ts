@@ -1,11 +1,5 @@
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 
-=======
-import { loadConfig } from "../config/config.js";
-import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
-import { generateSecureUuid } from "../infra/secure-random.js";
->>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 import { getChildLogger } from "../logging/logger.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { normalizePollInput, type PollInput } from "../polls.js";

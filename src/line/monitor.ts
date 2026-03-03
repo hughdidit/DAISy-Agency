@@ -2,17 +2,9 @@ import type { WebhookRequestBody } from "@line/bot-sdk";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { OpenClawConfig } from "../config/config.js";
 import { danger, logVerbose } from "../globals.js";
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import { createLineBot } from "./bot.js";
 import { validateLineSignature } from "./signature.js";
-=======
-import {
-  isRequestBodyLimitError,
-  readRequestBodyWithLimit,
-  requestBodyErrorToText,
-} from "../infra/http-body.js";
->>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 import { normalizePluginHttpPath } from "../plugins/http-path.js";
 import { registerPluginHttpRoute } from "../plugins/http-registry.js";
 import {
@@ -298,7 +290,6 @@ export async function monitorLineProvider(
     pluginId: "line",
     accountId: resolvedAccountId,
     log: (msg) => logVerbose(msg),
-<<<<<<< HEAD
     handler: async (req: IncomingMessage, res: ServerResponse) => {
       // Handle GET requests for webhook verification
       if (req.method === "GET") {
@@ -374,9 +365,6 @@ export async function monitorLineProvider(
         }
       }
     },
-=======
-    handler: createLineNodeWebhookHandler({ channelSecret: secret, bot, runtime }),
->>>>>>> beb77229c (fix (security/line): fail closed when webhook auth is missing)
   });
 
   logVerbose(`line: registered webhook handler at ${normalizedPath}`);

@@ -1,15 +1,11 @@
 import { logWarn } from "../logger.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   closeDispatcher,
   createPinnedDispatcher,
   resolvePinnedHostname,
 } from "../infra/net/ssrf.js";
 import type { Dispatcher } from "undici";
-=======
-import { estimateBase64DecodedBytes } from "./base64.js";
->>>>>>> 31791233d (fix(security): reject oversized base64 before decode)
 =======
 import { canonicalizeBase64, estimateBase64DecodedBytes } from "./base64.js";
 import { readResponseWithLimit } from "./read-response-with-limit.js";
@@ -121,22 +117,8 @@ export const DEFAULT_INPUT_PDF_MAX_PAGES = 4;
 export const DEFAULT_INPUT_PDF_MAX_PIXELS = 4_000_000;
 export const DEFAULT_INPUT_PDF_MIN_TEXT_CHARS = 200;
 
-<<<<<<< HEAD
 function isRedirectStatus(status: number): boolean {
   return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
-=======
-function rejectOversizedBase64Payload(params: {
-  data: string;
-  maxBytes: number;
-  label: "Image" | "File";
-}): void {
-  const estimated = estimateBase64DecodedBytes(params.data);
-  if (estimated > params.maxBytes) {
-    throw new Error(
-      `${params.label} too large: ${estimated} bytes (limit: ${params.maxBytes} bytes)`,
-    );
-  }
->>>>>>> 31791233d (fix(security): reject oversized base64 before decode)
 }
 
 export function normalizeMimeType(value: string | undefined): string | undefined {
@@ -318,14 +300,11 @@ export async function extractImageContentFromSource(
     if (!source.data) {
       throw new Error("input_image base64 source missing 'data' field");
     }
-<<<<<<< HEAD
-=======
     rejectOversizedBase64Payload({ data: source.data, maxBytes: limits.maxBytes, label: "Image" });
     const canonicalData = canonicalizeBase64(source.data);
     if (!canonicalData) {
       throw new Error("input_image base64 source has invalid 'data' field");
     }
->>>>>>> e578521ef (fix(security): harden session export image data-url handling)
     const mimeType = normalizeMimeType(source.mediaType) ?? "image/png";
     if (!limits.allowedMimes.has(mimeType)) {
       throw new Error(`Unsupported image MIME type: ${mimeType}`);
@@ -373,14 +352,11 @@ export async function extractFileContentFromSource(params: {
     if (!source.data) {
       throw new Error("input_file base64 source missing 'data' field");
     }
-<<<<<<< HEAD
-=======
     rejectOversizedBase64Payload({ data: source.data, maxBytes: limits.maxBytes, label: "File" });
     const canonicalData = canonicalizeBase64(source.data);
     if (!canonicalData) {
       throw new Error("input_file base64 source has invalid 'data' field");
     }
->>>>>>> e578521ef (fix(security): harden session export image data-url handling)
     const parsed = parseContentType(source.mediaType);
     mimeType = parsed.mimeType;
     charset = parsed.charset;

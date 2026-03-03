@@ -156,8 +156,6 @@ describe("gateway server hooks", () => {
       await server.close();
     }
   });
-<<<<<<< HEAD
-=======
 
   test("enforces hooks.allowedAgentIds for explicit agent routing", async () => {
     testState.hooksConfig = {
@@ -333,5 +331,4 @@ describe("gateway server hooks", () => {
       await server.close();
     }
   });
->>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 });

@@ -1,16 +1,8 @@
 import crypto from "node:crypto";
 
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { verifyPlivoWebhook, verifyTwilioWebhook } from "./webhook-security.js";
-=======
-import {
-  verifyPlivoWebhook,
-  verifyTelnyxWebhook,
-  verifyTwilioWebhook,
-} from "./webhook-security.js";
->>>>>>> a3c4f56b0 (security(voice-call): detect Telnyx webhook replay)
 
 function canonicalizeBase64(input: string): string {
   return Buffer.from(input, "base64").toString("base64");

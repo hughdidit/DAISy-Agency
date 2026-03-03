@@ -22,29 +22,8 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## 2026.1.27-beta.1
 Status: beta.
-=======
-=======
-## 2026.1.31
-=======
-=======
-=======
-=======
-## 2026.2.6-4
-=======
-=======
-## 2026.2.13 (Unreleased)
-=======
-## Unreleased
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-## 2026.2.15 (Unreleased)
-=======
-## 2026.2.16 (Unreleased)
->>>>>>> 39fa81dc9 (chore: bump version to 2026.2.16)
 =======
 ## 2026.2.17 (Unreleased)
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
@@ -69,54 +48,12 @@ Status: beta.
 - Android/Nodes: add `camera.list`, `device.permissions`, `device.health`, and `notifications.actions` (`open`/`dismiss`/`reply`) on Android nodes, plus first-class node-tool actions for the new device/notification commands. (#28260) Thanks @obviyus.
 - Discord/Thread bindings: replace fixed TTL lifecycle with inactivity (`idleHours`, default 24h) plus optional hard `maxAgeHours` lifecycle controls, and add `/session idle` + `/session max-age` commands for focused thread-bound sessions. (#27845) Thanks @osolmaz.
 - Web UI/i18n: add German (`de`) locale support and auto-render language options from supported locale constants in Overview settings. (#28495) thanks @dsantoreis.
-<<<<<<< HEAD
 - Discord/Thread bindings: replace fixed TTL lifecycle with inactivity (`idleHours`, default 24h) plus optional hard `maxAgeHours` lifecycle controls, and add `/session idle` + `/session max-age` commands for focused thread-bound sessions. (#27845) Thanks @osolmaz.
 - Android/Nodes: add `camera.list`, `device.permissions`, `device.health`, and `notifications.actions` (`open`/`dismiss`/`reply`) on Android nodes, plus first-class node-tool actions for the new device/notification commands. (#28260) Thanks @obviyus.
 - Android/Gateway capability refresh: add live Android capability integration coverage and node canvas capability refresh wiring, plus runtime hardening for A2UI readiness retries, scoped canvas URL normalization, debug diagnostics JSON, and JavaScript MIME delivery. (#28388) Thanks @obviyus.
 
 ### Fixes
 
-=======
-- Web UI/Cron i18n: localize cron page labels, filters, form help text, and validation/error messaging in English and zh-CN. (#29315)
-- Android/Gateway capability refresh: add live Android capability integration coverage and node canvas capability refresh wiring, plus runtime hardening for A2UI readiness retries, scoped canvas URL normalization, debug diagnostics JSON, and JavaScript MIME delivery. (#28388) Thanks @obviyus.
-- Feishu/Docx tables + uploads: add `feishu_doc` actions for Docx table creation/cell writing (`create_table`, `write_table_cells`, `create_table_with_values`) and image/file uploads (`upload_image`, `upload_file`) with stricter create/upload error handling for missing `document_id` and placeholder cleanup failures. (#20304) Thanks @xuhao1.
-- Feishu/Reactions: add inbound `im.message.reaction.created_v1` handling, route verified reactions through synthetic inbound turns, and harden verification with timeout + fail-closed filtering so non-bot or unverified reactions are dropped. (#16716) Thanks @schumilin.
-- Feishu/Chat tooling: add `feishu_chat` tool actions for chat info and member queries, with configurable enablement under `channels.feishu.tools.chat`. (#14674)
-- Feishu/Doc permissions: support optional owner permission grant fields on `feishu_doc` create and report permission metadata only when the grant call succeeds, with regression coverage for success/failure/omitted-owner paths. (#28295) Thanks @zhoulongchao77.
-- Memory/LanceDB: support custom OpenAI `baseUrl` and embedding dimensions for LanceDB memory. (#17874) Thanks @rish2jain and @vincentkoc.
-
-### Fixes
-
-- Android/Voice screen TTS: stream assistant speech via ElevenLabs WebSocket in Talk Mode, stop cleanly on speaker mute/barge-in, and ignore stale out-of-order stream events. (#29521) Thanks @gregmousseau.
-- Web UI/Cron: include configured agent model defaults/fallbacks in cron model suggestions so scheduled-job model autocomplete reflects configured models. (#29709)
-- Cron/Delivery: disable the agent messaging tool when `delivery.mode` is `"none"` so cron output is not sent to Telegram or other channels. (#21808)
-- CLI/Cron: clarify `cron list` output by renaming `Agent` to `Agent ID` and adding a `Model` column for isolated agent-turn jobs. (#26259)
-- Feishu/Reply media attachments: send Feishu reply `mediaUrl`/`mediaUrls` payloads as attachments alongside text/streamed replies in the reply dispatcher, including legacy fallback when `mediaUrls` is empty. (#28959)
-- Slack/User-token resolution: normalize Slack account user-token sourcing through resolved account metadata (`SLACK_USER_TOKEN` env + config) so monitor reads, Slack actions, directory lookups, onboarding allow-from resolution, and capabilities probing consistently use the effective user token. (#28103) Thanks @Glucksberg.
-- Agents/Sessions list transcript paths: handle missing/non-string/relative `sessions.list.path` values and per-agent `{agentId}` templates when deriving `transcriptPath`, so cross-agent session listings resolve to concrete agent session files instead of workspace-relative paths. (#24775) Thanks @martinfrancois.
-- Feishu/Reaction notifications: add `channels.feishu.reactionNotifications` (`off | own | all`, default `own`) so operators can disable reaction ingress or allow all verified reaction events (not only bot-authored message reactions). (#28529)
-- Feishu/Outbound session routing: stop assuming bare `oc_` identifiers are always group chats, honor explicit `dm:`/`group:` prefixes for `oc_` chat IDs, and default ambiguous bare `oc_` targets to direct routing to avoid DM session misclassification. (#10407) Thanks @Bermudarat.
-- Feishu/Group session routing: add configurable group session scopes (`group`, `group_sender`, `group_topic`, `group_topic_sender`) with legacy `topicSessionMode=enabled` compatibility so Feishu group conversations can isolate sessions by sender/topic as configured. (#17798)
-- Feishu/Reply-in-thread routing: add `replyInThread` config (`disabled|enabled`) for group replies, propagate `reply_in_thread` across text/card/media/streaming sends, and align topic-scoped session routing so newly created reply threads stay on the same session root. (#27325)
-- Feishu/Typing backoff: re-throw Feishu typing add/remove rate-limit and quota errors (`429`, `99991400`, `99991403`) and detect SDK non-throwing backoff responses so the typing keepalive circuit breaker can stop retries instead of looping indefinitely. (#28494)
-- Feishu/Zalo runtime logging: replace direct `console.log/error` usage in Feishu typing-indicator paths and Zalo monitor paths with runtime-gated logger calls so verbosity controls are respected while preserving typing backoff behavior. (#18841) Thanks @Clawborn.
-- Feishu/Probe status caching: cache successful `probeFeishu()` bot-info results for 10 minutes (bounded cache with per-account keying) to reduce repeated status/onboarding probe API calls, while bypassing cache for failures and exceptions. (#28907) Thanks @Glucksberg.
-- Feishu/Opus media send type: send `.opus` attachments with `msg_type: "audio"` (instead of `"media"`) so Feishu voice messages deliver correctly while `.mp4` remains `msg_type: "media"` and documents remain `msg_type: "file"`. (#28269) Thanks @Glucksberg.
-- Feishu/Mobile video media type: treat inbound `message_type: "media"` as video-equivalent for media key extraction, placeholder inference, and media download resolution so mobile-app video sends ingest correctly. (#25502) Thanks @4ier.
-- Feishu/Inbound sender fallback: fall back to `sender_id.user_id` when `sender_id.open_id` is missing on inbound events, and use ID-type-aware sender lookup so mobile-delivered messages keep stable sender identity/routing. (#26703) Thanks @NewdlDewdl.
-- Feishu/Inbound rich-text parsing: preserve `share_chat` payload summaries when available and add explicit parsing for rich-text `code`/`code_block`/`pre` tags so forwarded and code-heavy messages keep useful context in agent input. (#28591) Thanks @kevinWangSheng.
-- Feishu/Post markdown parsing: parse rich-text `post` payloads through a shared markdown-aware parser with locale-wrapper support, preserved mention/image metadata extraction, and inline/fenced code fidelity for agent input rendering. (#12755)
-- Feishu/Reply context metadata: include inbound `parent_id` and `root_id` as `ReplyToId`/`RootMessageId` in inbound context, and parse interactive-card quote bodies into readable text when fetching replied messages. (#18529)
-- Feishu/Post embedded media: extract `media` tags from inbound rich-text (`post`) messages and download embedded video/audio files alongside existing embedded-image handling, with regression coverage. (#21786) Thanks @laopuhuluwa.
-- Feishu/Local media sends: propagate `mediaLocalRoots` through Feishu outbound media sending into `loadWebMedia` so local path attachments work with post-CVE local-root enforcement. (#27884) Thanks @joelnishanth.
-- Feishu/Group sender allowlist fallback: add global `channels.feishu.groupSenderAllowFrom` sender authorization for group chats, with per-group `groups.<id>.allowFrom` precedence and regression coverage for allow/block/precedence behavior. (#29174) Thanks @1MoreBuild.
-- Feishu/Group wildcard policy fallback: honor `channels.feishu.groups["*"]` when no explicit group match exists so unmatched groups inherit wildcard reply-policy settings instead of falling back to global defaults. (#29456) Thanks @WaynePika.
-- Feishu/Docx append/write ordering: insert converted Docx blocks sequentially (single-block creates) so Feishu append/write preserves markdown block order instead of returning shuffled sections in asynchronous batch inserts. (#26172, #26022) Thanks @echoVic.
-- Feishu/Docx convert fallback chunking: recursively split oversized markdown chunks (including long no-heading sections) when `document.convert` hits content limits, while keeping fenced-code-aware split boundaries whenever possible. (#14402) Thanks @lml2468.
-- Feishu/Inbound media regression coverage: add explicit tests for message resource type mapping (`image` stays `image`, non-image maps to `file`) to prevent reintroducing unsupported Feishu `type=audio` fetches. (#16311, #8746) Thanks @Yaxuan42.
-- Feishu/API quota controls: add `typingIndicator` and `resolveSenderNames` config flags (top-level and per-account) so operators can disable typing reactions and sender-name lookup requests while keeping default behavior unchanged. (#10513) Thanks @BigUncle.
-- TTS/Voice bubbles: use opus output and enable `audioAsVoice` routing for Feishu and WhatsApp (in addition to Telegram) so supported channels receive voice-bubble playback instead of file-style audio attachments. (#27366) Thanks @smthfoxy.
->>>>>>> e7cafed42 (chore(release): bump version to 2026.3.1)
 - Security/Feishu webhook ingress: bound unauthenticated webhook rate-limit state with stale-window pruning and a hard key cap to prevent unbounded pre-auth memory growth from rotating source keys. (#26050) Thanks @bmendonca3.
 - Telegram/Reply media context: include replied media files in inbound context when replying to media, defer reply-media downloads to debounce flush, gate reply-media fetch behind DM authorization, and preserve replied media when non-vision sticker fallback runs (including cached-sticker paths). (#28488) Thanks @obviyus.
 - Android/Nodes reliability: reject `facing=both` when `deviceId` is set to avoid mislabeled duplicate captures, allow notification `open`/`reply` on non-clearable entries while still gating dismiss, trigger listener rebind before notification actions, and scale invoke-result ack timeout to invoke budget for large clip payloads. (#28260) Thanks @obviyus.
@@ -135,7 +72,6 @@ Status: beta.
 - ACP/Thread-bound agents: make ACP agents first-class runtimes for thread sessions with `acp` spawn/send dispatch integration, acpx backend bridging, lifecycle controls, startup reconciliation, runtime cleanup, and coalesced thread replies. (#23580) thanks @osolmaz.
 - Agents/Routing CLI: add `openclaw agents bindings`, `openclaw agents bind`, and `openclaw agents unbind` for account-scoped route management, including channel-only to account-scoped binding upgrades, role-aware binding identity handling, plugin-resolved binding account IDs, and optional account-binding prompts in `openclaw channels add`. (#27195) thanks @gumadeiras.
 - Android/Nodes: add `notifications.list` support on Android nodes and expose `nodes notifications_list` in agent tooling for listing active device notifications. (#27344) thanks @obviyus.
-<<<<<<< HEAD
 - Onboarding/Plugins: let channel plugins own interactive onboarding flows with optional `configureInteractive` and `configureWhenConfigured` hooks while preserving the generic fallback path. (#27191) thanks @gumadeiras.
 
 ### Fixes
@@ -147,43 +83,6 @@ Status: beta.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-- Security/Plugin channel HTTP auth: normalize protected `/api/channels` path checks against canonicalized request paths (case + percent-decoding) so unauthenticated alternate-path variants cannot bypass gateway auth.
-=======
-=======
-=======
-=======
-=======
-=======
-=======
-- Agents/Model fallback: classify additional network transport errors (`ECONNREFUSED`, `ENETUNREACH`, `EHOSTUNREACH`, `ENETRESET`, `EAI_AGAIN`) as failover-worthy so fallback chains advance when primary providers are unreachable. Landed from contributor PR #19077 by @ayanesakura. Thanks @ayanesakura.
-- Agents/Copilot token refresh: refresh GitHub Copilot runtime API tokens after auth-expiry failures and re-run with the renewed token so long-running embedded/subagent turns do not fail on mid-session 401 expiry. Landed from contributor PR #8805 by @Arthur742Ramos. Thanks @Arthur742Ramos.
-- Discord/Allowlist diagnostics: add debug logs for guild/channel allowlist drops so operators can quickly identify ignored inbound messages and required allowlist entries. Landed from contributor PR #30966 by @haosenwang1018. Thanks @haosenwang1018.
-- Discord/Ack reactions: add Discord-account-level `ackReactionScope` override and support explicit `off`/`none` values in shared config schemas to disable ack reactions per account. Landed from contributor PR #30400 by @BlueBirdBack. Thanks @BlueBirdBack.
-- Discord/Forum thread tags: support `appliedTags` on Discord thread-create actions and map to `applied_tags` for forum/media starter posts, with targeted thread-creation regression coverage. Landed from contributor PR #30358 by @pushkarsingh32. Thanks @pushkarsingh32.
-- Discord/Application ID fallback: parse bot application IDs from token prefixes without numeric precision loss and use token fallback only on transport/timeout failures when probing `/oauth2/applications/@me`. Landed from contributor PR #29695 by @dhananjai1729. Thanks @dhananjai1729.
-- Discord/EventQueue timeout config: expose per-account `channels.discord.accounts.<id>.eventQueue.listenerTimeout` (and related queue options) so long-running handlers can avoid Carbon listener timeout drops. Landed from contributor PR #28945 by @Glucksberg. Thanks @Glucksberg.
-- CLI/Cron run exit code: return exit code `0` only when `cron run` reports `{ ok: true, ran: true }`, and `1` for non-run/error outcomes so scripting/debugging reflects actual execution status. Landed from contributor PR #31121 by @Sid-Qin. Thanks @Sid-Qin.
-- Nodes/Screen recording guardrails: cap `nodes` tool `screen_record` `durationMs` to 5 minutes at both schema-validation and runtime invocation layers to prevent long-running blocking captures from unbounded durations. Landed from contributor PR #31106 by @BlueBirdBack. Thanks @BlueBirdBack.
-- Telegram/Empty final replies: skip outbound send for null/undefined final text payloads without media so Telegram typing indicators do not linger on `text must be non-empty` errors. Landed from contributor PR #30969 by @haosenwang1018. Thanks @haosenwang1018.
-- Telegram/Proxy dispatcher preservation: preserve proxy-aware global undici dispatcher behavior in Telegram network workarounds so proxy-backed Telegram + model traffic is not broken by dispatcher replacement. Landed from contributor PR #30367 by @Phineas1500. Thanks @Phineas1500.
-- Telegram/Group allowlist ordering: evaluate chat allowlist before sender allowlist enforcement so explicitly allowlisted groups are not fail-closed by empty sender allowlists. Landed from contributor PR #30680 by @openperf. Thanks @openperf.
-- Telegram/Multi-account group isolation: prevent channel-level `groups` config from leaking across Telegram accounts in multi-account setups, avoiding cross-account group routing drops. Landed from contributor PR #30677 by @YUJIE2002. Thanks @YUJIE2002.
-- Telegram/Voice caption overflow fallback: recover from `sendVoice` caption length errors by re-sending voice without caption and delivering text separately so replies are not lost. Landed from contributor PR #31131 by @Sid-Qin. Thanks @Sid-Qin.
-- Feishu/Doc create permissions: remove caller-controlled owner fields from `feishu_doc` create and bind optional grant behavior to trusted Feishu requester context (`grant_to_requester`), preventing principal selection via tool arguments. (#31184) Thanks @Takhoffman.
-- Routing/Binding peer-kind parity: treat `peer.kind` `group` and `channel` as equivalent for binding scope matching (while keeping `direct` separate) so Slack/public channel bindings do not silently fall through. Landed from contributor PR #31135 by @Sid-Qin. Thanks @Sid-Qin.
-- Cron/Store EBUSY fallback: retry `rename` on `EBUSY` and use `copyFile` fallback on Windows when replacing cron store files so busy-file contention no longer causes false write failures. (#16932) Thanks @sudhanva-chakra.
-- Agents/FS workspace default: honor documented host file-tool default `tools.fs.workspaceOnly=false` when unset so host `write`/`edit` calls are not incorrectly workspace-restricted unless explicitly enabled. Landed from contributor PR #31128 by @SaucePackets. Thanks @SaucePackets.
-- Cron/Timer hot-loop guard: enforce a minimum timer re-arm delay when stale past-due jobs would otherwise trigger repeated `setTimeout(0)` loops, preventing event-loop saturation and log-flood behavior. (#29853) Thanks @FlamesCN.
-- Gateway/CLI session recovery: handle expired CLI session IDs gracefully by clearing stale session state and retrying without crashing gateway runs. Landed from contributor PR #31090 by @frankekn. Thanks @frankekn.
-- Slack/Subagent completion delivery: stop forcing bound conversation IDs into `threadId` so Slack completion announces do not send invalid `thread_ts` for DMs/top-level channels. Landed from contributor PR #31105 by @stakeswky. Thanks @stakeswky.
-- Signal/Loop protection: evaluate own-account detection before sync-message filtering (including UUID-only `accountUuid` configs) so `sentTranscript` sync events cannot bypass loop protection and self-reply loops. Landed from contributor PR #31093 by @kevinWangSheng. Thanks @kevinWangSheng.
-- Gateway/Control UI origins: support wildcard `"*"` in `gateway.controlUi.allowedOrigins` for trusted remote access setups. Landed from contributor PR #31088 by @frankekn. Thanks @frankekn.
-- Cron/Isolated CLI timeout ratio: avoid reusing persisted CLI session IDs on fresh isolated cron runs so the fresh watchdog profile is used and jobs do not abort at roughly one-third of configured `timeoutSeconds`. (#30140) Thanks @ningding97.
-- Cron/Session target guardrail: reject creating or patching `sessionTarget: "main"` cron jobs when `agentId` is not the default agent, preventing invalid cross-agent main-session bindings at write time. (#30217) Thanks @liaosvcaf.
-- Security/Audit: flag `gateway.controlUi.allowedOrigins=["*"]` as a high-risk configuration (severity based on bind exposure), and add a Feishu doc-tool warning that `owner_open_id` on `feishu_doc` create can grant document permissions.
-- Slack/download-file scoping: thread/channel-aware `download-file` actions now propagate optional scope context and reject downloads when Slack metadata definitively shows the file is outside the requested channel/thread, while preserving legacy behavior when share metadata is unavailable.
->>>>>>> 00d2df46c (docs(changelog): note security audit and slack download scope hardening)
 - Security/Sandbox media reads: eliminate sandbox media TOCTOU symlink-retarget escapes by enforcing root-scoped boundary-safe reads at attachment/image load time and consolidating shared safe-read helpers across sandbox media callsites. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Subagents sandbox inheritance: block sandboxed sessions from spawning cross-agent subagents that would run unsandboxed, preventing runtime sandbox downgrade via `sessions_spawn agentId`. Thanks @tdjackey for reporting.
 - Security/Workspace safe writes: harden `writeFileWithinRoot` against symlink-retarget TOCTOU races by opening existing files without truncation, creating missing files with exclusive create, deferring truncation until post-open identity+boundary validation, and removing out-of-root create artifacts on blocked races; added regression tests for truncate/create race paths. This ships in the next npm release (`2026.3.1`). Thanks @tdjackey for reporting.
@@ -196,15 +95,12 @@ Status: beta.
 - Security/Skills: harden skill installer metadata parsing by rejecting unsafe installer specs (brew/node/go/uv/download) and constrain plugin-declared skill directories to the plugin root (including symlink-escape checks), with regression coverage.
 >>>>>>> a0d2f6e4f (docs(changelog): note skills security hardening)
 - ACP/Harness thread spawn routing: force ACP harness thread creation through `sessions_spawn` (`runtime: "acp"`, `thread: true`) and explicitly forbid `message action=thread-create` for ACP harness requests, avoiding misrouted `Unknown channel` errors. (#30957) Thanks @dutifulbob.
-<<<<<<< HEAD
-=======
 - Docs/ACP permissions: document the correct `permissionMode` default (`approve-reads`) and clarify non-interactive permission failure behavior/troubleshooting guidance. (#31044) Thanks @barronlroth.
 - Security/Logging utility hardening: remove `eval`-based command execution from `scripts/clawlog.sh`, switch to argv-safe command construction, and escape predicate literals for user-supplied search/category filters to block local command/predicate injection paths.
 - Security/Inbound metadata stripping: tighten sentinel matching and JSON-fence validation for inbound metadata stripping so user-authored lookalike lines no longer trigger unintended metadata removal.
 - Security/Zalo webhook memory hardening: bound webhook security tracking state and normalize security keying to matched webhook paths (excluding attacker query-string churn) to prevent unauthenticated memory growth pressure on reachable webhook endpoints. Thanks @Somet2mes.
 - Security/Web search citation redirects: enforce strict SSRF defaults for Gemini citation redirect resolution so redirects to localhost/private/internal targets are blocked. Thanks @tdjackey for reporting.
 - Channels/Command parsing parity: align command-body parsing fields with channel command-gating text for Slack, Signal, Microsoft Teams, Mattermost, and BlueBubbles to avoid mention-strip mismatches and inconsistent command detection.
->>>>>>> 6c5633598 (fix(security): harden clawlog command execution)
 - CLI/Startup (Raspberry Pi + small hosts): speed up startup by avoiding unnecessary plugin preload on fast routes, adding root `--version` fast-path bootstrap bypass, parallelizing status JSON/non-JSON scans where safe, and enabling Node compile cache at startup with env override compatibility (`NODE_COMPILE_CACHE`, `NODE_DISABLE_COMPILE_CACHE`). (#5871) Thanks @BookCatKid and @vincentkoc for raising startup reports, and @lupuletic for related startup work in #27973.
 - Doctor/macOS state-dir safety: warn when OpenClaw state resolves inside iCloud Drive (`~/Library/Mobile Documents/com~apple~CloudDocs/...`) or `~/Library/CloudStorage/...`, because sync-backed paths can cause slower I/O and lock/sync races. (#31004) Thanks @vincentkoc.
 - CLI/Startup follow-up: add root `--help` fast-path bootstrap bypass with strict root-only matching, lazily resolve CLI channel options only when commands need them, merge build-time startup metadata (`dist/cli-startup-metadata.json`) with runtime catalog discovery so dynamic catalogs are preserved, and add low-power Linux doctor hints for compile-cache placement and respawn tuning. (#30975) Thanks @vincentkoc.
@@ -343,15 +239,9 @@ Status: beta.
 - Security/Sandbox path alias guard: reject broken symlink targets by resolving through existing ancestors and failing closed on out-of-root targets, preventing workspace-only `apply_patch` writes from escaping sandbox/workspace boundaries via dangling symlinks. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting.
 - Security/Workspace FS boundary aliases: harden canonical boundary resolution for non-existent-leaf symlink aliases while preserving valid in-root aliases, preventing first-write workspace escapes via out-of-root symlink targets. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting.
 - Security/Config includes: harden `$include` file loading with verified-open reads, reject hardlinked include aliases, and enforce include file-size guardrails so config include resolution remains bounded to trusted in-root files. This ships in the next npm release (`2026.2.26`). Thanks @zpbrent for reporting.
-<<<<<<< HEAD
 - Security/Node exec approvals: bind `system.run` approvals to canonicalized env overrides (`envHash`/`envKeys`) and fail closed on env-binding mismatches/missing bindings, while adding `GIT_EXTERNAL_DIFF` to blocked host env keys. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting.
 <<<<<<< HEAD
 >>>>>>> 9a4b2266c (fix(security): bind node system.run approvals to env)
-=======
-=======
-- Security/Node exec approvals: require structured `commandArgv` approvals for `host=node`, enforce versioned `systemRunBindingV1` matching for argv/cwd/session/agent/env context with fail-closed behavior on missing/mismatched bindings, and add `GIT_EXTERNAL_DIFF` to blocked host env keys. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting.
-<<<<<<< HEAD
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 =======
 - Security/Node exec approvals hardening: freeze immutable approval-time execution plans (`argv`/`cwd`/`agentId`/`sessionKey`) via `system.run.prepare`, enforce those canonical plan values during approval forwarding/execution, and reject mutable parent-symlink cwd paths during approval-plan building to prevent approval bypass via symlink rebind. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting.
 >>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
@@ -361,19 +251,9 @@ Status: beta.
 - Security/Plugin channel HTTP auth: normalize protected `/api/channels` path checks against canonicalized request paths (case + percent-decoding + slash normalization), and fail closed on malformed `%`-encoded channel prefixes so alternate-path variants cannot bypass gateway auth.
 >>>>>>> 0ed675b1d (fix(security): harden canonical auth matching for plugin channel routes)
 - Security/Exec approvals forwarding: prefer turn-source channel/account/thread metadata when resolving approval delivery targets so stale session routes do not misroute approval prompts.
-<<<<<<< HEAD
 - Auto-reply/Streaming: suppress only exact `NO_REPLY` final replies while still filtering streaming partial sentinel fragments (`NO_`, `NO_RE`, `HEARTBEAT_...`) so substantive replies ending with `NO_REPLY` are delivered and partial silent tokens do not leak during streaming. (#19576) Thanks @aldoeliacim.
 >>>>>>> da0ba1b73 (fix(security): harden channel auth path checks and exec approval routing)
 - Doctor/State integrity: ignore metadata-only slash routing sessions when checking recent missing transcripts so `openclaw doctor` no longer reports false-positive transcript-missing warnings for `*:slash:*` keys. (#27375) thanks @gumadeiras.
-=======
-- Security/Pairing multi-account isolation: enforce account-scoped pairing allowlists and pending-request storage across core + extension message channels while preserving channel-scoped defaults for the default account. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting and @gumadeiras for implementation.
-- Config/Plugins entries: treat unknown `plugins.entries.*` ids as startup warnings (ignored stale keys) instead of hard validation failures that can crash-loop gateway boot. Landed from contributor PR #27506 by @Sid-Qin. (#27455)
-- Telegram native commands: degrade command registration on `BOT_COMMANDS_TOO_MUCH` by retrying with fewer commands instead of crash-looping startup sync. Landed from contributor PR #27512 by @Sid-Qin. (#27456)
-- Web tools/Proxy: route `web_search` provider HTTP calls (Brave, Perplexity, xAI, Gemini, Kimi), redirect resolution, and `web_fetch` through a shared proxy-aware SSRF guard path so gateway installs behind `HTTP_PROXY`/`HTTPS_PROXY`/`ALL_PROXY` no longer fail with transport `fetch failed` errors. (#27430) thanks @kevinWangSheng.
-- Android/Node invoke: remove native gateway WebSocket `Origin` header to avoid false origin rejections, unify invoke command registry/policy/error parsing paths, and keep command availability checks centralized to reduce dispatcher/advertisement drift. (#27257) Thanks @obviyus.
-- Gateway shared-auth scopes: preserve requested operator scopes for shared-token clients when device identity is unavailable, instead of clearing scopes during auth handling. Landed from contributor PR #27498 by @kevinWangSheng. (#27494)
-- Cron/Hooks isolated routing: preserve canonical `agent:*` session keys in isolated runs so already-qualified keys are not double-prefixed (for example `agent:main:main` no longer becomes `agent:main:agent:main:main`). Landed from contributor PR #27333 by @MaheshBhushan. (#27289, #27282)
->>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
 - Channels/Multi-account config: when adding a non-default channel account to a single-account top-level channel setup, move existing account-scoped top-level single-account values into `channels.<channel>.accounts.default` before writing the new account so the original account keeps working without duplicated account values at channel root; `openclaw doctor --fix` now repairs previously mixed channel account shapes the same way. (#27334) thanks @gumadeiras.
 - Telegram/Inline buttons: allow callback-query button handling in groups (including `/models` follow-up buttons) when group policy authorizes the sender, by removing the redundant callback allowlist gate that blocked open-policy groups. (#27343) Thanks @GodsBoy.
 - Daemon/macOS launchd: forward proxy env vars into supervised service environments, keep LaunchAgent `KeepAlive=true` semantics, and harden restart sequencing to `print -> bootout -> wait old pid exit -> bootstrap -> kickstart`. (#27276) thanks @frankekn.
@@ -386,8 +266,6 @@ Status: beta.
 ## 2026.2.25
 >>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 
-<<<<<<< HEAD
-=======
 ### Changes
 
 <<<<<<< HEAD
@@ -395,19 +273,13 @@ Status: beta.
 =======
 =======
 - Dependencies: update workspace dependency pins and lockfile (Bedrock SDK `3.998.0`, `@mariozechner/pi-*` `0.55.1`, TypeScript native preview `7.0.0-dev.20260225.1`) while keeping `@buape/carbon` pinned.
->>>>>>> 876018f32 (chore(deps): update dependencies and lockfile)
 - Android/Chat: improve streaming delivery handling and markdown rendering quality in the native Android chat UI, including better GitHub-flavored markdown behavior. (#26079) Thanks @obviyus.
-<<<<<<< HEAD
-=======
 - Branding/Docs + Apple surfaces: replace remaining `bot.molt` launchd label, bundle-id, logging subsystem, and command examples with `ai.openclaw` across docs, iOS app surfaces, helper scripts, and CLI test fixtures.
 - Agents/Config: remind agents to call `config.schema` before config edits or config-field questions to avoid guessing. Thanks @thewilloftheshadow.
 - Onboarding/Security: clarify onboarding security notices that OpenClaw is personal-by-default (single trusted operator boundary) and shared/multi-user setups require explicit lock-down/hardening.
->>>>>>> b8bb8ab3c (docs: clarify personal-by-default onboarding security notice)
 
 ### Fixes
 
-<<<<<<< HEAD
-=======
 - Agents/Subagents delivery: refactor subagent completion announce dispatch into an explicit queue/direct/fallback state machine, recover outbound channel-plugin resolution in cold/stale plugin-registry states across announce/message/gateway send paths, finalize cleanup bookkeeping when announce flow rejects, and treat Telegram sends without `message_id` as delivery failures (instead of false-success `"unknown"` IDs). (#26867, #25961, #26803, #25069, #26741) Thanks @SmithLabsLLC and @docaohieu2808.
 - Security/SSRF guard: classify IPv6 multicast literals (`ff00::/8`) as blocked/private-internal targets in shared SSRF IP checks, preventing multicast literals from bypassing URL-host preflight and DNS answer validation. This ships in the next npm release (`2026.2.25`). Thanks @zpbrent for reporting.
 - Slack/Session threads: prevent oversized parent-session inheritance from silently bricking new thread sessions, surface embedded context-overflow empty-result failures to users, and add configurable `session.parentForkMaxTokens` (default `100000`, `0` disables). (#26912) Thanks @markshields-tl.
@@ -421,14 +293,11 @@ Status: beta.
 - Security/Exec approvals: harden approval-bound `system.run` execution on node hosts by rejecting symlink `cwd` paths and canonicalizing path-like executable argv before spawn, blocking mutable-cwd symlink retarget chains between approval and execution. This ships in the next npm release (`2026.2.25`). Thanks @tdjackey for reporting.
 - Security/Discord reactions: enforce DM policy/allowlist authorization before reaction-event system enqueue in direct messages; Discord reaction handling now also honors DM/group-DM enablement and guild `groupPolicy` channel gating to keep reaction ingress aligned with normal message preflight. This ships in the next npm release (`2026.2.25`). Thanks @tdjackey for reporting.
 - Security/Slack reactions + pins: gate `reaction_*` and `pin_*` system-event enqueue through shared sender authorization so DM `dmPolicy`/`allowFrom` and channel `users` allowlists are enforced consistently for non-message ingress, with regression coverage for denied/allowed sender paths. This ships in the next npm release (`2026.2.25`). Thanks @tdjackey for reporting.
->>>>>>> f789f880c (fix(security): harden approval-bound node exec cwd handling)
 - Security/Telegram reactions: enforce `dmPolicy`/`allowFrom` and group allowlist authorization on `message_reaction` events before enqueueing reaction system events, preventing unauthorized reaction-triggered input in DMs and groups; ships in the next npm release (`2026.2.25`). Thanks @tdjackey for reporting.
 - Security/Slack interactions: enforce channel/DM authorization and modal actor binding (`private_metadata.userId`) before enqueueing `block_action`/`view_submission`/`view_closed` system events, with regression coverage for unauthorized senders and missing/mismatched actor metadata. This ships in the next npm release (`2026.2.25`). Thanks @tdjackey for reporting.
 - Security/macOS beta onboarding: remove Anthropic OAuth sign-in and the legacy `oauth.json` onboarding path that exposed the PKCE verifier via OAuth `state`; this impacted the macOS beta onboarding path only. Anthropic subscription auth is now setup-token-only and will ship in the next npm release (`2026.2.25`). Thanks @zdi-disclosures for reporting.
 >>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
 - Security/Nextcloud Talk: drop replayed signed webhook events with persistent per-account replay dedupe across restarts, and reject unexpected webhook backend origins when account base URL is configured. Thanks @aristorechina for reporting.
-<<<<<<< HEAD
-=======
 - Security/Gateway: harden `agents.files` path handling to block out-of-workspace symlink targets for `agents.files.get`/`agents.files.set`, keep in-workspace symlink targets supported, and add gateway regression coverage for both blocked escapes and allowed in-workspace symlinks. Thanks @tdjackey for reporting.
 - Security/Workspace FS: reject hardlinked workspace file aliases in `tools.fs.workspaceOnly` and `tools.exec.applyPatch.workspaceOnly` boundary checks (including sandbox mount-root guards) to prevent out-of-workspace read/write via in-workspace hardlink paths. This ships in the next npm release (`2026.2.25`). Thanks @tdjackey for reporting.
 - Security/Browser temp paths: harden trace/download output-path handling against symlink-root and symlink-parent escapes with realpath-based write-path checks plus secure fallback tmp-dir validation that fails closed on unsafe fallback links. This ships in the next npm release (`2026.2.25`). Thanks @tdjackey for reporting.
@@ -436,7 +305,6 @@ Status: beta.
 - Cron/Model overrides: when isolated `payload.model` is no longer allowlisted, fall back to default model selection instead of failing the job, while still returning explicit errors for invalid model strings. (#26717) Thanks @Youyou972.
 - Security/Gateway auth: require pairing for operator device-identity sessions authenticated with shared token auth so unpaired devices cannot self-assign operator scopes. Thanks @tdjackey for reporting.
 - Discord/Inbound text: preserve embed `title` + `description` fallback text in message and forwarded snapshot parsing so embed titles are not silently dropped from agent input. (#26946) Thanks @stakeswky.
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 =======
 - Hooks/Inbound metadata: include `guildId` and `channelName` in `message_received` metadata for both plugin and internal hook paths. (#26115) Thanks @davidrudduck.
 - Discord/Component auth: evaluate guild component interactions with command-gating authorizers so unauthorized users no longer get `CommandAuthorized: true` on modal/button events. (#26119) Thanks @bmendonca3.
@@ -464,7 +332,6 @@ Status: beta.
 - Security/Nextcloud Talk: stop treating DM pairing-store entries as group allowlist senders, so group authorization remains bounded to configured group allowlists. (#26116) Thanks @bmendonca3.
 - Security/IRC: keep pairing-store approvals DM-only and out of IRC group allowlist authorization, with policy regression tests for allowlist resolution. (#26112) Thanks @bmendonca3.
 - Security/Microsoft Teams: isolate group allowlist and command authorization from DM pairing-store entries to prevent cross-context authorization bleed. (#26111) Thanks @bmendonca3.
-<<<<<<< HEAD
 - Security/LINE: cap unsigned webhook body reads before auth/signature handling to bound unauthenticated body processing. (#26095) Thanks @bmendonca3.
 - Agents/Model fallback: keep explicit text + image fallback chains reachable even when `agents.defaults.models` allowlists are present, prefer explicit run `agentId` over session-key parsing for followup fallback override resolution (with session-key fallback), treat agent-level fallback overrides as configured in embedded runner preflight, and classify `model_cooldown` / `cooling down` errors as `rate_limit` so failover continues. (#11972, #24137, #17231)
 - Followups/Routing: when explicit origin routing fails, allow same-channel fallback dispatch (while still blocking cross-channel fallback) so followup replies do not get dropped on transient origin-adapter failures. (#26109) Thanks @Sid-Qin.
@@ -472,11 +339,6 @@ Status: beta.
 - Telegram/Markdown spoilers: keep valid `||spoiler||` pairs while leaving unmatched trailing `||` delimiters as literal text, avoiding false all-or-nothing spoiler suppression. (#26105) Thanks @Sid-Qin.
 - Hooks/Inbound metadata: include `guildId` and `channelName` in `message_received` metadata for both plugin and internal hook paths. (#26115) Thanks @davidrudduck.
 - Discord/Component auth: evaluate guild component interactions with command-gating authorizers so unauthorized users no longer get `CommandAuthorized: true` on modal/button events. (#26119) Thanks @bmendonca3.
-=======
-- Security/SSRF guard: classify IPv6 multicast literals (`ff00::/8`) as blocked/private-internal targets in shared SSRF IP checks, preventing multicast literals from bypassing URL-host preflight and DNS answer validation. This ships in the next npm release (`2026.2.26`). Thanks @zpbrent for reporting.
-- Tests/Low-memory stability: disable Vitest `vmForks` by default on low-memory local hosts (`<64 GiB`), keep low-profile extension lane parallelism at 4 workers, and align cron isolated-agent tests with `setSessionRuntimeModel` usage to avoid deterministic suite failures. (#26324) Thanks @ngutman.
-<<<<<<< HEAD
->>>>>>> caace61ba (chore: bump versions to 2026.2.26)
 =======
 - Feishu/WebSocket proxy: pass a proxy agent to Feishu WS clients from standard proxy environment variables and include plugin-local runtime dependency wiring so websocket mode works in proxy-constrained installs. (#26397) Thanks @colin719.
 >>>>>>> 0a23739c3 (fix(feishu): pass proxy agent to WSClient for proxy environments (#26397))
@@ -502,30 +364,15 @@ Status: beta.
 
 ### Changes
 
-<<<<<<< HEAD
 - Subagents/Sessions: add `agents.defaults.subagents.runTimeoutSeconds` so `sessions_spawn` can inherit a configurable default timeout when the tool call omits `runTimeoutSeconds` (unset remains `0`, meaning no timeout). (#24594) Thanks @mitchmcalister.
 - Config/Kilo Gateway: Kilo provider flow now surfaces an updated list of models. (#24921) thanks @gumadeiras.
 - Auto-reply/Abort shortcuts: expand standalone stop phrases (`stop openclaw`, `stop action`, `stop run`, `stop agent`, `please stop`, and related variants), accept trailing punctuation (for example `STOP OPENCLAW!!!`), and add multilingual stop keywords (including ES/FR/ZH/HI/AR/JP/DE/PT/RU forms) so emergency stop messages are caught more reliably. Thanks @steipete and @vincentkoc.
 >>>>>>> 2bad30b4d (chore(release): bump version to 2026.2.24)
-=======
-- Auto-reply/Abort shortcuts: expand standalone stop phrases (`stop openclaw`, `stop action`, `stop run`, `stop agent`, `please stop`, and related variants), accept trailing punctuation (for example `STOP OPENCLAW!!!`), and add multilingual stop keywords (including ES/FR/ZH/HI/AR/JP/DE/PT/RU forms) so emergency stop messages are caught more reliably. (#25103) Thanks @steipete and @vincentkoc.
-- Security/Audit: add `security.trust_model.multi_user_heuristic` to flag likely shared-user ingress and clarify the personal-assistant trust model, with hardening guidance for intentional multi-user setups (`sandbox.mode="all"`, workspace-scoped FS, reduced tool surface, no personal/private identities on shared runtimes).
->>>>>>> 4d124e4a9 (feat(security): warn on likely multi-user trust-model mismatch)
 
 ### Fixes
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-- Security/Voice Call: harden Twilio webhook replay handling by preserving provider event IDs through normalization, adding bounded replay dedupe, and enforcing per-call turn-token matching for call-state transitions. This ships in the next npm release. Thanks @jiseoung for reporting.
-- Security/Export session HTML: escape raw HTML markdown tokens in the exported session viewer, harden tree/header metadata rendering against HTML injection, and sanitize image data-URL MIME types in export output to prevent stored XSS when opening exported HTML files. This ships in the next npm release. Thanks @allsmog for reporting.
-<<<<<<< HEAD
-=======
-- Security/iOS deep links: require local confirmation (or trusted key) before forwarding `openclaw://agent` requests from iOS to gateway `agent.request`, and strip unkeyed delivery-routing fields to reduce exfiltration risk. This ships in the next npm release. Thanks @GCXWLP for reporting.
-<<<<<<< HEAD
-- Security/Exec approvals: harden `autoAllowSkills` matching to require pathless invocations with resolved executables, blocking `./<skill-bin>`/absolute-path basename collisions from satisfying skill auto-allow checks under allowlist mode.
->>>>>>> 90383e00e (fix(security): harden autoAllowSkills exec matching)
 =======
 - Security/Exec approvals: for non-default setups that enable `autoAllowSkills`, require pathless invocations plus trusted resolved-path matches so `./<skill-bin>`/absolute-path basename collisions cannot satisfy skill auto-allow checks under allowlist mode. This ships in the next npm release. Thanks @akhmittra for reporting.
 >>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
@@ -535,20 +382,10 @@ Status: beta.
 >>>>>>> f8524ec77 (fix(security): harden exported session html rendering)
 - Security/Config writes: block reserved prototype keys in account-id normalization and route account config resolution through own-key lookups, hardening `/allowlist` and account-scoped config paths against prototype-chain pollution.
 - Security/Exec: harden `safeBins` long-option validation by rejecting unknown/ambiguous GNU long-option abbreviations and denying sort filesystem-dependent flags (`--random-source`, `--temporary-directory`, `-T`), closing safe-bin denylist bypasses. Thanks @jiseoung.
-<<<<<<< HEAD
 >>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 =======
-- Security/Channels: unify dangerous name-matching policy checks (`dangerouslyAllowNameMatching`) across core and extension channels, share mutable-allowlist detectors between `openclaw doctor` and `openclaw security audit`, and scan all configured accounts (not only the default account) in channel security audit findings.
-- Security/Exec approvals: enforce canonical wrapper execution plans across allowlist analysis and runtime execution (node host + gateway host), fail closed on semantic `env` wrapper usage, and reject unknown short safe-bin flags to prevent `env -S/--split-string` interpretation-mismatch bypasses. This ships in the next npm release. Thanks @jiseoung for reporting.
-<<<<<<< HEAD
->>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
-=======
 - Security/Image tool: enforce `tools.fs.workspaceOnly` for sandboxed `image` path resolution so mounted out-of-workspace paths are blocked before media bytes are loaded/sent to vision providers. This ships in the next npm release. Thanks @tdjackey for reporting.
-<<<<<<< HEAD
 >>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
-=======
-- Security/Session export: harden exported HTML image rendering against data-URL attribute injection by validating image MIME/base64 fields, rejecting malformed base64 input in media ingestion paths, and dropping invalid tool-image payloads.
->>>>>>> e578521ef (fix(security): harden session export image data-url handling)
 =======
 - Security/Sandbox media: restrict sandbox media tmp-path allowances to OpenClaw-managed tmp roots instead of broad host `os.tmpdir()` trust, and add outbound/channel guardrails (tmp-path lint + media-root smoke tests) to prevent regressions in local media attachment reads.
 =======
@@ -582,14 +419,7 @@ Status: beta.
 - Security/Native images: enforce `tools.fs.workspaceOnly` for native prompt image auto-load (including history refs), preventing out-of-workspace sandbox mounts from being implicitly ingested as vision input. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Exec approvals: bind `system.run` command display/approval text to full argv when shell-wrapper inline payloads carry positional argv values, and reject payload-only `rawCommand` mismatches for those wrapper-carrier forms, preventing hidden command execution under misleading approval text. This ships in the next npm release. Thanks @tdjackey for reporting.
 <<<<<<< HEAD
-<<<<<<< HEAD
 - Security/Exec: limit default safe-bin trusted directories to immutable system paths (`/bin`, `/usr/bin`) and require explicit opt-in (`tools.exec.safeBinTrustedDirs`) for package-manager/user bin paths (for example Homebrew), preventing writable-dir binary shadowing from auto-satisfying safe-bin allowlist checks. This ships in the next npm release. Thanks @tdjackey for reporting.
-=======
-- Security/Exec companion host: forward canonical `system.run` display text (not payload-only shell snippets) to the macOS exec host, and enforce rawCommand/argv consistency there for shell-wrapper positional-argv carriers and env-modifier preludes, preventing companion-side approval/display drift. This ships in the next npm release.
-=======
-- Security/Exec companion host: forward canonical `system.run` display text (not payload-only shell snippets) to the macOS exec host, and enforce rawCommand/argv consistency there for shell-wrapper positional-argv carriers and env-modifier preludes, preventing companion-side approval/display drift. This ships in the next npm release. Thanks @tdjackey for reporting.
-- Security/Exec approvals: fail closed when transparent dispatch-wrapper unwrapping exceeds the depth cap, so nested `/usr/bin/env` chains cannot bypass shell-wrapper approval gating in `allowlist` + `ask=on-miss` mode. This ships in the next npm release. Thanks @tdjackey for reporting.
->>>>>>> 57c9a1818 (fix(security): block env depth-overflow approval bypass)
 - Security/Exec: limit default safe-bin trusted directories to immutable system paths (`/bin`, `/usr/bin`) and require explicit opt-in (`tools.exec.safeBinTrustedDirs`) for package-manager/user bin paths (for example Homebrew), add security-audit findings for risky trusted-dir choices, warn at runtime when explicitly trusted dirs are group/world writable, and add doctor hints when configured `safeBins` resolve outside trusted dirs. This ships in the next npm release. Thanks @tdjackey for reporting.
 >>>>>>> 55cf92578 (fix(security): harden system.run companion command binding)
 - Telegram/Media fetch: prioritize IPv4 before IPv6 in SSRF pinned DNS address ordering so media downloads still work on hosts with broken IPv6 routing. (#24295, #23975) Thanks @Glucksberg.
@@ -620,15 +450,6 @@ Status: beta.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-## 2026.2.19 (Unreleased)
-=======
-## 2026.2.20 (Unreleased)
-=======
-## 2026.2.21 (Unreleased)
->>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
 =======
 =======
 ### Breaking
@@ -637,12 +458,9 @@ Status: beta.
 
 ### Fixes
 
-<<<<<<< HEAD
-=======
 - Security/Exec: detect obfuscated commands before exec allowlist decisions and require explicit approval for obfuscation patterns. (#8592) Thanks @CornBrother0x and @vincentkoc.
 <<<<<<< HEAD
 - Agents/Compaction: pass `agentDir` into manual `/compact` command runs so compaction auth/profile resolution stays scoped to the active agent. (#24133) thanks @Glucksberg.
->>>>>>> 0e28e50b4 (fix(security): detect obfuscated commands that bypass allowlist filters (#24287))
 =======
 - Security/ACP: harden ACP client permission auto-approval to require trusted core tool IDs, ignore untrusted `toolCall.kind` hints, and scope `read` auto-approval to the active working directory so unknown tool names and out-of-scope file reads always prompt. Thanks @nedlir for reporting.
 >>>>>>> 2e36bdda8 (docs(changelog): credit ACP security reporter)
@@ -688,19 +506,6 @@ Status: beta.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-=======
-=======
-=======
-=======
-=======
-=======
-- Agents/Compaction: count auto-compactions only after a non-retry `auto_compaction_end`, keeping session `compactionCount` aligned to completed compactions.
-- Security/Skills: escape user-controlled prompt, filename, and output-path values in `openai-image-gen` HTML gallery generation to prevent stored XSS in generated `index.html` output. (#12538) Thanks @CornBrother0x.
-- Security/OTEL: redact sensitive values (API keys, tokens, credential fields) from diagnostics-otel log bodies, log attributes, and error/reason span fields before OTLP export. (#12542) Thanks @brandonwise.
->>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
 - Security/CLI: redact sensitive values in `openclaw config get` output before printing config paths, preventing credential leakage to terminal output/history. (#13683) Thanks @SleuthCo.
 >>>>>>> 9c87b53c8 (security(cli): redact sensitive values in config get output (#23654))
 - Install/Discord Voice: make `@discordjs/opus` an optional dependency so `openclaw` install/update no longer hard-fails when native Opus builds fail, while keeping `opusscript` as the runtime fallback decoder for Discord voice flows. (#23737, #23733, #23703) Thanks @jeadland, @Sheetaa, and @Breakyman.
@@ -774,18 +579,7 @@ Status: beta.
 - Sandbox/Media: map container workspace paths (`/workspace/...` and `file:///workspace/...`) back to the host sandbox root for outbound media validation, preventing false deny errors for sandbox-generated local media. (#23083) Thanks @echo931.
 - Sandbox/Docker: apply custom bind mounts after workspace mounts and prioritize bind-source resolution on overlapping paths, so explicit workspace binds are no longer ignored. (#22669) Thanks @tasaankaeris.
 - Exec approvals/Forwarding: restore Discord text forwarding when component approvals are not configured, and carry request snapshots through resolve events so resolved notices still forward after cache misses/restarts. (#22988) Thanks @bubmiller.
-<<<<<<< HEAD
 - Security/Elevated: match `tools.elevated.allowFrom` against sender identities only (not recipient `ctx.To`), closing a recipient-token bypass for `/elevated` authorization. (#11022) Thanks @coygeek.
-=======
-- Security/Elevated: match `tools.elevated.allowFrom` against sender identities only (not recipient `ctx.To`), closing a recipient-token bypass for `/elevated` authorization. This ships in the next npm release. Thanks @jiseoung for reporting.
-- Webchat/Sessions: preserve external session routing metadata when internal `chat.send` turns run under `webchat`, so explicit channel-keyed sessions (for example Telegram) no longer get rewritten to `webchat` and misroute follow-up delivery. (#23258) Thanks @binary64.
-- Webchat/Sessions: preserve existing session `label` across `/new` and `/reset` rollovers so reset sessions remain discoverable in session history lists. (#23755) Thanks @ThunderStormer.
-- Control UI/WebSocket: stop and clear the browser gateway client on UI teardown so remounts cannot leave orphan websocket clients that create duplicate active connections. (#23422) Thanks @floatinggball-design.
-- Webchat/Chat: apply assistant `final` payload messages directly to chat state so sent turns render without waiting for a full history refresh cycle. (#14928) Thanks @BradGroux.
-- Webchat/Chat: for out-of-band final events (for example tool-call side runs), append provided final assistant payloads directly instead of forcing a transient history reset. (#11139) Thanks @AkshayNavle.
-- Webchat/Performance: reload `chat.history` after final events only when the final payload lacks a renderable assistant message, avoiding expensive full-history refreshes on normal turns. (#20588) Thanks @amzzzzzzz.
-- Control UI/WebSocket: send a stable per-tab `instanceId` in websocket connect frames so reconnect cycles keep a consistent client identity for diagnostics and presence tracking. (#23616) Thanks @zq58855371-ui.
->>>>>>> 6817c0ec7 (fix(security): tighten elevated allowFrom sender matching)
 - Config/Memory: allow `"mistral"` in `agents.defaults.memorySearch.provider` and `agents.defaults.memorySearch.fallback` schema validation. (#14934) Thanks @ThomsenDrake.
 >>>>>>> 02772b029 (fix(security): require sender-only matching for elevated allowFrom)
 - Security/Feishu: enforce ID-only allowlist matching for DM/group sender authorization, normalize Feishu ID prefixes during checks, and ignore mutable display names so display-name collisions cannot satisfy allowlist entries. This ships in the next npm release. Thanks @jiseoung for reporting.
@@ -830,30 +624,17 @@ Status: beta.
 >>>>>>> 3c6a15ce9 (fix(discord): make opus optional and log fallback)
 - Security/Audit: add `openclaw security audit` detection for open group policies that expose runtime/filesystem tools without sandbox/workspace guards (`security.exposure.open_groups_with_runtime_or_fs`).
 <<<<<<< HEAD
-<<<<<<< HEAD
 - Security/Hooks auth: normalize hook auth rate-limit client IP keys so IPv4 and IPv4-mapped IPv6 addresses share one throttle bucket, preventing dual-form auth-attempt budget bypasses. Thanks @aether-ai-agent for reporting.
-=======
-=======
-- Security/Audit: make `gateway.real_ip_fallback_enabled` severity conditional for loopback trusted-proxy setups (warn for loopback-only `trustedProxies`, critical when non-loopback proxies are trusted). (#23428) Thanks @bmendonca3.
->>>>>>> 29e41d4c0 (fix: land security audit severity + temp-path guard fixes (#23428) (thanks @bmendonca3))
 - Security/Exec env: block request-scoped `HOME` and `ZDOTDIR` overrides in host exec env sanitizers (Node + macOS), preventing shell startup-file execution before allowlist-evaluated command bodies. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Exec env: block `SHELLOPTS`/`PS4` in host exec env sanitizers and restrict shell-wrapper (`bash|sh|zsh ... -c/-lc`) request env overrides to a small explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`) on both node host and macOS companion paths, preventing xtrace prompt command-substitution allowlist bypasses. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Gateway: emit a startup security warning when insecure/dangerous config flags are enabled (including `gateway.controlUi.dangerouslyDisableDeviceAuth=true`) and point operators to `openclaw security audit`.
 - Security/Hooks auth: normalize hook auth rate-limit client IP keys so IPv4 and IPv4-mapped IPv6 addresses share one throttle bucket, preventing dual-form auth-attempt budget bypasses. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
 - Security/Exec approvals: treat `env` and shell-dispatch wrappers as transparent during allowlist analysis on node-host and macOS companion paths so policy checks match the effective executable/inline shell payload instead of the wrapper binary, blocking wrapper-smuggled allowlist bypasses. This ships in the next npm release. Thanks @tdjackey for reporting.
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> de2e5c7b7 (docs(security): clarify dangerous control-ui bypass policy)
 =======
-- Security/Channels: harden Slack external menu token handling by switching to CSPRNG tokens, validating token shape, requiring user identity for external option lookups, and avoiding fabricated timestamp `trigger_id` fallbacks; also switch Tlon Urbit channel IDs to CSPRNG UUIDs and centralize secure ID/token generation via shared infra helpers.
->>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
-=======
 - Security/Channels: harden Slack external menu token handling by switching to CSPRNG tokens, validating token shape, requiring user identity for external option lookups, and avoiding fabricated timestamp `trigger_id` fallbacks; also switch Tlon Urbit channel IDs to CSPRNG UUIDs, centralize secure ID/token generation via shared infra helpers, and add a guardrail test to block new runtime `Date.now()+Math.random()` token/id patterns.
-<<<<<<< HEAD
 >>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
-=======
-- Security/Hooks transforms: enforce symlink-safe containment for webhook transform module paths (including `hooks.transformsDir` and `hooks.mappings[].transform.module`) by resolving existing-path ancestors via realpath before import, while preserving in-root symlink support; add regression coverage for both escape and allow cases. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
->>>>>>> f4dd0577b (fix(security): block hook transform symlink escapes)
 - Telegram/WSL2: disable `autoSelectFamily` by default on WSL2 and memoize WSL2 detection in Telegram network decision logic to avoid repeated sync `/proc/version` probes on fetch/send paths. (#21916) Thanks @MizukiMachine.
 - Telegram/Streaming: preserve archived draft preview mapping after flush and clean superseded reasoning preview bubbles so multi-message preview finals no longer cross-edit or orphan stale messages under send/rotation races. (#23202) Thanks @obviyus.
 - Slack/Slash commands: preserve the Bolt app receiver when registering external select options handlers so monitor startup does not crash on runtimes that require bound `app.options` calls. (#23209) Thanks @0xgaia.
@@ -877,15 +658,12 @@ Status: beta.
 - Memory/QMD: add optional `memory.qmd.mcporter` search routing so QMD `query/search/vsearch` can run through mcporter keep-alive flows (including multi-collection paths) to reduce cold starts, while keeping searches on agent-scoped QMD state for consistent recall. (#19617) Thanks @nicole-luxe and @vignesh07.
 >>>>>>> 049b8b14b (fix(security): flag open-group runtime/fs exposure in audit)
 - Chat/UI: strip inline reply/audio directive tags (`[[reply_to_current]]`, `[[reply_to:<id>]]`, `[[audio_as_voice]]`) from displayed chat history, live chat event output, and session preview snippets so control tags no longer leak into user-visible surfaces.
-<<<<<<< HEAD
-=======
 - BlueBubbles/DM history: restore DM backfill context with account-scoped rolling history, bounded backfill retries, and safer history payload limits. (#20302) Thanks @Ryan-Haines.
 - BlueBubbles/Webhooks: accept inbound/reaction webhook payloads when BlueBubbles omits `handle` but provides DM `chatGuid`, and harden payload extraction for array/string-wrapped message bodies so valid webhook events no longer get rejected as unparseable. (#23275) Thanks @toph31.
 - Security/Audit: add `openclaw security audit` finding `gateway.nodes.allow_commands_dangerous` for risky `gateway.nodes.allowCommands` overrides, with severity upgraded to critical on remote gateway exposure.
 - Gateway/Control plane: reduce cross-client write limiter contention by adding `connId` fallback keying when device ID and client IP are both unavailable.
 - Security/Config: block prototype-key traversal during config merge patch and legacy migration merge helpers (`__proto__`, `constructor`, `prototype`) to prevent prototype pollution during config mutation flows. (#22968) Thanks @Clawborn.
 <<<<<<< HEAD
->>>>>>> 265da4dd2 (fix(security): harden gateway command/audit guardrails)
 - Security/Shell env: validate login-shell executable paths for shell-env fallback (`/etc/shells` + trusted prefixes) and block `SHELL` in dangerous env override policy paths so untrusted shell-path injection falls back safely to `/bin/sh`. Thanks @athuljayaram for reporting.
 =======
 - Security/Shell env: validate login-shell executable paths for shell-env fallback (`/etc/shells` + trusted prefixes), block `SHELL`/`HOME`/`ZDOTDIR` in config env ingestion before fallback execution, and sanitize fallback shell exec env to pin `HOME` to the real user home while dropping `ZDOTDIR` and other dangerous startup vars. This ships in the next npm release. Thanks @tdjackey for reporting.
@@ -898,13 +676,10 @@ Status: beta.
 - Security/Discord: add `openclaw security audit` warnings for name/tag-based Discord allowlist entries (DM allowlists, guild/channel `users`, and pairing-store entries), highlighting slug-collision risk while keeping name-based matching supported, and canonicalize resolved Discord allowlist names to IDs at runtime without rewriting config files. Thanks @tdjackey for reporting.
 - Security/Gateway: block node-role connections when device identity metadata is missing.
 - Security/Media: enforce inbound media byte limits during download/read across Discord, Telegram, Zalo, Microsoft Teams, and BlueBubbles to prevent oversized payload memory spikes before rejection. This ships in the next npm release. Thanks @tdjackey for reporting.
-<<<<<<< HEAD
-=======
 - Media/Understanding: preserve `application/pdf` MIME classification during text-like file heuristics so PDF uploads use PDF extraction paths instead of being inlined as raw text. (#23191) Thanks @claudeplay2026-byte.
 - Security/Control UI: block symlink-based out-of-root static file reads by enforcing realpath containment and file-identity checks when serving Control UI assets and SPA fallback `index.html`. This ships in the next npm release. Thanks @tdjackey for reporting.
 <<<<<<< HEAD
 - Security/Control UI: centralize avatar URL/path validation across gateway/config helpers and enforce a 2 MB max size for local agent avatar files before `/avatar` resolution, reducing oversized-avatar memory risk without changing supported avatar formats.
->>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 =======
 - Security/Gateway avatars: block symlink traversal during local avatar `data:` URL resolution by enforcing realpath containment and file-identity checks before reads. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Control UI: centralize avatar URL/path validation across gateway/config helpers and enforce a 2 MB max size for local agent avatar files before `/avatar` resolution, reducing oversized-avatar memory risk without changing supported avatar formats.
@@ -926,22 +701,6 @@ Status: beta.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-- Dev tooling: add dead-code scans to CI via Knip/ts-prune/ts-unused-exports and report unused dependencies/exports in non-blocking checks. (#22468) Thanks @vincentkoc.
-- Dev tooling: move `@larksuiteoapi/node-sdk` out of root `package.json` and keep it scoped to `extensions/feishu` where it is used. (#22471) Thanks @vincentkoc.
-- Dev tooling: remove unused root dependency `signal-utils` from core manifest after confirming it was only used by extension-only paths. (#22471) Thanks @vincentkoc.
-<<<<<<< HEAD
-=======
-- Dev tooling: remove unused root devDependency `ollama` now that native Ollama support uses local HTTP transport code paths only. (#22471) Thanks @vincentkoc.
-- Dev tooling: remove unused root devDependencies `@lit/context` and `@lit-labs/signals` flagged as unused by Knip dead-code reports. (#22471) Thanks @vincentkoc.
-- Dev tooling: remove unused root dependency `lit` that is now scoped to `ui/` package dependencies. (#22471) Thanks @vincentkoc.
-- Dev tooling: remove unused root dependencies `long` and `rolldown`; keep A2UI bundling functional by falling back to `pnpm dlx rolldown` when the binary is not locally installed. (#22481) Thanks @vincentkoc.
-- Dev tooling: fix A2UI bundle resolution for removed root `lit` deps by resolving `lit`, `@lit/context`, `@lit-labs/signals`, and `signal-utils` from UI workspace dependencies in `rolldown.config.mjs` during bundling. (#22481) Thanks @vincentkoc.
-- Dev tooling: simplify `canvas-a2ui` bundling script by removing temporary vendored `node_modules` symlink logic now that `ui` workspace dependencies are explicit. (#22481) Thanks @vincentkoc.
-- Telegram: dedupe sent-message cache storage by removing redundant per-chat Set tracking and using the timestamp map as the single source of truth. (#22127) thanks @TaKO8Ki.
->>>>>>> 55eab106a (chore: remove root long and rolldown deps (#22481))
 =======
 - Docs: fix FAQ typos and add documentation spellcheck automation with a custom codespell dictionary/ignore list, including CI coverage. (#22457) Thanks @vincentkoc.
 - Security/Unused Dependencies: add dead-code scans to CI via Knip/ts-prune/ts-unused-exports and report unused dependencies/exports in non-blocking checks. (#22468) Thanks @vincentkoc.
@@ -984,17 +743,6 @@ Status: beta.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-=======
-=======
-=======
-=======
-=======
-=======
-- Security/Exec: block unquoted heredoc body expansion tokens in shell allowlist analysis, reject unterminated heredocs, and require explicit approval for allowlisted heredoc execution on gateway hosts to prevent heredoc substitution allowlist bypass. This ships in the next npm release. Thanks @torturado for reporting.
->>>>>>> f23da067f (fix(security): harden heredoc allowlist parsing)
 - WhatsApp/Security: enforce allowlist JID authorization for reaction actions so authenticated callers cannot target non-allowlisted chats by forging `chatJid` + valid `messageId` pairs. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
 - ACP/Security: escape control and delimiter characters in ACP `resource_link` title/URI metadata before prompt interpolation to prevent metadata-driven prompt injection through resource links. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
 - TTS/Security: make model-driven provider switching opt-in by default (`messages.tts.modelOverrides.allowProvider=false` unless explicitly enabled), while keeping voice/style overrides available, to reduce prompt-injection-driven provider hops and unexpected TTS cost escalation. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
@@ -1011,11 +759,7 @@ Status: beta.
 - Chat/Usage/TUI: strip synthetic inbound metadata blocks (including `Conversation info` and trailing `Untrusted context` channel metadata wrappers) from displayed conversation history so internal prompt context no longer leaks into user-visible logs.
 - Security/Exec: in non-default setups that manually add `sort` to `tools.exec.safeBins`, block `sort --compress-program` so allowlist-mode safe-bin checks cannot bypass approval. Thanks @tdjackey for reporting.
 - Security/Discord: add `openclaw security audit` warnings for name/tag-based Discord allowlist entries (DM allowlists, guild/channel `users`, and pairing-store entries), highlighting slug-collision risk while keeping name-based matching supported. Thanks @tdjackey for reporting.
-<<<<<<< HEAD
 >>>>>>> f97c45c5b (fix(security): warn on Discord name-based allowlists in audit)
-=======
-- Security/BlueBubbles: make parsed chat allowlist checks fail closed when `allowFrom` is empty, restoring expected `pairing`/`allowlist` DM gating for BlueBubbles and blocking unauthorized DM/reaction processing when no allowlist entries are configured. This ships in the next npm release. Thanks @tdjackey for reporting.
->>>>>>> 9632b9bcf (fix(security): fail closed parsed chat allowlist)
 - Doctor/State integrity: only require/create the OAuth credentials directory when WhatsApp or pairing-backed channels are configured, and downgrade fresh-install missing-dir noise to an informational warning.
 - Agents/Sanitization: stop rewriting billing-shaped assistant text outside explicit error context so normal replies about billing/credits/payment are preserved across messaging channels. (#17834, fixes #11359)
 - Security/Agents: cap embedded Pi runner outer retry loop with a higher profile-aware dynamic limit (32-160 attempts) and return an explicit `retry_limit` error payload when retries never converge, preventing unbounded internal retry cycles (`GHSA-76m6-pj3w-v7mf`).
@@ -1099,10 +843,7 @@ Status: beta.
 - Anthropic/Agents: preserve required pi-ai default OAuth beta headers when `context1m` injects `anthropic-beta`, preventing 401 auth failures for `sk-ant-oat-*` tokens. (#19789, fixes #19769) Thanks @minupla.
 - Security/Exec: block unquoted heredoc body expansion tokens in shell allowlist analysis, reject unterminated heredocs, and require explicit approval for allowlisted heredoc execution on gateway hosts to prevent heredoc substitution allowlist bypass. Thanks @torturado for reporting.
 - macOS/Security: evaluate `system.run` allowlists per shell segment in macOS node runtime and companion exec host (including chained shell operators), fail closed on shell/process substitution parsing, and require explicit approval on unsafe parse cases to prevent allowlist bypass via `rawCommand` chaining. Thanks @tdjackey for reporting.
-<<<<<<< HEAD
-=======
 - Security/Archive: block ZIP extraction through pre-existing destination symlinks by validating destination path segments and using no-follow file opens for writes, preventing symlink-pivot writes outside the extraction root. This ships in the next npm release. Thanks @tdjackey for reporting.
->>>>>>> 4b226b74f (fix(security): block zip symlink escape in archive extraction)
 - WhatsApp/Security: enforce allowlist JID authorization for reaction actions so authenticated callers cannot target non-allowlisted chats by forging `chatJid` + valid `messageId` pairs. Thanks @aether-ai-agent for reporting.
 - ACP/Security: escape control and delimiter characters in ACP `resource_link` title/URI metadata before prompt interpolation to prevent metadata-driven prompt injection through resource links. Thanks @aether-ai-agent for reporting.
 - TTS/Security: make model-driven provider switching opt-in by default (`messages.tts.modelOverrides.allowProvider=false` unless explicitly enabled), while keeping voice/style overrides available, to reduce prompt-injection-driven provider hops and unexpected TTS cost escalation. Thanks @aether-ai-agent for reporting.
@@ -1117,35 +858,14 @@ Status: beta.
 - Security/Commands: block prototype-key injection in runtime `/debug` overrides and require own-property checks for gated command flags (`bash`, `config`, `debug`) so inherited prototype values cannot enable privileged commands. Thanks @tdjackey for reporting.
 - Security/Browser: block non-network browser navigation protocols (including `file:`, `data:`, and `javascript:`) while preserving `about:blank`, preventing local file reads via browser tool navigation. This ships in the next npm release. Thanks @q1uf3ng for reporting.
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 6b2f2811d (fix(security): require BlueBubbles webhook auth)
-=======
-- Security/Exec: block shell startup-file env injection (`BASH_ENV`, `ENV`, `BASH_FUNC_*`, `LD_*`, `DYLD_*`) across config env ingestion, node-host inherited environment sanitization, and macOS exec host runtime to prevent pre-command execution from attacker-controlled environment variables. Thanks @tdjackey.
->>>>>>> 2cdbadee1 (fix(security): block startup-file env injection across host execution paths)
 =======
 - Security/Exec: block shell startup-file env injection (`BASH_ENV`, `ENV`, `BASH_FUNC_*`, `LD_*`, `DYLD_*`) across config env ingestion, node-host inherited environment sanitization, and macOS exec host runtime to prevent pre-command execution from attacker-controlled environment variables. This ships in the next npm release. Thanks @tdjackey.
 - Security/Exec (Windows): canonicalize `cmd.exe /c` command text across validation, approval binding, and audit/event rendering to prevent trailing-argument approval mismatches in `system.run`. This ships in the next npm release. Thanks @tdjackey for reporting.
 >>>>>>> e393d7aa5 (docs(changelog): clarify Security/Exec release note)
 - Security/Gateway/Hooks: block `__proto__`, `constructor`, and `prototype` traversal in webhook template path resolution to prevent prototype-chain payload data leakage in `messageTemplate` rendering. (#22213) Thanks @SleuthCo.
-<<<<<<< HEAD
 - Cron: honor `cron.maxConcurrentRuns` in the timer loop so due jobs can execute up to the configured parallelism instead of always running serially. (#11595) Thanks @Takhoffman.
 - Agents/Compaction: restore embedded compaction safeguard/context-pruning extension loading in production by wiring bundled extension factories into the resource loader instead of runtime file-path resolution. (#22349) Thanks @Glucksberg.
-=======
-- Security/OpenClawKit/UI: prevent injected inbound user context metadata blocks from leaking into chat history in TUI, webchat, and macOS surfaces by stripping all untrusted metadata prefixes at display boundaries. (#22142) Thanks @Mellowambience, @vincentkoc.
-- Security/OpenClawKit/UI: strip inbound metadata blocks from user messages in TUI rendering while preserving user-authored content. (#22345) Thanks @kansodata, @vincentkoc.
-- Security/OpenClawKit/UI: prevent inbound metadata leaks and reply-tag streaming artifacts in TUI rendering by stripping untrusted metadata prefixes at display boundaries. (#22346) Thanks @akramcodez, @vincentkoc.
-- Security/Agents: restrict local MEDIA tool attachments to core tools and the OpenClaw temp root to prevent untrusted MCP tool file exfiltration. Thanks @NucleiAv and @thewilloftheshadow.
-- Security/Net: strip sensitive headers (`Authorization`, `Proxy-Authorization`, `Cookie`, `Cookie2`) on cross-origin redirects in `fetchWithSsrFGuard` to prevent credential forwarding across origin boundaries. (#20313) Thanks @afurm.
-- Security/Systemd: reject CR/LF in systemd unit environment values and fix argument escaping so generated units cannot be injected with extra directives. Thanks @thewilloftheshadow.
-- Security/Tools: add per-wrapper random IDs to untrusted-content markers from `wrapExternalContent`/`wrapWebContent`, preventing marker spoofing from escaping content boundaries. (#19009) Thanks @Whoaa512.
-- Shared/Security: reject insecure deep links that use `ws://` non-loopback gateway URLs to prevent plaintext remote websocket configuration. (#21970) Thanks @mbelinky.
-- macOS/Security: reject non-loopback `ws://` remote gateway URLs in macOS remote config to block insecure plaintext websocket endpoints. (#21971) Thanks @mbelinky.
-- Browser/Security: block upload path symlink escapes so browser upload sources cannot traverse outside the allowed workspace via symlinked paths. (#21972) Thanks @mbelinky.
-- Security/Dependencies: bump transitive `hono` usage to `4.11.10` to incorporate timing-safe authentication comparison hardening for `basicAuth`/`bearerAuth` (`GHSA-gq3j-xvxp-8hrf`). Thanks @vincentkoc.
-- Security/Gateway: parse `X-Forwarded-For` with trust-preserving semantics when requests come from configured trusted proxies, preventing proxy-chain spoofing from influencing client IP classification and rate-limit identity. Thanks @AnthonyDiSanti and @vincentkoc.
-- Security/Sandbox: remove default `--no-sandbox` for the browser container entrypoint, add explicit opt-in via `OPENCLAW_BROWSER_NO_SANDBOX` / `CLAWDBOT_BROWSER_NO_SANDBOX`, and add security-audit checks for stale/missing sandbox browser Docker hash labels. This ships in the next npm release. Thanks @TerminalsandCoffee and @vincentkoc.
-<<<<<<< HEAD
->>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 =======
 - Security/Sandbox Browser: require VNC password auth for noVNC observer sessions in the sandbox browser entrypoint, plumb per-container noVNC passwords from runtime, and emit short-lived noVNC observer token URLs while keeping loopback-only host port publishing. This ships in the next npm release. Thanks @TerminalsandCoffee for reporting.
 - Security/Sandbox Browser: default browser sandbox containers to a dedicated Docker network (`openclaw-sandbox-browser`), add optional CDP ingress source-range restrictions, auto-create missing dedicated networks, and warn in `openclaw security --audit` when browser sandboxing runs on bridge without source-range limits. This ships in the next npm release. Thanks @TerminalsandCoffee for reporting.
@@ -1188,12 +908,9 @@ Status: beta.
 - Auto-reply/Prompt caching: restore prefix-cache stability by keeping inbound system metadata session-stable and moving per-message IDs (`message_id`, `message_id_full`, `reply_to_id`, `sender_id`) into untrusted conversation context. (#20597) Thanks @anisoptera.
 - CLI/Onboarding: fix Anthropic-compatible custom provider verification by normalizing base URLs to avoid duplicate `/v1` paths during setup checks. (#21336) Thanks @17jmumford.
 - Security/Dependencies: bump transitive `hono` usage to `4.11.10` to incorporate timing-safe authentication comparison hardening for `basicAuth`/`bearerAuth` (`GHSA-gq3j-xvxp-8hrf`). Thanks @vincentkoc.
-<<<<<<< HEAD
-=======
 - Security/Gateway: parse `X-Forwarded-For` with trust-preserving semantics when requests come from configured trusted proxies, preventing proxy-chain spoofing from influencing client IP classification and rate-limit identity. Thanks @AnthonyDiSanti and @vincentkoc.
 - iOS/Gateway/Tools: prefer uniquely connected node matches when duplicate display names exist, surface actionable `nodes invoke` pairing-required guidance with request IDs, and refresh active iOS gateway registration after location-capability setting changes so capability updates apply immediately. (#22120) thanks @mbelinky.
 - Security/Sandbox: remove default `--no-sandbox` for the browser container entrypoint, add explicit opt-in via `OPENCLAW_BROWSER_NO_SANDBOX` / `CLAWDBOT_BROWSER_NO_SANDBOX`, and harden the default container security posture (`GHSA-43x4-g22p-3hrq`). Thanks @TerminalsandCoffee and @vincentkoc.
->>>>>>> e7eba01ef (Security: disable sandbox container --no-sandbox by default (#22451))
 
 >>>>>>> ce2a39a27 (Security: bump hono for timing-safe auth hardening)
 ## 2026.2.19
@@ -1226,20 +943,6 @@ Status: beta.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-=======
-=======
-=======
-=======
-=======
-=======
-=======
-=======
-- Security/Net: harden SSRF IPv4 literal parsing to block octal/hex/short/packed legacy forms (for example `0177.0.0.1`, `127.1`, `2130706433`) in pre-DNS guard checks.
-<<<<<<< HEAD
->>>>>>> baa335f25 (fix(security): harden SSRF IPv4 literal parsing)
 =======
 =======
 =======
@@ -1281,53 +984,28 @@ Status: beta.
 - Security/Windows Daemon: harden Scheduled Task `gateway.cmd` generation by quoting cmd metacharacter arguments, escaping `%`/`!` expansions, and rejecting CR/LF in arguments, descriptions, and environment assignments (`set "KEY=VALUE"`), preventing command injection in Windows daemon startup scripts. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Gateway/Canvas: replace shared-IP fallback auth with node-scoped session capability URLs for `/__openclaw__/canvas/*` and `/__openclaw__/a2ui/*`, fail closed when trusted-proxy requests omit forwarded client headers, and add IPv6/proxy-header regression coverage. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
-=======
-- Security/Canvas: restrict A2UI JSONL file reads to allowed local roots and reject non-local `jsonlPath` schemes to prevent unintended file exposure. Thanks @thewilloftheshadow.
->>>>>>> 39816e61b (Security: restrict canvas jsonlPath file reads)
 =======
 >>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 - Security/Net: enforce strict dotted-decimal IPv4 literals in SSRF checks and fail closed on unsupported legacy forms (octal/hex/short/packed, for example `0177.0.0.1`, `127.1`, `2130706433`) before DNS lookup.
 >>>>>>> 26c9b37f5 (fix(security): enforce strict IPv4 SSRF literal handling)
 - Security/Discord: enforce trusted-sender guild permission checks for moderation actions (`timeout`, `kick`, `ban`) and ignore untrusted `senderUserId` params to prevent privilege escalation in tool-driven flows. Thanks @aether-ai-agent for reporting.
-<<<<<<< HEAD
 >>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
-=======
-- Security/ACP+Exec: add `openclaw acp --token-file/--password-file` secret-file support (with inline secret flag warnings), redact ACP working-directory prefixes to `~` home-relative paths, constrain exec script preflight file inspection to the effective `workdir` boundary, and add security-audit warnings when `tools.exec.host="sandbox"` is configured while sandbox mode is off.
-- Security/Plugins/Hooks: enforce runtime/package path containment with realpath checks so `openclaw.extensions`, `openclaw.hooks`, and hook handler modules cannot escape their trusted roots via traversal or symlinks.
-<<<<<<< HEAD
->>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
 =======
 - Security/Discord: centralize trusted sender checks for moderation actions in message-action dispatch, share moderation command parsing across handlers, and clarify permission helpers with explicit any/all semantics.
 >>>>>>> c9dee5926 (refactor(security): centralize trusted sender checks for discord moderation)
 - Security/ACP: harden ACP bridge session management with duplicate-session refresh, idle-session reaping, oldest-idle soft-cap eviction, and burst rate limiting on session creation to reduce local DoS risk without disrupting normal IDE usage.
 - Security/ACP: bound ACP prompt text payloads to 2 MiB before gateway forwarding, account for join separator bytes during pre-concatenation size checks, and avoid stale active-run session state when oversized prompts are rejected. Thanks @aether-ai-agent for reporting.
 - Security/Plugins/Hooks: add optional `--pin` for npm plugin/hook installs, persist resolved npm metadata (`name`, `version`, `spec`, integrity, shasum, timestamp), warn/confirm on integrity drift during updates, and extend `openclaw security audit` to flag unpinned specs, missing integrity metadata, and install-record version drift.
-<<<<<<< HEAD
 - Security/Gateway: rate-limit control-plane write RPCs (`config.apply`, `config.patch`, `update.run`) to 3 requests per minute per `deviceId+clientIp`, add restart single-flight coalescing plus a 30-second restart cooldown, and log actor/device/ip with changed-path audit details for config/update-triggered restarts.
 - Commands/Doctor: skip embedding-provider warnings when `memory.backend` is `qmd`, because QMD manages embeddings internally and does not require `memorySearch` providers. (#17263) Thanks @miloudbelarebia.
 >>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
-=======
-- Security/Plugins: harden plugin discovery by blocking unsafe candidates (root escapes, world-writable paths, suspicious ownership), add startup warnings when `plugins.allow` is empty with discoverable non-bundled plugins, and warn on loaded plugins without install/load-path provenance.
-- Security/Gateway: rate-limit control-plane write RPCs (`config.apply`, `config.patch`, `update.run`) to 3 requests per minute per `deviceId+clientIp`, add restart single-flight coalescing plus a 30-second restart cooldown, and log actor/device/ip with changed-path audit details for config/update-triggered restarts.
->>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
 - Security/Webhooks: harden Feishu and Zalo webhook ingress with webhook-mode token preconditions, loopback-default Feishu bind host, JSON content-type enforcement, per-path rate limiting, replay dedupe for Zalo events, constant-time Zalo secret comparison, and anomaly status counters.
-<<<<<<< HEAD
 >>>>>>> 3c419b7bd (docs(security): document webhook hardening and changelog)
 - Security/Plugins: add explicit `plugins.runtime.allowLegacyExec` opt-in to re-enable deprecated `runtime.system.runCommandWithTimeout` for legacy modules while keeping runtime command execution disabled by default. (#20874) Thanks @mbelinky.
 >>>>>>> db7340223 (Security: add explicit opt-in for deprecated plugin runtime exec (#20874))
-=======
-- Security/Plugins: for the next npm release, clarify plugin trust boundary and keep `runtime.system.runCommandWithTimeout` available by default for trusted in-process plugins. Thanks @markmusson for reporting.
-<<<<<<< HEAD
->>>>>>> 2e421f32d (fix(security): restore trusted plugin runtime exec default)
 - Gateway/WebChat: block `sessions.patch` and `sessions.delete` for WebChat clients so session-store mutations stay restricted to non-WebChat operator flows. Thanks @allsmog for reporting.
-<<<<<<< HEAD
 >>>>>>> 981d26648 (security(gateway): block webchat session mutators (#20800))
-=======
-- Security/Skills: for the next npm release, reject symlinks during skill packaging to prevent external file inclusion in distributed `.skill` archives. Thanks @aether-ai-agent for reporting.
-<<<<<<< HEAD
->>>>>>> ee1d6427b (fix(security): enforce symlink-safe skill packaging)
 =======
 =======
 - Security/Skills: for the next npm release, reject symlinks during skill packaging to prevent external file inclusion in distributed `.skill` archives. Thanks @aether-ai-agent for reporting.
@@ -1345,7 +1023,6 @@ Status: beta.
 - LINE/Security: harden inbound media temp-file naming by using UUID-based temp paths for downloaded media instead of external message IDs. (#20792) Thanks @mbelinky.
 - Security/Media: harden local media ingestion against TOCTOU/symlink swap attacks by pinning reads to a single file descriptor with symlink rejection and inode/device verification in `saveMediaSource`. Thanks @dorjoos for reporting.
 - Security/Lobster (Windows): for the next npm release, remove shell-based fallback when launching Lobster wrappers (`.cmd`/`.bat`) and switch to explicit argv execution with wrapper entrypoint resolution, preventing command injection while preserving Windows wrapper compatibility. Thanks @allsmog for reporting.
-<<<<<<< HEAD
 - Agents/Streaming: keep assistant partial streaming active during reasoning streams, handle native `thinking_*` stream events consistently, dedupe mixed reasoning-end signals, and clear stale mutating tool errors after same-target retry success. (#20635) Thanks @obviyus.
 >>>>>>> ba7be018d (fix(security): remove lobster windows shell fallback)
 - Gateway/Auth: default unresolved gateway auth to token mode with startup auto-generation/persistence of `gateway.auth.token`, while allowing explicit `gateway.auth.mode: "none"` for intentional open loopback setups. (#20686) thanks @gumadeiras.
@@ -1369,29 +1046,15 @@ Status: beta.
 >>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
 - Commands/Doctor: avoid rewriting invalid configs with new `gateway.auth.token` defaults during repair and only write when real config changes are detected, preventing accidental token duplication and backup churn.
 - Sandbox/Registry: serialize container and browser registry writes with shared file locks and atomic replacement to prevent lost updates and delete rollback races from desyncing `sandbox list`, `prune`, and `recreate --all`. Thanks @kexinoh.
-=======
->>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
 - Security/Exec: require `tools.exec.safeBins` binaries to resolve from trusted bin directories (system defaults plus gateway startup `PATH`) so PATH-hijacked trojan binaries cannot bypass allowlist checks. Thanks @jackhax for reporting.
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-- Security/Exec: remove file-existence oracle behavior from `tools.exec.safeBins` by using deterministic argv-only stdin-safe validation and blocking file-oriented flags (for example `sort -o`, `jq -f`, `grep -f`) so allow/deny results no longer disclose host file presence. This ships in the next npm release. Thanks @nedlir for reporting.
->>>>>>> bafdbb6f1 (fix(security): eliminate safeBins file-existence oracle)
 - Security/Browser: route browser URL navigation through one SSRF-guarded validation path for tab-open/CDP-target/Playwright navigation flows and block private/metadata destinations by default (configurable via `browser.ssrfPolicy`). This ships in the next npm release. Thanks @dorjoos for reporting.
 - Security/Exec: for the next npm release, harden safe-bin stdin-only enforcement by blocking output/recursive flags (`sort -o/--output`, grep recursion) and tightening default safe bins to remove `sort`/`grep`, preventing safe-bin allowlist bypass for file writes/recursive reads. Thanks @nedlir for reporting.
-<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> cfe8457a0 (fix(security): harden safeBins stdin-only enforcement)
 - Cron/Webhooks: protect cron webhook POST delivery with SSRF-guarded outbound fetch (`fetchWithSsrFGuard`) to block private/metadata destinations before request dispatch. Thanks @Adam55A-code.
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-- Security/Gateway/Agents: remove implicit admin scopes from agent tool gateway calls by classifying methods to least-privilege operator scopes, and restrict `cron`/`gateway` tools to owner senders (with explicit runtime owner checks) to prevent non-owner DM privilege escalation. Ships in the next npm release. Thanks @Adam55A-code for reporting.
-- Security/Gateway: centralize gateway method-scope authorization and default non-CLI gateway callers to least-privilege method scopes, with explicit CLI scope handling and regression coverage to prevent scope drift.
-=======
-=======
->>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
 =======
 - Security/Exec: block grep safe-bin positional operand bypass by setting grep positional budget to zero, so `-e/--regexp` cannot smuggle bare filename reads (for example `.env`) via ambiguous positionals; safe-bin grep patterns must come from `-e/--regexp`. This ships in the next npm release. Thanks @athuljayaram for reporting.
 >>>>>>> c6ee14d60 (fix(security): block grep safe-bin file-read bypass)
@@ -1399,16 +1062,7 @@ Status: beta.
 - Security/Gateway: centralize gateway method-scope authorization and default non-CLI gateway callers to least-privilege method scopes, with explicit CLI scope handling, full core-handler scope classification coverage, and regression guards to prevent scope drift.
 >>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
 - Security/Net: block SSRF bypass via NAT64 (`64:ff9b::/96`, `64:ff9b:1::/48`), 6to4 (`2002::/16`), and Teredo (`2001:0000::/32`) IPv6 transition addresses, and fail closed on IPv6 parse errors. Thanks @jackhax.
-<<<<<<< HEAD
 >>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
-=======
-- Refactor/Plugins: extract shared plugin path-safety utilities, split discovery safety checks into typed reasoned guards, precompute provenance matchers during plugin load, and switch ownership tests to injected uid inputs.
-- Security/OTEL: sanitize OTLP endpoint URL resolution. (#13791) Thanks @vincentkoc.
-- Security: patch Dependabot security issues in pnpm lock. (#20832) Thanks @vincentkoc.
-- Security: migrate request dependencies to `@cypress/request`. (#20836) Thanks @vincentkoc.
-- Security/Refactor: centralize hardened temp-file path generation for Feishu and LINE media downloads via shared `buildRandomTempFilePath` helper to reduce drift risk. (#20810) Thanks @mbelinky.
-- Tests/Security: refactor `src/security/audit.test.ts` by extracting shared helpers to reduce duplication in security audit test coverage. (#20087) Thanks @habakan.
->>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
 
 ## 2026.2.17
 
@@ -1640,8 +1294,6 @@ Status: beta.
 ## 2026.2.14
 >>>>>>> 379b44558 (chore: bump version to 2026.2.15)
 
-<<<<<<< HEAD
-=======
 ### Changes
 
 - Sandbox: add `sandbox.browser.binds` to configure browser-container bind mounts separately from exec containers. (#16230) Thanks @seheepeak.
@@ -1660,7 +1312,6 @@ Status: beta.
 - CLI/Plugins: ensure `openclaw message send` exits after successful delivery across plugin-backed channels so one-shot sends do not hang. (#16491) Thanks @yinghaosang.
 - CLI/Plugins: run registered plugin `gateway_stop` hooks before `openclaw message` exits (success and failure paths), so plugin-backed channels can clean up one-shot CLI resources. (#16580) Thanks @gumadeiras.
 - WhatsApp: honor per-account `dmPolicy` overrides (account-level settings now take precedence over channel defaults for inbound DMs). (#10082) Thanks @mcaxtr.
->>>>>>> c6c53437f (fix(security): scope session tools and webhook secret fallback)
 - Telegram: when `channels.telegram.commands.native` is `false`, exclude plugin commands from `setMyCommands` menu registration while keeping plugin slash handlers callable. (#15132) Thanks @Glucksberg.
 - LINE: return 200 OK for Developers Console "Verify" requests (`{"events":[]}`) without `X-Line-Signature`, while still requiring signatures for real deliveries. (#16582) Thanks @arosstale.
 - Cron: deliver text-only output directly when `delivery.to` is set so cron recipients get full output instead of summaries. (#16360) Thanks @thewilloftheshadow.
@@ -1672,15 +1323,6 @@ Status: beta.
 - BlueBubbles: include sender identity in group chat envelopes and pass clean message text to the agent prompt, aligning with iMessage/Signal formatting. (#16210) Thanks @zerone0x.
 - WhatsApp: honor per-account `dmPolicy` overrides (account-level settings now take precedence over channel defaults for inbound DMs). (#10082) Thanks @mcaxtr.
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-- Media: accept `MEDIA:`-prefixed paths (lenient whitespace) when loading outbound media to prevent `ENOENT` for tool-returned local media paths. (#13107) Thanks .
-- Security/Gateway: harden tool-supplied `gatewayUrl` overrides by restricting them to loopback or the configured `gateway.remote.url`. Thanks -sec.
-=======
-- Media: accept `MEDIA:`-prefixed paths (lenient whitespace) when loading outbound media to prevent `ENOENT` for tool-returned local media paths. (#13107) Thanks @mcaxtr.
-- Security/Gateway: harden tool-supplied `gatewayUrl` overrides by restricting them to loopback or the configured `gateway.remote.url`. Thanks @p80n-sec.
-<<<<<<< HEAD
->>>>>>> e95ce05c1 (chore(security): soften gatewayUrl override messaging)
 
 >>>>>>> 2d5647a80 (fix(security): restrict tool gatewayUrl overrides)
 =======
@@ -1689,41 +1331,29 @@ Status: beta.
 - Security/Node Host: enforce `system.run` rawCommand/argv consistency to prevent allowlist/approval bypass. Thanks @christos-eth.
 - Security/Exec approvals: prevent safeBins allowlist bypass via shell expansion (host exec allowlist mode only; not enabled by default). Thanks @christos-eth.
 - Security/Gateway: block `system.execApprovals.*` via `node.invoke` (use `exec.approvals.node.*` instead). Thanks @christos-eth.
-<<<<<<< HEAD
-=======
 - Security/Exec: harden PATH handling by disabling project-local `node_modules/.bin` bootstrapping by default, disallowing node-host `PATH` overrides, and spawning ACP servers via the current executable by default. Thanks @akhmittra.
 - Security/Gateway: prevent SSRF by ignoring user-provided `gatewayUrl` tool inputs (gateway URL must come from config). Thanks @p80n-sec.
->>>>>>> c5406e1d2 (fix(security): prevent gatewayUrl SSRF)
 - CLI: fix lazy core command registration so top-level maintenance commands (`doctor`, `dashboard`, `reset`, `uninstall`) resolve correctly instead of exposing a non-functional `maintenance` placeholder command.
 >>>>>>> 77b89719d (fix(security): block safeBins shell expansion)
 - Security/Agents: scope CLI process cleanup to owned child PIDs to avoid killing unrelated processes on shared hosts. Thanks @aether-ai-agent.
 - Security/Agents (macOS): prevent shell injection when writing Claude CLI keychain credentials. (#15924) Thanks @aether-ai-agent.
 - Security: fix Chutes manual OAuth login state validation (thanks @aether-ai-agent). (#16058)
-<<<<<<< HEAD
-=======
 - Security/Tlon: harden Urbit URL fetching against SSRF by blocking private/internal hosts by default (opt-in: `channels.tlon.allowPrivateNetwork`). Thanks @p80n-sec.
 - Security/Voice Call (Telnyx): require webhook signature verification when receiving inbound events; configs without `telnyx.publicKey` are now rejected unless `skipSignatureVerification` is enabled. Thanks @p80n-sec.
->>>>>>> bfa7d21e9 (fix(security): harden tlon Urbit requests against SSRF)
 - Security/Discovery: stop treating Bonjour TXT records as authoritative routing (prefer resolved service endpoints) and prevent discovery from overriding stored TLS pins; autoconnect now requires a previously trusted gateway. Thanks @simecek.
 - macOS: hard-limit unkeyed `openclaw://agent` deep links and ignore `deliver` / `to` / `channel` unless a valid unattended key is provided. Thanks @Cillian-Collins.
-<<<<<<< HEAD
-=======
 - Plugins: suppress false duplicate plugin id warnings when the same extension is discovered via multiple paths (config/workspace/global vs bundled), while still warning on genuine duplicates. (#16222) Thanks @shadril238.
 - Security/Google Chat: deprecate `users/<email>` allowlists (treat `users/...` as immutable user id only); keep raw email allowlists for usability. Thanks @vincentkoc.
 - Security/Archive: enforce archive extraction entry/size limits to prevent resource exhaustion from high-expansion ZIP/TAR archives. Thanks @vincentkoc.
 - Security/Media: reject oversized base64-backed input media before decoding to avoid large allocations. Thanks @vincentkoc.
 - Security/Gateway: reject oversized base64 chat attachments before decoding to avoid large allocations. Thanks @vincentkoc.
 <<<<<<< HEAD
->>>>>>> 31791233d (fix(security): reject oversized base64 before decode)
 =======
 - Security/Zalo: reject ambiguous shared-path webhook routing when multiple webhook targets match the same secret.
 - Security/BlueBubbles: reject ambiguous shared-path webhook routing when multiple webhook targets match the same guid/password.
-<<<<<<< HEAD
-=======
 - Security/BlueBubbles: harden BlueBubbles webhook auth behind reverse proxies by only accepting passwordless webhooks for direct localhost loopback requests (forwarded/proxied requests now require a password). Thanks @simecek.
 - Security/BlueBubbles: require explicit `mediaLocalRoots` allowlists for local outbound media path reads to prevent local file disclosure. (#16322) Thanks @mbelinky.
 <<<<<<< HEAD
->>>>>>> 743f4b284 (fix(security): harden BlueBubbles webhook auth behind proxies)
 =======
 - Security/Agents: enforce workspace-root path bounds for `apply_patch` in non-sandbox mode to block traversal and symlink escape writes. Thanks @p80n-sec.
 >>>>>>> 5544646a0 (security: block apply_patch path traversal outside workspace (#16405))
@@ -1735,19 +1365,9 @@ Status: beta.
 >>>>>>> 3967ece62 (fix(security): OC-25 — Validate OAuth state parameter to prevent CSRF attacks (#16058))
 ### Fixes
 
-<<<<<<< HEAD
 - Security/Hooks: restrict hook transform modules to `~/.openclaw/hooks/transforms` (prevents path traversal/escape module loads via config). Thanks @akhmittra.
-=======
-- Security/Skills: harden archive extraction for download-installed skills to prevent path traversal outside the target directory. Thanks @markmusson.
-- Security/Signal: harden signal-cli archive extraction during install to prevent path traversal outside the install root.
-- Security/Hooks: restrict hook transform modules to `~/.openclaw/hooks/transforms` (prevents path traversal/escape module loads via config). Config note: `hooks.transformsDir` must now be within that directory. Thanks @akhmittra.
->>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
 - Security/Hooks: ignore hook package manifest entries that point outside the package directory (prevents out-of-tree handler loads during hook discovery).
-<<<<<<< HEAD
 
-=======
-- Ollama/Agents: avoid forcing `<final>` tag enforcement for Ollama models, which could suppress all output as `(no output)`. (#16191) Thanks @Glucksberg.
->>>>>>> 35c0e66ed (fix(security): harden hooks module loading)
 ## 2026.2.13
 
 ### Changes
@@ -1769,17 +1389,6 @@ Status: beta.
 ### Fixes
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-- Gateway/Auth: add trusted-proxy mode hardening follow-ups by keeping `OPENCLAW_GATEWAY_*` env compatibility, auto-normalizing invalid setup combinations in interactive `gateway configure` (trusted-proxy forces `bind=lan` and disables Tailscale serve/funnel), and suppressing shared-secret/rate-limit audit findings that do not apply to trusted-proxy deployments. (#15940) Thanks @nickytonline.
-<<<<<<< HEAD
-=======
-- Docs/Hooks: update hooks documentation URLs to the new `/automation/hooks` location. (#16165) Thanks @nicholascyh.
-- Security/Audit: warn when `gateway.tools.allow` re-enables default-denied tools over HTTP `POST /tools/invoke`, since this can increase RCE blast radius if the gateway is reachable.
-- Security/Plugins/Hooks: harden npm-based installs by restricting specs to registry packages only, passing `--ignore-scripts` to `npm pack`, and cleaning up temp install directories.
-<<<<<<< HEAD
->>>>>>> 6f7d31c42 (fix(security): harden plugin/hook npm installs)
 =======
 - Security/Sessions: preserve inter-session input provenance for routed prompts so delegated/internal sessions are not treated as direct external user instructions. Thanks @anbecker.
 >>>>>>> e3445f59c (docs(changelog): note inter-session provenance security fix)
@@ -1839,22 +1448,16 @@ Status: beta.
 - Security/Gateway: breaking default-behavior change - canvas IP-based auth fallback now only accepts machine-scoped addresses (RFC1918, link-local, ULA IPv6, CGNAT); public-source IP matches now require bearer token auth. (#14661) Thanks @sumleo.
 - Security/WhatsApp: enforce `0o600` on `creds.json` and `creds.json.bak` on save/backup/restore paths to reduce credential file exposure. (#10529) Thanks @abdelsfane.
 - Security/Gateway + ACP: block high-risk tools (`sessions_spawn`, `sessions_send`, `gateway`, `whatsapp_login`) from HTTP `/tools/invoke` by default with `gateway.tools.{allow,deny}` overrides, and harden ACP permission selection to fail closed when tool identity/options are ambiguous while supporting `allow_always`/`reject_always`. (#15390) Thanks @aether-ai-agent.
-<<<<<<< HEAD
-=======
 - Security/Browser: constrain `POST /trace/stop`, `POST /wait/download`, and `POST /download` output paths to OpenClaw temp roots and reject traversal/escape paths.
 - Gateway/Tools Invoke: sanitize `/tools/invoke` execution failures while preserving `400` for tool input errors and returning `500` for unexpected runtime failures, with regression coverage and docs updates. (#13185) Thanks @davidrudduck.
->>>>>>> 7f0489e47 (Security/Browser: constrain trace and download output paths to OpenClaw temp roots (#15652))
 - MS Teams: preserve parsed mention entities/text when appending OneDrive fallback file links, and accept broader real-world Teams mention ID formats (`29:...`, `8:orgid:...`) while still rejecting placeholder patterns. (#15436) Thanks @hyojin.
 >>>>>>> 7467fcc52 (security: use openFileWithinRoot for A2UI file serving (#10525))
 - Security/Audit: distinguish external webhooks (`hooks.enabled`) from internal hooks (`hooks.internal.enabled`) in attack-surface summaries to avoid false exposure signals when only internal hooks are enabled. (#13474) Thanks @mcaxtr.
-<<<<<<< HEAD
-=======
 - Security/Audit: add misconfiguration checks for sandbox Docker config with sandbox mode off, ineffective `gateway.nodes.denyCommands` entries, global minimal tool-profile overrides by agent profiles, and permissive extension-plugin tool reachability.
 <<<<<<< HEAD
 =======
 - Security/Link understanding: block loopback/internal host patterns and private/mapped IPv6 addresses in extracted URL handling to close SSRF bypasses in link CLI flows. (#15604) Thanks @AI-Reviewer-QS.
 - Android/Nodes: harden `app.update` by requiring HTTPS and gateway-host URL matching plus SHA-256 verification, stream URL camera downloads to disk with size guards to avoid memory spikes, and stop signing release builds with debug keys. (#13541) Thanks @smartprogrammer93.
->>>>>>> 649826e43 (fix(security): block private/loopback/metadata IPs in link-understanding URL detection (#15604))
 - Auto-reply/Threading: auto-inject implicit reply threading so `replyToMode` works without requiring model-emitted `[[reply_to_current]]`, while preserving `replyToMode: "off"` behavior for implicit Slack replies and keeping block-streaming chunk coalescing stable under `replyToMode: "first"`. (#14976) Thanks @Diaspar4u.
 >>>>>>> 1def8c544 (fix(security): extend audit hardening checks)
 - Sandbox: pass configured `sandbox.docker.env` variables to sandbox containers at `docker create` time. (#15138) Thanks @stevebot-alive.
@@ -1875,12 +1478,9 @@ Status: beta.
 ### Fixes
 
 - Security: fix unauthenticated Nostr profile API remote config tampering. (#13719) Thanks @coygeek.
-<<<<<<< HEAD
-=======
 - Security: remove bundled soul-evil hook. (#14757) Thanks @Imccccc.
 - Security/Web tools: treat browser/web content as untrusted by default (wrapped outputs for browser snapshot/tabs/console and structured external-content metadata for web tools), and strip `toolResult.details` from model-facing transcript/compaction inputs to reduce prompt-injection replay risk.
 <<<<<<< HEAD
->>>>>>> da55d70fb (fix(security): harden untrusted web tool transcripts)
 =======
 - Security/Hooks: harden webhook and device token verification with shared constant-time secret comparison, and add per-client auth-failure throttling for hook endpoints (`429` + `Retry-After`). Thanks @akhmittra.
 >>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
@@ -1929,51 +1529,11 @@ Status: beta.
 
 ### Added
 
-<<<<<<< HEAD
 - Gateway: add `agents.create`, `agents.update`, `agents.delete` RPC methods for web UI agent management. (#11045) Thanks @advaitpaliwal.
-=======
-- Commands: add `commands.allowFrom` config for separate command authorization, allowing operators to restrict slash commands to specific users while keeping chat open to others. (#12430) Thanks @thewilloftheshadow.
-- Docker: add ClawDock shell helpers for Docker workflows. (#12817) Thanks @Olshansk.
-- iOS: alpha node app + setup-code onboarding. (#11756) Thanks @mbelinky.
-- Channels: comprehensive BlueBubbles and channel cleanup. (#11093) Thanks @tyler6204.
-- Channels: IRC first-class channel support. (#11482) Thanks @vignesh07.
-- Plugins: device pairing + phone control plugins (Telegram `/pair`, iOS/Android node controls). (#11755) Thanks @mbelinky.
-- Tools: add Grok (xAI) as a `web_search` provider. (#12419) Thanks @tmchow.
-- Gateway: add agent management RPC methods for the web UI (`agents.create`, `agents.update`, `agents.delete`). (#11045) Thanks @advaitpaliwal.
-- Web UI: show a Compaction divider in chat history. (#11341) Thanks @Takhoffman.
-- Agents: include runtime shell in agent envelopes. (#1835) Thanks @Takhoffman.
-- Agents: auto-select `zai/glm-4.6v` for image understanding when ZAI is primary provider. (#10267) Thanks @liuy.
-- Paths: add `OPENCLAW_HOME` for overriding the home directory used by internal path resolution. (#12091) Thanks @sebslight.
-- Onboarding: add Custom Provider flow for OpenAI and Anthropic-compatible endpoints. (#11106) Thanks @MackDing.
->>>>>>> fa906b26a (feat: IRC — add first-class channel support)
 
 ### Fixes
 
-<<<<<<< HEAD
 - Discord: support forum/media `thread create` starter messages, wire `message thread create --message`, and harden thread-create routing. (#10062) Thanks @jarvis89757.
-=======
-- Cron: prevent one-shot `at` jobs from re-firing on gateway restart when previously skipped or errored. (#13845)
-- Discord: add exec approval cleanup option to delete DMs after approval/denial/timeout. (#13205) Thanks @thewilloftheshadow.
-- Sessions: prune stale entries, cap session store size, rotate large stores, accept duration/size thresholds, default to warn-only maintenance, and prune cron run sessions after retention windows. (#13083) Thanks @skyfallsin, @Glucksberg, @gumadeiras.
-- CI: Implement pipeline and workflow order. Thanks @quotentiroler.
-- WhatsApp: preserve original filenames for inbound documents. (#12691) Thanks @akramcodez.
-- Telegram: harden quote parsing; preserve quote context; avoid QUOTE_TEXT_INVALID; avoid nested reply quote misclassification. (#12156) Thanks @rybnikov.
-- Security/Telegram: breaking default-behavior change — standalone canvas host + Telegram webhook listeners now bind loopback (`127.0.0.1`) instead of `0.0.0.0`; set `channels.telegram.webhookHost` when external ingress is required. (#13184) Thanks @davidrudduck.
-- Telegram: recover proactive sends when stale topic thread IDs are used by retrying without `message_thread_id`. (#11620)
-- Discord: auto-create forum/media thread posts on send, with chunked follow-up replies and media handling for forum sends. (#12380) Thanks @magendary, @thewilloftheshadow.
-- Discord: cap gateway reconnect attempts to avoid infinite retry loops. (#12230) Thanks @Yida-Dev.
-- Telegram: render markdown spoilers with `<tg-spoiler>` HTML tags. (#11543) Thanks @ezhikkk.
-- Telegram: truncate command registration to 100 entries to avoid `BOT_COMMANDS_TOO_MUCH` failures on startup. (#12356) Thanks @arosstale.
-- Telegram: match DM `allowFrom` against sender user id (fallback to chat id) and clarify pairing logs. (#12779) Thanks @liuxiaopai-ai.
-- Pairing/Telegram: include the actual pairing code in approve commands, route Telegram pairing replies through the shared pairing message builder, and add regression checks to prevent `<code>` placeholder drift.
-- Onboarding: QuickStart now auto-installs shell completion (prompt only in Manual).
-- Onboarding/Providers: add LiteLLM provider onboarding and preserve custom LiteLLM proxy base URLs while enforcing API-key auth mode. (#12823) Thanks @ryan-crabbe.
-- Docker: make `docker-setup.sh` compatible with macOS Bash 3.2 and empty extra mounts. (#9441) Thanks @mateusz-michalik.
-- Auth: strip embedded line breaks from pasted API keys and tokens before storing/resolving credentials.
-- Agents: strip reasoning tags and downgraded tool markers from messaging tool and streaming output to prevent leakage. (#11053, #13453) Thanks @liebertar, @meaadore1221-afk, @gumadeiras.
-- Browser: prevent stuck `act:evaluate` from wedging the browser tool, and make cancellation stop waiting promptly. (#13498) Thanks @onutc.
-- Security/Gateway: default-deny missing connect `scopes` (no implicit `operator.admin`).
->>>>>>> 5643a9347 (fix(security): default standalone servers to loopback bind (#13184))
 - Web UI: make chat refresh smoothly scroll to the latest messages and suppress new-messages badge flash during manual refresh.
 - Cron: route text-only isolated agent announces through the shared subagent announce flow; add exponential backoff for repeated errors; preserve future `nextRunAtMs` on restart; include current-boundary schedule matches; prevent stale threadId reuse across targets; and add per-job execution timeout. (#11641) Thanks @tyler6204.
 - Subagents: stabilize announce timing, preserve compaction metrics across retries, clamp overflow-prone long timeouts, and cap impossible context usage token totals. (#11551) Thanks @tyler6204.
@@ -2038,13 +1598,7 @@ Status: beta.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 - TBD.
-=======
-=======
-=======
-- Agents: bump pi-mono packages to 0.52.5. (#9949) Thanks @gumadeiras.
->>>>>>> 3299aeb90 (Agents: bump pi-mono to 0.52.5 (#9949))
 - Models: default Anthropic model to `anthropic/claude-opus-4-6`. (#9853) Thanks @TinyTb.
 - Models/Onboarding: refresh provider defaults, update OpenAI/OpenAI Codex wizard defaults, and harden model allowlist initialization for first-time configs with matching docs/tests. (#9911) Thanks @gumadeiras.
 - Telegram: auto-inject forum topic `threadId` in message tool and subagent announce so media, buttons, and subagent results land in the correct topic instead of General. (#7235) Thanks @Lukavyi.
@@ -2060,35 +1614,18 @@ Status: beta.
 
 ### Fixes
 
-<<<<<<< HEAD
-=======
 - Heartbeat: allow explicit accountId routing for multi-account channels. (#8702) Thanks @lsh411.
 - TUI/Gateway: handle non-streaming finals, refresh history for non-local chat runs, and avoid event gap warnings for targeted tool streams. (#8432) Thanks @gumadeiras.
 - Shell completion: auto-detect and migrate slow dynamic patterns to cached files for faster terminal startup; add completion health checks to doctor/update/onboard.
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 - Telegram: honor session model overrides in inline model selection. (#8193) Thanks @gildo.
 - Web UI: resolve header logo path when `gateway.controlUi.basePath` is set. (#7178) Thanks @Yeom-JinHo.
 - Web UI: apply button styling to the new-messages indicator.
 - Security: keep untrusted channel metadata out of system prompts (Slack/Discord). Thanks @KonstantinMirin.
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 35eb40a70 (fix(security): separate untrusted channel metadata from system prompt (thanks @KonstantinMirin))
-=======
-- Security: require explicit credentials for gateway URL overrides to prevent credential leakage. (#8113) Thanks @victormier.
-=======
-=======
-- Security: redact channel credentials (tokens, passwords, API keys, secrets) from gateway config APIs and preserve secrets during Control UI round-trips. (#9858) Thanks @abdelsfane.
-- Discord: treat allowlisted senders as owner for system-prompt identity hints while keeping channel topics untrusted.
-- Slack: strip `<@...>` mention tokens before command matching so `/new` and `/reset` work when prefixed with a mention. (#9971) Thanks @ironbyte-rgb.
->>>>>>> 0c7fa2b0d (security: redact credentials from config.get gateway responses (#9858))
 - Security: enforce sandboxed media paths for message tool attachments. (#9182) Thanks @victormier.
-<<<<<<< HEAD
 >>>>>>> 4434cae56 (Security: harden sandboxed media handling (#9182))
-=======
-- Security: require explicit credentials for gateway URL overrides to prevent credential leakage. (#8113) Thanks @victormier.
-- Security: gate `whatsapp_login` tool to owner senders and default-deny non-owner contexts. (#8768) Thanks @victormier.
->>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
 - Voice call: harden webhook verification with host allowlists/proxy trust and keep ngrok loopback bypass.
 - Cron: accept epoch timestamps and 0ms durations in CLI `--at` parsing.
 - Cron: reload store data when the store file is recreated or mtime changes.
@@ -2122,8 +1659,6 @@ Status: beta.
 >>>>>>> e59eb814b (chore: bump version to 2026.2.2-1)
 ## 2026.2.2
 
-<<<<<<< HEAD
-=======
 ### Changes
 
 - Web UI: add Agents dashboard for managing agent files, tools, skills, models, channels, and cron jobs.
@@ -2138,7 +1673,6 @@ Status: beta.
 - Docs: zh-CN translation polish + pipeline guidance. (#8202, #6995) Thanks @AaronWander, @taiyi747, @Explorer1092, @rendaoyuan.
 - Docs: zh-CN translations seed + nav polish + landing notice + typo fix. (#6619, #7242, #7303, #7415) Thanks @joshp123, @lailoo.
 - Feishu: add Feishu/Lark plugin support + docs. (#7313) Thanks @jiulingyun (openclaw-cn).
->>>>>>> 0223416c6 (Channels: finish Feishu/Lark integration)
 
 >>>>>>> 578bde1e0 (Security: healthcheck skill (#7641) (thanks @Takhoffman))
 ### Fixes
@@ -2162,11 +1696,8 @@ Status: beta.
 ### Fixes
 
 - Auto-reply: avoid referencing workspace files in /new greeting prompt. (#5706) Thanks @bravostation.
-<<<<<<< HEAD
-=======
 - Tools: treat `"*"` tool allowlist entries as valid to avoid spurious unknown-entry warnings.
 - Slack: harden media fetch limits and Slack file URL validation. (#6639) Thanks @davidiach.
->>>>>>> 4e4ed2ea1 (fix(security): cap Slack media downloads and validate Slack file URLs (#6639))
 - Process: resolve Windows `spawn()` failures for npm-family CLIs by appending `.cmd` when needed. (#5815) Thanks @thejhinvirtuoso.
 - Discord: resolve PluralKit proxied senders for allowlists and labels. (#5838) Thanks @thewilloftheshadow.
 - Agents: ensure OpenRouter attribution headers apply in the embedded runner.
@@ -2218,45 +1749,18 @@ Status: beta.
 >>>>>>> 247fab47c (chore: bump version to 2026.1.30)
 
 ### Changes
-<<<<<<< HEAD
 - Security: harden SSH tunnel target parsing to prevent option injection/DoS. (#4001) Thanks @YLChen-007.
 - Rebrand: rename the npm package/CLI to `moltbot`, add a `moltbot` compatibility shim, and move extensions to the `@moltbot/*` scope.
 - Commands: group /help and /commands output with Telegram paging. (#2504) Thanks @hougangdev.
 - macOS: limit project-local `node_modules/.bin` PATH preference to debug builds (reduce PATH hijacking risk).
 - macOS: finish Moltbot app rename for macOS sources, bundle identifiers, and shared kit paths. (#2844) Thanks @fal3.
-=======
-- Rebrand: rename the npm package/CLI to `openclaw`, add a `openclaw` compatibility shim, and move extensions to the `@openclaw/*` scope.
-- Commands: group /help and /commands output with Telegram paging. (#2504) Thanks @hougangdev.
-- macOS: limit project-local `node_modules/.bin` PATH preference to debug builds (reduce PATH hijacking risk).
-- macOS: finish OpenClaw app rename for macOS sources, bundle identifiers, and shared kit paths. (#2844) Thanks @fal3.
->>>>>>> 9a7160786 (refactor: rename to openclaw)
 - Branding: update launchd labels, mobile bundle IDs, and logging subsystems to bot.molt (legacy com.clawdbot migrations). Thanks @thewilloftheshadow.
 - Tools: add per-sender group tool policies and fix precedence. (#1757) Thanks @adam91holt.
 - Agents: summarize dropped messages during compaction safeguard pruning. (#2509) Thanks @jogi47.
 - Memory Search: allow extra paths for memory indexing (ignores symlinks). (#3600) Thanks @kira-ariaki.
 - Skills: add multi-image input support to Nano Banana Pro skill. (#1958) Thanks @tyler6204.
-<<<<<<< HEAD
 - Agents: honor tools.exec.safeBins in exec allowlist checks. (#2281)
 - Matrix: switch plugin SDK to @vector-im/matrix-bot-sdk.
-=======
-- Skills: add missing dependency metadata for GitHub, Notion, Slack, Discord. (#1995) Thanks @jackheuberger.
-- Commands: group /help and /commands output with Telegram paging. (#2504) Thanks @hougangdev.
-- Routing: add per-account DM session scope and document multi-account isolation. (#3095) Thanks @jarvis-sam.
-- Routing: precompile session key regexes. (#1697) Thanks @Ray0907.
-- CLI: use Node's module compile cache for faster startup. (#2808) Thanks @pi0.
-- Auth: show copyable Google auth URL after ASCII prompt. (#1787) Thanks @robbyczgw-cla.
-- TUI: avoid width overflow when rendering selection lists. (#1686) Thanks @mossein.
-- macOS: finish OpenClaw app rename for macOS sources, bundle identifiers, and shared kit paths. (#2844) Thanks @fal3.
-- Branding: update launchd labels, mobile bundle IDs, and logging subsystems to bot.molt (legacy bundle ID migrations). Thanks @thewilloftheshadow.
-- macOS: limit project-local `node_modules/.bin` PATH preference to debug builds (reduce PATH hijacking risk).
-- macOS: keep custom SSH usernames in remote target. (#2046) Thanks @algal.
-- macOS: avoid crash when rendering code blocks by bumping Textual to 0.3.1. (#2033) Thanks @garricn.
-- Update: ignore dist/control-ui for dirty checks and restore after ui builds. (#1976) Thanks @Glucksberg.
-- Build: bundle A2UI assets during build and stop tracking generated bundles. (#2455) Thanks @0oAstro.
-- CI: increase Node heap size for macOS checks. (#1890) Thanks @realZachi.
-- Config: apply config.env before ${VAR} substitution. (#1813) Thanks @spanishflu-est1918.
-- Gateway: prefer newest session metadata when combining stores. (#1823) Thanks @emanuelst.
->>>>>>> 247fab47c (chore: bump version to 2026.1.30)
 - Docs: tighten Fly private deployment steps. (#2289) Thanks @dguido.
 - Docs: add migration guide for moving to a new machine. (#2381)
 - Docs: add Northflank one-click deployment guide. (#2167) Thanks @AdeboyeDN.
@@ -2292,12 +1796,7 @@ Status: beta.
 - Telegram: support plugin sendPayload channelData (media/buttons) and validate plugin commands. (#1917) Thanks @JoshuaLelon.
 - Telegram: avoid block replies when streaming is disabled. (#1885) Thanks @ivancasco.
 - Docs: keep docs header sticky so navbar stays visible while scrolling. (#2445) Thanks @chenyuan99.
-<<<<<<< HEAD
 - Docs: update exe.dev install instructions. (#https://github.com/moltbot/moltbot/pull/3047) Thanks @zackerthescar.
-=======
-- Docs: update exe.dev install instructions. (#https://github.com/openclaw/openclaw/pull/3047) Thanks @zackerthescar.
-<<<<<<< HEAD
->>>>>>> 9a7160786 (refactor: rename to openclaw)
 - Security: use Windows ACLs for permission audits and fixes on Windows. (#1957)
 - Auth: show copyable Google auth URL after ASCII prompt. (#1787) Thanks @robbyczgw-cla.
 - Routing: precompile session key regexes. (#1697) Thanks @Ray0907.
@@ -2321,10 +1820,6 @@ Status: beta.
 
 ### Fixes
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 247fab47c (chore: bump version to 2026.1.30)
 - Telegram: avoid silent empty replies by tracking normalization skips before fallback. (#3796)
 - Mentions: honor mentionPatterns even when explicit mentions are present. (#3303) Thanks @HirokiKobayashi-R.
 >>>>>>> 9a7160786 (refactor: rename to openclaw)
@@ -2333,11 +1828,8 @@ Status: beta.
 - Agents: prevent retries on oversized image errors and surface size limits. (#2871) Thanks @Suksham-sharma.
 - Agents: inherit provider baseUrl/api for inline models. (#2740) Thanks @lploc94.
 - Memory Search: keep auto provider model defaults and only include remote when configured. (#2576) Thanks @papago2355.
-<<<<<<< HEAD
-=======
 - Telegram: include AccountId in native command context for multi-agent routing. (#2942) Thanks @Chloe-VP.
 - Telegram: handle video note attachments in media extraction. (#2905) Thanks @mylukin.
->>>>>>> 9a7160786 (refactor: rename to openclaw)
 - TTS: read OPENAI_TTS_BASE_URL at runtime instead of module load to honor config.env. (#3341) Thanks @hclsys.
 - macOS: auto-scroll to bottom when sending a new message while scrolled up. (#2471) Thanks @kennyklee.
 - Web UI: auto-expand the chat compose textarea while typing (with sensible max height). (#2950) Thanks @shivamraut101.

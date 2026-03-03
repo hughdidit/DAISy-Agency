@@ -9,31 +9,15 @@ import path from "node:path";
 import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
 import type { OpenClawConfig, ConfigFileSnapshot } from "../config/config.js";
 import type { AgentToolsConfig } from "../config/types.tools.js";
-<<<<<<< HEAD
 import type { ExecFn } from "./windows-acl.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-=======
-import type { SkillScanFinding } from "./skill-scanner.js";
-import type { ExecFn } from "./windows-acl.js";
-import { resolveDefaultAgentId } from "../agents/agent-scope.js";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 import { isToolAllowedByPolicies } from "../agents/pi-tools.policy.js";
 import {
   resolveSandboxConfigForAgent,
   resolveSandboxToolPolicyForAgent,
 } from "../agents/sandbox.js";
-<<<<<<< HEAD
 import { loadWorkspaceSkillEntries } from "../agents/skills.js";
 import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
-=======
-import { SANDBOX_BROWSER_SECURITY_HASH_EPOCH } from "../agents/sandbox/constants.js";
-import { execDockerRaw, type ExecDockerRawResult } from "../agents/sandbox/docker.js";
-import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
-import { loadWorkspaceSkillEntries } from "../agents/skills.js";
-import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
-import { listAgentWorkspaceDirs } from "../agents/workspace-dirs.js";
-import { formatCliCommand } from "../cli/command-format.js";
->>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 import { MANIFEST_KEY } from "../compat/legacy-names.js";
 import { resolveNativeSkillsEnabled } from "../config/commands.js";
 import { createConfigIO } from "../config/config.js";
@@ -48,18 +32,10 @@ import {
   safeStat,
 } from "./audit-fs.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { scanDirectoryWithSummary, type SkillScanFinding } from "./skill-scanner.js";
-=======
-=======
-import { pickSandboxToolPolicy } from "./audit-tool-policy.js";
->>>>>>> d7079b557 (refactor(security): share sandbox tool policy picker)
 import { extensionUsesSkippedScannerPath, isPathInside } from "./scan-paths.js";
 import * as skillScanner from "./skill-scanner.js";
-<<<<<<< HEAD
 >>>>>>> b37346103 (refactor(security): share scan path helpers)
-=======
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 
 export type SecurityAuditFinding = {
   checkId: string;
@@ -95,7 +71,6 @@ function expandTilde(p: string, env: NodeJS.ProcessEnv): string | null {
   return null;
 }
 
-<<<<<<< HEAD
 function resolveIncludePath(baseConfigPath: string, includePath: string): string {
   return path.normalize(
     path.isAbsolute(includePath)
@@ -194,8 +169,6 @@ function extensionUsesSkippedScannerPath(entry: string): boolean {
   );
 }
 
-=======
->>>>>>> b37346103 (refactor(security): share scan path helpers)
 async function readPluginManifestExtensions(pluginPath: string): Promise<string[]> {
   const manifestPath = path.join(pluginPath, "package.json");
   const raw = await fs.readFile(manifestPath, "utf-8").catch(() => "");

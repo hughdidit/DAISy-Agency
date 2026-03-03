@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CronSettings+Actions.swift
-=======
 import OpenClawProtocol
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/CronSettings+Actions.swift
 import Foundation
 import MoltbotProtocol
 

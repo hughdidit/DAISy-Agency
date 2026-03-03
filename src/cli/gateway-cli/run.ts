@@ -235,21 +235,7 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
     defaultRuntime.exit(1);
     return;
   }
-<<<<<<< HEAD
   if (bind !== "loopback" && !hasSharedSecret) {
-=======
-  if (resolvedAuthMode === "none") {
-    gatewayLog.warn(
-      "Gateway auth mode=none explicitly configured; all gateway connections are unauthenticated.",
-    );
-  }
-  if (
-    bind !== "loopback" &&
-    !hasSharedSecret &&
-    !canBootstrapToken &&
-    resolvedAuthMode !== "trusted-proxy"
-  ) {
->>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
     defaultRuntime.error(
       [
         `Refusing to bind gateway to ${bind} without auth.`,

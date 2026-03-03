@@ -1,13 +1,10 @@
 import fs from "node:fs";
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-=======
 import {
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId as normalizeSharedAccountId,
 } from "../routing/account-id.js";
 import { resolveAccountEntry } from "../routing/account-lookup.js";
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 import type {
   LineConfig,
   LineAccountConfig,

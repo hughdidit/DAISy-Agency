@@ -36,8 +36,6 @@ afterEach(async () => {
 });
 
 describe("web media loading", () => {
-<<<<<<< HEAD
-=======
   beforeAll(() => {
     // Ensure state dir is stable and not influenced by other tests that stub OPENCLAW_STATE_DIR.
     // Also keep it outside the OpenClaw temp root so default localRoots doesn't accidentally make all state readable.
@@ -74,7 +72,6 @@ describe("web media loading", () => {
     }
   });
 
->>>>>>> c37843924 (Security: harden tool media paths)
   it("compresses large local images under the provided cap", async () => {
     const buffer = await sharp({
       create: {

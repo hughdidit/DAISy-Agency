@@ -11,8 +11,6 @@ import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { loadConfig } from "../config/config.js";
 import { writeConfigFile } from "../config/io.js";
 import { danger, logVerbose, warn } from "../globals.js";
-<<<<<<< HEAD
-=======
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { MediaFetchError } from "../media/fetch.js";
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
@@ -31,7 +29,6 @@ import {
   type MediaGroupEntry,
   type TelegramUpdateKeyContext,
 } from "./bot-updates.js";
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 import { resolveMedia } from "./bot/delivery.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { resolveTelegramForumThreadId } from "./bot/helpers.js";
@@ -210,8 +207,6 @@ export const registerTelegramHandlers = ({
     }, TELEGRAM_TEXT_FRAGMENT_MAX_GAP_MS);
   };
 
-<<<<<<< HEAD
-=======
   const loadStoreAllowFrom = async () =>
     readChannelAllowFromStore("telegram", process.env, accountId).catch(() => []);
 
@@ -741,7 +736,6 @@ export const registerTelegramHandlers = ({
       botUsername: ctx.me?.username,
     });
   };
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
   bot.on("callback_query", async (ctx) => {
     const callback = ctx.callbackQuery;
     if (!callback) return;
@@ -1008,8 +1002,6 @@ export const registerTelegramHandlers = ({
       const effectiveGroupAllow = normalizeAllowFromWithStore({
         allowFrom: groupAllowOverride ?? groupAllowFrom,
         storeAllowFrom,
-<<<<<<< HEAD
-=======
         groupConfig,
         topicConfig,
         effectiveGroupAllow,
@@ -1019,7 +1011,6 @@ export const registerTelegramHandlers = ({
         allowFrom,
         storeAllowFrom,
         dmPolicy,
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
       });
       const hasGroupAllowOverride = typeof groupAllowOverride !== "undefined";
 

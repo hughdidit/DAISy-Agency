@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/MacNodeRuntimeTests.swift
-=======
 import OpenClawKit
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/MacNodeRuntimeTests.swift
 import CoreLocation
 import Foundation
 import MoltbotKit

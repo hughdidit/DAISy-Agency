@@ -30,7 +30,6 @@ const httpServers = new Map<string, http.Server>();
 const botOpenIds = new Map<string, string>();
 const FEISHU_WEBHOOK_MAX_BODY_BYTES = 1024 * 1024;
 const FEISHU_WEBHOOK_BODY_TIMEOUT_MS = 30_000;
-<<<<<<< HEAD
 const FEISHU_WEBHOOK_RATE_LIMIT_WINDOW_MS = 60_000;
 const FEISHU_WEBHOOK_RATE_LIMIT_MAX_REQUESTS = 120;
 const FEISHU_WEBHOOK_RATE_LIMIT_MAX_TRACKED_KEYS = 4_096;
@@ -39,11 +38,6 @@ const FEISHU_WEBHOOK_COUNTER_LOG_EVERY = 25;
 const feishuWebhookRateLimits = new Map<string, { count: number; windowStartMs: number }>();
 const feishuWebhookStatusCounters = new Map<string, number>();
 let lastWebhookRateLimitCleanupMs = 0;
-=======
-const FEISHU_WEBHOOK_COUNTER_MAX_TRACKED_KEYS = 4_096;
-const FEISHU_WEBHOOK_COUNTER_TTL_MS = 6 * 60 * 60_000;
-=======
->>>>>>> 3a68c5626 (refactor(security): unify webhook guardrails across channels)
 const FEISHU_REACTION_VERIFY_TIMEOUT_MS = 1_500;
 
 export type FeishuReactionCreatedEvent = {

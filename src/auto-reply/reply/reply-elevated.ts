@@ -2,7 +2,6 @@ import { resolveAgentConfig } from "../../agents/agent-scope.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 import type { AgentElevatedAllowFromConfig, OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import type { MsgContext } from "../templating.js";
@@ -48,21 +47,6 @@ function stripSenderPrefix(value?: string) {
   return trimmed.replace(SENDER_PREFIX_RE, "");
 }
 
-=======
-import type { MsgContext } from "../templating.js";
-import {
-  type AllowFromFormatter,
-  type ExplicitElevatedAllowField,
-  addFormattedTokens,
-  buildMutableTokens,
-  matchesFormattedTokens,
-  matchesMutableTokens,
-  parseExplicitElevatedAllowEntry,
-  stripSenderPrefix,
-} from "./elevated-allowlist-matcher.js";
-export { formatElevatedUnavailableMessage } from "./elevated-unavailable.js";
-
->>>>>>> 33a43a151 (refactor(security): split elevated allowFrom matcher internals)
 function resolveElevatedAllowList(
   allowFrom: AgentElevatedAllowFromConfig | undefined,
   provider: string,
@@ -112,7 +96,6 @@ function isApprovedElevatedSender(params: {
   if (allowTokens.length === 0) return false;
   if (allowTokens.some((entry) => entry === "*")) return true;
 
-<<<<<<< HEAD
   const tokens = new Set<string>();
   const addToken = (value?: string) => {
     if (!value) return;
@@ -124,11 +107,6 @@ function isApprovedElevatedSender(params: {
     const slugged = slugAllowToken(trimmed);
     if (slugged) tokens.add(slugged);
   };
-=======
-  const senderIdTokens = new Set<string>();
-  const senderFromTokens = new Set<string>();
-  const senderE164Tokens = new Set<string>();
->>>>>>> 6817c0ec7 (fix(security): tighten elevated allowFrom sender matching)
 
   if (params.ctx.SenderId?.trim()) {
     addFormattedTokens({
@@ -157,7 +135,6 @@ function isApprovedElevatedSender(params: {
     ...senderE164Tokens,
   ]);
 
-<<<<<<< HEAD
   for (const rawEntry of allowTokens) {
     const entry = rawEntry.trim();
     if (!entry) continue;
@@ -167,57 +144,6 @@ function isApprovedElevatedSender(params: {
     if (normalized && tokens.has(normalized)) return true;
     const slugged = slugAllowToken(stripped);
     if (slugged && tokens.has(slugged)) return true;
-=======
-  const senderNameTokens = buildMutableTokens(params.ctx.SenderName);
-  const senderUsernameTokens = buildMutableTokens(params.ctx.SenderUsername);
-  const senderTagTokens = buildMutableTokens(params.ctx.SenderTag);
-
-  const explicitFieldMatchers: Record<ExplicitElevatedAllowField, (value: string) => boolean> = {
-    id: (value) =>
-      matchesFormattedTokens({
-        formatAllowFrom: params.formatAllowFrom,
-        value,
-        includeStripped: true,
-        tokens: senderIdTokens,
-      }),
-    from: (value) =>
-      matchesFormattedTokens({
-        formatAllowFrom: params.formatAllowFrom,
-        value,
-        includeStripped: true,
-        tokens: senderFromTokens,
-      }),
-    e164: (value) =>
-      matchesFormattedTokens({
-        formatAllowFrom: params.formatAllowFrom,
-        value,
-        tokens: senderE164Tokens,
-      }),
-    name: (value) => matchesMutableTokens(value, senderNameTokens),
-    username: (value) => matchesMutableTokens(value, senderUsernameTokens),
-    tag: (value) => matchesMutableTokens(value, senderTagTokens),
-  };
-
-  for (const entry of allowTokens) {
-    const explicitEntry = parseExplicitElevatedAllowEntry(entry);
-    if (!explicitEntry) {
-      if (
-        matchesFormattedTokens({
-          formatAllowFrom: params.formatAllowFrom,
-          value: entry,
-          includeStripped: true,
-          tokens: senderIdentityTokens,
-        })
-      ) {
-        return true;
-      }
-      continue;
-    }
-    const matchesExplicitField = explicitFieldMatchers[explicitEntry.field];
-    if (matchesExplicitField(explicitEntry.value)) {
-      return true;
-    }
->>>>>>> 6817c0ec7 (fix(security): tighten elevated allowFrom sender matching)
   }
 
   return false;

@@ -12,43 +12,13 @@ export type ExecAsk = "off" | "on-miss" | "always";
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-=======
-export type SystemRunApprovalBindingV1 = {
-  version: 1;
-  argv: string[];
-  cwd: string | null;
-  agentId: string | null;
-  sessionKey: string | null;
-  envHash: string | null;
-};
-
-export type SystemRunApprovalPlanV2 = {
-  version: 2;
-  argv: string[];
-  cwd: string | null;
-  rawCommand: string | null;
-  agentId: string | null;
-  sessionKey: string | null;
-};
-
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
 export type ExecApprovalRequestPayload = {
   command: string;
   commandArgv?: string[];
-<<<<<<< HEAD
   envHash?: string | null;
-=======
-  // Optional UI-safe env key preview for approval prompts.
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
   envKeys?: string[];
-<<<<<<< HEAD
-=======
   systemRunBindingV1?: SystemRunApprovalBindingV1 | null;
   systemRunPlanV2?: SystemRunApprovalPlanV2 | null;
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
   cwd?: string | null;
   nodeId?: string | null;
   host?: string | null;
@@ -725,29 +695,7 @@ function splitShellPipeline(command: string): { ok: boolean; reason?: string; se
       continue;
     }
     if (inDouble) {
-<<<<<<< HEAD
       if (ch === '"') inDouble = false;
-=======
-      if (ch === "\\" && isDoubleQuoteEscape(next)) {
-        buf += ch;
-        buf += next;
-        i += 1;
-        emptySegment = false;
-        continue;
-      }
-      if (ch === "$" && next === "(") {
-        return { ok: false, reason: "unsupported shell token: $()", segments: [] };
-      }
-      if (ch === "`") {
-        return { ok: false, reason: "unsupported shell token: `", segments: [] };
-      }
-      if (ch === "\n" || ch === "\r") {
-        return { ok: false, reason: "unsupported shell token: newline", segments: [] };
-      }
-      if (ch === '"') {
-        inDouble = false;
-      }
->>>>>>> e90caa66d (fix(exec): allow heredoc operator (<<) in allowlist security mode (#13811))
       buf += ch;
       emptySegment = false;
       continue;

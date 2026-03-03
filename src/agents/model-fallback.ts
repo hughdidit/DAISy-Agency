@@ -47,7 +47,6 @@ function shouldRethrowAbort(err: unknown): boolean {
   return isAbortError(err) && !isTimeoutError(err);
 }
 
-<<<<<<< HEAD
 function buildAllowedModelKeys(
   cfg: OpenClawConfig | undefined,
   defaultProvider: string,
@@ -66,8 +65,6 @@ function buildAllowedModelKeys(
   return keys.size > 0 ? keys : null;
 }
 
-=======
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 function resolveImageFallbackCandidates(params: {
   cfg: OpenClawConfig | undefined;
   defaultProvider: string;

@@ -1,9 +1,5 @@
-<<<<<<< HEAD:src/agents/tools/whatsapp-actions.test.ts
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 10b8839a8 (fix(security): centralize WhatsApp outbound auth and return 403 tool auth errors):src/agents/tools/whatsapp-actions.e2e.test.ts
 import type { OpenClawConfig } from "../../config/config.js";
 import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
 import { handleWhatsAppAction } from "./whatsapp-actions.js";

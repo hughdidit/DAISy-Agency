@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import AVFoundation
 import Contacts
 import CoreLocation
@@ -7,17 +5,12 @@ import CoreMotion
 import CryptoKit
 import EventKit
 import Foundation
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
 import OpenClawKit
 import Darwin
 import Foundation
 import Network
 import Observation
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 import Photos
 import ReplayKit
 import Security
@@ -129,14 +122,6 @@ final class GatewayConnectionController {
             useTLS: tlsParams?.required == true)
         else { return }
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        GatewaySettingsStore.saveLastGatewayConnection(
-            host: target.host,
-            port: target.port,
-            useTLS: tlsParams?.required == true,
-            stableID: gateway.stableID)
->>>>>>> d583782ee (fix(security): harden discovery routing and TLS pins)
 =======
         GatewaySettingsStore.saveLastGatewayConnectionDiscovered(stableID: stableID, useTLS: true)
 >>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
@@ -154,47 +139,18 @@ final class GatewayConnectionController {
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let token = GatewaySettingsStore.loadGatewayToken(instanceId: instanceId)
         let password = GatewaySettingsStore.loadGatewayPassword(instanceId: instanceId)
-<<<<<<< HEAD
         let stableID = self.manualStableID(host: host, port: port)
         let tlsParams = self.resolveManualTLSParams(stableID: stableID, tlsEnabled: useTLS)
-=======
-        let resolvedUseTLS = useTLS
-        guard let resolvedPort = self.resolveManualPort(host: host, port: port, useTLS: resolvedUseTLS)
-        else { return }
-        let stableID = self.manualStableID(host: host, port: resolvedPort)
-        let stored = GatewayTLSStore.loadFingerprint(stableID: stableID)
-        if resolvedUseTLS, stored == nil {
-            guard let url = self.buildGatewayURL(host: host, port: resolvedPort, useTLS: true) else { return }
-            guard let fp = await self.probeTLSFingerprint(url: url) else { return }
-            self.pendingTrustConnect = (url: url, stableID: stableID, isManual: true)
-            self.pendingTrustPrompt = TrustPrompt(
-                stableID: stableID,
-                gatewayName: "\(host):\(resolvedPort)",
-                host: host,
-                port: resolvedPort,
-                fingerprintSha256: fp,
-                isManual: true)
-            self.appModel?.gatewayStatusText = "Verify gateway TLS fingerprint"
-            return
-        }
-
-        let tlsParams = stored.map { fp in
-            GatewayTLSParams(required: true, expectedFingerprint: fp, allowTOFU: false, storeKey: stableID)
-        }
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
         guard let url = self.buildGatewayURL(
             host: host,
             port: port,
             useTLS: tlsParams?.required == true)
         else { return }
-<<<<<<< HEAD
-=======
         GatewaySettingsStore.saveLastGatewayConnectionManual(
             host: host,
             port: resolvedPort,
             useTLS: resolvedUseTLS && tlsParams != nil,
             stableID: stableID)
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
         self.didAutoConnect = true
         self.startAutoConnect(
             url: url,
@@ -204,8 +160,6 @@ final class GatewayConnectionController {
             password: password)
     }
 
-<<<<<<< HEAD
-=======
     func connectLastKnown() async {
         guard let last = GatewaySettingsStore.loadLastGatewayConnection() else { return }
         switch last {
@@ -265,7 +219,6 @@ final class GatewayConnectionController {
         self.appModel?.gatewayStatusText = "Offline"
     }
 
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
     private func updateFromDiscovery() {
         let newGateways = self.discovery.gateways
         self.gateways = newGateways
@@ -332,8 +285,6 @@ final class GatewayConnectionController {
             return
         }
 
-<<<<<<< HEAD
-=======
         if let lastKnown = GatewaySettingsStore.loadLastGatewayConnection() {
             if case let .manual(host, port, useTLS, stableID) = lastKnown {
                 let resolvedUseTLS = useTLS || self.shouldForceTLS(host: host)
@@ -361,7 +312,6 @@ final class GatewayConnectionController {
             }
         }
 
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
         let preferredStableID = defaults.string(forKey: "gateway.preferredStableID")?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let lastDiscoveredStableID = defaults.string(forKey: "gateway.lastDiscoveredStableID")?
@@ -370,7 +320,6 @@ final class GatewayConnectionController {
         let candidates = [preferredStableID, lastDiscoveredStableID].filter { !$0.isEmpty }
         guard let targetStableID = candidates.first(where: { id in
             self.gateways.contains(where: { $0.stableID == id })
-<<<<<<< HEAD
         }) else { return }
 
         guard let target = self.gateways.first(where: { $0.stableID == targetStableID }) else { return }
@@ -387,42 +336,6 @@ final class GatewayConnectionController {
             tls: tlsParams,
             token: token,
             password: password)
-=======
-        }) {
-            guard let target = self.gateways.first(where: { $0.stableID == targetStableID }) else { return }
-            // Security: autoconnect only to previously trusted gateways (stored TLS pin).
-            guard GatewayTLSStore.loadFingerprint(stableID: target.stableID) != nil else { return }
-
-            self.didAutoConnect = true
-            Task { [weak self] in
-                guard let self else { return }
-                await self.connectDiscoveredGateway(target)
-            }
-            return
-        }
-
-        if self.gateways.count == 1, let gateway = self.gateways.first {
-            // Security: autoconnect only to previously trusted gateways (stored TLS pin).
-            guard GatewayTLSStore.loadFingerprint(stableID: gateway.stableID) != nil else { return }
-
-            self.didAutoConnect = true
-            Task { [weak self] in
-                guard let self else { return }
-                await self.connectDiscoveredGateway(gateway)
-            }
-            return
-        }
-    }
-
-    private func attemptAutoReconnectIfNeeded() {
-        guard let appModel = self.appModel else { return }
-        guard appModel.gatewayAutoReconnectEnabled else { return }
-        // Avoid starting duplicate connect loops while a prior config is active.
-        guard appModel.activeGatewayConnectConfig == nil else { return }
-        guard UserDefaults.standard.bool(forKey: "gateway.autoconnect") else { return }
-        self.didAutoConnect = false
-        self.maybeAutoConnect()
->>>>>>> d583782ee (fix(security): harden discovery routing and TLS pins)
     }
 
     private func updateLastDiscoveredGateway(from gateways: [GatewayDiscoveryModel.DiscoveredGateway]) {
@@ -498,18 +411,13 @@ final class GatewayConnectionController {
             return GatewayTLSParams(
                 required: true,
                 expectedFingerprint: stored,
-<<<<<<< HEAD
                 allowTOFU: stored == nil,
-=======
-                allowTOFU: false,
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
                 storeKey: stableID)
         }
 
         return nil
     }
 
-<<<<<<< HEAD
 <<<<<<< HEAD
     private func resolveGatewayHost(_ gateway: GatewayDiscoveryModel.DiscoveredGateway) -> String? {
         if let lanHost = gateway.lanHost?.trimmingCharacters(in: .whitespacesAndNewlines), !lanHost.isEmpty {
@@ -519,18 +427,6 @@ final class GatewayConnectionController {
             return tailnet
         }
         return nil
-=======
-=======
-    private func probeTLSFingerprint(url: URL) async -> String? {
-        await withCheckedContinuation { continuation in
-            let probe = GatewayTLSFingerprintProbe(url: url, timeoutSeconds: 3) { fp in
-                continuation.resume(returning: fp)
-            }
-            probe.start()
-        }
-    }
-
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
     private func resolveServiceEndpoint(_ endpoint: NWEndpoint) async -> (host: String, port: Int)? {
         guard case let .service(name, type, domain, _) = endpoint else { return nil }
         let key = "\(domain)|\(type)|\(name)"
@@ -556,8 +452,6 @@ final class GatewayConnectionController {
         return components.url
     }
 
-<<<<<<< HEAD
-=======
     private func resolveManualUseTLS(host: String, useTLS: Bool) -> Bool {
         useTLS || self.shouldRequireTLS(host: host)
     }
@@ -617,7 +511,6 @@ final class GatewayConnectionController {
         }
     }
 
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
     private func manualStableID(host: String, port: Int) -> String {
         "manual|\(host.lowercased())|\(port)"
     }
@@ -669,8 +562,6 @@ final class GatewayConnectionController {
         let locationMode = OpenClawLocationMode(rawValue: locationModeRaw) ?? .off
         if locationMode != .off { caps.append(OpenClawCapability.location.rawValue) }
 
-<<<<<<< HEAD
-=======
         caps.append(OpenClawCapability.device.rawValue)
         if WatchMessagingService.isSupportedOnDevice() {
             caps.append(OpenClawCapability.watch.rawValue)
@@ -683,7 +574,6 @@ final class GatewayConnectionController {
             caps.append(OpenClawCapability.motion.rawValue)
         }
 
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
         return caps
     }
 
@@ -714,8 +604,6 @@ final class GatewayConnectionController {
         if caps.contains(OpenClawCapability.location.rawValue) {
             commands.append(OpenClawLocationCommand.get.rawValue)
         }
-<<<<<<< HEAD
-=======
         if caps.contains(OpenClawCapability.device.rawValue) {
             commands.append(OpenClawDeviceCommand.status.rawValue)
             commands.append(OpenClawDeviceCommand.info.rawValue)
@@ -743,13 +631,10 @@ final class GatewayConnectionController {
             commands.append(OpenClawMotionCommand.activity.rawValue)
             commands.append(OpenClawMotionCommand.pedometer.rawValue)
         }
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 
         return commands
     }
 
-<<<<<<< HEAD
-=======
     private func currentPermissions() -> [String: Bool] {
         var permissions: [String: Bool] = [:]
         permissions["camera"] = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
@@ -799,7 +684,6 @@ final class GatewayConnectionController {
         CMMotionActivityManager.isActivityAvailable() || CMPedometer.isStepCountingAvailable()
     }
 
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
     private func platformString() -> String {
         let v = ProcessInfo.processInfo.operatingSystemVersion
         let name = switch UIDevice.current.userInterfaceIdiom {

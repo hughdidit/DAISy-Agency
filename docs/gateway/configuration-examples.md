@@ -224,11 +224,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       userTimezone: "America/Chicago",
       model: {
         primary: "anthropic/claude-sonnet-4-5",
-<<<<<<< HEAD
         fallbacks: ["anthropic/claude-opus-4-5", "openai/gpt-5.2"]
-=======
-        fallbacks: ["anthropic/claude-opus-4-6", "openai/gpt-5.2"],
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
       },
       imageModel: {
         primary: "openrouter/anthropic/claude-sonnet-4-5"
@@ -370,16 +366,8 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
         to: "+15555550123",
         thinking: "low",
         timeoutSeconds: 300,
-<<<<<<< HEAD
         transform: { module: "./transforms/gmail.js", export: "transformGmail" }
       }
-=======
-        transform: {
-          module: "gmail.js",
-          export: "transformGmail",
-        },
-      },
->>>>>>> a0361b8ba (fix(security): restrict hook transform module loading)
     ],
     gmail: {
       account: "openclaw@gmail.com",
@@ -449,41 +437,9 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     discord: {
       enabled: true,
       token: "YOUR_TOKEN",
-<<<<<<< HEAD
       dm: { allowFrom: ["yourname"] }
     }
   }
-=======
-      dm: { allowFrom: ["123456789012345678"] },
-    },
-  },
-}
-```
-
-### Secure DM mode (shared inbox / multi-user DMs)
-
-If more than one person can DM your bot (multiple entries in `allowFrom`, pairing approvals for multiple people, or `dmPolicy: "open"`), enable **secure DM mode** so DMs from different senders don’t share one context by default:
-
-```json5
-{
-  // Secure DM mode (recommended for multi-user or sensitive DM agents)
-  session: { dmScope: "per-channel-peer" },
-
-  channels: {
-    // Example: WhatsApp multi-user inbox
-    whatsapp: {
-      dmPolicy: "allowlist",
-      allowFrom: ["+15555550123", "+15555550124"],
-    },
-
-    // Example: Discord multi-user inbox
-    discord: {
-      enabled: true,
-      token: "YOUR_DISCORD_BOT_TOKEN",
-      dm: { enabled: true, allowFrom: ["123456789012345678", "987654321098765432"] },
-    },
-  },
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 }
 ```
 
@@ -513,15 +469,9 @@ Only enable direct mutable name/email/nick matching with each channel's `dangero
     workspace: "~/.openclaw/workspace",
     model: {
       primary: "anthropic/claude-sonnet-4-5",
-<<<<<<< HEAD
       fallbacks: ["anthropic/claude-opus-4-5"]
     }
   }
-=======
-      fallbacks: ["anthropic/claude-opus-4-6"],
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -556,17 +506,10 @@ Only enable direct mutable name/email/nick matching with each channel's `dangero
   agent: {
     workspace: "~/.openclaw/workspace",
     model: {
-<<<<<<< HEAD
       primary: "anthropic/claude-opus-4-5",
       fallbacks: ["minimax/MiniMax-M2.1"]
     }
   }
-=======
-      primary: "anthropic/claude-opus-4-6",
-      fallbacks: ["minimax/MiniMax-M2.1"],
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

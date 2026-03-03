@@ -16,11 +16,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
-=======
-  "version": "2026.1.30",
->>>>>>> 247fab47c (chore: bump version to 2026.1.30)
 =======
   "version": "2026.2.1",
 =======
@@ -71,21 +67,7 @@
   "description": "OpenClaw Microsoft Teams channel plugin",
 >>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
   "type": "module",
-<<<<<<< HEAD
   "description": "OpenClaw Microsoft Teams channel plugin",
-=======
-  "dependencies": {
-<<<<<<< HEAD
-    "@microsoft/agents-hosting": "^1.2.3",
-<<<<<<< HEAD
-    "@microsoft/agents-hosting-express": "^1.2.3",
-    "@microsoft/agents-hosting-extensions-teams": "^1.2.3",
-    "express": "^5.2.1",
-    "proper-lockfile": "^4.1.2"
-=======
-=======
-    "@microsoft/agents-hosting": "^1.3.1",
->>>>>>> 892620dda (chore: update workspace dependencies)
     "express": "^5.2.1"
 >>>>>>> f4a59eb5d (Chore: harden A2UI bundle dependency resolution (#22507))
   },

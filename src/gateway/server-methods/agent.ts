@@ -26,11 +26,8 @@ import {
 } from "../../utils/message-channel.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
 import { parseMessageWithAttachments } from "../chat-attachments.js";
-<<<<<<< HEAD
-=======
 import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
 import { GATEWAY_CLIENT_CAPS, hasGatewayClientCap } from "../protocol/client-info.js";
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import {
   type AgentIdentityParams,
   type AgentWaitParams,
@@ -49,13 +46,8 @@ import { waitForAgentJob } from "./agent-job.js";
 import type { GatewayRequestHandlers } from "./types.js";
 
 export const agentHandlers: GatewayRequestHandlers = {
-<<<<<<< HEAD
   agent: async ({ params, respond, context }) => {
     const p = params as Record<string, unknown>;
-=======
-  agent: async ({ params, respond, context, client }) => {
-    const p = params;
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
     if (!validateAgentParams(p)) {
       respond(
         false,
@@ -286,25 +278,8 @@ export const agentHandlers: GatewayRequestHandlers = {
       const agentId = resolveAgentIdFromSessionKey(canonicalSessionKey);
       const mainSessionKey = resolveAgentMainSessionKey({ cfg, agentId });
       if (storePath) {
-<<<<<<< HEAD
         await updateSessionStore(storePath, (store) => {
           store[canonicalSessionKey] = nextEntry;
-=======
-        const persisted = await updateSessionStore(storePath, (store) => {
-          const target = resolveGatewaySessionStoreTarget({
-            cfg,
-            key: requestedSessionKey,
-            store,
-          });
-          pruneLegacyStoreKeys({
-            store,
-            canonicalKey: target.canonicalKey,
-            candidates: target.storeKeys,
-          });
-          const merged = mergeSessionEntry(store[canonicalSessionKey], nextEntryPatch);
-          store[canonicalSessionKey] = merged;
-          return merged;
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
         });
         sessionEntry = persisted;
       }

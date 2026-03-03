@@ -21,8 +21,6 @@ export function formatAllowlistMatchMeta(
 ): string {
   return `matchKey=${match?.matchKey ?? "none"} matchSource=${match?.matchSource ?? "none"}`;
 }
-<<<<<<< HEAD
-=======
 
 export function resolveAllowlistMatchSimple(params: {
   allowFrom: Array<string | number>;
@@ -53,4 +51,3 @@ export function resolveAllowlistMatchSimple(params: {
 
   return { allowed: false };
 }
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))

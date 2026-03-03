@@ -84,8 +84,6 @@ const shutdown = (signal) => {
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
-<<<<<<< HEAD
-=======
 if (passthroughArgs.length > 0) {
   const maxWorkers = maxWorkersForRun("unit");
   const args = maxWorkers
@@ -118,7 +116,6 @@ if (passthroughArgs.length > 0) {
   process.exit(Number(code) || 0);
 }
 
->>>>>>> a7eb0dd9a (fix(security): harden Windows child process spawning)
 const parallelCodes = await Promise.all(parallelRuns.map(run));
 const failedParallel = parallelCodes.find((code) => code !== 0);
 if (failedParallel !== undefined) {

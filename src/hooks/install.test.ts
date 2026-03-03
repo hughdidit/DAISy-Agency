@@ -4,11 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import JSZip from "jszip";
 import * as tar from "tar";
-<<<<<<< HEAD
 import { afterEach, describe, expect, it } from "vitest";
-=======
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 6f7d31c42 (fix(security): harden plugin/hook npm installs)
 
 const tempDirs: string[] = [];
 
@@ -41,7 +37,6 @@ function makeTempDir() {
   return dir;
 }
 
-<<<<<<< HEAD
 afterEach(() => {
   for (const dir of tempDirs.splice(0)) {
     try {
@@ -49,17 +44,6 @@ afterEach(() => {
     } catch {
       // ignore cleanup failures
     }
-=======
-const { runCommandWithTimeout } = await import("../process/exec.js");
-const { installHooksFromArchive, installHooksFromNpmSpec, installHooksFromPath } =
-  await import("./install.js");
-
-afterAll(() => {
-  try {
-    fs.rmSync(fixtureRoot, { recursive: true, force: true });
-  } catch {
-    // ignore cleanup failures
->>>>>>> 6f7d31c42 (fix(security): harden plugin/hook npm installs)
   }
 });
 
@@ -177,8 +161,6 @@ describe("installHooksFromArchive", () => {
     expect(result.hooks).toContain("tar-hook");
     expect(result.targetDir).toBe(path.join(stateDir, "hooks", "tar-hooks"));
   });
-<<<<<<< HEAD
-=======
 
   it("rejects tar archives with traversal entries", async () => {
     const stateDir = makeTempDir();
@@ -352,7 +334,6 @@ describe("installHooksFromPath", () => {
     expect(argv).toEqual(["npm", "install", "--omit=dev", "--silent", "--ignore-scripts"]);
     expect(opts?.cwd).toBe(res.targetDir);
   });
->>>>>>> 842499d6c (test(security): reject hook archives with traversal entries (#16224))
 });
 
 describe("installHooksFromPath", () => {
@@ -496,31 +477,9 @@ describe("installHooksFromNpmSpec", () => {
     const packedName = "test-hooks-0.0.1.tgz";
     run.mockImplementation(async (argv, opts) => {
       if (argv[0] === "npm" && argv[1] === "pack") {
-<<<<<<< HEAD
         packTmpDir = String(opts?.cwd ?? "");
         await packToArchive({ pkgDir, outDir: packTmpDir, outName: packedName });
         return { code: 0, stdout: `${packedName}\n`, stderr: "", signal: null, killed: false };
-=======
-        packTmpDir = String(typeof opts === "number" ? "" : (opts.cwd ?? ""));
-        fs.writeFileSync(path.join(packTmpDir, packedName), npmPackHooksBuffer);
-        return {
-          code: 0,
-          stdout: JSON.stringify([
-            {
-              id: "@openclaw/test-hooks@0.0.1",
-              name: "@openclaw/test-hooks",
-              version: "0.0.1",
-              filename: packedName,
-              integrity: "sha512-hook-test",
-              shasum: "hookshasum",
-            },
-          ]),
-          stderr: "",
-          signal: null,
-          killed: false,
-          termination: "exit",
-        };
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
       }
       throw new Error(`unexpected command: ${argv.join(" ")}`);
     });

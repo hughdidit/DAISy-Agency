@@ -16,17 +16,10 @@ export function extractTextFromPrompt(prompt: ContentBlock[], maxBytes?: number)
       blockText = block.text;
     } else if (block.type === "resource") {
       const resource = block.resource as { text?: string } | undefined;
-<<<<<<< HEAD
       if (resource?.text) parts.push(resource.text);
       continue;
     }
     if (block.type === "resource_link") {
-=======
-      if (resource?.text) {
-        blockText = resource.text;
-      }
-    } else if (block.type === "resource_link") {
->>>>>>> ebcf19746 (fix(security): OC-53 validate prompt size before string concatenation to prevent memory exhaustion — Aether AI Agent)
       const title = block.title ? ` (${block.title})` : "";
       const uri = block.uri ?? "";
       blockText = uri ? `[Resource link${title}] ${uri}` : `[Resource link${title}]`;

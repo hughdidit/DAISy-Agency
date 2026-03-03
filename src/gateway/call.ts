@@ -17,15 +17,6 @@ import {
 import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
 import { GatewayClient } from "./client.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import {
-  CLI_DEFAULT_OPERATOR_SCOPES,
-  resolveLeastPrivilegeOperatorScopesForMethod,
-  type OperatorScope,
-} from "./method-scopes.js";
->>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 import { isSecureWebSocketUrl, pickPrimaryLanIPv4 } from "./net.js";
 >>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
 import { PROTOCOL_VERSION } from "./protocol/index.js";
@@ -187,18 +178,8 @@ export function buildGatewayConnectionDetails(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promise<T> {
   const timeoutMs = opts.timeoutMs ?? 10_000;
-=======
-async function callGatewayWithScopes<T = Record<string, unknown>>(
-  opts: CallGatewayBaseOptions,
-  scopes: OperatorScope[],
-): Promise<T> {
-  const timeoutMs =
-    typeof opts.timeoutMs === "number" && Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : 10_000;
-  const safeTimerTimeoutMs = Math.max(1, Math.min(Math.floor(timeoutMs), 2_147_483_647));
->>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
   const config = opts.config ?? loadConfig();
   const isRemoteMode = config.gateway?.mode === "remote";
   const remote = isRemoteMode ? config.gateway?.remote : undefined;
@@ -424,13 +405,8 @@ async function executeGatewayRequestWithScopes<T>(params: {
     const timer = setTimeout(() => {
       ignoreClose = true;
       client.stop();
-<<<<<<< HEAD
       stop(new Error(formatTimeoutError()));
     }, timeoutMs);
-=======
-      stop(new Error(formatGatewayTimeoutError(timeoutMs, params.connectionDetails)));
-    }, safeTimerTimeoutMs);
->>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
 
     client.start();
   });

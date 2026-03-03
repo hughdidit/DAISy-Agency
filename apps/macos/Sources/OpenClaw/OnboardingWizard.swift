@@ -1,12 +1,6 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/OnboardingWizard.swift
 import Foundation
 import MoltbotKit
 import MoltbotProtocol
-=======
-import OpenClawKit
-import OpenClawProtocol
-import Foundation
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/OnboardingWizard.swift
 import Observation
 import OSLog
 import SwiftUI

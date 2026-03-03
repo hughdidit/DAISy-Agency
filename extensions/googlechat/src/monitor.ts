@@ -1,26 +1,11 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
 import { resolveMentionGatingWithBypass } from "openclaw/plugin-sdk";
 
 import {
   type ResolvedGoogleChatAccount
 } from "./accounts.js";
-=======
-import {
-  createReplyPrefixOptions,
-  readJsonBodyWithLimit,
-<<<<<<< HEAD
-=======
-  registerWebhookTarget,
-  rejectNonPostWebhookRequest,
-<<<<<<< HEAD
-=======
-  isDangerousNameMatchingEnabled,
-  resolveAllowlistProviderRuntimeGroupPolicy,
-  resolveDefaultGroupPolicy,
->>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
   resolveSingleWebhookTargetAsync,
   resolveWebhookPath,
   resolveWebhookTargets,
@@ -116,7 +101,6 @@ function resolveWebhookPath(webhookPath?: string, webhookUrl?: string): string |
   return "/googlechat";
 }
 
-<<<<<<< HEAD
 async function readJsonBody(req: IncomingMessage, maxBytes: number) {
   const chunks: Buffer[] = [];
   let total = 0;
@@ -155,8 +139,6 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
   });
 }
 
-=======
->>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 export function registerGoogleChatWebhookTarget(target: WebhookTarget): () => void {
   const key = normalizeWebhookPath(target.path);
   const normalizedTarget = { ...target, path: key };
@@ -285,12 +267,8 @@ export async function handleGoogleChatWebhookRequest(
     ? authHeaderNow.slice("bearer ".length)
     : bearer;
 
-<<<<<<< HEAD
   let selected: WebhookTarget | undefined;
   for (const target of targets) {
-=======
-  const matchedTarget = await resolveSingleWebhookTargetAsync(targets, async (target) => {
->>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
     const audienceType = target.audienceType;
     const audience = target.audience;
     const verification = await verifyGoogleChatRequest({
@@ -298,7 +276,6 @@ export async function handleGoogleChatWebhookRequest(
       audienceType,
       audience,
     });
-<<<<<<< HEAD
     if (verification.ok) {
       selected = target;
       break;
@@ -306,19 +283,11 @@ export async function handleGoogleChatWebhookRequest(
   }
 
   if (!selected) {
-=======
-    return verification.ok;
-  });
-
-  if (matchedTarget.kind === "none") {
->>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
     res.statusCode = 401;
     res.end("unauthorized");
     return true;
   }
 
-<<<<<<< HEAD
-=======
   if (matchedTarget.kind === "ambiguous") {
     res.statusCode = 401;
     res.end("ambiguous webhook target");
@@ -326,7 +295,6 @@ export async function handleGoogleChatWebhookRequest(
   }
 
   const selected = matchedTarget.target;
->>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
   selected.statusSink?.({ lastInboundAt: Date.now() });
   processGoogleChatEvent(event, selected).catch((err) => {
     selected?.runtime.error?.(
@@ -381,23 +349,7 @@ export function isSenderAllowed(
     if (normalized.replace(/^(googlechat|google-chat|gchat):/i, "") === normalizedSenderId) {
       return true;
     }
-<<<<<<< HEAD
     return false;
-=======
-
-    // Accept `googlechat:<id>` but treat `users/...` as an *ID* only (deprecated `users/<email>`).
-    const withoutPrefix = normalized.replace(/^(googlechat|google-chat|gchat):/i, "");
-    if (withoutPrefix.startsWith("users/")) {
-      return normalizeUserId(withoutPrefix) === normalizedSenderId;
-    }
-
-    // Raw email allowlist entries are a break-glass override.
-    if (allowNameMatching && normalizedEmail && isEmailLike(withoutPrefix)) {
-      return withoutPrefix === normalizedEmail;
-    }
-
-    return withoutPrefix.replace(/^users\//i, "") === normalizedSenderId;
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
   });
 }
 
@@ -534,21 +486,7 @@ async function processMessageWithPipeline(params: {
     }
 
     if (groupUsers.length > 0) {
-<<<<<<< HEAD
       const ok = isSenderAllowed(senderId, senderEmail, groupUsers.map((v) => String(v)));
-=======
-      warnDeprecatedUsersEmailEntries(
-        core,
-        runtime,
-        groupUsers.map((v) => String(v)),
-      );
-      const ok = isSenderAllowed(
-        senderId,
-        senderEmail,
-        groupUsers.map((v) => String(v)),
-        allowNameMatching,
-      );
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
       if (!ok) {
         logVerbose(core, runtime, `drop group message (sender not allowed, ${senderId})`);
         return;

@@ -3,14 +3,11 @@ import type { AddressInfo } from "node:net";
 import express from "express";
 
 import type { ResolvedBrowserConfig } from "./config.js";
-<<<<<<< HEAD
-=======
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 import { isLoopbackHost } from "../gateway/net.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
 import { deleteBridgeAuthForPort, setBridgeAuthForPort } from "./bridge-auth-registry.js";
 <<<<<<< HEAD
->>>>>>> 6dd6bce99 (fix(security): enforce sandbox bridge auth)
 =======
 import { browserMutationGuardMiddleware } from "./csrf.js";
 import { isAuthorizedBrowserRequest } from "./http-auth.js";
@@ -69,10 +66,7 @@ export async function startBrowserBridgeServer(params: {
   port?: number;
   authToken?: string;
   onEnsureAttachTarget?: (profile: ProfileContext["profile"]) => Promise<void>;
-<<<<<<< HEAD
-=======
   resolveSandboxNoVncToken?: (token: string) => ResolvedNoVncObserver | null;
->>>>>>> 002539c01 (fix(security): harden sandbox novnc observer flow)
 }): Promise<BrowserBridge> {
   const host = params.host ?? "127.0.0.1";
   if (!isLoopbackHost(host)) {
@@ -81,44 +75,11 @@ export async function startBrowserBridgeServer(params: {
   const port = params.port ?? 0;
 
   const app = express();
-<<<<<<< HEAD
   app.use(express.json({ limit: "1mb" }));
   app.use(browserMutationGuardMiddleware());
-=======
-  installBrowserCommonMiddleware(app);
 
-  if (params.resolveSandboxNoVncToken) {
-    app.get("/sandbox/novnc", (req, res) => {
-      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-      res.setHeader("Pragma", "no-cache");
-      res.setHeader("Expires", "0");
-      res.setHeader("Referrer-Policy", "no-referrer");
-      const rawToken = typeof req.query?.token === "string" ? req.query.token.trim() : "";
-      if (!rawToken) {
-        res.status(400).send("Missing token");
-        return;
-      }
-      const resolved = params.resolveSandboxNoVncToken?.(rawToken);
-      if (!resolved) {
-        res.status(404).send("Invalid or expired token");
-        return;
-      }
-      res.type("html").status(200).send(buildNoVncBootstrapHtml(resolved));
-    });
-  }
->>>>>>> 002539c01 (fix(security): harden sandbox novnc observer flow)
-
-<<<<<<< HEAD
   const authToken = params.authToken?.trim();
   if (authToken) {
-=======
-  const authToken = params.authToken?.trim() || undefined;
-  const authPassword = params.authPassword?.trim() || undefined;
-  if (!authToken && !authPassword) {
-    throw new Error("bridge server requires auth (authToken/authPassword missing)");
-  }
-  if (authToken || authPassword) {
->>>>>>> 6dd6bce99 (fix(security): enforce sandbox bridge auth)
     app.use((req, res, next) => {
       const auth = String(req.headers.authorization ?? "").trim();
       if (auth === `Bearer ${authToken}`) return next();

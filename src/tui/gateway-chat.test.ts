@@ -12,8 +12,6 @@ vi.mock("../config/config.js", async (importOriginal) => {
   };
 });
 
-<<<<<<< HEAD
-=======
 vi.mock("../infra/tailnet.js", () => ({
   pickPrimaryTailnetIPv4,
 }));
@@ -28,7 +26,6 @@ vi.mock("../gateway/net.js", async (importOriginal) => {
   };
 });
 
->>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
 const { resolveGatewayConnection } = await import("./gateway-chat.js");
 
 describe("resolveGatewayConnection", () => {

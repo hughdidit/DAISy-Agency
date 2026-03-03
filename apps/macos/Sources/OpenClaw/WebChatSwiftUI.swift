@@ -1,15 +1,8 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/WebChatSwiftUI.swift
 import Foundation
 import MoltbotChatUI
 import MoltbotKit
 import MoltbotProtocol
-=======
-import OpenClawChatUI
-import OpenClawKit
-import OpenClawProtocol
-import Foundation
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/WebChatSwiftUI.swift
 import OSLog
 import QuartzCore
 import SwiftUI

@@ -32,8 +32,6 @@ function resolveSampleRate(value: number | undefined): number | undefined {
   return value;
 }
 
-<<<<<<< HEAD
-=======
 function formatError(err: unknown): string {
   if (err instanceof Error) {
     return err.stack ?? err.message;
@@ -56,7 +54,6 @@ function redactOtelAttributes(attributes: Record<string, string | number | boole
   return redactedAttributes;
 }
 
->>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
 export function createDiagnosticsOtelService(): OpenClawPluginService {
   let sdk: NodeSDK | null = null;
   let logProvider: LoggerProvider | null = null;
@@ -276,8 +273,6 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
             } catch {
               // ignore malformed json bindings
             }
-<<<<<<< HEAD
-=======
 
             let message = "";
             if (numericArgs.length > 0 && typeof numericArgs[numericArgs.length - 1] === "string") {
@@ -338,7 +333,6 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
             });
           } catch (err) {
             ctx.logger.error(`diagnostics-otel: log transport failed: ${formatError(err)}`);
->>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
           }
 
           let message = "";
@@ -484,14 +478,7 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
           "openclaw.webhook": evt.updateType ?? "unknown",
         };
         webhookErrorCounter.add(1, attrs);
-<<<<<<< HEAD
         if (!tracesEnabled) return;
-=======
-        if (!tracesEnabled) {
-          return;
-        }
-        const redactedError = redactSensitiveText(evt.error);
->>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
         const spanAttrs: Record<string, string | number> = {
           ...attrs,
           "openclaw.error": redactedError,
@@ -530,29 +517,11 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         }
         if (!tracesEnabled) return;
         const spanAttrs: Record<string, string | number> = { ...attrs };
-<<<<<<< HEAD
         if (evt.sessionKey) spanAttrs["openclaw.sessionKey"] = evt.sessionKey;
         if (evt.sessionId) spanAttrs["openclaw.sessionId"] = evt.sessionId;
         if (evt.chatId !== undefined) spanAttrs["openclaw.chatId"] = String(evt.chatId);
         if (evt.messageId !== undefined) spanAttrs["openclaw.messageId"] = String(evt.messageId);
         if (evt.reason) spanAttrs["openclaw.reason"] = evt.reason;
-=======
-        if (evt.sessionKey) {
-          spanAttrs["openclaw.sessionKey"] = evt.sessionKey;
-        }
-        if (evt.sessionId) {
-          spanAttrs["openclaw.sessionId"] = evt.sessionId;
-        }
-        if (evt.chatId !== undefined) {
-          spanAttrs["openclaw.chatId"] = String(evt.chatId);
-        }
-        if (evt.messageId !== undefined) {
-          spanAttrs["openclaw.messageId"] = String(evt.messageId);
-        }
-        if (evt.reason) {
-          spanAttrs["openclaw.reason"] = redactSensitiveText(evt.reason);
-        }
->>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
         const span = spanWithDuration("openclaw.message.processed", spanAttrs, evt.durationMs);
         if (evt.outcome === "error" && evt.error) {
           span.setStatus({ code: SpanStatusCode.ERROR, message: redactSensitiveText(evt.error) });
@@ -583,13 +552,7 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "session.state" }>,
       ) => {
         const attrs: Record<string, string> = { "openclaw.state": evt.state };
-<<<<<<< HEAD
         if (evt.reason) attrs["openclaw.reason"] = evt.reason;
-=======
-        if (evt.reason) {
-          attrs["openclaw.reason"] = redactSensitiveText(evt.reason);
-        }
->>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
         sessionStateCounter.add(1, attrs);
       };
 

@@ -1,8 +1,5 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/CanvasWindowSmokeTests.swift
-=======
 import OpenClawIPC
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/CanvasWindowSmokeTests.swift
 import Foundation
 import MoltbotIPC
 import Testing

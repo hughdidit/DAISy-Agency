@@ -30,11 +30,7 @@ import {
   setVercelAiGatewayApiKey,
   setZaiApiKey,
 } from "../../onboard-auth.js";
-<<<<<<< HEAD
 import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
-=======
-import { applyOpenAIConfig } from "../../openai-model-default.js";
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 import { resolveNonInteractiveApiKey } from "../api-keys.js";
 import { shortenHomePath } from "../../../utils.js";
 
@@ -359,8 +355,6 @@ export async function applyNonInteractiveAuthChoice(params: {
     return applyOpencodeZenConfig(nextConfig);
   }
 
-<<<<<<< HEAD
-=======
   if (authChoice === "together-api-key") {
     const resolved = await resolveApiKey({
       provider: "together",
@@ -470,7 +464,6 @@ export async function applyNonInteractiveAuthChoice(params: {
     }
   }
 
->>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
   if (
     authChoice === "oauth" ||
     authChoice === "chutes" ||

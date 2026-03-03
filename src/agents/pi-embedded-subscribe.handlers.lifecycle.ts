@@ -2,11 +2,7 @@ import type { AgentEvent } from "@mariozechner/pi-agent-core";
 
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { createInlineCodeState } from "../markdown/code-spans.js";
-<<<<<<< HEAD
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
-=======
-import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
->>>>>>> 2655041f6 (fix: wire 9 unwired plugin hooks to core code (openclaw#14882) thanks @shtse8)
 
 export function handleAgentStart(ctx: EmbeddedPiSubscribeContext) {
   ctx.log.debug(`embedded run agent start: runId=${ctx.params.runId}`);

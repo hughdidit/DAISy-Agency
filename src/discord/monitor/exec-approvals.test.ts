@@ -164,8 +164,6 @@ describe("DiscordExecApprovalHandler.shouldHandle", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("rejects unsafe nested-repetition regex in session filter", () => {
     const handler = createHandler({
       enabled: true,
@@ -190,7 +188,6 @@ describe("DiscordExecApprovalHandler.shouldHandle", () => {
     expect(matching.shouldHandle(createRequest())).toBe(true);
   });
 
->>>>>>> a2dfe9879 (fix(security): harden regex compilation for filters and redaction)
   it("combines agent and session filters", () => {
     const handler = createHandler({
       enabled: true,

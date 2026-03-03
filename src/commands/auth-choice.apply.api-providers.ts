@@ -166,8 +166,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
-<<<<<<< HEAD
-=======
   if (authChoice === "litellm-api-key") {
     const store = ensureAuthProfileStore(params.agentDir, { allowKeychainPrompt: false });
     const profileOrder = resolveAuthProfileOrder({ cfg: nextConfig, store, provider: "litellm" });
@@ -231,7 +229,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
->>>>>>> ec44e262b (fix(security): prevent String(undefined) coercion in credential inputs (#12287))
   if (authChoice === "ai-gateway-api-key") {
     let hasCredential = false;
 
@@ -284,8 +281,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
-<<<<<<< HEAD
-=======
   if (authChoice === "cloudflare-ai-gateway-api-key") {
     let hasCredential = false;
     let accountId = params.opts?.cloudflareAiGatewayAccountId?.trim() ?? "";
@@ -385,7 +380,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
->>>>>>> ec44e262b (fix(security): prevent String(undefined) coercion in credential inputs (#12287))
   if (authChoice === "moonshot-api-key") {
     let hasCredential = false;
 
@@ -433,8 +427,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
-<<<<<<< HEAD
-=======
   if (authChoice === "moonshot-api-key-cn") {
     let hasCredential = false;
 
@@ -482,7 +474,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
->>>>>>> ec44e262b (fix(security): prevent String(undefined) coercion in credential inputs (#12287))
   if (authChoice === "kimi-code-api-key") {
     let hasCredential = false;
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "kimi-code") {
@@ -515,11 +506,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter Kimi Code API key",
         validate: validateApiKeyInput,
       });
-<<<<<<< HEAD
       await setKimiCodeApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
-=======
-      await setKimiCodingApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
->>>>>>> ec44e262b (fix(security): prevent String(undefined) coercion in credential inputs (#12287))
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "kimi-code:default",
@@ -614,20 +601,13 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter Z.AI API key",
         validate: validateApiKeyInput,
       });
-<<<<<<< HEAD
       await setZaiApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
-=======
-      apiKey = normalizeApiKeyInput(String(key ?? ""));
-      await setZaiApiKey(apiKey, params.agentDir);
->>>>>>> ec44e262b (fix(security): prevent String(undefined) coercion in credential inputs (#12287))
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "zai:default",
       provider: "zai",
       mode: "api_key",
     });
-<<<<<<< HEAD
-=======
 
     const defaultModel = modelIdOverride ? `zai/${modelIdOverride}` : ZAI_DEFAULT_MODEL_REF;
     const applied = await applyDefaultModelChoice({
@@ -685,7 +665,6 @@ export async function applyAuthChoiceApiProviders(
       provider: "xiaomi",
       mode: "api_key",
     });
->>>>>>> ec44e262b (fix(security): prevent String(undefined) coercion in credential inputs (#12287))
     {
       const applied = await applyDefaultModelChoice({
         config: nextConfig,
@@ -866,8 +845,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
-<<<<<<< HEAD
-=======
   if (authChoice === "together-api-key") {
     let hasCredential = false;
 
@@ -982,6 +959,5 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
->>>>>>> ec44e262b (fix(security): prevent String(undefined) coercion in credential inputs (#12287))
   return null;
 }

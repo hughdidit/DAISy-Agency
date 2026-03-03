@@ -1,20 +1,12 @@
-<<<<<<< HEAD:src/plugins/install.test.ts
 import { spawnSync } from "node:child_process";
-=======
-import JSZip from "jszip";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow):src/plugins/install.e2e.test.ts
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD:src/plugins/install.test.ts
-<<<<<<< HEAD:src/plugins/install.test.ts
 <<<<<<< HEAD
 import JSZip from "jszip";
 import { afterEach, describe, expect, it } from "vitest";
-=======
-import { afterEach, describe, expect, it, vi } from "vitest";
->>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
 =======
 =======
 >>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow):src/plugins/install.e2e.test.ts
@@ -462,27 +454,7 @@ describe("installPluginFromNpmSpec", () => {
       if (argv[0] === "npm" && argv[1] === "pack") {
         packTmpDir = String(opts?.cwd ?? "");
         await packToArchive({ pkgDir, outDir: packTmpDir, outName: packedName });
-<<<<<<< HEAD:src/plugins/install.test.ts
         return { code: 0, stdout: `${packedName}\n`, stderr: "", signal: null, killed: false };
-=======
-        return {
-          code: 0,
-          stdout: JSON.stringify([
-            {
-              id: "@openclaw/voice-call@0.0.1",
-              name: "@openclaw/voice-call",
-              version: "0.0.1",
-              filename: packedName,
-              integrity: "sha512-plugin-test",
-              shasum: "pluginshasum",
-            },
-          ]),
-          stderr: "",
-          signal: null,
-          killed: false,
-          termination: "exit",
-        };
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow):src/plugins/install.e2e.test.ts
       }
       throw new Error(`unexpected command: ${argv.join(" ")}`);
     });

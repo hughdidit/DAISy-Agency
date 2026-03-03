@@ -145,8 +145,6 @@ export const OpenClawSchema = z
         attachOnly: z.boolean().optional(),
         defaultProfile: z.string().optional(),
         snapshotDefaults: BrowserSnapshotDefaultsSchema,
-<<<<<<< HEAD
-=======
         ssrfPolicy: z
           .object({
             allowPrivateNetwork: z.boolean().optional(),
@@ -156,7 +154,6 @@ export const OpenClawSchema = z
           })
           .strict()
           .optional(),
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
         profiles: z
           .record(
             z
@@ -367,22 +364,9 @@ export const OpenClawSchema = z
           .optional(),
         auth: z
           .object({
-<<<<<<< HEAD
             mode: z.union([z.literal("token"), z.literal("password")]).optional(),
             token: z.string().optional(),
             password: z.string().optional(),
-=======
-            mode: z
-              .union([
-                z.literal("none"),
-                z.literal("token"),
-                z.literal("password"),
-                z.literal("trusted-proxy"),
-              ])
-              .optional(),
-            token: z.string().optional().register(sensitive),
-            password: z.string().optional().register(sensitive),
->>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
             allowTailscale: z.boolean().optional(),
           })
           .strict()

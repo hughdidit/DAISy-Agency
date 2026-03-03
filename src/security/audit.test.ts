@@ -1,15 +1,6 @@
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-=======
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ChannelPlugin } from "../channels/plugins/types.js";
->>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 import { runSecurityAudit } from "./audit.js";
@@ -19,11 +10,6 @@ import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-=======
-=======
-import { captureEnv, withEnvAsync } from "../test-utils/env.js";
-import { collectPluginsCodeSafetyFindings } from "./audit-extra.js";
->>>>>>> c240104dc (refactor(test): snapshot gateway auth env in security audit tests)
 import type { SecurityAuditOptions, SecurityAuditReport } from "./audit.js";
 import { collectPluginsCodeSafetyFindings } from "./audit-extra.js";
 import { runSecurityAudit } from "./audit.js";
@@ -32,8 +18,6 @@ import * as skillScanner from "./skill-scanner.js";
 
 const isWindows = process.platform === "win32";
 
-<<<<<<< HEAD
-=======
 function stubChannelPlugin(params: {
   id: "discord" | "slack" | "telegram";
   label: string;
@@ -154,7 +138,6 @@ function expectNoFinding(res: SecurityAuditReport, checkId: string): void {
   expect(hasFinding(res, checkId)).toBe(false);
 }
 
->>>>>>> fbf0c99d7 (test(security): simplify repeated audit finding assertions)
 describe("security audit", () => {
   it("includes an attack surface summary (info)", async () => {
     const cfg: OpenClawConfig = {
@@ -164,16 +147,11 @@ describe("security audit", () => {
       browser: { enabled: true },
     };
 
-<<<<<<< HEAD
     const res = await runSecurityAudit({
       config: cfg,
       includeFilesystem: false,
       includeChannelSecurity: false,
     });
-=======
-    const res = await audit(cfg);
-    const summary = res.findings.find((f) => f.checkId === "summary.attack_surface");
->>>>>>> 4d124e4a9 (feat(security): warn on likely multi-user trust-model mismatch)
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -204,77 +182,6 @@ describe("security audit", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  it("warns when gateway.tools.allow re-enables dangerous HTTP /tools/invoke tools (loopback)", async () => {
-    const cfg: OpenClawConfig = {
-      gateway: {
-        bind: "loopback",
-        auth: { token: "secret" },
-        tools: { allow: ["sessions_spawn"] },
-      },
-    };
-
-    const res = await runSecurityAudit({
-      config: cfg,
-      env: {},
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
-
-    expect(
-      res.findings.some(
-        (f) => f.checkId === "gateway.tools_invoke_http.dangerous_allow" && f.severity === "warn",
-      ),
-    ).toBe(true);
-  });
-
-  it("flags dangerous gateway.tools.allow over HTTP as critical when gateway binds beyond loopback", async () => {
-    const cfg: OpenClawConfig = {
-      gateway: {
-        bind: "lan",
-        auth: { token: "secret" },
-        tools: { allow: ["sessions_spawn", "gateway"] },
-      },
-    };
-
-    const res = await runSecurityAudit({
-      config: cfg,
-      env: {},
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
-
-    expect(
-      res.findings.some(
-        (f) =>
-          f.checkId === "gateway.tools_invoke_http.dangerous_allow" && f.severity === "critical",
-      ),
-    ).toBe(true);
-  });
-
-  it("does not warn for auth rate limiting when configured", async () => {
-    const cfg: OpenClawConfig = {
-      gateway: {
-        bind: "lan",
-        auth: {
-          token: "secret",
-          rateLimit: { maxAttempts: 10, windowMs: 60_000, lockoutMs: 300_000 },
-        },
-      },
-    };
-
-    const res = await runSecurityAudit({
-      config: cfg,
-      env: {},
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
-
-    expect(res.findings.some((f) => f.checkId === "gateway.auth_no_rate_limit")).toBe(false);
-  });
-
->>>>>>> 539689a2f (feat(security): warn when gateway.tools.allow re-enables dangerous HTTP tools)
   it("warns when loopback control UI lacks trusted proxies", async () => {
     const cfg: OpenClawConfig = {
       gateway: {
@@ -1073,8 +980,6 @@ describe("security audit", () => {
     expectFinding(res, "tools.elevated.allowFrom.whatsapp.wildcard", "critical");
   });
 
-<<<<<<< HEAD
-=======
   it("flags browser control without auth when browser is enabled", async () => {
     const cfg: OpenClawConfig = {
       gateway: {
@@ -1107,7 +1012,6 @@ describe("security audit", () => {
     expectNoFinding(res, "browser.control_no_auth");
   });
 
->>>>>>> fbf0c99d7 (test(security): simplify repeated audit finding assertions)
   it("warns when remote CDP uses HTTP", async () => {
     const cfg: OpenClawConfig = {
       browser: {
@@ -1172,8 +1076,6 @@ describe("security audit", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("warns when insecure/dangerous debug flags are enabled", async () => {
     const cfg: OpenClawConfig = {
       hooks: {
@@ -1285,7 +1187,6 @@ describe("security audit", () => {
     expectNoFinding(res, "channels.feishu.doc_owner_open_id");
   });
 
->>>>>>> 17bae9368 (fix(security): warn on wildcard control-ui origins and feishu owner grants)
   it("scores X-Real-IP fallback risk by gateway exposure", async () => {
     const cases: Array<{
       name: string;
@@ -2134,7 +2035,6 @@ describe("security audit", () => {
     };
 
     try {
-<<<<<<< HEAD
       const res = await runSecurityAudit({
         config: cfg,
         includeFilesystem: false,
@@ -2146,18 +2046,12 @@ describe("security audit", () => {
           expect.objectContaining({ checkId: "hooks.token_reuse_gateway_token", severity: "warn" }),
         ]),
       );
-=======
-      const res = await audit(cfg);
-      expectFinding(res, "hooks.token_reuse_gateway_token", "critical");
->>>>>>> fbf0c99d7 (test(security): simplify repeated audit finding assertions)
     } finally {
       if (prevToken === undefined) delete process.env.OPENCLAW_GATEWAY_TOKEN;
       else process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
     }
   });
 
-<<<<<<< HEAD
-=======
   it("warns when hooks.defaultSessionKey is unset", async () => {
     const cfg: OpenClawConfig = {
       hooks: { enabled: true, token: "shared-gateway-token-1234567890" },
@@ -2281,7 +2175,6 @@ describe("security audit", () => {
         }
       }
     }
->>>>>>> fbf0c99d7 (test(security): simplify repeated audit finding assertions)
   });
 
   it("does not report gateway.http.no_auth when auth mode is token", async () => {
@@ -2679,13 +2572,8 @@ describe("security audit", () => {
     }
   });
 
-<<<<<<< HEAD
   it("flags plugins with dangerous code patterns (deep audit)", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-audit-scanner-"));
-=======
-  it("does not scan plugin code safety findings when deep audit is disabled", async () => {
-    const tmpDir = await makeTmpDir("audit-scanner-plugin");
->>>>>>> 57b75678d (test(security): consolidate runtime guardrail scans)
     const pluginDir = path.join(tmpDir, "extensions", "evil-plugin");
     await fs.mkdir(path.join(pluginDir, ".hidden"), { recursive: true });
     await fs.writeFile(
@@ -2710,7 +2598,6 @@ describe("security audit", () => {
     });
     expect(nonDeepRes.findings.some((f) => f.checkId === "plugins.code_safety")).toBe(false);
 
-<<<<<<< HEAD
     const deepRes = await runSecurityAudit({
       config: cfg,
       includeFilesystem: true,
@@ -2726,9 +2613,6 @@ describe("security audit", () => {
     ).toBe(true);
 
     await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => undefined);
-=======
-    // Deep-mode positive coverage lives in the detailed plugin+skills code-safety test below.
->>>>>>> 57b75678d (test(security): consolidate runtime guardrail scans)
   });
 
   it("reports detailed code-safety issues for both plugins and skills", async () => {

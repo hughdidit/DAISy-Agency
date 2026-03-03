@@ -33,16 +33,12 @@ function coerceIdentityValue(value: string | undefined, maxLength: number): stri
 }
 
 function isAvatarUrl(value: string): boolean {
-<<<<<<< HEAD
   return /^https?:\/\//i.test(value) || /^data:image\//i.test(value);
 }
 
 function looksLikeAvatarPath(value: string): boolean {
   if (/[\\/]/.test(value)) return true;
   return /\.(png|jpe?g|gif|webp|svg|ico)$/i.test(value);
-=======
-  return isAvatarHttpUrl(value) || isAvatarImageDataUrl(value);
->>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 }
 
 function normalizeAvatarValue(value: string | undefined): string | undefined {

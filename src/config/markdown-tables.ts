@@ -30,7 +30,6 @@ function resolveMarkdownModeFromSection(
   const normalizedAccountId = normalizeAccountId(accountId);
   const accounts = section.accounts;
   if (accounts && typeof accounts === "object") {
-<<<<<<< HEAD
     const direct = accounts[normalizedAccountId];
     const directMode = direct?.markdown?.tables;
     if (isMarkdownTableMode(directMode)) return directMode;
@@ -38,9 +37,6 @@ function resolveMarkdownModeFromSection(
       (key) => key.toLowerCase() === normalizedAccountId.toLowerCase(),
     );
     const match = matchKey ? accounts[matchKey] : undefined;
-=======
-    const match = resolveAccountEntry(accounts, normalizedAccountId);
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
     const matchMode = match?.markdown?.tables;
     if (isMarkdownTableMode(matchMode)) return matchMode;
   }

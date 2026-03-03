@@ -36,7 +36,6 @@ openclaw security audit --json
 
 It flags common footguns (Gateway auth exposure, browser control exposure, elevated allowlists, filesystem permissions).
 
-<<<<<<< HEAD
 `--fix` applies safe guardrails:
 - Tighten `groupPolicy="open"` to `groupPolicy="allowlist"` (and per-account variants) for common channels.
 - Turn `logging.redactSensitive="off"` back to `"tools"`.
@@ -44,8 +43,6 @@ It flags common footguns (Gateway auth exposure, browser control exposure, eleva
 
 Running an AI agent with shell access on your machine is... *spicy*. Here’s how to not get pwned.
 
-=======
->>>>>>> a333d9201 (docs(security): harden gateway security guidance)
 OpenClaw is both a product and an experiment: you’re wiring frontier-model behavior into real messaging surfaces and real tools. **There is no “perfectly secure” setup.** The goal is to be deliberate about:
 - who can talk to your bot
 - where the bot is allowed to act
@@ -60,8 +57,6 @@ OpenClaw assumes the host and config boundary are trusted:
 - If someone can modify Gateway host state/config (`~/.openclaw`, including `openclaw.json`), treat them as a trusted operator.
 - Running one Gateway for multiple mutually untrusted/adversarial operators is **not a recommended setup**.
 - For mixed-trust teams, split trust boundaries with separate gateways (or at minimum separate OS users/hosts).
-<<<<<<< HEAD
-=======
 - OpenClaw can run multiple gateway instances on one machine, but recommended operations favor clean trust-boundary separation.
 - Recommended default: one user per machine/host (or VPS), one gateway for that user, and one or more agents in that gateway.
 - If multiple users want OpenClaw, use one VPS/host per user.
@@ -150,7 +145,6 @@ Before opening a GHSA, verify all of these:
 4. Claim is not listed in [Out of Scope](https://github.com/openclaw/openclaw/blob/main/SECURITY.md#out-of-scope).
 5. Existing advisories were checked for duplicates (reuse canonical GHSA when applicable).
 6. Deployment assumptions are explicit (loopback/local vs exposed, trusted vs untrusted operators).
->>>>>>> 41b0568b3 (docs(security): clarify shared-agent trust boundaries)
 
 ## Hardened baseline in 60 seconds
 
@@ -199,13 +193,7 @@ If more than one person can DM your bot:
 - **Local disk hygiene** (permissions, symlinks, config includes, “synced folder” paths).
 - **Plugins** (extensions exist without an explicit allowlist).
 <<<<<<< HEAD
-<<<<<<< HEAD
 - **Policy drift/misconfig** (sandbox docker settings configured but sandbox mode off; ineffective `gateway.nodes.denyCommands` patterns; global `tools.profile="minimal"` overridden by per-agent profiles; extension plugin tools reachable under permissive tool policy).
-=======
-- **Policy drift/misconfig** (sandbox docker settings configured but sandbox mode off; ineffective `gateway.nodes.denyCommands` patterns; dangerous `gateway.nodes.allowCommands` entries; global `tools.profile="minimal"` overridden by per-agent profiles; extension plugin tools reachable under permissive tool policy).
-=======
-- **Policy drift/misconfig** (sandbox docker settings configured but sandbox mode off; ineffective `gateway.nodes.denyCommands` patterns because matching is exact command-name only (for example `system.run`) and does not inspect shell text; dangerous `gateway.nodes.allowCommands` entries; global `tools.profile="minimal"` overridden by per-agent profiles; extension plugin tools reachable under permissive tool policy).
->>>>>>> 42f455739 (fix(security): clarify denyCommands exact-match guidance)
 - **Runtime expectation drift** (for example `tools.exec.host="sandbox"` while sandbox mode is off, which runs directly on the gateway host).
 >>>>>>> 265da4dd2 (fix(security): harden gateway command/audit guardrails)
 - **Model hygiene** (warn when configured models look legacy; not a hard block).
@@ -243,7 +231,6 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 | `checkId`                                    | Severity      | Why it matters                                           | Primary fix key/path                             | Auto-fix |
 | -------------------------------------------- | ------------- | -------------------------------------------------------- | ------------------------------------------------ | -------- |
 | `fs.state_dir.perms_world_writable`          | critical      | Other users/processes can modify full OpenClaw state     | filesystem perms on `~/.openclaw`                | yes      |
@@ -264,9 +251,6 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `tools.profile_minimal_overridden`           | warn          | Agent overrides bypass global minimal profile            | `agents.list[].tools.profile`                    | no       |
 | `plugins.tools_reachable_permissive_policy`  | warn          | Extension tools reachable in permissive contexts         | `tools.profile` + tool allow/deny                | no       |
 | `models.small_params`                        | critical/info | Small models + unsafe tool surfaces raise injection risk | model choice + sandbox/tool policy               | no       |
-=======
-=======
->>>>>>> 008a8c9dc (chore(docs): normalize security finding table formatting)
 | `checkId`                                          | Severity      | Why it matters                                                            | Primary fix key/path                                                                              | Auto-fix |
 | -------------------------------------------------- | ------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | -------- |
 | `fs.state_dir.perms_world_writable`                | critical      | Other users/processes can modify full OpenClaw state                      | filesystem perms on `~/.openclaw`                                                                 | yes      |
@@ -276,10 +260,7 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `gateway.loopback_no_auth`                         | critical      | Reverse-proxied loopback may become unauthenticated                       | `gateway.auth.*`, proxy setup                                                                     | no       |
 | `gateway.http.no_auth`                             | warn/critical | Gateway HTTP APIs reachable with `auth.mode="none"`                       | `gateway.auth.mode`, `gateway.http.endpoints.*`                                                   | no       |
 | `gateway.tools_invoke_http.dangerous_allow`        | warn/critical | Re-enables dangerous tools over HTTP API                                  | `gateway.tools.allow`                                                                             | no       |
-<<<<<<< HEAD
-=======
 | `gateway.nodes.allow_commands_dangerous`           | warn/critical | Enables high-impact node commands (camera/screen/contacts/calendar/SMS)   | `gateway.nodes.allowCommands`                                                                     | no       |
->>>>>>> 008a8c9dc (chore(docs): normalize security finding table formatting)
 | `gateway.tailscale_funnel`                         | critical      | Public internet exposure                                                  | `gateway.tailscale.mode`                                                                          | no       |
 | `gateway.control_ui.insecure_auth`                 | warn          | Insecure-auth compatibility toggle enabled                                | `gateway.controlUi.allowInsecureAuth`                                                             | no       |
 | `gateway.control_ui.device_auth_disabled`          | critical      | Disables device identity check                                            | `gateway.controlUi.dangerouslyDisableDeviceAuth`                                                  | no       |
@@ -291,39 +272,11 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `sandbox.docker_config_mode_off`                   | warn          | Sandbox Docker config present but inactive                                | `agents.*.sandbox.mode`                                                                           | no       |
 | `tools.exec.host_sandbox_no_sandbox_defaults`      | warn          | `exec host=sandbox` resolves to host exec when sandbox is off             | `tools.exec.host`, `agents.defaults.sandbox.mode`                                                 | no       |
 | `tools.exec.host_sandbox_no_sandbox_agents`        | warn          | Per-agent `exec host=sandbox` resolves to host exec when sandbox is off   | `agents.list[].tools.exec.host`, `agents.list[].sandbox.mode`                                     | no       |
-<<<<<<< HEAD
 | `security.exposure.open_groups_with_runtime_or_fs` | critical/warn | Open groups can reach command/file tools without sandbox/workspace guards | `channels.*.groupPolicy`, `tools.profile/deny`, `tools.fs.workspaceOnly`, `agents.*.sandbox.mode` | no       |
 | `tools.profile_minimal_overridden`                 | warn          | Agent overrides bypass global minimal profile                             | `agents.list[].tools.profile`                                                                     | no       |
 | `plugins.tools_reachable_permissive_policy`        | warn          | Extension tools reachable in permissive contexts                          | `tools.profile` + tool allow/deny                                                                 | no       |
 | `models.small_params`                              | critical/info | Small models + unsafe tool surfaces raise injection risk                  | model choice + sandbox/tool policy                                                                | no       |
 >>>>>>> 049b8b14b (fix(security): flag open-group runtime/fs exposure in audit)
-=======
-| `checkId`                                          | Severity      | Why it matters                                                            | Primary fix key/path                                                                                | Auto-fix |
-| -------------------------------------------------- | ------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | -------- |
-| `fs.state_dir.perms_world_writable`                | critical      | Other users/processes can modify full OpenClaw state                      | filesystem perms on `~/.openclaw`                                                                   | yes      |
-| `fs.config.perms_writable`                         | critical      | Others can change auth/tool policy/config                                 | filesystem perms on `~/.openclaw/openclaw.json`                                                     | yes      |
-| `fs.config.perms_world_readable`                   | critical      | Config can expose tokens/settings                                         | filesystem perms on config file                                                                     | yes      |
-| `gateway.bind_no_auth`                             | critical      | Remote bind without shared secret                                         | `gateway.bind`, `gateway.auth.*`                                                                    | no       |
-| `gateway.loopback_no_auth`                         | critical      | Reverse-proxied loopback may become unauthenticated                       | `gateway.auth.*`, proxy setup                                                                       | no       |
-| `gateway.http.no_auth`                             | warn/critical | Gateway HTTP APIs reachable with `auth.mode="none"`                       | `gateway.auth.mode`, `gateway.http.endpoints.*`                                                     | no       |
-| `gateway.tools_invoke_http.dangerous_allow`        | warn/critical | Re-enables dangerous tools over HTTP API                                  | `gateway.tools.allow`                                                                               | no       |
-| `gateway.nodes.allow_commands_dangerous`           | warn/critical | Enables high-impact node commands (camera/screen/contacts/calendar/SMS)   | `gateway.nodes.allowCommands`                                                                       | no       |
-| `gateway.tailscale_funnel`                         | critical      | Public internet exposure                                                  | `gateway.tailscale.mode`                                                                            | no       |
-| `gateway.control_ui.insecure_auth`                 | warn          | Insecure-auth compatibility toggle enabled                                | `gateway.controlUi.allowInsecureAuth`                                                               | no       |
-| `gateway.control_ui.device_auth_disabled`          | critical      | Disables device identity check                                            | `gateway.controlUi.dangerouslyDisableDeviceAuth`                                                    | no       |
-| `config.insecure_or_dangerous_flags`               | warn          | Any insecure/dangerous debug flags enabled                                | multiple keys (see finding detail)                                                                  | no       |
-| `hooks.token_too_short`                            | warn          | Easier brute force on hook ingress                                        | `hooks.token`                                                                                       | no       |
-| `hooks.request_session_key_enabled`                | warn/critical | External caller can choose sessionKey                                     | `hooks.allowRequestSessionKey`                                                                      | no       |
-| `hooks.request_session_key_prefixes_missing`       | warn/critical | No bound on external session key shapes                                   | `hooks.allowedSessionKeyPrefixes`                                                                   | no       |
-| `logging.redact_off`                               | warn          | Sensitive values leak to logs/status                                      | `logging.redactSensitive`                                                                           | yes      |
-| `sandbox.docker_config_mode_off`                   | warn          | Sandbox Docker config present but inactive                                | `agents.*.sandbox.mode`                                                                             | no       |
-| `tools.exec.host_sandbox_no_sandbox_defaults`      | warn          | `exec host=sandbox` resolves to host exec when sandbox is off             | `tools.exec.host`, `agents.defaults.sandbox.mode`                                                   | no       |
-| `tools.exec.host_sandbox_no_sandbox_agents`        | warn          | Per-agent `exec host=sandbox` resolves to host exec when sandbox is off   | `agents.list[].tools.exec.host`, `agents.list[].sandbox.mode`                                       | no       |
-| `security.exposure.open_groups_with_runtime_or_fs` | critical/warn | Open groups can reach command/file tools without sandbox/workspace guards | `channels.*.groupPolicy`, `tools.profile/deny`, `tools.fs.workspaceOnly`, `agents.*.sandbox.mode` | no       |
-| `tools.profile_minimal_overridden`                 | warn          | Agent overrides bypass global minimal profile                             | `agents.list[].tools.profile`                                                                       | no       |
-| `plugins.tools_reachable_permissive_policy`        | warn          | Extension tools reachable in permissive contexts                          | `tools.profile` + tool allow/deny                                                                   | no       |
-| `models.small_params`                              | critical/info | Small models + unsafe tool surfaces raise injection risk                  | model choice + sandbox/tool policy                                                                  | no       |
->>>>>>> 265da4dd2 (fix(security): harden gateway command/audit guardrails)
 =======
 | `security.exposure.open_groups_with_runtime_or_fs` | critical/warn | Open groups can reach command/file tools without sandbox/workspace guards | `channels.*.groupPolicy`, `tools.profile/deny`, `tools.fs.workspaceOnly`, `agents.*.sandbox.mode` | no       |
 | `tools.profile_minimal_overridden`                 | warn          | Agent overrides bypass global minimal profile                             | `agents.list[].tools.profile`                                                                     | no       |
@@ -409,7 +362,6 @@ keep it off unless you are actively debugging and can revert quickly.
 
 ## HTTP Security Headers
 
-<<<<<<< HEAD
 All HTTP responses from the gateway include:
 
 - `X-Content-Type-Options: nosniff` — prevents browsers from MIME-sniffing responses
@@ -420,40 +372,6 @@ All HTTP responses from the gateway include:
 HSTS and CSP are omitted for now: the gateway typically serves on localhost or behind
 IAP, where HSTS would break local development, and CSP requires careful tuning of the
 injected inline script in the Control UI.
-=======
-`openclaw security audit` includes `config.insecure_or_dangerous_flags` when
-known insecure/dangerous debug switches are enabled. That check currently
-aggregates:
-
-- `gateway.controlUi.allowInsecureAuth=true`
-- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true`
-- `gateway.controlUi.dangerouslyDisableDeviceAuth=true`
-- `hooks.gmail.allowUnsafeExternalContent=true`
-- `hooks.mappings[<index>].allowUnsafeExternalContent=true`
-- `tools.exec.applyPatch.workspaceOnly=false`
-
-Complete `dangerous*` / `dangerously*` config keys defined in OpenClaw config
-schema:
-
-- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback`
-- `gateway.controlUi.dangerouslyDisableDeviceAuth`
-- `browser.ssrfPolicy.dangerouslyAllowPrivateNetwork`
-- `channels.discord.dangerouslyAllowNameMatching`
-- `channels.discord.accounts.<accountId>.dangerouslyAllowNameMatching`
-- `channels.slack.dangerouslyAllowNameMatching`
-- `channels.slack.accounts.<accountId>.dangerouslyAllowNameMatching`
-- `channels.googlechat.dangerouslyAllowNameMatching`
-- `channels.googlechat.accounts.<accountId>.dangerouslyAllowNameMatching`
-- `channels.msteams.dangerouslyAllowNameMatching`
-- `channels.irc.dangerouslyAllowNameMatching` (extension channel)
-- `channels.irc.accounts.<accountId>.dangerouslyAllowNameMatching` (extension channel)
-- `channels.mattermost.dangerouslyAllowNameMatching` (extension channel)
-- `channels.mattermost.accounts.<accountId>.dangerouslyAllowNameMatching` (extension channel)
-- `agents.defaults.sandbox.docker.dangerouslyAllowReservedContainerTargets`
-- `agents.defaults.sandbox.docker.dangerouslyAllowExternalBindSources`
-- `agents.list[<index>].sandbox.docker.dangerouslyAllowReservedContainerTargets`
-- `agents.list[<index>].sandbox.docker.dangerouslyAllowExternalBindSources`
->>>>>>> 8cc841766 (docs(security): enumerate dangerous config parameters)
 
 ## Reverse Proxy Configuration
 
@@ -590,22 +508,7 @@ By default, OpenClaw routes **all DMs into the main session** so your assistant 
 }
 ```
 
-<<<<<<< HEAD
 This prevents cross-user context leakage while keeping group chats isolated. If you run multiple accounts on the same channel, use `per-account-channel-peer` instead. If the same person contacts you on multiple channels, use `session.identityLinks` to collapse those DM sessions into one canonical identity. See [Session Management](/concepts/session) and [Configuration](/gateway/configuration).
-=======
-This prevents cross-user context leakage while keeping group chats isolated.
-
-This is a messaging-context boundary, not a host-admin boundary. If users are mutually adversarial and share the same Gateway host/config, run separate gateways per trust boundary instead.
-
-### Secure DM mode (recommended)
-
-Treat the snippet above as **secure DM mode**:
-
-- Default: `session.dmScope: "main"` (all DMs share one session for continuity).
-- Secure DM mode: `session.dmScope: "per-channel-peer"` (each channel+sender pair gets an isolated DM context).
-
-If you run multiple accounts on the same channel, use `per-account-channel-peer` instead. If the same person contacts you on multiple channels, use `session.identityLinks` to collapse those DM sessions into one canonical identity. See [Session Management](/concepts/session) and [Configuration](/gateway/configuration).
->>>>>>> 810218756 (docs(security): clarify trusted-host deployment assumptions)
 
 ## Allowlists (DM + groups) — terminology
 
@@ -692,7 +595,6 @@ Guidance:
 - If you enable them, do so only in trusted DMs or tightly controlled rooms.
 - Remember: verbose output can include tool args, URLs, and data the model saw.
 
-<<<<<<< HEAD
 ## Incident Response (if you suspect compromise)
 
 Assume “compromised” means: someone got into a room that can trigger the bot, or a token leaked, or a plugin/tool did something unexpected.
@@ -726,8 +628,6 @@ This is social engineering 101. Create distrust, encourage snooping.
 
 **Lesson:** Don't let strangers (or friends!) manipulate your AI into exploring the filesystem.
 
-=======
->>>>>>> a333d9201 (docs(security): harden gateway security guidance)
 ## Configuration Hardening (examples)
 
 ### 0) File permissions
@@ -960,12 +860,7 @@ We may add a single `readOnlyMode` flag later to simplify this configuration.
 Additional hardening options:
 
 - `tools.exec.applyPatch.workspaceOnly: true` (default): ensures `apply_patch` cannot write/delete outside the workspace directory even when sandboxing is off. Set to `false` only if you intentionally want `apply_patch` to touch files outside the workspace.
-<<<<<<< HEAD
 - `tools.fs.workspaceOnly: true` (optional): restricts `read`/`write`/`edit`/`apply_patch` paths to the workspace directory (useful if you allow absolute paths today and want a single guardrail).
-=======
-- `tools.fs.workspaceOnly: true` (optional): restricts `read`/`write`/`edit`/`apply_patch` paths and native prompt image auto-load paths to the workspace directory (useful if you allow absolute paths today and want a single guardrail).
-- Keep filesystem roots narrow: avoid broad roots like your home directory for agent workspaces/sandbox workspaces. Broad roots can expose sensitive local files (for example state/config under `~/.openclaw`) to filesystem tools.
->>>>>>> 8f5f599a3 (docs(security): note narrow filesystem roots for tool access)
 
 ### 5) Secure baseline (copy/paste)
 
@@ -1128,45 +1023,12 @@ Common use cases:
         // to the current session + spawned subagent sessions, but you can clamp further if needed.
         // See `tools.sessions.visibility` in the configuration reference.
         tools: {
-<<<<<<< HEAD
           allow: ["sessions_list", "sessions_history", "sessions_send", "sessions_spawn", "session_status", "whatsapp", "telegram", "slack", "discord"],
           deny: ["read", "write", "edit", "apply_patch", "exec", "process", "browser", "canvas", "nodes", "cron", "gateway", "image"]
         }
       }
     ]
   }
-=======
-          sessions: { visibility: "tree" }, // self | tree | agent | all
-          allow: [
-            "sessions_list",
-            "sessions_history",
-            "sessions_send",
-            "sessions_spawn",
-            "session_status",
-            "whatsapp",
-            "telegram",
-            "slack",
-            "discord",
-          ],
-          deny: [
-            "read",
-            "write",
-            "edit",
-            "apply_patch",
-            "exec",
-            "process",
-            "browser",
-            "canvas",
-            "nodes",
-            "cron",
-            "gateway",
-            "image",
-          ],
-        },
-      },
-    ],
-  },
->>>>>>> c6c53437f (fix(security): scope session tools and webhook secret fallback)
 }
 ```
 
@@ -1239,7 +1101,6 @@ If it fails, there are new candidates not yet in the baseline.
 
 Commit the updated `.secrets.baseline` once it reflects the intended state.
 
-<<<<<<< HEAD
 ## The Trust Hierarchy
 
 ```
@@ -1259,8 +1120,6 @@ Mario asking for find ~
   │ Definitely no trust 😏
 ```
 
-=======
->>>>>>> a333d9201 (docs(security): harden gateway security guidance)
 ## Reporting Security Issues
 
 Found a vulnerability in OpenClaw? Please report responsibly:
@@ -1268,12 +1127,9 @@ Found a vulnerability in OpenClaw? Please report responsibly:
 1. Email: security@openclaw.ai
 2. Don't post publicly until fixed
 3. We'll credit you (unless you prefer anonymity)
-<<<<<<< HEAD
 
 ---
 
 *"Security is a process, not a product. Also, don't trust lobsters with shell access."* — Someone wise, probably
 
 🦞🔐
-=======
->>>>>>> a333d9201 (docs(security): harden gateway security guidance)

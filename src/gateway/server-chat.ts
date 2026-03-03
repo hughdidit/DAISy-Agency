@@ -284,27 +284,12 @@ export function createAgentEventHandler({
   const resolveToolVerboseLevel = (runId: string, sessionKey?: string) => {
     const runContext = getAgentRunContext(runId);
     const runVerbose = normalizeVerboseLevel(runContext?.verboseLevel);
-<<<<<<< HEAD
     if (runVerbose) return runVerbose === "on";
     if (!sessionKey) return false;
     try {
       const { cfg, entry } = loadSessionEntry(sessionKey);
       const sessionVerbose = normalizeVerboseLevel(entry?.verboseLevel);
       if (sessionVerbose) return sessionVerbose === "on";
-=======
-    if (runVerbose) {
-      return runVerbose;
-    }
-    if (!sessionKey) {
-      return "off";
-    }
-    try {
-      const { cfg, entry } = loadSessionEntry(sessionKey);
-      const sessionVerbose = normalizeVerboseLevel(entry?.verboseLevel);
-      if (sessionVerbose) {
-        return sessionVerbose;
-      }
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
       const defaultVerbose = normalizeVerboseLevel(cfg.agents?.defaults?.verboseDefault);
       return defaultVerbose ?? "off";
     } catch {

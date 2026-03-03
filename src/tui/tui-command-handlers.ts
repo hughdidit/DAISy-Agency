@@ -1,6 +1,4 @@
 import type { Component, TUI } from "@mariozechner/pi-tui";
-<<<<<<< HEAD
-=======
 import { randomUUID } from "node:crypto";
 import type { SessionsPatchResult } from "../gateway/protocol/index.js";
 import type { ChatLog } from "./components/chat-log.js";
@@ -11,7 +9,6 @@ import type {
   TuiOptions,
   TuiStateAccess,
 } from "./tui-types.js";
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import {
   formatThinkingLevels,
   normalizeUsageDisplay,

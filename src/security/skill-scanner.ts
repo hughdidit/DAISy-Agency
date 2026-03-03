@@ -1,10 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { hasErrnoCode } from "../infra/errors.js";
 import { isPathInside } from "./scan-paths.js";
->>>>>>> c8bdefd8b (refactor(security): reuse shared scan path containment helper)
 
 // ---------------------------------------------------------------------------
 // Types

@@ -5,20 +5,12 @@ import { signalOutbound } from "../../channels/plugins/outbound/signal.js";
 import { telegramOutbound } from "../../channels/plugins/outbound/telegram.js";
 import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
 import { markdownToSignalTextChunks } from "../../signal/format.js";
-<<<<<<< HEAD
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
   createIMessageTestPlugin,
   createOutboundTestPlugin,
   createTestRegistry,
 } from "../../test-utils/channel-plugins.js";
-=======
-import { createOutboundTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
-import { withEnvAsync } from "../../test-utils/env.js";
-import { createIMessageTestPlugin } from "../../test-utils/imessage-test-plugin.js";
-import { createInternalHookEventPayload } from "../../test-utils/internal-hook-event-payload.js";
-import { resolvePreferredOpenClawTmpDir } from "../tmp-openclaw-dir.js";
->>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
 
 const mocks = vi.hoisted(() => ({
   appendAssistantMessageToSessionTranscript: vi.fn(async () => ({ ok: true, sessionFile: "x" })),
@@ -99,8 +91,6 @@ describe("deliverOutboundPayloads", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("scopes media local roots to the active agent workspace when agentId is provided", async () => {
     const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
 
@@ -203,7 +193,6 @@ describe("deliverOutboundPayloads", () => {
     );
   });
 
->>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
   it("uses signal media maxBytes from config", async () => {
     const sendSignal = vi.fn().mockResolvedValue({ messageId: "s1", timestamp: 123 });
     const cfg: OpenClawConfig = { channels: { signal: { mediaMaxMb: 2 } } };

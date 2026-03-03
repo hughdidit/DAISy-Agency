@@ -8,8 +8,6 @@ import { buildDockerExecArgs } from "./bash-tools.shared.js";
 import { sanitizeBinaryOutput } from "./shell-utils.js";
 
 const isWin = process.platform === "win32";
-<<<<<<< HEAD
-=======
 const resolveShellFromPath = (name: string) => {
   const envPath = process.env.PATH ?? "";
   if (!envPath) return undefined;
@@ -28,7 +26,6 @@ const resolveShellFromPath = (name: string) => {
 const defaultShell = isWin
   ? undefined
   : process.env.OPENCLAW_TEST_SHELL || resolveShellFromPath("bash") || process.env.SHELL || "sh";
->>>>>>> 9a7160786 (refactor: rename to openclaw)
 // PowerShell: Start-Sleep for delays, ; for command separation, $null for null device
 const shortDelayCmd = isWin ? "Start-Sleep -Milliseconds 50" : "sleep 0.05";
 const yieldDelayCmd = isWin ? "Start-Sleep -Milliseconds 200" : "sleep 0.2";

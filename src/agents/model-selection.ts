@@ -51,23 +51,8 @@ function normalizeAnthropicModelId(model: string): string {
   if (!trimmed) return trimmed;
   const lower = trimmed.toLowerCase();
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (lower === "opus-4.5") return "claude-opus-4-5";
   if (lower === "sonnet-4.5") return "claude-sonnet-4-5";
-=======
-  if (lower === "opus-4.6") {
-    return "claude-opus-4-6";
-  }
-  if (lower === "opus-4.5") {
-    return "claude-opus-4-5";
-  }
-  if (lower === "opus-4.6") {
-    return "claude-opus-4-6";
-  }
-  if (lower === "sonnet-4.5") {
-    return "claude-sonnet-4-5";
-  }
->>>>>>> eb80b9acb (feat: add Claude Opus 4.6 to built-in model catalog (#9853))
   return trimmed;
 =======
   return ANTHROPIC_MODEL_ALIASES[lower] ?? trimmed;

@@ -13,33 +13,10 @@ import {
 } from "../infra/archive.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-=======
-import { installPackageDir } from "../infra/install-package-dir.js";
-import {
-  resolveSafeInstallDir,
-  safeDirName,
-  unscopedPackageName,
-} from "../infra/install-safe-path.js";
-import {
-  type NpmIntegrityDrift,
-  type NpmSpecResolution,
-  packNpmSpecToArchive,
-  resolveArchiveSourcePath,
-  withTempDir,
-} from "../infra/install-source-utils.js";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
 >>>>>>> 6f7d31c42 (fix(security): harden plugin/hook npm installs)
 import { runCommandWithTimeout } from "../process/exec.js";
-<<<<<<< HEAD
 import { scanDirectoryWithSummary } from "../security/skill-scanner.js";
-=======
-import { extensionUsesSkippedScannerPath, isPathInside } from "../security/scan-paths.js";
-import * as skillScanner from "../security/skill-scanner.js";
->>>>>>> b37346103 (refactor(security): share scan path helpers)
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 >>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
 
@@ -92,8 +69,6 @@ function safeFileName(input: string): string {
   return safeDirName(input);
 }
 
-<<<<<<< HEAD
-=======
 function validatePluginId(pluginId: string): string | null {
   if (!pluginId) {
     return "invalid plugin name: missing";
@@ -124,7 +99,6 @@ function extensionUsesSkippedScannerPath(entry: string): boolean {
   );
 }
 
->>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
 =======
 >>>>>>> b37346103 (refactor(security): share scan path helpers)
 async function ensureOpenClawExtensions(manifest: PackageManifest) {
@@ -473,14 +447,7 @@ export async function installPluginFromNpmSpec(params: {
   const dryRun = params.dryRun ?? false;
   const expectedPluginId = params.expectedPluginId;
   const spec = params.spec.trim();
-<<<<<<< HEAD
   if (!spec) return { ok: false, error: "missing npm spec" };
-=======
-  const specError = validateRegistryNpmSpec(spec);
-  if (specError) {
-    return { ok: false, error: specError };
-  }
->>>>>>> 6f7d31c42 (fix(security): harden plugin/hook npm installs)
 
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-npm-pack-"));
   try {
@@ -500,7 +467,6 @@ export async function installPluginFromNpmSpec(params: {
       };
     }
 
-<<<<<<< HEAD
     const packed = (res.stdout || "")
       .split("\n")
       .map((l) => l.trim())
@@ -513,47 +479,6 @@ export async function installPluginFromNpmSpec(params: {
     const archivePath = path.join(tmpDir, packed);
     return await installPluginFromArchive({
       archivePath,
-=======
-    const npmResolution: NpmSpecResolution = {
-      ...packedResult.metadata,
-      resolvedAt: new Date().toISOString(),
-    };
-
-    let integrityDrift: NpmIntegrityDrift | undefined;
-    if (
-      params.expectedIntegrity &&
-      npmResolution.integrity &&
-      params.expectedIntegrity !== npmResolution.integrity
-    ) {
-      integrityDrift = {
-        expectedIntegrity: params.expectedIntegrity,
-        actualIntegrity: npmResolution.integrity,
-      };
-      const driftPayload: PluginNpmIntegrityDriftParams = {
-        spec,
-        expectedIntegrity: integrityDrift.expectedIntegrity,
-        actualIntegrity: integrityDrift.actualIntegrity,
-        resolution: npmResolution,
-      };
-      let proceed = true;
-      if (params.onIntegrityDrift) {
-        proceed = await params.onIntegrityDrift(driftPayload);
-      } else {
-        logger.warn?.(
-          `Integrity drift detected for ${driftPayload.resolution.resolvedSpec ?? driftPayload.spec}: expected ${driftPayload.expectedIntegrity}, got ${driftPayload.actualIntegrity}`,
-        );
-      }
-      if (!proceed) {
-        return {
-          ok: false,
-          error: `aborted: npm package integrity drift detected for ${driftPayload.resolution.resolvedSpec ?? driftPayload.spec}`,
-        };
-      }
-    }
-
-    const installResult = await installPluginFromArchive({
-      archivePath: packedResult.archivePath,
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
       extensionsDir: params.extensionsDir,
       timeoutMs,
       logger,
@@ -561,22 +486,9 @@ export async function installPluginFromNpmSpec(params: {
       dryRun,
       expectedPluginId,
     });
-<<<<<<< HEAD
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => undefined);
   }
-=======
-    if (!installResult.ok) {
-      return installResult;
-    }
-
-    return {
-      ...installResult,
-      npmResolution,
-      integrityDrift,
-    };
-  });
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 }
 
 export async function installPluginFromPath(params: {

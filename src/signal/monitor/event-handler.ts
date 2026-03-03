@@ -314,8 +314,6 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
     const quoteText = dataMessage?.quote?.text?.trim() ?? "";
     const hasBodyContent =
       Boolean(messageText || quoteText) || Boolean(!reaction && dataMessage?.attachments?.length);
-<<<<<<< HEAD
-=======
     const senderDisplay = formatSignalSenderDisplay(sender);
     const storeAllowFrom = await readStoreAllowFromForDmPolicy({
       provider: "signal",
@@ -335,7 +333,6 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
     const dmAccess = resolveAccessDecision(false);
     const effectiveDmAllow = dmAccess.effectiveAllowFrom;
     const effectiveGroupAllow = dmAccess.effectiveGroupAllowFrom;
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
     if (reaction && !hasBodyContent) {
       if (reaction.isRemove) return; // Ignore reaction removals

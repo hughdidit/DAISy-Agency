@@ -303,36 +303,7 @@ function unwrapTimeoutInvocation(argv: string[]): string[] | null {
   return idx < argv.length ? argv.slice(idx) : null;
 }
 
-<<<<<<< HEAD
 export function unwrapKnownDispatchWrapperInvocation(argv: string[]): string[] | null | undefined {
-=======
-export type DispatchWrapperUnwrapResult =
-  | { kind: "not-wrapper" }
-  | { kind: "blocked"; wrapper: string }
-  | { kind: "unwrapped"; wrapper: string; argv: string[] };
-
-export type DispatchWrapperExecutionPlan = {
-  argv: string[];
-  wrappers: string[];
-  policyBlocked: boolean;
-  blockedWrapper?: string;
-};
-
-function blockDispatchWrapper(wrapper: string): DispatchWrapperUnwrapResult {
-  return { kind: "blocked", wrapper };
-}
-
-function unwrapDispatchWrapper(
-  wrapper: string,
-  unwrapped: string[] | null,
-): DispatchWrapperUnwrapResult {
-  return unwrapped
-    ? { kind: "unwrapped", wrapper, argv: unwrapped }
-    : blockDispatchWrapper(wrapper);
-}
-
-export function unwrapKnownDispatchWrapperInvocation(argv: string[]): DispatchWrapperUnwrapResult {
->>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
   const token0 = argv[0]?.trim();
   if (!token0) {
     return undefined;
@@ -384,7 +355,6 @@ export function resolveDispatchWrapperExecutionPlan(
   let current = argv;
   const wrappers: string[] = [];
   for (let depth = 0; depth < maxDepth; depth += 1) {
-<<<<<<< HEAD
     const unwrapped = unwrapKnownDispatchWrapperInvocation(current);
     if (unwrapped === undefined) {
       break;
@@ -393,30 +363,6 @@ export function resolveDispatchWrapperExecutionPlan(
       break;
     }
     current = unwrapped;
-=======
-    const unwrap = unwrapKnownDispatchWrapperInvocation(current);
-    if (unwrap.kind === "blocked") {
-      return {
-        argv: current,
-        wrappers,
-        policyBlocked: true,
-        blockedWrapper: unwrap.wrapper,
-      };
-    }
-    if (unwrap.kind !== "unwrapped" || unwrap.argv.length === 0) {
-      break;
-    }
-    wrappers.push(unwrap.wrapper);
-    if (isSemanticDispatchWrapperUsage(unwrap.wrapper, current)) {
-      return {
-        argv: current,
-        wrappers,
-        policyBlocked: true,
-        blockedWrapper: unwrap.wrapper,
-      };
-    }
-    current = unwrap.argv;
->>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
   }
   if (wrappers.length >= maxDepth) {
     const overflow = unwrapKnownDispatchWrapperInvocation(current);

@@ -10,14 +10,11 @@ import { chromium } from "playwright-core";
 import { formatErrorMessage } from "../infra/errors.js";
 import { getHeadersWithAuth } from "./cdp.helpers.js";
 import { getChromeWebSocketUrl } from "./chrome.js";
-<<<<<<< HEAD
-=======
 import {
   assertBrowserNavigationAllowed,
   assertBrowserNavigationResultAllowed,
   withBrowserNavigationPolicy,
 } from "./navigation-guard.js";
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 
 export type BrowserConsoleMessage = {
   type: string;
@@ -520,14 +517,11 @@ export async function createPageViaPlaywright(opts: { cdpUrl: string; url: strin
   // Navigate to the URL
   const targetUrl = opts.url.trim() || "about:blank";
   if (targetUrl !== "about:blank") {
-<<<<<<< HEAD
-=======
     const navigationPolicy = withBrowserNavigationPolicy(opts.ssrfPolicy);
     await assertBrowserNavigationAllowed({
       url: targetUrl,
       ...navigationPolicy,
     });
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
     await page.goto(targetUrl, { timeout: 30_000 }).catch(() => {
       // Navigation might fail for some URLs, but page is still created
     });

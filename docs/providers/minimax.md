@@ -99,7 +99,6 @@ Configure via CLI:
   agents: {
     defaults: {
       models: {
-<<<<<<< HEAD
         "anthropic/claude-opus-4-5": { alias: "opus" },
         "minimax/MiniMax-M2.1": { alias: "minimax" }
       },
@@ -109,17 +108,6 @@ Configure via CLI:
       }
     }
   }
-=======
-        "anthropic/claude-opus-4-6": { alias: "opus" },
-        "minimax/MiniMax-M2.1": { alias: "minimax" },
-      },
-      model: {
-        primary: "anthropic/claude-opus-4-6",
-        fallbacks: ["minimax/MiniMax-M2.1"],
-      },
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

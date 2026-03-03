@@ -1,16 +1,5 @@
 import { z } from "zod";
-<<<<<<< HEAD
 
-=======
-import { isSafeScpRemoteHost } from "../infra/scp-host.js";
-import {
-  normalizeTelegramCommandDescription,
-  normalizeTelegramCommandName,
-  resolveTelegramCustomCommands,
-} from "./telegram-custom-commands.js";
-import { ToolPolicySchema } from "./zod-schema.agent-runtime.js";
-import { ChannelHeartbeatVisibilitySchema } from "./zod-schema.channels.js";
->>>>>>> 49d0def6d (fix(security): harden imessage remote scp/ssh handling)
 import {
   BlockStreamingChunkSchema,
   BlockStreamingCoalesceSchema,
@@ -224,8 +213,6 @@ export const DiscordGuildSchema = z
   })
   .strict();
 
-<<<<<<< HEAD
-=======
 const DiscordUiSchema = z
   .object({
     components: z
@@ -256,7 +243,6 @@ const DiscordVoiceSchema = z
   .strict()
   .optional();
 
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 export const DiscordAccountSchema = z
   .object({
     name: z.string().optional(),
@@ -265,12 +251,7 @@ export const DiscordAccountSchema = z
     enabled: z.boolean().optional(),
     commands: ProviderCommandsSchema,
     configWrites: z.boolean().optional(),
-<<<<<<< HEAD
     token: z.string().optional(),
-=======
-    token: z.string().optional().register(sensitive),
-    proxy: z.string().optional(),
->>>>>>> 0cb69b0f2 (Discord: add gateway proxy support)
     allowBots: z.boolean().optional(),
     dangerouslyAllowNameMatching: z.boolean().optional(),
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
@@ -317,8 +298,6 @@ export const DiscordAccountSchema = z
         approvers: z.array(z.union([z.string(), z.number()])).optional(),
         agentFilter: z.array(z.string()).optional(),
         sessionFilter: z.array(z.string()).optional(),
-<<<<<<< HEAD
-=======
         cleanupAfterResolve: z.boolean().optional(),
         target: z.enum(["dm", "channel", "both"]).optional(),
       })
@@ -337,7 +316,6 @@ export const DiscordAccountSchema = z
         ttlHours: z.number().nonnegative().optional(),
         spawnSubagentSessions: z.boolean().optional(),
         spawnAcpSessions: z.boolean().optional(),
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
       })
       .strict()
       .optional(),
@@ -348,8 +326,6 @@ export const DiscordAccountSchema = z
       })
       .strict()
       .optional(),
-<<<<<<< HEAD
-=======
     voice: DiscordVoiceSchema,
     pluralkit: z
       .object({
@@ -366,7 +342,6 @@ export const DiscordAccountSchema = z
       .union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)])
       .optional(),
     activityUrl: z.string().url().optional(),
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
   })
   .strict();
 

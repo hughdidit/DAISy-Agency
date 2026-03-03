@@ -1,10 +1,7 @@
 import AppKit
 import ApplicationServices
 import AVFoundation
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/PermissionManager.swift
-=======
 import OpenClawIPC
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/PermissionManager.swift
 import CoreGraphics
 import CoreLocation
 import Foundation

@@ -3,15 +3,12 @@ import {
   logInboundDrop,
   isDangerousNameMatchingEnabled,
   resolveControlCommandGate,
-<<<<<<< HEAD
-=======
   resolveOutboundMediaUrls,
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   resolveEffectiveAllowFromLists,
   warnMissingProviderGroupPolicyFallbackOnce,
   type OutboundReplyPayload,
->>>>>>> 892a9c24b (refactor(security): centralize channel allowlist auth policy)
   type OpenClawConfig,
   type RuntimeEnv,
 } from "openclaw/plugin-sdk";

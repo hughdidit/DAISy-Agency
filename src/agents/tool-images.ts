@@ -2,22 +2,7 @@ import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 
 import { createSubsystemLogger } from "../logging/subsystem.js";
-<<<<<<< HEAD
 import { getImageMetadata, resizeToJpeg } from "../media/image-ops.js";
-=======
-import { canonicalizeBase64 } from "../media/base64.js";
-import {
-  buildImageResizeSideGrid,
-  getImageMetadata,
-  IMAGE_REDUCE_QUALITY_STEPS,
-  resizeToJpeg,
-} from "../media/image-ops.js";
-import {
-  DEFAULT_IMAGE_MAX_BYTES,
-  DEFAULT_IMAGE_MAX_DIMENSION_PX,
-  type ImageSanitizationLimits,
-} from "./image-sanitization.js";
->>>>>>> e578521ef (fix(security): harden session export image data-url handling)
 
 type ToolContentBlock = AgentToolResult<unknown>["content"][number];
 type ImageContentBlock = Extract<ToolContentBlock, { type: "image" }>;

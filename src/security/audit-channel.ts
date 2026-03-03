@@ -5,25 +5,15 @@ import type { SecurityAuditFinding, SecurityAuditSeverity } from "./audit.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "../config/commands.js";
-<<<<<<< HEAD
-=======
 import type { OpenClawConfig } from "../config/config.js";
 import { isDangerousNameMatchingEnabled } from "../config/dangerous-name-matching.js";
->>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
-<<<<<<< HEAD
-=======
 import { normalizeStringEntries } from "../shared/string-normalization.js";
 import type { SecurityAuditFinding, SecurityAuditSeverity } from "./audit.js";
 <<<<<<< HEAD
->>>>>>> 89a0b95af (refactor(security): reuse shared allowlist normalization)
 =======
 import { resolveDmAllowState } from "./dm-policy-shared.js";
-<<<<<<< HEAD
 >>>>>>> 5c5c032f4 (refactor(security): share DM allowlist state resolver)
-=======
-import { isDiscordMutableAllowEntry } from "./mutable-allowlist-detectors.js";
->>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 
 function normalizeAllowFromList(list: Array<string | number> | undefined | null): string[] {
   return normalizeStringEntries(Array.isArray(list) ? list : undefined);
@@ -298,7 +288,6 @@ export async function collectChannelSecurityFindings(params: {
               ? ` (+${discordNameBasedAllowEntries.size - examples.length} more)`
               : "";
           findings.push({
-<<<<<<< HEAD
             checkId: "channels.discord.commands.native.unrestricted",
             severity: "critical",
             title: "Discord slash commands are unrestricted",
@@ -370,46 +359,6 @@ export async function collectChannelSecurityFindings(params: {
           const channels = (slackCfg.channels as Record<string, unknown> | undefined) ?? {};
           const hasAnyChannelUsersAllowlist = Object.values(channels).some((value) => {
             if (!value || typeof value !== "object") {
-=======
-            checkId: "channels.discord.allowFrom.name_based_entries",
-            severity: dangerousNameMatchingEnabled ? "info" : "warn",
-            title: dangerousNameMatchingEnabled
-              ? "Discord allowlist uses break-glass name/tag matching"
-              : "Discord allowlist contains name or tag entries",
-            detail: dangerousNameMatchingEnabled
-              ? "Discord name/tag allowlist matching is explicitly enabled via dangerouslyAllowNameMatching. This mutable-identity mode is operator-selected break-glass behavior and out-of-scope for vulnerability reports by itself. " +
-                `Found: ${examples.join(", ")}${more}.`
-              : "Discord name/tag allowlist matching uses normalized slugs and can collide across users. " +
-                `Found: ${examples.join(", ")}${more}.`,
-            remediation: dangerousNameMatchingEnabled
-              ? "Prefer stable Discord IDs (or <@id>/user:<id>/pk:<id>), then disable dangerouslyAllowNameMatching."
-              : "Prefer stable Discord IDs (or <@id>/user:<id>/pk:<id>) in channels.discord.allowFrom and channels.discord.guilds.*.users, or explicitly opt in with dangerouslyAllowNameMatching=true if you accept the risk.",
-          });
-        }
-        const nativeEnabled = resolveNativeCommandsEnabled({
-          providerId: "discord",
-          providerSetting: coerceNativeSetting(
-            (discordCfg.commands as { native?: unknown } | undefined)?.native,
-          ),
-          globalSetting: params.cfg.commands?.native,
-        });
-        const nativeSkillsEnabled = resolveNativeSkillsEnabled({
-          providerId: "discord",
-          providerSetting: coerceNativeSetting(
-            (discordCfg.commands as { nativeSkills?: unknown } | undefined)?.nativeSkills,
-          ),
-          globalSetting: params.cfg.commands?.nativeSkills,
-        });
-        const slashEnabled = nativeEnabled || nativeSkillsEnabled;
-        if (slashEnabled) {
-          const defaultGroupPolicy = params.cfg.channels?.defaults?.groupPolicy;
-          const groupPolicy =
-            (discordCfg.groupPolicy as string | undefined) ?? defaultGroupPolicy ?? "allowlist";
-          const guildEntries = discordGuildEntries;
-          const guildsConfigured = Object.keys(guildEntries).length > 0;
-          const hasAnyUserAllowlist = Object.values(guildEntries).some((guild) => {
-            if (!guild || typeof guild !== "object") {
->>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
               return false;
             }
             const g = guild as Record<string, unknown>;
@@ -447,27 +396,7 @@ export async function collectChannelSecurityFindings(params: {
               detail:
                 "commands.useAccessGroups=false disables sender allowlists for Discord slash commands unless a per-guild/channel users allowlist is configured; with no users allowlist, any user in allowed guild channels can invoke /… commands.",
               remediation:
-<<<<<<< HEAD
                 "Approve yourself via pairing (recommended), or set channels.slack.dm.allowFrom and/or channels.slack.channels.<id>.users.",
-=======
-                "Set commands.useAccessGroups=true (recommended), or configure channels.discord.guilds.<id>.users (or channels.discord.guilds.<id>.channels.<channel>.users).",
-            });
-          } else if (
-            useAccessGroups &&
-            groupPolicy !== "disabled" &&
-            guildsConfigured &&
-            !ownerAllowFromConfigured &&
-            !hasAnyUserAllowlist
-          ) {
-            findings.push({
-              checkId: "channels.discord.commands.native.no_allowlists",
-              severity: "warn",
-              title: "Discord slash commands have no allowlists",
-              detail:
-                "Discord slash commands are enabled, but neither an owner allowFrom list nor any per-guild/channel users allowlist is configured; /… commands will be rejected for everyone.",
-              remediation:
-                "Add your user id to channels.discord.allowFrom (or approve yourself via pairing), or configure channels.discord.guilds.<id>.users.",
->>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
             });
           }
         }

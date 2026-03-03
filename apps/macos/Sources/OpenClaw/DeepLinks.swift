@@ -1,8 +1,5 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/DeepLinks.swift
-=======
 import OpenClawKit
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/DeepLinks.swift
 import Foundation
 import MoltbotKit
 import OSLog

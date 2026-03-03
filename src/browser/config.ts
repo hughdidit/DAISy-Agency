@@ -68,8 +68,6 @@ function normalizeTimeoutMs(raw: number | undefined, fallback: number) {
   return value < 0 ? fallback : value;
 }
 
-<<<<<<< HEAD
-=======
 function normalizeStringList(raw: string[] | undefined): string[] | undefined {
   if (!Array.isArray(raw) || raw.length === 0) {
     return undefined;
@@ -109,7 +107,6 @@ function resolveBrowserSsrFPolicy(cfg: BrowserConfig | undefined): SsrFPolicy | 
   };
 }
 
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 export function parseHttpUrl(raw: string, label: string) {
   const trimmed = raw.trim();
   const parsed = new URL(trimmed);
@@ -136,11 +133,7 @@ export function parseHttpUrl(raw: string, label: string) {
 }
 
 /**
-<<<<<<< HEAD
  * Ensure the default "daisy" profile exists in the profiles map.
-=======
- * Ensure the default "openclaw" profile exists in the profiles map.
->>>>>>> 9a7160786 (refactor: rename to openclaw)
  * Auto-creates it with the legacy CDP port (from browser.cdpUrl) or first port if missing.
  */
 function ensureDefaultProfile(

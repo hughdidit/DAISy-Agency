@@ -627,7 +627,6 @@ describe("discord autoThread name sanitization", () => {
 });
 
 describe("discord reaction notification gating", () => {
-<<<<<<< HEAD
   it("defaults to own when mode is unset", () => {
     expect(
       shouldEmitDiscordReactionNotification({
@@ -646,123 +645,6 @@ describe("discord reaction notification gating", () => {
       }),
     ).toBe(false);
   });
-=======
-  it("applies mode-specific reaction notification rules", () => {
-    const cases = typedCases<{
-      name: string;
-      input: Parameters<typeof shouldEmitDiscordReactionNotification>[0];
-      expected: boolean;
-    }>([
-      {
-        name: "unset defaults to own (author is bot)",
-        input: {
-          mode: undefined,
-          botId: "bot-1",
-          messageAuthorId: "bot-1",
-          userId: "user-1",
-        },
-        expected: true,
-      },
-      {
-        name: "unset defaults to own (author is not bot)",
-        input: {
-          mode: undefined,
-          botId: "bot-1",
-          messageAuthorId: "user-1",
-          userId: "user-2",
-        },
-        expected: false,
-      },
-      {
-        name: "off mode",
-        input: {
-          mode: "off" as const,
-          botId: "bot-1",
-          messageAuthorId: "bot-1",
-          userId: "user-1",
-        },
-        expected: false,
-      },
-      {
-        name: "all mode",
-        input: {
-          mode: "all" as const,
-          botId: "bot-1",
-          messageAuthorId: "user-1",
-          userId: "user-2",
-        },
-        expected: true,
-      },
-      {
-        name: "own mode with bot-authored message",
-        input: {
-          mode: "own" as const,
-          botId: "bot-1",
-          messageAuthorId: "bot-1",
-          userId: "user-2",
-        },
-        expected: true,
-      },
-      {
-        name: "own mode with non-bot-authored message",
-        input: {
-          mode: "own" as const,
-          botId: "bot-1",
-          messageAuthorId: "user-2",
-          userId: "user-3",
-        },
-        expected: false,
-      },
-      {
-        name: "allowlist mode without match",
-        input: {
-          mode: "allowlist" as const,
-          botId: "bot-1",
-          messageAuthorId: "user-1",
-          userId: "user-2",
-          allowlist: [] as string[],
-        },
-        expected: false,
-      },
-      {
-        name: "allowlist mode with id match",
-        input: {
-          mode: "allowlist" as const,
-          botId: "bot-1",
-          messageAuthorId: "user-1",
-          userId: "123",
-          userName: "steipete",
-          allowlist: ["123", "other"] as string[],
-        },
-        expected: true,
-      },
-      {
-        name: "allowlist mode does not match usernames by default",
-        input: {
-          mode: "allowlist" as const,
-          botId: "bot-1",
-          messageAuthorId: "user-1",
-          userId: "999",
-          userName: "trusted-user",
-          allowlist: ["trusted-user"] as string[],
-        },
-        expected: false,
-      },
-      {
-        name: "allowlist mode matches usernames when explicitly enabled",
-        input: {
-          mode: "allowlist" as const,
-          botId: "bot-1",
-          messageAuthorId: "user-1",
-          userId: "999",
-          userName: "trusted-user",
-          allowlist: ["trusted-user"] as string[],
-          allowNameMatching: true,
-        },
-        expected: true,
-      },
-    ]);
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 
   it("skips when mode is off", () => {
     expect(
@@ -842,8 +724,6 @@ describe("discord media payload", () => {
     expect(payload.MediaUrls).toEqual(["/tmp/a.png", "/tmp/b.png", "/tmp/c.png"]);
   });
 });
-<<<<<<< HEAD
-=======
 
 // --- DM reaction integration tests ---
 // These test that handleDiscordReactionEvent (via DiscordReactionListener)
@@ -1166,4 +1046,3 @@ describe("discord reaction notification modes", () => {
     }
   });
 });
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))

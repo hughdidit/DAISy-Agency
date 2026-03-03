@@ -1,13 +1,7 @@
 import AVFoundation
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/TalkModeRuntime.swift
 import Foundation
 import MoltbotChatUI
 import MoltbotKit
-=======
-import OpenClawChatUI
-import OpenClawKit
-import Foundation
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/TalkModeRuntime.swift
 import OSLog
 import Speech
 

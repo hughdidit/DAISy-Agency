@@ -25,11 +25,7 @@ import { DEFAULT_AI_SNAPSHOT_MAX_CHARS } from "../../browser/constants.js";
 import { DEFAULT_UPLOAD_DIR, resolvePathsWithinRoot } from "../../browser/paths.js";
 import { loadConfig } from "../../config/config.js";
 import { saveMediaBuffer } from "../../media/store.js";
-<<<<<<< HEAD
 import { listNodes, resolveNodeIdFromList, type NodeListNode } from "./nodes-utils.js";
-=======
-import { wrapExternalContent } from "../../security/external-content.js";
->>>>>>> da55d70fb (fix(security): harden untrusted web tool transcripts)
 import { BrowserToolSchema } from "./browser-tool.schema.js";
 import { type AnyAgentTool, imageResultFromFile, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
@@ -719,22 +715,7 @@ export function createBrowserTool(opts?: {
         }
         case "upload": {
           const paths = Array.isArray(params.paths) ? params.paths.map((p) => String(p)) : [];
-<<<<<<< HEAD
           if (paths.length === 0) throw new Error("paths required");
-=======
-          if (paths.length === 0) {
-            throw new Error("paths required");
-          }
-          const uploadPathsResult = resolvePathsWithinRoot({
-            rootDir: DEFAULT_UPLOAD_DIR,
-            requestedPaths: paths,
-            scopeLabel: `uploads directory (${DEFAULT_UPLOAD_DIR})`,
-          });
-          if (!uploadPathsResult.ok) {
-            throw new Error(uploadPathsResult.error);
-          }
-          const normalizedPaths = uploadPathsResult.paths;
->>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
           const ref = readStringParam(params, "ref");
           const inputRef = readStringParam(params, "inputRef");
           const element = readStringParam(params, "element");

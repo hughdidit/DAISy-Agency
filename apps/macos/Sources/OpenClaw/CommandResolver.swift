@@ -280,12 +280,8 @@ enum CommandResolver {
         }
     }
 
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CommandResolver.swift
     /// Existing callers still refer to moltbotCommand; keep it as node alias.
     static func moltbotCommand(
-=======
-    static func openclawCommand(
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/CommandResolver.swift
         subcommand: String,
         extraArgs: [String] = [],
         defaults: UserDefaults = .standard,

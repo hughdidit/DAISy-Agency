@@ -1,13 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
 describe("sandbox docker config", () => {
-<<<<<<< HEAD
   it("accepts binds array in sandbox.docker config", async () => {
     vi.resetModules();
     const { validateConfigObject } = await import("./config.js");
-=======
-  it("accepts safe binds array in sandbox.docker config", () => {
->>>>>>> 887b209db (fix(security): harden sandbox docker config validation)
     const res = validateConfigObject({
       agents: {
         defaults: {
@@ -42,58 +38,9 @@ describe("sandbox docker config", () => {
     }
   });
 
-<<<<<<< HEAD
   it("rejects non-string values in binds array", async () => {
     vi.resetModules();
     const { validateConfigObject } = await import("./config.js");
-=======
-  it("rejects network host mode via Zod schema validation", () => {
-    const res = validateConfigObject({
-      agents: {
-        defaults: {
-          sandbox: {
-            docker: {
-              network: "host",
-            },
-          },
-        },
-      },
-    });
-    expect(res.ok).toBe(false);
-  });
-
-  it("rejects seccomp unconfined via Zod schema validation", () => {
-    const res = validateConfigObject({
-      agents: {
-        defaults: {
-          sandbox: {
-            docker: {
-              seccompProfile: "unconfined",
-            },
-          },
-        },
-      },
-    });
-    expect(res.ok).toBe(false);
-  });
-
-  it("rejects apparmor unconfined via Zod schema validation", () => {
-    const res = validateConfigObject({
-      agents: {
-        defaults: {
-          sandbox: {
-            docker: {
-              apparmorProfile: "unconfined",
-            },
-          },
-        },
-      },
-    });
-    expect(res.ok).toBe(false);
-  });
-
-  it("rejects non-string values in binds array", () => {
->>>>>>> 887b209db (fix(security): harden sandbox docker config validation)
     const res = validateConfigObject({
       agents: {
         defaults: {
@@ -108,8 +55,6 @@ describe("sandbox docker config", () => {
     expect(res.ok).toBe(false);
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("sandbox browser binds config", () => {
   it("accepts binds array in sandbox.browser config", () => {
@@ -232,4 +177,3 @@ describe("sandbox browser binds config", () => {
     expect(res.ok).toBe(false);
   });
 });
->>>>>>> f48698a50 (fix(security): harden sandbox browser network defaults)

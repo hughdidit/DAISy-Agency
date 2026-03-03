@@ -1,14 +1,11 @@
 import type { Page } from "playwright-core";
 
 import { type AriaSnapshotNode, formatAriaSnapshot, type RawAXNode } from "./cdp.js";
-<<<<<<< HEAD
-=======
 import {
   assertBrowserNavigationAllowed,
   assertBrowserNavigationResultAllowed,
   withBrowserNavigationPolicy,
 } from "./navigation-guard.js";
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 import {
   buildRoleSnapshotFromAiSnapshot,
   buildRoleSnapshotFromAriaSnapshot,

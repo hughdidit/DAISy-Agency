@@ -5,8 +5,6 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-=======
 import type { ModelDefinitionConfig } from "../../config/types.models.js";
 import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
 import { createOpenClawCodingTools } from "../pi-tools.js";
@@ -17,7 +15,6 @@ import {
   createSandboxFsBridgeFromResolver,
 } from "../test-helpers/host-sandbox-fs-bridge.js";
 import { createPiToolsSandboxContext } from "../test-helpers/pi-tools-sandbox-context.js";
->>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
 import { __testing, createImageTool, resolveImageModelConfigForTool } from "./image-tool.js";
 
 async function writeAuthProfiles(agentDir: string, profiles: unknown) {
@@ -29,8 +26,6 @@ async function writeAuthProfiles(agentDir: string, profiles: unknown) {
   );
 }
 
-<<<<<<< HEAD
-=======
 async function withTempAgentDir<T>(run: (agentDir: string) => Promise<T>): Promise<T> {
   const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
   try {
@@ -238,7 +233,6 @@ function findSchemaUnionKeywords(schema: unknown, path = "root"): string[] {
   return out;
 }
 
->>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
 describe("image tool implicit imageModel config", () => {
   const priorFetch = global.fetch;
 

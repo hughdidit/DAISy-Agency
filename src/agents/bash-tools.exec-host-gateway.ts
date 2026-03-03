@@ -13,12 +13,9 @@ import {
   resolveAllowAlwaysPatterns,
   resolveExecApprovals,
 } from "../infra/exec-approvals.js";
-<<<<<<< HEAD
-=======
 import { detectCommandObfuscation } from "../infra/exec-obfuscation-detect.js";
 import type { SafeBinProfile } from "../infra/exec-safe-bin-policy.js";
 import { logInfo } from "../logger.js";
->>>>>>> 0e28e50b4 (fix(security): detect obfuscated commands that bypass allowlist filters (#24287))
 import { markBackgrounded, tail } from "./bash-process-registry.js";
 import { requestExecApprovalDecision } from "./bash-tools.exec-approval-request.js";
 import {
@@ -88,22 +85,6 @@ export async function processGatewayAllowlist(
   const allowlistSatisfied =
     hostSecurity === "allowlist" && analysisOk ? allowlistEval.allowlistSatisfied : false;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  let enforcedCommand: string | undefined;
-  if (hostSecurity === "allowlist" && analysisOk && allowlistSatisfied) {
-    const enforced = buildEnforcedShellCommand({
-      command: params.command,
-      segments: allowlistEval.segments,
-      platform: process.platform,
-    });
-    if (!enforced.ok || !enforced.command) {
-      throw new Error(`exec denied: allowlist execution plan unavailable (${enforced.reason})`);
-    }
-    enforcedCommand = enforced.command;
-  }
->>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
   const obfuscation = detectCommandObfuscation(params.command);
   if (obfuscation.detected) {
     logInfo(`exec: obfuscation detected (gateway): ${obfuscation.reasons.join(", ")}`);
@@ -153,8 +134,6 @@ export async function processGatewayAllowlist(
     const effectiveTimeout =
       typeof params.timeoutSec === "number" ? params.timeoutSec : params.defaultTimeoutSec;
     const warningText = params.warnings.length ? `${params.warnings.join("\n")}\n\n` : "";
-<<<<<<< HEAD
-=======
     let expiresAtMs = Date.now() + DEFAULT_APPROVAL_TIMEOUT_MS;
     let preResolvedDecision: string | null | undefined;
 
@@ -180,7 +159,6 @@ export async function processGatewayAllowlist(
     } catch (err) {
       throw new Error(`Exec approval registration failed: ${String(err)}`, { cause: err });
     }
->>>>>>> da0ba1b73 (fix(security): harden channel auth path checks and exec approval routing)
 
     void (async () => {
       let decision: string | null = null;
@@ -360,7 +338,6 @@ export async function processGatewayAllowlist(
     throw new Error("exec denied: allowlist miss");
   }
 
-<<<<<<< HEAD
   let execCommandOverride: string | undefined;
   // If allowlist uses safeBins, sanitize only those stdin-only segments:
   // disable glob/var expansion by forcing argv tokens to be literal via single-quoting.
@@ -413,9 +390,6 @@ export async function processGatewayAllowlist(
       );
     }
   }
-=======
-  recordMatchedAllowlistUse(allowlistEval.segments[0]?.resolution?.resolvedPath);
->>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
 
   return { execCommandOverride: enforcedCommand };
 }

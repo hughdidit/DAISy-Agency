@@ -2,8 +2,6 @@ import path from "node:path";
 import { z } from "zod";
 
 import { isSafeExecutableValue } from "../infra/exec-safety.js";
-<<<<<<< HEAD
-=======
 import { createAllowDenyChannelRulesSchema } from "./zod-schema.allowdeny.js";
 import { sensitive } from "./zod-schema.sensitive.js";
 
@@ -190,7 +188,6 @@ export const SecretsConfigSchema = z
   })
   .strict()
   .optional();
->>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
 
 export const ModelApiSchema = z.union([
   z.literal("openai-completions"),

@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-=======
 import {
   firstDefined,
   isSenderIdAllowed,
   mergeDmAllowFromSources,
 } from "../channels/allow-from.js";
 
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 export type NormalizedAllowFrom = {
   entries: string[];
   hasWildcard: boolean;
@@ -33,7 +30,6 @@ export const normalizeAllowFrom = (list?: Array<string | number>): NormalizedAll
 export const normalizeDmAllowFromWithStore = (params: {
   allowFrom?: Array<string | number>;
   storeAllowFrom?: string[];
-<<<<<<< HEAD
 }): NormalizedAllowFrom => {
   const combined = [...(params.allowFrom ?? []), ...(params.storeAllowFrom ?? [])];
   return normalizeAllowFrom(combined);
@@ -45,10 +41,6 @@ export const firstDefined = <T>(...values: Array<T | undefined>) => {
   }
   return undefined;
 };
-=======
-  dmPolicy?: string;
-}): NormalizedAllowFrom => normalizeAllowFrom(mergeDmAllowFromSources(params));
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 
 export const isSenderAllowed = (params: {
   allow: NormalizedAllowFrom;

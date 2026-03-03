@@ -1,11 +1,6 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { SignalAccountConfig } from "../config/types.js";
-<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
-=======
-import { resolveAccountEntry } from "../routing/account-lookup.js";
-import { normalizeAccountId } from "../routing/session-key.js";
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 
 export type ResolvedSignalAccount = {
   accountId: string;
@@ -38,13 +33,9 @@ function resolveAccountConfig(
   cfg: OpenClawConfig,
   accountId: string,
 ): SignalAccountConfig | undefined {
-<<<<<<< HEAD
   const accounts = cfg.channels?.signal?.accounts;
   if (!accounts || typeof accounts !== "object") return undefined;
   return accounts[accountId] as SignalAccountConfig | undefined;
-=======
-  return resolveAccountEntry(cfg.channels?.signal?.accounts, accountId);
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 }
 
 function mergeSignalAccountConfig(cfg: OpenClawConfig, accountId: string): SignalAccountConfig {

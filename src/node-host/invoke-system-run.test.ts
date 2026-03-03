@@ -123,37 +123,7 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     );
   });
 
-<<<<<<< HEAD
   it("runs canonical argv in allowlist mode for transparent env wrappers", async () => {
-=======
-  it("forwards canonical cmdText to mac app exec host for positional-argv shell wrappers", async () => {
-    const { runViaMacAppExecHost } = await runSystemInvoke({
-      preferMacAppExecHost: true,
-      command: ["/bin/sh", "-lc", '$0 "$1"', "/usr/bin/touch", "/tmp/marker"],
-      runViaResponse: {
-        ok: true,
-        payload: {
-          success: true,
-          stdout: "app-ok",
-          stderr: "",
-          timedOut: false,
-          exitCode: 0,
-          error: null,
-        },
-      },
-    });
-
-    expect(runViaMacAppExecHost).toHaveBeenCalledWith({
-      approvals: expect.anything(),
-      request: expect.objectContaining({
-        command: ["/bin/sh", "-lc", '$0 "$1"', "/usr/bin/touch", "/tmp/marker"],
-        rawCommand: '/bin/sh -lc "$0 \\"$1\\"" /usr/bin/touch /tmp/marker',
-      }),
-    });
-  });
-
-  it("handles transparent env wrappers in allowlist mode", async () => {
->>>>>>> 55cf92578 (fix(security): harden system.run companion command binding)
     const { runCommand, sendInvokeResult } = await runSystemInvoke({
       preferMacAppExecHost: false,
       security: "allowlist",
@@ -184,8 +154,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it.runIf(process.platform !== "win32")(
     "denies approval-based execution when cwd is a symlink",
     async () => {
@@ -283,7 +251,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
   });
->>>>>>> f789f880c (fix(security): harden approval-bound node exec cwd handling)
   it("denies ./sh wrapper spoof in allowlist on-miss mode before execution", async () => {
     const marker = path.join(os.tmpdir(), `openclaw-wrapper-spoof-${process.pid}-${Date.now()}`);
     const runCommand = vi.fn(async () => {
@@ -346,8 +313,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       // no-op
     }
   });
-<<<<<<< HEAD
-=======
 
   it("denies ./skill-bin even when autoAllowSkills trust entry exists", async () => {
     const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-skill-path-spoof-"));
@@ -445,7 +410,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     );
   });
 <<<<<<< HEAD
->>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
 =======
 
   it("denies semicolon-chained shell payloads in allowlist mode without explicit approval", async () => {

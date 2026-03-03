@@ -2,13 +2,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { resolveConfigSnapshotHash } from "../config/config.js";
 
-=======
-import { CONFIG_PATH, resolveConfigSnapshotHash } from "../config/config.js";
->>>>>>> 0c7fa2b0d (security: redact credentials from config.get gateway responses (#9858))
 import {
   connectOk,
   installGatewayTestHooks,

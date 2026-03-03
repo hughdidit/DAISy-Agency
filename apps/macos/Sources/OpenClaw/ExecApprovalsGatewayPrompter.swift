@@ -1,8 +1,5 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsGatewayPrompter.swift
-=======
 import OpenClawKit
 import OpenClawProtocol
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/ExecApprovalsGatewayPrompter.swift
 import CoreGraphics
 import Foundation
 import MoltbotKit

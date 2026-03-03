@@ -1,19 +1,6 @@
 import { createServer } from "node:http";
-<<<<<<< HEAD
 import type { AddressInfo } from "node:net";
 <<<<<<< HEAD
-=======
-import type { OpenClawConfig, PluginRuntime } from "openclaw/plugin-sdk";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  clearZaloWebhookSecurityStateForTest,
-  getZaloWebhookRateLimitStateSizeForTest,
-  getZaloWebhookStatusCounterSizeForTest,
-  handleZaloWebhookRequest,
-  registerZaloWebhookTarget,
-} from "./monitor.js";
-import type { ResolvedZaloAccount } from "./types.js";
->>>>>>> 43cad8268 (fix(security): harden webhook memory guards across channels)
 
 import { describe, expect, it } from "vitest";
 
@@ -67,7 +54,6 @@ describe("handleZaloWebhookRequest", () => {
     });
 
     try {
-<<<<<<< HEAD
       await withServer(async (req, res) => {
         const handled = await handleZaloWebhookRequest(req, res);
         if (!handled) {
@@ -85,30 +71,6 @@ describe("handleZaloWebhookRequest", () => {
 
         expect(response.status).toBe(400);
       });
-=======
-      await withServer(
-        async (req, res) => {
-          const handled = await handleZaloWebhookRequest(req, res);
-          if (!handled) {
-            res.statusCode = 404;
-            res.end("not found");
-          }
-        },
-        async (baseUrl) => {
-          const response = await fetch(`${baseUrl}/hook`, {
-            method: "POST",
-            headers: {
-              "x-bot-api-secret-token": "secret",
-              "content-type": "application/json",
-            },
-            body: "null",
-          });
-
-          expect(response.status).toBe(400);
-          expect(await response.text()).toBe("Bad Request");
-        },
-      );
->>>>>>> aa267812d (test(security): add webhook hardening regressions)
     } finally {
       unregister();
     }

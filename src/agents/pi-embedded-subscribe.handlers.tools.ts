@@ -225,8 +225,6 @@ export function handleToolExecutionEnd(
     }
   }
 
-<<<<<<< HEAD
-=======
   // Deliver media from tool results when the verbose emitToolOutput path is off.
   // When shouldEmitToolOutput() is true, emitToolOutput already delivers media
   // via parseReplyDirectives (MEDIA: text extraction), so skip to avoid duplicates.
@@ -241,7 +239,6 @@ export function handleToolExecutionEnd(
     }
   }
 
->>>>>>> c37843924 (Security: harden tool media paths)
   // Run after_tool_call plugin hook (fire-and-forget)
   const hookRunner = getGlobalHookRunner();
   if (hookRunner?.hasHooks("after_tool_call")) {

@@ -115,8 +115,6 @@ function resolveGatewayOptions(opts?: MessageGatewayOptions) {
   };
 }
 
-<<<<<<< HEAD
-=======
 async function callMessageGateway<T>(params: {
   gateway?: MessageGatewayOptions;
   method: string;
@@ -135,7 +133,6 @@ async function callMessageGateway<T>(params: {
   });
 }
 
->>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 export async function sendMessage(params: MessageSendParams): Promise<MessageSendResult> {
   const cfg = params.cfg ?? loadConfig();
   const channel = params.channel?.trim()

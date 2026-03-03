@@ -4,11 +4,6 @@ import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { timingSafeEqual } from "node:crypto";
 import {
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  createReplyPrefixOptions,
-  isRequestBodyLimitError,
->>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
   logAckFailure,
   logInboundDrop,
   logTypingFailure,
@@ -452,21 +447,11 @@ function normalizeWebhookPath(raw: string): string {
 
 export function registerBlueBubblesWebhookTarget(target: WebhookTarget): () => void {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const key = normalizeWebhookPath(target.path);
   const normalizedTarget = { ...target, path: key };
   const existing = webhookTargets.get(key) ?? [];
   const next = [...existing, normalizedTarget];
   webhookTargets.set(key, next);
-=======
-  const webhookPassword = target.account.config.password?.trim() ?? "";
-  if (!webhookPassword) {
-    target.runtime.error?.(
-      `[${target.account.accountId}] BlueBubbles webhook auth requires channels.bluebubbles.password. Configure a password and include it in the webhook URL.`,
-    );
-  }
-=======
->>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
   const registered = registerWebhookTarget(webhookTargets, target);
 >>>>>>> 6b2f2811d (fix(security): require BlueBubbles webhook auth)
   return () => {
@@ -481,7 +466,6 @@ export function registerBlueBubblesWebhookTarget(target: WebhookTarget): () => v
   };
 }
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 async function readJsonBody(req: IncomingMessage, maxBytes: number) {
   const chunks: Buffer[] = [];
@@ -523,43 +507,6 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
       resolve({ ok: false, error: err instanceof Error ? err.message : String(err) });
     });
   });
-=======
-async function readJsonBody(req: IncomingMessage, maxBytes: number, timeoutMs = 30_000) {
-  let rawBody = "";
-  try {
-    rawBody = await readRequestBodyWithLimit(req, { maxBytes, timeoutMs });
-  } catch (error) {
-    if (isRequestBodyLimitError(error, "PAYLOAD_TOO_LARGE")) {
-      return { ok: false, error: "payload too large" };
-    }
-    if (isRequestBodyLimitError(error, "REQUEST_BODY_TIMEOUT")) {
-      return { ok: false, error: requestBodyErrorToText("REQUEST_BODY_TIMEOUT") };
-    }
-    if (isRequestBodyLimitError(error, "CONNECTION_CLOSED")) {
-      return { ok: false, error: requestBodyErrorToText("CONNECTION_CLOSED") };
-    }
-    return { ok: false, error: error instanceof Error ? error.message : String(error) };
-  }
-
-  try {
-    const raw = rawBody.toString();
-    if (!raw.trim()) {
-      return { ok: false, error: "empty payload" };
-    }
-    try {
-      return { ok: true, value: JSON.parse(raw) as unknown };
-    } catch {
-      const params = new URLSearchParams(raw);
-      const payload = params.get("payload") ?? params.get("data") ?? params.get("message");
-      if (payload) {
-        return { ok: true, value: JSON.parse(payload) as unknown };
-      }
-      throw new Error("invalid json");
-    }
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : String(error) };
-  }
->>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 =======
 type ReadBlueBubblesWebhookBodyResult =
   | { ok: true; value: unknown }
@@ -1066,7 +1013,6 @@ function maskSecret(value: string): string {
   return `${value.slice(0, 2)}***${value.slice(-2)}`;
 }
 
-<<<<<<< HEAD
 function resolveBlueBubblesAckReaction(params: {
   cfg: OpenClawConfig;
   agentId: string;
@@ -1392,78 +1338,6 @@ function normalizeWebhookReaction(payload: Record<string, unknown>): NormalizedW
     fromMe,
   };
 =======
-function normalizeAuthToken(raw: string): string {
-  const value = raw.trim();
-  if (!value) {
-    return "";
-  }
-  if (value.toLowerCase().startsWith("bearer ")) {
-    return value.slice("bearer ".length).trim();
-  }
-  return value;
-}
-
-function safeEqualSecret(aRaw: string, bRaw: string): boolean {
-  const a = normalizeAuthToken(aRaw);
-  const b = normalizeAuthToken(bRaw);
-  if (!a || !b) {
-    return false;
-  }
-  const bufA = Buffer.from(a, "utf8");
-  const bufB = Buffer.from(b, "utf8");
-  if (bufA.length !== bufB.length) {
-    return false;
-  }
-  return timingSafeEqual(bufA, bufB);
-}
-
-<<<<<<< HEAD
-function resolveAuthenticatedWebhookTargets(
-  targets: WebhookTarget[],
-  presentedToken: string,
-): WebhookTarget[] {
-  const matches: WebhookTarget[] = [];
-  for (const target of targets) {
-    const token = target.account.config.password?.trim() ?? "";
-    if (!token) {
-      continue;
-    }
-    if (safeEqualSecret(presentedToken, token)) {
-      matches.push(target);
-      if (matches.length > 1) {
-        break;
-      }
-    }
-  }
-<<<<<<< HEAD
-  const [name] = host.split(":");
-  return name ?? "";
-}
-
-function isDirectLocalLoopbackRequest(req: IncomingMessage): boolean {
-  const remote = (req.socket?.remoteAddress ?? "").trim().toLowerCase();
-  const remoteIsLoopback =
-    remote === "127.0.0.1" || remote === "::1" || remote === "::ffff:127.0.0.1";
-  if (!remoteIsLoopback) {
-    return false;
-  }
-
-  const host = getHostName(req.headers?.host);
-  const hostIsLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
-  if (!hostIsLocal) {
-    return false;
-  }
-
-  // If a reverse proxy is in front, it will usually inject forwarding headers.
-  // Passwordless webhooks must never be accepted through a proxy.
-  const hasForwarded = Boolean(
-    req.headers?.["x-forwarded-for"] ||
-    req.headers?.["x-real-ip"] ||
-    req.headers?.["x-forwarded-host"],
-  );
-  return !hasForwarded;
->>>>>>> 743f4b284 (fix(security): harden BlueBubbles webhook auth behind proxies)
-=======
   return matches;
 >>>>>>> 6b2f2811d (fix(security): require BlueBubbles webhook auth)
 }
@@ -1488,16 +1362,12 @@ export async function handleBlueBubblesWebhookRequest(
 
   const body = await readBlueBubblesWebhookBody(req, 1024 * 1024);
   if (!body.ok) {
-<<<<<<< HEAD
     res.statusCode =
       body.error === "payload too large"
         ? 413
         : body.error === requestBodyErrorToText("REQUEST_BODY_TIMEOUT")
           ? 408
           : 400;
-=======
-    res.statusCode = body.statusCode;
->>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
     res.end(body.error ?? "invalid payload");
     console.warn(`[bluebubbles] webhook rejected: ${body.error ?? "invalid payload"}`);
     return true;
@@ -1554,7 +1424,6 @@ export async function handleBlueBubblesWebhookRequest(
     return true;
   }
 
-<<<<<<< HEAD
   const matching = targets.filter((target) => {
     const token = target.account.config.password?.trim();
     if (!token) return true;
@@ -1570,31 +1439,6 @@ export async function handleBlueBubblesWebhookRequest(
     const remote = req.socket?.remoteAddress ?? "";
     if (remote === "127.0.0.1" || remote === "::1" || remote === "::ffff:127.0.0.1") {
       return true;
-=======
-  const guidParam = url.searchParams.get("guid") ?? url.searchParams.get("password");
-  const headerToken =
-    req.headers["x-guid"] ??
-    req.headers["x-password"] ??
-    req.headers["x-bluebubbles-guid"] ??
-    req.headers["authorization"];
-  const guid = (Array.isArray(headerToken) ? headerToken[0] : headerToken) ?? guidParam ?? "";
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-  const strictMatches: WebhookTarget[] = [];
-  const passwordlessTargets: WebhookTarget[] = [];
-  for (const target of targets) {
-    const token = target.account.config.password?.trim() ?? "";
-    if (!token) {
-      passwordlessTargets.push(target);
-      continue;
-    }
-    if (safeEqualSecret(guid, token)) {
-      strictMatches.push(target);
-      if (strictMatches.length > 1) {
-        break;
-      }
->>>>>>> 188c4cd07 (fix(security): reject ambiguous webhook target matches)
     }
   }
 

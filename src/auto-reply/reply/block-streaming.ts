@@ -55,8 +55,6 @@ export type BlockStreamingChunking = {
   minChars: number;
   maxChars: number;
   breakPreference: "paragraph" | "newline" | "sentence";
-<<<<<<< HEAD
-=======
   flushOnParagraph?: boolean;
 };
 
@@ -90,7 +88,6 @@ export function resolveEffectiveBlockStreamingConfig(params: {
 }): {
   chunking: BlockStreamingChunking;
   coalescing: BlockStreamingCoalescing;
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 } {
   const providerKey = normalizeChunkProvider(params.provider);
   const providerId = providerKey ? normalizeChannelId(providerKey) : null;

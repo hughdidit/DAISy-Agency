@@ -129,66 +129,28 @@ positional file args and path-like tokens, so they can only operate on the incom
 Validation is deterministic from argv shape only (no host filesystem existence checks), which
 prevents file-existence oracle behavior from allow/deny differences.
 File-oriented options are denied for default safe bins (for example `sort -o`, `sort --output`,
-<<<<<<< HEAD
 `sort --files0-from`, `wc --files0-from`, `jq -f/--from-file`, `grep -f/--file`).
 Safe bins also enforce explicit per-binary flag policy for options that break stdin-only
 behavior (for example `sort -o/--output` and grep recursive flags).
-=======
-`sort --files0-from`, `sort --compress-program`, `sort --random-source`,
-`sort --temporary-directory`/`-T`, `wc --files0-from`, `jq -f/--from-file`,
-`grep -f/--file`).
-Safe bins also enforce explicit per-binary flag policy for options that break stdin-only
-behavior (for example `sort -o/--output/--compress-program` and grep recursive flags).
-Long options are validated fail-closed in safe-bin mode: unknown flags and ambiguous
-abbreviations are rejected.
-Denied flags by safe-bin profile:
-
-<!-- SAFE_BIN_DENIED_FLAGS:START -->
-
-- `grep`: `--dereference-recursive`, `--directories`, `--exclude-from`, `--file`, `--recursive`, `-R`, `-d`, `-f`, `-r`
-- `jq`: `--argfile`, `--from-file`, `--library-path`, `--rawfile`, `--slurpfile`, `-L`, `-f`
-- `sort`: `--compress-program`, `--files0-from`, `--output`, `--random-source`, `--temporary-directory`, `-T`, `-o`
-- `wc`: `--files0-from`
-<!-- SAFE_BIN_DENIED_FLAGS:END -->
-
->>>>>>> 3b8e33037 (fix(security): harden safeBins long-option validation)
 Safe bins also force argv tokens to be treated as **literal text** at execution time (no globbing
 and no `$VARS` expansion) for stdin-only segments, so patterns like `*` or `$HOME/...` cannot be
 used to smuggle file reads.
-<<<<<<< HEAD
 Safe bins must also resolve from trusted binary directories (system defaults plus the gateway
 process `PATH` at startup). This blocks request-scoped PATH hijacking attempts.
-=======
-Safe bins must also resolve from trusted binary directories (system defaults plus optional
-`tools.exec.safeBinTrustedDirs`). `PATH` entries are never auto-trusted.
-Default trusted safe-bin directories are intentionally minimal: `/bin`, `/usr/bin`.
-If your safe-bin executable lives in package-manager/user paths (for example
-`/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin`, `/snap/bin`), add them explicitly
-to `tools.exec.safeBinTrustedDirs`.
->>>>>>> b67e600bf (fix(security): restrict default safe-bin trusted dirs)
 Shell chaining and redirections are not auto-allowed in allowlist mode.
 
 Shell chaining (`&&`, `||`, `;`) is allowed when every top-level segment satisfies the allowlist
 (including safe bins or skill auto-allow). Redirections remain unsupported in allowlist mode.
-<<<<<<< HEAD
-=======
 Command substitution (`$()` / backticks) is rejected during allowlist parsing, including inside
 double quotes; use single quotes if you need literal `$()` text.
 On macOS companion-app approvals, raw shell text containing shell control or expansion syntax
 (`&&`, `||`, `;`, `|`, `` ` ``, `$`, `<`, `>`, `(`, `)`) is treated as an allowlist miss unless
 the shell binary itself is allowlisted.
 <<<<<<< HEAD
->>>>>>> 4c1dd9d06 (fix(security): harden macos rawCommand allowlist resolution)
 =======
 For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped env overrides are reduced to a
 small explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
-<<<<<<< HEAD
 >>>>>>> e80c803fa (fix(security): block shell env allowlist bypass in system.run)
-=======
-For allow-always decisions in allowlist mode, known dispatch wrappers
-(`env`, `nice`, `nohup`, `stdbuf`, `timeout`) persist inner executable paths instead of wrapper
-paths. If a wrapper cannot be safely unwrapped, no allowlist entry is persisted automatically.
->>>>>>> 24c954d97 (fix(security): harden allow-always wrapper persistence)
 
 Default safe bins: `jq`, `cut`, `uniq`, `head`, `tail`, `tr`, `wc`.
 

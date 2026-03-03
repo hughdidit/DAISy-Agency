@@ -69,15 +69,8 @@ function normalizeSenderKey(
   } = {},
 ): string {
   const trimmed = value.trim();
-<<<<<<< HEAD
   if (!trimmed) return "";
   const withoutAt = trimmed.startsWith("@") ? trimmed.slice(1) : trimmed;
-=======
-  if (!trimmed) {
-    return "";
-  }
-  const withoutAt = options.stripLeadingAt && trimmed.startsWith("@") ? trimmed.slice(1) : trimmed;
->>>>>>> 5547a2275 (fix(security): harden toolsBySender sender-key matching)
   return withoutAt.toLowerCase();
 }
 
@@ -203,21 +196,10 @@ export function resolveToolsBySender(
   const buckets = createSenderPolicyBuckets();
   let wildcard: GroupToolPolicyConfig | undefined;
   for (const [rawKey, policy] of entries) {
-<<<<<<< HEAD
     if (!policy) continue;
     const key = normalizeSenderKey(rawKey);
     if (!key) continue;
     if (key === "*") {
-=======
-    if (!policy) {
-      continue;
-    }
-    const parsed = parseSenderPolicyKey(rawKey);
-    if (!parsed) {
-      continue;
-    }
-    if (parsed.kind === "wildcard") {
->>>>>>> 5547a2275 (fix(security): harden toolsBySender sender-key matching)
       wildcard = policy;
       continue;
     }
@@ -227,7 +209,6 @@ export function resolveToolsBySender(
     }
   }
 
-<<<<<<< HEAD
   const candidates: string[] = [];
   const pushCandidate = (value?: string | null) => {
     const trimmed = value?.trim();
@@ -244,34 +225,6 @@ export function resolveToolsBySender(
     if (!key) continue;
     const match = normalized.get(key);
     if (match) return match;
-=======
-  for (const senderIdCandidate of normalizeSenderIdCandidates(params.senderId)) {
-    const match = buckets.id.get(senderIdCandidate);
-    if (match) {
-      return match;
-    }
-  }
-  const senderE164 = normalizeCandidate(params.senderE164, "e164");
-  if (senderE164) {
-    const match = buckets.e164.get(senderE164);
-    if (match) {
-      return match;
-    }
-  }
-  const senderUsername = normalizeCandidate(params.senderUsername, "username");
-  if (senderUsername) {
-    const match = buckets.username.get(senderUsername);
-    if (match) {
-      return match;
-    }
-  }
-  const senderName = normalizeCandidate(params.senderName, "name");
-  if (senderName) {
-    const match = buckets.name.get(senderName);
-    if (match) {
-      return match;
-    }
->>>>>>> 5547a2275 (fix(security): harden toolsBySender sender-key matching)
   }
   return wildcard;
 }
@@ -288,7 +241,6 @@ function resolveChannelGroups(
         groups?: ChannelGroups;
       }
     | undefined;
-<<<<<<< HEAD
   if (!channelConfig) return undefined;
   const accountGroups =
     channelConfig.accounts?.[normalizedAccountId]?.groups ??
@@ -300,39 +252,6 @@ function resolveChannelGroups(
   return accountGroups ?? channelConfig.groups;
 }
 
-=======
-  if (!channelConfig) {
-    return undefined;
-  }
-  const accountGroups = resolveAccountEntry(channelConfig.accounts, normalizedAccountId)?.groups;
-  return accountGroups ?? channelConfig.groups;
-}
-
-type ChannelGroupPolicyMode = "open" | "allowlist" | "disabled";
-
-function resolveChannelGroupPolicyMode(
-  cfg: OpenClawConfig,
-  channel: GroupPolicyChannel,
-  accountId?: string | null,
-): ChannelGroupPolicyMode | undefined {
-  const normalizedAccountId = normalizeAccountId(accountId);
-  const channelConfig = cfg.channels?.[channel] as
-    | {
-        groupPolicy?: ChannelGroupPolicyMode;
-        accounts?: Record<string, { groupPolicy?: ChannelGroupPolicyMode }>;
-      }
-    | undefined;
-  if (!channelConfig) {
-    return undefined;
-  }
-  const accountPolicy = resolveAccountEntry(
-    channelConfig.accounts,
-    normalizedAccountId,
-  )?.groupPolicy;
-  return accountPolicy ?? channelConfig.groupPolicy;
-}
-
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 export function resolveChannelGroupPolicy(params: {
   cfg: OpenClawConfig;
   channel: GroupPolicyChannel;

@@ -1,18 +1,14 @@
-<<<<<<< HEAD
-=======
 import { getChannelDock } from "../../channels/dock.js";
 import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
 import { listPairingChannels } from "../../channels/plugins/pairing.js";
 import type { ChannelId } from "../../channels/plugins/types.js";
 import { normalizeChannelId } from "../../channels/registry.js";
 import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> fbb79d401 (fix(security): harden runtime command override gating)
 import {
   readConfigFileSnapshot,
   validateConfigObjectWithPlugins,
   writeConfigFile,
 } from "../../config/config.js";
-<<<<<<< HEAD
 import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/registry.js";
@@ -20,39 +16,21 @@ import { listPairingChannels } from "../../channels/plugins/pairing.js";
 import { logVerbose } from "../../globals.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../routing/session-key.js";
 import { resolveDiscordAccount } from "../../discord/accounts.js";
-=======
-import { resolveDiscordAccount } from "../../discord/accounts.js";
-import { resolveDiscordUserAllowlist } from "../../discord/resolve-users.js";
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 import { resolveIMessageAccount } from "../../imessage/accounts.js";
-<<<<<<< HEAD
 import { resolveSignalAccount } from "../../signal/accounts.js";
 import { resolveSlackAccount } from "../../slack/accounts.js";
 import { resolveTelegramAccount } from "../../telegram/accounts.js";
 import { resolveWhatsAppAccount } from "../../web/accounts.js";
 import { resolveSlackUserAllowlist } from "../../slack/resolve-users.js";
 import { resolveDiscordUserAllowlist } from "../../discord/resolve-users.js";
-=======
-import { isBlockedObjectKey } from "../../infra/prototype-keys.js";
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 import {
   addChannelAllowFromStoreEntry,
   readChannelAllowFromStore,
   removeChannelAllowFromStoreEntry,
 } from "../../pairing/pairing-store.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { OpenClawConfig } from "../../config/config.js";
 import type { ChannelId } from "../../channels/plugins/types.js";
-=======
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../routing/session-key.js";
-=======
-import {
-  DEFAULT_ACCOUNT_ID,
-  normalizeAccountId,
-  normalizeOptionalAccountId,
-} from "../../routing/session-key.js";
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 import { resolveSignalAccount } from "../../signal/accounts.js";
 import { resolveSlackAccount } from "../../slack/accounts.js";
 import { resolveSlackUserAllowlist } from "../../slack/resolve-users.js";

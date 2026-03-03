@@ -11,13 +11,8 @@ import {
 } from "openclaw/plugin-sdk";
 
 import { resolveTlonAccount, listTlonAccountIds } from "./types.js";
-<<<<<<< HEAD
 import { formatTargetHint, normalizeShip, parseTlonTarget } from "./targets.js";
 import { ensureUrbitConnectPatched, Urbit } from "./urbit/http-api.js";
-=======
-import { authenticate } from "./urbit/auth.js";
-import { UrbitChannelClient } from "./urbit/channel-client.js";
->>>>>>> bfa7d21e9 (fix(security): harden tlon Urbit requests against SSRF)
 import { buildMediaText, sendDm, sendGroupMessage } from "./urbit/send.js";
 import { monitorTlonProvider } from "./monitor/index.js";
 import { tlonChannelConfigSchema } from "./config-schema.js";

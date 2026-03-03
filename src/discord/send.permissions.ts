@@ -1,17 +1,12 @@
 import { RequestClient } from "@buape/carbon";
 import type { APIChannel, APIGuild, APIGuildMember, APIRole } from "discord-api-types/v10";
 import { ChannelType, PermissionFlagsBits, Routes } from "discord-api-types/v10";
-<<<<<<< HEAD
 
 import { loadConfig } from "../config/config.js";
 import type { RetryConfig } from "../infra/retry.js";
 import { resolveDiscordAccount } from "./accounts.js";
 import type { DiscordPermissionsSummary, DiscordReactOpts } from "./send.types.js";
 import { normalizeDiscordToken } from "./token.js";
-=======
-import type { DiscordPermissionsSummary, DiscordReactOpts } from "./send.types.js";
-import { resolveDiscordRest } from "./client.js";
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 
 const PERMISSION_ENTRIES = Object.entries(PermissionFlagsBits).filter(
   ([, value]) => typeof value === "bigint",

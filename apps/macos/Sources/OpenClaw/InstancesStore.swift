@@ -1,8 +1,5 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/InstancesStore.swift
-=======
 import OpenClawKit
 import OpenClawProtocol
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/InstancesStore.swift
 import Cocoa
 import Foundation
 import MoltbotKit

@@ -8,7 +8,6 @@ import {
 } from "node:http";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer as createHttpsServer } from "node:https";
-<<<<<<< HEAD
 import type { TlsOptions } from "node:tls";
 import type { WebSocketServer } from "ws";
 import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
@@ -16,34 +15,14 @@ import type { CanvasHostHandler } from "../canvas-host/server.js";
 import { loadConfig } from "../config/config.js";
 <<<<<<< HEAD
 import type { createSubsystemLogger } from "../logging/subsystem.js";
-=======
-=======
-import type { CanvasHostHandler } from "../canvas-host/server.js";
-import type { createSubsystemLogger } from "../logging/subsystem.js";
-import type { AuthRateLimiter } from "./auth-rate-limit.js";
-import type { GatewayWsClient } from "./server/ws-types.js";
-import { resolveAgentAvatar } from "../agents/identity-avatar.js";
-import {
-  A2UI_PATH,
-  CANVAS_HOST_PATH,
-  CANVAS_WS_PATH,
-  handleA2uiHttpRequest,
-} from "../canvas-host/a2ui.js";
-import { loadConfig } from "../config/config.js";
->>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
 import { safeEqualSecret } from "../security/secret-equal.js";
 >>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 import { handleSlackHttpRequest } from "../slack/http/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
 import { setSecurityHeaders } from "./http-common.js";
-=======
-=======
-import { normalizeRateLimitClientIp, type AuthRateLimiter } from "./auth-rate-limit.js";
->>>>>>> 3284d2eb2 (fix(security): normalize hook auth rate-limit client keys)
 =======
 import {
   AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH,
@@ -78,30 +57,12 @@ import {
   resolveHookDeliver,
 } from "./hooks.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { applyHookMappings } from "./hooks-mapping.js";
-=======
-import { sendGatewayAuthFailure } from "./http-common.js";
-=======
-import { sendGatewayAuthFailure, setDefaultSecurityHeaders } from "./http-common.js";
->>>>>>> e955582c8 (security: add baseline security headers to gateway HTTP responses (#10526))
 import { getBearerToken, getHeader } from "./http-utils.js";
-<<<<<<< HEAD
 import { isPrivateOrLoopbackAddress, resolveGatewayClientIp } from "./net.js";
 >>>>>>> 14fc74200 (fix(security): restrict canvas IP-based auth to private networks (#14661))
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
-=======
-import {
-  isPrivateOrLoopbackAddress,
-  isTrustedProxyAddress,
-  resolveGatewayClientIp,
-} from "./net.js";
-import { handleOpenAiHttpRequest } from "./openai-http.js";
-import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
-import { GATEWAY_CLIENT_MODES, normalizeGatewayClientMode } from "./protocol/client-info.js";
-<<<<<<< HEAD
->>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
 =======
 import { isProtectedPluginRoutePath } from "./security-path.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
@@ -137,8 +98,6 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
   res.end(JSON.stringify(body));
 }
 
-<<<<<<< HEAD
-=======
 function isCanvasPath(pathname: string): boolean {
   return (
     pathname === A2UI_PATH ||
@@ -279,7 +238,6 @@ function writeUpgradeAuthFailure(
   socket.write("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n");
 }
 
->>>>>>> 14fc74200 (fix(security): restrict canvas IP-based auth to private networks (#14661))
 export type HooksRequestHandler = (req: IncomingMessage, res: ServerResponse) => Promise<boolean>;
 
 function safeTokenEqual(a: string, b: string): boolean {
@@ -311,7 +269,6 @@ export function createHooksRequestHandler(
     return normalizeRateLimitClientIp(req.socket?.remoteAddress);
   };
 
-<<<<<<< HEAD
   const recordHookAuthFailure = (
     clientKey: string,
     nowMs: number,
@@ -339,8 +296,6 @@ export function createHooksRequestHandler(
     hookAuthFailures.delete(clientKey);
   };
 
-=======
->>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
   return async (req, res) => {
     const hooksConfig = getHooksConfig();
     if (!hooksConfig) return false;
@@ -353,25 +308,8 @@ export function createHooksRequestHandler(
     // Apply security headers to all hook responses (including error paths).
     setSecurityHeaders(res);
 
-<<<<<<< HEAD
     const { token, fromQuery } = extractHookToken(req, url);
     if (!token || !safeTokenEqual(token, hooksConfig.token)) {
-=======
-    const token = extractHookToken(req);
-    const clientKey = resolveHookClientKey(req);
-    if (!safeEqualSecret(token, hooksConfig.token)) {
-      const throttle = hookAuthLimiter.check(clientKey, AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH);
-      if (!throttle.allowed) {
-        const retryAfter = throttle.retryAfterMs > 0 ? Math.ceil(throttle.retryAfterMs / 1000) : 1;
-        res.statusCode = 429;
-        res.setHeader("Retry-After", String(retryAfter));
-        res.setHeader("Content-Type", "text/plain; charset=utf-8");
-        res.end("Too Many Requests");
-        logHooks.warn(`hook auth throttled for ${clientKey}; retry-after=${retryAfter}s`);
-        return true;
-      }
-<<<<<<< HEAD
->>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 =======
       hookAuthLimiter.recordFailure(clientKey, AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH);
 >>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
@@ -381,7 +319,6 @@ export function createHooksRequestHandler(
       return true;
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (fromQuery) {
       logHooks.warn(
         "Hook token provided via query parameter is deprecated for security reasons. " +
@@ -389,9 +326,6 @@ export function createHooksRequestHandler(
           "Use Authorization: Bearer <token> or X-OpenClaw-Token header instead.",
       );
     }
-=======
-    clearHookAuthFailure(clientKey);
->>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 =======
     hookAuthLimiter.reset(clientKey, AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH);
 >>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
@@ -558,35 +492,8 @@ export function createGatewayHttpServer(opts: {
         })
       )
         return;
-<<<<<<< HEAD
       if (await handleSlackHttpRequest(req, res)) return;
       if (handlePluginRequest && (await handlePluginRequest(req, res))) return;
-=======
-      }
-      if (await handleSlackHttpRequest(req, res)) {
-        return;
-      }
-      if (handlePluginRequest) {
-        // Protected plugin route prefixes are gateway-auth protected by default.
-        // Non-protected plugin routes remain plugin-owned and must enforce
-        // their own auth when exposing sensitive functionality.
-        const pluginAuthOk = await enforcePluginRouteGatewayAuth({
-          requestPath,
-          req,
-          res,
-          auth: resolvedAuth,
-          trustedProxies,
-          allowRealIpFallback,
-          rateLimiter,
-        });
-        if (!pluginAuthOk) {
-          return;
-        }
-        if (await handlePluginRequest(req, res)) {
-          return;
-        }
-      }
->>>>>>> 5a64f6d76 (Gateway/Security: protect /api/channels plugin root)
       if (openResponsesEnabled) {
         if (
           await handleOpenResponsesHttpRequest(req, res, {

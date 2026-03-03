@@ -2,11 +2,7 @@ import fs from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
 
-=======
-import { SafeOpenError, openFileWithinRoot, type SafeOpenResult } from "../infra/fs-safe.js";
->>>>>>> 7467fcc52 (security: use openFileWithinRoot for A2UI file serving (#10525))
 import { detectMime } from "../media/mime.js";
 
 export const A2UI_PATH = "/__openclaw__/a2ui";
@@ -98,7 +94,6 @@ async function resolveA2uiFile(rootReal: string, urlPath: string): Promise<SafeO
     // ignore
   }
 
-<<<<<<< HEAD
   const rootPrefix = rootReal.endsWith(path.sep) ? rootReal : `${rootReal}${path.sep}`;
   try {
     const lstat = await fs.lstat(candidate);
@@ -109,9 +104,6 @@ async function resolveA2uiFile(rootReal: string, urlPath: string): Promise<SafeO
   } catch {
     return null;
   }
-=======
-  return await tryOpen(rel);
->>>>>>> 7467fcc52 (security: use openFileWithinRoot for A2UI file serving (#10525))
 }
 
 export function injectCanvasLiveReload(html: string): string {

@@ -19,17 +19,8 @@ function resolveMaxLinks(value?: number): number {
 function isAllowedUrl(raw: string): boolean {
   try {
     const parsed = new URL(raw);
-<<<<<<< HEAD
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
     if (parsed.hostname === "127.0.0.1") return false;
-=======
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      return false;
-    }
-    if (isBlockedHost(parsed.hostname)) {
-      return false;
-    }
->>>>>>> 649826e43 (fix(security): block private/loopback/metadata IPs in link-understanding URL detection (#15604))
     return true;
   } catch {
     return false;

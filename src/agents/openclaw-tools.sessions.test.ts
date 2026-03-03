@@ -71,15 +71,7 @@ describe("sessions tools", () => {
     expect(schemaProp("sessions_send", "timeoutSeconds").type).toBe("number");
     expect(schemaProp("sessions_spawn", "thinking").type).toBe("string");
     expect(schemaProp("sessions_spawn", "runTimeoutSeconds").type).toBe("number");
-<<<<<<< HEAD
     expect(schemaProp("sessions_spawn", "timeoutSeconds").type).toBe("number");
-=======
-    expect(schemaProp("sessions_spawn", "thread").type).toBe("boolean");
-    expect(schemaProp("sessions_spawn", "mode").type).toBe("string");
-    expect(schemaProp("sessions_spawn", "runtime").type).toBe("string");
-    expect(schemaProp("sessions_spawn", "cwd").type).toBe("string");
-    expect(schemaProp("subagents", "recentMinutes").type).toBe("number");
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   });
 
   it("sessions_list filters kinds and includes messages", async () => {
@@ -184,8 +176,6 @@ describe("sessions tools", () => {
     expect(withToolsDetails.messages).toHaveLength(2);
   });
 
-<<<<<<< HEAD
-=======
   it("sessions_history caps oversized payloads and strips heavy fields", async () => {
     const oversized = Array.from({ length: 80 }, (_, idx) => ({
       role: "assistant",
@@ -387,7 +377,6 @@ describe("sessions tools", () => {
     expect(details.truncated).toBe(true);
   });
 
->>>>>>> d306fc8ef (fix(security): OC-07 redact session history credentials and enforce webhook secret  (#16928))
   it("sessions_history resolves sessionId inputs", async () => {
     callGatewayMock.mockReset();
     const sessionId = "sess-group";

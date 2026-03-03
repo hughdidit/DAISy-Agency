@@ -3,17 +3,8 @@ import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { Type } from "@sinclair/typebox";
 import path from "node:path";
 import type { ExecAsk, ExecHost, ExecSecurity } from "../infra/exec-approvals.js";
-<<<<<<< HEAD
 import type { ProcessSession, SessionStdin } from "./bash-process-registry.js";
 import type { ExecToolDetails } from "./bash-tools.exec.js";
-=======
-import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
-import { isDangerousHostEnvVarName } from "../infra/host-env-security.js";
-import { mergePathPrepend } from "../infra/path-prepend.js";
-import { enqueueSystemEvent } from "../infra/system-events.js";
-import type { ProcessSession } from "./bash-process-registry.js";
-import type { ExecToolDetails } from "./bash-tools.exec-types.js";
->>>>>>> 2cdbadee1 (fix(security): block startup-file env injection across host execution paths)
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";

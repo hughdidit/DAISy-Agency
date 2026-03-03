@@ -59,52 +59,9 @@ export type {
 } from "../channels/plugins/types.js";
 export type { ChannelConfigSchema, ChannelPlugin } from "../channels/plugins/types.plugin.js";
 export type {
-<<<<<<< HEAD
   OpenClawPluginApi,
   OpenClawPluginService,
   OpenClawPluginServiceContext,
-=======
-  ThreadBindingManager,
-  ThreadBindingRecord,
-  ThreadBindingTargetKind,
-} from "../discord/monitor/thread-bindings.js";
-export {
-  autoBindSpawnedDiscordSubagent,
-  listThreadBindingsBySessionKey,
-  unbindThreadBindingsBySessionKey,
-} from "../discord/monitor/thread-bindings.js";
-export type {
-  AcpRuntimeCapabilities,
-  AcpRuntimeControl,
-  AcpRuntimeDoctorReport,
-  AcpRuntime,
-  AcpRuntimeEnsureInput,
-  AcpRuntimeEvent,
-  AcpRuntimeHandle,
-  AcpRuntimePromptMode,
-  AcpRuntimeSessionMode,
-  AcpRuntimeStatus,
-  AcpRuntimeTurnInput,
-} from "../acp/runtime/types.js";
-export type { AcpRuntimeBackend } from "../acp/runtime/registry.js";
-export {
-  getAcpRuntimeBackend,
-  registerAcpRuntimeBackend,
-  requireAcpRuntimeBackend,
-  unregisterAcpRuntimeBackend,
-} from "../acp/runtime/registry.js";
-export { ACP_ERROR_CODES, AcpRuntimeError } from "../acp/runtime/errors.js";
-export type { AcpRuntimeErrorCode } from "../acp/runtime/errors.js";
-export type {
-  AnyAgentTool,
-  OpenClawPluginConfigSchema,
-  OpenClawPluginApi,
-  OpenClawPluginService,
-  OpenClawPluginServiceContext,
-  PluginLogger,
-  ProviderAuthContext,
-  ProviderAuthResult,
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 } from "../plugins/types.js";
 export type {
   GatewayRequestHandler,
@@ -116,8 +73,6 @@ export { normalizePluginHttpPath } from "../plugins/http-path.js";
 export { registerPluginHttpRoute } from "../plugins/http-registry.js";
 export { emptyPluginConfigSchema } from "../plugins/config-schema.js";
 export type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-=======
 /** @deprecated Use OpenClawConfig instead */
 export type { OpenClawConfig as ClawdbotConfig } from "../config/config.js";
 export { isDangerousNameMatchingEnabled } from "../config/dangerous-name-matching.js";
@@ -146,7 +101,6 @@ export {
   createDefaultChannelRuntimeState,
 } from "./status-helpers.js";
 export { buildOauthProviderAuthResult } from "./provider-auth-result.js";
->>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
 export type { ChannelDock } from "../channels/dock.js";
 export { getChatChannelMeta } from "../channels/registry.js";
 export type {
@@ -192,8 +146,6 @@ export { ToolPolicySchema } from "../config/zod-schema.agent-runtime.js";
 export type { RuntimeEnv } from "../runtime.js";
 export type { WizardPrompter } from "../wizard/prompts.js";
 export { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
-<<<<<<< HEAD
-=======
 export { formatAllowFromLowercase, isAllowedParsedChatSender } from "./allow-from.js";
 export { resolveSenderCommandAuthorization } from "./command-auth.js";
 export { handleSlackMessageAction } from "./slack-message-actions.js";
@@ -217,7 +169,6 @@ export type {
   TailscaleStatusCommandResult,
   TailscaleStatusCommandRunner,
 } from "../shared/tailscale-status.js";
->>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
 export type { ChatType } from "../channels/chat-type.js";
 /** @deprecated Use ChatType instead */
 export type { RoutePeerKind } from "../routing/resolve-route.js";
@@ -226,8 +177,6 @@ export { resolveAckReaction } from "../agents/identity.js";
 export type { ReplyPayload } from "../auto-reply/types.js";
 export type { ChunkMode } from "../auto-reply/chunk.js";
 export { SILENT_REPLY_TOKEN, isSilentReplyText } from "../auto-reply/tokens.js";
-<<<<<<< HEAD
-=======
 export {
   approveDevicePairing,
   listDevicePairing,
@@ -263,7 +212,6 @@ export { SsrFBlockedError, isBlockedHostname, isPrivateIpAddress } from "../infr
 export type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
 export { isWSLSync, isWSL2Sync, isWSLEnv } from "../infra/wsl.js";
 export { isTruthyEnvValue } from "../infra/env.js";
->>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 export { resolveToolsBySender } from "../config/group-policy.js";
 export {
   buildPendingHistoryContextFromMap,
@@ -512,7 +460,6 @@ export {
 export type { ProcessedLineMessage } from "../line/markdown-to-line.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 // Channel: Feishu
 export {
   listFeishuAccountIds,
@@ -529,16 +476,6 @@ export { feishuOutbound } from "../channels/plugins/outbound/feishu.js";
 export { normalizeFeishuTarget } from "../channels/plugins/normalize/feishu.js";
 export { probeFeishu, type FeishuProbe } from "../feishu/probe.js";
 export { monitorFeishuProvider } from "../feishu/monitor.js";
-=======
-// Channel: Linq
-export {
-  listLinqAccountIds,
-  resolveDefaultLinqAccountId,
-  resolveLinqAccount,
-  type ResolvedLinqAccount,
-} from "../linq/accounts.js";
-export type { LinqProbe } from "../linq/types.js";
->>>>>>> d4a142fd8 (feat: add Linq channel — real iMessage via API, no Mac required)
 
 =======
 >>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")

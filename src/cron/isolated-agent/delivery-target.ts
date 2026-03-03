@@ -12,8 +12,6 @@ import {
   resolveOutboundTarget,
   resolveSessionDeliveryTarget,
 } from "../../infra/outbound/targets.js";
-<<<<<<< HEAD
-=======
 import { readChannelAllowFromStoreSync } from "../../pairing/pairing-store.js";
 import { buildChannelAccountBindings } from "../../routing/bindings.js";
 import { normalizeAccountId, normalizeAgentId } from "../../routing/session-key.js";
@@ -38,7 +36,6 @@ export type DeliveryTargetResolution =
       mode: "explicit" | "implicit";
       error: Error;
     };
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
 export async function resolveDeliveryTarget(
   cfg: OpenClawConfig,
@@ -96,44 +93,7 @@ export async function resolveDeliveryTarget(
   const toCandidate = resolved.to;
 
   if (!toCandidate) {
-<<<<<<< HEAD
     return { channel, to: undefined, accountId: resolved.accountId, mode };
-=======
-    return {
-      ok: false,
-      channel,
-      to: undefined,
-      accountId,
-      threadId,
-      mode,
-      error:
-        channelResolutionError ??
-        new Error(`No delivery target resolved for channel "${channel}". Set delivery.to.`),
-    };
-  }
-
-  let allowFromOverride: string[] | undefined;
-  if (channel === "whatsapp") {
-    const resolvedAccountId = normalizeAccountId(accountId);
-    const configuredAllowFromRaw =
-      resolveWhatsAppAccount({ cfg, accountId: resolvedAccountId }).allowFrom ?? [];
-    const configuredAllowFrom = configuredAllowFromRaw
-      .map((entry) => String(entry).trim())
-      .filter((entry) => entry && entry !== "*")
-      .map((entry) => normalizeWhatsAppTarget(entry))
-      .filter((entry): entry is string => Boolean(entry));
-    const storeAllowFrom = readChannelAllowFromStoreSync("whatsapp", process.env, resolvedAccountId)
-      .map((entry) => normalizeWhatsAppTarget(entry))
-      .filter((entry): entry is string => Boolean(entry));
-    allowFromOverride = [...new Set([...configuredAllowFrom, ...storeAllowFrom])];
-
-    if (mode === "implicit" && allowFromOverride.length > 0) {
-      const normalizedCurrentTarget = normalizeWhatsAppTarget(toCandidate);
-      if (!normalizedCurrentTarget || !allowFromOverride.includes(normalizedCurrentTarget)) {
-        toCandidate = allowFromOverride[0];
-      }
-    }
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
   }
 
   const docked = resolveOutboundTarget({

@@ -13,13 +13,8 @@ struct OpenClawOAuthStoreTests {
     }
 
     @Test
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/ClawdbotOAuthStoreTests.swift
     func usesEnvOverrideForMoltbotOAuthDir() {
         let key = "CLAWDBOT_OAUTH_DIR"
-=======
-    func usesEnvOverrideForOpenClawOAuthDir() throws {
-        let key = "OPENCLAW_OAUTH_DIR"
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/OpenClawOAuthStoreTests.swift
         let previous = ProcessInfo.processInfo.environment[key]
         defer {
             if let previous {

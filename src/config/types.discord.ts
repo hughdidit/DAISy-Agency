@@ -111,8 +111,6 @@ export type DiscordExecApprovalConfig = {
   agentFilter?: string[];
   /** Only forward approvals matching these session key patterns (substring or regex). */
   sessionFilter?: string[];
-<<<<<<< HEAD
-=======
   /** Delete approval DMs after approval, denial, or timeout. Default: false. */
   cleanupAfterResolve?: boolean;
   /** Where to send approval prompts. "dm" sends to approver DMs (default), "channel" sends to the
@@ -162,7 +160,6 @@ export type DiscordThreadBindingsConfig = {
 export type DiscordSlashCommandConfig = {
   /** Reply ephemerally (default: true). */
   ephemeral?: boolean;
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 };
 
 export type DiscordAccountConfig = {
@@ -230,8 +227,6 @@ export type DiscordAccountConfig = {
   execApprovals?: DiscordExecApprovalConfig;
   /** Privileged Gateway Intents (must also be enabled in Discord Developer Portal). */
   intents?: DiscordIntentsConfig;
-<<<<<<< HEAD
-=======
   /** Voice channel conversation settings. */
   voice?: DiscordVoiceConfig;
   /** PluralKit identity resolution for proxied messages. */
@@ -251,7 +246,6 @@ export type DiscordAccountConfig = {
   activityType?: 0 | 1 | 2 | 3 | 4 | 5;
   /** Streaming URL (Twitch/YouTube). Required when activityType=1. */
   activityUrl?: string;
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 };
 
 export type DiscordConfig = {

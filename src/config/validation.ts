@@ -9,8 +9,6 @@ import {
 } from "../plugins/config-state.js";
 import { loadPluginManifestRegistry } from "../plugins/manifest-registry.js";
 import { validateJsonSchemaValue } from "../plugins/schema-validator.js";
-<<<<<<< HEAD
-=======
 import {
   hasAvatarUriScheme,
   isAvatarDataUrl,
@@ -19,7 +17,6 @@ import {
   isWindowsAbsolutePath,
 } from "../shared/avatar-policy.js";
 import { isRecord } from "../utils.js";
->>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 import { findDuplicateAgentDirs, formatDuplicateAgentDirError } from "./agent-dirs.js";
 import { applyAgentDefaults, applyModelDefaults, applySessionDefaults } from "./defaults.js";
 import { findLegacyConfigIssues } from "./legacy.js";
@@ -29,14 +26,10 @@ import { OpenClawSchema } from "./zod-schema.js";
 function isWorkspaceAvatarPath(value: string, workspaceDir: string): boolean {
   const workspaceRoot = path.resolve(workspaceDir);
   const resolved = path.resolve(workspaceRoot, value);
-<<<<<<< HEAD
   const relative = path.relative(workspaceRoot, resolved);
   if (relative === "") return true;
   if (relative.startsWith("..")) return false;
   return !path.isAbsolute(relative);
-=======
-  return isPathWithinRoot(workspaceRoot, resolved);
->>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 }
 
 function validateIdentityAvatar(config: OpenClawConfig): ConfigValidationIssue[] {
@@ -48,17 +41,8 @@ function validateIdentityAvatar(config: OpenClawConfig): ConfigValidationIssue[]
     const avatarRaw = entry.identity?.avatar;
     if (typeof avatarRaw !== "string") continue;
     const avatar = avatarRaw.trim();
-<<<<<<< HEAD
     if (!avatar) continue;
     if (AVATAR_DATA_RE.test(avatar) || AVATAR_HTTP_RE.test(avatar)) continue;
-=======
-    if (!avatar) {
-      continue;
-    }
-    if (isAvatarDataUrl(avatar) || isAvatarHttpUrl(avatar)) {
-      continue;
-    }
->>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
     if (avatar.startsWith("~")) {
       issues.push({
         path: `agents.list.${index}.identity.avatar`,

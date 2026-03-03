@@ -7,26 +7,16 @@ import { describe, expect, it, vi } from "vitest";
 
 import { resolveOAuthDir } from "../config/paths.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { listChannelPairingRequests, upsertChannelPairingRequest } from "./pairing-store.js";
-=======
-import { captureEnv } from "../test-utils/env.js";
-=======
-import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
-import { withEnvAsync } from "../test-utils/env.js";
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import {
   addChannelAllowFromStoreEntry,
   approveChannelPairingCode,
   listChannelPairingRequests,
   readChannelAllowFromStore,
-<<<<<<< HEAD
-=======
   readLegacyChannelAllowFromStore,
   readLegacyChannelAllowFromStoreSync,
   readChannelAllowFromStoreSync,
   removeChannelAllowFromStoreEntry,
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
   upsertChannelPairingRequest,
 } from "./pairing-store.js";
 >>>>>>> ee10feb80 (fix (security/pairing): scope pairing stores by account)
@@ -198,8 +188,6 @@ describe("pairing store", () => {
       expect(channelScoped).not.toContain("12345");
     });
   });
-<<<<<<< HEAD
-=======
 
   it("filters approvals by account id and ignores blank approval codes", async () => {
     await withTempStateDir(async () => {
@@ -376,5 +364,4 @@ describe("pairing store", () => {
       expect(scoped).toEqual(["1002", "1001"]);
     });
   });
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 });

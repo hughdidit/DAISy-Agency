@@ -1,9 +1,6 @@
 import AVFoundation
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CameraCaptureService.swift
-=======
 import OpenClawIPC
 import OpenClawKit
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/CameraCaptureService.swift
 import CoreGraphics
 import Foundation
 import MoltbotIPC

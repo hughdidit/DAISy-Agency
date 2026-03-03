@@ -2,21 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 import type { OpenClawConfig, MarkdownTableMode } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
 
-=======
-import {
-  createReplyPrefixOptions,
-  readJsonBodyWithLimit,
-<<<<<<< HEAD
-=======
-  registerWebhookTarget,
-  rejectNonPostWebhookRequest,
-  resolveSingleWebhookTarget,
-  resolveSenderCommandAuthorization,
-  resolveWebhookPath,
-  resolveWebhookTargets,
->>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
   requestBodyErrorToText,
 } from "openclaw/plugin-sdk";
 >>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
@@ -32,8 +18,6 @@ import {
   type ZaloMessage,
   type ZaloUpdate,
 } from "./api.js";
-<<<<<<< HEAD
-=======
 import {
   evaluateZaloGroupAccess,
   isZaloSenderAllowed,
@@ -47,7 +31,6 @@ import {
   registerZaloWebhookTarget as registerZaloWebhookTargetInternal,
   type ZaloWebhookTarget,
 } from "./monitor.webhook.js";
->>>>>>> 43cad8268 (fix(security): harden webhook memory guards across channels)
 import { resolveZaloProxyFetch } from "./proxy.js";
 import { getZaloRuntime } from "./runtime.js";
 

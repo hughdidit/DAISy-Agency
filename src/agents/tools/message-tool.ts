@@ -1,10 +1,7 @@
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
-=======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { AnyAgentTool } from "./common.js";
 import { BLUEBUBBLES_GROUP_ACTIONS } from "../../channels/plugins/bluebubbles-actions.js";
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import {
   listChannelMessageActions,
   supportsChannelMessageButtons,
@@ -14,32 +11,20 @@ import {
   CHANNEL_MESSAGE_ACTION_NAMES,
   type ChannelMessageActionName,
 } from "../../channels/plugins/types.js";
-<<<<<<< HEAD
 import { BLUEBUBBLES_GROUP_ACTIONS } from "../../channels/plugins/bluebubbles-actions.js";
 import type { OpenClawConfig } from "../../config/config.js";
-=======
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { loadConfig } from "../../config/config.js";
 import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "../../gateway/protocol/client-info.js";
 import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
 import { getToolResult, runMessageAction } from "../../infra/outbound/message-action-runner.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
-<<<<<<< HEAD
 import { normalizeAccountId } from "../../routing/session-key.js";
-=======
-import { listChannelSupportedActions } from "../channel-tools.js";
-<<<<<<< HEAD
-import { assertSandboxPath } from "../sandbox-paths.js";
->>>>>>> 9b6fffd00 (security(message-tool): validate filePath/path against sandbox root (#6398))
 =======
 >>>>>>> 4434cae56 (Security: harden sandboxed media handling (#9182))
 import { channelTargetSchema, channelTargetsSchema, stringEnum } from "../schema/typebox.js";
-<<<<<<< HEAD
 import { listChannelSupportedActions } from "../channel-tools.js";
 import { normalizeMessageChannel } from "../../utils/message-channel.js";
 import type { AnyAgentTool } from "./common.js";
-=======
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 import { resolveGatewayOptions } from "./gateway.js";
 
@@ -270,11 +255,8 @@ type MessageToolOptions = {
   replyToMode?: "off" | "first" | "all";
   hasRepliedRef?: { value: boolean };
   sandboxRoot?: string;
-<<<<<<< HEAD
-=======
   requireExplicitTarget?: boolean;
   requesterSenderId?: string;
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 };
 
 function buildMessageToolSchema(cfg: OpenClawConfig) {

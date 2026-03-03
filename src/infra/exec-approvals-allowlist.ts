@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import type { ExecAllowlistEntry } from "./exec-approvals.js";
-=======
-import path from "node:path";
->>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
 import {
   DEFAULT_SAFE_BINS,
   analyzeShellCommand,
@@ -20,51 +16,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
-const DEFAULT_SAFE_BIN_TRUSTED_DIRS = [
-  "/bin",
-  "/usr/bin",
-  "/usr/local/bin",
-  "/opt/homebrew/bin",
-  "/opt/local/bin",
-  "/snap/bin",
-  "/run/current-system/sw/bin",
-];
-
-function normalizeTrustedDir(value: string): string | null {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return null;
-  }
-  return path.resolve(trimmed);
-}
-
-function collectTrustedSafeBinDirs(): Set<string> {
-  const trusted = new Set<string>();
-  for (const entry of DEFAULT_SAFE_BIN_TRUSTED_DIRS) {
-    const normalized = normalizeTrustedDir(entry);
-    if (normalized) {
-      trusted.add(normalized);
-    }
-  }
-  const pathEntries = (process.env.PATH ?? process.env.Path ?? "")
-    .split(path.delimiter)
-    .map((entry) => normalizeTrustedDir(entry))
-    .filter((entry): entry is string => Boolean(entry));
-  for (const entry of pathEntries) {
-    trusted.add(entry);
-  }
-  return trusted;
-}
-
-const TRUSTED_SAFE_BIN_DIRS = collectTrustedSafeBinDirs();
-
-function isTrustedSafeBinPath(resolvedPath: string): boolean {
-  return TRUSTED_SAFE_BIN_DIRS.has(path.dirname(path.resolve(resolvedPath)));
-}
->>>>>>> 28bac46c9 (fix(security): harden safeBins path trust)
 =======
 =======
 >>>>>>> cfe8457a0 (fix(security): harden safeBins stdin-only enforcement)
@@ -83,16 +34,7 @@ import {
 >>>>>>> 2d485cd47 (refactor(security): extract safe-bin policy and dedupe tests)
 import { isTrustedSafeBinPath } from "./exec-safe-bin-trust.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ac0db6823 (refactor(security): extract safeBins trust resolver)
-=======
-=======
-import {
-  DISPATCH_WRAPPER_EXECUTABLES,
-  basenameLower,
-  unwrapKnownDispatchWrapperInvocation,
-} from "./exec-wrapper-resolution.js";
->>>>>>> 24c954d97 (fix(security): harden allow-always wrapper persistence)
 
 function hasShellLineContinuation(command: string): boolean {
   return /\\(?:\r\n|\n|\r)/.test(command);
@@ -245,12 +187,9 @@ function evaluateSegments(
     allowlist: ExecAllowlistEntry[];
     safeBins: Set<string>;
     cwd?: string;
-<<<<<<< HEAD
-=======
     platform?: string | null;
     trustedSafeBinDirs?: ReadonlySet<string>;
 <<<<<<< HEAD
->>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
     skillBins?: Set<string>;
 =======
     skillBins?: readonly SkillBinTrustEntry[];
@@ -290,12 +229,7 @@ function evaluateSegments(
       resolution: segment.resolution,
       safeBins: params.safeBins,
 <<<<<<< HEAD
-<<<<<<< HEAD
       cwd: params.cwd,
-=======
-=======
-      platform: params.platform,
->>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
       trustedSafeBinDirs: params.trustedSafeBinDirs,
 >>>>>>> 165c18819 (refactor(security): simplify safe-bin validation structure)
     });
@@ -323,12 +257,9 @@ export function evaluateExecAllowlist(params: {
   allowlist: ExecAllowlistEntry[];
   safeBins: Set<string>;
   cwd?: string;
-<<<<<<< HEAD
-=======
   platform?: string | null;
   trustedSafeBinDirs?: ReadonlySet<string>;
 <<<<<<< HEAD
->>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
   skillBins?: Set<string>;
 =======
   skillBins?: readonly SkillBinTrustEntry[];
@@ -348,11 +279,8 @@ export function evaluateExecAllowlist(params: {
         allowlist: params.allowlist,
         safeBins: params.safeBins,
         cwd: params.cwd,
-<<<<<<< HEAD
-=======
         platform: params.platform,
         trustedSafeBinDirs: params.trustedSafeBinDirs,
->>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
         skillBins: params.skillBins,
         autoAllowSkills: params.autoAllowSkills,
       });
@@ -370,11 +298,8 @@ export function evaluateExecAllowlist(params: {
     allowlist: params.allowlist,
     safeBins: params.safeBins,
     cwd: params.cwd,
-<<<<<<< HEAD
-=======
     platform: params.platform,
     trustedSafeBinDirs: params.trustedSafeBinDirs,
->>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
     skillBins: params.skillBins,
     autoAllowSkills: params.autoAllowSkills,
   });
@@ -586,17 +511,10 @@ export function evaluateShellAllowlist(params: {
   safeBins: Set<string>;
   cwd?: string;
   env?: NodeJS.ProcessEnv;
-<<<<<<< HEAD
   skillBins?: Set<string>;
-=======
-  trustedSafeBinDirs?: ReadonlySet<string>;
-  skillBins?: readonly SkillBinTrustEntry[];
->>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
   autoAllowSkills?: boolean;
   platform?: string | null;
 }): ExecAllowlistAnalysis {
-<<<<<<< HEAD
-=======
   const analysisFailure = (): ExecAllowlistAnalysis => ({
     analysisOk: false,
     allowlistSatisfied: false,
@@ -611,7 +529,6 @@ export function evaluateShellAllowlist(params: {
     return analysisFailure();
   }
 
->>>>>>> 3f0b9dbb3 (fix(security): block shell-wrapper line-continuation allowlist bypass)
   const chainParts = isWindowsPlatform(params.platform) ? null : splitCommandChain(params.command);
   if (!chainParts) {
     const analysis = analyzeShellCommand({
@@ -634,11 +551,8 @@ export function evaluateShellAllowlist(params: {
       allowlist: params.allowlist,
       safeBins: params.safeBins,
       cwd: params.cwd,
-<<<<<<< HEAD
-=======
       platform: params.platform,
       trustedSafeBinDirs: params.trustedSafeBinDirs,
->>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
       skillBins: params.skillBins,
       autoAllowSkills: params.autoAllowSkills,
     });
@@ -678,11 +592,8 @@ export function evaluateShellAllowlist(params: {
       allowlist: params.allowlist,
       safeBins: params.safeBins,
       cwd: params.cwd,
-<<<<<<< HEAD
-=======
       platform: params.platform,
       trustedSafeBinDirs: params.trustedSafeBinDirs,
->>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
       skillBins: params.skillBins,
       autoAllowSkills: params.autoAllowSkills,
     });

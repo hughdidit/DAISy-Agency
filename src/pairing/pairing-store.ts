@@ -7,13 +7,10 @@ import lockfile from "proper-lockfile";
 import { getPairingAdapter } from "../channels/plugins/pairing.js";
 import type { ChannelId, ChannelPairingAdapter } from "../channels/plugins/types.js";
 import { resolveOAuthDir, resolveStateDir } from "../config/paths.js";
-<<<<<<< HEAD
-=======
 import { withFileLock as withPathLock } from "../infra/file-lock.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 import { readJsonFileWithFallback, writeJsonFileAtomically } from "../plugin-sdk/json-store.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
 const PAIRING_CODE_LENGTH = 8;
 const PAIRING_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -216,8 +213,6 @@ function generateUniqueCode(existing: Set<string>): string {
   throw new Error("failed to generate unique pairing code");
 }
 
-<<<<<<< HEAD
-=======
 function normalizePairingAccountId(accountId?: string): string {
   return accountId?.trim().toLowerCase() || "";
 }
@@ -239,7 +234,6 @@ function shouldIncludeLegacyAllowFromEntries(normalizedAccountId: string): boole
   return !normalizedAccountId || normalizedAccountId === DEFAULT_ACCOUNT_ID;
 }
 
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 function normalizeId(value: string | number): string {
   return String(value).trim();
 }
@@ -253,8 +247,6 @@ function normalizeAllowEntry(channel: PairingChannel, entry: string): string {
   return String(normalized).trim();
 }
 
-<<<<<<< HEAD
-=======
 function normalizeAllowFromList(channel: PairingChannel, store: AllowFromStore): string[] {
   const list = Array.isArray(store.allowFrom) ? store.allowFrom : [];
   return list.map((v) => normalizeAllowEntry(channel, String(v))).filter(Boolean);
@@ -317,7 +309,6 @@ async function updateAllowFromStoreEntry(params: {
 }
 
 <<<<<<< HEAD
->>>>>>> ee10feb80 (fix (security/pairing): scope pairing stores by account)
 =======
 export async function readLegacyChannelAllowFromStore(
   channel: PairingChannel,
@@ -333,7 +324,6 @@ export async function readChannelAllowFromStore(
   env: NodeJS.ProcessEnv = process.env,
   accountId: string,
 ): Promise<string[]> {
-<<<<<<< HEAD
   const filePath = resolveAllowFromPath(channel, env, accountId);
   const { value } = await readJsonFile<AllowFromStore>(filePath, {
     version: 1,
@@ -344,64 +334,11 @@ export async function readChannelAllowFromStore(
 }
 
 export async function addChannelAllowFromStoreEntry(params: {
-=======
-  const normalizedAccountId = accountId.trim().toLowerCase();
-  const resolvedAccountId = normalizedAccountId || DEFAULT_ACCOUNT_ID;
-
-  if (!shouldIncludeLegacyAllowFromEntries(resolvedAccountId)) {
-    return await readNonDefaultAccountAllowFrom({
-      channel,
-      env,
-      accountId: resolvedAccountId,
-    });
-  }
-  const scopedPath = resolveAllowFromPath(channel, env, resolvedAccountId);
-  const scopedEntries = await readAllowFromStateForPath(channel, scopedPath);
-  // Backward compatibility: legacy channel-level allowFrom store was unscoped.
-  // Keep honoring it for default account to prevent re-pair prompts after upgrades.
-  const legacyPath = resolveAllowFromPath(channel, env);
-  const legacyEntries = await readAllowFromStateForPath(channel, legacyPath);
-  return dedupePreserveOrder([...scopedEntries, ...legacyEntries]);
-}
-
-export function readLegacyChannelAllowFromStoreSync(
-  channel: PairingChannel,
-  env: NodeJS.ProcessEnv = process.env,
-): string[] {
-  const filePath = resolveAllowFromPath(channel, env);
-  return readAllowFromStateForPathSync(channel, filePath);
-}
-
-export function readChannelAllowFromStoreSync(
-  channel: PairingChannel,
-  env: NodeJS.ProcessEnv = process.env,
-  accountId: string,
-): string[] {
-  const normalizedAccountId = accountId.trim().toLowerCase();
-  const resolvedAccountId = normalizedAccountId || DEFAULT_ACCOUNT_ID;
-
-  if (!shouldIncludeLegacyAllowFromEntries(resolvedAccountId)) {
-    return readNonDefaultAccountAllowFromSync({
-      channel,
-      env,
-      accountId: resolvedAccountId,
-    });
-  }
-  const scopedPath = resolveAllowFromPath(channel, env, resolvedAccountId);
-  const scopedEntries = readAllowFromStateForPathSync(channel, scopedPath);
-  const legacyPath = resolveAllowFromPath(channel, env);
-  const legacyEntries = readAllowFromStateForPathSync(channel, legacyPath);
-  return dedupePreserveOrder([...scopedEntries, ...legacyEntries]);
-}
-
-type AllowFromStoreEntryUpdateParams = {
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
   channel: PairingChannel;
   entry: string | number;
   accountId?: string;
   env?: NodeJS.ProcessEnv;
 }): Promise<{ changed: boolean; allowFrom: string[] }> {
-<<<<<<< HEAD
   const env = params.env ?? process.env;
   const filePath = resolveAllowFromPath(params.channel, env);
   return await withFileLock(
@@ -424,18 +361,6 @@ type AllowFromStoreEntryUpdateParams = {
         allowFrom: next,
       } satisfies AllowFromStore);
       return { changed: true, allowFrom: next };
-=======
-  return await updateAllowFromStoreEntry({
-    channel: params.channel,
-    entry: params.entry,
-    accountId: params.accountId,
-    env: params.env,
-    apply: (current, normalized) => {
-      if (current.includes(normalized)) {
-        return null;
-      }
-      return [...current, normalized];
->>>>>>> ee10feb80 (fix (security/pairing): scope pairing stores by account)
     },
   );
 }
@@ -446,7 +371,6 @@ export async function removeChannelAllowFromStoreEntry(params: {
   accountId?: string;
   env?: NodeJS.ProcessEnv;
 }): Promise<{ changed: boolean; allowFrom: string[] }> {
-<<<<<<< HEAD
   const env = params.env ?? process.env;
   const filePath = resolveAllowFromPath(params.channel, env);
   return await withFileLock(
@@ -462,14 +386,6 @@ export async function removeChannelAllowFromStoreEntry(params: {
         .filter(Boolean);
       const normalized = normalizeAllowEntry(params.channel, normalizeId(params.entry));
       if (!normalized) return { changed: false, allowFrom: current };
-=======
-  return await updateAllowFromStoreEntry({
-    channel: params.channel,
-    entry: params.entry,
-    accountId: params.accountId,
-    env: params.env,
-    apply: (current, normalized) => {
->>>>>>> ee10feb80 (fix (security/pairing): scope pairing stores by account)
       const next = current.filter((entry) => entry !== normalized);
       if (next.length === current.length) return { changed: false, allowFrom: current };
       await writeJsonFile(filePath, {
@@ -562,13 +478,9 @@ export async function upsertChannelPairingRequest(params: {
                 .filter(([_, v]) => Boolean(v)),
             )
           : undefined;
-<<<<<<< HEAD
       const meta = normalizedAccountId
         ? { ...baseMeta, accountId: normalizedAccountId }
         : baseMeta;
-=======
-      const meta = { ...baseMeta, accountId: normalizedAccountId };
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
       let reqs = Array.isArray(value.requests) ? value.requests : [];
       const { requests: prunedExpired, removed: expiredRemoved } = pruneExpiredRequests(
@@ -576,17 +488,7 @@ export async function upsertChannelPairingRequest(params: {
         nowMs,
       );
       reqs = prunedExpired;
-<<<<<<< HEAD
       const existingIdx = reqs.findIndex((r) => r.id === id);
-=======
-      const normalizedMatchingAccountId = normalizedAccountId;
-      const existingIdx = reqs.findIndex((r) => {
-        if (r.id !== id) {
-          return false;
-        }
-        return requestMatchesAccountId(r, normalizedMatchingAccountId);
-      });
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       const existingCodes = new Set(
         reqs.map((req) =>
           String(req.code ?? "")

@@ -6,8 +6,6 @@ export function normalizeLegacyConfigValues(cfg: OpenClawConfig): {
   const changes: string[] = [];
   let next: OpenClawConfig = cfg;
 
-<<<<<<< HEAD
-=======
   const isRecord = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
@@ -333,7 +331,6 @@ export function normalizeLegacyConfigValues(cfg: OpenClawConfig): {
 
   normalizeBrowserSsrFPolicyAlias();
 
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
   const legacyAckReaction = cfg.messages?.ackReaction?.trim();
   const hasWhatsAppConfig = cfg.channels?.whatsapp !== undefined;
   if (legacyAckReaction && hasWhatsAppConfig) {

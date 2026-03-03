@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Sources/MoltbotMacCLI/DiscoverCommand.swift
-=======
 import OpenClawDiscovery
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClawMacCLI/DiscoverCommand.swift
 import Foundation
 import MoltbotDiscovery
 

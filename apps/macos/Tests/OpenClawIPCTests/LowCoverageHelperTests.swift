@@ -1,17 +1,9 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/LowCoverageHelperTests.swift
-=======
 import OpenClawProtocol
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/LowCoverageHelperTests.swift
 import Foundation
 import MoltbotProtocol
 import Testing
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/LowCoverageHelperTests.swift
 @testable import Moltbot
-=======
-
-@testable import OpenClaw
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/LowCoverageHelperTests.swift
 
 @Suite(.serialized)
 struct LowCoverageHelperTests {

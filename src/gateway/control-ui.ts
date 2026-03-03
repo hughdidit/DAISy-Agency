@@ -5,11 +5,6 @@ import { fileURLToPath } from "node:url";
 
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
 import { resolveControlUiRootSync } from "../infra/control-ui-assets.js";
 import { isWithinDir } from "../infra/path-safety.js";
 >>>>>>> 6ac89757b (Security/Gateway: harden Control UI static path containment (#21203))
@@ -202,7 +197,6 @@ function serveFile(res: ServerResponse, filePath: string) {
   res.end(fs.readFileSync(filePath));
 }
 
-<<<<<<< HEAD
 interface ControlUiInjectionOpts {
   basePath: string;
   assistantName?: string;
@@ -263,70 +257,6 @@ function serveIndexHtml(res: ServerResponse, indexPath: string, opts: ServeIndex
     }),
   );
 =======
-function serveResolvedFile(res: ServerResponse, filePath: string, body: Buffer) {
-  const ext = path.extname(filePath).toLowerCase();
-  res.setHeader("Content-Type", contentTypeForExt(ext));
-  res.setHeader("Cache-Control", "no-cache");
-  res.end(body);
-}
-
-function serveResolvedIndexHtml(res: ServerResponse, body: string) {
-  res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.setHeader("Cache-Control", "no-cache");
-  res.end(body);
-}
-
-function isExpectedSafePathError(error: unknown): boolean {
-  const code =
-    typeof error === "object" && error !== null && "code" in error ? String(error.code) : "";
-  return code === "ENOENT" || code === "ENOTDIR" || code === "ELOOP";
-}
-
-function areSameFileIdentity(preOpen: fs.Stats, opened: fs.Stats): boolean {
-  return preOpen.dev === opened.dev && preOpen.ino === opened.ino;
-}
-
-function resolveSafeControlUiFile(
-  root: string,
-  filePath: string,
-<<<<<<< HEAD
-): { path: string; body: Buffer } | null {
-  let fd: number | null = null;
-  try {
-    const rootReal = fs.realpathSync(root);
-    const fileReal = fs.realpathSync(filePath);
-    if (!isContainedPath(rootReal, fileReal)) {
-      return null;
-    }
-
-    const preOpenStat = fs.lstatSync(fileReal);
-    if (!preOpenStat.isFile()) {
-      return null;
-    }
-
-    const openFlags =
-      fs.constants.O_RDONLY |
-      (typeof fs.constants.O_NOFOLLOW === "number" ? fs.constants.O_NOFOLLOW : 0);
-    fd = fs.openSync(fileReal, openFlags);
-    const openedStat = fs.fstatSync(fd);
-    // Compare inode identity so swaps between validation and open are rejected.
-    if (!openedStat.isFile() || !areSameFileIdentity(preOpenStat, openedStat)) {
-      return null;
-    }
-
-    return { path: fileReal, body: fs.readFileSync(fd) };
-  } catch (error) {
-    if (isExpectedSafePathError(error)) {
-      return null;
-    }
-    throw error;
-  } finally {
-    if (fd !== null) {
-      fs.closeSync(fd);
-    }
-  }
->>>>>>> 7c500ff62 (fix(security): harden control-ui static path resolution)
-=======
 ): { path: string; fd: number } | null {
   const opened = openBoundaryFileSync({
     absolutePath: filePath,
@@ -348,20 +278,8 @@ function resolveSafeControlUiFile(
 function isSafeRelativePath(relPath: string) {
   if (!relPath) return false;
   const normalized = path.posix.normalize(relPath);
-<<<<<<< HEAD
   if (normalized.startsWith("../") || normalized === "..") return false;
   if (normalized.includes("\0")) return false;
-=======
-  if (path.posix.isAbsolute(normalized) || path.win32.isAbsolute(normalized)) {
-    return false;
-  }
-  if (normalized.startsWith("../") || normalized === "..") {
-    return false;
-  }
-  if (normalized.includes("\0")) {
-    return false;
-  }
->>>>>>> 6ac89757b (Security/Gateway: harden Control UI static path containment (#21203))
   return true;
 }
 
@@ -445,7 +363,6 @@ export async function handleControlUiHttpRequest(
     return true;
   }
 
-<<<<<<< HEAD
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
     if (path.basename(filePath) === "index.html") {
       serveIndexHtml(res, filePath, {
@@ -453,12 +370,6 @@ export async function handleControlUiHttpRequest(
         config: opts?.config,
         agentId: opts?.agentId,
       });
-=======
-  const safeFile = resolveSafeControlUiFile(root, filePath);
-  if (safeFile) {
-    if (path.basename(safeFile.path) === "index.html") {
-      serveResolvedIndexHtml(res, safeFile.body.toString("utf8"));
->>>>>>> 7c500ff62 (fix(security): harden control-ui static path resolution)
       return true;
     }
     serveResolvedFile(res, safeFile.path, safeFile.body);
@@ -467,18 +378,12 @@ export async function handleControlUiHttpRequest(
 
   // SPA fallback (client-side router): serve index.html for unknown paths.
   const indexPath = path.join(root, "index.html");
-<<<<<<< HEAD
   if (fs.existsSync(indexPath)) {
     serveIndexHtml(res, indexPath, {
       basePath,
       config: opts?.config,
       agentId: opts?.agentId,
     });
-=======
-  const safeIndex = resolveSafeControlUiFile(root, indexPath);
-  if (safeIndex) {
-    serveResolvedIndexHtml(res, safeIndex.body.toString("utf8"));
->>>>>>> 7c500ff62 (fix(security): harden control-ui static path resolution)
     return true;
   }
 

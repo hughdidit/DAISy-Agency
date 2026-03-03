@@ -1,12 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 import { Readable } from "node:stream";
 import type { ReadableStream as NodeReadableStream } from "node:stream/web";
 import { pipeline } from "node:stream/promises";
 
-=======
->>>>>>> 2363e1b08 (fix(security): restrict skill download target paths)
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveBrewExecutable } from "../infra/brew.js";
 import { runCommandWithTimeout } from "../process/exec.js";
@@ -180,7 +177,6 @@ function buildInstallCommand(
   }
 }
 
-<<<<<<< HEAD
 function resolveDownloadTargetDir(entry: SkillEntry, spec: SkillInstallSpec): string {
   if (spec.targetDir?.trim()) return resolveUserPath(spec.targetDir);
   const key = resolveSkillKey(entry.skill, entry);
@@ -466,8 +462,6 @@ async function installDownloadSpec(params: {
   };
 }
 
-=======
->>>>>>> 2363e1b08 (fix(security): restrict skill download target paths)
 async function resolveBrewBinDir(timeoutMs: number, brewExe?: string): Promise<string | undefined> {
   const exe = brewExe ?? (hasBinary("brew") ? "brew" : resolveBrewExecutable());
   if (!exe) return undefined;

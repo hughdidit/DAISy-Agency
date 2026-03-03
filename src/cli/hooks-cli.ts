@@ -3,13 +3,7 @@ import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
 import { resolveArchiveKind } from "../infra/archive.js";
-=======
-import type { HookEntry } from "../hooks/types.js";
-import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { loadConfig, writeConfigFile } from "../config/io.js";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 import {
   buildWorkspaceHookStatus,
   type HookStatusEntry,
@@ -24,22 +18,15 @@ import {
   resolveHookInstallDir,
 } from "../hooks/install.js";
 import { recordHookInstall } from "../hooks/installs.js";
-<<<<<<< HEAD
-=======
 import { loadWorkspaceHookEntries } from "../hooks/workspace.js";
 import { resolveArchiveKind } from "../infra/archive.js";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 import { buildPluginStatusReport } from "../plugins/status.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
 import { formatCliCommand } from "./command-format.js";
-<<<<<<< HEAD
 import { resolveUserPath, shortenHomePath } from "../utils.js";
-=======
-import { promptYesNo } from "./prompt.js";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 
 export type HooksListOptions = {
   json?: boolean;
@@ -689,7 +676,6 @@ export function registerHooksCli(program: Command): void {
         process.exit(1);
       }
 
-<<<<<<< HEAD
       let next: OpenClawConfig = {
         ...cfg,
         hooks: {
@@ -721,18 +707,6 @@ export function registerHooksCli(program: Command): void {
             },
           },
         };
-=======
-      let next = enableInternalHookEntries(cfg, result.hooks);
-      const resolvedSpec = result.npmResolution?.resolvedSpec;
-      const recordSpec = opts.pin && resolvedSpec ? resolvedSpec : raw;
-      if (opts.pin && !resolvedSpec) {
-        defaultRuntime.log(
-          theme.warn("Could not resolve exact npm version for --pin; storing original npm spec."),
-        );
-      }
-      if (opts.pin && resolvedSpec) {
-        defaultRuntime.log(`Pinned npm install record to ${resolvedSpec}.`);
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
       }
 
       next = recordHookInstall(next, {
@@ -797,26 +771,10 @@ export function registerHooksCli(program: Command): void {
             mode: "update",
             dryRun: true,
             expectedHookPackId: hookId,
-<<<<<<< HEAD
             logger: {
               info: (msg) => defaultRuntime.log(msg),
               warn: (msg) => defaultRuntime.log(theme.warn(msg)),
             },
-=======
-            expectedIntegrity: record.integrity,
-            onIntegrityDrift: async (drift) => {
-              const specLabel = drift.resolution.resolvedSpec ?? drift.spec;
-              defaultRuntime.log(
-                theme.warn(
-                  `Integrity drift detected for "${hookId}" (${specLabel})` +
-                    `\nExpected: ${drift.expectedIntegrity}` +
-                    `\nActual:   ${drift.actualIntegrity}`,
-                ),
-              );
-              return true;
-            },
-            logger: createInstallLogger(),
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
           });
           if (!probe.ok) {
             defaultRuntime.log(theme.error(`Failed to check ${hookId}: ${probe.error}`));
@@ -837,26 +795,10 @@ export function registerHooksCli(program: Command): void {
           spec: record.spec,
           mode: "update",
           expectedHookPackId: hookId,
-<<<<<<< HEAD
           logger: {
             info: (msg) => defaultRuntime.log(msg),
             warn: (msg) => defaultRuntime.log(theme.warn(msg)),
           },
-=======
-          expectedIntegrity: record.integrity,
-          onIntegrityDrift: async (drift) => {
-            const specLabel = drift.resolution.resolvedSpec ?? drift.spec;
-            defaultRuntime.log(
-              theme.warn(
-                `Integrity drift detected for "${hookId}" (${specLabel})` +
-                  `\nExpected: ${drift.expectedIntegrity}` +
-                  `\nActual:   ${drift.actualIntegrity}`,
-              ),
-            );
-            return await promptYesNo(`Continue updating "${hookId}" with this artifact?`);
-          },
-          logger: createInstallLogger(),
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
         });
         if (!result.ok) {
           defaultRuntime.log(theme.error(`Failed to update ${hookId}: ${result.error}`));

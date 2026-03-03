@@ -1,10 +1,4 @@
-<<<<<<< HEAD
 import { createRequire } from "node:module";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { compileSafeRegex } from "../security/safe-regex.js";
-import { resolveNodeRequireFromMeta } from "./node-require.js";
->>>>>>> a2dfe9879 (fix(security): harden regex compilation for filters and redaction)
 
 import type { OpenClawConfig } from "../config/config.js";
 

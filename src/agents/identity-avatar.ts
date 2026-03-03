@@ -41,15 +41,12 @@ function resolveExistingPath(value: string): string {
   }
 }
 
-<<<<<<< HEAD
 function isPathWithin(root: string, target: string): boolean {
   const relative = path.relative(root, target);
   if (!relative) return true;
   return !relative.startsWith("..") && !path.isAbsolute(relative);
 }
 
-=======
->>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 function resolveLocalAvatarPath(params: {
   raw: string;
   workspaceDir: string;

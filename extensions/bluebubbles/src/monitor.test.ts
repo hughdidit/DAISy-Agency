@@ -206,8 +206,6 @@ function createMockRequest(
   body: unknown,
   headers: Record<string, string> = {},
 ): IncomingMessage {
-<<<<<<< HEAD
-=======
   if (headers.host === undefined) {
     headers.host = "localhost";
   }
@@ -222,7 +220,6 @@ function createMockRequest(
     parsedUrl.searchParams.set("password", "test-password");
   }
 
->>>>>>> 743f4b284 (fix(security): harden BlueBubbles webhook auth behind proxies)
   const req = new EventEmitter() as IncomingMessage;
   req.method = method;
   req.url = url;
@@ -362,49 +359,6 @@ describe("BlueBubbles webhook monitor", () => {
     });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-    it("accepts URL-encoded payload wrappers", async () => {
-      const account = createMockAccount();
-      const config: OpenClawConfig = {};
-      const core = createMockRuntime();
-      setBlueBubblesRuntime(core);
-
-      unregister = registerBlueBubblesWebhookTarget({
-        account,
-        config,
-        runtime: { log: vi.fn(), error: vi.fn() },
-        core,
-        path: "/bluebubbles-webhook",
-      });
-
-      const payload = {
-        type: "new-message",
-        data: {
-          text: "hello",
-          handle: { address: "+15551234567" },
-          isGroup: false,
-          isFromMe: false,
-          guid: "msg-1",
-          date: Date.now(),
-        },
-      };
-      const encodedBody = new URLSearchParams({
-        payload: JSON.stringify(payload),
-      }).toString();
-
-      const req = createMockRequest("POST", "/bluebubbles-webhook", encodedBody);
-      const res = createMockResponse();
-
-      const handled = await handleBlueBubblesWebhookRequest(req, res);
-
-      expect(handled).toBe(true);
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toBe("ok");
-    });
-
->>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
     it("returns 408 when request body times out (Slow-Loris protection)", async () => {
       vi.useFakeTimers();
       try {
@@ -553,119 +507,7 @@ describe("BlueBubbles webhook monitor", () => {
       expect(res.statusCode).toBe(401);
     });
 
-<<<<<<< HEAD
     it("allows localhost requests without authentication", async () => {
-=======
-    it("rejects ambiguous routing when multiple targets match the same password", async () => {
-      const accountA = createMockAccount({ password: "secret-token" });
-      const accountB = createMockAccount({ password: "secret-token" });
-      const config: OpenClawConfig = {};
-      const core = createMockRuntime();
-      setBlueBubblesRuntime(core);
-
-      const sinkA = vi.fn();
-      const sinkB = vi.fn();
-
-      const req = createMockRequest("POST", "/bluebubbles-webhook?password=secret-token", {
-        type: "new-message",
-        data: {
-          text: "hello",
-          handle: { address: "+15551234567" },
-          isGroup: false,
-          isFromMe: false,
-          guid: "msg-1",
-        },
-      });
-      (req as unknown as { socket: { remoteAddress: string } }).socket = {
-        remoteAddress: "192.168.1.100",
-      };
-
-      const unregisterA = registerBlueBubblesWebhookTarget({
-        account: accountA,
-        config,
-        runtime: { log: vi.fn(), error: vi.fn() },
-        core,
-        path: "/bluebubbles-webhook",
-        statusSink: sinkA,
-      });
-      const unregisterB = registerBlueBubblesWebhookTarget({
-        account: accountB,
-        config,
-        runtime: { log: vi.fn(), error: vi.fn() },
-        core,
-        path: "/bluebubbles-webhook",
-        statusSink: sinkB,
-      });
-      unregister = () => {
-        unregisterA();
-        unregisterB();
-      };
-
-      const res = createMockResponse();
-      const handled = await handleBlueBubblesWebhookRequest(req, res);
-
-      expect(handled).toBe(true);
-      expect(res.statusCode).toBe(401);
-      expect(sinkA).not.toHaveBeenCalled();
-      expect(sinkB).not.toHaveBeenCalled();
-    });
-
-    it("ignores targets without passwords when a password-authenticated target matches", async () => {
-      const accountStrict = createMockAccount({ password: "secret-token" });
-      const accountWithoutPassword = createMockAccount({ password: undefined });
-      const config: OpenClawConfig = {};
-      const core = createMockRuntime();
-      setBlueBubblesRuntime(core);
-
-      const sinkStrict = vi.fn();
-      const sinkWithoutPassword = vi.fn();
-
-      const req = createMockRequest("POST", "/bluebubbles-webhook?password=secret-token", {
-        type: "new-message",
-        data: {
-          text: "hello",
-          handle: { address: "+15551234567" },
-          isGroup: false,
-          isFromMe: false,
-          guid: "msg-1",
-        },
-      });
-      (req as unknown as { socket: { remoteAddress: string } }).socket = {
-        remoteAddress: "192.168.1.100",
-      };
-
-      const unregisterStrict = registerBlueBubblesWebhookTarget({
-        account: accountStrict,
-        config,
-        runtime: { log: vi.fn(), error: vi.fn() },
-        core,
-        path: "/bluebubbles-webhook",
-        statusSink: sinkStrict,
-      });
-      const unregisterNoPassword = registerBlueBubblesWebhookTarget({
-        account: accountWithoutPassword,
-        config,
-        runtime: { log: vi.fn(), error: vi.fn() },
-        core,
-        path: "/bluebubbles-webhook",
-        statusSink: sinkWithoutPassword,
-      });
-      unregister = () => {
-        unregisterStrict();
-        unregisterNoPassword();
-      };
-
-      const res = createMockResponse();
-      const handled = await handleBlueBubblesWebhookRequest(req, res);
-
-      expect(handled).toBe(true);
-      expect(res.statusCode).toBe(200);
-      expect(sinkStrict).toHaveBeenCalledTimes(1);
-      expect(sinkWithoutPassword).not.toHaveBeenCalled();
-    });
-
-    it("requires authentication for loopback requests when password is configured", async () => {
->>>>>>> 188c4cd07 (fix(security): reject ambiguous webhook target matches)
       const account = createMockAccount({ password: "secret-token" });
       const config: OpenClawConfig = {};
       const core = createMockRuntime();

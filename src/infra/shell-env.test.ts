@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import fs from "node:fs";
 import os from "node:os";
->>>>>>> 9363c320d (fix(security): harden shell env fallback startup env handling)
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -12,8 +9,6 @@ import {
 } from "./shell-env.js";
 
 describe("shell env fallback", () => {
-<<<<<<< HEAD
-=======
   function getShellPathTwice(params: {
     exec: Parameters<typeof getShellPathFromLoginShell>[0]["exec"];
     platform: NodeJS.Platform;
@@ -64,7 +59,6 @@ describe("shell env fallback", () => {
   }
 
 <<<<<<< HEAD
->>>>>>> ff10fe8b9 (fix(security): require /etc/shells for shell env fallback)
 =======
   function withEtcShells(shells: string[], fn: () => void) {
     const etcShellsContent = `${shells.join("\n")}\n`;
@@ -149,8 +143,6 @@ describe("shell env fallback", () => {
     expect(env.DISCORD_BOT_TOKEN).toBe("discord");
     expect(exec2).not.toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
 
   it("resolves PATH via login shell and caches it", () => {
     resetShellPathCacheForTests();
@@ -230,7 +222,6 @@ describe("shell env fallback", () => {
         }
         throw new Error(`Unexpected readFileSync(${String(filePath)}) in test`);
       });
->>>>>>> ff10fe8b9 (fix(security): require /etc/shells for shell env fallback)
     try {
 =======
     withEtcShells(["/bin/sh", "/bin/bash", "/bin/zsh"], () => {

@@ -8,16 +8,7 @@
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-<<<<<<< HEAD
 import { readJsonBodyWithLimit, requestBodyErrorToText } from "openclaw/plugin-sdk";
-=======
-import {
-  createFixedWindowRateLimiter,
-  isBlockedHostnameOrIp,
-  readJsonBodyWithLimit,
-  requestBodyErrorToText,
-} from "openclaw/plugin-sdk";
->>>>>>> 43cad8268 (fix(security): harden webhook memory guards across channels)
 import { z } from "zod";
 
 import { NostrProfileSchema, type NostrProfile } from "./config-schema.js";
@@ -219,7 +210,6 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(JSON.stringify(body));
 }
 
-<<<<<<< HEAD
 async function readJsonBody(req: IncomingMessage, maxBytes = 64 * 1024): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -245,17 +235,6 @@ async function readJsonBody(req: IncomingMessage, maxBytes = 64 * 1024): Promise
     });
 
     req.on("error", reject);
-=======
-async function readJsonBody(
-  req: IncomingMessage,
-  maxBytes = 64 * 1024,
-  timeoutMs = 30_000,
-): Promise<unknown> {
-  const result = await readJsonBodyWithLimit(req, {
-    maxBytes,
-    timeoutMs,
-    emptyObjectOnEmpty: true,
->>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
   });
   if (result.ok) {
     return result.value;

@@ -194,15 +194,12 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
       void flushChatQueueForEvent(
         host as unknown as Parameters<typeof flushChatQueueForEvent>[0],
       );
-<<<<<<< HEAD
-=======
       if (host.refreshSessionsAfterChat) {
         host.refreshSessionsAfterChat = false;
         if (state === "final") {
           void loadSessions(host as unknown as OpenClawApp, { activeMinutes: 0 });
         }
       }
->>>>>>> 9a7160786 (refactor: rename to openclaw)
     }
     if (state === "final") void loadChatHistory(host as unknown as OpenClawApp);
     return;

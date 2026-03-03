@@ -33,15 +33,12 @@ import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dis
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
-<<<<<<< HEAD
-=======
 import { isDangerousNameMatchingEnabled } from "../../config/dangerous-name-matching.js";
 import { resolveOpenProviderRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
->>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import { upsertChannelPairingRequest } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
@@ -527,23 +524,11 @@ async function dispatchDiscordCommandInteraction(params: {
   ]);
   const ownerOk =
     ownerAllowList && user
-<<<<<<< HEAD
       ? allowListMatches(ownerAllowList, {
           id: user.id,
           name: user.username,
           tag: formatDiscordUserTag(user),
         })
-=======
-      ? allowListMatches(
-          ownerAllowList,
-          {
-            id: sender.id,
-            name: sender.name,
-            tag: sender.tag,
-          },
-          { allowNameMatching: isDangerousNameMatchingEnabled(discordConfig) },
-        )
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
       : false;
   const guildInfo = resolveDiscordGuildEntry({
     guild: interaction.guild ?? undefined,
@@ -613,40 +598,15 @@ async function dispatchDiscordCommandInteraction(params: {
       return;
     }
     if (dmPolicy !== "open") {
-<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
       const effectiveAllowFrom = [...(discordConfig?.dm?.allowFrom ?? []), ...storeAllowFrom];
       const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:"]);
-=======
-      const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-        provider: "discord",
-        accountId,
-        dmPolicy,
-      });
-      const effectiveAllowFrom = [
-        ...(discordConfig?.allowFrom ?? discordConfig?.dm?.allowFrom ?? []),
-        ...storeAllowFrom,
-      ];
-      const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:", "pk:"]);
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       const permitted = allowList
-<<<<<<< HEAD
         ? allowListMatches(allowList, {
             id: user.id,
             name: user.username,
             tag: formatDiscordUserTag(user),
           })
-=======
-        ? allowListMatches(
-            allowList,
-            {
-              id: sender.id,
-              name: sender.name,
-              tag: sender.tag,
-            },
-            { allowNameMatching: isDangerousNameMatchingEnabled(discordConfig) },
-          )
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
         : false;
       if (!permitted) {
         commandAuthorized = false;
@@ -679,7 +639,6 @@ async function dispatchDiscordCommandInteraction(params: {
     }
   }
   if (!isDirectMessage) {
-<<<<<<< HEAD
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
     const hasUserAllowlist = Array.isArray(channelUsers) && channelUsers.length > 0;
     const userOk = hasUserAllowlist
@@ -690,15 +649,6 @@ async function dispatchDiscordCommandInteraction(params: {
           userTag: formatDiscordUserTag(user),
         })
       : false;
-=======
-    const { hasAccessRestrictions, memberAllowed } = resolveDiscordMemberAccessState({
-      channelConfig,
-      guildInfo,
-      memberRoleIds,
-      sender,
-      allowNameMatching: isDangerousNameMatchingEnabled(discordConfig),
-    });
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
     const authorizers = useAccessGroups
       ? [
           { configured: ownerAllowList != null, allowed: ownerOk },
@@ -769,15 +719,12 @@ async function dispatchDiscordCommandInteraction(params: {
     },
   });
   const conversationLabel = isDirectMessage ? (user.globalName ?? user.username) : channelId;
-<<<<<<< HEAD
-=======
   const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
     channelConfig,
     guildInfo,
     sender: { id: sender.id, name: sender.name, tag: sender.tag },
     allowNameMatching: isDangerousNameMatchingEnabled(discordConfig),
   });
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
   const ctxPayload = finalizeInboundContext({
     Body: prompt,
     RawBody: prompt,

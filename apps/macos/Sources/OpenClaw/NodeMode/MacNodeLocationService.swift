@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/NodeMode/MacNodeLocationService.swift
-=======
 import OpenClawKit
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/NodeMode/MacNodeLocationService.swift
 import CoreLocation
 import Foundation
 import MoltbotKit

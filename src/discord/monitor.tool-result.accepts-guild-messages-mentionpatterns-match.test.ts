@@ -141,7 +141,6 @@ describe("discord tool result dispatch", () => {
     MENTION_PATTERNS_TEST_TIMEOUT_MS,
   );
 
-<<<<<<< HEAD
   it("skips guild messages when another user is explicitly mentioned", async () => {
     const { createDiscordMessageHandler } = await import("./monitor.js");
     const cfg = {
@@ -149,18 +148,6 @@ describe("discord tool result dispatch", () => {
         defaults: {
           model: "anthropic/claude-opus-4-5",
           workspace: "/tmp/openclaw",
-=======
-  it(
-    "accepts guild messages when mentionPatterns match even if another user is mentioned",
-    async () => {
-      const { createDiscordMessageHandler } = await import("./monitor.js");
-      const cfg = {
-        agents: {
-          defaults: {
-            model: "anthropic/claude-opus-4-5",
-            workspace: "/tmp/openclaw",
-          },
->>>>>>> 0223416c6 (Channels: finish Feishu/Lark integration)
         },
         session: { store: "/tmp/openclaw-sessions.json" },
         channels: {
@@ -229,17 +216,9 @@ describe("discord tool result dispatch", () => {
         client,
       );
 
-<<<<<<< HEAD
     expect(dispatchMock).not.toHaveBeenCalled();
     expect(sendMock).not.toHaveBeenCalled();
   }, 20_000);
-=======
-      expect(dispatchMock).toHaveBeenCalledTimes(1);
-      expect(sendMock).toHaveBeenCalledTimes(1);
-    },
-    MENTION_PATTERNS_TEST_TIMEOUT_MS,
-  );
->>>>>>> 0223416c6 (Channels: finish Feishu/Lark integration)
 
   it("accepts guild reply-to-bot messages as implicit mentions", async () => {
     const { createDiscordMessageHandler } = await import("./monitor.js");

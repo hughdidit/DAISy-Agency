@@ -50,13 +50,8 @@ function sanitizeDownloadFileName(fileName: string): string {
 
 function buildTempDownloadPath(fileName: string): string {
   const id = crypto.randomUUID();
-<<<<<<< HEAD
   const safeName = fileName.trim() ? fileName.trim() : "download.bin";
   return path.join("/tmp/openclaw/downloads", `${id}-${safeName}`);
-=======
-  const safeName = sanitizeDownloadFileName(fileName);
-  return path.join(resolvePreferredOpenClawTmpDir(), "downloads", `${id}-${safeName}`);
->>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
 }
 
 function createPageDownloadWaiter(page: Page, timeoutMs: number) {

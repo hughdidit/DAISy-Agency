@@ -1,15 +1,12 @@
 import { sanitizeBinaryOutput } from "../../agents/shell-utils.js";
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
 import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.js";
-<<<<<<< HEAD
-=======
 import {
   DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
   type ExecApprovalDecision,
 } from "../../infra/exec-approvals.js";
 <<<<<<< HEAD
 import { buildSystemRunApprovalBindingV1 } from "../../infra/system-run-approval-binding.js";
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 =======
 import {
   buildSystemRunApprovalBindingV1,
@@ -25,10 +22,7 @@ import {
   validateExecApprovalRequestParams,
   validateExecApprovalResolveParams,
 } from "../protocol/index.js";
-<<<<<<< HEAD
 import { buildSystemRunApprovalEnvBinding } from "../system-run-approval-env-binding.js";
-=======
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 import type { GatewayRequestHandlers } from "./types.js";
 
 export function createExecApprovalHandlers(
@@ -56,11 +50,8 @@ export function createExecApprovalHandlers(
         commandArgv?: string[];
         env?: Record<string, string>;
         cwd?: string;
-<<<<<<< HEAD
-=======
         systemRunPlanV2?: unknown;
         nodeId?: string;
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
         host?: string;
         security?: string;
         ask?: string;
@@ -75,8 +66,6 @@ export function createExecApprovalHandlers(
       };
       const timeoutMs = typeof p.timeoutMs === "number" ? p.timeoutMs : 120_000;
       const explicitId = typeof p.id === "string" && p.id.trim().length > 0 ? p.id.trim() : null;
-<<<<<<< HEAD
-=======
       const host = typeof p.host === "string" ? p.host.trim() : "";
       const nodeId = typeof p.nodeId === "string" ? p.nodeId.trim() : "";
       const commandArgv = Array.isArray(p.commandArgv)
@@ -86,7 +75,6 @@ export function createExecApprovalHandlers(
 <<<<<<< HEAD
       const envBinding = buildSystemRunApprovalEnvBinding(p.env);
 =======
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 =======
       const systemRunPlanV2 =
         host === "node" ? normalizeSystemRunApprovalPlanV2(p.systemRunPlanV2) : null;
@@ -110,16 +98,7 @@ export function createExecApprovalHandlers(
         return;
       }
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
-=======
-      if (host === "node" && (!Array.isArray(commandArgv) || commandArgv.length === 0)) {
-=======
-      if (
-        host === "node" &&
-        (!Array.isArray(effectiveCommandArgv) || effectiveCommandArgv.length === 0)
-      ) {
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
         respond(
           false,
           undefined,
@@ -148,13 +127,7 @@ export function createExecApprovalHandlers(
       }
       const request = {
 <<<<<<< HEAD
-<<<<<<< HEAD
         command: sanitizeBinaryOutput(p.command).replace(/\r/g, ""),
-=======
-        command: p.command,
-        commandArgv,
-<<<<<<< HEAD
->>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
 =======
         envHash: envBinding.envHash,
         envKeys: envBinding.envKeys.length > 0 ? envBinding.envKeys : undefined,

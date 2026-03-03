@@ -115,8 +115,6 @@ describe("pw-tools-core", () => {
     expect(saveAs).toHaveBeenCalledWith(targetPath);
     expect(res.path).toBe(targetPath);
   });
-<<<<<<< HEAD
-=======
   it("uses preferred tmp dir when waiting for download without explicit path", async () => {
     let downloadHandler: ((download: unknown) => void) | undefined;
     const on = vi.fn((event: string, handler: (download: unknown) => void) => {
@@ -200,7 +198,6 @@ describe("pw-tools-core", () => {
       path.normalize(`${path.join("tmp", "openclaw-preferred", "downloads")}${path.sep}`),
     );
   });
->>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
   it("waits for a matching response and returns its body", async () => {
     let responseHandler: ((resp: unknown) => void) | undefined;
     const on = vi.fn((event: string, handler: (resp: unknown) => void) => {

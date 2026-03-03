@@ -60,16 +60,7 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
     }
     logWs("out", "event", logMeta);
     for (const c of params.clients) {
-<<<<<<< HEAD
       if (!hasEventScope(c, event)) continue;
-=======
-      if (targetConnIds && !targetConnIds.has(c.connId)) {
-        continue;
-      }
-      if (!hasEventScope(c, event)) {
-        continue;
-      }
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
       const slow = c.socket.bufferedAmount > MAX_BUFFERED_BYTES;
       if (slow && opts?.dropIfSlow) continue;
       if (slow) {

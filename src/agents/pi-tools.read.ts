@@ -1,15 +1,6 @@
-<<<<<<< HEAD
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
 
-=======
-import fs from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
-import { SafeOpenError, openFileWithinRoot, writeFileWithinRoot } from "../infra/fs-safe.js";
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
 import { detectMime } from "../media/mime.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import { assertSandboxPath } from "./sandbox-paths.js";
@@ -283,33 +274,12 @@ export function createSandboxedWriteTool(root: string) {
   return wrapSandboxPathGuard(wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.write), root);
 }
 
-<<<<<<< HEAD
 export function createSandboxedEditTool(root: string) {
   const base = createEditTool(root) as unknown as AnyAgentTool;
   return wrapSandboxPathGuard(wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit), root);
 }
 
 export function createOpenClawReadTool(base: AnyAgentTool): AnyAgentTool {
-=======
-export function createHostWorkspaceWriteTool(root: string) {
-  const base = createWriteTool(root, {
-    operations: createHostWriteOperations(root),
-  }) as unknown as AnyAgentTool;
-  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.write);
-}
-
-export function createHostWorkspaceEditTool(root: string) {
-  const base = createEditTool(root, {
-    operations: createHostEditOperations(root),
-  }) as unknown as AnyAgentTool;
-  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit);
-}
-
-export function createOpenClawReadTool(
-  base: AnyAgentTool,
-  options?: OpenClawReadToolOptions,
-): AnyAgentTool {
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
   const patched = patchToolSchemaForClaudeCompatibility(base);
   return {
     ...patched,
@@ -330,8 +300,6 @@ export function createOpenClawReadTool(
     },
   };
 }
-<<<<<<< HEAD
-=======
 
 function createSandboxReadOperations(params: SandboxToolParams) {
   return {
@@ -463,4 +431,3 @@ function createFsAccessError(code: string, filePath: string): NodeJS.ErrnoExcept
   error.code = code;
   return error;
 }
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)

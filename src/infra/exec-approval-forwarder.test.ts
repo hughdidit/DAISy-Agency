@@ -21,8 +21,6 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-<<<<<<< HEAD
-=======
 function getFirstDeliveryText(deliver: ReturnType<typeof vi.fn>): string {
   const firstCall = deliver.mock.calls[0]?.[0] as
     | { payloads?: Array<{ text?: string }> }
@@ -97,7 +95,6 @@ async function expectDiscordSessionTargetRequest(params: {
   expect(deliver).toHaveBeenCalledTimes(params.expectedDeliveryCount);
 }
 
->>>>>>> da0ba1b73 (fix(security): harden channel auth path checks and exec approval routing)
 describe("exec approval forwarder", () => {
   it("forwards to session target and resolves", async () => {
     vi.useFakeTimers();
@@ -130,159 +127,7 @@ describe("exec approval forwarder", () => {
 
   it("forwards to explicit targets and expires", async () => {
     vi.useFakeTimers();
-<<<<<<< HEAD
     const deliver = vi.fn().mockResolvedValue([]);
-=======
-    const { deliver, forwarder } = createForwarder({ cfg: TARGETS_CFG });
-
-    await expect(forwarder.handleRequested(baseRequest)).resolves.toBe(true);
-    expect(deliver).toHaveBeenCalledTimes(1);
-
-    await vi.runAllTimersAsync();
-    expect(deliver).toHaveBeenCalledTimes(2);
-  });
-
-  it("formats single-line commands as inline code", async () => {
-    vi.useFakeTimers();
-    const { deliver, forwarder } = createForwarder({ cfg: TARGETS_CFG });
-
-    await expect(forwarder.handleRequested(baseRequest)).resolves.toBe(true);
-
-    expect(getFirstDeliveryText(deliver)).toContain("Command: `echo hello`");
-  });
-
-  it("formats complex commands as fenced code blocks", async () => {
-    vi.useFakeTimers();
-    const { deliver, forwarder } = createForwarder({ cfg: TARGETS_CFG });
-
-    await expect(
-      forwarder.handleRequested({
-        ...baseRequest,
-        request: {
-          ...baseRequest.request,
-          command: "echo `uname`\necho done",
-        },
-      }),
-    ).resolves.toBe(true);
-
-    expect(getFirstDeliveryText(deliver)).toContain("Command:\n```\necho `uname`\necho done\n```");
-  });
-
-  it("returns false when forwarding is disabled", async () => {
-    const { deliver, forwarder } = createForwarder({
-      cfg: {} as OpenClawConfig,
-    });
-    await expect(forwarder.handleRequested(baseRequest)).resolves.toBe(false);
-    expect(deliver).not.toHaveBeenCalled();
-  });
-
-  it("rejects unsafe nested-repetition regex in sessionFilter", async () => {
-    const cfg = {
-      approvals: {
-        exec: {
-          enabled: true,
-          mode: "session",
-          sessionFilter: ["(a+)+$"],
-        },
-      },
-    } as OpenClawConfig;
-
-    const { deliver, forwarder } = createForwarder({
-      cfg,
-      resolveSessionTarget: () => ({ channel: "slack", to: "U1" }),
-    });
-
-    const request = {
-      ...baseRequest,
-      request: {
-        ...baseRequest.request,
-        sessionKey: `${"a".repeat(28)}!`,
-      },
-    };
-
-    await expect(forwarder.handleRequested(request)).resolves.toBe(false);
-    expect(deliver).not.toHaveBeenCalled();
-  });
-
-  it("returns false when all targets are skipped", async () => {
-    await expectDiscordSessionTargetRequest({
-      cfg: makeSessionCfg({ discordExecApprovalsEnabled: true }),
-      expectedAccepted: false,
-      expectedDeliveryCount: 0,
-    });
-  });
-
-  it("forwards to discord when discord exec approvals handler is disabled", async () => {
-    await expectDiscordSessionTargetRequest({
-      cfg: makeSessionCfg(),
-      expectedAccepted: true,
-      expectedDeliveryCount: 1,
-    });
-  });
-
-  it("skips discord forwarding when discord exec approvals handler is enabled", async () => {
-    await expectDiscordSessionTargetRequest({
-      cfg: makeSessionCfg({ discordExecApprovalsEnabled: true }),
-      expectedAccepted: false,
-      expectedDeliveryCount: 0,
-    });
-  });
-
-  it("prefers turn-source routing over stale session last route", async () => {
-    vi.useFakeTimers();
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-exec-approval-forwarder-test-"));
-    try {
-      const storePath = path.join(tmpDir, "sessions.json");
-      fs.writeFileSync(
-        storePath,
-        JSON.stringify({
-          "agent:main:main": {
-            updatedAt: 1,
-            channel: "slack",
-            to: "U1",
-            lastChannel: "slack",
-            lastTo: "U1",
-          },
-        }),
-        "utf-8",
-      );
-
-      const cfg = {
-        session: { store: storePath },
-        approvals: { exec: { enabled: true, mode: "session" } },
-      } as OpenClawConfig;
-
-      const { deliver, forwarder } = createForwarder({ cfg });
-      await expect(
-        forwarder.handleRequested({
-          ...baseRequest,
-          request: {
-            ...baseRequest.request,
-            turnSourceChannel: "whatsapp",
-            turnSourceTo: "+15555550123",
-            turnSourceAccountId: "work",
-            turnSourceThreadId: "1739201675.123",
-          },
-        }),
-      ).resolves.toBe(true);
-
-      expect(deliver).toHaveBeenCalledTimes(1);
-      expect(deliver).toHaveBeenCalledWith(
-        expect.objectContaining({
-          channel: "whatsapp",
-          to: "+15555550123",
-          accountId: "work",
-          threadId: "1739201675.123",
-        }),
-      );
-    } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true });
-    }
-  });
-
-  it("can forward resolved notices without pending cache when request payload is present", async () => {
-    vi.useFakeTimers();
->>>>>>> a2dfe9879 (fix(security): harden regex compilation for filters and redaction)
     const cfg = {
       approvals: {
         exec: {

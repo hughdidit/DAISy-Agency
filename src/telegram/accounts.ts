@@ -1,11 +1,8 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { TelegramAccountConfig } from "../config/types.js";
 import { isTruthyEnvValue } from "../infra/env.js";
-<<<<<<< HEAD
-=======
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveAccountEntry } from "../routing/account-lookup.js";
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 import { listBoundAccountIds, resolveDefaultAgentBoundAccountId } from "../routing/bindings.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 import { resolveTelegramToken } from "./token.js";
@@ -57,13 +54,10 @@ function resolveAccountConfig(
   cfg: OpenClawConfig,
   accountId: string,
 ): TelegramAccountConfig | undefined {
-<<<<<<< HEAD
   const accounts = cfg.channels?.telegram?.accounts;
   if (!accounts || typeof accounts !== "object") return undefined;
   const direct = accounts[accountId] as TelegramAccountConfig | undefined;
   if (direct) return direct;
-=======
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
   const normalized = normalizeAccountId(accountId);
   return resolveAccountEntry(cfg.channels?.telegram?.accounts, normalized);
 }

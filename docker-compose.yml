@@ -18,13 +18,8 @@ services:
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
     ports:
 <<<<<<< HEAD
-<<<<<<< HEAD
       - "${CLAWDBOT_GATEWAY_PORT}:${CLAWDBOT_GATEWAY_PORT}"
       - "${CLAWDBOT_BRIDGE_PORT}:${CLAWDBOT_BRIDGE_PORT}"
-=======
-      - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
-      - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
->>>>>>> 9a7160786 (refactor: rename to openclaw)
 =======
       - '${OPENCLAW_GATEWAY_PORT:-18789}:18789'
       - '${OPENCLAW_BRIDGE_PORT:-18790}:18790'
@@ -39,7 +34,6 @@ services:
       start_period: 30s
     command:
       [
-<<<<<<< HEAD
         "node",
         "dist/index.mjs",
         "gateway",
@@ -49,11 +43,6 @@ services:
         "--port",
         "${CLAWDBOT_GATEWAY_PORT}",
         "--allow-unconfigured"
-=======
-        "${OPENCLAW_GATEWAY_BIND:-lan}",
-        "--port",
-        "${OPENCLAW_GATEWAY_PORT:-18789}"
->>>>>>> 9a7160786 (refactor: rename to openclaw)
 =======
         'node',
         'dist/index.js',

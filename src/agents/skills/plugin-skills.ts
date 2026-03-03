@@ -31,28 +31,9 @@ export function resolvePluginSkillDirs(params: {
   const resolved: string[] = [];
 
   for (const record of registry.plugins) {
-<<<<<<< HEAD
     if (!record.skills || record.skills.length === 0) continue;
     const enableState = resolveEnableState(record.id, record.origin, normalizedPlugins);
     if (!enableState.enabled) continue;
-=======
-    if (!record.skills || record.skills.length === 0) {
-      continue;
-    }
-    const enableState = resolveEffectiveEnableState({
-      id: record.id,
-      origin: record.origin,
-      config: normalizedPlugins,
-      rootConfig: params.config,
-    });
-    if (!enableState.enabled) {
-      continue;
-    }
-    // ACP router skills should not be attached when ACP is explicitly disabled.
-    if (!acpEnabled && record.id === "acpx") {
-      continue;
-    }
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     const memoryDecision = resolveMemorySlotDecision({
       id: record.id,
       kind: record.kind,

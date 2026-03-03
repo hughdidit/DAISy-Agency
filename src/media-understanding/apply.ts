@@ -151,18 +151,7 @@ function resolveUtf16Charset(buffer?: Buffer): "utf-16le" | "utf-16be" | undefin
   let zeroEven = 0;
   let zeroOdd = 0;
   for (let i = 0; i < sampleLen; i += 1) {
-<<<<<<< HEAD
     if (buffer[i] === 0) zeroCount += 1;
-=======
-    if (buffer[i] !== 0) {
-      continue;
-    }
-    if (i % 2 === 0) {
-      zeroEven += 1;
-    } else {
-      zeroOdd += 1;
-    }
->>>>>>> b796f6ec0 (Security: harden web tools and file parsing (#4058))
   }
   const zeroCount = zeroEven + zeroOdd;
   if (zeroCount / sampleLen > 0.2) {
@@ -264,7 +253,6 @@ function looksLikeLegacyTextBytes(buffer: Buffer): boolean {
 }
 
 function looksLikeUtf8Text(buffer?: Buffer): boolean {
-<<<<<<< HEAD
   if (!buffer || buffer.length === 0) return false;
   const sampleLen = Math.min(buffer.length, 4096);
   let printable = 0;
@@ -284,18 +272,6 @@ function looksLikeUtf8Text(buffer?: Buffer): boolean {
   const total = printable + other;
   if (total === 0) return false;
   return printable / total > 0.85;
-=======
-  if (!buffer || buffer.length === 0) {
-    return false;
-  }
-  const sample = buffer.subarray(0, Math.min(buffer.length, 4096));
-  try {
-    const text = new TextDecoder("utf-8", { fatal: true }).decode(sample);
-    return isMostlyPrintable(text);
-  } catch {
-    return looksLikeLegacyTextBytes(sample);
-  }
->>>>>>> b796f6ec0 (Security: harden web tools and file parsing (#4058))
 }
 
 function decodeTextSample(buffer?: Buffer): string {

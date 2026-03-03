@@ -12,8 +12,6 @@ export type BrowserSnapshotDefaults = {
   /** Default snapshot mode (applies when mode is not provided). */
   mode?: "efficient";
 };
-<<<<<<< HEAD
-=======
 export type BrowserSsrFPolicyConfig = {
   /** Legacy alias for private-network access. Prefer dangerouslyAllowPrivateNetwork. */
   allowPrivateNetwork?: boolean;
@@ -30,7 +28,6 @@ export type BrowserSsrFPolicyConfig = {
    */
   hostnameAllowlist?: string[];
 };
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 export type BrowserConfig = {
   enabled?: boolean;
   /** If false, disable browser act:evaluate (arbitrary JS). Default: true */

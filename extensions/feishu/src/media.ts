@@ -1,13 +1,7 @@
 import fs from "fs";
-<<<<<<< HEAD
 import path from "path";
 import { Readable } from "stream";
 import { buildRandomTempFilePath, type ClawdbotConfig } from "openclaw/plugin-sdk";
-=======
-import { withTempDownloadPath, type ClawdbotConfig } from "openclaw/plugin-sdk";
-import path from "path";
-import { Readable } from "stream";
->>>>>>> ec232a9e2 (refactor(security): harden temp-path handling for inbound media)
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { normalizeFeishuExternalKey } from "./external-keys.js";
@@ -59,17 +53,10 @@ async function readFeishuResponseBuffer(params: {
     return Buffer.concat(chunks);
   }
   if (typeof responseAny.writeFile === "function") {
-<<<<<<< HEAD
     await responseAny.writeFile(params.tmpPath);
     const buffer = await fs.promises.readFile(params.tmpPath);
     await fs.promises.unlink(params.tmpPath).catch(() => {});
     return buffer;
-=======
-    return await withTempDownloadPath({ prefix: params.tmpDirPrefix }, async (tmpPath) => {
-      await responseAny.writeFile(tmpPath);
-      return await fs.promises.readFile(tmpPath);
-    });
->>>>>>> ec232a9e2 (refactor(security): harden temp-path handling for inbound media)
   }
   if (typeof responseAny[Symbol.asyncIterator] === "function") {
     const chunks: Buffer[] = [];

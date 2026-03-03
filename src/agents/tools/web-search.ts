@@ -1,15 +1,8 @@
 import { Type } from "@sinclair/typebox";
 
 import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 <<<<<<< HEAD
-=======
-import { fetchWithSsrFGuard } from "../../infra/net/fetch-guard.js";
-import { defaultRuntime } from "../../runtime.js";
-import { wrapWebContent } from "../../security/external-content.js";
-import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 import type { AnyAgentTool } from "./common.js";
 =======
 import { wrapWebContent } from "../../security/external-content.js";
@@ -233,8 +226,6 @@ function resolvePerplexityModel(perplexity?: PerplexityConfig): string {
   return fromConfig || DEFAULT_PERPLEXITY_MODEL;
 }
 
-<<<<<<< HEAD
-=======
 function isDirectPerplexityBaseUrl(baseUrl: string): boolean {
   const trimmed = baseUrl.trim();
   if (!trimmed) {
@@ -454,7 +445,6 @@ async function resolveRedirectUrl(url: string): Promise<string> {
       },
       async ({ finalUrl }) => finalUrl || url,
     );
->>>>>>> 085c23ce5 (fix(security): block private-network web_search citation redirects)
   } catch {
     return url;
   }
@@ -597,8 +587,6 @@ async function runWebSearch(params: {
     return payload;
   }
 
-<<<<<<< HEAD
-=======
   if (params.provider === "grok") {
     const { content, citations, inlineCitations } = await runGrokSearch({
       query: params.query,
@@ -627,7 +615,6 @@ async function runWebSearch(params: {
     return payload;
   }
 
->>>>>>> da55d70fb (fix(security): harden untrusted web tool transcripts)
   if (params.provider !== "brave") {
     throw new Error("Unsupported web search provider.");
   }
@@ -775,8 +762,6 @@ export const __testing = {
   inferPerplexityBaseUrlFromApiKey,
   resolvePerplexityBaseUrl,
   normalizeFreshness,
-<<<<<<< HEAD
-=======
   freshnessToPerplexityRecency,
   resolveGrokApiKey,
   resolveGrokModel,
@@ -787,5 +772,4 @@ export const __testing = {
   resolveKimiBaseUrl,
   extractKimiCitations,
   resolveRedirectUrl,
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 } as const;

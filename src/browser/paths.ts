@@ -1,9 +1,6 @@
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { SafeOpenError, openFileWithinRoot } from "../infra/fs-safe.js";
 import { isNotFoundPathError, isPathInside } from "../infra/path-guards.js";
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 
 export const DEFAULT_BROWSER_TMP_DIR = resolvePreferredOpenClawTmpDir();

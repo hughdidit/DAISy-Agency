@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/VoiceWakeGlobalSettingsSyncTests.swift
-=======
 import OpenClawProtocol
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/VoiceWakeGlobalSettingsSyncTests.swift
 import Foundation
 import MoltbotProtocol
 import Testing

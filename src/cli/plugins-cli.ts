@@ -1,22 +1,14 @@
 import type { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 import type { Command } from "commander";
 
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { PluginRecord } from "../plugins/registry.js";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 import { loadConfig, writeConfigFile } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveArchiveKind } from "../infra/archive.js";
 import { installPluginFromNpmSpec, installPluginFromPath } from "../plugins/install.js";
 import { recordPluginInstall } from "../plugins/installs.js";
-<<<<<<< HEAD
-=======
 import { clearPluginManifestRegistryCache } from "../plugins/manifest-registry.js";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 import { applyExclusiveSlotSelection } from "../plugins/slots.js";
 import type { PluginRecord } from "../plugins/registry.js";
 import { buildPluginStatusReport } from "../plugins/status.js";
@@ -304,20 +296,8 @@ export function registerPluginsCli(program: Command) {
     .description("Install a plugin (path, archive, or npm spec)")
     .argument("<path-or-spec>", "Path (.ts/.js/.zip/.tgz/.tar.gz) or an npm package spec")
     .option("-l, --link", "Link a local path instead of copying", false)
-<<<<<<< HEAD
     .action(async (raw: string, opts: { link?: boolean }) => {
       const resolved = resolveUserPath(raw);
-=======
-    .option("--pin", "Record npm installs as exact resolved <name>@<version>", false)
-    .action(async (raw: string, opts: { link?: boolean; pin?: boolean }) => {
-      const fileSpec = resolveFileNpmSpecToLocalPath(raw);
-      if (fileSpec && !fileSpec.ok) {
-        defaultRuntime.error(fileSpec.error);
-        process.exit(1);
-      }
-      const normalized = fileSpec && fileSpec.ok ? fileSpec.path : raw;
-      const resolved = resolveUserPath(normalized);
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
       const cfg = loadConfig();
 
       if (fs.existsSync(resolved)) {
@@ -439,7 +419,6 @@ export function registerPluginsCli(program: Command) {
         process.exit(1);
       }
 
-<<<<<<< HEAD
       let next: OpenClawConfig = {
         ...cfg,
         plugins: {
@@ -453,19 +432,6 @@ export function registerPluginsCli(program: Command) {
           },
         },
       };
-=======
-      let next = enablePluginInConfig(cfg, result.pluginId);
-      const resolvedSpec = result.npmResolution?.resolvedSpec;
-      const recordSpec = opts.pin && resolvedSpec ? resolvedSpec : raw;
-      if (opts.pin && !resolvedSpec) {
-        defaultRuntime.log(
-          theme.warn("Could not resolve exact npm version for --pin; storing original npm spec."),
-        );
-      }
-      if (opts.pin && resolvedSpec) {
-        defaultRuntime.log(`Pinned npm install record to ${resolvedSpec}.`);
-      }
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
       next = recordPluginInstall(next, {
         pluginId: result.pluginId,
         source: "npm",

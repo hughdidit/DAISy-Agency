@@ -310,8 +310,6 @@ describe("web_fetch extraction fallbacks", () => {
     expect(details.extractor).toBe("firecrawl");
     expect(details.text).toContain("firecrawl fallback");
   });
-<<<<<<< HEAD:src/agents/tools/web-tools.fetch.test.ts
-=======
 
   it("wraps external content and clamps oversized maxChars", async () => {
     const large = "a".repeat(80_000);
@@ -336,7 +334,6 @@ describe("web_fetch extraction fallbacks", () => {
     expect(details.truncated).toBe(true);
   });
 
->>>>>>> 58f7b7638 (Security: add per-wrapper IDs to untrusted-content markers (#19009)):src/agents/tools/web-tools.fetch.e2e.test.ts
   it("strips and truncates HTML from error responses", async () => {
     const long = "x".repeat(12_000);
     const html =

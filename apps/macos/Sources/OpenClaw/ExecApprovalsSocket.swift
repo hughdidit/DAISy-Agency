@@ -1,8 +1,5 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
-=======
 import OpenClawKit
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
 import CryptoKit
 import Darwin
 import Foundation
@@ -470,7 +467,6 @@ private enum ExecHostExecutor {
             timeoutMs: request.timeoutMs)
     }
 
-<<<<<<< HEAD
     private static func buildContext(request: ExecHostRequest, command: [String]) async -> ExecApprovalContext {
         let displayCommand = ExecCommandFormatter.displayString(
             for: command,
@@ -483,14 +479,6 @@ private enum ExecHostExecutor {
         let autoAllowSkills = approvals.agent.autoAllowSkills
         let env = self.sanitizedEnv(request.env)
         let resolution = ExecCommandResolution.resolve(
-=======
-    private static func buildContext(
-        request: ExecHostRequest,
-        command: [String],
-        rawCommand: String?) async -> ExecApprovalContext
-    {
-        await ExecApprovalEvaluator.evaluate(
->>>>>>> 55cf92578 (fix(security): harden system.run companion command binding)
             command: command,
             rawCommand: rawCommand,
             cwd: request.cwd,

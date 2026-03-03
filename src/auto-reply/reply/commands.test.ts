@@ -1,23 +1,15 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { abortEmbeddedPiRun, compactEmbeddedPiSession } from "../../agents/pi-embedded.js";
->>>>>>> 3a93a7bb1 (fix(security): enforce auth for abort triggers and models)
 import {
   addSubagentRunForTests,
   resetSubagentRegistryForTests,
 } from "../../agents/subagent-registry.js";
 import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-=======
 import { updateSessionStore, type SessionEntry } from "../../config/sessions.js";
->>>>>>> 3a93a7bb1 (fix(security): enforce auth for abort triggers and models)
 import * as internalHooks from "../../hooks/internal-hooks.js";
 import { clearPluginCommands, registerPluginCommand } from "../../plugins/commands.js";
 import type { MsgContext } from "../templating.js";
@@ -51,8 +43,6 @@ afterAll(async () => {
 });
 
 function buildParams(commandBody: string, cfg: OpenClawConfig, ctxOverrides?: Partial<MsgContext>) {
-<<<<<<< HEAD
-=======
   return buildCommandTestParams(commandBody, cfg, ctxOverrides, { workspaceDir: testWorkspaceDir });
 }
 
@@ -507,7 +497,6 @@ function buildPolicyParams(
   cfg: OpenClawConfig,
   ctxOverrides?: Partial<MsgContext>,
 ): HandleCommandsParams {
->>>>>>> 3a93a7bb1 (fix(security): enforce auth for abort triggers and models)
   const ctx = {
     Body: commandBody,
     CommandBody: commandBody,
@@ -575,7 +564,6 @@ describe("handleCommands gating", () => {
     expect(result.reply?.text).toContain("elevated is not available");
   });
 
-<<<<<<< HEAD
   it("blocks /config when disabled", async () => {
     const cfg = {
       commands: { config: false, debug: false, text: true },
@@ -586,43 +574,6 @@ describe("handleCommands gating", () => {
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("/config is disabled");
   });
-=======
-  it("rejects blocked account ids and keeps Object.prototype clean", async () => {
-    delete (Object.prototype as Record<string, unknown>).allowFrom;
-
-    const cfg = {
-      commands: { text: true, config: true },
-      channels: { telegram: { allowFrom: ["123"] } },
-    } as OpenClawConfig;
-    const params = buildPolicyParams("/allowlist add dm --account __proto__ 789", cfg);
-    const result = await handleCommands(params);
-
-    expect(result.shouldContinue).toBe(false);
-    expect(result.reply?.text).toContain("Invalid account id");
-    expect((Object.prototype as Record<string, unknown>).allowFrom).toBeUndefined();
-    expect(writeConfigFileMock).not.toHaveBeenCalled();
-  });
-
-  it("removes DM allowlist entries from canonical allowFrom and deletes legacy dm.allowFrom", async () => {
-    const cases = [
-      {
-        provider: "slack",
-        removeId: "U111",
-        initialAllowFrom: ["U111", "U222"],
-        expectedAllowFrom: ["U222"],
-      },
-      {
-        provider: "discord",
-        removeId: "111",
-        initialAllowFrom: ["111", "222"],
-        expectedAllowFrom: ["222"],
-      },
-    ] as const;
-    validateConfigObjectWithPluginsMock.mockImplementation((config: unknown) => ({
-      ok: true,
-      config,
-    }));
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 
   it("blocks /debug when disabled", async () => {
     const cfg = {
@@ -673,7 +624,6 @@ describe("handleCommands bash alias", () => {
     expect(result.reply?.text).toContain("No active bash job");
   });
 
-<<<<<<< HEAD
   it("routes !stop through the /bash handler", async () => {
     resetBashChatCommandForTests();
     const cfg = {
@@ -681,23 +631,6 @@ describe("handleCommands bash alias", () => {
       whatsapp: { allowFrom: ["*"] },
     } as OpenClawConfig;
     const params = buildParams("!stop", cfg);
-=======
-  it("rejects unauthorized /models commands", async () => {
-    const params = buildPolicyParams("/models", cfg, { Provider: "discord", Surface: "discord" });
-    const result = await handleCommands({
-      ...params,
-      command: {
-        ...params.command,
-        isAuthorizedSender: false,
-        senderId: "unauthorized",
-      },
-    });
-    expect(result).toEqual({ shouldContinue: false });
-  });
-
-  it("lists providers on telegram (buttons)", async () => {
-    const params = buildPolicyParams("/models", cfg, { Provider: "telegram", Surface: "telegram" });
->>>>>>> 3a93a7bb1 (fix(security): enforce auth for abort triggers and models)
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("No active bash job");

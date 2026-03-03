@@ -4,23 +4,12 @@ import { fileURLToPath } from "node:url";
 
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { MediaUnderstandingAttachmentsConfig } from "../config/types.tools.js";
-<<<<<<< HEAD
 import { fetchRemoteMedia, MediaFetchError } from "../media/fetch.js";
 import { detectMime, getFileExtension, isAudioFileName, kindFromMime } from "../media/mime.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { fetchWithTimeout } from "./providers/shared.js";
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 import { MediaUnderstandingSkipError } from "./errors.js";
-=======
-import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
-import { logVerbose, shouldLogVerbose } from "../globals.js";
-import { isAbortError } from "../infra/unhandled-rejections.js";
-import { fetchRemoteMedia, MediaFetchError } from "../media/fetch.js";
-import { detectMime, getFileExtension, isAudioFileName, kindFromMime } from "../media/mime.js";
-import { buildRandomTempFilePath } from "../plugin-sdk/temp-path.js";
-import { MediaUnderstandingSkipError } from "./errors.js";
-import { fetchWithTimeout } from "./providers/shared.js";
->>>>>>> ec232a9e2 (refactor(security): harden temp-path handling for inbound media)
 
 type MediaBufferResult = {
   buffer: Buffer;

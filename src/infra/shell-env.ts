@@ -1,11 +1,5 @@
 import { execFileSync } from "node:child_process";
-<<<<<<< HEAD
 
-=======
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
->>>>>>> 25e89cc86 (fix(security): harden shell env fallback)
 import { isTruthyEnvValue } from "./env.js";
 import { sanitizeHostExecEnv } from "./host-env-security.js";
 
@@ -17,26 +11,6 @@ let cachedShellPath: string | null | undefined;
 let cachedEtcShells: Set<string> | null | undefined;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-function resolveShellExecEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-  const execEnv = sanitizeHostExecEnv({ baseEnv: env });
-
-  // Startup-file resolution must stay pinned to the real user home.
-  const home = os.homedir().trim();
-  if (home) {
-    execEnv.HOME = home;
-  } else {
-    delete execEnv.HOME;
-  }
-
-  // Avoid zsh startup-file redirection via env poisoning.
-  delete execEnv.ZDOTDIR;
-  return execEnv;
-}
-
->>>>>>> 9363c320d (fix(security): harden shell env fallback startup env handling)
 function resolveTimeoutMs(timeoutMs: number | undefined): number {
   if (typeof timeoutMs !== "number" || !Number.isFinite(timeoutMs)) {
     return DEFAULT_TIMEOUT_MS;
@@ -149,7 +123,6 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
     return { ok: true, applied: [], skippedReason: "already-has-keys" };
   }
 
-<<<<<<< HEAD
   const timeoutMs =
     typeof opts.timeoutMs === "number" && Number.isFinite(opts.timeoutMs)
       ? Math.max(0, opts.timeoutMs)
@@ -168,9 +141,6 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
       env: opts.env,
       stdio: ["ignore", "pipe", "pipe"],
     });
-=======
-    stdout = execLoginShellEnvZero({ shell, env: execEnv, exec, timeoutMs });
->>>>>>> 9363c320d (fix(security): harden shell env fallback startup env handling)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     logger.warn(`[openclaw] shell env fallback failed: ${msg}`);
@@ -189,19 +159,9 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
 
   const applied: string[] = [];
   for (const key of opts.expectedKeys) {
-<<<<<<< HEAD
     if (opts.env[key]?.trim()) continue;
     const value = shellEnv.get(key);
     if (!value?.trim()) continue;
-=======
-    if (opts.env[key]?.trim()) {
-      continue;
-    }
-    const value = probe.shellEnv.get(key);
-    if (!value?.trim()) {
-      continue;
-    }
->>>>>>> 204d9fb40 (refactor(security): dedupe shell env probe and add path regression test)
     opts.env[key] = value;
     applied.push(key);
   }
@@ -237,7 +197,6 @@ export function getShellPathFromLoginShell(opts: {
     return cachedShellPath;
   }
 
-<<<<<<< HEAD
   const exec = opts.exec ?? execFileSync;
   const timeoutMs =
     typeof opts.timeoutMs === "number" && Number.isFinite(opts.timeoutMs)
@@ -256,9 +215,6 @@ export function getShellPathFromLoginShell(opts: {
       env: opts.env,
       stdio: ["ignore", "pipe", "pipe"],
     });
-=======
-    stdout = execLoginShellEnvZero({ shell, env: execEnv, exec, timeoutMs });
->>>>>>> 9363c320d (fix(security): harden shell env fallback startup env handling)
   } catch {
 =======
   const probe = probeLoginShellEnv({

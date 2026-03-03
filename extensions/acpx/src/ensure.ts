@@ -27,56 +27,7 @@ function extractVersion(stdout: string, stderr: string): string | null {
   return match?.[0] ?? null;
 }
 
-<<<<<<< HEAD
 export async function checkPinnedAcpxVersion(params: {
-=======
-function isExpectedVersionConfigured(value: string | undefined): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
-function supportsPathResolution(command: string): boolean {
-  return path.isAbsolute(command) || command.includes("/") || command.includes("\\");
-}
-
-function isUnsupportedVersionProbe(stdout: string, stderr: string): boolean {
-  const combined = `${stdout}\n${stderr}`.toLowerCase();
-  return combined.includes("unknown option") && combined.includes("--version");
-}
-
-function resolveVersionFromPackage(command: string, cwd: string): string | null {
-  if (!supportsPathResolution(command)) {
-    return null;
-  }
-  const commandPath = path.isAbsolute(command) ? command : path.resolve(cwd, command);
-  let current: string;
-  try {
-    current = path.dirname(fs.realpathSync(commandPath));
-  } catch {
-    return null;
-  }
-  while (true) {
-    const packageJsonPath = path.join(current, "package.json");
-    try {
-      const parsed = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
-        name?: unknown;
-        version?: unknown;
-      };
-      if (parsed.name === "acpx" && typeof parsed.version === "string" && parsed.version.trim()) {
-        return parsed.version.trim();
-      }
-    } catch {
-      // no-op; continue walking up
-    }
-    const parent = path.dirname(current);
-    if (parent === current) {
-      return null;
-    }
-    current = parent;
-  }
-}
-
-export async function checkAcpxVersion(params: {
->>>>>>> b12c909ea (ACPX: pin 0.1.15 and tolerate missing --version in health check)
   command: string;
   cwd?: string;
   expectedVersion?: string;

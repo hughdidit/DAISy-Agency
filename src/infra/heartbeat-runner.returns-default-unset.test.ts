@@ -268,8 +268,6 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("parses optional telegram :topic: threadId suffix", () => {
     const cases = [
       { to: "-100111:topic:42", expectedTo: "-100111", expectedThreadId: 42 },
@@ -327,7 +325,6 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     }
   });
 
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   it("prefers per-agent heartbeat overrides when provided", () => {
     const cfg: OpenClawConfig = {
       agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } },

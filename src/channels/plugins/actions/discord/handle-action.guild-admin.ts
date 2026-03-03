@@ -349,17 +349,7 @@ export async function tryHandleDiscordMessageActionGuildAdmin(params: {
         integer: true,
       }),
     });
-<<<<<<< HEAD
     const discordAction = action as "timeout" | "kick" | "ban";
-=======
-    const senderUserId = ctx.requesterSenderId?.trim() || undefined;
-<<<<<<< HEAD
-    // In channel/tool flows, require trusted sender identity for moderation authorization.
-    if (ctx.toolContext?.currentChannelProvider === "discord" && !senderUserId) {
-      throw new Error("Sender user ID required for Discord moderation actions.");
-    }
-    const discordAction = action;
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 =======
 >>>>>>> c9dee5926 (refactor(security): centralize trusted sender checks for discord moderation)
     return await handleDiscordAction(

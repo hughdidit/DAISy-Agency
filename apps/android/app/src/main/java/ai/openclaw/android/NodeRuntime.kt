@@ -19,7 +19,6 @@ import ai.openclaw.android.gateway.GatewayConnectOptions
 import ai.openclaw.android.gateway.GatewayDiscovery
 import ai.openclaw.android.gateway.GatewayEndpoint
 import ai.openclaw.android.gateway.GatewaySession
-<<<<<<< HEAD
 import ai.openclaw.android.gateway.GatewayTlsParams
 import ai.openclaw.android.node.CameraCaptureManager
 import ai.openclaw.android.node.LocationCaptureManager
@@ -29,10 +28,6 @@ import ai.openclaw.android.node.ScreenRecordManager
 import ai.openclaw.android.node.SmsManager
 import ai.openclaw.android.protocol.OpenClawCapability
 import ai.openclaw.android.protocol.OpenClawCameraCommand
-=======
-import ai.openclaw.android.gateway.probeGatewayTlsFingerprint
-import ai.openclaw.android.node.*
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
 import ai.openclaw.android.protocol.OpenClawCanvasA2UIAction
 import ai.openclaw.android.protocol.OpenClawCanvasA2UICommand
 import ai.openclaw.android.protocol.OpenClawCanvasCommand
@@ -605,14 +600,9 @@ class NodeRuntime(context: Context) {
     updateStatus()
     val token = prefs.loadGatewayToken()
     val password = prefs.loadGatewayPassword()
-<<<<<<< HEAD
     val tls = resolveTlsParams(endpoint)
     operatorSession.connect(endpoint, token, password, buildOperatorConnectOptions(), tls)
     nodeSession.connect(endpoint, token, password, buildNodeConnectOptions(), tls)
-=======
-    operatorSession.connect(endpoint, token, password, connectionManager.buildOperatorConnectOptions(), tls)
-    nodeSession.connect(endpoint, token, password, connectionManager.buildNodeConnectOptions(), tls)
->>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
   }
 
   fun acceptGatewayTrustPrompt() {

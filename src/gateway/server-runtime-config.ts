@@ -73,20 +73,12 @@ export async function resolveGatewayRuntimeConfig(params: {
   const openResponsesConfig = params.cfg.gateway?.http?.endpoints?.responses;
   const openResponsesEnabled = params.openResponsesEnabled ?? openResponsesConfig?.enabled ?? false;
   const controlUiBasePath = normalizeControlUiBasePath(params.cfg.gateway?.controlUi?.basePath);
-<<<<<<< HEAD
   const authBase = params.cfg.gateway?.auth ?? {};
   const authOverrides = params.auth ?? {};
   const authConfig = {
     ...authBase,
     ...authOverrides,
   };
-=======
-  const controlUiRootRaw = params.cfg.gateway?.controlUi?.root;
-  const controlUiRoot =
-    typeof controlUiRootRaw === "string" && controlUiRootRaw.trim().length > 0
-      ? controlUiRootRaw.trim()
-      : undefined;
->>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
   const tailscaleBase = params.cfg.gateway?.tailscale ?? {};
   const tailscaleOverrides = params.tailscale ?? {};
   const tailscaleConfig = mergeGatewayTailscaleConfig(tailscaleBase, tailscaleOverrides);

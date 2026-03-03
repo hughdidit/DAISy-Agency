@@ -33,13 +33,7 @@ function mergeOverrides(base: unknown, override: unknown): unknown {
   const next: OverrideTree = { ...base };
   for (const [key, value] of Object.entries(override)) {
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (value === undefined) continue;
-=======
-    if (value === undefined || BLOCKED_MERGE_KEYS.has(key)) {
-=======
-    if (value === undefined || isBlockedObjectKey(key)) {
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
       continue;
     }
 >>>>>>> fbb79d401 (fix(security): harden runtime command override gating)

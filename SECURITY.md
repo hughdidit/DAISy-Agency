@@ -30,8 +30,6 @@ For full reporting instructions see our [Trust page](https://trust.openclaw.ai).
 
 Reports without reproduction steps, demonstrated impact, and remediation advice will be deprioritized. Given the volume of AI-generated scanner findings, we must ensure we're receiving vetted reports from researchers who understand the issues.
 
-<<<<<<< HEAD
-=======
 ### Report Acceptance Gate (Triage Fast Path)
 
 For fastest triage, include all of the following:
@@ -70,7 +68,6 @@ These are frequently reported but are typically closed with no code change:
 - Include likely duplicate GHSA IDs in your report when applicable.
 - Maintainers may close lower-quality/later duplicates in favor of the earliest high-quality canonical report.
 
->>>>>>> 7b4d2cb5c (docs(security): clarify trusted-config dos scope)
 ## Security & Trust
 
 **Jamieson O'Reilly** ([@theonejvo](https://twitter.com/theonejvo)) is Security & Trust at OpenClaw. Jamieson is the founder of [Dvuln](https://dvuln.com) and brings extensive experience in offensive security, penetration testing, and security program development.
@@ -84,8 +81,6 @@ The best way to help the project right now is by sending PRs.
 
 When patching a GHSA via `gh api`, include `X-GitHub-Api-Version: 2022-11-28` (or newer). Without it, some fields (notably CVSS) may not persist even if the request returns 200.
 
-<<<<<<< HEAD
-=======
 ## Operator Trust Model (Important)
 
 OpenClaw does **not** model one gateway as a multi-tenant, adversarial user boundary.
@@ -103,7 +98,6 @@ OpenClaw does **not** model one gateway as a multi-tenant, adversarial user boun
 - This is expected in OpenClaw's one-user trusted-operator model. If you need isolation, enable sandbox mode (`non-main`/`all`) and keep strict tool policy.
 
 <<<<<<< HEAD
->>>>>>> f6afc8c5b (docs(security): clarify host-side exec trust model defaults)
 =======
 ## Trusted Plugin Concept (Core)
 
@@ -119,12 +113,6 @@ Plugins/extensions are part of OpenClaw's trusted computing base for a gateway.
 - Public Internet Exposure
 - Using OpenClaw in ways that the docs recommend not to
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-- Deployments where mutually untrusted/adversarial operators share one gateway host and config
-- Prompt injection attacks
-<<<<<<< HEAD
->>>>>>> 810218756 (docs(security): clarify trusted-host deployment assumptions)
 =======
 =======
 - Deployments where mutually untrusted/adversarial operators share one gateway host and config (for example, reports expecting per-operator isolation for `sessions.list`, `sessions.preview`, `chat.history`, or similar control-plane reads)
@@ -134,41 +122,20 @@ Plugins/extensions are part of OpenClaw's trusted computing base for a gateway.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> b13fc7ecc (docs(security): clarify workspace memory trust boundary)
-=======
-=======
-=======
-=======
-- Reports where exploitability depends on attacker-controlled pre-existing symlink/hardlink filesystem state in trusted local paths (for example extraction/install target trees) unless a separate untrusted boundary bypass is shown that creates that state.
->>>>>>> a374325fc (docs(security): clarify local link-priming reports as out-of-scope)
 - Reports where the only demonstrated impact is an already-authorized sender intentionally invoking a local-action command (for example `/export-session` writing to an absolute host path) without bypassing auth, sandbox, or another documented boundary
-<<<<<<< HEAD
 >>>>>>> 403239057 (docs(security): clarify trusted user-triggered local actions)
-=======
-- Reports where the only claim is that a trusted-installed/enabled plugin can execute with gateway/host privileges (documented trust model behavior).
->>>>>>> 38c4944d7 (docs(security): clarify trusted plugin boundary)
 - Any report whose only claim is that an operator-enabled `dangerous*`/`dangerously*` config option weakens defaults (these are explicit break-glass tradeoffs by design)
 >>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 - Reports that depend on trusted operator-supplied configuration values to trigger availability impact (for example custom regex patterns). These may still be fixed as defense-in-depth hardening, but are not security-boundary bypasses.
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 7b4d2cb5c (docs(security): clarify trusted-config dos scope)
-=======
-=======
-- Reports whose only claim is heuristic/parity drift in command-risk detection (for example obfuscation-pattern checks) across exec surfaces, without a demonstrated trust-boundary bypass. These may be accepted as hardening improvements, but not as vulnerabilities.
->>>>>>> 9597cf189 (docs(security): scope obfuscation parity reports as hardening)
 =======
 - Reports whose only claim is heuristic/parity drift in command-risk detection (for example obfuscation-pattern checks) across exec surfaces, without a demonstrated trust-boundary bypass. These are hardening-only findings and are not vulnerabilities; triage may close them as `invalid`/`no-action` or track them separately as low/informational hardening.
 >>>>>>> 58171c891 (docs(security): clarify parity-only command-risk reports)
 - Exposed secrets that are third-party/user-controlled credentials (not OpenClaw-owned and not granting access to OpenClaw-operated infrastructure/services) without demonstrated OpenClaw impact
-<<<<<<< HEAD
 >>>>>>> d68380bb7 (docs(security): clarify exposed-secret report scope)
-=======
-- Reports whose only claim is host-side exec when sandbox runtime is disabled/unavailable (documented default behavior in the trusted-operator model), without a boundary bypass.
-<<<<<<< HEAD
->>>>>>> f6afc8c5b (docs(security): clarify host-side exec trust model defaults)
 =======
 - Reports whose only claim is that a platform-provided upload destination URL is untrusted (for example Microsoft Teams `fileConsent/invoke` `uploadInfo.uploadUrl`) without proving attacker control in an authenticated production flow.
 >>>>>>> f4391c172 (docs(security): clarify Teams fileConsent uploadUrl report scope)
@@ -261,26 +228,7 @@ For threat model + hardening guidance (including `openclaw security audit --deep
 
 ### Web Interface Safety
 
-<<<<<<< HEAD
 OpenClaw's web interface is intended for local use only. Do **not** bind it to the public internet; it is not hardened for public exposure.
-=======
-OpenClaw's web interface (Gateway Control UI + HTTP endpoints) is intended for **local use only**.
-
-- Recommended: keep the Gateway **loopback-only** (`127.0.0.1` / `::1`).
-  - Config: `gateway.bind="loopback"` (default).
-  - CLI: `openclaw gateway run --bind loopback`.
-- `gateway.controlUi.dangerouslyDisableDeviceAuth` is intended for localhost-only break-glass use.
-  - OpenClaw keeps deployment flexibility by design and does not hard-forbid non-local setups.
-  - Non-local and other risky configurations are surfaced by `openclaw security audit` as dangerous findings.
-  - This operator-selected tradeoff is by design and not, by itself, a security vulnerability.
-- Canvas host note: network-visible canvas is **intentional** for trusted node scenarios (LAN/tailnet).
-  - Expected setup: non-loopback bind + Gateway auth (token/password/trusted-proxy) + firewall/tailnet controls.
-  - Expected routes: `/__openclaw__/canvas/`, `/__openclaw__/a2ui/`.
-  - This deployment model alone is not a security vulnerability.
-- Do **not** expose it to the public internet (no direct bind to `0.0.0.0`, no public reverse proxy). It is not hardened for public exposure.
-- If you need remote access, prefer an SSH tunnel or Tailscale serve/funnel (so the Gateway still binds to loopback), plus strong Gateway auth.
-- The Gateway HTTP surface includes the canvas host (`/__openclaw__/canvas/`, `/__openclaw__/a2ui/`). Treat canvas content as sensitive/untrusted and avoid exposing it beyond loopback unless you understand the risk.
->>>>>>> 6a386a788 (docs(security): clarify canvas host exposure and auth)
 
 ## Runtime Requirements
 

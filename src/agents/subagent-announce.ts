@@ -250,22 +250,17 @@ export function buildSubagentSystemPrompt(params: {
   childSessionKey: string;
   label?: string;
   task?: string;
-<<<<<<< HEAD
-=======
   /** Whether ACP-specific routing guidance should be included. Defaults to true. */
   acpEnabled?: boolean;
   /** Depth of the child being spawned (1 = sub-agent, 2 = sub-sub-agent). */
   childDepth?: number;
   /** Config value: max allowed spawn depth. */
   maxSpawnDepth?: number;
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 }) {
   const taskText =
     typeof params.task === "string" && params.task.trim()
       ? params.task.replace(/\s+/g, " ").trim()
       : "{{TASK_DESCRIPTION}}";
-<<<<<<< HEAD
-=======
   const childDepth = typeof params.childDepth === "number" ? params.childDepth : 1;
   const maxSpawnDepth =
     typeof params.maxSpawnDepth === "number"
@@ -275,7 +270,6 @@ export function buildSubagentSystemPrompt(params: {
   const canSpawn = childDepth < maxSpawnDepth;
   const parentLabel = childDepth >= 2 ? "parent orchestrator" : "main agent";
 
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   const lines = [
     "# Subagent Context",
     "",
@@ -305,8 +299,6 @@ export function buildSubagentSystemPrompt(params: {
     "- NO pretending to be the main agent",
     "- NO using the `message` tool directly",
     "",
-<<<<<<< HEAD
-=======
   ];
 
   if (canSpawn) {
@@ -340,7 +332,6 @@ export function buildSubagentSystemPrompt(params: {
   }
 
   lines.push(
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     "## Session Context",
     params.label ? `- Label: ${params.label}` : undefined,
     params.requesterSessionKey ? `- Requester session: ${params.requesterSessionKey}.` : undefined,

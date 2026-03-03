@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -13,19 +12,12 @@ import { formatCliCommand } from "../cli/command-format.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { AgentToolsConfig } from "../config/types.tools.js";
 import { resolveBrowserConfig } from "../browser/config.js";
-=======
-import type { AgentToolsConfig } from "../config/types.tools.js";
-import type { ExecFn } from "./windows-acl.js";
-import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
->>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
 import { isToolAllowedByPolicies } from "../agents/pi-tools.policy.js";
 import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import {
   resolveSandboxConfigForAgent,
   resolveSandboxToolPolicyForAgent,
 } from "../agents/sandbox.js";
-<<<<<<< HEAD
-=======
 import { loadWorkspaceSkillEntries } from "../agents/skills.js";
 import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import { resolveBrowserConfig } from "../browser/config.js";
@@ -35,7 +27,6 @@ import { resolveNativeSkillsEnabled } from "../config/commands.js";
 import { createConfigIO } from "../config/config.js";
 import { INCLUDE_KEY, MAX_INCLUDE_DEPTH } from "../config/includes.js";
 import { resolveOAuthDir } from "../config/paths.js";
->>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
 import { INCLUDE_KEY, MAX_INCLUDE_DEPTH } from "../config/includes.js";
@@ -46,11 +37,7 @@ import {
   inspectPathPermissions,
   safeStat,
 } from "./audit-fs.js";
-<<<<<<< HEAD
 import type { ExecFn } from "./windows-acl.js";
-=======
-import { scanDirectoryWithSummary, type SkillScanFinding } from "./skill-scanner.js";
->>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
 
 export type SecurityAuditFinding = {
   checkId: string;
@@ -1230,11 +1217,8 @@ export async function collectInstalledSkillsCodeSafetyFindings(params: {
 export {
   collectAttackSurfaceSummaryFindings,
   collectExposureMatrixFindings,
-<<<<<<< HEAD
-=======
   collectGatewayHttpNoAuthFindings,
   collectGatewayHttpSessionKeyOverrideFindings,
->>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
   collectHooksHardeningFindings,
   collectLikelyMultiUserSetupFindings,
   collectMinimalProfileOverrideFindings,

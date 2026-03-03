@@ -163,32 +163,11 @@ async function cleanupGatewayTestHome(options: { restoreEnv: boolean }) {
     else process.env.OPENCLAW_CONFIG_PATH = previousConfigPath;
     if (previousSkipBrowserControl === undefined)
       delete process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER;
-<<<<<<< HEAD
     else process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = previousSkipBrowserControl;
     if (previousSkipGmailWatcher === undefined) delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
     else process.env.OPENCLAW_SKIP_GMAIL_WATCHER = previousSkipGmailWatcher;
     if (previousSkipCanvasHost === undefined) delete process.env.OPENCLAW_SKIP_CANVAS_HOST;
     else process.env.OPENCLAW_SKIP_CANVAS_HOST = previousSkipCanvasHost;
-=======
-    } else {
-      process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = previousSkipBrowserControl;
-    }
-    if (previousSkipGmailWatcher === undefined) {
-      delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
-    } else {
-      process.env.OPENCLAW_SKIP_GMAIL_WATCHER = previousSkipGmailWatcher;
-    }
-    if (previousSkipCanvasHost === undefined) {
-      delete process.env.OPENCLAW_SKIP_CANVAS_HOST;
-    } else {
-      process.env.OPENCLAW_SKIP_CANVAS_HOST = previousSkipCanvasHost;
-    }
-    if (previousBundledPluginsDir === undefined) {
-      delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
-    } else {
-      process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
-    }
->>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
   }
   if (options.restoreEnv && tempHome) {
     await fs.rm(tempHome, {

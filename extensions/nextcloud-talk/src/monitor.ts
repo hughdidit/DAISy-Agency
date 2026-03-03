@@ -1,6 +1,5 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { RuntimeEnv } from "openclaw/plugin-sdk";
 
@@ -8,25 +7,13 @@ import { resolveNextcloudTalkAccount } from "./accounts.js";
 import { handleNextcloudTalkInbound } from "./inbound.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
 import { extractNextcloudTalkHeaders, verifyNextcloudTalkSignature } from "./signature.js";
-=======
-=======
-import os from "node:os";
->>>>>>> d512163d6 (fix(security): harden nextcloud-talk webhook replay handling)
 import {
   type RuntimeEnv,
   isRequestBodyLimitError,
   readRequestBodyWithLimit,
   requestBodyErrorToText,
 } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
 >>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
-=======
-import { resolveNextcloudTalkAccount } from "./accounts.js";
-import { handleNextcloudTalkInbound } from "./inbound.js";
-import { createNextcloudTalkReplayGuard } from "./replay-guard.js";
-import { getNextcloudTalkRuntime } from "./runtime.js";
-import { extractNextcloudTalkHeaders, verifyNextcloudTalkSignature } from "./signature.js";
->>>>>>> d512163d6 (fix(security): harden nextcloud-talk webhook replay handling)
 import type {
   CoreConfig,
   NextcloudTalkInboundMessage,

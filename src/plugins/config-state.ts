@@ -64,8 +64,6 @@ export const normalizePluginsConfig = (
   };
 };
 
-<<<<<<< HEAD
-=======
 const hasExplicitMemorySlot = (plugins?: MoltbotConfig["plugins"]) =>
   Boolean(plugins?.slots && Object.prototype.hasOwnProperty.call(plugins.slots, "memory"));
 
@@ -132,7 +130,6 @@ export function isTestDefaultMemorySlotDisabled(
   return true;
 }
 
->>>>>>> 06289b36d (fix(security): harden SSH target handling (#4001))
 export function resolveEnableState(
   id: string,
   origin: PluginRecord["origin"],

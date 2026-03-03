@@ -1,8 +1,6 @@
 import { lookup as dnsLookup } from "node:dns/promises";
 import { lookup as dnsLookupCb, type LookupAddress } from "node:dns";
 import { Agent, type Dispatcher } from "undici";
-<<<<<<< HEAD
-=======
 import {
   extractEmbeddedIpv4FromIpv6,
   isBlockedSpecialUseIpv4Address,
@@ -14,7 +12,6 @@ import {
   parseLooseIpAddress,
 } from "../../shared/net/ip.js";
 import { normalizeHostname } from "./hostname.js";
->>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
 
 type LookupCallback = (
   err: NodeJS.ErrnoException | null,
@@ -31,16 +28,7 @@ export class SsrFBlockedError extends Error {
 
 type LookupFn = typeof dnsLookup;
 
-<<<<<<< HEAD
 const BLOCKED_HOSTNAMES = new Set(["localhost", "metadata.google.internal"]);
-=======
-export type SsrFPolicy = {
-  allowPrivateNetwork?: boolean;
-  dangerouslyAllowPrivateNetwork?: boolean;
-  allowedHostnames?: string[];
-  hostnameAllowlist?: string[];
-};
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 
 function normalizeHostname(hostname: string): string {
   const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
@@ -50,7 +38,6 @@ function normalizeHostname(hostname: string): string {
   return normalized;
 }
 
-<<<<<<< HEAD
 function parseStrictIpv4Octet(part: string): number | null {
   if (!/^[0-9]+$/.test(part)) {
     return null;
@@ -75,11 +62,6 @@ function parseIpv4(address: string): number[] | null {
   const numbers = parts.map((part) => Number.parseInt(part, 10));
   if (numbers.some((value) => Number.isNaN(value) || value < 0 || value > 255)) return null;
   return numbers;
-=======
-  if (parts.length < 1 || parts.length > 4) {
-=======
-  if (parts.length !== 4) {
->>>>>>> 26c9b37f5 (fix(security): enforce strict IPv4 SSRF literal handling)
     return null;
   }
   for (const part of parts) {
@@ -125,7 +107,6 @@ function looksLikeUnsupportedIpv4Literal(address: string): boolean {
   if (parts.some((part) => part.length === 0)) {
     return true;
   }
-<<<<<<< HEAD
 
   const partKinds = parts.map(classifyIpv4Part);
   if (partKinds.some((kind) => kind === "non-numeric")) {
@@ -147,18 +128,6 @@ function looksLikeUnsupportedIpv4Literal(address: string): boolean {
     ipv4Number & 0xff,
   ];
 >>>>>>> baa335f25 (fix(security): harden SSRF IPv4 literal parsing)
-=======
-  for (const part of parts) {
-    if (/^0x/i.test(part)) {
-      return true;
-    }
-    const value = Number.parseInt(part, 10);
-    if (Number.isNaN(value) || value > 255 || part !== String(value)) {
-      return true;
-    }
-  }
-  return false;
->>>>>>> 26c9b37f5 (fix(security): enforce strict IPv4 SSRF literal handling)
 }
 
 function stripIpv6ZoneId(address: string): string {
@@ -171,7 +140,6 @@ function parseIpv6Hextets(address: string): number[] | null {
   if (!input) {
     return null;
   }
-<<<<<<< HEAD
   const parts = mapped.split(":").filter(Boolean);
   if (parts.length === 1) {
     const value = Number.parseInt(parts[0], 16);
@@ -189,38 +157,6 @@ function parseIpv6Hextets(address: string): number[] | null {
     high > 0xffff ||
     low > 0xffff
   ) {
-=======
-
-  // Handle IPv4-embedded IPv6 like ::ffff:127.0.0.1 by converting the tail to 2 hextets.
-  if (input.includes(".")) {
-    const lastColon = input.lastIndexOf(":");
-    if (lastColon < 0) {
-      return null;
-    }
-    const ipv4 = parseIpv4(input.slice(lastColon + 1));
-    if (!ipv4) {
-      return null;
-    }
-    const high = (ipv4[0] << 8) + ipv4[1];
-    const low = (ipv4[2] << 8) + ipv4[3];
-    input = `${input.slice(0, lastColon)}:${high.toString(16)}:${low.toString(16)}`;
-  }
-
-  const doubleColonParts = input.split("::");
-  if (doubleColonParts.length > 2) {
-    return null;
-  }
-
-  const headParts =
-    doubleColonParts[0]?.length > 0 ? doubleColonParts[0].split(":").filter(Boolean) : [];
-  const tailParts =
-    doubleColonParts.length === 2 && doubleColonParts[1]?.length > 0
-      ? doubleColonParts[1].split(":").filter(Boolean)
-      : [];
-
-  const missingParts = 8 - headParts.length - tailParts.length;
-  if (missingParts < 0) {
->>>>>>> c0c0e0f9a (fix(security): block full-form IPv4-mapped IPv6 in SSRF guard)
     return null;
   }
 
@@ -326,7 +262,6 @@ export function isPrivateIpAddress(address: string): boolean {
   }
   if (!normalized) return false;
 
-<<<<<<< HEAD
   if (normalized.startsWith("::ffff:")) {
     const mapped = normalized.slice("::ffff:".length);
     const ipv4 = parseIpv4FromMappedIpv6(mapped);
@@ -337,24 +272,10 @@ export function isPrivateIpAddress(address: string): boolean {
   if (normalized.includes(":")) {
     if (normalized === "::" || normalized === "::1") return true;
     return PRIVATE_IPV6_PREFIXES.some((prefix) => normalized.startsWith(prefix));
-=======
-  if (normalized.includes(":")) {
-    const hextets = parseIpv6Hextets(normalized);
-    if (!hextets) {
-      // Security-critical parse failures should fail closed.
-=======
-  const strictIp = parseCanonicalIpAddress(normalized);
-  if (strictIp) {
-    if (isIpv4Address(strictIp)) {
-      return isBlockedSpecialUseIpv4Address(strictIp);
-    }
-    if (isPrivateOrLoopbackIpAddress(strictIp.toString())) {
->>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
       return true;
     }
     const embeddedIpv4 = extractEmbeddedIpv4FromIpv6(strictIp);
     if (embeddedIpv4) {
-<<<<<<< HEAD
       return isPrivateIpv4(embeddedIpv4);
     }
 
@@ -371,27 +292,15 @@ export function isPrivateIpAddress(address: string): boolean {
     }
     if ((first & 0xfe00) === 0xfc00) {
       return true;
-=======
-      return isBlockedSpecialUseIpv4Address(embeddedIpv4);
->>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
     }
     return false;
 >>>>>>> c0c0e0f9a (fix(security): block full-form IPv4-mapped IPv6 in SSRF guard)
   }
 
-<<<<<<< HEAD
   const ipv4 = parseIpv4(normalized);
 <<<<<<< HEAD
   if (!ipv4) return false;
   return isPrivateIpv4(ipv4);
-=======
-  if (ipv4) {
-    return isPrivateIpv4(ipv4);
-=======
-  // Security-critical parse failures should fail closed for any malformed IPv6 literal.
-  if (normalized.includes(":") && !parseLooseIpAddress(normalized)) {
-    return true;
->>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
   }
 
   if (!isCanonicalDottedDecimalIPv4(normalized) && isLegacyIpv4Literal(normalized)) {
@@ -485,19 +394,8 @@ export async function resolvePinnedHostname(
     throw new Error("Invalid hostname");
   }
 
-<<<<<<< HEAD
   if (isBlockedHostname(normalized)) {
     throw new SsrFBlockedError(`Blocked hostname: ${hostname}`);
-=======
-  const allowPrivateNetwork = resolveAllowPrivateNetwork(params.policy);
-  const allowedHostnames = normalizeHostnameSet(params.policy?.allowedHostnames);
-  const hostnameAllowlist = normalizeHostnameAllowlist(params.policy?.hostnameAllowlist);
-  const isExplicitAllowed = allowedHostnames.has(normalized);
-  const skipPrivateNetworkChecks = allowPrivateNetwork || isExplicitAllowed;
-
-  if (!matchesHostnameAllowlist(normalized, hostnameAllowlist)) {
-    throw new SsrFBlockedError(`Blocked hostname (not in allowlist): ${hostname}`);
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
   }
 
   if (isPrivateIpAddress(normalized)) {

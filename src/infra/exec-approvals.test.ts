@@ -15,23 +15,17 @@ import {
   matchAllowlist,
   maxAsk,
   minSecurity,
-<<<<<<< HEAD
-=======
   normalizeExecApprovals,
   parseExecArgvToken,
->>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
   normalizeSafeBins,
   requiresExecApproval,
   resolveCommandResolution,
   resolveAllowAlwaysPatterns,
   resolveExecApprovals,
   resolveExecApprovalsFromFile,
-<<<<<<< HEAD
-=======
   resolveExecApprovalsPath,
   resolveExecApprovalsSocketPath,
   resolveSafeBins,
->>>>>>> cfe8457a0 (fix(security): harden safeBins stdin-only enforcement)
   type ExecAllowlistEntry,
 } from "./exec-approvals.js";
 import { SAFE_BIN_PROFILE_FIXTURES, SAFE_BIN_PROFILES } from "./exec-safe-bin-policy.js";
@@ -143,80 +137,7 @@ describe("exec approvals safe shell command builder", () => {
 });
 
 describe("exec approvals command resolution", () => {
-<<<<<<< HEAD
   it("resolves PATH executables", () => {
-=======
-  it("resolves PATH, relative, and quoted executables", () => {
-    const cases = [
-      {
-        name: "PATH executable",
-        setup: () => {
-          const dir = makeTempDir();
-          const binDir = path.join(dir, "bin");
-          fs.mkdirSync(binDir, { recursive: true });
-          const exeName = process.platform === "win32" ? "rg.exe" : "rg";
-          const exe = path.join(binDir, exeName);
-          fs.writeFileSync(exe, "");
-          fs.chmodSync(exe, 0o755);
-          return {
-            command: "rg -n foo",
-            cwd: undefined as string | undefined,
-            envPath: makePathEnv(binDir),
-            expectedPath: exe,
-            expectedExecutableName: exeName,
-          };
-        },
-      },
-      {
-        name: "relative executable",
-        setup: () => {
-          const dir = makeTempDir();
-          const cwd = path.join(dir, "project");
-          const script = path.join(cwd, "scripts", "run.sh");
-          fs.mkdirSync(path.dirname(script), { recursive: true });
-          fs.writeFileSync(script, "");
-          fs.chmodSync(script, 0o755);
-          return {
-            command: "./scripts/run.sh --flag",
-            cwd,
-            envPath: undefined as NodeJS.ProcessEnv | undefined,
-            expectedPath: script,
-            expectedExecutableName: undefined,
-          };
-        },
-      },
-      {
-        name: "quoted executable",
-        setup: () => {
-          const dir = makeTempDir();
-          const cwd = path.join(dir, "project");
-          const script = path.join(cwd, "bin", "tool");
-          fs.mkdirSync(path.dirname(script), { recursive: true });
-          fs.writeFileSync(script, "");
-          fs.chmodSync(script, 0o755);
-          return {
-            command: '"./bin/tool" --version',
-            cwd,
-            envPath: undefined as NodeJS.ProcessEnv | undefined,
-            expectedPath: script,
-            expectedExecutableName: undefined,
-          };
-        },
-      },
-    ] as const;
-
-    for (const testCase of cases) {
-      const setup = testCase.setup();
-      const res = resolveCommandResolution(setup.command, setup.cwd, setup.envPath);
-      expect(res?.resolvedPath, testCase.name).toBe(setup.expectedPath);
-      if (setup.expectedExecutableName) {
-        expect(res?.executableName, testCase.name).toBe(setup.expectedExecutableName);
-      }
-    }
-  });
-
-  it("unwraps transparent env wrapper argv to resolve the effective executable", () => {
->>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
     const dir = makeTempDir();
     const binDir = path.join(dir, "bin");
     fs.mkdirSync(binDir, { recursive: true });
@@ -224,7 +145,6 @@ describe("exec approvals command resolution", () => {
     const exe = path.join(binDir, exeName);
     fs.writeFileSync(exe, "");
     fs.chmodSync(exe, 0o755);
-<<<<<<< HEAD
     const res = resolveCommandResolution("rg -n foo", undefined, makePathEnv(binDir));
     expect(res?.resolvedPath).toBe(exe);
     expect(res?.executableName).toBe(exeName);
@@ -250,91 +170,6 @@ describe("exec approvals command resolution", () => {
     fs.chmodSync(script, 0o755);
     const res = resolveCommandResolution('"./bin/tool" --version', cwd, undefined);
     expect(res?.resolvedPath).toBe(script);
-=======
-
-    const resolution = resolveCommandResolutionFromArgv(
-      ["/usr/bin/env", "rg", "-n", "needle"],
-      undefined,
-      makePathEnv(binDir),
-    );
-    expect(resolution?.resolvedPath).toBe(exe);
-    expect(resolution?.executableName).toBe(exeName);
-  });
-
-  it("blocks semantic env wrappers from allowlist/safeBins auto-resolution", () => {
-    const resolution = resolveCommandResolutionFromArgv([
-      "/usr/bin/env",
-      "FOO=bar",
-      "rg",
-      "-n",
-      "needle",
-    ]);
-    expect(resolution?.policyBlocked).toBe(true);
-    expect(resolution?.rawExecutable).toBe("/usr/bin/env");
-  });
-
-<<<<<<< HEAD
-=======
-  it("fails closed for env -S even when env itself is allowlisted", () => {
-    const dir = makeTempDir();
-    const binDir = path.join(dir, "bin");
-    fs.mkdirSync(binDir, { recursive: true });
-    const envName = process.platform === "win32" ? "env.exe" : "env";
-    const envPath = path.join(binDir, envName);
-    fs.writeFileSync(envPath, process.platform === "win32" ? "" : "#!/bin/sh\n");
-    if (process.platform !== "win32") {
-      fs.chmodSync(envPath, 0o755);
-    }
-
-    const analysis = analyzeArgvCommand({
-      argv: [envPath, "-S", 'sh -c "echo pwned"'],
-      cwd: dir,
-      env: makePathEnv(binDir),
-    });
-    const allowlistEval = evaluateExecAllowlist({
-      analysis,
-      allowlist: [{ pattern: envPath }],
-      safeBins: normalizeSafeBins([]),
-      cwd: dir,
-    });
-
-    expect(analysis.ok).toBe(true);
-    expect(analysis.segments[0]?.resolution?.policyBlocked).toBe(true);
-    expect(allowlistEval.allowlistSatisfied).toBe(false);
-    expect(allowlistEval.segmentSatisfiedBy).toEqual([null]);
-  });
-
-  it("fails closed when transparent env wrappers exceed unwrap depth", () => {
-    if (process.platform === "win32") {
-      return;
-    }
-    const dir = makeTempDir();
-    const binDir = path.join(dir, "bin");
-    fs.mkdirSync(binDir, { recursive: true });
-    const envPath = path.join(binDir, "env");
-    fs.writeFileSync(envPath, "#!/bin/sh\n");
-    fs.chmodSync(envPath, 0o755);
-
-    const analysis = analyzeArgvCommand({
-      argv: [envPath, envPath, envPath, envPath, envPath, "/bin/sh", "-c", "echo pwned"],
-      cwd: dir,
-      env: makePathEnv(binDir),
-    });
-    const allowlistEval = evaluateExecAllowlist({
-      analysis,
-      allowlist: [{ pattern: envPath }],
-      safeBins: normalizeSafeBins([]),
-      cwd: dir,
-    });
-
-    expect(analysis.ok).toBe(true);
-    expect(analysis.segments[0]?.resolution?.policyBlocked).toBe(true);
-    expect(analysis.segments[0]?.resolution?.blockedWrapper).toBe("env");
-    expect(allowlistEval.allowlistSatisfied).toBe(false);
-    expect(allowlistEval.segmentSatisfiedBy).toEqual([null]);
-  });
-
->>>>>>> 57c9a1818 (fix(security): block env depth-overflow approval bypass)
   it("unwraps env wrapper with shell inner executable", () => {
     const resolution = resolveCommandResolutionFromArgv(["/usr/bin/env", "bash", "-lc", "echo hi"]);
     expect(resolution?.rawExecutable).toBe("bash");
@@ -372,8 +207,6 @@ describe("exec approvals shell parsing", () => {
     expect(res.ok).toBe(true);
     expect(res.segments[0]?.argv).toEqual(["/bin/echo", "ok"]);
   });
-<<<<<<< HEAD
-=======
 
 <<<<<<< HEAD
   it("rejects command substitution inside double quotes", () => {
@@ -411,7 +244,6 @@ describe("exec approvals shell parsing", () => {
       expect(res.ok).toBe(false);
       expect(res.reason).toBe(testCase.reason);
     }
->>>>>>> 3f0b9dbb3 (fix(security): block shell-wrapper line-continuation allowlist bypass)
   });
 
   it("rejects backticks inside double quotes", () => {
@@ -592,30 +424,7 @@ describe("exec approvals shell parsing", () => {
     expect(res.ok).toBe(true);
     expect(res.segments[0]?.argv).toEqual(["C:\\Program Files\\Tool\\tool.exe", "--version"]);
   });
-<<<<<<< HEAD
 >>>>>>> e90caa66d (fix(exec): allow heredoc operator (<<) in allowlist security mode (#13811))
-=======
-
-  it("normalizes short option clusters with attached payloads", () => {
-    const parsed = parseExecArgvToken("-oblocked.txt");
-    expect(parsed.kind).toBe("option");
-    if (parsed.kind !== "option" || parsed.style !== "short-cluster") {
-      throw new Error("expected short-cluster option");
-    }
-    expect(parsed.flags[0]).toBe("-o");
-    expect(parsed.cluster).toBe("oblocked.txt");
-  });
-
-  it("normalizes long options with inline payloads", () => {
-    const parsed = parseExecArgvToken("--output=blocked.txt");
-    expect(parsed.kind).toBe("option");
-    if (parsed.kind !== "option" || parsed.style !== "long") {
-      throw new Error("expected long option");
-    }
-    expect(parsed.flag).toBe("--output");
-    expect(parsed.inlineValue).toBe("blocked.txt");
-  });
->>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
 });
 
 describe("exec approvals shell allowlist (chained commands)", () => {
@@ -684,7 +493,6 @@ describe("exec approvals shell allowlist (chained commands)", () => {
 });
 
 describe("exec approvals safe bins", () => {
-<<<<<<< HEAD
   it("allows safe bins with non-path args", () => {
     if (process.platform === "win32") {
       return;
@@ -704,8 +512,6 @@ describe("exec approvals safe bins", () => {
     });
     expect(res.ok).toBe(true);
     const segment = res.segments[0];
-=======
->>>>>>> 28bac46c9 (fix(security): harden safeBins path trust)
     const ok = isSafeBinUsage({
       argv: ["jq", ".foo"],
       resolution: {
@@ -724,7 +530,6 @@ describe("exec approvals safe bins", () => {
       return;
     }
     const dir = makeTempDir();
-<<<<<<< HEAD
     const binDir = path.join(dir, "bin");
     fs.mkdirSync(binDir, { recursive: true });
     const exeName = process.platform === "win32" ? "jq.exe" : "jq";
@@ -740,9 +545,6 @@ describe("exec approvals safe bins", () => {
     });
     expect(res.ok).toBe(true);
     const segment = res.segments[0];
-=======
-    fs.writeFileSync(path.join(dir, "secret.json"), "{}");
->>>>>>> 28bac46c9 (fix(security): harden safeBins path trust)
     const ok = isSafeBinUsage({
 =======
   type SafeBinCase = {
@@ -868,8 +670,6 @@ describe("exec approvals safe bins", () => {
     expect(ok).toBe(true);
   });
 
-<<<<<<< HEAD
-=======
   it("supports injected platform for deterministic safe-bin checks", () => {
     const ok = isSafeBinUsage({
       argv: ["jq", ".foo"],
@@ -926,7 +726,6 @@ describe("exec approvals safe bins", () => {
     }
   });
 
->>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
   it("does not include sort/grep in default safeBins", () => {
     const defaults = resolveSafeBins(undefined);
     expect(defaults.has("jq")).toBe(true);
@@ -966,7 +765,6 @@ describe("exec approvals safe bins", () => {
     expect(longFlag).toBe(false);
   });
 
-<<<<<<< HEAD
   it("does not consult file existence callbacks for safe-bin decisions", () => {
     if (process.platform === "win32") {
       return;
@@ -988,43 +786,6 @@ describe("exec approvals safe bins", () => {
     });
     expect(ok).toBe(false);
     expect(checkedExists).toBe(false);
-=======
-  it("threads trusted safe-bin dirs through allowlist evaluation", () => {
-    if (process.platform === "win32") {
-      return;
-    }
-    const analysis = {
-      ok: true as const,
-      segments: [
-        {
-          raw: "jq .foo",
-          argv: ["jq", ".foo"],
-          resolution: {
-            rawExecutable: "jq",
-            resolvedPath: "/custom/bin/jq",
-            executableName: "jq",
-          },
-        },
-      ],
-    };
-    const denied = evaluateExecAllowlist({
-      analysis,
-      allowlist: [],
-      safeBins: normalizeSafeBins(["jq"]),
-      trustedSafeBinDirs: new Set(["/usr/bin"]),
-      cwd: "/tmp",
-    });
-    expect(denied.allowlistSatisfied).toBe(false);
-
-    const allowed = evaluateExecAllowlist({
-      analysis,
-      allowlist: [],
-      safeBins: normalizeSafeBins(["jq"]),
-      trustedSafeBinDirs: new Set(["/custom/bin"]),
-      cwd: "/tmp",
-    });
-    expect(allowed.allowlistSatisfied).toBe(true);
->>>>>>> 165c18819 (refactor(security): simplify safe-bin validation structure)
   });
 });
 
@@ -1351,8 +1112,6 @@ describe("exec approvals default agent migration", () => {
     expect(resolved.file.agents?.default).toBeUndefined();
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("normalizeExecApprovals handles string allowlist entries (#9790)", () => {
   function getMainAllowlistPatterns(file: ExecApprovalsFile): string[] | undefined {
@@ -1674,4 +1433,3 @@ describe("resolveAllowAlwaysPatterns", () => {
     ).toBe(true);
   });
 });
->>>>>>> 98b2b16ac (Security/Exec: persist inner commands for shell-wrapper approvals)

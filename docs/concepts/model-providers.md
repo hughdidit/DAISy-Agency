@@ -29,11 +29,7 @@ OpenClaw ships with the pi‑ai catalog. These providers require **no**
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "openai/gpt-5.2" } } }
-=======
-  agents: { defaults: { model: { primary: "openai/gpt-5.1-codex" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -46,11 +42,7 @@ OpenClaw ships with the pi‑ai catalog. These providers require **no**
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
-=======
-  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-6" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -63,11 +55,7 @@ OpenClaw ships with the pi‑ai catalog. These providers require **no**
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "openai-codex/gpt-5.2" } } }
-=======
-  agents: { defaults: { model: { primary: "openai-codex/gpt-5.3-codex" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -80,11 +68,7 @@ OpenClaw ships with the pi‑ai catalog. These providers require **no**
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "opencode/claude-opus-4-5" } } }
-=======
-  agents: { defaults: { model: { primary: "opencode/claude-opus-4-6" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

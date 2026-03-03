@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-=======
 import { isPlainObject } from "../utils.js";
 import { isBlockedObjectKey } from "./prototype-keys.js";
 
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 type PathNode = Record<string, unknown>;
 
 export function parseConfigPath(raw: string): {

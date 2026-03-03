@@ -184,13 +184,7 @@ export function resolveCommandAuthorization(params: {
       accountId: ctx.AccountId,
       value: to,
     });
-<<<<<<< HEAD
     if (normalizedTo.length > 0) ownerCandidates.push(...normalizedTo);
-=======
-    if (normalizedTo.length > 0) {
-      ownerCandidatesForCommands.push(...normalizedTo);
-    }
->>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
   }
   const explicitOwners = ownerAllowFromList.filter((entry) => entry !== "*");
   const ownerList = Array.from(

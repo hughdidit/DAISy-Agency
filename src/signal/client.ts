@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 
 import { resolveFetch } from "../infra/fetch.js";
-=======
-import { resolveFetch } from "../infra/fetch.js";
-import { generateSecureUuid } from "../infra/secure-random.js";
-import { fetchWithTimeout } from "../utils/fetch-timeout.js";
->>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 
 export type SignalRpcOptions = {
   baseUrl: string;

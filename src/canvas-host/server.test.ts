@@ -201,21 +201,7 @@ describe("canvas host", () => {
   }, 20_000);
 
   it("serves the gateway-hosted A2UI scaffold", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
-=======
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-canvas-"));
-    const a2uiRoot = path.resolve(process.cwd(), "src/canvas-host/a2ui");
-    const bundlePath = path.join(a2uiRoot, "a2ui.bundle.js");
-    let createdBundle = false;
-
-    try {
-      await fs.stat(bundlePath);
-    } catch {
-      await fs.writeFile(bundlePath, "window.openclawA2UI = {};", "utf8");
-      createdBundle = true;
-    }
->>>>>>> 9a7160786 (refactor: rename to openclaw)
 
     const server = await startCanvasHost({
       runtime: defaultRuntime,

@@ -126,25 +126,10 @@ describe("createOpenClawCodingTools safeBins", () => {
     });
 
     const marker = `safe-bins-${Date.now()}`;
-<<<<<<< HEAD:src/agents/pi-tools.safe-bins.test.ts
     const result = await execTool!.execute("call1", {
       command: `echo ${marker}`,
       workdir: tmpDir,
     });
-=======
-    const envSnapshot = captureEnv(["OPENCLAW_SHELL_ENV_TIMEOUT_MS"]);
-    const result = await (async () => {
-      try {
-        process.env.OPENCLAW_SHELL_ENV_TIMEOUT_MS = "1000";
-        return await execTool.execute("call1", {
-          command: `echo ${marker}`,
-          workdir: tmpDir,
-        });
-      } finally {
-        envSnapshot.restore();
-      }
-    })();
->>>>>>> 2d485cd47 (refactor(security): extract safe-bin policy and dedupe tests):src/agents/pi-tools.safe-bins.e2e.test.ts
     const text = result.content.find((content) => content.type === "text")?.text ?? "";
 
     expect(result.details.status).toBe("completed");
@@ -171,35 +156,8 @@ describe("createOpenClawCodingTools safeBins", () => {
     ).rejects.toThrow("exec denied: allowlist miss");
   });
 
-<<<<<<< HEAD:src/agents/pi-tools.safe-bins.test.ts
     expect(result.details.status).toBe("completed");
     expect(text).not.toContain(secret);
-=======
-  it("does not leak file existence from sort output flags", async () => {
-    if (process.platform === "win32") {
-      return;
-    }
-
-    const { tmpDir, execTool } = await createSafeBinsExecTool({
-      tmpPrefix: "openclaw-safe-bins-oracle-",
-      safeBins: ["sort"],
-      files: [{ name: "existing.txt", contents: "x\n" }],
-    });
-
-    const run = async (command: string) => {
-      try {
-        const result = await execTool.execute("call-oracle", { command, workdir: tmpDir });
-        const text = result.content.find((content) => content.type === "text")?.text ?? "";
-        return { kind: "result" as const, status: result.details.status, text };
-      } catch (err) {
-        return { kind: "error" as const, message: String(err) };
-      }
-    };
-
-    const existing = await run("sort -o existing.txt");
-    const missing = await run("sort -o missing.txt");
-    expect(existing).toEqual(missing);
->>>>>>> bafdbb6f1 (fix(security): eliminate safeBins file-existence oracle):src/agents/pi-tools.safe-bins.e2e.test.ts
   });
 
   it("blocks sort output flags from writing files via safeBins", async () => {

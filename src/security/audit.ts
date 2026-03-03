@@ -2,12 +2,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import type { ChannelId } from "../channels/plugins/types.js";
-=======
->>>>>>> 23555de5d (refactor(security): extract channel audit checks)
 import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
@@ -23,14 +20,11 @@ import { resolveSandboxConfigForAgent } from "../agents/sandbox.js";
 import { execDockerRaw } from "../agents/sandbox/docker.js";
 >>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
-<<<<<<< HEAD
-=======
 import { resolveBrowserControlAuth } from "../browser/control-auth.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 23555de5d (refactor(security): extract channel audit checks)
 =======
 >>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
 =======
@@ -40,24 +34,15 @@ import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
-<<<<<<< HEAD
-=======
 import { isLoopbackAddress } from "../gateway/net.js";
 import { resolveGatewayProbeAuth } from "../gateway/probe-auth.js";
->>>>>>> 29e41d4c0 (fix: land security audit severity + temp-path guard fixes (#23428) (thanks @bmendonca3))
 import { probeGateway } from "../gateway/probe.js";
-<<<<<<< HEAD
-=======
 import { collectChannelSecurityFindings } from "./audit-channel.js";
->>>>>>> 23555de5d (refactor(security): extract channel audit checks)
 import {
   collectAttackSurfaceSummaryFindings,
   collectExposureMatrixFindings,
-<<<<<<< HEAD
-=======
   collectGatewayHttpNoAuthFindings,
   collectGatewayHttpSessionKeyOverrideFindings,
->>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
   collectHooksHardeningFindings,
   collectIncludeFilePermFindings,
   collectInstalledSkillsCodeSafetyFindings,
@@ -86,19 +71,10 @@ import {
 } from "./audit-fs.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { collectEnabledInsecureOrDangerousFlags } from "./dangerous-config-flags.js";
-import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
->>>>>>> f101d59d5 (feat(security): warn on dangerous config flags at startup)
 import type { ExecFn } from "./windows-acl.js";
 =======
 import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
-<<<<<<< HEAD
 >>>>>>> 233483d2b (refactor(security): centralize dangerous tool lists)
-=======
-import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
->>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
 =======
 import type { ExecFn } from "./windows-acl.js";
 >>>>>>> 268b0dc92 (style: fix formatting drift in security allowlist checks)
@@ -378,38 +354,7 @@ function collectGatewayConfigFindings(
   const allowRealIpFallback = cfg.gateway?.allowRealIpFallback === true;
   const mdnsMode = cfg.discovery?.mdns?.mode ?? "minimal";
 
-<<<<<<< HEAD
   if (bind !== "loopback" && !hasSharedSecret) {
-=======
-  // HTTP /tools/invoke is intended for narrow automation, not session orchestration/admin operations.
-  // If operators opt-in to re-enabling these tools over HTTP, warn loudly so the choice is explicit.
-  const gatewayToolsAllowRaw = Array.isArray(cfg.gateway?.tools?.allow)
-    ? cfg.gateway?.tools?.allow
-    : [];
-  const gatewayToolsAllow = new Set(
-    gatewayToolsAllowRaw
-      .map((v) => (typeof v === "string" ? v.trim().toLowerCase() : ""))
-      .filter(Boolean),
-  );
-  const reenabledOverHttp = DEFAULT_GATEWAY_HTTP_TOOL_DENY.filter((name) =>
-    gatewayToolsAllow.has(name),
-  );
-  if (reenabledOverHttp.length > 0) {
-    const extraRisk = bind !== "loopback" || tailscaleMode === "funnel";
-    findings.push({
-      checkId: "gateway.tools_invoke_http.dangerous_allow",
-      severity: extraRisk ? "critical" : "warn",
-      title: "Gateway HTTP /tools/invoke re-enables dangerous tools",
-      detail:
-        `gateway.tools.allow includes ${reenabledOverHttp.join(", ")} which removes them from the default HTTP deny list. ` +
-        "This can allow remote session spawning / control-plane actions via HTTP and increases RCE blast radius if the gateway is reachable.",
-      remediation:
-        "Remove these entries from gateway.tools.allow (recommended). " +
-        "If you keep them enabled, keep gateway.bind loopback-only (or tailnet-only), restrict network exposure, and treat the gateway token/password as full-admin.",
-    });
-  }
-  if (bind !== "loopback" && !hasSharedSecret && auth.mode !== "trusted-proxy") {
->>>>>>> 539689a2f (feat(security): warn when gateway.tools.allow re-enables dangerous HTTP tools)
     findings.push({
       checkId: "gateway.bind_no_auth",
       severity: "critical",
@@ -444,8 +389,6 @@ function collectGatewayConfigFindings(
       remediation: "Set gateway.auth (token recommended) or keep the Control UI local-only.",
     });
   }
-<<<<<<< HEAD
-=======
   if (
     bind !== "loopback" &&
     controlUiEnabled &&
@@ -489,7 +432,6 @@ function collectGatewayConfigFindings(
         "Disable gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback and configure explicit gateway.controlUi.allowedOrigins.",
     });
   }
->>>>>>> 17bae9368 (fix(security): warn on wildcard control-ui origins and feishu owner grants)
 
   if (allowRealIpFallback) {
     const hasNonLoopbackTrustedProxy = trustedProxies.some(
@@ -563,8 +505,6 @@ function collectGatewayConfigFindings(
     });
   }
 
-<<<<<<< HEAD
-=======
   if (isFeishuDocToolEnabled(cfg)) {
     findings.push({
       checkId: "channels.feishu.doc_owner_open_id",
@@ -589,7 +529,6 @@ function collectGatewayConfigFindings(
     });
   }
 
->>>>>>> 17bae9368 (fix(security): warn on wildcard control-ui origins and feishu owner grants)
   const token =
     typeof auth.token === "string" && auth.token.trim().length > 0 ? auth.token.trim() : null;
   if (auth.mode === "token" && token && token.length < 24) {
@@ -604,45 +543,7 @@ function collectGatewayConfigFindings(
   return findings;
 }
 
-<<<<<<< HEAD
 function collectBrowserControlFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
-=======
-function isLoopbackOnlyTrustedProxyEntry(entry: string): boolean {
-  const candidate = entry.trim();
-  if (!candidate) {
-    return false;
-  }
-  if (!candidate.includes("/")) {
-    return isLoopbackAddress(candidate);
-  }
-
-  const [rawIp, rawPrefix] = candidate.split("/", 2);
-  if (!rawIp || !rawPrefix) {
-    return false;
-  }
-  const ipVersion = isIP(rawIp.trim());
-  const prefix = Number.parseInt(rawPrefix.trim(), 10);
-  if (!Number.isInteger(prefix)) {
-    return false;
-  }
-  if (ipVersion === 4) {
-    if (prefix < 8 || prefix > 32) {
-      return false;
-    }
-    const firstOctet = Number.parseInt(rawIp.trim().split(".")[0] ?? "", 10);
-    return firstOctet === 127;
-  }
-  if (ipVersion === 6) {
-    return prefix === 128 && rawIp.trim().toLowerCase() === "::1";
-  }
-  return false;
-}
-
-function collectBrowserControlFindings(
-  cfg: OpenClawConfig,
-  env: NodeJS.ProcessEnv,
-): SecurityAuditFinding[] {
->>>>>>> 29e41d4c0 (fix: land security audit severity + temp-path guard fixes (#23428) (thanks @bmendonca3))
   const findings: SecurityAuditFinding[] = [];
 
   let resolved: ReturnType<typeof resolveBrowserConfig>;
@@ -729,7 +630,6 @@ function collectElevatedFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   return findings;
 }
 
-<<<<<<< HEAD
 async function collectChannelSecurityFindings(params: {
   cfg: OpenClawConfig;
   plugins: ReturnType<typeof listChannelPlugins>;
@@ -1086,8 +986,6 @@ async function collectChannelSecurityFindings(params: {
   return findings;
 }
 
-=======
->>>>>>> 23555de5d (refactor(security): extract channel audit checks)
 async function maybeProbeGateway(params: {
   cfg: OpenClawConfig;
   timeoutMs: number;
@@ -1163,13 +1061,7 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
   findings.push(...collectBrowserControlFindings(cfg));
   findings.push(...collectLoggingFindings(cfg));
   findings.push(...collectElevatedFindings(cfg));
-<<<<<<< HEAD
   findings.push(...collectHooksHardeningFindings(cfg));
-=======
-  findings.push(...collectHooksHardeningFindings(cfg, env));
-  findings.push(...collectGatewayHttpNoAuthFindings(cfg, env));
-  findings.push(...collectGatewayHttpSessionKeyOverrideFindings(cfg));
->>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
   findings.push(...collectSandboxDockerNoopFindings(cfg));
   findings.push(...collectSandboxDangerousConfigFindings(cfg));
   findings.push(...collectNodeDenyCommandPatternFindings(cfg));

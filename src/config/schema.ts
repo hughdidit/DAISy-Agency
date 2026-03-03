@@ -36,7 +36,6 @@ export type ChannelUiMetadata = {
   configUiHints?: Record<string, ConfigUiHint>;
 };
 
-<<<<<<< HEAD
 const GROUP_LABELS: Record<string, string> = {
   wizard: "Wizard",
   update: "Update",
@@ -688,8 +687,6 @@ function isSensitivePath(path: string): boolean {
   return SENSITIVE_PATTERNS.some((pattern) => pattern.test(path));
 }
 
-=======
->>>>>>> fa906b26a (feat: IRC — add first-class channel support)
 type JsonSchemaObject = JsonSchemaNode & {
   type?: string | string[];
   properties?: Record<string, JsonSchemaObject>;

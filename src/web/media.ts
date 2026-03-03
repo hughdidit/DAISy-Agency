@@ -26,8 +26,6 @@ type WebMediaOptions = {
   optimizeImages?: boolean;
 };
 
-<<<<<<< HEAD
-=======
 export type LocalMediaAccessErrorCode =
   | "path-not-allowed"
   | "invalid-root"
@@ -110,7 +108,6 @@ async function assertLocalMediaAllowed(
   );
 }
 
->>>>>>> c37843924 (Security: harden tool media paths)
 const HEIC_MIME_RE = /^image\/hei[cf]$/i;
 const HEIC_EXT_RE = /\.(heic|heif)$/i;
 const MB = 1024 * 1024;

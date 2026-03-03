@@ -279,8 +279,6 @@ describe("readLastMessagePreviewFromTranscript", () => {
     const result = readLastMessagePreviewFromTranscript(sessionId, storePath);
     expect(result).toBe("Valid UTF-8: 你好世界 🌍");
   });
-<<<<<<< HEAD
-=======
 
   test("strips inline directives from last preview text", () => {
     const sessionId = "test-last-strip-inline-directives";
@@ -511,7 +509,6 @@ describe("readSessionMessages", () => {
       expect(out).toEqual([testCase.message]);
     }
   });
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
 });
 
 describe("readSessionPreviewItemsFromTranscript", () => {
@@ -574,8 +571,6 @@ describe("readSessionPreviewItemsFromTranscript", () => {
     expect(result[0]?.text.length).toBe(24);
     expect(result[0]?.text.endsWith("...")).toBe(true);
   });
-<<<<<<< HEAD
-=======
 
   test("strips inline directives from preview items", () => {
     const sessionId = "preview-strip-inline-directives";
@@ -733,5 +728,4 @@ describe("archiveSessionTranscripts", () => {
     expect(archived[0]).toContain(".deleted.");
     expect(fs.existsSync(transcriptPath)).toBe(false);
   });
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
 });

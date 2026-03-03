@@ -43,7 +43,6 @@ export function createSessionsListTool(opts?: {
     execute: async (_toolCallId, args) => {
       const params = args as Record<string, unknown>;
       const cfg = loadConfig();
-<<<<<<< HEAD
       const { mainKey, alias } = resolveMainSessionAlias(cfg);
       const visibility = resolveSandboxSessionToolsVisibility(cfg);
       const requesterInternalKey =
@@ -59,19 +58,6 @@ export function createSessionsListTool(opts?: {
         visibility === "spawned" &&
         requesterInternalKey &&
         !isSubagentSessionKey(requesterInternalKey);
-=======
-      const { mainKey, alias, requesterInternalKey, restrictToSpawned } =
-        resolveSandboxedSessionToolContext({
-          cfg,
-          agentSessionKey: opts?.agentSessionKey,
-          sandboxed: opts?.sandboxed,
-        });
-      const effectiveRequesterKey = requesterInternalKey ?? alias;
-      const visibility = resolveEffectiveSessionToolsVisibility({
-        cfg,
-        sandboxed: opts?.sandboxed === true,
-      });
->>>>>>> c6c53437f (fix(security): scope session tools and webhook secret fallback)
 
       const kindsRaw = readStringArrayParam(params, "kinds")?.map((value) =>
         value.trim().toLowerCase(),
@@ -126,25 +112,7 @@ export function createSessionsListTool(opts?: {
 
         const entryAgentId = resolveAgentIdFromSessionKey(key);
         const crossAgent = entryAgentId !== requesterAgentId;
-<<<<<<< HEAD
         if (crossAgent && !a2aPolicy.isAllowed(requesterAgentId, entryAgentId)) continue;
-=======
-        if (crossAgent) {
-          if (visibility !== "all") {
-            continue;
-          }
-          if (!a2aPolicy.isAllowed(requesterAgentId, entryAgentId)) {
-            continue;
-          }
-        } else {
-          if (visibility === "self" && key !== effectiveRequesterKey) {
-            continue;
-          }
-          if (visibility === "tree" && key !== effectiveRequesterKey && !spawnedKeys?.has(key)) {
-            continue;
-          }
-        }
->>>>>>> c6c53437f (fix(security): scope session tools and webhook secret fallback)
 
         if (key === "unknown") continue;
         if (key === "global" && alias !== "global") continue;

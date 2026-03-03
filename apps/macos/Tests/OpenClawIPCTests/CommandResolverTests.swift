@@ -24,11 +24,7 @@ import Testing
         try FileManager().setAttributes([.posixPermissions: 0o755], ofItemAtPath: path.path)
     }
 
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/CommandResolverTests.swift
     @Test func prefersMoltbotBinary() throws {
-=======
-    @Test func prefersOpenClawBinary() async throws {
->>>>>>> 9a7160786 (refactor: rename to openclaw):apps/macos/Tests/OpenClawIPCTests/CommandResolverTests.swift
         let defaults = self.makeDefaults()
         defaults.set(AppState.ConnectionMode.local.rawValue, forKey: connectionModeKey)
 

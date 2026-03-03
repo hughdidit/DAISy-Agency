@@ -83,8 +83,6 @@ describe("resolveDiscordReplyDeliveryPlan", () => {
       createdThreadId: null,
     });
     expect(plan.replyReference.use()).toBe("m1");
-<<<<<<< HEAD
-=======
     expect(plan.replyReference.use()).toBe("m1");
   });
 
@@ -164,7 +162,6 @@ describe("maybeCreateDiscordAutoThread", () => {
     });
 
     expect(result).toBeUndefined();
->>>>>>> 7f0489e47 (Security/Browser: constrain trace and download output paths to OpenClaw temp roots (#15652))
   });
 });
 

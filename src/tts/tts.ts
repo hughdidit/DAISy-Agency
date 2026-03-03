@@ -26,11 +26,8 @@ import type {
   TtsModelOverrideConfig,
 } from "../config/types.tts.js";
 import { logVerbose } from "../globals.js";
-<<<<<<< HEAD
-=======
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 import { stripMarkdown } from "../line/markdown-to-line.js";
->>>>>>> c37843924 (Security: harden tool media paths)
 import { isVoiceCompatibleAudio } from "../media/audio.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 import { getApiKeyForModel, requireApiKey } from "../agents/model-auth.js";

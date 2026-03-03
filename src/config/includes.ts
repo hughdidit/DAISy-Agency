@@ -14,12 +14,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 import JSON5 from "json5";
-<<<<<<< HEAD
-=======
 import { isPathInside } from "../security/scan-paths.js";
 import { isPlainObject } from "../utils.js";
 import { isBlockedObjectKey } from "./prototype-keys.js";
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 
 export const INCLUDE_KEY = "$include";
 export const MAX_INCLUDE_DEPTH = 10;
@@ -60,7 +57,6 @@ export class CircularIncludeError extends ConfigIncludeError {
 // ============================================================================
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return (
     typeof value === "object" &&
@@ -69,9 +65,6 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
     Object.prototype.toString.call(value) === "[object Object]"
   );
 }
-=======
-const BLOCKED_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
->>>>>>> e0aaf2d39 (fix(security): block prototype-polluting keys in deepMerge (#20853))
 
 =======
 >>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)

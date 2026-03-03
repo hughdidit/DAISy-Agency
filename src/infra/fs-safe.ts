@@ -3,11 +3,8 @@ import type { Stats } from "node:fs";
 import type { FileHandle } from "node:fs/promises";
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { sameFileIdentity } from "./file-identity.js";
 import { assertNoPathAliasEscape } from "./path-alias-guards.js";
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
 import { isNotFoundPathError, isPathInside, isSymlinkOpenError } from "./path-guards.js";
 
 export type SafeOpenErrorCode = "invalid-path" | "not-found";
@@ -28,7 +25,6 @@ export type SafeOpenResult = {
   stat: Stats;
 };
 
-<<<<<<< HEAD
 const NOT_FOUND_CODES = new Set(["ENOENT", "ENOTDIR"]);
 
 const ensureTrailingSep = (value: string) => (value.endsWith(path.sep) ? value : value + path.sep);
@@ -43,73 +39,12 @@ const isNotFoundError = (err: unknown) =>
 
 const isSymlinkOpenError = (err: unknown) =>
   isNodeError(err) && (err.code === "ELOOP" || err.code === "EINVAL" || err.code === "ENOTSUP");
-=======
-export type SafeLocalReadResult = {
-  buffer: Buffer;
-  realPath: string;
-  stat: Stats;
-};
-
-const SUPPORTS_NOFOLLOW = process.platform !== "win32" && "O_NOFOLLOW" in fsConstants;
-const OPEN_READ_FLAGS = fsConstants.O_RDONLY | (SUPPORTS_NOFOLLOW ? fsConstants.O_NOFOLLOW : 0);
-const OPEN_WRITE_EXISTING_FLAGS =
-  fsConstants.O_WRONLY | (SUPPORTS_NOFOLLOW ? fsConstants.O_NOFOLLOW : 0);
-const OPEN_WRITE_CREATE_FLAGS =
-  fsConstants.O_WRONLY |
-  fsConstants.O_CREAT |
-  fsConstants.O_EXCL |
-  (SUPPORTS_NOFOLLOW ? fsConstants.O_NOFOLLOW : 0);
-
-const ensureTrailingSep = (value: string) => (value.endsWith(path.sep) ? value : value + path.sep);
-
-async function openVerifiedLocalFile(
-  filePath: string,
-  options?: {
-    rejectHardlinks?: boolean;
-  },
-): Promise<SafeOpenResult> {
-  let handle: FileHandle;
-  try {
-    handle = await fs.open(filePath, OPEN_READ_FLAGS);
-  } catch (err) {
-    if (isNotFoundPathError(err)) {
-      throw new SafeOpenError("not-found", "file not found");
-    }
-    if (isSymlinkOpenError(err)) {
-      throw new SafeOpenError("symlink", "symlink open blocked", { cause: err });
-    }
-    throw err;
-  }
-
-  try {
-    const [stat, lstat] = await Promise.all([handle.stat(), fs.lstat(filePath)]);
-    if (lstat.isSymbolicLink()) {
-      throw new SafeOpenError("symlink", "symlink not allowed");
-    }
-    if (!stat.isFile()) {
-      throw new SafeOpenError("not-file", "not a file");
-    }
-<<<<<<< HEAD
-    if (stat.ino !== lstat.ino || stat.dev !== lstat.dev) {
-=======
-    if (options?.rejectHardlinks && stat.nlink > 1) {
-      throw new SafeOpenError("invalid-path", "hardlinked path not allowed");
-    }
-    if (!sameFileIdentity(stat, lstat)) {
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
       throw new SafeOpenError("path-mismatch", "path changed during read");
     }
 
     const realPath = await fs.realpath(filePath);
     const realStat = await fs.stat(realPath);
-<<<<<<< HEAD
     if (stat.ino !== realStat.ino || stat.dev !== realStat.dev) {
-=======
-    if (options?.rejectHardlinks && realStat.nlink > 1) {
-      throw new SafeOpenError("invalid-path", "hardlinked path not allowed");
-    }
-    if (!sameFileIdentity(stat, realStat)) {
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
       throw new SafeOpenError("path-mismatch", "path mismatch");
     }
 
@@ -146,11 +81,7 @@ export async function openFileWithinRoot(params: {
   const rootPrefix = isWindows ? rootWithSep.toLowerCase() : rootWithSep;
   const withinRoot = (p: string) => (isWindows ? p.toLowerCase() : p).startsWith(rootPrefix);
   const resolved = path.resolve(rootWithSep, params.relativePath);
-<<<<<<< HEAD
   if (!withinRoot(resolved)) {
-=======
-  if (!isPathInside(rootWithSep, resolved)) {
->>>>>>> ed960ba4e (refactor(security): centralize path guard helpers)
     throw new SafeOpenError("invalid-path", "path escapes root");
   }
 
@@ -171,15 +102,6 @@ export async function openFileWithinRoot(params: {
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  if (params.rejectHardlinks !== false && opened.stat.nlink > 1) {
-    await opened.handle.close().catch(() => {});
-    throw new SafeOpenError("invalid-path", "hardlinked path not allowed");
-  }
-
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
   if (!isPathInside(rootWithSep, opened.realPath)) {
     await opened.handle.close().catch(() => {});
     throw new SafeOpenError("invalid-path", "path escapes root");

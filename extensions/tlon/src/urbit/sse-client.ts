@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import { randomUUID } from "node:crypto";
 import { Readable } from "node:stream";
->>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 import type { LookupFn, SsrFPolicy } from "openclaw/plugin-sdk";
 import { Readable } from "node:stream";
 import { validateUrbitBaseUrl } from "./base-url.js";
@@ -59,7 +56,6 @@ export class UrbitSSEClient {
   streamRelease: (() => Promise<void>) | null = null;
 
   constructor(url: string, cookie: string, options: UrbitSseOptions = {}) {
-<<<<<<< HEAD
     const validated = validateUrbitBaseUrl(url);
     if (!validated.ok) {
       throw new Error(validated.error);
@@ -69,13 +65,6 @@ export class UrbitSSEClient {
     this.cookie = cookie.split(";")[0];
     this.ship = options.ship?.replace(/^~/, "") ?? this.resolveShipFromHostname(validated.hostname);
     this.channelId = `${Math.floor(Date.now() / 1000)}-${Math.random().toString(36).substring(2, 8)}`;
-=======
-    const ctx = getUrbitContext(url, options.ship);
-    this.url = ctx.baseUrl;
-    this.cookie = normalizeUrbitCookie(cookie);
-    this.ship = ctx.ship;
-    this.channelId = `${Math.floor(Date.now() / 1000)}-${randomUUID()}`;
->>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
     this.channelUrl = new URL(`/~/channel/${this.channelId}`, this.url).toString();
     this.onReconnect = options.onReconnect ?? null;
     this.autoReconnect = options.autoReconnect !== false;
@@ -143,15 +132,7 @@ export class UrbitSSEClient {
         },
         body: JSON.stringify([subscription]),
       },
-<<<<<<< HEAD
       body: JSON.stringify([subscription]),
-=======
-      ssrfPolicy: this.ssrfPolicy,
-      lookupFn: this.lookupFn,
-      fetchImpl: this.fetchImpl,
-      timeoutMs: 30_000,
-      auditContext: "tlon-urbit-subscribe",
->>>>>>> bfa7d21e9 (fix(security): harden tlon Urbit requests against SSRF)
     });
 
     try {
@@ -167,7 +148,6 @@ export class UrbitSSEClient {
   }
 
   async connect() {
-<<<<<<< HEAD
     const createResp = await fetch(this.channelUrl, {
       method: "PUT",
       headers: {
@@ -176,26 +156,6 @@ export class UrbitSSEClient {
       },
       body: JSON.stringify(this.subscriptions),
     });
-=======
-    {
-      const { response, release } = await urbitFetch({
-        baseUrl: this.url,
-        path: `/~/channel/${this.channelId}`,
-        init: {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: this.cookie,
-          },
-          body: JSON.stringify(this.subscriptions),
-        },
-        ssrfPolicy: this.ssrfPolicy,
-        lookupFn: this.lookupFn,
-        fetchImpl: this.fetchImpl,
-        timeoutMs: 30_000,
-        auditContext: "tlon-urbit-channel-create",
-      });
->>>>>>> bfa7d21e9 (fix(security): harden tlon Urbit requests against SSRF)
 
       try {
         if (!response.ok && response.status !== 204) {
@@ -227,17 +187,8 @@ export class UrbitSSEClient {
             },
           ]),
         },
-<<<<<<< HEAD
       ]),
     });
-=======
-        ssrfPolicy: this.ssrfPolicy,
-        lookupFn: this.lookupFn,
-        fetchImpl: this.fetchImpl,
-        timeoutMs: 30_000,
-        auditContext: "tlon-urbit-channel-wake",
-      });
->>>>>>> bfa7d21e9 (fix(security): harden tlon Urbit requests against SSRF)
 
       try {
         if (!response.ok && response.status !== 204) {
@@ -254,7 +205,6 @@ export class UrbitSSEClient {
   }
 
   async openStream() {
-<<<<<<< HEAD
     const response = await fetch(this.channelUrl, {
       method: "GET",
       headers: {
@@ -263,37 +213,6 @@ export class UrbitSSEClient {
       },
     });
 
-=======
-    // Use AbortController with manual timeout so we only abort during initial connection,
-    // not after the SSE stream is established and actively streaming.
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60_000);
-
-    this.streamController = controller;
-
-    const { response, release } = await urbitFetch({
-      baseUrl: this.url,
-      path: `/~/channel/${this.channelId}`,
-      init: {
-        method: "GET",
-        headers: {
-          Accept: "text/event-stream",
-          Cookie: this.cookie,
-        },
-      },
-      ssrfPolicy: this.ssrfPolicy,
-      lookupFn: this.lookupFn,
-      fetchImpl: this.fetchImpl,
-      signal: controller.signal,
-      auditContext: "tlon-urbit-sse-stream",
-    });
-
-    this.streamRelease = release;
-
-    // Clear timeout once connection established (headers received).
-    clearTimeout(timeoutId);
-
->>>>>>> bfa7d21e9 (fix(security): harden tlon Urbit requests against SSRF)
     if (!response.ok) {
       await release();
       this.streamRelease = null;
@@ -401,15 +320,7 @@ export class UrbitSSEClient {
         },
         body: JSON.stringify([pokeData]),
       },
-<<<<<<< HEAD
       body: JSON.stringify([pokeData]),
-=======
-      ssrfPolicy: this.ssrfPolicy,
-      lookupFn: this.lookupFn,
-      fetchImpl: this.fetchImpl,
-      timeoutMs: 30_000,
-      auditContext: "tlon-urbit-poke",
->>>>>>> bfa7d21e9 (fix(security): harden tlon Urbit requests against SSRF)
     });
 
     try {
@@ -434,14 +345,11 @@ export class UrbitSSEClient {
           Cookie: this.cookie,
         },
       },
-<<<<<<< HEAD
-=======
       ssrfPolicy: this.ssrfPolicy,
       lookupFn: this.lookupFn,
       fetchImpl: this.fetchImpl,
       timeoutMs: 30_000,
       auditContext: "tlon-urbit-scry",
->>>>>>> bfa7d21e9 (fix(security): harden tlon Urbit requests against SSRF)
     });
 
     try {
@@ -507,7 +415,6 @@ export class UrbitSSEClient {
         subscription: sub.id,
       }));
 
-<<<<<<< HEAD
       await fetch(this.channelUrl, {
         method: "PUT",
         headers: {
@@ -523,55 +430,6 @@ export class UrbitSSEClient {
           Cookie: this.cookie,
         },
       });
-=======
-      {
-        const { response, release } = await urbitFetch({
-          baseUrl: this.url,
-          path: `/~/channel/${this.channelId}`,
-          init: {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Cookie: this.cookie,
-            },
-            body: JSON.stringify(unsubscribes),
-          },
-          ssrfPolicy: this.ssrfPolicy,
-          lookupFn: this.lookupFn,
-          fetchImpl: this.fetchImpl,
-          timeoutMs: 30_000,
-          auditContext: "tlon-urbit-unsubscribe",
-        });
-        try {
-          void response.body?.cancel();
-        } finally {
-          await release();
-        }
-      }
-
-      {
-        const { response, release } = await urbitFetch({
-          baseUrl: this.url,
-          path: `/~/channel/${this.channelId}`,
-          init: {
-            method: "DELETE",
-            headers: {
-              Cookie: this.cookie,
-            },
-          },
-          ssrfPolicy: this.ssrfPolicy,
-          lookupFn: this.lookupFn,
-          fetchImpl: this.fetchImpl,
-          timeoutMs: 30_000,
-          auditContext: "tlon-urbit-channel-close",
-        });
-        try {
-          void response.body?.cancel();
-        } finally {
-          await release();
-        }
-      }
->>>>>>> bfa7d21e9 (fix(security): harden tlon Urbit requests against SSRF)
     } catch (error) {
       this.logger.error?.(`Error closing channel: ${String(error)}`);
     }

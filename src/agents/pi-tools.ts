@@ -1,14 +1,11 @@
 import { codingTools, createReadTool, readTool } from "@mariozechner/pi-coding-agent";
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-=======
 import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
 import type { ModelAuthMode } from "./model-auth.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
 import { logWarn } from "../logger.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { resolveGatewayMessageChannel } from "../utils/message-channel.js";
 import { createApplyPatchTool } from "./apply-patch.js";
@@ -19,10 +16,7 @@ import {
   type ProcessToolDefaults,
 } from "./bash-tools.js";
 import { listChannelAgentTools } from "./channel-tools.js";
-<<<<<<< HEAD
-=======
 import { resolveImageSanitizationLimits } from "./image-sanitization.js";
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { createOpenClawTools } from "./openclaw-tools.js";
 import type { ModelAuthMode } from "./model-auth.js";
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
@@ -47,16 +41,8 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
-<<<<<<< HEAD
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
-=======
-import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
-import {
-  applyToolPolicyPipeline,
-  buildDefaultToolPolicyPipelineSteps,
-} from "./tool-policy-pipeline.js";
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import {
   applyOwnerOnlyToolPolicy,
   buildPluginToolGroups,
@@ -178,15 +164,12 @@ export function createOpenClawCodingTools(options?: {
   hasRepliedRef?: { value: boolean };
   /** If true, the model has native vision capability */
   modelHasVision?: boolean;
-<<<<<<< HEAD
-=======
   /** Require explicit message targets (no implicit last-route sends). */
   requireExplicitMessageTarget?: boolean;
   /** If true, omit the message tool from the tool list. */
   disableMessageTool?: boolean;
   /** Whether the sender is an owner (required for owner-only tools). */
   senderIsOwner?: boolean;
->>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
 }): AnyAgentTool[] {
   const execToolName = "exec";
   const sandbox = options?.sandbox?.enabled ? options.sandbox : undefined;
@@ -249,12 +232,7 @@ export function createOpenClawCodingTools(options?: {
     sandbox?.tools,
     subagentPolicy,
   ]);
-<<<<<<< HEAD
   const execConfig = resolveExecConfig(options?.config);
-=======
-  const execConfig = resolveExecConfig({ cfg: options?.config, agentId });
-  const fsConfig = resolveFsConfig({ cfg: options?.config, agentId });
->>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
   const sandboxRoot = sandbox?.workspaceDir;
   const allowWorkspaceWrites = sandbox?.workspaceAccess !== "ro";
   const workspaceRoot = options?.workspaceDir ?? process.cwd();
@@ -275,15 +253,7 @@ export function createOpenClawCodingTools(options?: {
   const base = (codingTools as unknown as AnyAgentTool[]).flatMap((tool) => {
     if (tool.name === readTool.name) {
       if (sandboxRoot) {
-<<<<<<< HEAD
         return [createSandboxedReadTool(sandboxRoot)];
-=======
-        const sandboxed = createSandboxedReadTool({
-          root: sandboxRoot,
-          bridge: sandboxFsBridge!,
-        });
-        return [workspaceOnly ? wrapToolWorkspaceRootGuard(sandboxed, sandboxRoot) : sandboxed];
->>>>>>> 424c718bc (fix(security): apply tools.fs.workspaceOnly to sandbox file tools)
       }
       const freshReadTool = createReadTool(workspaceRoot);
       const wrapped = createOpenClawReadTool(freshReadTool);
@@ -291,7 +261,6 @@ export function createOpenClawCodingTools(options?: {
     }
     if (tool.name === "bash" || tool.name === execToolName) return [];
     if (tool.name === "write") {
-<<<<<<< HEAD
       if (sandboxRoot) return [];
       // Wrap with param normalization for Claude Code compatibility
       const wrapped = wrapToolParamNormalization(
@@ -307,19 +276,6 @@ export function createOpenClawCodingTools(options?: {
         createEditTool(workspaceRoot),
         CLAUDE_PARAM_GROUPS.edit,
       );
-=======
-      if (sandboxRoot) {
-        return [];
-      }
-      const wrapped = createHostWorkspaceWriteTool(workspaceRoot);
-      return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
-    }
-    if (tool.name === "edit") {
-      if (sandboxRoot) {
-        return [];
-      }
-      const wrapped = createHostWorkspaceEditTool(workspaceRoot);
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
       return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
     }
     return [tool as AnyAgentTool];
@@ -365,38 +321,13 @@ export function createOpenClawCodingTools(options?: {
       ? null
       : createApplyPatchTool({
           cwd: sandboxRoot ?? workspaceRoot,
-<<<<<<< HEAD
           sandboxRoot: sandboxRoot && allowWorkspaceWrites ? sandboxRoot : undefined,
-=======
-          sandbox:
-            sandboxRoot && allowWorkspaceWrites
-              ? { root: sandboxRoot, bridge: sandboxFsBridge! }
-              : undefined,
-          workspaceOnly: applyPatchWorkspaceOnly,
->>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
         });
   const tools: AnyAgentTool[] = [
     ...base,
     ...(sandboxRoot
       ? allowWorkspaceWrites
-<<<<<<< HEAD
         ? [createSandboxedEditTool(sandboxRoot), createSandboxedWriteTool(sandboxRoot)]
-=======
-        ? [
-            workspaceOnly
-              ? wrapToolWorkspaceRootGuard(
-                  createSandboxedEditTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
-                  sandboxRoot,
-                )
-              : createSandboxedEditTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
-            workspaceOnly
-              ? wrapToolWorkspaceRootGuard(
-                  createSandboxedWriteTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
-                  sandboxRoot,
-                )
-              : createSandboxedWriteTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
-          ]
->>>>>>> 424c718bc (fix(security): apply tools.fs.workspaceOnly to sandbox file tools)
         : []
       : []),
     ...(applyPatchTool ? [applyPatchTool as unknown as AnyAgentTool] : []),
@@ -417,13 +348,7 @@ export function createOpenClawCodingTools(options?: {
       agentGroupSpace: options?.groupSpace ?? null,
       agentDir: options?.agentDir,
       sandboxRoot,
-<<<<<<< HEAD
       workspaceDir: options?.workspaceDir,
-=======
-      sandboxFsBridge,
-      workspaceOnly,
-      workspaceDir: workspaceRoot,
->>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
       sandboxed: !!sandbox,
       config: options?.config,
       pluginToolAllowlist: collectExplicitAllowlist([
@@ -443,35 +368,22 @@ export function createOpenClawCodingTools(options?: {
       hasRepliedRef: options?.hasRepliedRef,
       modelHasVision: options?.modelHasVision,
       requesterAgentIdOverride: agentId,
-<<<<<<< HEAD
-=======
       requesterSenderId: options?.senderId,
       senderIsOwner: options?.senderIsOwner,
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
     }),
   ];
   // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)
   const senderIsOwner = options?.senderIsOwner === true;
   const toolsByAuthorization = applyOwnerOnlyToolPolicy(tools, senderIsOwner);
   const coreToolNames = new Set(
-<<<<<<< HEAD
     tools
       .filter((tool) => !getPluginToolMeta(tool as AnyAgentTool))
-=======
-    toolsByAuthorization
-      .filter((tool) => !getPluginToolMeta(tool))
->>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
       .map((tool) => normalizeToolName(tool.name))
       .filter(Boolean),
   );
   const pluginGroups = buildPluginToolGroups({
-<<<<<<< HEAD
     tools,
     toolMeta: (tool) => getPluginToolMeta(tool as AnyAgentTool),
-=======
-    tools: toolsByAuthorization,
-    toolMeta: (tool) => getPluginToolMeta(tool),
->>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
   });
   const resolvePolicy = (policy: typeof profilePolicy, label: string) => {
     const resolved = stripPluginOnlyAllowlist(policy, pluginGroups, coreToolNames);

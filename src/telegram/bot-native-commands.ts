@@ -39,8 +39,6 @@ import type {
 } from "../config/types.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
-<<<<<<< HEAD
-=======
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { isSenderAllowed, normalizeDmAllowFromWithStore } from "./bot-access.js";
 import {
@@ -50,7 +48,6 @@ import {
 } from "./bot-native-command-menu.js";
 import { TelegramUpdateKeyContext } from "./bot-updates.js";
 import { TelegramBotOptions } from "./bot.js";
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 import { deliverReplies } from "./bot/delivery.js";
 import { buildInlineKeyboard } from "./send.js";
 import {

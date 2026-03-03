@@ -5,11 +5,8 @@ import {
   logInboundDrop,
   recordPendingHistoryEntryIfEnabled,
   resolveControlCommandGate,
-<<<<<<< HEAD
-=======
   resolveDefaultGroupPolicy,
   isDangerousNameMatchingEnabled,
->>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
   resolveMentionGating,
   formatAllowlistMatchMeta,
   resolveEffectiveAllowFromLists,
@@ -146,12 +143,9 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
     });
     const effectiveDmAllowFrom = resolvedAllowFromLists.effectiveAllowFrom;
     if (isDirectMessage && msteamsCfg) {
-<<<<<<< HEAD
       const dmPolicy = msteamsCfg.dmPolicy ?? "pairing";
       const allowFrom = dmAllowFrom;
 
-=======
->>>>>>> 051fdcc42 (fix(security): centralize dm/group allowlist auth composition)
       if (dmPolicy === "disabled") {
         log.debug("dropping dm (dms disabled)");
         return;

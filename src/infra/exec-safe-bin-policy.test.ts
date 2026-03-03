@@ -20,8 +20,6 @@ describe("exec safe bin policy grep", () => {
     expect(validateSafeBinArgv(["-e", "KEY", "--", ".env"], grepProfile)).toBe(false);
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("exec safe bin policy sort", () => {
   const sortProfile = SAFE_BIN_PROFILES.sort;
@@ -85,4 +83,3 @@ describe("exec safe bin policy docs parity", () => {
     expect(actual).toBe(expected);
   });
 });
->>>>>>> 3b8e33037 (fix(security): harden safeBins long-option validation)

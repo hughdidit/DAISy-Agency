@@ -17,7 +17,6 @@ android {
     }
   }
 
-<<<<<<< HEAD
   defaultConfig {
     applicationId = "ai.openclaw.android"
     minSdk = 31
@@ -38,13 +37,6 @@ android {
 <<<<<<< HEAD
     versionCode = 202602010
     versionName = "2026.2.1"
-=======
-    versionCode = 202602030
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    versionName = "2026.2.3"
->>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
 =======
     versionName = "2026.2.4"
 >>>>>>> 5031b283a (chore: bump version to 2026.2.4)
@@ -95,12 +87,8 @@ android {
 >>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
 =======
     versionCode = 202602230
-<<<<<<< HEAD
     versionName = "2026.2.23"
 >>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)
-=======
-    versionName = "2026.2.24"
->>>>>>> 2bad30b4d (chore(release): bump version to 2026.2.24)
 =======
     versionCode = 202602260
     versionName = "2026.2.26"

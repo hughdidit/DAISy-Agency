@@ -1,11 +1,8 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
-<<<<<<< HEAD
-=======
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import type { AnyAgentTool } from "./tools/common.js";
 import { resolvePluginTools } from "../plugins/tools.js";
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { resolveSessionAgentId } from "./agent-scope.js";
 import { createAgentsListTool } from "./tools/agents-list-tool.js";
 import { createBrowserTool } from "./tools/browser-tool.js";
@@ -41,11 +38,8 @@ export function createOpenClawTools(options?: {
   agentGroupSpace?: string | null;
   agentDir?: string;
   sandboxRoot?: string;
-<<<<<<< HEAD
-=======
   sandboxFsBridge?: SandboxFsBridge;
   workspaceOnly?: boolean;
->>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
   workspaceDir?: string;
   sandboxed?: boolean;
   config?: OpenClawConfig;
@@ -62,8 +56,6 @@ export function createOpenClawTools(options?: {
   modelHasVision?: boolean;
   /** Explicit agent ID override for cron/hook sessions. */
   requesterAgentIdOverride?: string;
-<<<<<<< HEAD
-=======
   /** Require explicit message targets (no implicit last-route sends). */
   requireExplicitMessageTarget?: boolean;
   /** If true, omit the message tool from the tool list. */
@@ -72,22 +64,12 @@ export function createOpenClawTools(options?: {
   requesterSenderId?: string | null;
   /** Whether the requesting sender is an owner. */
   senderIsOwner?: boolean;
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 }): AnyAgentTool[] {
   const imageTool = options?.agentDir?.trim()
     ? createImageTool({
         config: options?.config,
         agentDir: options.agentDir,
-<<<<<<< HEAD
         sandboxRoot: options?.sandboxRoot,
-=======
-        workspaceDir,
-        sandbox:
-          options?.sandboxRoot && options?.sandboxFsBridge
-            ? { root: options.sandboxRoot, bridge: options.sandboxFsBridge }
-            : undefined,
-        workspaceOnly: options?.workspaceOnly,
->>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
         modelHasVision: options?.modelHasVision,
       })
     : null;
@@ -99,8 +81,6 @@ export function createOpenClawTools(options?: {
     config: options?.config,
     sandboxed: options?.sandboxed,
   });
-<<<<<<< HEAD
-=======
   const messageTool = options?.disableMessageTool
     ? null
     : createMessageTool({
@@ -116,21 +96,13 @@ export function createOpenClawTools(options?: {
         requireExplicitTarget: options?.requireExplicitMessageTarget,
         requesterSenderId: options?.requesterSenderId ?? undefined,
       });
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
   const tools: AnyAgentTool[] = [
     createBrowserTool({
       sandboxBridgeUrl: options?.sandboxBrowserBridgeUrl,
       allowHostControl: options?.allowHostBrowserControl,
     }),
 <<<<<<< HEAD
-<<<<<<< HEAD
     createCanvasTool(),
-=======
-    createCanvasTool({
-      config: options?.config,
-      agentSessionKey: options?.agentSessionKey,
-    }),
->>>>>>> 39816e61b (Security: restrict canvas jsonlPath file reads)
 =======
     createCanvasTool({ config: options?.config }),
 >>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))

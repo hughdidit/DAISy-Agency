@@ -35,34 +35,12 @@ type CacheRetention = "none" | "short" | "long";
 function resolveCacheRetention(
   extraParams: Record<string, unknown> | undefined,
   provider: string,
-<<<<<<< HEAD
   modelId: string,
 ): CacheControlTtl | undefined {
   const raw = extraParams?.cacheControlTtl;
   if (raw !== "5m" && raw !== "1h") return undefined;
   if (provider === "anthropic") return raw;
   if (provider === "openrouter" && modelId.startsWith("anthropic/")) return raw;
-=======
-): CacheRetention | undefined {
-  if (provider !== "anthropic") {
-    return undefined;
-  }
-
-  // Prefer new cacheRetention if present
-  const newVal = extraParams?.cacheRetention;
-  if (newVal === "none" || newVal === "short" || newVal === "long") {
-    return newVal;
-  }
-
-  // Fall back to legacy cacheControlTtl with mapping
-  const legacy = extraParams?.cacheControlTtl;
-  if (legacy === "5m") {
-    return "short";
-  }
-  if (legacy === "1h") {
-    return "long";
-  }
->>>>>>> ba4a55f6d (fix(agents): update cacheControlTtl to cacheRetention for pi-ai 0.50.9)
   return undefined;
 }
 

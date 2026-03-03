@@ -143,8 +143,6 @@ class SecurePrefs(context: Context) {
     _manualTls.value = value
   }
 
-<<<<<<< HEAD
-=======
   fun setGatewayToken(value: String) {
     val trimmed = value.trim()
     prefs.edit(commit = true) { putString("gateway.manual.token", trimmed) }
@@ -160,18 +158,14 @@ class SecurePrefs(context: Context) {
     _onboardingCompleted.value = value
   }
 
->>>>>>> 7a74cf34b (fix(android-security): remove token-derived logging from prefs)
   fun setCanvasDebugStatusEnabled(value: Boolean) {
     prefs.edit { putBoolean("canvas.debugStatusEnabled", value) }
     _canvasDebugStatusEnabled.value = value
   }
 
   fun loadGatewayToken(): String? {
-<<<<<<< HEAD
-=======
     val manual = _gatewayToken.value.trim()
     if (manual.isNotEmpty()) return manual
->>>>>>> 7a74cf34b (fix(android-security): remove token-derived logging from prefs)
     val key = "gateway.token.${_instanceId.value}"
     val stored = prefs.getString(key, null)?.trim()
     return stored?.takeIf { it.isNotEmpty() }

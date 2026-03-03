@@ -179,7 +179,6 @@ describe("port collision prevention", () => {
 
 describe("color allocation", () => {
   it("allocates next unused color from palette", () => {
-<<<<<<< HEAD
     // biome-ignore lint/style/noNonNullAssertion: Test file with known array
     const usedColors = new Set([PROFILE_COLORS[0]!.toUpperCase()]);
     expect(allocateColor(usedColors)).toBe(PROFILE_COLORS[1]);
@@ -195,28 +194,6 @@ describe("color allocation", () => {
       PROFILE_COLORS[2]!.toUpperCase(),
     ]);
     expect(allocateColor(usedColors)).toBe(PROFILE_COLORS[3]);
-=======
-    const cases = [
-      { name: "none used", used: new Set<string>(), expected: PROFILE_COLORS[0] },
-      {
-        name: "first color used",
-        used: new Set([PROFILE_COLORS[0].toUpperCase()]),
-        expected: PROFILE_COLORS[1],
-      },
-      {
-        name: "multiple used colors",
-        used: new Set([
-          PROFILE_COLORS[0].toUpperCase(),
-          PROFILE_COLORS[1].toUpperCase(),
-          PROFILE_COLORS[2].toUpperCase(),
-        ]),
-        expected: PROFILE_COLORS[3],
-      },
-    ] as const;
-    for (const testCase of cases) {
-      expect(allocateColor(testCase.used), testCase.name).toBe(testCase.expected);
-    }
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   });
 
   it("handles case-insensitive color matching", () => {

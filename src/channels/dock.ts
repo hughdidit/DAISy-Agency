@@ -1,9 +1,5 @@
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 import type {
   ChannelCapabilities,
   ChannelCommandAdapter,
@@ -13,13 +9,7 @@ import type {
   ChannelAgentPromptAdapter,
   ChannelMentionAdapter,
   ChannelPlugin,
-<<<<<<< HEAD
   ChannelThreadingAdapter,
-=======
-  ChannelThreadingContext,
-  ChannelThreadingAdapter,
-  ChannelThreadingToolContext,
->>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 } from "./plugins/types.js";
 import {
   resolveChannelGroupRequireMention,
@@ -29,11 +19,6 @@ import {
 import { resolveDiscordAccount } from "../discord/accounts.js";
 import { resolveIMessageAccount } from "../imessage/accounts.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { resolveLinqAccount } from "../linq/accounts.js";
-=======
->>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 import { requireActivePluginRegistry } from "../plugins/runtime.js";
 import { normalizeAccountId } from "../routing/session-key.js";
 >>>>>>> d4a142fd8 (feat: add Linq channel — real iMessage via API, no Mac required)
@@ -60,7 +45,6 @@ import {
   resolveWhatsAppGroupRequireMention,
   resolveWhatsAppGroupToolPolicy,
 } from "./plugins/group-mentions.js";
-<<<<<<< HEAD
 import type {
   ChannelCapabilities,
   ChannelCommandAdapter,
@@ -72,8 +56,6 @@ import type {
   ChannelPlugin,
   ChannelThreadingAdapter,
 } from "./plugins/types.js";
-=======
->>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 import { CHAT_CHANNEL_ORDER, type ChatChannelId, getChatChannelMeta } from "./registry.js";
 
 export type ChannelDock = {
@@ -114,12 +96,9 @@ const formatLower = (allowFrom: Array<string | number>) =>
     .map((entry) => String(entry).trim())
     .filter(Boolean)
     .map((entry) => entry.toLowerCase());
-<<<<<<< HEAD
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-=======
->>>>>>> fa906b26a (feat: IRC — add first-class channel support)
 // Channel docks: lightweight channel metadata/behavior for shared code paths.
 //
 // Rules:

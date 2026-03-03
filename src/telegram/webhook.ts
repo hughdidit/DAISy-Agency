@@ -4,12 +4,8 @@ import { webhookCallback } from "grammy";
 import type { OpenClawConfig } from "../config/config.js";
 import { isDiagnosticsEnabled } from "../infra/diagnostic-events.js";
 import { formatErrorMessage } from "../infra/errors.js";
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
-=======
-import { installRequestBodyLimitGuard } from "../infra/http-body.js";
->>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 import {
   logWebhookError,
   logWebhookProcessed,

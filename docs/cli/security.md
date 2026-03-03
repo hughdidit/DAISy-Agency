@@ -21,14 +21,7 @@ openclaw security audit --fix
 openclaw security audit --json
 ```
 
-<<<<<<< HEAD
 The audit warns when multiple DM senders share the main session and recommends `session.dmScope="per-channel-peer"` (or `per-account-channel-peer` for multi-account channels) for shared inboxes.
-=======
-The audit warns when multiple DM senders share the main session and recommends **secure DM mode**: `session.dmScope="per-channel-peer"` (or `per-account-channel-peer` for multi-account channels) for shared inboxes.
-This is for cooperative/shared inbox hardening. A single Gateway shared by mutually untrusted/adversarial operators is not a recommended setup; split trust boundaries with separate gateways (or separate OS users/hosts).
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 810218756 (docs(security): clarify trusted-host deployment assumptions)
 =======
 It also emits `security.trust_model.multi_user_heuristic` when config suggests likely shared-user ingress (for example configured group targets or wildcard sender rules), and reminds you that OpenClaw is a personal-assistant trust model by default.
 =======
@@ -37,8 +30,6 @@ It also emits `security.trust_model.multi_user_heuristic` when config suggests l
 For intentional shared-user setups, the audit guidance is to sandbox all sessions, keep filesystem access workspace-scoped, and keep personal/private identities or credentials off that runtime.
 >>>>>>> 4d124e4a9 (feat(security): warn on likely multi-user trust-model mismatch)
 It also warns when small models (`<=300B`) are used without sandboxing and with web/browser tools enabled.
-<<<<<<< HEAD
-=======
 For webhook ingress, it warns when `hooks.defaultSessionKey` is unset, when request `sessionKey` overrides are enabled, and when overrides are enabled without `hooks.allowedSessionKeyPrefixes`.
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -49,7 +40,6 @@ It also warns when sandbox Docker settings are configured while sandbox mode is 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 1def8c544 (fix(security): extend audit hardening checks)
 =======
 =======
 =======
@@ -60,12 +50,7 @@ It also warns when sandbox Docker settings are configured while sandbox mode is 
 >>>>>>> 049b8b14b (fix(security): flag open-group runtime/fs exposure in audit)
 =======
 It also warns when sandbox Docker settings are configured while sandbox mode is off, when `gateway.nodes.denyCommands` uses ineffective pattern-like/unknown entries, when `gateway.nodes.allowCommands` explicitly enables dangerous node commands, when global `tools.profile="minimal"` is overridden by agent tool profiles, when open groups expose runtime/filesystem tools without sandbox/workspace guards, and when installed extension plugin tools may be reachable under permissive tool policy.
-<<<<<<< HEAD
 >>>>>>> 265da4dd2 (fix(security): harden gateway command/audit guardrails)
-=======
-=======
-It also warns when sandbox Docker settings are configured while sandbox mode is off, when `gateway.nodes.denyCommands` uses ineffective pattern-like/unknown entries (exact node command-name matching only, not shell-text filtering), when `gateway.nodes.allowCommands` explicitly enables dangerous node commands, when global `tools.profile="minimal"` is overridden by agent tool profiles, when open groups expose runtime/filesystem tools without sandbox/workspace guards, and when installed extension plugin tools may be reachable under permissive tool policy.
->>>>>>> 42f455739 (fix(security): clarify denyCommands exact-match guidance)
 It also flags `gateway.allowRealIpFallback=true` (header-spoofing risk if proxies are misconfigured) and `discovery.mdns.mode="full"` (metadata leakage via mDNS TXT records).
 >>>>>>> bc78b343b (Security: expand audit checks for mDNS and real-IP fallback)
 It also warns when sandbox browser uses Docker `bridge` network without `sandbox.browser.cdpSourceRange`.
@@ -74,22 +59,14 @@ It also warns when existing sandbox browser Docker containers have missing/stale
 >>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 It also warns when npm-based plugin/hook install records are unpinned, missing integrity metadata, or drift from currently installed package versions.
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
-=======
-It warns when Discord allowlists (`channels.discord.allowFrom`, `channels.discord.guilds.*.users`, pairing store) use name or tag entries instead of stable IDs.
->>>>>>> f97c45c5b (fix(security): warn on Discord name-based allowlists in audit)
 It warns when `gateway.auth.mode="none"` leaves Gateway HTTP APIs reachable without a shared secret (`/tools/invoke` plus any enabled `/v1/*` endpoint).
 >>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
 =======
 It warns when channel allowlists rely on mutable names/emails/tags instead of stable IDs (Discord, Slack, Google Chat, MS Teams, Mattermost, IRC scopes where applicable).
 It warns when `gateway.auth.mode="none"` leaves Gateway HTTP APIs reachable without a shared secret (`/tools/invoke` plus any enabled `/v1/*` endpoint).
 Settings prefixed with `dangerous`/`dangerously` are explicit break-glass operator overrides; enabling one is not, by itself, a security vulnerability report.
-<<<<<<< HEAD
 >>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
-=======
-For the complete dangerous-parameter inventory, see the "Insecure or dangerous flags summary" section in [Security](/gateway/security).
->>>>>>> 8cc841766 (docs(security): enumerate dangerous config parameters)
 
 ## JSON output
 

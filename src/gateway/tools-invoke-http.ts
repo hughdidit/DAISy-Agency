@@ -68,8 +68,6 @@ function mergeActionIntoArgsIfSupported(params: {
   return { ...args, action };
 }
 
-<<<<<<< HEAD
-=======
 function getErrorMessage(err: unknown): string {
   if (err instanceof Error) {
     return err.message || String(err);
@@ -99,7 +97,6 @@ function resolveToolInputErrorStatus(err: unknown): number | null {
   return name === "ToolAuthorizationError" ? 403 : 400;
 }
 
->>>>>>> 10b8839a8 (fix(security): centralize WhatsApp outbound auth and return 403 tool auth errors)
 export async function handleToolsInvokeHttpRequest(
   req: IncomingMessage,
   res: ServerResponse,
@@ -300,8 +297,6 @@ export async function handleToolsInvokeHttpRequest(
     const result = await (tool as any).execute?.(`http-${Date.now()}`, toolArgs);
     sendJson(res, 200, { ok: true, result });
   } catch (err) {
-<<<<<<< HEAD
-=======
     const inputStatus = resolveToolInputErrorStatus(err);
     if (inputStatus !== null) {
       sendJson(res, inputStatus, {
@@ -310,7 +305,6 @@ export async function handleToolsInvokeHttpRequest(
       });
       return true;
     }
->>>>>>> 10b8839a8 (fix(security): centralize WhatsApp outbound auth and return 403 tool auth errors)
     logWarn(`tools-invoke: tool execution failed: ${String(err)}`);
     sendJson(res, 400, {
       ok: false,

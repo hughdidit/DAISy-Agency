@@ -84,8 +84,6 @@ export async function fetchWithSlackAuth(url: string, token: string): Promise<Re
   return fetch(resolvedUrl.toString(), { redirect: "follow" });
 }
 
-<<<<<<< HEAD
-=======
 /**
  * Slack voice messages (audio clips, huddle recordings) carry a `subtype` of
  * `"slack_audio"` but are served with a `video/*` MIME type (e.g. `video/mp4`,
@@ -115,7 +113,6 @@ const MAX_SLACK_MEDIA_FILES = 8;
  * Downloads all files attached to a Slack message and returns them as an array.
  * Returns `null` when no files could be downloaded.
  */
->>>>>>> c76288bdf (fix(slack): download all files in multi-image messages (#15447))
 export async function resolveSlackMedia(params: {
   files?: SlackFile[];
   token: string;

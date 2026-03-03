@@ -110,23 +110,7 @@ describe("nodes-cli coverage", () => {
     callGateway.mockClear();
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     const { registerNodesCli } = await import("./nodes-cli.js");
-=======
-  const getNodeInvokeCall = () =>
-    callGateway.mock.calls.find((call) => call[0]?.method === "node.invoke")?.[0] as NodeInvokeCall;
-=======
-  const getNodeInvokeCall = () => {
-    const nodeInvokeCalls = callGateway.mock.calls
-      .map((call) => call[0])
-      .filter((entry): entry is NodeInvokeCall => entry?.method === "node.invoke");
-    const last = nodeInvokeCalls.at(-1);
-    if (!last) {
-      throw new Error("expected node.invoke call");
-    }
-    return last;
-  };
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
 
   const getApprovalRequestCall = () =>
     callGateway.mock.calls.find((call) => call[0]?.method === "exec.approval.request")?.[0] as {

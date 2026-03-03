@@ -44,15 +44,7 @@ const registryCache = new Map<string, PluginRegistry>();
 
 const defaultLogger = () => createSubsystemLogger("plugins");
 
-<<<<<<< HEAD
 const resolvePluginSdkAlias = (): string | null => {
-=======
-const resolvePluginSdkAliasFile = (params: {
-  srcFile: string;
-  distFile: string;
-  modulePath?: string;
-}): string | null => {
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   try {
     const modulePath = params.modulePath ?? fileURLToPath(import.meta.url);
     const isProduction = process.env.NODE_ENV === "production";
@@ -61,7 +53,6 @@ const resolvePluginSdkAliasFile = (params: {
     const isDistRuntime = normalizedModulePath.includes("/dist/");
     let cursor = path.dirname(modulePath);
     for (let i = 0; i < 6; i += 1) {
-<<<<<<< HEAD
       const srcCandidate = path.join(cursor, "src", "plugin-sdk", "index.ts");
       const distCandidate = path.join(cursor, "dist", "plugin-sdk", "index.js");
       const orderedCandidates = isProduction
@@ -69,17 +60,6 @@ const resolvePluginSdkAliasFile = (params: {
           ? [distCandidate, srcCandidate]
           : [distCandidate]
         : [srcCandidate, distCandidate];
-=======
-      const srcCandidate = path.join(cursor, "src", "plugin-sdk", params.srcFile);
-      const distCandidate = path.join(cursor, "dist", "plugin-sdk", params.distFile);
-      const orderedCandidates = isDistRuntime
-        ? [distCandidate, srcCandidate]
-        : isProduction
-          ? isTest
-            ? [distCandidate, srcCandidate]
-            : [distCandidate]
-          : [srcCandidate, distCandidate];
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
       for (const candidate of orderedCandidates) {
         if (fs.existsSync(candidate)) return candidate;
       }
@@ -93,8 +73,6 @@ const resolvePluginSdkAliasFile = (params: {
   return null;
 };
 
-<<<<<<< HEAD
-=======
 const resolvePluginSdkAlias = (): string | null =>
   resolvePluginSdkAliasFile({ srcFile: "index.ts", distFile: "index.js" });
 
@@ -106,7 +84,6 @@ export const __testing = {
   resolvePluginSdkAliasFile,
 };
 
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 function buildCacheKey(params: {
   workspaceDir?: string;
   plugins: NormalizedPluginsConfig;
@@ -200,11 +177,7 @@ function pushDiagnostics(diagnostics: PluginDiagnostic[], append: PluginDiagnost
   diagnostics.push(...append);
 }
 
-<<<<<<< HEAD
 export function loadMoltbotPlugins(options: PluginLoadOptions = {}): PluginRegistry {
-=======
-export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegistry {
->>>>>>> 9a7160786 (refactor: rename to openclaw)
   const cfg = options.config ?? {};
   const logger = options.logger ?? defaultLogger();
   const validateOnly = options.mode === "validate";

@@ -16,7 +16,6 @@ import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "../../
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import { danger, logVerbose } from "../../globals.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
-<<<<<<< HEAD
 import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
@@ -27,11 +26,6 @@ import { resolveConversationLabel } from "../../channels/conversation-label.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 
-=======
-import { upsertChannelPairingRequest } from "../../pairing/pairing-store.js";
-import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
-import { chunkItems } from "../../utils/chunk-items.js";
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import type { ResolvedSlackAccount } from "../accounts.js";
 
 =======
@@ -46,8 +40,6 @@ import {
 import { resolveSlackChannelConfig, type SlackChannelConfigResolved } from "./channel-config.js";
 import { buildSlackSlashCommandMatcher, resolveSlackSlashCommandConfig } from "./commands.js";
 import type { SlackMonitorContext } from "./context.js";
-<<<<<<< HEAD
-=======
 import { normalizeSlackChannelType } from "./context.js";
 import {
   createSlackExternalArgMenuStore,
@@ -55,7 +47,6 @@ import {
   type SlackExternalArgMenuChoice,
 } from "./external-arg-menu-store.js";
 import { escapeSlackMrkdwn } from "./mrkdwn.js";
->>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 import { isSlackChannelAllowedByPolicy } from "./policy.js";
 import { deliverSlackSlashReplies } from "./replies.js";
 
@@ -63,77 +54,20 @@ type SlackBlock = { type: string; [key: string]: unknown };
 
 const SLACK_COMMAND_ARG_ACTION_ID = "openclaw_cmdarg";
 const SLACK_COMMAND_ARG_VALUE_PREFIX = "cmdarg";
-<<<<<<< HEAD
-=======
 const SLACK_COMMAND_ARG_BUTTON_ROW_SIZE = 5;
 const SLACK_COMMAND_ARG_OVERFLOW_MIN = 3;
 const SLACK_COMMAND_ARG_OVERFLOW_MAX = 5;
 const SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX = 100;
 const SLACK_COMMAND_ARG_SELECT_OPTION_VALUE_MAX = 75;
 const SLACK_HEADER_TEXT_MAX = 150;
->>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 
-<<<<<<< HEAD
 function chunkItems<T>(items: T[], size: number): T[][] {
   if (size <= 0) return [items];
   const rows: T[][] = [];
   for (let i = 0; i < items.length; i += size) {
     rows.push(items.slice(i, i + size));
-=======
-type EncodedMenuChoice = SlackExternalArgMenuChoice;
-const slackExternalArgMenuStore = createSlackExternalArgMenuStore();
-
-function truncatePlainText(value: string, max: number): string {
-  const trimmed = value.trim();
-  if (trimmed.length <= max) {
-    return trimmed;
->>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
   }
-<<<<<<< HEAD
   return rows;
-=======
-  if (max <= 1) {
-    return trimmed.slice(0, max);
-  }
-  return `${trimmed.slice(0, max - 1)}…`;
-}
-
-function buildSlackArgMenuConfirm(params: { command: string; arg: string }) {
-  const command = escapeSlackMrkdwn(params.command);
-  const arg = escapeSlackMrkdwn(params.arg);
-  return {
-    title: { type: "plain_text", text: "Confirm selection" },
-    text: {
-      type: "mrkdwn",
-      text: `Run */${command}* with *${arg}* set to this value?`,
-    },
-    confirm: { type: "plain_text", text: "Run command" },
-    deny: { type: "plain_text", text: "Cancel" },
-  };
-}
-
-function storeSlackExternalArgMenu(params: {
-  choices: EncodedMenuChoice[];
-  userId: string;
-}): string {
-  return slackExternalArgMenuStore.create({
-    choices: params.choices,
-    userId: params.userId,
-  });
-}
-
-function readSlackExternalArgMenuToken(raw: unknown): string | undefined {
-  return slackExternalArgMenuStore.readToken(raw);
-}
-
-type CommandsRegistry = typeof import("../../auto-reply/commands-registry.js");
-let commandsRegistry: CommandsRegistry | undefined;
-async function getCommandsRegistry(): Promise<CommandsRegistry> {
-  if (!commandsRegistry) {
-    commandsRegistry = await import("../../auto-reply/commands-registry.js");
-  }
-  return commandsRegistry;
->>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 }
 
 function encodeSlackCommandArgValue(parts: {
@@ -203,8 +137,6 @@ function buildSlackCommandArgMenuBlocks(params: {
       }),
     })),
   }));
-<<<<<<< HEAD
-=======
   const canUseStaticSelect = encodedChoices.every(
     (choice) => choice.value.length <= SLACK_COMMAND_ARG_SELECT_OPTION_VALUE_MAX,
   );
@@ -295,7 +227,6 @@ function buildSlackCommandArgMenuBlocks(params: {
     `Select one option to continue /${params.command} (${params.arg})`,
     3000,
   );
->>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
   return [
     {
       type: "section",
@@ -363,17 +294,7 @@ export function registerSlackMonitorSlashCommands(params: {
         return;
       }
 
-<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
-=======
-      const storeAllowFrom = isDirectMessage
-        ? await readStoreAllowFromForDmPolicy({
-            provider: "slack",
-            accountId: ctx.accountId,
-            dmPolicy: ctx.dmPolicy,
-          })
-        : [];
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       const effectiveAllowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
       const effectiveAllowFromLower = normalizeAllowListLower(effectiveAllowFrom);
 
@@ -718,62 +639,7 @@ export function registerSlackMonitorSlashCommands(params: {
     logVerbose("slack: slash commands disabled");
   }
 
-<<<<<<< HEAD
   if (nativeCommands.length === 0 || !supportsInteractiveArgMenus) return;
-=======
-  if (nativeCommands.length === 0 || !supportsInteractiveArgMenus) {
-    return;
-  }
-
-  const registerArgOptions = () => {
-    const appWithOptions = ctx.app as unknown as {
-      options?: (
-        actionId: string,
-        handler: (args: {
-          ack: (payload: { options: unknown[] }) => Promise<void>;
-          body: unknown;
-        }) => Promise<void>,
-      ) => void;
-    };
-    if (typeof appWithOptions.options !== "function") {
-      return;
-    }
-    appWithOptions.options(SLACK_COMMAND_ARG_ACTION_ID, async ({ ack, body }) => {
-      const typedBody = body as {
-        value?: string;
-        user?: { id?: string };
-        actions?: Array<{ block_id?: string }>;
-        block_id?: string;
-      };
-      const blockId = typedBody.actions?.[0]?.block_id ?? typedBody.block_id;
-      const token = readSlackExternalArgMenuToken(blockId);
-      if (!token) {
-        await ack({ options: [] });
-        return;
-      }
-      const entry = slackExternalArgMenuStore.get(token);
-      if (!entry) {
-        await ack({ options: [] });
-        return;
-      }
-      const requesterUserId = typedBody.user?.id?.trim();
-      if (!requesterUserId || requesterUserId !== entry.userId) {
-        await ack({ options: [] });
-        return;
-      }
-      const query = typedBody.value?.trim().toLowerCase() ?? "";
-      const options = entry.choices
-        .filter((choice) => !query || choice.label.toLowerCase().includes(query))
-        .slice(0, SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX)
-        .map((choice) => ({
-          text: { type: "plain_text", text: choice.label.slice(0, 75) },
-          value: choice.value,
-        }));
-      await ack({ options });
-    });
-  };
-  registerArgOptions();
->>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 
   const registerArgAction = (actionId: string) => {
     (

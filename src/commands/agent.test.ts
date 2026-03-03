@@ -196,8 +196,6 @@ describe("agentCommand", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("uses default fallback list for session model overrides", async () => {
     await withTempHome(async (home) => {
       const store = path.join(home, "sessions.json");
@@ -364,7 +362,6 @@ describe("agentCommand", () => {
     });
   });
 
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   it("keeps explicit sessionKey even when sessionId exists elsewhere", async () => {
     await withTempHome(async (home) => {
       const store = path.join(home, "sessions.json");
