@@ -4,11 +4,8 @@
   "type": "module",
   "description": "Moltbot MongoDB Atlas-backed long-term memory plugin with vector search",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.22.3",
     "@sinclair/typebox": "0.34.47",
-    "mongodb-mcp-server": "^0.2.3",
-    "voyageai": "^0.0.7",
-    "zod": "^4.3.6"
+    "voyageai": "^0.0.7"
   },
   "moltbot": {
     "extensions": [
