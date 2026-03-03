@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
+import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { note } from "../terminal/note.js";
 
@@ -8,7 +8,7 @@ export async function maybeRepairUiProtocolFreshness(
   _runtime: RuntimeEnv,
   prompter: DoctorPrompter,
 ) {
-  const root = await resolveMoltbotPackageRoot({
+  const root = await resolveOpenClawPackageRoot({
     moduleUrl: import.meta.url,
     argv1: process.argv[1],
     cwd: process.cwd(),

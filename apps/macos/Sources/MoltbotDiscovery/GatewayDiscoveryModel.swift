@@ -1,5 +1,5 @@
 import Foundation
-import MoltbotKit
+import OpenClawKit
 import Network
 import Observation
 import OSLog
@@ -69,7 +69,7 @@ public final class GatewayDiscoveryModel {
     private var pendingTXTResolvers: [String: GatewayTXTResolver] = [:]
     private var wideAreaFallbackTask: Task<Void, Never>?
     private var wideAreaFallbackGateways: [DiscoveredGateway] = []
-    private let logger = Logger(subsystem: "bot.molt", category: "gateway-discovery")
+    private let logger = Logger(subsystem: "ai.openclaw", category: "gateway-discovery")
 
     public init(
         localDisplayName: String? = nil,
@@ -84,11 +84,11 @@ public final class GatewayDiscoveryModel {
     public func start() {
         if !self.browsers.isEmpty { return }
 
-        for domain in MoltbotBonjour.gatewayServiceDomains {
+        for domain in OpenClawBonjour.gatewayServiceDomains {
             let params = NWParameters.tcp
             params.includePeerToPeer = true
             let browser = NWBrowser(
-                for: .bonjour(type: MoltbotBonjour.gatewayServiceType, domain: domain),
+                for: .bonjour(type: OpenClawBonjour.gatewayServiceType, domain: domain),
                 using: params)
 
             browser.stateUpdateHandler = { [weak self] state in
@@ -109,14 +109,14 @@ public final class GatewayDiscoveryModel {
             }
 
             self.browsers[domain] = browser
-            browser.start(queue: DispatchQueue(label: "bot.molt.macos.gateway-discovery.\(domain)"))
+            browser.start(queue: DispatchQueue(label: "ai.openclaw.macos.gateway-discovery.\(domain)"))
         }
 
         self.scheduleWideAreaFallback()
     }
 
     public func refreshWideAreaFallbackNow(timeoutSeconds: TimeInterval = 5.0) {
-        let domain = MoltbotBonjour.wideAreaGatewayServiceDomain
+        let domain = OpenClawBonjour.wideAreaGatewayServiceDomain
         Task.detached(priority: .utility) { [weak self] in
             guard let self else { return }
             let beacons = WideAreaGatewayDiscovery.discover(timeoutSeconds: timeoutSeconds)
@@ -238,7 +238,7 @@ public final class GatewayDiscoveryModel {
         }
         .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
 
-        if domain == MoltbotBonjour.wideAreaGatewayServiceDomain,
+        if domain == OpenClawBonjour.wideAreaGatewayServiceDomain,
            self.hasUsableWideAreaResults
         {
             self.wideAreaFallbackGateways = []
@@ -246,7 +246,7 @@ public final class GatewayDiscoveryModel {
     }
 
     private func scheduleWideAreaFallback() {
-        let domain = MoltbotBonjour.wideAreaGatewayServiceDomain
+        let domain = OpenClawBonjour.wideAreaGatewayServiceDomain
         if Self.isRunningTests { return }
         guard self.wideAreaFallbackTask == nil else { return }
         self.wideAreaFallbackTask = Task.detached(priority: .utility) { [weak self] in
@@ -279,7 +279,7 @@ public final class GatewayDiscoveryModel {
     }
 
     private var hasUsableWideAreaResults: Bool {
-        let domain = MoltbotBonjour.wideAreaGatewayServiceDomain
+        let domain = OpenClawBonjour.wideAreaGatewayServiceDomain
         guard let gateways = self.gatewaysByDomain[domain], !gateways.isEmpty else { return false }
         if !self.filterLocalGateways { return true }
         return gateways.contains(where: { !$0.isLocal })
@@ -458,7 +458,7 @@ public final class GatewayDiscoveryModel {
 
     private nonisolated static func prettifyInstanceName(_ decodedName: String) -> String {
         let normalized = decodedName.split(whereSeparator: \.isWhitespace).joined(separator: " ")
-        let stripped = normalized.replacingOccurrences(of: " (Moltbot)", with: "")
+        let stripped = normalized.replacingOccurrences(of: " (OpenClaw)", with: "")
             .replacingOccurrences(of: #"\s+\(\d+\)$"#, with: "", options: .regularExpression)
         return stripped.trimmingCharacters(in: .whitespacesAndNewlines)
     }

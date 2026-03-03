@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { formatCliCommand } from "../cli/command-format.js";
 import {
-  type MoltbotConfig,
+  type OpenClawConfig,
   CONFIG_PATH,
   loadConfig,
   readConfigFileSnapshot,
@@ -209,7 +209,7 @@ export async function runGmailSetup(opts: GmailSetupOptions) {
     true,
   );
 
-  const nextConfig: MoltbotConfig = {
+  const nextConfig: OpenClawConfig = {
     ...baseConfig,
     hooks: {
       ...baseConfig.hooks,
@@ -277,7 +277,7 @@ export async function runGmailSetup(opts: GmailSetupOptions) {
   defaultRuntime.log(`- push endpoint: ${pushEndpoint}`);
   defaultRuntime.log(`- hook url: ${hookUrl}`);
   defaultRuntime.log(`- config: ${displayPath(CONFIG_PATH)}`);
-  defaultRuntime.log(`Next: ${formatCliCommand("moltbot webhooks gmail run")}`);
+  defaultRuntime.log(`Next: ${formatCliCommand("openclaw webhooks gmail run")}`);
 }
 
 export async function runGmailService(opts: GmailRunOptions) {

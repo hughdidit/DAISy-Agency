@@ -8,7 +8,7 @@
  * - Auto-capture filtering
  * - Category detection
  *
- * Live tests (gated on OPENAI_API_KEY + MONGODB_URI + CLAWDBOT_LIVE_TEST=1):
+ * Live tests (gated on OPENAI_API_KEY + MONGODB_URI + OPENCLAW_LIVE_TEST=1):
  * - Full tool flow: store → recall → duplicate detection → forget → verify
  */
 
@@ -19,7 +19,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? "test-key";
 const HAS_OPENAI_KEY = Boolean(process.env.OPENAI_API_KEY);
 const HAS_MONGODB_URI = Boolean(process.env.MONGODB_URI);
 const liveEnabled =
-  HAS_OPENAI_KEY && HAS_MONGODB_URI && process.env.CLAWDBOT_LIVE_TEST === "1";
+  HAS_OPENAI_KEY && HAS_MONGODB_URI && process.env.OPENCLAW_LIVE_TEST === "1";
 const describeLive = liveEnabled ? describe : describe.skip;
 
 describe("memory-mongodb plugin", () => {
@@ -222,7 +222,7 @@ describe("memory-mongodb plugin", () => {
 // ============================================================================
 
 describeLive("memory-mongodb live tests", () => {
-  const testDbName = `moltbot-test-${randomUUID().slice(0, 8)}`;
+  const testDbName = `openclaw-test-${randomUUID().slice(0, 8)}`;
   let cleanupDb: (() => Promise<void>) | null = null;
 
   afterEach(async () => {

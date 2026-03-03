@@ -3,7 +3,7 @@ import {
   DEFAULT_ACCOUNT_ID,
   formatPairingApproveHint,
   type ChannelPlugin,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 
 import { NostrConfigSchema } from "./config-schema.js";
 import { normalizePubkey, startNostrBus, type NostrBusHandle } from "./nostr-bus.js";
@@ -218,7 +218,7 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = {
         onMessage: async (senderPubkey, text, reply) => {
           ctx.log?.debug(`[${account.accountId}] DM from ${senderPubkey}: ${text.slice(0, 50)}...`);
 
-          // Forward to moltbot's message pipeline
+          // Forward to openclaw's message pipeline
           await runtime.channel.reply.handleInboundMessage({
             channel: "nostr",
             accountId: account.accountId,

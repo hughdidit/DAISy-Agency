@@ -138,7 +138,7 @@ export MONGODB_URI="mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/?
 
 ### 5. Configure the plugin
 
-Add the configuration block shown above to your Moltbot config, referencing `${MONGODB_URI}` and `${OPENAI_API_KEY}`.
+Add the configuration block shown above to your OpenClaw config, referencing `${MONGODB_URI}` and `${OPENAI_API_KEY}`.
 
 ## Tools
 
@@ -178,9 +178,9 @@ memory_forget({ query: "dark mode" })
 ## CLI
 
 ```sh
-moltbot ltm list        # Show total memory count
-moltbot ltm search <q>  # Search memories (--limit N)
-moltbot ltm stats       # Show memory statistics
+openclaw ltm list        # Show total memory count
+openclaw ltm search <q>  # Search memories (--limit N)
+openclaw ltm stats       # Show memory statistics
 ```
 
 ## Auto-Recall

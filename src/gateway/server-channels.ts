@@ -1,5 +1,5 @@
 import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { resetDirectoryCache } from "../infra/outbound/target-resolver.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
@@ -41,7 +41,7 @@ function cloneDefaultRuntime(channelId: ChannelId, accountId: string): ChannelAc
 }
 
 type ChannelManagerOptions = {
-  loadConfig: () => MoltbotConfig;
+  loadConfig: () => OpenClawConfig;
   channelLogs: Record<ChannelId, SubsystemLogger>;
   channelRuntimeEnvs: Record<ChannelId, RuntimeEnv>;
 };

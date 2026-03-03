@@ -1,5 +1,5 @@
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
-import { type MoltbotConfig, loadConfig } from "../config/config.js";
+import { type OpenClawConfig, loadConfig } from "../config/config.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 import { theme } from "../terminal/theme.js";
 
@@ -33,7 +33,7 @@ const accountLine = (label: string, details: string[]) =>
 const resolveAccountEnabled = (
   plugin: ChannelPlugin,
   account: unknown,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): boolean => {
   if (plugin.config.isEnabled) {
     return plugin.config.isEnabled(account, cfg);
@@ -46,7 +46,7 @@ const resolveAccountEnabled = (
 const resolveAccountConfigured = async (
   plugin: ChannelPlugin,
   account: unknown,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): Promise<boolean> => {
   if (plugin.config.isConfigured) {
     return await plugin.config.isConfigured(account, cfg);
@@ -57,7 +57,7 @@ const resolveAccountConfigured = async (
 const buildAccountSnapshot = (params: {
   plugin: ChannelPlugin;
   account: unknown;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId: string;
   enabled: boolean;
   configured: boolean;
@@ -75,7 +75,7 @@ const buildAccountSnapshot = (params: {
 
 const formatAllowFrom = (params: {
   plugin: ChannelPlugin;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
   allowFrom: Array<string | number>;
 }) => {
@@ -92,7 +92,7 @@ const formatAllowFrom = (params: {
 const buildAccountDetails = (params: {
   entry: ChannelAccountEntry;
   plugin: ChannelPlugin;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   includeAllowFrom: boolean;
 }): string[] => {
   const details: string[] = [];
@@ -128,7 +128,7 @@ const buildAccountDetails = (params: {
 };
 
 export async function buildChannelSummary(
-  cfg?: MoltbotConfig,
+  cfg?: OpenClawConfig,
   options?: ChannelSummaryOptions,
 ): Promise<string[]> {
   const effective = cfg ?? loadConfig();

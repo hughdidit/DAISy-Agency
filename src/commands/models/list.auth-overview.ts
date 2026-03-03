@@ -9,13 +9,13 @@ import {
   resolveProfileUnusableUntilForDisplay,
 } from "../../agents/auth-profiles.js";
 import { getCustomProviderApiKey, resolveEnvApiKey } from "../../agents/model-auth.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { shortenHomePath } from "../../utils.js";
 import { maskApiKey } from "./list.format.js";
 
 export function resolveProviderAuthOverview(params: {
   provider: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   store: AuthProfileStore;
   modelsPath: string;
 }): ProviderAuthOverview {

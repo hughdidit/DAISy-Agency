@@ -29,7 +29,7 @@ vi.mock("../../auto-reply/reply/reply-dispatcher.js", () => ({
 import { processDiscordMessage } from "./message-handler.process.js";
 
 async function createBaseContext(overrides: Record<string, unknown> = {}) {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-discord-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-discord-"));
   const storePath = path.join(dir, "sessions.json");
   return {
     cfg: { messages: { ackReaction: "👀" }, session: { store: storePath } },

@@ -2,7 +2,7 @@
  * Twitch channel plugin types.
  *
  * This file defines Twitch-specific types. Generic channel types are imported
- * from Moltbot core.
+ * from OpenClaw core.
  */
 
 import type {
@@ -30,7 +30,7 @@ import type {
   ChannelResolveResult,
   ChannelStatusAdapter,
 } from "../../../src/channels/plugins/types.adapters.js";
-import type { MoltbotConfig } from "../../../src/config/config.js";
+import type { OpenClawConfig } from "../../../src/config/config.js";
 import type { OutboundDeliveryResult } from "../../../src/infra/outbound/deliver.js";
 import type { RuntimeEnv } from "../../../src/runtime.js";
 
@@ -145,5 +145,5 @@ import type { z } from "zod";
 import type { TwitchConfigSchema } from "./config-schema.js";
 export type TwitchConfig = z.infer<typeof TwitchConfigSchema>;
 
-export type { MoltbotConfig };
+export type { OpenClawConfig };
 export type { RuntimeEnv };

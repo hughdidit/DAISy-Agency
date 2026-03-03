@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
@@ -44,7 +44,7 @@ describe("channel tools", () => {
   });
 
   it("skips crashing plugins and logs once", () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     expect(listAllChannelSupportedActions({ cfg })).toEqual([]);
     expect(errorSpy).toHaveBeenCalledTimes(1);
 

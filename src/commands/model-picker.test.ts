@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { makePrompter } from "./onboarding/__tests__/test-utils.js";
 import {
   applyModelAllowlist,
@@ -54,7 +54,7 @@ describe("promptDefaultModel", () => {
       return first?.value ?? "";
     });
     const prompter = makePrompter({ select });
-    const config = { agents: { defaults: {} } } as MoltbotConfig;
+    const config = { agents: { defaults: {} } } as OpenClawConfig;
 
     await promptDefaultModel({
       config,
@@ -91,7 +91,7 @@ describe("promptModelAllowlist", () => {
       params.options.map((option: { value: string }) => option.value),
     );
     const prompter = makePrompter({ multiselect });
-    const config = { agents: { defaults: {} } } as MoltbotConfig;
+    const config = { agents: { defaults: {} } } as OpenClawConfig;
 
     await promptModelAllowlist({ config, prompter });
 
@@ -127,7 +127,7 @@ describe("promptModelAllowlist", () => {
       params.options.map((option: { value: string }) => option.value),
     );
     const prompter = makePrompter({ multiselect });
-    const config = { agents: { defaults: {} } } as MoltbotConfig;
+    const config = { agents: { defaults: {} } } as OpenClawConfig;
 
     await promptModelAllowlist({
       config,
@@ -153,7 +153,7 @@ describe("applyModelAllowlist", () => {
           },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const next = applyModelAllowlist(config, ["openai/gpt-5.2"]);
     expect(next.agents?.defaults?.models).toEqual({
@@ -170,7 +170,7 @@ describe("applyModelAllowlist", () => {
           },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const next = applyModelAllowlist(config, []);
     expect(next.agents?.defaults?.models).toBeUndefined();
@@ -185,7 +185,7 @@ describe("applyModelFallbacksFromSelection", () => {
           model: { primary: "anthropic/claude-opus-4-5" },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const next = applyModelFallbacksFromSelection(config, [
       "anthropic/claude-opus-4-5",
@@ -204,7 +204,7 @@ describe("applyModelFallbacksFromSelection", () => {
           model: { primary: "anthropic/claude-opus-4-5", fallbacks: ["openai/gpt-5.2"] },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const next = applyModelFallbacksFromSelection(config, ["openai/gpt-5.2"]);
     expect(next.agents?.defaults?.model).toEqual({

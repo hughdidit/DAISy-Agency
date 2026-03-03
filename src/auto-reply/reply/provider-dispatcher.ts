@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 import type { GetReplyOptions } from "../types.js";
 import type {
@@ -12,7 +12,7 @@ import {
 
 export async function dispatchReplyWithBufferedBlockDispatcher(params: {
   ctx: MsgContext | FinalizedMsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   dispatcherOptions: ReplyDispatcherWithTypingOptions;
   replyOptions?: Omit<GetReplyOptions, "onToolResult" | "onBlockReply">;
   replyResolver?: typeof import("../reply.js").getReplyFromConfig;
@@ -28,7 +28,7 @@ export async function dispatchReplyWithBufferedBlockDispatcher(params: {
 
 export async function dispatchReplyWithDispatcher(params: {
   ctx: MsgContext | FinalizedMsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   dispatcherOptions: ReplyDispatcherOptions;
   replyOptions?: Omit<GetReplyOptions, "onToolResult" | "onBlockReply">;
   replyResolver?: typeof import("../reply.js").getReplyFromConfig;

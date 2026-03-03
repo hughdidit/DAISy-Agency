@@ -22,7 +22,7 @@ import { listenGatewayHttpServer } from "./server/http-listen.js";
 import { createGatewayPluginRequestHandler } from "./server/plugins-http.js";
 
 export async function createGatewayRuntimeState(params: {
-  cfg: import("../config/config.js").MoltbotConfig;
+  cfg: import("../config/config.js").OpenClawConfig;
   bindHost: string;
   port: number;
   controlUiEnabled: boolean;

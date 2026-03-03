@@ -1,5 +1,5 @@
 import type { ChannelId } from "../channels/plugins/types.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
@@ -61,7 +61,7 @@ export type SecurityAuditReport = {
 };
 
 export type SecurityAuditOptions = {
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   env?: NodeJS.ProcessEnv;
   platform?: NodeJS.Platform;
   deep?: boolean;
@@ -144,7 +144,7 @@ async function collectFilesystemFindings(params: {
         checkId: "fs.state_dir.perms_world_writable",
         severity: "critical",
         title: "State dir is world-writable",
-        detail: `${formatPermissionDetail(params.stateDir, stateDirPerms)}; other users can write into your Moltbot state.`,
+        detail: `${formatPermissionDetail(params.stateDir, stateDirPerms)}; other users can write into your OpenClaw state.`,
         remediation: formatPermissionRemediation({
           targetPath: params.stateDir,
           perms: stateDirPerms,
@@ -158,7 +158,7 @@ async function collectFilesystemFindings(params: {
         checkId: "fs.state_dir.perms_group_writable",
         severity: "warn",
         title: "State dir is group-writable",
-        detail: `${formatPermissionDetail(params.stateDir, stateDirPerms)}; group users can write into your Moltbot state.`,
+        detail: `${formatPermissionDetail(params.stateDir, stateDirPerms)}; group users can write into your OpenClaw state.`,
         remediation: formatPermissionRemediation({
           targetPath: params.stateDir,
           perms: stateDirPerms,
@@ -247,7 +247,7 @@ async function collectFilesystemFindings(params: {
 }
 
 function collectGatewayConfigFindings(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   env: NodeJS.ProcessEnv,
 ): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
@@ -355,7 +355,7 @@ function collectGatewayConfigFindings(
   return findings;
 }
 
-function collectBrowserControlFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
+function collectBrowserControlFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
 
   let resolved: ReturnType<typeof resolveBrowserConfig>;
@@ -367,7 +367,7 @@ function collectBrowserControlFindings(cfg: MoltbotConfig): SecurityAuditFinding
       severity: "warn",
       title: "Browser control config looks invalid",
       detail: String(err),
-      remediation: `Fix browser.cdpUrl in ${resolveConfigPath()} and re-run "${formatCliCommand("moltbot security audit --deep")}".`,
+      remediation: `Fix browser.cdpUrl in ${resolveConfigPath()} and re-run "${formatCliCommand("openclaw security audit --deep")}".`,
     });
     return findings;
   }
@@ -397,7 +397,7 @@ function collectBrowserControlFindings(cfg: MoltbotConfig): SecurityAuditFinding
   return findings;
 }
 
-function collectLoggingFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
+function collectLoggingFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const redact = cfg.logging?.redactSensitive;
   if (redact !== "off") return [];
   return [
@@ -411,7 +411,7 @@ function collectLoggingFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
   ];
 }
 
-function collectElevatedFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
+function collectElevatedFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const enabled = cfg.tools?.elevated?.enabled;
   const allowFrom = cfg.tools?.elevated?.allowFrom ?? {};
@@ -443,7 +443,7 @@ function collectElevatedFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
 }
 
 async function collectChannelSecurityFindings(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   plugins: ReturnType<typeof listChannelPlugins>;
 }): Promise<SecurityAuditFinding[]> {
   const findings: SecurityAuditFinding[] = [];
@@ -797,7 +797,7 @@ async function collectChannelSecurityFindings(params: {
 }
 
 async function maybeProbeGateway(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   timeoutMs: number;
   probe: typeof probeGateway;
 }): Promise<SecurityAuditReport["deep"]> {
@@ -817,10 +817,10 @@ async function maybeProbeGateway(params: {
         ? typeof remote?.token === "string" && remote.token.trim()
           ? remote.token.trim()
           : undefined
-        : process.env.CLAWDBOT_GATEWAY_TOKEN?.trim() ||
+        : process.env.OPENCLAW_GATEWAY_TOKEN?.trim() ||
           (typeof authToken === "string" && authToken.trim() ? authToken.trim() : undefined);
     const password =
-      process.env.CLAWDBOT_GATEWAY_PASSWORD?.trim() ||
+      process.env.OPENCLAW_GATEWAY_PASSWORD?.trim() ||
       (mode === "remote"
         ? typeof remote?.password === "string" && remote.password.trim()
           ? remote.password.trim()
@@ -923,7 +923,7 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
       severity: "warn",
       title: "Gateway probe failed (deep)",
       detail: deep.gateway.error ?? "gateway unreachable",
-      remediation: `Run "${formatCliCommand("moltbot status --all")}" to debug connectivity/auth, then re-run "${formatCliCommand("moltbot security audit --deep")}".`,
+      remediation: `Run "${formatCliCommand("openclaw status --all")}" to debug connectivity/auth, then re-run "${formatCliCommand("openclaw security audit --deep")}".`,
     });
   }
 

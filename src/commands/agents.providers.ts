@@ -8,7 +8,7 @@ import {
   normalizeChannelId,
 } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { AgentBinding } from "../config/types.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 
@@ -46,7 +46,7 @@ function formatProviderState(entry: ProviderAccountStatus): string {
 }
 
 export async function buildProviderStatusIndex(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): Promise<Map<string, ProviderAccountStatus>> {
   const map = new Map<string, ProviderAccountStatus>();
 
@@ -94,13 +94,13 @@ export async function buildProviderStatusIndex(
   return map;
 }
 
-function resolveDefaultAccountId(cfg: MoltbotConfig, provider: ChannelId): string {
+function resolveDefaultAccountId(cfg: OpenClawConfig, provider: ChannelId): string {
   const plugin = getChannelPlugin(provider);
   if (!plugin) return DEFAULT_ACCOUNT_ID;
   return resolveChannelDefaultAccountId({ plugin, cfg });
 }
 
-function shouldShowProviderEntry(entry: ProviderAccountStatus, cfg: MoltbotConfig): boolean {
+function shouldShowProviderEntry(entry: ProviderAccountStatus, cfg: OpenClawConfig): boolean {
   const plugin = getChannelPlugin(entry.provider);
   if (!plugin) return Boolean(entry.configured);
   if (plugin.meta.showConfigured === false) {
@@ -119,7 +119,7 @@ function formatProviderEntry(entry: ProviderAccountStatus): string {
   return `${label}: ${formatProviderState(entry)}`;
 }
 
-export function summarizeBindings(cfg: MoltbotConfig, bindings: AgentBinding[]): string[] {
+export function summarizeBindings(cfg: OpenClawConfig, bindings: AgentBinding[]): string[] {
   if (bindings.length === 0) return [];
   const seen = new Map<string, string>();
   for (const binding of bindings) {
@@ -140,7 +140,7 @@ export function summarizeBindings(cfg: MoltbotConfig, bindings: AgentBinding[]):
 
 export function listProvidersForAgent(params: {
   summaryIsDefault: boolean;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   bindings: AgentBinding[];
   providerStatus: Map<string, ProviderAccountStatus>;
 }): string[] {

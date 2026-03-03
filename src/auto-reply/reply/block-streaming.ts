@@ -1,6 +1,6 @@
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { BlockStreamingCoalesceConfig } from "../../config/types.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
@@ -31,7 +31,7 @@ type ProviderBlockStreamingConfig = {
 };
 
 function resolveProviderBlockStreamingCoalesce(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   providerKey?: TextChunkProvider;
   accountId?: string | null;
 }): BlockStreamingCoalesceConfig | undefined {
@@ -53,7 +53,7 @@ export type BlockStreamingCoalescing = {
 };
 
 export function resolveBlockStreamingChunking(
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   provider?: string,
   accountId?: string | null,
 ): {
@@ -90,7 +90,7 @@ export function resolveBlockStreamingChunking(
 }
 
 export function resolveBlockStreamingCoalescing(
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   provider?: string,
   accountId?: string | null,
   chunking?: {

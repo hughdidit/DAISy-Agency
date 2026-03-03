@@ -115,7 +115,7 @@ import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./u
 
 declare global {
   interface Window {
-    __CLAWDBOT_CONTROL_UI_BASE_PATH__?: string;
+    __OPENCLAW_CONTROL_UI_BASE_PATH__?: string;
   }
 }
 
@@ -130,8 +130,8 @@ function resolveOnboardingMode(): boolean {
   return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
 }
 
-@customElement("moltbot-app")
-export class MoltbotApp extends LitElement {
+@customElement("openclaw-app")
+export class OpenClawApp extends LitElement {
   @state() settings: UiSettings = loadSettings();
   @state() password = "";
   @state() tab: Tab = "chat";

@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { collectChannelStatusIssues } from "../infra/channels-status-issues.js";
 import { note } from "../terminal/note.js";
@@ -7,7 +7,7 @@ import { healthCommand } from "./health.js";
 
 export async function checkGatewayHealth(params: {
   runtime: RuntimeEnv;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   timeoutMs?: number;
 }) {
   const gatewayDetails = buildGatewayConnectionDetails({ config: params.cfg });

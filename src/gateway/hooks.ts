@@ -1,7 +1,7 @@
 import type { IncomingMessage } from "node:http";
 import { randomUUID } from "node:crypto";
 import type { ChannelId } from "../channels/plugins/types.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { normalizeMessageChannel } from "../utils/message-channel.js";
 import { type HookMappingResolved, resolveHookMappings } from "./hooks-mapping.js";
 
@@ -15,7 +15,7 @@ export type HooksConfigResolved = {
   mappings: HookMappingResolved[];
 };
 
-export function resolveHooksConfig(cfg: MoltbotConfig): HooksConfigResolved | null {
+export function resolveHooksConfig(cfg: OpenClawConfig): HooksConfigResolved | null {
   if (cfg.hooks?.enabled !== true) return null;
   const token = cfg.hooks?.token?.trim();
   if (!token) {
@@ -53,7 +53,7 @@ export function extractHookToken(req: IncomingMessage, url: URL): HookTokenResul
     if (token) return { token, fromQuery: false };
   }
   const headerToken =
-    typeof req.headers["x-moltbot-token"] === "string" ? req.headers["x-moltbot-token"].trim() : "";
+    typeof req.headers["x-openclaw-token"] === "string" ? req.headers["x-openclaw-token"].trim() : "";
   if (headerToken) return { token: headerToken, fromQuery: false };
   const queryToken = url.searchParams.get("token");
   if (queryToken) return { token: queryToken.trim(), fromQuery: true };

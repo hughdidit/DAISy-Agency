@@ -171,7 +171,7 @@ export async function agentsAddCommand(
 
   const prompter = createClackPrompter();
   try {
-    await prompter.intro("Add Moltbot agent");
+    await prompter.intro("Add OpenClaw agent");
     const name =
       nameInput ??
       (await prompter.text({

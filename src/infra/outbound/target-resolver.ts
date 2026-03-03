@@ -3,7 +3,7 @@ import type {
   ChannelDirectoryEntryKind,
   ChannelId,
 } from "../../channels/plugins/types.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { defaultRuntime, type RuntimeEnv } from "../../runtime.js";
 import { buildDirectoryCacheKey, DirectoryCache } from "./directory-cache.js";
 import { ambiguousTargetError, unknownTargetError } from "./target-errors.js";
@@ -29,7 +29,7 @@ export type ResolveMessagingTargetResult =
   | { ok: false; error: Error; candidates?: ChannelDirectoryEntry[] };
 
 export async function resolveChannelTarget(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   input: string;
   accountId?: string | null;
@@ -176,7 +176,7 @@ function resolveMatch(params: {
 }
 
 async function listDirectoryEntries(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   accountId?: string | null;
   kind: ChannelDirectoryEntryKind;
@@ -212,7 +212,7 @@ async function listDirectoryEntries(params: {
 }
 
 async function getDirectoryEntries(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   accountId?: string | null;
   kind: ChannelDirectoryEntryKind;
@@ -280,7 +280,7 @@ function pickAmbiguousMatch(
 }
 
 export async function resolveMessagingTarget(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   input: string;
   accountId?: string | null;
@@ -396,7 +396,7 @@ export async function resolveMessagingTarget(params: {
 }
 
 export async function lookupDirectoryDisplay(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   targetId: string;
   accountId?: string | null;

@@ -1,5 +1,5 @@
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 
 export type LinkChannelContext = {
   linked: boolean;
@@ -10,7 +10,7 @@ export type LinkChannelContext = {
 };
 
 export async function resolveLinkChannelContext(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): Promise<LinkChannelContext | null> {
   for (const plugin of listChannelPlugins()) {
     const accountIds = plugin.config.listAccountIds(cfg);

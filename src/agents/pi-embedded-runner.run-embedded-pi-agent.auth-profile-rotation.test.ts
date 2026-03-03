@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { EmbeddedRunAttemptResult } from "./pi-embedded-runner/run/types.js";
 
 const runEmbeddedAttemptMock = vi.fn<Promise<EmbeddedRunAttemptResult>, [unknown]>();
@@ -62,7 +62,7 @@ const makeAttempt = (overrides: Partial<EmbeddedRunAttemptResult>): EmbeddedRunA
   ...overrides,
 });
 
-const makeConfig = (opts?: { fallbacks?: string[]; apiKey?: string }): MoltbotConfig =>
+const makeConfig = (opts?: { fallbacks?: string[]; apiKey?: string }): OpenClawConfig =>
   ({
     agents: {
       defaults: {
@@ -91,7 +91,7 @@ const makeConfig = (opts?: { fallbacks?: string[]; apiKey?: string }): MoltbotCo
         },
       },
     },
-  }) satisfies MoltbotConfig;
+  }) satisfies OpenClawConfig;
 
 const writeAuthStore = async (
   agentDir: string,
@@ -122,8 +122,8 @@ const writeAuthStore = async (
 
 describe("runEmbeddedPiAgent auth profile rotation", () => {
   it("rotates for auto-pinned profiles", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
     try {
       await writeAuthStore(agentDir);
 
@@ -176,8 +176,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("does not rotate for user-pinned profiles", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
     try {
       await writeAuthStore(agentDir);
 
@@ -222,8 +222,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   it("honors user-pinned profiles even when in cooldown", async () => {
     vi.useFakeTimers();
     try {
-      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
-      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
+      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
 
@@ -288,8 +288,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("ignores user-locked profile when provider mismatches", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
     try {
       await writeAuthStore(agentDir, { includeAnthropic: true });
 
@@ -329,8 +329,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   it("skips profiles in cooldown during initial selection", async () => {
     vi.useFakeTimers();
     try {
-      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
-      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
+      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
 
@@ -394,8 +394,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   it("fails over when all profiles are in cooldown and fallbacks are configured", async () => {
     vi.useFakeTimers();
     try {
-      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
-      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
+      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
 
@@ -440,8 +440,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("fails over when auth is unavailable and fallbacks are configured", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
     const previousOpenAiKey = process.env.OPENAI_API_KEY;
     delete process.env.OPENAI_API_KEY;
     try {
@@ -480,8 +480,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   it("skips profiles in cooldown when rotating after failure", async () => {
     vi.useFakeTimers();
     try {
-      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
-      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
+      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
 

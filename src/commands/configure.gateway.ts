@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveGatewayPort } from "../config/config.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
 import { note } from "../terminal/note.js";
@@ -9,10 +9,10 @@ import { guardCancel, randomToken } from "./onboard-helpers.js";
 type GatewayAuthChoice = "token" | "password";
 
 export async function promptGatewayConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   runtime: RuntimeEnv,
 ): Promise<{
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   port: number;
   token?: string;
 }> {

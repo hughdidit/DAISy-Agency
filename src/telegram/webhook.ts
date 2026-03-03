@@ -1,5 +1,5 @@
 import { webhookCallback } from "grammy";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { isDiagnosticsEnabled } from "../infra/diagnostic-events.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import {
@@ -17,7 +17,7 @@ import { createTelegramBot } from "./bot.js";
 export async function startTelegramWebhook(opts: {
   token: string;
   accountId?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   path?: string;
   port?: number;
   host?: string;

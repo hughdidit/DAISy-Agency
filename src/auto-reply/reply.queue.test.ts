@@ -34,7 +34,7 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
       vi.mocked(runEmbeddedPiAgent).mockReset();
       return await fn(home);
     },
-    { prefix: "moltbot-queue-" },
+    { prefix: "openclaw-queue-" },
   );
 }
 

@@ -10,7 +10,7 @@ import {
   resolveSessionAgentId,
 } from "../../agents/agent-scope.js";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { type SessionEntry, updateSessionStore } from "../../config/sessions.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { applyVerboseOverride } from "../../sessions/level-overrides.js";
@@ -31,7 +31,7 @@ import {
 } from "./directive-handling.shared.js";
 
 function resolveExecDefaults(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   sessionEntry?: SessionEntry;
   agentId?: string;
 }): { host: ExecHost; security: ExecSecurity; ask: ExecAsk; node?: string } {
@@ -61,7 +61,7 @@ function resolveExecDefaults(params: {
 }
 
 export async function handleDirectiveOnly(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   directives: InlineDirectives;
   sessionEntry: SessionEntry;
   sessionStore: Record<string, SessionEntry>;

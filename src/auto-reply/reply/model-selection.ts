@@ -12,7 +12,7 @@ import {
   resolveModelRefFromString,
   resolveThinkingDefault,
 } from "../../agents/model-selection.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { type SessionEntry, updateSessionStore } from "../../config/sessions.js";
 import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
 import { resolveThreadParentSessionKey } from "../../sessions/session-key-utils.js";
@@ -220,8 +220,8 @@ function scoreFuzzyMatch(params: {
 }
 
 export async function createModelSelectionState(params: {
-  cfg: MoltbotConfig;
-  agentCfg: NonNullable<NonNullable<MoltbotConfig["agents"]>["defaults"]> | undefined;
+  cfg: OpenClawConfig;
+  agentCfg: NonNullable<NonNullable<OpenClawConfig["agents"]>["defaults"]> | undefined;
   sessionEntry?: SessionEntry;
   sessionStore?: Record<string, SessionEntry>;
   sessionKey?: string;
@@ -503,7 +503,7 @@ export function resolveModelDirectiveSelection(params: {
 }
 
 export function resolveContextTokens(params: {
-  agentCfg: NonNullable<NonNullable<MoltbotConfig["agents"]>["defaults"]> | undefined;
+  agentCfg: NonNullable<NonNullable<OpenClawConfig["agents"]>["defaults"]> | undefined;
   model: string;
 }): number {
   return (

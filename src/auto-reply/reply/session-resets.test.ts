@@ -4,7 +4,7 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import { buildModelAliasIndex } from "../../agents/model-selection.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { enqueueSystemEvent, resetSystemEventsForTest } from "../../infra/system-events.js";
 import { applyResetModelOverride } from "./session-reset-model.js";
 import { prependSystemEvents } from "./session-updates.js";
@@ -37,7 +37,7 @@ describe("initSessionState reset triggers in WhatsApp groups", () => {
     });
   }
 
-  function makeCfg(params: { storePath: string; allowFrom: string[] }): MoltbotConfig {
+  function makeCfg(params: { storePath: string; allowFrom: string[] }): OpenClawConfig {
     return {
       session: { store: params.storePath, idleMinutes: 999 },
       channels: {
@@ -46,11 +46,11 @@ describe("initSessionState reset triggers in WhatsApp groups", () => {
           groupPolicy: "open",
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
   }
 
   it("Reset trigger /new works for authorized sender in WhatsApp group", async () => {
-    const storePath = await createStorePath("moltbot-group-reset-");
+    const storePath = await createStorePath("openclaw-group-reset-");
     const sessionKey = "agent:main:whatsapp:group:120363406150318674@g.us";
     const existingSessionId = "existing-session-123";
     await seedSessionStore({
@@ -92,7 +92,7 @@ describe("initSessionState reset triggers in WhatsApp groups", () => {
   });
 
   it("Reset trigger /new blocked for unauthorized sender in existing session", async () => {
-    const storePath = await createStorePath("moltbot-group-reset-unauth-");
+    const storePath = await createStorePath("openclaw-group-reset-unauth-");
     const sessionKey = "agent:main:whatsapp:group:120363406150318674@g.us";
     const existingSessionId = "existing-session-123";
 
@@ -134,7 +134,7 @@ describe("initSessionState reset triggers in WhatsApp groups", () => {
   });
 
   it("Reset trigger works when RawBody is clean but Body has wrapped context", async () => {
-    const storePath = await createStorePath("moltbot-group-rawbody-");
+    const storePath = await createStorePath("openclaw-group-rawbody-");
     const sessionKey = "agent:main:whatsapp:group:g1";
     const existingSessionId = "existing-session-123";
     await seedSessionStore({
@@ -173,7 +173,7 @@ describe("initSessionState reset triggers in WhatsApp groups", () => {
   });
 
   it("Reset trigger /new works when SenderId is LID but SenderE164 is authorized", async () => {
-    const storePath = await createStorePath("moltbot-group-reset-lid-");
+    const storePath = await createStorePath("openclaw-group-reset-lid-");
     const sessionKey = "agent:main:whatsapp:group:120363406150318674@g.us";
     const existingSessionId = "existing-session-123";
     await seedSessionStore({
@@ -215,7 +215,7 @@ describe("initSessionState reset triggers in WhatsApp groups", () => {
   });
 
   it("Reset trigger /new blocked when SenderId is LID but SenderE164 is unauthorized", async () => {
-    const storePath = await createStorePath("moltbot-group-reset-lid-unauth-");
+    const storePath = await createStorePath("openclaw-group-reset-lid-unauth-");
     const sessionKey = "agent:main:whatsapp:group:120363406150318674@g.us";
     const existingSessionId = "existing-session-123";
     await seedSessionStore({
@@ -258,7 +258,7 @@ describe("initSessionState reset triggers in WhatsApp groups", () => {
 
 describe("applyResetModelOverride", () => {
   it("selects a model hint and strips it from the body", async () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const aliasIndex = buildModelAliasIndex({ cfg, defaultProvider: "openai" });
     const sessionEntry = {
       sessionId: "s1",
@@ -288,7 +288,7 @@ describe("applyResetModelOverride", () => {
   });
 
   it("clears auth profile overrides when reset applies a model", async () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const aliasIndex = buildModelAliasIndex({ cfg, defaultProvider: "openai" });
     const sessionEntry = {
       sessionId: "s1",
@@ -321,7 +321,7 @@ describe("applyResetModelOverride", () => {
   });
 
   it("skips when resetTriggered is false", async () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const aliasIndex = buildModelAliasIndex({ cfg, defaultProvider: "openai" });
     const sessionEntry = {
       sessionId: "s1",
@@ -362,7 +362,7 @@ describe("prependSystemEvents", () => {
     enqueueSystemEvent("Model switched.", { sessionKey: "agent:main:main" });
 
     const result = await prependSystemEvents({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       sessionKey: "agent:main:main",
       isMainSession: false,
       isNewSession: false,

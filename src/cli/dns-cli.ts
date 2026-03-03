@@ -100,7 +100,7 @@ export function registerDnsCli(program: Command) {
 
   dns
     .command("setup")
-    .description("Set up CoreDNS to serve moltbot.internal for unicast DNS-SD (Wide-Area Bonjour)")
+    .description("Set up CoreDNS to serve openclaw.internal for unicast DNS-SD (Wide-Area Bonjour)")
     .option(
       "--apply",
       "Install/update CoreDNS config and (re)start the service (requires sudo)",
@@ -132,7 +132,7 @@ export function registerDnsCli(program: Command) {
         }).trimEnd(),
       );
       defaultRuntime.log("");
-      defaultRuntime.log(theme.heading("Recommended ~/.clawdbot/moltbot.json:"));
+      defaultRuntime.log(theme.heading("Recommended ~/.clawdai/openclawbot.json:"));
       defaultRuntime.log(
         JSON.stringify(
           {
@@ -148,7 +148,7 @@ export function registerDnsCli(program: Command) {
       defaultRuntime.log(
         theme.muted(`- Add nameserver: ${tailnetIPv4 ?? "<this machine's tailnet IPv4>"}`),
       );
-      defaultRuntime.log(theme.muted("- Restrict to domain (Split DNS): moltbot.internal"));
+      defaultRuntime.log(theme.muted("- Restrict to domain (Split DNS): openclaw.internal"));
 
       if (!opts.apply) {
         defaultRuntime.log("");
@@ -168,7 +168,7 @@ export function registerDnsCli(program: Command) {
       const corefilePath = path.join(etcDir, "Corefile");
       const confDir = path.join(etcDir, "conf.d");
       const importGlob = path.join(confDir, "*.server");
-      const serverPath = path.join(confDir, "moltbot.internal.server");
+      const serverPath = path.join(confDir, "openclaw.internal.server");
 
       run("brew", ["list", "coredns"], { allowFailure: true });
       run("brew", ["install", "coredns"], {
@@ -208,7 +208,7 @@ export function registerDnsCli(program: Command) {
         const serial = `${y}${m}${d}01`;
 
         const zoneLines = [
-          `; created by moltbot dns setup (will be overwritten by the gateway when wide-area discovery is enabled)`,
+          `; created by openclaw dns setup (will be overwritten by the gateway when wide-area discovery is enabled)`,
           `$ORIGIN ${WIDE_AREA_DISCOVERY_DOMAIN}`,
           `$TTL 60`,
           `@ IN SOA ns1 hostmaster ${serial} 7200 3600 1209600 60`,
@@ -231,7 +231,7 @@ export function registerDnsCli(program: Command) {
         defaultRuntime.log("");
         defaultRuntime.log(
           theme.muted(
-            "Note: enable discovery.wideArea.enabled in ~/.clawdbot/moltbot.json on the gateway and restart the gateway so it writes the DNS-SD zone.",
+            "Note: enable discovery.wideArea.enabled in ~/.clawdai/openclawbot.json on the gateway and restart the gateway so it writes the DNS-SD zone.",
           ),
         );
       }

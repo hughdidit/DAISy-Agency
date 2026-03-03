@@ -17,7 +17,7 @@ import {
 import { resolveChannelMediaMaxBytes } from "../../channels/plugins/media-limits.js";
 import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load.js";
 import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import {
   appendAssistantMessageToSessionTranscript,
@@ -84,7 +84,7 @@ function throwIfAborted(abortSignal?: AbortSignal): void {
 
 // Channel docking: outbound delivery delegates to plugin.outbound adapters.
 async function createChannelHandler(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -116,7 +116,7 @@ async function createChannelHandler(params: {
 
 function createPluginHandler(params: {
   outbound?: ChannelOutboundAdapter;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -177,7 +177,7 @@ function createPluginHandler(params: {
 }
 
 export async function deliverOutboundPayloads(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;

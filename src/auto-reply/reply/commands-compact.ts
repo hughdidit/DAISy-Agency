@@ -6,7 +6,7 @@ import {
   isEmbeddedPiRunActive,
   waitForEmbeddedPiRunEnd,
 } from "../../agents/pi-embedded.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { resolveSessionFilePath } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
@@ -17,7 +17,7 @@ import { incrementCompactionCount } from "./session-updates.js";
 function extractCompactInstructions(params: {
   rawBody?: string;
   ctx: import("../templating.js").MsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId?: string;
   isGroup: boolean;
 }): string | undefined {

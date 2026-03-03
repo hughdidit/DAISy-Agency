@@ -3,7 +3,7 @@ import type { ModelDefinitionConfig } from "./types.models.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
 import { parseModelRef } from "../agents/model-selection.js";
 import { resolveTalkApiKey } from "./talk.js";
-import type { MoltbotConfig } from "./types.js";
+import type { OpenClawConfig } from "./types.js";
 import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from "./agent-limits.js";
 import { resolveTalkApiKey } from "./talk.js";
 
@@ -55,7 +55,7 @@ function resolveModelCost(
   };
 }
 
-function resolveAnthropicDefaultAuthMode(cfg: MoltbotConfig): AnthropicAuthDefaultsMode | null {
+function resolveAnthropicDefaultAuthMode(cfg: OpenClawConfig): AnthropicAuthDefaultsMode | null {
   const profiles = cfg.auth?.profiles ?? {};
   const anthropicProfiles = Object.entries(profiles).filter(
     ([, profile]) => profile?.provider === "anthropic",
@@ -94,7 +94,7 @@ export type SessionDefaultsOptions = {
   warnState?: WarnState;
 };
 
-export function applyMessageDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyMessageDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const messages = cfg.messages;
   const hasAckScope = messages?.ackReactionScope !== undefined;
   if (hasAckScope) return cfg;
@@ -108,9 +108,9 @@ export function applyMessageDefaults(cfg: MoltbotConfig): MoltbotConfig {
 }
 
 export function applySessionDefaults(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   options: SessionDefaultsOptions = {},
-): MoltbotConfig {
+): OpenClawConfig {
   const session = cfg.session;
   if (!session || session.mainKey === undefined) return cfg;
 
@@ -118,7 +118,7 @@ export function applySessionDefaults(
   const warn = options.warn ?? console.warn;
   const warnState = options.warnState ?? defaultWarnState;
 
-  const next: MoltbotConfig = {
+  const next: OpenClawConfig = {
     ...cfg,
     session: { ...session, mainKey: "main" },
   };
@@ -131,7 +131,7 @@ export function applySessionDefaults(
   return next;
 }
 
-export function applyTalkApiKey(config: MoltbotConfig): MoltbotConfig {
+export function applyTalkApiKey(config: OpenClawConfig): OpenClawConfig {
   const resolved = resolveTalkApiKey();
   if (!resolved) return config;
   const existing = config.talk?.apiKey?.trim();
@@ -145,7 +145,7 @@ export function applyTalkApiKey(config: MoltbotConfig): MoltbotConfig {
   };
 }
 
-export function applyModelDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyModelDefaults(cfg: OpenClawConfig): OpenClawConfig {
   let mutated = false;
   let nextCfg = cfg;
 
@@ -240,7 +240,7 @@ export function applyModelDefaults(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-export function applyAgentDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyAgentDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const agents = cfg.agents;
   const defaults = agents?.defaults;
   const hasMax =
@@ -277,7 +277,7 @@ export function applyAgentDefaults(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-export function applyLoggingDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyLoggingDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const logging = cfg.logging;
   if (!logging) return cfg;
   if (logging.redactSensitive) return cfg;
@@ -290,7 +290,7 @@ export function applyLoggingDefaults(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-export function applyContextPruningDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyContextPruningDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const defaults = cfg.agents?.defaults;
   if (!defaults) return cfg;
 
@@ -371,7 +371,7 @@ export function applyContextPruningDefaults(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-export function applyCompactionDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyCompactionDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const defaults = cfg.agents?.defaults;
   if (!defaults) return cfg;
   const compaction = defaults?.compaction;

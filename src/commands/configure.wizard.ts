@@ -1,5 +1,5 @@
 import { formatCliCommand } from "../cli/command-format.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { readConfigFileSnapshot, resolveGatewayPort, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
@@ -73,7 +73,7 @@ async function promptChannelMode(runtime: RuntimeEnv): Promise<ChannelsWizardMod
         {
           value: "remove",
           label: "Remove channel config",
-          hint: "Delete channel tokens/settings from moltbot.json",
+          hint: "Delete channel tokens/settings from openclaw.json",
         },
       ],
       initialValue: "configure",
@@ -83,9 +83,9 @@ async function promptChannelMode(runtime: RuntimeEnv): Promise<ChannelsWizardMod
 }
 
 async function promptWebToolsConfig(
-  nextConfig: MoltbotConfig,
+  nextConfig: OpenClawConfig,
   runtime: RuntimeEnv,
-): Promise<MoltbotConfig> {
+): Promise<OpenClawConfig> {
   const existingSearch = nextConfig.tools?.web?.search;
   const existingFetch = nextConfig.tools?.web?.fetch;
   const hasSearchKey = Boolean(existingSearch?.apiKey);
@@ -169,11 +169,11 @@ export async function runConfigureWizard(
 ) {
   try {
     printWizardHeader(runtime);
-    intro(opts.command === "update" ? "Moltbot update wizard" : "Moltbot configure");
+    intro(opts.command === "update" ? "OpenClaw update wizard" : "OpenClaw configure");
     const prompter = createClackPrompter();
 
     const snapshot = await readConfigFileSnapshot();
-    const baseConfig: MoltbotConfig = snapshot.valid ? snapshot.config : {};
+    const baseConfig: OpenClawConfig = snapshot.valid ? snapshot.config : {};
 
     if (snapshot.exists) {
       const title = snapshot.valid ? "Existing config detected" : "Invalid config";
@@ -190,7 +190,7 @@ export async function runConfigureWizard(
       }
       if (!snapshot.valid) {
         outro(
-          `Config invalid. Run \`${formatCliCommand("moltbot doctor")}\` to repair it, then re-run configure.`,
+          `Config invalid. Run \`${formatCliCommand("openclaw doctor")}\` to repair it, then re-run configure.`,
         );
         runtime.exit(1);
         return;
@@ -200,8 +200,8 @@ export async function runConfigureWizard(
     const localUrl = "ws://127.0.0.1:18789";
     const localProbe = await probeGatewayReachable({
       url: localUrl,
-      token: baseConfig.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
-      password: baseConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD,
+      token: baseConfig.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN,
+      password: baseConfig.gateway?.auth?.password ?? process.env.OPENCLAW_GATEWAY_PASSWORD,
     });
     const remoteUrl = baseConfig.gateway?.remote?.url?.trim() ?? "";
     const remoteProbe = remoteUrl
@@ -268,7 +268,7 @@ export async function runConfigureWizard(
     let gatewayToken: string | undefined =
       nextConfig.gateway?.auth?.token ??
       baseConfig.gateway?.auth?.token ??
-      process.env.CLAWDBOT_GATEWAY_TOKEN;
+      process.env.OPENCLAW_GATEWAY_TOKEN;
 
     const persistConfig = async () => {
       nextConfig = applyWizardMetadata(nextConfig, {
@@ -371,9 +371,9 @@ export async function runConfigureWizard(
         const remoteUrl = nextConfig.gateway?.remote?.url?.trim();
         const wsUrl =
           nextConfig.gateway?.mode === "remote" && remoteUrl ? remoteUrl : localLinks.wsUrl;
-        const token = nextConfig.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN;
+        const token = nextConfig.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN;
         const password =
-          nextConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD;
+          nextConfig.gateway?.auth?.password ?? process.env.OPENCLAW_GATEWAY_PASSWORD;
         await waitForGatewayReachable({
           url: wsUrl,
           token,
@@ -496,9 +496,9 @@ export async function runConfigureWizard(
           const remoteUrl = nextConfig.gateway?.remote?.url?.trim();
           const wsUrl =
             nextConfig.gateway?.mode === "remote" && remoteUrl ? remoteUrl : localLinks.wsUrl;
-          const token = nextConfig.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN;
+          const token = nextConfig.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN;
           const password =
-            nextConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD;
+            nextConfig.gateway?.auth?.password ?? process.env.OPENCLAW_GATEWAY_PASSWORD;
           await waitForGatewayReachable({
             url: wsUrl,
             token,
@@ -545,9 +545,9 @@ export async function runConfigureWizard(
       basePath: nextConfig.gateway?.controlUi?.basePath,
     });
     // Try both new and old passwords since gateway may still have old config.
-    const newPassword = nextConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD;
-    const oldPassword = baseConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD;
-    const token = nextConfig.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN;
+    const newPassword = nextConfig.gateway?.auth?.password ?? process.env.OPENCLAW_GATEWAY_PASSWORD;
+    const oldPassword = baseConfig.gateway?.auth?.password ?? process.env.OPENCLAW_GATEWAY_PASSWORD;
+    const token = nextConfig.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN;
 
     let gatewayProbe = await probeGatewayReachable({
       url: links.wsUrl,

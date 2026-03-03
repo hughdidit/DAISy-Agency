@@ -1,5 +1,5 @@
 import type { SkillCommandSpec } from "../../agents/skills.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
@@ -19,7 +19,7 @@ import { extractInlineSimpleCommand } from "./reply-inline.js";
 import type { TypingController } from "./typing.js";
 import { listSkillCommandsForWorkspace, resolveSkillCommandInvocation } from "../skill-commands.js";
 import { logVerbose } from "../../globals.js";
-import { createMoltbotTools } from "../../agents/moltbot-tools.js";
+import { createOpenClawTools } from "../../agents/openclaw-tools.js";
 import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
 
 export type InlineActionResult =
@@ -55,7 +55,7 @@ function extractTextFromToolResult(result: any): string | null {
 export async function handleInlineActions(params: {
   ctx: MsgContext;
   sessionCtx: TemplateContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId: string;
   agentDir?: string;
   sessionEntry?: SessionEntry;
@@ -169,7 +169,7 @@ export async function handleInlineActions(params: {
         resolveGatewayMessageChannel(ctx.Provider) ??
         undefined;
 
-      const tools = createMoltbotTools({
+      const tools = createOpenClawTools({
         agentSessionKey: sessionKey,
         agentChannel: channel,
         agentAccountId: (ctx as { AccountId?: string }).AccountId,

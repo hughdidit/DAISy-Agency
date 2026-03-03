@@ -2,7 +2,7 @@ import type { SlashCommand } from "@mariozechner/pi-tui";
 import type { OpenClawConfig } from "../config/types.js";
 import { listChatCommands, listChatCommandsForConfig } from "../auto-reply/commands-registry.js";
 import { formatThinkingLevels, listThinkingLevelLabels } from "../auto-reply/thinking.js";
-import type { MoltbotConfig } from "../config/types.js";
+import type { OpenClawConfig } from "../config/types.js";
 
 const VERBOSE_LEVELS = ["on", "off"];
 const REASONING_LEVELS = ["on", "off"];
@@ -16,7 +16,7 @@ export type ParsedCommand = {
 };
 
 export type SlashCommandOptions = {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   provider?: string;
   model?: string;
 };

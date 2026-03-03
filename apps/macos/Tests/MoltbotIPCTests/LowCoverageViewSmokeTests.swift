@@ -1,8 +1,8 @@
 import AppKit
-import MoltbotProtocol
+import OpenClawProtocol
 import SwiftUI
 import Testing
-@testable import Moltbot
+@testable import OpenClaw
 
 @Suite(.serialized)
 @MainActor

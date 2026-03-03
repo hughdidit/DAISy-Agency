@@ -11,7 +11,7 @@
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveTwitchToken, type TwitchTokenSource } from "./token.js";
-import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 
 describe("token", () => {
   // Multi-account config for testing non-default accounts
@@ -30,7 +30,7 @@ describe("token", () => {
         },
       },
     },
-  } as unknown as MoltbotConfig;
+  } as unknown as OpenClawConfig;
 
   // Simplified single-account config
   const mockSimplifiedConfig = {
@@ -40,7 +40,7 @@ describe("token", () => {
         accessToken: "oauth:config-token",
       },
     },
-  } as unknown as MoltbotConfig;
+  } as unknown as OpenClawConfig;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -48,7 +48,7 @@ describe("token", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    delete process.env.CLAWDBOT_TWITCH_ACCESS_TOKEN;
+    delete process.env.OPENCLAW_TWITCH_ACCESS_TOKEN;
   });
 
   describe("resolveTwitchToken", () => {
@@ -67,7 +67,7 @@ describe("token", () => {
     });
 
     it("should prioritize config token over env var (simplified config)", () => {
-      process.env.CLAWDBOT_TWITCH_ACCESS_TOKEN = "oauth:env-token";
+      process.env.OPENCLAW_TWITCH_ACCESS_TOKEN = "oauth:env-token";
 
       const result = resolveTwitchToken(mockSimplifiedConfig, { accountId: "default" });
 
@@ -77,7 +77,7 @@ describe("token", () => {
     });
 
     it("should use env var when config token is empty (simplified config)", () => {
-      process.env.CLAWDBOT_TWITCH_ACCESS_TOKEN = "oauth:env-token";
+      process.env.OPENCLAW_TWITCH_ACCESS_TOKEN = "oauth:env-token";
 
       const configWithEmptyToken = {
         channels: {
@@ -86,7 +86,7 @@ describe("token", () => {
             accessToken: "",
           },
         },
-      } as unknown as MoltbotConfig;
+      } as unknown as OpenClawConfig;
 
       const result = resolveTwitchToken(configWithEmptyToken, { accountId: "default" });
 
@@ -102,7 +102,7 @@ describe("token", () => {
             accessToken: "",
           },
         },
-      } as unknown as MoltbotConfig;
+      } as unknown as OpenClawConfig;
 
       const result = resolveTwitchToken(configWithoutToken, { accountId: "default" });
 
@@ -111,7 +111,7 @@ describe("token", () => {
     });
 
     it("should not use env var for non-default accounts (multi-account)", () => {
-      process.env.CLAWDBOT_TWITCH_ACCESS_TOKEN = "oauth:env-token";
+      process.env.OPENCLAW_TWITCH_ACCESS_TOKEN = "oauth:env-token";
 
       const configWithoutToken = {
         channels: {
@@ -124,7 +124,7 @@ describe("token", () => {
             },
           },
         },
-      } as unknown as MoltbotConfig;
+      } as unknown as OpenClawConfig;
 
       const result = resolveTwitchToken(configWithoutToken, { accountId: "secondary" });
 
@@ -140,7 +140,7 @@ describe("token", () => {
             accounts: {},
           },
         },
-      } as unknown as MoltbotConfig;
+      } as unknown as OpenClawConfig;
 
       const result = resolveTwitchToken(configWithoutAccount, { accountId: "nonexistent" });
 
@@ -151,7 +151,7 @@ describe("token", () => {
     it("should handle missing Twitch config section", () => {
       const configWithoutSection = {
         channels: {},
-      } as unknown as MoltbotConfig;
+      } as unknown as OpenClawConfig;
 
       const result = resolveTwitchToken(configWithoutSection, { accountId: "default" });
 
