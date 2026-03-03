@@ -222,8 +222,12 @@ export const memoryConfigSchema = {
       throw new Error("mcp.transport must be \"stdio\" or \"sse\"");
     }
 
-    const rawStdio = (mcp.stdio as Record<string, unknown> | undefined) ?? {};
+    let rawStdio: Record<string, unknown> = {};
     if (mcp.stdio !== undefined) {
+      if (typeof mcp.stdio !== "object" || mcp.stdio === null || Array.isArray(mcp.stdio)) {
+        throw new Error("mcp.stdio must be an object");
+      }
+      rawStdio = mcp.stdio as Record<string, unknown>;
       assertAllowedKeys(rawStdio, ["command", "args", "env"], "mcp.stdio config");
     }
 
