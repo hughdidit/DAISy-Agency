@@ -1,6 +1,6 @@
 export type MemoryConfig = {
   embedding: {
-    provider: "openai";
+    provider: "voyageai";
     model?: string;
     apiKey: string;
   };
@@ -16,7 +16,7 @@ export type MemoryConfig = {
 export const MEMORY_CATEGORIES = ["preference", "fact", "decision", "entity", "other"] as const;
 export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
 
-const DEFAULT_MODEL = "text-embedding-3-small";
+const DEFAULT_MODEL = "voyage-3";
 const DEFAULT_DATABASE_NAME = "daisy_memory";
 const DEFAULT_COLLECTION_NAME = "memories";
 const DEFAULT_VECTOR_SEARCH_INDEX_NAME = "vector_index";
@@ -33,8 +33,15 @@ export const DEFAULT_CAPTURE_TRIGGERS = [
 ];
 
 const EMBEDDING_DIMENSIONS: Record<string, number> = {
-  "text-embedding-3-small": 1536,
-  "text-embedding-3-large": 3072,
+  "voyage-3": 1024,
+  "voyage-3-large": 1024,
+  "voyage-3-lite": 512,
+  "voyage-3.5": 1024,
+  "voyage-3.5-lite": 512,
+  "voyage-code-3": 1024,
+  "voyage-finance-2": 1024,
+  "voyage-law-2": 1024,
+  "voyage-multilingual-2": 1024,
 };
 
 function assertAllowedKeys(
@@ -210,7 +217,7 @@ export const memoryConfigSchema = {
 
     return {
       embedding: {
-        provider: "openai",
+        provider: "voyageai",
         model,
         apiKey: resolveEnvVars(embedding.apiKey),
       },
@@ -234,15 +241,15 @@ export const memoryConfigSchema = {
   },
   uiHints: {
     "embedding.apiKey": {
-      label: "OpenAI API Key",
+      label: "Voyage AI API Key",
       sensitive: true,
-      placeholder: "sk-proj-...",
-      help: "API key for OpenAI embeddings (or use ${OPENAI_API_KEY})",
+      placeholder: "pa-...",
+      help: "API key for Voyage AI embeddings (or use ${VOYAGE_API_KEY})",
     },
     "embedding.model": {
       label: "Embedding Model",
       placeholder: DEFAULT_MODEL,
-      help: "OpenAI embedding model to use",
+      help: "Voyage AI embedding model to use",
     },
     connectionUri: {
       label: "MongoDB Connection URI",
