@@ -8,7 +8,7 @@
  */
 
 import { Type } from "@sinclair/typebox";
-import OpenAI from "openai";
+import VoyageAI from "voyageai";
 import type { MoltbotPluginApi } from "clawdbot/plugin-sdk";
 import { stringEnum } from "clawdbot/plugin-sdk";
 
@@ -31,21 +31,21 @@ import {
 // ============================================================================
 
 class Embeddings {
-  private client: OpenAI;
+  private client: VoyageAI;
 
   constructor(
     apiKey: string,
     private model: string,
   ) {
-    this.client = new OpenAI({ apiKey });
+    this.client = new VoyageAI({ apiKey });
   }
 
   async embed(text: string): Promise<number[]> {
-    const response = await this.client.embeddings.create({
+    const response = await this.client.embed({
       model: this.model,
       input: text,
     });
-    return response.data[0].embedding;
+    return response.data[0]?.embedding ?? [];
   }
 }
 
