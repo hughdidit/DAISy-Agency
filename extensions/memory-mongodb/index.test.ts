@@ -37,42 +37,58 @@ describe("memory-mongodb plugin", () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     const config = memoryPlugin.configSchema?.parse?.({
-      embedding: {
-        apiKey: VOYAGE_API_KEY,
-        model: "voyage-3",
+      mcp: {
+        transport: "stdio",
+        stdio: {
+          env: {
+            MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+          },
+        },
       },
-      connectionUri: "mongodb+srv://user:pass@cluster.example.com/test",
-      databaseName: "my_memory",
-      collectionName: "my_memories",
-      vectorSearchIndexName: "my_index",
+      voyage: {
+        apiKey: VOYAGE_API_KEY,
+        embeddingModel: "voyage-3",
+      },
+      database: {
+        name: "my_memory",
+        collection: "my_memories",
+        indexName: "my_index",
+      },
       autoCapture: true,
       autoRecall: true,
     });
 
     expect(config).toBeDefined();
-    expect(config?.embedding?.apiKey).toBe(VOYAGE_API_KEY);
-    expect(config?.connectionUri).toBe(
-      "mongodb+srv://user:pass@cluster.example.com/test",
-    );
-    expect(config?.databaseName).toBe("my_memory");
-    expect(config?.collectionName).toBe("my_memories");
-    expect(config?.vectorSearchIndexName).toBe("my_index");
+    expect(config?.voyage?.apiKey).toBe(VOYAGE_API_KEY);
+    expect(
+      config?.mcp.transport === "stdio"
+        ? config.mcp.stdio.env.MDB_MCP_CONNECTION_STRING
+        : undefined,
+    ).toBe("mongodb+srv://user:pass@cluster.example.com/test");
+    expect(config?.database?.name).toBe("my_memory");
+    expect(config?.database?.collection).toBe("my_memories");
+    expect(config?.database?.indexName).toBe("my_index");
   });
 
   test("config schema applies defaults", async () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     const config = memoryPlugin.configSchema?.parse?.({
-      embedding: { apiKey: VOYAGE_API_KEY },
-      connectionUri: "mongodb+srv://user:pass@cluster.example.com/test",
+      mcp: {
+        transport: "stdio",
+        stdio: {
+          env: { MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test" },
+        },
+      },
+      voyage: { apiKey: VOYAGE_API_KEY },
     });
 
-    expect(config?.databaseName).toBe("daisy_memory");
-    expect(config?.collectionName).toBe("memories");
-    expect(config?.vectorSearchIndexName).toBe("vector_index");
+    expect(config?.database?.name).toBe("daisy_memory");
+    expect(config?.database?.collection).toBe("memories");
+    expect(config?.database?.indexName).toBe("vector_index");
     expect(config?.autoCapture).toBe(true);
     expect(config?.autoRecall).toBe(true);
-    expect(config?.embedding?.model).toBe("voyage-3");
+    expect(config?.voyage?.embeddingModel).toBe("voyage-3.5");
   });
 
   test("config schema resolves env vars", async () => {
@@ -82,14 +98,19 @@ describe("memory-mongodb plugin", () => {
     process.env.TEST_MONGODB_URI = "mongodb+srv://user:pass@cluster.example.com/test";
 
     const config = memoryPlugin.configSchema?.parse?.({
-      embedding: { apiKey: "${TEST_MEMORY_API_KEY}" },
-      connectionUri: "${TEST_MONGODB_URI}",
+      mcp: {
+        transport: "stdio",
+        stdio: { env: { MDB_MCP_CONNECTION_STRING: "${TEST_MONGODB_URI}" } },
+      },
+      voyage: { apiKey: "${TEST_MEMORY_API_KEY}" },
     });
 
-    expect(config?.embedding?.apiKey).toBe("test-key-123");
-    expect(config?.connectionUri).toBe(
-      "mongodb+srv://user:pass@cluster.example.com/test",
-    );
+    expect(config?.voyage?.apiKey).toBe("test-key-123");
+    expect(
+      config?.mcp.transport === "stdio"
+        ? config.mcp.stdio.env.MDB_MCP_CONNECTION_STRING
+        : undefined,
+    ).toBe("mongodb+srv://user:pass@cluster.example.com/test");
 
     delete process.env.TEST_MEMORY_API_KEY;
     delete process.env.TEST_MONGODB_URI;
@@ -100,20 +121,51 @@ describe("memory-mongodb plugin", () => {
 
     expect(() => {
       memoryPlugin.configSchema?.parse?.({
-        embedding: {},
-        connectionUri: "mongodb+srv://user:pass@cluster.example.com/test",
+        mcp: { transport: "stdio", stdio: { env: { MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test" } } },
+        voyage: {},
       });
-    }).toThrow("embedding.apiKey is required");
+    }).toThrow("voyage.apiKey is required");
   });
 
-  test("config schema rejects missing connectionUri", async () => {
+  test("config schema rejects missing mcp connection string for stdio", async () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     expect(() => {
       memoryPlugin.configSchema?.parse?.({
-        embedding: { apiKey: VOYAGE_API_KEY },
+        mcp: { transport: "stdio", stdio: {} },
+        voyage: { apiKey: VOYAGE_API_KEY },
       });
-    }).toThrow("connectionUri is required");
+    }).toThrow("mcp.stdio.env.MDB_MCP_CONNECTION_STRING is required when mcp.transport is \"stdio\"");
+  });
+
+
+  test("config schema applies stdio command/args defaults", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+
+    const config = memoryPlugin.configSchema?.parse?.({
+      mcp: {
+        transport: "stdio",
+        stdio: {
+          env: { MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test" },
+        },
+      },
+      voyage: { apiKey: VOYAGE_API_KEY },
+    });
+
+    const mcpStdio = config?.mcp.transport === "stdio" ? config.mcp.stdio : undefined;
+    expect(mcpStdio?.command).toBe("npx");
+    expect(mcpStdio?.args).toEqual(["-y", "mongodb-mcp-server"]);
+  });
+
+  test("config schema requires mcp.url for sse transport", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+
+    expect(() => {
+      memoryPlugin.configSchema?.parse?.({
+        mcp: { transport: "sse" },
+        voyage: { apiKey: VOYAGE_API_KEY },
+      });
+    }).toThrow('mcp.url is required when mcp.transport is "sse"');
   });
 
   test("config schema rejects unknown keys", async () => {
@@ -121,8 +173,11 @@ describe("memory-mongodb plugin", () => {
 
     expect(() => {
       memoryPlugin.configSchema?.parse?.({
-        embedding: { apiKey: VOYAGE_API_KEY },
-        connectionUri: "mongodb+srv://user:pass@cluster.example.com/test",
+        mcp: {
+          transport: "stdio",
+          stdio: { env: { MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test" } },
+        },
+        voyage: { apiKey: VOYAGE_API_KEY },
         unknownField: true,
       });
     }).toThrow("unknown keys");
@@ -133,8 +188,11 @@ describe("memory-mongodb plugin", () => {
 
     expect(() => {
       memoryPlugin.configSchema?.parse?.({
-        embedding: { apiKey: VOYAGE_API_KEY },
-        connectionUri: "mongodb://user:pass@remote-host.example.com/test",
+        mcp: {
+          transport: "stdio",
+          stdio: { env: { MDB_MCP_CONNECTION_STRING: "mongodb://user:pass@remote-host.example.com/test" } },
+        },
+        voyage: { apiKey: VOYAGE_API_KEY },
       });
     }).toThrow("without TLS");
   });
@@ -143,24 +201,38 @@ describe("memory-mongodb plugin", () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     const config = memoryPlugin.configSchema?.parse?.({
-      embedding: { apiKey: VOYAGE_API_KEY },
-      connectionUri: "mongodb://user:pass@remote-host.example.com/test?tls=true",
+      mcp: {
+        transport: "stdio",
+        stdio: {
+          env: { MDB_MCP_CONNECTION_STRING: "mongodb://user:pass@remote-host.example.com/test?tls=true" },
+        },
+      },
+      voyage: { apiKey: VOYAGE_API_KEY },
     });
 
-    expect(config?.connectionUri).toBe(
-      "mongodb://user:pass@remote-host.example.com/test?tls=true",
-    );
+    expect(
+      config?.mcp.transport === "stdio"
+        ? config.mcp.stdio.env.MDB_MCP_CONNECTION_STRING
+        : undefined,
+    ).toBe("mongodb://user:pass@remote-host.example.com/test?tls=true");
   });
 
   test("config schema allows plain mongodb:// to localhost", async () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     const config = memoryPlugin.configSchema?.parse?.({
-      embedding: { apiKey: VOYAGE_API_KEY },
-      connectionUri: "mongodb://localhost:27017/test",
+      mcp: {
+        transport: "stdio",
+        stdio: { env: { MDB_MCP_CONNECTION_STRING: "mongodb://localhost:27017/test" } },
+      },
+      voyage: { apiKey: VOYAGE_API_KEY },
     });
 
-    expect(config?.connectionUri).toBe("mongodb://localhost:27017/test");
+    expect(
+      config?.mcp.transport === "stdio"
+        ? config.mcp.stdio.env.MDB_MCP_CONNECTION_STRING
+        : undefined,
+    ).toBe("mongodb://localhost:27017/test");
   });
 
   test("shouldCapture filters correctly with default triggers", async () => {
@@ -199,8 +271,11 @@ describe("memory-mongodb plugin", () => {
 
     expect(() => {
       memoryPlugin.configSchema?.parse?.({
-        embedding: { apiKey: VOYAGE_API_KEY },
-        connectionUri: "mongodb+srv://user:pass@cluster.example.com/test",
+        mcp: {
+          transport: "stdio",
+          stdio: { env: { MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test" } },
+        },
+        voyage: { apiKey: VOYAGE_API_KEY },
         captureTriggers: ["(invalid["],
       });
     }).toThrow("Invalid captureTrigger regex");
@@ -218,7 +293,7 @@ describe("memory-mongodb plugin", () => {
 });
 
 // ============================================================================
-// Live tests (require real Atlas cluster + OpenAI key)
+// Live tests (require real Atlas cluster + Voyage key)
 // ============================================================================
 
 describeLive("memory-mongodb live tests", () => {
@@ -252,14 +327,19 @@ describeLive("memory-mongodb live tests", () => {
         source: "test",
         config: {},
         pluginConfig: {
-          embedding: {
-            apiKey: liveApiKey,
-            model: "voyage-3",
+          mcp: {
+            transport: "stdio",
+            stdio: { env: { MDB_MCP_CONNECTION_STRING: liveMongoUri } },
           },
-          connectionUri: liveMongoUri,
-          databaseName: testDbName,
-          collectionName: "memories",
-          vectorSearchIndexName: "vector_index",
+          voyage: {
+            apiKey: liveApiKey,
+            embeddingModel: "voyage-3",
+          },
+          database: {
+            name: testDbName,
+            collection: "memories",
+            indexName: "vector_index",
+          },
           autoCapture: false,
           autoRecall: false,
         },
