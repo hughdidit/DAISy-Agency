@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Moltbot
+@testable import OpenClaw
 
 @Suite struct HealthStoreStateTests {
     @Test @MainActor func linkedChannelProbeFailureDegradesState() {

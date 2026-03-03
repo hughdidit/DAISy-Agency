@@ -105,7 +105,7 @@ describe("gateway server hooks", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-moltbot-token": "hook-secret",
+          "x-openclaw-token": "hook-secret",
         },
         body: JSON.stringify({ text: "Header auth" }),
       });

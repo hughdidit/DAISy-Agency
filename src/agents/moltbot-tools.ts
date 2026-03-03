@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility):src/agents/openclaw-tools.ts
 import { resolvePluginTools } from "../plugins/tools.js";
@@ -22,7 +22,7 @@ import { createSessionsSpawnTool } from "./tools/sessions-spawn-tool.js";
 import { createWebFetchTool, createWebSearchTool } from "./tools/web-tools.js";
 import { createTtsTool } from "./tools/tts-tool.js";
 
-export function createMoltbotTools(options?: {
+export function createOpenClawTools(options?: {
   sandboxBrowserBridgeUrl?: string;
   allowHostBrowserControl?: boolean;
   agentSessionKey?: string;
@@ -43,7 +43,7 @@ export function createMoltbotTools(options?: {
   sandboxFsBridge?: SandboxFsBridge;
   workspaceDir?: string;
   sandboxed?: boolean;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   pluginToolAllowlist?: string[];
   /** Current channel ID for auto-threading (Slack). */
   currentChannelId?: string;

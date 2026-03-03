@@ -45,7 +45,7 @@ jobs:
 
       - name: Fetch upstream
         run: |
-          git remote add upstream https://github.com/moltbot/moltbot.git || true
+          git remote add upstream https://github.com/moltai/openclawbot.git || true
           git fetch upstream --tags --quiet
 
       - name: Install Claude CLI
@@ -140,7 +140,7 @@ jobs:
 
       - name: Fetch upstream
         run: |
-          git remote add upstream https://github.com/moltbot/moltbot.git || true
+          git remote add upstream https://github.com/moltai/openclawbot.git || true
           git fetch upstream --tags --quiet
 
       - name: Install Claude CLI

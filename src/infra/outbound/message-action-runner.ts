@@ -16,7 +16,7 @@ import type {
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> 01db1dde1 (fix: telegram topic auto-threading — use parseTelegramTarget, add tests (#7235) (thanks @Lukavyi))
 =======
@@ -61,7 +61,7 @@ export type MessageActionRunnerGateway = {
 };
 
 export type RunMessageActionParams = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   action: ChannelMessageActionName;
   params: Record<string, unknown>;
   defaultAccountId?: string;
@@ -175,7 +175,7 @@ function applyCrossContextMessageDecoration({
 }
 
 async function maybeApplyCrossContextMarker(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   action: ChannelMessageActionName;
   target: string;
@@ -261,7 +261,7 @@ function resolveTelegramAutoThreadId(params: {
 }
 
 function resolveAttachmentMaxBytes(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   accountId?: string | null;
 }): number | undefined {
@@ -332,7 +332,7 @@ function normalizeBase64Payload(params: { base64?: string; contentType?: string 
 }
 
 async function hydrateSetGroupIconParams(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   accountId?: string | null;
   args: Record<string, unknown>;
@@ -389,7 +389,7 @@ async function hydrateSetGroupIconParams(params: {
 }
 
 async function hydrateSendAttachmentParams(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   accountId?: string | null;
   args: Record<string, unknown>;
@@ -478,7 +478,7 @@ function parseCardParam(params: Record<string, unknown>): void {
   }
 }
 
-async function resolveChannel(cfg: MoltbotConfig, params: Record<string, unknown>) {
+async function resolveChannel(cfg: OpenClawConfig, params: Record<string, unknown>) {
   const channelHint = readStringParam(params, "channel");
   const selection = await resolveMessageChannelSelection({
     cfg,
@@ -488,7 +488,7 @@ async function resolveChannel(cfg: MoltbotConfig, params: Record<string, unknown
 }
 
 async function resolveActionTarget(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   action: ChannelMessageActionName;
   args: Record<string, unknown>;
@@ -533,7 +533,7 @@ async function resolveActionTarget(params: {
 }
 
 type ResolvedActionContext = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   params: Record<string, unknown>;
   channel: ChannelId;
   accountId?: string | null;

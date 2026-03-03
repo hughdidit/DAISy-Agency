@@ -60,7 +60,7 @@ export function resolveSessionTranscriptCandidates(
   if (agentId) {
     pushCandidate(() => resolveSessionTranscriptPath(sessionId, agentId));
   }
-  candidates.push(path.join(os.homedir(), ".clawdbot", "sessions", `${sessionId}.jsonl`));
+  candidates.push(path.join(os.homedir(), ".openclaw", "sessions", `${sessionId}.jsonl`));
   return candidates;
 }
 

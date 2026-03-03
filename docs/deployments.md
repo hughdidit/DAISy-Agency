@@ -1,6 +1,6 @@
 # Deployments (GCP VM: DAISy)
 
-This repository deploys the Moltbot-forked version of DAISy to a **Debian 12 Google Compute Engine (GCE) VM** using GitHub Actions **Environments** for gating (staging vs production) and a release artifact (`release-metadata`) for deterministic, rollbackable deployments.
+This repository deploys the OpenClaw-forked version of DAISy to a **Debian 12 Google Compute Engine (GCE) VM** using GitHub Actions **Environments** for gating (staging vs production) and a release artifact (`release-metadata`) for deterministic, rollbackable deployments.
 
 This document is written for the **IAP-only** access model (preferred): the VM does **not** need a public SSH endpoint; GitHub Actions reaches it through **IAP TCP forwarding** using `gcloud compute ssh --tunnel-through-iap`.
 
@@ -15,8 +15,8 @@ This document is written for the **IAP-only** access model (preferred): the VM d
 
 ## Deployment target
 
-- Host: Debian 12 GCE VM running the Moltbot/Clawdbot stack
-- Persistent state: `/var/lib/clawdbot` (must survive deploys/restarts)
+- Host: Debian 12 GCE VM running the OpenClaw/OpenClaw stack
+- Persistent state: `/var/lib/openclaw` (must survive deploys/restarts)
 - Deployment directory on VM: `DEPLOY_DIR` (default: `/opt/DAISy`)
 - Runtime: Docker + Compose (or systemd-managed service that starts containers)
 
@@ -88,7 +88,7 @@ Note: Image reference comes from `release-metadata.json`, not a separate secret.
 These secrets are passed to docker compose on the target VM.
 
 **Required:**
-- `CLAWDBOT_GATEWAY_TOKEN` - Authentication token for the gateway API. Generate with `openssl rand -hex 32`. Secures communication between clients and the gateway.
+- `OPENCLAW_GATEWAY_TOKEN` - Authentication token for the gateway API. Generate with `openssl rand -hex 32`. Secures communication between clients and the gateway.
 - `CLAUDE_AI_SESSION_KEY` - Anthropic API session key. Obtain from [Anthropic Console](https://console.anthropic.com/settings/keys) or your existing Claude API setup.
 
 **Optional (usage monitoring only):**
@@ -113,7 +113,7 @@ References:
 
 ## Workflows overview
 - Dry run exits successfully after printing the resolved image reference.
-- Real deploy connects via IAP, sets `CLAWDBOT_IMAGE` to the resolved ref, runs `docker compose pull`, then `docker compose up -d --remove-orphans`.
+- Real deploy connects via IAP, sets `OPENCLAW_IMAGE` to the resolved ref, runs `docker compose pull`, then `docker compose up -d --remove-orphans`.
 - The deploy fails if Docker is missing or `docker-compose.yml` is not found under `DEPLOY_DIR`.
 
 ### Docker release
@@ -182,7 +182,7 @@ On a real deploy (dry_run=false), the deploy routine:
 2. Authenticates to GHCR:
    - `docker login ghcr.io -u $GHCR_USERNAME --password-stdin`
 3. Sets the image ref (digest preferred) via environment variable:
-   - `export CLAWDBOT_IMAGE=<image@digest>`
+   - `export OPENCLAW_IMAGE=<image@digest>`
 4. Applies:
    - `docker compose pull`
    - `docker compose up -d --remove-orphans`

@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import {
   coerceToFailoverError,
@@ -48,7 +48,7 @@ function shouldRethrowAbort(err: unknown): boolean {
 }
 
 function buildAllowedModelKeys(
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   defaultProvider: string,
 ): Set<string> | null {
   const rawAllowlist = (() => {
@@ -66,7 +66,7 @@ function buildAllowedModelKeys(
 }
 
 function resolveImageFallbackCandidates(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   defaultProvider: string;
   modelOverride?: string;
 }): ModelCandidate[] {
@@ -127,7 +127,7 @@ function resolveImageFallbackCandidates(params: {
 }
 
 function resolveFallbackCandidates(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   provider: string;
   model: string;
   /** Optional explicit fallbacks list; when provided (even empty), replaces agents.defaults.model.fallbacks. */
@@ -200,7 +200,7 @@ export const _probeThrottleInternals = {
 } as const;
 
 export async function runWithModelFallback<T>(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   provider: string;
   model: string;
   agentDir?: string;
@@ -339,7 +339,7 @@ export async function runWithModelFallback<T>(params: {
 }
 
 export async function runWithImageModelFallback<T>(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   modelOverride?: string;
   run: (provider: string, model: string) => Promise<T>;
   onError?: (attempt: {

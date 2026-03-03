@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { getMemorySearchManager } from "../../memory/index.js";
 import type { MemorySearchResult } from "../../memory/types.js";
 import { parseAgentSessionKey } from "../../routing/session-key.js";
@@ -22,7 +22,7 @@ const MemoryGetSchema = Type.Object({
 });
 
 export function createMemorySearchTool(options: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;
@@ -80,7 +80,7 @@ export function createMemorySearchTool(options: {
 }
 
 export function createMemoryGetTool(options: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;
@@ -122,7 +122,7 @@ export function createMemoryGetTool(options: {
   };
 }
 
-function resolveMemoryCitationsMode(cfg: MoltbotConfig): MemoryCitationsMode {
+function resolveMemoryCitationsMode(cfg: OpenClawConfig): MemoryCitationsMode {
   const mode = cfg.memory?.citations;
   if (mode === "on" || mode === "off" || mode === "auto") {
     return mode;

@@ -45,7 +45,7 @@ final class GatewayProcessManager {
     #if DEBUG
     private var testingConnection: GatewayConnection?
     #endif
-    private let logger = Logger(subsystem: "bot.molt", category: "gateway.process")
+    private let logger = Logger(subsystem: "ai.openclaw", category: "gateway.process")
 
     private let logLimit = 20000 // characters to keep in-memory
     private let environmentRefreshMinInterval: TimeInterval = 30
@@ -270,7 +270,7 @@ final class GatewayProcessManager {
         let lower = message.lowercased()
         if self.isGatewayAuthFailure(error) {
             return """
-            Gateway on port \(port) rejected auth. Set gateway.auth.token (or CLAWDBOT_GATEWAY_TOKEN) \
+            Gateway on port \(port) rejected auth. Set gateway.auth.token (or OPENCLAW_GATEWAY_TOKEN) \
             to match the running gateway (or clear it on the gateway) and retry.
             """
         }

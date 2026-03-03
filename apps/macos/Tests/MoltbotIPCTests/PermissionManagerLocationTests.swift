@@ -1,6 +1,6 @@
 import CoreLocation
 import Testing
-@testable import Moltbot
+@testable import OpenClaw
 
 @Suite("PermissionManager Location")
 struct PermissionManagerLocationTests {

@@ -1,5 +1,5 @@
 ---
-summary: "Mattermost bot setup and Moltbot config"
+summary: "Mattermost bot setup and OpenClaw config"
 read_when:
   - Setting up Mattermost
   - Debugging Mattermost routing
@@ -16,16 +16,16 @@ Mattermost ships as a plugin and is not bundled with the core install.
 
 Install via CLI (npm registry):
 ```bash
-moltbot plugins install @moltbot/mattermost
+openclaw plugins install @openclaw/mattermost
 ```
 
 Local checkout (when running from a git repo):
 ```bash
-moltbot plugins install ./extensions/mattermost
+openclaw plugins install ./extensions/mattermost
 ```
 
 If you choose Mattermost during configure/onboarding and a git checkout is detected,
-Moltbot will offer the local install path automatically.
+OpenClaw will offer the local install path automatically.
 
 Details: [Plugins](/plugin)
 
@@ -33,7 +33,7 @@ Details: [Plugins](/plugin)
 1) Install the Mattermost plugin.
 2) Create a Mattermost bot account and copy the **bot token**.
 3) Copy the Mattermost **base URL** (e.g., `https://chat.example.com`).
-4) Configure Moltbot and start the gateway.
+4) Configure OpenClaw and start the gateway.
 
 Minimal config:
 ```json5
@@ -83,8 +83,8 @@ Notes:
 ## Access control (DMs)
 - Default: `channels.mattermost.dmPolicy = "pairing"` (unknown senders get a pairing code).
 - Approve via:
-  - `moltbot pairing list mattermost`
-  - `moltbot pairing approve mattermost <CODE>`
+  - `openclaw pairing list mattermost`
+  - `openclaw pairing approve mattermost <CODE>`
 - Public DMs: `channels.mattermost.dmPolicy="open"` plus `channels.mattermost.allowFrom=["*"]`.
 
 ## Channels (groups)
@@ -94,7 +94,7 @@ Notes:
 - Runtime note: if `channels.mattermost` is completely missing, runtime falls back to `groupPolicy="allowlist"` for group checks (even if `channels.defaults.groupPolicy` is set).
 
 ## Targets for outbound delivery
-Use these target formats with `moltbot message send` or cron/webhooks:
+Use these target formats with `openclaw message send` or cron/webhooks:
 
 - `channel:<id>` for a channel
 - `user:<id>` for a DM

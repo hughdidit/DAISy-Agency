@@ -1,5 +1,5 @@
 import Foundation
-import MoltbotDiscovery
+import OpenClawDiscovery
 
 enum GatewayDiscoveryHelpers {
     static func sshTarget(for gateway: GatewayDiscoveryModel.DiscoveredGateway) -> String? {

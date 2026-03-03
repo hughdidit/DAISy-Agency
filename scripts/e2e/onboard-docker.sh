@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-IMAGE_NAME="moltbot-onboard-e2e"
+IMAGE_NAME="openclaw-onboard-e2e"
 
 echo "Building Docker image..."
 docker build -t "$IMAGE_NAME" -f "$ROOT_DIR/scripts/e2e/Dockerfile" "$ROOT_DIR"
@@ -15,9 +15,9 @@ docker run --rm -t "$IMAGE_NAME" bash -lc '
   ONBOARD_FLAGS="--flow quickstart --auth-choice skip --skip-channels --skip-skills --skip-daemon --skip-ui"
 
   # Provide a minimal trash shim to avoid noisy "missing trash" logs in containers.
-  export PATH="/tmp/moltbot-bin:$PATH"
-  mkdir -p /tmp/moltbot-bin
-  cat > /tmp/moltbot-bin/trash <<'"'"'TRASH'"'"'
+  export PATH="/tmp/openclaw-bin:$PATH"
+  mkdir -p /tmp/openclaw-bin
+  cat > /tmp/openclaw-bin/trash <<'"'"'TRASH'"'"'
 #!/usr/bin/env bash
 set -euo pipefail
 trash_dir="$HOME/.Trash"
@@ -32,7 +32,7 @@ for target in "$@"; do
   mv "$target" "$dest"
 done
 TRASH
-  chmod +x /tmp/moltbot-bin/trash
+  chmod +x /tmp/openclaw-bin/trash
 
   send() {
     local payload="$1"
@@ -139,9 +139,9 @@ TRASH
     echo "== Wizard case: $case_name =="
     set_isolated_openclaw_env "$home_dir"
 
-    input_fifo="$(mktemp -u "/tmp/moltbot-onboard-${case_name}.XXXXXX")"
+    input_fifo="$(mktemp -u "/tmp/openclaw-onboard-${case_name}.XXXXXX")"
     mkfifo "$input_fifo"
-    local log_path="/tmp/moltbot-onboard-${case_name}.log"
+    local log_path="/tmp/openclaw-onboard-${case_name}.log"
     WIZARD_LOG_PATH="$log_path"
     export WIZARD_LOG_PATH
     # Run under script to keep an interactive TTY for clack prompts.
@@ -188,7 +188,7 @@ TRASH
   }
 
   make_home() {
-    mktemp -d "/tmp/moltbot-e2e-$1.XXXXXX"
+    mktemp -d "/tmp/openclaw-e2e-$1.XXXXXX"
   }
 
   set_isolated_openclaw_env() {
@@ -290,8 +290,8 @@ TRASH
     # Assert config + workspace scaffolding.
 <<<<<<< HEAD
     workspace_dir="$HOME/clawd"
-    config_path="$HOME/.clawdbot/moltbot.json"
-    sessions_dir="$HOME/.clawdbot/agents/main/sessions"
+    config_path="$HOME/.clawdai/openclawbot.json"
+    sessions_dir="$HOME/.openclaw/agents/main/sessions"
 =======
     workspace_dir="$OPENCLAW_STATE_DIR/workspace"
     config_path="$OPENCLAW_CONFIG_PATH"
@@ -366,7 +366,7 @@ NODE
       --skip-skills \
       --skip-health
 
-    config_path="$HOME/.clawdbot/moltbot.json"
+    config_path="$HOME/.clawdai/openclawbot.json"
     assert_file "$config_path"
 
     CONFIG_PATH="$config_path" node --input-type=module - <<'"'"'NODE'"'"'
@@ -400,9 +400,9 @@ NODE
     local home_dir
     home_dir="$(make_home reset-config)"
     export HOME="$home_dir"
-    mkdir -p "$HOME/.clawdbot"
+    mkdir -p "$HOME/.openclaw"
     # Seed a remote config to exercise reset path.
-    cat > "$HOME/.clawdbot/moltbot.json" <<'"'"'JSON'"'"'
+    cat > "$HOME/.clawdai/openclawbot.json" <<'"'"'JSON'"'"'
 {
   "agents": { "defaults": { "workspace": "/root/old" } },
   "gateway": {
@@ -424,7 +424,7 @@ JSON
       --skip-ui \
       --skip-health
 
-    config_path="$HOME/.clawdbot/moltbot.json"
+    config_path="$HOME/.clawdai/openclawbot.json"
     assert_file "$config_path"
 
     CONFIG_PATH="$config_path" node --input-type=module - <<'"'"'NODE'"'"'
@@ -457,7 +457,7 @@ NODE
     # Channels-only configure flow.
     run_wizard_cmd channels "$home_dir" "node dist/index.js configure --section channels" send_channels_flow
 
-    config_path="$HOME/.clawdbot/moltbot.json"
+    config_path="$HOME/.clawdai/openclawbot.json"
     assert_file "$config_path"
 
     CONFIG_PATH="$config_path" node --input-type=module - <<'"'"'NODE'"'"'
@@ -495,9 +495,9 @@ NODE
     local home_dir
     home_dir="$(make_home skills)"
     export HOME="$home_dir"
-    mkdir -p "$HOME/.clawdbot"
+    mkdir -p "$HOME/.openclaw"
     # Seed skills config to ensure it survives the wizard.
-    cat > "$HOME/.clawdbot/moltbot.json" <<'"'"'JSON'"'"'
+    cat > "$HOME/.clawdai/openclawbot.json" <<'"'"'JSON'"'"'
 {
   "skills": {
     "allowBundled": ["__none__"],
@@ -508,7 +508,7 @@ JSON
 
     run_wizard_cmd skills "$home_dir" "node dist/index.js configure --section skills" send_skills_flow
 
-    config_path="$HOME/.clawdbot/moltbot.json"
+    config_path="$HOME/.clawdai/openclawbot.json"
     assert_file "$config_path"
 
     CONFIG_PATH="$config_path" node --input-type=module - <<'"'"'NODE'"'"'

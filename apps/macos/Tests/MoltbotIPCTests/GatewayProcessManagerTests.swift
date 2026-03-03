@@ -1,8 +1,8 @@
 import Foundation
-import MoltbotKit
+import OpenClawKit
 import os
 import Testing
-@testable import Moltbot
+@testable import OpenClaw
 
 @Suite(.serialized)
 @MainActor

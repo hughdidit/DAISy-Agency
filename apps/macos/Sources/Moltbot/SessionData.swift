@@ -252,7 +252,7 @@ enum SessionLoader {
 
     static let defaultStorePath = standardize(
         FileManager().homeDirectoryForCurrentUser
-            .appendingPathComponent(".clawdbot/sessions/sessions.json").path)
+            .appendingPathComponent(".openclaw/sessions/sessions.json").path)
 
     static func loadSnapshot(
         activeMinutes: Int? = nil,

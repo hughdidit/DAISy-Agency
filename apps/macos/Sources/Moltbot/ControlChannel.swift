@@ -1,6 +1,6 @@
 import Foundation
-import MoltbotKit
-import MoltbotProtocol
+import OpenClawKit
+import OpenClawProtocol
 import Observation
 import SwiftUI
 
@@ -23,7 +23,7 @@ struct ControlAgentEvent: Codable, Sendable, Identifiable {
     let seq: Int
     let stream: String
     let ts: Double
-    let data: [String: MoltbotProtocol.AnyCodable]
+    let data: [String: OpenClawProtocol.AnyCodable]
     let summary: String?
 }
 
@@ -79,7 +79,7 @@ final class ControlChannel {
     private(set) var lastPingMs: Double?
     private(set) var authSourceLabel: String?
 
-    private let logger = Logger(subsystem: "bot.molt", category: "control")
+    private let logger = Logger(subsystem: "ai.openclaw", category: "control")
 
     private var eventTask: Task<Void, Never>?
     private var recoveryTask: Task<Void, Never>?
@@ -166,8 +166,8 @@ final class ControlChannel {
         timeoutMs: Double? = nil) async throws -> Data
     {
         do {
-            let rawParams = params?.reduce(into: [String: MoltbotKit.AnyCodable]()) {
-                $0[$1.key] = MoltbotKit.AnyCodable($1.value.base)
+            let rawParams = params?.reduce(into: [String: OpenClawKit.AnyCodable]()) {
+                $0[$1.key] = OpenClawKit.AnyCodable($1.value.base)
             }
             let data = try await GatewayConnection.shared.request(
                 method: method,
@@ -197,7 +197,7 @@ final class ControlChannel {
                 ? "gateway.remote.token"
                 : "gateway.auth.token"
             return
-                "Gateway rejected token; set \(tokenKey) (or CLAWDBOT_GATEWAY_TOKEN) " +
+                "Gateway rejected token; set \(tokenKey) (or OPENCLAW_GATEWAY_TOKEN) " +
                 "or clear it on the gateway. " +
                 "Reason: \(reason)"
         }
@@ -403,20 +403,20 @@ final class ControlChannel {
     }
 
     private static func bridgeToProtocolArgs(
-        _ value: MoltbotProtocol.AnyCodable?) -> [String: MoltbotProtocol.AnyCodable]?
+        _ value: OpenClawProtocol.AnyCodable?) -> [String: OpenClawProtocol.AnyCodable]?
     {
         guard let value else { return nil }
-        if let dict = value.value as? [String: MoltbotProtocol.AnyCodable] {
+        if let dict = value.value as? [String: OpenClawProtocol.AnyCodable] {
             return dict
         }
-        if let dict = value.value as? [String: MoltbotKit.AnyCodable],
+        if let dict = value.value as? [String: OpenClawKit.AnyCodable],
            let data = try? JSONEncoder().encode(dict),
-           let decoded = try? JSONDecoder().decode([String: MoltbotProtocol.AnyCodable].self, from: data)
+           let decoded = try? JSONDecoder().decode([String: OpenClawProtocol.AnyCodable].self, from: data)
         {
             return decoded
         }
         if let data = try? JSONEncoder().encode(value),
-           let decoded = try? JSONDecoder().decode([String: MoltbotProtocol.AnyCodable].self, from: data)
+           let decoded = try? JSONDecoder().decode([String: OpenClawProtocol.AnyCodable].self, from: data)
         {
             return decoded
         }
@@ -425,6 +425,6 @@ final class ControlChannel {
 }
 
 extension Notification.Name {
-    static let controlHeartbeat = Notification.Name("moltbot.control.heartbeat")
-    static let controlAgentEvent = Notification.Name("moltbot.control.agent")
+    static let controlHeartbeat = Notification.Name("openclaw.control.heartbeat")
+    static let controlAgentEvent = Notification.Name("openclaw.control.agent")
 }

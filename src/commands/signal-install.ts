@@ -204,7 +204,7 @@ async function installSignalCliFromRelease(runtime: RuntimeEnv): Promise<SignalI
   const apiUrl = "https://api.github.com/repos/AsamK/signal-cli/releases/latest";
   const response = await fetch(apiUrl, {
     headers: {
-      "User-Agent": "moltbot",
+      "User-Agent": "openclaw",
       Accept: "application/vnd.github+json",
     },
   });
@@ -228,7 +228,7 @@ async function installSignalCliFromRelease(runtime: RuntimeEnv): Promise<SignalI
     };
   }
 
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-signal-"));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-signal-"));
   const archivePath = path.join(tmpDir, assetName);
 
   runtime.log(`Downloading signal-cli ${version} (${asset.name})…`);

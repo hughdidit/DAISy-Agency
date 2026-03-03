@@ -1,4 +1,4 @@
-import MoltbotProtocol
+import OpenClawProtocol
 import SwiftUI
 
 extension ChannelsSettings {

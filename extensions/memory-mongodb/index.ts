@@ -1,5 +1,5 @@
 /**
- * Moltbot Memory (MongoDB Atlas) Plugin
+ * OpenClaw Memory (MongoDB Atlas) Plugin
  *
  * Long-term memory with vector search for AI conversations.
  * Uses MongoDB Atlas for storage, Atlas Vector Search for retrieval,
@@ -9,8 +9,8 @@
 
 import { Type } from "@sinclair/typebox";
 import OpenAI from "openai";
-import type { MoltbotPluginApi } from "clawdbot/plugin-sdk";
-import { stringEnum } from "clawdbot/plugin-sdk";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+import { stringEnum } from "openclaw/plugin-sdk";
 
 import {
   MEMORY_CATEGORIES,
@@ -95,7 +95,7 @@ const memoryPlugin = {
   kind: "memory" as const,
   configSchema: memoryConfigSchema,
 
-  register(api: MoltbotPluginApi) {
+  register(api: OpenClawPluginApi) {
     const cfg = memoryConfigSchema.parse(api.pluginConfig);
     const vectorDim = vectorDimsForModel(cfg.embedding.model ?? "text-embedding-3-small");
     const db = new MongoMemoryDB(

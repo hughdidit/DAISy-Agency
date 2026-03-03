@@ -12,7 +12,7 @@ import {
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
 } from "../../config/commands.js";
-import type { MoltbotConfig, ReplyToMode } from "../../config/config.js";
+import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
 import { resolveRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
 import type { GroupPolicy } from "../../config/types.base.js";
@@ -50,7 +50,7 @@ import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-app
 export type MonitorDiscordOpts = {
   token?: string;
   accountId?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   mediaMaxMb?: number;

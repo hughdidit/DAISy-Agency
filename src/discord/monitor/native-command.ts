@@ -36,7 +36,7 @@ import type {
 import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
-import type { MoltbotConfig, loadConfig } from "../../config/config.js";
+import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
@@ -81,7 +81,7 @@ import {
 import { resolveDiscordSenderIdentity } from "./sender-identity.js";
 import { resolveDiscordThreadParentInfo } from "./threading.js";
 
-type DiscordConfig = NonNullable<MoltbotConfig["channels"]>["discord"];
+type DiscordConfig = NonNullable<OpenClawConfig["channels"]>["discord"];
 
 function buildDiscordCommandOptions(params: {
   command: ChatCommandDefinition;

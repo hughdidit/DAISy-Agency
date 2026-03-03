@@ -6,10 +6,10 @@ const args = process.argv.slice(2);
 const env = { ...process.env };
 const cwd = process.cwd();
 <<<<<<< HEAD
-const compiler = env.CLAWDBOT_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
+const compiler = env.OPENCLAW_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
 const projectArgs = ["--project", "tsconfig.json"];
 =======
-const compilerOverride = env.OPENCLAW_TS_COMPILER ?? env.CLAWDBOT_TS_COMPILER;
+const compilerOverride = env.OPENCLAW_TS_COMPILER ?? env.OPENCLAW_TS_COMPILER;
 const compiler = compilerOverride === "tsc" ? "tsc" : "tsgo";
 const projectArgs = ["--project", "tsconfig.json"];
 >>>>>>> dae00fe18 (fix: Update `CONTRIBUTING.md` + adjust `watch-node.mjs` again to be faster with `tsc`.)
@@ -31,7 +31,7 @@ const compilerProcess = spawn("pnpm", ["tsdown", '--watch', 'src/'], {
 });
 
 <<<<<<< HEAD
-const nodeProcess = spawn(process.execPath, ["--watch", "moltbot.mjs", ...args], {
+const nodeProcess = spawn(process.execPath, ["--watch", "openclaw.mjs", ...args], {
   cwd,
   env,
   stdio: "inherit",

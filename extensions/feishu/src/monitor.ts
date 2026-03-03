@@ -3,7 +3,7 @@ import * as http from "http";
 import * as Lark from "@larksuiteoapi/node-sdk";
 import {
   applyBasicWebhookRequestGuards,
-  type ClawdbotConfig,
+  type OpenClawConfig,
   createFixedWindowRateLimiter,
   createWebhookAnomalyTracker,
   type RuntimeEnv,
@@ -21,7 +21,7 @@ import { getMessageFeishu } from "./send.js";
 import type { ResolvedFeishuAccount } from "./types.js";
 
 export type MonitorFeishuOpts = {
-  config?: ClawdbotConfig;
+  config?: OpenClawConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   accountId?: string;
@@ -49,7 +49,7 @@ export type FeishuReactionCreatedEvent = {
 };
 
 type ResolveReactionSyntheticEventParams = {
-  cfg: ClawdbotConfig;
+  cfg: OpenClawConfig;
   accountId: string;
   event: FeishuReactionCreatedEvent;
   botOpenId?: string;
@@ -264,7 +264,7 @@ async function fetchBotOpenId(
 function registerEventHandlers(
   eventDispatcher: Lark.EventDispatcher,
   context: {
-    cfg: ClawdbotConfig;
+    cfg: OpenClawConfig;
     accountId: string;
     runtime?: RuntimeEnv;
     chatHistories: Map<string, HistoryEntry[]>;
@@ -389,7 +389,7 @@ function registerEventHandlers(
 }
 
 type MonitorAccountParams = {
-  cfg: ClawdbotConfig;
+  cfg: OpenClawConfig;
   account: ResolvedFeishuAccount;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;

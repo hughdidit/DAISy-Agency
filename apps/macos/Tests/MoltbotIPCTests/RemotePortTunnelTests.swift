@@ -1,5 +1,5 @@
 import Testing
-@testable import Moltbot
+@testable import OpenClaw
 
 #if canImport(Darwin)
 import Darwin

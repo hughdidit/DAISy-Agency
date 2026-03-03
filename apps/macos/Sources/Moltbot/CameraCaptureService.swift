@@ -1,8 +1,8 @@
 import AVFoundation
 import CoreGraphics
 import Foundation
-import MoltbotIPC
-import MoltbotKit
+import OpenClawIPC
+import OpenClawKit
 import OSLog
 
 actor CameraCaptureService {
@@ -36,7 +36,7 @@ actor CameraCaptureService {
         }
     }
 
-    private let logger = Logger(subsystem: "bot.molt", category: "camera")
+    private let logger = Logger(subsystem: "ai.openclaw", category: "camera")
 
     func listDevices() -> [CameraDeviceInfo] {
         Self.availableCameras().map { device in
@@ -168,7 +168,7 @@ actor CameraCaptureService {
         await Self.warmUpCaptureSession()
 
         let tmpMovURL = FileManager().temporaryDirectory
-            .appendingPathComponent("moltbot-camera-\(UUID().uuidString).mov")
+            .appendingPathComponent("openclaw-camera-\(UUID().uuidString).mov")
         defer { try? FileManager().removeItem(at: tmpMovURL) }
 
         let outputURL: URL = {
@@ -176,7 +176,7 @@ actor CameraCaptureService {
                 return URL(fileURLWithPath: outPath)
             }
             return FileManager().temporaryDirectory
-                .appendingPathComponent("moltbot-camera-\(UUID().uuidString).mp4")
+                .appendingPathComponent("openclaw-camera-\(UUID().uuidString).mp4")
         }()
 
         // Ensure we don't fail exporting due to an existing file.

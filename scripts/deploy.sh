@@ -80,7 +80,7 @@ fi
 : "${GHCR_TOKEN:?GHCR_TOKEN is required for real deploy}"
 
 # App secrets (passed to docker compose on the VM)
-: "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required for real deploy}"
+: "${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required for real deploy}"
 : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required for real deploy}"
 : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required for real deploy}"
 : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required for real deploy}"
@@ -89,22 +89,22 @@ CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
 CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
-CLAWDBOT_GATEWAY_BIND="${CLAWDBOT_GATEWAY_BIND:-loopback}"
-: "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required for real deploy}"
-: "${CLAWDBOT_BRIDGE_PORT:?CLAWDBOT_BRIDGE_PORT is required for real deploy}"
+OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-loopback}"
+: "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required for real deploy}"
+: "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required for real deploy}"
 
 # Validate that ports are numeric and that bridge port = gateway port + 1
-if ! [[ "${CLAWDBOT_GATEWAY_PORT}" =~ ^[0-9]+$ ]]; then
-  echo "ERROR: CLAWDBOT_GATEWAY_PORT must be a numeric port (got: ${CLAWDBOT_GATEWAY_PORT})" >&2
+if ! [[ "${OPENCLAW_GATEWAY_PORT}" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: OPENCLAW_GATEWAY_PORT must be a numeric port (got: ${OPENCLAW_GATEWAY_PORT})" >&2
   exit 1
 fi
-if ! [[ "${CLAWDBOT_BRIDGE_PORT}" =~ ^[0-9]+$ ]]; then
-  echo "ERROR: CLAWDBOT_BRIDGE_PORT must be a numeric port (got: ${CLAWDBOT_BRIDGE_PORT})" >&2
+if ! [[ "${OPENCLAW_BRIDGE_PORT}" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: OPENCLAW_BRIDGE_PORT must be a numeric port (got: ${OPENCLAW_BRIDGE_PORT})" >&2
   exit 1
 fi
-expected_bridge_port=$((CLAWDBOT_GATEWAY_PORT + 1))
-if [[ "${CLAWDBOT_BRIDGE_PORT}" -ne "${expected_bridge_port}" ]]; then
-  echo "ERROR: CLAWDBOT_BRIDGE_PORT (${CLAWDBOT_BRIDGE_PORT}) must equal CLAWDBOT_GATEWAY_PORT + 1 (${expected_bridge_port})" >&2
+expected_bridge_port=$((OPENCLAW_GATEWAY_PORT + 1))
+if [[ "${OPENCLAW_BRIDGE_PORT}" -ne "${expected_bridge_port}" ]]; then
+  echo "ERROR: OPENCLAW_BRIDGE_PORT (${OPENCLAW_BRIDGE_PORT}) must equal OPENCLAW_GATEWAY_PORT + 1 (${expected_bridge_port})" >&2
   exit 1
 fi
 echo "Deploying to ${GCE_INSTANCE_NAME} via IAP (dir: ${DEPLOY_DIR})..."
@@ -138,16 +138,16 @@ set -euo pipefail
 DEPLOY_REF="$1"
 DEPLOY_DIR="$2"
 GHCR_USERNAME="$3"
-CLAWDBOT_GATEWAY_PORT="$4"
-CLAWDBOT_BRIDGE_PORT="$5"
-CLAWDBOT_GATEWAY_BIND="${6:-loopback}"
+OPENCLAW_GATEWAY_PORT="$4"
+OPENCLAW_BRIDGE_PORT="$5"
+OPENCLAW_GATEWAY_BIND="${6:-loopback}"
 
-: "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required}"
-: "${CLAWDBOT_BRIDGE_PORT:?CLAWDBOT_BRIDGE_PORT is required}"
+: "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required}"
+: "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required}"
 
 # Read secrets from stdin (one per line, passed by outer script)
 read -r GHCR_TOKEN
-read -r CLAWDBOT_GATEWAY_TOKEN
+read -r OPENCLAW_GATEWAY_TOKEN
 read -r CLAUDE_AI_SESSION_KEY
 read -r DISCORD_BOT_TOKEN
 read -r ANTHROPIC_API_KEY
@@ -182,18 +182,18 @@ fi
 unset GHCR_TOKEN
 
 # Export app secrets for docker compose
-export CLAWDBOT_IMAGE="${DEPLOY_REF}"
-export CLAWDBOT_GATEWAY_TOKEN
+export OPENCLAW_IMAGE="${DEPLOY_REF}"
+export OPENCLAW_GATEWAY_TOKEN
 export CLAUDE_AI_SESSION_KEY
 export DISCORD_BOT_TOKEN
 export ANTHROPIC_API_KEY
 export CLAUDE_WEB_SESSION_KEY
 export CLAUDE_WEB_COOKIE
-export CLAWDBOT_CONFIG_DIR="${DEPLOY_DIR}/config"
-export CLAWDBOT_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
-export CLAWDBOT_GATEWAY_BIND
-export CLAWDBOT_GATEWAY_PORT
-export CLAWDBOT_BRIDGE_PORT
+export OPENCLAW_CONFIG_DIR="${DEPLOY_DIR}/config"
+export OPENCLAW_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
+export OPENCLAW_GATEWAY_BIND
+export OPENCLAW_GATEWAY_PORT
+export OPENCLAW_BRIDGE_PORT
 
 # Compose file flags: use host networking overlay on Linux VMs
 COMPOSE_FILES="-f docker-compose.yml"
@@ -206,7 +206,7 @@ sudo -E docker-compose ${COMPOSE_FILES} pull
 sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans
 
 # Clear secrets from environment
-unset CLAWDBOT_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE
+unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE
 
 echo "Deployment complete."
 '
@@ -219,14 +219,14 @@ echo "Deployment complete."
 printf -v RESOLVED_REF_ESCAPED '%q' "${RESOLVED_REF}"
 printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
 printf -v GHCR_USERNAME_ESCAPED '%q' "${GHCR_USERNAME}"
-printf -v GATEWAY_PORT_ESCAPED '%q' "${CLAWDBOT_GATEWAY_PORT}"
-printf -v BRIDGE_PORT_ESCAPED '%q' "${CLAWDBOT_BRIDGE_PORT}"
-printf -v GATEWAY_BIND_ESCAPED '%q' "${CLAWDBOT_GATEWAY_BIND}"
+printf -v GATEWAY_PORT_ESCAPED '%q' "${OPENCLAW_GATEWAY_PORT}"
+printf -v BRIDGE_PORT_ESCAPED '%q' "${OPENCLAW_BRIDGE_PORT}"
+printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
 
 # Pass all secrets via stdin (one per line)
 {
   printf '%s\n' "${GHCR_TOKEN}"
-  printf '%s\n' "${CLAWDBOT_GATEWAY_TOKEN}"
+  printf '%s\n' "${OPENCLAW_GATEWAY_TOKEN}"
   printf '%s\n' "${CLAUDE_AI_SESSION_KEY}"
   printf '%s\n' "${DISCORD_BOT_TOKEN}"
   printf '%s\n' "${ANTHROPIC_API_KEY}"
