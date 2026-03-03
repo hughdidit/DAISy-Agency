@@ -15,14 +15,26 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 {
   "plugins": {
     "memory-mongodb": {
-      "embedding": {
-        "apiKey": "${OPENAI_API_KEY}",
-        "model": "text-embedding-3-small"
+      "mcp": {
+        "transport": "stdio",
+        "stdio": {
+          "command": "npx",
+          "args": ["-y", "mongodb-mcp-server"],
+          "env": {
+            "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}"
+          }
+        }
       },
-      "connectionUri": "${MONGODB_URI}",
-      "databaseName": "daisy_memory",
-      "collectionName": "memories",
-      "vectorSearchIndexName": "vector_index",
+      "voyage": {
+        "apiKey": "${VOYAGE_API_KEY}",
+        "embeddingModel": "voyage-3.5",
+        "rerankModel": "rerank-2"
+      },
+      "database": {
+        "name": "daisy_memory",
+        "collection": "memories",
+        "indexName": "vector_index"
+      },
       "autoCapture": true,
       "autoRecall": true
     }
@@ -34,15 +46,24 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 
 | Field | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `embedding.apiKey` | Yes | — | OpenAI API key (use `${OPENAI_API_KEY}` env var) |
-| `embedding.model` | No | `text-embedding-3-small` | OpenAI embedding model (`text-embedding-3-small` or `text-embedding-3-large`) |
-| `connectionUri` | Yes | — | MongoDB Atlas connection string (use `${MONGODB_URI}` env var) |
-| `databaseName` | No | `daisy_memory` | MongoDB database name |
-| `collectionName` | No | `memories` | MongoDB collection name |
-| `vectorSearchIndexName` | No | `vector_index` | Atlas Vector Search index name |
+| `mcp.transport` | Yes | `stdio` | MCP transport (`stdio` or `sse`) |
+| `mcp.stdio.command` | No | `npx` | Executable used for stdio transport |
+| `mcp.stdio.args` | No | `[-y, mongodb-mcp-server]` | Arguments used for stdio transport |
+| `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes* | — | Atlas connection string for stdio mode (supports `${MONGODB_URI}` placeholders) |
+| `mcp.url` | Yes** | — | Remote SSE endpoint URL (required when `mcp.transport = sse`) |
+| `voyage.apiKey` | Yes | — | Voyage API key (supports `${VOYAGE_API_KEY}` placeholder) |
+| `voyage.embeddingModel` | No | `voyage-3.5` | Voyage embedding model |
+| `voyage.rerankModel` | No | `rerank-2` | Voyage rerank model |
+| `database.name` | No | `daisy_memory` | MongoDB database name |
+| `database.collection` | No | `memories` | MongoDB collection name |
+| `database.indexName` | No | `vector_index` | Atlas Vector Search index name |
 | `captureTriggers` | No | *(see below)* | Array of regex patterns (case-insensitive) that trigger auto-capture |
 | `autoCapture` | No | `true` | Automatically capture important information from conversations |
 | `autoRecall` | No | `true` | Automatically inject relevant memories into context |
+
+\* required when `mcp.transport` is `stdio`.
+
+\** required when `mcp.transport` is `sse`.
 
 ### Capture Triggers
 
@@ -98,7 +119,7 @@ In your collection, go to **Search Indexes** → **Create Search Index** → **J
       {
         "type": "vector",
         "path": "vector",
-        "numDimensions": 1536,
+        "numDimensions": 1024,
         "similarity": "cosine"
       },
       {
@@ -118,7 +139,7 @@ In your collection, go to **Search Indexes** → **Create Search Index** → **J
 }
 ```
 
-> If using `text-embedding-3-large`, change `numDimensions` to `3072`.
+> If using `voyage-3.5` or `voyage-3`, keep `numDimensions` at `1024`.
 
 The plugin logs this definition at startup for reference.
 
@@ -138,7 +159,7 @@ export MONGODB_URI="mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/?
 
 ### 5. Configure the plugin
 
-Add the configuration block shown above to your Moltbot config, referencing `${MONGODB_URI}` and `${OPENAI_API_KEY}`.
+Add the configuration block shown above to your Moltbot config, referencing `${MONGODB_URI}` and `${VOYAGE_API_KEY}`.
 
 ## Tools
 

@@ -109,23 +109,26 @@ const memoryPlugin = {
 
   register(api: MoltbotPluginApi) {
     const cfg = memoryConfigSchema.parse(api.pluginConfig);
-    const vectorDim = vectorDimsForModel(cfg.embedding.model ?? "voyage-3");
+    if (cfg.mcp.transport !== "stdio") {
+      throw new Error("memory-mongodb currently supports mcp.transport=\"stdio\" only");
+    }
+    const vectorDim = vectorDimsForModel(cfg.voyage.embeddingModel);
     const db = new MongoMemoryDB(
-      cfg.connectionUri,
-      cfg.databaseName,
-      cfg.collectionName,
-      cfg.vectorSearchIndexName,
+      cfg.mcp.stdio?.env?.MDB_MCP_CONNECTION_STRING ?? "",
+      cfg.database.name,
+      cfg.database.collection,
+      cfg.database.indexName,
     );
-    const embeddings = new Embeddings(cfg.embedding.apiKey, cfg.embedding.model!);
+    const embeddings = new Embeddings(cfg.voyage.apiKey, cfg.voyage.embeddingModel);
     const triggers = compileTriggers(cfg.captureTriggers);
 
     // Log safe startup info (never log the connection URI)
     api.logger.info(
-      `memory-mongodb: plugin registered (db: ${cfg.databaseName}/${cfg.collectionName}, lazy init)`,
+      `memory-mongodb: plugin registered (db: ${cfg.database.name}/${cfg.database.collection}, lazy init)`,
     );
 
     // Log the Atlas Vector Search index definition at startup
-    const indexDef = buildVectorIndexDefinition(cfg.vectorSearchIndexName, vectorDim);
+    const indexDef = buildVectorIndexDefinition(cfg.database.indexName, vectorDim);
     api.logger.info(
       `memory-mongodb: ensure Atlas Vector Search index exists:\n${JSON.stringify(indexDef, null, 2)}`,
     );
@@ -482,7 +485,7 @@ const memoryPlugin = {
       id: "memory-mongodb",
       start: () => {
         api.logger.info(
-          `memory-mongodb: initialized (db: ${cfg.databaseName}/${cfg.collectionName}, model: ${cfg.embedding.model})`,
+          `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, model: ${cfg.embedding.model})`,
         );
       },
       stop: async () => {
