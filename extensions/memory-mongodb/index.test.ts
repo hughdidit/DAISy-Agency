@@ -60,7 +60,9 @@ describe("memory-mongodb plugin", () => {
 
     expect(config).toBeDefined();
     expect(config?.voyage?.apiKey).toBe(VOYAGE_API_KEY);
-    expect(config?.mcp?.stdio?.env?.MDB_MCP_CONNECTION_STRING).toBe(
+    const mcp1 = config?.mcp;
+    const stdioMcp1 = mcp1?.transport === "stdio" ? mcp1 : undefined;
+    expect(stdioMcp1?.stdio.env?.MDB_MCP_CONNECTION_STRING).toBe(
       "mongodb+srv://user:pass@cluster.example.com/test",
     );
     expect(config?.database?.name).toBe("my_memory");
@@ -104,7 +106,9 @@ describe("memory-mongodb plugin", () => {
     });
 
     expect(config?.voyage?.apiKey).toBe("test-key-123");
-    expect(config?.mcp?.stdio?.env?.MDB_MCP_CONNECTION_STRING).toBe(
+    const mcp2 = config?.mcp;
+    const stdioMcp2 = mcp2?.transport === "stdio" ? mcp2 : undefined;
+    expect(stdioMcp2?.stdio.env?.MDB_MCP_CONNECTION_STRING).toBe(
       "mongodb+srv://user:pass@cluster.example.com/test",
     );
 
@@ -148,8 +152,10 @@ describe("memory-mongodb plugin", () => {
       voyage: { apiKey: VOYAGE_API_KEY },
     });
 
-    expect(config?.mcp?.stdio?.command).toBe("npx");
-    expect(config?.mcp?.stdio?.args).toEqual(["-y", "mongodb-mcp-server"]);
+    const mcp3 = config?.mcp;
+    const stdioMcp3 = mcp3?.transport === "stdio" ? mcp3 : undefined;
+    expect(stdioMcp3?.stdio.command).toBe("npx");
+    expect(stdioMcp3?.stdio.args).toEqual(["-y", "mongodb-mcp-server"]);
   });
 
   test("config schema requires mcp.url for sse transport", async () => {
@@ -205,7 +211,9 @@ describe("memory-mongodb plugin", () => {
       voyage: { apiKey: VOYAGE_API_KEY },
     });
 
-    expect(config?.mcp?.stdio?.env?.MDB_MCP_CONNECTION_STRING).toBe(
+    const mcp4 = config?.mcp;
+    const stdioMcp4 = mcp4?.transport === "stdio" ? mcp4 : undefined;
+    expect(stdioMcp4?.stdio.env?.MDB_MCP_CONNECTION_STRING).toBe(
       "mongodb://user:pass@remote-host.example.com/test?tls=true",
     );
   });
@@ -221,7 +229,9 @@ describe("memory-mongodb plugin", () => {
       voyage: { apiKey: VOYAGE_API_KEY },
     });
 
-    expect(config?.mcp?.stdio?.env?.MDB_MCP_CONNECTION_STRING).toBe("mongodb://localhost:27017/test");
+    const mcp5 = config?.mcp;
+    const stdioMcp5 = mcp5?.transport === "stdio" ? mcp5 : undefined;
+    expect(stdioMcp5?.stdio.env?.MDB_MCP_CONNECTION_STRING).toBe("mongodb://localhost:27017/test");
   });
 
   test("shouldCapture filters correctly with default triggers", async () => {

@@ -1,13 +1,17 @@
 export type MemoryConfig = {
-  mcp: {
-    transport: "stdio" | "sse";
-    stdio?: {
-      command: string;
-      args: string[];
-      env?: Record<string, string>;
-    };
-    url?: string;
-  };
+  mcp:
+    | {
+        transport: "stdio";
+        stdio: {
+          command: string;
+          args: string[];
+          env?: Record<string, string>;
+        };
+      }
+    | {
+        transport: "sse";
+        url: string;
+      };
   voyage: {
     apiKey: string;
     embeddingModel: string;
@@ -217,14 +221,19 @@ export const memoryConfigSchema = {
       throw new Error("mcp is required");
     }
     assertAllowedKeys(mcp, ["transport", "stdio", "url"], "mcp config");
-    const transport = (mcp.transport ?? DEFAULT_TRANSPORT) as string;
-    if (transport !== "stdio" && transport !== "sse") {
+    const rawTransport = mcp.transport ?? DEFAULT_TRANSPORT;
+    if (rawTransport !== "stdio" && rawTransport !== "sse") {
       throw new Error("mcp.transport must be \"stdio\" or \"sse\"");
     }
+    const transport = rawTransport;
 
-    const rawStdio = (mcp.stdio as Record<string, unknown> | undefined) ?? {};
-    if (mcp.stdio !== undefined) {
-      assertAllowedKeys(rawStdio, ["command", "args", "env"], "mcp.stdio config");
+    // Only access mcp.stdio when transport is "stdio"
+    let rawStdio: Record<string, unknown> = {};
+    if (transport === "stdio") {
+      rawStdio = (mcp.stdio as Record<string, unknown> | undefined) ?? {};
+      if (mcp.stdio !== undefined) {
+        assertAllowedKeys(rawStdio, ["command", "args", "env"], "mcp.stdio config");
+      }
     }
 
     if (transport === "sse") {
@@ -286,29 +295,33 @@ export const memoryConfigSchema = {
       ? resolveStringRecordEnvVars(rawStdioEnv)
       : undefined;
 
+    const mcpResult: MemoryConfig["mcp"] =
+      transport === "stdio"
+        ? {
+            transport: "stdio",
+            stdio: {
+              command:
+                typeof rawStdio.command === "string" && rawStdio.command.length > 0
+                  ? rawStdio.command
+                  : DEFAULT_STDIO_COMMAND,
+              args: Array.isArray(rawStdio.args)
+                ? rawStdio.args.map((arg) => {
+                    if (typeof arg !== "string") {
+                      throw new Error("mcp.stdio.args must be an array of strings");
+                    }
+                    return arg;
+                  })
+                : DEFAULT_STDIO_ARGS,
+              env: resolvedMcpEnv,
+            },
+          }
+        : {
+            transport: "sse",
+            url: resolveEnvVars(String(mcp.url)),
+          };
+
     return {
-      mcp: {
-        transport,
-        stdio:
-          transport === "stdio"
-            ? {
-                command:
-                  typeof rawStdio.command === "string" && rawStdio.command.length > 0
-                    ? rawStdio.command
-                    : DEFAULT_STDIO_COMMAND,
-                args: Array.isArray(rawStdio.args)
-                  ? rawStdio.args.map((arg) => {
-                      if (typeof arg !== "string") {
-                        throw new Error("mcp.stdio.args must be an array of strings");
-                      }
-                      return arg;
-                    })
-                  : DEFAULT_STDIO_ARGS,
-                env: resolvedMcpEnv,
-              }
-            : undefined,
-        url: transport === "sse" ? resolveEnvVars(String(mcp.url)) : undefined,
-      },
+      mcp: mcpResult,
       voyage: {
         apiKey: resolveEnvVars(voyage.apiKey),
         embeddingModel,

@@ -114,7 +114,7 @@ const memoryPlugin = {
     }
     const vectorDim = vectorDimsForModel(cfg.voyage.embeddingModel);
     const db = new MongoMemoryDB(
-      cfg.mcp.stdio?.env?.MDB_MCP_CONNECTION_STRING ?? "",
+      cfg.mcp.stdio.env?.MDB_MCP_CONNECTION_STRING ?? "",
       cfg.database.name,
       cfg.database.collection,
       cfg.database.indexName,
