@@ -1,15 +1,5 @@
 import path from "node:path";
-<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
-=======
-import type { RuntimeEnv } from "../../runtime.js";
-import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
-import {
-  resolveAgentDir,
-  resolveAgentModelFallbacksOverride,
-  resolveAgentModelPrimary,
-} from "../../agents/agent-scope.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   buildAuthHealthSummary,
   DEFAULT_OAUTH_WARN_MS,

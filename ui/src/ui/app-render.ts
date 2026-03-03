@@ -33,21 +33,12 @@ import {
   removeConfigFormValue,
 } from "./controllers/config";
 import {
-<<<<<<< HEAD
   loadExecApprovals,
   removeExecApprovalsFormValue,
   saveExecApprovals,
   updateExecApprovalsFormValue,
 } from "./controllers/exec-approvals";
 import { loadCronRuns, toggleCronJob, runCronJob, removeCronJob, addCronJob } from "./controllers/cron";
-=======
-  loadCronRuns,
-  toggleCronJob,
-  runCronJob,
-  removeCronJob,
-  addCronJob,
-} from "./controllers/cron";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { loadDebug, callDebugMethod } from "./controllers/debug";
 import {
   approveDevicePairing,

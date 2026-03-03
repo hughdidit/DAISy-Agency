@@ -1,5 +1,4 @@
 import { confirm as clackConfirm, select as clackSelect, text as clackText } from "@clack/prompts";
-<<<<<<< HEAD
 
 import { upsertAuthProfile } from "../../agents/auth-profiles.js";
 import { normalizeProviderId } from "../../agents/model-selection.js";
@@ -22,9 +21,6 @@ import { createVpsAwareOAuthHandlers } from "../oauth-flow.js";
 import { updateConfig } from "./shared.js";
 import { resolvePluginProviders } from "../../plugins/providers.js";
 import { createClackPrompter } from "../../wizard/clack-prompter.js";
-=======
-import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   ProviderAuthMethod,
   ProviderAuthResult,

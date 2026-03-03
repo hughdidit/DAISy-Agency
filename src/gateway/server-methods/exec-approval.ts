@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import { sanitizeBinaryOutput } from "../../agents/shell-utils.js";
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.js";
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
 import type { ExecApprovalManager } from "../exec-approval-manager.js";

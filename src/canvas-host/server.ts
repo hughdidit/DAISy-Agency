@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-=======
 import type { Socket } from "node:net";
 import type { Duplex } from "node:stream";
 import chokidar from "chokidar";
 import * as fsSync from "node:fs";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import fs from "node:fs/promises";
 import http, { type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import os from "node:os";

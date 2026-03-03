@@ -1,11 +1,8 @@
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
-=======
 import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
 import { killProcessTree } from "../process/kill-tree.js";
 import { getProcessSupervisor } from "../process/supervisor/index.js";
->>>>>>> cd44a0d01 (fix: codex and similar processes keep dying on pty, solved by refactoring process spawning (#14257))
 import {
   type ProcessSession,
   deleteSession,
@@ -17,7 +14,6 @@ import {
   markExited,
   setJobTtlMs,
 } from "./bash-process-registry.js";
-<<<<<<< HEAD
 import {
   deriveSessionName,
   formatDuration,
@@ -26,9 +22,6 @@ import {
   sliceLogLines,
   truncateMiddle,
 } from "./bash-tools.shared.js";
-=======
-import { deriveSessionName, pad, sliceLogLines, truncateMiddle } from "./bash-tools.shared.js";
->>>>>>> cd44a0d01 (fix: codex and similar processes keep dying on pty, solved by refactoring process spawning (#14257))
 import { encodeKeySequence, encodePaste } from "./pty-keys.js";
 
 export type ProcessToolDefaults = {

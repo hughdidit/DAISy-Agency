@@ -6,23 +6,7 @@ import type {
   ChannelMessageActionName,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { OutboundSendDeps } from "./deliver.js";
-import type { MessagePollResult, MessageSendResult } from "./message.js";
-import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-import {
-  readNumberParam,
-  readStringArrayParam,
-  readStringParam,
-} from "../../agents/tools/common.js";
-import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
-import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
-import { extensionForMime } from "../../media/mime.js";
-import { parseSlackTarget } from "../../slack/targets.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -638,15 +622,12 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
       required: !mediaHint && !hasCard,
       allowEmpty: true,
     }) ?? "";
-<<<<<<< HEAD
-=======
   if (message.includes("\\n")) {
     message = message.replaceAll("\\n", "\n");
   }
   if (!message.trim() && caption.trim()) {
     message = caption;
   }
->>>>>>> 7a0591ef8 (fix(whatsapp): allow media-only sends and normalize leading blank payloads (#14408))
 
   const parsed = parseReplyDirectives(message);
   const mergedMediaUrls: string[] = [];

@@ -1,5 +1,4 @@
 import type { ChannelMeta } from "../channels/plugins/types.js";
-<<<<<<< HEAD
 import {
   formatChannelPrimerLine,
   formatChannelSelectionLine,
@@ -7,9 +6,6 @@ import {
 } from "../channels/registry.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { isChannelConfigured } from "../config/plugin-auto-enable.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { DmPolicy } from "../config/types.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";

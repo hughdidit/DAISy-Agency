@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import type { BrowserConfig, BrowserProfileConfig, MoltbotConfig } from "../config/config.js";
-=======
-import type { BrowserConfig, BrowserProfileConfig, OpenClawConfig } from "../config/config.js";
-import { resolveGatewayPort } from "../config/paths.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   deriveDefaultBrowserCdpPortRange,
   deriveDefaultBrowserControlPort,

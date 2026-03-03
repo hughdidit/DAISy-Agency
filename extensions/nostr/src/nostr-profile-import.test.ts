@@ -2,13 +2,9 @@
  * Tests for Nostr Profile Import
  */
 
-<<<<<<< HEAD
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { mergeProfiles, type ProfileImportOptions } from "./nostr-profile-import.js";
-=======
-import { describe, it, expect } from "vitest";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { NostrProfile } from "./config-schema.js";
 import { mergeProfiles } from "./nostr-profile-import.js";
 

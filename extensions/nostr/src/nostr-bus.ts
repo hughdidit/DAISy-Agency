@@ -7,7 +7,6 @@ import {
   type Event,
 } from "nostr-tools";
 import { decrypt, encrypt } from "nostr-tools/nip04";
-<<<<<<< HEAD
 
 import {
   readNostrBusState,
@@ -20,8 +19,6 @@ import {
   publishProfile as publishProfileFn,
   type ProfilePublishResult,
 } from "./nostr-profile.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { NostrProfile } from "./config-schema.js";
 import {
   createMetrics,

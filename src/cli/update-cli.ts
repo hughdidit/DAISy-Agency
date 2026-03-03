@@ -9,7 +9,6 @@ import {
   resolveUpdateAvailability,
 } from "../commands/status.update.js";
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
-<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 import {
   checkUpdateStatus,
@@ -17,10 +16,6 @@ import {
   fetchNpmTagVersion,
   resolveNpmChannelTag,
 } from "../infra/update-check.js";
-=======
-import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
-import { trimLogTail } from "../infra/restart-sentinel.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { parseSemver } from "../infra/runtime-guard.js";
 import {
   channelToNpmTag,

@@ -18,8 +18,6 @@ Welcome to the lobster tank! 🦞
 - **Jos** - Telegram, API, Nix mode
   - GitHub: [@joshp123](https://github.com/joshp123) · X: [@jjpcodes](https://x.com/jjpcodes)
 
-<<<<<<< HEAD
-=======
 - **Ayaan Zaidi** - Telegram subsystem, iOS app
   - GitHub: [@obviyus](https://github.com/obviyus) · X: [@0bviyus](https://x.com/0bviyus)
 
@@ -58,7 +56,6 @@ Welcome to the lobster tank! 🦞
 - **Josh Lehman** - Compaction, Tlon/Urbit subsystem
   - Github [@jalehman](https://github.com/jalehman) · X: [@jlehman\_](https://x.com/jlehman_)
 
->>>>>>> 3882b8a5b (ci: fix CONTRIBUTING.md oxfmt formatting)
 ## How to Contribute
 1. **Bugs & small fixes** → Open a PR!
 2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/moltbot/moltbot/discussions) or ask in Discord first

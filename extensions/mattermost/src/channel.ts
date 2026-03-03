@@ -8,7 +8,6 @@ import {
   normalizeAccountId,
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import { MattermostConfigSchema } from "./config-schema.js";
@@ -18,11 +17,6 @@ import {
   normalizeMattermostMessagingTarget,
 } from "./normalize.js";
 import { mattermostOnboardingAdapter } from "./onboarding.js";
-=======
-} from "openclaw/plugin-sdk";
-import { MattermostConfigSchema } from "./config-schema.js";
-import { resolveMattermostGroupRequireMention } from "./group-mentions.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   listMattermostAccountIds,
   resolveDefaultMattermostAccountId,

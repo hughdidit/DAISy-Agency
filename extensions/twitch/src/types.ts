@@ -22,7 +22,6 @@ import type {
   ChannelMeta,
 } from "../../../src/channels/plugins/types.core.js";
 import type { ChannelPlugin } from "../../../src/channels/plugins/types.plugin.js";
-<<<<<<< HEAD
 import type {
   ChannelGatewayContext,
   ChannelOutboundAdapter,
@@ -32,9 +31,6 @@ import type {
   ChannelStatusAdapter,
 } from "../../../src/channels/plugins/types.adapters.js";
 import type { MoltbotConfig } from "../../../src/config/config.js";
-=======
-import type { OpenClawConfig } from "../../../src/config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { OutboundDeliveryResult } from "../../../src/infra/outbound/deliver.js";
 import type { RuntimeEnv } from "../../../src/runtime.js";
 

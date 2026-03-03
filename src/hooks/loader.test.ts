@@ -9,11 +9,7 @@ import {
   triggerInternalHook,
   createInternalHookEvent,
 } from "./internal-hooks.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { loadInternalHooks } from "./loader.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("loader", () => {
   let tmpDir: string;

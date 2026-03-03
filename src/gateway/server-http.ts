@@ -15,11 +15,7 @@ import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
 import { loadConfig } from "../config/config.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
-<<<<<<< HEAD
 import { setSecurityHeaders } from "./http-common.js";
-=======
-import { applyHookMappings } from "./hooks-mapping.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   extractHookToken,
   getHookChannelError,

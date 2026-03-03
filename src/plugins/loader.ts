@@ -2,7 +2,6 @@ import { createJiti } from "jiti";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
 import { createJiti } from "jiti";
 
 import type { MoltbotConfig } from "../config/config.js";
@@ -23,10 +22,6 @@ import { createPluginRegistry, type PluginRecord, type PluginRegistry } from "./
 import { createPluginRuntime } from "./runtime/index.js";
 import { setActivePluginRegistry } from "./runtime.js";
 import { validateJsonSchemaValue } from "./schema-validator.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   MoltbotPluginDefinition,
   MoltbotPluginModule,

@@ -7,7 +7,6 @@ on:
       - daisy/dev
     tags:
       - "v*"
-<<<<<<< HEAD
   workflow_dispatch:
     inputs:
       dry_run:
@@ -29,12 +28,6 @@ concurrency:
   group: docker-release-global
   cancel-in-progress: ${{ github.ref_type != 'tag' }}
 =======
-    paths-ignore:
-      - "docs/**"
-<<<<<<< HEAD
-      - "*.md"
->>>>>>> a172ff9ed (docs: SEO and AI discoverability improvements)
-=======
       - "**/*.md"
       - "**/*.mdx"
       - ".agents/**"
@@ -53,14 +46,7 @@ env:
 jobs:
   # Build amd64 image
   build-amd64:
-<<<<<<< HEAD
     runs-on: ubuntu-latest
-=======
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    permissions:
-      packages: write
-      contents: read
->>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
     steps:
@@ -79,7 +65,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-<<<<<<< HEAD
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -100,32 +85,6 @@ jobs:
             echo "ERROR: No Docker tags generated. Check metadata tag rules and triggers."
             exit 1
           fi
-=======
-      - name: Resolve image tags (amd64)
-        id: tags
-        shell: bash
-        env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        run: |
-          set -euo pipefail
-          tags=()
-          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            tags+=("${IMAGE}:main-amd64")
-          fi
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            version="${GITHUB_REF#refs/tags/v}"
-            tags+=("${IMAGE}:${version}-amd64")
-          fi
-          if [[ ${#tags[@]} -eq 0 ]]; then
-            echo "::error::No amd64 tags resolved for ref ${GITHUB_REF}"
-            exit 1
-          fi
-          {
-            echo "value<<EOF"
-            printf "%s\n" "${tags[@]}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
->>>>>>> 586b1f6ee (ci: drop docker metadata action to avoid API throttling)
 
       - name: Resolve OCI labels (amd64)
         id: labels
@@ -154,7 +113,6 @@ jobs:
         with:
           context: .
           platforms: linux/amd64
-<<<<<<< HEAD
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
 <<<<<<< HEAD
@@ -163,11 +121,6 @@ jobs:
           provenance: ${{ inputs.dry_run != 'true' }}
           sbom: ${{ inputs.dry_run != 'true' }}
           push: ${{ inputs.dry_run != 'true' }}
-=======
-=======
-          tags: ${{ steps.tags.outputs.value }}
-<<<<<<< HEAD
->>>>>>> 586b1f6ee (ci: drop docker metadata action to avoid API throttling)
 =======
           labels: ${{ steps.labels.outputs.value }}
 >>>>>>> 030565b18 (Docker: add OCI base-image labels and document base-image metadata (#31196))
@@ -179,14 +132,7 @@ jobs:
 
   # Build arm64 image
   build-arm64:
-<<<<<<< HEAD
     runs-on: ubuntu-24.04-arm
-=======
-    runs-on: blacksmith-16vcpu-ubuntu-2404-arm
-    permissions:
-      packages: write
-      contents: read
->>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
     steps:
@@ -205,7 +151,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-<<<<<<< HEAD
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -226,32 +171,6 @@ jobs:
             echo "ERROR: No Docker tags generated. Check metadata tag rules and triggers."
             exit 1
           fi
-=======
-      - name: Resolve image tags (arm64)
-        id: tags
-        shell: bash
-        env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        run: |
-          set -euo pipefail
-          tags=()
-          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            tags+=("${IMAGE}:main-arm64")
-          fi
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            version="${GITHUB_REF#refs/tags/v}"
-            tags+=("${IMAGE}:${version}-arm64")
-          fi
-          if [[ ${#tags[@]} -eq 0 ]]; then
-            echo "::error::No arm64 tags resolved for ref ${GITHUB_REF}"
-            exit 1
-          fi
-          {
-            echo "value<<EOF"
-            printf "%s\n" "${tags[@]}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
->>>>>>> 586b1f6ee (ci: drop docker metadata action to avoid API throttling)
 
       - name: Resolve OCI labels (arm64)
         id: labels
@@ -280,7 +199,6 @@ jobs:
         with:
           context: .
           platforms: linux/arm64
-<<<<<<< HEAD
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
 <<<<<<< HEAD
@@ -289,11 +207,6 @@ jobs:
           provenance: ${{ inputs.dry_run != 'true' }}
           sbom: ${{ inputs.dry_run != 'true' }}
           push: ${{ inputs.dry_run != 'true' }}
-=======
-=======
-          tags: ${{ steps.tags.outputs.value }}
-<<<<<<< HEAD
->>>>>>> 586b1f6ee (ci: drop docker metadata action to avoid API throttling)
 =======
           labels: ${{ steps.labels.outputs.value }}
 >>>>>>> 030565b18 (Docker: add OCI base-image labels and document base-image metadata (#31196))
@@ -305,14 +218,7 @@ jobs:
 
   # Create multi-platform manifest
   create-manifest:
-<<<<<<< HEAD
     runs-on: ubuntu-latest
-=======
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    permissions:
-      packages: write
-      contents: read
->>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
     needs: [build-amd64, build-arm64]
     # Run manifest creation for: push events, or workflow_dispatch with dry_run=false and valid branch/tag/override
     # Note: env context is not available in job-level if conditions, so BUILD_REF is inlined here
@@ -336,7 +242,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-<<<<<<< HEAD
       - name: Extract metadata for manifest
         id: meta
         uses: docker/metadata-action@v5
@@ -485,46 +390,3 @@ jobs:
           path: dist/release/release-metadata.json
           if-no-files-found: error
           retention-days: 90
-=======
-      - name: Resolve manifest tags
-        id: tags
-        shell: bash
-        env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        run: |
-          set -euo pipefail
-          tags=()
-          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            tags+=("${IMAGE}:main")
-          fi
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            version="${GITHUB_REF#refs/tags/v}"
-            tags+=("${IMAGE}:${version}")
-            if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9]+)?$ ]]; then
-              tags+=("${IMAGE}:latest")
-            fi
-          fi
-          if [[ ${#tags[@]} -eq 0 ]]; then
-            echo "::error::No manifest tags resolved for ref ${GITHUB_REF}"
-            exit 1
-          fi
-          {
-            echo "value<<EOF"
-            printf "%s\n" "${tags[@]}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Create and push manifest
-        shell: bash
-        run: |
-          set -euo pipefail
-          mapfile -t tags <<< "${{ steps.tags.outputs.value }}"
-          args=()
-          for tag in "${tags[@]}"; do
-            [ -z "$tag" ] && continue
-            args+=("-t" "$tag")
-          done
-          docker buildx imagetools create "${args[@]}" \
-            ${{ needs.build-amd64.outputs.image-digest }} \
-            ${{ needs.build-arm64.outputs.image-digest }}
->>>>>>> 586b1f6ee (ci: drop docker metadata action to avoid API throttling)

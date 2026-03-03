@@ -5,7 +5,6 @@
  * This is the primary entry point for the Twitch channel integration.
  */
 
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { buildChannelConfigSchema } from "clawdbot/plugin-sdk";
 import { twitchMessageActions } from "./actions.js";
@@ -19,10 +18,6 @@ import { collectTwitchStatusIssues } from "./status.js";
 import { removeClientManager } from "./client-manager-registry.js";
 import { resolveTwitchToken } from "./token.js";
 import { isAccountConfigured } from "./utils/twitch.js";
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { buildChannelConfigSchema } from "openclaw/plugin-sdk";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   ChannelAccountSnapshot,
   ChannelCapabilities,

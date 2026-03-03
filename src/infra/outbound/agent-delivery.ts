@@ -16,11 +16,8 @@ import {
   resolveSessionDeliveryTarget,
   type SessionDeliveryTarget,
 } from "./targets.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { OutboundTargetResolution } from "./targets.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type AgentDeliveryPlan = {
   baseDelivery: SessionDeliveryTarget;

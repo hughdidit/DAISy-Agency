@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../../infra/moltbot-root.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
-=======
-import type { GatewayRequestHandlers } from "./types.js";
-import { resolveOpenClawPackageRoot } from "../../infra/openclaw-root.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,

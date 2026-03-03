@@ -1,11 +1,5 @@
 import { webhookCallback } from "grammy";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { createServer } from "node:http";
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { isDiagnosticsEnabled } from "../infra/diagnostic-events.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import {

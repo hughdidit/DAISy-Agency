@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { resolveMentionGatingWithBypass } from "clawdbot/plugin-sdk";
@@ -7,19 +6,6 @@ import { resolveMentionGatingWithBypass } from "clawdbot/plugin-sdk";
 import {
   type ResolvedGoogleChatAccount
 } from "./accounts.js";
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { resolveMentionGatingWithBypass } from "openclaw/plugin-sdk";
-import type {
-  GoogleChatAnnotation,
-  GoogleChatAttachment,
-  GoogleChatEvent,
-  GoogleChatSpace,
-  GoogleChatMessage,
-  GoogleChatUser,
-} from "./types.js";
-import { type ResolvedGoogleChatAccount } from "./accounts.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   downloadGoogleChatMedia,
   deleteGoogleChatMessage,

@@ -62,7 +62,6 @@ SKIP_SHORT_SUFFIXES = ("-cli.ts",)
 
 # Function names to skip in duplicate detection (common utilities, test helpers)
 SKIP_DUPLICATE_FUNCTIONS = {
-<<<<<<< HEAD
     # Common utility names
     'main', 'init', 'setup', 'teardown', 'cleanup', 'dispose', 'destroy',
     'open', 'close', 'connect', 'disconnect', 'execute', 'run', 'start', 'stop',
@@ -89,56 +88,6 @@ SKIP_DUPLICATE_PREFIXES = (
     'register', 'unregister', 'subscribe', 'unsubscribe',
 )
 SKIP_DUPLICATE_FILE_PATTERNS = ('.test.ts', '.test.tsx', '.spec.ts')
-=======
-    # Lifecycle / framework plumbing
-    "main",
-    "init",
-    "setup",
-    "teardown",
-    "cleanup",
-    "dispose",
-    "destroy",
-    "open",
-    "close",
-    "connect",
-    "disconnect",
-    "execute",
-    "run",
-    "start",
-    "stop",
-    "render",
-    "update",
-    "refresh",
-    "reset",
-    "clear",
-    "flush",
-    # Too-short / too-generic identifiers
-    "text",
-    "json",
-    "pad",
-    "mask",
-    "digest",
-    "confirm",
-    "intro",
-    "outro",
-    "exists",
-    "send",
-    "receive",
-    "listen",
-    "log",
-    "warn",
-    "error",
-    "info",
-    "help",
-    "version",
-    "config",
-    "configure",
-    "describe",
-    "test",
-    "action",
-}
-SKIP_DUPLICATE_FILE_PATTERNS = (".test.ts", ".test.tsx", ".spec.ts")
->>>>>>> 5c62e4d51 (Improve code analyzer for independent packages, CI: only run release-check on push to main)
 
 # Known packages in the monorepo
 PACKAGES = {"src", "apps", "extensions", "packages", "scripts", "ui", "test", "docs"}
@@ -226,53 +175,9 @@ def find_duplicate_functions(
             if any(func.startswith(prefix) for prefix in SKIP_DUPLICATE_PREFIXES):
                 continue
             function_locations[func].append(file_path)
-<<<<<<< HEAD
     
     # Filter to only duplicates
     return {name: paths for name, paths in function_locations.items() if len(paths) > 1}
-=======
-
-    # Filter to only duplicates, ignoring cross-package duplicates.
-    # Independent packages (extensions/*, apps/*, ui/) are treated like separate codebases —
-    # the same function name in extensions/telegram and extensions/discord,
-    # or in apps/ios and apps/macos, is expected, not duplication.
-    result: Dict[str, List[Path]] = {}
-    for name, paths in function_locations.items():
-        if len(paths) < 2:
-            continue
-
-        # Identify which independent package each path belongs to (if any)
-        # Returns a unique package key or None if it's core code
-        def get_independent_package(p: Path) -> Optional[str]:
-            try:
-                rel = p.relative_to(root_dir)
-                parts = rel.parts
-                if len(parts) >= 2:
-                    # extensions/<name>, apps/<name> are each independent
-                    if parts[0] in ("extensions", "apps"):
-                        return f"{parts[0]}/{parts[1]}"
-                # ui/ is a single independent package (browser frontend)
-                if len(parts) >= 1 and parts[0] == "ui":
-                    return "ui"
-                return None
-            except ValueError:
-                return None
-
-        package_keys = set()
-        has_core = False
-        for p in paths:
-            pkg = get_independent_package(p)
-            if pkg:
-                package_keys.add(pkg)
-            else:
-                has_core = True
-
-        # Skip if ALL instances are in different independent packages (no core overlap)
-        if not has_core and len(package_keys) == len(paths):
-            continue
-        result[name] = paths
-    return result
->>>>>>> 5c62e4d51 (Improve code analyzer for independent packages, CI: only run release-check on push to main)
 
 
 def validate_git_ref(root_dir: Path, ref: str) -> bool:
@@ -428,20 +333,13 @@ def find_threshold_regressions(
     - Were under threshold (or didn't exist) at compare_ref
     - Are now at or over threshold
     """
-<<<<<<< HEAD
     regressions = []
     
-=======
-    crossed = []
-    grew = []
-
->>>>>>> 5c62e4d51 (Improve code analyzer for independent packages, CI: only run release-check on push to main)
     for file_path, current_lines in files:
         if current_lines < threshold:
             continue  # Not over threshold now, skip
 
         base_lines = get_line_count_at_ref(file_path, root_dir, compare_ref)
-<<<<<<< HEAD
         
         # Regression if: file is new OR was under threshold before
         if base_lines is None or base_lines < threshold:
@@ -449,17 +347,6 @@ def find_threshold_regressions(
     
 <<<<<<< HEAD
     return regressions
-=======
-=======
-
-        if base_lines is None or base_lines < threshold:
-            # New file or crossed the threshold
-            crossed.append((file_path, current_lines, base_lines))
-        elif current_lines > base_lines:
-            # Already over threshold and grew larger
-            grew.append((file_path, current_lines, base_lines))
-
->>>>>>> 5c62e4d51 (Improve code analyzer for independent packages, CI: only run release-check on push to main)
     return crossed, grew
 
 
@@ -602,23 +489,11 @@ def main():
         violations = False
 
         # Check file length regressions
-<<<<<<< HEAD
         regressions = find_threshold_regressions(files, root_dir, args.compare_to, args.threshold)
         
         if regressions:
             print(f"⚠️  {len(regressions)} file(s) crossed {args.threshold} line threshold:\n")
             for file_path, current, base in regressions:
-=======
-        crossed, grew = find_threshold_regressions(
-            files, root_dir, args.compare_to, args.threshold
-        )
-
-        if crossed:
-            print(
-                f"⚠️  {len(crossed)} file(s) crossed {args.threshold} line threshold:\n"
-            )
-            for file_path, current, base in crossed:
->>>>>>> 5c62e4d51 (Improve code analyzer for independent packages, CI: only run release-check on push to main)
                 relative_path = file_path.relative_to(root_dir)
                 if base is None:
                     print(f"   {relative_path}: {current:,} lines (new file)")
@@ -631,8 +506,6 @@ def main():
         else:
             print(f"✅ No files crossed {args.threshold} line threshold")
 
-<<<<<<< HEAD
-=======
         if grew:
             print(f"⚠️  {len(grew)} already-large file(s) grew larger:\n")
             for file_path, current, base in grew:
@@ -645,7 +518,6 @@ def main():
         else:
             print(f"✅ No already-large files grew")
 
->>>>>>> 5c62e4d51 (Improve code analyzer for independent packages, CI: only run release-check on push to main)
         # Check new duplicate function names
         new_dupes = find_duplicate_regressions(files, root_dir, args.compare_to)
 
@@ -663,8 +535,6 @@ def main():
 
         print()
         if args.strict and violations:
-<<<<<<< HEAD
-=======
             # Emit GitHub Actions file annotations so violations appear inline in the PR diff
             in_gha = os.environ.get("GITHUB_ACTIONS") == "true"
             if in_gha:
@@ -728,17 +598,8 @@ def main():
             )
             print("   Docs, tests names, and config files are not affected.")
             print("─" * 60)
->>>>>>> b40a7771e (ci: imprpove warning for  size check)
             sys.exit(1)
-<<<<<<< HEAD
         
-=======
-        elif args.strict:
-            print("─" * 60)
-            print("✅ Code size check passed — no files exceed thresholds.")
-            print("─" * 60)
-
->>>>>>> 5c62e4d51 (Improve code analyzer for independent packages, CI: only run release-check on push to main)
         return
 
     print(f"\n📂 Scanning: {root_dir}\n")

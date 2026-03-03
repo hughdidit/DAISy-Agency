@@ -1,10 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-<<<<<<< HEAD
 
 import { createMoltbotTools } from "../agents/moltbot-tools.js";
-=======
-import { createOpenClawTools } from "../agents/openclaw-tools.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   filterToolsByPolicy,
   resolveEffectiveToolPolicy,

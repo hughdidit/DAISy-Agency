@@ -1,9 +1,5 @@
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
 import type { MoltbotConfig } from "../config/config.js";
 import { resolvePluginTools } from "../plugins/tools.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.):src/agents/openclaw-tools.ts
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import type { AnyAgentTool } from "./tools/common.js";
 import { resolvePluginTools } from "../plugins/tools.js";

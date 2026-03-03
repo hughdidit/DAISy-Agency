@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/types.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SkillCommandSpec } from "../agents/skills.js";
 import type { OpenClawConfig } from "../config/types.js";
 import type {

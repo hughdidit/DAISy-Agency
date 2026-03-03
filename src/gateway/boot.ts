@@ -1,13 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { CliDeps } from "../cli/deps.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { agentCommand } from "../commands/agent.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";

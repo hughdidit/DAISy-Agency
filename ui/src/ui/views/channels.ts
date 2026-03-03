@@ -13,17 +13,12 @@ import type {
   TelegramStatus,
   WhatsAppStatus,
 } from "../types";
-<<<<<<< HEAD
 import type {
   ChannelKey,
   ChannelsChannelData,
   ChannelsProps,
 } from "./channels.types";
 import { channelEnabled, renderChannelAccountCount } from "./channels.shared";
-=======
-import type { ChannelKey, ChannelsChannelData, ChannelsProps } from "./channels.types";
-import { formatAgo } from "../format";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { renderChannelConfigSection } from "./channels.config";
 import { renderDiscordCard } from "./channels.discord";
 import { renderGoogleChatCard } from "./channels.googlechat";

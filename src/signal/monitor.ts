@@ -1,10 +1,6 @@
 import type { ReplyPayload } from "../auto-reply/types.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SignalReactionNotificationMode } from "../config/types.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { chunkTextWithMode, resolveChunkMode, resolveTextChunkLimit } from "../auto-reply/chunk.js";

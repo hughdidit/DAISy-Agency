@@ -8,14 +8,10 @@ import { resetToolStream } from "./app-tool-stream";
 import { abortChatRun, loadChatHistory, sendChatMessage } from "./controllers/chat";
 import { loadSessions } from "./controllers/sessions";
 import { normalizeBasePath } from "./navigation";
-<<<<<<< HEAD
 import type { GatewayHelloOk } from "./gateway";
 import { parseAgentSessionKey } from "../../../src/sessions/session-key-utils.js";
 import type { MoltbotApp } from "./app";
 import type { ChatAttachment, ChatQueueItem } from "./ui-types";
-=======
-import { generateUUID } from "./uuid";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type ChatHost = {
   connected: boolean;

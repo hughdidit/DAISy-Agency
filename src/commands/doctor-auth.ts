@@ -14,11 +14,8 @@ import {
   resolveProfileUnusableUntilForDisplay,
 } from "../agents/auth-profiles.js";
 import { updateAuthProfileStoreWithLock } from "../agents/auth-profiles/store.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { note } from "../terminal/note.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { formatCliCommand } from "../cli/command-format.js";
 import { note } from "../terminal/note.js";
 

@@ -1,11 +1,7 @@
 import type { WebhookRequestBody } from "@line/bot-sdk";
 import type { IncomingMessage, ServerResponse } from "node:http";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { danger, logVerbose } from "../globals.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
 import type { LineChannelData, ResolvedLineAccount } from "./types.js";
 import { resolveEffectiveMessagesConfig } from "../agents/identity.js";

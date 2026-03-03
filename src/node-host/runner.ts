@@ -40,7 +40,6 @@ import {
   type ExecHostRunResult,
 } from "../infra/exec-host.js";
 import { getMachineDisplayName } from "../infra/machine-name.js";
-<<<<<<< HEAD
 import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
 import { loadConfig } from "../config/config.js";
 import { resolveBrowserConfig } from "../browser/config.js";
@@ -53,10 +52,6 @@ import { detectMime } from "../media/mime.js";
 import { resolveAgentConfig } from "../agents/agent-scope.js";
 import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
 import { VERSION } from "../version.js";
-=======
-import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
-import { detectMime } from "../media/mime.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { VERSION } from "../version.js";
 import { ensureNodeHostConfig, saveNodeHostConfig, type NodeHostGatewayConfig } from "./config.js";

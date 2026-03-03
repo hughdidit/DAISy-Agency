@@ -3,14 +3,7 @@ import type {
   ChannelMessageActionName,
   ChannelPlugin,
 } from "../channels/plugins/types.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { getChannelDock } from "../channels/dock.js";
-import { getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
-import { normalizeAnyChannelId } from "../channels/registry.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { defaultRuntime } from "../runtime.js";
 
 /**

@@ -1,13 +1,10 @@
 import type { MoltbotConfig, RuntimeEnv } from "clawdbot/plugin-sdk";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
-<<<<<<< HEAD
 import {
   buildFileInfoCard,
   parseFileConsentInvoke,
   uploadToConsentUrl,
 } from "./file-consent.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MSTeamsAdapter } from "./messenger.js";
 import type { MSTeamsMonitorLogger } from "./monitor-types.js";
 import type { MSTeamsPollStore } from "./polls.js";

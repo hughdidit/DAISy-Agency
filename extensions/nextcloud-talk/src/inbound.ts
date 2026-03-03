@@ -3,12 +3,8 @@ import {
   resolveControlCommandGate,
   type MoltbotConfig,
   type RuntimeEnv,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 import type { CoreConfig, NextcloudTalkInboundMessage } from "./types.js";
 import {

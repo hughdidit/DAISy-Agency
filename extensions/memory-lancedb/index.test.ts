@@ -8,11 +8,8 @@
  * - Auto-capture filtering
  */
 
-<<<<<<< HEAD
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 import { randomUUID } from "node:crypto";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";

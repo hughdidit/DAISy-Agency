@@ -4,10 +4,7 @@ import type { PluginRegistry } from "../plugins/registry.js";
 import type { OpenClawConfig } from "./config.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { resolveChannelCapabilities } from "./channel-capabilities.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("resolveChannelCapabilities", () => {
   beforeEach(() => {

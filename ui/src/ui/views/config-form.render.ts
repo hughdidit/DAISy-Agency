@@ -1,15 +1,12 @@
 import { html, nothing } from "lit";
 import type { ConfigUiHints } from "../types";
 import { icons } from "../icons";
-<<<<<<< HEAD
 import {
   hintForPath,
   humanize,
   schemaType,
   type JsonSchema,
 } from "./config-form.shared";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { renderNode } from "./config-form.node";
 import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared";
 

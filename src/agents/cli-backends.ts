@@ -105,17 +105,7 @@ function pickBackendConfig(
 }
 
 function mergeBackendConfig(base: CliBackendConfig, override?: CliBackendConfig): CliBackendConfig {
-<<<<<<< HEAD
   if (!override) return { ...base };
-=======
-  if (!override) {
-    return { ...base };
-  }
-  const baseFresh = base.reliability?.watchdog?.fresh ?? {};
-  const baseResume = base.reliability?.watchdog?.resume ?? {};
-  const overrideFresh = override.reliability?.watchdog?.fresh ?? {};
-  const overrideResume = override.reliability?.watchdog?.resume ?? {};
->>>>>>> cd44a0d01 (fix: codex and similar processes keep dying on pty, solved by refactoring process spawning (#14257))
   return {
     ...base,
     ...override,

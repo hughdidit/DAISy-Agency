@@ -6,10 +6,7 @@ import {
   parseModelRef,
   resolveModelRefFromString,
 } from "../../agents/model-selection.js";
-<<<<<<< HEAD
-=======
 import { formatCliCommand } from "../../cli/command-format.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   type MoltbotConfig,
   readConfigFileSnapshot,

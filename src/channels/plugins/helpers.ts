@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ChannelPlugin } from "./types.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";

@@ -1,12 +1,4 @@
-<<<<<<< HEAD
 import { readQwenCliCredentialsCached } from "../cli-credentials.js";
-=======
-import type { AuthProfileCredential, AuthProfileStore, OAuthCredential } from "./types.js";
-import {
-  readQwenCliCredentialsCached,
-  readMiniMaxCliCredentialsCached,
-} from "../cli-credentials.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   EXTERNAL_CLI_NEAR_EXPIRY_MS,
   EXTERNAL_CLI_SYNC_TTL_MS,

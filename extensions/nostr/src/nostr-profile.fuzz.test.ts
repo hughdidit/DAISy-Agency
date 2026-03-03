@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 import { getPublicKey } from "nostr-tools";
-=======
-import type { NostrProfile } from "./config-schema.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   createProfileEvent,
   profileToContent,

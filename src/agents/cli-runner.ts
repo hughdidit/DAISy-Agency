@@ -1,23 +1,14 @@
 import type { ImageContent } from "@mariozechner/pi-ai";
 import type { ThinkLevel } from "../auto-reply/thinking.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { isTruthyEnvValue } from "../infra/env.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { EmbeddedPiRunResult } from "./pi-embedded-runner.js";
-import { resolveHeartbeatPrompt } from "../auto-reply/heartbeat.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { shouldLogVerbose } from "../globals.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-<<<<<<< HEAD
 import { runCommandWithTimeout } from "../process/exec.js";
 import { resolveUserPath } from "../utils.js";
 <<<<<<< HEAD
 import { resolveMoltbotDocsPath } from "./docs-path.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 =======
 import { getProcessSupervisor } from "../process/supervisor/index.js";
 >>>>>>> cd44a0d01 (fix: codex and similar processes keep dying on pty, solved by refactoring process spawning (#14257))

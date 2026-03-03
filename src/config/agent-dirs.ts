@@ -4,10 +4,7 @@ import type { OpenClawConfig } from "./types.js";
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../routing/session-key.js";
 import { resolveUserPath } from "../utils.js";
 import { resolveStateDir } from "./paths.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type DuplicateAgentDir = {
   agentDir: string;

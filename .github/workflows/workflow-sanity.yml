@@ -2,7 +2,6 @@ name: Workflow Sanity
 
 on:
   push:
-<<<<<<< HEAD
     branches:
       - daisy/main
       - daisy/dev
@@ -17,14 +16,6 @@ concurrency:
 
 permissions:
   contents: read
-=======
-    branches: [main]
-
-concurrency:
-  group: workflow-sanity-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-<<<<<<< HEAD
-  cancel-in-progress: true
->>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
 =======
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 >>>>>>> 1e4cf489e (fix(ci): keep main runs alive while coalescing newer pushes)
@@ -61,32 +52,5 @@ jobs:
             sys.exit(1)
           PY
 
-<<<<<<< HEAD
       - name: Run actionlint
         uses: rhysd/actionlint@v1
-=======
-  actionlint:
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install actionlint
-        shell: bash
-        run: |
-          set -euo pipefail
-          ACTIONLINT_VERSION="1.7.11"
-          archive="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
-          base_url="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}"
-          curl -sSfL -o "${archive}" "${base_url}/${archive}"
-          curl -sSfL -o checksums.txt "${base_url}/actionlint_${ACTIONLINT_VERSION}_checksums.txt"
-          grep " ${archive}\$" checksums.txt | sha256sum -c -
-          tar -xzf "${archive}" actionlint
-          sudo install -m 0755 actionlint /usr/local/bin/actionlint
-
-      - name: Lint workflows
-        run: actionlint
-
-      - name: Disallow direct inputs interpolation in composite run blocks
-        run: python3 scripts/check-composite-action-input-interpolation.py
->>>>>>> 9130fd2b0 (ci: harden workflow action input handling)

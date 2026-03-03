@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { createInternalHookEvent, triggerInternalHook } from "../hooks/internal-hooks.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { AgentBootstrapHookContext } from "../hooks/internal-hooks.js";
 import type { WorkspaceBootstrapFile } from "./workspace.js";
 import { createInternalHookEvent, triggerInternalHook } from "../hooks/internal-hooks.js";

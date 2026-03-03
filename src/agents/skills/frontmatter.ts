@@ -1,12 +1,8 @@
 import type { Skill } from "@mariozechner/pi-coding-agent";
-<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { parseFrontmatterBlock } from "../../markdown/frontmatter.js";
 import { parseBooleanValue } from "../../utils/boolean.js";
-=======
-import JSON5 from "json5";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   MoltbotSkillMetadata,
   ParsedSkillFrontmatter,

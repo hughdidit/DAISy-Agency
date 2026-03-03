@@ -10,12 +10,8 @@ import {
   ensureOutboundSessionEntry,
   resolveOutboundSessionRoute,
 } from "../../infra/outbound/outbound-session.js";
-<<<<<<< HEAD
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import type { OutboundChannel } from "../../infra/outbound/targets.js";
-=======
-import { normalizeReplyPayloadsForDelivery } from "../../infra/outbound/payloads.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveOutboundTarget } from "../../infra/outbound/targets.js";
 import { normalizePollInput } from "../../polls.js";
 import {

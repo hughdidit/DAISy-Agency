@@ -9,18 +9,11 @@ import {
   type ChannelOnboardingAdapter,
   type ChannelOnboardingDmPolicy,
   type WizardPrompter,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
 import { isAccountConfigured } from "./utils/twitch.js";
 import type { TwitchAccountConfig, TwitchRole } from "./types.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
-} from "openclaw/plugin-sdk";
-import type { TwitchAccountConfig, TwitchRole } from "./types.js";
-import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
-import { isAccountConfigured } from "./utils/twitch.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const channel = "twitch" as const;
 

@@ -31,7 +31,6 @@ import {
 import { setupInternalHooks } from "../commands/onboard-hooks.js";
 import { promptRemoteGatewayConfig } from "../commands/onboard-remote.js";
 import { setupSkills } from "../commands/onboard-skills.js";
-<<<<<<< HEAD
 import { setupInternalHooks } from "../commands/onboard-hooks.js";
 import type {
   GatewayAuthChoice,
@@ -41,8 +40,6 @@ import type {
 } from "../commands/onboard-types.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   DEFAULT_GATEWAY_PORT,
   readConfigFileSnapshot,

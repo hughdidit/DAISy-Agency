@@ -1,14 +1,10 @@
 import { format } from "node:util";
-<<<<<<< HEAD
 
 import {
   mergeAllowlist,
   summarizeMapping,
   type RuntimeEnv,
 } from "clawdbot/plugin-sdk";
-=======
-import { mergeAllowlist, summarizeMapping, type RuntimeEnv } from "openclaw/plugin-sdk";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { CoreConfig, ReplyToMode } from "../../types.js";
 import { resolveMatrixTargets } from "../../resolve-targets.js";
 import { getMatrixRuntime } from "../../runtime.js";

@@ -1,13 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./config.js";
-=======
-import type { OpenClawConfig } from "./config.js";
-import { normalizeProviderId } from "../agents/model-selection.js";
-import {
-  getChannelPluginCatalogEntry,
-  listChannelPluginCatalogEntries,
-} from "../channels/plugins/catalog.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   getChatChannelMeta,
   listChatChannels,

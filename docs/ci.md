@@ -24,7 +24,6 @@ Tier 2 — After format (parallel, ~2 min)
 Tier 3 — Build (~3 min)
   build-artifacts   release-check
 
-<<<<<<< HEAD
 Tier 4 — Tests (~5 min)
   checks (node tsgo / test / protocol, bun test)
   checks-windows (lint / test / protocol)
@@ -146,11 +145,8 @@ This eliminates ~40 lines of duplicated YAML per job.
 | Push to `main` | Steps skipped (job passes)    | Run normally          |
 | Pull request   | Full analysis with `--strict` | Blocked on violations |
 
-=======
->>>>>>> c2178e252 (chore: Cleanup useless CI job.)
 ## Runners
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 | Name                            | OS           | vCPUs | Used by          |
 | ------------------------------- | ------------ | ----- | ---------------- |
@@ -158,20 +154,6 @@ This eliminates ~40 lines of duplicated YAML per job.
 | `blacksmith-4vcpu-windows-2025` | Windows 2025 | 4     | `checks-windows` |
 | `macos-latest`                  | macOS        | —     | `macos`, `ios`   |
 | `ubuntu-latest`                 | Ubuntu       | 2     | Scope detection  |
-=======
-| Runner                          | Jobs                          |
-| ------------------------------- | ----------------------------- |
-| `blacksmith-8vcpu-ubuntu-2404`  | Most Linux jobs               |
-| `blacksmith-8vcpu-windows-2025` | `checks-windows`              |
-| `macos-latest`                  | `macos`, `ios`                |
-| `ubuntu-latest`                 | Scope detection (lightweight) |
-=======
-| Runner                           | Jobs                                       |
-| -------------------------------- | ------------------------------------------ |
-| `blacksmith-16vcpu-ubuntu-2404`  | Most Linux jobs, including scope detection |
-| `blacksmith-16vcpu-windows-2025` | `checks-windows`                           |
-| `macos-latest`                   | `macos`, `ios`                             |
->>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
 
 ## Local Equivalents
 

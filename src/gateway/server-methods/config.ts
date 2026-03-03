@@ -18,13 +18,8 @@ import {
   type RestartSentinelPayload,
   writeRestartSentinel,
 } from "../../infra/restart-sentinel.js";
-<<<<<<< HEAD
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import { loadMoltbotPlugins } from "../../plugins/loader.js";
-=======
-import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
-import { loadOpenClawPlugins } from "../../plugins/loader.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   ErrorCodes,
   errorShape,

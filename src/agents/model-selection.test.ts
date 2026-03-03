@@ -8,10 +8,7 @@ import {
   normalizeProviderId,
   modelKey,
 } from "./model-selection.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("model-selection", () => {
   describe("normalizeProviderId", () => {
