@@ -60,9 +60,11 @@ describe("memory-mongodb plugin", () => {
 
     expect(config).toBeDefined();
     expect(config?.voyage?.apiKey).toBe(VOYAGE_API_KEY);
-    expect(config?.mcp?.stdio?.env?.MDB_MCP_CONNECTION_STRING).toBe(
-      "mongodb+srv://user:pass@cluster.example.com/test",
-    );
+    expect(
+      config?.mcp.transport === "stdio"
+        ? config.mcp.stdio.env.MDB_MCP_CONNECTION_STRING
+        : undefined,
+    ).toBe("mongodb+srv://user:pass@cluster.example.com/test");
     expect(config?.database?.name).toBe("my_memory");
     expect(config?.database?.collection).toBe("my_memories");
     expect(config?.database?.indexName).toBe("my_index");
@@ -104,9 +106,11 @@ describe("memory-mongodb plugin", () => {
     });
 
     expect(config?.voyage?.apiKey).toBe("test-key-123");
-    expect(config?.mcp?.stdio?.env?.MDB_MCP_CONNECTION_STRING).toBe(
-      "mongodb+srv://user:pass@cluster.example.com/test",
-    );
+    expect(
+      config?.mcp.transport === "stdio"
+        ? config.mcp.stdio.env.MDB_MCP_CONNECTION_STRING
+        : undefined,
+    ).toBe("mongodb+srv://user:pass@cluster.example.com/test");
 
     delete process.env.TEST_MEMORY_API_KEY;
     delete process.env.TEST_MONGODB_URI;
@@ -148,8 +152,9 @@ describe("memory-mongodb plugin", () => {
       voyage: { apiKey: VOYAGE_API_KEY },
     });
 
-    expect(config?.mcp?.stdio?.command).toBe("npx");
-    expect(config?.mcp?.stdio?.args).toEqual(["-y", "mongodb-mcp-server"]);
+    const mcpStdio = config?.mcp.transport === "stdio" ? config.mcp.stdio : undefined;
+    expect(mcpStdio?.command).toBe("npx");
+    expect(mcpStdio?.args).toEqual(["-y", "mongodb-mcp-server"]);
   });
 
   test("config schema requires mcp.url for sse transport", async () => {
@@ -205,9 +210,11 @@ describe("memory-mongodb plugin", () => {
       voyage: { apiKey: VOYAGE_API_KEY },
     });
 
-    expect(config?.mcp?.stdio?.env?.MDB_MCP_CONNECTION_STRING).toBe(
-      "mongodb://user:pass@remote-host.example.com/test?tls=true",
-    );
+    expect(
+      config?.mcp.transport === "stdio"
+        ? config.mcp.stdio.env.MDB_MCP_CONNECTION_STRING
+        : undefined,
+    ).toBe("mongodb://user:pass@remote-host.example.com/test?tls=true");
   });
 
   test("config schema allows plain mongodb:// to localhost", async () => {
@@ -221,7 +228,11 @@ describe("memory-mongodb plugin", () => {
       voyage: { apiKey: VOYAGE_API_KEY },
     });
 
-    expect(config?.mcp?.stdio?.env?.MDB_MCP_CONNECTION_STRING).toBe("mongodb://localhost:27017/test");
+    expect(
+      config?.mcp.transport === "stdio"
+        ? config.mcp.stdio.env.MDB_MCP_CONNECTION_STRING
+        : undefined,
+    ).toBe("mongodb://localhost:27017/test");
   });
 
   test("shouldCapture filters correctly with default triggers", async () => {

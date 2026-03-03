@@ -1,13 +1,17 @@
 export type MemoryConfig = {
-  mcp: {
-    transport: "stdio" | "sse";
-    stdio?: {
-      command: string;
-      args: string[];
-      env?: Record<string, string>;
-    };
-    url?: string;
-  };
+  mcp:
+    | {
+        transport: "stdio";
+        stdio: {
+          command: string;
+          args: string[];
+          env: { MDB_MCP_CONNECTION_STRING: string } & Record<string, string>;
+        };
+      }
+    | {
+        transport: "sse";
+        url: string;
+      };
   voyage: {
     apiKey: string;
     embeddingModel: string;
@@ -264,7 +268,16 @@ export const memoryConfigSchema = {
         : VOYAGE_MODEL_DEFAULTS.rerank;
 
     if (typeof connectionUri === "string" && connectionUri.length > 0) {
-      validateConnectionUriTls(resolveEnvVars(connectionUri));
+      try {
+        validateConnectionUriTls(resolveEnvVars(connectionUri));
+      } catch (err) {
+        if (err instanceof Error) {
+          throw new Error(
+            err.message.replace(/connectionUri/g, "mcp.stdio.env.MDB_MCP_CONNECTION_STRING"),
+          );
+        }
+        throw err;
+      }
     }
 
     // Validate and compile capture triggers
@@ -291,11 +304,11 @@ export const memoryConfigSchema = {
       : undefined;
 
     return {
-      mcp: {
-        transport,
-        stdio:
-          transport === "stdio"
-            ? {
+      mcp:
+        transport === "stdio"
+          ? {
+              transport: "stdio" as const,
+              stdio: {
                 command:
                   typeof rawStdio.command === "string" && rawStdio.command.length > 0
                     ? rawStdio.command
@@ -308,11 +321,16 @@ export const memoryConfigSchema = {
                       return arg;
                     })
                   : DEFAULT_STDIO_ARGS,
-                env: resolvedMcpEnv,
-              }
-            : undefined,
-        url: transport === "sse" ? resolveEnvVars(String(mcp.url)) : undefined,
-      },
+                env: resolvedMcpEnv as { MDB_MCP_CONNECTION_STRING: string } & Record<
+                  string,
+                  string
+                >,
+              },
+            }
+          : {
+              transport: "sse" as const,
+              url: resolveEnvVars(String(mcp.url)),
+            },
       voyage: {
         apiKey: resolveEnvVars(voyage.apiKey),
         embeddingModel,
