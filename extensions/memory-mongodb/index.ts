@@ -112,9 +112,15 @@ const memoryPlugin = {
     if (cfg.mcp.transport !== "stdio") {
       throw new Error("memory-mongodb currently supports mcp.transport=\"stdio\" only");
     }
+    const connectionString = cfg.mcp.stdio?.env?.["MDB_MCP_CONNECTION_STRING"];
+    if (typeof connectionString !== "string" || connectionString.length === 0) {
+      throw new Error(
+        "Invariant violation: MDB_MCP_CONNECTION_STRING must be present in mcp.stdio.env for stdio transport",
+      );
+    }
     const vectorDim = vectorDimsForModel(cfg.voyage.embeddingModel);
     const db = new MongoMemoryDB(
-      cfg.mcp.stdio?.env?.MDB_MCP_CONNECTION_STRING ?? "",
+      connectionString,
       cfg.database.name,
       cfg.database.collection,
       cfg.database.indexName,
