@@ -48,7 +48,7 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 |-------|----------|---------|-------------|
 | `mcp.transport` | Yes | `stdio` | MCP transport (`stdio` or `sse`) |
 | `mcp.stdio.command` | No | `npx` | Executable used for stdio transport |
-| `mcp.stdio.args` | No | `[-y, mongodb-mcp-server]` | Arguments used for stdio transport |
+| `mcp.stdio.args` | No | `["-y", "mongodb-mcp-server"]` | Arguments used for stdio transport |
 | `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes* | — | Atlas connection string for stdio mode (supports `${MONGODB_URI}` placeholders) |
 | `mcp.url` | Yes** | — | Remote SSE endpoint URL (required when `mcp.transport = sse`) |
 | `voyage.apiKey` | Yes | — | Voyage API key (supports `${VOYAGE_API_KEY}` placeholder) |
