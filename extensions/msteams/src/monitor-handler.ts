@@ -1,15 +1,10 @@
 import type { MoltbotConfig, RuntimeEnv } from "clawdbot/plugin-sdk";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
-<<<<<<< HEAD
 import {
   buildFileInfoCard,
   parseFileConsentInvoke,
   uploadToConsentUrl,
 } from "./file-consent.js";
-=======
-import { buildFileInfoCard, parseFileConsentInvoke, uploadToConsentUrl } from "./file-consent.js";
-import { normalizeMSTeamsConversationId } from "./inbound.js";
->>>>>>> 347f7b955 (fix(msteams): bind file consent invokes to conversation)
 import type { MSTeamsAdapter } from "./messenger.js";
 import { createMSTeamsMessageHandler } from "./monitor-handler/message-handler.js";
 import type { MSTeamsMonitorLogger } from "./monitor-types.js";
@@ -126,15 +121,10 @@ async function handleFileConsentInvoke(
         removePendingUpload(uploadId);
       }
     } else {
-<<<<<<< HEAD
       log.debug("pending file not found for consent", { uploadId });
       await context.sendActivity(
         "The file upload request has expired. Please try sending the file again.",
       );
-=======
-      log.debug?.("pending file not found for consent", { uploadId });
-      await context.sendActivity(expiredUploadMessage);
->>>>>>> 347f7b955 (fix(msteams): bind file consent invokes to conversation)
     }
   } else {
     // User declined

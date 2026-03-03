@@ -58,17 +58,10 @@ pnpm ios:build
 ```bash
 cd apps/ios
 xcodegen generate
-<<<<<<< HEAD
 open Clawdbot.xcodeproj
 ```
 
 ## Shared packages
 - `../shared/MoltbotKit` — shared types/constants used by iOS (and later macOS bridge + gateway routing).
-=======
-xcodebuild test -project OpenClaw.xcodeproj -scheme OpenClaw -destination "platform=iOS Simulator,name=iPhone 17"
-```
-
-## Shared Code
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 
 - `apps/shared/OpenClawKit` contains the shared transport/types used by the iOS app.

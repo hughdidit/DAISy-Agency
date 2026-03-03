@@ -20,12 +20,7 @@ This doc is a “how we test” guide:
 ## Quick start
 
 Most days:
-<<<<<<< HEAD
 - Full gate (expected before push): `pnpm lint && pnpm build && pnpm test`
-=======
-
-- Full gate (expected before push): `pnpm build && pnpm check && pnpm test`
->>>>>>> 902f96805 (chore: Add `pnpm check` for fast repo checks.)
 
 When you touch tests or want extra confidence:
 - Coverage gate: `pnpm test:coverage`
@@ -350,26 +345,14 @@ Run docs checks after doc edits: `pnpm docs:list`.
 ## Offline regression (CI-safe)
 
 These are “real pipeline” regressions without real providers:
-<<<<<<< HEAD:docs/testing.md
 - Gateway tool calling (mock OpenAI, real gateway + agent loop): `src/gateway/gateway.tool-calling.mock-openai.test.ts`
 - Gateway wizard (WS `wizard.start`/`wizard.next`, writes config + auth enforced): `src/gateway/gateway.wizard.e2e.test.ts`
-=======
-
-- Gateway tool calling (mock OpenAI, real gateway + agent loop): `src/gateway/gateway.test.ts` (case: "runs a mock OpenAI tool call end-to-end via gateway agent loop")
-- Gateway wizard (WS `wizard.start`/`wizard.next`, writes config + auth enforced): `src/gateway/gateway.test.ts` (case: "runs wizard over ws and writes auth token config")
->>>>>>> dff9ead59 (docs: refresh gateway test references in testing guide):docs/help/testing.md
 
 ## Agent reliability evals (skills)
 
 We already have a few CI-safe tests that behave like “agent reliability evals”:
-<<<<<<< HEAD:docs/testing.md
 - Mock tool-calling through the real gateway + agent loop (`src/gateway/gateway.tool-calling.mock-openai.test.ts`).
 - End-to-end wizard flows that validate session wiring and config effects (`src/gateway/gateway.wizard.e2e.test.ts`).
-=======
-
-- Mock tool-calling through the real gateway + agent loop (`src/gateway/gateway.test.ts`).
-- End-to-end wizard flows that validate session wiring and config effects (`src/gateway/gateway.test.ts`).
->>>>>>> dff9ead59 (docs: refresh gateway test references in testing guide):docs/help/testing.md
 
 What’s still missing for skills (see [Skills](/tools/skills)):
 - **Decisioning:** when skills are listed in the prompt, does the agent pick the right skill (or avoid irrelevant ones)?

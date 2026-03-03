@@ -189,77 +189,8 @@ public final class MoltbotChatViewModel {
         return Self.dedupeMessages(decoded)
     }
 
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatViewModel.swift
     private static func dedupeMessages(_ messages: [MoltbotChatMessage]) -> [MoltbotChatMessage] {
         var result: [MoltbotChatMessage] = []
-=======
-    private static func messageIdentityKey(for message: OpenClawChatMessage) -> String? {
-        let role = message.role.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !role.isEmpty else { return nil }
-
-        let timestamp: String = {
-            guard let value = message.timestamp, value.isFinite else { return "" }
-            return String(format: "%.3f", value)
-        }()
-
-        let contentFingerprint = message.content.map { item in
-            let type = (item.type ?? "text").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            let text = (item.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            let id = (item.id ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            let name = (item.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            let fileName = (item.fileName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            return [type, text, id, name, fileName].joined(separator: "\\u{001F}")
-        }.joined(separator: "\\u{001E}")
-
-        let toolCallId = (message.toolCallId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        let toolName = (message.toolName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        if timestamp.isEmpty, contentFingerprint.isEmpty, toolCallId.isEmpty, toolName.isEmpty {
-            return nil
-        }
-        return [role, timestamp, toolCallId, toolName, contentFingerprint].joined(separator: "|")
-    }
-
-    private static func reconcileMessageIDs(
-        previous: [OpenClawChatMessage],
-        incoming: [OpenClawChatMessage]) -> [OpenClawChatMessage]
-    {
-        guard !previous.isEmpty, !incoming.isEmpty else { return incoming }
-
-        var idsByKey: [String: [UUID]] = [:]
-        for message in previous {
-            guard let key = Self.messageIdentityKey(for: message) else { continue }
-            idsByKey[key, default: []].append(message.id)
-        }
-
-        return incoming.map { message in
-            guard let key = Self.messageIdentityKey(for: message),
-                  var ids = idsByKey[key],
-                  let reusedId = ids.first
-            else {
-                return message
-            }
-            ids.removeFirst()
-            if ids.isEmpty {
-                idsByKey.removeValue(forKey: key)
-            } else {
-                idsByKey[key] = ids
-            }
-            guard reusedId != message.id else { return message }
-            return OpenClawChatMessage(
-                id: reusedId,
-                role: message.role,
-                content: message.content,
-                timestamp: message.timestamp,
-                toolCallId: message.toolCallId,
-                toolName: message.toolName,
-                usage: message.usage,
-                stopReason: message.stopReason)
-        }
-    }
-
-    private static func dedupeMessages(_ messages: [OpenClawChatMessage]) -> [OpenClawChatMessage] {
-        var result: [OpenClawChatMessage] = []
->>>>>>> 6effcdb55 (OpenClawKit: stabilize iOS ChatUI updates after gateway replies (#18165)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatViewModel.swift
         result.reserveCapacity(messages.count)
         var seen = Set<String>()
 
@@ -445,20 +376,8 @@ public final class MoltbotChatViewModel {
         }
     }
 
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatViewModel.swift
     private func handleChatEvent(_ chat: MoltbotChatEventPayload) {
         if let sessionKey = chat.sessionKey, sessionKey != self.sessionKey {
-=======
-    private func handleChatEvent(_ chat: OpenClawChatEventPayload) {
-        let isOurRun = chat.runId.flatMap { self.pendingRuns.contains($0) } ?? false
-
-        // Gateway may publish canonical session keys (for example "agent:main:main")
-        // even when this view currently uses an alias key (for example "main").
-        // Never drop events for our own pending run on key mismatch, or the UI can stay
-        // stuck at "thinking" until the user reopens and forces a history reload.
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatViewModel.swift
-        if let sessionKey = chat.sessionKey, sessionKey != self.sessionKey, !isOurRun {
->>>>>>> 6effcdb55 (OpenClawKit: stabilize iOS ChatUI updates after gateway replies (#18165)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatViewModel.swift
 =======
         if let sessionKey = chat.sessionKey,
            !Self.matchesCurrentSessionKey(incoming: sessionKey, current: self.sessionKey),
@@ -498,26 +417,7 @@ public final class MoltbotChatViewModel {
         }
     }
 
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatViewModel.swift
     private func handleAgentEvent(_ evt: MoltbotAgentEventPayload) {
-=======
-    private static func matchesCurrentSessionKey(incoming: String, current: String) -> Bool {
-        let incomingNormalized = incoming.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let currentNormalized = current.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if incomingNormalized == currentNormalized {
-            return true
-        }
-        // Common alias pair in operator clients: UI uses "main" while gateway emits canonical.
-        if (incomingNormalized == "agent:main:main" && currentNormalized == "main") ||
-            (incomingNormalized == "main" && currentNormalized == "agent:main:main")
-        {
-            return true
-        }
-        return false
-    }
-
-    private func handleAgentEvent(_ evt: OpenClawAgentEventPayload) {
->>>>>>> fe3f0759b (Chat UI: accept canonical main session key alias (#20311)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatViewModel.swift
         if let sessionId, evt.runId != sessionId {
             return
         }

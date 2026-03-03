@@ -44,13 +44,7 @@ title: "Thinking Levels"
 - When verbose is `full`, tool outputs are also forwarded after completion (separate bubble, truncated to a safe length). If you toggle `/verbose on|full|off` while a run is in-flight, subsequent tool bubbles honor the new setting.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Reasoning visibility (/reasoning)
-=======
-## Reasoning visibility (/tools/thinking#reasoning-visibility-reasoning)
-=======
-## Reasoning visibility (/reasoning)
->>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 >>>>>>> e93e67bc8 (docs: fix thinking section heading link target (#22539))
 - Levels: `on|off|stream`.

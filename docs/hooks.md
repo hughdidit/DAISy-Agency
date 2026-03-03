@@ -170,13 +170,9 @@ The `metadata.moltbot` object supports:
 The `handler.ts` file exports a `HookHandler` function:
 
 ```typescript
-<<<<<<< HEAD:docs/hooks.md
 import type { HookHandler } from '../../src/hooks/hooks.js';
 
 const myHandler: HookHandler = async (event) => {
-=======
-const myHandler = async (event) => {
->>>>>>> 06b4baf67 (docs: remove internal hook import paths from examples):docs/automation/hooks.md
   // Only trigger on 'new' command
   if (event.type !== 'command' || event.action !== 'new') {
     return;
@@ -240,8 +236,6 @@ Triggered when the gateway starts:
 
 - **`gateway:startup`**: After channels start and hooks are loaded
 
-<<<<<<< HEAD:docs/hooks.md
-=======
 ### Message Events
 
 Triggered when messages are received or sent:
@@ -308,7 +302,6 @@ const handler = async (event) => {
 export default handler;
 ```
 
->>>>>>> 06b4baf67 (docs: remove internal hook import paths from examples):docs/automation/hooks.md
 ### Tool Result Hooks (Plugin API)
 
 These hooks are not event-stream listeners; they let plugins synchronously adjust tool results before Moltbot persists them.
@@ -356,15 +349,10 @@ This hook does something useful when you issue `/new`.
 ### 4. Create handler.ts
 
 ```typescript
-<<<<<<< HEAD:docs/hooks.md
 import type { HookHandler } from '../../src/hooks/hooks.js';
 
 const handler: HookHandler = async (event) => {
   if (event.type !== 'command' || event.action !== 'new') {
-=======
-const handler = async (event) => {
-  if (event.type !== "command" || event.action !== "new") {
->>>>>>> 06b4baf67 (docs: remove internal hook import paths from examples):docs/automation/hooks.md
     return;
   }
 
@@ -777,7 +765,6 @@ tail -f ~/.clawdbot/gateway.log
 Test your handlers in isolation:
 
 ```typescript
-<<<<<<< HEAD:docs/hooks.md
 import { test } from 'vitest';
 import { createHookEvent } from './src/hooks/hooks.js';
 import myHandler from './hooks/my-hook/handler.js';
@@ -786,20 +773,6 @@ test('my handler works', async () => {
   const event = createHookEvent('command', 'new', 'test-session', {
     foo: 'bar'
   });
-=======
-import { test } from "vitest";
-import myHandler from "./hooks/my-hook/handler.js";
-
-test("my handler works", async () => {
-  const event = {
-    type: "command",
-    action: "new",
-    sessionKey: "test-session",
-    timestamp: new Date(),
-    messages: [],
-    context: { foo: "bar" },
-  };
->>>>>>> 06b4baf67 (docs: remove internal hook import paths from examples):docs/automation/hooks.md
 
   await myHandler(event);
 

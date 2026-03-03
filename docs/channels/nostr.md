@@ -49,11 +49,7 @@ nak key generate
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 2) Add to config:
-=======
-1. Add to config:
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 2. Add to config:
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -69,11 +65,7 @@ nak key generate
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 3) Export the key:
-=======
-1. Export the key:
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 3. Export the key:
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -83,11 +75,7 @@ export NOSTR_PRIVATE_KEY="nsec1..."
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 4) Restart the Gateway.
-=======
-1. Restart the Gateway.
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 4. Restart the Gateway.
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)

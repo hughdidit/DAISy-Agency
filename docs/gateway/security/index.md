@@ -36,8 +36,6 @@ Moltbot is both a product and an experiment: you’re wiring frontier-model beha
 
 Start with the smallest access that still works, then widen it as you gain confidence.
 
-<<<<<<< HEAD
-=======
 ## Deployment assumption (important)
 
 OpenClaw assumes the host and config boundary are trusted:
@@ -132,7 +130,6 @@ If more than one person can DM your bot:
 - Never combine shared DMs with broad tool access.
 - This hardens cooperative/shared inboxes, but is not designed as hostile co-tenant isolation when users share host/config write access.
 
->>>>>>> 7d55277d7 (docs: clarify operator trust boundary for shared gateways)
 ### What the audit checks (high level)
 
 - **Inbound access** (DM policies, group policies, allowlists): can strangers trigger the bot?
@@ -153,19 +150,9 @@ Use this when auditing access or deciding what to back up:
 - **Telegram bot token**: config/env or `channels.telegram.tokenFile`
 - **Discord bot token**: config/env (token file not yet supported)
 - **Slack tokens**: config/env (`channels.slack.*`)
-<<<<<<< HEAD
 - **Pairing allowlists**: `~/.moltbot/credentials/<channel>-allowFrom.json`
 - **Model auth profiles**: `~/.moltbot/agents/<agentId>/agent/auth-profiles.json`
 - **Legacy OAuth import**: `~/.moltbot/credentials/oauth.json`
-=======
-- **Pairing allowlists**:
-  - `~/.openclaw/credentials/<channel>-allowFrom.json` (default account)
-  - `~/.openclaw/credentials/<channel>-<accountId>-allowFrom.json` (non-default accounts)
-- **Model auth profiles**: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
-- **Encrypted secrets payload (optional)**: `~/.openclaw/secrets.enc.json`
-- **Secrets migration backups (optional)**: `~/.openclaw/backups/secrets-migrate/<backupId>/`
-- **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`
->>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 
 ## Security Audit Checklist
 
@@ -335,13 +322,8 @@ If you run multiple accounts on the same channel, use `per-account-channel-peer`
 
 Moltbot has two separate “who can trigger me?” layers:
 
-<<<<<<< HEAD
 - **DM allowlist** (`allowFrom` / `channels.discord.dm.allowFrom` / `channels.slack.dm.allowFrom`): who is allowed to talk to the bot in direct messages.
   - When `dmPolicy="pairing"`, approvals are written to `~/.moltbot/credentials/<channel>-allowFrom.json` (merged with config allowlists).
-=======
-- **DM allowlist** (`allowFrom` / `channels.discord.allowFrom` / `channels.slack.allowFrom`; legacy: `channels.discord.dm.allowFrom`, `channels.slack.dm.allowFrom`): who is allowed to talk to the bot in direct messages.
-  - When `dmPolicy="pairing"`, approvals are written to `~/.openclaw/credentials/<channel>-allowFrom.json` (merged with config allowlists).
->>>>>>> ddfdd20d7 (docs: update Slack/Discord allowFrom references)
 - **Group allowlist** (channel-specific): which groups/channels/guilds the bot will accept messages from at all.
   - Common patterns:
     - `channels.whatsapp.groups`, `channels.telegram.groups`, `channels.imessage.groups`: per-group defaults like `requireMention`; when set, it also acts as a group allowlist (include `"*"` to keep allow-all behavior).
@@ -544,12 +526,7 @@ Local device pairing:
 
 Auth modes:
 - `gateway.auth.mode: "token"`: shared bearer token (recommended for most setups).
-<<<<<<< HEAD
 - `gateway.auth.mode: "password"`: password auth (prefer setting via env: `CLAWDBOT_GATEWAY_PASSWORD`).
-=======
-- `gateway.auth.mode: "password"`: password auth (prefer setting via env: `OPENCLAW_GATEWAY_PASSWORD`).
-- `gateway.auth.mode: "trusted-proxy"`: trust an identity-aware reverse proxy to authenticate users and pass identity via headers (see [Trusted Proxy Auth](/gateway/trusted-proxy-auth)).
->>>>>>> fba19fe94 (docs: link trusted-proxy auth from gateway docs (#16172))
 
 Rotation checklist (token/password):
 1. Generate/set a new secret (`gateway.auth.token` or `CLAWDBOT_GATEWAY_PASSWORD`).
@@ -903,11 +880,7 @@ Found a vulnerability in Moltbot? Please report responsibly:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 1. Email: security@clawd.bot
-=======
-1. Email: [security@openclaw.ai](mailto:security@openclaw.ai)
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 1. Email: security@openclaw.ai
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)

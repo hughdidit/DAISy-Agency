@@ -77,7 +77,6 @@ export function validateTwilioSignature(
     return false;
   }
 
-<<<<<<< HEAD
   // Build the string to sign: URL + sorted params (key+value pairs)
   let dataToSign = url;
 
@@ -89,9 +88,6 @@ export function validateTwilioSignature(
   for (const [key, value] of sortedParams) {
     dataToSign += key + value;
   }
-=======
-  const dataToSign = buildTwilioDataToSign(url, params);
->>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
 
   // HMAC-SHA1 with auth token, then base64 encode
   const expectedSignature = crypto
@@ -236,13 +232,10 @@ export interface TwilioVerificationResult {
 export interface TelnyxVerificationResult {
   ok: boolean;
   reason?: string;
-<<<<<<< HEAD
-=======
   /** Request is cryptographically valid but was already processed recently. */
   isReplay?: boolean;
   /** Stable request identity derived from signed Telnyx material. */
   verifiedRequestKey?: string;
->>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
 }
 
 function createTwilioReplayKey(params: {
@@ -347,13 +340,7 @@ export function verifyTelnyxWebhook(
       return { ok: false, reason: "Timestamp too old" };
     }
 
-<<<<<<< HEAD
     return { ok: true };
-=======
-    const replayKey = `telnyx:${sha256Hex(`${timestamp}\n${signature}\n${ctx.rawBody}`)}`;
-    const isReplay = markReplay(telnyxReplayCache, replayKey);
-    return { ok: true, isReplay, verifiedRequestKey: replayKey };
->>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
   } catch (err) {
     return {
       ok: false,
@@ -403,7 +390,6 @@ export function verifyTwilioWebhook(
   // Parse the body as URL-encoded params
   const params = new URLSearchParams(ctx.rawBody);
 
-<<<<<<< HEAD
   // Validate signature
   const isValid = validateTwilioSignature(
     authToken,
@@ -411,9 +397,6 @@ export function verifyTwilioWebhook(
     verificationUrl,
     params,
   );
-=======
-  const isValid = validateTwilioSignature(authToken, signature, verificationUrl, params);
->>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
 
   if (isValid) {
     const replayKey = createTwilioReplayKey({
@@ -430,7 +413,6 @@ export function verifyTwilioWebhook(
     verificationUrl.includes(".ngrok-free.app") ||
     verificationUrl.includes(".ngrok.io");
 
-<<<<<<< HEAD
   if (
     isNgrokFreeTier &&
     options?.allowNgrokFreeTierLoopbackBypass &&
@@ -447,8 +429,6 @@ export function verifyTwilioWebhook(
     };
   }
 
-=======
->>>>>>> ff11d8793 (fix(voice-call): require Twilio signature in ngrok loopback mode)
   return {
     ok: false,
     reason: `Invalid signature for URL: ${verificationUrl}`,

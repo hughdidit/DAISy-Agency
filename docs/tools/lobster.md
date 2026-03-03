@@ -153,12 +153,8 @@ Notes:
 
 ## Install Lobster
 
-<<<<<<< HEAD
 Install the Lobster CLI on the **same host** that runs the Moltbot Gateway (see the [Lobster repo](https://github.com/moltbot/lobster)), and ensure `lobster` is on `PATH`.
 If you want to use a custom binary location, pass an **absolute** `lobsterPath` in the tool call.
-=======
-Install the Lobster CLI on the **same host** that runs the OpenClaw Gateway (see the [Lobster repo](https://github.com/openclaw/lobster)), and ensure `lobster` is on `PATH`.
->>>>>>> 29118995a (refactor(lobster): remove lobsterPath overrides)
 
 ## Enable the tool
 

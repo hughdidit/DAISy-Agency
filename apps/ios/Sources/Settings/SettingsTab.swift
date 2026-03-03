@@ -38,11 +38,8 @@ struct SettingsTab: View {
     @AppStorage("gateway.hasConnectedOnce") private var hasConnectedOnce: Bool = false
 
     @State private var connectingGatewayID: String?
-<<<<<<< HEAD
     @State private var localIPAddress: String?
     @State private var lastLocationModeRaw: String = MoltbotLocationMode.off.rawValue
-=======
->>>>>>> 67edc7790 (iOS: gate capabilities by permissions and add settings controls (#22135))
     @State private var gatewayToken: String = ""
     @State private var gatewayPassword: String = ""
     @State private var talkElevenLabsApiKey: String = ""
@@ -72,7 +69,6 @@ struct SettingsTab: View {
         self.lifecycleObservedSettingsScreen(self.presentedSettingsScreen(base))
     }
 
-<<<<<<< HEAD
                             TextField("Paste setup code", text: self.$setupCode)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
@@ -274,42 +270,8 @@ struct SettingsTab: View {
                         Text("Off").tag(MoltbotLocationMode.off.rawValue)
                         Text("While Using").tag(MoltbotLocationMode.whileUsing.rawValue)
                         Text("Always").tag(MoltbotLocationMode.always.rawValue)
-=======
-                        NavigationLink {
-                            VoiceWakeWordsSettingsView()
-                        } label: {
-                            LabeledContent(
-                                "Wake Words",
-                                value: VoiceWakePreferences.displayString(for: self.voiceWake.triggerWords))
-                        }
-
-                        Toggle("Allow Camera", isOn: self.$cameraEnabled)
-                        Text("Allows the gateway to request photos or short video clips (foreground only).")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-
-                        Picker("Location Access", selection: self.$locationEnabledModeRaw) {
-                            Text("Off").tag(OpenClawLocationMode.off.rawValue)
-                            Text("While Using").tag(OpenClawLocationMode.whileUsing.rawValue)
-                            Text("Always").tag(OpenClawLocationMode.always.rawValue)
-                        }
-                        .pickerStyle(.segmented)
-
-                        Toggle("Precise Location", isOn: self.$locationPreciseEnabled)
-                            .disabled(self.locationMode == .off)
-
-                        Text("Always requires system permission and may prompt to open Settings.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-
-                        Toggle("Prevent Sleep", isOn: self.$preventSleep)
-                        Text("Keeps the screen awake while OpenClaw is open.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
                     }
 
-<<<<<<< HEAD
                     Toggle("Precise Location", isOn: self.$locationPreciseEnabled)
                         .disabled(self.locationMode == .off)
 
@@ -323,27 +285,6 @@ struct SettingsTab: View {
                     Text("Keeps the screen awake while Moltbot is open.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-=======
-                    DisclosureGroup("Device Info") {
-                        TextField("Name", text: self.$displayName)
-                        Text(self.instanceId)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                        LabeledContent("IP", value: self.localIPAddress ?? "—")
-                            .contextMenu {
-                                if let ip = self.localIPAddress {
-                                    Button {
-                                        UIPasteboard.general.string = ip
-                                    } label: {
-                                        Label("Copy", systemImage: "doc.on.doc")
-                                    }
-                                }
-                            }
-                        LabeledContent("Platform", value: self.platformString())
-                        LabeledContent("Version", value: self.appVersion())
-                        LabeledContent("Model", value: self.modelIdentifier())
-                    }
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
                 }
             }
 =======
@@ -363,7 +304,6 @@ struct SettingsTab: View {
                 Text(
                     "This will disconnect, clear saved gateway connection + credentials, and reopen the onboarding wizard.")
             }
-<<<<<<< HEAD
             .onAppear {
                 self.localIPAddress = Self.primaryIPv4Address()
                 self.lastLocationModeRaw = self.locationEnabledModeRaw
@@ -377,35 +317,6 @@ struct SettingsTab: View {
                 // Keep setup front-and-center when disconnected; keep things compact once connected.
                 self.gatewayExpanded = !self.isGatewayConnected
                 self.selectedAgentPickerId = self.appModel.selectedAgentId ?? ""
-=======
-            .alert(item: self.$activeFeatureHelp) { help in
-                Alert(
-                    title: Text(help.title),
-                    message: Text(help.message),
-                    dismissButton: .default(Text("OK")))
-            }
-    }
-
-    @ToolbarContentBuilder
-    private var closeToolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                self.dismiss()
-            } label: {
-                Image(systemName: "xmark")
-            }
-            .accessibilityLabel("Close")
-        }
-    }
-
-    private func lifecycleObservedSettingsScreen<Content: View>(_ content: Content) -> some View {
-        content
-            .onAppear {
-                self.handleOnAppear()
-            }
-            .onChange(of: self.scenePhase) { _, newValue in
-                self.handleScenePhaseChange(newValue)
->>>>>>> 67edc7790 (iOS: gate capabilities by permissions and add settings controls (#22135))
             }
             .onChange(of: self.selectedAgentPickerId) { _, newValue in
                 self.handleSelectedAgentPickerChange(newValue)
@@ -434,7 +345,6 @@ struct SettingsTab: View {
             .onChange(of: self.appModel.gatewayStatusText) { _, newValue in
                 self.handleGatewayStatusTextChange(newValue)
             }
-<<<<<<< HEAD
             .onChange(of: self.locationEnabledModeRaw) { _, newValue in
                 let previous = self.lastLocationModeRaw
                 self.lastLocationModeRaw = newValue
@@ -446,152 +356,6 @@ struct SettingsTab: View {
                             self.locationEnabledModeRaw = previous
                             self.lastLocationModeRaw = previous
                         }
-=======
-            .onChange(of: self.locationEnabledModeRaw) { oldValue, newValue in
-                self.handleLocationModeChange(from: oldValue, to: newValue)
-            }
-    }
-
-    private func handleOnAppear() {
-        self.syncManualPortText()
-        let trimmedInstanceId = self.instanceId.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedInstanceId.isEmpty {
-            self.gatewayToken = GatewaySettingsStore.loadGatewayToken(instanceId: trimmedInstanceId) ?? ""
-            self.gatewayPassword = GatewaySettingsStore.loadGatewayPassword(instanceId: trimmedInstanceId) ?? ""
-        }
-        self.defaultShareInstruction = ShareToAgentSettings.loadDefaultInstruction()
-        self.appModel.refreshLastShareEventFromRelay()
-        // Keep setup front-and-center when disconnected; keep things compact once connected.
-        self.gatewayExpanded = !self.isGatewayConnected
-        self.selectedAgentPickerId = self.appModel.selectedAgentId ?? ""
-        self.refreshPermissionSnapshot()
-    }
-
-    private func handleScenePhaseChange(_ newValue: ScenePhase) {
-        guard newValue == .active else { return }
-        self.refreshPermissionSnapshot()
-        self.gatewayController.refreshActiveGatewayRegistrationFromSettings()
-    }
-
-    private func handleSelectedAgentPickerChange(_ newValue: String) {
-        let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.appModel.setSelectedAgentId(trimmed.isEmpty ? nil : trimmed)
-    }
-
-    private func handleAppSelectedAgentIdChange(_ newValue: String) {
-        if newValue != self.selectedAgentPickerId {
-            self.selectedAgentPickerId = newValue
-        }
-    }
-
-    private func handlePreferredGatewayStableIdChange(_ newValue: String) {
-        let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        GatewaySettingsStore.savePreferredGatewayStableID(trimmed)
-    }
-
-    private func handleGatewayTokenChange(_ newValue: String) {
-        guard !self.suppressCredentialPersist else { return }
-        let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        let instanceId = self.instanceId.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !instanceId.isEmpty else { return }
-        GatewaySettingsStore.saveGatewayToken(trimmed, instanceId: instanceId)
-    }
-
-    private func handleGatewayPasswordChange(_ newValue: String) {
-        guard !self.suppressCredentialPersist else { return }
-        let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        let instanceId = self.instanceId.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !instanceId.isEmpty else { return }
-        GatewaySettingsStore.saveGatewayPassword(trimmed, instanceId: instanceId)
-    }
-
-    private func handleGatewayServerNameChange(_ newValue: String?) {
-        if newValue != nil {
-            self.setupCode = ""
-            self.setupStatusText = nil
-            return
-        }
-        if self.manualGatewayEnabled {
-            self.setupStatusText = self.appModel.gatewayStatusText
-        }
-    }
-
-    private func handleGatewayStatusTextChange(_ newValue: String) {
-        guard self.manualGatewayEnabled || self.connectingGatewayID == "manual" else { return }
-        let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        self.setupStatusText = trimmed
-    }
-
-    private func handleLocationModeChange(from oldValue: String, to newValue: String) {
-        guard let mode = OpenClawLocationMode(rawValue: newValue) else { return }
-        Task {
-            let granted = await self.appModel.requestLocationPermissions(mode: mode)
-            if !granted {
-                await MainActor.run {
-                    self.locationEnabledModeRaw = oldValue
-                }
-                return
-            }
-            await MainActor.run {
-                self.gatewayController.refreshActiveGatewayRegistrationFromSettings()
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var settingsForm: some View {
-        Form {
-            self.gatewaySection
-            self.deviceSection
-        }
-    }
-
-    @ViewBuilder
-    private var gatewaySection: some View {
-        Section {
-            DisclosureGroup(isExpanded: self.$gatewayExpanded) {
-                if !self.isGatewayConnected {
-                    Text(
-                        "1. Open Telegram and message your bot: /pair\n"
-                            + "2. Copy the setup code it returns\n"
-                            + "3. Paste here and tap Connect\n"
-                            + "4. Back in Telegram, run /pair approve")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-
-                    if let warning = self.tailnetWarningText {
-                        Text(warning)
-                            .font(.footnote.weight(.semibold))
-                            .foregroundStyle(.orange)
-                    }
-
-                    TextField("Paste setup code", text: self.$setupCode)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-
-                    Button {
-                        Task { await self.applySetupCodeAndConnect() }
-                    } label: {
-                        if self.connectingGatewayID == "manual" {
-                            HStack(spacing: 8) {
-                                ProgressView()
-                                    .progressViewStyle(.circular)
-                                Text("Connecting…")
-                            }
-                        } else {
-                            Text("Connect with setup code")
-                        }
-                    }
-                    .disabled(self.connectingGatewayID != nil
-                        || self.setupCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-
-                    if let status = self.setupStatusLine {
-                        Text(status)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
->>>>>>> 67edc7790 (iOS: gate capabilities by permissions and add settings controls (#22135))
                     }
                 }
 
@@ -735,8 +499,6 @@ struct SettingsTab: View {
                 }
             }
         }
-<<<<<<< HEAD
-=======
     }
 
     @ViewBuilder
@@ -869,7 +631,6 @@ struct SettingsTab: View {
                         message: self.permissionHelp(for: kind))
                 })
         }
->>>>>>> 67edc7790 (iOS: gate capabilities by permissions and add settings controls (#22135))
     }
 
     @ViewBuilder

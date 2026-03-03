@@ -15,25 +15,9 @@ Use `session.dmScope` to control how **direct messages** are grouped:
 - `per-account-channel-peer`: isolate by account + channel + sender (recommended for multi-account inboxes).
 Use `session.identityLinks` to map provider-prefixed peer ids to a canonical identity so the same person shares a DM session across channels when using `per-peer`, `per-channel-peer`, or `per-account-channel-peer`.
 
-<<<<<<< HEAD
 ### Secure DM mode (recommended)
-=======
-## Secure DM mode (recommended for multi-user setups)
->>>>>>> 1bf9f237f (docs: linting)
 
-<<<<<<< HEAD
 If your agent can receive DMs from **multiple people** (pairing approvals for more than one sender, a DM allowlist with multiple entries, or `dmPolicy: "open"`), enable **secure DM mode** to avoid cross-user context leakage:
-=======
-> **Security Warning:** If your agent can receive DMs from **multiple people**, you should strongly consider enabling secure DM mode. Without it, all users share the same conversation context, which can leak private information between users.
-
-**Example of the problem with default settings:**
-
-- Alice (`<SENDER_A>`) messages your agent about a private topic (for example, a medical appointment)
-- Bob (`<SENDER_B>`) messages your agent asking "What were we talking about?"
-- Because both DMs share the same session, the model may answer Bob using Alice's prior context.
-
-**The fix:** Set `dmScope` to isolate sessions per user:
->>>>>>> 873182ec2 (docs: tighten secure DM example)
 
 ```json5
 // ~/.openclaw/openclaw.json

@@ -9,13 +9,8 @@ import {
   type ChannelPlugin,
   type MoltbotConfig,
   type ChannelSetupInput,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-import { waitForAbortSignal } from "../../../src/infra/abort-signal.js";
->>>>>>> 31c0b04c4 (fix(nextcloud-talk): keep startAccount pending until abort (#27897))
 import {
   listNextcloudTalkAccountIds,
   resolveDefaultNextcloudTalkAccountId,

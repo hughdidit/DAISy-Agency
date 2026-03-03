@@ -1,10 +1,6 @@
 ---
 name: prepare-pr
-<<<<<<< HEAD
 description: Prepare a GitHub PR for merge by rebasing onto main, fixing review findings, running gates, committing fixes, and pushing to the PR head branch. Use after /review-pr. Never merge or push to main.
-=======
-description: Prepare a GitHub PR for merge by rebasing onto main, fixing review findings, running gates, committing fixes, and pushing to the PR head branch. Use after /reviewpr. Never merge or push to main.
->>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 ---
 
 # Prepare PR
@@ -26,10 +22,7 @@ Prepare a PR branch for merge with review fixes, green gates, and an updated hea
 - Do not run gateway stop commands. Do not kill processes. Do not touch port 18792.
 - Do not run `git clean -fdx`.
 - Do not run `git add -A` or `git add .`. Stage only specific files changed.
-<<<<<<< HEAD
-=======
 - Do not push to GitHub until the maintainer explicitly approves the push step.
->>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 ## Execution Rule
 
@@ -46,11 +39,7 @@ Prepare a PR branch for merge with review fixes, green gates, and an updated hea
 
 - Rebase PR commits onto `origin/main`.
 - Fix all BLOCKER and IMPORTANT items from `.local/review.md`.
-<<<<<<< HEAD
 - Run required gates and pass (docs-only PRs may skip `pnpm test` when high-confidence docs-only criteria are met and documented).
-=======
-- Run gates and pass.
->>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 - Commit prep changes.
 - Push the updated HEAD back to the PR head branch.
 - Write `.local/prep.md` with a prep summary.
@@ -75,20 +64,7 @@ WORKTREE_DIR=".worktrees/pr-<PR>"
 Run all commands inside the worktree directory.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Load Review Findings (Mandatory)
-=======
-- `.local/review.json` is mandatory.
-- Resolve all `BLOCKER` and `IMPORTANT` items.
-
-3. Commit scoped changes with concise subjects (no PR number/thanks; those belong on the final merge/squash commit).
-
-4. Run gates via wrapper.
-
-5. Push via wrapper (includes pre-push remote verification, one automatic lease-retry path, and post-push API propagation retry).
-
-Optional one-shot path:
->>>>>>> 607b625aa (Docs: update PR commit guidance)
 
 ```sh
 if [ -f .local/review.md ]; then
@@ -142,15 +118,11 @@ git rebase origin/main
 If conflicts happen:
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 - Resolve each conflicted file.
 - Run `git add <resolved_file>` for each file.
 - Run `git rebase --continue`.
 
 If the rebase gets confusing or you resolve conflicts 3 or more times, stop and report.
-=======
-Use concise, action-oriented subject lines without PR numbers/thanks. The final merge/squash commit is the only place we include PR numbers and contributor thanks.
->>>>>>> 607b625aa (Docs: update PR commit guidance)
 
 =======
 - Resolve each conflicted file.
@@ -181,7 +153,6 @@ If flagged and user-facing:
 
 ```sh
 <<<<<<< HEAD
-<<<<<<< HEAD
 ls CHANGELOG.md 2>/dev/null
 ```
 
@@ -199,9 +170,6 @@ Stage only specific files:
 
 ```sh
 git add <file1> <file2> ...
-=======
-scripts/committer "fix: <summary>" <file1> <file2> ...
->>>>>>> 607b625aa (Docs: update PR commit guidance)
 ```
 
 Preferred commit tool:
@@ -281,7 +249,6 @@ pnpm install
 pnpm build
 pnpm ui:build
 pnpm check
-<<<<<<< HEAD
 
 if [ "$docs_only" = "true" ]; then
   echo "Docs-only change detected with high confidence; skipping pnpm test." | tee -a .local/prep.md
@@ -291,12 +258,6 @@ fi
 ```
 
 Require all required gates to pass. If something fails, fix, commit, and rerun. Allow at most 3 fix and rerun cycles. If gates still fail after 3 attempts, stop and report the failures. Do not loop indefinitely.
-=======
-pnpm test
-```
-
-Require all to pass. If something fails, fix, commit, and rerun. Allow at most 3 fix and rerun cycles. If gates still fail after 3 attempts, stop and report the failures. Do not loop indefinitely.
->>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 9. Push updates back to the PR head branch
 
@@ -314,11 +275,8 @@ fi
 git push --force-with-lease prhead HEAD:$head
 ```
 
-<<<<<<< HEAD
-=======
 Before running the command above, pause and ask for explicit maintainer go-ahead to perform the push.
 
->>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 10. Verify PR is not behind main (Mandatory)
 
 ```sh
@@ -373,8 +331,4 @@ Otherwise, list remaining failures and stop.
 - Do not delete the worktree on success. `/mergepr` may reuse it.
 - Do not run `gh pr merge`.
 - Never push to main. Only push to the PR head branch.
-<<<<<<< HEAD
 - Run and pass all required gates before pushing. `pnpm test` may be skipped only for high-confidence docs-only changes, and the skip must be explicitly recorded in `.local/prep.md`.
-=======
-- Run and pass all gates before pushing.
->>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))

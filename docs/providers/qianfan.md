@@ -30,7 +30,6 @@ endpoint and API key. It is OpenAI-compatible, so most OpenAI SDKs work by switc
 openclaw onboard --auth-choice qianfan-api-key
 ```
 
-<<<<<<< HEAD
 Follow the prompts to enter your API key.
 
 <<<<<<< HEAD
@@ -48,9 +47,6 @@ openclaw onboard \
 ```
 
 ### Method 4: Configuration File
-=======
-### Method 3: Configuration File
->>>>>>> ad759c944 (Optimize format)
 
 Configure manually via `openclaw.json`:
 

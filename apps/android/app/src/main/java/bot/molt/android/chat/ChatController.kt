@@ -320,8 +320,6 @@ class ChatController(
 
     val state = payload["state"].asStringOrNull()
     when (state) {
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/chat/ChatController.kt
-=======
       "delta" -> {
         // Only show streaming text for runs we initiated
         if (!isPending) return
@@ -330,7 +328,6 @@ class ChatController(
           _streamingAssistantText.value = text
         }
       }
->>>>>>> 4748ba491 (fix(android): chat history refresh and mic capture improvements for voice):apps/android/app/src/main/java/ai/openclaw/android/chat/ChatController.kt
       "final", "aborted", "error" -> {
         if (state == "error") {
           _errorText.value = payload["errorMessage"].asStringOrNull() ?: "Chat failed"

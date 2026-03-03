@@ -1,14 +1,8 @@
 ---
 summary: "Moltbot on DigitalOcean (simple paid VPS option)"
 read_when:
-<<<<<<< HEAD
   - Setting up Moltbot on DigitalOcean
   - Looking for cheap VPS hosting for Moltbot
-=======
-  - Setting up OpenClaw on DigitalOcean
-  - Looking for cheap VPS hosting for OpenClaw
-title: "DigitalOcean"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Moltbot on DigitalOcean
@@ -74,13 +68,8 @@ apt update && apt upgrade -y
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt install -y nodejs
 
-<<<<<<< HEAD
 # Install Moltbot
 curl -fsSL https://molt.bot/install.sh | bash
-=======
-# Install OpenClaw
-curl -fsSL https://openclaw.ai/install.sh | bash
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 
 # Verify
 moltbot --version
@@ -137,12 +126,7 @@ moltbot gateway restart
 Open: `https://<magicdns>/`
 
 Notes:
-<<<<<<< HEAD
 - Serve keeps the Gateway loopback-only and authenticates via Tailscale identity headers.
-=======
-
-- Serve keeps the Gateway loopback-only and authenticates via Tailscale identity headers (tokenless auth assumes trusted gateway host).
->>>>>>> ede496fa1 (docs: clarify trusted-host assumption for tokenless tailscale)
 - To require token/password instead, set `gateway.auth.allowTailscale: false` or use `gateway.auth.mode: "password"`.
 
 **Option C: Tailnet bind (no Serve)**

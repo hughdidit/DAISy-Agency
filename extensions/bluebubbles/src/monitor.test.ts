@@ -105,7 +105,6 @@ function createMockRuntime(): PluginRuntime {
         convertMarkdownTables: vi.fn((text: string) => text) as unknown as PluginRuntime["channel"]["text"]["convertMarkdownTables"],
       },
       reply: {
-<<<<<<< HEAD
         dispatchReplyWithBufferedBlockDispatcher: mockDispatchReplyWithBufferedBlockDispatcher as unknown as PluginRuntime["channel"]["reply"]["dispatchReplyWithBufferedBlockDispatcher"],
         createReplyDispatcherWithTyping: vi.fn() as unknown as PluginRuntime["channel"]["reply"]["createReplyDispatcherWithTyping"],
         resolveEffectiveMessagesConfig: vi.fn() as unknown as PluginRuntime["channel"]["reply"]["resolveEffectiveMessagesConfig"],
@@ -115,27 +114,6 @@ function createMockRuntime(): PluginRuntime {
         formatAgentEnvelope: mockFormatAgentEnvelope as unknown as PluginRuntime["channel"]["reply"]["formatAgentEnvelope"],
         formatInboundEnvelope: vi.fn() as unknown as PluginRuntime["channel"]["reply"]["formatInboundEnvelope"],
         resolveEnvelopeFormatOptions: mockResolveEnvelopeFormatOptions as unknown as PluginRuntime["channel"]["reply"]["resolveEnvelopeFormatOptions"],
-=======
-        dispatchReplyWithBufferedBlockDispatcher:
-          mockDispatchReplyWithBufferedBlockDispatcher as unknown as PluginRuntime["channel"]["reply"]["dispatchReplyWithBufferedBlockDispatcher"],
-        createReplyDispatcherWithTyping:
-          vi.fn() as unknown as PluginRuntime["channel"]["reply"]["createReplyDispatcherWithTyping"],
-        resolveEffectiveMessagesConfig:
-          vi.fn() as unknown as PluginRuntime["channel"]["reply"]["resolveEffectiveMessagesConfig"],
-        resolveHumanDelayConfig:
-          vi.fn() as unknown as PluginRuntime["channel"]["reply"]["resolveHumanDelayConfig"],
-        dispatchReplyFromConfig:
-          vi.fn() as unknown as PluginRuntime["channel"]["reply"]["dispatchReplyFromConfig"],
-        finalizeInboundContext: vi.fn(
-          (ctx: Record<string, unknown>) => ctx,
-        ) as unknown as PluginRuntime["channel"]["reply"]["finalizeInboundContext"],
-        formatAgentEnvelope:
-          mockFormatAgentEnvelope as unknown as PluginRuntime["channel"]["reply"]["formatAgentEnvelope"],
-        formatInboundEnvelope:
-          mockFormatInboundEnvelope as unknown as PluginRuntime["channel"]["reply"]["formatInboundEnvelope"],
-        resolveEnvelopeFormatOptions:
-          mockResolveEnvelopeFormatOptions as unknown as PluginRuntime["channel"]["reply"]["resolveEnvelopeFormatOptions"],
->>>>>>> df7464ddf (fix(bluebubbles): include sender identity in group chat envelopes (#16326))
       },
       routing: {
         resolveAgentRoute: mockResolveAgentRoute as unknown as PluginRuntime["channel"]["routing"]["resolveAgentRoute"],
@@ -1173,8 +1151,6 @@ describe("BlueBubbles webhook monitor", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   describe("group sender identity in envelope", () => {
     it("includes sender in envelope body and group label as from for group messages", async () => {
       const account = createMockAccount({ groupPolicy: "open" });
@@ -1453,7 +1429,6 @@ describe("BlueBubbles webhook monitor", () => {
     });
   });
 
->>>>>>> df7464ddf (fix(bluebubbles): include sender identity in group chat envelopes (#16326))
   describe("reply metadata", () => {
     it("surfaces reply fields in ctx when provided", async () => {
       const account = createMockAccount({ dmPolicy: "open" });

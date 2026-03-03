@@ -342,18 +342,8 @@ export async function sendMessageBlueBubbles(
   });
   const baseUrl = opts.serverUrl?.trim() || account.config.serverUrl?.trim();
   const password = opts.password?.trim() || account.config.password?.trim();
-<<<<<<< HEAD
   if (!baseUrl) throw new Error("BlueBubbles serverUrl is required");
   if (!password) throw new Error("BlueBubbles password is required");
-=======
-  if (!baseUrl) {
-    throw new Error("BlueBubbles serverUrl is required");
-  }
-  if (!password) {
-    throw new Error("BlueBubbles password is required");
-  }
-  const privateApiStatus = getCachedBlueBubblesPrivateApiStatus(account.accountId);
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 
   const target = resolveSendTarget(to);
   const chatGuid = await resolveChatGuidForTarget({

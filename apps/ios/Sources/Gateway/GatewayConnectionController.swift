@@ -1,18 +1,11 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import MoltbotKit
-=======
-=======
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 import AVFoundation
 import CoreLocation
 import CoreMotion
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 7b0a0f3da (iOS: wire node services and tests)
 import Darwin
-=======
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 import EventKit
 =======
 import CryptoKit
@@ -70,31 +63,7 @@ final class GatewayConnectionController {
         }
     }
 
-<<<<<<< HEAD
     func connect(_ gateway: GatewayDiscoveryModel.DiscoveredGateway) async {
-=======
-    func allowAutoConnectAgain() {
-        self.didAutoConnect = false
-        self.maybeAutoConnect()
-    }
-
-    func restartDiscovery() {
-        self.discovery.stop()
-        self.didAutoConnect = false
-        self.discovery.start()
-        self.updateFromDiscovery()
-    }
-
-
-    /// Returns `nil` when a connect attempt was started, otherwise returns a user-facing error.
-    func connectWithDiagnostics(_ gateway: GatewayDiscoveryModel.DiscoveredGateway) async -> String? {
-        await self.connectDiscoveredGateway(gateway)
-    }
-
-    private func connectDiscoveredGateway(
-        _ gateway: GatewayDiscoveryModel.DiscoveredGateway) async -> String?
-    {
->>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
         let instanceId = UserDefaults.standard.string(forKey: "node.instanceId")?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if instanceId.isEmpty {
@@ -102,64 +71,19 @@ final class GatewayConnectionController {
         }
         let token = GatewaySettingsStore.loadGatewayToken(instanceId: instanceId)
         let password = GatewaySettingsStore.loadGatewayPassword(instanceId: instanceId)
-<<<<<<< HEAD
         guard let host = self.resolveGatewayHost(gateway) else { return }
         let port = gateway.gatewayPort ?? 18789
         let tlsParams = self.resolveDiscoveredTLSParams(gateway: gateway)
-=======
-
-        // Resolve the service endpoint (SRV/A/AAAA). TXT is unauthenticated; do not route via TXT.
-        guard let target = await self.resolveServiceEndpoint(gateway.endpoint) else {
-            return "Failed to resolve the discovered gateway endpoint."
-        }
-
-        let stableID = gateway.stableID
-        // Discovery is a LAN operation; refuse unauthenticated plaintext connects.
-        let tlsRequired = true
-        let stored = GatewayTLSStore.loadFingerprint(stableID: stableID)
-
-        guard gateway.tlsEnabled || stored != nil else {
-            return "Discovered gateway is missing TLS and no trusted fingerprint is stored."
-        }
-
-        if tlsRequired, stored == nil {
-            guard let url = self.buildGatewayURL(host: target.host, port: target.port, useTLS: true)
-            else { return "Failed to build TLS URL for trust verification." }
-            guard let fp = await self.probeTLSFingerprint(url: url) else {
-                return "Failed to read TLS fingerprint from discovered gateway."
-            }
-            self.pendingTrustConnect = (url: url, stableID: stableID, isManual: false)
-            self.pendingTrustPrompt = TrustPrompt(
-                stableID: stableID,
-                gatewayName: gateway.name,
-                host: target.host,
-                port: target.port,
-                fingerprintSha256: fp,
-                isManual: false)
-            self.appModel?.gatewayStatusText = "Verify gateway TLS fingerprint"
-            return nil
-        }
-
-        let tlsParams = stored.map { fp in
-            GatewayTLSParams(required: true, expectedFingerprint: fp, allowTOFU: false, storeKey: stableID)
-        }
-
->>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
         guard let url = self.buildGatewayURL(
             host: host,
             port: port,
             useTLS: tlsParams?.required == true)
-<<<<<<< HEAD
         else { return }
         GatewaySettingsStore.saveLastGatewayConnection(
             host: host,
             port: port,
             useTLS: tlsParams?.required == true,
             stableID: gateway.stableID)
-=======
-        else { return "Failed to build discovered gateway URL." }
-        GatewaySettingsStore.saveLastGatewayConnectionDiscovered(stableID: stableID, useTLS: true)
->>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
         self.didAutoConnect = true
         self.startAutoConnect(
             url: url,
@@ -314,7 +238,6 @@ final class GatewayConnectionController {
         }
 
         if let lastKnown = GatewaySettingsStore.loadLastGatewayConnection() {
-<<<<<<< HEAD
             let resolvedUseTLS = lastKnown.useTLS || self.shouldForceTLS(host: lastKnown.host)
             let tlsParams = self.resolveManualTLSParams(
                 stableID: lastKnown.stableID,
@@ -325,19 +248,6 @@ final class GatewayConnectionController {
                 port: lastKnown.port,
                 useTLS: tlsParams?.required == true)
             else { return }
-=======
-            if case let .manual(host, port, useTLS, stableID) = lastKnown {
-                let resolvedUseTLS = self.resolveManualUseTLS(host: host, useTLS: useTLS)
-                let stored = GatewayTLSStore.loadFingerprint(stableID: stableID)
-                let tlsParams = stored.map { fp in
-                    GatewayTLSParams(required: true, expectedFingerprint: fp, allowTOFU: false, storeKey: stableID)
-                }
-                guard let url = self.buildGatewayURL(
-                    host: host,
-                    port: port,
-                    useTLS: resolvedUseTLS && tlsParams != nil)
-                else { return }
->>>>>>> 8fa46d709 (fix(ios): force tls for non-loopback manual gateway hosts (#21969))
 
             self.didAutoConnect = true
             self.startAutoConnect(
@@ -688,13 +598,8 @@ final class GatewayConnectionController {
             caps: self.currentCaps(),
             commands: self.currentCommands(),
 <<<<<<< HEAD
-<<<<<<< HEAD
             permissions: [:],
             clientId: "moltbot-ios",
-=======
-            permissions: self.currentPermissions(),
-            clientId: "openclaw-ios",
->>>>>>> 7b0a0f3da (iOS: wire node services and tests)
 =======
             permissions: self.currentPermissions(),
             clientId: resolvedClientId,
@@ -743,12 +648,7 @@ final class GatewayConnectionController {
     }
 
     private func currentCaps() -> [String] {
-<<<<<<< HEAD
         var caps = [MoltbotCapability.canvas.rawValue, MoltbotCapability.screen.rawValue]
-=======
-        let permissionSnapshot = IOSPermissionCenter.statusSnapshot()
-        var caps = [OpenClawCapability.canvas.rawValue, OpenClawCapability.screen.rawValue]
->>>>>>> 67edc7790 (iOS: gate capabilities by permissions and add settings controls (#22135))
 
         // Default-on: if the key doesn't exist yet, treat it as enabled.
         let cameraEnabled =
@@ -772,7 +672,6 @@ final class GatewayConnectionController {
         if Self.motionAvailable() {
             caps.append(OpenClawCapability.motion.rawValue)
         }
-<<<<<<< HEAD
 
         caps.append(OpenClawCapability.device.rawValue)
         caps.append(OpenClawCapability.photos.rawValue)
@@ -780,21 +679,6 @@ final class GatewayConnectionController {
         caps.append(OpenClawCapability.calendar.rawValue)
         caps.append(OpenClawCapability.reminders.rawValue)
         if Self.motionAvailable() {
-=======
-        if permissionSnapshot.photosAllowed {
-            caps.append(OpenClawCapability.photos.rawValue)
-        }
-        if permissionSnapshot.contactsAllowed {
-            caps.append(OpenClawCapability.contacts.rawValue)
-        }
-        if permissionSnapshot.calendarReadAllowed || permissionSnapshot.calendarWriteAllowed {
-            caps.append(OpenClawCapability.calendar.rawValue)
-        }
-        if permissionSnapshot.remindersReadAllowed || permissionSnapshot.remindersWriteAllowed {
-            caps.append(OpenClawCapability.reminders.rawValue)
-        }
-        if Self.motionAvailable() && permissionSnapshot.motionAllowed {
->>>>>>> 67edc7790 (iOS: gate capabilities by permissions and add settings controls (#22135))
             caps.append(OpenClawCapability.motion.rawValue)
         }
 
@@ -804,7 +688,6 @@ final class GatewayConnectionController {
     private func currentCommands() -> [String] {
         let permissionSnapshot = IOSPermissionCenter.statusSnapshot()
         var commands: [String] = [
-<<<<<<< HEAD
             MoltbotCanvasCommand.present.rawValue,
             MoltbotCanvasCommand.hide.rawValue,
             MoltbotCanvasCommand.navigate.rawValue,
@@ -819,19 +702,6 @@ final class GatewayConnectionController {
             MoltbotSystemCommand.run.rawValue,
             MoltbotSystemCommand.execApprovalsGet.rawValue,
             MoltbotSystemCommand.execApprovalsSet.rawValue,
-=======
-            OpenClawCanvasCommand.present.rawValue,
-            OpenClawCanvasCommand.hide.rawValue,
-            OpenClawCanvasCommand.navigate.rawValue,
-            OpenClawCanvasCommand.evalJS.rawValue,
-            OpenClawCanvasCommand.snapshot.rawValue,
-            OpenClawCanvasA2UICommand.push.rawValue,
-            OpenClawCanvasA2UICommand.pushJSONL.rawValue,
-            OpenClawCanvasA2UICommand.reset.rawValue,
-            OpenClawScreenCommand.record.rawValue,
-            OpenClawSystemCommand.notify.rawValue,
-<<<<<<< HEAD
->>>>>>> 7b0a0f3da (iOS: wire node services and tests)
 =======
             OpenClawChatCommand.push.rawValue,
             OpenClawTalkCommand.pttStart.rawValue,
@@ -916,7 +786,6 @@ final class GatewayConnectionController {
             && CLLocationManager.locationServicesEnabled()
         permissions["screenRecording"] = RPScreenRecorder.shared().isAvailable
 
-<<<<<<< HEAD
         let photoStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         permissions["photos"] = photoStatus == .authorized || photoStatus == .limited
 <<<<<<< HEAD
@@ -926,17 +795,6 @@ final class GatewayConnectionController {
         permissions["calendar"] = calendarStatus == .authorized || calendarStatus == .fullAccess
         let remindersStatus = EKEventStore.authorizationStatus(for: .reminder)
         permissions["reminders"] = remindersStatus == .authorized || remindersStatus == .fullAccess
-=======
-        let contactsStatus = CNContactStore.authorizationStatus(for: .contacts)
-        permissions["contacts"] = contactsStatus == .authorized || contactsStatus == .limited
-
-        let calendarStatus = EKEventStore.authorizationStatus(for: .event)
-        permissions["calendar"] =
-            calendarStatus == .authorized || calendarStatus == .fullAccess || calendarStatus == .writeOnly
-        let remindersStatus = EKEventStore.authorizationStatus(for: .reminder)
-        permissions["reminders"] =
-            remindersStatus == .authorized || remindersStatus == .fullAccess || remindersStatus == .writeOnly
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 =======
         permissions["photos"] = permissionSnapshot.photosAllowed
         permissions["photosDenied"] = permissionSnapshot.photos.isDeniedOrRestricted
@@ -1053,8 +911,6 @@ extension GatewayConnectionController {
     func _test_triggerAutoConnect() {
         self.maybeAutoConnect()
     }
-<<<<<<< HEAD
-=======
 
     func _test_didAutoConnect() -> Bool {
         self.didAutoConnect
@@ -1074,6 +930,5 @@ extension GatewayConnectionController {
     func _test_resolveManualPort(host: String, port: Int, useTLS: Bool) -> Int? {
         self.resolveManualPort(host: host, port: port, useTLS: useTLS)
     }
->>>>>>> 8fa46d709 (fix(ios): force tls for non-loopback manual gateway hosts (#21969))
 }
 #endif

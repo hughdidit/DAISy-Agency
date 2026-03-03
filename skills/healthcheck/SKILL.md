@@ -55,17 +55,9 @@ If you must ask, use non-technical prompts:
 - “Is disk encryption turned on (FileVault/BitLocker/LUKS)?”
 - “Are automatic security updates enabled?”
 - “How do you use this machine?”
-<<<<<<< HEAD
   1. Personal/workstation (mostly local dev)
   2. Headless server (always on, accessed remotely)
   3. Something else?
-=======
-  Examples:
-  - Personal machine shared with the assistant
-  - Dedicated local machine for the assistant
-  - Dedicated remote machine/server accessed remotely (always on)
-  - Something else?
->>>>>>> fc40ba8e7 (Skills: refine healthcheck guidance)
 
 Only ask for the risk profile after system context is known.
 

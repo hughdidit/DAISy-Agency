@@ -122,11 +122,7 @@ describe("msteams attachments", () => {
         resolveFn: publicResolveFn,
       });
 
-<<<<<<< HEAD
       expect(fetchMock).toHaveBeenCalledWith("https://x/img");
-=======
-      expect(fetchMock).toHaveBeenCalled();
->>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
       expect(saveMediaBufferMock).toHaveBeenCalled();
       expect(media).toHaveLength(1);
       expect(media[0]?.path).toBe("/tmp/saved.png");
@@ -154,11 +150,7 @@ describe("msteams attachments", () => {
         resolveFn: publicResolveFn,
       });
 
-<<<<<<< HEAD
       expect(fetchMock).toHaveBeenCalledWith("https://x/dl");
-=======
-      expect(fetchMock).toHaveBeenCalled();
->>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
       expect(media).toHaveLength(1);
     });
 
@@ -184,11 +176,7 @@ describe("msteams attachments", () => {
         resolveFn: publicResolveFn,
       });
 
-<<<<<<< HEAD
       expect(fetchMock).toHaveBeenCalledWith("https://x/doc.pdf");
-=======
-      expect(fetchMock).toHaveBeenCalled();
->>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
       expect(media).toHaveLength(1);
       expect(media[0]?.path).toBe("/tmp/saved.pdf");
       expect(media[0]?.placeholder).toBe("<media:document>");
@@ -217,11 +205,7 @@ describe("msteams attachments", () => {
       });
 
       expect(media).toHaveLength(1);
-<<<<<<< HEAD
       expect(fetchMock).toHaveBeenCalledWith("https://x/inline.png");
-=======
-      expect(fetchMock).toHaveBeenCalled();
->>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
     });
 
     it("stores inline data:image base64 payloads", async () => {
@@ -273,8 +257,6 @@ describe("msteams attachments", () => {
       expect(media).toHaveLength(1);
     });
 
-<<<<<<< HEAD
-=======
     it("skips auth retries when the host is not in auth allowlist", async () => {
       const { downloadMSTeamsAttachments } = await load();
       const tokenProvider = { getAccessToken: vi.fn(async () => "token") };
@@ -307,7 +289,6 @@ describe("msteams attachments", () => {
       expect(tokenProvider.getAccessToken).not.toHaveBeenCalled();
     });
 
->>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
     it("skips urls outside the allowlist", async () => {
       const { downloadMSTeamsAttachments } = await load();
       const fetchMock = vi.fn();

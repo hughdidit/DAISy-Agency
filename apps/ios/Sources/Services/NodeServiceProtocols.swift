@@ -47,26 +47,17 @@ protocol PhotosServicing: Sendable {
 
 protocol ContactsServicing: Sendable {
     func search(params: OpenClawContactsSearchParams) async throws -> OpenClawContactsSearchPayload
-<<<<<<< HEAD
-=======
     func add(params: OpenClawContactsAddParams) async throws -> OpenClawContactsAddPayload
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 }
 
 protocol CalendarServicing: Sendable {
     func events(params: OpenClawCalendarEventsParams) async throws -> OpenClawCalendarEventsPayload
-<<<<<<< HEAD
-=======
     func add(params: OpenClawCalendarAddParams) async throws -> OpenClawCalendarAddPayload
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 }
 
 protocol RemindersServicing: Sendable {
     func list(params: OpenClawRemindersListParams) async throws -> OpenClawRemindersListPayload
-<<<<<<< HEAD
-=======
     func add(params: OpenClawRemindersAddParams) async throws -> OpenClawRemindersAddPayload
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 }
 
 protocol MotionServicing: Sendable {
@@ -74,8 +65,6 @@ protocol MotionServicing: Sendable {
     func pedometer(params: OpenClawPedometerParams) async throws -> OpenClawPedometerPayload
 }
 
-<<<<<<< HEAD
-=======
 struct WatchMessagingStatus: Sendable, Equatable {
     var supported: Bool
     var paired: Bool
@@ -109,7 +98,6 @@ protocol WatchMessagingServicing: AnyObject, Sendable {
         params: OpenClawWatchNotifyParams) async throws -> WatchNotificationSendResult
 }
 
->>>>>>> 738b01162 (iOS/watch: add actionable watch approvals and quick replies (#21996))
 extension CameraController: CameraServicing {}
 extension ScreenRecordService: ScreenRecordingServicing {}
 extension LocationService: LocationServicing {}

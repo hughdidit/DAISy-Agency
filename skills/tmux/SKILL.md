@@ -4,11 +4,7 @@ description: Remote-control tmux sessions for interactive CLIs by sending keystr
 metadata: {"moltbot":{"emoji":"🧵","os":["darwin","linux"],"requires":{"bins":["tmux"]}}}
 ---
 
-<<<<<<< HEAD
 # tmux Skill (Moltbot)
-=======
-# tmux Session Control
->>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 
 Control tmux sessions by sending keystrokes and reading output. Essential for managing Claude Code sessions.
 
@@ -44,7 +40,6 @@ Control tmux sessions by sending keystrokes and reading output. Essential for ma
 ### List Sessions
 
 ```bash
-<<<<<<< HEAD
 SOCKET_DIR="${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/moltbot-tmux-sockets}"
 mkdir -p "$SOCKET_DIR"
 SOCKET="$SOCKET_DIR/moltbot.sock"
@@ -88,13 +83,6 @@ To monitor:
   sequence as paste/multi-line input and not submit; this is timing-dependent. Send text and
   `Enter` as separate commands with a small delay (tune per environment; increase if needed,
   or use `sleep 1` if sub-second sleeps aren't supported):
-=======
-tmux list-sessions
-tmux ls
-```
-
-### Capture Output
->>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 
 ```bash
 # Last 20 lines of pane
@@ -188,7 +176,6 @@ for s in shared worker-2 worker-3 worker-4 worker-5 worker-6 worker-7 worker-8; 
 done
 ```
 
-<<<<<<< HEAD
 **Tips:**
 - Use separate git worktrees for parallel fixes (no branch conflicts)
 - `pnpm install` first before running codex in fresh clones
@@ -204,9 +191,6 @@ done
 ## Helper: wait-for-text.sh
 
 `{baseDir}/scripts/wait-for-text.sh` polls a pane for a regex (or fixed string) with a timeout.
-=======
-### Send Task to Session
->>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 
 ```bash
 tmux send-keys -t worker-4 "Fix the bug in auth.js" Enter

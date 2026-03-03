@@ -71,31 +71,17 @@ export function handleDisconnected(host: LifecycleHost) {
   stopNodesPolling(host as unknown as Parameters<typeof stopNodesPolling>[0]);
   stopLogsPolling(host as unknown as Parameters<typeof stopLogsPolling>[0]);
   stopDebugPolling(host as unknown as Parameters<typeof stopDebugPolling>[0]);
-<<<<<<< HEAD
   detachThemeListener(
     host as unknown as Parameters<typeof detachThemeListener>[0],
   );
-=======
-  host.client?.stop();
-  host.client = null;
-  host.connected = false;
-  detachThemeListener(host as unknown as Parameters<typeof detachThemeListener>[0]);
->>>>>>> 02dc0c875 (fix(control-ui): stop websocket client on lifecycle teardown (#23422))
   host.topbarObserver?.disconnect();
   host.topbarObserver = null;
 }
 
-<<<<<<< HEAD
 export function handleUpdated(
   host: LifecycleHost,
   changed: Map<PropertyKey, unknown>,
 ) {
-=======
-export function handleUpdated(host: LifecycleHost, changed: Map<PropertyKey, unknown>) {
-  if (host.tab === "chat" && host.chatManualRefreshInFlight) {
-    return;
-  }
->>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
   if (
     host.tab === "chat" &&
     (changed.has("chatMessages") ||

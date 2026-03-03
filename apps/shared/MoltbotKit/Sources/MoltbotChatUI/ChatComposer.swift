@@ -180,19 +180,10 @@ struct MoltbotChatComposer: View {
         VStack(alignment: .leading, spacing: 8) {
             self.editorOverlay
 
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatComposer.swift
             Rectangle()
                 .fill(MoltbotChatTheme.divider)
                 .frame(height: 1)
                 .padding(.horizontal, 2)
-=======
-            if !self.isComposerCompacted {
-                Rectangle()
-                    .fill(OpenClawChatTheme.divider)
-                    .frame(height: 1)
-                    .padding(.horizontal, 2)
-            }
->>>>>>> 9476dda9f (iOS Chat: clean UI noise and format tool outputs (#22122)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatComposer.swift
 
             HStack(alignment: .center, spacing: 8) {
                 if self.showsConnectionPill {

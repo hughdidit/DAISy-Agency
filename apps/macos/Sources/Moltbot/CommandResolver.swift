@@ -244,14 +244,11 @@ enum CommandResolver {
         let runtimeResult = self.runtimeResolution(searchPaths: searchPaths)
         switch runtimeResult {
         case let .success(runtime):
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CommandResolver.swift
             let root = self.projectRoot()
             if let moltbotPath = self.projectMoltbotExecutable(projectRoot: root) {
                 return [moltbotPath, subcommand] + extraArgs
             }
 
-=======
->>>>>>> 31e6d1853 (fix(macos): prefer openclaw binary while keeping pnpm fallback (#25512)):apps/macos/Sources/OpenClaw/CommandResolver.swift
             if let entry = self.gatewayEntrypoint(in: root) {
                 return self.makeRuntimeCommand(
                     runtime: runtime,
@@ -259,7 +256,6 @@ enum CommandResolver {
                     subcommand: subcommand,
                     extraArgs: extraArgs)
             }
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CommandResolver.swift
             if let pnpm = self.findExecutable(named: "pnpm", searchPaths: searchPaths) {
                 // Use --silent to avoid pnpm lifecycle banners that would corrupt JSON outputs.
                 return [pnpm, "--silent", "moltbot", subcommand] + extraArgs
@@ -267,11 +263,6 @@ enum CommandResolver {
             if let moltbotPath = self.moltbotExecutable(searchPaths: searchPaths) {
                 return [moltbotPath, subcommand] + extraArgs
             }
-=======
-        case .failure:
-            break
-        }
->>>>>>> 31e6d1853 (fix(macos): prefer openclaw binary while keeping pnpm fallback (#25512)):apps/macos/Sources/OpenClaw/CommandResolver.swift
 
         if let pnpm = self.findExecutable(named: "pnpm", searchPaths: searchPaths) {
             // Use --silent to avoid pnpm lifecycle banners that would corrupt JSON outputs.

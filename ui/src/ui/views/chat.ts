@@ -13,21 +13,9 @@ import {
   renderMessageGroup,
   renderReadingIndicatorGroup,
   renderStreamingGroup,
-<<<<<<< HEAD
 } from "../chat/grouped-render";
 import { renderMarkdownSidebar } from "./markdown-sidebar";
 import "../components/resizable-divider";
-=======
-} from "../chat/grouped-render.ts";
-import { normalizeMessage, normalizeRoleForGrouping } from "../chat/message-normalizer.ts";
-import { icons } from "../icons.ts";
-import { detectTextDirection } from "../text-direction.ts";
-<<<<<<< HEAD
-=======
-import type { SessionsListResult } from "../types.ts";
-import type { ChatItem, MessageGroup } from "../types/chat-types.ts";
-import type { ChatAttachment, ChatQueueItem } from "../ui-types.ts";
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 import { renderMarkdownSidebar } from "./markdown-sidebar.ts";
 import "../components/resizable-divider.ts";
 >>>>>>> ae7e37774 (feat(ui): add RTL support for Hebrew/Arabic text in webchat (openclaw#11498) thanks @dirbalak)
@@ -86,8 +74,6 @@ export type ChatProps = {
 };
 
 const COMPACTION_TOAST_DURATION_MS = 5000;
-<<<<<<< HEAD
-=======
 const FALLBACK_TOAST_DURATION_MS = 8000;
 
 // Persistent instances keyed by session
@@ -132,7 +118,6 @@ let pinnedExpanded = false;
 let voiceActive = false;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let recognition: any = null;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 
 function adjustTextareaHeight(el: HTMLTextAreaElement) {
   el.style.height = "auto";
@@ -242,8 +227,6 @@ function renderAttachmentPreview(props: ChatProps) {
   `;
 }
 
-<<<<<<< HEAD
-=======
 function updateSlashMenu(value: string, requestUpdate: () => void): void {
   const match = value.match(/^\/(\S*)$/);
   if (match) {
@@ -503,7 +486,6 @@ function renderSlashMenu(
   return html`<div class="slash-menu">${sections}</div>`;
 }
 
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 export function renderChat(props: ChatProps) {
   const canCompose = props.connected;
   const isBusy = props.sending || props.stream !== null;
@@ -518,16 +500,8 @@ export function renderChat(props: ChatProps) {
     avatar: props.assistantAvatar ?? props.assistantAvatarUrl ?? null,
   };
 
-<<<<<<< HEAD
   const hasAttachments = (props.attachments?.length ?? 0) > 0;
   const composePlaceholder = props.connected
-=======
-  const hasVoice =
-    typeof (window as unknown as Record<string, unknown>).webkitSpeechRecognition !== "undefined" ||
-    typeof (window as unknown as Record<string, unknown>).SpeechRecognition !== "undefined";
-
-  const placeholder = props.connected
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
     ? hasAttachments
       ? "Add a message or paste more images..."
       : "Message (↩ to send, Shift+↩ for line breaks, paste images)"
@@ -542,7 +516,6 @@ export function renderChat(props: ChatProps) {
       aria-live="polite"
       @scroll=${props.onChatScroll}
     >
-<<<<<<< HEAD
       ${props.loading ? html`<div class="muted">Loading chat…</div>` : nothing}
       ${repeat(buildChatItems(props), (item) => item.key, (item) => {
         if (item.kind === "reading-indicator") {
@@ -572,151 +545,6 @@ export function renderChat(props: ChatProps) {
     </div>
   `;
 
-=======
-      ${
-        props.loading
-          ? html`
-              <div class="muted">Loading chat...</div>
-            `
-          : nothing
-      }
-      ${isEmpty && !searchOpen ? renderWelcomeState(props) : nothing}
-      ${
-        isEmpty && searchOpen
-          ? html`
-              <div class="agent-chat__empty">No matching messages</div>
-            `
-          : nothing
-      }
-      ${repeat(
-        chatItems,
-        (item) => item.key,
-        (item) => {
-          if (item.kind === "divider") {
-            return html`
-              <div class="chat-divider" role="separator" data-ts=${String(item.timestamp)}>
-                <span class="chat-divider__line"></span>
-                <span class="chat-divider__label">${item.label}</span>
-                <span class="chat-divider__line"></span>
-              </div>
-            `;
-          }
-          if (item.kind === "reading-indicator") {
-            return renderReadingIndicatorGroup(assistantIdentity);
-          }
-          if (item.kind === "stream") {
-            return renderStreamingGroup(
-              item.text,
-              item.startedAt,
-              props.onOpenSidebar,
-              assistantIdentity,
-            );
-          }
-          if (item.kind === "group") {
-            if (deleted.has(item.key)) {
-              return nothing;
-            }
-            return renderMessageGroup(item, {
-              onOpenSidebar: props.onOpenSidebar,
-              showReasoning,
-              assistantName: props.assistantName,
-              assistantAvatar: assistantIdentity.avatar,
-              onDelete: () => {
-                deleted.delete(item.key);
-                requestUpdate();
-              },
-            });
-          }
-          return nothing;
-        },
-      )}
-    </div>
-  `;
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    // Slash menu navigation
-    if (slashMenuOpen && slashMenuItems.length > 0) {
-      const len = slashMenuItems.length;
-      switch (e.key) {
-        case "ArrowDown":
-          e.preventDefault();
-          slashMenuIndex = (slashMenuIndex + 1) % len;
-          requestUpdate();
-          return;
-        case "ArrowUp":
-          e.preventDefault();
-          slashMenuIndex = (slashMenuIndex - 1 + len) % len;
-          requestUpdate();
-          return;
-        case "Enter":
-        case "Tab":
-          e.preventDefault();
-          selectSlashCommand(slashMenuItems[slashMenuIndex], props, requestUpdate);
-          return;
-        case "Escape":
-          e.preventDefault();
-          slashMenuOpen = false;
-          requestUpdate();
-          return;
-      }
-    }
-
-    // Input history (only when input is empty)
-    if (!props.draft.trim()) {
-      if (e.key === "ArrowUp") {
-        const prev = inputHistory.up();
-        if (prev !== null) {
-          e.preventDefault();
-          props.onDraftChange(prev);
-        }
-        return;
-      }
-      if (e.key === "ArrowDown") {
-        const next = inputHistory.down();
-        e.preventDefault();
-        props.onDraftChange(next ?? "");
-        return;
-      }
-    }
-
-    // Cmd+F for search
-    if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === "f") {
-      e.preventDefault();
-      searchOpen = !searchOpen;
-      if (!searchOpen) {
-        searchQuery = "";
-      }
-      requestUpdate();
-      return;
-    }
-
-    // Send on Enter (without shift)
-    if (e.key === "Enter" && !e.shiftKey) {
-      if (e.isComposing || e.keyCode === 229) {
-        return;
-      }
-      if (!props.connected) {
-        return;
-      }
-      e.preventDefault();
-      if (canCompose) {
-        if (props.draft.trim()) {
-          inputHistory.push(props.draft);
-        }
-        props.onSend();
-      }
-    }
-  };
-
-  const handleInput = (e: Event) => {
-    const target = e.target as HTMLTextAreaElement;
-    adjustTextareaHeight(target);
-    props.onDraftChange(target.value);
-    updateSlashMenu(target.value, requestUpdate);
-    inputHistory.reset();
-  };
-
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   return html`
     <section class="card chat">
       ${props.disabledReason
@@ -743,18 +571,9 @@ export function renderChat(props: ChatProps) {
           `
         : nothing}
 
-<<<<<<< HEAD
       <div
         class="chat-split-container ${sidebarOpen ? "chat-split-container--open" : ""}"
       >
-=======
-      ${renderSearchBar(requestUpdate)}
-      ${renderPinnedSection(props, pinned, requestUpdate)}
-
-      ${renderAgentBar(props)}
-
-      <div class="chat-split-container ${sidebarOpen ? "chat-split-container--open" : ""}">
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
         <div
           class="chat-main"
           style="flex: ${sidebarOpen ? `0 0 ${splitRatio * 100}%` : "1 1 100%"}"
@@ -812,26 +631,7 @@ export function renderChat(props: ChatProps) {
               </div>
             </div>
           `
-<<<<<<< HEAD
         : nothing}
-=======
-          : nothing
-      }
-
-      ${
-        props.showNewMessages
-          ? html`
-            <button
-              class="btn chat-new-messages"
-              type="button"
-              @click=${props.onScrollToBottom}
-            >
-              New messages ${icons.arrowDown}
-            </button>
-          `
-          : nothing
-      }
->>>>>>> 9f16de253 (style: update chat new-messages button)
 
       <div class="chat-compose">
         ${renderAttachmentPreview(props)}
@@ -868,7 +668,6 @@ export function renderChat(props: ChatProps) {
             >
               ${canAbort ? "Stop" : "New session"}
             </button>
-<<<<<<< HEAD
             <button
               class="btn primary"
               ?disabled=${!props.connected}
@@ -876,85 +675,6 @@ export function renderChat(props: ChatProps) {
             >
               ${isBusy ? "Queue" : "Send"}<kbd class="btn-kbd">↵</kbd>
             </button>
-=======
-
-            ${
-              hasVoice
-                ? html`
-                  <button
-                    class="agent-chat__input-btn ${voiceActive ? "agent-chat__input-btn--active" : ""}"
-                    @click=${() => {
-                      if (voiceActive) {
-                        stopVoice(requestUpdate);
-                      } else {
-                        startVoice(props, requestUpdate);
-                      }
-                    }}
-                    title="Voice input"
-                  >
-                    ${voiceActive ? icons.micOff : icons.mic}
-                  </button>
-                `
-                : nothing
-            }
-
-            ${tokens ? html`<span class="agent-chat__token-count">${tokens}</span>` : nothing}
-          </div>
-
-          <div class="agent-chat__toolbar-right">
-            <button class="btn-ghost" @click=${() => {
-              searchOpen = !searchOpen;
-              if (!searchOpen) {
-                searchQuery = "";
-              }
-              requestUpdate();
-            }} title="Search (Cmd+F)">
-              ${icons.search}
-            </button>
-            <button class="btn-ghost" @click=${() => exportMarkdown(props)} title="Export" ?disabled=${props.messages.length === 0}>
-              ${icons.download}
-            </button>
-            ${
-              props.messages.length > 0
-                ? html`
-                  <span class="agent-chat__input-divider"></span>
-                  <button class="btn-ghost" @click=${() => props.onSend()} title="Compact" ?disabled=${!props.connected || props.sending}>
-                    ${icons.refresh}
-                  </button>
-                  <button class="btn-ghost" @click=${props.onNewSession} title="New chat" ?disabled=${!props.connected || props.sending}>
-                    ${icons.plus}
-                  </button>
-                  <button class="btn-ghost btn-ghost--danger" @click=${props.onClearHistory} title="Clear history" ?disabled=${!props.connected || props.sending}>
-                    ${icons.trash}
-                  </button>
-                `
-                : nothing
-            }
-
-            ${
-              canAbort && isBusy
-                ? html`
-                  <button class="chat-send-btn chat-send-btn--stop" @click=${props.onAbort} title="Stop">
-                    ${icons.stop}
-                  </button>
-                `
-                : html`
-                  <button
-                    class="chat-send-btn"
-                    @click=${() => {
-                      if (props.draft.trim()) {
-                        inputHistory.push(props.draft);
-                      }
-                      props.onSend();
-                    }}
-                    ?disabled=${!props.connected || props.sending}
-                    title=${isBusy ? "Queue" : "Send"}
-                  >
-                    ${icons.send}
-                  </button>
-                `
-            }
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
           </div>
         </div>
       </div>

@@ -22,11 +22,8 @@ import {
   resolveMatrixAllowListMatch,
   resolveMatrixAllowListMatches,
 } from "./allowlist.js";
-<<<<<<< HEAD
-=======
 import { resolveMatrixBodyForAgent } from "./inbound-body.js";
 import { resolveMatrixLocation, type MatrixLocationPayload } from "./location.js";
->>>>>>> 01b4f42f9 (fix(matrix): preserve sender labels in Matrix BodyForAgent)
 import { downloadMatrixMedia } from "./media.js";
 import { resolveMentions } from "./mentions.js";
 import { deliverMatrixReplies } from "./replies.js";
@@ -227,15 +224,8 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
 
       const senderName = await getMemberDisplayName(roomId, senderId);
 <<<<<<< HEAD
-<<<<<<< HEAD
       const storeAllowFrom = await core.channel.pairing.readAllowFromStore("matrix").catch(() => []);
       const effectiveAllowFrom = normalizeAllowListLower([...allowFrom, ...storeAllowFrom]);
-=======
-      const storeAllowFrom = await core.channel.pairing
-        .readAllowFromStore("matrix")
-        .catch(() => []);
-      const effectiveAllowFrom = normalizeMatrixAllowList([...allowFrom, ...storeAllowFrom]);
->>>>>>> 8f3bfbd1c (fix(matrix): harden allowlists)
 =======
       const senderUsername = senderId.split(":")[0]?.replace(/^@/, "");
       const storeAllowFrom = isDirectMessage
@@ -488,15 +478,12 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const groupSystemPrompt = roomConfig?.systemPrompt?.trim() || undefined;
       const ctxPayload = core.channel.reply.finalizeInboundContext({
         Body: body,
-<<<<<<< HEAD
-=======
         BodyForAgent: resolveMatrixBodyForAgent({
           isDirectMessage,
           bodyText,
           senderName,
           senderId,
         }),
->>>>>>> 01b4f42f9 (fix(matrix): preserve sender labels in Matrix BodyForAgent)
         RawBody: bodyText,
         CommandBody: bodyText,
         From: isDirectMessage ? `matrix:${senderId}` : `matrix:channel:${roomId}`,

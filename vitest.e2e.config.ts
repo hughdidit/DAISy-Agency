@@ -15,12 +15,7 @@ const verboseE2E = process.env.OPENCLAW_E2E_VERBOSE === "1";
 
 export default defineConfig({
   test: {
-<<<<<<< HEAD
     pool: "forks",
-=======
-    ...baseTest,
-    pool: "vmForks",
->>>>>>> 945d30295 (test: speed up e2e vitest runtime)
     maxWorkers: e2eWorkers,
     silent: !verboseE2E,
     include: ["test/**/*.e2e.test.ts", "src/**/*.e2e.test.ts"],

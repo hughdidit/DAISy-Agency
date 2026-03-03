@@ -49,22 +49,9 @@ export function resolveMatrixAccount(params: {
   accountId?: string | null;
 }): ResolvedMatrixAccount {
   const accountId = normalizeAccountId(params.accountId);
-<<<<<<< HEAD
   const base = (params.cfg.channels?.matrix ?? {}) as MatrixConfig;
   const enabled = base.enabled !== false;
   const resolved = resolveMatrixConfig(params.cfg, process.env);
-=======
-  const matrixBase = params.cfg.channels?.matrix ?? {};
-
-  // Check if this account exists in accounts structure
-  const accountConfig = resolveAccountConfig(params.cfg, accountId);
-
-  // Use account-specific config if available, otherwise fall back to top-level
-  const base: MatrixConfig = accountConfig ?? matrixBase;
-  const enabled = base.enabled !== false && matrixBase.enabled !== false;
-
-  const resolved = resolveMatrixConfigForAccount(params.cfg, accountId, process.env);
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
   const hasHomeserver = Boolean(resolved.homeserver);
   const hasUserId = Boolean(resolved.userId);
   const hasAccessToken = Boolean(resolved.accessToken);

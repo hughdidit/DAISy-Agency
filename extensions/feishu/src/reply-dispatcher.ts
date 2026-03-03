@@ -9,11 +9,8 @@ import {
 import type { MentionTarget } from "./mention.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
-<<<<<<< HEAD
-=======
 import { sendMediaFeishu } from "./media.js";
 import type { MentionTarget } from "./mention.js";
->>>>>>> a509154be (Feishu: send media payloads as attachments (openclaw#28959) thanks @icesword0760)
 import { buildMentionedCardContent } from "./mention.js";
 import { getFeishuRuntime } from "./runtime.js";
 import { sendMarkdownCardFeishu, sendMessageFeishu } from "./send.js";
@@ -26,8 +23,6 @@ function shouldUseCard(text: string): boolean {
   return /```[\s\S]*?```/.test(text) || /\|.+\|[\r\n]+\|[-:| ]+\|/.test(text);
 }
 
-<<<<<<< HEAD
-=======
 /** Maximum age (ms) for a message to receive a typing indicator reaction.
  * Messages older than this are likely replays after context compaction (#30418). */
 const TYPING_INDICATOR_MAX_AGE_MS = 2 * 60_000;
@@ -42,7 +37,6 @@ function normalizeEpochMs(timestamp: number | undefined): number | undefined {
   return timestamp < MS_EPOCH_MIN ? timestamp * 1000 : timestamp;
 }
 
->>>>>>> 02b195876 (fix(feishu): suppress stale replay typing indicators (#30709) (thanks @arkyu2077))
 export type CreateFeishuReplyDispatcherParams = {
   cfg: ClawdbotConfig;
   agentId: string;
@@ -71,8 +65,6 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
       if (!replyToMessageId) {
         return;
       }
-<<<<<<< HEAD
-=======
       // Skip typing indicator for old messages — likely replays after context
       // compaction that would flood users with stale notifications (#30418).
       const messageCreateTimeMs = normalizeEpochMs(params.messageCreateTimeMs);
@@ -82,7 +74,6 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
       ) {
         return;
       }
->>>>>>> 02b195876 (fix(feishu): suppress stale replay typing indicators (#30709) (thanks @arkyu2077))
       typingState = await addTypingIndicator({
         cfg,
         messageId: replyToMessageId,

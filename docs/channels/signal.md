@@ -18,7 +18,6 @@ Status: external CLI integration. Gateway talks to `signal-cli` over HTTP JSON-R
 - Browser access for Signal captcha (`signalcaptchas.org`) during registration.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Quick setup (beginner)
 <<<<<<< HEAD
 1) Use a **separate Signal number** for the bot (recommended).
@@ -26,10 +25,6 @@ Status: external CLI integration. Gateway talks to `signal-cli` over HTTP JSON-R
 3) Link the bot device and start the daemon:
    - `signal-cli link -n "Moltbot"`
 4) Configure Moltbot and start the gateway.
-=======
-=======
-## Onboarding
->>>>>>> 12d75ff7f (docs: continue channel onboarding/config naming cleanup (#22533))
 =======
 ## Quick setup (beginner)
 >>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
@@ -90,17 +85,11 @@ Disable with:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Setup (fast path)
 1) Install `signal-cli` (Java required).
 2) Link a bot account:
    - `signal-cli link -n "Moltbot"` then scan the QR in Signal.
 3) Configure Signal and start the gateway.
-=======
-## Setup path A: link existing Signal account (QR)
-=======
-## Setup (option A): link existing Signal account (QR)
->>>>>>> d7891badd (docs: more channel heading consistency updates (#22541))
 =======
 ## Onboarding (option A): link existing Signal account (QR)
 >>>>>>> e36245bd3 (docs: finalize onboarding option heading normalization (#22547))
@@ -310,13 +299,7 @@ For triage flow: [/channels/troubleshooting](/channels/troubleshooting).
 - SMS verification is only needed for registration or recovery flows, but losing control of the number/account can complicate re-registration.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Configuration reference (Signal)
-=======
-## Configuration
-=======
-## Configuration reference (Signal)
->>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 >>>>>>> 7c593cd33 (docs: finish onboarding/config heading consistency (#22537))
 Full configuration: [Configuration](/gateway/configuration)

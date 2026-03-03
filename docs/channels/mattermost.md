@@ -31,17 +31,11 @@ Moltbot will offer the local install path automatically.
 Details: [Plugins](/plugin)
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Quick setup
 1) Install the Mattermost plugin.
 2) Create a Mattermost bot account and copy the **bot token**.
 3) Copy the Mattermost **base URL** (e.g., `https://chat.example.com`).
 4) Configure Moltbot and start the gateway.
-=======
-## Onboarding
-=======
-## Quick setup
->>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 1. Install the Mattermost plugin.
 2. Create a Mattermost bot account and copy the **bot token**.

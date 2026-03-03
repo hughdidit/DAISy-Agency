@@ -156,11 +156,7 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
       policyPath: "channels.matrix.dm.policy",
       allowFromPath: "channels.matrix.dm.allowFrom",
       approveHint: formatPairingApproveHint("matrix"),
-<<<<<<< HEAD
       normalizeEntry: (raw) => raw.replace(/^matrix:/i, "").trim().toLowerCase(),
-=======
-      normalizeEntry: (raw) => normalizeMatrixUserId(raw),
->>>>>>> 8f3bfbd1c (fix(matrix): harden allowlists)
     }),
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = (cfg as CoreConfig).channels?.defaults?.groupPolicy;
@@ -409,28 +405,9 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
         accountId: account.accountId,
         baseUrl: account.homeserver,
       });
-<<<<<<< HEAD
       ctx.log?.info(
         `[${account.accountId}] starting provider (${account.homeserver ?? "matrix"})`,
       );
-=======
-      ctx.log?.info(`[${account.accountId}] starting provider (${account.homeserver ?? "matrix"})`);
-
-      // Serialize startup: wait for any previous startup to complete import phase.
-      // This works around a race condition with concurrent dynamic imports.
-      //
-      // INVARIANT: The import() below cannot hang because:
-      // 1. It only loads local ESM modules with no circular awaits
-      // 2. Module initialization is synchronous (no top-level await in ./matrix/index.js)
-      // 3. The lock only serializes the import phase, not the provider startup
-      const previousLock = matrixStartupLock;
-      let releaseLock: () => void = () => {};
-      matrixStartupLock = new Promise<void>((resolve) => {
-        releaseLock = resolve;
-      });
-      await previousLock;
-
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
       // Lazy import: the monitor pulls the reply pipeline; avoid ESM init cycles.
       // Wrap in try/finally to ensure lock is released even if import fails.
       let monitorMatrixProvider: typeof import("./matrix/index.js").monitorMatrixProvider;

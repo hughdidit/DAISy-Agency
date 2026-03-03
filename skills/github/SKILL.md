@@ -1,36 +1,7 @@
 ---
 name: github
-<<<<<<< HEAD
 description: "Interact with GitHub using the `gh` CLI. Use `gh issue`, `gh pr`, `gh run`, and `gh api` for issues, PRs, CI runs, and advanced queries."
 metadata: {"moltbot":{"emoji":"🐙","requires":{"bins":["gh"]},"install":[{"id":"brew","kind":"brew","formula":"gh","bins":["gh"],"label":"Install GitHub CLI (brew)"},{"id":"apt","kind":"apt","package":"gh","bins":["gh"],"label":"Install GitHub CLI (apt)"}]}}
-=======
-description: "GitHub operations via `gh` CLI: issues, PRs, CI runs, code review, API queries. Use when: (1) checking PR status or CI, (2) creating/commenting on issues, (3) listing/filtering PRs or issues, (4) viewing run logs. NOT for: complex web UI interactions requiring manual browser flows (use browser tooling when available), bulk operations across many repos (script with gh api), or when gh auth is not configured."
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🐙",
-        "requires": { "bins": ["gh"] },
-        "install":
-          [
-            {
-              "id": "brew",
-              "kind": "brew",
-              "formula": "gh",
-              "bins": ["gh"],
-              "label": "Install GitHub CLI (brew)",
-            },
-            {
-              "id": "apt",
-              "kind": "apt",
-              "package": "gh",
-              "bins": ["gh"],
-              "label": "Install GitHub CLI (apt)",
-            },
-          ],
-      },
-  }
->>>>>>> cfd384ead (feat(skills): improve descriptions with routing logic (#14577))
 ---
 
 # GitHub Skill
@@ -39,31 +10,7 @@ Use the `gh` CLI to interact with GitHub repositories, issues, PRs, and CI.
 
 ## When to Use
 
-<<<<<<< HEAD
 Check CI status on a PR:
-=======
-✅ **USE this skill when:**
-
-- Checking PR status, reviews, or merge readiness
-- Viewing CI/workflow run status and logs
-- Creating, closing, or commenting on issues
-- Creating or merging pull requests
-- Querying GitHub API for repository data
-- Listing repos, releases, or collaborators
-
-## When NOT to Use
-
-❌ **DON'T use this skill when:**
-
-- Local git operations (commit, push, pull, branch) → use `git` directly
-- Non-GitHub repos (GitLab, Bitbucket, self-hosted) → different CLIs
-- Cloning repositories → use `git clone`
-- Reviewing actual code changes → use `coding-agent` skill
-- Complex multi-file diffs → use `coding-agent` or read files directly
-
-## Setup
-
->>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 ```bash
 # Authenticate (one-time)
 gh auth login
@@ -93,12 +40,7 @@ gh pr create --title "feat: add feature" --body "Description"
 gh pr merge 55 --squash --repo owner/repo
 ```
 
-<<<<<<< HEAD
 List recent workflow runs:
-=======
-### Issues
-
->>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 ```bash
 # List issues
 gh issue list --repo owner/repo --state open
@@ -116,36 +58,23 @@ gh issue close 42 --repo owner/repo
 # List recent runs
 gh run list --repo owner/repo --limit 10
 
-<<<<<<< HEAD
 View a run and see which steps failed:
 ```bash
-=======
-# View specific run
->>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 gh run view <run-id> --repo owner/repo
 
-<<<<<<< HEAD
 View logs for failed steps only:
 ```bash
-=======
-# View failed step logs only
->>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 gh run view <run-id> --repo owner/repo --log-failed
 
 # Re-run failed jobs
 gh run rerun <run-id> --failed --repo owner/repo
 ```
 
-<<<<<<< HEAD
 ## API for Advanced Queries
 
 The `gh api` command is useful for accessing data not available through other subcommands.
 
 Get PR with specific fields:
-=======
-### API Queries
-
->>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 ```bash
 # Get PR with specific fields
 gh api repos/owner/repo/pulls/55 --jq '.title, .state, .user.login'
@@ -159,11 +88,7 @@ gh api repos/owner/repo --jq '{stars: .stargazers_count, forks: .forks_count}'
 
 ## JSON Output
 
-<<<<<<< HEAD
 Most commands support `--json` for structured output.  You can use `--jq` to filter:
-=======
-Most commands support `--json` for structured output with `--jq` filtering:
->>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 
 ```bash
 gh issue list --repo owner/repo --json number,title --jq '.[] | "\(.number): \(.title)"'

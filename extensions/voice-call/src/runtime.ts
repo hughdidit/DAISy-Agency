@@ -43,24 +43,11 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
 
   switch (config.provider) {
     case "telnyx":
-<<<<<<< HEAD
       return new TelnyxProvider({
         apiKey: config.telnyx?.apiKey,
         connectionId: config.telnyx?.connectionId,
         publicKey: config.telnyx?.publicKey,
       }, logger);
-=======
-      return new TelnyxProvider(
-        {
-          apiKey: config.telnyx?.apiKey,
-          connectionId: config.telnyx?.connectionId,
-          publicKey: config.telnyx?.publicKey,
-        },
-        {
-          skipVerification: config.skipSignatureVerification,
-        },
-      );
->>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
     case "twilio":
       return new TwilioProvider(
         {

@@ -24,8 +24,6 @@ function createProps(overrides: Partial<CronProps> = {}): CronProps {
     loading: false,
     status: null,
     jobs: [],
-<<<<<<< HEAD
-=======
     jobsTotal: 0,
     jobsHasMore: false,
     jobsQuery: "",
@@ -34,7 +32,6 @@ function createProps(overrides: Partial<CronProps> = {}): CronProps {
     jobsLastStatusFilter: "all",
     jobsSortBy: "nextRunAtMs",
     jobsSortDir: "asc",
->>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
     error: null,
     busy: false,
     form: { ...DEFAULT_CRON_FORM },
@@ -49,14 +46,11 @@ function createProps(overrides: Partial<CronProps> = {}): CronProps {
     onRun: () => undefined,
     onRemove: () => undefined,
     onLoadRuns: () => undefined,
-<<<<<<< HEAD
-=======
     onLoadMoreJobs: () => undefined,
     onJobsFiltersChange: () => undefined,
     onJobsFiltersReset: () => undefined,
     onLoadMoreRuns: () => undefined,
     onRunsFiltersChange: () => undefined,
->>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
     ...overrides,
   };
 }
@@ -117,8 +111,6 @@ describe("cron view", () => {
     expect(onLoadRuns).toHaveBeenCalledTimes(1);
     expect(onLoadRuns).toHaveBeenCalledWith("job-1");
   });
-<<<<<<< HEAD
-=======
 
   it("renders run chat links when session keys are present", () => {
     const container = document.createElement("div");
@@ -662,5 +654,4 @@ describe("cron view", () => {
     expect(container.querySelector('input[list="cron-tz-suggestions"]')).not.toBeNull();
     expect(container.querySelector('input[list="cron-delivery-to-suggestions"]')).not.toBeNull();
   });
->>>>>>> 8c98cf05b (i18n: add zh-CN for cron page and validation errors (#29315))
 });

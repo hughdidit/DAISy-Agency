@@ -265,8 +265,6 @@ class CameraCaptureManager(private val context: Context) {
   }
 
   private fun Context.mainExecutor(): Executor = ContextCompat.getMainExecutor(this)
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/node/CameraCaptureManager.kt
-=======
 
   private fun resolveCameraSelector(
     provider: ProcessCameraProvider,
@@ -319,7 +317,6 @@ class CameraCaptureManager(private val context: Context) {
   @SuppressLint("UnsafeOptInUsageError")
   private fun cameraIdOrNull(info: CameraInfo): String? =
     runCatching { Camera2CameraInfo.from(info).cameraId }.getOrNull()
->>>>>>> fa9148400 (fix(android): align lint gates and photo permission handling):apps/android/app/src/main/java/ai/openclaw/android/node/CameraCaptureManager.kt
 }
 
 private suspend fun Context.cameraProvider(): ProcessCameraProvider =

@@ -19,13 +19,8 @@ An **agent** is a fully scoped brain with its own:
 
 Auth profiles are **per-agent**. Each agent reads from its own:
 
-<<<<<<< HEAD
 ```
 ~/.clawdbot/agents/<agentId>/agent/auth-profiles.json
-=======
-```text
-~/.openclaw/agents/<agentId>/agent/auth-profiles.json
->>>>>>> 2cf82c357 (Docs: expand multi-agent routing)
 ```
 
 Main agent credentials are **not** shared automatically. Never reuse `agentDir`
@@ -172,24 +167,11 @@ Notes:
 Bindings are **deterministic** and **most-specific wins**:
 
 1. `peer` match (exact DM/group/channel id)
-<<<<<<< HEAD
 2. `guildId` (Discord)
 3. `teamId` (Slack)
 4. `accountId` match for a channel
 5. channel-level match (`accountId: "*"`)
 6. fallback to default agent (`agents.list[].default`, else first list entry, default: `main`)
-=======
-2. `parentPeer` match (thread inheritance)
-3. `guildId + roles` (Discord role routing)
-4. `guildId` (Discord)
-5. `teamId` (Slack)
-6. `accountId` match for a channel
-7. channel-level match (`accountId: "*"`)
-8. fallback to default agent (`agents.list[].default`, else first list entry, default: `main`)
-
-If multiple bindings match in the same tier, the first one in config order wins.
-If a binding sets multiple match fields (for example `peer` + `guildId`), all specified fields are required (`AND` semantics).
->>>>>>> 2cf82c357 (Docs: expand multi-agent routing)
 
 ## Multiple accounts / phone numbers
 

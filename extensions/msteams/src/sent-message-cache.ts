@@ -23,13 +23,7 @@ export function recordMSTeamsSentMessage(conversationId: string, messageId: stri
     sentMessages.set(conversationId, entry);
   }
   entry.timestamps.set(messageId, Date.now());
-<<<<<<< HEAD
   if (entry.messageIds.size > 200) cleanupExpired(entry);
-=======
-  if (entry.timestamps.size > 200) {
-    cleanupExpired(entry);
-  }
->>>>>>> 0bee3f337 (MSTeams: dedupe sent-message cache storage (#22514))
 }
 
 export function wasMSTeamsMessageSent(conversationId: string, messageId: string): boolean {

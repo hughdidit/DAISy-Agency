@@ -15,58 +15,17 @@ If you only have 2 minutes, use this page as a triage front door.
 Run this exact ladder in order:
 
 ```bash
-<<<<<<< HEAD
 moltbot status
 moltbot status --all
 moltbot gateway probe
 moltbot logs --follow
 moltbot doctor
-=======
-openclaw status
-openclaw status --all
-openclaw gateway probe
-openclaw gateway status
-openclaw doctor
-openclaw channels status --probe
-openclaw logs --follow
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 ```
 
 Good output in one line:
 
-<<<<<<< HEAD
 ```bash
 moltbot status --deep
-=======
-- `openclaw status` → shows configured channels and no obvious auth errors.
-- `openclaw status --all` → full report is present and shareable.
-- `openclaw gateway probe` → expected gateway target is reachable.
-- `openclaw gateway status` → `Runtime: running` and `RPC probe: ok`.
-- `openclaw doctor` → no blocking config/service errors.
-- `openclaw channels status --probe` → channels report `connected` or `ready`.
-- `openclaw logs --follow` → steady activity, no repeating fatal errors.
-
-## Decision tree
-
-```mermaid
-flowchart TD
-  A[OpenClaw is not working] --> B{What breaks first}
-  B --> C[No replies]
-  B --> D[Dashboard or Control UI will not connect]
-  B --> E[Gateway will not start or service not running]
-  B --> F[Channel connects but messages do not flow]
-  B --> G[Cron or heartbeat did not fire or did not deliver]
-  B --> H[Node is paired but camera canvas screen exec fails]
-  B --> I[Browser tool fails]
-
-  C --> C1[/No replies section/]
-  D --> D1[/Control UI section/]
-  E --> E1[/Gateway section/]
-  F --> F1[/Channel flow section/]
-  G --> G1[/Automation section/]
-  H --> H1[/Node tools section/]
-  I --> I1[/Browser section/]
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 ```
 
 <AccordionGroup>
@@ -79,11 +38,7 @@ flowchart TD
     openclaw logs --follow
     ```
 
-<<<<<<< HEAD
 ### `moltbot: command not found`
-=======
-    Good output looks like:
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 
     - `Runtime: running`
     - `RPC probe: ok`
@@ -98,13 +53,9 @@ flowchart TD
 
     Deep pages:
 
-<<<<<<< HEAD
 ```bash
 <<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --verbose
-=======
-curl -fsSL https://openclaw.ai/install.sh | bash -s -- --verbose
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 =======
     - [/gateway/troubleshooting#no-replies](/gateway/troubleshooting#no-replies)
@@ -114,13 +65,9 @@ curl -fsSL https://openclaw.ai/install.sh | bash -s -- --verbose
 
   </Accordion>
 
-<<<<<<< HEAD
 ```bash
 <<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --beta --verbose
-=======
-curl -fsSL https://openclaw.ai/install.sh | bash -s -- --beta --verbose
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 You can also set `CLAWDBOT_VERBOSE=1` instead of the flag.
@@ -149,18 +96,10 @@ You can also set `CLAWDBOT_VERBOSE=1` instead of the flag.
 
     Deep pages:
 
-<<<<<<< HEAD
 ### `docs.molt.bot` shows an SSL error (Comcast/Xfinity)
 
 Some Comcast/Xfinity connections block `docs.molt.bot` via Xfinity Advanced Security.
 Disable Advanced Security or add `docs.molt.bot` to the allowlist, then retry.
-=======
-    - [/gateway/troubleshooting#dashboard-control-ui-connectivity](/gateway/troubleshooting#dashboard-control-ui-connectivity)
-    - [/web/control-ui](/web/control-ui)
-    - [/gateway/authentication](/gateway/authentication)
-
-  </Accordion>
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 
   <Accordion title="Gateway will not start or service installed but not running">
     ```bash
@@ -189,13 +128,9 @@ Disable Advanced Security or add `docs.molt.bot` to the allowlist, then retry.
     - [/gateway/background-process](/gateway/background-process)
     - [/gateway/configuration](/gateway/configuration)
 
-<<<<<<< HEAD
 - Check the allowlist: `moltbot config get agents.defaults.models`
 - Add the model you want (or clear the allowlist) and retry `/model`
 - Use `/models` to browse the allowed providers/models
-=======
-  </Accordion>
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 
   <Accordion title="Channel connects but messages do not flow">
     ```bash
@@ -208,118 +143,8 @@ Disable Advanced Security or add `docs.molt.bot` to the allowlist, then retry.
 
     Good output looks like:
 
-<<<<<<< HEAD
 ```bash
 moltbot status --all
 ```
 
 If you can, include the relevant log tail from `moltbot logs --follow`.
-=======
-    - Channel transport is connected.
-    - Pairing/allowlist checks pass.
-    - Mentions are detected where required.
-
-    Common log signatures:
-
-    - `mention required` → group mention gating blocked processing.
-    - `pairing` / `pending` → DM sender is not approved yet.
-    - `not_in_channel`, `missing_scope`, `Forbidden`, `401/403` → channel permission token issue.
-
-    Deep pages:
-
-    - [/gateway/troubleshooting#channel-connected-messages-not-flowing](/gateway/troubleshooting#channel-connected-messages-not-flowing)
-    - [/channels/troubleshooting](/channels/troubleshooting)
-
-  </Accordion>
-
-  <Accordion title="Cron or heartbeat did not fire or did not deliver">
-    ```bash
-    openclaw status
-    openclaw gateway status
-    openclaw cron status
-    openclaw cron list
-    openclaw cron runs --id <jobId> --limit 20
-    openclaw logs --follow
-    ```
-
-    Good output looks like:
-
-    - `cron.status` shows enabled with a next wake.
-    - `cron runs` shows recent `ok` entries.
-    - Heartbeat is enabled and not outside active hours.
-
-    Common log signatures:
-
-    - `cron: scheduler disabled; jobs will not run automatically` → cron is disabled.
-    - `heartbeat skipped` with `reason=quiet-hours` → outside configured active hours.
-    - `requests-in-flight` → main lane busy; heartbeat wake was deferred.
-    - `unknown accountId` → heartbeat delivery target account does not exist.
-
-    Deep pages:
-
-    - [/gateway/troubleshooting#cron-and-heartbeat-delivery](/gateway/troubleshooting#cron-and-heartbeat-delivery)
-    - [/automation/troubleshooting](/automation/troubleshooting)
-    - [/gateway/heartbeat](/gateway/heartbeat)
-
-  </Accordion>
-
-  <Accordion title="Node is paired but tool fails camera canvas screen exec">
-    ```bash
-    openclaw status
-    openclaw gateway status
-    openclaw nodes status
-    openclaw nodes describe --node <idOrNameOrIp>
-    openclaw logs --follow
-    ```
-
-    Good output looks like:
-
-    - Node is listed as connected and paired for role `node`.
-    - Capability exists for the command you are invoking.
-    - Permission state is granted for the tool.
-
-    Common log signatures:
-
-    - `NODE_BACKGROUND_UNAVAILABLE` → bring node app to foreground.
-    - `*_PERMISSION_REQUIRED` → OS permission was denied/missing.
-    - `SYSTEM_RUN_DENIED: approval required` → exec approval is pending.
-    - `SYSTEM_RUN_DENIED: allowlist miss` → command not on exec allowlist.
-
-    Deep pages:
-
-    - [/gateway/troubleshooting#node-paired-tool-fails](/gateway/troubleshooting#node-paired-tool-fails)
-    - [/nodes/troubleshooting](/nodes/troubleshooting)
-    - [/tools/exec-approvals](/tools/exec-approvals)
-
-  </Accordion>
-
-  <Accordion title="Browser tool fails">
-    ```bash
-    openclaw status
-    openclaw gateway status
-    openclaw browser status
-    openclaw logs --follow
-    openclaw doctor
-    ```
-
-    Good output looks like:
-
-    - Browser status shows `running: true` and a chosen browser/profile.
-    - `openclaw` profile starts or `chrome` relay has an attached tab.
-
-    Common log signatures:
-
-    - `Failed to start Chrome CDP on port` → local browser launch failed.
-    - `browser.executablePath not found` → configured binary path is wrong.
-    - `Chrome extension relay is running, but no tab is connected` → extension not attached.
-    - `Browser attachOnly is enabled ... not reachable` → attach-only profile has no live CDP target.
-
-    Deep pages:
-
-    - [/gateway/troubleshooting#browser-tool-fails](/gateway/troubleshooting#browser-tool-fails)
-    - [/tools/browser-linux-troubleshooting](/tools/browser-linux-troubleshooting)
-    - [/tools/chrome-extension](/tools/chrome-extension)
-
-  </Accordion>
-</AccordionGroup>
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))

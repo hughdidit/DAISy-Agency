@@ -7,24 +7,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## 2026.1.27-beta.1
-=======
-=======
-## 2026.2.3
-=======
-=======
-=======
-## 2026.2.13
-=======
-=======
-## 2026.2.25
-
-### Changes
-
-- Version alignment with core OpenClaw release numbers.
-
->>>>>>> 2652bb1d7 (Release: sync plugin versions to 2026.2.25)
 ## 2026.2.24
 
 ### Changes
@@ -82,7 +65,6 @@
 - Removed legacy `tts.model`/`tts.voice`/`tts.instructions` plugin fields.
 - Ngrok free-tier bypass renamed to `tunnel.allowNgrokFreeTierLoopbackBypass` and gated to loopback + `tunnel.provider="ngrok"`.
 
-<<<<<<< HEAD
 ## 2026.1.23
 
 ### Changes
@@ -128,8 +110,6 @@
 ### Changes
 - Version alignment with core Moltbot release numbers.
 
-=======
->>>>>>> 95c14d9b5 (docs: prune low-signal changelog entries)
 ## 0.1.0
 
 ### Highlights

@@ -98,8 +98,6 @@ embeddings for memory search. For Gemini, use `GEMINI_API_KEY` or
 `models.providers.google.apiKey`. When using a custom OpenAI-compatible endpoint,
 set `memorySearch.remote.apiKey` (and optional `memorySearch.remote.headers`).
 
-<<<<<<< HEAD
-=======
 ### QMD backend (experimental)
 
 Set `memory.backend = "qmd"` to swap the built-in SQLite indexer for
@@ -156,7 +154,6 @@ out to QMD for retrieval. Key points:
     ```bash
     # Pick the same state dir OpenClaw uses
     STATE_DIR="${OPENCLAW_STATE_DIR:-$HOME/.openclaw}"
->>>>>>> b37626ce6 (docs: finish renaming memory state dir references)
     if [ -d "$HOME/.moltbot" ] && [ ! -d "$HOME/.openclaw" ] \
       && [ -z "${OPENCLAW_STATE_DIR:-}" ]; then
       STATE_DIR="$HOME/.moltbot"
@@ -347,17 +344,10 @@ Local mode:
 
 ### What gets indexed (and when)
 
-<<<<<<< HEAD
 - File type: Markdown only (`MEMORY.md`, `memory/**/*.md`, plus any `.md` files under `memorySearch.extraPaths`).
 - Index storage: per-agent SQLite at `~/.clawdbot/memory/<agentId>.sqlite` (configurable via `agents.defaults.memorySearch.store.path`, supports `{agentId}` token).
 - Freshness: watcher on `MEMORY.md`, `memory/`, and `memorySearch.extraPaths` marks the index dirty (debounce 1.5s). Sync is scheduled on session start, on search, or on an interval and runs asynchronously. Session transcripts use delta thresholds to trigger background sync.
 - Reindex triggers: the index stores the embedding **provider/model + endpoint fingerprint + chunking params**. If any of those change, Moltbot automatically resets and reindexes the entire store.
-=======
-- File type: Markdown only (`MEMORY.md`, `memory/**/*.md`).
-- Index storage: per-agent SQLite at `~/.openclaw/memory/<agentId>.sqlite` (configurable via `agents.defaults.memorySearch.store.path`, supports `{agentId}` token).
-- Freshness: watcher on `MEMORY.md` + `memory/` marks the index dirty (debounce 1.5s). Sync is scheduled on session start, on search, or on an interval and runs asynchronously. Session transcripts use delta thresholds to trigger background sync.
-- Reindex triggers: the index stores the embedding **provider/model + endpoint fingerprint + chunking params**. If any of those change, OpenClaw automatically resets and reindexes the entire store.
->>>>>>> b37626ce6 (docs: finish renaming memory state dir references)
 
 ### Hybrid search (BM25 + vector)
 
@@ -391,16 +381,10 @@ Implementation sketch:
 - **BM25**: top `maxResults * candidateMultiplier` by FTS5 BM25 rank (lower is better).
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 2) Convert BM25 rank into a 0..1-ish score:
 - `textScore = 1 / (1 + max(0, bm25Rank))`
 
 3) Union candidates by chunk id and compute a weighted score:
-=======
-1. Convert BM25 rank into a 0..1-ish score:
-=======
-2. Convert BM25 rank into a 0..1-ish score:
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - `textScore = 1 / (1 + max(0, bm25Rank))`
 

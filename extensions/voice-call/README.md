@@ -74,17 +74,8 @@ Put under `plugins.entries.voice-call.config`:
 
   streaming: {
     enabled: true,
-<<<<<<< HEAD
     streamPath: "/voice/stream"
   }
-=======
-    streamPath: "/voice/stream",
-    preStartTimeoutMs: 5000,
-    maxPendingConnections: 32,
-    maxPendingConnectionsPerIp: 4,
-    maxConnections: 128,
-  },
->>>>>>> 1d8968c8a (fix(voice-call): harden media stream pre-start websocket handling)
 }
 ```
 

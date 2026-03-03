@@ -1,19 +1,6 @@
 {
-<<<<<<< HEAD
   "name": "@moltbot/googlechat",
   "version": "2026.1.27-beta.1",
-=======
-  "name": "@openclaw/googlechat",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.1.29",
->>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
   "version": "2026.2.2",
 =======
@@ -41,18 +28,8 @@
   "description": "OpenClaw Google Chat channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-<<<<<<< HEAD
   "description": "Moltbot Google Chat channel plugin",
   "moltbot": {
-=======
-  "dependencies": {
-    "google-auth-library": "^10.5.0"
-  },
-  "peerDependencies": {
-    "openclaw": ">=2026.1.26"
-  },
-  "openclaw": {
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
     "extensions": [
       "./index.ts"
     ],

@@ -32,11 +32,7 @@ Shelley, [exe.dev](https://exe.dev)'s agent, can install Moltbot instantly with 
 prompt. The prompt used is as below:
 
 ```
-<<<<<<< HEAD
 Set up Moltbot (https://docs.molt.bot/install) on this VM. Use the non-interactive and accept-risk flags for moltbot onboarding. Add the supplied auth or token as needed. Configure nginx to forward from the default port 18789 to the root location on the default enabled site config, making sure to enable Websocket support. Pairing is done by "moltbot devices list" and "moltbot device approve <request id>". Make sure the dashboard shows that Moltbot's health is OK. exe.dev handles forwarding from port 8000 to port 80/443 and HTTPS for us, so the final "reachable" should be <vm-name>.exe.xyz, without port specification.
-=======
-Set up OpenClaw (https://docs.openclaw.ai/install) on this VM. Use the non-interactive and accept-risk flags for openclaw onboarding. Add the supplied auth or token as needed. Configure nginx to forward from the default port 18789 to the root location on the default enabled site config, making sure to enable Websocket support. Pairing is done by "openclaw devices list" and "openclaw devices approve <request id>". Make sure the dashboard shows that OpenClaw's health is OK. exe.dev handles forwarding from port 8000 to port 80/443 and HTTPS for us, so the final "reachable" should be <vm-name>.exe.xyz, without port specification.
->>>>>>> 0d4c80640 (docs: fix devices approve command in exe.dev guide)
 ```
 
 ## Manual installation
@@ -69,11 +65,7 @@ sudo apt-get install -y git curl jq ca-certificates openssl
 Run the Moltbot install script:
 
 ```bash
-<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
-=======
-curl -fsSL https://openclaw.ai/install.sh | bash
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 ## 4) Setup nginx to proxy Moltbot to port 8000
@@ -112,13 +104,8 @@ server {
 
 ## 5) Access Moltbot and grant privileges
 
-<<<<<<< HEAD
 Access `https://<vm-name>.exe.xyz/?token=YOUR-TOKEN-FROM-TERMINAL`. Approve
 devices with `moltbot devices list` and `moltbot device approve`. When in doubt,
-=======
-Access `https://<vm-name>.exe.xyz/?token=YOUR-TOKEN-FROM-TERMINAL` (see the Control UI output from onboarding). Approve
-devices with `openclaw devices list` and `openclaw devices approve <requestId>`. When in doubt,
->>>>>>> d54605bd8 (docs: improve exe.dev setup instructions (#4675))
 use Shelley from your browser!
 
 ## Remote Access

@@ -408,7 +408,6 @@ private struct ToolResultCard: View {
     @State private var expanded = false
 
     var body: some View {
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatMessageViews.swift
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
                 Text(self.title)
@@ -424,28 +423,6 @@ private struct ToolResultCard: View {
             if self.shouldShowToggle {
                 Button(self.expanded ? "Show less" : "Show full output") {
                     self.expanded.toggle()
-=======
-        if !self.displayContent.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 6) {
-                    Text(self.title)
-                        .font(.footnote.weight(.semibold))
-                    Spacer(minLength: 0)
-                }
-
-                Text(self.displayText)
-                    .font(.footnote.monospaced())
-                    .foregroundStyle(self.isUser ? OpenClawChatTheme.userText : OpenClawChatTheme.assistantText)
-                    .lineLimit(self.expanded ? nil : Self.previewLineLimit)
-
-                if self.shouldShowToggle {
-                    Button(self.expanded ? "Show less" : "Show full output") {
-                        self.expanded.toggle()
-                    }
-                    .buttonStyle(.plain)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
->>>>>>> 9476dda9f (iOS Chat: clean UI noise and format tool outputs (#22122)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatMessageViews.swift
                 }
             }
             .padding(10)
@@ -456,7 +433,6 @@ private struct ToolResultCard: View {
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
                             .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)))
         }
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatMessageViews.swift
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -464,8 +440,6 @@ private struct ToolResultCard: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)))
-=======
->>>>>>> 9476dda9f (iOS Chat: clean UI noise and format tool outputs (#22122)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatMessageViews.swift
     }
 
     private static let previewLineLimit = 8
@@ -495,16 +469,12 @@ struct ChatTypingIndicatorBubble: View {
     var body: some View {
         HStack(spacing: 10) {
             TypingDots()
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatMessageViews.swift
             if self.style == .standard {
                 Text("Clawd is thinking…")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
             }
-=======
-            Spacer(minLength: 0)
->>>>>>> 9476dda9f (iOS Chat: clean UI noise and format tool outputs (#22122)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatMessageViews.swift
         }
         .padding(.vertical, self.style == .standard ? 12 : 10)
         .padding(.horizontal, self.style == .standard ? 12 : 14)

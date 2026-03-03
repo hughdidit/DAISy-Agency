@@ -1,11 +1,6 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
 import type { PlivoConfig } from "../config.js";
-=======
-import { fetchWithSsrFGuard } from "openclaw/plugin-sdk";
-import type { PlivoConfig, WebhookSecurityConfig } from "../config.js";
->>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
 import type {
   HangupCallInput,
   InitiateCallInput,
@@ -151,17 +146,9 @@ export class PlivoProvider implements VoiceCallProvider {
     };
   }
 
-<<<<<<< HEAD
   parseWebhookEvent(ctx: WebhookContext): ProviderWebhookParseResult {
     const flow =
       typeof ctx.query?.flow === "string" ? ctx.query.flow.trim() : "";
-=======
-  parseWebhookEvent(
-    ctx: WebhookContext,
-    options?: WebhookParseOptions,
-  ): ProviderWebhookParseResult {
-    const flow = typeof ctx.query?.flow === "string" ? ctx.query.flow.trim() : "";
->>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
 
     const parsed = this.parseBody(ctx.rawBody);
     if (!parsed) {
@@ -241,10 +228,7 @@ export class PlivoProvider implements VoiceCallProvider {
   private normalizeEvent(
     params: URLSearchParams,
     callIdOverride?: string,
-<<<<<<< HEAD
-=======
     dedupeKey?: string,
->>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
   ): NormalizedEvent | null {
     const callUuid = params.get("CallUUID") || "";
     const requestUuid = params.get("RequestUUID") || "";

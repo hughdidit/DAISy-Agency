@@ -36,8 +36,6 @@ final class CalendarService: CalendarServicing {
         return OpenClawCalendarEventsPayload(events: payload)
     }
 
-<<<<<<< HEAD
-=======
     func add(params: OpenClawCalendarAddParams) async throws -> OpenClawCalendarAddPayload {
         let store = EKEventStore()
         let status = EKEventStore.authorizationStatus(for: .event)
@@ -97,22 +95,16 @@ final class CalendarService: CalendarServicing {
         return OpenClawCalendarAddPayload(event: payload)
     }
 
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     private static func ensureAuthorization(store: EKEventStore, status: EKAuthorizationStatus) async -> Bool {
         switch status {
         case .authorized:
             return true
         case .notDetermined:
-<<<<<<< HEAD
             return await withCheckedContinuation { cont in
                 store.requestAccess(to: .event) { granted, _ in
                     cont.resume(returning: granted)
                 }
             }
-=======
-            // Don’t prompt during node.invoke; prompts block the invoke and lead to timeouts.
-            return false
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
         case .restricted, .denied:
             return false
         case .fullAccess:
@@ -124,8 +116,6 @@ final class CalendarService: CalendarServicing {
         }
     }
 
-<<<<<<< HEAD
-=======
     private static func ensureWriteAuthorization(store: EKEventStore, status: EKAuthorizationStatus) async -> Bool {
         switch status {
         case .authorized, .fullAccess, .writeOnly:
@@ -171,7 +161,6 @@ final class CalendarService: CalendarServicing {
         ])
     }
 
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     private static func resolveRange(startISO: String?, endISO: String?) -> (Date, Date) {
         let formatter = ISO8601DateFormatter()
         let start = startISO.flatMap { formatter.date(from: $0) } ?? Date()

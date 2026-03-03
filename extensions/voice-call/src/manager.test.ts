@@ -238,8 +238,6 @@ describe("CallManager", () => {
 
     expect(manager.getCallByProviderCallId("provider-exact")).toBeDefined();
   });
-<<<<<<< HEAD
-=======
 
   it("completes a closed-loop turn without live audio", async () => {
     const { manager, provider } = createManagerHarness({
@@ -454,5 +452,4 @@ describe("CallManager", () => {
     expect(provider.startListeningCalls).toHaveLength(5);
     expect(provider.stopListeningCalls).toHaveLength(5);
   });
->>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
 });

@@ -115,8 +115,6 @@ describe("handleChatEvent", () => {
     expect(state.chatStream).toBe(null);
     expect(state.chatStreamStartedAt).toBe(null);
   });
-<<<<<<< HEAD
-=======
 
   it("appends final payload message from own run before clearing stream state", () => {
     const state = createState({
@@ -262,5 +260,4 @@ describe("handleChatEvent", () => {
     expect(state.chatStreamStartedAt).toBe(null);
     expect(state.chatMessages).toEqual([existingMessage]);
   });
->>>>>>> 8264d4521 (fix(webchat): render final assistant payloads without history wait (#14928))
 });

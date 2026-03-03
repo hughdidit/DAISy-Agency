@@ -1,11 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
-=======
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk";
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
 import { getMatrixRuntime } from "../runtime.js";
 
 export type MatrixStoredCredentials = {
@@ -88,20 +84,9 @@ export function saveMatrixCredentials(
   fs.writeFileSync(credPath, JSON.stringify(toSave, null, 2), "utf-8");
 }
 
-<<<<<<< HEAD
 export function touchMatrixCredentials(env: NodeJS.ProcessEnv = process.env): void {
   const existing = loadMatrixCredentials(env);
   if (!existing) return;
-=======
-export function touchMatrixCredentials(
-  env: NodeJS.ProcessEnv = process.env,
-  accountId?: string | null,
-): void {
-  const existing = loadMatrixCredentials(env, accountId);
-  if (!existing) {
-    return;
-  }
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
 
   existing.lastUsedAt = new Date().toISOString();
   const credPath = resolveMatrixCredentialsPath(env, accountId);

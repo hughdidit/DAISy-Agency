@@ -1,9 +1,5 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
-=======
-import { fetchWithSsrFGuard } from "openclaw/plugin-sdk";
->>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
 import type { TelnyxConfig } from "../config.js";
 import type {
   EndReason,
@@ -45,13 +41,9 @@ export class TelnyxProvider implements VoiceCallProvider {
   private readonly baseUrl = "https://api.telnyx.com/v2";
   private readonly apiHost = "api.telnyx.com";
 
-<<<<<<< HEAD
   private readonly logger: Logger;
 
   constructor(config: TelnyxConfig, logger?: Logger) {
-=======
-  constructor(config: TelnyxConfig, options: TelnyxProviderOptions = {}) {
->>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
     if (!config.apiKey) {
       throw new Error("Telnyx API key is required");
     }
@@ -62,11 +54,7 @@ export class TelnyxProvider implements VoiceCallProvider {
     this.apiKey = config.apiKey;
     this.connectionId = config.connectionId;
     this.publicKey = config.publicKey;
-<<<<<<< HEAD
     this.logger = logger ?? defaultLogger;
-=======
-    this.options = options;
->>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
   }
 
   /**
@@ -114,16 +102,7 @@ export class TelnyxProvider implements VoiceCallProvider {
       skipVerification: this.options.skipVerification,
     });
 
-<<<<<<< HEAD
     return { ok: result.ok, reason: result.reason };
-=======
-    return {
-      ok: result.ok,
-      reason: result.reason,
-      isReplay: result.isReplay,
-      verifiedRequestKey: result.verifiedRequestKey,
-    };
->>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
   }
 
   /**

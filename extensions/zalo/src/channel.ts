@@ -13,12 +13,9 @@ import {
   migrateBaseNameToDefaultAccount,
   normalizeAccountId,
   PAIRING_APPROVED_MESSAGE,
-<<<<<<< HEAD
-=======
   resolveDefaultGroupPolicy,
   resolveOpenProviderRuntimeGroupPolicy,
   resolveChannelAccountConfigBasePath,
->>>>>>> b4010a0b6 (fix(zalo): enforce group sender policy in groups)
   setAccountEnabledInConfigSection,
 } from "clawdbot/plugin-sdk";
 

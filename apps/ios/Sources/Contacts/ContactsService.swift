@@ -3,8 +3,6 @@ import Foundation
 import OpenClawKit
 
 final class ContactsService: ContactsServicing {
-<<<<<<< HEAD
-=======
     private static var payloadKeys: [CNKeyDescriptor] {
         [
             CNContactIdentifierKey as CNKeyDescriptor,
@@ -16,7 +14,6 @@ final class ContactsService: ContactsServicing {
         ]
     }
 
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     func search(params: OpenClawContactsSearchParams) async throws -> OpenClawContactsSearchPayload {
         let store = CNContactStore()
         let status = CNContactStore.authorizationStatus(for: .contacts)
@@ -28,7 +25,6 @@ final class ContactsService: ContactsServicing {
         }
 
         let limit = max(1, min(params.limit ?? 25, 200))
-<<<<<<< HEAD
         let keys: [CNKeyDescriptor] = [
             CNContactIdentifierKey as CNKeyDescriptor,
             CNContactGivenNameKey as CNKeyDescriptor,
@@ -37,21 +33,13 @@ final class ContactsService: ContactsServicing {
             CNContactPhoneNumbersKey as CNKeyDescriptor,
             CNContactEmailAddressesKey as CNKeyDescriptor,
         ]
-=======
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 
         var contacts: [CNContact] = []
         if let query = params.query?.trimmingCharacters(in: .whitespacesAndNewlines), !query.isEmpty {
             let predicate = CNContact.predicateForContacts(matchingName: query)
-<<<<<<< HEAD
             contacts = try store.unifiedContacts(matching: predicate, keysToFetch: keys)
         } else {
             let request = CNContactFetchRequest(keysToFetch: keys)
-=======
-            contacts = try store.unifiedContacts(matching: predicate, keysToFetch: Self.payloadKeys)
-        } else {
-            let request = CNContactFetchRequest(keysToFetch: Self.payloadKeys)
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
             try store.enumerateContacts(with: request) { contact, stop in
                 contacts.append(contact)
                 if contacts.count >= limit {
@@ -61,7 +49,6 @@ final class ContactsService: ContactsServicing {
         }
 
         let sliced = Array(contacts.prefix(limit))
-<<<<<<< HEAD
         let payload = sliced.map { contact in
             OpenClawContactPayload(
                 identifier: contact.identifier,
@@ -73,15 +60,10 @@ final class ContactsService: ContactsServicing {
                 phoneNumbers: contact.phoneNumbers.map { $0.value.stringValue },
                 emails: contact.emailAddresses.map { String($0.value) })
         }
-=======
-        let payload = sliced.map { Self.payload(from: $0) }
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 
         return OpenClawContactsSearchPayload(contacts: payload)
     }
 
-<<<<<<< HEAD
-=======
     func add(params: OpenClawContactsAddParams) async throws -> OpenClawContactsAddPayload {
         let store = CNContactStore()
         let status = CNContactStore.authorizationStatus(for: .contacts)
@@ -148,31 +130,22 @@ final class ContactsService: ContactsServicing {
         return OpenClawContactsAddPayload(contact: Self.payload(from: persisted))
     }
 
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     private static func ensureAuthorization(store: CNContactStore, status: CNAuthorizationStatus) async -> Bool {
         switch status {
         case .authorized, .limited:
             return true
         case .notDetermined:
-<<<<<<< HEAD
             return await withCheckedContinuation { cont in
                 store.requestAccess(for: .contacts) { granted, _ in
                     cont.resume(returning: granted)
                 }
             }
-=======
-            // Don’t prompt during node.invoke; the caller should instruct the user to grant permission.
-            // Prompts block the invoke and lead to timeouts in headless flows.
-            return false
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
         case .restricted, .denied:
             return false
         @unknown default:
             return false
         }
     }
-<<<<<<< HEAD
-=======
 
     private static func normalizeStrings(_ values: [String]?, lowercased: Bool = false) -> [String] {
         (values ?? [])
@@ -256,5 +229,4 @@ final class ContactsService: ContactsServicing {
         matchContacts(contacts: [contact], phoneNumbers: phoneNumbers, emails: emails) != nil
     }
 #endif
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 }

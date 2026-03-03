@@ -56,24 +56,11 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
             let controller = GatewayConnectionController(appModel: appModel, startDiscovery: false)
             let caps = Set(controller._test_currentCaps())
 
-<<<<<<< HEAD
             #expect(caps.contains(MoltbotCapability.canvas.rawValue))
             #expect(caps.contains(MoltbotCapability.screen.rawValue))
             #expect(caps.contains(MoltbotCapability.camera.rawValue))
             #expect(caps.contains(MoltbotCapability.location.rawValue))
             #expect(caps.contains(MoltbotCapability.voiceWake.rawValue))
-=======
-            #expect(caps.contains(OpenClawCapability.canvas.rawValue))
-            #expect(caps.contains(OpenClawCapability.screen.rawValue))
-            #expect(caps.contains(OpenClawCapability.camera.rawValue))
-            #expect(caps.contains(OpenClawCapability.location.rawValue))
-            #expect(caps.contains(OpenClawCapability.voiceWake.rawValue))
-            #expect(caps.contains(OpenClawCapability.device.rawValue))
-            #expect(caps.contains(OpenClawCapability.photos.rawValue))
-            #expect(caps.contains(OpenClawCapability.contacts.rawValue))
-            #expect(caps.contains(OpenClawCapability.calendar.rawValue))
-            #expect(caps.contains(OpenClawCapability.reminders.rawValue))
->>>>>>> 7b0a0f3da (iOS: wire node services and tests)
         }
     }
 
@@ -89,33 +76,21 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
             #expect(commands.contains(MoltbotLocationCommand.get.rawValue))
         }
     }
-<<<<<<< HEAD
 
     @Test @MainActor func currentCommandsExcludeShellAndIncludeNotifyAndDevice() {
         withUserDefaults([
             "node.instanceId": "ios-test",
-=======
-    @Test @MainActor func currentCommandsExcludeDangerousSystemExecCommands() {
-        withUserDefaults([
-            "node.instanceId": "ios-test",
-            "camera.enabled": true,
-            "location.enabledMode": OpenClawLocationMode.whileUsing.rawValue,
->>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
         ]) {
             let appModel = NodeAppModel()
             let controller = GatewayConnectionController(appModel: appModel, startDiscovery: false)
             let commands = Set(controller._test_currentCommands())
 
-<<<<<<< HEAD
-=======
             // iOS should expose notify, but not host shell/exec-approval commands.
->>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
             #expect(commands.contains(OpenClawSystemCommand.notify.rawValue))
             #expect(!commands.contains(OpenClawSystemCommand.run.rawValue))
             #expect(!commands.contains(OpenClawSystemCommand.which.rawValue))
             #expect(!commands.contains(OpenClawSystemCommand.execApprovalsGet.rawValue))
             #expect(!commands.contains(OpenClawSystemCommand.execApprovalsSet.rawValue))
-<<<<<<< HEAD
 
             #expect(commands.contains(OpenClawDeviceCommand.status.rawValue))
             #expect(commands.contains(OpenClawDeviceCommand.info.rawValue))
@@ -137,33 +112,5 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
         #expect(keys.contains("calendar"))
         #expect(keys.contains("reminders"))
         #expect(keys.contains("motion"))
-=======
-        }
-    }
-
-    @Test @MainActor func loadLastConnectionReadsSavedValues() {
-        withUserDefaults([:]) {
-            GatewaySettingsStore.saveLastGatewayConnectionManual(
-                host: "gateway.example.com",
-                port: 443,
-                useTLS: true,
-                stableID: "manual|gateway.example.com|443")
-            let loaded = GatewaySettingsStore.loadLastGatewayConnection()
-            #expect(loaded == .manual(host: "gateway.example.com", port: 443, useTLS: true, stableID: "manual|gateway.example.com|443"))
-        }
-    }
-
-    @Test @MainActor func loadLastConnectionReturnsNilForInvalidData() {
-        withUserDefaults([
-            "gateway.last.kind": "manual",
-            "gateway.last.host": "",
-            "gateway.last.port": 0,
-            "gateway.last.tls": false,
-            "gateway.last.stableID": "manual|invalid|0",
-        ]) {
-            let loaded = GatewaySettingsStore.loadLastGatewayConnection()
-            #expect(loaded == nil)
-        }
->>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
     }
 }

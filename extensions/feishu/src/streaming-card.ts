@@ -173,8 +173,6 @@ export class FeishuStreamingSession {
     this.log?.(`Started streaming: cardId=${cardId}, messageId=${sendRes.data.message_id}`);
   }
 
-<<<<<<< HEAD
-=======
   private async updateCardContent(text: string, onError?: (error: unknown) => void): Promise<void> {
     if (!this.state) {
       return;
@@ -204,7 +202,6 @@ export class FeishuStreamingSession {
       .catch((error) => onError?.(error));
   }
 
->>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
   async update(text: string): Promise<void> {
     if (!this.state || this.closed) {
       return;

@@ -122,8 +122,6 @@ describe("telegramPlugin duplicate token guard", () => {
     expect(probeTelegram).not.toHaveBeenCalled();
     expect(monitorTelegramProvider).not.toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
 
   it("passes webhookPort through to monitor startup options", async () => {
     const monitorTelegramProvider = vi.fn(async () => undefined);
@@ -194,5 +192,4 @@ describe("telegramPlugin duplicate token guard", () => {
     );
     expect(result).toMatchObject({ channel: "telegram", messageId: "tg-1" });
   });
->>>>>>> 4adfe8002 (fix(extensions): preserve mediaLocalRoots in telegram/discord sendMedia)
 });

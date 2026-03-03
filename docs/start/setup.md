@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
 summary: "Setup guide: keep your Moltbot setup tailored while staying up-to-date"
-=======
-summary: "Advanced setup and development workflows for OpenClaw"
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 read_when:
   - Setting up a new machine
   - You want “latest + greatest” without breaking your personal setup
@@ -70,11 +66,7 @@ moltbot channels login
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 5) Sanity check:
-=======
-1. Sanity check:
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 5. Sanity check:
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -138,21 +130,10 @@ Use this when debugging auth or deciding what to back up:
 - **Telegram bot token**: config/env or `channels.telegram.tokenFile`
 - **Discord bot token**: config/env (token file not yet supported)
 - **Slack tokens**: config/env (`channels.slack.*`)
-<<<<<<< HEAD
 - **Pairing allowlists**: `~/.clawdbot/credentials/<channel>-allowFrom.json`
 - **Model auth profiles**: `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`
 - **Legacy OAuth import**: `~/.clawdbot/credentials/oauth.json`
 More detail: [Security](/gateway/security#credential-storage-map).
-=======
-- **Pairing allowlists**:
-  - `~/.openclaw/credentials/<channel>-allowFrom.json` (default account)
-  - `~/.openclaw/credentials/<channel>-<accountId>-allowFrom.json` (non-default accounts)
-- **Model auth profiles**: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
-- **Encrypted secrets payload (optional)**: `~/.openclaw/secrets.enc.json`
-- **Secrets migration backups (optional)**: `~/.openclaw/backups/secrets-migrate/<backupId>/`
-- **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`
-  More detail: [Security](/gateway/security#credential-storage-map).
->>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 
 ## Updating (without wrecking your setup)
 

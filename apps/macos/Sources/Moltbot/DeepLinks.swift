@@ -96,13 +96,8 @@ final class DeepLinkHandler {
             let urlText = originalURL.absoluteString
             let urlPreview = urlText.count > 500 ? "\(urlText.prefix(500))…" : urlText
             let body =
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/DeepLinks.swift
                 "Run the agent with this message?\n\n\(trimmed)\n\nURL:\n\(originalURL.absoluteString)"
             guard self.confirm(title: "Run Moltbot agent?", message: body) else { return }
-=======
-                "Run the agent with this message?\n\n\(messagePreview)\n\nURL:\n\(urlPreview)"
-            guard self.confirm(title: "Run OpenClaw agent?", message: body) else { return }
->>>>>>> 28d9dd7a7 (fix(macos): harden openclaw deep links):apps/macos/Sources/OpenClaw/DeepLinks.swift
         }
 
         if AppStateStore.shared.connectionMode == .local {

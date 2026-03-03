@@ -4,8 +4,6 @@ import { sendMediaFeishu } from "./media.js";
 import { getFeishuRuntime } from "./runtime.js";
 import { sendMarkdownCardFeishu, sendMessageFeishu } from "./send.js";
 
-<<<<<<< HEAD
-=======
 function normalizePossibleLocalImagePath(text: string | undefined): string | null {
   const raw = text?.trim();
   if (!raw) return null;
@@ -60,42 +58,13 @@ async function sendOutboundText(params: {
   return sendMessageFeishu({ cfg, to, text, accountId });
 }
 
->>>>>>> 2a252a14c (fix(feishu): harden target routing, dedupe, and reply fallback)
 export const feishuOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",
   chunker: (text, limit) => getFeishuRuntime().channel.text.chunkMarkdownText(text, limit),
   chunkerMode: "markdown",
   textChunkLimit: 4000,
   sendText: async ({ cfg, to, text, accountId }) => {
-<<<<<<< HEAD
     const result = await sendMessageFeishu({ cfg, to, text, accountId: accountId ?? undefined });
-=======
-    // Scheme A compatibility shim:
-    // when upstream accidentally returns a local image path as plain text,
-    // auto-upload and send as Feishu image message instead of leaking path text.
-    const localImagePath = normalizePossibleLocalImagePath(text);
-    if (localImagePath) {
-      try {
-        const result = await sendMediaFeishu({
-          cfg,
-          to,
-          mediaUrl: localImagePath,
-          accountId: accountId ?? undefined,
-        });
-        return { channel: "feishu", ...result };
-      } catch (err) {
-        console.error(`[feishu] local image path auto-send failed:`, err);
-        // fall through to plain text as last resort
-      }
-    }
-
-    const result = await sendOutboundText({
-      cfg,
-      to,
-      text,
-      accountId: accountId ?? undefined,
-    });
->>>>>>> 2a252a14c (fix(feishu): harden target routing, dedupe, and reply fallback)
     return { channel: "feishu", ...result };
   },
   sendMedia: async ({ cfg, to, text, mediaUrl, accountId, mediaLocalRoots }) => {

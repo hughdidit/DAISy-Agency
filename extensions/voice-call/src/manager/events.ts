@@ -1,14 +1,8 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
 import type { CallId, CallRecord, CallState, NormalizedEvent } from "../types.js";
 import { TerminalStates } from "../types.js";
 import type { CallManagerContext, Logger } from "./context.js";
-=======
-import type { CallRecord, CallState, NormalizedEvent } from "../types.js";
-import type { CallManagerContext } from "./context.js";
-import { isAllowlistedCaller, normalizePhoneNumber } from "../allowlist.js";
->>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
 import { findCall } from "./lookup.js";
 import { addTranscriptEntry, transitionState } from "./state.js";
 import { persistCallRecord } from "./store.js";
@@ -84,18 +78,9 @@ function createInboundCall(params: {
   return callRecord;
 }
 
-<<<<<<< HEAD
 export async function processEvent(ctx: CallManagerContext, event: NormalizedEvent): Promise<void> {
   if (ctx.processedEventIds.has(event.id)) return;
   ctx.processedEventIds.add(event.id);
-=======
-export function processEvent(ctx: EventContext, event: NormalizedEvent): void {
-  const dedupeKey = event.dedupeKey || event.id;
-  if (ctx.processedEventIds.has(dedupeKey)) {
-    return;
-  }
-  ctx.processedEventIds.add(dedupeKey);
->>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
 
   let call = findCall({
     activeCalls: ctx.activeCalls,
@@ -104,7 +89,6 @@ export function processEvent(ctx: EventContext, event: NormalizedEvent): void {
   });
 
   if (!call && event.direction === "inbound" && event.providerCallId) {
-<<<<<<< HEAD
     if (!shouldAcceptInbound(ctx.config, event.from, ctx.logger)) {
       // Reject: hang up via provider directly (no call record exists yet)
       try {
@@ -116,32 +100,6 @@ export function processEvent(ctx: EventContext, event: NormalizedEvent): void {
       } catch {
         // Best-effort — call may have already ended
       }
-=======
-    if (!shouldAcceptInbound(ctx.config, event.from)) {
-      const pid = event.providerCallId;
-      if (!ctx.provider) {
-        console.warn(
-          `[voice-call] Inbound call rejected by policy but no provider to hang up (providerCallId: ${pid}, from: ${event.from}); call will time out on provider side.`,
-        );
-        return;
-      }
-      if (ctx.rejectedProviderCallIds.has(pid)) {
-        return;
-      }
-      ctx.rejectedProviderCallIds.add(pid);
-      const callId = event.callId ?? pid;
-      console.log(`[voice-call] Rejecting inbound call by policy: ${pid}`);
-      void ctx.provider
-        .hangupCall({
-          callId,
-          providerCallId: pid,
-          reason: "hangup-bot",
-        })
-        .catch((err) => {
-          const message = err instanceof Error ? err.message : String(err);
-          console.warn(`[voice-call] Failed to reject inbound call ${pid}:`, message);
-        });
->>>>>>> 9443c638f (voice-call: hang up rejected inbounds, idempotency and logging (#15892))
       return;
     }
 

@@ -919,7 +919,6 @@ extension MacNodeRuntime {
         UserDefaults.standard.object(forKey: cameraEnabledKey) as? Bool ?? false
     }
 
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/NodeMode/MacNodeRuntime.swift
     private static let blockedEnvKeys: Set<String> = [
         "PATH",
         "NODE_OPTIONS",
@@ -950,9 +949,6 @@ extension MacNodeRuntime {
     }
 
     private nonisolated static func locationMode() -> MoltbotLocationMode {
-=======
-    private nonisolated static func locationMode() -> OpenClawLocationMode {
->>>>>>> e371da38a (fix(macos): consolidate exec approval evaluation):apps/macos/Sources/OpenClaw/NodeMode/MacNodeRuntime.swift
         let raw = UserDefaults.standard.string(forKey: locationModeKey) ?? "off"
         return MoltbotLocationMode(rawValue: raw) ?? .off
     }

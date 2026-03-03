@@ -8,35 +8,7 @@
   },
   "favicon": "/assets/pixel-lobster.svg",
   "colors": {
-<<<<<<< HEAD
     "primary": "#FF5A36"
-=======
-    "primary": "#FF5A36",
-    "dark": "#FF5A36",
-    "light": "#FF8A6B"
-  },
-  "styling": {
-    "codeblocks": {
-      "theme": {
-        "dark": "min-dark",
-        "light": "min-light"
-      }
-    }
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "GitHub",
-        "href": "https://github.com/openclaw/openclaw",
-        "icon": "github"
-      },
-      {
-        "label": "Releases",
-        "href": "https://github.com/openclaw/openclaw/releases",
-        "icon": "package"
-      }
-    ]
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
   },
   "topbarLinks": [
     {
@@ -78,13 +50,8 @@
       "destination": "/providers/minimax"
     },
     {
-<<<<<<< HEAD
       "source": "/minimax/",
       "destination": "/providers/minimax"
-=======
-      "source": "/xiaomi",
-      "destination": "/providers/xiaomi"
->>>>>>> f57e70912 (docs: Update information architecture for OpenClaw docs (#7622))
     },
     {
       "source": "/openai",
@@ -782,7 +749,6 @@
   "navigation": {
     "languages": [
       {
-<<<<<<< HEAD
         "group": "Start Here",
         "pages": [
           "index",
@@ -944,9 +910,6 @@
           "web/webchat",
           "tui"
         ]
-=======
-        "pages": ["web/index", "web/control-ui", "web/dashboard", "web/webchat", "tui"]
->>>>>>> e6c38e078 (Docs: point nav groups at index pages (#5694))
       },
       {
         "group": "Channels",
@@ -1108,7 +1071,6 @@
             "groups": [
               {
                 "group": "Overview",
-<<<<<<< HEAD
                 "pages": ["index", "start/showcase", "start/lore"]
               },
               {
@@ -1122,45 +1084,14 @@
                   "start/pairing",
                   "start/openclaw",
                   "start/hubs"
-=======
-                  {
-                    "group": "Onboarding",
-                    "pages": [
-                      {
-                        "group": "CLI onboarding",
-                        "pages": [
-                          "start/wizard",
-                          "start/wizard-cli-reference",
-                          "start/wizard-cli-automation"
-                        ]
-                      },
-                      {
-                        "group": "macOS onboarding",
-                        "pages": ["start/onboarding"]
-                      }
-                    ]
-                  },
-                  "start/bootstrapping",
-                  "start/pairing"
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
                 ]
 =======
                 "pages": ["index", "concepts/features", "start/showcase"]
               },
               {
                 "group": "First steps",
-<<<<<<< HEAD
                 "pages": ["start/getting-started", "start/wizard", "start/onboarding"]
 >>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
-=======
-                "pages": [
-                  "start/getting-started",
-                  "start/quickstart",
-                  "start/onboarding-overview",
-                  "start/wizard",
-                  "start/onboarding"
-                ]
->>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
               },
               {
                 "group": "Guides",
@@ -1348,8 +1279,6 @@
                 ]
               },
               {
-<<<<<<< HEAD
-=======
                 "group": "Extensions",
                 "pages": [
                   "plugins/community",
@@ -1361,7 +1290,6 @@
                 ]
               },
               {
->>>>>>> 0978d63ed (docs: add community plugins guide)
                 "group": "Automation",
                 "pages": [
                   "hooks",
@@ -1409,18 +1337,7 @@
                   "providers/anthropic",
                   "providers/openai",
                   "providers/openrouter",
-<<<<<<< HEAD
                   "bedrock",
-=======
-                  "providers/cloudflare-ai-gateway",
-                  "providers/claude-max-api-proxy",
-                  "providers/deepgram",
-                  "providers/github-copilot",
-                  "providers/huggingface",
-                  "providers/kilocode",
-                  "providers/litellm",
-                  "providers/bedrock",
->>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                   "providers/vercel-ai-gateway",
                   "providers/moonshot",
                   "providers/minimax",
@@ -1621,23 +1538,13 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-                "pages": ["reference/wizard", "reference/token-use", "channels/grammy"]
-=======
-=======
->>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                 "pages": [
                   "reference/wizard",
                   "reference/token-use",
                   "reference/prompt-caching",
-<<<<<<< HEAD
                   "channels/grammy"
                 ]
 >>>>>>> 46dee2660 (docs(reference): add prompt-caching guide and knobs)
-=======
-                "pages": ["reference/wizard", "reference/token-use", "reference/prompt-caching"]
->>>>>>> 035a2dbb4 (docs: consolidate grammy links to telegram)
 =======
                   "reference/api-usage-costs",
                   "reference/transcript-hygiene",
@@ -1693,44 +1600,17 @@
               {
                 "group": "Environment and debugging",
                 "pages": [
-<<<<<<< HEAD
                   "install/node",
                   "environment",
                   "debugging",
                   "testing",
                   "scripts",
                   "reference/session-management-compaction"
-=======
-                  "help/environment",
-                  "help/debugging",
-                  "help/testing",
-                  "help/scripts",
-                  "debug/node-issue",
-                  "diagnostics/flags"
->>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                 ]
               },
               {
-<<<<<<< HEAD
                 "group": "Developer workflows",
                 "pages": ["start/setup", "help/submitting-a-pr", "help/submitting-an-issue"]
-=======
-                "group": "Node runtime",
-                "pages": ["install/node"]
-              },
-              {
-                "group": "Compaction internals",
-                "pages": ["reference/session-management-compaction"]
-              },
-              {
-                "group": "Developer setup",
-                "pages": ["start/setup", "pi-dev"]
-              },
-              {
-                "group": "Contributing",
-<<<<<<< HEAD
-                "pages": ["help/submitting-a-pr", "help/submitting-an-issue", "ci"]
->>>>>>> e4a04f32e (docs: add ci.md to Contributing navigation)
 =======
                 "pages": ["ci"]
 >>>>>>> 302dafbe1 (Docs: move submission guidance to GitHub templates (#16232))
@@ -1955,8 +1835,6 @@
                 ]
               },
               {
-<<<<<<< HEAD
-=======
                 "group": "扩展",
                 "pages": [
                   "zh-CN/plugins/voice-call",
@@ -1967,7 +1845,6 @@
                 ]
               },
               {
->>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                 "group": "自动化",
                 "pages": [
                   "zh-CN/hooks",
@@ -1984,11 +1861,8 @@
                 "group": "媒体与设备",
                 "pages": [
                   "zh-CN/nodes/index",
-<<<<<<< HEAD
-=======
                   "zh-CN/nodes/troubleshooting",
                   "zh-CN/nodes/media-understanding",
->>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                   "zh-CN/nodes/images",
                   "zh-CN/nodes/audio",
                   "zh-CN/nodes/camera",
@@ -2233,8 +2107,6 @@
               },
               {
                 "group": "技术参考",
-<<<<<<< HEAD
-=======
                 "pages": [
                   "zh-CN/reference/wizard",
                   "zh-CN/reference/token-use",
@@ -2245,7 +2117,6 @@
               },
               {
                 "group": "概念内部机制",
->>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                 "pages": [
                   "zh-CN/concepts/typebox",
                   "zh-CN/concepts/markdown-formatting",
@@ -2300,7 +2171,6 @@
               {
                 "group": "环境与调试",
                 "pages": [
-<<<<<<< HEAD
                   "zh-CN/environment",
                   "zh-CN/debugging",
                   "zh-CN/testing",
@@ -2311,27 +2181,6 @@
               {
                 "group": "开发者工作流",
                 "pages": ["zh-CN/start/setup"]
-=======
-                  "zh-CN/help/environment",
-                  "zh-CN/help/debugging",
-                  "zh-CN/help/testing",
-                  "zh-CN/help/scripts",
-                  "zh-CN/debug/node-issue",
-                  "zh-CN/diagnostics/flags"
-                ]
-              },
-              {
-                "group": "Node 运行时",
-                "pages": ["zh-CN/install/node"]
-              },
-              {
-                "group": "压缩机制内部参考",
-                "pages": ["zh-CN/reference/session-management-compaction"]
-              },
-              {
-                "group": "开发者设置",
-                "pages": ["zh-CN/start/setup", "zh-CN/pi-dev"]
->>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
               },
               {
                 "group": "文档元信息",

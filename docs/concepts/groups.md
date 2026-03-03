@@ -6,11 +6,7 @@ title: "Groups"
 ---
 # Groups
 
-<<<<<<< HEAD:docs/concepts/groups.md
 Moltbot treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams.
-=======
-OpenClaw treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams, Zalo.
->>>>>>> b4010a0b6 (fix(zalo): enforce group sender policy in groups):docs/channels/groups.md
 
 ## Beginner intro (2 minutes)
 Moltbot “lives” on your own messaging accounts. There is no separate WhatsApp bot user.
@@ -102,21 +98,12 @@ Want “groups can only see folder X” instead of “no host access”? Keep `w
         docker: {
           binds: [
             // hostPath:containerPath:mode
-<<<<<<< HEAD:docs/concepts/groups.md
             "~/FriendsShared:/data:ro"
           ]
         }
       }
     }
   }
-=======
-            "/home/user/FriendsShared:/data:ro",
-          ],
-        },
-      },
-    },
-  },
->>>>>>> 1b6704ef5 (docs: update sandbox bind mount guidance):docs/channels/groups.md
 }
 ```
 
@@ -296,13 +283,7 @@ Common intents (copy/paste):
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 2) Allow only specific groups (WhatsApp)
-=======
-1. Allow only specific groups (WhatsApp)
-=======
-2. Allow only specific groups (WhatsApp)
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
@@ -319,13 +300,7 @@ Common intents (copy/paste):
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 3) Allow all groups but require mention (explicit)
-=======
-1. Allow all groups but require mention (explicit)
-=======
-3. Allow all groups but require mention (explicit)
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
@@ -339,13 +314,7 @@ Common intents (copy/paste):
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 4) Only the owner can trigger in groups (WhatsApp)
-=======
-1. Only the owner can trigger in groups (WhatsApp)
-=======
-4. Only the owner can trigger in groups (WhatsApp)
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5

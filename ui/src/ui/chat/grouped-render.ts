@@ -1,21 +1,11 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-<<<<<<< HEAD
 
 import type { AssistantIdentity } from "../assistant-identity";
 import { toSanitizedMarkdownHtml } from "../markdown";
 import type { MessageGroup } from "../types/chat-types";
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown";
 import { isToolResultMessage, normalizeRoleForGrouping } from "./message-normalizer";
-=======
-import type { AssistantIdentity } from "../assistant-identity.ts";
-import type { MessageGroup } from "../types/chat-types.ts";
-import { toSanitizedMarkdownHtml } from "../markdown.ts";
-import { detectTextDirection } from "../text-direction.ts";
-<<<<<<< HEAD
-=======
-import type { MessageGroup, ToolCard } from "../types/chat-types.ts";
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
 >>>>>>> ae7e37774 (feat(ui): add RTL support for Hebrew/Arabic text in webchat (openclaw#11498) thanks @dirbalak)
 import {
@@ -123,10 +113,7 @@ export function renderMessageGroup(
     showReasoning: boolean;
     assistantName?: string;
     assistantAvatar?: string | null;
-<<<<<<< HEAD
-=======
     onDelete?: () => void;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   },
 ) {
   const normalizedRole = normalizeRoleForGrouping(group.role);
@@ -175,14 +162,10 @@ export function renderMessageGroup(
   `;
 }
 
-<<<<<<< HEAD
 function renderAvatar(
   role: string,
   assistant?: Pick<AssistantIdentity, "name" | "avatar">,
 ) {
-=======
-function renderAvatar(role: string, assistant?: Pick<AssistantIdentity, "name" | "avatar">) {
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   const normalized = normalizeRoleForGrouping(role);
   const assistantName = assistant?.name?.trim() || "Assistant";
   const assistantAvatar = assistant?.avatar?.trim() || "";
@@ -296,7 +279,6 @@ function renderGroupedMessage(
     <div class="${bubbleClasses}">
       ${canCopyMarkdown ? renderCopyAsMarkdownButton(markdown!) : nothing}
       ${renderMessageImages(images)}
-<<<<<<< HEAD
       ${reasoningMarkdown
         ? html`<div class="chat-thinking">${unsafeHTML(
             toSanitizedMarkdownHtml(reasoningMarkdown),
@@ -305,20 +287,6 @@ function renderGroupedMessage(
       ${markdown
         ? html`<div class="chat-text">${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`
         : nothing}
-=======
-      ${
-        reasoningMarkdown
-          ? html`<div class="chat-thinking">${unsafeHTML(
-              toSanitizedMarkdownHtml(reasoningMarkdown),
-            )}</div>`
-          : nothing
-      }
-      ${
-        markdown
-          ? html`<div class="chat-text" dir="${detectTextDirection(markdown)}">${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`
-          : nothing
-      }
->>>>>>> ae7e37774 (feat(ui): add RTL support for Hebrew/Arabic text in webchat (openclaw#11498) thanks @dirbalak)
       ${toolCards.map((card) => renderToolCardSidebar(card, onOpenSidebar))}
     </div>
   `;

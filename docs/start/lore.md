@@ -18,11 +18,7 @@ For a while, the lobster was called **Clawd**, living in a **Clawdbot**. But in 
 
 **It molted.**
 
-<<<<<<< HEAD
 Shedding its old shell, the creature emerged anew as **Molty**, living in a **Moltbot**. New shell, same lobster soul.
-=======
-Shedding its old shell, the creature emerged anew as **Molty**, living in **Moltbot**. But that name never quite rolled off the tongue either...
->>>>>>> 6af205a13 (docs: update lore with final form)
 
 So on January 30, 2026, the lobster molted ONE MORE TIME into its final form: **OpenClaw**.
 
@@ -39,19 +35,11 @@ In the end, **Moltbot** won. Because molting is what lobsters do to grow. And gr
 ## The Name
 
 ```
-<<<<<<< HEAD
 Moltbot = MOLT + BOT
         = Transformation machine
         = Bigger on the inside (130k tokens!)
         = New shell, same soul
         = Growth through shedding
-=======
-OpenClaw = OPEN + CLAW
-        = Open source, open to everyone
-        = Our lobster heritage, where we came from
-        = The claw is the law 🦞
-        = Your assistant. Your machine. Your rules.
->>>>>>> 6af205a13 (docs: update lore with final form)
 ```
 
 ## The Daleks vs The Lobsters

@@ -51,13 +51,7 @@ Best current local stack. Load MiniMax M2.1 in LM Studio, enable the local serve
 
 **Setup checklist**
 <<<<<<< HEAD
-<<<<<<< HEAD
 - Install LM Studio: https://lmstudio.ai
-=======
-
-<<<<<<< HEAD
-- Install LM Studio: [https://lmstudio.ai](https://lmstudio.ai)
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 - Install LM Studio: https://lmstudio.ai
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)

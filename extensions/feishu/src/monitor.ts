@@ -350,8 +350,6 @@ function registerEventHandlers(
     "im.message.reaction.deleted_v1": async () => {
       // Ignore reaction removals
     },
-<<<<<<< HEAD
-=======
     "card.action.trigger": async (data: unknown) => {
       try {
         const event = data as unknown as FeishuCardActionEvent;
@@ -373,7 +371,6 @@ function registerEventHandlers(
         error(`feishu[${accountId}]: error handling card action: ${String(err)}`);
       }
     },
->>>>>>> 8818464f5 (feat(feishu): render post rich text as markdown (openclaw#12755))
   });
 }
 

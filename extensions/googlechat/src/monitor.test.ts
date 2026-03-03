@@ -3,15 +3,12 @@ import { describe, expect, it } from "vitest";
 import { isSenderAllowed } from "./monitor.js";
 
 describe("isSenderAllowed", () => {
-<<<<<<< HEAD
   it("matches allowlist entries with users/<email>", () => {
     expect(
       isSenderAllowed("users/123", "Jane@Example.com", ["users/jane@example.com"]),
     ).toBe(true);
   });
 
-=======
->>>>>>> c8424bf29 (fix(googlechat): deprecate users/<email> allowlists (#16243))
   it("matches allowlist entries with raw email", () => {
     expect(isSenderAllowed("users/123", "Jane@Example.com", ["jane@example.com"])).toBe(
       true,

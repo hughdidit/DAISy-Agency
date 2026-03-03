@@ -2,12 +2,7 @@
 summary: "Agent tool surface for Moltbot (browser, canvas, nodes, message, cron) replacing legacy `moltbot-*` skills"
 read_when:
   - Adding or modifying agent tools
-<<<<<<< HEAD
   - Retiring or changing `moltbot-*` skills
-=======
-  - Retiring or changing `openclaw-*` skills
-title: "Tools"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Tools (Moltbot)
@@ -399,8 +394,6 @@ Notes:
 - `sessions_send` waits for final completion when `timeoutSeconds > 0`.
 - Delivery/announce happens after completion and is best-effort; `status: "ok"` confirms the agent run finished, not that the announce was delivered.
 - `sessions_spawn` starts a sub-agent run and posts an announce reply back to the requester chat.
-<<<<<<< HEAD
-=======
   - Supports one-shot mode (`mode: "run"`) and persistent thread-bound mode (`mode: "session"` with `thread: true`).
   - If `thread: true` and `mode` is omitted, mode defaults to `session`.
   - `mode: "session"` requires `thread: true`.
@@ -409,7 +402,6 @@ Notes:
   - Reply format includes `Status`, `Result`, and compact stats.
   - `Result` is the assistant completion text; if missing, the latest `toolResult` is used as fallback.
 - Manual completion-mode spawns send directly first, with queue fallback and retry on transient failures (`status: "ok"` means run finished, not that announce delivered).
->>>>>>> 817905f3a (docs: document thread-bound subagent sessions and remove plan)
 - `sessions_spawn` is non-blocking and returns `status: "accepted"` immediately.
 - `sessions_send` runs a reply‑back ping‑pong (reply `REPLY_SKIP` to stop; max turns via `session.agentToAgent.maxPingPongTurns`, 0–5).
 - After the ping‑pong, the target agent runs an **announce step**; reply `ANNOUNCE_SKIP` to suppress the announcement.

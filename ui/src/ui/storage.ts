@@ -1,12 +1,6 @@
 const KEY = "moltbot.control.settings.v1";
 
-<<<<<<< HEAD
 import type { ThemeMode } from "./theme";
-=======
-import { isSupportedLocale } from "../i18n/index.ts";
-import { inferBasePathFromPathname, normalizeBasePath } from "./navigation.ts";
-import type { ThemeMode } from "./theme.ts";
->>>>>>> 5d7314db2 (fix(control-ui): include basePath in default WebSocket URL (#30228))
 
 export type UiSettings = {
   gatewayUrl: string;
@@ -89,13 +83,9 @@ export function loadSettings(): UiSettings {
           ? parsed.splitRatio
           : defaults.splitRatio,
       navCollapsed:
-<<<<<<< HEAD
         typeof parsed.navCollapsed === "boolean"
           ? parsed.navCollapsed
           : defaults.navCollapsed,
-=======
-        typeof parsed.navCollapsed === "boolean" ? parsed.navCollapsed : defaults.navCollapsed,
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
       navGroupsCollapsed:
         typeof parsed.navGroupsCollapsed === "object" &&
         parsed.navGroupsCollapsed !== null

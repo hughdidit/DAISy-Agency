@@ -1,27 +1,8 @@
-<<<<<<< HEAD
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { Tab } from "./navigation";
 import type { UiSettings } from "./storage";
 import type { ThemeMode } from "./theme";
 import type { ThemeTransitionContext } from "./theme-transition";
-=======
-import type { EventLogEntry } from "./app-events.ts";
-import type { CompactionStatus, FallbackStatus } from "./app-tool-stream.ts";
-import type {
-  CronFieldErrors,
-  CronJobsLastStatusFilter,
-  CronJobsScheduleKindFilter,
-} from "./controllers/cron.ts";
-import type { DevicePairingList } from "./controllers/devices.ts";
-import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
-import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
-import type { SkillMessage } from "./controllers/skills.ts";
-import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway.ts";
-import type { Tab } from "./navigation.ts";
-import type { UiSettings } from "./storage.ts";
-import type { ThemeTransitionContext } from "./theme-transition.ts";
-import type { ThemeMode } from "./theme.ts";
->>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
 import type {
   AgentsListResult,
   ChannelsStatusSnapshot,
@@ -79,15 +60,12 @@ export type AppViewState = {
   chatManualRefreshInFlight: boolean;
   nodesLoading: boolean;
   nodes: Array<Record<string, unknown>>;
-<<<<<<< HEAD
-=======
   chatNewMessagesBelow: boolean;
   sidebarOpen: boolean;
   sidebarContent: string | null;
   sidebarError: string | null;
   splitRatio: number;
   scrollToBottom: (opts?: { smooth?: boolean }) => void;
->>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
   devicesLoading: boolean;
   devicesError: string | null;
   devicesList: DevicePairingList | null;
@@ -136,8 +114,6 @@ export type AppViewState = {
   agentsLoading: boolean;
   agentsList: AgentsListResult | null;
   agentsError: string | null;
-<<<<<<< HEAD
-=======
   agentsSelectedId: string | null;
   agentsPanel: "overview" | "files" | "tools" | "skills" | "channels" | "cron";
   agentFilesLoading: boolean;
@@ -155,7 +131,6 @@ export type AppViewState = {
   agentSkillsReport: SkillStatusReport | null;
   agentSkillsAgentId: string | null;
   agentsSidebarFilter: string;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   sessionsLoading: boolean;
   sessionsResult: SessionsListResult | null;
   sessionsError: string | null;
@@ -164,11 +139,6 @@ export type AppViewState = {
   sessionsIncludeGlobal: boolean;
   sessionsIncludeUnknown: boolean;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  sessionsHideCron: boolean;
->>>>>>> 266d32006 (feat(ui): add hide-cron toggle to chat session selector (#26976))
   usageLoading: boolean;
   usageResult: SessionsUsageResult | null;
   usageCostSummary: CostUsageSummary | null;
@@ -207,8 +177,6 @@ export type AppViewState = {
 >>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   cronLoading: boolean;
   cronJobs: CronJob[];
-<<<<<<< HEAD
-=======
   cronJobsTotal: number;
   cronJobsHasMore: boolean;
   cronJobsNextOffset: number | null;
@@ -219,7 +187,6 @@ export type AppViewState = {
   cronJobsLastStatusFilter: CronJobsLastStatusFilter;
   cronJobsSortBy: CronJobsSortBy;
   cronJobsSortDir: CronSortDir;
->>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
   cronStatus: CronStatus | null;
   cronError: string | null;
   cronForm: CronFormState;

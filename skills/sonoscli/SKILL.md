@@ -9,34 +9,19 @@ metadata: {"moltbot":{"emoji":"🔊","requires":{"bins":["sonos"]},"install":[{"
 
 Use `sonos` to control Sonos speakers on the local network.
 
-<<<<<<< HEAD
 Quick start
-=======
-## Quick start
-
->>>>>>> 02ac5b59d (Skills: add SonosCLI troubleshooting guidance (openclaw#21316) thanks @huntharo)
 - `sonos discover`
 - `sonos status --name "Kitchen"`
 - `sonos play|pause|stop --name "Kitchen"`
 - `sonos volume set 15 --name "Kitchen"`
 
-<<<<<<< HEAD
 Common tasks
-=======
-## Common tasks
-
->>>>>>> 02ac5b59d (Skills: add SonosCLI troubleshooting guidance (openclaw#21316) thanks @huntharo)
 - Grouping: `sonos group status|join|unjoin|party|solo`
 - Favorites: `sonos favorites list|open`
 - Queue: `sonos queue list|play|clear`
 - Spotify search (via SMAPI): `sonos smapi search --service "Spotify" --category tracks "query"`
 
-<<<<<<< HEAD
 Notes
-=======
-## Notes
-
->>>>>>> 02ac5b59d (Skills: add SonosCLI troubleshooting guidance (openclaw#21316) thanks @huntharo)
 - If SSDP fails, specify `--ip <speaker-ip>`.
 - Spotify Web API search is optional and requires `SPOTIFY_CLIENT_ID/SECRET`.
 - If there is an error, check the troubleshooting section and offer advice if there is a decent match.

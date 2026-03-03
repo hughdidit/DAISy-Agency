@@ -1,10 +1,6 @@
 import crypto from "node:crypto";
 import { resolveBlueBubblesAccount } from "./accounts.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 import { blueBubblesFetchWithTimeout, buildBlueBubblesApiUrl } from "./types.js";
 
 export type BlueBubblesChatOpts = {
@@ -22,27 +18,9 @@ function resolveAccount(params: BlueBubblesChatOpts) {
   });
   const baseUrl = params.serverUrl?.trim() || account.config.serverUrl?.trim();
   const password = params.password?.trim() || account.config.password?.trim();
-<<<<<<< HEAD
   if (!baseUrl) throw new Error("BlueBubbles serverUrl is required");
   if (!password) throw new Error("BlueBubbles password is required");
   return { baseUrl, password };
-=======
-  if (!baseUrl) {
-    throw new Error("BlueBubbles serverUrl is required");
-  }
-  if (!password) {
-    throw new Error("BlueBubbles password is required");
-  }
-  return { baseUrl, password, accountId: account.accountId };
-}
-
-function assertPrivateApiEnabled(accountId: string, feature: string): void {
-  if (getCachedBlueBubblesPrivateApiStatus(accountId) === false) {
-    throw new Error(
-      `BlueBubbles ${feature} requires Private API, but it is disabled on the BlueBubbles server.`,
-    );
-  }
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 }
 
 export async function markBlueBubblesChatRead(
@@ -50,18 +28,8 @@ export async function markBlueBubblesChatRead(
   opts: BlueBubblesChatOpts = {},
 ): Promise<void> {
   const trimmed = chatGuid.trim();
-<<<<<<< HEAD
   if (!trimmed) return;
   const { baseUrl, password } = resolveAccount(opts);
-=======
-  if (!trimmed) {
-    return;
-  }
-  const { baseUrl, password, accountId } = resolveAccount(opts);
-  if (getCachedBlueBubblesPrivateApiStatus(accountId) === false) {
-    return;
-  }
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
   const url = buildBlueBubblesApiUrl({
     baseUrl,
     path: `/api/v1/chat/${encodeURIComponent(trimmed)}/read`,
@@ -80,18 +48,8 @@ export async function sendBlueBubblesTyping(
   opts: BlueBubblesChatOpts = {},
 ): Promise<void> {
   const trimmed = chatGuid.trim();
-<<<<<<< HEAD
   if (!trimmed) return;
   const { baseUrl, password } = resolveAccount(opts);
-=======
-  if (!trimmed) {
-    return;
-  }
-  const { baseUrl, password, accountId } = resolveAccount(opts);
-  if (getCachedBlueBubblesPrivateApiStatus(accountId) === false) {
-    return;
-  }
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
   const url = buildBlueBubblesApiUrl({
     baseUrl,
     path: `/api/v1/chat/${encodeURIComponent(trimmed)}/typing`,

@@ -1,12 +1,7 @@
 ---
 summary: "Twitch chat bot configuration and setup"
 read_when:
-<<<<<<< HEAD
   - Setting up Twitch chat integration for Moltbot
-=======
-  - Setting up Twitch chat integration for OpenClaw
-title: "Twitch"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 # Twitch (plugin)
 
@@ -39,15 +34,9 @@ Details: [Plugins](/plugin)
    - Copy the **Client ID** and **Access Token**
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 3) Find your Twitch user ID: https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
 4) Configure the token:
    - Env: `CLAWDBOT_TWITCH_ACCESS_TOKEN=...` (default account only)
-=======
-3. Find your Twitch user ID: [https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/](https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/)
-=======
-3. Find your Twitch user ID: https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 =======
 3. Find your Twitch user ID: [https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/](https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/)
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
@@ -125,16 +114,10 @@ If both env and config are set, config takes precedence.
 {
   channels: {
     twitch: {
-<<<<<<< HEAD
       allowFrom: ["123456789"],       // (recommended) Your Twitch user ID only
       allowedRoles: ["moderator"]     // Or restrict to roles
     }
   }
-=======
-      allowFrom: ["123456789"], // (recommended) Your Twitch user ID only
-    },
-  },
->>>>>>> 8c7901c98 (fix(twitch): enforce allowFrom allowlist)
 }
 ```
 
@@ -241,20 +224,12 @@ If you want role-based access, leave `allowFrom` unset and configure `allowedRol
     twitch: {
       accounts: {
         default: {
-<<<<<<< HEAD
           allowFrom: ["123456789"],
           allowedRoles: ["moderator"]
         }
       }
     }
   }
-=======
-          allowedRoles: ["moderator"],
-        },
-      },
-    },
-  },
->>>>>>> 8c7901c98 (fix(twitch): enforce allowFrom allowlist)
 }
 ```
 

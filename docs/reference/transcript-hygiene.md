@@ -14,10 +14,7 @@ provider requirements. They do **not** rewrite the stored JSONL transcript on di
 
 Scope includes:
 - Tool call id sanitization
-<<<<<<< HEAD
-=======
 - Tool call input validation
->>>>>>> 118507953 (Docs: simplify transcript hygiene scope)
 - Tool result pairing repair
 - Turn validation / ordering
 - Thought signature cleanup

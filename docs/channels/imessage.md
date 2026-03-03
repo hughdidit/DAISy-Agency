@@ -8,7 +8,6 @@ title: "iMessage"
 # iMessage (imsg)
 
 
-<<<<<<< HEAD
 Status: external CLI integration. Gateway spawns `imsg rpc` (JSON-RPC over stdio).
 
 ## Quick setup (beginner)
@@ -19,44 +18,6 @@ Status: external CLI integration. Gateway spawns `imsg rpc` (JSON-RPC over stdio
 4) Start the gateway and approve any macOS prompts (Automation + Full Disk Access).
 
 Minimal config:
-=======
-<Warning>
-For new iMessage deployments, use <a href="/channels/bluebubbles">BlueBubbles</a>.
-
-The `imsg` integration is legacy and may be removed in a future release.
-</Warning>
-
-Status: legacy external CLI integration. Gateway spawns `imsg rpc` and communicates over JSON-RPC on stdio (no separate daemon/port).
-
-<CardGroup cols={3}>
-  <Card title="BlueBubbles (recommended)" icon="message-circle" href="/channels/bluebubbles">
-    Preferred iMessage path for new setups.
-  </Card>
-  <Card title="Pairing" icon="link" href="/channels/pairing">
-    iMessage DMs default to pairing mode.
-  </Card>
-  <Card title="Configuration reference" icon="settings" href="/gateway/configuration-reference#imessage">
-    Full iMessage field reference.
-  </Card>
-</CardGroup>
-
-## Quick setup
-
-<Tabs>
-  <Tab title="Local Mac (fast path)">
-    <Steps>
-      <Step title="Install and verify imsg">
-
-```bash
-brew install steipete/tap/imsg
-imsg rpc --help
-```
-
-      </Step>
-
-      <Step title="Configure OpenClaw">
-
->>>>>>> 6758b6bfe (docs(channels): modernize imessage docs page (#14213))
 ```json5
 {
   channels: {
@@ -69,7 +30,6 @@ imsg rpc --help
 }
 ```
 
-<<<<<<< HEAD
 ## What it is
 - iMessage channel backed by `imsg` on macOS.
 - Deterministic routing: replies always go back to iMessage.
@@ -91,58 +51,6 @@ Disable with:
 - Full Disk Access for Moltbot + `imsg` (Messages DB access).
 - Automation permission when sending.
 - `channels.imessage.cliPath` can point to any command that proxies stdin/stdout (for example, a wrapper script that SSHes to another Mac and runs `imsg rpc`).
-=======
-      </Step>
-
-      <Step title="Start gateway">
-
-```bash
-openclaw gateway
-```
-
-      </Step>
-
-      <Step title="Approve first DM pairing (default dmPolicy)">
-
-```bash
-openclaw pairing list imessage
-openclaw pairing approve imessage <CODE>
-```
-
-        Pairing requests expire after 1 hour.
-      </Step>
-    </Steps>
-
-  </Tab>
-
-  <Tab title="Remote Mac over SSH">
-    OpenClaw only requires a stdio-compatible `cliPath`, so you can point `cliPath` at a wrapper script that SSHes to a remote Mac and runs `imsg`.
-
-```bash
-#!/usr/bin/env bash
-exec ssh -T gateway-host imsg "$@"
-```
-
-    Recommended config when attachments are enabled:
-
-```json5
-{
-  channels: {
-    imessage: {
-      enabled: true,
-      cliPath: "~/.openclaw/scripts/imsg-ssh",
-      remoteHost: "user@gateway-host", // used for SCP attachment fetches
-      includeAttachments: true,
-    },
-  },
-}
-```
-
-    If `remoteHost` is not set, OpenClaw attempts to auto-detect it by parsing the SSH wrapper script.
-
-  </Tab>
-</Tabs>
->>>>>>> 6758b6bfe (docs(channels): modernize imessage docs page (#14213))
 
 ## Requirements and permissions (macOS)
 
@@ -161,7 +69,6 @@ imsg send <handle> "test"
 
 </Tip>
 
-<<<<<<< HEAD
 ## Setup (fast path)
 1) Ensure Messages is signed in on this Mac.
 2) Configure iMessage and start the gateway.
@@ -181,9 +88,6 @@ If you want the bot to send from a **separate iMessage identity** (and keep your
 
 <<<<<<< HEAD
 First-run note: sending/receiving may require GUI approvals (Automation + Full Disk Access) in the *bot macOS user*. If `imsg rpc` looks stuck or exits, log into that user (Screen Sharing helps), run a one-time `imsg chats --limit 1` / `imsg send ...`, approve prompts, then retry.
-=======
-First-run note: sending/receiving may require GUI approvals (Automation + Full Disk Access) in the _bot macOS user_. If `imsg rpc` looks stuck or exits, log into that user (Screen Sharing helps), run a one-time `imsg chats --limit 1` / `imsg send ...`, approve prompts, then retry. See [Troubleshooting macOS Privacy and Security TCC](#troubleshooting-macos-privacy-and-security-tcc).
->>>>>>> 93bf75279 (docs(imessage): improve macOS TCC troubleshooting guidance (#10781))
 
 Example wrapper (`chmod +x`). Replace `<bot-macos-user>` with your actual macOS username:
 ```bash
@@ -217,7 +121,6 @@ set -euo pipefail
 
     Group sender allowlist: `channels.imessage.groupAllowFrom`.
 
-<<<<<<< HEAD
 Example config:
 ```json5
 {
@@ -236,17 +139,11 @@ Example config:
   }
 }
 ```
-=======
-    Runtime fallback: if `groupAllowFrom` is unset, iMessage group sender checks fall back to `allowFrom` when available.
-
-    Mention gating for groups:
->>>>>>> 6758b6bfe (docs(channels): modernize imessage docs page (#14213))
 
     - iMessage has no native mention metadata
     - mention detection uses regex patterns (`agents.list[].groupChat.mentionPatterns`, fallback `messages.groupChat.mentionPatterns`)
     - with no configured patterns, mention gating cannot be enforced
 
-<<<<<<< HEAD
 ### Remote/SSH variant (optional)
 If you want iMessage on another Mac, set `channels.imessage.cliPath` to a wrapper that runs `imsg` on the remote macOS host over SSH. Moltbot only needs stdio.
 
@@ -287,38 +184,6 @@ Architecture:
               │ Tailscale tailnet (hostname or 100.x.y.z)
               ▼
         user@gateway-host
-=======
-
-```mermaid
-%%{init: {
-  'theme': 'base',
-  'themeVariables': {
-    'primaryColor': '#ffffff',
-    'primaryTextColor': '#000000',
-    'primaryBorderColor': '#000000',
-    'lineColor': '#000000',
-    'secondaryColor': '#f9f9fb',
-    'tertiaryColor': '#ffffff',
-    'clusterBkg': '#f9f9fb',
-    'clusterBorder': '#000000',
-    'nodeBorder': '#000000',
-    'mainBkg': '#ffffff',
-    'edgeLabelBackground': '#ffffff'
-  }
-}}%%
-flowchart TB
- subgraph T[" "]
- subgraph Tailscale[" "]
-    direction LR
-      Gateway["<b>Gateway host (Linux/VM)<br></b><br>openclaw gateway<br>channels.imessage.cliPath"]
-      Mac["<b>Mac with Messages + imsg<br></b><br>Messages signed in<br>Remote Login enabled"]
-  end
-    Gateway -- SSH (imsg rpc) --> Mac
-    Mac -- SCP (attachments) --> Gateway
-    direction BT
-    User["user@gateway-host"] -- "Tailscale tailnet (hostname or 100.x.y.z)" --> Gateway
-end
->>>>>>> 24e9b23c4 (Replace text diagrams with mermaid (#7165))
 ```
 
 Concrete config example (Tailscale hostname):
@@ -384,16 +249,12 @@ Concrete config example (Tailscale hostname):
 }
 ```
 
-<<<<<<< HEAD
 Example wrapper (`~/.clawdbot/scripts/imsg-ssh`):
-=======
->>>>>>> 6758b6bfe (docs(channels): modernize imessage docs page (#14213))
 ```bash
 #!/usr/bin/env bash
 exec ssh -T bot@mac-mini.tailnet-1234.ts.net imsg "$@"
 ```
 
-<<<<<<< HEAD
 Notes:
 - Ensure the Mac is signed in to Messages, and Remote Login is enabled.
 - Use SSH keys so `ssh bot@mac-mini.tailnet-1234.ts.net` works without prompts.
@@ -428,67 +289,10 @@ If you explicitly configure a `chat_id` under `channels.imessage.groups`, Moltbo
 - group allowlisting / mention gating behavior
 
 Example:
-=======
-    Use SSH keys so both SSH and SCP are non-interactive.
-
-  </Accordion>
-
-  <Accordion title="Multi-account pattern">
-    iMessage supports per-account config under `channels.imessage.accounts`.
-
-    Each account can override fields such as `cliPath`, `dbPath`, `allowFrom`, `groupPolicy`, `mediaMaxMb`, and history settings.
-
-  </Accordion>
-</AccordionGroup>
-
-## Media, chunking, and delivery targets
-
-<AccordionGroup>
-  <Accordion title="Attachments and media">
-    - inbound attachment ingestion is optional: `channels.imessage.includeAttachments`
-    - remote attachment paths can be fetched via SCP when `remoteHost` is set
-    - outbound media size uses `channels.imessage.mediaMaxMb` (default 16 MB)
-  </Accordion>
-
-  <Accordion title="Outbound chunking">
-    - text chunk limit: `channels.imessage.textChunkLimit` (default 4000)
-    - chunk mode: `channels.imessage.chunkMode`
-      - `length` (default)
-      - `newline` (paragraph-first splitting)
-  </Accordion>
-
-  <Accordion title="Addressing formats">
-    Preferred explicit targets:
-
-    - `chat_id:123` (recommended for stable routing)
-    - `chat_guid:...`
-    - `chat_identifier:...`
-
-    Handle targets are also supported:
-
-    - `imessage:+1555...`
-    - `sms:+1555...`
-    - `user@example.com`
-
-```bash
-imsg chats --limit 20
-```
-
-  </Accordion>
-</AccordionGroup>
-
-## Config writes
-
-iMessage allows channel-initiated config writes by default (for `/config set|unset` when `commands.config: true`).
-
-Disable:
-
->>>>>>> 6758b6bfe (docs(channels): modernize imessage docs page (#14213))
 ```json5
 {
   channels: {
     imessage: {
-<<<<<<< HEAD
       groupPolicy: "allowlist",
       groupAllowFrom: ["+15555550123"],
       groups: {
@@ -546,73 +350,3 @@ Provider options:
 Related global options:
 - `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`).
 - `messages.responsePrefix`.
-=======
-      configWrites: false,
-    },
-  },
-}
-```
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="imsg not found or RPC unsupported">
-    Validate the binary and RPC support:
-
-```bash
-imsg rpc --help
-openclaw channels status --probe
-```
-
-    If probe reports RPC unsupported, update `imsg`.
-
-  </Accordion>
-
-  <Accordion title="DMs are ignored">
-    Check:
-
-    - `channels.imessage.dmPolicy`
-    - `channels.imessage.allowFrom`
-    - pairing approvals (`openclaw pairing list imessage`)
-
-  </Accordion>
-
-  <Accordion title="Group messages are ignored">
-    Check:
-
-    - `channels.imessage.groupPolicy`
-    - `channels.imessage.groupAllowFrom`
-    - `channels.imessage.groups` allowlist behavior
-    - mention pattern configuration (`agents.list[].groupChat.mentionPatterns`)
-
-  </Accordion>
-
-  <Accordion title="Remote attachments fail">
-    Check:
-
-    - `channels.imessage.remoteHost`
-    - SSH/SCP key auth from the gateway host
-    - remote path readability on the Mac running Messages
-
-  </Accordion>
-
-  <Accordion title="macOS permission prompts were missed">
-    Re-run in an interactive GUI terminal in the same user/session context and approve prompts:
-
-```bash
-imsg chats --limit 1
-imsg send <handle> "test"
-```
-
-    Confirm Full Disk Access + Automation are granted for the process context that runs OpenClaw/`imsg`.
-
-  </Accordion>
-</AccordionGroup>
-
-## Configuration reference pointers
-
-- [Configuration reference - iMessage](/gateway/configuration-reference#imessage)
-- [Gateway configuration](/gateway/configuration)
-- [Pairing](/channels/pairing)
-- [BlueBubbles](/channels/bluebubbles)
->>>>>>> 6758b6bfe (docs(channels): modernize imessage docs page (#14213))

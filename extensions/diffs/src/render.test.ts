@@ -22,8 +22,6 @@ describe("renderDiffDocument", () => {
     expect(rendered.html).toContain("data-openclaw-diff-root");
     expect(rendered.html).toContain("src/example.ts");
     expect(rendered.html).toContain("/plugins/diffs/assets/viewer.js");
-<<<<<<< HEAD
-=======
     expect(rendered.imageHtml).not.toContain("/plugins/diffs/assets/viewer.js");
     expect(rendered.imageHtml).toContain('data-openclaw-diffs-ready="true"');
     expect(rendered.imageHtml).toContain("max-width: 960px;");
@@ -32,7 +30,6 @@ describe("renderDiffDocument", () => {
     expect(rendered.html).toContain('"disableLineNumbers":false');
     expect(rendered.html).toContain("--diffs-line-height: 24px;");
     expect(rendered.html).toContain("--diffs-font-size: 15px;");
->>>>>>> 6532757cd (Diffs: add viewer payload validation and presentation defaults)
     expect(rendered.html).not.toContain("fonts.googleapis.com");
   });
 

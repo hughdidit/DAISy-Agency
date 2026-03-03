@@ -1,11 +1,8 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/Onboarding.swift
 import Combine
 import MoltbotChatUI
 import MoltbotDiscovery
 import MoltbotIPC
-=======
->>>>>>> 8f3310000 (refactor(macos): remove anthropic oauth onboarding flow):apps/macos/Sources/OpenClaw/Onboarding.swift
 import Observation
 import SwiftUI
 
@@ -72,7 +69,6 @@ struct OnboardingView: View {
     @State var workspacePath: String = ""
     @State var workspaceStatus: String?
     @State var workspaceApplying = false
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/Onboarding.swift
     @State var anthropicAuthPKCE: AnthropicOAuth.PKCE?
     @State var anthropicAuthCode: String = ""
     @State var anthropicAuthStatus: String?
@@ -89,8 +85,6 @@ struct OnboardingView: View {
     @State var anthropicAuthLastPasteboardChangeCount = NSPasteboard.general.changeCount
     @State var monitoringAuth = false
     @State var authMonitorTask: Task<Void, Never>?
-=======
->>>>>>> 8f3310000 (refactor(macos): remove anthropic oauth onboarding flow):apps/macos/Sources/OpenClaw/Onboarding.swift
     @State var needsBootstrap = false
     @State var didAutoKickoff = false
     @State var showAdvancedConnection = false

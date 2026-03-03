@@ -36,12 +36,8 @@ moltbot onboard --anthropic-api-key "$ANTHROPIC_API_KEY"
 
 ## Prompt caching (Anthropic API)
 
-<<<<<<< HEAD
 Moltbot does **not** override Anthropic’s default cache TTL unless you set it.
 This is **API-only**; subscription auth does not honor TTL settings.
-=======
-OpenClaw supports Anthropic's prompt caching feature. This is **API-only**; subscription auth does not honor cache settings.
->>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))
 
 ### Configuration
 
@@ -59,7 +55,6 @@ Use the `cacheRetention` parameter in your model config:
     defaults: {
       models: {
         "anthropic/claude-opus-4-5": {
-<<<<<<< HEAD
           params: { cacheControlTtl: "5m" } // or "1h"
         }
       }
@@ -69,66 +64,6 @@ Use the `cacheRetention` parameter in your model config:
 ```
 
 Moltbot includes the `extended-cache-ttl-2025-04-11` beta flag for Anthropic API
-=======
-          params: { cacheRetention: "long" },
-        },
-      },
-    },
-  },
-}
-```
-
-### Defaults
-
-When using Anthropic API Key authentication, OpenClaw automatically applies `cacheRetention: "short"` (5-minute cache) for all Anthropic models. You can override this by explicitly setting `cacheRetention` in your config.
-
-### Per-agent cacheRetention overrides
-
-Use model-level params as your baseline, then override specific agents via `agents.list[].params`.
-
-```json5
-{
-  agents: {
-    defaults: {
-      model: { primary: "anthropic/claude-opus-4-6" },
-      models: {
-        "anthropic/claude-opus-4-6": {
-          params: { cacheRetention: "long" }, // baseline for most agents
-        },
-      },
-    },
-    list: [
-      { id: "research", default: true },
-      { id: "alerts", params: { cacheRetention: "none" } }, // override for this agent only
-    ],
-  },
-}
-```
-
-Config merge order for cache-related params:
-
-1. `agents.defaults.models["provider/model"].params`
-2. `agents.list[].params` (matching `id`, overrides by key)
-
-This lets one agent keep a long-lived cache while another agent on the same model disables caching to avoid write costs on bursty/low-reuse traffic.
-
-### Bedrock Claude notes
-
-- Anthropic Claude models on Bedrock (`amazon-bedrock/*anthropic.claude*`) accept `cacheRetention` pass-through when configured.
-- Non-Anthropic Bedrock models are forced to `cacheRetention: "none"` at runtime.
-- Anthropic API-key smart defaults also seed `cacheRetention: "short"` for Claude-on-Bedrock model refs when no explicit value is set.
-
-### Legacy parameter
-
-The older `cacheControlTtl` parameter is still supported for backwards compatibility:
-
-- `"5m"` maps to `short`
-- `"1h"` maps to `long`
-
-We recommend migrating to the new `cacheRetention` parameter.
-
-OpenClaw includes the `extended-cache-ttl-2025-04-11` beta flag for Anthropic API
->>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))
 requests; keep it if you override provider headers (see [/gateway/configuration](/gateway/configuration)).
 
 ## Option B: Claude setup-token

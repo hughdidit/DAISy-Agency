@@ -10,8 +10,5 @@ export {
   resolveSharedMatrixClient,
   waitForMatrixSync,
   stopSharedClient,
-<<<<<<< HEAD
-=======
   stopSharedClientForAccount,
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
 } from "./client/shared.js";

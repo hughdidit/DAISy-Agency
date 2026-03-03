@@ -1,23 +1,7 @@
 {
-<<<<<<< HEAD
   "name": "@moltbot/twitch",
   "version": "2026.1.27-beta.1",
   "description": "Moltbot Twitch channel plugin",
-=======
-  "name": "@openclaw/twitch",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.1.29",
-=======
-  "version": "2026.2.2",
->>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 =======
   "version": "2026.2.3",
 >>>>>>> f895c9fba (chore: sync plugin versions to 2026.2.3)
@@ -52,14 +36,10 @@
     "@twurple/chat": "^8.0.3",
     "zod": "^4.3.5"
   },
-<<<<<<< HEAD
   "devDependencies": {
     "moltbot": "workspace:*"
   },
   "moltbot": {
-=======
-  "openclaw": {
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
     "extensions": [
       "./index.ts"
     ]

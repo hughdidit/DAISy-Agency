@@ -51,8 +51,6 @@ function dataUrlToBase64(dataUrl: string): { content: string; mimeType: string }
   return { mimeType: match[1], content: match[2] };
 }
 
-<<<<<<< HEAD
-=======
 function normalizeAbortedAssistantMessage(message: unknown): Record<string, unknown> | null {
   if (!message || typeof message !== "object") {
     return null;
@@ -82,7 +80,6 @@ function normalizeFinalAssistantMessage(message: unknown): Record<string, unknow
   return candidate;
 }
 
->>>>>>> 8264d4521 (fix(webchat): render final assistant payloads without history wait (#14928))
 export async function sendChatMessage(
   state: ChatState,
   message: string,
@@ -195,7 +192,6 @@ export function handleChatEvent(
   if (payload.sessionKey !== state.sessionKey) return null;
 
   // Final from another run (e.g. sub-agent announce): refresh history to show new message.
-<<<<<<< HEAD
   // See https://github.com/moltbot/moltbot/issues/1909
   if (
     payload.runId &&
@@ -203,18 +199,6 @@ export function handleChatEvent(
     payload.runId !== state.chatRunId
   ) {
     if (payload.state === "final") return "final";
-=======
-  // See https://github.com/openclaw/openclaw/issues/1909
-  if (payload.runId && state.chatRunId && payload.runId !== state.chatRunId) {
-    if (payload.state === "final") {
-      const finalMessage = normalizeFinalAssistantMessage(payload.message);
-      if (finalMessage) {
-        state.chatMessages = [...state.chatMessages, finalMessage];
-        return null;
-      }
-      return "final";
-    }
->>>>>>> f2e998681 (fix(webchat): append out-of-band final payloads in active chat (#11139))
     return null;
   }
 

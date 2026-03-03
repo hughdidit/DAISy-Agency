@@ -6,7 +6,6 @@ title: "Discord"
 ---
 # Discord (Bot API)
 
-<<<<<<< HEAD
 
 Status: ready for DM and guild text channels via the official Discord bot gateway.
 
@@ -22,35 +21,6 @@ Status: ready for DM and guild text channels via the official Discord bot gatewa
 6) DM access is pairing by default; approve the pairing code on first contact.
 
 Minimal config:
-=======
-Status: ready for DMs and guild channels via the official Discord gateway.
-
-<CardGroup cols={3}>
-  <Card title="Pairing" icon="link" href="/channels/pairing">
-    Discord DMs default to pairing mode.
-  </Card>
-  <Card title="Slash commands" icon="terminal" href="/tools/slash-commands">
-    Native command behavior and command catalog.
-  </Card>
-  <Card title="Channel troubleshooting" icon="wrench" href="/channels/troubleshooting">
-    Cross-channel diagnostics and repair flow.
-  </Card>
-</CardGroup>
-
-## Quick setup
-
-You will need to create a new application with a bot, add the bot to your server, and pair it to OpenClaw. We recommend adding your bot to your own private server. If you don't have one yet, [create one first](https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server) (choose **Create My Own > For me and my friends**).
-
-<<<<<<< HEAD
-    - **Message Content Intent**
-    - **Server Members Intent** (recommended for name-to-ID lookups and allowlist matching)
-=======
-<Steps>
-  <Step title="Create a Discord application and bot">
-    Go to the [Discord Developer Portal](https://discord.com/developers/applications) and click **New Application**. Name it something like "OpenClaw".
-
-    Click **Bot** on the sidebar. Set the **Username** to whatever you call your OpenClaw agent.
->>>>>>> a0d904dc2 (docs(discord): replace quick setup and add recommended guild setup (#20088))
 
   </Step>
 
@@ -150,7 +120,6 @@ openclaw gateway
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Goals
 - Talk to Moltbot via Discord DMs or guild channels.
 - Direct chats collapse into the agent's main session (default `agent:main:main`); guild channels stay isolated as `agent:<agentId>:discord:channel:<channelId>` (display names use `discord:<guildSlug>#<channelSlug>`).
@@ -191,18 +160,12 @@ Disable with:
 {
   channels: { discord: { configWrites: false } }
 }
-=======
-    Env fallback for the default account:
-=======
-        Env fallback for the default account:
->>>>>>> a0d904dc2 (docs(discord): replace quick setup and add recommended guild setup (#20088))
 
 ```bash
 DISCORD_BOT_TOKEN=...
 >>>>>>> 6bee63864 (docs(channels): modernize discord docs page (#14190))
 ```
 
-<<<<<<< HEAD
   </Step>
 
 <<<<<<< HEAD
@@ -238,17 +201,6 @@ In your app: **OAuth2** → **URL Generator**
 - ✅ Attach Files
 - ✅ Add Reactions (optional but recommended)
 - ✅ Use External Emojis / Stickers (optional; only if you want them)
-=======
-  <Step title="Invite the bot and start gateway">
-    Invite the bot to your server with message permissions.
-
-```bash
-openclaw gateway
-```
-=======
-      </Tab>
-    </Tabs>
->>>>>>> a0d904dc2 (docs(discord): replace quick setup and add recommended guild setup (#20088))
 
   </Step>
 
@@ -372,8 +324,6 @@ Now create some channels on your Discord server and start chatting. Your agent c
 - Group DMs are ignored by default (`channels.discord.dm.groupEnabled=false`).
 - Native slash commands run in isolated command sessions (`agent:<agentId>:discord:slash:<userId>`), while still carrying `CommandTargetSessionKey` to the routed conversation session.
 
-<<<<<<< HEAD
-=======
 ## Forum channels
 
 Discord forum and media channels only accept thread posts. OpenClaw supports two ways to create them:
@@ -477,7 +427,6 @@ Example:
 }
 ```
 
->>>>>>> 3e1ed0032 (Docs: add Discord forum thread docs)
 ## Access control and routing
 
 <Tabs>
@@ -497,37 +446,17 @@ Example:
     - `user:<id>`
     - `<@id>` mention
 
-<<<<<<< HEAD
 ### 4) Get the ids (guild/user/channel)
 Discord uses numeric ids everywhere; Moltbot config prefers ids.
-=======
-    Bare numeric IDs are ambiguous and rejected unless an explicit user/channel target kind is provided.
-
-  </Tab>
->>>>>>> 6bee63864 (docs(channels): modernize discord docs page (#14190))
 
   <Tab title="Guild policy">
     Guild handling is controlled by `channels.discord.groupPolicy`:
 
-<<<<<<< HEAD
 ### 5) Configure Moltbot
 
 #### Token
 Set the bot token via env var (recommended on servers):
 - `DISCORD_BOT_TOKEN=...`
-=======
-    - `open`
-    - `allowlist`
-    - `disabled`
-
-    Secure baseline when `channels.discord` exists is `allowlist`.
-
-    `allowlist` behavior:
-
-    - guild must match `channels.discord.guilds` (`id` preferred, slug accepted)
-    - if a guild has `channels` configured, non-listed channels are denied
-    - if a guild has no `channels` block, all channels in that allowlisted guild are allowed
->>>>>>> 6bee63864 (docs(channels): modernize discord docs page (#14190))
 
     Example:
 
@@ -535,7 +464,6 @@ Set the bot token via env var (recommended on servers):
 {
   channels: {
     discord: {
-<<<<<<< HEAD
       enabled: true,
       token: "YOUR_BOT_TOKEN"
     }
@@ -557,15 +485,9 @@ Example “single server, only allow me, only allow #help”:
       guilds: {
         "YOUR_GUILD_ID": {
           users: ["YOUR_USER_ID"],
-=======
-      groupPolicy: "allowlist",
-      guilds: {
-        "123456789012345678": {
->>>>>>> 6bee63864 (docs(channels): modernize discord docs page (#14190))
           requireMention: true,
           users: ["987654321098765432"],
           channels: {
-<<<<<<< HEAD
             help: { allow: true, requireMention: true }
           }
         }
@@ -629,42 +551,6 @@ Notes:
 
 ## Retry policy
 Outbound Discord API calls retry on rate limits (429) using Discord `retry_after` when available, with exponential backoff and jitter. Configure via `channels.discord.retry`. See [Retry policy](/concepts/retry).
-=======
-            general: { allow: true },
-            help: { allow: true, requireMention: true },
-          },
-        },
-      },
-    },
-  },
-}
-```
-
-    If you only set `DISCORD_BOT_TOKEN` and do not create a `channels.discord` block, runtime fallback is `groupPolicy="open"` (with a warning in logs).
-
-  </Tab>
-
-  <Tab title="Mentions and group DMs">
-    Guild messages are mention-gated by default.
-
-    Mention detection includes:
-
-    - explicit bot mention
-    - configured mention patterns (`agents.list[].groupChat.mentionPatterns`, fallback `messages.groupChat.mentionPatterns`)
-    - implicit reply-to-bot behavior in supported cases
-
-    `requireMention` is configured per guild/channel (`channels.discord.guilds...`).
-
-    Group DMs:
-
-    - default: ignored (`dm.groupEnabled=false`)
-    - optional allowlist via `dm.groupChannels` (channel IDs or slugs)
-
-  </Tab>
-</Tabs>
-
-## Developer Portal setup
->>>>>>> 6bee63864 (docs(channels): modernize discord docs page (#14190))
 
 <AccordionGroup>
   <Accordion title="Create app and bot">
@@ -833,7 +719,6 @@ See [Slash commands](/tools/slash-commands) for command catalog and behavior.
 {
   channels: {
     discord: {
-<<<<<<< HEAD
       enabled: true,
       token: "abc.123",
       groupPolicy: "allowlist",
@@ -894,17 +779,11 @@ See [Slash commands](/tools/slash-commands) for command catalog and behavior.
       }
     }
   }
-=======
-      configWrites: false,
-    },
-  },
->>>>>>> 6bee63864 (docs(channels): modernize discord docs page (#14190))
 }
 ```
 
   </Accordion>
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 - `dm.enabled`: set `false` to ignore all DMs (default `true`).
 - `dm.policy`: DM access control (`pairing` recommended). `"open"` requires `dm.allowFrom=["*"]`.
@@ -944,10 +823,6 @@ See [Slash commands](/tools/slash-commands) for command catalog and behavior.
   - `roles` (role add/remove, default `false`)
   - `moderation` (timeout/kick/ban, default `false`)
 - `execApprovals`: Discord-only exec approval DMs (button UI). Supports `enabled`, `approvers`, `agentFilter`, `sessionFilter`.
-=======
-  <Accordion title="Gateway proxy">
-    Route Discord gateway WebSocket traffic and startup REST lookups (application ID + allowlist resolution) through an HTTP(S) proxy with `channels.discord.proxy`.
->>>>>>> c0c367fde (docs: clarify discord proxy scope for startup REST calls)
 
 Reaction notifications use `guilds.<id>.reactionNotifications`:
 - `off`: no reaction events.
@@ -1134,8 +1009,6 @@ Default gate behavior:
 | moderation                                                                                                                                                               | disabled |
 | presence                                                                                                                                                                 | disabled |
 
-<<<<<<< HEAD
-=======
 ## Components v2 UI
 
 OpenClaw uses Discord components v2 for exec approvals and cross-context markers. Discord message actions can also accept `components` for custom UI (advanced; requires Carbon component instances), while legacy `embeds` remain available but are not recommended.
@@ -1223,115 +1096,13 @@ Example:
 message(action="send", channel="discord", target="channel:123", path="/path/to/audio.mp3", asVoice=true)
 ```
 
->>>>>>> ee6fec36e (docs(discord): document DAVE defaults and decrypt recovery)
 ## Troubleshooting
 >>>>>>> 6bee63864 (docs(channels): modernize discord docs page (#14190))
 
 <AccordionGroup>
   <Accordion title="Used disallowed intents or bot sees no guild messages">
 
-<<<<<<< HEAD
 ## Safety & ops
 - Treat the bot token like a password; prefer the `DISCORD_BOT_TOKEN` env var on supervised hosts or lock down the config file permissions.
 - Only grant the bot permissions it needs (typically Read/Send Messages).
 - If the bot is stuck or rate limited, restart the gateway (`moltbot gateway --force`) after confirming no other processes own the Discord session.
-=======
-    - enable Message Content Intent
-    - enable Server Members Intent when you depend on user/member resolution
-    - restart gateway after changing intents
-
-  </Accordion>
-
-  <Accordion title="Guild messages blocked unexpectedly">
-
-    - verify `groupPolicy`
-    - verify guild allowlist under `channels.discord.guilds`
-    - if guild `channels` map exists, only listed channels are allowed
-    - verify `requireMention` behavior and mention patterns
-
-    Useful checks:
-
-```bash
-openclaw doctor
-openclaw channels status --probe
-openclaw logs --follow
-```
-
-  </Accordion>
-
-  <Accordion title="Require mention false but still blocked">
-    Common causes:
-
-    - `groupPolicy="allowlist"` without matching guild/channel allowlist
-    - `requireMention` configured in the wrong place (must be under `channels.discord.guilds` or channel entry)
-    - sender blocked by guild/channel `users` allowlist
-
-  </Accordion>
-
-  <Accordion title="Permissions audit mismatches">
-    `channels status --probe` permission checks only work for numeric channel IDs.
-
-    If you use slug keys, runtime matching can still work, but probe cannot fully verify permissions.
-
-  </Accordion>
-
-  <Accordion title="DM and pairing issues">
-
-    - DM disabled: `channels.discord.dm.enabled=false`
-    - DM policy disabled: `channels.discord.dmPolicy="disabled"` (legacy: `channels.discord.dm.policy`)
-    - awaiting pairing approval in `pairing` mode
-
-  </Accordion>
-
-  <Accordion title="Bot to bot loops">
-    By default bot-authored messages are ignored.
-
-    If you set `channels.discord.allowBots=true`, use strict mention and allowlist rules to avoid loop behavior.
-
-  </Accordion>
-
-  <Accordion title="Voice STT drops with DecryptionFailed(...)">
-
-    - keep OpenClaw current (`openclaw update`) so the Discord voice receive recovery logic is present
-    - confirm `channels.discord.voice.daveEncryption=true` (default)
-    - start from `channels.discord.voice.decryptionFailureTolerance=24` (upstream default) and tune only if needed
-    - watch logs for:
-      - `discord voice: DAVE decrypt failures detected`
-      - `discord voice: repeated decrypt failures; attempting rejoin`
-    - if failures continue after automatic rejoin, collect logs and compare against [discord.js #11419](https://github.com/discordjs/discord.js/issues/11419)
-
-  </Accordion>
-</AccordionGroup>
-
-## Configuration reference pointers
-
-Primary reference:
-
-- [Configuration reference - Discord](/gateway/configuration-reference#discord)
-
-High-signal Discord fields:
-
-- startup/auth: `enabled`, `token`, `accounts.*`, `allowBots`
-- policy: `groupPolicy`, `dm.*`, `guilds.*`, `guilds.*.channels.*`
-- command: `commands.native`, `commands.useAccessGroups`, `configWrites`
-- reply/history: `replyToMode`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
-- delivery: `textChunkLimit`, `chunkMode`, `maxLinesPerMessage`
-- media/retry: `mediaMaxMb`, `retry`
-- actions: `actions.*`
-- presence: `activity`, `status`, `activityType`, `activityUrl`
-- features: `pluralkit`, `execApprovals`, `intents`, `agentComponents`, `heartbeat`, `responsePrefix`
-
-## Safety and operations
-
-- Treat bot tokens as secrets (`DISCORD_BOT_TOKEN` preferred in supervised environments).
-- Grant least-privilege Discord permissions.
-- If command deploy/state is stale, restart gateway and re-check with `openclaw channels status --probe`.
-
-## Related
-
-- [Pairing](/channels/pairing)
-- [Channel routing](/channels/channel-routing)
-- [Multi-agent routing](/concepts/multi-agent)
-- [Troubleshooting](/channels/troubleshooting)
-- [Slash commands](/tools/slash-commands)
->>>>>>> 6bee63864 (docs(channels): modernize discord docs page (#14190))

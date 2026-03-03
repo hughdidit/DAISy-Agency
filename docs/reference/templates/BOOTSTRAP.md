@@ -38,19 +38,6 @@ Then open `SOUL.md` together and talk about:
 Write it down. Make it real.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-## One-time system admin check
-
-<<<<<<< HEAD
-Since this is a new install, run the recommended host healthcheck using the `healthcheck` skill.
-At minimum, run:
-=======
-Since this is a new install, offer a choice:
-
-1. Run the recommended host healthcheck using the `healthcheck` skill.
-2. Skip for now (run later by saying “run healthcheck”).
->>>>>>> d5593d647 (chore: fix formatting)
 
 - `openclaw security audit --deep`
 - `openclaw update status`

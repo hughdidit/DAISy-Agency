@@ -100,26 +100,17 @@ export function toSanitizedMarkdownHtml(markdown: string): string {
     }
     return sanitized;
   }
-<<<<<<< HEAD
   const rendered = marked.parse(`${truncated.text}${suffix}`) as string;
   const sanitized = DOMPurify.sanitize(rendered, {
     ALLOWED_TAGS: allowedTags,
     ALLOWED_ATTR: allowedAttrs,
   });
-=======
-  const rendered = marked.parse(`${truncated.text}${suffix}`, {
-    renderer: htmlEscapeRenderer,
-  }) as string;
-  const sanitized = DOMPurify.sanitize(rendered, sanitizeOptions);
->>>>>>> c4d2061a7 (Web UI: allow img tags in DOMPurify so markdown images render in webchat (#15480))
   if (input.length <= MARKDOWN_CACHE_MAX_CHARS) {
     setCachedMarkdown(input, sanitized);
   }
   return sanitized;
 }
 
-<<<<<<< HEAD
-=======
 // Prevent raw HTML in chat messages from being rendered as formatted HTML.
 // Display it as escaped text so users see the literal markup.
 // Security is handled by DOMPurify, but rendering pasted HTML (e.g. error
@@ -156,7 +147,6 @@ htmlEscapeRenderer.code = ({
   return codeBlock;
 };
 
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")

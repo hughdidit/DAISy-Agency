@@ -1,11 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { downloadBlueBubblesAttachment, sendBlueBubblesAttachment } from "./attachments.js";
-<<<<<<< HEAD
 import type { BlueBubblesAttachment } from "./types.js";
-=======
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 
 vi.mock("./accounts.js", () => ({
   resolveBlueBubblesAccount: vi.fn(({ cfg, accountId }) => {
@@ -247,8 +243,6 @@ describe("downloadBlueBubblesAttachment", () => {
     expect(calledUrl).toContain("password=config-password");
     expect(result.buffer).toEqual(new Uint8Array([1]));
   });
-<<<<<<< HEAD
-=======
 
   it("passes ssrfPolicy with allowPrivateNetwork when config enables it", async () => {
     const mockBuffer = new Uint8Array([1]);
@@ -310,7 +304,6 @@ describe("downloadBlueBubblesAttachment", () => {
     const fetchMediaArgs = fetchRemoteMediaMock.mock.calls[0][0] as Record<string, unknown>;
     expect(fetchMediaArgs.ssrfPolicy).toEqual({ allowedHostnames: ["192.168.1.5"] });
   });
->>>>>>> 7d9397099 (fix(bluebubbles): allow configured host for attachment SSRF guard)
 });
 
 describe("sendBlueBubblesAttachment", () => {

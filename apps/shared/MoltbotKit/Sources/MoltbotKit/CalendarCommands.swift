@@ -2,10 +2,7 @@ import Foundation
 
 public enum OpenClawCalendarCommand: String, Codable, Sendable {
     case events = "calendar.events"
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/CalendarCommands.swift
-=======
     case add = "calendar.add"
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/CalendarCommands.swift
 }
 
 public struct OpenClawCalendarEventsParams: Codable, Sendable, Equatable {
@@ -20,8 +17,6 @@ public struct OpenClawCalendarEventsParams: Codable, Sendable, Equatable {
     }
 }
 
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/CalendarCommands.swift
-=======
 public struct OpenClawCalendarAddParams: Codable, Sendable, Equatable {
     public var title: String
     public var startISO: String
@@ -53,7 +48,6 @@ public struct OpenClawCalendarAddParams: Codable, Sendable, Equatable {
     }
 }
 
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/CalendarCommands.swift
 public struct OpenClawCalendarEventPayload: Codable, Sendable, Equatable {
     public var identifier: String
     public var title: String
@@ -89,8 +83,6 @@ public struct OpenClawCalendarEventsPayload: Codable, Sendable, Equatable {
         self.events = events
     }
 }
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/CalendarCommands.swift
-=======
 
 public struct OpenClawCalendarAddPayload: Codable, Sendable, Equatable {
     public var event: OpenClawCalendarEventPayload
@@ -99,4 +91,3 @@ public struct OpenClawCalendarAddPayload: Codable, Sendable, Equatable {
         self.event = event
     }
 }
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/CalendarCommands.swift

@@ -33,12 +33,7 @@ import { importProfileFromRelays } from "./nostr-profile-import.js";
 function createMockRequest(
   method: string,
   url: string,
-<<<<<<< HEAD
   body?: unknown
-=======
-  body?: unknown,
-  opts?: { headers?: Record<string, string>; remoteAddress?: string },
->>>>>>> 3e0e78f82 (fix(nostr): guard profile mutations)
 ): IncomingMessage {
   const socket = new Socket();
   Object.defineProperty(socket, "remoteAddress", {

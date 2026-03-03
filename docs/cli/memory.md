@@ -13,16 +13,11 @@ Provided by the active memory plugin (default: `memory-core`; set `plugins.slots
 
 Related:
 - Memory concept: [Memory](/concepts/memory)
-<<<<<<< HEAD
  - Plugins: [Plugins](/plugins)
-=======
-- Plugins: [Plugins](/plugin)
->>>>>>> d1dc60774 (Docs: fix broken /plugins links (#9308))
 
 ## Examples
 
 ```bash
-<<<<<<< HEAD
 moltbot memory status
 moltbot memory status --deep
 moltbot memory status --deep --index
@@ -32,18 +27,6 @@ moltbot memory index --verbose
 moltbot memory search "release checklist"
 moltbot memory status --agent main
 moltbot memory index --agent main --verbose
-=======
-openclaw memory status
-openclaw memory status --deep
-openclaw memory status --deep --index
-openclaw memory status --deep --index --verbose
-openclaw memory index
-openclaw memory index --verbose
-openclaw memory search "release checklist"
-openclaw memory search --query "release checklist"
-openclaw memory status --agent main
-openclaw memory index --agent main --verbose
->>>>>>> a12cbf899 (docs: refresh CLI and trusted-proxy docs)
 ```
 
 ## Options

@@ -25,13 +25,7 @@ DEEPGRAM_API_KEY=dg_...
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 2) Enable the provider:
-=======
-1. Enable the provider:
-=======
-2. Enable the provider:
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5

@@ -1,5 +1,4 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
 
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { AppViewState } from "./app-view-state";
@@ -66,17 +65,6 @@ import {
 } from "./controllers/skills";
 import { loadNodes } from "./controllers/nodes";
 import { loadChatHistory } from "./controllers/chat";
-=======
-import type { AppViewState } from "./app-view-state.ts";
-import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
-import { t } from "../i18n/index.ts";
-import { refreshChatAvatar } from "./app-chat.ts";
-import { renderUsageTab } from "./app-render-usage-tab.ts";
-import { renderChatControls, renderTab, renderThemeToggle } from "./app-render.helpers.ts";
-<<<<<<< HEAD
-=======
-import type { AppViewState } from "./app-view-state.ts";
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 import { loadAgentFileContent, loadAgentFiles, saveAgentFile } from "./controllers/agent-files.ts";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
 import { loadAgentSkills } from "./controllers/agent-skills.ts";
@@ -91,80 +79,16 @@ import {
   saveConfig,
   updateConfigFormValue,
   removeConfigFormValue,
-<<<<<<< HEAD
 } from "./controllers/config";
-=======
-} from "./controllers/config.ts";
-import {
-  loadCronRuns,
-  loadMoreCronJobs,
-  loadMoreCronRuns,
-  reloadCronJobs,
-  toggleCronJob,
-  runCronJob,
-  removeCronJob,
-  addCronJob,
-  startCronEdit,
-  startCronClone,
-  cancelCronEdit,
-  validateCronForm,
-  hasCronFormErrors,
-  normalizeCronFormState,
-  getVisibleCronJobs,
-  updateCronJobsFilter,
-  updateCronRunsFilter,
-} from "./controllers/cron.ts";
-import { loadDebug, callDebugMethod } from "./controllers/debug.ts";
-import {
-  approveDevicePairing,
-  loadDevices,
-  rejectDevicePairing,
-  revokeDeviceToken,
-  rotateDeviceToken,
-} from "./controllers/devices.ts";
->>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
 import {
   loadExecApprovals,
   removeExecApprovalsFormValue,
   saveExecApprovals,
   updateExecApprovalsFormValue,
-<<<<<<< HEAD
 } from "./controllers/exec-approvals";
 import { loadCronRuns, toggleCronJob, runCronJob, removeCronJob, addCronJob } from "./controllers/cron";
 import { loadDebug, callDebugMethod } from "./controllers/debug";
 import { loadLogs } from "./controllers/logs";
-=======
-} from "./controllers/exec-approvals.ts";
-import { loadLogs } from "./controllers/logs.ts";
-import { loadNodes } from "./controllers/nodes.ts";
-import { loadPresence } from "./controllers/presence.ts";
-import { deleteSessionAndRefresh, loadSessions, patchSession } from "./controllers/sessions.ts";
-import {
-  installSkill,
-  loadSkills,
-  saveSkillApiKey,
-  updateSkillEdit,
-  updateSkillEnabled,
-} from "./controllers/skills.ts";
-import { icons } from "./icons.ts";
-import { normalizeBasePath, TAB_GROUPS, subtitleForTab, titleForTab } from "./navigation.ts";
-import { resolveConfiguredCronModelSuggestions } from "./views/agents-utils.ts";
-import { renderAgents } from "./views/agents.ts";
-import { renderBottomTabs } from "./views/bottom-tabs.ts";
-import { renderChannels } from "./views/channels.ts";
-import { renderChat } from "./views/chat.ts";
-import { renderConfig } from "./views/config.ts";
-import { renderCron } from "./views/cron.ts";
-import { renderDebug } from "./views/debug.ts";
-import { renderExecApprovalPrompt } from "./views/exec-approval.ts";
-import { renderGatewayUrlConfirmation } from "./views/gateway-url-confirmation.ts";
-import { renderInstances } from "./views/instances.ts";
-import { renderLogs } from "./views/logs.ts";
-import { renderNodes } from "./views/nodes.ts";
-import { renderOverview } from "./views/overview.ts";
-import { renderSessions } from "./views/sessions.ts";
-import { renderSkills } from "./views/skills.ts";
->>>>>>> 3df8305cb (fix(ui): gate sessions refresh on successful delete)
 
 const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;
@@ -194,8 +118,6 @@ export function renderApp(state: AppViewState) {
   const showThinking = state.onboarding ? false : state.settings.chatShowThinking;
   const assistantAvatarUrl = resolveAssistantAvatarUrl(state);
   const chatAvatarUrl = state.chatAvatarUrl ?? assistantAvatarUrl ?? null;
-<<<<<<< HEAD
-=======
   const logoBase = normalizeBasePath(state.basePath);
   const logoHref = logoBase ? `${logoBase}/favicon.svg` : "/favicon.svg";
   const configValue =
@@ -227,7 +149,6 @@ export function renderApp(state: AppViewState) {
     }
     return index;
   };
->>>>>>> 9822985ea (fix(web ui): agent model selection)
 =======
   const cronAgentSuggestions = Array.from(
     new Set(
@@ -284,7 +205,6 @@ export function renderApp(state: AppViewState) {
 >>>>>>> f10734760 (fix(ui-cron): include configured model suggestions for scheduled jobs (openclaw#29709) thanks @Sid-Qin)
 
   return html`
-<<<<<<< HEAD
     <div class="shell ${isChat ? "shell--chat" : ""} ${chatFocus ? "shell--chat-focus" : ""} ${state.settings.navCollapsed ? "shell--nav-collapsed" : ""} ${state.onboarding ? "shell--onboarding" : ""}">
       <header class="topbar">
         <div class="topbar-left">
@@ -315,68 +235,10 @@ export function renderApp(state: AppViewState) {
             <span class="statusDot ${state.connected ? "ok" : ""}"></span>
             <span>Health</span>
             <span class="mono">${state.connected ? "OK" : "Offline"}</span>
-=======
-    ${renderCommandPalette({
-      open: state.paletteOpen,
-      query: (state as unknown as { paletteQuery?: string }).paletteQuery ?? "",
-      activeIndex: (state as unknown as { paletteActiveIndex?: number }).paletteActiveIndex ?? 0,
-      onToggle: () => {
-        state.paletteOpen = !state.paletteOpen;
-      },
-      onQueryChange: (q) => {
-        (state as unknown as { paletteQuery: string }).paletteQuery = q;
-      },
-      onActiveIndexChange: (i) => {
-        (state as unknown as { paletteActiveIndex: number }).paletteActiveIndex = i;
-      },
-      onNavigate: (tab) => {
-        state.setTab(tab as import("./navigation.ts").Tab);
-      },
-      onSlashCommand: (_cmd) => {
-        state.setTab("chat" as import("./navigation.ts").Tab);
-      },
-    })}
-    <div class="shell ${isChat ? "shell--chat" : ""} ${chatFocus ? "shell--chat-focus" : ""} ${state.settings.navCollapsed ? "shell--nav-collapsed" : ""} ${state.onboarding ? "shell--onboarding" : ""}">
-      <header class="topbar">
-        <dashboard-header .tab=${state.tab}></dashboard-header>
-        <button
-          class="topbar-search"
-          @click=${() => {
-            state.paletteOpen = !state.paletteOpen;
-          }}
-          title="Search or jump to… (⌘K)"
-          aria-label="Open command palette"
-        >
-          <span class="topbar-search__label">${t("common.search")}</span>
-          <kbd class="topbar-search__kbd">⌘K</kbd>
-        </button>
-        <div class="topbar-status">
-          <button
-            class="topbar-redact ${state.streamMode ? "topbar-redact--active" : ""}"
-            @click=${() => {
-              state.streamMode = !state.streamMode;
-              try {
-                localStorage.setItem("openclaw:stream-mode", String(state.streamMode));
-              } catch {
-                /* */
-              }
-            }}
-            title="${state.streamMode ? "Sensitive data hidden — click to reveal" : "Sensitive data visible — click to hide"}"
-            aria-label="Toggle redaction"
-            aria-pressed=${state.streamMode}
-          >
-            ${state.streamMode ? icons.eye : icons.eyeOff}
-          </button>
-          <span class="topbar-divider"></span>
-          <div class="topbar-connection ${state.connected ? "topbar-connection--ok" : ""}">
-            <span class="topbar-connection__dot"></span>
-            <span class="topbar-connection__label">${state.connected ? t("common.ok") : t("common.offline")}</span>
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
           </div>
           ${renderThemeToggle(state)}
         </div>
       </header>
-<<<<<<< HEAD
       <aside class="nav ${state.settings.navCollapsed ? "nav--collapsed" : ""}">
         ${TAB_GROUPS.map((group) => {
           const isGroupCollapsed = state.settings.navGroupsCollapsed[group.label] ?? false;
@@ -420,119 +282,13 @@ export function renderApp(state: AppViewState) {
               <span class="nav-item__text">Docs</span>
             </a>
           </div>
-=======
-      <aside class="sidebar ${state.settings.navCollapsed ? "sidebar--collapsed" : ""}">
-      <div class="sidebar-header">
-        ${
-          state.settings.navCollapsed
-            ? nothing
-            : html`
-          <div class="sidebar-brand">
-            <img class="sidebar-brand__logo" src="${basePath ? `${basePath}/favicon.svg` : "/favicon.svg"}" alt="OpenClaw" />
-            <span class="sidebar-brand__title">OpenClaw</span>
-          </div>
-        `
-        }
-        <button
-          class="sidebar-collapse-btn"
-          @click=${() =>
-            state.applySettings({
-              ...state.settings,
-              navCollapsed: !state.settings.navCollapsed,
-            })}
-          title="${state.settings.navCollapsed ? t("nav.expand") : t("nav.collapse")}"
-          aria-label="${state.settings.navCollapsed ? t("nav.expand") : t("nav.collapse")}"
-        >
-          ${state.settings.navCollapsed ? icons.panelLeftOpen : icons.panelLeftClose}
-        </button>
-      </div>
- 
-          
-          <nav class="sidebar-nav">
-          ${TAB_GROUPS.map((group) => {
-            const isGroupCollapsed = state.settings.navGroupsCollapsed[group.label] ?? false;
-            const hasActiveTab = group.tabs.some((tab) => tab === state.tab);
-            const showItems = hasActiveTab || !isGroupCollapsed;
-
-            return html`
-              <div class="nav-group ${!showItems ? "nav-group--collapsed" : ""}">
-                ${
-                  !state.settings.navCollapsed
-                    ? html`
-                  <button
-                    class="nav-group__label"
-                    @click=${() => {
-                      const next = { ...state.settings.navGroupsCollapsed };
-                      next[group.label] = !isGroupCollapsed;
-                      state.applySettings({
-                        ...state.settings,
-                        navGroupsCollapsed: next,
-                      });
-                    }}
-                    aria-expanded=${showItems}
-                  >
-                    <span class="nav-group__label-text">${t(`nav.${group.label}`)}</span>
-                    <span class="nav-group__chevron">${showItems ? icons.chevronDown : icons.chevronRight}</span>
-                  </button>
-                `
-                    : nothing
-                }
-                <div class="nav-group__items">
-                  ${group.tabs.map((tab) => renderTab(state, tab))}
-                </div>
-              </div>
-            `;
-          })}
-        </nav>
-
-        <div class="sidebar-footer">
-          <a
-            class="nav-item nav-item--external"
-            href="https://docs.openclaw.ai"
-            target="_blank"
-            rel="noreferrer"
-            title="${t("common.docs")} (opens in new tab)"
-          >
-            <span class="nav-item__icon" aria-hidden="true">${icons.book}</span>
-            ${
-              !state.settings.navCollapsed
-                ? html`
-              <span class="nav-item__text">${t("common.docs")}</span>
-              <span class="nav-item__external-icon">${icons.externalLink}</span>
-            `
-                : nothing
-            }
-          </a>
-          ${(() => {
-            const snapshot = state.hello?.snapshot as { server?: { version?: string } } | undefined;
-            const version = snapshot?.server?.version ?? "";
-            return version
-              ? html`
-                <div class="sidebar-version" title=${`v${version}`}>
-                  ${
-                    !state.settings.navCollapsed
-                      ? html`<span class="sidebar-version__text">v${version}</span>`
-                      : html`
-                          <span class="sidebar-version__dot"></span>
-                        `
-                  }
-                </div>
-              `
-              : nothing;
-          })()}
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
         </div>
       </aside>
       <main class="content ${isChat ? "content--chat" : ""}">
         <section class="content-header">
           <div>
-<<<<<<< HEAD
             <div class="page-title">${titleForTab(state.tab)}</div>
             <div class="page-sub">${subtitleForTab(state.tab)}</div>
-=======
-            ${state.tab === "usage" ? nothing : html`<div class="page-title">${titleForTab(state.tab)}</div>`}
-            ${state.tab === "usage" ? nothing : html`<div class="page-sub">${subtitleForTab(state.tab)}</div>`}
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
           </div>
           <div class="page-meta">
             ${state.lastError
@@ -619,7 +375,6 @@ export function renderApp(state: AppViewState) {
             })
           : nothing}
 
-<<<<<<< HEAD
         ${state.tab === "sessions"
           ? renderSessions({
               loading: state.sessionsLoading,
@@ -641,33 +396,7 @@ export function renderApp(state: AppViewState) {
 	              onDelete: (key) => deleteSession(state, key),
 	            })
 	          : nothing}
-=======
-        ${
-          state.tab === "sessions"
-            ? renderSessions({
-                loading: state.sessionsLoading,
-                result: state.sessionsResult,
-                error: state.sessionsError,
-                activeMinutes: state.sessionsFilterActive,
-                limit: state.sessionsFilterLimit,
-                includeGlobal: state.sessionsIncludeGlobal,
-                includeUnknown: state.sessionsIncludeUnknown,
-                basePath: state.basePath,
-                onFiltersChange: (next) => {
-                  state.sessionsFilterActive = next.activeMinutes;
-                  state.sessionsFilterLimit = next.limit;
-                  state.sessionsIncludeGlobal = next.includeGlobal;
-                  state.sessionsIncludeUnknown = next.includeUnknown;
-                },
-                onRefresh: () => loadSessions(state),
-                onPatch: (key, patch) => patchSession(state, key, patch),
-                onDelete: (key) => deleteSessionAndRefresh(state, key),
-              })
-            : nothing
-        }
->>>>>>> 3df8305cb (fix(ui): gate sessions refresh on successful delete)
 
-<<<<<<< HEAD
         ${state.tab === "cron"
           ? renderCron({
               loading: state.cronLoading,
@@ -692,106 +421,7 @@ export function renderApp(state: AppViewState) {
               onLoadRuns: (jobId) => loadCronRuns(state, jobId),
             })
           : nothing}
-=======
-        ${renderUsageTab(state)}
 
-        ${
-          state.tab === "cron"
-            ? renderCron({
-                basePath: state.basePath,
-                loading: state.cronLoading,
-                jobsLoadingMore: state.cronJobsLoadingMore,
-                status: state.cronStatus,
-                jobs: visibleCronJobs,
-                jobsTotal: state.cronJobsTotal,
-                jobsHasMore: state.cronJobsHasMore,
-                jobsQuery: state.cronJobsQuery,
-                jobsEnabledFilter: state.cronJobsEnabledFilter,
-                jobsScheduleKindFilter: state.cronJobsScheduleKindFilter,
-                jobsLastStatusFilter: state.cronJobsLastStatusFilter,
-                jobsSortBy: state.cronJobsSortBy,
-                jobsSortDir: state.cronJobsSortDir,
-                error: state.cronError,
-                busy: state.cronBusy,
-                form: state.cronForm,
-                fieldErrors: state.cronFieldErrors,
-                canSubmit: !hasCronFormErrors(state.cronFieldErrors),
-                editingJobId: state.cronEditingJobId,
-                channels: state.channelsSnapshot?.channelMeta?.length
-                  ? state.channelsSnapshot.channelMeta.map((entry) => entry.id)
-                  : (state.channelsSnapshot?.channelOrder ?? []),
-                channelLabels: state.channelsSnapshot?.channelLabels ?? {},
-                channelMeta: state.channelsSnapshot?.channelMeta ?? [],
-                runsJobId: state.cronRunsJobId,
-                runs: state.cronRuns,
-                runsTotal: state.cronRunsTotal,
-                runsHasMore: state.cronRunsHasMore,
-                runsLoadingMore: state.cronRunsLoadingMore,
-                runsScope: state.cronRunsScope,
-                runsStatuses: state.cronRunsStatuses,
-                runsDeliveryStatuses: state.cronRunsDeliveryStatuses,
-                runsStatusFilter: state.cronRunsStatusFilter,
-                runsQuery: state.cronRunsQuery,
-                runsSortDir: state.cronRunsSortDir,
-                agentSuggestions: cronAgentSuggestions,
-                modelSuggestions: cronModelSuggestions,
-                thinkingSuggestions: CRON_THINKING_SUGGESTIONS,
-                timezoneSuggestions: CRON_TIMEZONE_SUGGESTIONS,
-                deliveryToSuggestions,
-                onFormChange: (patch) => {
-                  state.cronForm = normalizeCronFormState({ ...state.cronForm, ...patch });
-                  state.cronFieldErrors = validateCronForm(state.cronForm);
-                },
-                onRefresh: () => state.loadCron(),
-                onAdd: () => addCronJob(state),
-                onEdit: (job) => startCronEdit(state, job),
-                onClone: (job) => startCronClone(state, job),
-                onCancelEdit: () => cancelCronEdit(state),
-                onToggle: (job, enabled) => toggleCronJob(state, job, enabled),
-                onRun: (job) => runCronJob(state, job),
-                onRemove: (job) => removeCronJob(state, job),
-                onLoadRuns: async (jobId) => {
-                  updateCronRunsFilter(state, { cronRunsScope: "job" });
-                  await loadCronRuns(state, jobId);
-                },
-                onLoadMoreJobs: () => loadMoreCronJobs(state),
-                onJobsFiltersChange: async (patch) => {
-                  updateCronJobsFilter(state, patch);
-                  const shouldReload =
-                    typeof patch.cronJobsQuery === "string" ||
-                    Boolean(patch.cronJobsEnabledFilter) ||
-                    Boolean(patch.cronJobsSortBy) ||
-                    Boolean(patch.cronJobsSortDir);
-                  if (shouldReload) {
-                    await reloadCronJobs(state);
-                  }
-                },
-                onJobsFiltersReset: async () => {
-                  updateCronJobsFilter(state, {
-                    cronJobsQuery: "",
-                    cronJobsEnabledFilter: "all",
-                    cronJobsScheduleKindFilter: "all",
-                    cronJobsLastStatusFilter: "all",
-                    cronJobsSortBy: "nextRunAtMs",
-                    cronJobsSortDir: "asc",
-                  });
-                  await reloadCronJobs(state);
-                },
-                onLoadMoreRuns: () => loadMoreCronRuns(state),
-                onRunsFiltersChange: async (patch) => {
-                  updateCronRunsFilter(state, patch);
-                  if (state.cronRunsScope === "all") {
-                    await loadCronRuns(state, null);
-                    return;
-                  }
-                  await loadCronRuns(state, state.cronRunsJobId);
-                },
-              })
-            : nothing
-        }
->>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
-
-<<<<<<< HEAD
         ${state.tab === "skills"
           ? renderSkills({
               loading: state.skillsLoading,
@@ -810,56 +440,6 @@ export function renderApp(state: AppViewState) {
                 installSkill(state, skillKey, name, installId),
             })
           : nothing}
-=======
-        ${
-          state.tab === "agents"
-            ? renderAgents({
-                loading: state.agentsLoading,
-                error: state.agentsError,
-                agentsList: state.agentsList,
-                selectedAgentId: resolvedAgentId,
-                activePanel: state.agentsPanel,
-                configForm: configValue,
-                configLoading: state.configLoading,
-                configSaving: state.configSaving,
-                configDirty: state.configFormDirty,
-                channelsLoading: state.channelsLoading,
-                channelsError: state.channelsError,
-                channelsSnapshot: state.channelsSnapshot,
-                channelsLastSuccess: state.channelsLastSuccess,
-                cronLoading: state.cronLoading,
-                cronStatus: state.cronStatus,
-                cronJobs: state.cronJobs,
-                cronError: state.cronError,
-                agentFilesLoading: state.agentFilesLoading,
-                agentFilesError: state.agentFilesError,
-                agentFilesList: state.agentFilesList,
-                agentFileActive: state.agentFileActive,
-                agentFileContents: state.agentFileContents,
-                agentFileDrafts: state.agentFileDrafts,
-                agentFileSaving: state.agentFileSaving,
-                agentIdentityLoading: state.agentIdentityLoading,
-                agentIdentityError: state.agentIdentityError,
-                agentIdentityById: state.agentIdentityById,
-<<<<<<< HEAD
-                agentSkillsLoading: state.agentSkillsLoading,
-                agentSkillsReport: state.agentSkillsReport,
-                agentSkillsError: state.agentSkillsError,
-                agentSkillsAgentId: state.agentSkillsAgentId,
-                skillsFilter: state.skillsFilter,
-=======
-                agentSkills: {
-                  report: state.agentSkillsReport,
-                  loading: state.agentSkillsLoading,
-                  error: state.agentSkillsError,
-                  agentId: state.agentSkillsAgentId,
-                  filter: state.skillsFilter,
-                },
-                sidebarFilter: state.agentsSidebarFilter,
-                onSidebarFilterChange: (value) => {
-                  state.agentsSidebarFilter = value;
-                },
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
                 onRefresh: async () => {
                   await loadAgents(state);
                   const agentIds = state.agentsList?.agents?.map((entry) => entry.id) ?? [];
@@ -1420,7 +1000,6 @@ export function renderApp(state: AppViewState) {
             })
           : nothing}
 
-<<<<<<< HEAD
         ${state.tab === "config"
           ? renderConfig({
               raw: state.configRaw,
@@ -1458,86 +1037,6 @@ export function renderApp(state: AppViewState) {
               onUpdate: () => runUpdate(state),
             })
           : nothing}
-=======
-        ${
-          state.tab === "chat"
-            ? renderChat({
-                sessionKey: state.sessionKey,
-                onSessionKeyChange: (next) => {
-                  state.sessionKey = next;
-                  state.chatMessage = "";
-                  state.chatAttachments = [];
-                  state.chatStream = null;
-                  state.chatStreamStartedAt = null;
-                  state.chatRunId = null;
-                  state.chatQueue = [];
-                  state.resetToolStream();
-                  state.resetChatScroll();
-                  state.applySettings({
-                    ...state.settings,
-                    sessionKey: next,
-                    lastActiveSessionKey: next,
-                  });
-                  void state.loadAssistantIdentity();
-                  void loadChatHistory(state);
-                  void refreshChatAvatar(state);
-                },
-                thinkingLevel: state.chatThinkingLevel,
-                showThinking,
-                loading: state.chatLoading,
-                sending: state.chatSending,
-                compactionStatus: state.compactionStatus,
-                assistantAvatarUrl: chatAvatarUrl,
-                messages: state.chatMessages,
-                toolMessages: state.chatToolMessages,
-                stream: state.chatStream,
-                streamStartedAt: state.chatStreamStartedAt,
-                draft: state.chatMessage,
-                queue: state.chatQueue,
-                connected: state.connected,
-                canSend: state.connected,
-                disabledReason: chatDisabledReason,
-                error: state.lastError,
-                sessions: state.sessionsResult,
-                focusMode: chatFocus,
-                onRefresh: () => {
-                  state.resetToolStream();
-                  return Promise.all([loadChatHistory(state), refreshChatAvatar(state)]);
-                },
-                onToggleFocusMode: () => {
-                  if (state.onboarding) {
-                    return;
-                  }
-                  state.applySettings({
-                    ...state.settings,
-                    chatFocusMode: !state.settings.chatFocusMode,
-                  });
-                },
-                onChatScroll: (event) => state.handleChatScroll(event),
-                onDraftChange: (next) => (state.chatMessage = next),
-                attachments: state.chatAttachments,
-                onAttachmentsChange: (next) => (state.chatAttachments = next),
-                onSend: () => state.handleSendChat(),
-                canAbort: Boolean(state.chatRunId),
-                onAbort: () => void state.handleAbortChat(),
-                onQueueRemove: (id) => state.removeQueuedMessage(id),
-                onNewSession: () => state.handleSendChat("/new", { restoreDraft: true }),
-                showNewMessages: state.chatNewMessagesBelow && !state.chatManualRefreshInFlight,
-                onScrollToBottom: () => state.scrollToBottom(),
-                // Sidebar props for tool output viewing
-                sidebarOpen: state.sidebarOpen,
-                sidebarContent: state.sidebarContent,
-                sidebarError: state.sidebarError,
-                splitRatio: state.splitRatio,
-                onOpenSidebar: (content: string) => state.handleOpenSidebar(content),
-                onCloseSidebar: () => state.handleCloseSidebar(),
-                onSplitRatioChange: (ratio: number) => state.handleSplitRatioChange(ratio),
-                assistantName: state.assistantName,
-                assistantAvatar: state.assistantAvatar,
-              })
-            : nothing
-        }
->>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
 
         ${state.tab === "debug"
           ? renderDebug({
@@ -1581,13 +1080,10 @@ export function renderApp(state: AppViewState) {
       </main>
       ${renderExecApprovalPrompt(state)}
       ${renderGatewayUrlConfirmation(state)}
-<<<<<<< HEAD
-=======
       ${renderBottomTabs({
         activeTab: state.tab,
         onTabChange: (tab) => state.setTab(tab),
       })}
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
     </div>
   `;
 }

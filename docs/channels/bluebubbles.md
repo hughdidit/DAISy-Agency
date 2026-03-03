@@ -23,14 +23,7 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
 ## Quick start
 1. Install the BlueBubbles server on your Mac (follow the instructions at [bluebubbles.app/install](https://bluebubbles.app/install)).
 2. In the BlueBubbles config, enable the web API and set a password.
-<<<<<<< HEAD
 3. Run `moltbot onboard` and select BlueBubbles, or configure manually:
-=======
-3. Run `openclaw onboard` and select BlueBubbles, or configure manually:
-<<<<<<< HEAD
-<<<<<<< HEAD
-
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 =======
@@ -195,13 +188,7 @@ Control whether responses are sent as a single message or streamed in blocks:
 - Outbound text is chunked to `channels.bluebubbles.textChunkLimit` (default: 4000 chars).
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Configuration reference
-=======
-## Configuration
-=======
-## Configuration reference
->>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 >>>>>>> d7891badd (docs: more channel heading consistency updates (#22541))
 Full configuration: [Configuration](/gateway/configuration)

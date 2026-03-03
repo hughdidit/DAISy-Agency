@@ -1,16 +1,11 @@
 ---
-<<<<<<< HEAD
 summary: "All configuration options for ~/.clawdbot/moltbot.json with examples"
-=======
-summary: "Configuration overview: common tasks, quick setup, and links to the full reference"
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 read_when:
   - Setting up OpenClaw for the first time
   - Looking for common configuration patterns
   - Navigating to specific config sections
 title: "Configuration"
 ---
-<<<<<<< HEAD
 # Configuration 🔧
 
 Moltbot reads an optional **JSON5** config from `~/.clawdbot/moltbot.json` (comments + trailing commas allowed).
@@ -22,18 +17,6 @@ If the file is missing, Moltbot uses safe-ish defaults (embedded Pi agent + per-
 - set the agent's workspace (`agents.defaults.workspace` or `agents.list[].workspace`)
 - tune the embedded agent defaults (`agents.defaults`) and session behavior (`session`)
 - set per-agent identity (`agents.list[].identity`)
-=======
-
-# Configuration
-
-OpenClaw reads an optional <Tooltip tip="JSON5 supports comments and trailing commas">**JSON5**</Tooltip> config from `~/.openclaw/openclaw.json`.
-
-If the file is missing, OpenClaw uses safe defaults. Common reasons to add a config:
-
-- Connect channels and control who can message the bot
-- Set models, tools, sandboxing, or automation (cron, hooks)
-- Tune sessions, media, networking, or UI
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
 See the [full reference](/gateway/configuration-reference) for every available field.
 
@@ -41,7 +24,6 @@ See the [full reference](/gateway/configuration-reference) for every available f
 **New to configuration?** Start with `openclaw onboard` for interactive setup, or check out the [Configuration Examples](/gateway/configuration-examples) guide for complete copy-paste configs.
 </Tip>
 
-<<<<<<< HEAD
 Moltbot only accepts configurations that fully match the schema.
 Unknown keys, malformed types, or invalid values cause the Gateway to **refuse to start** for safety.
 
@@ -121,9 +103,6 @@ moltbot gateway call config.patch --params '{
 ```
 
 ## Minimal config (recommended starting point)
-=======
-## Minimal config
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
 ```json5
 // ~/.openclaw/openclaw.json
@@ -133,37 +112,10 @@ moltbot gateway call config.patch --params '{
 }
 ```
 
-<<<<<<< HEAD
 Build the default image once with:
 ```bash
 scripts/sandbox-setup.sh
 ```
-=======
-## Editing config
-
-<Tabs>
-  <Tab title="Interactive wizard">
-    ```bash
-    openclaw onboard       # full setup wizard
-    openclaw configure     # config wizard
-    ```
-  </Tab>
-  <Tab title="CLI (one-liners)">
-    ```bash
-    openclaw config get agents.defaults.workspace
-    openclaw config set agents.defaults.heartbeat.every "2h"
-    openclaw config unset tools.web.search.apiKey
-    ```
-  </Tab>
-  <Tab title="Control UI">
-    Open [http://127.0.0.1:18789](http://127.0.0.1:18789) and use the **Config** tab.
-    The Control UI renders a form from the config schema, with a **Raw JSON** editor as an escape hatch.
-  </Tab>
-  <Tab title="Direct edit">
-    Edit `~/.openclaw/openclaw.json` directly. The Gateway watches the file and applies changes automatically (see [hot reload](#config-hot-reload)).
-  </Tab>
-</Tabs>
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
 ## Strict validation
 
@@ -171,7 +123,6 @@ scripts/sandbox-setup.sh
 OpenClaw only accepts configurations that fully match the schema. Unknown keys, malformed types, or invalid values cause the Gateway to **refuse to start**.
 </Warning>
 
-<<<<<<< HEAD
 ```json5
 {
   agents: {
@@ -190,73 +141,6 @@ OpenClaw only accepts configurations that fully match the schema. Unknown keys, 
       groups: { "*": { requireMention: true } }
     }
   }
-=======
-When validation fails:
-
-- The Gateway does not boot
-- Only diagnostic commands work (`openclaw doctor`, `openclaw logs`, `openclaw health`, `openclaw status`)
-- Run `openclaw doctor` to see exact issues
-- Run `openclaw doctor --fix` (or `--yes`) to apply repairs
-
-## Common tasks
-
-<AccordionGroup>
-  <Accordion title="Set up a channel (WhatsApp, Telegram, Discord, etc.)">
-    Each channel has its own config section under `channels.<provider>`. See the dedicated channel page for setup steps:
-
-    - [WhatsApp](/channels/whatsapp) — `channels.whatsapp`
-    - [Telegram](/channels/telegram) — `channels.telegram`
-    - [Discord](/channels/discord) — `channels.discord`
-    - [Slack](/channels/slack) — `channels.slack`
-    - [Signal](/channels/signal) — `channels.signal`
-    - [iMessage](/channels/imessage) — `channels.imessage`
-    - [Google Chat](/channels/googlechat) — `channels.googlechat`
-    - [Mattermost](/channels/mattermost) — `channels.mattermost`
-    - [MS Teams](/channels/msteams) — `channels.msteams`
-
-    All channels share the same DM policy pattern:
-
-    ```json5
-    {
-      channels: {
-        telegram: {
-          enabled: true,
-          botToken: "123:abc",
-          dmPolicy: "pairing",   // pairing | allowlist | open | disabled
-          allowFrom: ["tg:123"], // only for allowlist/open
-        },
-      },
-    }
-    ```
-
-  </Accordion>
-
-  <Accordion title="Choose and configure models">
-    Set the primary model and optional fallbacks:
-
-    ```json5
-    {
-      agents: {
-        defaults: {
-          model: {
-            primary: "anthropic/claude-sonnet-4-5",
-            fallbacks: ["openai/gpt-5.2"],
-          },
-          models: {
-            "anthropic/claude-sonnet-4-5": { alias: "Sonnet" },
-            "openai/gpt-5.2": { alias: "GPT" },
-          },
-        },
-      },
-    }
-    ```
-
-    - `agents.defaults.models` defines the model catalog and acts as the allowlist for `/model`.
-    - Model refs use `provider/model` format (e.g. `anthropic/claude-opus-4-6`).
-<<<<<<< HEAD
-=======
-    - `agents.defaults.imageMaxDimensionPx` controls transcript/tool image downscaling (default `1200`); lower values usually reduce vision-token usage on screenshot-heavy runs.
->>>>>>> 4c569ce24 (docs(tokens): document image dimension token tradeoffs)
     - See [Models CLI](/concepts/models) for switching models in chat and [Model Failover](/concepts/model-failover) for auth rotation and fallback behavior.
     - For custom/self-hosted providers, see [Custom providers](/gateway/configuration-reference#custom-providers-and-base-urls) in the reference.
 
@@ -484,31 +368,15 @@ The Gateway watches `~/.openclaw/openclaw.json` and applies changes automaticall
 
 ### What hot-applies vs what needs a restart
 
-<<<<<<< HEAD
 Split your config into multiple files using the `$include` directive. This is useful for:
 - Organizing large configs (e.g., per-client agent definitions)
 - Sharing common settings across environments
 - Keeping sensitive configs separate
-=======
-Most fields hot-apply without downtime. In `hybrid` mode, restart-required changes are handled automatically.
-
-| Category            | Fields                                                               | Restart needed? |
-| ------------------- | -------------------------------------------------------------------- | --------------- |
-| Channels            | `channels.*`, `web` (WhatsApp) — all built-in and extension channels | No              |
-| Agent & models      | `agent`, `agents`, `models`, `routing`                               | No              |
-| Automation          | `hooks`, `cron`, `agent.heartbeat`                                   | No              |
-| Sessions & messages | `session`, `messages`                                                | No              |
-| Tools & media       | `tools`, `browser`, `skills`, `audio`, `talk`                        | No              |
-| UI & misc           | `ui`, `logging`, `identity`, `bindings`                              | No              |
-| Gateway server      | `gateway.*` (port, bind, auth, tailscale, TLS, HTTP)                 | **Yes**         |
-| Infrastructure      | `discovery`, `canvasHost`, `plugins`                                 | **Yes**         |
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
 <Note>
 `gateway.reload` and `gateway.remote` are exceptions — changing them does **not** trigger a restart.
 </Note>
 
-<<<<<<< HEAD
 ```json5
 // ~/.clawdbot/moltbot.json
 {
@@ -536,19 +404,6 @@ Most fields hot-apply without downtime. In `hybrid` mode, restart-required chang
   ]
 }
 ```
-=======
-## Config RPC (programmatic updates)
-
-<AccordionGroup>
-  <Accordion title="config.apply (full replace)">
-    Validates + writes the full config and restarts the Gateway in one step.
-
-    <Warning>
-    `config.apply` replaces the **entire config**. Use `config.patch` for partial updates, or `openclaw config set` for single keys.
-    </Warning>
-
-    Params:
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
     - `raw` (string) — JSON5 payload for the entire config
     - `baseHash` (optional) — config hash from `config.get` (required when config exists)
@@ -565,7 +420,6 @@ Most fields hot-apply without downtime. In `hybrid` mode, restart-required chang
     }'
     ```
 
-<<<<<<< HEAD
 ```json5
 // Sibling keys override included values
 {
@@ -573,9 +427,6 @@ Most fields hot-apply without downtime. In `hybrid` mode, restart-required chang
   b: 99                          // Result: { a: 1, b: 99 }
 }
 ```
-=======
-  </Accordion>
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
   <Accordion title="config.patch (partial update)">
     Merges a partial update into the existing config (JSON merge patch semantics):
@@ -584,7 +435,6 @@ Most fields hot-apply without downtime. In `hybrid` mode, restart-required chang
     - `null` deletes a key
     - Arrays replace
 
-<<<<<<< HEAD
 ```json5
 // clients/mueller.json5
 {
@@ -592,9 +442,6 @@ Most fields hot-apply without downtime. In `hybrid` mode, restart-required chang
   broadcast: { "$include": "./mueller/broadcast.json5" }
 }
 ```
-=======
-    Params:
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
     - `raw` (string) — JSON5 with just the keys to change
     - `baseHash` (required) — config hash from `config.get`
@@ -607,20 +454,14 @@ Most fields hot-apply without downtime. In `hybrid` mode, restart-required chang
     }'
     ```
 
-<<<<<<< HEAD
 ```json5
 { "$include": "./sub/config.json5" }      // relative
 { "$include": "/etc/moltbot/base.json5" } // absolute
 { "$include": "../shared/common.json5" }   // parent dir
 ```
-=======
-  </Accordion>
-</AccordionGroup>
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
 ## Environment variables
 
-<<<<<<< HEAD
 - **Missing file**: Clear error with resolved path
 - **Parse error**: Shows which included file failed
 - **Circular includes**: Detected and reported with include chain
@@ -678,12 +519,6 @@ Moltbot reads env vars from the parent process (shell, launchd/systemd, CI, etc.
 Additionally, it loads:
 - `.env` from the current working directory (if present)
 - a global fallback `.env` from `~/.clawdbot/.env` (aka `$CLAWDBOT_STATE_DIR/.env`)
-=======
-OpenClaw reads env vars from the parent process plus:
-
-- `.env` from the current working directory (if present)
-- `~/.openclaw/.env` (global fallback)
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
 Neither file overrides existing env vars. You can also set inline env vars in config:
 
@@ -691,7 +526,6 @@ Neither file overrides existing env vars. You can also set inline env vars in co
 {
   env: {
     OPENROUTER_API_KEY: "sk-or-...",
-<<<<<<< HEAD
     vars: {
       GROQ_API_KEY: "gsk-..."
     }
@@ -705,20 +539,10 @@ See [/environment](/environment) for full precedence and sources.
 
 Opt-in convenience: if enabled and none of the expected keys are set yet, Moltbot runs your login shell and imports only the missing expected keys (never overrides).
 This effectively sources your shell profile.
-=======
-    vars: { GROQ_API_KEY: "gsk-..." },
-  },
-}
-```
-
-<Accordion title="Shell env import (optional)">
-  If enabled and expected keys aren't set, OpenClaw runs your login shell and imports only the missing keys:
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
 ```json5
 {
   env: {
-<<<<<<< HEAD
     shellEnv: {
       enabled: true,
       timeoutMs: 15000
@@ -2327,10 +2151,6 @@ Block streaming:
 See [/concepts/streaming](/concepts/streaming) for behavior + chunking details.
 =======
 
-=======
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-=======
-
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
   See [/concepts/streaming](/concepts/streaming) for behavior + chunking details.
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
@@ -3665,7 +3485,6 @@ Env var equivalent: `OPENCLAW_LOAD_SHELL_ENV=1`
 
 Rules:
 
-<<<<<<< HEAD
 | Variable | Description |
 |----------|-------------|
 | `{{Body}}` | Full inbound message body |
@@ -3688,17 +3507,9 @@ Rules:
 | `{{SenderName}}` | Sender display name (best effort) |
 | `{{SenderE164}}` | Sender phone number (best effort) |
 | `{{Provider}}` | Provider hint (whatsapp|telegram|discord|googlechat|slack|signal|imessage|msteams|webchat|…) |
-=======
-- Only uppercase names matched: `[A-Z_][A-Z0-9_]*`
-- Missing/empty vars throw an error at load time
-- Escape with `$${VAR}` for literal output
-- Works inside `$include` files
-- Inline substitution: `"${BASE}/v1"` → `"https://api.example.com/v1"`
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
 </Accordion>
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 Cron is a Gateway-owned scheduler for wakeups and scheduled jobs. See [Cron jobs](/automation/cron-jobs) for the feature overview and CLI examples.
 
@@ -3714,37 +3525,6 @@ Cron is a Gateway-owned scheduler for wakeups and scheduled jobs. See [Cron jobs
 ---
 
 *Next: [Agent Runtime](/concepts/agent)* 🦞
-=======
-=======
-<Accordion title="Secret refs (env and encrypted file)">
-  For fields that support SecretRef objects, you can use:
-
-```json5
-{
-  models: {
-    providers: {
-      openai: { apiKey: { source: "env", id: "OPENAI_API_KEY" } },
-    },
-  },
-  skills: {
-    entries: {
-      "nano-banana-pro": {
-        apiKey: { source: "file", id: "/skills/entries/nano-banana-pro/apiKey" },
-      },
-    },
-  },
-  channels: {
-    googlechat: {
-      serviceAccountRef: { source: "file", id: "/channels/googlechat/serviceAccount" },
-    },
-  },
-}
-```
-
-SecretRef details (including `secrets.sources.file` for `sops`) are in [Secrets Management](/gateway/secrets).
-</Accordion>
-
->>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 See [Environment](/help/environment) for full precedence and sources.
 
 ## Full reference

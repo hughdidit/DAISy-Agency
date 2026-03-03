@@ -4,12 +4,7 @@ import MoltbotProtocol
 import Foundation
 import OSLog
 
-<<<<<<< HEAD
 struct IOSGatewayChatTransport: MoltbotChatTransport, Sendable {
-=======
-struct IOSGatewayChatTransport: OpenClawChatTransport, Sendable {
-    private static let logger = Logger(subsystem: "ai.openclaw", category: "ios.chat.transport")
->>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
     private let gateway: GatewayNodeSession
 
     init(gateway: GatewayNodeSession) {
@@ -77,20 +72,8 @@ struct IOSGatewayChatTransport: OpenClawChatTransport, Sendable {
             idempotencyKey: idempotencyKey)
         let data = try JSONEncoder().encode(params)
         let json = String(data: data, encoding: .utf8)
-<<<<<<< HEAD
         let res = try await self.gateway.request(method: "chat.send", paramsJSON: json, timeoutSeconds: 35)
         return try JSONDecoder().decode(MoltbotChatSendResponse.self, from: res)
-=======
-        do {
-            let res = try await self.gateway.request(method: "chat.send", paramsJSON: json, timeoutSeconds: 35)
-            let decoded = try JSONDecoder().decode(OpenClawChatSendResponse.self, from: res)
-            Self.logger.info("chat.send ok runId=\(decoded.runId, privacy: .public)")
-            return decoded
-        } catch {
-            Self.logger.error("chat.send failed \(error.localizedDescription, privacy: .public)")
-            throw error
-        }
->>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
     }
 
     func requestHealth(timeoutMs: Int) async throws -> Bool {

@@ -30,8 +30,6 @@ describe("mattermostPlugin", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   describe("capabilities", () => {
     it("declares reactions support", () => {
       expect(mattermostPlugin.capabilities?.reactions).toBe(true);
@@ -242,7 +240,6 @@ describe("mattermostPlugin", () => {
     });
   });
 
->>>>>>> dd0b78966 (fix(mattermost): surface reactions support)
   describe("config", () => {
     it("formats allowFrom entries", () => {
       const formatAllowFrom = mattermostPlugin.config.formatAllowFrom;

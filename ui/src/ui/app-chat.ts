@@ -21,10 +21,7 @@ type ChatHost = {
   basePath: string;
   hello: GatewayHelloOk | null;
   chatAvatarUrl: string | null;
-<<<<<<< HEAD
-=======
   refreshSessionsAfterChat: Set<string>;
->>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
 };
 
 export function isChatBusy(host: ChatHost) {
@@ -84,12 +81,7 @@ async function sendChatMessageNow(
   },
 ) {
   resetToolStream(host as unknown as Parameters<typeof resetToolStream>[0]);
-<<<<<<< HEAD
   const ok = await sendChatMessage(host as unknown as MoltbotApp, message, opts?.attachments);
-=======
-  const runId = await sendChatMessage(host as unknown as OpenClawApp, message, opts?.attachments);
-  const ok = Boolean(runId);
->>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
   if (!ok && opts?.previousDraft != null) {
     host.chatMessage = opts.previousDraft;
   }
@@ -109,12 +101,9 @@ async function sendChatMessageNow(
   if (ok && !host.chatRunId) {
     void flushChatQueue(host);
   }
-<<<<<<< HEAD
-=======
   if (ok && opts?.refreshSessions && runId) {
     host.refreshSessionsAfterChat.add(runId);
   }
->>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
   return ok;
 }
 
@@ -182,13 +171,7 @@ export async function refreshChat(host: ChatHost, opts?: { scheduleScroll?: bool
     loadSessions(host as unknown as MoltbotApp),
     refreshChatAvatar(host),
   ]);
-<<<<<<< HEAD
   scheduleChatScroll(host as unknown as Parameters<typeof scheduleChatScroll>[0], true);
-=======
-  if (opts?.scheduleScroll !== false) {
-    scheduleChatScroll(host as unknown as Parameters<typeof scheduleChatScroll>[0]);
-  }
->>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
 }
 
 export const flushChatQueueForEvent = flushChatQueue;

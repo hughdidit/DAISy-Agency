@@ -1,11 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { bluebubblesMessageActions } from "./actions.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 
 vi.mock("./accounts.js", () => ({
   resolveBlueBubblesAccount: vi.fn(({ cfg, accountId }) => {

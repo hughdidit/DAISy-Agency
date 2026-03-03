@@ -15,23 +15,14 @@ Kimi Code with `kimi-code/kimi-for-coding`.
 
 Current Kimi K2 model IDs:
 <<<<<<< HEAD
-<<<<<<< HEAD
 {/* moonshot-kimi-k2-ids:start */}
 <<<<<<< HEAD
-=======
-=======
-{/_ moonshot-kimi-k2-ids:start _/}
->>>>>>> 443ee26af (chore: oxfmt fixes)
 =======
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 <!-- moonshot-kimi-k2-ids:start -->
 >>>>>>> 92803facf (docs: preserve moonshot sync markers)
-=======
-{/_moonshot-kimi-k2-ids:start_/ && null}
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 {/_ moonshot-kimi-k2-ids:start _/ && null}
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -47,11 +38,7 @@ Current Kimi K2 model IDs:
 - `kimi-k2-thinking-turbo`
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 <!-- moonshot-kimi-k2-ids:end -->
-=======
-  {/_moonshot-kimi-k2-ids:end_/ && null}
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
   {/_ moonshot-kimi-k2-ids:end _/ && null}
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)

@@ -66,11 +66,7 @@ apps/ios/*.mobileprovision
 
 # Local untracked files
 .local/
-<<<<<<< HEAD
 .vscode/
-=======
-docs/.local/
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 IDENTITY.md
 USER.md
 .tgz
@@ -85,7 +81,6 @@ error.log
 .claude/settings.local.json
 .claude/*.local.*
 
-<<<<<<< HEAD
 
 # sensitive files
 *client_secret*.json
@@ -97,22 +92,5 @@ secrets/
 .var/
 AGENTS.md
 AGENTS.md.bak.md
-=======
-# Local iOS signing overrides
-apps/ios/LocalSigning.xcconfig
-# Generated protocol schema (produced via pnpm protocol:gen)
-dist/protocol.schema.json
-.ant-colony/
-
-# Eclipse
-**/.project
-**/.classpath
-**/.settings/
-**/.gradle/
-
-# Synthing
-**/.stfolder/
-<<<<<<< HEAD
->>>>>>> ad666c5f3 (Fixed Discord channel name (#24281))
 =======
 >>>>>>> 59fd394bf (docs(changelog): add #29521 voice tts entry (thanks @gregmousseau))

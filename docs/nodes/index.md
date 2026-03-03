@@ -325,10 +325,5 @@ Notes:
 
 ## Mac node mode
 
-<<<<<<< HEAD
 - The macOS menubar app connects to the Gateway WS server as a node (so `moltbot nodes …` works against this Mac).
 - In remote mode, the app opens an SSH tunnel for the Gateway port and connects to `localhost`.
-=======
-- The macOS menubar app connects to the Gateway WS server as a node (so `openclaw nodes …` works against this Mac).
-- In remote mode, the app opens an SSH tunnel for the Gateway port and connects to `localhost`.
->>>>>>> 63c9fac9f (Docs: clarify node host SSH tunnel flow)

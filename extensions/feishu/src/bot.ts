@@ -400,7 +400,6 @@ function parseMediaKeys(
 }
 
 /**
-<<<<<<< HEAD
  * Parse post (rich text) content and extract embedded image keys.
  * Post structure: { title?: string, content: [[{ tag, text?, image_key?, ... }]] }
  */
@@ -474,13 +473,6 @@ function parsePostContent(content: string): {
   } catch {
     return { textContent: "[Rich text message]", imageKeys: [], mentionedOpenIds: [] };
   }
-=======
- * Map Feishu message type to messageResource.get resource type.
- * Feishu messageResource API supports only: image | file.
- */
-export function toMessageResourceType(messageType: string): "image" | "file" {
-  return messageType === "image" ? "image" : "file";
->>>>>>> 8818464f5 (feat(feishu): render post rich text as markdown (openclaw#12755))
 }
 
 /**
@@ -982,7 +974,6 @@ export async function handleFeishuMessage(params: {
     // Resolve peer ID for session routing.
     // Default is one session per group chat; this can be customized with groupSessionScope.
     let peerId = isGroup ? ctx.chatId : ctx.senderOpenId;
-<<<<<<< HEAD
     if (isGroup && ctx.rootId) {
       const groupConfig = resolveFeishuGroupConfig({ cfg: feishuCfg, groupId: ctx.chatId });
       const topicSessionMode =
@@ -991,45 +982,6 @@ export async function handleFeishuMessage(params: {
         // Use chatId:topic:rootId as peer ID for topic-scoped sessions
         peerId = `${ctx.chatId}:topic:${ctx.rootId}`;
         log(`feishu[${account.accountId}]: topic session isolation enabled, peer=${peerId}`);
-=======
-    let groupSessionScope: "group" | "group_sender" | "group_topic" | "group_topic_sender" =
-      "group";
-    let topicRootForSession: string | null = null;
-    const replyInThread =
-      isGroup &&
-      (groupConfig?.replyInThread ?? feishuCfg?.replyInThread ?? "disabled") === "enabled";
-
-    if (isGroup) {
-      const legacyTopicSessionMode =
-        groupConfig?.topicSessionMode ?? feishuCfg?.topicSessionMode ?? "disabled";
-      groupSessionScope =
-        groupConfig?.groupSessionScope ??
-        feishuCfg?.groupSessionScope ??
-        (legacyTopicSessionMode === "enabled" ? "group_topic" : "group");
-
-      // When topic-scoped sessions are enabled and replyInThread is on, the first
-      // bot reply creates the thread rooted at the current message ID.
-      if (groupSessionScope === "group_topic" || groupSessionScope === "group_topic_sender") {
-        topicRootForSession = ctx.rootId ?? (replyInThread ? ctx.messageId : null);
-      }
-
-      switch (groupSessionScope) {
-        case "group_sender":
-          peerId = `${ctx.chatId}:sender:${ctx.senderOpenId}`;
-          break;
-        case "group_topic":
-          peerId = topicRootForSession ? `${ctx.chatId}:topic:${topicRootForSession}` : ctx.chatId;
-          break;
-        case "group_topic_sender":
-          peerId = topicRootForSession
-            ? `${ctx.chatId}:topic:${topicRootForSession}:sender:${ctx.senderOpenId}`
-            : `${ctx.chatId}:sender:${ctx.senderOpenId}`;
-          break;
-        case "group":
-        default:
-          peerId = ctx.chatId;
-          break;
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
       }
 
       log(`feishu[${account.accountId}]: group session scope=${groupSessionScope}, peer=${peerId}`);
@@ -1043,8 +995,6 @@ export async function handleFeishuMessage(params: {
         kind: isGroup ? "group" : "direct",
         id: peerId,
       },
-<<<<<<< HEAD
-=======
       // Add parentPeer for binding inheritance in topic-scoped modes.
       parentPeer:
         isGroup &&
@@ -1055,7 +1005,6 @@ export async function handleFeishuMessage(params: {
               id: ctx.chatId,
             }
           : null,
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
     });
 
     // Dynamic agent creation for DM users

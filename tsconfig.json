@@ -13,7 +13,6 @@
     "noEmitOnError": true,
     "allowSyntheticDefaultImports": true
   },
-<<<<<<< HEAD
   "include": ["src/**/*"],
   "exclude": [
     "node_modules",
@@ -22,8 +21,4 @@
     "src/**/*.test.tsx",
     "src/**/test-helpers.ts"
   ]
-=======
-  "include": ["src/**/*", "ui/**/*", "extensions/**/*"],
-  "exclude": ["node_modules", "dist"]
->>>>>>> bcf862f69 (chore: Typecheck tests.)
 }

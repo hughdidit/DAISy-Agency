@@ -140,32 +140,13 @@ Moonshot uses OpenAI-compatible endpoints, so configure it as a custom provider:
   - `moonshot/kimi-k2-thinking`
   - `moonshot/kimi-k2-thinking-turbo`
 <<<<<<< HEAD
-<<<<<<< HEAD
   {/* moonshot-kimi-k2-model-refs:end */}
 <<<<<<< HEAD
-=======
-=======
-    {/_ moonshot-kimi-k2-model-refs:end _/}
->>>>>>> 443ee26af (chore: oxfmt fixes)
 =======
   <!-- moonshot-kimi-k2-model-refs:end -->
 >>>>>>> 92803facf (docs: preserve moonshot sync markers)
 
-<<<<<<< HEAD
 >>>>>>> 7fabe03a8 (docs: fix anchor link for Google Vertex/Antigravity/Gemini section (#5967))
-=======
-Kimi K2 model IDs:
-
-{/_moonshot-kimi-k2-model-refs:start_/ && null}
-
-- `moonshot/kimi-k2.5`
-- `moonshot/kimi-k2-0905-preview`
-- `moonshot/kimi-k2-turbo-preview`
-- `moonshot/kimi-k2-thinking`
-- `moonshot/kimi-k2-thinking-turbo`
-  {/_moonshot-kimi-k2-model-refs:end_/ && null}
-
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   agents: {

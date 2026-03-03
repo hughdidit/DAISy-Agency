@@ -98,25 +98,12 @@ Set config under `plugins.entries.voice-call.config`:
 
           streaming: {
             enabled: true,
-<<<<<<< HEAD
             streamPath: "/voice/stream"
           }
         }
       }
     }
   }
-=======
-            streamPath: "/voice/stream",
-            preStartTimeoutMs: 5000,
-            maxPendingConnections: 32,
-            maxPendingConnectionsPerIp: 4,
-            maxConnections: 128,
-          },
-        },
-      },
-    },
-  },
->>>>>>> 1d8968c8a (fix(voice-call): harden media stream pre-start websocket handling)
 }
 ```
 
@@ -135,8 +122,6 @@ Notes:
   - `streaming.maxPendingConnectionsPerIp` caps unauthenticated pre-start sockets per source IP.
   - `streaming.maxConnections` caps total open media stream sockets (pending + active).
 
-<<<<<<< HEAD
-=======
 ## Stale call reaper
 
 Use `staleCallReaperSeconds` to end calls that never receive a terminal webhook
@@ -204,7 +189,6 @@ Example with a stable public host:
 }
 ```
 
->>>>>>> df8f7ff1a (docs(voice-call): document stale call reaper config)
 ## TTS for calls
 
 Voice Call uses the core `messages.tts` configuration (OpenAI or ElevenLabs) for

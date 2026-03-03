@@ -138,8 +138,6 @@ export const FeishuGroupSchema = z
   })
   .strict();
 
-<<<<<<< HEAD
-=======
 const FeishuSharedConfigShape = {
   webhookHost: z.string().optional(),
   webhookPort: z.number().int().positive().optional(),
@@ -170,7 +168,6 @@ const FeishuSharedConfigShape = {
   resolveSenderNames: z.boolean().optional(),
 };
 
->>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
 /**
  * Per-account configuration.
  * All fields are optional - missing fields inherit from top-level config.
@@ -186,7 +183,6 @@ export const FeishuAccountConfigSchema = z
     domain: FeishuDomainSchema.optional(),
     connectionMode: FeishuConnectionModeSchema.optional(),
     webhookPath: z.string().optional(),
-<<<<<<< HEAD
     webhookPort: z.number().int().positive().optional(),
     capabilities: z.array(z.string()).optional(),
     markdown: MarkdownConfigSchema,
@@ -208,11 +204,6 @@ export const FeishuAccountConfigSchema = z
     renderMode: RenderModeSchema,
     streaming: StreamingModeSchema, // Enable streaming card mode (default: true)
     tools: FeishuToolsConfigSchema,
-=======
-    ...FeishuSharedConfigShape,
-    groupSessionScope: GroupSessionScopeSchema,
-    topicSessionMode: TopicSessionModeSchema,
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
   })
   .strict();
 
@@ -233,19 +224,11 @@ export const FeishuConfigSchema = z
     markdown: MarkdownConfigSchema,
     configWrites: z.boolean().optional(),
     dmPolicy: DmPolicySchema.optional().default("pairing"),
-<<<<<<< HEAD
     allowFrom: z.array(z.union([z.string(), z.number()])).optional(),
-=======
-    reactionNotifications: ReactionNotificationModeSchema.optional().default("own"),
->>>>>>> aef535510 (fix(feishu): add reactionNotifications mode gating (openclaw#29388) thanks @Takhoffman)
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     groupAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
     requireMention: z.boolean().optional().default(true),
-<<<<<<< HEAD
     groups: z.record(z.string(), FeishuGroupSchema.optional()).optional(),
-=======
-    groupSessionScope: GroupSessionScopeSchema,
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
     topicSessionMode: TopicSessionModeSchema,
     historyLimit: z.number().int().min(0).optional(),
     dmHistoryLimit: z.number().int().min(0).optional(),
@@ -268,8 +251,6 @@ export const FeishuConfigSchema = z
   })
   .strict()
   .superRefine((value, ctx) => {
-<<<<<<< HEAD
-=======
     const defaultAccount = value.defaultAccount?.trim();
     if (defaultAccount && value.accounts && Object.keys(value.accounts).length > 0) {
       const normalizedDefaultAccount = normalizeAccountId(defaultAccount);
@@ -314,7 +295,6 @@ export const FeishuConfigSchema = z
       }
     }
 
->>>>>>> 6ea3a47da (fix(feishu): harden routing, parsing, and media delivery)
     if (value.dmPolicy === "open") {
       const allowFrom = value.allowFrom ?? [];
       const hasWildcard = allowFrom.some((entry) => String(entry).trim() === "*");

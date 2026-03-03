@@ -19,24 +19,13 @@ When the operator says “release”, immediately do this preflight (no extra qu
 1) **Version & metadata**
 - [ ] Bump `package.json` version (e.g., `2026.1.27-beta.1`).
 - [ ] Run `pnpm plugins:sync` to align extension package versions + changelogs.
-<<<<<<< HEAD
 - [ ] Update CLI/version strings: [`src/cli/program.ts`](https://github.com/moltbot/moltbot/blob/main/src/cli/program.ts) and the Baileys user agent in [`src/provider-web.ts`](https://github.com/moltbot/moltbot/blob/main/src/provider-web.ts).
 - [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`moltbot.mjs`](https://github.com/moltbot/moltbot/blob/main/moltbot.mjs) for `moltbot`.
-=======
-- [ ] Update CLI/version strings in [`src/version.ts`](https://github.com/openclaw/openclaw/blob/main/src/version.ts) and the Baileys user agent in [`src/web/session.ts`](https://github.com/openclaw/openclaw/blob/main/src/web/session.ts).
-- [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`openclaw.mjs`](https://github.com/openclaw/openclaw/blob/main/openclaw.mjs) for `openclaw`.
->>>>>>> 30e8f41cf (docs: fix stale release checklist source paths)
 - [ ] If dependencies changed, run `pnpm install` so `pnpm-lock.yaml` is current.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 2) **Build & artifacts**
 - [ ] If A2UI inputs changed, run `pnpm canvas:a2ui:bundle` and commit any updated [`src/canvas-host/a2ui/a2ui.bundle.js`](https://github.com/moltbot/moltbot/blob/main/src/canvas-host/a2ui/a2ui.bundle.js).
-=======
-1. **Build & artifacts**
-=======
-2. **Build & artifacts**
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - [ ] If A2UI inputs changed, run `pnpm canvas:a2ui:bundle` and commit any updated [`src/canvas-host/a2ui/a2ui.bundle.js`](https://github.com/openclaw/openclaw/blob/main/src/canvas-host/a2ui/a2ui.bundle.js).
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
@@ -46,7 +35,6 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - [ ] Optional: `npm pack --pack-destination /tmp` after the build; inspect the tarball contents and keep it handy for the GitHub release (do **not** commit it).
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 3) **Changelog & docs**
 - [ ] Update `CHANGELOG.md` with user-facing highlights (create the file if missing); keep entries strictly descending by version.
 - [ ] Ensure README examples/flags match current CLI behavior (notably new commands or options).
@@ -54,49 +42,27 @@ When the operator says “release”, immediately do this preflight (no extra qu
 <<<<<<< HEAD
 4) **Validation**
 - [ ] `pnpm lint`
-=======
-4. **Validation**
-=======
-1. **Changelog & docs**
-=======
-3. **Changelog & docs**
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - [ ] Update `CHANGELOG.md` with user-facing highlights (create the file if missing); keep entries strictly descending by version.
 - [ ] Ensure README examples/flags match current CLI behavior (notably new commands or options).
 
-<<<<<<< HEAD
 1. **Validation**
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-4. **Validation**
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - [ ] `pnpm build`
 - [ ] `pnpm check`
 >>>>>>> 902f96805 (chore: Add `pnpm check` for fast repo checks.)
 - [ ] `pnpm test` (or `pnpm test:coverage` if you need coverage output)
 - [ ] `pnpm release:check` (verifies npm pack contents)
-<<<<<<< HEAD
 
 - [ ] (Optional) Installer E2E (Docker, runs `curl -fsSL https://molt.bot/install.sh | bash`, onboards, then runs real tool calls):
-=======
-- [ ] `OPENCLAW_INSTALL_SMOKE_SKIP_NONROOT=1 pnpm test:install:smoke` (Docker install smoke test, fast path; required before release)
-  - If the immediate previous npm release is known broken, set `OPENCLAW_INSTALL_SMOKE_PREVIOUS=<last-good-version>` or `OPENCLAW_INSTALL_SMOKE_SKIP_PREVIOUS=1` for the preinstall step.
-- [ ] (Optional) Full installer smoke (adds non-root + CLI coverage): `pnpm test:install:smoke`
-- [ ] (Optional) Installer E2E (Docker, runs `curl -fsSL https://openclaw.ai/install.sh | bash`, onboards, then runs real tool calls):
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
   - `pnpm test:install:e2e:openai` (requires `OPENAI_API_KEY`)
   - `pnpm test:install:e2e:anthropic` (requires `ANTHROPIC_API_KEY`)
   - `pnpm test:install:e2e` (requires both keys; runs both providers)
 - [ ] (Optional) Spot-check the web gateway if your changes affect send/receive paths.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Deployment verification workflow
-=======
-1. **macOS app (Sparkle)**
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 5. **macOS app (Sparkle)**
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -122,14 +88,7 @@ The workflow exports `VERIFY_ENV`, `DEPLOYED_REF`, and `DRY_RUN` so `verify.sh` 
 - [ ] Keep the app zip (and optional dSYM zip) ready to attach to the GitHub release.
 - [ ] Follow [macOS release](/platforms/mac/release) for the exact commands and required env vars.
   - `APP_BUILD` must be numeric + monotonic (no `-beta`) so Sparkle compares versions correctly.
-<<<<<<< HEAD
   - If notarizing, use the `moltbot-notary` keychain profile created from App Store Connect API env vars (see [macOS release](/platforms/mac/release)).
-=======
-  - If notarizing, use the `openclaw-notary` keychain profile created from App Store Connect API env vars (see [macOS release](/platforms/mac/release)).
-
-<<<<<<< HEAD
-1. **Publish (npm)**
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 6. **Publish (npm)**
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -150,13 +109,7 @@ The workflow exports `VERIFY_ENV`, `DEPLOYED_REF`, and `DRY_RUN` so `verify.sh` 
   - `git tag -f vX.Y.Z && git push -f origin vX.Y.Z`
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 7) **GitHub release + appcast**
-=======
-1. **GitHub release + appcast**
-=======
-7. **GitHub release + appcast**
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z` (or `git push --tags`).
@@ -178,7 +131,6 @@ Process to derive the list:
 3) Publish only the **intersection** (already on npm).
 
 Current npm plugin list (update as needed):
-<<<<<<< HEAD
 - @moltbot/bluebubbles
 - @moltbot/diagnostics-otel
 - @moltbot/discord
@@ -190,21 +142,6 @@ Current npm plugin list (update as needed):
 - @moltbot/voice-call
 - @moltbot/zalo
 - @moltbot/zalouser
-=======
-
-- @openclaw/bluebubbles
-- @openclaw/diagnostics-otel
-- @openclaw/discord
-- @openclaw/feishu
-- @openclaw/lobster
-- @openclaw/matrix
-- @openclaw/msteams
-- @openclaw/nextcloud-talk
-- @openclaw/nostr
-- @openclaw/voice-call
-- @openclaw/zalo
-- @openclaw/zalouser
->>>>>>> 529236732 (docs: update Feishu plugin docs)
 
 Release notes must also call out **new optional bundled plugins** that are **not
 on by default** (example: `tlon`).

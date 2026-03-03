@@ -26,14 +26,7 @@ import {
   removeBlueBubblesParticipant,
   leaveBlueBubblesChat,
 } from "./chat.js";
-<<<<<<< HEAD
 import { sendBlueBubblesAttachment } from "./attachments.js";
-=======
-import { resolveBlueBubblesMessageId } from "./monitor.js";
-import { getCachedBlueBubblesPrivateApiStatus, isMacOS26OrHigher } from "./probe.js";
-import { sendBlueBubblesReaction } from "./reactions.js";
-import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 import { normalizeBlueBubblesHandle, parseBlueBubblesTarget } from "./targets.js";
 import type { BlueBubblesSendTarget } from "./types.js";
 
@@ -93,24 +86,9 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
     const privateApiStatus = getCachedBlueBubblesPrivateApiStatus(account.accountId);
     for (const action of BLUEBUBBLES_ACTION_NAMES) {
       const spec = BLUEBUBBLES_ACTIONS[action];
-<<<<<<< HEAD
       if (!spec?.gate) continue;
       if (spec.unsupportedOnMacOS26 && macOS26) continue;
       if (gate(spec.gate)) actions.add(action);
-=======
-      if (!spec?.gate) {
-        continue;
-      }
-      if (privateApiStatus === false && PRIVATE_API_ACTIONS.has(action)) {
-        continue;
-      }
-      if ("unsupportedOnMacOS26" in spec && spec.unsupportedOnMacOS26 && macOS26) {
-        continue;
-      }
-      if (gate(spec.gate)) {
-        actions.add(action);
-      }
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
     }
     return Array.from(actions);
   },
@@ -130,18 +108,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
     });
     const baseUrl = account.config.serverUrl?.trim();
     const password = account.config.password?.trim();
-<<<<<<< HEAD
     const opts = { cfg: cfg as MoltbotConfig, accountId: accountId ?? undefined };
-=======
-    const opts = { cfg: cfg, accountId: accountId ?? undefined };
-    const assertPrivateApiEnabled = () => {
-      if (getCachedBlueBubblesPrivateApiStatus(account.accountId) === false) {
-        throw new Error(
-          `BlueBubbles ${action} requires Private API, but it is disabled on the BlueBubbles server.`,
-        );
-      }
-    };
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 
     // Helper to resolve chatGuid from various params or session context
     const resolveChatGuid = async (): Promise<string> => {

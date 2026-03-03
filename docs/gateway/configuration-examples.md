@@ -3,12 +3,7 @@ summary: "Schema-accurate configuration examples for common Moltbot setups"
 read_when:
   - Learning how to configure Moltbot
   - Looking for configuration examples
-<<<<<<< HEAD
   - Setting up Moltbot for the first time
-=======
-  - Setting up OpenClaw for the first time
-title: "Configuration Examples"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 # Configuration Examples
 
@@ -376,16 +371,8 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
         to: "+15555550123",
         thinking: "low",
         timeoutSeconds: 300,
-<<<<<<< HEAD
         transform: { module: "./transforms/gmail.js", export: "transformGmail" }
       }
-=======
-        transform: {
-          module: "./transforms/gmail.js",
-          export: "transformGmail",
-        },
-      },
->>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
     ],
     gmail: {
       account: "moltbot@gmail.com",

@@ -36,11 +36,7 @@ If you don't have an Apple Developer ID certificate, the script will automatical
 For dev run modes, signing flags, and Team ID troubleshooting, see the macOS app README:
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 https://github.com/moltbot/moltbot/blob/main/apps/macos/README.md
-=======
-[https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md](https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md)
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -55,18 +51,9 @@ https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md
 The macOS app expects a global `moltbot` CLI install to manage background tasks.
 
 **To install it (recommended):**
-<<<<<<< HEAD
 1.  Open the Moltbot app.
 2.  Go to the **General** settings tab.
 3.  Click **"Install CLI"**.
-=======
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-1. Open the OpenClaw app.
-2. Go to the **General** settings tab.
-3. Click **"Install CLI"**.
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 1.  Open the OpenClaw app.
 2.  Go to the **General** settings tab.
@@ -111,12 +98,7 @@ If the app crashes when you try to allow **Speech Recognition** or **Microphone*
    ```
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 2. If that fails, change the `BUNDLE_ID` temporarily in [`scripts/package-mac-app.sh`](https://github.com/moltbot/moltbot/blob/main/scripts/package-mac-app.sh) to force a "clean slate" from macOS.
-=======
-
-=======
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 =======
 
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))

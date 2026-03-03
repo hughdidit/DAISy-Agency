@@ -22,15 +22,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 	<string>2026.1.27-beta.1</string>
 	<key>CFBundleVersion</key>
 	<string>20260126</string>
-=======
-	<string>2026.2.2</string>
-=======
-	<string>2026.2.9</string>
->>>>>>> fb8c653f5 (chore(release): 2026.2.9)
 	<key>CFBundleVersion</key>
 	<string>20260202</string>
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
@@ -59,12 +53,8 @@
 	<string>20260216</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-<<<<<<< HEAD
 		<key>NSAllowsLocalNetworking</key>
 >>>>>>> 2e7fac223 (iOS: port talk redaction, accessibility, and ATS hardening (#18163))
-=======
-		<key>NSAllowsArbitraryLoadsInWebContent</key>
->>>>>>> 5a39e13c9 (fix(ios): restore missing location monitor merge files (#18260))
 		<true/>
 	</dict>
 	<key>NSBonjourServices</key>
@@ -72,47 +62,15 @@
 		<string>_moltbot-gw._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-<<<<<<< HEAD
 	<string>Moltbot can capture photos or short video clips when requested via the gateway.</string>
-=======
-	<string>OpenClaw can capture photos or short video clips when requested via the gateway.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>OpenClaw can read your photo library when you ask it to share recent photos.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>OpenClaw can read and create contacts when requested via the gateway.</string>
->>>>>>> 67edc7790 (iOS: gate capabilities by permissions and add settings controls (#22135))
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Moltbot discovers and connects to your Moltbot gateway on the local network.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Moltbot can share your location in the background when you enable Always.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-<<<<<<< HEAD
 	<string>Moltbot uses your location when you allow location sharing.</string>
-=======
-	<string>OpenClaw uses your location when you allow location sharing.</string>
-	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>OpenClaw can read and add calendar events when requested via the gateway.</string>
-	<key>NSRemindersFullAccessUsageDescription</key>
-	<string>OpenClaw can read and add reminders when requested via the gateway.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>OpenClaw uses Motion &amp; Fitness data for activity and pedometer commands.</string>
->>>>>>> 67edc7790 (iOS: gate capabilities by permissions and add settings controls (#22135))
 	<key>NSMicrophoneUsageDescription</key>
-<<<<<<< HEAD
 	<string>Moltbot needs microphone access for voice wake.</string>
-=======
-	<string>OpenClaw needs microphone access for voice wake.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>OpenClaw can read recent photos when requested via the gateway.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>OpenClaw can read your contacts when requested via the gateway.</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>OpenClaw can read your calendar events when requested via the gateway.</string>
-	<key>NSRemindersUsageDescription</key>
-	<string>OpenClaw can read your reminders when requested via the gateway.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>OpenClaw can read motion activity and pedometer data when requested via the gateway.</string>
->>>>>>> 7b0a0f3da (iOS: wire node services and tests)
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Moltbot uses on-device speech recognition for voice wake.</string>
 	<key>UIApplicationSceneManifest</key>

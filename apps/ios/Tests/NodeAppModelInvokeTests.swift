@@ -1,18 +1,9 @@
-<<<<<<< HEAD
 import MoltbotKit
-=======
-import CoreLocation
->>>>>>> 7b0a0f3da (iOS: wire node services and tests)
 import Foundation
 import OpenClawKit
 import Testing
 import UIKit
-<<<<<<< HEAD
 @testable import Moltbot
-=======
-import UserNotifications
-@testable import OpenClaw
->>>>>>> 7b0a0f3da (iOS: wire node services and tests)
 
 private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws -> T) rethrows -> T {
     let defaults = UserDefaults.standard
@@ -40,41 +31,10 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 private final class TestNotificationCenter: NotificationCentering, @unchecked Sendable {
     private(set) var requestAuthorizationCalls = 0
     private(set) var addedRequests: [UNNotificationRequest] = []
     private var status: NotificationAuthorizationStatus
-=======
-=======
-private func makeAgentDeepLinkURL(
-    message: String,
-    deliver: Bool = false,
-    to: String? = nil,
-    channel: String? = nil,
-    key: String? = nil) -> URL
-{
-    var components = URLComponents()
-    components.scheme = "openclaw"
-    components.host = "agent"
-    var queryItems: [URLQueryItem] = [URLQueryItem(name: "message", value: message)]
-    if deliver {
-        queryItems.append(URLQueryItem(name: "deliver", value: "1"))
-    }
-    if let to {
-        queryItems.append(URLQueryItem(name: "to", value: to))
-    }
-    if let channel {
-        queryItems.append(URLQueryItem(name: "channel", value: channel))
-    }
-    if let key {
-        queryItems.append(URLQueryItem(name: "key", value: key))
-    }
-    components.queryItems = queryItems
-    return components.url!
-}
-
->>>>>>> ff4e6ca0d (fix(ios): gate agent deep links with local confirmation)
 @MainActor
 private final class MockWatchMessagingService: @preconcurrency WatchMessagingServicing, @unchecked Sendable {
     var currentStatus = WatchMessagingStatus(
@@ -96,7 +56,6 @@ private final class MockWatchMessagingService: @preconcurrency WatchMessagingSer
         self.status = status
     }
 
-<<<<<<< HEAD
     func authorizationStatus() async -> NotificationAuthorizationStatus {
         status
     }
@@ -133,18 +92,6 @@ private struct TestScreenRecorder: ScreenRecordingServicing {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("openclaw-screen-test.mp4")
         FileManager.default.createFile(atPath: url.path, contents: Data())
         return url.path
-=======
-    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)?) {
-        self.replyHandler = handler
-    }
-
-    func sendNotification(id: String, params: OpenClawWatchNotifyParams) async throws -> WatchNotificationSendResult {
-        self.lastSent = (id: id, params: params)
-        if let sendError = self.sendError {
-            throw sendError
-        }
-        return self.nextSendResult
->>>>>>> 738b01162 (iOS/watch: add actionable watch approvals and quick replies (#21996))
     }
 
     func emitReply(_ event: WatchQuickReplyEvent) {
@@ -322,12 +269,7 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         #expect(presentRes.ok == true)
         #expect(appModel.screen.urlString.isEmpty)
 
-<<<<<<< HEAD
         let navigateParams = MoltbotCanvasNavigateParams(url: "http://localhost:18789/")
-=======
-        // Loopback URLs are rejected (they are not meaningful for a remote gateway).
-        let navigateParams = OpenClawCanvasNavigateParams(url: "http://example.com/")
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
         let navData = try JSONEncoder().encode(navigateParams)
         let navJSON = String(decoding: navData, as: UTF8.self)
         let navigate = BridgeInvokeRequest(
@@ -515,7 +457,6 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
             floorsAscended: 1,
             floorsDescended: 2)
 
-<<<<<<< HEAD
         let appModel = makeTestAppModel(
             deviceStatusService: TestDeviceStatusService(
                 statusPayload: deviceStatusPayload,
@@ -527,13 +468,6 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
             motionService: TestMotionService(
                 activityPayload: motionPayload,
                 pedometerPayload: pedometerPayload))
-=======
-        let res = await appModel._test_handleInvoke(req)
-        #expect(res.ok == true)
-        #expect(watchService.lastSent?.params.title == "OpenClaw")
-        #expect(watchService.lastSent?.params.body == "Meeting with Peter is at 4pm")
-        #expect(watchService.lastSent?.params.priority == .timeSensitive)
->>>>>>> 738b01162 (iOS/watch: add actionable watch approvals and quick replies (#21996))
 
         let deviceStatusReq = BridgeInvokeRequest(id: "device", command: OpenClawDeviceCommand.status.rawValue)
         let deviceStatusRes = await appModel._test_handleInvoke(deviceStatusReq)

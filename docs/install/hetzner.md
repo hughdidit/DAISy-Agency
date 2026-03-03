@@ -4,12 +4,7 @@ read_when:
   - You want Moltbot running 24/7 on a cloud VPS (not your laptop)
   - You want a production-grade, always-on Gateway on your own VPS
   - You want full control over persistence, binaries, and restart behavior
-<<<<<<< HEAD
   - You are running Moltbot in Docker on Hetzner or a similar provider
-=======
-  - You are running OpenClaw in Docker on Hetzner or a similar provider
-title: "Hetzner"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Moltbot on Hetzner (Docker, Production VPS Guide)
@@ -115,19 +110,12 @@ Docker containers are ephemeral.
 All long-lived state must live on the host.
 
 ```bash
-<<<<<<< HEAD
 mkdir -p /root/.clawdbot
 mkdir -p /root/clawd
 
 # Set ownership to the container user (uid 1000):
 chown -R 1000:1000 /root/.clawdbot
 chown -R 1000:1000 /root/clawd
-=======
-mkdir -p /root/.openclaw/workspace
-
-# Set ownership to the container user (uid 1000):
-chown -R 1000:1000 /root/.openclaw
->>>>>>> 9f4466c11 (Simplify ownership commands in hetzner.md (#12703))
 ```
 
 ---
@@ -200,12 +188,7 @@ services:
         "--bind",
         "${CLAWDBOT_GATEWAY_BIND}",
         "--port",
-<<<<<<< HEAD
         "${CLAWDBOT_GATEWAY_PORT}"
-=======
-        "${OPENCLAW_GATEWAY_PORT}",
-        "--allow-unconfigured",
->>>>>>> 9f4466c11 (Simplify ownership commands in hetzner.md (#12703))
       ]
 ```
 
@@ -330,7 +313,6 @@ Paste your gateway token.
 Moltbot runs in Docker, but Docker is not the source of truth.
 All long-lived state must survive restarts, rebuilds, and reboots.
 
-<<<<<<< HEAD
 | Component | Location | Persistence mechanism | Notes |
 |---|---|---|---|
 | Gateway config | `/home/node/.clawdbot/` | Host volume mount | Includes `moltbot.json`, tokens |
@@ -343,37 +325,3 @@ All long-lived state must survive restarts, rebuilds, and reboots.
 | Node runtime | Container filesystem | Docker image | Rebuilt every image build |
 | OS packages | Container filesystem | Docker image | Do not install at runtime |
 | Docker container | Ephemeral | Restartable | Safe to destroy |
-=======
-| Component           | Location                          | Persistence mechanism  | Notes                            |
-| ------------------- | --------------------------------- | ---------------------- | -------------------------------- |
-| Gateway config      | `/home/node/.openclaw/`           | Host volume mount      | Includes `openclaw.json`, tokens |
-| Model auth profiles | `/home/node/.openclaw/`           | Host volume mount      | OAuth tokens, API keys           |
-| Skill configs       | `/home/node/.openclaw/skills/`    | Host volume mount      | Skill-level state                |
-| Agent workspace     | `/home/node/.openclaw/workspace/` | Host volume mount      | Code and agent artifacts         |
-| WhatsApp session    | `/home/node/.openclaw/`           | Host volume mount      | Preserves QR login               |
-| Gmail keyring       | `/home/node/.openclaw/`           | Host volume + password | Requires `GOG_KEYRING_PASSWORD`  |
-| External binaries   | `/usr/local/bin/`                 | Docker image           | Must be baked at build time      |
-| Node runtime        | Container filesystem              | Docker image           | Rebuilt every image build        |
-| OS packages         | Container filesystem              | Docker image           | Do not install at runtime        |
-| Docker container    | Ephemeral                         | Restartable            | Safe to destroy                  |
-
----
-
-## Infrastructure as Code (Terraform)
-
-For teams preferring infrastructure-as-code workflows, a community-maintained Terraform setup provides:
-
-- Modular Terraform configuration with remote state management
-- Automated provisioning via cloud-init
-- Deployment scripts (bootstrap, deploy, backup/restore)
-- Security hardening (firewall, UFW, SSH-only access)
-- SSH tunnel configuration for gateway access
-
-**Repositories:**
-- Infrastructure: [openclaw-terraform-hetzner](https://github.com/andreesg/openclaw-terraform-hetzner)
-- Docker config: [openclaw-docker-config](https://github.com/andreesg/openclaw-docker-config)
-
-This approach complements the Docker setup above with reproducible deployments, version-controlled infrastructure, and automated disaster recovery.
-
-> **Note:** Community-maintained. For issues or contributions, see the repository links above.
->>>>>>> 75f5da78f (docs: add Terraform IaC approach to Hetzner guide)

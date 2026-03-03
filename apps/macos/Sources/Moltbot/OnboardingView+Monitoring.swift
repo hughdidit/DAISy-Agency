@@ -97,7 +97,6 @@ extension OnboardingView {
                 expected: expected)
         }
     }
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/OnboardingView+Monitoring.swift
 
     func refreshAnthropicOAuthStatus() {
         _ = MoltbotOAuthStore.importLegacyAnthropicOAuthIfNeeded()
@@ -148,6 +147,4 @@ extension OnboardingView {
             self.anthropicAuthStatus = "OAuth verification failed: \(error.localizedDescription)"
         }
     }
-=======
->>>>>>> 8f3310000 (refactor(macos): remove anthropic oauth onboarding flow):apps/macos/Sources/OpenClaw/OnboardingView+Monitoring.swift
 }

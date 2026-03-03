@@ -346,7 +346,6 @@ export function isSenderAllowed(
   const normalizedEmail = senderEmail?.trim().toLowerCase() ?? "";
   return allowFrom.some((entry) => {
     const normalized = String(entry).trim().toLowerCase();
-<<<<<<< HEAD
     if (!normalized) return false;
     if (normalized === normalizedSenderId) return true;
     if (normalizedEmail && normalized === normalizedEmail) return true;
@@ -356,24 +355,6 @@ export function isSenderAllowed(
       return true;
     }
     return false;
-=======
-    if (!normalized) {
-      return false;
-    }
-
-    // Accept `googlechat:<id>` but treat `users/...` as an *ID* only (deprecated `users/<email>`).
-    const withoutPrefix = normalized.replace(/^(googlechat|google-chat|gchat):/i, "");
-    if (withoutPrefix.startsWith("users/")) {
-      return normalizeUserId(withoutPrefix) === normalizedSenderId;
-    }
-
-    // Raw email allowlist entries remain supported for usability.
-    if (normalizedEmail && isEmailLike(withoutPrefix)) {
-      return withoutPrefix === normalizedEmail;
-    }
-
-    return withoutPrefix.replace(/^users\//i, "") === normalizedSenderId;
->>>>>>> c8424bf29 (fix(googlechat): deprecate users/<email> allowlists (#16243))
   });
 }
 
@@ -509,20 +490,7 @@ async function processMessageWithPipeline(params: {
     }
 
     if (groupUsers.length > 0) {
-<<<<<<< HEAD
       const ok = isSenderAllowed(senderId, senderEmail, groupUsers.map((v) => String(v)));
-=======
-      warnDeprecatedUsersEmailEntries(
-        core,
-        runtime,
-        groupUsers.map((v) => String(v)),
-      );
-      const ok = isSenderAllowed(
-        senderId,
-        senderEmail,
-        groupUsers.map((v) => String(v)),
-      );
->>>>>>> c8424bf29 (fix(googlechat): deprecate users/<email> allowlists (#16243))
       if (!ok) {
         logVerbose(core, runtime, `drop group message (sender not allowed, ${senderId})`);
         return;

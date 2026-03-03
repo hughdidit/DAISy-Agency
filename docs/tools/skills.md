@@ -48,15 +48,9 @@ tool surface those skills teach.
 
 ## ClawdHub (install + sync)
 
-<<<<<<< HEAD
 ClawdHub is the public skills registry for Moltbot. Browse at
 https://clawdhub.com. Use it to discover, install, update, and back up skills.
 Full guide: [ClawdHub](/tools/clawdhub).
-=======
-ClawHub is the public skills registry for OpenClaw. Browse at
-[https://clawhub.com](https://clawhub.com). Use it to discover, install, update, and back up skills.
-Full guide: [ClawHub](/tools/clawhub).
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Common flows:
 
@@ -196,12 +190,7 @@ Config keys match the **skill name** by default. If a skill defines
 Rules:
 - `enabled: false` disables the skill even if it’s bundled/installed.
 - `env`: injected **only if** the variable isn’t already set in the process.
-<<<<<<< HEAD
 - `apiKey`: convenience for skills that declare `metadata.moltbot.primaryEnv`.
-=======
-- `apiKey`: convenience for skills that declare `metadata.openclaw.primaryEnv`.
-  Supports plaintext string or SecretRef object (`{ source, id }`).
->>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 - `config`: optional bag for custom per-skill fields; custom keys must live here.
 - `allowBundled`: optional allowlist for **bundled** skills only. If set, only
   bundled skills in the list are eligible (managed/workspace skills unaffected).
@@ -276,11 +265,7 @@ See [Skills config](/tools/skills-config) for the full configuration schema.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 Browse https://clawdhub.com.
-=======
-Browse [https://clawhub.com](https://clawhub.com).
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 Browse https://clawhub.com.
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)

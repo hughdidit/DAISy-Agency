@@ -45,29 +45,16 @@ From repo root:
 ```
 
 This script:
-<<<<<<< HEAD
 - builds the gateway image
-=======
-
-- builds the gateway image locally (or pulls a remote image if `OPENCLAW_IMAGE` is set)
->>>>>>> 601d1ccd2 (Docs(Docker): clarify official GHCR image usage and setup flow (#31180))
 - runs the onboarding wizard
 - prints optional provider setup hints
 - starts the gateway via Docker Compose
 - generates a gateway token and writes it to `.env`
 
 Optional env vars:
-<<<<<<< HEAD
 - `CLAWDBOT_DOCKER_APT_PACKAGES` — install extra apt packages during build
 - `CLAWDBOT_EXTRA_MOUNTS` — add extra host bind mounts
 - `CLAWDBOT_HOME_VOLUME` — persist `/home/node` in a named volume
-=======
-
-- `OPENCLAW_IMAGE` — use a remote image instead of building locally (e.g. `ghcr.io/openclaw/openclaw:latest`)
-- `OPENCLAW_DOCKER_APT_PACKAGES` — install extra apt packages during build
-- `OPENCLAW_EXTRA_MOUNTS` — add extra host bind mounts
-- `OPENCLAW_HOME_VOLUME` — persist `/home/node` in a named volume
->>>>>>> 601d1ccd2 (Docs(Docker): clarify official GHCR image usage and setup flow (#31180))
 
 After it finishes:
 - Open `http://127.0.0.1:18789/` in your browser.
@@ -79,8 +66,6 @@ It writes config/workspace on the host:
 
 Running on a VPS? See [Hetzner (Docker VPS)](/install/hetzner).
 
-<<<<<<< HEAD
-=======
 ### Use a remote image (skip local build)
 
 Official pre-built images are published at:
@@ -130,7 +115,6 @@ Then use `clawdock-start`, `clawdock-stop`, `clawdock-dashboard`, etc. Run `claw
 
 See [`ClawDock` Helper README](https://github.com/openclaw/openclaw/blob/main/scripts/shell-helpers/README.md) for details.
 
->>>>>>> 601d1ccd2 (Docs(Docker): clarify official GHCR image usage and setup flow (#31180))
 ### Manual flow (compose)
 
 ```bash
@@ -225,11 +209,7 @@ export OPENCLAW_HOME_VOLUME="openclaw_home"
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 2) **Bake system deps into the image** (repeatable + persistent):
-=======
-1. **Bake system deps into the image** (repeatable + persistent):
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 2. **Bake system deps into the image** (repeatable + persistent):
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -240,11 +220,7 @@ export OPENCLAW_DOCKER_APT_PACKAGES="git curl jq"
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 3) **Install Playwright browsers without `npx`** (avoids npm override conflicts):
-=======
-1. **Install Playwright browsers without `npx`** (avoids npm override conflicts):
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 3. **Install Playwright browsers without `npx`** (avoids npm override conflicts):
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -258,11 +234,7 @@ If you need Playwright to install system deps, rebuild the image with
 `OPENCLAW_DOCKER_APT_PACKAGES` instead of using `--with-deps` at runtime.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 4) **Persist Playwright browser downloads**:
-=======
-1. **Persist Playwright browser downloads**:
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 4. **Persist Playwright browser downloads**:
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -357,8 +329,6 @@ scripts/e2e/onboard-docker.sh
 pnpm test:docker:qr
 ```
 
-<<<<<<< HEAD
-=======
 ### LAN vs loopback (Docker Compose)
 
 `docker-setup.sh` defaults `OPENCLAW_GATEWAY_BIND=lan` so host access to
@@ -384,16 +354,10 @@ docker compose run --rm openclaw-cli config set gateway.bind lan
 docker compose run --rm openclaw-cli devices list --url ws://127.0.0.1:18789
 ```
 
->>>>>>> 61ef76edb (docs(gateway): document Docker bridge networking and loopback bind caveat (#28001))
 ### Notes
 
 - Gateway bind defaults to `lan` for container use.
-<<<<<<< HEAD
 - The gateway container is the source of truth for sessions (`~/.clawdbot/agents/<agentId>/sessions/`).
-=======
-- Dockerfile CMD uses `--allow-unconfigured`; mounted config with `gateway.mode` not `local` will still start. Override CMD to enforce the guard.
-- The gateway container is the source of truth for sessions (`~/.openclaw/agents/<agentId>/sessions/`).
->>>>>>> d134a8c7f (docs: note docker allow-unconfigured behavior)
 
 ## Agent Sandbox (host gateway + Docker tools)
 

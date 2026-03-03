@@ -1,12 +1,7 @@
 import { once } from "node:events";
 import http from "node:http";
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { WebSocket } from "ws";
-import { MediaStreamHandler } from "./media-stream.js";
->>>>>>> 1d8968c8a (fix(voice-call): harden media stream pre-start websocket handling)
 import type {
   OpenAIRealtimeSTTProvider,
   RealtimeSTTSession,

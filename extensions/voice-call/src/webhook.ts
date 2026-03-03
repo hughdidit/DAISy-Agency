@@ -203,7 +203,6 @@ export class VoiceCallWebhookServer {
       // Handle WebSocket upgrades for media streams
       if (this.mediaStreamHandler) {
         this.server.on("upgrade", (request, socket, head) => {
-<<<<<<< HEAD
           const url = new URL(
             request.url || "/",
             `http://${request.headers.host}`,
@@ -211,11 +210,6 @@ export class VoiceCallWebhookServer {
 
           if (url.pathname === streamPath) {
             this.logger.info("[voice-call] WebSocket upgrade for media stream");
-=======
-          const path = this.getUpgradePathname(request);
-          if (path === streamPath) {
-            console.log("[voice-call] WebSocket upgrade for media stream");
->>>>>>> 1d8968c8a (fix(voice-call): harden media stream pre-start websocket handling)
             this.mediaStreamHandler?.handleUpgrade(request, socket, head);
           } else {
             socket.destroy();
@@ -327,7 +321,6 @@ export class VoiceCallWebhookServer {
     });
 
     // Process each event
-<<<<<<< HEAD
     for (const event of result.events) {
       try {
         await this.manager.processEvent(event);
@@ -335,17 +328,6 @@ export class VoiceCallWebhookServer {
         this.logger.error(
           `[voice-call] Error processing event ${event.type}: ${err}`,
         );
-=======
-    if (verification.isReplay) {
-      console.warn("[voice-call] Replay detected; skipping event side effects");
-    } else {
-      for (const event of result.events) {
-        try {
-          this.manager.processEvent(event);
-        } catch (err) {
-          console.error(`[voice-call] Error processing event ${event.type}:`, err);
-        }
->>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
       }
     }
 

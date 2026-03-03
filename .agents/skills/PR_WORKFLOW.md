@@ -1,10 +1,7 @@
 # PR Review Instructions
 
 Please read this in full and do not skip sections.
-<<<<<<< HEAD
-=======
 This is the single source of truth for the maintainer PR workflow.
->>>>>>> 5a98a7984 (Remove triage order section from PR_WORKFLOW.md)
 
 ## Working rule
 
@@ -25,8 +22,6 @@ If submitted code is low quality, ignore it and implement the best solution for 
 
 Do not continue if you cannot verify the problem is real or test the fix.
 
-<<<<<<< HEAD
-=======
 ## Remote write policy
 
 Until the maintainer explicitly approves remote actions, stay local-only.
@@ -48,7 +43,6 @@ Allowed before approval:
 
 When approved, perform only the approved remote action, then pause for next instruction.
 
->>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 ## PR quality bar
 
 - Do not trust PR code by default.
@@ -60,7 +54,6 @@ When approved, perform only the approved remote action, then pause for next inst
 - Harden changes. Always evaluate security impact and abuse paths.
 - Understand the system before changing it. Never make the codebase messier just to clear a PR queue.
 
-<<<<<<< HEAD
 ## Rebase and conflict resolution
 
 Before any substantive review or prep work, **always rebase the PR branch onto current `main` and resolve merge conflicts first**. A PR that cannot cleanly rebase is not ready for review — fix conflicts before evaluating correctness.
@@ -74,9 +67,6 @@ Before any substantive review or prep work, **always rebase the PR branch onto c
 - Create commits with `scripts/committer "<msg>" <file...>`; avoid manual `git add`/`git commit` so staging stays scoped.
 - Follow concise, action-oriented commit messages (e.g., `CLI: add verbose flag to send`).
 <<<<<<< HEAD
-=======
-- During `prepare-pr`, use concise, action-oriented subjects **without** PR numbers or thanks; reserve `(#<PR>) thanks @<pr-author>` for the final merge/squash commit.
->>>>>>> 607b625aa (Docs: update PR commit guidance)
 - Group related changes; avoid bundling unrelated refactors.
 - Changelog workflow: keep latest released version at top (no `Unreleased`); after publishing, bump version and start a new top section.
 - When working on a PR: add a changelog entry with the PR number and thank the contributor.
@@ -145,11 +135,7 @@ Stop and escalate instead of continuing if:
 Purpose:
 
 - Make the PR merge-ready on its head branch.
-<<<<<<< HEAD
 - Rebase onto current `main` first, then fix blocker/important findings, then run gates.
-=======
-- Rebase onto current `main`, fix blocker/important findings, and run gates.
->>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 Expected output:
 

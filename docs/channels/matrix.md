@@ -70,17 +70,9 @@ Details: [Plugins](/plugin)
    - If both are set, config takes precedence.
    - With access token: user ID is fetched automatically via `/whoami`.
    - When set, `channels.matrix.userId` should be the full Matrix ID (example: `@bot:example.org`).
-<<<<<<< HEAD
 5) Restart the gateway (or finish onboarding).
 6) Start a DM with the bot or invite it to a room from any Matrix client
    (Element, Beeper, etc.; see https://matrix.org/ecosystem/clients/). Beeper requires E2EE,
-=======
-5. Restart the gateway (or finish onboarding).
-6. Start a DM with the bot or invite it to a room from any Matrix client
-<<<<<<< HEAD
-<<<<<<< HEAD
-   (Element, Beeper, etc.; see [https://matrix.org/ecosystem/clients/](https://matrix.org/ecosystem/clients/)). Beeper requires E2EE,
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
    (Element, Beeper, etc.; see https://matrix.org/ecosystem/clients/). Beeper requires E2EE,
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -226,17 +218,10 @@ Notes:
 
 - `requireMention: false` enables auto-reply in that room.
 - `groups."*"` can set defaults for mention gating across rooms.
-<<<<<<< HEAD
 - `groupAllowFrom` restricts which senders can trigger the bot in rooms (optional).
 - Per-room `users` allowlists can further restrict senders inside a specific room.
 - The configure wizard prompts for room allowlists (room IDs, aliases, or names) and resolves names when possible.
 - On startup, Moltbot resolves room/user names in allowlists to IDs and logs the mapping; unresolved entries are kept as typed.
-=======
-- `groupAllowFrom` restricts which senders can trigger the bot in rooms (full Matrix user IDs).
-- Per-room `users` allowlists can further restrict senders inside a specific room (use full Matrix user IDs).
-- The configure wizard prompts for room allowlists (room IDs, aliases, or names) and resolves names only on an exact, unique match.
-- On startup, OpenClaw resolves room/user names in allowlists to IDs and logs the mapping; unresolved entries are ignored for allowlist matching.
->>>>>>> 8f3bfbd1c (fix(matrix): harden allowlists)
 - Invites are auto-joined by default; control with `channels.matrix.autoJoin` and `channels.matrix.autoJoinAllowlist`.
 - To allow **no rooms**, set `channels.matrix.groupPolicy: "disabled"` (or keep an empty allowlist).
 - Legacy key: `channels.matrix.rooms` (same shape as `groups`).

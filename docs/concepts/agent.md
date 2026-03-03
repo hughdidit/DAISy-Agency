@@ -6,11 +6,7 @@ title: "Agent Runtime"
 ---
 # Agent Runtime 🤖
 
-<<<<<<< HEAD
 Moltbot runs a single embedded agent runtime derived from **p-mono**.
-=======
-OpenClaw runs a single embedded agent runtime derived from **pi-mono**.
->>>>>>> 9a1b44096 (Fix typo in agent.md from p-mono to pi-mono)
 
 ## Workspace (required)
 
@@ -66,11 +62,7 @@ Skills can be gated by config/env (see `skills` in [Gateway configuration](/gate
 
 ## pi-mono integration
 
-<<<<<<< HEAD
 Moltbot reuses pieces of the p-mono codebase (models/tools), but **session management, discovery, and tool wiring are Moltbot-owned**.
-=======
-OpenClaw reuses pieces of the pi-mono codebase (models/tools), but **session management, discovery, and tool wiring are OpenClaw-owned**.
->>>>>>> 97895a023 (Fix typo from 'p-mono' to 'pi-mono' in agent.md)
 
 - No pi-coding agent runtime.
 - No `~/.pi/agent` or `<workspace>/.pi` settings are consulted.

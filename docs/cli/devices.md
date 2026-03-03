@@ -21,30 +21,7 @@ moltbot devices list
 moltbot devices list --json
 ```
 
-<<<<<<< HEAD
 ### `moltbot devices approve <requestId>`
-=======
-### `openclaw devices remove <deviceId>`
-
-Remove one paired device entry.
-
-```
-openclaw devices remove <deviceId>
-openclaw devices remove <deviceId> --json
-```
-
-### `openclaw devices clear --yes [--pending]`
-
-Clear paired devices in bulk.
-
-```
-openclaw devices clear --yes
-openclaw devices clear --yes --pending
-openclaw devices clear --yes --pending --json
-```
-
-### `openclaw devices approve [requestId] [--latest]`
->>>>>>> a12cbf899 (docs: refresh CLI and trusted-proxy docs)
 
 Approve a pending device pairing request.
 

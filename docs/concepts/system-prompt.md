@@ -7,11 +7,7 @@ title: "System Prompt"
 ---
 # System Prompt
 
-<<<<<<< HEAD
 Moltbot builds a custom system prompt for every agent run. The prompt is **Moltbot-owned** and does not use the p-coding-agent default prompt.
-=======
-OpenClaw builds a custom system prompt for every agent run. The prompt is **OpenClaw-owned** and does not use the pi-coding-agent default prompt.
->>>>>>> aa1dbd34a (docs: fix typo p-coding-agent -> pi-coding-agent)
 
 The prompt is assembled by Moltbot and injected into each agent run.
 
@@ -126,15 +122,9 @@ local Moltbot docs directory (either `docs/` in the repo workspace or the bundle
 package docs) and also notes the public mirror, source repo, community Discord, and
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 ClawdHub (https://clawdhub.com) for skills discovery. The prompt instructs the model to consult local docs first
 for Moltbot behavior, commands, configuration, or architecture, and to run
 `moltbot status` itself when possible (asking the user only when it lacks access).
-=======
-ClawHub ([https://clawhub.com](https://clawhub.com)) for skills discovery. The prompt instructs the model to consult local docs first
-=======
-ClawHub (https://clawhub.com) for skills discovery. The prompt instructs the model to consult local docs first
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 =======
 ClawHub ([https://clawhub.com](https://clawhub.com)) for skills discovery. The prompt instructs the model to consult local docs first
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))

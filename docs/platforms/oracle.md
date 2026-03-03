@@ -1,16 +1,9 @@
 ---
 summary: "Moltbot on Oracle Cloud (Always Free ARM)"
 read_when:
-<<<<<<< HEAD
   - Setting up Moltbot on Oracle Cloud
   - Looking for low-cost VPS hosting for Moltbot
   - Want 24/7 Moltbot on a small server
-=======
-  - Setting up OpenClaw on Oracle Cloud
-  - Looking for low-cost VPS hosting for OpenClaw
-  - Want 24/7 OpenClaw on a small server
-title: "Oracle Cloud"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Moltbot on Oracle Cloud (OCI)
@@ -104,11 +97,7 @@ tailscale status
 ## 5) Install Moltbot
 
 ```bash
-<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
-=======
-curl -fsSL https://openclaw.ai/install.sh | bash
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 source ~/.bashrc
 ```
 

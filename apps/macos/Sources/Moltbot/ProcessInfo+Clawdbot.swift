@@ -25,18 +25,8 @@ extension ProcessInfo {
     }
 
     var isNixMode: Bool {
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ProcessInfo+Clawdbot.swift
         if let raw = getenv("CLAWDBOT_NIX_MODE"), String(cString: raw) == "1" { return true }
         return UserDefaults.standard.bool(forKey: "moltbot.nixMode")
-=======
-        let isAppBundle = Bundle.main.bundleURL.pathExtension == "app"
-        let stableSuite = UserDefaults(suiteName: launchdLabel)
-        return Self.resolveNixMode(
-            environment: self.environment,
-            standard: .standard,
-            stableSuite: stableSuite,
-            isAppBundle: isAppBundle)
->>>>>>> 69aa3df11 (macOS: honor stable Nix defaults suite (#12205)):apps/macos/Sources/OpenClaw/ProcessInfo+OpenClaw.swift
     }
 
     var isRunningTests: Bool {

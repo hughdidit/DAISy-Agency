@@ -1,19 +1,6 @@
 {
-<<<<<<< HEAD
   "name": "@moltbot/zalouser",
   "version": "2026.1.27-beta.1",
-=======
-  "name": "@openclaw/zalouser",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.1.29",
->>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
   "version": "2026.2.2",
 =======
@@ -45,11 +32,7 @@
     "moltbot": "workspace:*",
     "@sinclair/typebox": "0.34.47"
   },
-<<<<<<< HEAD
   "moltbot": {
-=======
-  "openclaw": {
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
     "extensions": [
       "./index.ts"
     ],

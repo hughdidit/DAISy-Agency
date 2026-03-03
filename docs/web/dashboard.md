@@ -11,13 +11,7 @@ The Gateway dashboard is the browser Control UI served at `/` by default
 
 Quick open (local Gateway):
 <<<<<<< HEAD
-<<<<<<< HEAD
 - http://127.0.0.1:18789/ (or http://localhost:18789/)
-=======
-
-<<<<<<< HEAD
-- [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (or [http://localhost:18789/](http://localhost:18789/))
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 - http://127.0.0.1:18789/ (or http://localhost:18789/)
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -46,15 +40,9 @@ Prefer localhost, Tailscale Serve, or an SSH tunnel.
 
 ## Token basics (local vs remote)
 
-<<<<<<< HEAD
 - **Localhost**: open `http://127.0.0.1:18789/`. If you see “unauthorized,” run `moltbot dashboard` and use the tokenized link (`?token=...`).
 - **Token source**: `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`); the UI stores it after first load.
 - **Not localhost**: use Tailscale Serve (tokenless if `gateway.auth.allowTailscale: true`), tailnet bind with a token, or an SSH tunnel. See [Web surfaces](/web).
-=======
-- **Localhost**: open `http://127.0.0.1:18789/`.
-- **Token source**: `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`); the UI stores a copy in localStorage after you connect.
-- **Not localhost**: use Tailscale Serve (tokenless if `gateway.auth.allowTailscale: true`, assumes trusted gateway host), tailnet bind with a token, or an SSH tunnel. See [Web surfaces](/web).
->>>>>>> ede496fa1 (docs: clarify trusted-host assumption for tokenless tailscale)
 
 ## If you see “unauthorized” / 1008
 

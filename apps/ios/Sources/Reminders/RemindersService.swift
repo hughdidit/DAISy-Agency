@@ -47,8 +47,6 @@ final class RemindersService: RemindersServicing {
         return OpenClawRemindersListPayload(reminders: payload)
     }
 
-<<<<<<< HEAD
-=======
     func add(params: OpenClawRemindersAddParams) async throws -> OpenClawRemindersAddPayload {
         let store = EKEventStore()
         let status = EKEventStore.authorizationStatus(for: .reminder)
@@ -102,22 +100,16 @@ final class RemindersService: RemindersServicing {
         return OpenClawRemindersAddPayload(reminder: payload)
     }
 
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     private static func ensureAuthorization(store: EKEventStore, status: EKAuthorizationStatus) async -> Bool {
         switch status {
         case .authorized:
             return true
         case .notDetermined:
-<<<<<<< HEAD
             return await withCheckedContinuation { cont in
                 store.requestAccess(to: .reminder) { granted, _ in
                     cont.resume(returning: granted)
                 }
             }
-=======
-            // Don’t prompt during node.invoke; prompts block the invoke and lead to timeouts.
-            return false
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
         case .restricted, .denied:
             return false
         case .fullAccess:
@@ -128,8 +120,6 @@ final class RemindersService: RemindersServicing {
             return false
         }
     }
-<<<<<<< HEAD
-=======
 
     private static func ensureWriteAuthorization(store: EKEventStore, status: EKAuthorizationStatus) async -> Bool {
         switch status {
@@ -175,5 +165,4 @@ final class RemindersService: RemindersServicing {
             NSLocalizedDescriptionKey: "REMINDERS_LIST_NOT_FOUND: no default list",
         ])
     }
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 }

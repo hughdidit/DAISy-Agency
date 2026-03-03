@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import type { GatewayBrowserClient } from "../gateway";
 import { toNumber } from "../format";
 import type { SessionsListResult } from "../types";
-=======
-import type { GatewayBrowserClient } from "../gateway.ts";
-import type { SessionsListResult } from "../types.ts";
-import { toNumber } from "../format.ts";
->>>>>>> 3df8305cb (fix(ui): gate sessions refresh on successful delete)
 
 export type SessionsState = {
   client: GatewayBrowserClient | null;
@@ -69,7 +63,6 @@ export async function patchSession(
   }
 }
 
-<<<<<<< HEAD
 export async function deleteSession(state: SessionsState, key: string) {
   if (!state.client || !state.connected) return;
   if (state.sessionsLoading) return;
@@ -77,30 +70,11 @@ export async function deleteSession(state: SessionsState, key: string) {
     `Delete session "${key}"?\n\nDeletes the session entry and archives its transcript.`,
   );
   if (!confirmed) return;
-=======
-export async function deleteSession(state: SessionsState, key: string): Promise<boolean> {
-  if (!state.client || !state.connected) {
-    return false;
-  }
-  if (state.sessionsLoading) {
-    return false;
-  }
-  const confirmed = window.confirm(
-    `Delete session "${key}"?\n\nDeletes the session entry and archives its transcript.`,
-  );
-  if (!confirmed) {
-    return false;
-  }
->>>>>>> 3df8305cb (fix(ui): gate sessions refresh on successful delete)
   state.sessionsLoading = true;
   state.sessionsError = null;
   try {
     await state.client.request("sessions.delete", { key, deleteTranscript: true });
-<<<<<<< HEAD
     await loadSessions(state);
-=======
-    return true;
->>>>>>> 3df8305cb (fix(ui): gate sessions refresh on successful delete)
   } catch (err) {
     state.sessionsError = String(err);
     return false;

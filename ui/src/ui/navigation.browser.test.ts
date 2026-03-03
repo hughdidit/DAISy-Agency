@@ -1,14 +1,9 @@
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { MoltbotApp } from "./app";
-=======
-import { describe, expect, it } from "vitest";
->>>>>>> dcdbbd8b3 (test: replace ui prototype method patches with instance stubs)
 import "../styles.css";
 import { mountApp as mountTestApp, registerAppMountHooks } from "./test-helpers/app-mount.ts";
 
-<<<<<<< HEAD
 const originalConnect = MoltbotApp.prototype.connect;
 
 function mountApp(pathname: string) {
@@ -16,12 +11,6 @@ function mountApp(pathname: string) {
   const app = document.createElement("moltbot-app") as MoltbotApp;
   document.body.append(app);
   return app;
-=======
-registerAppMountHooks();
-
-function mountApp(pathname: string) {
-  return mountTestApp(pathname);
->>>>>>> dcdbbd8b3 (test: replace ui prototype method patches with instance stubs)
 }
 
 function nextFrame() {
@@ -30,7 +19,6 @@ function nextFrame() {
   });
 }
 
-<<<<<<< HEAD
 beforeEach(() => {
   MoltbotApp.prototype.connect = () => {
     // no-op: avoid real gateway WS connections in browser tests
@@ -47,8 +35,6 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 
-=======
->>>>>>> dcdbbd8b3 (test: replace ui prototype method patches with instance stubs)
 describe("control UI routing", () => {
   it("hydrates the tab from the location", async () => {
     const app = mountApp("/sessions");

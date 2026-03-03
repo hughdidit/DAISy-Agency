@@ -17,11 +17,7 @@ Ollama is a local LLM runtime that makes it easy to run open-source models on yo
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 1) Install Ollama: https://ollama.ai
-=======
-1. Install Ollama: [https://ollama.ai](https://ollama.ai)
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 1. Install Ollama: https://ollama.ai
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -40,11 +36,7 @@ ollama pull deepseek-r1:32b
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 3) Enable Ollama for Moltbot (any value works; Ollama doesn't require a real key):
-=======
-1. Enable Ollama for OpenClaw (any value works; Ollama doesn't require a real key):
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 3. Enable Ollama for OpenClaw (any value works; Ollama doesn't require a real key):
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -58,11 +50,7 @@ moltbot config set models.providers.ollama.apiKey "ollama-local"
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 4) Use Ollama models:
-=======
-1. Use Ollama models:
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 4. Use Ollama models:
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
@@ -162,18 +150,10 @@ If Ollama is running on a different host or port (explicit config disables auto-
     providers: {
       ollama: {
         apiKey: "ollama-local",
-<<<<<<< HEAD
         baseUrl: "http://ollama-host:11434/v1"
       }
     }
   }
-=======
-        baseUrl: "http://ollama-host:11434", // No /v1 - use native Ollama API URL
-        api: "ollama", // Set explicitly to guarantee native tool-calling behavior
-      },
-    },
-  },
->>>>>>> d17c08380 (docs(ollama): clarify /v1 tool-calling guidance (#29204))
 }
 ```
 
@@ -191,17 +171,10 @@ Once configured, all your Ollama models are available:
     defaults: {
       model: {
         primary: "ollama/llama3.3",
-<<<<<<< HEAD
         fallback: ["ollama/qwen2.5-coder:32b"]
       }
     }
   }
-=======
-        fallbacks: ["ollama/qwen2.5-coder:32b"],
-      },
-    },
-  },
->>>>>>> 679bb087d (docs: fix incorrect model.fallback to model.fallbacks in Ollama config (#9384) (#9749))
 }
 ```
 
@@ -219,8 +192,6 @@ ollama pull deepseek-r1:32b
 
 Ollama is free and runs locally, so all model costs are set to $0.
 
-<<<<<<< HEAD
-=======
 ### Streaming Configuration
 
 OpenClaw's Ollama integration uses the **native Ollama API** (`/api/chat`) by default, which fully supports streaming and tool calling simultaneously. No special configuration is needed.
@@ -250,7 +221,6 @@ If you need to use the OpenAI-compatible endpoint instead (e.g., behind a proxy 
 
 This mode may not support streaming + tool calling simultaneously. You may need to disable streaming with `params: { streaming: false }` in model config.
 
->>>>>>> d17c08380 (docs(ollama): clarify /v1 tool-calling guidance (#29204))
 ### Context windows
 
 For auto-discovered models, Moltbot uses the context window reported by Ollama when available, otherwise it defaults to `8192`. You can override `contextWindow` and `maxTokens` in explicit provider config.

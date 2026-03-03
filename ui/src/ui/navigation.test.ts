@@ -27,7 +27,6 @@ describe("iconForTab", () => {
   });
 
   it("returns stable icons for known tabs", () => {
-<<<<<<< HEAD
     expect(iconForTab("chat")).toBe("💬");
     expect(iconForTab("overview")).toBe("📊");
     expect(iconForTab("channels")).toBe("🔗");
@@ -39,19 +38,6 @@ describe("iconForTab", () => {
     expect(iconForTab("config")).toBe("⚙️");
     expect(iconForTab("debug")).toBe("🐞");
     expect(iconForTab("logs")).toBe("🧾");
-=======
-    expect(iconForTab("chat")).toBe("messageSquare");
-    expect(iconForTab("overview")).toBe("barChart");
-    expect(iconForTab("channels")).toBe("link");
-    expect(iconForTab("instances")).toBe("radio");
-    expect(iconForTab("sessions")).toBe("fileText");
-    expect(iconForTab("cron")).toBe("loader");
-    expect(iconForTab("skills")).toBe("zap");
-    expect(iconForTab("nodes")).toBe("monitor");
-    expect(iconForTab("config")).toBe("settings");
-    expect(iconForTab("debug")).toBe("bug");
-    expect(iconForTab("logs")).toBe("scrollText");
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   });
 
   it("returns a fallback icon for unknown tab", () => {
@@ -109,11 +95,7 @@ describe("normalizeBasePath", () => {
   });
 
   it("handles nested paths", () => {
-<<<<<<< HEAD
     expect(normalizeBasePath("/apps/moltbot")).toBe("/apps/moltbot");
-=======
-    expect(normalizeBasePath("/apps/openclaw")).toBe("/apps/openclaw");
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   });
 });
 
@@ -140,11 +122,7 @@ describe("pathForTab", () => {
 
   it("prepends base path", () => {
     expect(pathForTab("chat", "/ui")).toBe("/ui/chat");
-<<<<<<< HEAD
     expect(pathForTab("sessions", "/apps/moltbot")).toBe("/apps/moltbot/sessions");
-=======
-    expect(pathForTab("sessions", "/apps/openclaw")).toBe("/apps/openclaw/sessions");
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   });
 });
 
@@ -161,11 +139,7 @@ describe("tabFromPath", () => {
 
   it("handles base paths", () => {
     expect(tabFromPath("/ui/chat", "/ui")).toBe("chat");
-<<<<<<< HEAD
     expect(tabFromPath("/apps/moltbot/sessions", "/apps/moltbot")).toBe("sessions");
-=======
-    expect(tabFromPath("/apps/openclaw/sessions", "/apps/openclaw")).toBe("sessions");
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   });
 
   it("returns null for unknown path", () => {
@@ -190,11 +164,7 @@ describe("inferBasePathFromPathname", () => {
 
   it("infers base path from nested paths", () => {
     expect(inferBasePathFromPathname("/ui/chat")).toBe("/ui");
-<<<<<<< HEAD
     expect(inferBasePathFromPathname("/apps/moltbot/sessions")).toBe("/apps/moltbot");
-=======
-    expect(inferBasePathFromPathname("/apps/openclaw/sessions")).toBe("/apps/openclaw");
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   });
 
   it("handles index.html suffix", () => {

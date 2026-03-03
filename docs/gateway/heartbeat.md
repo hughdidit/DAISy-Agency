@@ -30,12 +30,7 @@ Example config:
     defaults: {
       heartbeat: {
         every: "30m",
-<<<<<<< HEAD
         target: "last",
-=======
-        target: "last", // explicit delivery to last contact (default is "none")
-        directPolicy: "allow", // default: allow direct/DM targets; set "block" to suppress
->>>>>>> 4ada14379 (docs(heartbeat): add directPolicy to config examples)
         // activeHours: { start: "08:00", end: "24:00" },
         // includeReasoning: true, // optional: send separate `Reasoning:` message too
       }
@@ -133,72 +128,11 @@ Example: two agents, only the second agent runs heartbeats.
           every: "1h",
           target: "whatsapp",
           to: "+15551234567",
-<<<<<<< HEAD
           prompt: "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK."
         }
       }
     ]
   }
-=======
-          prompt: "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.",
-        },
-      },
-    ],
-  },
-}
-```
-
-### Active hours example
-
-Restrict heartbeats to business hours in a specific timezone:
-
-```json5
-{
-  agents: {
-    defaults: {
-      heartbeat: {
-        every: "30m",
-        target: "last",
-        activeHours: {
-          start: "09:00",
-          end: "22:00",
-          timezone: "America/New_York", // optional; uses your userTimezone if set, otherwise host tz
-        },
-      },
-    },
-  },
-}
-```
-
-Outside this window (before 9am or after 10pm Eastern), heartbeats are skipped. The next scheduled tick inside the window will run normally.
-
-### Multi account example
-
-Use `accountId` to target a specific account on multi-account channels like Telegram:
-
-```json5
-{
-  agents: {
-    list: [
-      {
-        id: "ops",
-        heartbeat: {
-          every: "1h",
-          target: "telegram",
-          to: "12345678",
-          accountId: "ops-bot",
-        },
-      },
-    ],
-  },
-  channels: {
-    telegram: {
-      accounts: {
-        "ops-bot": { botToken: "YOUR_TELEGRAM_BOT_TOKEN" },
-      },
-    },
-  },
->>>>>>> d2aee7da6 (docs: add activeHours to heartbeat field notes and examples (#9366))
 }
 ```
 

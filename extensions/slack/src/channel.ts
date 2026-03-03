@@ -236,7 +236,6 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount> = {
     },
   },
   actions: {
-<<<<<<< HEAD
     listActions: ({ cfg }) => {
       const accounts = listEnabledSlackAccounts(cfg).filter(
         (account) => account.botTokenSource !== "none",
@@ -423,18 +422,6 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount> = {
 
       throw new Error(`Action ${action} is not supported for provider ${meta.id}.`);
     },
-=======
-    listActions: ({ cfg }) => listSlackMessageActions(cfg),
-    extractToolSend: ({ args }) => extractSlackToolSend(args),
-    handleAction: async (ctx) =>
-      await handleSlackMessageAction({
-        providerId: meta.id,
-        ctx,
-        includeReadThreadId: true,
-        invoke: async (action, cfg, toolContext) =>
-          await getSlackRuntime().channel.slack.handleSlackAction(action, cfg, toolContext),
-      }),
->>>>>>> 9f7c1686b (fix(slack extension): preserve thread IDs for read + outbound delivery (#23836))
   },
   setup: {
     resolveAccountId: ({ accountId }) => normalizeAccountId(accountId),

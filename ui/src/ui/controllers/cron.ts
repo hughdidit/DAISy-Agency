@@ -1,44 +1,7 @@
-<<<<<<< HEAD
 import { toNumber } from "../format";
 import type { GatewayBrowserClient } from "../gateway";
 import type { CronJob, CronRunLogEntry, CronStatus } from "../types";
 import type { CronFormState } from "../ui-types";
-=======
-import { t } from "../../i18n/index.ts";
-import { DEFAULT_CRON_FORM } from "../app-defaults.ts";
-import { toNumber } from "../format.ts";
-import type { GatewayBrowserClient } from "../gateway.ts";
-import type {
-  CronJob,
-  CronDeliveryStatus,
-  CronJobsEnabledFilter,
-  CronJobsListResult,
-  CronJobsSortBy,
-  CronRunScope,
-  CronRunLogEntry,
-  CronRunsResult,
-  CronRunsStatusFilter,
-  CronRunsStatusValue,
-  CronSortDir,
-  CronStatus,
-} from "../types.ts";
-import { CRON_CHANNEL_LAST } from "../ui-types.ts";
-import type { CronFormState } from "../ui-types.ts";
-
-export type CronFieldKey =
-  | "name"
-  | "scheduleAt"
-  | "everyAmount"
-  | "cronExpr"
-  | "staggerAmount"
-  | "payloadText"
-  | "payloadModel"
-  | "payloadThinking"
-  | "timeoutSeconds"
-  | "deliveryTo";
-
-export type CronFieldErrors = Partial<Record<CronFieldKey, string>>;
->>>>>>> 8c98cf05b (i18n: add zh-CN for cron page and validation errors (#29315))
 
 export type CronJobsScheduleKindFilter = "all" | "at" | "every" | "cron";
 export type CronJobsLastStatusFilter = "all" | "ok" | "error" | "skipped";
@@ -48,8 +11,6 @@ export type CronState = {
   connected: boolean;
   cronLoading: boolean;
   cronJobs: CronJob[];
-<<<<<<< HEAD
-=======
   cronJobsTotal: number;
   cronJobsHasMore: boolean;
   cronJobsNextOffset: number | null;
@@ -60,7 +21,6 @@ export type CronState = {
   cronJobsLastStatusFilter: CronJobsLastStatusFilter;
   cronJobsSortBy: CronJobsSortBy;
   cronJobsSortDir: CronSortDir;
->>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
   cronStatus: CronStatus | null;
   cronError: string | null;
   cronForm: CronFormState;
@@ -69,8 +29,6 @@ export type CronState = {
   cronBusy: boolean;
 };
 
-<<<<<<< HEAD
-=======
 export type CronModelSuggestionsState = {
   client: GatewayBrowserClient | null;
   connected: boolean;
@@ -155,7 +113,6 @@ export function hasCronFormErrors(errors: CronFieldErrors): boolean {
   return Object.keys(errors).length > 0;
 }
 
->>>>>>> 8c98cf05b (i18n: add zh-CN for cron page and validation errors (#29315))
 export async function loadCronStatus(state: CronState) {
   if (!state.client || !state.connected) return;
   try {
@@ -183,8 +140,6 @@ export async function loadCronJobs(state: CronState) {
   }
 }
 
-<<<<<<< HEAD
-=======
 export async function loadMoreCronJobs(state: CronState) {
   await loadCronJobsPage(state, { append: true });
 }
@@ -378,77 +333,32 @@ function jobToForm(job: CronJob, prev: CronFormState): CronFormState {
   return normalizeCronFormState(next);
 }
 
->>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
 export function buildCronSchedule(form: CronFormState) {
   if (form.scheduleKind === "at") {
     const ms = Date.parse(form.scheduleAt);
-<<<<<<< HEAD
     if (!Number.isFinite(ms)) throw new Error("Invalid run time.");
     return { kind: "at" as const, atMs: ms };
   }
   if (form.scheduleKind === "every") {
     const amount = toNumber(form.everyAmount, 0);
     if (amount <= 0) throw new Error("Invalid interval amount.");
-=======
-    if (!Number.isFinite(ms)) {
-      throw new Error(t("cron.errors.invalidRunTime"));
-    }
-    return { kind: "at" as const, at: new Date(ms).toISOString() };
-  }
-  if (form.scheduleKind === "every") {
-    const amount = toNumber(form.everyAmount, 0);
-    if (amount <= 0) {
-      throw new Error(t("cron.errors.invalidIntervalAmount"));
-    }
->>>>>>> 8c98cf05b (i18n: add zh-CN for cron page and validation errors (#29315))
     const unit = form.everyUnit;
     const mult = unit === "minutes" ? 60_000 : unit === "hours" ? 3_600_000 : 86_400_000;
     return { kind: "every" as const, everyMs: amount * mult };
   }
   const expr = form.cronExpr.trim();
-<<<<<<< HEAD
   if (!expr) throw new Error("Cron expression required.");
   return { kind: "cron" as const, expr, tz: form.cronTz.trim() || undefined };
-=======
-  if (!expr) {
-    throw new Error(t("cron.errors.cronExprRequiredShort"));
-  }
-  if (form.scheduleExact) {
-    return { kind: "cron" as const, expr, tz: form.cronTz.trim() || undefined, staggerMs: 0 };
-  }
-  const staggerAmount = form.staggerAmount.trim();
-  if (!staggerAmount) {
-    return { kind: "cron" as const, expr, tz: form.cronTz.trim() || undefined };
-  }
-  const staggerValue = toNumber(staggerAmount, 0);
-  if (staggerValue <= 0) {
-    throw new Error(t("cron.errors.invalidStaggerAmount"));
-  }
-  const staggerMs = form.staggerUnit === "minutes" ? staggerValue * 60_000 : staggerValue * 1_000;
-  return { kind: "cron" as const, expr, tz: form.cronTz.trim() || undefined, staggerMs };
->>>>>>> 8c98cf05b (i18n: add zh-CN for cron page and validation errors (#29315))
 }
 
 export function buildCronPayload(form: CronFormState) {
   if (form.payloadKind === "systemEvent") {
     const text = form.payloadText.trim();
-<<<<<<< HEAD
     if (!text) throw new Error("System event text required.");
     return { kind: "systemEvent" as const, text };
   }
   const message = form.payloadText.trim();
   if (!message) throw new Error("Agent message required.");
-=======
-    if (!text) {
-      throw new Error(t("cron.errors.systemEventTextRequired"));
-    }
-    return { kind: "systemEvent" as const, text };
-  }
-  const message = form.payloadText.trim();
-  if (!message) {
-    throw new Error(t("cron.errors.agentMessageRequiredShort"));
-  }
->>>>>>> 8c98cf05b (i18n: add zh-CN for cron page and validation errors (#29315))
   const payload: {
     kind: "agentTurn";
     message: string;
@@ -470,41 +380,9 @@ export async function addCronJob(state: CronState) {
   state.cronBusy = true;
   state.cronError = null;
   try {
-<<<<<<< HEAD
     const schedule = buildCronSchedule(state.cronForm);
     const payload = buildCronPayload(state.cronForm);
     const agentId = state.cronForm.agentId.trim();
-=======
-    const form = normalizeCronFormState(state.cronForm);
-    if (form !== state.cronForm) {
-      state.cronForm = form;
-    }
-    const fieldErrors = validateCronForm(form);
-    state.cronFieldErrors = fieldErrors;
-    if (hasCronFormErrors(fieldErrors)) {
-      return;
-    }
-
-    const schedule = buildCronSchedule(form);
-    const payload = buildCronPayload(form);
-    const selectedDeliveryMode = form.deliveryMode;
-    const delivery =
-      selectedDeliveryMode && selectedDeliveryMode !== "none"
-        ? {
-            mode: selectedDeliveryMode,
-            channel:
-              selectedDeliveryMode === "announce"
-                ? form.deliveryChannel.trim() || "last"
-                : undefined,
-            to: form.deliveryTo.trim() || undefined,
-            bestEffort: form.deliveryBestEffort,
-          }
-        : selectedDeliveryMode === "none"
-          ? ({ mode: "none" } as const)
-          : undefined;
-    const failureAlert = buildFailureAlert(form);
-    const agentId = form.clearAgent ? null : form.agentId.trim();
->>>>>>> 9670ccfc4 (Control UI/Cron: persist delivery mode none on edit (openclaw#31114) thanks @liuxiaopai-ai)
     const job = {
       name: state.cronForm.name.trim(),
       description: state.cronForm.description.trim() || undefined,
@@ -528,8 +406,6 @@ export async function addCronJob(state: CronState) {
       description: "",
       payloadText: "",
     };
-<<<<<<< HEAD
-=======
     if (!job.name) {
       throw new Error(t("cron.errors.nameRequiredShort"));
     }
@@ -543,7 +419,6 @@ export async function addCronJob(state: CronState) {
       await state.client.request("cron.add", job);
       resetCronFormToDefaults(state);
     }
->>>>>>> 8c98cf05b (i18n: add zh-CN for cron page and validation errors (#29315))
     await loadCronJobs(state);
     await loadCronStatus(state);
   } catch (err) {

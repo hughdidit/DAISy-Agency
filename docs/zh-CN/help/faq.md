@@ -572,13 +572,8 @@ curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
 
 任何 Linux VPS 都可以。在服务器上安装，然后使用 SSH/Tailscale 访问 Gateway网关。
 
-<<<<<<< HEAD
 指南：[exe.dev](/platforms/exe-dev)、[Hetzner](/platforms/hetzner)、[Fly.io](/platforms/fly)。
 远程访问：[Gateway网关远程](/gateway/remote)。
-=======
-指南：[exe.dev](/install/exe-dev)、[Hetzner](/install/hetzner)、[Fly.io](/install/fly)。
-远程访问：[Gateway 网关远程](/gateway/remote)。
->>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 
 ### 云/VPS 安装指南在哪里
 

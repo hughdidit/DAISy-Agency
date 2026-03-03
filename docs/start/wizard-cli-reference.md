@@ -139,18 +139,8 @@ What you set:
 
   </Accordion>
   <Accordion title="OpenAI API key">
-<<<<<<< HEAD
     Uses `OPENAI_API_KEY` if present or prompts for a key, then saves it to
     `~/.openclaw/.env` so launchd can read it.
-=======
-    Uses `OPENAI_API_KEY` if present or prompts for a key, then stores the credential in auth profiles.
-
-    Sets `agents.defaults.model` to `openai/gpt-5.1-codex` when model is unset, `openai/*`, or `openai-codex/*`.
-
-  </Accordion>
-  <Accordion title="xAI (Grok) API key">
-    Prompts for `XAI_API_KEY` and configures xAI as a model provider.
->>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
   </Accordion>
   <Accordion title="OpenCode Zen">
     Prompts for `OPENCODE_API_KEY` (or `OPENCODE_ZEN_API_KEY`).

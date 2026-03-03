@@ -2,11 +2,7 @@ import com.android.build.api.variant.impl.VariantOutputImpl
 
 plugins {
   id("com.android.application")
-<<<<<<< HEAD
   id("org.jetbrains.kotlin.android")
-=======
-  id("org.jlleitschuh.gradle.ktlint")
->>>>>>> 7f9274b71 (chore(android): add kotlin lint/format tooling)
   id("org.jetbrains.kotlin.plugin.compose")
   id("org.jetbrains.kotlin.plugin.serialization")
 }
@@ -27,13 +23,8 @@ android {
     targetSdk = 36
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     versionCode = 202601260
     versionName = "2026.1.27-beta.1"
-=======
-    versionCode = 202602020
-    versionName = "2026.2.2"
->>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 =======
     versionCode = 202602030
     versionName = "2026.2.9"
@@ -70,23 +61,10 @@ android {
     }
   }
 
-<<<<<<< HEAD
   lint {
     disable += setOf("IconLauncherShape")
     warningsAsErrors = true
   }
-=======
-    lint {
-        disable +=
-            setOf(
-                "AndroidGradlePluginVersion",
-                "GradleDependency",
-                "IconLauncherShape",
-                "NewerVersionAvailable",
-            )
-        warningsAsErrors = true
-    }
->>>>>>> fa9148400 (fix(android): align lint gates and photo permission handling)
 
   testOptions {
     unitTests.isIncludeAndroidResources = true

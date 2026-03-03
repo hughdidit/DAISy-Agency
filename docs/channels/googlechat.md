@@ -9,14 +9,8 @@ title: "Google Chat"
 Status: ready for DMs + spaces via Google Chat API webhooks (HTTP only).
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Quick setup (beginner)
 1) Create a Google Cloud project and enable the **Google Chat API**.
-=======
-## Onboarding
-=======
-## Quick setup (beginner)
->>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 1. Create a Google Cloud project and enable the **Google Chat API**.
 >>>>>>> 79183852f (docs: more channel onboarding naming cleanup (#22536))
@@ -146,13 +140,7 @@ Configure your tunnel's ingress rules to only route the webhook path:
 
 ## Targets
 Use these identifiers for delivery and allowlists:
-<<<<<<< HEAD
 - Direct messages: `users/<userId>` or `users/<email>` (email addresses are accepted).
-=======
-
-- Direct messages: `users/<userId>` (recommended) or raw email `name@example.com` (mutable principal).
-- Deprecated: `users/<email>` is treated as a user id, not an email allowlist.
->>>>>>> c8424bf29 (fix(googlechat): deprecate users/<email> allowlists (#16243))
 - Spaces: `spaces/<spaceId>`.
 
 ## Config highlights

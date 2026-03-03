@@ -13,22 +13,12 @@ Sub-agents let you run background tasks without blocking the main conversation. 
 
 **Use cases:**
 
-<<<<<<< HEAD
 Use `/subagents` to inspect or control sub-agent runs for the **current session**:
 - `/subagents list`
 - `/subagents stop <id|#|all>`
 - `/subagents log <id|#> [limit] [tools]`
 - `/subagents info <id|#>`
 - `/subagents send <id|#> <message>`
-=======
-- Research a topic while the main agent continues answering questions
-- Run multiple long tasks in parallel (web scraping, code analysis, file processing)
-- Delegate tasks to specialized agents in a multi-agent setup
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-## Quick Start
->>>>>>> 0768fc65d (docs(subagents): simplify page and verify behavior/examples (#12761))
 
 The simplest way to use sub-agents is to ask your agent naturally:
 =======
@@ -38,12 +28,8 @@ Thread binding controls:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 These commands work on channels that implement thread bindings. Current support is Discord.
 >>>>>>> 0b9b9d430 (docs: make subagents thread guidance channel-first)
-=======
-These commands work on channels that support persistent thread bindings. See **Thread supporting channels** below.
->>>>>>> c95233480 (docs: list thread supporting channels in subagents guide)
 =======
 These commands work on channels that support persistent thread bindings. Currently only Discord is supported.
 >>>>>>> 418e4e32c (docs: clarify thread-bound subagents are Discord-only)
@@ -77,32 +63,21 @@ These commands work on channels that support persistent thread bindings. See **T
 - `/subagents spawn` is one-shot mode (`mode: "run"`). For persistent thread-bound sessions, use `sessions_spawn` with `thread: true` and `mode: "session"`.
 >>>>>>> 817905f3a (docs: document thread-bound subagent sessions and remove plan)
 
-<<<<<<< HEAD
 Primary goals:
 - Parallelize “research / long task / slow tool” work without blocking the main run.
 - Keep sub-agents isolated by default (session separation + optional sandboxing).
 - Keep the tool surface hard to misuse: sub-agents do **not** get session tools by default.
 - Avoid nested fan-out: sub-agents cannot spawn sub-agents.
-=======
-> "Spawn a sub-agent to research the latest Node.js release notes"
-
-The agent will call the `sessions_spawn` tool behind the scenes. When the sub-agent finishes, it announces its findings back into your chat.
->>>>>>> 0768fc65d (docs(subagents): simplify page and verify behavior/examples (#12761))
 
 You can also be explicit about options:
 
 > "Spawn a sub-agent to analyze the server logs from today. Use gpt-5.2 and set a 5-minute timeout."
 
-<<<<<<< HEAD
 Use `sessions_spawn`:
 - Starts a sub-agent run (`deliver: false`, global lane: `subagent`)
 - Then runs an announce step and posts the announce reply to the requester chat channel
 - Default model: inherits the caller unless you set `agents.defaults.subagents.model` (or per-agent `agents.list[].subagents.model`); an explicit `sessions_spawn.model` still wins.
 <<<<<<< HEAD
-=======
-- Default thinking: inherits the caller unless you set `agents.defaults.subagents.thinking` (or per-agent `agents.list[].subagents.thinking`); an explicit `sessions_spawn.thinking` still wins.
-- Default run timeout: if `sessions_spawn.runTimeoutSeconds` is omitted, OpenClaw uses `agents.defaults.subagents.runTimeoutSeconds` when set; otherwise it falls back to `0` (no timeout).
->>>>>>> 8c5cf2d5b (docs(subagents): document default runTimeoutSeconds config (#24594) (thanks @mitchmcalister))
 
 Tool params:
 - `task` (required)
@@ -160,8 +135,6 @@ Auto-archive:
 - `cleanup: "delete"` archives immediately after announce (still keeps the transcript via rename).
 - Auto-archive is best-effort; pending timers are lost if the gateway restarts.
 - `runTimeoutSeconds` does **not** auto-archive; it only stops the run. The session remains until auto-archive.
-<<<<<<< HEAD
-=======
 - Auto-archive applies equally to depth-1 and depth-2 sessions.
 
 ## Nested Sub-Agents
@@ -220,7 +193,6 @@ Stopping a depth-1 orchestrator automatically stops all its depth-2 children:
 - `/stop` in the main chat stops all depth-1 agents and cascades to their depth-2 children.
 - `/subagents kill <id>` stops a specific sub-agent and cascades to its children.
 - `/subagents kill all` stops all sub-agents for the requester and cascades.
->>>>>>> 8c5cf2d5b (docs(subagents): document default runTimeoutSeconds config (#24594) (thanks @mitchmcalister))
 
 ## Authentication
 
@@ -300,7 +272,6 @@ Use a cheaper model for sub-agents to save on token costs:
   agents: {
     defaults: {
       subagents: {
-<<<<<<< HEAD
         maxConcurrent: 1
       }
     }
@@ -315,36 +286,14 @@ Use a cheaper model for sub-agents to save on token costs:
       }
     }
   }
-=======
-        model: "minimax/MiniMax-M2.1",
-      },
-    },
-  },
->>>>>>> 0768fc65d (docs(subagents): simplify page and verify behavior/examples (#12761))
 }
 ```
 
 ### Setting a Default Thinking Level
 
-<<<<<<< HEAD
 Sub-agents use a dedicated in-process queue lane:
 - Lane name: `subagent`
 - Concurrency: `agents.defaults.subagents.maxConcurrent` (default `8`)
-=======
-```json5
-{
-  agents: {
-    defaults: {
-      subagents: {
-        thinking: "low",
-      },
-    },
-  },
-}
-```
-
-### Per-Agent Overrides
->>>>>>> 0768fc65d (docs(subagents): simplify page and verify behavior/examples (#12761))
 
 In a multi-agent setup, you can set sub-agent defaults per agent:
 

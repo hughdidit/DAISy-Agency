@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 ## Clawdbot Node (Android) (internal)
 
 Modern Android node app: connects to the **Gateway WebSocket** (`_clawdbot-gw._tcp`) and exposes **Canvas + Chat + Camera**.
-=======
-## OpenClaw Android App
-
-Status: **extremely alpha**. The app is actively being rebuilt from the ground up.
->>>>>>> 75f145ebc (docs(android): document alpha rebuild status and feature checklist)
 
 ### Rebuild Checklist
 

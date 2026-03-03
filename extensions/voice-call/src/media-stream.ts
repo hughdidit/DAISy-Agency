@@ -100,15 +100,7 @@ export class MediaStreamHandler {
 
   constructor(config: MediaStreamConfig, logger?: Logger) {
     this.config = config;
-<<<<<<< HEAD
     this.logger = logger ?? defaultLogger;
-=======
-    this.preStartTimeoutMs = config.preStartTimeoutMs ?? DEFAULT_PRE_START_TIMEOUT_MS;
-    this.maxPendingConnections = config.maxPendingConnections ?? DEFAULT_MAX_PENDING_CONNECTIONS;
-    this.maxPendingConnectionsPerIp =
-      config.maxPendingConnectionsPerIp ?? DEFAULT_MAX_PENDING_CONNECTIONS_PER_IP;
-    this.maxConnections = config.maxConnections ?? DEFAULT_MAX_CONNECTIONS;
->>>>>>> 1d8968c8a (fix(voice-call): harden media stream pre-start websocket handling)
   }
 
   /**
@@ -201,7 +193,6 @@ export class MediaStreamHandler {
   private async handleStart(
     ws: WebSocket,
     message: TwilioMediaMessage,
-<<<<<<< HEAD
   ): Promise<StreamSession> {
     const streamSid = message.streamSid || "";
     const callSid = message.start?.callSid || "";
@@ -209,27 +200,6 @@ export class MediaStreamHandler {
     this.logger.info(
       `[MediaStream] Stream started: ${streamSid} (call: ${callSid})`,
     );
-=======
-    streamToken?: string,
-  ): Promise<StreamSession | null> {
-    const streamSid = message.streamSid || "";
-    const callSid = message.start?.callSid || "";
-
-    console.log(`[MediaStream] Stream started: ${streamSid} (call: ${callSid})`);
-    if (!callSid) {
-      console.warn("[MediaStream] Missing callSid; closing stream");
-      ws.close(1008, "Missing callSid");
-      return null;
-    }
-    if (
-      this.config.shouldAcceptStream &&
-      !this.config.shouldAcceptStream({ callId: callSid, streamSid, token: streamToken })
-    ) {
-      console.warn(`[MediaStream] Rejecting stream for unknown call: ${callSid}`);
-      ws.close(1008, "Unknown call");
-      return null;
-    }
->>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
 
     // Create STT session
     const sttSession = this.config.sttProvider.createSession();

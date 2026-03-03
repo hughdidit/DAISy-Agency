@@ -166,7 +166,6 @@ export async function getMessageFeishu(params: {
       return null;
     }
 
-<<<<<<< HEAD
     // Parse content based on message type
     let content = item.body?.content ?? "";
     try {
@@ -177,11 +176,6 @@ export async function getMessageFeishu(params: {
     } catch {
       // Keep raw content if parsing fails
     }
-=======
-    const msgType = item.msg_type ?? "text";
-    const rawContent = item.body?.content ?? "";
-    const content = parseQuotedMessageContent(rawContent, msgType);
->>>>>>> 6ea3a47da (fix(feishu): harden routing, parsing, and media delivery)
 
     return {
       messageId: item.message_id ?? messageId,

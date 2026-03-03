@@ -67,11 +67,8 @@ struct OnboardingWizardView: View {
     @State private var showQRScanner: Bool = false
     @State private var scannerError: String?
     @State private var selectedPhoto: PhotosPickerItem?
-<<<<<<< HEAD
-=======
     @State private var lastPairingAutoResumeAttemptAt: Date?
     private static let pairingAutoResumeTicker = Timer.publish(every: 2.0, on: .main, in: .common).autoconnect()
->>>>>>> 6e7f1a6a1 (iOS onboarding: prevent pairing flicker during auto-resume (#20310))
 
     let allowSkip: Bool
     let onClose: () -> Void
@@ -283,8 +280,6 @@ struct OnboardingWizardView: View {
             }
             self.onClose()
         }
-<<<<<<< HEAD
-=======
         .onChange(of: self.scenePhase) { _, newValue in
             guard newValue == .active else { return }
             self.attemptAutomaticPairingResumeIfNeeded()
@@ -292,7 +287,6 @@ struct OnboardingWizardView: View {
         .onReceive(Self.pairingAutoResumeTicker) { _ in
             self.attemptAutomaticPairingResumeIfNeeded()
         }
->>>>>>> 6e7f1a6a1 (iOS onboarding: prevent pairing flicker during auto-resume (#20310))
     }
 
     @ViewBuilder
@@ -699,8 +693,6 @@ struct OnboardingWizardView: View {
         Task { await self.retryLastAttempt() }
     }
 
-<<<<<<< HEAD
-=======
     private func resumeAfterPairingApprovalInBackground() {
         // Keep the pairing issue sticky to avoid visual flicker while we probe for approval.
         self.appModel.gatewayAutoReconnectEnabled = true
@@ -723,7 +715,6 @@ struct OnboardingWizardView: View {
         self.resumeAfterPairingApprovalInBackground()
     }
 
->>>>>>> 6e7f1a6a1 (iOS onboarding: prevent pairing flicker during auto-resume (#20310))
     private func detectQRCode(from data: Data) -> String? {
         guard let ciImage = CIImage(data: data) else { return nil }
         let detector = CIDetector(

@@ -27,15 +27,10 @@ Moltbot will offer the local install path automatically.
 Details: [Plugins](/plugin)
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Quick setup (beginner)
 <<<<<<< HEAD
 1) Install the Nextcloud Talk plugin.
 2) On your Nextcloud server, create a bot:
-=======
-=======
-## Onboarding
->>>>>>> 325992b77 (docs: small docs sweep consistency updates (#22531))
 =======
 ## Quick setup (beginner)
 >>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
@@ -43,11 +38,8 @@ Details: [Plugins](/plugin)
 1. Install the Nextcloud Talk plugin.
 2. On your Nextcloud server, create a bot:
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 =======
 
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
@@ -56,13 +48,8 @@ Details: [Plugins](/plugin)
    ```
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 3) Enable the bot in the target room settings.
 4) Configure Moltbot:
-=======
-
-=======
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 =======
 
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
@@ -127,13 +114,7 @@ Minimal config:
 | Native commands | Not supported |
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Configuration reference (Nextcloud Talk)
-=======
-## Configuration
-=======
-## Configuration reference (Nextcloud Talk)
->>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 >>>>>>> 325992b77 (docs: small docs sweep consistency updates (#22531))
 Full configuration: [Configuration](/gateway/configuration)

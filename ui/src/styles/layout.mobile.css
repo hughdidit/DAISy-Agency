@@ -4,26 +4,7 @@
 
 /* Tablet: Horizontal nav */
 @media (max-width: 1100px) {
-<<<<<<< HEAD
   .nav {
-=======
-  .sidebar {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .sidebar-header {
-    display: none;
-  }
-
-  .sidebar-footer {
-    display: none;
-  }
-
-  .sidebar-nav {
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -34,11 +15,7 @@
     scrollbar-width: none;
   }
 
-<<<<<<< HEAD
   .nav::-webkit-scrollbar {
-=======
-  .sidebar-nav::-webkit-scrollbar {
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
     display: none;
   }
 
@@ -50,11 +27,7 @@
     display: contents;
   }
 
-<<<<<<< HEAD
   .nav-label {
-=======
-  .nav-group__label {
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
     display: none;
   }
 
@@ -315,21 +288,11 @@
     font-size: 11px;
   }
 
-<<<<<<< HEAD
   /* Theme toggle */
   .theme-toggle {
     --theme-item: 24px;
     --theme-gap: 2px;
     --theme-pad: 3px;
-=======
-  .theme-toggle {
-    height: 28px;
-  }
-
-  .theme-btn svg {
-    width: 12px;
-    height: 12px;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   }
 
   .theme-icon {
@@ -395,19 +358,7 @@
 
   .topbar-status .pill {
     padding: 3px 6px;
-<<<<<<< HEAD
     font-size: 10px;
-=======
-  }
-
-  .theme-toggle {
-    height: 26px;
-  }
-
-  .theme-icon {
-    width: 11px;
-    height: 11px;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   }
 
   .theme-toggle {

@@ -50,8 +50,6 @@ function createProps(overrides: Partial<ChatProps> = {}): ChatProps {
 }
 
 describe("chat view", () => {
-<<<<<<< HEAD
-=======
   it("renders compacting indicator as a badge", () => {
     const container = document.createElement("div");
     render(
@@ -183,7 +181,6 @@ describe("chat view", () => {
     nowSpy.mockRestore();
   });
 
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   it("shows a stop button when aborting is available", () => {
     const container = document.createElement("div");
     const onAbort = vi.fn();

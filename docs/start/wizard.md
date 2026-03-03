@@ -10,18 +10,12 @@ sidebarTitle: "Onboarding: CLI"
 # Onboarding Wizard (CLI)
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 The onboarding wizard is the **recommended** way to set up Moltbot on macOS,
 Linux, or Windows (via WSL2; strongly recommended).
 It configures a local Gateway or a remote Gateway connection, plus channels, skills,
 and workspace defaults in one guided flow.
 
 Primary entrypoint:
-=======
-The CLI onboarding wizard is the recommended setup path for OpenClaw on macOS,
-Linux, and Windows (via WSL2). It configures a local gateway or a remote
-gateway connection, plus workspace defaults, channels, and skills.
->>>>>>> 9e0030b75 (docs(onboarding): streamline CLI onboarding docs (#9830))
 =======
 The onboarding wizard is the **recommended** way to set up OpenClaw on macOS,
 Linux, or Windows (via WSL2; strongly recommended).
@@ -35,22 +29,12 @@ moltbot onboard
 
 <Info>
 Fastest first chat: open the Control UI (no channel setup needed). Run
-<<<<<<< HEAD
 `moltbot dashboard` and chat in the browser. Docs: [Dashboard](/web/dashboard).
-=======
-`openclaw dashboard` and chat in the browser. Docs: [Dashboard](/web/dashboard).
-</Info>
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 
 To reconfigure later:
 
 ```bash
-<<<<<<< HEAD
 moltbot configure
-=======
-openclaw configure
-openclaw agents add <name>
->>>>>>> 9e0030b75 (docs(onboarding): streamline CLI onboarding docs (#9830))
 ```
 
 <Note>
@@ -64,14 +48,10 @@ which stores `tools.web.search.apiKey`. Docs: [Web tools](/tools/web).
 </Tip>
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 ## QuickStart vs Advanced
 
 The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 **QuickStart** keeps the defaults:
 - Local gateway (loopback)
@@ -82,9 +62,6 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 - Telegram + WhatsApp DMs default to **allowlist** (you’ll be prompted for your phone number)
 
 **Advanced** exposes every step (mode, workspace, gateway, channels, daemon, skills).
-=======
-=======
->>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 <Tabs>
   <Tab title="QuickStart (defaults)">
     - Local gateway (loopback)
@@ -92,17 +69,12 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
     - Gateway port **18789**
     - Gateway auth **Token** (auto‑generated, even on loopback)
     - Tailscale exposure **Off**
-<<<<<<< HEAD
     - Telegram + WhatsApp DMs default to **allowlist** (you’ll be prompted for your phone number)
-=======
-    - Telegram + WhatsApp DMs default to **allowlist** (you'll be prompted for your phone number)
->>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
   </Tab>
   <Tab title="Advanced (full control)">
     - Exposes every step (mode, workspace, gateway, channels, daemon, skills).
   </Tab>
 </Tabs>
-<<<<<<< HEAD
 >>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 
 ## What the wizard does
@@ -115,19 +87,6 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 - Daemon install (LaunchAgent / systemd user unit)
 - Health check
 - Skills (recommended)
-=======
-
-## What the wizard configures
-
-**Local mode (default)** walks you through these steps:
-
-<<<<<<< HEAD
-1. **Model/Auth** — Anthropic API key (recommended), OAuth, OpenAI, or other providers. Pick a default model.
-=======
-1. **Model/Auth** — Anthropic API key (recommended), OpenAI, or Custom Provider
-   (OpenAI-compatible, Anthropic-compatible, or Unknown auto-detect). Pick a default model.
-   For non-interactive runs, `--secret-input-mode ref` stores env-backed refs in auth profiles instead of plaintext API key values.
->>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 2. **Workspace** — Location for agent files (default `~/.openclaw/workspace`). Seeds bootstrap files.
 3. **Gateway** — Port, bind address, auth mode, Tailscale exposure.
 4. **Channels** — WhatsApp, Telegram, Discord, Google Chat, Mattermost, Signal, BlueBubbles, or iMessage.
@@ -144,7 +103,6 @@ If the config is invalid or contains legacy keys, the wizard asks you to run `op
 **Remote mode** only configures the local client to connect to a Gateway elsewhere.
 It does **not** install or change anything on the remote host.
 
-<<<<<<< HEAD
 To add more isolated agents (separate workspace + sessions + auth), use:
 
 ```bash
@@ -215,16 +173,6 @@ moltbot agents add <name>
    - Signal: optional `signal-cli` install + account config.
    - iMessage: local `imsg` CLI path + DB access.
   - DM security: default is pairing. First DM sends a code; approve via `moltbot pairing approve <channel> <code>` or use allowlists.
-=======
-   - [WhatsApp](/channels/whatsapp): optional QR login.
-   - [Telegram](/channels/telegram): bot token.
-   - [Discord](/channels/discord): bot token.
-   - [Google Chat](/channels/googlechat): service account JSON + webhook audience.
-   - [Mattermost](/channels/mattermost) (plugin): bot token + base URL.
-   - [Signal](/channels/signal): optional `signal-cli` install + account config.
-   - [iMessage](/channels/imessage): local `imsg` CLI path + DB access.
-   - DM security: default is pairing. First DM sends a code; approve via `openclaw pairing approve <channel> <code>` or use allowlists.
->>>>>>> 9334dd801 (docs: Internal linking of channel pages)
 
 6) **Daemon install**
    - macOS: LaunchAgent
@@ -354,12 +302,8 @@ What you’ll set:
 - Remote Gateway URL (`ws://...`)
 - Token if the remote Gateway requires auth (recommended)
 
-<<<<<<< HEAD
 Notes:
 - No remote installs or daemon changes are performed.
-=======
-<Note>
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 - If the Gateway is loopback‑only, use SSH tunneling or a tailnet.
 - Discovery hints:
   - macOS: Bonjour (`dns-sd`)
@@ -386,7 +330,6 @@ What it sets:
 - `agents.list[].agentDir`
 
 Notes:
-<<<<<<< HEAD
 - Default workspaces follow `~/clawd-<agentId>`.
 - Add `bindings` to route inbound messages (the wizard can do this).
 - Non-interactive flags: `--model`, `--agent-dir`, `--bind`, `--non-interactive`.
@@ -475,82 +418,6 @@ moltbot onboard --non-interactive \
   --gateway-port 18789 \
   --gateway-bind loopback
 ```
-=======
-<AccordionGroup>
-  <Accordion title="Gemini example">
-    ```bash
-    openclaw onboard --non-interactive \
-      --mode local \
-      --auth-choice gemini-api-key \
-      --gemini-api-key "$GEMINI_API_KEY" \
-      --gateway-port 18789 \
-      --gateway-bind loopback
-    ```
-  </Accordion>
-  <Accordion title="Z.AI example">
-    ```bash
-    openclaw onboard --non-interactive \
-      --mode local \
-      --auth-choice zai-api-key \
-      --zai-api-key "$ZAI_API_KEY" \
-      --gateway-port 18789 \
-      --gateway-bind loopback
-    ```
-  </Accordion>
-  <Accordion title="Vercel AI Gateway example">
-    ```bash
-    openclaw onboard --non-interactive \
-      --mode local \
-      --auth-choice ai-gateway-api-key \
-      --ai-gateway-api-key "$AI_GATEWAY_API_KEY" \
-      --gateway-port 18789 \
-      --gateway-bind loopback
-    ```
-  </Accordion>
-  <Accordion title="Cloudflare AI Gateway example">
-    ```bash
-    openclaw onboard --non-interactive \
-      --mode local \
-      --auth-choice cloudflare-ai-gateway-api-key \
-      --cloudflare-ai-gateway-account-id "your-account-id" \
-      --cloudflare-ai-gateway-gateway-id "your-gateway-id" \
-      --cloudflare-ai-gateway-api-key "$CLOUDFLARE_AI_GATEWAY_API_KEY" \
-      --gateway-port 18789 \
-      --gateway-bind loopback
-    ```
-  </Accordion>
-  <Accordion title="Moonshot example">
-    ```bash
-    openclaw onboard --non-interactive \
-      --mode local \
-      --auth-choice moonshot-api-key \
-      --moonshot-api-key "$MOONSHOT_API_KEY" \
-      --gateway-port 18789 \
-      --gateway-bind loopback
-    ```
-  </Accordion>
-  <Accordion title="Synthetic example">
-    ```bash
-    openclaw onboard --non-interactive \
-      --mode local \
-      --auth-choice synthetic-api-key \
-      --synthetic-api-key "$SYNTHETIC_API_KEY" \
-      --gateway-port 18789 \
-      --gateway-bind loopback
-    ```
-  </Accordion>
-  <Accordion title="OpenCode Zen example">
-    ```bash
-    openclaw onboard --non-interactive \
-      --mode local \
-      --auth-choice opencode-zen \
-      --opencode-zen-api-key "$OPENCODE_API_KEY" \
-      --gateway-port 18789 \
-      --gateway-bind loopback
-    ```
-  </Accordion>
-</AccordionGroup>
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 
 Add agent (non‑interactive) example:
 
@@ -622,10 +489,6 @@ RPC API, and a full list of config fields the wizard writes, see the
 
 - CLI command reference: [`openclaw onboard`](/cli/onboard)
 - macOS app onboarding: [Onboarding](/start/onboarding)
-<<<<<<< HEAD
 - Config reference: [Gateway configuration](/gateway/configuration)
 - Providers: [WhatsApp](/channels/whatsapp), [Telegram](/channels/telegram), [Discord](/channels/discord), [Google Chat](/channels/googlechat), [Signal](/channels/signal), [iMessage](/channels/imessage)
 - Skills: [Skills](/tools/skills), [Skills config](/tools/skills-config)
-=======
-- Agent first-run ritual: [Agent Bootstrapping](/start/bootstrapping)
->>>>>>> 9e0030b75 (docs(onboarding): streamline CLI onboarding docs (#9830))

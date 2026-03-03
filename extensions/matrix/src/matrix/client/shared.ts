@@ -56,19 +56,9 @@ async function ensureSharedClientStarted(params: {
   initialSyncLimit?: number;
   encryption?: boolean;
 }): Promise<void> {
-<<<<<<< HEAD
   if (params.state.started) return;
   if (sharedClientStartPromise) {
     await sharedClientStartPromise;
-=======
-  if (params.state.started) {
-    return;
-  }
-  const key = params.state.key;
-  const existingStartPromise = sharedClientStartPromises.get(key);
-  if (existingStartPromise) {
-    await existingStartPromise;
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
     return;
   }
   const startPromise = (async () => {

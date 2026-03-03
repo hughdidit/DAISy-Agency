@@ -1,12 +1,6 @@
 import { MatrixClient } from "@vector-im/matrix-bot-sdk";
-<<<<<<< HEAD
 
 import type { CoreConfig } from "../types.js";
-=======
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk";
-import type { CoreConfig } from "../../types.js";
-import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
 import { getMatrixRuntime } from "../../runtime.js";
 import { ensureMatrixSdkLoggingConfigured } from "./logging.js";
 import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";
@@ -15,8 +9,6 @@ function clean(value?: string): string {
   return value?.trim() ?? "";
 }
 
-<<<<<<< HEAD
-=======
 /** Shallow-merge known nested config sub-objects so partial overrides inherit base values. */
 function deepMergeConfig<T extends Record<string, unknown>>(base: T, override: Partial<T>): T {
   const merged = { ...base, ...override } as Record<string, unknown>;
@@ -31,7 +23,6 @@ function deepMergeConfig<T extends Record<string, unknown>>(base: T, override: P
   return merged as T;
 }
 
->>>>>>> ed5a8dff8 (chore: fix CHANGELOG.md formatting)
 /**
  * Resolve Matrix config for a specific account, with fallback to top-level config.
  * This supports both multi-account (channels.matrix.accounts.*) and
@@ -48,16 +39,10 @@ export function resolveMatrixConfigForAccount(
   // Try to get account-specific config first
   const accountConfig = matrixBase.accounts?.[normalizedAccountId];
 
-<<<<<<< HEAD
   // Merge: account-specific values override top-level values
   // For DEFAULT_ACCOUNT_ID with no accounts, use top-level directly
   const useAccountConfig = accountConfig !== undefined;
   const matrix = useAccountConfig ? { ...matrixBase, ...accountConfig } : matrixBase;
-=======
-  // Deep merge: account-specific values override top-level values, preserving
-  // nested object inheritance (dm, actions, groups) so partial overrides work.
-  const matrix = accountConfig ? deepMergeConfig(matrixBase, accountConfig) : matrixBase;
->>>>>>> ed5a8dff8 (chore: fix CHANGELOG.md formatting)
 
   const homeserver = clean(matrix.homeserver) || clean(env.MATRIX_HOMESERVER);
   const userId = clean(matrix.userId) || clean(env.MATRIX_USER_ID);

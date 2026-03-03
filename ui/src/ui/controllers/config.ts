@@ -1,16 +1,9 @@
-<<<<<<< HEAD
 import type { GatewayBrowserClient } from "../gateway";
 import type {
   ConfigSchemaResponse,
   ConfigSnapshot,
   ConfigUiHints,
 } from "../types";
-=======
-import type { GatewayBrowserClient } from "../gateway.ts";
-import type { ConfigSchemaResponse, ConfigSnapshot, ConfigUiHints } from "../types.ts";
-import type { JsonSchema } from "../views/config-form.shared.ts";
-import { coerceFormValues } from "./config/form-coerce.ts";
->>>>>>> 841dbeee0 (fix(ui): coerce form values to schema types before config.set (#13468))
 import {
   cloneConfigObject,
   removePathValue,

@@ -41,12 +41,7 @@ Config (preferred):
 - `tools.exec.backgroundMs` (default 10000)
 - `tools.exec.timeoutSec` (default 1800)
 - `tools.exec.cleanupMs` (default 1800000)
-<<<<<<< HEAD
  - `tools.exec.notifyOnExit` (default true): enqueue a system event + request heartbeat when a backgrounded exec exits.
-=======
-- `tools.exec.notifyOnExit` (default true): enqueue a system event + request heartbeat when a backgrounded exec exits.
-- `tools.exec.notifyOnExitEmptySuccess` (default false): when true, also enqueue completion events for successful backgrounded runs that produced no output.
->>>>>>> 5b2399940 (docs: document bootstrap total cap and exec log/notify behavior)
 
 ## process tool
 

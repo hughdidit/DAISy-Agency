@@ -370,7 +370,6 @@ extension Double {
         return self
     }
 }
-<<<<<<< HEAD
 
 // MARK: - Navigation Delegate
 
@@ -441,5 +440,3 @@ private final class CanvasA2UIActionMessageHandler: NSObject, WKScriptMessageHan
         controller.onA2UIAction?(body)
     }
 }
-=======
->>>>>>> dd28a77df (fix(ios): refactor screen webview lifecycle handling (#20366))

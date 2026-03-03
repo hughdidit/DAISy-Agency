@@ -2,10 +2,7 @@ import Foundation
 
 public enum OpenClawContactsCommand: String, Codable, Sendable {
     case search = "contacts.search"
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/ContactsCommands.swift
-=======
     case add = "contacts.add"
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/ContactsCommands.swift
 }
 
 public struct OpenClawContactsSearchParams: Codable, Sendable, Equatable {
@@ -18,8 +15,6 @@ public struct OpenClawContactsSearchParams: Codable, Sendable, Equatable {
     }
 }
 
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/ContactsCommands.swift
-=======
 public struct OpenClawContactsAddParams: Codable, Sendable, Equatable {
     public var givenName: String?
     public var familyName: String?
@@ -45,7 +40,6 @@ public struct OpenClawContactsAddParams: Codable, Sendable, Equatable {
     }
 }
 
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/ContactsCommands.swift
 public struct OpenClawContactPayload: Codable, Sendable, Equatable {
     public var identifier: String
     public var displayName: String
@@ -81,8 +75,6 @@ public struct OpenClawContactsSearchPayload: Codable, Sendable, Equatable {
         self.contacts = contacts
     }
 }
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/ContactsCommands.swift
-=======
 
 public struct OpenClawContactsAddPayload: Codable, Sendable, Equatable {
     public var contact: OpenClawContactPayload
@@ -91,4 +83,3 @@ public struct OpenClawContactsAddPayload: Codable, Sendable, Equatable {
         self.contact = contact
     }
 }
->>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/ContactsCommands.swift

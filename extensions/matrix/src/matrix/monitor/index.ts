@@ -6,12 +6,9 @@ import {
   type RuntimeEnv,
 } from "clawdbot/plugin-sdk";
 import type { CoreConfig, ReplyToMode } from "../../types.js";
-<<<<<<< HEAD
-=======
 import { resolveMatrixTargets } from "../../resolve-targets.js";
 import { getMatrixRuntime } from "../../runtime.js";
 import { resolveMatrixAccount } from "../accounts.js";
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
 import { setActiveMatrixClient } from "../active-client.js";
 import {
   isBunRuntime,
@@ -122,21 +119,10 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
     return allowList;
   };
 
-<<<<<<< HEAD
   const allowlistOnly = cfg.channels?.matrix?.allowlistOnly === true;
   let allowFrom = cfg.channels?.matrix?.dm?.allowFrom ?? [];
   let groupAllowFrom = cfg.channels?.matrix?.groupAllowFrom ?? [];
   let roomsConfig = cfg.channels?.matrix?.groups ?? cfg.channels?.matrix?.rooms;
-=======
-  // Resolve account-specific config for multi-account support
-  const account = resolveMatrixAccount({ cfg, accountId: opts.accountId });
-  const accountConfig = account.config;
-
-  const allowlistOnly = accountConfig.allowlistOnly === true;
-  let allowFrom: string[] = (accountConfig.dm?.allowFrom ?? []).map(String);
-  let groupAllowFrom: string[] = (accountConfig.groupAllowFrom ?? []).map(String);
-  let roomsConfig = accountConfig.groups ?? accountConfig.rooms;
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
 
   allowFrom = await resolveUserAllowlist("matrix dm allowlist", allowFrom);
   groupAllowFrom = await resolveUserAllowlist("matrix group allowlist", groupAllowFrom);

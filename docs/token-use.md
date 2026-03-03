@@ -112,8 +112,6 @@ agents:
       every: "55m"
 ```
 
-<<<<<<< HEAD:docs/token-use.md
-=======
 ### Example: mixed traffic with per-agent cache strategy
 
 ```yaml
@@ -159,7 +157,6 @@ If you authenticate Anthropic with OAuth/subscription tokens (`sk-ant-oat-*`),
 OpenClaw skips the `context-1m-*` beta header because Anthropic currently
 rejects that combination with HTTP 401.
 
->>>>>>> 78e7f41d2 (docs: detail per-agent prompt caching configuration):docs/reference/token-use.md
 ## Tips for reducing token pressure
 
 - Use `/compact` to summarize long sessions.

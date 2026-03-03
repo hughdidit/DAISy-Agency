@@ -69,18 +69,10 @@ targets:
     settings:
       base:
         CODE_SIGN_IDENTITY: "Apple Development"
-<<<<<<< HEAD
         CODE_SIGN_STYLE: Manual
         DEVELOPMENT_TEAM: Y5PE65HELJ
         PRODUCT_BUNDLE_IDENTIFIER: bot.molt.ios
         PROVISIONING_PROFILE_SPECIFIER: "bot.molt.ios Development"
-=======
-        CODE_SIGN_ENTITLEMENTS: Sources/OpenClaw.entitlements
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_APP_BUNDLE_ID)"
-        PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_APP_PROFILE)"
->>>>>>> c2d12b7e3 (iOS: add APNs registration and notification signing config (#20308))
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
         ENABLE_APPINTENTS_METADATA: NO
@@ -90,14 +82,8 @@ targets:
         CFBundleDisplayName: Moltbot
         CFBundleIconName: AppIcon
 <<<<<<< HEAD
-<<<<<<< HEAD
         CFBundleShortVersionString: "2026.1.27-beta.1"
         CFBundleVersion: "20260126"
-=======
-        CFBundleShortVersionString: "2026.2.2"
-=======
-        CFBundleShortVersionString: "2026.2.9"
->>>>>>> fb8c653f5 (chore(release): 2026.2.9)
         CFBundleVersion: "20260202"
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
         UILaunchScreen: {}
@@ -105,35 +91,16 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         UIBackgroundModes:
           - audio
-<<<<<<< HEAD
         NSLocalNetworkUsageDescription: Moltbot discovers and connects to your Moltbot gateway on the local network.
-=======
-          - remote-notification
-        NSLocalNetworkUsageDescription: OpenClaw discovers and connects to your OpenClaw gateway on the local network.
->>>>>>> c2d12b7e3 (iOS: add APNs registration and notification signing config (#20308))
         NSAppTransportSecurity:
           NSAllowsArbitraryLoadsInWebContent: true
         NSBonjourServices:
-<<<<<<< HEAD
           - _moltbot-gw._tcp
         NSCameraUsageDescription: Moltbot can capture photos or short video clips when requested via the gateway.
         NSLocationWhenInUseUsageDescription: Moltbot uses your location when you allow location sharing.
         NSLocationAlwaysAndWhenInUseUsageDescription: Moltbot can share your location in the background when you enable Always.
         NSMicrophoneUsageDescription: Moltbot needs microphone access for voice wake.
         NSSpeechRecognitionUsageDescription: Moltbot uses on-device speech recognition for voice wake.
-=======
-          - _openclaw-gw._tcp
-        NSCameraUsageDescription: OpenClaw can capture photos or short video clips when requested via the gateway.
-        NSPhotoLibraryUsageDescription: OpenClaw can read your photo library when you ask it to share recent photos.
-        NSContactsUsageDescription: OpenClaw can read and create contacts when requested via the gateway.
-        NSLocationWhenInUseUsageDescription: OpenClaw uses your location when you allow location sharing.
-        NSLocationAlwaysAndWhenInUseUsageDescription: OpenClaw can share your location in the background when you enable Always.
-        NSCalendarsFullAccessUsageDescription: OpenClaw can read and add calendar events when requested via the gateway.
-        NSRemindersFullAccessUsageDescription: OpenClaw can read and add reminders when requested via the gateway.
-        NSMotionUsageDescription: OpenClaw uses Motion & Fitness data for activity and pedometer commands.
-        NSMicrophoneUsageDescription: OpenClaw needs microphone access for voice wake.
-        NSSpeechRecognitionUsageDescription: OpenClaw uses on-device speech recognition for voice wake.
->>>>>>> 67edc7790 (iOS: gate capabilities by permissions and add settings controls (#22135))
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown
@@ -145,95 +112,7 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
 
-<<<<<<< HEAD
   MoltbotTests:
-=======
-  OpenClawShareExtension:
-    type: app-extension
-    platform: iOS
-    configFiles:
-      Debug: Signing.xcconfig
-      Release: Signing.xcconfig
-    sources:
-      - path: ShareExtension
-    dependencies:
-      - package: OpenClawKit
-    settings:
-      base:
-        CODE_SIGN_IDENTITY: "Apple Development"
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_SHARE_BUNDLE_ID)"
-        PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_SHARE_PROFILE)"
-        SWIFT_VERSION: "6.0"
-        SWIFT_STRICT_CONCURRENCY: complete
-    info:
-      path: ShareExtension/Info.plist
-      properties:
-        CFBundleDisplayName: OpenClaw Share
-        CFBundleShortVersionString: "2026.2.18"
-        CFBundleVersion: "20260218"
-        NSExtension:
-          NSExtensionPointIdentifier: com.apple.share-services
-          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).ShareViewController"
-          NSExtensionAttributes:
-            NSExtensionActivationRule:
-              NSExtensionActivationSupportsText: true
-              NSExtensionActivationSupportsWebURLWithMaxCount: 1
-              NSExtensionActivationSupportsImageWithMaxCount: 10
-              NSExtensionActivationSupportsMovieWithMaxCount: 1
-
-  OpenClawWatchApp:
-    type: application.watchapp2
-    platform: watchOS
-    deploymentTarget: "11.0"
-    sources:
-      - path: WatchApp
-    dependencies:
-      - target: OpenClawWatchExtension
-    configFiles:
-      Debug: Config/Signing.xcconfig
-      Release: Config/Signing.xcconfig
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_WATCH_APP_BUNDLE_ID)"
-    info:
-      path: WatchApp/Info.plist
-      properties:
-        CFBundleDisplayName: OpenClaw
-        CFBundleShortVersionString: "2026.2.18"
-        CFBundleVersion: "20260218"
-        WKCompanionAppBundleIdentifier: "$(OPENCLAW_APP_BUNDLE_ID)"
-        WKWatchKitApp: true
-
-  OpenClawWatchExtension:
-    type: watchkit2-extension
-    platform: watchOS
-    deploymentTarget: "11.0"
-    sources:
-      - path: WatchExtension/Sources
-    dependencies:
-      - sdk: WatchConnectivity.framework
-      - sdk: UserNotifications.framework
-    configFiles:
-      Debug: Config/Signing.xcconfig
-      Release: Config/Signing.xcconfig
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_WATCH_EXTENSION_BUNDLE_ID)"
-    info:
-      path: WatchExtension/Info.plist
-      properties:
-        CFBundleDisplayName: OpenClaw
-        CFBundleShortVersionString: "2026.2.18"
-        CFBundleVersion: "20260218"
-        NSExtension:
-          NSExtensionAttributes:
-            WKAppBundleIdentifier: "$(OPENCLAW_WATCH_APP_BUNDLE_ID)"
-          NSExtensionPointIdentifier: com.apple.watchkit
-
-  OpenClawTests:
->>>>>>> c2d12b7e3 (iOS: add APNs registration and notification signing config (#20308))
     type: bundle.unit-test
     platform: iOS
     sources:
@@ -253,16 +132,8 @@ targets:
     info:
       path: Tests/Info.plist
       properties:
-<<<<<<< HEAD
         CFBundleDisplayName: MoltbotTests
         CFBundleShortVersionString: "2026.1.27-beta.1"
         CFBundleVersion: "20260126"
-=======
-        CFBundleDisplayName: OpenClawTests
-<<<<<<< HEAD
-        CFBundleShortVersionString: "2026.2.2"
-=======
-        CFBundleShortVersionString: "2026.2.9"
->>>>>>> fb8c653f5 (chore(release): 2026.2.9)
         CFBundleVersion: "20260202"
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)

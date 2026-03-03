@@ -2,12 +2,7 @@
 summary: Node + tsx "__name is not a function" crash notes and workarounds
 read_when:
   - Debugging Node-only dev scripts or watch mode failures
-<<<<<<< HEAD
   - Investigating tsx/esbuild loader crashes in Moltbot
-=======
-  - Investigating tsx/esbuild loader crashes in OpenClaw
-title: "Node + tsx Crash"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Node + tsx "__name is not a function" crash
@@ -65,12 +60,7 @@ node --import tsx scripts/repro/tsx-name-repro.ts
   ```
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 - Confirmed locally: `pnpm exec tsc -p tsconfig.json` + `node moltbot.mjs status` works on Node 25.
-=======
-
-=======
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 =======
 
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
@@ -81,17 +71,9 @@ node --import tsx scripts/repro/tsx-name-repro.ts
 
 ## References
 <<<<<<< HEAD
-<<<<<<< HEAD
 - https://opennext.js.org/cloudflare/howtos/keep_names
 - https://esbuild.github.io/api/#keep-names
 - https://github.com/evanw/esbuild/issues/1031
-=======
-
-<<<<<<< HEAD
-- [https://opennext.js.org/cloudflare/howtos/keep_names](https://opennext.js.org/cloudflare/howtos/keep_names)
-- [https://esbuild.github.io/api/#keep-names](https://esbuild.github.io/api/#keep-names)
-- [https://github.com/evanw/esbuild/issues/1031](https://github.com/evanw/esbuild/issues/1031)
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 - https://opennext.js.org/cloudflare/howtos/keep_names
 - https://esbuild.github.io/api/#keep-names

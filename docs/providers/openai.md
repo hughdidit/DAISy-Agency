@@ -55,8 +55,6 @@ moltbot models auth login --provider openai-codex
 }
 ```
 
-<<<<<<< HEAD
-=======
 ### Codex transport default
 
 OpenClaw uses `pi-ai` for model streaming. For `openai-codex/*` models you can set
@@ -158,7 +156,6 @@ Responses models (for example Azure OpenAI Responses):
 Direct OpenAI Responses models still force `store: true` unless compat sets
 `supportsStore: false`.
 
->>>>>>> dede4089a (docs(openai): add clear server compaction toggle examples)
 ## Notes
 
 - Model refs always use `provider/model` (see [/concepts/models](/concepts/models)).

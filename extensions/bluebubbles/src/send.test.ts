@@ -1,10 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-<<<<<<< HEAD
 
-=======
-import type { BlueBubblesSendTarget } from "./types.js";
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
->>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 import { sendMessageBlueBubbles, resolveChatGuidForTarget } from "./send.js";
 import type { BlueBubblesSendTarget } from "./types.js";
 

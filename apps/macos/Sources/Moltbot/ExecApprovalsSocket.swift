@@ -545,7 +545,6 @@ private enum ExecHostExecutor {
             payload: payload,
             error: nil)
     }
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
 
     private static func sanitizedEnv(_ overrides: [String: String]?) -> [String: String]? {
         guard let overrides else { return nil }
@@ -560,8 +559,6 @@ private enum ExecHostExecutor {
         }
         return merged
     }
-=======
->>>>>>> e371da38a (fix(macos): consolidate exec approval evaluation):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
 }
 
 private final class ExecApprovalsSocketServer: @unchecked Sendable {

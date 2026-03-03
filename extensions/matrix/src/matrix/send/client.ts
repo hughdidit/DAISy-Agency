@@ -40,29 +40,10 @@ export async function resolveMatrixClient(opts: {
   accountId?: string;
 }): Promise<{ client: MatrixClient; stopOnDone: boolean }> {
   ensureNodeRuntime();
-<<<<<<< HEAD
   if (opts.client) return { client: opts.client, stopOnDone: false };
   const active = getActiveMatrixClient();
   if (active) return { client: active, stopOnDone: false };
   const shouldShareClient = Boolean(process.env.CLAWDBOT_GATEWAY_PORT);
-=======
-  if (opts.client) {
-    return { client: opts.client, stopOnDone: false };
-  }
-  // Try to get the client for the specific account
-  const active = getActiveMatrixClient(opts.accountId);
-  if (active) {
-    return { client: active, stopOnDone: false };
-  }
-  // Only fall back to any active client when no specific account is requested
-  if (!opts.accountId) {
-    const anyActive = getAnyActiveMatrixClient();
-    if (anyActive) {
-      return { client: anyActive, stopOnDone: false };
-    }
-  }
-  const shouldShareClient = Boolean(process.env.OPENCLAW_GATEWAY_PORT);
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
   if (shouldShareClient) {
     const client = await resolveSharedMatrixClient({
       timeoutMs: opts.timeoutMs,

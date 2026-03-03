@@ -94,7 +94,6 @@ async function ensureRelayConnection() {
       }
     })
 
-<<<<<<< HEAD
     ws.onmessage = (event) => void onRelayMessage(String(event.data || ''))
     ws.onclose = () => onRelayClosed('closed')
     ws.onerror = () => onRelayClosed('error')
@@ -103,17 +102,6 @@ async function ensureRelayConnection() {
       debuggerListenersInstalled = true
       chrome.debugger.onEvent.addListener(onDebuggerEvent)
       chrome.debugger.onDetach.addListener(onDebuggerDetach)
-=======
-    // Bind permanent handlers. Guard against stale socket: if this WS was
-    // replaced before its close fires, the handler is a no-op.
-    ws.onclose = () => {
-      if (ws !== relayWs) return
-      onRelayClosed('closed')
-    }
-    ws.onerror = () => {
-      if (ws !== relayWs) return
-      onRelayClosed('error')
->>>>>>> 65d5a9124 (fix(browser): land PR #22571 with safe extension handshake handling)
     }
   })()
 
@@ -126,12 +114,9 @@ async function ensureRelayConnection() {
 
 function onRelayClosed(reason) {
   relayWs = null
-<<<<<<< HEAD
-=======
   relayGatewayToken = ''
   relayConnectRequestId = null
 
->>>>>>> 65d5a9124 (fix(browser): land PR #22571 with safe extension handshake handling)
   for (const [id, p] of pending.entries()) {
     pending.delete(id)
     p.reject(new Error(`Relay disconnected (${reason})`))

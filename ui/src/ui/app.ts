@@ -23,7 +23,6 @@ import type {
   SkillStatusReport,
   StatusSummary,
   NostrProfile,
-<<<<<<< HEAD
 } from "./types";
 import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types";
 import type { EventLogEntry } from "./app-events";
@@ -79,12 +78,6 @@ import {
 } from "./app-channels";
 import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity";
-=======
-} from "./types.ts";
-import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types.ts";
-import { generateUUID } from "./uuid.ts";
-import type { NostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
->>>>>>> d57405676 (fix(control-ui): send stable websocket instance IDs (#23616))
 
 declare global {
   interface Window {
@@ -103,15 +96,8 @@ function resolveOnboardingMode(): boolean {
   return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
 }
 
-<<<<<<< HEAD
 @customElement("moltbot-app")
 export class MoltbotApp extends LitElement {
-=======
-@customElement("openclaw-app")
-export class OpenClawApp extends LitElement {
-  private i18nController = new I18nController(this);
-  clientInstanceId = generateUUID();
->>>>>>> d57405676 (fix(control-ui): send stable websocket instance IDs (#23616))
   @state() settings: UiSettings = loadSettings();
   @state() password = "";
   @state() tab: Tab = "chat";
@@ -210,8 +196,6 @@ export class OpenClawApp extends LitElement {
   @state() agentsLoading = false;
   @state() agentsList: AgentsListResult | null = null;
   @state() agentsError: string | null = null;
-<<<<<<< HEAD
-=======
   @state() agentsSelectedId: string | null = null;
   @state() agentsPanel: "overview" | "files" | "tools" | "skills" | "channels" | "cron" =
     "overview";
@@ -230,7 +214,6 @@ export class OpenClawApp extends LitElement {
   @state() agentSkillsReport: SkillStatusReport | null = null;
   @state() agentSkillsAgentId: string | null = null;
   @state() agentsSidebarFilter = "";
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 
   @state() sessionsLoading = false;
   @state() sessionsResult: SessionsListResult | null = null;
@@ -240,11 +223,6 @@ export class OpenClawApp extends LitElement {
   @state() sessionsIncludeGlobal = true;
   @state() sessionsIncludeUnknown = false;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  @state() sessionsHideCron = true;
->>>>>>> 266d32006 (feat(ui): add hide-cron toggle to chat session selector (#26976))
 
   @state() usageLoading = false;
   @state() usageResult: import("./types.js").SessionsUsageResult | null = null;
@@ -304,8 +282,6 @@ export class OpenClawApp extends LitElement {
 
   @state() cronLoading = false;
   @state() cronJobs: CronJob[] = [];
-<<<<<<< HEAD
-=======
   @state() cronJobsTotal = 0;
   @state() cronJobsHasMore = false;
   @state() cronJobsNextOffset: number | null = null;
@@ -318,7 +294,6 @@ export class OpenClawApp extends LitElement {
     "all";
   @state() cronJobsSortBy: import("./types.js").CronJobsSortBy = "nextRunAtMs";
   @state() cronJobsSortDir: import("./types.js").CronSortDir = "asc";
->>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
   @state() cronStatus: CronStatus | null = null;
   @state() cronError: string | null = null;
   @state() cronForm: CronFormState = { ...DEFAULT_CRON_FORM };
@@ -371,10 +346,7 @@ export class OpenClawApp extends LitElement {
   private logsScrollFrame: number | null = null;
   private toolStreamById = new Map<string, ToolStreamEntry>();
   private toolStreamOrder: string[] = [];
-<<<<<<< HEAD
-=======
   refreshSessionsAfterChat = new Set<string>();
->>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
   basePath = "";
   private popStateHandler = () =>
     onPopStateInternal(
@@ -440,20 +412,8 @@ export class OpenClawApp extends LitElement {
   }
 
   resetChatScroll() {
-<<<<<<< HEAD
     resetChatScrollInternal(
       this as unknown as Parameters<typeof resetChatScrollInternal>[0],
-=======
-    resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
-  }
-
-  scrollToBottom(opts?: { smooth?: boolean }) {
-    resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
-    scheduleChatScrollInternal(
-      this as unknown as Parameters<typeof scheduleChatScrollInternal>[0],
-      true,
-<<<<<<< HEAD
->>>>>>> 371114354 (chore: fix formatting and CI)
 =======
       Boolean(opts?.smooth),
 >>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)

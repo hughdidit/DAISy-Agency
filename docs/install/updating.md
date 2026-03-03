@@ -17,11 +17,7 @@ detects existing installs, upgrades in place, and runs `moltbot doctor` when
 needed.
 
 ```bash
-<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
-=======
-curl -fsSL https://openclaw.ai/install.sh | bash
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Notes:
@@ -29,24 +25,15 @@ Notes:
 - For **source installs**, use:
 
   ```bash
-<<<<<<< HEAD
   curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git --no-onboard
-=======
-  curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git --no-onboard
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
   ```
 
   The installer will `git pull --rebase` **only** if the repo is clean.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 - For **global installs**, the script uses `npm install -g moltbot@latest` under the hood.
 - Legacy note: `moltbot` remains available as a compatibility shim.
-=======
-=======
-
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 =======

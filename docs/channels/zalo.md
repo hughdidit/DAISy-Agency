@@ -15,16 +15,10 @@ Zalo ships as a plugin and is not bundled with the core install.
 - Details: [Plugins](/plugin)
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Quick setup (beginner)
 1) Install the Zalo plugin:
    - From a source checkout: `moltbot plugins install ./extensions/zalo`
    - From npm (if published): `moltbot plugins install @moltbot/zalo`
-=======
-## Onboarding
-=======
-## Quick setup (beginner)
->>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 1. Install the Zalo plugin:
    - From a source checkout: `openclaw plugins install ./extensions/zalo`
@@ -61,16 +55,9 @@ It is a good fit for support or notifications where you want deterministic routi
 ## Setup (fast path)
 
 ### 1) Create a bot token (Zalo Bot Platform)
-<<<<<<< HEAD
 1) Go to **https://bot.zaloplatforms.com** and sign in.
 2) Create a new bot and configure its settings.
 3) Copy the bot token (format: `12345689:abc-xyz`).
-=======
-
-1. Go to [https://bot.zaloplatforms.com](https://bot.zaloplatforms.com) and sign in.
-2. Create a new bot and configure its settings.
-3. Copy the bot token (format: `12345689:abc-xyz`).
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ### 2) Configure the token (env or config)
 Example:
@@ -92,13 +79,8 @@ Env option: `ZALO_BOT_TOKEN=...` (works for the default account only).
 Multi-account support: use `channels.zalo.accounts` with per-account tokens and optional `name`.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 3) Restart the gateway. Zalo starts when a token is resolved (env or config).
 4) DM access defaults to pairing. Approve the code when the bot is first contacted.
-=======
-1. Restart the gateway. Zalo starts when a token is resolved (env or config).
-2. DM access defaults to pairing. Approve the code when the bot is first contacted.
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 3. Restart the gateway. Zalo starts when a token is resolved (env or config).
 4. DM access defaults to pairing. Approve the code when the bot is first contacted.
@@ -151,7 +133,6 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 - **Unsupported types**: Logged (e.g., messages from protected users).
 
 ## Capabilities
-<<<<<<< HEAD
 | Feature | Status |
 |---------|--------|
 | Direct messages | ✅ Supported |
@@ -162,19 +143,6 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 | Polls | ❌ Not supported |
 | Native commands | ❌ Not supported |
 | Streaming | ⚠️ Blocked (2000 char limit) |
-=======
-
-| Feature         | Status                                                   |
-| --------------- | -------------------------------------------------------- |
-| Direct messages | ✅ Supported                                             |
-| Groups          | ⚠️ Supported with policy controls (allowlist by default) |
-| Media (images)  | ✅ Supported                                             |
-| Reactions       | ❌ Not supported                                         |
-| Threads         | ❌ Not supported                                         |
-| Polls           | ❌ Not supported                                         |
-| Native commands | ❌ Not supported                                         |
-| Streaming       | ⚠️ Blocked (2000 char limit)                             |
->>>>>>> b4010a0b6 (fix(zalo): enforce group sender policy in groups)
 
 ## Delivery targets (CLI/cron)
 - Use a chat id as the target.
@@ -194,13 +162,7 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 - Check that getUpdates polling is not running (they're mutually exclusive)
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Configuration reference (Zalo)
-=======
-## Configuration
-=======
-## Configuration reference (Zalo)
->>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 >>>>>>> 4c4147fb0 (docs: continue onboarding terminology cleanup (#22535))
 Full configuration: [Configuration](/gateway/configuration)

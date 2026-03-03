@@ -141,7 +141,6 @@ export async function listMatrixDirectoryGroupsLive(params: {
   }
 
   if (query.startsWith("!")) {
-<<<<<<< HEAD
     return [
       {
         kind: "group",
@@ -149,10 +148,6 @@ export async function listMatrixDirectoryGroupsLive(params: {
         name: query,
       } satisfies ChannelDirectoryEntry,
     ];
-=======
-    const originalId = params.query?.trim() ?? query;
-    return [createGroupDirectoryEntry({ id: originalId, name: originalId })];
->>>>>>> 166ae8f00 (fix(matrix): land #31201 preserve room ID casing (@williamos-dev))
   }
 
   const joined = await fetchMatrixJson<MatrixJoinedRoomsResponse>({

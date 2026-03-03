@@ -3,44 +3,14 @@ summary: "ClawdHub guide: public skills registry + CLI workflows"
 read_when:
   - Introducing ClawdHub to new users
   - Installing, searching, or publishing skills
-<<<<<<< HEAD:docs/tools/clawdhub.md
   - Explaining ClawdHub CLI flags and sync behavior
-=======
-  - Explaining ClawHub CLI flags and sync behavior
-title: "ClawHub"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689)):docs/tools/clawhub.md
 ---
 
 # ClawdHub
 
 ClawdHub is the **public skill registry for Moltbot**. It is a free service: all skills are public, open, and visible to everyone for sharing and reuse. A skill is just a folder with a `SKILL.md` file (plus supporting text files). You can browse skills in the web app or use the CLI to search, install, update, and publish skills.
 
-<<<<<<< HEAD:docs/tools/clawdhub.md
 Site: [clawdhub.com](https://clawdhub.com)
-=======
-Site: [clawhub.ai](https://clawhub.ai)
-
-## What ClawHub is
-
-- A public registry for OpenClaw skills.
-- A versioned store of skill bundles and metadata.
-- A discovery surface for search, tags, and usage signals.
-
-## How it works
-
-1. A user publishes a skill bundle (files + metadata).
-2. ClawHub stores the bundle, parses metadata, and assigns a version.
-3. The registry indexes the skill for search and discovery.
-4. Users browse, download, and install skills in OpenClaw.
-
-## What you can do
-
-- Publish new skills and new versions of existing skills.
-- Discover skills by name, tags, or search.
-- Download skill bundles and inspect their files.
-- Report skills that are abusive or unsafe.
-- If you are a moderator, hide, unhide, delete, or ban.
->>>>>>> 385e66cbd (Docs: expand ClawHub overview):docs/tools/clawhub.md
 
 ## Who this is for (beginner-friendly)
 

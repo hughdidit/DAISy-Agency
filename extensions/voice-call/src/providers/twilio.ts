@@ -292,15 +292,7 @@ export class TwilioProvider implements VoiceCallProvider {
    */
   private normalizeEvent(
     params: URLSearchParams,
-<<<<<<< HEAD
     callIdOverride?: string,
-=======
-    options?: {
-      callIdOverride?: string;
-      dedupeKey?: string;
-      turnToken?: string;
-    },
->>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
   ): NormalizedEvent | null {
     const callSid = params.get("CallSid") || "";
     const callIdOverride = options?.callIdOverride;
@@ -409,15 +401,10 @@ export class TwilioProvider implements VoiceCallProvider {
 
       // Conversation mode: return streaming TwiML immediately for outbound calls.
       if (isOutbound) {
-<<<<<<< HEAD
         const streamUrl = this.getStreamUrl();
         return streamUrl
           ? this.getStreamConnectXml(streamUrl)
           : TwilioProvider.PAUSE_TWIML;
-=======
-        const streamUrl = callSid ? this.getStreamUrlForCall(callSid) : null;
-        return streamUrl ? this.getStreamConnectXml(streamUrl) : TwilioProvider.PAUSE_TWIML;
->>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
       }
     }
 
@@ -429,15 +416,10 @@ export class TwilioProvider implements VoiceCallProvider {
     // Handle subsequent webhook requests (status callbacks, etc.)
     // For inbound calls, answer immediately with stream
     if (direction === "inbound") {
-<<<<<<< HEAD
       const streamUrl = this.getStreamUrl();
       return streamUrl
         ? this.getStreamConnectXml(streamUrl)
         : TwilioProvider.PAUSE_TWIML;
-=======
-      const streamUrl = callSid ? this.getStreamUrlForCall(callSid) : null;
-      return streamUrl ? this.getStreamConnectXml(streamUrl) : TwilioProvider.PAUSE_TWIML;
->>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
     }
 
     // For outbound calls, only connect to stream when call is in-progress
@@ -445,15 +427,10 @@ export class TwilioProvider implements VoiceCallProvider {
       return TwilioProvider.EMPTY_TWIML;
     }
 
-<<<<<<< HEAD
     const streamUrl = this.getStreamUrl();
     return streamUrl
       ? this.getStreamConnectXml(streamUrl)
       : TwilioProvider.PAUSE_TWIML;
-=======
-    const streamUrl = callSid ? this.getStreamUrlForCall(callSid) : null;
-    return streamUrl ? this.getStreamConnectXml(streamUrl) : TwilioProvider.PAUSE_TWIML;
->>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
   }
 
   /**
