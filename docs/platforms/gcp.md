@@ -350,8 +350,6 @@ docker compose build
 docker compose up -d moltbot-gateway
 ```
 
-<<<<<<< HEAD:docs/platforms/gcp.md
-=======
 If build fails with `Killed` / `exit code 137` during `pnpm install --frozen-lockfile`, the VM is out of memory. Use `e2-small` minimum, or `e2-medium` for more reliable first builds.
 
 When binding to LAN (`OPENCLAW_GATEWAY_BIND=lan`), configure a trusted browser origin before continuing:
@@ -362,7 +360,6 @@ docker compose run --rm openclaw-cli config set gateway.controlUi.allowedOrigins
 
 If you changed the gateway port, replace `18789` with your configured port.
 
->>>>>>> 35976da7a (fix: harden Docker/GCP onboarding flow (#26253) (thanks @pandego)):docs/install/gcp.md
 Verify binaries:
 
 ```bash

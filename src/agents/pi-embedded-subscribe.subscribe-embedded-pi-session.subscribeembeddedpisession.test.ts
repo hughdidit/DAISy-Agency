@@ -355,8 +355,6 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(payloads[0]?.text).toBe("");
     expect(payloads[0]?.mediaUrls).toEqual(["https://example.com/a.png"]);
   });
-<<<<<<< HEAD:src/agents/pi-embedded-subscribe.subscribe-embedded-pi-session.subscribeembeddedpisession.test.ts
-=======
 
   it("keeps unresolved mutating failure when an unrelated tool succeeds", () => {
     let handler: ((evt: unknown) => void) | undefined;
@@ -582,5 +580,4 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(lifecycleError).toBeDefined();
     expect(lifecycleError[0].data.error).toContain("API rate limit reached");
   });
->>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131)):src/agents/pi-embedded-subscribe.subscribe-embedded-pi-session.subscribeembeddedpisession.e2e.test.ts
 });

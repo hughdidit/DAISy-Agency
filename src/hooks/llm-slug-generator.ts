@@ -13,8 +13,6 @@ import {
   resolveAgentDir,
   resolveAgentEffectiveModelPrimary,
 } from "../agents/agent-scope.js";
-<<<<<<< HEAD
-=======
 import { DEFAULT_PROVIDER, DEFAULT_MODEL } from "../agents/defaults.js";
 import { parseModelRef } from "../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
@@ -22,7 +20,6 @@ import type { OpenClawConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 
 const log = createSubsystemLogger("llm-slug-generator");
->>>>>>> 588ad7fb3 (fix: respect agent model config in slug generator (#24776))
 
 /**
  * Generate a short 1-2 word filename slug from session content using LLM

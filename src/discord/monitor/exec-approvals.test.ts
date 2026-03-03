@@ -1,11 +1,4 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
-=======
-import type { ButtonInteraction, ComponentData } from "@buape/carbon";
-import { Routes } from "discord-api-types/v10";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
->>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))
 import {
   buildExecApprovalCustomId,
   extractDiscordChannelId,

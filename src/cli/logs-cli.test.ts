@@ -82,8 +82,6 @@ describe("logs cli", () => {
 
     expect(stderrWrites.join("")).toContain("output stdout closed");
   });
-<<<<<<< HEAD
-=======
 
   describe("formatLogTimestamp", () => {
     it("formats UTC timestamp in plain mode by default", () => {
@@ -128,5 +126,4 @@ describe("logs cli", () => {
       expect(result).toBe("not-a-date");
     });
   });
->>>>>>> 2b5df1dfe (fix: local-time timestamps include offset (#14771) (thanks @0xRaini))
 });

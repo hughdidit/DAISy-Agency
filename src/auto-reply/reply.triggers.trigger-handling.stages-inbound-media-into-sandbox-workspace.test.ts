@@ -83,8 +83,6 @@ describe("stageSandboxMedia", () => {
       await expect(fs.stat(stagedFullPath)).resolves.toBeTruthy();
     });
   });
-<<<<<<< HEAD
-=======
 
   it("rejects staging host files from outside the media directory", async () => {
     await withSandboxMediaTempHome("openclaw-triggers-bypass-", async (home) => {
@@ -144,5 +142,4 @@ describe("stageSandboxMedia", () => {
       expect(ctx.MediaPath).toBe("/etc/passwd");
     });
   });
->>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 });

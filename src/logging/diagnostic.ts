@@ -208,15 +208,8 @@ export function logSessionStateChange(
   const prevState = state.state;
   state.state = params.state;
   state.lastActivity = Date.now();
-<<<<<<< HEAD
   if (params.state === "idle") state.queueDepth = Math.max(0, state.queueDepth - 1);
   if (!isProbeSession) {
-=======
-  if (params.state === "idle") {
-    state.queueDepth = Math.max(0, state.queueDepth - 1);
-  }
-  if (!isProbeSession && diag.isEnabled("debug")) {
->>>>>>> 818994954 (perf(logging): skip eager debug formatting in diagnostic)
     diag.debug(
       `session state: sessionId=${state.sessionId ?? "unknown"} sessionKey=${
         state.sessionKey ?? "unknown"

@@ -142,8 +142,6 @@ describe("resolveCommandAuthorization", () => {
     expect(auth.senderId).toBe("+41796666864");
     expect(auth.isAuthorizedSender).toBe(true);
   });
-<<<<<<< HEAD
-=======
 
   it("uses explicit owner allowlist when allowFrom is wildcard", () => {
     const cfg = {
@@ -180,7 +178,6 @@ describe("resolveCommandAuthorization", () => {
     expect(otherAuth.isAuthorizedSender).toBe(false);
   });
 <<<<<<< HEAD
->>>>>>> 385a7eba3 (fix: enforce owner allowlist for commands)
 =======
 
   it("uses owner allowlist override from context when configured", () => {

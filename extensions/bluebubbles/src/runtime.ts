@@ -13,8 +13,6 @@ export function getBlueBubblesRuntime(): PluginRuntime {
   }
   return runtime;
 }
-<<<<<<< HEAD
-=======
 
 export function warnBlueBubbles(message: string): void {
   const formatted = `[bluebubbles] ${message}`;
@@ -26,4 +24,3 @@ export function warnBlueBubbles(message: string): void {
   }
   console.warn(formatted);
 }
->>>>>>> 26763d191 (fix: resolve extension type errors and harden probe mocks)

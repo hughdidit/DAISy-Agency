@@ -1,30 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 import { SAFE_BIN_PROFILES, validateSafeBinArgv } from "./exec-safe-bin-policy.js";
-=======
-import {
-  SAFE_BIN_PROFILE_FIXTURES,
-  SAFE_BIN_PROFILES,
-  buildLongFlagPrefixMap,
-  collectKnownLongFlags,
-  renderSafeBinDeniedFlagsDocBullets,
-  validateSafeBinArgv,
-} from "./exec-safe-bin-policy.js";
-
-const SAFE_BIN_DOC_DENIED_FLAGS_START = "<!-- SAFE_BIN_DENIED_FLAGS:START -->";
-const SAFE_BIN_DOC_DENIED_FLAGS_END = "<!-- SAFE_BIN_DENIED_FLAGS:END -->";
-
-function buildDeniedFlagArgvVariants(flag: string): string[][] {
-  const value = "blocked";
-  if (flag.startsWith("--")) {
-    return [[`${flag}=${value}`], [flag, value], [flag]];
-  }
-  if (flag.startsWith("-")) {
-    return [[`${flag}${value}`], [flag, value], [flag]];
-  }
-  return [[flag]];
-}
->>>>>>> 64aab8020 (test(exec): add regressions for safe-bin metadata and chain semantics)
 
 describe("exec safe bin policy grep", () => {
   const grepProfile = SAFE_BIN_PROFILES.grep;
@@ -58,8 +33,6 @@ describe("exec safe bin policy sort", () => {
     expect(validateSafeBinArgv(["--compress-program=sh"], sortProfile)).toBe(false);
     expect(validateSafeBinArgv(["--compress-program", "sh"], sortProfile)).toBe(false);
   });
-<<<<<<< HEAD
-=======
 
   it("blocks denied long-option abbreviations in safe-bin mode", () => {
     expect(validateSafeBinArgv(["--compress-prog=sh"], sortProfile)).toBe(false);
@@ -140,5 +113,4 @@ describe("exec safe bin policy docs parity", () => {
     const expected = renderSafeBinDeniedFlagsDocBullets();
     expect(actual).toBe(expected);
   });
->>>>>>> 64aab8020 (test(exec): add regressions for safe-bin metadata and chain semantics)
 });

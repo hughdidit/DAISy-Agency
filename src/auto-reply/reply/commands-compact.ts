@@ -4,16 +4,8 @@ import {
   isEmbeddedPiRunActive,
   waitForEmbeddedPiRunEnd,
 } from "../../agents/pi-embedded.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionFilePath } from "../../config/sessions.js";
-=======
-import {
-  resolveFreshSessionTotalTokens,
-  resolveSessionFilePath,
-  resolveSessionFilePathOptions,
-} from "../../config/sessions.js";
->>>>>>> fd076eb43 (fix: /status shows incorrect context percentage — totalTokens clamped to contextTokens (#15114) (#15133))
 import { logVerbose } from "../../globals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { formatContextUsageShort, formatTokenCount } from "../status.js";
@@ -93,11 +85,8 @@ export const handleCompactCommand: CommandHandler = async (params) => {
       defaultLevel: "off",
     },
     customInstructions,
-<<<<<<< HEAD
-=======
     trigger: "manual",
     senderIsOwner: params.command.senderIsOwner,
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
     ownerNumbers: params.command.ownerList.length > 0 ? params.command.ownerList : undefined,
   });
 

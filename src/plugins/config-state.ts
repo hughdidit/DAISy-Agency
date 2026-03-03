@@ -1,10 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { normalizeChatChannelId } from "../channels/registry.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { PluginRecord } from "./registry.js";
->>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
 import { defaultSlotIdForKey } from "./slots.js";
 import type { PluginRecord } from "./registry.js";
 
@@ -70,8 +64,6 @@ export const normalizePluginsConfig = (
   };
 };
 
-<<<<<<< HEAD
-=======
 const hasExplicitMemorySlot = (plugins?: OpenClawConfig["plugins"]) =>
   Boolean(plugins?.slots && Object.prototype.hasOwnProperty.call(plugins.slots, "memory"));
 
@@ -138,7 +130,6 @@ export function isTestDefaultMemorySlotDisabled(
   return true;
 }
 
->>>>>>> d47b4e6f8 (fix: update config types)
 export function resolveEnableState(
   id: string,
   origin: PluginRecord["origin"],

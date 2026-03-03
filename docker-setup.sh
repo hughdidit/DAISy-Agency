@@ -15,8 +15,6 @@ require_cmd() {
   fi
 }
 
-<<<<<<< HEAD
-=======
 read_config_gateway_token() {
   local config_path="$OPENCLAW_CONFIG_DIR/openclaw.json"
   if [[ ! -f "$config_path" ]]; then
@@ -135,7 +133,6 @@ validate_mount_spec() {
   fi
 }
 
->>>>>>> 35976da7a (fix: harden Docker/GCP onboarding flow (#26253) (thanks @pandego))
 require_cmd docker
 if ! docker compose version >/dev/null 2>&1; then
   echo "Docker Compose not available (try: docker compose version)" >&2
@@ -153,35 +150,9 @@ export CLAWDBOT_GATEWAY_BIND="${CLAWDBOT_GATEWAY_BIND:-lan}"
 export CLAWDBOT_IMAGE="$IMAGE_NAME"
 export CLAWDBOT_DOCKER_APT_PACKAGES="${CLAWDBOT_DOCKER_APT_PACKAGES:-}"
 
-<<<<<<< HEAD
 if [[ -z "${CLAWDBOT_GATEWAY_TOKEN:-}" ]]; then
   if command -v openssl >/dev/null 2>&1; then
     CLAWDBOT_GATEWAY_TOKEN="$(openssl rand -hex 32)"
-=======
-mkdir -p "$OPENCLAW_CONFIG_DIR"
-mkdir -p "$OPENCLAW_WORKSPACE_DIR"
-# Seed device-identity parent eagerly for Docker Desktop/Windows bind mounts
-# that reject creating new subdirectories from inside the container.
-mkdir -p "$OPENCLAW_CONFIG_DIR/identity"
-
-export OPENCLAW_CONFIG_DIR
-export OPENCLAW_WORKSPACE_DIR
-export OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-18789}"
-export OPENCLAW_BRIDGE_PORT="${OPENCLAW_BRIDGE_PORT:-18790}"
-export OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-lan}"
-export OPENCLAW_IMAGE="$IMAGE_NAME"
-export OPENCLAW_DOCKER_APT_PACKAGES="${OPENCLAW_DOCKER_APT_PACKAGES:-}"
-export OPENCLAW_EXTRA_MOUNTS="$EXTRA_MOUNTS"
-export OPENCLAW_HOME_VOLUME="$HOME_VOLUME_NAME"
-
-if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
-  EXISTING_CONFIG_TOKEN="$(read_config_gateway_token || true)"
-  if [[ -n "$EXISTING_CONFIG_TOKEN" ]]; then
-    OPENCLAW_GATEWAY_TOKEN="$EXISTING_CONFIG_TOKEN"
-    echo "Reusing gateway token from $OPENCLAW_CONFIG_DIR/openclaw.json"
-  elif command -v openssl >/dev/null 2>&1; then
-    OPENCLAW_GATEWAY_TOKEN="$(openssl rand -hex 32)"
->>>>>>> 35976da7a (fix: harden Docker/GCP onboarding flow (#26253) (thanks @pandego))
   else
     CLAWDBOT_GATEWAY_TOKEN="$(python3 - <<'PY'
 import secrets
@@ -321,7 +292,6 @@ docker build \
 
 echo ""
 echo "==> Onboarding (interactive)"
-<<<<<<< HEAD
 echo "When prompted:"
 echo "  - Gateway bind: lan"
 echo "  - Gateway auth: token"
@@ -330,20 +300,6 @@ echo "  - Tailscale exposure: Off"
 echo "  - Install Gateway daemon: No"
 echo ""
 docker compose "${COMPOSE_ARGS[@]}" run --rm moltbot-cli onboard --no-install-daemon
-=======
-echo "Docker setup pins Gateway mode to local."
-echo "Gateway runtime bind comes from OPENCLAW_GATEWAY_BIND (default: lan)."
-echo "Current runtime bind: $OPENCLAW_GATEWAY_BIND"
-echo "Gateway token: $OPENCLAW_GATEWAY_TOKEN"
-echo "Tailscale exposure: Off (use host-level tailnet/Tailscale setup separately)."
-echo "Install Gateway daemon: No (managed by Docker Compose)"
-echo ""
-docker compose "${COMPOSE_ARGS[@]}" run --rm openclaw-cli onboard --mode local --no-install-daemon
-
-echo ""
-echo "==> Docker gateway defaults"
-sync_gateway_mode_and_bind
->>>>>>> feefedfb8 (fix: allow docker cli container to connect to gateway (#12504))
 
 echo ""
 echo "==> Control UI origin allowlist"
@@ -352,21 +308,12 @@ ensure_control_ui_allowed_origins
 echo ""
 echo "==> Provider setup (optional)"
 echo "WhatsApp (QR):"
-<<<<<<< HEAD
 echo "  ${COMPOSE_HINT} run --rm moltbot-cli providers login"
 echo "Telegram (bot token):"
 echo "  ${COMPOSE_HINT} run --rm moltbot-cli providers add --provider telegram --token <token>"
 echo "Discord (bot token):"
 echo "  ${COMPOSE_HINT} run --rm moltbot-cli providers add --provider discord --token <token>"
 echo "Docs: https://docs.molt.bot/providers"
-=======
-echo "  ${COMPOSE_HINT} run --rm openclaw-cli channels login"
-echo "Telegram (bot token):"
-echo "  ${COMPOSE_HINT} run --rm openclaw-cli channels add --channel telegram --token <token>"
-echo "Discord (bot token):"
-echo "  ${COMPOSE_HINT} run --rm openclaw-cli channels add --channel discord --token <token>"
-echo "Docs: https://docs.openclaw.ai/channels"
->>>>>>> dfef943f0 (fix: polish docker setup flow)
 
 echo ""
 echo "==> Starting gateway"

@@ -141,11 +141,7 @@ export class IMessageRpcClient {
       params: params ?? {},
     };
     const line = `${JSON.stringify(payload)}\n`;
-<<<<<<< HEAD
     const timeoutMs = opts?.timeoutMs ?? 10_000;
-=======
-    const timeoutMs = opts?.timeoutMs ?? DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS;
->>>>>>> f633a8cb2 (fix: address review comments)
 
     const response = new Promise<T>((resolve, reject) => {
       const key = String(id);

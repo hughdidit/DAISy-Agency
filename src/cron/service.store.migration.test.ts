@@ -23,8 +23,6 @@ async function makeStorePath() {
   };
 }
 
-<<<<<<< HEAD
-=======
 async function writeLegacyStore(storePath: string, legacyJob: Record<string, unknown>) {
   await fs.mkdir(path.dirname(storePath), { recursive: true });
   await fs.writeFile(storePath, JSON.stringify({ version: 1, jobs: [legacyJob] }, null, 2));
@@ -78,7 +76,6 @@ async function migrateLegacyJob(legacyJob: Record<string, unknown>) {
   }
 }
 
->>>>>>> eabf187fa (test(cron): dedupe migration and regression fixtures)
 describe("cron store migration", () => {
   beforeEach(() => {
     noopLogger.debug.mockClear();
@@ -93,7 +90,6 @@ describe("cron store migration", () => {
 
   it("migrates isolated jobs to announce delivery and drops isolation", async () => {
     const atMs = 1_700_000_000_000;
-<<<<<<< HEAD
     const legacyJob = {
       id: "job-1",
       agentId: undefined,
@@ -134,26 +130,6 @@ describe("cron store migration", () => {
 
     const loaded = await loadCronStore(store.storePath);
     const migrated = loaded.jobs[0] as Record<string, unknown>;
-=======
-    const migrated = await migrateLegacyJob(
-      makeLegacyJob({
-        id: "job-1",
-        sessionKey: "  agent:main:discord:channel:ops  ",
-        schedule: { kind: "at", atMs },
-        sessionTarget: "isolated",
-        payload: {
-          kind: "agentTurn",
-          message: "hi",
-          deliver: true,
-          channel: "telegram",
-          to: "7200373102",
-          bestEffortDeliver: true,
-        },
-        isolation: { postToMainPrefix: "Cron" },
-      }),
-    );
-    expect(migrated.sessionKey).toBe("agent:main:discord:channel:ops");
->>>>>>> eabf187fa (test(cron): dedupe migration and regression fixtures)
     expect(migrated.delivery).toEqual({
       mode: "announce",
       channel: "telegram",
@@ -175,7 +151,6 @@ describe("cron store migration", () => {
 
   it("adds anchorMs to legacy every schedules", async () => {
     const createdAtMs = 1_700_000_000_000;
-<<<<<<< HEAD
     const legacyJob = {
       id: "job-every-legacy",
       agentId: undefined,
@@ -211,23 +186,10 @@ describe("cron store migration", () => {
 
     const loaded = await loadCronStore(store.storePath);
     const migrated = loaded.jobs[0] as Record<string, unknown>;
-=======
-    const migrated = await migrateLegacyJob(
-      makeLegacyJob({
-        id: "job-every-legacy",
-        name: "Legacy every",
-        createdAtMs,
-        updatedAtMs: createdAtMs,
-        schedule: { kind: "every", everyMs: 120_000 },
-      }),
-    );
->>>>>>> eabf187fa (test(cron): dedupe migration and regression fixtures)
     const schedule = migrated.schedule as Record<string, unknown>;
     expect(schedule.kind).toBe("every");
     expect(schedule.anchorMs).toBe(createdAtMs);
   });
-<<<<<<< HEAD
-=======
 
   it("adds default staggerMs to legacy recurring top-of-hour cron schedules", async () => {
     const createdAtMs = 1_700_000_000_000;
@@ -278,5 +240,4 @@ describe("cron store migration", () => {
     expect(schedule.kind).toBe("cron");
     expect(schedule.staggerMs).toBeUndefined();
   });
->>>>>>> eabf187fa (test(cron): dedupe migration and regression fixtures)
 });

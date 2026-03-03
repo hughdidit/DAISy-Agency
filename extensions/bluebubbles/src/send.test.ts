@@ -572,7 +572,6 @@ describe("send", () => {
     });
 
     it("uses private-api when reply metadata is present", async () => {
-<<<<<<< HEAD
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
@@ -595,11 +594,6 @@ describe("send", () => {
               }),
             ),
         });
-=======
-      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(true);
-      mockResolvedHandleTarget();
-      mockSendResponse({ data: { guid: "msg-uuid-124" } });
->>>>>>> 37f12eb7e (fix: align BlueBubbles private-api null fallback + warning (#23459) (thanks @echoVic))
 
       const result = await sendMessageBlueBubbles("+15551234567", "Replying", {
         serverUrl: "http://localhost:1234",
@@ -619,7 +613,6 @@ describe("send", () => {
     });
 
     it("normalizes effect names and uses private-api for effects", async () => {
-<<<<<<< HEAD
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
@@ -642,11 +635,6 @@ describe("send", () => {
               }),
             ),
         });
-=======
-      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(true);
-      mockResolvedHandleTarget();
-      mockSendResponse({ data: { guid: "msg-uuid-125" } });
->>>>>>> 37f12eb7e (fix: align BlueBubbles private-api null fallback + warning (#23459) (thanks @echoVic))
 
       const result = await sendMessageBlueBubbles("+15551234567", "Hello", {
         serverUrl: "http://localhost:1234",

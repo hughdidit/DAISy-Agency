@@ -85,11 +85,7 @@ async function listGuildChannels(
   fetcher: typeof fetch,
   guildId: string,
 ): Promise<DiscordChannelSummary[]> {
-<<<<<<< HEAD
   const raw = (await fetchDiscord(
-=======
-  const raw = await fetchDiscord<DiscordChannelPayload[]>(
->>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
     `/guilds/${guildId}/channels`,
     token,
     fetcher,
@@ -113,18 +109,12 @@ async function fetchChannel(
   fetcher: typeof fetch,
   channelId: string,
 ): Promise<DiscordChannelSummary | null> {
-<<<<<<< HEAD
   const raw = (await fetchDiscord(
     `/channels/${channelId}`,
     token,
     fetcher,
   )) as RESTGetAPIChannelResult;
   if (!raw || !("guild_id" in raw)) return null;
-=======
-  const raw = await fetchDiscord<DiscordChannelPayload>(`/channels/${channelId}`, token, fetcher);
-<<<<<<< HEAD
-  if (!raw || typeof raw.guild_id !== "string" || typeof raw.id !== "string") return null;
->>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
 =======
   if (!raw || typeof raw.guild_id !== "string" || typeof raw.id !== "string") {
     return null;

@@ -490,13 +490,8 @@ describe("applyMediaUnderstanding", () => {
 
   it("treats text-like attachments as CSV (comma wins over tabs)", async () => {
     const { applyMediaUnderstanding } = await loadApply();
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
     const csvPath = path.join(dir, "data.mp3");
-=======
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
-    const csvPath = path.join(dir, "data.bin");
->>>>>>> f49297e2c (fix: skip audio files from text extraction to prevent binary processing (#7475))
     const csvText = '"a","b"\t"c"\n"1","2"\t"3"';
     await fs.writeFile(csvPath, csvText);
 
@@ -523,13 +518,8 @@ describe("applyMediaUnderstanding", () => {
 
   it("infers TSV when tabs are present without commas", async () => {
     const { applyMediaUnderstanding } = await loadApply();
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
     const tsvPath = path.join(dir, "report.mp3");
-=======
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
-    const tsvPath = path.join(dir, "report.bin");
->>>>>>> f49297e2c (fix: skip audio files from text extraction to prevent binary processing (#7475))
     const tsvText = "a\tb\tc\n1\t2\t3";
     await fs.writeFile(tsvPath, tsvText);
 
@@ -555,7 +545,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   // Windows NTFS disallows < and > in filenames; XML escaping is
   // platform-independent string logic tested adequately on Linux/macOS.
   it.skipIf(process.platform === "win32")(
@@ -568,103 +557,6 @@ describe("applyMediaUnderstanding", () => {
       // but we test that even if some slip through, they get escaped in output
       const filePath = path.join(dir, "file<test>.txt");
       await fs.writeFile(filePath, "safe content");
-=======
-=======
-  it("treats cp1252-like attachments as text", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
-    const filePath = path.join(dir, "legacy.bin");
-    const cp1252Bytes = Buffer.from([0x93, 0x48, 0x69, 0x94, 0x20, 0x54, 0x65, 0x73, 0x74]);
-    await fs.writeFile(filePath, cp1252Bytes);
-
-    const ctx: MsgContext = {
-      Body: "<media:file>",
-      MediaPath: filePath,
-    };
-    const cfg: OpenClawConfig = {
-      tools: {
-        media: {
-          audio: { enabled: false },
-          image: { enabled: false },
-          video: { enabled: false },
-        },
-      },
-    };
-
-    const result = await applyMediaUnderstanding({ ctx, cfg });
-
-    expect(result.appliedFile).toBe(true);
-    expect(ctx.Body).toContain("<file");
-    expect(ctx.Body).toContain("Hi");
-  });
-
-  it("skips binary audio attachments that are not text-like", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
-    const filePath = path.join(dir, "binary.mp3");
-    const bytes = Buffer.from(Array.from({ length: 256 }, (_, index) => index));
-    await fs.writeFile(filePath, bytes);
-
-    const ctx: MsgContext = {
-      Body: "<media:audio>",
-      MediaPath: filePath,
-      MediaType: "audio/mpeg",
-    };
-    const cfg: OpenClawConfig = {
-      tools: {
-        media: {
-          audio: { enabled: false },
-          image: { enabled: false },
-          video: { enabled: false },
-        },
-      },
-    };
-
-    const result = await applyMediaUnderstanding({ ctx, cfg });
-
-    expect(result.appliedFile).toBe(false);
-    expect(ctx.Body).toBe("<media:audio>");
-    expect(ctx.Body).not.toContain("<file");
-  });
-
-  it("respects configured allowedMimes for text-like attachments", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
-    const tsvPath = path.join(dir, "report.bin");
-    const tsvText = "a\tb\tc\n1\t2\t3";
-    await fs.writeFile(tsvPath, tsvText);
-
-    const ctx: MsgContext = {
-      Body: "<media:file>",
-      MediaPath: tsvPath,
-    };
-    const cfg: OpenClawConfig = {
-      gateway: {
-        http: {
-          endpoints: {
-            responses: {
-              files: { allowedMimes: ["text/plain"] },
-            },
-          },
-        },
-      },
-      tools: {
-        media: {
-          audio: { enabled: false },
-          image: { enabled: false },
-          video: { enabled: false },
-        },
-      },
-    };
-
-    const result = await applyMediaUnderstanding({ ctx, cfg });
-
-    expect(result.appliedFile).toBe(false);
-    expect(ctx.Body).toBe("<media:file>");
-    expect(ctx.Body).not.toContain("<file");
-  });
-
->>>>>>> f49297e2c (fix: skip audio files from text extraction to prevent binary processing (#7475))
   it("escapes XML special characters in filenames to prevent injection", async () => {
     const { applyMediaUnderstanding } = await loadApply();
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
@@ -693,7 +585,6 @@ describe("applyMediaUnderstanding", () => {
 
       const result = await applyMediaUnderstanding({ ctx, cfg });
 
-<<<<<<< HEAD
       expect(result.appliedFile).toBe(true);
       // Verify XML special chars are escaped in the output
       expect(ctx.Body).toContain("&lt;");
@@ -702,15 +593,6 @@ describe("applyMediaUnderstanding", () => {
       expect(ctx.Body).not.toMatch(/name="[^"]*<[^"]*"/);
     },
   );
-=======
-    expect(result.appliedFile).toBe(true);
-    // Verify XML special chars are escaped in the output
-    expect(ctx.Body).toContain("&amp;");
-    // The name attribute should contain the escaped form, not a raw unescaped &
-    expect(ctx.Body).toMatch(/name="file&amp;test\.txt"/);
-  });
-<<<<<<< HEAD
->>>>>>> c20035094 (fix: use & instead of <> in XML escaping test for Windows NTFS compatibility (#3750))
 =======
 
   it("escapes file block content to prevent structure injection", async () => {

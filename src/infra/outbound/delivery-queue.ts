@@ -273,26 +273,12 @@ export async function recoverPendingDeliveries(opts: {
 
     const backoff = computeBackoffMs(entry.retryCount + 1);
     if (backoff > 0) {
-<<<<<<< HEAD
       if (now + backoff >= deadline) {
         const deferred = pending.length - recovered - failed - skipped;
         opts.log.warn(
           `Recovery time budget exceeded — ${deferred} entries deferred to next restart`,
         );
         break;
-=======
-      const firstReplayAfterCrash = entry.retryCount === 0 && entry.lastAttemptAt === undefined;
-      if (!firstReplayAfterCrash) {
-        const baseAttemptAt = entry.lastAttemptAt ?? entry.enqueuedAt;
-        const nextEligibleAt = baseAttemptAt + backoff;
-        if (now < nextEligibleAt) {
-          deferred += 1;
-          opts.log.info(
-            `Delivery ${entry.id} not ready for retry yet — backoff ${nextEligibleAt - now}ms remaining`,
-          );
-          continue;
-        }
->>>>>>> cceefe833 (fix: harden delivery recovery backoff eligibility and tests (#27710) (thanks @Jimmy-xuzimo))
       }
     }
 

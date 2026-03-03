@@ -1,10 +1,5 @@
 import type { AgentTool } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 
-=======
-import path from "node:path";
-import type { SessionSystemPromptReport } from "../config/sessions/types.js";
->>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 import type { WorkspaceBootstrapFile } from "./workspace.js";
 import type { SessionSystemPromptReport } from "../config/sessions/types.js";

@@ -29,14 +29,9 @@ import { buildAgentSessionKey } from "../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../routing/session-key.js";
 import { truncateUtf16Safe } from "../../utils.js";
 import { reactMessageDiscord, removeReactionDiscord } from "../send.js";
-<<<<<<< HEAD
 import { normalizeDiscordSlug } from "./allow-list.js";
 import { formatDiscordUserTag, resolveTimestampMs } from "./format.js";
 import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
-=======
-import { normalizeDiscordSlug, resolveDiscordOwnerAllowFrom } from "./allow-list.js";
-import { resolveTimestampMs } from "./format.js";
->>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
 import {
   buildDiscordMediaPayload,
   resolveDiscordMessageText,
@@ -90,17 +85,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     discordRestFetch,
   } = ctx;
 
-<<<<<<< HEAD
   const mediaList = await resolveMediaList(message, mediaMaxBytes);
-=======
-  const mediaList = await resolveMediaList(message, mediaMaxBytes, discordRestFetch);
-  const forwardedMediaList = await resolveForwardedMediaList(
-    message,
-    mediaMaxBytes,
-    discordRestFetch,
-  );
-  mediaList.push(...forwardedMediaList);
->>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
   const text = messageText;
   if (!text) {
     logVerbose(`discord: drop message ${message.id} (empty content)`);
@@ -122,7 +107,6 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         shouldBypassMention,
       }),
     );
-<<<<<<< HEAD
   const ackReactionPromise = shouldAckReaction()
     ? reactMessageDiscord(message.channelId, message.id, ackReaction, {
         rest: client.rest,
@@ -134,39 +118,6 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         },
       )
     : null;
-=======
-  const statusReactionsEnabled = shouldAckReaction();
-  const discordAdapter: StatusReactionAdapter = {
-    setReaction: async (emoji) => {
-      await reactMessageDiscord(messageChannelId, message.id, emoji, {
-        rest: client.rest as never,
-      });
-    },
-    removeReaction: async (emoji) => {
-      await removeReactionDiscord(messageChannelId, message.id, emoji, {
-        rest: client.rest as never,
-      });
-    },
-  };
-  const statusReactions = createStatusReactionController({
-    enabled: statusReactionsEnabled,
-    adapter: discordAdapter,
-    initialEmoji: ackReaction,
-    emojis: cfg.messages?.statusReactions?.emojis,
-    timing: cfg.messages?.statusReactions?.timing,
-    onError: (err) => {
-      logAckFailure({
-        log: logVerbose,
-        channel: "discord",
-        target: `${messageChannelId}/${message.id}`,
-        error: err,
-      });
-    },
-  });
-  if (statusReactionsEnabled) {
-    void statusReactions.setQueued();
-  }
->>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
 
   const fromLabel = isDirectMessage
     ? buildDirectLabel(author)
@@ -411,7 +362,6 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     onError: (err, info) => {
       runtime.error?.(danger(`discord ${info.kind} reply failed: ${String(err)}`));
     },
-<<<<<<< HEAD
     onReplyStart: createTypingCallbacks({
       start: () => sendTyping({ client, channelId: typingChannelId }),
       onStartError: (err) => {
@@ -423,14 +373,6 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         });
       },
     }).onReplyStart,
-=======
-    onReplyStart: async () => {
-      await typingCallbacks.onReplyStart();
-      await statusReactions.setThinking();
-    },
-    onIdle: typingCallbacks.onIdle,
-    onCleanup: typingCallbacks.onCleanup,
->>>>>>> e0201c277 (fix: keep channel typing active during long inference (#25886, thanks @stakeswky))
   });
 
   const { queuedFinal, counts } = await dispatchInboundMessage({

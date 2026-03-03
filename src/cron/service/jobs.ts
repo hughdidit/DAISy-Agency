@@ -1,16 +1,6 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
 import { computeNextRunAtMs } from "../schedule.js";
-=======
-import { parseAbsoluteTimeMs } from "../parse.js";
-import { computeNextRunAtMs } from "../schedule.js";
-import {
-  normalizeCronStaggerMs,
-  resolveCronStaggerMs,
-  resolveDefaultCronStaggerMs,
-} from "../stagger.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import type {
   CronJob,
   CronJobCreate,
@@ -18,10 +8,7 @@ import type {
   CronPayload,
   CronPayloadPatch,
 } from "../types.js";
-<<<<<<< HEAD
-=======
 import { normalizeHttpWebhookUrl } from "../webhook-url.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import {
   normalizeOptionalAgentId,
   normalizeOptionalText,
@@ -32,8 +19,6 @@ import type { CronServiceState } from "./state.js";
 
 const STUCK_RUN_MS = 2 * 60 * 60 * 1000;
 
-<<<<<<< HEAD
-=======
 function resolveStableCronOffsetMs(jobId: string, staggerMs: number) {
   if (staggerMs <= 1) {
     return 0;
@@ -74,7 +59,6 @@ function isFiniteTimestamp(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
->>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
 function resolveEveryAnchorMs(params: {
   schedule: { everyMs: number; anchorMs?: number };
   fallbackAnchorMs: number;
@@ -105,40 +89,16 @@ export function findJobOrThrow(state: CronServiceState, id: string) {
 }
 
 export function computeJobNextRunAtMs(job: CronJob, nowMs: number): number | undefined {
-<<<<<<< HEAD
   if (!job.enabled) return undefined;
-=======
-  if (!job.enabled) {
-    return undefined;
-  }
-  if (job.schedule.kind === "every") {
-<<<<<<< HEAD
-=======
-    const everyMs = Math.max(1, Math.floor(job.schedule.everyMs));
-    const lastRunAtMs = job.state.lastRunAtMs;
-    if (typeof lastRunAtMs === "number" && Number.isFinite(lastRunAtMs)) {
-      const nextFromLastRun = Math.floor(lastRunAtMs) + everyMs;
-      if (nextFromLastRun > nowMs) {
-        return nextFromLastRun;
-      }
-    }
-    const fallbackAnchorMs = isFiniteTimestamp(job.createdAtMs) ? job.createdAtMs : nowMs;
->>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
     const anchorMs = resolveEveryAnchorMs({
       schedule: job.schedule,
       fallbackAnchorMs,
     });
-<<<<<<< HEAD
     return computeNextRunAtMs({ ...job.schedule, anchorMs }, nowMs);
-=======
-    const next = computeNextRunAtMs({ ...job.schedule, everyMs, anchorMs }, nowMs);
-    return isFiniteTimestamp(next) ? next : undefined;
->>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
   }
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   if (job.schedule.kind === "at") {
     // One-shot jobs stay due until they successfully finish.
-<<<<<<< HEAD
     if (job.state.lastStatus === "ok" && job.state.lastRunAtMs) return undefined;
     return job.schedule.atMs;
   }
@@ -151,113 +111,6 @@ export function recomputeNextRuns(state: CronServiceState) {
   const now = state.deps.nowMs();
   for (const job of state.store.jobs) {
     if (!job.state) job.state = {};
-=======
-export function recomputeNextRuns(state: CronServiceState): boolean {
-=======
-    if (job.state.lastStatus === "ok" && job.state.lastRunAtMs) {
-      return undefined;
-    }
-    // Handle both canonical `at` (string) and legacy `atMs` (number) fields.
-    // The store migration should convert atMs→at, but be defensive in case
-    // the migration hasn't run yet or was bypassed.
-    const schedule = job.schedule as { at?: string; atMs?: number | string };
-    const atMs =
-      typeof schedule.atMs === "number" && Number.isFinite(schedule.atMs) && schedule.atMs > 0
-        ? schedule.atMs
-        : typeof schedule.atMs === "string"
-          ? parseAbsoluteTimeMs(schedule.atMs)
-          : typeof schedule.at === "string"
-            ? parseAbsoluteTimeMs(schedule.at)
-            : null;
-    return atMs !== null && Number.isFinite(atMs) ? atMs : undefined;
-  }
-  const next = computeStaggeredCronNextRunAtMs(job, nowMs);
-  if (next === undefined && job.schedule.kind === "cron") {
-    const nextSecondMs = Math.floor(nowMs / 1000) * 1000 + 1000;
-    return computeStaggeredCronNextRunAtMs(job, nextSecondMs);
-  }
-  return isFiniteTimestamp(next) ? next : undefined;
-}
-
-/** Maximum consecutive schedule errors before auto-disabling a job. */
-const MAX_SCHEDULE_ERRORS = 3;
-
-function recordScheduleComputeError(params: {
-  state: CronServiceState;
-  job: CronJob;
-  err: unknown;
-}): boolean {
-  const { state, job, err } = params;
-  const errorCount = (job.state.scheduleErrorCount ?? 0) + 1;
-  const errText = String(err);
-
-  job.state.scheduleErrorCount = errorCount;
-  job.state.nextRunAtMs = undefined;
-  job.state.lastError = `schedule error: ${errText}`;
-
-  if (errorCount >= MAX_SCHEDULE_ERRORS) {
-    job.enabled = false;
-    state.deps.log.error(
-      { jobId: job.id, name: job.name, errorCount, err: errText },
-      "cron: auto-disabled job after repeated schedule errors",
-    );
-  } else {
-    state.deps.log.warn(
-      { jobId: job.id, name: job.name, errorCount, err: errText },
-      "cron: failed to compute next run for job (skipping)",
-    );
-  }
-
-  return true;
-}
-
-function normalizeJobTickState(params: { state: CronServiceState; job: CronJob; nowMs: number }): {
-  changed: boolean;
-  skip: boolean;
-} {
-  const { state, job, nowMs } = params;
-  let changed = false;
-
-  if (!job.state) {
-    job.state = {};
-    changed = true;
-  }
-
-  if (!job.enabled) {
-    if (job.state.nextRunAtMs !== undefined) {
-      job.state.nextRunAtMs = undefined;
-      changed = true;
-    }
-    if (job.state.runningAtMs !== undefined) {
-      job.state.runningAtMs = undefined;
-      changed = true;
-    }
-    return { changed, skip: true };
-  }
-
-  if (!isFiniteTimestamp(job.state.nextRunAtMs) && job.state.nextRunAtMs !== undefined) {
-    job.state.nextRunAtMs = undefined;
-    changed = true;
-  }
-
-  const runningAt = job.state.runningAtMs;
-  if (typeof runningAt === "number" && nowMs - runningAt > STUCK_RUN_MS) {
-    state.deps.log.warn(
-      { jobId: job.id, runningAtMs: runningAt },
-      "cron: clearing stuck running marker",
-    );
-    job.state.runningAtMs = undefined;
-    changed = true;
-  }
-
-  return { changed, skip: false };
-}
-
-function walkSchedulableJobs(
-  state: CronServiceState,
-  fn: (params: { job: CronJob; nowMs: number }) => boolean,
-): boolean {
->>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
   if (!state.store) {
     return false;
   }
@@ -268,54 +121,10 @@ function walkSchedulableJobs(
       job.state = {};
       changed = true;
     }
-<<<<<<< HEAD
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
     if (!job.enabled) {
       if (job.state.nextRunAtMs !== undefined) {
         job.state.nextRunAtMs = undefined;
-=======
-    if (tick.skip) {
-      continue;
-    }
-    if (fn({ job, nowMs: now })) {
-      changed = true;
-    }
-  }
-  return changed;
-}
-
-function recomputeJobNextRunAtMs(params: { state: CronServiceState; job: CronJob; nowMs: number }) {
-  let changed = false;
-  try {
-    const newNext = computeJobNextRunAtMs(params.job, params.nowMs);
-    if (params.job.state.nextRunAtMs !== newNext) {
-      params.job.state.nextRunAtMs = newNext;
-      changed = true;
-    }
-    // Clear schedule error count on successful computation.
-    if (params.job.state.scheduleErrorCount) {
-      params.job.state.scheduleErrorCount = undefined;
-      changed = true;
-    }
-  } catch (err) {
-    if (recordScheduleComputeError({ state: params.state, job: params.job, err })) {
-      changed = true;
-    }
-  }
-  return changed;
-}
-
-export function recomputeNextRuns(state: CronServiceState): boolean {
-  return walkSchedulableJobs(state, ({ job, nowMs: now }) => {
-    let changed = false;
-    // Only recompute if nextRunAtMs is missing or already past-due.
-    // Preserving a still-future nextRunAtMs avoids accidentally advancing
-    // a job that hasn't fired yet (e.g. during restart recovery).
-    const nextRun = job.state.nextRunAtMs;
-    const isDueOrMissing = !isFiniteTimestamp(nextRun) || now >= nextRun;
-    if (isDueOrMissing) {
-      if (recomputeJobNextRunAtMs({ state, job, nowMs: now })) {
->>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
         changed = true;
       }
       if (job.state.runningAtMs !== undefined) {
@@ -383,15 +192,10 @@ export function recomputeNextRunsForMaintenance(state: CronServiceState): boolea
     // Only compute missing nextRunAtMs, do NOT recompute existing ones.
     // If a job was past-due but not found by findDueJobs, recomputing would
     // cause it to be silently skipped.
-<<<<<<< HEAD
     if (job.state.nextRunAtMs === undefined) {
       const newNext = computeJobNextRunAtMs(job, now);
       if (newNext !== undefined) {
         job.state.nextRunAtMs = newNext;
-=======
-    if (!isFiniteTimestamp(job.state.nextRunAtMs)) {
-      if (recomputeJobNextRunAtMs({ state, job, nowMs: now })) {
->>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
         changed = true;
       }
     }
@@ -401,34 +205,17 @@ export function recomputeNextRunsForMaintenance(state: CronServiceState): boolea
 
 export function nextWakeAtMs(state: CronServiceState) {
   const jobs = state.store?.jobs ?? [];
-<<<<<<< HEAD
   const enabled = jobs.filter((j) => j.enabled && typeof j.state.nextRunAtMs === "number");
   if (enabled.length === 0) return undefined;
   return enabled.reduce(
     (min, j) => Math.min(min, j.state.nextRunAtMs as number),
     enabled[0].state.nextRunAtMs as number,
   );
-=======
-  const enabled = jobs.filter((j) => j.enabled && isFiniteTimestamp(j.state.nextRunAtMs));
-  if (enabled.length === 0) {
-    return undefined;
-  }
-  const first = enabled[0]?.state.nextRunAtMs;
-  if (!isFiniteTimestamp(first)) {
-    return undefined;
-  }
-  return enabled.reduce((min, j) => {
-    const next = j.state.nextRunAtMs;
-    return isFiniteTimestamp(next) ? Math.min(min, next) : min;
-  }, first);
->>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
 }
 
 export function createJob(state: CronServiceState, input: CronJobCreate): CronJob {
   const now = state.deps.nowMs();
   const id = crypto.randomUUID();
-<<<<<<< HEAD
-=======
   const schedule =
     input.schedule.kind === "every"
       ? {
@@ -446,7 +233,6 @@ export function createJob(state: CronServiceState, input: CronJobCreate): CronJo
         ? true
         : undefined;
   const enabled = typeof input.enabled === "boolean" ? input.enabled : true;
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   const job: CronJob = {
     id,
     agentId: normalizeOptionalAgentId(input.agentId),
@@ -505,7 +291,6 @@ function mergeCronPayload(existing: CronPayload, patch: CronPayloadPatch): CronP
   }
 
   const next: Extract<CronPayload, { kind: "agentTurn" }> = { ...existing };
-<<<<<<< HEAD
   if (typeof patch.message === "string") next.message = patch.message;
   if (typeof patch.model === "string") next.model = patch.model;
   if (typeof patch.thinking === "string") next.thinking = patch.thinking;
@@ -513,32 +298,6 @@ function mergeCronPayload(existing: CronPayload, patch: CronPayloadPatch): CronP
   if (typeof patch.deliver === "boolean") next.deliver = patch.deliver;
   if (typeof patch.channel === "string") next.channel = patch.channel;
   if (typeof patch.to === "string") next.to = patch.to;
-=======
-  if (typeof patch.message === "string") {
-    next.message = patch.message;
-  }
-  if (typeof patch.model === "string") {
-    next.model = patch.model;
-  }
-  if (typeof patch.thinking === "string") {
-    next.thinking = patch.thinking;
-  }
-  if (typeof patch.timeoutSeconds === "number") {
-    next.timeoutSeconds = patch.timeoutSeconds;
-  }
-  if (typeof patch.allowUnsafeExternalContent === "boolean") {
-    next.allowUnsafeExternalContent = patch.allowUnsafeExternalContent;
-  }
-  if (typeof patch.deliver === "boolean") {
-    next.deliver = patch.deliver;
-  }
-  if (typeof patch.channel === "string") {
-    next.channel = patch.channel;
-  }
-  if (typeof patch.to === "string") {
-    next.to = patch.to;
-  }
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   if (typeof patch.bestEffortDeliver === "boolean") {
     next.bestEffortDeliver = patch.bestEffortDeliver;
   }
@@ -572,16 +331,7 @@ function buildPayloadFromPatch(patch: CronPayloadPatch): CronPayload {
 }
 
 export function isJobDue(job: CronJob, nowMs: number, opts: { forced: boolean }) {
-<<<<<<< HEAD
   if (opts.forced) return true;
-=======
-  if (typeof job.state.runningAtMs === "number") {
-    return false;
-  }
-  if (opts.forced) {
-    return true;
-  }
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   return job.enabled && typeof job.state.nextRunAtMs === "number" && nowMs >= job.state.nextRunAtMs;
 }
 

@@ -9,8 +9,6 @@ const resolveRequestUrl = (input: RequestInfo | URL) => {
 };
 
 describe("describeGeminiVideo", () => {
-<<<<<<< HEAD
-=======
   let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
@@ -33,7 +31,6 @@ describe("describeGeminiVideo", () => {
     resolvePinnedHostnameSpy = undefined;
   });
 
->>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
   it("respects case-insensitive x-goog-api-key overrides", async () => {
     let seenKey: string | null = null;
     const fetchFn = async (_input: RequestInfo | URL, init?: RequestInit) => {

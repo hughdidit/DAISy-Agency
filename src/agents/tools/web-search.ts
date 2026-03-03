@@ -91,8 +91,6 @@ type PerplexityConfig = {
 
 type PerplexityApiKeySource = "config" | "perplexity_env" | "openrouter_env" | "none";
 
-<<<<<<< HEAD
-=======
 type GrokConfig = {
   apiKey?: string;
   model?: string;
@@ -130,7 +128,6 @@ type GrokSearchResponse = {
   }>;
 };
 
->>>>>>> 21448508a (fix: Grok web_search extracts output_text blocks at top level (openclaw#20508) thanks @echoVic)
 type PerplexitySearchResponse = {
   choices?: Array<{
     message?: {
@@ -142,50 +139,7 @@ type PerplexitySearchResponse = {
 
 type PerplexityBaseUrlHint = "direct" | "openrouter";
 
-<<<<<<< HEAD
 function resolveSearchConfig(cfg?: MoltbotConfig): WebSearchConfig {
-=======
-function extractGrokContent(data: GrokSearchResponse): {
-  text: string | undefined;
-  annotationCitations: string[];
-} {
-  // xAI Responses API format: find the message output with text content
-  for (const output of data.output ?? []) {
-    if (output.type === "message") {
-      for (const block of output.content ?? []) {
-        if (block.type === "output_text" && typeof block.text === "string" && block.text) {
-          const urls = (block.annotations ?? [])
-            .filter((a) => a.type === "url_citation" && typeof a.url === "string")
-            .map((a) => a.url as string);
-          return { text: block.text, annotationCitations: [...new Set(urls)] };
-        }
-      }
-    }
-    // Some xAI responses place output_text blocks directly in the output array
-    // without a message wrapper.
-    if (
-      output.type === "output_text" &&
-      "text" in output &&
-      typeof output.text === "string" &&
-      output.text
-    ) {
-      const rawAnnotations =
-        "annotations" in output && Array.isArray(output.annotations) ? output.annotations : [];
-      const urls = rawAnnotations
-        .filter(
-          (a: Record<string, unknown>) => a.type === "url_citation" && typeof a.url === "string",
-        )
-        .map((a: Record<string, unknown>) => a.url as string);
-      return { text: output.text, annotationCitations: [...new Set(urls)] };
-    }
-  }
-  // Fallback: deprecated output_text field
-  const text = typeof data.output_text === "string" ? data.output_text : undefined;
-  return { text, annotationCitations: [] };
-}
-
-function resolveSearchConfig(cfg?: OpenClawConfig): WebSearchConfig {
->>>>>>> 21448508a (fix: Grok web_search extracts output_text blocks at top level (openclaw#20508) thanks @echoVic)
   const search = cfg?.tools?.web?.search;
   if (!search || typeof search !== "object") return undefined;
   return search as WebSearchConfig;
@@ -303,8 +257,6 @@ function resolvePerplexityModel(perplexity?: PerplexityConfig): string {
   return fromConfig || DEFAULT_PERPLEXITY_MODEL;
 }
 
-<<<<<<< HEAD
-=======
 function resolveGrokConfig(search?: WebSearchConfig): GrokConfig {
   if (!search || typeof search !== "object") {
     return {};
@@ -336,7 +288,6 @@ function resolveGrokInlineCitations(grok?: GrokConfig): boolean {
 }
 
 <<<<<<< HEAD
->>>>>>> c984e6d8d (fix: prevent false positive context overflow detection in conversation text (#2078))
 =======
 function resolveKimiConfig(search?: WebSearchConfig): KimiConfig {
   if (!search || typeof search !== "object") {
@@ -579,7 +530,6 @@ async function runPerplexitySearch(params: {
 }): Promise<{ content: string; citations: string[] }> {
   const endpoint = `${params.baseUrl.replace(/\/$/, "")}/chat/completions`;
 
-<<<<<<< HEAD
   const res = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -598,45 +548,18 @@ async function runPerplexitySearch(params: {
       ],
     }),
     signal: withTimeout(undefined, params.timeoutSeconds * 1000),
-=======
-  const { response: res, release } = await fetchTrustedWebSearchEndpoint({
-    url: endpoint,
-    timeoutSeconds: params.timeoutSeconds,
-    init: {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${params.apiKey}`,
-        "HTTP-Referer": "https://openclaw.ai",
-        "X-Title": "OpenClaw Web Search",
-      },
-      body: JSON.stringify(body),
-    },
->>>>>>> 46003e85b (fix: unify web tool proxy path (#27430) (thanks @kevinWangSheng))
   });
   try {
     if (!res.ok) {
       return await throwWebSearchApiError(res, "Perplexity");
     }
 
-<<<<<<< HEAD
   if (!res.ok) {
     const detail = await readResponseText(res);
     throw new Error(`Perplexity API error (${res.status}): ${detail || res.statusText}`);
-=======
-    const data = (await res.json()) as PerplexitySearchResponse;
-    const content = data.choices?.[0]?.message?.content ?? "No response";
-    const citations = data.citations ?? [];
-
-    return { content, citations };
-  } finally {
-    await release();
->>>>>>> 46003e85b (fix: unify web tool proxy path (#27430) (thanks @kevinWangSheng))
   }
 }
 
-<<<<<<< HEAD
-=======
 async function runGrokSearch(params: {
   query: string;
   apiKey: string;
@@ -837,7 +760,6 @@ async function runKimiSearch(params: {
   };
 }
 
->>>>>>> 46003e85b (fix: unify web tool proxy path (#27430) (thanks @kevinWangSheng))
 async function runWebSearch(params: {
   query: string;
   count: number;
@@ -855,13 +777,7 @@ async function runWebSearch(params: {
   const cacheKey = normalizeCacheKey(
     params.provider === "brave"
       ? `${params.provider}:${params.query}:${params.count}:${params.country || "default"}:${params.search_lang || "default"}:${params.ui_lang || "default"}:${params.freshness || "default"}`
-<<<<<<< HEAD
       : `${params.provider}:${params.query}:${params.count}:${params.country || "default"}:${params.search_lang || "default"}:${params.ui_lang || "default"}`,
-=======
-      : params.provider === "perplexity"
-        ? `${params.provider}:${params.query}:${params.perplexityBaseUrl ?? DEFAULT_PERPLEXITY_BASE_URL}:${params.perplexityModel ?? DEFAULT_PERPLEXITY_MODEL}`
-        : `${params.provider}:${params.query}:${params.grokModel ?? DEFAULT_GROK_MODEL}:${String(params.grokInlineCitations ?? false)}`,
->>>>>>> c984e6d8d (fix: prevent false positive context overflow detection in conversation text (#2078))
   );
   const cached = readCache(SEARCH_CACHE, cacheKey);
   if (cached) return { ...cached.value, cached: true };
@@ -909,7 +825,6 @@ async function runWebSearch(params: {
     url.searchParams.set("freshness", params.freshness);
   }
 
-<<<<<<< HEAD
   const res = await fetch(url.toString(), {
     method: "GET",
     headers: {
@@ -917,18 +832,6 @@ async function runWebSearch(params: {
       "X-Subscription-Token": params.apiKey,
     },
     signal: withTimeout(undefined, params.timeoutSeconds * 1000),
-=======
-  const { response: res, release } = await fetchTrustedWebSearchEndpoint({
-    url: url.toString(),
-    timeoutSeconds: params.timeoutSeconds,
-    init: {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "X-Subscription-Token": params.apiKey,
-      },
-    },
->>>>>>> 46003e85b (fix: unify web tool proxy path (#27430) (thanks @kevinWangSheng))
   });
   let mapped: Array<{
     title: string;
@@ -944,7 +847,6 @@ async function runWebSearch(params: {
       throw new Error(`Brave Search API error (${res.status}): ${detail || res.statusText}`);
     }
 
-<<<<<<< HEAD
   if (!res.ok) {
     const detail = await readResponseText(res);
     throw new Error(`Brave Search API error (${res.status}): ${detail || res.statusText}`);
@@ -960,27 +862,6 @@ async function runWebSearch(params: {
     siteName: resolveSiteName(entry.url ?? ""),
   }));
 
-=======
-    const data = (await res.json()) as BraveSearchResponse;
-    const results = Array.isArray(data.web?.results) ? (data.web?.results ?? []) : [];
-    mapped = results.map((entry) => {
-      const description = entry.description ?? "";
-      const title = entry.title ?? "";
-      const url = entry.url ?? "";
-      const rawSiteName = resolveSiteName(url);
-      return {
-        title: title ? wrapWebContent(title, "web_search") : "",
-        url, // Keep raw for tool chaining
-        description: description ? wrapWebContent(description, "web_search") : "",
-        published: entry.age || undefined,
-        siteName: rawSiteName || undefined,
-      };
-    });
-  } finally {
-    await release();
-  }
-
->>>>>>> 46003e85b (fix: unify web tool proxy path (#27430) (thanks @kevinWangSheng))
   const payload = {
     query: params.query,
     provider: params.provider,

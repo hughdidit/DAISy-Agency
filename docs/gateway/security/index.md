@@ -43,11 +43,8 @@ Start with the smallest access that still works, then widen it as you gain confi
 - **Browser control exposure** (remote nodes, relay ports, remote CDP endpoints).
 - **Local disk hygiene** (permissions, symlinks, config includes, “synced folder” paths).
 - **Plugins** (extensions exist without an explicit allowlist).
-<<<<<<< HEAD
-=======
 - **Policy drift/misconfig** (sandbox docker settings configured but sandbox mode off; ineffective `gateway.nodes.denyCommands` patterns; global `tools.profile="minimal"` overridden by per-agent profiles; extension plugin tools reachable under permissive tool policy).
 - **Runtime expectation drift** (for example `tools.exec.host="sandbox"` while sandbox mode is off, which runs directly on the gateway host).
->>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 - **Model hygiene** (warn when configured models look legacy; not a hard block).
 
 If you run `--deep`, Moltbot also attempts a best-effort live Gateway probe.
@@ -75,8 +72,6 @@ When the audit prints findings, treat this as a priority order:
 5. **Plugins/extensions**: only load what you explicitly trust.
 6. **Model choice**: prefer modern, instruction-hardened models for any bot with tools.
 
-<<<<<<< HEAD
-=======
 ## Security audit glossary
 
 High-signal `checkId` values you will most likely see in real deployments (not exhaustive):
@@ -104,7 +99,6 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `plugins.tools_reachable_permissive_policy`   | warn          | Extension tools reachable in permissive contexts                        | `tools.profile` + tool allow/deny                             | no       |
 | `models.small_params`                         | critical/info | Small models + unsafe tool surfaces raise injection risk                | model choice + sandbox/tool policy                            | no       |
 
->>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 ## Control UI over HTTP
 
 The Control UI needs a **secure context** (HTTPS or localhost) to generate device
@@ -247,23 +241,7 @@ By default, Moltbot routes **all DMs into the main session** so your assistant h
 }
 ```
 
-<<<<<<< HEAD
 This prevents cross-user context leakage while keeping group chats isolated. If you run multiple accounts on the same channel, use `per-account-channel-peer` instead. If the same person contacts you on multiple channels, use `session.identityLinks` to collapse those DM sessions into one canonical identity. See [Session Management](/concepts/session) and [Configuration](/gateway/configuration).
-=======
-This prevents cross-user context leakage while keeping group chats isolated.
-
-This is a messaging-context boundary, not a host-admin boundary. If users are mutually adversarial and share the same Gateway host/config, run separate gateways per trust boundary instead.
-
-### Secure DM mode (recommended)
-
-Treat the snippet above as **secure DM mode**:
-
-- Default: `session.dmScope: "main"` (all DMs share one session for continuity).
-- Local CLI onboarding default: writes `session.dmScope: "per-channel-peer"` when unset (keeps existing explicit values).
-- Secure DM mode: `session.dmScope: "per-channel-peer"` (each channel+sender pair gets an isolated DM context).
-
-If you run multiple accounts on the same channel, use `per-account-channel-peer` instead. If the same person contacts you on multiple channels, use `session.identityLinks` to collapse those DM sessions into one canonical identity. See [Session Management](/concepts/session) and [Configuration](/gateway/configuration).
->>>>>>> 65dccbdb4 (fix: document onboarding dmScope default as breaking change (#23468) (thanks @bmendonca3))
 
 ## Allowlists (DM + groups) — terminology
 
@@ -591,14 +569,11 @@ You can already build a read-only profile by combining:
 
 We may add a single `readOnlyMode` flag later to simplify this configuration.
 
-<<<<<<< HEAD
-=======
 Additional hardening options:
 
 - `tools.exec.applyPatch.workspaceOnly: true` (default): ensures `apply_patch` cannot write/delete outside the workspace directory even when sandboxing is off. Set to `false` only if you intentionally want `apply_patch` to touch files outside the workspace.
 - `tools.fs.workspaceOnly: true` (optional): restricts `read`/`write`/`edit`/`apply_patch` paths and native prompt image auto-load paths to the workspace directory (useful if you allow absolute paths today and want a single guardrail).
 
->>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
 ### 5) Secure baseline (copy/paste)
 
 One “safe default” config that keeps the Gateway private, requires DM pairing, and avoids always-on group bots:

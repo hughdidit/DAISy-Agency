@@ -4,13 +4,7 @@ import os from "node:os";
 import path from "node:path";
 
 import JSON5 from "json5";
-<<<<<<< HEAD
 
-=======
-import { ensureOwnerDisplaySecret } from "../agents/owner-display.js";
-import { loadDotEnv } from "../infra/dotenv.js";
-import { resolveRequiredHomeDir } from "../infra/home-dir.js";
->>>>>>> c99e7696e (fix: decouple owner display secret from gateway auth token)
 import {
   loadShellEnvFallback,
   resolveShellEnvFallbackTimeoutMs,
@@ -28,17 +22,8 @@ import {
   applySessionDefaults,
   applyTalkApiKey,
 } from "./defaults.js";
-<<<<<<< HEAD
 import { VERSION } from "../version.js";
 import { MissingEnvVarError, resolveConfigEnvVars } from "./env-substitution.js";
-=======
-import { restoreEnvVarRefs } from "./env-preserve.js";
-import {
-  MissingEnvVarError,
-  containsEnvVarReference,
-  resolveConfigEnvVars,
-} from "./env-substitution.js";
->>>>>>> a4f4b0636 (fix: preserve ${VAR} env var references when writing config back to disk (#11560))
 import { collectConfigEnvVars } from "./env-vars.js";
 import { ConfigIncludeError, resolveConfigIncludes } from "./includes.js";
 import { findLegacyConfigIssues } from "./legacy.js";
@@ -225,16 +210,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
   const configPath =
     candidatePaths.find((candidate) => deps.fs.existsSync(candidate)) ?? requestedConfigPath;
 
-<<<<<<< HEAD
   function loadConfig(): MoltbotConfig {
-=======
-  // Snapshot of env vars captured after applyConfigEnv + resolveConfigEnvVars.
-  // Used by writeConfigFile to verify ${VAR} restoration against the env state
-  // that produced the resolved config, not the (possibly mutated) live env.
-  let envSnapshotForRestore: Record<string, string | undefined> | null = null;
-
-  function loadConfig(): OpenClawConfig {
->>>>>>> a4f4b0636 (fix: preserve ${VAR} env var references when writing config back to disk (#11560))
     try {
       if (!deps.fs.existsSync(configPath)) {
         if (shouldEnableShellEnvFallback(deps.env) && !shouldDeferShellEnvFallback(deps.env)) {
@@ -544,41 +520,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
 
   async function writeConfigFile(cfg: MoltbotConfig) {
     clearConfigCache();
-<<<<<<< HEAD
     const validated = validateConfigObjectWithPlugins(cfg);
-=======
-    let persistCandidate: unknown = cfg;
-    // Save the injected env snapshot before readConfigFileSnapshot() overwrites it
-    // with a new snapshot based on the (possibly mutated) live env.
-    const savedEnvSnapshot = envSnapshotForRestore;
-    const snapshot = await readConfigFileSnapshot();
-    let envRefMap: Map<string, string> | null = null;
-    let changedPaths: Set<string> | null = null;
-    if (savedEnvSnapshot) {
-      envSnapshotForRestore = savedEnvSnapshot;
-    }
-    if (snapshot.valid && snapshot.exists) {
-      const patch = createMergePatch(snapshot.config, cfg);
-      persistCandidate = applyMergePatch(snapshot.resolved, patch);
-      try {
-        const resolvedIncludes = resolveConfigIncludes(snapshot.parsed, configPath, {
-          readFile: (candidate) => deps.fs.readFileSync(candidate, "utf-8"),
-          parseJson: (raw) => deps.json5.parse(raw),
-        });
-        const collected = new Map<string, string>();
-        collectEnvRefPaths(resolvedIncludes, "", collected);
-        if (collected.size > 0) {
-          envRefMap = collected;
-          changedPaths = new Set<string>();
-          collectChangedPaths(snapshot.config, cfg, "", changedPaths);
-        }
-      } catch {
-        envRefMap = null;
-      }
-    }
-
-    const validated = validateConfigObjectRawWithPlugins(persistCandidate);
->>>>>>> a4f4b0636 (fix: preserve ${VAR} env var references when writing config back to disk (#11560))
     if (!validated.ok) {
       const issue = validated.issues[0];
       const pathLabel = issue?.path ? issue.path : "<root>";
@@ -623,32 +565,9 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
 
     const dir = path.dirname(configPath);
     await deps.fs.promises.mkdir(dir, { recursive: true, mode: 0o700 });
-<<<<<<< HEAD
     const json = JSON.stringify(applyModelDefaults(stampConfigVersion(cfg)), null, 2)
       .trimEnd()
       .concat("\n");
-=======
-    const outputConfig =
-      envRefMap && changedPaths
-        ? (restoreEnvRefsFromMap(cfgToWrite, "", envRefMap, changedPaths) as OpenClawConfig)
-        : cfgToWrite;
-    // Do NOT apply runtime defaults when writing — user config should only contain
-    // explicitly set values. Runtime defaults are applied when loading (issue #6070).
-    const json = JSON.stringify(stampConfigVersion(outputConfig), null, 2).trimEnd().concat("\n");
-    const nextHash = hashConfigRaw(json);
-    const previousHash = resolveConfigSnapshotHash(snapshot);
-    const changedPathCount = changedPaths?.size;
-    const logConfigOverwrite = () => {
-      if (!snapshot.exists) {
-        return;
-      }
-      const changeSummary =
-        typeof changedPathCount === "number" ? `, changedPaths=${changedPathCount}` : "";
-      deps.logger.warn(
-        `Config overwrite: ${configPath} (sha256 ${previousHash ?? "unknown"} -> ${nextHash}, backup=${configPath}.bak${changeSummary})`,
-      );
-    };
->>>>>>> a4f4b0636 (fix: preserve ${VAR} env var references when writing config back to disk (#11560))
 
     const tmp = path.join(
       dir,
@@ -764,34 +683,7 @@ export async function readConfigFileSnapshot(): Promise<ConfigFileSnapshot> {
   return await createConfigIO().readConfigFileSnapshot();
 }
 
-<<<<<<< HEAD
 export async function writeConfigFile(cfg: MoltbotConfig): Promise<void> {
   clearConfigCache();
   await createConfigIO().writeConfigFile(cfg);
-=======
-export async function readConfigFileSnapshotForWrite(): Promise<ReadConfigFileSnapshotForWriteResult> {
-  const io = createConfigIO();
-  const snapshot = await io.readConfigFileSnapshot();
-  return {
-    snapshot,
-    writeOptions: {
-      envSnapshotForRestore: io.getEnvSnapshot() ?? undefined,
-      expectedConfigPath: io.configPath,
-    },
-  };
-}
-
-export async function writeConfigFile(
-  cfg: OpenClawConfig,
-  options: ConfigWriteOptions = {},
-): Promise<void> {
-  clearConfigCache();
-  const io = createConfigIO();
-  const sameConfigPath =
-    options.expectedConfigPath === undefined || options.expectedConfigPath === io.configPath;
-  if (sameConfigPath && options.envSnapshotForRestore) {
-    io.setEnvSnapshot(options.envSnapshotForRestore);
-  }
-  await io.writeConfigFile(cfg);
->>>>>>> a4f4b0636 (fix: preserve ${VAR} env var references when writing config back to disk (#11560))
 }

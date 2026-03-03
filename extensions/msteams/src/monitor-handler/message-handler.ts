@@ -7,11 +7,8 @@ import {
   resolveControlCommandGate,
   resolveMentionGating,
   formatAllowlistMatchMeta,
-<<<<<<< HEAD
-=======
   resolveEffectiveAllowFromLists,
   resolveDmGroupAccessWithLists,
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
   type HistoryEntry,
 } from "clawdbot/plugin-sdk";
 
@@ -137,7 +134,6 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
 
     // Check DM policy for direct messages.
     const dmAllowFrom = msteamsCfg?.allowFrom ?? [];
-<<<<<<< HEAD
     const effectiveDmAllowFrom = [...dmAllowFrom.map((v) => String(v)), ...storedAllowFrom];
     if (isDirectMessage && msteamsCfg) {
       const allowFrom = dmAllowFrom;
@@ -178,23 +174,12 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
         }
       }
     }
-=======
-    const configuredDmAllowFrom = dmAllowFrom.map((v) => String(v));
-    const groupAllowFrom = msteamsCfg?.groupAllowFrom;
-    const resolvedAllowFromLists = resolveEffectiveAllowFromLists({
-      allowFrom: configuredDmAllowFrom,
-      groupAllowFrom,
-      storeAllowFrom: storedAllowFrom,
-      dmPolicy,
-    });
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
 
     const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
     const groupPolicy =
       !isDirectMessage && msteamsCfg
         ? (msteamsCfg.groupPolicy ?? defaultGroupPolicy ?? "allowlist")
         : "disabled";
-<<<<<<< HEAD
     const groupAllowFrom =
       !isDirectMessage && msteamsCfg
         ? (msteamsCfg.groupAllowFrom ??
@@ -204,9 +189,6 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
       !isDirectMessage && msteamsCfg
         ? [...groupAllowFrom.map((v) => String(v)), ...storedAllowFrom]
         : [];
-=======
-    const effectiveGroupAllowFrom = resolvedAllowFromLists.effectiveGroupAllowFrom;
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
     const teamId = activity.channelData?.team?.id;
     const teamName = activity.channelData?.team?.name;
     const channelName = activity.channelData?.channel?.name;
@@ -298,20 +280,13 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
           });
           return;
         }
-<<<<<<< HEAD
         if (effectiveGroupAllowFrom.length > 0) {
-=======
-        if (effectiveGroupAllowFrom.length > 0 && access.decision !== "allow") {
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
           const allowMatch = resolveMSTeamsAllowlistMatch({
             groupPolicy,
             allowFrom: effectiveGroupAllowFrom,
             senderId,
             senderName,
-<<<<<<< HEAD
-=======
             allowNameMatching: isDangerousNameMatchingEnabled(msteamsCfg),
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
           });
           if (!allowMatch.allowed) {
             log.debug("dropping group message (not in groupAllowFrom)", {
@@ -605,25 +580,8 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
 
         log.info("dispatch complete", { queuedFinal, counts });
 
-<<<<<<< HEAD
       const didSendReply = counts.final + counts.tool + counts.block > 0;
       if (!queuedFinal) {
-=======
-        if (!queuedFinal) {
-          if (isRoomish && historyKey) {
-            clearHistoryEntriesIfEnabled({
-              historyMap: conversationHistories,
-              historyKey,
-              limit: historyLimit,
-            });
-          }
-          return;
-        }
-        const finalCount = counts.final;
-        logVerboseMessage(
-          `msteams: delivered ${finalCount} reply${finalCount === 1 ? "" : "ies"} to ${teamsTo}`,
-        );
->>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
         if (isRoomish && historyKey) {
           clearHistoryEntriesIfEnabled({
             historyMap: conversationHistories,

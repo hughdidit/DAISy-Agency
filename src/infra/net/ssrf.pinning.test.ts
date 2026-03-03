@@ -1,15 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import { createPinnedLookup, resolvePinnedHostname } from "./ssrf.js";
-=======
-import {
-  createPinnedLookup,
-  resolvePinnedHostname,
-  resolvePinnedHostnameWithPolicy,
-  SsrFBlockedError,
-} from "./ssrf.js";
->>>>>>> 99f28031e (fix: harden OpenResponses URL input fetching)
 
 describe("ssrf pinning", () => {
   it("pins resolved addresses for the target hostname", async () => {
@@ -43,17 +34,8 @@ describe("ssrf pinning", () => {
     );
   });
 
-<<<<<<< HEAD
   it("rejects private DNS results", async () => {
     const lookup = vi.fn(async () => [{ address: "10.0.0.8", family: 4 }]);
-=======
-  it.each([
-    { name: "RFC1918 private address", address: "10.0.0.8" },
-    { name: "RFC2544 benchmarking range", address: "198.18.0.1" },
-    { name: "TEST-NET-2 reserved range", address: "198.51.100.1" },
-  ])("rejects blocked DNS results: $name", async ({ address }) => {
-    const lookup = vi.fn(async () => [{ address, family: 4 }]) as unknown as LookupFn;
->>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
     await expect(resolvePinnedHostname("example.com", lookup)).rejects.toThrow(/private|internal/i);
   });
 

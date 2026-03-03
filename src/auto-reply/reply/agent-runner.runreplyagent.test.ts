@@ -77,14 +77,8 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-<<<<<<< HEAD
   state.runEmbeddedPiAgentMock.mockReset();
   state.runCliAgentMock.mockReset();
-=======
-  state.runEmbeddedPiAgentMock.mockClear();
-  state.runCliAgentMock.mockClear();
-  vi.mocked(enqueueFollowupRun).mockClear();
->>>>>>> c736778b3 (fix: drop active heartbeat followups from queue (#25610, thanks @mcaxtr))
   vi.stubEnv("OPENCLAW_TEST_FAST", "1");
 });
 
@@ -552,8 +546,6 @@ describe("runReplyAgent typing (heartbeat)", () => {
     expect(onToolResult).not.toHaveBeenCalled();
   });
 
-<<<<<<< HEAD
-=======
   it("retries transient HTTP failures once with timer-driven backoff", async () => {
     vi.useFakeTimers();
     let calls = 0;
@@ -633,7 +625,6 @@ describe("runReplyAgent typing (heartbeat)", () => {
     expect(delivered).toEqual(["second"]);
   });
 
->>>>>>> e321f21da (fix: serialize tool result delivery to preserve message ordering (#21231))
   it("announces auto-compaction in verbose mode and tracks count", async () => {
     await withTempStateDir(async (stateDir) => {
       const storePath = path.join(stateDir, "sessions", "sessions.json");

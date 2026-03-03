@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
-=======
-import { describe, expect, it, vi } from "vitest";
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
 import { fetchRemoteMedia } from "./fetch.js";
 
 function makeStream(chunks: Uint8Array[]) {

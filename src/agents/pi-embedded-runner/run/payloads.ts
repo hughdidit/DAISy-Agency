@@ -16,15 +16,9 @@ import {
   extractAssistantThinking,
   formatReasoningMessage,
 } from "../../pi-embedded-utils.js";
-<<<<<<< HEAD
 import type { ToolResultFormat } from "../../pi-embedded-subscribe.js";
-=======
-import { isLikelyMutatingToolName } from "../../tool-mutation.js";
->>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
 
 type ToolMetaEntry = { toolName: string; meta?: string };
-<<<<<<< HEAD
-=======
 type LastToolError = {
   toolName: string;
   meta?: string;
@@ -79,31 +73,16 @@ function shouldShowToolErrorWarning(params: {
   }
   return !params.hasUserFacingReply && !isRecoverableToolError(params.lastToolError.error);
 }
->>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
 
 export function buildEmbeddedRunPayloads(params: {
   assistantTexts: string[];
   toolMetas: ToolMetaEntry[];
   lastAssistant: AssistantMessage | undefined;
-<<<<<<< HEAD
   lastToolError?: { toolName: string; meta?: string; error?: string };
   config?: MoltbotConfig;
-=======
-  lastToolError?: {
-    toolName: string;
-    meta?: string;
-    error?: string;
-    mutatingAction?: boolean;
-    actionFingerprint?: string;
-  };
-  config?: OpenClawConfig;
->>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
   sessionKey: string;
-<<<<<<< HEAD
-=======
   provider?: string;
   model?: string;
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
   verboseLevel?: VerboseLevel;
   reasoningLevel?: ReasoningLevel;
   toolResultFormat?: ToolResultFormat;
@@ -136,11 +115,8 @@ export function buildEmbeddedRunPayloads(params: {
     ? formatAssistantErrorText(params.lastAssistant, {
         cfg: params.config,
         sessionKey: params.sessionKey,
-<<<<<<< HEAD
-=======
         provider: params.provider,
         model: params.model,
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
       })
     : undefined;
   const rawErrorMessage = lastAssistantErrored
@@ -194,13 +170,7 @@ export function buildEmbeddedRunPayloads(params: {
     params.lastAssistant && params.reasoningLevel === "on"
       ? formatReasoningMessage(extractAssistantThinking(params.lastAssistant))
       : "";
-<<<<<<< HEAD
   if (reasoningText) replyItems.push({ text: reasoningText });
-=======
-  if (reasoningText) {
-    replyItems.push({ text: reasoningText, isReasoning: true });
-  }
->>>>>>> 7d76c241f (fix: suppress reasoning payloads from generic channel dispatch path)
 
   const fallbackAnswerText = params.lastAssistant ? extractAssistantText(params.lastAssistant) : "";
   const shouldSuppressRawErrorText = (text: string) => {
@@ -259,7 +229,6 @@ export function buildEmbeddedRunPayloads(params: {
   }
 
   if (params.lastToolError) {
-<<<<<<< HEAD
     const lastAssistantHasToolCalls =
       Array.isArray(params.lastAssistant?.content) &&
       params.lastAssistant?.content.some((block) =>
@@ -285,15 +254,6 @@ export function buildEmbeddedRunPayloads(params: {
       params.lastToolError.mutatingAction ??
       isLikelyMutatingToolName(params.lastToolError.toolName);
     const shouldShowToolError = isMutatingToolError || (!hasUserFacingReply && !isRecoverableError);
-=======
-    const shouldShowToolError = shouldShowToolErrorWarning({
-      lastToolError: params.lastToolError,
-      hasUserFacingReply: hasUserFacingAssistantReply,
-      suppressToolErrors: Boolean(params.config?.messages?.suppressToolErrors),
-      suppressToolErrorWarnings: params.suppressToolErrorWarnings,
-      verboseLevel: params.verboseLevel,
-    });
->>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
 
     // Always surface mutating tool failures so we do not silently confirm actions that did not happen.
     // Otherwise, keep the previous behavior and only surface non-recoverable failures when no reply exists.

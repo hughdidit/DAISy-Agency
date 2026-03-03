@@ -1,15 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { FailoverReason } from "./pi-embedded-helpers.js";
-import {
-  ensureAuthProfileStore,
-  getSoonestCooldownExpiry,
-  isProfileInCooldown,
-  resolveAuthProfileOrder,
-} from "./auth-profiles.js";
->>>>>>> 39bb1b332 (fix: auto-recover primary model after rate-limit cooldown expires (#17478) (#18045))
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import {
   coerceToFailoverError,

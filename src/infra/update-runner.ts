@@ -709,8 +709,6 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
       };
     }
 
-<<<<<<< HEAD
-=======
     const doctorEntry = path.join(gitRoot, "openclaw.mjs");
     const doctorEntryExists = await fs
       .stat(doctorEntry)
@@ -739,7 +737,6 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
     // Use --fix so that doctor auto-strips unknown config keys introduced by
     // schema changes between versions, preventing a startup validation crash.
     const doctorArgv = [process.execPath, doctorEntry, "doctor", "--non-interactive", "--fix"];
->>>>>>> 0b8b95f2c (fix(update): prevent gateway crash loop after failed self-update)
     const doctorStep = await runStep(
       step(
         "moltbot doctor",

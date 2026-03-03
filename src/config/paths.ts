@@ -17,17 +17,10 @@ export function resolveIsNixMode(env: NodeJS.ProcessEnv = process.env): boolean 
 export const isNixMode = resolveIsNixMode();
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const LEGACY_STATE_DIRNAME = ".clawdbot";
 const NEW_STATE_DIRNAME = ".moltbot";
 const CONFIG_FILENAME = "moltbot.json";
 const LEGACY_CONFIG_FILENAME = "clawdbot.json";
-=======
-const LEGACY_STATE_DIRNAMES = [".clawdbot", ".moltbot", ".moldbot"] as const;
-const NEW_STATE_DIRNAME = ".openclaw";
-const CONFIG_FILENAME = "openclaw.json";
-const LEGACY_CONFIG_FILENAMES = ["clawdbot.json", "moltbot.json", "moldbot.json"] as const;
->>>>>>> 9886fd1a5 (fix: migrate legacy state dirs)
 =======
 // Support historical (and occasionally misspelled) legacy state dirs.
 const LEGACY_STATE_DIRNAMES = [".clawdbot", ".moldbot", ".moltbot"] as const;
@@ -157,21 +150,8 @@ export function resolveConfigPath(
 export const CONFIG_PATH = resolveConfigPathCandidate();
 
 /**
-<<<<<<< HEAD
  * Resolve default config path candidates across new + legacy locations.
  * Order: explicit config path → state-dir-derived paths → new default → legacy default.
-=======
- * Runtime-evaluated config path that respects OPENCLAW_HOME.
- * Use this instead of CONFIG_PATH when OPENCLAW_HOME may be set dynamically.
- */
-export function getConfigPath(env: NodeJS.ProcessEnv = process.env): string {
-  return resolveConfigPathCandidate(env, envHomedir(env));
-}
-
-/**
- * Resolve default config path candidates across default locations.
- * Order: explicit config path → state-dir-derived paths → new default.
->>>>>>> 34b18ea9d (fix: respect OPENCLAW_HOME for isolated gateway instances)
  */
 export function resolveDefaultConfigCandidates(
   env: NodeJS.ProcessEnv = process.env,
@@ -242,41 +222,14 @@ export function resolveGatewayPort(
   cfg?: MoltbotConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): number {
-<<<<<<< HEAD
   const envRaw = env.CLAWDBOT_GATEWAY_PORT?.trim();
-=======
-  // When OPENCLAW_HOME is set (isolated instance), prefer config over inherited env vars.
-  // This prevents a parent gateway's OPENCLAW_GATEWAY_PORT from bleeding through.
-  const isIsolatedInstance = Boolean(env.OPENCLAW_HOME?.trim());
-
-  // Config port takes precedence for isolated instances
-  const configPort = cfg?.gateway?.port;
-  if (
-    isIsolatedInstance &&
-    typeof configPort === "number" &&
-    Number.isFinite(configPort) &&
-    configPort > 0
-  ) {
-    return configPort;
-  }
-
-  // Check env vars (for non-isolated or when config doesn't specify port)
-  const envRaw = env.OPENCLAW_GATEWAY_PORT?.trim() || env.CLAWDBOT_GATEWAY_PORT?.trim();
->>>>>>> 34b18ea9d (fix: respect OPENCLAW_HOME for isolated gateway instances)
   if (envRaw) {
     const parsed = Number.parseInt(envRaw, 10);
     if (Number.isFinite(parsed) && parsed > 0) return parsed;
   }
-<<<<<<< HEAD
   const configPort = cfg?.gateway?.port;
   if (typeof configPort === "number" && Number.isFinite(configPort)) {
     if (configPort > 0) return configPort;
-=======
-
-  // Fall back to config for non-isolated instances
-  if (typeof configPort === "number" && Number.isFinite(configPort) && configPort > 0) {
-    return configPort;
->>>>>>> 34b18ea9d (fix: respect OPENCLAW_HOME for isolated gateway instances)
   }
 
   return DEFAULT_GATEWAY_PORT;

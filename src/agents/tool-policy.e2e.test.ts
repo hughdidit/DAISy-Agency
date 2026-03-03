@@ -12,8 +12,6 @@ import {
   resolveToolProfilePolicy,
   TOOL_GROUPS,
 } from "./tool-policy.js";
-<<<<<<< HEAD
-=======
 import type { AnyAgentTool } from "./tools/common.js";
 
 function createOwnerPolicyTools() {
@@ -40,7 +38,6 @@ function createOwnerPolicyTools() {
     },
   ] as unknown as AnyAgentTool[];
 }
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
 
 describe("tool-policy", () => {
   it("expands groups and normalizes aliases", () => {

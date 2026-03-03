@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
-=======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as ssrf from "../../../infra/net/ssrf.js";
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
 import { transcribeDeepgramAudio } from "./audio.js";
 
 const resolvePinnedHostname = ssrf.resolvePinnedHostname;

@@ -40,11 +40,7 @@ export function restoreTerminalState(
     } catch (err) {
       reportRestoreFailure("raw mode", err, reason);
     }
-<<<<<<< HEAD
     if (typeof stdin.isPaused === "function" && stdin.isPaused()) {
-=======
-    if (resumeStdin && typeof stdin.isPaused === "function" && stdin.isPaused()) {
->>>>>>> a042b32d2 (fix: Docker installation keeps hanging on MacOS (#12972))
       try {
         stdin.resume();
       } catch (err) {

@@ -114,8 +114,6 @@ are treated as allowlisted on nodes (macOS node or headless node host). This use
 `tools.exec.safeBins` defines a small list of **stdin-only** binaries (for example `jq`)
 that can run in allowlist mode **without** explicit allowlist entries. Safe bins reject
 positional file args and path-like tokens, so they can only operate on the incoming stream.
-<<<<<<< HEAD
-=======
 Validation is deterministic from argv shape only (no host filesystem existence checks), which
 prevents file-existence oracle behavior from allow/deny differences.
 File-oriented options are denied for default safe bins (for example `sort -o`, `sort --output`,
@@ -128,15 +126,12 @@ and no `$VARS` expansion) for stdin-only segments, so patterns like `*` or `$HOM
 used to smuggle file reads.
 Safe bins must also resolve from trusted binary directories (system defaults plus the gateway
 process `PATH` at startup). This blocks request-scoped PATH hijacking attempts.
->>>>>>> 57fbbaebc (fix: block safeBins sort --compress-program bypass)
 Shell chaining and redirections are not auto-allowed in allowlist mode.
 
 Shell chaining (`&&`, `||`, `;`) is allowed when every top-level segment satisfies the allowlist
 (including safe bins or skill auto-allow). Redirections remain unsupported in allowlist mode.
 Command substitution (`$()` / backticks) is rejected during allowlist parsing, including inside
 double quotes; use single quotes if you need literal `$()` text.
-<<<<<<< HEAD
-=======
 On macOS companion-app approvals, raw shell text containing shell control or expansion syntax
 (`&&`, `||`, `;`, `|`, `` ` ``, `$`, `<`, `>`, `(`, `)`) is treated as an allowlist miss unless
 the shell binary itself is allowlisted.
@@ -147,7 +142,6 @@ For allow-always decisions in allowlist mode, known dispatch wrappers
 paths. Shell multiplexers (`busybox`, `toybox`) are also unwrapped for shell applets (`sh`, `ash`,
 etc.) so inner executables are persisted instead of multiplexer binaries. If a wrapper or
 multiplexer cannot be safely unwrapped, no allowlist entry is persisted automatically.
->>>>>>> a67689a7e (fix: harden allow-always shell multiplexer wrapper handling)
 
 Default safe bins: `jq`, `grep`, `cut`, `sort`, `uniq`, `head`, `tail`, `tr`, `wc`.
 

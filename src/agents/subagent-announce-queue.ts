@@ -140,18 +140,7 @@ function scheduleAnnounceDrain(key: string) {
       // Drain succeeded — reset failure counter.
       queue.consecutiveFailures = 0;
     } catch (err) {
-<<<<<<< HEAD
       defaultRuntime.error?.(`announce queue drain failed for ${key}: ${String(err)}`);
-=======
-      queue.consecutiveFailures++;
-      // Exponential backoff on consecutive failures: 2s, 4s, 8s, ... capped at 60s.
-      const errorBackoffMs = Math.min(1000 * Math.pow(2, queue.consecutiveFailures), 60_000);
-      const retryDelayMs = Math.max(errorBackoffMs, queue.debounceMs);
-      queue.lastEnqueuedAt = Date.now() + retryDelayMs - queue.debounceMs;
-      defaultRuntime.error?.(
-        `announce queue drain failed for ${key} (attempt ${queue.consecutiveFailures}, retry in ${Math.round(retryDelayMs / 1000)}s): ${String(err)}`,
-      );
->>>>>>> e3da57d95 (fix: add exponential backoff to announce queue drain on failure (#24783))
     } finally {
       queue.draining = false;
       if (queue.items.length === 0 && queue.droppedCount === 0) {

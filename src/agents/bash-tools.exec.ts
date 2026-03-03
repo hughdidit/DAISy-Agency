@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import crypto from "node:crypto";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import path from "node:path";
@@ -22,18 +21,6 @@ import {
 } from "../infra/exec-approvals.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { buildNodeShellCommand } from "../infra/node-shell.js";
-=======
-import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
-import fs from "node:fs/promises";
-import path from "node:path";
-import type {
-  ExecElevatedDefaults,
-  ExecToolDefaults,
-  ExecToolDetails,
-} from "./bash-tools.exec-types.js";
-import { type ExecHost, maxAsk, minSecurity, resolveSafeBins } from "../infra/exec-approvals.js";
-import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
->>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 import {
   getShellPathFromLoginShell,
   resolveShellEnvFallbackTimeoutMs,
@@ -42,7 +29,6 @@ import { enqueueSystemEvent } from "../infra/system-events.js";
 import { logInfo, logWarn } from "../logger.js";
 import { formatSpawnError, spawnWithFallback } from "../process/spawn-utils.js";
 import {
-<<<<<<< HEAD
   type ProcessSession,
   type SessionStdin,
   addSession,
@@ -53,23 +39,6 @@ import {
   tail,
 } from "./bash-process-registry.js";
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
-=======
-  DEFAULT_MAX_OUTPUT,
-  DEFAULT_PATH,
-  DEFAULT_PENDING_MAX_OUTPUT,
-  applyPathPrepend,
-  applyShellPath,
-  normalizeExecAsk,
-  normalizeExecHost,
-  normalizeExecSecurity,
-  normalizePathPrepend,
-  renderExecHostLabel,
-  resolveApprovalRunningNoticeMs,
-  runExecProcess,
-  execSchema,
-  validateHostEnv,
-} from "./bash-tools.exec-runtime.js";
->>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 import {
   buildDockerExecArgs,
   buildSandboxEnv,
@@ -82,18 +51,12 @@ import {
   resolveWorkdir,
   truncateMiddle,
 } from "./bash-tools.shared.js";
-<<<<<<< HEAD
 import { callGatewayTool } from "./tools/gateway.js";
 import { listNodes, resolveNodeIdFromList } from "./tools/nodes-utils.js";
 import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
 import { buildCursorPositionResponse, stripDsrRequests } from "./pty-dsr.js";
 import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
-=======
-import { assertSandboxPath } from "./sandbox-paths.js";
->>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 
-<<<<<<< HEAD
-=======
 // Security: Blocklist of environment variables that could alter execution flow
 // or inject code when running on non-sandboxed hosts (Gateway/Node).
 const DANGEROUS_HOST_ENV_VARS = new Set([
@@ -206,7 +169,6 @@ async function validateScriptFileForShellBleed(params: {
       .map((l) => l.trim())
       .find((l) => l.length > 0);
     if (firstNonEmpty && /^NODE\b/.test(firstNonEmpty)) {
->>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
       throw new Error(
         `Security Violation: Environment variable '${key}' is forbidden during host execution.`,
       );
@@ -993,12 +955,7 @@ export function createExecTool(
       if (elevatedRequested) {
         logInfo(`exec: elevated command ${truncateMiddle(params.command, 120)}`);
       }
-<<<<<<< HEAD
       const configuredHost = defaults?.host ?? "sandbox";
-=======
-      const configuredHost = defaults?.host ?? (defaults?.sandbox ? "sandbox" : "gateway");
-      const sandboxHostConfigured = defaults?.host === "sandbox";
->>>>>>> 1b327da6e (fix: harden exec sandbox fallback semantics (#23398) (thanks @bmendonca3))
       const requestedHost = normalizeExecHost(params.host) ?? null;
       let host: ExecHost = requestedHost ?? configuredHost;
       if (!elevatedRequested && requestedHost && requestedHost !== configuredHost) {
@@ -1114,12 +1071,9 @@ export function createExecTool(
         }
         const argv = buildNodeShellCommand(params.command, nodeInfo?.platform);
         const nodeEnv = params.env ? { ...params.env } : undefined;
-<<<<<<< HEAD
         if (nodeEnv) {
           applyPathPrepend(nodeEnv, defaultPathPrepend, { requireExisting: true });
         }
-=======
->>>>>>> e4d63818f (fix: ignore tools.exec.pathPrepend for node hosts)
         const baseAllowlistEval = evaluateShellAllowlist({
           command: params.command,
           allowlist: [],
@@ -1241,7 +1195,6 @@ export function createExecTool(
           void (async () => {
             let decision: string | null = null;
             try {
-<<<<<<< HEAD
               const decisionResult = (await callGatewayTool(
                 "exec.approval.request",
                 { timeoutMs: DEFAULT_APPROVAL_REQUEST_TIMEOUT_MS },
@@ -1260,13 +1213,6 @@ export function createExecTool(
 <<<<<<< HEAD
               )) as { decision?: string } | null;
               decision =
-=======
-=======
-              const decisionResult = await callGatewayTool<{ decision?: string }>(
-                "exec.approval.waitDecision",
-                { timeoutMs: DEFAULT_APPROVAL_REQUEST_TIMEOUT_MS },
-                { id: approvalId },
->>>>>>> 1af0edf7f (fix: ensure exec approval is registered before returning (#2402) (#3357))
               );
               const decisionValue =
 >>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
@@ -1362,7 +1308,6 @@ export function createExecTool(
         }
 
         const startedAt = Date.now();
-<<<<<<< HEAD
         const raw = (await callGatewayTool(
           "node.invoke",
           { timeoutMs: invokeTimeoutMs },
@@ -1378,22 +1323,6 @@ export function createExecTool(
           };
         };
         const payload = raw?.payload ?? {};
-=======
-        const raw = await callGatewayTool(
-          "node.invoke",
-          { timeoutMs: invokeTimeoutMs },
-          buildInvokeParams(false, null),
-        );
-        const payload =
-          raw && typeof raw === "object" ? (raw as { payload?: unknown }).payload : undefined;
-        const payloadObj =
-          payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
-        const stdout = typeof payloadObj.stdout === "string" ? payloadObj.stdout : "";
-        const stderr = typeof payloadObj.stderr === "string" ? payloadObj.stderr : "";
-        const errorText = typeof payloadObj.error === "string" ? payloadObj.error : "";
-        const success = typeof payloadObj.success === "boolean" ? payloadObj.success : false;
-        const exitCode = typeof payloadObj.exitCode === "number" ? payloadObj.exitCode : null;
->>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
         return {
           content: [
             {
@@ -1486,7 +1415,6 @@ export function createExecTool(
           void (async () => {
             let decision: string | null = null;
             try {
-<<<<<<< HEAD
               const decisionResult = (await callGatewayTool(
                 "exec.approval.request",
                 { timeoutMs: DEFAULT_APPROVAL_REQUEST_TIMEOUT_MS },
@@ -1505,13 +1433,6 @@ export function createExecTool(
 <<<<<<< HEAD
               )) as { decision?: string } | null;
               decision =
-=======
-=======
-              const decisionResult = await callGatewayTool<{ decision?: string }>(
-                "exec.approval.waitDecision",
-                { timeoutMs: DEFAULT_APPROVAL_REQUEST_TIMEOUT_MS },
-                { id: approvalId },
->>>>>>> 1af0edf7f (fix: ensure exec approval is registered before returning (#2402) (#3357))
               );
               const decisionValue =
 >>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)

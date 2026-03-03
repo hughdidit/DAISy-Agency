@@ -2,11 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
 import type { CliBackendConfig } from "../config/types.js";
 import { runCliAgent } from "./cli-runner.js";
 import { cleanupSuspendedCliProcesses } from "./cli-runner/helpers.js";

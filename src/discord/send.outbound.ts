@@ -52,8 +52,6 @@ export async function sendMessageDiscord(
   const { token, rest, request } = createDiscordClient(opts, cfg);
   const recipient = await parseAndResolveRecipient(to, opts.accountId);
   const { channelId } = await resolveChannelId(rest, recipient, request);
-<<<<<<< HEAD
-=======
 
   // Forum/Media channels reject POST /messages; auto-create a thread post instead.
   let channelType: number | undefined;
@@ -165,7 +163,6 @@ export async function sendMessageDiscord(
     };
   }
 
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
   let result: { id: string; channel_id: string } | { id: string | null; channel_id: string };
   try {
     if (opts.mediaUrl) {

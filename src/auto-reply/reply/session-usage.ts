@@ -56,19 +56,7 @@ export async function persistSessionUsageUpdate(params: {
             ? deriveSessionTotalTokens({
                 usage: usageForContext,
                 contextTokens: resolvedContextTokens,
-<<<<<<< HEAD
               }) ?? input,
-=======
-                promptTokens: params.promptTokens,
-              })
-            : undefined;
-          const patch: Partial<SessionEntry> = {
-            inputTokens: input,
-            outputTokens: output,
-            // Missing a last-call snapshot means context utilization is stale/unknown.
-            totalTokens,
-            totalTokensFresh: typeof totalTokens === "number",
->>>>>>> fd076eb43 (fix: /status shows incorrect context percentage — totalTokens clamped to contextTokens (#15114) (#15133))
             modelProvider: params.providerUsed ?? entry.modelProvider,
             model: params.modelUsed ?? entry.model,
             contextTokens: resolvedContextTokens,

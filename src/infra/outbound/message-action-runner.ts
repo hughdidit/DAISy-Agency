@@ -10,7 +10,6 @@ import {
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
-<<<<<<< HEAD
 import type {
   ChannelId,
   ChannelMessageActionName,
@@ -18,12 +17,6 @@ import type {
 } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { extensionForMime } from "../../media/mime.js";
-import { parseSlackTarget } from "../../slack/targets.js";
-import { parseTelegramTarget } from "../../telegram/targets.js";
-<<<<<<< HEAD
->>>>>>> eef247b7a (fix: auto-inject Telegram forum topic threadId in message tool)
 =======
 >>>>>>> 01db1dde1 (fix: telegram topic auto-threading — use parseTelegramTarget, add tests (#7235) (thanks @Lukavyi))
 =======
@@ -255,16 +248,10 @@ function resolveTelegramAutoThreadId(params: {
   if (!context?.currentThreadTs || !context.currentChannelId) {
     return undefined;
   }
-<<<<<<< HEAD
   // Parse both targets to extract base chat IDs, ignoring topic suffixes and
   // internal prefixes (e.g. "telegram:group:123:topic:456" → "123").
   // This mirrors Slack's parseSlackTarget approach — compare canonical chat IDs
   // so auto-threading applies even when representations differ.
-=======
-  // Use parseTelegramTarget to extract canonical chatId from both sides,
-  // mirroring how Slack uses parseSlackTarget. This handles format variations
-  // like `telegram:group:123:topic:456` vs `telegram:123`.
->>>>>>> 01db1dde1 (fix: telegram topic auto-threading — use parseTelegramTarget, add tests (#7235) (thanks @Lukavyi))
   const parsedTo = parseTelegramTarget(params.to);
   const parsedChannel = parseTelegramTarget(context.currentChannelId);
   if (parsedTo.chatId.toLowerCase() !== parsedChannel.chatId.toLowerCase()) {

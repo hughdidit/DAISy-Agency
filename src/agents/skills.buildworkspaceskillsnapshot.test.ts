@@ -67,8 +67,6 @@ describe("buildWorkspaceSkillSnapshot", () => {
       "visible-skill",
     ]);
   });
-<<<<<<< HEAD
-=======
 
   it("keeps prompt output aligned with buildWorkspaceSkillsPrompt", async () => {
     const workspaceDir = await tempDirs.make("openclaw-");
@@ -276,5 +274,4 @@ describe("buildWorkspaceSkillSnapshot", () => {
     expect(snapshot.skills.map((s) => s.name)).not.toContain("root-big-skill");
     expect(snapshot.prompt).not.toContain("root-big-skill");
   });
->>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
 });

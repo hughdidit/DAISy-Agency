@@ -3,16 +3,7 @@ import { formatThinkingLevels, normalizeThinkLevel } from "../auto-reply/thinkin
 import { DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH } from "../config/agent-limits.js";
 import { loadConfig } from "../config/config.js";
 import { callGateway } from "../gateway/call.js";
-<<<<<<< HEAD
 import { normalizeAgentId, parseAgentSessionKey } from "../routing/session-key.js";
-=======
-import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
-import {
-  isCronSessionKey,
-  normalizeAgentId,
-  parseAgentSessionKey,
-} from "../routing/session-key.js";
->>>>>>> 452a8c9db (fix: use canonical cron session detection for spawn note)
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import { resolveAgentConfig } from "./agent-scope.js";
 import { AGENT_LANE_SUBAGENT } from "./lanes.js";
@@ -333,8 +324,6 @@ export async function spawnSubagentDirect(
     expectsCompletionMessage: params.expectsCompletionMessage === true,
   });
 
-<<<<<<< HEAD
-=======
   if (hookRunner?.hasHooks("subagent_spawned")) {
     try {
       await hookRunner.runSubagentSpawned(
@@ -374,17 +363,11 @@ export async function spawnSubagentDirect(
         ? undefined
         : SUBAGENT_SPAWN_ACCEPTED_NOTE;
 
->>>>>>> 69590de27 (fix: suppress SUBAGENT_SPAWN_ACCEPTED_NOTE for cron isolated sessions)
   return {
     status: "accepted",
     childSessionKey,
     runId: childRunId,
-<<<<<<< HEAD
     note: SUBAGENT_SPAWN_ACCEPTED_NOTE,
-=======
-    mode: spawnMode,
-    note,
->>>>>>> 69590de27 (fix: suppress SUBAGENT_SPAWN_ACCEPTED_NOTE for cron isolated sessions)
     modelApplied: resolvedModel ? modelApplied : undefined,
     warning: modelWarning,
   };

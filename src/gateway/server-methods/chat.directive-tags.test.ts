@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
-=======
-import { createSubsystemLogger } from "../../logging/subsystem.js";
-import { createMockSessionEntry, createTranscriptFixtureSync } from "./chat.test-helpers.js";
->>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
 =======
 import fs from "node:fs";
 import os from "node:os";
@@ -120,8 +115,6 @@ function createChatContext(): Pick<
   };
 }
 
-<<<<<<< HEAD
-=======
 type ChatContext = ReturnType<typeof createChatContext>;
 
 async function runNonStreamingChatSend(params: {
@@ -166,7 +159,6 @@ async function runNonStreamingChatSend(params: {
   return chatCall?.[1];
 }
 
->>>>>>> 2fa6aa6ea (test(agents): add comprehensive kimi regressions)
 describe("chat directive tag stripping for non-streaming final payloads", () => {
   afterEach(() => {
     mockState.finalText = "[[reply_to_current]]";

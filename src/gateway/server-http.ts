@@ -6,38 +6,16 @@ import {
 } from "node:http";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer as createHttpsServer } from "node:https";
-<<<<<<< HEAD
 import type { TlsOptions } from "node:tls";
 import type { WebSocketServer } from "ws";
 import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
 import type { CanvasHostHandler } from "../canvas-host/server.js";
-=======
-import type { CanvasHostHandler } from "../canvas-host/server.js";
-import type { createSubsystemLogger } from "../logging/subsystem.js";
-import { resolveAgentAvatar } from "../agents/identity-avatar.js";
-import {
-  A2UI_PATH,
-  CANVAS_HOST_PATH,
-  CANVAS_WS_PATH,
-  handleA2uiHttpRequest,
-} from "../canvas-host/a2ui.js";
->>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
 import { loadConfig } from "../config/config.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
-<<<<<<< HEAD
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
 import { setSecurityHeaders } from "./http-common.js";
-=======
-import { authorizeGatewayConnect } from "./auth.js";
-import {
-  handleControlUiAvatarRequest,
-  handleControlUiHttpRequest,
-  type ControlUiRootState,
-} from "./control-ui.js";
-import { applyHookMappings } from "./hooks-mapping.js";
->>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
 import {
   extractHookToken,
   getHookChannelError,
@@ -47,20 +25,12 @@ import {
   normalizeHookHeaders,
   normalizeWakePayload,
   readJsonBody,
-<<<<<<< HEAD
-=======
   resolveHookSessionKey,
   resolveHookTargetAgentId,
->>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
   resolveHookChannel,
   resolveHookDeliver,
 } from "./hooks.js";
-<<<<<<< HEAD
 import { applyHookMappings } from "./hooks-mapping.js";
-=======
-import { sendUnauthorized } from "./http-common.js";
-import { getBearerToken } from "./http-utils.js";
->>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
@@ -128,31 +98,16 @@ export function createHooksRequestHandler(
       return false;
     }
 
-<<<<<<< HEAD
     // Apply security headers to all hook responses (including error paths).
     setSecurityHeaders(res);
 
     const { token, fromQuery } = extractHookToken(req, url);
     if (!token || !safeTokenEqual(token, hooksConfig.token)) {
-=======
-    if (url.searchParams.has("token")) {
-      res.statusCode = 400;
-      res.setHeader("Content-Type", "text/plain; charset=utf-8");
-      res.end(
-        "Hook token must be provided via Authorization: Bearer <token> or X-OpenClaw-Token header (query parameters are not allowed).",
-      );
-      return true;
-    }
-
-    const token = extractHookToken(req);
-    if (!token || token !== hooksConfig.token) {
->>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
       res.statusCode = 401;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
       res.end("Unauthorized");
       return true;
     }
-<<<<<<< HEAD
     if (fromQuery) {
       logHooks.warn(
         "Hook token provided via query parameter is deprecated for security reasons. " +
@@ -160,8 +115,6 @@ export function createHooksRequestHandler(
           "Use Authorization: Bearer <token> or X-Moltbot-Token header instead.",
       );
     }
-=======
->>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 
     if (req.method !== "POST") {
       res.statusCode = 405;
@@ -206,28 +159,7 @@ export function createHooksRequestHandler(
         sendJson(res, 400, { ok: false, error: normalized.error });
         return true;
       }
-<<<<<<< HEAD
       const runId = dispatchAgentHook(normalized.value);
-=======
-      if (!isHookAgentAllowed(hooksConfig, normalized.value.agentId)) {
-        sendJson(res, 400, { ok: false, error: getHookAgentPolicyError() });
-        return true;
-      }
-      const sessionKey = resolveHookSessionKey({
-        hooksConfig,
-        source: "request",
-        sessionKey: normalized.value.sessionKey,
-      });
-      if (!sessionKey.ok) {
-        sendJson(res, 400, { ok: false, error: sessionKey.error });
-        return true;
-      }
-      const runId = dispatchAgentHook({
-        ...normalized.value,
-        sessionKey: sessionKey.value,
-        agentId: resolveHookTargetAgentId(hooksConfig, normalized.value.agentId),
-      });
->>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
       sendJson(res, 202, { ok: true, runId });
       return true;
     }
@@ -263,8 +195,6 @@ export function createHooksRequestHandler(
             sendJson(res, 400, { ok: false, error: getHookChannelError() });
             return true;
           }
-<<<<<<< HEAD
-=======
           if (!isHookAgentAllowed(hooksConfig, mapped.action.agentId)) {
             sendJson(res, 400, { ok: false, error: getHookAgentPolicyError() });
             return true;
@@ -278,7 +208,6 @@ export function createHooksRequestHandler(
             sendJson(res, 400, { ok: false, error: sessionKey.error });
             return true;
           }
->>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
           const runId = dispatchAgentHook({
             message: mapped.action.message,
             name: mapped.action.name ?? "Hook",
@@ -347,14 +276,7 @@ export function createGatewayHttpServer(opts: {
     try {
       const configSnapshot = loadConfig();
       const trustedProxies = configSnapshot.gateway?.trustedProxies ?? [];
-<<<<<<< HEAD
       if (await handleHooksRequest(req, res)) return;
-=======
-      const requestPath = new URL(req.url ?? "/", "http://localhost").pathname;
-      if (await handleHooksRequest(req, res)) {
-        return;
-      }
->>>>>>> 647d929c9 (fix: Unauthenticated Nostr profile API allows remote config tampering (#13719))
       if (
         await handleToolsInvokeHttpRequest(req, res, {
           auth: resolvedAuth,
@@ -362,36 +284,8 @@ export function createGatewayHttpServer(opts: {
         })
       )
         return;
-<<<<<<< HEAD
       if (await handleSlackHttpRequest(req, res)) return;
       if (handlePluginRequest && (await handlePluginRequest(req, res))) return;
-=======
-      }
-      if (await handleSlackHttpRequest(req, res)) {
-        return;
-      }
-      if (handlePluginRequest) {
-        // Channel HTTP endpoints are gateway-auth protected by default.
-        // Non-channel plugin routes remain plugin-owned and must enforce
-        // their own auth when exposing sensitive functionality.
-        if (requestPath.startsWith("/api/channels/")) {
-          const token = getBearerToken(req);
-          const authResult = await authorizeGatewayConnect({
-            auth: resolvedAuth,
-            connectAuth: token ? { token, password: token } : null,
-            req,
-            trustedProxies,
-          });
-          if (!authResult.ok) {
-            sendUnauthorized(res);
-            return;
-          }
-        }
-        if (await handlePluginRequest(req, res)) {
-          return;
-        }
-      }
->>>>>>> 647d929c9 (fix: Unauthenticated Nostr profile API allows remote config tampering (#13719))
       if (openResponsesEnabled) {
         if (
           await handleOpenResponsesHttpRequest(req, res, {
@@ -413,19 +307,8 @@ export function createGatewayHttpServer(opts: {
       }
       if (canvasHost) {
 <<<<<<< HEAD
-<<<<<<< HEAD
         if (await handleA2uiHttpRequest(req, res)) return;
         if (await canvasHost.handleHttpRequest(req, res)) return;
-=======
-        const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
-        if (isCanvasPath(url.pathname)) {
-          const token = getBearerToken(req);
-          const authResult = await authorizeGatewayConnect({
-=======
-        if (isCanvasPath(requestPath)) {
-          const ok = await authorizeCanvasRequest({
-            req,
->>>>>>> 647d929c9 (fix: Unauthenticated Nostr profile API allows remote config tampering (#13719))
             auth: resolvedAuth,
             connectAuth: token ? { token, password: token } : null,
             req,
@@ -486,43 +369,9 @@ export function attachGatewayUpgradeHandler(opts: {
 }) {
   const { httpServer, wss, canvasHost, resolvedAuth } = opts;
   httpServer.on("upgrade", (req, socket, head) => {
-<<<<<<< HEAD
     if (canvasHost?.handleUpgrade(req, socket, head)) return;
     wss.handleUpgrade(req, socket, head, (ws) => {
       wss.emit("connection", ws, req);
-=======
-    void (async () => {
-      if (canvasHost) {
-        const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
-        if (url.pathname === CANVAS_WS_PATH) {
-          const configSnapshot = loadConfig();
-          const token = getBearerToken(req);
-          const authResult = await authorizeGatewayConnect({
-            auth: resolvedAuth,
-            connectAuth: token ? { token, password: token } : null,
-            req,
-            trustedProxies: configSnapshot.gateway?.trustedProxies ?? [],
-          });
-          if (!authResult.ok) {
-            socket.write("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n");
-            socket.destroy();
-            return;
-          }
-        }
-      }
-      if (canvasHost?.handleUpgrade(req, socket, head)) {
-        return;
-      }
-      wss.handleUpgrade(req, socket, head, (ws) => {
-        wss.emit("connection", ws, req);
-      });
-    })().catch(() => {
-      try {
-        socket.destroy();
-      } catch {
-        // ignore
-      }
->>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
     });
   });
 }

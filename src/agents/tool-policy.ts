@@ -56,11 +56,8 @@ export const TOOL_GROUPS: Record<string, string[]> = {
   ],
 };
 
-<<<<<<< HEAD
-=======
 const OWNER_ONLY_TOOL_NAMES = new Set<string>(["whatsapp_login", "cron", "gateway"]);
 
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
 const TOOL_PROFILES: Record<ToolProfileId, ToolProfilePolicy> = {
   minimal: {
     allow: ["session_status"],

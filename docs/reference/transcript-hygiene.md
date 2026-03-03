@@ -45,8 +45,6 @@ Implementation:
 
 ---
 
-<<<<<<< HEAD
-=======
 ## Global rule: malformed tool calls
 
 Assistant tool-call blocks that are missing both `input` and `arguments` are dropped
@@ -77,7 +75,6 @@ external end-user instructions.
 
 ---
 
->>>>>>> 85409e401 (fix: preserve inter-session input provenance (thanks @anbecker))
 ## Provider matrix (current behavior)
 
 **OpenAI / OpenAI Codex**

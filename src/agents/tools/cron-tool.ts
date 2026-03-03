@@ -1,13 +1,6 @@
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
 import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../cron/normalize.js";
 import { loadConfig } from "../../config/config.js";
-=======
-import type { CronDelivery, CronMessageChannel } from "../../cron/types.js";
-import { loadConfig } from "../../config/config.js";
-import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../cron/normalize.js";
-import { parseAgentSessionKey } from "../../sessions/session-key-utils.js";
->>>>>>> 821520a05 (fix cron scheduling and reminder delivery regressions (#9733))
 import { truncateUtf16Safe } from "../../utils.js";
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
@@ -276,8 +269,6 @@ Use jobId as the canonical identifier; id is accepted for compatibility. Use con
             }),
           );
         case "add": {
-<<<<<<< HEAD
-=======
           // Flat-params recovery: non-frontier models (e.g. Grok) sometimes flatten
           // job properties to the top level alongside `action` instead of nesting
           // them inside `job`. When `params.job` is missing or empty, reconstruct
@@ -330,7 +321,6 @@ Use jobId as the canonical identifier; id is accepted for compatibility. Use con
             }
           }
 
->>>>>>> c20ef582c (fix: align cron session key routing (#18637) (thanks @vignesh07))
           if (!params.job || typeof params.job !== "object") {
             throw new Error("job required");
           }

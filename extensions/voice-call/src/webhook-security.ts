@@ -275,10 +275,7 @@ export function reconstructWebhookUrl(ctx: WebhookContext, options?: WebhookUrlO
 function buildTwilioVerificationUrl(
   ctx: WebhookContext,
   publicUrl?: string,
-<<<<<<< HEAD
-=======
   urlOptions?: WebhookUrlOptions,
->>>>>>> a749db982 (fix: harden voice-call webhook verification)
 ): string {
   if (!publicUrl) {
     return reconstructWebhookUrl(ctx, urlOptions);
@@ -405,17 +402,12 @@ export function verifyTwilioWebhook(
     verificationUrl.includes(".ngrok-free.app") ||
     verificationUrl.includes(".ngrok.io");
 
-<<<<<<< HEAD
   if (
     isNgrokFreeTier &&
     options?.allowNgrokFreeTierLoopbackBypass &&
     isLoopbackAddress(ctx.remoteAddress)
   ) {
     console.warn( // standalone util — caller logs through provider logger
-=======
-  if (isNgrokFreeTier && options?.allowNgrokFreeTierLoopbackBypass && isLoopback) {
-    console.warn(
->>>>>>> a749db982 (fix: harden voice-call webhook verification)
       "[voice-call] Twilio signature validation failed (ngrok free tier compatibility, loopback only)",
     );
     return {

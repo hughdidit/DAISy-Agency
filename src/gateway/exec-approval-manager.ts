@@ -112,17 +112,7 @@ export class ExecApprovalManager {
 
   resolve(recordId: string, decision: ExecApprovalDecision, resolvedBy?: string | null): boolean {
     const pending = this.pending.get(recordId);
-<<<<<<< HEAD
     if (!pending) return false;
-=======
-    if (!pending) {
-      return false;
-    }
-    // Prevent double-resolve (e.g., if called after timeout already resolved)
-    if (pending.record.resolvedAtMs !== undefined) {
-      return false;
-    }
->>>>>>> 1af0edf7f (fix: ensure exec approval is registered before returning (#2402) (#3357))
     clearTimeout(pending.timer);
     pending.record.resolvedAtMs = Date.now();
     pending.record.decision = decision;

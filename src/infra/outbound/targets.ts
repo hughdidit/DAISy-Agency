@@ -61,20 +61,9 @@ export function resolveSessionDeliveryTarget(params: {
   const context = deliveryContextFromSession(params.entry);
   const lastChannel =
     context?.channel && isDeliverableMessageChannel(context.channel) ? context.channel : undefined;
-<<<<<<< HEAD
   const lastTo = context?.to;
   const lastAccountId = context?.accountId;
   const lastThreadId = context?.threadId;
-=======
-
-  // When a turn-source channel is provided, use only turn-scoped metadata.
-  // Falling back to mutable session fields would re-introduce routing races.
-  const hasTurnSourceChannel = params.turnSourceChannel != null;
-  const lastChannel = hasTurnSourceChannel ? params.turnSourceChannel : sessionLastChannel;
-  const lastTo = hasTurnSourceChannel ? params.turnSourceTo : context?.to;
-  const lastAccountId = hasTurnSourceChannel ? params.turnSourceAccountId : context?.accountId;
-  const lastThreadId = hasTurnSourceChannel ? params.turnSourceThreadId : context?.threadId;
->>>>>>> 885452f5c (fix: fail-closed shared-session reply routing (#24571) (thanks @brandonwise))
 
   const rawRequested = params.requestedChannel ?? "last";
   const requested = rawRequested === "last" ? "last" : normalizeMessageChannel(rawRequested);
@@ -308,14 +297,7 @@ export function resolveHeartbeatSenderContext(params: {
 }): HeartbeatSenderContext {
   const provider =
     params.delivery.channel !== "none" ? params.delivery.channel : params.delivery.lastChannel;
-<<<<<<< HEAD
   const allowFrom = provider
-=======
-  const accountId =
-    params.delivery.accountId ??
-    (provider === params.delivery.lastChannel ? params.delivery.lastAccountId : undefined);
-  const allowFromRaw = provider
->>>>>>> 0c1a52307 (fix: align draft/outbound typings and tests)
     ? (getChannelPlugin(provider)?.config.resolveAllowFrom?.({
         cfg: params.cfg,
         accountId:

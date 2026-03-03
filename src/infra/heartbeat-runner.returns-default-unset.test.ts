@@ -5,12 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { ReplyPayload } from "../auto-reply/types.js";
-=======
->>>>>>> 21087c5c7 (test: fix rebase-introduced tsgo regressions)
 import { whatsappOutbound } from "../channels/plugins/outbound/whatsapp.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> a18603681 (test: fix latest tsgo inference regressions in test suites)
@@ -27,7 +22,6 @@ import {
   resolveHeartbeatPrompt,
   runHeartbeatOnce,
 } from "./heartbeat-runner.js";
-<<<<<<< HEAD
 import { resolveHeartbeatDeliveryTarget } from "./outbound/targets.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createPluginRuntime } from "../plugins/runtime/index.js";
@@ -36,18 +30,10 @@ import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
 import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
-=======
-import {
-  resolveHeartbeatDeliveryTarget,
-  resolveHeartbeatSenderContext,
-} from "./outbound/targets.js";
-import { enqueueSystemEvent, resetSystemEventsForTest } from "./system-events.js";
->>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
 
 // Avoid pulling optional runtime deps during isolated runs.
 vi.mock("jiti", () => ({ createJiti: () => () => ({}) }));
 
-<<<<<<< HEAD
 beforeEach(() => {
   const runtime = createPluginRuntime();
   setTelegramRuntime(runtime);
@@ -58,96 +44,6 @@ beforeEach(() => {
       { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
     ]),
   );
-=======
-let previousRegistry: ReturnType<typeof getActivePluginRegistry> | null = null;
-let testRegistry: ReturnType<typeof getActivePluginRegistry> | null = null;
-
-let fixtureRoot = "";
-let fixtureCount = 0;
-
-const createCaseDir = async (prefix: string, { skipHeartbeatFile = false } = {}) => {
-  const dir = path.join(fixtureRoot, `${prefix}-${fixtureCount++}`);
-  await fs.mkdir(dir, { recursive: true });
-  if (!skipHeartbeatFile) {
-    await fs.writeFile(path.join(dir, "HEARTBEAT.md"), "- Check status\n", "utf-8");
-  }
-  return dir;
-};
-
-beforeAll(async () => {
-  previousRegistry = getActivePluginRegistry();
-
-  const whatsappPlugin = createOutboundTestPlugin({ id: "whatsapp", outbound: whatsappOutbound });
-  whatsappPlugin.config = {
-    ...whatsappPlugin.config,
-    resolveAllowFrom: ({ cfg }) =>
-      cfg.channels?.whatsapp?.allowFrom?.map((entry) => String(entry)) ?? [],
-  };
-
-  const telegramPlugin = createOutboundTestPlugin({
-    id: "telegram",
-    outbound: {
-      deliveryMode: "direct",
-      sendText: async ({ to, text, deps, accountId }) => {
-        if (!deps?.sendTelegram) {
-          throw new Error("sendTelegram missing");
-        }
-        const res = await deps.sendTelegram(to, text, {
-          verbose: false,
-          accountId: accountId ?? undefined,
-        });
-        return { channel: "telegram", messageId: res.messageId, chatId: res.chatId };
-      },
-      sendMedia: async ({ to, text, mediaUrl, deps, accountId }) => {
-        if (!deps?.sendTelegram) {
-          throw new Error("sendTelegram missing");
-        }
-        const res = await deps.sendTelegram(to, text, {
-          verbose: false,
-          accountId: accountId ?? undefined,
-          mediaUrl,
-        });
-        return { channel: "telegram", messageId: res.messageId, chatId: res.chatId };
-      },
-    },
-  });
-  telegramPlugin.config = {
-    ...telegramPlugin.config,
-    listAccountIds: (cfg) => Object.keys(cfg.channels?.telegram?.accounts ?? {}),
-    resolveAllowFrom: ({ cfg, accountId }) => {
-      const channel = cfg.channels?.telegram;
-      const normalized = accountId?.trim();
-      if (normalized && channel?.accounts?.[normalized]?.allowFrom) {
-        return channel.accounts[normalized].allowFrom?.map((entry) => String(entry)) ?? [];
-      }
-      return channel?.allowFrom?.map((entry) => String(entry)) ?? [];
-    },
-  };
-
-  testRegistry = createTestRegistry([
-    { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
-    { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
-  ]);
-  setActivePluginRegistry(testRegistry);
-
-  fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-heartbeat-suite-"));
-});
-
-beforeEach(() => {
-  resetSystemEventsForTest();
-  if (testRegistry) {
-    setActivePluginRegistry(testRegistry);
-  }
-});
-
-afterAll(async () => {
-  if (fixtureRoot) {
-    await fs.rm(fixtureRoot, { recursive: true, force: true });
-  }
-  if (previousRegistry) {
-    setActivePluginRegistry(previousRegistry);
-  }
->>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
 });
 
 describe("resolveHeartbeatIntervalMs", () => {
@@ -517,8 +413,6 @@ describe("runHeartbeatOnce", () => {
 
       await fs.writeFile(
         storePath,
-<<<<<<< HEAD
-=======
         JSON.stringify({
           [sessionKey]: {
             sessionId: "sid",
@@ -597,7 +491,6 @@ describe("runHeartbeatOnce", () => {
       await fs.writeFile(sessionFile, "", "utf-8");
       await fs.writeFile(
         storePath,
->>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
         JSON.stringify(
           {
             [sessionKey]: {
@@ -1206,13 +1099,8 @@ describe("runHeartbeatOnce", () => {
     }
   });
 
-<<<<<<< HEAD
   it("runs heartbeat when HEARTBEAT.md does not exist (lets LLM decide)", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-  it("skips heartbeat when HEARTBEAT.md does not exist (saves API calls)", async () => {
-    const tmpDir = await createCaseDir("openclaw-hb");
->>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
     const storePath = path.join(tmpDir, "sessions.json");
     const workspaceDir = path.join(tmpDir, "workspace");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");

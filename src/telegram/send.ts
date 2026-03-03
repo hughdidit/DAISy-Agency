@@ -121,7 +121,6 @@ function resolveToken(explicit: string | undefined, params: { accountId: string;
   return params.token.trim();
 }
 
-<<<<<<< HEAD
 function normalizeChatId(to: string): string {
   const trimmed = to.trim();
   if (!trimmed) throw new Error("Recipient is required for Telegram sends");
@@ -146,58 +145,6 @@ function normalizeChatId(to: string): string {
   if (/^[A-Za-z0-9_]{5,}$/i.test(normalized)) return `@${normalized}`;
 
   return normalized;
-=======
-async function resolveChatId(
-  to: string,
-  params: { api: TelegramApiOverride; verbose?: boolean },
-): Promise<string> {
-  const numericChatId = normalizeTelegramChatId(to);
-  if (numericChatId) {
-    return numericChatId;
-  }
-  const lookupTarget = normalizeTelegramLookupTarget(to);
-  const getChat = params.api.getChat;
-  if (!lookupTarget || typeof getChat !== "function") {
-    throw new Error("Telegram recipient must be a numeric chat ID");
-  }
-  try {
-    const chat = await getChat.call(params.api, lookupTarget);
-    const resolved = normalizeTelegramChatId(String(chat?.id ?? ""));
-    if (!resolved) {
-      throw new Error(`resolved chat id is not numeric (${String(chat?.id ?? "")})`);
-    }
-    if (params.verbose) {
-      sendLogger.warn(`telegram recipient ${lookupTarget} resolved to numeric chat id ${resolved}`);
-    }
-    return resolved;
-  } catch (err) {
-    const detail = formatErrorMessage(err);
-    throw new Error(
-      `Telegram recipient ${lookupTarget} could not be resolved to a numeric chat ID (${detail})`,
-      { cause: err },
-    );
-  }
-}
-
-async function resolveAndPersistChatId(params: {
-  cfg: ReturnType<typeof loadConfig>;
-  api: TelegramApiOverride;
-  lookupTarget: string;
-  persistTarget: string;
-  verbose?: boolean;
-}): Promise<string> {
-  const chatId = await resolveChatId(params.lookupTarget, {
-    api: params.api,
-    verbose: params.verbose,
-  });
-  await maybePersistResolvedTelegramTarget({
-    cfg: params.cfg,
-    rawTarget: params.persistTarget,
-    resolvedChatId: chatId,
-    verbose: params.verbose,
-  });
-  return chatId;
->>>>>>> dcc52850c (fix: persist resolved telegram delivery targets at runtime)
 }
 
 function normalizeMessageId(raw: string | number): number {
@@ -219,13 +166,10 @@ function isTelegramThreadNotFoundError(err: unknown): boolean {
   return THREAD_NOT_FOUND_RE.test(formatErrorMessage(err));
 }
 
-<<<<<<< HEAD
-=======
 function isTelegramMessageNotModifiedError(err: unknown): boolean {
   return MESSAGE_NOT_MODIFIED_RE.test(formatErrorMessage(err));
 }
 
->>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids)
 function hasMessageThreadIdParam(params?: Record<string, unknown>): boolean {
   if (!params) {
     return false;
@@ -251,8 +195,6 @@ function removeMessageThreadIdParam(
   return Object.keys(next).length > 0 ? next : undefined;
 }
 
-<<<<<<< HEAD
-=======
 function isTelegramHtmlParseError(err: unknown): boolean {
   return PARSE_ERR_RE.test(formatErrorMessage(err));
 }
@@ -431,7 +373,6 @@ function createRequestWithChatNotFound(params: {
     });
 }
 
->>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids)
 export function buildInlineKeyboard(
   buttons?: TelegramSendOpts["buttons"],
 ): InlineKeyboardMarkup | undefined {
@@ -464,25 +405,14 @@ export async function sendMessageTelegram(
   });
   const token = resolveToken(opts.token, account);
   const target = parseTelegramTarget(to);
-<<<<<<< HEAD
   const chatId = normalizeChatId(target.chatId);
   // Use provided api or create a new Bot instance. The nullish coalescing
   // operator ensures api is always defined (Bot.api is always non-null).
   const client = resolveTelegramClientOptions(account);
   const api = opts.api ?? new Bot(token, client ? { client } : undefined).api;
-=======
-  const chatId = await resolveAndPersistChatId({
-    cfg,
-    api,
-    lookupTarget: target.chatId,
-    persistTarget: to,
-    verbose: opts.verbose,
-  });
->>>>>>> dcc52850c (fix: persist resolved telegram delivery targets at runtime)
   const mediaUrl = opts.mediaUrl?.trim();
   const replyMarkup = buildInlineKeyboard(opts.buttons);
 
-<<<<<<< HEAD
   // Build optional params for forum topics and reply threading.
   // Only include these if actually provided to keep API calls clean.
   const messageThreadId =
@@ -502,15 +432,6 @@ export async function sendMessageTelegram(
       threadParams.reply_to_message_id = Math.trunc(opts.replyToMessageId);
     }
   }
-=======
-  const threadParams = buildTelegramThreadReplyParams({
-    targetMessageThreadId: target.messageThreadId,
-    messageThreadId: opts.messageThreadId,
-    chatType: target.chatType,
-    replyToMessageId: opts.replyToMessageId,
-    quoteText: opts.quoteText,
-  });
->>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids)
   const hasThreadParams = Object.keys(threadParams).length > 0;
   const request = createTelegramRetryRunner({
     retry: opts.retry,
@@ -806,7 +727,6 @@ export async function reactMessageTelegram(
   messageIdInput: string | number,
   emoji: string,
   opts: TelegramReactionOpts = {},
-<<<<<<< HEAD
 ): Promise<{ ok: true }> {
   const cfg = loadConfig();
   const account = resolveTelegramAccount({
@@ -815,18 +735,6 @@ export async function reactMessageTelegram(
   });
   const token = resolveToken(opts.token, account);
   const chatId = normalizeChatId(String(chatIdInput));
-=======
-): Promise<{ ok: true } | { ok: false; warning: string }> {
-  const { cfg, account, api } = resolveTelegramApiContext(opts);
-  const rawTarget = String(chatIdInput);
-  const chatId = await resolveAndPersistChatId({
-    cfg,
-    api,
-    lookupTarget: rawTarget,
-    persistTarget: rawTarget,
-    verbose: opts.verbose,
-  });
->>>>>>> dcc52850c (fix: persist resolved telegram delivery targets at runtime)
   const messageId = normalizeMessageId(messageIdInput);
   const client = resolveTelegramClientOptions(account);
   const api = opts.api ?? new Bot(token, client ? { client } : undefined).api;
@@ -873,7 +781,6 @@ export async function deleteMessageTelegram(
   messageIdInput: string | number,
   opts: TelegramDeleteOpts = {},
 ): Promise<{ ok: true }> {
-<<<<<<< HEAD
   const cfg = loadConfig();
   const account = resolveTelegramAccount({
     cfg,
@@ -881,17 +788,6 @@ export async function deleteMessageTelegram(
   });
   const token = resolveToken(opts.token, account);
   const chatId = normalizeChatId(String(chatIdInput));
-=======
-  const { cfg, account, api } = resolveTelegramApiContext(opts);
-  const rawTarget = String(chatIdInput);
-  const chatId = await resolveAndPersistChatId({
-    cfg,
-    api,
-    lookupTarget: rawTarget,
-    persistTarget: rawTarget,
-    verbose: opts.verbose,
-  });
->>>>>>> dcc52850c (fix: persist resolved telegram delivery targets at runtime)
   const messageId = normalizeMessageId(messageIdInput);
   const client = resolveTelegramClientOptions(account);
   const api = opts.api ?? new Bot(token, client ? { client } : undefined).api;
@@ -939,19 +835,8 @@ export async function editMessageTelegram(
     cfg,
     accountId: opts.accountId,
   });
-<<<<<<< HEAD
   const token = resolveToken(opts.token, account);
   const chatId = normalizeChatId(String(chatIdInput));
-=======
-  const rawTarget = String(chatIdInput);
-  const chatId = await resolveAndPersistChatId({
-    cfg,
-    api,
-    lookupTarget: rawTarget,
-    persistTarget: rawTarget,
-    verbose: opts.verbose,
-  });
->>>>>>> dcc52850c (fix: persist resolved telegram delivery targets at runtime)
   const messageId = normalizeMessageId(messageIdInput);
   const client = resolveTelegramClientOptions(account);
   const api = opts.api ?? new Bot(token, client ? { client } : undefined).api;
@@ -1069,21 +954,10 @@ export async function sendStickerTelegram(
   });
   const token = resolveToken(opts.token, account);
   const target = parseTelegramTarget(to);
-<<<<<<< HEAD
   const chatId = normalizeChatId(target.chatId);
   const client = resolveTelegramClientOptions(account);
   const api = opts.api ?? new Bot(token, client ? { client } : undefined).api;
-=======
-  const chatId = await resolveAndPersistChatId({
-    cfg,
-    api,
-    lookupTarget: target.chatId,
-    persistTarget: to,
-    verbose: opts.verbose,
-  });
->>>>>>> dcc52850c (fix: persist resolved telegram delivery targets at runtime)
 
-<<<<<<< HEAD
   const messageThreadId =
     opts.messageThreadId != null ? opts.messageThreadId : target.messageThreadId;
   const threadSpec =
@@ -1093,14 +967,6 @@ export async function sendStickerTelegram(
   if (opts.replyToMessageId != null) {
     threadParams.reply_to_message_id = Math.trunc(opts.replyToMessageId);
   }
-=======
-  const threadParams = buildTelegramThreadReplyParams({
-    targetMessageThreadId: target.messageThreadId,
-    messageThreadId: opts.messageThreadId,
-    chatType: target.chatType,
-    replyToMessageId: opts.replyToMessageId,
-  });
->>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids)
   const hasThreadParams = Object.keys(threadParams).length > 0;
 
   const request = createTelegramRetryRunner({
@@ -1178,8 +1044,6 @@ export async function sendStickerTelegram(
 
   return { messageId, chatId: resolvedChatId };
 }
-<<<<<<< HEAD
-=======
 
 type TelegramPollOpts = {
   token?: string;
@@ -1291,7 +1155,6 @@ export async function sendPollTelegram(
   return { messageId, chatId: resolvedChatId, pollId };
 }
 <<<<<<< HEAD
->>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids)
 =======
 
 // ---------------------------------------------------------------------------

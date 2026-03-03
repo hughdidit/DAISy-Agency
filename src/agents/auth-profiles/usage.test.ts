@@ -1,27 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 import type { AuthProfileStore } from "./types.js";
 import { clearExpiredCooldowns, isProfileInCooldown } from "./usage.js";
-=======
-import { describe, expect, it, vi } from "vitest";
-import type { AuthProfileStore, ProfileUsageStats } from "./types.js";
-import {
-  clearAuthProfileCooldown,
-  clearExpiredCooldowns,
-  isProfileInCooldown,
-  markAuthProfileFailure,
-  resolveProfileUnusableUntil,
-} from "./usage.js";
-
-vi.mock("./store.js", async (importOriginal) => {
-  const original = await importOriginal<typeof import("./store.js")>();
-  return {
-    ...original,
-    updateAuthProfileStoreWithLock: vi.fn().mockResolvedValue(null),
-    saveAuthProfileStore: vi.fn(),
-  };
-});
->>>>>>> 07527e22c (refactor(auth-profiles): centralize active-window logic + strengthen regression coverage)
 
 function makeStore(usageStats: AuthProfileStore["usageStats"]): AuthProfileStore {
   return {
@@ -288,8 +267,6 @@ describe("clearExpiredCooldowns", () => {
     expect(clearExpiredCooldowns(store)).toBe(false);
   });
 });
-<<<<<<< HEAD
-=======
 
 // ---------------------------------------------------------------------------
 // clearAuthProfileCooldown
@@ -451,4 +428,3 @@ describe("markAuthProfileFailure — active windows do not extend on retry", () 
     });
   }
 });
->>>>>>> 7c3c406a3 (fix: keep auth-profile cooldown windows immutable in-window (#23536) (thanks @arosstale))

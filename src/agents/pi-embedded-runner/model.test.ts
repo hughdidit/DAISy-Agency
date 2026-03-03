@@ -127,8 +127,6 @@ describe("resolveModel", () => {
     expect(result.model?.provider).toBe("custom");
     expect(result.model?.id).toBe("missing-model");
   });
-<<<<<<< HEAD
-=======
 
   it("builds an openai-codex fallback for gpt-5.3-codex", () => {
     mockDiscoveredModel({
@@ -325,5 +323,4 @@ describe("resolveModel", () => {
     expect(result.model).toBeUndefined();
     expect(result.error).toBe("Unknown model: google-antigravity/some-model");
   });
->>>>>>> 4df970d71 (fix: improve error for unconfigured local providers (ollama/vllm) (#17328))
 });

@@ -1,17 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { detectAndLoadPromptImages, detectImageReferences, modelSupportsImages } from "./images.js";
-=======
-import { createHostSandboxFsBridge } from "../../test-helpers/host-sandbox-fs-bridge.js";
-import { createUnsafeMountedSandbox } from "../../test-helpers/unsafe-mounted-sandbox.js";
-import {
-  detectAndLoadPromptImages,
-  detectImageReferences,
-  loadImageFromRef,
-  modelSupportsImages,
-} from "./images.js";
->>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
 
 describe("detectImageReferences", () => {
   it("detects absolute file paths with common extensions", () => {

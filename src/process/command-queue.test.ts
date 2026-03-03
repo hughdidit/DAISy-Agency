@@ -16,21 +16,7 @@ vi.mock("../logging/diagnostic.js", () => ({
   diagnosticLogger: diagnosticMocks.diag,
 }));
 
-<<<<<<< HEAD
 import { enqueueCommand, getQueueSize } from "./command-queue.js";
-=======
-import {
-  clearCommandLane,
-  CommandLaneClearedError,
-  enqueueCommand,
-  enqueueCommandInLane,
-  getActiveTaskCount,
-  getQueueSize,
-  resetAllLanes,
-  setCommandLaneConcurrency,
-  waitForActiveTasks,
-} from "./command-queue.js";
->>>>>>> 4e9f933e8 (fix: reset stale execution state after SIGUSR1 in-process restart (#15195))
 
 describe("command queue", () => {
   beforeEach(() => {
@@ -105,8 +91,6 @@ describe("command queue", () => {
     expect(waited as number).toBeGreaterThanOrEqual(5);
     expect(queuedAhead).toBe(0);
   });
-<<<<<<< HEAD
-=======
 
   it("getActiveTaskCount returns count of currently executing tasks", async () => {
     let resolve1!: () => void;
@@ -281,5 +265,4 @@ describe("command queue", () => {
     resolve1();
     await expect(first).resolves.toBe("first");
   });
->>>>>>> 4e9f933e8 (fix: reset stale execution state after SIGUSR1 in-process restart (#15195))
 });

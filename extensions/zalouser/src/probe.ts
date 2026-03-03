@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import type { BaseProbeResult } from "openclaw/plugin-sdk";
 import type { ZcaUserInfo } from "./types.js";
->>>>>>> c6b3736fe (fix: dedupe probe/token base types (#16986) (thanks @iyoda))
 import { runZca, parseJsonOutput } from "./zca.js";
 import type { ZcaUserInfo } from "./types.js";
 

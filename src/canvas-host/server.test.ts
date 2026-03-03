@@ -71,13 +71,8 @@ describe("canvas host", () => {
     }
   });
 
-<<<<<<< HEAD
   it("serves canvas content from the mounted base path", async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
-=======
-  it("serves canvas content from the mounted base path and reuses handlers without double close", async () => {
-    const dir = await createCaseDir();
->>>>>>> 53055aeaf (perf(test): consolidate cron and canvas regression setups)
     await fs.writeFile(path.join(dir, "index.html"), "<html><body>v1</body></html>", "utf8");
 
     const handler = await createCanvasHostHandler({
@@ -118,7 +113,6 @@ describe("canvas host", () => {
       );
       await fs.rm(dir, { recursive: true, force: true });
     }
-<<<<<<< HEAD
   });
 
   it("reuses a handler without closing it twice", async () => {
@@ -131,19 +125,12 @@ describe("canvas host", () => {
       basePath: CANVAS_HOST_PATH,
       allowInTests: true,
     });
-=======
->>>>>>> 53055aeaf (perf(test): consolidate cron and canvas regression setups)
     const originalClose = handler.close;
     const closeSpy = vi.fn(async () => originalClose());
     handler.close = closeSpy;
 
-<<<<<<< HEAD
     const server = await startCanvasHost({
       runtime: defaultRuntime,
-=======
-    const hosted = await startCanvasHost({
-      runtime: quietRuntime,
->>>>>>> 53055aeaf (perf(test): consolidate cron and canvas regression setups)
       handler,
       ownsHandler: false,
       port: 0,

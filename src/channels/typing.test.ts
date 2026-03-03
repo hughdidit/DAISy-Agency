@@ -39,8 +39,6 @@ describe("createTypingCallbacks", () => {
     expect(stop).toHaveBeenCalledTimes(1);
     expect(onStopError).toHaveBeenCalledTimes(1);
   });
-<<<<<<< HEAD
-=======
 
   it("sends typing keepalive pings until idle cleanup", async () => {
     vi.useFakeTimers();
@@ -335,5 +333,4 @@ describe("createTypingCallbacks", () => {
       }
     });
   });
->>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
 });

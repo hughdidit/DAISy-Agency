@@ -1,11 +1,7 @@
 import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { detectMime, extensionForMime, imageMimeFromFormat } from "./mime.js";
-=======
-import { detectMime, extensionForMime, imageMimeFromFormat, isAudioFileName } from "./mime.js";
->>>>>>> b8f740fb1 (fix: add .caf to AUDIO_FILE_EXTENSIONS (#10982))
 
 async function makeOoxmlZip(opts: { mainMime: string; partPath: string }): Promise<Buffer> {
   const zip = new JSZip();

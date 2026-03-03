@@ -1,23 +1,16 @@
 import { listAgentIds, resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
 import { createDefaultDeps } from "../../../cli/deps.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
-=======
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
 import { runBootOnce } from "../../../gateway/boot.js";
 import { createSubsystemLogger } from "../../../logging/subsystem.js";
 import type { HookHandler } from "../../hooks.js";
 import { isGatewayStartupEvent } from "../../internal-hooks.js";
 
-<<<<<<< HEAD
 type BootHookContext = {
   cfg?: MoltbotConfig;
   workspaceDir?: string;
   deps?: CliDeps;
 };
-=======
-const log = createSubsystemLogger("hooks/boot-md");
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
 
 const runBootChecklist: HookHandler = async (event) => {
   if (!isGatewayStartupEvent(event)) {

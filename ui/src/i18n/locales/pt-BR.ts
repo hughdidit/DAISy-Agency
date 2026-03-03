@@ -101,8 +101,6 @@ export const pt_BR: TranslationMap = {
       hint: "Esta página é HTTP, então o navegador bloqueia a identidade do dispositivo. Use HTTPS (Tailscale Serve) ou abra {url} no host do gateway.",
       stayHttp: "Se você precisar permanecer em HTTP, defina {config} (apenas token).",
     },
-<<<<<<< HEAD
-=======
     connection: {
       title: "Como conectar",
       step1: "Inicie o gateway na sua máquina host:",
@@ -144,7 +142,6 @@ export const pt_BR: TranslationMap = {
   login: {
     subtitle: "Painel do Gateway",
     passwordPlaceholder: "opcional",
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   },
   chat: {
     disconnected: "Desconectado do gateway.",

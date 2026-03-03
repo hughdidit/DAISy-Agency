@@ -77,15 +77,9 @@ export function buildEmbeddedSystemPrompt(params: {
 export function createSystemPromptOverride(
   systemPrompt: string,
 <<<<<<< HEAD
-<<<<<<< HEAD
 ): (defaultPrompt: string) => string {
   const trimmed = systemPrompt.trim();
   return () => trimmed;
-=======
-): (defaultPrompt?: string) => string {
-  const override = systemPrompt.trim();
-  return (_defaultPrompt?: string) => override;
->>>>>>> 34dd7324d (fix: restore lint/build gates)
 =======
 ): (defaultPrompt?: string) => string {
   const override = systemPrompt.trim();

@@ -3,8 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 
 let capturedCtx: unknown;
-<<<<<<< HEAD
-=======
 let capturedDispatchParams: unknown;
 let sessionDir: string | undefined;
 let sessionStorePath: string;
@@ -60,7 +58,6 @@ function makeProcessMessageArgs(params: {
     // oxlint-disable-next-line typescript/no-explicit-any
   } as any;
 }
->>>>>>> b5881d9ef (fix: avoid WhatsApp silent turns with final-only delivery (#24962) (thanks @SidQin-cyber))
 
 vi.mock("../../../auto-reply/reply/provider-dispatcher.js", () => ({
   dispatchReplyWithBufferedBlockDispatcher: vi.fn(async (params: { ctx: unknown }) => {
@@ -69,47 +66,9 @@ vi.mock("../../../auto-reply/reply/provider-dispatcher.js", () => ({
   }),
 }));
 
-<<<<<<< HEAD
 import { processMessage } from "./process-message.js";
 
 describe("web processMessage inbound contract", () => {
-=======
-vi.mock("./last-route.js", () => ({
-  trackBackgroundTask: (tasks: Set<Promise<unknown>>, task: Promise<unknown>) => {
-    tasks.add(task);
-    void task.finally(() => {
-      tasks.delete(task);
-    });
-  },
-  updateLastRouteInBackground: vi.fn(),
-}));
-
-vi.mock("../deliver-reply.js", () => ({
-  deliverWebReply: deliverWebReplyMock,
-}));
-
-import { updateLastRouteInBackground } from "./last-route.js";
-import { processMessage } from "./process-message.js";
-
-describe("web processMessage inbound contract", () => {
-  beforeEach(async () => {
-    capturedCtx = undefined;
-    capturedDispatchParams = undefined;
-    backgroundTasks = new Set();
-    deliverWebReplyMock.mockClear();
-    sessionDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-process-message-"));
-    sessionStorePath = path.join(sessionDir, "sessions.json");
-  });
-
-  afterEach(async () => {
-    await Promise.allSettled(Array.from(backgroundTasks));
-    if (sessionDir) {
-      await fs.rm(sessionDir, { recursive: true, force: true });
-      sessionDir = undefined;
-    }
-  });
-
->>>>>>> b5881d9ef (fix: avoid WhatsApp silent turns with final-only delivery (#24962) (thanks @SidQin-cyber))
   it("passes a finalized MsgContext to the dispatcher", async () => {
     capturedCtx = undefined;
 
@@ -151,8 +110,6 @@ describe("web processMessage inbound contract", () => {
     expect(capturedCtx).toBeTruthy();
     expectInboundContextContract(capturedCtx as any);
   });
-<<<<<<< HEAD
-=======
 
   it("falls back SenderId to SenderE164 when senderJid is empty", async () => {
     capturedCtx = undefined;
@@ -327,7 +284,6 @@ describe("web processMessage inbound contract", () => {
     expect(replyOptions?.disableBlockStreaming).toBe(true);
   });
 <<<<<<< HEAD
->>>>>>> b5881d9ef (fix: avoid WhatsApp silent turns with final-only delivery (#24962) (thanks @SidQin-cyber))
 =======
 
   it("updates main last route for DM when session key matches main session key", async () => {

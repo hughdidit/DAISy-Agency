@@ -145,7 +145,6 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
       baseUrl: account.homeserver,
     }),
 <<<<<<< HEAD
-<<<<<<< HEAD
     resolveAllowFrom: ({ cfg }) =>
       ((cfg as CoreConfig).channels?.matrix?.dm?.allowFrom ?? []).map((entry) => String(entry)),
     formatAllowFrom: ({ allowFrom }) => normalizeAllowListLower(allowFrom),
@@ -159,15 +158,6 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
       approveHint: formatPairingApproveHint("matrix"),
       normalizeEntry: (raw) => raw.replace(/^matrix:/i, "").trim().toLowerCase(),
     }),
-=======
-    resolveAllowFrom: ({ account }) =>
-      (account.config.dm?.allowFrom ?? []).map((entry) => String(entry)),
-=======
-    resolveAllowFrom: ({ cfg, accountId }) => {
-      const matrixConfig = resolveMatrixAccountConfig({ cfg: cfg as CoreConfig, accountId });
-      return (matrixConfig.dm?.allowFrom ?? []).map((entry: string | number) => String(entry));
-    },
->>>>>>> a76ac1344 (fix: resolveAllowFrom uses cfg+accountId params, not account)
     formatAllowFrom: ({ allowFrom }) => normalizeMatrixAllowList(allowFrom),
   },
   security: {
@@ -189,22 +179,9 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
 >>>>>>> 1a17466a6 (fix: use account-aware config paths in resolveDmPolicy and resolveAllowFrom)
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = (cfg as CoreConfig).channels?.defaults?.groupPolicy;
-<<<<<<< HEAD
       const groupPolicy =
         account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
       if (groupPolicy !== "open") return [];
-=======
-      const { groupPolicy } = resolveRuntimeGroupPolicy({
-        providerConfigPresent: (cfg as CoreConfig).channels?.matrix !== undefined,
-        groupPolicy: account.config.groupPolicy,
-        defaultGroupPolicy,
-        configuredFallbackPolicy: "allowlist",
-        missingProviderFallbackPolicy: "allowlist",
-      });
-      if (groupPolicy !== "open") {
-        return [];
-      }
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
       return [
         "- Matrix rooms: groupPolicy=\"open\" allows any room to trigger (mention-gated). Set channels.matrix.groupPolicy=\"allowlist\" + channels.matrix.groups (and optionally channels.matrix.groupAllowFrom) to restrict rooms.",
       ];
@@ -215,13 +192,8 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
     resolveToolPolicy: resolveMatrixGroupToolPolicy,
   },
   threading: {
-<<<<<<< HEAD
     resolveReplyToMode: ({ cfg }) =>
       (cfg as CoreConfig).channels?.matrix?.replyToMode ?? "off",
-=======
-    resolveReplyToMode: ({ cfg, accountId }) =>
-      resolveMatrixAccountConfig({ cfg: cfg as CoreConfig, accountId }).replyToMode ?? "off",
->>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
     buildToolContext: ({ context, hasRepliedRef }) => {
       const currentTarget = context.To;
       return {

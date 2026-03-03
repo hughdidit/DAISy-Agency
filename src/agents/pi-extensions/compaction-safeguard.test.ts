@@ -249,8 +249,6 @@ describe("compaction-safeguard runtime registry", () => {
     expect(getCompactionSafeguardRuntime(sm1)).toEqual({ maxHistoryShare: 0.3 });
     expect(getCompactionSafeguardRuntime(sm2)).toEqual({ maxHistoryShare: 0.8 });
   });
-<<<<<<< HEAD
-=======
 
   it("stores and retrieves model from runtime (fallback for compact.ts workflow)", () => {
     const sm = {};
@@ -449,5 +447,4 @@ describe("compaction-safeguard extension model fallback", () => {
     // Verify early return: getApiKey should NOT have been called when both models are missing
     expect(getApiKeyMock).not.toHaveBeenCalled();
   });
->>>>>>> ea47ab29b (fix: cancel compaction instead of truncating history when summarization fails (#10711))
 });

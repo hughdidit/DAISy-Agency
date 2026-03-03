@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { logWebSelfId, sendMessageWhatsApp } from "../channels/web/index.js";
 import { sendMessageDiscord } from "../discord/send.js";
 import { sendMessageIMessage } from "../imessage/send.js";
@@ -6,15 +5,6 @@ import type { OutboundSendDeps } from "../infra/outbound/deliver.js";
 import { sendMessageSignal } from "../signal/send.js";
 import { sendMessageSlack } from "../slack/send.js";
 import { sendMessageTelegram } from "../telegram/send.js";
-=======
-import type { sendMessageWhatsApp } from "../channels/web/index.js";
-import type { sendMessageDiscord } from "../discord/send.js";
-import type { sendMessageIMessage } from "../imessage/send.js";
-import type { OutboundSendDeps } from "../infra/outbound/deliver.js";
-import type { sendMessageSignal } from "../signal/send.js";
-import type { sendMessageSlack } from "../slack/send.js";
-import type { sendMessageTelegram } from "../telegram/send.js";
->>>>>>> 874ff7089 (fix: ensure CLI exits after command completion (#12906))
 
 export type CliDeps = {
   sendMessageWhatsApp: typeof sendMessageWhatsApp;

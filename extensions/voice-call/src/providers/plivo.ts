@@ -1,10 +1,6 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
 import type { PlivoConfig } from "../config.js";
-=======
-import type { PlivoConfig, WebhookSecurityConfig } from "../config.js";
->>>>>>> a749db982 (fix: harden voice-call webhook verification)
 import type {
   HangupCallInput,
   InitiateCallInput,
@@ -467,15 +463,8 @@ export class PlivoProvider implements VoiceCallProvider {
     ctx: WebhookContext,
     opts: { flow: string; callId?: string },
   ): string | null {
-<<<<<<< HEAD
     const base = PlivoProvider.baseWebhookUrlFromCtx(ctx);
     if (!base) return null;
-=======
-    const base = this.baseWebhookUrlFromCtx(ctx);
-    if (!base) {
-      return null;
-    }
->>>>>>> a749db982 (fix: harden voice-call webhook verification)
 
     const u = new URL(base);
     u.searchParams.set("provider", "plivo");

@@ -4,36 +4,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-<<<<<<< HEAD
 import { resolveControlUiDistIndexPath, resolveControlUiRepoRoot } from "./control-ui-assets.js";
-=======
-/** Try to create a symlink; returns false if the OS denies it (Windows CI without Developer Mode). */
-async function trySymlink(target: string, linkPath: string): Promise<boolean> {
-  try {
-    await fs.symlink(target, linkPath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function canonicalPath(p: string): Promise<string> {
-  try {
-    return await fs.realpath(p);
-  } catch {
-    return path.resolve(p);
-  }
-}
-import {
-  resolveControlUiDistIndexHealth,
-  resolveControlUiDistIndexPath,
-  resolveControlUiDistIndexPathForRoot,
-  resolveControlUiRepoRoot,
-  resolveControlUiRootOverrideSync,
-  resolveControlUiRootSync,
-} from "./control-ui-assets.js";
-import { resolveOpenClawPackageRoot } from "./openclaw-root.js";
->>>>>>> 8d5094e1f (fix: resolve symlinked argv1 for Control UI asset detection (#14919))
 
 describe("control UI assets helpers", () => {
   it("resolves repo root from src argv1", async () => {
@@ -153,8 +124,6 @@ describe("control UI assets helpers", () => {
       await fs.rm(tmp, { recursive: true, force: true });
     }
   });
-<<<<<<< HEAD
-=======
 
   it("reports health for existing control-ui assets at a known root", async () => {
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
@@ -269,5 +238,4 @@ describe("control UI assets helpers", () => {
       await fs.rm(tmp, { recursive: true, force: true });
     }
   });
->>>>>>> 8d5094e1f (fix: resolve symlinked argv1 for Control UI asset detection (#14919))
 });

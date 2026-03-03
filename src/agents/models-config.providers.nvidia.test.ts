@@ -64,8 +64,6 @@ describe("NVIDIA provider", () => {
     expect(modelIds).toContain("nvidia/mistral-nemo-minitron-8b-8k-instruct");
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("MiniMax implicit provider (#15275)", () => {
   it("should use anthropic-messages API for API-key provider", async () => {
@@ -132,4 +130,3 @@ describe("vLLM provider", () => {
     });
   });
 });
->>>>>>> 60bb47535 (fix: set authHeader: true by default for MiniMax API provider (#27622))

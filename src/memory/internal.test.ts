@@ -3,17 +3,8 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { chunkMarkdown, listMemoryFiles, normalizeExtraMemoryPaths } from "./internal.js";
-=======
-import {
-  chunkMarkdown,
-  listMemoryFiles,
-  normalizeExtraMemoryPaths,
-  remapChunkLines,
-} from "./internal.js";
->>>>>>> 45488e4ec (fix: remap session JSONL chunk line numbers to original source positions (#12102))
 
 describe("normalizeExtraMemoryPaths", () => {
   it("trims, resolves, and dedupes paths", () => {

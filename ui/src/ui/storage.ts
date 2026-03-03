@@ -78,17 +78,9 @@ export function loadSettings(): UiSettings {
           ? parsed.splitRatio
           : defaults.splitRatio,
       navCollapsed:
-<<<<<<< HEAD
         typeof parsed.navCollapsed === "boolean"
           ? parsed.navCollapsed
           : defaults.navCollapsed,
-=======
-        typeof parsed.navCollapsed === "boolean" ? parsed.navCollapsed : defaults.navCollapsed,
-      navWidth:
-        typeof parsed.navWidth === "number" && parsed.navWidth >= 180 && parsed.navWidth <= 400
-          ? parsed.navWidth
-          : defaults.navWidth,
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
       navGroupsCollapsed:
         typeof parsed.navGroupsCollapsed === "object" &&
         parsed.navGroupsCollapsed !== null

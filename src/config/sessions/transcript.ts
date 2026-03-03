@@ -4,11 +4,8 @@ import path from "node:path";
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 
 import type { SessionEntry } from "./types.js";
-<<<<<<< HEAD
-=======
 import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
 import { resolveDefaultSessionStorePath, resolveSessionFilePath } from "./paths.js";
->>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 import { loadSessionStore, updateSessionStore } from "./store.js";
 import { resolveDefaultSessionStorePath, resolveSessionTranscriptPath } from "./paths.js";
 import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";

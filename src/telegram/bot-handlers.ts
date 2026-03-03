@@ -5,12 +5,9 @@ import {
   resolveInboundDebounceMs,
 } from "../auto-reply/inbound-debounce.js";
 import { buildCommandsPaginationKeyboard } from "../auto-reply/reply/commands-info.js";
-<<<<<<< HEAD
-=======
 import { buildModelsProviderData } from "../auto-reply/reply/commands-models.js";
 import { resolveStoredModelOverride } from "../auto-reply/reply/model-selection.js";
 import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
->>>>>>> 41a4f1200 (fix: honor telegram model overrides in buttons (#8193) (thanks @gildo))
 import { buildCommandsMessagePaginated } from "../auto-reply/status.js";
 import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
@@ -18,24 +15,12 @@ import { loadConfig } from "../config/config.js";
 import { writeConfigFile } from "../config/io.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 import { danger, logVerbose, warn } from "../globals.js";
-<<<<<<< HEAD
 import { resolveMedia } from "./bot/delivery.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { resolveTelegramForumThreadId } from "./bot/helpers.js";
 import type { TelegramMessage } from "./bot/types.js";
 import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
 import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
-=======
-import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
-import { resolveAgentRoute } from "../routing/resolve-route.js";
-import { resolveThreadSessionKeys } from "../routing/session-key.js";
-import { withTelegramApiErrorLogging } from "./api-logging.js";
-import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
-import { RegisterTelegramHandlerParams } from "./bot-native-commands.js";
-import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
-import { resolveMedia } from "./bot/delivery.js";
-import { buildTelegramGroupPeerId, resolveTelegramForumThreadId } from "./bot/helpers.js";
->>>>>>> 41a4f1200 (fix: honor telegram model overrides in buttons (#8193) (thanks @gildo))
 import { migrateTelegramGroupConfig } from "./group-migration.js";
 import { resolveTelegramInlineButtonsScope } from "./inline-buttons.js";
 import { readTelegramAllowFromStore } from "./pairing-store.js";
@@ -262,8 +247,6 @@ export const registerTelegramHandlers = ({
     }, TELEGRAM_TEXT_FRAGMENT_MAX_GAP_MS);
   };
 
-<<<<<<< HEAD
-=======
   const loadStoreAllowFrom = async () =>
     readChannelAllowFromStore("telegram", process.env, accountId).catch(() => []);
 
@@ -758,7 +741,6 @@ export const registerTelegramHandlers = ({
       botUsername: ctx.me?.username,
     });
   };
->>>>>>> e56b0cf1a (fix: enforce telegram reaction authorization)
   bot.on("callback_query", async (ctx) => {
     const callback = ctx.callbackQuery;
     if (!callback) return;
@@ -786,22 +768,12 @@ export const registerTelegramHandlers = ({
       if (inlineButtonsScope === "dm" && isGroup) return;
       if (inlineButtonsScope === "group" && !isGroup) return;
 
-<<<<<<< HEAD
       const messageThreadId = (callbackMessage as { message_thread_id?: number }).message_thread_id;
       const isForum = (callbackMessage.chat as { is_forum?: boolean }).is_forum === true;
       const resolvedThreadId = resolveTelegramForumThreadId({
-=======
-      const messageThreadId = callbackMessage.message_thread_id;
-      const isForum = callbackMessage.chat.is_forum === true;
-      const groupAllowContext = await resolveTelegramGroupAllowFromContext({
-        chatId,
-        accountId,
-        dmPolicy: telegramCfg.dmPolicy ?? "pairing",
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
         isForum,
         messageThreadId,
       });
-<<<<<<< HEAD
       const { groupConfig, topicConfig } = resolveTelegramGroupConfig(chatId, resolvedThreadId);
       const storeAllowFrom = await readTelegramAllowFromStore().catch(() => []);
       const groupAllowOverride = firstDefined(topicConfig?.allowFrom, groupConfig?.allowFrom);
@@ -810,14 +782,6 @@ export const registerTelegramHandlers = ({
         storeAllowFrom,
 <<<<<<< HEAD
       });
-=======
-        groupConfig,
-        topicConfig,
-        effectiveGroupAllow,
-        hasGroupAllowOverride,
-      } = groupAllowContext;
-      const dmPolicy = telegramCfg.dmPolicy ?? "pairing";
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
       const effectiveDmAllow = normalizeAllowFromWithStore({
         allowFrom: telegramCfg.allowFrom,
         storeAllowFrom,
@@ -981,8 +945,6 @@ export const registerTelegramHandlers = ({
         return;
       }
 
-<<<<<<< HEAD
-=======
       // Model selection callback handler (mdl_prov, mdl_list_*, mdl_sel_*, mdl_back)
       const modelCallback = parseModelCallbackData(data);
       if (modelCallback) {
@@ -1094,7 +1056,6 @@ export const registerTelegramHandlers = ({
         return;
       }
 
->>>>>>> 41a4f1200 (fix: honor telegram model overrides in buttons (#8193) (thanks @gildo))
       const syntheticMessage: TelegramMessage = {
         ...callbackMessage,
         from: callback.from,
@@ -1167,7 +1128,6 @@ export const registerTelegramHandlers = ({
       if (!msg) return;
       if (shouldSkipUpdate(ctx)) return;
 
-<<<<<<< HEAD
       const chatId = msg.chat.id;
       const isGroup = msg.chat.type === "group" || msg.chat.type === "supergroup";
       const messageThreadId = (msg as { message_thread_id?: number }).message_thread_id;
@@ -1175,16 +1135,6 @@ export const registerTelegramHandlers = ({
       const resolvedThreadId = resolveTelegramForumThreadId({
         isForum,
         messageThreadId,
-=======
-      const groupAllowContext = await resolveTelegramGroupAllowFromContext({
-        chatId: event.chatId,
-        accountId,
-        dmPolicy: telegramCfg.dmPolicy ?? "pairing",
-        isForum: event.isForum,
-        messageThreadId: event.messageThreadId,
-        groupAllowFrom,
-        resolveTelegramGroupConfig,
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
       });
       const storeAllowFrom = await readTelegramAllowFromStore().catch(() => []);
       const { groupConfig, topicConfig } = resolveTelegramGroupConfig(chatId, resolvedThreadId);

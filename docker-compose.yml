@@ -4,7 +4,6 @@ services:
     environment:
       HOME: /home/node
       TERM: xterm-256color
-<<<<<<< HEAD
       CLAWDBOT_GATEWAY_TOKEN: ${CLAWDBOT_GATEWAY_TOKEN}
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
@@ -14,12 +13,6 @@ services:
       CLAWDBOT_STATE_DIR: /home/node/.clawdbot
       CLAWDBOT_GATEWAY_PORT: ${CLAWDBOT_GATEWAY_PORT}
       CLAWDBOT_BRIDGE_PORT: ${CLAWDBOT_BRIDGE_PORT}
-=======
-      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
-      CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY:-}
-      CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY:-}
-      CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
->>>>>>> feefedfb8 (fix: allow docker cli container to connect to gateway (#12504))
     volumes:
       - ${CLAWDBOT_CONFIG_DIR}:/home/node/.clawdbot
       - ${CLAWDBOT_WORKSPACE_DIR}:/home/node/clawd
@@ -36,7 +29,6 @@ services:
       start_period: 30s
     command:
       [
-<<<<<<< HEAD
         "node",
         "dist/index.js",
         "gateway",
@@ -45,30 +37,10 @@ services:
         "--port",
         "${CLAWDBOT_GATEWAY_PORT}",
         "--allow-unconfigured"
-=======
-        'node',
-        'dist/index.js',
-        "gateway",
-        '--bind',
-        '${OPENCLAW_GATEWAY_BIND:-lan}',
-        '--port',
-        '${OPENCLAW_GATEWAY_PORT:-18789}',
->>>>>>> c3a8a5374 (fix: sync docker-compose gateway command)
       ]
 
-<<<<<<< HEAD
   moltbot-cli:
     image: ${CLAWDBOT_IMAGE:-moltbot:local}
-=======
-  openclaw-cli:
-    image: ${OPENCLAW_IMAGE:-openclaw:local}
-    network_mode: "service:openclaw-gateway"
-    cap_drop:
-      - NET_RAW
-      - NET_ADMIN
-    security_opt:
-      - no-new-privileges:true
->>>>>>> feefedfb8 (fix: allow docker cli container to connect to gateway (#12504))
     environment:
       HOME: /home/node
       TERM: xterm-256color

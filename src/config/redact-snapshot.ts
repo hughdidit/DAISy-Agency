@@ -265,51 +265,10 @@ function redactRawText(raw: string, config: unknown, hints?: ConfigUiHints): str
  * When `uiHints` are provided, sensitivity is determined from the schema hints.
  * Without hints, falls back to regex-based detection via `isSensitivePath()`.
  */
-<<<<<<< HEAD
 export function redactConfigSnapshot(snapshot: ConfigFileSnapshot): ConfigFileSnapshot {
   const redactedConfig = redactConfigObject(snapshot.config);
   const redactedRaw = snapshot.raw ? redactRawText(snapshot.raw, snapshot.config) : null;
   const redactedParsed = snapshot.parsed ? redactConfigObject(snapshot.parsed) : snapshot.parsed;
-=======
-/**
- * Redact sensitive fields from a plain config object (not a full snapshot).
- * Used by write endpoints (config.set, config.patch, config.apply) to avoid
- * leaking credentials in their responses.
- */
-export function redactConfigObject<T>(value: T, uiHints?: ConfigUiHints): T {
-  return redactObject(value, uiHints) as T;
-}
-
-export function redactConfigSnapshot(
-  snapshot: ConfigFileSnapshot,
-  uiHints?: ConfigUiHints,
-): ConfigFileSnapshot {
-  if (!snapshot.valid) {
-    // This is bad. We could try to redact the raw string using known key names,
-    // but then we would not be able to restore them, and would trash the user's
-    // credentials. Less than ideal---we should never delete important data.
-    // On the other hand, we cannot hand out "raw" if we're not sure we have
-    // properly redacted all sensitive data. Handing out a partially or, worse,
-    // unredacted config string would be bad.
-    // Therefore, the only safe route is to reject handling out broken configs.
-    return {
-      ...snapshot,
-      config: {},
-      raw: null,
-      parsed: null,
-      resolved: {},
-    };
-  }
-  // else: snapshot.config must be valid and populated, as that is what
-  // readConfigFileSnapshot() does when it creates the snapshot.
-
-  const redactedConfig = redactObject(snapshot.config, uiHints) as ConfigFileSnapshot["config"];
-  const redactedRaw = snapshot.raw ? redactRawText(snapshot.raw, snapshot.config, uiHints) : null;
-  const redactedParsed = snapshot.parsed ? redactObject(snapshot.parsed, uiHints) : snapshot.parsed;
-  // Also redact the resolved config (contains values after ${ENV} substitution)
-<<<<<<< HEAD
-  const redactedResolved = redactConfigObject(snapshot.resolved);
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
 =======
   const redactedResolved = redactConfigObject(snapshot.resolved, uiHints);
 >>>>>>> 191194236 (fix: make sensitive field whitelist case-insensitive (#16148))

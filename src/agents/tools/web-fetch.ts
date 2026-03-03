@@ -1,5 +1,4 @@
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import {
@@ -9,13 +8,6 @@ import {
   SsrFBlockedError,
 } from "../../infra/net/ssrf.js";
 import type { Dispatcher } from "undici";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { AnyAgentTool } from "./common.js";
-import { fetchWithSsrFGuard } from "../../infra/net/fetch-guard.js";
-import { SsrFBlockedError } from "../../infra/net/ssrf.js";
-import { wrapExternalContent, wrapWebContent } from "../../security/external-content.js";
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
 import { stringEnum } from "../schema/typebox.js";
 import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";

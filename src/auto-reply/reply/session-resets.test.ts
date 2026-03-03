@@ -352,8 +352,6 @@ describe("applyResetModelOverride", () => {
   });
 });
 
-<<<<<<< HEAD
-=======
 describe("initSessionState preserves behavior overrides across /new and /reset", () => {
   async function createStorePath(prefix: string): Promise<string> {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
@@ -559,7 +557,6 @@ describe("initSessionState preserves behavior overrides across /new and /reset",
   });
 });
 
->>>>>>> 31537c669 (fix: archive old transcript files on /new and /reset (#14949))
 describe("prependSystemEvents", () => {
   it("adds a local timestamp to queued system events by default", async () => {
     vi.useFakeTimers();

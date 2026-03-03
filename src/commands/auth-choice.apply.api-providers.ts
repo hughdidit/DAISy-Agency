@@ -266,8 +266,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
-<<<<<<< HEAD
-=======
   if (authChoice === "moonshot-api-key-cn") {
     let hasCredential = false;
 
@@ -315,7 +313,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
->>>>>>> 4a5d36892 (fix: keep Moonshot CN base URL in onboarding (#7180) (thanks @waynelwz))
   if (authChoice === "kimi-code-api-key") {
     let hasCredential = false;
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "kimi-code") {

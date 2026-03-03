@@ -86,7 +86,6 @@ describe("sanitizeSessionHistory (google thinking)", () => {
     expect(assistant.content?.[0]?.thinking).toBe("reasoning");
   });
 
-<<<<<<< HEAD:src/agents/pi-embedded-runner.google-sanitize-thinking.test.ts
   it("drops unsigned thinking blocks for Antigravity Claude", async () => {
     const sessionManager = SessionManager.inMemory();
     const input = [
@@ -102,10 +101,6 @@ describe("sanitizeSessionHistory (google thinking)", () => {
 
     const out = await sanitizeSessionHistory({
       messages: input,
-=======
-  it("converts unsigned thinking blocks to text for Antigravity Claude", async () => {
-    const out = await sanitizeSimpleSession({
->>>>>>> 86f207adb (fix: clean tool schemas and thinking blocks for google-antigravity (openclaw#19732) thanks @Oceanswave):src/agents/pi-embedded-runner.google-sanitize-thinking.e2e.test.ts
       modelApi: "google-antigravity",
       modelId: "anthropic/claude-3.5-sonnet",
       sessionManager,

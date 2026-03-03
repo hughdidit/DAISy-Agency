@@ -124,8 +124,6 @@ export const appendUsageLine = (payloads: ReplyPayload[], line: string): ReplyPa
 
 export const resolveEnforceFinalTag = (run: FollowupRun["run"], provider: string) =>
   Boolean(run.enforceFinalTag || isReasoningTagProvider(provider));
-<<<<<<< HEAD
-=======
 
 export function resolveModelFallbackOptions(run: FollowupRun["run"]) {
   return {
@@ -242,4 +240,3 @@ export function resolveProviderScopedAuthProfile(params: {
     authProfileIdSource: authProfileId ? params.authProfileIdSource : undefined,
   };
 }
->>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)

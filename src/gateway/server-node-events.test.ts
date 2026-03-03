@@ -30,8 +30,6 @@ vi.mock("../infra/system-events.js", () => ({
 vi.mock("../infra/heartbeat-wake.js", () => ({
   requestHeartbeatNow: vi.fn(),
 }));
-<<<<<<< HEAD
-=======
 vi.mock("../commands/agent.js", () => ({
   agentCommand: vi.fn(),
 }));
@@ -50,21 +48,9 @@ vi.mock("./session-utils.js", () => ({
     storeKeys: [key],
   })),
 }));
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 
-<<<<<<< HEAD
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
-=======
-import type { CliDeps } from "../cli/deps.js";
-import { agentCommand } from "../commands/agent.js";
-import type { HealthSummary } from "../commands/health.js";
-import { updateSessionStore } from "../config/sessions.js";
-import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
-import { enqueueSystemEvent } from "../infra/system-events.js";
-import type { NodeEventContext } from "./server-node-events-types.js";
-<<<<<<< HEAD
->>>>>>> 210bc3797 (chore(subagents): add regression coverage and changelog)
 =======
 >>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { handleNodeEvent } from "./server-node-events.js";
@@ -160,8 +146,6 @@ describe("node exec events", () => {
     expect(requestHeartbeatNowMock).toHaveBeenCalledWith({ reason: "exec-event" });
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("voice transcript events", () => {
   beforeEach(() => {
@@ -337,4 +321,3 @@ describe("agent request events", () => {
     });
   });
 });
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)

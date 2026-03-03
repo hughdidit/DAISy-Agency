@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import fs from "node:fs";
 
-=======
->>>>>>> 516046dba (fix: avoid doctor token regeneration on invalid repairs)
 import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
 import fs from "node:fs";
 import type { OpenClawConfig } from "../config/config.js";
@@ -16,21 +13,14 @@ import {
   resolveHooksGmailModel,
 } from "../agents/model-selection.js";
 import { formatCliCommand } from "../cli/command-format.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> 516046dba (fix: avoid doctor token regeneration on invalid repairs)
 import { CONFIG_PATH, readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
-<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 import type { RuntimeEnv } from "../runtime.js";
-=======
-import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
->>>>>>> 516046dba (fix: avoid doctor token regeneration on invalid repairs)
 import { defaultRuntime } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";
@@ -107,13 +97,7 @@ export async function doctorCommand(
     options,
     confirm: (p) => prompter.confirm(p),
   });
-<<<<<<< HEAD
   let cfg: MoltbotConfig = configResult.cfg;
-=======
-  let cfg: OpenClawConfig = configResult.cfg;
-  const cfgForPersistence = structuredClone(cfg);
-  const sourceConfigValid = configResult.sourceConfigValid ?? true;
->>>>>>> 516046dba (fix: avoid doctor token regeneration on invalid repairs)
 
   const configPath = configResult.path ?? CONFIG_PATH;
   if (!cfg.gateway?.mode) {
@@ -206,12 +190,8 @@ export async function doctorCommand(
   cfg = await maybeRepairSandboxImages(cfg, runtime, prompter);
   noteSandboxScopeWarnings(cfg);
 
-<<<<<<< HEAD
   await maybeMigrateLegacyGatewayService(cfg, resolveMode(cfg), runtime, prompter);
   await maybeScanExtraGatewayServices(options);
-=======
-  await maybeScanExtraGatewayServices(options, runtime, prompter);
->>>>>>> 02576615c (fix: migrate legacy gateway services)
   await maybeRepairGatewayServiceConfig(cfg, resolveMode(cfg), runtime, prompter);
   await noteMacLaunchAgentOverrides();
   await noteMacLaunchctlGatewayEnvOverrides(cfg);
@@ -309,13 +289,8 @@ export async function doctorCommand(
     if (fs.existsSync(backupPath)) {
       runtime.log(`Backup: ${shortenHomePath(backupPath)}`);
     }
-<<<<<<< HEAD
   } else {
     runtime.log(`Run "${formatCliCommand("moltbot doctor --fix")}" to apply changes.`);
-=======
-  } else if (!prompter.shouldRepair) {
-    runtime.log(`Run "${formatCliCommand("openclaw doctor --fix")}" to apply changes.`);
->>>>>>> ae281a6f6 (fix: suppress "Run doctor --fix" hint when already in fix mode with no changes (#24666))
   }
 
   if (options.workspaceSuggestions !== false) {

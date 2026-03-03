@@ -26,7 +26,6 @@ import {
   resolveCommandArgMenu,
   serializeCommandArgs,
 } from "../../auto-reply/commands-registry.js";
-<<<<<<< HEAD
 import type {
   ChatCommandDefinition,
   CommandArgDefinition,
@@ -34,25 +33,10 @@ import type {
   CommandArgs,
   NativeCommandSpec,
 } from "../../auto-reply/commands-registry.js";
-=======
-import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
-import { resolveStoredModelOverride } from "../../auto-reply/reply/model-selection.js";
->>>>>>> b7644d61a (fix: restore Discord model picker UX (#21458) (thanks @pejmanjohn))
 import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
-<<<<<<< HEAD
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { MoltbotConfig, loadConfig } from "../../config/config.js";
-=======
-import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
-import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
-<<<<<<< HEAD
-=======
-import type { OpenClawConfig, loadConfig } from "../../config/config.js";
-import { resolveRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
-import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
-import { logVerbose } from "../../globals.js";
->>>>>>> b7644d61a (fix: restore Discord model picker UX (#21458) (thanks @pejmanjohn))
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
@@ -61,12 +45,9 @@ import {
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
-<<<<<<< HEAD
-=======
 import { buildUntrustedChannelMetadata } from "../../security/channel-metadata.js";
 import { chunkItems } from "../../utils/chunk-items.js";
 import { withTimeout } from "../../utils/with-timeout.js";
->>>>>>> b7644d61a (fix: restore Discord model picker UX (#21458) (thanks @pejmanjohn))
 import { loadWebMedia } from "../../web/media.js";
 import { chunkDiscordTextWithMode } from "../chunk.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
@@ -80,10 +61,7 @@ import {
   resolveDiscordMemberAllowed,
   resolveDiscordOwnerAllowFrom,
 } from "./allow-list.js";
-<<<<<<< HEAD
 import { formatDiscordUserTag } from "./format.js";
-=======
->>>>>>> 58f418592 (fix: Failing tests due to import sorting.)
 import { resolveDiscordChannelInfo } from "./message-utils.js";
 import {
   readDiscordModelPickerRecentModels,
@@ -949,13 +927,7 @@ async function handleDiscordCommandArgInteraction(
       components: [],
     }),
   );
-<<<<<<< HEAD
   if (!updated) return;
-=======
-  if (argUpdateResult === null) {
-    return;
-  }
->>>>>>> b7644d61a (fix: restore Discord model picker UX (#21458) (thanks @pejmanjohn))
   const commandArgs = createCommandArgsWithValue({
     argName: parsed.arg,
     value: parsed.value,
@@ -1328,19 +1300,9 @@ async function dispatchDiscordCommandInteraction(params: {
       return;
     }
     if (dmPolicy !== "open") {
-<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
       const effectiveAllowFrom = [...(discordConfig?.dm?.allowFrom ?? []), ...storeAllowFrom];
       const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:"]);
-=======
-      const storeAllowFrom =
-        dmPolicy === "allowlist" ? [] : await readChannelAllowFromStore("discord").catch(() => []);
-      const effectiveAllowFrom = [
-        ...(discordConfig?.allowFrom ?? discordConfig?.dm?.allowFrom ?? []),
-        ...storeAllowFrom,
-      ];
-      const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:", "pk:"]);
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
       const permitted = allowList
         ? allowListMatches(allowList, {
             id: user.id,
@@ -1379,7 +1341,6 @@ async function dispatchDiscordCommandInteraction(params: {
   }
   if (!isDirectMessage) {
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
-<<<<<<< HEAD
     const hasUserAllowlist = Array.isArray(channelUsers) && channelUsers.length > 0;
     const userOk = hasUserAllowlist
       ? resolveDiscordUserAllowed({
@@ -1389,20 +1350,6 @@ async function dispatchDiscordCommandInteraction(params: {
           userTag: formatDiscordUserTag(user),
         })
       : false;
-=======
-    const channelRoles = channelConfig?.roles ?? guildInfo?.roles;
-    const hasAccessRestrictions =
-      (Array.isArray(channelUsers) && channelUsers.length > 0) ||
-      (Array.isArray(channelRoles) && channelRoles.length > 0);
-    const memberAllowed = resolveDiscordMemberAllowed({
-      userAllowList: channelUsers,
-      roleAllowList: channelRoles,
-      memberRoleIds,
-      userId: sender.id,
-      userName: sender.name,
-      userTag: sender.tag,
-    });
->>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
     const authorizers = useAccessGroups
       ? [
           { configured: ownerAllowList != null, allowed: ownerOk },
@@ -1543,8 +1490,6 @@ async function dispatchDiscordCommandInteraction(params: {
     OriginatingTo: isDirectMessage ? `user:${user.id}` : `channel:${channelId}`,
   });
 
-<<<<<<< HEAD
-=======
   const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
     cfg,
     agentId: route.agentId,
@@ -1553,7 +1498,6 @@ async function dispatchDiscordCommandInteraction(params: {
   });
   const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, route.agentId);
 
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
   let didReply = false;
   await dispatchReplyWithDispatcher({
     ctx: ctxPayload,

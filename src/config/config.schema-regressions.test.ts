@@ -36,8 +36,6 @@ describe("config schema regressions", () => {
 
     expect(res.ok).toBe(true);
   });
-<<<<<<< HEAD
-=======
 
   it("accepts safe iMessage remoteHost", () => {
     const res = validateConfigObject({
@@ -93,5 +91,4 @@ describe("config schema regressions", () => {
       expect(res.issues[0]?.path).toBe("channels.imessage.attachmentRoots.0");
     }
   });
->>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 });

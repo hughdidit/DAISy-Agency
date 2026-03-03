@@ -72,8 +72,6 @@ describe("applyExtraParamsToAgent", () => {
       return new AssistantMessageEventStream();
     };
     const agent = { streamFn: baseStreamFn };
-<<<<<<< HEAD
-=======
     applyExtraParamsToAgent(agent, undefined, params.applyProvider, params.applyModelId);
     const context: Context = { messages: [] };
     void agent.streamFn?.(params.model, context, params.options ?? {});
@@ -361,7 +359,6 @@ describe("applyExtraParamsToAgent", () => {
       },
     });
   });
->>>>>>> b35d00aaf (fix: sanitize Gemini 3.1 Google reasoning payloads)
   it("adds OpenRouter attribution headers to stream options", () => {
     const { calls, agent } = createOptionsCaptureAgent();
 >>>>>>> 3e974dc93 (fix: don't inject reasoning: { effort: "none" } for OpenRouter when thinking is off)

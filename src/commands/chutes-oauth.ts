@@ -177,14 +177,10 @@ export async function loginChutes(params: {
       message: "Paste the redirect URL (or authorization code)",
       placeholder: `${params.app.redirectUri}?code=...&state=...`,
     });
-<<<<<<< HEAD
     const parsed = parseOAuthCallbackInput(String(input), state);
     if ("error" in parsed) throw new Error(parsed.error);
     if (parsed.state !== state) throw new Error("Invalid OAuth state");
     codeAndState = parsed;
-=======
-    codeAndState = parseManualOAuthInput(input, state);
->>>>>>> 6c0dca30b (fix: accept auth code in chutes oauth manual flow)
   } else {
     const callback = waitForLocalCallback({
       redirectUri: params.app.redirectUri,
@@ -197,14 +193,10 @@ export async function loginChutes(params: {
         message: "Paste the redirect URL (or authorization code)",
         placeholder: `${params.app.redirectUri}?code=...&state=...`,
       });
-<<<<<<< HEAD
       const parsed = parseOAuthCallbackInput(String(input), state);
       if ("error" in parsed) throw new Error(parsed.error);
       if (parsed.state !== state) throw new Error("Invalid OAuth state");
       return parsed;
-=======
-      return parseManualOAuthInput(input, state);
->>>>>>> 6c0dca30b (fix: accept auth code in chutes oauth manual flow)
     });
 
     await params.onAuth({ url });

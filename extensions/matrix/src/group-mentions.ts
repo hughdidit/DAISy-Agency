@@ -1,11 +1,5 @@
-<<<<<<< HEAD
 import type { ChannelGroupContext, GroupToolPolicyConfig } from "clawdbot/plugin-sdk";
 
-=======
-import type { ChannelGroupContext, GroupToolPolicyConfig } from "openclaw/plugin-sdk";
-import type { CoreConfig } from "./types.js";
-import { resolveMatrixAccountConfig } from "./matrix/accounts.js";
->>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
 import { resolveMatrixRoomConfig } from "./matrix/monitor/rooms.js";
 import type { CoreConfig } from "./types.js";
 

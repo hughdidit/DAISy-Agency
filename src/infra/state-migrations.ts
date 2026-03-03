@@ -323,8 +323,6 @@ export async function autoMigrateLegacyStateDir(params: {
   const homedir = params.homedir ?? os.homedir;
   const legacyDir = resolveLegacyStateDir(homedir);
   const targetDir = resolveNewStateDir(homedir);
-<<<<<<< HEAD
-=======
   const legacyDirs = resolveLegacyStateDirs(homedir);
   let legacyDir = legacyDirs.find((dir) => {
     try {
@@ -333,7 +331,6 @@ export async function autoMigrateLegacyStateDir(params: {
       return false;
     }
   });
->>>>>>> b9afa3d33 (fix: migrate symlinked legacy state dirs)
   const warnings: string[] = [];
   const changes: string[] = [];
 
@@ -351,19 +348,9 @@ export async function autoMigrateLegacyStateDir(params: {
     return { migrated: false, skipped: false, changes, warnings };
   }
 
-<<<<<<< HEAD
   if (legacyStat.isSymbolicLink()) {
     const legacyTarget = resolveSymlinkTarget(legacyDir);
     if (legacyTarget && path.resolve(legacyTarget) === path.resolve(targetDir)) {
-=======
-  let symlinkDepth = 0;
-  while (legacyStat.isSymbolicLink()) {
-    const legacyTarget = legacyDir ? resolveSymlinkTarget(legacyDir) : null;
-    if (!legacyTarget) {
-      warnings.push(
-        `Legacy state dir is a symlink (${legacyDir ?? "unknown"}); could not resolve target.`,
-      );
->>>>>>> b9afa3d33 (fix: migrate symlinked legacy state dirs)
       return { migrated: false, skipped: false, changes, warnings };
     }
     if (path.resolve(legacyTarget) === path.resolve(targetDir)) {
@@ -392,11 +379,7 @@ export async function autoMigrateLegacyStateDir(params: {
       continue;
     }
     warnings.push(
-<<<<<<< HEAD
       `Legacy state dir is a symlink (${legacyDir} → ${legacyTarget ?? "unknown"}); skipping auto-migration.`,
-=======
-      `Legacy state dir is a symlink (${legacyDir ?? "unknown"} → ${legacyTarget}); skipping auto-migration.`,
->>>>>>> b9afa3d33 (fix: migrate symlinked legacy state dirs)
     );
     return { migrated: false, skipped: false, changes, warnings };
   }

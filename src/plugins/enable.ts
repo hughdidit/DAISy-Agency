@@ -1,11 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { normalizeChatChannelId } from "../channels/registry.js";
-import type { OpenClawConfig } from "../config/config.js";
-import { ensurePluginAllowlisted } from "../config/plugins-allowlist.js";
-import { setPluginEnabledInConfig } from "./toggle-config.js";
->>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
 
 export type PluginEnableResult = {
   config: MoltbotConfig;
@@ -32,7 +25,6 @@ export function enablePluginInConfig(cfg: MoltbotConfig, pluginId: string): Plug
   if (cfg.plugins?.deny?.includes(pluginId)) {
     return { config: cfg, enabled: false, reason: "blocked by denylist" };
   }
-<<<<<<< HEAD
 
   const entries = {
     ...cfg.plugins?.entries,
@@ -49,9 +41,5 @@ export function enablePluginInConfig(cfg: MoltbotConfig, pluginId: string): Plug
     },
   };
   next = ensureAllowlisted(next, pluginId);
-=======
-  let next = setPluginEnabledInConfig(cfg, resolvedId, true);
-  next = ensurePluginAllowlisted(next, resolvedId);
->>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
   return { config: next, enabled: true };
 }

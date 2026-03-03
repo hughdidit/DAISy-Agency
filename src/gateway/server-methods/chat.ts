@@ -9,24 +9,16 @@ import { resolveThinkingDefault } from "../../agents/model-selection.js";
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
-<<<<<<< HEAD
 import {
   extractShortModelName,
   type ResponsePrefixContext,
 } from "../../auto-reply/reply/response-prefix-template.js";
 import type { MsgContext } from "../../auto-reply/templating.js";
-=======
-import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
-import { resolveSessionFilePath } from "../../config/sessions.js";
->>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
-<<<<<<< HEAD
-=======
 import {
   stripInlineDirectiveTagsForDisplay,
   stripInlineDirectiveTagsFromMessageForDisplay,
 } from "../../utils/directive-tags.js";
->>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import {
   abortChatRunById,
@@ -68,25 +60,9 @@ function resolveTranscriptPath(params: {
   sessionFile?: string;
 }): string | null {
   const { sessionId, storePath, sessionFile } = params;
-<<<<<<< HEAD
   if (sessionFile) return sessionFile;
   if (!storePath) return null;
   return path.join(path.dirname(storePath), `${sessionId}.jsonl`);
-=======
-  if (!storePath && !sessionFile) {
-    return null;
-  }
-  try {
-    const sessionsDir = storePath ? path.dirname(storePath) : undefined;
-    return resolveSessionFilePath(
-      sessionId,
-      sessionFile ? { sessionFile } : undefined,
-      sessionsDir ? { sessionsDir } : undefined,
-    );
-  } catch {
-    return null;
-  }
->>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 }
 
 function ensureTranscriptFile(params: { transcriptPath: string; sessionId: string }): {
@@ -184,11 +160,7 @@ function broadcastChatFinal(params: {
     sessionKey: params.sessionKey,
     seq,
     state: "final" as const,
-<<<<<<< HEAD
     message: params.message,
-=======
-    message: stripInlineDirectiveTagsFromMessageForDisplay(params.message),
->>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
   };
   params.context.broadcast("chat", payload);
   params.context.nodeSendToSession(params.sessionKey, "chat", payload);
@@ -524,12 +496,8 @@ export const chatHandlers: GatewayRequestHandlers = {
           runId: clientRunId,
           abortSignal: abortController.signal,
           images: parsedImages.length > 0 ? parsedImages : undefined,
-<<<<<<< HEAD
           disableBlockStreaming: true,
           onAgentRunStart: () => {
-=======
-          onAgentRunStart: (runId) => {
->>>>>>> b62bd290c (fix: remove hardcoded disableBlockStreaming to honor agent config for TUI (#19693))
             agentRunStarted = true;
           },
           onModelSelected: (ctx) => {
@@ -707,11 +675,7 @@ export const chatHandlers: GatewayRequestHandlers = {
       sessionKey: p.sessionKey,
       seq: 0,
       state: "final" as const,
-<<<<<<< HEAD
       message: transcriptEntry.message,
-=======
-      message: stripInlineDirectiveTagsFromMessageForDisplay(appended.message),
->>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
     };
     context.broadcast("chat", chatPayload);
     context.nodeSendToSession(p.sessionKey, "chat", chatPayload);

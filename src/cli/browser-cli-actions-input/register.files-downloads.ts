@@ -9,8 +9,6 @@ export function registerBrowserFilesAndDownloadsCommands(
   browser: Command,
   parentOpts: (cmd: Command) => BrowserParentOpts,
 ) {
-<<<<<<< HEAD
-=======
   const resolveTimeoutAndTarget = (opts: { timeoutMs?: unknown; targetId?: unknown }) => {
     const timeoutMs = Number.isFinite(opts.timeoutMs) ? Number(opts.timeoutMs) : undefined;
     const targetId =
@@ -51,7 +49,6 @@ export function registerBrowserFilesAndDownloadsCommands(
     }
   };
 
->>>>>>> 3f621d13f (refactor(cli): dedupe browser debug and download opts)
   browser
     .command("upload")
     .description("Arm file upload for the next file chooser")
@@ -68,12 +65,7 @@ export function registerBrowserFilesAndDownloadsCommands(
     .action(async (paths: string[], opts, cmd) => {
       const { parent, profile } = resolveBrowserActionContext(cmd, parentOpts);
       try {
-<<<<<<< HEAD
         const timeoutMs = Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : undefined;
-=======
-        const normalizedPaths = normalizeUploadPaths(paths);
-        const { timeoutMs, targetId } = resolveTimeoutAndTarget(opts);
->>>>>>> 3f621d13f (refactor(cli): dedupe browser debug and download opts)
         const result = await callBrowserRequest<{ download: { path: string } }>(
           parent,
           {
@@ -105,11 +97,7 @@ export function registerBrowserFilesAndDownloadsCommands(
   browser
     .command("waitfordownload")
     .description("Wait for the next download (and save it)")
-<<<<<<< HEAD
     .argument("[path]", "Save path (default: /tmp/moltbot/downloads/...)")
-=======
-    .argument("[path]", "Save path (default: os.tmpdir()/openclaw/downloads/...)")
->>>>>>> afbce7357 (fix: use os.tmpdir fallback paths for temp files (#14985))
     .option("--target-id <id>", "CDP target id (or unique prefix)")
     .option(
       "--timeout-ms <ms>",

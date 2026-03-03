@@ -5,16 +5,7 @@ import {
   isGatewaySigusr1RestartExternallyAllowed,
 } from "../../infra/restart.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
-<<<<<<< HEAD
 import type { defaultRuntime } from "../../runtime.js";
-=======
-import {
-  getActiveTaskCount,
-  resetAllLanes,
-  waitForActiveTasks,
-} from "../../process/command-queue.js";
-import { createRestartIterationHook } from "../../process/restart-recovery.js";
->>>>>>> 4e9f933e8 (fix: reset stale execution state after SIGUSR1 in-process restart (#15195))
 
 const gatewayLog = createSubsystemLogger("gateway");
 
@@ -64,14 +55,8 @@ export async function runGatewayLoop(params: {
         if (isRestart) {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
           shuttingDown = false;
           restartResolver?.();
-=======
-=======
-          // Release the lock BEFORE spawning so the child can acquire it immediately.
-          await lock?.release();
->>>>>>> 9c30243c8 (fix: release gateway lock before spawning restart child)
 =======
           const hadLock = lock != null;
           // Release the lock BEFORE spawning so the child can acquire it immediately.

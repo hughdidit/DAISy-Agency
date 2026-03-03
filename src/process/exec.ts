@@ -8,8 +8,6 @@ import { resolveCommandStdio } from "./spawn-utils.js";
 
 const execFileAsync = promisify(execFile);
 
-<<<<<<< HEAD
-=======
 /**
  * Resolves a command for Windows compatibility.
  * On Windows, non-.exe commands (like npm, pnpm) require their .cmd extension.
@@ -32,7 +30,6 @@ function resolveCommand(command: string): string {
   return command;
 }
 
->>>>>>> dc8a63cb8 (fix: skip extension append if command already has one)
 // Simple promise-wrapped execFile with optional verbosity logging.
 export async function runExec(
   command: string,
@@ -110,13 +107,10 @@ export async function runCommandWithTimeout(
     cwd,
     env: resolvedEnv,
     windowsVerbatimArguments,
-<<<<<<< HEAD
-=======
     windowsHide: true,
     ...(shouldSpawnWithShell({ resolvedCommand, platform: process.platform })
       ? { shell: true }
       : {}),
->>>>>>> 32c66aff4 (fix: add windowsHide: true to spawn in runCommandWithTimeout)
   });
   // Spawn with inherited stdin (TTY) so tools like `pi` stay interactive when needed.
   return await new Promise((resolve, reject) => {

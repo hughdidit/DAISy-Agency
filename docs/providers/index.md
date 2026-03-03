@@ -1,17 +1,9 @@
 ---
 <<<<<<< HEAD
-<<<<<<< HEAD
 summary: "Model providers (LLMs) supported by Moltbot"
 read_when:
   - You want to choose a model provider
   - You need a quick overview of supported LLM backends
-=======
-summary: 'Model providers (LLMs) supported by OpenClaw'
-read_when:
-  - You want to choose a model provider
-  - You need a quick overview of supported LLM backends
-title: 'Model Providers'
->>>>>>> 8f2884b98 (fix: i am fixing all the changes that claude made. vibe coding is not there yet. anyways, i fixed the issues that the bot told me to fix)
 =======
 summary: "Model providers (LLMs) supported by OpenClaw"
 read_when:
@@ -44,11 +36,7 @@ See [Venice AI](/providers/venice).
 ```json5
 {
 <<<<<<< HEAD
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
-=======
-  agents: { defaults: { model: { primary: 'anthropic/claude-opus-4-6' } } },
->>>>>>> 8f2884b98 (fix: i am fixing all the changes that claude made. vibe coding is not there yet. anyways, i fixed the issues that the bot told me to fix)
 =======
   agents: { defaults: { model: { primary: "anthropic/claude-opus-4-6" } } },
 >>>>>>> ae8be6ac2 (fix: linting thime)
@@ -70,12 +58,9 @@ See [Venice AI](/providers/venice).
 - [MiniMax](/providers/minimax)
 - [Venius (Venice AI, privacy-focused)](/providers/venice)
 - [Ollama (local models)](/providers/ollama)
-<<<<<<< HEAD
-=======
 - [vLLM (local models)](/providers/vllm)
 - [Qianfan](/providers/qianfan)
 - [NVIDIA](/providers/nvidia)
->>>>>>> 8f2884b98 (fix: i am fixing all the changes that claude made. vibe coding is not there yet. anyways, i fixed the issues that the bot told me to fix)
 
 ## Transcription providers
 

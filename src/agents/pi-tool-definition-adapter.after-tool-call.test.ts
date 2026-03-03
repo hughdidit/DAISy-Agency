@@ -64,8 +64,6 @@ describe("pi tool definition adapter after_tool_call", () => {
       {
         toolName: "read",
         params: { mode: "safe" },
-<<<<<<< HEAD:src/agents/pi-tool-definition-adapter.after-tool-call.test.ts
-=======
         result,
       },
       { toolName: "read" },
@@ -98,7 +96,6 @@ describe("pi tool definition adapter after_tool_call", () => {
       {
         toolName: "read",
         params: { mode: "safe" },
->>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo)):src/agents/pi-tool-definition-adapter.after-tool-call.e2e.test.ts
         result,
       },
       { toolName: "read" },

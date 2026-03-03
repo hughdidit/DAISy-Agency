@@ -1,30 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import { resolveNpmChannelTag } from "./update-check.js";
-=======
-import { compareSemverStrings, resolveNpmChannelTag } from "./update-check.js";
-
-describe("compareSemverStrings", () => {
-  it("handles stable and prerelease precedence for both legacy and beta formats", () => {
-    expect(compareSemverStrings("1.0.0", "1.0.0")).toBe(0);
-    expect(compareSemverStrings("v1.0.0", "1.0.0")).toBe(0);
-
-    expect(compareSemverStrings("1.0.0", "1.0.0-beta.1")).toBe(1);
-    expect(compareSemverStrings("1.0.0-beta.2", "1.0.0-beta.1")).toBe(1);
-
-    expect(compareSemverStrings("1.0.0-2", "1.0.0-1")).toBe(1);
-    expect(compareSemverStrings("1.0.0-1", "1.0.0-beta.1")).toBe(-1);
-    expect(compareSemverStrings("1.0.0.beta.2", "1.0.0-beta.1")).toBe(1);
-    expect(compareSemverStrings("1.0.0", "1.0.0.beta.1")).toBe(1);
-  });
-
-  it("returns null for invalid inputs", () => {
-    expect(compareSemverStrings("1.0", "1.0.0")).toBeNull();
-    expect(compareSemverStrings("latest", "1.0.0")).toBeNull();
-  });
-});
->>>>>>> 6c441ea79 (fix: support legacy and beta prerelease version formats)
 
 describe("resolveNpmChannelTag", () => {
   let versionByTag: Record<string, string | null>;

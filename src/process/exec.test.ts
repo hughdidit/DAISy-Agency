@@ -34,7 +34,6 @@ describe("runCommandWithTimeout", () => {
 
       expect(result.code).toBe(0);
       expect(result.stdout).toBe("base|ok");
-<<<<<<< HEAD
     } finally {
       if (previous === undefined) {
         delete process.env.CLAWDBOT_BASE_ENV;
@@ -42,54 +41,6 @@ describe("runCommandWithTimeout", () => {
         process.env.CLAWDBOT_BASE_ENV = previous;
       }
     }
-=======
-      expect(result.termination).toBe("exit");
-    });
-  });
-
-  it("kills command when no output timeout elapses", async () => {
-    const result = await runCommandWithTimeout(
-      [process.execPath, "-e", "setTimeout(() => {}, 120)"],
-      {
-        timeoutMs: 3_000,
-        noOutputTimeoutMs: 120,
-      },
-    );
-
-    expect(result.termination).toBe("no-output-timeout");
-    expect(result.noOutputTimedOut).toBe(true);
-    expect(result.code).not.toBe(0);
-  });
-
-  it("resets no output timer when command keeps emitting output", async () => {
-    const result = await runCommandWithTimeout(
-      [
-        process.execPath,
-        "-e",
-<<<<<<< HEAD
-        'process.stdout.write(".\\n"); const interval = setInterval(() => process.stdout.write(".\\n"), 1800); setTimeout(() => { clearInterval(interval); process.exit(0); }, 9000);',
-      ],
-      {
-        timeoutMs: 15_000,
-        noOutputTimeoutMs: 6_000,
-=======
-        [
-          'process.stdout.write(".");',
-          "let count = 0;",
-          'const ticker = setInterval(() => { process.stdout.write(".");',
-          "count += 1;",
-          "if (count === 2) {",
-          "clearInterval(ticker);",
-          "process.exit(0);",
-          "}",
-          "}, 12);",
-        ].join(" "),
-      ],
-      {
-<<<<<<< HEAD
-        timeoutMs: 5_000,
-        noOutputTimeoutMs: 120,
->>>>>>> 31f2bf951 (test: fix gate regressions)
 =======
         timeoutMs: 7_000,
         // Keep a generous idle budget; CI event-loop stalls can exceed 450ms.

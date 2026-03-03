@@ -1,13 +1,9 @@
 import crypto from "node:crypto";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
-=======
-=======
->>>>>>> 34851a78b (fix: route manual subagent spawn replies via OriginatingTo fallback)
 import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
 import type { CommandHandler } from "./commands-types.js";
 import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
@@ -62,24 +58,9 @@ function formatTimestampWithAge(valueMs?: number) {
   return `${formatTimestamp(valueMs)} (${formatAgeShort(Date.now() - valueMs)})`;
 }
 
-<<<<<<< HEAD
 function resolveRequesterSessionKey(params: Parameters<CommandHandler>[0]): string | undefined {
   const raw = params.sessionKey?.trim() || params.ctx.CommandTargetSessionKey?.trim();
   if (!raw) return undefined;
-=======
-function resolveRequesterSessionKey(
-  params: Parameters<CommandHandler>[0],
-  opts?: { preferCommandTarget?: boolean },
-): string | undefined {
-  const commandTarget = params.ctx.CommandTargetSessionKey?.trim();
-  const commandSession = params.sessionKey?.trim();
-  const raw = opts?.preferCommandTarget
-    ? commandTarget || commandSession
-    : commandSession || commandTarget;
-  if (!raw) {
-    return undefined;
-  }
->>>>>>> c1928845a (fix: route native subagent spawns to target session)
   const { mainKey, alias } = resolveMainSessionAlias(params.cfg);
   return resolveInternalSessionKey({ key: raw, alias, mainKey });
 }
@@ -394,15 +375,8 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
           lane: AGENT_LANE_SUBAGENT,
         },
         timeoutMs: 10_000,
-<<<<<<< HEAD
       })) as { runId?: string };
       if (response?.runId) runId = response.runId;
-=======
-      });
-      const responseRunId = typeof response?.runId === "string" ? response.runId : undefined;
-<<<<<<< HEAD
-      if (responseRunId) runId = responseRunId;
->>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
 =======
       if (responseRunId) {
         runId = responseRunId;
@@ -452,8 +426,6 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
     };
   }
 
-<<<<<<< HEAD
-=======
   if (action === "spawn") {
     const agentId = restTokens[0];
     // Parse remaining tokens: task text with optional --model and --thinking flags.
@@ -514,6 +486,5 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
     };
   }
 
->>>>>>> e2dd827ca (fix: guarantee manual subagent spawn sends completion message)
   return { shouldContinue: false, reply: { text: buildSubagentsHelp() } };
 };

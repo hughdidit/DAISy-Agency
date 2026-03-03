@@ -13,15 +13,9 @@ docker run --rm -t "$IMAGE_NAME" bash -lc '
 
   home_dir=$(mktemp -d "/tmp/moltbot-plugins-e2e.XXXXXX")
   export HOME="$home_dir"
-<<<<<<< HEAD
   mkdir -p "$HOME/.clawdbot/extensions"
 
   cat > "$HOME/.clawdbot/extensions/demo-plugin.js" <<'"'"'JS'"'"'
-=======
-  mkdir -p "$HOME/.openclaw/extensions/demo-plugin"
-
-  cat > "$HOME/.openclaw/extensions/demo-plugin/index.js" <<'"'"'JS'"'"'
->>>>>>> f9fae2c43 (fix: stabilize docker e2e flows)
 module.exports = {
   id: "demo-plugin",
   name: "Demo Plugin",

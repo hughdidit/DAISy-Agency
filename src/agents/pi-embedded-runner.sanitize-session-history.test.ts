@@ -2,8 +2,6 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as helpers from "./pi-embedded-helpers.js";
-<<<<<<< HEAD
-=======
 import {
   expectGoogleModelApiFullSanitizeCall,
   loadSanitizeSessionHistoryWithCleanMocks,
@@ -18,7 +16,6 @@ import {
   TEST_SESSION_ID,
 } from "./pi-embedded-runner.sanitize-session-history.test-harness.js";
 import { makeZeroUsageSnapshot } from "./usage.js";
->>>>>>> 7e0b3f16e (fix: preserve assistant usage snapshots during compaction cleanup)
 
 type SanitizeSessionHistory =
   typeof import("./pi-embedded-runner/google.js").sanitizeSessionHistory;
@@ -159,8 +156,6 @@ describe("sanitizeSessionHistory", () => {
     expect(first.content as string).toContain("sourceSession=agent:main:req");
   });
 
-<<<<<<< HEAD
-=======
   it("drops stale assistant usage snapshots kept before latest compaction summary", async () => {
     vi.mocked(helpers.isGoogleModelApi).mockReturnValue(false);
 
@@ -361,7 +356,6 @@ describe("sanitizeSessionHistory", () => {
     expect(freshAssistant?.usage).toBeDefined();
   });
 
->>>>>>> 7e0b3f16e (fix: preserve assistant usage snapshots during compaction cleanup)
   it("keeps reasoning-only assistant messages for openai-responses", async () => {
     vi.mocked(helpers.isGoogleModelApi).mockReturnValue(false);
 
@@ -448,8 +442,6 @@ describe("sanitizeSessionHistory", () => {
       messages,
       modelApi: "openai-responses",
       provider: "openai",
-<<<<<<< HEAD
-=======
       sessionManager: mockSessionManager,
       sessionId: "test-session",
     });
@@ -471,7 +463,6 @@ describe("sanitizeSessionHistory", () => {
     const result = await sanitizeWithOpenAIResponses({
       sanitizeSessionHistory,
       messages,
->>>>>>> 46bf210e0 (fix: always drop orphaned OpenAI reasoning blocks in session history)
       modelId: "gpt-5.2-codex",
       sessionManager,
       sessionId: "test-session",

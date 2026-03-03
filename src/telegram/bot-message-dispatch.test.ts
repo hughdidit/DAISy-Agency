@@ -1,20 +1,14 @@
-<<<<<<< HEAD
-=======
 import type { Bot } from "grammy";
 import path from "node:path";
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { STATE_DIR } from "../config/paths.js";
 
 const createTelegramDraftStream = vi.hoisted(() => vi.fn());
 const dispatchReplyWithBufferedBlockDispatcher = vi.hoisted(() => vi.fn());
 const deliverReplies = vi.hoisted(() => vi.fn());
-<<<<<<< HEAD
-=======
 const editMessageTelegram = vi.hoisted(() => vi.fn());
 const loadSessionStore = vi.hoisted(() => vi.fn());
 const resolveStorePath = vi.hoisted(() => vi.fn(() => "/tmp/sessions.json"));
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
 
 vi.mock("./draft-stream.js", () => ({
   createTelegramDraftStream,
@@ -28,8 +22,6 @@ vi.mock("./bot/delivery.js", () => ({
   deliverReplies,
 }));
 
-<<<<<<< HEAD
-=======
 vi.mock("./send.js", () => ({
   editMessageTelegram,
 }));
@@ -39,7 +31,6 @@ vi.mock("../config/sessions.js", async () => ({
   resolveStorePath,
 }));
 
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
 vi.mock("./sticker-cache.js", () => ({
   cacheSticker: vi.fn(),
   describeStickerImage: vi.fn(),
@@ -52,14 +43,11 @@ describe("dispatchTelegramMessage draft streaming", () => {
     createTelegramDraftStream.mockReset();
     dispatchReplyWithBufferedBlockDispatcher.mockReset();
     deliverReplies.mockReset();
-<<<<<<< HEAD
-=======
     editMessageTelegram.mockReset();
     loadSessionStore.mockReset();
     resolveStorePath.mockReset();
     resolveStorePath.mockReturnValue("/tmp/sessions.json");
     loadSessionStore.mockReturnValue({});
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
   });
 
   it("streams drafts in private threads and forwards thread id", async () => {
@@ -78,22 +66,8 @@ describe("dispatchTelegramMessage draft streaming", () => {
     );
     deliverReplies.mockResolvedValue({ delivered: true });
 
-<<<<<<< HEAD
     const resolveBotTopicsEnabled = vi.fn().mockResolvedValue(true);
     const context = {
-=======
-  function setupDraftStreams(params?: { answerMessageId?: number; reasoningMessageId?: number }) {
-    const answerDraftStream = createDraftStream(params?.answerMessageId);
-    const reasoningDraftStream = createDraftStream(params?.reasoningMessageId);
-    createTelegramDraftStream
-      .mockImplementationOnce(() => answerDraftStream)
-      .mockImplementationOnce(() => reasoningDraftStream);
-    return { answerDraftStream, reasoningDraftStream };
-  }
-
-  function createContext(overrides?: Partial<TelegramMessageContext>): TelegramMessageContext {
-    const base = {
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
       ctxPayload: {},
       primaryCtx: { message: { chat: { id: 123, type: "private" } } },
       msg: {
@@ -118,42 +92,9 @@ describe("dispatchTelegramMessage draft streaming", () => {
       removeAckAfterReply: false,
     };
 
-<<<<<<< HEAD
     await dispatchTelegramMessage({
       context,
       bot: { api: {} },
-=======
-  function createBot(): Bot {
-    return {
-      api: {
-        sendMessage: vi.fn(),
-        editMessageText: vi.fn(),
-        deleteMessage: vi.fn().mockResolvedValue(true),
-      },
-    } as unknown as Bot;
-  }
-
-  function createRuntime(): Parameters<typeof dispatchTelegramMessage>[0]["runtime"] {
-    return {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: () => {
-        throw new Error("exit");
-      },
-    };
-  }
-
-  async function dispatchWithContext(params: {
-    context: TelegramMessageContext;
-    telegramCfg?: Parameters<typeof dispatchTelegramMessage>[0]["telegramCfg"];
-    streamMode?: Parameters<typeof dispatchTelegramMessage>[0]["streamMode"];
-    bot?: Bot;
-  }) {
-    const bot = params.bot ?? createBot();
-    await dispatchTelegramMessage({
-      context: params.context,
-      bot,
->>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
       cfg: {},
       runtime: {},
       replyToMode: "first",
@@ -163,8 +104,6 @@ describe("dispatchTelegramMessage draft streaming", () => {
       opts: {},
       resolveBotTopicsEnabled,
     });
-<<<<<<< HEAD
-=======
   }
 
   it("streams drafts in private threads and forwards thread id", async () => {
@@ -185,7 +124,6 @@ describe("dispatchTelegramMessage draft streaming", () => {
       } as unknown as TelegramMessageContext["route"],
     });
     await dispatchWithContext({ context });
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 
     expect(resolveBotTopicsEnabled).toHaveBeenCalledWith(context.primaryCtx);
     expect(createTelegramDraftStream).toHaveBeenCalledWith(
@@ -202,8 +140,6 @@ describe("dispatchTelegramMessage draft streaming", () => {
         mediaLocalRoots: expect.arrayContaining([path.join(STATE_DIR, "workspace-work")]),
       }),
     );
-<<<<<<< HEAD
-=======
     expect(dispatchReplyWithBufferedBlockDispatcher).toHaveBeenCalledWith(
       expect.objectContaining({
         replyOptions: expect.objectContaining({
@@ -718,7 +654,6 @@ describe("dispatchTelegramMessage draft streaming", () => {
     expect(deliverReplies).not.toHaveBeenCalled();
   });
 
->>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
   it.each(["block", "partial"] as const)(
     "splits reasoning lane only when a later reasoning block starts (%s mode)",
     async (streamMode) => {

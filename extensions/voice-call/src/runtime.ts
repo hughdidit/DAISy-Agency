@@ -1,16 +1,10 @@
-<<<<<<< HEAD
 import type { CoreConfig } from "./core-bridge.js";
-=======
->>>>>>> dd319d05d (fix: apply oxfmt formatting)
 import type { VoiceCallConfig } from "./config.js";
 import type { CoreConfig } from "./core-bridge.js";
-<<<<<<< HEAD
 import { CallManager } from "./manager.js";
 <<<<<<< HEAD
 import type { Logger } from "./manager/context.js";
 import { defaultLogger } from "./manager/context.js";
-=======
->>>>>>> dd319d05d (fix: apply oxfmt formatting)
 =======
 >>>>>>> 0291ce30a (fix: apply oxfmt 0.32.0 formatting (match CI version))
 import type { VoiceCallProvider } from "./providers/base.js";
@@ -48,13 +42,9 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
   const allowNgrokFreeTierLoopbackBypass =
     config.tunnel?.provider === "ngrok" &&
     isLoopbackBind(config.serve?.bind) &&
-<<<<<<< HEAD
     (config.tunnel?.allowNgrokFreeTierLoopbackBypass ||
       config.tunnel?.allowNgrokFreeTier ||
       false);
-=======
-    (config.tunnel?.allowNgrokFreeTierLoopbackBypass ?? false);
->>>>>>> a749db982 (fix: harden voice-call webhook verification)
 
   switch (config.provider) {
     case "telnyx":
@@ -73,14 +63,9 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
           allowNgrokFreeTierLoopbackBypass,
           publicUrl: config.publicUrl,
           skipVerification: config.skipSignatureVerification,
-<<<<<<< HEAD
           streamPath: config.streaming?.enabled
             ? config.streaming.streamPath
             : undefined,
-=======
-          streamPath: config.streaming?.enabled ? config.streaming.streamPath : undefined,
-          webhookSecurity: config.webhookSecurity,
->>>>>>> a749db982 (fix: harden voice-call webhook verification)
         },
         logger,
       );

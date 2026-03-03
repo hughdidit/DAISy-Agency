@@ -1,9 +1,6 @@
 import { getChannelPlugin, normalizeChannelId } from "../channels/plugins/index.js";
-<<<<<<< HEAD
-=======
 import { normalizeTargetForProvider } from "../infra/outbound/target-normalization.js";
 import { MEDIA_TOKEN_RE } from "../media/parse.js";
->>>>>>> 68c78c4b4 (fix: deliver tool result media when verbose is off (#16679))
 import { truncateUtf16Safe } from "../utils.js";
 import { type MessagingToolSend } from "./pi-embedded-messaging.js";
 import { normalizeTargetForProvider } from "../infra/outbound/target-normalization.js";
@@ -214,24 +211,9 @@ export function extractMessagingToolSend(
   const accountIdRaw = typeof args.accountId === "string" ? args.accountId.trim() : undefined;
   const accountId = accountIdRaw ? accountIdRaw : undefined;
   if (toolName === "message") {
-<<<<<<< HEAD
     if (action !== "send" && action !== "thread-reply") return undefined;
     const toRaw = typeof args.to === "string" ? args.to : undefined;
     if (!toRaw) return undefined;
-=======
-    if (action !== "send" && action !== "thread-reply") {
-      return undefined;
-    }
-    const toRaw =
-      typeof args.to === "string"
-        ? args.to
-        : typeof args.target === "string"
-          ? args.target
-          : undefined;
-    if (!toRaw) {
-      return undefined;
-    }
->>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
     const providerRaw = typeof args.provider === "string" ? args.provider.trim() : "";
     const channelRaw = typeof args.channel === "string" ? args.channel.trim() : "";
     const providerHint = providerRaw || channelRaw;

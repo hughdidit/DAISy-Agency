@@ -22,7 +22,6 @@ echo "Creating Docker network..."
 docker network create "$NET_NAME" >/dev/null
 
 echo "Starting gateway container..."
-<<<<<<< HEAD
 	docker run --rm -d \
 	  --name "$GW_NAME" \
 	  --network "$NET_NAME" \
@@ -33,18 +32,6 @@ echo "Starting gateway container..."
 	  -e "CLAWDBOT_SKIP_CANVAS_HOST=1" \
 	  "$IMAGE_NAME" \
   bash -lc "node dist/index.js gateway --port $PORT --bind lan --allow-unconfigured > /tmp/gateway-net-e2e.log 2>&1"
-=======
-docker run -d \
-  --name "$GW_NAME" \
-  --network "$NET_NAME" \
-  -e "OPENCLAW_GATEWAY_TOKEN=$TOKEN" \
-  -e "OPENCLAW_SKIP_CHANNELS=1" \
-  -e "OPENCLAW_SKIP_GMAIL_WATCHER=1" \
-  -e "OPENCLAW_SKIP_CRON=1" \
-  -e "OPENCLAW_SKIP_CANVAS_HOST=1" \
-  "$IMAGE_NAME" \
-  bash -lc "set -euo pipefail; entry=dist/index.mjs; [ -f \"\$entry\" ] || entry=dist/index.js; node \"\$entry\" config set gateway.controlUi.enabled false >/dev/null; node \"\$entry\" gateway --port $PORT --bind lan --allow-unconfigured > /tmp/gateway-net-e2e.log 2>&1"
->>>>>>> 146c92069 (fix: stabilize live docker test handling)
 
 echo "Waiting for gateway to come up..."
 ready=0

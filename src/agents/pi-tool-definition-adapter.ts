@@ -6,12 +6,9 @@ import type {
 import type { ToolDefinition } from "@mariozechner/pi-coding-agent";
 import type { ClientToolDefinition } from "./pi-embedded-runner/run/params.js";
 import { logDebug, logError } from "../logger.js";
-<<<<<<< HEAD
-=======
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { isPlainObject } from "../utils.js";
 <<<<<<< HEAD
->>>>>>> d34138dfe (fix: dispatch before_tool_call and after_tool_call hooks from both tool execution paths (openclaw#15012) thanks @Patrick-Barletta)
 import { runBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
 =======
 import {
@@ -23,12 +20,8 @@ import {
 import { normalizeToolName } from "./tool-policy.js";
 import { jsonResult } from "./tools/common.js";
 
-<<<<<<< HEAD
 // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
 type AnyAgentTool = AgentTool<any, unknown>;
-=======
-type AnyAgentTool = AgentTool;
->>>>>>> 7be63ec74 (fix: align tool execute arg parsing for hooks)
 
 type ToolExecuteArgsCurrent = [
   string,
@@ -110,7 +103,6 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
       name,
       label: tool.label ?? name,
       description: tool.description ?? "",
-<<<<<<< HEAD
       // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema from pi-agent-core uses a different module instance.
       parameters: tool.parameters as any,
       execute: async (
@@ -123,9 +115,6 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
 <<<<<<< HEAD
         signal,
 =======
-        signal: AbortSignal | undefined,
->>>>>>> 284d24209 (fix: align tool execute signature)
-=======
 >>>>>>> 2d317ce42 (fix: align tool execute parameter order)
 =======
         signal?: AbortSignal,
@@ -137,7 +126,6 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
       parameters: tool.parameters,
       execute: async (...args: ToolExecuteArgs): Promise<AgentToolResult<unknown>> => {
         const { toolCallId, params, onUpdate, signal } = splitToolExecuteArgs(args);
-<<<<<<< HEAD
 >>>>>>> bcb0ed086 (fix: normalize tool execute args)
         try {
           // Call before_tool_call hook
@@ -151,25 +139,6 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
           }
           const adjustedParams = hookOutcome.params;
           const result = await tool.execute(toolCallId, adjustedParams, signal, onUpdate);
-=======
-        let executeParams = params;
-        try {
-          if (!beforeHookWrapped) {
-            const hookOutcome = await runBeforeToolCallHook({
-              toolName: name,
-              params,
-              toolCallId,
-            });
-            if (hookOutcome.blocked) {
-              throw new Error(hookOutcome.reason);
-            }
-            executeParams = hookOutcome.params;
-          }
-          const result = await tool.execute(toolCallId, executeParams, signal, onUpdate);
-          const afterParams = beforeHookWrapped
-            ? (consumeAdjustedParamsForToolCall(toolCallId) ?? executeParams)
-            : executeParams;
->>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
 
           // Call after_tool_call hook
           const hookRunner = getGlobalHookRunner();
@@ -178,11 +147,7 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
               await hookRunner.runAfterToolCall(
                 {
                   toolName: name,
-<<<<<<< HEAD
                   params: isPlainObject(adjustedParams) ? adjustedParams : {},
-=======
-                  params: isPlainObject(afterParams) ? afterParams : {},
->>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
                   result,
                 },
                 { toolName: name },
@@ -201,16 +166,7 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
             err && typeof err === "object" && "name" in err
               ? String((err as { name?: unknown }).name)
               : "";
-<<<<<<< HEAD
           if (name === "AbortError") throw err;
-=======
-          if (name === "AbortError") {
-            throw err;
-          }
-          if (beforeHookWrapped) {
-            consumeAdjustedParamsForToolCall(toolCallId);
-          }
->>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
           const described = describeToolExecutionError(err);
           if (described.stack && described.stack !== described.message) {
             logDebug(`tools: ${normalizedName} failed stack:\n${described.stack}`);
@@ -262,7 +218,6 @@ export function toClientToolDefinitions(
       name: func.name,
       label: func.name,
       description: func.description ?? "",
-<<<<<<< HEAD
       parameters: func.parameters as any,
 <<<<<<< HEAD
       execute: async (
@@ -274,9 +229,6 @@ export function toClientToolDefinitions(
 <<<<<<< HEAD
 <<<<<<< HEAD
         _signal,
-=======
-        _signal: AbortSignal | undefined,
->>>>>>> 284d24209 (fix: align tool execute signature)
 =======
 >>>>>>> 2d317ce42 (fix: align tool execute parameter order)
 =======

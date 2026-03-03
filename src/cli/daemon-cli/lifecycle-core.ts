@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import type { GatewayService } from "../../daemon/service.js";
-=======
-import type { Writable } from "node:stream";
->>>>>>> 905e355f6 (fix: verify gateway restart health after daemon restart)
 import { loadConfig } from "../../config/config.js";
 import { resolveIsNixMode } from "../../config/paths.js";
 import { checkTokenDrift } from "../../daemon/service-audit.js";
@@ -246,11 +242,8 @@ export async function runServiceRestart(params: {
   service: GatewayService;
   renderStartHints: () => string[];
   opts?: DaemonLifecycleOptions;
-<<<<<<< HEAD
-=======
   checkTokenDrift?: boolean;
   postRestartCheck?: (ctx: RestartPostCheckContext) => Promise<void>;
->>>>>>> 905e355f6 (fix: verify gateway restart health after daemon restart)
 }): Promise<boolean> {
   const json = Boolean(params.opts?.json);
   const { stdout, emit, fail } = createActionIO({ action: "restart", json });

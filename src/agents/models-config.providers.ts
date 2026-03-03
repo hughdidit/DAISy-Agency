@@ -5,8 +5,6 @@ import {
   resolveCopilotApiToken,
 } from "../providers/github-copilot-token.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "./auth-profiles.js";
-<<<<<<< HEAD
-=======
 import { discoverBedrockModels } from "./bedrock-discovery.js";
 import {
   buildBytePlusModelDefinition,
@@ -32,7 +30,6 @@ import {
   HUGGINGFACE_MODEL_CATALOG,
   buildHuggingfaceModelDefinition,
 } from "./huggingface-models.js";
->>>>>>> 581868365 (fix: finish volcengine/byteplus landing polish (#7967) (thanks @funmore123))
 import { resolveAwsSdkEnvVarName, resolveEnvApiKey } from "./model-auth.js";
 import { discoverBedrockModels } from "./bedrock-discovery.js";
 import {
@@ -50,12 +47,7 @@ const MINIMAX_DEFAULT_MODEL_ID = "MiniMax-M2.1";
 const MINIMAX_DEFAULT_VISION_MODEL_ID = "MiniMax-VL-01";
 const MINIMAX_DEFAULT_CONTEXT_WINDOW = 200000;
 const MINIMAX_DEFAULT_MAX_TOKENS = 8192;
-<<<<<<< HEAD
 // Pricing: MiniMax doesn't publish public rates. Override in models.json for accurate costs.
-=======
-const MINIMAX_OAUTH_PLACEHOLDER = "minimax-oauth";
-// Pricing per 1M tokens (USD) — https://platform.minimaxi.com/document/Price
->>>>>>> efdec3925 (fix: correct MiniMax M2.5 pricing (was ~50x too high) (openclaw#22755) thanks @miloudbelarebia)
 const MINIMAX_API_COST = {
   input: 0.3,
   output: 1.2,
@@ -73,7 +65,6 @@ const MOONSHOT_DEFAULT_COST = {
   cacheRead: 0,
   cacheWrite: 0,
 };
-<<<<<<< HEAD
 const KIMI_CODE_BASE_URL = "https://api.kimi.com/coding/v1";
 const KIMI_CODE_MODEL_ID = "kimi-for-coding";
 const KIMI_CODE_CONTEXT_WINDOW = 262144;
@@ -86,8 +77,6 @@ const KIMI_CODE_DEFAULT_COST = {
   cacheRead: 0,
   cacheWrite: 0,
 };
-=======
->>>>>>> 94d5411f1 (fix: remove duplicate TOGETHER_BASE_URL)
 
 const QWEN_PORTAL_BASE_URL = "https://portal.qwen.ai/v1";
 const QWEN_PORTAL_OAUTH_PLACEHOLDER = "qwen-oauth";
@@ -163,22 +152,12 @@ async function discoverOllamaModels(
       signal: AbortSignal.timeout(5000),
     });
     if (!response.ok) {
-<<<<<<< HEAD
       console.warn(`Failed to discover Ollama models: ${response.status}`);
-=======
-      if (!opts?.quiet) {
-        log.warn(`Failed to discover Ollama models: ${response.status}`);
-      }
->>>>>>> fa5e71d1a (fix: harden Ollama autodiscovery and warning behavior (#29201))
       return [];
     }
     const data = (await response.json()) as OllamaTagsResponse;
     if (!data.models || data.models.length === 0) {
-<<<<<<< HEAD
       console.warn("No Ollama models found on local instance");
-=======
-      log.debug("No Ollama models found on local instance");
->>>>>>> d911b0254 (fix(agents): demote Ollama empty-discovery log from warn to debug (#26379))
       return [];
     }
     return data.models.map((model) => {
@@ -196,66 +175,7 @@ async function discoverOllamaModels(
       };
     });
   } catch (error) {
-<<<<<<< HEAD
     console.warn(`Failed to discover Ollama models: ${String(error)}`);
-=======
-    if (!opts?.quiet) {
-      log.warn(`Failed to discover Ollama models: ${String(error)}`);
-    }
-    return [];
-  }
-}
-
-async function discoverVllmModels(
-  baseUrl: string,
-  apiKey?: string,
-): Promise<ModelDefinitionConfig[]> {
-  // Skip vLLM discovery in test environments
-  if (process.env.VITEST || process.env.NODE_ENV === "test") {
-    return [];
-  }
-
-  const trimmedBaseUrl = baseUrl.trim().replace(/\/+$/, "");
-  const url = `${trimmedBaseUrl}/models`;
-
-  try {
-    const trimmedApiKey = apiKey?.trim();
-    const response = await fetch(url, {
-      headers: trimmedApiKey ? { Authorization: `Bearer ${trimmedApiKey}` } : undefined,
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!response.ok) {
-      log.warn(`Failed to discover vLLM models: ${response.status}`);
-      return [];
-    }
-    const data = (await response.json()) as VllmModelsResponse;
-    const models = data.data ?? [];
-    if (models.length === 0) {
-      log.warn("No vLLM models found on local instance");
-      return [];
-    }
-
-    return models
-      .map((m) => ({ id: typeof m.id === "string" ? m.id.trim() : "" }))
-      .filter((m) => Boolean(m.id))
-      .map((m) => {
-        const modelId = m.id;
-        const lower = modelId.toLowerCase();
-        const isReasoning =
-          lower.includes("r1") || lower.includes("reasoning") || lower.includes("think");
-        return {
-          id: modelId,
-          name: modelId,
-          reasoning: isReasoning,
-          input: ["text"],
-          cost: VLLM_DEFAULT_COST,
-          contextWindow: VLLM_DEFAULT_CONTEXT_WINDOW,
-          maxTokens: VLLM_DEFAULT_MAX_TOKENS,
-        } satisfies ModelDefinitionConfig;
-      });
-  } catch (error) {
-    log.warn(`Failed to discover vLLM models: ${String(error)}`);
->>>>>>> fa5e71d1a (fix: harden Ollama autodiscovery and warning behavior (#29201))
     return [];
   }
 }
@@ -375,14 +295,8 @@ export function normalizeProviders(params: {
 
 function buildMinimaxProvider(): ProviderConfig {
   return {
-<<<<<<< HEAD
     baseUrl: MINIMAX_API_BASE_URL,
     api: "openai-completions",
-=======
-    baseUrl: MINIMAX_PORTAL_BASE_URL,
-    api: "anthropic-messages",
-    authHeader: true,
->>>>>>> 60bb47535 (fix: set authHeader: true by default for MiniMax API provider (#27622))
     models: [
       {
         id: MINIMAX_DEFAULT_MODEL_ID,
@@ -398,44 +312,10 @@ function buildMinimaxProvider(): ProviderConfig {
         name: "MiniMax VL 01",
         reasoning: false,
         input: ["text", "image"],
-<<<<<<< HEAD
         cost: MINIMAX_API_COST,
         contextWindow: MINIMAX_DEFAULT_CONTEXT_WINDOW,
         maxTokens: MINIMAX_DEFAULT_MAX_TOKENS,
       },
-=======
-      }),
-      buildMinimaxTextModel({
-        id: "MiniMax-M2.5",
-        name: "MiniMax M2.5",
-        reasoning: true,
-      }),
-      buildMinimaxTextModel({
-        id: "MiniMax-M2.5-Lightning",
-        name: "MiniMax M2.5 Lightning",
-        reasoning: true,
-      }),
-    ],
-  };
-}
-
-function buildMinimaxPortalProvider(): ProviderConfig {
-  return {
-    baseUrl: MINIMAX_PORTAL_BASE_URL,
-    api: "anthropic-messages",
-    authHeader: true,
-    models: [
-      buildMinimaxTextModel({
-        id: MINIMAX_DEFAULT_MODEL_ID,
-        name: "MiniMax M2.1",
-        reasoning: false,
-      }),
-      buildMinimaxTextModel({
-        id: "MiniMax-M2.5",
-        name: "MiniMax M2.5",
-        reasoning: true,
-      }),
->>>>>>> 60bb47535 (fix: set authHeader: true by default for MiniMax API provider (#27622))
     ],
   };
 }
@@ -458,7 +338,6 @@ function buildMoonshotProvider(): ProviderConfig {
   };
 }
 
-<<<<<<< HEAD
 function buildKimiCodeProvider(): ProviderConfig {
   return {
     baseUrl: KIMI_CODE_BASE_URL,
@@ -479,8 +358,6 @@ function buildKimiCodeProvider(): ProviderConfig {
   };
 }
 
-=======
->>>>>>> 3bcde8df3 (fix: finalize vLLM onboarding integration (#12577) (thanks @gejifeng))
 function buildQwenPortalProvider(): ProviderConfig {
   return {
     baseUrl: QWEN_PORTAL_BASE_URL,
@@ -537,8 +414,6 @@ async function buildOllamaProvider(
   };
 }
 
-<<<<<<< HEAD
-=======
 function buildTogetherProvider(): ProviderConfig {
   return {
     baseUrl: TOGETHER_BASE_URL,
@@ -622,7 +497,6 @@ export function buildNvidiaProvider(): ProviderConfig {
   };
 }
 
->>>>>>> fdda26147 (fix: align NVIDIA provider docs and model ids (#11606))
 export async function resolveImplicitProviders(params: {
   agentDir: string;
   explicitProviders?: Record<string, ProviderConfig> | null;
@@ -675,48 +549,7 @@ export async function resolveImplicitProviders(params: {
     };
   }
 
-<<<<<<< HEAD
   // Ollama provider - only add if explicitly configured
-=======
-  const xiaomiKey =
-    resolveEnvApiKeyVarName("xiaomi") ??
-    resolveApiKeyFromProfiles({ provider: "xiaomi", store: authStore });
-  if (xiaomiKey) {
-    providers.xiaomi = { ...buildXiaomiProvider(), apiKey: xiaomiKey };
-  }
-
-  const cloudflareProfiles = listProfilesForProvider(authStore, "cloudflare-ai-gateway");
-  for (const profileId of cloudflareProfiles) {
-    const cred = authStore.profiles[profileId];
-    if (cred?.type !== "api_key") {
-      continue;
-    }
-    const accountId = cred.metadata?.accountId?.trim();
-    const gatewayId = cred.metadata?.gatewayId?.trim();
-    if (!accountId || !gatewayId) {
-      continue;
-    }
-    const baseUrl = resolveCloudflareAiGatewayBaseUrl({ accountId, gatewayId });
-    if (!baseUrl) {
-      continue;
-    }
-    const apiKey = resolveEnvApiKeyVarName("cloudflare-ai-gateway") ?? cred.key?.trim() ?? "";
-    if (!apiKey) {
-      continue;
-    }
-    providers["cloudflare-ai-gateway"] = {
-      baseUrl,
-      api: "anthropic-messages",
-      apiKey,
-      models: [buildCloudflareAiGatewayModelDefinition()],
-    };
-    break;
-  }
-
-  // Ollama provider - auto-discover if running locally, or add if explicitly configured.
-  // Use the user's configured baseUrl (from explicit providers) for model
-  // discovery so that remote / non-default Ollama instances are reachable.
->>>>>>> 50a60b8be (fix: use configured base URL for Ollama model discovery (#14131))
   const ollamaKey =
     resolveEnvApiKeyVarName("ollama") ??
     resolveApiKeyFromProfiles({ provider: "ollama", store: authStore });

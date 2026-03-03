@@ -47,8 +47,6 @@ describe("docker-setup.sh", () => {
     const binDir = join(rootDir, "bin");
     const logPath = join(rootDir, "docker-stub.log");
 
-<<<<<<< HEAD
-=======
     const result = runDockerSetup(activeSandbox, {
       OPENCLAW_DOCKER_APT_PACKAGES: "ffmpeg build-essential",
       OPENCLAW_EXTRA_MOUNTS: undefined,
@@ -143,7 +141,6 @@ describe("docker-setup.sh", () => {
   });
 
   it("avoids associative arrays so the script remains Bash 3.2-compatible", async () => {
->>>>>>> 35976da7a (fix: harden Docker/GCP onboarding flow (#26253) (thanks @pandego))
     const script = await readFile(join(repoRoot, "docker-setup.sh"), "utf8");
     await writeFile(scriptPath, script, { mode: 0o755 });
     await writeFile(dockerfilePath, "FROM scratch\n");

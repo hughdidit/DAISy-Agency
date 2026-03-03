@@ -1,19 +1,11 @@
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { signalOutbound } from "../../channels/plugins/outbound/signal.js";
 import { telegramOutbound } from "../../channels/plugins/outbound/telegram.js";
 import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
 <<<<<<< HEAD
-=======
-=======
-import { signalOutbound } from "../../channels/plugins/outbound/signal.js";
-import { telegramOutbound } from "../../channels/plugins/outbound/telegram.js";
-import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { STATE_DIR } from "../../config/paths.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 >>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
@@ -102,55 +94,11 @@ describe("deliverOutboundPayloads", () => {
       }
       expect(results).toHaveLength(2);
       expect(results[0]).toMatchObject({ channel: "telegram", chatId: "c1" });
-<<<<<<< HEAD
     } finally {
       if (prevTelegramToken === undefined) {
         delete process.env.TELEGRAM_BOT_TOKEN;
       } else {
         process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
-=======
-    });
-  });
-
-  it("clamps telegram text chunk size to protocol max even with higher config", async () => {
-    const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
-    const cfg: OpenClawConfig = {
-      channels: { telegram: { botToken: "tok-1", textChunkLimit: 10_000 } },
-    };
-    const text = "<".repeat(3_000);
-    await withEnvAsync({ TELEGRAM_BOT_TOKEN: "" }, async () => {
-      await deliverOutboundPayloads({
-        cfg,
-        channel: "telegram",
-        to: "123",
-        payloads: [{ text }],
-        deps: { sendTelegram },
-      });
-    });
-
-    expect(sendTelegram.mock.calls.length).toBeGreaterThan(1);
-    const sentHtmlChunks = sendTelegram.mock.calls
-      .map((call) => call[1])
-      .filter((message): message is string => typeof message === "string");
-    expect(sentHtmlChunks.length).toBeGreaterThan(1);
-    expect(sentHtmlChunks.every((message) => message.length <= 4096)).toBe(true);
-  });
-
-  it("keeps payload replyToId across all chunked telegram sends", async () => {
-    const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
-    await withEnvAsync({ TELEGRAM_BOT_TOKEN: "" }, async () => {
-      await deliverOutboundPayloads({
-        cfg: telegramChunkConfig,
-        channel: "telegram",
-        to: "123",
-        payloads: [{ text: "abcd", replyToId: "777" }],
-        deps: { sendTelegram },
-      });
-
-      expect(sendTelegram).toHaveBeenCalledTimes(2);
-      for (const call of sendTelegram.mock.calls) {
-        expect(call[2]).toEqual(expect.objectContaining({ replyToMessageId: 777 }));
->>>>>>> 69c39368e (fix: enforce telegram shared outbound chunking)
       }
     }
   });

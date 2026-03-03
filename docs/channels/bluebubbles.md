@@ -169,15 +169,9 @@ Control whether responses are sent as a single message or streamed in blocks:
 {
   channels: {
     bluebubbles: {
-<<<<<<< HEAD
       blockStreaming: true  // enable block streaming (default behavior)
     }
   }
-=======
-      blockStreaming: true, // enable block streaming (off by default)
-    },
-  },
->>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
 }
 ```
 

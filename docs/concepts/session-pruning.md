@@ -21,11 +21,7 @@ Session pruning trims **old tool results** from the in-memory context right befo
 
 - **OAuth or setup-token** profiles: enable `cache-ttl` pruning and set heartbeat to `1h`.
 - **API key** profiles: enable `cache-ttl` pruning, set heartbeat to `30m`, and default `cacheControlTtl` to `1h` on Anthropic models.
-<<<<<<< HEAD
 - If you set any of these values explicitly, Moltbot does **not** override them.
-=======
-- If you set any of these values explicitly, OpenClaw does **not** override them.
->>>>>>> 0992c5a80 (fix: cap context window resolution (#6187) (thanks @iamEvanYT))
 
 ## What this improves (cost + cache behavior)
 
@@ -44,16 +40,11 @@ Session pruning trims **old tool results** from the in-memory context right befo
 
 ## Context window estimation
 <<<<<<< HEAD
-<<<<<<< HEAD
 Pruning uses an estimated context window (chars ≈ tokens × 4). The window size is resolved in this order:
 1) Model definition `contextWindow` (from the model registry).
 2) `models.providers.*.models[].contextWindow` override.
 3) `agents.defaults.contextTokens`.
 4) Default `200000` tokens.
-=======
-=======
-
->>>>>>> e9f70e858 (fix: satisfy lint curly rule (#6310))
 Pruning uses an estimated context window (chars ≈ tokens × 4). The base window is resolved in this order:
 
 1. `models.providers.*.models[].contextWindow` override.

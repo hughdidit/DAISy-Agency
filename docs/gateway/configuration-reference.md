@@ -408,13 +408,7 @@ OpenClaw spawns `imsg rpc` (JSON-RPC over stdio). No daemon or port required.
 
 - Requires Full Disk Access to the Messages DB.
 - Prefer `chat_id:<id>` targets. Use `imsg chats --limit 20` to list chats.
-<<<<<<< HEAD
 - `cliPath` can point to an SSH wrapper; set `remoteHost` for SCP attachment fetching.
-=======
-- `cliPath` can point to an SSH wrapper; set `remoteHost` (`host` or `user@host`) for SCP attachment fetching.
-- `attachmentRoots` and `remoteAttachmentRoots` restrict inbound attachment paths (default: `/Users/*/Library/Messages/Attachments`).
-- SCP uses strict host-key checking, so ensure the relay host key already exists in `~/.ssh/known_hosts`.
->>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 
 <Accordion title="iMessage SSH wrapper example">
 

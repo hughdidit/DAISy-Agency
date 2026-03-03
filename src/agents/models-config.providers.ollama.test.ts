@@ -1,32 +1,8 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 import { resolveImplicitProviders } from "./models-config.providers.js";
 import { mkdtempSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-=======
-import { resolveImplicitProviders, resolveOllamaApiBase } from "./models-config.providers.js";
-
-describe("resolveOllamaApiBase", () => {
-  it("returns default localhost base when no configured URL is provided", () => {
-    expect(resolveOllamaApiBase()).toBe("http://127.0.0.1:11434");
-  });
-
-  it("strips /v1 suffix from OpenAI-compatible URLs", () => {
-    expect(resolveOllamaApiBase("http://ollama-host:11434/v1")).toBe("http://ollama-host:11434");
-    expect(resolveOllamaApiBase("http://ollama-host:11434/V1")).toBe("http://ollama-host:11434");
-  });
-
-  it("keeps URLs without /v1 unchanged", () => {
-    expect(resolveOllamaApiBase("http://ollama-host:11434")).toBe("http://ollama-host:11434");
-  });
-
-  it("handles trailing slash before canonicalizing", () => {
-    expect(resolveOllamaApiBase("http://ollama-host:11434/v1/")).toBe("http://ollama-host:11434");
-    expect(resolveOllamaApiBase("http://ollama-host:11434/")).toBe("http://ollama-host:11434");
-  });
-});
->>>>>>> 50a60b8be (fix: use configured base URL for Ollama model discovery (#14131))
 
 describe("Ollama provider", () => {
   it("should not include ollama when no API key is configured", async () => {
@@ -36,8 +12,6 @@ describe("Ollama provider", () => {
     // Ollama requires explicit configuration via OLLAMA_API_KEY env var or profile
     expect(providers?.ollama).toBeUndefined();
   });
-<<<<<<< HEAD
-=======
 
   it("should disable streaming by default for Ollama models", async () => {
     const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
@@ -140,7 +114,6 @@ describe("Ollama provider", () => {
     } finally {
       delete process.env.OLLAMA_API_KEY;
     }
->>>>>>> 78d49b4c8 (fix: remove readonly type constraint in test)
   });
 >>>>>>> 50a60b8be (fix: use configured base URL for Ollama model discovery (#14131))
 });

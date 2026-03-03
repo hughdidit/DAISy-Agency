@@ -98,8 +98,6 @@ export const zh_TW: TranslationMap = {
       hint: "此頁面為 HTTP，因此瀏覽器阻止設備標識。請使用 HTTPS (Tailscale Serve) 或在網關主機上打開 {url}。",
       stayHttp: "如果您必須保持 HTTP，請設置 {config} (僅限令牌)。",
     },
-<<<<<<< HEAD
-=======
     connection: {
       title: "如何連接",
       step1: "在主機上啟動閘道：",
@@ -141,7 +139,6 @@ export const zh_TW: TranslationMap = {
   login: {
     subtitle: "閘道儀表板",
     passwordPlaceholder: "可選",
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   },
   chat: {
     disconnected: "已斷開與網關的連接。",

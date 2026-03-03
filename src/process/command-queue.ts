@@ -18,11 +18,7 @@ type QueueEntry = {
 type LaneState = {
   lane: string;
   queue: QueueEntry[];
-<<<<<<< HEAD
   active: number;
-=======
-  activeTaskIds: Set<number>;
->>>>>>> 4e9f933e8 (fix: reset stale execution state after SIGUSR1 in-process restart (#15195))
   maxConcurrent: number;
   draining: boolean;
   generation: number;
@@ -36,11 +32,7 @@ function getLaneState(lane: string): LaneState {
   const created: LaneState = {
     lane,
     queue: [],
-<<<<<<< HEAD
     active: 0,
-=======
-    activeTaskIds: new Set(),
->>>>>>> 4e9f933e8 (fix: reset stale execution state after SIGUSR1 in-process restart (#15195))
     maxConcurrent: 1,
     draining: false,
     generation: 0,
@@ -73,18 +65,11 @@ function drainLane(lane: string) {
         );
       }
       logLaneDequeue(lane, waitedMs, state.queue.length);
-<<<<<<< HEAD
       state.active += 1;
-=======
-      const taskId = nextTaskId++;
-      const taskGeneration = state.generation;
-      state.activeTaskIds.add(taskId);
->>>>>>> 4e9f933e8 (fix: reset stale execution state after SIGUSR1 in-process restart (#15195))
       void (async () => {
         const startTime = Date.now();
         try {
           const result = await entry.task();
-<<<<<<< HEAD
           state.active -= 1;
           diag.debug(
             `lane task done: lane=${lane} durationMs=${Date.now() - startTime} active=${state.active} queued=${state.queue.length}`,
@@ -93,18 +78,6 @@ function drainLane(lane: string) {
           entry.resolve(result);
         } catch (err) {
           state.active -= 1;
-=======
-          const completedCurrentGeneration = completeTask(state, taskId, taskGeneration);
-          if (completedCurrentGeneration) {
-            diag.debug(
-              `lane task done: lane=${lane} durationMs=${Date.now() - startTime} active=${state.activeTaskIds.size} queued=${state.queue.length}`,
-            );
-            pump();
-          }
-          entry.resolve(result);
-        } catch (err) {
-          const completedCurrentGeneration = completeTask(state, taskId, taskGeneration);
->>>>>>> 4e9f933e8 (fix: reset stale execution state after SIGUSR1 in-process restart (#15195))
           const isProbeLane = lane.startsWith("auth-probe:") || lane.startsWith("session:probe-");
           if (!isProbeLane) {
             diag.error(
@@ -169,15 +142,8 @@ export function enqueueCommand<T>(
 export function getQueueSize(lane: string = CommandLane.Main) {
   const resolved = lane.trim() || CommandLane.Main;
   const state = lanes.get(resolved);
-<<<<<<< HEAD
   if (!state) return 0;
   return state.queue.length + state.active;
-=======
-  if (!state) {
-    return 0;
-  }
-  return state.queue.length + state.activeTaskIds.size;
->>>>>>> 4e9f933e8 (fix: reset stale execution state after SIGUSR1 in-process restart (#15195))
 }
 
 export function getTotalQueueSize() {
@@ -196,8 +162,6 @@ export function clearCommandLane(lane: string = CommandLane.Main) {
   state.queue.length = 0;
   return removed;
 }
-<<<<<<< HEAD
-=======
 
 /**
  * Reset all lane runtime state to idle. Used after SIGUSR1 in-process
@@ -293,4 +257,3 @@ export function waitForActiveTasks(timeoutMs: number): Promise<{ drained: boolea
     check();
   });
 }
->>>>>>> 4e9f933e8 (fix: reset stale execution state after SIGUSR1 in-process restart (#15195))

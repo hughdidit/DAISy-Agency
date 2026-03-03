@@ -16,25 +16,16 @@ import {
   normalizeSafeBins,
   requiresExecApproval,
   resolveCommandResolution,
-<<<<<<< HEAD
-=======
   resolveCommandResolutionFromArgv,
   resolveAllowAlwaysPatterns,
->>>>>>> 2b63592be (fix: harden exec allowlist wrapper resolution)
   resolveExecApprovals,
   resolveExecApprovalsFromFile,
-<<<<<<< HEAD
-=======
   resolveExecApprovalsPath,
   resolveExecApprovalsSocketPath,
   resolveSafeBins,
   type ExecApprovalsAgent,
->>>>>>> a18603681 (test: fix latest tsgo inference regressions in test suites)
   type ExecAllowlistEntry,
-<<<<<<< HEAD
-=======
   type ExecApprovalsFile,
->>>>>>> 21087c5c7 (test: fix rebase-introduced tsgo regressions)
 } from "./exec-approvals.js";
 
 function makePathEnv(binDir: string): NodeJS.ProcessEnv {
@@ -148,8 +139,6 @@ describe("exec approvals command resolution", () => {
     expect(resolution?.executableName).toBe(exeName);
   });
 
-<<<<<<< HEAD
-=======
   it("blocks semantic env wrappers from allowlist/safeBins auto-resolution", () => {
     const resolution = resolveCommandResolutionFromArgv([
       "/usr/bin/env",
@@ -191,7 +180,6 @@ describe("exec approvals command resolution", () => {
     expect(allowlistEval.segmentSatisfiedBy).toEqual([null]);
   });
 
->>>>>>> 3f923e831 (test: add env -S allowlist bypass regressions)
   it("unwraps env wrapper with shell inner executable", () => {
     const resolution = resolveCommandResolutionFromArgv(["/usr/bin/env", "bash", "-lc", "echo hi"]);
     expect(resolution?.rawExecutable).toBe("bash");
@@ -347,7 +335,6 @@ describe("exec approvals shell allowlist (chained commands)", () => {
 });
 
 describe("exec approvals safe bins", () => {
-<<<<<<< HEAD
   it("allows safe bins with non-path args", () => {
     const dir = makeTempDir();
     const binDir = path.join(dir, "bin");
@@ -360,126 +347,6 @@ describe("exec approvals safe bins", () => {
       command: "jq .foo",
       cwd: dir,
       env: makePathEnv(binDir),
-=======
-  type SafeBinCase = {
-    name: string;
-    argv: string[];
-    resolvedPath: string;
-    expected: boolean;
-    safeBins?: string[];
-    executableName?: string;
-    rawExecutable?: string;
-    cwd?: string;
-    setup?: (cwd: string) => void;
-  };
-
-  const cases: SafeBinCase[] = [
-    {
-      name: "allows safe bins with non-path args",
-      argv: ["jq", ".foo"],
-      resolvedPath: "/usr/bin/jq",
-      expected: true,
-    },
-    {
-      name: "blocks safe bins with file args",
-      argv: ["jq", ".foo", "secret.json"],
-      resolvedPath: "/usr/bin/jq",
-      expected: false,
-      setup: (cwd) => fs.writeFileSync(path.join(cwd, "secret.json"), "{}"),
-    },
-    {
-      name: "blocks safe bins resolved from untrusted directories",
-      argv: ["jq", ".foo"],
-      resolvedPath: "/tmp/evil-bin/jq",
-      expected: false,
-      cwd: "/tmp",
-    },
-    {
-      name: "blocks sort output path via -o <file>",
-      argv: ["sort", "-o", "malicious.sh"],
-      resolvedPath: "/usr/bin/sort",
-      expected: false,
-      safeBins: ["sort"],
-      executableName: "sort",
-    },
-    {
-      name: "blocks sort output path via attached short option (-ofile)",
-      argv: ["sort", "-omalicious.sh"],
-      resolvedPath: "/usr/bin/sort",
-      expected: false,
-      safeBins: ["sort"],
-      executableName: "sort",
-    },
-    {
-      name: "blocks sort output path via --output=file",
-      argv: ["sort", "--output=malicious.sh"],
-      resolvedPath: "/usr/bin/sort",
-      expected: false,
-      safeBins: ["sort"],
-      executableName: "sort",
-    },
-    {
-      name: "blocks sort external program flag via --compress-program=<prog>",
-      argv: ["sort", "--compress-program=sh"],
-      resolvedPath: "/usr/bin/sort",
-      expected: false,
-      safeBins: ["sort"],
-      executableName: "sort",
-    },
-    {
-      name: "blocks sort external program flag via --compress-program <prog>",
-      argv: ["sort", "--compress-program", "sh"],
-      resolvedPath: "/usr/bin/sort",
-      expected: false,
-      safeBins: ["sort"],
-      executableName: "sort",
-    },
-    {
-      name: "blocks grep recursive flags that read cwd",
-      argv: ["grep", "-R", "needle"],
-      resolvedPath: "/usr/bin/grep",
-      expected: false,
-      safeBins: ["grep"],
-      executableName: "grep",
-    },
-    {
-      name: "blocks grep file positional when pattern uses -e",
-      argv: ["grep", "-e", "needle", ".env"],
-      resolvedPath: "/usr/bin/grep",
-      expected: false,
-      safeBins: ["grep"],
-      executableName: "grep",
-    },
-    {
-      name: "blocks grep file positional after -- terminator",
-      argv: ["grep", "-e", "needle", "--", ".env"],
-      resolvedPath: "/usr/bin/grep",
-      expected: false,
-      safeBins: ["grep"],
-      executableName: "grep",
-    },
-  ];
-
-  for (const testCase of cases) {
-    it(testCase.name, () => {
-      if (process.platform === "win32") {
-        return;
-      }
-      const cwd = testCase.cwd ?? makeTempDir();
-      testCase.setup?.(cwd);
-      const executableName = testCase.executableName ?? "jq";
-      const rawExecutable = testCase.rawExecutable ?? executableName;
-      const ok = isSafeBinUsage({
-        argv: testCase.argv,
-        resolution: {
-          rawExecutable,
-          resolvedPath: testCase.resolvedPath,
-          executableName,
-        },
-        safeBins: normalizeSafeBins(testCase.safeBins ?? [executableName]),
-      });
-      expect(ok).toBe(testCase.expected);
->>>>>>> 57fbbaebc (fix: block safeBins sort --compress-program bypass)
     });
     expect(res.ok).toBe(true);
     const segment = res.segments[0];
@@ -596,8 +463,6 @@ describe("exec approvals allowlist evaluation", () => {
     });
     expect(result.allowlistSatisfied).toBe(true);
   });
-<<<<<<< HEAD
-=======
 
   it("does not satisfy auto-allow skills for explicit relative paths", () => {
     const analysis = {
@@ -716,7 +581,6 @@ describe("exec approvals allowlist evaluation", () => {
     expect(result.allowlistMatches.map((entry) => entry.pattern)).toEqual(["/usr/bin/tool"]);
     expect(result.segmentSatisfiedBy).toEqual(["allowlist", "safeBins"]);
   });
->>>>>>> 64aab8020 (test(exec): add regressions for safe-bin metadata and chain semantics)
 });
 
 describe("exec approvals policy helpers", () => {

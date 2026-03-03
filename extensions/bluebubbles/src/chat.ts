@@ -317,13 +317,9 @@ export async function setGroupIconBlueBubbles(
   // Add file field named "icon" as per API spec
   parts.push(encoder.encode(`--${boundary}\r\n`));
   parts.push(
-<<<<<<< HEAD
     encoder.encode(
       `Content-Disposition: form-data; name="icon"; filename="${filename}"\r\n`,
     ),
-=======
-    encoder.encode(`Content-Disposition: form-data; name="icon"; filename="${safeFilename}"\r\n`),
->>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
   );
   parts.push(
     encoder.encode(`Content-Type: ${opts.contentType ?? "application/octet-stream"}\r\n\r\n`),

@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 
-=======
->>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 import type {
   Agent,
   AgentSideConnection,
@@ -24,22 +21,10 @@ import type {
   StopReason,
 } from "@agentclientprotocol/sdk";
 import { PROTOCOL_VERSION } from "@agentclientprotocol/sdk";
-<<<<<<< HEAD
 
 import type { GatewayClient } from "../gateway/client.js";
 import type { EventFrame } from "../gateway/protocol/index.js";
 import type { SessionsListResult } from "../gateway/session-utils.js";
-=======
-import { randomUUID } from "node:crypto";
-import type { GatewayClient } from "../gateway/client.js";
-import type { EventFrame } from "../gateway/protocol/index.js";
-import type { SessionsListResult } from "../gateway/session-utils.js";
-import {
-  createFixedWindowRateLimiter,
-  type FixedWindowRateLimiter,
-} from "../infra/fixed-window-rate-limit.js";
-import { shortenHomePath } from "../utils.js";
->>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 import { getAvailableCommands } from "./commands.js";
 import { readBool, readNumber, readString } from "./meta.js";
 import {

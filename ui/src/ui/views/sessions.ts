@@ -1,17 +1,9 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import { formatSessionTokens } from "../presenter";
 import { pathForTab } from "../navigation";
 import type { GatewaySessionRow, SessionsListResult } from "../types";
-=======
-import { formatRelativeTimestamp } from "../format.ts";
-import { icons } from "../icons.ts";
-import { pathForTab } from "../navigation.ts";
-import { formatSessionTokens } from "../presenter.ts";
-import type { GatewaySessionRow, SessionsListResult } from "../types.ts";
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 
 export type SessionsProps = {
   loading: boolean;
@@ -272,17 +264,9 @@ export function renderSessions(props: SessionsProps) {
         </label>
       </div>
 
-<<<<<<< HEAD
       ${props.error
         ? html`<div class="callout danger" style="margin-top: 12px;">${props.error}</div>`
         : nothing}
-=======
-      ${
-        props.error
-          ? html`<div class="callout danger" style="margin-bottom: 12px;">${props.error}</div>`
-          : nothing
-      }
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 
       <div class="data-table-wrapper">
         <div class="data-table-toolbar">
@@ -295,90 +279,11 @@ export function renderSessions(props: SessionsProps) {
             />
           </div>
         </div>
-<<<<<<< HEAD
         ${rows.length === 0
           ? html`<div class="muted">No sessions found.</div>`
           : rows.map((row) =>
               renderRow(row, props.basePath, props.onPatch, props.onDelete, props.loading),
             )}
-=======
-
-        <div class="data-table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                ${sortHeader("key", "Key")}
-                <th>Label</th>
-                ${sortHeader("kind", "Kind")}
-                ${sortHeader("updated", "Updated")}
-                ${sortHeader("tokens", "Tokens")}
-                <th>Thinking</th>
-                <th>Verbose</th>
-                <th>Reasoning</th>
-                <th style="width: 60px;"></th>
-              </tr>
-            </thead>
-            <tbody>
-              ${
-                paginated.length === 0
-                  ? html`
-                      <tr>
-                        <td colspan="9" style="text-align: center; padding: 48px 16px; color: var(--muted)">
-                          No sessions found.
-                        </td>
-                      </tr>
-                    `
-                  : paginated.map((row) =>
-                      renderRow(
-                        row,
-                        props.basePath,
-                        props.onPatch,
-                        props.onDelete,
-                        props.onActionsOpenChange,
-                        props.actionsOpenKey,
-                        props.loading,
-                      ),
-                    )
-              }
-            </tbody>
-          </table>
-        </div>
-
-        ${
-          totalRows > 0
-            ? html`
-                <div class="data-table-pagination">
-                  <div class="data-table-pagination__info">
-                    ${page * props.pageSize + 1}-${Math.min((page + 1) * props.pageSize, totalRows)}
-                    of ${totalRows} row${totalRows === 1 ? "" : "s"}
-                  </div>
-                  <div class="data-table-pagination__controls">
-                    <select
-                      style="height: 32px; padding: 0 8px; font-size: 13px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--card);"
-                      .value=${String(props.pageSize)}
-                      @change=${(e: Event) =>
-                        props.onPageSizeChange(Number((e.target as HTMLSelectElement).value))}
-                    >
-                      ${PAGE_SIZES.map((s) => html`<option value=${s}>${s} per page</option>`)}
-                    </select>
-                    <button
-                      ?disabled=${page <= 0}
-                      @click=${() => props.onPageChange(page - 1)}
-                    >
-                      Previous
-                    </button>
-                    <button
-                      ?disabled=${page >= totalPages - 1}
-                      @click=${() => props.onPageChange(page + 1)}
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              `
-            : nothing
-        }
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
       </div>
     </section>
   `;
@@ -426,18 +331,11 @@ function renderRow(
           : "data-table-badge--unknown";
 
   return html`
-<<<<<<< HEAD
     <div class="table-row">
 <<<<<<< HEAD
       <div class="mono">${canLink
         ? html`<a href=${chatUrl} class="session-link">${displayName}</a>`
         : displayName}</div>
-=======
-      <div class="mono session-key-cell">
-        ${canLink ? html`<a href=${chatUrl} class="session-link">${row.key}</a>` : row.key}
-        ${showDisplayName ? html`<span class="muted session-key-display-name">${displayName}</span>` : nothing}
-      </div>
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
       <div>
 =======
     <tr>
@@ -480,16 +378,8 @@ function renderRow(
             });
           }}
         >
-<<<<<<< HEAD
           ${thinkLevels.map((level) =>
             html`<option value=${level}>${level || "inherit"}</option>`,
-=======
-          ${thinkLevels.map(
-            (level) =>
-              html`<option value=${level} ?selected=${thinking === level}>
-                ${level || "inherit"}
-              </option>`,
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
           )}
         </select>
       </td>
@@ -519,16 +409,8 @@ function renderRow(
             onPatch(row.key, { reasoningLevel: value || null });
           }}
         >
-<<<<<<< HEAD
           ${REASONING_LEVELS.map((level) =>
             html`<option value=${level}>${level || "inherit"}</option>`,
-=======
-          ${reasoningLevels.map(
-            (level) =>
-              html`<option value=${level} ?selected=${reasoning === level}>
-                ${level || "inherit"}
-              </option>`,
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
           )}
         </select>
       </td>

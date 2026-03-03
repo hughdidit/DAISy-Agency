@@ -210,8 +210,6 @@ describe("exec approvals", () => {
     expect(result.details.status).toBe("approval-pending");
     await approvalSeen;
     expect(calls).toContain("exec.approval.request");
-<<<<<<< HEAD
-=======
     expect(calls).toContain("exec.approval.waitDecision");
   });
 
@@ -355,6 +353,5 @@ describe("exec approvals", () => {
         }
       })
       .toBe(false);
->>>>>>> 7b2b86c60 (fix(exec): add approval race changelog and regressions)
   });
 });

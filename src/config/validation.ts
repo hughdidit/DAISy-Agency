@@ -139,8 +139,6 @@ export function validateConfigObjectWithPlugins(raw: unknown):
   const config = base.config;
   const issues: ConfigValidationIssue[] = [];
   const warnings: ConfigValidationIssue[] = [];
-<<<<<<< HEAD
-=======
   const hasExplicitPluginsConfig =
     isRecord(raw) && Object.prototype.hasOwnProperty.call(raw, "plugins");
 
@@ -265,7 +263,6 @@ export function validateConfigObjectWithPlugins(raw: unknown):
 
   const { registry, knownIds, normalizedPlugins } = ensureRegistry();
 
->>>>>>> 0d93c9f75 (fix: include modelByChannel in config validator allowedChannels)
   const pluginsConfig = config.plugins;
   const normalizedPlugins = normalizePluginsConfig(pluginsConfig);
 

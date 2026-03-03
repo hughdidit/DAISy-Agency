@@ -3,12 +3,9 @@ import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { normalizeReplyPayload, type NormalizeReplySkipReason } from "./normalize-reply.js";
 import type { ResponsePrefixContext } from "./response-prefix-template.js";
 import type { TypingController } from "./typing.js";
-<<<<<<< HEAD
-=======
 import { sleep } from "../../utils.js";
 import { registerDispatcher } from "./dispatcher-registry.js";
 import { normalizeReplyPayload, type NormalizeReplySkipReason } from "./normalize-reply.js";
->>>>>>> ab4a08a82 (fix: defer gateway restart until all replies are sent (#12970))
 
 export type ReplyDispatchKind = "tool" | "block" | "final";
 

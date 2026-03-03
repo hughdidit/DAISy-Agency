@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it } from "vitest";
 import { buildEmbeddedRunPayloads } from "./payloads.js";
@@ -82,24 +81,6 @@ describe("buildEmbeddedRunPayloads", () => {
   });
 
 <<<<<<< HEAD:src/agents/pi-embedded-runner/run/payloads.test.ts
-=======
-  it("includes provider and model context for billing errors", () => {
-    const payloads = buildPayloads({
-      lastAssistant: makeAssistant({
-        model: "claude-3-5-sonnet",
-        errorMessage: "insufficient credits",
-        content: [{ type: "text", text: "insufficient credits" }],
-      }),
-      provider: "Anthropic",
-      model: "claude-3-5-sonnet",
-    });
-
-    expect(payloads).toHaveLength(1);
-    expect(payloads[0]?.text).toBe(formatBillingErrorMessage("Anthropic", "claude-3-5-sonnet"));
-    expect(payloads[0]?.isError).toBe(true);
-  });
-
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510)):src/agents/pi-embedded-runner/run/payloads.e2e.test.ts
   it("suppresses raw error JSON even when errorMessage is missing", () => {
     const lastAssistant = makeAssistant({ errorMessage: undefined });
     const payloads = buildEmbeddedRunPayloads({
@@ -239,7 +220,6 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("Exec");
-<<<<<<< HEAD
     expect(payloads[0]?.text).toContain("code 1");
   });
 
@@ -303,20 +283,10 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
       verboseLevel: "off",
       reasoningLevel: "off",
       toolResultFormat: "plain",
-=======
-    expect(payloads[0]?.text).toContain("command failed");
-  });
-
-  it("keeps non-exec mutating tool failures visible", () => {
-    const payloads = buildPayloads({
-      lastToolError: { toolName: "write", error: "permission denied" },
-      verboseLevel: "off",
->>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
     });
 
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
-<<<<<<< HEAD
     expect(payloads[0]?.text).toContain("required");
   });
 
@@ -416,10 +386,6 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("connection timeout");
-=======
-    expect(payloads[0]?.text).toContain("Write");
-<<<<<<< HEAD
->>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
 =======
     expect(payloads[0]?.text).not.toContain("permission denied");
   });

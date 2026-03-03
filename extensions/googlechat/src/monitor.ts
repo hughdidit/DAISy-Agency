@@ -4,24 +4,8 @@ import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { resolveMentionGatingWithBypass } from "clawdbot/plugin-sdk";
 
 import {
-<<<<<<< HEAD
   type ResolvedGoogleChatAccount
 } from "./accounts.js";
-=======
-  createReplyPrefixOptions,
-  readJsonBodyWithLimit,
-  registerWebhookTarget,
-  rejectNonPostWebhookRequest,
-  resolveRuntimeGroupPolicy,
-  resolveSingleWebhookTargetAsync,
-  resolveWebhookPath,
-  resolveWebhookTargets,
-  requestBodyErrorToText,
-  resolveMentionGatingWithBypass,
-  resolveDmGroupAccessWithLists,
-} from "openclaw/plugin-sdk";
-import { type ResolvedGoogleChatAccount } from "./accounts.js";
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import {
   downloadGoogleChatMedia,
   deleteGoogleChatMessage,
@@ -76,25 +60,12 @@ function logVerbose(core: GoogleChatCoreRuntime, runtime: GoogleChatRuntimeEnv, 
   }
 }
 
-<<<<<<< HEAD
 function normalizeWebhookPath(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) return "/";
   const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
   if (withSlash.length > 1 && withSlash.endsWith("/")) {
     return withSlash.slice(0, -1);
-=======
-const warnedDeprecatedUsersEmailAllowFrom = new Set<string>();
-const warnedMissingProviderGroupPolicy = new Set<string>();
-function warnDeprecatedUsersEmailEntries(
-  core: GoogleChatCoreRuntime,
-  runtime: GoogleChatRuntimeEnv,
-  entries: string[],
-) {
-  const deprecated = entries.map((v) => String(v).trim()).filter((v) => /^users\/.+@.+/i.test(v));
-  if (deprecated.length === 0) {
-    return;
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
   }
   return withSlash;
 }
@@ -516,26 +487,8 @@ async function processMessageWithPipeline(params: {
     !isGroup && dmPolicy !== "allowlist" && (dmPolicy !== "open" || shouldComputeAuth)
       ? await core.channel.pairing.readAllowFromStore("googlechat").catch(() => [])
       : [];
-<<<<<<< HEAD
   const effectiveAllowFrom = [...configAllowFrom, ...storeAllowFrom];
   const commandAllowFrom = isGroup ? groupUsers.map((v) => String(v)) : effectiveAllowFrom;
-=======
-  const access = resolveDmGroupAccessWithLists({
-    isGroup,
-    dmPolicy,
-    groupPolicy: senderGroupPolicy,
-    allowFrom: configAllowFrom,
-    groupAllowFrom: normalizedGroupUsers,
-    storeAllowFrom,
-    groupAllowFromFallbackToAllowFrom: false,
-    isSenderAllowed: (allowFrom) =>
-      isSenderAllowed(senderId, senderEmail, allowFrom, allowNameMatching),
-  });
-  const effectiveAllowFrom = access.effectiveAllowFrom;
-  const effectiveGroupAllowFrom = access.effectiveGroupAllowFrom;
-  warnDeprecatedUsersEmailEntries(core, runtime, effectiveAllowFrom);
-  const commandAllowFrom = isGroup ? effectiveGroupAllowFrom : effectiveAllowFrom;
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
   const useAccessGroups = config.commands?.useAccessGroups !== false;
   const senderAllowedForCommands = isSenderAllowed(senderId, senderEmail, commandAllowFrom);
   const commandAuthorized = shouldComputeAuth

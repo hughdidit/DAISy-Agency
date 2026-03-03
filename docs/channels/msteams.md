@@ -216,12 +216,7 @@ This is often easier than hand-editing JSON manifests.
 2. Find the bot in Teams and send a DM
 3. Check gateway logs for incoming activity
 
-<<<<<<< HEAD
 ## Setup (minimal text-only)
-=======
-## Onboarding (minimal)
-
->>>>>>> e1cb73cde (fix: unblock Docker build by aligning commands schema default (#22558))
 1. **Install the Microsoft Teams plugin**
    - From npm: `moltbot plugins install @moltbot/msteams`
    - From a local checkout: `moltbot plugins install ./extensions/msteams`
@@ -481,12 +476,7 @@ Teams recently introduced two channel UI styles over the same underlying data mo
 - **Channels/groups:** Attachments live in M365 storage (SharePoint/OneDrive). The webhook payload only includes an HTML stub, not the actual file bytes. **Graph API permissions are required** to download channel attachments.
 
 Without Graph permissions, channel messages with images will be received as text-only (the image content is not accessible to the bot).
-<<<<<<< HEAD
 By default, Moltbot only downloads media from Microsoft/Teams hostnames. Override with `channels.msteams.mediaAllowHosts` (use `["*"]` to allow any host).
-=======
-By default, OpenClaw only downloads media from Microsoft/Teams hostnames. Override with `channels.msteams.mediaAllowHosts` (use `["*"]` to allow any host).
-Authorization headers are only attached for hosts in `channels.msteams.mediaAuthAllowHosts` (defaults to Graph + Bot Framework hosts). Keep this list strict (avoid multi-tenant suffixes).
->>>>>>> 41cc5bcd4 (fix: gate Teams media auth retries)
 
 ## Sending files in group chats
 

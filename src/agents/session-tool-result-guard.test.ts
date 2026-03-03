@@ -142,8 +142,6 @@ describe("installSessionToolResultGuard", () => {
       .map((e) => (e as { message: AgentMessage }).message);
     expect(messages.map((m) => m.role)).toEqual(["assistant", "toolResult"]);
   });
-<<<<<<< HEAD
-=======
 
   it("drops malformed tool calls missing input before persistence", () => {
     const sm = SessionManager.inMemory();
@@ -253,7 +251,6 @@ describe("installSessionToolResultGuard", () => {
     expect(textBlock.text).toBe(originalText);
   });
 <<<<<<< HEAD
->>>>>>> 0deb8b0da (fix: recover from context overflow caused by oversized tool results (#11579))
 =======
 
   it("blocks persistence when before_message_write returns block=true", () => {
@@ -342,65 +339,5 @@ describe("installSessionToolResultGuard", () => {
       sourceTool: "sessions_send",
     });
   });
-<<<<<<< HEAD
 >>>>>>> 85409e401 (fix: preserve inter-session input provenance (thanks @anbecker))
-=======
-
-  // When an assistant message with toolCalls is aborted, no synthetic toolResult
-  // should be created. Creating synthetic results for aborted/incomplete tool calls
-  // causes API 400 errors: "unexpected tool_use_id found in tool_result blocks".
-  it("does NOT create synthetic toolResult for aborted assistant messages with toolCalls", () => {
-    const sm = SessionManager.inMemory();
-    installSessionToolResultGuard(sm);
-
-    // Aborted assistant message with incomplete toolCall
-    sm.appendMessage(
-      asAppendMessage({
-        role: "assistant",
-        content: [{ type: "toolCall", id: "call_aborted", name: "read", arguments: {} }],
-        stopReason: "aborted",
-      }),
-    );
-
-    // Next message triggers flush of pending tool calls
-    sm.appendMessage(
-      asAppendMessage({
-        role: "user",
-        content: "are you stuck?",
-        timestamp: Date.now(),
-      }),
-    );
-
-    // Should only have assistant + user, NO synthetic toolResult
-    const messages = getPersistedMessages(sm);
-    const roles = messages.map((m) => m.role);
-    expect(roles).toEqual(["assistant", "user"]);
-    expect(roles).not.toContain("toolResult");
-  });
-
-  it("does NOT create synthetic toolResult for errored assistant messages with toolCalls", () => {
-    const sm = SessionManager.inMemory();
-    const guard = installSessionToolResultGuard(sm);
-
-    // Error assistant message with incomplete toolCall
-    sm.appendMessage(
-      asAppendMessage({
-        role: "assistant",
-        content: [{ type: "toolCall", id: "call_error", name: "exec", arguments: {} }],
-        stopReason: "error",
-      }),
-    );
-
-    // Explicit flush should NOT create synthetic result for errored messages
-    guard.flushPendingToolResults();
-
-    const messages = getPersistedMessages(sm);
-    const toolResults = messages.filter((m) => m.role === "toolResult");
-    // No synthetic toolResults should exist for the errored call
-    const syntheticForError = toolResults.filter(
-      (m) => (m as { toolCallId?: string }).toolCallId === "call_error",
-    );
-    expect(syntheticForError).toHaveLength(0);
-  });
->>>>>>> 8db7ca8c0 (fix: prevent synthetic toolResult for aborted/errored assistant messages)
 });

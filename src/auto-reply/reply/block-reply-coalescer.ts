@@ -51,15 +51,8 @@ export function createBlockReplyCoalescer(params: {
       resetBuffer();
       return;
     }
-<<<<<<< HEAD
     if (!bufferText) return;
     if (!options?.force && bufferText.length < minChars) {
-=======
-    if (!bufferText) {
-      return;
-    }
-    if (!options?.force && !flushOnEnqueue && bufferText.length < minChars) {
->>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
       scheduleIdleFlush();
       return;
     }

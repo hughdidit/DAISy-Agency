@@ -99,8 +99,6 @@ export const en: TranslationMap = {
       hint: "This page is HTTP, so the browser blocks device identity. Use HTTPS (Tailscale Serve) or open {url} on the gateway host.",
       stayHttp: "If you must stay on HTTP, set {config} (token-only).",
     },
-<<<<<<< HEAD
-=======
     connection: {
       title: "How to connect",
       step1: "Start the gateway on your host machine:",
@@ -142,7 +140,6 @@ export const en: TranslationMap = {
   login: {
     subtitle: "Gateway Dashboard",
     passwordPlaceholder: "optional",
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   },
   chat: {
     disconnected: "Disconnected from gateway.",

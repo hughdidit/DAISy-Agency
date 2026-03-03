@@ -1,20 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { resolveSessionTranscriptPath } from "../config/sessions.js";
-=======
-import type { SessionPreviewItem } from "./session-utils.types.js";
-import {
-  resolveSessionFilePath,
-  resolveSessionTranscriptPath,
-  resolveSessionTranscriptPathInDir,
-} from "../config/sessions.js";
-import { resolveRequiredHomeDir } from "../infra/home-dir.js";
-import { hasInterSessionUserProvenance } from "../sessions/input-provenance.js";
-import { extractToolCallNames, hasToolCall } from "../utils/transcript-tools.js";
->>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 import { stripEnvelope } from "./chat-sanitize.js";
 import type { SessionPreviewItem } from "./session-utils.types.js";
 
@@ -51,18 +39,7 @@ export function resolveSessionTranscriptCandidates(
   agentId?: string,
 ): string[] {
   const candidates: string[] = [];
-<<<<<<< HEAD
   if (sessionFile) candidates.push(sessionFile);
-=======
-  const pushCandidate = (resolve: () => string): void => {
-    try {
-      candidates.push(resolve());
-    } catch {
-      // Ignore invalid paths/IDs and keep scanning other safe candidates.
-    }
-  };
-
->>>>>>> 4199f9889 (fix: harden session transcript path resolution)
   if (storePath) {
     const sessionsDir = path.dirname(storePath);
     if (sessionFile) {
@@ -83,17 +60,8 @@ export function resolveSessionTranscriptCandidates(
   if (agentId) {
     pushCandidate(() => resolveSessionTranscriptPath(sessionId, agentId));
   }
-<<<<<<< HEAD
   candidates.push(path.join(os.homedir(), ".clawdbot", "sessions", `${sessionId}.jsonl`));
   return candidates;
-=======
-
-  const home = resolveRequiredHomeDir(process.env, os.homedir);
-  const legacyDir = path.join(home, ".openclaw", "sessions");
-  pushCandidate(() => resolveSessionTranscriptPathInDir(sessionId, legacyDir));
-
-  return Array.from(new Set(candidates));
->>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 }
 
 export type ArchiveFileReason = "bak" | "reset" | "deleted";

@@ -7,8 +7,6 @@ function throwAbortError(): never {
   throw err;
 }
 
-<<<<<<< HEAD
-=======
 /**
  * Checks if an object is a valid AbortSignal using structural typing.
  * This is more reliable than `instanceof` across different realms (VM, iframe, etc.)
@@ -18,9 +16,7 @@ function isAbortSignal(obj: unknown): obj is AbortSignal {
   return obj instanceof AbortSignal;
 }
 
->>>>>>> 5fb8f779c (fix: validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001))
 function combineAbortSignals(a?: AbortSignal, b?: AbortSignal): AbortSignal | undefined {
-<<<<<<< HEAD
   if (!a && !b) return undefined;
   if (a && !b) return a;
   if (b && !a) return b;
@@ -28,37 +24,10 @@ function combineAbortSignals(a?: AbortSignal, b?: AbortSignal): AbortSignal | un
   if (b?.aborted) return b;
   if (typeof AbortSignal.any === "function") {
     return AbortSignal.any([a as AbortSignal, b as AbortSignal]);
-=======
-  if (!a && !b) {
-    return undefined;
-  }
-  if (a && !b) {
-    return a;
-  }
-  if (b && !a) {
-    return b;
-  }
-  if (a?.aborted) {
-    return a;
-  }
-  if (b?.aborted) {
-    return b;
-  }
-  if (
-    typeof AbortSignal.any === "function" &&
-    a instanceof AbortSignal &&
-    b instanceof AbortSignal
-  ) {
-    return AbortSignal.any([a, b]);
->>>>>>> a63ec41a7 (fix: validate AbortSignal instances before calling AbortSignal.any())
   }
 
   const controller = new AbortController();
-<<<<<<< HEAD
   const onAbort = () => controller.abort();
-=======
-  const onAbort = bindAbortRelay(controller);
->>>>>>> 7ec60d644 (fix: use relayAbort helper for addEventListener to preserve AbortError reason)
   a?.addEventListener("abort", onAbort, { once: true });
   b?.addEventListener("abort", onAbort, { once: true });
   return controller.signal;

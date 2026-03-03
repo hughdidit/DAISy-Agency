@@ -44,8 +44,6 @@ export function buildGatewayCronService(params: {
     return { agentId, cfg: runtimeConfig };
   };
 
-<<<<<<< HEAD
-=======
   const resolveCronSessionKey = (params: {
     runtimeConfig: ReturnType<typeof loadConfig>;
     agentId: string;
@@ -100,7 +98,6 @@ export function buildGatewayCronService(params: {
     return { runtimeConfig, agentId, sessionKey };
   };
 
->>>>>>> c20ef582c (fix: align cron session key routing (#18637) (thanks @vignesh07))
   const defaultAgentId = resolveDefaultAgentId(params.cfg);
   const resolveSessionStorePath = (agentId?: string) =>
     resolveStorePath(params.cfg.session?.store, {

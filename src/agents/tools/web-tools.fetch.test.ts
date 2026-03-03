@@ -1,12 +1,5 @@
-<<<<<<< HEAD
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { EnvHttpProxyAgent } from "undici";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as ssrf from "../../infra/net/ssrf.js";
-import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
->>>>>>> 46003e85b (fix: unify web tool proxy path (#27430) (thanks @kevinWangSheng))
 import { createWebFetchTool } from "./web-tools.js";
 
 type MockResponse = {
@@ -87,8 +80,6 @@ describe("web_fetch extraction fallbacks", () => {
     vi.restoreAllMocks();
   });
 
-<<<<<<< HEAD
-=======
   it("wraps fetched text with external content markers", async () => {
     installMockFetch((input: RequestInfo | URL) =>
       Promise.resolve({
@@ -220,7 +211,6 @@ describe("web_fetch extraction fallbacks", () => {
   // NOTE: Test for wrapping url/finalUrl/warning fields requires DNS mocking.
   // The sanitization of these fields is verified by external-content.test.ts tests.
 
->>>>>>> 46003e85b (fix: unify web tool proxy path (#27430) (thanks @kevinWangSheng))
   it("falls back to firecrawl when readability returns no content", async () => {
     const mockFetch = vi.fn((input: RequestInfo) => {
       const url = requestUrl(input);

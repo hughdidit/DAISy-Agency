@@ -21,13 +21,9 @@ import {
 } from "./reply-payloads.js";
 import { resolveReplyToMode } from "./reply-threading.js";
 import { isRoutableChannel, routeReply } from "./route-reply.js";
-<<<<<<< HEAD
 import { persistSessionUsageUpdate } from "./session-usage.js";
 import { incrementCompactionCount } from "./session-updates.js";
 import type { TypingController } from "./typing.js";
-=======
-import { incrementRunCompactionCount, persistRunSessionUsage } from "./session-run-accounting.js";
->>>>>>> a10f228a5 (fix: update totalTokens after compaction using last-call usage (#15018))
 import { createTypingSignaler } from "./typing-mode.js";
 
 export function createFollowupRunner(params: {
@@ -193,14 +189,8 @@ export function createFollowupRunner(params: {
         return;
       }
 
-<<<<<<< HEAD
       const usage = runResult.meta.agentMeta?.usage;
       const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
-=======
-      const usage = runResult?.meta?.agentMeta?.usage;
-      const promptTokens = runResult?.meta?.agentMeta?.promptTokens;
-      const modelUsed = runResult?.meta?.agentMeta?.model ?? fallbackModel ?? defaultModel;
->>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
       const contextTokensUsed =
         agentCfgContextTokens ??
         lookupContextTokens(modelUsed) ??
@@ -212,12 +202,7 @@ export function createFollowupRunner(params: {
           storePath,
           sessionKey,
           usage,
-<<<<<<< HEAD
           lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
-=======
-          lastCallUsage: runResult?.meta?.agentMeta?.lastCallUsage,
-          promptTokens,
->>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
           modelUsed,
           providerUsed: fallbackProvider,
           contextTokensUsed,

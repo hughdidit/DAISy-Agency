@@ -3,25 +3,9 @@ import { readChannelAllowFromStore } from "../../pairing/pairing-store.js";
 import { allowListMatches, normalizeAllowList, normalizeAllowListLower } from "./allow-list.js";
 import type { SlackMonitorContext } from "./context.js";
 
-<<<<<<< HEAD
 export async function resolveSlackEffectiveAllowFrom(ctx: SlackMonitorContext) {
   const storeAllowFrom =
     ctx.dmPolicy === "allowlist" ? [] : await readChannelAllowFromStore("slack").catch(() => []);
-=======
-export async function resolveSlackEffectiveAllowFrom(
-  ctx: SlackMonitorContext,
-  options?: { includePairingStore?: boolean },
-) {
-  const includePairingStore = options?.includePairingStore === true;
-  const storeAllowFrom =
-    includePairingStore
-      ? await readStoreAllowFromForDmPolicy({
-          provider: "slack",
-          dmPolicy: ctx.dmPolicy,
-          readStore: (provider) => readChannelAllowFromStore(provider),
-        })
-      : [];
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
   const allowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
   const allowFromLower = normalizeAllowListLower(allowFrom);
   return { allowFrom, allowFromLower };
@@ -42,8 +26,6 @@ export function isSlackSenderAllowListed(params: {
     })
   );
 }
-<<<<<<< HEAD
-=======
 
 export type SlackSystemEventAuthResult = {
   allowed: boolean;
@@ -178,4 +160,3 @@ export async function authorizeSlackSystemEventSender(params: {
     channelName,
   };
 }
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)

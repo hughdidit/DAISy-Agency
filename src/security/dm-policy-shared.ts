@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import { mergeDmAllowFromSources, resolveGroupAllowFromSources } from "../channels/allow-from.js";
 import { resolveControlCommandGate } from "../channels/command-gating.js";
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
 import type { ChannelId } from "../channels/plugins/types.js";
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
 import { normalizeStringEntries } from "../shared/string-normalization.js";

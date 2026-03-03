@@ -276,8 +276,6 @@ describe("resolveMediaList", () => {
       expect.objectContaining({ fetchImpl: proxyFetch }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("keeps attachment metadata when download fails", async () => {
     const attachment = {
@@ -437,7 +435,6 @@ describe("Discord media SSRF policy", () => {
       allowRfc2544BenchmarkRange: true,
     });
   });
->>>>>>> 25b731c34 (fix: harden discord media fallback regressions (#28906) (thanks @Sid-Qin))
 });
 
 describe("resolveDiscordMessageText", () => {

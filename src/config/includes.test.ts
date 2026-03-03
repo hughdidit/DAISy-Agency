@@ -374,8 +374,6 @@ describe("real-world config patterns", () => {
     });
   });
 });
-<<<<<<< HEAD
-=======
 describe("security: path traversal protection (CWE-22)", () => {
   describe("absolute path attacks", () => {
     it("rejects /etc/passwd", () => {
@@ -567,4 +565,3 @@ describe("security: path traversal protection (CWE-22)", () => {
     });
   });
 });
->>>>>>> d1c00dbb7 (fix: harden include confinement edge cases (#18652) (thanks @aether-ai-agent))

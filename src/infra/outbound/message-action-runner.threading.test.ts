@@ -115,8 +115,6 @@ describe("runMessageAction Slack threading", () => {
     const call = mocks.executeSendAction.mock.calls[0]?.[0];
     expect(call?.ctx?.mirror?.sessionKey).toBe("agent:main:slack:channel:c123:thread:333.444");
   });
-<<<<<<< HEAD
-=======
 
   it("auto-injects telegram threadId from toolContext when omitted", async () => {
     mocks.executeSendAction.mockResolvedValue({
@@ -231,7 +229,6 @@ describe("runMessageAction Slack threading", () => {
     expect(call?.ctx?.params?.threadId).toBe("999");
   });
 <<<<<<< HEAD
->>>>>>> 01db1dde1 (fix: telegram topic auto-threading — use parseTelegramTarget, add tests (#7235) (thanks @Lukavyi))
 =======
 
   it("threads explicit replyTo through executeSendAction", async () => {

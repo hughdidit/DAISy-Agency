@@ -1,20 +1,14 @@
 import fs from "node:fs/promises";
 import http, { type IncomingMessage, type Server, type ServerResponse } from "node:http";
-<<<<<<< HEAD
 import type { Socket } from "node:net";
 import os from "node:os";
-=======
->>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 import path from "node:path";
 import type { Duplex } from "node:stream";
 
 import chokidar from "chokidar";
 import { type WebSocket, WebSocketServer } from "ws";
-<<<<<<< HEAD
-=======
 import type { RuntimeEnv } from "../runtime.js";
 import { STATE_DIR } from "../config/paths.js";
->>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 import { isTruthyEnvValue } from "../infra/env.js";
 import { SafeOpenError, openFileWithinRoot } from "../infra/fs-safe.js";
 import { detectMime } from "../media/mime.js";
@@ -236,8 +230,6 @@ async function prepareCanvasRoot(rootDir: string) {
   return rootReal;
 }
 
-<<<<<<< HEAD
-=======
 function resolveDefaultCanvasRoot(): string {
   const candidates = [path.join(STATE_DIR, "canvas")];
   const existing = candidates.find((dir) => {
@@ -250,7 +242,6 @@ function resolveDefaultCanvasRoot(): string {
   return existing ?? candidates[0];
 }
 
->>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 export async function createCanvasHostHandler(
   opts: CanvasHostHandlerOpts,
 ): Promise<CanvasHostHandler> {

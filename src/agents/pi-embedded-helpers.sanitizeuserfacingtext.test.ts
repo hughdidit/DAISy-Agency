@@ -23,8 +23,6 @@ describe("sanitizeUserFacingText", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("sanitizes direct context-overflow errors", () => {
     expect(
       sanitizeUserFacingText(
@@ -55,7 +53,6 @@ describe("sanitizeUserFacingText", () => {
     expect(sanitizeUserFacingText(text)).toBe(text);
   });
 
->>>>>>> c2b2d535f (fix: suggest /clear in context overflow error message (#12973))
   it("sanitizes raw API error payloads", () => {
     const raw = '{"type":"error","error":{"message":"Something exploded","type":"server_error"}}';
     expect(sanitizeUserFacingText(raw)).toBe("LLM error server_error: Something exploded");

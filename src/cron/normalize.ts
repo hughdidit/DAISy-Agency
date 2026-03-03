@@ -1,12 +1,7 @@
 import { sanitizeAgentId } from "../routing/session-key.js";
 import { parseAbsoluteTimeMs } from "./parse.js";
 import { migrateLegacyCronPayload } from "./payload-migration.js";
-<<<<<<< HEAD
 import type { CronJobCreate, CronJobPatch } from "./types.js";
-=======
-import { inferLegacyName } from "./service/normalize.js";
-<<<<<<< HEAD
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 =======
 import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "./stagger.js";
 import type { CronJobCreate, CronJobPatch } from "./types.js";
@@ -52,18 +47,8 @@ function coerceSchedule(schedule: UnknownRecord) {
     else if (typeof schedule.expr === "string") next.kind = "cron";
   }
 
-<<<<<<< HEAD
   if (typeof schedule.atMs !== "number" && parsedAtMs !== null) {
     next.atMs = parsedAtMs;
-=======
-  if (atString) {
-    next.at = parsedAtMs !== null ? new Date(parsedAtMs).toISOString() : atString;
-  } else if (parsedAtMs !== null) {
-    next.at = new Date(parsedAtMs).toISOString();
-  }
-  if ("atMs" in next) {
-    delete next.atMs;
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   }
 
   if ("at" in next) delete next.at;
@@ -144,8 +129,6 @@ function coercePayload(payload: UnknownRecord) {
   return next;
 }
 
-<<<<<<< HEAD
-=======
 function coerceDelivery(delivery: UnknownRecord) {
   const next: UnknownRecord = { ...delivery };
   if (typeof delivery.mode === "string") {
@@ -226,7 +209,6 @@ function stripLegacyDeliveryFields(payload: UnknownRecord) {
   }
 }
 
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 function unwrapJob(raw: UnknownRecord) {
   if (isRecord(raw.data)) return raw.data;
   if (isRecord(raw.job)) return raw.job;
@@ -388,48 +370,8 @@ export function normalizeCronJobInput(
     next.payload = coercePayload(base.payload);
   }
 
-<<<<<<< HEAD
   if (options.applyDefaults) {
     if (!next.wakeMode) next.wakeMode = "next-heartbeat";
-=======
-  if (isRecord(base.delivery)) {
-    next.delivery = coerceDelivery(base.delivery);
-  }
-
-  if ("isolation" in next) {
-    delete next.isolation;
-  }
-
-  const payload = isRecord(next.payload) ? next.payload : null;
-  if (payload && payload.kind === "agentTurn") {
-    copyTopLevelAgentTurnFields(next, payload);
-    copyTopLevelLegacyDeliveryFields(next, payload);
-  }
-  stripLegacyTopLevelFields(next);
-
-  if (options.applyDefaults) {
-    if (!next.wakeMode) {
-      next.wakeMode = "now";
-    }
-    if (typeof next.enabled !== "boolean") {
-      next.enabled = true;
-    }
-    if (
-      (typeof next.name !== "string" || !next.name.trim()) &&
-      isRecord(next.schedule) &&
-      isRecord(next.payload)
-    ) {
-      next.name = inferLegacyName({
-        schedule: next.schedule as { kind?: unknown; everyMs?: unknown; expr?: unknown },
-        payload: next.payload as { kind?: unknown; text?: unknown; message?: unknown },
-      });
-    } else if (typeof next.name === "string") {
-      const trimmed = next.name.trim();
-      if (trimmed) {
-        next.name = trimmed;
-      }
-    }
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
     if (!next.sessionTarget && isRecord(next.payload)) {
       const kind = typeof next.payload.kind === "string" ? next.payload.kind : "";
       if (kind === "systemEvent") next.sessionTarget = "main";

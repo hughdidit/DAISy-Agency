@@ -38,14 +38,7 @@ const runtimeStub = {
   },
   channel: {
     media: {
-<<<<<<< HEAD
       saveMediaBuffer: (...args: unknown[]) => saveMediaBufferMock(...args),
-=======
-      fetchRemoteMedia:
-        fetchRemoteMediaMock as unknown as PluginRuntime["channel"]["media"]["fetchRemoteMedia"],
-      saveMediaBuffer:
-        saveMediaBufferMock as unknown as PluginRuntime["channel"]["media"]["saveMediaBuffer"],
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
     },
   },
 } as unknown as PluginRuntime;

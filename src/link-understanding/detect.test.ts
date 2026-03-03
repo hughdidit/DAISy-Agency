@@ -24,8 +24,6 @@ describe("extractLinksFromMessage", () => {
     const links = extractLinksFromMessage("http://127.0.0.1/test https://ok.test");
     expect(links).toEqual(["https://ok.test"]);
   });
-<<<<<<< HEAD
-=======
 
   it("blocks localhost and common loopback addresses", () => {
     expect(extractLinksFromMessage("http://localhost/secret")).toEqual([]);
@@ -68,5 +66,4 @@ describe("extractLinksFromMessage", () => {
     ]);
     expect(extractLinksFromMessage("https://8.8.8.8/dns")).toEqual(["https://8.8.8.8/dns"]);
   });
->>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 });

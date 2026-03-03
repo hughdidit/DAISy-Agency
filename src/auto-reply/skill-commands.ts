@@ -44,19 +44,7 @@ export function listSkillCommandsForAgents(params: {
   const visitedDirs = new Set<string>();
   for (const agentId of agentIds) {
     const workspaceDir = resolveAgentWorkspaceDir(params.cfg, agentId);
-<<<<<<< HEAD
     if (!fs.existsSync(workspaceDir)) continue;
-=======
-    if (!fs.existsSync(workspaceDir)) {
-      continue;
-    }
-    // Resolve to canonical path to handle symlinks and relative paths
-    const canonicalDir = fs.realpathSync(workspaceDir);
-    if (visitedDirs.has(canonicalDir)) {
-      continue;
-    }
-    visitedDirs.add(canonicalDir);
->>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     const commands = buildWorkspaceSkillCommandSpecs(workspaceDir, {
       config: params.cfg,
       eligibility: { remote: getRemoteSkillEligibility() },

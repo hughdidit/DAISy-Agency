@@ -47,8 +47,6 @@ describe("markdownToTelegramHtml", () => {
     const res = markdownToTelegramHtml("```js\nconst x = 1;\n```");
     expect(res).toBe("<pre><code>const x = 1;\n</code></pre>");
   });
-<<<<<<< HEAD
-=======
 
   it("properly nests overlapping bold and autolink (#4071)", () => {
     const res = markdownToTelegramHtml("**start https://example.com** end");
@@ -71,5 +69,4 @@ describe("markdownToTelegramHtml", () => {
     const res = markdownToTelegramHtml("[**bold**](https://example.com)");
     expect(res).toBe('<a href="https://example.com"><b>bold</b></a>');
   });
->>>>>>> da71eaebd (fix: correct telegram html nesting (#4578) (thanks @ThanhNguyxn))
 });

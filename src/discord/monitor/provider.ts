@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import { inspect } from "node:util";
 import { Client } from "@buape/carbon";
-=======
-import { Client, type BaseMessageInteractiveComponent } from "@buape/carbon";
->>>>>>> 4537ebc43 (fix: enforce Discord agent component DM auth (#11254) (thanks @thedudeabidesai))
 import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
@@ -18,11 +14,8 @@ import {
 } from "../../config/commands.js";
 import type { MoltbotConfig, ReplyToMode } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
-<<<<<<< HEAD
-=======
 import { resolveRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
 import type { GroupPolicy } from "../../config/types.base.js";
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
@@ -35,12 +28,9 @@ import { fetchDiscordApplicationId } from "../probe.js";
 import { resolveDiscordChannelAllowlist } from "../resolve-channels.js";
 import { resolveDiscordUserAllowlist } from "../resolve-users.js";
 import { normalizeDiscordToken } from "../token.js";
-<<<<<<< HEAD
-=======
 import { createAgentComponentButton, createAgentSelectMenu } from "./agent-components.js";
 import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
 import { registerGateway, unregisterGateway } from "./gateway-registry.js";
->>>>>>> 4537ebc43 (fix: enforce Discord agent component DM auth (#11254) (thanks @thedudeabidesai))
 import {
   DiscordMessageListener,
   DiscordPresenceListener,
@@ -68,8 +58,6 @@ export type MonitorDiscordOpts = {
   replyToMode?: ReplyToMode;
 };
 
-<<<<<<< HEAD
-=======
 function createDiscordGatewayPlugin(params: {
   discordConfig: DiscordAccountConfig;
   runtime: RuntimeEnv;
@@ -114,7 +102,6 @@ function createDiscordGatewayPlugin(params: {
   }
 }
 
->>>>>>> 5f0debdfb (Fix: check cleanups)
 function summarizeAllowList(list?: Array<string | number>) {
   if (!list || list.length === 0) return "any";
   const sample = list.slice(0, 4).map((entry) => String(entry));
@@ -130,8 +117,6 @@ function summarizeGuilds(entries?: Record<string, unknown>) {
   return `${sample.join(", ")}${suffix}`;
 }
 
-<<<<<<< HEAD
-=======
 const DEFAULT_THREAD_BINDING_TTL_HOURS = 24;
 
 function normalizeThreadBindingTtlHours(raw: unknown): number | undefined {
@@ -224,7 +209,6 @@ function resolveDiscordRuntimeGroupPolicy(params: {
   });
 }
 
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 async function deployDiscordCommands(params: {
   client: Client;
   runtime: RuntimeEnv;
@@ -309,7 +293,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     },
   };
 
-<<<<<<< HEAD
   const discordCfg = account.config;
   const dmConfig = discordCfg.dm;
   let guildEntries = discordCfg.guilds;
@@ -321,25 +304,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     defaultGroupPolicy === undefined &&
     groupPolicy === "open"
   ) {
-=======
-  const rawDiscordCfg = account.config;
-  const discordRootThreadBindings = cfg.channels?.discord?.threadBindings;
-  const discordAccountThreadBindings =
-    cfg.channels?.discord?.accounts?.[account.accountId]?.threadBindings;
-  const discordRestFetch = resolveDiscordRestFetch(rawDiscordCfg.proxy, runtime);
-  const dmConfig = rawDiscordCfg.dm;
-  let guildEntries = rawDiscordCfg.guilds;
-  const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-  const providerConfigPresent = cfg.channels?.discord !== undefined;
-  const { groupPolicy, providerMissingFallbackApplied } = resolveDiscordRuntimeGroupPolicy({
-    providerConfigPresent,
-    groupPolicy: rawDiscordCfg.groupPolicy,
-    defaultGroupPolicy,
-  });
-  const discordCfg =
-    rawDiscordCfg.groupPolicy === groupPolicy ? rawDiscordCfg : { ...rawDiscordCfg, groupPolicy };
-  if (providerMissingFallbackApplied) {
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
     runtime.log?.(
       warn(
         'discord: groupPolicy defaults to "open" when channels.discord is missing; set channels.discord.groupPolicy (or channels.defaults.groupPolicy) or add channels.discord.guilds to restrict access.',
@@ -741,7 +705,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       runtime,
       botUserId,
       guildEntries,
-<<<<<<< HEAD
       logger,
     }),
   );
@@ -749,62 +712,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     client.listeners,
     new DiscordReactionRemoveListener({
       cfg,
-=======
-      threadBindings,
-      discordRestFetch,
-    });
-
-    registerDiscordListener(client.listeners, new DiscordMessageListener(messageHandler, logger));
-    registerDiscordListener(
-      client.listeners,
-      new DiscordReactionListener({
-        cfg,
-        accountId: account.accountId,
-        runtime,
-        botUserId,
-        dmEnabled,
-        groupDmEnabled,
-        groupDmChannels: groupDmChannels ?? [],
-        dmPolicy,
-        allowFrom: allowFrom ?? [],
-        groupPolicy,
-        allowNameMatching: isDangerousNameMatchingEnabled(discordCfg),
-        guildEntries,
-        logger,
-      }),
-    );
-    registerDiscordListener(
-      client.listeners,
-      new DiscordReactionRemoveListener({
-        cfg,
-        accountId: account.accountId,
-        runtime,
-        botUserId,
-        dmEnabled,
-        groupDmEnabled,
-        groupDmChannels: groupDmChannels ?? [],
-        dmPolicy,
-        allowFrom: allowFrom ?? [],
-        groupPolicy,
-        allowNameMatching: isDangerousNameMatchingEnabled(discordCfg),
-        guildEntries,
-        logger,
-      }),
-    );
-
-    if (discordCfg.intents?.presence) {
-      registerDiscordListener(
-        client.listeners,
-        new DiscordPresenceListener({ logger, accountId: account.accountId }),
-      );
-      runtime.log?.("discord: GuildPresences intent enabled — presence listener registered");
-    }
-
-    runtime.log?.(`logged in to discord${botUserId ? ` as ${botUserId}` : ""}`);
-
-    lifecycleStarted = true;
-    await runDiscordGatewayLifecycle({
->>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
       accountId: account.accountId,
       runtime,
       botUserId,

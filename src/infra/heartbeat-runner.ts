@@ -589,7 +589,6 @@ export async function runHeartbeatOnce(opts: {
     return { status: "skipped", reason: "requests-in-flight" };
   }
 
-<<<<<<< HEAD
   // Skip heartbeat if HEARTBEAT.md exists but has no actionable content.
   // This saves API calls/costs when the file is effectively empty (only comments/headers).
   // EXCEPTION: Don't skip for exec events - they have pending system events to process.
@@ -612,26 +611,6 @@ export async function runHeartbeatOnce(opts: {
   }
 
   const { entry, sessionKey, storePath } = resolveHeartbeatSession(cfg, agentId, heartbeat);
-=======
-  // Preflight centralizes trigger classification, event inspection, and HEARTBEAT.md gating.
-  const preflight = await resolveHeartbeatPreflight({
-    cfg,
-    agentId,
-    heartbeat,
-    forcedSessionKey: opts.sessionKey,
-    reason: opts.reason,
-  });
-  if (preflight.skipReason) {
-    emitHeartbeatEvent({
-      status: "skipped",
-      reason: preflight.skipReason,
-      durationMs: Date.now() - startedAt,
-    });
-    return { status: "skipped", reason: preflight.skipReason };
-  }
-  const { entry, sessionKey, storePath } = preflight.session;
-  const { isCronEventReason, pendingEventEntries } = preflight;
->>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
   const previousUpdatedAt = entry?.updatedAt;
   const delivery = resolveHeartbeatDeliveryTarget({ cfg, entry, heartbeat });
   const visibility =
@@ -648,7 +627,6 @@ export async function runHeartbeatOnce(opts: {
   // Check if this is an exec event with pending exec completion system events.
   // If so, use a specialized prompt that instructs the model to relay the result
   // instead of the standard heartbeat prompt with "reply HEARTBEAT_OK".
-<<<<<<< HEAD
   const isExecEvent = opts.reason === "exec-event";
 <<<<<<< HEAD
   const pendingEvents = isExecEvent ? peekSystemEvents(sessionKey) : [];
@@ -657,22 +635,6 @@ export async function runHeartbeatOnce(opts: {
 <<<<<<< HEAD
 
   const prompt = hasExecCompletion ? EXEC_EVENT_PROMPT : resolveHeartbeatPrompt(cfg, heartbeat);
-=======
-  
-  // Fix for #13317: Only treat as cron event if there are actual cron-related messages,
-  // not just any system events (which could be heartbeat acks, exec completions, etc.)
-  const hasCronEvents = isCronEvent && pendingEvents.some((evt) => {
-    const trimmed = evt.trim();
-    // Exclude standard heartbeat acks and exec completion messages
-    return (
-      trimmed.length > 0 &&
-      !trimmed.includes("HEARTBEAT_OK") &&
-      !trimmed.includes("Exec finished")
-    );
-  });
-=======
-  const hasCronEvents = isCronEvent && pendingEvents.some((evt) => isCronSystemEvent(evt));
->>>>>>> 22593a272 (fix: refine cron heartbeat event detection)
   const prompt = hasExecCompletion
     ? EXEC_EVENT_PROMPT
     : hasCronEvents
@@ -707,15 +669,7 @@ export async function runHeartbeatOnce(opts: {
     Body: prompt,
     From: sender,
     To: sender,
-<<<<<<< HEAD
     Provider: hasExecCompletion ? "exec-event" : "heartbeat",
-=======
-    OriginatingChannel: delivery.channel !== "none" ? delivery.channel : undefined,
-    OriginatingTo: delivery.to,
-    AccountId: delivery.accountId,
-    MessageThreadId: delivery.threadId,
-    Provider: hasExecCompletion ? "exec-event" : hasCronEvents ? "cron-event" : "heartbeat",
->>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
     SessionKey: sessionKey,
   };
   if (!visibility.showAlerts && !visibility.showOk && !visibility.useIndicator) {
@@ -1132,15 +1086,8 @@ export function startHeartbeatRunner(opts: {
       return;
     }
     state.stopped = true;
-<<<<<<< HEAD
     setHeartbeatWakeHandler(null);
     if (state.timer) clearTimeout(state.timer);
-=======
-    disposeWakeHandler();
-    if (state.timer) {
-      clearTimeout(state.timer);
-    }
->>>>>>> 40aff672c (fix: prevent heartbeat scheduler silent death from wake handler race (#15108))
     state.timer = null;
   };
 

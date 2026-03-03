@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applyPluginAutoEnable } from "./plugin-auto-enable.js";
 
-<<<<<<< HEAD
-=======
 /** Helper to build a minimal PluginManifestRegistry for testing. */
 function makeRegistry(plugins: Array<{ id: string; channels: string[] }>): PluginManifestRegistry {
   return {
@@ -20,7 +18,6 @@ function makeRegistry(plugins: Array<{ id: string; channels: string[] }>): Plugi
   };
 }
 
->>>>>>> 3b4dac764 (fix: doctor plugin-id mapping for channel auto-enable (#25275) (thanks @zerone0x))
 describe("applyPluginAutoEnable", () => {
   it("configures channel plugins with disabled state and updates allowlist", () => {
     const result = applyPluginAutoEnable({

@@ -48,7 +48,6 @@ function normalizeExecutablePath(value: string): string {
   return path.resolve(value);
 }
 
-<<<<<<< HEAD
 export async function maybeMigrateLegacyGatewayService(
   cfg: MoltbotConfig,
   mode: "local" | "remote",
@@ -130,41 +129,6 @@ export async function maybeMigrateLegacyGatewayService(
   } catch (err) {
     runtime.error(`Gateway service install failed: ${String(err)}`);
     note(gatewayInstallErrorHint(), "Gateway");
-=======
-function extractDetailPath(detail: string, prefix: string): string | null {
-  if (!detail.startsWith(prefix)) return null;
-  const value = detail.slice(prefix.length).trim();
-  return value.length > 0 ? value : null;
-}
-
-async function cleanupLegacyLaunchdService(params: {
-  label: string;
-  plistPath: string;
-}): Promise<string | null> {
-  const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
-  await execFileAsync("launchctl", ["bootout", domain, params.plistPath]).catch(() => undefined);
-  await execFileAsync("launchctl", ["unload", params.plistPath]).catch(() => undefined);
-
-  const trashDir = path.join(os.homedir(), ".Trash");
-  try {
-    await fs.mkdir(trashDir, { recursive: true });
-  } catch {
-    // ignore
-  }
-
-  try {
-    await fs.access(params.plistPath);
-  } catch {
-    return null;
-  }
-
-  const dest = path.join(trashDir, `${params.label}-${Date.now()}.plist`);
-  try {
-    await fs.rename(params.plistPath, dest);
-    return dest;
-  } catch {
-    return null;
->>>>>>> 02576615c (fix: migrate legacy gateway services)
   }
 }
 

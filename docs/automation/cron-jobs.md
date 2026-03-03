@@ -23,8 +23,6 @@ cron is the mechanism.
   - **Isolated**: run a dedicated agent turn in `cron:<jobId>`, optionally deliver output.
 - Wakeups are first-class: a job can request “wake now” vs “next heartbeat”.
 
-<<<<<<< HEAD
-=======
 ## Quick start (actionable)
 
 Create a one-shot reminder, verify it exists, and run it immediately:
@@ -68,7 +66,6 @@ The Gateway loads the file into memory and writes it back on changes, so manual 
 are only safe when the Gateway is stopped. Prefer `openclaw cron add/edit` or the cron
 tool call API for changes.
 
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 ## Beginner-friendly overview
 Think of a cron job as: **when** to run + **what** to do.
 
@@ -128,19 +125,9 @@ Isolated jobs run a dedicated agent turn in session `cron:<jobId>`.
 Key behaviors:
 - Prompt is prefixed with `[cron:<jobId> <job name>]` for traceability.
 - Each run starts a **fresh session id** (no prior conversation carry-over).
-<<<<<<< HEAD
 - A summary is posted to the main session (prefix `Cron`, configurable).
 - `wakeMode: "now"` triggers an immediate heartbeat after posting the summary.
 - If `payload.deliver: true`, output is delivered to a channel; otherwise it stays internal.
-=======
-- Default behavior: if `delivery` is omitted, isolated jobs announce a summary (`delivery.mode = "announce"`).
-- `delivery.mode` (isolated-only) chooses what happens:
-  - `announce`: deliver a summary to the target channel and post a brief summary to the main session.
-  - `none`: internal only (no delivery, no main-session summary).
-- `wakeMode` controls when the main-session summary posts:
-  - `now`: immediate heartbeat.
-  - `next-heartbeat`: waits for the next scheduled heartbeat.
->>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 
 Use isolated jobs for noisy, frequent, or "background chores" that shouldn't spam
 your main chat history.
@@ -159,24 +146,10 @@ Common `agentTurn` fields:
 - `to`: channel-specific target (phone/chat/channel id).
 - `bestEffortDeliver`: avoid failing the job if delivery fails.
 
-<<<<<<< HEAD
 Isolation options (only for `session=isolated`):
 - `postToMainPrefix` (CLI: `--post-prefix`): prefix for the system event in main.
 - `postToMainMode`: `summary` (default) or `full`.
 - `postToMainMaxChars`: max chars when `postToMainMode=full` (default 8000).
-=======
-Delivery config (isolated jobs only):
-
-- `delivery.mode`: `none` | `announce`.
-- `delivery.channel`: `last` or a specific channel.
-- `delivery.to`: channel-specific target (phone/chat/channel id).
-- `delivery.bestEffort`: avoid failing the job if announce delivery fails.
-
-Announce delivery suppresses messaging tool sends for the run; use `delivery.channel`/`delivery.to`
-to target the chat instead. When `delivery.mode = "none"`, no summary is posted to the main session.
-
-If `delivery` is omitted for isolated jobs, OpenClaw defaults to `announce`.
->>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 
 #### Announce delivery flow
 
@@ -217,21 +190,10 @@ Isolated jobs can deliver output to a channel. The job payload can specify:
 If `channel` or `to` is omitted, cron can fall back to the main session’s “last route”
 (the last place the agent replied).
 
-<<<<<<< HEAD
 Delivery notes:
 - If `to` is set, cron auto-delivers the agent’s final output even if `deliver` is omitted.
 - Use `deliver: true` when you want last-route delivery without an explicit `to`.
 - Use `deliver: false` to keep output internal even if a `to` is present.
-=======
-- `delivery.mode`: `announce` (deliver a summary) or `none`.
-- `delivery.channel`: `whatsapp` / `telegram` / `discord` / `slack` / `mattermost` (plugin) / `signal` / `imessage` / `last`.
-- `delivery.to`: channel-specific recipient target.
-
-Delivery config is only valid for isolated jobs (`sessionTarget: "isolated"`).
-
-If `delivery.channel` or `delivery.to` is omitted, cron can fall back to the main session’s
-“last route” (the last place the agent replied).
->>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 
 Target format reminders:
 - Slack/Discord/Mattermost (plugin) targets should use explicit prefixes (e.g. `channel:<id>`, `user:<id>`) to avoid ambiguity.
@@ -248,8 +210,6 @@ the topic/thread into the `to` field:
 Prefixed targets like `telegram:...` / `telegram:group:...` are also accepted:
 - `telegram:group:-1001234567890:topic:123`
 
-<<<<<<< HEAD
-=======
 ## JSON schema for tool calls
 
 Use these shapes when calling Gateway `cron.*` tools directly (agent tool calls or RPC).
@@ -329,7 +289,6 @@ Notes:
 { "jobId": "job-123" }
 ```
 
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 ## Storage & history
 - Job store: `~/.clawdbot/cron/jobs.json` (Gateway-managed JSON).
 - Run history: `~/.clawdbot/cron/runs/<jobId>.jsonl` (JSONL, auto-pruned).
@@ -425,17 +384,9 @@ moltbot cron edit <jobId> --clear-agent
 ```
 ```
 
-<<<<<<< HEAD
 Manual run (debug):
 ```bash
 moltbot cron run <jobId> --force
-=======
-Manual run (force is the default, use `--due` to only run when due):
-
-```bash
-openclaw cron run <jobId>
-openclaw cron run <jobId> --due
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 ```
 
 Edit an existing job (patch fields):

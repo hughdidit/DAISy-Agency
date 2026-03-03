@@ -665,7 +665,6 @@ export async function handleFeishuMessage(params: {
       return;
     }
   } else {
-<<<<<<< HEAD
     const dmPolicy = feishuCfg?.dmPolicy ?? "pairing";
     const allowFrom = feishuCfg?.allowFrom ?? [];
 
@@ -679,14 +678,10 @@ export async function handleFeishuMessage(params: {
         return;
       }
     }
-=======
->>>>>>> daf13dbb0 (fix: enforce feishu dm policy + pairing flow (#14876) (thanks @coygeek))
   }
 
   try {
     const core = getFeishuRuntime();
-<<<<<<< HEAD
-=======
     const shouldComputeCommandAuthorized = core.channel.commands.shouldComputeCommandAuthorized(
       ctx.content,
       cfg,
@@ -752,7 +747,6 @@ export async function handleFeishuMessage(params: {
           ],
         })
       : undefined;
->>>>>>> daf13dbb0 (fix: enforce feishu dm policy + pairing flow (#14876) (thanks @coygeek))
 
     // In group chats, the session is scoped to the group, but the *speaker* is the sender.
     // Using a group-scoped From causes the agent to treat different users as the same person.
@@ -876,12 +870,9 @@ export async function handleFeishuMessage(params: {
       messageBody += `\n\n[System: Your reply will automatically @mention: ${targetNames}. Do not write @xxx yourself.]`;
     }
 
-<<<<<<< HEAD
-=======
     // Keep message_id on its own line so shared message-id hint stripping can parse it reliably.
     messageBody = `[message_id: ${ctx.messageId}]\n${messageBody}`;
 
->>>>>>> d671d7a0a (fix: preserve feishu message_id in agent-visible body (#27253) (thanks @xss925175263))
     const envelopeFrom = isGroup ? `${ctx.chatId}:${ctx.senderOpenId}` : ctx.senderOpenId;
 
     // If there's a permission error, dispatch a separate notification first
@@ -1015,11 +1006,8 @@ export async function handleFeishuMessage(params: {
       runtime: runtime as RuntimeEnv,
       chatId: ctx.chatId,
       replyToMessageId: ctx.messageId,
-<<<<<<< HEAD
-=======
       replyInThread,
       rootId: ctx.rootId,
->>>>>>> 4221b5f80 (fix: pass rootId to streaming card in Feishu topic groups (openclaw#28346) thanks @Sid-Qin)
       mentionTargets: ctx.mentionTargets,
       accountId: account.accountId,
     });

@@ -35,8 +35,6 @@ export function __resetDiscordThreadStarterCacheForTest() {
   DISCORD_THREAD_STARTER_CACHE.clear();
 }
 
-<<<<<<< HEAD
-=======
 // Get cached entry with TTL check, refresh LRU position on hit
 function getCachedThreadStarter(key: string, now: number): DiscordThreadStarter | undefined {
   const entry = DISCORD_THREAD_STARTER_CACHE.get(key);
@@ -69,7 +67,6 @@ function setCachedThreadStarter(key: string, value: DiscordThreadStarter, now: n
   }
 }
 
->>>>>>> 4d0443391 (fix: use iterator.done check for LRU eviction)
 function isDiscordThreadType(type: ChannelType | undefined): boolean {
   return (
     type === ChannelType.PublicThread ||
@@ -336,11 +333,8 @@ export function resolveDiscordReplyDeliveryPlan(params: {
   const originalReplyTarget = params.replyTarget;
   let deliverTarget = originalReplyTarget;
   let replyTarget = originalReplyTarget;
-<<<<<<< HEAD
-=======
 
   // When a new thread was created, route to the new thread.
->>>>>>> 71939523a (fix: normalize Discord autoThread reply target (#8302) (thanks @gavinbmoore))
   if (params.createdThreadId) {
     deliverTarget = `channel:${params.createdThreadId}`;
     replyTarget = deliverTarget;

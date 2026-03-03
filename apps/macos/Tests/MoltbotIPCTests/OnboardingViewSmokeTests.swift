@@ -1,9 +1,4 @@
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/OnboardingViewSmokeTests.swift
 import MoltbotDiscovery
-=======
-import Foundation
-import OpenClawDiscovery
->>>>>>> bfe016fa2 (fix: clear stale remote discovery endpoints (#21618) (thanks @bmendonca3)):apps/macos/Tests/OpenClawIPCTests/OnboardingViewSmokeTests.swift
 import SwiftUI
 import Testing
 @testable import Moltbot

@@ -377,17 +377,10 @@ export async function runPreparedReply(
       agentDir,
       sessionId: sessionIdFinal,
       sessionKey,
-<<<<<<< HEAD
       messageProvider:
         sessionCtx.OriginatingChannel?.trim().toLowerCase() ||
         sessionCtx.Provider?.trim().toLowerCase() ||
         undefined,
-=======
-      messageProvider: resolveOriginMessageProvider({
-        originatingChannel: ctx.OriginatingChannel ?? sessionCtx.OriginatingChannel,
-        provider: ctx.Surface ?? ctx.Provider ?? sessionCtx.Provider,
-      }),
->>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
       agentAccountId: sessionCtx.AccountId,
       groupId: resolveGroupSessionKey(sessionCtx)?.id ?? undefined,
       groupChannel: sessionCtx.GroupChannel?.trim() ?? sessionCtx.GroupSubject?.trim(),

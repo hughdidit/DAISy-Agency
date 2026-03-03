@@ -13,13 +13,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
 import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "../../gateway/protocol/client-info.js";
 import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
-<<<<<<< HEAD
 import { getToolResult, runMessageAction } from "../../infra/outbound/message-action-runner.js";
-=======
-import { normalizeAccountId } from "../../routing/session-key.js";
-import { stripReasoningTagsFromText } from "../../shared/text/reasoning-tags.js";
-import { normalizeMessageChannel } from "../../utils/message-channel.js";
->>>>>>> 67d25c653 (fix: strip reasoning tags from messaging tool text to prevent <think> leakage (#11053))
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 import { channelTargetSchema, channelTargetsSchema, stringEnum } from "../schema/typebox.js";

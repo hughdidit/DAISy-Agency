@@ -87,8 +87,6 @@ describe("buildStatusMessage", () => {
     expect(normalized).toContain("Queue: collect");
   });
 
-<<<<<<< HEAD
-=======
   it("falls back to sessionEntry levels when resolved levels are not passed", () => {
     const text = buildStatusMessage({
       agent: {
@@ -171,7 +169,6 @@ describe("buildStatusMessage", () => {
     expect(normalizeTestText(text)).toContain("Context: 200k/1.0m");
   });
 
->>>>>>> 310344b6e (fix: read thinking/verbose/reasoning levels from session entry in status)
   it("uses per-agent sandbox config when config and session key are provided", () => {
     const text = buildStatusMessage({
       config: {

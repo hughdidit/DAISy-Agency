@@ -75,8 +75,6 @@ describe("delivery context helpers", () => {
       accountId: undefined,
       threadId: "999",
     });
-<<<<<<< HEAD
-=======
 
     expect(
       deliveryContextFromSession({
@@ -104,7 +102,6 @@ describe("delivery context helpers", () => {
       accountId: undefined,
       threadId: "777",
     });
->>>>>>> 310eed825 (fix: preserve delivery thread fallback (#4911) (thanks @yevhen))
   });
 
   it("normalizes delivery fields and mirrors them on session entries", () => {

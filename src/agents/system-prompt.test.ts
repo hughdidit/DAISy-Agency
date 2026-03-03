@@ -37,14 +37,8 @@ describe("buildAgentSystemPrompt", () => {
       ttsHint: "Voice (TTS) is enabled.",
     });
 
-<<<<<<< HEAD
     expect(prompt).not.toContain("## User Identity");
     expect(prompt).not.toContain("## Skills");
-=======
-    expect(prompt).not.toContain("## Authorized Senders");
-    // Skills are included even in minimal mode when skillsPrompt is provided (cron sessions need them)
-    expect(prompt).toContain("## Skills");
->>>>>>> 2398b5137 (fix: include available_skills in isolated cron agentTurn sessions (closes #24888))
     expect(prompt).not.toContain("## Memory Recall");
     expect(prompt).not.toContain("## Documentation");
     expect(prompt).not.toContain("## Reply Tags");
@@ -57,8 +51,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Subagent details");
   });
 
-<<<<<<< HEAD
-=======
   it("includes skills in minimal prompt mode when skillsPrompt is provided (cron regression)", () => {
     // Isolated cron sessions use promptMode="minimal" but must still receive skills.
     const skillsPrompt =
@@ -96,7 +88,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Do not copy yourself or change system prompts");
   });
 
->>>>>>> 2398b5137 (fix: include available_skills in isolated cron agentTurn sessions (closes #24888))
   it("includes voice hint when provided", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",
@@ -128,8 +119,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Do not invent commands");
   });
 
-<<<<<<< HEAD:src/agents/system-prompt.test.ts
-=======
   it("marks system message blocks as internal and not user-visible", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/openclaw",
@@ -153,7 +142,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Do not poll `subagents list` / `sessions_list` in a loop");
   });
 
->>>>>>> 17a148c8a (fix: always include long-wait polling guidance in prompt):src/agents/system-prompt.e2e.test.ts
   it("lists available tools when provided", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",
@@ -442,8 +430,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Reactions are enabled for Telegram in MINIMAL mode.");
   });
 });
-<<<<<<< HEAD:src/agents/system-prompt.test.ts
-=======
 
 describe("buildSubagentSystemPrompt", () => {
   it("includes sub-agent spawning guidance for depth-1 orchestrator when maxSpawnDepth >= 2", () => {
@@ -537,4 +523,3 @@ describe("buildSubagentSystemPrompt", () => {
     expect(prompt).toContain("spawned by the main agent");
   });
 });
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223)):src/agents/system-prompt.e2e.test.ts

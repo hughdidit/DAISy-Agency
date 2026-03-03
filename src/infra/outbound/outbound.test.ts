@@ -5,12 +5,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
 import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
-=======
-import { typedCases } from "../../test-utils/typed-cases.js";
->>>>>>> 0c1a52307 (fix: align draft/outbound typings and tests)
 import {
   ackDelivery,
   computeBackoffMs,
@@ -361,76 +357,13 @@ describe("delivery-queue", () => {
       });
 
       expect(deliver).not.toHaveBeenCalled();
-<<<<<<< HEAD
       expect(delay).not.toHaveBeenCalled();
-=======
->>>>>>> cceefe833 (fix: harden delivery recovery backoff eligibility and tests (#27710) (thanks @Jimmy-xuzimo))
       expect(result).toEqual({ recovered: 0, failed: 0, skipped: 0 });
 
       const remaining = await loadPendingDeliveries(tmpDir);
       expect(remaining).toHaveLength(1);
 
-<<<<<<< HEAD
       expect(log.warn).toHaveBeenCalledWith(expect.stringContaining("deferred to next restart"));
-=======
-      expect(log.info).toHaveBeenCalledWith(expect.stringContaining("not ready for retry yet"));
-    });
-
-    it("continues past high-backoff entries and recovers ready entries behind them", async () => {
-      const now = Date.now();
-      const blockedId = await enqueueDelivery(
-        { channel: "whatsapp", to: "+1", payloads: [{ text: "blocked" }] },
-        tmpDir,
-      );
-      const readyId = await enqueueDelivery(
-        { channel: "telegram", to: "2", payloads: [{ text: "ready" }] },
-        tmpDir,
-      );
-
-      setEntryState(blockedId, { retryCount: 3, lastAttemptAt: now, enqueuedAt: now - 30_000 });
-      setEntryState(readyId, { retryCount: 0, enqueuedAt: now - 10_000 });
-
-      const deliver = vi.fn().mockResolvedValue([]);
-      const { result } = await runRecovery({ deliver, maxRecoveryMs: 60_000 });
-
-      expect(result).toEqual({ recovered: 1, failed: 0, skipped: 0 });
-      expect(deliver).toHaveBeenCalledTimes(1);
-      expect(deliver).toHaveBeenCalledWith(
-        expect.objectContaining({ channel: "telegram", to: "2", skipQueue: true }),
-      );
-
-      const remaining = await loadPendingDeliveries(tmpDir);
-      expect(remaining).toHaveLength(1);
-      expect(remaining[0]?.id).toBe(blockedId);
-    });
-
-    it("recovers deferred entries on a later restart once backoff elapsed", async () => {
-      vi.useFakeTimers();
-      const start = new Date("2026-01-01T00:00:00.000Z");
-      vi.setSystemTime(start);
-
-      const id = await enqueueDelivery(
-        { channel: "whatsapp", to: "+1", payloads: [{ text: "later" }] },
-        tmpDir,
-      );
-      setEntryState(id, { retryCount: 3, lastAttemptAt: start.getTime() });
-
-      const firstDeliver = vi.fn().mockResolvedValue([]);
-      const firstRun = await runRecovery({ deliver: firstDeliver, maxRecoveryMs: 60_000 });
-      expect(firstRun.result).toEqual({ recovered: 0, failed: 0, skipped: 0 });
-      expect(firstDeliver).not.toHaveBeenCalled();
-
-      vi.setSystemTime(new Date(start.getTime() + 600_000 + 1));
-      const secondDeliver = vi.fn().mockResolvedValue([]);
-      const secondRun = await runRecovery({ deliver: secondDeliver, maxRecoveryMs: 60_000 });
-      expect(secondRun.result).toEqual({ recovered: 1, failed: 0, skipped: 0 });
-      expect(secondDeliver).toHaveBeenCalledTimes(1);
-
-      const remaining = await loadPendingDeliveries(tmpDir);
-      expect(remaining).toHaveLength(0);
-
-      vi.useRealTimers();
->>>>>>> cceefe833 (fix: harden delivery recovery backoff eligibility and tests (#27710) (thanks @Jimmy-xuzimo))
     });
 
     it("returns zeros when queue is empty", async () => {

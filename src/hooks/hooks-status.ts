@@ -2,12 +2,8 @@ import path from "node:path";
 
 import type { MoltbotConfig } from "../config/config.js";
 import { CONFIG_DIR } from "../utils.js";
-<<<<<<< HEAD
 import { hasBinary, isConfigPathTruthy, resolveConfigPath, resolveHookConfig } from "./config.js";
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
-=======
-import { hasBinary, isConfigPathTruthy, resolveHookConfig } from "./config.js";
->>>>>>> ebc68861a (fix: remove unused imports)
 import { loadWorkspaceHookEntries } from "./workspace.js";
 
 export type HookStatusConfigCheck = {
@@ -111,7 +107,6 @@ function buildHookStatus(
   const homepage = homepageRaw?.trim() ? homepageRaw.trim() : undefined;
   const events = entry.metadata?.events ?? [];
 
-<<<<<<< HEAD
   const requiredBins = entry.metadata?.requires?.bins ?? [];
   const requiredAnyBins = entry.metadata?.requires?.anyBins ?? [];
   const requiredEnv = entry.metadata?.requires?.env ?? [];
@@ -122,23 +117,6 @@ function buildHookStatus(
     if (hasBinary(bin)) return false;
     if (eligibility?.remote?.hasBin?.(bin)) return false;
     return true;
-=======
-  const {
-    required,
-    missing,
-    eligible: requirementsSatisfied,
-    configChecks,
-  } = evaluateRequirementsFromMetadata({
-    always,
-    metadata: entry.metadata,
-    hasLocalBin: hasBinary,
-    hasRemoteBin: eligibility?.remote?.hasBin,
-    hasRemoteAnyBin: eligibility?.remote?.hasAnyBin,
-    localPlatform: process.platform,
-    remotePlatforms: eligibility?.remote?.platforms,
-    isEnvSatisfied: (envName) => Boolean(process.env[envName] || hookConfig?.env?.[envName]),
-    isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
->>>>>>> d3428053d (fix: redact config values in skills status)
   });
 
   const missingAnyBins =

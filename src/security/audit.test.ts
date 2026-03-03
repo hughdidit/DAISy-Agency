@@ -818,17 +818,10 @@ describe("security audit", () => {
     );
   });
 
-<<<<<<< HEAD
   it("warns when hooks token reuses the gateway env token", async () => {
     const prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
     process.env.CLAWDBOT_GATEWAY_TOKEN = "shared-gateway-token-1234567890";
     const cfg: MoltbotConfig = {
-=======
-  it("flags hooks token reuse of the gateway env token as critical", async () => {
-    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "shared-gateway-token-1234567890";
-    const cfg: OpenClawConfig = {
->>>>>>> f7a7a28c5 (fix: enforce hooks token separation from gateway auth (#20813))
       hooks: { enabled: true, token: "shared-gateway-token-1234567890" },
     };
 

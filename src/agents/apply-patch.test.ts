@@ -14,8 +14,6 @@ async function withTempDir<T>(fn: (dir: string) => Promise<T>) {
   }
 }
 
-<<<<<<< HEAD
-=======
 async function withWorkspaceTempDir<T>(fn: (dir: string) => Promise<T>) {
   const dir = await fs.mkdtemp(path.join(process.cwd(), "openclaw-patch-workspace-"));
   try {
@@ -42,7 +40,6 @@ async function expectOutsideWriteRejected(params: {
   await expect(fs.readFile(params.outsidePath, "utf8")).rejects.toBeDefined();
 }
 
->>>>>>> 4fd29a35b (fix: block broken-symlink sandbox path escapes)
 describe("applyPatch", () => {
   it("adds a file", async () => {
     await withTempDir(async (dir) => {
@@ -100,8 +97,6 @@ describe("applyPatch", () => {
       expect(contents).toBe("line1\nline2\n");
     });
   });
-<<<<<<< HEAD
-=======
 
   it("rejects path traversal outside cwd by default", async () => {
     await withTempDir(async (dir) => {
@@ -332,5 +327,4 @@ describe("applyPatch", () => {
       }
     });
   });
->>>>>>> 4fd29a35b (fix: block broken-symlink sandbox path escapes)
 });

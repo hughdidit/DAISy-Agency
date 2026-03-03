@@ -309,15 +309,8 @@ public struct Snapshot: Codable, Sendable {
         uptimems: Int,
         configpath: String?,
         statedir: String?,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         sessiondefaults: [String: AnyCodable]?
     ) {
-=======
-        sessiondefaults: [String: AnyCodable]?,
-        authmode: AnyCodable?,
-        updateavailable: [String: AnyCodable]?)
-    {
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.presence = presence
         self.health = health
         self.stateversion = stateversion
@@ -630,14 +623,8 @@ public struct AgentIdentityResult: Codable, Sendable {
     public init(
         agentid: String,
         name: String?,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         avatar: String?
     ) {
-=======
-        avatar: String?,
-        emoji: String?)
-    {
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.agentid = agentid
         self.name = name
         self.avatar = avatar
@@ -946,8 +933,6 @@ public struct NodeInvokeRequestEvent: Codable, Sendable {
     }
 }
 
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
 public struct PushTestParams: Codable, Sendable {
     public let nodeid: String
     public let title: String?
@@ -1012,7 +997,6 @@ public struct PushTestResult: Codable, Sendable {
     }
 }
 
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
 public struct SessionsListParams: Codable, Sendable {
     public let limit: Int?
     public let activeminutes: Int?
@@ -1197,14 +1181,8 @@ public struct SessionsResetParams: Codable, Sendable {
     public let key: String
 
     public init(
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         key: String
     ) {
-=======
-        key: String,
-        reason: AnyCodable?)
-    {
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.key = key
     }
 
@@ -1219,14 +1197,8 @@ public struct SessionsDeleteParams: Codable, Sendable {
 
     public init(
         key: String,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         deletetranscript: Bool?
     ) {
-=======
-        deletetranscript: Bool?,
-        emitlifecyclehooks: Bool?)
-    {
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.key = key
         self.deletetranscript = deletetranscript
     }
@@ -1255,50 +1227,8 @@ public struct SessionsCompactParams: Codable, Sendable {
     }
 }
 
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
 public struct ConfigGetParams: Codable, Sendable {
 }
-=======
-public struct SessionsUsageParams: Codable, Sendable {
-    public let key: String?
-    public let startdate: String?
-    public let enddate: String?
-    public let mode: AnyCodable?
-    public let utcoffset: String?
-    public let limit: Int?
-    public let includecontextweight: Bool?
-
-    public init(
-        key: String?,
-        startdate: String?,
-        enddate: String?,
-        mode: AnyCodable?,
-        utcoffset: String?,
-        limit: Int?,
-        includecontextweight: Bool?)
-    {
-        self.key = key
-        self.startdate = startdate
-        self.enddate = enddate
-        self.mode = mode
-        self.utcoffset = utcoffset
-        self.limit = limit
-        self.includecontextweight = includecontextweight
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case key
-        case startdate = "startDate"
-        case enddate = "endDate"
-        case mode
-        case utcoffset = "utcOffset"
-        case limit
-        case includecontextweight = "includeContextWeight"
-    }
-}
-
-public struct ConfigGetParams: Codable, Sendable {}
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
 
 public struct ConfigSetParams: Codable, Sendable {
     public let raw: String
@@ -1608,8 +1538,6 @@ public struct TalkModeParams: Codable, Sendable {
     }
 }
 
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
 public struct TalkConfigParams: Codable, Sendable {
     public let includesecrets: Bool?
 
@@ -1638,7 +1566,6 @@ public struct TalkConfigResult: Codable, Sendable {
     }
 }
 
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
 public struct ChannelsStatusParams: Codable, Sendable {
     public let probe: Bool?
     public let timeoutms: Int?
@@ -1787,310 +1714,8 @@ public struct AgentSummary: Codable, Sendable {
     }
 }
 
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
 public struct AgentsListParams: Codable, Sendable {
 }
-=======
-public struct AgentsCreateParams: Codable, Sendable {
-    public let name: String
-    public let workspace: String
-    public let emoji: String?
-    public let avatar: String?
-
-    public init(
-        name: String,
-        workspace: String,
-        emoji: String?,
-        avatar: String?)
-    {
-        self.name = name
-        self.workspace = workspace
-        self.emoji = emoji
-        self.avatar = avatar
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case name
-        case workspace
-        case emoji
-        case avatar
-    }
-}
-
-public struct AgentsCreateResult: Codable, Sendable {
-    public let ok: Bool
-    public let agentid: String
-    public let name: String
-    public let workspace: String
-
-    public init(
-        ok: Bool,
-        agentid: String,
-        name: String,
-        workspace: String)
-    {
-        self.ok = ok
-        self.agentid = agentid
-        self.name = name
-        self.workspace = workspace
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case ok
-        case agentid = "agentId"
-        case name
-        case workspace
-    }
-}
-
-public struct AgentsUpdateParams: Codable, Sendable {
-    public let agentid: String
-    public let name: String?
-    public let workspace: String?
-    public let model: String?
-    public let avatar: String?
-
-    public init(
-        agentid: String,
-        name: String?,
-        workspace: String?,
-        model: String?,
-        avatar: String?)
-    {
-        self.agentid = agentid
-        self.name = name
-        self.workspace = workspace
-        self.model = model
-        self.avatar = avatar
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case agentid = "agentId"
-        case name
-        case workspace
-        case model
-        case avatar
-    }
-}
-
-public struct AgentsUpdateResult: Codable, Sendable {
-    public let ok: Bool
-    public let agentid: String
-
-    public init(
-        ok: Bool,
-        agentid: String)
-    {
-        self.ok = ok
-        self.agentid = agentid
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case ok
-        case agentid = "agentId"
-    }
-}
-
-public struct AgentsDeleteParams: Codable, Sendable {
-    public let agentid: String
-    public let deletefiles: Bool?
-
-    public init(
-        agentid: String,
-        deletefiles: Bool?)
-    {
-        self.agentid = agentid
-        self.deletefiles = deletefiles
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case agentid = "agentId"
-        case deletefiles = "deleteFiles"
-    }
-}
-
-public struct AgentsDeleteResult: Codable, Sendable {
-    public let ok: Bool
-    public let agentid: String
-    public let removedbindings: Int
-
-    public init(
-        ok: Bool,
-        agentid: String,
-        removedbindings: Int)
-    {
-        self.ok = ok
-        self.agentid = agentid
-        self.removedbindings = removedbindings
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case ok
-        case agentid = "agentId"
-        case removedbindings = "removedBindings"
-    }
-}
-
-public struct AgentsFileEntry: Codable, Sendable {
-    public let name: String
-    public let path: String
-    public let missing: Bool
-    public let size: Int?
-    public let updatedatms: Int?
-    public let content: String?
-
-    public init(
-        name: String,
-        path: String,
-        missing: Bool,
-        size: Int?,
-        updatedatms: Int?,
-        content: String?)
-    {
-        self.name = name
-        self.path = path
-        self.missing = missing
-        self.size = size
-        self.updatedatms = updatedatms
-        self.content = content
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case name
-        case path
-        case missing
-        case size
-        case updatedatms = "updatedAtMs"
-        case content
-    }
-}
-
-public struct AgentsFilesListParams: Codable, Sendable {
-    public let agentid: String
-
-    public init(
-        agentid: String)
-    {
-        self.agentid = agentid
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case agentid = "agentId"
-    }
-}
-
-public struct AgentsFilesListResult: Codable, Sendable {
-    public let agentid: String
-    public let workspace: String
-    public let files: [AgentsFileEntry]
-
-    public init(
-        agentid: String,
-        workspace: String,
-        files: [AgentsFileEntry])
-    {
-        self.agentid = agentid
-        self.workspace = workspace
-        self.files = files
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case agentid = "agentId"
-        case workspace
-        case files
-    }
-}
-
-public struct AgentsFilesGetParams: Codable, Sendable {
-    public let agentid: String
-    public let name: String
-
-    public init(
-        agentid: String,
-        name: String)
-    {
-        self.agentid = agentid
-        self.name = name
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case agentid = "agentId"
-        case name
-    }
-}
-
-public struct AgentsFilesGetResult: Codable, Sendable {
-    public let agentid: String
-    public let workspace: String
-    public let file: AgentsFileEntry
-
-    public init(
-        agentid: String,
-        workspace: String,
-        file: AgentsFileEntry)
-    {
-        self.agentid = agentid
-        self.workspace = workspace
-        self.file = file
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case agentid = "agentId"
-        case workspace
-        case file
-    }
-}
-
-public struct AgentsFilesSetParams: Codable, Sendable {
-    public let agentid: String
-    public let name: String
-    public let content: String
-
-    public init(
-        agentid: String,
-        name: String,
-        content: String)
-    {
-        self.agentid = agentid
-        self.name = name
-        self.content = content
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case agentid = "agentId"
-        case name
-        case content
-    }
-}
-
-public struct AgentsFilesSetResult: Codable, Sendable {
-    public let ok: Bool
-    public let agentid: String
-    public let workspace: String
-    public let file: AgentsFileEntry
-
-    public init(
-        ok: Bool,
-        agentid: String,
-        workspace: String,
-        file: AgentsFileEntry)
-    {
-        self.ok = ok
-        self.agentid = agentid
-        self.workspace = workspace
-        self.file = file
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case ok
-        case agentid = "agentId"
-        case workspace
-        case file
-    }
-}
-
-public struct AgentsListParams: Codable, Sendable {}
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
 
 public struct AgentsListResult: Codable, Sendable {
     public let defaultid: String
@@ -2165,8 +1790,6 @@ public struct ModelsListResult: Codable, Sendable {
 }
 
 public struct SkillsStatusParams: Codable, Sendable {
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
     public let agentid: String?
 
     public init(
@@ -2178,7 +1801,6 @@ public struct SkillsStatusParams: Codable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case agentid = "agentId"
     }
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
 }
 
 public struct SkillsBinsParams: Codable, Sendable {}
@@ -2274,15 +1896,9 @@ public struct CronJob: Codable, Sendable {
         sessiontarget: AnyCodable,
         wakemode: AnyCodable,
         payload: AnyCodable,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         isolation: [String: AnyCodable]?,
         state: [String: AnyCodable]
     ) {
-=======
-        delivery: AnyCodable?,
-        state: [String: AnyCodable])
-    {
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.id = id
         self.agentid = agentid
         self.name = name
@@ -2355,13 +1971,8 @@ public struct CronAddParams: Codable, Sendable {
         sessiontarget: AnyCodable,
         wakemode: AnyCodable,
         payload: AnyCodable,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         isolation: [String: AnyCodable]?
     ) {
-=======
-        delivery: AnyCodable?)
-    {
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.name = name
         self.agentid = agentid
         self.description = description
@@ -2686,8 +2297,6 @@ public struct DevicePairRejectParams: Codable, Sendable {
     }
 }
 
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
 public struct DevicePairRemoveParams: Codable, Sendable {
     public let deviceid: String
 
@@ -2702,7 +2311,6 @@ public struct DevicePairRemoveParams: Codable, Sendable {
     }
 }
 
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
 public struct DeviceTokenRotateParams: Codable, Sendable {
     public let deviceid: String
     public let role: String

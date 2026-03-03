@@ -6,12 +6,7 @@
  */
 
 import type { WorkspaceBootstrapFile } from "../agents/workspace.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { CliDeps } from "../cli/deps.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
 
 export type InternalHookEventType = "command" | "session" | "agent" | "gateway";
 
@@ -30,8 +25,6 @@ export type AgentBootstrapHookEvent = InternalHookEvent & {
   context: AgentBootstrapHookContext;
 };
 
-<<<<<<< HEAD
-=======
 export type GatewayStartupHookContext = {
   cfg?: OpenClawConfig;
   deps?: CliDeps;
@@ -98,7 +91,6 @@ export type MessageSentHookEvent = InternalHookEvent & {
   context: MessageSentHookContext;
 };
 
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
 export interface InternalHookEvent {
   /** The type of event (command, session, agent, gateway, etc.) */
   type: InternalHookEventType;
@@ -247,8 +239,6 @@ export function isAgentBootstrapEvent(event: InternalHookEvent): event is AgentB
   if (typeof context.workspaceDir !== "string") return false;
   return Array.isArray(context.bootstrapFiles);
 }
-<<<<<<< HEAD
-=======
 
 export function isGatewayStartupEvent(event: InternalHookEvent): event is GatewayStartupHookEvent {
   if (event.type !== "gateway" || event.action !== "startup") {
@@ -285,4 +275,3 @@ export function isMessageSentEvent(event: InternalHookEvent): event is MessageSe
     typeof context.success === "boolean"
   );
 }
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))

@@ -10,8 +10,6 @@ import {
   type RequestPermissionResponse,
   type SessionNotification,
 } from "@agentclientprotocol/sdk";
-<<<<<<< HEAD
-=======
 import { spawn, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -20,149 +18,8 @@ import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
 import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
 import { DANGEROUS_ACP_TOOLS } from "../security/dangerous-tools.js";
->>>>>>> 013e8f6b3 (fix: harden exec PATH handling)
 
-<<<<<<< HEAD
 import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
-=======
-/**
- * Tools that require explicit user approval in ACP sessions.
- * These tools can execute arbitrary code, modify the filesystem,
- * or access sensitive resources.
- */
-const DANGEROUS_ACP_TOOLS = new Set([
-  "exec",
-  "spawn",
-  "shell",
-  "sessions_spawn",
-  "sessions_send",
-  "gateway",
-  "fs_write",
-  "fs_delete",
-  "fs_move",
-  "apply_patch",
-]);
-
-type PermissionOption = RequestPermissionRequest["options"][number];
-
-type PermissionResolverDeps = {
-  prompt?: (toolName: string | undefined, toolTitle?: string) => Promise<boolean>;
-  log?: (line: string) => void;
-};
-
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined;
-}
-
-function readFirstStringValue(
-  source: Record<string, unknown> | undefined,
-  keys: string[],
-): string | undefined {
-  if (!source) {
-    return undefined;
-  }
-  for (const key of keys) {
-    const value = source[key];
-    if (typeof value === "string" && value.trim()) {
-      return value.trim();
-    }
-  }
-  return undefined;
-}
-
-function normalizeToolName(value: string): string | undefined {
-  const normalized = value.trim().toLowerCase();
-  if (!normalized) {
-    return undefined;
-  }
-  return normalized;
-}
-
-function parseToolNameFromTitle(title: string | undefined | null): string | undefined {
-  if (!title) {
-    return undefined;
-  }
-  const head = title.split(":", 1)[0]?.trim();
-  if (!head || !/^[a-zA-Z0-9._-]+$/.test(head)) {
-    return undefined;
-  }
-  return normalizeToolName(head);
-}
-
-function resolveToolNameForPermission(params: RequestPermissionRequest): string | undefined {
-  const toolCall = params.toolCall;
-  const toolMeta = asRecord(toolCall?._meta);
-  const rawInput = asRecord(toolCall?.rawInput);
-
-  const fromMeta = readFirstStringValue(toolMeta, ["toolName", "tool_name", "name"]);
-  const fromRawInput = readFirstStringValue(rawInput, ["tool", "toolName", "tool_name", "name"]);
-  const fromTitle = parseToolNameFromTitle(toolCall?.title);
-  return normalizeToolName(fromMeta ?? fromRawInput ?? fromTitle ?? "");
-}
-
-function pickOption(
-  options: PermissionOption[],
-  kinds: PermissionOption["kind"][],
-): PermissionOption | undefined {
-  for (const kind of kinds) {
-    const match = options.find((option) => option.kind === kind);
-    if (match) {
-      return match;
-    }
-  }
-  return undefined;
-}
-
-function selectedPermission(optionId: string): RequestPermissionResponse {
-  return { outcome: { outcome: "selected", optionId } };
-}
-
-function cancelledPermission(): RequestPermissionResponse {
-  return { outcome: { outcome: "cancelled" } };
-}
-
-function promptUserPermission(toolName: string | undefined, toolTitle?: string): Promise<boolean> {
-  if (!process.stdin.isTTY || !process.stderr.isTTY) {
-    console.error(`[permission denied] ${toolName ?? "unknown"}: non-interactive terminal`);
-    return Promise.resolve(false);
-  }
-  return new Promise((resolve) => {
-    let settled = false;
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stderr,
-    });
-
-    const finish = (approved: boolean) => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      clearTimeout(timeout);
-      rl.close();
-      resolve(approved);
-    };
-
-    const timeout = setTimeout(() => {
-      console.error(`\n[permission timeout] denied: ${toolName ?? "unknown"}`);
-      finish(false);
-    }, 30_000);
-
-    const label = toolTitle
-      ? toolName
-        ? `${toolTitle} (${toolName})`
-        : toolTitle
-      : (toolName ?? "unknown tool");
-    rl.question(`\n[permission] Allow "${label}"? (y/N) `, (answer) => {
-      const approved = answer.trim().toLowerCase() === "y";
-      console.error(`[permission ${approved ? "approved" : "denied"}] ${toolName ?? "unknown"}`);
-      finish(approved);
-    });
-  });
-}
->>>>>>> ee31cd47b (fix: close OC-02 gaps in ACP permission + gateway HTTP deny config (#15390) (thanks @aether-ai-agent))
 
 export async function resolvePermissionRequest(
   params: RequestPermissionRequest,
@@ -291,12 +148,8 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
   const verbose = Boolean(opts.verbose);
   const log = verbose ? (msg: string) => console.error(`[acp-client] ${msg}`) : () => {};
 
-<<<<<<< HEAD
   ensureMoltbotCliOnPath({ cwd });
   const serverCommand = opts.serverCommand ?? "moltbot";
-=======
-  ensureOpenClawCliOnPath();
->>>>>>> 013e8f6b3 (fix: harden exec PATH handling)
   const serverArgs = buildServerArgs(opts);
 
   const entryPath = resolveSelfEntryPath();
@@ -324,7 +177,6 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
         printSessionUpdate(params);
       },
       requestPermission: async (params: RequestPermissionRequest) => {
-<<<<<<< HEAD
         console.log("\n[permission requested]", params.toolCall?.title ?? "tool");
         const options = params.options ?? [];
         const allowOnce = options.find((option) => option.kind === "allow_once");
@@ -335,9 +187,6 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
             optionId: allowOnce?.optionId ?? fallback?.optionId ?? "allow",
           },
         };
-=======
-        return resolvePermissionRequest(params);
->>>>>>> ee31cd47b (fix: close OC-02 gaps in ACP permission + gateway HTTP deny config (#15390) (thanks @aether-ai-agent))
       },
     }),
     stream,

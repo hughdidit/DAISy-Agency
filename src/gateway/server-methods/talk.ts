@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-=======
 import type { GatewayRequestHandlers } from "./types.js";
 import { readConfigFileSnapshot } from "../../config/config.js";
 import { redactConfigObject } from "../../config/redact-snapshot.js";
->>>>>>> 4c86821ac (fix: allow device-paired clients to retrieve TTS API keys (#14613))
 import {
   ErrorCodes,
   errorShape,

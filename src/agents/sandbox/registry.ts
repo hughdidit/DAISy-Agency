@@ -1,11 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
-<<<<<<< HEAD
 
-=======
-import path from "node:path";
-import { acquireSessionWriteLock } from "../session-write-lock.js";
->>>>>>> cc29be8c9 (fix: serialize sandbox registry writes)
 import {
   SANDBOX_BROWSER_REGISTRY_PATH,
   SANDBOX_REGISTRY_PATH,
@@ -44,17 +39,11 @@ type RegistryReadMode = "strict" | "fallback";
 async function withRegistryLock<T>(registryPath: string, fn: () => Promise<T>): Promise<T> {
   const lock = await acquireSessionWriteLock({ sessionFile: registryPath });
   try {
-<<<<<<< HEAD
     const raw = await fs.readFile(SANDBOX_REGISTRY_PATH, "utf-8");
     const parsed = JSON.parse(raw) as SandboxRegistry;
     if (parsed && Array.isArray(parsed.entries)) return parsed;
   } catch {
     // ignore
-=======
-    return await fn();
-  } finally {
-    await lock.release();
->>>>>>> cc29be8c9 (fix: serialize sandbox registry writes)
   }
 }
 
@@ -135,7 +124,6 @@ export async function updateRegistry(entry: SandboxRegistryEntry) {
 }
 
 export async function removeRegistryEntry(containerName: string) {
-<<<<<<< HEAD
   const registry = await readRegistry();
   const next = registry.entries.filter((item) => item.containerName !== containerName);
   if (next.length === registry.entries.length) return;
@@ -156,20 +144,6 @@ export async function readBrowserRegistry(): Promise<SandboxBrowserRegistry> {
 async function writeBrowserRegistry(registry: SandboxBrowserRegistry) {
   await fs.mkdir(SANDBOX_STATE_DIR, { recursive: true });
   await fs.writeFile(
-=======
-  await withRegistryLock(SANDBOX_REGISTRY_PATH, async () => {
-    const registry = await readRegistryForWrite();
-    const next = registry.entries.filter((item) => item.containerName !== containerName);
-    if (next.length === registry.entries.length) {
-      return;
-    }
-    await writeRegistry({ entries: next });
-  });
-}
-
-export async function readBrowserRegistry(): Promise<SandboxBrowserRegistry> {
-  return await readRegistryFromFile<SandboxBrowserRegistryEntry>(
->>>>>>> cc29be8c9 (fix: serialize sandbox registry writes)
     SANDBOX_BROWSER_REGISTRY_PATH,
     "fallback",
   );
@@ -187,7 +161,6 @@ async function writeBrowserRegistry(registry: SandboxBrowserRegistry) {
 }
 
 export async function updateBrowserRegistry(entry: SandboxBrowserRegistryEntry) {
-<<<<<<< HEAD
   const registry = await readBrowserRegistry();
   const existing = registry.entries.find((item) => item.containerName === entry.containerName);
   const next = registry.entries.filter((item) => item.containerName !== entry.containerName);
@@ -195,36 +168,12 @@ export async function updateBrowserRegistry(entry: SandboxBrowserRegistryEntry) 
     ...entry,
     createdAtMs: existing?.createdAtMs ?? entry.createdAtMs,
     image: existing?.image ?? entry.image,
-=======
-  await withRegistryLock(SANDBOX_BROWSER_REGISTRY_PATH, async () => {
-    const registry = await readBrowserRegistryForWrite();
-    const existing = registry.entries.find((item) => item.containerName === entry.containerName);
-    const next = registry.entries.filter((item) => item.containerName !== entry.containerName);
-    next.push({
-      ...entry,
-      createdAtMs: existing?.createdAtMs ?? entry.createdAtMs,
-      image: existing?.image ?? entry.image,
-      configHash: entry.configHash ?? existing?.configHash,
-    });
-    await writeBrowserRegistry({ entries: next });
->>>>>>> cc29be8c9 (fix: serialize sandbox registry writes)
   });
 }
 
 export async function removeBrowserRegistryEntry(containerName: string) {
-<<<<<<< HEAD
   const registry = await readBrowserRegistry();
   const next = registry.entries.filter((item) => item.containerName !== containerName);
   if (next.length === registry.entries.length) return;
   await writeBrowserRegistry({ entries: next });
-=======
-  await withRegistryLock(SANDBOX_BROWSER_REGISTRY_PATH, async () => {
-    const registry = await readBrowserRegistryForWrite();
-    const next = registry.entries.filter((item) => item.containerName !== containerName);
-    if (next.length === registry.entries.length) {
-      return;
-    }
-    await writeBrowserRegistry({ entries: next });
-  });
->>>>>>> cc29be8c9 (fix: serialize sandbox registry writes)
 }

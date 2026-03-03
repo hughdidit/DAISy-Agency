@@ -20,8 +20,6 @@ export type IMessageSendOpts = {
   timeoutMs?: number;
   chatId?: number;
   client?: IMessageRpcClient;
-<<<<<<< HEAD
-=======
   config?: ReturnType<typeof loadConfig>;
   account?: ResolvedIMessageAccount;
   resolveAttachmentImpl?: (
@@ -30,7 +28,6 @@ export type IMessageSendOpts = {
     options?: { localRoots?: readonly string[] },
   ) => Promise<{ path: string; contentType?: string }>;
   createClient?: (params: { cliPath: string; dbPath?: string }) => Promise<IMessageRpcClient>;
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 };
 
 export type IMessageSendResult = {
@@ -91,14 +88,7 @@ export async function sendMessageIMessage(
   let filePath: string | undefined;
 
   if (opts.mediaUrl?.trim()) {
-<<<<<<< HEAD
     const resolved = await resolveAttachment(opts.mediaUrl.trim(), maxBytes);
-=======
-    const resolveAttachmentFn = opts.resolveAttachmentImpl ?? resolveOutboundAttachmentFromUrl;
-    const resolved = await resolveAttachmentFn(opts.mediaUrl.trim(), maxBytes, {
-      localRoots: opts.mediaLocalRoots,
-    });
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
     filePath = resolved.path;
     if (!message.trim()) {
       const kind = mediaKindFromMime(resolved.contentType ?? undefined);

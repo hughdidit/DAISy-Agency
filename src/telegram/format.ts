@@ -190,15 +190,11 @@ export function markdownToTelegramChunks(
     blockquotePrefix: "",
     tableMode: options.tableMode,
   });
-<<<<<<< HEAD
   const chunks = chunkMarkdownIR(ir, limit);
   return chunks.map((chunk) => ({
     html: renderTelegramHtml(chunk),
     text: chunk.text,
   }));
-=======
-  return renderTelegramChunksWithinHtmlLimit(ir, limit);
->>>>>>> 69c39368e (fix: enforce telegram shared outbound chunking)
 }
 
 export function markdownToTelegramHtmlChunks(markdown: string, limit: number): string[] {

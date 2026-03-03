@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import crypto from "node:crypto";
 <<<<<<< HEAD
->>>>>>> 2977f7325 (fix: add extraArgs to sandbox browser config and apply oxfmt formatting)
 =======
 import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
 >>>>>>> cc3c25e41 (fix: apply oxfmt 0.32.0 formatting (match CI version))
@@ -23,12 +20,8 @@ import {
 import { updateBrowserRegistry } from "./registry.js";
 import { slugifySessionKey } from "./shared.js";
 import { isToolAllowed } from "./tool-policy.js";
-<<<<<<< HEAD
 import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
 <<<<<<< HEAD
-=======
-=======
->>>>>>> cc3c25e41 (fix: apply oxfmt 0.32.0 formatting (match CI version))
 
 const HOT_BROWSER_WINDOW_MS = 5 * 60 * 1000;
 >>>>>>> 2977f7325 (fix: add extraArgs to sandbox browser config and apply oxfmt formatting)
@@ -75,12 +68,7 @@ function buildSandboxBrowserResolvedConfig(params: {
     headless: params.headless,
     noSandbox: false,
     attachOnly: true,
-<<<<<<< HEAD
     defaultProfile: "daisy",
-=======
-    defaultProfile: DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME,
-    extraArgs: [],
->>>>>>> 2977f7325 (fix: add extraArgs to sandbox browser config and apply oxfmt formatting)
     profiles: {
       daisy: { cdpPort: params.cdpPort, color: DEFAULT_CLAWD_BROWSER_COLOR },
     },
@@ -135,31 +123,12 @@ export async function ensureSandboxBrowser(params: {
     if (params.cfg.browser.enableNoVnc && !params.cfg.browser.headless) {
       args.push("-p", `127.0.0.1::${params.cfg.browser.noVncPort}`);
     }
-<<<<<<< HEAD
     args.push("-e", `CLAWDBOT_BROWSER_HEADLESS=${params.cfg.browser.headless ? "1" : "0"}`);
     args.push("-e", `CLAWDBOT_BROWSER_ENABLE_NOVNC=${params.cfg.browser.enableNoVnc ? "1" : "0"}`);
     args.push("-e", `CLAWDBOT_BROWSER_CDP_PORT=${params.cfg.browser.cdpPort}`);
     args.push("-e", `CLAWDBOT_BROWSER_VNC_PORT=${params.cfg.browser.vncPort}`);
     args.push("-e", `CLAWDBOT_BROWSER_NOVNC_PORT=${params.cfg.browser.noVncPort}`);
     args.push(params.cfg.browser.image);
-=======
-    args.push("-e", `OPENCLAW_BROWSER_HEADLESS=${params.cfg.browser.headless ? "1" : "0"}`);
-    args.push("-e", `OPENCLAW_BROWSER_ENABLE_NOVNC=${params.cfg.browser.enableNoVnc ? "1" : "0"}`);
-    args.push("-e", `OPENCLAW_BROWSER_CDP_PORT=${params.cfg.browser.cdpPort}`);
-    if (cdpSourceRange) {
-      args.push("-e", `${CDP_SOURCE_RANGE_ENV_KEY}=${cdpSourceRange}`);
-    }
-    args.push("-e", `OPENCLAW_BROWSER_VNC_PORT=${params.cfg.browser.vncPort}`);
-    args.push("-e", `OPENCLAW_BROWSER_NOVNC_PORT=${params.cfg.browser.noVncPort}`);
-    // Chromium's setuid/namespace sandbox cannot work inside Docker containers
-    // (PID namespace creation requires privileges Docker does not grant by default).
-    // The container itself provides isolation, so --no-sandbox is safe here.
-    args.push("-e", "OPENCLAW_BROWSER_NO_SANDBOX=1");
-    if (noVncEnabled && noVncPassword) {
-      args.push("-e", `${NOVNC_PASSWORD_ENV_KEY}=${noVncPassword}`);
-    }
-    args.push(browserImage);
->>>>>>> 139271ad5 (fix: sandbox browser docker no-sandbox rollout (#29879) (thanks @Lukavyi))
     await execDocker(args);
     await execDocker(["start", containerName]);
   } else if (!state.running) {

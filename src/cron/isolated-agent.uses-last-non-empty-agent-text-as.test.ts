@@ -25,16 +25,8 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-cron-" });
 }
 
-<<<<<<< HEAD
 async function writeSessionStore(home: string) {
   const dir = path.join(home, ".clawdbot", "sessions");
-=======
-async function writeSessionStore(
-  home: string,
-  entries: Record<string, Record<string, unknown>> = {},
-) {
-  const dir = path.join(home, ".openclaw", "sessions");
->>>>>>> abdceedaf (fix: respect session model override in agent runtime (#14783) (#14983))
   await fs.mkdir(dir, { recursive: true });
   const storePath = path.join(dir, "sessions.json");
   await fs.writeFile(

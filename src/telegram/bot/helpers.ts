@@ -17,8 +17,6 @@ export type TelegramThreadSpec = {
   scope: "dm" | "forum" | "none";
 };
 
-<<<<<<< HEAD
-=======
 export async function resolveTelegramGroupAllowFromContext(params: {
   chatId: string | number;
   accountId?: string;
@@ -70,7 +68,6 @@ export async function resolveTelegramGroupAllowFromContext(params: {
   };
 }
 
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
 /**
  * Resolve the thread ID for Telegram forum topics.
  * For non-forum groups, returns undefined even if messageThreadId is present
@@ -271,15 +268,7 @@ export type TelegramReplyTarget = {
 
 export function describeReplyTarget(msg: TelegramMessage): TelegramReplyTarget | null {
   const reply = msg.reply_to_message;
-<<<<<<< HEAD
   const quote = msg.quote;
-=======
-  const externalReply = (msg as Message & { external_reply?: Message }).external_reply;
-  const quoteText =
-    msg.quote?.text ??
-    (reply as (Message & { quote?: { text?: string } }) | undefined)?.quote?.text ??
-    (externalReply as (Message & { quote?: { text?: string } }) | undefined)?.quote?.text;
->>>>>>> b430998c2 (fix(telegram): clean tsgo/format regressions)
   let body = "";
   let kind: TelegramReplyTarget["kind"] = "reply";
 
@@ -324,13 +313,10 @@ export type TelegramForwardedContext = {
   fromUsername?: string;
   fromTitle?: string;
   fromSignature?: string;
-<<<<<<< HEAD
-=======
   /** Original chat type from forward_from_chat (e.g. "channel", "supergroup", "group"). */
   fromChatType?: Chat["type"];
   /** Original message ID in the source chat (channel forwards). */
   fromMessageId?: number;
->>>>>>> b2361292e (fix: trim legacy signature fallback, type fromChatType as union)
 };
 
 function normalizeForwardedUserLabel(user: TelegramForwardUser) {
@@ -398,10 +384,6 @@ function buildForwardedContextFromChat(params: {
   const signature = params.signature?.trim() || undefined;
   const from = signature ? `${display} (${signature})` : display;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  const chatType = (params.chat.type?.trim() || undefined) as TelegramChatType | undefined;
->>>>>>> b2361292e (fix: trim legacy signature fallback, type fromChatType as union)
 =======
   const chatType = (params.chat.type?.trim() || undefined) as Chat["type"] | undefined;
 >>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))

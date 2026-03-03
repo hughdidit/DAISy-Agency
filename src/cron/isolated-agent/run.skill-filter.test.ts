@@ -39,7 +39,6 @@ vi.mock("../../agents/model-catalog.js", () => ({
   loadModelCatalog: vi.fn().mockResolvedValue({ models: [] }),
 }));
 
-<<<<<<< HEAD
 vi.mock("../../agents/model-selection.js", () => ({
   getModelRefStatus: vi.fn().mockReturnValue({ allowed: false }),
   isCliProvider: vi.fn().mockReturnValue(false),
@@ -48,20 +47,6 @@ vi.mock("../../agents/model-selection.js", () => ({
   resolveHooksGmailModel: vi.fn().mockReturnValue(null),
   resolveThinkingDefault: vi.fn().mockReturnValue(undefined),
 }));
-=======
-vi.mock("../../agents/model-selection.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../agents/model-selection.js")>();
-  return {
-    ...actual,
-    getModelRefStatus: getModelRefStatusMock,
-    isCliProvider: isCliProviderMock,
-    resolveAllowedModelRef: resolveAllowedModelRefMock,
-    resolveConfiguredModelRef: resolveConfiguredModelRefMock,
-    resolveHooksGmailModel: resolveHooksGmailModelMock,
-    resolveThinkingDefault: resolveThinkingDefaultMock,
-  };
-});
->>>>>>> 15cfba707 (fix: cron model fallback to agent defaults when payload.model fails (#26717))
 
 vi.mock("../../agents/model-fallback.js", () => ({
   runWithModelFallback: vi.fn().mockResolvedValue({

@@ -13,42 +13,18 @@ import {
 } from "../../config/config.js";
 import { applyLegacyMigrations } from "../../config/legacy.js";
 import { applyMergePatch } from "../../config/merge-patch.js";
-<<<<<<< HEAD
 import { buildConfigSchema } from "../../config/schema.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 =======
-import {
-  redactConfigObject,
-  redactConfigSnapshot,
-  restoreRedactedValues,
-} from "../../config/redact-snapshot.js";
-import { buildConfigSchema, type ConfigSchemaResponse } from "../../config/schema.js";
-<<<<<<< HEAD
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
-=======
 import { extractDeliveryInfo } from "../../config/sessions.js";
-<<<<<<< HEAD
 >>>>>>> ab4a08a82 (fix: defer gateway restart until all replies are sent (#12970))
-=======
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
   writeRestartSentinel,
 } from "../../infra/restart-sentinel.js";
-<<<<<<< HEAD
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import { loadMoltbotPlugins } from "../../plugins/loader.js";
-=======
-import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
-import { loadOpenClawPlugins } from "../../plugins/loader.js";
-import { diffConfigPaths } from "../config-reload.js";
-import {
-  formatControlPlaneActor,
-  resolveControlPlaneActor,
-  summarizeChangedPaths,
-} from "../control-plane-audit.js";
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 import {
   ErrorCodes,
   errorShape,
@@ -59,7 +35,6 @@ import {
   validateConfigSchemaParams,
   validateConfigSetParams,
 } from "../protocol/index.js";
-<<<<<<< HEAD
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 
 function resolveBaseHash(params: unknown): string | null {
@@ -68,11 +43,6 @@ function resolveBaseHash(params: unknown): string | null {
   const trimmed = raw.trim();
   return trimmed ? trimmed : null;
 }
-=======
-import { resolveBaseHashParam } from "./base-hash.js";
-import { parseRestartRequestParams } from "./restart-request.js";
-import { assertValidParams } from "./validation.js";
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 
 function requireConfigBaseHash(
   params: unknown,
@@ -167,12 +137,7 @@ export const configHandlers: GatewayRequestHandlers = {
       return;
     }
     const snapshot = await readConfigFileSnapshot();
-<<<<<<< HEAD
     respond(true, snapshot, undefined);
-=======
-    const schema = loadSchemaWithPlugins();
-    respond(true, redactConfigSnapshot(snapshot, schema.uiHints), undefined);
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
   },
   "config.schema": ({ params, respond }) => {
     if (!validateConfigSchemaParams(params)) {
@@ -186,7 +151,6 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-<<<<<<< HEAD
     const cfg = loadConfig();
     const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
     const pluginRegistry = loadMoltbotPlugins({
@@ -216,9 +180,6 @@ export const configHandlers: GatewayRequestHandlers = {
       })),
     });
     respond(true, schema, undefined);
-=======
-    respond(true, loadSchemaWithPlugins(), undefined);
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
   },
   "config.set": async ({ params, respond }) => {
     if (!validateConfigSetParams(params)) {
@@ -277,16 +238,11 @@ export const configHandlers: GatewayRequestHandlers = {
       {
         ok: true,
         path: CONFIG_PATH,
-<<<<<<< HEAD
         config: validated.config,
-=======
-        config: redactConfigObject(validated.config, schemaSet.uiHints),
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
       },
       undefined,
     );
   },
-<<<<<<< HEAD
   "config.patch": async ({ params, respond }) => {
     if (!validateConfigPatchParams(params)) {
       respond(
@@ -297,10 +253,6 @@ export const configHandlers: GatewayRequestHandlers = {
           `invalid config.patch params: ${formatValidationErrors(validateConfigPatchParams.errors)}`,
         ),
       );
-=======
-  "config.patch": async ({ params, respond, client, context }) => {
-    if (!assertValidParams(params, validateConfigPatchParams, "config.patch", respond)) {
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
       return;
     }
     const { snapshot, writeOptions } = await readConfigFileSnapshotForWrite();
@@ -345,26 +297,8 @@ export const configHandlers: GatewayRequestHandlers = {
       return;
     }
     const merged = applyMergePatch(snapshot.config, parsedRes.parsed);
-<<<<<<< HEAD
     const migrated = applyLegacyMigrations(merged);
     const resolved = migrated.next ?? merged;
-=======
-    const schemaPatch = loadSchemaWithPlugins();
-    const restoredMerge = restoreRedactedValues(merged, snapshot.config, schemaPatch.uiHints);
-    if (!restoredMerge.ok) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          restoredMerge.humanReadableMessage ?? "invalid config",
-        ),
-      );
-      return;
-    }
-    const migrated = applyLegacyMigrations(restoredMerge.result);
-    const resolved = migrated.next ?? restoredMerge.result;
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
     const validated = validateConfigObjectWithPlugins(resolved);
     if (!validated.ok) {
       respond(
@@ -441,11 +375,7 @@ export const configHandlers: GatewayRequestHandlers = {
       {
         ok: true,
         path: CONFIG_PATH,
-<<<<<<< HEAD
         config: validated.config,
-=======
-        config: redactConfigObject(validated.config, schemaPatch.uiHints),
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
         restart,
         sentinel: {
           path: sentinelPath,
@@ -455,7 +385,6 @@ export const configHandlers: GatewayRequestHandlers = {
       undefined,
     );
   },
-<<<<<<< HEAD
   "config.apply": async ({ params, respond }) => {
     if (!validateConfigApplyParams(params)) {
       respond(
@@ -466,10 +395,6 @@ export const configHandlers: GatewayRequestHandlers = {
           `invalid config.apply params: ${formatValidationErrors(validateConfigApplyParams.errors)}`,
         ),
       );
-=======
-  "config.apply": async ({ params, respond, client, context }) => {
-    if (!assertValidParams(params, validateConfigApplyParams, "config.apply", respond)) {
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
       return;
     }
     const { snapshot, writeOptions } = await readConfigFileSnapshotForWrite();
@@ -488,7 +413,6 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-<<<<<<< HEAD
     const parsedRes = parseConfigJson5(rawValue);
     if (!parsedRes.ok) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
@@ -516,14 +440,6 @@ export const configHandlers: GatewayRequestHandlers = {
       return;
     }
     await writeConfigFile(validated.config, writeOptions);
-=======
-    const changedPaths = diffConfigPaths(snapshot.config, parsed.config);
-    const actor = resolveControlPlaneActor(client);
-    context?.logGateway?.info(
-      `config.apply write ${formatControlPlaneActor(actor)} changedPaths=${summarizeChangedPaths(changedPaths)} restartReason=config.apply`,
-    );
-    await writeConfigFile(parsed.config, writeOptions);
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 
     const sessionKey =
       typeof (params as { sessionKey?: unknown }).sessionKey === "string"
@@ -584,11 +500,7 @@ export const configHandlers: GatewayRequestHandlers = {
       {
         ok: true,
         path: CONFIG_PATH,
-<<<<<<< HEAD
         config: validated.config,
-=======
-        config: redactConfigObject(validated.config, schemaApply.uiHints),
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
         restart,
         sentinel: {
           path: sentinelPath,

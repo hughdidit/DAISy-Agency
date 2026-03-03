@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import crypto from "node:crypto";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import {
@@ -11,7 +9,6 @@ import {
   browserPdfSave,
   browserScreenshotAction,
 } from "../../browser/client-actions.js";
->>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
 import {
   browserCloseTab,
   browserFocusTab,
@@ -42,8 +39,6 @@ import { listNodes, resolveNodeIdFromList, type NodeListNode } from "./nodes-uti
 import { BrowserToolSchema } from "./browser-tool.schema.js";
 import { type AnyAgentTool, imageResultFromFile, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
-<<<<<<< HEAD
-=======
 import { listNodes, resolveNodeIdFromList, type NodeListNode } from "./nodes-utils.js";
 
 function wrapBrowserExternalJson(params: {
@@ -93,7 +88,6 @@ function readOptionalTargetAndTimeout(params: Record<string, unknown>) {
       : undefined;
   return { targetId, timeoutMs };
 }
->>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
 
 type BrowserProxyFile = {
   path: string;
@@ -564,36 +558,8 @@ export function createBrowserTool(opts?: {
               });
             }
             return {
-<<<<<<< HEAD
               content: [{ type: "text", text: snapshot.snapshot }],
               details: snapshot,
-=======
-              content: [{ type: "text" as const, text: wrappedSnapshot }],
-              details: safeDetails,
-            };
-          }
-          {
-            const wrapped = wrapBrowserExternalJson({
-              kind: "snapshot",
-              payload: snapshot,
-            });
-            return {
-              content: [{ type: "text" as const, text: wrapped.wrappedText }],
-              details: {
-                ...wrapped.safeDetails,
-                format: "aria",
-                targetId: snapshot.targetId,
-                url: snapshot.url,
-                nodeCount: snapshot.nodes.length,
-                externalContent: {
-                  untrusted: true,
-                  source: "browser",
-                  kind: "snapshot",
-                  format: "aria",
-                  wrapped: true,
-                },
-              },
->>>>>>> 08fb38f72 (Fix: resolve pnpm check type regressions)
             };
           }
           return jsonResult(snapshot);
@@ -669,34 +635,7 @@ export function createBrowserTool(opts?: {
                 targetId,
               },
             });
-<<<<<<< HEAD
             return jsonResult(result);
-=======
-            return {
-              content: [{ type: "text" as const, text: wrapped.wrappedText }],
-              details: {
-                ...wrapped.safeDetails,
-                targetId: typeof result.targetId === "string" ? result.targetId : undefined,
-                messageCount: Array.isArray(result.messages) ? result.messages.length : undefined,
-              },
-            };
-          }
-          {
-            const result = await browserConsoleMessages(baseUrl, { level, targetId, profile });
-            const wrapped = wrapBrowserExternalJson({
-              kind: "console",
-              payload: result,
-              includeWarning: false,
-            });
-            return {
-              content: [{ type: "text" as const, text: wrapped.wrappedText }],
-              details: {
-                ...wrapped.safeDetails,
-                targetId: result.targetId,
-                messageCount: result.messages.length,
-              },
-            };
->>>>>>> 08fb38f72 (Fix: resolve pnpm check type regressions)
           }
           return jsonResult(await browserConsoleMessages(baseUrl, { level, targetId, profile }));
         }

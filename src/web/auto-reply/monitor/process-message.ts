@@ -23,20 +23,13 @@ import {
 } from "../../../config/sessions.js";
 import { resolveMarkdownTableMode } from "../../../config/markdown-tables.js";
 import { logVerbose, shouldLogVerbose } from "../../../globals.js";
-<<<<<<< HEAD
 import type { getChildLogger } from "../../../logging.js";
-=======
-import { getAgentScopedMediaLocalRoots } from "../../../media/local-roots.js";
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { readChannelAllowFromStore } from "../../../pairing/pairing-store.js";
 import type { resolveAgentRoute } from "../../../routing/resolve-route.js";
-<<<<<<< HEAD
-=======
 import {
   readStoreAllowFromForDmPolicy,
   resolveDmGroupAccessWithCommandGate,
 } from "../../../security/dm-policy-shared.js";
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
 import { jidToE164, normalizeE164 } from "../../../utils.js";
 import { resolveWhatsAppAccount } from "../../accounts.js";
 import { newConnectionId } from "../../reconnect.js";
@@ -78,7 +71,6 @@ async function resolveWhatsAppCommandAuthorized(params: {
   const configuredGroupAllowFrom =
     account.groupAllowFrom ?? (configuredAllowFrom.length > 0 ? configuredAllowFrom : undefined);
 
-<<<<<<< HEAD
   if (isGroup) {
     if (!configuredGroupAllowFrom || configuredGroupAllowFrom.length === 0) return false;
     if (configuredGroupAllowFrom.some((v) => String(v).trim() === "*")) return true;
@@ -87,14 +79,6 @@ async function resolveWhatsAppCommandAuthorized(params: {
 
 <<<<<<< HEAD
   const storeAllowFrom = await readChannelAllowFromStore("whatsapp").catch(() => []);
-=======
-  const storeAllowFrom =
-    dmPolicy === "allowlist"
-      ? []
-      : await readChannelAllowFromStore("whatsapp", process.env, params.msg.accountId).catch(
-          () => [],
-        );
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
   const combinedAllowFrom = Array.from(
     new Set([...(configuredAllowFrom ?? []), ...storeAllowFrom]),
   );
@@ -439,18 +423,11 @@ export async function processMessage(params: {
       onReplyStart: params.msg.sendComposing,
     },
     replyOptions: {
-<<<<<<< HEAD
       disableBlockStreaming:
         typeof params.cfg.channels?.whatsapp?.blockStreaming === "boolean"
           ? !params.cfg.channels.whatsapp.blockStreaming
           : undefined,
       onModelSelected: prefixContext.onModelSelected,
-=======
-      // WhatsApp delivery intentionally suppresses non-final payloads.
-      // Keep block streaming disabled so final replies are still produced.
-      disableBlockStreaming: true,
-      onModelSelected,
->>>>>>> b5881d9ef (fix: avoid WhatsApp silent turns with final-only delivery (#24962) (thanks @SidQin-cyber))
     },
   });
 

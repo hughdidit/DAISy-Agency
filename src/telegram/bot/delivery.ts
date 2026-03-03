@@ -20,28 +20,17 @@ import type { RuntimeEnv } from "../../runtime.js";
 import { loadWebMedia } from "../../web/media.js";
 import { buildInlineKeyboard } from "../send.js";
 import { resolveTelegramVoiceSend } from "../voice.js";
-<<<<<<< HEAD
 import { buildTelegramThreadParams, resolveTelegramReplyId } from "./helpers.js";
 import type { StickerMetadata, TelegramContext } from "./types.js";
 import { cacheSticker, getCachedSticker } from "../sticker-cache.js";
-=======
-import {
-  buildTelegramThreadParams,
-  resolveTelegramReplyId,
-  type TelegramThreadSpec,
-} from "./helpers.js";
->>>>>>> 19b8416a8 (fix: unify telegram thread handling)
 
 const PARSE_ERR_RE = /can't parse entities|parse entities|find end of the entity/i;
 const VOICE_FORBIDDEN_RE = /VOICE_MESSAGES_FORBIDDEN/;
-<<<<<<< HEAD
-=======
 const FILE_TOO_BIG_RE = /file is too big/i;
 const TELEGRAM_MEDIA_SSRF_POLICY = {
   allowRfc2544BenchmarkRange: true,
 <<<<<<< HEAD
 } as const;
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
 =======
 };
 >>>>>>> 803e02d8d (fix: adapt landed fixups to current type and approval constraints)
@@ -64,11 +53,7 @@ export async function deliverReplies(params: {
   linkPreview?: boolean;
   /** Optional quote text for Telegram reply_parameters. */
   replyQuoteText?: string;
-<<<<<<< HEAD
 }) {
-=======
-}): Promise<{ delivered: boolean }> {
->>>>>>> 718bc3f9c (fix: avoid silent telegram empty replies (#3796) (#3796))
   const {
     replies,
     chatId,
@@ -82,13 +67,10 @@ export async function deliverReplies(params: {
   } = params;
   const chunkMode = params.chunkMode ?? "length";
   let hasReplied = false;
-<<<<<<< HEAD
-=======
   let hasDelivered = false;
   const markDelivered = () => {
     hasDelivered = true;
   };
->>>>>>> 718bc3f9c (fix: avoid silent telegram empty replies (#3796) (#3796))
   const chunkText = (markdown: string) => {
     const markdownChunks =
       chunkMode === "newline"
@@ -309,11 +291,8 @@ export async function deliverReplies(params: {
       }
     }
   }
-<<<<<<< HEAD
-=======
 
   return { delivered: hasDelivered };
->>>>>>> 718bc3f9c (fix: avoid silent telegram empty replies (#3796) (#3796))
 }
 
 export async function resolveMedia(
@@ -328,8 +307,6 @@ export async function resolveMedia(
   stickerMetadata?: StickerMetadata;
 } | null> {
   const msg = ctx.message;
-<<<<<<< HEAD
-=======
   const downloadAndSaveTelegramFile = async (filePath: string, fetchImpl: typeof fetch) => {
     const url = `https://api.telegram.org/file/bot${token}/${filePath}`;
     const fetched = await fetchRemoteMedia({
@@ -342,7 +319,6 @@ export async function resolveMedia(
     const originalName = fetched.fileName ?? filePath;
     return saveMediaBuffer(fetched.buffer, fetched.contentType, "inbound", maxBytes, originalName);
   };
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
 
   // Handle stickers separately - only static stickers (WEBP) are supported
   if (msg.sticker) {

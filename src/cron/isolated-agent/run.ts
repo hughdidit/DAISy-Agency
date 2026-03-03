@@ -27,27 +27,20 @@ import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { deriveSessionTotalTokens, hasNonzeroUsage } from "../../agents/usage.js";
 import { ensureAgentWorkspace } from "../../agents/workspace.js";
 import {
-<<<<<<< HEAD
   formatUserTime,
   resolveUserTimeFormat,
   resolveUserTimezone,
 } from "../../agents/date-time.js";
 import {
   formatXHighModelHint,
-=======
->>>>>>> 3b40227bc (fix: remove unused cron import)
   normalizeThinkLevel,
   normalizeVerboseLevel,
   supportsXHighThinking,
 } from "../../auto-reply/thinking.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.js";
-=======
-import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
->>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
@@ -75,13 +68,7 @@ function matchesMessagingToolDeliveryTarget(
   target: MessagingToolSend,
   delivery: { channel?: string; to?: string; accountId?: string },
 ): boolean {
-<<<<<<< HEAD
   if (!delivery.to || !target.to) return false;
-=======
-  if (!delivery.channel || !delivery.to || !target.to) {
-    return false;
-  }
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
   const channel = delivery.channel.trim().toLowerCase();
   const provider = target.provider?.trim().toLowerCase();
   if (provider && provider !== "message" && provider !== channel) return false;
@@ -91,8 +78,6 @@ function matchesMessagingToolDeliveryTarget(
   return target.to === delivery.to;
 }
 
-<<<<<<< HEAD
-=======
 function resolveCronDeliveryBestEffort(job: CronJob): boolean {
   if (typeof job.delivery?.bestEffort === "boolean") {
     return job.delivery.bestEffort;
@@ -103,7 +88,6 @@ function resolveCronDeliveryBestEffort(job: CronJob): boolean {
   return false;
 }
 
->>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
 export type RunCronAgentTurnResult = {
   status: "ok" | "error" | "skipped";
   summary?: string;
@@ -112,8 +96,6 @@ export type RunCronAgentTurnResult = {
   error?: string;
   sessionId?: string;
   sessionKey?: string;
-<<<<<<< HEAD
-=======
   /**
    * `true` when the isolated run already delivered its output to the target
    * channel (via outbound payloads, the subagent announce flow, or a matching
@@ -122,7 +104,6 @@ export type RunCronAgentTurnResult = {
    * messages.  See: https://github.com/openclaw/openclaw/issues/15692
    */
   delivered?: boolean;
->>>>>>> 45a2cd55c (fix: harden isolated cron announce delivery fallback (#15739) (thanks @widingmarcus-cyber))
 };
 
 export async function runCronIsolatedAgentTurn(params: {
@@ -385,35 +366,17 @@ export async function runCronIsolatedAgentTurn(params: {
     // Internal/trusted source - use original format
     commandBody = `${base}\n${timeLine}`.trim();
   }
-<<<<<<< HEAD
-=======
   if (deliveryRequested) {
     commandBody =
       `${commandBody}\n\nReturn your summary as plain text; it will be delivered automatically. If the task explicitly calls for messaging a specific external recipient, note who/where it should go instead of sending it yourself.`.trim();
   }
->>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 
-<<<<<<< HEAD
   const existingSnapshot = cronSession.sessionEntry.skillsSnapshot;
   const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
   const needsSkillsSnapshot =
     !existingSnapshot || existingSnapshot.version !== skillsSnapshotVersion;
   const skillsSnapshot = needsSkillsSnapshot
     ? buildWorkspaceSkillSnapshot(workspaceDir, {
-=======
-  let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
-  if (isFastTestEnv) {
-    // Fast unit-test mode: avoid scanning the workspace and writing session stores.
-    skillsSnapshot = skillsSnapshot ?? { prompt: "", skills: [] };
-  } else {
-    const existingSnapshot = cronSession.sessionEntry.skillsSnapshot;
-    const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
-    const needsSkillsSnapshot =
-      !existingSnapshot || existingSnapshot.version !== skillsSnapshotVersion;
-    const skillFilter = resolveAgentSkillsFilter(cfgWithAgentDefaults, agentId);
-    if (needsSkillsSnapshot) {
-      skillsSnapshot = buildWorkspaceSkillSnapshot(workspaceDir, {
->>>>>>> 61c993526 (fix: correct indentation in cron isolated-agent run.ts)
         config: cfgWithAgentDefaults,
         eligibility: { remote: getRemoteSkillEligibility() },
         snapshotVersion: skillsSnapshotVersion,
@@ -503,16 +466,9 @@ export async function runCronIsolatedAgentTurn(params: {
 
   // Update token+model fields in the session store.
   {
-<<<<<<< HEAD
     const usage = runResult.meta.agentMeta?.usage;
     const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? model;
     const providerUsed = runResult.meta.agentMeta?.provider ?? fallbackProvider ?? provider;
-=======
-    const usage = runResult?.meta?.agentMeta?.usage;
-    const promptTokens = runResult?.meta?.agentMeta?.promptTokens;
-    const modelUsed = runResult?.meta?.agentMeta?.model ?? fallbackModel ?? model;
-    const providerUsed = runResult?.meta?.agentMeta?.provider ?? fallbackProvider ?? provider;
->>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
     const contextTokens =
       agentCfg?.contextTokens ?? lookupContextTokens(modelUsed) ?? DEFAULT_CONTEXT_TOKENS;
 
@@ -543,8 +499,6 @@ export async function runCronIsolatedAgentTurn(params: {
   const firstText = payloads[0]?.text ?? "";
   const summary = pickSummaryFromPayloads(payloads) ?? pickSummaryFromOutput(firstText);
   const outputText = pickLastNonEmptyTextFromPayloads(payloads);
-<<<<<<< HEAD
-=======
   const synthesizedText = outputText?.trim() || summary?.trim() || undefined;
   const deliveryPayload = pickLastDeliverablePayload(payloads);
   const deliveryPayloads =
@@ -554,7 +508,6 @@ export async function runCronIsolatedAgentTurn(params: {
         ? [{ text: synthesizedText }]
         : [];
   const deliveryBestEffort = resolveCronDeliveryBestEffort(params.job);
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 
   // Skip delivery for heartbeat-only responses (HEARTBEAT_OK with no real content).
   const ackMaxChars = resolveHeartbeatAckMaxChars(agentCfg);
@@ -571,82 +524,32 @@ export async function runCronIsolatedAgentTurn(params: {
       }),
     );
 
-<<<<<<< HEAD
-=======
   // `true` means we confirmed at least one outbound send reached the target.
   // Keep this strict so timer fallback can safely decide whether to wake main.
   let delivered = skipMessagingToolDelivery;
->>>>>>> 45a2cd55c (fix: harden isolated cron announce delivery fallback (#15739) (thanks @widingmarcus-cyber))
   if (deliveryRequested && !skipHeartbeatDelivery && !skipMessagingToolDelivery) {
-<<<<<<< HEAD
     if (!resolvedDelivery.to) {
       const reason =
         resolvedDelivery.error?.message ?? "Cron delivery requires a recipient (--to).";
       if (!bestEffortDeliver) {
         return {
           status: "error",
-=======
-    if (resolvedDelivery.error) {
-      if (!deliveryBestEffort) {
-        return withRunSession({
-          status: "error",
-          error: resolvedDelivery.error.message,
->>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
           summary,
           outputText,
-<<<<<<< HEAD
           error: reason,
         };
-=======
-        });
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
       }
-<<<<<<< HEAD
 <<<<<<< HEAD
       return {
         status: "skipped",
         summary: `Delivery skipped (${reason}).`,
         outputText,
       };
-=======
-      logWarn(`[cron:${params.job.id}] ${deliveryFailure.message}`);
-=======
-      logWarn(`[cron:${params.job.id}] ${resolvedDelivery.error.message}`);
-      return withRunSession({ status: "ok", summary, outputText });
-    }
-    if (!resolvedDelivery.channel) {
-      const message = "cron delivery channel is missing";
-      if (!deliveryBestEffort) {
-        return withRunSession({
-          status: "error",
-          error: message,
-          summary,
-          outputText,
-          ...telemetry,
-        });
-      }
-      logWarn(`[cron:${params.job.id}] ${message}`);
-      return withRunSession({ status: "ok", summary, outputText, ...telemetry });
-    }
-    if (!resolvedDelivery.to) {
-      const message = "cron delivery target is missing";
-      if (!deliveryBestEffort) {
-        return withRunSession({
-          status: "error",
-          error: message,
-          summary,
-          outputText,
-        });
-      }
-      logWarn(`[cron:${params.job.id}] ${message}`);
-<<<<<<< HEAD
->>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
       return { status: "ok", summary, outputText };
 =======
       return withRunSession({ status: "ok", summary, outputText });
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
     }
-<<<<<<< HEAD
 <<<<<<< HEAD
     try {
       await deliverOutboundPayloads({
@@ -658,22 +561,7 @@ export async function runCronIsolatedAgentTurn(params: {
         payloads: deliveryPayloads,
         bestEffort: deliveryBestEffort,
         deps: createOutboundSendDeps(params.deps),
-=======
-    // Shared subagent announce flow is text-based; keep direct outbound delivery
-    // for media/channel payloads so structured content is preserved.
-    if (deliveryPayloadHasStructuredContent) {
-=======
-    const identity = resolveAgentOutboundIdentity(cfgWithAgentDefaults, agentId);
-
-    // Shared subagent announce flow is text-based and prompts the main agent to
-    // summarize. When we have an explicit delivery target (delivery.to), sender
-    // identity, or structured content, prefer direct outbound delivery to send
-    // the actual cron output without summarization.
-    const hasExplicitDeliveryTarget = Boolean(deliveryPlan.to);
-    if (deliveryPayloadHasStructuredContent || identity || hasExplicitDeliveryTarget) {
->>>>>>> a73ccf2b5 (fix: deliver cron output to explicit targets (#16360) (thanks @rubyrunsstuff))
       try {
-<<<<<<< HEAD
         const deliveryResults = await deliverOutboundPayloads({
           cfg: cfgWithAgentDefaults,
           channel: resolvedDelivery.channel,
@@ -685,29 +573,6 @@ export async function runCronIsolatedAgentTurn(params: {
           deps: createOutboundSendDeps(params.deps),
         });
         delivered = deliveryResults.length > 0;
-=======
-        const payloadsForDelivery =
-          deliveryPayloadHasStructuredContent && deliveryPayloads.length > 0
-            ? deliveryPayloads
-            : synthesizedText
-              ? [{ text: synthesizedText }]
-              : [];
-        if (payloadsForDelivery.length > 0) {
-          const deliveryResults = await deliverOutboundPayloads({
-            cfg: cfgWithAgentDefaults,
-            channel: resolvedDelivery.channel,
-            to: resolvedDelivery.to,
-            accountId: resolvedDelivery.accountId,
-            threadId: resolvedDelivery.threadId,
-            payloads: payloadsForDelivery,
-            agentId,
-            identity,
-            bestEffort: deliveryBestEffort,
-            deps: createOutboundSendDeps(params.deps),
-          });
-          delivered = deliveryResults.length > 0;
-        }
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
       } catch (err) {
         if (!deliveryBestEffort) {
           return withRunSession({ status: "error", summary, outputText, error: String(err) });

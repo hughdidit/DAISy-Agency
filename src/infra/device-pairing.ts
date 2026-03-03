@@ -1,18 +1,7 @@
 import { randomUUID } from "node:crypto";
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
-=======
-import {
-  createAsyncLock,
-  pruneExpiredPending,
-  readJsonFile,
-  resolvePairingPaths,
-  writeJsonAtomic,
-} from "./pairing-files.js";
-import { generatePairingToken, verifyPairingToken } from "./pairing-token.js";
->>>>>>> 48b3d7096 (fix: harden device pairing token generation and verification (#16535))
 
 export type DevicePairingPendingRequest = {
   requestId: string;
@@ -380,8 +369,6 @@ export async function rejectDevicePairing(
   baseDir?: string,
 ): Promise<{ requestId: string; deviceId: string } | null> {
   return await withLock(async () => {
-<<<<<<< HEAD
-=======
     return await rejectPendingPairingRequest<
       DevicePairingPendingRequest,
       DevicePairingStateFile,
@@ -401,7 +388,6 @@ export async function removePairedDevice(
   baseDir?: string,
 ): Promise<{ deviceId: string } | null> {
   return await withLock(async () => {
->>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
     const state = await loadState(baseDir);
     const pending = state.pendingById[requestId];
     if (!pending) return null;
@@ -470,21 +456,9 @@ export async function verifyDeviceToken(params: {
     const role = normalizeRole(params.role);
     if (!role) return { ok: false, reason: "role-missing" };
     const entry = device.tokens?.[role];
-<<<<<<< HEAD
     if (!entry) return { ok: false, reason: "token-missing" };
     if (entry.revokedAtMs) return { ok: false, reason: "token-revoked" };
     if (entry.token !== params.token) return { ok: false, reason: "token-mismatch" };
-=======
-    if (!entry) {
-      return { ok: false, reason: "token-missing" };
-    }
-    if (entry.revokedAtMs) {
-      return { ok: false, reason: "token-revoked" };
-    }
-    if (!verifyPairingToken(params.token, entry.token)) {
-      return { ok: false, reason: "token-mismatch" };
-    }
->>>>>>> 48b3d7096 (fix: harden device pairing token generation and verification (#16535))
     const requestedScopes = normalizeScopes(params.scopes);
     if (!scopesAllow(requestedScopes, entry.scopes)) {
       return { ok: false, reason: "scope-mismatch" };
@@ -544,7 +518,6 @@ export async function rotateDeviceToken(params: {
 }): Promise<DeviceAuthToken | null> {
   return await withLock(async () => {
     const state = await loadState(params.baseDir);
-<<<<<<< HEAD
     const device = state.pairedByDeviceId[normalizeDeviceId(params.deviceId)];
     if (!device) return null;
     const role = normalizeRole(params.role);
@@ -552,26 +525,6 @@ export async function rotateDeviceToken(params: {
     const tokens = device.tokens ? { ...device.tokens } : {};
     const existing = tokens[role];
     const requestedScopes = normalizeScopes(params.scopes ?? existing?.scopes ?? device.scopes);
-=======
-    const context = resolveDeviceTokenUpdateContext({
-      state,
-      deviceId: params.deviceId,
-      role: params.role,
-    });
-    if (!context) {
-      return null;
-    }
-    const { device, role, tokens, existing } = context;
-    const requestedScopes = normalizeDeviceAuthScopes(
-      params.scopes ?? existing?.scopes ?? device.scopes,
-    );
-    const approvedScopes = normalizeDeviceAuthScopes(
-      device.approvedScopes ?? device.scopes ?? existing?.scopes,
-    );
-    if (!scopesAllowWithImplications(requestedScopes, approvedScopes)) {
-      return null;
-    }
->>>>>>> 914a7c535 (fix: Device Token Scope Escalation via Rotate Endpoint (#20703))
     const now = Date.now();
     const next: DeviceAuthToken = {
       token: newToken(),

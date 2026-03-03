@@ -4,14 +4,11 @@ import { normalizeFingerprint } from "../infra/tls/fingerprint.js";
 import { rawDataToString } from "../infra/ws.js";
 import { logDebug, logError } from "../logger.js";
 import type { DeviceIdentity } from "../infra/device-identity.js";
-<<<<<<< HEAD
-=======
 import {
   clearDeviceAuthToken,
   loadDeviceAuthToken,
   storeDeviceAuthToken,
 } from "../infra/device-auth-store.js";
->>>>>>> b2d622cfa (fix: clear stale device-auth token on token mismatch)
 import {
   loadOrCreateDeviceIdentity,
   publicKeyRawBase64UrlFromPem,

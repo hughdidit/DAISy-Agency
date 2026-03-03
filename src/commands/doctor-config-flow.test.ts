@@ -66,8 +66,6 @@ describe("doctor config flow", () => {
       });
     });
   });
-<<<<<<< HEAD
-=======
 
   it("does not restore top-level allowFrom when config is intentionally default-account scoped", async () => {
     const result = await runDoctorConfigWithInput({
@@ -382,5 +380,4 @@ describe("doctor config flow", () => {
 
     expectGoogleChatDmAllowFromRepaired(result.cfg);
   });
->>>>>>> 1d4320293 (fix: repair Telegram allowlist DM migrations (#27936) (thanks @widingmarcus-cyber))
 });

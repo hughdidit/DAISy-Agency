@@ -25,8 +25,6 @@ vi.mock("../../infra/gateway-lock.js", () => ({
 vi.mock("../../infra/restart.js", () => ({
   consumeGatewaySigusr1RestartAuthorization: () => consumeGatewaySigusr1RestartAuthorization(),
   isGatewaySigusr1RestartExternallyAllowed: () => isGatewaySigusr1RestartExternallyAllowed(),
-<<<<<<< HEAD
-=======
   markGatewaySigusr1RestartHandled: () => markGatewaySigusr1RestartHandled(),
 }));
 
@@ -34,7 +32,6 @@ vi.mock("../../infra/process-respawn.js", () => ({
 <<<<<<< HEAD
   restartGatewayProcessWithFreshPid: (...args: unknown[]) =>
     restartGatewayProcessWithFreshPid(...args),
->>>>>>> 01bd83d64 (fix: release gateway lock before process.exit in run-loop)
 =======
   restartGatewayProcessWithFreshPid: () => restartGatewayProcessWithFreshPid(),
 >>>>>>> dd07c06d0 (fix: tighten gateway restart loop handling (#23416) (thanks @jeffwnli))

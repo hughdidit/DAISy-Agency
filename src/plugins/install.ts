@@ -46,41 +46,16 @@ function unscopedPackageName(name: string): string {
 
 function safeDirName(input: string): string {
   const trimmed = input.trim();
-<<<<<<< HEAD
   if (!trimmed) return trimmed;
   return trimmed.replaceAll("/", "__");
-=======
-  if (!trimmed) {
-    return trimmed;
-  }
-  return trimmed.replaceAll("/", "__").replaceAll("\\", "__");
->>>>>>> d03eca845 (fix: harden plugin and hook install paths)
 }
 
 function safeFileName(input: string): string {
   return safeDirName(input);
 }
 
-<<<<<<< HEAD
 async function ensureMoltbotExtensions(manifest: PackageManifest) {
   const extensions = manifest.moltbot?.extensions ?? manifest[LEGACY_MANIFEST_KEY]?.extensions;
-=======
-function validatePluginId(pluginId: string): string | null {
-  if (!pluginId) {
-    return "invalid plugin name: missing";
-  }
-  if (pluginId === "." || pluginId === "..") {
-    return "invalid plugin name: reserved path segment";
-  }
-  if (pluginId.includes("/") || pluginId.includes("\\")) {
-    return "invalid plugin name: path separators not allowed";
-  }
-  return null;
-}
-
-async function ensureOpenClawExtensions(manifest: PackageManifest) {
-  const extensions = manifest[MANIFEST_KEY]?.extensions;
->>>>>>> d03eca845 (fix: harden plugin and hook install paths)
   if (!Array.isArray(extensions)) {
     throw new Error("package.json missing moltbot.extensions");
   }
@@ -159,23 +134,7 @@ async function installPluginFromPackageDir(params: {
   }
 
   const pkgName = typeof manifest.name === "string" ? manifest.name : "";
-<<<<<<< HEAD
   const pluginId = pkgName ? unscopedPackageName(pkgName) : "plugin";
-=======
-  const npmPluginId = pkgName ? unscopedPackageName(pkgName) : "plugin";
-
-  // Prefer the canonical `id` from openclaw.plugin.json over the npm package name.
-  // This avoids a latent key-mismatch bug: if the manifest id (e.g. "memory-cognee")
-  // differs from the npm package name (e.g. "cognee-openclaw"), the plugin registry
-  // uses the manifest id as the authoritative key, so the config entry must match it.
-  const ocManifestResult = loadPluginManifest(params.packageDir);
-  const manifestPluginId =
-    ocManifestResult.ok && ocManifestResult.manifest.id
-      ? unscopedPackageName(ocManifestResult.manifest.id)
-      : undefined;
-
-  const pluginId = manifestPluginId ?? npmPluginId;
->>>>>>> d76742ff8 (fix: normalize manifest plugin ids during install)
   const pluginIdError = validatePluginId(pluginId);
   if (pluginIdError) {
     return { ok: false, error: pluginIdError };

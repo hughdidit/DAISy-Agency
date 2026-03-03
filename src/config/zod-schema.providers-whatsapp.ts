@@ -61,8 +61,6 @@ export const WhatsAppAccountSchema = z
     heartbeat: ChannelHeartbeatVisibilitySchema,
   })
   .strict()
-<<<<<<< HEAD
-=======
   .optional();
 
 const WhatsAppGroupsSchema = z.record(z.string(), WhatsAppGroupEntrySchema).optional();
@@ -158,7 +156,6 @@ export const WhatsAppAccountSchema = WhatsAppSharedSchema.extend({
 <<<<<<< HEAD
 })
   .strict()
->>>>>>> cbed0e065 (fix: reject dmPolicy="allowlist" with empty allowFrom across all channels)
   .superRefine((value, ctx) => {
     if (value.dmPolicy !== "open") return;
     const allow = (value.allowFrom ?? []).map((v) => String(v).trim()).filter(Boolean);

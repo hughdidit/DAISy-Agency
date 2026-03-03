@@ -3,13 +3,8 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD:src/agents/tools/image-tool.test.ts
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import { createHostSandboxFsBridge } from "../test-helpers/host-sandbox-fs-bridge.js";
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026)):src/agents/tools/image-tool.e2e.test.ts
 import { __testing, createImageTool, resolveImageModelConfigForTool } from "./image-tool.js";
 
 async function writeAuthProfiles(agentDir: string, profiles: unknown) {
@@ -21,8 +16,6 @@ async function writeAuthProfiles(agentDir: string, profiles: unknown) {
   );
 }
 
-<<<<<<< HEAD
-=======
 async function withTempAgentDir<T>(run: (agentDir: string) => Promise<T>): Promise<T> {
   const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
   try {
@@ -178,7 +171,6 @@ function findSchemaUnionKeywords(schema: unknown, path = "root"): string[] {
   return out;
 }
 
->>>>>>> 2fa6aa6ea (test(agents): add comprehensive kimi regressions)
 describe("image tool implicit imageModel config", () => {
   const priorFetch = global.fetch;
 
@@ -284,196 +276,11 @@ describe("image tool implicit imageModel config", () => {
             models: [{ id: "vision-1", input: ["text", "image"] }],
           },
         },
-<<<<<<< HEAD
       },
     };
     // Tool should still be available for explicit image analysis requests
     expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
       primary: "openai/gpt-5-mini",
-=======
-        models: {
-          providers: {
-            acme: {
-              baseUrl: "https://example.com",
-              models: [makeModelDefinition("vision-1", ["text", "image"])],
-            },
-          },
-        },
-      };
-      // Tool should still be available for explicit image analysis requests
-      expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
-        primary: "openai/gpt-5-mini",
-      });
-      const tool = createImageTool({ config: cfg, agentDir, modelHasVision: true });
-      expect(tool).not.toBeNull();
-      expect(tool?.description).toContain(
-        "Only use this tool when images were NOT already provided",
-      );
-    });
-  });
-
-  it("sends moonshot image requests with user+image payloads only", async () => {
-    await withTempAgentDir(async (agentDir) => {
-      vi.stubEnv("MOONSHOT_API_KEY", "moonshot-test");
-      const fetch = stubOpenAiCompletionsOkFetch("ok moonshot");
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            model: { primary: "moonshot/kimi-k2.5" },
-            imageModel: { primary: "moonshot/kimi-k2.5" },
-          },
-        },
-        models: {
-          providers: {
-            moonshot: {
-              api: "openai-completions",
-              baseUrl: "https://api.moonshot.ai/v1",
-              models: [makeModelDefinition("kimi-k2.5", ["text", "image"])],
-            },
-          },
-        },
-      };
-
-      const tool = requireImageTool(createImageTool({ config: cfg, agentDir }));
-      const result = await tool.execute("t1", {
-        prompt: "Describe this image in one word.",
-        image: `data:image/png;base64,${ONE_PIXEL_PNG_B64}`,
-      });
-
-      expect(fetch).toHaveBeenCalledTimes(1);
-      const [url, init] = fetch.mock.calls[0] as [unknown, { body?: unknown }];
-      expect(String(url)).toBe("https://api.moonshot.ai/v1/chat/completions");
-      expect(typeof init?.body).toBe("string");
-      const bodyRaw = typeof init?.body === "string" ? init.body : "";
-      const payload = JSON.parse(bodyRaw) as {
-        messages?: Array<{
-          role?: string;
-          content?: Array<{
-            type?: string;
-            text?: string;
-            image_url?: { url?: string };
-          }>;
-        }>;
-      };
-
-      expect(payload.messages?.map((message) => message.role)).toEqual(["user"]);
-      const userContent = payload.messages?.[0]?.content ?? [];
-      expect(userContent).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            type: "text",
-            text: "Describe this image in one word.",
-          }),
-          expect.objectContaining({ type: "image_url" }),
-        ]),
-      );
-      expect(userContent.find((block) => block.type === "image_url")?.image_url?.url).toContain(
-        "data:image/png;base64,",
-      );
-      expect(bodyRaw).not.toContain('"role":"developer"');
-      expect(result.content).toEqual(
-        expect.arrayContaining([expect.objectContaining({ type: "text", text: "ok moonshot" })]),
-      );
-    });
-  });
-
-  it("exposes an Anthropic-safe image schema without union keywords", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
-    try {
-      const cfg = createMinimaxImageConfig();
-      const tool = requireImageTool(createImageTool({ config: cfg, agentDir }));
-
-      const violations = findSchemaUnionKeywords(tool.parameters, "image.parameters");
-      expect(violations).toEqual([]);
-
-      const schema = tool.parameters as {
-        properties?: Record<string, unknown>;
-      };
-      const imageSchema = schema.properties?.image as { type?: unknown } | undefined;
-      const imagesSchema = schema.properties?.images as
-        | { type?: unknown; items?: unknown }
-        | undefined;
-      const imageItems = imagesSchema?.items as { type?: unknown } | undefined;
-
-      expect(imageSchema?.type).toBe("string");
-      expect(imagesSchema?.type).toBe("array");
-      expect(imageItems?.type).toBe("string");
-    } finally {
-      await fs.rm(agentDir, { recursive: true, force: true });
-    }
-  });
-
-  it("keeps an Anthropic-safe image schema snapshot", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
-    try {
-      const cfg = createMinimaxImageConfig();
-      const tool = requireImageTool(createImageTool({ config: cfg, agentDir }));
-
-      expect(JSON.parse(JSON.stringify(tool.parameters))).toEqual({
-        type: "object",
-        properties: {
-          prompt: { type: "string" },
-          image: { description: "Single image path or URL.", type: "string" },
-          images: {
-            description: "Multiple image paths or URLs (up to maxImages, default 20).",
-            type: "array",
-            items: { type: "string" },
-          },
-          model: { type: "string" },
-          maxBytesMb: { type: "number" },
-          maxImages: { type: "number" },
-        },
-      });
-    } finally {
-      await fs.rm(agentDir, { recursive: true, force: true });
-    }
-  });
-
-  it("allows workspace images outside default local media roots", async () => {
-    await withTempWorkspacePng(async ({ workspaceDir, imagePath }) => {
-      const fetch = stubMinimaxOkFetch();
-      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
-      try {
-        const cfg = createMinimaxImageConfig();
-
-        const withoutWorkspace = requireImageTool(createImageTool({ config: cfg, agentDir }));
-        await expect(
-          withoutWorkspace.execute("t0", {
-            prompt: "Describe the image.",
-            image: imagePath,
-          }),
-        ).rejects.toThrow(/Local media path is not under an allowed directory/i);
-
-        const withWorkspace = requireImageTool(
-          createImageTool({ config: cfg, agentDir, workspaceDir }),
-        );
-
-        await expectImageToolExecOk(withWorkspace, imagePath);
-
-        expect(fetch).toHaveBeenCalledTimes(1);
-      } finally {
-        await fs.rm(agentDir, { recursive: true, force: true });
-      }
-    });
-  });
-
-  it("allows workspace images via createOpenClawCodingTools default workspace root", async () => {
-    await withTempWorkspacePng(async ({ imagePath }) => {
-      const fetch = stubMinimaxOkFetch();
-      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
-      try {
-        const cfg = createMinimaxImageConfig();
-
-        const tools = createOpenClawCodingTools({ config: cfg, agentDir });
-        const tool = requireImageTool(tools.find((candidate) => candidate.name === "image"));
-
-        await expectImageToolExecOk(tool, imagePath);
-
-        expect(fetch).toHaveBeenCalledTimes(1);
-      } finally {
-        await fs.rm(agentDir, { recursive: true, force: true });
-      }
->>>>>>> 2fa6aa6ea (test(agents): add comprehensive kimi regressions)
     });
     const tool = createImageTool({ config: cfg, agentDir, modelHasVision: true });
     expect(tool).not.toBeNull();

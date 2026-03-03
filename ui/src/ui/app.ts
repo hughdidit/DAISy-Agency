@@ -196,8 +196,6 @@ export class MoltbotApp extends LitElement {
   @state() agentsLoading = false;
   @state() agentsList: AgentsListResult | null = null;
   @state() agentsError: string | null = null;
-<<<<<<< HEAD
-=======
   @state() agentsSelectedId: string | null = null;
   @state() agentsPanel: "overview" | "files" | "tools" | "skills" | "channels" | "cron" =
     "overview";
@@ -215,7 +213,6 @@ export class MoltbotApp extends LitElement {
   @state() agentSkillsError: string | null = null;
   @state() agentSkillsReport: SkillStatusReport | null = null;
   @state() agentSkillsAgentId: string | null = null;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 
   @state() sessionsLoading = false;
   @state() sessionsResult: SessionsListResult | null = null;
@@ -279,10 +276,7 @@ export class MoltbotApp extends LitElement {
   private chatScrollTimeout: number | null = null;
   private chatHasAutoScrolled = false;
   private chatUserNearBottom = true;
-<<<<<<< HEAD
-=======
   @state() chatNewMessagesBelow = false;
->>>>>>> 822388fe9 (fix: address review feedback — retryDelay uses effectiveForce, default overrides param, @state() on chatNewMessagesBelow)
   private nodesPollInterval: number | null = null;
   private logsPollInterval: number | null = null;
   private debugPollInterval: number | null = null;
@@ -375,22 +369,11 @@ export class MoltbotApp extends LitElement {
   }
 
   setTheme(next: ThemeMode, context?: Parameters<typeof setThemeInternal>[2]) {
-<<<<<<< HEAD
     setThemeInternal(
       this as unknown as Parameters<typeof setThemeInternal>[0],
       next,
       context,
     );
-=======
-    setThemeInternal(this as unknown as Parameters<typeof setThemeInternal>[0], next, context);
-    this.themeOrder = this.buildThemeOrder(next);
-  }
-
-  buildThemeOrder(active: ThemeMode): ThemeMode[] {
-    const all = [...VALID_THEMES];
-    const rest = all.filter((id) => id !== active);
-    return [active, ...rest];
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   }
 
   async loadOverview() {

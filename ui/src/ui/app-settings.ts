@@ -96,13 +96,10 @@ export function applySettingsFromUrl(host: SettingsHost) {
   }
 
   if (passwordRaw != null) {
-<<<<<<< HEAD
     const password = passwordRaw.trim();
     if (password) {
       (host as { password: string }).password = password;
     }
-=======
->>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
     params.delete("password");
     shouldCleanUrl = true;
   }
@@ -222,7 +219,6 @@ export function applyResolvedTheme(host: SettingsHost, resolved: ResolvedTheme) 
   if (typeof document === "undefined") return;
   const root = document.documentElement;
   root.dataset.theme = resolved;
-<<<<<<< HEAD
   root.style.colorScheme = resolved;
 }
 
@@ -255,9 +251,6 @@ export function detachThemeListener(host: SettingsHost) {
   legacy.removeListener(host.themeMediaHandler);
   host.themeMedia = null;
   host.themeMediaHandler = null;
-=======
-  root.style.colorScheme = resolved === "light" ? "light" : "dark";
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 }
 
 export function syncTabWithLocation(host: SettingsHost, replace: boolean) {

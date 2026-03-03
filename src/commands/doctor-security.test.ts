@@ -21,18 +21,10 @@ describe("noteSecurityWarnings gateway exposure", () => {
 
   beforeEach(() => {
     note.mockClear();
-<<<<<<< HEAD:src/commands/doctor-security.test.ts
     prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
     prevPassword = process.env.CLAWDBOT_GATEWAY_PASSWORD;
     delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     delete process.env.CLAWDBOT_GATEWAY_PASSWORD;
-=======
-    pluginRegistry.list = [];
-    prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    prevPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
-    delete process.env.OPENCLAW_GATEWAY_PASSWORD;
->>>>>>> f612e3590 (fix: add dmScope guidance regression coverage (#13129) (thanks @VintLin)):src/commands/doctor-security.e2e.test.ts
   });
 
   afterEach(() => {

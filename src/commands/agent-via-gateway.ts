@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../channels/registry.js";
-=======
-import { listAgentIds } from "../agents/agent-scope.js";
-import { formatCliCommand } from "../cli/command-format.js";
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
 import type { CliDeps } from "../cli/deps.js";
 import { withProgress } from "../cli/progress.js";
 import { loadConfig } from "../config/config.js";

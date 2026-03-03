@@ -128,8 +128,6 @@ export { resolveAckReaction } from "../agents/identity.js";
 export type { ReplyPayload } from "../auto-reply/types.js";
 export type { ChunkMode } from "../auto-reply/chunk.js";
 export { SILENT_REPLY_TOKEN, isSilentReplyText } from "../auto-reply/tokens.js";
-<<<<<<< HEAD
-=======
 export {
   approveDevicePairing,
   listDevicePairing,
@@ -160,7 +158,6 @@ export type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
 export { rawDataToString } from "../infra/ws.js";
 export { isWSLSync, isWSL2Sync, isWSLEnv } from "../infra/wsl.js";
 export { isTruthyEnvValue } from "../infra/env.js";
->>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 export { resolveToolsBySender } from "../config/group-policy.js";
 export {
   buildPendingHistoryContextFromMap,
@@ -260,8 +257,6 @@ export {
   readStringParam,
 } from "../agents/tools/common.js";
 export { formatDocsLink } from "../terminal/links.js";
-<<<<<<< HEAD
-=======
 export {
   DM_GROUP_ACCESS_REASON,
   readStoreAllowFromForDmPolicy,
@@ -272,7 +267,6 @@ export {
   resolveEffectiveAllowFromLists,
 } from "../security/dm-policy-shared.js";
 export type { DmGroupAccessReasonCode } from "../security/dm-policy-shared.js";
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
 export type { HookEntry } from "../hooks/types.js";
 export { normalizeE164 } from "../utils.js";
 export { missingTargetError } from "../infra/outbound/target-errors.js";

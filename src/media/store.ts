@@ -161,8 +161,6 @@ export type SavedMedia = {
   contentType?: string;
 };
 
-<<<<<<< HEAD
-=======
 export type SaveMediaSourceErrorCode =
   | "invalid-path"
   | "not-found"
@@ -208,7 +206,6 @@ function toSaveMediaSourceError(err: SafeOpenError): SaveMediaSourceError {
   }
 }
 
->>>>>>> d6552998e (fix: handle outside-workspace error in media store)
 export async function saveMediaSource(
   source: string,
   headers?: Record<string, string>,

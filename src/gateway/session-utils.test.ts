@@ -92,8 +92,6 @@ describe("gateway session utils", () => {
     expect(target.storeKeys).toEqual(expect.arrayContaining(["agent:ops:main", "main"]));
     expect(target.storePath).toBe(path.resolve(storeTemplate.replace("{agentId}", "ops")));
   });
-<<<<<<< HEAD
-=======
 
   test("resolveGatewaySessionStoreTarget includes legacy mixed-case store key", () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "session-utils-case-"));
@@ -286,7 +284,6 @@ describe("resolveSessionModelRef", () => {
 
     expect(resolved).toEqual({ provider: "openai-codex", model: "gpt-5.3-codex" });
   });
->>>>>>> 4cad67438 (fix: preserve stored provider in resolveSessionModelRef for vendor-prefixed models (#22753))
 });
 
 describe("deriveSessionTitle", () => {

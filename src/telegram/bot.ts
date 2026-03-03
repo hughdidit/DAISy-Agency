@@ -261,17 +261,7 @@ export function createTelegramBot(opts: TelegramBotOptions) {
       botHasTopicsEnabled = fromCtx.has_topics_enabled;
       return botHasTopicsEnabled;
     }
-<<<<<<< HEAD
     if (typeof botHasTopicsEnabled === "boolean") return botHasTopicsEnabled;
-=======
-    if (typeof botHasTopicsEnabled === "boolean") {
-      return botHasTopicsEnabled;
-    }
-    if (typeof bot.api.getMe !== "function") {
-      botHasTopicsEnabled = false;
-      return botHasTopicsEnabled;
-    }
->>>>>>> 37721ebd7 (fix: restore telegram draft streaming partials)
     try {
       const me = (await withTelegramApiErrorLogging({
         operation: "getMe",

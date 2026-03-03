@@ -37,16 +37,8 @@ const REASON_PRIORITY = {
 } as const;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function schedule(coalesceMs: number) {
   if (timer) return;
-=======
-function isActionWakeReason(reason: string): boolean {
-  return reason === "manual" || reason === "exec-event" || reason.startsWith(HOOK_REASON_PREFIX);
-}
-
-=======
->>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
 function resolveReasonPriority(reason: string): number {
   const kind = resolveHeartbeatReasonKind(reason);
   if (kind === "retry") {
@@ -136,13 +128,7 @@ function schedule(coalesceMs: number, kind: WakeTimerKind = "normal") {
       schedule(DEFAULT_RETRY_MS, "retry");
     } finally {
       running = false;
-<<<<<<< HEAD
       if (pendingReason || scheduled) schedule(coalesceMs);
-=======
-      if (pendingWake || scheduled) {
-        schedule(delay, "normal");
-      }
->>>>>>> 40aff672c (fix: prevent heartbeat scheduler silent death from wake handler race (#15108))
     }
   }, delay);
   timer.unref?.();

@@ -2,11 +2,8 @@ import { Type } from "@sinclair/typebox";
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { getMemorySearchManager } from "../../memory/index.js";
-<<<<<<< HEAD
-=======
 import type { MemorySearchResult } from "../../memory/types.js";
 import { parseAgentSessionKey } from "../../routing/session-key.js";
->>>>>>> edd6289f2 (fix: derive citations chat type via session parser)
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveMemorySearchConfig } from "../memory-search.js";
 import type { AnyAgentTool } from "./common.js";
@@ -59,8 +56,6 @@ export function createMemorySearchTool(options: {
           sessionKey: options.agentSessionKey,
         });
         const status = manager.status();
-<<<<<<< HEAD
-=======
         const decorated = decorateCitations(rawResults, includeCitations);
         const resolved = resolveMemoryBackendConfig({ cfg, agentId });
         const results =
@@ -68,17 +63,13 @@ export function createMemorySearchTool(options: {
             ? clampResultsByInjectedChars(decorated, resolved.qmd?.limits.maxInjectedChars)
             : decorated;
         const searchMode = (status.custom as { searchMode?: string } | undefined)?.searchMode;
->>>>>>> 65aedac20 (fix: enable FTS fallback when no embedding provider available (#17725))
         return jsonResult({
           results,
           provider: status.provider,
           model: status.model,
           fallback: status.fallback,
-<<<<<<< HEAD
-=======
           citations: citationsMode,
           mode: searchMode,
->>>>>>> 65aedac20 (fix: enable FTS fallback when no embedding provider available (#17725))
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -130,8 +121,6 @@ export function createMemoryGetTool(options: {
     },
   };
 }
-<<<<<<< HEAD
-=======
 
 function resolveMemoryCitationsMode(cfg: MoltbotConfig): MemoryCitationsMode {
   const mode = cfg.memory?.citations;
@@ -218,4 +207,3 @@ function deriveChatTypeFromSessionKey(sessionKey?: string): "direct" | "group" |
   }
   return "direct";
 }
->>>>>>> edd6289f2 (fix: derive citations chat type via session parser)

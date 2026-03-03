@@ -153,8 +153,6 @@ describe("gateway server hooks", () => {
       await server.close();
     }
   });
-<<<<<<< HEAD
-=======
 
   test("rejects request sessionKey unless hooks.allowRequestSessionKey is enabled", async () => {
     testState.hooksConfig = { enabled: true, token: "hook-secret" };
@@ -439,5 +437,4 @@ describe("gateway server hooks", () => {
       await server.close();
     }
   });
->>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
 });

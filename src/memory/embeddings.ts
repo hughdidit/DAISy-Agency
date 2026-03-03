@@ -27,15 +27,9 @@ export type EmbeddingProvider = {
 };
 
 export type EmbeddingProviderResult = {
-<<<<<<< HEAD
   provider: EmbeddingProvider;
   requestedProvider: "openai" | "local" | "gemini" | "auto";
   fallbackFrom?: "openai" | "local" | "gemini";
-=======
-  provider: EmbeddingProvider | null;
-  requestedProvider: EmbeddingProviderRequest;
-  fallbackFrom?: EmbeddingProviderId;
->>>>>>> 65aedac20 (fix: enable FTS fallback when no embedding provider available (#17725))
   fallbackReason?: string;
   providerUnavailableReason?: string;
   openAi?: OpenAiEmbeddingClient;
@@ -111,22 +105,14 @@ async function createLocalEmbeddingProvider(
     embedQuery: async (text) => {
       const ctx = await ensureContext();
       const embedding = await ctx.getEmbeddingFor(text);
-<<<<<<< HEAD
       return Array.from(embedding.vector) as number[];
-=======
-      return sanitizeAndNormalizeEmbedding(Array.from(embedding.vector));
->>>>>>> 5020bfa2a (fix: L2-normalize local embedding vectors to fix semantic search (#5332))
     },
     embedBatch: async (texts) => {
       const ctx = await ensureContext();
       const embeddings = await Promise.all(
         texts.map(async (text) => {
           const embedding = await ctx.getEmbeddingFor(text);
-<<<<<<< HEAD
           return Array.from(embedding.vector) as number[];
-=======
-          return sanitizeAndNormalizeEmbedding(Array.from(embedding.vector));
->>>>>>> 5020bfa2a (fix: L2-normalize local embedding vectors to fix semantic search (#5332))
         }),
       );
       return embeddings;
@@ -179,12 +165,7 @@ export async function createEmbeddingProvider(
           missingKeyErrors.push(message);
           continue;
         }
-<<<<<<< HEAD
         throw new Error(message);
-=======
-        // Non-auth errors (e.g., network) are still fatal
-        throw new Error(message, { cause: err });
->>>>>>> 65aedac20 (fix: enable FTS fallback when no embedding provider available (#17725))
       }
     }
 
@@ -213,39 +194,10 @@ export async function createEmbeddingProvider(
           fallbackReason: reason,
         };
       } catch (fallbackErr) {
-<<<<<<< HEAD
         throw new Error(`${reason}\n\nFallback to ${fallback} failed: ${formatError(fallbackErr)}`);
       }
     }
     throw new Error(reason);
-=======
-        // Both primary and fallback failed - check if it's auth-related
-        const fallbackReason = formatErrorMessage(fallbackErr);
-        const combinedReason = `${reason}\n\nFallback to ${fallback} failed: ${fallbackReason}`;
-        if (isMissingApiKeyError(primaryErr) && isMissingApiKeyError(fallbackErr)) {
-          // Both failed due to missing API keys - return null for FTS-only mode
-          return {
-            provider: null,
-            requestedProvider,
-            fallbackFrom: requestedProvider,
-            fallbackReason: reason,
-            providerUnavailableReason: combinedReason,
-          };
-        }
-        // Non-auth errors are still fatal
-        throw new Error(combinedReason, { cause: fallbackErr });
-      }
-    }
-    // No fallback configured - check if we should degrade to FTS-only
-    if (isMissingApiKeyError(primaryErr)) {
-      return {
-        provider: null,
-        requestedProvider,
-        providerUnavailableReason: reason,
-      };
-    }
-    throw new Error(reason, { cause: primaryErr });
->>>>>>> 65aedac20 (fix: enable FTS fallback when no embedding provider available (#17725))
   }
 }
 

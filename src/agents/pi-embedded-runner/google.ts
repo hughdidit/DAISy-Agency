@@ -1,16 +1,9 @@
 import { EventEmitter } from "node:events";
-<<<<<<< HEAD
 
 import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
 import type { TSchema } from "@sinclair/typebox";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 
-=======
-import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
-import type { SessionManager } from "@mariozechner/pi-coding-agent";
-import type { TSchema } from "@sinclair/typebox";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { registerUnhandledRejectionHandler } from "../../infra/unhandled-rejections.js";
 import {
   hasInterSessionUserProvenance,
@@ -23,19 +16,7 @@ import {
   sanitizeGoogleTurnOrdering,
   sanitizeSessionMessagesImages,
 } from "../pi-embedded-helpers.js";
-<<<<<<< HEAD
 import { sanitizeToolUseResultPairing } from "../session-transcript-repair.js";
-=======
-import { cleanToolSchemaForGemini } from "../pi-tools.schema.js";
-import {
-  sanitizeToolCallInputs,
-  stripToolResultDetails,
-  sanitizeToolUseResultPairing,
-} from "../session-transcript-repair.js";
-import type { TranscriptPolicy } from "../transcript-policy.js";
-import { resolveTranscriptPolicy } from "../transcript-policy.js";
-<<<<<<< HEAD
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 =======
 import { makeZeroUsageSnapshot } from "../usage.js";
 >>>>>>> 7e0b3f16e (fix: preserve assistant usage snapshots during compaction cleanup)
@@ -226,8 +207,6 @@ function annotateInterSessionUserMessages(messages: AgentMessage[]): AgentMessag
   return touched ? out : messages;
 }
 
-<<<<<<< HEAD
-=======
 function parseMessageTimestamp(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value;
@@ -293,7 +272,6 @@ function stripStaleAssistantUsageBeforeLatestCompaction(messages: AgentMessage[]
   return touched ? out : messages;
 }
 
->>>>>>> 7e0b3f16e (fix: preserve assistant usage snapshots during compaction cleanup)
 function findUnsupportedSchemaKeywords(schema: unknown, path: string): string[] {
   if (!schema || typeof schema !== "object") return [];
   if (Array.isArray(schema)) {
@@ -331,15 +309,7 @@ export function sanitizeToolsForGoogle<
   tools: AgentTool<TSchemaType, TResult>[];
   provider: string;
 }): AgentTool<TSchemaType, TResult>[] {
-<<<<<<< HEAD
   if (params.provider !== "google-antigravity" && params.provider !== "google-gemini-cli") {
-=======
-  // Cloud Code Assist uses the OpenAPI 3.03 `parameters` field for both Gemini
-  // AND Claude models.  This field does not support JSON Schema keywords such as
-  // patternProperties, additionalProperties, $ref, etc.  We must clean schemas
-  // for every provider that routes through this path.
-  if (params.provider !== "google-gemini-cli" && params.provider !== "google-antigravity") {
->>>>>>> 59e58bf81 (fix: strip unsupported JSON Schema keywords for Claude via Cloud Code Assist (openclaw#20124) thanks @ephraimm)
     return params.tools;
   }
   return params.tools.map((tool) => {
@@ -527,13 +497,10 @@ export async function sanitizeSessionHistory(params: {
   const droppedThinking = policy.dropThinkingBlocks
     ? dropThinkingBlocks(sanitizedImages)
     : sanitizedImages;
-<<<<<<< HEAD
-=======
   const sanitizedThinking = policy.sanitizeThinkingSignatures
     ? sanitizeAntigravityThinkingBlocks(droppedThinking)
     : droppedThinking;
   const sanitizedToolCalls = sanitizeToolCallInputs(sanitizedThinking);
->>>>>>> feccac672 (fix: sanitize thinking blocks for GitHub Copilot Claude models (openclaw#19459) thanks @jackheuberger)
   const repairedTools = policy.repairToolUseResultPairing
     ? sanitizeToolUseResultPairing(sanitizedThinking)
     : sanitizedThinking;
@@ -550,16 +517,10 @@ export async function sanitizeSessionHistory(params: {
         modelId: params.modelId,
       })
     : false;
-<<<<<<< HEAD
   const sanitizedOpenAI =
     isOpenAIResponsesApi && modelChanged
       ? downgradeOpenAIReasoningBlocks(repairedTools)
       : repairedTools;
-=======
-  const sanitizedOpenAI = isOpenAIResponsesApi
-    ? downgradeOpenAIReasoningBlocks(sanitizedToolResults)
-    : sanitizedToolResults;
->>>>>>> 46bf210e0 (fix: always drop orphaned OpenAI reasoning blocks in session history)
 
   if (hasSnapshot && (!priorSnapshot || modelChanged)) {
     appendModelSnapshot(params.sessionManager, {

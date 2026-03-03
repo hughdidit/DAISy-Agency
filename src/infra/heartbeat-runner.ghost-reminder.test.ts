@@ -10,10 +10,7 @@ import { resolveMainSessionKey } from "../config/sessions.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createPluginRuntime } from "../plugins/runtime/index.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
-<<<<<<< HEAD
 import { enqueueSystemEvent } from "./system-events.js";
-=======
->>>>>>> 22593a272 (fix: refine cron heartbeat event detection)
 import { runHeartbeatOnce } from "./heartbeat-runner.js";
 import { enqueueSystemEvent, resetSystemEventsForTest } from "./system-events.js";
 
@@ -26,15 +23,12 @@ beforeEach(() => {
   setActivePluginRegistry(
     createTestRegistry([{ pluginId: "telegram", plugin: telegramPlugin, source: "test" }]),
   );
-<<<<<<< HEAD
-=======
   resetSystemEventsForTest();
 });
 
 afterEach(() => {
   resetSystemEventsForTest();
   vi.restoreAllMocks();
->>>>>>> 22593a272 (fix: refine cron heartbeat event detection)
 });
 
 describe("Ghost reminder bug (issue #13317)", () => {
@@ -100,7 +94,6 @@ describe("Ghost reminder bug (issue #13317)", () => {
         },
       });
 
-<<<<<<< HEAD
       expect(result.status).toBe("sent");
       
       // The bug: sendTelegram would be called with a message containing
@@ -115,52 +108,13 @@ describe("Ghost reminder bug (issue #13317)", () => {
       expect(message).not.toContain("scheduled reminder has been triggered");
       expect(message).not.toContain("relay this reminder");
       
-=======
-      expect(result.status).toBe("ran");
-      expect(getReplySpy).toHaveBeenCalledTimes(1);
-      const calledCtx = getReplySpy.mock.calls[0]?.[0];
-      expect(calledCtx?.Provider).toBe("heartbeat");
-      expect(calledCtx?.Body).not.toContain("scheduled reminder has been triggered");
-      expect(calledCtx?.Body).not.toContain("relay this reminder");
-      expect(sendTelegram).toHaveBeenCalled();
->>>>>>> 22593a272 (fix: refine cron heartbeat event detection)
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
 
   it("uses CRON_EVENT_PROMPT when an actionable cron event exists", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-"));
-=======
-    const { result, sendTelegram, getReplySpy } = await runCronReminderCase(
-      "openclaw-cron-",
-      (sessionKey) => {
-        enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
-      },
-    );
-    expect(result.status).toBe("ran");
-    expectCronEventPrompt(getReplySpy, "Reminder: Check Base Scout results");
-    expect(sendTelegram).toHaveBeenCalled();
-  });
-
-  it("uses CRON_EVENT_PROMPT when cron events are mixed with heartbeat noise", async () => {
-    const { result, sendTelegram, getReplySpy } = await runCronReminderCase(
-      "openclaw-cron-mixed-",
-      (sessionKey) => {
-        enqueueSystemEvent("HEARTBEAT_OK", { sessionKey });
-        enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
-      },
-    );
-    expect(result.status).toBe("ran");
-    expectCronEventPrompt(getReplySpy, "Reminder: Check Base Scout results");
-    expect(sendTelegram).toHaveBeenCalled();
-  });
-
-  it("uses CRON_EVENT_PROMPT for tagged cron events on interval wake", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-interval-"));
-    await fs.writeFile(path.join(tmpDir, "HEARTBEAT.md"), "- Check status\n", "utf-8");
->>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
     const sendTelegram = vi.fn().mockResolvedValue({
       messageId: "m1",
       chatId: "155462274",
@@ -184,7 +138,6 @@ describe("Ghost reminder bug (issue #13317)", () => {
         },
       });
 
-<<<<<<< HEAD
       expect(result.status).toBe("sent");
       
       const calls = sendTelegram.mock.calls;
@@ -194,55 +147,6 @@ describe("Ghost reminder bug (issue #13317)", () => {
       // SHOULD contain the cron reminder prompt
       expect(message).toContain("scheduled reminder has been triggered");
       
-=======
-      expect(result.status).toBe("ran");
-      expect(getReplySpy).toHaveBeenCalledTimes(1);
-      const calledCtx = getReplySpy.mock.calls[0]?.[0];
-      expect(calledCtx?.Provider).toBe("cron-event");
-      expect(calledCtx?.Body).toContain("scheduled reminder has been triggered");
-      expect(calledCtx?.Body).toContain("Reminder: Check Base Scout results");
-      expect(calledCtx?.Body).not.toContain("HEARTBEAT_OK");
-      expect(calledCtx?.Body).not.toContain("heartbeat poll");
-      expect(sendTelegram).toHaveBeenCalled();
-    } finally {
-      await fs.rm(tmpDir, { recursive: true, force: true });
-    }
-  });
-
-  it("uses CRON_EVENT_PROMPT when cron events are mixed with heartbeat noise", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-mixed-"));
-    const sendTelegram = vi.fn().mockResolvedValue({
-      messageId: "m1",
-      chatId: "155462274",
-    });
-    const getReplySpy = vi
-      .spyOn(replyModule, "getReplyFromConfig")
-      .mockResolvedValue({ text: "Relay this reminder now" });
-
-    try {
-      const { cfg, sessionKey } = await createConfig(tmpDir);
-      enqueueSystemEvent("HEARTBEAT_OK", { sessionKey });
-      enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
-
-      const result = await runHeartbeatOnce({
-        cfg,
-        agentId: "main",
-        reason: "cron:reminder-job",
-        deps: {
-          sendTelegram,
-        },
-      });
-
-      expect(result.status).toBe("ran");
-      expect(getReplySpy).toHaveBeenCalledTimes(1);
-      const calledCtx = getReplySpy.mock.calls[0]?.[0];
-      expect(calledCtx?.Provider).toBe("cron-event");
-      expect(calledCtx?.Body).toContain("scheduled reminder has been triggered");
-      expect(calledCtx?.Body).toContain("Reminder: Check Base Scout results");
-      expect(calledCtx?.Body).not.toContain("HEARTBEAT_OK");
-      expect(calledCtx?.Body).not.toContain("heartbeat poll");
-      expect(sendTelegram).toHaveBeenCalled();
->>>>>>> 22593a272 (fix: refine cron heartbeat event detection)
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }

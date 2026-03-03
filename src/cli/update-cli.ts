@@ -2,23 +2,9 @@ import { confirm, isCancel, select, spinner } from "@clack/prompts";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import type { Command } from "commander";
 
-=======
-import {
-  checkShellCompletionStatus,
-  ensureCompletionCacheExists,
-} from "../commands/doctor-completion.js";
-import { doctorCommand } from "../commands/doctor.js";
-import {
-  formatUpdateAvailableHint,
-  formatUpdateOneLiner,
-  resolveUpdateAvailability,
-} from "../commands/status.update.js";
->>>>>>> 4a59b7786 (fix: CLI harden update restart imports and fix nested bundle version resolution)
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
-<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 import {
   checkUpdateStatus,
@@ -26,11 +12,6 @@ import {
   fetchNpmTagVersion,
   resolveNpmChannelTag,
 } from "../infra/update-check.js";
-=======
-import { resolveStateDir } from "../config/paths.js";
-import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
-import { trimLogTail } from "../infra/restart-sentinel.js";
->>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 import { parseSemver } from "../infra/runtime-guard.js";
 import {
   runGatewayUpdate,
@@ -58,15 +39,10 @@ import { trimLogTail } from "../infra/restart-sentinel.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { formatCliCommand } from "./command-format.js";
-<<<<<<< HEAD
 import { replaceCliName, resolveCliName } from "./cli-name.js";
 import { stylePromptHint, stylePromptMessage } from "../terminal/prompt-style.js";
 import { theme } from "../terminal/theme.js";
 import { renderTable } from "../terminal/table.js";
-=======
-import { installCompletion } from "./completion-cli.js";
-import { runDaemonRestart } from "./daemon-cli.js";
->>>>>>> 4a59b7786 (fix: CLI harden update restart imports and fix nested bundle version resolution)
 import { formatHelpExamples } from "./help-format.js";
 import {
   formatUpdateAvailableHint,
@@ -138,12 +114,8 @@ const MAX_LOG_CHARS = 8000;
 const DEFAULT_PACKAGE_NAME = "moltbot";
 const CORE_PACKAGE_NAMES = new Set([DEFAULT_PACKAGE_NAME, "moltbot"]);
 const CLI_NAME = resolveCliName();
-<<<<<<< HEAD
 const CLAWDBOT_REPO_URL = "https://github.com/moltbot/moltbot.git";
 const DEFAULT_GIT_DIR = path.join(os.homedir(), "moltbot");
-=======
-const OPENCLAW_REPO_URL = "https://github.com/openclaw/openclaw.git";
->>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 
 function normalizeTag(value?: string | null): string | null {
   if (!value) return null;
@@ -228,21 +200,9 @@ async function isEmptyDir(targetPath: string): Promise<boolean> {
 }
 
 function resolveGitInstallDir(): string {
-<<<<<<< HEAD
   const override = process.env.CLAWDBOT_GIT_DIR?.trim();
   if (override) return path.resolve(override);
   return DEFAULT_GIT_DIR;
-=======
-  const override = process.env.OPENCLAW_GIT_DIR?.trim();
-  if (override) {
-    return path.resolve(override);
-  }
-  return resolveDefaultGitDir();
-}
-
-function resolveDefaultGitDir(): string {
-  return resolveStateDir(process.env, os.homedir);
->>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 }
 
 function resolveNodeRunner(): string {

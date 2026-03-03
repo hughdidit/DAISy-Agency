@@ -4,23 +4,15 @@ import readline from "node:readline";
 
 import type { NormalizedUsage, UsageLike } from "../agents/usage.js";
 import { normalizeUsage } from "../agents/usage.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions/types.js";
-=======
-import { stripInboundMetadata } from "../auto-reply/reply/strip-inbound-meta.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 9fc6c8b71 (fix: hide synthetic untrusted metadata in chat history)
 import {
   resolveSessionFilePath,
   resolveSessionTranscriptsDirForAgent,
 } from "../config/sessions/paths.js";
-<<<<<<< HEAD
-=======
 import type { SessionEntry } from "../config/sessions/types.js";
 import { stripEnvelope, stripMessageIdHints } from "../shared/chat-envelope.js";
 import { countToolResults, extractToolCallNames } from "../utils/transcript-tools.js";
->>>>>>> 9fc6c8b71 (fix: hide synthetic untrusted metadata in chat history)
 import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
 
 type ParsedUsageEntry = {
@@ -244,35 +236,15 @@ export async function loadSessionCostSummary(params: {
   sessionId?: string;
   sessionEntry?: SessionEntry;
   sessionFile?: string;
-<<<<<<< HEAD
   config?: MoltbotConfig;
 }): Promise<SessionCostSummary | null> {
   const sessionFile =
     params.sessionFile ??
     (params.sessionId ? resolveSessionFilePath(params.sessionId, params.sessionEntry) : undefined);
   if (!sessionFile || !fs.existsSync(sessionFile)) return null;
-=======
-  config?: OpenClawConfig;
-  agentId?: string;
-  startMs?: number;
-  endMs?: number;
-}): Promise<SessionCostSummary | null> {
-  const sessionFile =
-    params.sessionFile ??
-    (params.sessionId
-      ? resolveSessionFilePath(params.sessionId, params.sessionEntry, {
-          agentId: params.agentId,
-        })
-      : undefined);
-  if (!sessionFile || !fs.existsSync(sessionFile)) {
-    return null;
-  }
->>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 
   const totals = emptyTotals();
   let lastActivity: number | undefined;
-<<<<<<< HEAD
-=======
   const activityDatesSet = new Set<string>();
   const dailyMap = new Map<string, { tokens: number; cost: number }>();
   const dailyMessageMap = new Map<string, SessionDailyMessageCounts>();
@@ -567,7 +539,6 @@ export async function loadSessionUsageTimeSeries(params: {
   const points: SessionUsageTimePoint[] = [];
   let cumulativeTokens = 0;
   let cumulativeCost = 0;
->>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 
   await scanUsageFile({
     filePath: sessionFile,
@@ -582,217 +553,10 @@ export async function loadSessionUsageTimeSeries(params: {
     },
   });
 
-<<<<<<< HEAD
   return {
     sessionId: params.sessionId,
     sessionFile,
     lastActivity,
     ...totals,
   };
-=======
-  // Sort by timestamp
-  const sortedPoints = points.toSorted((a, b) => a.timestamp - b.timestamp);
-
-  // Optionally downsample if too many points
-  const maxPoints = params.maxPoints ?? 100;
-  if (sortedPoints.length > maxPoints) {
-    const step = Math.ceil(sortedPoints.length / maxPoints);
-    const downsampled: SessionUsageTimePoint[] = [];
-    for (let i = 0; i < sortedPoints.length; i += step) {
-      downsampled.push(sortedPoints[i]);
-    }
-    // Always include the last point
-    if (downsampled[downsampled.length - 1] !== sortedPoints[sortedPoints.length - 1]) {
-      downsampled.push(sortedPoints[sortedPoints.length - 1]);
-    }
-    return { sessionId: params.sessionId, points: downsampled };
-  }
-
-  return { sessionId: params.sessionId, points: sortedPoints };
-}
-
-export type SessionLogEntry = {
-  timestamp: number;
-  role: "user" | "assistant" | "tool" | "toolResult";
-  content: string;
-  tokens?: number;
-  cost?: number;
-};
-
-export async function loadSessionLogs(params: {
-  sessionId?: string;
-  sessionEntry?: SessionEntry;
-  sessionFile?: string;
-  config?: OpenClawConfig;
-  agentId?: string;
-  limit?: number;
-}): Promise<SessionLogEntry[] | null> {
-  const sessionFile =
-    params.sessionFile ??
-    (params.sessionId
-      ? resolveSessionFilePath(params.sessionId, params.sessionEntry, {
-          agentId: params.agentId,
-        })
-      : undefined);
-  if (!sessionFile || !fs.existsSync(sessionFile)) {
-    return null;
-  }
-
-  const logs: SessionLogEntry[] = [];
-  const limit = params.limit ?? 50;
-
-  const fileStream = fs.createReadStream(sessionFile, { encoding: "utf-8" });
-  const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
-
-  for await (const line of rl) {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      continue;
-    }
-    try {
-      const parsed = JSON.parse(trimmed) as Record<string, unknown>;
-      const message = parsed.message as Record<string, unknown> | undefined;
-      if (!message) {
-        continue;
-      }
-
-      const role = message.role as string | undefined;
-      if (role !== "user" && role !== "assistant" && role !== "tool" && role !== "toolResult") {
-        continue;
-      }
-
-      const contentParts: string[] = [];
-      const rawToolName = message.toolName ?? message.tool_name ?? message.name ?? message.tool;
-      const toolName =
-        typeof rawToolName === "string" && rawToolName.trim() ? rawToolName.trim() : undefined;
-      if (role === "tool" || role === "toolResult") {
-        contentParts.push(`[Tool: ${toolName ?? "tool"}]`);
-        contentParts.push("[Tool Result]");
-      }
-
-      // Extract content
-      const rawContent = message.content;
-      if (typeof rawContent === "string") {
-        contentParts.push(rawContent);
-      } else if (Array.isArray(rawContent)) {
-        // Handle content blocks (text, tool_use, etc.)
-        const contentText = rawContent
-          .map((block: unknown) => {
-            if (typeof block === "string") {
-              return block;
-            }
-            const b = block as Record<string, unknown>;
-            if (b.type === "text" && typeof b.text === "string") {
-              return b.text;
-            }
-            if (b.type === "tool_use") {
-              const name = typeof b.name === "string" ? b.name : "unknown";
-              return `[Tool: ${name}]`;
-            }
-            if (b.type === "tool_result") {
-              return `[Tool Result]`;
-            }
-            return "";
-          })
-          .filter(Boolean)
-          .join("\n");
-        if (contentText) {
-          contentParts.push(contentText);
-        }
-      }
-
-      // OpenAI-style tool calls stored outside the content array.
-      const rawToolCalls =
-        message.tool_calls ?? message.toolCalls ?? message.function_call ?? message.functionCall;
-      const toolCalls = Array.isArray(rawToolCalls)
-        ? rawToolCalls
-        : rawToolCalls
-          ? [rawToolCalls]
-          : [];
-      if (toolCalls.length > 0) {
-        for (const call of toolCalls) {
-          const callObj = call as Record<string, unknown>;
-          const directName = typeof callObj.name === "string" ? callObj.name : undefined;
-          const fn = callObj.function as Record<string, unknown> | undefined;
-          const fnName = typeof fn?.name === "string" ? fn.name : undefined;
-          const name = directName ?? fnName ?? "unknown";
-          contentParts.push(`[Tool: ${name}]`);
-        }
-      }
-
-      let content = contentParts.join("\n").trim();
-      if (!content) {
-        continue;
-      }
-      content = stripInboundMetadata(content);
-      if (role === "user") {
-        content = stripMessageIdHints(stripEnvelope(content)).trim();
-      }
-      if (!content) {
-        continue;
-      }
-
-      // Truncate very long content
-      const maxLen = 2000;
-      if (content.length > maxLen) {
-        content = content.slice(0, maxLen) + "…";
-      }
-
-      // Get timestamp
-      let timestamp = 0;
-      if (typeof parsed.timestamp === "string") {
-        timestamp = new Date(parsed.timestamp).getTime();
-      } else if (typeof message.timestamp === "number") {
-        timestamp = message.timestamp;
-      }
-
-      // Get usage for assistant messages
-      let tokens: number | undefined;
-      let cost: number | undefined;
-      if (role === "assistant") {
-        const usageRaw = message.usage as Record<string, unknown> | undefined;
-        const usage = normalizeUsage(usageRaw);
-        if (usage) {
-          tokens =
-            usage.total ??
-            (usage.input ?? 0) +
-              (usage.output ?? 0) +
-              (usage.cacheRead ?? 0) +
-              (usage.cacheWrite ?? 0);
-          const breakdown = extractCostBreakdown(usageRaw);
-          if (breakdown?.total !== undefined) {
-            cost = breakdown.total;
-          } else {
-            const costConfig = resolveModelCostConfig({
-              provider: message.provider as string | undefined,
-              model: message.model as string | undefined,
-              config: params.config,
-            });
-            cost = estimateUsageCost({ usage, cost: costConfig });
-          }
-        }
-      }
-
-      logs.push({
-        timestamp,
-        role,
-        content,
-        tokens,
-        cost,
-      });
-    } catch {
-      // Ignore malformed lines
-    }
-  }
-
-  // Sort by timestamp and limit
-  const sortedLogs = logs.toSorted((a, b) => a.timestamp - b.timestamp);
-
-  // Return most recent logs
-  if (sortedLogs.length > limit) {
-    return sortedLogs.slice(-limit);
-  }
-
-  return sortedLogs;
->>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 }

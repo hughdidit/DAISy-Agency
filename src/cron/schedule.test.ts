@@ -14,8 +14,6 @@ describe("cron schedule", () => {
     expect(next).toBe(Date.parse("2025-12-17T17:00:00.000Z"));
   });
 
-<<<<<<< HEAD
-=======
   it("does not roll back year for Asia/Shanghai daily cron schedules (#30351)", () => {
     // 2026-03-01 08:00:00 in Asia/Shanghai
     const nowMs = Date.parse("2026-03-01T00:00:00.000Z");
@@ -55,7 +53,6 @@ describe("cron schedule", () => {
     expect(next).toBe(Date.parse("2025-12-17T17:00:00.000Z"));
   });
 
->>>>>>> e076665e5 (test(cron): add Asia/Shanghai year-regression coverage [AI-assisted] (openclaw#30565) thanks @liuxiaopai-ai)
   it("computes next run for every schedule", () => {
     const anchor = Date.parse("2025-12-13T00:00:00.000Z");
     const now = anchor + 10_000;

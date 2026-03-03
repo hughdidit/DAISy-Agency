@@ -690,8 +690,6 @@ describe("QmdMemoryManager", () => {
     await manager.close();
   });
 
-<<<<<<< HEAD
-=======
   it("runs qmd query per collection when query mode has multiple collection filters", async () => {
     cfg = {
       ...cfg,
@@ -955,7 +953,6 @@ describe("QmdMemoryManager", () => {
     await manager.close();
   });
 
->>>>>>> 5b4409d5d (fix: pairing admin satisfies write (#23125) (thanks @vignesh07))
   it("fails closed when no managed collections are configured", async () => {
     cfg = {
       ...cfg,

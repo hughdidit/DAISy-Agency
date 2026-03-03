@@ -4,13 +4,7 @@ import { isBlockedHostnameOrIp, isPrivateIpAddress } from "./ssrf.js";
 
 const privateIpCases = [
 <<<<<<< HEAD
-<<<<<<< HEAD
   "::ffff:127.0.0.1",
-=======
-=======
-  "198.18.0.1",
-  "198.19.255.254",
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   "198.51.100.42",
   "203.0.113.10",
   "192.0.0.8",
@@ -54,8 +48,6 @@ const privateIpCases = [
 
 const publicIpCases = [
   "93.184.216.34",
-<<<<<<< HEAD
-=======
   "198.17.255.255",
   "198.20.0.1",
   "198.51.99.1",
@@ -63,7 +55,6 @@ const publicIpCases = [
   "203.0.112.1",
   "203.0.114.1",
   "223.255.255.255",
->>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
   "2606:4700:4700::1111",
   "2001:db8::1",
   "64:ff9b::8.8.8.8",
@@ -108,8 +99,6 @@ describe("isBlockedHostnameOrIp", () => {
     expect(isBlockedHostnameOrIp("2001:db8:1234::5efe:127.0.0.1")).toBe(true);
     expect(isBlockedHostnameOrIp("2001:db8::1")).toBe(false);
   });
-<<<<<<< HEAD
-=======
 
   it("blocks IPv4 special-use ranges but allows adjacent public ranges", () => {
     expect(isBlockedHostnameOrIp("198.18.0.1")).toBe(true);
@@ -130,5 +119,4 @@ describe("isBlockedHostnameOrIp", () => {
     expect(isBlockedHostnameOrIp("127.1")).toBe(true);
     expect(isBlockedHostnameOrIp("2130706433")).toBe(true);
   });
->>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
 });

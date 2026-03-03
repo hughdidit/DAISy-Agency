@@ -154,8 +154,6 @@ describe("chrome extension relay server", () => {
     ext.close();
   });
 
-<<<<<<< HEAD
-=======
   it("uses relay-scoped token only for known relay ports", async () => {
     const port = await getFreePort();
     const unknown = getChromeExtensionRelayAuthHeaders(`http://127.0.0.1:${port}`);
@@ -169,7 +167,6 @@ describe("chrome extension relay server", () => {
     expect(headers["x-openclaw-relay-token"]).not.toBe(TEST_GATEWAY_TOKEN);
   });
 
->>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
   it("rejects CDP access without relay auth token", async () => {
     const port = await getFreePort();
     cdpUrl = `http://127.0.0.1:${port}`;
@@ -183,8 +180,6 @@ describe("chrome extension relay server", () => {
     expect(err.message).toContain("401");
   });
 
-<<<<<<< HEAD
-=======
   it("rejects extension websocket access without relay auth token", async () => {
     const port = await getFreePort();
     cdpUrl = `http://127.0.0.1:${port}`;
@@ -209,7 +204,6 @@ describe("chrome extension relay server", () => {
     ext.close();
   });
 
->>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
   it("tracks attached page targets and exposes them via CDP + /json/list", async () => {
     const port = await getFreePort();
     cdpUrl = `http://127.0.0.1:${port}`;
@@ -394,8 +388,6 @@ describe("chrome extension relay server", () => {
     cdp.close();
     ext.close();
   });
-<<<<<<< HEAD
-=======
 
   it("reuses an already-bound relay port when another process owns it", async () => {
     const port = await getFreePort();
@@ -464,5 +456,4 @@ describe("chrome extension relay server", () => {
     );
     await new Promise<void>((resolve) => blocker.close(() => resolve()));
   });
->>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
 });

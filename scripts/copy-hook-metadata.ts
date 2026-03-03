@@ -10,13 +10,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 
-<<<<<<< HEAD
 const srcBundled = path.join(projectRoot, 'src', 'hooks', 'bundled');
 const distBundled = path.join(projectRoot, 'dist', 'hooks', 'bundled');
-=======
-const srcBundled = path.join(projectRoot, "src", "hooks", "bundled");
-const distBundled = path.join(projectRoot, "dist", "bundled");
->>>>>>> 5ac1be9cb (fix: all bundled hooks broken since 2026.2.2 (tsdown migration) (#9295))
 
 function copyHookMetadata() {
   if (!fs.existsSync(srcBundled)) {

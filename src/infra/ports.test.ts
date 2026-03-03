@@ -37,11 +37,7 @@ describe("ports helpers", () => {
     expect(
       classifyPortListener(
         {
-<<<<<<< HEAD
           commandLine: "node /Users/me/Projects/moltbot/dist/entry.js gateway",
-=======
-          commandLine: "node /Users/me/Projects/openclaw/dist/entry.mjs gateway",
->>>>>>> ed65131c1 (fix: Also build `entry.ts` into `dist/entry.mjs`.)
         },
         18789,
       ),

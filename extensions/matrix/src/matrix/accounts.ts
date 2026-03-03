@@ -29,33 +29,8 @@ export type ResolvedMatrixAccount = {
   config: MatrixConfig;
 };
 
-<<<<<<< HEAD
 export function listMatrixAccountIds(_cfg: CoreConfig): string[] {
   return [DEFAULT_ACCOUNT_ID];
-=======
-function listConfiguredAccountIds(cfg: CoreConfig): string[] {
-  const accounts = cfg.channels?.matrix?.accounts;
-  if (!accounts || typeof accounts !== "object") {
-    return [];
-  }
-  // Normalize and de-duplicate keys so listing and resolution use the same semantics
-  return [
-    ...new Set(
-      Object.keys(accounts)
-        .filter(Boolean)
-        .map((id) => normalizeAccountId(id)),
-    ),
-  ];
-}
-
-export function listMatrixAccountIds(cfg: CoreConfig): string[] {
-  const ids = listConfiguredAccountIds(cfg);
-  if (ids.length === 0) {
-    // Fall back to default if no accounts configured (legacy top-level config)
-    return [DEFAULT_ACCOUNT_ID];
-  }
-  return ids.toSorted((a, b) => a.localeCompare(b));
->>>>>>> a6dd50fed (fix: normalize account config keys for case-insensitive matching)
 }
 
 export function resolveDefaultMatrixAccountId(cfg: CoreConfig): string {
@@ -64,8 +39,6 @@ export function resolveDefaultMatrixAccountId(cfg: CoreConfig): string {
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
 
-<<<<<<< HEAD
-=======
 function resolveAccountConfig(cfg: CoreConfig, accountId: string): MatrixConfig | undefined {
   const accounts = cfg.channels?.matrix?.accounts;
   if (!accounts || typeof accounts !== "object") {
@@ -85,23 +58,14 @@ function resolveAccountConfig(cfg: CoreConfig, accountId: string): MatrixConfig 
   return undefined;
 }
 
->>>>>>> a6dd50fed (fix: normalize account config keys for case-insensitive matching)
 export function resolveMatrixAccount(params: {
   cfg: CoreConfig;
   accountId?: string | null;
 }): ResolvedMatrixAccount {
   const accountId = normalizeAccountId(params.accountId);
-<<<<<<< HEAD
   const base = (params.cfg.channels?.matrix ?? {}) as MatrixConfig;
   const enabled = base.enabled !== false;
   const resolved = resolveMatrixConfig(params.cfg, process.env);
-=======
-  const matrixBase = params.cfg.channels?.matrix ?? {};
-  const base = resolveMatrixAccountConfig({ cfg: params.cfg, accountId });
-  const enabled = base.enabled !== false && matrixBase.enabled !== false;
-
-  const resolved = resolveMatrixConfigForAccount(params.cfg, accountId, process.env);
->>>>>>> 3985ef7b3 (fix: merge top-level config into per-account config so inherited settings apply)
   const hasHomeserver = Boolean(resolved.homeserver);
   const hasUserId = Boolean(resolved.userId);
   const hasAccessToken = Boolean(resolved.accessToken);

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 import type { MoltbotConfig } from "../../config/config.js";
 
@@ -7,19 +6,6 @@ import { createTestRegistry } from "../../test-utils/channel-plugins.js";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
 import { resolveOutboundTarget, resolveSessionDeliveryTarget } from "./targets.js";
-=======
-import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
-import {
-  resolveHeartbeatDeliveryTarget,
-  resolveOutboundTarget,
-  resolveSessionDeliveryTarget,
-} from "./targets.js";
-import {
-  installResolveOutboundTargetPluginRegistryHooks,
-  runResolveOutboundTargetCoreTests,
-} from "./targets.shared-test.js";
->>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
 
 describe("resolveOutboundTarget", () => {
   beforeEach(() => {
@@ -196,8 +182,6 @@ describe("resolveSessionDeliveryTarget", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("passes through explicitThreadId when provided", () => {
     const resolved = resolveSessionDeliveryTarget({
       entry: {
@@ -247,7 +231,6 @@ describe("resolveSessionDeliveryTarget", () => {
     expect(resolved.threadId).toBeUndefined();
   });
 
->>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
   it("falls back to a provided channel when requested is unsupported", () => {
     const resolved = resolveSessionDeliveryTarget({
       entry: {
@@ -272,8 +255,6 @@ describe("resolveSessionDeliveryTarget", () => {
       lastThreadId: undefined,
     });
   });
-<<<<<<< HEAD
-=======
 
   it("parses :topic:NNN from explicitTo into threadId", () => {
     const resolved = resolveSessionDeliveryTarget({
@@ -376,7 +357,6 @@ describe("resolveSessionDeliveryTarget", () => {
     expect(resolved.threadId).toBeUndefined();
   });
 <<<<<<< HEAD
->>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
 =======
 
   it("keeps explicit threadId in heartbeat mode", () => {
@@ -413,142 +393,5 @@ describe("resolveSessionDeliveryTarget", () => {
     expect(resolved.to).toBe("63448508");
     expect(resolved.threadId).toBe(1008013);
   });
-<<<<<<< HEAD
 >>>>>>> 9b5310210 (test: add routing/session isolation edge-case regressions)
-=======
-});
-
-describe("resolveSessionDeliveryTarget — cross-channel reply guard (#24152)", () => {
-  it("uses turnSourceChannel over session lastChannel when provided", () => {
-    // Simulate: WhatsApp message originated the turn, but a Slack message
-    // arrived concurrently and updated lastChannel to "slack"
-    const resolved = resolveSessionDeliveryTarget({
-      entry: {
-        sessionId: "sess-shared",
-        updatedAt: 1,
-        lastChannel: "slack", // <- concurrently overwritten
-        lastTo: "U0AEMECNCBV", // <- Slack user (wrong target)
-      },
-      requestedChannel: "last",
-      turnSourceChannel: "whatsapp", // <- originated from WhatsApp
-      turnSourceTo: "+66972796305", // <- WhatsApp user (correct target)
-    });
-
-    expect(resolved.channel).toBe("whatsapp");
-    expect(resolved.to).toBe("+66972796305");
-  });
-
-  it("falls back to session lastChannel when turnSourceChannel is not set", () => {
-    const resolved = resolveSessionDeliveryTarget({
-      entry: {
-        sessionId: "sess-normal",
-        updatedAt: 1,
-        lastChannel: "telegram",
-        lastTo: "8587265585",
-      },
-      requestedChannel: "last",
-    });
-
-    expect(resolved.channel).toBe("telegram");
-    expect(resolved.to).toBe("8587265585");
-  });
-
-  it("respects explicit requestedChannel over turnSourceChannel", () => {
-    const resolved = resolveSessionDeliveryTarget({
-      entry: {
-        sessionId: "sess-explicit",
-        updatedAt: 1,
-        lastChannel: "slack",
-        lastTo: "U12345",
-      },
-      requestedChannel: "telegram",
-      explicitTo: "8587265585",
-      turnSourceChannel: "whatsapp",
-      turnSourceTo: "+66972796305",
-    });
-
-    // Explicit requestedChannel "telegram" is not "last", so it takes priority
-    expect(resolved.channel).toBe("telegram");
-  });
-
-  it("preserves turnSourceAccountId and turnSourceThreadId", () => {
-    const resolved = resolveSessionDeliveryTarget({
-      entry: {
-        sessionId: "sess-meta",
-        updatedAt: 1,
-        lastChannel: "slack",
-        lastTo: "U_WRONG",
-        lastAccountId: "wrong-account",
-      },
-      requestedChannel: "last",
-      turnSourceChannel: "telegram",
-      turnSourceTo: "8587265585",
-      turnSourceAccountId: "bot-123",
-      turnSourceThreadId: 42,
-    });
-
-    expect(resolved.channel).toBe("telegram");
-    expect(resolved.to).toBe("8587265585");
-    expect(resolved.accountId).toBe("bot-123");
-    expect(resolved.threadId).toBe(42);
-  });
-
-  it("does not fall back to session target metadata when turnSourceChannel is set", () => {
-    const resolved = resolveSessionDeliveryTarget({
-      entry: {
-        sessionId: "sess-no-fallback",
-        updatedAt: 1,
-        lastChannel: "slack",
-        lastTo: "U_WRONG",
-        lastAccountId: "wrong-account",
-        lastThreadId: "1739142736.000100",
-      },
-      requestedChannel: "last",
-      turnSourceChannel: "whatsapp",
-    });
-
-    expect(resolved.channel).toBe("whatsapp");
-    expect(resolved.to).toBeUndefined();
-    expect(resolved.accountId).toBeUndefined();
-    expect(resolved.threadId).toBeUndefined();
-    expect(resolved.lastTo).toBeUndefined();
-    expect(resolved.lastAccountId).toBeUndefined();
-    expect(resolved.lastThreadId).toBeUndefined();
-  });
-
-  it("uses explicitTo even when turnSourceTo is omitted", () => {
-    const resolved = resolveSessionDeliveryTarget({
-      entry: {
-        sessionId: "sess-explicit-to",
-        updatedAt: 1,
-        lastChannel: "slack",
-        lastTo: "U_WRONG",
-      },
-      requestedChannel: "last",
-      explicitTo: "+15551234567",
-      turnSourceChannel: "whatsapp",
-    });
-
-    expect(resolved.channel).toBe("whatsapp");
-    expect(resolved.to).toBe("+15551234567");
-  });
-
-  it("still allows mismatched lastTo only from turn-scoped metadata", () => {
-    const resolved = resolveSessionDeliveryTarget({
-      entry: {
-        sessionId: "sess-mismatch-turn",
-        updatedAt: 1,
-        lastChannel: "slack",
-        lastTo: "U_WRONG",
-      },
-      requestedChannel: "telegram",
-      allowMismatchedLastTo: true,
-      turnSourceChannel: "whatsapp",
-      turnSourceTo: "+15550000000",
-    });
-
-    expect(resolved.channel).toBe("telegram");
-    expect(resolved.to).toBe("+15550000000");
-  });
->>>>>>> 885452f5c (fix: fail-closed shared-session reply routing (#24571) (thanks @brandonwise))
 });

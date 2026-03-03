@@ -1,11 +1,6 @@
 import { createRequire } from "node:module";
 
-<<<<<<< HEAD
 declare const __CLAWDBOT_VERSION__: string | undefined;
-=======
-declare const __OPENCLAW_VERSION__: string | undefined;
-const CORE_PACKAGE_NAME = "openclaw";
->>>>>>> 4a59b7786 (fix: CLI harden update restart imports and fix nested bundle version resolution)
 
 const PACKAGE_JSON_CANDIDATES = [
   "../package.json",
@@ -15,23 +10,7 @@ const PACKAGE_JSON_CANDIDATES = [
 ] as const;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 // Single source of truth for the current moltbot version.
-=======
-function readVersionFromBuildInfo(): string | null {
-=======
-const BUILD_INFO_CANDIDATES = [
-  "../build-info.json",
-  "../../build-info.json",
-  "./build-info.json",
-] as const;
-
-function readVersionFromJsonCandidates(
-  moduleUrl: string,
-  candidates: readonly string[],
-  opts: { requirePackageName?: boolean } = {},
-): string | null {
->>>>>>> 4a59b7786 (fix: CLI harden update restart imports and fix nested bundle version resolution)
   try {
     const require = createRequire(moduleUrl);
     for (const candidate of candidates) {
@@ -77,14 +56,8 @@ export function resolveVersionFromModuleUrl(moduleUrl: string): string | null {
 // - Embedded/bundled builds: injected define or env var.
 // - Dev/npm builds: package.json.
 export const VERSION =
-<<<<<<< HEAD
   (typeof __CLAWDBOT_VERSION__ === "string" && __CLAWDBOT_VERSION__) ||
   process.env.CLAWDBOT_BUNDLED_VERSION ||
   readVersionFromPackageJson() ||
   readVersionFromBuildInfo() ||
-=======
-  (typeof __OPENCLAW_VERSION__ === "string" && __OPENCLAW_VERSION__) ||
-  process.env.OPENCLAW_BUNDLED_VERSION ||
-  resolveVersionFromModuleUrl(import.meta.url) ||
->>>>>>> 4a59b7786 (fix: CLI harden update restart imports and fix nested bundle version resolution)
   "0.0.0";

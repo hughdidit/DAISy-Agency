@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import { MEDIA_GROUP_TIMEOUT_MS } from "./bot-updates.js";
-=======
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import * as ssrf from "../infra/net/ssrf.js";
-import { onSpy, saveMediaBufferSpy, sendChatActionSpy } from "./bot.media.e2e-harness.js";
->>>>>>> a01849e16 (test(telegram): cover triple-dash inbound media path regression)
 
 const useSpy = vi.fn();
 const middlewareUseSpy = vi.fn();
@@ -16,13 +10,10 @@ const sendChatActionSpy = vi.fn();
 const cacheStickerSpy = vi.fn();
 const getCachedStickerSpy = vi.fn();
 const describeStickerImageSpy = vi.fn();
-<<<<<<< HEAD
-=======
 const resolvePinnedHostname = ssrf.resolvePinnedHostname;
 const lookupMock = vi.fn();
 <<<<<<< HEAD
 let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> | null = null;
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
 =======
 let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> = null;
 >>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
@@ -42,8 +33,6 @@ const apiStub: ApiStub = {
 beforeEach(() => {
   vi.useRealTimers();
   resetInboundDedupe();
-<<<<<<< HEAD
-=======
   lookupMock.mockResolvedValue([{ address: "93.184.216.34", family: 4 }]);
   resolvePinnedHostnameSpy = vi
     .spyOn(ssrf, "resolvePinnedHostname")
@@ -54,7 +43,6 @@ afterEach(() => {
   lookupMock.mockReset();
   resolvePinnedHostnameSpy?.mockRestore();
   resolvePinnedHostnameSpy = null;
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
 });
 
 vi.mock("grammy", () => ({
@@ -185,14 +173,7 @@ describe("telegram inbound media", () => {
       });
 
       expect(runtimeError).not.toHaveBeenCalled();
-<<<<<<< HEAD
       expect(fetchSpy).toHaveBeenCalledWith("https://api.telegram.org/file/bottok/photos/1.jpg");
-=======
-      expect(fetchSpy).toHaveBeenCalledWith(
-        "https://api.telegram.org/file/bottok/photos/1.jpg",
-        expect.objectContaining({ redirect: "manual" }),
-      );
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
       expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0];
       expect(payload.Body).toContain("<media:image>");
@@ -288,19 +269,11 @@ describe("telegram inbound media", () => {
     });
 
     expect(runtimeError).not.toHaveBeenCalled();
-<<<<<<< HEAD
     expect(proxyFetch).toHaveBeenCalledWith("https://api.telegram.org/file/bottok/photos/2.jpg");
-=======
-    expect(proxyFetch).toHaveBeenCalledWith(
-      "https://api.telegram.org/file/bottok/photos/2.jpg",
-      expect.objectContaining({ redirect: "manual" }),
-    );
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
 
     globalFetchSpy.mockRestore();
   });
 
-<<<<<<< HEAD
   it("logs a handler error when getFile returns no file_path", async () => {
     const { createTelegramBot } = await import("./bot.js");
     const replyModule = await import("../auto-reply/reply.js");
@@ -309,9 +282,6 @@ describe("telegram inbound media", () => {
     onSpy.mockReset();
     replySpy.mockReset();
 
-=======
-  it("handles missing file_path from getFile without crashing", async () => {
->>>>>>> b79c89fc9 (fix: stabilize CI type and test harness coverage)
     const runtimeLog = vi.fn();
     const runtimeError = vi.fn();
     const fetchSpy = vi.spyOn(globalThis, "fetch" as never);
@@ -569,10 +539,7 @@ describe("telegram stickers", () => {
       expect(runtimeError).not.toHaveBeenCalled();
       expect(fetchSpy).toHaveBeenCalledWith(
         "https://api.telegram.org/file/bottok/stickers/sticker.webp",
-<<<<<<< HEAD
-=======
         expect.objectContaining({ redirect: "manual" }),
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
       );
       expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0];

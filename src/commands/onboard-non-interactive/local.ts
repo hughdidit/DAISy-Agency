@@ -12,12 +12,8 @@ import {
   resolveControlUiLinks,
   waitForGatewayReachable,
 } from "../onboard-helpers.js";
-<<<<<<< HEAD
 import type { OnboardOptions } from "../onboard-types.js";
 
-=======
-import { inferAuthChoiceFromFlags } from "./local/auth-choice-inference.js";
->>>>>>> 22927b083 (fix: infer --auth-choice from API key flags during non-interactive onboarding (#9241))
 import { applyNonInteractiveAuthChoice } from "./local/auth-choice.js";
 import { installGatewayDaemonNonInteractive } from "./local/daemon-install.js";
 import { applyNonInteractiveGatewayConfig } from "./local/gateway-config.js";

@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import type { DiscordActionConfig } from "../../../config/types.discord.js";
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
->>>>>>> a03fec2a3 (fix: use per-account action config for Discord and Telegram gating)
 import { createActionGate } from "../../../agents/tools/common.js";
 import { listEnabledDiscordAccounts } from "../../../discord/accounts.js";
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
@@ -13,18 +10,8 @@ export const discordMessageActions: ChannelMessageActionAdapter = {
     const accounts = listEnabledDiscordAccounts(cfg).filter(
       (account) => account.tokenSource !== "none",
     );
-<<<<<<< HEAD
     if (accounts.length === 0) return [];
     const gate = createActionGate(cfg.channels?.discord?.actions);
-=======
-    if (accounts.length === 0) {
-      return [];
-    }
-    // Union of all accounts' action gates (any account enabling an action makes it available)
-    const gates = accounts.map((a) => createActionGate(a.config.actions));
-    const gate = (key: keyof DiscordActionConfig, defaultValue = true) =>
-      gates.some((g) => g(key, defaultValue));
->>>>>>> a03fec2a3 (fix: use per-account action config for Discord and Telegram gating)
     const actions = new Set<ChannelMessageActionName>(["send"]);
     if (gate("polls")) actions.add("poll");
     if (gate("reactions")) {

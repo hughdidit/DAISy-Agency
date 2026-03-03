@@ -361,7 +361,6 @@ export const sessionsHandlers: GatewayRequestHandlers = {
       if (store[primaryKey]) delete store[primaryKey];
     });
 
-<<<<<<< HEAD
     const archived: string[] = [];
     if (deleteTranscript && sessionId) {
       for (const candidate of resolveSessionTranscriptCandidates(
@@ -378,17 +377,6 @@ export const sessionsHandlers: GatewayRequestHandlers = {
         }
       }
     }
-=======
-    const archived = deleteTranscript
-      ? archiveSessionTranscriptsForSession({
-          sessionId,
-          storePath,
-          sessionFile: entry?.sessionFile,
-          agentId: target.agentId,
-          reason: "deleted",
-        })
-      : [];
->>>>>>> 31537c669 (fix: archive old transcript files on /new and /reset (#14949))
 
     respond(true, { ok: true, key: target.canonicalKey, deleted: existed, archived }, undefined);
   },

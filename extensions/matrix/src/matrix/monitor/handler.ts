@@ -7,11 +7,8 @@ import {
   logInboundDrop,
   logTypingFailure,
   resolveControlCommandGate,
-<<<<<<< HEAD
-=======
   resolveDmGroupAccessWithLists,
   type PluginRuntime,
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
   type RuntimeEnv,
 } from "clawdbot/plugin-sdk";
 import type { CoreConfig, ReplyToMode } from "../../types.js";
@@ -225,16 +222,8 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
 
       const senderName = await getMemberDisplayName(roomId, senderId);
 <<<<<<< HEAD
-<<<<<<< HEAD
       const storeAllowFrom = await core.channel.pairing.readAllowFromStore("matrix").catch(() => []);
       const effectiveAllowFrom = normalizeAllowListLower([...allowFrom, ...storeAllowFrom]);
-=======
-      const storeAllowFrom =
-        dmPolicy === "allowlist"
-          ? []
-          : await core.channel.pairing.readAllowFromStore("matrix").catch(() => []);
-      const effectiveAllowFrom = normalizeMatrixAllowList([...allowFrom, ...storeAllowFrom]);
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
       const groupAllowFrom = cfg.channels?.matrix?.groupAllowFrom ?? [];
       const effectiveGroupAllowFrom = normalizeAllowListLower([
         ...groupAllowFrom,
@@ -315,7 +304,6 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
                   ].join("\n"),
                   { client },
                 );
-<<<<<<< HEAD
                 try {
                   await sendMessageMatrix(
                     `room:${roomId}`,
@@ -332,10 +320,6 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
                 } catch (err) {
                   logVerboseMessage(`matrix pairing reply failed for ${senderId}: ${String(err)}`);
                 }
-=======
-              } catch (err) {
-                logVerboseMessage(`matrix pairing reply failed for ${senderId}: ${String(err)}`);
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
               }
             }
           } else {
@@ -686,7 +670,6 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
           onCleanup: typingCallbacks.onCleanup,
         });
 
-<<<<<<< HEAD
       const { queuedFinal, counts } = await core.channel.reply.dispatchReplyFromConfig({
         ctx: ctxPayload,
         cfg,
@@ -709,18 +692,6 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         core.system.enqueueSystemEvent(`Matrix message from ${senderName}: ${previewText}`, {
           sessionKey: route.sessionKey,
           contextKey: `matrix:message:${roomId}:${messageId || "unknown"}`,
-=======
-      try {
-        const { queuedFinal, counts } = await core.channel.reply.dispatchReplyFromConfig({
-          ctx: ctxPayload,
-          cfg,
-          dispatcher,
-          replyOptions: {
-            ...replyOptions,
-            skillFilter: roomConfig?.skills,
-            onModelSelected,
-          },
->>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
         });
         if (!queuedFinal) {
           return;

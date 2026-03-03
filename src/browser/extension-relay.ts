@@ -1,21 +1,9 @@
-<<<<<<< HEAD
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import type { Duplex } from "node:stream";
 
-=======
-import type { IncomingMessage } from "node:http";
-import type { AddressInfo } from "node:net";
-import type { Duplex } from "node:stream";
-import { randomBytes } from "node:crypto";
-import { createServer } from "node:http";
->>>>>>> a1e89afcc (fix: secure chrome extension relay cdp)
 import WebSocket, { WebSocketServer } from "ws";
-<<<<<<< HEAD
 
-=======
-import { isLoopbackAddress, isLoopbackHost } from "../gateway/net.js";
->>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
 import { rawDataToString } from "../infra/ws.js";
 import {
   probeAuthenticatedOpenClawRelay,
@@ -180,29 +168,7 @@ function rejectUpgrade(socket: Duplex, status: number, bodyText: string) {
 }
 
 const serversByPort = new Map<number, ChromeExtensionRelayServer>();
-<<<<<<< HEAD
 const relayAuthByPort = new Map<number, string>();
-=======
-const relayAuthTokensByPort = new Map<number, string>();
-
-function resolveUrlPort(parsed: URL): number | null {
-  const port =
-    parsed.port?.trim() !== "" ? Number(parsed.port) : parsed.protocol === "https:" ? 443 : 80;
-  if (!Number.isFinite(port) || port <= 0 || port > 65535) {
-    return null;
-  }
-  return port;
-}
-
-function isAddrInUseError(err: unknown): boolean {
-  return (
-    typeof err === "object" &&
-    err !== null &&
-    "code" in err &&
-    (err as { code?: unknown }).code === "EADDRINUSE"
-  );
-}
->>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
 
 function relayAuthTokenForUrl(url: string): string | null {
   try {
@@ -210,7 +176,6 @@ function relayAuthTokenForUrl(url: string): string | null {
     if (!isLoopbackHost(parsed.hostname)) {
       return null;
     }
-<<<<<<< HEAD
     const port =
       parsed.port?.trim() !== ""
         ? Number(parsed.port)
@@ -221,13 +186,6 @@ function relayAuthTokenForUrl(url: string): string | null {
       return null;
     }
     return relayAuthByPort.get(port) ?? null;
-=======
-    const port = resolveUrlPort(parsed);
-    if (!port || !serversByPort.has(port)) {
-      return null;
-    }
-    return relayAuthTokensByPort.get(port) ?? null;
->>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
   } catch {
     return null;
   }
@@ -250,15 +208,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
   }
 
   const existing = serversByPort.get(info.port);
-<<<<<<< HEAD
   if (existing) return existing;
-=======
-  if (existing) {
-    return existing;
-  }
-
-  const relayAuthToken = resolveRelayAuthTokenForPort(info.port);
->>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
 
   let extensionWs: WebSocket | null = null;
   const cdpClients = new Set<WebSocket>();
@@ -742,44 +692,10 @@ export async function ensureChromeExtensionRelayServer(opts: {
     });
   });
 
-<<<<<<< HEAD
   await new Promise<void>((resolve, reject) => {
     server.listen(info.port, info.host, () => resolve());
     server.once("error", reject);
   });
-=======
-  try {
-    await new Promise<void>((resolve, reject) => {
-      server.listen(info.port, info.host, () => resolve());
-      server.once("error", reject);
-    });
-  } catch (err) {
-    if (
-      isAddrInUseError(err) &&
-      (await probeAuthenticatedOpenClawRelay({
-        baseUrl: info.baseUrl,
-        relayAuthHeader: RELAY_AUTH_HEADER,
-        relayAuthToken,
-      }))
-    ) {
-      const existingRelay: ChromeExtensionRelayServer = {
-        host: info.host,
-        port: info.port,
-        baseUrl: info.baseUrl,
-        cdpWsUrl: `ws://${info.host}:${info.port}/cdp`,
-        extensionConnected: () => false,
-        stop: async () => {
-          serversByPort.delete(info.port);
-          relayAuthTokensByPort.delete(info.port);
-        },
-      };
-      serversByPort.set(info.port, existingRelay);
-      relayAuthTokensByPort.set(info.port, relayAuthToken);
-      return existingRelay;
-    }
-    throw err;
-  }
->>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
 
   const addr = server.address() as AddressInfo | null;
   const port = addr?.port ?? info.port;
@@ -794,11 +710,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
     extensionConnected: () => Boolean(extensionWs),
     stop: async () => {
       serversByPort.delete(port);
-<<<<<<< HEAD
       relayAuthByPort.delete(port);
-=======
-      relayAuthTokensByPort.delete(port);
->>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
       try {
         extensionWs?.close(1001, "server stopping");
       } catch {

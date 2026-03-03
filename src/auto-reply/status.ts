@@ -189,12 +189,9 @@ const formatQueueDetails = (queue?: QueueStatus) => {
 const readUsageFromSessionLog = (
   sessionId?: string,
   sessionEntry?: SessionEntry,
-<<<<<<< HEAD
-=======
   agentId?: string,
   sessionKey?: string,
   storePath?: string,
->>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 ):
   | {
       input: number;
@@ -204,32 +201,10 @@ const readUsageFromSessionLog = (
       model?: string;
     }
   | undefined => {
-<<<<<<< HEAD
   // Transcripts are stored at the session file path (fallback: ~/.clawdbot/sessions/<SessionId>.jsonl)
   if (!sessionId) return undefined;
   const logPath = resolveSessionFilePath(sessionId, sessionEntry);
   if (!fs.existsSync(logPath)) return undefined;
-=======
-  // Transcripts are stored at the session file path (fallback: ~/.openclaw/sessions/<SessionId>.jsonl)
-  if (!sessionId) {
-    return undefined;
-  }
-  let logPath: string;
-  try {
-    const resolvedAgentId =
-      agentId ?? (sessionKey ? resolveAgentIdFromSessionKey(sessionKey) : undefined);
-    logPath = resolveSessionFilePath(
-      sessionId,
-      sessionEntry,
-      resolveSessionFilePathOptions({ agentId: resolvedAgentId, storePath }),
-    );
-  } catch {
-    return undefined;
-  }
-  if (!fs.existsSync(logPath)) {
-    return undefined;
-  }
->>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 
   try {
     const lines = fs.readFileSync(logPath, "utf-8").split(/\n+/);
@@ -361,17 +336,7 @@ export function buildStatusMessage(args: StatusArgs): string {
   // Prefer prompt-size tokens from the session transcript when it looks larger
   // (cached prompt tokens are often missing from agent meta/store).
   if (args.includeTranscriptUsage) {
-<<<<<<< HEAD
     const logUsage = readUsageFromSessionLog(entry?.sessionId, entry);
-=======
-    const logUsage = readUsageFromSessionLog(
-      entry?.sessionId,
-      entry,
-      args.agentId,
-      args.sessionKey,
-      args.sessionStorePath,
-    );
->>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
     if (logUsage) {
       const candidate = logUsage.promptTokens || logUsage.total;
       if (!totalTokens || totalTokens === 0 || candidate > totalTokens) {
@@ -447,34 +412,10 @@ export function buildStatusMessage(args: StatusArgs): string {
   ];
   const activationLine = activationParts.filter(Boolean).join(" · ");
 
-<<<<<<< HEAD
   const authMode = resolveModelAuthMode(provider, args.config);
   const authLabelValue =
     args.modelAuth ?? (authMode && authMode !== "unknown" ? authMode : undefined);
   const showCost = authLabelValue === "api-key" || authLabelValue === "mixed";
-=======
-  const selectedAuthMode =
-    normalizeAuthMode(args.modelAuth) ?? resolveModelAuthMode(selectedProvider, args.config);
-  const selectedAuthLabelValue =
-    args.modelAuth ??
-    (selectedAuthMode && selectedAuthMode !== "unknown" ? selectedAuthMode : undefined);
-  const activeAuthMode =
-    normalizeAuthMode(args.activeModelAuth) ?? resolveModelAuthMode(activeProvider, args.config);
-  const activeAuthLabelValue =
-    args.activeModelAuth ??
-    (activeAuthMode && activeAuthMode !== "unknown" ? activeAuthMode : undefined);
-  const selectedModelLabel = modelRefs.selected.label || "unknown";
-  const activeModelLabel = formatProviderModelRef(activeProvider, activeModel) || "unknown";
-  const fallbackState = resolveActiveFallbackState({
-    selectedModelRef: selectedModelLabel,
-    activeModelRef: activeModelLabel,
-    state: entry,
-  });
-  const effectiveCostAuthMode = fallbackState.active
-    ? activeAuthMode
-    : (selectedAuthMode ?? activeAuthMode);
-  const showCost = effectiveCostAuthMode === "api-key" || effectiveCostAuthMode === "mixed";
->>>>>>> cb84c537f (fix: normalize status auth cost handling and models header tests)
   const costConfig = showCost
     ? resolveModelCostConfig({
         provider,
@@ -495,59 +436,9 @@ export function buildStatusMessage(args: StatusArgs): string {
       : undefined;
   const costLabel = showCost && hasUsage ? formatUsd(cost) : undefined;
 
-<<<<<<< HEAD
   const modelLabel = model ? `${provider}/${model}` : "unknown";
   const authLabel = authLabelValue ? ` · 🔑 ${authLabelValue}` : "";
   const modelLine = `🧠 Model: ${modelLabel}${authLabel}`;
-=======
-  const selectedAuthLabel = selectedAuthLabelValue ? ` · 🔑 ${selectedAuthLabelValue}` : "";
-  const channelModelNote = (() => {
-    if (!args.config || !entry) {
-      return undefined;
-    }
-    if (entry.modelOverride?.trim() || entry.providerOverride?.trim()) {
-      return undefined;
-    }
-    const channelOverride = resolveChannelModelOverride({
-      cfg: args.config,
-      channel: entry.channel ?? entry.origin?.provider,
-      groupId: entry.groupId,
-      groupChannel: entry.groupChannel,
-      groupSubject: entry.subject,
-      parentSessionKey: args.parentSessionKey,
-    });
-    if (!channelOverride) {
-      return undefined;
-    }
-    const aliasIndex = buildModelAliasIndex({
-      cfg: args.config,
-      defaultProvider: DEFAULT_PROVIDER,
-    });
-    const resolvedOverride = resolveModelRefFromString({
-      raw: channelOverride.model,
-      defaultProvider: DEFAULT_PROVIDER,
-      aliasIndex,
-    });
-    if (!resolvedOverride) {
-      return undefined;
-    }
-    if (
-      resolvedOverride.ref.provider !== selectedProvider ||
-      resolvedOverride.ref.model !== selectedModel
-    ) {
-      return undefined;
-    }
-    return "channel override";
-  })();
-  const modelNote = channelModelNote ? ` · ${channelModelNote}` : "";
-  const modelLine = `🧠 Model: ${selectedModelLabel}${selectedAuthLabel}${modelNote}`;
-  const showFallbackAuth = activeAuthLabelValue && activeAuthLabelValue !== selectedAuthLabelValue;
-  const fallbackLine = fallbackState.active
-    ? `↪️ Fallback: ${activeModelLabel}${
-        showFallbackAuth ? ` · 🔑 ${activeAuthLabelValue}` : ""
-      } (${fallbackState.reason ?? "selected model unavailable"})`
-    : null;
->>>>>>> cb84c537f (fix: normalize status auth cost handling and models header tests)
   const commit = resolveCommitHash();
   const versionLine = `🦞 Moltbot ${VERSION}${commit ? ` (${commit})` : ""}`;
   const usagePair = formatUsagePair(inputTokens, outputTokens);

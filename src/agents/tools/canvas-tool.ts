@@ -1,9 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
-<<<<<<< HEAD
 
-=======
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { Type } from "@sinclair/typebox";
 import { writeBase64ToFile } from "../../cli/nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../../cli/nodes-canvas.js";

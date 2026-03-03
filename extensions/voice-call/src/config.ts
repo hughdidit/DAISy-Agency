@@ -371,16 +371,8 @@ export const VoiceCallConfigSchema = z
   /** Tunnel configuration (unified ngrok/tailscale) */
   tunnel: VoiceCallTunnelConfigSchema,
 
-<<<<<<< HEAD
   /** Real-time audio streaming configuration */
   streaming: VoiceCallStreamingConfigSchema,
-=======
-    /** Webhook signature reconstruction and proxy trust configuration */
-    webhookSecurity: VoiceCallWebhookSecurityConfigSchema,
-
-    /** Real-time audio streaming configuration */
-    streaming: VoiceCallStreamingConfigSchema,
->>>>>>> a749db982 (fix: harden voice-call webhook verification)
 
   /** Public webhook URL override (if set, bypasses tunnel auto-detection) */
   publicUrl: z.string().url().optional(),
@@ -456,7 +448,6 @@ export function resolveVoiceCallConfig(config: VoiceCallConfig): VoiceCallConfig
     allowNgrokFreeTierLoopbackBypass: false,
   };
   resolved.tunnel.allowNgrokFreeTierLoopbackBypass =
-<<<<<<< HEAD
     resolved.tunnel.allowNgrokFreeTierLoopbackBypass ||
     resolved.tunnel.allowNgrokFreeTier ||
     false;
@@ -464,11 +455,6 @@ export function resolveVoiceCallConfig(config: VoiceCallConfig): VoiceCallConfig
     resolved.tunnel.ngrokAuthToken ?? process.env.NGROK_AUTHTOKEN;
   resolved.tunnel.ngrokDomain =
     resolved.tunnel.ngrokDomain ?? process.env.NGROK_DOMAIN;
-=======
-    resolved.tunnel.allowNgrokFreeTierLoopbackBypass ?? false;
-  resolved.tunnel.ngrokAuthToken = resolved.tunnel.ngrokAuthToken ?? process.env.NGROK_AUTHTOKEN;
-  resolved.tunnel.ngrokDomain = resolved.tunnel.ngrokDomain ?? process.env.NGROK_DOMAIN;
->>>>>>> a749db982 (fix: harden voice-call webhook verification)
 
   // Webhook Security Config
   resolved.webhookSecurity = resolved.webhookSecurity ?? {

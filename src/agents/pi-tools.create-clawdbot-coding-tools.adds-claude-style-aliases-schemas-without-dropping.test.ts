@@ -1,12 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD:src/agents/pi-tools.create-clawdbot-coding-tools.adds-claude-style-aliases-schemas-without-dropping.test.ts
 import type { AgentTool } from "@mariozechner/pi-agent-core";
-=======
-import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
-import { Type } from "@sinclair/typebox";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility):src/agents/pi-tools.create-openclaw-coding-tools.adds-claude-style-aliases-schemas-without-dropping.e2e.test.ts
 import { describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
@@ -484,8 +479,6 @@ describe("createMoltbotCodingTools", () => {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
-<<<<<<< HEAD:src/agents/pi-tools.create-clawdbot-coding-tools.adds-claude-style-aliases-schemas-without-dropping.test.ts
-=======
 
   it("auto-pages read output across chunks when context window budget allows", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-read-autopage-"));
@@ -572,5 +565,4 @@ describe("createMoltbotCodingTools", () => {
     });
     expect(details?.truncation).not.toHaveProperty("content");
   });
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility):src/agents/pi-tools.create-openclaw-coding-tools.adds-claude-style-aliases-schemas-without-dropping.e2e.test.ts
 });

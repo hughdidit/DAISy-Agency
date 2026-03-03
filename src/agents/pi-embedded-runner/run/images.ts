@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,25 +7,16 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 
 import { assertSandboxPath } from "../../sandbox-paths.js";
 =======
-import type { ImageContent } from "@mariozechner/pi-ai";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
-=======
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { resolveUserPath } from "../../../utils.js";
 import { loadWebMedia } from "../../../web/media.js";
 import type { ImageSanitizationLimits } from "../../image-sanitization.js";
-<<<<<<< HEAD
-=======
 import {
   createSandboxBridgeReadFile,
   resolveSandboxedBridgeMediaPath,
 } from "../../sandbox-media-paths.js";
->>>>>>> c823a8530 (fix: harden sandbox media reads against TOCTOU escapes)
 import { assertSandboxPath } from "../../sandbox-paths.js";
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 >>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
@@ -237,13 +227,8 @@ export async function loadImageFromRef(
     const media = options?.sandbox
       ? await loadWebMedia(targetPath, {
           maxBytes: options.maxBytes,
-<<<<<<< HEAD
           readFile: (filePath) =>
             options.sandbox!.bridge.readFile({ filePath, cwd: options.sandbox!.root }),
-=======
-          sandboxValidated: true,
-          readFile: createSandboxBridgeReadFile({ sandbox: options.sandbox }),
->>>>>>> c823a8530 (fix: harden sandbox media reads against TOCTOU escapes)
         })
       : await loadWebMedia(targetPath, options?.maxBytes);
 
@@ -346,11 +331,8 @@ export async function detectAndLoadPromptImages(params: {
   existingImages?: ImageContent[];
   historyMessages?: unknown[];
   maxBytes?: number;
-<<<<<<< HEAD
-=======
   maxDimensionPx?: number;
   workspaceOnly?: boolean;
->>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
   sandbox?: { root: string; bridge: SandboxFsBridge };
 }): Promise<{
   /** Images for the current prompt (existingImages + detected in current prompt) */

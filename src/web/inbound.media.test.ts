@@ -131,7 +131,6 @@ describe("web inbound media saves with extension", () => {
 
     realSock.ev.emit("messages.upsert", upsert);
 
-<<<<<<< HEAD
     // Allow a brief window for the async handler to fire on slower hosts.
     for (let i = 0; i < 50; i++) {
       if (onMessage.mock.calls.length > 0) break;
@@ -140,9 +139,6 @@ describe("web inbound media saves with extension", () => {
 
     expect(onMessage).toHaveBeenCalledTimes(1);
     const msg = onMessage.mock.calls[0][0];
-=======
-    const msg = await waitForMessage(onMessage);
->>>>>>> 1cee5135e (fix: preserve original filename for WhatsApp inbound documents (#12691))
     const mediaPath = msg.mediaPath;
     expect(mediaPath).toBeDefined();
     expect(path.extname(mediaPath as string)).toBe(".jpg");
@@ -187,7 +183,6 @@ describe("web inbound media saves with extension", () => {
 
     realSock.ev.emit("messages.upsert", upsert);
 
-<<<<<<< HEAD
     for (let i = 0; i < 50; i++) {
       if (onMessage.mock.calls.length > 0) break;
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -195,9 +190,6 @@ describe("web inbound media saves with extension", () => {
 
     expect(onMessage).toHaveBeenCalledTimes(1);
     const msg = onMessage.mock.calls[0][0];
-=======
-    const msg = await waitForMessage(onMessage);
->>>>>>> 1cee5135e (fix: preserve original filename for WhatsApp inbound documents (#12691))
     expect(msg.chatType).toBe("group");
     expect(msg.mentionedJids).toEqual(["999@s.whatsapp.net"]);
 
@@ -231,16 +223,12 @@ describe("web inbound media saves with extension", () => {
 
     realSock.ev.emit("messages.upsert", upsert);
 
-<<<<<<< HEAD
     for (let i = 0; i < 50; i++) {
       if (onMessage.mock.calls.length > 0) break;
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
 
     expect(onMessage).toHaveBeenCalledTimes(1);
-=======
-    await waitForMessage(onMessage);
->>>>>>> 1cee5135e (fix: preserve original filename for WhatsApp inbound documents (#12691))
     expect(saveMediaBufferSpy).toHaveBeenCalled();
     const lastCall = saveMediaBufferSpy.mock.calls.at(-1);
     expect(lastCall?.[3]).toBe(1 * 1024 * 1024);

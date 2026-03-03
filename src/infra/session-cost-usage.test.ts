@@ -3,20 +3,9 @@ import os from "node:os";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import { loadCostUsageSummary, loadSessionCostSummary } from "./session-cost-usage.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import {
-  discoverAllSessions,
-  loadCostUsageSummary,
-  loadSessionCostSummary,
-  loadSessionLogs,
-  loadSessionUsageTimeSeries,
-} from "./session-cost-usage.js";
->>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 
 describe("session cost usage", () => {
   it("aggregates daily totals with log cost and pricing fallback", async () => {
@@ -150,8 +139,6 @@ describe("session cost usage", () => {
     expect(summary?.totalTokens).toBe(30);
     expect(summary?.lastActivity).toBeGreaterThan(0);
   });
-<<<<<<< HEAD
-=======
 
   it("captures message counts, tool usage, and model usage", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cost-session-meta-"));
@@ -378,7 +365,6 @@ describe("session cost usage", () => {
     }
   });
 <<<<<<< HEAD
->>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 =======
 
   it("strips inbound and untrusted metadata blocks from session usage logs", async () => {

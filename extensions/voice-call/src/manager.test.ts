@@ -105,8 +105,6 @@ describe("CallManager", () => {
     expect(provider.playTtsCalls).toHaveLength(1);
     expect(provider.playTtsCalls[0]?.text).toBe("Hello there");
   });
-<<<<<<< HEAD
-=======
 
   it("rejects inbound calls with missing caller ID when allowlist enabled", () => {
     const config = VoiceCallConfigSchema.parse({
@@ -223,5 +221,4 @@ describe("CallManager", () => {
 
     expect(manager.getCallByProviderCallId("provider-exact")).toBeDefined();
   });
->>>>>>> 0cd47d830 (fix: cover anonymous voice allowlist callers (#8104) (thanks @victormier) (#9188))
 });

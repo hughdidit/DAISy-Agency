@@ -90,8 +90,6 @@ describe("TuiStreamAssembler", () => {
 
     expect(second).toBeNull();
   });
-<<<<<<< HEAD
-=======
 
   it("keeps richer streamed text when final payload drops earlier blocks", () => {
     const assembler = new TuiStreamAssembler();
@@ -257,5 +255,4 @@ describe("TuiStreamAssembler", () => {
 
     expect(finalText).toBe("OK");
   });
->>>>>>> f7121677f (chore (tui): add stream assembler regression for tool boundary drops)
 });

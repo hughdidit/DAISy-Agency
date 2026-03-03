@@ -14,11 +14,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 import JSON5 from "json5";
-<<<<<<< HEAD
-=======
 import { isPathInside } from "../security/scan-paths.js";
 import { isPlainObject } from "../utils.js";
->>>>>>> d1c00dbb7 (fix: harden include confinement edge cases (#18652) (thanks @aether-ai-agent))
 
 export const INCLUDE_KEY = "$include";
 export const MAX_INCLUDE_DEPTH = 10;
@@ -188,39 +185,8 @@ class IncludeProcessor {
   private resolvePath(includePath: string): string {
     const resolved = path.isAbsolute(includePath)
       ? includePath
-<<<<<<< HEAD
       : path.resolve(path.dirname(this.basePath), includePath);
     return path.normalize(resolved);
-=======
-      : path.resolve(configDir, includePath);
-    const normalized = path.normalize(resolved);
-
-    // SECURITY: Reject paths outside top-level config directory (CWE-22: Path Traversal)
-    if (!isPathInside(this.rootDir, normalized)) {
-      throw new ConfigIncludeError(
-        `Include path escapes config directory: ${includePath} (root: ${this.rootDir})`,
-        includePath,
-      );
-    }
-
-    // SECURITY: Resolve symlinks and re-validate to prevent symlink bypass
-    try {
-      const real = fs.realpathSync(normalized);
-      if (!isPathInside(this.rootRealDir, real)) {
-        throw new ConfigIncludeError(
-          `Include path resolves outside config directory (symlink): ${includePath} (root: ${this.rootDir})`,
-          includePath,
-        );
-      }
-    } catch (err) {
-      if (err instanceof ConfigIncludeError) {
-        throw err;
-      }
-      // File doesn't exist yet - normalized path check above is sufficient
-    }
-
-    return normalized;
->>>>>>> d1c00dbb7 (fix: harden include confinement edge cases (#18652) (thanks @aether-ai-agent))
   }
 
   private checkCircular(resolvedPath: string): void {

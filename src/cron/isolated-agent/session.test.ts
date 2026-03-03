@@ -9,8 +9,6 @@ vi.mock("../../config/sessions.js", () => ({
 import { loadSessionStore } from "../../config/sessions.js";
 import { resolveCronSession } from "./session.js";
 
-<<<<<<< HEAD
-=======
 const NOW_MS = 1_737_600_000_000;
 
 type SessionStore = ReturnType<typeof loadSessionStore>;
@@ -32,7 +30,6 @@ function resolveWithStoredEntry(params?: { sessionKey?: string; entry?: MockSess
   });
 }
 
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 describe("resolveCronSession", () => {
   it("preserves modelOverride and providerOverride from existing session entry", () => {
     vi.mocked(loadSessionStore).mockReturnValue({
@@ -93,8 +90,6 @@ describe("resolveCronSession", () => {
     expect(result.sessionEntry.modelOverride).toBeUndefined();
     expect(result.sessionEntry.providerOverride).toBeUndefined();
     expect(result.sessionEntry.model).toBeUndefined();
-<<<<<<< HEAD
-=======
     expect(result.isNewSession).toBe(true);
   });
 
@@ -145,7 +140,6 @@ describe("resolveCronSession", () => {
     expect(result.isNewSession).toBe(true);
     // Should still preserve other fields from entry
     expect(result.sessionEntry.modelOverride).toBe("some-model");
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 =======
     it("clears delivery routing metadata and deliveryContext when forceNew is true", () => {
       const result = resolveWithStoredEntry({

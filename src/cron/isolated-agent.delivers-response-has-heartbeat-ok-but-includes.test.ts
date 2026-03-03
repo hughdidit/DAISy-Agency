@@ -4,15 +4,9 @@ import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { CronJob } from "./types.js";
-=======
-import { telegramOutbound } from "../channels/plugins/outbound/telegram.js";
-import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
->>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
@@ -92,8 +86,6 @@ describe("runCronIsolatedAgentTurn", () => {
   beforeEach(() => {
     vi.mocked(runEmbeddedPiAgent).mockReset();
     vi.mocked(loadModelCatalog).mockResolvedValue([]);
-<<<<<<< HEAD
-=======
     setActivePluginRegistry(
       createTestRegistry([
         {
@@ -103,7 +95,6 @@ describe("runCronIsolatedAgentTurn", () => {
         },
       ]),
     );
->>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
   });
 
   it("delivers when response has HEARTBEAT_OK but includes media", async () => {
@@ -144,15 +135,11 @@ describe("runCronIsolatedAgentTurn", () => {
       });
 
       expect(res.status).toBe("ok");
-<<<<<<< HEAD
       expect(deps.sendMessageTelegram).toHaveBeenCalledWith(
         "123",
         "HEARTBEAT_OK",
         expect.objectContaining({ mediaUrl: "https://example.com/img.png" }),
       );
-=======
-      expect(deps.sendMessageTelegram).toHaveBeenCalled();
->>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     });
   });
 
@@ -189,7 +176,6 @@ describe("runCronIsolatedAgentTurn", () => {
       const res = await runCronIsolatedAgentTurn({
         cfg,
         deps,
-<<<<<<< HEAD
         job: makeJob({
           kind: "agentTurn",
           message: "do it",
@@ -197,58 +183,13 @@ describe("runCronIsolatedAgentTurn", () => {
           channel: "telegram",
           to: "123",
         }),
-=======
-        job: {
-          ...makeJob({
-            kind: "agentTurn",
-            message: "do it",
-          }),
-          delivery: { mode: "announce", channel: "last" },
-        },
->>>>>>> a73ccf2b5 (fix: deliver cron output to explicit targets (#16360) (thanks @rubyrunsstuff))
         message: "do it",
         sessionKey: "cron:job-1",
         lane: "cron",
       });
 
-<<<<<<< HEAD
       expect(res.status).toBe("ok");
       expect(deps.sendMessageTelegram).toHaveBeenCalled();
-=======
-      expect(keepRes.status).toBe("ok");
-      expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
-      const keepArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
-        | { cleanup?: "keep" | "delete" }
-        | undefined;
-      expect(keepArgs?.cleanup).toBe("keep");
-      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
-
-      vi.mocked(runSubagentAnnounceFlow).mockClear();
-
-      const deleteRes = await runCronIsolatedAgentTurn({
-        cfg,
-        deps,
-        job: {
-          ...makeJob({
-            kind: "agentTurn",
-            message: "do it",
-          }),
-          deleteAfterRun: true,
-          delivery: { mode: "announce", channel: "last" },
-        },
-        message: "do it",
-        sessionKey: "cron:job-1",
-        lane: "cron",
-      });
-
-      expect(deleteRes.status).toBe("ok");
-      expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
-      const deleteArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
-        | { cleanup?: "keep" | "delete" }
-        | undefined;
-      expect(deleteArgs?.cleanup).toBe("delete");
-      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
->>>>>>> a73ccf2b5 (fix: deliver cron output to explicit targets (#16360) (thanks @rubyrunsstuff))
     });
   });
 });

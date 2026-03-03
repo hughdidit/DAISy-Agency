@@ -166,13 +166,8 @@ export const ToolPolicySchema = ToolPolicyBaseSchema.superRefine((value, ctx) =>
 export const ToolsWebSearchSchema = z
   .object({
     enabled: z.boolean().optional(),
-<<<<<<< HEAD
     provider: z.union([z.literal("brave"), z.literal("perplexity")]).optional(),
     apiKey: z.string().optional(),
-=======
-    provider: z.union([z.literal("brave"), z.literal("perplexity"), z.literal("grok")]).optional(),
-    apiKey: z.string().optional().register(sensitive),
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
     maxResults: z.number().int().positive().optional(),
     timeoutSeconds: z.number().int().positive().optional(),
     cacheTtlMinutes: z.number().nonnegative().optional(),
@@ -184,8 +179,6 @@ export const ToolsWebSearchSchema = z
       })
       .strict()
       .optional(),
-<<<<<<< HEAD
-=======
     grok: z
       .object({
         apiKey: z.string().optional().register(sensitive),
@@ -194,7 +187,6 @@ export const ToolsWebSearchSchema = z
       })
       .strict()
       .optional(),
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
   })
   .strict()
   .optional();
@@ -328,19 +320,7 @@ export const MemorySearchSchema = z
       })
       .strict()
       .optional(),
-<<<<<<< HEAD
     provider: z.union([z.literal("openai"), z.literal("local"), z.literal("gemini")]).optional(),
-=======
-    provider: z
-      .union([
-        z.literal("openai"),
-        z.literal("local"),
-        z.literal("gemini"),
-        z.literal("voyage"),
-        z.literal("mistral"),
-      ])
-      .optional(),
->>>>>>> 042947b94 (fix: add mistral to MemorySearchSchema provider/fallback unions (#14934))
     remote: z
       .object({
         baseUrl: z.string().optional(),
@@ -360,18 +340,7 @@ export const MemorySearchSchema = z
       .strict()
       .optional(),
     fallback: z
-<<<<<<< HEAD
       .union([z.literal("openai"), z.literal("gemini"), z.literal("local"), z.literal("none")])
-=======
-      .union([
-        z.literal("openai"),
-        z.literal("gemini"),
-        z.literal("local"),
-        z.literal("voyage"),
-        z.literal("mistral"),
-        z.literal("none"),
-      ])
->>>>>>> 042947b94 (fix: add mistral to MemorySearchSchema provider/fallback unions (#14934))
       .optional(),
     model: z.string().optional(),
     local: z

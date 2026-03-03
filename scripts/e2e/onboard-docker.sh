@@ -274,18 +274,11 @@ TRASH
   run_case_local_basic() {
     local home_dir
     home_dir="$(make_home local-basic)"
-<<<<<<< HEAD
     export HOME="$home_dir"
     mkdir -p "$HOME"
     node dist/index.js onboard \
       --non-interactive \
       --accept-risk \
-=======
-    set_isolated_openclaw_env "$home_dir"
-    node "$OPENCLAW_ENTRY" onboard \
-	      --non-interactive \
-	      --accept-risk \
->>>>>>> 706cfcd54 (fix: isolate docker onboard e2e config env)
       --flow quickstart \
       --mode local \
       --skip-channels \
@@ -296,15 +289,9 @@ TRASH
 
     # Assert config + workspace scaffolding.
 <<<<<<< HEAD
-<<<<<<< HEAD
     workspace_dir="$HOME/clawd"
     config_path="$HOME/.clawdbot/moltbot.json"
     sessions_dir="$HOME/.clawdbot/agents/main/sessions"
-=======
-    workspace_dir="$HOME/.openclaw/workspace"
-    config_path="$HOME/.openclaw/openclaw.json"
-    sessions_dir="$HOME/.openclaw/agents/main/sessions"
->>>>>>> f9fae2c43 (fix: stabilize docker e2e flows)
 =======
     workspace_dir="$OPENCLAW_STATE_DIR/workspace"
     config_path="$OPENCLAW_CONFIG_PATH"
@@ -369,29 +356,17 @@ NODE
   run_case_remote_non_interactive() {
     local home_dir
     home_dir="$(make_home remote-non-interactive)"
-<<<<<<< HEAD
     export HOME="$home_dir"
     mkdir -p "$HOME"
     # Smoke test non-interactive remote config write.
     node dist/index.js onboard --non-interactive --accept-risk \
       --mode remote \
       --remote-url ws://gateway.local:18789 \
-=======
-    set_isolated_openclaw_env "$home_dir"
-	    # Smoke test non-interactive remote config write.
-	    node "$OPENCLAW_ENTRY" onboard --non-interactive --accept-risk \
-	      --mode remote \
-	      --remote-url ws://gateway.local:18789 \
->>>>>>> 706cfcd54 (fix: isolate docker onboard e2e config env)
       --remote-token remote-token \
       --skip-skills \
       --skip-health
 
-<<<<<<< HEAD
     config_path="$HOME/.clawdbot/moltbot.json"
-=======
-    config_path="$OPENCLAW_CONFIG_PATH"
->>>>>>> 706cfcd54 (fix: isolate docker onboard e2e config env)
     assert_file "$config_path"
 
     CONFIG_PATH="$config_path" node --input-type=module - <<'"'"'NODE'"'"'
@@ -424,16 +399,10 @@ NODE
   run_case_reset() {
     local home_dir
     home_dir="$(make_home reset-config)"
-<<<<<<< HEAD
     export HOME="$home_dir"
     mkdir -p "$HOME/.clawdbot"
     # Seed a remote config to exercise reset path.
     cat > "$HOME/.clawdbot/moltbot.json" <<'"'"'JSON'"'"'
-=======
-    set_isolated_openclaw_env "$home_dir"
-    # Seed a remote config to exercise reset path.
-	    cat > "$OPENCLAW_CONFIG_PATH" <<'"'"'JSON'"'"'
->>>>>>> 706cfcd54 (fix: isolate docker onboard e2e config env)
 {
   "agents": { "defaults": { "workspace": "/root/old" } },
   "gateway": {
@@ -455,11 +424,7 @@ JSON
       --skip-ui \
       --skip-health
 
-<<<<<<< HEAD
     config_path="$HOME/.clawdbot/moltbot.json"
-=======
-    config_path="$OPENCLAW_CONFIG_PATH"
->>>>>>> 706cfcd54 (fix: isolate docker onboard e2e config env)
     assert_file "$config_path"
 
     CONFIG_PATH="$config_path" node --input-type=module - <<'"'"'NODE'"'"'
@@ -492,11 +457,7 @@ NODE
     # Channels-only configure flow.
     run_wizard_cmd channels "$home_dir" "node dist/index.js configure --section channels" send_channels_flow
 
-<<<<<<< HEAD
     config_path="$HOME/.clawdbot/moltbot.json"
-=======
-    config_path="$OPENCLAW_CONFIG_PATH"
->>>>>>> 706cfcd54 (fix: isolate docker onboard e2e config env)
     assert_file "$config_path"
 
     CONFIG_PATH="$config_path" node --input-type=module - <<'"'"'NODE'"'"'
@@ -533,16 +494,10 @@ NODE
   run_case_skills() {
     local home_dir
     home_dir="$(make_home skills)"
-<<<<<<< HEAD
     export HOME="$home_dir"
     mkdir -p "$HOME/.clawdbot"
     # Seed skills config to ensure it survives the wizard.
     cat > "$HOME/.clawdbot/moltbot.json" <<'"'"'JSON'"'"'
-=======
-    set_isolated_openclaw_env "$home_dir"
-    # Seed skills config to ensure it survives the wizard.
-	    cat > "$OPENCLAW_CONFIG_PATH" <<'"'"'JSON'"'"'
->>>>>>> 706cfcd54 (fix: isolate docker onboard e2e config env)
 {
   "skills": {
     "allowBundled": ["__none__"],
@@ -553,11 +508,7 @@ JSON
 
     run_wizard_cmd skills "$home_dir" "node dist/index.js configure --section skills" send_skills_flow
 
-<<<<<<< HEAD
     config_path="$HOME/.clawdbot/moltbot.json"
-=======
-    config_path="$OPENCLAW_CONFIG_PATH"
->>>>>>> 706cfcd54 (fix: isolate docker onboard e2e config env)
     assert_file "$config_path"
 
     CONFIG_PATH="$config_path" node --input-type=module - <<'"'"'NODE'"'"'

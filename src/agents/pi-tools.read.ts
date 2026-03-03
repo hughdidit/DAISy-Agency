@@ -2,12 +2,7 @@ import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { AnyAgentTool } from "./pi-tools.types.js";
-import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 import { detectMime } from "../media/mime.js";
 =======
 =======
@@ -251,73 +246,7 @@ export function wrapToolParamNormalization(
   };
 }
 
-<<<<<<< HEAD
 function wrapSandboxPathGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
-=======
-export function wrapToolWorkspaceRootGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
-  return wrapToolWorkspaceRootGuardWithOptions(tool, root);
-}
-
-function mapContainerPathToWorkspaceRoot(params: {
-  filePath: string;
-  root: string;
-  containerWorkdir?: string;
-}): string {
-  const containerWorkdir = params.containerWorkdir?.trim();
-  if (!containerWorkdir) {
-    return params.filePath;
-  }
-  const normalizedWorkdir = containerWorkdir.replace(/\\/g, "/").replace(/\/+$/, "");
-  if (!normalizedWorkdir.startsWith("/")) {
-    return params.filePath;
-  }
-  if (!normalizedWorkdir) {
-    return params.filePath;
-  }
-
-  let candidate = params.filePath;
-  if (/^file:\/\//i.test(candidate)) {
-    try {
-      candidate = fileURLToPath(candidate);
-    } catch {
-      try {
-        const parsed = new URL(candidate);
-        if (parsed.protocol !== "file:") {
-          return params.filePath;
-        }
-        candidate = decodeURIComponent(parsed.pathname || "");
-        if (!candidate.startsWith("/")) {
-          return params.filePath;
-        }
-      } catch {
-        return params.filePath;
-      }
-    }
-  }
-
-  const normalizedCandidate = candidate.replace(/\\/g, "/");
-  if (normalizedCandidate === normalizedWorkdir) {
-    return path.resolve(params.root);
-  }
-  const prefix = `${normalizedWorkdir}/`;
-  if (!normalizedCandidate.startsWith(prefix)) {
-    return candidate;
-  }
-  const relative = normalizedCandidate.slice(prefix.length);
-  if (!relative) {
-    return path.resolve(params.root);
-  }
-  return path.resolve(params.root, ...relative.split("/").filter(Boolean));
-}
-
-export function wrapToolWorkspaceRootGuardWithOptions(
-  tool: AnyAgentTool,
-  root: string,
-  options?: {
-    containerWorkdir?: string;
-  },
-): AnyAgentTool {
->>>>>>> 1e582dcc6 (fix: harden windows path handling in CI tests)
   return {
     ...tool,
     execute: async (toolCallId, args, signal, onUpdate) => {
@@ -334,22 +263,9 @@ export function wrapToolWorkspaceRootGuardWithOptions(
   };
 }
 
-<<<<<<< HEAD
 export function createSandboxedReadTool(root: string) {
   const base = createReadTool(root) as unknown as AnyAgentTool;
   return wrapSandboxPathGuard(createMoltbotReadTool(base), root);
-=======
-type SandboxToolParams = {
-  root: string;
-  bridge: SandboxFsBridge;
-};
-
-export function createSandboxedReadTool(params: SandboxToolParams) {
-  const base = createReadTool(params.root, {
-    operations: createSandboxReadOperations(params),
-  }) as unknown as AnyAgentTool;
-  return wrapSandboxPathGuard(createOpenClawReadTool(base), params.root);
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 }
 
 export function createSandboxedWriteTool(params: SandboxToolParams) {
@@ -438,8 +354,6 @@ function createSandboxEditOperations(params: SandboxToolParams) {
   } as const;
 }
 
-<<<<<<< HEAD
-=======
 function createHostWriteOperations(root: string, options?: { workspaceOnly?: boolean }) {
   const workspaceOnly = options?.workspaceOnly !== false;
 
@@ -562,7 +476,6 @@ function toRelativePathInRoot(
   return relative;
 }
 
->>>>>>> f5c2be191 (fix: distinguish outside-workspace errors from not-found in fs-safe)
 function createFsAccessError(code: string, filePath: string): NodeJS.ErrnoException {
   const error = new Error(`Sandbox FS error (${code}): ${filePath}`) as NodeJS.ErrnoException;
   error.code = code;

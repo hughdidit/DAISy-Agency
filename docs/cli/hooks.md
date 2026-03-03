@@ -262,7 +262,6 @@ grep '"action":"new"' ~/.clawdbot/logs/commands.log | jq .
 
 **See:** [command-logger documentation](/hooks#command-logger)
 
-<<<<<<< HEAD
 ### soul-evil
 
 Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by random chance.
@@ -275,8 +274,6 @@ moltbot hooks enable soul-evil
 
 **See:** [SOUL Evil Hook](/hooks/soul-evil)
 
-=======
->>>>>>> 4c86010b0 (fix: remove bundled soul-evil hook (closes #8776) (#14757))
 ### boot-md
 
 Runs `BOOT.md` when the gateway starts (after channels start).

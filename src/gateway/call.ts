@@ -16,11 +16,8 @@ import {
 } from "../utils/message-channel.js";
 import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
 import { GatewayClient } from "./client.js";
-<<<<<<< HEAD
-=======
 import type { OperatorScope } from "./method-scopes.js";
 import { isSecureWebSocketUrl, pickPrimaryLanIPv4 } from "./net.js";
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
 import { PROTOCOL_VERSION } from "./protocol/index.js";
 
 export type CallGatewayOptions = {

@@ -1,14 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { EventEmitter } from "node:events";
 
 import { removeAckReactionAfterReply, shouldAckReaction } from "clawdbot/plugin-sdk";
 import type { MoltbotConfig, PluginRuntime } from "clawdbot/plugin-sdk";
-=======
-import type { ResolvedBlueBubblesAccount } from "./accounts.js";
-import { fetchBlueBubblesHistory } from "./history.js";
->>>>>>> 75a9ea004 (Fix BlueBubbles DM history backfill bug (#20302))
 import {
   handleBlueBubblesWebhookRequest,
   registerBlueBubblesWebhookTarget,
@@ -78,14 +73,11 @@ const mockResolveEnvelopeFormatOptions = vi.fn(() => ({
 }));
 const mockFormatAgentEnvelope = vi.fn((opts: { body: string }) => opts.body);
 const mockChunkMarkdownText = vi.fn((text: string) => [text]);
-<<<<<<< HEAD
-=======
 const mockChunkByNewline = vi.fn((text: string) => (text ? [text] : []));
 const mockChunkTextWithMode = vi.fn((text: string) => (text ? [text] : []));
 const mockChunkMarkdownTextWithMode = vi.fn((text: string) => (text ? [text] : []));
 const mockResolveChunkMode = vi.fn(() => "length");
 const mockFetchBlueBubblesHistory = vi.mocked(fetchBlueBubblesHistory);
->>>>>>> 75a9ea004 (Fix BlueBubbles DM history backfill bug (#20302))
 
 function createMockRuntime(): PluginRuntime {
   return {
@@ -540,7 +532,6 @@ describe("BlueBubbles webhook monitor", () => {
           remoteAddress,
         };
 
-<<<<<<< HEAD
       const req = createMockRequest("POST", "/bluebubbles-webhook", {
         type: "new-message",
         data: {
@@ -553,15 +544,6 @@ describe("BlueBubbles webhook monitor", () => {
       });
       // Localhost address
       (req as unknown as { socket: { remoteAddress: string } }).socket = { remoteAddress: "127.0.0.1" };
-=======
-        const loopbackUnregister = registerBlueBubblesWebhookTarget({
-          account,
-          config,
-          runtime: { log: vi.fn(), error: vi.fn() },
-          core,
-          path: "/bluebubbles-webhook",
-        });
->>>>>>> f836c385f (fix: BlueBubbles webhook auth bypass via loopback proxy trust (#13787))
 
         const res = createMockResponse();
         const handled = await handleBlueBubblesWebhookRequest(req, res);

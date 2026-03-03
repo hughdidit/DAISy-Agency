@@ -1,7 +1,5 @@
 import { spawn } from "node:child_process";
 
-<<<<<<< HEAD
-=======
 type ExecDockerRawOptions = {
   allowFailure?: boolean;
   input?: Buffer | string;
@@ -107,7 +105,6 @@ export function execDockerRaw(
 }
 
 import { formatCliCommand } from "../../cli/command-format.js";
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 import { defaultRuntime } from "../../runtime.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import { DEFAULT_SANDBOX_IMAGE, SANDBOX_AGENT_WORKSPACE_MOUNT } from "./constants.js";
@@ -221,23 +218,8 @@ export function buildSandboxCreateArgs(params: {
   for (const entry of params.cfg.tmpfs) {
     args.push("--tmpfs", entry);
   }
-<<<<<<< HEAD
   if (params.cfg.network) args.push("--network", params.cfg.network);
   if (params.cfg.user) args.push("--user", params.cfg.user);
-=======
-  if (params.cfg.network) {
-    args.push("--network", params.cfg.network);
-  }
-  if (params.cfg.user) {
-    args.push("--user", params.cfg.user);
-  }
-  for (const [key, value] of Object.entries(params.cfg.env ?? {})) {
-    if (!key.trim()) {
-      continue;
-    }
-    args.push("--env", key + "=" + value);
-  }
->>>>>>> a067565db (fix: pass sandbox docker env into containers (#15138) (thanks @stevebot-alive))
   for (const cap of params.cfg.capDrop) {
     args.push("--cap-drop", cap);
   }

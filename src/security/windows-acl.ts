@@ -76,16 +76,7 @@ function classifyPrincipal(
 ): "trusted" | "world" | "group" {
   const normalized = normalize(principal);
   const trusted = buildTrustedPrincipals(env);
-<<<<<<< HEAD
   if (trusted.has(normalized) || TRUSTED_SUFFIXES.some((s) => normalized.endsWith(s)))
-=======
-
-  if (SID_RE.test(normalized)) {
-    return TRUSTED_SIDS.has(normalized) || trusted.has(normalized) ? "trusted" : "group";
-  }
-
-  if (trusted.has(normalized) || TRUSTED_SUFFIXES.some((s) => normalized.endsWith(s))) {
->>>>>>> 85a3c0c81 (fix: use SID-based ACL classification for non-English Windows)
     return "trusted";
   if (WORLD_PRINCIPALS.has(normalized) || WORLD_SUFFIXES.some((s) => normalized.endsWith(s)))
     return "world";

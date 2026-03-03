@@ -11,11 +11,8 @@ import {
 import { getCustomProviderApiKey, resolveEnvApiKey } from "../agents/model-auth.js";
 import { normalizeProviderId } from "../agents/model-selection.js";
 import { loadConfig } from "../config/config.js";
-<<<<<<< HEAD
-=======
 import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
 import { resolveRequiredHomeDir } from "./home-dir.js";
->>>>>>> c7ff12ef2 (fix: use effective home for legacy zai auth fallback)
 import type { UsageProviderId } from "./provider-usage.types.js";
 
 export type ProviderAuth = {
@@ -61,20 +58,8 @@ function resolveZaiApiKey(): string | undefined {
   }
 
   try {
-<<<<<<< HEAD
     const authPath = path.join(os.homedir(), ".pi", "agent", "auth.json");
     if (!fs.existsSync(authPath)) return undefined;
-=======
-    const authPath = path.join(
-      resolveRequiredHomeDir(process.env, os.homedir),
-      ".pi",
-      "agent",
-      "auth.json",
-    );
-    if (!fs.existsSync(authPath)) {
-      return undefined;
-    }
->>>>>>> c7ff12ef2 (fix: use effective home for legacy zai auth fallback)
     const data = JSON.parse(fs.readFileSync(authPath, "utf-8")) as Record<
       string,
       { access?: string }

@@ -41,7 +41,6 @@ import { voicewakeHandlers } from "./server-methods/voicewake.js";
 import { webHandlers } from "./server-methods/web.js";
 import { wizardHandlers } from "./server-methods/wizard.js";
 
-<<<<<<< HEAD
 const ADMIN_SCOPE = "operator.admin";
 const READ_SCOPE = "operator.read";
 const WRITE_SCOPE = "operator.write";
@@ -111,22 +110,13 @@ const WRITE_METHODS = new Set([
   "chat.abort",
   "browser.request",
 ]);
-=======
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
 const CONTROL_PLANE_WRITE_METHODS = new Set(["config.apply", "config.patch", "update.run"]);
 function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["client"]) {
   if (!client?.connect) return null;
   const role = client.connect.role ?? "operator";
   const scopes = client.connect.scopes ?? [];
-<<<<<<< HEAD
   if (NODE_ROLE_METHODS.has(method)) {
     if (role === "node") return null;
-=======
-  if (isNodeRoleMethod(method)) {
-    if (role === "node") {
-      return null;
-    }
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
     return errorShape(ErrorCodes.INVALID_REQUEST, `unauthorized role: ${role}`);
   }
   if (role === "node") {
@@ -135,15 +125,8 @@ function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["c
   if (role !== "operator") {
     return errorShape(ErrorCodes.INVALID_REQUEST, `unauthorized role: ${role}`);
   }
-<<<<<<< HEAD
   if (scopes.includes(ADMIN_SCOPE)) return null;
   if (APPROVAL_METHODS.has(method) && !scopes.includes(APPROVALS_SCOPE)) {
-=======
-  if (scopes.includes(ADMIN_SCOPE)) {
-    return null;
-  }
-  if (isApprovalMethod(method) && !scopes.includes(APPROVALS_SCOPE)) {
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
     return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.approvals");
   }
   if (isPairingMethod(method) && !scopes.includes(PAIRING_SCOPE)) {
@@ -155,7 +138,6 @@ function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["c
   if (isWriteMethod(method) && !scopes.includes(WRITE_SCOPE)) {
     return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.write");
   }
-<<<<<<< HEAD
   if (APPROVAL_METHODS.has(method)) return null;
   if (PAIRING_METHODS.has(method)) return null;
   if (READ_METHODS.has(method)) return null;
@@ -179,21 +161,6 @@ function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["c
     method === "sessions.delete" ||
     method === "sessions.compact"
   ) {
-=======
-  if (isApprovalMethod(method)) {
-    return null;
-  }
-  if (isPairingMethod(method)) {
-    return null;
-  }
-  if (isReadMethod(method)) {
-    return null;
-  }
-  if (isWriteMethod(method)) {
-    return null;
-  }
-  if (isAdminOnlyMethod(method)) {
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
     return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.admin");
   }
   return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.admin");

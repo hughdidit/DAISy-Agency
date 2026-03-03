@@ -464,8 +464,6 @@ describe("statusCommand", () => {
     expect(logs.join("\n")).toMatch(/WARN/);
   });
 
-<<<<<<< HEAD
-=======
   it("prints requestId-aware recovery guidance when gateway pairing is required", async () => {
     mocks.probeGateway.mockResolvedValueOnce({
       ok: false,
@@ -552,7 +550,6 @@ describe("statusCommand", () => {
     expect(joined).toContain("devices approve req-close-456");
   });
 
->>>>>>> 69a541c3f (fix: sanitize pairing recovery requestId hints (#24771) (thanks @markmusson))
   it("includes sessions across agents in JSON output", async () => {
     const originalAgents = mocks.listAgentsForGateway.getMockImplementation();
     const originalResolveStorePath = mocks.resolveStorePath.getMockImplementation();

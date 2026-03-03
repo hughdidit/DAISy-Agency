@@ -3,11 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
-=======
-import type { CronJob } from "./types.js";
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 import { CronService } from "./service.js";
 
 const noopLogger = {

@@ -108,8 +108,6 @@ export function toSanitizedMarkdownHtml(markdown: string): string {
   return sanitized;
 }
 
-<<<<<<< HEAD
-=======
 // Prevent raw HTML in chat messages from being rendered as formatted HTML.
 // Display it as escaped text so users see the literal markup.
 // Security is handled by DOMPurify, but rendering pasted HTML (e.g. error
@@ -146,7 +144,6 @@ htmlEscapeRenderer.code = ({
   return codeBlock;
 };
 
->>>>>>> ad404c962 (fix: align markdown code renderer with marked token typing)
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")

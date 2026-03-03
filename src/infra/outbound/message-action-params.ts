@@ -169,8 +169,6 @@ function normalizeBase64Payload(params: { base64?: string; contentType?: string 
   };
 }
 
-<<<<<<< HEAD
-=======
 export type AttachmentMediaPolicy =
   | {
       mode: "sandbox";
@@ -227,7 +225,6 @@ function buildAttachmentMediaLoadOptions(params: {
   };
 }
 
->>>>>>> c823a8530 (fix: harden sandbox media reads against TOCTOU escapes)
 async function hydrateAttachmentPayload(params: {
   cfg: OpenClawConfig;
   channel: ChannelId;

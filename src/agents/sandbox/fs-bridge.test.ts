@@ -85,8 +85,6 @@ describe("sandbox fs bridge shell compatibility", () => {
     expect(scripts.every((script) => script.includes("set -eu;"))).toBe(true);
     expect(scripts.some((script) => script.includes("pipefail"))).toBe(false);
   });
-<<<<<<< HEAD
-=======
 
   it("resolveCanonicalContainerPath script is valid POSIX sh (no do; token)", async () => {
     const bridge = createSandboxFsBridge({ sandbox: createSandbox() });
@@ -211,7 +209,6 @@ describe("sandbox fs bridge shell compatibility", () => {
     }
   });
 
->>>>>>> 3be1343e0 (fix: tighten sandbox mkdirp boundary checks (#30610) (thanks @glitch418x))
   it("rejects pre-existing host symlink escapes before docker exec", async () => {
     const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-fs-bridge-"));
     const workspaceDir = path.join(stateDir, "workspace");

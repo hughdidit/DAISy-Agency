@@ -71,8 +71,6 @@ function normalizeAllowFromEntry(params: {
   return normalized.filter((entry) => entry.trim().length > 0);
 }
 
-<<<<<<< HEAD
-=======
 function resolveOwnerAllowFromList(params: {
   dock?: ChannelDock;
   cfg: OpenClawConfig;
@@ -115,7 +113,6 @@ function resolveOwnerAllowFromList(params: {
   });
 }
 
->>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
 function resolveSenderCandidates(params: {
   dock?: ChannelDock;
   providerId?: ChannelId;
@@ -170,8 +167,6 @@ export function resolveCommandAuthorization(params: {
     accountId: ctx.AccountId,
     allowFrom: Array.isArray(allowFromRaw) ? allowFromRaw : [],
   });
-<<<<<<< HEAD
-=======
   const configOwnerAllowFromList = resolveOwnerAllowFromList({
     dock,
     cfg,
@@ -186,7 +181,6 @@ export function resolveCommandAuthorization(params: {
     providerId,
     allowFrom: ctx.OwnerAllowFrom,
   });
->>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
   const allowAll =
     allowFromList.length === 0 || allowFromList.some((entry) => entry.trim() === "*");
 
@@ -201,16 +195,7 @@ export function resolveCommandAuthorization(params: {
     if (normalizedTo.length > 0) ownerCandidates.push(...normalizedTo);
   }
 <<<<<<< HEAD
-<<<<<<< HEAD
   const ownerList = Array.from(new Set(ownerCandidates));
-=======
-  const ownerAllowAll = ownerAllowFromList.some((entry) => entry.trim() === "*");
-  const explicitOwners = ownerAllowFromList.filter((entry) => entry !== "*");
-=======
-  const ownerAllowAll = configOwnerAllowFromList.some((entry) => entry.trim() === "*");
-  const explicitOwners = configOwnerAllowFromList.filter((entry) => entry !== "*");
-  const explicitOverrides = contextOwnerAllowFromList.filter((entry) => entry !== "*");
->>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
   const ownerList = Array.from(
     new Set(
       explicitOwners.length > 0
@@ -239,22 +224,8 @@ export function resolveCommandAuthorization(params: {
   const senderId = matchedSender ?? senderCandidates[0];
 
   const enforceOwner = Boolean(dock?.commands?.enforceOwnerForCommands);
-<<<<<<< HEAD
   const isOwner = !enforceOwner || allowAll || ownerList.length === 0 || Boolean(matchedSender);
   const isAuthorizedSender = commandAuthorized && isOwner;
-=======
-  const senderIsOwner = Boolean(matchedSender);
-  const ownerAllowlistConfigured = ownerAllowAll || explicitOwners.length > 0;
-  const requireOwner = enforceOwner || ownerAllowlistConfigured;
-  const isOwnerForCommands = !requireOwner
-    ? true
-    : ownerAllowAll
-      ? true
-      : ownerAllowlistConfigured
-        ? senderIsOwner
-        : allowAll || ownerCandidatesForCommands.length === 0 || Boolean(matchedCommandOwner);
-  const isAuthorizedSender = commandAuthorized && isOwnerForCommands;
->>>>>>> 385a7eba3 (fix: enforce owner allowlist for commands)
 
   return {
     providerId,

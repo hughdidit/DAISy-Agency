@@ -138,13 +138,8 @@ Moonshot uses OpenAI-compatible endpoints, so configure it as a custom provider:
   - `moonshot/kimi-k2-turbo-preview`
   - `moonshot/kimi-k2-thinking`
   - `moonshot/kimi-k2-thinking-turbo`
-<<<<<<< HEAD
   {/* moonshot-kimi-k2-model-refs:end */}
 <<<<<<< HEAD
-=======
-=======
-    {/_ moonshot-kimi-k2-model-refs:end _/}
->>>>>>> dda8a2b23 (fix: format docs)
 
 >>>>>>> 7ee99af9f (fix: convert HTML comments to MDX comments in docs)
 ```json5
@@ -210,8 +205,6 @@ Model refs:
 
 See [/providers/qwen](/providers/qwen) for setup details and notes.
 
-<<<<<<< HEAD
-=======
 ### Volcano Engine (Doubao)
 
 Volcano Engine (火山引擎) provides access to Doubao and other models in China.
@@ -276,7 +269,6 @@ Coding models (`byteplus-plan`):
 - `byteplus-plan/kimi-k2-thinking`
 - `byteplus-plan/glm-4.7`
 
->>>>>>> 581868365 (fix: finish volcengine/byteplus landing polish (#7967) (thanks @funmore123))
 ### Synthetic
 
 Synthetic provides Anthropic-compatible models behind the `synthetic` provider:

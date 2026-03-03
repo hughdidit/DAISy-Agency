@@ -212,20 +212,11 @@ function computeNextProfileUsageStats(params: {
       maxMs: params.cfgResolved.billingMaxMs,
     });
 <<<<<<< HEAD
-<<<<<<< HEAD
     updatedStats.disabledUntil = params.now + backoffMs;
     updatedStats.disabledReason = "billing";
   } else {
     const backoffMs = calculateAuthProfileCooldownMs(nextErrorCount);
     updatedStats.cooldownUntil = params.now + backoffMs;
-=======
-    const existingDisabledUntil = params.existing.disabledUntil;
-    const hasActiveDisabledWindow =
-      typeof existingDisabledUntil === "number" &&
-      Number.isFinite(existingDisabledUntil) &&
-      existingDisabledUntil > params.now;
-=======
->>>>>>> 07527e22c (refactor(auth-profiles): centralize active-window logic + strengthen regression coverage)
     // Keep active disable windows immutable so retries within the window cannot
     // extend recovery time indefinitely.
     updatedStats.disabledUntil = keepActiveWindowOrRecompute({
@@ -238,18 +229,10 @@ function computeNextProfileUsageStats(params: {
     const backoffMs = calculateAuthProfileCooldownMs(nextErrorCount);
     // Keep active cooldown windows immutable so retries within the window
     // cannot push recovery further out.
-<<<<<<< HEAD
     updatedStats.cooldownUntil = hasActiveCooldownWindow
       ? existingCooldownUntil
       : params.now + backoffMs;
 >>>>>>> 7c3c406a3 (fix: keep auth-profile cooldown windows immutable in-window (#23536) (thanks @arosstale))
-=======
-    updatedStats.cooldownUntil = keepActiveWindowOrRecompute({
-      existingUntil: params.existing.cooldownUntil,
-      now: params.now,
-      recomputedUntil: params.now + backoffMs,
-    });
->>>>>>> 07527e22c (refactor(auth-profiles): centralize active-window logic + strengthen regression coverage)
   }
 
   return updatedStats;

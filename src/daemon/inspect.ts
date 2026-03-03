@@ -27,11 +27,7 @@ export type FindExtraGatewayServicesOptions = {
   deep?: boolean;
 };
 
-<<<<<<< HEAD
 const EXTRA_MARKERS = ["moltbot"];
-=======
-const EXTRA_MARKERS = ["openclaw", "clawdbot", "moltbot"] as const;
->>>>>>> 02576615c (fix: migrate legacy gateway services)
 const execFileAsync = promisify(execFile);
 
 export function renderGatewayServiceCleanupHints(
@@ -169,11 +165,7 @@ async function scanLaunchdDir(params: {
       continue;
     }
     if (isIgnoredLaunchdLabel(label)) continue;
-<<<<<<< HEAD
     if (isMoltbotGatewayLaunchdService(label, contents)) continue;
-=======
-    if (marker === "openclaw" && isOpenClawGatewayLaunchdService(label, contents)) continue;
->>>>>>> 02576615c (fix: migrate legacy gateway services)
     results.push({
       platform: "darwin",
       label,
@@ -210,14 +202,8 @@ async function scanSystemdDir(params: {
     } catch {
       continue;
     }
-<<<<<<< HEAD
     if (!containsMarker(contents)) continue;
     if (isMoltbotGatewaySystemdService(name, contents)) continue;
-=======
-    const marker = detectMarker(contents);
-    if (!marker) continue;
-    if (marker === "openclaw" && isOpenClawGatewaySystemdService(name, contents)) continue;
->>>>>>> 02576615c (fix: migrate legacy gateway services)
     results.push({
       platform: "linux",
       label: entry,

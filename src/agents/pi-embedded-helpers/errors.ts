@@ -4,8 +4,6 @@ import type { MoltbotConfig } from "../../config/config.js";
 import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
 import type { FailoverReason } from "./types.js";
 
-<<<<<<< HEAD
-=======
 export function formatBillingErrorMessage(provider?: string, model?: string): string {
   const providerName = provider?.trim();
   const modelName = model?.trim();
@@ -33,7 +31,6 @@ function formatRateLimitOrOverloadedErrorCopy(raw: string): string | undefined {
   return undefined;
 }
 
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
 export function isContextOverflowError(errorMessage?: string): boolean {
   if (!errorMessage) return false;
   const lower = errorMessage.toLowerCase();
@@ -70,37 +67,9 @@ const CONTEXT_OVERFLOW_HINT_RE =
   /context.*overflow|context window.*(too (?:large|long)|exceed|over|limit|max(?:imum)?|requested|sent|tokens)|(?:prompt|request|input).*(too (?:large|long)|exceed|over|limit|max(?:imum)?)/i;
 
 export function isLikelyContextOverflowError(errorMessage?: string): boolean {
-<<<<<<< HEAD
   if (!errorMessage) return false;
   if (CONTEXT_WINDOW_TOO_SMALL_RE.test(errorMessage)) return false;
   if (isContextOverflowError(errorMessage)) return true;
-=======
-  if (!errorMessage) {
-    return false;
-  }
-
-  // Groq uses 413 for TPM (tokens per minute) limits, which is a rate limit, not context overflow.
-  const lower = errorMessage.toLowerCase();
-  if (lower.includes("tpm") || lower.includes("tokens per minute")) {
-    return false;
-  }
-
-  if (CONTEXT_WINDOW_TOO_SMALL_RE.test(errorMessage)) {
-    return false;
-  }
-  // Rate limit errors can match the broad CONTEXT_OVERFLOW_HINT_RE pattern
-  // (e.g., "request reached organization TPD rate limit" matches request.*limit).
-  // Exclude them before checking context overflow heuristics.
-  if (isRateLimitErrorMessage(errorMessage)) {
-    return false;
-  }
-  if (isContextOverflowError(errorMessage)) {
-    return true;
-  }
-  if (RATE_LIMIT_HINT_RE.test(errorMessage)) {
-    return false;
-  }
->>>>>>> 652099cd5 (fix: correctly identify Groq TPM limits as rate limits instead of context overflow (#16176))
   return CONTEXT_OVERFLOW_HINT_RE.test(errorMessage);
 }
 
@@ -122,13 +91,10 @@ const FINAL_TAG_RE = /<\s*\/?\s*final\s*>/gi;
 const ERROR_PREFIX_RE =
   /^(?:error|api\s*error|openai\s*error|anthropic\s*error|gateway\s*error|request failed|failed|exception)[:\s-]+/i;
 const HTTP_STATUS_PREFIX_RE = /^(?:http\s*)?(\d{3})\s+(.+)$/i;
-<<<<<<< HEAD
-=======
 const HTTP_STATUS_CODE_PREFIX_RE = /^(?:http\s*)?(\d{3})(?:\s+([\s\S]+))?$/i;
 const HTML_ERROR_PREFIX_RE = /^\s*(?:<!doctype\s+html\b|<html\b)/i;
 const CLOUDFLARE_HTML_ERROR_CODES = new Set([521, 522, 523, 524, 525, 526, 530]);
 const TRANSIENT_HTTP_ERROR_CODES = new Set([500, 502, 503, 504, 521, 522, 523, 524, 529]);
->>>>>>> 3c57bf4c8 (fix: treat HTTP 502/503/504 as failover-eligible (timeout reason) (#21017))
 const HTTP_ERROR_HINTS = [
   "error",
   "bad request",
@@ -184,8 +150,6 @@ function isLikelyHttpErrorText(raw: string): boolean {
   return HTTP_ERROR_HINTS.some((hint) => message.includes(hint));
 }
 
-<<<<<<< HEAD
-=======
 function shouldRewriteContextOverflowText(raw: string): boolean {
   if (!isContextOverflowError(raw)) {
     return false;
@@ -198,7 +162,6 @@ function shouldRewriteContextOverflowText(raw: string): boolean {
   );
 }
 
->>>>>>> 5e423b596 (fix: remove false-positive billing error rewrite on normal assistant text (openclaw#17834) thanks @niceysam)
 type ErrorPayload = Record<string, unknown>;
 
 function isErrorPayloadObject(payload: unknown): payload is ErrorPayload {
@@ -342,11 +305,7 @@ export function formatRawAssistantErrorForUi(raw?: string): string {
 
 export function formatAssistantErrorText(
   msg: AssistantMessage,
-<<<<<<< HEAD
   opts?: { cfg?: MoltbotConfig; sessionKey?: string },
-=======
-  opts?: { cfg?: OpenClawConfig; sessionKey?: string; provider?: string; model?: string },
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
 ): string | undefined {
   // Also format errors if errorMessage is present, even if stopReason isn't "error"
   const raw = (msg.errorMessage ?? "").trim();
@@ -389,22 +348,8 @@ export function formatAssistantErrorText(
     return `LLM request rejected: ${invalidRequest[1]}`;
   }
 
-<<<<<<< HEAD
   if (isOverloadedErrorMessage(raw)) {
     return "The AI service is temporarily overloaded. Please try again in a moment.";
-=======
-  const transientCopy = formatRateLimitOrOverloadedErrorCopy(raw);
-  if (transientCopy) {
-    return transientCopy;
-  }
-
-  if (isTimeoutErrorMessage(raw)) {
-    return "LLM request timed out.";
-  }
-
-  if (isBillingErrorMessage(raw)) {
-    return formatBillingErrorMessage(opts?.provider, opts?.model ?? msg.model);
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
   }
 
   if (isLikelyHttpErrorText(raw) || isRawApiErrorPayload(raw)) {
@@ -422,7 +367,6 @@ export function sanitizeUserFacingText(text: string): string {
   if (!text) return text;
   const stripped = stripFinalTagsFromText(text);
   const trimmed = stripped.trim();
-<<<<<<< HEAD
   if (!trimmed) return stripped;
 
   if (/incorrect role information|roles must alternate/i.test(trimmed)) {
@@ -430,10 +374,6 @@ export function sanitizeUserFacingText(text: string): string {
       "Message ordering conflict - please try again. " +
       "If this persists, use /new to start a fresh session."
     );
-=======
-  if (!trimmed) {
-    return "";
->>>>>>> 3881af5b3 (fix: strip leading whitespace from sanitizeUserFacingText output (#16158))
   }
 
   if (isContextOverflowError(trimmed)) {
@@ -443,18 +383,9 @@ export function sanitizeUserFacingText(text: string): string {
     );
   }
 
-<<<<<<< HEAD
   if (isRawApiErrorPayload(trimmed) || isLikelyHttpErrorText(trimmed)) {
     return formatRawAssistantErrorForUi(trimmed);
   }
-=======
-    if (shouldRewriteContextOverflowText(trimmed)) {
-      return (
-        "Context overflow: prompt too large for the model. " +
-        "Try /reset (or /new) to start a fresh session, or use a larger-context model."
-      );
-    }
->>>>>>> c2b2d535f (fix: suggest /clear in context overflow error message (#12973))
 
   if (ERROR_PREFIX_RE.test(trimmed)) {
     if (isOverloadedErrorMessage(trimmed) || isRateLimitErrorMessage(trimmed)) {
@@ -463,21 +394,7 @@ export function sanitizeUserFacingText(text: string): string {
     if (isTimeoutErrorMessage(trimmed)) {
       return "LLM request timed out.";
     }
-<<<<<<< HEAD
     return formatRawAssistantErrorForUi(trimmed);
-=======
-
-    if (ERROR_PREFIX_RE.test(trimmed)) {
-      const prefixedCopy = formatRateLimitOrOverloadedErrorCopy(trimmed);
-      if (prefixedCopy) {
-        return prefixedCopy;
-      }
-      if (isTimeoutErrorMessage(trimmed)) {
-        return "LLM request timed out.";
-      }
-      return formatRawAssistantErrorForUi(trimmed);
-    }
->>>>>>> 5e423b596 (fix: remove false-positive billing error rewrite on normal assistant text (openclaw#17834) thanks @niceysam)
   }
 
   // Strip leading blank lines (including whitespace-only lines) without clobbering indentation on
@@ -504,27 +421,8 @@ const ERROR_PATTERNS = {
     "tpm",
     "tokens per minute",
   ],
-<<<<<<< HEAD
   overloaded: [/overloaded_error|"type"\s*:\s*"overloaded_error"/i, "overloaded"],
   timeout: ["timeout", "timed out", "deadline exceeded", "context deadline exceeded"],
-=======
-  overloaded: [
-    /overloaded_error|"type"\s*:\s*"overloaded_error"/i,
-    "overloaded",
-    "service unavailable",
-    "high demand",
-  ],
-  timeout: [
-    "timeout",
-    "timed out",
-    "deadline exceeded",
-    "context deadline exceeded",
-    /without sending (?:any )?chunks?/i,
-    /\bstop reason:\s*abort\b/i,
-    /\breason:\s*abort\b/i,
-    /\bunhandled stop reason:\s*abort\b/i,
-  ],
->>>>>>> 2af3415fa (fix: treat HTTP 503 as failover-eligible for LLM provider errors (#21086))
   billing: [
     /\b402\b/,
     "payment required",
@@ -657,7 +555,6 @@ export function isAuthAssistantError(msg: AssistantMessage | undefined): boolean
   return isAuthErrorMessage(msg.errorMessage ?? "");
 }
 
-<<<<<<< HEAD
 export function classifyFailoverReason(raw: string): FailoverReason | null {
   if (isImageDimensionErrorMessage(raw)) return null;
   if (isImageSizeError(raw)) return null;
@@ -667,101 +564,6 @@ export function classifyFailoverReason(raw: string): FailoverReason | null {
   if (isBillingErrorMessage(raw)) return "billing";
   if (isTimeoutErrorMessage(raw)) return "timeout";
   if (isAuthErrorMessage(raw)) return "auth";
-=======
-export function isModelNotFoundErrorMessage(raw: string): boolean {
-  if (!raw) {
-    return false;
-  }
-  const lower = raw.toLowerCase();
-
-  // Direct pattern matches from OpenClaw internals and common providers.
-  if (
-    lower.includes("unknown model") ||
-    lower.includes("model not found") ||
-    lower.includes("model_not_found") ||
-    lower.includes("not_found_error") ||
-    (lower.includes("does not exist") && lower.includes("model")) ||
-    (lower.includes("invalid model") && !lower.includes("invalid model reference"))
-  ) {
-    return true;
-  }
-
-  // Google Gemini: "models/X is not found for api version"
-  if (/models\/[^\s]+ is not found/i.test(raw)) {
-    return true;
-  }
-
-  // JSON error payloads: {"status": "NOT_FOUND"} or {"code": 404} combined with not-found text.
-  if (/\b404\b/.test(raw) && /not[-_ ]?found/i.test(raw)) {
-    return true;
-  }
-
-  return false;
-}
-
-function isCliSessionExpiredErrorMessage(raw: string): boolean {
-  if (!raw) {
-    return false;
-  }
-  const lower = raw.toLowerCase();
-  return (
-    lower.includes("session not found") ||
-    lower.includes("session does not exist") ||
-    lower.includes("session expired") ||
-    lower.includes("session invalid") ||
-    lower.includes("conversation not found") ||
-    lower.includes("conversation does not exist") ||
-    lower.includes("conversation expired") ||
-    lower.includes("conversation invalid") ||
-    lower.includes("no such session") ||
-    lower.includes("invalid session") ||
-    lower.includes("session id not found") ||
-    lower.includes("conversation id not found")
-  );
-}
-
-export function classifyFailoverReason(raw: string): FailoverReason | null {
-  if (isImageDimensionErrorMessage(raw)) {
-    return null;
-  }
-  if (isImageSizeError(raw)) {
-    return null;
-  }
-  if (isCliSessionExpiredErrorMessage(raw)) {
-    return "session_expired";
-  }
-  if (isModelNotFoundErrorMessage(raw)) {
-    return "model_not_found";
-  }
-  if (isTransientHttpError(raw)) {
-    // Treat transient 5xx provider failures as retryable transport issues.
-    return "timeout";
-  }
-  if (isJsonApiInternalServerError(raw)) {
-    return "timeout";
-  }
-  if (isRateLimitErrorMessage(raw)) {
-    return "rate_limit";
-  }
-  if (isOverloadedErrorMessage(raw)) {
-    return "rate_limit";
-  }
-  if (isCloudCodeAssistFormatError(raw)) {
-    return "format";
-  }
-  if (isBillingErrorMessage(raw)) {
-    return "billing";
-  }
-  if (isTimeoutErrorMessage(raw)) {
-    return "timeout";
-  }
-  if (isAuthPermanentErrorMessage(raw)) {
-    return "auth_permanent";
-  }
-  if (isAuthErrorMessage(raw)) {
-    return "auth";
-  }
->>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
   return null;
 }
 

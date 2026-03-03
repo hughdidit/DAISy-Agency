@@ -101,10 +101,7 @@ export async function runAgentTurnWithFallback(params: {
   while (true) {
     try {
       const normalizeStreamingText = (payload: ReplyPayload): { text?: string; skip: boolean } => {
-<<<<<<< HEAD
         if (!allowPartialStream) return { skip: true };
-=======
->>>>>>> 221d50bc1 (fix: preserve assistant partial stream during reasoning)
         let text = payload.text;
         if (!params.isHeartbeat && text?.includes("HEARTBEAT_OK")) {
           const stripped = stripHeartbeatToken(text, {
@@ -122,25 +119,9 @@ export async function runAgentTurnWithFallback(params: {
         if (isSilentReplyText(text, SILENT_REPLY_TOKEN)) {
           return { skip: true };
         }
-<<<<<<< HEAD
         if (!text) return { skip: true };
         const sanitized = sanitizeUserFacingText(text);
         if (!sanitized.trim()) return { skip: true };
-=======
-        if (!text) {
-          // Allow media-only payloads (e.g. tool result screenshots) through.
-          if ((payload.mediaUrls?.length ?? 0) > 0) {
-            return { text: undefined, skip: false };
-          }
-          return { skip: true };
-        }
-        const sanitized = sanitizeUserFacingText(text, {
-          errorContext: Boolean(payload.isError),
-        });
-        if (!sanitized.trim()) {
-          return { skip: true };
-        }
->>>>>>> 68c78c4b4 (fix: deliver tool result media when verbose is off (#16679))
         return { text: sanitized, skip: false };
       };
       const handlePartialForTyping = async (payload: ReplyPayload): Promise<string | undefined> => {
@@ -180,7 +161,6 @@ export async function runAgentTurnWithFallback(params: {
               },
             });
             const cliSessionId = getCliSessionId(params.getActiveSessionEntry(), provider);
-<<<<<<< HEAD
             return runCliAgent({
               sessionId: params.followupRun.run.sessionId,
               sessionKey: params.sessionKey,
@@ -199,30 +179,6 @@ export async function runAgentTurnWithFallback(params: {
               images: params.opts?.images,
             })
               .then((result) => {
-=======
-            return (async () => {
-              let lifecycleTerminalEmitted = false;
-              try {
-                const result = await runCliAgent({
-                  sessionId: params.followupRun.run.sessionId,
-                  sessionKey: params.sessionKey,
-                  agentId: params.followupRun.run.agentId,
-                  sessionFile: params.followupRun.run.sessionFile,
-                  workspaceDir: params.followupRun.run.workspaceDir,
-                  config: params.followupRun.run.config,
-                  prompt: params.commandBody,
-                  provider,
-                  model,
-                  thinkLevel: params.followupRun.run.thinkLevel,
-                  timeoutMs: params.followupRun.run.timeoutMs,
-                  runId,
-                  extraSystemPrompt: params.followupRun.run.extraSystemPrompt,
-                  ownerNumbers: params.followupRun.run.ownerNumbers,
-                  cliSessionId,
-                  images: params.opts?.images,
-                });
-
->>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
                 // CLI backends don't emit streaming assistant events, so we need to
                 // emit one with the final text so server-chat can populate its buffer
                 // and send the response to TUI/WebSocket clients.
@@ -319,7 +275,6 @@ export async function runAgentTurnWithFallback(params: {
             abortSignal: params.opts?.abortSignal,
             blockReplyBreak: params.resolvedBlockStreamingBreak,
             blockReplyChunking: params.blockReplyChunking,
-<<<<<<< HEAD
             onPartialReply: allowPartialStream
               ? async (payload) => {
                   const textForTyping = await handlePartialForTyping(payload);
@@ -330,18 +285,6 @@ export async function runAgentTurnWithFallback(params: {
                   });
                 }
               : undefined,
-=======
-            onPartialReply: async (payload) => {
-              const textForTyping = await handlePartialForTyping(payload);
-              if (!params.opts?.onPartialReply || textForTyping === undefined) {
-                return;
-              }
-              await params.opts.onPartialReply({
-                text: textForTyping,
-                mediaUrls: payload.mediaUrls,
-              });
-            },
->>>>>>> 221d50bc1 (fix: preserve assistant partial stream during reasoning)
             onAssistantMessageStart: async () => {
               await params.typingSignals.signalMessageStart();
             },
@@ -451,7 +394,6 @@ export async function runAgentTurnWithFallback(params: {
             shouldEmitToolResult: params.shouldEmitToolResult,
             shouldEmitToolOutput: params.shouldEmitToolOutput,
             onToolResult: onToolResult
-<<<<<<< HEAD
               ? (payload) => {
                   // `subscribeEmbeddedPiSession` may invoke tool callbacks without awaiting them.
                   // If a tool callback starts typing after the run finalized, we can end up with
@@ -469,32 +411,6 @@ export async function runAgentTurnWithFallback(params: {
                       logVerbose(`tool result delivery failed: ${String(err)}`);
                     })
                     .finally(() => {
-=======
-              ? (() => {
-                  // Serialize tool result delivery to preserve message ordering.
-                  // Without this, concurrent tool callbacks race through typing signals
-                  // and message sends, causing out-of-order delivery to the user.
-                  // See: https://github.com/openclaw/openclaw/issues/11044
-                  let toolResultChain: Promise<void> = Promise.resolve();
-                  return (payload: ReplyPayload) => {
-                    toolResultChain = toolResultChain
-                      .then(async () => {
-                        const { text, skip } = normalizeStreamingText(payload);
-                        if (skip) {
-                          return;
-                        }
-                        await params.typingSignals.signalTextDelta(text);
-                        await onToolResult({
-                          text,
-                          mediaUrls: payload.mediaUrls,
-                        });
-                      })
-                      .catch((err) => {
-                        // Keep chain healthy after an error so later tool results still deliver.
-                        logVerbose(`tool result delivery failed: ${String(err)}`);
-                      });
-                    const task = toolResultChain.finally(() => {
->>>>>>> e321f21da (fix: serialize tool result delivery to preserve message ordering (#21231))
                       params.pendingToolTasks.delete(task);
                     });
                     params.pendingToolTasks.add(task);

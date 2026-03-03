@@ -602,28 +602,7 @@ function iterateQuoteAware(
       continue;
     }
     if (inDouble) {
-<<<<<<< HEAD
       if (ch === '"') inDouble = false;
-=======
-      if (ch === "\\" && isDoubleQuoteEscape(next)) {
-        buf += ch;
-        buf += next;
-        i += 1;
-        continue;
-      }
-      if (ch === "$" && next === "(") {
-        return { ok: false, reason: "unsupported shell token: $()" };
-      }
-      if (ch === "`") {
-        return { ok: false, reason: "unsupported shell token: `" };
-      }
-      if (ch === "\n" || ch === "\r") {
-        return { ok: false, reason: "unsupported shell token: newline" };
-      }
-      if (ch === '"') {
-        inDouble = false;
-      }
->>>>>>> d1ecb4607 (fix: harden exec allowlist parsing)
       buf += ch;
       continue;
     }
@@ -1128,19 +1107,7 @@ function splitCommandChain(command: string): string[] | null {
       continue;
     }
     if (inDouble) {
-<<<<<<< HEAD
       if (ch === '"') inDouble = false;
-=======
-      if (ch === "\\" && isDoubleQuoteEscape(next)) {
-        buf += ch;
-        buf += next;
-        i += 1;
-        continue;
-      }
-      if (ch === '"') {
-        inDouble = false;
-      }
->>>>>>> d1ecb4607 (fix: harden exec allowlist parsing)
       buf += ch;
       continue;
     }

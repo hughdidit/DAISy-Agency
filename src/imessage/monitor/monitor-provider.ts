@@ -1,9 +1,5 @@
 import fs from "node:fs/promises";
-<<<<<<< HEAD
 
-=======
-import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
->>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
@@ -31,20 +27,12 @@ import { logInboundDrop } from "../../channels/logging.js";
 import { createReplyPrefixContext } from "../../channels/reply-prefix.js";
 import { recordInboundSession } from "../../channels/session.js";
 import { loadConfig } from "../../config/config.js";
-<<<<<<< HEAD
 import {
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
 } from "../../config/group-policy.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../../globals.js";
-=======
-import { resolveRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
-import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
-import type { GroupPolicy } from "../../config/types.base.js";
-import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
-import { normalizeScpRemoteHost } from "../../infra/scp-host.js";
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import { waitForTransportReady } from "../../infra/transport-ready.js";
 import { mediaKindFromMime } from "../../media/constants.js";
 import {
@@ -62,10 +50,7 @@ import { truncateUtf16Safe } from "../../utils.js";
 import { resolveControlCommandGate } from "../../channels/command-gating.js";
 import { resolveIMessageAccount } from "../accounts.js";
 import { createIMessageRpcClient } from "../client.js";
-<<<<<<< HEAD
-=======
 import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "../constants.js";
->>>>>>> f633a8cb2 (fix: address review comments)
 import { probeIMessage } from "../probe.js";
 import { sendMessageIMessage } from "../send.js";
 import {
@@ -102,7 +87,6 @@ async function detectRemoteHostFromCliPath(cliPath: string): Promise<string | un
   }
 }
 
-<<<<<<< HEAD
 type IMessageReplyContext = {
   id?: string;
   body: string;
@@ -113,60 +97,11 @@ function normalizeReplyField(value: unknown): string | undefined {
   if (typeof value === "string") {
     const trimmed = value.trim();
     return trimmed ? trimmed : undefined;
-=======
-/**
- * Cache for recently sent messages, used for echo detection.
- * Keys are scoped by conversation (accountId:target) so the same text in different chats is not conflated.
- * Message IDs use a longer TTL than text fallback to improve resilience when inbound polling is delayed.
- */
-const SENT_MESSAGE_TEXT_TTL_MS = 5000;
-const SENT_MESSAGE_ID_TTL_MS = 60_000;
-
-function normalizeEchoTextKey(text: string | undefined): string | null {
-  if (!text) {
-    return null;
-  }
-  const normalized = text.replace(/\r\n?/g, "\n").trim();
-  return normalized ? normalized : null;
-}
-
-function normalizeEchoMessageIdKey(messageId: string | undefined): string | null {
-  if (!messageId) {
-    return null;
-  }
-  const normalized = messageId.trim();
-  if (!normalized || normalized === "ok" || normalized === "unknown") {
-    return null;
-  }
-  return normalized;
-}
-
-type SentMessageLookup = {
-  text?: string;
-  messageId?: string;
-};
-
-class SentMessageCache {
-  private textCache = new Map<string, number>();
-  private messageIdCache = new Map<string, number>();
-
-  remember(scope: string, lookup: SentMessageLookup): void {
-    const textKey = normalizeEchoTextKey(lookup.text);
-    if (textKey) {
-      this.textCache.set(`${scope}:${textKey}`, Date.now());
-    }
-    const messageIdKey = normalizeEchoMessageIdKey(lookup.messageId);
-    if (messageIdKey) {
-      this.messageIdCache.set(`${scope}:${messageIdKey}`, Date.now());
-    }
-    this.cleanup();
->>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
   }
   if (typeof value === "number") return String(value);
   return undefined;
 }
 
-<<<<<<< HEAD
 function describeReplyContext(message: IMessagePayload): IMessageReplyContext | null {
   const body = normalizeReplyField(message.reply_to_text);
   if (!body) return null;
@@ -190,40 +125,6 @@ function resolveIMessageRuntimeGroupPolicy(params: {
     configuredFallbackPolicy: "open",
     missingProviderFallbackPolicy: "allowlist",
   });
-=======
-  has(scope: string, lookup: SentMessageLookup): boolean {
-    this.cleanup();
-    const messageIdKey = normalizeEchoMessageIdKey(lookup.messageId);
-    if (messageIdKey) {
-      const idTimestamp = this.messageIdCache.get(`${scope}:${messageIdKey}`);
-      if (idTimestamp && Date.now() - idTimestamp <= SENT_MESSAGE_ID_TTL_MS) {
-        return true;
-      }
-    }
-    const textKey = normalizeEchoTextKey(lookup.text);
-    if (textKey) {
-      const textTimestamp = this.textCache.get(`${scope}:${textKey}`);
-      if (textTimestamp && Date.now() - textTimestamp <= SENT_MESSAGE_TEXT_TTL_MS) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private cleanup(): void {
-    const now = Date.now();
-    for (const [key, timestamp] of this.textCache.entries()) {
-      if (now - timestamp > SENT_MESSAGE_TEXT_TTL_MS) {
-        this.textCache.delete(key);
-      }
-    }
-    for (const [key, timestamp] of this.messageIdCache.entries()) {
-      if (now - timestamp > SENT_MESSAGE_ID_TTL_MS) {
-        this.messageIdCache.delete(key);
-      }
-    }
-  }
->>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
 }
 
 export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): Promise<void> {
@@ -266,8 +167,6 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
   const mediaMaxBytes = (opts.mediaMaxMb ?? imessageCfg.mediaMaxMb ?? 16) * 1024 * 1024;
   const cliPath = opts.cliPath ?? imessageCfg.cliPath ?? "imsg";
   const dbPath = opts.dbPath ?? imessageCfg.dbPath;
-<<<<<<< HEAD
-=======
   const probeTimeoutMs = imessageCfg.probeTimeoutMs ?? DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS;
   const attachmentRoots = resolveIMessageAttachmentRoots({
     cfg,
@@ -277,7 +176,6 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     cfg,
     accountId: accountInfo.accountId,
   });
->>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 
   // Resolve remoteHost: explicit config, or auto-detect from SSH wrapper script
   let remoteHost = imessageCfg.remoteHost;
@@ -813,11 +711,5 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
 }
 
 export const __testing = {
-<<<<<<< HEAD
   resolveIMessageRuntimeGroupPolicy,
-=======
-  resolveIMessageRuntimeGroupPolicy: resolveOpenProviderRuntimeGroupPolicy,
-  resolveDefaultGroupPolicy,
-  createSentMessageCache: () => new SentMessageCache(),
->>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
 };

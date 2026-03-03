@@ -1,21 +1,11 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-<<<<<<< HEAD
 
 import type { AssistantIdentity } from "../assistant-identity";
 import { toSanitizedMarkdownHtml } from "../markdown";
 import type { MessageGroup } from "../types/chat-types";
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown";
 import { isToolResultMessage, normalizeRoleForGrouping } from "./message-normalizer";
-=======
-import type { AssistantIdentity } from "../assistant-identity.ts";
-import { icons } from "../icons.ts";
-import { toSanitizedMarkdownHtml } from "../markdown.ts";
-import { detectTextDirection } from "../text-direction.ts";
-import type { MessageGroup, ToolCard } from "../types/chat-types.ts";
-import { agentLogoUrl } from "../views/agents-utils.ts";
-import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 import {
   extractTextCached,
   extractThinkingCached,
@@ -122,11 +112,8 @@ export function renderMessageGroup(
     showReasoning: boolean;
     assistantName?: string;
     assistantAvatar?: string | null;
-<<<<<<< HEAD
-=======
     basePath?: string;
     onDelete?: () => void;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   },
 ) {
   const normalizedRole = normalizeRoleForGrouping(group.role);
@@ -182,10 +169,7 @@ export function renderMessageGroup(
 function renderAvatar(
   role: string,
   assistant?: Pick<AssistantIdentity, "name" | "avatar">,
-<<<<<<< HEAD
-=======
   basePath?: string,
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 ) {
   const normalized = normalizeRoleForGrouping(role);
   const assistantName = assistant?.name?.trim() || "Assistant";

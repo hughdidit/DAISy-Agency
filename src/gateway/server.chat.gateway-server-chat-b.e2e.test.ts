@@ -2,12 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, test, vi } from "vitest";
-<<<<<<< HEAD
 import { emitAgentEvent } from "../infra/agent-events.js";
-=======
-import type { GetReplyOptions } from "../auto-reply/types.js";
-import { __setMaxChatHistoryMessagesBytesForTest } from "./server-constants.js";
->>>>>>> b62bd290c (fix: remove hardcoded disableBlockStreaming to honor agent config for TUI (#19693))
 import {
   connectOk,
   getReplyFromConfig,
@@ -109,8 +104,6 @@ describe("gateway server chat", () => {
             lastChannel: "whatsapp",
             lastTo: "+1555",
           },
-<<<<<<< HEAD
-=======
         },
       });
 
@@ -310,7 +303,6 @@ describe("gateway server chat", () => {
             },
             { once: true },
           );
->>>>>>> b62bd290c (fix: remove hardcoded disableBlockStreaming to honor agent config for TUI (#19693))
         });
         const routeRes = await rpcReq(ws, "chat.send", {
           sessionKey: "main",

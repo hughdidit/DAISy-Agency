@@ -112,8 +112,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("runs canonical argv in allowlist mode for transparent env wrappers", async () => {
     const { runCommand, sendInvokeResult } = await runSystemInvoke({
@@ -224,5 +222,4 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       }),
     );
   });
->>>>>>> 3f923e831 (test: add env -S allowlist bypass regressions)
 });

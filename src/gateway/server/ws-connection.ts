@@ -18,8 +18,6 @@ import type { GatewayWsClient } from "./ws-types.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
-<<<<<<< HEAD
-=======
 const LOG_HEADER_MAX_LEN = 300;
 const LOG_HEADER_FORMAT_REGEX = /\p{Cf}/gu;
 
@@ -55,7 +53,6 @@ const sanitizeLogValue = (value: string | undefined): string | undefined => {
   return truncateUtf16Safe(cleaned, LOG_HEADER_MAX_LEN);
 };
 
->>>>>>> e84318e4b (fix: replace control-char regex with explicit sanitizer)
 export function attachGatewayWsConnectionHandler(params: {
   wss: WebSocketServer;
   clients: Set<GatewayWsClient>;

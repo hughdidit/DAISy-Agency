@@ -13,30 +13,9 @@ import {
   renderMessageGroup,
   renderReadingIndicatorGroup,
   renderStreamingGroup,
-<<<<<<< HEAD
 } from "../chat/grouped-render";
 import { renderMarkdownSidebar } from "./markdown-sidebar";
 import "../components/resizable-divider";
-=======
-} from "../chat/grouped-render.ts";
-import { InputHistory } from "../chat/input-history.ts";
-import { normalizeMessage, normalizeRoleForGrouping } from "../chat/message-normalizer.ts";
-import { PinnedMessages } from "../chat/pinned-messages.ts";
-import {
-  CATEGORY_LABELS,
-  getSlashCommandCompletions,
-  type SlashCommandCategory,
-  type SlashCommandDef,
-} from "../chat/slash-commands.ts";
-import { icons } from "../icons.ts";
-import { detectTextDirection } from "../text-direction.ts";
-import type { SessionsListResult } from "../types.ts";
-import type { ChatItem, MessageGroup } from "../types/chat-types.ts";
-import type { ChatAttachment, ChatQueueItem } from "../ui-types.ts";
-import { agentLogoUrl } from "./agents-utils.ts";
-import { renderMarkdownSidebar } from "./markdown-sidebar.ts";
-import "../components/resizable-divider.ts";
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 
 export type CompactionIndicatorStatus = {
   active: boolean;
@@ -93,8 +72,6 @@ export type ChatProps = {
 };
 
 const COMPACTION_TOAST_DURATION_MS = 5000;
-<<<<<<< HEAD
-=======
 const FALLBACK_TOAST_DURATION_MS = 8000;
 
 // Persistent instances keyed by session
@@ -136,7 +113,6 @@ let slashMenuIndex = 0;
 let searchOpen = false;
 let searchQuery = "";
 let pinnedExpanded = false;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 
 function adjustTextareaHeight(el: HTMLTextAreaElement) {
   el.style.height = "auto";
@@ -246,8 +222,6 @@ function renderAttachmentPreview(props: ChatProps) {
   `;
 }
 
-<<<<<<< HEAD
-=======
 function updateSlashMenu(value: string, requestUpdate: () => void): void {
   const match = value.match(/^\/(\S*)$/);
   if (match) {
@@ -461,7 +435,6 @@ function renderSlashMenu(
   return html`<div class="slash-menu">${sections}</div>`;
 }
 
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 export function renderChat(props: ChatProps) {
   const canCompose = props.connected;
   const isBusy = props.sending || props.stream !== null;
@@ -477,13 +450,7 @@ export function renderChat(props: ChatProps) {
   };
 
   const hasAttachments = (props.attachments?.length ?? 0) > 0;
-<<<<<<< HEAD
   const composePlaceholder = props.connected
-=======
-  const tokens = tokenEstimate(props.draft);
-
-  const placeholder = props.connected
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
     ? hasAttachments
       ? "Add a message or paste more images..."
       : "Message (↩ to send, Shift+↩ for line breaks, paste images)"
@@ -498,7 +465,6 @@ export function renderChat(props: ChatProps) {
       aria-live="polite"
       @scroll=${props.onChatScroll}
     >
-<<<<<<< HEAD
       ${props.loading ? html`<div class="muted">Loading chat…</div>` : nothing}
       ${repeat(buildChatItems(props), (item) => item.key, (item) => {
         if (item.kind === "reading-indicator") {
@@ -525,67 +491,6 @@ export function renderChat(props: ChatProps) {
 
         return nothing;
       })}
-=======
-      ${
-        props.loading
-          ? html`
-              <div class="muted">Loading chat...</div>
-            `
-          : nothing
-      }
-      ${isEmpty && !searchOpen ? renderWelcomeState(props) : nothing}
-      ${
-        isEmpty && searchOpen
-          ? html`
-              <div class="agent-chat__empty">No matching messages</div>
-            `
-          : nothing
-      }
-      ${repeat(
-        chatItems,
-        (item) => item.key,
-        (item) => {
-          if (item.kind === "divider") {
-            return html`
-              <div class="chat-divider" role="separator" data-ts=${String(item.timestamp)}>
-                <span class="chat-divider__line"></span>
-                <span class="chat-divider__label">${item.label}</span>
-                <span class="chat-divider__line"></span>
-              </div>
-            `;
-          }
-          if (item.kind === "reading-indicator") {
-            return renderReadingIndicatorGroup(assistantIdentity, props.basePath);
-          }
-          if (item.kind === "stream") {
-            return renderStreamingGroup(
-              item.text,
-              item.startedAt,
-              props.onOpenSidebar,
-              assistantIdentity,
-              props.basePath,
-            );
-          }
-          if (item.kind === "group") {
-            if (deleted.has(item.key)) {
-              return nothing;
-            }
-            return renderMessageGroup(item, {
-              onOpenSidebar: props.onOpenSidebar,
-              showReasoning,
-              assistantName: props.assistantName,
-              assistantAvatar: assistantIdentity.avatar,
-              basePath: props.basePath,
-              onDelete: () => {
-                deleted.delete(item.key);
-                requestUpdate();
-              },
-            });
-          }
-          return nothing;
-        },
-      )}
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
     </div>
   `;
 
@@ -599,16 +504,10 @@ export function renderChat(props: ChatProps) {
         ? html`<div class="callout danger">${props.error}</div>`
         : nothing}
 
-<<<<<<< HEAD
       ${renderCompactionIndicator(props.compactionStatus)}
 
       ${props.focusMode
         ? html`
-=======
-      ${
-        props.focusMode
-          ? html`
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
             <button
               class="chat-focus-exit"
               type="button"
@@ -621,16 +520,9 @@ export function renderChat(props: ChatProps) {
           `
         : nothing}
 
-<<<<<<< HEAD
       <div
         class="chat-split-container ${sidebarOpen ? "chat-split-container--open" : ""}"
       >
-=======
-      ${renderSearchBar(requestUpdate)}
-      ${renderPinnedSection(props, pinned, requestUpdate)}
-
-      <div class="chat-split-container ${sidebarOpen ? "chat-split-container--open" : ""}">
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
         <div
           class="chat-main"
           style="flex: ${sidebarOpen ? `0 0 ${splitRatio * 100}%` : "1 1 100%"}"
@@ -688,28 +580,7 @@ export function renderChat(props: ChatProps) {
               </div>
             </div>
           `
-<<<<<<< HEAD
         : nothing}
-=======
-          : nothing
-      }
-
-      ${renderCompactionIndicator(props.compactionStatus)}
-
-      ${
-        props.showNewMessages
-          ? html`
-            <button
-              class="btn chat-new-messages"
-              type="button"
-              @click=${props.onScrollToBottom}
-            >
-              New messages ${icons.arrowDown}
-            </button>
-          `
-          : nothing
-      }
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
 
       <div class="chat-compose">
         ${renderAttachmentPreview(props)}
@@ -745,7 +616,6 @@ export function renderChat(props: ChatProps) {
             >
               ${canAbort ? "Stop" : "New session"}
             </button>
-<<<<<<< HEAD
             <button
               class="btn primary"
               ?disabled=${!props.connected}
@@ -753,43 +623,6 @@ export function renderChat(props: ChatProps) {
             >
               ${isBusy ? "Queue" : "Send"}<kbd class="btn-kbd">↵</kbd>
             </button>
-=======
-
-            ${nothing /* mic hidden for now */}
-
-            ${tokens ? html`<span class="agent-chat__token-count">${tokens}</span>` : nothing}
-          </div>
-
-          <div class="agent-chat__toolbar-right">
-            ${nothing /* search hidden for now */}
-            <button class="btn-ghost" @click=${() => exportMarkdown(props)} title="Export" ?disabled=${props.messages.length === 0}>
-              ${icons.download}
-            </button>
-
-            ${
-              canAbort && isBusy
-                ? html`
-                  <button class="chat-send-btn chat-send-btn--stop" @click=${props.onAbort} title="Stop">
-                    ${icons.stop}
-                  </button>
-                `
-                : html`
-                  <button
-                    class="chat-send-btn"
-                    @click=${() => {
-                      if (props.draft.trim()) {
-                        inputHistory.push(props.draft);
-                      }
-                      props.onSend();
-                    }}
-                    ?disabled=${!props.connected || props.sending}
-                    title=${isBusy ? "Queue" : "Send"}
-                  >
-                    ${icons.send}
-                  </button>
-                `
-            }
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
           </div>
         </div>
       </div>

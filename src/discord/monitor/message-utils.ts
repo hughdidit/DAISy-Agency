@@ -101,8 +101,6 @@ export async function resolveMediaList(
   const attachments = message.attachments ?? [];
   if (attachments.length === 0) return [];
   const out: DiscordMediaInfo[] = [];
-<<<<<<< HEAD
-=======
   await appendResolvedMediaFromAttachments({
     attachments: message.attachments ?? [],
     maxBytes,
@@ -160,7 +158,6 @@ async function appendResolvedMediaFromAttachments(params: {
   if (!attachments || attachments.length === 0) {
     return;
   }
->>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
   for (const attachment of attachments) {
     try {
       const fetched = await fetchRemoteMedia({
@@ -182,108 +179,7 @@ async function appendResolvedMediaFromAttachments(params: {
       });
     } catch (err) {
       const id = attachment.id ?? attachment.url;
-<<<<<<< HEAD
       logVerbose(`discord: failed to download attachment ${id}: ${String(err)}`);
-=======
-      logVerbose(`${params.errorPrefix} ${id}: ${String(err)}`);
-    }
-  }
-}
-
-type DiscordStickerAssetCandidate = {
-  url: string;
-  fileName: string;
-};
-
-function resolveStickerAssetCandidates(sticker: APIStickerItem): DiscordStickerAssetCandidate[] {
-  const baseName = sticker.name?.trim() || `sticker-${sticker.id}`;
-  switch (sticker.format_type) {
-    case StickerFormatType.GIF:
-      return [
-        {
-          url: `${DISCORD_STICKER_ASSET_BASE_URL}/${sticker.id}.gif`,
-          fileName: `${baseName}.gif`,
-        },
-      ];
-    case StickerFormatType.Lottie:
-      return [
-        {
-          url: `${DISCORD_STICKER_ASSET_BASE_URL}/${sticker.id}.png?size=160`,
-          fileName: `${baseName}.png`,
-        },
-        {
-          url: `${DISCORD_STICKER_ASSET_BASE_URL}/${sticker.id}.json`,
-          fileName: `${baseName}.json`,
-        },
-      ];
-    case StickerFormatType.APNG:
-    case StickerFormatType.PNG:
-    default:
-      return [
-        {
-          url: `${DISCORD_STICKER_ASSET_BASE_URL}/${sticker.id}.png`,
-          fileName: `${baseName}.png`,
-        },
-      ];
-  }
-}
-
-function formatStickerError(err: unknown): string {
-  if (err instanceof Error) {
-    return err.message;
-  }
-  if (typeof err === "string") {
-    return err;
-  }
-  try {
-    return JSON.stringify(err) ?? "unknown error";
-  } catch {
-    return "unknown error";
-  }
-}
-
-async function appendResolvedMediaFromStickers(params: {
-  stickers?: APIStickerItem[] | null;
-  maxBytes: number;
-  out: DiscordMediaInfo[];
-  errorPrefix: string;
-  fetchImpl?: FetchLike;
-}) {
-  const stickers = params.stickers;
-  if (!stickers || stickers.length === 0) {
-    return;
-  }
-  for (const sticker of stickers) {
-    const candidates = resolveStickerAssetCandidates(sticker);
-    let lastError: unknown;
-    for (const candidate of candidates) {
-      try {
-        const fetched = await fetchRemoteMedia({
-          url: candidate.url,
-          filePathHint: candidate.fileName,
-          maxBytes: params.maxBytes,
-          fetchImpl: params.fetchImpl,
-        });
-        const saved = await saveMediaBuffer(
-          fetched.buffer,
-          fetched.contentType,
-          "inbound",
-          params.maxBytes,
-        );
-        params.out.push({
-          path: saved.path,
-          contentType: saved.contentType,
-          placeholder: "<media:sticker>",
-        });
-        lastError = null;
-        break;
-      } catch (err) {
-        lastError = err;
-      }
-    }
-    if (lastError) {
-      logVerbose(`${params.errorPrefix} ${sticker.id}: ${formatStickerError(lastError)}`);
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
     }
   }
   return out;

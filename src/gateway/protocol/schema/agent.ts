@@ -1,9 +1,5 @@
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
 
-=======
-import { INPUT_PROVENANCE_KIND_VALUES } from "../../../sessions/input-provenance.js";
->>>>>>> 85409e401 (fix: preserve inter-session input provenance (thanks @anbecker))
 import { NonEmptyString, SessionLabelString } from "./primitives.js";
 
 export const AgentEventSchema = Type.Object(

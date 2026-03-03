@@ -26,8 +26,6 @@ import type {
   SkillEntry,
   SkillSnapshot,
 } from "./types.js";
-<<<<<<< HEAD
-=======
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
 import { resolveSandboxPath } from "../sandbox-paths.js";
@@ -40,7 +38,6 @@ import {
 } from "./frontmatter.js";
 import { resolvePluginSkillDirs } from "./plugin-skills.js";
 import { serializeByKey } from "./serialize.js";
->>>>>>> 3eb6a31b6 (fix: confine sandbox skill sync destinations)
 
 const fsp = fs.promises;
 const skillsLogger = createSubsystemLogger("skills");
@@ -214,27 +211,7 @@ export function buildWorkspaceSkillSnapshot(
   );
   const resolvedSkills = promptEntries.map((entry) => entry.skill);
   const remoteNote = opts?.eligibility?.remote?.note?.trim();
-<<<<<<< HEAD
   const prompt = [remoteNote, formatSkillsForPrompt(resolvedSkills)].filter(Boolean).join("\n");
-=======
-  const { skillsForPrompt, truncated } = applySkillsPromptLimits({
-    skills: resolvedSkills,
-    config: opts?.config,
-  });
-
-  const truncationNote = truncated
-    ? `⚠️ Skills truncated: included ${skillsForPrompt.length} of ${resolvedSkills.length}. Run \`openclaw skills check\` to audit.`
-    : "";
-
-  const prompt = [
-    remoteNote,
-    truncationNote,
-    formatSkillsForPrompt(compactSkillPaths(skillsForPrompt)),
-  ]
-    .filter(Boolean)
-    .join("\n");
-  const skillFilter = normalizeSkillFilter(opts?.skillFilter);
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
   return {
     prompt,
     skills: eligible.map((entry) => ({

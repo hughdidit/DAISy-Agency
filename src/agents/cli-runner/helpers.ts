@@ -8,15 +8,7 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { CliBackendConfig } from "../../config/types.js";
-<<<<<<< HEAD
 import { runExec } from "../../process/exec.js";
-=======
-import { buildTtsSystemPromptHint } from "../../tts/tts.js";
-import { isRecord } from "../../utils.js";
-import { buildModelAliasLines } from "../model-alias-lines.js";
-import { resolveDefaultModelForAgent } from "../model-selection.js";
-import { resolveOwnerDisplaySetting } from "../owner-display.js";
->>>>>>> c99e7696e (fix: decouple owner display secret from gateway auth token)
 import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 import { buildSystemPromptParams } from "../system-prompt-params.js";
 import { resolveDefaultModelForAgent } from "../model-selection.js";
@@ -210,11 +202,8 @@ export function buildSystemPrompt(params: {
     defaultThinkLevel: params.defaultThinkLevel,
     extraSystemPrompt: params.extraSystemPrompt,
     ownerNumbers: params.ownerNumbers,
-<<<<<<< HEAD
-=======
     ownerDisplay: ownerDisplay.ownerDisplay,
     ownerDisplaySecret: ownerDisplay.ownerDisplaySecret,
->>>>>>> c99e7696e (fix: decouple owner display secret from gateway auth token)
     reasoningTagHint: false,
     heartbeatPrompt: params.heartbeatPrompt,
     docsPath: params.docsPath,

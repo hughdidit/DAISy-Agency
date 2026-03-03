@@ -1,10 +1,5 @@
 import { ChannelType, type Guild } from "@buape/carbon";
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { typedCases } from "../test-utils/typed-cases.js";
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
 import {
   allowListMatches,
   buildDiscordMediaPayload,
@@ -88,20 +83,8 @@ describe("DiscordMessageListener", () => {
     await Promise.resolve();
     expect(handleResolved).toBe(false);
 
-<<<<<<< HEAD
     resolveHandler?.();
     await handlerPromise;
-=======
-    // Release the handler
-    const release = resolveHandler;
-    if (typeof release === "function") {
-      (release as () => void)();
-    }
-
-    // Now await handle() - it should complete only after handler resolves
-    await handlePromise;
-    expect(handlerResolved).toBe(true);
->>>>>>> 7707e3406 (fix: await DiscordMessageListener handler for queued messages (#22396))
   });
 
   it("logs handler failures", async () => {
@@ -153,21 +136,9 @@ describe("DiscordMessageListener", () => {
 
       // Advance time past the slow listener threshold
       vi.setSystemTime(31_000);
-<<<<<<< HEAD
       resolveHandler?.();
       await handlerPromise;
       await Promise.resolve();
-=======
-
-      // Release the handler
-      const release = resolveHandler;
-      if (typeof release === "function") {
-        (release as () => void)();
-      }
-
-      // Now await handle() - it should complete and log the slow listener
-      await handlePromise;
->>>>>>> 7707e3406 (fix: await DiscordMessageListener handler for queued messages (#22396))
 
       expect(logger.warn).toHaveBeenCalled();
       const [, meta] = logger.warn.mock.calls[0] ?? [];
@@ -692,7 +663,6 @@ describe("discord reaction notification gating", () => {
     ).toBe(false);
   });
 
-<<<<<<< HEAD
   it("skips when mode is off", () => {
     expect(
       shouldEmitDiscordReactionNotification({
@@ -754,17 +724,6 @@ describe("discord reaction notification gating", () => {
         allowlist: ["123", "other"],
       }),
     ).toBe(true);
-=======
-    for (const testCase of cases) {
-      expect(
-        shouldEmitDiscordReactionNotification({
-          ...testCase.input,
-          allowlist: testCase.input.allowlist ? [...testCase.input.allowlist] : undefined,
-        }),
-        testCase.name,
-      ).toBe(testCase.expected);
-    }
->>>>>>> c7c047287 (test: fix readonly typing regressions in check baseline)
   });
 });
 
@@ -852,8 +811,6 @@ function makeReactionClient(channelType: ChannelType = ChannelType.DM) {
 
 function makeReactionListenerParams(overrides?: {
   botUserId?: string;
-<<<<<<< HEAD
-=======
   dmEnabled?: boolean;
   groupDmEnabled?: boolean;
   groupDmChannels?: string[];
@@ -861,7 +818,6 @@ function makeReactionListenerParams(overrides?: {
   allowFrom?: string[];
   groupPolicy?: "open" | "allowlist" | "disabled";
   allowNameMatching?: boolean;
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
   guildEntries?: Record<string, DiscordGuildEntryResolved>;
 }) {
   return {
@@ -869,8 +825,6 @@ function makeReactionListenerParams(overrides?: {
     accountId: "acc-1",
     runtime: {} as import("../runtime.js").RuntimeEnv,
     botUserId: overrides?.botUserId ?? "bot-1",
-<<<<<<< HEAD
-=======
     dmEnabled: overrides?.dmEnabled ?? true,
     groupDmEnabled: overrides?.groupDmEnabled ?? true,
     groupDmChannels: overrides?.groupDmChannels ?? [],
@@ -878,7 +832,6 @@ function makeReactionListenerParams(overrides?: {
     allowFrom: overrides?.allowFrom ?? [],
     groupPolicy: overrides?.groupPolicy ?? "open",
     allowNameMatching: overrides?.allowNameMatching ?? false,
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
     guildEntries: overrides?.guildEntries,
     logger: {
       info: vi.fn(),
@@ -890,28 +843,9 @@ function makeReactionListenerParams(overrides?: {
 }
 
 describe("discord DM reaction handling", () => {
-<<<<<<< HEAD
   it("processes DM reactions instead of dropping them", async () => {
     enqueueSystemEventSpy.mockClear();
     resolveAgentRouteMock.mockClear();
-=======
-  beforeEach(() => {
-    enqueueSystemEventSpy.mockClear();
-    resolveAgentRouteMock.mockClear();
-    readAllowFromStoreMock.mockReset().mockResolvedValue([]);
-  });
-
-  it("processes DM reactions with or without guild allowlists", async () => {
-    const cases = [
-      { name: "no guild allowlist", guildEntries: undefined },
-      {
-        name: "guild allowlist configured",
-        guildEntries: makeEntries({
-          "guild-123": { slug: "guild-123" },
-        }),
-      },
-    ] as const;
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
 
     const data = makeReactionEvent({ botAsAuthor: true });
     const client = makeReactionClient(ChannelType.DM);
@@ -1081,8 +1015,6 @@ describe("discord DM reaction handling", () => {
     expect(routeArgs.peer).toEqual({ kind: "group", id: "channel-1" });
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("discord reaction notification modes", () => {
   const guildId = "guild-900";
@@ -1187,4 +1119,3 @@ describe("discord reaction notification modes", () => {
     }
   });
 });
->>>>>>> c7c047287 (test: fix readonly typing regressions in check baseline)

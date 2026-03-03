@@ -1,12 +1,6 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
-=======
-import fs from "node:fs/promises";
-import path from "node:path";
-
->>>>>>> a155e2f8a (fix: migrate legacy config)
 import type { ZodIssue } from "zod";
 
 import type { MoltbotConfig } from "../config/config.js";
@@ -31,32 +25,7 @@ import {
   readConfigFileSnapshot,
 } from "../config/config.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
-<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
-=======
-import { parseToolsBySenderTypedKey } from "../config/types.tools.js";
-import { resolveCommandResolutionFromArgv } from "../infra/exec-command-resolution.js";
-import {
-  listInterpreterLikeSafeBins,
-  resolveMergedSafeBinProfileFixtures,
-} from "../infra/exec-safe-bin-runtime-policy.js";
-import {
-  getTrustedSafeBinDirs,
-  isTrustedSafeBinPath,
-  normalizeTrustedSafeBinDirs,
-} from "../infra/exec-safe-bin-trust.js";
-import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
-import {
-  isDiscordMutableAllowEntry,
-  isGoogleChatMutableAllowEntry,
-  isIrcMutableAllowEntry,
-  isMSTeamsMutableAllowEntry,
-  isMattermostMutableAllowEntry,
-  isSlackMutableAllowEntry,
-} from "../security/mutable-allowlist-detectors.js";
-import { listTelegramAccountIds, resolveTelegramAccount } from "../telegram/accounts.js";
->>>>>>> 1d4320293 (fix: repair Telegram allowlist DM migrations (#27936) (thanks @widingmarcus-cyber))
 import { note } from "../terminal/note.js";
 import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
 import { autoMigrateLegacyStateDir } from "./doctor-state-migrations.js";
@@ -167,48 +136,8 @@ function noteOpencodeProviderOverrides(cfg: MoltbotConfig) {
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function hasExplicitConfigPath(env: NodeJS.ProcessEnv): boolean {
   return Boolean(env.MOLTBOT_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim());
-=======
-function noteIncludeConfinementWarning(snapshot: {
-  path?: string | null;
-  issues?: Array<{ message: string }>;
-}): void {
-  const issues = snapshot.issues ?? [];
-  const includeIssue = issues.find(
-    (issue) =>
-      issue.message.includes("Include path escapes config directory") ||
-      issue.message.includes("Include path resolves outside config directory"),
-  );
-  if (!includeIssue) {
-    return;
-  }
-  const configRoot = path.dirname(snapshot.path ?? CONFIG_PATH);
-  note(
-    [
-      `- $include paths must stay under: ${configRoot}`,
-      '- Move shared include files under that directory and update to relative paths like "./shared/common.json".',
-      `- Error: ${includeIssue.message}`,
-    ].join("\n"),
-    "Doctor warnings",
-  );
-}
-
-type TelegramAllowFromUsernameHit = { path: string; entry: string };
-
-type TelegramAllowFromListRef = {
-  pathLabel: string;
-  holder: Record<string, unknown>;
-  key: "allowFrom" | "groupAllowFrom";
-};
-
-function asObjectRecord(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-  return value as Record<string, unknown>;
->>>>>>> d1c00dbb7 (fix: harden include confinement edge cases (#18652) (thanks @aether-ai-agent))
 }
 
 function moveLegacyConfigFile(legacyPath: string, canonicalPath: string) {
@@ -224,8 +153,6 @@ function moveLegacyConfigFile(legacyPath: string, canonicalPath: string) {
       // Best-effort cleanup; we'll warn later if both files exist.
     }
   }
-<<<<<<< HEAD
-=======
 =======
   return refs;
 }
@@ -642,7 +569,6 @@ function maybeRepairOpenPolicyAllowFrom(cfg: OpenClawConfig): {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> b05273de6 (fix: doctor --fix auto-repairs dmPolicy="open" missing allowFrom wildcard)
 =======
 =======
 function hasAllowFromEntries(list?: Array<string | number>) {
@@ -1312,72 +1238,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     if (shouldRepair) {
       cfg = autoEnable.config;
     } else {
-<<<<<<< HEAD
       fixHints.push(`Run "${formatCliCommand("moltbot doctor --fix")}" to apply these changes.`);
-=======
-      fixHints.push(`Run "${formatCliCommand("openclaw doctor --fix")}" to apply these changes.`);
-    }
-  }
-
-  if (shouldRepair) {
-    const repair = await maybeRepairTelegramAllowFromUsernames(candidate);
-    if (repair.changes.length > 0) {
-      note(repair.changes.join("\n"), "Doctor changes");
-      candidate = repair.config;
-      pendingChanges = true;
-      cfg = repair.config;
-    }
-
-    const discordRepair = maybeRepairDiscordNumericIds(candidate);
-    if (discordRepair.changes.length > 0) {
-      note(discordRepair.changes.join("\n"), "Doctor changes");
-      candidate = discordRepair.config;
-      pendingChanges = true;
-      cfg = discordRepair.config;
-    }
-
-    const allowFromRepair = maybeRepairOpenPolicyAllowFrom(candidate);
-    if (allowFromRepair.changes.length > 0) {
-      note(allowFromRepair.changes.join("\n"), "Doctor changes");
-      candidate = allowFromRepair.config;
-      pendingChanges = true;
-      cfg = allowFromRepair.config;
-    }
-<<<<<<< HEAD
-=======
-
-    const allowlistRepair = await maybeRepairAllowlistPolicyAllowFrom(candidate);
-    if (allowlistRepair.changes.length > 0) {
-      note(allowlistRepair.changes.join("\n"), "Doctor changes");
-      candidate = allowlistRepair.config;
-      pendingChanges = true;
-      cfg = allowlistRepair.config;
-    }
-
-    const emptyAllowlistWarnings = detectEmptyAllowlistPolicy(candidate);
-    if (emptyAllowlistWarnings.length > 0) {
-      note(emptyAllowlistWarnings.join("\n"), "Doctor warnings");
-    }
-
-    const toolsBySenderRepair = maybeRepairLegacyToolsBySenderKeys(candidate);
-    if (toolsBySenderRepair.changes.length > 0) {
-      note(toolsBySenderRepair.changes.join("\n"), "Doctor changes");
-      candidate = toolsBySenderRepair.config;
-      pendingChanges = true;
-      cfg = toolsBySenderRepair.config;
-    }
-
-    const safeBinProfileRepair = maybeRepairExecSafeBinProfiles(candidate);
-    if (safeBinProfileRepair.changes.length > 0) {
-      note(safeBinProfileRepair.changes.join("\n"), "Doctor changes");
-      candidate = safeBinProfileRepair.config;
-      pendingChanges = true;
-      cfg = safeBinProfileRepair.config;
-    }
-    if (safeBinProfileRepair.warnings.length > 0) {
-      note(safeBinProfileRepair.warnings.join("\n"), "Doctor warnings");
-    }
->>>>>>> cbed0e065 (fix: reject dmPolicy="allowlist" with empty allowFrom across all channels)
   } else {
     const hits = scanTelegramAllowFromUsernameEntries(candidate);
     if (hits.length > 0) {
@@ -1412,8 +1273,6 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
         "Doctor warnings",
       );
     }
-<<<<<<< HEAD
-=======
 
     const emptyAllowlistWarnings = detectEmptyAllowlistPolicy(candidate);
     if (emptyAllowlistWarnings.length > 0) {
@@ -1515,7 +1374,6 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
       ].join("\n"),
       "Doctor warnings",
     );
->>>>>>> cbed0e065 (fix: reject dmPolicy="allowlist" with empty allowFrom across all channels)
   }
 
   const unknown = stripUnknownConfigKeys(candidate);

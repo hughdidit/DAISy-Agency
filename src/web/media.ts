@@ -1,12 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
 
-=======
-import type { SsrFPolicy } from "../infra/net/ssrf.js";
-<<<<<<< HEAD
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
 =======
 >>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { logVerbose, shouldLogVerbose } from "../globals.js";
@@ -33,29 +28,12 @@ type WebMediaOptions = {
   maxBytes?: number;
   optimizeImages?: boolean;
   ssrfPolicy?: SsrFPolicy;
-<<<<<<< HEAD
-=======
   /** Allowed root directories for local path reads. "any" skips the check (caller already validated). */
   localRoots?: string[] | "any";
   readFile?: (filePath: string) => Promise<Buffer>;
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 };
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-export function getDefaultLocalRoots(): string[] {
-  return [
-    os.tmpdir(),
-    path.join(STATE_DIR, "media"),
-    path.join(STATE_DIR, "agents"),
-    path.join(STATE_DIR, "workspace"),
-    path.join(STATE_DIR, "sandboxes"),
-  ];
-=======
-export function getDefaultLocalRoots(): readonly string[] {
-  return getDefaultMediaLocalRoots();
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 }
 
 async function assertLocalMediaAllowed(
@@ -173,17 +151,7 @@ async function loadWebMediaInternal(
   mediaUrl: string,
   options: WebMediaOptions = {},
 ): Promise<WebMediaResult> {
-<<<<<<< HEAD
   const { maxBytes, optimizeImages = true, ssrfPolicy } = options;
-=======
-  const {
-    maxBytes,
-    optimizeImages = true,
-    ssrfPolicy,
-    localRoots,
-    readFile: readFileOverride,
-  } = options;
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
   // Use fileURLToPath for proper handling of file:// URLs (handles file://localhost/path, etc.)
   if (mediaUrl.startsWith("file://")) {
     try {
@@ -261,20 +229,7 @@ async function loadWebMediaInternal(
   };
 
   if (/^https?:\/\//i.test(mediaUrl)) {
-<<<<<<< HEAD
     const fetched = await fetchRemoteMedia({ url: mediaUrl });
-=======
-    // Enforce a download cap during fetch to avoid unbounded memory usage.
-    // For optimized images, allow fetching larger payloads before compression.
-    const defaultFetchCap = maxBytesForKind("unknown");
-    const fetchCap =
-      maxBytes === undefined
-        ? defaultFetchCap
-        : optimizeImages
-          ? Math.max(maxBytes, defaultFetchCap)
-          : maxBytes;
-    const fetched = await fetchRemoteMedia({ url: mediaUrl, maxBytes: fetchCap, ssrfPolicy });
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
     const { buffer, contentType, fileName } = fetched;
     const kind = mediaKindFromMime(contentType);
     return await clampAndFinalize({ buffer, contentType, kind, fileName });
@@ -304,13 +259,8 @@ async function loadWebMediaInternal(
 
 export async function loadWebMedia(
   mediaUrl: string,
-<<<<<<< HEAD
   maxBytes?: number,
   options?: { ssrfPolicy?: SsrFPolicy },
-=======
-  maxBytesOrOptions?: number | WebMediaOptions,
-  options?: { ssrfPolicy?: SsrFPolicy; localRoots?: string[] | "any" },
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 ): Promise<WebMediaResult> {
   if (typeof maxBytesOrOptions === "number" || maxBytesOrOptions === undefined) {
     return await loadWebMediaInternal(mediaUrl, {
@@ -321,26 +271,16 @@ export async function loadWebMedia(
     });
   }
   return await loadWebMediaInternal(mediaUrl, {
-<<<<<<< HEAD
     maxBytes,
     optimizeImages: true,
     ssrfPolicy: options?.ssrfPolicy,
-=======
-    ...maxBytesOrOptions,
-    optimizeImages: maxBytesOrOptions.optimizeImages ?? true,
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
   });
 }
 
 export async function loadWebMediaRaw(
   mediaUrl: string,
-<<<<<<< HEAD
   maxBytes?: number,
   options?: { ssrfPolicy?: SsrFPolicy },
-=======
-  maxBytesOrOptions?: number | WebMediaOptions,
-  options?: { ssrfPolicy?: SsrFPolicy; localRoots?: string[] | "any" },
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 ): Promise<WebMediaResult> {
   if (typeof maxBytesOrOptions === "number" || maxBytesOrOptions === undefined) {
     return await loadWebMediaInternal(mediaUrl, {
@@ -353,10 +293,7 @@ export async function loadWebMediaRaw(
   return await loadWebMediaInternal(mediaUrl, {
     ...maxBytesOrOptions,
     optimizeImages: false,
-<<<<<<< HEAD
     ssrfPolicy: options?.ssrfPolicy,
-=======
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
   });
 }
 

@@ -2,21 +2,8 @@ import type { StreamFn } from "@mariozechner/pi-agent-core";
 import type { Api, Model, SimpleStreamOptions } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { log } from "./logger.js";
-=======
-const OPENROUTER_APP_HEADERS: Record<string, string> = {
-  "HTTP-Referer": "https://openclaw.ai",
-  "X-Title": "OpenClaw",
-};
-const ANTHROPIC_CONTEXT_1M_BETA = "context-1m-2025-08-07";
-const ANTHROPIC_1M_MODEL_PREFIXES = ["claude-opus-4", "claude-sonnet-4"] as const;
-// NOTE: We only force `store=true` for *direct* OpenAI Responses.
-// Codex responses (chatgpt.com/backend-api/codex/responses) require `store=false`.
-const OPENAI_RESPONSES_APIS = new Set(["openai-responses"]);
-const OPENAI_RESPONSES_PROVIDERS = new Set(["openai", "azure-openai-responses"]);
->>>>>>> 0ab5f4c43 (fix: enable store=true for Azure OpenAI Responses API)
 
 /**
  * Resolve provider-specific extra params from model config.
@@ -87,8 +74,6 @@ function createStreamFnWithExtraParams(
 }
 
 /**
-<<<<<<< HEAD
-=======
  * Create a streamFn wrapper that adds OpenRouter app attribution headers.
  * These headers allow OpenClaw to appear on OpenRouter's leaderboard.
  */
@@ -389,13 +374,10 @@ function createOpenRouterWrapper(
     const onPayload = options?.onPayload;
     return underlying(model, context, {
       ...options,
->>>>>>> 0ab5f4c43 (fix: enable store=true for Azure OpenAI Responses API)
       headers: {
         ...OPENROUTER_APP_HEADERS,
         ...options?.headers,
       },
-<<<<<<< HEAD
-=======
       onPayload: (payload) => {
         if (thinkingLevel && payload && typeof payload === "object") {
           const payloadObj = payload as Record<string, unknown>;
@@ -435,10 +417,7 @@ function createOpenRouterWrapper(
         }
         onPayload?.(payload);
       },
->>>>>>> 3e974dc93 (fix: don't inject reasoning: { effort: "none" } for OpenRouter when thinking is off)
     });
-<<<<<<< HEAD
-=======
   };
 }
 
@@ -561,7 +540,6 @@ function createZaiToolStreamWrapper(
       },
     });
   };
->>>>>>> b35d00aaf (fix: sanitize Gemini 3.1 Google reasoning payloads)
 }
 
 /**
@@ -595,8 +573,6 @@ export function applyExtraParamsToAgent(
     log.debug(`applying extraParams to agent streamFn for ${provider}/${modelId}`);
     agent.streamFn = wrappedStreamFn;
   }
-<<<<<<< HEAD
-=======
 
   const anthropicBetas = resolveAnthropicBetas(merged, provider, modelId);
   if (anthropicBetas?.length) {
@@ -649,5 +625,4 @@ export function applyExtraParamsToAgent(
   // Force `store=true` for direct OpenAI/OpenAI Codex providers so multi-turn
   // server-side conversation state is preserved.
   agent.streamFn = createOpenAIResponsesStoreWrapper(agent.streamFn);
->>>>>>> b35d00aaf (fix: sanitize Gemini 3.1 Google reasoning payloads)
 }

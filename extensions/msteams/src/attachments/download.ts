@@ -85,16 +85,11 @@ async function fetchWithAuthFallback(params: {
   authAllowHosts: string[];
 }): Promise<Response> {
   const fetchFn = params.fetchFn ?? fetch;
-<<<<<<< HEAD
   const firstAttempt = await fetchFn(params.url);
 <<<<<<< HEAD
   if (firstAttempt.ok) return firstAttempt;
   if (!params.tokenProvider) return firstAttempt;
   if (firstAttempt.status !== 401 && firstAttempt.status !== 403) return firstAttempt;
-=======
-=======
-  const firstAttempt = await fetchFn(params.url, params.requestInit);
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
   if (firstAttempt.ok) {
     return firstAttempt;
   }
@@ -120,35 +115,7 @@ async function fetchWithAuthFallback(params: {
         headers: authHeaders,
         redirect: "manual",
       });
-<<<<<<< HEAD
       if (res.ok) return res;
-=======
-      if (res.ok) {
-        return res;
-      }
-      const redirectUrl = readRedirectUrl(params.url, res);
-      if (redirectUrl && isUrlAllowed(redirectUrl, params.allowHosts)) {
-        const redirectRes = await fetchFn(redirectUrl, params.requestInit);
-        if (redirectRes.ok) {
-          return redirectRes;
-        }
-        if (
-          (redirectRes.status === 401 || redirectRes.status === 403) &&
-          isUrlAllowed(redirectUrl, params.authAllowHosts)
-        ) {
-          const redirectAuthHeaders = new Headers(params.requestInit?.headers);
-          redirectAuthHeaders.set("Authorization", `Bearer ${token}`);
-          const redirectAuthRes = await fetchFn(redirectUrl, {
-            ...params.requestInit,
-            headers: redirectAuthHeaders,
-            redirect: "manual",
-          });
-          if (redirectAuthRes.ok) {
-            return redirectAuthRes;
-          }
-        }
-      }
->>>>>>> 41cc5bcd4 (fix: gate Teams media auth retries)
     } catch {
       // Try the next scope.
     }
@@ -266,12 +233,9 @@ export async function downloadMSTeamsAttachments(params: {
         filePathHint: candidate.fileHint ?? candidate.url,
         maxBytes: params.maxBytes,
       });
-<<<<<<< HEAD
       if (!res.ok) continue;
       const buffer = Buffer.from(await res.arrayBuffer());
       if (buffer.byteLength > params.maxBytes) continue;
-=======
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
       const mime = await getMSTeamsRuntime().media.detectMime({
         buffer: fetched.buffer,
         headerMime: fetched.contentType,

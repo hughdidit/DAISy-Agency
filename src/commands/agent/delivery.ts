@@ -1,24 +1,18 @@
-<<<<<<< HEAD
-=======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { AgentCommandOpts } from "./types.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { AGENT_LANE_NESTED } from "../../agents/lanes.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
-<<<<<<< HEAD
-=======
 import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
 } from "../../infra/outbound/agent-delivery.js";
 import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { buildOutboundResultEnvelope } from "../../infra/outbound/envelope.js";
 import {
@@ -43,19 +37,9 @@ const NESTED_LOG_PREFIX = "[agent:nested]";
 
 function formatNestedLogPrefix(opts: AgentCommandOpts, sessionKey?: string): string {
   const parts = [NESTED_LOG_PREFIX];
-<<<<<<< HEAD
   const session = opts.sessionKey ?? opts.sessionId;
   if (session) parts.push(`session=${session}`);
   if (opts.runId) parts.push(`run=${opts.runId}`);
-=======
-  const session = sessionKey ?? opts.sessionKey ?? opts.sessionId;
-  if (session) {
-    parts.push(`session=${session}`);
-  }
-  if (opts.runId) {
-    parts.push(`run=${opts.runId}`);
-  }
->>>>>>> 7ef6623bf (fix: forward resolved session key in agent delivery (follow-up #27584 by @qualiobra))
   const channel = opts.messageChannel ?? opts.channel;
   if (channel) parts.push(`channel=${channel}`);
   if (opts.to) parts.push(`to=${opts.to}`);
@@ -85,12 +69,7 @@ export async function deliverAgentCommandResult(params: {
   result: RunResult;
   payloads: RunResult["payloads"];
 }) {
-<<<<<<< HEAD
   const { cfg, deps, runtime, opts, sessionEntry, payloads, result } = params;
-=======
-  const { cfg, deps, runtime, opts, outboundSession, sessionEntry, payloads, result } = params;
-  const effectiveSessionKey = outboundSession?.key ?? opts.sessionKey;
->>>>>>> 7ef6623bf (fix: forward resolved session key in agent delivery (follow-up #27584 by @qualiobra))
   const deliver = opts.deliver === true;
   const bestEffortDeliver = opts.bestEffortDeliver === true;
   const turnSourceChannel = opts.runContext?.messageChannel ?? opts.messageChannel;

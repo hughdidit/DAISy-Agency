@@ -95,8 +95,6 @@ async function dispatchRequest(
   await new Promise((resolve) => setImmediate(resolve));
 }
 
-<<<<<<< HEAD
-=======
 function createHooksConfig(): HooksConfigResolved {
   return {
     basePath: "/hooks",
@@ -232,7 +230,6 @@ async function expectAuthorizedVariants(params: {
   }
 }
 
->>>>>>> 258d615c4 (fix: harden plugin route auth path canonicalization)
 describe("gateway plugin HTTP auth boundary", () => {
   test("requires gateway auth for /api/channels/* plugin routes and allows authenticated pass-through", async () => {
     const resolvedAuth: ResolvedGatewayAuth = {

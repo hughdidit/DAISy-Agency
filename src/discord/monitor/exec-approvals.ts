@@ -462,16 +462,12 @@ export class DiscordExecApprovalHandler {
   }
 
   private async handleApprovalResolved(resolved: ExecApprovalResolved): Promise<void> {
-<<<<<<< HEAD
     const pending = this.pending.get(resolved.id);
     if (!pending) return;
 
     clearTimeout(pending.timeoutId);
     this.pending.delete(resolved.id);
 
-=======
-    // Clean up all pending entries for this approval (channel + dm)
->>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))
     const request = this.requestCache.get(resolved.id);
     this.requestCache.delete(resolved.id);
 
@@ -479,7 +475,6 @@ export class DiscordExecApprovalHandler {
 
     logDebug(`discord exec approvals: resolved ${resolved.id} with ${resolved.decision}`);
 
-<<<<<<< HEAD
     await this.updateMessage(
       pending.discordChannelId,
       pending.discordMessageId,
@@ -490,33 +485,6 @@ export class DiscordExecApprovalHandler {
   private async handleApprovalTimeout(approvalId: string): Promise<void> {
     const pending = this.pending.get(approvalId);
     if (!pending) return;
-=======
-    const resolvedEmbed = formatResolvedEmbed(request, resolved.decision, resolved.resolvedBy);
-
-    for (const suffix of [":channel", ":dm", ""]) {
-      const key = `${resolved.id}${suffix}`;
-      const pending = this.pending.get(key);
-      if (!pending) {
-        continue;
-      }
-
-      clearTimeout(pending.timeoutId);
-      this.pending.delete(key);
-
-      await this.finalizeMessage(pending.discordChannelId, pending.discordMessageId, resolvedEmbed);
-    }
-  }
-
-  private async handleApprovalTimeout(
-    approvalId: string,
-    source?: "channel" | "dm",
-  ): Promise<void> {
-    const key = source ? `${approvalId}:${source}` : approvalId;
-    const pending = this.pending.get(key);
-    if (!pending) {
-      return;
-    }
->>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))
 
     this.pending.delete(key);
 

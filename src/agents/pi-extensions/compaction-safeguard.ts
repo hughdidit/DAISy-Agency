@@ -16,16 +16,8 @@ import {
   summarizeInStages,
 } from "../compaction.js";
 import { getCompactionSafeguardRuntime } from "./compaction-safeguard-runtime.js";
-<<<<<<< HEAD
 const FALLBACK_SUMMARY =
   "Summary unavailable due to context limits. Older messages were truncated.";
-=======
-
-const log = createSubsystemLogger("compaction-safeguard");
-
-// Track session managers that have already logged the missing-model warning to avoid log spam.
-const missedModelWarningSessions = new WeakSet<object>();
->>>>>>> ea47ab29b (fix: cancel compaction instead of truncating history when summarization fails (#10711))
 const TURN_PREFIX_INSTRUCTIONS =
   "This summary covers the prefix of a split turn. Focus on the original request," +
   " early progress, and any details needed to understand the retained suffix.";
@@ -159,7 +151,6 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
 
     const model = ctx.model;
     if (!model) {
-<<<<<<< HEAD
       return {
         compaction: {
           summary: fallbackSummary,
@@ -168,19 +159,6 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
           details: { readFiles, modifiedFiles },
         },
       };
-=======
-      // Log warning once per session when both models are missing (diagnostic for future issues).
-      // Use a WeakSet to track which session managers have already logged the warning.
-      if (!ctx.model && !runtime?.model && !missedModelWarningSessions.has(ctx.sessionManager)) {
-        missedModelWarningSessions.add(ctx.sessionManager);
-        console.warn(
-          "[compaction-safeguard] Both ctx.model and runtime.model are undefined. " +
-            "Compaction summarization will not run. This indicates extensionRunner.initialize() " +
-            "was not called and model was not passed through runtime registry.",
-        );
-      }
-      return { cancel: true };
->>>>>>> ea47ab29b (fix: cancel compaction instead of truncating history when summarization fails (#10711))
     }
 
     const apiKey = await ctx.modelRegistry.getApiKey(model);
@@ -321,13 +299,8 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
         },
       };
     } catch (error) {
-<<<<<<< HEAD
       console.warn(
         `Compaction summarization failed; truncating history: ${
-=======
-      log.warn(
-        `Compaction summarization failed; cancelling compaction to preserve history: ${
->>>>>>> ea47ab29b (fix: cancel compaction instead of truncating history when summarization fails (#10711))
           error instanceof Error ? error.message : String(error)
         }`,
       );

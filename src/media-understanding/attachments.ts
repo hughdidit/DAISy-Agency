@@ -180,21 +180,8 @@ export function selectAttachments(params: {
 }): MediaAttachment[] {
   const { capability, attachments, policy } = params;
   const matches = attachments.filter((item) => {
-<<<<<<< HEAD
     if (capability === "image") return isImageAttachment(item);
     if (capability === "audio") return isAudioAttachment(item);
-=======
-    // Skip already-transcribed audio attachments from preflight
-    if (capability === "audio" && item.alreadyTranscribed) {
-      return false;
-    }
-    if (capability === "image") {
-      return isImageAttachment(item);
-    }
-    if (capability === "audio") {
-      return isAudioAttachment(item);
-    }
->>>>>>> a2ddcdade (fix: fix: transcribe audio before mention check in groups with requireMention (openclaw#9973) thanks @mcinteerj)
     return isVideoAttachment(item);
   });
   if (matches.length === 0) return [];
@@ -402,26 +389,8 @@ export class MediaAttachmentCache {
   }
 
   private async ensureLocalStat(entry: AttachmentCacheEntry): Promise<number | undefined> {
-<<<<<<< HEAD
     if (!entry.resolvedPath) return undefined;
     if (entry.statSize !== undefined) return entry.statSize;
-=======
-    if (!entry.resolvedPath) {
-      return undefined;
-    }
-    if (!isInboundPathAllowed({ filePath: entry.resolvedPath, roots: this.localPathRoots })) {
-      entry.resolvedPath = undefined;
-      if (shouldLogVerbose()) {
-        logVerbose(
-          `Blocked attachment path outside allowed roots: ${entry.attachment.path ?? entry.attachment.url ?? "(unknown)"}`,
-        );
-      }
-      return undefined;
-    }
-    if (entry.statSize !== undefined) {
-      return entry.statSize;
-    }
->>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
     try {
       const currentPath = entry.resolvedPath;
       const stat = await fs.stat(currentPath);

@@ -62,8 +62,6 @@ describe("parseFeishuMessageEvent – mentionedBot", () => {
     const ctx = parseFeishuMessageEvent(event as any, "");
     expect(ctx.mentionedBot).toBe(false);
   });
-<<<<<<< HEAD
-=======
 
   it("treats mention.name regex metacharacters as literals when stripping", () => {
     const event = makeEvent(
@@ -148,5 +146,4 @@ describe("parseFeishuMessageEvent – mentionedBot", () => {
     const ctx = parseFeishuMessageEvent(event as any, "ou_bot_123");
     expect(ctx.mentionedBot).toBe(false);
   });
->>>>>>> 742684891 (test(feishu): add mention regex injection regressions)
 });

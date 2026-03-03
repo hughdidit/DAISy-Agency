@@ -1,9 +1,6 @@
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { expandHomePrefix, resolveRequiredHomeDir } from "../../infra/home-dir.js";
->>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../../routing/session-key.js";
 import { resolveStateDir } from "../paths.js";
 import type { SessionEntry } from "./types.js";

@@ -42,11 +42,7 @@ import {
   type FailoverReason,
 } from "../pi-embedded-helpers.js";
 import { normalizeUsage, type UsageLike } from "../usage.js";
-<<<<<<< HEAD
 
-=======
-import { redactRunIdentifier, resolveRunWorkspaceDir } from "../workspace-run.js";
->>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { resolveGlobalLane, resolveSessionLane } from "./lanes.js";
 import { log } from "./logger.js";
@@ -54,14 +50,7 @@ import { resolveModel } from "./model.js";
 import { runEmbeddedAttempt } from "./run/attempt.js";
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
 import { buildEmbeddedRunPayloads } from "./run/payloads.js";
-<<<<<<< HEAD
 import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
-=======
-import {
-  truncateOversizedToolResultsInSession,
-  sessionLikelyHasOversizedToolResults,
-} from "./tool-result-truncation.js";
->>>>>>> 0deb8b0da (fix: recover from context overflow caused by oversized tool results (#11579))
 import { describeUnknownError } from "./utils.js";
 
 type ApiKeyInfo = ResolvedProviderAuth;
@@ -554,8 +543,6 @@ export async function runEmbeddedPiAgent(
       try {
         let authRetryPending = false;
         while (true) {
-<<<<<<< HEAD
-=======
           if (runLoopIterations >= MAX_RUN_LOOP_ITERATIONS) {
             const message =
               `Exceeded retry limit after ${runLoopIterations} attempts ` +
@@ -588,7 +575,6 @@ export async function runEmbeddedPiAgent(
           runLoopIterations += 1;
           const copilotAuthRetry = authRetryPending;
           authRetryPending = false;
->>>>>>> 2dcd2f909 (fix: refresh Copilot token before expiry and retry on auth errors)
           attemptedThinking.add(thinkLevel);
           await fs.mkdir(resolvedWorkspace, { recursive: true });
 
@@ -652,46 +638,18 @@ export async function runEmbeddedPiAgent(
             enforceFinalTag: params.enforceFinalTag,
           });
 
-<<<<<<< HEAD
           const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant } = attempt;
           mergeUsageIntoAccumulator(
             usageAccumulator,
             attempt.attemptUsage ?? normalizeUsage(lastAssistant?.usage as UsageLike),
           );
           autoCompactionCount += Math.max(0, attempt.compactionCount ?? 0);
-=======
-          const {
-            aborted,
-            promptError,
-            timedOut,
-            timedOutDuringCompaction,
-            sessionIdUsed,
-            lastAssistant,
-          } = attempt;
-          const lastAssistantUsage = normalizeUsage(lastAssistant?.usage as UsageLike);
-          const attemptUsage = attempt.attemptUsage ?? lastAssistantUsage;
-          mergeUsageIntoAccumulator(usageAccumulator, attemptUsage);
-          // Keep prompt size from the latest model call so session totalTokens
-          // reflects current context usage, not accumulated tool-loop usage.
-          lastRunPromptUsage = lastAssistantUsage ?? attemptUsage;
-          const lastTurnTotal = lastAssistantUsage?.total ?? attemptUsage?.total;
-          const attemptCompactionCount = Math.max(0, attempt.compactionCount ?? 0);
-          autoCompactionCount += attemptCompactionCount;
-          const activeErrorContext = resolveActiveErrorContext({
-            lastAssistant,
-            provider,
-            model: modelId,
-          });
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
           const formattedAssistantErrorText = lastAssistant
             ? formatAssistantErrorText(lastAssistant, {
                 cfg: params.config,
                 sessionKey: params.sessionKey ?? params.sessionId,
-<<<<<<< HEAD
-=======
                 provider: activeErrorContext.provider,
                 model: activeErrorContext.model,
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
               })
             : undefined;
           const assistantErrorText =
@@ -789,7 +747,6 @@ export async function runEmbeddedPiAgent(
                   contextWindowTokens,
                   sessionId: params.sessionId,
                   sessionKey: params.sessionKey,
-<<<<<<< HEAD
                   messageChannel: params.messageChannel,
                   messageProvider: params.messageProvider,
                   agentAccountId: params.agentAccountId,
@@ -806,8 +763,6 @@ export async function runEmbeddedPiAgent(
                   bashElevated: params.bashElevated,
                   extraSystemPrompt: params.extraSystemPrompt,
                   ownerNumbers: params.ownerNumbers,
-=======
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
                 });
                 if (truncResult.truncated) {
                   log.info(
@@ -992,15 +947,8 @@ export async function runEmbeddedPiAgent(
             );
           }
 
-<<<<<<< HEAD
           // Treat timeout as potential rate limit (Antigravity hangs on rate limit)
           const shouldRotate = (!aborted && failoverFailure) || timedOut;
-=======
-          // Rotate on timeout to try another account/model path in this turn,
-          // but exclude post-prompt compaction timeouts (model succeeded; no profile issue).
-          const shouldRotate =
-            (!aborted && failoverFailure) || (timedOut && !timedOutDuringCompaction);
->>>>>>> 3e2849c57 (fix: align timeout cooldown behavior docs/tests (#22622) (thanks @vageeshkumar))
 
           if (shouldRotate) {
             if (lastProfileId) {
@@ -1035,11 +983,8 @@ export async function runEmbeddedPiAgent(
                   ? formatAssistantErrorText(lastAssistant, {
                       cfg: params.config,
                       sessionKey: params.sessionKey ?? params.sessionId,
-<<<<<<< HEAD
-=======
                       provider: activeErrorContext.provider,
                       model: activeErrorContext.model,
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
                     })
                   : undefined) ||
                 lastAssistant?.errorMessage?.trim() ||
@@ -1047,20 +992,9 @@ export async function runEmbeddedPiAgent(
                   ? "LLM request timed out."
                   : rateLimitFailure
                     ? "LLM request rate limited."
-<<<<<<< HEAD
                     : authFailure
                       ? "LLM request unauthorized."
                       : "LLM request failed.");
-=======
-                    : billingFailure
-                      ? formatBillingErrorMessage(
-                          activeErrorContext.provider,
-                          activeErrorContext.model,
-                        )
-                      : authFailure
-                        ? "LLM request unauthorized."
-                        : "LLM request failed.");
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
               const status =
                 resolveFailoverStatus(assistantFailoverReason ?? "unknown") ??
                 (isTimeoutErrorMessage(message) ? 408 : undefined);
@@ -1097,11 +1031,8 @@ export async function runEmbeddedPiAgent(
             lastToolError: attempt.lastToolError,
             config: params.config,
             sessionKey: params.sessionKey ?? params.sessionId,
-<<<<<<< HEAD
-=======
             provider: activeErrorContext.provider,
             model: activeErrorContext.model,
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
             verboseLevel: params.verboseLevel,
             reasoningLevel: params.reasoningLevel,
             toolResultFormat: resolvedToolResultFormat,

@@ -1,18 +1,9 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 
 import JSON5 from "json5";
 import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
-=======
-import type { MsgContext } from "../../auto-reply/templating.js";
-import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
-import { acquireSessionWriteLock } from "../../agents/session-write-lock.js";
-import { parseByteSize } from "../../cli/parse-bytes.js";
-import { parseDurationMs } from "../../cli/parse-duration.js";
-import { createSubsystemLogger } from "../../logging/subsystem.js";
->>>>>>> e19a23520 (fix: unify session maintenance and cron run pruning (#13083))
 import {
   deliveryContextFromSession,
   mergeDeliveryContext,
@@ -20,12 +11,7 @@ import {
   normalizeSessionDeliveryFields,
   type DeliveryContext,
 } from "../../utils/delivery-context.js";
-<<<<<<< HEAD
 import type { MsgContext } from "../../auto-reply/templating.js";
-=======
-import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
-import { loadConfig } from "../config.js";
->>>>>>> e19a23520 (fix: unify session maintenance and cron run pruning (#13083))
 import { deriveSessionMetaPatch } from "./metadata.js";
 import { mergeSessionEntry, type SessionEntry } from "./types.js";
 
@@ -71,18 +57,7 @@ function invalidateSessionStoreCache(storePath: string): void {
 }
 
 function normalizeSessionEntryDelivery(entry: SessionEntry): SessionEntry {
-<<<<<<< HEAD
   const normalized = normalizeSessionDeliveryFields(entry);
-=======
-  const normalized = normalizeSessionDeliveryFields({
-    channel: entry.channel,
-    lastChannel: entry.lastChannel,
-    lastTo: entry.lastTo,
-    lastAccountId: entry.lastAccountId,
-    lastThreadId: entry.lastThreadId ?? entry.deliveryContext?.threadId ?? entry.origin?.threadId,
-    deliveryContext: entry.deliveryContext,
-  });
->>>>>>> 310eed825 (fix: preserve delivery thread fallback (#4911) (thanks @yevhen))
   const nextDelivery = normalized.deliveryContext;
   const sameDelivery =
     (entry.deliveryContext?.channel ?? undefined) === nextDelivery?.channel &&
@@ -179,40 +154,11 @@ export function loadSessionStore(
   // writer to finish.
   let store: Record<string, SessionEntry> = {};
   let mtimeMs = getFileMtimeMs(storePath);
-<<<<<<< HEAD
   try {
     const raw = fs.readFileSync(storePath, "utf-8");
     const parsed = JSON5.parse(raw);
     if (isSessionStoreRecord(parsed)) {
       store = parsed as Record<string, SessionEntry>;
-=======
-  const maxReadAttempts = process.platform === "win32" ? 3 : 1;
-  const retryBuf =
-    maxReadAttempts > 1
-      ? new Int32Array(new SharedArrayBuffer(4))
-      : undefined;
-  for (let attempt = 0; attempt < maxReadAttempts; attempt++) {
-    try {
-      const raw = fs.readFileSync(storePath, "utf-8");
-      if (raw.length === 0 && attempt < maxReadAttempts - 1) {
-        // File is empty — likely caught mid-write; retry after a brief pause.
-        Atomics.wait(retryBuf!, 0, 0, 50);
-        continue;
-      }
-      const parsed = JSON.parse(raw);
-      if (isSessionStoreRecord(parsed)) {
-        store = parsed;
-      }
-      mtimeMs = getFileMtimeMs(storePath) ?? mtimeMs;
-      break;
-    } catch {
-      // File missing, locked, or transiently corrupt — retry on Windows.
-      if (attempt < maxReadAttempts - 1) {
-        Atomics.wait(retryBuf!, 0, 0, 50);
-        continue;
-      }
-      // Final attempt failed; proceed with an empty store.
->>>>>>> 94eecaa44 (fix: atomic session store writes to prevent context loss on Windows)
     }
   }
 
@@ -787,7 +733,6 @@ async function withSessionStoreLock<T>(
   const timeoutAt = hasTimeout ? Date.now() + timeoutMs : undefined;
   const queue = getOrCreateLockQueue(storePath);
 
-<<<<<<< HEAD
   while (true) {
     try {
       const handle = await fs.promises.open(lockPath, "wx");
@@ -829,23 +774,6 @@ async function withSessionStoreLock<T>(
         if (ageMs > staleMs) {
           await fs.promises.unlink(lockPath);
           continue;
-=======
-  const promise = new Promise<T>((resolve, reject) => {
-    const task: SessionStoreLockTask = {
-      fn: async () => await fn(),
-      resolve: (value) => resolve(value as T),
-      reject,
-      timeoutAt,
-      staleMs,
-      started: false,
-      timedOut: false,
-    };
-
-    if (hasTimeout) {
-      task.timer = setTimeout(() => {
-        if (task.started || task.timedOut) {
-          return;
->>>>>>> c6ecd2a04 (fix: replace file-based session store lock with in-process Promise chain mutex (#14498))
         }
         task.timedOut = true;
         removePendingTask(queue, task);
@@ -888,7 +816,6 @@ export async function recordSessionMetaFromInbound(params: {
 }): Promise<SessionEntry | null> {
   const { storePath, sessionKey, ctx } = params;
   const createIfMissing = params.createIfMissing ?? true;
-<<<<<<< HEAD
   return await updateSessionStore(storePath, (store) => {
     const existing = store[sessionKey];
     const patch = deriveSessionMetaPatch({
@@ -903,30 +830,6 @@ export async function recordSessionMetaFromInbound(params: {
     store[sessionKey] = next;
     return next;
   });
-=======
-  return await updateSessionStore(
-    storePath,
-    (store) => {
-      const existing = store[sessionKey];
-      const patch = deriveSessionMetaPatch({
-        ctx,
-        sessionKey,
-        existing,
-        groupResolution: params.groupResolution,
-      });
-      if (!patch) {
-        return existing ?? null;
-      }
-      if (!existing && !createIfMissing) {
-        return null;
-      }
-      const next = mergeSessionEntry(existing, patch);
-      store[sessionKey] = next;
-      return next;
-    },
-    { activeSessionKey: sessionKey },
-  );
->>>>>>> e19a23520 (fix: unify session maintenance and cron run pruning (#13083))
 }
 
 export async function updateLastRoute(params: {

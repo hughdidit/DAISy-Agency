@@ -6,12 +6,9 @@ import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createIMessageTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import {
   extractHookToken,
-<<<<<<< HEAD
-=======
   isHookAgentAllowed,
   resolveHookSessionKey,
   resolveHookTargetAgentId,
->>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
   normalizeAgentPayload,
   normalizeWakePayload,
   resolveHooksConfig,
@@ -124,8 +121,6 @@ describe("gateway hooks helpers", () => {
     const bad = normalizeAgentPayload({ message: "yo", channel: "sms" });
     expect(bad.ok).toBe(false);
   });
-<<<<<<< HEAD
-=======
 
   test("normalizeAgentPayload passes agentId", () => {
     const ok = normalizeAgentPayload({ message: "hello", agentId: "hooks" });
@@ -330,7 +325,6 @@ describe("gateway hooks helpers", () => {
       "hooks.allowedSessionKeyPrefixes must include 'hook:' when hooks.defaultSessionKey is unset",
     );
   });
->>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
 });
 
 const emptyRegistry = createTestRegistry([]);

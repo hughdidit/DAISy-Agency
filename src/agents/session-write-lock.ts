@@ -30,7 +30,6 @@ export type SessionLockInspection = {
 const HELD_LOCKS = new Map<string, HeldLock>();
 const CLEANUP_SIGNALS = ["SIGINT", "SIGTERM", "SIGQUIT", "SIGABRT"] as const;
 type CleanupSignal = (typeof CLEANUP_SIGNALS)[number];
-<<<<<<< HEAD
 const cleanupHandlers = new Map<CleanupSignal, () => void>();
 
 function isAlive(pid: number): boolean {
@@ -40,38 +39,6 @@ function isAlive(pid: number): boolean {
     return true;
   } catch {
     return false;
-=======
-const CLEANUP_STATE_KEY = Symbol.for("openclaw.sessionWriteLockCleanupState");
-const HELD_LOCKS_KEY = Symbol.for("openclaw.sessionWriteLockHeldLocks");
-const WATCHDOG_STATE_KEY = Symbol.for("openclaw.sessionWriteLockWatchdogState");
-
-const DEFAULT_STALE_MS = 30 * 60 * 1000;
-const DEFAULT_MAX_HOLD_MS = 5 * 60 * 1000;
-const DEFAULT_WATCHDOG_INTERVAL_MS = 60_000;
-
-type CleanupState = {
-  registered: boolean;
-  cleanupHandlers: Map<CleanupSignal, () => void>;
-};
-
-type WatchdogState = {
-  started: boolean;
-  intervalMs: number;
-  timer?: NodeJS.Timeout;
-};
-
-<<<<<<< HEAD
-function resolveHeldLocks(): Map<string, HeldLock> {
-=======
-type LockInspectionDetails = Pick<
-  SessionLockInspection,
-  "pid" | "pidAlive" | "createdAt" | "ageMs" | "stale" | "staleReasons"
->;
-
-const HELD_LOCKS = resolveProcessScopedMap<HeldLock>(HELD_LOCKS_KEY);
-
-function resolveCleanupState(): CleanupState {
->>>>>>> 1becebe18 (fix: harden session lock contention and cleanup)
   const proc = process as NodeJS.Process & {
     [HELD_LOCKS_KEY]?: Map<string, HeldLock>;
   };
@@ -179,45 +146,7 @@ function releaseAllLocksSync(): void {
   }
 }
 
-<<<<<<< HEAD
 let cleanupRegistered = false;
-=======
-async function runLockWatchdogCheck(nowMs = Date.now()): Promise<number> {
-  let released = 0;
-  for (const [sessionFile, held] of HELD_LOCKS.entries()) {
-    const heldForMs = nowMs - held.acquiredAt;
-    if (heldForMs <= held.maxHoldMs) {
-      continue;
-    }
-
-    // eslint-disable-next-line no-console
-    console.warn(
-      `[session-write-lock] releasing lock held for ${heldForMs}ms (max=${held.maxHoldMs}ms): ${held.lockPath}`,
-    );
-
-    const didRelease = await releaseHeldLock(sessionFile, held, { force: true });
-    if (didRelease) {
-      released += 1;
-    }
-  }
-  return released;
-}
-
-function ensureWatchdogStarted(intervalMs: number): void {
-  const watchdogState = resolveWatchdogState();
-  if (watchdogState.started) {
-    return;
-  }
-  watchdogState.started = true;
-  watchdogState.intervalMs = intervalMs;
-  watchdogState.timer = setInterval(() => {
-    void runLockWatchdogCheck().catch(() => {
-      // Ignore watchdog errors - best effort cleanup only.
-    });
-  }, intervalMs);
-  watchdogState.timer.unref?.();
-}
->>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
 
 function handleTerminationSignal(signal: CleanupSignal): void {
   releaseAllLocksSync();
@@ -259,22 +188,10 @@ function registerCleanupHandlers(): void {
 async function readLockPayload(lockPath: string): Promise<LockFilePayload | null> {
   try {
     const raw = await fs.readFile(lockPath, "utf8");
-<<<<<<< HEAD
     const parsed = JSON.parse(raw) as Partial<LockFilePayload>;
     if (typeof parsed.pid !== "number") return null;
     if (typeof parsed.createdAt !== "string") return null;
     return { pid: parsed.pid, createdAt: parsed.createdAt };
-=======
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    const payload: LockFilePayload = {};
-    if (typeof parsed.pid === "number") {
-      payload.pid = parsed.pid;
-    }
-    if (typeof parsed.createdAt === "string") {
-      payload.createdAt = parsed.createdAt;
-    }
-    return payload;
->>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
   } catch {
     return null;
   }
@@ -430,7 +347,6 @@ export async function acquireSessionWriteLock(params: {
     held.count += 1;
     return {
       release: async () => {
-<<<<<<< HEAD
         const current = HELD_LOCKS.get(normalizedSessionFile);
         if (!current) return;
         current.count -= 1;
@@ -438,9 +354,6 @@ export async function acquireSessionWriteLock(params: {
         HELD_LOCKS.delete(normalizedSessionFile);
         await current.handle.close();
         await fs.rm(current.lockPath, { force: true });
-=======
-        await releaseHeldLock(normalizedSessionFile, held);
->>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
       },
     };
   }
@@ -464,7 +377,6 @@ export async function acquireSessionWriteLock(params: {
       HELD_LOCKS.set(normalizedSessionFile, createdHeld);
       return {
         release: async () => {
-<<<<<<< HEAD
           const current = HELD_LOCKS.get(normalizedSessionFile);
           if (!current) return;
           current.count -= 1;
@@ -472,9 +384,6 @@ export async function acquireSessionWriteLock(params: {
           HELD_LOCKS.delete(normalizedSessionFile);
           await current.handle.close();
           await fs.rm(current.lockPath, { force: true });
-=======
-          await releaseHeldLock(normalizedSessionFile, createdHeld);
->>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
         },
       };
     } catch (err) {
@@ -494,15 +403,10 @@ export async function acquireSessionWriteLock(params: {
       if (code !== "EEXIST") throw err;
       const payload = await readLockPayload(lockPath);
 <<<<<<< HEAD
-<<<<<<< HEAD
       const createdAt = payload?.createdAt ? Date.parse(payload.createdAt) : NaN;
       const stale = !Number.isFinite(createdAt) || Date.now() - createdAt > staleMs;
       const alive = payload?.pid ? isAlive(payload.pid) : false;
       if (stale || !alive) {
-=======
-      const inspected = inspectLockPayload(payload, staleMs, Date.now());
-      if (inspected.stale) {
->>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
 =======
       const nowMs = Date.now();
       const inspected = inspectLockPayload(payload, staleMs, nowMs);

@@ -170,7 +170,6 @@ function buildSkillStatus(
     entry.frontmatter.url;
   const homepage = homepageRaw?.trim() ? homepageRaw.trim() : undefined;
 
-<<<<<<< HEAD
   const requiredBins = entry.metadata?.requires?.bins ?? [];
   const requiredAnyBins = entry.metadata?.requires?.anyBins ?? [];
   const requiredEnv = entry.metadata?.requires?.env ?? [];
@@ -181,28 +180,6 @@ function buildSkillStatus(
     if (hasBinary(bin)) return false;
     if (eligibility?.remote?.hasBin?.(bin)) return false;
     return true;
-=======
-  const {
-    required,
-    missing,
-    eligible: requirementsSatisfied,
-    configChecks,
-  } = evaluateRequirementsFromMetadata({
-    always,
-    metadata: entry.metadata,
-    hasLocalBin: hasBinary,
-    hasRemoteBin: eligibility?.remote?.hasBin,
-    hasRemoteAnyBin: eligibility?.remote?.hasAnyBin,
-    localPlatform: process.platform,
-    remotePlatforms: eligibility?.remote?.platforms,
-    isEnvSatisfied: (envName) =>
-      Boolean(
-        process.env[envName] ||
-        skillConfig?.env?.[envName] ||
-        (skillConfig?.apiKey && entry.metadata?.primaryEnv === envName),
-      ),
-    isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
->>>>>>> d3428053d (fix: redact config values in skills status)
   });
   const missingAnyBins =
     requiredAnyBins.length > 0 &&

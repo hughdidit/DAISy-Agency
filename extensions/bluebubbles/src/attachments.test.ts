@@ -1,16 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { downloadBlueBubblesAttachment, sendBlueBubblesAttachment } from "./attachments.js";
-=======
-import type { PluginRuntime } from "openclaw/plugin-sdk";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import "./test-mocks.js";
-import { downloadBlueBubblesAttachment, sendBlueBubblesAttachment } from "./attachments.js";
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
-import { setBlueBubblesRuntime } from "./runtime.js";
-import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
 import type { BlueBubblesAttachment } from "./types.js";
 
 vi.mock("./accounts.js", () => ({
@@ -52,7 +42,6 @@ const fetchRemoteMediaMock = vi.fn(
   },
 );
 
-<<<<<<< HEAD
 describe("downloadBlueBubblesAttachment", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
@@ -61,27 +50,6 @@ describe("downloadBlueBubblesAttachment", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
-=======
-installBlueBubblesFetchTestHooks({
-  mockFetch,
-  privateApiStatusMock: vi.mocked(getCachedBlueBubblesPrivateApiStatus),
-});
-
-const runtimeStub = {
-  channel: {
-    media: {
-      fetchRemoteMedia:
-        fetchRemoteMediaMock as unknown as PluginRuntime["channel"]["media"]["fetchRemoteMedia"],
-    },
-  },
-} as unknown as PluginRuntime;
-
-describe("downloadBlueBubblesAttachment", () => {
-  beforeEach(() => {
-    fetchRemoteMediaMock.mockClear();
-    mockFetch.mockReset();
-    setBlueBubblesRuntime(runtimeStub);
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
   });
 
   it("throws when guid is missing", async () => {
@@ -300,13 +268,10 @@ describe("sendBlueBubblesAttachment", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
     mockFetch.mockReset();
-<<<<<<< HEAD
-=======
     fetchRemoteMediaMock.mockClear();
     setBlueBubblesRuntime(runtimeStub);
     vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReset();
     vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValue(null);
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
   });
 
   afterEach(() => {

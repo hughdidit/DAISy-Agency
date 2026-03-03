@@ -1,11 +1,6 @@
 import { classifyFailoverReason, type FailoverReason } from "./pi-embedded-helpers.js";
 
-<<<<<<< HEAD
 const TIMEOUT_HINT_RE = /timeout|timed out|deadline exceeded|context deadline exceeded/i;
-=======
-const TIMEOUT_HINT_RE =
-  /timeout|timed out|deadline exceeded|context deadline exceeded|stop reason:\s*abort|reason:\s*abort|unhandled stop reason:\s*abort/i;
->>>>>>> fbda9a93f (fix(failover): align abort timeout detection and regressions)
 const ABORT_TIMEOUT_RE = /request was aborted|request aborted/i;
 
 export class FailoverError extends Error {
@@ -55,13 +50,10 @@ export function resolveFailoverStatus(reason: FailoverReason): number | undefine
       return 408;
     case "format":
       return 400;
-<<<<<<< HEAD
-=======
     case "model_not_found":
       return 404;
     case "session_expired":
       return 410; // Gone - session no longer exists
->>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
     default:
       return undefined;
   }
@@ -128,31 +120,10 @@ export function resolveFailoverReasonFromError(err: unknown): FailoverReason | n
   if (isFailoverError(err)) return err.reason;
 
   const status = getStatusCode(err);
-<<<<<<< HEAD
   if (status === 402) return "billing";
   if (status === 429) return "rate_limit";
   if (status === 401 || status === 403) return "auth";
   if (status === 408) return "timeout";
-=======
-  if (status === 402) {
-    return "billing";
-  }
-  if (status === 429) {
-    return "rate_limit";
-  }
-  if (status === 401 || status === 403) {
-    return "auth";
-  }
-  if (status === 408) {
-    return "timeout";
-  }
-  if (status === 502 || status === 503 || status === 504) {
-    return "timeout";
-  }
-  if (status === 400) {
-    return "format";
-  }
->>>>>>> 71b4be879 (fix: handle 400 status in failover to enable model fallback (#1879))
 
   const code = (getErrorCode(err) ?? "").toUpperCase();
   if (["ETIMEDOUT", "ESOCKETTIMEDOUT", "ECONNRESET", "ECONNABORTED"].includes(code)) {

@@ -28,8 +28,6 @@ describe("i18n", () => {
     // but let's assume it falls back to English for now.
     expect(t("common.health")).toBeDefined();
   });
-<<<<<<< HEAD
-=======
 
   it("loads translations even when setting the same locale again", async () => {
     const internal = i18n as unknown as {
@@ -55,5 +53,4 @@ describe("i18n", () => {
     expect(fresh.i18n.getLocale()).toBe("zh-CN");
     expect(fresh.t("common.health")).toBe("健康状况");
   });
->>>>>>> fd24b3544 (fix: cover startup locale hydration path (#24795) (thanks @chilu18))
 });

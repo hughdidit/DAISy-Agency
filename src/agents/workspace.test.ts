@@ -1,8 +1,5 @@
-<<<<<<< HEAD:src/agents/workspace.test.ts
-=======
 import fs from "node:fs/promises";
 import path from "node:path";
->>>>>>> 386bb0c61 (fix: don't auto-create HEARTBEAT.md on workspace init (openclaw#12027) thanks @shadril238):src/agents/workspace.e2e.test.ts
 import { describe, expect, it } from "vitest";
 
 import {
@@ -14,21 +11,7 @@ import {
   ensureAgentWorkspace,
   loadWorkspaceBootstrapFiles,
 } from "./workspace.js";
-<<<<<<< HEAD
 import { makeTempWorkspace, writeWorkspaceFile } from "../test-helpers/workspace.js";
-=======
-
-describe("resolveDefaultAgentWorkspaceDir", () => {
-  it("uses OPENCLAW_HOME for default workspace resolution", () => {
-    const dir = resolveDefaultAgentWorkspaceDir({
-      OPENCLAW_HOME: "/srv/openclaw-home",
-      HOME: "/home/other",
-    } as NodeJS.ProcessEnv);
-
-    expect(dir).toBe(path.join(path.resolve("/srv/openclaw-home"), ".openclaw", "workspace"));
-  });
-});
->>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
 
 describe("ensureAgentWorkspace", () => {
   it("does not create HEARTBEAT.md during bootstrap file initialization", async () => {

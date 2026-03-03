@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-=======
 import type { Dirent } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import type { loadOpenClawPlugins } from "../plugins/loader.js";
->>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import {
@@ -14,14 +11,9 @@ import {
   resolveConfiguredModelRef,
   resolveHooksGmailModel,
 } from "../agents/model-selection.js";
-<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import { isTruthyEnvValue } from "../infra/env.js";
-=======
-import { cleanStaleLockFiles } from "../agents/session-write-lock.js";
-import { resolveStateDir } from "../config/paths.js";
->>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
 import { startGmailWatcher } from "../hooks/gmail-watcher.js";
 import {
   clearInternalHooks,
@@ -73,26 +65,7 @@ export async function startGatewaySidecars(params: {
   logChannels: { info: (msg: string) => void; error: (msg: string) => void };
   logBrowser: { error: (msg: string) => void };
 }) {
-<<<<<<< HEAD
   // Start clawd browser control server (unless disabled via config).
-=======
-  try {
-    const stateDir = resolveStateDir(process.env);
-    const sessionDirs = await resolveAgentSessionDirs(stateDir);
-    for (const sessionsDir of sessionDirs) {
-      await cleanStaleLockFiles({
-        sessionsDir,
-        staleMs: SESSION_LOCK_STALE_MS,
-        removeStale: true,
-        log: { warn: (message) => params.log.warn(message) },
-      });
-    }
-  } catch (err) {
-    params.log.warn(`session lock cleanup failed on startup: ${String(err)}`);
-  }
-
-  // Start OpenClaw browser control server (unless disabled via config).
->>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
   let browserControl: Awaited<ReturnType<typeof startBrowserControlServerIfEnabled>> = null;
   try {
     browserControl = await startBrowserControlServerIfEnabled();

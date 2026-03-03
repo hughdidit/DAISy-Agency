@@ -1,15 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD:src/agents/pi-tools.workspace-paths.test.ts
 
 import { describe, expect, it } from "vitest";
 import { createMoltbotCodingTools } from "./pi-tools.js";
-=======
-import { describe, expect, it, vi } from "vitest";
-import { createOpenClawCodingTools } from "./pi-tools.js";
-import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026)):src/agents/pi-tools.workspace-paths.e2e.test.ts
 
 async function withTempDir<T>(prefix: string, fn: (dir: string) => Promise<T>) {
   // Capture cwd BEFORE creating temp dir to avoid ENOENT if cwd is a deleted temp dir
@@ -99,16 +93,8 @@ describe.sequential("workspace path resolution", () => {
   });
 
   it("defaults exec cwd to workspaceDir when workdir is omitted", async () => {
-<<<<<<< HEAD:src/agents/pi-tools.workspace-paths.test.ts
     await withTempDir("moltbot-ws-", async (workspaceDir) => {
       const tools = createMoltbotCodingTools({ workspaceDir });
-=======
-    await withTempDir("openclaw-ws-", async (workspaceDir) => {
-      const tools = createOpenClawCodingTools({
-        workspaceDir,
-        exec: { host: "gateway", ask: "off", security: "full" },
-      });
->>>>>>> 1af0edf7f (fix: ensure exec approval is registered before returning (#2402) (#3357)):src/agents/pi-tools.workspace-paths.e2e.test.ts
       const execTool = tools.find((tool) => tool.name === "exec");
       expect(execTool).toBeDefined();
 
@@ -129,18 +115,9 @@ describe.sequential("workspace path resolution", () => {
   });
 
   it("lets exec workdir override the workspace default", async () => {
-<<<<<<< HEAD:src/agents/pi-tools.workspace-paths.test.ts
     await withTempDir("moltbot-ws-", async (workspaceDir) => {
       await withTempDir("moltbot-override-", async (overrideDir) => {
         const tools = createMoltbotCodingTools({ workspaceDir });
-=======
-    await withTempDir("openclaw-ws-", async (workspaceDir) => {
-      await withTempDir("openclaw-override-", async (overrideDir) => {
-        const tools = createOpenClawCodingTools({
-          workspaceDir,
-          exec: { host: "gateway", ask: "off", security: "full" },
-        });
->>>>>>> 1af0edf7f (fix: ensure exec approval is registered before returning (#2402) (#3357)):src/agents/pi-tools.workspace-paths.e2e.test.ts
         const execTool = tools.find((tool) => tool.name === "exec");
         expect(execTool).toBeDefined();
 

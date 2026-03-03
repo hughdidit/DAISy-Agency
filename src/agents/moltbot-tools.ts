@@ -1,12 +1,4 @@
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-import type { GatewayMessageChannel } from "../utils/message-channel.js";
-import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
-import type { AnyAgentTool } from "./tools/common.js";
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026)):src/agents/openclaw-tools.ts
 =======
 >>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility):src/agents/openclaw-tools.ts
 import { resolvePluginTools } from "../plugins/tools.js";
@@ -65,15 +57,12 @@ export function createMoltbotTools(options?: {
   modelHasVision?: boolean;
   /** Explicit agent ID override for cron/hook sessions. */
   requesterAgentIdOverride?: string;
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-=======
   /** Require explicit message targets (no implicit last-route sends). */
   requireExplicitMessageTarget?: boolean;
   /** If true, omit the message tool from the tool list. */
   disableMessageTool?: boolean;
   /** Whether the requesting sender is an owner. */
   senderIsOwner?: boolean;
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes):src/agents/openclaw-tools.ts
 }): AnyAgentTool[] {
   const imageTool = options?.agentDir?.trim()
     ? createImageTool({

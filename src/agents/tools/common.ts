@@ -1,11 +1,7 @@
 import fs from "node:fs/promises";
-<<<<<<< HEAD
 
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 
-=======
-import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { detectMime } from "../../media/mime.js";
 import type { ImageSanitizationLimits } from "../image-sanitization.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
@@ -62,24 +58,12 @@ export function readStringParam(
   const { required = false, trim = true, label = key, allowEmpty = false } = options;
   const raw = params[key];
   if (typeof raw !== "string") {
-<<<<<<< HEAD
     if (required) throw new Error(`${label} required`);
-=======
-    if (required) {
-      throw new ToolInputError(`${label} required`);
-    }
->>>>>>> 767fd9f22 (fix: classify /tools/invoke errors and sanitize 500s (#13185) (thanks @davidrudduck))
     return undefined;
   }
   const value = trim ? raw.trim() : raw;
   if (!value && !allowEmpty) {
-<<<<<<< HEAD
     if (required) throw new Error(`${label} required`);
-=======
-    if (required) {
-      throw new ToolInputError(`${label} required`);
-    }
->>>>>>> 767fd9f22 (fix: classify /tools/invoke errors and sanitize 500s (#13185) (thanks @davidrudduck))
     return undefined;
   }
   return value;
@@ -97,16 +81,7 @@ export function readStringOrNumberParam(
   }
   if (typeof raw === "string") {
     const value = raw.trim();
-<<<<<<< HEAD
     if (value) return value;
-=======
-    if (value) {
-      return value;
-    }
-  }
-  if (required) {
-    throw new ToolInputError(`${label} required`);
->>>>>>> 767fd9f22 (fix: classify /tools/invoke errors and sanitize 500s (#13185) (thanks @davidrudduck))
   }
   if (required) throw new Error(`${label} required`);
   return undefined;
@@ -130,13 +105,7 @@ export function readNumberParam(
     }
   }
   if (value === undefined) {
-<<<<<<< HEAD
     if (required) throw new Error(`${label} required`);
-=======
-    if (required) {
-      throw new ToolInputError(`${label} required`);
-    }
->>>>>>> 767fd9f22 (fix: classify /tools/invoke errors and sanitize 500s (#13185) (thanks @davidrudduck))
     return undefined;
   }
   return integer ? Math.trunc(value) : value;
@@ -165,13 +134,7 @@ export function readStringArrayParam(
       .map((entry) => entry.trim())
       .filter(Boolean);
     if (values.length === 0) {
-<<<<<<< HEAD
       if (required) throw new Error(`${label} required`);
-=======
-      if (required) {
-        throw new ToolInputError(`${label} required`);
-      }
->>>>>>> 767fd9f22 (fix: classify /tools/invoke errors and sanitize 500s (#13185) (thanks @davidrudduck))
       return undefined;
     }
     return values;
@@ -179,24 +142,12 @@ export function readStringArrayParam(
   if (typeof raw === "string") {
     const value = raw.trim();
     if (!value) {
-<<<<<<< HEAD
       if (required) throw new Error(`${label} required`);
-=======
-      if (required) {
-        throw new ToolInputError(`${label} required`);
-      }
->>>>>>> 767fd9f22 (fix: classify /tools/invoke errors and sanitize 500s (#13185) (thanks @davidrudduck))
       return undefined;
     }
     return [value];
   }
-<<<<<<< HEAD
   if (required) throw new Error(`${label} required`);
-=======
-  if (required) {
-    throw new ToolInputError(`${label} required`);
-  }
->>>>>>> 767fd9f22 (fix: classify /tools/invoke errors and sanitize 500s (#13185) (thanks @davidrudduck))
   return undefined;
 }
 

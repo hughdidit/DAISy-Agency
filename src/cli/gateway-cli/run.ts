@@ -163,12 +163,7 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
   const tokenRaw = toOptionString(opts.token);
 
   const snapshot = await readConfigFileSnapshot().catch(() => null);
-<<<<<<< HEAD
   const configExists = snapshot?.exists ?? fs.existsSync(CONFIG_PATH);
-=======
-  const configExists = snapshot?.exists ?? fs.existsSync(getConfigPath());
-  const configAuditPath = path.join(resolveStateDir(process.env), "logs", "config-audit.jsonl");
->>>>>>> 34b18ea9d (fix: respect OPENCLAW_HOME for isolated gateway instances)
   const mode = cfg.gateway?.mode;
   if (!opts.allowUnconfigured && mode !== "local") {
     if (!configExists) {

@@ -1,18 +1,7 @@
 import path from "node:path";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
-=======
-import type { MsgContext } from "../auto-reply/templating.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type {
-  MediaUnderstandingCapability,
-  MediaUnderstandingDecision,
-  MediaUnderstandingOutput,
-  MediaUnderstandingProvider,
-} from "./types.js";
->>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import {
@@ -270,12 +259,8 @@ async function extractFileBlocks(params: {
     const guessedDelimited = textLike ? guessDelimitedMime(textSample) : undefined;
     const textHint =
       forcedTextMimeResolved ?? guessedDelimited ?? (textLike ? "text/plain" : undefined);
-<<<<<<< HEAD
     const rawMime = bufferResult?.mime ?? attachment.mime;
     const mimeType = textHint ?? normalizeMimeType(rawMime);
-=======
-    const mimeType = sanitizeMimeType(textHint ?? normalizeMimeType(rawMime));
->>>>>>> f49297e2c (fix: skip audio files from text extraction to prevent binary processing (#7475))
     // Log when MIME type is overridden from non-text to text for auditability
     if (textHint && rawMime && !rawMime.startsWith("text/")) {
       logVerbose(

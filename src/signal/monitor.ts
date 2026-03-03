@@ -325,8 +325,6 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
       sendReadReceipts,
       runtime,
     });
-<<<<<<< HEAD
-=======
     void daemonHandle.exited.then((exit) => {
       if (daemonStopRequested || opts.abortSignal?.aborted) {
         return;
@@ -338,7 +336,6 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
         daemonAbortController.abort(daemonExitError);
       }
     });
->>>>>>> 602a1ebd5 (fix: handle intentional signal daemon shutdown on abort (#23379) (thanks @frankekn))
   }
 
   const onAbort = () => {

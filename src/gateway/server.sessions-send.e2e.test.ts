@@ -24,14 +24,8 @@ beforeAll(async () => {
   prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
   prevGatewayToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
   gatewayPort = await getFreePort();
-<<<<<<< HEAD
   process.env.CLAWDBOT_GATEWAY_PORT = String(gatewayPort);
   process.env.CLAWDBOT_GATEWAY_TOKEN = "test-token";
-=======
-  testState.gatewayAuth = { mode: "token", token: gatewayToken };
-  process.env.OPENCLAW_GATEWAY_PORT = String(gatewayPort);
-  process.env.OPENCLAW_GATEWAY_TOKEN = gatewayToken;
->>>>>>> 85409e401 (fix: preserve inter-session input provenance (thanks @anbecker))
   server = await startGatewayServer(gatewayPort);
 });
 

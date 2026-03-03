@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { html } from "lit";
 <<<<<<< HEAD
 
@@ -6,13 +5,6 @@ import type { GatewayHelloOk } from "../gateway";
 import { formatAgo, formatDurationMs } from "../format";
 import { formatNextRun } from "../presenter";
 import type { UiSettings } from "../storage";
-=======
-import type { GatewayHelloOk } from "../gateway.ts";
-import type { UiSettings } from "../storage.ts";
-=======
-import { html, nothing } from "lit";
-import { ConnectErrorDetailCodes } from "../../../../src/gateway/protocol/connect-error-details.js";
->>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
 import { t, i18n, type Locale } from "../../i18n/index.ts";
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
 import { formatNextRun } from "../presenter.ts";
@@ -41,49 +33,10 @@ export function renderOverview(props: OverviewProps) {
   const snapshot = props.hello?.snapshot as
     | { uptimeMs?: number; policy?: { tickIntervalMs?: number } }
     | undefined;
-<<<<<<< HEAD
   const uptime = snapshot?.uptimeMs ? formatDurationMs(snapshot.uptimeMs) : "n/a";
-=======
-  const uptime = snapshot?.uptimeMs ? formatDurationHuman(snapshot.uptimeMs) : t("common.na");
->>>>>>> 075317ab1 (fix: correct function names in overview.ts and add type assertion in translate.ts)
   const tick = snapshot?.policy?.tickIntervalMs
     ? `${snapshot.policy.tickIntervalMs}ms`
-<<<<<<< HEAD
     : "n/a";
-=======
-    : t("common.na");
-  const authMode = snapshot?.authMode;
-  const isTrustedProxy = authMode === "trusted-proxy";
-
-  const pairingHint = (() => {
-    if (!shouldShowPairingHint(props.connected, props.lastError, props.lastErrorCode)) {
-      return null;
-    }
-    return html`
-      <div class="muted" style="margin-top: 8px">
-        ${t("overview.pairing.hint")}
-        <div style="margin-top: 6px">
-          <span class="mono">openclaw devices list</span><br />
-          <span class="mono">openclaw devices approve &lt;requestId&gt;</span>
-        </div>
-        <div style="margin-top: 6px; font-size: 12px;">
-          ${t("overview.pairing.mobileHint")}
-        </div>
-        <div style="margin-top: 6px">
-          <a
-            class="session-link"
-            href="https://docs.openclaw.ai/web/control-ui#device-pairing-first-connection"
-            target="_blank"
-            rel="noreferrer"
-            title="Device pairing docs (opens in new tab)"
-            >Docs: Device pairing</a
-          >
-        </div>
-      </div>
-    `;
-  })();
-
->>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
   const authHint = (() => {
     if (props.connected || !props.lastError) {
       return null;
@@ -123,15 +76,9 @@ export function renderOverview(props: OverviewProps) {
       return html`
         <div class="muted" style="margin-top: 8px;">
           This gateway requires auth. Add a token or password, then click Connect.
-<<<<<<< HEAD
           <div style="margin-top: 6px;">
             <span class="mono">moltbot dashboard --no-open</span> → tokenized URL<br />
             <span class="mono">moltbot doctor --generate-gateway-token</span> → set token
-=======
-          <div style="margin-top: 6px">
-            <span class="mono">openclaw dashboard --no-open</span> → open the Control UI<br />
-            <span class="mono">openclaw doctor --generate-gateway-token</span> → set token
->>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
           </div>
           <div style="margin-top: 6px;">
             <a
@@ -147,17 +94,11 @@ export function renderOverview(props: OverviewProps) {
       `;
     }
     return html`
-<<<<<<< HEAD
       <div class="muted" style="margin-top: 8px;">
         Auth failed. Re-copy a tokenized URL with
         <span class="mono">moltbot dashboard --no-open</span>, or update the token,
         then click Connect.
         <div style="margin-top: 6px;">
-=======
-      <div class="muted" style="margin-top: 8px">
-        Auth failed. Update the token or password in Control UI settings, then click Connect.
-        <div style="margin-top: 6px">
->>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
           <a
             class="session-link"
             href="https://docs.molt.bot/web/dashboard"
@@ -299,13 +240,9 @@ export function renderOverview(props: OverviewProps) {
           <div class="stat">
             <div class="stat-label">Last Channels Refresh</div>
             <div class="stat-value">
-<<<<<<< HEAD
               ${props.lastChannelsRefresh
                 ? formatAgo(props.lastChannelsRefresh)
                 : "n/a"}
-=======
-              ${props.lastChannelsRefresh ? formatRelativeTimestamp(props.lastChannelsRefresh) : t("common.na")}
->>>>>>> 075317ab1 (fix: correct function names in overview.ts and add type assertion in translate.ts)
             </div>
           </div>
         </div>
@@ -321,7 +258,6 @@ export function renderOverview(props: OverviewProps) {
       </div>
     </section>
 
-<<<<<<< HEAD
     <section class="grid grid-cols-3" style="margin-top: 18px;">
       <div class="card stat-card">
         <div class="stat-label">Instances</div>
@@ -345,49 +281,6 @@ export function renderOverview(props: OverviewProps) {
         <div class="muted">Next wake ${formatNextRun(props.cronNext)}</div>
       </div>
     </section>
-=======
-    ${
-      props.streamMode
-        ? html`<div class="callout ov-stream-banner" style="margin-top: 18px;">
-          <span class="nav-item__icon">${icons.radio}</span>
-          ${t("overview.streamMode.active")}
-          <button class="btn btn--sm" style="margin-left: auto;" @click=${() => props.onToggleStreamMode()}>
-            ${t("overview.streamMode.disable")}
-          </button>
-        </div>`
-        : nothing
-    }
-
-    <div class="ov-section-divider"></div>
-
-    ${renderOverviewCards({
-      usageResult: props.usageResult,
-      sessionsResult: props.sessionsResult,
-      skillsReport: props.skillsReport,
-      cronJobs: props.cronJobs,
-      cronStatus: props.cronStatus,
-      presenceCount: props.presenceCount,
-      redacted: props.streamMode,
-      onNavigate: props.onNavigate,
-    })}
-
-    ${renderOverviewAttention({ items: props.attentionItems })}
-
-    <div class="ov-section-divider"></div>
-
-    <div class="ov-bottom-grid" style="margin-top: 18px;">
-      ${renderOverviewEventLog({
-        events: props.eventLog,
-        redacted: props.streamMode,
-      })}
-
-      ${renderOverviewLogTail({
-        lines: props.overviewLogLines,
-        redacted: props.streamMode,
-        onRefreshLogs: props.onRefreshLogs,
-      })}
-    </div>
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 
     <section class="card" style="margin-top: 18px;">
       <div class="card-title">Notes</div>

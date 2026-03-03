@@ -6,11 +6,8 @@ import { isTruthyEnvValue } from "../infra/env.js";
 import { shouldLogVerbose } from "../globals.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 import { resolveMoltbotDocsPath } from "./docs-path.js";
-=======
->>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
 import { resolveSessionAgentIds } from "./agent-scope.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "./bootstrap-files.js";
 import { resolveCliBackendConfig } from "./cli-backends.js";
@@ -31,11 +28,7 @@ import {
 } from "./cli-runner/helpers.js";
 import { FailoverError, resolveFailoverStatus } from "./failover-error.js";
 import { classifyFailoverReason, isFailoverErrorMessage } from "./pi-embedded-helpers.js";
-<<<<<<< HEAD
 import type { EmbeddedPiRunResult } from "./pi-embedded-runner.js";
-=======
-import { redactRunIdentifier, resolveRunWorkspaceDir } from "./workspace-run.js";
->>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
 
 const log = createSubsystemLogger("agent/claude-cli");
 
@@ -128,7 +121,6 @@ export async function runCliAgent(params: {
     agentId: sessionAgentId,
   });
 
-<<<<<<< HEAD
   const { sessionId: cliSessionIdToSend, isNew } = resolveSessionIdToSend({
     backend,
     cliSessionId: params.cliSessionId,
@@ -283,33 +275,6 @@ export async function runCliAgent(params: {
 
       const parsed = parseCliJson(stdout, backend);
       return parsed ?? { text: stdout };
-=======
-  // Helper function to execute CLI with given session ID
-  const executeCliWithSession = async (
-    cliSessionIdToUse?: string,
-  ): Promise<{
-    text: string;
-    sessionId?: string;
-    usage?: {
-      input?: number;
-      output?: number;
-      cacheRead?: number;
-      cacheWrite?: number;
-      total?: number;
-    };
-  }> => {
-    const { sessionId: resolvedSessionId, isNew } = resolveSessionIdToSend({
-      backend,
-      cliSessionId: cliSessionIdToUse,
-    });
-    const useResume = Boolean(
-      cliSessionIdToUse && resolvedSessionId && backend.resumeArgs && backend.resumeArgs.length > 0,
-    );
-    const systemPromptArg = resolveSystemPromptUsage({
-      backend,
-      isNewSession: isNew,
-      systemPrompt,
->>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
     });
 
     let imagePaths: string[] | undefined;
@@ -516,41 +481,7 @@ export async function runCliAgent(params: {
       },
     };
   } catch (err) {
-<<<<<<< HEAD
     if (err instanceof FailoverError) throw err;
-=======
-    if (err instanceof FailoverError) {
-      // Check if this is a session expired error and we have a session to clear
-      if (err.reason === "session_expired" && params.cliSessionId && params.sessionKey) {
-        log.warn(
-          `CLI session expired, clearing session ID and retrying: provider=${params.provider} session=${redactRunIdentifier(params.cliSessionId)}`,
-        );
-
-        // Clear the expired session ID from the session entry
-        // This requires access to the session store, which we don't have here
-        // We'll need to modify the caller to handle this case
-
-        // For now, retry without the session ID to create a new session
-        const output = await executeCliWithSession(undefined);
-        const text = output.text?.trim();
-        const payloads = text ? [{ text }] : undefined;
-
-        return {
-          payloads,
-          meta: {
-            durationMs: Date.now() - started,
-            agentMeta: {
-              sessionId: output.sessionId ?? params.sessionId ?? "",
-              provider: params.provider,
-              model: modelId,
-              usage: output.usage,
-            },
-          },
-        };
-      }
-      throw err;
-    }
->>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
     const message = err instanceof Error ? err.message : String(err);
     if (isFailoverErrorMessage(message)) {
       const reason = classifyFailoverReason(message) ?? "unknown";

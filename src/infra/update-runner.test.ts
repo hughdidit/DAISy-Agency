@@ -33,8 +33,6 @@ describe("runGatewayUpdate", () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
-<<<<<<< HEAD
-=======
   function createStableTagRunner(params: {
     stableTag: string;
     uiIndexPath: string;
@@ -113,7 +111,6 @@ describe("runGatewayUpdate", () => {
     await fs.rm(path.join(tempDir, "dist", "control-ui"), { recursive: true, force: true });
   }
 
->>>>>>> 0b8b95f2c (fix(update): prevent gateway crash loop after failed self-update)
   it("skips git update when worktree is dirty", async () => {
     await fs.mkdir(path.join(tempDir, ".git"));
     await fs.writeFile(
@@ -256,15 +253,8 @@ describe("runGatewayUpdate", () => {
       "pnpm install": { stdout: "" },
       "pnpm build": { stdout: "" },
       "pnpm ui:build": { stdout: "" },
-<<<<<<< HEAD
       [`git -C ${tempDir} checkout -- dist/control-ui/`]: { stdout: "" },
       "pnpm moltbot doctor --non-interactive": { stdout: "" },
-=======
-      [`${process.execPath} ${path.join(tempDir, "openclaw.mjs")} doctor --non-interactive --fix`]:
-        {
-          stdout: "",
-        },
->>>>>>> 0b8b95f2c (fix(update): prevent gateway crash loop after failed self-update)
     });
 
     const result = await runGatewayUpdate({

@@ -1,10 +1,5 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import { resolveDiscordAccount } from "../../discord/accounts.js";
->>>>>>> a03fec2a3 (fix: use per-account action config for Discord and Telegram gating)
 import { createActionGate, readStringParam } from "./common.js";
 import { handleDiscordGuildAction } from "./discord-actions-guild.js";
 import { handleDiscordMessagingAction } from "./discord-actions-messaging.js";

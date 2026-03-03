@@ -1,12 +1,8 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
-=======
-import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 import { applyUpdateHunk } from "./apply-patch-update.js";
 
 const BEGIN_PATCH_MARKER = "*** Begin Patch";
@@ -80,11 +76,7 @@ const applyPatchSchema = Type.Object({
 });
 
 export function createApplyPatchTool(
-<<<<<<< HEAD
   options: { cwd?: string; sandboxRoot?: string } = {},
-=======
-  options: { cwd?: string; sandbox?: SandboxApplyPatchConfig } = {},
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
   // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
 ): AgentTool<any, ApplyPatchToolDetails> {
   const cwd = options.cwd ?? process.cwd();
@@ -241,15 +233,8 @@ function resolvePatchFileOps(options: ApplyPatchOptions): PatchFileOps {
 
 async function ensureDir(filePath: string, ops: PatchFileOps) {
   const parent = path.dirname(filePath);
-<<<<<<< HEAD
   if (!parent || parent === ".") return;
   await fs.mkdir(parent, { recursive: true });
-=======
-  if (!parent || parent === ".") {
-    return;
-  }
-  await ops.mkdirp(parent);
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 }
 
 async function resolvePatchPath(

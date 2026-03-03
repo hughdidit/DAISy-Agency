@@ -100,8 +100,6 @@ describe("infra runtime", () => {
       setGatewaySigusr1RestartPolicy({ allowExternal: true });
       expect(isGatewaySigusr1RestartExternallyAllowed()).toBe(true);
     });
-<<<<<<< HEAD
-=======
 
     it("suppresses duplicate emit until the restart cycle is marked handled", () => {
       const emitSpy = vi.spyOn(process, "emit");
@@ -171,7 +169,6 @@ describe("infra runtime", () => {
         process.removeListener("SIGUSR1", handler);
       }
     });
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
   });
 
   describe("pre-restart deferral check", () => {

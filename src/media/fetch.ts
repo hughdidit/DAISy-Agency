@@ -1,10 +1,5 @@
 import path from "node:path";
-<<<<<<< HEAD
 
-=======
-import type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
-import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
 import { detectMime, extensionForMime } from "./mime.js";
 
 type FetchMediaResult = {
@@ -92,7 +87,6 @@ export async function fetchRemoteMedia(options: FetchMediaOptions): Promise<Fetc
     throw new MediaFetchError("fetch_failed", `Failed to fetch media from ${url}: ${String(err)}`);
   }
 
-<<<<<<< HEAD
   if (!res.ok) {
     const statusText = res.statusText ? ` ${res.statusText}` : "";
     const redirected = res.url && res.url !== url ? ` (redirected to ${res.url})` : "";
@@ -113,21 +107,6 @@ export async function fetchRemoteMedia(options: FetchMediaOptions): Promise<Fetc
   if (maxBytes && contentLength) {
     const length = Number(contentLength);
     if (Number.isFinite(length) && length > maxBytes) {
-=======
-  try {
-    if (!res.ok) {
-      const statusText = res.statusText ? ` ${res.statusText}` : "";
-      const redirected = finalUrl !== url ? ` (redirected to ${finalUrl})` : "";
-      let detail = `HTTP ${res.status}${statusText}`;
-      if (!res.body) {
-        detail = `HTTP ${res.status}${statusText}; empty response body`;
-      } else {
-        const snippet = await readErrorBodySnippet(res);
-        if (snippet) {
-          detail += `; body: ${snippet}`;
-        }
-      }
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
       throw new MediaFetchError(
         "http_error",
         `Failed to fetch media from ${url}${redirected}: ${detail}`,
@@ -157,7 +136,6 @@ export async function fetchRemoteMedia(options: FetchMediaOptions): Promise<Fetc
       // ignore parse errors; leave undefined
     }
 
-<<<<<<< HEAD
   const filePathForMime =
     headerFileName && path.extname(headerFileName) ? headerFileName : (filePathHint ?? url);
   const contentType = await detectMime({
@@ -168,35 +146,6 @@ export async function fetchRemoteMedia(options: FetchMediaOptions): Promise<Fetc
   if (fileName && !path.extname(fileName) && contentType) {
     const ext = extensionForMime(contentType);
     if (ext) fileName = `${fileName}${ext}`;
-=======
-    const headerFileName = parseContentDispositionFileName(res.headers.get("content-disposition"));
-    let fileName =
-      headerFileName || fileNameFromUrl || (filePathHint ? path.basename(filePathHint) : undefined);
-
-    const filePathForMime =
-      headerFileName && path.extname(headerFileName) ? headerFileName : (filePathHint ?? finalUrl);
-    const contentType = await detectMime({
-      buffer,
-      headerMime: res.headers.get("content-type"),
-      filePath: filePathForMime,
-    });
-    if (fileName && !path.extname(fileName) && contentType) {
-      const ext = extensionForMime(contentType);
-      if (ext) {
-        fileName = `${fileName}${ext}`;
-      }
-    }
-
-    return {
-      buffer,
-      contentType: contentType ?? undefined,
-      fileName,
-    };
-  } finally {
-    if (release) {
-      await release();
-    }
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
   }
 }
 

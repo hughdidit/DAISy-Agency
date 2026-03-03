@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { normalizePluginsConfig } from "./config-state.js";
-=======
-import { normalizePluginsConfig, resolveEffectiveEnableState } from "./config-state.js";
->>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
 
 describe("normalizePluginsConfig", () => {
   it("uses default memory slot when not specified", () => {

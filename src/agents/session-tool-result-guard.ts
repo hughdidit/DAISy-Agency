@@ -4,11 +4,8 @@ import type { SessionManager } from "@mariozechner/pi-coding-agent";
 
 import { makeMissingToolResult } from "./session-transcript-repair.js";
 import { emitSessionTranscriptUpdate } from "../sessions/transcript-events.js";
-<<<<<<< HEAD
-=======
 import { HARD_MAX_TOOL_RESULT_CHARS } from "./pi-embedded-runner/tool-result-truncation.js";
 import { makeMissingToolResult, sanitizeToolCallInputs } from "./session-transcript-repair.js";
->>>>>>> 0deb8b0da (fix: recover from context overflow caused by oversized tool results (#11579))
 
 const GUARD_TRUNCATION_SUFFIX =
   "\n\n⚠️ [Content truncated during persistence — original exceeded size limit. " +
@@ -170,20 +167,9 @@ export function installSessionToolResultGuard(
     if (role === "toolResult") {
       const id = extractToolResultId(message as Extract<AgentMessage, { role: "toolResult" }>);
       const toolName = id ? pending.get(id) : undefined;
-<<<<<<< HEAD
       if (id) pending.delete(id);
       return originalAppend(
         persistToolResult(message, {
-=======
-      if (id) {
-        pending.delete(id);
-      }
-      // Apply hard size cap before persistence to prevent oversized tool results
-      // from consuming the entire context window on subsequent LLM calls.
-      const capped = capToolResultSize(persistMessage(nextMessage));
-      return originalAppend(
-        persistToolResult(capped, {
->>>>>>> 0deb8b0da (fix: recover from context overflow caused by oversized tool results (#11579))
           toolCallId: id ?? undefined,
           toolName,
           isSynthetic: false,
@@ -199,13 +185,8 @@ export function installSessionToolResultGuard(
     // This matches the behavior in repairToolUseResultPairing (session-transcript-repair.ts)
     const stopReason = (nextMessage as { stopReason?: string }).stopReason;
     const toolCalls =
-<<<<<<< HEAD
       role === "assistant"
         ? extractAssistantToolCalls(message as Extract<AgentMessage, { role: "assistant" }>)
-=======
-      nextRole === "assistant" && stopReason !== "aborted" && stopReason !== "error"
-        ? extractToolCallsFromAssistant(nextMessage as Extract<AgentMessage, { role: "assistant" }>)
->>>>>>> 8db7ca8c0 (fix: prevent synthetic toolResult for aborted/errored assistant messages)
         : [];
 
     if (allowSyntheticToolResults) {
@@ -219,11 +200,7 @@ export function installSessionToolResultGuard(
       }
     }
 
-<<<<<<< HEAD
     const result = originalAppend(message as never);
-=======
-    const result = originalAppend(persistMessage(nextMessage) as never);
->>>>>>> 85409e401 (fix: preserve inter-session input provenance (thanks @anbecker))
 
     const sessionFile = (
       sessionManager as { getSessionFile?: () => string | null }

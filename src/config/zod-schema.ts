@@ -5,17 +5,7 @@ import { AgentsSchema, AudioSchema, BindingsSchema, BroadcastSchema } from "./zo
 import { HexColorSchema, ModelsConfigSchema } from "./zod-schema.core.js";
 import { HookMappingSchema, HooksGmailSchema, InternalHooksSchema } from "./zod-schema.hooks.js";
 import { ChannelsSchema } from "./zod-schema.providers.js";
-<<<<<<< HEAD
 import { CommandsSchema, MessagesSchema, SessionSchema } from "./zod-schema.session.js";
-=======
-import { sensitive } from "./zod-schema.sensitive.js";
-import {
-  CommandsSchema,
-  MessagesSchema,
-  SessionSchema,
-  SessionSendPolicySchema,
-} from "./zod-schema.session.js";
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
 
 const BrowserSnapshotDefaultsSchema = z
   .object({
@@ -37,66 +27,7 @@ const NodeHostSchema = z
   .strict()
   .optional();
 
-<<<<<<< HEAD
 export const MoltbotSchema = z
-=======
-const MemoryQmdPathSchema = z
-  .object({
-    path: z.string(),
-    name: z.string().optional(),
-    pattern: z.string().optional(),
-  })
-  .strict();
-
-const MemoryQmdSessionSchema = z
-  .object({
-    enabled: z.boolean().optional(),
-    exportDir: z.string().optional(),
-    retentionDays: z.number().int().nonnegative().optional(),
-  })
-  .strict();
-
-const MemoryQmdUpdateSchema = z
-  .object({
-    interval: z.string().optional(),
-    debounceMs: z.number().int().nonnegative().optional(),
-    onBoot: z.boolean().optional(),
-    embedInterval: z.string().optional(),
-  })
-  .strict();
-
-const MemoryQmdLimitsSchema = z
-  .object({
-    maxResults: z.number().int().positive().optional(),
-    maxSnippetChars: z.number().int().positive().optional(),
-    maxInjectedChars: z.number().int().positive().optional(),
-    timeoutMs: z.number().int().nonnegative().optional(),
-  })
-  .strict();
-
-const MemoryQmdSchema = z
-  .object({
-    command: z.string().optional(),
-    includeDefaultMemory: z.boolean().optional(),
-    paths: z.array(MemoryQmdPathSchema).optional(),
-    sessions: MemoryQmdSessionSchema.optional(),
-    update: MemoryQmdUpdateSchema.optional(),
-    limits: MemoryQmdLimitsSchema.optional(),
-    scope: SessionSendPolicySchema.optional(),
-  })
-  .strict();
-
-const MemorySchema = z
-  .object({
-    backend: z.union([z.literal("builtin"), z.literal("qmd")]).optional(),
-    citations: z.union([z.literal("auto"), z.literal("on"), z.literal("off")]).optional(),
-    qmd: MemoryQmdSchema.optional(),
-  })
-  .strict()
-  .optional();
-
-export const OpenClawSchema = z
->>>>>>> 23cfcd60d (Fix build regressions after merge)
   .object({
     meta: z
       .object({
@@ -305,13 +236,8 @@ export const OpenClawSchema = z
       .object({
         enabled: z.boolean().optional(),
         path: z.string().optional(),
-<<<<<<< HEAD
         token: z.string().optional(),
 <<<<<<< HEAD
-=======
-=======
-        token: z.string().optional().register(sensitive),
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
         defaultSessionKey: z.string().optional(),
         allowRequestSessionKey: z.boolean().optional(),
         allowedSessionKeyPrefixes: z.array(z.string()).optional(),
@@ -399,11 +325,8 @@ export const OpenClawSchema = z
           .object({
             enabled: z.boolean().optional(),
             basePath: z.string().optional(),
-<<<<<<< HEAD
-=======
             root: z.string().optional(),
             allowedOrigins: z.array(z.string()).optional(),
->>>>>>> 66d8117d4 (fix: harden control ui framing + ws origin)
             allowInsecureAuth: z.boolean().optional(),
             dangerouslyDisableDeviceAuth: z.boolean().optional(),
           })

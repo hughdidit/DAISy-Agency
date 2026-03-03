@@ -1,16 +1,8 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { ModelCatalogEntry } from "./model-catalog.js";
 import { normalizeGoogleModelId } from "./models-config.providers.js";
 import { resolveAgentModelPrimary } from "./agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { resolveAgentModelPrimary } from "./agent-scope.js";
-import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
-import type { ModelCatalogEntry } from "./model-catalog.js";
-import { normalizeGoogleModelId } from "./models-config.providers.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 
 export type ModelRef = {
   provider: string;
@@ -34,31 +26,9 @@ export function modelKey(provider: string, model: string) {
 
 export function normalizeProviderId(provider: string): string {
   const normalized = provider.trim().toLowerCase();
-<<<<<<< HEAD
   if (normalized === "z.ai" || normalized === "z-ai") return "zai";
   if (normalized === "opencode-zen") return "opencode";
   if (normalized === "qwen") return "qwen-portal";
-=======
-  if (normalized === "z.ai" || normalized === "z-ai") {
-    return "zai";
-  }
-  if (normalized === "opencode-zen") {
-    return "opencode";
-  }
-  if (normalized === "qwen") {
-    return "qwen-portal";
-  }
-  if (normalized === "kimi-code") {
-    return "kimi-coding";
-  }
-  if (normalized === "bedrock" || normalized === "aws-bedrock") {
-    return "amazon-bedrock";
-  }
-  // Backward compatibility for older provider naming.
-  if (normalized === "bytedance" || normalized === "doubao") {
-    return "volcengine";
-  }
->>>>>>> b7deb062e (fix: normalize "bedrock" provider ID to "amazon-bedrock")
   return normalized;
 }
 

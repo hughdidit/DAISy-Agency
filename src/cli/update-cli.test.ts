@@ -1,8 +1,5 @@
 import fs from "node:fs/promises";
-<<<<<<< HEAD
 import os from "node:os";
-=======
->>>>>>> e93ba6ce2 (fix: harden update restart service convergence)
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -13,8 +10,6 @@ const select = vi.fn();
 const spinner = vi.fn(() => ({ start: vi.fn(), stop: vi.fn() }));
 const isCancel = (value: unknown) => value === "cancel";
 
-<<<<<<< HEAD
-=======
 const readPackageName = vi.fn();
 const readPackageVersion = vi.fn();
 const resolveGlobalManager = vi.fn();
@@ -27,7 +22,6 @@ const inspectPortUsage = vi.fn();
 const classifyPortListener = vi.fn();
 const formatPortDiagnostics = vi.fn();
 
->>>>>>> e93ba6ce2 (fix: harden update restart service convergence)
 vi.mock("@clack/prompts", () => ({
   confirm,
   select,
@@ -66,8 +60,6 @@ vi.mock("../process/exec.js", () => ({
   runCommandWithTimeout: vi.fn(),
 }));
 
-<<<<<<< HEAD
-=======
 vi.mock("./update-cli/shared.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./update-cli/shared.js")>();
   return {
@@ -96,7 +88,6 @@ vi.mock("./update-cli/restart-helper.js", () => ({
   runRestartScript: (...args: unknown[]) => runRestartScript(...args),
 }));
 
->>>>>>> e93ba6ce2 (fix: harden update restart service convergence)
 // Mock doctor (heavy module; should not run in unit tests)
 vi.mock("../commands/doctor.js", () => ({
   doctorCommand: vi.fn(),
@@ -136,7 +127,6 @@ describe("update-cli", () => {
     });
   };
 
-<<<<<<< HEAD
   beforeEach(async () => {
     vi.clearAllMocks();
     const { resolveMoltbotPackageRoot } = await import("../infra/moltbot-root.js");
@@ -145,88 +135,6 @@ describe("update-cli", () => {
       await import("../infra/update-check.js");
     const { runCommandWithTimeout } = await import("../process/exec.js");
     vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(process.cwd());
-=======
-  const mockPackageInstallStatus = (root: string) => {
-    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(root);
-    vi.mocked(checkUpdateStatus).mockResolvedValue({
-      root,
-      installKind: "package",
-      packageManager: "npm",
-      deps: {
-        manager: "npm",
-        status: "ok",
-        lockfilePath: null,
-        markerPath: null,
-      },
-    });
-  };
-
-  const expectUpdateCallChannel = (channel: string) => {
-    const call = vi.mocked(runGatewayUpdate).mock.calls[0]?.[0];
-    expect(call?.channel).toBe(channel);
-    return call;
-  };
-
-  const makeOkUpdateResult = (overrides: Partial<UpdateRunResult> = {}): UpdateRunResult =>
-    ({
-      status: "ok",
-      mode: "git",
-      steps: [],
-      durationMs: 100,
-      ...overrides,
-    }) as UpdateRunResult;
-
-  const setupNonInteractiveDowngrade = async () => {
-    const tempDir = createCaseDir("openclaw-update");
-    setTty(false);
-    readPackageVersion.mockResolvedValue("2.0.0");
-
-    mockPackageInstallStatus(tempDir);
-    vi.mocked(resolveNpmChannelTag).mockResolvedValue({
-      tag: "latest",
-      version: "0.0.1",
-    });
-    vi.mocked(runGatewayUpdate).mockResolvedValue({
-      status: "ok",
-      mode: "npm",
-      steps: [],
-      durationMs: 100,
-    });
-    vi.mocked(defaultRuntime.error).mockClear();
-    vi.mocked(defaultRuntime.exit).mockClear();
-
-    return tempDir;
-  };
-
-  beforeEach(() => {
-    confirm.mockReset();
-    select.mockReset();
-    vi.mocked(runGatewayUpdate).mockReset();
-    vi.mocked(resolveOpenClawPackageRoot).mockReset();
-    vi.mocked(readConfigFileSnapshot).mockReset();
-    vi.mocked(writeConfigFile).mockReset();
-    vi.mocked(checkUpdateStatus).mockReset();
-    vi.mocked(fetchNpmTagVersion).mockReset();
-    vi.mocked(resolveNpmChannelTag).mockReset();
-    vi.mocked(runCommandWithTimeout).mockReset();
-    vi.mocked(runDaemonRestart).mockReset();
-    vi.mocked(mockedRunDaemonInstall).mockReset();
-    vi.mocked(doctorCommand).mockReset();
-    vi.mocked(defaultRuntime.log).mockReset();
-    vi.mocked(defaultRuntime.error).mockReset();
-    vi.mocked(defaultRuntime.exit).mockReset();
-    readPackageName.mockReset();
-    readPackageVersion.mockReset();
-    resolveGlobalManager.mockReset();
-    serviceLoaded.mockReset();
-    serviceReadRuntime.mockReset();
-    prepareRestartScript.mockReset();
-    runRestartScript.mockReset();
-    inspectPortUsage.mockReset();
-    classifyPortListener.mockReset();
-    formatPortDiagnostics.mockReset();
-    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(process.cwd());
->>>>>>> e93ba6ce2 (fix: harden update restart service convergence)
     vi.mocked(readConfigFileSnapshot).mockResolvedValue(baseSnapshot);
     vi.mocked(fetchNpmTagVersion).mockResolvedValue({
       tag: "latest",
@@ -268,8 +176,6 @@ describe("update-cli", () => {
       signal: null,
       killed: false,
     });
-<<<<<<< HEAD
-=======
     readPackageName.mockResolvedValue("openclaw");
     readPackageVersion.mockResolvedValue("1.0.0");
     resolveGlobalManager.mockResolvedValue("npm");
@@ -290,7 +196,6 @@ describe("update-cli", () => {
     classifyPortListener.mockReturnValue("gateway");
     formatPortDiagnostics.mockReturnValue(["Port 18789 is already in use."]);
     vi.mocked(runDaemonInstall).mockResolvedValue(undefined);
->>>>>>> e93ba6ce2 (fix: harden update restart service convergence)
     setTty(false);
     setStdoutTty(false);
   });
@@ -584,8 +489,6 @@ describe("update-cli", () => {
     };
 
     vi.mocked(runGatewayUpdate).mockResolvedValue(mockResult);
-<<<<<<< HEAD
-=======
     vi.mocked(runDaemonInstall).mockResolvedValue(undefined);
     serviceLoaded.mockResolvedValue(true);
 
@@ -641,7 +544,6 @@ describe("update-cli", () => {
     vi.mocked(runDaemonInstall).mockRejectedValueOnce(new Error("refresh failed"));
     prepareRestartScript.mockResolvedValue(null);
     serviceLoaded.mockResolvedValue(true);
->>>>>>> e93ba6ce2 (fix: harden update restart service convergence)
     vi.mocked(runDaemonRestart).mockResolvedValue(true);
 
     await updateCommand({});
@@ -649,7 +551,6 @@ describe("update-cli", () => {
     expect(runDaemonRestart).toHaveBeenCalled();
   });
 
-<<<<<<< HEAD
   it("updateCommand skips restart when --no-restart is set", async () => {
     const { runGatewayUpdate } = await import("../infra/update-runner.js");
     const { runDaemonRestart } = await import("./daemon-cli.js");
@@ -669,8 +570,6 @@ describe("update-cli", () => {
     expect(runDaemonRestart).not.toHaveBeenCalled();
   });
 
-=======
->>>>>>> 31f2bf951 (test: fix gate regressions)
   it("updateCommand skips success message when restart does not run", async () => {
     const { runGatewayUpdate } = await import("../infra/update-runner.js");
     const { runDaemonRestart } = await import("./daemon-cli.js");

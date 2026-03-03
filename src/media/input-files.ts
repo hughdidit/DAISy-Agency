@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { logWarn } from "../logger.js";
 import {
   closeDispatcher,
@@ -7,10 +6,6 @@ import {
   resolvePinnedHostname,
 } from "../infra/net/ssrf.js";
 import type { Dispatcher } from "undici";
-=======
-=======
-import type { SsrFPolicy } from "../infra/net/ssrf.js";
->>>>>>> 99f28031e (fix: harden OpenResponses URL input fetching)
 import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 import { logWarn } from "../logger.js";
 >>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
@@ -170,7 +165,6 @@ export async function fetchWithGuard(params: {
       throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
     }
 
-<<<<<<< HEAD
       try {
         const response = await fetch(parsedUrl, {
           signal: controller.signal,
@@ -218,13 +212,6 @@ export async function fetchWithGuard(params: {
         return { buffer, mimeType, contentType };
       } finally {
         await closeDispatcher(dispatcher);
-=======
-    const contentLength = response.headers.get("content-length");
-    if (contentLength) {
-      const size = parseInt(contentLength, 10);
-      if (size > params.maxBytes) {
-        throw new Error(`Content too large: ${size} bytes (limit: ${params.maxBytes} bytes)`);
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
       }
     }
 

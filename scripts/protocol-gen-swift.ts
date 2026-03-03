@@ -132,7 +132,6 @@ function emitStruct(name: string, schema: JsonSchema): string {
       codingKeys.push(`        case ${propName}`);
     }
   }
-<<<<<<< HEAD
   lines.push("\n    public init(\n" +
     Object.entries(props)
       .map(([key, prop]) => {
@@ -152,30 +151,6 @@ function emitStruct(name: string, schema: JsonSchema): string {
     "    private enum CodingKeys: String, CodingKey {\n" +
     codingKeys.join("\n") +
     "\n    }\n}");
-=======
-  lines.push(
-    "\n    public init(\n" +
-      Object.entries(props)
-        .map(([key, prop]) => {
-          const propName = safeName(key);
-          const req = required.has(key);
-          return `        ${propName}: ${swiftType(prop, true)}${req ? "" : "?"}`;
-        })
-        .join(",\n") +
-      ")\n" +
-      "    {\n" +
-      Object.entries(props)
-        .map(([key]) => {
-          const propName = safeName(key);
-          return `        self.${propName} = ${propName}`;
-        })
-        .join("\n") +
-      "\n    }\n\n" +
-      "    private enum CodingKeys: String, CodingKey {\n" +
-      codingKeys.join("\n") +
-      "\n    }\n}",
-  );
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests)
   lines.push("");
   return lines.join("\n");
 }

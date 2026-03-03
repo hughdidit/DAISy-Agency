@@ -295,24 +295,12 @@ async function connectBrowser(cdpUrl: string): Promise<ConnectedBrowser> {
         const endpoint = wsUrl ?? normalized;
         const headers = getHeadersWithAuth(endpoint);
         const browser = await chromium.connectOverCDP(endpoint, { timeout, headers });
-<<<<<<< HEAD
         const connected: ConnectedBrowser = { browser, cdpUrl: normalized };
         cached = connected;
         observeBrowser(browser);
         browser.on("disconnected", () => {
           if (cached?.browser === browser) cached = null;
         });
-=======
-        const onDisconnected = () => {
-          if (cached?.browser === browser) {
-            cached = null;
-          }
-        };
-        const connected: ConnectedBrowser = { browser, cdpUrl: normalized, onDisconnected };
-        cached = connected;
-        browser.on("disconnected", onDisconnected);
-        observeBrowser(browser);
->>>>>>> 424d2dddf (fix: prevent act:evaluate hangs from getting browser tool stuck/killed (#13498))
         return connected;
       } catch (err) {
         lastErr = err;
@@ -467,17 +455,7 @@ export function refLocator(page: Page, ref: string) {
 export async function closePlaywrightBrowserConnection(): Promise<void> {
   const cur = cached;
   cached = null;
-<<<<<<< HEAD
   if (!cur) return;
-=======
-  connecting = null;
-  if (!cur) {
-    return;
-  }
-  if (cur.onDisconnected && typeof cur.browser.off === "function") {
-    cur.browser.off("disconnected", cur.onDisconnected);
-  }
->>>>>>> 424d2dddf (fix: prevent act:evaluate hangs from getting browser tool stuck/killed (#13498))
   await cur.browser.close().catch(() => {});
 }
 

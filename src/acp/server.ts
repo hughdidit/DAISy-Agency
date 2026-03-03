@@ -2,13 +2,9 @@
 import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
 
 import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 
-=======
-import type { AcpServerOptions } from "./types.js";
->>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 import { loadConfig } from "../config/config.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
@@ -115,8 +111,6 @@ export function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void> {
   process.once("SIGINT", shutdown);
   process.once("SIGTERM", shutdown);
 
-<<<<<<< HEAD
-=======
   // Start gateway first and wait for hello before accepting ACP requests.
   gateway.start();
   await gatewayReady.catch((err) => {
@@ -127,7 +121,6 @@ export function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void> {
     return closed;
   }
 
->>>>>>> 9f0b6a8c9 (fix: harden ACP gateway startup sequencing (#23390) (thanks @janckerchen))
   const input = Writable.toWeb(process.stdout);
   const output = Readable.toWeb(process.stdin) as unknown as ReadableStream<Uint8Array>;
   const stream = ndJsonStream(input, output);

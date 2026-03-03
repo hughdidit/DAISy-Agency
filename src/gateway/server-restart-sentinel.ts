@@ -1,15 +1,9 @@
-<<<<<<< HEAD
-=======
 import type { CliDeps } from "../cli/deps.js";
 import { resolveSessionAgentId } from "../agents/agent-scope.js";
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
-<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import { agentCommand } from "../commands/agent.js";
-=======
->>>>>>> ab4a08a82 (fix: defer gateway restart until all replies are sent (#12970))
 import { resolveMainSessionKeyFromConfig } from "../config/sessions.js";
 import { deliverOutboundPayloads } from "../infra/outbound/deliver.js";
 import { resolveOutboundTarget } from "../infra/outbound/targets.js";

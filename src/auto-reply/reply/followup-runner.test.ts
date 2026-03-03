@@ -1,12 +1,8 @@
 import fs from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
 import { loadSessionStore, saveSessionStore, type SessionEntry } from "../../config/sessions.js";
 import type { FollowupRun } from "./queue.js";
 import { createMockTypingController } from "./test-helpers.js";
@@ -79,8 +75,6 @@ const baseQueuedRun = (messageProvider = "whatsapp"): FollowupRun =>
     },
   }) as FollowupRun;
 
-<<<<<<< HEAD
-=======
 function createQueuedRun(
   overrides: Partial<Omit<FollowupRun, "run">> & { run?: Partial<FollowupRun["run"]> } = {},
 ): FollowupRun {
@@ -115,7 +109,6 @@ function mockCompactionRun(params: {
   );
 }
 
->>>>>>> b0bb3cca8 (test(types): fix ts narrowing regressions in followup and matrix queue tests)
 describe("createFollowupRunner compaction", () => {
   it("adds verbose auto-compaction notice and tracks count", async () => {
     const storePath = path.join(
@@ -313,8 +306,6 @@ describe("createFollowupRunner messaging tool dedupe", () => {
     expect(onBlockReply).not.toHaveBeenCalled();
   });
 
-<<<<<<< HEAD
-=======
   it("suppresses replies when provider is synthetic but originating channel matches", async () => {
     const onBlockReply = vi.fn(async () => {});
     runEmbeddedPiAgentMock.mockResolvedValueOnce({
@@ -396,7 +387,6 @@ describe("createFollowupRunner messaging tool dedupe", () => {
     expect(onBlockReply).toHaveBeenCalledTimes(1);
   });
 
->>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
   it("persists usage even when replies are suppressed", async () => {
     const storePath = path.join(
       await fs.mkdtemp(path.join(tmpdir(), "moltbot-followup-usage-")),

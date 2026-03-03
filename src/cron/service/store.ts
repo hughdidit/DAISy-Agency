@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import fs from "node:fs";
 import {
   buildDeliveryFromLegacyPayload,
@@ -7,11 +5,9 @@ import {
   stripLegacyDeliveryFields,
 } from "../legacy-delivery.js";
 import { parseAbsoluteTimeMs } from "../parse.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { migrateLegacyCronPayload } from "../payload-migration.js";
 import { loadCronStore, saveCronStore } from "../store.js";
 import type { CronJob } from "../types.js";
-<<<<<<< HEAD
 import { inferLegacyName, normalizeOptionalText } from "./normalize.js";
 import type { CronServiceState } from "./state.js";
 
@@ -25,30 +21,6 @@ export async function ensureLoaded(state: CronServiceState) {
     state.store = cached;
     return;
   }
-=======
-function buildDeliveryFromLegacyPayload(payload: Record<string, unknown>) {
-  const deliver = payload.deliver;
-  const mode = deliver === false ? "none" : "announce";
-  const channelRaw =
-    typeof payload.channel === "string" ? payload.channel.trim().toLowerCase() : "";
-  const toRaw = typeof payload.to === "string" ? payload.to.trim() : "";
-  const next: Record<string, unknown> = { mode };
-  if (channelRaw) {
-    next.channel = channelRaw;
-  }
-  if (toRaw) {
-    next.to = toRaw;
-  }
-  if (typeof payload.bestEffortDeliver === "boolean") {
-    next.bestEffort = payload.bestEffortDeliver;
-  }
-  return next;
-}
-=======
-import { recomputeNextRuns } from "./jobs.js";
-import { inferLegacyName, normalizeOptionalText } from "./normalize.js";
-import type { CronServiceState } from "./state.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 
 function buildDeliveryPatchFromLegacyPayload(payload: Record<string, unknown>) {
   const deliver = payload.deliver;
@@ -365,8 +337,6 @@ export async function ensureLoaded(state: CronServiceState, opts?: { forceReload
         mutated = true;
       }
     }
-<<<<<<< HEAD
-=======
 
     const schedule = raw.schedule;
     if (schedule && typeof schedule === "object" && !Array.isArray(schedule)) {
@@ -471,7 +441,6 @@ export async function ensureLoaded(state: CronServiceState, opts?: { forceReload
         mutated = true;
       }
     }
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   }
   state.store = { version: 1, jobs: jobs as unknown as CronJob[] };
   storeCache.set(state.deps.storePath, state.store);

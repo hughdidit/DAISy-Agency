@@ -170,8 +170,6 @@ export async function preflightDiscordMessage(
     accountId: params.accountId,
     direction: "inbound",
   });
-<<<<<<< HEAD
-=======
 
   // Resolve thread parent early for binding inheritance
   const channelName =
@@ -202,7 +200,6 @@ export async function preflightDiscordMessage(
 <<<<<<< HEAD
   // member.roles is already string[] (Snowflake IDs) per Discord API types
   const memberRoleIds: string[] = params.data.member?.roles ?? [];
->>>>>>> ad508c8c8 (fix: use member.roles as string[] per Discord API types)
 =======
   const memberRoleIds = Array.isArray(params.data.member?.roles)
     ? params.data.member.roles.map((roleId: string) => String(roleId))
@@ -494,7 +491,6 @@ export async function preflightDiscordMessage(
           tag: formatDiscordUserTag(author),
         })
       : false;
-<<<<<<< HEAD
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
     const usersOk =
       Array.isArray(channelUsers) && channelUsers.length > 0
@@ -505,8 +501,6 @@ export async function preflightDiscordMessage(
             userTag: formatDiscordUserTag(author),
           })
         : false;
-=======
->>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
     const useAccessGroups = params.cfg.commands?.useAccessGroups !== false;
     const commandGate = resolveControlCommandGate({
       useAccessGroups,
@@ -568,7 +562,6 @@ export async function preflightDiscordMessage(
     }
   }
 
-<<<<<<< HEAD
   if (isGuildMessage) {
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
 <<<<<<< HEAD
@@ -581,32 +574,6 @@ export async function preflightDiscordMessage(
       });
       if (!userOk) {
         logVerbose(`Blocked discord guild sender ${author.id} (not in channel users allowlist)`);
-=======
-    const channelRoles = channelConfig?.roles ?? guildInfo?.roles;
-    const hasUserRestriction = Array.isArray(channelUsers) && channelUsers.length > 0;
-    const hasRoleRestriction = Array.isArray(channelRoles) && channelRoles.length > 0;
-
-    if (hasUserRestriction || hasRoleRestriction) {
-      // member.roles is already string[] (Snowflake IDs) per Discord API types
-      const memberRoleIds: string[] = params.data.member?.roles ?? [];
-      const userOk = hasUserRestriction
-        ? resolveDiscordUserAllowed({
-            allowList: channelUsers,
-            userId: sender.id,
-            userName: sender.name,
-            userTag: sender.tag,
-          })
-        : false;
-      const roleOk = hasRoleRestriction
-        ? resolveDiscordRoleAllowed({
-            allowList: channelRoles,
-            memberRoleIds,
-          })
-        : false;
-
-      if (!userOk && !roleOk) {
-        logVerbose(`Blocked discord guild sender ${sender.id} (not in users/roles allowlist)`);
->>>>>>> ad508c8c8 (fix: use member.roles as string[] per Discord API types)
         return null;
       }
     }
@@ -691,10 +658,7 @@ export async function preflightDiscordMessage(
     effectiveWasMentioned,
     canDetectMention,
     historyEntry,
-<<<<<<< HEAD
-=======
     threadBindings: params.threadBindings,
     discordRestFetch: params.discordRestFetch,
->>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
   };
 }

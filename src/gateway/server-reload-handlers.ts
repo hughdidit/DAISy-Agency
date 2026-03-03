@@ -1,27 +1,19 @@
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
-<<<<<<< HEAD
-=======
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
 import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js";
 import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
 import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../config/agent-limits.js";
->>>>>>> ab4a08a82 (fix: defer gateway restart until all replies are sent (#12970))
 import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import { resetDirectoryCache } from "../infra/outbound/target-resolver.js";
-<<<<<<< HEAD
 import {
   authorizeGatewaySigusr1Restart,
   setGatewaySigusr1RestartPolicy,
 } from "../infra/restart.js";
 import { setCommandLaneConcurrency } from "../process/command-queue.js";
 import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../config/agent-limits.js";
-=======
-import { emitGatewayRestart, setGatewaySigusr1RestartPolicy } from "../infra/restart.js";
-import { setCommandLaneConcurrency, getTotalQueueSize } from "../process/command-queue.js";
->>>>>>> ab4a08a82 (fix: defer gateway restart until all replies are sent (#12970))
 import { CommandLane } from "../process/lanes.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";

@@ -1,10 +1,5 @@
 import { z } from "zod";
-<<<<<<< HEAD
 
-=======
-import { parseByteSize } from "../cli/parse-bytes.js";
-import { parseDurationMs } from "../cli/parse-duration.js";
->>>>>>> e19a23520 (fix: unify session maintenance and cron run pruning (#13083))
 import {
   GroupChatSchema,
   InboundDebounceSchema,
@@ -155,8 +150,4 @@ export const CommandsSchema = z
   })
   .strict()
   .optional()
-<<<<<<< HEAD
   .default({ native: "auto", nativeSkills: "auto" });
-=======
-  .default({ native: "auto", nativeSkills: "auto", restart: true, ownerDisplay: "raw" });
->>>>>>> e1cb73cde (fix: unblock Docker build by aligning commands schema default (#22558))

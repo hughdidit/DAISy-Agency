@@ -20,8 +20,6 @@ Use `/subagents` to inspect or control sub-agent runs for the **current session*
 
 `/subagents info` shows run metadata (status, timestamps, session id, transcript path, cleanup).
 
-<<<<<<< HEAD
-=======
 ### Spawn behavior
 
 `/subagents spawn` starts a background sub-agent as a user command, not an internal relay, and it sends one final completion update back to the requester chat when the run finishes.
@@ -39,7 +37,6 @@ Use `/subagents` to inspect or control sub-agent runs for the **current session*
 - `--model` and `--thinking` override defaults for that specific run.
 - Use `info`/`log` to inspect details and output after completion.
 
->>>>>>> edf7d6af6 (fix: harden subagent completion announce retries)
 Primary goals:
 - Parallelize “research / long task / slow tool” work without blocking the main run.
 - Keep sub-agents isolated by default (session separation + optional sandboxing).
@@ -65,8 +62,6 @@ Tool params:
 - `thinking?` (optional; overrides thinking level for the sub-agent run)
 - `runTimeoutSeconds?` (default `0`; when set, the sub-agent run is aborted after N seconds)
 - `cleanup?` (`delete|keep`, default `keep`)
-<<<<<<< HEAD
-=======
 - `sandbox?` (`inherit|require`, default `inherit`; `require` rejects spawn unless target child runtime is sandboxed)
 - `sessions_spawn` does **not** accept channel-delivery params (`target`, `channel`, `to`, `threadId`, `replyTo`, `transport`). For delivery, use `message`/`sessions_send` from the spawned run.
 
@@ -99,7 +94,6 @@ Config switches:
 - Channel override and spawn auto-bind keys are adapter-specific. See **Thread supporting channels** above.
 
 See [Configuration Reference](/gateway/configuration-reference) and [Slash commands](/tools/slash-commands) for current adapter details.
->>>>>>> b0c7f1ebe (fix: harden sessions_spawn delivery params and telegram account routing (#31000, #31110))
 
 Allowlist:
 - `agents.list[].subagents.allowAgents`: list of agent ids that can be targeted via `agentId` (`["*"]` to allow any). Default: only the requester agent.
@@ -113,8 +107,6 @@ Auto-archive:
 - `cleanup: "delete"` archives immediately after announce (still keeps the transcript via rename).
 - Auto-archive is best-effort; pending timers are lost if the gateway restarts.
 - `runTimeoutSeconds` does **not** auto-archive; it only stops the run. The session remains until auto-archive.
-<<<<<<< HEAD
-=======
 - Auto-archive applies equally to depth-1 and depth-2 sessions.
 
 ## Nested Sub-Agents
@@ -172,7 +164,6 @@ Stopping a depth-1 orchestrator automatically stops all its depth-2 children:
 - `/stop` in the main chat stops all depth-1 agents and cascades to their depth-2 children.
 - `/subagents kill <id>` stops a specific sub-agent and cascades to its children.
 - `/subagents kill all` stops all sub-agents for the requester and cascades.
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 
 ## Authentication
 
@@ -185,7 +176,6 @@ Note: the merge is additive, so main profiles are always available as fallbacks.
 
 ## Announce
 
-<<<<<<< HEAD
 Sub-agents report back via an announce step:
 - The announce step runs inside the sub-agent session (not the requester session).
 - If the sub-agent replies exactly `ANNOUNCE_SKIP`, nothing is posted.
@@ -196,18 +186,6 @@ Sub-agents report back via an announce step:
   - `Result:` the summary content from the announce step (or `(not available)` if missing).
   - `Notes:` error details and other useful context.
 - `Status` is not inferred from model output; it comes from runtime outcome signals.
-=======
-Sub-agents report back via an announce injection step:
-
-- OpenClaw reads the child session's latest assistant reply after completion, with a short settle retry.
-- It builds a system message with `Status`, `Result`, compact stats, and reply guidance.
-- The message is injected with a follow-up `agent` call:
-  - `deliver=false` when the requester is another sub-agent, this keeps orchestration internal.
-  - `deliver=true` when the requester is main, this produces the user-facing update.
-- Delivery context prefers captured requester origin, but non-deliverable channels (for example `webchat`) are ignored in favor of persisted deliverable routes.
-- Recipient agents can return the internal silent token to suppress duplicate outward delivery in the same turn.
-- `Status` is derived from runtime outcome signals, not inferred from model output.
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 
 Announce payloads include a stats line at the end (even when wrapped):
 - Runtime (e.g., `runtime 5m12s`)
@@ -223,11 +201,8 @@ By default, sub-agents get **all tools except session tools**:
 - `sessions_send`
 - `sessions_spawn`
 
-<<<<<<< HEAD
-=======
 With the default `maxSpawnDepth = 2`, depth-1 orchestrator sub-agents receive `sessions_spawn`, `subagents`, `sessions_list`, and `sessions_history` so they can manage their children. If you set `maxSpawnDepth = 1`, those session tools stay denied.
 
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 Override via config:
 
 ```json5

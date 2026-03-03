@@ -36,13 +36,9 @@ import { resolveBlockStreamingCoalescing } from "./block-streaming.js";
 import { createFollowupRunner } from "./followup-runner.js";
 import { enqueueFollowupRun, type FollowupRun, type QueueSettings } from "./queue.js";
 import { createReplyToModeFilterForChannel, resolveReplyToMode } from "./reply-threading.js";
-<<<<<<< HEAD
 import { persistSessionUsageUpdate } from "./session-usage.js";
 import { incrementCompactionCount } from "./session-updates.js";
 import type { TypingController } from "./typing.js";
-=======
-import { incrementRunCompactionCount, persistRunSessionUsage } from "./session-run-accounting.js";
->>>>>>> a10f228a5 (fix: update totalTokens after compaction using last-call usage (#15018))
 import { createTypingSignaler } from "./typing-mode.js";
 import { emitDiagnosticEvent, isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
 
@@ -374,14 +370,8 @@ export async function runReplyAgent(params: {
       await Promise.allSettled(pendingToolTasks);
     }
 
-<<<<<<< HEAD
     const usage = runResult.meta.agentMeta?.usage;
     const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
-=======
-    const usage = runResult?.meta?.agentMeta?.usage;
-    const promptTokens = runResult?.meta?.agentMeta?.promptTokens;
-    const modelUsed = runResult?.meta?.agentMeta?.model ?? fallbackModel ?? defaultModel;
->>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
     const providerUsed =
       runResult?.meta?.agentMeta?.provider ?? fallbackProvider ?? followupRun.run.provider;
     const cliSessionId = isCliProvider(providerUsed, cfg)
@@ -397,12 +387,7 @@ export async function runReplyAgent(params: {
       storePath,
       sessionKey,
       usage,
-<<<<<<< HEAD
       lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
-=======
-      lastCallUsage: runResult?.meta?.agentMeta?.lastCallUsage,
-      promptTokens,
->>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
       modelUsed,
       providerUsed,
       contextTokensUsed,
@@ -469,10 +454,7 @@ export async function runReplyAgent(params: {
           promptTokens,
           total: totalTokens,
         },
-<<<<<<< HEAD
-=======
         lastCallUsage: runResult?.meta?.agentMeta?.lastCallUsage,
->>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
         context: {
           limit: contextTokensUsed,
           used: totalTokens,

@@ -1,16 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-<<<<<<< HEAD
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-=======
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { ToolInputError } from "../agents/tools/common.js";
-import { createTestRegistry } from "../test-utils/channel-plugins.js";
-import { resetTestPluginRegistry, setTestPluginRegistry, testState } from "./test-helpers.mocks.js";
->>>>>>> 767fd9f22 (fix: classify /tools/invoke errors and sanitize 500s (#13185) (thanks @davidrudduck))
 import { installGatewayTestHooks, getFreePort, startGatewayServer } from "./test-helpers.server.js";
 import { resetTestPluginRegistry, setTestPluginRegistry, testState } from "./test-helpers.mocks.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
@@ -30,8 +23,6 @@ const resolveGatewayToken = (): string => {
   return token;
 };
 
-<<<<<<< HEAD
-=======
 const allowAgentsListForMain = () => {
   testState.agentsConfig = {
     list: [
@@ -87,7 +78,6 @@ const invokeTool = async (params: {
   });
 };
 
->>>>>>> 767fd9f22 (fix: classify /tools/invoke errors and sanitize 500s (#13185) (thanks @davidrudduck))
 describe("POST /tools/invoke", () => {
   it("invokes a tool and returns {ok:true,result}", async () => {
     // Allow the sessions_list tool for main agent.
@@ -324,7 +314,6 @@ describe("POST /tools/invoke", () => {
 
   it("respects tools.profile allowlist", async () => {
     testState.agentsConfig = {
-<<<<<<< HEAD
       list: [
         {
           id: "main",
@@ -333,10 +322,6 @@ describe("POST /tools/invoke", () => {
           },
         },
       ],
-=======
-      list: [{ id: "main", tools: { allow: ["sessions_send"] } }],
-      // oxlint-disable-next-line typescript/no-explicit-any
->>>>>>> ee31cd47b (fix: close OC-02 gaps in ACP permission + gateway HTTP deny config (#15390) (thanks @aether-ai-agent))
     } as any;
 
     const { writeConfigFile } = await import("../config/config.js");
@@ -356,8 +341,6 @@ describe("POST /tools/invoke", () => {
 
     expect(res.status).toBe(404);
 
-<<<<<<< HEAD
-=======
   it("denies gateway tool via HTTP", async () => {
     testState.agentsConfig = {
       list: [{ id: "main", tools: { allow: ["gateway"] } }],
@@ -375,7 +358,6 @@ describe("POST /tools/invoke", () => {
     });
 
     expect(res.status).toBe(404);
->>>>>>> ee31cd47b (fix: close OC-02 gaps in ACP permission + gateway HTTP deny config (#15390) (thanks @aether-ai-agent))
     await server.close();
   });
 

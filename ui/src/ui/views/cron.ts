@@ -1,5 +1,4 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
 
 import { formatMs } from "../format";
 import {
@@ -10,13 +9,6 @@ import {
 } from "../presenter";
 import type { ChannelUiMetaEntry, CronJob, CronRunLogEntry, CronStatus } from "../types";
 import type { CronFormState } from "../ui-types";
-=======
-import type { ChannelUiMetaEntry, CronJob, CronRunLogEntry, CronStatus } from "../types.ts";
-import type { CronFormState } from "../ui-types.ts";
-import { formatAgo, formatMs } from "../format.ts";
-import { pathForTab } from "../navigation.ts";
-import { formatCronSchedule, formatNextRun } from "../presenter.ts";
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 
 export type CronProps = {
   basePath: string;
@@ -295,7 +287,6 @@ export function renderCron(props: CronProps) {
 
     <section class="card" style="margin-top: 18px;">
       <div class="card-title">Run history</div>
-<<<<<<< HEAD
       <div class="card-sub">Latest runs for ${props.runsJobId ?? "(select a job)"}.</div>
       ${props.runsJobId == null
         ? html`
@@ -306,19 +297,6 @@ export function renderCron(props: CronProps) {
         : props.runs.length === 0
           ? html`<div class="muted" style="margin-top: 12px;">No runs yet.</div>`
           : html`
-=======
-      <div class="card-sub">Latest runs for ${selectedRunTitle}.</div>
-      ${
-        props.runsJobId == null
-          ? html`
-              <div class="muted" style="margin-top: 12px">Select a job to inspect run history.</div>
-            `
-          : orderedRuns.length === 0
-            ? html`
-                <div class="muted" style="margin-top: 12px">No runs yet.</div>
-              `
-            : html`
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
               <div class="list" style="margin-top: 12px;">
                 ${orderedRuns.map((entry) => renderRun(entry, props.basePath))}
               </div>

@@ -19,8 +19,6 @@ export async function getMemorySearchManager(params: {
     return { manager: null, error: message };
   }
 }
-<<<<<<< HEAD
-=======
 
 class FallbackMemoryManager implements MemorySearchManager {
   private fallback: MemorySearchManager | null = null;
@@ -168,4 +166,3 @@ function sortValue(value: unknown): unknown {
   }
   return value;
 }
->>>>>>> d0b98c75e (fix: make QMD cache key deterministic)

@@ -31,8 +31,6 @@ const stripTrailingDirective = (text: string): string => {
   return text.slice(0, openIndex);
 };
 
-<<<<<<< HEAD
-=======
 function emitReasoningEnd(ctx: EmbeddedPiSubscribeContext) {
   if (!ctx.state.reasoningStreamOpen) {
     return;
@@ -56,7 +54,6 @@ export function resolveSilentReplyFallbackText(params: {
   return fallback;
 }
 
->>>>>>> 0ff506140 (fix: clear matched tool errors and dedupe reasoning end)
 export function handleMessageStart(
   ctx: EmbeddedPiSubscribeContext,
   evt: AgentEvent & { message: AgentMessage },
@@ -177,8 +174,6 @@ export function handleMessageUpdate(
     .trim();
   if (next) {
     const visibleDelta = chunk ? ctx.stripBlockTags(chunk, ctx.state.partialBlockState) : "";
-<<<<<<< HEAD
-=======
     if (!wasThinking && ctx.state.partialBlockState.thinking) {
       ctx.state.reasoningStreamOpen = true;
     }
@@ -186,7 +181,6 @@ export function handleMessageUpdate(
     if (wasThinking && !ctx.state.partialBlockState.thinking) {
       emitReasoningEnd(ctx);
     }
->>>>>>> 0ff506140 (fix: clear matched tool errors and dedupe reasoning end)
     const parsedDelta = visibleDelta ? ctx.consumePartialReplyDirectives(visibleDelta) : null;
     const parsedFull = parseReplyDirectives(stripTrailingDirective(next));
     const cleanedText = parsedFull.text;
@@ -258,12 +252,7 @@ export function handleMessageEnd(
   const msg = evt.message;
   if (msg?.role !== "assistant") return;
 
-<<<<<<< HEAD
   const assistantMessage = msg as AssistantMessage;
-=======
-  const assistantMessage = msg;
-  ctx.recordAssistantUsage((assistantMessage as { usage?: unknown }).usage);
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
   promoteThinkingTagsToBlocks(assistantMessage);
 
   const rawText = extractAssistantText(assistantMessage);

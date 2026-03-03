@@ -24,8 +24,6 @@ function normalizeDirectiveWhitespace(text: string): string {
     .trim();
 }
 
-<<<<<<< HEAD
-=======
 type StripInlineDirectiveTagsResult = {
   text: string;
   changed: boolean;
@@ -84,7 +82,6 @@ export function stripInlineDirectiveTagsFromMessageForDisplay(
   return { ...message, content: cleaned };
 }
 
->>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
 export function parseInlineDirectives(
   text?: string,
   options: InlineDirectiveParseOptions = {},

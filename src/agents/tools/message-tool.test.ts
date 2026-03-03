@@ -162,8 +162,6 @@ describe("message tool description", () => {
     setActivePluginRegistry(createTestRegistry([]));
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("message tool reasoning tag sanitization", () => {
   it("strips <think> tags from text field before sending", async () => {
@@ -293,4 +291,3 @@ describe("message tool sandbox passthrough", () => {
     expect(call?.sandboxRoot).toBeUndefined();
   });
 });
->>>>>>> 67d25c653 (fix: strip reasoning tags from messaging tool text to prevent <think> leakage (#11053))

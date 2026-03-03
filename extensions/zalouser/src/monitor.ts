@@ -1,19 +1,7 @@
 import type { ChildProcess } from "node:child_process";
-<<<<<<< HEAD
 
 import type { MoltbotConfig, MarkdownTableMode, RuntimeEnv } from "clawdbot/plugin-sdk";
 import { mergeAllowlist, summarizeMapping } from "clawdbot/plugin-sdk";
-=======
-import type { OpenClawConfig, MarkdownTableMode, RuntimeEnv } from "openclaw/plugin-sdk";
-import {
-  createReplyPrefixOptions,
-  mergeAllowlist,
-  resolveRuntimeGroupPolicy,
-  resolveSenderCommandAuthorization,
-  summarizeMapping,
-} from "openclaw/plugin-sdk";
-import { getZalouserRuntime } from "./runtime.js";
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import { sendMessageZalouser } from "./send.js";
 import type {
   ResolvedZalouserAccount,

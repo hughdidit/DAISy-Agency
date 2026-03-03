@@ -129,22 +129,8 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> = 
     },
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-<<<<<<< HEAD
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
       if (groupPolicy !== "open") return [];
-=======
-      const { groupPolicy } = resolveRuntimeGroupPolicy({
-        providerConfigPresent:
-          (cfg.channels as Record<string, unknown> | undefined)?.["nextcloud-talk"] !== undefined,
-        groupPolicy: account.config.groupPolicy,
-        defaultGroupPolicy,
-        configuredFallbackPolicy: "allowlist",
-        missingProviderFallbackPolicy: "allowlist",
-      });
-      if (groupPolicy !== "open") {
-        return [];
-      }
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
       const roomAllowlistConfigured =
         account.config.rooms && Object.keys(account.config.rooms).length > 0;
       if (roomAllowlistConfigured) {

@@ -244,8 +244,6 @@ describe("buildServiceEnvironment", () => {
       expect(env.CLAWDBOT_LAUNCHD_LABEL).toBe("bot.molt.work");
     }
   });
-<<<<<<< HEAD
-=======
 
   it("forwards proxy environment variables for launchd/systemd runtime", () => {
     const env = buildServiceEnvironment({
@@ -291,7 +289,6 @@ describe("buildServiceEnvironment", () => {
     });
     expect(env.NODE_EXTRA_CA_CERTS).toBe("/custom/certs/ca.pem");
   });
->>>>>>> 6b59c8757 (fix: add missing closing brace in proxy env test)
 });
 
 describe("buildNodeServiceEnvironment", () => {
@@ -301,8 +298,6 @@ describe("buildNodeServiceEnvironment", () => {
     });
     expect(env.HOME).toBe("/home/user");
   });
-<<<<<<< HEAD
-=======
 
   it("forwards proxy environment variables for node services", () => {
     const env = buildNodeServiceEnvironment({
@@ -385,5 +380,4 @@ describe("resolveGatewayStateDir", () => {
     const env = { OPENCLAW_STATE_DIR: "C:\\State\\openclaw" };
     expect(resolveGatewayStateDir(env)).toBe("C:\\State\\openclaw");
   });
->>>>>>> 9d52dcf1f (fix: stabilize launchd CA env tests (#27915) (thanks @Lukavyi))
 });

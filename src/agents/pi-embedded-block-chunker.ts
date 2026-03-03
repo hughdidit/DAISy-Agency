@@ -55,21 +55,7 @@ export class EmbeddedBlockChunker {
     const { force, emit } = params;
     const minChars = Math.max(1, Math.floor(this.#chunking.minChars));
     const maxChars = Math.max(minChars, Math.floor(this.#chunking.maxChars));
-<<<<<<< HEAD
     if (this.#buffer.length < minChars && !force) return;
-=======
-
-    // When flushOnParagraph is set (chunkMode="newline"), eagerly split on \n\n
-    // boundaries regardless of minChars so each paragraph is sent immediately.
-    if (this.#chunking.flushOnParagraph && !force) {
-      this.#drainParagraphs(emit, maxChars);
-      return;
-    }
-
-    if (this.#buffer.length < minChars && !force) {
-      return;
-    }
->>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
 
     if (force && this.#buffer.length <= maxChars) {
       if (this.#buffer.trim().length > 0) {
@@ -96,7 +82,6 @@ export class EmbeddedBlockChunker {
         continue;
       }
 
-<<<<<<< HEAD
       let nextBuffer = this.#buffer.slice(breakIdx);
       const fenceSplit = breakResult.fenceSplit;
       if (fenceSplit) {
@@ -125,14 +110,6 @@ export class EmbeddedBlockChunker {
 
       if (this.#buffer.length < minChars && !force) return;
       if (this.#buffer.length < maxChars && !force) return;
-=======
-      if (this.#buffer.length < minChars && !force) {
-        return;
-      }
-      if (this.#buffer.length < maxChars && !force) {
-        return;
-      }
->>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
     }
   }
 

@@ -8,14 +8,11 @@
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-<<<<<<< HEAD
-=======
 import {
   isBlockedHostnameOrIp,
   readJsonBodyWithLimit,
   requestBodyErrorToText,
 } from "openclaw/plugin-sdk";
->>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 import { z } from "zod";
 
 import { NostrProfileSchema, type NostrProfile } from "./config-schema.js";
@@ -106,7 +103,6 @@ async function withPublishLock<T>(accountId: string, fn: () => Promise<T>): Prom
 // SSRF Protection
 // ============================================================================
 
-<<<<<<< HEAD
 // Block common private/internal hostnames (quick string check)
 const BLOCKED_HOSTNAMES = new Set([
   "localhost",
@@ -153,8 +149,6 @@ function isPrivateIp(ip: string): boolean {
   return false;
 }
 
-=======
->>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 function validateUrlSafety(urlStr: string): { ok: true } | { ok: false; error: string } {
   try {
     const url = new URL(urlStr);

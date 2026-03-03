@@ -22,27 +22,9 @@ export function resolveTypingMode({
   typingPolicy,
   suppressTyping,
 }: TypingModeContext): TypingMode {
-<<<<<<< HEAD
   if (isHeartbeat) return "never";
   if (configured) return configured;
   if (!isGroupChat || wasMentioned) return "instant";
-=======
-  if (
-    isHeartbeat ||
-    typingPolicy === "heartbeat" ||
-    typingPolicy === "system_event" ||
-    typingPolicy === "internal_webchat" ||
-    suppressTyping
-  ) {
-    return "never";
-  }
-  if (configured) {
-    return configured;
-  }
-  if (!isGroupChat || wasMentioned) {
-    return "instant";
-  }
->>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
   return DEFAULT_GROUP_TYPING_MODE;
 }
 

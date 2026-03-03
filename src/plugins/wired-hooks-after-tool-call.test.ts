@@ -86,14 +86,9 @@ describe("after_tool_call hook wiring", () => {
       } as never,
     );
 
-<<<<<<< HEAD:src/plugins/wired-hooks-after-tool-call.test.ts
     await vi.waitFor(() => {
       expect(hookMocks.runner.runAfterToolCall).toHaveBeenCalledTimes(1);
     });
-=======
-    expect(hookMocks.runner.runAfterToolCall).toHaveBeenCalledTimes(1);
-    expect(hookMocks.runner.runBeforeToolCall).not.toHaveBeenCalled();
->>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo)):src/plugins/wired-hooks-after-tool-call.e2e.test.ts
 
     const [event, context] = hookMocks.runner.runAfterToolCall.mock.calls[0];
     expect(event.toolName).toBe("read");

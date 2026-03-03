@@ -300,18 +300,9 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     await prompter.note(
       [
         "Gateway token: shared auth for the Gateway + Control UI.",
-<<<<<<< HEAD
         "Stored in: ~/.clawdbot/moltbot.json (gateway.auth.token) or CLAWDBOT_GATEWAY_TOKEN.",
         "Web UI stores a copy in this browser's localStorage (moltbot.control.settings.v1).",
         `Get the tokenized link anytime: ${formatCliCommand("moltbot dashboard --no-open")}`,
-=======
-        "Stored in: ~/.openclaw/openclaw.json (gateway.auth.token) or OPENCLAW_GATEWAY_TOKEN.",
-        `View token: ${formatCliCommand("openclaw config get gateway.auth.token")}`,
-        `Generate token: ${formatCliCommand("openclaw doctor --generate-gateway-token")}`,
-        "Web UI stores a copy in this browser's localStorage (openclaw.control.settings.v1).",
-        `Open the dashboard anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
-        "Paste the token into Control UI settings if prompted.",
->>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
       ].join("\n"),
       "Token",
     );
@@ -327,10 +318,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     })) as "tui" | "web" | "later";
 
     if (hatchChoice === "tui") {
-<<<<<<< HEAD
-=======
       restoreTerminalState("pre-onboarding tui", { resumeStdin: true });
->>>>>>> a042b32d2 (fix: Docker installation keeps hanging on MacOS (#12972))
       await runTui({
         url: links.wsUrl,
         token: settings.authMode === "token" ? settings.gatewayToken : undefined,
@@ -471,16 +459,9 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
 
   await prompter.outro(
     controlUiOpened
-<<<<<<< HEAD
       ? "Onboarding complete. Dashboard opened with your token; keep that tab to control Moltbot."
       : seededInBackground
         ? "Onboarding complete. Web UI seeded in the background; open it anytime with the tokenized link above."
         : "Onboarding complete. Use the tokenized dashboard link above to control Moltbot.",
-=======
-      ? "Onboarding complete. Dashboard opened; keep that tab to control OpenClaw."
-      : seededInBackground
-        ? "Onboarding complete. Web UI seeded in the background; open it anytime with the dashboard link above."
-        : "Onboarding complete. Use the dashboard link above to control OpenClaw.",
->>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
   );
 }

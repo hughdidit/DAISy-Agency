@@ -171,17 +171,10 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
     },
     collectWarnings: ({ account, cfg }) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       const defaultGroupPolicy =
         (cfg.channels?.defaults as { groupPolicy?: string } | undefined)?.groupPolicy;
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
       if (groupPolicy !== "open") return [];
-=======
-      const defaultGroupPolicy = (cfg.channels?.defaults as { groupPolicy?: string } | undefined)
-        ?.groupPolicy;
-=======
-      const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
->>>>>>> 26763d191 (fix: resolve extension type errors and harden probe mocks)
       const { groupPolicy } = resolveRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.line !== undefined,
         groupPolicy: account.config.groupPolicy,
@@ -457,11 +450,7 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
         for (let i = 0; i < chunks.length; i += 1) {
           const isLast = i === chunks.length - 1;
           if (isLast && hasQuickReplies) {
-<<<<<<< HEAD
             lastResult = await sendQuickReplies(to, chunks[i]!, lineData.quickReplies!, {
-=======
-            lastResult = await sendQuickReplies(to, chunks[i], quickReplies, {
->>>>>>> 19775abdd (fix: clean up plugin linting and types)
               verbose: false,
               accountId: accountId ?? undefined,
             });

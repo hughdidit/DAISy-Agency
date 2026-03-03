@@ -1,14 +1,8 @@
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
-<<<<<<< HEAD
 import type { ChannelId } from "../../channels/plugins/types.js";
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import { loadConfig } from "../../config/config.js";
 import { createOutboundSendDeps } from "../../cli/deps.js";
-=======
-import { createOutboundSendDeps } from "../../cli/deps.js";
-import { loadConfig } from "../../config/config.js";
-import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { normalizeReplyPayloadsForDelivery } from "../../infra/outbound/payloads.js";
 import {
@@ -186,14 +180,7 @@ export const sendHandlers: GatewayRequestHandlers = {
           channel: outboundChannel,
           to: resolved.to,
           accountId,
-<<<<<<< HEAD
           payloads: [{ text: message, mediaUrl: request.mediaUrl, mediaUrls }],
-=======
-          payloads: [{ text: message, mediaUrl, mediaUrls }],
-          agentId: providedSessionKey
-            ? resolveSessionAgentId({ sessionKey: providedSessionKey, config: cfg })
-            : derivedAgentId,
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
           gifPlayback: request.gifPlayback,
           deps: outboundDeps,
           mirror: providedSessionKey
@@ -299,39 +286,7 @@ export const sendHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-<<<<<<< HEAD
     const channel = normalizedChannel ?? DEFAULT_CHAT_CHANNEL;
-=======
-    const cfg = loadConfig();
-    let channel = normalizedChannel;
-    if (!channel) {
-      try {
-        channel = (await resolveMessageChannelSelection({ cfg })).channel;
-      } catch (err) {
-        respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
-        return;
-      }
-    }
-    if (typeof request.durationSeconds === "number" && channel !== "telegram") {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          "durationSeconds is only supported for Telegram polls",
-        ),
-      );
-      return;
-    }
-    if (typeof request.isAnonymous === "boolean" && channel !== "telegram") {
-      respond(
-        false,
-        undefined,
-        errorShape(ErrorCodes.INVALID_REQUEST, "isAnonymous is only supported for Telegram polls"),
-      );
-      return;
-    }
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
     const poll = {
       question: request.question,
       options: request.options,

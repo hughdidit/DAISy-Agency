@@ -2,10 +2,7 @@ import fs from "node:fs/promises";
 import type { Server } from "node:http";
 import express, { type Express } from "express";
 import { danger } from "../globals.js";
-<<<<<<< HEAD
-=======
 import { SafeOpenError, readFileWithinRoot } from "../infra/fs-safe.js";
->>>>>>> c823a8530 (fix: harden sandbox media reads against TOCTOU escapes)
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 import { SafeOpenError, openFileWithinRoot } from "../infra/fs-safe.js";
 import { detectMime } from "./mime.js";

@@ -1,16 +1,8 @@
 import type { SlackEventMiddlewareArgs } from "@slack/bolt";
-<<<<<<< HEAD
 
 import { danger } from "../../../globals.js";
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
 
-=======
-import { danger, logVerbose } from "../../../globals.js";
-import { enqueueSystemEvent } from "../../../infra/system-events.js";
-import { resolveDmGroupAccessWithLists } from "../../../security/dm-policy-shared.js";
-import { resolveSlackAllowListMatch } from "../allow-list.js";
-import { resolveSlackEffectiveAllowFrom } from "../auth.js";
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
 import { resolveSlackChannelLabel } from "../channel-config.js";
 import type { SlackMonitorContext } from "../context.js";
 import type { SlackMessageEvent, SlackReactionEvent } from "../types.js";

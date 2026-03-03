@@ -11,7 +11,6 @@ import {
   resolveCommandArgMenu,
 } from "../auto-reply/commands-registry.js";
 import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
-<<<<<<< HEAD
 import type { CommandArgs } from "../auto-reply/commands-registry.js";
 import { resolveTelegramCustomCommands } from "../config/telegram-custom-commands.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
@@ -27,11 +26,6 @@ import {
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gating.js";
-=======
-import { getChildLogger } from "../logging.js";
-import { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
-import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import {
   executePluginCommand,
   getPluginCommandSpecs,
@@ -141,14 +135,7 @@ async function resolveTelegramCommandAuth(params: {
   const isGroup = msg.chat.type === "group" || msg.chat.type === "supergroup";
   const messageThreadId = (msg as { message_thread_id?: number }).message_thread_id;
   const isForum = (msg.chat as { is_forum?: boolean }).is_forum === true;
-<<<<<<< HEAD
   const resolvedThreadId = resolveTelegramForumThreadId({
-=======
-  const groupAllowContext = await resolveTelegramGroupAllowFromContext({
-    chatId,
-    accountId,
-    dmPolicy: telegramCfg.dmPolicy ?? "pairing",
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
     isForum,
     messageThreadId,
   });
@@ -286,21 +273,8 @@ export const registerTelegramNativeCommands = ({
   shouldSkipUpdate,
   opts,
 }: RegisterTelegramNativeCommandsParams) => {
-<<<<<<< HEAD
   const skillCommands =
     nativeEnabled && nativeSkillsEnabled ? listSkillCommandsForAgents({ cfg }) : [];
-=======
-  const boundRoute =
-    nativeEnabled && nativeSkillsEnabled
-      ? resolveAgentRoute({ cfg, channel: "telegram", accountId })
-      : null;
-  const boundAgentIds =
-    boundRoute && boundRoute.matchedBy.startsWith("binding.") ? [boundRoute.agentId] : null;
-  const skillCommands =
-    nativeEnabled && nativeSkillsEnabled
-      ? listSkillCommandsForAgents(boundAgentIds ? { cfg, agentIds: boundAgentIds } : { cfg })
-      : [];
->>>>>>> 9025da229 (fix: scope telegram skill commands per bot (#4360) (thanks @robhparker))
   const nativeCommands = nativeEnabled
     ? listNativeCommandSpecsForConfig(cfg, { skillCommands, provider: "telegram" })
     : [];
@@ -356,38 +330,14 @@ export const registerTelegramNativeCommands = ({
     existingCommands.add(normalized);
     pluginCommands.push({ command: normalized, description });
   }
-<<<<<<< HEAD
   const allCommands: Array<{ command: string; description: string }> = [
     ...nativeCommands.map((command) => ({
       command: command.name,
       description: command.description,
     })),
     ...pluginCommands,
-=======
-  const allCommandsFull: Array<{ command: string; description: string }> = [
-    ...nativeCommands
-      .map((command) => {
-        const normalized = normalizeTelegramCommandName(command.name);
-        if (!TELEGRAM_COMMAND_NAME_PATTERN.test(normalized)) {
-          runtime.error?.(
-            danger(
-              `Native command "${command.name}" is invalid for Telegram (resolved to "${normalized}"). Skipping.`,
-            ),
-          );
-          return null;
-        }
-        return {
-          command: normalized,
-          description: command.description,
-        };
-      })
-      .filter((cmd): cmd is { command: string; description: string } => cmd !== null),
-    ...(nativeEnabled ? pluginCatalog.commands : []),
->>>>>>> c4e9bb3b9 (fix: sanitize native command names for Telegram API (#19257))
     ...customCommands,
   ];
-<<<<<<< HEAD
-=======
   const TELEGRAM_MAX_COMMANDS = 100;
   if (allCommandsFull.length > TELEGRAM_MAX_COMMANDS) {
     runtime.log?.(
@@ -398,7 +348,6 @@ export const registerTelegramNativeCommands = ({
   }
   // Telegram only limits the setMyCommands payload (menu entries).
   const commandsToRegister = allCommandsFull.slice(0, TELEGRAM_MAX_COMMANDS);
->>>>>>> 11ab1c693 (fix: enforce Telegram 100-command limit with warning (#5787) (#15844))
 
   // Clear stale commands before registering new ones to prevent
   // leftover commands from deleted skills persisting across restarts (#5717).
@@ -597,13 +546,8 @@ export const registerTelegramNativeCommands = ({
             cfg,
             dispatcherOptions: {
               responsePrefix: resolveEffectiveMessagesConfig(cfg, route.agentId).responsePrefix,
-<<<<<<< HEAD
               deliver: async (payload) => {
                 await deliverReplies({
-=======
-              deliver: async (payload, _info) => {
-                const result = await deliverReplies({
->>>>>>> 718bc3f9c (fix: avoid silent telegram empty replies (#3796) (#3796))
                   replies: [payload],
                   chatId: String(chatId),
                   token: opts.token,
@@ -681,16 +625,8 @@ export const registerTelegramNativeCommands = ({
             resolveTelegramGroupConfig,
             requireAuth: match.command.requireAuth !== false,
           });
-<<<<<<< HEAD
           if (!auth) return;
           const { resolvedThreadId, senderId, commandAuthorized, isGroup } = auth;
-=======
-          if (!auth) {
-            return;
-          }
-<<<<<<< HEAD
-          const { senderId, commandAuthorized, isGroup, isForum } = auth;
->>>>>>> 19b8416a8 (fix: unify telegram thread handling)
 =======
           const { senderId, commandAuthorized, isGroup, isForum, resolvedThreadId } = auth;
 >>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
@@ -700,8 +636,6 @@ export const registerTelegramNativeCommands = ({
             isForum,
             messageThreadId,
           });
-<<<<<<< HEAD
-=======
           const parentPeer = buildTelegramParentPeer({ isGroup, resolvedThreadId, chatId });
           const route = resolveAgentRoute({
             cfg,
@@ -718,7 +652,6 @@ export const registerTelegramNativeCommands = ({
             ? buildTelegramGroupFrom(chatId, threadSpec.id)
             : `telegram:${chatId}`;
           const to = `telegram:${chatId}`;
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 
           const result = await executePluginCommand({
             command: match.command,

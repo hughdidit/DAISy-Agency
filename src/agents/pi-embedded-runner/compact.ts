@@ -1,10 +1,6 @@
 import fs from "node:fs/promises";
 import os from "node:os";
-<<<<<<< HEAD
 
-=======
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import {
   createAgentSession,
   DefaultResourceLoader,
@@ -12,19 +8,12 @@ import {
   SessionManager,
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
-<<<<<<< HEAD
 
 import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
 import { listChannelSupportedActions, resolveChannelMessageToolHints } from "../channel-tools.js";
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
-import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
-import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { getMachineDisplayName } from "../../infra/machine-name.js";
 import { resolveTelegramInlineButtonsScope } from "../../telegram/inline-buttons.js";
 import { resolveTelegramReactionLevel } from "../../telegram/reaction-level.js";
@@ -42,12 +31,7 @@ import { resolveMoltbotDocsPath } from "../docs-path.js";
 import type { ExecElevatedDefaults } from "../bash-tools.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../defaults.js";
 import { getApiKeyForModel, resolveModelAuthMode } from "../model-auth.js";
-<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "../models-config.js";
-=======
-import { ensureOpenClawModelsJson } from "../models-config.js";
-import { resolveOwnerDisplaySetting } from "../owner-display.js";
->>>>>>> c99e7696e (fix: decouple owner display secret from gateway auth token)
 import {
   ensureSessionHeader,
   validateAnthropicTurns,
@@ -69,12 +53,9 @@ import {
   resolveSkillsPromptForRun,
   type SkillSnapshot,
 } from "../skills.js";
-<<<<<<< HEAD
-=======
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
 <<<<<<< HEAD
 import { compactWithSafetyTimeout } from "./compaction-safety-timeout.js";
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 import { buildEmbeddedExtensionPaths } from "./extensions.js";
 =======
 import {
@@ -101,15 +82,10 @@ import {
 } from "./system-prompt.js";
 import { splitSdkTools } from "./tool-split.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { EmbeddedPiCompactResult } from "./types.js";
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
 import { describeUnknownError, mapThinkingLevel, resolveExecToolDefaults } from "./utils.js";
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
-=======
-=======
-import type { EmbeddedPiCompactResult } from "./types.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { describeUnknownError, mapThinkingLevel } from "./utils.js";
 import { flushPendingToolResultsAfterIdle } from "./wait-for-idle-before-flush.js";
 >>>>>>> 3b5a9c14d (Fix: Preserve Per-Agent Exec Override After Session Compaction (#15833))
@@ -140,13 +116,10 @@ export type CompactEmbeddedPiSessionParams = {
   reasoningLevel?: ReasoningLevel;
   bashElevated?: ExecElevatedDefaults;
   customInstructions?: string;
-<<<<<<< HEAD
-=======
   trigger?: "overflow" | "manual";
   diagId?: string;
   attempt?: number;
   maxAttempts?: number;
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
   lane?: string;
   enqueue?: typeof enqueueCommand;
   extraSystemPrompt?: string;
@@ -379,11 +352,8 @@ export async function compactEmbeddedPiSessionDirect(
       reasoningLevel: params.reasoningLevel ?? "off",
       extraSystemPrompt: params.extraSystemPrompt,
       ownerNumbers: params.ownerNumbers,
-<<<<<<< HEAD
-=======
       ownerDisplay: ownerDisplay.ownerDisplay,
       ownerDisplaySecret: ownerDisplay.ownerDisplaySecret,
->>>>>>> c99e7696e (fix: decouple owner display secret from gateway auth token)
       reasoningTagHint,
       heartbeatPrompt: isDefaultAgent
         ? resolveHeartbeatPrompt(params.config?.agents?.defaults?.heartbeat?.prompt)
@@ -426,13 +396,7 @@ export async function compactEmbeddedPiSessionDirect(
         settingsManager,
         minReserveTokens: resolveCompactionReserveTokensFloor(params.config),
       });
-<<<<<<< HEAD
       const additionalExtensionPaths = buildEmbeddedExtensionPaths({
-=======
-      // Sets compaction/pruning runtime state and returns extension factories
-      // that must be passed to the resource loader for the safeguard to be active.
-      const extensionFactories = buildEmbeddedExtensionFactories({
->>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
         cfg: params.config,
         sessionManager,
         provider,
@@ -460,18 +424,13 @@ export async function compactEmbeddedPiSessionDirect(
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
       let session: Awaited<ReturnType<typeof createAgentSession>>["session"];
 <<<<<<< HEAD
-=======
-=======
->>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
       const resourceLoader = new DefaultResourceLoader({
         cwd: resolvedWorkspace,
         agentDir,
         settingsManager,
         additionalExtensionPaths,
-<<<<<<< HEAD
         noSkills: true,
         systemPromptOverride: systemPrompt,
         agentsFilesOverride: () => ({ agentsFiles: [] }),
@@ -480,9 +439,6 @@ export async function compactEmbeddedPiSessionDirect(
 
 >>>>>>> e9f0be06e (fix: repair docker build typing)
       ({ session } = await createAgentSession({
-=======
-=======
->>>>>>> bcde2fca5 (fix: align embedded agent session setup)
 =======
       });
       await resourceLoader.reload();
@@ -507,22 +463,10 @@ export async function compactEmbeddedPiSessionDirect(
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
         skills: [],
         contextFiles: [],
         additionalExtensionPaths,
       }));
-=======
-        additionalExtensionPaths,
-        skills: [],
-        contextFiles: [],
-        systemPrompt,
-=======
-        systemPrompt,
-        additionalExtensionPaths,
-        skills: [],
-        contextFiles: [],
->>>>>>> bcde2fca5 (fix: align embedded agent session setup)
 =======
         resourceLoader,
 >>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
@@ -533,12 +477,8 @@ export async function compactEmbeddedPiSessionDirect(
 =======
 >>>>>>> e58291e07 (fix: align embedded runner with pi-coding-agent API)
       });
-<<<<<<< HEAD
       applySystemPromptOverrideToSession(session, systemPromptOverride);
 >>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
-=======
-      applySystemPromptOverrideToSession(session, systemPromptOverride());
->>>>>>> d03eca845 (fix: harden plugin and hook install paths)
 
       try {
         const prior = await sanitizeSessionHistory({
@@ -563,57 +503,7 @@ export async function compactEmbeddedPiSessionDirect(
         if (limited.length > 0) {
           session.agent.replaceMessages(limited);
         }
-<<<<<<< HEAD
         const result = await session.compact(params.customInstructions);
-=======
-        // Run before_compaction hooks (fire-and-forget).
-        // The session JSONL already contains all messages on disk, so plugins
-        // can read sessionFile asynchronously and process in parallel with
-        // the compaction LLM call — no need to block or wait for after_compaction.
-        const hookRunner = getGlobalHookRunner();
-        const hookCtx = {
-          agentId: params.sessionKey?.split(":")[0] ?? "main",
-          sessionKey: params.sessionKey,
-          sessionId: params.sessionId,
-          workspaceDir: params.workspaceDir,
-          messageProvider: params.messageChannel ?? params.messageProvider,
-        };
-        if (hookRunner?.hasHooks("before_compaction")) {
-          hookRunner
-            .runBeforeCompaction(
-              {
-                messageCount: preCompactionMessages.length,
-                compactingCount: limited.length,
-                messages: preCompactionMessages,
-                sessionFile: params.sessionFile,
-              },
-              hookCtx,
-            )
-            .catch((hookErr: unknown) => {
-              log.warn(`before_compaction hook failed: ${String(hookErr)}`);
-            });
-        }
-
-        const diagEnabled = log.isEnabled("debug");
-        const preMetrics = diagEnabled ? summarizeCompactionMessages(session.messages) : undefined;
-        if (diagEnabled && preMetrics) {
-          log.debug(
-            `[compaction-diag] start runId=${runId} sessionKey=${params.sessionKey ?? params.sessionId} ` +
-              `diagId=${diagId} trigger=${trigger} provider=${provider}/${modelId} ` +
-              `attempt=${attempt} maxAttempts=${maxAttempts} ` +
-              `pre.messages=${preMetrics.messages} pre.historyTextChars=${preMetrics.historyTextChars} ` +
-              `pre.toolResultChars=${preMetrics.toolResultChars} pre.estTokens=${preMetrics.estTokens ?? "unknown"}`,
-          );
-          log.debug(
-            `[compaction-diag] contributors diagId=${diagId} top=${JSON.stringify(preMetrics.contributors)}`,
-          );
-        }
-
-        const compactStartedAt = Date.now();
-        const result = await compactWithSafetyTimeout(() =>
-          session.compact(params.customInstructions),
-        );
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
         // Estimate tokens after compaction by summing token estimates for remaining messages
         let tokensAfter: number | undefined;
         try {

@@ -14,11 +14,8 @@ import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
 } from "../../infra/outbound/agent-delivery.js";
-<<<<<<< HEAD
-=======
 import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
 import { classifySessionKeyShape, normalizeAgentId } from "../../routing/session-key.js";
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
 import { defaultRuntime } from "../../runtime.js";
 import { normalizeInputProvenance, type InputProvenance } from "../../sessions/input-provenance.js";
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
@@ -525,13 +522,8 @@ export const agentHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-<<<<<<< HEAD
     const p = params as AgentWaitParams;
     const runId = p.runId.trim();
-=======
-    const p = params;
-    const runId = (p.runId ?? "").trim();
->>>>>>> 1152b2586 (fix(gateway): guard trim crashes in subagent flow)
     const timeoutMs =
       typeof p.timeoutMs === "number" && Number.isFinite(p.timeoutMs)
         ? Math.max(0, Math.floor(p.timeoutMs))

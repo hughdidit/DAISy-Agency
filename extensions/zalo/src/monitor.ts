@@ -456,8 +456,6 @@ async function processMessageWithPipeline(params: {
         authorizers: [{ configured: effectiveAllowFrom.length > 0, allowed: senderAllowedForCommands }],
       })
     : undefined;
-<<<<<<< HEAD
-=======
   if (groupAccess) {
     warnMissingProviderGroupPolicyFallbackOnce({
       providerMissingFallbackApplied: groupAccess.providerMissingFallbackApplied,
@@ -497,7 +495,6 @@ async function processMessageWithPipeline(params: {
     resolveCommandAuthorizedFromAuthorizers: (params) =>
       core.channel.commands.resolveCommandAuthorizedFromAuthorizers(params),
   });
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
 
   if (!isGroup) {
     if (dmPolicy === "disabled") {

@@ -56,21 +56,8 @@ const colorByPct = (label: string, pct: number | null, rich: boolean) => {
   return theme.muted(label);
 };
 
-<<<<<<< HEAD
 const formatTokensCell = (total: number, contextTokens: number | null, rich: boolean) => {
   if (!total) return "-".padEnd(TOKENS_PAD);
-=======
-const formatTokensCell = (
-  total: number | undefined,
-  contextTokens: number | null,
-  rich: boolean,
-) => {
-  if (total === undefined) {
-    const ctxLabel = contextTokens ? formatKTokens(contextTokens) : "?";
-    const label = `unknown/${ctxLabel} (?%)`;
-    return rich ? theme.muted(label.padEnd(TOKENS_PAD)) : label.padEnd(TOKENS_PAD);
-  }
->>>>>>> fd076eb43 (fix: /status shows incorrect context percentage — totalTokens clamped to contextTokens (#15114) (#15133))
   const totalLabel = formatKTokens(total);
   const ctxLabel = contextTokens ? formatKTokens(contextTokens) : "?";
   const pct = contextTokens ? Math.min(999, Math.round((total / contextTokens) * 100)) : null;

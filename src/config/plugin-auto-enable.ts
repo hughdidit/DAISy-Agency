@@ -317,11 +317,7 @@ function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig 
   };
 }
 
-<<<<<<< HEAD
 function enablePluginEntry(cfg: MoltbotConfig, pluginId: string): MoltbotConfig {
-=======
-function registerPluginEntry(cfg: OpenClawConfig, pluginId: string): OpenClawConfig {
->>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
   const entries = {
     ...cfg.plugins?.entries,
     [pluginId]: {
@@ -353,12 +349,7 @@ export function applyPluginAutoEnable(params: {
   env?: NodeJS.ProcessEnv;
 }): PluginAutoEnableResult {
   const env = params.env ?? process.env;
-<<<<<<< HEAD
   const configured = resolveConfiguredPlugins(params.config, env);
-=======
-  const registry = params.manifestRegistry ?? loadPluginManifestRegistry({ config: params.config });
-  const configured = resolveConfiguredPlugins(params.config, env, registry);
->>>>>>> 3b4dac764 (fix: doctor plugin-id mapping for channel auto-enable (#25275) (thanks @zerone0x))
   if (configured.length === 0) {
     return { config: params.config, changes: [] };
   }
@@ -377,15 +368,8 @@ export function applyPluginAutoEnable(params: {
     const allow = next.plugins?.allow;
     const allowMissing = Array.isArray(allow) && !allow.includes(entry.pluginId);
     const alreadyEnabled = next.plugins?.entries?.[entry.pluginId]?.enabled === true;
-<<<<<<< HEAD
     if (alreadyEnabled && !allowMissing) continue;
     next = enablePluginEntry(next, entry.pluginId);
-=======
-    if (alreadyEnabled && !allowMissing) {
-      continue;
-    }
-    next = registerPluginEntry(next, entry.pluginId);
->>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     next = ensureAllowlisted(next, entry.pluginId);
     changes.push(formatAutoEnableChange(entry));
   }

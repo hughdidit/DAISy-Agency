@@ -1,16 +1,6 @@
 import type { ChannelMeta, ChannelPlugin, ClawdbotConfig } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, PAIRING_APPROVED_MESSAGE } from "openclaw/plugin-sdk";
 import type { ResolvedFeishuAccount, FeishuConfig } from "./types.js";
-=======
-import {
-  buildBaseChannelStatusSummary,
-  createDefaultChannelRuntimeState,
-  DEFAULT_ACCOUNT_ID,
-  PAIRING_APPROVED_MESSAGE,
-  resolveRuntimeGroupPolicy,
-} from "openclaw/plugin-sdk";
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import {
   resolveFeishuAccount,
   resolveFeishuCredentials,

@@ -501,25 +501,11 @@ export async function processMessage(
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const groupPolicy = account.config.groupPolicy ?? "allowlist";
-<<<<<<< HEAD
   const storeAllowFrom = await core.channel.pairing
     .readAllowFromStore("bluebubbles")
     .catch(() => []);
   const { effectiveAllowFrom, effectiveGroupAllowFrom } = resolveEffectiveAllowFromLists({
     allowFrom: account.config.allowFrom,
-=======
-  const configuredAllowFrom = (account.config.allowFrom ?? []).map((entry) => String(entry));
-  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-    provider: "bluebubbles",
-    dmPolicy,
-    readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
-  });
-  const accessDecision = resolveDmGroupAccessWithLists({
-    isGroup,
-    dmPolicy,
-    groupPolicy,
-    allowFrom: configuredAllowFrom,
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
     groupAllowFrom: account.config.groupAllowFrom,
     storeAllowFrom,
     dmPolicy,

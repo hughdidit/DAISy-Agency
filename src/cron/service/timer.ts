@@ -1,28 +1,12 @@
 import type { HeartbeatRunResult } from "../../infra/heartbeat-wake.js";
 import type { CronJob } from "../types.js";
-<<<<<<< HEAD
 import { computeJobNextRunAtMs, nextWakeAtMs, resolveJobPayloadTextForMain } from "./jobs.js";
-=======
-import type { CronEvent, CronServiceState } from "./state.js";
-import { DEFAULT_AGENT_ID } from "../../routing/session-key.js";
-import { resolveCronDeliveryPlan } from "../delivery.js";
-import { sweepCronRunSessions } from "../session-reaper.js";
-import {
-  computeJobNextRunAtMs,
-  nextWakeAtMs,
-  recomputeNextRuns,
-  recomputeNextRunsForMaintenance,
-  resolveJobPayloadTextForMain,
-} from "./jobs.js";
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 import { locked } from "./locked.js";
 import type { CronEvent, CronServiceState } from "./state.js";
 import { ensureLoaded, persist } from "./store.js";
 
 const MAX_TIMER_DELAY_MS = 60_000;
 
-<<<<<<< HEAD
-=======
 /**
  * Maximum wall-clock time for a single job execution. Acts as a safety net
  * on top of the per-provider / per-agent timeouts to prevent one stuck job
@@ -126,35 +110,13 @@ function applyJobResult(
   return shouldDelete;
 }
 
->>>>>>> f7e05d013 (fix: exclude maxTokens from config redaction + honor deleteAfterRun on skipped cron jobs (#13342))
 export function armTimer(state: CronServiceState) {
   if (state.timer) clearTimeout(state.timer);
   state.timer = null;
   if (!state.deps.cronEnabled) return;
   const nextAt = nextWakeAtMs(state);
-<<<<<<< HEAD
   if (!nextAt) return;
   const delay = Math.max(nextAt - state.deps.nowMs(), 0);
-=======
-  if (!nextAt) {
-    const jobCount = state.store?.jobs.length ?? 0;
-    const enabledCount = state.store?.jobs.filter((j) => j.enabled).length ?? 0;
-    const withNextRun =
-      state.store?.jobs.filter(
-        (j) =>
-          j.enabled &&
-          typeof j.state.nextRunAtMs === "number" &&
-          Number.isFinite(j.state.nextRunAtMs),
-      ).length ?? 0;
-    state.deps.log.debug(
-      { jobCount, enabledCount, withNextRun },
-      "cron: armTimer skipped - no jobs with nextRunAtMs",
-    );
-    return;
-  }
-  const now = state.deps.nowMs();
-  const delay = Math.max(nextAt - now, 0);
->>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
   // Wake at least once a minute to avoid schedule drift and recover quickly
   // when the process was paused or wall-clock time jumps.
   const clampedDelay = Math.min(delay, MAX_TIMER_DELAY_MS);
@@ -171,40 +133,11 @@ export async function onTimer(state: CronServiceState) {
   if (state.running) return;
   state.running = true;
   try {
-<<<<<<< HEAD
     await locked(state, async () => {
       await ensureLoaded(state);
       await runDueJobs(state);
       await persist(state);
       armTimer(state);
-=======
-    const dueJobs = await locked(state, async () => {
-      await ensureLoaded(state, { forceReload: true, skipRecompute: true });
-      const due = findDueJobs(state);
-
-      if (due.length === 0) {
-        // Use maintenance-only recompute to avoid advancing past-due nextRunAtMs
-        // values without execution. This prevents jobs from being silently skipped
-        // when the timer wakes up but findDueJobs returns empty (see #13992).
-        const changed = recomputeNextRunsForMaintenance(state);
-        if (changed) {
-          await persist(state);
-        }
-        return [];
-      }
-
-      const now = state.deps.nowMs();
-      for (const job of due) {
-        job.state.runningAtMs = now;
-        job.state.lastError = undefined;
-      }
-      await persist(state);
-
-      return due.map((j) => ({
-        id: j.id,
-        job: j,
-      }));
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
     });
 
     const results: Array<{
@@ -326,10 +259,7 @@ export async function onTimer(state: CronServiceState) {
     }
   } finally {
     state.running = false;
-<<<<<<< HEAD
-=======
     armTimer(state);
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   }
 }
 
@@ -350,44 +280,7 @@ function findDueJobs(state: CronServiceState): CronJob[] {
   });
 }
 
-<<<<<<< HEAD
 export async function runMissedJobs(state: CronServiceState) {
-=======
-function isRunnableJob(params: {
-  job: CronJob;
-  nowMs: number;
-  skipJobIds?: ReadonlySet<string>;
-  skipAtIfAlreadyRan?: boolean;
-}): boolean {
-  const { job, nowMs } = params;
-  if (!job.state) {
-    job.state = {};
-  }
-  if (!job.enabled) {
-    return false;
-  }
-  if (params.skipJobIds?.has(job.id)) {
-    return false;
-  }
-  if (typeof job.state.runningAtMs === "number") {
-    return false;
-  }
-  if (params.skipAtIfAlreadyRan && job.schedule.kind === "at" && job.state.lastStatus) {
-    // Any terminal status (ok, error, skipped) means the job already ran at least once.
-    // Don't re-fire it on restart — applyJobResult disables one-shot jobs, but guard
-    // here defensively (#13845).
-    return false;
-  }
-  const next = job.state.nextRunAtMs;
-  return typeof next === "number" && Number.isFinite(next) && nowMs >= next;
-}
-
-function collectRunnableJobs(
-  state: CronServiceState,
-  nowMs: number,
-  opts?: { skipJobIds?: ReadonlySet<string>; skipAtIfAlreadyRan?: boolean },
-): CronJob[] {
->>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
   if (!state.store) {
     return;
   }
@@ -541,11 +434,7 @@ export async function executeJob(
     status: "ok" | "error" | "skipped",
     err?: string,
     summary?: string,
-<<<<<<< HEAD
     outputText?: string,
-=======
-    session?: { sessionId?: string; sessionKey?: string },
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   ) => {
     const endedAt = state.deps.nowMs();
     job.state.runningAtMs = undefined;
@@ -619,35 +508,10 @@ export async function executeJob(
       sessionKey: result.sessionKey,
     });
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (res.status === "ok") await finish("ok", undefined, res.summary, res.outputText);
     else if (res.status === "skipped")
       await finish("skipped", undefined, res.summary, res.outputText);
     else await finish("error", res.error ?? "cron job failed", res.summary, res.outputText);
-=======
-
-    // Post a short summary back to the main session so the user sees
-    // the cron result without opening the isolated session.
-    const summaryText = res.summary?.trim();
-    const deliveryMode = job.delivery?.mode ?? "announce";
-    if (summaryText && deliveryMode !== "none") {
-      const prefix = "Cron";
-      const label =
-        res.status === "error" ? `${prefix} (error): ${summaryText}` : `${prefix}: ${summaryText}`;
-      state.deps.enqueueSystemEvent(label, { agentId: job.agentId });
-      if (job.wakeMode === "now") {
-        state.deps.requestHeartbeatNow({ reason: `cron:${job.id}` });
-      }
-    }
-
-    if (res.status === "ok") {
-      await finish("ok", undefined, res.summary);
-    } else if (res.status === "skipped") {
-      await finish("skipped", undefined, res.summary);
-    } else {
-      await finish("error", res.error ?? "cron job failed", res.summary);
-    }
->>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 =======
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   } catch (err) {

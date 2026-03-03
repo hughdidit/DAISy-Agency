@@ -1,17 +1,6 @@
 {
-<<<<<<< HEAD
   "name": "moltbot",
   "version": "2026.1.27-beta.1",
-=======
-  "name": "openclaw",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.1.29-beta.2",
->>>>>>> 02576615c (fix: migrate legacy gateway services)
 =======
   "version": "2026.1.29-beta.4",
 >>>>>>> 9886fd1a5 (fix: migrate legacy state dirs)
@@ -54,18 +43,10 @@
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-<<<<<<< HEAD
     "./plugin-sdk": "./dist/plugin-sdk/index.js",
 <<<<<<< HEAD
     "./plugin-sdk/*": "./dist/plugin-sdk/*",
     "./cli-entry": "./moltbot.mjs"
-=======
-=======
-    "./plugin-sdk": {
-      "types": "./dist/plugin-sdk/index.d.ts",
-      "default": "./dist/plugin-sdk/index.js"
-    },
->>>>>>> d8016c30c (fix: add types condition to plugin-sdk export for moduleResolution NodeNext (#14485))
     "./cli-entry": "./openclaw.mjs"
 >>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
   },
@@ -138,8 +119,6 @@
     "dist/whatsapp/**"
   ],
   "scripts": {
-<<<<<<< HEAD
-=======
     "android:assemble": "cd apps/android && ./gradlew :app:assembleDebug",
     "android:install": "cd apps/android && ./gradlew :app:installDebug",
     "android:run": "cd apps/android && ./gradlew :app:installDebug && adb shell am start -n ai.openclaw.android/.MainActivity",
@@ -148,10 +127,7 @@
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
     "check": "pnpm tsgo && pnpm lint && pnpm format",
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500",
->>>>>>> 9c5941ba4 (fix: add legacy daemon-cli shim for updates)
     "dev": "node scripts/run-node.mjs",
-<<<<<<< HEAD
-=======
     "docs:bin": "node scripts/build-docs-list.mjs",
     "docs:build": "cd docs && pnpm dlx --reporter append-only mint broken-links",
     "docs:dev": "cd docs && mint dev",
@@ -178,7 +154,6 @@
     "openclaw": "node scripts/run-node.mjs",
     "openclaw:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
     "plugins:sync": "node --import tsx scripts/sync-plugin-versions.ts",
->>>>>>> 34dd7324d (fix: restore lint/build gates)
     "postinstall": "node scripts/postinstall.js",
     "prepack": "pnpm build && pnpm ui:build",
     "docs:list": "node scripts/docs-list.js",
@@ -186,11 +161,7 @@
     "docs:dev": "cd docs && mint dev",
     "docs:build": "cd docs && pnpm dlx --reporter append-only mint broken-links",
 <<<<<<< HEAD
-<<<<<<< HEAD
     "build": "pnpm canvas:a2ui:bundle && tsc -p tsconfig.json && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts",
-=======
-    "build": "pnpm canvas:a2ui:bundle && tsdown src/index.ts src/entry.ts && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts",
->>>>>>> ed65131c1 (fix: Also build `entry.ts` into `dist/entry.mjs`.)
 =======
     "build": "pnpm canvas:a2ui:bundle && tsdown && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts",
 >>>>>>> 68ba1afb3 (fix: Fix `scripts/watch-node.mjs` and use `tsdown --watch`.)

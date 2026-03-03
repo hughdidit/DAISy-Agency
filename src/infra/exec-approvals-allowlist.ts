@@ -16,8 +16,6 @@ import {
   validateSafeBinArgv,
 } from "./exec-safe-bin-policy.js";
 import { isTrustedSafeBinPath } from "./exec-safe-bin-trust.js";
-<<<<<<< HEAD
-=======
 import {
   extractShellWrapperInlineCommand,
   isDispatchWrapperExecutable,
@@ -29,7 +27,6 @@ import {
 function hasShellLineContinuation(command: string): boolean {
   return /\\(?:\r\n|\n|\r)/.test(command);
 }
->>>>>>> a67689a7e (fix: harden allow-always shell multiplexer wrapper handling)
 
 export function normalizeSafeBins(entries?: string[]): Set<string> {
   if (!Array.isArray(entries)) {
@@ -207,8 +204,6 @@ export type ExecAllowlistAnalysis = {
   segmentSatisfiedBy: ExecSegmentSatisfiedBy[];
 };
 
-<<<<<<< HEAD
-=======
 function hasSegmentExecutableMatch(
   segment: ExecCommandSegment,
   predicate: (token: string) => boolean,
@@ -352,7 +347,6 @@ export function resolveAllowAlwaysPatterns(params: {
   return Array.from(patterns);
 }
 
->>>>>>> a67689a7e (fix: harden allow-always shell multiplexer wrapper handling)
 /**
  * Evaluates allowlist for shell commands (including &&, ||, ;) and returns analysis metadata.
  */

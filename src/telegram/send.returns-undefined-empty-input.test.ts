@@ -478,8 +478,6 @@ describe("sendMessageTelegram", () => {
     });
   });
 
-<<<<<<< HEAD:src/telegram/send.returns-undefined-empty-input.test.ts
-=======
   it("keeps message_thread_id for private chat topic sends (#18974)", async () => {
     const chatId = "123456789";
     const sendMessage = vi.fn().mockResolvedValue({
@@ -525,7 +523,6 @@ describe("sendMessageTelegram", () => {
     });
   });
 
->>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids):src/telegram/send.test.ts
   it("retries without message_thread_id when Telegram reports missing thread", async () => {
     const chatId = "123";
     const threadErr = new Error("400: Bad Request: message thread not found");
@@ -961,8 +958,6 @@ describe("sendStickerTelegram", () => {
     expect(sendSticker).toHaveBeenCalledWith(chatId, "fileId123", undefined);
   });
 });
-<<<<<<< HEAD:src/telegram/send.returns-undefined-empty-input.test.ts
-=======
 
 describe("editMessageTelegram", () => {
   beforeEach(() => {
@@ -1175,4 +1170,3 @@ describe("createForumTopicTelegram", () => {
     });
   });
 });
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility):src/telegram/send.test.ts

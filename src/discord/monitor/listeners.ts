@@ -6,14 +6,9 @@ import {
   MessageReactionRemoveListener,
   PresenceUpdateListener,
 } from "@buape/carbon";
-<<<<<<< HEAD
 
 import { danger } from "../../globals.js";
 import { formatDurationSeconds } from "../../infra/format-duration.js";
-=======
-import { danger, logVerbose } from "../../globals.js";
-import { formatDurationSeconds } from "../../infra/format-time/format-duration.ts";
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { setPresence } from "./presence-cache.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -43,8 +38,6 @@ export type DiscordMessageHandler = (data: DiscordMessageEvent, client: Client) 
 
 type DiscordReactionEvent = Parameters<MessageReactionAddListener["handle"]>[0];
 
-<<<<<<< HEAD
-=======
 type DiscordReactionListenerParams = {
   cfg: LoadedConfig;
   accountId: string;
@@ -61,7 +54,6 @@ type DiscordReactionListenerParams = {
   logger: Logger;
 };
 
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
 const DISCORD_SLOW_LISTENER_THRESHOLD_MS = 30_000;
 const discordEventQueueLog = createSubsystemLogger("discord/event-queue");
 
@@ -197,8 +189,6 @@ export class DiscordReactionRemoveListener extends MessageReactionRemoveListener
   }
 }
 
-<<<<<<< HEAD
-=======
 async function runDiscordReactionHandler(params: {
   data: DiscordReactionEvent;
   client: Client;
@@ -232,7 +222,6 @@ async function runDiscordReactionHandler(params: {
   });
 }
 
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
 async function handleDiscordReactionEvent(params: {
   data: DiscordReactionEvent;
   client: Client;
@@ -240,8 +229,6 @@ async function handleDiscordReactionEvent(params: {
   cfg: LoadedConfig;
   accountId: string;
   botUserId?: string;
-<<<<<<< HEAD
-=======
   dmEnabled: boolean;
   groupDmEnabled: boolean;
   groupDmChannels: string[];
@@ -249,7 +236,6 @@ async function handleDiscordReactionEvent(params: {
   allowFrom: string[];
   groupPolicy: "open" | "allowlist" | "disabled";
   allowNameMatching: boolean;
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
   guildEntries?: Record<string, import("./allow-list.js").DiscordGuildEntryResolved>;
   logger: Logger;
 }) {
@@ -257,16 +243,9 @@ async function handleDiscordReactionEvent(params: {
     const { data, client, action, botUserId, guildEntries } = params;
     if (!("user" in data)) return;
     const user = data.user;
-<<<<<<< HEAD
     if (!user || user.bot) return;
     if (!data.guild_id) return;
 
-=======
-    if (!user || user.bot) {
-      return;
-    }
-<<<<<<< HEAD
->>>>>>> 888f7dbbd (fix: process Discord DM reactions instead of silently dropping them)
     const guildInfo = resolveDiscordGuildEntry({
       guild: data.guild ?? undefined,
       guildEntries,
@@ -305,8 +284,6 @@ async function handleDiscordReactionEvent(params: {
     let parentId = "parentId" in channel ? (channel.parentId ?? undefined) : undefined;
     let parentName: string | undefined;
     let parentSlug = "";
-<<<<<<< HEAD
-=======
     const memberRoleIds = Array.isArray(data.rawMember?.roles)
       ? data.rawMember.roles.map((roleId: string) => String(roleId))
       : [];
@@ -469,7 +446,6 @@ async function handleDiscordReactionEvent(params: {
     }
 
     // Parallelize async operations for thread channels
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
     if (isThreadChannel) {
       if (!parentId) {
         const channelInfo = await resolveDiscordChannelInfo(client, data.channel_id);
@@ -480,8 +456,6 @@ async function handleDiscordReactionEvent(params: {
         parentName = parentInfo?.name;
         parentSlug = parentName ? normalizeDiscordSlug(parentName) : "";
       }
-<<<<<<< HEAD
-=======
       if (!isGuildReactionAllowed(channelConfig)) {
         return;
       }
@@ -493,7 +467,6 @@ async function handleDiscordReactionEvent(params: {
 
       emitReactionWithAuthor(message);
       return;
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
     }
     const channelConfig = resolveDiscordChannelConfigWithFallback({
       guildInfo,
@@ -505,18 +478,9 @@ async function handleDiscordReactionEvent(params: {
       parentSlug,
       scope: isThreadChannel ? "thread" : "channel",
     });
-<<<<<<< HEAD
     if (channelConfig?.allowed === false) return;
 
     if (botUserId && user.id === botUserId) return;
-=======
-    if (channelConfig?.allowed === false) {
-      return;
-    }
-    if (!isGuildReactionAllowed(channelConfig)) {
-      return;
-    }
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
 
     const reactionMode = guildInfo?.reactionNotifications ?? "own";
     const message = await data.message.fetch().catch(() => null);
@@ -556,12 +520,7 @@ async function handleDiscordReactionEvent(params: {
       accountId: params.accountId,
       guildId: data.guild_id ?? undefined,
 <<<<<<< HEAD
-<<<<<<< HEAD
       peer: { kind: "channel", id: data.channel_id },
-=======
-=======
-      memberRoleIds,
->>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
       peer: {
         kind: isDirectMessage ? "direct" : isGroupDm ? "group" : "channel",
         id: isDirectMessage ? user.id : data.channel_id,

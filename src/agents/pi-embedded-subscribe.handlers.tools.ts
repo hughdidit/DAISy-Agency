@@ -1,27 +1,12 @@
 import type { AgentEvent } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 =======
-=======
-import type {
-  PluginHookAfterToolCallEvent,
-  PluginHookBeforeToolCallEvent,
-} from "../plugins/types.js";
->>>>>>> d34138dfe (fix: dispatch before_tool_call and after_tool_call hooks from both tool execution paths (openclaw#15012) thanks @Patrick-Barletta)
-=======
 import type { PluginHookAfterToolCallEvent } from "../plugins/types.js";
-<<<<<<< HEAD
 >>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 >>>>>>> 8eb11bd30 (fix: wire before_tool_call hook into tool execution (#6570) (thanks @ryancnelson) (#6660))
-=======
-import type {
-  EmbeddedPiSubscribeContext,
-  ToolCallSummary,
-} from "./pi-embedded-subscribe.handlers.types.js";
->>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
@@ -38,8 +23,6 @@ import { inferToolMetaFromArgs } from "./pi-embedded-utils.js";
 import { buildToolMutationState, isSameToolMutationAction } from "./tool-mutation.js";
 import { normalizeToolName } from "./tool-policy.js";
 
-<<<<<<< HEAD
-=======
 /** Track tool execution start times and args for after_tool_call hook */
 const toolStartData = new Map<string, { startTime: number; args: unknown }>();
 
@@ -52,7 +35,6 @@ function buildToolCallSummary(toolName: string, args: unknown, meta?: string): T
   };
 }
 
->>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
 function extendExecMeta(toolName: string, args: unknown, meta?: string): string | undefined {
   const normalized = toolName.trim().toLowerCase();
   if (normalized !== "exec" && normalized !== "bash") return meta;
@@ -81,8 +63,6 @@ export async function handleToolExecutionStart(
   const toolCallId = String(evt.toolCallId);
   const args = evt.args;
 
-<<<<<<< HEAD
-=======
   // Track start time and args for after_tool_call hook
   toolStartData.set(toolCallId, { startTime: Date.now(), args });
 
@@ -101,7 +81,6 @@ export async function handleToolExecutionStart(
     }
   }
 
->>>>>>> d34138dfe (fix: dispatch before_tool_call and after_tool_call hooks from both tool execution paths (openclaw#15012) thanks @Patrick-Barletta)
 =======
 >>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
   if (toolName === "read") {
@@ -297,8 +276,6 @@ export async function handleToolExecutionEnd(
       ctx.emitToolOutput(toolName, meta, outputText);
     }
   }
-<<<<<<< HEAD
-=======
 
   // Deliver media from tool results when the verbose emitToolOutput path is off.
   // When shouldEmitToolOutput() is true, emitToolOutput already delivers media
@@ -340,5 +317,4 @@ export async function handleToolExecutionEnd(
   } else {
     toolStartData.delete(toolCallId);
   }
->>>>>>> d34138dfe (fix: dispatch before_tool_call and after_tool_call hooks from both tool execution paths (openclaw#15012) thanks @Patrick-Barletta)
 }

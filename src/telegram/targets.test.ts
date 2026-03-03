@@ -1,16 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { parseTelegramTarget, stripTelegramInternalPrefixes } from "./targets.js";
-=======
-import {
-  isNumericTelegramChatId,
-  normalizeTelegramChatId,
-  normalizeTelegramLookupTarget,
-  parseTelegramTarget,
-  stripTelegramInternalPrefixes,
-} from "./targets.js";
->>>>>>> dcc52850c (fix: persist resolved telegram delivery targets at runtime)
 
 describe("stripTelegramInternalPrefixes", () => {
   it("strips telegram prefix", () => {

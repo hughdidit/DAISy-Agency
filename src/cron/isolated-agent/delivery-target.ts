@@ -1,10 +1,6 @@
 import type { ChannelId } from "../../channels/plugins/types.js";
-<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
 import {
   loadSessionStore,
   resolveAgentMainSessionKey,
@@ -93,39 +89,7 @@ export async function resolveDeliveryTarget(
   }
 
   if (!toCandidate) {
-<<<<<<< HEAD
     return { channel, to: undefined, accountId: resolved.accountId, mode };
-=======
-    return {
-      channel,
-      to: undefined,
-      accountId,
-      threadId,
-      mode,
-      error: channelResolutionError,
-    };
-  }
-
-  let allowFromOverride: string[] | undefined;
-  if (channel === "whatsapp") {
-    const configuredAllowFromRaw = resolveWhatsAppAccount({ cfg, accountId }).allowFrom ?? [];
-    const configuredAllowFrom = configuredAllowFromRaw
-      .map((entry) => String(entry).trim())
-      .filter((entry) => entry && entry !== "*")
-      .map((entry) => normalizeWhatsAppTarget(entry))
-      .filter((entry): entry is string => Boolean(entry));
-    const storeAllowFrom = readChannelAllowFromStoreSync("whatsapp", process.env, accountId)
-      .map((entry) => normalizeWhatsAppTarget(entry))
-      .filter((entry): entry is string => Boolean(entry));
-    allowFromOverride = [...new Set([...configuredAllowFrom, ...storeAllowFrom])];
-
-    if (mode === "implicit" && allowFromOverride.length > 0) {
-      const normalizedCurrentTarget = normalizeWhatsAppTarget(toCandidate);
-      if (!normalizedCurrentTarget || !allowFromOverride.includes(normalizedCurrentTarget)) {
-        toCandidate = allowFromOverride[0];
-      }
-    }
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
   }
 
   const docked = resolveOutboundTarget({

@@ -5,14 +5,7 @@ import {
   createWriteTool,
   readTool,
 } from "@mariozechner/pi-coding-agent";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
-import { logWarn } from "../logger.js";
-import { getPluginToolMeta } from "../plugins/tools.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { resolveGatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveAgentConfig } from "./agent-scope.js";
@@ -24,14 +17,8 @@ import {
   type ProcessToolDefaults,
 } from "./bash-tools.js";
 import { listChannelAgentTools } from "./channel-tools.js";
-<<<<<<< HEAD
 import { createMoltbotTools } from "./moltbot-tools.js";
 import type { ModelAuthMode } from "./model-auth.js";
-=======
-import { resolveImageSanitizationLimits } from "./image-sanitization.js";
-import type { ModelAuthMode } from "./model-auth.js";
-import { createOpenClawTools } from "./openclaw-tools.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
 import { wrapToolWithBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
 import {
@@ -55,10 +42,7 @@ import {
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
-<<<<<<< HEAD
-=======
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import {
   buildPluginToolGroups,
   collectExplicitAllowlist,
@@ -97,12 +81,7 @@ function isApplyPatchAllowedForModel(params: {
   });
 }
 
-<<<<<<< HEAD
 function resolveExecConfig(cfg: MoltbotConfig | undefined) {
-=======
-function resolveExecConfig(params: { cfg?: OpenClawConfig; agentId?: string }) {
-  const cfg = params.cfg;
->>>>>>> 3b5a9c14d (Fix: Preserve Per-Agent Exec Override After Session Compaction (#15833))
   const globalExec = cfg?.tools?.exec;
   const agentExec =
     cfg && params.agentId ? resolveAgentConfig(cfg, params.agentId)?.tools?.exec : undefined;
@@ -383,7 +362,6 @@ export function createMoltbotCodingTools(options?: {
       senderIsOwner: options?.senderIsOwner,
     }),
   ];
-<<<<<<< HEAD
   const coreToolNames = new Set(
     tools
       .filter((tool) => !getPluginToolMeta(tool as AnyAgentTool))
@@ -393,34 +371,6 @@ export function createMoltbotCodingTools(options?: {
   const pluginGroups = buildPluginToolGroups({
     tools,
     toolMeta: (tool) => getPluginToolMeta(tool as AnyAgentTool),
-=======
-  const toolsForMessageProvider = isVoiceMessageProvider
-    ? tools.filter((tool) => tool.name !== "tts")
-    : tools;
-  // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)
-  const senderIsOwner = options?.senderIsOwner === true;
-  const toolsByAuthorization = applyOwnerOnlyToolPolicy(toolsForMessageProvider, senderIsOwner);
-  const subagentFiltered = applyToolPolicyPipeline({
-    tools: toolsByAuthorization,
-    toolMeta: (tool) => getPluginToolMeta(tool),
-    warn: logWarn,
-    steps: [
-      ...buildDefaultToolPolicyPipelineSteps({
-        profilePolicy: profilePolicyWithAlsoAllow,
-        profile,
-        providerProfilePolicy: providerProfilePolicyWithAlsoAllow,
-        providerProfile,
-        globalPolicy,
-        globalProviderPolicy,
-        agentPolicy,
-        agentProviderPolicy,
-        groupPolicy,
-        agentId,
-      }),
-      { policy: sandbox?.tools, label: "sandbox tools.allow" },
-      { policy: subagentPolicy, label: "subagent tools.allow" },
-    ],
->>>>>>> 8f8e2b13b (fix: disable tts tool for voice provider)
   });
   const resolvePolicy = (policy: typeof profilePolicy, label: string) => {
     const resolved = stripPluginOnlyAllowlist(policy, pluginGroups, coreToolNames);

@@ -44,7 +44,6 @@ export async function downloadInboundMedia(
   sock: Awaited<ReturnType<typeof createWaSocket>>,
 ): Promise<{ buffer: Buffer; mimetype?: string; fileName?: string } | undefined> {
   const message = unwrapMessage(msg.message as proto.IMessage | undefined);
-<<<<<<< HEAD
   if (!message) return undefined;
   const mimetype =
     message.imageMessage?.mimetype ??
@@ -53,12 +52,6 @@ export async function downloadInboundMedia(
     message.audioMessage?.mimetype ??
     message.stickerMessage?.mimetype ??
     undefined;
-=======
-  if (!message) {
-    return undefined;
-  }
-  const mimetype = resolveMediaMimetype(message);
->>>>>>> 186dc0363 (fix: default MIME type for WhatsApp voice messages when Baileys omits it (#14444))
   const fileName = message.documentMessage?.fileName ?? undefined;
   if (
     !message.imageMessage &&
@@ -78,13 +71,8 @@ export async function downloadInboundMedia(
         reuploadRequest: sock.updateMediaMessage,
         logger: sock.logger,
       },
-<<<<<<< HEAD
     )) as Buffer;
     return { buffer, mimetype };
-=======
-    );
-    return { buffer, mimetype, fileName };
->>>>>>> 1cee5135e (fix: preserve original filename for WhatsApp inbound documents (#12691))
   } catch (err) {
     logVerbose(`downloadMediaMessage failed: ${String(err)}`);
     return undefined;

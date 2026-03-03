@@ -59,8 +59,6 @@ describe("extractTextFromMessage", () => {
 
     expect(text).toBe("[thinking]\nponder\n\nhello");
   });
-<<<<<<< HEAD
-=======
 
   it("sanitizes ANSI and control chars from string content", () => {
     const text = extractTextFromMessage({
@@ -130,7 +128,6 @@ Assistant body`,
     );
   });
 <<<<<<< HEAD
->>>>>>> d94d21f9b (test: isolate local media regression fixtures to allowed roots (#22369))
 =======
 
   it("strips trailing untrusted context metadata suffix blocks for user messages", () => {
@@ -199,8 +196,6 @@ describe("isCommandMessage", () => {
     expect(isCommandMessage({})).toBe(false);
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("sanitizeRenderableText", () => {
   it("breaks very long unbroken tokens to avoid overflow", () => {
@@ -219,4 +214,3 @@ describe("sanitizeRenderableText", () => {
     expect(longestSegment).toBeLessThanOrEqual(32);
   });
 });
->>>>>>> 7572070f4 (chore (tui): add sanitizer regressions for narrow width safety)

@@ -1,11 +1,8 @@
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-=======
->>>>>>> 23cfcd60d (Fix build regressions after merge)
 import type { DatabaseSync } from "node:sqlite";
 import chokidar, { type FSWatcher } from "chokidar";
 import { randomUUID } from "node:crypto";
@@ -13,28 +10,12 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
-<<<<<<< HEAD
 import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type {
-  MemoryEmbeddingProbeResult,
-  MemoryProviderStatus,
-  MemorySearchManager,
-  MemorySearchResult,
-  MemorySource,
-  MemorySyncProgressUpdate,
-} from "./types.js";
-import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
-import { resolveMemorySearchConfig } from "../agents/memory-search.js";
->>>>>>> 23cfcd60d (Fix build regressions after merge)
 import { resolveSessionTranscriptsDirForAgent } from "../config/sessions/paths.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { onSessionTranscriptUpdate } from "../sessions/transcript-events.js";
 import { resolveUserPath } from "../utils.js";
-<<<<<<< HEAD
-=======
 import { runGeminiEmbeddingBatches, type GeminiBatchRequest } from "./batch-gemini.js";
 import {
   OPENAI_BATCH_ENDPOINT,
@@ -43,7 +24,6 @@ import {
 } from "./batch-openai.js";
 import { DEFAULT_GEMINI_EMBEDDING_MODEL } from "./embeddings-gemini.js";
 import { DEFAULT_OPENAI_EMBEDDING_MODEL } from "./embeddings-openai.js";
->>>>>>> 23cfcd60d (Fix build regressions after merge)
 import {
   createEmbeddingProvider,
   type EmbeddingProvider,
@@ -51,7 +31,6 @@ import {
   type GeminiEmbeddingClient,
   type OpenAiEmbeddingClient,
 } from "./embeddings.js";
-<<<<<<< HEAD
 import { DEFAULT_GEMINI_EMBEDDING_MODEL } from "./embeddings-gemini.js";
 import { DEFAULT_OPENAI_EMBEDDING_MODEL } from "./embeddings-openai.js";
 import {
@@ -60,9 +39,6 @@ import {
   runOpenAiEmbeddingBatches,
 } from "./batch-openai.js";
 import { runGeminiEmbeddingBatches, type GeminiBatchRequest } from "./batch-gemini.js";
-=======
-import { bm25RankToScore, buildFtsQuery, mergeHybridResults } from "./hybrid.js";
->>>>>>> 23cfcd60d (Fix build regressions after merge)
 import {
   buildFileEntry,
   chunkMarkdown,
@@ -74,13 +50,9 @@ import {
   type MemoryChunk,
   type MemoryFileEntry,
   parseEmbedding,
-<<<<<<< HEAD
-=======
   remapChunkLines,
   runWithConcurrency,
->>>>>>> 45488e4ec (fix: remap session JSONL chunk line numbers to original source positions (#12102))
 } from "./internal.js";
-<<<<<<< HEAD
 import { bm25RankToScore, buildFtsQuery, mergeHybridResults } from "./hybrid.js";
 import { searchKeyword, searchVector } from "./manager-search.js";
 import { ensureMemoryIndexSchema } from "./memory-schema.js";
@@ -97,18 +69,6 @@ export type MemorySearchResult = {
   snippet: string;
   source: MemorySource;
 };
-=======
-import { searchKeyword, searchVector } from "./manager-search.js";
-import { ensureMemoryIndexSchema } from "./memory-schema.js";
-import {
-  buildSessionEntry,
-  listSessionFilesForAgent,
-  sessionPathForFile,
-  type SessionFileEntry,
-} from "./session-files.js";
-import { loadSqliteVecExtension } from "./sqlite-vec.js";
-import { requireNodeSqlite } from "./sqlite.js";
->>>>>>> 23cfcd60d (Fix build regressions after merge)
 
 type MemoryIndexMeta = {
   model: string;
@@ -119,7 +79,6 @@ type MemoryIndexMeta = {
   vectorDims?: number;
 };
 
-<<<<<<< HEAD
 type SessionFileEntry = {
   path: string;
   absPath: string;
@@ -135,8 +94,6 @@ type MemorySyncProgressUpdate = {
   label?: string;
 };
 
-=======
->>>>>>> 45488e4ec (fix: remap session JSONL chunk line numbers to original source positions (#12102))
 type MemorySyncProgressState = {
   completed: number;
   total: number;
@@ -177,15 +134,9 @@ export class MemoryIndexManager {
   private readonly agentId: string;
   private readonly workspaceDir: string;
   private readonly settings: ResolvedMemorySearchConfig;
-<<<<<<< HEAD
   private provider: EmbeddingProvider;
   private readonly requestedProvider: "openai" | "local" | "gemini" | "auto";
   private fallbackFrom?: "openai" | "local" | "gemini";
-=======
-  private provider: EmbeddingProvider | null;
-  private readonly requestedProvider: "openai" | "local" | "gemini" | "voyage" | "auto";
-  private fallbackFrom?: "openai" | "local" | "gemini" | "voyage";
->>>>>>> 65aedac20 (fix: enable FTS fallback when no embedding provider available (#17725))
   private fallbackReason?: string;
   private readonly providerUnavailableReason?: string;
   private openAi?: OpenAiEmbeddingClient;
@@ -512,13 +463,7 @@ export class MemoryIndexManager {
       for (const additionalPath of additionalPaths) {
         try {
           const stat = await fs.lstat(additionalPath);
-<<<<<<< HEAD
           if (stat.isSymbolicLink()) continue;
-=======
-          if (stat.isSymbolicLink()) {
-            continue;
-          }
->>>>>>> 23cfcd60d (Fix build regressions after merge)
           if (stat.isDirectory()) {
             if (absPath === additionalPath || absPath.startsWith(`${additionalPath}${path.sep}`)) {
               allowedAdditional = true;
@@ -707,18 +652,7 @@ export class MemoryIndexManager {
     return this.ensureVectorReady();
   }
 
-<<<<<<< HEAD
   async probeEmbeddingAvailability(): Promise<{ ok: boolean; error?: string }> {
-=======
-  async probeEmbeddingAvailability(): Promise<MemoryEmbeddingProbeResult> {
-    // FTS-only mode: embeddings not available but search still works
-    if (!this.provider) {
-      return {
-        ok: false,
-        error: this.providerUnavailableReason ?? "No embedding provider available (FTS-only mode)",
-      };
-    }
->>>>>>> 65aedac20 (fix: enable FTS fallback when no embedding provider available (#17725))
     try {
       await this.embedBatchWithRetry(["ping"]);
       return { ok: true };
@@ -957,13 +891,7 @@ export class MemoryIndexManager {
   }
 
   private ensureWatcher() {
-<<<<<<< HEAD
     if (!this.sources.has("memory") || !this.settings.sync.watch || this.watcher) return;
-=======
-    if (!this.sources.has("memory") || !this.settings.sync.watch || this.watcher) {
-      return;
-    }
->>>>>>> 23cfcd60d (Fix build regressions after merge)
     const additionalPaths = normalizeExtraMemoryPaths(this.workspaceDir, this.settings.extraPaths)
       .map((entry) => {
         try {

@@ -80,16 +80,9 @@ LOGINCTL
   fi
   npm install -g --prefix /tmp/npm-prefix "/app/$pkg_tgz"
 
-<<<<<<< HEAD
   npm_bin="/tmp/npm-prefix/bin/moltbot"
   npm_entry="/tmp/npm-prefix/lib/node_modules/moltbot/moltbot.mjs"
   git_entry="/app/moltbot.mjs"
-=======
-  npm_bin="/tmp/npm-prefix/bin/openclaw"
-  npm_entry="/tmp/npm-prefix/lib/node_modules/openclaw/dist/index.js"
-  git_entry="/app/dist/index.js"
-  git_cli="/app/openclaw.mjs"
->>>>>>> f9fae2c43 (fix: stabilize docker e2e flows)
 
   assert_entrypoint() {
     local unit_path="$1"

@@ -1,13 +1,4 @@
-<<<<<<< HEAD
 import { getOAuthApiKey, type OAuthCredentials, type OAuthProvider } from "@mariozechner/pi-ai";
-=======
-import {
-  getOAuthApiKey,
-  getOAuthProviders,
-  type OAuthCredentials,
-  type OAuthProvider,
-} from "@mariozechner/pi-ai";
->>>>>>> bcde2fca5 (fix: align embedded agent session setup)
 import lockfile from "proper-lockfile";
 
 import type { MoltbotConfig } from "../../config/config.js";
@@ -24,15 +15,10 @@ const OAUTH_PROVIDER_IDS = new Set<OAuthProvider>(
   getOAuthProviders().map((provider) => provider.id),
 );
 
-<<<<<<< HEAD
 function isOAuthProvider(provider: string): provider is OAuthProvider {
   // biome-ignore lint/suspicious/noExplicitAny: type guard needs runtime check
   return OAUTH_PROVIDER_IDS.has(provider as any);
 }
-=======
-const isOAuthProvider = (provider: string): provider is OAuthProvider =>
-  OAUTH_PROVIDER_IDS.has(provider as OAuthProvider);
->>>>>>> 34dd7324d (fix: restore lint/build gates)
 
 const resolveOAuthProvider = (provider: string): OAuthProvider | null =>
   isOAuthProvider(provider) ? provider : null;
@@ -88,21 +74,8 @@ async function refreshOAuthTokenWithLock(params: {
               const newCredentials = await refreshQwenPortalCredentials(cred);
               return { apiKey: newCredentials.access, newCredentials };
             })()
-<<<<<<< HEAD
           : await getOAuthApiKey(cred.provider as OAuthProvider, oauthCreds);
     if (!result) return null;
-=======
-          : await (async () => {
-              const oauthProvider = resolveOAuthProvider(cred.provider);
-              if (!oauthProvider) {
-                return null;
-              }
-              return await getOAuthApiKey(oauthProvider, oauthCreds);
-            })();
-    if (!result) {
-      return null;
-    }
->>>>>>> bcde2fca5 (fix: align embedded agent session setup)
     store.profiles[params.profileId] = {
       ...cred,
       ...result.newCredentials,

@@ -2,12 +2,8 @@ import { setCliSessionId } from "../../agents/cli-session.js";
 import { lookupContextTokens } from "../../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
 import { isCliProvider } from "../../agents/model-selection.js";
-<<<<<<< HEAD
 import { hasNonzeroUsage } from "../../agents/usage.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { deriveSessionTotalTokens, hasNonzeroUsage } from "../../agents/usage.js";
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
 import { type SessionEntry, updateSessionStore } from "../../config/sessions.js";
 
 type RunResult = Awaited<

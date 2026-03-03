@@ -89,8 +89,6 @@ function isInstructionsRequiredError(raw: string): boolean {
   return /instructions are required/i.test(raw);
 }
 
-<<<<<<< HEAD
-=======
 function isModelTimeoutError(raw: string): boolean {
   return /model call timed out after \d+ms/i.test(raw);
 }
@@ -105,7 +103,6 @@ function isProviderUnavailableErrorMessage(raw: string): boolean {
   );
 }
 
->>>>>>> 146c92069 (fix: stabilize live docker test handling)
 function toInt(value: string | undefined, fallback: number): number {
   const trimmed = value?.trim();
   if (!trimmed) return fallback;
@@ -490,8 +487,6 @@ describeLive("live models (profile keys)", () => {
               logProgress(`${progressLabel}: skip (instructions required)`);
               break;
             }
-<<<<<<< HEAD
-=======
             if (allowNotFoundSkip && isModelTimeoutError(message)) {
               skipped.push({ model: id, reason: message });
               logProgress(`${progressLabel}: skip (timeout)`);
@@ -502,7 +497,6 @@ describeLive("live models (profile keys)", () => {
               logProgress(`${progressLabel}: skip (provider unavailable)`);
               break;
             }
->>>>>>> 146c92069 (fix: stabilize live docker test handling)
             logProgress(`${progressLabel}: failed`);
             failures.push({ model: id, error: message });
             break;

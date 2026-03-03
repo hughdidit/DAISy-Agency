@@ -32,8 +32,6 @@ export type PluginUpdateOptions = {
   dryRun?: boolean;
 };
 
-<<<<<<< HEAD
-=======
 export type PluginUninstallOptions = {
   keepFiles?: boolean;
   keepConfig?: boolean;
@@ -69,7 +67,6 @@ function resolveFileNpmSpecToLocalPath(
   return { ok: true, path: rest };
 }
 
->>>>>>> 981d57213 (fix: support file: npm specs in plugin install)
 function formatPluginLine(plugin: PluginRecord, verbose = false): string {
   const status =
     plugin.status === "loaded"

@@ -79,7 +79,6 @@ describe("jidToE164", () => {
   it("maps @lid using reverse mapping file", () => {
     const mappingPath = path.join(CONFIG_DIR, "credentials", "lid-mapping-123_reverse.json");
     const original = fs.readFileSync;
-<<<<<<< HEAD
     const spy = vi
       .spyOn(fs, "readFileSync")
       // biome-ignore lint/suspicious/noExplicitAny: forwarding to native signature
@@ -87,14 +86,6 @@ describe("jidToE164", () => {
         if (path === mappingPath) return `"5551234"`;
         return original(path, encoding);
       });
-=======
-    const spy = vi.spyOn(fs, "readFileSync").mockImplementation((...args) => {
-      if (args[0] === mappingPath) {
-        return `"5551234"`;
-      }
-      return original(...args);
-    });
->>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
     expect(jidToE164("123@lid")).toBe("+5551234");
     spy.mockRestore();
   });
@@ -144,8 +135,6 @@ describe("resolveConfigDir", () => {
   });
 });
 
-<<<<<<< HEAD
-=======
 describe("resolveHomeDir", () => {
   it("prefers OPENCLAW_HOME over HOME", () => {
     vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
@@ -183,7 +172,6 @@ describe("shortenHomeInString", () => {
   });
 });
 
->>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
 describe("resolveJidToE164", () => {
   it("resolves @lid via lidLookup when mapping file is missing", async () => {
     const lidLookup = {

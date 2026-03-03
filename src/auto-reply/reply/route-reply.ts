@@ -57,13 +57,6 @@ export type RouteReplyResult = {
 export async function routeReply(params: RouteReplyParams): Promise<RouteReplyResult> {
   const { payload, channel, to, accountId, threadId, cfg, abortSignal } = params;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  if (payload.isReasoning) {
-    return { ok: true };
-  }
->>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
   const normalizedChannel = normalizeMessageChannel(channel);
   const resolvedAgentId = params.sessionKey
     ? resolveSessionAgentId({
@@ -77,15 +70,10 @@ export async function routeReply(params: RouteReplyParams): Promise<RouteReplyRe
   const responsePrefix = params.sessionKey
     ? resolveEffectiveMessagesConfig(
         cfg,
-<<<<<<< HEAD
         resolveSessionAgentId({
           sessionKey: params.sessionKey,
           config: cfg,
         }),
-=======
-        resolvedAgentId ?? resolveSessionAgentId({ config: cfg }),
-        { channel: normalizedChannel, accountId },
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
       ).responsePrefix
     : cfg.messages?.responsePrefix === "auto"
       ? undefined

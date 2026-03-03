@@ -3,17 +3,10 @@
    =========================================== */
 
 .shell {
-<<<<<<< HEAD
   --shell-pad: 16px;
   --shell-gap: 16px;
   --shell-nav-width: 220px;
   --shell-topbar-height: 56px;
-=======
-  --shell-pad: 12px;
-  --shell-gap: 12px;
-  --shell-nav-width: 220px;
-  --shell-topbar-height: 52px;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   --shell-focus-duration: 200ms;
   --shell-focus-ease: var(--ease-out);
   height: 100vh;
@@ -84,13 +77,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-<<<<<<< HEAD
   gap: 16px;
   padding: 0 20px;
-=======
-  gap: 10px;
-  padding: 0 16px;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   height: var(--shell-topbar-height);
   border-bottom: 1px solid var(--border);
   background: var(--bg);
@@ -102,7 +90,6 @@
   gap: 12px;
 }
 
-<<<<<<< HEAD
 .topbar .nav-collapse-toggle {
   width: 36px;
   height: 36px;
@@ -111,96 +98,6 @@
 
 .topbar .nav-collapse-toggle__icon {
   width: 20px;
-=======
-.dashboard-header__breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  min-width: 0;
-}
-
-.dashboard-header__breadcrumb-link {
-  color: var(--muted);
-  text-decoration: none;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.dashboard-header__breadcrumb-link:hover {
-  color: var(--text);
-}
-
-.dashboard-header__breadcrumb-sep {
-  color: var(--muted);
-  opacity: 0.5;
-}
-
-.dashboard-header__breadcrumb-current {
-  color: var(--text);
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dashboard-header__actions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* --- Center: Search / Command Palette Trigger --- */
-
-.topbar-search {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  min-width: 160px;
-  max-width: 280px;
-  flex: 1;
-  height: 30px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--secondary) 60%, transparent);
-  color: var(--muted);
-  font-size: 12px;
-  font-family: var(--font-body);
-  cursor: pointer;
-  transition:
-    border-color 180ms ease,
-    background 180ms ease,
-    box-shadow 180ms ease;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.topbar-search:hover {
-  border-color: var(--border-strong);
-  background: color-mix(in srgb, var(--secondary) 85%, transparent);
-}
-
-.topbar-search:focus-visible {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-subtle);
-}
-
-.topbar-search__label {
-  flex: 1;
-  text-align: left;
-  pointer-events: none;
-}
-
-.topbar-search__kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1px 6px;
-  min-width: 22px;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   height: 20px;
 }
 
@@ -255,7 +152,6 @@
 .topbar-status {
   display: flex;
   align-items: center;
-<<<<<<< HEAD
   gap: 8px;
 }
 
@@ -263,12 +159,6 @@
   padding: 6px 10px;
   gap: 6px;
   font-size: 12px;
-=======
-  gap: 5px;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-  font-size: 11px;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   font-weight: 500;
   height: 32px;
   box-sizing: border-box;
@@ -286,7 +176,6 @@
   height: 6px;
 }
 
-<<<<<<< HEAD
 .topbar-status .theme-toggle {
   --theme-item: 24px;
   --theme-gap: 2px;
@@ -296,90 +185,14 @@
 .topbar-status .theme-icon {
   width: 12px;
   height: 12px;
-=======
-.topbar-connection:not(.topbar-connection--ok) .topbar-connection__dot {
-  animation: pulse-subtle 2s ease-in-out infinite;
-}
-
-.topbar-connection__label {
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  line-height: 1;
-}
-
-/* Redact / stream-mode toggle */
-
-.topbar-redact {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: var(--radius);
-  background: none;
-  color: var(--muted);
-  cursor: pointer;
-  transition:
-    color 180ms ease,
-    background 180ms ease,
-    border-color 180ms ease;
-  flex-shrink: 0;
-}
-
-.topbar-redact svg {
-  width: 12px;
-  height: 12px;
-}
-
-.topbar-redact:hover {
-  color: var(--text);
-  background: color-mix(in srgb, var(--secondary) 80%, transparent);
-  border-color: var(--border);
-}
-
-.topbar-redact--active {
-  color: var(--warn);
-}
-
-.topbar-redact--active:hover {
-  color: var(--warn);
-  background: var(--warn-subtle);
-  border-color: color-mix(in srgb, var(--warn) 30%, transparent);
-}
-
-/* Topbar theme select sizing */
-
-.topbar-status .theme-select {
-  height: 26px;
-  min-width: 82px;
-  font-size: 11px;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 }
 
 /* ===========================================
    Navigation Sidebar
    =========================================== */
 
-<<<<<<< HEAD
 .nav {
   grid-area: nav;
-=======
-.shell-nav {
-  grid-area: nav;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  position: relative;
-}
-
-.sidebar {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   overflow-y: auto;
   overflow-x: hidden;
   padding: 16px 12px;
@@ -396,7 +209,6 @@
   display: none; /* Chrome/Safari */
 }
 
-<<<<<<< HEAD
 .shell--chat-focus .nav {
   width: 0;
   padding: 0;
@@ -420,170 +232,6 @@
 .nav-collapse-toggle {
   width: 32px;
   height: 32px;
-=======
-.shell--chat-focus .sidebar,
-.shell--chat-focus .sidebar-resizer {
-  display: none;
-}
-
-.sidebar--collapsed {
-  align-items: center;
-}
-
-.sidebar--collapsed .sidebar-header {
-  justify-content: center;
-  padding: 10px 8px;
-  min-height: 54px;
-}
-
-.sidebar--collapsed .nav-group__items {
-  padding: 4px 0;
-  align-items: center;
-}
-
-.sidebar--collapsed .nav-item {
-  margin: 0;
-  padding: 10px;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-}
-
-.sidebar--collapsed .nav-item__icon {
-  width: 22px;
-  height: 22px;
-  opacity: 0.85;
-}
-
-.sidebar--collapsed .nav-item__icon svg {
-  width: 22px;
-  height: 22px;
-  stroke-width: 1.75px;
-}
-
-.sidebar--collapsed .nav-item--active {
-  border-left: 0;
-}
-
-.sidebar--collapsed .nav-item--active::before {
-  background:
-    radial-gradient(
-      ellipse 120% 28px at 50% -2px,
-      color-mix(in srgb, var(--accent) 38%, transparent) 0%,
-      color-mix(in srgb, var(--accent) 14%, transparent) 40%,
-      transparent 100%
-    ),
-    radial-gradient(
-      ellipse 60% 100% at -4px 50%,
-      color-mix(in srgb, var(--accent) 28%, transparent) 0%,
-      transparent 70%
-    );
-}
-
-.sidebar--collapsed .sidebar-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px 0;
-}
-
-.sidebar--collapsed .sidebar-footer .nav-item {
-  margin: 0;
-  padding: 10px;
-  width: 44px;
-  height: 44px;
-}
-
-/* Sidebar resizer handle */
-.sidebar-resizer {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  cursor: col-resize;
-  z-index: 10;
-  flex-shrink: 0;
-  /* Hit area extends beyond visible handle for easier grabbing */
-  margin-right: -3px;
-}
-
-.sidebar-resizer::before {
-  content: "";
-  position: absolute;
-  left: 2px;
-  top: 20%;
-  bottom: 20%;
-  width: 2px;
-  border-radius: 1px;
-  background: var(--glass-border);
-  transition: background 0.15s ease;
-}
-
-.sidebar-resizer:hover::before,
-.sidebar-resizer:active::before {
-  background: var(--glass-border-hover);
-}
-
-/* Sidebar header (brand + collapse) */
-.sidebar-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 10px 8px;
-  gap: 8px;
-  flex-shrink: 0;
-  min-height: 54px;
-}
-
-.sidebar-brand {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-height: 28px;
-
-  padding-left: 10px;
-  padding-right: 10px;
-
-  @media (max-width: 1100px) {
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
-
-.sidebar-brand__logo {
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-  object-fit: contain;
-}
-
-.sidebar-brand__title {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  color: var(--text-strong);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-.sidebar-collapse-btn {
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
-
-  @media (max-width: 1100px) {
-    flex: 0 0 28px;
-    width: 28px;
-    height: 28px;
-  }
-
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   display: flex;
   align-items: center;
   justify-content: center;
@@ -759,44 +407,11 @@
   background: var(--accent-subtle);
 }
 
-<<<<<<< HEAD
 .nav-item.active .nav-item__icon {
-=======
-.nav-item--active::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    ellipse 28px 120% at -2px 50%,
-    color-mix(in srgb, var(--accent) 38%, transparent) 0%,
-    color-mix(in srgb, var(--accent) 14%, transparent) 40%,
-    transparent 100%
-  );
-  opacity: 0;
-  animation: nav-glow-in 0.4s ease-out 0.05s forwards;
-  pointer-events: none;
-}
-
-@keyframes nav-glow-in {
-  from {
-    opacity: 0;
-    transform: translateX(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.nav-item--active .nav-item__icon {
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   opacity: 1;
   color: var(--accent);
 }
 
-<<<<<<< HEAD
-=======
 /* Sidebar footer — aligned with chat compose bar */
 .sidebar-footer {
   padding: 14px 8px 6px;
@@ -833,43 +448,26 @@
   opacity: 0.4;
 }
 
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 /* ===========================================
    Content Area
    =========================================== */
 
 .content {
   grid-area: content;
-<<<<<<< HEAD
   padding: 12px 16px 32px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-=======
-  padding: 12px 14px 24px;
-  display: block;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-<<<<<<< HEAD
 :root[data-theme="light"] .content {
   background: var(--bg-content);
 }
 
 .content--chat {
-=======
-.content > * + * {
-  margin-top: 18px;
-}
-
-.content--chat {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   overflow: hidden;
   padding-bottom: 0;
 }
@@ -879,15 +477,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-<<<<<<< HEAD
   gap: 16px;
   padding: 4px 8px;
-=======
-  gap: 10px;
-  height: 36px;
-  min-height: 36px;
-  padding: 0;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   overflow: hidden;
   transform-origin: top center;
   transition:
@@ -895,11 +486,7 @@
     transform var(--shell-focus-duration) var(--shell-focus-ease),
     max-height var(--shell-focus-duration) var(--shell-focus-ease),
     padding var(--shell-focus-duration) var(--shell-focus-ease);
-<<<<<<< HEAD
   max-height: 80px;
-=======
-  max-height: 36px;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 }
 
 .shell--chat-focus .content-header {
@@ -911,31 +498,18 @@
 }
 
 .page-title {
-<<<<<<< HEAD
   font-size: 26px;
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.15;
-=======
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.25;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   color: var(--text-strong);
 }
 
 .page-sub {
   color: var(--muted);
-<<<<<<< HEAD
   font-size: 14px;
   font-weight: 400;
   margin-top: 6px;
-=======
-  font-size: 12px;
-  font-weight: 400;
-  margin-top: 1px;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   letter-spacing: -0.01em;
 }
 
@@ -949,11 +523,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-<<<<<<< HEAD
   gap: 16px;
-=======
-  gap: 10px;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 }
 
 .content--chat .content-header > div:first-child {
@@ -1085,7 +655,6 @@
 
 @media (max-width: 1100px) {
   .shell {
-<<<<<<< HEAD
     --shell-pad: 12px;
     --shell-gap: 12px;
     grid-template-columns: 1fr;
@@ -1117,11 +686,6 @@
   .grid-cols-2,
   .grid-cols-3 {
     grid-template-columns: 1fr;
-=======
-    --shell-pad: 10px;
-    --shell-gap: 10px;
-    --shell-nav-width: 200px;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   }
 
   .topbar {

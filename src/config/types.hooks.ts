@@ -114,8 +114,6 @@ export type HooksConfig = {
   enabled?: boolean;
   path?: string;
   token?: string;
-<<<<<<< HEAD
-=======
   /**
    * Default session key used for hook agent runs when no request/mapping session key is used.
    * If omitted, OpenClaw generates `hook:<uuid>` per request.
@@ -136,7 +134,6 @@ export type HooksConfig = {
    * Omit or include `*` to allow any agent. Set `[]` to deny all explicit `agentId` routing.
    */
   allowedAgentIds?: string[];
->>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
   maxBodyBytes?: number;
   presets?: string[];
   transformsDir?: string;

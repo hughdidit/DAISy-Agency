@@ -418,19 +418,10 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     const hasControlCommand = core.channel.text.hasControlCommand(rawText, cfg);
     const isControlCommand = allowTextCommands && hasControlCommand;
     const useAccessGroups = cfg.commands?.useAccessGroups !== false;
-<<<<<<< HEAD
     const senderAllowedForCommands = isSenderAllowed({
       senderId,
       senderName,
       allowFrom: effectiveAllowFrom,
-=======
-    const commandDmAllowFrom = kind === "direct" ? effectiveAllowFrom : normalizedAllowFrom;
-    const senderAllowedForCommands = isMattermostSenderAllowed({
-      senderId,
-      senderName,
-      allowFrom: commandDmAllowFrom,
-      allowNameMatching,
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
     });
     const groupAllowedForCommands = isSenderAllowed({
       senderId,
@@ -449,12 +440,8 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
       allowTextCommands,
       hasControlCommand,
     });
-<<<<<<< HEAD
     const commandAuthorized =
       kind === "dm" ? dmPolicy === "open" || senderAllowedForCommands : commandGate.commandAuthorized;
-=======
-    const commandAuthorized = commandGate.commandAuthorized;
->>>>>>> dc6e4a5b1 (fix: harden dm command authorization in open mode)
 
     if (kind === "dm") {
       if (dmPolicy === "disabled") {
@@ -800,7 +787,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         onCleanup: typingCallbacks.onCleanup,
       });
 
-<<<<<<< HEAD
     await core.channel.reply.dispatchReplyFromConfig({
       ctx: ctxPayload,
       cfg,
@@ -815,39 +801,9 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     markDispatchIdle();
     if (historyKey) {
       clearHistoryEntriesIfEnabled({ historyMap: channelHistories, historyKey, limit: historyLimit });
-=======
-    try {
-      await core.channel.reply.dispatchReplyFromConfig({
-        ctx: ctxPayload,
-        cfg,
-        dispatcher,
-        replyOptions: {
-          ...replyOptions,
-          disableBlockStreaming:
-            typeof account.blockStreaming === "boolean" ? !account.blockStreaming : undefined,
-          onModelSelected,
-        },
-      });
-      if (historyKey) {
-        clearHistoryEntriesIfEnabled({
-          historyMap: channelHistories,
-          historyKey,
-          limit: historyLimit,
-        });
-      }
-    } finally {
-      dispatcher.markComplete();
-      try {
-        await dispatcher.waitForIdle();
-      } finally {
-        markDispatchIdle();
-      }
->>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
     }
   };
 
-<<<<<<< HEAD
-=======
   const handleReactionEvent = async (payload: MattermostEventPayload) => {
     const reactionData = payload.data?.reaction;
     if (!reactionData) {
@@ -990,7 +946,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     );
   };
 
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
   const inboundDebounceMs = core.channel.debounce.resolveInboundDebounceMs({
     cfg,
     channel: "mattermost",

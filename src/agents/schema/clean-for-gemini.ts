@@ -307,7 +307,6 @@ function cleanSchemaForGeminiWithDefs(
     }
   }
 
-<<<<<<< HEAD
   // Cloud Code Assist API also rejects anyOf/oneOf in nested schemas.
   // If simplifyUnionVariants couldn't reduce the union above, flatten it
   // here as a fallback: pick the first variant's type or use a permissive
@@ -364,23 +363,6 @@ function cleanSchemaForGeminiWithDefs(
     const merged: Record<string, unknown> = {};
     copySchemaMeta(cleaned, merged);
     return merged;
-=======
-  // Cloud Code Assist API rejects anyOf/oneOf in nested schemas even after
-  // simplifyUnionVariants runs above. Flatten remaining unions as a fallback:
-  // pick the common type or use the first variant's type so the tool
-  // declaration is accepted by Google's validation layer.
-  if (cleaned.anyOf && Array.isArray(cleaned.anyOf)) {
-    const flattened = flattenUnionFallback(cleaned, cleaned.anyOf);
-    if (flattened) {
-      return flattened;
-    }
-  }
-  if (cleaned.oneOf && Array.isArray(cleaned.oneOf)) {
-    const flattened = flattenUnionFallback(cleaned, cleaned.oneOf);
-    if (flattened) {
-      return flattened;
-    }
->>>>>>> 00b98a368 (fix: flatten nested anyOf/oneOf in Gemini schema cleaning (openclaw#22825) thanks @Oceanswave)
   }
 
   return cleaned;

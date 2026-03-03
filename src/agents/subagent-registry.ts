@@ -25,15 +25,12 @@ export type SubagentRunRecord = {
   archiveAtMs?: number;
   cleanupCompletedAt?: number;
   cleanupHandled?: boolean;
-<<<<<<< HEAD
-=======
   suppressAnnounceReason?: "steer-restart" | "killed";
   expectsCompletionMessage?: boolean;
   /** Number of times announce delivery has been attempted and returned false (deferred). */
   announceRetryCount?: number;
   /** Timestamp of the last announce retry attempt (for backoff). */
   lastAnnounceRetryAt?: number;
->>>>>>> e2dd827ca (fix: guarantee manual subagent spawn sends completion message)
 };
 
 const subagentRuns = new Map<string, SubagentRunRecord>();
@@ -43,8 +40,6 @@ let listenerStop: (() => void) | null = null;
 // Use var to avoid TDZ when init runs across circular imports during bootstrap.
 var restoreAttempted = false;
 const SUBAGENT_ANNOUNCE_TIMEOUT_MS = 120_000;
-<<<<<<< HEAD
-=======
 const MIN_ANNOUNCE_RETRY_DELAY_MS = 1_000;
 const MAX_ANNOUNCE_RETRY_DELAY_MS = 8_000;
 /**
@@ -67,7 +62,6 @@ function resolveAnnounceRetryDelayMs(retryCount: number) {
   // retryCount is "attempts already made", so retry #1 waits 1s, then 2s, 4s...
   const backoffExponent = Math.max(0, boundedRetryCount - 1);
   const baseDelay = MIN_ANNOUNCE_RETRY_DELAY_MS * 2 ** backoffExponent;
->>>>>>> 50e555353 (fix: align retry backoff semantics and test mock signatures)
   return Math.min(baseDelay, MAX_ANNOUNCE_RETRY_DELAY_MS);
 }
 
@@ -92,8 +86,6 @@ function persistSubagentRuns() {
 
 const resumedRuns = new Set<string>();
 
-<<<<<<< HEAD
-=======
 function suppressAnnounceForSteerRestart(entry?: SubagentRunRecord) {
   return entry?.suppressAnnounceReason === "steer-restart";
 }
@@ -123,7 +115,6 @@ function startSubagentAnnounceCleanupFlow(runId: string, entry: SubagentRunRecor
   return true;
 }
 
->>>>>>> e2dd827ca (fix: guarantee manual subagent spawn sends completion message)
 function resumeSubagentRun(runId: string) {
   if (!runId || resumedRuns.has(runId)) return;
   const entry = subagentRuns.get(runId);
@@ -314,56 +305,9 @@ function ensureListener() {
 
 function finalizeSubagentCleanup(runId: string, cleanup: "delete" | "keep", didAnnounce: boolean) {
   const entry = subagentRuns.get(runId);
-<<<<<<< HEAD
   if (!entry) return;
   if (cleanup === "delete") {
     subagentRuns.delete(runId);
-=======
-  if (!entry) {
-    return;
-  }
-  if (!didAnnounce) {
-<<<<<<< HEAD
-=======
-    const now = Date.now();
-    const endedAgo = typeof entry.endedAt === "number" ? now - entry.endedAt : 0;
-    // Normal defer: the run ended, but descendant runs are still active.
-    // Don't consume retry budget in this state or we can give up before
-    // descendants finish and before the parent synthesizes the final reply.
-    const activeDescendantRuns = Math.max(0, countActiveDescendantRuns(entry.childSessionKey));
-    if (entry.expectsCompletionMessage === true && activeDescendantRuns > 0) {
-      if (endedAgo > ANNOUNCE_EXPIRY_MS) {
-        logAnnounceGiveUp(entry, "expiry");
-        entry.cleanupCompletedAt = now;
-        persistSubagentRuns();
-        retryDeferredCompletedAnnounces(runId);
-        return;
-      }
-      entry.lastAnnounceRetryAt = now;
-      entry.cleanupHandled = false;
-      resumedRuns.delete(runId);
-      persistSubagentRuns();
-      setTimeout(() => {
-        resumeSubagentRun(runId);
-      }, MIN_ANNOUNCE_RETRY_DELAY_MS).unref?.();
-      return;
-    }
-
-    const retryCount = (entry.announceRetryCount ?? 0) + 1;
-    entry.announceRetryCount = retryCount;
-    entry.lastAnnounceRetryAt = now;
-
-    // Check if the announce has exceeded retry limits or expired (#18264).
-    if (retryCount >= MAX_ANNOUNCE_RETRY_COUNT || endedAgo > ANNOUNCE_EXPIRY_MS) {
-      // Give up: mark as completed to break the infinite retry loop.
-      logAnnounceGiveUp(entry, retryCount >= MAX_ANNOUNCE_RETRY_COUNT ? "retry-limit" : "expiry");
-      entry.cleanupCompletedAt = now;
-      persistSubagentRuns();
-      retryDeferredCompletedAnnounces(runId);
-      return;
-    }
-
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
     // Allow retry on the next wake if announce was deferred or failed.
     entry.cleanupHandled = false;
 >>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
@@ -398,8 +342,6 @@ function beginSubagentCleanup(runId: string) {
   return true;
 }
 
-<<<<<<< HEAD
-=======
 export function markSubagentRunForSteerRestart(runId: string) {
   const key = runId.trim();
   if (!key) {
@@ -495,7 +437,6 @@ export function replaceSubagentRunAfterSteer(params: {
   return true;
 }
 
->>>>>>> de900bace (fix: reset announceRetryCount in replaceSubagentRunAfterSteer)
 export function registerSubagentRun(params: {
   runId: string;
   childSessionKey: string;
@@ -547,15 +488,8 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
         timeoutMs,
       },
       timeoutMs: timeoutMs + 10_000,
-<<<<<<< HEAD
     })) as { status?: string; startedAt?: number; endedAt?: number; error?: string };
     if (wait?.status !== "ok" && wait?.status !== "error") return;
-=======
-    });
-    if (wait?.status !== "ok" && wait?.status !== "error" && wait?.status !== "timeout") {
-      return;
-    }
->>>>>>> e85bbe01f (fix: report subagent timeout as 'timed out' instead of 'completed successfully' (#13996))
     const entry = subagentRuns.get(runId);
     if (!entry) return;
     let mutated = false;

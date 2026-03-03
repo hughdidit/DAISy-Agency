@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
-=======
-import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
 import type { SessionEntry } from "../../config/sessions.js";
 import { normalizeAccountId } from "../../utils/account-id.js";
 import {
@@ -49,8 +44,6 @@ export function resolveAgentDeliveryPlan(params: {
       ? params.explicitTo.trim()
       : undefined;
 
-<<<<<<< HEAD
-=======
   // Resolve turn-source channel for cross-channel safety.
   const normalizedTurnSource = params.turnSourceChannel
     ? normalizeMessageChannel(params.turnSourceChannel)
@@ -69,19 +62,15 @@ export function resolveAgentDeliveryPlan(params: {
       ? params.turnSourceThreadId
       : undefined;
 
->>>>>>> 885452f5c (fix: fail-closed shared-session reply routing (#24571) (thanks @brandonwise))
   const baseDelivery = resolveSessionDeliveryTarget({
     entry: params.sessionEntry,
     requestedChannel: requestedChannel === INTERNAL_MESSAGE_CHANNEL ? "last" : requestedChannel,
     explicitTo,
     explicitThreadId: params.explicitThreadId,
-<<<<<<< HEAD
-=======
     turnSourceChannel,
     turnSourceTo,
     turnSourceAccountId,
     turnSourceThreadId,
->>>>>>> 885452f5c (fix: fail-closed shared-session reply routing (#24571) (thanks @brandonwise))
   });
 
   const resolvedChannel = (() => {

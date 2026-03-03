@@ -5,16 +5,9 @@ import {
   type GatewayClientMode,
   type GatewayClientName,
 } from "../../../src/gateway/protocol/client-info.js";
-<<<<<<< HEAD
 import { buildDeviceAuthPayload } from "../../../src/gateway/device-auth.js";
 import { loadOrCreateDeviceIdentity, signDevicePayload } from "./device-identity";
 import { clearDeviceAuthToken, loadDeviceAuthToken, storeDeviceAuthToken } from "./device-auth";
-=======
-import { readConnectErrorDetailCode } from "../../../src/gateway/protocol/connect-error-details.js";
-import { clearDeviceAuthToken, loadDeviceAuthToken, storeDeviceAuthToken } from "./device-auth.ts";
-import { loadOrCreateDeviceIdentity, signDevicePayload } from "./device-identity.ts";
-import { generateUUID } from "./uuid.ts";
->>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
 
 export type GatewayEventFrame = {
   type: "event";
@@ -318,22 +311,8 @@ export class GatewayBrowserClient {
       const pending = this.pending.get(res.id);
       if (!pending) return;
       this.pending.delete(res.id);
-<<<<<<< HEAD
       if (res.ok) pending.resolve(res.payload);
       else pending.reject(new Error(res.error?.message ?? "request failed"));
-=======
-      if (res.ok) {
-        pending.resolve(res.payload);
-      } else {
-        pending.reject(
-          new GatewayRequestError({
-            code: res.error?.code ?? "UNAVAILABLE",
-            message: res.error?.message ?? "request failed",
-            details: res.error?.details,
-          }),
-        );
-      }
->>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
       return;
     }
   }

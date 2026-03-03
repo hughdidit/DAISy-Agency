@@ -41,7 +41,6 @@ describe("device pairing tokens", () => {
     expect(Buffer.from(token, "base64url")).toHaveLength(32);
   });
 
-<<<<<<< HEAD
   test("preserves existing token scopes when rotating without scopes", async () => {
 <<<<<<< HEAD
     const baseDir = await mkdtemp(join(tmpdir(), "moltbot-device-pairing-"));
@@ -55,10 +54,6 @@ describe("device pairing tokens", () => {
       baseDir,
     );
     await approveDevicePairing(request.request.requestId, baseDir);
-=======
-=======
-  test("allows down-scoping from admin and preserves approved scope baseline", async () => {
->>>>>>> 914a7c535 (fix: Device Token Scope Escalation via Rotate Endpoint (#20703))
     const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
     await setupPairedOperatorDevice(baseDir, ["operator.admin"]);
 >>>>>>> 48b3d7096 (fix: harden device pairing token generation and verification (#16535))
@@ -82,8 +77,6 @@ describe("device pairing tokens", () => {
     paired = await getPairedDevice("device-1", baseDir);
     expect(paired?.tokens?.operator?.scopes).toEqual(["operator.read"]);
   });
-<<<<<<< HEAD
-=======
 
   test("rejects scope escalation when rotating a token and leaves state unchanged", async () => {
     const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
@@ -149,5 +142,4 @@ describe("device pairing tokens", () => {
       }),
     ).resolves.toEqual({ ok: false, reason: "token-mismatch" });
   });
->>>>>>> 48b3d7096 (fix: harden device pairing token generation and verification (#16535))
 });

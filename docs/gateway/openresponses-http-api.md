@@ -200,19 +200,7 @@ Defaults can be tuned under `gateway.http.endpoints.responses`:
           maxUrlParts: 8,
           files: {
             allowUrl: true,
-<<<<<<< HEAD
             allowedMimes: ["text/plain", "text/markdown", "text/html", "text/csv", "application/json", "application/pdf"],
-=======
-            urlAllowlist: ["cdn.example.com", "*.assets.example.com"],
-            allowedMimes: [
-              "text/plain",
-              "text/markdown",
-              "text/html",
-              "text/csv",
-              "application/json",
-              "application/pdf",
-            ],
->>>>>>> 99f28031e (fix: harden OpenResponses URL input fetching)
             maxBytes: 5242880,
             maxChars: 200000,
             maxRedirects: 3,

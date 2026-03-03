@@ -307,7 +307,6 @@ describe("sendMessageTelegram", () => {
     });
   });
 
-<<<<<<< HEAD
   it("preserves thread params in plain text fallback", async () => {
     const chatId = "-1001234567890";
     const parseErr = new Error(
@@ -341,48 +340,6 @@ describe("sendMessageTelegram", () => {
       reply_to_message_id: 100,
     });
     expect(res.messageId).toBe("60");
-=======
-  it("resolves t.me targets to numeric chat ids via getChat", async () => {
-    const sendMessage = vi.fn().mockResolvedValue({
-      message_id: 1,
-      chat: { id: "-100123" },
-    });
-    const getChat = vi.fn().mockResolvedValue({ id: -100123 });
-    const api = { sendMessage, getChat } as unknown as {
-      sendMessage: typeof sendMessage;
-      getChat: typeof getChat;
-    };
-
-    await sendMessageTelegram("https://t.me/mychannel", "hi", {
-      token: "tok",
-      api,
-    });
-
-    expect(getChat).toHaveBeenCalledWith("@mychannel");
-    expect(sendMessage).toHaveBeenCalledWith("-100123", "hi", {
-      parse_mode: "HTML",
-    });
-    expect(maybePersistResolvedTelegramTarget).toHaveBeenCalledWith(
-      expect.objectContaining({
-        rawTarget: "https://t.me/mychannel",
-        resolvedChatId: "-100123",
-      }),
-    );
-  });
-
-  it("fails clearly when a legacy target cannot be resolved", async () => {
-    const getChat = vi.fn().mockRejectedValue(new Error("400: Bad Request: chat not found"));
-    const api = { getChat } as unknown as {
-      getChat: typeof getChat;
-    };
-
-    await expect(
-      sendMessageTelegram("@missingchannel", "hi", {
-        token: "tok",
-        api,
-      }),
-    ).rejects.toThrow(/could not be resolved to a numeric chat ID/i);
->>>>>>> dcc52850c (fix: persist resolved telegram delivery targets at runtime)
   });
 
   it("includes thread params in media messages", async () => {
@@ -645,18 +602,7 @@ describe("sendMessageTelegram", () => {
         api,
         mediaUrl: "https://example.com/video.mp4",
         asVideoNote: true,
-<<<<<<< HEAD
         ...testCase.options,
-=======
-        ...("replyToMessageId" in testCase.options
-          ? { replyToMessageId: testCase.options.replyToMessageId }
-          : {}),
-        ...(Array.isArray(testCase.options.buttons)
-          ? {
-              buttons: testCase.options.buttons.map((row) => row.map((button) => ({ ...button }))),
-            }
-          : {}),
->>>>>>> 21087c5c7 (test: fix rebase-introduced tsgo regressions)
       };
       if (opts.buttons) {
         opts.buttons = opts.buttons.map((row) => [...row]);
@@ -1209,37 +1155,22 @@ describe("sendStickerTelegram", () => {
     expect(res.messageId).toBe("109");
   });
 
-<<<<<<< HEAD
   it("trims whitespace from fileId", async () => {
     const chatId = "123";
     const sendSticker = vi.fn().mockResolvedValue({
       message_id: 106,
-=======
-  it("fails when sticker send returns no message_id", async () => {
-    const chatId = "123";
-    const sendSticker = vi.fn().mockResolvedValue({
->>>>>>> aaeed3c4e (test(agents): add missing announce delivery regressions)
       chat: { id: chatId },
     });
     const api = { sendSticker } as unknown as {
       sendSticker: typeof sendSticker;
     };
 
-<<<<<<< HEAD
     await sendStickerTelegram(chatId, "  fileId123  ", {
       token: "tok",
       api,
     });
 
     expect(sendSticker).toHaveBeenCalledWith(chatId, "fileId123", undefined);
-=======
-    await expect(
-      sendStickerTelegram(chatId, "fileId123", {
-        token: "tok",
-        api,
-      }),
-    ).rejects.toThrow(/returned no message_id/i);
->>>>>>> aaeed3c4e (test(agents): add missing announce delivery regressions)
   });
 });
 

@@ -1367,16 +1367,11 @@ export async function handleBlueBubblesWebhookRequest(
       req.headers["x-password"] ??
       req.headers["x-bluebubbles-guid"] ??
       req.headers["authorization"];
-<<<<<<< HEAD
     const guid =
       (Array.isArray(headerToken) ? headerToken[0] : headerToken) ?? guidParam ?? "";
     if (guid && guid.trim() === token) return true;
     const remote = req.socket?.remoteAddress ?? "";
     if (remote === "127.0.0.1" || remote === "::1" || remote === "::ffff:127.0.0.1") {
-=======
-    const guid = (Array.isArray(headerToken) ? headerToken[0] : headerToken) ?? guidParam ?? "";
-    if (guid && guid.trim() === token) {
->>>>>>> f836c385f (fix: BlueBubbles webhook auth bypass via loopback proxy trust (#13787))
       return true;
     }
     return false;
@@ -2035,14 +2030,8 @@ async function processMessage(
       ctx: ctxPayload,
       cfg: config,
       dispatcherOptions: {
-<<<<<<< HEAD
         deliver: async (payload) => {
           const rawReplyToId = typeof payload.replyToId === "string" ? payload.replyToId.trim() : "";
-=======
-        deliver: async (payload, info) => {
-          const rawReplyToId =
-            typeof payload.replyToId === "string" ? payload.replyToId.trim() : "";
->>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
           // Resolve short ID (e.g., "5") to full UUID
           const replyToMessageGuid = rawReplyToId
             ? resolveBlueBubblesMessageId(rawReplyToId, { requireKnownShortId: true })
@@ -2115,20 +2104,9 @@ async function processMessage(
           }
         },
         onReplyStart: async () => {
-<<<<<<< HEAD
           if (!chatGuidForActions) return;
           if (!baseUrl || !password) return;
           logVerbose(core, runtime, `typing start chatGuid=${chatGuidForActions}`);
-=======
-          if (!chatGuidForActions) {
-            return;
-          }
-          if (!baseUrl || !password) {
-            return;
-          }
-          streamingActive = true;
-          clearTypingRestartTimer();
->>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
           try {
             await sendBlueBubblesTyping(chatGuidForActions, true, {
               cfg: config,
@@ -2139,7 +2117,6 @@ async function processMessage(
           }
         },
         onIdle: async () => {
-<<<<<<< HEAD
           if (!chatGuidForActions) return;
           if (!baseUrl || !password) return;
           try {
@@ -2150,16 +2127,6 @@ async function processMessage(
           } catch (err) {
             logVerbose(core, runtime, `typing stop failed: ${String(err)}`);
           }
-=======
-          if (!chatGuidForActions) {
-            return;
-          }
-          if (!baseUrl || !password) {
-            return;
-          }
-          // Intentionally no-op for block streaming. We stop typing in finally
-          // after the run completes to avoid flicker between paragraph blocks.
->>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
         },
         onError: (err, info) => {
           runtime.error?.(`BlueBubbles ${info.kind} reply failed: ${String(err)}`);

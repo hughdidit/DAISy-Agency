@@ -321,38 +321,7 @@ export async function handleControlUiHttpRequest(
     }
   }
 
-<<<<<<< HEAD
   const root = resolveControlUiRoot();
-=======
-  applyControlUiSecurityHeaders(res);
-
-  const rootState = opts?.root;
-  if (rootState?.kind === "invalid") {
-    res.statusCode = 503;
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.end(
-      `Control UI assets not found at ${rootState.path}. Build them with \`pnpm ui:build\` (auto-installs UI deps), or update gateway.controlUi.root.`,
-    );
-    return true;
-  }
-  if (rootState?.kind === "missing") {
-    res.statusCode = 503;
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.end(
-      "Control UI assets not found. Build them with `pnpm ui:build` (auto-installs UI deps), or run `pnpm ui:dev` during development.",
-    );
-    return true;
-  }
-
-  const root =
-    rootState?.kind === "resolved"
-      ? rootState.path
-      : resolveControlUiRootSync({
-          moduleUrl: import.meta.url,
-          argv1: process.argv[1],
-          cwd: process.cwd(),
-        });
->>>>>>> 66d8117d4 (fix: harden control ui framing + ws origin)
   if (!root) {
     res.statusCode = 503;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");

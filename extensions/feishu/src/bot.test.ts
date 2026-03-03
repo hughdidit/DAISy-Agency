@@ -1,14 +1,9 @@
 import type { ClawdbotConfig, PluginRuntime, RuntimeEnv } from "openclaw/plugin-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FeishuMessageEvent } from "./bot.js";
-<<<<<<< HEAD
 import { handleFeishuMessage } from "./bot.js";
-=======
-import { buildFeishuAgentBody, handleFeishuMessage, toMessageResourceType } from "./bot.js";
->>>>>>> 8beb048a8 (test(feishu): add regression for audio download resource type=file (openclaw#16311) thanks @Yaxuan42)
 import { setFeishuRuntime } from "./runtime.js";
 
-<<<<<<< HEAD
 const { mockCreateFeishuReplyDispatcher, mockSendMessageFeishu, mockGetMessageFeishu } = vi.hoisted(
   () => ({
     mockCreateFeishuReplyDispatcher: vi.fn(() => ({
@@ -20,29 +15,6 @@ const { mockCreateFeishuReplyDispatcher, mockSendMessageFeishu, mockGetMessageFe
     mockGetMessageFeishu: vi.fn().mockResolvedValue(null),
   }),
 );
-=======
-const {
-  mockCreateFeishuReplyDispatcher,
-  mockSendMessageFeishu,
-  mockGetMessageFeishu,
-  mockDownloadMessageResourceFeishu,
-  mockCreateFeishuClient,
-} = vi.hoisted(() => ({
-  mockCreateFeishuReplyDispatcher: vi.fn(() => ({
-    dispatcher: vi.fn(),
-    replyOptions: {},
-    markDispatchIdle: vi.fn(),
-  })),
-  mockSendMessageFeishu: vi.fn().mockResolvedValue({ messageId: "pairing-msg", chatId: "oc-dm" }),
-  mockGetMessageFeishu: vi.fn().mockResolvedValue(null),
-  mockDownloadMessageResourceFeishu: vi.fn().mockResolvedValue({
-    buffer: Buffer.from("video"),
-    contentType: "video/mp4",
-    fileName: "clip.mp4",
-  }),
-  mockCreateFeishuClient: vi.fn(),
-}));
->>>>>>> cf4853e2b (fix: avoid duplicate feishu permission-error dispatch replies (#27381) (thanks @byungsker))
 
 vi.mock("./reply-dispatcher.js", () => ({
   createFeishuReplyDispatcher: mockCreateFeishuReplyDispatcher,
@@ -53,8 +25,6 @@ vi.mock("./send.js", () => ({
   getMessageFeishu: mockGetMessageFeishu,
 }));
 
-<<<<<<< HEAD
-=======
 vi.mock("./media.js", () => ({
   downloadMessageResourceFeishu: mockDownloadMessageResourceFeishu,
 }));
@@ -81,7 +51,6 @@ async function dispatchMessage(params: { cfg: ClawdbotConfig; event: FeishuMessa
   });
 }
 
->>>>>>> cf4853e2b (fix: avoid duplicate feishu permission-error dispatch replies (#27381) (thanks @byungsker))
 describe("handleFeishuMessage command authorization", () => {
   const mockFinalizeInboundContext = vi.fn((ctx: unknown) => ctx);
   const mockDispatchReplyFromConfig = vi
@@ -326,8 +295,6 @@ describe("handleFeishuMessage command authorization", () => {
       }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("falls back to top-level allowFrom for group command authorization", async () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(true);
@@ -460,7 +427,6 @@ describe("handleFeishuMessage command authorization", () => {
     );
   });
 <<<<<<< HEAD
->>>>>>> d671d7a0a (fix: preserve feishu message_id in agent-visible body (#27253) (thanks @xss925175263))
 =======
 
   it("dispatches once and appends permission notice to the main agent body", async () => {

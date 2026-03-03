@@ -918,8 +918,6 @@ private extension NodeAppModel {
     }
 }
 
-<<<<<<< HEAD
-=======
 extension NodeAppModel {
     func connectToGateway(
         url: URL,
@@ -1242,7 +1240,6 @@ private extension NodeAppModel {
     }
 }
 
->>>>>>> 4c86821ac (fix: allow device-paired clients to retrieve TTS API keys (#14613))
 #if DEBUG
 extension NodeAppModel {
     func _test_handleInvoke(_ req: BridgeInvokeRequest) async -> BridgeInvokeResponse {

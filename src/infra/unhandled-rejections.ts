@@ -36,8 +36,6 @@ const TRANSIENT_NETWORK_CODES = new Set([
   "UND_ERR_BODY_TIMEOUT",
 ]);
 
-<<<<<<< HEAD
-=======
 const TRANSIENT_NETWORK_ERROR_NAMES = new Set([
   "AbortError",
   "ConnectTimeoutError",
@@ -58,7 +56,6 @@ const TRANSIENT_NETWORK_MESSAGE_SNIPPETS = [
   "temporary failure in name resolution",
 ];
 
->>>>>>> a54b85822 (Handle transient Slack request errors without crashing the gateway (openclaw#23787) thanks @graysurf)
 function getErrorCause(err: unknown): unknown {
   if (!err || typeof err !== "object") return undefined;
   return (err as { cause?: unknown }).cause;

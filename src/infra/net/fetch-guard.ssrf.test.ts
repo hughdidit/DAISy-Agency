@@ -14,11 +14,7 @@ describe("fetchWithSsrFGuard hardening", () => {
     await expect(
       fetchWithSsrFGuard({
 <<<<<<< HEAD
-<<<<<<< HEAD
         url: "http://127.0.0.1:8080/internal",
-=======
-        url: "http://198.51.100.1:8080/internal",
->>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
 =======
         url: "http://198.18.0.1:8080/internal",
 >>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
@@ -78,8 +74,6 @@ describe("fetchWithSsrFGuard hardening", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
     await result.release();
   });
-<<<<<<< HEAD
-=======
 
   it("strips sensitive headers when redirect crosses origins", async () => {
     const lookupFn = vi.fn(async () => [
@@ -140,5 +134,4 @@ describe("fetchWithSsrFGuard hardening", () => {
     expect(headers.get("authorization")).toBe("Bearer secret");
     await result.release();
   });
->>>>>>> 802f043e5 (Net: expand cross-origin sensitive header regression test)
 });

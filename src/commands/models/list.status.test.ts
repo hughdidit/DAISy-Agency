@@ -29,15 +29,7 @@ const mocks = vi.hoisted(() => {
 
   return {
     store,
-<<<<<<< HEAD
     resolveMoltbotAgentDir: vi.fn().mockReturnValue("/tmp/moltbot-agent"),
-=======
-    resolveOpenClawAgentDir: vi.fn().mockReturnValue("/tmp/openclaw-agent"),
-    resolveAgentDir: vi.fn().mockReturnValue("/tmp/openclaw-agent"),
-    resolveAgentModelPrimary: vi.fn().mockReturnValue(undefined),
-    resolveAgentModelFallbacksOverride: vi.fn().mockReturnValue(undefined),
-    listAgentIds: vi.fn().mockReturnValue(["main", "jeremiah"]),
->>>>>>> f24e3cdae (fix: local updates for PR #4780)
     ensureAuthProfileStore: vi.fn().mockReturnValue(store),
     listProfilesForProvider: vi.fn((s: typeof store, provider: string) => {
       return Object.entries(s.profiles)
@@ -80,22 +72,9 @@ const mocks = vi.hoisted(() => {
 });
 
 vi.mock("../../agents/agent-paths.js", () => ({
-<<<<<<< HEAD
   resolveMoltbotAgentDir: mocks.resolveMoltbotAgentDir,
 }));
 
-=======
-  resolveOpenClawAgentDir: mocks.resolveOpenClawAgentDir,
-}));
-
-vi.mock("../../agents/agent-scope.js", () => ({
-  resolveAgentDir: mocks.resolveAgentDir,
-  resolveAgentModelPrimary: mocks.resolveAgentModelPrimary,
-  resolveAgentModelFallbacksOverride: mocks.resolveAgentModelFallbacksOverride,
-  listAgentIds: mocks.listAgentIds,
-}));
-
->>>>>>> f24e3cdae (fix: local updates for PR #4780)
 vi.mock("../../agents/auth-profiles.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../agents/auth-profiles.js")>();
   return {
@@ -169,8 +148,6 @@ describe("modelsStatusCommand auth overview", () => {
     ).toBe(true);
   });
 
-<<<<<<< HEAD
-=======
   it("uses agent overrides and reports sources", async () => {
     const localRuntime = {
       log: vi.fn(),
@@ -239,7 +216,6 @@ describe("modelsStatusCommand auth overview", () => {
       'Unknown agent id "unknown".',
     );
   });
->>>>>>> f24e3cdae (fix: local updates for PR #4780)
   it("exits non-zero when auth is missing", async () => {
     const originalProfiles = { ...mocks.store.profiles };
     mocks.store.profiles = {};

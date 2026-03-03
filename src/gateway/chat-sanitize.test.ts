@@ -39,8 +39,6 @@ describe("stripEnvelopeFromMessage", () => {
     const result = stripEnvelopeFromMessage(input) as { content?: string };
     expect(result.content).toBe("note\n[message_id: 123]");
   });
-<<<<<<< HEAD
-=======
 
   test("defensively strips inbound metadata blocks from non-user messages", () => {
     const input = {
@@ -91,5 +89,4 @@ describe("stripEnvelopeFromMessage", () => {
     const result = stripEnvelopeFromMessage(input) as { content?: string };
     expect(result.content).toBe("hello");
   });
->>>>>>> 9fc6c8b71 (fix: hide synthetic untrusted metadata in chat history)
 });

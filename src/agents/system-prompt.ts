@@ -1,16 +1,8 @@
 import type { ReasoningLevel, ThinkLevel } from "../auto-reply/thinking.js";
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
-<<<<<<< HEAD
 import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 import type { ResolvedTimeFormat } from "./date-time.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
-=======
-import type { MemoryCitationsMode } from "../config/types.memory.js";
-import { listDeliverableMessageChannels } from "../utils/message-channel.js";
-import type { ResolvedTimeFormat } from "./date-time.js";
-import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
-import { sanitizeForPromptLiteral } from "./sanitize-for-prompt.js";
->>>>>>> e1cb73cde (fix: unblock Docker build by aligning commands schema default (#22558))
 
 /**
  * Controls which hardcoded sections are included in the system prompt.
@@ -25,10 +17,7 @@ function buildSkillsSection(params: {
   isMinimal: boolean;
   readToolName: string;
 }) {
-<<<<<<< HEAD
   if (params.isMinimal) return [];
-=======
->>>>>>> 2398b5137 (fix: include available_skills in isolated cron agentTurn sessions (closes #24888))
   const trimmed = params.skillsPrompt?.trim();
   if (!trimmed) return [];
   return [
@@ -126,7 +115,6 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
   if (!docsPath || params.isMinimal) return [];
   return [
     "## Documentation",
-<<<<<<< HEAD
     `Moltbot docs: ${docsPath}`,
     "Mirror: https://docs.molt.bot",
     "Source: https://github.com/moltbot/moltbot",
@@ -134,15 +122,6 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
     "Find new skills: https://clawdhub.com",
     "For Moltbot behavior, commands, config, or architecture: consult local docs first.",
     "When diagnosing issues, run `moltbot status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
-=======
-    `OpenClaw docs: ${docsPath}`,
-    "Mirror: https://docs.openclaw.ai",
-    "Source: https://github.com/openclaw/openclaw",
-    "Community: https://discord.com/invite/clawd",
-    "Find new skills: https://clawhub.com",
-    "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
-    "When diagnosing issues, run `openclaw status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
->>>>>>> 9d2066bd5 (fix: restore OpenClaw docs/source links in system prompt)
     "",
   ];
 }
@@ -381,13 +360,7 @@ export function buildAgentSystemPrompt(params: {
           "- session_status: show usage/time/model state and answer \"what model are we using?\"",
         ].join("\n"),
     "TOOLS.md does not control tool availability; it is user guidance for how to use external tools.",
-<<<<<<< HEAD
     "If a task is more complex or takes longer, spawn a sub-agent. It will do the work for you and ping you when it's done. You can always check up on it.",
-=======
-    `For long waits, avoid rapid poll loops: use ${execToolName} with enough yieldMs or ${processToolName}(action=poll, timeout=<ms>).`,
-    "If a task is more complex or takes longer, spawn a sub-agent. Completion is push-based: it will auto-announce when done.",
-    "Do not poll `subagents list` / `sessions_list` in a loop; only check status on-demand (for intervention, debugging, or when explicitly asked).",
->>>>>>> 17a148c8a (fix: always include long-wait polling guidance in prompt)
     "",
     "## Tool Call Style",
     "Default: do not narrate routine, low-risk tool calls (just call the tool).",
@@ -395,14 +368,8 @@ export function buildAgentSystemPrompt(params: {
     "Keep narration brief and value-dense; avoid repeating obvious steps.",
     "Use plain human language for narration unless in a technical context.",
     "",
-<<<<<<< HEAD
     "## Moltbot CLI Quick Reference",
     "Moltbot is controlled via subcommands. Do not invent commands.",
-=======
-    ...safetySection,
-    "## OpenClaw CLI Quick Reference",
-    "OpenClaw is controlled via subcommands. Do not invent commands.",
->>>>>>> afbb1af6c (fix: restore safety + session_status hints)
     "To manage the Gateway daemon service (start/stop/restart):",
     "- openclaw gateway status",
     "- openclaw gateway start",

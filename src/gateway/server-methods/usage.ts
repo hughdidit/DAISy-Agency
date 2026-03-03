@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import fs from "node:fs";
 import path from "node:path";
 import type { SessionEntry, SessionSystemPromptReport } from "../../config/sessions/types.js";
@@ -14,7 +12,6 @@ import type {
   SessionToolUsage,
 } from "../../infra/session-cost-usage.js";
 import type { GatewayRequestHandlers } from "./types.js";
->>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 import { loadConfig } from "../../config/config.js";
 import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
 import { loadCostUsageSummary } from "../../infra/session-cost-usage.js";
@@ -92,8 +89,6 @@ export const usageHandlers: GatewayRequestHandlers = {
     const summary = await loadCostUsageSummaryCached({ days, config });
     respond(true, summary, undefined);
   },
-<<<<<<< HEAD
-=======
   "sessions.usage": async ({ respond, params }) => {
     if (!validateSessionsUsageParams(params)) {
       respond(
@@ -681,5 +676,4 @@ export const usageHandlers: GatewayRequestHandlers = {
 
     respond(true, { logs: logs ?? [] }, undefined);
   },
->>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 };

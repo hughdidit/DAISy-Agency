@@ -4,23 +4,14 @@ import {
   createInternalHookEvent,
   getRegisteredEventKeys,
   isAgentBootstrapEvent,
-<<<<<<< HEAD
-=======
   isGatewayStartupEvent,
   isMessageReceivedEvent,
   isMessageSentEvent,
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
   registerInternalHook,
   triggerInternalHook,
   unregisterInternalHook,
   type AgentBootstrapHookContext,
-<<<<<<< HEAD
   type InternalHookEvent,
-=======
-  type GatewayStartupHookContext,
-  type MessageReceivedHookContext,
-  type MessageSentHookContext,
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
 } from "./internal-hooks.js";
 
 describe("hooks", () => {
@@ -194,8 +185,6 @@ describe("hooks", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   describe("isGatewayStartupEvent", () => {
     it("returns true for gateway:startup events with expected context", () => {
       const context: GatewayStartupHookContext = {
@@ -396,7 +385,6 @@ describe("hooks", () => {
     });
   });
 
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
   describe("getRegisteredEventKeys", () => {
     it("should return all registered event keys", () => {
       registerInternalHook("command:new", vi.fn());

@@ -1,8 +1,6 @@
 import { lookup as dnsLookup } from "node:dns/promises";
 import { lookup as dnsLookupCb, type LookupAddress } from "node:dns";
 import { Agent, type Dispatcher } from "undici";
-<<<<<<< HEAD
-=======
 import {
   extractEmbeddedIpv4FromIpv6,
   isBlockedSpecialUseIpv4Address,
@@ -15,7 +13,6 @@ import {
   parseLooseIpAddress,
 } from "../../shared/net/ip.js";
 import { normalizeHostname } from "./hostname.js";
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
 
 type LookupCallback = (
   err: NodeJS.ErrnoException | null,
@@ -34,25 +31,14 @@ export type LookupFn = typeof dnsLookup;
 
 export type SsrFPolicy = {
   allowPrivateNetwork?: boolean;
-<<<<<<< HEAD
-=======
   dangerouslyAllowPrivateNetwork?: boolean;
   allowRfc2544BenchmarkRange?: boolean;
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   allowedHostnames?: string[];
   hostnameAllowlist?: string[];
 };
 
-<<<<<<< HEAD
 const PRIVATE_IPV6_PREFIXES = ["fe80:", "fec0:", "fc", "fd"];
 const BLOCKED_HOSTNAMES = new Set(["localhost", "metadata.google.internal"]);
-=======
-const BLOCKED_HOSTNAMES = new Set([
-  "localhost",
-  "localhost.localdomain",
-  "metadata.google.internal",
-]);
->>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 
 function normalizeHostname(hostname: string): string {
   const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
@@ -82,8 +68,6 @@ function normalizeHostnameAllowlist(values?: string[]): string[] {
   );
 }
 
-<<<<<<< HEAD
-=======
 function resolveAllowPrivateNetwork(policy?: SsrFPolicy): boolean {
   return policy?.dangerouslyAllowPrivateNetwork === true || policy?.allowPrivateNetwork === true;
 }
@@ -94,7 +78,6 @@ function resolveIpv4SpecialUseBlockOptions(policy?: SsrFPolicy): Ipv4SpecialUseB
   };
 }
 
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
 function isHostnameAllowedByPattern(hostname: string, pattern: string): boolean {
   if (pattern.startsWith("*.")) {
     const suffix = pattern.slice(2);
@@ -144,137 +127,8 @@ function parseIpv4FromMappedIpv6(mapped: string): number[] | null {
   ) {
     return null;
   }
-<<<<<<< HEAD
   const value = (high << 16) + low;
   return [(value >>> 24) & 0xff, (value >>> 16) & 0xff, (value >>> 8) & 0xff, value & 0xff];
-=======
-
-  // Handle IPv4-embedded IPv6 like ::ffff:127.0.0.1 by converting the tail to 2 hextets.
-  if (input.includes(".")) {
-    const lastColon = input.lastIndexOf(":");
-    if (lastColon < 0) {
-      return null;
-    }
-    const ipv4 = parseIpv4(input.slice(lastColon + 1));
-    if (!ipv4) {
-      return null;
-    }
-    const high = (ipv4[0] << 8) + ipv4[1];
-    const low = (ipv4[2] << 8) + ipv4[3];
-    input = `${input.slice(0, lastColon)}:${high.toString(16)}:${low.toString(16)}`;
-  }
-
-  const doubleColonParts = input.split("::");
-  if (doubleColonParts.length > 2) {
-    return null;
-  }
-
-  const headParts =
-    doubleColonParts[0]?.length > 0 ? doubleColonParts[0].split(":").filter(Boolean) : [];
-  const tailParts =
-    doubleColonParts.length === 2 && doubleColonParts[1]?.length > 0
-      ? doubleColonParts[1].split(":").filter(Boolean)
-      : [];
-
-  const missingParts = 8 - headParts.length - tailParts.length;
-  if (missingParts < 0) {
-    return null;
-  }
-
-  const fullParts =
-    doubleColonParts.length === 1
-      ? input.split(":")
-      : [...headParts, ...Array.from({ length: missingParts }, () => "0"), ...tailParts];
-
-  if (fullParts.length !== 8) {
-    return null;
-  }
-
-  const hextets: number[] = [];
-  for (const part of fullParts) {
-    if (!part) {
-      return null;
-    }
-    const value = Number.parseInt(part, 16);
-    if (Number.isNaN(value) || value < 0 || value > 0xffff) {
-      return null;
-    }
-    hextets.push(value);
-  }
-  return hextets;
-}
-
-function decodeIpv4FromHextets(high: number, low: number): number[] {
-  return [(high >>> 8) & 0xff, high & 0xff, (low >>> 8) & 0xff, low & 0xff];
-}
-
-type EmbeddedIpv4Rule = {
-  matches: (hextets: number[]) => boolean;
-  extract: (hextets: number[]) => [high: number, low: number];
-};
-
-const EMBEDDED_IPV4_RULES: EmbeddedIpv4Rule[] = [
-  {
-    // IPv4-mapped: ::ffff:a.b.c.d and IPv4-compatible ::a.b.c.d.
-    matches: (hextets) =>
-      hextets[0] === 0 &&
-      hextets[1] === 0 &&
-      hextets[2] === 0 &&
-      hextets[3] === 0 &&
-      hextets[4] === 0 &&
-      (hextets[5] === 0xffff || hextets[5] === 0),
-    extract: (hextets) => [hextets[6], hextets[7]],
-  },
-  {
-    // NAT64 well-known prefix: 64:ff9b::/96.
-    matches: (hextets) =>
-      hextets[0] === 0x0064 &&
-      hextets[1] === 0xff9b &&
-      hextets[2] === 0 &&
-      hextets[3] === 0 &&
-      hextets[4] === 0 &&
-      hextets[5] === 0,
-    extract: (hextets) => [hextets[6], hextets[7]],
-  },
-  {
-    // NAT64 local-use prefix: 64:ff9b:1::/48.
-    matches: (hextets) =>
-      hextets[0] === 0x0064 &&
-      hextets[1] === 0xff9b &&
-      hextets[2] === 0x0001 &&
-      hextets[3] === 0 &&
-      hextets[4] === 0 &&
-      hextets[5] === 0,
-    extract: (hextets) => [hextets[6], hextets[7]],
-  },
-  {
-    // 6to4 prefix: 2002::/16 where hextets[1..2] carry IPv4.
-    matches: (hextets) => hextets[0] === 0x2002,
-    extract: (hextets) => [hextets[1], hextets[2]],
-  },
-  {
-    // Teredo prefix: 2001:0000::/32 with client IPv4 obfuscated via XOR 0xffff.
-    matches: (hextets) => hextets[0] === 0x2001 && hextets[1] === 0x0000,
-    extract: (hextets) => [hextets[6] ^ 0xffff, hextets[7] ^ 0xffff],
-  },
-  {
-    // ISATAP IID format: 000000ug00000000:5efe:w.x.y.z (RFC 5214 section 6.1).
-    // Match only the IID marker bits to avoid over-broad :5efe: detection.
-    matches: (hextets) => (hextets[4] & 0xfcff) === 0 && hextets[5] === 0x5efe,
-    extract: (hextets) => [hextets[6], hextets[7]],
-  },
-];
-
-function extractIpv4FromEmbeddedIpv6(hextets: number[]): number[] | null {
-  for (const rule of EMBEDDED_IPV4_RULES) {
-    if (!rule.matches(hextets)) {
-      continue;
-    }
-    const [high, low] = rule.extract(hextets);
-    return decodeIpv4FromHextets(high, low);
-  }
-  return null;
->>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 }
 
 function isPrivateIpv4(parts: number[]): boolean {
@@ -289,12 +143,7 @@ function isPrivateIpv4(parts: number[]): boolean {
   return false;
 }
 
-<<<<<<< HEAD
 export function isPrivateIpAddress(address: string): boolean {
-=======
-// Returns true for private/internal and special-use non-global addresses.
-export function isPrivateIpAddress(address: string, policy?: SsrFPolicy): boolean {
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   let normalized = address.trim().toLowerCase();
   if (normalized.startsWith("[") && normalized.endsWith("]")) {
     normalized = normalized.slice(1, -1);
@@ -308,25 +157,9 @@ export function isPrivateIpAddress(address: string, policy?: SsrFPolicy): boolea
   }
   const blockOptions = resolveIpv4SpecialUseBlockOptions(policy);
 
-<<<<<<< HEAD
   if (normalized.includes(":")) {
     if (normalized === "::" || normalized === "::1") return true;
     return PRIVATE_IPV6_PREFIXES.some((prefix) => normalized.startsWith(prefix));
-=======
-  const strictIp = parseCanonicalIpAddress(normalized);
-  if (strictIp) {
-    if (isIpv4Address(strictIp)) {
-      return isBlockedSpecialUseIpv4Address(strictIp, blockOptions);
-    }
-    if (isPrivateOrLoopbackIpAddress(strictIp.toString())) {
-      return true;
-    }
-    const embeddedIpv4 = extractEmbeddedIpv4FromIpv6(strictIp);
-    if (embeddedIpv4) {
-      return isBlockedSpecialUseIpv4Address(embeddedIpv4, blockOptions);
-    }
-    return false;
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   }
 
   const ipv4 = parseIpv4(normalized);
@@ -336,21 +169,8 @@ export function isPrivateIpAddress(address: string, policy?: SsrFPolicy): boolea
 
 export function isBlockedHostname(hostname: string): boolean {
   const normalized = normalizeHostname(hostname);
-<<<<<<< HEAD
   if (!normalized) return false;
   if (BLOCKED_HOSTNAMES.has(normalized)) return true;
-=======
-  if (!normalized) {
-    return false;
-  }
-  return isBlockedHostnameNormalized(normalized);
-}
-
-function isBlockedHostnameNormalized(normalized: string): boolean {
-  if (BLOCKED_HOSTNAMES.has(normalized)) {
-    return true;
-  }
->>>>>>> d05c8eb91 (refactor: unify SSRF hostname/ip precheck and add policy regression)
   return (
     normalized.endsWith(".localhost") ||
     normalized.endsWith(".local") ||
@@ -366,8 +186,6 @@ export function isBlockedHostnameOrIp(hostname: string, policy?: SsrFPolicy): bo
   return isBlockedHostnameNormalized(normalized) || isPrivateIpAddress(normalized, policy);
 }
 
-<<<<<<< HEAD
-=======
 const BLOCKED_HOST_OR_IP_MESSAGE = "Blocked hostname or private/internal/special-use IP address";
 const BLOCKED_RESOLVED_IP_MESSAGE = "Blocked: resolves to private/internal/special-use IP address";
 
@@ -389,7 +207,6 @@ function assertAllowedResolvedAddressesOrThrow(
   }
 }
 
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
 export function createPinnedLookup(params: {
   hostname: string;
   addresses: string[];
@@ -469,14 +286,8 @@ export async function resolvePinnedHostnameWithPolicy(
     throw new SsrFBlockedError(`Blocked hostname (not in allowlist): ${hostname}`);
   }
 
-<<<<<<< HEAD
   if (!allowPrivateNetwork && !isExplicitAllowed && isBlockedHostnameOrIp(normalized)) {
     throw new SsrFBlockedError("Blocked hostname or private/internal IP address");
-=======
-  if (!skipPrivateNetworkChecks) {
-    // Phase 1: fail fast for literal hosts/IPs before any DNS lookup side-effects.
-    assertAllowedHostOrIpOrThrow(normalized, params.policy);
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   }
 
   const lookupFn = params.lookupFn ?? dnsLookup;
@@ -485,18 +296,12 @@ export async function resolvePinnedHostnameWithPolicy(
     throw new Error(`Unable to resolve hostname: ${hostname}`);
   }
 
-<<<<<<< HEAD
   if (!allowPrivateNetwork && !isExplicitAllowed) {
     for (const entry of results) {
       if (isPrivateIpAddress(entry.address)) {
         throw new SsrFBlockedError("Blocked: resolves to private/internal IP address");
       }
     }
-=======
-  if (!skipPrivateNetworkChecks) {
-    // Phase 2: re-check DNS answers so public hostnames cannot pivot to private targets.
-    assertAllowedResolvedAddressesOrThrow(results, params.policy);
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   }
 
   // Sort IPv4 addresses before IPv6 so that Happy Eyeballs (autoSelectFamily) and

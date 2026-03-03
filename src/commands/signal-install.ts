@@ -4,12 +4,7 @@ import { request } from "node:https";
 import os from "node:os";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
-<<<<<<< HEAD
 
-=======
-import type { RuntimeEnv } from "../runtime.js";
-import { resolveBrewExecutable } from "../infra/brew.js";
->>>>>>> eb4a0a84f (fix: use Homebrew for signal-cli install on non-x64 architectures)
 import { runCommandWithTimeout } from "../process/exec.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { CONFIG_DIR } from "../utils.js";
@@ -233,13 +228,8 @@ async function installSignalCliFromRelease(runtime: RuntimeEnv): Promise<SignalI
     };
   }
 
-<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-signal-"));
   const archivePath = path.join(tmpDir, assetName);
-=======
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-signal-"));
-  const archivePath = path.join(tmpDir, asset.name);
->>>>>>> eb4a0a84f (fix: use Homebrew for signal-cli install on non-x64 architectures)
 
   runtime.log(`Downloading signal-cli ${version} (${asset.name})…`);
   await downloadToFile(asset.browser_download_url, archivePath);

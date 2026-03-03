@@ -269,20 +269,10 @@ export function startGatewayConfigReloader(opts: {
   let restartQueued = false;
   let missingConfigRetries = 0;
 
-<<<<<<< HEAD
   const schedule = () => {
     if (stopped) return;
     if (debounceTimer) clearTimeout(debounceTimer);
     const wait = settings.debounceMs;
-=======
-  const scheduleAfter = (wait: number) => {
-    if (stopped) {
-      return;
-    }
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
->>>>>>> 4e65e6161 (fix: retry missing config snapshots before skip (#23343) (thanks @lbo728))
     debounceTimer = setTimeout(() => {
       void runReload();
     }, wait);
@@ -304,8 +294,6 @@ export function startGatewayConfigReloader(opts: {
     }
     try {
       const snapshot = await opts.readSnapshot();
-<<<<<<< HEAD
-=======
       if (!snapshot.exists) {
         if (missingConfigRetries < MISSING_CONFIG_MAX_RETRIES) {
           missingConfigRetries += 1;
@@ -319,7 +307,6 @@ export function startGatewayConfigReloader(opts: {
         return;
       }
       missingConfigRetries = 0;
->>>>>>> 4e65e6161 (fix: retry missing config snapshots before skip (#23343) (thanks @lbo728))
       if (!snapshot.valid) {
         const issues = snapshot.issues.map((issue) => `${issue.path}: ${issue.message}`).join(", ");
         opts.log.warn(`config reload skipped (invalid config): ${issues}`);

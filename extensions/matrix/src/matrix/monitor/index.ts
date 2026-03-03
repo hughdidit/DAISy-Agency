@@ -1,21 +1,10 @@
 import { format } from "node:util";
-<<<<<<< HEAD
 
 import {
   mergeAllowlist,
   summarizeMapping,
   type RuntimeEnv,
 } from "clawdbot/plugin-sdk";
-=======
-import {
-  mergeAllowlist,
-  resolveRuntimeGroupPolicy,
-  summarizeMapping,
-  type RuntimeEnv,
-} from "openclaw/plugin-sdk";
-import { resolveMatrixTargets } from "../../resolve-targets.js";
-import { getMatrixRuntime } from "../../runtime.js";
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import type { CoreConfig, ReplyToMode } from "../../types.js";
 import { setActiveMatrixClient } from "../active-client.js";
 import {
@@ -131,11 +120,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
       const trimmed = entry.trim();
       if (!trimmed) continue;
       const cleaned = normalizeRoomEntry(trimmed);
-<<<<<<< HEAD
       if (cleaned.startsWith("!") && cleaned.includes(":")) {
-=======
-      if (isConfiguredMatrixRoomEntry(cleaned)) {
->>>>>>> 84d0a794e (fix: harden matrix startup errors + add regressions (#31023) (thanks @efe-arv))
         if (!nextRooms[cleaned]) {
           nextRooms[cleaned] = roomsConfig[entry];
         }
@@ -178,10 +163,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
           ...cfg.channels?.matrix?.dm,
           allowFrom,
         },
-<<<<<<< HEAD
-=======
         groupAllowFrom,
->>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
         ...(roomsConfig ? { groups: roomsConfig } : {}),
       },
     },
@@ -206,24 +188,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
 
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(cfg);
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-<<<<<<< HEAD
   const groupPolicyRaw = cfg.channels?.matrix?.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-  const { groupPolicy: groupPolicyRaw, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy(
-    {
-      providerConfigPresent: cfg.channels?.matrix !== undefined,
-      groupPolicy: accountConfig.groupPolicy,
-      defaultGroupPolicy,
-      configuredFallbackPolicy: "allowlist",
-      missingProviderFallbackPolicy: "allowlist",
-    },
-  );
-  if (providerMissingFallbackApplied) {
-    logVerboseMessage(
-      'matrix: channels.matrix is missing; defaulting groupPolicy to "allowlist" (room messages blocked until explicitly configured).',
-    );
-  }
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
   const groupPolicy = allowlistOnly && groupPolicyRaw === "open" ? "allowlist" : groupPolicyRaw;
   const replyToMode = opts.replyToMode ?? cfg.channels?.matrix?.replyToMode ?? "off";
   const threadReplies = cfg.channels?.matrix?.threadReplies ?? "inbound";
@@ -235,11 +200,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
   const mediaMaxMb = opts.mediaMaxMb ?? cfg.channels?.matrix?.mediaMaxMb ?? DEFAULT_MEDIA_MAX_MB;
   const mediaMaxBytes = Math.max(1, mediaMaxMb) * 1024 * 1024;
   const startupMs = Date.now();
-<<<<<<< HEAD
   const startupGraceMs = 0;
-=======
-  const startupGraceMs = DEFAULT_STARTUP_GRACE_MS;
->>>>>>> 84d0a794e (fix: harden matrix startup errors + add regressions (#31023) (thanks @efe-arv))
   const directTracker = createDirectRoomTracker(client, { log: logVerboseMessage });
   registerMatrixAutoJoin({ client, cfg, runtime });
   const warnedEncryptedRooms = new Set<string>();

@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { hasNonzeroUsage, normalizeUsage } from "./usage.js";
-=======
-import { deriveSessionTotalTokens, hasNonzeroUsage, normalizeUsage } from "./usage.js";
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
 
 describe("normalizeUsage", () => {
   it("normalizes Anthropic-style snake_case usage", () => {

@@ -5,10 +5,7 @@ import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 import { createMoltbotCodingTools } from "./pi-tools.js";
-<<<<<<< HEAD:src/agents/pi-tools.create-clawdbot-coding-tools.adds-claude-style-aliases-schemas-without-dropping-d.test.ts
-=======
 import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026)):src/agents/pi-tools.create-openclaw-coding-tools.adds-claude-style-aliases-schemas-without-dropping-d.e2e.test.ts
 
 const defaultTools = createMoltbotCodingTools();
 
@@ -80,11 +77,7 @@ describe("createMoltbotCodingTools", () => {
     const sandbox = {
       enabled: true,
       sessionKey: "sandbox:test",
-<<<<<<< HEAD:src/agents/pi-tools.create-clawdbot-coding-tools.adds-claude-style-aliases-schemas-without-dropping-d.test.ts
       workspaceDir: path.join(os.tmpdir(), "moltbot-sandbox"),
-=======
-      workspaceDir: sandboxDir,
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026)):src/agents/pi-tools.create-openclaw-coding-tools.adds-claude-style-aliases-schemas-without-dropping-d.e2e.test.ts
       agentWorkspaceDir: path.join(os.tmpdir(), "moltbot-workspace"),
       workspaceAccess: "none",
       containerName: "moltbot-sbx-test",
@@ -117,11 +110,7 @@ describe("createMoltbotCodingTools", () => {
     const sandbox = {
       enabled: true,
       sessionKey: "sandbox:test",
-<<<<<<< HEAD:src/agents/pi-tools.create-clawdbot-coding-tools.adds-claude-style-aliases-schemas-without-dropping-d.test.ts
       workspaceDir: path.join(os.tmpdir(), "moltbot-sandbox"),
-=======
-      workspaceDir: sandboxDir,
->>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026)):src/agents/pi-tools.create-openclaw-coding-tools.adds-claude-style-aliases-schemas-without-dropping-d.e2e.test.ts
       agentWorkspaceDir: path.join(os.tmpdir(), "moltbot-workspace"),
       workspaceAccess: "ro",
       containerName: "moltbot-sbx-test",

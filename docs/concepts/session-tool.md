@@ -81,12 +81,7 @@ Behavior:
 - Announce delivery runs after the primary run completes and is best-effort; `status: "ok"` does not guarantee the announce was delivered.
 - Waits via gateway `agent.wait` (server-side) so reconnects don't drop the wait.
 - Agent-to-agent message context is injected for the primary run.
-<<<<<<< HEAD
 - After the primary run completes, Moltbot runs a **reply-back loop**:
-=======
-- Inter-session messages are persisted with `message.provenance.kind = "inter_session"` so transcript readers can distinguish routed agent instructions from external user input.
-- After the primary run completes, OpenClaw runs a **reply-back loop**:
->>>>>>> 85409e401 (fix: preserve inter-session input provenance (thanks @anbecker))
   - Round 2+ alternates between requester and target agents.
   - Reply exactly `REPLY_SKIP` to stop the ping‑pong.
   - Max turns is `session.agentToAgent.maxPingPongTurns` (0–5, default 5).
@@ -150,16 +145,9 @@ Behavior:
 - Sub-agents default to the full tool set **minus session tools** (configurable via `tools.subagents.tools`).
 - Depth policy is enforced for nested spawns. With the default `maxSpawnDepth = 2`, depth-1 sub-agents can call `sessions_spawn`, depth-2 sub-agents cannot.
 - Always non-blocking: returns `{ status: "accepted", runId, childSessionKey }` immediately.
-<<<<<<< HEAD
 - After completion, Moltbot runs a sub-agent **announce step** and posts the result to the requester chat channel.
 - Reply exactly `ANNOUNCE_SKIP` during the announce step to stay silent.
 - Announce replies are normalized to `Status`/`Result`/`Notes`; `Status` comes from runtime outcome (not model text).
-=======
-- After completion, OpenClaw builds a sub-agent announce system message from the child session's latest assistant reply and injects it to the requester session.
-- Delivery stays internal (`deliver=false`) when the requester is a sub-agent, and is user-facing (`deliver=true`) when the requester is main.
-- Recipient agents can return the internal silent token to suppress duplicate outward delivery in the same turn.
-- Announce replies are normalized to runtime-derived status plus result context.
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 - Sub-agent sessions are auto-archived after `agents.defaults.subagents.archiveAfterMinutes` (default: 60).
 - Announce replies include a stats line (runtime, tokens, sessionKey/sessionId, transcript path, and optional cost).
 

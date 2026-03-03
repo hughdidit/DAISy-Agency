@@ -1,11 +1,5 @@
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { normalizeChatType } from "../channels/chat-type.js";
-import { shouldLogVerbose } from "../globals.js";
-import { logDebug } from "../logger.js";
->>>>>>> c16bc7127 (fix: add discord routing debug logging (#16202) (thanks @jayleekr))
 import { listBindings } from "./bindings.js";
 import {
   buildAgentMainSessionKey,
@@ -228,7 +222,6 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
     };
   };
 
-<<<<<<< HEAD
   if (peer) {
     const peerMatch = bindings.find((b) => matchesPeer(b.match, peer));
     if (peerMatch) {
@@ -238,18 +231,6 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-  if (guildId && memberRoleIds.length > 0) {
-    const guildRolesMatch = bindings.find(
-      (b) => matchesGuild(b.match, guildId) && matchesRoles(b.match, memberRoleIds),
-    );
-    if (guildRolesMatch) {
-      return choose(guildRolesMatch.agentId, "binding.guild+roles");
-    }
-  }
-
-=======
->>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
 =======
   const shouldLogDebug = shouldLogVerbose();
   const formatPeer = (value?: RoutePeer | null) =>
@@ -289,41 +270,14 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
     }
   }
 
-<<<<<<< HEAD
 >>>>>>> e1e6e3f47 (fix: add curly braces to resolve-route.ts for eslint(curly) compliance)
-=======
-  if (guildId && memberRoleIds.length > 0) {
-    const guildRolesMatch = bindings.find(
-      (b) => matchesGuild(b.match, guildId) && matchesRoles(b.match, memberRoleIds),
-    );
-<<<<<<< HEAD
-    if (guildRolesMatch) {
-      return choose(guildRolesMatch.agentId, "binding.guild+roles");
-=======
-    if (matched) {
-      if (shouldLogDebug) {
-        logDebug(`[routing] match: matchedBy=${tier.matchedBy} agentId=${matched.binding.agentId}`);
-      }
-      return choose(matched.binding.agentId, tier.matchedBy);
->>>>>>> c16bc7127 (fix: add discord routing debug logging (#16202) (thanks @jayleekr))
     }
   }
 
 >>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
   if (guildId) {
-<<<<<<< HEAD
     const guildMatch = bindings.find((b) => matchesGuild(b.match, guildId));
     if (guildMatch) return choose(guildMatch.agentId, "binding.guild");
-=======
-    const guildMatch = bindings.find(
-      (b) =>
-        matchesGuild(b.match, guildId) &&
-        (!Array.isArray(b.match?.roles) || b.match.roles.length === 0),
-    );
-    if (guildMatch) {
-      return choose(guildMatch.agentId, "binding.guild");
-    }
->>>>>>> f7adc21d3 (fix: exclude role-restricted bindings from guild-only matching)
   }
 
   if (teamId) {

@@ -79,31 +79,9 @@ function readParsedComponentId(data: ComponentData): unknown {
 function parseAgentComponentData(data: ComponentData): {
   componentId: string;
 } | null {
-<<<<<<< HEAD
   if (!data || typeof data !== "object") {
     return null;
   }
-=======
-  const raw = readParsedComponentId(data);
-
-  const decodeSafe = (value: string): string => {
-    // `cid` values may be raw (not URI-encoded). Guard against malformed % sequences.
-    // Only attempt decoding when it looks like it contains percent-encoding.
-    if (!value.includes("%")) {
-      return value;
-    }
-    // If it has a % but not a valid %XX sequence, skip decode.
-    if (!/%[0-9A-Fa-f]{2}/.test(value)) {
-      return value;
-    }
-    try {
-      return decodeURIComponent(value);
-    } catch {
-      return value;
-    }
-  };
-
->>>>>>> c869ca4bb (fix: harden discord agent cid parsing (#29013) (thanks @Jacky1n7))
   const componentId =
     typeof data.componentId === "string"
       ? decodeURIComponent(data.componentId)
@@ -214,8 +192,6 @@ async function ensureDmComponentAuthorized(params: {
   return false;
 }
 
-<<<<<<< HEAD
-=======
 async function resolveInteractionContextWithDmAuth(params: {
   ctx: AgentComponentContext;
   interaction: AgentComponentInteraction;
@@ -936,7 +912,6 @@ async function handleDiscordModalTrigger(params: {
   }
 }
 
->>>>>>> c869ca4bb (fix: harden discord agent cid parsing (#29013) (thanks @Jacky1n7))
 export class AgentComponentButton extends Button {
   label = AGENT_BUTTON_KEY;
   customId = `${AGENT_BUTTON_KEY}:seed=1`;

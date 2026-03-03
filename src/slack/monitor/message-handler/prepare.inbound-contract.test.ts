@@ -145,8 +145,6 @@ describe("slack prepareSlackMessage inbound contract", () => {
     expect(prepared).toBeTruthy();
     expect(prepared!.ctxPayload.MessageThreadId).toBe("1.000");
   });
-<<<<<<< HEAD
-=======
 
   it("includes thread_ts and parent_user_id metadata in thread replies", async () => {
     const slackCtx = createSlackMonitorContext({
@@ -364,5 +362,4 @@ describe("slack prepareSlackMessage inbound contract", () => {
     expect(prepared!.ctxPayload.Body).not.toContain("thread_ts");
     expect(prepared!.ctxPayload.Body).not.toContain("parent_user_id");
   });
->>>>>>> a43136c85 (fix: align slack thread footer metadata with reply semantics (#14625) (thanks @bennewton999))
 });

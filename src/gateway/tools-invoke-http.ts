@@ -262,19 +262,7 @@ export async function handleToolsInvokeHttpRequest(
     ? filterToolsByPolicy(groupFiltered, subagentPolicyExpanded)
     : groupFiltered;
 
-<<<<<<< HEAD
   const tool = subagentFiltered.find((t) => t.name === toolName);
-=======
-  // Gateway HTTP-specific deny list — applies to ALL sessions via HTTP.
-  const gatewayToolsCfg = cfg.gateway?.tools;
-  const gatewayDenyNames = DEFAULT_GATEWAY_HTTP_TOOL_DENY.filter(
-    (name) => !gatewayToolsCfg?.allow?.includes(name),
-  ).concat(Array.isArray(gatewayToolsCfg?.deny) ? gatewayToolsCfg.deny : []);
-  const gatewayDenySet = new Set(gatewayDenyNames);
-  const gatewayFiltered = subagentFiltered.filter((t) => !gatewayDenySet.has(t.name));
-
-  const tool = gatewayFiltered.find((t) => t.name === toolName);
->>>>>>> ee31cd47b (fix: close OC-02 gaps in ACP permission + gateway HTTP deny config (#15390) (thanks @aether-ai-agent))
   if (!tool) {
     sendJson(res, 404, {
       ok: false,
@@ -293,18 +281,7 @@ export async function handleToolsInvokeHttpRequest(
     sendJson(res, 200, { ok: true, result });
   } catch (err) {
 <<<<<<< HEAD
-<<<<<<< HEAD
     sendJson(res, 400, {
-=======
-=======
-    if (isToolInputError(err)) {
-      sendJson(res, 400, {
-        ok: false,
-        error: { type: "tool_error", message: getErrorMessage(err) || "invalid tool arguments" },
-      });
-      return true;
-    }
->>>>>>> 767fd9f22 (fix: classify /tools/invoke errors and sanitize 500s (#13185) (thanks @davidrudduck))
     logWarn(`tools-invoke: tool execution failed: ${String(err)}`);
     sendJson(res, 500, {
 >>>>>>> 242f2f148 (fix: return 500 for tool execution failures instead of 400)

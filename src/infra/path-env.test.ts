@@ -71,15 +71,12 @@ describe("ensureMoltbotCliOnPath", () => {
       await fs.writeFile(appCli, "#!/bin/sh\necho ok\n", "utf-8");
       await fs.chmod(appCli, 0o755);
 
-<<<<<<< HEAD
       const localBinDir = path.join(tmp, "node_modules", ".bin");
       await fs.mkdir(localBinDir, { recursive: true });
       const localCli = path.join(localBinDir, "moltbot");
       await fs.writeFile(localCli, "#!/bin/sh\necho ok\n", "utf-8");
       await fs.chmod(localCli, 0o755);
 
-=======
->>>>>>> 013e8f6b3 (fix: harden exec PATH handling)
       const miseDataDir = path.join(tmp, "mise");
       const shimsDir = path.join(miseDataDir, "shims");
       await fs.mkdir(shimsDir, { recursive: true });

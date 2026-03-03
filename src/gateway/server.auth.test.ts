@@ -799,8 +799,6 @@ describe("gateway server auth/connect", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   const trustedProxyControlUiCases: Array<{
     name: string;
     role: "operator" | "node";
@@ -887,7 +885,6 @@ describe("gateway server auth/connect", () => {
     });
   }
 
->>>>>>> 96aad965a (fix: land NO_REPLY announce suppression and auth scope assertions)
   test("allows localhost control ui without device identity when insecure auth is enabled", async () => {
     testState.gatewayControlUi = { allowInsecureAuth: true };
     const { server, ws, prevToken } = await startServerWithClient("secret", {

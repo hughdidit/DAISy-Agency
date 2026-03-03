@@ -7,8 +7,6 @@ import type { CliDeps } from "../cli/deps.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
 import { agentCommand } from "../commands/agent.js";
-<<<<<<< HEAD
-=======
 import type { OpenClawConfig } from "../config/config.js";
 import {
   resolveAgentIdFromSessionKey,
@@ -18,7 +16,6 @@ import {
 import { resolveStorePath } from "../config/sessions/paths.js";
 import { loadSessionStore, updateSessionStore } from "../config/sessions/store.js";
 import type { SessionEntry } from "../config/sessions/types.js";
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { type RuntimeEnv, defaultRuntime } from "../runtime.js";
 

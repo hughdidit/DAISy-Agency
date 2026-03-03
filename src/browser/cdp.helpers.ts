@@ -38,17 +38,8 @@ export function getHeadersWithAuth(url: string, headers: Record<string, string> 
   const mergedHeaders = { ...relayHeaders, ...headers };
   try {
     const parsed = new URL(url);
-<<<<<<< HEAD
     const hasAuthHeader = Object.keys(headers).some((key) => key.toLowerCase() === "authorization");
     if (hasAuthHeader) return headers;
-=======
-    const hasAuthHeader = Object.keys(mergedHeaders).some(
-      (key) => key.toLowerCase() === "authorization",
-    );
-    if (hasAuthHeader) {
-      return mergedHeaders;
-    }
->>>>>>> a1e89afcc (fix: secure chrome extension relay cdp)
     if (parsed.username || parsed.password) {
       const auth = Buffer.from(`${parsed.username}:${parsed.password}`).toString("base64");
       return { ...mergedHeaders, Authorization: `Basic ${auth}` };

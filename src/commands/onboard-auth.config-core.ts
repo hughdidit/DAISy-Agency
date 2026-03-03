@@ -137,22 +137,7 @@ export function applyOpenrouterConfig(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-<<<<<<< HEAD
 export function applyMoonshotProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
-=======
-export function applyMoonshotProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
-  return applyMoonshotProviderConfigWithBaseUrl(cfg, MOONSHOT_BASE_URL);
-}
-
-export function applyMoonshotProviderConfigCn(cfg: OpenClawConfig): OpenClawConfig {
-  return applyMoonshotProviderConfigWithBaseUrl(cfg, MOONSHOT_CN_BASE_URL);
-}
-
-function applyMoonshotProviderConfigWithBaseUrl(
-  cfg: OpenClawConfig,
-  baseUrl: string,
-): OpenClawConfig {
->>>>>>> 4a5d36892 (fix: keep Moonshot CN base URL in onboarding (#7180) (thanks @waynelwz))
   const models = { ...cfg.agents?.defaults?.models };
   models[MOONSHOT_DEFAULT_MODEL_REF] = {
     ...models[MOONSHOT_DEFAULT_MODEL_REF],
@@ -217,33 +202,7 @@ export function applyMoonshotConfig(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-<<<<<<< HEAD
 export function applyKimiCodeProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
-=======
-export function applyMoonshotConfigCn(cfg: OpenClawConfig): OpenClawConfig {
-  const next = applyMoonshotProviderConfigCn(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: MOONSHOT_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
-}
-
-export function applyKimiCodeProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
->>>>>>> 4a5d36892 (fix: keep Moonshot CN base URL in onboarding (#7180) (thanks @waynelwz))
   const models = { ...cfg.agents?.defaults?.models };
   models[KIMI_CODE_MODEL_REF] = {
     ...models[KIMI_CODE_MODEL_REF],
@@ -377,8 +336,6 @@ export function applySyntheticConfig(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-<<<<<<< HEAD
-=======
 export function applyXiaomiProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[XIAOMI_DEFAULT_MODEL_REF] = {
@@ -450,7 +407,6 @@ export function applyXiaomiConfig(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
->>>>>>> d47b4e6f8 (fix: update config types)
 /**
  * Apply Venice provider configuration without changing the default model.
  * Registers Venice models and sets up the provider, but preserves existing model selection.

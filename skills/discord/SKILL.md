@@ -1,24 +1,14 @@
 ---
 name: discord
-<<<<<<< HEAD
 description: Use when you need to control Discord from Moltbot via the discord tool: send messages, react, post or upload stickers, upload emojis, run polls, manage threads/pins/search, create/edit/delete channels and categories, fetch permissions or member/role/channel info, or handle moderation actions in Discord DMs or channels.
 metadata: {"moltbot":{"emoji":"🎮","requires":{"config":["channels.discord"]}}}
-=======
-description: "Discord ops via the message tool (channel=discord)."
-metadata: { "openclaw": { "emoji": "🎮", "requires": { "config": ["channels.discord.token"] } } }
-allowed-tools: ["message"]
->>>>>>> d3428053d (fix: redact config values in skills status)
 ---
 
 # Discord (Via `message`)
 
 Use the `message` tool. No provider-specific `discord` tool exposed to the agent.
 
-<<<<<<< HEAD
 Use `discord` to manage messages, reactions, threads, polls, and moderation. You can disable groups via `discord.actions.*` (defaults to enabled, except roles/moderation). The tool uses the bot token configured for Moltbot.
-=======
-## Musts
->>>>>>> d3428053d (fix: redact config values in skills status)
 
 - Always: `channel: "discord"`.
 - Respect gating: `channels.discord.actions.*` (some default off: `roles`, `moderation`, `presence`, `channels`).
@@ -75,7 +65,6 @@ Read:
   "action": "read",
   "channel": "discord",
   "to": "channel:123",
-<<<<<<< HEAD
   "stickerIds": ["9876543210"],
   "content": "Nice work!"
 }
@@ -165,8 +154,6 @@ Use `discord.actions.*` to disable action groups:
 {
   "action": "readMessages",
   "channelId": "123",
-=======
->>>>>>> d3428053d (fix: redact config values in skills status)
   "limit": 20
 }
 ```
@@ -175,7 +162,6 @@ Edit / delete:
 
 ```json
 {
-<<<<<<< HEAD
   "action": "fetchMessage",
   "guildId": "999",
   "channelId": "123",
@@ -218,10 +204,6 @@ Edit / delete:
 ```json
 {
   "action": "editMessage",
-=======
-  "action": "edit",
-  "channel": "discord",
->>>>>>> d3428053d (fix: redact config values in skills status)
   "channelId": "123",
   "messageId": "456",
   "message": "fixed typo"
@@ -291,7 +273,6 @@ Presence (often gated):
 
 ```json
 {
-<<<<<<< HEAD
   "action": "memberInfo",
   "guildId": "999",
   "userId": "111"
@@ -498,18 +479,3 @@ CalVer uses date-based versions like...
 ```
 versioning options: semver (1.2.3), calver (2026.01.04), or yolo (`latest` forever). what fits your release cadence?
 ```
-=======
-  "action": "set-presence",
-  "channel": "discord",
-  "activityType": "playing",
-  "activityName": "with fire",
-  "status": "online"
-}
-```
-
-## Writing Style (Discord)
-
-- Short, conversational, low ceremony.
-- No markdown tables.
-- Prefer multiple small replies over one wall of text.
->>>>>>> d3428053d (fix: redact config values in skills status)

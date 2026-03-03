@@ -423,7 +423,6 @@ describe("runMessageAction sendAttachment hydration", () => {
     vi.clearAllMocks();
   });
 
-<<<<<<< HEAD
   it("hydrates buffer and filename from media for sendAttachment", async () => {
     const cfg = {
       channels: {
@@ -434,12 +433,6 @@ describe("runMessageAction sendAttachment hydration", () => {
         },
       },
     } as MoltbotConfig;
-=======
-  async function restoreRealMediaLoader() {
-    const actual = await vi.importActual<typeof import("../../web/media.js")>("../../web/media.js");
-    vi.mocked(loadWebMedia).mockImplementation(actual.loadWebMedia);
-  }
->>>>>>> 270ab03e3 (fix: enforce local media root checks for attachment hydration)
 
   it("hydrates buffer and filename from media for sendAttachment", async () => {
     const result = await runMessageAction({
@@ -464,8 +457,6 @@ describe("runMessageAction sendAttachment hydration", () => {
       Buffer.from("hello").toString("base64"),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("rewrites sandboxed media paths for sendAttachment", async () => {
     await withSandbox(async (sandboxDir) => {
@@ -890,7 +881,6 @@ describe("runMessageAction components parsing", () => {
 
     expect(handleAction).not.toHaveBeenCalled();
   });
->>>>>>> 270ab03e3 (fix: enforce local media root checks for attachment hydration)
 });
 
 describe("runMessageAction accountId defaults", () => {

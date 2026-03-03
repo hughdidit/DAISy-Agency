@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
-=======
-import type { PluginRuntime } from "openclaw/plugin-sdk";
-import { beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
 import type { CoreConfig } from "./types.js";
 
 import { matrixPlugin } from "./channel.js";

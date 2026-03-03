@@ -1,10 +1,7 @@
 import { CURRENT_SESSION_VERSION } from "@mariozechner/pi-coding-agent";
 import fs from "node:fs";
-<<<<<<< HEAD:src/gateway/server-methods/chat.inject.parentid.test.ts
 import os from "node:os";
 import path from "node:path";
-=======
->>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags):src/gateway/server-methods/chat.inject.parentid.e2e.test.ts
 import { describe, expect, it, vi } from "vitest";
 import { createMockSessionEntry, createTranscriptFixtureSync } from "./chat.test-helpers.js";
 import type { GatewayRequestContext } from "./types.js";

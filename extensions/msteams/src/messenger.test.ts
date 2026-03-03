@@ -1,14 +1,6 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { SILENT_REPLY_TOKEN, type PluginRuntime } from "clawdbot/plugin-sdk";
-=======
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { SILENT_REPLY_TOKEN, type PluginRuntime } from "openclaw/plugin-sdk";
-import { beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 106d60551 (fix: harden msteams mentions and fallback links (#15436) (thanks @hyojin))
 import type { StoredConversationReference } from "./conversation-store.js";
 const graphUploadMockState = vi.hoisted(() => ({
   uploadAndShareOneDrive: vi.fn(),

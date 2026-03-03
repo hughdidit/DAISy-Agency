@@ -4,11 +4,7 @@ import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { CronJob } from "./types.js";
-=======
-=======
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import * as schedule from "./schedule.js";
 >>>>>>> e74ec2acd (fix(cron): add spin-loop regression coverage)
 import { CronService } from "./service.js";
@@ -62,8 +58,6 @@ function createDueIsolatedJob(params: {
   };
 }
 
-<<<<<<< HEAD
-=======
 function createDefaultIsolatedRunner(): CronServiceOptions["runIsolatedAgentJob"] {
   return vi.fn().mockResolvedValue({
     status: "ok",
@@ -141,7 +135,6 @@ async function startCronForStore(params: {
   return cron;
 }
 
->>>>>>> eabf187fa (test(cron): dedupe migration and regression fixtures)
 describe("Cron issue regressions", () => {
   beforeAll(async () => {
     fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cron-issues-"));
@@ -356,111 +349,7 @@ describe("Cron issue regressions", () => {
     expect(persistedDueJob?.state?.nextRunAtMs).toBe(originalDueNextRunAtMs);
 
     cron.stop();
-<<<<<<< HEAD
     await store.cleanup();
-=======
-  });
-
-  it("treats persisted jobs with missing enabled as enabled during update()", async () => {
-    const store = await makeStorePath();
-    const now = Date.parse("2026-02-06T10:05:00.000Z");
-    await fs.writeFile(
-      store.storePath,
-      JSON.stringify(
-        {
-          version: 1,
-          jobs: [
-            {
-              id: "missing-enabled-update",
-              name: "legacy missing enabled",
-              createdAtMs: now - 60_000,
-              updatedAtMs: now - 60_000,
-              schedule: { kind: "cron", expr: "0 */2 * * *", tz: "UTC" },
-              sessionTarget: "main",
-              wakeMode: "next-heartbeat",
-              payload: { kind: "systemEvent", text: "legacy" },
-              state: {},
-            },
-          ],
-        },
-        null,
-        2,
-      ),
-      "utf-8",
-    );
-
-    const cron = new CronService({
-      cronEnabled: true,
-      storePath: store.storePath,
-      log: noopLogger,
-      enqueueSystemEvent: vi.fn(),
-      requestHeartbeatNow: vi.fn(),
-      runIsolatedAgentJob: vi.fn().mockResolvedValue({ status: "ok", summary: "ok" }),
-    });
-    await cron.start();
-
-    const listed = await cron.list();
-    expect(listed.some((job) => job.id === "missing-enabled-update")).toBe(true);
-
-    const updated = await cron.update("missing-enabled-update", {
-      schedule: { kind: "cron", expr: "0 */3 * * *", tz: "UTC" },
-    });
-
-    expect(updated.state.nextRunAtMs).toBeTypeOf("number");
-    expect(updated.state.nextRunAtMs).toBeGreaterThan(now);
-
-    cron.stop();
-  });
-
-  it("treats persisted due jobs with missing enabled as runnable", async () => {
-    const store = await makeStorePath();
-    const now = Date.parse("2026-02-06T10:05:00.000Z");
-    const dueAt = now - 30_000;
-    await fs.writeFile(
-      store.storePath,
-      JSON.stringify(
-        {
-          version: 1,
-          jobs: [
-            {
-              id: "missing-enabled-due",
-              name: "legacy due job",
-              createdAtMs: dueAt - 60_000,
-              updatedAtMs: dueAt,
-              schedule: { kind: "at", at: new Date(dueAt).toISOString() },
-              sessionTarget: "main",
-              wakeMode: "now",
-              payload: { kind: "systemEvent", text: "missing-enabled-due" },
-              state: { nextRunAtMs: dueAt },
-            },
-          ],
-        },
-        null,
-        2,
-      ),
-      "utf-8",
-    );
-
-    const enqueueSystemEvent = vi.fn();
-    const cron = new CronService({
-      cronEnabled: false,
-      storePath: store.storePath,
-      log: noopLogger,
-      enqueueSystemEvent,
-      requestHeartbeatNow: vi.fn(),
-      runIsolatedAgentJob: vi.fn().mockResolvedValue({ status: "ok", summary: "ok" }),
-    });
-    await cron.start();
-
-    const result = await cron.run("missing-enabled-due", "due");
-    expect(result).toEqual({ ok: true, ran: true });
-    expect(enqueueSystemEvent).toHaveBeenCalledWith(
-      "missing-enabled-due",
-      expect.objectContaining({ agentId: undefined }),
-    );
-
-    cron.stop();
->>>>>>> 108f0ef8c (fix(test): remove stale cleanup calls in cron regressions)
   });
 
   it("caps timer delay to 60s for far-future schedules", async () => {
@@ -581,8 +470,6 @@ describe("Cron issue regressions", () => {
     await store.cleanup();
   });
 
-<<<<<<< HEAD
-=======
   it("#13845: one-shot jobs with terminal statuses do not re-fire on restart", async () => {
     const store = await makeStorePath();
     const pastAt = Date.parse("2026-02-06T09:00:00.000Z");
@@ -640,7 +527,6 @@ describe("Cron issue regressions", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> 53055aeaf (perf(test): consolidate cron and canvas regression setups)
 =======
   it("prevents spin loop when cron job completes within the scheduled second (#17821)", async () => {
     const store = await makeStorePath();
@@ -734,8 +620,6 @@ describe("Cron issue regressions", () => {
     expect(job!.state.nextRunAtMs).toBeGreaterThanOrEqual(minNext);
   });
 
-<<<<<<< HEAD
-=======
   it("treats timeoutSeconds=0 as no timeout for isolated agentTurn jobs", async () => {
     const store = await makeStorePath();
     const scheduledAt = Date.parse("2026-02-15T13:00:00.000Z");
@@ -783,7 +667,6 @@ describe("Cron issue regressions", () => {
     expect(job?.state.lastStatus).toBe("ok");
   });
 
->>>>>>> eabf187fa (test(cron): dedupe migration and regression fixtures)
   it("retries cron schedule computation from the next second when the first attempt returns undefined (#17821)", () => {
     const scheduledAt = Date.parse("2026-02-15T13:00:00.000Z");
     const cronJob = createIsolatedRegressionJob({
@@ -857,75 +740,6 @@ describe("Cron issue regressions", () => {
     expect(secondDone?.state.lastDurationMs).toBe(20);
     expect(startedAtEvents).toEqual([dueAt, dueAt + 50]);
 
-<<<<<<< HEAD
     await store.cleanup();
-=======
-  it("honors cron maxConcurrentRuns for due jobs", async () => {
-    vi.useRealTimers();
-    const store = await makeStorePath();
-    const dueAt = Date.parse("2026-02-06T10:05:01.000Z");
-    const first = createDueIsolatedJob({ id: "parallel-first", nowMs: dueAt, nextRunAtMs: dueAt });
-    const second = createDueIsolatedJob({
-      id: "parallel-second",
-      nowMs: dueAt,
-      nextRunAtMs: dueAt,
-    });
-    await fs.writeFile(
-      store.storePath,
-      JSON.stringify({ version: 1, jobs: [first, second] }, null, 2),
-      "utf-8",
-    );
-
-    let now = dueAt;
-    let activeRuns = 0;
-    let peakActiveRuns = 0;
-    const startedRunIds = new Set<string>();
-    const bothRunsStarted = createDeferred<void>();
-    const firstRun = createDeferred<{ status: "ok"; summary: string }>();
-    const secondRun = createDeferred<{ status: "ok"; summary: string }>();
-    const state = createCronServiceState({
-      cronEnabled: true,
-      storePath: store.storePath,
-      cronConfig: { maxConcurrentRuns: 2 },
-      log: noopLogger,
-      nowMs: () => now,
-      enqueueSystemEvent: vi.fn(),
-      requestHeartbeatNow: vi.fn(),
-      runIsolatedAgentJob: vi.fn(async (params: { job: { id: string } }) => {
-        activeRuns += 1;
-        peakActiveRuns = Math.max(peakActiveRuns, activeRuns);
-        startedRunIds.add(params.job.id);
-        if (startedRunIds.size === 2) {
-          bothRunsStarted.resolve();
-        }
-        try {
-          const result =
-            params.job.id === first.id ? await firstRun.promise : await secondRun.promise;
-          now += 10;
-          return result;
-        } finally {
-          activeRuns -= 1;
-        }
-      }),
-    });
-
-    const timerPromise = onTimer(state);
-    await Promise.race([
-      bothRunsStarted.promise,
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("timed out waiting for concurrent cron runs")), 1_000),
-      ),
-    ]);
-
-    expect(peakActiveRuns).toBe(2);
-
-    firstRun.resolve({ status: "ok", summary: "first done" });
-    secondRun.resolve({ status: "ok", summary: "second done" });
-    await timerPromise;
-
-    const jobs = state.store?.jobs ?? [];
-    expect(jobs.find((job) => job.id === first.id)?.state.lastStatus).toBe("ok");
-    expect(jobs.find((job) => job.id === second.id)?.state.lastStatus).toBe("ok");
->>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
   });
 });

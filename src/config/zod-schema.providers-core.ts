@@ -1,17 +1,5 @@
 import { z } from "zod";
-<<<<<<< HEAD
 
-=======
-import { isSafeScpRemoteHost } from "../infra/scp-host.js";
-import { isValidInboundPathRootPattern } from "../media/inbound-path-policy.js";
-import {
-  normalizeTelegramCommandDescription,
-  normalizeTelegramCommandName,
-  resolveTelegramCustomCommands,
-} from "./telegram-custom-commands.js";
-import { ToolPolicySchema } from "./zod-schema.agent-runtime.js";
-import { ChannelHeartbeatVisibilitySchema } from "./zod-schema.channels.js";
->>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 import {
   BlockStreamingChunkSchema,
   BlockStreamingCoalesceSchema,
@@ -24,14 +12,10 @@ import {
   ProviderCommandsSchema,
   ReplyToModeSchema,
   RetryConfigSchema,
-<<<<<<< HEAD
-=======
   TtsConfigSchema,
   requireAllowlistAllowFrom,
->>>>>>> cbed0e065 (fix: reject dmPolicy="allowlist" with empty allowFrom across all channels)
   requireOpenAllowFrom,
 } from "./zod-schema.core.js";
-<<<<<<< HEAD
 import { ToolPolicySchema } from "./zod-schema.agent-runtime.js";
 import { ChannelHeartbeatVisibilitySchema } from "./zod-schema.channels.js";
 import {
@@ -39,9 +23,6 @@ import {
   normalizeTelegramCommandName,
   resolveTelegramCustomCommands,
 } from "./telegram-custom-commands.js";
-=======
-import { sensitive } from "./zod-schema.sensitive.js";
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
 
 const ToolPolicyBySenderSchema = z.record(z.string(), ToolPolicySchema).optional();
 
@@ -161,7 +142,6 @@ export const TelegramAccountSchemaBase = z
   .strict();
 
 export const TelegramAccountSchema = TelegramAccountSchemaBase.superRefine((value, ctx) => {
-<<<<<<< HEAD
   requireOpenAllowFrom({
     policy: value.dmPolicy,
     allowFrom: value.allowFrom,
@@ -178,13 +158,6 @@ export const TelegramAccountSchema = TelegramAccountSchemaBase.superRefine((valu
     message:
       'channels.telegram.dmPolicy="allowlist" requires channels.telegram.allowFrom to contain at least one sender ID',
   });
-=======
-  normalizeTelegramStreamingConfig(value);
-  // Account-level schemas skip allowFrom validation because accounts inherit
-  // allowFrom from the parent channel config at runtime (resolveTelegramAccount
-  // shallow-merges top-level and account values in src/telegram/accounts.ts).
-  // Validation is enforced at the top-level TelegramConfigSchema instead.
->>>>>>> 0fdac3138 (fix: skip allowFrom validation at account level (inherits from parent))
   validateTelegramCustomCommands(value, ctx);
 });
 
@@ -208,8 +181,6 @@ export const TelegramConfigSchema = TelegramAccountSchemaBase.extend({
       'channels.telegram.dmPolicy="allowlist" requires channels.telegram.allowFrom to contain at least one sender ID',
   });
   validateTelegramCustomCommands(value, ctx);
-<<<<<<< HEAD
-=======
 
   if (value.accounts) {
     for (const [accountId, account] of Object.entries(value.accounts)) {
@@ -294,7 +265,6 @@ export const TelegramConfigSchema = TelegramAccountSchemaBase.extend({
       });
     }
   }
->>>>>>> 45d868685 (fix: enforce dm allowFrom inheritance across account channels (#27936) (thanks @widingmarcus-cyber))
 });
 
 export const DiscordDmSchema = z
@@ -399,11 +369,8 @@ export const DiscordAccountSchema = z
         approvers: z.array(z.union([z.string(), z.number()])).optional(),
         agentFilter: z.array(z.string()).optional(),
         sessionFilter: z.array(z.string()).optional(),
-<<<<<<< HEAD
-=======
         cleanupAfterResolve: z.boolean().optional(),
         target: z.enum(["dm", "channel", "both"]).optional(),
->>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))
       })
       .strict()
       .optional(),
@@ -414,8 +381,6 @@ export const DiscordAccountSchema = z
       })
       .strict()
       .optional(),
-<<<<<<< HEAD
-=======
     pluralkit: z
       .object({
         enabled: z.boolean().optional(),
@@ -424,49 +389,8 @@ export const DiscordAccountSchema = z
       .strict()
       .optional(),
     responsePrefix: z.string().optional(),
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
   })
-<<<<<<< HEAD
   .strict();
-=======
-  .strict()
-  .superRefine((value, ctx) => {
-    normalizeDiscordStreamingConfig(value);
-
-    const activityText = typeof value.activity === "string" ? value.activity.trim() : "";
-    const hasActivity = Boolean(activityText);
-    const hasActivityType = value.activityType !== undefined;
-    const activityUrl = typeof value.activityUrl === "string" ? value.activityUrl.trim() : "";
-    const hasActivityUrl = Boolean(activityUrl);
-
-    if ((hasActivityType || hasActivityUrl) && !hasActivity) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "channels.discord.activity is required when activityType or activityUrl is set",
-        path: ["activity"],
-      });
-    }
-
-    if (value.activityType === 1 && !hasActivityUrl) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "channels.discord.activityUrl is required when activityType is 1 (Streaming)",
-        path: ["activityUrl"],
-      });
-    }
-
-    if (hasActivityUrl && value.activityType !== 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "channels.discord.activityType must be 1 (Streaming) when activityUrl is set",
-        path: ["activityType"],
-      });
-    }
-
-    // DM allowlist validation is enforced at DiscordConfigSchema so account entries
-    // can inherit top-level allowFrom via runtime shallow merge.
-  });
->>>>>>> cbed0e065 (fix: reject dmPolicy="allowlist" with empty allowFrom across all channels)
 
 export const DiscordConfigSchema = DiscordAccountSchema.extend({
   accounts: z.record(z.string(), DiscordAccountSchema.optional()).optional(),
@@ -708,40 +632,10 @@ export const SlackAccountSchema = z
     channels: z.record(z.string(), SlackChannelSchema.optional()).optional(),
     heartbeat: ChannelHeartbeatVisibilitySchema,
   })
-<<<<<<< HEAD
   .strict();
 
 <<<<<<< HEAD
 export const SlackConfigSchema = SlackAccountSchema.extend({
-=======
-    const dmPolicy = value.dmPolicy ?? value.dm?.policy ?? "pairing";
-    const allowFrom = value.allowFrom ?? value.dm?.allowFrom;
-    const allowFromPath =
-      value.allowFrom !== undefined ? (["allowFrom"] as const) : (["dm", "allowFrom"] as const);
-    requireOpenAllowFrom({
-      policy: dmPolicy,
-      allowFrom,
-      ctx,
-      path: [...allowFromPath],
-      message:
-        'channels.slack.dmPolicy="open" requires channels.slack.allowFrom (or channels.slack.dm.allowFrom) to include "*"',
-    });
-    requireAllowlistAllowFrom({
-      policy: dmPolicy,
-      allowFrom,
-      ctx,
-      path: [...allowFromPath],
-      message:
-        'channels.slack.dmPolicy="allowlist" requires channels.slack.allowFrom (or channels.slack.dm.allowFrom) to contain at least one sender ID',
-    });
-=======
-  .strict()
-  .superRefine((value) => {
-    normalizeSlackStreamingConfig(value);
-
-    // DM allowlist validation is enforced at SlackConfigSchema so account entries
-    // can inherit top-level allowFrom via runtime shallow merge.
->>>>>>> 45d868685 (fix: enforce dm allowFrom inheritance across account channels (#27936) (thanks @widingmarcus-cyber))
   });
 
 export const SlackConfigSchema = SlackAccountSchema.safeExtend({
@@ -785,33 +679,7 @@ export const SlackConfigSchema = SlackAccountSchema.safeExtend({
     if (!account) continue;
     if (account.enabled === false) continue;
     const accountMode = account.mode ?? baseMode;
-<<<<<<< HEAD
     if (accountMode !== "http") continue;
-=======
-    const effectivePolicy =
-      account.dmPolicy ?? account.dm?.policy ?? value.dmPolicy ?? value.dm?.policy ?? "pairing";
-    const effectiveAllowFrom =
-      account.allowFrom ?? account.dm?.allowFrom ?? value.allowFrom ?? value.dm?.allowFrom;
-    requireOpenAllowFrom({
-      policy: effectivePolicy,
-      allowFrom: effectiveAllowFrom,
-      ctx,
-      path: ["accounts", accountId, "allowFrom"],
-      message:
-        'channels.slack.accounts.*.dmPolicy="open" requires channels.slack.accounts.*.allowFrom (or channels.slack.allowFrom) to include "*"',
-    });
-    requireAllowlistAllowFrom({
-      policy: effectivePolicy,
-      allowFrom: effectiveAllowFrom,
-      ctx,
-      path: ["accounts", accountId, "allowFrom"],
-      message:
-        'channels.slack.accounts.*.dmPolicy="allowlist" requires channels.slack.accounts.*.allowFrom (or channels.slack.allowFrom) to contain at least one sender ID',
-    });
-    if (accountMode !== "http") {
-      continue;
-    }
->>>>>>> 45d868685 (fix: enforce dm allowFrom inheritance across account channels (#27936) (thanks @widingmarcus-cyber))
     const accountSecret = account.signingSecret ?? value.signingSecret;
     if (!accountSecret) {
       ctx.addIssue({
@@ -919,8 +787,6 @@ export const SignalConfigSchema = SignalAccountSchemaBase.extend({
   }
 });
 
-<<<<<<< HEAD
-=======
 export const IrcGroupSchema = z
   .object({
     requireMention: z.boolean().optional(),
@@ -1019,13 +885,11 @@ export const IrcAccountSchema = IrcAccountSchemaBase.superRefine((value, ctx) =>
       message: "channels.irc.nickserv.register=true requires channels.irc.nickserv.registerEmail",
     });
   }
->>>>>>> 0fdac3138 (fix: skip allowFrom validation at account level (inherits from parent))
 });
 
 export const IrcConfigSchema = IrcAccountSchemaBase.extend({
   accounts: z.record(z.string(), IrcAccountSchema.optional()).optional(),
 }).superRefine((value, ctx) => {
-<<<<<<< HEAD
   requireOpenAllowFrom({
     policy: value.dmPolicy,
     allowFrom: value.allowFrom,
@@ -1038,33 +902,6 @@ export const IrcConfigSchema = IrcAccountSchemaBase.extend({
       code: z.ZodIssueCode.custom,
       path: ["nickserv", "registerEmail"],
       message: "channels.irc.nickserv.register=true requires channels.irc.nickserv.registerEmail",
-=======
-  refineIrcAllowFromAndNickserv(value, ctx);
-  if (!value.accounts) {
-    return;
-  }
-  for (const [accountId, account] of Object.entries(value.accounts)) {
-    if (!account) {
-      continue;
-    }
-    const effectivePolicy = account.dmPolicy ?? value.dmPolicy;
-    const effectiveAllowFrom = account.allowFrom ?? value.allowFrom;
-    requireOpenAllowFrom({
-      policy: effectivePolicy,
-      allowFrom: effectiveAllowFrom,
-      ctx,
-      path: ["accounts", accountId, "allowFrom"],
-      message:
-        'channels.irc.accounts.*.dmPolicy="open" requires channels.irc.accounts.*.allowFrom (or channels.irc.allowFrom) to include "*"',
-    });
-    requireAllowlistAllowFrom({
-      policy: effectivePolicy,
-      allowFrom: effectiveAllowFrom,
-      ctx,
-      path: ["accounts", accountId, "allowFrom"],
-      message:
-        'channels.irc.accounts.*.dmPolicy="allowlist" requires channels.irc.accounts.*.allowFrom (or channels.irc.allowFrom) to contain at least one sender ID',
->>>>>>> 45d868685 (fix: enforce dm allowFrom inheritance across account channels (#27936) (thanks @widingmarcus-cyber))
     });
   }
 });

@@ -14,30 +14,20 @@ import { removeAckReactionAfterReply } from "../channels/ack-reactions.js";
 import { logAckFailure, logTypingFailure } from "../channels/logging.js";
 import { createReplyPrefixContext } from "../channels/reply-prefix.js";
 import { createTypingCallbacks } from "../channels/typing.js";
-<<<<<<< HEAD
-=======
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 import type { OpenClawConfig, ReplyToMode, TelegramAccountConfig } from "../config/types.js";
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
 import { danger, logVerbose } from "../globals.js";
-<<<<<<< HEAD
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
-=======
-import { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { deliverReplies } from "./bot/delivery.js";
 import { resolveTelegramDraftStreamingChunking } from "./draft-chunking.js";
 import { createTelegramDraftStream } from "./draft-stream.js";
-<<<<<<< HEAD
-=======
 import { renderTelegramHtmlText } from "./format.js";
 import {
   createTelegramReasoningStepState,
   splitTelegramReasoningText,
 } from "./reasoning-lane-coordinator.js";
 import { editMessageTelegram } from "./send.js";
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
 import { cacheSticker, describeStickerImage } from "./sticker-cache.js";
 import { resolveAgentDir } from "../agents/agent-scope.js";
 
@@ -55,8 +45,6 @@ async function resolveStickerVisionSupport(cfg, agentId) {
   }
 }
 
-<<<<<<< HEAD
-=======
 type DispatchTelegramMessageParams = {
   context: TelegramMessageContext;
   bot: Bot;
@@ -94,7 +82,6 @@ function resolveTelegramReasoningLevel(params: {
   return "off";
 }
 
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
 export const dispatchTelegramMessage = async ({
   context,
   bot,
@@ -129,7 +116,6 @@ export const dispatchTelegramMessage = async ({
   const isPrivateChat = msg.chat.type === "private";
   const draftThreadId = threadSpec.id;
   const draftMaxChars = Math.min(textLimit, 4096);
-<<<<<<< HEAD
   const canStreamDraft =
     streamMode !== "off" &&
     isPrivateChat &&
@@ -160,137 +146,6 @@ export const dispatchTelegramMessage = async ({
     if (streamMode === "partial") {
       lastPartialText = text;
       draftStream.update(text);
-=======
-  const tableMode = resolveMarkdownTableMode({
-    cfg,
-    channel: "telegram",
-    accountId: route.accountId,
-  });
-  const renderDraftPreview = (text: string) => ({
-    text: renderTelegramHtmlText(text, { tableMode }),
-    parseMode: "HTML" as const,
-  });
-  const accountBlockStreamingEnabled =
-    typeof telegramCfg.blockStreaming === "boolean"
-      ? telegramCfg.blockStreaming
-      : cfg.agents?.defaults?.blockStreamingDefault === "on";
-  const resolvedReasoningLevel = resolveTelegramReasoningLevel({
-    cfg,
-    sessionKey: ctxPayload.SessionKey,
-    agentId: route.agentId,
-  });
-  const forceBlockStreamingForReasoning = resolvedReasoningLevel === "on";
-  const streamReasoningDraft = resolvedReasoningLevel === "stream";
-  const canStreamAnswerDraft =
-    streamMode !== "off" && !accountBlockStreamingEnabled && !forceBlockStreamingForReasoning;
-  const canStreamReasoningDraft = canStreamAnswerDraft || streamReasoningDraft;
-  const draftReplyToMessageId =
-    replyToMode !== "off" && typeof msg.message_id === "number" ? msg.message_id : undefined;
-  const draftMinInitialChars =
-    streamMode === "partial" || streamReasoningDraft ? 1 : DRAFT_MIN_INITIAL_CHARS;
-  const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, route.agentId);
-  type LaneName = "answer" | "reasoning";
-  type DraftLaneState = {
-    stream: ReturnType<typeof createTelegramDraftStream> | undefined;
-    lastPartialText: string;
-    draftText: string;
-    hasStreamedMessage: boolean;
-    chunker: EmbeddedBlockChunker | undefined;
-  };
-  type ArchivedPreview = { messageId: number; textSnapshot: string };
-  const archivedAnswerPreviews: ArchivedPreview[] = [];
-  const archivedReasoningPreviewIds: number[] = [];
-  const createDraftLane = (laneName: LaneName, enabled: boolean): DraftLaneState => {
-    const stream = enabled
-      ? createTelegramDraftStream({
-          api: bot.api,
-          chatId,
-          maxChars: draftMaxChars,
-          thread: threadSpec,
-          replyToMessageId: draftReplyToMessageId,
-          minInitialChars: draftMinInitialChars,
-          renderText: renderDraftPreview,
-          onSupersededPreview:
-            laneName === "answer" || laneName === "reasoning"
-              ? (preview) => {
-                  if (laneName === "reasoning") {
-                    if (!archivedReasoningPreviewIds.includes(preview.messageId)) {
-                      archivedReasoningPreviewIds.push(preview.messageId);
-                    }
-                    return;
-                  }
-                  archivedAnswerPreviews.push({
-                    messageId: preview.messageId,
-                    textSnapshot: preview.textSnapshot,
-                  });
-                }
-              : undefined,
-          log: logVerbose,
-          warn: logVerbose,
-        })
-      : undefined;
-    const chunker =
-      stream && streamMode === "block"
-        ? new EmbeddedBlockChunker(resolveTelegramDraftStreamingChunking(cfg, route.accountId))
-        : undefined;
-    return {
-      stream,
-      lastPartialText: "",
-      draftText: "",
-      hasStreamedMessage: false,
-      chunker,
-    };
-  };
-  const lanes: Record<LaneName, DraftLaneState> = {
-    answer: createDraftLane("answer", canStreamAnswerDraft),
-    reasoning: createDraftLane("reasoning", canStreamReasoningDraft),
-  };
-  const answerLane = lanes.answer;
-  const reasoningLane = lanes.reasoning;
-  let splitReasoningOnNextStream = false;
-  const reasoningStepState = createTelegramReasoningStepState();
-  type SplitLaneSegment = { lane: LaneName; text: string };
-  const splitTextIntoLaneSegments = (text?: string): SplitLaneSegment[] => {
-    const split = splitTelegramReasoningText(text);
-    const segments: SplitLaneSegment[] = [];
-    if (split.reasoningText) {
-      segments.push({ lane: "reasoning", text: split.reasoningText });
-    }
-    if (split.answerText) {
-      segments.push({ lane: "answer", text: split.answerText });
-    }
-    return segments;
-  };
-  const resetDraftLaneState = (lane: DraftLaneState) => {
-    lane.lastPartialText = "";
-    lane.draftText = "";
-    lane.hasStreamedMessage = false;
-    lane.chunker?.reset();
-  };
-  const updateDraftFromPartial = (lane: DraftLaneState, text: string | undefined) => {
-    const laneStream = lane.stream;
-    if (!laneStream || !text) {
-      return;
-    }
-    if (text === lane.lastPartialText) {
-      return;
-    }
-    // Mark that we've received streaming content (for forceNewMessage decision).
-    lane.hasStreamedMessage = true;
-    if (streamMode === "partial") {
-      // Some providers briefly emit a shorter prefix snapshot (for example
-      // "Sure." -> "Sure" -> "Sure."). Keep the longer preview to avoid
-      // visible punctuation flicker.
-      if (
-        lane.lastPartialText &&
-        lane.lastPartialText.startsWith(text) &&
-        text.length < lane.lastPartialText.length
-      ) {
-        return;
-      }
-      lane.lastPartialText = text;
-      laneStream.update(text);
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
       return;
     }
     let delta = text;
@@ -301,21 +156,11 @@ export const dispatchTelegramMessage = async ({
       lane.chunker?.reset();
       lane.draftText = "";
     }
-<<<<<<< HEAD
     lastPartialText = text;
     if (!delta) return;
     if (!draftChunker) {
       draftText = text;
       draftStream.update(draftText);
-=======
-    lane.lastPartialText = text;
-    if (!delta) {
-      return;
-    }
-    if (!lane.chunker) {
-      lane.draftText = text;
-      laneStream.update(lane.draftText);
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
       return;
     }
     lane.chunker.append(delta);
@@ -327,69 +172,28 @@ export const dispatchTelegramMessage = async ({
       },
     });
   };
-<<<<<<< HEAD
   const flushDraft = async () => {
     if (!draftStream) return;
     if (draftChunker?.hasBuffered()) {
       draftChunker.drain({
-=======
-  const ingestDraftLaneSegments = (text: string | undefined) => {
-    for (const segment of splitTextIntoLaneSegments(text)) {
-      if (segment.lane === "reasoning") {
-        reasoningStepState.noteReasoningHint();
-        reasoningStepState.noteReasoningDelivered();
-      }
-      updateDraftFromPartial(lanes[segment.lane], segment.text);
-    }
-  };
-  const flushDraftLane = async (lane: DraftLaneState) => {
-    if (!lane.stream) {
-      return;
-    }
-    if (lane.chunker?.hasBuffered()) {
-      lane.chunker.drain({
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
         force: true,
         emit: (chunk) => {
           lane.draftText += chunk;
         },
       });
-<<<<<<< HEAD
       draftChunker.reset();
       if (draftText) draftStream.update(draftText);
-=======
-      lane.chunker.reset();
-      if (lane.draftText) {
-        lane.stream.update(lane.draftText);
-      }
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
     }
     await lane.stream.flush();
   };
 
   const disableBlockStreaming =
-<<<<<<< HEAD
     Boolean(draftStream) ||
     (typeof telegramCfg.blockStreaming === "boolean" ? !telegramCfg.blockStreaming : undefined);
 
   const prefixContext = createReplyPrefixContext({ cfg, agentId: route.agentId });
   const tableMode = resolveMarkdownTableMode({
     cfg,
-=======
-    streamMode === "off"
-      ? true
-      : forceBlockStreamingForReasoning
-        ? false
-        : typeof telegramCfg.blockStreaming === "boolean"
-          ? !telegramCfg.blockStreaming
-          : canStreamAnswerDraft
-            ? true
-            : undefined;
-
-  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
-    cfg,
-    agentId: route.agentId,
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
     channel: "telegram",
     accountId: route.accountId,
   });
@@ -452,8 +256,6 @@ export const dispatchTelegramMessage = async ({
   const deliveryState = {
     delivered: false,
     skippedNonSilent: 0,
-<<<<<<< HEAD
-=======
     failedNonSilent: 0,
   };
   const finalizedPreviewByLane: Record<LaneName, boolean> = {
@@ -478,7 +280,6 @@ export const dispatchTelegramMessage = async ({
     chunkMode,
     linkPreview: telegramCfg.linkPreview,
     replyQuoteText,
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
   };
   const getLanePreviewText = (lane: DraftLaneState) =>
     streamMode === "block" ? lane.draftText : lane.lastPartialText;
@@ -622,8 +423,6 @@ export const dispatchTelegramMessage = async ({
       !hasMedia && text.length > 0 && text.length <= draftMaxChars && !payload.isError;
 
     if (infoKind === "final") {
-<<<<<<< HEAD
-=======
       if (laneName === "answer") {
         const archivedResult = await consumeArchivedAnswerPreviewForFinal({
           lane,
@@ -636,7 +435,6 @@ export const dispatchTelegramMessage = async ({
           return archivedResult;
         }
       }
->>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
       if (canEditViaPreview && !finalizedPreviewByLane[laneName]) {
         await flushDraftLane(lane);
         if (laneName === "answer") {
@@ -694,7 +492,6 @@ export const dispatchTelegramMessage = async ({
     return delivered ? "sent" : "skipped";
   };
 
-<<<<<<< HEAD
   const { queuedFinal } = await dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg,
@@ -739,28 +536,6 @@ export const dispatchTelegramMessage = async ({
             channel: "telegram",
             target: String(chatId),
             error: err,
-=======
-  let queuedFinal = false;
-<<<<<<< HEAD
-=======
-
-  if (statusReactionController) {
-    void statusReactionController.setThinking();
-  }
-
-  const typingCallbacks = createTypingCallbacks({
-    start: sendTyping,
-    onStartError: (err) => {
-      logTypingFailure({
-        log: logVerbose,
-        channel: "telegram",
-        target: String(chatId),
-        error: err,
-      });
-    },
-  });
-
->>>>>>> e0201c277 (fix: keep channel typing active during long inference (#25886, thanks @stakeswky))
   try {
     ({ queuedFinal } = await dispatchReplyWithBufferedBlockDispatcher({
       ctx: ctxPayload,
@@ -768,7 +543,6 @@ export const dispatchTelegramMessage = async ({
       dispatcherOptions: {
         ...prefixOptions,
         deliver: async (payload, info) => {
-<<<<<<< HEAD
           if (info.kind === "final") {
             await flushDraft();
             const hasMedia = Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
@@ -839,8 +613,6 @@ export const dispatchTelegramMessage = async ({
             if (payload.text) draftStream.update(payload.text);
           }
         : undefined,
-=======
->>>>>>> 37721ebd7 (fix: restore telegram draft streaming partials)
       disableBlockStreaming,
       onPartialReply: draftStream ? (payload) => updateDraftFromPartial(payload.text) : undefined,
       onModelSelected: (ctx) => {
@@ -1029,8 +801,6 @@ export const dispatchTelegramMessage = async ({
         await stream.clear();
       }
     }
-<<<<<<< HEAD
-=======
     for (const archivedPreview of archivedAnswerPreviews) {
       try {
         await bot.api.deleteMessage(chatId, archivedPreview.messageId);
@@ -1049,7 +819,6 @@ export const dispatchTelegramMessage = async ({
         );
       }
     }
->>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
   }
   let sentFallback = false;
   if (

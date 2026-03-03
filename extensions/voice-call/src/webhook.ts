@@ -14,12 +14,6 @@ import type { NormalizedEvent, WebhookContext } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { MediaStreamHandler } from "./media-stream.js";
-import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
->>>>>>> 0291ce30a (fix: apply oxfmt 0.32.0 formatting (match CI version))
 =======
 >>>>>>> d56c04a3b (fix: apply oxfmt formatting)
 =======
@@ -160,7 +154,6 @@ export class VoiceCallWebhookServer {
           );
         }
 
-<<<<<<< HEAD
         // Speak initial message if one was provided when call was initiated
         // Use setTimeout to allow stream setup to complete
         setTimeout(() => {
@@ -168,62 +161,9 @@ export class VoiceCallWebhookServer {
             this.logger.warn(`[voice-call] Failed to speak initial message: ${err}`);
           });
         }, 500);
-=======
-        // Try instant cached greeting for inbound calls (pre-generated at startup)
-        const cachedAudio =
-          this.provider.name === "twilio"
-            ? (this.provider as TwilioProvider).getCachedGreetingAudio()
-            : null;
-        const call = this.manager.getCallByProviderCallId(callId);
-        if (cachedAudio && call?.metadata?.initialMessage && call.direction === "inbound") {
-          console.log(`[voice-call] Playing cached greeting (${cachedAudio.length} bytes)`);
-          // Clear initialMessage to prevent re-speaking via the fallback path.
-          // Note: this in-memory mutation is not persisted to disk, which is acceptable
-          // because a gateway restart would also sever the media stream, making replay moot.
-          delete call.metadata.initialMessage;
-          const handler = this.mediaStreamHandler!;
-          const CHUNK_SIZE = 160;
-          const CHUNK_DELAY_MS = 20;
-          void (async () => {
-            const { chunkAudio } = await import("./telephony-audio.js");
-            await handler.queueTts(streamSid, async (signal) => {
-              for (const chunk of chunkAudio(cachedAudio, CHUNK_SIZE)) {
-                if (signal.aborted) break;
-                handler.sendAudio(streamSid, chunk);
-                await new Promise((r) => setTimeout(r, CHUNK_DELAY_MS));
-              }
-              if (!signal.aborted) {
-                handler.sendMark(streamSid, `greeting-${Date.now()}`);
-              }
-            });
-          })().catch((err) => console.warn("[voice-call] Cached greeting playback failed:", err));
-        } else {
-          // Fallback: original path with reduced delay
-          setTimeout(() => {
-            this.manager.speakInitialMessage(callId).catch((err) => {
-              console.warn(`[voice-call] Failed to speak initial message:`, err);
-            });
-          }, 100);
-        }
->>>>>>> dd319d05d (fix: apply oxfmt formatting)
       },
       onDisconnect: (callId) => {
-<<<<<<< HEAD
         this.logger.info(`[voice-call] Media stream disconnected: ${callId}`);
-=======
-        console.log(`[voice-call] Media stream disconnected: ${callId}`);
-        // Auto-end call when media stream disconnects to prevent stuck calls.
-        // Without this, calls can remain active indefinitely after the stream closes.
-        const disconnectedCall = this.manager.getCallByProviderCallId(callId);
-        if (disconnectedCall) {
-          console.log(
-            `[voice-call] Auto-ending call ${disconnectedCall.callId} on stream disconnect`,
-          );
-          void this.manager.endCall(disconnectedCall.callId).catch((err) => {
-            console.warn(`[voice-call] Failed to auto-end call ${disconnectedCall.callId}:`, err);
-          });
-        }
->>>>>>> d56c04a3b (fix: apply oxfmt formatting)
         if (this.provider.name === "twilio") {
           (this.provider as TwilioProvider).unregisterCallStream(callId);
         }
@@ -283,8 +223,6 @@ export class VoiceCallWebhookServer {
   }
 
   /**
-<<<<<<< HEAD
-=======
    * Start a periodic reaper that ends calls older than the configured threshold.
    * Catches calls stuck in unexpected states (e.g., notify-mode calls that never
    * receive a terminal webhook from the provider).
@@ -315,7 +253,6 @@ export class VoiceCallWebhookServer {
   }
 
   /**
->>>>>>> a5c94b8e7 (fix: log error on reaper endCall failure instead of swallowing)
    * Stop the webhook server.
    */
   async stop(): Promise<void> {
@@ -410,15 +347,7 @@ export class VoiceCallWebhookServer {
   /**
    * Read request body as string with timeout protection.
    */
-<<<<<<< HEAD
   private readBody(req: http.IncomingMessage): Promise<string> {
-=======
-  private readBody(
-    req: http.IncomingMessage,
-    maxBytes: number,
-    timeoutMs = 30_000,
-  ): Promise<string> {
->>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     return new Promise((resolve, reject) => {
       let done = false;
       const finish = (fn: () => void) => {
@@ -439,27 +368,9 @@ export class VoiceCallWebhookServer {
       }, timeoutMs);
 
       const chunks: Buffer[] = [];
-<<<<<<< HEAD
       req.on("data", (chunk) => chunks.push(chunk));
       req.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
       req.on("error", reject);
-=======
-      let totalBytes = 0;
-      req.on("data", (chunk: Buffer) => {
-        totalBytes += chunk.length;
-        if (totalBytes > maxBytes) {
-          finish(() => {
-            req.destroy();
-            reject(new Error("PayloadTooLarge"));
-          });
-          return;
-        }
-        chunks.push(chunk);
-      });
-      req.on("end", () => finish(() => resolve(Buffer.concat(chunks).toString("utf-8"))));
-      req.on("error", (err) => finish(() => reject(err)));
-      req.on("close", () => finish(() => reject(new Error("Connection closed"))));
->>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     });
   }
 

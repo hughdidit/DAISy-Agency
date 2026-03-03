@@ -56,15 +56,8 @@ export async function listMatrixDirectoryPeersLive(params: {
   limit?: number | null;
 }): Promise<ChannelDirectoryEntry[]> {
   const query = normalizeQuery(params.query);
-<<<<<<< HEAD
   if (!query) return [];
   const auth = await resolveMatrixAuth({ cfg: params.cfg as never });
-=======
-  if (!query) {
-    return [];
-  }
-  const auth = await resolveMatrixAuth({ cfg: params.cfg as never, accountId: params.accountId });
->>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
   const res = await fetchMatrixJson<MatrixUserDirectoryResponse>({
     homeserver: auth.homeserver,
     accessToken: auth.accessToken,
@@ -132,15 +125,8 @@ export async function listMatrixDirectoryGroupsLive(params: {
   limit?: number | null;
 }): Promise<ChannelDirectoryEntry[]> {
   const query = normalizeQuery(params.query);
-<<<<<<< HEAD
   if (!query) return [];
   const auth = await resolveMatrixAuth({ cfg: params.cfg as never });
-=======
-  if (!query) {
-    return [];
-  }
-  const auth = await resolveMatrixAuth({ cfg: params.cfg as never, accountId: params.accountId });
->>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
   const limit = typeof params.limit === "number" && params.limit > 0 ? params.limit : 20;
 
   if (query.startsWith("#")) {

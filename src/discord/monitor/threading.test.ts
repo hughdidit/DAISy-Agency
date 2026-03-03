@@ -83,8 +83,6 @@ describe("resolveDiscordReplyDeliveryPlan", () => {
       createdThreadId: null,
     });
     expect(plan.replyReference.use()).toBe("m1");
-<<<<<<< HEAD
-=======
     expect(plan.replyReference.use()).toBe("m1");
   });
 
@@ -163,7 +161,6 @@ describe("maybeCreateDiscordAutoThread", () => {
     });
 
     expect(result).toBeUndefined();
->>>>>>> 1af0edf7f (fix: ensure exec approval is registered before returning (#2402) (#3357))
   });
 });
 

@@ -4,8 +4,6 @@ import type { SessionEntry } from "../config/sessions.js";
 import { applySessionsPatchToStore } from "./sessions-patch.js";
 
 describe("gateway sessions patch", () => {
-<<<<<<< HEAD
-=======
   test("persists thinkingLevel=off (does not clear)", async () => {
     const store: Record<string, SessionEntry> = {};
     const res = await applySessionsPatchToStore({
@@ -70,7 +68,6 @@ describe("gateway sessions patch", () => {
     expect(res.entry.reasoningLevel).toBeUndefined();
   });
 
->>>>>>> 6c1ed9493 (fix: harden queue retry debounce and add regression tests)
   test("persists elevatedLevel=off (does not clear)", async () => {
     const store: Record<string, SessionEntry> = {};
     const res = await applySessionsPatchToStore({

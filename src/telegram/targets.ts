@@ -74,8 +74,6 @@ export function normalizeTelegramLookupTarget(raw: string): string | undefined {
  * - `chatId:topicId` (numeric topic/thread ID)
  * - `chatId:topic:topicId` (explicit topic marker; preferred)
  */
-<<<<<<< HEAD
-=======
 function resolveTelegramChatType(chatId: string): "direct" | "group" | "unknown" {
   const trimmed = chatId.trim();
   if (!trimmed) {
@@ -87,7 +85,6 @@ function resolveTelegramChatType(chatId: string): "direct" | "group" | "unknown"
   return "unknown";
 }
 
->>>>>>> dcc52850c (fix: persist resolved telegram delivery targets at runtime)
 export function parseTelegramTarget(to: string): TelegramTarget {
   const normalized = stripTelegramInternalPrefixes(to);
 

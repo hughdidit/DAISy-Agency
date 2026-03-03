@@ -308,25 +308,10 @@ function resolveDefaultStoreAgentId(cfg: MoltbotConfig): string {
   return normalizeAgentId(resolveDefaultAgentId(cfg));
 }
 
-<<<<<<< HEAD
 export function resolveSessionStoreKey(params: { cfg: MoltbotConfig; sessionKey: string }): string {
   const raw = params.sessionKey.trim();
   if (!raw) return raw;
   if (raw === "global" || raw === "unknown") return raw;
-=======
-export function resolveSessionStoreKey(params: {
-  cfg: OpenClawConfig;
-  sessionKey: string;
-}): string {
-  const raw = (params.sessionKey ?? "").trim();
-  if (!raw) {
-    return raw;
-  }
-  const rawLower = raw.toLowerCase();
-  if (rawLower === "global" || rawLower === "unknown") {
-    return rawLower;
-  }
->>>>>>> 1152b2586 (fix(gateway): guard trim crashes in subagent flow)
 
   const parsed = parseAgentSessionKey(raw);
   if (parsed) {
@@ -492,8 +477,6 @@ export function resolveSessionModelRef(
   });
   let provider = resolved.provider;
   let model = resolved.model;
-<<<<<<< HEAD
-=======
   const runtimeModel = entry?.model?.trim();
   const runtimeProvider = entry?.modelProvider?.trim();
   if (runtimeModel) {
@@ -518,7 +501,6 @@ export function resolveSessionModelRef(
 
   // Fall back to explicit per-session override (set at spawn/model-patch time),
   // then finally to configured defaults.
->>>>>>> 4cad67438 (fix: preserve stored provider in resolveSessionModelRef for vendor-prefixed models (#22753))
   const storedModelOverride = entry?.modelOverride?.trim();
   if (storedModelOverride) {
     provider = entry?.providerOverride?.trim() || provider;
@@ -551,20 +533,8 @@ export function listSessionsFromStore(params: {
 
   let sessions = Object.entries(store)
     .filter(([key]) => {
-<<<<<<< HEAD
       if (!includeGlobal && key === "global") return false;
       if (!includeUnknown && key === "unknown") return false;
-=======
-      if (isCronRunSessionKey(key)) {
-        return false;
-      }
-      if (!includeGlobal && key === "global") {
-        return false;
-      }
-      if (!includeUnknown && key === "unknown") {
-        return false;
-      }
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
       if (agentId) {
         if (key === "global" || key === "unknown") return false;
         const parsed = parseAgentSessionKey(key);

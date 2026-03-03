@@ -2,8 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import { createCommandHandlers } from "./tui-command-handlers.js";
 
-<<<<<<< HEAD
-=======
 type LoadHistoryMock = ReturnType<typeof vi.fn> & (() => Promise<void>);
 type SetActivityStatusMock = ReturnType<typeof vi.fn> & ((text: string) => void);
 
@@ -59,7 +57,6 @@ function createHarness(params?: {
   };
 }
 
->>>>>>> 0c1a52307 (fix: align draft/outbound typings and tests)
 describe("tui command handlers", () => {
   it("forwards unknown slash commands to the gateway", async () => {
     const sendChat = vi.fn().mockResolvedValue({ runId: "r1" });

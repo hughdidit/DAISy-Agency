@@ -180,8 +180,6 @@ Notes:
 - If you change `CLAWDBOT_DOCKER_APT_PACKAGES`, rerun `docker-setup.sh` to rebuild
   the image.
 
-<<<<<<< HEAD
-=======
 ### Power-user / full-featured container (opt-in)
 
 The default Docker image is **security-first** and runs as the non-root `node`
@@ -237,7 +235,6 @@ sudo chown -R 1000:1000 /path/to/openclaw-config /path/to/openclaw-workspace
 
 If you choose to run as root for convenience, you accept the security tradeoff.
 
->>>>>>> 9ae1b732e (fix: align tool definition adapter)
 ### Faster rebuilds (recommended)
 
 To speed up rebuilds, order your Dockerfile so dependency layers are cached.
@@ -340,14 +337,8 @@ docker compose run --rm openclaw-cli devices list --url ws://127.0.0.1:18789
 
 ### Notes
 
-<<<<<<< HEAD
 - Gateway bind defaults to `lan` for container use.
 - The gateway container is the source of truth for sessions (`~/.clawdbot/agents/<agentId>/sessions/`).
-=======
-- Gateway bind defaults to `lan` for container use (`OPENCLAW_GATEWAY_BIND`).
-- Dockerfile CMD uses `--allow-unconfigured`; mounted config with `gateway.mode` not `local` will still start. Override CMD to enforce the guard.
-- The gateway container is the source of truth for sessions (`~/.openclaw/agents/<agentId>/sessions/`).
->>>>>>> feefedfb8 (fix: allow docker cli container to connect to gateway (#12504))
 
 ## Agent Sandbox (host gateway + Docker tools)
 

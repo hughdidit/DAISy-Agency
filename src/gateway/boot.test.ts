@@ -9,14 +9,7 @@ const agentCommand = vi.fn();
 vi.mock("../commands/agent.js", () => ({ agentCommand }));
 
 const { runBootOnce } = await import("./boot.js");
-<<<<<<< HEAD
 const { resolveMainSessionKey } = await import("../config/sessions/main-session.js");
-=======
-const { resolveAgentIdFromSessionKey, resolveAgentMainSessionKey, resolveMainSessionKey } =
-  await import("../config/sessions/main-session.js");
-const { resolveStorePath } = await import("../config/sessions/paths.js");
-const { loadSessionStore, saveSessionStore } = await import("../config/sessions/store.js");
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
 
 describe("runBootOnce", () => {
   beforeEach(() => {
@@ -77,8 +70,6 @@ describe("runBootOnce", () => {
 
     await fs.rm(workspaceDir, { recursive: true, force: true });
   });
-<<<<<<< HEAD
-=======
 
   it("uses per-agent session key when agentId is provided", async () => {
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-boot-"));
@@ -194,5 +185,4 @@ describe("runBootOnce", () => {
 
     await fs.rm(workspaceDir, { recursive: true, force: true });
   });
->>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
 });

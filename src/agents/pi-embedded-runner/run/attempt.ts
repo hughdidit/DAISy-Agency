@@ -1,33 +1,19 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import fs from "node:fs/promises";
-import os from "node:os";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
 >>>>>>> bcde2fca5 (fix: align embedded agent session setup)
-=======
-=======
->>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
 import {
   createAgentSession,
   DefaultResourceLoader,
   SessionManager,
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
-<<<<<<< HEAD
 >>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
-=======
-import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
->>>>>>> e58291e07 (fix: align embedded runner with pi-coding-agent API)
 import fs from "node:fs/promises";
 import os from "node:os";
 
@@ -41,8 +27,6 @@ import { createAgentSession, SessionManager, SettingsManager } from "@mariozechn
 =======
 >>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
-<<<<<<< HEAD
-=======
 import { resolveChannelCapabilities } from "../../../config/channel-capabilities.js";
 import { getMachineDisplayName } from "../../../infra/machine-name.js";
 import { MAX_IMAGE_BYTES } from "../../../media/constants.js";
@@ -60,7 +44,6 @@ import { resolveAgentConfig, resolveSessionAgentIds } from "../../agent-scope.js
 import { createAnthropicPayloadLogger } from "../../anthropic-payload-log.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../../bootstrap-files.js";
 import { createCacheTrace } from "../../cache-trace.js";
->>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
 import {
   listChannelSupportedActions,
   resolveChannelMessageToolHints,
@@ -81,12 +64,9 @@ import { resolveSessionAgentIds } from "../../agent-scope.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../../bootstrap-files.js";
 import { resolveMoltbotDocsPath } from "../../docs-path.js";
 import { resolveModelAuthMode } from "../../model-auth.js";
-<<<<<<< HEAD
-=======
 import { resolveDefaultModelForAgent } from "../../model-selection.js";
 import { createOllamaStreamFn, OLLAMA_NATIVE_BASE_URL } from "../../ollama-stream.js";
 import { resolveOwnerDisplaySetting } from "../../owner-display.js";
->>>>>>> c99e7696e (fix: decouple owner display secret from gateway auth token)
 import {
   isCloudCodeAssistFormatError,
   resolveBootstrapMaxChars,
@@ -109,25 +89,16 @@ import {
   loadWorkspaceSkillEntries,
   resolveSkillsPromptForRun,
 } from "../../skills.js";
-<<<<<<< HEAD
-=======
 import { buildSystemPromptParams } from "../../system-prompt-params.js";
 import { buildSystemPromptReport } from "../../system-prompt-report.js";
 import { sanitizeToolCallIdsForCloudCodeAssist } from "../../tool-call-id.js";
 import { resolveTranscriptPolicy } from "../../transcript-policy.js";
->>>>>>> 3dfee78d7 (fix: sanitize tool call IDs in agent loop for Mistral strict9 format (#23595) (#23698))
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../../workspace.js";
-<<<<<<< HEAD
 import { buildSystemPromptReport } from "../../system-prompt-report.js";
 import { resolveDefaultModelForAgent } from "../../model-selection.js";
 
 import { isAbortError } from "../abort.js";
 import { buildEmbeddedExtensionPaths } from "../extensions.js";
-=======
-import { isRunnerAbortError } from "../abort.js";
-import { appendCacheTtlTimestamp, isCacheTtlEligibleProvider } from "../cache-ttl.js";
-import { buildEmbeddedExtensionFactories } from "../extensions.js";
->>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
 import { applyExtraParamsToAgent } from "../extra-params.js";
 import { appendCacheTtlTimestamp, isCacheTtlEligibleProvider } from "../cache-ttl.js";
 import {
@@ -151,11 +122,8 @@ import {
   buildEmbeddedSystemPrompt,
   createSystemPromptOverride,
 } from "../system-prompt.js";
-<<<<<<< HEAD
-=======
 import { dropThinkingBlocks } from "../thinking.js";
 import { installToolResultContextGuard } from "../tool-result-context-guard.js";
->>>>>>> feccac672 (fix: sanitize thinking blocks for GitHub Copilot Claude models (openclaw#19459) thanks @jackheuberger)
 import { splitSdkTools } from "../tool-split.js";
 import { toClientToolDefinitions } from "../../pi-tool-definition-adapter.js";
 import { buildSystemPromptParams } from "../../system-prompt-params.js";
@@ -213,8 +181,6 @@ export function injectHistoryImagesIntoMessages(
   return didMutate;
 }
 
-<<<<<<< HEAD
-=======
 export async function resolvePromptBuildHookResult(params: {
   prompt: string;
   messages: unknown[];
@@ -332,7 +298,6 @@ function summarizeSessionContext(messages: AgentMessage[]): {
   };
 }
 
->>>>>>> 6c1ed9493 (fix: harden queue retry debounce and add regression tests)
 export async function runEmbeddedAttempt(
   params: EmbeddedRunAttemptParams,
 ): Promise<EmbeddedRunAttemptResult> {
@@ -400,8 +365,6 @@ export async function runEmbeddedAttempt(
 
     const agentDir = params.agentDir ?? resolveMoltbotAgentDir();
 
-<<<<<<< HEAD
-=======
     const { defaultAgentId, sessionAgentId } = resolveSessionAgentIds({
       sessionKey: params.sessionKey,
       config: params.config,
@@ -410,7 +373,6 @@ export async function runEmbeddedAttempt(
     const effectiveFsWorkspaceOnly =
       (resolveAgentConfig(params.config ?? {}, sessionAgentId)?.tools?.fs?.workspaceOnly ??
         params.config?.tools?.fs?.workspaceOnly) === true;
->>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
     // Check if the model supports native image input
     const modelHasVision = params.model.input?.includes("image") ?? false;
     const toolsRaw = params.disableTools
@@ -539,13 +501,8 @@ export async function runEmbeddedAttempt(
       },
     });
     const isDefaultAgent = sessionAgentId === defaultAgentId;
-<<<<<<< HEAD
     const promptMode = isSubagentSessionKey(params.sessionKey) ? "minimal" : "full";
     const docsPath = await resolveMoltbotDocsPath({
-=======
-    const promptMode = resolvePromptModeForSession(params.sessionKey);
-    const docsPath = await resolveOpenClawDocsPath({
->>>>>>> 6c1ed9493 (fix: harden queue retry debounce and add regression tests)
       workspaceDir: effectiveWorkspace,
       argv1: process.argv[1],
       cwd: process.cwd(),
@@ -560,11 +517,8 @@ export async function runEmbeddedAttempt(
       reasoningLevel: params.reasoningLevel ?? "off",
       extraSystemPrompt: params.extraSystemPrompt,
       ownerNumbers: params.ownerNumbers,
-<<<<<<< HEAD
-=======
       ownerDisplay: ownerDisplay.ownerDisplay,
       ownerDisplaySecret: ownerDisplay.ownerDisplaySecret,
->>>>>>> c99e7696e (fix: decouple owner display secret from gateway auth token)
       reasoningTagHint,
       heartbeatPrompt: isDefaultAgent
         ? resolveHeartbeatPrompt(params.config?.agents?.defaults?.heartbeat?.prompt)
@@ -651,13 +605,7 @@ export async function runEmbeddedAttempt(
         minReserveTokens: resolveCompactionReserveTokensFloor(params.config),
       });
 
-<<<<<<< HEAD
       const additionalExtensionPaths = buildEmbeddedExtensionPaths({
-=======
-      // Sets compaction/pruning runtime state and returns extension factories
-      // that must be passed to the resource loader for the safeguard to be active.
-      const extensionFactories = buildEmbeddedExtensionFactories({
->>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
         cfg: params.config,
         sessionManager,
         provider: params.provider,
@@ -719,16 +667,9 @@ export async function runEmbeddedAttempt(
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
         skills: [],
         contextFiles: [],
         additionalExtensionPaths,
-=======
-        additionalExtensionPaths,
-        skills: [],
-        contextFiles: [],
-        systemPrompt,
->>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
 =======
         systemPrompt,
         additionalExtensionPaths,
@@ -1067,14 +1008,7 @@ export async function runEmbeddedAttempt(
             sessionManager.resetLeaf();
           }
           const sessionContext = sessionManager.buildSessionContext();
-<<<<<<< HEAD
           activeSession.agent.replaceMessages(sessionContext.messages);
-=======
-          const sanitizedOrphan = transcriptPolicy.sanitizeThinkingSignatures
-            ? sanitizeAntigravityThinkingBlocks(sessionContext.messages)
-            : sessionContext.messages;
-          activeSession.agent.replaceMessages(sanitizedOrphan);
->>>>>>> feccac672 (fix: sanitize thinking blocks for GitHub Copilot Claude models (openclaw#19459) thanks @jackheuberger)
           log.warn(
             `Removed orphaned user message to prevent consecutive user turns. ` +
               `runId=${params.runId} sessionId=${params.sessionId}`,
@@ -1093,11 +1027,8 @@ export async function runEmbeddedAttempt(
             existingImages: params.images,
             historyMessages: activeSession.messages,
             maxBytes: MAX_IMAGE_BYTES,
-<<<<<<< HEAD
-=======
             maxDimensionPx: resolveImageSanitizationLimits(params.config).maxDimensionPx,
             workspaceOnly: effectiveFsWorkspaceOnly,
->>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
             // Enforce sandbox path restrictions when sandbox is enabled
             sandbox:
               sandbox?.enabled && sandbox?.fsBridge
@@ -1141,21 +1072,8 @@ export async function runEmbeddedAttempt(
         try {
           await waitForCompactionRetry();
         } catch (err) {
-<<<<<<< HEAD
           if (isAbortError(err)) {
             if (!promptError) promptError = err;
-=======
-          if (isRunnerAbortError(err)) {
-            if (!promptError) {
-              promptError = err;
-              promptErrorSource = "compaction";
-            }
-            if (!isProbeSession) {
-              log.debug(
-                `compaction wait aborted: runId=${params.runId} sessionId=${params.sessionId}`,
-              );
-            }
->>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
           } else {
             throw err;
           }
@@ -1177,46 +1095,8 @@ export async function runEmbeddedAttempt(
           });
         }
 
-<<<<<<< HEAD
         messagesSnapshot = activeSession.messages.slice();
         sessionIdUsed = activeSession.sessionId;
-=======
-        // If timeout occurred during compaction, use pre-compaction snapshot when available
-        // (compaction restructures messages but does not add user/assistant turns).
-        const snapshotSelection = selectCompactionTimeoutSnapshot({
-          timedOutDuringCompaction,
-          preCompactionSnapshot,
-          preCompactionSessionId,
-          currentSnapshot: activeSession.messages.slice(),
-          currentSessionId: activeSession.sessionId,
-        });
-        if (timedOutDuringCompaction) {
-          if (!isProbeSession) {
-            log.warn(
-              `using ${snapshotSelection.source} snapshot: timed out during compaction runId=${params.runId} sessionId=${params.sessionId}`,
-            );
-          }
-        }
-        messagesSnapshot = snapshotSelection.messagesSnapshot;
-        sessionIdUsed = snapshotSelection.sessionIdUsed;
-
-        if (promptError && promptErrorSource === "prompt") {
-          try {
-            sessionManager.appendCustomEntry("openclaw:prompt-error", {
-              timestamp: Date.now(),
-              runId: params.runId,
-              sessionId: params.sessionId,
-              provider: params.provider,
-              model: params.modelId,
-              api: params.model.api,
-              error: describeUnknownError(promptError),
-            });
-          } catch (entryErr) {
-            log.warn(`failed to persist prompt error entry: ${String(entryErr)}`);
-          }
-        }
-
->>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
         cacheTrace?.recordStage("session:after", {
           messages: messagesSnapshot,
           note: promptError ? "prompt error" : undefined,
@@ -1255,13 +1135,8 @@ export async function runEmbeddedAttempt(
 
       const lastAssistant = messagesSnapshot
         .slice()
-<<<<<<< HEAD
         .reverse()
         .find((m) => (m as AgentMessage)?.role === "assistant") as AssistantMessage | undefined;
-=======
-        .toReversed()
-        .find((m) => m.role === "assistant");
->>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
 
       const toolMetasNormalized = toolMetas
         .filter(

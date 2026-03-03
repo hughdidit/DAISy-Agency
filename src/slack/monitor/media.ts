@@ -15,11 +15,7 @@ function resolveRequestUrl(input: RequestInfo | URL): string {
   if ("url" in input && typeof input.url === "string") {
     return input.url;
   }
-<<<<<<< HEAD
   return String(input);
-=======
-  throw new Error("Unsupported fetch input: expected string, URL, or Request");
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
 }
 
 function createSlackMediaFetch(token: string): FetchLike {
@@ -87,7 +83,6 @@ export async function resolveSlackMedia(params: {
     const url = file.url_private_download ?? file.url_private;
     if (!url) continue;
     try {
-<<<<<<< HEAD
       // Note: We ignore init options because fetchWithSlackAuth handles
       // redirect behavior specially. fetchRemoteMedia only passes the URL.
       const fetchImpl: FetchLike = (input) => {
@@ -95,12 +90,6 @@ export async function resolveSlackMedia(params: {
           typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
         return fetchWithSlackAuth(inputUrl, params.token);
       };
-=======
-      // Note: fetchRemoteMedia calls fetchImpl(url) with the URL string today and
-      // handles size limits internally. Provide a fetcher that uses auth once, then lets
-      // the redirect chain continue without credentials.
-      const fetchImpl = createSlackMediaFetch(params.token);
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
       const fetched = await fetchRemoteMedia({
         url,
         fetchImpl,

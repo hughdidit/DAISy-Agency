@@ -47,28 +47,8 @@ function unscopedPackageName(name: string): string {
 
 function safeDirName(input: string): string {
   const trimmed = input.trim();
-<<<<<<< HEAD
   if (!trimmed) return trimmed;
   return trimmed.replaceAll("/", "__");
-=======
-  if (!trimmed) {
-    return trimmed;
-  }
-  return trimmed.replaceAll("/", "__").replaceAll("\\", "__");
-}
-
-function validateHookId(hookId: string): string | null {
-  if (!hookId) {
-    return "invalid hook name: missing";
-  }
-  if (hookId === "." || hookId === "..") {
-    return "invalid hook name: reserved path segment";
-  }
-  if (hookId.includes("/") || hookId.includes("\\")) {
-    return "invalid hook name: path separators not allowed";
-  }
-  return null;
->>>>>>> d03eca845 (fix: harden plugin and hook install paths)
 }
 
 export function resolveHookInstallDir(hookId: string, hooksDir?: string): string {

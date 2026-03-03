@@ -1,14 +1,5 @@
 import path from "node:path";
-<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
-=======
-import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
-import {
-  resolveAgentDir,
-  resolveAgentModelFallbacksOverride,
-  resolveAgentModelPrimary,
-} from "../../agents/agent-scope.js";
->>>>>>> f24e3cdae (fix: local updates for PR #4780)
 import {
   buildAuthHealthSummary,
   DEFAULT_OAUTH_WARN_MS,
@@ -50,16 +41,7 @@ import {
   sortProbeResults,
   type AuthProbeSummary,
 } from "./list.probe.js";
-<<<<<<< HEAD
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, ensureFlagCompatibility } from "./shared.js";
-=======
-import {
-  DEFAULT_MODEL,
-  DEFAULT_PROVIDER,
-  ensureFlagCompatibility,
-  resolveKnownAgentId,
-} from "./shared.js";
->>>>>>> f24e3cdae (fix: local updates for PR #4780)
 
 export async function modelsStatusCommand(
   opts: {
@@ -114,27 +96,16 @@ export async function modelsStatusCommand(
   const imageFallbacks = typeof imageConfig === "object" ? (imageConfig?.fallbacks ?? []) : [];
   const aliases = Object.entries(cfg.agents?.defaults?.models ?? {}).reduce<Record<string, string>>(
     (acc, [key, entry]) => {
-<<<<<<< HEAD
       const alias = entry?.alias?.trim();
       if (alias) acc[alias] = key;
-=======
-      const alias = typeof entry?.alias === "string" ? entry.alias.trim() : undefined;
-      if (alias) {
-        acc[alias] = key;
-      }
->>>>>>> 4734f9910 (Fix: Add type safety to models status command (#16395))
       return acc;
     },
     {},
   );
   const allowed = Object.keys(cfg.agents?.defaults?.models ?? {});
 
-<<<<<<< HEAD
   const agentDir = resolveMoltbotAgentDir();
   const store = ensureAuthProfileStore();
-=======
-  const store = ensureAuthProfileStore(agentDir);
->>>>>>> f24e3cdae (fix: local updates for PR #4780)
   const modelsPath = path.join(agentDir, "models.json");
 
   const providersFromStore = new Set(

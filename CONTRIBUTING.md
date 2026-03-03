@@ -18,8 +18,6 @@ Welcome to the lobster tank! 🦞
 - **Jos** - Telegram, API, Nix mode
   - GitHub: [@joshp123](https://github.com/joshp123) · X: [@jjpcodes](https://x.com/jjpcodes)
 
-<<<<<<< HEAD
-=======
 - **Ayaan Zaidi** - Telegram subsystem, iOS app
   - GitHub: [@obviyus](https://github.com/obviyus) · X: [@0bviyus](https://x.com/0bviyus)
 
@@ -56,20 +54,14 @@ Welcome to the lobster tank! 🦞
 - **Jonathan Taylor** - ACP subsystem, Gateway features/bugs, Gog/Mog/Sog CLI's, SEDMAT
   - Github [@visionik](https://github.com/visionik) · X: [@visionik](https://x.com/visionik)
 
->>>>>>> 3f20c4330 (fix: add nimrod gutman maintainer profile (#27840) (thanks @ngutman))
 ## How to Contribute
 1. **Bugs & small fixes** → Open a PR!
 2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/moltbot/moltbot/discussions) or ask in Discord first
 3. **Questions** → Discord #setup-help
 
 ## Before You PR
-<<<<<<< HEAD
 - Test locally with your Moltbot instance
 - Run linter: `npm run lint`
-=======
-- Test locally with your OpenClaw instance
-- Run tests: `pnpm tsgo && pnpm format && pnpm lint && pnpm build && pnpm test`
->>>>>>> dae00fe18 (fix: Update `CONTRIBUTING.md` + adjust `watch-node.mjs` again to be faster with `tsc`.)
 - Keep PRs focused (one thing per PR)
 - Describe what & why
 
