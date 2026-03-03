@@ -17,6 +17,7 @@ export type MemorySearchResult = {
 };
 
 type MemoryDocument = Omit<MemoryEntry, "id"> & { _id: string };
+type MemorySearchDocument = MemoryDocument & { score: number };
 
 export class MongoMemoryDB {
   private client: MongoClient;
@@ -50,21 +51,6 @@ export class MongoMemoryDB {
   }
 
   async search(vector: number[], limit = 5, minScore = 0.5): Promise<MemorySearchResult[]> {
-    if (!["1", "true"].includes(process.env.MEMORY_ALLOW_IN_MEMORY_SEARCH ?? "")) {
-      throw new Error(
-        "In-memory vector search is disabled. " +
-          "This O(N·D) full-scan path is not suitable for production use. " +
-          "Set MEMORY_ALLOW_IN_MEMORY_SEARCH=1 to enable (development/testing only).",
-      );
-    }
-
-    const ranked = [...this.storeById.values()]
-      .map((entry) => ({ entry, score: cosineSimilarity(vector, entry.vector) }))
-      .filter((result) => result.score >= minScore)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, limit);
-
-    return ranked;
     const col = await this.getCollection();
     const pipeline = [
       {
@@ -84,7 +70,7 @@ export class MongoMemoryDB {
       },
     ];
 
-    const docs = await col.aggregate<MemoryDocument & { score: number }>(pipeline).toArray();
+    const docs = await col.aggregate<MemorySearchDocument>(pipeline).toArray();
     return docs.map((doc) => ({
       entry: documentToEntry(doc),
       score: doc.score,
@@ -125,9 +111,8 @@ function omitId({ id: _id, ...rest }: MemoryEntry): Omit<MemoryEntry, "id"> {
   return rest;
 }
 
-function documentToEntry(doc: MemoryDocument): MemoryEntry {
-  // Exclude the aggregation-only `score` field that $vectorSearch adds.
-  const { _id, score: _score, ...rest } = doc as MemoryDocument & { score?: number };
+function documentToEntry(doc: MemoryDocument | MemorySearchDocument): MemoryEntry {
+  const { _id, ...rest } = doc;
   return { id: _id, ...rest };
 }
 
