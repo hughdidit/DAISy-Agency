@@ -3,8 +3,8 @@ import OpenClawIPC
 import OpenClawKit
 import CoreGraphics
 import Foundation
-import MoltbotIPC
-import MoltbotKit
+import OpenClawIPC
+import OpenClawKit
 import OSLog
 
 actor CameraCaptureService {

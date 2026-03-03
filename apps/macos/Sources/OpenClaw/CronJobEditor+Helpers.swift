@@ -1,6 +1,6 @@
 import OpenClawProtocol
 import Foundation
-import MoltbotProtocol
+import OpenClawProtocol
 import SwiftUI
 
 extension CronJobEditor {

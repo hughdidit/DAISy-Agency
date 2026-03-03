@@ -1,6 +1,6 @@
 import Foundation
-import MoltbotKit
-import MoltbotProtocol
+import OpenClawKit
+import OpenClawProtocol
 
 // Prefer the OpenClawKit wrapper to keep gateway request payloads consistent.
 typealias AnyCodable = OpenClawKit.AnyCodable
@@ -43,7 +43,7 @@ extension AnyCodable {
     }
 }
 
-extension MoltbotProtocol.AnyCodable {
+extension OpenClawProtocol.AnyCodable {
     var stringValue: String? {
         self.value as? String
     }
@@ -60,12 +60,12 @@ extension MoltbotProtocol.AnyCodable {
         self.value as? Double
     }
 
-    var dictionaryValue: [String: MoltbotProtocol.AnyCodable]? {
-        self.value as? [String: MoltbotProtocol.AnyCodable]
+    var dictionaryValue: [String: OpenClawProtocol.AnyCodable]? {
+        self.value as? [String: OpenClawProtocol.AnyCodable]
     }
 
-    var arrayValue: [MoltbotProtocol.AnyCodable]? {
-        self.value as? [MoltbotProtocol.AnyCodable]
+    var arrayValue: [OpenClawProtocol.AnyCodable]? {
+        self.value as? [OpenClawProtocol.AnyCodable]
     }
 
     var foundationValue: Any {

@@ -1,6 +1,6 @@
 import OpenClawIPC
 import CoreLocation
-import MoltbotIPC
+import OpenClawIPC
 import Testing
 @testable import OpenClaw
 

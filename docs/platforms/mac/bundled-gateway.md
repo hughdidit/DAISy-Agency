@@ -26,11 +26,11 @@ The macOS app’s **Install CLI** button runs the same flow via npm/pnpm (bun no
 ## Launchd (Gateway as LaunchAgent)
 
 Label:
-- `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.openclaw.*` may remain)
+- `ai.openclaw.gateway` (or `ai.openclaw.<profile>`; legacy `com.openclaw.*` may remain)
 
 Plist location (per‑user):
-- `~/Library/LaunchAgents/bot.molt.gateway.plist`
-  (or `~/Library/LaunchAgents/bot.molt.<profile>.plist`)
+- `~/Library/LaunchAgents/ai.openclaw.gateway.plist`
+  (or `~/Library/LaunchAgents/ai.openclaw.<profile>.plist`)
 
 Manager:
 - The macOS app owns LaunchAgent install/update in Local mode.

@@ -1,7 +1,7 @@
 import Foundation
-import MoltbotChatUI
-import MoltbotKit
-import MoltbotProtocol
+import OpenClawChatUI
+import OpenClawKit
+import OpenClawProtocol
 import OSLog
 
 private let gatewayConnectionLogger = Logger(subsystem: "ai.openclaw", category: "gateway.connection")

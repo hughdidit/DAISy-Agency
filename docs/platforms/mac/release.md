@@ -29,7 +29,7 @@ Notes:
 ```bash
 # From repo root; set release IDs so Sparkle feed is enabled.
 # APP_BUILD must be numeric + monotonic for Sparkle compare.
-BUNDLE_ID=bot.molt.mac \
+BUNDLE_ID=ai.openclaw.mac \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -242,7 +242,7 @@ scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.3.1.dmg
 #   xcrun notarytool store-credentials "openclaw-notary" \
 #     --apple-id "<apple-id>" --team-id "<team-id>" --password "<app-specific-password>"
 NOTARIZE=1 NOTARYTOOL_PROFILE=openclaw-notary \
-BUNDLE_ID=bot.molt.mac \
+BUNDLE_ID=ai.openclaw.mac \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD

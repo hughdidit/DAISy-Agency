@@ -1,6 +1,6 @@
 import OpenClawIPC
 import Foundation
-import MoltbotIPC
+import OpenClawIPC
 
 enum ShellExecutor {
     struct ShellResult {

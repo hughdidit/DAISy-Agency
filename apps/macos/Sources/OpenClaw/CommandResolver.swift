@@ -280,8 +280,8 @@ enum CommandResolver {
         }
     }
 
-    /// Existing callers still refer to moltbotCommand; keep it as node alias.
-    static func moltbotCommand(
+    /// Existing callers still refer to openclawCommand; keep it as node alias.
+    static func openclawCommand(
         subcommand: String,
         extraArgs: [String] = [],
         defaults: UserDefaults = .standard,

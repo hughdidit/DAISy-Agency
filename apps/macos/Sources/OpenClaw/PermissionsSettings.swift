@@ -1,6 +1,6 @@
 import CoreLocation
-import MoltbotIPC
-import MoltbotKit
+import OpenClawIPC
+import OpenClawKit
 import SwiftUI
 
 struct PermissionsSettings: View {

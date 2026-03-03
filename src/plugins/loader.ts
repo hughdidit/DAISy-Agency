@@ -177,7 +177,7 @@ function pushDiagnostics(diagnostics: PluginDiagnostic[], append: PluginDiagnost
   diagnostics.push(...append);
 }
 
-export function loadMoltbotPlugins(options: PluginLoadOptions = {}): PluginRegistry {
+export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegistry {
   const cfg = options.config ?? {};
   const logger = options.logger ?? defaultLogger();
   const validateOnly = options.mode === "validate";

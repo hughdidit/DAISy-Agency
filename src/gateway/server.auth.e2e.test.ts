@@ -784,9 +784,9 @@ describe("gateway server auth/connect", () => {
     ws.close();
     await server.close();
     if (prevToken === undefined) {
-      delete process.env.CLAWDBOT_GATEWAY_TOKEN;
+      delete process.env.OPENCLAW_GATEWAY_TOKEN;
     } else {
-      process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
+      process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
     }
   });
 

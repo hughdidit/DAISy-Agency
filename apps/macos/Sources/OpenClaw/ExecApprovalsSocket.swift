@@ -3,7 +3,7 @@ import OpenClawKit
 import CryptoKit
 import Darwin
 import Foundation
-import MoltbotKit
+import OpenClawKit
 import OSLog
 
 struct ExecApprovalPromptRequest: Codable, Sendable {

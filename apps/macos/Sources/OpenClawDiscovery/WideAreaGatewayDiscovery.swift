@@ -1,6 +1,6 @@
 import OpenClawKit
 import Foundation
-import MoltbotKit
+import OpenClawKit
 
 struct WideAreaGatewayBeacon: Sendable, Equatable {
     var instanceName: String

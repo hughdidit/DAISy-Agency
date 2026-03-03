@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
-import MoltbotDiscovery
-import MoltbotIPC
+import OpenClawDiscovery
+import OpenClawIPC
 import SwiftUI
 
 extension OnboardingView {

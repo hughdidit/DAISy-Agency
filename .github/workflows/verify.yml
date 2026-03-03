@@ -50,7 +50,7 @@ jobs:
         env:
           VERIFY_ENV: ${{ inputs.environment }}
           DEPLOYED_REF: ${{ inputs.deployed_ref }}
-          # GCE health check (moltbot health --json via gcloud SSH)
+          # GCE health check (openclaw health --json via gcloud SSH)
           GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}

@@ -119,7 +119,7 @@ function resolveFileSource(
 }
 
 function resolveDefaultSecretsConfigPath(env: NodeJS.ProcessEnv): string {
-  if (env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim()) {
+  if (env.OPENCLAW_STATE_DIR?.trim() || env.OPENCLAW_STATE_DIR?.trim()) {
     return path.join(resolveStateDir(env, os.homedir), "secrets.json");
   }
   return DEFAULT_SECRETS_FILE_PATH;

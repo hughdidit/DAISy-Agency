@@ -17,7 +17,7 @@ const buildStampPath = path.join(distRoot, ".buildstamp");
 const srcRoot = path.join(cwd, "src");
 const configFiles = [path.join(cwd, "tsconfig.json"), path.join(cwd, "package.json")];
 =======
-const compilerOverride = env.OPENCLAW_TS_COMPILER ?? env.CLAWDBOT_TS_COMPILER;
+const compilerOverride = env.OPENCLAW_TS_COMPILER ?? env.OPENCLAW_TS_COMPILER;
 const compiler = compilerOverride === 'tsc' ? 'tsc' : 'tsgo';
 const projectArgs = ['--project', 'tsconfig.json'];
 

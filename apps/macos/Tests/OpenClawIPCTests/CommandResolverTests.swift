@@ -24,7 +24,7 @@ import Testing
         try FileManager().setAttributes([.posixPermissions: 0o755], ofItemAtPath: path.path)
     }
 
-    @Test func prefersMoltbotBinary() throws {
+    @Test func prefersOpenClawBinary() throws {
         let defaults = self.makeDefaults()
         defaults.set(AppState.ConnectionMode.local.rawValue, forKey: connectionModeKey)
 

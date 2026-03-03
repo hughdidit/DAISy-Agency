@@ -1,7 +1,7 @@
 import AppKit
 import OpenClawChatUI
 import Foundation
-import MoltbotChatUI
+import OpenClawChatUI
 import Testing
 @testable import OpenClaw
 

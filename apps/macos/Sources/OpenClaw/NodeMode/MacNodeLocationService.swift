@@ -1,7 +1,7 @@
 import OpenClawKit
 import CoreLocation
 import Foundation
-import MoltbotKit
+import OpenClawKit
 
 @MainActor
 final class MacNodeLocationService: NSObject, CLLocationManagerDelegate {

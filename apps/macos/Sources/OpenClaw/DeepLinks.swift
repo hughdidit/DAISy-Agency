@@ -1,7 +1,7 @@
 import AppKit
 import OpenClawKit
 import Foundation
-import MoltbotKit
+import OpenClawKit
 import OSLog
 import Security
 

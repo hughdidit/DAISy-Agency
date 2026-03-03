@@ -1,6 +1,6 @@
 import OpenClawDiscovery
 import Foundation
-import MoltbotDiscovery
+import OpenClawDiscovery
 
 enum GatewayDiscoveryHelpers {
     static func serviceEndpoint(

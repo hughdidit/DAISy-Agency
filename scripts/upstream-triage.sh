@@ -153,7 +153,7 @@ push_ref() {
 log "Fetching upstream and origin..."
 if ! git remote get-url upstream &>/dev/null; then
   err "Remote 'upstream' not configured. Add it with:"
-  err "  git remote add upstream https://github.com/moltbot/moltbot.git"
+  err "  git remote add upstream https://github.com/moltai/openclawbot.git"
   exit 1
 fi
 git fetch upstream --tags --quiet
@@ -184,8 +184,8 @@ fi
 
 if [[ "${APPLY}" == "true" ]]; then
   UPSTREAM_URL="$(git remote get-url upstream 2>/dev/null)"
-  if [[ "${UPSTREAM_URL}" != *"moltbot/moltbot"* ]]; then
-    err "Upstream remote '${UPSTREAM_URL}' does not match expected moltbot/moltbot."
+  if [[ "${UPSTREAM_URL}" != *"moltai/openclawbot"* ]]; then
+    err "Upstream remote '${UPSTREAM_URL}' does not match expected moltai/openclawbot."
     exit 1
   fi
 

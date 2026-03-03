@@ -10,16 +10,16 @@ services:
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      CLAWDBOT_STATE_DIR: /home/node/.clawdbot
-      CLAWDBOT_GATEWAY_PORT: ${CLAWDBOT_GATEWAY_PORT}
-      CLAWDBOT_BRIDGE_PORT: ${CLAWDBOT_BRIDGE_PORT}
+      OPENCLAW_STATE_DIR: /home/node/.openclaw
+      OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT}
+      OPENCLAW_BRIDGE_PORT: ${OPENCLAW_BRIDGE_PORT}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
     ports:
 <<<<<<< HEAD
-      - "${CLAWDBOT_GATEWAY_PORT}:${CLAWDBOT_GATEWAY_PORT}"
-      - "${CLAWDBOT_BRIDGE_PORT}:${CLAWDBOT_BRIDGE_PORT}"
+      - "${OPENCLAW_GATEWAY_PORT}:${OPENCLAW_GATEWAY_PORT}"
+      - "${OPENCLAW_BRIDGE_PORT}:${OPENCLAW_BRIDGE_PORT}"
 =======
       - '${OPENCLAW_GATEWAY_PORT:-18789}:18789'
       - '${OPENCLAW_BRIDGE_PORT:-18790}:18790'
@@ -39,9 +39,9 @@ services:
         "gateway",
         "--bind",
 <<<<<<< HEAD
-        "${CLAWDBOT_GATEWAY_BIND:-loopback}",
+        "${OPENCLAW_GATEWAY_BIND:-loopback}",
         "--port",
-        "${CLAWDBOT_GATEWAY_PORT}",
+        "${OPENCLAW_GATEWAY_PORT}",
         "--allow-unconfigured"
 =======
         'node',

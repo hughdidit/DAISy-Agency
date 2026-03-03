@@ -410,5 +410,5 @@ extension Request: Codable {
 /// Shared transport settings
 public let controlSocketPath = FileManager()
     .homeDirectoryForCurrentUser
-    .appendingPathComponent("Library/Application Support/moltbot/control.sock")
+    .appendingPathComponent("Library/Application Support/openclaw/control.sock")
     .path

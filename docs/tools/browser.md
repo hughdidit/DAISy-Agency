@@ -32,10 +32,10 @@ agent automation and verification.
 ## Quick start
 
 ```bash
-moltbot browser --browser-profile daisy status
-moltbot browser --browser-profile daisy start
-moltbot browser --browser-profile daisy open https://example.com
-moltbot browser --browser-profile daisy snapshot
+openclaw browser --browser-profile daisy status
+openclaw browser --browser-profile daisy start
+openclaw browser --browser-profile daisy open https://example.com
+openclaw browser --browser-profile daisy snapshot
 ```
 
 If you get “Browser disabled”, enable it in config (see below) and restart the
@@ -44,7 +44,7 @@ Gateway.
 ## Profiles: `daisy` vs `chrome`
 
 - `daisy`: managed, isolated browser (no extension required).
-- `chrome`: extension relay to your **system browser** (requires the Moltbot
+- `chrome`: extension relay to your **system browser** (requires the OpenClaw
   extension to be attached to a tab).
 
 Set `browser.defaultProfile: "daisy"` if you want managed mode by default.
@@ -214,7 +214,7 @@ Remote CDP tips:
 
 ## Profiles (multi-browser)
 
-Moltbot supports multiple named profiles (routing configs). Profiles can be:
+OpenClaw supports multiple named profiles (routing configs). Profiles can be:
 - **daisy-managed**: a dedicated Chromium-based browser instance with its own user data directory + CDP port
 - **remote**: an explicit CDP URL (Chromium-based browser running elsewhere)
 - **extension relay**: your existing Chrome tab(s) via the local relay + Chrome extension
@@ -229,7 +229,7 @@ All control endpoints accept `?profile=<name>`; the CLI uses `--browser-profile`
 
 ## Chrome extension relay (use your existing Chrome)
 
-Moltbot can also drive **your existing Chrome tabs** (no separate “daisy” Chrome instance) via a local CDP relay + a Chrome extension.
+OpenClaw can also drive **your existing Chrome tabs** (no separate “daisy” Chrome instance) via a local CDP relay + a Chrome extension.
 
 Full guide: [Chrome extension](/tools/chrome-extension)
 
@@ -531,7 +531,7 @@ These are useful for “make the site behave like X” workflows:
 ## Security & privacy
 
 - The daisy browser profile may contain logged-in sessions; treat it as sensitive.
-- `browser act kind=evaluate` / `moltbot browser evaluate` and `wait --fn`
+- `browser act kind=evaluate` / `openclaw browser evaluate` and `wait --fn`
   execute arbitrary JavaScript in the page context. Prompt injection can steer
   this. Disable it with `browser.evaluateEnabled=false` if you do not need it.
 - For logins and anti-bot notes (X/Twitter, etc.), see [Browser login + X/Twitter posting](/tools/browser-login).

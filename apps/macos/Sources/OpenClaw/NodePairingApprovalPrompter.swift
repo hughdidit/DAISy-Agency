@@ -1,9 +1,9 @@
 import AppKit
 import Foundation
-import MoltbotDiscovery
-import MoltbotIPC
-import MoltbotKit
-import MoltbotProtocol
+import OpenClawDiscovery
+import OpenClawIPC
+import OpenClawKit
+import OpenClawProtocol
 import Observation
 import OSLog
 import UserNotifications

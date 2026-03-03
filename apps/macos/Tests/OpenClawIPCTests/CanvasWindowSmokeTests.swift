@@ -1,7 +1,7 @@
 import AppKit
 import OpenClawIPC
 import Foundation
-import MoltbotIPC
+import OpenClawIPC
 import Testing
 @testable import OpenClaw
 

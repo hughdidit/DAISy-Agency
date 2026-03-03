@@ -67,7 +67,7 @@ If you must use snap Chromium, configure OpenClaw to attach to a manually-starte
 ```bash
 chromium-browser --headless --no-sandbox --disable-gpu \
   --remote-debugging-port=18800 \
-  --user-data-dir=$HOME/.clawdbot/browser/daisy/user-data \
+  --user-data-dir=$HOME/.openclaw/browser/daisy/user-data \
   about:blank &
 ```
 
@@ -79,7 +79,7 @@ Description=DAISy Browser (Chrome CDP)
 After=network.target
 
 [Service]
-ExecStart=/snap/bin/chromium --headless --no-sandbox --disable-gpu --remote-debugging-port=18800 --user-data-dir=%h/.clawdbot/browser/daisy/user-data about:blank
+ExecStart=/snap/bin/chromium --headless --no-sandbox --disable-gpu --remote-debugging-port=18800 --user-data-dir=%h/.openclaw/browser/daisy/user-data about:blank
 Restart=on-failure
 RestartSec=5
 
@@ -119,7 +119,7 @@ You’re using the `chrome` profile (extension relay). It expects the OpenClaw
 browser extension to be attached to a live tab.
 
 Fix options:
-1. **Use the managed browser:** `moltbot browser start --browser-profile daisy`
+1. **Use the managed browser:** `openclaw browser start --browser-profile daisy`
   (or set `browser.defaultProfile: "daisy"`).
 2. **Use the extension relay:** install the extension, open a tab, and click the
    OpenClaw extension icon to attach it.

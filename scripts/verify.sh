@@ -25,7 +25,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required for GCE verify}"
   : "${GCP_ZONE:?GCP_ZONE is required for GCE verify}"
 
-  container="${VERIFY_GCE_CONTAINER:-moltbot-gateway}"
+  container="${VERIFY_GCE_CONTAINER:-openclaw-gateway}"
   health_timeout="${VERIFY_HEALTH_TIMEOUT:-30}"
 
   # Check 1: container is running
@@ -46,9 +46,9 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   fi
   log "Container ${container} is running."
 
-  # Check 2: moltbot health --json returns ok: true
+  # Check 2: openclaw health --json returns ok: true
   checks_run=$((checks_run + 1))
-  log "Running moltbot health via docker exec (timeout: ${health_timeout}s)..."
+  log "Running openclaw health via docker exec (timeout: ${health_timeout}s)..."
   health_output="$(
     gcloud compute ssh "${GCE_INSTANCE_NAME}" \
       --project "${GCP_PROJECT_ID}" \
@@ -56,14 +56,14 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
       --tunnel-through-iap \
       --quiet \
       --command "sudo docker exec \$(sudo docker ps -qf 'name=${container}' | head -1) node dist/index.js health --json --timeout ${health_timeout}000 2>/dev/null"
-  )" || fail "moltbot health check failed on ${GCE_INSTANCE_NAME}"
+  )" || fail "openclaw health check failed on ${GCE_INSTANCE_NAME}"
 
   health_ok="$(echo "${health_output}" | jq -r 'if .ok then "true" else "false" end' 2>/dev/null || echo "false")"
   if [[ "${health_ok}" != "true" ]]; then
     log "Health output: ${health_output}"
-    fail "moltbot health returned ok=false on ${GCE_INSTANCE_NAME}"
+    fail "openclaw health returned ok=false on ${GCE_INSTANCE_NAME}"
   fi
-  log "moltbot health check passed."
+  log "openclaw health check passed."
 
   # Check 3: verify deployed image matches DEPLOYED_REF (if set)
   if [[ -n "${DEPLOYED_REF:-}" ]]; then

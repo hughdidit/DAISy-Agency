@@ -49,7 +49,7 @@ on:
       GHCR_TOKEN:
         description: PAT with read:packages scope
         required: true
-      CLAWDBOT_GATEWAY_TOKEN:
+      OPENCLAW_GATEWAY_TOKEN:
         description: Gateway authentication token
         required: true
       CLAUDE_AI_SESSION_KEY:
@@ -118,13 +118,13 @@ jobs:
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
           GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
           # Variables (non-sensitive config — short values that would cause log masking issues as secrets)
-          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
-          CLAWDBOT_BRIDGE_PORT: ${{ vars.CLAWDBOT_BRIDGE_PORT }}
-          CLAWDBOT_GATEWAY_BIND: ${{ vars.CLAWDBOT_GATEWAY_BIND || 'loopback' }}
+          OPENCLAW_GATEWAY_PORT: ${{ vars.OPENCLAW_GATEWAY_PORT }}
+          OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
+          OPENCLAW_GATEWAY_BIND: ${{ vars.OPENCLAW_GATEWAY_BIND || 'loopback' }}
           # Secrets (credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          CLAWDBOT_GATEWAY_TOKEN: ${{ secrets.CLAWDBOT_GATEWAY_TOKEN }}
+          OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
           CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -136,11 +136,11 @@ jobs:
           : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required}"
           : "${GCP_ZONE:?GCP_ZONE is required}"
           : "${GCE_INSTANCE_NAME:?GCE_INSTANCE_NAME is required}"
-          : "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required}"
-          : "${CLAWDBOT_BRIDGE_PORT:?CLAWDBOT_BRIDGE_PORT is required}"
+          : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required}"
+          : "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required}"
           : "${GHCR_USERNAME:?GHCR_USERNAME is required}"
           : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
-          : "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required}"
+          : "${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required}"
           : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required}"
           : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required}"
           : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}"
@@ -182,13 +182,13 @@ jobs:
           GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
           DEPLOY_DIR: ${{ secrets.DEPLOY_DIR || vars.DEPLOY_DIR }}
           # Variables (non-sensitive config — short values that would cause log masking issues as secrets)
-          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
-          CLAWDBOT_BRIDGE_PORT: ${{ vars.CLAWDBOT_BRIDGE_PORT }}
-          CLAWDBOT_GATEWAY_BIND: ${{ vars.CLAWDBOT_GATEWAY_BIND || 'loopback' }}
+          OPENCLAW_GATEWAY_PORT: ${{ vars.OPENCLAW_GATEWAY_PORT }}
+          OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
+          OPENCLAW_GATEWAY_BIND: ${{ vars.OPENCLAW_GATEWAY_BIND || 'loopback' }}
           # Secrets (credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          CLAWDBOT_GATEWAY_TOKEN: ${{ secrets.CLAWDBOT_GATEWAY_TOKEN }}
+          OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
           CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -207,13 +207,13 @@ jobs:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
           GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
-          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
+          OPENCLAW_GATEWAY_PORT: ${{ vars.OPENCLAW_GATEWAY_PORT }}
         run: |
-          : "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required}"
-          PORT="${CLAWDBOT_GATEWAY_PORT}"
+          : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required}"
+          PORT="${OPENCLAW_GATEWAY_PORT}"
           echo ""
           echo "=== Deploy complete ==="
-          echo "Dashboard: http://localhost:${PORT}/ui/overview?token=<CLAWDBOT_GATEWAY_TOKEN>"
+          echo "Dashboard: http://localhost:${PORT}/ui/overview?token=<OPENCLAW_GATEWAY_TOKEN>"
           echo ""
           echo "IAP tunnel:"
           echo "  gcloud compute ssh ${GCE_INSTANCE_NAME} --project ${GCP_PROJECT_ID} --zone ${GCP_ZONE} --tunnel-through-iap -- -L ${PORT}:localhost:${PORT}"

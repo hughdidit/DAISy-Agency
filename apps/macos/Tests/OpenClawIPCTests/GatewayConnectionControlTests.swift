@@ -1,6 +1,6 @@
 import OpenClawKit
 import Foundation
-import MoltbotKit
+import OpenClawKit
 import Testing
 @testable import OpenClaw
 @testable import OpenClawIPC

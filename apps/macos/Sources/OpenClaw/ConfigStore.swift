@@ -1,6 +1,6 @@
 import OpenClawProtocol
 import Foundation
-import MoltbotProtocol
+import OpenClawProtocol
 
 enum ConfigStore {
     struct Overrides: Sendable {

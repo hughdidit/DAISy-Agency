@@ -523,13 +523,13 @@ importers:
         specifier: 0.34.48
         version: 0.34.48
 
-  packages/clawdbot:
+  packages/openclaw:
     dependencies:
       openclaw:
         specifier: workspace:*
         version: link:../..
 
-  packages/moltbot:
+  packages/openclaw:
     dependencies:
       openclaw:
         specifier: workspace:*

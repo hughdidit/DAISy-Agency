@@ -1,6 +1,6 @@
 # Upstream Triage
 
-Automated scanning and classification of upstream (`moltbot/moltbot`) commits that haven't been synced into the fork. Identifies cherry-pick candidates by category and risk, and optionally creates topic branches with PRs for human review.
+Automated scanning and classification of upstream (`moltai/openclawbot`) commits that haven't been synced into the fork. Identifies cherry-pick candidates by category and risk, and optionally creates topic branches with PRs for human review.
 
 ## Branch model
 
@@ -8,7 +8,7 @@ The triage system uses three refs:
 
 | Ref | Role |
 |-----|------|
-| `upstream/main` | Upstream source of truth (`moltbot/moltbot`) |
+| `upstream/main` | Upstream source of truth (`moltai/openclawbot`) |
 | `origin/main` | Mirror of upstream on the fork — tracks what we've synced so far |
 | `daisy/dev` | Fork integration branch — PR target for cherry-pick branches |
 
@@ -182,7 +182,7 @@ Reports are derived artifacts and are not committed by default.
 ## Prerequisites
 
 - Bash 4+ (required for associative arrays; on macOS: `brew install bash`)
-- `upstream` remote configured: `git remote add upstream https://github.com/moltbot/moltbot.git`
+- `upstream` remote configured: `git remote add upstream https://github.com/moltai/openclawbot.git`
 - `jq` installed (for AI triage JSON processing)
 - `gh` CLI authenticated (for `--open-pr`)
 - `claude` CLI installed with `ANTHROPIC_API_KEY` (for `--ai-triage`, optional)
@@ -191,7 +191,7 @@ Reports are derived artifacts and are not committed by default.
 
 **"Remote 'upstream' not configured"**
 ```bash
-git remote add upstream https://github.com/moltbot/moltbot.git
+git remote add upstream https://github.com/moltai/openclawbot.git
 git remote set-url --push upstream DISABLE
 ```
 

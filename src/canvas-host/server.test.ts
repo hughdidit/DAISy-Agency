@@ -201,7 +201,7 @@ describe("canvas host", () => {
   }, 20_000);
 
   it("serves the gateway-hosted A2UI scaffold", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-canvas-"));
 
     const server = await startCanvasHost({
       runtime: defaultRuntime,

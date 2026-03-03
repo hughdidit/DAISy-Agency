@@ -1,7 +1,7 @@
 import OpenClawKit
 import CoreLocation
 import Foundation
-import MoltbotKit
+import OpenClawKit
 import Testing
 @testable import OpenClaw
 

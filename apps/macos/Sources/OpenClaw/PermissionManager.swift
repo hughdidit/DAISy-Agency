@@ -5,7 +5,7 @@ import OpenClawIPC
 import CoreGraphics
 import CoreLocation
 import Foundation
-import MoltbotIPC
+import OpenClawIPC
 import Observation
 import Speech
 import UserNotifications

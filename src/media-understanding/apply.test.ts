@@ -594,7 +594,7 @@ describe("applyMediaUnderstanding", () => {
     "escapes XML special characters in filenames to prevent injection",
     async () => {
       const { applyMediaUnderstanding } = await loadApply();
-      const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+      const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
       // Create file with XML special characters in the name (what filesystem allows)
       // Note: The sanitizeFilename in store.ts would strip most dangerous chars,
       // but we test that even if some slip through, they get escaped in output
@@ -606,7 +606,7 @@ describe("applyMediaUnderstanding", () => {
         MediaPath: filePath,
         MediaType: "text/plain",
       };
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         tools: {
           media: {
             audio: { enabled: false },

@@ -1,6 +1,6 @@
 import OpenClawProtocol
 import Foundation
-import MoltbotProtocol
+import OpenClawProtocol
 
 extension ChannelsStore {
     func loadConfigSchema() async {

@@ -1,8 +1,8 @@
 import AppKit
 import Combine
-import MoltbotChatUI
-import MoltbotDiscovery
-import MoltbotIPC
+import OpenClawChatUI
+import OpenClawDiscovery
+import OpenClawIPC
 import Observation
 import SwiftUI
 

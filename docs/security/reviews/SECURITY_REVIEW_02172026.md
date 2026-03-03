@@ -45,7 +45,7 @@ The `daisy/dev` branch introduces several new features, including a MongoDB-back
 - **File:** `src/gateway/server-http.ts`
 - **Issue:** `handleControlUiHttpRequest` is mounted without an explicit `resolvedAuth` check in the handler itself (relying on the middleware/setup).
 - **Risk:** If `controlUiEnabled` is true and the gateway binds to `0.0.0.0`, the Control UI might be exposed if not protected by a reverse proxy or VPN.
-- **Mitigation:** `scripts/deploy.sh` defaults `CLAWDBOT_GATEWAY_BIND` to `loopback`, and the staging setup uses IAP tunneling, which mitigates this risk for remote attackers.
+- **Mitigation:** `scripts/deploy.sh` defaults `OPENCLAW_GATEWAY_BIND` to `loopback`, and the staging setup uses IAP tunneling, which mitigates this risk for remote attackers.
 - **Remediation:** Auth gate added to both `handleControlUiHttpRequest` and `handleControlUiAvatarRequest` -- non-local requests now require a valid bearer token. Local direct requests (loopback) continue to work without auth for backward compatibility.
 
 ### 5. Deployment Script Secret Logging
