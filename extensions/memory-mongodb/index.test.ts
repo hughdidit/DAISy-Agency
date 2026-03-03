@@ -8,18 +8,18 @@
  * - Auto-capture filtering
  * - Category detection
  *
- * Live tests (gated on OPENAI_API_KEY + MONGODB_URI + CLAWDBOT_LIVE_TEST=1):
+ * Live tests (gated on VOYAGE_API_KEY + MONGODB_URI + CLAWDBOT_LIVE_TEST=1):
  * - Full tool flow: store → recall → duplicate detection → forget → verify
  */
 
 import { describe, test, expect, afterEach } from "vitest";
 import { randomUUID } from "node:crypto";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? "test-key";
-const HAS_OPENAI_KEY = Boolean(process.env.OPENAI_API_KEY);
+const VOYAGE_API_KEY = process.env.VOYAGE_API_KEY ?? "test-key";
+const HAS_VOYAGE_KEY = Boolean(process.env.VOYAGE_API_KEY);
 const HAS_MONGODB_URI = Boolean(process.env.MONGODB_URI);
 const liveEnabled =
-  HAS_OPENAI_KEY && HAS_MONGODB_URI && process.env.CLAWDBOT_LIVE_TEST === "1";
+  HAS_VOYAGE_KEY && HAS_MONGODB_URI && process.env.CLAWDBOT_LIVE_TEST === "1";
 const describeLive = liveEnabled ? describe : describe.skip;
 
 describe("memory-mongodb plugin", () => {
@@ -38,8 +38,8 @@ describe("memory-mongodb plugin", () => {
 
     const config = memoryPlugin.configSchema?.parse?.({
       embedding: {
-        apiKey: OPENAI_API_KEY,
-        model: "text-embedding-3-small",
+        apiKey: VOYAGE_API_KEY,
+        model: "voyage-3",
       },
       connectionUri: "mongodb+srv://user:pass@cluster.example.com/test",
       databaseName: "my_memory",
@@ -50,7 +50,7 @@ describe("memory-mongodb plugin", () => {
     });
 
     expect(config).toBeDefined();
-    expect(config?.embedding?.apiKey).toBe(OPENAI_API_KEY);
+    expect(config?.embedding?.apiKey).toBe(VOYAGE_API_KEY);
     expect(config?.connectionUri).toBe(
       "mongodb+srv://user:pass@cluster.example.com/test",
     );
@@ -63,7 +63,7 @@ describe("memory-mongodb plugin", () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     const config = memoryPlugin.configSchema?.parse?.({
-      embedding: { apiKey: OPENAI_API_KEY },
+      embedding: { apiKey: VOYAGE_API_KEY },
       connectionUri: "mongodb+srv://user:pass@cluster.example.com/test",
     });
 
@@ -72,7 +72,7 @@ describe("memory-mongodb plugin", () => {
     expect(config?.vectorSearchIndexName).toBe("vector_index");
     expect(config?.autoCapture).toBe(true);
     expect(config?.autoRecall).toBe(true);
-    expect(config?.embedding?.model).toBe("text-embedding-3-small");
+    expect(config?.embedding?.model).toBe("voyage-3");
   });
 
   test("config schema resolves env vars", async () => {
@@ -111,7 +111,7 @@ describe("memory-mongodb plugin", () => {
 
     expect(() => {
       memoryPlugin.configSchema?.parse?.({
-        embedding: { apiKey: OPENAI_API_KEY },
+        embedding: { apiKey: VOYAGE_API_KEY },
       });
     }).toThrow("connectionUri is required");
   });
@@ -121,7 +121,7 @@ describe("memory-mongodb plugin", () => {
 
     expect(() => {
       memoryPlugin.configSchema?.parse?.({
-        embedding: { apiKey: OPENAI_API_KEY },
+        embedding: { apiKey: VOYAGE_API_KEY },
         connectionUri: "mongodb+srv://user:pass@cluster.example.com/test",
         unknownField: true,
       });
@@ -133,7 +133,7 @@ describe("memory-mongodb plugin", () => {
 
     expect(() => {
       memoryPlugin.configSchema?.parse?.({
-        embedding: { apiKey: OPENAI_API_KEY },
+        embedding: { apiKey: VOYAGE_API_KEY },
         connectionUri: "mongodb://user:pass@remote-host.example.com/test",
       });
     }).toThrow("without TLS");
@@ -143,7 +143,7 @@ describe("memory-mongodb plugin", () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     const config = memoryPlugin.configSchema?.parse?.({
-      embedding: { apiKey: OPENAI_API_KEY },
+      embedding: { apiKey: VOYAGE_API_KEY },
       connectionUri: "mongodb://user:pass@remote-host.example.com/test?tls=true",
     });
 
@@ -156,7 +156,7 @@ describe("memory-mongodb plugin", () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     const config = memoryPlugin.configSchema?.parse?.({
-      embedding: { apiKey: OPENAI_API_KEY },
+      embedding: { apiKey: VOYAGE_API_KEY },
       connectionUri: "mongodb://localhost:27017/test",
     });
 
@@ -199,7 +199,7 @@ describe("memory-mongodb plugin", () => {
 
     expect(() => {
       memoryPlugin.configSchema?.parse?.({
-        embedding: { apiKey: OPENAI_API_KEY },
+        embedding: { apiKey: VOYAGE_API_KEY },
         connectionUri: "mongodb+srv://user:pass@cluster.example.com/test",
         captureTriggers: ["(invalid["],
       });
@@ -236,7 +236,7 @@ describeLive("memory-mongodb live tests", () => {
     "memory tools work end-to-end",
     async () => {
       const { default: memoryPlugin } = await import("./index.js");
-      const liveApiKey = process.env.OPENAI_API_KEY ?? "";
+      const liveApiKey = process.env.VOYAGE_API_KEY ?? "";
       const liveMongoUri = process.env.MONGODB_URI ?? "";
 
       // Mock plugin API
@@ -254,7 +254,7 @@ describeLive("memory-mongodb live tests", () => {
         pluginConfig: {
           embedding: {
             apiKey: liveApiKey,
-            model: "text-embedding-3-small",
+            model: "voyage-3",
           },
           connectionUri: liveMongoUri,
           databaseName: testDbName,

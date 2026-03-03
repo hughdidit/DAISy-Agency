@@ -3,12 +3,12 @@
  *
  * Long-term memory with vector search for AI conversations.
  * Uses MongoDB Atlas for storage, Atlas Vector Search for retrieval,
- * and OpenAI for embeddings.
+ * and VoyageAI for embeddings.
  * Provides seamless auto-recall and auto-capture via lifecycle hooks.
  */
 
 import { Type } from "@sinclair/typebox";
-import OpenAI from "openai";
+import VoyageAI from "voyageai";
 import type { MoltbotPluginApi } from "clawdbot/plugin-sdk";
 import { stringEnum } from "clawdbot/plugin-sdk";
 
@@ -27,25 +27,37 @@ import {
 } from "./mongodb-provider.js";
 
 // ============================================================================
-// OpenAI Embeddings
+// Voyage AI Embeddings
 // ============================================================================
 
 class Embeddings {
-  private client: OpenAI;
+  private client: VoyageAI;
 
   constructor(
     apiKey: string,
     private model: string,
   ) {
-    this.client = new OpenAI({ apiKey });
+    this.client = new VoyageAI({ apiKey });
   }
 
   async embed(text: string): Promise<number[]> {
-    const response = await this.client.embeddings.create({
+    const response = await this.client.embed({
       model: this.model,
       input: text,
     });
-    return response.data[0].embedding;
+    const embedding = response.data?.[0]?.embedding;
+    if (!embedding) {
+      throw new Error(`VoyageAI did not return an embedding for model "${this.model}".`);
+    }
+
+    const expectedDims = vectorDimsForModel(this.model);
+    if (typeof expectedDims === "number" && expectedDims > 0 && embedding.length !== expectedDims) {
+      throw new Error(
+        `VoyageAI embedding dimension mismatch for model "${this.model}": expected ${expectedDims}, got ${embedding.length}.`,
+      );
+    }
+
+    return embedding;
   }
 }
 
@@ -97,7 +109,7 @@ const memoryPlugin = {
 
   register(api: MoltbotPluginApi) {
     const cfg = memoryConfigSchema.parse(api.pluginConfig);
-    const vectorDim = vectorDimsForModel(cfg.embedding.model ?? "text-embedding-3-small");
+    const vectorDim = vectorDimsForModel(cfg.embedding.model ?? "voyage-3");
     const db = new MongoMemoryDB(
       cfg.connectionUri,
       cfg.databaseName,
