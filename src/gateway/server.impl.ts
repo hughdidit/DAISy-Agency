@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7,7 +5,6 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { CanvasHostServer } from "../canvas-host/server.js";
@@ -16,23 +13,14 @@ import type { RuntimeEnv } from "../runtime.js";
 import type { ControlUiRootState } from "./control-ui.js";
 import type { startBrowserControlServerIfEnabled } from "./server-browser.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { initSubagentRegistry } from "../agents/subagent-registry.js";
-<<<<<<< HEAD
 import { registerSkillsChangeListener } from "../agents/skills/refresh.js";
-=======
-import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { CanvasHostServer } from "../canvas-host/server.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -47,18 +35,10 @@ import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js"
 import { registerSkillsChangeListener } from "../agents/skills/refresh.js";
 import { initSubagentRegistry } from "../agents/subagent-registry.js";
 import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { CanvasHostServer } from "../canvas-host/server.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import { createDefaultDeps } from "../cli/deps.js";
-<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
-=======
-import { isRestartEnabled } from "../config/commands.js";
->>>>>>> b4dbe0329 (refactor: unify restart gating and update availability sync)
 import {
   CONFIG_PATH,
   type OpenClawConfig,
@@ -70,11 +50,6 @@ import {
 } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { DEFAULT_GATEWAY_PORT } from "../config/paths.js";
->>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 =======
 >>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
@@ -104,26 +79,11 @@ import { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
 import { setGatewaySigusr1RestartPolicy } from "../infra/restart.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
 import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js";
-<<<<<<< HEAD
 import type { PluginServicesHandle } from "../plugins/services.js";
 import type { RuntimeEnv } from "../runtime.js";
 =======
-import { getGlobalHookRunner, runGlobalGatewayStopSafely } from "../plugins/hook-runner-global.js";
-import { createEmptyPluginRegistry } from "../plugins/registry.js";
-import type { PluginServicesHandle } from "../plugins/services.js";
-import { getTotalQueueSize } from "../process/command-queue.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8217d77ec (fix(cli): run plugin gateway_stop hooks before message exit (#16580))
-=======
 import type { RuntimeEnv } from "../runtime.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -148,12 +108,6 @@ import { startGatewayConfigReloader } from "./config-reload.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { ControlUiRootState } from "./control-ui.js";
-<<<<<<< HEAD
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ControlUiRootState } from "./control-ui.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -231,13 +185,8 @@ import { startGatewaySidecars } from "./server-startup.js";
 import { logGatewayStartup } from "./server-startup-log.js";
 import { startGatewayTailscaleExposure } from "./server-tailscale.js";
 import { loadGatewayTlsRuntime } from "./server/tls.js";
-<<<<<<< HEAD
 import { createWizardSessionTracker } from "./server-wizard-sessions.js";
 import { attachGatewayWsHandlers } from "./server-ws-runtime.js";
-=======
-import { ensureGatewayStartupAuth } from "./startup-auth.js";
-import { maybeSeedControlUiAllowedOriginsAtStartup } from "./startup-control-ui-origins.js";
->>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
 
 export { __resetModelCatalogCacheForTest } from "./server-model-catalog.js";
 
@@ -397,133 +346,12 @@ export async function startGatewayServer(
     }
   }
 
-<<<<<<< HEAD
   const cfgAtStart = loadConfig();
-=======
-  let secretsDegraded = false;
-  const emitSecretsStateEvent = (
-    code: "SECRETS_RELOADER_DEGRADED" | "SECRETS_RELOADER_RECOVERED",
-    message: string,
-    cfg: OpenClawConfig,
-  ) => {
-    enqueueSystemEvent(`[${code}] ${message}`, {
-      sessionKey: resolveMainSessionKey(cfg),
-      contextKey: code,
-    });
-  };
-  let secretsActivationTail: Promise<void> = Promise.resolve();
-  const runWithSecretsActivationLock = async <T>(operation: () => Promise<T>): Promise<T> => {
-    const run = secretsActivationTail.then(operation, operation);
-    secretsActivationTail = run.then(
-      () => undefined,
-      () => undefined,
-    );
-    return await run;
-  };
-  const activateRuntimeSecrets = async (
-    config: OpenClawConfig,
-    params: { reason: "startup" | "reload" | "restart-check"; activate: boolean },
-  ) =>
-    await runWithSecretsActivationLock(async () => {
-      try {
-        const prepared = await prepareSecretsRuntimeSnapshot({ config });
-        if (params.activate) {
-          activateSecretsRuntimeSnapshot(prepared);
-        }
-        for (const warning of prepared.warnings) {
-          logSecrets.warn(`[${warning.code}] ${warning.message}`);
-        }
-        if (secretsDegraded) {
-          const recoveredMessage =
-            "Secret resolution recovered; runtime remained on last-known-good during the outage.";
-          logSecrets.info(`[SECRETS_RELOADER_RECOVERED] ${recoveredMessage}`);
-          emitSecretsStateEvent("SECRETS_RELOADER_RECOVERED", recoveredMessage, prepared.config);
-        }
-        secretsDegraded = false;
-        return prepared;
-      } catch (err) {
-        const details = String(err);
-        if (!secretsDegraded) {
-          logSecrets.error(`[SECRETS_RELOADER_DEGRADED] ${details}`);
-          if (params.reason !== "startup") {
-            emitSecretsStateEvent(
-              "SECRETS_RELOADER_DEGRADED",
-              `Secret resolution failed; runtime remains on last-known-good snapshot. ${details}`,
-              config,
-            );
-          }
-        } else {
-          logSecrets.warn(`[SECRETS_RELOADER_DEGRADED] ${details}`);
-        }
-        secretsDegraded = true;
-        if (params.reason === "startup") {
-          throw new Error(`Startup failed: required secrets are unavailable. ${details}`, {
-            cause: err,
-          });
-        }
-        throw err;
-      }
-    });
-
-  // Fail fast before startup if required refs are unresolved.
-  let cfgAtStart: OpenClawConfig;
-  {
-    const freshSnapshot = await readConfigFileSnapshot();
-    if (!freshSnapshot.valid) {
-      const issues =
-        freshSnapshot.issues.length > 0
-          ? freshSnapshot.issues
-              .map((issue) => `${issue.path || "<root>"}: ${issue.message}`)
-              .join("\n")
-          : "Unknown validation issue.";
-      throw new Error(`Invalid config at ${freshSnapshot.path}.\n${issues}`);
-    }
-    await activateRuntimeSecrets(freshSnapshot.config, {
-      reason: "startup",
-      activate: false,
-    });
-  }
-
-  cfgAtStart = loadConfig();
-  const authBootstrap = await ensureGatewayStartupAuth({
-    cfg: cfgAtStart,
-    env: process.env,
-    authOverride: opts.auth,
-    tailscaleOverride: opts.tailscale,
-    persist: true,
-  });
-  cfgAtStart = authBootstrap.cfg;
-  if (authBootstrap.generatedToken) {
-    if (authBootstrap.persistedGeneratedToken) {
-      log.info(
-        "Gateway auth token was missing. Generated a new token and saved it to config (gateway.auth.token).",
-      );
-    } else {
-      log.warn(
-        "Gateway auth token was missing. Generated a runtime token for this startup without changing config; restart will generate a different token. Persist one with `openclaw config set gateway.auth.mode token` and `openclaw config set gateway.auth.token <token>`.",
-      );
-    }
-  }
-  cfgAtStart = (
-    await activateRuntimeSecrets(cfgAtStart, {
-      reason: "startup",
-      activate: true,
-    })
-  ).config;
->>>>>>> b50c4c2c4 (Gateway: add eager secrets runtime snapshot activation)
   const diagnosticsEnabled = isDiagnosticsEnabled(cfgAtStart);
   if (diagnosticsEnabled) {
     startDiagnosticHeartbeat();
   }
-<<<<<<< HEAD
   setGatewaySigusr1RestartPolicy({ allowExternal: cfgAtStart.commands?.restart === true });
-=======
-  setGatewaySigusr1RestartPolicy({ allowExternal: isRestartEnabled(cfgAtStart) });
-  setPreRestartDeferralCheck(
-    () => getTotalQueueSize() + getTotalPendingReplies() + getActiveEmbeddedRunCount(),
-  );
-<<<<<<< HEAD
->>>>>>> b4dbe0329 (refactor: unify restart gating and update availability sync)
 =======
   // Unconditional startup migration: seed gateway.controlUi.allowedOrigins for existing
   // non-loopback installs that upgraded to v2026.2.26+ without required origins.
@@ -707,7 +535,6 @@ export async function startGatewayServer(
   const { getRuntimeSnapshot, startChannels, startChannel, stopChannel, markChannelLoggedOut } =
     channelManager;
 
-<<<<<<< HEAD
   const machineDisplayName = await getMachineDisplayName();
   const discovery = await startGatewayDiscovery({
     machineDisplayName,
@@ -721,24 +548,6 @@ export async function startGatewayServer(
     logDiscovery,
   });
   bonjourStop = discovery.bonjourStop;
-=======
-  if (!minimalTestGateway) {
-    const machineDisplayName = await getMachineDisplayName();
-    const discovery = await startGatewayDiscovery({
-      machineDisplayName,
-      port,
-      gatewayTls: gatewayTls.enabled
-        ? { enabled: true, fingerprintSha256: gatewayTls.fingerprintSha256 }
-        : undefined,
-      wideAreaDiscoveryEnabled: cfgAtStart.discovery?.wideArea?.enabled === true,
-      wideAreaDiscoveryDomain: cfgAtStart.discovery?.wideArea?.domain,
-      tailscaleMode,
-      mdnsMode: cfgAtStart.discovery?.mdns?.mode,
-      logDiscovery,
-    });
-    bonjourStop = discovery.bonjourStop;
-  }
->>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
 
   if (!minimalTestGateway) {
     setSkillsRemoteRegistry(nodeRegistry);
@@ -772,7 +581,6 @@ export async function startGatewayServer(
   if (!minimalTestGateway) {
     ({ tickInterval, healthInterval, dedupeCleanup } = startGatewayMaintenanceTimers({
       broadcast,
-<<<<<<< HEAD
       nodeSendToSession,
       agentRunSeq,
       chatRunState,
@@ -780,23 +588,6 @@ export async function startGatewayServer(
       clearAgentRunContext,
     }),
   );
-=======
-      nodeSendToAllSubscribed,
-      getPresenceVersion,
-      getHealthVersion,
-      refreshGatewayHealthSnapshot,
-      logHealth,
-      dedupe,
-      chatAbortControllers,
-      chatRunState,
-      chatRunBuffers,
-      chatDeltaSentAt,
-      removeChatRun,
-      agentRunSeq,
-      nodeSendToSession,
-    }));
-  }
->>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
 
   const agentUnsub = minimalTestGateway
     ? null
@@ -839,8 +630,6 @@ export async function startGatewayServer(
     void cron.start().catch((err) => logCron.error(`failed to start: ${String(err)}`));
   }
 
-<<<<<<< HEAD
-=======
   // Recover pending outbound deliveries from previous crash/restart.
   if (!minimalTestGateway) {
     void (async () => {
@@ -855,7 +644,6 @@ export async function startGatewayServer(
     })().catch((err) => log.error(`Delivery recovery failed: ${String(err)}`));
   }
 
->>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
   const execApprovalManager = new ExecApprovalManager();
   const execApprovalForwarder = createExecApprovalForwarder();
   const execApprovalHandlers = createExecApprovalHandlers(execApprovalManager, {
@@ -993,7 +781,6 @@ export async function startGatewayServer(
     }));
   }
 
-<<<<<<< HEAD
   const { applyHotReload, requestGatewayRestart } = createGatewayReloadHandlers({
     deps,
     broadcast,
@@ -1019,46 +806,6 @@ export async function startGatewayServer(
     logCron,
     logReload,
   });
-=======
-  // Run gateway_start plugin hook (fire-and-forget)
-  if (!minimalTestGateway) {
-    const hookRunner = getGlobalHookRunner();
-    if (hookRunner?.hasHooks("gateway_start")) {
-      void hookRunner.runGatewayStart({ port }, { port }).catch((err) => {
-        log.warn(`gateway_start hook failed: ${String(err)}`);
-      });
-    }
-  }
-
-  const configReloader = minimalTestGateway
-    ? { stop: async () => {} }
-    : (() => {
-        const { applyHotReload, requestGatewayRestart } = createGatewayReloadHandlers({
-          deps,
-          broadcast,
-          getState: () => ({
-            hooksConfig,
-            heartbeatRunner,
-            cronState,
-            browserControl,
-          }),
-          setState: (nextState) => {
-            hooksConfig = nextState.hooksConfig;
-            heartbeatRunner = nextState.heartbeatRunner;
-            cronState = nextState.cronState;
-            cron = cronState.cron;
-            cronStorePath = cronState.storePath;
-            browserControl = nextState.browserControl;
-          },
-          startChannel,
-          stopChannel,
-          logHooks,
-          logBrowser,
-          logChannels,
-          logCron,
-          logReload,
-        });
->>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
 
         return startGatewayConfigReloader({
           initialConfig: cfgAtStart,
@@ -1121,15 +868,12 @@ export async function startGatewayServer(
 
   return {
     close: async (opts) => {
-<<<<<<< HEAD
-=======
       // Run gateway_stop plugin hook before shutdown
       await runGlobalGatewayStopSafely({
         event: { reason: opts?.reason ?? "gateway stopping" },
         ctx: { port },
         onError: (err) => log.warn(`gateway_stop hook failed: ${String(err)}`),
       });
->>>>>>> 8217d77ec (fix(cli): run plugin gateway_stop hooks before message exit (#16580))
       if (diagnosticsEnabled) {
         stopDiagnosticHeartbeat();
       }

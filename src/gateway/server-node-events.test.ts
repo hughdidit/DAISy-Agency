@@ -29,25 +29,8 @@ vi.mock("./session-utils.js", () => ({
   })),
 }));
 
-<<<<<<< HEAD
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
-=======
-import type { CliDeps } from "../cli/deps.js";
-import { agentCommand } from "../commands/agent.js";
-import type { HealthSummary } from "../commands/health.js";
-import { loadConfig } from "../config/config.js";
-import { updateSessionStore } from "../config/sessions.js";
-import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
-import { enqueueSystemEvent } from "../infra/system-events.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { NodeEventContext } from "./server-node-events-types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

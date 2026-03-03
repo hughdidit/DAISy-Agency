@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { transcribeOpenAiCompatibleAudio } from "./audio.js";
 
@@ -14,10 +13,6 @@ const resolveRequestUrl = (input: RequestInfo | URL) => {
   }
   return input.url;
 };
-=======
-=======
-import { withFetchPreconnect } from "../../../test-utils/fetch-mock.js";
->>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import { installPinnedHostnameTestHooks, resolveRequestUrl } from "../audio.test-helpers.js";
 =======
 import {

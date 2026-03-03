@@ -2,32 +2,15 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../../config/config.js";
 =======
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
-=======
 import { buildModelAliasIndex } from "../../agents/model-selection.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
 >>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
-=======
-import { buildModelAliasIndex } from "../../agents/model-selection.js";
->>>>>>> 53ec78319 (perf(test): consolidate session suites)
 =======
 import { buildModelAliasIndex } from "../../agents/model-selection.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -102,12 +85,7 @@ const createStorePath = makeStorePath;
 describe("initSessionState thread forking", () => {
   it("forks a new session from the parent session file", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-thread-session-"));
-=======
-=======
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
->>>>>>> 8fdde0429 (perf(auto-reply): avoid skill scans for inline directives)
     const root = await makeCaseDir("openclaw-thread-session-");
 >>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
     const sessionsDir = path.join(root, "sessions");
@@ -391,11 +369,7 @@ describe("initSessionState thread forking", () => {
   });
 
   it("records topic-specific session files when MessageThreadId is present", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-topic-session-"));
-=======
-    const root = await makeCaseDir("openclaw-topic-session-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
     const storePath = path.join(root, "sessions.json");
 
     const cfg = {
@@ -421,14 +395,9 @@ describe("initSessionState thread forking", () => {
 });
 
 describe("initSessionState RawBody", () => {
-<<<<<<< HEAD
   it("triggerBodyNormalized correctly extracts commands when Body contains context but RawBody is clean", async () => {
 <<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-rawbody-"));
-=======
-=======
-  it("uses RawBody for command extraction and reset triggers when Body contains wrapped context", async () => {
->>>>>>> 445c7a65e (test: simplify session reset and rawbody coverage)
     const root = await makeCaseDir("openclaw-rawbody-");
 >>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
     const storePath = path.join(root, "sessions.json");
@@ -446,16 +415,12 @@ describe("initSessionState RawBody", () => {
     });
     expect(statusResult.triggerBodyNormalized).toBe("/status");
 
-<<<<<<< HEAD
     expect(result.triggerBodyNormalized).toBe("/status");
   });
 
   it("Reset triggers (/new, /reset) work with RawBody", async () => {
 <<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-rawbody-reset-"));
-=======
-    const root = await makeCaseDir("openclaw-rawbody-reset-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
     const storePath = path.join(root, "sessions.json");
     const cfg = { session: { store: storePath } } as MoltbotConfig;
 
@@ -485,11 +450,7 @@ describe("initSessionState RawBody", () => {
   });
 
   it("preserves argument casing while still matching reset triggers case-insensitively", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-rawbody-reset-case-"));
-=======
-    const root = await makeCaseDir("openclaw-rawbody-reset-case-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
     const storePath = path.join(root, "sessions.json");
 
     const cfg = {
@@ -516,13 +477,9 @@ describe("initSessionState RawBody", () => {
     expect(result.triggerBodyNormalized).toBe("/NEW KeepThisCase");
   });
 
-<<<<<<< HEAD
   it("falls back to Body when RawBody is undefined", async () => {
 <<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-rawbody-fallback-"));
-=======
-    const root = await makeCaseDir("openclaw-rawbody-fallback-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
     const storePath = path.join(root, "sessions.json");
     const cfg = { session: { store: storePath } } as MoltbotConfig;
 
@@ -595,13 +552,9 @@ describe("initSessionState reset policy", () => {
 
   it("defaults to daily reset at 4am local time", async () => {
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
-<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-daily-"));
-=======
-      const root = await makeCaseDir("openclaw-reset-daily-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s1";
       const existingSessionId = "daily-session-id";
@@ -619,21 +572,12 @@ describe("initSessionState reset policy", () => {
       },
     });
 
-<<<<<<< HEAD
       const cfg = { session: { store: storePath } } as MoltbotConfig;
       const result = await initSessionState({
         ctx: { Body: "hello", SessionKey: sessionKey },
         cfg,
         commandAuthorized: true,
       });
-=======
-    const cfg = { session: { store: storePath } } as OpenClawConfig;
-    const result = await initSessionState({
-      ctx: { Body: "hello", SessionKey: sessionKey },
-      cfg,
-      commandAuthorized: true,
-    });
->>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
     expect(result.isNewSession).toBe(true);
     expect(result.sessionId).not.toBe(existingSessionId);
@@ -641,13 +585,9 @@ describe("initSessionState reset policy", () => {
 
   it("treats sessions as stale before the daily reset when updated before yesterday's boundary", async () => {
     vi.setSystemTime(new Date(2026, 0, 18, 3, 0, 0));
-<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-daily-edge-"));
-=======
-      const root = await makeCaseDir("openclaw-reset-daily-edge-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s-edge";
       const existingSessionId = "daily-edge-session";
@@ -665,21 +605,12 @@ describe("initSessionState reset policy", () => {
       },
     });
 
-<<<<<<< HEAD
       const cfg = { session: { store: storePath } } as MoltbotConfig;
       const result = await initSessionState({
         ctx: { Body: "hello", SessionKey: sessionKey },
         cfg,
         commandAuthorized: true,
       });
-=======
-    const cfg = { session: { store: storePath } } as OpenClawConfig;
-    const result = await initSessionState({
-      ctx: { Body: "hello", SessionKey: sessionKey },
-      cfg,
-      commandAuthorized: true,
-    });
->>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
     expect(result.isNewSession).toBe(true);
     expect(result.sessionId).not.toBe(existingSessionId);
@@ -687,13 +618,9 @@ describe("initSessionState reset policy", () => {
 
   it("expires sessions when idle timeout wins over daily reset", async () => {
     vi.setSystemTime(new Date(2026, 0, 18, 5, 30, 0));
-<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-idle-"));
-=======
-      const root = await makeCaseDir("openclaw-reset-idle-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s2";
       const existingSessionId = "idle-session-id";
@@ -711,7 +638,6 @@ describe("initSessionState reset policy", () => {
       },
     });
 
-<<<<<<< HEAD
       const cfg = {
         session: {
           store: storePath,
@@ -723,19 +649,6 @@ describe("initSessionState reset policy", () => {
         cfg,
         commandAuthorized: true,
       });
-=======
-    const cfg = {
-      session: {
-        store: storePath,
-        reset: { mode: "daily", atHour: 4, idleMinutes: 30 },
-      },
-    } as OpenClawConfig;
-    const result = await initSessionState({
-      ctx: { Body: "hello", SessionKey: sessionKey },
-      cfg,
-      commandAuthorized: true,
-    });
->>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
     expect(result.isNewSession).toBe(true);
     expect(result.sessionId).not.toBe(existingSessionId);
@@ -743,13 +656,9 @@ describe("initSessionState reset policy", () => {
 
   it("uses per-type overrides for thread sessions", async () => {
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
-<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-thread-"));
-=======
-      const root = await makeCaseDir("openclaw-reset-thread-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:slack:channel:c1:thread:123";
       const existingSessionId = "thread-session-id";
@@ -767,7 +676,6 @@ describe("initSessionState reset policy", () => {
       },
     });
 
-<<<<<<< HEAD
       const cfg = {
         session: {
           store: storePath,
@@ -780,20 +688,6 @@ describe("initSessionState reset policy", () => {
         cfg,
         commandAuthorized: true,
       });
-=======
-    const cfg = {
-      session: {
-        store: storePath,
-        reset: { mode: "daily", atHour: 4 },
-        resetByType: { thread: { mode: "idle", idleMinutes: 180 } },
-      },
-    } as OpenClawConfig;
-    const result = await initSessionState({
-      ctx: { Body: "reply", SessionKey: sessionKey, ThreadLabel: "Slack thread" },
-      cfg,
-      commandAuthorized: true,
-    });
->>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
     expect(result.isNewSession).toBe(false);
     expect(result.sessionId).toBe(existingSessionId);
@@ -801,13 +695,9 @@ describe("initSessionState reset policy", () => {
 
   it("detects thread sessions without thread key suffix", async () => {
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
-<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-thread-nosuffix-"));
-=======
-      const root = await makeCaseDir("openclaw-reset-thread-nosuffix-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:discord:channel:c1";
       const existingSessionId = "thread-nosuffix";
@@ -825,7 +715,6 @@ describe("initSessionState reset policy", () => {
       },
     });
 
-<<<<<<< HEAD
       const cfg = {
         session: {
           store: storePath,
@@ -837,19 +726,6 @@ describe("initSessionState reset policy", () => {
         cfg,
         commandAuthorized: true,
       });
-=======
-    const cfg = {
-      session: {
-        store: storePath,
-        resetByType: { thread: { mode: "idle", idleMinutes: 180 } },
-      },
-    } as OpenClawConfig;
-    const result = await initSessionState({
-      ctx: { Body: "reply", SessionKey: sessionKey, ThreadLabel: "Discord thread" },
-      cfg,
-      commandAuthorized: true,
-    });
->>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
     expect(result.isNewSession).toBe(false);
     expect(result.sessionId).toBe(existingSessionId);
@@ -857,13 +733,9 @@ describe("initSessionState reset policy", () => {
 
   it("defaults to daily resets when only resetByType is configured", async () => {
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
-<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-type-default-"));
-=======
-      const root = await makeCaseDir("openclaw-reset-type-default-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s4";
       const existingSessionId = "type-default-session";
@@ -881,7 +753,6 @@ describe("initSessionState reset policy", () => {
       },
     });
 
-<<<<<<< HEAD
       const cfg = {
         session: {
           store: storePath,
@@ -893,19 +764,6 @@ describe("initSessionState reset policy", () => {
         cfg,
         commandAuthorized: true,
       });
-=======
-    const cfg = {
-      session: {
-        store: storePath,
-        resetByType: { thread: { mode: "idle", idleMinutes: 60 } },
-      },
-    } as OpenClawConfig;
-    const result = await initSessionState({
-      ctx: { Body: "hello", SessionKey: sessionKey },
-      cfg,
-      commandAuthorized: true,
-    });
->>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
     expect(result.isNewSession).toBe(true);
     expect(result.sessionId).not.toBe(existingSessionId);
@@ -913,13 +771,9 @@ describe("initSessionState reset policy", () => {
 
   it("keeps legacy idleMinutes behavior without reset config", async () => {
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
-<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-legacy-"));
-=======
-      const root = await makeCaseDir("openclaw-reset-legacy-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s3";
       const existingSessionId = "legacy-session-id";
@@ -937,7 +791,6 @@ describe("initSessionState reset policy", () => {
       },
     });
 
-<<<<<<< HEAD
       const cfg = {
         session: {
           store: storePath,
@@ -949,19 +802,6 @@ describe("initSessionState reset policy", () => {
         cfg,
         commandAuthorized: true,
       });
-=======
-    const cfg = {
-      session: {
-        store: storePath,
-        idleMinutes: 240,
-      },
-    } as OpenClawConfig;
-    const result = await initSessionState({
-      ctx: { Body: "hello", SessionKey: sessionKey },
-      cfg,
-      commandAuthorized: true,
-    });
->>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
     expect(result.isNewSession).toBe(false);
     expect(result.sessionId).toBe(existingSessionId);
@@ -970,11 +810,7 @@ describe("initSessionState reset policy", () => {
 
 describe("initSessionState channel reset overrides", () => {
   it("uses channel-specific reset policy when configured", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-channel-idle-"));
-=======
-    const root = await makeCaseDir("openclaw-channel-idle-");
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
     const storePath = path.join(root, "sessions.json");
     const sessionKey = "agent:main:discord:dm:123";
     const sessionId = "session-override";

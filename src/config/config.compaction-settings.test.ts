@@ -4,7 +4,6 @@ import { withTempHomeConfig } from "./test-helpers.js";
 
 describe("config compaction settings", () => {
   it("preserves memory flush config values", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
@@ -24,22 +23,6 @@ describe("config compaction settings", () => {
                     systemPrompt: "Flush memory now.",
                   },
                 },
-=======
-    await withTempHomeConfig(
-      {
-        agents: {
-          defaults: {
-            compaction: {
-              mode: "safeguard",
-              reserveTokensFloor: 12_345,
-              identifierPolicy: "custom",
-              identifierInstructions: "Keep ticket IDs unchanged.",
-              memoryFlush: {
-                enabled: false,
-                softThresholdTokens: 1234,
-                prompt: "Write notes.",
-                systemPrompt: "Flush memory now.",
->>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
               },
             },
           },
@@ -87,7 +70,6 @@ describe("config compaction settings", () => {
   });
 
   it("defaults compaction mode to safeguard", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
@@ -101,14 +83,6 @@ describe("config compaction settings", () => {
                   reserveTokensFloor: 9000,
                 },
               },
-=======
-    await withTempHomeConfig(
-      {
-        agents: {
-          defaults: {
-            compaction: {
-              reserveTokensFloor: 9000,
->>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
             },
           },
         },

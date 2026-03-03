@@ -5,7 +5,6 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -16,14 +15,6 @@ import { agentCommand } from "../commands/agent.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { type RuntimeEnv, defaultRuntime } from "../runtime.js";
 
-=======
-import { resolveAgentIdFromSessionKey } from "../config/sessions/main-session.js";
-=======
-import type { CliDeps } from "../cli/deps.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { SessionEntry } from "../config/sessions/types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -201,10 +192,6 @@ export async function runBootOnce(params: {
   const sessionKey = resolveMainSessionKey(params.cfg);
   const message = buildBootPrompt(result.content ?? "");
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  const sessionId = resolveBootSessionId(params.cfg);
->>>>>>> fe73878df (fix(gateway): preserve session mapping across gateway restarts)
 =======
   const sessionId = generateBootSessionId();
   const mappingSnapshot = snapshotMainSessionMapping({

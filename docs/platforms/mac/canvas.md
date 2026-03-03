@@ -23,16 +23,9 @@ The Canvas panel serves those files via a **custom URL scheme**:
 - `moltbot-canvas://<session>/<path>`
 
 Examples:
-<<<<<<< HEAD
 - `moltbot-canvas://main/` → `<canvasRoot>/main/index.html`
 - `moltbot-canvas://main/assets/app.css` → `<canvasRoot>/main/assets/app.css`
 - `moltbot-canvas://main/widgets/todo/` → `<canvasRoot>/main/widgets/todo/index.html`
-=======
-
-- `openclaw-canvas://main/` → `<canvasRoot>/main/index.html`
-- `openclaw-canvas://main/assets/app.css` → `<canvasRoot>/main/assets/app.css`
-- `openclaw-canvas://main/widgets/todo/` → `<canvasRoot>/main/widgets/todo/index.html`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 If no `index.html` exists at the root, the app shows a **built‑in scaffold page**.
 

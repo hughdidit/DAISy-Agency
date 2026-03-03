@@ -31,17 +31,11 @@ function resolveWithMocks(params: {
 describe("resolvePreferredOpenClawTmpDir", () => {
   it("prefers /tmp/openclaw when it already exists and is writable", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const accessSync = vi.fn();
     const statSync = vi.fn(() => ({ isDirectory: () => true }));
     const tmpdir = vi.fn(() => "/var/fallback");
 
     const resolved = resolvePreferredOpenClawTmpDir({ accessSync, statSync, tmpdir });
-=======
-    const lstatSync = vi.fn(() => ({
-=======
-    const lstatSync: NonNullable<TmpDirOptions["lstatSync"]> = vi.fn(() => ({
->>>>>>> 49bd9f75f (chore: Fix types in tests 33/N.)
       isDirectory: () => true,
       isSymbolicLink: () => false,
       uid: 501,
@@ -58,12 +52,8 @@ describe("resolvePreferredOpenClawTmpDir", () => {
 
   it("prefers /tmp/openclaw when it does not exist but /tmp is writable", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const accessSync = vi.fn();
     const statSync = vi.fn(() => {
-=======
-    const lstatSync = vi.fn(() => {
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 =======
     const lstatSyncMock = vi.fn<NonNullable<TmpDirOptions["lstatSync"]>>(() => {
 >>>>>>> 49bd9f75f (chore: Fix types in tests 33/N.)
@@ -71,28 +61,9 @@ describe("resolvePreferredOpenClawTmpDir", () => {
       err.code = "ENOENT";
       throw err;
     });
-<<<<<<< HEAD
     const tmpdir = vi.fn(() => "/var/fallback");
 
     const resolved = resolvePreferredOpenClawTmpDir({ accessSync, statSync, tmpdir });
-=======
-
-    // second lstat call (after mkdir) should succeed
-    lstatSyncMock.mockImplementationOnce(() => {
-      const err = new Error("missing") as Error & { code?: string };
-      err.code = "ENOENT";
-      throw err;
-    });
-    lstatSyncMock.mockImplementationOnce(() => ({
-      isDirectory: () => true,
-      isSymbolicLink: () => false,
-      uid: 501,
-      mode: 0o40700,
-    }));
-
-<<<<<<< HEAD
-    const { resolved, accessSync, mkdirSync, tmpdir } = resolveWithMocks({ lstatSync });
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 =======
     const { resolved, accessSync, mkdirSync, tmpdir } = resolveWithMocks({
       lstatSync: lstatSyncMock,
@@ -105,7 +76,6 @@ describe("resolvePreferredOpenClawTmpDir", () => {
   });
 
   it("falls back to os.tmpdir()/openclaw when /tmp/openclaw is not a directory", () => {
-<<<<<<< HEAD
     const accessSync = vi.fn();
     const statSync = vi.fn(() => ({ isDirectory: () => false }));
     const tmpdir = vi.fn(() => "/var/fallback");
@@ -113,17 +83,6 @@ describe("resolvePreferredOpenClawTmpDir", () => {
     const resolved = resolvePreferredOpenClawTmpDir({ accessSync, statSync, tmpdir });
 
     expect(resolved).toBe(path.join("/var/fallback", "openclaw"));
-=======
-    const lstatSync = vi.fn(() => ({
-      isDirectory: () => false,
-      isSymbolicLink: () => false,
-      uid: 501,
-      mode: 0o100644,
-    })) as unknown as ReturnType<typeof vi.fn> & NonNullable<TmpDirOptions["lstatSync"]>;
-    const { resolved, tmpdir } = resolveWithMocks({ lstatSync });
-
-    expect(resolved).toBe(fallbackTmp());
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     expect(tmpdir).toHaveBeenCalledTimes(1);
   });
 
@@ -138,61 +97,11 @@ describe("resolvePreferredOpenClawTmpDir", () => {
       err.code = "ENOENT";
       throw err;
     });
-<<<<<<< HEAD
     const tmpdir = vi.fn(() => "/var/fallback");
 
     const resolved = resolvePreferredOpenClawTmpDir({ accessSync, statSync, tmpdir });
 
     expect(resolved).toBe(path.join("/var/fallback", "openclaw"));
-=======
-    const { resolved, tmpdir } = resolveWithMocks({
-      accessSync,
-      lstatSync,
-    });
-
-    expect(resolved).toBe(fallbackTmp());
-    expect(tmpdir).toHaveBeenCalledTimes(1);
-  });
-
-  it("falls back when /tmp/openclaw is a symlink", () => {
-    const lstatSync = vi.fn(() => ({
-      isDirectory: () => true,
-      isSymbolicLink: () => true,
-      uid: 501,
-      mode: 0o120777,
-    }));
-
-    const { resolved, tmpdir } = resolveWithMocks({ lstatSync });
-
-    expect(resolved).toBe(fallbackTmp());
-    expect(tmpdir).toHaveBeenCalledTimes(1);
-  });
-
-  it("falls back when /tmp/openclaw is not owned by the current user", () => {
-    const lstatSync = vi.fn(() => ({
-      isDirectory: () => true,
-      isSymbolicLink: () => false,
-      uid: 0,
-      mode: 0o40700,
-    }));
-
-    const { resolved, tmpdir } = resolveWithMocks({ lstatSync });
-
-    expect(resolved).toBe(fallbackTmp());
-    expect(tmpdir).toHaveBeenCalledTimes(1);
-  });
-
-  it("falls back when /tmp/openclaw is group/other writable", () => {
-    const lstatSync = vi.fn(() => ({
-      isDirectory: () => true,
-      isSymbolicLink: () => false,
-      uid: 501,
-      mode: 0o40777,
-    }));
-    const { resolved, tmpdir } = resolveWithMocks({ lstatSync });
-
-    expect(resolved).toBe(fallbackTmp());
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     expect(tmpdir).toHaveBeenCalledTimes(1);
   });
 });

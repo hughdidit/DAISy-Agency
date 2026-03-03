@@ -9,16 +9,8 @@ import {
   type ChannelOnboardingDmPolicy,
   type OpenClawConfig,
   type WizardPrompter,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CoreConfig, DmPolicy } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))

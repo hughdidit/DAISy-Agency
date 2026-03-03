@@ -136,15 +136,8 @@ export function renderRuntimeHints(
     }
   })();
   if (runtime.missingUnit) {
-<<<<<<< HEAD
     hints.push(`Service not installed. Run: ${formatCliCommand("moltbot gateway install", env)}`);
     if (fileLog) hints.push(`File logs: ${fileLog}`);
-=======
-    hints.push(`Service not installed. Run: ${formatCliCommand("openclaw gateway install", env)}`);
-    if (fileLog) {
-      hints.push(`File logs: ${fileLog}`);
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     return hints;
   }
   if (runtime.status === "stopped") {

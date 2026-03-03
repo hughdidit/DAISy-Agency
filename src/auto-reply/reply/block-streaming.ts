@@ -1,14 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { BlockStreamingCoalesceConfig } from "../../config/types.js";

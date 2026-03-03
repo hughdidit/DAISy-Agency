@@ -45,16 +45,8 @@ function resolveCommand(command: string): string {
     return command;
   }
   const basename = path.basename(command).toLowerCase();
-<<<<<<< HEAD
   // Common npm-related commands that need .cmd extension on Windows
   const cmdCommands = ["npm", "pnpm", "yarn", "npx"];
-=======
-  const ext = path.extname(basename);
-  if (ext) {
-    return command;
-  }
-  const cmdCommands = ["pnpm", "yarn"];
->>>>>>> a1a8ec687 (fix(windows): land #31147 plugin install spawn EINVAL (@codertony))
   if (cmdCommands.includes(basename)) {
     return `${command}.cmd`;
   }
@@ -165,27 +157,15 @@ export async function runCommandWithTimeout(
   }
 
   const stdio = resolveCommandStdio({ hasInput, preferInherit: true });
-<<<<<<< HEAD
   const resolvedCommand = resolveCommand(argv[0] ?? "");
   const commandExt = path.extname(resolvedCommand).toLowerCase();
   const useShell = process.platform === "win32" && commandExt !== ".exe";
   const child = spawn(resolvedCommand, argv.slice(1), {
-=======
-  const finalArgv = process.platform === "win32" ? (resolveNpmArgvForWindows(argv) ?? argv) : argv;
-  const resolvedCommand = finalArgv !== argv ? (finalArgv[0] ?? "") : resolveCommand(argv[0] ?? "");
-  const child = spawn(resolvedCommand, finalArgv.slice(1), {
->>>>>>> a1a8ec687 (fix(windows): land #31147 plugin install spawn EINVAL (@codertony))
     stdio,
     cwd,
     env: resolvedEnv,
     windowsVerbatimArguments,
-<<<<<<< HEAD
     shell: useShell,
-=======
-    ...(shouldSpawnWithShell({ resolvedCommand, platform: process.platform })
-      ? { shell: true }
-      : {}),
->>>>>>> 726ad45c7 (Revert "fix: add windowsHide: true to spawn in runCommandWithTimeout")
   });
   // Spawn with inherited stdin (TTY) so tools like `pi` stay interactive when needed.
   return await new Promise((resolve, reject) => {

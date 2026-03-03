@@ -1,16 +1,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { spawn, type ChildProcess } from "node:child_process";
 <<<<<<< HEAD
 import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 
-=======
-=======
-import { spawn, type ChildProcess } from "node:child_process";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import { spawn, type ChildProcess } from "node:child_process";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
@@ -20,10 +15,7 @@ import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -35,7 +27,6 @@ import {
   PROTOCOL_VERSION,
   ndJsonStream,
   type RequestPermissionRequest,
-<<<<<<< HEAD
   type SessionNotification,
 } from "@agentclientprotocol/sdk";
 <<<<<<< HEAD
@@ -44,32 +35,6 @@ import {
 
 <<<<<<< HEAD
 import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
-=======
-/**
- * Tools that require explicit user approval in ACP sessions.
- * These tools can execute arbitrary code, modify the filesystem,
- * or access sensitive resources.
- */
-const DANGEROUS_ACP_TOOLS = new Set([
-  "exec",
-  "spawn",
-  "shell",
-  "sessions_spawn",
-  "sessions_send",
-  "gateway",
-  "fs_write",
-  "fs_delete",
-  "fs_move",
-  "apply_patch",
-]);
-=======
-=======
-=======
-  type RequestPermissionResponse,
-  type SessionNotification,
-} from "@agentclientprotocol/sdk";
-<<<<<<< HEAD
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { spawn, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import { homedir } from "node:os";
@@ -78,10 +43,7 @@ import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -427,8 +389,6 @@ function buildServerArgs(opts: AcpClientOptions): string[] {
   return args;
 }
 
-<<<<<<< HEAD
-=======
 export function resolveAcpClientSpawnEnv(
   baseEnv: NodeJS.ProcessEnv = process.env,
 ): NodeJS.ProcessEnv {
@@ -454,7 +414,6 @@ function resolveSelfEntryPath(): string | null {
   return null;
 }
 
->>>>>>> b7615e0ce (Exec/ACP: inject OPENCLAW_SHELL into child shell env (#31271))
 function printSessionUpdate(notification: SessionNotification): void {
   const update = notification.update;
   if (!("sessionUpdate" in update)) {
@@ -521,7 +480,6 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
         printSessionUpdate(params);
       },
       requestPermission: async (params: RequestPermissionRequest) => {
-<<<<<<< HEAD
         console.log("\n[permission requested]", params.toolCall?.title ?? "tool");
         const options = params.options ?? [];
         const allowOnce = options.find((option) => option.kind === "allow_once");
@@ -532,9 +490,6 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
             optionId: allowOnce?.optionId ?? fallback?.optionId ?? "allow",
           },
         };
-=======
-        return resolvePermissionRequest(params, { cwd });
->>>>>>> 12cc75433 (fix(acp): harden permission auto-approval policy)
       },
     }),
     stream,

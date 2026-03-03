@@ -1,18 +1,9 @@
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
-=======
-import { OpenClawApp } from "./app.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
-<<<<<<< HEAD
 import { MoltbotApp } from "./app";
 
 const originalConnect = MoltbotApp.prototype.connect;
-=======
-// oxlint-disable-next-line typescript/unbound-method
-const originalConnect = OpenClawApp.prototype.connect;
->>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
 
 function mountApp(pathname: string) {
   window.history.replaceState({}, "", pathname);

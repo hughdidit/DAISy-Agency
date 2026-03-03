@@ -2,11 +2,7 @@ import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
 import type { ChildProcess } from "node:child_process";
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { createRestartIterationHook } from "./restart-recovery.js";
->>>>>>> 725f63f72 (perf(test): fold restart recovery helper into spawn utils suite)
 import { spawnWithFallback } from "./spawn-utils.js";
 
 function createStubChild() {

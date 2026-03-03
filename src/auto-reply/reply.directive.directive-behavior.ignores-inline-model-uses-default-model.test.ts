@@ -12,7 +12,6 @@ import {
 import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -54,8 +53,6 @@ function _assertModelSelection(
 }
 
 =======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
-=======
 function makeDefaultModelConfig(home: string) {
   return makeWhatsAppDirectiveConfig(home, {
     model: { primary: "anthropic/claude-opus-4-5" },
@@ -81,7 +78,6 @@ describe("directive behavior", () => {
           To: "+2000",
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -96,9 +92,6 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["*"] } },
           session: { store: storePath },
         },
-=======
-        makeDefaultModelConfig(home),
->>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
       const texts = replyTexts(res);
@@ -128,17 +121,12 @@ describe("directive behavior", () => {
           To: "+2000",
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
 <<<<<<< HEAD
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
-=======
-              model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: path.join(home, "openclaw"),
->>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
             },
           },
           channels: { whatsapp: { allowFrom: ["*"] } },
@@ -167,17 +155,12 @@ describe("directive behavior", () => {
           SenderE164: "+1004",
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
 <<<<<<< HEAD
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
-=======
-              model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: path.join(home, "openclaw"),
->>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
 =======
         makeWhatsAppDirectiveConfig(
           home,

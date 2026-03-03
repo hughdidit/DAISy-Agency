@@ -102,12 +102,7 @@ moltbot health
 ```
 
 Notes:
-<<<<<<< HEAD
 - If your Gateway runs as a service, `moltbot gateway restart` is preferred over killing PIDs.
-=======
-
-- If your Gateway runs as a service, `openclaw gateway restart` is preferred over killing PIDs.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - If you’re pinned to a specific version, see “Rollback / pinning” below.
 
 ## Update (`moltbot update`)
@@ -131,16 +126,9 @@ If you installed via **npm/pnpm** (no git metadata), `moltbot update` will try t
 ## Update (Control UI / RPC)
 
 The Control UI has **Update & Restart** (RPC: `update.run`). It:
-<<<<<<< HEAD
 1) Runs the same source-update flow as `moltbot update` (git checkout only).
 2) Writes a restart sentinel with a structured report (stdout/stderr tail).
 3) Restarts the gateway and pings the last active session with the report.
-=======
-
-1. Runs the same source-update flow as `openclaw update` (git checkout only).
-2. Writes a restart sentinel with a structured report (stdout/stderr tail).
-3. Restarts the gateway and pings the last active session with the report.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 If the rebase fails, the gateway aborts and restarts without applying the update.
 
@@ -166,18 +154,10 @@ moltbot health
 ```
 
 Notes:
-<<<<<<< HEAD
 - `pnpm build` matters when you run the packaged `moltbot` binary ([`moltbot.mjs`](https://github.com/moltbot/moltbot/blob/main/moltbot.mjs)) or use Node to run `dist/`.
 - If you run from a repo checkout without a global install, use `pnpm moltbot ...` for CLI commands.
 - If you run directly from TypeScript (`pnpm moltbot ...`), a rebuild is usually unnecessary, but **config migrations still apply** → run doctor.
 - Switching between global and git installs is easy: install the other flavor, then run `moltbot doctor` so the gateway service entrypoint is rewritten to the current install.
-=======
-
-- `pnpm build` matters when you run the packaged `openclaw` binary ([`openclaw.mjs`](https://github.com/openclaw/openclaw/blob/main/openclaw.mjs)) or use Node to run `dist/`.
-- If you run from a repo checkout without a global install, use `pnpm openclaw ...` for CLI commands.
-- If you run directly from TypeScript (`pnpm openclaw ...`), a rebuild is usually unnecessary, but **config migrations still apply** → run doctor.
-- Switching between global and git installs is easy: install the other flavor, then run `openclaw doctor` so the gateway service entrypoint is rewritten to the current install.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Always Run: `moltbot doctor`
 
@@ -208,18 +188,10 @@ moltbot logs --follow
 ```
 
 If you’re supervised:
-<<<<<<< HEAD
 - macOS launchd (app-bundled LaunchAgent): `launchctl kickstart -k gui/$UID/bot.molt.gateway` (use `bot.molt.<profile>`; legacy `com.clawdbot.*` still works)
 - Linux systemd user service: `systemctl --user restart moltbot-gateway[-<profile>].service`
 - Windows (WSL2): `systemctl --user restart moltbot-gateway[-<profile>].service`
   - `launchctl`/`systemctl` only work if the service is installed; otherwise run `moltbot gateway install`.
-=======
-
-- macOS launchd (app-bundled LaunchAgent): `launchctl kickstart -k gui/$UID/ai.openclaw.gateway` (use `ai.openclaw.<profile>`; legacy `com.openclaw.*` still works)
-- Linux systemd user service: `systemctl --user restart openclaw-gateway[-<profile>].service`
-- Windows (WSL2): `systemctl --user restart openclaw-gateway[-<profile>].service`
-  - `launchctl`/`systemctl` only work if the service is installed; otherwise run `openclaw gateway install`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Runbook + exact service labels: [Gateway runbook](/gateway)
 

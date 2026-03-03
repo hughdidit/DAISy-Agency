@@ -2,12 +2,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { resolveConfigSnapshotHash } from "../config/config.js";
 
-=======
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 import {
   connectOk,
   installGatewayTestHooks,
@@ -57,7 +54,6 @@ describe("gateway config methods", () => {
     const res = await rpcReq<{ ok?: boolean }>(requireWs(), "config.patch", {
       raw: "[]",
     });
-<<<<<<< HEAD
     expect(typeof baseHash).toBe("string");
 
     const patchId = "req-patch";
@@ -269,10 +265,6 @@ describe("gateway config methods", () => {
     );
     expect(set2Res.ok).toBe(false);
     expect(set2Res.error?.message).toContain("base hash");
-=======
-    expect(res.ok).toBe(false);
-    expect(res.error?.message ?? "").toContain("raw must be an object");
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
   });
 
   it("rejects config.patch when tailscale serve/funnel is paired with non-loopback bind", async () => {
@@ -297,11 +289,7 @@ describe("gateway config methods", () => {
 
 describe("gateway server sessions", () => {
   it("filters sessions by agentId", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-agents-"));
-=======
-    const dir = await resetTempDir("agents");
->>>>>>> 0cc327546 (test(gateway): speed up slow e2e test setup)
     testState.sessionConfig = {
       store: path.join(dir, "{agentId}", "sessions.json"),
     };
@@ -362,11 +350,7 @@ describe("gateway server sessions", () => {
   });
 
   it("resolves and patches main alias to default agent main key", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-    const dir = await resetTempDir("main-alias");
->>>>>>> 0cc327546 (test(gateway): speed up slow e2e test setup)
     const storePath = path.join(dir, "sessions.json");
     testState.sessionStorePath = storePath;
     testState.agentsConfig = { list: [{ id: "ops", default: true }] };

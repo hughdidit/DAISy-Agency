@@ -372,7 +372,6 @@ describe("monitorSlackProvider tool results", () => {
   });
 
   async function expectMentionPatternMessageAccepted(text: string): Promise<void> {
-<<<<<<< HEAD
     slackTestState.config = {
       messages: {
         responsePrefix: "PFX",
@@ -385,21 +384,14 @@ describe("monitorSlackProvider tool results", () => {
         },
       },
     };
-=======
-    setRequireMentionChannelConfig(["\\bopenclaw\\b"]);
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
     replyMock.mockResolvedValue({ text: "hi" });
 
     await runSlackMessageOnce(monitorSlackProvider, {
-<<<<<<< HEAD
       event: {
         type: "message",
         user: "U1",
 <<<<<<< HEAD
         text: "clawd: hello",
-=======
-        text,
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
         ts: "123",
         channel: "C1",
 =======
@@ -419,7 +411,6 @@ describe("monitorSlackProvider tool results", () => {
   });
 
   it("accepts channel messages when mentionPatterns match even if another user is mentioned", async () => {
-<<<<<<< HEAD
     slackTestState.config = {
       messages: {
         responsePrefix: "PFX",
@@ -447,9 +438,6 @@ describe("monitorSlackProvider tool results", () => {
 
     expect(replyMock).toHaveBeenCalledTimes(1);
     expect(replyMock.mock.calls[0][0].WasMentioned).toBe(true);
-=======
-    await expectMentionPatternMessageAccepted("openclaw: hello <@U2>");
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
   });
 
   it("treats replies to bot threads as implicit mentions", async () => {

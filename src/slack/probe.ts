@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import type { BaseProbeResult } from "../channels/plugins/types.js";
 import { withTimeout } from "../utils/with-timeout.js";
->>>>>>> 32221e194 (refactor(probe): share withTimeout)
 import { createSlackWebClient } from "./client.js";
 
 export type SlackProbe = {

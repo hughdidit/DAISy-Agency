@@ -2,11 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { GatewayServiceRuntime } from "../daemon/service-runtime.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -76,15 +71,8 @@ export function buildGatewayRuntimeHints(
     hints.push(`Then reinstall: ${formatCliCommand("moltbot gateway install", env)}`);
   }
   if (runtime.missingUnit) {
-<<<<<<< HEAD
     hints.push(`Service not installed. Run: ${formatCliCommand("moltbot gateway install", env)}`);
     if (fileLog) hints.push(`File logs: ${fileLog}`);
-=======
-    hints.push(`Service not installed. Run: ${formatCliCommand("openclaw gateway install", env)}`);
-    if (fileLog) {
-      hints.push(`File logs: ${fileLog}`);
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     return hints;
   }
   if (runtime.status === "stopped") {

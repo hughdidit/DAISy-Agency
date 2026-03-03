@@ -90,15 +90,8 @@ export function migrateBaseNameToDefaultAccount(params: {
   cfg: MoltbotConfig;
   channelKey: string;
   alwaysUseAccounts?: boolean;
-<<<<<<< HEAD
 }): MoltbotConfig {
   if (params.alwaysUseAccounts) return params.cfg;
-=======
-}): OpenClawConfig {
-  if (params.alwaysUseAccounts) {
-    return params.cfg;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const channels = params.cfg.channels as Record<string, unknown> | undefined;
   const base = channels?.[params.channelKey] as ChannelSectionBase | undefined;
   const baseName = base?.name?.trim();

@@ -1,7 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
@@ -10,9 +9,6 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { Api, Model } from "@mariozechner/pi-ai";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 =======
@@ -111,13 +107,10 @@ export function buildEmbeddedExtensionPaths(params: {
     const compactionCfg = params.cfg?.agents?.defaults?.compaction;
     setCompactionSafeguardRuntime(params.sessionManager, {
       maxHistoryShare: compactionCfg?.maxHistoryShare,
-<<<<<<< HEAD
-=======
       contextWindowTokens: contextWindowInfo.tokens,
       identifierPolicy: compactionCfg?.identifierPolicy,
       identifierInstructions: compactionCfg?.identifierInstructions,
       model: params.model,
->>>>>>> 01380f49f (fix(compaction): pass model through runtime for safeguard summaries (#17864))
     });
     paths.push(resolvePiExtensionPath("compaction-safeguard"));
   }

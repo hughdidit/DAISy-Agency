@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-=======
 import type { ConsoleLoggerSettings, ConsoleStyle } from "./logging/console.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { LogLevel } from "./logging/levels.js";
 import type { LoggerResolvedSettings, LoggerSettings, PinoLikeLogger } from "./logging/logger.js";
@@ -34,15 +31,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ConsoleLoggerSettings, ConsoleStyle } from "./logging/console.js";
 import { ALLOWED_LOG_LEVELS, levelToMinLevel, normalizeLogLevel } from "./logging/levels.js";
 import type { LogLevel } from "./logging/levels.js";
-=======
-import type { LogLevel } from "./logging/levels.js";
-import { ALLOWED_LOG_LEVELS, levelToMinLevel, normalizeLogLevel } from "./logging/levels.js";
-import type { LoggerResolvedSettings, LoggerSettings, PinoLikeLogger } from "./logging/logger.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { ALLOWED_LOG_LEVELS, levelToMinLevel, normalizeLogLevel } from "./logging/levels.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -74,11 +65,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { LoggerResolvedSettings, LoggerSettings, PinoLikeLogger } from "./logging/logger.js";
-=======
-import type { SubsystemLogger } from "./logging/subsystem.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

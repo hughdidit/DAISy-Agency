@@ -72,8 +72,6 @@ describeNonWin("exec script preflight", () => {
       expect(text).not.toMatch(/exec preflight:/);
     });
   });
-<<<<<<< HEAD
-=======
 
   it("skips preflight file reads for script paths outside the workdir", async () => {
     await withTempDir("openclaw-exec-preflight-parent-", async (parent) => {
@@ -92,5 +90,4 @@ describeNonWin("exec script preflight", () => {
       expect(text).not.toMatch(/exec preflight:/);
     });
   });
->>>>>>> 8f1b46764 (test(agents): dedupe exec preflight fixtures and cover quoted-path skip)
 });

@@ -7,12 +7,9 @@ import {
   type ReplyPayload,
 } from "openclaw/plugin-sdk";
 import { resolveFeishuAccount } from "./accounts.js";
-<<<<<<< HEAD
-=======
 import { createFeishuClient } from "./client.js";
 import type { MentionTarget } from "./mention.js";
 import { buildMentionedCardContent } from "./mention.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getFeishuRuntime } from "./runtime.js";
 import { sendMessageFeishu, sendMarkdownCardFeishu } from "./send.js";
 import { addTypingIndicator, removeTypingIndicator, type TypingIndicatorState } from "./typing.js";
@@ -43,14 +40,7 @@ export type CreateFeishuReplyDispatcherParams = {
   runtime: RuntimeEnv;
   chatId: string;
   replyToMessageId?: string;
-<<<<<<< HEAD
   /** Mention targets, will be auto-included in replies */
-=======
-  /** When true, preserve typing indicator on reply target but send messages without reply metadata */
-  skipReplyToInMessages?: boolean;
-  replyInThread?: boolean;
-  rootId?: string;
->>>>>>> d9230b13a (feat(feishu): skip reply-to in DM conversations (#13211))
   mentionTargets?: MentionTarget[];
   /** Account ID for multi-account support */
   accountId?: string;
@@ -69,21 +59,7 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
   const prefixContext = createReplyPrefixContext({
     cfg,
     agentId,
-<<<<<<< HEAD
   });
-=======
-    chatId,
-    replyToMessageId,
-    skipReplyToInMessages,
-    replyInThread,
-    rootId,
-    mentionTargets,
-    accountId,
-  } = params;
-  const sendReplyToMessageId = skipReplyToInMessages ? undefined : replyToMessageId;
-  const account = resolveFeishuAccount({ cfg, accountId });
-  const prefixContext = createReplyPrefixContext({ cfg, agentId });
->>>>>>> d9230b13a (feat(feishu): skip reply-to in DM conversations (#13211))
 
   // Feishu doesn't have a native typing indicator API.
   // We use message reactions as a typing indicator substitute.
@@ -94,25 +70,8 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
       if (!replyToMessageId) {
         return;
       }
-<<<<<<< HEAD
       typingState = await addTypingIndicator({ cfg, messageId: replyToMessageId, accountId });
       params.runtime.log?.(`feishu[${account.accountId}]: added typing indicator reaction`);
-=======
-      // Skip typing indicator for old messages — likely replays after context
-      // compaction that would flood users with stale notifications (#30418).
-      if (
-        params.messageCreateTimeMs &&
-        Date.now() - params.messageCreateTimeMs > TYPING_INDICATOR_MAX_AGE_MS
-      ) {
-        return;
-      }
-      typingState = await addTypingIndicator({
-        cfg,
-        messageId: replyToMessageId,
-        accountId,
-        runtime: params.runtime,
-      });
->>>>>>> 7fbc40f82 (fix(feishu): skip typing indicator on old messages after context compaction (#30418))
     },
     stop: async () => {
       if (!typingState) {
@@ -169,7 +128,6 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
         // Determine if we should use card for this message
         const useCard = renderMode === "card" || (renderMode === "auto" && shouldUseCard(text));
 
-<<<<<<< HEAD
         // Only include @mentions in the first chunk (avoid duplicate @s)
         let isFirstChunk = true;
 
@@ -186,76 +144,6 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
               text: chunk,
               replyToMessageId,
               mentions: isFirstChunk ? mentionTargets : undefined,
-=======
-          if (streaming?.isActive()) {
-            if (info?.kind === "final") {
-              streamText = text;
-              await closeStreaming();
-            }
-            // Send media even when streaming handled the text
-            if (hasMedia) {
-              for (const mediaUrl of mediaList) {
-                await sendMediaFeishu({
-                  cfg,
-                  to: chatId,
-                  mediaUrl,
-                  replyToMessageId: sendReplyToMessageId,
-                  replyInThread,
-                  accountId,
-                });
-              }
-            }
-            return;
-          }
-
-          let first = true;
-          if (useCard) {
-            for (const chunk of core.channel.text.chunkTextWithMode(
-              text,
-              textChunkLimit,
-              chunkMode,
-            )) {
-              await sendMarkdownCardFeishu({
-                cfg,
-                to: chatId,
-                text: chunk,
-                replyToMessageId: sendReplyToMessageId,
-                replyInThread,
-                mentions: first ? mentionTargets : undefined,
-                accountId,
-              });
-              first = false;
-            }
-          } else {
-            const converted = core.channel.text.convertMarkdownTables(text, tableMode);
-            for (const chunk of core.channel.text.chunkTextWithMode(
-              converted,
-              textChunkLimit,
-              chunkMode,
-            )) {
-              await sendMessageFeishu({
-                cfg,
-                to: chatId,
-                text: chunk,
-                replyToMessageId: sendReplyToMessageId,
-                replyInThread,
-                mentions: first ? mentionTargets : undefined,
-                accountId,
-              });
-              first = false;
-            }
-          }
-        }
-
-        if (hasMedia) {
-          for (const mediaUrl of mediaList) {
-            await sendMediaFeishu({
-              cfg,
-              to: chatId,
-              mediaUrl,
-              replyToMessageId: sendReplyToMessageId,
-              replyInThread,
->>>>>>> d9230b13a (feat(feishu): skip reply-to in DM conversations (#13211))
               accountId,
             });
             isFirstChunk = false;

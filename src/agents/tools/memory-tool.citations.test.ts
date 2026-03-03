@@ -89,8 +89,6 @@ describe("memory search citations", () => {
     const details = result.details as { results: Array<{ snippet: string; citation?: string }> };
     expect(details.results[0]?.snippet.length).toBeLessThanOrEqual(20);
   });
-<<<<<<< HEAD
-=======
 
   it("honors auto mode for direct chats", async () => {
     setMemoryBackend("builtin");
@@ -127,7 +125,6 @@ describe("memory search citations", () => {
     const details = result.details as { results: Array<{ snippet: string }> };
     expect(details.results[0]?.snippet).not.toMatch(/Source:/);
   });
->>>>>>> 116f5afea (chore: Fix types in tests 31/N.)
 });
 
 describe("memory tools", () => {

@@ -7,16 +7,6 @@ import {
 } from "../auto-reply/inbound-debounce.js";
 import { buildCommandsPaginationKeyboard } from "../auto-reply/reply/commands-info.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { buildModelsProviderData } from "../auto-reply/reply/commands-models.js";
-=======
-import {
-  buildModelsProviderData,
-  formatModelsAvailableHeader,
-} from "../auto-reply/reply/commands-models.js";
-import { resolveStoredModelOverride } from "../auto-reply/reply/model-selection.js";
->>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
 import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
 >>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
 import { buildCommandsMessagePaginated } from "../auto-reply/status.js";
@@ -24,8 +14,6 @@ import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { loadConfig } from "../config/config.js";
 import { writeConfigFile } from "../config/io.js";
-<<<<<<< HEAD
-=======
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -37,7 +25,6 @@ import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 =======
 import type { DmPolicy } from "../config/types.base.js";
 <<<<<<< HEAD
->>>>>>> 046feb6b0 (refactor: simplify telegram event authorization flow)
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -64,37 +51,16 @@ import type {
 >>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
 import { danger, logVerbose, warn } from "../globals.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveMedia } from "./bot/delivery.js";
-=======
-=======
-import { enqueueSystemEvent } from "../infra/system-events.js";
-<<<<<<< HEAD
->>>>>>> cd4f7524e (feat(telegram): receive and surface user message reactions (#10075))
 =======
 import { MediaFetchError } from "../media/fetch.js";
 >>>>>>> ace835714 (fix(telegram): skip failed photo downloads in media group instead of dropping entire group (#20598))
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
 >>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
 import { withTelegramApiErrorLogging } from "./api-logging.js";
-<<<<<<< HEAD
 import { resolveTelegramForumThreadId } from "./bot/helpers.js";
 import type { TelegramMessage } from "./bot/types.js";
 import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
-=======
-import {
-  isSenderAllowed,
-  normalizeAllowFromWithStore,
-  type NormalizedAllowFrom,
-} from "./bot-access.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
 =======
 import type { TelegramMediaRef } from "./bot-message-context.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -114,17 +80,8 @@ import type { TelegramMediaRef } from "./bot-message-context.js";
 import type { TelegramMediaRef } from "./bot-message-context.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { RegisterTelegramHandlerParams } from "./bot-native-commands.js";
-<<<<<<< HEAD
 import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
 <<<<<<< HEAD
-=======
-=======
-import {
-  MEDIA_GROUP_TIMEOUT_MS,
-  type MediaGroupEntry,
-  type TelegramUpdateKeyContext,
-} from "./bot-updates.js";
->>>>>>> d17a1f387 (fix(telegram): unify inbound handling for message-like updates (#20591))
 import { resolveMedia } from "./bot/delivery.js";
 import {
   buildTelegramGroupPeerId,
@@ -139,13 +96,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
-=======
-=======
-import type { TelegramContext } from "./bot/types.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -172,11 +123,8 @@ import {
 import { migrateTelegramGroupConfig } from "./group-migration.js";
 import { resolveTelegramInlineButtonsScope } from "./inline-buttons.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { readTelegramAllowFromStore } from "./pairing-store.js";
 import { resolveChannelConfigWrites } from "../channels/plugins/config-writes.js";
-=======
->>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
 =======
 import {
   buildModelsKeyboard,
@@ -187,11 +135,7 @@ import {
   type ProviderInfo,
 } from "./model-buttons.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
-=======
-import { getSentPoll } from "./poll-vote-cache.js";
->>>>>>> 0a02b9163 (Handle Telegram poll vote updates for agent context)
 =======
 >>>>>>> b2fef5ebc (Revert "Default Telegram polls to public")
 import { buildInlineKeyboard } from "./send.js";
@@ -385,12 +329,6 @@ export const registerTelegramHandlers = ({
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  const resolveTelegramSessionModel = (params: {
-=======
-  const resolveTelegramSessionState = (params: {
->>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
     chatId: number | string;
     isGroup: boolean;
     isForum: boolean;
@@ -710,8 +648,6 @@ export const registerTelegramHandlers = ({
     return false;
   };
 
-<<<<<<< HEAD
-=======
   type TelegramGroupAllowContext = Awaited<ReturnType<typeof resolveTelegramGroupAllowFromContext>>;
   type TelegramEventAuthorizationMode = "reaction" | "callback-scope" | "callback-allowlist";
   type TelegramEventAuthorizationResult = { allowed: true } | { allowed: false; reason: string };
@@ -836,7 +772,6 @@ export const registerTelegramHandlers = ({
         const dmAllowFrom = groupAllowOverride ?? allowFrom;
         const effectiveDmAllow = normalizeDmAllowFromWithStore({
           allowFrom: dmAllowFrom,
->>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
           storeAllowFrom,
           dmPolicy,
         });
@@ -882,8 +817,6 @@ export const registerTelegramHandlers = ({
       if (reactionMode === "own" && !wasSentByBot(chatId, messageId)) {
         return;
       }
-<<<<<<< HEAD
-=======
       const eventAuthContext = await resolveTelegramEventAuthorizationContext({
         chatId,
         isGroup,
@@ -901,7 +834,6 @@ export const registerTelegramHandlers = ({
       if (!senderAuthorization.allowed) {
         return;
       }
->>>>>>> 046feb6b0 (refactor: simplify telegram event authorization flow)
 
       // Enforce requireTopic for DM reactions: since Telegram doesn't provide messageThreadId
       // for reactions, we cannot determine if the reaction came from a topic, so block all
@@ -1246,14 +1178,10 @@ export const registerTelegramHandlers = ({
       const eventAuthContext = await resolveTelegramEventAuthorizationContext({
         chatId,
 <<<<<<< HEAD
-<<<<<<< HEAD
         accountId,
-=======
->>>>>>> 046feb6b0 (refactor: simplify telegram event authorization flow)
         isForum,
         messageThreadId,
       });
-<<<<<<< HEAD
       const {
         resolvedThreadId,
         storeAllowFrom,
@@ -1283,22 +1211,6 @@ export const registerTelegramHandlers = ({
           topicConfig,
         })
       ) {
-=======
-      const { resolvedThreadId, storeAllowFrom } = eventAuthContext;
-=======
-        isGroup,
-        isForum,
-        messageThreadId,
-      });
-      const { resolvedThreadId, dmThreadId, storeAllowFrom, groupConfig } = eventAuthContext;
-      const requireTopic = (groupConfig as { requireTopic?: boolean } | undefined)?.requireTopic;
-      if (!isGroup && requireTopic === true && dmThreadId == null) {
-        logVerbose(
-          `Blocked telegram callback in DM ${chatId}: requireTopic=true but no topic present`,
-        );
-        return;
-      }
->>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
       const senderId = callback.from?.id ? String(callback.from.id) : "";
       const senderUsername = callback.from?.username ?? "";
       const authorizationMode: TelegramEventAuthorizationMode =
@@ -1437,21 +1349,9 @@ export const registerTelegramHandlers = ({
           const totalPages = calculateTotalPages(models.length, pageSize);
           const safePage = Math.max(1, Math.min(page, totalPages));
 
-<<<<<<< HEAD
           // Get current model from config for checkmark display
           const modelCfg = cfg.agents?.defaults?.model;
           const currentModel = typeof modelCfg === "string" ? modelCfg : modelCfg?.primary;
-=======
-          // Resolve current model from session (prefer overrides)
-          const sessionState = resolveTelegramSessionState({
-            chatId,
-            isGroup,
-            isForum,
-            messageThreadId,
-            resolvedThreadId,
-          });
-          const currentModel = sessionState.model;
->>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
 
           const buttons = buildModelsKeyboard({
             provider,
@@ -1580,12 +1480,8 @@ export const registerTelegramHandlers = ({
       const eventAuthContext = await resolveTelegramEventAuthorizationContext({
         chatId: event.chatId,
 <<<<<<< HEAD
-<<<<<<< HEAD
         accountId,
 <<<<<<< HEAD
-=======
-        dmPolicy,
->>>>>>> 36d1e1dcf (refactor(telegram): simplify DM media auth precheck flow)
 =======
 >>>>>>> 046feb6b0 (refactor: simplify telegram event authorization flow)
 =======
@@ -1605,15 +1501,8 @@ export const registerTelegramHandlers = ({
         effectiveGroupAllow,
         hasGroupAllowOverride,
       } = eventAuthContext;
-<<<<<<< HEAD
       const effectiveDmAllow = normalizeAllowFromWithStore({
         allowFrom,
-=======
-      // For DMs, prefer per-DM/topic allowFrom (groupAllowOverride) over account-level allowFrom
-      const dmAllowFrom = groupAllowOverride ?? allowFrom;
-      const effectiveDmAllow = normalizeDmAllowFromWithStore({
-        allowFrom: dmAllowFrom,
->>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
         storeAllowFrom,
         dmPolicy,
       });

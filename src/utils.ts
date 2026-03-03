@@ -305,32 +305,17 @@ export function resolveConfigDir(
   env: NodeJS.ProcessEnv = process.env,
   homedir: () => string = os.homedir,
 ): string {
-<<<<<<< HEAD
   const override = env.MOLTBOT_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
   if (override) return resolveUserPath(override);
   const legacyDir = path.join(homedir(), ".clawdbot");
   const newDir = path.join(homedir(), ".moltbot");
-=======
-  const override = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
-  if (override) {
-    return resolveUserPath(override);
-  }
-<<<<<<< HEAD
-  const newDir = path.join(homedir(), ".openclaw");
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
   const newDir = path.join(resolveRequiredHomeDir(env, homedir), ".openclaw");
 >>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
   try {
     const hasLegacy = fs.existsSync(legacyDir);
     const hasNew = fs.existsSync(newDir);
-<<<<<<< HEAD
     if (!hasLegacy && hasNew) return newDir;
-=======
-    if (hasNew) {
-      return newDir;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   } catch {
     // best-effort
   }

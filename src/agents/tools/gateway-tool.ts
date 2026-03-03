@@ -1,26 +1,16 @@
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { loadConfig, resolveConfigSnapshotHash } from "../../config/io.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
-=======
-import { isRestartEnabled } from "../../config/commands.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import { resolveConfigSnapshotHash } from "../../config/io.js";
-import { extractDeliveryInfo } from "../../config/sessions.js";
->>>>>>> b4dbe0329 (refactor: unify restart gating and update availability sync)
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
   writeRestartSentinel,
 } from "../../infra/restart-sentinel.js";
-<<<<<<< HEAD
-=======
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
->>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 import { stringEnum } from "../schema/typebox.js";
 import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";

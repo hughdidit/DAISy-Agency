@@ -9,12 +9,8 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionFilePath } from "../../config/sessions.js";
-=======
-import { resolveSessionFilePath, resolveSessionFilePathOptions } from "../../config/sessions.js";
->>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 =======

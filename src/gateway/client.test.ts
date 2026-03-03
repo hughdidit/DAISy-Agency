@@ -116,8 +116,6 @@ function getLatestWs(): MockWebSocket {
   return ws;
 }
 
-<<<<<<< HEAD
-=======
 function createClientWithIdentity(
   deviceId: string,
   onClose: (code: number, reason: string) => void,
@@ -213,7 +211,6 @@ describe("GatewayClient security checks", () => {
   });
 });
 
->>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
 describe("GatewayClient close handling", () => {
   beforeEach(() => {
     wsInstances.length = 0;

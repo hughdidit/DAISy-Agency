@@ -3,12 +3,8 @@ import type { MsgContext } from "../auto-reply/templating.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { applyTemplate } from "../auto-reply/templating.js";
 <<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { applyTemplate } from "../auto-reply/templating.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

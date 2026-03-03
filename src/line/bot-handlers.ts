@@ -7,16 +7,7 @@ import type {
   LeaveEvent,
   PostbackEvent,
 } from "@line/bot-sdk";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
 import type { LineGroupConfig, ResolvedLineAccount } from "./types.js";
@@ -46,12 +37,8 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -175,15 +162,10 @@ async function shouldProcessLineEvent(
     allowFrom: groupAllowFrom,
     storeAllowFrom,
   });
-<<<<<<< HEAD
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-=======
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: cfg.channels?.line !== undefined,

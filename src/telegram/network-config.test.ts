@@ -1,22 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
 import { resolveTelegramAutoSelectFamilyDecision } from "./network-config.js";
-=======
-import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  resetTelegramNetworkConfigStateForTests,
-  resolveTelegramAutoSelectFamilyDecision,
-  resolveTelegramDnsResultOrderDecision,
-} from "./network-config.js";
-
-// Mock isWSL2Sync at the top level
-vi.mock("../infra/wsl.js", () => ({
-  isWSL2Sync: vi.fn(() => false),
-}));
-
-import { isWSL2Sync } from "../infra/wsl.js";
->>>>>>> 2f023a477 (fix(telegram): disable autoSelectFamily by default on WSL2 (#21916))
 
 describe("resolveTelegramAutoSelectFamilyDecision", () => {
   afterEach(() => {

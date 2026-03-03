@@ -3,13 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { GatewayRequestHandlers } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { GatewayRequestHandlers } from "./types.js";
@@ -31,16 +25,7 @@ import {
 import { installSkill } from "../../agents/skills-install.js";
 import { buildWorkspaceSkillStatus } from "../../agents/skills-status.js";
 import { loadWorkspaceSkillEntries, type SkillEntry } from "../../agents/skills.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { listAgentWorkspaceDirs } from "../../agents/workspace-dirs.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 42b0d6f43 (refactor(agents): share workspace dir enumeration)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -69,7 +54,6 @@ import {
 } from "../protocol/index.js";
 import type { GatewayRequestHandlers } from "./types.js";
 
-<<<<<<< HEAD
 function listWorkspaceDirs(cfg: MoltbotConfig): string[] {
   const dirs = new Set<string>();
   const list = cfg.agents?.list;
@@ -84,8 +68,6 @@ function listWorkspaceDirs(cfg: MoltbotConfig): string[] {
   return [...dirs];
 }
 
-=======
->>>>>>> 42b0d6f43 (refactor(agents): share workspace dir enumeration)
 function collectSkillBins(entries: SkillEntry[]): string[] {
   const bins = new Set<string>();
   for (const entry of entries) {

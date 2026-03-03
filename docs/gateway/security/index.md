@@ -30,20 +30,13 @@ It flags common footguns (Gateway auth exposure, browser control exposure, eleva
 
 Running an AI agent with shell access on your machine is... _spicy_. Here’s how to not get pwned.
 
-<<<<<<< HEAD
 Moltbot is both a product and an experiment: you’re wiring frontier-model behavior into real messaging surfaces and real tools. **There is no “perfectly secure” setup.** The goal is to be deliberate about:
-=======
-OpenClaw is both a product and an experiment: you’re wiring frontier-model behavior into real messaging surfaces and real tools. **There is no “perfectly secure” setup.** The goal is to be deliberate about:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - who can talk to your bot
 - where the bot is allowed to act
 - what the bot can touch
 
 Start with the smallest access that still works, then widen it as you gain confidence.
 
-<<<<<<< HEAD
-=======
 ## Deployment assumption (important)
 
 OpenClaw assumes the host and config boundary are trusted:
@@ -124,7 +117,6 @@ If more than one person can DM your bot:
 - Never combine shared DMs with broad tool access.
 - This hardens cooperative/shared inboxes, but is not designed as hostile co-tenant isolation when users share host/config write access.
 
->>>>>>> 9af3ec92a (fix(gateway): add HSTS header hardening and docs)
 ### What the audit checks (high level)
 
 - **Inbound access** (DM policies, group policies, allowlists): can strangers trigger the bot?
@@ -145,21 +137,9 @@ Use this when auditing access or deciding what to back up:
 - **Telegram bot token**: config/env or `channels.telegram.tokenFile`
 - **Discord bot token**: config/env (token file not yet supported)
 - **Slack tokens**: config/env (`channels.slack.*`)
-<<<<<<< HEAD
 - **Pairing allowlists**: `~/.moltbot/credentials/<channel>-allowFrom.json`
 - **Model auth profiles**: `~/.moltbot/agents/<agentId>/agent/auth-profiles.json`
 - **Legacy OAuth import**: `~/.moltbot/credentials/oauth.json`
-=======
-- **Pairing allowlists**:
-  - `~/.openclaw/credentials/<channel>-allowFrom.json` (default account)
-  - `~/.openclaw/credentials/<channel>-<accountId>-allowFrom.json` (non-default accounts)
-- **Model auth profiles**: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
-<<<<<<< HEAD
-=======
-- **File-backed secrets payload (optional)**: `~/.openclaw/secrets.json`
-<<<<<<< HEAD
-- **Secrets migration backups (optional)**: `~/.openclaw/backups/secrets-migrate/<backupId>/`
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 =======
 >>>>>>> f413e314b (feat(secrets): replace migrate flow with audit/configure/apply)
 - **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`
@@ -176,8 +156,6 @@ When the audit prints findings, treat this as a priority order:
 5. **Plugins/extensions**: only load what you explicitly trust.
 6. **Model choice**: prefer modern, instruction-hardened models for any bot with tools.
 
-<<<<<<< HEAD
-=======
 ## Security audit glossary
 
 High-signal `checkId` values you will most likely see in real deployments (not exhaustive):
@@ -238,7 +216,6 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `tools.profile_minimal_overridden`                 | warn          | Agent overrides bypass global minimal profile                                      | `agents.list[].tools.profile`                                                                     | no       |
 | `plugins.tools_reachable_permissive_policy`        | warn          | Extension tools reachable in permissive contexts                                   | `tools.profile` + tool allow/deny                                                                 | no       |
 | `models.small_params`                              | critical/info | Small models + unsafe tool surfaces raise injection risk                           | model choice + sandbox/tool policy                                                                | no       |
->>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
 
 >>>>>>> 99048dbec (fix(gateway): align insecure-auth toggle messaging)
 ## Control UI over HTTP
@@ -269,7 +246,6 @@ injected inline script in the Control UI.
 
 ## Insecure or dangerous flags summary
 
-<<<<<<< HEAD
 `openclaw security audit` includes `config.insecure_or_dangerous_flags` when any
 insecure/dangerous debug switches are enabled. This warning aggregates the exact
 keys so you can review them in one place (for example
@@ -278,42 +254,6 @@ keys so you can review them in one place (for example
 `gateway.controlUi.dangerouslyDisableDeviceAuth=true`,
 `hooks.gmail.allowUnsafeExternalContent=true`, or
 `tools.exec.applyPatch.workspaceOnly=false`).
-=======
-`openclaw security audit` includes `config.insecure_or_dangerous_flags` when
-known insecure/dangerous debug switches are enabled. That check currently
-aggregates:
-
-- `gateway.controlUi.allowInsecureAuth=true`
-- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true`
-- `gateway.controlUi.dangerouslyDisableDeviceAuth=true`
-- `hooks.gmail.allowUnsafeExternalContent=true`
-- `hooks.mappings[<index>].allowUnsafeExternalContent=true`
-- `tools.exec.applyPatch.workspaceOnly=false`
-
-Complete `dangerous*` / `dangerously*` config keys defined in OpenClaw config
-schema:
-
-- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback`
-- `gateway.controlUi.dangerouslyDisableDeviceAuth`
-- `browser.ssrfPolicy.dangerouslyAllowPrivateNetwork`
-- `channels.discord.dangerouslyAllowNameMatching`
-- `channels.discord.accounts.<accountId>.dangerouslyAllowNameMatching`
-- `channels.slack.dangerouslyAllowNameMatching`
-- `channels.slack.accounts.<accountId>.dangerouslyAllowNameMatching`
-- `channels.googlechat.dangerouslyAllowNameMatching`
-- `channels.googlechat.accounts.<accountId>.dangerouslyAllowNameMatching`
-- `channels.msteams.dangerouslyAllowNameMatching`
-- `channels.irc.dangerouslyAllowNameMatching` (extension channel)
-- `channels.irc.accounts.<accountId>.dangerouslyAllowNameMatching` (extension channel)
-- `channels.mattermost.dangerouslyAllowNameMatching` (extension channel)
-- `channels.mattermost.accounts.<accountId>.dangerouslyAllowNameMatching` (extension channel)
-- `agents.defaults.sandbox.docker.dangerouslyAllowReservedContainerTargets`
-- `agents.defaults.sandbox.docker.dangerouslyAllowExternalBindSources`
-- `agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin`
-- `agents.list[<index>].sandbox.docker.dangerouslyAllowReservedContainerTargets`
-- `agents.list[<index>].sandbox.docker.dangerouslyAllowExternalBindSources`
-- `agents.list[<index>].sandbox.docker.dangerouslyAllowContainerNamespaceJoin`
->>>>>>> 14b6eea6e (feat(sandbox): block container namespace joins by default)
 
 ## Reverse Proxy Configuration
 
@@ -375,12 +315,7 @@ If a macOS node is paired, the Gateway can invoke `system.run` on that node. Thi
 
 ## Dynamic skills (watcher / remote nodes)
 
-<<<<<<< HEAD
 Moltbot can refresh the skills list mid-session:
-=======
-OpenClaw can refresh the skills list mid-session:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Skills watcher**: changes to `SKILL.md` can update the skills snapshot on the next agent turn.
 - **Remote nodes**: connecting a macOS node can make macOS-only skills eligible (based on bin probing).
 
@@ -405,12 +340,7 @@ People who message you can:
 
 Most failures here are not fancy exploits — they’re “someone messaged the bot and the bot did what they asked.”
 
-<<<<<<< HEAD
 Moltbot’s stance:
-=======
-OpenClaw’s stance:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Identity first:** decide who can talk to the bot (DM pairing / allowlists / explicit “open”).
 - **Scope next:** decide where the bot is allowed to act (group allowlists + mention gating, tools, sandboxing, device permissions).
 - **Model last:** assume the model can be manipulated; design so manipulation has limited blast radius.
@@ -474,13 +404,8 @@ This prevents cross-user context leakage while keeping group chats isolated. If 
 
 Moltbot has two separate “who can trigger me?” layers:
 
-<<<<<<< HEAD
 - **DM allowlist** (`allowFrom` / `channels.discord.dm.allowFrom` / `channels.slack.dm.allowFrom`): who is allowed to talk to the bot in direct messages.
   - When `dmPolicy="pairing"`, approvals are written to `~/.moltbot/credentials/<channel>-allowFrom.json` (merged with config allowlists).
-=======
-- **DM allowlist** (`allowFrom` / `channels.discord.allowFrom` / `channels.slack.allowFrom`; legacy: `channels.discord.dm.allowFrom`, `channels.slack.dm.allowFrom`): who is allowed to talk to the bot in direct messages.
-  - When `dmPolicy="pairing"`, approvals are written to the account-scoped pairing allowlist store under `~/.openclaw/credentials/` (`<channel>-allowFrom.json` for default account, `<channel>-<accountId>-allowFrom.json` for non-default accounts), merged with config allowlists.
->>>>>>> 91a3f0a3f (pairing: enforce strict account-scoped state)
 - **Group allowlist** (channel-specific): which groups/channels/guilds the bot will accept messages from at all.
   - Common patterns:
     - `channels.whatsapp.groups`, `channels.telegram.groups`, `channels.imessage.groups`: per-group defaults like `requireMention`; when set, it also acts as a group allowlist (include `"*"` to keep allow-all behavior).
@@ -589,14 +514,8 @@ This is social engineering 101. Create distrust, encourage snooping.
 ### 0) File permissions
 
 Keep config + state private on the gateway host:
-<<<<<<< HEAD
 - `~/.moltbot/moltbot.json`: `600` (user read/write only)
 - `~/.moltbot`: `700` (user only)
-=======
-
-- `~/.openclaw/openclaw.json`: `600` (user read/write only)
-- `~/.openclaw`: `700` (user only)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 `moltbot doctor` can warn and offer to tighten these permissions.
 
@@ -701,27 +620,16 @@ Auth modes:
 - `gateway.auth.mode: "password"`: password auth (prefer setting via env: `CLAWDBOT_GATEWAY_PASSWORD`).
 
 Rotation checklist (token/password):
-<<<<<<< HEAD
 1. Generate/set a new secret (`gateway.auth.token` or `CLAWDBOT_GATEWAY_PASSWORD`).
-=======
-
-1. Generate/set a new secret (`gateway.auth.token` or `OPENCLAW_GATEWAY_PASSWORD`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 2. Restart the Gateway (or restart the macOS app if it supervises the Gateway).
 3. Update any remote clients (`gateway.remote.token` / `.password` on machines that call into the Gateway).
 4. Verify you can no longer connect with the old credentials.
 
 ### 0.6) Tailscale Serve identity headers
 
-<<<<<<< HEAD
 When `gateway.auth.allowTailscale` is `true` (default for Serve), Moltbot
 accepts Tailscale Serve identity headers (`tailscale-user-login`) as
 authentication. Moltbot verifies the identity by resolving the
-=======
-When `gateway.auth.allowTailscale` is `true` (default for Serve), OpenClaw
-accepts Tailscale Serve identity headers (`tailscale-user-login`) for Control
-UI/WebSocket authentication. OpenClaw verifies the identity by resolving the
->>>>>>> 356d61aac (fix(gateway): scope tailscale tokenless auth to websocket)
 `x-forwarded-for` address through the local Tailscale daemon (`tailscale whois`)
 and matching it to the header. This only triggers for requests that hit loopback
 and include `x-forwarded-for`, `x-forwarded-proto`, and `x-forwarded-host` as
@@ -729,8 +637,6 @@ injected by Tailscale.
 HTTP API endpoints (for example `/v1/*`, `/tools/invoke`, and `/api/channels/*`)
 still require token/password auth.
 
-<<<<<<< HEAD
-=======
 Important boundary note:
 
 - Gateway HTTP bearer auth is effectively all-or-nothing operator access.
@@ -742,7 +648,6 @@ Do not treat this as protection against hostile same-host processes. If untruste
 local code may run on the gateway host, disable `gateway.auth.allowTailscale`
 and require token/password auth.
 
->>>>>>> 58659b931 (fix(gateway): enforce owner boundary for agent runs)
 **Security rule:** do not forward these headers from your own reverse proxy. If
 you terminate TLS or proxy in front of the gateway, disable
 `gateway.auth.allowTailscale` and use token/password auth instead.
@@ -777,13 +682,7 @@ Assume anything under `~/.moltbot/` (or `$CLAWDBOT_STATE_DIR/`) may contain secr
 
 - `moltbot.json`: config may include tokens (gateway, remote gateway), provider settings, and allowlists.
 - `credentials/**`: channel credentials (example: WhatsApp creds), pairing allowlists, legacy OAuth imports.
-<<<<<<< HEAD
 - `agents/<agentId>/agent/auth-profiles.json`: API keys + OAuth tokens (imported from legacy `credentials/oauth.json`).
-=======
-- `agents/<agentId>/agent/auth-profiles.json`: API keys, token profiles, OAuth tokens, and optional `keyRef`/`tokenRef`.
-- `secrets.json` (optional): file-backed secret payload used by `file` SecretRef providers (`secrets.providers`).
-- `agents/<agentId>/agent/auth.json`: legacy compatibility file. Static `api_key` entries are scrubbed when discovered.
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 - `agents/<agentId>/sessions/**`: session transcripts (`*.jsonl`) + routing metadata (`sessions.json`) that can contain private messages and tool output.
 - `extensions/**`: installed plugins (plus their `node_modules/`).
 - `sandboxes/**`: tool sandbox workspaces; can accumulate copies of files you read/write inside the sandbox.
@@ -895,12 +794,7 @@ or `"session"` for stricter per-session isolation. `scope: "shared"` uses a
 single container/workspace.
 
 Also consider agent workspace access inside the sandbox:
-<<<<<<< HEAD
 - `agents.defaults.sandbox.workspaceAccess: "none"` (default) keeps the agent workspace off-limits; tools run against a sandbox workspace under `~/.clawdbot/sandboxes`
-=======
-
-- `agents.defaults.sandbox.workspaceAccess: "none"` (default) keeps the agent workspace off-limits; tools run against a sandbox workspace under `~/.openclaw/sandboxes`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `agents.defaults.sandbox.workspaceAccess: "ro"` mounts the agent workspace read-only at `/agent` (disables `write`/`edit`/`apply_patch`)
 - `agents.defaults.sandbox.workspaceAccess: "rw"` mounts the agent workspace read/write at `/workspace`
 
@@ -911,12 +805,7 @@ Important: `tools.elevated` is the global baseline escape hatch that runs exec o
 Enabling browser control gives the model the ability to drive a real browser.
 If that browser profile already contains logged-in sessions, the model can
 access those accounts and data. Treat browser profiles as **sensitive state**:
-<<<<<<< HEAD
 - Prefer a dedicated profile for the agent (the default `clawd` profile).
-=======
-
-- Prefer a dedicated profile for the agent (the default `openclaw` profile).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Avoid pointing the agent at your personal daily-driver profile.
 - Keep host browser control disabled for sandboxed agents unless you trust them.
 - Treat browser downloads as untrusted input; prefer an isolated downloads directory.
@@ -947,19 +836,11 @@ Common use cases:
     list: [
       {
         id: "personal",
-<<<<<<< HEAD
         workspace: "~/clawd-personal",
         sandbox: { mode: "off" }
       }
     ]
   }
-=======
-        workspace: "~/.openclaw/workspace-personal",
-        sandbox: { mode: "off" },
-      },
-    ],
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 

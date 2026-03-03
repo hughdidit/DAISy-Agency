@@ -25,11 +25,7 @@ function makeRegistry(
 describe("applyPluginAutoEnable", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("enables configured channel plugins and updates allowlist", () => {
-=======
-  it("auto-enables channel plugins and updates allowlist", () => {
->>>>>>> 9769b96fb (fix(config): auto-enable configured plugins)
 =======
   it("auto-enables built-in channels without touching plugins allowlist", () => {
 >>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
@@ -50,8 +46,6 @@ describe("applyPluginAutoEnable", () => {
     expect(result.changes.join("\n")).toContain("Slack configured, enabled automatically.");
   });
 
-<<<<<<< HEAD
-=======
   it("does not create plugins.allow when allowlist is unset", () => {
     const result = applyPluginAutoEnable({
       config: {
@@ -84,7 +78,6 @@ describe("applyPluginAutoEnable", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> 40680432b (fix(config): allowlist auto-enabled built-in channels when restricted)
 =======
   it("keeps auto-enabled WhatsApp config schema-valid", () => {
     const result = applyPluginAutoEnable({
@@ -118,24 +111,7 @@ describe("applyPluginAutoEnable", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("enables provider auth plugins when profiles exist", () => {
-=======
-=======
-  it("respects built-in channel explicit disable via channels.<id>.enabled", () => {
-    const result = applyPluginAutoEnable({
-      config: {
-        channels: { slack: { botToken: "x", enabled: false } },
-      },
-      env: {},
-    });
-
-    expect(result.config.channels?.slack?.enabled).toBe(false);
-    expect(result.config.plugins?.entries?.slack).toBeUndefined();
-    expect(result.changes).toEqual([]);
-  });
-
->>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
   it("auto-enables irc when configured via env", () => {
     const result = applyPluginAutoEnable({
       config: {},
@@ -289,14 +265,9 @@ describe("applyPluginAutoEnable", () => {
       });
 
       expect(result.config.plugins?.entries?.bluebubbles?.enabled).toBe(false);
-<<<<<<< HEAD
       expect(result.config.plugins?.entries?.imessage?.enabled).toBe(true);
 <<<<<<< HEAD
       expect(result.changes.join("\n")).toContain("iMessage configured, not enabled yet.");
-=======
-=======
-      expect(result.config.channels?.imessage?.enabled).toBe(true);
->>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
       expect(result.changes.join("\n")).toContain("iMessage configured, enabled automatically.");
 >>>>>>> 9769b96fb (fix(config): auto-enable configured plugins)
     });
@@ -317,11 +288,7 @@ describe("applyPluginAutoEnable", () => {
       expect(result.config.channels?.imessage?.enabled).toBe(true);
     });
 
-<<<<<<< HEAD
     it("enables imessage normally when only imessage is configured", () => {
-=======
-    it("auto-enables imessage when only imessage is configured", () => {
->>>>>>> 9769b96fb (fix(config): auto-enable configured plugins)
       const result = applyPluginAutoEnable({
         config: {
           channels: { imessage: { cliPath: "/usr/local/bin/imsg" } },
@@ -329,14 +296,9 @@ describe("applyPluginAutoEnable", () => {
         env: {},
       });
 
-<<<<<<< HEAD
       expect(result.config.plugins?.entries?.imessage?.enabled).toBe(true);
 <<<<<<< HEAD
       expect(result.changes.join("\n")).toContain("iMessage configured, not enabled yet.");
-=======
-=======
-      expect(result.config.channels?.imessage?.enabled).toBe(true);
->>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
       expect(result.changes.join("\n")).toContain("iMessage configured, enabled automatically.");
 >>>>>>> 9769b96fb (fix(config): auto-enable configured plugins)
     });

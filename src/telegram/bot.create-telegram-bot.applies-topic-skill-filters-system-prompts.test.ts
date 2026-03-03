@@ -10,7 +10,6 @@ import {
 } from "./bot.create-telegram-bot.test-harness.js";
 import { createTelegramBot } from "./bot.js";
 
-<<<<<<< HEAD
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/moltbot-telegram-${Math.random().toString(16).slice(2)}.json`,
 }));
@@ -141,9 +140,6 @@ const getOnHandler = (event: string) => {
   }
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
-=======
-const loadConfig = getLoadConfigMock();
->>>>>>> 60898821f (refactor(test): share telegram create bot harness)
 
 describe("createTelegramBot", () => {
   // groupPolicy tests
@@ -176,7 +172,6 @@ describe("createTelegramBot", () => {
     createTelegramBot({ token: "tok" });
     const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
 
-<<<<<<< HEAD
     await handler({
       message: {
         chat: {
@@ -194,9 +189,6 @@ describe("createTelegramBot", () => {
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
-=======
-    await handler(makeForumGroupMessageCtx({ threadId: 99 }));
->>>>>>> de34a809f (refactor(test): share telegram forum ctx helper)
 
     expect(replySpy).toHaveBeenCalledTimes(1);
     const payload = replySpy.mock.calls[0][0];
@@ -223,7 +215,6 @@ describe("createTelegramBot", () => {
     createTelegramBot({ token: "tok" });
     const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
 
-<<<<<<< HEAD
     await handler({
       message: {
         chat: {
@@ -241,9 +232,6 @@ describe("createTelegramBot", () => {
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
-=======
-    await handler(makeForumGroupMessageCtx({ threadId: 99 }));
->>>>>>> de34a809f (refactor(test): share telegram forum ctx helper)
 
     expect(sendMessageSpy).toHaveBeenCalledWith(
       "-1001234567890",

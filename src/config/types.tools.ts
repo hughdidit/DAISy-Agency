@@ -130,8 +130,6 @@ export type MediaToolsConfig = {
 
 export type ToolProfileId = "minimal" | "coding" | "messaging" | "full";
 
-<<<<<<< HEAD
-=======
 export type ToolLoopDetectionDetectorConfig = {
   /** Enable warning/blocking for repeated identical calls to the same tool/params. */
   genericRepeat?: boolean;
@@ -158,7 +156,6 @@ export type ToolLoopDetectionConfig = {
 
 export type SessionsToolsVisibility = "self" | "tree" | "agent" | "all";
 
->>>>>>> 076df941a (feat: add configurable tool loop detection)
 export type ToolPolicyConfig = {
   allow?: string[];
   /**
@@ -179,8 +176,6 @@ export type GroupToolPolicyConfig = {
   deny?: string[];
 };
 
-<<<<<<< HEAD
-=======
 export const TOOLS_BY_SENDER_KEY_TYPES = ["id", "e164", "username", "name"] as const;
 export type ToolsBySenderKeyType = (typeof TOOLS_BY_SENDER_KEY_TYPES)[number];
 
@@ -217,7 +212,6 @@ export function parseToolsBySenderTypedKey(
  *
  * Legacy unprefixed keys are supported for backward compatibility and are matched as senderId only.
  */
->>>>>>> 3f64d4ad7 (refactor(config): compile toolsBySender policy and migrate legacy keys)
 export type GroupToolPolicyBySenderConfig = Record<string, GroupToolPolicyConfig>;
 
 export type ExecToolConfig = {
@@ -282,13 +276,10 @@ export type AgentToolsConfig = {
   };
   /** Exec tool defaults for this agent. */
   exec?: ExecToolConfig;
-<<<<<<< HEAD
-=======
   /** Filesystem tool path guards. */
   fs?: FsToolsConfig;
   /** Runtime loop detection for repetitive/ stuck tool-call patterns. */
   loopDetection?: ToolLoopDetectionConfig;
->>>>>>> 076df941a (feat: add configurable tool loop detection)
   sandbox?: {
     tools?: {
       allow?: string[];
@@ -548,13 +539,10 @@ export type ToolsConfig = {
   };
   /** Exec tool defaults. */
   exec?: ExecToolConfig;
-<<<<<<< HEAD
-=======
   /** Filesystem tool path guards. */
   fs?: FsToolsConfig;
   /** Runtime loop detection for repetitive/ stuck tool-call patterns. */
   loopDetection?: ToolLoopDetectionConfig;
->>>>>>> 076df941a (feat: add configurable tool loop detection)
   /** Sub-agent tool policy defaults (deny wins). */
   subagents?: {
     /** Default model selection for spawned sub-agents (string or {primary,fallbacks}). */

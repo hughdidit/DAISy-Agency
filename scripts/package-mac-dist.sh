@@ -29,16 +29,9 @@ if [[ ! -d "$APP" ]]; then
 fi
 
 VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist" 2>/dev/null || echo "0.0.0")
-<<<<<<< HEAD
 ZIP="$ROOT_DIR/dist/Moltbot-$VERSION.zip"
 DMG="$ROOT_DIR/dist/Moltbot-$VERSION.dmg"
 NOTARY_ZIP="$ROOT_DIR/dist/Moltbot-$VERSION.notary.zip"
-=======
-ZIP="$ROOT_DIR/dist/OpenClaw-$VERSION.zip"
-DMG="$ROOT_DIR/dist/OpenClaw-$VERSION.dmg"
-NOTARY_ZIP="$ROOT_DIR/dist/OpenClaw-$VERSION.notary.zip"
-DSYM_ZIP="$ROOT_DIR/dist/OpenClaw-$VERSION.dSYM.zip"
->>>>>>> f1cbe7db1 (chore: add mac dSYM zip to release artifacts)
 SKIP_NOTARIZE="${SKIP_NOTARIZE:-0}"
 NOTARIZE=1
 SKIP_DSYM="${SKIP_DSYM:-0}"

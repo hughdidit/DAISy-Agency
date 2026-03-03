@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import type { Message } from "@grammyjs/types";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7,7 +5,6 @@ import type { Message } from "@grammyjs/types";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { TelegramContext } from "./bot/types.js";
->>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
 import { createDedupeCache } from "../infra/dedupe.js";
 import type { TelegramContext, TelegramMessage } from "./bot/types.js";
 =======

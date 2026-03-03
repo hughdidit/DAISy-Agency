@@ -1,9 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
-=======
-import type { LineAutoReplyDeps } from "./auto-reply-delivery.js";
->>>>>>> 0f4036b0f (refactor(test): share line auto-reply deps)
 import { deliverLineAutoReply } from "./auto-reply-delivery.js";
 import { sendLineReplyChunks } from "./reply-chunks.js";
 

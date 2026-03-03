@@ -4,11 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { spawnSync } from "node:child_process";
-=======
-import JSZip from "jszip";
->>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -34,14 +30,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import JSZip from "jszip";
 import { afterEach, describe, expect, it } from "vitest";
-=======
-=======
-=======
-import JSZip from "jszip";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -57,23 +47,15 @@ import JSZip from "jszip";
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import * as tar from "tar";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
 import { afterEach, describe, expect, it, vi } from "vitest";
-=======
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 5c8f0b5a7 (test: tighten plugin e2e matrix coverage)
 =======
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 407f7017e (test: cache plugin install archive fixtures)
 import * as skillScanner from "../security/skill-scanner.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
-=======
-import { expectSingleNpmInstallIgnoreScriptsCall } from "../test-utils/exec-assertions.js";
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 import {
   expectSingleNpmInstallIgnoreScriptsCall,
@@ -336,8 +318,6 @@ afterAll(() => {
   }
 });
 
-<<<<<<< HEAD
-=======
 beforeAll(async () => {
   ({ installPluginFromArchive, installPluginFromDir, installPluginFromNpmSpec } =
     await import("./install.js"));
@@ -348,9 +328,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
->>>>>>> 5c8f0b5a7 (test: tighten plugin e2e matrix coverage)
 describe("installPluginFromArchive", () => {
-<<<<<<< HEAD
   it("installs into ~/.clawdbot/extensions and uses unscoped id", async () => {
     const stateDir = makeTempDir();
     const workDir = makeTempDir();
@@ -372,10 +350,6 @@ describe("installPluginFromArchive", () => {
       pkgDir,
       outDir: workDir,
 =======
-    const { archivePath } = await createVoiceCallArchive({
-      workDir,
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-=======
   it("installs into ~/.openclaw/extensions and uses unscoped id", async () => {
     const { stateDir, archivePath, extensionsDir } = await setupVoiceCallArchiveInstall({
 >>>>>>> 31f83c86b (refactor(test): dedupe agent harnesses and routing fixtures)
@@ -383,15 +357,8 @@ describe("installPluginFromArchive", () => {
       version: "0.0.1",
     });
 
-<<<<<<< HEAD
     const { installPluginFromArchive } = await import("./install.js");
     const result = await installPluginFromArchive({ archivePath, extensionsDir });
-=======
-    const result = await installPluginFromArchive({
-      archivePath,
-      extensionsDir,
-    });
->>>>>>> 5c8f0b5a7 (test: tighten plugin e2e matrix coverage)
     expect(result.ok).toBe(true);
     if (!result.ok) {
       return;
@@ -401,7 +368,6 @@ describe("installPluginFromArchive", () => {
   });
 
   it("rejects installing when plugin already exists", async () => {
-<<<<<<< HEAD
     const stateDir = makeTempDir();
     const workDir = makeTempDir();
 <<<<<<< HEAD
@@ -422,30 +388,15 @@ describe("installPluginFromArchive", () => {
       pkgDir,
       outDir: workDir,
 =======
-    const { archivePath } = await createVoiceCallArchive({
-      workDir,
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-=======
     const { archivePath, extensionsDir } = await setupVoiceCallArchiveInstall({
 >>>>>>> 31f83c86b (refactor(test): dedupe agent harnesses and routing fixtures)
       outName: "plugin.tgz",
       version: "0.0.1",
     });
 
-<<<<<<< HEAD
     const { installPluginFromArchive } = await import("./install.js");
     const first = await installPluginFromArchive({ archivePath, extensionsDir });
     const second = await installPluginFromArchive({ archivePath, extensionsDir });
-=======
-    const first = await installPluginFromArchive({
-      archivePath,
-      extensionsDir,
-    });
-    const second = await installPluginFromArchive({
-      archivePath,
-      extensionsDir,
-    });
->>>>>>> 5c8f0b5a7 (test: tighten plugin e2e matrix coverage)
 
     expect(first.ok).toBe(true);
     expect(second.ok).toBe(false);
@@ -457,7 +408,6 @@ describe("installPluginFromArchive", () => {
 
   it("installs from a zip archive", async () => {
     const stateDir = makeTempDir();
-<<<<<<< HEAD
     const workDir = makeTempDir();
     const archivePath = path.join(workDir, "plugin.zip");
 
@@ -473,23 +423,10 @@ describe("installPluginFromArchive", () => {
     zip.file("package/dist/index.js", "export {};");
     const buffer = await zip.generateAsync({ type: "nodebuffer" });
     fs.writeFileSync(archivePath, buffer);
-=======
-    const archivePath = writeArchiveBuffer({
-      outName: "plugin.zip",
-      buffer: await ZIPPER_ARCHIVE_BUFFER_PROMISE,
-    });
->>>>>>> 407f7017e (test: cache plugin install archive fixtures)
 
     const extensionsDir = path.join(stateDir, "extensions");
-<<<<<<< HEAD
     const { installPluginFromArchive } = await import("./install.js");
     const result = await installPluginFromArchive({ archivePath, extensionsDir });
-=======
-    const result = await installPluginFromArchive({
-      archivePath,
-      extensionsDir,
-    });
->>>>>>> 5c8f0b5a7 (test: tighten plugin e2e matrix coverage)
 
     expect(result.ok).toBe(true);
     if (!result.ok) {
@@ -501,7 +438,6 @@ describe("installPluginFromArchive", () => {
 
   it("allows updates when mode is update", async () => {
     const stateDir = makeTempDir();
-<<<<<<< HEAD
     const workDir = makeTempDir();
 <<<<<<< HEAD
     const pkgDir = path.join(workDir, "package");
@@ -521,10 +457,6 @@ describe("installPluginFromArchive", () => {
       pkgDir,
       outDir: workDir,
 =======
-    const { archivePath: archiveV1 } = await createVoiceCallArchive({
-      workDir,
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-=======
     const archiveV1 = writeArchiveBuffer({
 >>>>>>> 407f7017e (test: cache plugin install archive fixtures)
       outName: "plugin-v1.tgz",
@@ -534,7 +466,6 @@ describe("installPluginFromArchive", () => {
       outName: "plugin-v2.tgz",
       buffer: await VOICE_CALL_ARCHIVE_V2_BUFFER_PROMISE,
     });
-<<<<<<< HEAD
 
     const archiveV2 = await (async () => {
       fs.writeFileSync(
@@ -552,8 +483,6 @@ describe("installPluginFromArchive", () => {
         outName: "plugin-v2.tgz",
       });
     })();
-=======
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     const extensionsDir = path.join(stateDir, "extensions");
     const first = await installPluginFromArchive({
@@ -577,26 +506,7 @@ describe("installPluginFromArchive", () => {
     expect(manifest.version).toBe("0.0.2");
   });
 
-<<<<<<< HEAD
   it("rejects packages without moltbot.extensions", async () => {
-=======
-  it("rejects traversal-like plugin names", async () => {
-    await expectArchiveInstallReservedSegmentRejection({
-      packageName: "@evil/..",
-      outName: "traversal.tgz",
-    });
-  });
-
-  it("rejects reserved plugin ids", async () => {
-    await expectArchiveInstallReservedSegmentRejection({
-      packageName: "@evil/.",
-      outName: "reserved.tgz",
-    });
-  });
-
-  it("rejects packages without openclaw.extensions", async () => {
-<<<<<<< HEAD
->>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
     const stateDir = makeTempDir();
     const workDir = makeTempDir();
     const pkgDir = path.join(workDir, "package");
@@ -614,15 +524,8 @@ describe("installPluginFromArchive", () => {
     });
 
     const extensionsDir = path.join(stateDir, "extensions");
-<<<<<<< HEAD
     const { installPluginFromArchive } = await import("./install.js");
     const result = await installPluginFromArchive({ archivePath, extensionsDir });
-=======
-    const result = await installPluginFromArchive({
-      archivePath,
-      extensionsDir,
-    });
->>>>>>> 5c8f0b5a7 (test: tighten plugin e2e matrix coverage)
 =======
     const result = await installArchivePackageAndReturnResult({
       packageJson: { name: "@openclaw/nope", version: "0.0.1" },
@@ -630,16 +533,8 @@ describe("installPluginFromArchive", () => {
     });
 >>>>>>> 12635de1c (test: cover shared installer flow helpers)
     expect(result.ok).toBe(false);
-<<<<<<< HEAD
     if (result.ok) return;
     expect(result.error).toContain("moltbot.extensions");
-=======
-    if (result.ok) {
-      return;
-    }
-    expect(result.error).toContain("openclaw.extensions");
-<<<<<<< HEAD
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
   });
 
@@ -766,8 +661,6 @@ describe("installPluginFromDir", () => {
     expect(manifest.devDependencies?.vitest).toBe("^3.0.0");
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("installPluginFromNpmSpec", () => {
   it("uses --ignore-scripts for npm pack and cleans up temp dir", async () => {
@@ -843,6 +736,5 @@ describe("installPluginFromNpmSpec", () => {
       actualIntegrity: "sha512-new",
     });
   });
->>>>>>> 5c8f0b5a7 (test: tighten plugin e2e matrix coverage)
 });
 >>>>>>> 7b31e8fc5 (chore: Fix types in tests 36/N.)

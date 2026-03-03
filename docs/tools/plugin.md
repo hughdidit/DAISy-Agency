@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
 summary: "Moltbot plugins/extensions: discovery, config, and safety"
-=======
-summary: "OpenClaw plugins/extensions: discovery, config, and safety"
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 read_when:
   - Adding or modifying plugins/extensions
   - Documenting plugin install or load rules
@@ -77,11 +73,7 @@ Plugins can access selected core helpers via `api.runtime`. For telephony TTS:
 
 ```ts
 const result = await api.runtime.tts.textToSpeechTelephony({
-<<<<<<< HEAD
   text: "Hello from Moltbot",
-=======
-  text: "Hello from OpenClaw",
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   cfg: api.config,
 });
 ```
@@ -113,20 +105,7 @@ Bundled plugins must be enabled explicitly via `plugins.entries.<id>.enabled`
 or `moltbot plugins enable <id>`. Installed plugins are enabled by default,
 but can be disabled the same way.
 
-<<<<<<< HEAD
 Each plugin must include a `moltbot.plugin.json` file in its root. If a path
-=======
-Hardening notes:
-
-- If `plugins.allow` is empty and non-bundled plugins are discoverable, OpenClaw logs a startup warning with plugin ids and sources.
-- Candidate paths are safety-checked before discovery admission. OpenClaw blocks candidates when:
-  - extension entry resolves outside plugin root (including symlink/path traversal escapes),
-  - plugin root/source path is world-writable,
-  - path ownership is suspicious for non-bundled plugins (POSIX owner is neither current uid nor root).
-- Loaded non-bundled plugins without install/load-path provenance emit a warning so you can pin trust (`plugins.allow`) or install tracking (`plugins.installs`).
-
-Each plugin must include a `openclaw.plugin.json` file in its root. If a path
->>>>>>> 3561442a9 (fix(plugins): harden discovery trust checks)
 points at a file, the plugin root is the file's directory and must contain the
 manifest.
 
@@ -213,15 +192,9 @@ configured id.
     deny: ["untrusted-plugin"],
     load: { paths: ["~/Projects/oss/voice-call-extension"] },
     entries: {
-<<<<<<< HEAD
       "voice-call": { enabled: true, config: { provider: "twilio" } }
     }
   }
-=======
-      "voice-call": { enabled: true, config: { provider: "twilio" } },
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -251,15 +224,9 @@ Some plugin categories are **exclusive** (only one active at a time). Use
 {
   plugins: {
     slots: {
-<<<<<<< HEAD
       memory: "memory-core" // or "none" to disable memory plugins
     }
   }
-=======
-      memory: "memory-core", // or "none" to disable memory plugins
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -335,13 +302,9 @@ automation without a separate hook pack install.
 
 ### Example
 
-<<<<<<< HEAD
 ```
 import { registerPluginHooksFromDir } from "moltbot/plugin-sdk";
 
-=======
-```ts
->>>>>>> 121d02722 (chore: remove dead plugin hook loader)
 export default function register(api) {
   api.registerHook(
     "command:new",
@@ -357,12 +320,7 @@ export default function register(api) {
 ```
 
 Notes:
-<<<<<<< HEAD
 - Hook directories follow the normal hook structure (`HOOK.md` + `handler.ts`).
-=======
-
-- Register hooks explicitly via `api.registerHook(...)`.
->>>>>>> 121d02722 (chore: remove dead plugin hook loader)
 - Hook eligibility rules still apply (OS/bins/env/config requirements).
 - Plugin-managed hooks show up in `moltbot hooks list` with `plugin:<id>`.
 - You cannot enable/disable plugin-managed hooks via `moltbot hooks`; enable/disable the plugin instead.
@@ -438,13 +396,7 @@ const myChannel = {
   config: {
     listAccountIds: (cfg) => Object.keys(cfg.channels?.acmechat?.accounts ?? {}),
     resolveAccount: (cfg, accountId) =>
-<<<<<<< HEAD
       (cfg.channels?.acmechat?.accounts?.[accountId ?? "default"] ?? { accountId }),
-=======
-      cfg.channels?.acmechat?.accounts?.[accountId ?? "default"] ?? {
-        accountId,
-      },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   outbound: {
     deliveryMode: "direct",
@@ -522,17 +474,10 @@ Minimal config example:
   channels: {
     acmechat: {
       accounts: {
-<<<<<<< HEAD
         default: { token: "ACME_TOKEN", enabled: true }
       }
     }
   }
-=======
-        default: { token: "ACME_TOKEN", enabled: true },
-      },
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -553,13 +498,7 @@ const plugin = {
   config: {
     listAccountIds: (cfg) => Object.keys(cfg.channels?.acmechat?.accounts ?? {}),
     resolveAccount: (cfg, accountId) =>
-<<<<<<< HEAD
       (cfg.channels?.acmechat?.accounts?.[accountId ?? "default"] ?? { accountId }),
-=======
-      cfg.channels?.acmechat?.accounts?.[accountId ?? "default"] ?? {
-        accountId,
-      },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   outbound: {
     deliveryMode: "direct",
@@ -596,22 +535,11 @@ export default function (api) {
 
 ```ts
 export default function (api) {
-<<<<<<< HEAD
   api.registerCli(({ program }) => {
     program.command("mycmd").action(() => {
       console.log("Hello");
     });
   }, { commands: ["mycmd"] });
-=======
-  api.registerCli(
-    ({ program }) => {
-      program.command("mycmd").action(() => {
-        console.log("Hello");
-      });
-    },
-    { commands: ["mycmd"] },
-  );
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 

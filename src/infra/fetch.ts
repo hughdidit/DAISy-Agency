@@ -52,12 +52,7 @@ export function wrapFetchWithAbortSignal(fetchImpl: typeof fetch): typeof fetch 
       return fetchImpl(input, patchedInit);
     }
     const controller = new AbortController();
-<<<<<<< HEAD
     const onAbort = controller.abort.bind(controller);
-=======
-    const onAbort = bindAbortRelay(controller);
-    let listenerAttached = false;
->>>>>>> e3e8046a9 (fix(infra): avoid detached finally unhandled rejection in fetch wrapper (#18014))
     if (signal.aborted) {
       controller.abort();
     } else {

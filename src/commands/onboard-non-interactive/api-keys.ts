@@ -9,14 +9,8 @@ import { resolveEnvApiKey } from "../../agents/model-auth.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { RuntimeEnv } from "../../runtime.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -30,11 +24,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeOptionalSecretInput } from "../../utils/normalize-secret-input.js";
-<<<<<<< HEAD
 >>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
-=======
-import type { SecretInputMode } from "../onboard-types.js";
->>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
 
 export type NonInteractiveApiKeySource = "flag" | "env" | "profile";
 

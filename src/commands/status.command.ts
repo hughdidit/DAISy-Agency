@@ -5,12 +5,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { HeartbeatEventPayload } from "../infra/heartbeat-events.js";
-import type { RuntimeEnv } from "../runtime.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { HeartbeatEventPayload } from "../infra/heartbeat-events.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -39,21 +33,11 @@ import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 import type { HeartbeatEventPayload } from "../infra/heartbeat-events.js";
 import { formatUsageReportLines, loadProviderUsageSummary } from "../infra/provider-usage.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import { runSecurityAudit } from "../security/audit.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
 import { formatCliCommand } from "../cli/command-format.js";
-=======
-import {
-  formatUpdateChannelLabel,
-  normalizeUpdateChannel,
-  resolveEffectiveUpdateChannel,
-} from "../infra/update-channels.js";
-=======
-import { normalizeUpdateChannel, resolveUpdateChannelDisplay } from "../infra/update-channels.js";
->>>>>>> ed74f48bd (refactor(status): share update channel display + one-liner)
 import { formatGitInstallLabel } from "../infra/update-check.js";
 >>>>>>> 887ca6086 (refactor(status): share git install label formatting)
 import {
@@ -68,11 +52,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { RuntimeEnv } from "../runtime.js";
-=======
->>>>>>> dee013426 (style: reformat dedupe-touched files)
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> c70597dae (chore: Fix formatting.)

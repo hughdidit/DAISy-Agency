@@ -1,7 +1,6 @@
 import { ensureAuthProfileStore, listProfilesForProvider } from "../agents/auth-profiles.js";
 import { getCustomProviderApiKey, resolveEnvApiKey } from "../agents/model-auth.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
-<<<<<<< HEAD
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9,9 +8,6 @@ import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { WizardPrompter } from "../wizard/prompts.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

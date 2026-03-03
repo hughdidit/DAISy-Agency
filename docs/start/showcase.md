@@ -89,11 +89,7 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="PR Review → Telegram Feedback" icon="code-pull-request" href="https://x.com/i/status/2010878524543131691">
   **@bangnokia** • `review` `github` `telegram`
 
-<<<<<<< HEAD
   OpenCode finishes the change → opens a PR → Moltbot reviews the diff and replies in Telegram with “minor suggestions” plus a clear merge verdict (including critical fixes to apply first).
-=======
-OpenCode finishes the change → opens a PR → OpenClaw reviews the diff and replies in Telegram with “minor suggestions” plus a clear merge verdict (including critical fixes to apply first).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   <img src="/assets/showcase/pr-review-telegram.jpg" alt="Moltbot PR review feedback delivered in Telegram" />
 </Card>
@@ -101,11 +97,7 @@ OpenCode finishes the change → opens a PR → OpenClaw reviews the diff and re
 <Card title="Wine Cellar Skill in Minutes" icon="wine-glass" href="https://x.com/i/status/2010916352454791216">
   **@prades_maxime** • `skills` `local` `csv`
 
-<<<<<<< HEAD
   Asked “Robby” (@moltbot) for a local wine cellar skill. It requests a sample CSV export + where to store it, then builds/tests the skill fast (962 bottles in the example).
-=======
-Asked “Robby” (@openclaw) for a local wine cellar skill. It requests a sample CSV export + where to store it, then builds/tests the skill fast (962 bottles in the example).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   <img src="/assets/showcase/wine-cellar-skill.jpg" alt="Moltbot building a local wine cellar skill from CSV" />
 </Card>
@@ -129,11 +121,7 @@ Hotkey a screen region → Gemini vision → instant Markdown in your clipboard.
 <Card title="Agents UI" icon="window-maximize" href="https://releaseflow.net/kitze/agents-ui">
   **@kitze** • `ui` `skills` `sync`
 
-<<<<<<< HEAD
   Desktop app to manage skills/commands across Agents, Claude, Codex, and Moltbot.
-=======
-Desktop app to manage skills/commands across Agents, Claude, Codex, and OpenClaw.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   <img src="/assets/showcase/agents-ui.jpg" alt="Agents UI app" />
 </Card>
@@ -179,11 +167,7 @@ Automated UK school meal booking via ParentPay. Uses mouse coordinates for relia
 <Card title="R2 Upload (Send Me My Files)" icon="cloud-arrow-up" href="https://clawhub.com/skills/r2-upload">
   **@julianengel** • `files` `r2` `presigned-urls`
 
-<<<<<<< HEAD
   Upload to Cloudflare R2/S3 and generate secure presigned download links. Perfect for remote Moltbot instances.
-=======
-Upload to Cloudflare R2/S3 and generate secure presigned download links. Perfect for remote OpenClaw instances.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 </Card>
 
 <Card title="iOS App via Telegram" icon="mobile" href="#">
@@ -210,11 +194,7 @@ Personal AI health assistant integrating Oura ring data with calendar, appointme
 <Card title="Linear CLI" icon="terminal" href="https://github.com/Finesssee/linear-cli">
   **@NessZerra** • `devtools` `linear` `cli` `issues`
 
-<<<<<<< HEAD
   CLI for Linear that integrates with agentic workflows (Claude Code, Moltbot). Manage issues, projects, and workflows from the terminal. First external PR merged!
-=======
-CLI for Linear that integrates with agentic workflows (Claude Code, OpenClaw). Manage issues, projects, and workflows from the terminal. First external PR merged!
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 </Card>
 
 <Card title="Beeper CLI" icon="message" href="https://github.com/blqke/beepcli">
@@ -232,11 +212,7 @@ Read, send, and archive messages via Beeper Desktop. Uses Beeper local MCP API s
 <Card title="Winix Air Purifier Control" icon="wind" href="https://x.com/antonplex/status/2010518442471006253">
   **@antonplex** • `automation` `hardware` `air-quality`
 
-<<<<<<< HEAD
   Claude Code discovered and confirmed the purifier controls, then Moltbot takes over to manage room air quality.
-=======
-Claude Code discovered and confirmed the purifier controls, then OpenClaw takes over to manage room air quality.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   <img src="/assets/showcase/winix-air-purifier.jpg" alt="Winix air purifier control via Moltbot" />
 </Card>
@@ -244,11 +220,7 @@ Claude Code discovered and confirmed the purifier controls, then OpenClaw takes 
 <Card title="Pretty Sky Camera Shots" icon="camera" href="https://x.com/signalgaining/status/2010523120604746151">
   **@signalgaining** • `automation` `camera` `skill` `images`
 
-<<<<<<< HEAD
   Triggered by a roof camera: ask Moltbot to snap a sky photo whenever it looks pretty — it designed a skill and took the shot.
-=======
-Triggered by a roof camera: ask OpenClaw to snap a sky photo whenever it looks pretty — it designed a skill and took the shot.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   <img src="/assets/showcase/roof-camera-sky.jpg" alt="Roof camera sky snapshot captured by Moltbot" />
 </Card>
@@ -256,11 +228,7 @@ Triggered by a roof camera: ask OpenClaw to snap a sky photo whenever it looks p
 <Card title="Visual Morning Briefing Scene" icon="robot" href="https://x.com/buddyhadry/status/2010005331925954739">
   **@buddyhadry** • `automation` `briefing` `images` `telegram`
 
-<<<<<<< HEAD
   A scheduled prompt generates a single "scene" image each morning (weather, tasks, date, favorite post/quote) via a Moltbot persona.
-=======
-A scheduled prompt generates a single "scene" image each morning (weather, tasks, date, favorite post/quote) via a OpenClaw persona.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 </Card>
 
 <Card title="Padel Court Booking" icon="calendar-check" href="https://github.com/joshp123/padel-cli">
@@ -293,11 +261,7 @@ Searches job listings, matches against CV keywords, and returns relevant opportu
   **@jdrhyne** • `automation` `jira` `skill` `devtools`
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   Moltbot connected to Jira, then generated a new skill on the fly (before it existed on ClawdHub).
-=======
-  OpenClaw connected to Jira, then generated a new skill on the fly (before it existed on ClawHub).
->>>>>>> fd00d5688 (chore: update openclaw naming)
 =======
 OpenClaw connected to Jira, then generated a new skill on the fly (before it existed on ClawHub).
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
@@ -306,11 +270,7 @@ OpenClaw connected to Jira, then generated a new skill on the fly (before it exi
 <Card title="Todoist Skill via Telegram" icon="list-check" href="https://x.com/iamsubhrajyoti/status/2009949389884920153">
   **@iamsubhrajyoti** • `automation` `todoist` `skill` `telegram`
 
-<<<<<<< HEAD
   Automated Todoist tasks and had Moltbot generate the skill directly in Telegram chat.
-=======
-Automated Todoist tasks and had OpenClaw generate the skill directly in Telegram chat.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 </Card>
 
 <Card title="TradingView Analysis" icon="chart-line">

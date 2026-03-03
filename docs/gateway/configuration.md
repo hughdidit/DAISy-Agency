@@ -8,12 +8,7 @@ read_when:
 
 Moltbot reads an optional **JSON5** config from `~/.clawdbot/moltbot.json` (comments + trailing commas allowed).
 
-<<<<<<< HEAD
 If the file is missing, Moltbot uses safe-ish defaults (embedded Pi agent + per-sender sessions + workspace `~/clawd`). You usually only need a config to:
-=======
-If the file is missing, OpenClaw uses safe-ish defaults (embedded Pi agent + per-sender sessions + workspace `~/.openclaw/workspace`). You usually only need a config to:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - restrict who can trigger the bot (`channels.whatsapp.allowFrom`, `channels.telegram.allowFrom`, etc.)
 - control group allowlists + mention behavior (`channels.whatsapp.groups`, `channels.telegram.groups`, `channels.discord.guilds`, `agents.list[].groupChat`)
 - customize message prefixes (`messages`)
@@ -25,51 +20,8 @@ If the file is missing, OpenClaw uses safe-ish defaults (embedded Pi agent + per
 
 ## Strict config validation
 
-<<<<<<< HEAD
 Moltbot only accepts configurations that fully match the schema.
 Unknown keys, malformed types, or invalid values cause the Gateway to **refuse to start** for safety.
-=======
-## Minimal config
-
-```json5
-// ~/.openclaw/openclaw.json
-{
-  agents: { defaults: { workspace: "~/.openclaw/workspace" } },
-  channels: { whatsapp: { allowFrom: ["+15555550123"] } },
-}
-```
-
-## Editing config
-
-<Tabs>
-  <Tab title="Interactive wizard">
-    ```bash
-    openclaw onboard       # full setup wizard
-    openclaw configure     # config wizard
-    ```
-  </Tab>
-  <Tab title="CLI (one-liners)">
-    ```bash
-    openclaw config get agents.defaults.workspace
-    openclaw config set agents.defaults.heartbeat.every "2h"
-    openclaw config unset tools.web.search.apiKey
-    ```
-  </Tab>
-  <Tab title="Control UI">
-    Open [http://127.0.0.1:18789](http://127.0.0.1:18789) and use the **Config** tab.
-    The Control UI renders a form from the config schema, with a **Raw JSON** editor as an escape hatch.
-  </Tab>
-  <Tab title="Direct edit">
-    Edit `~/.openclaw/openclaw.json` directly. The Gateway watches the file and applies changes automatically (see [hot reload](#config-hot-reload)).
-  </Tab>
-</Tabs>
-
-## Strict validation
-
-<Warning>
-OpenClaw only accepts configurations that fully match the schema. Unknown keys, malformed types, or invalid values cause the Gateway to **refuse to start**. The only root-level exception is `$schema` (string), so editors can attach JSON Schema metadata.
-</Warning>
->>>>>>> 13aface86 (fix(config): accept $schema key in root config (#15280))
 
 When validation fails:
 
@@ -99,15 +51,7 @@ It writes a restart sentinel and pings the last active session after the Gateway
 Warning: `config.apply` replaces the **entire config**. If you want to change only a few keys,
 use `config.patch` or `moltbot config set`. Keep a backup of `~/.clawdbot/moltbot.json`.
 
-<<<<<<< HEAD
 Params:
-=======
-    - `agents.defaults.models` defines the model catalog and acts as the allowlist for `/model`.
-    - Model refs use `provider/model` format (e.g. `anthropic/claude-opus-4-6`).
-    - `agents.defaults.imageMaxDimensionPx` controls transcript/tool image downscaling (default `1200`).
-    - See [Models CLI](/concepts/models) for switching models in chat and [Model Failover](/concepts/model-failover) for auth rotation and fallback behavior.
-    - For custom/self-hosted providers, see [Custom providers](/gateway/configuration-reference#custom-providers-and-base-urls) in the reference.
->>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 
 - `raw` (string) — JSON5 payload for the entire config
 - `baseHash` (optional) — config hash from `config.get` (required when a config already exists)
@@ -158,198 +102,12 @@ moltbot gateway call config.patch --params '{
 }'
 ```
 
-<<<<<<< HEAD
 ## Minimal config (recommended starting point)
-=======
-  <Accordion title="Configure sessions and resets">
-    Sessions control conversation continuity and isolation:
-
-    ```json5
-    {
-      session: {
-        dmScope: "per-channel-peer",  // recommended for multi-user
-        threadBindings: {
-          enabled: true,
-          idleHours: 24,
-          maxAgeHours: 0,
-        },
-        reset: {
-          mode: "daily",
-          atHour: 4,
-          idleMinutes: 120,
-        },
-      },
-    }
-    ```
-
-    - `dmScope`: `main` (shared) | `per-peer` | `per-channel-peer` | `per-account-channel-peer`
-    - `threadBindings`: global defaults for thread-bound session routing (Discord supports `/focus`, `/unfocus`, `/agents`, `/session idle`, and `/session max-age`).
-    - See [Session Management](/concepts/session) for scoping, identity links, and send policy.
-    - See [full reference](/gateway/configuration-reference#session) for all fields.
-
-  </Accordion>
-
-  <Accordion title="Enable sandboxing">
-    Run agent sessions in isolated Docker containers:
-
-    ```json5
-    {
-      agents: {
-        defaults: {
-          sandbox: {
-            mode: "non-main",  // off | non-main | all
-            scope: "agent",    // session | agent | shared
-          },
-        },
-      },
-    }
-    ```
-
-    Build the image first: `scripts/sandbox-setup.sh`
-
-    See [Sandboxing](/gateway/sandboxing) for the full guide and [full reference](/gateway/configuration-reference#sandbox) for all options.
-
-  </Accordion>
-
-  <Accordion title="Set up heartbeat (periodic check-ins)">
-    ```json5
-    {
-      agents: {
-        defaults: {
-          heartbeat: {
-            every: "30m",
-            target: "last",
-          },
-        },
-      },
-    }
-    ```
-
-    - `every`: duration string (`30m`, `2h`). Set `0m` to disable.
-    - `target`: `last` | `whatsapp` | `telegram` | `discord` | `none`
-    - `directPolicy`: `allow` (default) or `block` for DM-style heartbeat targets
-    - See [Heartbeat](/gateway/heartbeat) for the full guide.
-
-  </Accordion>
-
-  <Accordion title="Configure cron jobs">
-    ```json5
-    {
-      cron: {
-        enabled: true,
-        maxConcurrentRuns: 2,
-        sessionRetention: "24h",
-        runLog: {
-          maxBytes: "2mb",
-          keepLines: 2000,
-        },
-      },
-    }
-    ```
-
-    - `sessionRetention`: prune completed isolated run sessions from `sessions.json` (default `24h`; set `false` to disable).
-    - `runLog`: prune `cron/runs/<jobId>.jsonl` by size and retained lines.
-    - See [Cron jobs](/automation/cron-jobs) for feature overview and CLI examples.
-
-  </Accordion>
-
-  <Accordion title="Set up webhooks (hooks)">
-    Enable HTTP webhook endpoints on the Gateway:
-
-    ```json5
-    {
-      hooks: {
-        enabled: true,
-        token: "shared-secret",
-        path: "/hooks",
-        defaultSessionKey: "hook:ingress",
-        allowRequestSessionKey: false,
-        allowedSessionKeyPrefixes: ["hook:"],
-        mappings: [
-          {
-            match: { path: "gmail" },
-            action: "agent",
-            agentId: "main",
-            deliver: true,
-          },
-        ],
-      },
-    }
-    ```
-
-    See [full reference](/gateway/configuration-reference#hooks) for all mapping options and Gmail integration.
-
-  </Accordion>
-
-  <Accordion title="Configure multi-agent routing">
-    Run multiple isolated agents with separate workspaces and sessions:
-
-    ```json5
-    {
-      agents: {
-        list: [
-          { id: "home", default: true, workspace: "~/.openclaw/workspace-home" },
-          { id: "work", workspace: "~/.openclaw/workspace-work" },
-        ],
-      },
-      bindings: [
-        { agentId: "home", match: { channel: "whatsapp", accountId: "personal" } },
-        { agentId: "work", match: { channel: "whatsapp", accountId: "biz" } },
-      ],
-    }
-    ```
-
-    See [Multi-Agent](/concepts/multi-agent) and [full reference](/gateway/configuration-reference#multi-agent-routing) for binding rules and per-agent access profiles.
-
-  </Accordion>
-
-  <Accordion title="Split config into multiple files ($include)">
-    Use `$include` to organize large configs:
-
-    ```json5
-    // ~/.openclaw/openclaw.json
-    {
-      gateway: { port: 18789 },
-      agents: { $include: "./agents.json5" },
-      broadcast: {
-        $include: ["./clients/a.json5", "./clients/b.json5"],
-      },
-    }
-    ```
-
-    - **Single file**: replaces the containing object
-    - **Array of files**: deep-merged in order (later wins)
-    - **Sibling keys**: merged after includes (override included values)
-    - **Nested includes**: supported up to 10 levels deep
-    - **Relative paths**: resolved relative to the including file
-    - **Error handling**: clear errors for missing files, parse errors, and circular includes
-
-  </Accordion>
-</AccordionGroup>
-
-## Config hot reload
-
-The Gateway watches `~/.openclaw/openclaw.json` and applies changes automatically — no manual restart needed for most settings.
-
-### Reload modes
-
-| Mode                   | Behavior                                                                                |
-| ---------------------- | --------------------------------------------------------------------------------------- |
-| **`hybrid`** (default) | Hot-applies safe changes instantly. Automatically restarts for critical ones.           |
-| **`hot`**              | Hot-applies safe changes only. Logs a warning when a restart is needed — you handle it. |
-| **`restart`**          | Restarts the Gateway on any config change, safe or not.                                 |
-| **`off`**              | Disables file watching. Changes take effect on the next manual restart.                 |
->>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { workspace: "~/clawd" } },
   channels: { whatsapp: { allowFrom: ["+15555550123"] } }
-=======
-  agents: { defaults: { workspace: "~/.openclaw/workspace" } },
-  channels: { whatsapp: { allowFrom: ["+15555550123"] } },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -370,15 +128,9 @@ To prevent the bot from responding to WhatsApp @-mentions in groups (only respon
     list: [
       {
         id: "main",
-<<<<<<< HEAD
         groupChat: { mentionPatterns: ["@clawd", "reisponde"] }
       }
     ]
-=======
-        groupChat: { mentionPatterns: ["@openclaw", "reisponde"] },
-      },
-    ],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   channels: {
     whatsapp: {
@@ -419,13 +171,9 @@ Split your config into multiple files using the `$include` directive. This is us
 // ~/.clawdbot/agents.json5
 {
   defaults: { sandbox: { mode: "all", scope: "session" } },
-<<<<<<< HEAD
   list: [
     { id: "main", workspace: "~/clawd" }
   ]
-=======
-  list: [{ id: "main", workspace: "~/.openclaw/workspace" }],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -560,40 +308,18 @@ This effectively sources your shell profile.
 ```
 
 Env var equivalent:
-<<<<<<< HEAD
 - `CLAWDBOT_LOAD_SHELL_ENV=1`
 - `CLAWDBOT_SHELL_ENV_TIMEOUT_MS=15000`
-=======
-
-- `OPENCLAW_LOAD_SHELL_ENV=1`
-- `OPENCLAW_SHELL_ENV_TIMEOUT_MS=15000`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### Env var substitution in config
 
-<<<<<<< HEAD
 You can reference environment variables directly in any config string value using
 `${VAR_NAME}` syntax. Variables are substituted at config load time, before validation.
-=======
-Rules:
-
-- Only uppercase names matched: `[A-Z_][A-Z0-9_]*`
-- Missing/empty vars throw an error at load time
-- Escape with `$${VAR}` for literal output
-- Works inside `$include` files
-- Inline substitution: `"${BASE}/v1"` → `"https://api.example.com/v1"`
-
-</Accordion>
-
-<Accordion title="Secret refs (env, file, exec)">
-  For fields that support SecretRef objects, you can use:
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 
 ```json5
 {
   models: {
     providers: {
-<<<<<<< HEAD
       "vercel-gateway": {
         apiKey: "${VERCEL_GATEWAY_API_KEY}",
       },
@@ -605,11 +331,6 @@ Rules:
       token: "${CLAWDBOT_GATEWAY_TOKEN}"
     }
   }
-=======
-      token: "${OPENCLAW_GATEWAY_TOKEN}",
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -656,52 +377,26 @@ Rules:
 }
 ```
 
-<<<<<<< HEAD
 ### Auth storage (OAuth + API keys)
-=======
-SecretRef details (including `secrets.providers` for `env`/`file`/`exec`) are in [Secrets Management](/gateway/secrets).
-</Accordion>
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 
-<<<<<<< HEAD
 Moltbot stores **per-agent** auth profiles (OAuth + API keys) in:
 - `<agentDir>/auth-profiles.json` (default: `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`)
-=======
-OpenClaw stores **per-agent** auth profiles (OAuth + API keys) in:
-
-- `<agentDir>/auth-profiles.json` (default: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 See also: [/concepts/oauth](/concepts/oauth)
 
 Legacy OAuth imports:
-<<<<<<< HEAD
 - `~/.clawdbot/credentials/oauth.json` (or `$CLAWDBOT_STATE_DIR/credentials/oauth.json`)
-=======
-
-- `~/.openclaw/credentials/oauth.json` (or `$OPENCLAW_STATE_DIR/credentials/oauth.json`)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 The embedded Pi agent maintains a runtime cache at:
 
 - `<agentDir>/auth.json` (managed automatically; don’t edit manually)
 
 Legacy agent dir (pre multi-agent):
-<<<<<<< HEAD
 - `~/.clawdbot/agent/*` (migrated by `moltbot doctor` into `~/.clawdbot/agents/<defaultAgentId>/agent/*`)
 
 Overrides:
 - OAuth dir (legacy import only): `CLAWDBOT_OAUTH_DIR`
 - Agent dir (default agent root override): `CLAWDBOT_AGENT_DIR` (preferred), `PI_CODING_AGENT_DIR` (legacy)
-=======
-
-- `~/.openclaw/agent/*` (migrated by `openclaw doctor` into `~/.openclaw/agents/<defaultAgentId>/agent/*`)
-
-Overrides:
-
-- OAuth dir (legacy import only): `OPENCLAW_OAUTH_DIR`
-- Agent dir (default agent root override): `OPENCLAW_AGENT_DIR` (preferred), `PI_CODING_AGENT_DIR` (legacy)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 On first use, Moltbot imports `oauth.json` entries into `auth-profiles.json`.
 
@@ -729,12 +424,7 @@ rotation order used for failover.
 
 Optional per-agent identity used for defaults and UX. This is written by the macOS onboarding assistant.
 
-<<<<<<< HEAD
 If set, Moltbot derives defaults (only when you haven’t set them explicitly):
-=======
-If set, OpenClaw derives defaults (only when you haven’t set them explicitly):
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `messages.ackReaction` from the **active agent**’s `identity.emoji` (falls back to 👀)
 - `agents.list[].groupChat.mentionPatterns` from the agent’s `identity.name`/`identity.emoji` (so “@Samantha” works in groups across Telegram/Slack/Discord/Google Chat/iMessage/WhatsApp)
 - `identity.avatar` accepts a workspace-relative image path or a remote URL/data URL. Local files must live inside the agent workspace.
@@ -819,14 +509,8 @@ Controls how WhatsApp direct chats (DMs) are handled:
 Pairing codes expire after 1 hour; the bot only sends a pairing code when a new request is created. Pending DM pairing requests are capped at **3 per channel** by default.
 
 Pairing approvals:
-<<<<<<< HEAD
 - `moltbot pairing list whatsapp`
 - `moltbot pairing approve whatsapp <code>`
-=======
-
-- `openclaw pairing list whatsapp`
-- `openclaw pairing approve whatsapp <code>`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### `channels.whatsapp.allowFrom`
 
@@ -876,21 +560,12 @@ Run multiple WhatsApp accounts in one gateway:
         default: {}, // optional; keeps the default id stable
         personal: {},
         biz: {
-<<<<<<< HEAD
           // Optional override. Default: ~/.clawdbot/credentials/whatsapp/biz
           // authDir: "~/.clawdbot/credentials/whatsapp/biz",
         }
       }
     }
   }
-=======
-          // Optional override. Default: ~/.openclaw/credentials/whatsapp/biz
-          // authDir: "~/.openclaw/credentials/whatsapp/biz",
-        },
-      },
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -945,15 +620,10 @@ Group messages default to **require mention** (either metadata mention or regex 
     groupChat: { historyLimit: 50 },
   },
   agents: {
-<<<<<<< HEAD
     list: [
       { id: "main", groupChat: { mentionPatterns: ["@clawd", "moltbot", "clawd"] } }
     ]
   }
-=======
-    list: [{ id: "main", groupChat: { mentionPatterns: ["@openclaw", "openclaw"] } }],
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -1016,19 +686,11 @@ To respond **only** to specific text triggers (ignoring native @-mentions):
         id: "main",
         groupChat: {
           // Only these text patterns will trigger responses
-<<<<<<< HEAD
           mentionPatterns: ["reisponde", "@clawd"]
         }
       }
     ]
   }
-=======
-          mentionPatterns: ["reisponde", "@openclaw"],
-        },
-      },
-    ],
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -1155,19 +817,11 @@ Full access (no sandbox):
     list: [
       {
         id: "personal",
-<<<<<<< HEAD
         workspace: "~/clawd-personal",
         sandbox: { mode: "off" }
       }
     ]
   }
-=======
-        workspace: "~/.openclaw/workspace-personal",
-        sandbox: { mode: "off" },
-      },
-    ],
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -1256,15 +910,9 @@ Example: two WhatsApp accounts → two agents:
 {
   agents: {
     list: [
-<<<<<<< HEAD
       { id: "home", default: true, workspace: "~/clawd-home" },
       { id: "work", workspace: "~/clawd-work" }
     ]
-=======
-      { id: "home", default: true, workspace: "~/.openclaw/workspace-home" },
-      { id: "work", workspace: "~/.openclaw/workspace-work" },
-    ],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   bindings: [
     { agentId: "home", match: { channel: "whatsapp", accountId: "personal" } },
@@ -1521,7 +1169,6 @@ Multi-account support lives under `channels.discord.accounts` (see the multi-acc
         enabled: true, // disable all DMs when false
         policy: "pairing", // pairing | allowlist | open | disabled
         allowFrom: ["1234567890", "steipete"], // optional DM allowlist ("open" requires ["*"])
-<<<<<<< HEAD
         groupEnabled: false,                 // enable group DMs
         groupChannels: ["clawd-dm"]          // optional group DM allowlist
       },
@@ -1531,18 +1178,6 @@ Multi-account support lives under `channels.discord.accounts` (see the multi-acc
           requireMention: false,              // per-guild default
           reactionNotifications: "own",       // off | own | all | allowlist
           users: ["987654321098765432"],      // optional per-guild user allowlist
-=======
-        groupEnabled: false, // enable group DMs
-        groupChannels: ["openclaw-dm"], // optional group DM allowlist
-      },
-      guilds: {
-        "123456789012345678": {
-          // guild id (preferred) or slug
-          slug: "friends-of-openclaw",
-          requireMention: false, // per-guild default
-          reactionNotifications: "own", // off | own | all | allowlist
-          users: ["987654321098765432"], // optional per-guild user allowlist
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
           channels: {
             general: { allow: true },
             help: {
@@ -1822,11 +1457,7 @@ Default: `~/clawd`.
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { workspace: "~/clawd" } }
-=======
-  agents: { defaults: { workspace: "~/.openclaw/workspace" } },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -1841,11 +1472,7 @@ working directory). The path must exist to be used.
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { repoRoot: "~/Projects/moltbot" } }
-=======
-  agents: { defaults: { repoRoot: "~/Projects/openclaw" } },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -2834,14 +2461,8 @@ Moltbot uses the **pi-coding-agent** model catalog. You can add custom providers
 Moltbot config under `models.providers`.
 Provider-by-provider overview + examples: [/concepts/model-providers](/concepts/model-providers).
 
-<<<<<<< HEAD
 When `models.providers` is present, Moltbot writes/merges a `models.json` into
 `~/.clawdbot/agents/<agentId>/agent/` on startup:
-=======
-When `models.providers` is present, OpenClaw writes/merges a `models.json` into
-`~/.openclaw/agents/<agentId>/agent/` on startup:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - default behavior: **merge** (keeps existing providers, overrides on name)
 - set `models.mode: "replace"` to overwrite the file contents
 
@@ -2972,12 +2593,7 @@ Use Moonshot's OpenAI-compatible endpoint:
 ```
 
 Notes:
-<<<<<<< HEAD
 - Set `MOONSHOT_API_KEY` in the environment or use `moltbot onboard --auth-choice moonshot-api-key`.
-=======
-
-- Set `MOONSHOT_API_KEY` in the environment or use `openclaw onboard --auth-choice moonshot-api-key`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Model ref: `moonshot/kimi-k2.5`.
 - For the China endpoint, either:
   - Run `openclaw onboard --auth-choice moonshot-api-key-cn` (wizard will set `https://api.moonshot.cn/v1`), or
@@ -3001,13 +2617,8 @@ Use Moonshot AI's Kimi Coding endpoint (Anthropic-compatible, built-in provider)
 
 Notes:
 <<<<<<< HEAD
-<<<<<<< HEAD
 - Set `KIMICODE_API_KEY` in the environment or use `moltbot onboard --auth-choice kimi-code-api-key`.
 - Model ref: `kimi-code/kimi-for-coding`.
-=======
-=======
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Set `KIMI_API_KEY` in the environment or use `openclaw onboard --auth-choice kimi-code-api-key`.
 - Model ref: `kimi-coding/k2p5`.
 >>>>>>> bf15d0a3f (Auth: switch Kimi Coding to built-in provider)
@@ -3050,12 +2661,7 @@ Use Synthetic's Anthropic-compatible endpoint:
 ```
 
 Notes:
-<<<<<<< HEAD
 - Set `SYNTHETIC_API_KEY` or use `moltbot onboard --auth-choice synthetic-api-key`.
-=======
-
-- Set `SYNTHETIC_API_KEY` or use `openclaw onboard --auth-choice synthetic-api-key`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Model ref: `synthetic/hf:MiniMaxAI/MiniMax-M2.1`.
 - Base URL should omit `/v1` because the Anthropic client appends it.
 
@@ -3102,12 +2708,7 @@ Use MiniMax M2.1 directly without LM Studio:
 ```
 
 Notes:
-<<<<<<< HEAD
 - Set `MINIMAX_API_KEY` environment variable or use `moltbot onboard --auth-choice minimax-api`.
-=======
-
-- Set `MINIMAX_API_KEY` environment variable or use `openclaw onboard --auth-choice minimax-api`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Available model: `MiniMax-M2.1` (default).
 - Update pricing in `models.json` if you need exact cost tracking.
 
@@ -3215,13 +2816,8 @@ Fields:
   - `mode`: `daily` or `idle` (default: `daily` when `reset` is present).
   - `atHour`: local hour (0-23) for the daily reset boundary.
   - `idleMinutes`: sliding idle window in minutes. When daily + idle are both configured, whichever expires first wins.
-<<<<<<< HEAD
 - `resetByType`: per-session overrides for `dm`, `group`, and `thread`.
   - If you only set legacy `session.idleMinutes` without any `reset`/`resetByType`, Moltbot stays in idle-only mode for backward compatibility.
-=======
-- `resetByType`: per-session overrides for `direct`, `group`, and `thread`. Legacy `dm` key is accepted as an alias for `direct`.
-  - If you only set legacy `session.idleMinutes` without any `reset`/`resetByType`, OpenClaw stays in idle-only mode for backward compatibility.
->>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
 - `heartbeatIdleMinutes`: optional idle override for heartbeat checks (daily reset still applies when enabled).
 - `agentToAgent.maxPingPongTurns`: max reply-back turns between requester/target (0–5, default 5).
 - `sendPolicy.default`: `allow` or `deny` fallback when no rule matches.
@@ -3368,17 +2964,10 @@ If unset, clients fall back to a muted light-blue.
     // Optional: Control UI assistant identity override.
     // If unset, the Control UI uses the active agent identity (config or IDENTITY.md).
     assistant: {
-<<<<<<< HEAD
       name: "Moltbot",
       avatar: "CB" // emoji, short text, or image URL/data URI
     }
   }
-=======
-      name: "OpenClaw",
-      avatar: "CB", // emoji, short text, or image URL/data URI
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -3431,12 +3020,7 @@ Trusted proxies:
 - Only list proxies you fully control, and ensure they **overwrite** incoming `x-forwarded-for`.
 
 Notes:
-<<<<<<< HEAD
 - `moltbot gateway` refuses to start unless `gateway.mode` is set to `local` (or you pass the override flag).
-=======
-
-- `openclaw gateway` refuses to start unless `gateway.mode` is set to `local` (or you pass the override flag).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `gateway.port` controls the single multiplexed port used for WebSocket + HTTP (control UI, hooks, A2UI).
 - OpenAI Chat Completions endpoint: **disabled by default**; enable with `gateway.http.endpoints.chatCompletions.enabled: true`.
 - Precedence: `--port` > `CLAWDBOT_GATEWAY_PORT` > `gateway.port` > default `18789`.
@@ -3469,12 +3053,7 @@ Remote client defaults (CLI):
 - `gateway.remote.password` supplies the password for remote calls (leave unset for no auth).
 
 macOS app behavior:
-<<<<<<< HEAD
 - Moltbot.app watches `~/.clawdbot/moltbot.json` and switches modes live when `gateway.mode` or `gateway.remote.url` changes.
-=======
-
-- OpenClaw.app watches `~/.openclaw/openclaw.json` and switches modes live when `gateway.mode` or `gateway.remote.url` changes.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - If `gateway.mode` is unset but `gateway.remote.url` is set, the macOS app treats it as remote mode.
 - When you change connection mode in the macOS app, it writes `gateway.mode` (and `gateway.remote.url` + `gateway.remote.transport` in remote mode) back to the config file.
 
@@ -3531,12 +3110,7 @@ Modes:
 #### Hot reload matrix (files + impact)
 
 Files watched:
-<<<<<<< HEAD
 - `~/.clawdbot/moltbot.json` (or `CLAWDBOT_CONFIG_PATH`)
-=======
-
-- `~/.openclaw/openclaw.json` (or `OPENCLAW_CONFIG_PATH`)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Hot-applied (no full gateway restart):
 
@@ -3560,26 +3134,14 @@ Requires full Gateway restart:
 ### Multi-instance isolation
 
 To run multiple gateways on one host (for redundancy or a rescue bot), isolate per-instance state + config and use unique ports:
-<<<<<<< HEAD
 - `CLAWDBOT_CONFIG_PATH` (per-instance config)
 - `CLAWDBOT_STATE_DIR` (sessions/creds)
-=======
-
-- `OPENCLAW_CONFIG_PATH` (per-instance config)
-- `OPENCLAW_STATE_DIR` (sessions/creds)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `agents.defaults.workspace` (memories)
 - `gateway.port` (unique per instance)
 
 Convenience flags (CLI):
-<<<<<<< HEAD
 - `moltbot --dev …` → uses `~/.clawdbot-dev` + shifts ports from base `19001`
 - `moltbot --profile <name> …` → uses `~/.clawdbot-<name>` (port via config/env/flags)
-=======
-
-- `openclaw --dev …` → uses `~/.openclaw-dev` + shifts ports from base `19001`
-- `openclaw --profile <name> …` → uses `~/.openclaw-<name>` (port via config/env/flags)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 See [Gateway runbook](/gateway) for the derived port mapping (gateway/browser/canvas).
 See [Multiple gateways](/gateway/multiple-gateways) for browser/CDP port isolation details.
@@ -3787,19 +3349,11 @@ Auto-generated certs require `openssl` on PATH; if generation fails, the bridge 
     bind: "tailnet",
     tls: {
       enabled: true,
-<<<<<<< HEAD
       // Uses ~/.clawdbot/bridge/tls/bridge-{cert,key}.pem when omitted.
       // certPath: "~/.clawdbot/bridge/tls/bridge-cert.pem",
       // keyPath: "~/.clawdbot/bridge/tls/bridge-key.pem"
     }
   }
-=======
-      // Uses ~/.openclaw/bridge/tls/bridge-{cert,key}.pem when omitted.
-      // certPath: "~/.openclaw/bridge/tls/bridge-cert.pem",
-      // keyPath: "~/.openclaw/bridge/tls/bridge-key.pem"
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -3822,14 +3376,8 @@ Controls LAN mDNS discovery broadcasts (`_moltbot-gw._tcp`).
 When enabled, the Gateway writes a unicast DNS-SD zone for `_moltbot-bridge._tcp` under `~/.clawdbot/dns/` using the standard discovery domain `moltbot.internal.`
 
 To make iOS/Android discover across networks (Vienna ⇄ London), pair this with:
-<<<<<<< HEAD
 - a DNS server on the gateway host serving `moltbot.internal.` (CoreDNS is recommended)
 - Tailscale **split DNS** so clients resolve `moltbot.internal` via that server
-=======
-
-- a DNS server on the gateway host serving your chosen domain (CoreDNS is recommended)
-- Tailscale **split DNS** so clients resolve that domain via the gateway DNS server
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 One-time setup helper (gateway host):
 

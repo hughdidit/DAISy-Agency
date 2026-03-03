@@ -91,14 +91,7 @@ export function buildReplyPayloads(params: {
   const messagingToolSentTexts = params.messagingToolSentTexts ?? [];
   const messagingToolSentTargets = params.messagingToolSentTargets ?? [];
   const suppressMessagingToolReplies = shouldSuppressMessagingToolReplies({
-<<<<<<< HEAD
     messageProvider: params.messageProvider,
-=======
-    messageProvider: resolveOriginMessageProvider({
-      originatingChannel: params.originatingChannel,
-      provider: params.messageProvider,
-    }),
->>>>>>> 54648a9cf (refactor: centralize followup origin routing helpers)
     messagingToolSentTargets,
     originatingTo: resolveOriginMessageTo({
       originatingTo: params.originatingTo,

@@ -2,13 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { ChannelId } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { CommandHandler } from "./commands-types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -26,11 +19,8 @@ import { normalizeChannelId } from "../../channels/registry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -63,21 +53,8 @@ import {
   readChannelAllowFromStore,
   removeChannelAllowFromStoreEntry,
 } from "../../pairing/pairing-store.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ChannelId } from "../../channels/plugins/types.js";
-=======
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../routing/session-key.js";
-import { resolveSignalAccount } from "../../signal/accounts.js";
-import { resolveSlackAccount } from "../../slack/accounts.js";
-import { resolveSlackUserAllowlist } from "../../slack/resolve-users.js";
-import { resolveTelegramAccount } from "../../telegram/accounts.js";
-import { resolveWhatsAppAccount } from "../../web/accounts.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { CommandHandler } from "./commands-types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

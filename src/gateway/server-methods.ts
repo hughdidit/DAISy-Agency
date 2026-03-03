@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-=======
 import { formatControlPlaneActor, resolveControlPlaneActor } from "./control-plane-audit.js";
 import { consumeControlPlaneWriteBudget } from "./control-plane-rate-limit.js";
 <<<<<<< HEAD
->>>>>>> 74c51aeb1 (style: format gateway server methods)
 =======
 import { ADMIN_SCOPE, authorizeOperatorScopesForMethod } from "./method-scopes.js";
 >>>>>>> 51149fcaf (refactor(gateway): extract connect and role policy logic)
@@ -86,14 +83,11 @@ const READ_METHODS = new Set([
   "node.list",
   "node.describe",
   "chat.history",
-<<<<<<< HEAD
-=======
   "config.get",
   "talk.config",
 <<<<<<< HEAD
   "mesh.plan",
   "mesh.status",
->>>>>>> 83990ed54 (Add mesh orchestration gateway methods with DAG execution and retry)
 =======
 >>>>>>> 972d1b74d (Revert "Add mesh orchestration gateway methods with DAG execution and retry")
 ]);
@@ -128,14 +122,10 @@ function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["c
     return errorShape(ErrorCodes.INVALID_REQUEST, `unauthorized role: ${roleRaw}`);
   }
   const scopes = client.connect.scopes ?? [];
-<<<<<<< HEAD
   if (NODE_ROLE_METHODS.has(method)) {
     if (role === "node") {
       return null;
     }
-=======
-  if (!isRoleAuthorizedForMethod(role, method)) {
->>>>>>> 51149fcaf (refactor(gateway): extract connect and role policy logic)
     return errorShape(ErrorCodes.INVALID_REQUEST, `unauthorized role: ${role}`);
   }
   if (role === "node") {

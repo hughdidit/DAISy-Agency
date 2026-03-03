@@ -1,18 +1,8 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging.js";
-<<<<<<< HEAD
 import { loadMoltbotPlugins } from "../plugins/loader.js";
 import type { PluginLogger } from "../plugins/types.js";
-=======
-import { loadOpenClawPlugins } from "../plugins/loader.js";
-import { getActivePluginRegistry } from "../plugins/runtime.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 9f507112b (perf(test): speed up vitest by skipping plugins + LLM slug)
 =======
 import type { PluginLogger } from "../plugins/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

@@ -79,7 +79,6 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("prefers explicit accountId for outbound delivery", async () => {
-<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -99,9 +98,6 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
-=======
-    await runDelivery({
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
@@ -120,7 +116,6 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("falls back to session accountId for implicit delivery", async () => {
-<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -141,9 +136,6 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
-=======
-    await runDelivery({
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
@@ -161,7 +153,6 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("does not infer accountId for explicit delivery targets", async () => {
-<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -181,9 +172,6 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
-=======
-    await runDelivery({
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
@@ -205,7 +193,6 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("skips session accountId when channel differs", async () => {
-<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -226,9 +213,6 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
-=======
-    await runDelivery({
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
@@ -246,7 +230,6 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("uses session last channel when none is provided", async () => {
-<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -267,9 +250,6 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
-=======
-    await runDelivery({
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
@@ -286,7 +266,6 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("uses reply overrides for delivery routing", async () => {
-<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -308,9 +287,6 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
-=======
-    await runDelivery({
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
@@ -331,8 +307,6 @@ describe("deliverAgentCommandResult", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("uses runContext turn source over stale session last route", async () => {
     await runDelivery({
       opts: {
@@ -400,9 +374,7 @@ describe("deliverAgentCommandResult", () => {
     );
   });
 
->>>>>>> 712e23172 (fix(agent): forward resolved outbound session context for delivery)
   it("prefixes nested agent outputs with context", async () => {
-<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -418,10 +390,6 @@ describe("deliverAgentCommandResult", () => {
     await deliverAgentCommandResult({
       cfg,
       deps,
-=======
-    const runtime = createRuntime();
-    await runDelivery({
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       runtime,
       resultText: "ANNOUNCE_SKIP",
       opts: {

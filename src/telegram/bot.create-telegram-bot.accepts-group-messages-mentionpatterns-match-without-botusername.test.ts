@@ -11,7 +11,6 @@ import {
 } from "./bot.create-telegram-bot.test-harness.js";
 import { createTelegramBot } from "./bot.js";
 
-<<<<<<< HEAD
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/moltbot-telegram-${Math.random().toString(16).slice(2)}.json`,
 }));
@@ -142,9 +141,6 @@ const getOnHandler = (event: string) => {
   }
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
-=======
-const loadConfig = getLoadConfigMock();
->>>>>>> 60898821f (refactor(test): share telegram create bot harness)
 
 const ORIGINAL_TZ = process.env.TZ;
 describe("createTelegramBot", () => {
@@ -209,11 +205,8 @@ describe("createTelegramBot", () => {
         message_id: 1,
         from: { id: 9, first_name: "Ada" },
       },
-<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
-=======
->>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(replySpy).toHaveBeenCalledTimes(1);
@@ -256,11 +249,8 @@ describe("createTelegramBot", () => {
         message_id: 3,
         from: { id: 9, first_name: "Ada" },
       },
-<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
-=======
->>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(replySpy).toHaveBeenCalledTimes(1);
@@ -297,11 +287,8 @@ describe("createTelegramBot", () => {
           username: "ada",
         },
       },
-<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
-=======
->>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(replySpy).toHaveBeenCalledTimes(1);
@@ -340,11 +327,8 @@ describe("createTelegramBot", () => {
         message_id: 123,
         from: { id: 9, first_name: "Ada" },
       },
-<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
-=======
->>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(setMessageReactionSpy).toHaveBeenCalledWith(7, 123, [{ type: "emoji", emoji: "👀" }]);
@@ -380,11 +364,8 @@ describe("createTelegramBot", () => {
         message_id: 2,
         from: { id: 9, first_name: "Ada" },
       },
-<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
-=======
->>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(replySpy).not.toHaveBeenCalled();
@@ -431,11 +412,8 @@ describe("createTelegramBot", () => {
           from: { first_name: "Ada" },
         },
       },
-<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
-=======
->>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(replySpy).toHaveBeenCalledTimes(1);

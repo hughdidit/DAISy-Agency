@@ -1,7 +1,6 @@
 import type { ChannelDock } from "../channels/dock.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChannelId } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 import { normalizeAnyChannelId } from "../channels/registry.js";
@@ -10,30 +9,19 @@ import { normalizeAnyChannelId } from "../channels/registry.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "./templating.js";
 =======
-import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
->>>>>>> e95134ba3 (fix (commands): keep webchat auth on internal provider)
-=======
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
 import type { MsgContext } from "./templating.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 import { getChannelDock, listChannelDocks } from "../channels/dock.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
 import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
 <<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import type { MsgContext } from "./templating.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import type { MsgContext } from "./templating.js";
 =======
@@ -43,11 +31,7 @@ import type { ChannelId } from "../channels/plugins/types.js";
 import { normalizeAnyChannelId } from "../channels/registry.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { MsgContext } from "./templating.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type CommandAuthorization = {
   providerId?: ChannelId;
@@ -58,18 +42,7 @@ export type CommandAuthorization = {
   to?: string;
 };
 
-<<<<<<< HEAD
 function resolveProviderFromContext(ctx: MsgContext, cfg: MoltbotConfig): ChannelId | undefined {
-=======
-function resolveProviderFromContext(ctx: MsgContext, cfg: OpenClawConfig): ChannelId | undefined {
-  const explicitMessageChannel =
-    normalizeMessageChannel(ctx.Provider) ??
-    normalizeMessageChannel(ctx.Surface) ??
-    normalizeMessageChannel(ctx.OriginatingChannel);
-  if (explicitMessageChannel === INTERNAL_MESSAGE_CHANNEL) {
-    return undefined;
-  }
->>>>>>> e95134ba3 (fix (commands): keep webchat auth on internal provider)
   const direct =
     normalizeAnyChannelId(explicitMessageChannel ?? undefined) ??
     normalizeAnyChannelId(ctx.Provider) ??
@@ -145,8 +118,6 @@ function normalizeAllowFromEntry(params: {
   return normalized.filter((entry) => entry.trim().length > 0);
 }
 
-<<<<<<< HEAD
-=======
 function resolveOwnerAllowFromList(params: {
   dock?: ChannelDock;
   cfg: OpenClawConfig;
@@ -225,7 +196,6 @@ function resolveCommandsAllowFromList(params: {
 }
 
 <<<<<<< HEAD
->>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
 =======
 function isConversationLikeIdentity(value: string): boolean {
   const normalized = value.trim().toLowerCase();
@@ -363,36 +333,8 @@ export function resolveCommandAuthorization(params: {
   const senderId = matchedSender ?? senderCandidates[0];
 
   const enforceOwner = Boolean(dock?.commands?.enforceOwnerForCommands);
-<<<<<<< HEAD
   const isOwner = !enforceOwner || allowAll || ownerList.length === 0 || Boolean(matchedSender);
   const isAuthorizedSender = commandAuthorized && isOwner;
-=======
-  const senderIsOwner = Boolean(matchedSender);
-  const ownerAllowlistConfigured = ownerAllowAll || explicitOwners.length > 0;
-  const requireOwner = enforceOwner || ownerAllowlistConfigured;
-  const isOwnerForCommands = !requireOwner
-    ? true
-    : ownerAllowAll
-      ? true
-      : ownerAllowlistConfigured
-        ? senderIsOwner
-        : allowAll || ownerCandidatesForCommands.length === 0 || Boolean(matchedCommandOwner);
-
-  // If commands.allowFrom is configured, use it for command authorization
-  // Otherwise, fall back to existing behavior (channel allowFrom + owner checks)
-  let isAuthorizedSender: boolean;
-  if (commandsAllowFromList !== null) {
-    // commands.allowFrom is configured - use it for authorization
-    const commandsAllowAll = commandsAllowFromList.some((entry) => entry.trim() === "*");
-    const matchedCommandsAllowFrom = commandsAllowFromList.length
-      ? senderCandidates.find((candidate) => commandsAllowFromList.includes(candidate))
-      : undefined;
-    isAuthorizedSender = commandsAllowAll || Boolean(matchedCommandsAllowFrom);
-  } else {
-    // Fall back to existing behavior
-    isAuthorizedSender = commandAuthorized && isOwnerForCommands;
-  }
->>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
 
   return {
     providerId,

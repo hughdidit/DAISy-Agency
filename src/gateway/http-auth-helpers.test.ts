@@ -38,13 +38,8 @@ describe("authorizeGatewayBearerRequestOrReply", () => {
   });
 
   it("disables tailscale header auth for HTTP bearer checks", async () => {
-<<<<<<< HEAD
     vi.mocked(getBearerToken).mockReturnValue(null);
     vi.mocked(authorizeGatewayConnect).mockResolvedValue({
-=======
-    vi.mocked(getBearerToken).mockReturnValue(undefined);
-    vi.mocked(authorizeHttpGatewayConnect).mockResolvedValue({
->>>>>>> 36a0df423 (refactor(gateway): make ws and http auth surfaces explicit)
       ok: false,
       reason: "token_missing",
     });

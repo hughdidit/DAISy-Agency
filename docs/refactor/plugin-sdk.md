@@ -32,12 +32,7 @@ Contents (examples):
 - Docs link helper: `formatDocsLink`.
 
 Delivery:
-<<<<<<< HEAD
 - Publish as `@clawdbot/plugin-sdk` (or export from core under `clawdbot/plugin-sdk`).
-=======
-
-- Publish as `openclaw/plugin-sdk` (or export from core under `openclaw/plugin-sdk`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Semver with explicit stability guarantees.
 
 ### 2) Plugin Runtime (execution surface, injected)
@@ -101,16 +96,7 @@ export type PluginRuntime = {
       matchesMentionPatterns(text: string, regexes: RegExp[]): boolean;
     };
     groups: {
-<<<<<<< HEAD
       resolveGroupPolicy(cfg: MoltbotConfig, channel: string, accountId: string, groupId: string): {
-=======
-      resolveGroupPolicy(
-        cfg: OpenClawConfig,
-        channel: string,
-        accountId: string,
-        groupId: string,
-      ): {
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         allowlistEnabled: boolean;
         allowed: boolean;
         groupConfig?: unknown;
@@ -160,14 +146,8 @@ Notes:
 ## Migration plan (phased, safe)
 
 ### Phase 0: scaffolding
-<<<<<<< HEAD
 - Introduce `@clawdbot/plugin-sdk`.
 - Add `api.runtime` to `MoltbotPluginApi` with the surface above.
-=======
-
-- Introduce `openclaw/plugin-sdk`.
-- Add `api.runtime` to `OpenClawPluginApi` with the surface above.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Maintain existing imports during a transition window (deprecation warnings).
 
 ### Phase 1: bridge cleanup (low risk)

@@ -2,7 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -10,10 +9,6 @@ import path from "node:path";
 
 import type { OAuthCredentials, OAuthProvider } from "@mariozechner/pi-ai";
 
-=======
-=======
-import type { OAuthCredentials, OAuthProvider } from "@mariozechner/pi-ai";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -28,11 +23,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { OAuthCredentials, OAuthProvider } from "@mariozechner/pi-ai";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { OAuthCredentials, OAuthProvider } from "@mariozechner/pi-ai";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -274,14 +266,11 @@ function readPortalCliOauthCredentials<TProvider extends string>(
   };
 }
 
-<<<<<<< HEAD
-=======
 function readMiniMaxCliCredentials(options?: { homeDir?: string }): MiniMaxCliCredential | null {
   const credPath = resolveMiniMaxCliCredentialsPath(options?.homeDir);
   return readPortalCliOauthCredentials(credPath, "minimax-portal");
 }
 
->>>>>>> ef1f98ed6 (refactor(agents): dedupe portal CLI credential parsing)
 function readClaudeCliKeychainCredentials(
   execSyncImpl: ExecSyncFn = execSync,
 ): ClaudeCliCredential | null {

@@ -1,23 +1,5 @@
 import { z } from "zod";
-<<<<<<< HEAD
 
-=======
-import { isSafeScpRemoteHost } from "../infra/scp-host.js";
-import { isValidInboundPathRootPattern } from "../media/inbound-path-policy.js";
-import {
-  resolveDiscordPreviewStreamMode,
-  resolveSlackNativeStreaming,
-  resolveSlackStreamingMode,
-  resolveTelegramPreviewStreamMode,
-} from "./discord-preview-streaming.js";
-import {
-  normalizeTelegramCommandDescription,
-  normalizeTelegramCommandName,
-  resolveTelegramCustomCommands,
-} from "./telegram-custom-commands.js";
-import { ToolPolicySchema } from "./zod-schema.agent-runtime.js";
-import { ChannelHeartbeatVisibilitySchema } from "./zod-schema.channels.js";
->>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 import {
   BlockStreamingChunkSchema,
   BlockStreamingCoalesceSchema,
@@ -190,15 +172,10 @@ export const TelegramAccountSchemaBase = z
       .strict()
       .optional(),
     proxy: z.string().optional(),
-<<<<<<< HEAD
     webhookUrl: z.string().optional(),
     webhookSecret: z.string().optional(),
     webhookPath: z.string().optional(),
 <<<<<<< HEAD
-=======
-    webhookHost: z.string().optional(),
-    webhookPort: z.number().int().positive().optional(),
->>>>>>> d0e676326 (fix(telegram): wire webhookPort through config and startup)
 =======
     webhookUrl: z
       .string()
@@ -230,14 +207,8 @@ export const TelegramAccountSchemaBase = z
       .int()
       .nonnegative()
       .optional()
-<<<<<<< HEAD
       .describe("Local bind port for the webhook listener. Defaults to 8787."),
 >>>>>>> 840b768d9 (Telegram: improve webhook config guidance and startup fallback)
-=======
-      .describe(
-        "Local bind port for the webhook listener. Defaults to 8787; set to 0 to let the OS assign an ephemeral port.",
-      ),
->>>>>>> dbfdf60a4 (fix(telegram): Allow ephemeral webhookPort)
     actions: z
       .object({
         reactions: z.boolean().optional(),
@@ -340,12 +311,7 @@ export const DiscordGuildChannelSchema = z
     toolsBySender: ToolPolicyBySenderSchema,
     skills: z.array(z.string()).optional(),
     enabled: z.boolean().optional(),
-<<<<<<< HEAD
     users: z.array(z.union([z.string(), z.number()])).optional(),
-=======
-    users: DiscordIdListSchema.optional(),
-    roles: DiscordIdListSchema.optional(),
->>>>>>> 1b7301051 (Config: require Discord ID strings (#18220))
     systemPrompt: z.string().optional(),
     includeThreadStarter: z.boolean().optional(),
     autoThread: z.boolean().optional(),
@@ -359,12 +325,7 @@ export const DiscordGuildSchema = z
     tools: ToolPolicySchema,
     toolsBySender: ToolPolicyBySenderSchema,
     reactionNotifications: z.enum(["off", "own", "all", "allowlist"]).optional(),
-<<<<<<< HEAD
     users: z.array(z.union([z.string(), z.number()])).optional(),
-=======
-    users: DiscordIdListSchema.optional(),
-    roles: DiscordIdListSchema.optional(),
->>>>>>> 1b7301051 (Config: require Discord ID strings (#18220))
     channels: z.record(z.string(), DiscordGuildChannelSchema.optional()).optional(),
   })
   .strict();
@@ -549,8 +510,6 @@ export const DiscordAccountSchema = z
 
 export const DiscordConfigSchema = DiscordAccountSchema.extend({
   accounts: z.record(z.string(), DiscordAccountSchema.optional()).optional(),
-<<<<<<< HEAD
-=======
   defaultAccount: z.string().optional(),
 }).superRefine((value, ctx) => {
   const dmPolicy = value.dmPolicy ?? value.dm?.policy ?? "pairing";
@@ -602,7 +561,6 @@ export const DiscordConfigSchema = DiscordAccountSchema.extend({
         'channels.discord.accounts.*.dmPolicy="allowlist" requires channels.discord.accounts.*.allowFrom (or channels.discord.allowFrom) to contain at least one sender ID',
     });
   }
->>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 });
 
 export const GoogleChatDmSchema = z
@@ -919,8 +877,6 @@ export const SignalConfigSchema = SignalAccountSchemaBase.extend({
   });
 });
 
-<<<<<<< HEAD
-=======
 export const IrcGroupSchema = z
   .object({
     requireMention: z.boolean().optional(),
@@ -1011,7 +967,6 @@ export const IrcConfigSchema = IrcAccountSchemaBase.extend({
   refineIrcAllowFromAndNickserv(value, ctx);
 });
 
->>>>>>> a58088383 (refactor(config): dedupe irc schema refinements)
 export const IMessageAccountSchemaBase = z
   .object({
     name: z.string().optional(),

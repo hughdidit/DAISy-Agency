@@ -7,13 +7,7 @@ import { formatToolAggregate } from "../../../auto-reply/tool-meta.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -82,23 +76,14 @@ function resolveToolErrorWarningPolicy(params: {
   hasUserFacingReply: boolean;
   suppressToolErrors: boolean;
   suppressToolErrorWarnings?: boolean;
-<<<<<<< HEAD
 }): boolean {
-=======
-  verboseLevel?: VerboseLevel;
-}): ToolErrorWarningPolicy {
-  const includeDetails = isVerboseToolDetailEnabled(params.verboseLevel);
->>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
   if (params.suppressToolErrorWarnings) {
     return { showWarning: false, includeDetails };
   }
-<<<<<<< HEAD
-=======
   const normalizedToolName = params.lastToolError.toolName.trim().toLowerCase();
   if ((normalizedToolName === "exec" || normalizedToolName === "bash") && !includeDetails) {
     return { showWarning: false, includeDetails };
   }
->>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
   const isMutatingToolError =
     params.lastToolError.mutatingAction ?? isLikelyMutatingToolName(params.lastToolError.toolName);
   if (isMutatingToolError) {
@@ -117,13 +102,8 @@ export function buildEmbeddedRunPayloads(params: {
   assistantTexts: string[];
   toolMetas: ToolMetaEntry[];
   lastAssistant: AssistantMessage | undefined;
-<<<<<<< HEAD
   lastToolError?: { toolName: string; meta?: string; error?: string };
   config?: MoltbotConfig;
-=======
-  lastToolError?: LastToolError;
-  config?: OpenClawConfig;
->>>>>>> d08ff2c2c (refactor(agents): extract tool-error warning helpers)
   sessionKey: string;
   provider?: string;
   verboseLevel?: VerboseLevel;
@@ -304,7 +284,6 @@ export function buildEmbeddedRunPayloads(params: {
 
   if (params.lastToolError) {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const lastAssistantHasToolCalls =
       Array.isArray(params.lastAssistant?.content) &&
       params.lastAssistant?.content.some((block) =>
@@ -329,14 +308,6 @@ export function buildEmbeddedRunPayloads(params: {
       errorLower.includes("requires");
 <<<<<<< HEAD
 =======
-    const isMutatingToolError =
-      params.lastToolError.mutatingAction ??
-      isLikelyMutatingToolName(params.lastToolError.toolName);
-    const shouldShowToolError =
-      isMutatingToolError ||
-      (!hasUserFacingReply && !isRecoverableError && !params.config?.messages?.suppressToolErrors);
->>>>>>> 2c8b92105 (feat: add messages.suppressToolErrors config option (#16620))
-=======
 =======
 >>>>>>> dddb1bc94 (fix(telegram): fix streaming with extended thinking models overwriting previous messages/ also happens to Execution error (#17973))
     const shouldShowToolError = shouldShowToolErrorWarning({
@@ -350,51 +321,21 @@ export function buildEmbeddedRunPayloads(params: {
     });
 >>>>>>> d08ff2c2c (refactor(agents): extract tool-error warning helpers)
 
-<<<<<<< HEAD
     // Show tool errors only when:
     // 1. There's no user-facing reply AND the error is not recoverable
     // Recoverable errors (validation, missing params) are already in the model's context
     // and shouldn't be surfaced to users since the model should retry.
     if (!hasUserFacingReply && !isRecoverableError) {
-=======
-    // Always surface mutating tool failures so we do not silently confirm actions that did not happen.
-    // Otherwise, keep the previous behavior and only surface non-recoverable failures when no reply exists.
-    if (warningPolicy.showWarning) {
->>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
       const toolSummary = formatToolAggregate(
         params.lastToolError.toolName,
         params.lastToolError.meta ? [params.lastToolError.meta] : undefined,
         { markdown: useMarkdown },
       );
-<<<<<<< HEAD
       const errorSuffix = params.lastToolError.error ? `: ${params.lastToolError.error}` : "";
       replyItems.push({
         text: `⚠️ ${toolSummary} failed${errorSuffix}`,
         isError: true,
       });
-=======
-      const errorSuffix =
-        warningPolicy.includeDetails && params.lastToolError.error
-          ? `: ${params.lastToolError.error}`
-          : "";
-      const warningText = `⚠️ ${toolSummary} failed${errorSuffix}`;
-      const normalizedWarning = normalizeTextForComparison(warningText);
-      const duplicateWarning = normalizedWarning
-        ? replyItems.some((item) => {
-            if (!item.text) {
-              return false;
-            }
-            const normalizedExisting = normalizeTextForComparison(item.text);
-            return normalizedExisting.length > 0 && normalizedExisting === normalizedWarning;
-          })
-        : false;
-      if (!duplicateWarning) {
-        replyItems.push({
-          text: warningText,
-          isError: true,
-        });
-      }
->>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
     }
   }
 

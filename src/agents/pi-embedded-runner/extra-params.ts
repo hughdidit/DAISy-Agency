@@ -1,13 +1,8 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import type { SimpleStreamOptions } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { ThinkLevel } from "../../auto-reply/thinking.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 99cfb3dab (fix(openrouter): pass reasoning.effort based on thinking level (#14664) (#17236))
 import { log } from "./logger.js";
 
 const OPENROUTER_APP_HEADERS: Record<string, string> = {
@@ -48,52 +43,15 @@ export function resolveExtraParams(params: {
   return Object.assign({}, globalParams, agentParams);
 }
 
-<<<<<<< HEAD
 type CacheControlTtl = "5m" | "1h";
-=======
-type CacheRetention = "none" | "short" | "long";
-type CacheRetentionStreamOptions = Partial<SimpleStreamOptions> & {
-  cacheRetention?: CacheRetention;
-  openaiWsWarmup?: boolean;
-};
->>>>>>> e4f715536 (fix(ci): repair lint/build checks)
 
-<<<<<<< HEAD
 function resolveCacheControlTtl(
-=======
-/**
- * Resolve cacheRetention from extraParams, supporting both new `cacheRetention`
- * and legacy `cacheControlTtl` values for backwards compatibility.
- *
- * Mapping: "5m" → "short", "1h" → "long"
- *
- * Applies to:
- * - direct Anthropic provider
- * - Anthropic Claude models on Bedrock when cache retention is explicitly configured
- *
- * OpenRouter uses openai-completions API with hardcoded cache_control instead
- * of the cacheRetention stream option.
- *
- * Defaults to "short" for direct Anthropic when not explicitly configured.
- */
-function resolveCacheRetention(
->>>>>>> f1e1cc4ee (feat: surface cached token counts in /status output (openclaw#21248) thanks @vishaltandale00)
   extraParams: Record<string, unknown> | undefined,
   provider: string,
-<<<<<<< HEAD
   modelId: string,
 ): CacheControlTtl | undefined {
   const raw = extraParams?.cacheControlTtl;
   if (raw !== "5m" && raw !== "1h") {
-=======
-): CacheRetention | undefined {
-  const isAnthropicDirect = provider === "anthropic";
-  const hasBedrockOverride =
-    extraParams?.cacheRetention !== undefined || extraParams?.cacheControlTtl !== undefined;
-  const isAnthropicBedrock = provider === "amazon-bedrock" && hasBedrockOverride;
-
-  if (!isAnthropicDirect && !isAnthropicBedrock) {
->>>>>>> be6f0b8c8 (fix(providers): support Bedrock Anthropic cacheRetention defaults/pass-through (#22303) (thanks @snese))
     return undefined;
   }
   if (provider === "anthropic") {
@@ -123,36 +81,16 @@ function createStreamFnWithExtraParams(
     return undefined;
   }
 
-<<<<<<< HEAD
   const streamParams: Partial<SimpleStreamOptions> & { cacheControlTtl?: CacheControlTtl } = {};
-=======
-  const streamParams: CacheRetentionStreamOptions = {};
->>>>>>> e4f715536 (fix(ci): repair lint/build checks)
   if (typeof extraParams.temperature === "number") {
     streamParams.temperature = extraParams.temperature;
   }
   if (typeof extraParams.maxTokens === "number") {
     streamParams.maxTokens = extraParams.maxTokens;
   }
-<<<<<<< HEAD
   const cacheControlTtl = resolveCacheControlTtl(extraParams, provider, modelId);
   if (cacheControlTtl) {
     streamParams.cacheControlTtl = cacheControlTtl;
-=======
-  const transport = extraParams.transport;
-  if (transport === "sse" || transport === "websocket" || transport === "auto") {
-    streamParams.transport = transport;
-  } else if (transport != null) {
-    const transportSummary = typeof transport === "string" ? transport : typeof transport;
-    log.warn(`ignoring invalid transport param: ${transportSummary}`);
-  }
-  if (typeof extraParams.openaiWsWarmup === "boolean") {
-    streamParams.openaiWsWarmup = extraParams.openaiWsWarmup;
-  }
-  const cacheRetention = resolveCacheRetention(extraParams, provider);
-  if (cacheRetention) {
-    streamParams.cacheRetention = cacheRetention;
->>>>>>> 03d7641b0 (feat(agents): default codex transport to websocket-first)
   }
 
   // Extract OpenRouter provider routing preferences from extraParams.provider.
@@ -585,14 +523,8 @@ function createOpenRouterWrapper(
   thinkingLevel?: ThinkLevel,
 ): StreamFn {
   const underlying = baseStreamFn ?? streamSimple;
-<<<<<<< HEAD
   return (model, context, options) =>
     underlying(model as Model<Api>, context, {
-=======
-  return (model, context, options) => {
-    const onPayload = options?.onPayload;
-    return underlying(model, context, {
->>>>>>> 99cfb3dab (fix(openrouter): pass reasoning.effort based on thinking level (#14664) (#17236))
       ...options,
       headers: {
         ...OPENROUTER_APP_HEADERS,
@@ -634,8 +566,6 @@ function createOpenRouterWrapper(
   };
 }
 
-<<<<<<< HEAD
-=======
 function isGemini31Model(modelId: string): boolean {
   const normalized = modelId.toLowerCase();
   return normalized.includes("gemini-3.1-pro") || normalized.includes("gemini-3.1-flash");
@@ -725,7 +655,6 @@ function createGoogleThinkingPayloadWrapper(
   };
 }
 
->>>>>>> c9f0d6ac8 (feat(agents): support `thinkingDefault: "adaptive"` for Anthropic models (#31227))
 /**
  * Create a streamFn wrapper that injects tool_stream=true for Z.AI providers.
  *

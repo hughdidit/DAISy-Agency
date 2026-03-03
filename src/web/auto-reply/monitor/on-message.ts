@@ -4,12 +4,8 @@ import type { MsgContext } from "../../../auto-reply/templating.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { getReplyFromConfig } from "../../../auto-reply/reply.js";
 import type { loadConfig } from "../../../config/config.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { MentionConfig } from "../mentions.js";
@@ -17,9 +13,6 @@ import type { WebInboundMsg } from "../types.js";
 import type { EchoTracker } from "./echo.js";
 import type { GroupHistoryEntry } from "./group-gating.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

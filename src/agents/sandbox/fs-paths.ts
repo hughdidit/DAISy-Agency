@@ -57,7 +57,6 @@ export function parseSandboxBindMount(spec: string): ParsedBindMount | null {
   };
 }
 
-<<<<<<< HEAD
 function splitBindSpec(spec: string): SplitBindSpec | null {
   // Windows drive-letter host path: C:\\path:/container[:opts] or C:/path:/container[:opts]
   if (/^[A-Za-z]:[\\/]/.test(spec)) {
@@ -89,8 +88,6 @@ function splitBindSpec(spec: string): SplitBindSpec | null {
   };
 }
 
-=======
->>>>>>> 13bfe7faa (refactor(sandbox): share bind parsing and host-path policy checks)
 export function buildSandboxFsMounts(sandbox: SandboxContext): SandboxFsMount[] {
   const mounts: SandboxFsMount[] = [
     {

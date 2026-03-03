@@ -4,10 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AuthProfileStore } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))

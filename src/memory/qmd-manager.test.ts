@@ -647,8 +647,6 @@ describe("QmdMemoryManager", () => {
     await manager.close();
   });
 
-<<<<<<< HEAD
-=======
   it("rebuilds managed collections once when qmd update fails with null-byte ENOTDIR", async () => {
     cfg = {
       ...cfg,
@@ -746,7 +744,6 @@ describe("QmdMemoryManager", () => {
     await manager.close();
   });
 
->>>>>>> b32ae6fa0 (fix (memory/qmd): isolate managed collections per agent)
   it("uses configured qmd search mode command", async () => {
     cfg = {
       ...cfg,

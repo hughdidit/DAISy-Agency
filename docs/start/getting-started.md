@@ -13,12 +13,7 @@ Fastest chat: open the Control UI (no channel setup needed). Run `moltbot dashbo
 and chat in the browser, or open `http://127.0.0.1:18789/` on the gateway host.
 Docs: [Dashboard](/web/dashboard) and [Control UI](/web/control-ui).
 
-<<<<<<< HEAD
 Recommended path: use the **CLI onboarding wizard** (`moltbot onboard`). It sets up:
-=======
-Recommended path: use the **CLI onboarding wizard** (`openclaw onboard`). It sets up:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - model/auth (OAuth recommended)
 - gateway settings
 - channels (WhatsApp/Telegram/Discord/Mattermost (plugin)/...)
@@ -86,21 +81,7 @@ pnpm add -g moltbot@latest
 moltbot onboard --install-daemon
 ```
 
-<<<<<<< HEAD
 What you’ll choose:
-=======
-## Useful environment variables
-
-If you run OpenClaw as a service account or want custom config/state locations:
-
-- `OPENCLAW_HOME` sets the home directory used for internal path resolution.
-- `OPENCLAW_STATE_DIR` overrides the state directory.
-- `OPENCLAW_CONFIG_PATH` overrides the config file path.
-
-Full environment variable reference: [Environment vars](/help/environment).
-
-## Go deeper
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 
 - **Local vs Remote** gateway
 - **Auth**: OpenAI Code (Codex) subscription (OAuth) or API keys. For Anthropic we recommend an API key; `claude setup-token` is also supported.
@@ -115,7 +96,6 @@ Wizard doc: [Wizard](/start/wizard)
 
 - **Recommended Anthropic path:** set an API key (wizard can store it for service use). `claude setup-token` is also supported if you want to reuse Claude Code credentials.
 
-<<<<<<< HEAD
 - OAuth credentials (legacy import): `~/.clawdbot/credentials/oauth.json`
 - Auth profiles (OAuth + API keys): `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`
 
@@ -224,8 +204,3 @@ Health probes: `moltbot health` (or `moltbot status --deep`) asks the running ga
 - iOS/Android nodes (Canvas/camera/voice): [Nodes](/nodes)
 - Remote access (SSH tunnel / Tailscale Serve): [Remote access](/gateway/remote) and [Tailscale](/gateway/tailscale)
 - Always-on / VPN setups: [Remote access](/gateway/remote), [exe.dev](/platforms/exe-dev), [Hetzner](/platforms/hetzner), [macOS remote](/platforms/mac/remote)
-=======
-- DM safety and approvals: [Pairing](/channels/pairing)
-- Connect more channels: [Channels](/channels)
-- Advanced workflows and from source: [Setup](/start/setup)
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))

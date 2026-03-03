@@ -4,12 +4,7 @@ import type { Client } from "@buape/carbon";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
-import type { DiscordMessagePreflightParams } from "./message-handler.preflight.types.js";
->>>>>>> b2c42697d (refactor(discord): reuse preflight param types)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -29,22 +24,15 @@ import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
 } from "../../auto-reply/inbound-debounce.js";
-<<<<<<< HEAD
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import type { ReplyToMode } from "../../config/config.js";
-=======
-import { resolveOpenProviderRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { danger } from "../../globals.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 import type { DiscordGuildEntryResolved } from "./allow-list.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -65,31 +53,15 @@ import {
   resolveDiscordMessageText,
 } from "./message-utils.js";
 
-<<<<<<< HEAD
 type LoadedConfig = ReturnType<typeof import("../../config/config.js").loadConfig>;
 type DiscordConfig = NonNullable<
   import("../../config/config.js").MoltbotConfig["channels"]
 >["discord"];
-=======
-type DiscordMessageHandlerParams = Omit<
-  DiscordMessagePreflightParams,
-  "ackReactionScope" | "groupPolicy" | "data" | "client"
->;
->>>>>>> b2c42697d (refactor(discord): reuse preflight param types)
 
 export function createDiscordMessageHandler(
   params: DiscordMessageHandlerParams,
 ): DiscordMessageHandler {
-<<<<<<< HEAD
   const groupPolicy = params.discordConfig?.groupPolicy ?? "open";
-=======
-  const { groupPolicy } = resolveOpenProviderRuntimeGroupPolicy({
-    providerConfigPresent: params.cfg.channels?.discord !== undefined,
-    groupPolicy: params.discordConfig?.groupPolicy,
-    defaultGroupPolicy: params.cfg.channels?.defaults?.groupPolicy,
-  });
-<<<<<<< HEAD
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   const ackReactionScope = params.cfg.messages?.ackReactionScope ?? "group-mentions";
 =======
   const ackReactionScope =

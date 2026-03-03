@@ -1,13 +1,10 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
-=======
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ChannelMessageActionContext, ChannelMessageActionName } from "./types.js";
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { getChannelPlugin, listChannelPlugins } from "./index.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -26,24 +23,7 @@ import type { ChannelMessageActionContext, ChannelMessageActionName } from "./ty
 import { getChannelPlugin, listChannelPlugins } from "./index.js";
 import type { ChannelMessageActionContext, ChannelMessageActionName } from "./types.js";
 
-<<<<<<< HEAD
 export function listChannelMessageActions(cfg: MoltbotConfig): ChannelMessageActionName[] {
-=======
-const trustedRequesterRequiredByChannel: Readonly<
-  Partial<Record<string, ReadonlySet<ChannelMessageActionName>>>
-> = {
-  discord: new Set<ChannelMessageActionName>(["timeout", "kick", "ban"]),
-};
-
-type ChannelActions = NonNullable<NonNullable<ReturnType<typeof getChannelPlugin>>["actions"]>;
-
-function requiresTrustedRequesterSender(ctx: ChannelMessageActionContext): boolean {
-  const actions = trustedRequesterRequiredByChannel[ctx.channel];
-  return Boolean(actions?.has(ctx.action) && ctx.toolContext);
-}
-
-export function listChannelMessageActions(cfg: OpenClawConfig): ChannelMessageActionName[] {
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
   const actions = new Set<ChannelMessageActionName>(["send", "broadcast"]);
   for (const plugin of listChannelPlugins()) {
     const list = plugin.actions?.listActions?.({ cfg });
@@ -57,7 +37,6 @@ export function listChannelMessageActions(cfg: OpenClawConfig): ChannelMessageAc
   return Array.from(actions);
 }
 
-<<<<<<< HEAD
 export function supportsChannelMessageButtons(cfg: MoltbotConfig): boolean {
   for (const plugin of listChannelPlugins()) {
     if (plugin.actions?.supportsButtons?.({ cfg })) {
@@ -65,28 +44,9 @@ export function supportsChannelMessageButtons(cfg: MoltbotConfig): boolean {
     }
   }
   return false;
-=======
-export function supportsChannelMessageButtons(cfg: OpenClawConfig): boolean {
-  return supportsMessageFeature(cfg, (actions) => actions?.supportsButtons?.({ cfg }) === true);
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 }
 
-<<<<<<< HEAD
 export function supportsChannelMessageCards(cfg: MoltbotConfig): boolean {
-=======
-export function supportsChannelMessageButtonsForChannel(params: {
-  cfg: OpenClawConfig;
-  channel?: string;
-}): boolean {
-  return supportsMessageFeatureForChannel(
-    params,
-    (actions) => actions.supportsButtons?.(params) === true,
-  );
-}
-
-export function supportsChannelMessageCards(cfg: OpenClawConfig): boolean {
-<<<<<<< HEAD
->>>>>>> c8a536e30 (fix(agents): scope message tool schema by channel (#18215))
   for (const plugin of listChannelPlugins()) {
     if (plugin.actions?.supportsCards?.({ cfg })) {
       return true;

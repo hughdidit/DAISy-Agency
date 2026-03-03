@@ -3,16 +3,11 @@ import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 <<<<<<< HEAD
 import type { CallId, CallRecord, CallState, NormalizedEvent } from "../types.js";
 import { TerminalStates } from "../types.js";
 import type { CallManagerContext, Logger } from "./context.js";
-=======
-import type { CallRecord, CallState, NormalizedEvent } from "../types.js";
-import type { CallManagerContext } from "./context.js";
->>>>>>> 230ca789e (chore: Lint extensions folder.)
 =======
 import { isAllowlistedCaller, normalizePhoneNumber } from "../allowlist.js";
 import type { CallRecord, CallState, NormalizedEvent } from "../types.js";
@@ -50,14 +45,7 @@ import {
 import { endCall } from "./outbound.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function shouldAcceptInbound(config: CallManagerContext["config"], from: string | undefined, logger: Logger): boolean {
-=======
-function shouldAcceptInbound(
-  config: CallManagerContext["config"],
-  from: string | undefined,
-): boolean {
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 type EventContext = Pick<
   CallManagerContext,
@@ -138,14 +126,8 @@ function createInboundCall(params: {
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export async function processEvent(ctx: CallManagerContext, event: NormalizedEvent): Promise<void> {
   if (ctx.processedEventIds.has(event.id)) return;
-=======
-export function processEvent(ctx: CallManagerContext, event: NormalizedEvent): void {
-=======
-export function processEvent(ctx: EventContext, event: NormalizedEvent): void {
->>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   if (ctx.processedEventIds.has(event.id)) {
     return;
   }

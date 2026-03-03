@@ -1,24 +1,15 @@
 import type { Command } from "commander";
-<<<<<<< HEAD
-=======
 import { setVerbose } from "../../globals.js";
 import { isTruthyEnvValue } from "../../infra/env.js";
 import type { LogLevel } from "../../logging/levels.js";
->>>>>>> 98a03c490 (Feat/logger support log level validation0222 (#23436))
 import { defaultRuntime } from "../../runtime.js";
-<<<<<<< HEAD
-=======
 import { getCommandPath, getVerboseFlag, hasFlag, hasHelpOrVersion } from "../argv.js";
->>>>>>> 9e4a366ee (fix(cli): keep json preflight stdout machine-readable)
 import { emitCliBanner } from "../banner.js";
-<<<<<<< HEAD
 import { getCommandPath, getVerboseFlag, hasHelpOrVersion } from "../argv.js";
 import { ensureConfigReady } from "./config-guard.js";
 import { ensurePluginRegistryLoaded } from "../plugin-registry.js";
 import { isTruthyEnvValue } from "../../infra/env.js";
 import { setVerbose } from "../../globals.js";
-=======
->>>>>>> c90b3e4d5 (perf(cli): speed up startup)
 import { resolveCliName } from "../cli-name.js";
 
 function setProcessTitleForCommand(actionCommand: Command) {
@@ -102,21 +93,11 @@ export function registerPreActionHooks(program: Command, programVersion: string)
       process.env.NODE_NO_WARNINGS ??= "1";
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (commandPath[0] === "doctor") return;
-=======
-    if (commandPath[0] === "doctor" || commandPath[0] === "completion") {
-=======
-    if (CONFIG_GUARD_BYPASS_COMMANDS.has(commandPath[0])) {
->>>>>>> 0e69660c4 (feat(secrets): finalize external secrets runtime and migration hardening)
       return;
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
-=======
-    const { ensureConfigReady } = await import("./config-guard.js");
->>>>>>> c90b3e4d5 (perf(cli): speed up startup)
     await ensureConfigReady({ runtime: defaultRuntime, commandPath });
 =======
     const suppressDoctorStdout = isJsonOutputMode(commandPath, argv);

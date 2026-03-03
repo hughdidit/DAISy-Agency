@@ -259,7 +259,6 @@ describe("gateway server chat", () => {
       expect(imgOnlyRes.ok).toBe(true);
       expect(imgOnlyRes.payload?.runId).toBeDefined();
 
-<<<<<<< HEAD
       await waitFor(() => spyCalls.length > callsBeforeImageOnly, 8000);
       const imgOnlyOpts = spyCalls.at(-1)?.[1] as
         | { images?: Array<{ type: string; data: string; mimeType: string }> }
@@ -267,9 +266,6 @@ describe("gateway server chat", () => {
       expect(imgOnlyOpts?.images).toEqual([{ type: "image", data: pngB64, mimeType: "image/png" }]);
 
       const historyDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
-=======
-      const historyDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
->>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
       tempDirs.push(historyDir);
       testState.sessionStorePath = path.join(historyDir, "sessions.json");
       await writeSessionStore({

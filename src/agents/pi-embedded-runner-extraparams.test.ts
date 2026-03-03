@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import type { Context, Model, SimpleStreamOptions } from "@mariozechner/pi-ai";
->>>>>>> 423543530 (chore: Fix types in tests 26/N.)
 import { describe, expect, it } from "vitest";
 import { resolveExtraParams } from "./pi-embedded-runner.js";
 
@@ -138,8 +135,6 @@ describe("resolveExtraParams", () => {
     expect(result).toBeUndefined();
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("applyExtraParamsToAgent", () => {
   function createOptionsCaptureAgent() {
@@ -276,7 +271,6 @@ describe("applyExtraParamsToAgent", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> b96d32c1c (chore: fix oxfmt formatting in extraparams test)
 =======
   it("removes legacy reasoning_effort and keeps reasoning unset when thinkingLevel is off", () => {
     const payloads: Record<string, unknown>[] = [];

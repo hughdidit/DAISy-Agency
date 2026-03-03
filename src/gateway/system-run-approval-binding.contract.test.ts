@@ -3,10 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import type { ExecApprovalRequestPayload } from "../infra/exec-approvals.js";
-<<<<<<< HEAD
-=======
 import { buildSystemRunApprovalBinding } from "../infra/system-run-approval-binding.js";
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import { evaluateSystemRunApprovalMatch } from "./node-invoke-system-run-approval-match.js";
 import {
   buildSystemRunApprovalBindingV1,

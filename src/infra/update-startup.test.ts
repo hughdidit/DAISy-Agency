@@ -1,13 +1,8 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
->>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
 =======
 import { captureEnv } from "../test-utils/env.js";
 >>>>>>> 992b7e557 (refactor(test): use env snapshots in setup hooks)
@@ -70,25 +65,14 @@ describe("update-startup", () => {
   beforeEach(async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-01-17T10:00:00Z"));
-<<<<<<< HEAD
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-update-check-"));
     process.env.CLAWDBOT_STATE_DIR = tempDir;
-=======
-    tempDir = path.join(suiteRoot, `case-${++suiteCase}`);
-    await fs.mkdir(tempDir);
-    envSnapshot = captureEnv(["OPENCLAW_STATE_DIR", "NODE_ENV", "VITEST"]);
-    process.env.OPENCLAW_STATE_DIR = tempDir;
-<<<<<<< HEAD
->>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
     delete process.env.VITEST;
 =======
 
-<<<<<<< HEAD
     hadNodeEnv = Object.prototype.hasOwnProperty.call(process.env, "NODE_ENV");
     prevNodeEnv = process.env.NODE_ENV;
 >>>>>>> ed2ae5886 (perf(test): avoid process.env cloning in update-startup suite)
-=======
->>>>>>> 992b7e557 (refactor(test): use env snapshots in setup hooks)
     process.env.NODE_ENV = "test";
 
     // Ensure update checks don't short-circuit in test mode.
@@ -120,25 +104,12 @@ describe("update-startup", () => {
     resetUpdateAvailableStateForTest();
   });
 
-<<<<<<< HEAD
   it("logs update hint for npm installs when newer tag exists", async () => {
     const { resolveMoltbotPackageRoot } = await import("./moltbot-root.js");
     const { checkUpdateStatus, resolveNpmChannelTag } = await import("./update-check.js");
     const { runGatewayUpdateCheck } = await import("./update-startup.js");
 
     vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue("/opt/moltbot");
-=======
-  afterAll(async () => {
-    if (suiteRoot) {
-      await fs.rm(suiteRoot, { recursive: true, force: true });
-    }
-    suiteRoot = "";
-    suiteCase = 0;
-  });
-
-  function mockPackageUpdateStatus(tag = "latest", version = "2.0.0") {
-    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue("/opt/openclaw");
->>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
     vi.mocked(checkUpdateStatus).mockResolvedValue({
       root: "/opt/moltbot",
       installKind: "package",
@@ -195,7 +166,6 @@ describe("update-startup", () => {
     );
     expect(parsed.lastNotifiedVersion).toBe("2.0.0");
     expect(parsed.lastAvailableVersion).toBe("2.0.0");
-<<<<<<< HEAD
   });
 
   it("uses latest when beta tag is older than release", async () => {
@@ -206,9 +176,6 @@ describe("update-startup", () => {
     const { runGatewayUpdateCheck } = await import("./update-startup.js");
 
     vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue("/opt/moltbot");
-=======
-    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue("/opt/openclaw");
->>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
     vi.mocked(checkUpdateStatus).mockResolvedValue({
       root: "/opt/moltbot",
       installKind: "package",

@@ -4,16 +4,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { signalOutbound } from "../../channels/plugins/outbound/signal.js";
 import { telegramOutbound } from "../../channels/plugins/outbound/telegram.js";
 import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -38,7 +33,6 @@ import { STATE_DIR } from "../../config/paths.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { markdownToSignalTextChunks } from "../../signal/format.js";
-<<<<<<< HEAD
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
   createIMessageTestPlugin,
@@ -46,20 +40,12 @@ import {
   createTestRegistry,
 } from "../../test-utils/channel-plugins.js";
 =======
-import { createOutboundTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
-import { withEnvAsync } from "../../test-utils/env.js";
-import { createIMessageTestPlugin } from "../../test-utils/imessage-test-plugin.js";
-<<<<<<< HEAD
->>>>>>> eb4215d57 (perf(test): speed up Vitest bootstrap)
-=======
 import { createInternalHookEventPayload } from "../../test-utils/internal-hook-event-payload.js";
 >>>>>>> f05395ae0 (refactor(test): share internal hook and npm pack assertions)
 
 const mocks = vi.hoisted(() => ({
   appendAssistantMessageToSessionTranscript: vi.fn(async () => ({ ok: true, sessionFile: "x" })),
 }));
-<<<<<<< HEAD
-=======
 const hookMocks = vi.hoisted(() => ({
   runner: {
     hasHooks: vi.fn(() => false),
@@ -76,7 +62,6 @@ const queueMocks = vi.hoisted(() => ({
   failDelivery: vi.fn(async () => {}),
 }));
 <<<<<<< HEAD
->>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 =======
 const logMocks = vi.hoisted(() => ({
   warn: vi.fn(),
@@ -92,8 +77,6 @@ vi.mock("../../config/sessions.js", async () => {
     appendAssistantMessageToSessionTranscript: mocks.appendAssistantMessageToSessionTranscript,
   };
 });
-<<<<<<< HEAD
-=======
 vi.mock("../../plugins/hook-runner-global.js", () => ({
   getGlobalHookRunner: () => hookMocks.runner,
 }));
@@ -107,7 +90,6 @@ vi.mock("./delivery-queue.js", () => ({
   failDelivery: queueMocks.failDelivery,
 }));
 <<<<<<< HEAD
->>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 =======
 vi.mock("../../logging/subsystem.js", () => ({
   createSubsystemLogger: () => {
@@ -174,12 +156,6 @@ describe("deliverOutboundPayloads", () => {
   beforeEach(() => {
     setActivePluginRegistry(defaultRegistry);
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    hookMocks.runner.hasHooks.mockReset();
-=======
-    hookMocks.runner.hasHooks.mockClear();
->>>>>>> b3c5b532a (test(outbound): replace setup mock resets with clears)
     hookMocks.runner.hasHooks.mockReturnValue(false);
     hookMocks.runner.runMessageSent.mockClear();
     hookMocks.runner.runMessageSent.mockResolvedValue(undefined);
@@ -192,11 +168,7 @@ describe("deliverOutboundPayloads", () => {
     queueMocks.ackDelivery.mockResolvedValue(undefined);
     queueMocks.failDelivery.mockClear();
     queueMocks.failDelivery.mockResolvedValue(undefined);
-<<<<<<< HEAD
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
-=======
-    logMocks.warn.mockClear();
->>>>>>> a1628d89e (refactor: unify outbound session context wiring)
   });
 
   afterEach(() => {
@@ -205,12 +177,9 @@ describe("deliverOutboundPayloads", () => {
   it("chunks telegram markdown and passes through accountId", async () => {
     const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
 <<<<<<< HEAD
-<<<<<<< HEAD
     const cfg: MoltbotConfig = {
       channels: { telegram: { botToken: "tok-1", textChunkLimit: 2 } },
     };
-=======
->>>>>>> d68818886 (refactor(tests): share outbound runner and delivery helpers)
     const prevTelegramToken = process.env.TELEGRAM_BOT_TOKEN;
     process.env.TELEGRAM_BOT_TOKEN = "";
     try {
@@ -256,12 +225,9 @@ describe("deliverOutboundPayloads", () => {
 
   it("passes explicit accountId to sendTelegram", async () => {
     const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
-<<<<<<< HEAD
     const cfg: MoltbotConfig = {
       channels: { telegram: { botToken: "tok-1", textChunkLimit: 2 } },
     };
-=======
->>>>>>> d68818886 (refactor(tests): share outbound runner and delivery helpers)
 
     await deliverOutboundPayloads({
       cfg: telegramChunkConfig,
@@ -279,8 +245,6 @@ describe("deliverOutboundPayloads", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("scopes media local roots to the active agent workspace when agentId is provided", async () => {
     const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
 
@@ -303,7 +267,6 @@ describe("deliverOutboundPayloads", () => {
     );
   });
 
->>>>>>> d68818886 (refactor(tests): share outbound runner and delivery helpers)
   it("uses signal media maxBytes from config", async () => {
     const sendSignal = vi.fn().mockResolvedValue({ messageId: "s1", timestamp: 123 });
     const cfg: MoltbotConfig = { channels: { signal: { mediaMaxMb: 2 } } };
@@ -361,7 +324,6 @@ describe("deliverOutboundPayloads", () => {
   });
 
   it("chunks WhatsApp text and returns all results", async () => {
-<<<<<<< HEAD
     const sendWhatsApp = vi
       .fn()
       .mockResolvedValueOnce({ messageId: "w1", toJid: "jid" })
@@ -377,9 +339,6 @@ describe("deliverOutboundPayloads", () => {
       payloads: [{ text: "abcd" }],
       deps: { sendWhatsApp },
     });
-=======
-    const { sendWhatsApp, results } = await runChunkedWhatsAppDelivery();
->>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
 
     expect(sendWhatsApp).toHaveBeenCalledTimes(2);
     expect(results.map((r) => r.messageId)).toEqual(["w1", "w2"]);
@@ -414,8 +373,6 @@ describe("deliverOutboundPayloads", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("strips leading blank lines for WhatsApp text payloads", async () => {
     const sendWhatsApp = vi.fn().mockResolvedValue({ messageId: "w1", toJid: "jid" });
     await deliverWhatsAppPayload({
@@ -462,7 +419,6 @@ describe("deliverOutboundPayloads", () => {
     );
   });
 
->>>>>>> d68818886 (refactor(tests): share outbound runner and delivery helpers)
   it("preserves fenced blocks for markdown chunkers in newline mode", async () => {
     const chunker = vi.fn((text: string) => (text ? [text] : []));
     const sendText = vi.fn().mockImplementation(async ({ text }: { text: string }) => ({
@@ -576,8 +532,6 @@ describe("deliverOutboundPayloads", () => {
     expect(results).toEqual([{ channel: "whatsapp", messageId: "w2", toJid: "jid" }]);
   });
 
-<<<<<<< HEAD
-=======
   it("emits internal message:sent hook with success=true for chunked payload delivery", async () => {
     const { sendWhatsApp } = await runChunkedWhatsAppDelivery({
       mirror: {
@@ -717,7 +671,6 @@ describe("deliverOutboundPayloads", () => {
     expect(sendWhatsApp).not.toHaveBeenCalled();
   });
 
->>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
   it("passes normalized payload to onError", async () => {
     const sendWhatsApp = vi.fn().mockRejectedValue(new Error("boom"));
     const onError = vi.fn();
@@ -742,12 +695,9 @@ describe("deliverOutboundPayloads", () => {
 
   it("mirrors delivered output when mirror options are provided", async () => {
     const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
-<<<<<<< HEAD
     const cfg: MoltbotConfig = {
       channels: { telegram: { botToken: "tok-1", textChunkLimit: 2 } },
     };
-=======
->>>>>>> d68818886 (refactor(tests): share outbound runner and delivery helpers)
     mocks.appendAssistantMessageToSessionTranscript.mockClear();
 
     await deliverOutboundPayloads({
@@ -767,8 +717,6 @@ describe("deliverOutboundPayloads", () => {
       expect.objectContaining({ text: "report.pdf" }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("emits message_sent success for text-only deliveries", async () => {
     hookMocks.runner.hasHooks.mockReturnValue(true);
@@ -843,7 +791,6 @@ describe("deliverOutboundPayloads", () => {
       expect.objectContaining({ channelId: "whatsapp" }),
     );
   });
->>>>>>> 49bd9f75f (chore: Fix types in tests 33/N.)
 });
 
 const emptyRegistry = createTestRegistry([]);

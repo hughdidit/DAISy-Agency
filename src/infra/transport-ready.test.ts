@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
 import { waitForTransportReady } from "./transport-ready.js";
 
 // Perf: `sleepWithAbort` uses `node:timers/promises` which isn't controlled by fake timers.

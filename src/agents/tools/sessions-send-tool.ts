@@ -1,15 +1,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 
 import { Type } from "@sinclair/typebox";
 
-=======
-import { Type } from "@sinclair/typebox";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { Type } from "@sinclair/typebox";
 import crypto from "node:crypto";
@@ -44,14 +40,8 @@ import {
   createAgentToAgentPolicy,
   extractAssistantText,
 <<<<<<< HEAD
-<<<<<<< HEAD
   resolveInternalSessionKey,
   resolveMainSessionAlias,
-=======
-  isRequesterSpawnedSessionVisible,
-=======
-  isResolvedSessionVisibleToRequester,
->>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
   resolveEffectiveSessionToolsVisibility,
 >>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
   resolveSessionReference,
@@ -84,7 +74,6 @@ export function createSessionsSendTool(opts?: {
       const params = args as Record<string, unknown>;
       const message = readStringParam(params, "message", { required: true });
       const cfg = loadConfig();
-<<<<<<< HEAD
       const { mainKey, alias } = resolveMainSessionAlias(cfg);
       const visibility = cfg.agents?.defaults?.sandbox?.sessionToolsVisibility ?? "spawned";
       const requesterInternalKey =
@@ -100,14 +89,6 @@ export function createSessionsSendTool(opts?: {
         visibility === "spawned" &&
         !!requesterInternalKey &&
         !isSubagentSessionKey(requesterInternalKey);
-=======
-      const { mainKey, alias, effectiveRequesterKey, restrictToSpawned } =
-        resolveSandboxedSessionToolContext({
-          cfg,
-          agentSessionKey: opts?.agentSessionKey,
-          sandboxed: opts?.sandboxed,
-        });
->>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 
       const a2aPolicy = createAgentToAgentPolicy(cfg);
 
@@ -228,19 +209,12 @@ export function createSessionsSendTool(opts?: {
       const resolvedViaSessionId = resolvedSession.resolvedViaSessionId;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
       if (restrictToSpawned && !resolvedViaSessionId) {
         const sessions = await listSessions({
           includeGlobal: false,
           includeUnknown: false,
           limit: 500,
           spawnedBy: requesterInternalKey,
-=======
-      if (restrictToSpawned && !resolvedViaSessionId && resolvedKey !== effectiveRequesterKey) {
-        const ok = await isRequesterSpawnedSessionVisible({
-          requesterSessionKey: effectiveRequesterKey,
-          targetSessionKey: resolvedKey,
->>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 =======
       const visible = await isResolvedSessionVisibleToRequester({
         requesterSessionKey: effectiveRequesterKey,
@@ -265,7 +239,6 @@ export function createSessionsSendTool(opts?: {
       const announceTimeoutMs = timeoutSeconds === 0 ? 30_000 : timeoutMs;
       const idempotencyKey = crypto.randomUUID();
       let runId: string = idempotencyKey;
-<<<<<<< HEAD
       const requesterAgentId = resolveAgentIdFromSessionKey(requesterInternalKey);
       const targetAgentId = resolveAgentIdFromSessionKey(resolvedKey);
       const isCrossAgent = requesterAgentId !== targetAgentId;
@@ -287,22 +260,6 @@ export function createSessionsSendTool(opts?: {
             sessionKey: displayKey,
           });
         }
-=======
-      const visibilityGuard = await createSessionVisibilityGuard({
-        action: "send",
-        requesterSessionKey: effectiveRequesterKey,
-        visibility: sessionVisibility,
-        a2aPolicy,
-      });
-      const access = visibilityGuard.check(resolvedKey);
-      if (!access.allowed) {
-        return jsonResult({
-          runId: crypto.randomUUID(),
-          status: access.status,
-          error: access.error,
-          sessionKey: displayKey,
-        });
->>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
       }
 
       const agentMessageContext = buildAgentToAgentMessageContext({

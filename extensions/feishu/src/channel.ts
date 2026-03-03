@@ -4,11 +4,8 @@ import {
   createDefaultChannelRuntimeState,
   DEFAULT_ACCOUNT_ID,
   PAIRING_APPROVED_MESSAGE,
-<<<<<<< HEAD
-=======
   resolveAllowlistProviderRuntimeGroupPolicy,
 <<<<<<< HEAD
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 =======
   resolveDefaultGroupPolicy,
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
@@ -229,16 +226,10 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount> = {
       const account = resolveFeishuAccount({ cfg, accountId });
       const feishuCfg = account.config;
 <<<<<<< HEAD
-<<<<<<< HEAD
       const defaultGroupPolicy = (
         cfg.channels as Record<string, { groupPolicy?: string }> | undefined
       )?.defaults?.groupPolicy;
       const groupPolicy = feishuCfg?.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-      const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-=======
-      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
       const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.feishu !== undefined,
         groupPolicy: feishuCfg?.groupPolicy,

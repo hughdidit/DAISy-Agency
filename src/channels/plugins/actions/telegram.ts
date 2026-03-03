@@ -67,20 +67,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
     if (accounts.length === 0) {
       return [];
     }
-<<<<<<< HEAD
     const gate = createActionGate(cfg.channels?.telegram?.actions);
-=======
-    // Union of all accounts' action gates (any account enabling an action makes it available)
-    const gate = createUnionActionGate(accounts, (account) =>
-      createTelegramActionGate({
-        cfg,
-        accountId: account.accountId,
-      }),
-    );
-<<<<<<< HEAD
-    const gate = (key: keyof TelegramActionConfig, defaultValue = true) =>
-      gates.some((g) => g(key, defaultValue));
->>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
 =======
     const isEnabled = (key: keyof TelegramActionConfig, defaultValue = true) =>
       gate(key, defaultValue);

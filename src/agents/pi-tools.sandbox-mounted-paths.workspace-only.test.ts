@@ -15,7 +15,6 @@ vi.mock("../infra/shell-env.js", async (importOriginal) => {
   return { ...mod, getShellPathFromLoginShell: () => null };
 });
 
-<<<<<<< HEAD
 function createUnsafeMountedBridge(params: {
   root: string;
   agentHostRoot: string;
@@ -87,11 +86,6 @@ async function withUnsafeMountedSandboxHarness(
   }
 }
 
-=======
-type ToolWithExecute = {
-  execute: (toolCallId: string, args: unknown, signal?: AbortSignal) => Promise<unknown>;
-};
->>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
 describe("tools.fs.workspaceOnly", () => {
   it("defaults to allowing sandbox mounts outside the workspace root", async () => {
     await withUnsafeMountedSandboxHarness(async ({ sandboxRoot, agentRoot, sandbox }) => {

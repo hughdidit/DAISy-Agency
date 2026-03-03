@@ -18,14 +18,9 @@ Moltbot integrates external CLIs via JSON-RPC. Two patterns are used today.
 
 See [Signal](/channels/signal) for setup and endpoints.
 
-<<<<<<< HEAD
 ## Pattern B: stdio child process (imsg)
 <<<<<<< HEAD
 - Moltbot spawns `imsg rpc` as a child process.
-=======
-
-- OpenClaw spawns `imsg rpc` as a child process.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 ## Pattern B: stdio child process (legacy: imsg)
 

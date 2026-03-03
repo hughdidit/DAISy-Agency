@@ -1,11 +1,7 @@
 import { fetch as realFetch } from "undici";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
 
 let testPort = 0;
 let _cdpBaseUrl = "";
@@ -128,23 +124,14 @@ vi.mock("./chrome.js", () => ({
     return {
       pid: 123,
       exe: { kind: "chrome", path: "/fake/chrome" },
-<<<<<<< HEAD
       userDataDir: "/tmp/clawd",
-=======
-      userDataDir: chromeUserDataDir.dir,
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
       cdpPort: profile.cdpPort,
       startedAt: Date.now(),
       proc,
     };
   }),
-<<<<<<< HEAD
   resolveClawdUserDataDir: vi.fn(() => "/tmp/clawd"),
   stopClawdChrome: vi.fn(async () => {
-=======
-  resolveOpenClawUserDataDir: vi.fn(() => chromeUserDataDir.dir),
-  stopOpenClawChrome: vi.fn(async () => {
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
     reachable = false;
   }),
 }));
@@ -345,7 +332,6 @@ describe("browser control server", () => {
 
 describe("profile CRUD endpoints", () => {
   beforeEach(async () => {
-<<<<<<< HEAD
     state.reachable = false;
     state.cfgAttachOnly = false;
 
@@ -361,20 +347,11 @@ describe("profile CRUD endpoints", () => {
     _cdpBaseUrl = `http://127.0.0.1:${testPort + 1}`;
     prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
     process.env.CLAWDBOT_GATEWAY_PORT = String(testPort - 2);
-=======
-    state.testPort = await getFreePort();
-    state.cdpBaseUrl = `http://127.0.0.1:${state.testPort + 1}`;
-    state.prevGatewayPort = process.env.OPENCLAW_GATEWAY_PORT;
-    process.env.OPENCLAW_GATEWAY_PORT = String(state.testPort - 2);
->>>>>>> dee3abfcd (refactor(test): share browser control server harness)
 
-<<<<<<< HEAD
 <<<<<<< HEAD
     prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
     process.env.CLAWDBOT_GATEWAY_PORT = String(testPort - 2);
 
-=======
->>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 =======
     state.prevGatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN;
     state.prevGatewayPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
@@ -398,7 +375,6 @@ describe("profile CRUD endpoints", () => {
   });
 
   afterEach(async () => {
-<<<<<<< HEAD
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
 <<<<<<< HEAD
@@ -407,29 +383,10 @@ describe("profile CRUD endpoints", () => {
       delete process.env.CLAWDBOT_GATEWAY_PORT;
     } else {
       process.env.CLAWDBOT_GATEWAY_PORT = prevGatewayPort;
-=======
-    if (state.prevGatewayPort === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_PORT;
-    } else {
-      process.env.OPENCLAW_GATEWAY_PORT = state.prevGatewayPort;
->>>>>>> dee3abfcd (refactor(test): share browser control server harness)
     }
 =======
     restoreGatewayPortEnv(state.prevGatewayPort);
-<<<<<<< HEAD
 >>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
-=======
-    if (state.prevGatewayToken !== undefined) {
-      process.env.OPENCLAW_GATEWAY_TOKEN = state.prevGatewayToken;
-    } else {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
-    }
-    if (state.prevGatewayPassword !== undefined) {
-      process.env.OPENCLAW_GATEWAY_PASSWORD = state.prevGatewayPassword;
-    } else {
-      delete process.env.OPENCLAW_GATEWAY_PASSWORD;
-    }
->>>>>>> 9b23e5ce1 (test: fix flaky auth tests when OPENCLAW_GATEWAY_TOKEN is present)
     await stopBrowserControlServer();
 =======
     await cleanupBrowserControlServerTestContext();
@@ -458,16 +415,12 @@ describe("profile CRUD endpoints", () => {
     const createInvalidNameBody = (await createInvalidName.json()) as { error: string };
     expect(createInvalidNameBody.error).toContain("invalid profile name");
 
-<<<<<<< HEAD
   it("POST /profiles/create returns 409 for duplicate name", async () => {
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 
     // "clawd" already exists as the default profile
     const result = await realFetch(`${base}/profiles/create`, {
-=======
-    const createDuplicate = await realFetch(`${base}/profiles/create`, {
->>>>>>> 2e84ae701 (perf(test): consolidate browser profile CRUD checks)
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: "clawd" }),
@@ -507,16 +460,12 @@ describe("profile CRUD endpoints", () => {
     const deleteMissingBody = (await deleteMissing.json()) as { error: string };
     expect(deleteMissingBody.error).toContain("not found");
 
-<<<<<<< HEAD
   it("DELETE /profiles/:name returns 400 for default profile deletion", async () => {
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 
     // clawd is the default profile
     const result = await realFetch(`${base}/profiles/clawd`, {
-=======
-    const deleteDefault = await realFetch(`${base}/profiles/openclaw`, {
->>>>>>> 2e84ae701 (perf(test): consolidate browser profile CRUD checks)
       method: "DELETE",
     });
     expect(deleteDefault.status).toBe(400);

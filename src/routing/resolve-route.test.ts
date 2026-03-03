@@ -1,11 +1,6 @@
 import { describe, expect, test } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { ChatType } from "../channels/chat-type.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 4bf06e782 (Discord: add unit tests for role-based agent routing)
 import { resolveAgentRoute } from "./resolve-route.js";
 
 describe("resolveAgentRoute", () => {
@@ -690,7 +685,6 @@ describe("role-based agent routing", () => {
     });
   });
 
-<<<<<<< HEAD
   test("no memberRoleIds → guild+roles doesn't match", () => {
     const cfg: OpenClawConfig = {
       bindings: [{ agentId: "opus", match: { channel: "discord", guildId: "g1", roles: ["r1"] } }],
@@ -700,30 +694,6 @@ describe("role-based agent routing", () => {
       channel: "discord",
       guildId: "g1",
       peer: { kind: "channel", id: "c1" },
-=======
-  test("parent peer binding still beats guild+roles", () => {
-    expectDiscordRoleRoute({
-      bindings: [
-        makeDiscordRoleBinding("parent-agent", {
-          peerId: "parent-1",
-          includeGuildId: false,
-        }),
-        makeDiscordRoleBinding("roles-agent", { roles: ["r1"] }),
-      ],
-      memberRoleIds: ["r1"],
-      peerId: "thread-1",
-      parentPeerId: "parent-1",
-      expectedAgentId: "parent-agent",
-      expectedMatchedBy: "binding.peer.parent",
-    });
-  });
-
-  test("no memberRoleIds means guild+roles doesn't match", () => {
-    expectDiscordRoleRoute({
-      bindings: [makeDiscordRoleBinding("opus", { roles: ["r1"] })],
-      expectedAgentId: "main",
-      expectedMatchedBy: "default",
->>>>>>> 31f83c86b (refactor(test): dedupe agent harnesses and routing fixtures)
     });
   });
 
@@ -748,7 +718,6 @@ describe("role-based agent routing", () => {
     });
   });
 
-<<<<<<< HEAD
   test("CRITICAL: guild+roles binding NOT matched as guild-only when roles don't match", () => {
     const cfg: OpenClawConfig = {
       bindings: [
@@ -759,11 +728,6 @@ describe("role-based agent routing", () => {
       cfg,
       channel: "discord",
       guildId: "g1",
-=======
-  test("guild+roles binding does not match as guild-only when roles do not match", () => {
-    expectDiscordRoleRoute({
-      bindings: [makeDiscordRoleBinding("opus", { roles: ["admin"] })],
->>>>>>> 31f83c86b (refactor(test): dedupe agent harnesses and routing fixtures)
       memberRoleIds: ["regular"],
       expectedAgentId: "main",
       expectedMatchedBy: "default",

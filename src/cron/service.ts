@@ -3,10 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { CronJob, CronJobCreate, CronJobPatch } from "./types.js";
->>>>>>> 115cfb443 (gateway: add cron finished-run webhook (#14535))
 import * as ops from "./service/ops.js";
 import { type CronServiceDeps, createCronServiceState } from "./service/state.js";
 import type { CronJobCreate, CronJobPatch } from "./types.js";

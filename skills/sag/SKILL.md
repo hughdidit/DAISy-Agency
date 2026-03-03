@@ -2,29 +2,7 @@
 name: sag
 description: ElevenLabs text-to-speech with mac-style say UX.
 homepage: https://sag.sh
-<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"🗣️","requires":{"bins":["sag"],"env":["ELEVENLABS_API_KEY"]},"primaryEnv":"ELEVENLABS_API_KEY","install":[{"id":"brew","kind":"brew","formula":"steipete/tap/sag","bins":["sag"],"label":"Install sag (brew)"}]}}
-=======
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🗣️",
-        "requires": { "bins": ["sag"], "env": ["ELEVENLABS_API_KEY"] },
-        "primaryEnv": "ELEVENLABS_API_KEY",
-        "install":
-          [
-            {
-              "id": "brew",
-              "kind": "brew",
-              "formula": "steipete/tap/sag",
-              "bins": ["sag"],
-              "label": "Install sag (brew)",
-            },
-          ],
-      },
-  }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 ---
 
 # sag

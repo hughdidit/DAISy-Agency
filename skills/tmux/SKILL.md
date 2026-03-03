@@ -1,12 +1,7 @@
 ---
 name: tmux
 description: Remote-control tmux sessions for interactive CLIs by sending keystrokes and scraping pane output.
-<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"🧵","os":["darwin","linux"],"requires":{"bins":["tmux"]}}}
-=======
-metadata:
-  { "openclaw": { "emoji": "🧵", "os": ["darwin", "linux"], "requires": { "bins": ["tmux"] } } }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 ---
 
 # tmux Skill (Moltbot)
@@ -16,11 +11,7 @@ Use tmux only when you need an interactive TTY. Prefer exec background mode for 
 ## Quickstart (isolated socket, exec tool)
 
 ```bash
-<<<<<<< HEAD
 SOCKET_DIR="${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/moltbot-tmux-sockets}"
-=======
-SOCKET_DIR="${OPENCLAW_TMUX_SOCKET_DIR:-${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/openclaw-tmux-sockets}}"
->>>>>>> fd00d5688 (chore: update openclaw naming)
 mkdir -p "$SOCKET_DIR"
 SOCKET="$SOCKET_DIR/moltbot.sock"
 SESSION=moltbot-python
@@ -40,13 +31,8 @@ To monitor:
 
 ## Socket convention
 
-<<<<<<< HEAD
 - Use `CLAWDBOT_TMUX_SOCKET_DIR` (default `${TMPDIR:-/tmp}/moltbot-tmux-sockets`).
 - Default socket path: `"$CLAWDBOT_TMUX_SOCKET_DIR/moltbot.sock"`.
-=======
-- Use `OPENCLAW_TMUX_SOCKET_DIR` (legacy `CLAWDBOT_TMUX_SOCKET_DIR` also supported).
-- Default socket path: `"$OPENCLAW_TMUX_SOCKET_DIR/openclaw.sock"`.
->>>>>>> fd00d5688 (chore: update openclaw naming)
 
 ## Targeting panes and naming
 

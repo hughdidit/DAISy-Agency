@@ -3,12 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { formatAge } from "../infra/channel-summary.js";
-=======
-import type { GatewayStatusSummary } from "./tui-types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { GatewayStatusSummary } from "./tui-types.js";
 >>>>>>> ed11e93cf (chore(format))

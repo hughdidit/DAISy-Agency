@@ -6,14 +6,9 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { Command } from "commander";
 
-=======
-=======
-import type { Command } from "commander";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -50,24 +45,9 @@ function resolveMode(input: string): "off" | "serve" | "funnel" {
 }
 
 function resolveDefaultStorePath(config: VoiceCallConfig): string {
-<<<<<<< HEAD
   const base =
     config.store?.trim() || path.join(os.homedir(), "clawd", "voice-calls");
   return path.join(resolveUserPath(base), "calls.jsonl");
-=======
-  const preferred = path.join(os.homedir(), ".openclaw", "voice-calls");
-  const resolvedPreferred = resolveUserPath(preferred);
-  const existing =
-    [resolvedPreferred].find((dir) => {
-      try {
-        return fs.existsSync(path.join(dir, "calls.jsonl")) || fs.existsSync(dir);
-      } catch {
-        return false;
-      }
-    }) ?? resolvedPreferred;
-  const base = config.store?.trim() ? resolveUserPath(config.store) : existing;
-  return path.join(base, "calls.jsonl");
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 
 function percentile(values: number[], p: number): number {

@@ -1,9 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { ChannelOutboundAdapter } from "../types.js";
-import { getGlobalHookRunner } from "../../../plugins/hook-runner-global.js";
->>>>>>> 51296e770 (feat(slack): land thread-ownership from @DarlingtonDeveloper (#15775))
 import { sendMessageSlack } from "../../../slack/send.js";
 import type { ChannelOutboundAdapter } from "../types.js";
 =======
@@ -114,41 +109,17 @@ export const slackOutbound: ChannelOutboundAdapter = {
       identity,
     });
   },
-<<<<<<< HEAD
   sendMedia: async ({ to, text, mediaUrl, accountId, deps, replyToId, threadId, identity }) => {
     const send = deps?.sendSlack ?? sendMessageSlack;
     // Use threadId fallback so routed tool notifications stay in the Slack thread.
     const threadTs = replyToId ?? (threadId != null ? String(threadId) : undefined);
     const hookResult = await applySlackMessageSendingHooks({
-=======
-  sendMedia: async ({
-    to,
-    text,
-    mediaUrl,
-    mediaLocalRoots,
-    accountId,
-    deps,
-    replyToId,
-    threadId,
-    identity,
-  }) => {
-    return await sendSlackOutboundMessage({
->>>>>>> 753491ab8 (refactor(slack): dedupe outbound send flow)
       to,
       text,
       mediaUrl,
-<<<<<<< HEAD
       threadTs,
       accountId: accountId ?? undefined,
       ...(slackIdentity ? { identity: slackIdentity } : {}),
-=======
-      mediaLocalRoots,
-      accountId,
-      deps,
-      replyToId,
-      threadId,
-      identity,
->>>>>>> 753491ab8 (refactor(slack): dedupe outbound send flow)
     });
   },
 };

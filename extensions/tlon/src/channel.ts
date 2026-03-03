@@ -9,26 +9,11 @@ import {
   applyAccountNameToChannelSection,
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-import { buildTlonAccountFields } from "./account-fields.js";
-import { tlonChannelConfigSchema } from "./config-schema.js";
-import { monitorTlonProvider } from "./monitor/index.js";
-import { tlonOnboardingAdapter } from "./onboarding.js";
-import { formatTargetHint, normalizeShip, parseTlonTarget } from "./targets.js";
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { resolveTlonAccount, listTlonAccountIds } from "./types.js";
-<<<<<<< HEAD
 import { formatTargetHint, normalizeShip, parseTlonTarget } from "./targets.js";
 import { ensureUrbitConnectPatched, Urbit } from "./urbit/http-api.js";
-=======
-import { authenticate } from "./urbit/auth.js";
-import { UrbitChannelClient } from "./urbit/channel-client.js";
-import { ssrfPolicyFromAllowPrivateNetwork } from "./urbit/context.js";
->>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
 import { buildMediaText, sendDm, sendGroupMessage } from "./urbit/send.js";
 import { monitorTlonProvider } from "./monitor/index.js";
 import { tlonChannelConfigSchema } from "./config-schema.js";
@@ -60,7 +45,6 @@ function applyTlonSetupConfig(params: {
   });
   const base = namedConfig.channels?.tlon ?? {};
 
-<<<<<<< HEAD
   const payload = {
     ...(input.ship ? { ship: input.ship } : {}),
     ...(input.url ? { url: input.url } : {}),
@@ -71,9 +55,6 @@ function applyTlonSetupConfig(params: {
       ? { autoDiscoverChannels: input.autoDiscoverChannels }
       : {}),
   };
-=======
-  const payload = buildTlonAccountFields(input);
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
   if (useDefault) {
     return {
@@ -128,11 +109,7 @@ const tlonOutbound: ChannelOutboundAdapter = {
     return { ok: true, to: parsed.nest };
   },
   sendText: async ({ cfg, to, text, accountId, replyToId, threadId }) => {
-<<<<<<< HEAD
     const account = resolveTlonAccount(cfg as MoltbotConfig, accountId ?? undefined);
-=======
-    const account = resolveTlonAccount(cfg, accountId ?? undefined);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
     if (!account.configured || !account.ship || !account.url || !account.code) {
       throw new Error("Tlon account not configured");
     }
@@ -142,14 +119,8 @@ const tlonOutbound: ChannelOutboundAdapter = {
       throw new Error(`Invalid Tlon target. Use ${formatTargetHint()}`);
     }
 
-<<<<<<< HEAD
     ensureUrbitConnectPatched();
     const api = await Urbit.authenticate({
-=======
-    const ssrfPolicy = ssrfPolicyFromAllowPrivateNetwork(account.allowPrivateNetwork);
-    const cookie = await authenticate(account.url, account.code, { ssrfPolicy });
-    const api = new UrbitChannelClient(account.url, cookie, {
->>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
       ship: account.ship.replace(/^~/, ""),
       url: account.url,
       code: account.code,
@@ -219,14 +190,8 @@ export const tlonPlugin: ChannelPlugin = {
   configSchema: tlonChannelConfigSchema,
   config: {
 <<<<<<< HEAD
-<<<<<<< HEAD
     listAccountIds: (cfg) => listTlonAccountIds(cfg as MoltbotConfig),
     resolveAccount: (cfg, accountId) => resolveTlonAccount(cfg as MoltbotConfig, accountId ?? undefined),
-=======
-    listAccountIds: (cfg) => listTlonAccountIds(cfg as OpenClawConfig),
-    resolveAccount: (cfg, accountId) =>
-      resolveTlonAccount(cfg as OpenClawConfig, accountId ?? undefined),
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
     listAccountIds: (cfg) => listTlonAccountIds(cfg),
     resolveAccount: (cfg, accountId) => resolveTlonAccount(cfg, accountId ?? undefined),
@@ -307,22 +272,14 @@ export const tlonPlugin: ChannelPlugin = {
     resolveAccountId: ({ accountId }) => normalizeAccountId(accountId),
     applyAccountName: ({ cfg, accountId, name }) =>
       applyAccountNameToChannelSection({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "tlon",
         accountId,
         name,
       }),
     validateInput: ({ cfg, accountId, input }) => {
       const setupInput = input as TlonSetupInput;
-<<<<<<< HEAD
       const resolved = resolveTlonAccount(cfg as MoltbotConfig, accountId ?? undefined);
-=======
-      const resolved = resolveTlonAccount(cfg, accountId ?? undefined);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       const ship = setupInput.ship?.trim() || resolved.ship;
       const url = setupInput.url?.trim() || resolved.url;
       const code = setupInput.code?.trim() || resolved.code;
@@ -339,11 +296,7 @@ export const tlonPlugin: ChannelPlugin = {
     },
     applyAccountConfig: ({ cfg, accountId, input }) =>
       applyTlonSetupConfig({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         accountId,
         input: input as TlonSetupInput,
       }),
@@ -398,14 +351,8 @@ export const tlonPlugin: ChannelPlugin = {
         return { ok: false, error: "Not configured" };
       }
       try {
-<<<<<<< HEAD
         ensureUrbitConnectPatched();
         const api = await Urbit.authenticate({
-=======
-        const ssrfPolicy = ssrfPolicyFromAllowPrivateNetwork(account.allowPrivateNetwork);
-        const cookie = await authenticate(account.url, account.code, { ssrfPolicy });
-        const api = new UrbitChannelClient(account.url, cookie, {
->>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
           ship: account.ship.replace(/^~/, ""),
           url: account.url,
           code: account.code,

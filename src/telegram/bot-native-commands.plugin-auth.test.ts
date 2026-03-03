@@ -24,8 +24,6 @@ vi.mock("../pairing/pairing-store.js", () => ({
 }));
 
 describe("registerTelegramNativeCommands (plugin auth)", () => {
-<<<<<<< HEAD
-=======
   it("does not register plugin commands in menu when native=false but keeps handlers available", () => {
     const specs = Array.from({ length: 101 }, (_, i) => ({
       name: `cmd_${i}`,
@@ -78,7 +76,6 @@ describe("registerTelegramNativeCommands (plugin auth)", () => {
     expect(Object.keys(handlers)).toHaveLength(101);
   });
 
->>>>>>> f537bd179 (fix(telegram): exclude plugin commands from setMyCommands when native=false (openclaw#15164) thanks @Glucksberg)
   it("allows requireAuth:false plugin command even when sender is unauthorized", async () => {
     const command = {
       name: "plugin",

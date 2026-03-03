@@ -4,14 +4,10 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { STATE_DIR } from "../config/paths.js";
 import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";
 import { logVerbose } from "../globals.js";
-=======
-import { resolveApiKeyForProvider } from "../agents/model-auth.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { ModelCatalogEntry } from "../agents/model-catalog.js";
@@ -38,11 +34,6 @@ import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { OpenClawConfig } from "../config/config.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

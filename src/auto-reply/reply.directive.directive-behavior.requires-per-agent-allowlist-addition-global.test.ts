@@ -10,7 +10,6 @@ import {
 import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -51,8 +50,6 @@ function _assertModelSelection(
   expect(entry?.providerOverride).toBe(selection.provider);
 }
 
-=======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
 =======
 function makeWorkElevatedAllowlistConfig(home: string) {
   const base = makeWhatsAppDirectiveConfig(
@@ -138,7 +135,6 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -164,9 +160,6 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["+1222", "+1333"] } },
           session: { store: path.join(home, "sessions.json") },
         },
-=======
-        makeWorkElevatedAllowlistConfig(home),
->>>>>>> b7ef0a5d0 (refactor(test): reuse directive per-agent allowlist config)
       );
 
       const text = replyText(res);
@@ -182,7 +175,6 @@ describe("directive behavior", () => {
           SessionKey: "agent:work:main",
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -208,9 +200,6 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["+1222", "+1333"] } },
           session: { store: path.join(home, "sessions.json") },
         },
-=======
-        makeWorkElevatedAllowlistConfig(home),
->>>>>>> b7ef0a5d0 (refactor(test): reuse directive per-agent allowlist config)
       );
 
       const text = replyText(res);
@@ -224,7 +213,6 @@ describe("directive behavior", () => {
         makeCommandMessage("/elevated off"),
         {},
 <<<<<<< HEAD
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -232,13 +220,6 @@ describe("directive behavior", () => {
               workspace: path.join(home, "clawd"),
               sandbox: { mode: "off" },
             },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          {
-            model: "anthropic/claude-opus-4-5",
-            sandbox: { mode: "off" },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
           },
           {
             tools: {
@@ -266,22 +247,11 @@ describe("directive behavior", () => {
         makeCommandMessage("/elevated maybe"),
         {},
 <<<<<<< HEAD
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: "anthropic/claude-opus-4-5" },
-          {
-            tools: {
-              elevated: {
-                allowFrom: { whatsapp: ["+1222"] },
-              },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
             },
             channels: { whatsapp: { allowFrom: ["+1222"] } },
           },
@@ -302,22 +272,11 @@ describe("directive behavior", () => {
         makeCommandMessage("/elevated off\n/verbose on"),
         {},
 <<<<<<< HEAD
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: "anthropic/claude-opus-4-5" },
-          {
-            tools: {
-              elevated: {
-                allowFrom: { whatsapp: ["+1222"] },
-              },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
             },
             channels: { whatsapp: { allowFrom: ["+1222"] } },
           },

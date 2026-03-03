@@ -1,6 +1,5 @@
 import fsSync from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -28,21 +27,6 @@ describe("web monitor inbox", () => {
     vi.useRealTimers();
     fsSync.rmSync(authDir, { recursive: true, force: true });
   });
-=======
-import "./monitor-inbox.test-harness.js";
-import { describe, expect, it, vi } from "vitest";
-import { monitorWebInbox } from "./inbound.js";
-import {
-  DEFAULT_ACCOUNT_ID,
-  getAuthDir,
-  getSock,
-  installWebMonitorInboxUnitTestHooks,
-} from "./monitor-inbox.test-harness.js";
-
-describe("web monitor inbox", () => {
-  installWebMonitorInboxUnitTestHooks();
-<<<<<<< HEAD
->>>>>>> b8b7a6e0f (refactor(test): dedupe web monitor inbox test setup)
 =======
   type InboxOnMessage = NonNullable<Parameters<typeof monitorWebInbox>[0]["onMessage"]>;
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)

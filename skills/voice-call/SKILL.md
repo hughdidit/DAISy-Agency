@@ -1,20 +1,7 @@
 ---
 name: voice-call
-<<<<<<< HEAD
 description: Start voice calls via the Moltbot voice-call plugin.
 metadata: {"moltbot":{"emoji":"📞","skillKey":"voice-call","requires":{"config":["plugins.entries.voice-call.enabled"]}}}
-=======
-description: Start voice calls via the OpenClaw voice-call plugin.
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "📞",
-        "skillKey": "voice-call",
-        "requires": { "config": ["plugins.entries.voice-call.enabled"] },
-      },
-  }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 ---
 
 # Voice Call

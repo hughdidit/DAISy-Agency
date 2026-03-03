@@ -1,13 +1,8 @@
 import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { detectMime, extensionForMime, imageMimeFromFormat } from "./mime.js";
-=======
-=======
-import { mediaKindFromMime } from "./constants.js";
->>>>>>> 3fd40fc5a (perf(test): fold media constants assertions into mime suite)
 import {
   detectMime,
   extensionForMime,
@@ -104,8 +99,6 @@ describe("extensionForMime", () => {
     expect(extensionForMime(mime)).toBe(expected);
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("isAudioFileName", () => {
   it("matches known audio extensions", () => {
@@ -132,7 +125,6 @@ describe("normalizeMimeType", () => {
   });
 });
 <<<<<<< HEAD
->>>>>>> 6ebf503fa (refactor(media): centralize voice compatibility policy)
 =======
 
 describe("mediaKindFromMime", () => {

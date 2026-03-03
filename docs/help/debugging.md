@@ -66,19 +66,11 @@ If you don’t have a global install yet, run the CLI via `pnpm moltbot ...`.
 
 What this does:
 
-<<<<<<< HEAD
 1) **Profile isolation** (global `--dev`)
    - `CLAWDBOT_PROFILE=dev`
    - `CLAWDBOT_STATE_DIR=~/.clawdbot-dev`
    - `CLAWDBOT_CONFIG_PATH=~/.clawdbot-dev/moltbot.json`
    - `CLAWDBOT_GATEWAY_PORT=19001` (browser/canvas shift accordingly)
-=======
-1. **Profile isolation** (global `--dev`)
-   - `OPENCLAW_PROFILE=dev`
-   - `OPENCLAW_STATE_DIR=~/.openclaw-dev`
-   - `OPENCLAW_CONFIG_PATH=~/.openclaw-dev/openclaw.json`
-   - `OPENCLAW_GATEWAY_PORT=19001` (browser/canvas shift accordingly)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 2. **Dev bootstrap** (`gateway --dev`)
    - Writes a minimal config if missing (`gateway.mode=local`, bind loopback).
@@ -126,11 +118,7 @@ pnpm gateway:watch --raw-stream
 Optional path override:
 
 ```bash
-<<<<<<< HEAD
 pnpm gateway:watch --force --raw-stream --raw-stream-path ~/.clawdbot/logs/raw-stream.jsonl
-=======
-pnpm gateway:watch --raw-stream --raw-stream-path ~/.openclaw/logs/raw-stream.jsonl
->>>>>>> 81741c37f (fix(gateway): remove watch-mode build/start race (#18782))
 ```
 
 Equivalent env vars:

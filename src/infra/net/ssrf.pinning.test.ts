@@ -1,15 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import { createPinnedLookup, resolvePinnedHostname } from "./ssrf.js";
-=======
-import {
-  createPinnedLookup,
-  type LookupFn,
-  resolvePinnedHostname,
-  resolvePinnedHostnameWithPolicy,
-} from "./ssrf.js";
->>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
 
 function createPublicLookupMock(): LookupFn {
   return vi.fn(async () => [{ address: "93.184.216.34", family: 4 }]) as unknown as LookupFn;
@@ -85,8 +76,6 @@ describe("ssrf pinning", () => {
     expect(fallback).toHaveBeenCalledTimes(1);
     expect(result.address).toBe("1.2.3.4");
   });
-<<<<<<< HEAD
-=======
 
   it("enforces hostname allowlist when configured", async () => {
     const lookup = vi.fn(async () => [
@@ -122,7 +111,6 @@ describe("ssrf pinning", () => {
     ).rejects.toThrow(/allowlist/i);
   });
 <<<<<<< HEAD
->>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
 =======
 
   it.each([
@@ -147,8 +135,6 @@ describe("ssrf pinning", () => {
     expect(lookup).not.toHaveBeenCalled();
   });
 
-<<<<<<< HEAD
-=======
   it("sorts IPv4 addresses before IPv6 in pinned results", async () => {
     const lookup = vi.fn(async () => [
       { address: "2001:db8::1", family: 6 },
@@ -176,7 +162,6 @@ describe("ssrf pinning", () => {
     expect(pinned.addresses).toEqual(["2606:2800:220:1:248:1893:25c8:1946", "93.184.216.34"]);
   });
 
->>>>>>> d18ae2256 (refactor: unify channel plugin resolution, family ordering, and changelog entry tooling)
   it("allows ISATAP embedded private IPv4 when private network is explicitly enabled", async () => {
     const lookup = vi.fn(async () => [
       { address: "2001:db8:1234::5efe:127.0.0.1", family: 6 },

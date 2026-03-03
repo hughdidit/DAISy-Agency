@@ -168,12 +168,7 @@ Behavior:
 - Sub-agents are not allowed to call `sessions_spawn` (no sub-agent → sub-agent spawning).
 - Always non-blocking: returns `{ status: "accepted", runId, childSessionKey }` immediately.
 <<<<<<< HEAD
-<<<<<<< HEAD
 - After completion, Moltbot runs a sub-agent **announce step** and posts the result to the requester chat channel.
-=======
-- After completion, OpenClaw runs a sub-agent **announce step** and posts the result to the requester chat channel.
-  - If the assistant final reply is empty, the latest `toolResult` from sub-agent history is included as `Result`.
->>>>>>> fa4f66255 (fix(subagents): return completion message for manual session spawns)
 =======
 - After completion, OpenClaw runs a sub-agent **announce step** and posts the result to the requester chat channel.
   - If the assistant final reply is empty, the latest `toolResult` from sub-agent history is included as `Result`.

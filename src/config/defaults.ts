@@ -1,29 +1,15 @@
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
-<<<<<<< HEAD
 import { parseModelRef } from "../agents/model-selection.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-=======
-import { normalizeProviderId, parseModelRef } from "../agents/model-selection.js";
->>>>>>> 29a782b9c (Models/Config: default missing Anthropic model api fields)
 import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from "./agent-limits.js";
-<<<<<<< HEAD
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
-=======
-import { resolveAgentModelPrimaryValue } from "./model-input.js";
-<<<<<<< HEAD
->>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 import { resolveTalkApiKey } from "./talk.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
 import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from "./agent-limits.js";
-=======
-import type { OpenClawConfig } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ModelDefinitionConfig } from "./types.models.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -44,12 +30,7 @@ import type { ModelDefinitionConfig } from "./types.models.js";
 =======
 import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from "./agent-limits.js";
 import { resolveTalkApiKey } from "./talk.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { OpenClawConfig } from "./types.js";
-import type { ModelDefinitionConfig } from "./types.models.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 type WarnState = { warned: boolean };
 
@@ -59,13 +40,8 @@ type AnthropicAuthDefaultsMode = "api_key" | "oauth";
 
 const DEFAULT_MODEL_ALIASES: Readonly<Record<string, string>> = {
   // Anthropic (pi-ai catalog uses "latest" ids without date suffix)
-<<<<<<< HEAD
   opus: "anthropic/claude-opus-4-5",
   sonnet: "anthropic/claude-sonnet-4-5",
-=======
-  opus: "anthropic/claude-opus-4-6",
-  sonnet: "anthropic/claude-sonnet-4-6",
->>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
 
   // OpenAI
   gpt: "openai/gpt-5.2",
@@ -212,12 +188,7 @@ export function applySessionDefaults(
   return next;
 }
 
-<<<<<<< HEAD
 export function applyTalkApiKey(config: MoltbotConfig): MoltbotConfig {
-=======
-export function applyTalkApiKey(config: OpenClawConfig): OpenClawConfig {
-  const normalized = normalizeTalkConfig(config);
->>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
   const resolved = resolveTalkApiKey();
   if (!resolved) {
     return normalized;

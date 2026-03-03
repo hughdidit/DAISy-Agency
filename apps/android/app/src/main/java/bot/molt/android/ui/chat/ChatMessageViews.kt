@@ -31,34 +31,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/chat/ChatMessageViews.kt
 import androidx.compose.foundation.Image
 import bot.molt.android.chat.ChatMessage
 import bot.molt.android.chat.ChatMessageContent
 import bot.molt.android.chat.ChatPendingToolCall
 import bot.molt.android.tools.ToolDisplayRegistry
-=======
-import androidx.compose.ui.unit.sp
-import ai.openclaw.android.chat.ChatMessage
-import ai.openclaw.android.chat.ChatMessageContent
-import ai.openclaw.android.chat.ChatPendingToolCall
-import ai.openclaw.android.tools.ToolDisplayRegistry
-import ai.openclaw.android.ui.mobileAccent
-import ai.openclaw.android.ui.mobileAccentSoft
-import ai.openclaw.android.ui.mobileBorder
-import ai.openclaw.android.ui.mobileBorderStrong
-import ai.openclaw.android.ui.mobileCallout
-import ai.openclaw.android.ui.mobileCaption1
-import ai.openclaw.android.ui.mobileCaption2
-import ai.openclaw.android.ui.mobileCodeBg
-import ai.openclaw.android.ui.mobileCodeText
-import ai.openclaw.android.ui.mobileHeadline
-import ai.openclaw.android.ui.mobileText
-import ai.openclaw.android.ui.mobileTextSecondary
-import ai.openclaw.android.ui.mobileWarning
-import ai.openclaw.android.ui.mobileWarningSoft
-import java.util.Locale
->>>>>>> 81ff074a5 (style(android-chat): align bubbles and markdown with RN):apps/android/app/src/main/java/ai/openclaw/android/ui/chat/ChatMessageViews.kt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

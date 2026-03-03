@@ -23,13 +23,8 @@ See [Venice AI](/providers/venice).
 
 ## Quick start
 
-<<<<<<< HEAD
 1) Authenticate with the provider (usually via `moltbot onboard`).
 2) Set the default model:
-=======
-1. Authenticate with the provider (usually via `openclaw onboard`).
-2. Set the default model:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```json5
 {
@@ -55,12 +50,7 @@ See [Venice AI](/providers/venice).
 - [Xiaomi](/providers/xiaomi)
 - [GLM models](/providers/glm)
 - [MiniMax](/providers/minimax)
-<<<<<<< HEAD
 - [Venius (Venice AI, privacy-focused)](/providers/venice)
-=======
-- [Venice (Venice AI, privacy-focused)](/providers/venice)
-- [Hugging Face (Inference)](/providers/huggingface)
->>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 - [Ollama (local models)](/providers/ollama)
 - [vLLM (local models)](/providers/vllm)
 - [Qianfan](/providers/qianfan)

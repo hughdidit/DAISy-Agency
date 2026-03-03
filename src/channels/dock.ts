@@ -1,10 +1,5 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-=======
->>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
@@ -17,12 +12,8 @@ import { resolveSlackAccount, resolveSlackReplyToMode } from "../slack/accounts.
 import { buildSlackThreadingToolContext } from "../slack/threading-tool-context.js";
 import { resolveTelegramAccount } from "../telegram/accounts.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { normalizeAccountId } from "../routing/session-key.js";
 import { normalizeE164 } from "../utils.js";
-=======
-import { escapeRegExp, normalizeE164 } from "../utils.js";
->>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 import { resolveWhatsAppAccount } from "../web/accounts.js";
 import { normalizeWhatsAppTarget } from "../whatsapp/normalize.js";
 import { requireActivePluginRegistry } from "../plugins/runtime.js";
@@ -46,17 +37,11 @@ import {
 } from "./plugins/group-mentions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import { normalizeSignalMessagingTarget } from "./plugins/normalize/signal.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> b20339a23 (fix(signal): canonicalize message targets in tool and inbound flows)
-=======
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 =======
 import { normalizeWhatsAppAllowFromEntries } from "./plugins/normalize/whatsapp.js";
 >>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
@@ -73,13 +58,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   ChannelThreadingAdapter,
-=======
-  ChannelThreadingContext,
-  ChannelThreadingAdapter,
-  ChannelThreadingToolContext,
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
   ChannelThreadingContext,
   ChannelThreadingAdapter,
@@ -96,10 +75,7 @@ import type {
   ChannelThreadingToolContext,
 } from "./plugins/types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 =======
@@ -119,7 +95,6 @@ export type ChannelDock = {
   };
   streaming?: ChannelDockStreaming;
   elevated?: ChannelElevatedAdapter;
-<<<<<<< HEAD
   config?: {
     resolveAllowFrom?: (params: {
       cfg: MoltbotConfig;
@@ -135,12 +110,6 @@ export type ChannelDock = {
       accountId?: string | null;
     }) => string | undefined;
   };
-=======
-  config?: Pick<
-    ChannelConfigAdapter<unknown>,
-    "resolveAllowFrom" | "formatAllowFrom" | "resolveDefaultTo"
-  >;
->>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
   groups?: ChannelGroupAdapter;
   mentions?: ChannelMentionAdapter;
   threading?: ChannelThreadingAdapter;
@@ -162,18 +131,6 @@ const formatLower = (allowFrom: Array<string | number>) =>
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-=======
-const stringifyAllowFrom = (allowFrom: Array<string | number>) =>
-  allowFrom.map((entry) => String(entry));
-
-const trimAllowFromEntries = (allowFrom: Array<string | number>) =>
-  allowFrom.map((entry) => String(entry).trim()).filter(Boolean);
-
-<<<<<<< HEAD
->>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 =======
 const DEFAULT_OUTBOUND_TEXT_CHUNK_LIMIT_4000 = { textChunkLimit: 4000 };
 
@@ -210,17 +167,8 @@ const formatDiscordAllowFrom = (allowFrom: Array<string | number>) =>
     )
     .filter(Boolean);
 
-<<<<<<< HEAD
 >>>>>>> dff869261 (fix(discord): normalize command allowFrom prefixes)
 function buildDirectOrGroupThreadToolContext(params: {
-=======
-function resolveDirectOrGroupChannelId(context: ChannelThreadingContext): string | undefined {
-  const isDirect = context.ChatType?.toLowerCase() === "direct";
-  return (isDirect ? (context.From ?? context.To) : context.To)?.trim() || undefined;
-}
-
-function buildSignalThreadToolContext(params: {
->>>>>>> b20339a23 (fix(signal): canonicalize message targets in tool and inbound flows)
   context: ChannelThreadingContext;
   hasRepliedRef: ChannelThreadingToolContext["hasRepliedRef"];
 }): ChannelThreadingToolContext {
@@ -245,39 +193,7 @@ function buildIMessageThreadToolContext(params: {
     hasRepliedRef: params.hasRepliedRef,
   };
 }
-<<<<<<< HEAD
 >>>>>>> d9c891eb9 (refactor(channels): share threading tool context)
-=======
-
-function buildThreadToolContextFromMessageThreadOrReply(params: {
-  context: ChannelThreadingContext;
-  hasRepliedRef: ChannelThreadingToolContext["hasRepliedRef"];
-}): ChannelThreadingToolContext {
-  const threadId = params.context.MessageThreadId ?? params.context.ReplyToId;
-  return {
-    currentChannelId: params.context.To?.trim() || undefined,
-    currentThreadTs: threadId != null ? String(threadId) : undefined,
-    hasRepliedRef: params.hasRepliedRef,
-  };
-}
-
-function resolveCaseInsensitiveAccount<T>(
-  accounts: Record<string, T> | undefined,
-  accountId?: string | null,
-): T | undefined {
-  if (!accounts) {
-    return undefined;
-  }
-  const normalized = normalizeAccountId(accountId);
-  return (
-    accounts[normalized] ??
-    accounts[
-      Object.keys(accounts).find((key) => key.toLowerCase() === normalized.toLowerCase()) ?? ""
-    ]
-  );
-}
-<<<<<<< HEAD
->>>>>>> 1f5cd65d6 (refactor(channels): share case-insensitive account lookup in dock)
 =======
 
 function resolveDefaultToCaseInsensitiveAccount(params: {
@@ -292,39 +208,7 @@ function resolveDefaultToCaseInsensitiveAccount(params: {
   const account = resolveCaseInsensitiveAccount(params.channel?.accounts, params.accountId);
   return (account?.defaultTo ?? params.channel?.defaultTo)?.trim() || undefined;
 }
-<<<<<<< HEAD
 >>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
-=======
-
-function resolveChannelDefaultTo(
-  channel:
-    | {
-        accounts?: Record<string, { defaultTo?: string }>;
-        defaultTo?: string;
-      }
-    | undefined,
-  accountId?: string | null,
-): string | undefined {
-  return resolveDefaultToCaseInsensitiveAccount({ channel, accountId });
-}
-
-type CaseInsensitiveDefaultToChannel = {
-  accounts?: Record<string, { defaultTo?: string }>;
-  defaultTo?: string;
-};
-
-type CaseInsensitiveDefaultToChannels = Partial<
-  Record<"irc" | "googlechat", CaseInsensitiveDefaultToChannel>
->;
-
-function resolveNamedChannelDefaultTo(params: {
-  channels?: CaseInsensitiveDefaultToChannels;
-  channelId: keyof CaseInsensitiveDefaultToChannels;
-  accountId?: string | null;
-}): string | undefined {
-  return resolveChannelDefaultTo(params.channels?.[params.channelId], params.accountId);
-}
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 // Channel docks: lightweight channel metadata/behavior for shared code paths.
 //
 // Rules:
@@ -361,7 +245,6 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       resolveToolPolicy: resolveTelegramGroupToolPolicy,
     },
     threading: {
-<<<<<<< HEAD
       resolveReplyToMode: ({ cfg }) => cfg.channels?.telegram?.replyToMode ?? "first",
       buildToolContext: ({ context, hasRepliedRef }) => {
         const threadId = context.MessageThreadId ?? context.ReplyToId;
@@ -371,12 +254,6 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
           hasRepliedRef,
         };
       },
-=======
-      resolveReplyToMode: ({ cfg }) => cfg.channels?.telegram?.replyToMode ?? "off",
-<<<<<<< HEAD
-      buildToolContext: ({ context, hasRepliedRef }) =>
-        buildThreadToolContextFromMessageThreadOrReply({ context, hasRepliedRef }),
->>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 =======
       buildToolContext: ({ context, hasRepliedRef }) => {
         // Telegram auto-threading should only use actual thread/topic IDs.
@@ -483,8 +360,6 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       }),
     },
   },
-<<<<<<< HEAD
-=======
   irc: {
     id: "irc",
     capabilities: {
@@ -543,7 +418,6 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       },
     },
   },
->>>>>>> 1f5cd65d6 (refactor(channels): share case-insensitive account lookup in dock)
   googlechat: {
     id: "googlechat",
     capabilities: {

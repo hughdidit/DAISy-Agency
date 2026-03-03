@@ -26,7 +26,6 @@ describe("getShellConfig", () => {
   let envSnapshot: ReturnType<typeof captureEnv>;
   const tempDirs: string[] = [];
 
-<<<<<<< HEAD
   const createTempBin = (files: string[]) => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-shell-"));
     tempDirs.push(dir);
@@ -38,8 +37,6 @@ describe("getShellConfig", () => {
     return dir;
   };
 
-=======
->>>>>>> a814cce35 (refactor(test): share temp command dir helper in shell utils e2e)
   beforeEach(() => {
     envSnapshot = captureEnv(["SHELL", "PATH"]);
     if (!isWin) {

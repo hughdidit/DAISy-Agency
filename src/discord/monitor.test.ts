@@ -67,36 +67,7 @@ describe("registerDiscordListener", () => {
 });
 
 describe("DiscordMessageListener", () => {
-<<<<<<< HEAD
   it("returns before the handler finishes", async () => {
-=======
-  function createDeferred() {
-    let resolve: (() => void) | null = null;
-    const promise = new Promise<void>((done) => {
-      resolve = done;
-    });
-    return {
-      promise,
-      resolve: () => {
-        if (typeof resolve === "function") {
-          (resolve as () => void)();
-        }
-      },
-    };
-  }
-
-<<<<<<< HEAD
-  async function expectPending(promise: Promise<unknown>) {
-    let resolved = false;
-    void promise.then(() => {
-      resolved = true;
-    });
-    await Promise.resolve();
-    expect(resolved).toBe(false);
-  }
-
-  it("awaits the handler before returning", async () => {
->>>>>>> 150c048b0 (refactor: unify discord listener slow-log flow and test helpers)
 =======
   it("returns immediately while handler continues in background", async () => {
 >>>>>>> 5056b6438 (fix(discord): harden reconnect recovery and preserve message delivery)
@@ -113,7 +84,6 @@ describe("DiscordMessageListener", () => {
       {} as unknown as import("@buape/carbon").Client,
     );
 
-<<<<<<< HEAD
     expect(handler).toHaveBeenCalledOnce();
     expect(handlerResolved).toBe(false);
 <<<<<<< HEAD
@@ -123,16 +93,6 @@ describe("DiscordMessageListener", () => {
       (release as () => void)();
     }
     await handlerPromise;
-=======
-    await expectPending(handlePromise);
-=======
-    // handle() returns immediately while the background queue starts on the next tick.
-    await expect(handlePromise).resolves.toBeUndefined();
-    await vi.waitFor(() => {
-      expect(handler).toHaveBeenCalledOnce();
-    });
-    expect(handlerResolved).toBe(false);
->>>>>>> 5056b6438 (fix(discord): harden reconnect recovery and preserve message delivery)
 
     // Release and let background handler finish.
     deferred.resolve();
@@ -210,15 +170,11 @@ describe("DiscordMessageListener", () => {
       } as unknown as ReturnType<typeof import("../logging/subsystem.js").createSubsystemLogger>;
       const listener = new DiscordMessageListener(handler, logger);
 
-<<<<<<< HEAD
       await listener.handle(
         {} as unknown as import("./monitor/listeners.js").DiscordMessageEvent,
         {} as unknown as import("@buape/carbon").Client,
       );
 <<<<<<< HEAD
-=======
-      await expectPending(handlePromise);
->>>>>>> 150c048b0 (refactor: unify discord listener slow-log flow and test helpers)
 
 =======
       // handle() should release immediately.
@@ -232,22 +188,12 @@ describe("DiscordMessageListener", () => {
       // Advance wall clock past the slow listener threshold.
 >>>>>>> 5056b6438 (fix(discord): harden reconnect recovery and preserve message delivery)
       vi.setSystemTime(31_000);
-<<<<<<< HEAD
       const release = resolveHandler;
       if (typeof release === "function") {
         (release as () => void)();
       }
       await handlerPromise;
       await Promise.resolve();
-=======
-
-      // Release the background handler and allow slow-log finalizer to run.
-      deferred.resolve();
-<<<<<<< HEAD
-
-      // Now await handle() - it should complete and log the slow listener
-      await handlePromise;
->>>>>>> 150c048b0 (refactor: unify discord listener slow-log flow and test helpers)
 =======
       await Promise.resolve();
 >>>>>>> 5056b6438 (fix(discord): harden reconnect recovery and preserve message delivery)
@@ -839,22 +785,9 @@ describe("discord reaction notification gating", () => {
     ]);
 
     for (const testCase of cases) {
-<<<<<<< HEAD
       expect(shouldEmitDiscordReactionNotification(testCase.input), testCase.name).toBe(
         testCase.expected,
       );
-=======
-      expect(
-        shouldEmitDiscordReactionNotification({
-          ...testCase.input,
-          allowlist:
-            "allowlist" in testCase.input && testCase.input.allowlist
-              ? [...testCase.input.allowlist]
-              : undefined,
-        }),
-        testCase.name,
-      ).toBe(testCase.expected);
->>>>>>> 828f4e18e (test: finish readonly fixture compatibility for CI check)
     }
   });
 });
@@ -873,8 +806,6 @@ describe("discord media payload", () => {
     expect(payload.MediaUrls).toEqual(["/tmp/a.png", "/tmp/b.png", "/tmp/c.png"]);
   });
 });
-<<<<<<< HEAD
-=======
 
 // --- DM reaction integration tests ---
 // These test that handleDiscordReactionEvent (via DiscordReactionListener)
@@ -1195,4 +1126,3 @@ describe("discord reaction notification modes", () => {
     }
   });
 });
->>>>>>> 7c240a2b5 (feat(discord): faster reaction status state machine (watchdog + debounce) (#18248))

@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "@moltbot/diagnostics-otel",
   "version": "2026.1.27-beta.1",
   "type": "module",
@@ -10,14 +9,6 @@
     ]
   },
 =======
-  "name": "@openclaw/diagnostics-otel",
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.1.30",
-=======
-  "version": "2026.2.22",
->>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
-=======
   "version": "2026.2.23",
 >>>>>>> 8d9d01447 (chore: align plugin versions and harden outbound cross-provider test)
   "description": "OpenClaw diagnostics OpenTelemetry exporter",
@@ -25,7 +16,6 @@
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
-<<<<<<< HEAD
     "@opentelemetry/api-logs": "^0.211.0",
     "@opentelemetry/exporter-logs-otlp-http": "^0.211.0",
     "@opentelemetry/exporter-metrics-otlp-http": "^0.211.0",
@@ -35,17 +25,6 @@
     "@opentelemetry/sdk-metrics": "^2.5.0",
     "@opentelemetry/sdk-node": "^0.211.0",
     "@opentelemetry/sdk-trace-base": "^2.5.0",
-=======
-    "@opentelemetry/api-logs": "^0.212.0",
-    "@opentelemetry/exporter-logs-otlp-proto": "^0.212.0",
-    "@opentelemetry/exporter-metrics-otlp-proto": "^0.212.0",
-    "@opentelemetry/exporter-trace-otlp-proto": "^0.212.0",
-    "@opentelemetry/resources": "^2.5.1",
-    "@opentelemetry/sdk-logs": "^0.212.0",
-    "@opentelemetry/sdk-metrics": "^2.5.1",
-    "@opentelemetry/sdk-node": "^0.212.0",
-    "@opentelemetry/sdk-trace-base": "^2.5.1",
->>>>>>> 9d3bd5099 (fix(otel): use protobuf OTLP exporters instead of JSON/HTTP)
     "@opentelemetry/semantic-conventions": "^1.39.0"
   },
   "openclaw": {

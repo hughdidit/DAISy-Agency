@@ -7,14 +7,9 @@ import { WebSocket } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import type { PluginRegistry } from "../plugins/registry.js";
-=======
->>>>>>> 27deda222 (fix(test): drop unused gateway e2e PluginRegistry imports)
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { BARE_SESSION_RESET_PROMPT } from "../auto-reply/reply/session-reset-prompt.js";
 >>>>>>> c48b4471a (test (gateway/agent): cover bare reset command routing)
@@ -45,21 +40,12 @@ import type { ChannelPlugin } from "../channels/plugins/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { emitAgentEvent, registerAgentRunContext } from "../infra/agent-events.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { PluginRegistry } from "../plugins/registry.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
-=======
-import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
-=======
->>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
 import { setRegistry } from "./server.agent.gateway-server-agent.mocks.js";
-<<<<<<< HEAD
 >>>>>>> e0d7f97c5 (refactor(test): share gateway server plugin mocks)
-=======
-import { createRegistry } from "./server.e2e-registry-helpers.js";
->>>>>>> c3812a1ff (refactor(test): share gateway e2e registry helper)
 import {
   agentCommand,
   connectOk,
@@ -214,17 +200,11 @@ describe("gateway server agent", () => {
         plugin: createMSTeamsPlugin(),
       },
     ]);
-<<<<<<< HEAD
     registryState.registry = registry;
     setActivePluginRegistry(registry);
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
-=======
-=======
-    setRegistry(registry);
-<<<<<<< HEAD
->>>>>>> e0d7f97c5 (refactor(test): share gateway server plugin mocks)
     await useTempSessionStorePath();
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
     await writeSessionStore({
@@ -263,17 +243,11 @@ describe("gateway server agent", () => {
         plugin: createMSTeamsPlugin({ aliases: ["teams"] }),
       },
     ]);
-<<<<<<< HEAD
     registryState.registry = registry;
     setActivePluginRegistry(registry);
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
-=======
-=======
-    setRegistry(registry);
-<<<<<<< HEAD
->>>>>>> e0d7f97c5 (refactor(test): share gateway server plugin mocks)
     await useTempSessionStorePath();
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
     await writeSessionStore({
@@ -334,12 +308,8 @@ describe("gateway server agent", () => {
   test("agent ignores webchat last-channel for routing", async () => {
     testState.allowFrom = ["+1555"];
 <<<<<<< HEAD
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
-=======
-    await useTempSessionStorePath();
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
     await writeSessionStore({
       entries: {
         main: {
@@ -370,12 +340,8 @@ describe("gateway server agent", () => {
 
   test("agent uses webchat for internal runs when last provider is webchat", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
-=======
-    await useTempSessionStorePath();
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
     await writeSessionStore({
       entries: {
         main: {
@@ -503,12 +469,8 @@ describe("gateway server agent", () => {
 
   test("agent events stream to webchat clients when run context is registered", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
-=======
-    await useTempSessionStorePath();
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
     await writeSessionStore({
       entries: {
         main: {

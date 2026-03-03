@@ -2,11 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { captureEnv } from "../test-utils/env.js";
->>>>>>> 992b7e557 (refactor(test): use env snapshots in setup hooks)
 import {
   consumeRestartSentinel,
   readRestartSentinel,
@@ -20,7 +16,6 @@ describe("restart sentinel", () => {
   let tempDir: string;
 
   beforeEach(async () => {
-<<<<<<< HEAD
     prevStateDir = process.env.CLAWDBOT_STATE_DIR;
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sentinel-"));
     process.env.CLAWDBOT_STATE_DIR = tempDir;
@@ -30,13 +25,6 @@ describe("restart sentinel", () => {
 <<<<<<< HEAD
     if (prevStateDir) process.env.CLAWDBOT_STATE_DIR = prevStateDir;
     else delete process.env.CLAWDBOT_STATE_DIR;
-=======
-    if (prevStateDir) {
-      process.env.OPENCLAW_STATE_DIR = prevStateDir;
-    } else {
-      delete process.env.OPENCLAW_STATE_DIR;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
     envSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sentinel-"));

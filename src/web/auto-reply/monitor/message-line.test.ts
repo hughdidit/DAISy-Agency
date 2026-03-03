@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { buildInboundLine } from "./message-line.js";
-=======
-import { buildInboundLine, formatReplyContext } from "./message-line.js";
->>>>>>> fb1d8f836 (perf(test): consolidate web auto-reply suites)
 
 describe("buildInboundLine", () => {
   it("prefixes group messages with sender", () => {

@@ -4,22 +4,9 @@ import path from "node:path";
 
 import { type CommandOptions, runCommandWithTimeout } from "../process/exec.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import {
-  resolveControlUiDistIndexHealth,
-  resolveControlUiDistIndexPathForRoot,
-} from "./control-ui-assets.js";
-<<<<<<< HEAD
->>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
 =======
 import { detectPackageManager as detectPackageManagerImpl } from "./detect-package-manager.js";
-<<<<<<< HEAD
 >>>>>>> ffa27ddcb (refactor(update): dedupe package manager detection)
-=======
-import { readPackageName, readPackageVersion } from "./package-json.js";
->>>>>>> dece9e8b0 (refactor(update): share package.json readers)
 import { trimLogTail } from "./restart-sentinel.js";
 import {
   channelToNpmTag,
@@ -31,18 +18,9 @@ import {
 } from "./update-channels.js";
 >>>>>>> bbe9cb302 (fix(update): honor update.channel for update.run)
 import { compareSemverStrings } from "./update-check.js";
-<<<<<<< HEAD
 import { DEV_BRANCH, isBetaTag, isStableTag, type UpdateChannel } from "./update-channels.js";
 import { detectGlobalInstallManagerForRoot, globalInstallArgs } from "./update-global.js";
 import { trimLogTail } from "./restart-sentinel.js";
-=======
-import {
-  cleanupGlobalRenameDirs,
-  detectGlobalInstallManagerForRoot,
-  globalInstallArgs,
-  globalInstallFallbackArgs,
-} from "./update-global.js";
->>>>>>> 57d008a33 (fix(update): harden global updates)
 
 export type UpdateStepResult = {
   name: string;
@@ -332,17 +310,8 @@ function managerInstallArgs(manager: "pnpm" | "bun" | "npm") {
 
 function normalizeTag(tag?: string) {
   const trimmed = tag?.trim();
-<<<<<<< HEAD
   if (!trimmed) return "latest";
   if (trimmed.startsWith("moltbot@")) return trimmed.slice("moltbot@".length);
-=======
-  if (!trimmed) {
-    return "latest";
-  }
-  if (trimmed.startsWith("openclaw@")) {
-    return trimmed.slice("openclaw@".length);
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   if (trimmed.startsWith(`${DEFAULT_PACKAGE_NAME}@`)) {
     return trimmed.slice(`${DEFAULT_PACKAGE_NAME}@`.length);
   }
@@ -739,7 +708,6 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
     );
     steps.push(uiBuildStep);
 
-<<<<<<< HEAD
     // Restore dist/control-ui/ to committed state to prevent dirty repo after update
     // (ui:build regenerates assets with new hashes, which would block future updates)
     const restoreUiStep = await runStep(
@@ -758,36 +726,6 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
         gitRoot,
         { CLAWDBOT_UPDATE_IN_PROGRESS: "1" },
       ),
-=======
-    const doctorEntry = path.join(gitRoot, "openclaw.mjs");
-    const doctorEntryExists = await fs
-      .stat(doctorEntry)
-      .then(() => true)
-      .catch(() => false);
-    if (!doctorEntryExists) {
-      steps.push({
-        name: "openclaw doctor entry",
-        command: `verify ${doctorEntry}`,
-        cwd: gitRoot,
-        durationMs: 0,
-        exitCode: 1,
-        stderrTail: `missing ${doctorEntry}`,
-      });
-      return {
-        status: "error",
-        mode: "git",
-        root: gitRoot,
-        reason: "doctor-entry-missing",
-        before: { sha: beforeSha, version: beforeVersion },
-        steps,
-        durationMs: Date.now() - startedAt,
-      };
-    }
-
-    const doctorArgv = [process.execPath, doctorEntry, "doctor", "--non-interactive"];
-    const doctorStep = await runStep(
-      step("openclaw doctor", doctorArgv, gitRoot, { OPENCLAW_UPDATE_IN_PROGRESS: "1" }),
->>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
     );
     steps.push(doctorStep);
 

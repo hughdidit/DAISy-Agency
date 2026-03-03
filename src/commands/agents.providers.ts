@@ -7,13 +7,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChannelId } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AgentBinding } from "../config/types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -142,15 +138,8 @@ function formatProviderEntry(entry: ProviderAccountStatus): string {
   return `${label}: ${formatProviderState(entry)}`;
 }
 
-<<<<<<< HEAD
 export function summarizeBindings(cfg: MoltbotConfig, bindings: AgentBinding[]): string[] {
   if (bindings.length === 0) return [];
-=======
-export function summarizeBindings(cfg: OpenClawConfig, bindings: AgentBinding[]): string[] {
-  if (bindings.length === 0) {
-    return [];
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const seen = new Map<string, string>();
   for (const binding of bindings) {
     const channel = normalizeChannelId(binding.match.channel);

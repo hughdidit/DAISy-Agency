@@ -2,14 +2,8 @@
 // the agent reports a model id. This includes custom models.json entries.
 
 import { loadConfig } from "../config/config.js";
-<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "./agent-paths.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { resolveOpenClawAgentDir } from "./agent-paths.js";
-import { ensureOpenClawModelsJson } from "./models-config.js";
->>>>>>> f03ff3975 (Providers: skip context1m beta for Anthropic OAuth tokens (#24620))
 
 type ModelEntry = { id: string; contextWindow?: number };
 type ModelRegistryLike = {
@@ -87,15 +81,10 @@ const loadPromise = (async () => {
   }
 
   try {
-<<<<<<< HEAD
     const { discoverAuthStorage, discoverModels } = await import("@mariozechner/pi-coding-agent");
     const cfg = loadConfig();
     await ensureMoltbotModelsJson(cfg);
     const agentDir = resolveMoltbotAgentDir();
-=======
-    const { discoverAuthStorage, discoverModels } = await import("./pi-model-discovery.js");
-    const agentDir = resolveOpenClawAgentDir();
->>>>>>> 150c5815e (fix (agents): honor configured contextWindow overrides)
     const authStorage = discoverAuthStorage(agentDir);
     const modelRegistry = discoverModels(authStorage, agentDir) as unknown as ModelRegistryLike;
     const models =

@@ -7,22 +7,12 @@ read_when:
 # Audio / Voice Notes — 2026-01-17
 
 ## What works
-<<<<<<< HEAD
 - **Media understanding (audio)**: If audio understanding is enabled (or auto‑detected), Moltbot:
   1) Locates the first audio attachment (local path or URL) and downloads it if needed.
   2) Enforces `maxBytes` before sending to each model entry.
   3) Runs the first eligible model entry in order (provider or CLI).
   4) If it fails or skips (size/timeout), it tries the next entry.
   5) On success, it replaces `Body` with an `[Audio]` block and sets `{{Transcript}}`.
-=======
-
-- **Media understanding (audio)**: If audio understanding is enabled (or auto‑detected), OpenClaw:
-  1. Locates the first audio attachment (local path or URL) and downloads it if needed.
-  2. Enforces `maxBytes` before sending to each model entry.
-  3. Runs the first eligible model entry in order (provider or CLI).
-  4. If it fails or skips (size/timeout), it tries the next entry.
-  5. On success, it replaces `Body` with an `[Audio]` block and sets `{{Transcript}}`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Command parsing**: When transcription succeeds, `CommandBody`/`RawBody` are set to the transcript so slash commands still work.
 - **Verbose logging**: In `--verbose`, we log when transcription runs and when it replaces the body.
 

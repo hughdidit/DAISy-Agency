@@ -42,8 +42,6 @@ describe("sandbox docker config", () => {
     }
   });
 
-<<<<<<< HEAD
-=======
   it("rejects network host mode via Zod schema validation", () => {
     const res = validateConfigObject({
       agents: {
@@ -117,7 +115,6 @@ describe("sandbox docker config", () => {
     }
   });
 
->>>>>>> 91ae82ae1 (refactor(sandbox): centralize dangerous docker override key handling)
   it("rejects seccomp unconfined via Zod schema validation", () => {
     const res = validateConfigObject({
       agents: {
@@ -243,8 +240,6 @@ describe("sandbox browser binds config", () => {
     });
     expect(resolved.binds).toBeUndefined();
   });
-<<<<<<< HEAD
-=======
 
   it("defaults browser network to dedicated sandbox network", () => {
     const resolved = resolveSandboxBrowserConfig({
@@ -320,5 +315,4 @@ describe("sandbox browser binds config", () => {
     });
     expect(res.ok).toBe(true);
   });
->>>>>>> 14b6eea6e (feat(sandbox): block container namespace joins by default)
 });

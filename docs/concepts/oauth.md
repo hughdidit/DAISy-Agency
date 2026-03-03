@@ -27,17 +27,9 @@ moltbot models auth login --provider <id>
 OAuth providers commonly mint a **new refresh token** during login/refresh flows. Some providers (or OAuth clients) can invalidate older refresh tokens when a new one is issued for the same user/app.
 
 Practical symptom:
-<<<<<<< HEAD
 - you log in via Moltbot *and* via Claude Code / Codex CLI → one of them randomly gets “logged out” later
 
 To reduce that, Moltbot treats `auth-profiles.json` as a **token sink**:
-=======
-
-- you log in via OpenClaw _and_ via Claude Code / Codex CLI → one of them randomly gets “logged out” later
-
-To reduce that, OpenClaw treats `auth-profiles.json` as a **token sink**:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - the runtime reads credentials from **one place**
 - we can keep multiple profiles and route them deterministically
 
@@ -49,12 +41,7 @@ Secrets are stored **per-agent**:
 - Runtime cache (managed automatically; don’t edit): `~/.clawdbot/agents/<agentId>/agent/auth.json`
 
 Legacy import-only file (still supported, but not the main store):
-<<<<<<< HEAD
 - `~/.clawdbot/credentials/oauth.json` (imported into `auth-profiles.json` on first use)
-=======
-
-- `~/.openclaw/credentials/oauth.json` (imported into `auth-profiles.json` on first use)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 All of the above also respect `$CLAWDBOT_STATE_DIR` (state dir override). Full reference: [/gateway/configuration](/gateway/configuration#auth-storage-oauth--api-keys)
 
@@ -86,15 +73,9 @@ Moltbot’s interactive login flows are implemented in `@mariozechner/pi-ai` and
 
 Flow shape:
 
-<<<<<<< HEAD
 1) run `claude setup-token`
 2) paste the token into Moltbot
 3) store as a token auth profile (no refresh)
-=======
-1. run `claude setup-token`
-2. paste the token into OpenClaw
-3. store as a token auth profile (no refresh)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 The wizard path is `moltbot onboard` → auth choice `setup-token` (Anthropic).
 
@@ -151,12 +132,7 @@ Example (session override):
 - `/model Opus@anthropic:work`
 
 How to see what profile IDs exist:
-<<<<<<< HEAD
 - `moltbot channels list --json` (shows `auth[]`)
-=======
-
-- `openclaw channels list --json` (shows `auth[]`)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Related docs:
 

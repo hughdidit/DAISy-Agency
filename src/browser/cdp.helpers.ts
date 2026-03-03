@@ -1,9 +1,5 @@
 import WebSocket from "ws";
-<<<<<<< HEAD
 
-=======
-import { isLoopbackHost } from "../gateway/net.js";
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { rawDataToString } from "../infra/ws.js";
 
 export { isLoopbackHost };

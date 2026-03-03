@@ -155,7 +155,6 @@
 .topbar-status {
   display: flex;
   align-items: center;
-<<<<<<< HEAD
   justify-content: center;
   gap: 6px;
   min-width: 28px;
@@ -171,9 +170,6 @@
     background 180ms ease,
     border-color 180ms ease;
   flex-shrink: 0;
-=======
-  gap: 8px;
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 }
 
 .topbar-status .pill {
@@ -192,7 +188,6 @@
   margin-top: 0px;
 }
 
-<<<<<<< HEAD
 .topbar-redact--active {
   border-radius: var(--radius-full);
   padding: 4px 10px;
@@ -216,13 +211,6 @@
 
 /* Topbar theme toggle sizing */
 
-=======
-.topbar-status .statusDot {
-  width: 6px;
-  height: 6px;
-}
-
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 .topbar-status .theme-toggle {
   --theme-item: 24px;
   --theme-gap: 2px;
@@ -496,13 +484,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-<<<<<<< HEAD
   gap: 12px;
   padding: 2px 0;
-=======
-  gap: 16px;
-  padding: 4px 8px;
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
   overflow: hidden;
   transform-origin: top center;
   transition:
@@ -522,27 +505,16 @@
 }
 
 .page-title {
-<<<<<<< HEAD
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.2;
-=======
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.15;
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
   color: var(--text-strong);
 }
 
 .page-sub {
   color: var(--muted);
-<<<<<<< HEAD
   font-size: 13px;
-=======
-  font-size: 14px;
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
   font-weight: 400;
   margin-top: 2px;
   letter-spacing: -0.01em;

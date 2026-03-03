@@ -4,12 +4,7 @@ import type {
   MoltbotConfig,
   DmPolicy,
   WizardPrompter,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
-=======
-  MSTeamsTeamConfig,
-} from "openclaw/plugin-sdk";
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import {
   addWildcardAllowFrom,
   DEFAULT_ACCOUNT_ID,

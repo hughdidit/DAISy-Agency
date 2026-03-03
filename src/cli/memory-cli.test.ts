@@ -123,15 +123,12 @@ describe("memory cli", () => {
         makeMemoryStatus({
           files: 2,
           chunks: 5,
-<<<<<<< HEAD
           dirty: false,
           workspaceDir: "/tmp/clawd",
           dbPath: "/tmp/memory.sqlite",
           provider: "openai",
           model: "text-embedding-3-small",
           requestedProvider: "openai",
-=======
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
           cache: { enabled: true, entries: 123, maxEntries: 50000 },
           fts: { enabled: true, available: true },
           vector: {
@@ -164,14 +161,11 @@ describe("memory cli", () => {
       status: () =>
         makeMemoryStatus({
           dirty: true,
-<<<<<<< HEAD
           workspaceDir: "/tmp/clawd",
           dbPath: "/tmp/memory.sqlite",
           provider: "openai",
           model: "text-embedding-3-small",
           requestedProvider: "openai",
-=======
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
           vector: {
             enabled: true,
             available: false,
@@ -192,7 +186,6 @@ describe("memory cli", () => {
   it("prints embeddings status when deep", async () => {
     const close = vi.fn(async () => {});
     const probeEmbeddingAvailability = vi.fn(async () => ({ ok: true }));
-<<<<<<< HEAD
     getMemorySearchManager.mockResolvedValueOnce({
       manager: {
         probeVectorAvailability: vi.fn(async () => true),
@@ -210,13 +203,6 @@ describe("memory cli", () => {
         }),
         close,
       },
-=======
-    mockManager({
-      probeVectorAvailability: vi.fn(async () => true),
-      probeEmbeddingAvailability,
-      status: () => makeMemoryStatus({ files: 1, chunks: 1 }),
-      close,
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
     });
 
     const log = spyRuntimeLogs();
@@ -229,7 +215,6 @@ describe("memory cli", () => {
 
   it("enables verbose logging with --verbose", async () => {
     const close = vi.fn(async () => {});
-<<<<<<< HEAD
     getMemorySearchManager.mockResolvedValueOnce({
       manager: {
         probeVectorAvailability: vi.fn(async () => true),
@@ -246,12 +231,6 @@ describe("memory cli", () => {
         }),
         close,
       },
-=======
-    mockManager({
-      probeVectorAvailability: vi.fn(async () => true),
-      status: () => makeMemoryStatus(),
-      close,
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
     });
 
     await runMemoryCli(["status", "--verbose"]);
@@ -268,7 +247,6 @@ describe("memory cli", () => {
       },
     });
 <<<<<<< HEAD
-<<<<<<< HEAD
     getMemorySearchManager.mockResolvedValueOnce({
       manager: {
         probeVectorAvailability: vi.fn(async () => true),
@@ -284,12 +262,6 @@ describe("memory cli", () => {
         }),
         close,
       },
-=======
-    mockManager({
-      probeVectorAvailability: vi.fn(async () => true),
-      status: () => makeMemoryStatus({ files: 1, chunks: 1 }),
-      close,
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
     });
 
     const error = vi.spyOn(defaultRuntime, "error").mockImplementation(() => {});
@@ -308,7 +280,6 @@ describe("memory cli", () => {
     const close = vi.fn(async () => {});
     const sync = vi.fn(async () => {});
     const probeEmbeddingAvailability = vi.fn(async () => ({ ok: true }));
-<<<<<<< HEAD
     getMemorySearchManager.mockResolvedValueOnce({
       manager: {
         probeVectorAvailability: vi.fn(async () => true),
@@ -327,14 +298,6 @@ describe("memory cli", () => {
         }),
         close,
       },
-=======
-    mockManager({
-      probeVectorAvailability: vi.fn(async () => true),
-      probeEmbeddingAvailability,
-      sync,
-      status: () => makeMemoryStatus({ files: 1, chunks: 1 }),
-      close,
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
     });
 
     spyRuntimeLogs();

@@ -2,12 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { formatCliCommand } from "../../cli/command-format.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SandboxConfig, SandboxToolPolicyResolved } from "./types.js";
@@ -44,18 +39,8 @@ function shouldSandboxSession(cfg: SandboxConfig, sessionKey: string, mainSessio
   return sessionKey.trim() !== mainSessionKey.trim();
 }
 
-<<<<<<< HEAD
 function resolveMainSessionKeyForSandbox(params: { cfg?: MoltbotConfig; agentId: string }): string {
   if (params.cfg?.session?.scope === "global") return "global";
-=======
-function resolveMainSessionKeyForSandbox(params: {
-  cfg?: OpenClawConfig;
-  agentId: string;
-}): string {
-  if (params.cfg?.session?.scope === "global") {
-    return "global";
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return resolveAgentMainSessionKey({
     cfg: params.cfg,
     agentId: params.agentId,

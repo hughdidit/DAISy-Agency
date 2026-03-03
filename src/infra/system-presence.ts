@@ -52,15 +52,7 @@ function initSelfPresence() {
   const host = os.hostname();
   const ip = resolvePrimaryIPv4() ?? undefined;
 <<<<<<< HEAD
-<<<<<<< HEAD
   const version = process.env.CLAWDBOT_VERSION ?? process.env.npm_package_version ?? "unknown";
-=======
-  const version =
-    process.env.OPENCLAW_VERSION ??
-    process.env.OPENCLAW_SERVICE_VERSION ??
-    process.env.npm_package_version ??
-    "unknown";
->>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
 =======
   const version = resolveRuntimeServiceVersion(process.env, "unknown");
 >>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))

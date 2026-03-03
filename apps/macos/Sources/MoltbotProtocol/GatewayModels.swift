@@ -397,11 +397,8 @@ public struct SendParams: Codable, Sendable {
     public let gifplayback: Bool?
     public let channel: String?
     public let accountid: String?
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
     public let agentid: String?
     public let threadid: String?
->>>>>>> 2011edc9e (fix(gateway): preserve agentId through gateway send path):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
     public let sessionkey: String?
     public let idempotencykey: String
 
@@ -413,11 +410,8 @@ public struct SendParams: Codable, Sendable {
         gifplayback: Bool?,
         channel: String?,
         accountid: String?,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
         agentid: String?,
         threadid: String?,
->>>>>>> 2011edc9e (fix(gateway): preserve agentId through gateway send path):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         sessionkey: String?,
         idempotencykey: String
     ) {
@@ -428,11 +422,8 @@ public struct SendParams: Codable, Sendable {
         self.gifplayback = gifplayback
         self.channel = channel
         self.accountid = accountid
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
         self.agentid = agentid
         self.threadid = threadid
->>>>>>> 2011edc9e (fix(gateway): preserve agentId through gateway send path):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.sessionkey = sessionkey
         self.idempotencykey = idempotencykey
     }
@@ -444,11 +435,8 @@ public struct SendParams: Codable, Sendable {
         case gifplayback = "gifPlayback"
         case channel
         case accountid = "accountId"
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
         case agentid = "agentId"
         case threadid = "threadId"
->>>>>>> 2011edc9e (fix(gateway): preserve agentId through gateway send path):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         case sessionkey = "sessionKey"
         case idempotencykey = "idempotencyKey"
     }
@@ -2046,138 +2034,8 @@ public struct SkillsStatusParams: Codable, Sendable {
     }
 }
 
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
 public struct SkillsBinsParams: Codable, Sendable {
 }
-=======
-public struct ToolsCatalogParams: Codable, Sendable {
-    public let agentid: String?
-    public let includeplugins: Bool?
-
-    public init(
-        agentid: String?,
-        includeplugins: Bool?)
-    {
-        self.agentid = agentid
-        self.includeplugins = includeplugins
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case agentid = "agentId"
-        case includeplugins = "includePlugins"
-    }
-}
-
-public struct ToolCatalogProfile: Codable, Sendable {
-    public let id: AnyCodable
-    public let label: String
-
-    public init(
-        id: AnyCodable,
-        label: String)
-    {
-        self.id = id
-        self.label = label
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case label
-    }
-}
-
-public struct ToolCatalogEntry: Codable, Sendable {
-    public let id: String
-    public let label: String
-    public let description: String
-    public let source: AnyCodable
-    public let pluginid: String?
-    public let optional: Bool?
-    public let defaultprofiles: [AnyCodable]
-
-    public init(
-        id: String,
-        label: String,
-        description: String,
-        source: AnyCodable,
-        pluginid: String?,
-        optional: Bool?,
-        defaultprofiles: [AnyCodable])
-    {
-        self.id = id
-        self.label = label
-        self.description = description
-        self.source = source
-        self.pluginid = pluginid
-        self.optional = optional
-        self.defaultprofiles = defaultprofiles
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case label
-        case description
-        case source
-        case pluginid = "pluginId"
-        case optional
-        case defaultprofiles = "defaultProfiles"
-    }
-}
-
-public struct ToolCatalogGroup: Codable, Sendable {
-    public let id: String
-    public let label: String
-    public let source: AnyCodable
-    public let pluginid: String?
-    public let tools: [ToolCatalogEntry]
-
-    public init(
-        id: String,
-        label: String,
-        source: AnyCodable,
-        pluginid: String?,
-        tools: [ToolCatalogEntry])
-    {
-        self.id = id
-        self.label = label
-        self.source = source
-        self.pluginid = pluginid
-        self.tools = tools
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case label
-        case source
-        case pluginid = "pluginId"
-        case tools
-    }
-}
-
-public struct ToolsCatalogResult: Codable, Sendable {
-    public let agentid: String
-    public let profiles: [ToolCatalogProfile]
-    public let groups: [ToolCatalogGroup]
-
-    public init(
-        agentid: String,
-        profiles: [ToolCatalogProfile],
-        groups: [ToolCatalogGroup])
-    {
-        self.agentid = agentid
-        self.profiles = profiles
-        self.groups = groups
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case agentid = "agentId"
-        case profiles
-        case groups
-    }
-}
-
-public struct SkillsBinsParams: Codable, Sendable {}
->>>>>>> 9e1a13bf4 (Gateway/UI: data-driven agents tools catalog with provenance (openclaw#24199) thanks @Takhoffman):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
 
 public struct SkillsBinsResult: Codable, Sendable {
     public let bins: [String]
@@ -2271,14 +2129,8 @@ public struct CronJob: Codable, Sendable {
         wakemode: AnyCodable,
         payload: AnyCodable,
         delivery: AnyCodable?,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         state: [String: AnyCodable]
     ) {
-=======
-        failurealert: AnyCodable?,
-        state: [String: AnyCodable])
-    {
->>>>>>> 0d672e43b (chore(protocol): sync generated swift models):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.id = id
         self.agentid = agentid
         self.sessionkey = sessionkey
@@ -2326,19 +2178,8 @@ public struct CronListParams: Codable, Sendable {
     public let sortdir: AnyCodable?
 
     public init(
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         includedisabled: Bool?
     ) {
-=======
-        includedisabled: Bool?,
-        limit: Int?,
-        offset: Int?,
-        query: String?,
-        enabled: AnyCodable?,
-        sortby: AnyCodable?,
-        sortdir: AnyCodable?)
-    {
->>>>>>> 9e1a13bf4 (Gateway/UI: data-driven agents tools catalog with provenance (openclaw#24199) thanks @Takhoffman):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.includedisabled = includedisabled
         self.limit = limit
         self.offset = offset
@@ -2386,14 +2227,8 @@ public struct CronAddParams: Codable, Sendable {
         sessiontarget: AnyCodable,
         wakemode: AnyCodable,
         payload: AnyCodable,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         delivery: AnyCodable?
     ) {
-=======
-        delivery: AnyCodable?,
-        failurealert: AnyCodable?)
-    {
->>>>>>> 0d672e43b (chore(protocol): sync generated swift models):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.name = name
         self.agentid = agentid
         self.sessionkey = sessionkey
@@ -2484,14 +2319,11 @@ public struct CronRunLogEntry: Codable, Sendable {
     public let status: AnyCodable?
     public let error: String?
     public let summary: String?
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
     public let delivered: Bool?
     public let deliverystatus: AnyCodable?
     public let deliveryerror: String?
     public let sessionid: String?
     public let sessionkey: String?
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796)):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
     public let runatms: Int?
     public let durationms: Int?
     public let nextrunatms: Int?
@@ -2507,41 +2339,26 @@ public struct CronRunLogEntry: Codable, Sendable {
         status: AnyCodable?,
         error: String?,
         summary: String?,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
         delivered: Bool?,
         deliverystatus: AnyCodable?,
         deliveryerror: String?,
         sessionid: String?,
         sessionkey: String?,
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796)):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         runatms: Int?,
         durationms: Int?,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         nextrunatms: Int?
     ) {
-=======
-        nextrunatms: Int?,
-        model: String?,
-        provider: String?,
-        usage: [String: AnyCodable]?,
-        jobname: String?)
-    {
->>>>>>> 9e1a13bf4 (Gateway/UI: data-driven agents tools catalog with provenance (openclaw#24199) thanks @Takhoffman):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.ts = ts
         self.jobid = jobid
         self.action = action
         self.status = status
         self.error = error
         self.summary = summary
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
         self.delivered = delivered
         self.deliverystatus = deliverystatus
         self.deliveryerror = deliveryerror
         self.sessionid = sessionid
         self.sessionkey = sessionkey
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796)):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.runatms = runatms
         self.durationms = durationms
         self.nextrunatms = nextrunatms
@@ -2557,14 +2374,11 @@ public struct CronRunLogEntry: Codable, Sendable {
         case status
         case error
         case summary
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-=======
         case delivered
         case deliverystatus = "deliveryStatus"
         case deliveryerror = "deliveryError"
         case sessionid = "sessionId"
         case sessionkey = "sessionKey"
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796)):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         case runatms = "runAtMs"
         case durationms = "durationMs"
         case nextrunatms = "nextRunAtMs"
@@ -2741,25 +2555,12 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         resolvedpath: AnyCodable?,
         sessionkey: AnyCodable?,
 <<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         timeoutms: Int?
     ) {
-=======
-=======
-        turnsourcechannel: AnyCodable?,
-        turnsourceto: AnyCodable?,
-        turnsourceaccountid: AnyCodable?,
-        turnsourcethreadid: AnyCodable?,
->>>>>>> f53e4e9ff (chore: Fix broken build protocol:check):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         timeoutms: Int?,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         twophase: Bool?)
     {
 >>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
-=======
-        twophase: Bool?
-    ) {
->>>>>>> cbd939508 (ci(protocol): regenerate swift protocol models):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.id = id
         self.command = command
         self.commandargv = commandargv

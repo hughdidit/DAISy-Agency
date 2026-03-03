@@ -5,11 +5,8 @@ export type EmbeddedPiAgentMeta = {
   sessionId: string;
   provider: string;
   model: string;
-<<<<<<< HEAD
-=======
   compactionCount?: number;
   promptTokens?: number;
->>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
   usage?: {
     input?: number;
     output?: number;

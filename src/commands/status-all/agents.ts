@@ -3,13 +3,9 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveAgentWorkspaceDir } from "../../agents/agent-scope.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import { resolveAgentWorkspaceDir } from "../../agents/agent-scope.js";

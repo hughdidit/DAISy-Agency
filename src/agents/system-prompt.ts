@@ -6,13 +6,9 @@ import type { ReasoningLevel, ThinkLevel } from "../auto-reply/thinking.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 <<<<<<< HEAD
-=======
-=======
->>>>>>> 9bef52594 (chore: apply formatter)
 import type { MemoryCitationsMode } from "../config/types.memory.js";
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 import type { ResolvedTimeFormat } from "./date-time.js";
@@ -42,11 +38,7 @@ import type { ResolvedTimeFormat } from "./date-time.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 import type { EmbeddedSandboxInfo } from "./pi-embedded-runner/types.js";
 import { sanitizeForPromptLiteral } from "./sanitize-for-prompt.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import { createHmac, createHash } from "node:crypto";
->>>>>>> 9abab6a2c (Add explicit ownerDisplaySecret for owner ID hash obfuscation (#22520))
 
 /**
  * Controls which hardcoded sections are included in the system prompt.
@@ -57,7 +49,6 @@ import { createHmac, createHash } from "node:crypto";
 export type PromptMode = "full" | "minimal" | "none";
 type OwnerIdDisplay = "raw" | "hash";
 
-<<<<<<< HEAD
 function buildSkillsSection(params: {
   skillsPrompt?: string;
   isMinimal: boolean;
@@ -66,9 +57,6 @@ function buildSkillsSection(params: {
   if (params.isMinimal) {
     return [];
   }
-=======
-function buildSkillsSection(params: { skillsPrompt?: string; readToolName: string }) {
->>>>>>> c7bf0dacb (chore: remove unused isMinimal param from buildSkillsSection)
   const trimmed = params.skillsPrompt?.trim();
   if (!trimmed) {
     return [];
@@ -148,13 +136,7 @@ function buildTimeSection(params: { userTimezone?: string }) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (!params.userTimezone) return [];
-=======
-  if (!params.userTimezone) {
-    return [];
-  }
->>>>>>> b48d72a2b (chore: fix lint, and format after lint to catch reformats triggered by autofixes.)
   return [
     "## Current Date & Time",
     `Time zone: ${params.userTimezone}`,
@@ -267,15 +249,9 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
     "Source: https://github.com/moltbot/moltbot",
     "Community: https://discord.com/invite/clawd",
 <<<<<<< HEAD
-<<<<<<< HEAD
     "Find new skills: https://clawdhub.com",
     "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
     "When diagnosing issues, run `moltbot status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
-=======
-    "Find new skills: https://clawhub.com",
-    "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
-    "When diagnosing issues, run `openclaw status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
->>>>>>> fd00d5688 (chore: update openclaw naming)
 =======
     "Find new skills: https://clawdhub.com",
     "For Moltbot behavior, commands, config, or architecture: consult local docs first.",
@@ -465,8 +441,6 @@ export function buildAgentSystemPrompt(params: {
   const messageChannelOptions = listDeliverableMessageChannels().join("|");
   const promptMode = params.promptMode ?? "full";
   const isMinimal = promptMode === "minimal" || promptMode === "none";
-<<<<<<< HEAD
-=======
   const sandboxContainerWorkspace = params.sandboxInfo?.containerWorkspaceDir?.trim();
   const displayWorkspaceDir =
     params.sandboxInfo?.enabled && sandboxContainerWorkspace
@@ -479,7 +453,6 @@ export function buildAgentSystemPrompt(params: {
 =======
     params.sandboxInfo?.enabled && sanitizedSandboxContainerWorkspace
       ? `For read/write/edit/apply_patch, file paths resolve against host workspace: ${sanitizedWorkspaceDir}. For bash/exec commands, use sandbox container paths under ${sanitizedSandboxContainerWorkspace} (or relative paths from that workdir), not host paths. Prefer relative paths so both sandboxed exec and file tools work consistently.`
->>>>>>> 799049f58 (fix (agents/sandbox): clarify container-vs-host workspace paths in prompt)
       : "Treat this directory as the single global workspace for file operations unless explicitly instructed otherwise.";
   const safetySection = [
     "## Safety",
@@ -526,12 +499,7 @@ export function buildAgentSystemPrompt(params: {
           "- apply_patch: apply multi-file patches",
           `- ${execToolName}: run shell commands (supports background via yieldMs/background)`,
           `- ${processToolName}: manage background exec sessions`,
-<<<<<<< HEAD
           "- browser: control clawd's dedicated browser",
-=======
-          `- For long waits, avoid rapid poll loops: use ${execToolName} with enough yieldMs or ${processToolName}(action=poll, timeout=<ms>).`,
-          "- browser: control OpenClaw's dedicated browser",
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
           "- canvas: present/eval/snapshot the Canvas",
           "- nodes: list/describe/notify/camera/screen on paired nodes",
           "- cron: manage cron jobs and wake events (use for reminders; when scheduling a reminder, write the systemEvent text as something that will read like a reminder when it fires, and mention that it is a reminder depending on the time gap between setting and firing; include recent context in reminder text if appropriate)",
@@ -539,18 +507,11 @@ export function buildAgentSystemPrompt(params: {
           "- sessions_history: fetch session history",
           "- sessions_send: send to another session",
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-          "- subagents: list/steer/kill sub-agent runs",
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
           '- session_status: show usage/time/model state and answer "what model are we using?"',
 >>>>>>> 600c46b5a (chore: oxfmt)
         ].join("\n"),
     "TOOLS.md does not control tool availability; it is user guidance for how to use external tools.",
     "If a task is more complex or takes longer, spawn a sub-agent. Completion is push-based: it will auto-announce when done.",
-<<<<<<< HEAD
-=======
     ...(hasSessionsSpawn && acpEnabled
       ? [
           'For requests like "do this in codex/claude code/gemini", treat it as ACP harness intent and call `sessions_spawn` with `runtime: "acp"`.',
@@ -559,7 +520,6 @@ export function buildAgentSystemPrompt(params: {
           'For ACP harness thread spawns, do not call `message` with `action=thread-create`; use `sessions_spawn` (`runtime: "acp"`, `thread: true`) as the single thread creation path.',
         ]
       : []),
->>>>>>> 4fc7ecf08 (ACP: force sessions_spawn as the only harness thread creation path (#30957))
     "Do not poll `subagents list` / `sessions_list` in a loop; only check status on-demand (for intervention, debugging, or when explicitly asked).",
     "",
     "## Tool Call Style",
@@ -570,14 +530,8 @@ export function buildAgentSystemPrompt(params: {
     "",
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     "## Moltbot CLI Quick Reference",
     "Moltbot is controlled via subcommands. Do not invent commands.",
-=======
-    ...buildSafetySection(),
-    "## OpenClaw CLI Quick Reference",
-    "OpenClaw is controlled via subcommands. Do not invent commands.",
->>>>>>> 7a6c40872 (Agents: add system prompt safety guardrails (#5445))
 =======
     "## Moltbot CLI Quick Reference",
     "Moltbot is controlled via subcommands. Do not invent commands.",
@@ -635,11 +589,7 @@ export function buildAgentSystemPrompt(params: {
             ? `Sandbox container workdir: ${params.sandboxInfo.containerWorkspaceDir}`
             : "",
           params.sandboxInfo.workspaceDir
-<<<<<<< HEAD
             ? `Sandbox host workspace: ${params.sandboxInfo.workspaceDir}`
-=======
-            ? `Sandbox host mount source (file tools bridge only; not valid inside sandbox exec): ${sanitizeForPromptLiteral(params.sandboxInfo.workspaceDir)}`
->>>>>>> 799049f58 (fix (agents/sandbox): clarify container-vs-host workspace paths in prompt)
             : "",
           params.sandboxInfo.workspaceAccess
             ? `Agent workspace access: ${params.sandboxInfo.workspaceAccess}${

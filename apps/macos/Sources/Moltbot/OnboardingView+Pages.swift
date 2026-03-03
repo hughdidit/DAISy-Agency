@@ -124,7 +124,6 @@ extension OnboardingView {
         return "\(base)\(command). Will attach."
     }
 
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/OnboardingView+Pages.swift
                         VStack(alignment: .leading, spacing: 10) {
                             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
                                 GridRow {
@@ -197,27 +196,6 @@ extension OnboardingView {
                                     }
                                 }
                             }
-=======
-    @ViewBuilder
-    private func gatewayDiscoverySection() -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: "dot.radiowaves.left.and.right")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text(self.gatewayDiscovery.statusText)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            if self.gatewayDiscovery.gateways.isEmpty {
-                ProgressView().controlSize(.small)
-                Button("Refresh") {
-                    self.gatewayDiscovery.refreshWideAreaFallbackNow(timeoutSeconds: 5.0)
-                }
-                .buttonStyle(.link)
-                .help("Retry Tailscale discovery (DNS-SD).")
-            }
-            Spacer(minLength: 0)
-        }
->>>>>>> ce1dbeb98 (fix(macos): clean warnings and harden gateway/talk config parsing):apps/macos/Sources/OpenClaw/OnboardingView+Pages.swift
 
         if self.gatewayDiscovery.gateways.isEmpty {
             Text("Searching for nearby gateways…")

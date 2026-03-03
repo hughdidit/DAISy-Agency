@@ -1,14 +1,5 @@
 import { randomUUID } from "node:crypto";
-<<<<<<< HEAD
 import { loadConfig, resolveGatewayPort } from "../config/config.js";
-=======
-import { loadConfig } from "../config/config.js";
-import {
-  buildGatewayConnectionDetails,
-  ensureExplicitGatewayAuth,
-  resolveExplicitGatewayAuth,
-} from "../gateway/call.js";
->>>>>>> d171686f7 (TUI: honor gateway bind mode for local connection URL)
 import { GatewayClient } from "../gateway/client.js";
 import {
   type HelloOk,
@@ -240,7 +231,6 @@ export function resolveGatewayConnection(opts: GatewayConnectionOptions) {
   const remote = isRemoteMode ? config.gateway?.remote : undefined;
   const authToken = config.gateway?.auth?.token;
 
-<<<<<<< HEAD
   const localPort = resolveGatewayPort(config);
   const url =
     (typeof opts.url === "string" && opts.url.trim().length > 0 ? opts.url.trim() : undefined) ||
@@ -248,20 +238,6 @@ export function resolveGatewayConnection(opts: GatewayConnectionOptions) {
       ? remote.url.trim()
       : undefined) ||
     `ws://127.0.0.1:${localPort}`;
-=======
-  const urlOverride =
-    typeof opts.url === "string" && opts.url.trim().length > 0 ? opts.url.trim() : undefined;
-  const explicitAuth = resolveExplicitGatewayAuth({ token: opts.token, password: opts.password });
-  ensureExplicitGatewayAuth({
-    urlOverride,
-    auth: explicitAuth,
-    errorHint: "Fix: pass --token or --password when using --url.",
-  });
-  const url = buildGatewayConnectionDetails({
-    config,
-    ...(urlOverride ? { url: urlOverride } : {}),
-  }).url;
->>>>>>> d171686f7 (TUI: honor gateway bind mode for local connection URL)
 
   const token =
     (typeof opts.token === "string" && opts.token.trim().length > 0

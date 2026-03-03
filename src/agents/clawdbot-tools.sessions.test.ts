@@ -21,12 +21,7 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 import "./test-helpers/fast-core-tools.js";
-<<<<<<< HEAD:src/agents/clawdbot-tools.sessions.test.ts
 import { createMoltbotTools } from "./moltbot-tools.js";
-=======
-import { sleep } from "../utils.js";
-import { createOpenClawTools } from "./openclaw-tools.js";
->>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:):src/agents/openclaw-tools.sessions.test.ts
 
 const waitForCalls = async (getCount: () => number, count: number, timeoutMs = 2000) => {
   const start = Date.now();

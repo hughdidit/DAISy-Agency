@@ -1,20 +1,14 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 7880947bb (fix(ci): restore actionlint rules and add blacksmith 16 ignore)
 # actionlint configuration
 # https://github.com/rhysd/actionlint/blob/main/docs/config.md
 
 self-hosted-runner:
   labels:
     # Blacksmith CI runners
-<<<<<<< HEAD
     - blacksmith-4vcpu-ubuntu-2404
     - blacksmith-4vcpu-windows-2025
 
 # Ignore patterns for known issues
-=======
->>>>>>> e500110ef (fix(ci): allow blacksmith 16vcpu labels in actionlint)
 =======
     - blacksmith-8vcpu-ubuntu-2404
     - blacksmith-8vcpu-windows-2025

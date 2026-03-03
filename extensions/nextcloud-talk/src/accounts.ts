@@ -1,13 +1,9 @@
 import { readFileSync } from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
-=======
-import { DEFAULT_ACCOUNT_ID, isTruthyEnvValue, normalizeAccountId } from "openclaw/plugin-sdk";
->>>>>>> cc87c0ed7 (Update contributing, deduplicate more functions)
 =======
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)

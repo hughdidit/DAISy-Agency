@@ -1,11 +1,7 @@
 import { fetch as realFetch } from "undici";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
 =======
 import { describe, expect, it } from "vitest";
 >>>>>>> dee3abfcd (refactor(test): share browser control server harness)
@@ -21,7 +17,6 @@ import {
   getPwMocks,
 } from "./server.control-server.test-harness.js";
 
-<<<<<<< HEAD
 let testPort = 0;
 let cdpBaseUrl = "";
 let reachable = false;
@@ -145,21 +140,13 @@ vi.mock("./chrome.js", () => ({
       exe: { kind: "chrome", path: "/fake/chrome" },
 <<<<<<< HEAD
       userDataDir: "/tmp/clawd",
-=======
-      userDataDir: chromeUserDataDir.dir,
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
       cdpPort: profile.cdpPort,
       startedAt: Date.now(),
       proc,
     };
   }),
-<<<<<<< HEAD
   resolveClawdUserDataDir: vi.fn(() => "/tmp/clawd"),
   stopClawdChrome: vi.fn(async () => {
-=======
-  resolveOpenClawUserDataDir: vi.fn(() => chromeUserDataDir.dir),
-  stopOpenClawChrome: vi.fn(async () => {
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
     reachable = false;
   }),
 }));
@@ -320,7 +307,6 @@ const cdpMocks = getCdpMocks();
 const pwMocks = getPwMocks();
 
 describe("browser control server", () => {
-<<<<<<< HEAD
   installBrowserControlServerHooks();
 >>>>>>> dee3abfcd (refactor(test): share browser control server harness)
 
@@ -339,9 +325,6 @@ describe("browser control server", () => {
     });
     return (await res.json()) as T;
   };
-=======
-  installAgentContractHooks();
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
   it("agent contract: snapshot endpoints", async () => {
     const base = await startServerAndBase();

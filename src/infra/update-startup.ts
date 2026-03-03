@@ -5,11 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import { formatCliCommand } from "../cli/command-format.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { loadConfig } from "../config/config.js";
@@ -24,14 +20,7 @@ import type { loadConfig } from "../config/config.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { loadConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
-<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "./moltbot-root.js";
-=======
-import { runCommandWithTimeout } from "../process/exec.js";
-import { VERSION } from "../version.js";
-import { resolveOpenClawPackageRoot } from "./openclaw-root.js";
-import { normalizeUpdateChannel, DEFAULT_PACKAGE_CHANNEL } from "./update-channels.js";
->>>>>>> f442a3539 (feat(update): add core auto-updater and dry-run preview)
 import { compareSemverStrings, resolveNpmChannelTag, checkUpdateStatus } from "./update-check.js";
 import { normalizeUpdateChannel, DEFAULT_PACKAGE_CHANNEL } from "./update-channels.js";
 import { VERSION } from "../version.js";

@@ -1,12 +1,7 @@
 import Darwin
 import Foundation
-<<<<<<< HEAD:apps/macos/Sources/MoltbotMacCLI/WizardCommand.swift
 import MoltbotKit
 import MoltbotProtocol
-=======
-import OpenClawKit
-import OpenClawProtocol
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClawMacCLI/WizardCommand.swift
 
 struct WizardCliOptions {
     var url: String?

@@ -39,12 +39,7 @@ Supported channels: `telegram`, `whatsapp`, `signal`, `imessage`, `discord`, `sl
 
 ### Where the state lives
 
-<<<<<<< HEAD
 Stored under `~/.clawdbot/credentials/`:
-=======
-Stored under `~/.openclaw/credentials/`:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Pending requests: `<channel>-pairing.json`
 - Approved allowlist store:
   - Default account: `<channel>-allowFrom.json`
@@ -89,12 +84,7 @@ moltbot devices reject <requestId>
 
 ### Where the state lives
 
-<<<<<<< HEAD
 Stored under `~/.clawdbot/devices/`:
-=======
-Stored under `~/.openclaw/devices/`:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `pending.json` (short-lived; pending requests expire)
 - `paired.json` (paired devices + tokens)
 

@@ -1,12 +1,7 @@
 import { PassThrough } from "node:stream";
-<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 =======
 import { LAUNCH_AGENT_THROTTLE_INTERVAL_SECONDS } from "./launchd-plist.js";
 >>>>>>> c0ce12551 (fix(gateway): shorten manual reinstall/restart delays)
@@ -33,7 +28,6 @@ function normalizeLaunchctlArgs(file: string, args: string[]): string[] {
   if (file === "launchctl") {
     return args;
   }
-<<<<<<< HEAD
 
   const shPath = path.join(binDir, "launchctl");
   await fs.writeFile(
@@ -111,9 +105,6 @@ async function withLaunchctlStub(
       await fs.writeFile(shPath, `#!/bin/sh\nnode "$(dirname "$0")/launchctl.js" "$@"\n`, "utf8");
       await fs.chmod(shPath, 0o755);
     }
-=======
-    await writeLaunchctlStub(binDir);
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
 
     process.env.CLAWDBOT_TEST_LAUNCHCTL_LOG = logPath;
     process.env.CLAWDBOT_TEST_LAUNCHCTL_LIST_OUTPUT = options.listOutput ?? "";
@@ -220,15 +211,9 @@ describe("launchd runtime parsing", () => {
 
 describe("launchctl list detection", () => {
   it("detects the resolved label in launchctl list", async () => {
-<<<<<<< HEAD
     await withLaunchctlStub({ listOutput: "123 0 bot.molt.gateway\n" }, async ({ env }) => {
       const listed = await isLaunchAgentListed({ env });
       expect(listed).toBe(true);
-=======
-    state.listOutput = "123 0 ai.openclaw.gateway\n";
-    const listed = await isLaunchAgentListed({
-      env: { HOME: "/Users/test", OPENCLAW_PROFILE: "default" },
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     });
     expect(listed).toBe(true);
   });
@@ -255,7 +240,6 @@ describe("launchd bootstrap repair", () => {
     const label = "ai.openclaw.gateway";
     const plistPath = resolveLaunchAgentPlistPath(env);
 
-<<<<<<< HEAD
       const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
       const label = "bot.molt.gateway";
       const plistPath = resolveLaunchAgentPlistPath(env);
@@ -263,15 +247,10 @@ describe("launchd bootstrap repair", () => {
       expect(calls).toContainEqual(["bootstrap", domain, plistPath]);
       expect(calls).toContainEqual(["kickstart", "-k", `${domain}/${label}`]);
     });
-=======
-    expect(state.launchctlCalls).toContainEqual(["bootstrap", domain, plistPath]);
-    expect(state.launchctlCalls).toContainEqual(["kickstart", "-k", `${domain}/${label}`]);
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
   });
 });
 
 describe("launchd install", () => {
-<<<<<<< HEAD
   it("enables service before bootstrap (clears persisted disabled state)", async () => {
 <<<<<<< HEAD
     const originalPath = process.env.PATH;
@@ -312,9 +291,6 @@ describe("launchd install", () => {
         await fs.writeFile(shPath, `#!/bin/sh\nnode "$(dirname "$0")/launchctl.js" "$@"\n`, "utf8");
         await fs.chmod(shPath, 0o755);
       }
-=======
-      await writeLaunchctlStub(binDir);
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
 
       process.env.CLAWDBOT_TEST_LAUNCHCTL_LOG = logPath;
       process.env.PATH = `${binDir}${path.delimiter}${originalPath ?? ""}`;
@@ -522,7 +498,6 @@ describe("launchd install", () => {
 
 describe("resolveLaunchAgentPlistPath", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("uses default label when CLAWDBOT_PROFILE is default", () => {
     const env = { HOME: "/Users/test", CLAWDBOT_PROFILE: "default" };
     expect(resolveLaunchAgentPlistPath(env)).toBe(
@@ -531,9 +506,6 @@ describe("resolveLaunchAgentPlistPath", () => {
   });
 
   it("uses default label when CLAWDBOT_PROFILE is unset", () => {
-=======
-  it("uses default label when OPENCLAW_PROFILE is unset", () => {
->>>>>>> 6c3e7896c (test: remove duplicate lowercase default profile daemon path cases)
     const env = { HOME: "/Users/test" };
     expect(resolveLaunchAgentPlistPath(env)).toBe(
       "/Users/test/Library/LaunchAgents/bot.molt.gateway.plist",
@@ -619,7 +591,6 @@ describe("resolveLaunchAgentPlistPath", () => {
     expect(resolveLaunchAgentPlistPath(env)).toBe(expected);
 >>>>>>> da341bfbe (test(daemon): dedupe service path cases and bootstrap failures)
   });
-<<<<<<< HEAD
 
   it("handles case-insensitive 'Default' profile", () => {
     const env = { HOME: "/Users/test", CLAWDBOT_PROFILE: "Default" };
@@ -638,10 +609,6 @@ describe("resolveLaunchAgentPlistPath", () => {
 
   it("trims whitespace from CLAWDBOT_PROFILE", () => {
     const env = { HOME: "/Users/test", CLAWDBOT_PROFILE: "  myprofile  " };
-=======
-  it("trims whitespace from OPENCLAW_PROFILE", () => {
-    const env = { HOME: "/Users/test", OPENCLAW_PROFILE: "  myprofile  " };
->>>>>>> 91e120870 (test: remove duplicate uppercase default profile daemon cases)
     expect(resolveLaunchAgentPlistPath(env)).toBe(
       "/Users/test/Library/LaunchAgents/bot.molt.myprofile.plist",
     );

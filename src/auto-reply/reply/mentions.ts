@@ -6,16 +6,12 @@ import { normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { MsgContext } from "../templating.js";
 
 function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-=======
-import { escapeRegExp } from "../../utils.js";
->>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import { escapeRegExp } from "../../utils.js";
@@ -68,15 +64,8 @@ function normalizeMentionPatterns(patterns: string[]): string[] {
   return patterns.map(normalizeMentionPattern);
 }
 
-<<<<<<< HEAD
 function resolveMentionPatterns(cfg: MoltbotConfig | undefined, agentId?: string): string[] {
   if (!cfg) return [];
-=======
-function resolveMentionPatterns(cfg: OpenClawConfig | undefined, agentId?: string): string[] {
-  if (!cfg) {
-    return [];
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const agentConfig = agentId ? resolveAgentConfig(cfg, agentId) : undefined;
   const agentGroupChat = agentConfig?.groupChat;
   if (agentGroupChat && Object.hasOwn(agentGroupChat, "mentionPatterns")) {

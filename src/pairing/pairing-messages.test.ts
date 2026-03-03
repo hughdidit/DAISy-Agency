@@ -1,16 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { captureEnv } from "../test-utils/env.js";
->>>>>>> ee2fa5f41 (refactor(test): reuse env snapshots in unit suites)
 import { buildPairingReply } from "./pairing-messages.js";
 
 describe("buildPairingReply", () => {
   let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeEach(() => {
-<<<<<<< HEAD
     previousProfile = process.env.CLAWDBOT_PROFILE;
     process.env.CLAWDBOT_PROFILE = "isolated";
   });
@@ -21,14 +16,6 @@ describe("buildPairingReply", () => {
       return;
     }
     process.env.CLAWDBOT_PROFILE = previousProfile;
-=======
-    envSnapshot = captureEnv(["OPENCLAW_PROFILE"]);
-    process.env.OPENCLAW_PROFILE = "isolated";
-  });
-
-  afterEach(() => {
-    envSnapshot.restore();
->>>>>>> ee2fa5f41 (refactor(test): reuse env snapshots in unit suites)
   });
 
   const cases = [
@@ -71,11 +58,7 @@ describe("buildPairingReply", () => {
       expect(text).toContain(`Pairing code: ${testCase.code}`);
       // CLI commands should respect CLAWDBOT_PROFILE when set (most tests run with isolated profile)
       const commandRe = new RegExp(
-<<<<<<< HEAD
         `(?:moltbot|moltbot) --profile isolated pairing approve ${testCase.channel} <code>`,
-=======
-        `(?:openclaw|openclaw) --profile isolated pairing approve ${testCase.channel} ${testCase.code}`,
->>>>>>> 74273d62d (fix(pairing): show actual code in approval command instead of placeholder (#13723))
       );
       expect(text).toMatch(commandRe);
     });

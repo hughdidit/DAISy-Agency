@@ -4,10 +4,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 =======
@@ -28,10 +24,7 @@ import type { NormalizedOutboundPayload } from "./payloads.js";
 import type { OutboundChannel } from "./targets.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 50645b905 (refactor(outbound): centralize outbound identity)
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -56,12 +49,8 @@ import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
@@ -70,10 +59,7 @@ import type {
 } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -94,14 +80,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { NormalizedOutboundPayload } from "./payloads.js";
-=======
-=======
-import type { sendMessageDiscord } from "../../discord/send.js";
-import type { sendMessageIMessage } from "../../imessage/send.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { sendMessageDiscord } from "../../discord/send.js";
 import type { sendMessageIMessage } from "../../imessage/send.js";
@@ -130,26 +109,9 @@ import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
 import { sendMessageSignal } from "../../signal/send.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { sendMessageSlack } from "../../slack/send.js";
-import type { sendMessageTelegram } from "../../telegram/send.js";
-import type { sendMessageWhatsApp } from "../../web/outbound.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { throwIfAborted } from "./abort.js";
-<<<<<<< HEAD
 >>>>>>> 79c246666 (refactor: consolidate throwIfAborted + fix isCompactionFailureError (#12463))
-=======
-import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { OutboundIdentity } from "./identity.js";
-import type { NormalizedOutboundPayload } from "./payloads.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -238,14 +200,9 @@ type ChannelHandler = {
   ) => Promise<OutboundDeliveryResult>;
 };
 
-<<<<<<< HEAD
 // Channel docking: outbound delivery delegates to plugin.outbound adapters.
 async function createChannelHandler(params: {
   cfg: MoltbotConfig;
-=======
-type ChannelHandlerParams = {
-  cfg: OpenClawConfig;
->>>>>>> d5ee766af (refactor(outbound): dedupe channel handler params)
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -255,7 +212,6 @@ type ChannelHandlerParams = {
   deps?: OutboundSendDeps;
   gifPlayback?: boolean;
   silent?: boolean;
-<<<<<<< HEAD
 }): Promise<ChannelHandler> {
   const outbound = await loadChannelOutboundAdapter(params.channel);
   if (!outbound?.sendText || !outbound?.sendMedia) {
@@ -274,22 +230,12 @@ type ChannelHandlerParams = {
     gifPlayback: params.gifPlayback,
     silent: params.silent,
   });
-=======
-  mediaLocalRoots?: readonly string[];
-};
-
-// Channel docking: outbound delivery delegates to plugin.outbound adapters.
-async function createChannelHandler(params: ChannelHandlerParams): Promise<ChannelHandler> {
-  const outbound = await loadChannelOutboundAdapter(params.channel);
-  const handler = createPluginHandler({ ...params, outbound });
->>>>>>> d5ee766af (refactor(outbound): dedupe channel handler params)
   if (!handler) {
     throw new Error(`Outbound not configured for channel: ${params.channel}`);
   }
   return handler;
 }
 
-<<<<<<< HEAD
 function createPluginHandler(params: {
   outbound?: ChannelOutboundAdapter;
   cfg: MoltbotConfig;
@@ -303,11 +249,6 @@ function createPluginHandler(params: {
   gifPlayback?: boolean;
   silent?: boolean;
 }): ChannelHandler | null {
-=======
-function createPluginHandler(
-  params: ChannelHandlerParams & { outbound?: ChannelOutboundAdapter },
-): ChannelHandler | null {
->>>>>>> d5ee766af (refactor(outbound): dedupe channel handler params)
   const outbound = params.outbound;
   if (!outbound?.sendText || !outbound?.sendMedia) {
     return null;
@@ -335,7 +276,6 @@ function createPluginHandler(
             ...resolveCtx(overrides),
             text: payload.text ?? "",
             mediaUrl: payload.mediaUrl,
-<<<<<<< HEAD
             accountId: params.accountId,
             replyToId: params.replyToId,
             threadId: params.threadId,
@@ -343,8 +283,6 @@ function createPluginHandler(
             gifPlayback: params.gifPlayback,
             deps: params.deps,
             silent: params.silent,
-=======
->>>>>>> a881bd41e (refactor(outbound): dedupe plugin outbound context)
             payload,
           })
       : undefined,
@@ -352,7 +290,6 @@ function createPluginHandler(
       sendText({
         ...resolveCtx(overrides),
         text,
-<<<<<<< HEAD
         accountId: params.accountId,
         replyToId: params.replyToId,
         threadId: params.threadId,
@@ -360,15 +297,12 @@ function createPluginHandler(
         gifPlayback: params.gifPlayback,
         deps: params.deps,
         silent: params.silent,
-=======
->>>>>>> a881bd41e (refactor(outbound): dedupe plugin outbound context)
       }),
     sendMedia: async (caption, mediaUrl, overrides) =>
       sendMedia({
         ...resolveCtx(overrides),
         text: caption,
         mediaUrl,
-<<<<<<< HEAD
         accountId: params.accountId,
         replyToId: params.replyToId,
         threadId: params.threadId,
@@ -376,38 +310,14 @@ function createPluginHandler(
         gifPlayback: params.gifPlayback,
         deps: params.deps,
         silent: params.silent,
-=======
->>>>>>> a881bd41e (refactor(outbound): dedupe plugin outbound context)
       }),
   };
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export async function deliverOutboundPayloads(params: {
 <<<<<<< HEAD
   cfg: MoltbotConfig;
-=======
-=======
-=======
-function createChannelOutboundContextBase(
-  params: ChannelHandlerParams,
-): Omit<ChannelOutboundContext, "text" | "mediaUrl"> {
-  return {
-    cfg: params.cfg,
-    to: params.to,
-    accountId: params.accountId,
-    replyToId: params.replyToId,
-    threadId: params.threadId,
-    identity: params.identity,
-    gifPlayback: params.gifPlayback,
-    deps: params.deps,
-    silent: params.silent,
-    mediaLocalRoots: params.mediaLocalRoots,
-  };
-}
-
->>>>>>> a881bd41e (refactor(outbound): dedupe plugin outbound context)
 const isAbortError = (err: unknown): boolean => err instanceof Error && err.name === "AbortError";
 
 type DeliverOutboundPayloadsCoreParams = {
@@ -426,11 +336,8 @@ type DeliverOutboundPayloadsCoreParams = {
   bestEffort?: boolean;
   onError?: (err: unknown, payload: NormalizedOutboundPayload) => void;
   onPayload?: (payload: NormalizedOutboundPayload) => void;
-<<<<<<< HEAD
-=======
   /** Session/agent context used for hooks and media local-root scoping. */
   session?: OutboundSessionContext;
->>>>>>> a1628d89e (refactor: unify outbound session context wiring)
   mirror?: {
     sessionKey: string;
     agentId?: string;
@@ -506,7 +413,6 @@ export async function deliverOutboundPayloads(
 }
 
 /** Core delivery logic (extracted for queue wrapper). */
-<<<<<<< HEAD
 async function deliverOutboundPayloadsCore(params: {
   cfg: OpenClawConfig;
 >>>>>>> 09e1cbc35 (fix(cron): pass agent identity through delivery path (#16218) (#16242))
@@ -531,23 +437,15 @@ async function deliverOutboundPayloadsCore(params: {
   };
   silent?: boolean;
 }): Promise<OutboundDeliveryResult[]> {
-=======
-async function deliverOutboundPayloadsCore(
-  params: DeliverOutboundPayloadsCoreParams,
-): Promise<OutboundDeliveryResult[]> {
->>>>>>> 21df9ebd9 (refactor(outbound): share deliver payload params)
   const { cfg, channel, to, payloads } = params;
   const accountId = params.accountId;
   const deps = params.deps;
   const abortSignal = params.abortSignal;
   const sendSignal = params.deps?.sendSignal ?? sendMessageSignal;
-<<<<<<< HEAD
-=======
   const mediaLocalRoots = getAgentScopedMediaLocalRoots(
     cfg,
     params.session?.agentId ?? params.mirror?.agentId,
   );
->>>>>>> a1628d89e (refactor: unify outbound session context wiring)
   const results: OutboundDeliveryResult[] = [];
   const handler = await createChannelHandler({
     cfg,
@@ -668,39 +566,7 @@ async function deliverOutboundPayloadsCore(
       })),
     };
   };
-<<<<<<< HEAD
   const normalizedPayloads = normalizeReplyPayloadsForDelivery(payloads);
-=======
-  const normalizeWhatsAppPayload = (payload: ReplyPayload): ReplyPayload | null => {
-    const hasMedia = Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
-    const rawText = typeof payload.text === "string" ? payload.text : "";
-    const normalizedText = rawText.replace(/^(?:[ \t]*\r?\n)+/, "");
-    if (!normalizedText.trim()) {
-      if (!hasMedia) {
-        return null;
-      }
-      return {
-        ...payload,
-        text: "",
-      };
-    }
-    return {
-      ...payload,
-      text: normalizedText,
-    };
-  };
-  const normalizedPayloads = normalizeReplyPayloadsForDelivery(payloads).flatMap((payload) => {
-    if (channel !== "whatsapp") {
-      return [payload];
-    }
-    const normalized = normalizeWhatsAppPayload(payload);
-    return normalized ? [normalized] : [];
-  });
-  const hookRunner = getGlobalHookRunner();
-<<<<<<< HEAD
-<<<<<<< HEAD
-  const sessionKeyForInternalHooks = params.mirror?.sessionKey;
->>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 =======
   const sessionKeyForInternalHooks = params.mirror?.sessionKey ?? params.sessionKey;
 >>>>>>> 01c1f68ab (fix(hooks): decouple message:sent internal hook from mirror param)
@@ -727,8 +593,6 @@ async function deliverOutboundPayloadsCore(
       mediaUrls: payload.mediaUrls ?? (payload.mediaUrl ? [payload.mediaUrl] : []),
       channelData: payload.channelData,
     };
-<<<<<<< HEAD
-=======
     const emitMessageSent = (params: {
       success: boolean;
       content: string;
@@ -768,23 +632,11 @@ async function deliverOutboundPayloadsCore(
         }),
       ).catch(() => {});
     };
->>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
     try {
       throwIfAborted(abortSignal);
       params.onPayload?.(payloadSummary);
-<<<<<<< HEAD
       if (handler.sendPayload && payload.channelData) {
         results.push(await handler.sendPayload(payload));
-=======
-      const sendOverrides = {
-        replyToId: effectivePayload.replyToId ?? params.replyToId ?? undefined,
-        threadId: params.threadId ?? undefined,
-      };
-      if (handler.sendPayload && effectivePayload.channelData) {
-<<<<<<< HEAD
-        results.push(await handler.sendPayload(effectivePayload, sendOverrides));
-        emitMessageSent(true);
->>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
 =======
         const delivery = await handler.sendPayload(effectivePayload, sendOverrides);
         results.push(delivery);
@@ -803,15 +655,12 @@ async function deliverOutboundPayloadsCore(
         } else {
           await sendTextChunks(payloadSummary.text, sendOverrides);
         }
-<<<<<<< HEAD
-=======
         const messageId = results.at(-1)?.messageId;
         emitMessageSent({
           success: results.length > beforeCount,
           content: payloadSummary.text,
           messageId,
         });
->>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
         continue;
       }
 
@@ -831,21 +680,7 @@ async function deliverOutboundPayloadsCore(
           lastMessageId = delivery.messageId;
         }
       }
-<<<<<<< HEAD
     } catch (err) {
-=======
-      emitMessageSent({
-        success: true,
-        content: payloadSummary.text,
-        messageId: lastMessageId,
-      });
-    } catch (err) {
-      emitMessageSent({
-        success: false,
-        content: payloadSummary.text,
-        error: err instanceof Error ? err.message : String(err),
-      });
->>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
       if (!params.bestEffort) {
         throw err;
       }

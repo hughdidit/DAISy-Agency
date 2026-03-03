@@ -11,23 +11,9 @@ const ciWorkers = isWindows ? 1 : 3;
 
 export default defineConfig({
   resolve: {
-<<<<<<< HEAD
     alias: {
       "clawdbot/plugin-sdk": path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
     },
-=======
-    // Keep this ordered: the base `openclaw/plugin-sdk` alias is a prefix match.
-    alias: [
-      {
-        find: "openclaw/plugin-sdk/account-id",
-        replacement: path.join(repoRoot, "src", "plugin-sdk", "account-id.ts"),
-      },
-      {
-        find: "openclaw/plugin-sdk",
-        replacement: path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
-      },
-    ],
->>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
   },
   test: {
     fileParallelism: false,
@@ -41,11 +27,7 @@ export default defineConfig({
     pool: "forks",
     maxWorkers: isCI ? ciWorkers : localWorkers,
 <<<<<<< HEAD
-<<<<<<< HEAD
     include: ["src/**/*.test.ts", "extensions/**/*.test.ts", "test/format-error.test.ts"],
-=======
-    include: ["src/**/*.test.ts", "extensions/**/*.test.ts", "test/**/*.test.ts"],
->>>>>>> c1655982d (refactor: centralize pre-commit file filtering)
 =======
     include: [
       "src/**/*.test.ts",

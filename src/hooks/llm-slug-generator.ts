@@ -9,11 +9,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -29,8 +26,6 @@ import {
   resolveAgentWorkspaceDir,
   resolveAgentDir,
 } from "../agents/agent-scope.js";
-<<<<<<< HEAD
-=======
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -38,7 +33,6 @@ import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 <<<<<<< HEAD
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

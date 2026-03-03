@@ -21,8 +21,6 @@ import {
 } from "./thread-bindings.state.js";
 import type { ThreadBindingRecord, ThreadBindingTargetKind } from "./thread-bindings.types.js";
 
-<<<<<<< HEAD
-=======
 export type AcpThreadBindingReconciliationResult = {
   checked: number;
   removed: number;
@@ -36,7 +34,6 @@ function normalizeNonNegativeMs(raw: number): number {
   return Math.max(0, Math.floor(raw));
 }
 
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
 function resolveBindingIdsForTargetSession(params: {
   targetSessionKey: string;
   accountId?: string;

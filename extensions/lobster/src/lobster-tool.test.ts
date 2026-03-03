@@ -2,7 +2,6 @@ import { EventEmitter } from "node:events";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
@@ -12,22 +11,6 @@ import { createLobsterTool } from "./lobster-tool.js";
 async function writeFakeLobsterScript(scriptBody: string, prefix = "moltbot-lobster-plugin-") {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
   const isWindows = process.platform === "win32";
-=======
-import { PassThrough } from "node:stream";
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawPluginApi, OpenClawPluginToolContext } from "../../../src/plugins/types.js";
-import {
-  createWindowsCmdShimFixture,
-  restorePlatformPathEnv,
-  setProcessPlatform,
-  snapshotPlatformPathEnv,
-} from "./test-helpers.js";
-
-const spawnState = vi.hoisted(() => ({
-  queue: [] as Array<{ stdout: string; stderr?: string; exitCode?: number }>,
-  spawn: vi.fn(),
-}));
->>>>>>> 5e496a151 (perf(test): mock lobster subprocess)
 
 vi.mock("node:child_process", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:child_process")>();
@@ -44,13 +27,7 @@ function fakeApi(): MoltbotPluginApi {
     id: "lobster",
     name: "lobster",
     source: "test",
-<<<<<<< HEAD
     config: {} as any,
-=======
-    config: {},
-    pluginConfig: {},
-    // oxlint-disable-next-line typescript/no-explicit-any
->>>>>>> 935a0e570 (chore: Enable `typescript/no-explicit-any` rule.)
     runtime: { version: "test" } as any,
     logger: { info() {}, warn() {}, error() {}, debug() {} },
     registerTool() {},
@@ -80,13 +57,8 @@ function fakeCtx(overrides: Partial<MoltbotPluginToolContext> = {}): MoltbotPlug
 
 describe("lobster plugin tool", () => {
   let tempDir = "";
-<<<<<<< HEAD
   let lobsterBinPath = "";
-=======
-  const originalProcessState = snapshotPlatformPathEnv();
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
-<<<<<<< HEAD
     const tool = createLobsterTool(fakeApi());
     const res = await tool.execute("call1", {
       action: "run",
@@ -95,20 +67,6 @@ describe("lobster plugin tool", () => {
       timeoutMs: 1000,
     });
 
-=======
-  beforeAll(async () => {
-    ({ createLobsterTool } = await import("./lobster-tool.js"));
-
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lobster-plugin-"));
-<<<<<<< HEAD
-    lobsterBinPath = path.join(tempDir, process.platform === "win32" ? "lobster.cmd" : "lobster");
-    await fs.writeFile(lobsterBinPath, "", { encoding: "utf8", mode: 0o755 });
-=======
-  });
-
-  afterEach(() => {
-    restorePlatformPathEnv(originalProcessState);
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
   });
 
   afterAll(async () => {
@@ -152,8 +110,6 @@ describe("lobster plugin tool", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   const queueSuccessfulEnvelope = (hello = "world") => {
     spawnState.queue.push({
       stdout: JSON.stringify({
@@ -165,7 +121,6 @@ describe("lobster plugin tool", () => {
     });
   };
 
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
   it("runs lobster and returns parsed envelope in details", async () => {
     spawnState.queue.push({
       stdout: JSON.stringify({
@@ -190,39 +145,25 @@ describe("lobster plugin tool", () => {
 
   it("tolerates noisy stdout before the JSON envelope", async () => {
     const payload = { ok: true, status: "ok", output: [], requiresApproval: null };
-<<<<<<< HEAD
     const { binPath } = await writeFakeLobsterScript(
       `const payload = ${JSON.stringify(payload)};\n` +
         `console.log("noise before json");\n` +
         `process.stdout.write(JSON.stringify(payload));\n`,
       "moltbot-lobster-plugin-noisy-",
     );
-=======
-    spawnState.queue.push({
-      stdout: `noise before json\n${JSON.stringify(payload)}`,
-    });
->>>>>>> 5e496a151 (perf(test): mock lobster subprocess)
 
     const tool = createLobsterTool(fakeApi());
     const res = await tool.execute("call-noisy", {
       action: "run",
       pipeline: "noop",
-<<<<<<< HEAD
       lobsterPath: binPath,
-=======
->>>>>>> 5e496a151 (perf(test): mock lobster subprocess)
       timeoutMs: 1000,
     });
 
     expect(res.details).toMatchObject({ ok: true, status: "ok" });
-<<<<<<< HEAD
   });
 
   it("requires absolute lobsterPath when provided", async () => {
-=======
-  });
-
-  it("requires absolute lobsterPath when provided (even though it is ignored)", async () => {
     const tool = createLobsterTool(fakeApi());
     await expect(
       tool.execute("call2", {
@@ -230,30 +171,6 @@ describe("lobster plugin tool", () => {
         pipeline: "noop",
         lobsterPath: "./lobster",
       }),
-    ).rejects.toThrow(/absolute path/);
-  });
-
-  it("rejects lobsterPath (deprecated) when invalid", async () => {
-    const tool = createLobsterTool(fakeApi());
-    await expect(
-      tool.execute("call2b", {
-        action: "run",
-        pipeline: "noop",
-        lobsterPath: "/bin/bash",
-      }),
-    ).rejects.toThrow(/lobster executable/);
-  });
-
-  it("rejects absolute cwd", async () => {
->>>>>>> 5e496a151 (perf(test): mock lobster subprocess)
-    const tool = createLobsterTool(fakeApi());
-    await expect(
-      tool.execute("call2", {
-        action: "run",
-        pipeline: "noop",
-        lobsterPath: "./lobster",
-      }),
-<<<<<<< HEAD
     ).rejects.toThrow(/absolute path/);
   });
 
@@ -262,66 +179,17 @@ describe("lobster plugin tool", () => {
       `process.stdout.write("nope");\n`,
       "moltbot-lobster-plugin-bad-",
     );
-=======
-    ).rejects.toThrow(/cwd must be a relative path/);
-  });
-
-  it("rejects cwd that escapes the gateway working directory", async () => {
-    const tool = createLobsterTool(fakeApi());
-    await expect(
-      tool.execute("call2d", {
-        action: "run",
-        pipeline: "noop",
-        cwd: "../../etc",
-      }),
-    ).rejects.toThrow(/must stay within/);
-  });
-
-  it("uses pluginConfig.lobsterPath when provided", async () => {
-    spawnState.queue.push({
-      stdout: JSON.stringify({
-        ok: true,
-        status: "ok",
-        output: [{ hello: "world" }],
-        requiresApproval: null,
-      }),
-    });
-
-    const configuredLobsterPath = process.platform === "win32" ? lobsterExePath : lobsterBinPath;
-    const tool = createLobsterTool(
-      fakeApi({ pluginConfig: { lobsterPath: configuredLobsterPath } }),
-    );
-    const res = await tool.execute("call-plugin-config", {
-      action: "run",
-      pipeline: "noop",
-      timeoutMs: 1000,
-    });
-
-    expect(spawnState.spawn).toHaveBeenCalled();
-    const [execPath] = spawnState.spawn.mock.calls[0] ?? [];
-    expect(execPath).toBe(configuredLobsterPath);
-    expect(res.details).toMatchObject({ ok: true, status: "ok" });
-  });
-
-  it("rejects invalid JSON from lobster", async () => {
-    spawnState.queue.push({ stdout: "nope" });
->>>>>>> 5e496a151 (perf(test): mock lobster subprocess)
 
     const tool = createLobsterTool(fakeApi());
     await expect(
       tool.execute("call3", {
         action: "run",
         pipeline: "noop",
-<<<<<<< HEAD
         lobsterPath: binPath,
-=======
->>>>>>> 5e496a151 (perf(test): mock lobster subprocess)
       }),
     ).rejects.toThrow(/invalid JSON/);
   });
 
-<<<<<<< HEAD
-=======
   it("runs Windows cmd shims through Node without enabling shell", async () => {
     setProcessPlatform("win32");
     const shimScriptPath = path.join(tempDir, "shim-dist", "lobster-cli.cjs");
@@ -348,7 +216,6 @@ describe("lobster plugin tool", () => {
       shimPath,
       scriptPath: shimScriptPath,
       shimLine: `"%dp0%\\..\\shim-dist\\lobster-cli.cjs" %*`,
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
     });
 
     const tool = createLobsterTool(fakeApi({ pluginConfig: { lobsterPath: shimPath } }));
@@ -515,15 +382,8 @@ describe("lobster plugin tool", () => {
 >>>>>>> 1faa7a87a (lobster: parse windows cmd shim paths with rooted tokens (#20833))
   it("can be gated off in sandboxed contexts", async () => {
     const api = fakeApi();
-<<<<<<< HEAD
     const factoryTool = (ctx: MoltbotPluginToolContext) => {
       if (ctx.sandboxed) return null;
-=======
-    const factoryTool = (ctx: OpenClawPluginToolContext) => {
-      if (ctx.sandboxed) {
-        return null;
-      }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       return createLobsterTool(api);
     };
 

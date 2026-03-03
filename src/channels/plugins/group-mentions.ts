@@ -1,12 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
@@ -49,7 +41,6 @@ import { normalizeAtHashSlug, normalizeHyphenSlug } from "../../shared/string-no
 import { resolveSlackAccount } from "../../slack/accounts.js";
 import type { ChannelGroupContext } from "./types.js";
 
-<<<<<<< HEAD
 type GroupMentionParams = {
   cfg: MoltbotConfig;
   groupId?: string | null;
@@ -61,9 +52,6 @@ type GroupMentionParams = {
   senderUsername?: string | null;
   senderE164?: string | null;
 };
-=======
-type GroupMentionParams = ChannelGroupContext;
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 
 function normalizeDiscordSlug(value?: string | null) {
   return normalizeAtHashSlug(value);

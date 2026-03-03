@@ -6,7 +6,6 @@ export function resolveGatewayProbeAuth(cfg: ReturnType<typeof loadConfig>): {
   token?: string;
   password?: string;
 } {
-<<<<<<< HEAD
   const isRemoteMode = cfg.gateway?.mode === "remote";
   const remote = isRemoteMode ? cfg.gateway?.remote : undefined;
   const authToken = cfg.gateway?.auth?.token;
@@ -27,11 +26,4 @@ export function resolveGatewayProbeAuth(cfg: ReturnType<typeof loadConfig>): {
         ? authPassword.trim()
         : undefined);
   return { token, password };
-=======
-  return resolveGatewayProbeAuthByMode({
-    cfg,
-    mode: cfg.gateway?.mode === "remote" ? "remote" : "local",
-    env: process.env,
-  });
->>>>>>> 08431da5d (refactor(gateway): unify credential precedence across entrypoints)
 }

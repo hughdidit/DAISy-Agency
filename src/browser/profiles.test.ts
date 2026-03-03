@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { resolveBrowserConfig } from "./config.js";
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 import {
   allocateCdpPort,
   allocateColor,
@@ -16,7 +12,6 @@ import {
 } from "./profiles.js";
 
 describe("profile name validation", () => {
-<<<<<<< HEAD
   it("accepts valid lowercase names", () => {
     expect(isValidProfileName("clawd")).toBe(true);
     expect(isValidProfileName("work")).toBe(true);
@@ -26,14 +21,6 @@ describe("profile name validation", () => {
     expect(isValidProfileName("a-b-c-1-2-3")).toBe(true);
     expect(isValidProfileName("1test")).toBe(true);
   });
-=======
-  it.each(["openclaw", "work", "my-profile", "test123", "a", "a-b-c-1-2-3", "1test"])(
-    "accepts valid lowercase name: %s",
-    (name) => {
-      expect(isValidProfileName(name)).toBe(true);
-    },
-  );
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 
   it("rejects empty or missing names", () => {
     expect(isValidProfileName("")).toBe(false);
@@ -170,15 +157,8 @@ describe("port collision prevention", () => {
     // Raw config: first allocation gets 18800
     expect(buggyAllocatedPort).toBe(CDP_PORT_RANGE_START);
 
-<<<<<<< HEAD
     // Resolved config: includes implicit clawd at 18800
     const resolved = resolveBrowserConfig(rawConfig.browser);
-=======
-    // Resolved config: includes implicit openclaw at 18800
-    const resolved = resolveBrowserConfig(
-      rawConfig.browser as Parameters<typeof resolveBrowserConfig>[0],
-    );
->>>>>>> 048e29ea3 (chore: Fix types in tests 45/N.)
     const fixedUsedPorts = getUsedPorts(resolved.profiles);
     const fixedAllocatedPort = allocateCdpPort(fixedUsedPorts);
 

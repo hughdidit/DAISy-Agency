@@ -504,8 +504,6 @@ export const FIELD_HELP: Record<string, string> = {
     "Use this legacy ElevenLabs API key for Talk mode only during migration, and keep secrets in env-backed storage. Prefer talk.providers.elevenlabs.apiKey (fallback: ELEVENLABS_API_KEY).",
   "talk.interruptOnSpeech":
     "If true (default), stop assistant speech when the user starts speaking in Talk mode. Keep enabled for conversational turn-taking.",
-<<<<<<< HEAD:src/config/schema.field-metadata.ts
-=======
   acp: "ACP runtime controls for enabling dispatch, selecting backends, constraining allowed agent targets, and tuning streamed turn projection behavior.",
   "acp.enabled":
     "Global ACP feature gate. Keep disabled unless ACP runtime + policy are configured.",
@@ -541,7 +539,6 @@ export const FIELD_HELP: Record<string, string> = {
     "Idle runtime TTL in minutes for ACP session workers before eligible cleanup.",
   "acp.runtime.installCommand":
     "Optional operator install/setup command shown by `/acp install` and `/acp doctor` when ACP backend wiring is missing.",
->>>>>>> 2466a9bb1 (ACP: carry dedupe/projector updates onto configurable acpx branch):src/config/schema.help.ts
   "agents.list.*.skills":
     "Optional allowlist of skills for this agent (omit = all skills; empty = no skills).",
   "agents.list[].skills":
@@ -683,8 +680,6 @@ export const FIELD_HELP: Record<string, string> = {
   "gateway.auth.token":
     "Required by default for gateway access (unless using Tailscale Serve identity); required for non-loopback binds.",
   "gateway.auth.password": "Required for Tailscale funnel.",
-<<<<<<< HEAD:src/config/schema.field-metadata.ts
-=======
   "agents.defaults.sandbox.browser.network":
     "Docker network for sandbox browser containers (default: openclaw-sandbox-browser). Avoid bridge if you need stricter isolation.",
   "agents.list[].sandbox.browser.network": "Per-agent override for sandbox browser Docker network.",
@@ -696,7 +691,6 @@ export const FIELD_HELP: Record<string, string> = {
     "Optional CIDR allowlist for container-edge CDP ingress (for example 172.21.0.1/32).",
   "agents.list[].sandbox.browser.cdpSourceRange":
     "Per-agent override for CDP source CIDR allowlist.",
->>>>>>> 5552f9073 (refactor(sandbox): centralize network mode policy helpers):src/config/schema.help.ts
   "gateway.controlUi.basePath":
     "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
   "gateway.controlUi.root":
@@ -829,12 +823,6 @@ export const FIELD_HELP: Record<string, string> = {
   "tools.exec.safeBins":
     "Allow stdin-only safe binaries to run without explicit allowlist entries.",
 <<<<<<< HEAD:src/config/schema.field-metadata.ts
-<<<<<<< HEAD:src/config/schema.field-metadata.ts
-=======
-=======
-  "tools.exec.safeBinTrustedDirs":
-    "Additional explicit directories trusted for safe-bin path checks (PATH entries are never auto-trusted).",
->>>>>>> 64b273a71 (fix(exec): harden safe-bin trust and add explicit trusted dirs):src/config/schema.help.ts
   "tools.exec.safeBinProfiles":
     "Optional per-binary safe-bin profiles (positional limits + allowed/denied flags).",
   "tools.profile":
@@ -963,32 +951,10 @@ export const FIELD_HELP: Record<string, string> = {
   "tools.web.search.provider":
     'Search provider ("brave", "perplexity", "grok", "gemini", or "kimi"). Auto-detected from available API keys if omitted.',
   "tools.web.search.apiKey": "Brave Search API key (fallback: BRAVE_API_KEY env var).",
-<<<<<<< HEAD:src/config/schema.field-metadata.ts
   "tools.web.search.urlAllowlist":
     "Optional URL/domain allowlist for web_search. When configured, Brave search results are filtered to only include URLs from allowed domains.",
   "tools.web.urlAllowlist":
     "Optional URL/domain allowlist shared by web_search and web_fetch. Accepts domain patterns like 'example.com', '*.github.com', 'docs.openclaw.ai'. When configured, only matching URLs are allowed.",
-=======
-  "tools.web.search.maxResults": "Default number of results to return (1-10).",
-  "tools.web.search.timeoutSeconds": "Timeout in seconds for web_search requests.",
-  "tools.web.search.cacheTtlMinutes": "Cache TTL in minutes for web_search results.",
-  "tools.web.search.gemini.apiKey":
-    "Gemini API key for Google Search grounding (fallback: GEMINI_API_KEY env var).",
-  "tools.web.search.gemini.model": 'Gemini model override (default: "gemini-2.5-flash").',
-  "tools.web.search.grok.apiKey": "Grok (xAI) API key (fallback: XAI_API_KEY env var).",
-  "tools.web.search.grok.model": 'Grok model override (default: "grok-4-1-fast").',
-  "tools.web.search.kimi.apiKey":
-    "Moonshot/Kimi API key (fallback: KIMI_API_KEY or MOONSHOT_API_KEY env var).",
-  "tools.web.search.kimi.baseUrl":
-    'Kimi base URL override (default: "https://api.moonshot.ai/v1").',
-  "tools.web.search.kimi.model": 'Kimi model override (default: "moonshot-v1-128k").',
-  "tools.web.search.perplexity.apiKey":
-    "Perplexity or OpenRouter API key (fallback: PERPLEXITY_API_KEY or OPENROUTER_API_KEY env var).",
-  "tools.web.search.perplexity.baseUrl":
-    "Perplexity base URL override (default: https://openrouter.ai/api/v1 or https://api.perplexity.ai).",
-  "tools.web.search.perplexity.model":
-    'Perplexity model override (default: "perplexity/sonar-pro").',
->>>>>>> f924ab40d (revert(tools): undo accidental merge of PR #18584):src/config/schema.help.ts
   "tools.web.fetch.enabled": "Enable the web_fetch tool (lightweight HTTP fetch).",
   "tools.web.fetch.urlAllowlist":
     "Optional URL/domain allowlist for web_fetch. When configured, only URLs matching these patterns can be fetched.",
@@ -1109,11 +1075,7 @@ export const FIELD_HELP: Record<string, string> = {
   "agents.defaults.memorySearch.remote.headers":
     "Adds custom HTTP headers to remote embedding requests, merged with provider defaults. Use this for proxy auth and tenant routing headers, and keep values minimal to avoid leaking sensitive metadata.",
   "agents.defaults.memorySearch.remote.batch.enabled":
-<<<<<<< HEAD:src/config/schema.field-metadata.ts
     "Enable batch API for memory embeddings (OpenAI/Gemini/Voyage; default: false).",
-=======
-    "Enables provider batch APIs for embedding jobs when supported (OpenAI/Gemini), improving throughput on larger index runs. Keep this enabled unless debugging provider batch failures or running very small workloads.",
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796)):src/config/schema.help.ts
   "agents.defaults.memorySearch.remote.batch.wait":
     "Waits for batch embedding jobs to fully finish before the indexing operation completes. Keep this enabled for deterministic indexing state; disable only if you accept delayed consistency.",
   "agents.defaults.memorySearch.remote.batch.concurrency":
@@ -1339,16 +1301,8 @@ export const FIELD_HELP: Record<string, string> = {
   "commands.useAccessGroups": "Enforce access-group allowlists/policies for commands.",
   "commands.ownerAllowFrom":
     "Explicit owner allowlist for owner-only tools/commands. Use channel-native IDs (optionally prefixed like \"whatsapp:+15551234567\"). '*' is ignored.",
-<<<<<<< HEAD:src/config/schema.field-metadata.ts
   "commands.allowFrom":
     'Per-provider allowlist restricting who can use slash commands. If set, overrides the channel\'s allowFrom for command authorization. Use \'*\' key for global default; provider-specific keys (e.g. \'discord\') override the global. Example: { "*": ["user1"], "discord": ["user:123"] }.',
-=======
-  "commands.ownerDisplay":
-    "Controls how owner IDs are rendered in the system prompt. Allowed values: raw, hash. Default: raw.",
-  "commands.ownerDisplaySecret":
-    "Optional secret used to HMAC hash owner IDs when ownerDisplay=hash. Prefer env substitution.",
-<<<<<<< HEAD:src/config/schema.field-metadata.ts
->>>>>>> 9abab6a2c (Add explicit ownerDisplaySecret for owner ID hash obfuscation (#22520)):src/config/schema.help.ts
 =======
   "commands.allowFrom":
     "Defines elevated command allow rules by channel and sender for owner-level command surfaces. Use narrow provider-specific identities so privileged commands are not exposed to broad chat audiences.",
@@ -1706,12 +1660,9 @@ export const FIELD_HELP: Record<string, string> = {
     "Filesystem path to the iMessage bridge CLI binary used for send/receive operations. Set explicitly when the binary is not on PATH in service runtime environments.",
   "channels.msteams.configWrites":
     "Allow Microsoft Teams to write config in response to channel events/commands (default: true).",
-<<<<<<< HEAD:src/config/schema.field-metadata.ts
-=======
   "channels.modelByChannel":
     "Map provider -> channel id -> model override (values are provider/model or aliases).",
   ...IRC_FIELD_HELP,
->>>>>>> f555835b0 (Channels: add thread-aware model overrides):src/config/schema.help.ts
   "channels.discord.commands.native": 'Override native commands for Discord (bool or "auto").',
   "channels.discord.commands.nativeSkills":
     'Override native skill commands for Discord (bool or "auto").',

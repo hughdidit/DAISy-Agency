@@ -2,14 +2,11 @@ import { listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChannelId } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 import type { MoltbotConfig, GatewayBindMode } from "../config/config.js";
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
 import { note } from "../terminal/note.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -24,12 +21,9 @@ import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig, GatewayBindMode } from "../config/config.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { isLoopbackHost, resolveGatewayBindHost } from "../gateway/net.js";
-<<<<<<< HEAD
-=======
 import { resolveDmAllowState } from "../security/dm-policy-shared.js";
 import { note } from "../terminal/note.js";
 import { resolveDefaultChannelAccountContext } from "./channel-account-context.js";
->>>>>>> 4bf67ab69 (refactor(commands): centralize shared command formatting helpers)
 
 export async function noteSecurityWarnings(cfg: MoltbotConfig) {
   const warnings: string[] = [];
@@ -96,12 +90,7 @@ export async function noteSecurityWarnings(cfg: MoltbotConfig) {
       warnings.push(
         `- CRITICAL: Gateway bound to ${bindDescriptor} without authentication.`,
         `  Anyone on your network (or internet if port-forwarded) can fully control your agent.`,
-<<<<<<< HEAD
         `  Fix: ${formatCliCommand("moltbot config set gateway.bind loopback")}`,
-=======
-        `  Fix: ${formatCliCommand("openclaw config set gateway.bind loopback")}`,
-        ...saferRemoteAccessLines,
->>>>>>> 8a3d04c19 (Gateway UX: harden remote ws guidance and onboarding defaults)
         ...authFixLines,
       );
     } else {

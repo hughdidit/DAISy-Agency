@@ -27,23 +27,10 @@ describe("noteSecurityWarnings gateway exposure", () => {
   });
 
   afterEach(() => {
-<<<<<<< HEAD
     if (prevToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     else process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     if (prevPassword === undefined) delete process.env.CLAWDBOT_GATEWAY_PASSWORD;
     else process.env.CLAWDBOT_GATEWAY_PASSWORD = prevPassword;
-=======
-    if (prevToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
-    } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
-    }
-    if (prevPassword === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_PASSWORD;
-    } else {
-      process.env.OPENCLAW_GATEWAY_PASSWORD = prevPassword;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   });
 
   const lastMessage = () => String(note.mock.calls.at(-1)?.[0] ?? "");
@@ -83,8 +70,6 @@ describe("noteSecurityWarnings gateway exposure", () => {
     expect(message).toContain("No channel security warnings detected");
     expect(message).not.toContain("Gateway bound");
   });
-<<<<<<< HEAD
-=======
 
   it("shows explicit dmScope config command for multi-user DMs", async () => {
     pluginRegistry.list = [
@@ -127,5 +112,4 @@ describe("noteSecurityWarnings gateway exposure", () => {
     expect(message).toContain("exec-approvals.json");
     expect(message).toContain("openclaw approvals get --gateway");
   });
->>>>>>> 3b0e62d5b (fix(doctor): warn that approvals.exec.enabled only disables forwarding)
 });

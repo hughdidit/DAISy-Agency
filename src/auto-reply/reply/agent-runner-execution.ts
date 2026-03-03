@@ -29,7 +29,6 @@ import { stripHeartbeatToken } from "../heartbeat.js";
 import type { TemplateContext } from "../templating.js";
 import type { VerboseLevel } from "../thinking.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -37,9 +36,6 @@ import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import { isSilentReplyPrefixText, isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
->>>>>>> 8b1fe0d1e (fix(telegram): split streaming preview per assistant block (#22613))
 =======
 import {
   HEARTBEAT_TOKEN,
@@ -50,17 +46,11 @@ import {
 >>>>>>> e64d72299 (fix(auto-reply): tighten silent token semantics and prefix streaming)
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { buildThreadingToolContext, resolveEnforceFinalTag } from "./agent-runner-utils.js";
-<<<<<<< HEAD
 import { createBlockReplyPayloadKey, type BlockReplyPipeline } from "./block-reply-pipeline.js";
 import type { FollowupRun } from "./queue.js";
 import { parseReplyDirectives } from "./reply-directives.js";
 import { applyReplyTagsToPayload, isRenderablePayload } from "./reply-payloads.js";
 import type { TypingSignaler } from "./typing-mode.js";
-=======
-=======
-=======
-import type { GetReplyOptions, ReplyPayload } from "../types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -77,11 +67,7 @@ import {
   resolveModelFallbackOptions,
 } from "./agent-runner-utils.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
-=======
-import { resolveEnforceFinalTag } from "./agent-runner-utils.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> d7a6a0a0b (refactor(reply): share embedded run fallback/context builders)
 import { type BlockReplyPipeline } from "./block-reply-pipeline.js";
@@ -91,11 +77,7 @@ import { createBlockReplyDeliveryHandler } from "./reply-delivery.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> eefb2f8fb (refactor(reply): extract block delivery normalization)
-=======
-import type { TypingSignaler } from "./typing-mode.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -356,16 +338,12 @@ export async function runAgentTurnWithFallback(params: {
             authProfile,
           });
           return runEmbeddedPiAgent({
-<<<<<<< HEAD
             sessionId: params.followupRun.run.sessionId,
             sessionKey: params.sessionKey,
             messageProvider: params.sessionCtx.Provider?.trim().toLowerCase() || undefined,
             agentAccountId: params.sessionCtx.AccountId,
             messageTo: params.sessionCtx.OriginatingTo ?? params.sessionCtx.To,
             messageThreadId: params.sessionCtx.MessageThreadId ?? undefined,
-=======
-            ...embeddedContext,
->>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
             groupId: resolveGroupSessionKey(params.sessionCtx)?.id,
             groupChannel:
               params.sessionCtx.GroupChannel?.trim() ?? params.sessionCtx.GroupSubject?.trim(),
@@ -447,7 +425,6 @@ export async function runAgentTurnWithFallback(params: {
             // even when regular block streaming is disabled. The handler sends directly
             // via opts.onBlockReply when the pipeline isn't available.
             onBlockReply: params.opts?.onBlockReply
-<<<<<<< HEAD
               ? async (payload) => {
                   const { text, skip } = normalizeStreamingText(payload);
                   const hasPayloadMedia = (payload.mediaUrls?.length ?? 0) > 0;
@@ -517,19 +494,6 @@ export async function runAgentTurnWithFallback(params: {
                   }
                   // When streaming is disabled entirely, blocks are accumulated in final text instead.
                 }
-=======
-              ? createBlockReplyDeliveryHandler({
-                  onBlockReply: params.opts.onBlockReply,
-                  currentMessageId:
-                    params.sessionCtx.MessageSidFull ?? params.sessionCtx.MessageSid,
-                  normalizeStreamingText,
-                  applyReplyToMode: params.applyReplyToMode,
-                  typingSignals: params.typingSignals,
-                  blockStreamingEnabled: params.blockStreamingEnabled,
-                  blockReplyPipeline,
-                  directlySentBlockKeys,
-                })
->>>>>>> eefb2f8fb (refactor(reply): extract block delivery normalization)
               : undefined,
             onBlockReplyFlush:
               params.blockStreamingEnabled && blockReplyPipeline

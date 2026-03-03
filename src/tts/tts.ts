@@ -30,7 +30,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { logVerbose } from "../globals.js";
 import { isVoiceCompatibleAudio } from "../media/audio.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
@@ -43,9 +42,6 @@ import {
 } from "../agents/model-selection.js";
 import { resolveModel } from "../agents/pi-embedded-runner/model.js";
 <<<<<<< HEAD
-=======
-=======
->>>>>>> 3f5e72835 (refactor(tts): extract directives and provider core)
 import { normalizeChannelId } from "../channels/plugins/index.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -63,25 +59,7 @@ import { logVerbose } from "../globals.js";
 import { stripMarkdown } from "../line/markdown-to-line.js";
 import { isVoiceCompatibleAudio } from "../media/audio.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
-<<<<<<< HEAD
 >>>>>>> a5ab9fac0 (fix(tts): strip markdown before sending text to TTS engines (#13237))
-=======
-import {
-  edgeTTS,
-  elevenLabsTTS,
-  inferEdgeExtension,
-  isValidOpenAIModel,
-  isValidOpenAIVoice,
-  isValidVoiceId,
-  OPENAI_TTS_MODELS,
-  OPENAI_TTS_VOICES,
-  openaiTTS,
-  parseTtsDirectives,
-  scheduleCleanup,
-  summarizeText,
-} from "./tts-core.js";
-export { OPENAI_TTS_MODELS, OPENAI_TTS_VOICES } from "./tts-core.js";
->>>>>>> 3f5e72835 (refactor(tts): extract directives and provider core)
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_TTS_MAX_LENGTH = 1500;
@@ -351,19 +329,9 @@ export function resolveTtsConfig(cfg: MoltbotConfig): ResolvedTtsConfig {
 }
 
 export function resolveTtsPrefsPath(config: ResolvedTtsConfig): string {
-<<<<<<< HEAD
   if (config.prefsPath?.trim()) return resolveUserPath(config.prefsPath.trim());
   const envPath = process.env.CLAWDBOT_TTS_PREFS?.trim();
   if (envPath) return resolveUserPath(envPath);
-=======
-  if (config.prefsPath?.trim()) {
-    return resolveUserPath(config.prefsPath.trim());
-  }
-  const envPath = process.env.OPENCLAW_TTS_PREFS?.trim();
-  if (envPath) {
-    return resolveUserPath(envPath);
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return path.join(CONFIG_DIR, "settings", "tts.json");
 }
 
@@ -571,7 +539,6 @@ export function isTtsProviderConfigured(config: ResolvedTtsConfig, provider: Tts
   return Boolean(resolveTtsApiKey(config, provider));
 }
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 function isValidVoiceId(voiceId: string): boolean {
   return /^[a-zA-Z0-9]{10,40}$/.test(voiceId);
@@ -1222,8 +1189,6 @@ async function edgeTTS(params: {
   await tts.ttsPromise(text, outputPath);
 }
 
-=======
->>>>>>> 3f5e72835 (refactor(tts): extract directives and provider core)
 =======
 function formatTtsProviderError(provider: TtsProvider, err: unknown): string {
   const error = err instanceof Error ? err : new Error(String(err));

@@ -6,7 +6,6 @@ import fs from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { appendCdpPath, createTargetViaCdp, getHeadersWithAuth, normalizeCdpWsUrl } from "./cdp.js";
 import {
@@ -30,10 +29,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import { createConfigIO, loadConfig } from "../config/config.js";
-=======
->>>>>>> 64aff2d0c (perf(browser): isolate profile hot-reload config refresh)
 import { appendCdpPath, createTargetViaCdp, getHeadersWithAuth, normalizeCdpWsUrl } from "./cdp.js";
 =======
 =======
@@ -49,13 +44,8 @@ import {
   stopOpenClawChrome,
 } from "./chrome.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveBrowserConfig, resolveProfile } from "./config.js";
 >>>>>>> 3bda3df72 (fix(browser): hot-reload profiles added after gateway start (#4841) (#8816))
-=======
-=======
-import type { ResolvedBrowserProfile } from "./config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveProfile } from "./config.js";
 >>>>>>> 64aff2d0c (perf(browser): isolate profile hot-reload config refresh)
 import {
@@ -101,9 +91,6 @@ import type {
   ProfileRuntimeState,
   ProfileStatus,
 } from "./server-context.types.js";
-<<<<<<< HEAD
-=======
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 =======
 =======
 >>>>>>> 55aaeb508 (refactor(browser): centralize navigation guard enforcement)
@@ -604,15 +591,8 @@ function createProfileContext(
       return { stopped };
     }
     const profileState = getProfileState();
-<<<<<<< HEAD
     if (!profileState.running) return { stopped: false };
     await stopClawdChrome(profileState.running);
-=======
-    if (!profileState.running) {
-      return { stopped: false };
-    }
-    await stopOpenClawChrome(profileState.running);
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     setProfileRunning(null);
     return { stopped: true };
   };

@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { hasBalancedFences } from "../test-utils/chunk-test-helpers.js";
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import {
   chunkByNewline,
   chunkMarkdownText,

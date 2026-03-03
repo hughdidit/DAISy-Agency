@@ -1,25 +1,8 @@
-<<<<<<< HEAD
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { Tab } from "./navigation";
 import type { UiSettings } from "./storage";
 import type { ThemeMode } from "./theme";
 import type { ThemeTransitionContext } from "./theme-transition";
-=======
-import type { EventLogEntry } from "./app-events.ts";
-import type { CompactionStatus, FallbackStatus } from "./app-tool-stream.ts";
-import type { CronFieldErrors } from "./controllers/cron.ts";
-import type { DevicePairingList } from "./controllers/devices.ts";
-import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
-import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
-import type { SkillMessage } from "./controllers/skills.ts";
-import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway.ts";
-import type { Tab } from "./navigation.ts";
-import type { UiSettings } from "./storage.ts";
-import type { ThemeTransitionContext } from "./theme-transition.ts";
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { ThemeMode } from "./theme.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import type { ResolvedTheme, ThemeMode } from "./theme.ts";
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
@@ -55,7 +38,6 @@ import type {
   SkillStatusReport,
   ToolsCatalogResult,
   StatusSummary,
-<<<<<<< HEAD
 } from "./types";
 import type { ChatAttachment, ChatQueueItem, CronFormState } from "./ui-types";
 import type { EventLogEntry } from "./app-events";
@@ -64,12 +46,6 @@ import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exe
 import type { DevicePairingList } from "./controllers/devices";
 import type { ExecApprovalRequest } from "./controllers/exec-approval";
 import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
-=======
-} from "./types.ts";
-import type { ChatAttachment, ChatQueueItem, CronFormState } from "./ui-types.ts";
-import type { NostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
-<<<<<<< HEAD
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import type { SessionLogEntry } from "./views/usage.ts";
 >>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))

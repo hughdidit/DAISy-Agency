@@ -4,32 +4,18 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";
 =======
-import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";
-import { promptAccountId as promptAccountIdSdk } from "../../../plugin-sdk/onboarding.js";
->>>>>>> 0d0ebd0e2 (refactor(onboarding): share promptAccountId helper)
-=======
 =======
 import type { OpenClawConfig } from "../../../config/config.js";
-<<<<<<< HEAD
 import type { DmPolicy } from "../../../config/types.js";
 >>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
-=======
-import type { DmPolicy, GroupPolicy } from "../../../config/types.js";
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 import { promptAccountId as promptAccountIdSdk } from "../../../plugin-sdk/onboarding.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";
-import { promptAccountId as promptAccountIdSdk } from "../../../plugin-sdk/onboarding.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 import { promptAccountId as promptAccountIdSdk } from "../../../plugin-sdk/onboarding.js";
 import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";

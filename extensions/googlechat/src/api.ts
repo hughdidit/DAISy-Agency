@@ -1,9 +1,5 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
-=======
-import { fetchWithSsrFGuard } from "openclaw/plugin-sdk";
->>>>>>> 4691aab01 (fix(cron): guard against year-rollback in croner nextRun (#30777))
 import type { ResolvedGoogleChatAccount } from "./accounts.js";
 import { getGoogleChatAccessToken } from "./auth.js";
 import type { GoogleChatReaction } from "./types.js";

@@ -3,11 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 // @ts-nocheck
-=======
-import type { ApiClientOptions } from "grammy";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -18,11 +14,7 @@ import type { ApiClientOptions } from "grammy";
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ApiClientOptions } from "grammy";
-=======
-import { ReactionTypeEmoji } from "@grammyjs/types";
->>>>>>> 147eba11f (chore: Manually fix TypeScript errors uncovered by sorting imports.)
 import { Bot, webhookCallback } from "grammy";
 =======
 import { type Message, ReactionTypeEmoji } from "@grammyjs/types";
@@ -32,25 +24,13 @@ import type { ApiClientOptions } from "grammy";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-<<<<<<< HEAD
 import { type Message, type UserFromGetMe, ReactionTypeEmoji } from "@grammyjs/types";
 >>>>>>> 96abc1c86 (Telegram: remove @ts-nocheck from bot.ts, fix duplicate error handler, harden sticker caching (#9077))
-=======
-import { type Message, type UserFromGetMe } from "@grammyjs/types";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> cd4f7524e (feat(telegram): receive and surface user message reactions (#10075))
 import { Bot, webhookCallback } from "grammy";
 import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
-<<<<<<< HEAD
 import type { TelegramContext } from "./bot/types.js";
 >>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
-=======
->>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
 =======
 import type { ApiClientOptions } from "grammy";
 import { Bot, webhookCallback } from "grammy";
@@ -74,13 +54,8 @@ import type { ApiClientOptions } from "grammy";
 import { Bot, webhookCallback } from "grammy";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
-<<<<<<< HEAD
 import { isControlCommandMessage } from "../auto-reply/command-detection.js";
 import { resolveTextChunkLimit } from "../auto-reply/chunk.js";
-=======
-import { resolveTextChunkLimit } from "../auto-reply/chunk.js";
-import { isAbortRequestText } from "../auto-reply/reply/abort.js";
->>>>>>> b2aa6e094 (fix(telegram): prevent non-abort slash commands from racing chat replies (#17899))
 import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "../auto-reply/reply/history.js";
 import {
   isNativeCommandsExplicitlyDisabled,
@@ -91,11 +66,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig, ReplyToMode } from "../config/config.js";
-=======
-import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -116,14 +87,11 @@ import { danger, logVerbose, shouldLogVerbose } from "../globals.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { formatUncaughtError } from "../infra/errors.js";
 import { getChildLogger } from "../logging.js";
-<<<<<<< HEAD
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 <<<<<<< HEAD
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
-=======
->>>>>>> 96abc1c86 (Telegram: remove @ts-nocheck from bot.ts, fix duplicate error handler, harden sticker caching (#9077))
 import { resolveTelegramAccount } from "./accounts.js";
 import {
   buildTelegramGroupPeerId,
@@ -145,14 +113,11 @@ import {
   resolveTelegramUpdateId,
   type TelegramUpdateKeyContext,
 } from "./bot-updates.js";
-<<<<<<< HEAD
-=======
 import {
   buildTelegramGroupPeerId,
   resolveTelegramForumThreadId,
   resolveTelegramStreamMode,
 } from "./bot/helpers.js";
->>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
 import { resolveTelegramFetch } from "./fetch.js";
 import { createTelegramSendChatActionHandler } from "./sendchataction-401-backoff.js";
 
@@ -384,7 +349,6 @@ export function createTelegramBot(opts: TelegramBotOptions) {
   const dmPolicy = telegramCfg.dmPolicy ?? "pairing";
   const allowFrom = opts.allowFrom ?? telegramCfg.allowFrom;
   const groupAllowFrom =
-<<<<<<< HEAD
     opts.groupAllowFrom ??
     telegramCfg.groupAllowFrom ??
     (telegramCfg.allowFrom && telegramCfg.allowFrom.length > 0
@@ -394,10 +358,6 @@ export function createTelegramBot(opts: TelegramBotOptions) {
 <<<<<<< HEAD
   const replyToMode = opts.replyToMode ?? telegramCfg.replyToMode ?? "first";
   const streamMode = resolveTelegramStreamMode(telegramCfg);
-=======
-=======
-    opts.groupAllowFrom ?? telegramCfg.groupAllowFrom ?? telegramCfg.allowFrom ?? allowFrom;
->>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
   const replyToMode = opts.replyToMode ?? telegramCfg.replyToMode ?? "off";
 >>>>>>> ad96c126e (fix(telegram): change default replyToMode from "first" to "off")
   const nativeEnabled = resolveNativeCommandsEnabled({
@@ -418,7 +378,6 @@ export function createTelegramBot(opts: TelegramBotOptions) {
   const ackReactionScope = cfg.messages?.ackReactionScope ?? "group-mentions";
   const mediaMaxBytes = (opts.mediaMaxMb ?? telegramCfg.mediaMaxMb ?? 5) * 1024 * 1024;
   const logger = getChildLogger({ module: "telegram-auto-reply" });
-<<<<<<< HEAD
   let botHasTopicsEnabled: boolean | undefined;
   const resolveBotTopicsEnabled = async (ctx?: TelegramContext) => {
     if (typeof ctx?.me?.has_topics_enabled === "boolean") {
@@ -441,9 +400,6 @@ export function createTelegramBot(opts: TelegramBotOptions) {
     }
     return botHasTopicsEnabled;
   };
-=======
-  const streamMode = resolveTelegramStreamMode(telegramCfg);
->>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
   const resolveGroupPolicy = (chatId: string | number) =>
     resolveChannelGroupPolicy({
       cfg,

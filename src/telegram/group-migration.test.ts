@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { migrateTelegramGroupConfig } from "./group-migration.js";
-=======
-import { migrateTelegramGroupConfig, migrateTelegramGroupsInPlace } from "./group-migration.js";
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 
 function createTelegramGlobalGroupConfig(groups: Record<string, Record<string, unknown>>) {
   return {

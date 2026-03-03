@@ -4,7 +4,6 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { formatToolDetail, resolveToolDisplay } from "../tool-display";
 import { icons } from "../icons";
@@ -13,10 +12,6 @@ import { TOOL_INLINE_THRESHOLD } from "./constants";
 import { formatToolOutputForSidebar, getTruncatedPreview } from "./tool-helpers";
 import { isToolResultMessage } from "./message-normalizer";
 import { extractTextCached } from "./message-extract";
-=======
-import type { ToolCard } from "../types/chat-types.ts";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ToolCard } from "../types/chat-types.ts";
 >>>>>>> ed11e93cf (chore(format))

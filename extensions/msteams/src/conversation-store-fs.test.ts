@@ -7,12 +7,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 import type { StoredConversationReference } from "./conversation-store.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -28,17 +25,12 @@ import type { StoredConversationReference } from "./conversation-store.js";
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import type { StoredConversationReference } from "./conversation-store.js";
 import { setMSTeamsRuntime } from "./runtime.js";
-<<<<<<< HEAD
 
 const runtimeStub = {
   state: {
     resolveStateDir: (env: NodeJS.ProcessEnv = process.env, homedir?: () => string) => {
 <<<<<<< HEAD
       const override = env.CLAWDBOT_STATE_DIR?.trim();
-=======
-      const override = env.OPENCLAW_STATE_DIR?.trim() || env.OPENCLAW_STATE_DIR?.trim();
-<<<<<<< HEAD
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       if (override) return override;
 =======
       if (override) {

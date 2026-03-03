@@ -7,12 +7,8 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { RuntimeEnv } from "clawdbot/plugin-sdk";
-=======
-import type { RuntimeEnv } from "openclaw/plugin-sdk";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -65,12 +61,7 @@ export async function ensureMatrixSdkInstalled(params: {
     ? ["pnpm", "install"]
     : ["npm", "install", "--omit=dev", "--silent"];
   params.runtime.log?.(`matrix: installing dependencies via ${command[0]} (${root})…`);
-<<<<<<< HEAD
   const result = await getMatrixRuntime().system.runCommandWithTimeout(command, {
-=======
-  const result = await runPluginCommandWithTimeout({
-    argv: command,
->>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
     cwd: root,
     timeoutMs: 300_000,
     env: { COREPACK_ENABLE_DOWNLOAD_PROMPT: "0" },

@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Command } from "commander";
-=======
-import { Command } from "commander";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 
 const gatewayMocks = vi.hoisted(() => ({
   callGatewayFromCli: vi.fn(async () => ({

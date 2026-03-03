@@ -96,19 +96,11 @@ export function renderMarkdownWithMarkers(ir: MarkdownIR, options: RenderOptions
       boundaries.add(rendered.start);
       boundaries.add(rendered.end);
       const openBucket = linkStarts.get(rendered.start);
-<<<<<<< HEAD
       if (openBucket) openBucket.push(rendered);
       else linkStarts.set(rendered.start, [rendered]);
       const closeBucket = linkEnds.get(rendered.end);
       if (closeBucket) closeBucket.push(rendered);
       else linkEnds.set(rendered.end, [rendered]);
-=======
-      if (openBucket) {
-        openBucket.push(rendered);
-      } else {
-        linkStarts.set(rendered.start, [rendered]);
-      }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   }
 
@@ -142,44 +134,9 @@ export function renderMarkdownWithMarkers(ir: MarkdownIR, options: RenderOptions
     if (openingStyles) {
       for (const span of openingStyles) {
         const marker = styleMarkers[span.style];
-<<<<<<< HEAD
         if (!marker) continue;
         out += marker.open;
         stack.push({ close: marker.close, end: span.end });
-=======
-        if (!marker) {
-          continue;
-        }
-        openingItems.push({
-          end: span.end,
-          open: marker.open,
-          close: marker.close,
-          kind: "style",
-          style: span.style,
-          index,
-        });
-      }
-    }
-
-    if (openingItems.length > 0) {
-      openingItems.sort((a, b) => {
-        if (a.end !== b.end) {
-          return b.end - a.end;
-        }
-        if (a.kind !== b.kind) {
-          return a.kind === "link" ? -1 : 1;
-        }
-        if (a.kind === "style" && b.kind === "style") {
-          return (STYLE_RANK.get(a.style) ?? 0) - (STYLE_RANK.get(b.style) ?? 0);
-        }
-        return a.index - b.index;
-      });
-
-      // Open outer spans first (larger end) so LIFO closes stay valid for same-start overlaps.
-      for (const item of openingItems) {
-        out += item.open;
-        stack.push({ close: item.close, end: item.end });
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       }
     }
 

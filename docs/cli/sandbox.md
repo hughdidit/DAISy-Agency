@@ -131,13 +131,8 @@ Sandbox settings live in `~/.clawdbot/moltbot.json` under `agents.defaults.sandb
         "mode": "all", // off, non-main, all
         "scope": "agent", // session, agent, shared
         "docker": {
-<<<<<<< HEAD
           "image": "moltbot-sandbox:bookworm-slim",
           "containerPrefix": "moltbot-sbx-"
-=======
-          "image": "openclaw-sandbox:bookworm-slim",
-          "containerPrefix": "openclaw-sbx-",
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
           // ... more Docker options
         },
         "prune": {

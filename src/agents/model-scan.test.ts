@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import { captureEnv } from "../test-utils/env.js";
-<<<<<<< HEAD
->>>>>>> 7857096d2 (refactor(test): reuse env snapshot in model scan)
 =======
 =======
 import { withEnvAsync } from "../test-utils/env.js";

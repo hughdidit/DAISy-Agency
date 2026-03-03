@@ -80,12 +80,7 @@ Details: [Session management](/concepts/session).
 
 ## Inbound bodies and history context
 
-<<<<<<< HEAD
 Moltbot separates the **prompt body** from the **command body**:
-=======
-OpenClaw separates the **prompt body** from the **command body**:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `Body`: prompt text sent to the agent. This may include channel envelopes and
   optional history wrappers.
 - `CommandBody`: raw user text for directive/command parsing.
@@ -139,12 +134,7 @@ Details: [Streaming + chunking](/concepts/streaming).
 
 ## Reasoning visibility and tokens
 
-<<<<<<< HEAD
 Moltbot can expose or hide model reasoning:
-=======
-OpenClaw can expose or hide model reasoning:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `/reasoning on|off|stream` controls visibility.
 - Reasoning content still counts toward token usage when produced by the model.
 - Telegram supports reasoning stream into the draft bubble.

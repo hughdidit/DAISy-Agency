@@ -26,12 +26,9 @@ enum GatewaySettingsStore {
     private static let instanceIdAccount = "instanceId"
     private static let preferredGatewayStableIDAccount = "preferredStableID"
     private static let lastDiscoveredGatewayStableIDAccount = "lastDiscoveredStableID"
-<<<<<<< HEAD
-=======
     private static let talkProviderApiKeyAccountPrefix = "provider.apiKey."
 <<<<<<< HEAD
     private static let talkElevenLabsApiKeyLegacyAccount = "elevenlabs.apiKey"
->>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
 =======
 >>>>>>> f4e6f8730 (refactor(ios): drop legacy talk payload and keychain fallbacks)
 
@@ -40,11 +37,7 @@ enum GatewaySettingsStore {
         self.ensurePreferredGatewayStableID()
         self.ensureLastDiscoveredGatewayStableID()
 <<<<<<< HEAD
-<<<<<<< HEAD
         self.migrateLegacyDefaults()
-=======
-        self.ensureManualGatewayPassword()
->>>>>>> 84e115834 (Gateway: fix node invoke receive loop)
 =======
 >>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
     }
@@ -175,8 +168,6 @@ enum GatewaySettingsStore {
             account: self.gatewayPasswordAccount(instanceId: instanceId))
     }
 
-<<<<<<< HEAD
-=======
     enum LastGatewayConnection: Equatable {
         case manual(host: String, port: Int, useTLS: Bool, stableID: String)
         case discovered(stableID: String, useTLS: Bool)
@@ -331,7 +322,6 @@ enum GatewaySettingsStore {
         }
     }
 
->>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
     private static func gatewayTokenAccount(instanceId: String) -> String {
         "gateway-token.\(instanceId)"
     }
@@ -413,7 +403,6 @@ enum GatewaySettingsStore {
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     private static func migrateLegacyDefaults() {
         let defaults = UserDefaults.standard
 
@@ -464,27 +453,6 @@ enum GatewaySettingsStore {
                 forKey: self.discoveryDebugLogsDefaultsKey)
         }
     }
-=======
-    private static func ensureManualGatewayPassword() {
-        let defaults = UserDefaults.standard
-        let instanceId = defaults.string(forKey: self.instanceIdDefaultsKey)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !instanceId.isEmpty else { return }
-
-        let manualPassword = defaults.string(forKey: self.manualPasswordDefaultsKey)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !manualPassword.isEmpty else { return }
-
-        if self.loadGatewayPassword(instanceId: instanceId) == nil {
-            self.saveGatewayPassword(manualPassword, instanceId: instanceId)
-        }
-
-        if self.loadGatewayPassword(instanceId: instanceId) == manualPassword {
-            defaults.removeObject(forKey: self.manualPasswordDefaultsKey)
-        }
-    }
-
->>>>>>> 84e115834 (Gateway: fix node invoke receive loop)
 =======
 >>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
 }

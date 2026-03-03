@@ -2,14 +2,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
 import {
   collectProviderApiKeysForExecution,
   executeWithApiKeyRotation,
 } from "../agents/api-key-rotation.js";
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type {

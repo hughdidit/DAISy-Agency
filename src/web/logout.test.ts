@@ -2,15 +2,12 @@ import fs from "node:fs";
 import fsPromises from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
 import { isPathWithinBase } from "../../test/helpers/paths.js";
 import { withTempHome } from "../../test/helpers/temp-home.js";
-=======
->>>>>>> 2b5e0a607 (perf(test): speed up memory batch + web logout)
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> ee82c173a (perf(test): reduce web logout fs churn)

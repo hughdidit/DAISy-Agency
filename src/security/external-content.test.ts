@@ -94,8 +94,6 @@ describe("external-content security", () => {
       expect(result).not.toContain("SECURITY NOTICE");
       expect(result).toContain("<<<EXTERNAL_UNTRUSTED_CONTENT>>>");
     });
-<<<<<<< HEAD
-=======
 
     it("sanitizes boundary markers inside content", () => {
       const malicious =
@@ -175,7 +173,6 @@ describe("external-content security", () => {
         expect(result).not.toContain(endMarker);
       }
     });
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
   });
 
   describe("buildSafeExternalPrompt", () => {

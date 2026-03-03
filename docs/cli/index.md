@@ -258,22 +258,9 @@ Note: plugins can add additional top-level commands (for example `moltbot voicec
 
 ## Security
 
-<<<<<<< HEAD
 - `moltbot security audit` — audit config + local state for common security foot-guns.
 - `moltbot security audit --deep` — best-effort live Gateway probe.
 - `moltbot security audit --fix` — tighten safe defaults and chmod state/config.
-=======
-- `openclaw security audit` — audit config + local state for common security foot-guns.
-- `openclaw security audit --deep` — best-effort live Gateway probe.
-- `openclaw security audit --fix` — tighten safe defaults and chmod state/config.
-
-## Secrets
-
-- `openclaw secrets reload` — re-resolve refs and atomically swap the runtime snapshot.
-- `openclaw secrets audit` — scan for plaintext residues, unresolved refs, and precedence drift.
-- `openclaw secrets configure` — interactive helper for provider setup + SecretRef mapping + preflight/apply.
-- `openclaw secrets apply --from <plan.json>` — apply a previously generated plan (`--dry-run` supported).
->>>>>>> f413e314b (feat(secrets): replace migrate flow with audit/configure/apply)
 
 ## Plugins
 
@@ -312,12 +299,7 @@ Highlights:
 Initialize config + workspace.
 
 Options:
-<<<<<<< HEAD
 - `--workspace <dir>`: agent workspace path (default `~/clawd`).
-=======
-
-- `--workspace <dir>`: agent workspace path (default `~/.openclaw/workspace`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `--wizard`: run the onboarding wizard.
 - `--non-interactive`: run wizard without prompts.
 - `--mode <local|remote>`: wizard mode.
@@ -383,13 +365,7 @@ Options:
 Interactive configuration wizard (models, channels, skills, gateway).
 
 ### `config`
-<<<<<<< HEAD
 Non-interactive config helpers (get/set/unset). Running `moltbot config` with no
-=======
-
-<<<<<<< HEAD
-Non-interactive config helpers (get/set/unset). Running `openclaw config` with no
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 Non-interactive config helpers (get/set/unset/file). Running `openclaw config` with no
 >>>>>>> 96ffbb5aa (CLI: add config path subcommand to print active config file path (#26256))
@@ -537,14 +513,8 @@ Subcommands:
 - `message event <list|create>`
 
 Examples:
-<<<<<<< HEAD
 - `moltbot message send --target +15555550123 --message "Hi"`
 - `moltbot message poll --channel discord --target channel:123 --poll-question "Snack?" --poll-option Pizza --poll-option Sushi`
-=======
-
-- `openclaw message send --target +15555550123 --message "Hi"`
-- `openclaw message poll --channel discord --target channel:123 --poll-question "Snack?" --poll-option Pizza --poll-option Sushi`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### `agent`
 
@@ -658,12 +628,7 @@ Notes:
 - Overview includes Gateway + node host service status when available.
 
 ### Usage tracking
-<<<<<<< HEAD
 Moltbot can surface provider usage/quota when OAuth/API creds are available.
-=======
-
-OpenClaw can surface provider usage/quota when OAuth/API creds are available.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Surfaces:
 
@@ -839,12 +804,7 @@ moltbot models status
 ```
 
 ### `models` (root)
-<<<<<<< HEAD
 `moltbot models` is an alias for `models status`.
-=======
-
-`openclaw models` is an alias for `models status`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Root options:
 

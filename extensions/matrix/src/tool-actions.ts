@@ -1,20 +1,6 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 
 import type { CoreConfig } from "./types.js";
-=======
-import {
-  createActionGate,
-  jsonResult,
-  readNumberParam,
-  readReactionParams,
-  readStringParam,
-} from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CoreConfig } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -43,7 +29,6 @@ import { reactMatrixMessage } from "./matrix/send.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   createActionGate,
   jsonResult,
@@ -51,9 +36,6 @@ import {
   readReactionParams,
   readStringParam,
 } from "clawdbot/plugin-sdk";
-=======
-import type { CoreConfig } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

@@ -3,10 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -16,9 +13,6 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { FinalizedMsgContext } from "../templating.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { ReplyDispatcher, ReplyDispatchKind } from "./reply-dispatcher.js";
-<<<<<<< HEAD
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 =======
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
@@ -50,11 +44,7 @@ import { shouldSkipDuplicateInbound } from "./inbound-dedupe.js";
 import type { ReplyDispatcher, ReplyDispatchKind } from "./reply-dispatcher.js";
 import { shouldSuppressReasoningPayload } from "./reply-payloads.js";
 import { isRoutableChannel, routeReply } from "./route-reply.js";
-<<<<<<< HEAD
 import { maybeApplyTtsToPayload, normalizeTtsAutoMode, resolveTtsConfig } from "../../tts/tts.js";
-=======
-import { resolveRunTypingPolicy } from "./typing-policy.js";
->>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
 
 const AUDIO_PLACEHOLDER_RE = /^<media:audio>(\s*\([^)]*\))?$/i;
 const AUDIO_HEADER_RE = /^\[Audio\b/i;
@@ -355,8 +345,6 @@ export async function dispatchReplyFromConfig(params: {
       return { queuedFinal, counts };
     }
 
-<<<<<<< HEAD
-=======
     const bypassAcpForCommand = shouldBypassAcpDispatchForCommand(ctx, cfg);
 
     const sendPolicy = resolveSendPolicy({
@@ -403,15 +391,12 @@ export async function dispatchReplyFromConfig(params: {
       return acpDispatch;
     }
 
->>>>>>> 2466a9bb1 (ACP: carry dedupe/projector updates onto configurable acpx branch)
     // Track accumulated block text for TTS generation after streaming completes.
     // When block streaming succeeds, there's no final reply, so we need to generate
     // TTS audio separately from the accumulated block content.
     let accumulatedBlockText = "";
     let blockCount = 0;
 
-<<<<<<< HEAD
-=======
     const shouldSendToolSummaries = ctx.ChatType !== "group" && ctx.CommandSource !== "native";
 
     const resolveToolDeliveryPayload = (payload: ReplyPayload): ReplyPayload | null => {
@@ -433,46 +418,12 @@ export async function dispatchReplyFromConfig(params: {
       systemEvent: shouldRouteToOriginating,
     });
 
->>>>>>> c2a0cf0c2 (fix(tts): update tool description to prevent duplicate audio delivery (#18046))
     const replyResult = await (params.replyResolver ?? getReplyFromConfig)(
       ctx,
       {
         ...params.replyOptions,
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        onToolResult:
-          ctx.ChatType !== "group" && ctx.CommandSource !== "native"
-            ? (payload: ReplyPayload) => {
-                const run = async () => {
-                  const ttsPayload = await maybeApplyTtsToPayload({
-                    payload,
-                    cfg,
-                    channel: ttsChannel,
-                    kind: "tool",
-                    inboundAudio,
-                    ttsAuto: sessionTtsAuto,
-                  });
-                  if (shouldRouteToOriginating) {
-                    await sendPayloadAsync(ttsPayload, undefined, false);
-                  } else {
-                    dispatcher.sendToolResult(ttsPayload);
-                  }
-                };
-                return run();
-              }
-            : (payload: ReplyPayload) => {
-                const run = async () => {
-                  if (shouldRouteToOriginating) {
-                    await sendPayloadAsync(payload, undefined, false);
-                  } else {
-                    dispatcher.sendBlockReply(payload);
-                  }
-                };
-                return run();
-              },
->>>>>>> ee1ec3fab (Add proper `onToolResult` fallback.)
 =======
 =======
         typingPolicy: typing.typingPolicy,
@@ -503,15 +454,12 @@ export async function dispatchReplyFromConfig(params: {
 >>>>>>> c2a0cf0c2 (fix(tts): update tool description to prevent duplicate audio delivery (#18046))
         onBlockReply: (payload: ReplyPayload, context) => {
           const run = async () => {
-<<<<<<< HEAD
-=======
             // Suppress reasoning payloads — channels using this generic dispatch
             // path (WhatsApp, web, etc.) do not have a dedicated reasoning lane.
             // Telegram has its own dispatch path that handles reasoning splitting.
             if (shouldSuppressReasoningPayload(payload)) {
               return;
             }
->>>>>>> 5c6b2cbc8 (refactor: extract iMessage echo cache and unify suppression guards)
             // Accumulate block text for TTS generation after streaming
             if (payload.text) {
               if (accumulatedBlockText.length > 0) {
@@ -545,14 +493,11 @@ export async function dispatchReplyFromConfig(params: {
     let queuedFinal = false;
     let routedFinalCount = 0;
     for (const reply of replies) {
-<<<<<<< HEAD
-=======
       // Suppress reasoning payloads from channel delivery — channels using this
       // generic dispatch path do not have a dedicated reasoning lane.
       if (shouldSuppressReasoningPayload(reply)) {
         continue;
       }
->>>>>>> 5c6b2cbc8 (refactor: extract iMessage echo cache and unify suppression guards)
       const ttsReply = await maybeApplyTtsToPayload({
         payload: reply,
         cfg,

@@ -10,20 +10,7 @@ export const discordMessageActions: ChannelMessageActionAdapter = {
     if (accounts.length === 0) {
       return [];
     }
-<<<<<<< HEAD
     const gate = createActionGate(cfg.channels?.discord?.actions);
-=======
-    // Union of all accounts' action gates (any account enabling an action makes it available)
-    const gate = createUnionActionGate(accounts, (account) =>
-      createDiscordActionGate({
-        cfg,
-        accountId: account.accountId,
-      }),
-    );
-<<<<<<< HEAD
-    const gate = (key: keyof DiscordActionConfig, defaultValue = true) =>
-      gates.some((g) => g(key, defaultValue));
->>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
 =======
     const isEnabled = (key: keyof DiscordActionConfig, defaultValue = true) =>
       gate(key, defaultValue);

@@ -86,25 +86,7 @@ describe("exec PATH login shell merge", () => {
     expect(shellPathMock).toHaveBeenCalledTimes(1);
   });
 
-<<<<<<< HEAD
   it("skips login-shell PATH when env.PATH is provided", async () => {
-=======
-  it("sets OPENCLAW_SHELL for host=gateway commands", async () => {
-    if (isWin) {
-      return;
-    }
-
-    const tool = createExecTool({ host: "gateway", security: "full", ask: "off" });
-    const result = await tool.execute("call-openclaw-shell", {
-      command: 'printf "%s" "${OPENCLAW_SHELL:-}"',
-    });
-    const value = normalizeText(result.content.find((c) => c.type === "text")?.text);
-
-    expect(value).toBe("exec");
-  });
-
-  it("throws security violation when env.PATH is provided", async () => {
->>>>>>> b7615e0ce (Exec/ACP: inject OPENCLAW_SHELL into child shell env (#31271))
     if (isWin) {
       return;
     }
@@ -124,8 +106,6 @@ describe("exec PATH login shell merge", () => {
     expect(shellPathMock).not.toHaveBeenCalled();
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("exec host env validation", () => {
   it("blocks LD_/DYLD_ env vars on host execution", async () => {
@@ -170,4 +150,3 @@ describe("exec host env validation", () => {
     ).rejects.toThrow(/sandbox runtime is unavailable/);
   });
 });
->>>>>>> 0b13a0286 (test: preload bash exec path tool module in suite)

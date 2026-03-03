@@ -18,17 +18,6 @@ import { withServer } from "./test-with-server.js";
 installGatewayTestHooks({ scope: "suite" });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-type GatewaySocket = Parameters<Parameters<typeof withServer>[0]>[0];
-const TALK_CONFIG_DEVICE_PATH = path.join(
-  os.tmpdir(),
-  `openclaw-talk-config-device-${process.pid}.json`,
-);
-const TALK_CONFIG_DEVICE = loadOrCreateDeviceIdentity(TALK_CONFIG_DEVICE_PATH);
-
->>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 async function createFreshOperatorDevice(scopes: string[], nonce: string) {
   const signedAtMs = Date.now();
   const payload = buildDeviceAuthPayload({
@@ -51,25 +40,7 @@ async function createFreshOperatorDevice(scopes: string[], nonce: string) {
   };
 }
 
-<<<<<<< HEAD
 >>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
-=======
-async function connectOperator(ws: GatewaySocket, scopes: string[]) {
-  const nonce = await readConnectChallengeNonce(ws);
-  expect(nonce).toBeTruthy();
-  await connectOk(ws, {
-    token: "secret",
-    scopes,
-    device: await createFreshOperatorDevice(scopes, String(nonce)),
-  });
-}
-
-async function writeTalkConfig(config: { apiKey?: string; voiceId?: string }) {
-  const { writeConfigFile } = await import("../config/config.js");
-  await writeConfigFile({ talk: config });
-}
-
->>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 describe("gateway talk.config", () => {
   it("returns redacted talk config for read scope", async () => {
     const { writeConfigFile } = await import("../config/config.js");
@@ -88,40 +59,15 @@ describe("gateway talk.config", () => {
 
     await withServer(async (ws) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       await connectOk(ws, { token: "secret", scopes: ["operator.read"] });
 =======
-      const nonce = await readConnectChallengeNonce(ws);
-      expect(nonce).toBeTruthy();
-      await connectOk(ws, {
-        token: "secret",
-        scopes: ["operator.read"],
-        device: await createFreshOperatorDevice(["operator.read"], String(nonce)),
-      });
->>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
-=======
       await connectOperator(ws, ["operator.read"]);
-<<<<<<< HEAD
 >>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
       const res = await rpcReq<{ config?: { talk?: { apiKey?: string; voiceId?: string } } }>(
         ws,
         "talk.config",
         {},
       );
-=======
-      const res = await rpcReq<{
-        config?: {
-          talk?: {
-            provider?: string;
-            providers?: {
-              elevenlabs?: { voiceId?: string; apiKey?: string };
-            };
-            apiKey?: string;
-            voiceId?: string;
-          };
-        };
-      }>(ws, "talk.config", {});
->>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
       expect(res.ok).toBe(true);
       expect(res.payload?.config?.talk?.provider).toBe("elevenlabs");
       expect(res.payload?.config?.talk?.providers?.elevenlabs?.voiceId).toBe("voice-123");
@@ -138,17 +84,7 @@ describe("gateway talk.config", () => {
 
     await withServer(async (ws) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       await connectOk(ws, { token: "secret", scopes: ["operator.read"] });
-=======
-      const nonce = await readConnectChallengeNonce(ws);
-      expect(nonce).toBeTruthy();
-      await connectOk(ws, {
-        token: "secret",
-        scopes: ["operator.read"],
-        device: await createFreshOperatorDevice(["operator.read"], String(nonce)),
-      });
->>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
 =======
       await connectOperator(ws, ["operator.read"]);
 >>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
@@ -162,19 +98,12 @@ describe("gateway talk.config", () => {
     await writeTalkConfig({ apiKey: "secret-key-abc" });
 
     await withServer(async (ws) => {
-<<<<<<< HEAD
       const nonce = await readConnectChallengeNonce(ws);
       expect(nonce).toBeTruthy();
       await connectOk(ws, {
         token: "secret",
         scopes: ["operator.read", "operator.write", "operator.talk.secrets"],
 <<<<<<< HEAD
-=======
-        device: await createFreshOperatorDevice(
-          ["operator.read", "operator.write", "operator.talk.secrets"],
-          String(nonce),
-        ),
->>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
       });
 =======
       await connectOperator(ws, ["operator.read", "operator.write", "operator.talk.secrets"]);

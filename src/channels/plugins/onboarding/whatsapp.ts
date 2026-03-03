@@ -1,15 +1,6 @@
 import path from "node:path";
 import { loginWeb } from "../../../channel-web.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
-=======
-import { formatCliCommand } from "../../../cli/command-format.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { OpenClawConfig } from "../../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -25,12 +16,8 @@ import type { DmPolicy } from "../../../config/types.js";
 import { DEFAULT_ACCOUNT_ID } from "../../../routing/session-key.js";
 import type { RuntimeEnv } from "../../../runtime.js";
 import { formatDocsLink } from "../../../terminal/links.js";
-<<<<<<< HEAD
 import { formatCliCommand } from "../../../cli/command-format.js";
 import { normalizeE164 } from "../../../utils.js";
-=======
-import { normalizeE164, pathExists } from "../../../utils.js";
->>>>>>> 53910f364 (Deduplicate more)
 import {
   listWhatsAppAccountIds,
   resolveDefaultWhatsAppAccountId,
@@ -41,16 +28,10 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter } from "../onboarding-types.js";
 <<<<<<< HEAD
 import { promptAccountId } from "./helpers.js";
-=======
-=======
-import type { WizardPrompter } from "../../../wizard/prompts.js";
-import type { ChannelOnboardingAdapter } from "../onboarding-types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -88,7 +69,6 @@ function setWhatsAppSelfChatMode(cfg: MoltbotConfig, selfChatMode: boolean): Mol
   return mergeWhatsAppConfig(cfg, { selfChatMode });
 }
 
-<<<<<<< HEAD
 async function pathExists(filePath: string): Promise<boolean> {
   try {
     await fs.access(filePath);
@@ -99,9 +79,6 @@ async function pathExists(filePath: string): Promise<boolean> {
 }
 
 async function detectWhatsAppLinked(cfg: MoltbotConfig, accountId: string): Promise<boolean> {
-=======
-async function detectWhatsAppLinked(cfg: OpenClawConfig, accountId: string): Promise<boolean> {
->>>>>>> 53910f364 (Deduplicate more)
   const { authDir } = resolveWhatsAppAuthDir({ cfg, accountId });
   const credsPath = path.join(authDir, "creds.json");
   return await pathExists(credsPath);
@@ -198,7 +175,6 @@ async function promptWhatsAppAllowFrom(
 
   if (options?.forceAllowlist) {
 <<<<<<< HEAD
-<<<<<<< HEAD
     await prompter.note(
       "We need the sender/owner number so Moltbot can allowlist you.",
       "WhatsApp number",
@@ -218,11 +194,6 @@ async function promptWhatsAppAllowFrom(
         }
         return undefined;
       },
-=======
-    const { normalized, allowFrom } = await promptWhatsAppOwnerAllowFrom({
-      prompter,
-      existingAllowFrom,
->>>>>>> 809f87c41 (refactor(onboarding): dedupe whatsapp allowlist prompt)
 =======
     return await applyWhatsAppOwnerAllowlist({
       cfg,
@@ -258,7 +229,6 @@ async function promptWhatsAppAllowFrom(
 
   if (phoneMode === "personal") {
 <<<<<<< HEAD
-<<<<<<< HEAD
     await prompter.note(
       "We need the sender/owner number so Moltbot can allowlist you.",
       "WhatsApp number",
@@ -278,11 +248,6 @@ async function promptWhatsAppAllowFrom(
         }
         return undefined;
       },
-=======
-    const { normalized, allowFrom } = await promptWhatsAppOwnerAllowFrom({
-      prompter,
-      existingAllowFrom,
->>>>>>> 809f87c41 (refactor(onboarding): dedupe whatsapp allowlist prompt)
     });
     let next = setWhatsAppSelfChatMode(cfg, true);
     next = setWhatsAppDmPolicy(next, "allowlist");

@@ -1,10 +1,5 @@
 plugins {
-<<<<<<< HEAD
   id("com.android.test")
-=======
-    id("com.android.test")
-    id("org.jlleitschuh.gradle.ktlint")
->>>>>>> 9c2f7e2a9 (style(android): format gradle kotlin scripts)
 }
 
 android {
@@ -34,8 +29,6 @@ kotlin {
     }
 }
 
-<<<<<<< HEAD
-=======
 ktlint {
     android.set(true)
     ignoreFailures.set(false)
@@ -44,7 +37,6 @@ ktlint {
     }
 }
 
->>>>>>> 9c2f7e2a9 (style(android): format gradle kotlin scripts)
 dependencies {
     implementation("androidx.benchmark:benchmark-macro-junit4:1.4.1")
     implementation("androidx.test.ext:junit:1.2.1")

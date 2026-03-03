@@ -1,9 +1,6 @@
 import { parseBooleanValue } from "../../utils/boolean.js";
 import type { BrowserRouteContext, ProfileContext } from "../server-context.js";
-<<<<<<< HEAD
 import { parseBooleanValue } from "../../utils/boolean.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { BrowserRequest, BrowserResponse } from "./types.js";
 
 /**

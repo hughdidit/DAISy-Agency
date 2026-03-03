@@ -21,8 +21,6 @@ const DEFAULT_CONTEXT_WINDOW = CONTEXT_WINDOW_HARD_MIN_TOKENS;
 const DEFAULT_MAX_TOKENS = 4096;
 const VERIFY_TIMEOUT_MS = 30_000;
 
-<<<<<<< HEAD
-=======
 function normalizeContextWindowForCustomModel(value: unknown): number {
   const parsed = typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : 0;
   return parsed >= CONTEXT_WINDOW_HARD_MIN_TOKENS ? parsed : CONTEXT_WINDOW_HARD_MIN_TOKENS;
@@ -63,7 +61,6 @@ function transformAzureUrl(baseUrl: string, modelId: string): string {
   return `${normalizedUrl}/openai/deployments/${modelId}`;
 }
 
->>>>>>> a623c9c8d (Onboarding: enforce custom model context minimum)
 export type CustomApiCompatibility = "openai" | "anthropic";
 type CustomApiCompatibilityChoice = CustomApiCompatibility | "unknown";
 export type CustomApiResult = {
@@ -279,34 +276,11 @@ function normalizeOptionalProviderApiKey(value: unknown): SecretInput | undefine
 function resolveVerificationEndpoint(params: {
   baseUrl: string;
   modelId: string;
-<<<<<<< HEAD
 }): Promise<VerificationResult> {
   const endpoint = new URL(
     "chat/completions",
     params.baseUrl.endsWith("/") ? params.baseUrl : `${params.baseUrl}/`,
   ).href;
-=======
-  endpointPath: "chat/completions" | "messages";
-}) {
-  const resolvedUrl = isAzureUrl(params.baseUrl)
-    ? transformAzureUrl(params.baseUrl, params.modelId)
-    : params.baseUrl;
-  const endpointUrl = new URL(
-    params.endpointPath,
-    resolvedUrl.endsWith("/") ? resolvedUrl : `${resolvedUrl}/`,
-  );
-  if (isAzureUrl(params.baseUrl)) {
-    endpointUrl.searchParams.set("api-version", "2024-10-21");
-  }
-  return endpointUrl.href;
-}
-
-async function requestVerification(params: {
-  endpoint: string;
-  headers: Record<string, string>;
-  body: Record<string, unknown>;
-}): Promise<VerificationResult> {
->>>>>>> 4f36c813a (refactor(commands): share custom api verification request flow)
   try {
     const res = await fetchWithTimeout(
       params.endpoint,
@@ -336,7 +310,6 @@ async function requestOpenAiVerification(params: {
     modelId: params.modelId,
     endpointPath: "chat/completions",
   });
-<<<<<<< HEAD
   return await requestVerification({
     endpoint,
     headers: buildOpenAiHeaders(params.apiKey),
@@ -345,13 +318,6 @@ async function requestOpenAiVerification(params: {
 <<<<<<< HEAD
 <<<<<<< HEAD
       max_tokens: 5,
-=======
-      max_tokens: 1,
-=======
-      temperature: 1,
-<<<<<<< HEAD
-      max_completion_tokens: 1,
->>>>>>> 978d9ae19 (Fix azure openai endpoint validation)
 =======
       max_completion_tokens: DEFAULT_MAX_TOKENS,
 >>>>>>> 955768d13 (Fix default max tokens)
@@ -394,7 +360,6 @@ async function requestAnthropicVerification(params: {
   apiKey: string;
   modelId: string;
 }): Promise<VerificationResult> {
-<<<<<<< HEAD
   const endpoint = new URL(
     "messages",
     params.baseUrl.endsWith("/") ? params.baseUrl : `${params.baseUrl}/`,
@@ -420,22 +385,6 @@ async function requestAnthropicVerification(params: {
   } catch (error) {
     return { ok: false, error };
   }
-=======
-  const endpoint = resolveVerificationEndpoint({
-    baseUrl: params.baseUrl,
-    modelId: params.modelId,
-    endpointPath: "messages",
-  });
-  return await requestVerification({
-    endpoint,
-    headers: buildAnthropicHeaders(params.apiKey),
-    body: {
-      model: params.modelId,
-<<<<<<< HEAD
-      max_tokens: 16,
-=======
-      max_tokens: 1,
->>>>>>> ee2eaddeb (fix(onboard): increase verification timeout and reduce max_tokens for custom provider probes (#27380))
       messages: [{ role: "user", content: "Hi" }],
       stream: false,
     },

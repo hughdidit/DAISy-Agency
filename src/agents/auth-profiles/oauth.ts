@@ -1,21 +1,7 @@
-<<<<<<< HEAD
 import { getOAuthApiKey, type OAuthCredentials } from "@mariozechner/pi-ai";
 import lockfile from "proper-lockfile";
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import {
-  getOAuthApiKey,
-  getOAuthProviders,
-  type OAuthCredentials,
-  type OAuthProvider,
-} from "@mariozechner/pi-ai";
-import { loadConfig, type OpenClawConfig } from "../../config/config.js";
-import { isSecretRef } from "../../config/types.secrets.js";
-import { withFileLock } from "../../infra/file-lock.js";
-import { refreshQwenPortalCredentials } from "../../providers/qwen-portal-oauth.js";
-<<<<<<< HEAD
->>>>>>> 201ac2b72 (perf: replace proper-lockfile with lightweight file locks)
 =======
 import { resolveSecretRefString, type SecretRefResolveCache } from "../../secrets/resolve.js";
 >>>>>>> 6a251d8d7 (Auth profiles: resolve keyRef/tokenRef outside gateway)
@@ -31,12 +17,7 @@ import { ensureAuthProfileStore, saveAuthProfileStore } from "./store.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { AuthProfileStore } from "./types.js";
-=======
-=======
-import type { AuthProfileStore } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -50,14 +31,9 @@ import type { AuthProfileStore } from "./types.js";
 
 const OAUTH_PROVIDER_IDS = new Set<string>(getOAuthProviders().map((provider) => provider.id));
 
-<<<<<<< HEAD
 function isOAuthProvider(provider: string): provider is OAuthProvider {
   return OAUTH_PROVIDER_IDS.has(provider);
 }
-=======
-const isOAuthProvider = (provider: string): provider is OAuthProvider =>
-  OAUTH_PROVIDER_IDS.has(provider);
->>>>>>> 8d2f98fb0 (Fix subagent announce failover race (always emit lifecycle end + treat timeout=0 as no-timeout) (#6621))
 
 const resolveOAuthProvider = (provider: string): OAuthProvider | null =>
   isOAuthProvider(provider) ? provider : null;
@@ -229,18 +205,12 @@ async function refreshOAuthTokenWithLock(params: {
   });
 }
 
-<<<<<<< HEAD
 async function tryResolveOAuthProfile(params: {
   cfg?: MoltbotConfig;
   store: AuthProfileStore;
   profileId: string;
   agentDir?: string;
 }): Promise<{ apiKey: string; provider: string; email?: string } | null> {
-=======
-async function tryResolveOAuthProfile(
-  params: ResolveApiKeyForProfileParams,
-): Promise<{ apiKey: string; provider: string; email?: string } | null> {
->>>>>>> 32a704f63 (refactor(auth): share resolve profile params type)
   const { cfg, store, profileId } = params;
   const cred = store.profiles[profileId];
   if (!cred || cred.type !== "oauth") {
@@ -280,67 +250,12 @@ async function tryResolveOAuthProfile(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export async function resolveApiKeyForProfile(params: {
   cfg?: MoltbotConfig;
   store: AuthProfileStore;
   profileId: string;
   agentDir?: string;
 }): Promise<{ apiKey: string; provider: string; email?: string } | null> {
-=======
-=======
-async function resolveProfileSecretString(params: {
-  profileId: string;
-  provider: string;
-  value: string | undefined;
-  valueRef: unknown;
-  refDefaults: SecretDefaults | undefined;
-  configForRefResolution: OpenClawConfig;
-  cache: SecretRefResolveCache;
-  inlineFailureMessage: string;
-  refFailureMessage: string;
-}): Promise<string | undefined> {
-  let resolvedValue = params.value?.trim();
-  if (resolvedValue) {
-    const inlineRef = coerceSecretRef(resolvedValue, params.refDefaults);
-    if (inlineRef) {
-      try {
-        resolvedValue = await resolveSecretRefString(inlineRef, {
-          config: params.configForRefResolution,
-          env: process.env,
-          cache: params.cache,
-        });
-      } catch (err) {
-        log.debug(params.inlineFailureMessage, {
-          profileId: params.profileId,
-          provider: params.provider,
-          error: err instanceof Error ? err.message : String(err),
-        });
-      }
-    }
-  }
-
-  const explicitRef = coerceSecretRef(params.valueRef, params.refDefaults);
-  if (!resolvedValue && explicitRef) {
-    try {
-      resolvedValue = await resolveSecretRefString(explicitRef, {
-        config: params.configForRefResolution,
-        env: process.env,
-        cache: params.cache,
-      });
-    } catch (err) {
-      log.debug(params.refFailureMessage, {
-        profileId: params.profileId,
-        provider: params.provider,
-        error: err instanceof Error ? err.message : String(err),
-      });
-    }
-  }
-
-  return resolvedValue;
-}
-
->>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
 export async function resolveApiKeyForProfile(
   params: ResolveApiKeyForProfileParams,
 ): Promise<{ apiKey: string; provider: string; email?: string } | null> {
@@ -367,7 +282,6 @@ export async function resolveApiKeyForProfile(
   const configForRefResolution = cfg ?? loadConfig();
 
   if (cred.type === "api_key") {
-<<<<<<< HEAD
     let key = cred.key?.trim();
     if (!key && isSecretRef(cred.keyRef)) {
       try {
@@ -384,26 +298,12 @@ export async function resolveApiKeyForProfile(
         });
       }
     }
-=======
-    const key = await resolveProfileSecretString({
-      profileId,
-      provider: cred.provider,
-      value: cred.key,
-      valueRef: cred.keyRef,
-      refDefaults,
-      configForRefResolution,
-      cache: refResolveCache,
-      inlineFailureMessage: "failed to resolve inline auth profile api_key ref",
-      refFailureMessage: "failed to resolve auth profile api_key ref",
-    });
->>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
     if (!key) {
       return null;
     }
     return buildApiKeyProfileResult({ apiKey: key, provider: cred.provider, email: cred.email });
   }
   if (cred.type === "token") {
-<<<<<<< HEAD
     let token = cred.token?.trim();
     if (!token && isSecretRef(cred.tokenRef)) {
       try {
@@ -420,19 +320,6 @@ export async function resolveApiKeyForProfile(
         });
       }
     }
-=======
-    const token = await resolveProfileSecretString({
-      profileId,
-      provider: cred.provider,
-      value: cred.token,
-      valueRef: cred.tokenRef,
-      refDefaults,
-      configForRefResolution,
-      cache: refResolveCache,
-      inlineFailureMessage: "failed to resolve inline auth profile token ref",
-      refFailureMessage: "failed to resolve auth profile token ref",
-    });
->>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
     if (!token) {
       return null;
     }

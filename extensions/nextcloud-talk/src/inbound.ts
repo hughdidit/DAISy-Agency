@@ -8,12 +8,7 @@ import {
   readStoreAllowFromForDmPolicy,
   resolveControlCommandGate,
 <<<<<<< HEAD
-<<<<<<< HEAD
   type MoltbotConfig,
-=======
-=======
-  resolveOutboundMediaUrls,
->>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
@@ -29,10 +24,6 @@ import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./types.js";
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -59,12 +50,8 @@ import { sendMessageNextcloudTalk } from "./send.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { getNextcloudTalkRuntime } from "./runtime.js";
 import type { CoreConfig, NextcloudTalkInboundMessage } from "./types.js";
-=======
-import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -132,22 +119,12 @@ export async function handleNextcloudTalkInbound(params: {
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
 <<<<<<< HEAD
-<<<<<<< HEAD
   const defaultGroupPolicy = (config.channels as Record<string, unknown> | undefined)?.defaults as
     | { groupPolicy?: string }
     | undefined;
   const groupPolicy = (account.config.groupPolicy ??
     defaultGroupPolicy?.groupPolicy ??
     "allowlist") as GroupPolicy;
-=======
-  const defaultGroupPolicy = (
-    (config.channels as Record<string, unknown> | undefined)?.defaults as
-      | { groupPolicy?: string }
-      | undefined
-  )?.groupPolicy as GroupPolicy | undefined;
-=======
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(config as OpenClawConfig);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent:
@@ -167,16 +144,7 @@ export async function handleNextcloudTalkInbound(params: {
 
   const configAllowFrom = normalizeNextcloudTalkAllowlist(account.config.allowFrom);
   const configGroupAllowFrom = normalizeNextcloudTalkAllowlist(account.config.groupAllowFrom);
-<<<<<<< HEAD
   const storeAllowFrom = await core.channel.pairing.readAllowFromStore(CHANNEL_ID).catch(() => []);
-=======
-  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-    provider: CHANNEL_ID,
-    accountId: account.accountId,
-    dmPolicy,
-    readStore: pairing.readStoreForDmPolicy,
-  });
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const storeAllowList = normalizeNextcloudTalkAllowlist(storeAllowFrom);
 
   const roomMatch = resolveNextcloudTalkRoomMatch({
@@ -212,14 +180,10 @@ export async function handleNextcloudTalkInbound(params: {
     senderId,
     senderName,
   }).allowed;
-<<<<<<< HEAD
   const hasControlCommand = core.channel.text.hasControlCommand(
     rawBody,
     config as MoltbotConfig,
   );
-=======
-  const hasControlCommand = core.channel.text.hasControlCommand(rawBody, config as OpenClawConfig);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   const commandGate = resolveControlCommandGate({
     useAccessGroups,
     authorizers: [
@@ -246,7 +210,6 @@ export async function handleNextcloudTalkInbound(params: {
       return;
     }
   } else {
-<<<<<<< HEAD
     if (dmPolicy === "disabled") {
       runtime.log?.(`nextcloud-talk: drop DM sender=${senderId} (dmPolicy=disabled)`);
       return;
@@ -281,28 +244,6 @@ export async function handleNextcloudTalkInbound(params: {
                 `nextcloud-talk: pairing reply failed for ${senderId}: ${String(err)}`,
               );
             }
-=======
-    if (access.decision !== "allow") {
-      if (access.decision === "pairing") {
-        const { code, created } = await pairing.upsertPairingRequest({
-          id: senderId,
-          meta: { name: senderName || undefined },
-        });
-        if (created) {
-          try {
-            await sendMessageNextcloudTalk(
-              roomToken,
-              core.channel.pairing.buildPairingReply({
-                channel: CHANNEL_ID,
-                idLine: `Your Nextcloud user id: ${senderId}`,
-                code,
-              }),
-              { accountId: account.accountId },
-            );
-            statusSink?.({ lastOutboundAt: Date.now() });
-          } catch (err) {
-            runtime.error?.(`nextcloud-talk: pairing reply failed for ${senderId}: ${String(err)}`);
->>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
           }
         }
         runtime.log?.(`nextcloud-talk: drop DM sender ${senderId} (dmPolicy=${dmPolicy})`);
@@ -321,13 +262,9 @@ export async function handleNextcloudTalkInbound(params: {
     return;
   }
 
-<<<<<<< HEAD
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(
     config as MoltbotConfig,
   );
-=======
-  const mentionRegexes = core.channel.mentions.buildMentionRegexes(config as OpenClawConfig);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   const wasMentioned = mentionRegexes.length
     ? core.channel.mentions.matchesMentionPatterns(rawBody, mentionRegexes)
     : false;
@@ -361,7 +298,6 @@ export async function handleNextcloudTalkInbound(params: {
   });
 
   const fromLabel = isGroup ? `room:${roomName || roomToken}` : senderName || `user:${senderId}`;
-<<<<<<< HEAD
   const storePath = core.channel.session.resolveStorePath(config.session?.store, {
     agentId: route.agentId,
   });
@@ -369,15 +305,6 @@ export async function handleNextcloudTalkInbound(params: {
   const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(
     config as MoltbotConfig,
   );
-=======
-=======
-  const storePath = core.channel.session.resolveStorePath(
-    (config.session as Record<string, unknown> | undefined)?.store as string | undefined,
-    {
-      agentId: route.agentId,
-    },
-  );
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
   const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(config as OpenClawConfig);
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   const previousTimestamp = core.channel.session.readSessionUpdatedAt({

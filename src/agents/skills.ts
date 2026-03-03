@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { SkillsInstallPreferences } from "./skills/types.js";
->>>>>>> 3282d22dd (chore: Fix TypeScript errors 3/n.)
 
 export {
   hasBinary,
@@ -37,11 +32,7 @@ export {
   syncSkillsToWorkspace,
 } from "./skills/workspace.js";
 
-<<<<<<< HEAD
 export function resolveSkillsInstallPreferences(config?: MoltbotConfig) {
-=======
-export function resolveSkillsInstallPreferences(config?: OpenClawConfig): SkillsInstallPreferences {
->>>>>>> 3282d22dd (chore: Fix TypeScript errors 3/n.)
   const raw = config?.skills?.install;
   const preferBrew = raw?.preferBrew ?? true;
   const managerRaw = typeof raw?.nodeManager === "string" ? raw.nodeManager.trim() : "";

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import crypto from "node:crypto";
 
 import { Type } from "@sinclair/typebox";
@@ -18,14 +17,9 @@ import { buildSubagentSystemPrompt } from "../subagent-announce.js";
 import { registerSubagentRun } from "../subagent-registry.js";
 import type { AnyAgentTool } from "./common.js";
 =======
-import { getSubagentDepthFromSessionStore } from "../subagent-depth.js";
-import { countActiveRunsForSession, registerSubagentRun } from "../subagent-registry.js";
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
-=======
 import { Type } from "@sinclair/typebox";
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
 import { optionalStringEnum } from "../schema/typebox.js";
-<<<<<<< HEAD
 import { spawnSubagentDirect } from "../subagent-spawn.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -35,10 +29,6 @@ import { spawnSubagentDirect } from "../subagent-spawn.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 5a3a448bc (feat(commands): add /subagents spawn command)
-=======
-=======
-import { SUBAGENT_SPAWN_MODES, spawnSubagentDirect } from "../subagent-spawn.js";
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -58,12 +48,9 @@ import type { AnyAgentTool } from "./common.js";
 >>>>>>> 5a31da8ee (chore: format imports in gateway and session tools)
 import { jsonResult, readStringParam } from "./common.js";
 
-<<<<<<< HEAD
-=======
 const SESSIONS_SPAWN_RUNTIMES = ["subagent", "acp"] as const;
 const SESSIONS_SPAWN_SANDBOX_MODES = ["inherit", "require"] as const;
 
->>>>>>> bfeadb80b (feat(agents): add sessions_spawn sandbox require mode)
 const SessionsSpawnToolSchema = Type.Object({
   task: Type.String(),
   label: Type.Optional(Type.String()),
@@ -122,7 +109,6 @@ export function createSessionsSpawnTool(opts?: {
           : undefined;
       const thread = params.thread === true;
 
-<<<<<<< HEAD
       const result = await spawnSubagentDirect(
         {
           task,
@@ -148,55 +134,7 @@ export function createSessionsSpawnTool(opts?: {
           requesterAgentIdOverride: opts?.requesterAgentIdOverride,
         },
       );
-=======
-      const result =
-        runtime === "acp"
-          ? await spawnAcpDirect(
-              {
-                task,
-                label: label || undefined,
-                agentId: requestedAgentId,
-                cwd,
-                mode: mode && ACP_SPAWN_MODES.includes(mode) ? mode : undefined,
-                thread,
-              },
-              {
-                agentSessionKey: opts?.agentSessionKey,
-                agentChannel: opts?.agentChannel,
-                agentAccountId: opts?.agentAccountId,
-                agentTo: opts?.agentTo,
-                agentThreadId: opts?.agentThreadId,
-              },
-            )
-          : await spawnSubagentDirect(
-              {
-                task,
-                label: label || undefined,
-                agentId: requestedAgentId,
-                model: modelOverride,
-                thinking: thinkingOverrideRaw,
-                runTimeoutSeconds,
-                thread,
-                mode,
-                cleanup,
-                sandbox,
-                expectsCompletionMessage: true,
-              },
-              {
-                agentSessionKey: opts?.agentSessionKey,
-                agentChannel: opts?.agentChannel,
-                agentAccountId: opts?.agentAccountId,
-                agentTo: opts?.agentTo,
-                agentThreadId: opts?.agentThreadId,
-                agentGroupId: opts?.agentGroupId,
-                agentGroupChannel: opts?.agentGroupChannel,
-                agentGroupSpace: opts?.agentGroupSpace,
-                requesterAgentIdOverride: opts?.requesterAgentIdOverride,
-              },
-            );
->>>>>>> bfeadb80b (feat(agents): add sessions_spawn sandbox require mode)
 
-<<<<<<< HEAD
       const resolvedThinkingDefaultRaw =
         readStringParam(targetAgentConfig?.subagents ?? {}, "thinking") ??
         readStringParam(cfg.agents?.defaults?.subagents ?? {}, "thinking");
@@ -321,9 +259,6 @@ export function createSessionsSpawnTool(opts?: {
         modelApplied: resolvedModel ? modelApplied : undefined,
         warning: modelWarning,
       });
-=======
-      return jsonResult(result);
->>>>>>> 5a3a448bc (feat(commands): add /subagents spawn command)
     },
   };
 }

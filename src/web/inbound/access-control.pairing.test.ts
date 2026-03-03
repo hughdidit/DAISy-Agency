@@ -1,15 +1,6 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { checkInboundAccessControl } from "./access-control.js";
-=======
-import { beforeEach, describe, expect, it } from "vitest";
-import {
-  sendMessageMock,
-  setupAccessControlTestHarness,
-  upsertPairingRequestMock,
-} from "./access-control.test-harness.js";
->>>>>>> 5bead2de8 (refactor(test): share web inbound access control setup)
 
 type CheckInboundAccessControl = typeof import("./access-control.js").checkInboundAccessControl;
 let checkInboundAccessControl: CheckInboundAccessControl;

@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> cf04208cb (fix(allowlist): canonicalize Slack/Discord allowFrom)
 import type { MsgContext } from "../templating.js";
 import { buildCommandContext, handleCommands } from "./commands.js";
 import { parseInlineDirectives } from "./directive-handling.js";

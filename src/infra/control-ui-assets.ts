@@ -1,15 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { runCommandWithTimeout } from "../process/exec.js";
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
-=======
-import { fileURLToPath } from "node:url";
-import { runCommandWithTimeout } from "../process/exec.js";
-import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
-import { resolveOpenClawPackageRoot, resolveOpenClawPackageRootSync } from "./openclaw-root.js";
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 
 const CONTROL_UI_DIST_PATH_SEGMENTS = ["dist", "control-ui", "index.html"] as const;
 
@@ -73,15 +66,8 @@ export function resolveControlUiRepoRoot(
 
 export function resolveControlUiDistIndexPath(
   argv1: string | undefined = process.argv[1],
-<<<<<<< HEAD
 ): string | null {
   if (!argv1) return null;
-=======
-): Promise<string | null> {
-  if (!argv1) {
-    return null;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const normalized = path.resolve(argv1);
 
   // Case 1: entrypoint is directly inside dist/ (e.g., dist/entry.js)
@@ -90,7 +76,6 @@ export function resolveControlUiDistIndexPath(
     return path.join(distDir, "control-ui", "index.html");
   }
 
-<<<<<<< HEAD
   // Case 2: npm global install - entrypoint is at package root (e.g., openclaw.mjs)
   // or in node_modules/.bin/. Walk up to find package.json with dist/control-ui/
   const parts = normalized.split(path.sep);
@@ -111,23 +96,6 @@ export function resolveControlUiDistIndexPath(
     const candidate = path.join(dir, "dist", "control-ui", "index.html");
     if (fs.existsSync(path.join(dir, "package.json")) && fs.existsSync(candidate)) {
       return candidate;
-=======
-    const pkgJsonPath = path.join(dir, "package.json");
-    const indexPath = path.join(dir, "dist", "control-ui", "index.html");
-    if (fs.existsSync(pkgJsonPath)) {
-      try {
-        const raw = fs.readFileSync(pkgJsonPath, "utf-8");
-        const parsed = JSON.parse(raw) as { name?: unknown };
-        if (parsed.name === "openclaw") {
-          return fs.existsSync(indexPath) ? indexPath : null;
-        }
-        // Stop at the first package boundary to avoid resolving through unrelated ancestors.
-        return null;
-      } catch {
-        // Invalid package.json at package boundary; abort fallback resolution.
-        return null;
-      }
->>>>>>> 7c822d039 (feat(plugins): expose llm input/output hook payloads (openclaw#16724) thanks @SecondThread)
     }
     const parent = path.dirname(dir);
     if (parent === dir) break;
@@ -249,14 +217,8 @@ export async function ensureControlUiAssetsBuilt(
   runtime: RuntimeEnv = defaultRuntime,
   opts?: { timeoutMs?: number },
 ): Promise<EnsureControlUiAssetsResult> {
-<<<<<<< HEAD
   const indexFromDist = resolveControlUiDistIndexPath(process.argv[1]);
   if (indexFromDist && fs.existsSync(indexFromDist)) {
-=======
-  const health = await resolveControlUiDistIndexHealth({ argv1: process.argv[1] });
-  const indexFromDist = health.indexPath;
-  if (health.exists) {
->>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
     return { ok: true, built: false };
   }
 

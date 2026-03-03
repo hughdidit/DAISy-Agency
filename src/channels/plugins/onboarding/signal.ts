@@ -2,16 +2,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 import { installSignalCli } from "../../../commands/signal-install.js";
 import type { MoltbotConfig } from "../../../config/config.js";
-=======
-import { formatCliCommand } from "../../../cli/command-format.js";
-import { detectBinary } from "../../../commands/onboard-helpers.js";
-import { installSignalCli } from "../../../commands/signal-install.js";
-import type { OpenClawConfig } from "../../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { DmPolicy } from "../../../config/types.js";
 =======
 =======
@@ -20,20 +13,10 @@ import type { OpenClawConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
-<<<<<<< HEAD
 import { formatCliCommand } from "../../../cli/command-format.js";
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 import { installSignalCli } from "../../../commands/signal-install.js";
 >>>>>>> ed11e93cf (chore(format))
-=======
-import { formatCliCommand } from "../../../cli/command-format.js";
-import { detectBinary } from "../../../commands/onboard-helpers.js";
-import { installSignalCli } from "../../../commands/signal-install.js";
-import type { OpenClawConfig } from "../../../config/config.js";
-<<<<<<< HEAD
-import type { DmPolicy } from "../../../config/types.js";
-<<<<<<< HEAD
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import { formatCliCommand } from "../../../cli/command-format.js";
 import { detectBinary } from "../../../commands/onboard-helpers.js";
@@ -65,17 +48,11 @@ import { normalizeE164 } from "../../../utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { addWildcardAllowFrom, promptAccountId } from "./helpers.js";
-=======
-=======
-import type { WizardPrompter } from "../../../wizard/prompts.js";
-import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -127,7 +104,6 @@ export function normalizeSignalAccountInput(value: string | null | undefined): s
   return `+${digits}`;
 }
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 function setSignalDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
@@ -185,14 +161,6 @@ function parseSignalAllowFromInput(raw: string): string[] {
     .split(/[\n,;]+/g)
     .map((entry) => entry.trim())
     .filter(Boolean);
-=======
-function setSignalDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
-  return setChannelDmPolicyWithAllowFrom({
-    cfg,
-    channel: "signal",
-    dmPolicy,
-  });
->>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
 }
 
 =======
@@ -225,22 +193,11 @@ async function promptSignalAllowFrom(params: {
   cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
-<<<<<<< HEAD
 }): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
       : resolveDefaultSignalAccountId(params.cfg);
-=======
-}): Promise<OpenClawConfig> {
-  return onboardingHelpers.promptParsedAllowFromForScopedChannel({
-    cfg: params.cfg,
-    channel: "signal",
-    accountId: params.accountId,
-    defaultAccountId: resolveDefaultSignalAccountId(params.cfg),
-<<<<<<< HEAD
-  });
->>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   const resolved = resolveSignalAccount({ cfg: params.cfg, accountId });
   const existing = resolved.config.allowFrom ?? [];
   await params.prompter.note(

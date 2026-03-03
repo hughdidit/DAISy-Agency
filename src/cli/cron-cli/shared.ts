@@ -5,12 +5,7 @@ import { parseAbsoluteTimeMs } from "../../cron/parse.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { CronJob, CronSchedule } from "../../cron/types.js";
-=======
-=======
-import type { CronJob, CronSchedule } from "../../cron/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -18,11 +13,7 @@ import type { CronJob, CronSchedule } from "../../cron/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import { resolveCronStaggerMs } from "../../cron/stagger.js";
-<<<<<<< HEAD
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
-=======
-import { resolveCronStaggerMs } from "../../cron/stagger.js";
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import type { CronJob, CronSchedule } from "../../cron/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)

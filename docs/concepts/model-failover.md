@@ -7,16 +7,9 @@ read_when:
 
 # Model failover
 
-<<<<<<< HEAD
 Moltbot handles failures in two stages:
 1) **Auth profile rotation** within the current provider.
 2) **Model fallback** to the next model in `agents.defaults.model.fallbacks`.
-=======
-OpenClaw handles failures in two stages:
-
-1. **Auth profile rotation** within the current provider.
-2. **Model fallback** to the next model in `agents.defaults.model.fallbacks`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 This doc explains the runtime rules and the data that backs them.
 
@@ -52,12 +45,7 @@ When a provider has multiple profiles, Moltbot chooses an order like this:
 2. **Configured profiles**: `auth.profiles` filtered by provider.
 3. **Stored profiles**: entries in `auth-profiles.json` for the provider.
 
-<<<<<<< HEAD
 If no explicit order is configured, Moltbot uses a round‑robin order:
-=======
-If no explicit order is configured, OpenClaw uses a round‑robin order:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Primary key:** profile type (**OAuth before API keys**).
 - **Secondary key:** `usageStats.lastUsed` (oldest first, within each type).
 - **Cooldown/disabled profiles** are moved to the end, ordered by soonest expiry.

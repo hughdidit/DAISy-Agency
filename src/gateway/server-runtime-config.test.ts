@@ -181,7 +181,6 @@ describe("resolveGatewayRuntimeConfig", () => {
             auth: TOKEN_AUTH,
           },
         },
-<<<<<<< HEAD
       };
 
       const result = await resolveGatewayRuntimeConfig({
@@ -191,26 +190,6 @@ describe("resolveGatewayRuntimeConfig", () => {
 
       expect(result.authMode).toBe("token");
       expect(result.bindHost).toBe("0.0.0.0");
-=======
-        expectedMessage: "gateway.bind=custom requires a valid IPv4 customBindHost",
-      },
-      {
-        name: "custom bind with mismatched resolved host",
-        cfg: {
-          gateway: {
-            bind: "custom" as const,
-            customBindHost: "192.168.1.100",
-            auth: TOKEN_AUTH,
-          },
-        },
-        host: "0.0.0.0",
-        expectedMessage: "gateway bind=custom requested 192.168.1.100 but resolved 0.0.0.0",
-      },
-    ])("rejects $name", async ({ cfg, host, expectedMessage }) => {
-      await expect(resolveGatewayRuntimeConfig({ cfg, port: 18789, host })).rejects.toThrow(
-        expectedMessage,
-      );
->>>>>>> d74865726 (test(gateway): table-drive runtime config validation matrix)
     });
 
     it("rejects non-loopback control UI when allowed origins are missing", async () => {

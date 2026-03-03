@@ -10,7 +10,6 @@ export type GatewayRespawnResult = {
   detail?: string;
 };
 
-<<<<<<< HEAD
 const SUPERVISOR_HINT_ENV_VARS = [
   "LAUNCH_JOB_LABEL",
   "LAUNCH_JOB_NAME",
@@ -19,8 +18,6 @@ const SUPERVISOR_HINT_ENV_VARS = [
   "JOURNAL_STREAM",
 ];
 
-=======
->>>>>>> 4da6a7f21 (refactor(restart): extract stale pid cleanup and supervisor markers)
 function isTruthy(value: string | undefined): boolean {
   if (!value) {
     return false;

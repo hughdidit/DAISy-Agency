@@ -2,26 +2,14 @@
 import { spawn } from "node:child_process";
 import { enableCompileCache } from "node:module";
 import process from "node:process";
-<<<<<<< HEAD
 
-=======
-import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
-import { isRootVersionInvocation } from "./cli/argv.js";
->>>>>>> 153adc4c8 (Entry: fast-path root version command)
 =======
 import { isRootHelpInvocation, isRootVersionInvocation } from "./cli/argv.js";
 >>>>>>> 38da2d076 (CLI: add root --help fast path and lazy channel option resolution (#30975))
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { isTruthyEnvValue } from "./infra/env.js";
 import { installProcessWarningFilter } from "./infra/warnings.js";
-=======
-=======
-import { shouldSkipRespawnForArgv } from "./cli/respawn-policy.js";
-<<<<<<< HEAD
->>>>>>> 4d1461011 (perf(cli): speed up help/config paths and route config get/unset)
 =======
 import { normalizeWindowsArgv } from "./cli/windows-argv.js";
 >>>>>>> d1f36bfd8 (refactor(cli): share windows argv normalization)
@@ -30,43 +18,8 @@ import { installProcessWarningFilter } from "./infra/warning-filter.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { attachChildProcessBridge } from "./process/child-process-bridge.js";
 
-<<<<<<< HEAD
 process.title = "moltbot";
 installProcessWarningFilter();
-=======
-const ENTRY_WRAPPER_PAIRS = [
-  { wrapperBasename: "openclaw.mjs", entryBasename: "entry.js" },
-  { wrapperBasename: "openclaw.js", entryBasename: "entry.js" },
-] as const;
-
-function shouldForceReadOnlyAuthStore(argv: string[]): boolean {
-  const tokens = argv.slice(2).filter((token) => token.length > 0 && !token.startsWith("-"));
-  for (let index = 0; index < tokens.length - 1; index += 1) {
-    if (tokens[index] === "secrets" && tokens[index + 1] === "audit") {
-      return true;
-    }
-  }
-  return false;
-}
-
-// Guard: only run entry-point logic when this file is the main module.
-// The bundler may import entry.js as a shared dependency when dist/index.js
-// is the actual entry point; without this guard the top-level code below
-// would call runCli a second time, starting a duplicate gateway that fails
-// on the lock / port and crashes the process.
-if (
-  !isMainModule({
-    currentFile: fileURLToPath(import.meta.url),
-    wrapperEntryPairs: [...ENTRY_WRAPPER_PAIRS],
-  })
-) {
-  // Imported as a dependency — skip all entry-point side effects.
-} else {
-  process.title = "openclaw";
-  installProcessWarningFilter();
-  normalizeEnv();
-<<<<<<< HEAD
->>>>>>> edaa5ef7a (refactor(gateway): simplify restart flow and expand lock tests)
 =======
   if (!isTruthyEnvValue(process.env.NODE_DISABLE_COMPILE_CACHE)) {
     try {
@@ -77,7 +30,6 @@ if (
   }
 >>>>>>> 8c4071f36 (Entry: enable Node compile cache on startup)
 
-<<<<<<< HEAD
 if (process.argv.includes("--no-color")) {
   process.env.NO_COLOR = "1";
   process.env.FORCE_COLOR = "0";
@@ -89,15 +41,6 @@ function hasExperimentalWarningSuppressed(): boolean {
   const nodeOptions = process.env.NODE_OPTIONS ?? "";
   if (nodeOptions.includes(EXPERIMENTAL_WARNING_FLAG) || nodeOptions.includes("--no-warnings")) {
     return true;
-=======
-  if (shouldForceReadOnlyAuthStore(process.argv)) {
-    process.env.OPENCLAW_AUTH_STORE_READONLY = "1";
-  }
-
-  if (process.argv.includes("--no-color")) {
-    process.env.NO_COLOR = "1";
-    process.env.FORCE_COLOR = "0";
->>>>>>> ba2eb583c (fix(secrets): make apply idempotent and keep audit read-only)
   }
   for (const arg of process.execArgv) {
     if (arg === EXPERIMENTAL_WARNING_FLAG || arg === "--no-warnings") {
@@ -109,22 +52,14 @@ function hasExperimentalWarningSuppressed(): boolean {
 
 function ensureExperimentalWarningSuppressed(): boolean {
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (isTruthyEnvValue(process.env.CLAWDBOT_NO_RESPAWN)) return false;
   if (isTruthyEnvValue(process.env.CLAWDBOT_NODE_OPTIONS_READY)) return false;
-=======
-=======
-  if (shouldSkipRespawnForArgv(process.argv)) {
-    return false;
-  }
->>>>>>> 4d1461011 (perf(cli): speed up help/config paths and route config get/unset)
   if (isTruthyEnvValue(process.env.OPENCLAW_NO_RESPAWN)) {
     return false;
   }
   if (isTruthyEnvValue(process.env.OPENCLAW_NODE_OPTIONS_READY)) {
     return false;
   }
-<<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const nodeOptions = process.env.NODE_OPTIONS ?? "";
   if (hasExperimentalWarningSuppressed(nodeOptions)) {
@@ -138,23 +73,6 @@ function ensureExperimentalWarningSuppressed(): boolean {
     stdio: "inherit",
     env: process.env,
   });
-=======
-  if (hasExperimentalWarningSuppressed()) {
-    return false;
-  }
-
-  // Respawn guard (and keep recursion bounded if something goes wrong).
-  process.env.OPENCLAW_NODE_OPTIONS_READY = "1";
-  // Pass flag as a Node CLI option, not via NODE_OPTIONS (--disable-warning is disallowed in NODE_OPTIONS).
-  const child = spawn(
-    process.execPath,
-    [EXPERIMENTAL_WARNING_FLAG, ...process.execArgv, ...process.argv.slice(1)],
-    {
-      stdio: "inherit",
-      env: process.env,
-    },
-  );
->>>>>>> ea237115a (fix(cli): avoid NODE_OPTIONS for --disable-warning (#9691) (thanks @18-RAJAT))
 
   attachChildProcessBridge(child);
 
@@ -203,8 +121,6 @@ if (!ensureExperimentalWarningSuppressed()) {
       );
       process.exitCode = 1;
     });
-<<<<<<< HEAD
-=======
 
     // Parent must not continue running the CLI.
     return true;
@@ -274,5 +190,4 @@ if (!ensureExperimentalWarningSuppressed()) {
         });
     }
   }
->>>>>>> 153adc4c8 (Entry: fast-path root version command)
 }

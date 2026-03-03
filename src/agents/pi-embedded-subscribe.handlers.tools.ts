@@ -5,7 +5,6 @@ import type { AgentEvent } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
@@ -20,11 +19,6 @@ class ToolBlockedError extends Error {
 }
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
-=======
-import { emitAgentEvent } from "../infra/agent-events.js";
-import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
-=======
->>>>>>> a75e95be0 (fix(reply): track messaging media aliases for dedupe)
 =======
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
@@ -53,11 +47,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { emitAgentEvent } from "../infra/agent-events.js";
@@ -65,10 +55,7 @@ import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> a75e95be0 (fix(reply): track messaging media aliases for dedupe)
-=======
->>>>>>> 9c5f08244 (chore: Format files.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -87,8 +74,6 @@ import {
 import { inferToolMetaFromArgs } from "./pi-embedded-utils.js";
 import { normalizeToolName } from "./tool-policy.js";
 
-<<<<<<< HEAD
-=======
 /** Track tool execution start times and args for after_tool_call hook */
 const toolStartData = new Map<string, { startTime: number; args: unknown }>();
 
@@ -109,7 +94,6 @@ function buildToolCallSummary(toolName: string, args: unknown, meta?: string): T
   };
 }
 
->>>>>>> 5a26d1c62 (Agent: guard reminder promises behind cron scheduling)
 function extendExecMeta(toolName: string, args: unknown, meta?: string): string | undefined {
   const normalized = toolName.trim().toLowerCase();
   if (normalized !== "exec" && normalized !== "bash") {
@@ -443,13 +427,8 @@ export function handleToolExecutionUpdate(
   });
 }
 
-<<<<<<< HEAD
 export function handleToolExecutionEnd(
   ctx: EmbeddedPiSubscribeContext,
-=======
-export async function handleToolExecutionEnd(
-  ctx: ToolHandlerContext,
->>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
   evt: AgentEvent & {
     toolName: string;
     toolCallId: string;
@@ -463,14 +442,7 @@ export async function handleToolExecutionEnd(
   const result = evt.result;
   const isToolError = isError || isToolResultError(result);
   const sanitizedResult = sanitizeToolResult(result);
-<<<<<<< HEAD
   const meta = ctx.state.toolMetaById.get(toolCallId);
-=======
-  const startData = toolStartData.get(toolCallId);
-  toolStartData.delete(toolCallId);
-  const callSummary = ctx.state.toolMetaById.get(toolCallId);
-  const meta = callSummary?.meta;
->>>>>>> 5a26d1c62 (Agent: guard reminder promises behind cron scheduling)
   ctx.state.toolMetas.push({ toolName, meta });
   ctx.state.toolMetaById.delete(toolCallId);
   ctx.state.toolSummaryById.delete(toolCallId);
@@ -554,7 +526,6 @@ export async function handleToolExecutionEnd(
     `embedded run tool end: runId=${ctx.params.runId} tool=${toolName} toolCallId=${toolCallId}`,
   );
 
-<<<<<<< HEAD
   if (ctx.params.onToolResult && ctx.shouldEmitToolOutput()) {
     const outputText = extractToolResultText(sanitizedResult);
     if (outputText) {
@@ -562,24 +533,6 @@ export async function handleToolExecutionEnd(
     }
   }
 <<<<<<< HEAD
-=======
-
-  // Deliver media from tool results when the verbose emitToolOutput path is off.
-  // When shouldEmitToolOutput() is true, emitToolOutput already delivers media
-  // via parseReplyDirectives (MEDIA: text extraction), so skip to avoid duplicates.
-  if (ctx.params.onToolResult && !isToolError && !ctx.shouldEmitToolOutput()) {
-    const mediaPaths = extractToolResultMediaPaths(result);
-    if (mediaPaths.length > 0) {
-      try {
-        void ctx.params.onToolResult({ mediaUrls: mediaPaths });
-      } catch {
-        // ignore delivery failures
-      }
-    }
-  }
-=======
-  emitToolResultOutput({ ctx, toolName, meta, isToolError, result, sanitizedResult });
->>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
 
   // Run after_tool_call plugin hook (fire-and-forget)
   const hookRunnerAfter = ctx.hookRunner ?? getGlobalHookRunner();

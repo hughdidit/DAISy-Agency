@@ -125,19 +125,10 @@ export function registerStatusHealthSessionsCommands(program: Command) {
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-<<<<<<< HEAD
           ["moltbot sessions", "List all sessions."],
           ["moltbot sessions --active 120", "Only last 2 hours."],
           ["moltbot sessions --json", "Machine-readable output."],
           ["moltbot sessions --store ./tmp/sessions.json", "Use a specific session store."],
-=======
-          ["openclaw sessions", "List all sessions."],
-          ["openclaw sessions --agent work", "List sessions for one agent."],
-          ["openclaw sessions --all-agents", "Aggregate sessions across agents."],
-          ["openclaw sessions --active 120", "Only last 2 hours."],
-          ["openclaw sessions --json", "Machine-readable output."],
-          ["openclaw sessions --store ./tmp/sessions.json", "Use a specific session store."],
->>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
         ])}\n\n${theme.muted(
           "Shows token usage per session when the agent reports it; set agents.defaults.contextTokens to see % of your model window.",
         )}`,

@@ -4,21 +4,13 @@ import {
   DEFAULT_ACCOUNT_ID,
   LineConfigSchema,
   processLineMessage,
-<<<<<<< HEAD
-=======
   resolveAllowlistProviderRuntimeGroupPolicy,
 <<<<<<< HEAD
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 =======
   resolveDefaultGroupPolicy,
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   type ChannelPlugin,
-<<<<<<< HEAD
   type MoltbotConfig,
-=======
-  type ChannelStatusIssue,
-  type OpenClawConfig,
->>>>>>> 3fbf99d72 (fix(line): resolve TypeError in status command)
   type LineConfig,
   type LineChannelData,
   type ResolvedLineAccount,
@@ -175,15 +167,9 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
     },
     collectWarnings: ({ account, cfg }) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       const defaultGroupPolicy = (cfg.channels?.defaults as { groupPolicy?: string } | undefined)
         ?.groupPolicy;
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-      const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-=======
-      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
       const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.line !== undefined,
         groupPolicy: account.config.groupPolicy,
@@ -621,13 +607,7 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
     probeAccount: async ({ account, timeoutMs }) =>
       getLineRuntime().channel.line.probeLineBot(account.channelAccessToken, timeoutMs),
     buildAccountSnapshot: ({ account, runtime, probe }) => {
-<<<<<<< HEAD
       const configured = Boolean(account.channelAccessToken?.trim());
-=======
-      const configured = Boolean(
-        account.channelAccessToken?.trim() && account.channelSecret?.trim(),
-      );
->>>>>>> 702b94fe8 (style(line): format files to unblock ci check)
       return {
         accountId: account.accountId,
         name: account.name,

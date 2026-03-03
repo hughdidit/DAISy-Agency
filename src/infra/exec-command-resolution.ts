@@ -106,19 +106,7 @@ export function resolveCommandResolution(
   const resolvedPath = resolveExecutablePath(rawExecutable, cwd, env);
   const resolvedRealPath = tryResolveRealpath(resolvedPath);
   const executableName = resolvedPath ? path.basename(resolvedPath) : rawExecutable;
-<<<<<<< HEAD
   return { rawExecutable, resolvedPath, executableName };
-=======
-  return {
-    rawExecutable,
-    resolvedPath,
-    resolvedRealPath,
-    executableName,
-    effectiveArgv: [rawExecutable],
-    wrapperChain: [],
-    policyBlocked: false,
-  };
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 }
 
 export function resolveCommandResolutionFromArgv(
@@ -134,20 +122,7 @@ export function resolveCommandResolutionFromArgv(
   const resolvedPath = resolveExecutablePath(rawExecutable, cwd, env);
   const resolvedRealPath = tryResolveRealpath(resolvedPath);
   const executableName = resolvedPath ? path.basename(resolvedPath) : rawExecutable;
-<<<<<<< HEAD
   return { rawExecutable, resolvedPath, executableName };
-=======
-  return {
-    rawExecutable,
-    resolvedPath,
-    resolvedRealPath,
-    executableName,
-    effectiveArgv,
-    wrapperChain: plan.wrappers,
-    policyBlocked: plan.policyBlocked,
-    blockedWrapper: plan.blockedWrapper,
-  };
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 }
 
 function normalizeMatchTarget(value: string): string {

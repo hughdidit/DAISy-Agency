@@ -1,28 +1,15 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
 import type { WebSocket, WebSocketServer } from "ws";
-=======
-import type { createSubsystemLogger } from "../../logging/subsystem.js";
-import type { AuthRateLimiter } from "../auth-rate-limit.js";
-import type { ResolvedGatewayAuth } from "../auth.js";
-import type { GatewayRequestContext, GatewayRequestHandlers } from "../server-methods/types.js";
-import type { GatewayWsClient } from "./ws-types.js";
->>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import { resolveCanvasHostUrl } from "../../infra/canvas-host-url.js";
 import { removeRemoteNodeInfo } from "../../infra/skills-remote.js";
 import { listSystemPresence, upsertPresence } from "../../infra/system-presence.js";
-<<<<<<< HEAD
 import type { createSubsystemLogger } from "../../logging/subsystem.js";
-=======
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { WebSocket, WebSocketServer } from "ws";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -36,15 +23,11 @@ import { randomUUID } from "node:crypto";
 import type { WebSocket, WebSocketServer } from "ws";
 import { resolveCanvasHostUrl } from "../../infra/canvas-host-url.js";
 import { removeRemoteNodeInfo } from "../../infra/skills-remote.js";
-<<<<<<< HEAD
 import { listSystemPresence, upsertPresence } from "../../infra/system-presence.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import { upsertPresence } from "../../infra/system-presence.js";
->>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))
 import type { createSubsystemLogger } from "../../logging/subsystem.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -64,11 +47,7 @@ import { isWebchatClient } from "../../utils/message-channel.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { AuthRateLimiter } from "../auth-rate-limit.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ResolvedGatewayAuth } from "../auth.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

@@ -303,14 +303,8 @@ export async function fetchNpmTagVersion(params: {
   const tag = params.tag;
   try {
     const res = await fetchWithTimeout(
-<<<<<<< HEAD
       `https://registry.npmjs.org/moltbot/${encodeURIComponent(tag)}`,
       timeoutMs,
-=======
-      `https://registry.npmjs.org/openclaw/${encodeURIComponent(tag)}`,
-      {},
-      Math.max(250, timeoutMs),
->>>>>>> a26670a2f (refactor: consolidate fetchWithTimeout into shared utility)
     );
     if (!res.ok) {
       return { tag, version: null, error: `HTTP ${res.status}` };

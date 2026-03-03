@@ -340,8 +340,6 @@ describe("applySkillEnvOverrides", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("blocks dangerous host env overrides even when declared", async () => {
     const workspaceDir = await makeWorkspace();
     const skillDir = path.join(workspaceDir, "skills", "dangerous-env-skill");
@@ -382,7 +380,6 @@ describe("applySkillEnvOverrides", () => {
     });
   });
 
->>>>>>> 272bf2d8b (refactor(test): dedupe env override assertions in skills e2e)
   it("allows required env overrides from snapshots", async () => {
     const workspaceDir = await makeWorkspace();
     const skillDir = path.join(workspaceDir, "skills", "snapshot-env-skill");

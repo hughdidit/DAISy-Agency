@@ -4,7 +4,6 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let originalIsTTY: boolean | undefined;
@@ -332,10 +331,6 @@ vi.mock("./doctor-state-migrations.js", () => ({
 vi.mock("./doctor-update.js", () => ({
   maybeOfferUpdateBeforeDoctor: vi.fn().mockResolvedValue({ handled: false }),
 }));
-=======
-import { describe, expect, it, vi } from "vitest";
-import { note, readConfigFileSnapshot } from "./doctor.e2e-harness.js";
->>>>>>> ae97f8f79 (refactor(test): share doctor e2e harness)
 
 describe("doctor command", () => {
   it("warns when the state directory is missing", async () => {
@@ -389,16 +384,12 @@ describe("doctor command", () => {
   });
 
   it("warns about opencode provider overrides", async () => {
-<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
       raw: "{}",
       parsed: {},
       valid: true,
-=======
-    mockDoctorConfigSnapshot({
->>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
       config: {
         models: {
           providers: {
@@ -423,7 +414,6 @@ describe("doctor command", () => {
     expect(warned).toBe(true);
   });
 
-<<<<<<< HEAD
   it("skips gateway auth warning when CLAWDBOT_GATEWAY_TOKEN is set", async () => {
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
@@ -431,10 +421,6 @@ describe("doctor command", () => {
       raw: "{}",
       parsed: {},
       valid: true,
-=======
-  it("skips gateway auth warning when OPENCLAW_GATEWAY_TOKEN is set", async () => {
-    mockDoctorConfigSnapshot({
->>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
       config: {
         gateway: { mode: "local" },
       },
@@ -450,16 +436,8 @@ describe("doctor command", () => {
         workspaceSuggestions: false,
       });
     } finally {
-<<<<<<< HEAD
       if (prevToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
       else process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
-=======
-      if (prevToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
-      }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
 
     const warned = note.mock.calls.some(([message]) =>

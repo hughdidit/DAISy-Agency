@@ -1,21 +1,7 @@
 import { callGateway } from "../../gateway/call.js";
-<<<<<<< HEAD
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 import { logVerbose } from "../../globals.js";
 import type { CommandHandler } from "./commands-types.js";
-=======
-import { logVerbose } from "../../globals.js";
-import {
-  GATEWAY_CLIENT_MODES,
-  GATEWAY_CLIENT_NAMES,
-  isInternalMessageChannel,
-} from "../../utils/message-channel.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> efe2a464a (fix(approvals): gate /approve by gateway scopes)
 =======
 import type { CommandHandler } from "./commands-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

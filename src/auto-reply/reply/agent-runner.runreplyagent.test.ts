@@ -8,16 +8,7 @@ import type { TypingMode } from "../../config/types.js";
 import { withStateDirEnv } from "../../test-helpers/state-dir-env.js";
 import type { TemplateContext } from "../templating.js";
 import type { GetReplyOptions } from "../types.js";
-<<<<<<< HEAD
 import type { FollowupRun, QueueSettings } from "./queue.js";
-=======
-import {
-  enqueueFollowupRun,
-  scheduleFollowupDrain,
-  type FollowupRun,
-  type QueueSettings,
-} from "./queue.js";
->>>>>>> d729ab215 (fix(session): harden usage accounting and memory flush recovery)
 import { createMockTypingController } from "./test-helpers.js";
 
 type AgentRunParams = {
@@ -95,11 +86,8 @@ beforeAll(async () => {
 beforeEach(() => {
   state.runEmbeddedPiAgentMock.mockClear();
   state.runCliAgentMock.mockClear();
-<<<<<<< HEAD
-=======
   vi.mocked(enqueueFollowupRun).mockClear();
   vi.mocked(scheduleFollowupDrain).mockClear();
->>>>>>> d729ab215 (fix(session): harden usage accounting and memory flush recovery)
   vi.stubEnv("OPENCLAW_TEST_FAST", "1");
 });
 
@@ -286,8 +274,6 @@ async function runReplyAgentWithBase(params: {
   });
 }
 
-<<<<<<< HEAD
-=======
 describe("runReplyAgent heartbeat followup guard", () => {
   it("drops heartbeat runs when another run is active", async () => {
     const { run, typing } = createMinimalRun({
@@ -340,7 +326,6 @@ describe("runReplyAgent heartbeat followup guard", () => {
   });
 });
 
->>>>>>> d729ab215 (fix(session): harden usage accounting and memory flush recovery)
 describe("runReplyAgent typing (heartbeat)", () => {
   async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>): Promise<T> {
     return await withStateDirEnv(
@@ -600,8 +585,6 @@ describe("runReplyAgent typing (heartbeat)", () => {
     vi.useRealTimers();
   });
 
-<<<<<<< HEAD
-=======
   it("delivers tool results in order even when dispatched concurrently", async () => {
     const deliveryOrder: string[] = [];
     const onToolResult = vi.fn(async (payload: { text?: string }) => {
@@ -656,7 +639,6 @@ describe("runReplyAgent typing (heartbeat)", () => {
     expect(delivered).toEqual(["second"]);
   });
 
->>>>>>> 8e29160ea (test: remove fixed waits from tool-result ordering tests)
   it("announces auto-compaction in verbose mode and tracks count", async () => {
     await withTempStateDir(async (stateDir) => {
       const storePath = path.join(stateDir, "sessions", "sessions.json");

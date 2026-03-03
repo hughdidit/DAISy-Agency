@@ -4,14 +4,9 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -30,19 +25,7 @@ export type RemovalResult = {
   skipped?: boolean;
 };
 
-<<<<<<< HEAD
 export function collectWorkspaceDirs(cfg: MoltbotConfig | undefined): string[] {
-=======
-export type CleanupResolvedPaths = {
-  stateDir: string;
-  configPath: string;
-  oauthDir: string;
-  configInsideState: boolean;
-  oauthInsideState: boolean;
-};
-
-export function collectWorkspaceDirs(cfg: OpenClawConfig | undefined): string[] {
->>>>>>> 4bf67ab69 (refactor(commands): centralize shared command formatting helpers)
   const dirs = new Set<string>();
   const defaults = cfg?.agents?.defaults;
   if (typeof defaults?.workspace === "string" && defaults.workspace.trim()) {

@@ -13,7 +13,6 @@ export type PluginsLoadConfig = {
   paths?: string[];
 };
 
-<<<<<<< HEAD
 export type PluginInstallRecord = {
   source: "npm" | "archive" | "path";
   spec?: string;
@@ -22,9 +21,6 @@ export type PluginInstallRecord = {
   version?: string;
   installedAt?: string;
 };
-=======
-export type PluginInstallRecord = InstallRecordBase;
->>>>>>> e029f7844 (refactor(config): dedupe install and typing schema definitions)
 
 export type PluginsConfig = {
   /** Enable or disable plugin loading. */

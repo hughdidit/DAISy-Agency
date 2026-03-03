@@ -1,19 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../src/config/config.js";
 import type { MsgContext } from "../src/auto-reply/templating.js";
-=======
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { MsgContext } from "../src/auto-reply/templating.js";
-import type { OpenClawConfig } from "../src/config/config.js";
-import { resolvePreferredOpenClawTmpDir } from "../src/infra/tmp-openclaw-dir.js";
-import { applyMediaUnderstanding } from "../src/media-understanding/apply.js";
-import { clearMediaUnderstandingBinaryCacheForTests } from "../src/media-understanding/runner.js";
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 
 const makeTempDir = async (prefix: string) => {
   const baseDir = resolvePreferredOpenClawTmpDir();
@@ -100,7 +91,6 @@ describe("media understanding auto-detect (e2e)", () => {
     tempPaths = [];
   });
 
-<<<<<<< HEAD
   it("uses sherpa-onnx-offline when available", async () => {
 <<<<<<< HEAD
     const snapshot = envSnapshot();
@@ -108,10 +98,6 @@ describe("media understanding auto-detect (e2e)", () => {
       const binDir = await makeTempDir("moltbot-bin-sherpa-");
       const modelDir = await makeTempDir("moltbot-sherpa-model-");
       tempPaths.push(binDir, modelDir);
-=======
-=======
-  it.skipIf(process.platform === "win32")("uses sherpa-onnx-offline when available", async () => {
->>>>>>> c5be45dfd (test: skip CLI auto-detect e2e tests on Windows (#23626))
     await withEnvSnapshot(async () => {
       const binDir = await createTrackedTempDir(tempPaths, "openclaw-bin-sherpa-");
       const modelDir = await createTrackedTempDir(tempPaths, "openclaw-sherpa-model-");
@@ -146,7 +132,6 @@ describe("media understanding auto-detect (e2e)", () => {
     });
   });
 
-<<<<<<< HEAD
   it("uses whisper-cli when sherpa is missing", async () => {
 <<<<<<< HEAD
     const snapshot = envSnapshot();
@@ -154,10 +139,6 @@ describe("media understanding auto-detect (e2e)", () => {
       const binDir = await makeTempDir("moltbot-bin-whispercpp-");
       const modelDir = await makeTempDir("moltbot-whispercpp-model-");
       tempPaths.push(binDir, modelDir);
-=======
-=======
-  it.skipIf(process.platform === "win32")("uses whisper-cli when sherpa is missing", async () => {
->>>>>>> c5be45dfd (test: skip CLI auto-detect e2e tests on Windows (#23626))
     await withEnvSnapshot(async () => {
       const binDir = await createTrackedTempDir(tempPaths, "openclaw-bin-whispercpp-");
       const modelDir = await createTrackedTempDir(tempPaths, "openclaw-whispercpp-model-");
@@ -197,17 +178,12 @@ describe("media understanding auto-detect (e2e)", () => {
     });
   });
 
-<<<<<<< HEAD
   it("uses gemini CLI for images when available", async () => {
 <<<<<<< HEAD
     const snapshot = envSnapshot();
     try {
       const binDir = await makeTempDir("moltbot-bin-gemini-");
       tempPaths.push(binDir);
-=======
-=======
-  it.skipIf(process.platform === "win32")("uses gemini CLI for images when available", async () => {
->>>>>>> c5be45dfd (test: skip CLI auto-detect e2e tests on Windows (#23626))
     await withEnvSnapshot(async () => {
       const binDir = await createTrackedTempDir(tempPaths, "openclaw-bin-gemini-");
 >>>>>>> a20c77325 (test(media): dedupe auto-e2e temp/env setup and cover no-binary path)

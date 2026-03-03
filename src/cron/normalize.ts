@@ -7,14 +7,11 @@ import {
 } from "./legacy-delivery.js";
 import { parseAbsoluteTimeMs } from "./parse.js";
 import { migrateLegacyCronPayload } from "./payload-migration.js";
-<<<<<<< HEAD
-=======
 import { inferLegacyName } from "./service/normalize.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { CronJobCreate, CronJobPatch } from "./types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -23,11 +20,7 @@ import type { CronJobCreate, CronJobPatch } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "./stagger.js";
-<<<<<<< HEAD
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
-=======
-import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "./stagger.js";
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import type { CronJobCreate, CronJobPatch } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
@@ -44,15 +37,7 @@ const DEFAULT_OPTIONS: NormalizeOptions = {
 
 function coerceSchedule(schedule: UnknownRecord) {
   const next: UnknownRecord = { ...schedule };
-<<<<<<< HEAD
   const kind = typeof schedule.kind === "string" ? schedule.kind : undefined;
-=======
-  const rawKind = typeof schedule.kind === "string" ? schedule.kind.trim().toLowerCase() : "";
-  const kind = rawKind === "at" || rawKind === "every" || rawKind === "cron" ? rawKind : undefined;
-  const exprRaw = typeof schedule.expr === "string" ? schedule.expr.trim() : "";
-  const legacyCronRaw = typeof schedule.cron === "string" ? schedule.cron.trim() : "";
-  const normalizedExpr = exprRaw || legacyCronRaw;
->>>>>>> 504c1f360 (fix(cron): migrate legacy schedule cron fields on load (#28889))
   const atMsRaw = schedule.atMs;
   const atRaw = schedule.at;
   const atString = typeof atRaw === "string" ? atRaw.trim() : "";
@@ -111,8 +96,6 @@ function coercePayload(payload: UnknownRecord) {
   const next: UnknownRecord = { ...payload };
   // Back-compat: older configs used `provider` for delivery channel.
   migrateLegacyCronPayload(next);
-<<<<<<< HEAD
-=======
   const kindRaw = typeof next.kind === "string" ? next.kind.trim().toLowerCase() : "";
   if (kindRaw === "agentturn") {
     next.kind = "agentTurn";
@@ -187,7 +170,6 @@ function coercePayload(payload: UnknownRecord) {
   ) {
     delete next.allowUnsafeExternalContent;
   }
->>>>>>> 89dccc79a (cron: infer payload kind for model-only update patches (openclaw#15664) thanks @rodrigouroz)
   return next;
 }
 
@@ -195,19 +177,7 @@ function coerceDelivery(delivery: UnknownRecord) {
   const next: UnknownRecord = { ...delivery };
   if (typeof delivery.mode === "string") {
     const mode = delivery.mode.trim().toLowerCase();
-<<<<<<< HEAD
     next.mode = mode === "deliver" ? "announce" : mode;
-=======
-    if (mode === "deliver") {
-      next.mode = "announce";
-    } else if (mode === "announce" || mode === "none" || mode === "webhook") {
-      next.mode = mode;
-    } else {
-      delete next.mode;
-    }
-  } else if ("mode" in next) {
-    delete next.mode;
->>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
   }
   if (typeof delivery.channel === "string") {
     const trimmed = delivery.channel.trim().toLowerCase();

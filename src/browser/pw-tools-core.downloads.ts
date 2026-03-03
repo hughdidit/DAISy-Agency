@@ -6,14 +6,9 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { Page } from "playwright-core";
 
-=======
-=======
-import type { Page } from "playwright-core";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -26,12 +21,7 @@ import type { Page } from "playwright-core";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
-=======
-=======
-import { writeViaSiblingTempPath } from "./output-atomic.js";
->>>>>>> 6a80e9db0 (fix(browser): harden writable output paths)
 import { DEFAULT_UPLOAD_DIR, resolveStrictExistingPathsWithinRoot } from "./paths.js";
 >>>>>>> ef326f5cd (fix(browser): revalidate upload paths at use time)
 import {
@@ -52,11 +42,7 @@ import {
 function buildTempDownloadPath(fileName: string): string {
   const id = crypto.randomUUID();
   const safeName = fileName.trim() ? fileName.trim() : "download.bin";
-<<<<<<< HEAD
   return path.join("/tmp/moltbot/downloads", `${id}-${safeName}`);
-=======
-  return path.join(resolvePreferredOpenClawTmpDir(), "downloads", `${id}-${safeName}`);
->>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 }
 
 function createPageDownloadWaiter(page: Page, timeoutMs: number) {

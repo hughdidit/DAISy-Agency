@@ -1,9 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
->>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import { createWebFetchTool, createWebSearchTool } from "./web-tools.js";
 
 function installMockFetch(payload: unknown) {
@@ -302,8 +298,6 @@ describe("web_search perplexity baseUrl defaults", () => {
     }
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("web_search kimi provider", () => {
   const priorFetch = global.fetch;
@@ -467,7 +461,6 @@ describe("web_search external content wrapping", () => {
     expect(details.results?.[0]?.description).toMatch(
       /<<<EXTERNAL_UNTRUSTED_CONTENT id="[a-f0-9]{16}">>>/,
     );
->>>>>>> c2f562891 (Fix formatting (#22474))
     expect(details.results?.[0]?.description).toContain("Ignore previous instructions");
     expect(details.externalContent).toMatchObject({
       untrusted: true,

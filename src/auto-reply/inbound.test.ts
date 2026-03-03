@@ -283,15 +283,9 @@ describe("createInboundDebouncer", () => {
   });
 });
 
-<<<<<<< HEAD
 describe("initSessionState sender meta", () => {
   it("injects sender meta into BodyStripped for group chats", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sender-meta-"));
-=======
-describe("initSessionState BodyStripped", () => {
-  it("prefers BodyForAgent over Body for group chats", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sender-meta-"));
->>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
     const storePath = path.join(root, "sessions.json");
     const cfg = { session: { store: storePath } } as MoltbotConfig;
 
@@ -312,13 +306,8 @@ describe("initSessionState BodyStripped", () => {
     expect(result.sessionCtx.BodyStripped).toBe("ping");
   });
 
-<<<<<<< HEAD
   it("does not inject sender meta for direct chats", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sender-meta-direct-"));
-=======
-  it("prefers BodyForAgent over Body for direct chats", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sender-meta-direct-"));
->>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
     const storePath = path.join(root, "sessions.json");
     const cfg = { session: { store: storePath } } as MoltbotConfig;
 

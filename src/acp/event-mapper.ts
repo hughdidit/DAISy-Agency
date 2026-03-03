@@ -7,22 +7,7 @@ export type GatewayAttachment = {
 };
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export function extractTextFromPrompt(prompt: ContentBlock[]): string {
-=======
-=======
-const INLINE_CONTROL_ESCAPE_MAP: Readonly<Record<string, string>> = {
-  "\0": "\\0",
-  "\r": "\\r",
-  "\n": "\\n",
-  "\t": "\\t",
-  "\v": "\\v",
-  "\f": "\\f",
-  "\u2028": "\\u2028",
-  "\u2029": "\\u2029",
-};
-
->>>>>>> 4508b818a (fix(acp): escape C0/C1 controls in resource link metadata)
 function escapeInlineControlChars(value: string): string {
   let escaped = "";
   for (const char of value) {
@@ -75,7 +60,6 @@ export function extractTextFromPrompt(prompt: ContentBlock[], maxBytes?: number)
       if (resource?.text) {
         parts.push(resource.text);
       }
-<<<<<<< HEAD
       continue;
     }
     if (block.type === "resource_link") {
@@ -83,23 +67,6 @@ export function extractTextFromPrompt(prompt: ContentBlock[], maxBytes?: number)
       const uri = block.uri ?? "";
       const line = uri ? `[Resource link${title}] ${uri}` : `[Resource link${title}]`;
       parts.push(line);
-=======
-    } else if (block.type === "resource_link") {
-      const title = block.title ? ` (${escapeResourceTitle(block.title)})` : "";
-      const uri = block.uri ? escapeInlineControlChars(block.uri) : "";
-      blockText = uri ? `[Resource link${title}] ${uri}` : `[Resource link${title}]`;
-    }
-    if (blockText !== undefined) {
-      // Guard: reject before allocating the full concatenated string
-      if (maxBytes !== undefined) {
-        const separatorBytes = parts.length > 0 ? 1 : 0; // "\n" added by join() between blocks
-        totalBytes += separatorBytes + Buffer.byteLength(blockText, "utf-8");
-        if (totalBytes > maxBytes) {
-          throw new Error(`Prompt exceeds maximum allowed size of ${maxBytes} bytes`);
-        }
-      }
-      parts.push(blockText);
->>>>>>> 6aa11f309 (fix(acp): harden resource link metadata formatting)
     }
   }
   return parts.join("\n");

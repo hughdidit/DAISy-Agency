@@ -64,13 +64,8 @@ More debugging notes: [Bonjour](/gateway/bonjour).
 
 Android NSD/mDNS discovery won’t cross networks. If your Android node and the gateway are on different networks but connected via Tailscale, use Wide-Area Bonjour / unicast DNS-SD instead:
 
-<<<<<<< HEAD
 1) Set up a DNS-SD zone (example `moltbot.internal.`) on the gateway host and publish `_moltbot-gw._tcp` records.
 2) Configure Tailscale split DNS for `moltbot.internal` pointing at that DNS server.
-=======
-1. Set up a DNS-SD zone (example `openclaw.internal.`) on the gateway host and publish `_openclaw-gw._tcp` records.
-2. Configure Tailscale split DNS for your chosen domain pointing at that DNS server.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Details and example CoreDNS config: [Bonjour](/gateway/bonjour).
 
@@ -126,11 +121,7 @@ If you want the node to show real HTML/CSS/JS that the agent can edit on disk, p
 
 Note: nodes use the standalone canvas host on `canvasHost.port` (default `18793`).
 
-<<<<<<< HEAD
 1) Create `~/clawd/canvas/index.html` on the gateway host.
-=======
-1. Create `~/.openclaw/workspace/canvas/index.html` on the gateway host.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 2. Navigate the node to it (LAN):
 

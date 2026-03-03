@@ -92,15 +92,9 @@ Example:
 {
   agents: {
     list: [
-<<<<<<< HEAD
       { id: "alex", workspace: "~/clawd-alex" },
       { id: "mia", workspace: "~/clawd-mia" }
     ]
-=======
-      { id: "alex", workspace: "~/.openclaw/workspace-alex" },
-      { id: "mia", workspace: "~/.openclaw/workspace-mia" },
-    ],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   bindings: [
     {
@@ -246,28 +240,16 @@ Split by channel: route WhatsApp to a fast everyday agent and Telegram to an Opu
       {
         id: "chat",
         name: "Everyday",
-<<<<<<< HEAD
         workspace: "~/clawd-chat",
         model: "anthropic/claude-sonnet-4-5"
-=======
-        workspace: "~/.openclaw/workspace-chat",
-        model: "anthropic/claude-sonnet-4-5",
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       },
       {
         id: "opus",
         name: "Deep Work",
-<<<<<<< HEAD
         workspace: "~/clawd-opus",
         model: "anthropic/claude-opus-4-5"
       }
     ]
-=======
-        workspace: "~/.openclaw/workspace-opus",
-        model: "anthropic/claude-opus-4-5",
-      },
-    ],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   bindings: [
     { agentId: "chat", match: { channel: "whatsapp" } },
@@ -289,25 +271,9 @@ Keep WhatsApp on the fast agent, but route one DM to Opus:
 {
   agents: {
     list: [
-<<<<<<< HEAD
       { id: "chat", name: "Everyday", workspace: "~/clawd-chat", model: "anthropic/claude-sonnet-4-5" },
       { id: "opus", name: "Deep Work", workspace: "~/clawd-opus", model: "anthropic/claude-opus-4-5" }
     ]
-=======
-      {
-        id: "chat",
-        name: "Everyday",
-        workspace: "~/.openclaw/workspace-chat",
-        model: "anthropic/claude-sonnet-4-5",
-      },
-      {
-        id: "opus",
-        name: "Deep Work",
-        workspace: "~/.openclaw/workspace-opus",
-        model: "anthropic/claude-opus-4-5",
-      },
-    ],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   bindings: [
     {

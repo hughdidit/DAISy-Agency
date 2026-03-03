@@ -52,11 +52,7 @@
   flex: 1 1 0; /* Grow, shrink, and use 0 base for proper scrolling */
   overflow-y: auto;
   overflow-x: hidden;
-<<<<<<< HEAD
   padding: 10px 6px;
-=======
-  padding: 12px 4px;
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
   margin: 0 -4px;
   min-height: 0; /* Allow shrinking for flex scroll behavior */
   border-radius: 12px;
@@ -361,15 +357,9 @@
 
 /* Controls separator */
 .chat-controls__separator {
-<<<<<<< HEAD
   color: var(--border);
   font-size: 14px;
   margin: 0 2px;
-=======
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 18px;
-  margin: 0 8px;
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
   font-weight: 300;
 }
 
@@ -433,25 +423,11 @@
   display: flex;
   align-items: center;
   gap: 4px;
-<<<<<<< HEAD
   font-size: 11px;
   padding: 2px 8px;
   background: color-mix(in srgb, var(--secondary) 90%, transparent);
   border-radius: var(--radius-sm);
   border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
-=======
-  font-size: 12px;
-  padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 6px;
-  border: 1px solid var(--border);
-}
-
-/* Light theme thinking indicator override */
-:root[data-theme="light"] .chat-controls__thinking {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(16, 24, 40, 0.15);
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 }
 
 @media (max-width: 640px) {

@@ -1,17 +1,11 @@
 import { describe, expect, test } from "vitest";
-<<<<<<< HEAD
-=======
 import {
   buildSystemRunApprovalBinding,
   buildSystemRunApprovalEnvBinding,
 } from "../infra/system-run-approval-binding.js";
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import { ExecApprovalManager, type ExecApprovalRecord } from "./exec-approval-manager.js";
 import { sanitizeSystemRunParamsForForwarding } from "./node-invoke-system-run-approval.js";
-<<<<<<< HEAD
-=======
 import { buildSystemRunApprovalEnvBinding } from "./system-run-approval-binding.js";
->>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
 
 describe("sanitizeSystemRunParamsForForwarding", () => {
   const now = Date.now();
@@ -31,8 +25,6 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
         host: "node",
         nodeId: "node-1",
         command,
-<<<<<<< HEAD
-=======
         commandArgv,
         systemRunBinding: buildSystemRunApprovalBinding({
           argv: effectiveBindingArgv,
@@ -40,7 +32,6 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
           agentId: null,
           sessionKey: null,
         }).binding,
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
         cwd: null,
         agentId: null,
         sessionKey: null,
@@ -160,8 +151,6 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
     });
     expectAllowOnceForwardingResult(result);
   });
-<<<<<<< HEAD
-=======
 
   test("rejects trailing-space argv mismatch against legacy command-only approval", () => {
     const result = sanitizeSystemRunParamsForForwarding({
@@ -266,7 +255,6 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
     expect(forwarded.sessionKey).toBe("agent:main:main");
   });
 
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   test("rejects env overrides when approval record lacks env binding", () => {
     const result = sanitizeSystemRunParamsForForwarding({
       rawParams: {
@@ -354,8 +342,6 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
       {
         host: "node",
         command: "echo SAFE",
-<<<<<<< HEAD
-=======
         commandArgv: ["echo", "SAFE"],
         systemRunBinding: buildSystemRunApprovalBinding({
           argv: ["echo", "SAFE"],
@@ -363,7 +349,6 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
           agentId: null,
           sessionKey: null,
         }).binding,
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
         cwd: null,
         agentId: null,
         sessionKey: null,

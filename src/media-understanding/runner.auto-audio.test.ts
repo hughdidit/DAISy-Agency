@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -8,11 +7,6 @@ import { describe, expect, it } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 <<<<<<< HEAD
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
->>>>>>> 22ffde90b (tests: align macmini suite expectations with current behavior (openclaw#22379) thanks @Takhoffman)
 =======
 >>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
 import {
@@ -107,7 +101,6 @@ describe("runCapability auto audio entries", () => {
   it("uses provider keys to auto-enable audio transcription", async () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     const originalPath = process.env.PATH;
     process.env.PATH = "/usr/bin:/bin";
     const tmpPath = path.join(os.tmpdir(), `moltbot-auto-audio-${Date.now()}.wav`);
@@ -140,11 +133,6 @@ describe("runCapability auto audio entries", () => {
     } as unknown as MoltbotConfig;
 
     try {
-=======
-    await withAudioFixture(async ({ ctx, media, cache }) => {
-=======
-    await withAudioFixture("openclaw-auto-audio", async ({ ctx, media, cache }) => {
->>>>>>> 01f42a037 (refactor(test): share media audio fixture across runner tests)
       let seenModel: string | undefined;
       const providerRegistry = createOpenAiAudioProvider(async (req) => {
         seenModel = req.model;
@@ -181,7 +169,6 @@ describe("runCapability auto audio entries", () => {
   it("skips auto audio when disabled", async () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     const originalPath = process.env.PATH;
     process.env.PATH = "/usr/bin:/bin";
     const tmpPath = path.join(os.tmpdir(), `moltbot-auto-audio-${Date.now()}.wav`);
@@ -215,11 +202,6 @@ describe("runCapability auto audio entries", () => {
         },
       },
     } as unknown as MoltbotConfig;
-=======
-    await withAudioFixture(async ({ ctx, media, cache }) => {
-=======
-    await withAudioFixture("openclaw-auto-audio", async ({ ctx, media, cache }) => {
->>>>>>> 01f42a037 (refactor(test): share media audio fixture across runner tests)
       const providerRegistry = createOpenAiAudioProvider(async () => ({
 =======
     const result = await runAutoAudioCase({
@@ -236,7 +218,6 @@ describe("runCapability auto audio entries", () => {
             },
           },
         },
-<<<<<<< HEAD
       });
 >>>>>>> f4db58a5f (test(media): dedupe auto-audio fixture wiring)
 
@@ -250,9 +231,6 @@ describe("runCapability auto audio entries", () => {
       });
       expect(result.outputs).toHaveLength(0);
       expect(result.decision.outcome).toBe("disabled");
-=======
-      },
->>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
     });
     expect(result.outputs).toHaveLength(0);
     expect(result.decision.outcome).toBe("disabled");

@@ -4,15 +4,11 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { createJiti } from "jiti";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { createJiti } from "jiti";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -40,12 +36,7 @@ import {
   type NormalizedPluginsConfig,
 } from "./config-state.js";
 import { initializeGlobalHookRunner } from "./hook-runner-global.js";
-<<<<<<< HEAD
 import { clearPluginCommands } from "./commands.js";
-=======
-import { loadPluginManifestRegistry } from "./manifest-registry.js";
-import { isPathInside, safeStatSync } from "./path-safety.js";
->>>>>>> 77c748304 (refactor(plugins): extract safety and provenance helpers)
 import { createPluginRegistry, type PluginRecord, type PluginRegistry } from "./registry.js";
 import { createPluginRuntime } from "./runtime/index.js";
 import { setActivePluginRegistry } from "./runtime.js";
@@ -53,15 +44,10 @@ import { validateJsonSchemaValue } from "./schema-validator.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type {
 <<<<<<< HEAD
   MoltbotPluginDefinition,
   MoltbotPluginModule,
-=======
-  OpenClawPluginDefinition,
-  OpenClawPluginModule,
->>>>>>> 90ef2d6bd (chore: Update formatting.)
   PluginDiagnostic,
   PluginLogger,
 } from "./types.js";
@@ -76,10 +62,7 @@ import type {
   PluginDiagnostic,
   PluginLogger,
 } from "./types.js";
-<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
@@ -108,19 +91,10 @@ const resolvePluginSdkAliasFile = (params: {
     const preferDist = process.env.VITEST || process.env.NODE_ENV === "test" || isDistRuntime;
     let cursor = path.dirname(modulePath);
     for (let i = 0; i < 6; i += 1) {
-<<<<<<< HEAD
       const srcCandidate = path.join(cursor, "src", "plugin-sdk", "index.ts");
       const distCandidate = path.join(cursor, "dist", "plugin-sdk", "index.js");
       const orderedCandidates = preferDist
         ? [distCandidate, srcCandidate]
-=======
-      const srcCandidate = path.join(cursor, "src", "plugin-sdk", params.srcFile);
-      const distCandidate = path.join(cursor, "dist", "plugin-sdk", params.distFile);
-      const orderedCandidates = isProduction
-        ? isTest
-          ? [distCandidate, srcCandidate]
-          : [distCandidate]
->>>>>>> b93aa7fb6 (refactor(plugins): dedupe plugin SDK alias lookup)
         : [srcCandidate, distCandidate];
       for (const candidate of orderedCandidates) {
         if (fs.existsSync(candidate)) {
@@ -279,36 +253,8 @@ function pushDiagnostics(diagnostics: PluginDiagnostic[], append: PluginDiagnost
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 export function loadMoltbotPlugins(options: PluginLoadOptions = {}): PluginRegistry {
   const cfg = applyTestPluginDefaults(options.config ?? {});
-=======
-=======
-function isPathInside(baseDir: string, targetPath: string): boolean {
-  const rel = path.relative(baseDir, targetPath);
-  if (!rel) {
-    return true;
-  }
-  return !rel.startsWith("..") && !path.isAbsolute(rel);
-=======
-type PathMatcher = {
-  exact: Set<string>;
-  dirs: string[];
-};
-
-type InstallTrackingRule = {
-  trackedWithoutPaths: boolean;
-  matcher: PathMatcher;
-};
-
-type PluginProvenanceIndex = {
-  loadPathMatcher: PathMatcher;
-  installRules: Map<string, InstallTrackingRule>;
-};
-
-function createPathMatcher(): PathMatcher {
-  return { exact: new Set<string>(), dirs: [] };
->>>>>>> 77c748304 (refactor(plugins): extract safety and provenance helpers)
 }
 
 function addPathToMatcher(matcher: PathMatcher, rawPath: string): void {
@@ -444,15 +390,7 @@ function warnAboutUntrackedLoadedPlugins(params: {
   }
 }
 
-<<<<<<< HEAD
 >>>>>>> 3561442a9 (fix(plugins): harden discovery trust checks)
-=======
-function activatePluginRegistry(registry: PluginRegistry, cacheKey: string): void {
-  setActivePluginRegistry(registry, cacheKey);
-  initializeGlobalHookRunner(registry);
-}
-
->>>>>>> c0bf42f2a (refactor: centralize delivery/path/media/version lifecycle)
 export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegistry {
   // Test env: default-disable plugins unless explicitly configured.
   // This keeps unit/gateway suites fast and avoids loading heavyweight plugin deps by accident.
@@ -511,7 +449,6 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
     normalizedLoadPaths: normalized.loadPaths,
   });
 
-<<<<<<< HEAD
   const pluginSdkAlias = resolvePluginSdkAlias();
   const pluginSdkAccountIdAlias = resolvePluginSdkAccountIdAlias();
   const jiti = createJiti(import.meta.url, {
@@ -523,12 +460,6 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
 <<<<<<< HEAD
             "clawdbot/plugin-sdk": pluginSdkAlias,
             "moltbot/plugin-sdk": pluginSdkAlias,
-=======
-            ...(pluginSdkAlias ? { "openclaw/plugin-sdk": pluginSdkAlias } : {}),
-            ...(pluginSdkAccountIdAlias
-              ? { "openclaw/plugin-sdk/account-id": pluginSdkAccountIdAlias }
-              : {}),
->>>>>>> ef70a55b7 (refactor(reply): clarify explicit reply tags in off mode (#16189))
           },
         }
       : {}),
@@ -640,14 +571,10 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       continue;
     }
 
-<<<<<<< HEAD
     let mod: MoltbotPluginModule | null = null;
     try {
 <<<<<<< HEAD
       mod = jiti(candidate.source) as MoltbotPluginModule;
-=======
-      mod = getJiti()(candidate.source) as OpenClawPluginModule;
->>>>>>> c25026f2b (perf(plugins): lazy-create jiti loader)
 =======
     const pluginRoot = safeRealpathOrResolve(candidate.rootDir);
     const opened = openBoundaryFileSync({

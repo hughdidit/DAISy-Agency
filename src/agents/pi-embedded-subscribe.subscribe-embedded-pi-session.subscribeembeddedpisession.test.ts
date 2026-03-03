@@ -237,8 +237,6 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(payloads[1]?.delta).toBe(" world");
   });
 
-<<<<<<< HEAD
-=======
   it("emits agent events on message_end for non-streaming assistant text", () => {
     const { session, emit } = createStubSessionHarness();
 
@@ -269,7 +267,6 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(payloads).toHaveLength(1);
   });
 
->>>>>>> e58884925 (refactor(test): reuse pi embedded subscribe session harness)
   it("skips agent events when cleaned text rewinds mid-stream", () => {
     const { emit, onAgentEvent } = createAgentEventHarness();
 
@@ -306,8 +303,6 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(payloads[0]?.mediaUrls).toEqual(["https://example.com/a.png"]);
   });
 
-<<<<<<< HEAD
-=======
   it("keeps unresolved mutating failure when an unrelated tool succeeds", () => {
     const { emit, subscription } = createWriteFailureHarness({
       runId: "run-tools-1",
@@ -394,7 +389,6 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(subscription.getLastToolError()?.toolName).toBe("session_status");
   });
 
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   it("emits lifecycle:error event on agent_end when last assistant message was an error", async () => {
     const { emit, onAgentEvent } = createAgentEventHarness({
       runId: "run-error",

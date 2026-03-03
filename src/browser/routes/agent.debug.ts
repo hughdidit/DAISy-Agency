@@ -8,18 +8,6 @@ import type { BrowserRouteContext } from "../server-context.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import {
-  readBody,
-  resolveTargetIdFromBody,
-  resolveTargetIdFromQuery,
-  withPlaywrightRouteContext,
-} from "./agent.shared.js";
-import { resolveWritableOutputPathOrRespond } from "./output-paths.js";
-import { DEFAULT_TRACE_DIR } from "./path-output.js";
->>>>>>> f41715a18 (refactor(browser): split act route modules and dedupe path guards)
 import type { BrowserRouteRegistrar } from "./types.js";
 import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
 >>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
@@ -172,7 +160,6 @@ export function registerBrowserAgentDebugRoutes(
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const out = toStringOrEmpty(body.path) || "";
-<<<<<<< HEAD
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "trace stop");
@@ -182,9 +169,6 @@ export function registerBrowserAgentDebugRoutes(
       const id = crypto.randomUUID();
 <<<<<<< HEAD
       const dir = "/tmp/moltbot";
-=======
-      const dir = DEFAULT_TRACE_DIR;
->>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
       await fs.mkdir(dir, { recursive: true });
       const tracePath = out.trim() || path.join(dir, `browser-trace-${id}.zip`);
       await pw.traceStopViaPlaywright({

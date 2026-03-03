@@ -1,23 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import MoltbotKit
-=======
-=======
-import AVFoundation
-import Contacts
-import CoreLocation
-import CoreMotion
-import EventKit
-import Foundation
->>>>>>> f72ac60b0 (iOS: streamline notify timeouts)
 import OpenClawKit
-<<<<<<< HEAD
 import AVFoundation
 import CoreLocation
 >>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
-=======
->>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
 =======
 import OpenClawKit
 >>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
@@ -112,8 +99,6 @@ final class GatewayConnectionController {
             password: password)
     }
 
-<<<<<<< HEAD
-=======
     func connectLastKnown() async {
         guard let last = GatewaySettingsStore.loadLastGatewayConnection() else { return }
         switch last {
@@ -190,7 +175,6 @@ final class GatewayConnectionController {
         self.appModel?.gatewayStatusText = "Offline"
     }
 
->>>>>>> 582870834 (iOS/Gateway: harden pairing resolution and settings-driven capability refresh (#22120))
     private func updateFromDiscovery() {
         let newGateways = self.discovery.gateways
         self.gateways = newGateways
@@ -267,7 +251,6 @@ final class GatewayConnectionController {
             self.gateways.contains(where: { $0.stableID == id })
         }) else { return }
 
-<<<<<<< HEAD
         guard let target = self.gateways.first(where: { $0.stableID == targetStableID }) else { return }
         guard let host = self.resolveGatewayHost(target) else { return }
         let port = target.gatewayPort ?? 18789
@@ -282,37 +265,6 @@ final class GatewayConnectionController {
             tls: tlsParams,
             token: token,
             password: password)
-=======
-            self.didAutoConnect = true
-            Task { [weak self] in
-                guard let self else { return }
-                _ = await self.connectDiscoveredGateway(target)
-            }
-            return
-        }
-
-        if self.gateways.count == 1, let gateway = self.gateways.first {
-            // Security: autoconnect only to previously trusted gateways (stored TLS pin).
-            guard GatewayTLSStore.loadFingerprint(stableID: gateway.stableID) != nil else { return }
-
-            self.didAutoConnect = true
-            Task { [weak self] in
-                guard let self else { return }
-                _ = await self.connectDiscoveredGateway(gateway)
-            }
-            return
-        }
-    }
-
-    private func attemptAutoReconnectIfNeeded() {
-        guard let appModel = self.appModel else { return }
-        guard appModel.gatewayAutoReconnectEnabled else { return }
-        // Avoid starting duplicate connect loops while a prior config is active.
-        guard appModel.activeGatewayConnectConfig == nil else { return }
-        guard UserDefaults.standard.bool(forKey: "gateway.autoconnect") else { return }
-        self.didAutoConnect = false
-        self.maybeAutoConnect()
->>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)
     }
 
     private func updateLastDiscoveredGateway(from gateways: [GatewayDiscoveryModel.DiscoveredGateway]) {
@@ -387,145 +339,8 @@ final class GatewayConnectionController {
         if let lanHost = gateway.lanHost?.trimmingCharacters(in: .whitespacesAndNewlines), !lanHost.isEmpty {
             return lanHost
         }
-<<<<<<< HEAD
         if let tailnet = gateway.tailnetDns?.trimmingCharacters(in: .whitespacesAndNewlines), !tailnet.isEmpty {
             return tailnet
-=======
-    }
-
-    private func resolveServiceEndpoint(_ endpoint: NWEndpoint) async -> (host: String, port: Int)? {
-        guard case let .service(name, type, domain, _) = endpoint else { return nil }
-        let key = "\(domain)|\(type)|\(name)"
-        return await withCheckedContinuation { continuation in
-            let resolver = GatewayServiceResolver(name: name, type: type, domain: domain) { [weak self] result in
-                Task { @MainActor in
-                    self?.pendingServiceResolvers[key] = nil
-                    continuation.resume(returning: result)
-                }
-            }
-            self.pendingServiceResolvers[key] = resolver
-            resolver.start()
-        }
-    }
-
-    private func resolveHostPortFromBonjourEndpoint(_ endpoint: NWEndpoint) async -> (host: String, port: Int)? {
-        switch endpoint {
-        case let .hostPort(host, port):
-            return (host: host.debugDescription, port: Int(port.rawValue))
-        case let .service(name, type, domain, _):
-            return await Self.resolveBonjourServiceToHostPort(name: name, type: type, domain: domain)
-        default:
-            return nil
-        }
-    }
-
-    private static func resolveBonjourServiceToHostPort(
-        name: String,
-        type: String,
-        domain: String,
-        timeoutSeconds: TimeInterval = 3.0
-    ) async -> (host: String, port: Int)? {
-        // NetService callbacks are delivered via a run loop. If we resolve from a thread without one,
-        // we can end up never receiving callbacks, which in turn leaks the continuation and leaves
-        // the UI stuck "connecting". Keep the whole lifecycle on the main run loop and always
-        // resume the continuation exactly once (timeout/cancel safe).
-        @MainActor
-        final class Resolver: NSObject, @preconcurrency NetServiceDelegate {
-            private var cont: CheckedContinuation<(host: String, port: Int)?, Never>?
-            private let service: NetService
-            private var timeoutTask: Task<Void, Never>?
-            private var finished = false
-
-            init(cont: CheckedContinuation<(host: String, port: Int)?, Never>, service: NetService) {
-                self.cont = cont
-                self.service = service
-                super.init()
-            }
-
-            func start(timeoutSeconds: TimeInterval) {
-                self.service.delegate = self
-                self.service.schedule(in: .main, forMode: .default)
-
-                // NetService has its own timeout, but we keep a manual one as a backstop in case
-                // callbacks never arrive (e.g. local network permission issues).
-                self.timeoutTask = Task { @MainActor [weak self] in
-                    guard let self else { return }
-                    let ns = UInt64(max(0.1, timeoutSeconds) * 1_000_000_000)
-                    try? await Task.sleep(nanoseconds: ns)
-                    self.finish(nil)
-                }
-
-                self.service.resolve(withTimeout: timeoutSeconds)
-            }
-
-            func netServiceDidResolveAddress(_ sender: NetService) {
-                self.finish(Self.extractHostPort(sender))
-            }
-
-            func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
-                _ = errorDict // currently best-effort; callers surface a generic failure
-                self.finish(nil)
-            }
-
-            private func finish(_ result: (host: String, port: Int)?) {
-                guard !self.finished else { return }
-                self.finished = true
-
-                self.timeoutTask?.cancel()
-                self.timeoutTask = nil
-
-                self.service.stop()
-                self.service.remove(from: .main, forMode: .default)
-
-                let c = self.cont
-                self.cont = nil
-                c?.resume(returning: result)
-            }
-
-            private static func extractHostPort(_ svc: NetService) -> (host: String, port: Int)? {
-                let port = svc.port
-
-                if let host = svc.hostName?.trimmingCharacters(in: .whitespacesAndNewlines), !host.isEmpty {
-                    return (host: host, port: port)
-                }
-
-                guard let addrs = svc.addresses else { return nil }
-                    for addrData in addrs {
-                        let host = addrData.withUnsafeBytes { ptr -> String? in
-                        guard let base = ptr.baseAddress, !ptr.isEmpty else { return nil }
-                        var buffer = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-
-                        let rc = getnameinfo(
-                            base.assumingMemoryBound(to: sockaddr.self),
-                            socklen_t(ptr.count),
-                            &buffer,
-                            socklen_t(buffer.count),
-                            nil,
-                            0,
-                            NI_NUMERICHOST)
-                        guard rc == 0 else { return nil }
-                        let bytes = buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }
-                        return String(bytes: bytes, encoding: .utf8)
-                    }
-
-                    if let host, !host.isEmpty {
-                        return (host: host, port: port)
-                    }
-                }
-
-                return nil
-            }
-        }
-
-        return await withCheckedContinuation { cont in
-            Task { @MainActor in
-                let service = NetService(domain: domain, type: type, name: name)
-                let resolver = Resolver(cont: cont, service: service)
-                // Keep the resolver alive for the lifetime of the NetService resolve.
-                objc_setAssociatedObject(service, "resolver", resolver, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-                resolver.start(timeoutSeconds: timeoutSeconds)
-            }
->>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)
         }
         return nil
     }
@@ -539,8 +354,6 @@ final class GatewayConnectionController {
         return components.url
     }
 
-<<<<<<< HEAD
-=======
     private func resolveManualUseTLS(host: String, useTLS: Bool) -> Bool {
         useTLS || self.shouldRequireTLS(host: host)
     }
@@ -600,7 +413,6 @@ final class GatewayConnectionController {
         }
     }
 
->>>>>>> 8a661e30c (fix(ios): prefetch talk tts segments)
     private func manualStableID(host: String, port: Int) -> String {
         "manual|\(host.lowercased())|\(port)"
     }
@@ -616,15 +428,8 @@ final class GatewayConnectionController {
             commands: self.currentCommands(),
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
             permissions: [:],
             clientId: "moltbot-ios",
-=======
-            permissions: self.currentPermissions(),
-<<<<<<< HEAD
-=======
-            permissions: [:],
->>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
             clientId: "openclaw-ios",
 >>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
 =======
@@ -667,14 +472,8 @@ final class GatewayConnectionController {
         if voiceWakeEnabled { caps.append(MoltbotCapability.voiceWake.rawValue) }
 
         let locationModeRaw = UserDefaults.standard.string(forKey: "location.enabledMode") ?? "off"
-<<<<<<< HEAD
         let locationMode = MoltbotLocationMode(rawValue: locationModeRaw) ?? .off
         if locationMode != .off { caps.append(MoltbotCapability.location.rawValue) }
-=======
-        let locationMode = OpenClawLocationMode(rawValue: locationModeRaw) ?? .off
-        if locationMode != .off { caps.append(OpenClawCapability.location.rawValue) }
-<<<<<<< HEAD
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
 =======
 
         caps.append(OpenClawCapability.device.rawValue)
@@ -695,7 +494,6 @@ final class GatewayConnectionController {
 
     private func currentCommands() -> [String] {
         var commands: [String] = [
-<<<<<<< HEAD
             MoltbotCanvasCommand.present.rawValue,
             MoltbotCanvasCommand.hide.rawValue,
             MoltbotCanvasCommand.navigate.rawValue,
@@ -711,42 +509,16 @@ final class GatewayConnectionController {
             MoltbotSystemCommand.execApprovalsGet.rawValue,
             MoltbotSystemCommand.execApprovalsSet.rawValue,
 =======
-            OpenClawCanvasCommand.present.rawValue,
-            OpenClawCanvasCommand.hide.rawValue,
-            OpenClawCanvasCommand.navigate.rawValue,
-            OpenClawCanvasCommand.evalJS.rawValue,
-            OpenClawCanvasCommand.snapshot.rawValue,
-            OpenClawCanvasA2UICommand.push.rawValue,
-            OpenClawCanvasA2UICommand.pushJSONL.rawValue,
-            OpenClawCanvasA2UICommand.reset.rawValue,
-            OpenClawScreenCommand.record.rawValue,
-            OpenClawSystemCommand.notify.rawValue,
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
-=======
 =======
 >>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
             OpenClawSystemCommand.which.rawValue,
             OpenClawSystemCommand.run.rawValue,
             OpenClawSystemCommand.execApprovalsGet.rawValue,
             OpenClawSystemCommand.execApprovalsSet.rawValue,
-<<<<<<< HEAD
 >>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
-=======
-=======
-            OpenClawChatCommand.push.rawValue,
->>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
             OpenClawTalkCommand.pttStart.rawValue,
             OpenClawTalkCommand.pttStop.rawValue,
-<<<<<<< HEAD
 >>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
-=======
-            OpenClawTalkCommand.pttCancel.rawValue,
-            OpenClawTalkCommand.pttOnce.rawValue,
->>>>>>> 1a48bce29 (iOS: add PTT once/cancel)
 =======
 >>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
         ]
@@ -757,41 +529,8 @@ final class GatewayConnectionController {
             commands.append(MoltbotCameraCommand.snap.rawValue)
             commands.append(MoltbotCameraCommand.clip.rawValue)
         }
-<<<<<<< HEAD
         if caps.contains(MoltbotCapability.location.rawValue) {
             commands.append(MoltbotLocationCommand.get.rawValue)
-=======
-        if caps.contains(OpenClawCapability.location.rawValue) {
-            commands.append(OpenClawLocationCommand.get.rawValue)
-        }
-<<<<<<< HEAD
-        if caps.contains(OpenClawCapability.device.rawValue) {
-            commands.append(OpenClawDeviceCommand.status.rawValue)
-            commands.append(OpenClawDeviceCommand.info.rawValue)
-        }
-        if caps.contains(OpenClawCapability.watch.rawValue) {
-            commands.append(OpenClawWatchCommand.status.rawValue)
-            commands.append(OpenClawWatchCommand.notify.rawValue)
-        }
-        if caps.contains(OpenClawCapability.photos.rawValue) {
-            commands.append(OpenClawPhotosCommand.latest.rawValue)
-        }
-        if caps.contains(OpenClawCapability.contacts.rawValue) {
-            commands.append(OpenClawContactsCommand.search.rawValue)
-            commands.append(OpenClawContactsCommand.add.rawValue)
-        }
-        if caps.contains(OpenClawCapability.calendar.rawValue) {
-            commands.append(OpenClawCalendarCommand.events.rawValue)
-            commands.append(OpenClawCalendarCommand.add.rawValue)
-        }
-        if caps.contains(OpenClawCapability.reminders.rawValue) {
-            commands.append(OpenClawRemindersCommand.list.rawValue)
-            commands.append(OpenClawRemindersCommand.add.rawValue)
-        }
-        if caps.contains(OpenClawCapability.motion.rawValue) {
-            commands.append(OpenClawMotionCommand.activity.rawValue)
-            commands.append(OpenClawMotionCommand.pedometer.rawValue)
->>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
         }
 =======
 >>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
@@ -800,61 +539,6 @@ final class GatewayConnectionController {
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    private func currentPermissions() -> [String: Bool] {
-        var permissions: [String: Bool] = [:]
-        permissions["camera"] = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
-        permissions["microphone"] = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
-        permissions["speechRecognition"] = SFSpeechRecognizer.authorizationStatus() == .authorized
-        permissions["location"] = Self.isLocationAuthorized(
-            status: CLLocationManager().authorizationStatus)
-            && CLLocationManager.locationServicesEnabled()
-        permissions["screenRecording"] = RPScreenRecorder.shared().isAvailable
-
-        let photoStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
-        permissions["photos"] = photoStatus == .authorized || photoStatus == .limited
-        let contactsStatus = CNContactStore.authorizationStatus(for: .contacts)
-        permissions["contacts"] = contactsStatus == .authorized || contactsStatus == .limited
-
-        let calendarStatus = EKEventStore.authorizationStatus(for: .event)
-        permissions["calendar"] = Self.hasEventKitAccess(calendarStatus)
-        let remindersStatus = EKEventStore.authorizationStatus(for: .reminder)
-        permissions["reminders"] = Self.hasEventKitAccess(remindersStatus)
-
-        let motionStatus = CMMotionActivityManager.authorizationStatus()
-        let pedometerStatus = CMPedometer.authorizationStatus()
-        permissions["motion"] =
-            motionStatus == .authorized || pedometerStatus == .authorized
-
-        let watchStatus = WatchMessagingService.currentStatusSnapshot()
-        permissions["watchSupported"] = watchStatus.supported
-        permissions["watchPaired"] = watchStatus.paired
-        permissions["watchAppInstalled"] = watchStatus.appInstalled
-        permissions["watchReachable"] = watchStatus.reachable
-
-        return permissions
-    }
-
-    private static func isLocationAuthorized(status: CLAuthorizationStatus) -> Bool {
-        switch status {
-        case .authorizedAlways, .authorizedWhenInUse:
-            return true
-        default:
-            return false
-        }
-    }
-
-    private static func hasEventKitAccess(_ status: EKAuthorizationStatus) -> Bool {
-        status == .fullAccess || status == .writeOnly
-    }
-
-    private static func motionAvailable() -> Bool {
-        CMMotionActivityManager.isActivityAvailable() || CMPedometer.isStepCountingAvailable()
-    }
-<<<<<<< HEAD
-
->>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
 =======
 >>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
     private func platformString() -> String {
@@ -937,8 +621,6 @@ extension GatewayConnectionController {
     }
 }
 #endif
-<<<<<<< HEAD
-=======
 
 private final class GatewayTLSFingerprintProbe: NSObject, URLSessionDelegate, @unchecked Sendable {
     private let url: URL
@@ -1007,4 +689,3 @@ private final class GatewayTLSFingerprintProbe: NSObject, URLSessionDelegate, @u
         return digest.map { String(format: "%02x", $0) }.joined()
     }
 }
->>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)

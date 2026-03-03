@@ -1,6 +1,5 @@
 import type { SecretInput } from "./types.secrets.js";
 
-<<<<<<< HEAD
 export type ModelApi =
   | "openai-completions"
   | "openai-responses"
@@ -9,20 +8,6 @@ export type ModelApi =
   | "github-copilot"
   | "bedrock-converse-stream"
   | "ollama";
-=======
-export const MODEL_APIS = [
-  "openai-completions",
-  "openai-responses",
-  "openai-codex-responses",
-  "anthropic-messages",
-  "google-generative-ai",
-  "github-copilot",
-  "bedrock-converse-stream",
-  "ollama",
-] as const;
-
-export type ModelApi = (typeof MODEL_APIS)[number];
->>>>>>> 344f54b84 (refactor(config): dedupe model api definitions)
 
 export type ModelCompatConfig = {
   supportsStore?: boolean;

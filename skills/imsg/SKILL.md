@@ -2,29 +2,7 @@
 name: imsg
 description: iMessage/SMS CLI for listing chats, history, watch, and sending.
 homepage: https://imsg.to
-<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"📨","os":["darwin"],"requires":{"bins":["imsg"]},"install":[{"id":"brew","kind":"brew","formula":"steipete/tap/imsg","bins":["imsg"],"label":"Install imsg (brew)"}]}}
-=======
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "📨",
-        "os": ["darwin"],
-        "requires": { "bins": ["imsg"] },
-        "install":
-          [
-            {
-              "id": "brew",
-              "kind": "brew",
-              "formula": "steipete/tap/imsg",
-              "bins": ["imsg"],
-              "label": "Install imsg (brew)",
-            },
-          ],
-      },
-  }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 ---
 
 # imsg Actions

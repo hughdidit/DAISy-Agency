@@ -2,58 +2,9 @@ import path from "node:path";
 
 export const MAX_DISPATCH_WRAPPER_DEPTH = 4;
 
-<<<<<<< HEAD
 export const POSIX_SHELL_WRAPPERS = new Set(["ash", "bash", "dash", "fish", "ksh", "sh", "zsh"]);
 export const WINDOWS_CMD_WRAPPERS = new Set(["cmd.exe", "cmd"]);
 export const POWERSHELL_WRAPPERS = new Set(["powershell", "powershell.exe", "pwsh", "pwsh.exe"]);
-=======
-const WINDOWS_EXE_SUFFIX = ".exe";
-
-const POSIX_SHELL_WRAPPER_NAMES = ["ash", "bash", "dash", "fish", "ksh", "sh", "zsh"] as const;
-const WINDOWS_CMD_WRAPPER_NAMES = ["cmd"] as const;
-const POWERSHELL_WRAPPER_NAMES = ["powershell", "pwsh"] as const;
-const DISPATCH_WRAPPER_NAMES = [
-  "chrt",
-  "doas",
-  "env",
-  "ionice",
-  "nice",
-  "nohup",
-  "setsid",
-  "stdbuf",
-  "sudo",
-  "taskset",
-  "timeout",
-] as const;
-
-function withWindowsExeAliases(names: readonly string[]): string[] {
-  const expanded = new Set<string>();
-  for (const name of names) {
-    expanded.add(name);
-    expanded.add(`${name}${WINDOWS_EXE_SUFFIX}`);
-  }
-  return Array.from(expanded);
-}
-
-function stripWindowsExeSuffix(value: string): string {
-  return value.endsWith(WINDOWS_EXE_SUFFIX) ? value.slice(0, -WINDOWS_EXE_SUFFIX.length) : value;
-}
-
-export const POSIX_SHELL_WRAPPERS = new Set(POSIX_SHELL_WRAPPER_NAMES);
-export const WINDOWS_CMD_WRAPPERS = new Set(withWindowsExeAliases(WINDOWS_CMD_WRAPPER_NAMES));
-export const POWERSHELL_WRAPPERS = new Set(withWindowsExeAliases(POWERSHELL_WRAPPER_NAMES));
-export const DISPATCH_WRAPPER_EXECUTABLES = new Set(withWindowsExeAliases(DISPATCH_WRAPPER_NAMES));
-
-const POSIX_SHELL_WRAPPER_CANONICAL = new Set<string>(POSIX_SHELL_WRAPPER_NAMES);
-const WINDOWS_CMD_WRAPPER_CANONICAL = new Set<string>(WINDOWS_CMD_WRAPPER_NAMES);
-const POWERSHELL_WRAPPER_CANONICAL = new Set<string>(POWERSHELL_WRAPPER_NAMES);
-const DISPATCH_WRAPPER_CANONICAL = new Set<string>(DISPATCH_WRAPPER_NAMES);
-const SHELL_WRAPPER_CANONICAL = new Set<string>([
-  ...POSIX_SHELL_WRAPPER_NAMES,
-  ...WINDOWS_CMD_WRAPPER_NAMES,
-  ...POWERSHELL_WRAPPER_NAMES,
-]);
->>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
 
 const POSIX_INLINE_COMMAND_FLAGS = new Set(["-lc", "-c", "--command"]);
 const POWERSHELL_INLINE_COMMAND_FLAGS = new Set(["-c", "-command", "--command"]);
@@ -222,55 +173,6 @@ export function unwrapEnvInvocation(argv: string[]): string[] | null {
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-function envInvocationUsesModifiers(argv: string[]): boolean {
-  let idx = 1;
-  let expectsOptionValue = false;
-  while (idx < argv.length) {
-    const token = argv[idx]?.trim() ?? "";
-    if (!token) {
-      idx += 1;
-      continue;
-    }
-    if (expectsOptionValue) {
-      return true;
-    }
-    if (token === "--" || token === "-") {
-      idx += 1;
-      break;
-    }
-    if (isEnvAssignment(token)) {
-      return true;
-    }
-    if (!token.startsWith("-") || token === "-") {
-      break;
-    }
-    const lower = token.toLowerCase();
-    const [flag] = lower.split("=", 2);
-    if (ENV_FLAG_OPTIONS.has(flag)) {
-      return true;
-    }
-    if (ENV_OPTIONS_WITH_VALUE.has(flag)) {
-      if (lower.includes("=")) {
-        return true;
-      }
-      expectsOptionValue = true;
-      idx += 1;
-      continue;
-    }
-    if (hasEnvInlineValuePrefix(lower)) {
-      return true;
-    }
-    // Unknown env flags are treated conservatively as modifiers.
-    return true;
-  }
-
-  return false;
-}
-
->>>>>>> bd8b9af9a (fix(exec): bind env-prefixed shell wrappers to full approval text)
 function unwrapNiceInvocation(argv: string[]): string[] | null {
   return unwrapDashOptionInvocation(argv, {
     onFlag: (flag, lower) => {
@@ -402,8 +304,6 @@ export function unwrapDispatchWrappersForResolution(
   argv: string[],
   maxDepth = MAX_DISPATCH_WRAPPER_DEPTH,
 ): string[] {
-<<<<<<< HEAD
-=======
   const plan = resolveDispatchWrapperExecutionPlan(argv, maxDepth);
   return plan.argv;
 }
@@ -432,23 +332,12 @@ export function resolveDispatchWrapperExecutionPlan(
   argv: string[],
   maxDepth = MAX_DISPATCH_WRAPPER_DEPTH,
 ): DispatchWrapperExecutionPlan {
->>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
   let current = argv;
   for (let depth = 0; depth < maxDepth; depth += 1) {
-<<<<<<< HEAD
 <<<<<<< HEAD
     const token0 = current[0]?.trim();
     if (!token0) {
       break;
-=======
-    const unwrap = unwrapKnownDispatchWrapperInvocation(current);
-    if (unwrap.kind === "blocked") {
-      return blockedDispatchWrapperPlan({
-        argv: current,
-        wrappers,
-        blockedWrapper: unwrap.wrapper,
-      });
->>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
     }
     if (basenameLower(token0) !== "env") {
       break;
@@ -463,8 +352,6 @@ export function resolveDispatchWrapperExecutionPlan(
     if (unwrap.kind !== "unwrapped" || unwrap.argv.length === 0) {
       break;
     }
-<<<<<<< HEAD
-=======
     wrappers.push(unwrap.wrapper);
     if (isSemanticDispatchWrapperUsage(unwrap.wrapper, current)) {
       return blockedDispatchWrapperPlan({
@@ -473,25 +360,10 @@ export function resolveDispatchWrapperExecutionPlan(
         blockedWrapper: unwrap.wrapper,
       });
     }
->>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
     current = unwrap.argv;
 >>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
   }
-<<<<<<< HEAD
   return current;
-=======
-  if (wrappers.length >= maxDepth) {
-    const overflow = unwrapKnownDispatchWrapperInvocation(current);
-    if (overflow.kind === "blocked" || overflow.kind === "unwrapped") {
-      return blockedDispatchWrapperPlan({
-        argv: current,
-        wrappers,
-        blockedWrapper: overflow.wrapper,
-      });
-    }
-  }
-  return { argv: current, wrappers, policyBlocked: false };
->>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
 }
 
 function hasEnvManipulationBeforeShellWrapperInternal(
@@ -617,7 +489,6 @@ function extractShellWrapperCommandInternal(
     return { isWrapper: false, command: null };
   }
 
-<<<<<<< HEAD
   const base0 = basenameLower(token0);
   if (base0 === "env") {
     const unwrapped = unwrapEnvInvocation(argv);
@@ -625,14 +496,6 @@ function extractShellWrapperCommandInternal(
       return { isWrapper: false, command: null };
     }
     return extractShellWrapperCommandInternal(unwrapped, rawCommand, depth + 1);
-=======
-  const dispatchUnwrap = unwrapKnownDispatchWrapperInvocation(argv);
-  if (dispatchUnwrap.kind === "blocked") {
-    return { isWrapper: false, command: null };
-  }
-  if (dispatchUnwrap.kind === "unwrapped") {
-    return extractShellWrapperCommandInternal(dispatchUnwrap.argv, rawCommand, depth + 1);
->>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
   }
 
   const base0 = normalizeExecutableToken(token0);

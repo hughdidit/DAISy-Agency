@@ -12,7 +12,4 @@ onlyBuiltDependencies:
   - esbuild
   - protobufjs
   - sharp
-<<<<<<< HEAD
-=======
   - "@napi-rs/canvas"
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)

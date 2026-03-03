@@ -35,24 +35,7 @@ which stores `tools.web.search.apiKey`. Docs: [Web tools](/tools/web).
 
 The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 
-<<<<<<< HEAD
 **QuickStart** keeps the defaults:
-=======
-<Tabs>
-  <Tab title="QuickStart (defaults)">
-    - Local gateway (loopback)
-    - Workspace default (or existing workspace)
-    - Gateway port **18789**
-    - Gateway auth **Token** (auto‑generated, even on loopback)
-    - DM isolation default: local onboarding writes `session.dmScope: "per-channel-peer"` when unset. Details: [CLI Onboarding Reference](/start/wizard-cli-reference#outputs-and-internals)
-    - Tailscale exposure **Off**
-    - Telegram + WhatsApp DMs default to **allowlist** (you'll be prompted for your phone number)
-  </Tab>
-  <Tab title="Advanced (full control)">
-    - Exposes every step (mode, workspace, gateway, channels, daemon, skills).
-  </Tab>
-</Tabs>
->>>>>>> 6fda04e93 (refactor: tighten onboarding dmScope typing and docs links)
 
 - Local gateway (loopback)
 - Workspace default (or existing workspace)
@@ -64,21 +47,12 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 **Advanced** exposes every step (mode, workspace, gateway, channels, daemon, skills).
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## What the wizard does
-=======
-1. **Model/Auth** — Anthropic API key (recommended), OpenAI, or Custom API Endpoint
-=======
-1. **Model/Auth** — Anthropic API key (recommended), OpenAI, or Custom Provider
->>>>>>> 2914cb1d4 (Onboard: rename Custom API Endpoint to Custom Provider)
    (OpenAI-compatible, Anthropic-compatible, or Unknown auto-detect). Pick a default model.
-<<<<<<< HEAD
-=======
    For non-interactive runs, `--secret-input-mode ref` stores env-backed refs in auth profiles instead of plaintext API key values.
    In non-interactive `ref` mode, the provider env var must be set; passing inline key flags without that env var fails fast.
 <<<<<<< HEAD
    In interactive runs, choosing secret reference mode lets you point at either an environment variable or an encrypted `sops` file pointer, with a fast preflight validation before saving.
->>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
 =======
    In interactive runs, choosing secret reference mode lets you point at either an environment variable or a configured provider ref (`file` or `exec`), with a fast preflight validation before saving.
 >>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
@@ -90,7 +64,6 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 7. **Skills** — Installs recommended skills and optional dependencies.
 >>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 
-<<<<<<< HEAD
 **Local mode (default)** walks you through:
 
 - Model/auth (OpenAI Code (Codex) subscription OAuth, Anthropic API key (recommended) or setup-token (paste), plus MiniMax/GLM/Moonshot/AI Gateway options)
@@ -100,13 +73,6 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 - Daemon install (LaunchAgent / systemd user unit)
 - Health check
 - Skills (recommended)
-=======
-<Note>
-Re-running the wizard does **not** wipe anything unless you explicitly choose **Reset** (or pass `--reset`).
-CLI `--reset` defaults to config, credentials, and sessions; use `--reset-scope full` to include workspace.
-If the config is invalid or contains legacy keys, the wizard asks you to run `openclaw doctor` first.
-</Note>
->>>>>>> 0ec7711bc (fix(agents): harden compaction and reset safety)
 
 **Remote mode** only configures the local client to connect to a Gateway elsewhere.
 It does **not** install or change anything on the remote host.
@@ -121,13 +87,8 @@ Tip: `--json` does **not** imply non-interactive mode. Use `--non-interactive` (
 
 ## Flow details (local)
 
-<<<<<<< HEAD
 1) **Existing config detection**
    - If `~/.clawdbot/moltbot.json` exists, choose **Keep / Modify / Reset**.
-=======
-1. **Existing config detection**
-   - If `~/.openclaw/openclaw.json` exists, choose **Keep / Modify / Reset**.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Re-running the wizard does **not** wipe anything unless you explicitly choose **Reset**
      (or pass `--reset`).
    - If the config is invalid or contains legacy keys, the wizard stops and asks
@@ -161,20 +122,11 @@ Tip: `--json` does **not** imply non-interactive mode. Use `--non-interactive` (
    - **Skip**: no auth configured yet.
    - Pick a default model from detected options (or enter provider/model manually).
    - Wizard runs a model check and warns if the configured model is unknown or missing auth.
-<<<<<<< HEAD
   - OAuth credentials live in `~/.clawdbot/credentials/oauth.json`; auth profiles live in `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json` (API keys + OAuth).
    - More detail: [/concepts/oauth](/concepts/oauth)
 
 3) **Workspace**
    - Default `~/clawd` (configurable).
-=======
-
-- OAuth credentials live in `~/.openclaw/credentials/oauth.json`; auth profiles live in `~/.openclaw/agents/<agentId>/agent/auth-profiles.json` (API keys + OAuth).
-- More detail: [/concepts/oauth](/concepts/oauth)
-
-3. **Workspace**
-   - Default `~/.openclaw/workspace` (configurable).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Seeds the workspace files needed for the agent bootstrap ritual.
    - Full workspace layout + backup guide: [Agent workspace](/concepts/agent-workspace)
 
@@ -184,7 +136,6 @@ Tip: `--json` does **not** imply non-interactive mode. Use `--non-interactive` (
    - Disable auth only if you fully trust every local process.
    - Non‑loopback binds still require auth.
 
-<<<<<<< HEAD
 5) **Channels**
   - WhatsApp: optional QR login.
   - Telegram: bot token.
@@ -194,18 +145,6 @@ Tip: `--json` does **not** imply non-interactive mode. Use `--non-interactive` (
    - Signal: optional `signal-cli` install + account config.
    - iMessage: local `imsg` CLI path + DB access.
   - DM security: default is pairing. First DM sends a code; approve via `moltbot pairing approve <channel> <code>` or use allowlists.
-=======
-5. **Channels**
-   - [WhatsApp](/channels/whatsapp): optional QR login.
-   - [Telegram](/channels/telegram): bot token.
-   - [Discord](/channels/discord): bot token.
-   - [Google Chat](/channels/googlechat): service account JSON + webhook audience.
-   - [Mattermost](/channels/mattermost) (plugin): bot token + base URL.
-   - [Signal](/channels/signal): optional `signal-cli` install + account config.
-   - [BlueBubbles](/channels/bluebubbles): **recommended for iMessage**; server URL + password + webhook.
-   - [iMessage](/channels/imessage): legacy `imsg` CLI path + DB access.
-   - DM security: default is pairing. First DM sends a code; approve via `openclaw pairing approve <channel> <code>` or use allowlists.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 6. **Daemon install**
    - macOS: LaunchAgent
@@ -215,15 +154,9 @@ Tip: `--json` does **not** imply non-interactive mode. Use `--non-interactive` (
      - May prompt for sudo (writes `/var/lib/systemd/linger`); it tries without sudo first.
    - **Runtime selection:** Node (recommended; required for WhatsApp/Telegram). Bun is **not recommended**.
 
-<<<<<<< HEAD
 7) **Health check**
    - Starts the Gateway (if needed) and runs `moltbot health`.
    - Tip: `moltbot status --deep` adds gateway health probes to status output (requires a reachable gateway).
-=======
-7. **Health check**
-   - Starts the Gateway (if needed) and runs `openclaw health`.
-   - Tip: `openclaw status --deep` adds gateway health probes to status output (requires a reachable gateway).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 8. **Skills (recommended)**
    - Reads the available skills and checks requirements.
@@ -265,12 +198,7 @@ What it sets:
 - `agents.list[].agentDir`
 
 Notes:
-<<<<<<< HEAD
 - Default workspaces follow `~/clawd-<agentId>`.
-=======
-
-- Default workspaces follow `~/.openclaw/workspace-<agentId>`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Add `bindings` to route inbound messages (the wizard can do this).
 - Non-interactive flags: `--model`, `--agent-dir`, `--bind`, `--non-interactive`.
 
@@ -403,12 +331,7 @@ Notes:
 
 ## What the wizard writes
 
-<<<<<<< HEAD
 Typical fields in `~/.clawdbot/moltbot.json`:
-=======
-Typical fields in `~/.openclaw/openclaw.json`:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `agents.defaults.workspace`
 - `agents.defaults.model` / `models.providers` (if Minimax chosen)
 - `gateway.*` (mode, bind, auth, tailscale)
@@ -431,11 +354,8 @@ will prompt to install it (npm or a local path) before it can be configured.
 
 ## Related docs
 
-<<<<<<< HEAD
-=======
 - CLI command reference: [`openclaw onboard`](/cli/onboard)
 - Onboarding overview: [Onboarding Overview](/start/onboarding-overview)
->>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 - macOS app onboarding: [Onboarding](/start/onboarding)
 - Config reference: [Gateway configuration](/gateway/configuration)
 - Providers: [WhatsApp](/channels/whatsapp), [Telegram](/channels/telegram), [Discord](/channels/discord), [Google Chat](/channels/googlechat), [Signal](/channels/signal), [BlueBubbles](/channels/bluebubbles) (iMessage), [iMessage](/channels/imessage) (legacy)

@@ -64,8 +64,6 @@ describe("subscribeEmbeddedPiSession reply tags", () => {
     expect(onBlockReply.mock.calls[0]?.[0]?.text).toBe("Hello");
     expect(onBlockReply.mock.calls[1]?.[0]?.text).toBe("[[");
   });
-<<<<<<< HEAD
-=======
 
   it("streams partial replies past reply_to tags split across chunks", () => {
     const { session, emit } = createStubSessionHarness();
@@ -90,5 +88,4 @@ describe("subscribeEmbeddedPiSession reply tags", () => {
       expect(call[0]?.text?.includes("[[reply_to")).toBe(false);
     }
   });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 });

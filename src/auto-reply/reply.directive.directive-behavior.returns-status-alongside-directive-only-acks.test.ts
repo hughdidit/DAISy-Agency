@@ -12,7 +12,6 @@ import {
 } from "./reply.directive.directive-behavior.e2e-harness.js";
 import { getReplyFromConfig } from "./reply.js";
 
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -53,8 +52,6 @@ function _assertModelSelection(
   expect(entry?.providerOverride).toBe(selection.provider);
 }
 
-=======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
@@ -100,13 +97,8 @@ describe("directive behavior", () => {
         {
           agents: {
             defaults: {
-<<<<<<< HEAD
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
-=======
-              model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: path.join(home, "openclaw"),
->>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
             },
           },
           tools: {
@@ -142,7 +134,6 @@ describe("directive behavior", () => {
         },
         {},
 <<<<<<< HEAD
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -167,9 +158,6 @@ describe("directive behavior", () => {
           session: { store: path.join(home, "sessions.json") },
         },
 =======
-        makeRestrictedElevatedDisabledConfig(home),
->>>>>>> 165dbc232 (refactor(test): share directive elevated config)
-=======
         makeRestrictedElevatedDisabledConfig(home) as unknown as OpenClawConfig,
 >>>>>>> 7d2ef131c (chore: Fix types in tests 42/N.)
       );
@@ -183,7 +171,6 @@ describe("directive behavior", () => {
     await withTempHome(async (home) => {
       const storePath = path.join(home, "sessions.json");
 
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         { Body: "/queue interrupt", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
@@ -198,13 +185,6 @@ describe("directive behavior", () => {
           session: { store: storePath },
         },
       );
-=======
-      const res = await runQueueDirective({
-        home,
-        storePath,
-        body: "/queue interrupt",
-      });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
       const text = extractReplyText(res);
       expect(text).toMatch(/^⚙️ Queue mode set to interrupt\./);
@@ -218,7 +198,6 @@ describe("directive behavior", () => {
     await withTempHome(async (home) => {
       const storePath = path.join(home, "sessions.json");
 
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         {
           Body: "/queue collect debounce:2s cap:5 drop:old",
@@ -238,13 +217,6 @@ describe("directive behavior", () => {
           session: { store: storePath },
         },
       );
-=======
-      const res = await runQueueDirective({
-        home,
-        storePath,
-        body: "/queue collect debounce:2s cap:5 drop:old",
-      });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
       const text = extractReplyText(res);
       expect(text).toMatch(/^⚙️ Queue mode set to collect\./);
@@ -264,7 +236,6 @@ describe("directive behavior", () => {
     await withTempHome(async (home) => {
       const storePath = path.join(home, "sessions.json");
 
-<<<<<<< HEAD
       await getReplyFromConfig(
         { Body: "/queue interrupt", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
@@ -296,11 +267,6 @@ describe("directive behavior", () => {
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
-=======
-      await runQueueDirective({ home, storePath, body: "/queue interrupt" });
-      const res = await runQueueDirective({ home, storePath, body: "/queue reset" });
-      const text = extractReplyText(res);
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(text).toMatch(/^⚙️ Queue mode reset to default\./);
       const store = loadSessionStore(storePath);
       const entry = Object.values(store)[0];

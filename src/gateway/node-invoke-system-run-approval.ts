@@ -1,15 +1,10 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   formatExecCommand,
   validateSystemRunCommandConsistency,
 } from "../infra/system-run-command.js";
 import type { ExecApprovalManager, ExecApprovalRecord } from "./exec-approval-manager.js";
 import type { GatewayClient } from "./server-methods/types.js";
-=======
-=======
-import { resolveSystemRunApprovalRuntimeContext } from "../infra/system-run-approval-context.js";
->>>>>>> 4e690e09c (refactor(gateway): centralize system.run approval context and errors)
 import { resolveSystemRunCommand } from "../infra/system-run-command.js";
 import type { ExecApprovalRecord } from "./exec-approval-manager.js";
 import {
@@ -36,8 +31,6 @@ type SystemRunParamsLike = {
   runId?: unknown;
 };
 
-<<<<<<< HEAD
-=======
 type ApprovalLookup = {
   getSnapshot: (recordId: string) => ExecApprovalRecord | null;
   consumeAllowOnce?: (recordId: string) => boolean;
@@ -51,7 +44,6 @@ type ApprovalClient = {
   } | null;
 };
 
->>>>>>> 3f5e7f815 (fix(gateway): consume allow-once approvals to prevent replay)
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return null;
@@ -278,70 +270,12 @@ export function sanitizeSystemRunParamsForForwarding(opts: {
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (!approvalMatchesRequest(p, snapshot)) {
     return {
       ok: false,
       message: "approval id does not match request",
       details: { code: "APPROVAL_REQUEST_MISMATCH", runId },
     };
-=======
-  const approvalMatch = evaluateSystemRunApprovalMatch({
-    cmdText,
-    argv: cmdTextResolution.argv,
-    request: snapshot.request,
-    binding: {
-      cwd: normalizeString(p.cwd) ?? null,
-      agentId: normalizeString(p.agentId) ?? null,
-      sessionKey: normalizeString(p.sessionKey) ?? null,
-=======
-  const runtimeContext = resolveSystemRunApprovalRuntimeContext({
-    plan: snapshot.request.systemRunPlan ?? null,
-    command: p.command,
-    rawCommand: p.rawCommand,
-    cwd: p.cwd,
-    agentId: p.agentId,
-    sessionKey: p.sessionKey,
-  });
-  if (!runtimeContext.ok) {
-    return {
-      ok: false,
-      message: runtimeContext.message,
-      details: runtimeContext.details,
-    };
-  }
-  if (runtimeContext.plan) {
-    next.command = [...runtimeContext.plan.argv];
-    if (runtimeContext.rawCommand) {
-      next.rawCommand = runtimeContext.rawCommand;
-    } else {
-      delete next.rawCommand;
-    }
-    if (runtimeContext.cwd) {
-      next.cwd = runtimeContext.cwd;
-    } else {
-      delete next.cwd;
-    }
-    if (runtimeContext.agentId) {
-      next.agentId = runtimeContext.agentId;
-    } else {
-      delete next.agentId;
-    }
-    if (runtimeContext.sessionKey) {
-      next.sessionKey = runtimeContext.sessionKey;
-    } else {
-      delete next.sessionKey;
-    }
-  }
-
-  const approvalMatch = evaluateSystemRunApprovalMatch({
-    argv: runtimeContext.argv,
-    request: snapshot.request,
-    binding: {
-      cwd: runtimeContext.cwd,
-      agentId: runtimeContext.agentId,
-      sessionKey: runtimeContext.sessionKey,
->>>>>>> 4e690e09c (refactor(gateway): centralize system.run approval context and errors)
       env: p.env,
     },
   });

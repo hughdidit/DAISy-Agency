@@ -38,20 +38,11 @@ Moltbot will offer the local install path automatically.
 Details: [Plugins](/tools/plugin)
 
 ## Quick setup (beginner)
-<<<<<<< HEAD
 1) Install the Microsoft Teams plugin.
 2) Create an **Azure Bot** (App ID + client secret + tenant ID).
 3) Configure Moltbot with those credentials.
 4) Expose `/api/messages` (port 3978 by default) via a public URL or tunnel.
 5) Install the Teams app package and start the gateway.
-=======
-
-1. Install the Microsoft Teams plugin.
-2. Create an **Azure Bot** (App ID + client secret + tenant ID).
-3. Configure OpenClaw with those credentials.
-4. Expose `/api/messages` (port 3978 by default) via a public URL or tunnel.
-5. Install the Teams app package and start the gateway.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Minimal config:
 
@@ -72,12 +63,7 @@ Minimal config:
 Note: group chats are blocked by default (`channels.msteams.groupPolicy: "allowlist"`). To allow group replies, set `channels.msteams.groupAllowFrom` (or use `groupPolicy: "open"` to allow any member, mention-gated).
 
 ## Goals
-<<<<<<< HEAD
 - Talk to Moltbot via Teams DMs, group chats, or channels.
-=======
-
-- Talk to OpenClaw via Teams DMs, group chats, or channels.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Keep routing deterministic: replies always go back to the channel they arrived on.
 - Default to safe channel behavior (mentions required unless configured otherwise).
 
@@ -166,7 +152,6 @@ Before configuring Moltbot, you need to create an Azure Bot resource.
 1. Go to [Create Azure Bot](https://portal.azure.com/#create/Microsoft.AzureBot)
 2. Fill in the **Basics** tab:
 
-<<<<<<< HEAD
    | Field | Value |
    |-------|-------|
    | **Bot handle** | Your bot name, e.g., `moltbot-msteams` (must be unique) |
@@ -175,16 +160,6 @@ Before configuring Moltbot, you need to create an Azure Bot resource.
    | **Pricing tier** | **Free** for dev/testing |
    | **Type of App** | **Single Tenant** (recommended - see note below) |
    | **Creation type** | **Create new Microsoft App ID** |
-=======
-   | Field              | Value                                                    |
-   | ------------------ | -------------------------------------------------------- |
-   | **Bot handle**     | Your bot name, e.g., `openclaw-msteams` (must be unique) |
-   | **Subscription**   | Select your Azure subscription                           |
-   | **Resource group** | Create new or use existing                               |
-   | **Pricing tier**   | **Free** for dev/testing                                 |
-   | **Type of App**    | **Single Tenant** (recommended - see note below)         |
-   | **Creation type**  | **Create new Microsoft App ID**                          |
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 > **Deprecation notice:** Creation of new multi-tenant bots was deprecated after 2025-07-31. Use **Single Tenant** for new bots.
 
@@ -278,12 +253,7 @@ This is often easier than hand-editing JSON manifests.
    - Create icons: `outline.png` (32x32) and `color.png` (192x192).
    - Zip all three files together: `manifest.json`, `outline.png`, `color.png`.
 
-<<<<<<< HEAD
 4. **Configure Moltbot**
-=======
-4. **Configure OpenClaw**
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    ```json
    {
      "msteams": {
@@ -616,12 +586,7 @@ Per-user sharing is more secure as only the chat participants can access the fil
 Uploaded files are stored in a `/MoltbotShared/` folder in the configured SharePoint site's default document library.
 
 ## Polls (Adaptive Cards)
-<<<<<<< HEAD
 Moltbot sends Teams polls as Adaptive Cards (there is no native Teams poll API).
-=======
-
-OpenClaw sends Teams polls as Adaptive Cards (there is no native Teams poll API).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 - CLI: `moltbot message poll --channel msteams --target conversation:<id> ...`
 - Votes are recorded by the gateway in `~/.clawdbot/msteams-polls.json`.

@@ -10,19 +10,11 @@ export const NODE_WINDOWS_TASK_NAME = "Moltbot Node";
 export const NODE_SERVICE_MARKER = "moltbot";
 export const NODE_SERVICE_KIND = "node";
 export const NODE_WINDOWS_TASK_SCRIPT_NAME = "node.cmd";
-<<<<<<< HEAD
 export const LEGACY_GATEWAY_LAUNCH_AGENT_LABELS = [
   "com.clawdbot.gateway",
   "com.steipete.clawdbot.gateway",
 ];
 export const LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES: string[] = [];
-=======
-export const LEGACY_GATEWAY_LAUNCH_AGENT_LABELS: string[] = [];
-export const LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES: string[] = [
-  "clawdbot-gateway",
-  "moltbot-gateway",
-];
->>>>>>> 8a8faf066 (doctor: clean up legacy Linux gateway services (#21188))
 export const LEGACY_GATEWAY_WINDOWS_TASK_NAMES: string[] = [];
 
 export function normalizeGatewayProfile(profile?: string): string | null {
@@ -56,28 +48,14 @@ export function resolveLegacyGatewayLaunchAgentLabels(profile?: string): string[
 
 export function resolveGatewaySystemdServiceName(profile?: string): string {
   const suffix = resolveGatewayProfileSuffix(profile);
-<<<<<<< HEAD
   if (!suffix) return GATEWAY_SYSTEMD_SERVICE_NAME;
   return `moltbot-gateway${suffix}`;
-=======
-  if (!suffix) {
-    return GATEWAY_SYSTEMD_SERVICE_NAME;
-  }
-  return `openclaw-gateway${suffix}`;
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 export function resolveGatewayWindowsTaskName(profile?: string): string {
   const normalized = normalizeGatewayProfile(profile);
-<<<<<<< HEAD
   if (!normalized) return GATEWAY_WINDOWS_TASK_NAME;
   return `Moltbot Gateway (${normalized})`;
-=======
-  if (!normalized) {
-    return GATEWAY_WINDOWS_TASK_NAME;
-  }
-  return `OpenClaw Gateway (${normalized})`;
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 export function formatGatewayServiceDescription(params?: {
@@ -87,23 +65,10 @@ export function formatGatewayServiceDescription(params?: {
   const profile = normalizeGatewayProfile(params?.profile);
   const version = params?.version?.trim();
   const parts: string[] = [];
-<<<<<<< HEAD
   if (profile) parts.push(`profile: ${profile}`);
   if (version) parts.push(`v${version}`);
   if (parts.length === 0) return "Moltbot Gateway";
   return `Moltbot Gateway (${parts.join(", ")})`;
-=======
-  if (profile) {
-    parts.push(`profile: ${profile}`);
-  }
-  if (version) {
-    parts.push(`v${version}`);
-  }
-  if (parts.length === 0) {
-    return "OpenClaw Gateway";
-  }
-  return `OpenClaw Gateway (${parts.join(", ")})`;
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 export function resolveGatewayServiceDescription(params: {
@@ -134,13 +99,6 @@ export function resolveNodeWindowsTaskName(): string {
 
 export function formatNodeServiceDescription(params?: { version?: string }): string {
   const version = params?.version?.trim();
-<<<<<<< HEAD
   if (!version) return "Moltbot Node Host";
   return `Moltbot Node Host (v${version})`;
-=======
-  if (!version) {
-    return "OpenClaw Node Host";
-  }
-  return `OpenClaw Node Host (v${version})`;
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }

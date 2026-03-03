@@ -7,11 +7,8 @@ import {
   upsertPendingPairingRequest,
   writeJsonAtomic,
 } from "./pairing-files.js";
-<<<<<<< HEAD
-=======
 import { rejectPendingPairingRequest } from "./pairing-pending.js";
 import { generatePairingToken, verifyPairingToken } from "./pairing-token.js";
->>>>>>> 06b0a60be (refactor(daemon): share runtime and service probe helpers)
 
 export type NodePairingPendingRequest = {
   requestId: string;

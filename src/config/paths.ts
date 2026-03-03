@@ -6,12 +6,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
-=======
-import type { OpenClawConfig } from "./types.js";
-import { expandHomePrefix, resolveRequiredHomeDir } from "../infra/home-dir.js";
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 =======
 import { expandHomePrefix, resolveRequiredHomeDir } from "../infra/home-dir.js";
 import type { OpenClawConfig } from "./types.js";
@@ -46,51 +41,21 @@ export function resolveIsNixMode(env: NodeJS.ProcessEnv = process.env): boolean 
 
 export const isNixMode = resolveIsNixMode();
 
-<<<<<<< HEAD
 const LEGACY_STATE_DIRNAME = ".clawdbot";
 const NEW_STATE_DIRNAME = ".moltbot";
 const CONFIG_FILENAME = "moltbot.json";
 const LEGACY_CONFIG_FILENAME = "clawdbot.json";
-=======
-const LEGACY_STATE_DIRNAMES = [".clawdbot", ".moldbot"] as const;
-const NEW_STATE_DIRNAME = ".openclaw";
-const CONFIG_FILENAME = "openclaw.json";
-const LEGACY_CONFIG_FILENAMES = ["clawdbot.json", "moldbot.json"] as const;
->>>>>>> 3b56a6252 (chore!: remove moltbot legacy state/config support)
 
-<<<<<<< HEAD
 function legacyStateDir(homedir: () => string = os.homedir): string {
   return path.join(homedir(), LEGACY_STATE_DIRNAME);
-=======
-function resolveDefaultHomeDir(): string {
-  return resolveRequiredHomeDir(process.env, os.homedir);
-}
-
-/** Build a homedir thunk that respects OPENCLAW_HOME for the given env. */
-function envHomedir(env: NodeJS.ProcessEnv): () => string {
-  return () => resolveRequiredHomeDir(env, os.homedir);
-}
-
-function legacyStateDirs(homedir: () => string = resolveDefaultHomeDir): string[] {
-  return LEGACY_STATE_DIRNAMES.map((dir) => path.join(homedir(), dir));
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 }
 
 function newStateDir(homedir: () => string = resolveDefaultHomeDir): string {
   return path.join(homedir(), NEW_STATE_DIRNAME);
 }
 
-<<<<<<< HEAD
 export function resolveLegacyStateDir(homedir: () => string = os.homedir): string {
   return legacyStateDir(homedir);
-=======
-export function resolveLegacyStateDir(homedir: () => string = resolveDefaultHomeDir): string {
-  return legacyStateDirs(homedir)[0] ?? newStateDir(homedir);
-}
-
-export function resolveLegacyStateDirs(homedir: () => string = resolveDefaultHomeDir): string[] {
-  return legacyStateDirs(homedir);
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 }
 
 export function resolveNewStateDir(homedir: () => string = resolveDefaultHomeDir): string {
@@ -108,46 +73,19 @@ export function resolveStateDir(
   homedir: () => string = envHomedir(env),
 ): string {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const override = env.MOLTBOT_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
   if (override) return resolveUserPath(override);
   const legacyDir = legacyStateDir(homedir);
-=======
-=======
-  const effectiveHomedir = () => resolveRequiredHomeDir(env, homedir);
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
   const override = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
   if (override) {
     return resolveUserPath(override, env, effectiveHomedir);
   }
-<<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const newDir = newStateDir(homedir);
   const hasLegacy = fs.existsSync(legacyDir);
-=======
-  const newDir = newStateDir(effectiveHomedir);
-  const legacyDirs = legacyStateDirs(effectiveHomedir);
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
   const hasNew = fs.existsSync(newDir);
-<<<<<<< HEAD
   if (!hasLegacy && hasNew) return newDir;
   return legacyDir;
-=======
-  if (hasNew) {
-    return newDir;
-  }
-  const existingLegacy = legacyDirs.find((dir) => {
-    try {
-      return fs.existsSync(dir);
-    } catch {
-      return false;
-    }
-  });
-  if (existingLegacy) {
-    return existingLegacy;
-  }
-  return newDir;
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 function resolveUserPath(
@@ -181,15 +119,8 @@ export function resolveCanonicalConfigPath(
   env: NodeJS.ProcessEnv = process.env,
   stateDir: string = resolveStateDir(env, envHomedir(env)),
 ): string {
-<<<<<<< HEAD
   const override = env.MOLTBOT_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
   if (override) return resolveUserPath(override);
-=======
-  const override = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
-  if (override) {
-    return resolveUserPath(override, env, envHomedir(env));
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return path.join(stateDir, CONFIG_FILENAME);
 }
 
@@ -223,17 +154,9 @@ export function resolveConfigPath(
   stateDir: string = resolveStateDir(env, envHomedir(env)),
   homedir: () => string = envHomedir(env),
 ): string {
-<<<<<<< HEAD
   const override = env.MOLTBOT_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
   if (override) return resolveUserPath(override);
   const stateOverride = env.MOLTBOT_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
-=======
-  const override = env.OPENCLAW_CONFIG_PATH?.trim();
-  if (override) {
-    return resolveUserPath(override, env, homedir);
-  }
-  const stateOverride = env.OPENCLAW_STATE_DIR?.trim();
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const candidates = [
     path.join(stateDir, CONFIG_FILENAME),
     path.join(stateDir, LEGACY_CONFIG_FILENAME),
@@ -261,26 +184,16 @@ export function resolveConfigPath(
 export const CONFIG_PATH = resolveConfigPathCandidate();
 
 /**
-<<<<<<< HEAD
  * Resolve default config path candidates across new + legacy locations.
  * Order: explicit config path → state-dir-derived paths → new default → legacy default.
-=======
- * Resolve default config path candidates across default locations.
- * Order: explicit config path → state-dir-derived paths → new default.
->>>>>>> 7b172d61c (Revert "fix: respect OPENCLAW_HOME for isolated gateway instances")
  */
 export function resolveDefaultConfigCandidates(
   env: NodeJS.ProcessEnv = process.env,
   homedir: () => string = envHomedir(env),
 ): string[] {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const explicit = env.MOLTBOT_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
   if (explicit) return [resolveUserPath(explicit)];
-=======
-=======
-  const effectiveHomedir = () => resolveRequiredHomeDir(env, homedir);
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
   const explicit = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
   if (explicit) {
     return [resolveUserPath(explicit, env, effectiveHomedir)];
@@ -288,7 +201,6 @@ export function resolveDefaultConfigCandidates(
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   const candidates: string[] = [];
-<<<<<<< HEAD
   const moltbotStateDir = env.MOLTBOT_STATE_DIR?.trim();
   if (moltbotStateDir) {
     candidates.push(path.join(resolveUserPath(moltbotStateDir), CONFIG_FILENAME));
@@ -304,20 +216,6 @@ export function resolveDefaultConfigCandidates(
   candidates.push(path.join(newStateDir(homedir), LEGACY_CONFIG_FILENAME));
   candidates.push(path.join(legacyStateDir(homedir), CONFIG_FILENAME));
   candidates.push(path.join(legacyStateDir(homedir), LEGACY_CONFIG_FILENAME));
-=======
-  const openclawStateDir = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
-  if (openclawStateDir) {
-    const resolved = resolveUserPath(openclawStateDir, env, effectiveHomedir);
-    candidates.push(path.join(resolved, CONFIG_FILENAME));
-    candidates.push(...LEGACY_CONFIG_FILENAMES.map((name) => path.join(resolved, name)));
-  }
-
-  const defaultDirs = [newStateDir(effectiveHomedir), ...legacyStateDirs(effectiveHomedir)];
-  for (const dir of defaultDirs) {
-    candidates.push(path.join(dir, CONFIG_FILENAME));
-    candidates.push(...LEGACY_CONFIG_FILENAMES.map((name) => path.join(dir, name)));
-  }
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
   return candidates;
 }
 
@@ -348,15 +246,8 @@ export function resolveOAuthDir(
   env: NodeJS.ProcessEnv = process.env,
   stateDir: string = resolveStateDir(env, envHomedir(env)),
 ): string {
-<<<<<<< HEAD
   const override = env.CLAWDBOT_OAUTH_DIR?.trim();
   if (override) return resolveUserPath(override);
-=======
-  const override = env.OPENCLAW_OAUTH_DIR?.trim();
-  if (override) {
-    return resolveUserPath(override, env, envHomedir(env));
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return path.join(stateDir, "credentials");
 }
 
@@ -371,11 +262,7 @@ export function resolveGatewayPort(
   cfg?: MoltbotConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): number {
-<<<<<<< HEAD
   const envRaw = env.CLAWDBOT_GATEWAY_PORT?.trim();
-=======
-  const envRaw = env.OPENCLAW_GATEWAY_PORT?.trim() || env.CLAWDBOT_GATEWAY_PORT?.trim();
->>>>>>> 7b172d61c (Revert "fix: respect OPENCLAW_HOME for isolated gateway instances")
   if (envRaw) {
     const parsed = Number.parseInt(envRaw, 10);
     if (Number.isFinite(parsed) && parsed > 0) {

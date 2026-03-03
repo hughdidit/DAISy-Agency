@@ -11,17 +11,7 @@ import {
 } from "./auth.js";
 import { normalizeControlUiBasePath } from "./control-ui-shared.js";
 import { resolveHooksConfig } from "./hooks.js";
-<<<<<<< HEAD
 import { isLoopbackHost, resolveGatewayBindHost } from "./net.js";
-=======
-import {
-  isLoopbackHost,
-  isTrustedProxyAddress,
-  isValidIPv4,
-  resolveGatewayBindHost,
-} from "./net.js";
-import { mergeGatewayTailscaleConfig } from "./startup-auth.js";
->>>>>>> 094dbdaf2 (fix(gateway): require loopback proxy IP for trusted-proxy + bind=loopback (#22082))
 
 export type GatewayRuntimeConfig = {
   bindHost: string;

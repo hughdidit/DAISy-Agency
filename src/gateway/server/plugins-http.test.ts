@@ -1,12 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { makeMockHttpResponse } from "../test-http-response.js";
-import { createTestRegistry } from "./__tests__/test-utils.js";
-<<<<<<< HEAD
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 import { createGatewayPluginRequestHandler } from "./plugins-http.js";
 import { createTestRegistry } from "./__tests__/test-utils.js";
 =======

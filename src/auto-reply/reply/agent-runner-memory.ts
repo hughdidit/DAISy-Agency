@@ -11,12 +11,7 @@ import { resolveSandboxConfigForAgent, resolveSandboxRuntimeStatus } from "../..
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -58,17 +53,10 @@ import { registerAgentRunContext } from "../../infra/agent-events.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { TemplateContext } from "../templating.js";
 import type { VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions } from "../types.js";
 import { buildThreadingToolContext, resolveEnforceFinalTag } from "./agent-runner-utils.js";
-=======
-=======
-import type { TemplateContext } from "../templating.js";
-import type { VerboseLevel } from "../thinking.js";
-import type { GetReplyOptions } from "../types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -89,11 +77,7 @@ import {
   resolveModelFallbackOptions,
 } from "./agent-runner-utils.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
-=======
-import { resolveEnforceFinalTag } from "./agent-runner-utils.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> d7a6a0a0b (refactor(reply): share embedded run fallback/context builders)
 import {
@@ -547,7 +531,6 @@ export async function runMemoryFlushIfNeeded(params: {
           authProfile,
         });
         return runEmbeddedPiAgent({
-<<<<<<< HEAD
           sessionId: params.followupRun.run.sessionId,
           sessionKey: params.sessionKey,
           messageProvider: params.sessionCtx.Provider?.trim().toLowerCase() || undefined,
@@ -564,11 +547,6 @@ export async function runMemoryFlushIfNeeded(params: {
           senderName: params.sessionCtx.SenderName?.trim() || undefined,
           senderUsername: params.sessionCtx.SenderUsername?.trim() || undefined,
           senderE164: params.sessionCtx.SenderE164?.trim() || undefined,
-=======
-          ...embeddedContext,
-          ...senderContext,
-<<<<<<< HEAD
->>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
           sessionFile: params.followupRun.run.sessionFile,
           workspaceDir: params.followupRun.run.workspaceDir,
           agentDir: params.followupRun.run.agentDir,

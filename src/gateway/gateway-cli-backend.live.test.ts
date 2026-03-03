@@ -93,19 +93,9 @@ function parseJsonStringArray(name: string, raw?: string): string[] | undefined 
 
 function parseImageMode(raw?: string): "list" | "repeat" | undefined {
   const trimmed = raw?.trim();
-<<<<<<< HEAD
   if (!trimmed) return undefined;
   if (trimmed === "list" || trimmed === "repeat") return trimmed;
   throw new Error("CLAWDBOT_LIVE_CLI_BACKEND_IMAGE_MODE must be 'list' or 'repeat'.");
-=======
-  if (!trimmed) {
-    return undefined;
-  }
-  if (trimmed === "list" || trimmed === "repeat") {
-    return trimmed;
-  }
-  throw new Error("OPENCLAW_LIVE_CLI_BACKEND_IMAGE_MODE must be 'list' or 'repeat'.");
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 function withMcpConfigOverrides(args: string[], mcpConfigPath: string): string[] {
@@ -381,7 +371,6 @@ describeLive("gateway live (cli backend)", () => {
       client.stop();
       await server.close();
       await fs.rm(tempDir, { recursive: true, force: true });
-<<<<<<< HEAD
       if (previous.configPath === undefined) delete process.env.CLAWDBOT_CONFIG_PATH;
       else process.env.CLAWDBOT_CONFIG_PATH = previous.configPath;
       if (previous.token === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
@@ -398,48 +387,6 @@ describeLive("gateway live (cli backend)", () => {
       else process.env.ANTHROPIC_API_KEY = previous.anthropicApiKey;
       if (previous.anthropicApiKeyOld === undefined) delete process.env.ANTHROPIC_API_KEY_OLD;
       else process.env.ANTHROPIC_API_KEY_OLD = previous.anthropicApiKeyOld;
-=======
-      if (previous.configPath === undefined) {
-        delete process.env.OPENCLAW_CONFIG_PATH;
-      } else {
-        process.env.OPENCLAW_CONFIG_PATH = previous.configPath;
-      }
-      if (previous.token === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = previous.token;
-      }
-      if (previous.skipChannels === undefined) {
-        delete process.env.OPENCLAW_SKIP_CHANNELS;
-      } else {
-        process.env.OPENCLAW_SKIP_CHANNELS = previous.skipChannels;
-      }
-      if (previous.skipGmail === undefined) {
-        delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
-      } else {
-        process.env.OPENCLAW_SKIP_GMAIL_WATCHER = previous.skipGmail;
-      }
-      if (previous.skipCron === undefined) {
-        delete process.env.OPENCLAW_SKIP_CRON;
-      } else {
-        process.env.OPENCLAW_SKIP_CRON = previous.skipCron;
-      }
-      if (previous.skipCanvas === undefined) {
-        delete process.env.OPENCLAW_SKIP_CANVAS_HOST;
-      } else {
-        process.env.OPENCLAW_SKIP_CANVAS_HOST = previous.skipCanvas;
-      }
-      if (previous.anthropicApiKey === undefined) {
-        delete process.env.ANTHROPIC_API_KEY;
-      } else {
-        process.env.ANTHROPIC_API_KEY = previous.anthropicApiKey;
-      }
-      if (previous.anthropicApiKeyOld === undefined) {
-        delete process.env.ANTHROPIC_API_KEY_OLD;
-      } else {
-        process.env.ANTHROPIC_API_KEY_OLD = previous.anthropicApiKeyOld;
-      }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   }, 60_000);
 });

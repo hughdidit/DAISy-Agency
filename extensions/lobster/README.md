@@ -5,11 +5,7 @@ Adds the `lobster` agent tool as an **optional** plugin tool.
 ## What this is
 
 - Lobster is a standalone workflow shell (typed JSON-first pipelines + approvals/resume).
-<<<<<<< HEAD
 - This plugin integrates Lobster with Clawdbot *without core changes*.
-=======
-- This plugin integrates Lobster with OpenClaw _without core changes_.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Enable
 

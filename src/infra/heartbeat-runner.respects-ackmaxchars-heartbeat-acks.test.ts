@@ -1,15 +1,8 @@
 import fs from "node:fs/promises";
-<<<<<<< HEAD
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
-=======
-import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 import * as replyModule from "../auto-reply/reply.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
@@ -20,7 +13,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveMainSessionKey } from "../config/sessions.js";
-<<<<<<< HEAD
 import { runHeartbeatOnce } from "./heartbeat-runner.js";
 <<<<<<< HEAD
 import { setActivePluginRegistry } from "../plugins/runtime.js";
@@ -30,19 +22,11 @@ import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
 import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
-=======
-=======
-=======
->>>>>>> 4520fdda6 (test(heartbeat): dedupe sandbox/session helpers and collapse ack cases)
 import { runHeartbeatOnce, type HeartbeatDeps } from "./heartbeat-runner.js";
 >>>>>>> f476c8b48 (Fix #12767: Heartbeat  strip responsePrefix before HEARTBEAT_OK suppression)
 import { installHeartbeatRunnerTestRuntime } from "./heartbeat-runner.test-harness.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
-=======
-import { seedSessionStore, withTempHeartbeatSandbox } from "./heartbeat-runner.test-utils.js";
->>>>>>> 7649f9cba (refactor(test): share heartbeat sandbox fixtures)
 =======
 import {
   seedMainSessionStore,
@@ -201,18 +185,11 @@ describe("runHeartbeatOnce ack handling", () => {
   }
 
   it("respects ackMaxChars for heartbeat acks", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
       const cfg: MoltbotConfig = {
-=======
-    await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      const cfg: OpenClawConfig = {
->>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -260,18 +237,11 @@ describe("runHeartbeatOnce ack handling", () => {
   });
 
   it("sends HEARTBEAT_OK when visibility.showOk is true", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
       const cfg: MoltbotConfig = {
-=======
-    await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      const cfg: OpenClawConfig = {
->>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -354,18 +324,11 @@ describe("runHeartbeatOnce ack handling", () => {
   });
 
   it("skips heartbeat LLM calls when visibility disables all output", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
       const cfg: MoltbotConfig = {
-=======
-    await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      const cfg: OpenClawConfig = {
->>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -417,18 +380,11 @@ describe("runHeartbeatOnce ack handling", () => {
   });
 
   it("skips delivery for markup-wrapped HEARTBEAT_OK", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
       const cfg: MoltbotConfig = {
-=======
-    await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      const cfg: OpenClawConfig = {
->>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -473,17 +429,12 @@ describe("runHeartbeatOnce ack handling", () => {
   });
 
   it("does not regress updatedAt when restoring heartbeat sessions", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-=======
-    await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
->>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
       const originalUpdatedAt = 1000;
       const bumpedUpdatedAt = 2000;
-<<<<<<< HEAD
 <<<<<<< HEAD
       const cfg: MoltbotConfig = {
         agents: {
@@ -494,14 +445,6 @@ describe("runHeartbeatOnce ack handling", () => {
               target: "whatsapp",
             },
           },
-=======
-      const cfg = createHeartbeatConfig({
-        tmpDir,
-        storePath,
-        heartbeat: {
-          every: "5m",
-          target: "whatsapp",
->>>>>>> 9c6e879a0 (refactor(test): dedupe heartbeat runner e2e scaffolding)
         },
         channels: { whatsapp: { allowFrom: ["*"] } },
 =======
@@ -545,18 +488,11 @@ describe("runHeartbeatOnce ack handling", () => {
   });
 
   it("skips WhatsApp delivery when not linked or running", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
       const cfg: MoltbotConfig = {
-=======
-    await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      const cfg: OpenClawConfig = {
->>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -600,7 +536,6 @@ describe("runHeartbeatOnce ack handling", () => {
     });
   });
 
-<<<<<<< HEAD
   it("passes through accountId for telegram heartbeats", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
@@ -610,16 +545,7 @@ describe("runHeartbeatOnce ack handling", () => {
     process.env.TELEGRAM_BOT_TOKEN = "";
     try {
       const cfg: MoltbotConfig = {
-=======
-=======
-  async function expectTelegramHeartbeatAccountId(params: {
-    heartbeat: Record<string, unknown>;
-    telegram: Record<string, unknown>;
-    expectedAccountId: string | undefined;
-  }): Promise<void> {
->>>>>>> 937e1c21f (refactor(test): table telegram heartbeat account cases)
     await withTempTelegramHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
-<<<<<<< HEAD
       const cfg: OpenClawConfig = {
 >>>>>>> 9c5404d95 (refactor(test): dedupe telegram heartbeat test setup)
         agents: {
@@ -634,16 +560,6 @@ describe("runHeartbeatOnce ack handling", () => {
       const sessionKey = resolveMainSessionKey(cfg);
 
       await seedSessionStore(storePath, sessionKey, {
-=======
-      const cfg = createHeartbeatConfig({
-        tmpDir,
-        storePath,
-        heartbeat: params.heartbeat,
-        channels: { telegram: params.telegram },
-      });
-<<<<<<< HEAD
-      await seedMainSession(storePath, cfg, {
->>>>>>> 9c6e879a0 (refactor(test): dedupe heartbeat runner e2e scaffolding)
 =======
       await seedMainSessionStore(storePath, cfg, {
 >>>>>>> 4520fdda6 (test(heartbeat): dedupe sandbox/session helpers and collapse ack cases)
@@ -693,7 +609,6 @@ describe("runHeartbeatOnce ack handling", () => {
         accounts: {
           work: { botToken: "test-bot-token-123" },
         },
-<<<<<<< HEAD
         session: { store: storePath },
       };
       const sessionKey = resolveMainSessionKey(cfg);
@@ -737,10 +652,6 @@ describe("runHeartbeatOnce ack handling", () => {
     process.env.TELEGRAM_BOT_TOKEN = "";
     try {
       const cfg: MoltbotConfig = {
-=======
-    await withTempTelegramHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
-      const cfg: OpenClawConfig = {
->>>>>>> 9c5404d95 (refactor(test): dedupe telegram heartbeat test setup)
         agents: {
           defaults: {
             workspace: tmpDir,

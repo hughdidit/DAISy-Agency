@@ -38,11 +38,8 @@ export type {
 export {
   calculateAuthProfileCooldownMs,
   clearAuthProfileCooldown,
-<<<<<<< HEAD
-=======
   clearExpiredCooldowns,
   getSoonestCooldownExpiry,
->>>>>>> 03cadc4b7 (fix(auth): auto-expire stale auth profile cooldowns and reset error count)
   isProfileInCooldown,
   markAuthProfileCooldown,
   markAuthProfileFailure,

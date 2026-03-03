@@ -1,10 +1,7 @@
 import fs from "node:fs";
-<<<<<<< HEAD
 import os from "node:os";
 import path from "node:path";
 
-=======
->>>>>>> e3292b9af (test: dedupe sessions command tests and cover active filtering)
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   makeRuntime,
@@ -74,8 +71,6 @@ describe("sessionsCommand", () => {
     expect(row).toContain("think:high");
     expect(row).toContain("5m ago");
   });
-<<<<<<< HEAD
-=======
 
   it("exports freshness metadata in JSON output", async () => {
     const store = writeStore({
@@ -154,5 +149,4 @@ describe("sessionsCommand", () => {
 
     fs.rmSync(store);
   });
->>>>>>> e3292b9af (test: dedupe sessions command tests and cover active filtering)
 });

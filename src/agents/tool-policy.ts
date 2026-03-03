@@ -1,15 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import {
-  expandToolGroups,
-  normalizeToolList,
-  normalizeToolName,
-  resolveToolProfilePolicy,
-  TOOL_GROUPS,
-} from "./tool-policy-shared.js";
->>>>>>> abf3dfc37 (refactor(agents): reuse shared tool-policy base helpers)
 import type { AnyAgentTool } from "./tools/common.js";
 export {
   expandToolGroups,
@@ -33,7 +22,6 @@ function wrapOwnerOnlyToolExecution(tool: AnyAgentTool, senderIsOwner: boolean):
   };
 }
 
-<<<<<<< HEAD
 >>>>>>> 5cc631cc9 (fix(agents): harden model-skip and tool-policy imports)
 export type ToolProfileId = "minimal" | "coding" | "messaging" | "full";
 
@@ -124,29 +112,6 @@ export function normalizeToolList(list?: string[]) {
     return [];
   }
   return list.map(normalizeToolName).filter(Boolean);
-=======
-const OWNER_ONLY_TOOL_NAME_FALLBACKS = new Set<string>(["whatsapp_login", "cron", "gateway"]);
-
-export function isOwnerOnlyToolName(name: string) {
-  return OWNER_ONLY_TOOL_NAME_FALLBACKS.has(normalizeToolName(name));
-}
-
-function isOwnerOnlyTool(tool: AnyAgentTool) {
-  return tool.ownerOnly === true || isOwnerOnlyToolName(tool.name);
-}
-
-export function applyOwnerOnlyToolPolicy(tools: AnyAgentTool[], senderIsOwner: boolean) {
-  const withGuard = tools.map((tool) => {
-    if (!isOwnerOnlyTool(tool)) {
-      return tool;
-    }
-    return wrapOwnerOnlyToolExecution(tool, senderIsOwner);
-  });
-  if (senderIsOwner) {
-    return withGuard;
-  }
-  return withGuard.filter((tool) => !isOwnerOnlyTool(tool));
->>>>>>> abf3dfc37 (refactor(agents): reuse shared tool-policy base helpers)
 }
 
 export type ToolPolicyLike = {

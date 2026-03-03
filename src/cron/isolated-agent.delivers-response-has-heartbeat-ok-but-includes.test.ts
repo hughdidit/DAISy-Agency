@@ -1,5 +1,4 @@
 import "./isolated-agent.mocks.js";
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 import os from "node:os";
@@ -16,15 +15,6 @@ import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.j
 import type { CliDeps } from "../cli/deps.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { CronJob } from "./types.js";
-=======
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { CliDeps } from "../cli/deps.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { CronJob } from "./types.js";
-import { telegramOutbound } from "../channels/plugins/outbound/telegram.js";
-import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
->>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
@@ -42,13 +32,10 @@ vi.mock("../agents/subagent-announce.js", () => ({
 =======
 >>>>>>> 9b9dc65a2 (fix(test): remove unused cron imports)
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 <<<<<<< HEAD
 >>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 import { loadModelCatalog } from "../agents/model-catalog.js";
-=======
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -65,7 +52,6 @@ import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
 import type { CliDeps } from "../cli/deps.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
-<<<<<<< HEAD
 
 let fixtureRoot = "";
 let fixtureCount = 0;
@@ -73,11 +59,6 @@ let fixtureCount = 0;
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 <<<<<<< HEAD
   return withTempHomeBase(fn, { prefix: "moltbot-cron-" });
-=======
-  const home = path.join(fixtureRoot, `home-${fixtureCount++}`);
-  await fs.mkdir(path.join(home, ".openclaw", "agents", "main", "sessions"), { recursive: true });
-  return await fn(home);
->>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 }
 
 async function writeSessionStore(home: string) {
@@ -142,7 +123,6 @@ import {
   withTempCronHome,
   writeSessionStore,
 } from "./isolated-agent.test-harness.js";
-<<<<<<< HEAD
 >>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 
 describe("runCronIsolatedAgentTurn", () => {
@@ -152,17 +132,6 @@ describe("runCronIsolatedAgentTurn", () => {
     vi.mocked(loadModelCatalog).mockResolvedValue([]);
     vi.mocked(runSubagentAnnounceFlow).mockReset().mockResolvedValue(true);
 <<<<<<< HEAD
-=======
-    setActivePluginRegistry(
-      createTestRegistry([
-        {
-          pluginId: "telegram",
-          plugin: createOutboundTestPlugin({ id: "telegram", outbound: telegramOutbound }),
-          source: "test",
-        },
-      ]),
-    );
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 =======
 import { setupIsolatedAgentTurnMocks } from "./isolated-agent.test-setup.js";
 
@@ -286,14 +255,9 @@ describe("runCronIsolatedAgentTurn", () => {
         deps,
       });
 
-<<<<<<< HEAD
       expect(res.status).toBe("ok");
 <<<<<<< HEAD
       expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
-=======
-      expect(deps.sendMessageTelegram).toHaveBeenCalled();
-      expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     });
   });
 =======
@@ -334,13 +298,6 @@ describe("runCronIsolatedAgentTurn", () => {
       expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-      const announceArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
-=======
-      const keepArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
->>>>>>> 445b4facd (perf(test): collapse isolated cron heartbeat delivery cases)
         | { cleanup?: "keep" | "delete" }
         | undefined;
       expect(keepArgs?.cleanup).toBe("keep");
@@ -369,12 +326,8 @@ describe("runCronIsolatedAgentTurn", () => {
       const deleteArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
         | { cleanup?: "keep" | "delete" }
         | undefined;
-<<<<<<< HEAD
       expect(announceArgs?.cleanup).toBe("delete");
 >>>>>>> 0942ecb54 (fix(cron): use job config for cleanup instead of hardcoded "keep" (openclaw#15427) thanks @arosstale)
-=======
-      expect(deleteArgs?.cleanup).toBe("delete");
->>>>>>> 445b4facd (perf(test): collapse isolated cron heartbeat delivery cases)
       expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     });

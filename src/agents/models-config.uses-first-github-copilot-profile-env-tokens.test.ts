@@ -1,16 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
-import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
->>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 =======
 import { captureEnv } from "../test-utils/env.js";
 >>>>>>> 76015aab2 (refactor(test): dedupe copilot env restores)
@@ -28,7 +22,6 @@ import {
 import { ensureOpenClawModelsJson } from "./models-config.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
-<<<<<<< HEAD
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-models-" });
 }
@@ -56,9 +49,6 @@ const _MODELS_CONFIG: MoltbotConfig = {
     },
   },
 };
-=======
-installModelsConfigTestHooks({ restoreFetch: true });
->>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 
 describe("models-config", () => {
   it("uses the first github-copilot profile when env tokens are missing", async () => {
@@ -90,7 +80,6 @@ describe("models-config", () => {
           ),
         );
 
-<<<<<<< HEAD
         const resolveCopilotApiToken = vi.fn().mockResolvedValue({
           token: "copilot",
           expiresAt: Date.now() + 60 * 60 * 1000,
@@ -106,9 +95,6 @@ describe("models-config", () => {
         const { ensureMoltbotModelsJson } = await import("./models-config.js");
 
         await ensureMoltbotModelsJson({ models: { providers: {} } }, agentDir);
-=======
-        await ensureOpenClawModelsJson({ models: { providers: {} } }, agentDir);
->>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
         const [, opts] = fetchMock.mock.calls[0] as [string, { headers?: Record<string, string> }];
         expect(opts?.headers?.Authorization).toBe("Bearer alpha-token");
@@ -118,7 +104,6 @@ describe("models-config", () => {
 
   it("does not override explicit github-copilot provider config", async () => {
     await withTempHome(async () => {
-<<<<<<< HEAD
       const envSnapshot = captureEnv(["COPILOT_GITHUB_TOKEN"]);
       process.env.COPILOT_GITHUB_TOKEN = "gh-token";
       const fetchMock = vi.fn().mockResolvedValue({
@@ -149,10 +134,6 @@ describe("models-config", () => {
         const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
         await ensureMoltbotModelsJson({
-=======
-=======
-      await withCopilotGithubToken("gh-token", async () => {
->>>>>>> 0900ec38a (test(agents): dedupe copilot models-config token setup)
         await ensureOpenClawModelsJson({
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
           models: {

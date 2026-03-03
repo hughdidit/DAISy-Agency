@@ -2,7 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import http, { type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import type { Socket } from "node:net";
@@ -13,14 +12,6 @@ import type { Duplex } from "node:stream";
 import chokidar from "chokidar";
 import { type WebSocket, WebSocketServer } from "ws";
 <<<<<<< HEAD
-=======
-import type { RuntimeEnv } from "../runtime.js";
-=======
-=======
-import type { Socket } from "node:net";
-import type { Duplex } from "node:stream";
-import chokidar from "chokidar";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -41,11 +32,7 @@ import { type WebSocket, WebSocketServer } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import type { RuntimeEnv } from "../runtime.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -209,24 +196,9 @@ function defaultIndexHTML() {
 }
 
 function isDisabledByEnv() {
-<<<<<<< HEAD
   if (isTruthyEnvValue(process.env.CLAWDBOT_SKIP_CANVAS_HOST)) return true;
   if (process.env.NODE_ENV === "test") return true;
   if (process.env.VITEST) return true;
-=======
-  if (isTruthyEnvValue(process.env.OPENCLAW_SKIP_CANVAS_HOST)) {
-    return true;
-  }
-  if (isTruthyEnvValue(process.env.OPENCLAW_SKIP_CANVAS_HOST)) {
-    return true;
-  }
-  if (process.env.NODE_ENV === "test") {
-    return true;
-  }
-  if (process.env.VITEST) {
-    return true;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return false;
 }
 
@@ -255,8 +227,6 @@ async function prepareCanvasRoot(rootDir: string) {
   return rootReal;
 }
 
-<<<<<<< HEAD
-=======
 function resolveDefaultCanvasRoot(): string {
   const candidates = [path.join(resolveStateDir(), "canvas")];
   const existing = candidates.find((dir) => {
@@ -269,7 +239,6 @@ function resolveDefaultCanvasRoot(): string {
   return existing ?? candidates[0];
 }
 
->>>>>>> 41f2f359a (perf(test): reduce module reload overhead in key suites)
 export async function createCanvasHostHandler(
   opts: CanvasHostHandlerOpts,
 ): Promise<CanvasHostHandler> {
@@ -383,7 +352,6 @@ export async function createCanvasHostHandler(
 
       let urlPath = url.pathname;
       if (basePath !== "/") {
-<<<<<<< HEAD
         if (urlPath === basePath) {
           urlPath = "/";
         } else if (urlPath.startsWith(`${basePath}/`)) {
@@ -391,12 +359,6 @@ export async function createCanvasHostHandler(
         } else {
           return false;
         }
-=======
-        if (urlPath !== basePath && !urlPath.startsWith(`${basePath}/`)) {
-          return false;
-        }
-        urlPath = urlPath === basePath ? "/" : urlPath.slice(basePath.length) || "/";
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       }
 
       if (req.method !== "GET" && req.method !== "HEAD") {

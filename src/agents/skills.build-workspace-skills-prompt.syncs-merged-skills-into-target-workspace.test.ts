@@ -6,7 +6,6 @@ import { withEnv } from "../test-utils/env.js";
 import { writeSkill } from "./skills.e2e-test-helpers.js";
 import { buildWorkspaceSkillsPrompt, syncSkillsToWorkspace } from "./skills.js";
 
-<<<<<<< HEAD
 async function writeSkill(params: {
   dir: string;
   name: string;
@@ -27,15 +26,6 @@ ${body ?? `# ${name}\n`}
 `,
     "utf-8",
   );
-=======
-async function pathExists(filePath: string): Promise<boolean> {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 }
 
 let fixtureRoot = "";
@@ -63,13 +53,8 @@ describe("buildWorkspaceSkillsPrompt", () => {
     withEnv({ HOME: workspaceDir, PATH: "" }, () => buildWorkspaceSkillsPrompt(workspaceDir, opts));
 
   it("syncs merged skills into a target workspace", async () => {
-<<<<<<< HEAD
     const sourceWorkspace = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     const targetWorkspace = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
-=======
-    const sourceWorkspace = await createCaseDir("source");
-    const targetWorkspace = await createCaseDir("target");
->>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
     const extraDir = path.join(sourceWorkspace, ".extra");
     const bundledDir = path.join(sourceWorkspace, ".bundled");
     const managedDir = path.join(sourceWorkspace, ".managed");
@@ -116,76 +101,9 @@ describe("buildWorkspaceSkillsPrompt", () => {
     expect(prompt).not.toContain("Extra version");
     expect(prompt.replaceAll("\\", "/")).toContain("demo-skill/SKILL.md");
   });
-<<<<<<< HEAD
   it("filters skills based on env/config gates", async () => {
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
-=======
-  it("keeps synced skills confined under target workspace when frontmatter name uses traversal", async () => {
-    const sourceWorkspace = await createCaseDir("source");
-    const targetWorkspace = await createCaseDir("target");
-    const escapeId = fixtureCount;
-    const traversalName = `../../../skill-sync-escape-${escapeId}`;
-    const escapedDest = path.resolve(targetWorkspace, "skills", traversalName);
-
-    await writeSkill({
-      dir: path.join(sourceWorkspace, "skills", "safe-traversal-skill"),
-      name: traversalName,
-      description: "Traversal skill",
-    });
-
-    expect(path.relative(path.join(targetWorkspace, "skills"), escapedDest).startsWith("..")).toBe(
-      true,
-    );
-    expect(await pathExists(escapedDest)).toBe(false);
-
-    await withEnv({ HOME: sourceWorkspace, PATH: "" }, () =>
-      syncSkillsToWorkspace({
-        sourceWorkspaceDir: sourceWorkspace,
-        targetWorkspaceDir: targetWorkspace,
-        bundledSkillsDir: path.join(sourceWorkspace, ".bundled"),
-        managedSkillsDir: path.join(sourceWorkspace, ".managed"),
-      }),
-    );
-
-    expect(
-      await pathExists(path.join(targetWorkspace, "skills", "safe-traversal-skill", "SKILL.md")),
-    ).toBe(true);
-    expect(await pathExists(escapedDest)).toBe(false);
-  });
-  it("keeps synced skills confined under target workspace when frontmatter name is absolute", async () => {
-    const sourceWorkspace = await createCaseDir("source");
-    const targetWorkspace = await createCaseDir("target");
-    const escapeId = fixtureCount;
-    const absoluteDest = path.join(os.tmpdir(), `skill-sync-abs-escape-${escapeId}`);
-
-    await fs.rm(absoluteDest, { recursive: true, force: true });
-    await writeSkill({
-      dir: path.join(sourceWorkspace, "skills", "safe-absolute-skill"),
-      name: absoluteDest,
-      description: "Absolute skill",
-    });
-
-    expect(await pathExists(absoluteDest)).toBe(false);
-
-    await withEnv({ HOME: sourceWorkspace, PATH: "" }, () =>
-      syncSkillsToWorkspace({
-        sourceWorkspaceDir: sourceWorkspace,
-        targetWorkspaceDir: targetWorkspace,
-        bundledSkillsDir: path.join(sourceWorkspace, ".bundled"),
-        managedSkillsDir: path.join(sourceWorkspace, ".managed"),
-      }),
-    );
-
-    expect(
-      await pathExists(path.join(targetWorkspace, "skills", "safe-absolute-skill", "SKILL.md")),
-    ).toBe(true);
-    expect(await pathExists(absoluteDest)).toBe(false);
-  });
-  it("filters skills based on env/config gates", async () => {
-    const workspaceDir = await createCaseDir("workspace");
->>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
     const skillDir = path.join(workspaceDir, "skills", "nano-banana-pro");
-<<<<<<< HEAD
     const originalEnv = process.env.GEMINI_API_KEY;
     delete process.env.GEMINI_API_KEY;
 
@@ -198,16 +116,6 @@ describe("buildWorkspaceSkillsPrompt", () => {
           '{"moltbot":{"requires":{"env":["GEMINI_API_KEY"]},"primaryEnv":"GEMINI_API_KEY"}}',
         body: "# Nano Banana\n",
       });
-=======
-    await writeSkill({
-      dir: skillDir,
-      name: "nano-banana-pro",
-      description: "Generates images",
-      metadata:
-        '{"openclaw":{"requires":{"env":["GEMINI_API_KEY"]},"primaryEnv":"GEMINI_API_KEY"}}',
-      body: "# Nano Banana\n",
-    });
->>>>>>> 5dc1b5a8d (refactor(test): reuse env helper in workspace skill sync gating)
 
     withEnv({ GEMINI_API_KEY: undefined }, () => {
       const missingPrompt = buildPrompt(workspaceDir, {
@@ -226,11 +134,7 @@ describe("buildWorkspaceSkillsPrompt", () => {
     });
   });
   it("applies skill filters, including empty lists", async () => {
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
-=======
-    const workspaceDir = await createCaseDir("workspace");
->>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
     await writeSkill({
       dir: path.join(workspaceDir, "skills", "alpha"),
       name: "alpha",

@@ -3,13 +3,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { RequestClient } from "@buape/carbon";
 <<<<<<< HEAD
 import { Routes } from "discord-api-types/v10";
-=======
-=======
->>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 import type { APIChannel } from "discord-api-types/v10";
 import { serializePayload, type MessagePayloadObject, type RequestClient } from "@buape/carbon";
 import { ChannelType, Routes } from "discord-api-types/v10";
@@ -72,15 +68,8 @@ import { recordChannelActivity } from "../infra/channel-activity.js";
 import type { RetryConfig } from "../infra/retry.js";
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 import { convertMarkdownTables } from "../markdown/tables.js";
-<<<<<<< HEAD
 import type { RetryConfig } from "../infra/retry.js";
 import type { PollInput } from "../polls.js";
-=======
-import { maxBytesForKind } from "../media/constants.js";
-import { extensionForMime } from "../media/mime.js";
-import type { PollInput } from "../polls.js";
-import { loadWebMediaRaw } from "../web/media.js";
->>>>>>> 725741486 (fix(discord): harden voice message media loading)
 import { resolveDiscordAccount } from "./accounts.js";
 import {
   buildDiscordMessagePayload,
@@ -106,12 +95,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { DiscordSendResult } from "./send.types.js";
-=======
-=======
-import type { DiscordSendResult } from "./send.types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

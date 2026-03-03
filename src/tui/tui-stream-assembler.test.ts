@@ -108,7 +108,6 @@ describe("TuiStreamAssembler", () => {
     expect(second).toBeNull();
   });
 
-<<<<<<< HEAD
   it("keeps richer streamed text when final payload drops earlier blocks", () => {
     const assembler = new TuiStreamAssembler();
     assembler.ingestDelta("run-5", STREAM_WITH_TOOL_BLOCKS, false);
@@ -119,18 +118,6 @@ describe("TuiStreamAssembler", () => {
   });
 
 <<<<<<< HEAD
-=======
-  it("does not regress streamed text when a delta drops boundary blocks after tool calls", () => {
-    const assembler = new TuiStreamAssembler();
-    const first = assembler.ingestDelta("run-5-stream", STREAM_WITH_TOOL_BLOCKS, false);
-    expect(first).toBe("Before tool call\nAfter tool call");
-
-    const second = assembler.ingestDelta("run-5-stream", STREAM_AFTER_TOOL_BLOCKS, false);
-
-    expect(second).toBeNull();
-  });
-
->>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
   it("keeps non-empty final text for plain text prefix/suffix updates", () => {
     const assembler = new TuiStreamAssembler();
     assembler.ingestDelta(

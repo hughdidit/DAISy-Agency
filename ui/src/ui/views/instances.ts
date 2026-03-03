@@ -6,14 +6,9 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { formatPresenceAge, formatPresenceSummary } from "../presenter";
 import type { PresenceEntry } from "../types";
-=======
-import type { PresenceEntry } from "../types.ts";
-import { formatPresenceAge, formatPresenceSummary } from "../presenter.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import { formatPresenceAge, formatPresenceSummary } from "../presenter.ts";
 =======

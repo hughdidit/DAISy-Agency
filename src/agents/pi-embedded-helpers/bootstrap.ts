@@ -4,16 +4,10 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
-import type { OpenClawConfig } from "../../config/config.js";
-import { truncateUtf16Safe } from "../../utils.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -242,14 +236,8 @@ export function buildBootstrapContextFiles(
       remainingTotalChars = Math.max(0, remainingTotalChars - cappedMissingText.length);
       result.push({
 <<<<<<< HEAD
-<<<<<<< HEAD
         path: file.name,
         content: `[MISSING] Expected at: ${file.path}`,
-=======
-        path: file.path,
-=======
-        path: pathValue,
->>>>>>> 51e9c54f0 (fix(agents): skip bootstrap files with undefined path (#22698))
         content: cappedMissingText,
 >>>>>>> dec685970 (agents: reduce prompt token bloat from exec and context (#16539))
       });
@@ -275,14 +263,8 @@ export function buildBootstrapContextFiles(
     remainingTotalChars = Math.max(0, remainingTotalChars - contentWithinBudget.length);
     result.push({
 <<<<<<< HEAD
-<<<<<<< HEAD
       path: file.name,
       content: trimmed.content,
-=======
-      path: file.path,
-=======
-      path: pathValue,
->>>>>>> 51e9c54f0 (fix(agents): skip bootstrap files with undefined path (#22698))
       content: contentWithinBudget,
 >>>>>>> dec685970 (agents: reduce prompt token bloat from exec and context (#16539))
     });

@@ -1,13 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { listChannelDocks } from "../channels/dock.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
 <<<<<<< HEAD
 import { listThinkingLevels } from "./thinking.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { COMMAND_ARG_FORMATTERS } from "./commands-args.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -32,13 +29,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { listChannelDocks } from "../channels/dock.js";
-import { getActivePluginRegistry } from "../plugins/runtime.js";
-import { COMMAND_ARG_FORMATTERS } from "./commands-args.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -355,8 +345,6 @@ function buildChatCommands(): ChatCommandDefinition[] {
       argsMenu: "auto",
     }),
     defineChatCommand({
-<<<<<<< HEAD
-=======
       key: "acp",
       nativeName: "acp",
       description: "Manage ACP sessions and runtime options.",
@@ -396,7 +384,6 @@ function buildChatCommands(): ChatCommandDefinition[] {
       argsMenu: "auto",
     }),
     defineChatCommand({
->>>>>>> c5facb847 (fix(discord): avoid invalid /acp native option payload)
       key: "focus",
       nativeName: "focus",
       description: "Bind this Discord thread (or a new one) to a session target.",

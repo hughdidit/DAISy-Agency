@@ -14,7 +14,6 @@ import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -56,8 +55,6 @@ function assertModelSelection(
 }
 
 =======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
-=======
 async function runModelDirective(
   home: string,
   body: string,
@@ -94,7 +91,6 @@ describe("directive behavior", () => {
   it("aliases /model list to /models", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -117,9 +113,6 @@ describe("directive behavior", () => {
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
 =======
-      const text = await runModelDirective(home, "/model list");
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-=======
       const text = await runModelDirectiveText(home, "/model list");
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
       expect(text).toContain("Providers:");
@@ -133,7 +126,6 @@ describe("directive behavior", () => {
   it("shows current model when catalog is unavailable", async () => {
     await withTempHome(async (home) => {
       vi.mocked(loadModelCatalog).mockResolvedValueOnce([]);
-<<<<<<< HEAD
 <<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
@@ -156,9 +148,6 @@ describe("directive behavior", () => {
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
-=======
-      const text = await runModelDirective(home, "/model");
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
       const text = await runModelDirectiveText(home, "/model");
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
@@ -189,7 +178,6 @@ describe("directive behavior", () => {
         { id: "grok-4", name: "Grok 4", provider: "xai" },
       ]);
 <<<<<<< HEAD
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -205,11 +193,6 @@ describe("directive behavior", () => {
               imageModel: { primary: "minimax/MiniMax-M2.1" },
               workspace: path.join(home, "clawd"),
             },
-=======
-      const text = await runModelDirective(home, "/model list", {
-=======
-      const text = await runModelDirectiveText(home, "/model list", {
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
         defaults: {
           model: {
             primary: "anthropic/claude-opus-4-5",
@@ -241,7 +224,6 @@ describe("directive behavior", () => {
         { provider: "openai", id: "gpt-4.1-mini", name: "GPT-4.1 mini" },
       ]);
 <<<<<<< HEAD
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -258,11 +240,6 @@ describe("directive behavior", () => {
                 "minimax/MiniMax-M2.1": { alias: "minimax" },
               },
             },
-=======
-      const text = await runModelDirective(home, "/models minimax", {
-=======
-      const text = await runModelDirectiveText(home, "/models minimax", {
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
         defaults: {
           models: {
             "anthropic/claude-opus-4-5": {},
@@ -292,7 +269,6 @@ describe("directive behavior", () => {
   it("does not repeat missing auth labels on /model list", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -307,11 +283,6 @@ describe("directive behavior", () => {
                 "anthropic/claude-opus-4-5": {},
               },
             },
-=======
-      const text = await runModelDirective(home, "/model list", {
-=======
-      const text = await runModelDirectiveText(home, "/model list", {
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
         defaults: {
           models: {
             "anthropic/claude-opus-4-5": {},
@@ -331,7 +302,6 @@ describe("directive behavior", () => {
       await getReplyFromConfig(
         { Body: "/model openai/gpt-4.1-mini", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -341,15 +311,6 @@ describe("directive behavior", () => {
                 "anthropic/claude-opus-4-5": {},
                 "openai/gpt-4.1-mini": {},
               },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          {
-            model: { primary: "anthropic/claude-opus-4-5" },
-            models: {
-              "anthropic/claude-opus-4-5": {},
-              "openai/gpt-4.1-mini": {},
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
             },
           },
           { session: { store: storePath } },
@@ -370,7 +331,6 @@ describe("directive behavior", () => {
       await getReplyFromConfig(
         { Body: "/model Opus", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -380,15 +340,6 @@ describe("directive behavior", () => {
                 "openai/gpt-4.1-mini": {},
                 "anthropic/claude-opus-4-5": { alias: "Opus" },
               },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          {
-            model: { primary: "openai/gpt-4.1-mini" },
-            models: {
-              "openai/gpt-4.1-mini": {},
-              "anthropic/claude-opus-4-5": { alias: "Opus" },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
             },
           },
           { session: { store: storePath } },

@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-=======
 import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -115,8 +112,6 @@ async function ensureSandboxBrowserImage(image: string) {
   );
 }
 
-<<<<<<< HEAD
-=======
 async function ensureDockerNetwork(
   network: string,
   opts?: { allowContainerNamespaceJoin?: boolean },
@@ -135,7 +130,6 @@ async function ensureDockerNetwork(
   await execDocker(["network", "create", "--driver", "bridge", network]);
 }
 
->>>>>>> 14b6eea6e (feat(sandbox): block container namespace joins by default)
 export async function ensureSandboxBrowser(params: {
   scopeKey: string;
   workspaceDir: string;
@@ -225,31 +219,18 @@ export async function ensureSandboxBrowser(params: {
     if (noVncEnabled) {
       noVncPassword = generateNoVncPassword();
     }
-<<<<<<< HEAD
-=======
     await ensureDockerNetwork(browserDockerCfg.network, {
       allowContainerNamespaceJoin: browserDockerCfg.dangerouslyAllowContainerNamespaceJoin === true,
     });
->>>>>>> 14b6eea6e (feat(sandbox): block container namespace joins by default)
     await ensureSandboxBrowserImage(browserImage);
     const args = buildSandboxCreateArgs({
       name: containerName,
       cfg: browserDockerCfg,
       scopeKey: params.scopeKey,
-<<<<<<< HEAD
       labels: { "moltbot.sandboxBrowser": "1" },
 =======
-      labels: { "openclaw.sandboxBrowser": "1" },
-      configHash: expectedHash,
-<<<<<<< HEAD
->>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))
-=======
       includeBinds: false,
-<<<<<<< HEAD
 >>>>>>> 6f895eb83 (fix(sandbox): honor explicit bind mounts over workspace defaults)
-=======
-      bindSourceRoots: [params.workspaceDir, params.agentWorkspaceDir],
->>>>>>> c070be1bc (fix(sandbox): harden fs bridge path checks and bind mount policy)
     });
     const mainMountSuffix =
       params.cfg.workspaceAccess === "ro" && params.workspaceDir === params.agentWorkspaceDir
@@ -272,24 +253,12 @@ export async function ensureSandboxBrowser(params: {
     if (noVncEnabled) {
       args.push("-p", `127.0.0.1::${params.cfg.browser.noVncPort}`);
     }
-<<<<<<< HEAD
     args.push("-e", `CLAWDBOT_BROWSER_HEADLESS=${params.cfg.browser.headless ? "1" : "0"}`);
     args.push("-e", `CLAWDBOT_BROWSER_ENABLE_NOVNC=${params.cfg.browser.enableNoVnc ? "1" : "0"}`);
     args.push("-e", `CLAWDBOT_BROWSER_CDP_PORT=${params.cfg.browser.cdpPort}`);
     args.push("-e", `CLAWDBOT_BROWSER_VNC_PORT=${params.cfg.browser.vncPort}`);
     args.push("-e", `CLAWDBOT_BROWSER_NOVNC_PORT=${params.cfg.browser.noVncPort}`);
     args.push(params.cfg.browser.image);
-=======
-    args.push("-e", `OPENCLAW_BROWSER_HEADLESS=${params.cfg.browser.headless ? "1" : "0"}`);
-    args.push("-e", `OPENCLAW_BROWSER_ENABLE_NOVNC=${params.cfg.browser.enableNoVnc ? "1" : "0"}`);
-    args.push("-e", `OPENCLAW_BROWSER_CDP_PORT=${params.cfg.browser.cdpPort}`);
-    args.push("-e", `OPENCLAW_BROWSER_VNC_PORT=${params.cfg.browser.vncPort}`);
-    args.push("-e", `OPENCLAW_BROWSER_NOVNC_PORT=${params.cfg.browser.noVncPort}`);
-    if (noVncEnabled && noVncPassword) {
-      args.push("-e", `${NOVNC_PASSWORD_ENV_KEY}=${noVncPassword}`);
-    }
-    args.push(browserImage);
->>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))
     await execDocker(args);
     await execDocker(["start", containerName]);
   } else if (!running) {

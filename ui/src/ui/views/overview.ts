@@ -1,6 +1,5 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { html } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16,14 +15,6 @@ import type { GatewayHelloOk } from "../gateway";
 import { formatAgo, formatDurationMs } from "../format";
 import { formatNextRun } from "../presenter";
 import type { UiSettings } from "../storage";
-=======
-import type { GatewayHelloOk } from "../gateway.ts";
-import type { UiSettings } from "../storage.ts";
-=======
-=======
-import type { GatewayHelloOk } from "../gateway.ts";
-import type { UiSettings } from "../storage.ts";
->>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
 =======
 >>>>>>> 01ea80887 (chore: Format files.)
 =======
@@ -49,17 +40,7 @@ import { formatNextRun } from "../presenter.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
-import type { GatewayHelloOk } from "../gateway";
-import type { UiSettings } from "../storage";
-import { t, i18n, type Locale } from "../../i18n";
-import { formatAgo, formatDurationMs } from "../format";
-import { formatNextRun } from "../presenter";
-<<<<<<< HEAD
-import { t, i18n, type Locale } from "../../i18n";
->>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
 =======
 >>>>>>> e0c45eab4 (style: apply oxfmt formatting)
 =======
@@ -96,11 +77,8 @@ import type { GatewayHelloOk } from "../gateway.ts";
 import { formatNextRun } from "../presenter.ts";
 import type { UiSettings } from "../storage.ts";
 import { shouldShowPairingHint } from "./overview-hints.ts";
-<<<<<<< HEAD
 import { renderOverviewLogTail } from "./overview-log-tail.ts";
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 
 export type OverviewProps = {
   connected: boolean;
@@ -173,16 +151,11 @@ export function renderOverview(props: OverviewProps) {
     if (!hasToken && !hasPassword) {
       return html`
         <div class="muted" style="margin-top: 8px">
-<<<<<<< HEAD
           This gateway requires auth. Add a token or password, then click Connect.
 <<<<<<< HEAD
           <div style="margin-top: 6px;">
             <span class="mono">moltbot dashboard --no-open</span> → tokenized URL<br />
             <span class="mono">moltbot doctor --generate-gateway-token</span> → set token
-=======
-=======
-          ${t("overview.auth.required")}
->>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
           <div style="margin-top: 6px">
             <span class="mono">openclaw dashboard --no-open</span> → tokenized URL<br />
             <span class="mono">openclaw doctor --generate-gateway-token</span> → set token
@@ -191,15 +164,9 @@ export function renderOverview(props: OverviewProps) {
           <div style="margin-top: 6px">
             <a
               class="session-link"
-<<<<<<< HEAD
               href="https://docs.molt.bot/web/dashboard"
               target="_blank"
               rel="noreferrer"
-=======
-              href="https://docs.openclaw.ai/web/dashboard"
-              target=${EXTERNAL_LINK_TARGET}
-              rel=${buildExternalLinkRel()}
->>>>>>> 6c5ab543c (refactor: tighten external-link policy and window.open guard)
               title="Control UI auth docs (opens in new tab)"
               >Docs: Control UI auth</a
             >
@@ -209,30 +176,18 @@ export function renderOverview(props: OverviewProps) {
     }
     return html`
       <div class="muted" style="margin-top: 8px">
-<<<<<<< HEAD
         Auth failed. Re-copy a tokenized URL with
 <<<<<<< HEAD
         <span class="mono">moltbot dashboard --no-open</span>, or update the token,
         then click Connect.
         <div style="margin-top: 6px;">
-=======
-        <span class="mono">openclaw dashboard --no-open</span>, or update the token, then click Connect.
-=======
-        ${t("overview.auth.failed", { command: "openclaw dashboard --no-open" })}
->>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
         <div style="margin-top: 6px">
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
           <a
             class="session-link"
-<<<<<<< HEAD
             href="https://docs.molt.bot/web/dashboard"
             target="_blank"
             rel="noreferrer"
-=======
-            href="https://docs.openclaw.ai/web/dashboard"
-            target=${EXTERNAL_LINK_TARGET}
-            rel=${buildExternalLinkRel()}
->>>>>>> 6c5ab543c (refactor: tighten external-link policy and window.open guard)
             title="Control UI auth docs (opens in new tab)"
             >Docs: Control UI auth</a
           >
@@ -258,30 +213,18 @@ export function renderOverview(props: OverviewProps) {
         <div style="margin-top: 6px">
           <a
             class="session-link"
-<<<<<<< HEAD
             href="https://docs.molt.bot/gateway/tailscale"
             target="_blank"
             rel="noreferrer"
-=======
-            href="https://docs.openclaw.ai/gateway/tailscale"
-            target=${EXTERNAL_LINK_TARGET}
-            rel=${buildExternalLinkRel()}
->>>>>>> 6c5ab543c (refactor: tighten external-link policy and window.open guard)
             title="Tailscale Serve docs (opens in new tab)"
             >Docs: Tailscale Serve</a
           >
           <span class="muted"> · </span>
           <a
             class="session-link"
-<<<<<<< HEAD
             href="https://docs.molt.bot/web/control-ui#insecure-http"
             target="_blank"
             rel="noreferrer"
-=======
-            href="https://docs.openclaw.ai/web/control-ui#insecure-http"
-            target=${EXTERNAL_LINK_TARGET}
-            rel=${buildExternalLinkRel()}
->>>>>>> 6c5ab543c (refactor: tighten external-link policy and window.open guard)
             title="Insecure HTTP docs (opens in new tab)"
             >Docs: Insecure HTTP</a
           >
@@ -311,7 +254,6 @@ export function renderOverview(props: OverviewProps) {
           </label>
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
           <label class="field">
             <span>Gateway Token</span>
             <input
@@ -335,19 +277,12 @@ export function renderOverview(props: OverviewProps) {
               placeholder="system or shared password"
             />
           </label>
-=======
-=======
->>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
           ${
             isTrustedProxy
               ? ""
               : html`
                 <label class="field">
-<<<<<<< HEAD
                   <span>Gateway Token</span>
-=======
-                  <span>${t("overview.access.token")}</span>
->>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
                   <input
                     .value=${props.settings.token}
                     @input=${(e: Event) => {
@@ -358,11 +293,7 @@ export function renderOverview(props: OverviewProps) {
                   />
                 </label>
                 <label class="field">
-<<<<<<< HEAD
                   <span>Password (not stored)</span>
-=======
-                  <span>${t("overview.access.password")}</span>
->>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
                   <input
                     type="password"
                     .value=${props.password}
@@ -375,10 +306,7 @@ export function renderOverview(props: OverviewProps) {
                 </label>
               `
           }
-<<<<<<< HEAD
 >>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
-=======
->>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
           <label class="field">
             <span>${t("overview.access.token")}</span>
             <input

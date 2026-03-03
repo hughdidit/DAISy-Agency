@@ -7,13 +7,8 @@ import { describe, expect, it } from "vitest";
 import { resolveBrewExecutable, resolveBrewPathDirs } from "./brew.js";
 
 describe("brew helpers", () => {
-<<<<<<< HEAD
   it("resolves brew from ~/.linuxbrew/bin when executable exists", async () => {
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-brew-"));
-=======
-  async function withBrewRoot(run: (tmp: string) => Promise<void>) {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-brew-"));
->>>>>>> c93fc3786 (test(infra): dedupe brew fixtures and cover explicit brew file precedence)
     try {
       await run(tmp);
     } finally {
@@ -39,12 +34,8 @@ describe("brew helpers", () => {
   });
 
   it("prefers HOMEBREW_PREFIX/bin/brew when present", async () => {
-<<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-brew-"));
     try {
-=======
-    await withBrewRoot(async (tmp) => {
->>>>>>> c93fc3786 (test(infra): dedupe brew fixtures and cover explicit brew file precedence)
       const prefix = path.join(tmp, "prefix");
       const prefixBin = path.join(prefix, "bin");
       const prefixBrew = path.join(prefixBin, "brew");

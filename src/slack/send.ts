@@ -1,21 +1,6 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { type FilesUploadV2Arguments, type WebClient } from "@slack/web-api";
 
-=======
-import {
-  type Block,
-  type FilesUploadV2Arguments,
-  type KnownBlock,
-  type WebClient,
-} from "@slack/web-api";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { SlackTokenSource } from "./accounts.js";
->>>>>>> c9684a267 (Slack: support Block Kit blocks in sendMessage actions)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -224,54 +209,12 @@ async function uploadSlackFile(params: {
   threadTs?: string;
   maxBytes?: number;
 }): Promise<string> {
-<<<<<<< HEAD
   const {
     buffer,
     contentType: _contentType,
     fileName,
   } = await loadWebMedia(params.mediaUrl, params.maxBytes);
   const basePayload = {
-=======
-  const { buffer, contentType, fileName } = await loadWebMedia(params.mediaUrl, {
-    maxBytes: params.maxBytes,
-    localRoots: params.mediaLocalRoots,
-  });
-  // Use the 3-step upload flow (getUploadURLExternal -> POST -> completeUploadExternal)
-  // instead of files.uploadV2 which relies on the deprecated files.upload endpoint
-  // and can fail with missing_scope even when files:write is granted.
-  const uploadUrlResp = await params.client.files.getUploadURLExternal({
-    filename: fileName ?? "upload",
-    length: buffer.length,
-  });
-  if (!uploadUrlResp.ok || !uploadUrlResp.upload_url || !uploadUrlResp.file_id) {
-    throw new Error(`Failed to get upload URL: ${uploadUrlResp.error ?? "unknown error"}`);
-  }
-
-  // Upload the file content to the presigned URL
-  const uploadBody = new Uint8Array(buffer) as BodyInit;
-  const { response: uploadResp, release } = await fetchWithSsrFGuard({
-    url: uploadUrlResp.upload_url,
-    init: {
-      method: "POST",
-      ...(contentType ? { headers: { "Content-Type": contentType } } : {}),
-      body: uploadBody,
-    },
-    policy: SLACK_UPLOAD_SSRF_POLICY,
-    proxy: "env",
-    auditContext: "slack-upload-file",
-  });
-  try {
-    if (!uploadResp.ok) {
-      throw new Error(`Failed to upload file: HTTP ${uploadResp.status}`);
-    }
-  } finally {
-    await release();
-  }
-
-  // Complete the upload and share to channel/thread
-  const completeResp = await params.client.files.completeUploadExternal({
-    files: [{ id: uploadUrlResp.file_id, title: fileName ?? "upload" }],
->>>>>>> 2a409bbba (fix(slack): replace files.uploadV2 with 3-step upload flow to fix missing_scope error (#17558))
     channel_id: params.channelId,
     ...(params.caption ? { initial_comment: params.caption } : {}),
     ...(params.threadTs ? { thread_ts: params.threadTs } : {}),

@@ -9,18 +9,10 @@ read_when:
 Status: WhatsApp Web via Baileys only. Gateway owns the session(s).
 
 ## Quick setup (beginner)
-<<<<<<< HEAD
 1) Use a **separate phone number** if possible (recommended).
 2) Configure WhatsApp in `~/.clawdbot/moltbot.json`.
 3) Run `moltbot channels login` to scan the QR code (Linked Devices).
 4) Start the gateway.
-=======
-
-1. Use a **separate phone number** if possible (recommended).
-2. Configure WhatsApp in `~/.openclaw/openclaw.json`.
-3. Run `openclaw channels login` to scan the QR code (Linked Devices).
-4. Start the gateway.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Minimal config:
 
@@ -64,12 +56,7 @@ Disable with:
 WhatsApp requires a real mobile number for verification. VoIP and virtual numbers are usually blocked. There are two supported ways to run Moltbot on WhatsApp:
 
 ### Dedicated number (recommended)
-<<<<<<< HEAD
 Use a **separate phone number** for Moltbot. Best UX, clean routing, no self-chat quirks. Ideal setup: **spare/old Android phone + eSIM**. Leave it on Wi‑Fi and power, and link it via QR.
-=======
-
-Use a **separate phone number** for OpenClaw. Best UX, clean routing, no self-chat quirks. Ideal setup: **spare/old Android phone + eSIM**. Leave it on Wi‑Fi and power, and link it via QR.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 **WhatsApp Business:** You can use WhatsApp Business on the same device with a different number. Great for keeping your personal WhatsApp separate — install WhatsApp Business and register the Moltbot number there.
 
@@ -91,12 +78,7 @@ If you want pairing instead of allowlist, set `channels.whatsapp.dmPolicy` to `p
 `moltbot pairing approve whatsapp <code>`
 
 ### Personal number (fallback)
-<<<<<<< HEAD
 Quick fallback: run Moltbot on **your own number**. Message yourself (WhatsApp “Message yourself”) for testing so you don’t spam contacts. Expect to read verification codes on your main phone during setup and experiments. **Must enable self-chat mode.**
-=======
-
-Quick fallback: run OpenClaw on **your own number**. Message yourself (WhatsApp “Message yourself”) for testing so you don’t spam contacts. Expect to read verification codes on your main phone during setup and experiments. **Must enable self-chat mode.**
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 When the wizard asks for your personal WhatsApp number, enter the phone you will message from (the owner/sender), not the assistant number.
 
 **Sample config (personal number, self-chat):**
@@ -127,26 +109,15 @@ the prefix (use `""` to remove it).
 **Tip:** The number only needs to receive one verification SMS. After that, WhatsApp Web sessions persist via `creds.json`.
 
 ## Why Not Twilio?
-<<<<<<< HEAD
 - Early Moltbot builds supported Twilio’s WhatsApp Business integration.
-=======
-
-- Early OpenClaw builds supported Twilio’s WhatsApp Business integration.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - WhatsApp Business numbers are a poor fit for a personal assistant.
 - Meta enforces a 24‑hour reply window; if you haven’t responded in the last 24 hours, the business number can’t initiate new messages.
 - High-volume or “chatty” usage triggers aggressive blocking, because business accounts aren’t meant to send dozens of personal assistant messages.
 - Result: unreliable delivery and frequent blocks, so support was removed.
 
 ## Login + credentials
-<<<<<<< HEAD
 - Login command: `moltbot channels login` (QR via Linked Devices).
 - Multi-account login: `moltbot channels login --account <id>` (`<id>` = `accountId`).
-=======
-
-- Login command: `openclaw channels login` (QR via Linked Devices).
-- Multi-account login: `openclaw channels login --account <id>` (`<id>` = `accountId`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Default account (when `--account` is omitted): `default` if present, otherwise the first configured account id (sorted).
 - Credentials stored in `~/.clawdbot/credentials/whatsapp/<accountId>/creds.json`.
 - Backup copy at `creds.json.bak` (restored on corruption).
@@ -166,12 +137,7 @@ the prefix (use `""` to remove it).
   - Your linked WhatsApp number is implicitly trusted, so self messages skip ⁠`channels.whatsapp.dmPolicy` and `channels.whatsapp.allowFrom` checks.
 
 ### Personal-number mode (fallback)
-<<<<<<< HEAD
 If you run Moltbot on your **personal WhatsApp number**, enable `channels.whatsapp.selfChatMode` (see sample above).
-=======
-
-If you run OpenClaw on your **personal WhatsApp number**, enable `channels.whatsapp.selfChatMode` (see sample above).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Behavior:
 
@@ -222,13 +188,8 @@ Pairing is a DM gate for unknown senders:
 - Approve with: `moltbot pairing approve whatsapp <code>` (list with `moltbot pairing list whatsapp`).
 - Codes expire after 1 hour; pending requests are capped at 3 per channel.
 
-<<<<<<< HEAD
 **Can multiple people use different Moltbots on one WhatsApp number?**  
 Yes, by routing each sender to a different agent via `bindings` (peer `kind: "dm"`, sender E.164 like `+15551234567`). Replies still come from the **same WhatsApp account**, and direct chats collapse to each agent’s main session, so use **one agent per person**. DM access control (`dmPolicy`/`allowFrom`) is global per WhatsApp account. See [Multi-Agent Routing](/concepts/multi-agent).
-=======
-**Can multiple people use different OpenClaw instances on one WhatsApp number?**  
-Yes, by routing each sender to a different agent via `bindings` (peer `kind: "direct"`, sender E.164 like `+15551234567`). Replies still come from the **same WhatsApp account**, and direct chats collapse to each agent's main session, so use **one agent per person**. DM access control (`dmPolicy`/`allowFrom`) is global per WhatsApp account. See [Multi-Agent Routing](/concepts/multi-agent).
->>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
 
 **Why do you ask for my phone number in the wizard?**  
 The wizard uses it to set your **allowlist/owner** so your own DMs are permitted. It’s not used for auto-sending. If you run on your personal WhatsApp number, use that same number and enable `channels.whatsapp.selfChatMode`.
@@ -354,12 +315,7 @@ WhatsApp can automatically send emoji reactions to incoming messages immediately
 ## Voice notes (PTT audio)
 
 WhatsApp sends audio as **voice notes** (PTT bubble).
-<<<<<<< HEAD
 - Best results: OGG/Opus. Moltbot rewrites `audio/ogg` to `audio/ogg; codecs=opus`.
-=======
-
-- Best results: OGG/Opus. OpenClaw rewrites `audio/ogg` to `audio/ogg; codecs=opus`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `[[audio_as_voice]]` is ignored for WhatsApp (audio already ships as voice note).
 
 ## Media limits + optimization

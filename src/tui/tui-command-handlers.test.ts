@@ -5,14 +5,8 @@ import { createCommandHandlers } from "./tui-command-handlers.js";
 function createHarness(params?: {
   sendChat?: ReturnType<typeof vi.fn>;
   resetSession?: ReturnType<typeof vi.fn>;
-<<<<<<< HEAD
   loadHistory?: ReturnType<typeof vi.fn>;
   setActivityStatus?: ReturnType<typeof vi.fn>;
-=======
-  loadHistory?: LoadHistoryMock;
-  setActivityStatus?: SetActivityStatusMock;
-  isConnected?: boolean;
->>>>>>> 2d6d6797d (test: fix post-merge config and tui command-handler tests)
 }) {
   const sendChat = params?.sendChat ?? vi.fn().mockResolvedValue({ runId: "r1" });
   const resetSession = params?.resetSession ?? vi.fn().mockResolvedValue({ ok: true });
@@ -91,7 +85,6 @@ describe("tui command handlers", () => {
   });
 
   it("forwards unknown slash commands to the gateway", async () => {
-<<<<<<< HEAD
     const sendChat = vi.fn().mockResolvedValue({ runId: "r1" });
     const addUser = vi.fn();
     const addSystem = vi.fn();
@@ -119,9 +112,6 @@ describe("tui command handlers", () => {
       setActivityStatus,
       formatSessionKey: vi.fn(),
     });
-=======
-    const { handleCommand, sendChat, addUser, addSystem, requestRender } = createHarness();
->>>>>>> 185fba1d2 (refactor(agents): dedupe plugin hooks and test helpers)
 
     await handleCommand("/context");
 

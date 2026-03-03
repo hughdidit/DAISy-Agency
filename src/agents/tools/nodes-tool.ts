@@ -4,17 +4,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 
-=======
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import { Type } from "@sinclair/typebox";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
@@ -77,12 +72,7 @@ import { parseDurationMs } from "../../cli/parse-duration.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> dee013426 (style: reformat dedupe-touched files)
 =======
@@ -660,37 +650,19 @@ export function createNodesTool(options?: {
             // Node requires approval – create a pending approval request on
             // the gateway and wait for the user to approve/deny via the UI.
             const APPROVAL_TIMEOUT_MS = 120_000;
-<<<<<<< HEAD
             const cmdText = command.join(" ");
-=======
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
             const approvalId = crypto.randomUUID();
             const approvalResult = await callGatewayTool(
               "exec.approval.request",
               { ...gatewayOpts, timeoutMs: APPROVAL_TIMEOUT_MS + 5_000 },
               {
                 id: approvalId,
-<<<<<<< HEAD
                 command: cmdText,
                 cwd,
                 nodeId,
                 host: "node",
                 agentId,
                 sessionKey,
-=======
-                command: prepared.cmdText,
-                commandArgv: prepared.plan.argv,
-                systemRunPlan: prepared.plan,
-                cwd: prepared.plan.cwd ?? cwd,
-                nodeId,
-                host: "node",
-                agentId: prepared.plan.agentId ?? agentId,
-                sessionKey: prepared.plan.sessionKey ?? sessionKey,
-                turnSourceChannel,
-                turnSourceTo,
-                turnSourceAccountId,
-                turnSourceThreadId,
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
                 timeoutMs: APPROVAL_TIMEOUT_MS,
               },
             );

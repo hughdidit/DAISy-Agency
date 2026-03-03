@@ -62,8 +62,6 @@ describeLive("pi embedded extra params (live)", () => {
     expect(outputTokens ?? 0).toBeLessThanOrEqual(20);
   }, 30_000);
 });
-<<<<<<< HEAD
-=======
 
 describeGeminiLive("pi embedded extra params (gemini live)", () => {
   function isGoogleModelUnavailableError(raw: string | undefined): boolean {
@@ -228,4 +226,3 @@ describeGeminiLive("pi embedded extra params (gemini live)", () => {
     expect(textResult.stopReason).not.toBe("error");
   }, 45_000);
 });
->>>>>>> 45b5c35b2 (test: fix CI failures in heartbeat and typing tests)

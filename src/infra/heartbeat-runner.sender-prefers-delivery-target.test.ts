@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -17,16 +16,10 @@ import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
-=======
-=======
->>>>>>> c8d473c8e (test(heartbeat): use shared sandbox in sender target suite)
 import { describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
 import { resolveMainSessionKey } from "../config/sessions.js";
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
-=======
->>>>>>> c8d473c8e (test(heartbeat): use shared sandbox in sender target suite)
 import { runHeartbeatOnce } from "./heartbeat-runner.js";
 import { installHeartbeatRunnerTestRuntime } from "./heartbeat-runner.test-harness.js";
 import { seedMainSessionStore, withTempHeartbeatSandbox } from "./heartbeat-runner.test-utils.js";
@@ -38,7 +31,6 @@ installHeartbeatRunnerTestRuntime({ includeSlack: true });
 
 describe("runHeartbeatOnce", () => {
   it("uses the delivery target as sender when lastTo differs", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
@@ -51,19 +43,6 @@ describe("runHeartbeatOnce", () => {
               every: "5m",
               target: "slack",
               to: "C0A9P2N8QHY",
-=======
-    await withTempHeartbeatSandbox(
-      async ({ tmpDir, storePath, replySpy }) => {
-        const cfg: OpenClawConfig = {
-          agents: {
-            defaults: {
-              workspace: tmpDir,
-              heartbeat: {
-                every: "5m",
-                target: "slack",
-                to: "C0A9P2N8QHY",
-              },
->>>>>>> c8d473c8e (test(heartbeat): use shared sandbox in sender target suite)
             },
           },
           session: { store: storePath },

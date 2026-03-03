@@ -75,11 +75,8 @@ export type AgentCommandOpts = {
   lane?: string;
   runId?: string;
   extraSystemPrompt?: string;
-<<<<<<< HEAD
-=======
   internalEvents?: AgentInternalEvent[];
   inputProvenance?: InputProvenance;
->>>>>>> 4c43fccb3 (feat(agents): use structured internal completion events)
   /** Per-call stream param overrides (best-effort). */
   streamParams?: AgentStreamParams;
 };

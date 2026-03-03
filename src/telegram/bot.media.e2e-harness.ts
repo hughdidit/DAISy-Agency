@@ -6,8 +6,6 @@ export const middlewareUseSpy: Mock = vi.fn();
 export const onSpy: Mock = vi.fn();
 export const stopSpy: Mock = vi.fn();
 export const sendChatActionSpy: Mock = vi.fn();
-<<<<<<< HEAD
-=======
 
 async function defaultSaveMediaBuffer(buffer: Buffer, contentType?: string) {
   return {
@@ -40,7 +38,6 @@ export function resetSaveMediaBufferMock() {
   saveMediaBufferSpy.mockReset();
   saveMediaBufferSpy.mockImplementation(defaultSaveMediaBuffer);
 }
->>>>>>> dcd90438e (refactor(telegram-tests): split media suites and decouple store mock)
 
 type ApiStub = {
   config: { use: (arg: unknown) => void };

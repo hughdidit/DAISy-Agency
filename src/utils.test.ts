@@ -51,18 +51,10 @@ describe("withWhatsAppPrefix", () => {
 
 describe("ensureDir", () => {
   it("creates nested directory", async () => {
-<<<<<<< HEAD
     const tmp = await fs.promises.mkdtemp(path.join(os.tmpdir(), "moltbot-test-"));
     const target = path.join(tmp, "nested", "dir");
     await ensureDir(target);
     expect(fs.existsSync(target)).toBe(true);
-=======
-    await withTempDirSync("openclaw-test-", async (tmp) => {
-      const target = path.join(tmp, "nested", "dir");
-      await ensureDir(target);
-      expect(fs.existsSync(target)).toBe(true);
-    });
->>>>>>> 31a0449f6 (test(core): dedupe temp dirs in utils tests and cover lid lookup error fallback)
   });
 });
 
@@ -117,7 +109,6 @@ describe("jidToE164", () => {
   });
 
   it("maps @lid from authDir mapping files", () => {
-<<<<<<< HEAD
     const authDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-auth-"));
     const mappingPath = path.join(authDir, "lid-mapping-456_reverse.json");
     fs.writeFileSync(mappingPath, JSON.stringify("5559876"));
@@ -131,21 +122,6 @@ describe("jidToE164", () => {
     fs.writeFileSync(mappingPath, JSON.stringify(4440001));
     expect(jidToE164("789@hosted.lid", { authDir })).toBe("+4440001");
     fs.rmSync(authDir, { recursive: true, force: true });
-=======
-    withTempDirSync("openclaw-auth-", (authDir) => {
-      const mappingPath = path.join(authDir, "lid-mapping-456_reverse.json");
-      fs.writeFileSync(mappingPath, JSON.stringify("5559876"));
-      expect(jidToE164("456@lid", { authDir })).toBe("+5559876");
-    });
-  });
-
-  it("maps @hosted.lid from authDir mapping files", () => {
-    withTempDirSync("openclaw-auth-", (authDir) => {
-      const mappingPath = path.join(authDir, "lid-mapping-789_reverse.json");
-      fs.writeFileSync(mappingPath, JSON.stringify(4440001));
-      expect(jidToE164("789@hosted.lid", { authDir })).toBe("+4440001");
-    });
->>>>>>> 31a0449f6 (test(core): dedupe temp dirs in utils tests and cover lid lookup error fallback)
   });
 
   it("accepts hosted PN JIDs", () => {
@@ -153,7 +129,6 @@ describe("jidToE164", () => {
   });
 
   it("falls back through lidMappingDirs in order", () => {
-<<<<<<< HEAD
     const first = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-lid-a-"));
     const second = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-lid-b-"));
     const mappingPath = path.join(second, "lid-mapping-321_reverse.json");
@@ -161,15 +136,6 @@ describe("jidToE164", () => {
     expect(jidToE164("321@lid", { lidMappingDirs: [first, second] })).toBe("+123321");
     fs.rmSync(first, { recursive: true, force: true });
     fs.rmSync(second, { recursive: true, force: true });
-=======
-    withTempDirSync("openclaw-lid-a-", (first) => {
-      withTempDirSync("openclaw-lid-b-", (second) => {
-        const mappingPath = path.join(second, "lid-mapping-321_reverse.json");
-        fs.writeFileSync(mappingPath, JSON.stringify("123321"));
-        expect(jidToE164("321@lid", { lidMappingDirs: [first, second] })).toBe("+123321");
-      });
-    });
->>>>>>> 31a0449f6 (test(core): dedupe temp dirs in utils tests and cover lid lookup error fallback)
   });
 });
 
@@ -262,8 +228,6 @@ describe("resolveUserPath", () => {
   it("resolves relative paths", () => {
     expect(resolveUserPath("tmp/dir")).toBe(path.resolve("tmp/dir"));
   });
-<<<<<<< HEAD
-=======
 
   it("prefers OPENCLAW_HOME for tilde expansion", () => {
     vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
@@ -279,7 +243,6 @@ describe("resolveUserPath", () => {
     expect(resolveUserPath("   ")).toBe("");
   });
 <<<<<<< HEAD
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 =======
 
   it("returns empty string for undefined/null input", () => {

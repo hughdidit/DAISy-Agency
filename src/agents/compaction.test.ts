@@ -92,7 +92,6 @@ describe("pruneHistoryForContextShare", () => {
   });
 
   it("returns droppedMessagesList containing dropped messages", () => {
-<<<<<<< HEAD
     const messages: AgentMessage[] = [
       makeMessage(1, 4000),
       makeMessage(2, 4000),
@@ -106,13 +105,6 @@ describe("pruneHistoryForContextShare", () => {
       maxHistoryShare: 0.5,
       parts: 2,
     });
-=======
-    // Note: This test uses simple user messages with no tool calls.
-    // When orphaned tool_results exist, droppedMessages may exceed
-    // droppedMessagesList.length since orphans are counted but not
-    // added to the list (they lack context for summarization).
-    const { messages, pruned } = pruneLargeSimpleHistory();
->>>>>>> 429b8783f (test(agents): dedupe avatar and compaction fixtures)
 
     expect(pruned.droppedChunks).toBeGreaterThan(0);
     expect(pruned.droppedMessagesList.length).toBe(pruned.droppedMessages);
@@ -139,8 +131,6 @@ describe("pruneHistoryForContextShare", () => {
     expect(pruned.droppedMessagesList).toEqual([]);
     expect(pruned.messages.length).toBe(1);
   });
-<<<<<<< HEAD
-=======
 
   it("removes orphaned tool_result messages when tool_use is dropped", () => {
     // Scenario: assistant with tool_use is in chunk 1 (dropped),
@@ -281,5 +271,4 @@ describe("pruneHistoryForContextShare", () => {
     // droppedMessagesList only has the assistant message
     expect(pruned.droppedMessages).toBe(pruned.droppedMessagesList.length + 2);
   });
->>>>>>> 18cc48dfd (chore: Fix types in tests 20/N.)
 });

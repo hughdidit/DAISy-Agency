@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/RootScreen.kt
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
@@ -16,9 +15,6 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.ContextCompat
 import bot.molt.android.CameraHudKind
 import bot.molt.android.MainViewModel
-=======
-import ai.openclaw.android.MainViewModel
->>>>>>> f853622ec (feat(android): switch post-onboarding app to five-tab shell):apps/android/app/src/main/java/ai/openclaw/android/ui/RootScreen.kt
 
 @Composable
 fun RootScreen(viewModel: MainViewModel) {
@@ -29,7 +25,6 @@ fun RootScreen(viewModel: MainViewModel) {
     return
   }
 
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/RootScreen.kt
   val serverName by viewModel.serverName.collectAsState()
   val statusText by viewModel.statusText.collectAsState()
   val cameraHud by viewModel.cameraHud.collectAsState()
@@ -401,7 +396,4 @@ private class CanvasA2UIActionLegacyBridge(private val bridge: CanvasA2UIActionB
   companion object {
     const val interfaceName: String = "Android"
   }
-=======
-  PostOnboardingTabs(viewModel = viewModel, modifier = Modifier.fillMaxSize())
->>>>>>> f853622ec (feat(android): switch post-onboarding app to five-tab shell):apps/android/app/src/main/java/ai/openclaw/android/ui/RootScreen.kt
 }

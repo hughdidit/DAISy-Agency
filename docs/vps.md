@@ -40,8 +40,6 @@ You can keep the Gateway in the cloud and pair **nodes** on your local devices
 capabilities while the Gateway stays in the cloud.
 
 Docs: [Nodes](/nodes), [Nodes CLI](/cli/nodes)
-<<<<<<< HEAD
-=======
 
 ## Startup tuning for small VMs and ARM hosts
 
@@ -91,4 +89,3 @@ TimeoutStartSec=90
 
 How `Restart=` policies help automated recovery:
 [systemd can automate service recovery](https://www.redhat.com/en/blog/systemd-automate-recovery).
->>>>>>> 38da2d076 (CLI: add root --help fast path and lazy channel option resolution (#30975))

@@ -62,7 +62,6 @@ function createSelectAllMultiselect() {
 }
 
 describe("promptDefaultModel", () => {
-<<<<<<< HEAD
   it("filters internal router models from the selection list", async () => {
     loadModelCatalog.mockResolvedValue(OPENROUTER_CATALOG);
 
@@ -85,8 +84,6 @@ describe("promptDefaultModel", () => {
     expectRouterModelFiltering(options);
   });
 
-=======
->>>>>>> 861718e4d (test: group remaining suite cleanups)
   it("supports configuring vLLM during onboarding", async () => {
     loadModelCatalog.mockResolvedValue([
       {
@@ -137,7 +134,6 @@ describe("promptDefaultModel", () => {
 });
 
 describe("promptModelAllowlist", () => {
-<<<<<<< HEAD
   it("filters internal router models from the selection list", async () => {
     loadModelCatalog.mockResolvedValue(OPENROUTER_CATALOG);
 
@@ -153,8 +149,6 @@ describe("promptModelAllowlist", () => {
     expect(call?.searchable).toBe(true);
   });
 
-=======
->>>>>>> 861718e4d (test: group remaining suite cleanups)
   it("filters to allowed keys when provided", async () => {
     loadModelCatalog.mockResolvedValue([
       {

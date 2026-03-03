@@ -14,7 +14,6 @@ import { createNoopThreadBindingManager } from "./monitor/thread-bindings.js";
 
 type Config = ReturnType<typeof import("../config/config.js").loadConfig>;
 
-<<<<<<< HEAD
 const sendMock = vi.fn();
 const reactMock = vi.fn();
 const updateLastRouteMock = vi.fn();
@@ -51,8 +50,6 @@ vi.mock("../config/sessions.js", async (importOriginal) => {
   };
 });
 
-=======
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 beforeEach(() => {
   __resetDiscordChannelInfoCacheForTest();
   sendMock.mockClear().mockResolvedValue(undefined);
@@ -179,7 +176,6 @@ function createCategoryGuildEvent(params: {
 
 describe("discord tool result dispatch", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("sends status replies with responsePrefix", async () => {
     const cfg = {
 <<<<<<< HEAD
@@ -190,9 +186,6 @@ describe("discord tool result dispatch", () => {
         },
       },
       session: { store: "/tmp/moltbot-sessions.json" },
-=======
-      ...BASE_CFG,
->>>>>>> 371446456 (refactor(test): dedupe discord status tool-result test setup)
       messages: { responsePrefix: "PFX" },
       channels: { discord: { dmPolicy: "open", allowFrom: ["*"], dm: { enabled: true } } },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
@@ -231,7 +224,6 @@ describe("discord tool result dispatch", () => {
 >>>>>>> 797ea7ed2 (perf(test): cut slow monitor/subagent test overhead)
   it("caches channel info lookups between messages", async () => {
     const cfg = {
-<<<<<<< HEAD
       agents: {
         defaults: {
           model: "anthropic/claude-opus-4-5",
@@ -239,9 +231,6 @@ describe("discord tool result dispatch", () => {
         },
       },
       session: { store: "/tmp/moltbot-sessions.json" },
-=======
-      ...BASE_CFG,
->>>>>>> 371446456 (refactor(test): dedupe discord status tool-result test setup)
       channels: { discord: { dm: { enabled: true, policy: "open" } } },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
@@ -293,7 +282,6 @@ describe("discord tool result dispatch", () => {
     });
 
     const cfg = {
-<<<<<<< HEAD
       agents: {
         defaults: {
           model: "anthropic/claude-opus-4-5",
@@ -301,9 +289,6 @@ describe("discord tool result dispatch", () => {
         },
       },
       session: { store: "/tmp/moltbot-sessions.json" },
-=======
-      ...BASE_CFG,
->>>>>>> 371446456 (refactor(test): dedupe discord status tool-result test setup)
       channels: { discord: { dm: { enabled: true, policy: "open" } } },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
@@ -362,7 +347,6 @@ describe("discord tool result dispatch", () => {
     });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     const cfg = {
       agents: {
         defaults: {
@@ -418,11 +402,6 @@ describe("discord tool result dispatch", () => {
       }),
       rest: { get: vi.fn() },
     } as unknown as Client;
-=======
-    const handler = createCategoryGuildHandler();
-=======
-    const handler = await createCategoryGuildHandler();
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const client = createCategoryGuildClient();
 >>>>>>> fe5cc8f3b (refactor(test): dedupe discord category handler setup)
 
@@ -446,7 +425,6 @@ describe("discord tool result dispatch", () => {
     });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     const cfg = {
       agents: {
         defaults: {
@@ -502,11 +480,6 @@ describe("discord tool result dispatch", () => {
       }),
       rest: { get: vi.fn() },
     } as unknown as Client;
-=======
-    const handler = createCategoryGuildHandler();
-=======
-    const handler = await createCategoryGuildHandler();
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const client = createCategoryGuildClient();
 >>>>>>> fe5cc8f3b (refactor(test): dedupe discord category handler setup)
 
@@ -524,7 +497,6 @@ describe("discord tool result dispatch", () => {
 
   it("replies with pairing code and sender id when dmPolicy is pairing", async () => {
     const cfg = {
-<<<<<<< HEAD
       agents: {
         defaults: {
           model: "anthropic/claude-opus-4-5",
@@ -532,9 +504,6 @@ describe("discord tool result dispatch", () => {
         },
       },
       session: { store: "/tmp/moltbot-sessions.json" },
-=======
-      ...BASE_CFG,
->>>>>>> 371446456 (refactor(test): dedupe discord status tool-result test setup)
       channels: {
         discord: { dm: { enabled: true, policy: "pairing", allowFrom: [] } },
       },

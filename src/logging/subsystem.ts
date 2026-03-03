@@ -1,13 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { Logger as TsLogger } from "tslog";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { Chalk } from "chalk";
 import { inspect } from "node:util";

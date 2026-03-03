@@ -59,7 +59,6 @@ describe("agents_list", () => {
   });
 
   it("defaults to the requester agent only", async () => {
-<<<<<<< HEAD
     const tool = createMoltbotTools({
       agentSessionKey: "main",
     }).find((candidate) => candidate.name === "agents_list");
@@ -67,9 +66,6 @@ describe("agents_list", () => {
       throw new Error("missing agents_list tool");
     }
 
-=======
-    const tool = requireAgentsListTool();
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
     const result = await tool.execute("call1", {});
     expect(result.details).toMatchObject({
       requester: "main",
@@ -92,7 +88,6 @@ describe("agents_list", () => {
         id: "research",
         name: "Research",
       },
-<<<<<<< HEAD
     };
 
     const tool = createMoltbotTools({
@@ -101,9 +96,6 @@ describe("agents_list", () => {
     if (!tool) {
       throw new Error("missing agents_list tool");
     }
-=======
-    ]);
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     const tool = requireAgentsListTool();
     const result = await tool.execute("call2", {});
@@ -123,7 +115,6 @@ describe("agents_list", () => {
         id: "research",
         name: "Research",
       },
-<<<<<<< HEAD
     };
 
     const tool = createMoltbotTools({
@@ -132,13 +123,6 @@ describe("agents_list", () => {
     if (!tool) {
       throw new Error("missing agents_list tool");
     }
-=======
-      {
-        id: "coder",
-        name: "Coder",
-      },
-    ]);
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     const tool = requireAgentsListTool();
     const result = await tool.execute("call3", {});
@@ -157,7 +141,6 @@ describe("agents_list", () => {
           allowAgents: ["research"],
         },
       },
-<<<<<<< HEAD
       agents: {
         list: [
           {
@@ -176,9 +159,6 @@ describe("agents_list", () => {
     if (!tool) {
       throw new Error("missing agents_list tool");
     }
-=======
-    ]);
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     const tool = requireAgentsListTool();
     const result = await tool.execute("call4", {});

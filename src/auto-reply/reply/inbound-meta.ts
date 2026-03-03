@@ -37,7 +37,6 @@ export function buildInboundMetaSystemPrompt(ctx: TemplateContext): string {
 
   // Keep system metadata strictly free of attacker-controlled strings (sender names, group subjects, etc.).
   // Those belong in the user-role "untrusted context" blocks.
-<<<<<<< HEAD
   // Per-message identifiers (message_id, reply_to_id, sender_id) are also excluded here: they change
   // on every turn and would bust prefix-based prompt caches on local model providers. They are
   // included in the user-role conversation info block via buildInboundUserContextPrefix() instead.
@@ -48,12 +47,6 @@ export function buildInboundMetaSystemPrompt(ctx: TemplateContext): string {
     channel: safeTrim(ctx.OriginatingChannel) ?? safeTrim(ctx.Surface) ?? safeTrim(ctx.Provider),
     provider: safeTrim(ctx.Provider),
     surface: safeTrim(ctx.Surface),
-=======
-=======
-  // Per-message identifiers and dynamic flags are also excluded here: they change on turns/replies
-  // and would bust prefix-based prompt caches on providers that use stable system prefixes.
-  // They are included in the user-role conversation info block instead.
->>>>>>> 31e4c21b6 (fix(auto-reply): move volatile inbound flags out of system metadata)
 
   // Resolve channel identity: prefer explicit channel, then surface, then provider.
   // For webchat/Hub Chat sessions (when Surface is 'webchat' or undefined with no real channel),
@@ -76,15 +69,10 @@ export function buildInboundMetaSystemPrompt(ctx: TemplateContext): string {
     chat_id: safeTrim(ctx.OriginatingTo),
     account_id: safeTrim(ctx.AccountId),
     channel: channelValue,
-<<<<<<< HEAD
     channel_topic: channelTopic,
     provider,
     surface,
 >>>>>>> eedea6cf3 (Discord: add trusted channel topics on new sessions)
-=======
-    provider: safeTrim(ctx.Provider),
-    surface: safeTrim(ctx.Surface),
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
     chat_type: chatType ?? (isDirect ? "direct" : undefined),
   };
 

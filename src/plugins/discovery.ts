@@ -5,10 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { PluginDiagnostic, PluginOrigin } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -340,8 +337,6 @@ function addCandidate(params: {
   });
 }
 
-<<<<<<< HEAD
-=======
 function resolvePackageEntrySource(params: {
   packageDir: string;
   entryPath: string;
@@ -367,7 +362,6 @@ function resolvePackageEntrySource(params: {
   return safeSource;
 }
 
->>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
 function discoverInDirectory(params: {
   dir: string;
   origin: PluginOrigin;
@@ -603,7 +597,6 @@ export function discoverMoltbotPlugins(params: {
   }
   if (workspaceDir) {
     const workspaceRoot = resolveUserPath(workspaceDir);
-<<<<<<< HEAD
     const workspaceExt = path.join(workspaceRoot, ".clawdbot", "extensions");
     discoverInDirectory({
       dir: workspaceExt,
@@ -613,20 +606,6 @@ export function discoverMoltbotPlugins(params: {
       diagnostics,
       seen,
     });
-=======
-    const workspaceExtDirs = [path.join(workspaceRoot, ".openclaw", "extensions")];
-    for (const dir of workspaceExtDirs) {
-      discoverInDirectory({
-        dir,
-        origin: "workspace",
-        ownershipUid: params.ownershipUid,
-        workspaceDir: workspaceRoot,
-        candidates,
-        diagnostics,
-        seen,
-      });
-    }
->>>>>>> 77c748304 (refactor(plugins): extract safety and provenance helpers)
   }
 
   const bundledDir = resolveBundledPluginsDir();

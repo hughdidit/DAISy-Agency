@@ -54,12 +54,7 @@ struct ExecCommandResolution: Sendable {
     }
 
     static func resolve(command: [String], cwd: String?, env: [String: String]?) -> ExecCommandResolution? {
-<<<<<<< HEAD
         guard let raw = command.first?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
-=======
-        let effective = ExecEnvInvocationUnwrapper.unwrapDispatchWrappersForResolution(command)
-        guard let raw = effective.first?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
->>>>>>> a96d89f34 (refactor: unify exec wrapper resolution and parity fixtures)
             return nil
         }
         return self.resolveExecutable(rawExecutable: raw, cwd: cwd, env: env)
@@ -106,7 +101,6 @@ struct ExecCommandResolution: Sendable {
         return trimmed.split(whereSeparator: { $0.isWhitespace }).first.map(String.init)
     }
 
-<<<<<<< HEAD
     private static func basenameLower(_ token: String) -> String {
         let trimmed = token.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return "" }
@@ -148,8 +142,6 @@ struct ExecCommandResolution: Sendable {
         return (false, nil)
     }
 
-=======
->>>>>>> a96d89f34 (refactor: unify exec wrapper resolution and parity fixtures)
     private enum ShellTokenContext {
         case unquoted
         case doubleQuoted

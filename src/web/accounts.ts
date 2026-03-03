@@ -5,14 +5,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { DmPolicy, GroupPolicy, WhatsAppAccountConfig } from "../config/types.js";
-import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
->>>>>>> 59384001a (channels: migrate core channel account listing to factory)
 import { resolveOAuthDir } from "../config/paths.js";
 import type { DmPolicy, GroupPolicy, WhatsAppAccountConfig } from "../config/types.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
@@ -62,7 +56,6 @@ export type ResolvedWhatsAppAccount = {
   debounceMs?: number;
 };
 
-<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = cfg.channels?.whatsapp?.accounts;
   if (!accounts || typeof accounts !== "object") {
@@ -70,12 +63,6 @@ function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   }
   return Object.keys(accounts).filter(Boolean);
 }
-=======
-const { listConfiguredAccountIds, listAccountIds, resolveDefaultAccountId } =
-  createAccountListHelpers("whatsapp");
-export const listWhatsAppAccountIds = listAccountIds;
-export const resolveDefaultWhatsAppAccountId = resolveDefaultAccountId;
->>>>>>> 59384001a (channels: migrate core channel account listing to factory)
 
 export function listWhatsAppAuthDirs(cfg: MoltbotConfig): string[] {
   const oauthDir = resolveOAuthDir();
@@ -106,7 +93,6 @@ export function hasAnyWhatsAppAuth(cfg: MoltbotConfig): boolean {
   return listWhatsAppAuthDirs(cfg).some((authDir) => hasWebCredsSync(authDir));
 }
 
-<<<<<<< HEAD
 export function listWhatsAppAccountIds(cfg: MoltbotConfig): string[] {
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) {
@@ -123,8 +109,6 @@ export function resolveDefaultWhatsAppAccountId(cfg: MoltbotConfig): string {
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
 
-=======
->>>>>>> 59384001a (channels: migrate core channel account listing to factory)
 function resolveAccountConfig(
   cfg: MoltbotConfig,
   accountId: string,

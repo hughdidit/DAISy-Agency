@@ -9,7 +9,6 @@ import {
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 const webMocks = vi.hoisted(() => ({
@@ -51,14 +50,6 @@ function makeCfg(home: string) {
 afterEach(() => {
   vi.restoreAllMocks();
 });
-=======
-=======
-let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
-beforeAll(async () => {
-  ({ getReplyFromConfig } = await import("./reply.js"));
-});
-
->>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
@@ -124,7 +115,6 @@ describe("trigger handling", () => {
         command: "/status",
         getReplyFromConfig,
       });
-<<<<<<< HEAD
 
       const baseCfg = makeCfg(home);
       const cfg = {
@@ -135,9 +125,6 @@ describe("trigger handling", () => {
             workspace: join(home, "clawd"),
           },
         },
-=======
-        ...baseCfg,
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         channels: {
           ...baseCfg.channels,
           whatsapp: {
@@ -176,7 +163,6 @@ describe("trigger handling", () => {
         command: "/help",
         getReplyFromConfig,
       });
-<<<<<<< HEAD
 
       const baseCfg = makeCfg(home);
       const cfg = {
@@ -187,9 +173,6 @@ describe("trigger handling", () => {
             workspace: join(home, "clawd"),
           },
         },
-=======
-        ...baseCfg,
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         channels: {
           ...baseCfg.channels,
           whatsapp: {
@@ -244,16 +227,12 @@ describe("trigger handling", () => {
     await withTempHome(async (home) => {
       const baseCfg = makeCfg(home);
       const cfg = {
-<<<<<<< HEAD
         agents: {
           defaults: {
             model: "anthropic/claude-opus-4-5",
             workspace: join(home, "clawd"),
           },
         },
-=======
-        ...baseCfg,
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         channels: {
           ...baseCfg.channels,
           whatsapp: {

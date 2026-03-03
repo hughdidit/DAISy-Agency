@@ -1,21 +1,7 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
 import { validateConfigObject } from "./config.js";
 
-=======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { validateConfigObject } from "./config.js";
-import { buildWebSearchProviderConfig } from "./test-helpers.js";
-
-vi.mock("../runtime.js", () => ({
-  defaultRuntime: { log: vi.fn(), error: vi.fn() },
-}));
-
-const { __testing } = await import("../agents/tools/web-search.js");
-const { resolveSearchProvider } = __testing;
-
->>>>>>> 3a3c2da91 ([Feature]: Add Gemini (Google Search grounding) as web_search provider (#13075))
 describe("web search provider config", () => {
   it("accepts perplexity provider and config", () => {
     const res = validateConfigObject(
@@ -32,8 +18,6 @@ describe("web search provider config", () => {
 
     expect(res.ok).toBe(true);
   });
-<<<<<<< HEAD
-=======
 
   it("accepts gemini provider and config", () => {
     const res = validateConfigObject(
@@ -141,5 +125,4 @@ describe("web search provider auto-detection", () => {
       >[0]),
     ).toBe("gemini");
   });
->>>>>>> 3a3c2da91 ([Feature]: Add Gemini (Google Search grounding) as web_search provider (#13075))
 });

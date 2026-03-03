@@ -2,14 +2,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { readConfigFileSnapshot } from "../../config/config.js";
 import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-flow.js";
-=======
-import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-flow.js";
-import { readConfigFileSnapshot } from "../../config/config.js";
-import type { RuntimeEnv } from "../../runtime.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../../runtime.js";
 import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-flow.js";
@@ -31,12 +25,7 @@ import { readConfigFileSnapshot } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { colorize, isRich, theme } from "../../terminal/theme.js";
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
-=======
-import { shortenHomePath } from "../../utils.js";
-import { shouldMigrateStateFromPath } from "../argv.js";
->>>>>>> f86840f4d (perf(cli): reduce read-only startup overhead)
 import { formatCliCommand } from "../command-format.js";
 import { shortenHomePath } from "../../utils.js";
 

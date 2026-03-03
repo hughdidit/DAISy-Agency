@@ -2,7 +2,6 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let originalIsTTY: boolean | undefined;
@@ -326,11 +325,6 @@ vi.mock("./doctor-state-migrations.js", () => ({
     warnings: [],
   }),
 }));
-=======
-import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-import { note, readConfigFileSnapshot } from "./doctor.e2e-harness.js";
->>>>>>> ae97f8f79 (refactor(test): share doctor e2e harness)
 
 describe("doctor command", () => {
   it("warns when per-agent sandbox docker/browser/prune overrides are ignored under shared scope", async () => {
@@ -402,7 +396,6 @@ describe("doctor command", () => {
     ).toBe(true);
   }, 30_000);
 
-<<<<<<< HEAD
   it("warns when extra workspace directories exist", async () => {
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
@@ -410,10 +403,6 @@ describe("doctor command", () => {
       raw: "{}",
       parsed: {},
       valid: true,
-=======
-  it("does not warn when only the active workspace is present", async () => {
-    mockDoctorConfigSnapshot({
->>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
       config: {
         agents: { defaults: { workspace: "/Users/steipete/clawd" } },
       },
@@ -425,15 +414,7 @@ describe("doctor command", () => {
     const legacyPath = path.join("/Users/steipete", "moltbot");
     const legacyAgentsPath = path.join(legacyPath, "AGENTS.md");
     const existsSpy = vi.spyOn(fs, "existsSync").mockImplementation((value) => {
-<<<<<<< HEAD
       if (value === "/Users/steipete/moltbot" || value === legacyPath || value === legacyAgentsPath)
-=======
-      if (
-        value === "/Users/steipete/openclaw" ||
-        value === legacyPath ||
-        value === legacyAgentsPath
-      ) {
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
         return true;
       }
       return realExists(value as never);

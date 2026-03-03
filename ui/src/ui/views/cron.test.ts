@@ -5,15 +5,10 @@ import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { DEFAULT_CRON_FORM } from "../app-defaults";
 import type { CronJob } from "../types";
 import { renderCron, type CronProps } from "./cron";
-=======
-import type { CronJob } from "../types.ts";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_CRON_FORM } from "../app-defaults.ts";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -186,8 +181,6 @@ describe("cron view", () => {
     expect(onLoadRuns).toHaveBeenCalledTimes(1);
     expect(onLoadRuns).toHaveBeenCalledWith("job-1");
   });
-<<<<<<< HEAD
-=======
 
   it("renders run chat links when session keys are present", () => {
     const container = document.createElement("div");
@@ -338,7 +331,6 @@ describe("cron view", () => {
     expect(container.textContent).toContain("https://example.invalid/cron");
   });
 <<<<<<< HEAD
->>>>>>> 115cfb443 (gateway: add cron finished-run webhook (#14535))
 =======
 
   it("wires the Edit action and shows save/cancel controls when editing", () => {

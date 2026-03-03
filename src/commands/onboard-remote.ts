@@ -1,19 +1,11 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { isSecureWebSocketUrl } from "../gateway/net.js";
->>>>>>> 8a3d04c19 (Gateway UX: harden remote ws guidance and onboarding defaults)
 import type { GatewayBonjourBeacon } from "../infra/bonjour-discovery.js";
 import { discoverGatewayBeacons } from "../infra/bonjour-discovery.js";
-<<<<<<< HEAD
-=======
 import { resolveWideAreaDiscoveryDomain } from "../infra/widearea-dns.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { WizardPrompter } from "../wizard/prompts.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

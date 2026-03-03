@@ -2,11 +2,8 @@ import fs from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
 
 import { LEGACY_CANVAS_HANDLER_NAME } from "../compat/legacy-names.js";
-=======
->>>>>>> 1a4fb3503 (refactor(canvas-host): share static file resolver)
 import { detectMime } from "../media/mime.js";
 import { resolveFileWithinRoot } from "./file-resolver.js";
 
@@ -81,7 +78,6 @@ async function resolveA2uiRootReal(): Promise<string | null> {
   return resolvingA2uiRoot;
 }
 
-<<<<<<< HEAD
 function normalizeUrlPath(rawPath: string): string {
   const decoded = decodeURIComponent(rawPath || "/");
   const normalized = path.posix.normalize(decoded);
@@ -125,8 +121,6 @@ async function resolveA2uiFilePath(rootReal: string, urlPath: string) {
   }
 }
 
-=======
->>>>>>> 1a4fb3503 (refactor(canvas-host): share static file resolver)
 export function injectCanvasLiveReload(html: string): string {
   const legacyHandlerName = LEGACY_CANVAS_HANDLER_NAME;
   const snippet = `
@@ -201,13 +195,7 @@ export async function handleA2uiHttpRequest(
   }
 
   const url = new URL(urlRaw, "http://localhost");
-<<<<<<< HEAD
   if (url.pathname !== A2UI_PATH && !url.pathname.startsWith(`${A2UI_PATH}/`)) {
-=======
-  const basePath =
-    url.pathname === A2UI_PATH || url.pathname.startsWith(`${A2UI_PATH}/`) ? A2UI_PATH : undefined;
-  if (!basePath) {
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     return false;
   }
 
@@ -226,15 +214,9 @@ export async function handleA2uiHttpRequest(
     return true;
   }
 
-<<<<<<< HEAD
   const rel = url.pathname.slice(A2UI_PATH.length);
   const filePath = await resolveA2uiFilePath(a2uiRootReal, rel || "/");
   if (!filePath) {
-=======
-  const rel = url.pathname.slice(basePath.length);
-  const result = await resolveFileWithinRoot(a2uiRootReal, rel || "/");
-  if (!result) {
->>>>>>> 1a4fb3503 (refactor(canvas-host): share static file resolver)
     res.statusCode = 404;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.end("not found");

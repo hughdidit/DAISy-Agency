@@ -5,19 +5,10 @@ import {
   createReplyPrefixOptions,
   formatTextWithAttachmentLinks,
   logInboundDrop,
-<<<<<<< HEAD
-=======
   isDangerousNameMatchingEnabled,
   readStoreAllowFromForDmPolicy,
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   resolveControlCommandGate,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  resolveAllowlistProviderRuntimeGroupPolicy,
-  resolveDefaultGroupPolicy,
-  warnMissingProviderGroupPolicyFallbackOnce,
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 =======
   resolveOutboundMediaUrls,
   resolveAllowlistProviderRuntimeGroupPolicy,
@@ -100,14 +91,9 @@ export async function handleIrcInbound(params: {
     : message.senderNick;
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
-<<<<<<< HEAD
   const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-=======
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(config);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: config.channels?.irc !== undefined,
@@ -125,16 +111,7 @@ export async function handleIrcInbound(params: {
 
   const configAllowFrom = normalizeIrcAllowlist(account.config.allowFrom);
   const configGroupAllowFrom = normalizeIrcAllowlist(account.config.groupAllowFrom);
-<<<<<<< HEAD
   const storeAllowFrom = await core.channel.pairing.readAllowFromStore(CHANNEL_ID).catch(() => []);
-=======
-  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-    provider: CHANNEL_ID,
-    accountId: account.accountId,
-    dmPolicy,
-    readStore: pairing.readStoreForDmPolicy,
-  });
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const storeAllowList = normalizeIrcAllowlist(storeAllowFrom);
 
   const groupMatch = resolveIrcGroupMatch({

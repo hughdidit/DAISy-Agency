@@ -54,8 +54,6 @@ const mockPrimary = {
   close: vi.fn(async () => {}),
 };
 
-<<<<<<< HEAD
-=======
 const fallbackSearch = vi.fn(async () => [
   {
     path: "MEMORY.md",
@@ -79,7 +77,6 @@ const fallbackManager = {
 
 const mockMemoryIndexGet = vi.fn(async () => fallbackManager);
 
->>>>>>> c4dbcc344 (Memory/QMD: make status checks side-effect free)
 vi.mock("./qmd-manager.js", () => ({
   QmdMemoryManager: {
     create: vi.fn(async () => mockPrimary),
@@ -88,7 +85,6 @@ vi.mock("./qmd-manager.js", () => ({
 
 vi.mock("./manager.js", () => ({
   MemoryIndexManager: {
-<<<<<<< HEAD
     get: vi.fn(async () => ({
       search: vi.fn(async () => [
         {
@@ -117,9 +113,6 @@ vi.mock("./manager.js", () => ({
       probeVectorAvailability: vi.fn(async () => true),
       close: vi.fn(async () => {}),
     })),
-=======
-    get: mockMemoryIndexGet,
->>>>>>> c4dbcc344 (Memory/QMD: make status checks side-effect free)
   },
 }));
 
@@ -161,8 +154,6 @@ beforeEach(() => {
   mockPrimary.probeEmbeddingAvailability.mockClear();
   mockPrimary.probeVectorAvailability.mockClear();
   mockPrimary.close.mockClear();
-<<<<<<< HEAD
-=======
   fallbackSearch.mockClear();
   fallbackManager.readFile.mockClear();
   fallbackManager.status.mockClear();
@@ -173,7 +164,6 @@ beforeEach(() => {
   mockMemoryIndexGet.mockClear();
   mockMemoryIndexGet.mockResolvedValue(fallbackManager);
 <<<<<<< HEAD
->>>>>>> c4dbcc344 (Memory/QMD: make status checks side-effect free)
   QmdMemoryManager.create.mockClear();
 =======
   createQmdManagerMock.mockClear();
@@ -260,8 +250,6 @@ describe("getMemorySearchManager caching", () => {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(createQmdManagerMock).toHaveBeenCalledTimes(2);
   });
-<<<<<<< HEAD
-=======
 
   it("falls back to builtin search when qmd fails with sqlite busy", async () => {
     const retryAgentId = "retry-agent-busy";
@@ -286,5 +274,4 @@ describe("getMemorySearchManager caching", () => {
 
     await expect(firstManager.search("hello")).rejects.toThrow("qmd query failed");
   });
->>>>>>> 53a8f474e (Memory/QMD: handle fallback init failures gracefully)
 });

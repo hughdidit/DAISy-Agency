@@ -1,6 +1,4 @@
 import type { MsgContext } from "../../auto-reply/templating.js";
-<<<<<<< HEAD
-=======
 import type { ChatType } from "../../channels/chat-type.js";
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 import type { ChannelId } from "../../channels/plugins/types.js";
@@ -11,7 +9,6 @@ import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ResolvedMessagingTarget } from "./target-resolver.js";
->>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 import type { ChannelId } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
@@ -819,8 +816,6 @@ function resolveTlonSession(
   };
 }
 
-<<<<<<< HEAD
-=======
 /**
  * Feishu ID formats:
  * - oc_xxx: chat_id (can be group or DM, use chat_mode to distinguish or explicit dm:/group: prefix)
@@ -883,7 +878,6 @@ function resolveFeishuSession(
   };
 }
 
->>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
 function resolveFallbackSession(
   params: ResolveOutboundSessionRouteParams,
 ): OutboundSessionRoute | null {
@@ -952,7 +946,6 @@ export async function resolveOutboundSessionRoute(
   if (!target) {
     return null;
   }
-<<<<<<< HEAD
   switch (params.channel) {
     case "slack":
       return await resolveSlackSession({ ...params, target });
@@ -986,12 +979,6 @@ export async function resolveOutboundSessionRoute(
       return resolveTlonSession({ ...params, target });
     default:
       return resolveFallbackSession({ ...params, target });
-=======
-  const nextParams = { ...params, target };
-  const resolver = OUTBOUND_SESSION_RESOLVERS[params.channel];
-  if (!resolver) {
-    return resolveFallbackSession(nextParams);
->>>>>>> 493ebb915 (refactor: simplify telegram delivery and outbound session resolver flow)
   }
   return await resolver(nextParams);
 }

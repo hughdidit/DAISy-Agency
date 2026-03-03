@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
@@ -99,11 +98,6 @@ const _readSessionMessages = async (sessionFile: string) => {
     .map((entry) => entry.message as { role?: string; content?: unknown });
 };
 
-=======
-import { describe, expect, it } from "vitest";
-import { createSystemPromptOverride } from "./pi-embedded-runner.js";
-
->>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
 describe("createSystemPromptOverride", () => {
   it("returns the override prompt trimmed", () => {
     const override = createSystemPromptOverride("OVERRIDE");

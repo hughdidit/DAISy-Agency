@@ -5,15 +5,7 @@ import {
   createWriteTool,
   readTool,
 } from "@mariozechner/pi-coding-agent";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
-import { resolveMergedSafeBinProfileFixtures } from "../infra/exec-safe-bin-runtime-policy.js";
-import { logWarn } from "../logger.js";
-import { getPluginToolMeta } from "../plugins/tools.js";
->>>>>>> 076df941a (feat: add configurable tool loop detection)
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { resolveGatewayMessageChannel } from "../utils/message-channel.js";
 import { createApplyPatchTool } from "./apply-patch.js";
@@ -30,13 +22,8 @@ import { listChannelAgentTools } from "./channel-tools.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { createMoltbotTools } from "./moltbot-tools.js";
 import type { ModelAuthMode } from "./model-auth.js";
-=======
-import type { ModelAuthMode } from "./model-auth.js";
-=======
->>>>>>> a1538ea63 (Revert "fix: flatten remaining anyOf/oneOf in Gemini schema cleaning")
 =======
 import type { ModelAuthMode } from "./model-auth.js";
 >>>>>>> 01ea80887 (chore: Format files.)
@@ -48,11 +35,7 @@ import type { ModelAuthMode } from "./model-auth.js";
 =======
 import { resolveImageSanitizationLimits } from "./image-sanitization.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
-=======
-import { resolveImageSanitizationLimits } from "./image-sanitization.js";
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import type { ModelAuthMode } from "./model-auth.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
@@ -77,15 +60,11 @@ import {
   createSandboxedWriteTool,
   normalizeToolParams,
   patchToolSchemaForClaudeCompatibility,
-<<<<<<< HEAD
-=======
   wrapToolWorkspaceRootGuard,
   wrapToolWorkspaceRootGuardWithOptions,
->>>>>>> 73fab7e44 (fix(agents): map container workdir paths in workspace guard)
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -101,14 +80,6 @@ import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
 import {
   buildPluginToolGroups,
-=======
-import { applyToolPolicyPipeline } from "./tool-policy-pipeline.js";
-=======
-=======
-=======
-import type { AnyAgentTool } from "./pi-tools.types.js";
-import type { SandboxContext } from "./sandbox.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> a1538ea63 (Revert "fix: flatten remaining anyOf/oneOf in Gemini schema cleaning")
 =======
@@ -135,11 +106,7 @@ import type { SandboxContext } from "./sandbox.js";
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
-=======
-import { createToolFsPolicy } from "./tool-fs-policy.js";
->>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
 =======
 import { createToolFsPolicy, resolveToolFsConfig } from "./tool-fs-policy.js";
 >>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
@@ -155,12 +122,8 @@ import {
   mergeAlsoAllowPolicy,
   resolveToolProfilePolicy,
 } from "./tool-policy.js";
-<<<<<<< HEAD
 import { getPluginToolMeta } from "../plugins/tools.js";
 import { logWarn } from "../logger.js";
-=======
-import { resolveWorkspaceRoot } from "./workspace-dir.js";
->>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
 
 function isOpenAIProvider(provider?: string) {
   const normalized = provider?.trim().toLowerCase();
@@ -222,8 +185,6 @@ function isApplyPatchAllowedForModel(params: {
 
 function resolveExecConfig(cfg: MoltbotConfig | undefined) {
   const globalExec = cfg?.tools?.exec;
-<<<<<<< HEAD
-=======
   const agentExec =
     cfg && params.agentId ? resolveAgentConfig(cfg, params.agentId)?.tools?.exec : undefined;
 <<<<<<< HEAD
@@ -234,11 +195,9 @@ function resolveExecConfig(cfg: MoltbotConfig | undefined) {
           ...agentExec?.safeBinProfiles,
         }
       : undefined;
->>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 =======
 >>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
   return {
-<<<<<<< HEAD
     host: globalExec?.host,
     security: globalExec?.security,
     ask: globalExec?.ask,
@@ -251,39 +210,6 @@ function resolveExecConfig(cfg: MoltbotConfig | undefined) {
     cleanupMs: globalExec?.cleanupMs,
     notifyOnExit: globalExec?.notifyOnExit,
     applyPatch: globalExec?.applyPatch,
-=======
-    host: agentExec?.host ?? globalExec?.host,
-    security: agentExec?.security ?? globalExec?.security,
-    ask: agentExec?.ask ?? globalExec?.ask,
-    node: agentExec?.node ?? globalExec?.node,
-    pathPrepend: agentExec?.pathPrepend ?? globalExec?.pathPrepend,
-    safeBins: agentExec?.safeBins ?? globalExec?.safeBins,
-    safeBinTrustedDirs: agentExec?.safeBinTrustedDirs ?? globalExec?.safeBinTrustedDirs,
-    safeBinProfiles: resolveMergedSafeBinProfileFixtures({
-      global: globalExec,
-      local: agentExec,
-    }),
-    backgroundMs: agentExec?.backgroundMs ?? globalExec?.backgroundMs,
-    timeoutSec: agentExec?.timeoutSec ?? globalExec?.timeoutSec,
-    approvalRunningNoticeMs:
-      agentExec?.approvalRunningNoticeMs ?? globalExec?.approvalRunningNoticeMs,
-    cleanupMs: agentExec?.cleanupMs ?? globalExec?.cleanupMs,
-    notifyOnExit: agentExec?.notifyOnExit ?? globalExec?.notifyOnExit,
-    notifyOnExitEmptySuccess:
-      agentExec?.notifyOnExitEmptySuccess ?? globalExec?.notifyOnExitEmptySuccess,
-    applyPatch: agentExec?.applyPatch ?? globalExec?.applyPatch,
-  };
-}
-
-<<<<<<< HEAD
-function resolveFsConfig(params: { cfg?: OpenClawConfig; agentId?: string }) {
-  const cfg = params.cfg;
-  const globalFs = cfg?.tools?.fs;
-  const agentFs =
-    cfg && params.agentId ? resolveAgentConfig(cfg, params.agentId)?.tools?.fs : undefined;
-  return {
-    workspaceOnly: agentFs?.workspaceOnly ?? globalFs?.workspaceOnly,
->>>>>>> dec685970 (agents: reduce prompt token bloat from exec and context (#16539))
   };
 }
 
@@ -324,12 +250,7 @@ export const __testing = {
   assertRequiredParams,
 } as const;
 
-<<<<<<< HEAD
 export function createMoltbotCodingTools(options?: {
-=======
-export function createOpenClawCodingTools(options?: {
-  agentId?: string;
->>>>>>> 394a1af70 (fix(exec): apply per-agent exec defaults for opaque session keys)
   exec?: ExecToolDefaults & ProcessToolDefaults;
   messageProvider?: string;
   agentAccountId?: string;
@@ -447,28 +368,11 @@ export function createOpenClawCodingTools(options?: {
     sandbox?.tools,
     subagentPolicy,
   ]);
-<<<<<<< HEAD
   const execConfig = resolveExecConfig(options?.config);
-=======
-  const execConfig = resolveExecConfig({ cfg: options?.config, agentId });
-  const fsConfig = resolveToolFsConfig({ cfg: options?.config, agentId });
-  const fsPolicy = createToolFsPolicy({
-    workspaceOnly: fsConfig.workspaceOnly,
-  });
->>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
   const sandboxRoot = sandbox?.workspaceDir;
   const allowWorkspaceWrites = sandbox?.workspaceAccess !== "ro";
-<<<<<<< HEAD
   const workspaceRoot = options?.workspaceDir ?? process.cwd();
   const applyPatchConfig = options?.config?.tools?.exec?.applyPatch;
-=======
-  const workspaceRoot = resolveWorkspaceRoot(options?.workspaceDir);
-  const workspaceOnly = fsPolicy.workspaceOnly;
-  const applyPatchConfig = execConfig.applyPatch;
-  // Secure by default: apply_patch is workspace-contained unless explicitly disabled.
-  // (tools.fs.workspaceOnly is a separate umbrella flag for read/write/edit/apply_patch.)
-  const applyPatchWorkspaceOnly = workspaceOnly || applyPatchConfig?.workspaceOnly !== false;
->>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
   const applyPatchEnabled =
     !!applyPatchConfig?.enabled &&
     isOpenAIProvider(options?.modelProvider) &&
@@ -478,44 +382,18 @@ export function createOpenClawCodingTools(options?: {
       allowModels: applyPatchConfig?.allowModels,
     });
 
-<<<<<<< HEAD
-=======
   if (sandboxRoot && !sandboxFsBridge) {
     throw new Error("Sandbox filesystem bridge is unavailable.");
   }
   const imageSanitization = resolveImageSanitizationLimits(options?.config);
 
->>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
   const base = (codingTools as unknown as AnyAgentTool[]).flatMap((tool) => {
     if (tool.name === readTool.name) {
       if (sandboxRoot) {
-<<<<<<< HEAD
         return [createSandboxedReadTool(sandboxRoot)];
       }
       const freshReadTool = createReadTool(workspaceRoot);
       return [createMoltbotReadTool(freshReadTool)];
-=======
-        const sandboxed = createSandboxedReadTool({
-          root: sandboxRoot,
-          bridge: sandboxFsBridge!,
-          modelContextWindowTokens: options?.modelContextWindowTokens,
-          imageSanitization,
-        });
-        return [
-          workspaceOnly
-            ? wrapToolWorkspaceRootGuardWithOptions(sandboxed, sandboxRoot, {
-                containerWorkdir: sandbox.containerWorkdir,
-              })
-            : sandboxed,
-        ];
-      }
-      const freshReadTool = createReadTool(workspaceRoot);
-      const wrapped = createOpenClawReadTool(freshReadTool, {
-        modelContextWindowTokens: options?.modelContextWindowTokens,
-        imageSanitization,
-      });
-      return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
->>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
     }
     if (tool.name === "bash" || tool.name === execToolName) {
       return [];
@@ -524,27 +402,17 @@ export function createOpenClawCodingTools(options?: {
       if (sandboxRoot) {
         return [];
       }
-<<<<<<< HEAD
       // Wrap with param normalization for Claude Code compatibility
       return [
         wrapToolParamNormalization(createWriteTool(workspaceRoot), CLAUDE_PARAM_GROUPS.write),
       ];
-=======
-      const wrapped = createHostWorkspaceWriteTool(workspaceRoot, { workspaceOnly });
-      return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
->>>>>>> 172583972 (fix(tools): honor tools.fs.workspaceOnly=false for host write/edit (#28822))
     }
     if (tool.name === "edit") {
       if (sandboxRoot) {
         return [];
       }
-<<<<<<< HEAD
       // Wrap with param normalization for Claude Code compatibility
       return [wrapToolParamNormalization(createEditTool(workspaceRoot), CLAUDE_PARAM_GROUPS.edit)];
-=======
-      const wrapped = createHostWorkspaceEditTool(workspaceRoot, { workspaceOnly });
-      return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
->>>>>>> 172583972 (fix(tools): honor tools.fs.workspaceOnly=false for host write/edit (#28822))
     }
     return [tool];
   });
@@ -596,30 +464,7 @@ export function createOpenClawCodingTools(options?: {
     ...base,
     ...(sandboxRoot
       ? allowWorkspaceWrites
-<<<<<<< HEAD
         ? [createSandboxedEditTool(sandboxRoot), createSandboxedWriteTool(sandboxRoot)]
-=======
-        ? [
-            workspaceOnly
-              ? wrapToolWorkspaceRootGuardWithOptions(
-                  createSandboxedEditTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
-                  sandboxRoot,
-                  {
-                    containerWorkdir: sandbox.containerWorkdir,
-                  },
-                )
-              : createSandboxedEditTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
-            workspaceOnly
-              ? wrapToolWorkspaceRootGuardWithOptions(
-                  createSandboxedWriteTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
-                  sandboxRoot,
-                  {
-                    containerWorkdir: sandbox.containerWorkdir,
-                  },
-                )
-              : createSandboxedWriteTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
-          ]
->>>>>>> 73fab7e44 (fix(agents): map container workdir paths in workspace guard)
         : []
       : []),
     ...(applyPatchTool ? [applyPatchTool as unknown as AnyAgentTool] : []),
@@ -640,14 +485,7 @@ export function createOpenClawCodingTools(options?: {
       agentGroupSpace: options?.groupSpace ?? null,
       agentDir: options?.agentDir,
       sandboxRoot,
-<<<<<<< HEAD
       workspaceDir: options?.workspaceDir,
-=======
-      sandboxFsBridge,
-<<<<<<< HEAD
-=======
-      fsPolicy,
->>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
       workspaceDir: workspaceRoot,
 >>>>>>> b79e7fdb7 (fix(image): propagate workspace root for image allowlist (#16722))
       sandboxed: !!sandbox,
@@ -675,7 +513,6 @@ export function createOpenClawCodingTools(options?: {
     }),
   ];
 <<<<<<< HEAD
-<<<<<<< HEAD
   const coreToolNames = new Set(
     tools
       .filter((tool) => !getPluginToolMeta(tool))
@@ -684,10 +521,6 @@ export function createOpenClawCodingTools(options?: {
   );
   const pluginGroups = buildPluginToolGroups({
     tools,
-=======
-=======
-  const toolsForMessageProvider = applyMessageProviderToolPolicy(tools, options?.messageProvider);
->>>>>>> e35fe7888 (refactor: centralize message-provider tool filtering)
   // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)
   const senderIsOwner = options?.senderIsOwner === true;
   const toolsByAuthorization = applyOwnerOnlyToolPolicy(tools, senderIsOwner);
@@ -713,7 +546,6 @@ export function createOpenClawCodingTools(options?: {
       { policy: subagentPolicy, label: "subagent tools.allow" },
     ],
   });
-<<<<<<< HEAD
   const resolvePolicy = (policy: typeof profilePolicy, label: string) => {
     const resolved = stripPluginOnlyAllowlist(policy, pluginGroups, coreToolNames);
     if (resolved.unknownAllowlist.length > 0) {
@@ -774,20 +606,10 @@ export function createOpenClawCodingTools(options?: {
   const subagentFiltered = subagentPolicyExpanded
     ? filterToolsByPolicy(sandboxed, subagentPolicyExpanded)
     : sandboxed;
-=======
->>>>>>> f97ad8f28 (refactor(tools): share tool policy pipeline)
   // Always normalize tool JSON Schemas before handing them to pi-agent/pi-ai.
   // Without this, some providers (notably OpenAI) will reject root-level union schemas.
-<<<<<<< HEAD
   const normalized = subagentFiltered.map(normalizeToolParameters);
 <<<<<<< HEAD
-=======
-=======
-  // Provider-specific cleaning: Gemini needs constraint keywords stripped, but Anthropic expects them.
-  const normalized = subagentFiltered.map((tool) =>
-    normalizeToolParameters(tool, { modelProvider: options?.modelProvider }),
-  );
->>>>>>> a1538ea63 (Revert "fix: flatten remaining anyOf/oneOf in Gemini schema cleaning")
   const withHooks = normalized.map((tool) =>
     wrapToolWithBeforeToolCallHook(tool, {
       agentId,

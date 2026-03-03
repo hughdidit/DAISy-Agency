@@ -111,8 +111,6 @@ describe("bluebubblesMessageActions", () => {
       expect(actions).toContain("edit");
       expect(actions).toContain("unsend");
     });
-<<<<<<< HEAD
-=======
 
     it("hides private-api actions when private API is disabled", () => {
       vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(false);
@@ -138,7 +136,6 @@ describe("bluebubblesMessageActions", () => {
       expect(actions).not.toContain("removeParticipant");
       expect(actions).not.toContain("leaveGroup");
     });
->>>>>>> 889f221ed (chore: Fix type errors in `extensions/bluebubbles` tests.)
   });
 
   describe("supportsAction", () => {
@@ -234,8 +231,6 @@ describe("bluebubblesMessageActions", () => {
       ).rejects.toThrow(/emoji/i);
     });
 
-<<<<<<< HEAD
-=======
     it("throws a private-api error for private-only actions when disabled", async () => {
       vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(false);
       const cfg: OpenClawConfig = {
@@ -256,7 +251,6 @@ describe("bluebubblesMessageActions", () => {
       ).rejects.toThrow("requires Private API");
     });
 
->>>>>>> 889f221ed (chore: Fix type errors in `extensions/bluebubbles` tests.)
     it("throws when messageId is missing", async () => {
       const cfg: MoltbotConfig = {
         channels: {
@@ -301,7 +295,6 @@ describe("bluebubblesMessageActions", () => {
     it("sends reaction successfully with chatGuid", async () => {
       const { sendBlueBubblesReaction } = await import("./reactions.js");
 
-<<<<<<< HEAD
       const cfg: MoltbotConfig = {
         channels: {
           bluebubbles: {
@@ -319,12 +312,6 @@ describe("bluebubblesMessageActions", () => {
         },
         cfg,
         accountId: null,
-=======
-      const result = await runReactAction({
-        emoji: "❤️",
-        messageId: "msg-123",
-        chatGuid: "iMessage;-;+15551234567",
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
       });
 
       expect(sendBlueBubblesReaction).toHaveBeenCalledWith(
@@ -343,7 +330,6 @@ describe("bluebubblesMessageActions", () => {
     it("sends reaction removal successfully", async () => {
       const { sendBlueBubblesReaction } = await import("./reactions.js");
 
-<<<<<<< HEAD
       const cfg: MoltbotConfig = {
         channels: {
           bluebubbles: {
@@ -362,13 +348,6 @@ describe("bluebubblesMessageActions", () => {
         },
         cfg,
         accountId: null,
-=======
-      const result = await runReactAction({
-        emoji: "❤️",
-        messageId: "msg-123",
-        chatGuid: "iMessage;-;+15551234567",
-        remove: true,
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
       });
 
       expect(sendBlueBubblesReaction).toHaveBeenCalledWith(

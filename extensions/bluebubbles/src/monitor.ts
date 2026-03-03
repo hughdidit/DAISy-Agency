@@ -1,15 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { timingSafeEqual } from "node:crypto";
 >>>>>>> ed11e93cf (chore(format))
@@ -21,7 +13,6 @@ import { timingSafeEqual } from "node:crypto";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
-<<<<<<< HEAD
 <<<<<<< HEAD
   createReplyPrefixOptions,
   logAckFailure,
@@ -298,14 +289,6 @@ type WebhookTarget = {
   path: string;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
 };
-=======
-=======
-  registerWebhookTarget,
-  rejectNonPostWebhookRequest,
-  resolveWebhookTargets,
-} from "openclaw/plugin-sdk";
-import {
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
   normalizeWebhookMessage,
   normalizeWebhookReaction,
   type NormalizedWebhookMessage,
@@ -539,7 +522,6 @@ export function registerBlueBubblesWebhookTarget(target: WebhookTarget): () => v
   };
 }
 
-<<<<<<< HEAD
 async function readJsonBody(req: IncomingMessage, maxBytes: number) {
   const chunks: Buffer[] = [];
   let total = 0;
@@ -551,84 +533,33 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
         req.destroy();
         return;
       }
-=======
-async function readJsonBody(req: IncomingMessage, maxBytes: number, timeoutMs = 30_000) {
-  const chunks: Buffer[] = [];
-  let total = 0;
-  return await new Promise<{ ok: boolean; value?: unknown; error?: string }>((resolve) => {
-    let done = false;
-    const finish = (result: { ok: boolean; value?: unknown; error?: string }) => {
-      if (done) {
-        return;
-      }
-      done = true;
-      clearTimeout(timer);
-      resolve(result);
-    };
-
-    const timer = setTimeout(() => {
-      finish({ ok: false, error: "request body timeout" });
-      req.destroy();
-    }, timeoutMs);
-
-    req.on("data", (chunk: Buffer) => {
-      total += chunk.length;
-      if (total > maxBytes) {
-        finish({ ok: false, error: "payload too large" });
-        req.destroy();
-        return;
-      }
->>>>>>> a1df0939d (refactor(bluebubbles): split monitor parsing and processing modules)
       chunks.push(chunk);
     });
     req.on("end", () => {
       try {
         const raw = Buffer.concat(chunks).toString("utf8");
         if (!raw.trim()) {
-<<<<<<< HEAD
           resolve({ ok: false, error: "empty payload" });
           return;
         }
         try {
           resolve({ ok: true, value: JSON.parse(raw) as unknown });
-=======
-          finish({ ok: false, error: "empty payload" });
-          return;
-        }
-        try {
-          finish({ ok: true, value: JSON.parse(raw) as unknown });
->>>>>>> a1df0939d (refactor(bluebubbles): split monitor parsing and processing modules)
           return;
         } catch {
           const params = new URLSearchParams(raw);
           const payload = params.get("payload") ?? params.get("data") ?? params.get("message");
           if (payload) {
-<<<<<<< HEAD
             resolve({ ok: true, value: JSON.parse(payload) as unknown });
-=======
-            finish({ ok: true, value: JSON.parse(payload) as unknown });
->>>>>>> a1df0939d (refactor(bluebubbles): split monitor parsing and processing modules)
             return;
           }
           throw new Error("invalid json");
         }
       } catch (err) {
-<<<<<<< HEAD
         resolve({ ok: false, error: err instanceof Error ? err.message : String(err) });
       }
     });
     req.on("error", (err) => {
       resolve({ ok: false, error: err instanceof Error ? err.message : String(err) });
-=======
-        finish({ ok: false, error: err instanceof Error ? err.message : String(err) });
-      }
-    });
-    req.on("error", (err) => {
-      finish({ ok: false, error: err instanceof Error ? err.message : String(err) });
-    });
-    req.on("close", () => {
-      finish({ ok: false, error: "connection closed" });
->>>>>>> a1df0939d (refactor(bluebubbles): split monitor parsing and processing modules)
     });
   });
 }
@@ -646,7 +577,6 @@ function maskSecret(value: string): string {
   return `${value.slice(0, 2)}***${value.slice(-2)}`;
 }
 
-<<<<<<< HEAD
 function resolveBlueBubblesAckReaction(params: {
   cfg: MoltbotConfig;
   agentId: string;
@@ -989,8 +919,6 @@ function normalizeWebhookReaction(
   };
 }
 
-=======
->>>>>>> a1df0939d (refactor(bluebubbles): split monitor parsing and processing modules)
 export async function handleBlueBubblesWebhookRequest(
   req: IncomingMessage,
   res: ServerResponse,
@@ -1144,7 +1072,6 @@ export async function handleBlueBubblesWebhookRequest(
   return true;
 }
 
-<<<<<<< HEAD
 async function processMessage(
   message: NormalizedWebhookMessage,
   target: WebhookTarget,
@@ -1721,35 +1648,6 @@ async function processMessage(
 
   let sentMessage = false;
 <<<<<<< HEAD
-=======
-  let streamingActive = false;
-  let typingRestartTimer: NodeJS.Timeout | undefined;
-  const typingRestartDelayMs = 150;
-  const clearTypingRestartTimer = () => {
-    if (typingRestartTimer) {
-      clearTimeout(typingRestartTimer);
-      typingRestartTimer = undefined;
-    }
-  };
-  const restartTypingSoon = () => {
-    if (!streamingActive || !chatGuidForActions || !baseUrl || !password) {
-      return;
-    }
-    clearTypingRestartTimer();
-    typingRestartTimer = setTimeout(() => {
-      typingRestartTimer = undefined;
-      if (!streamingActive) {
-        return;
-      }
-      sendBlueBubblesTyping(chatGuidForActions, true, {
-        cfg: config,
-        accountId: account.accountId,
-      }).catch((err) => {
-        runtime.error?.(`[bluebubbles] typing restart failed: ${String(err)}`);
-      });
-    }, typingRestartDelayMs);
-  };
->>>>>>> 8d2f98fb0 (Fix subagent announce failover race (always emit lifecycle end + treat timeout=0 as no-timeout) (#6621))
   try {
     const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
       cfg: config,
@@ -1761,12 +1659,7 @@ async function processMessage(
       ctx: ctxPayload,
       cfg: config,
       dispatcherOptions: {
-<<<<<<< HEAD
         deliver: async (payload) => {
-=======
-        ...prefixOptions,
-        deliver: async (payload, info) => {
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
           const rawReplyToId =
             typeof payload.replyToId === "string" ? payload.replyToId.trim() : "";
           // Resolve short ID (e.g., "5") to full UUID
@@ -1918,13 +1811,8 @@ async function processMessage(
         },
       });
     }
-<<<<<<< HEAD
     if (chatGuidForActions && baseUrl && password && !sentMessage) {
       // Stop typing indicator when no message was sent (e.g., NO_REPLY)
-=======
-    if (shouldStopTyping && chatGuidForActions) {
-      // Stop typing after streaming completes to avoid a stuck indicator.
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
       sendBlueBubblesTyping(chatGuidForActions, false, {
         cfg: config,
         accountId: account.accountId,

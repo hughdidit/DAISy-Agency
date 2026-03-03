@@ -4,15 +4,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { App } from "@slack/bolt";
 <<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
 import type { MoltbotConfig } from "../../../config/config.js";
-=======
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { App } from "@slack/bolt";
 >>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
@@ -41,12 +37,7 @@ import type { OpenClawConfig } from "../../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> b93ad2cd4 (fix(slack): populate thread session with existing thread history (#7610))
-=======
-import { resolveAgentRoute } from "../../../routing/resolve-route.js";
-import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
 =======
@@ -69,19 +60,7 @@ import type { RuntimeEnv } from "../../../runtime.js";
 import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 import type { ResolvedSlackAccount } from "../../accounts.js";
 import type { SlackMessageEvent } from "../../types.js";
-<<<<<<< HEAD:src/slack/monitor/message-handler/prepare.inbound-contract.test.ts
 <<<<<<< HEAD
-=======
-=======
-import type { SlackMonitorContext } from "../context.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> a7f6c9567 (perf(test): consolidate slack monitor suites):src/slack/monitor/message-handler/prepare.test.ts
 import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 import { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
@@ -212,57 +191,14 @@ describe("slack prepareSlackMessage inbound contract", () => {
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("produces a finalized MsgContext", async () => {
     const slackCtx = createSlackMonitorContext({
       cfg: {
         channels: { slack: { enabled: true } },
       } as MoltbotConfig,
-=======
-=======
-  function createSlackAccount(config: ResolvedSlackAccount["config"] = {}): ResolvedSlackAccount {
-    return {
-      accountId: "default",
-      enabled: true,
-      botTokenSource: "config",
-      appTokenSource: "config",
-      userTokenSource: "none",
-      config,
-      replyToMode: config.replyToMode,
-      replyToModeByChatType: config.replyToModeByChatType,
-      dm: config.dm,
-    };
-  }
-
-  function createSlackMessage(overrides: Partial<SlackMessageEvent>): SlackMessageEvent {
-    return {
-      channel: "D123",
-      channel_type: "im",
-      user: "U1",
-      text: "hi",
-      ts: "1.000",
-      ...overrides,
-    } as SlackMessageEvent;
-  }
-
-  async function prepareMessageWith(
-    ctx: SlackMonitorContext,
-    account: ResolvedSlackAccount,
-    message: SlackMessageEvent,
-  ) {
-    return prepareSlackMessage({
-      ctx,
-      account,
-      message,
-      opts: { source: "message" },
-    });
-  }
-
->>>>>>> a177f7b9f (refactor(tests): dedupe slack telegram and web monitor setup)
   function createThreadSlackCtx(params: { cfg: OpenClawConfig; replies: unknown }) {
     return createInboundSlackCtx({
       cfg: params.cfg,
-<<<<<<< HEAD
 >>>>>>> aae290eed (refactor(test): dedupe slack inbound contract setup)
       accountId: "default",
       botToken: "token",
@@ -279,12 +215,8 @@ describe("slack prepareSlackMessage inbound contract", () => {
       allowFrom: [],
       groupDmEnabled: true,
       groupDmChannels: [],
-=======
-      appClient: { conversations: { replies: params.replies } } as App["client"],
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
       defaultRequireMention: false,
       replyToMode: "all",
-<<<<<<< HEAD
       threadHistoryScope: "thread",
       threadInheritParent: false,
       slashCommand: {
@@ -297,8 +229,6 @@ describe("slack prepareSlackMessage inbound contract", () => {
       ackReactionScope: "group-mentions",
       mediaMaxBytes: 1024,
       removeAckAfterReply: false,
-=======
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     });
   }
 
@@ -347,35 +277,6 @@ describe("slack prepareSlackMessage inbound contract", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  it("includes forwarded shared attachment text in raw body", async () => {
-    const prepared = await prepareWithDefaultCtx(
-      createSlackMessage({
-        text: "",
-        attachments: [{ is_share: true, author_name: "Bob", text: "Forwarded hello" }],
-      }),
-    );
-
-    expect(prepared).toBeTruthy();
-    expect(prepared!.ctxPayload.RawBody).toContain("[Forwarded message from Bob]\nForwarded hello");
-  });
-
-  it("ignores non-forward attachments when no direct text/files are present", async () => {
-    const prepared = await prepareWithDefaultCtx(
-      createSlackMessage({
-        text: "",
-        files: [],
-        attachments: [{ is_msg_unfurl: true, text: "link unfurl text" }],
-      }),
-    );
-
-    expect(prepared).toBeNull();
-  });
-
-<<<<<<< HEAD
->>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
 =======
   it("delivers file-only message with placeholder when media download fails", async () => {
     // Files without url_private will fail to download, simulating a download
@@ -394,52 +295,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
     expect(prepared!.ctxPayload.RawBody).toContain("photo.jpg");
   });
 
-<<<<<<< HEAD
 >>>>>>> def28a87b (fix(slack): deliver file-only messages when all media downloads fail)
-=======
-  it("falls back to generic file label when a Slack file name is empty", async () => {
-    const prepared = await prepareWithDefaultCtx(
-      createSlackMessage({
-        text: "",
-        files: [{ name: "" }],
-      }),
-    );
-
-    expect(prepared).toBeTruthy();
-    expect(prepared!.ctxPayload.RawBody).toContain("[Slack file: file]");
-  });
-
-  it("extracts attachment text for bot messages with empty text when allowBots is true (#27616)", async () => {
-    const slackCtx = createInboundSlackCtx({
-      cfg: {
-        channels: {
-          slack: { enabled: true },
-        },
-      } as OpenClawConfig,
-      defaultRequireMention: false,
-    });
-    // oxlint-disable-next-line typescript/no-explicit-any
-    slackCtx.resolveUserName = async () => ({ name: "Bot" }) as any;
-
-    const account = createSlackAccount({ allowBots: true });
-    const message = createSlackMessage({
-      text: "",
-      bot_id: "B0AGV8EQYA3",
-      subtype: "bot_message",
-      attachments: [
-        {
-          text: "Readiness probe failed: Get http://10.42.13.132:8000/status: context deadline exceeded",
-        },
-      ],
-    });
-
-    const prepared = await prepareMessageWith(slackCtx, account, message);
-
-    expect(prepared).toBeTruthy();
-    expect(prepared!.ctxPayload.RawBody).toContain("Readiness probe failed");
-  });
-
->>>>>>> 43ddb4135 (fix(slack): extract attachment text for bot messages with empty text (#27616) (#27642))
   it("keeps channel metadata out of GroupSystemPrompt", async () => {
     const slackCtx = createInboundSlackCtx({
       cfg: {
@@ -482,177 +338,11 @@ describe("slack prepareSlackMessage inbound contract", () => {
     expect(untrusted).toContain("Do dangerous things");
   });
 
-<<<<<<< HEAD
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
-=======
-  it("classifies D-prefix DMs correctly even when channel_type is wrong", async () => {
-    const slackCtx = createSlackMonitorContext({
-      cfg: {
-        channels: { slack: { enabled: true } },
-        session: { dmScope: "main" },
-      } as OpenClawConfig,
-      accountId: "default",
-      botToken: "token",
-      app: { client: {} } as App,
-      runtime: {} as RuntimeEnv,
-      botUserId: "B1",
-      teamId: "T1",
-      apiAppId: "A1",
-      historyLimit: 0,
-      sessionScope: "per-sender",
-      mainKey: "main",
-      dmEnabled: true,
-      dmPolicy: "open",
-      allowFrom: [],
-      allowNameMatching: false,
-      groupDmEnabled: true,
-      groupDmChannels: [],
-      defaultRequireMention: true,
-      groupPolicy: "open",
-      useAccessGroups: false,
-      reactionMode: "off",
-      reactionAllowlist: [],
-      replyToMode: "off",
-      threadHistoryScope: "thread",
-      threadInheritParent: false,
-      slashCommand: {
-        enabled: false,
-        name: "openclaw",
-        sessionPrefix: "slack:slash",
-        ephemeral: true,
-      },
-      textLimit: 4000,
-      ackReactionScope: "group-mentions",
-      mediaMaxBytes: 1024,
-      removeAckAfterReply: false,
-    });
-    // oxlint-disable-next-line typescript/no-explicit-any
-    slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
-    // Simulate API returning correct type for DM channel
-    slackCtx.resolveChannelName = async () => ({ name: undefined, type: "im" as const });
-
-    const account: ResolvedSlackAccount = {
-      accountId: "default",
-      enabled: true,
-      botTokenSource: "config",
-      appTokenSource: "config",
-      userTokenSource: "none",
-      config: {},
-    };
-
-    // Bug scenario: D-prefix channel but Slack event says channel_type: "channel"
-    const message: SlackMessageEvent = {
-      channel: "D0ACP6B1T8V",
-      channel_type: "channel",
-      user: "U1",
-      text: "hello from DM",
-      ts: "1.000",
-    } as SlackMessageEvent;
-
-    const prepared = await prepareSlackMessage({
-      ctx: slackCtx,
-      account,
-      message,
-      opts: { source: "message" },
-    });
-
-    expect(prepared).toBeTruthy();
-    // oxlint-disable-next-line typescript/no-explicit-any
-    expectInboundContextContract(prepared!.ctxPayload as any);
-    // Should be classified as DM, not channel
-    expect(prepared!.isDirectMessage).toBe(true);
-    // DM with dmScope: "main" should route to the main session
-    expect(prepared!.route.sessionKey).toBe("agent:main:main");
-    // ChatType should be "direct", not "channel"
-    expect(prepared!.ctxPayload.ChatType).toBe("direct");
-    // From should use user ID (DM pattern), not channel ID
-    expect(prepared!.ctxPayload.From).toContain("slack:U1");
-  });
-
-  it("classifies D-prefix DMs when channel_type is missing", async () => {
-    const slackCtx = createSlackMonitorContext({
-      cfg: {
-        channels: { slack: { enabled: true } },
-        session: { dmScope: "main" },
-      } as OpenClawConfig,
-      accountId: "default",
-      botToken: "token",
-      app: { client: {} } as App,
-      runtime: {} as RuntimeEnv,
-      botUserId: "B1",
-      teamId: "T1",
-      apiAppId: "A1",
-      historyLimit: 0,
-      sessionScope: "per-sender",
-      mainKey: "main",
-      dmEnabled: true,
-      dmPolicy: "open",
-      allowFrom: [],
-      allowNameMatching: false,
-      groupDmEnabled: true,
-      groupDmChannels: [],
-      defaultRequireMention: true,
-      groupPolicy: "open",
-      useAccessGroups: false,
-      reactionMode: "off",
-      reactionAllowlist: [],
-      replyToMode: "off",
-      threadHistoryScope: "thread",
-      threadInheritParent: false,
-      slashCommand: {
-        enabled: false,
-        name: "openclaw",
-        sessionPrefix: "slack:slash",
-        ephemeral: true,
-      },
-      textLimit: 4000,
-      ackReactionScope: "group-mentions",
-      mediaMaxBytes: 1024,
-      removeAckAfterReply: false,
-    });
-    // oxlint-disable-next-line typescript/no-explicit-any
-    slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
-    // Simulate API returning correct type for DM channel
-    slackCtx.resolveChannelName = async () => ({ name: undefined, type: "im" as const });
-
-    const account: ResolvedSlackAccount = {
-      accountId: "default",
-      enabled: true,
-      botTokenSource: "config",
-      appTokenSource: "config",
-      userTokenSource: "none",
-      config: {},
-    };
-
-    // channel_type missing — should infer from D-prefix
-    const message: SlackMessageEvent = {
-      channel: "D0ACP6B1T8V",
-      user: "U1",
-      text: "hello from DM",
-      ts: "1.000",
-    } as SlackMessageEvent;
-
-    const prepared = await prepareSlackMessage({
-      ctx: slackCtx,
-      account,
-      message,
-      opts: { source: "message" },
-    });
-
-    expect(prepared).toBeTruthy();
-    // oxlint-disable-next-line typescript/no-explicit-any
-    expectInboundContextContract(prepared!.ctxPayload as any);
-    expect(prepared!.isDirectMessage).toBe(true);
-    expect(prepared!.route.sessionKey).toBe("agent:main:main");
-    expect(prepared!.ctxPayload.ChatType).toBe("direct");
-  });
-
->>>>>>> f33d0a884 (fix(slack): override wrong channel_type for D-prefix DM channels)
   it("sets MessageThreadId for top-level messages when replyToMode=all", async () => {
     const slackCtx = createInboundSlackCtx({
       cfg: {
         channels: { slack: { enabled: true, replyToMode: "all" } },
-<<<<<<< HEAD
       } as MoltbotConfig,
       accountId: "default",
       botToken: "token",
@@ -687,10 +377,6 @@ describe("slack prepareSlackMessage inbound contract", () => {
       ackReactionScope: "group-mentions",
       mediaMaxBytes: 1024,
       removeAckAfterReply: false,
-=======
-      } as OpenClawConfig,
-      replyToMode: "all",
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     });
     // oxlint-disable-next-line typescript/no-explicit-any
     slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
@@ -891,8 +577,6 @@ describe("slack prepareSlackMessage inbound contract", () => {
     expect(prepared!.ctxPayload.Body).toMatch(/\[slack message id: 1\.000 channel: D123\]$/);
     expect(prepared!.ctxPayload.Body).not.toContain("thread_ts");
   });
-<<<<<<< HEAD
-=======
 
   it("excludes thread metadata when thread_ts equals ts without parent_user_id", async () => {
     const message = createSlackMessage({
@@ -908,7 +592,6 @@ describe("slack prepareSlackMessage inbound contract", () => {
     expect(prepared!.ctxPayload.Body).not.toContain("parent_user_id");
   });
 <<<<<<< HEAD
->>>>>>> 2f67564c9 (refactor(test): dedupe slack inbound contract prep)
 =======
 
   it("creates thread session for top-level DM when replyToMode=all", async () => {

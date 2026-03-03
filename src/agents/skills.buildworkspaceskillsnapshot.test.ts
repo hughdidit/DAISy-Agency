@@ -19,11 +19,7 @@ function withWorkspaceHome<T>(workspaceDir: string, cb: () => T): T {
 describe("buildWorkspaceSkillSnapshot", () => {
   it("returns an empty snapshot when skills dirs are missing", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
-=======
-    const workspaceDir = await createTempDir("openclaw-");
->>>>>>> b3c7fd6c6 (refactor(test): dedupe temp dirs and skill writer in snapshot e2e)
 =======
     const workspaceDir = await tempDirs.make("openclaw-");
 >>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
@@ -41,14 +37,8 @@ describe("buildWorkspaceSkillSnapshot", () => {
 
   it("omits disable-model-invocation skills from the prompt", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     await _writeSkill({
-=======
-    const workspaceDir = await createTempDir("openclaw-");
-=======
-    const workspaceDir = await tempDirs.make("openclaw-");
->>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
     await writeSkill({
 >>>>>>> b3c7fd6c6 (refactor(test): dedupe temp dirs and skill writer in snapshot e2e)
       dir: path.join(workspaceDir, "skills", "visible-skill"),

@@ -186,8 +186,6 @@ struct ExecAllowlistTests {
         #expect(resolutions[0].executableName == "sh")
     }
 
-<<<<<<< HEAD
-=======
     @Test func resolveForAllowlistUnwrapsEnvShellWrapperChains() {
         let command = [
             "/usr/bin/env",
@@ -217,7 +215,6 @@ struct ExecAllowlistTests {
         #expect(resolutions[0].executableName == "printf")
     }
 
->>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes)
     @Test func matchAllRequiresEverySegmentToMatch() {
         let first = ExecCommandResolution(
             rawExecutable: "echo",

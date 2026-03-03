@@ -1,22 +1,11 @@
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
 import { resolveControlUiDistIndexPath, resolveControlUiRepoRoot } from "./control-ui-assets.js";
-=======
-import {
-  resolveControlUiDistIndexHealth,
-  resolveControlUiDistIndexPath,
-  resolveControlUiDistIndexPathForRoot,
-  resolveControlUiRepoRoot,
-  resolveControlUiRootOverrideSync,
-  resolveControlUiRootSync,
-} from "./control-ui-assets.js";
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 =======
 =======
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -32,12 +21,8 @@ import {
 import { resolveOpenClawPackageRoot } from "./openclaw-root.js";
 =======
 import { pathToFileURL } from "node:url";
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
-=======
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 
 type FakeFsEntry = { kind: "file"; content: string } | { kind: "dir" };
 
@@ -136,15 +121,11 @@ describe("control UI assets helpers (fs-mocked)", () => {
     vi.clearAllMocks();
   });
 
-<<<<<<< HEAD
   it("resolves repo root from src argv1", async () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-ui-"));
     try {
-=======
-    await withTempDir(async (tmp) => {
->>>>>>> 6a361685a (perf(test): speed up control-ui-assets suite)
       await fs.mkdir(path.join(tmp, "ui"), { recursive: true });
       await fs.writeFile(path.join(tmp, "ui", "vite.config.ts"), "export {};\n");
       await fs.writeFile(path.join(tmp, "package.json"), "{}\n");
@@ -165,14 +146,10 @@ describe("control UI assets helpers (fs-mocked)", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("resolves repo root from dist argv1", async () => {
 <<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-ui-"));
     try {
-=======
-    await withTempDir(async (tmp) => {
->>>>>>> 6a361685a (perf(test): speed up control-ui-assets suite)
       await fs.mkdir(path.join(tmp, "ui"), { recursive: true });
       await fs.writeFile(path.join(tmp, "ui", "vite.config.ts"), "export {};\n");
       await fs.writeFile(path.join(tmp, "package.json"), "{}\n");
@@ -194,22 +171,13 @@ describe("control UI assets helpers (fs-mocked)", () => {
     expect(resolveControlUiRepoRoot(argv1)).toBe(root);
   });
 
-<<<<<<< HEAD
   it("resolves dist control-ui index path for dist argv1", () => {
     const argv1 = path.resolve("/tmp", "pkg", "dist", "index.js");
     const distDir = path.dirname(argv1);
     expect(resolveControlUiDistIndexPath(argv1)).toBe(
-=======
-  it("resolves dist control-ui index path for dist argv1", async () => {
-    const argv1 = abs(path.join("fixtures", "pkg", "dist", "index.js"));
-    const distDir = path.dirname(argv1);
-    await expect(resolveControlUiDistIndexPath(argv1)).resolves.toBe(
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
       path.join(distDir, "control-ui", "index.html"),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("uses resolveOpenClawPackageRoot when available", async () => {
     const pkgRoot = abs("fixtures/openclaw");
@@ -313,7 +281,6 @@ describe("control UI assets helpers (fs-mocked)", () => {
     });
   });
 <<<<<<< HEAD
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 =======
 
   it("resolves via fallback when package root resolution fails but package name matches", async () => {
@@ -374,89 +341,7 @@ describe("control UI assets helpers (fs-mocked)", () => {
       });
     });
   });
-<<<<<<< HEAD
 >>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
-=======
-
-  it("resolves control-ui root when argv1 is a symlink (nvm scenario)", async () => {
-    await withTempDir(async (tmp) => {
-      const realPkg = path.join(tmp, "real-pkg");
-      const bin = path.join(tmp, "bin");
-      await fs.mkdir(realPkg, { recursive: true });
-      await fs.mkdir(bin, { recursive: true });
-      await fs.writeFile(path.join(realPkg, "package.json"), JSON.stringify({ name: "openclaw" }));
-      await fs.writeFile(path.join(realPkg, "openclaw.mjs"), "export {};\n");
-      await fs.mkdir(path.join(realPkg, "dist", "control-ui"), { recursive: true });
-      await fs.writeFile(path.join(realPkg, "dist", "control-ui", "index.html"), "<html></html>\n");
-      const ok = await trySymlink(
-        path.join("..", "real-pkg", "openclaw.mjs"),
-        path.join(bin, "openclaw"),
-      );
-      if (!ok) {
-        return; // symlinks not supported (Windows CI)
-      }
-
-      const resolvedRoot = resolveControlUiRootSync({ argv1: path.join(bin, "openclaw") });
-      expect(resolvedRoot).not.toBeNull();
-      expect(await canonicalPath(resolvedRoot ?? "")).toBe(
-        await canonicalPath(path.join(realPkg, "dist", "control-ui")),
-      );
-    });
-  });
-
-  it("resolves package root via symlinked argv1", async () => {
-    await withTempDir(async (tmp) => {
-      const realPkg = path.join(tmp, "real-pkg");
-      const bin = path.join(tmp, "bin");
-      await fs.mkdir(realPkg, { recursive: true });
-      await fs.mkdir(bin, { recursive: true });
-      await fs.writeFile(path.join(realPkg, "package.json"), JSON.stringify({ name: "openclaw" }));
-      await fs.writeFile(path.join(realPkg, "openclaw.mjs"), "export {};\n");
-      await fs.mkdir(path.join(realPkg, "dist", "control-ui"), { recursive: true });
-      await fs.writeFile(path.join(realPkg, "dist", "control-ui", "index.html"), "<html></html>\n");
-      const ok = await trySymlink(
-        path.join("..", "real-pkg", "openclaw.mjs"),
-        path.join(bin, "openclaw"),
-      );
-      if (!ok) {
-        return; // symlinks not supported (Windows CI)
-      }
-
-      const packageRoot = await resolveOpenClawPackageRoot({ argv1: path.join(bin, "openclaw") });
-      expect(packageRoot).not.toBeNull();
-      expect(await canonicalPath(packageRoot ?? "")).toBe(await canonicalPath(realPkg));
-    });
-  });
-
-  it("resolves dist index path via symlinked argv1 (async)", async () => {
-    await withTempDir(async (tmp) => {
-      const realPkg = path.join(tmp, "real-pkg");
-      const bin = path.join(tmp, "bin");
-      await fs.mkdir(realPkg, { recursive: true });
-      await fs.mkdir(bin, { recursive: true });
-      await fs.writeFile(path.join(realPkg, "package.json"), JSON.stringify({ name: "openclaw" }));
-      await fs.writeFile(path.join(realPkg, "openclaw.mjs"), "export {};\n");
-      await fs.mkdir(path.join(realPkg, "dist", "control-ui"), { recursive: true });
-      await fs.writeFile(path.join(realPkg, "dist", "control-ui", "index.html"), "<html></html>\n");
-      const ok = await trySymlink(
-        path.join("..", "real-pkg", "openclaw.mjs"),
-        path.join(bin, "openclaw"),
-      );
-      if (!ok) {
-        return; // symlinks not supported (Windows CI)
-      }
-
-      const indexPath = await resolveControlUiDistIndexPath(path.join(bin, "openclaw"));
-      expect(indexPath).not.toBeNull();
-      expect(await canonicalPath(indexPath ?? "")).toBe(
-        await canonicalPath(path.join(realPkg, "dist", "control-ui", "index.html")),
-      );
-    });
-=======
-    // moduleUrl candidate: <moduleDir>/control-ui
-    const moduleUrl = pathToFileURL(path.join(pkgRoot, "dist", "bundle.js")).toString();
-    expect(resolveControlUiRootSync({ moduleUrl })).toBe(uiDir);
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
   });
 >>>>>>> 6a361685a (perf(test): speed up control-ui-assets suite)
 });

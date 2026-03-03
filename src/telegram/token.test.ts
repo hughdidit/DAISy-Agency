@@ -3,13 +3,8 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { withStateDirEnv } from "../test-helpers/state-dir-env.js";
->>>>>>> cf8261425 (refactor(test): reuse state-dir helper in telegram tests)
 import { resolveTelegramToken } from "./token.js";
 import { readTelegramUpdateOffset, writeTelegramUpdateOffset } from "./update-offset-store.js";
 

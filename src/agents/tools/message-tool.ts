@@ -6,12 +6,6 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { AnyAgentTool } from "./common.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -29,11 +23,7 @@ import type { AnyAgentTool } from "./common.js";
 =======
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { BLUEBUBBLES_GROUP_ACTIONS } from "../../channels/plugins/bluebubbles-actions.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import { listChannelPlugins } from "../../channels/plugins/index.js";
->>>>>>> 13bb80df9 (fix(agents): land #20840 cross-channel message-tool actions from @altaywtf)
 import {
   listChannelMessageActions,
   supportsChannelMessageButtons,
@@ -52,12 +42,8 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { BLUEBUBBLES_GROUP_ACTIONS } from "../../channels/plugins/bluebubbles-actions.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -90,11 +76,8 @@ import { channelTargetSchema, channelTargetsSchema, stringEnum } from "../schema
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { listChannelSupportedActions } from "../channel-tools.js";
 import { normalizeMessageChannel } from "../../utils/message-channel.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AnyAgentTool } from "./common.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -531,78 +514,14 @@ type MessageToolOptions = {
   currentMessageId?: string | number;
   replyToMode?: "off" | "first" | "all";
   hasRepliedRef?: { value: boolean };
-<<<<<<< HEAD
-=======
   sandboxRoot?: string;
   requireExplicitTarget?: boolean;
->>>>>>> 3f82daefd (feat(cron): enhance delivery modes and job configuration)
 };
 
-<<<<<<< HEAD
 function buildMessageToolSchema(cfg: MoltbotConfig) {
   const actions = listChannelMessageActions(cfg);
   const includeButtons = supportsChannelMessageButtons(cfg);
   const includeCards = supportsChannelMessageCards(cfg);
-=======
-function resolveMessageToolSchemaActions(params: {
-  cfg: OpenClawConfig;
-  currentChannelProvider?: string;
-  currentChannelId?: string;
-}): string[] {
-  const currentChannel = normalizeMessageChannel(params.currentChannelProvider);
-  if (currentChannel) {
-    const scopedActions = filterActionsForContext({
-      actions: listChannelSupportedActions({
-        cfg: params.cfg,
-        channel: currentChannel,
-      }),
-      channel: currentChannel,
-      currentChannelId: params.currentChannelId,
-    });
-    const allActions = new Set<string>(["send", ...scopedActions]);
-    // Include actions from other configured channels so isolated/cron agents
-    // can invoke cross-channel actions without validation errors.
-    for (const plugin of listChannelPlugins()) {
-      if (plugin.id === currentChannel) {
-        continue;
-      }
-      for (const action of listChannelSupportedActions({ cfg: params.cfg, channel: plugin.id })) {
-        allActions.add(action);
-      }
-    }
-    return Array.from(allActions);
-  }
-  const actions = listChannelMessageActions(params.cfg);
-  return actions.length > 0 ? actions : ["send"];
-}
-
-function resolveIncludeComponents(params: {
-  cfg: OpenClawConfig;
-  currentChannelProvider?: string;
-}): boolean {
-  const currentChannel = normalizeMessageChannel(params.currentChannelProvider);
-  if (currentChannel) {
-    return currentChannel === "discord";
-  }
-  // Components are currently Discord-specific.
-  return listChannelSupportedActions({ cfg: params.cfg, channel: "discord" }).length > 0;
-}
-
-function buildMessageToolSchema(params: {
-  cfg: OpenClawConfig;
-  currentChannelProvider?: string;
-  currentChannelId?: string;
-}) {
-  const currentChannel = normalizeMessageChannel(params.currentChannelProvider);
-  const actions = resolveMessageToolSchemaActions(params);
-  const includeButtons = currentChannel
-    ? supportsChannelMessageButtonsForChannel({ cfg: params.cfg, channel: currentChannel })
-    : supportsChannelMessageButtons(params.cfg);
-  const includeCards = currentChannel
-    ? supportsChannelMessageCardsForChannel({ cfg: params.cfg, channel: currentChannel })
-    : supportsChannelMessageCards(params.cfg);
-  const includeComponents = resolveIncludeComponents(params);
->>>>>>> c8a536e30 (fix(agents): scope message tool schema by channel (#18215))
   return buildMessageToolSchemaFromActions(actions.length > 0 ? actions : ["send"], {
     includeButtons,
     includeCards,

@@ -21,20 +21,7 @@ import type {
 } from "./types.core.js";
 
 export type ChannelSetupAdapter = {
-<<<<<<< HEAD
   resolveAccountId?: (params: { cfg: MoltbotConfig; accountId?: string }) => string;
-=======
-  resolveAccountId?: (params: {
-    cfg: OpenClawConfig;
-    accountId?: string;
-    input?: ChannelSetupInput;
-  }) => string;
-  resolveBindingAccountId?: (params: {
-    cfg: OpenClawConfig;
-    agentId: string;
-    accountId?: string;
-  }) => string | undefined;
->>>>>>> 96c770252 (Agents: add account-scoped bind and routing commands (#27195))
   applyAccountName?: (params: {
     cfg: MoltbotConfig;
     accountId: string;
@@ -136,7 +123,6 @@ export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unkno
   probeAccount?: (params: {
     account: ResolvedAccount;
     timeoutMs: number;
-<<<<<<< HEAD
     cfg: MoltbotConfig;
   }) => Promise<unknown>;
   auditAccount?: (params: {
@@ -145,16 +131,6 @@ export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unkno
     cfg: MoltbotConfig;
     probe?: unknown;
   }) => Promise<unknown>;
-=======
-    cfg: OpenClawConfig;
-  }) => Promise<Probe>;
-  auditAccount?: (params: {
-    account: ResolvedAccount;
-    timeoutMs: number;
-    cfg: OpenClawConfig;
-    probe?: Probe;
-  }) => Promise<Audit>;
->>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
   buildAccountSnapshot?: (params: {
     account: ResolvedAccount;
     cfg: MoltbotConfig;
@@ -283,7 +259,6 @@ type ChannelDirectoryListGroupMembersParams = {
 };
 
 export type ChannelDirectoryAdapter = {
-<<<<<<< HEAD
   self?: (params: {
     cfg: MoltbotConfig;
     accountId?: string | null;
@@ -324,16 +299,6 @@ export type ChannelDirectoryAdapter = {
     limit?: number | null;
     runtime: RuntimeEnv;
   }) => Promise<ChannelDirectoryEntry[]>;
-=======
-  self?: (params: ChannelDirectorySelfParams) => Promise<ChannelDirectoryEntry | null>;
-  listPeers?: (params: ChannelDirectoryListParams) => Promise<ChannelDirectoryEntry[]>;
-  listPeersLive?: (params: ChannelDirectoryListParams) => Promise<ChannelDirectoryEntry[]>;
-  listGroups?: (params: ChannelDirectoryListParams) => Promise<ChannelDirectoryEntry[]>;
-  listGroupsLive?: (params: ChannelDirectoryListParams) => Promise<ChannelDirectoryEntry[]>;
-  listGroupMembers?: (
-    params: ChannelDirectoryListGroupMembersParams,
-  ) => Promise<ChannelDirectoryEntry[]>;
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 };
 
 export type ChannelResolveKind = "user" | "group";

@@ -4,14 +4,7 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { GatewayMessageChannel } from "../../utils/message-channel.js";
-import type { AnyAgentTool } from "./common.js";
-import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
->>>>>>> 553d17f8a (refactor(agents): use silent token constant in prompts)
 =======
 import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -23,10 +16,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
 import { textToSpeech } from "../../tts/tts.js";
-<<<<<<< HEAD
-=======
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AnyAgentTool } from "./common.js";
 import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
 =======

@@ -165,8 +165,6 @@ describe("verifyPlivoWebhook", () => {
     expect(result.ok).toBe(false);
     expect(result.reason).toMatch(/Missing Plivo signature headers/);
   });
-<<<<<<< HEAD
-=======
 
   it("marks replayed valid V3 requests as replay without failing auth", () => {
     const authToken = "test-auth-token";
@@ -268,7 +266,6 @@ describe("verifyTelnyxWebhook", () => {
     expect(second.verifiedRequestKey).toBe(first.verifiedRequestKey);
     expect(second.isReplay).toBe(true);
   });
->>>>>>> 192df12d6 (test(voice-call): cover verification key and header helpers)
 });
 
 describe("verifyTwilioWebhook", () => {

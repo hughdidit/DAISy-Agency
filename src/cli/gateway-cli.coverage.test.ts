@@ -124,7 +124,6 @@ describe("gateway-cli coverage", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("registers gateway discover and prints JSON", async () => {
     resetRuntimeCapture();
     discoverGatewayBeacons.mockReset();
@@ -158,27 +157,6 @@ describe("gateway-cli coverage", () => {
 
   it("registers gateway discover and prints human output with details on new lines", async () => {
 =======
-  it.each([
-    {
-      label: "json output",
-      args: ["gateway", "discover", "--json"],
-      expectedOutput: ['"beacons"', '"wsUrl"', "ws://"],
-    },
-    {
-      label: "human output",
-      args: ["gateway", "discover", "--timeout", "1"],
-      expectedOutput: [
-        "Gateway Discovery",
-        "Found 1 gateway(s)",
-        "- Studio openclaw.internal.",
-        "  tailnet: studio.tailnet.ts.net",
-        "  host: studio.openclaw.internal",
-        "  ws: ws://studio.openclaw.internal:18789",
-      ],
-    },
-  ])("registers gateway discover and prints $label", async ({ args, expectedOutput }) => {
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
-=======
   it("registers gateway discover and prints json output", async () => {
 >>>>>>> f52a0228c (test: optimize auth and audit test runtime)
     resetRuntimeCapture();
@@ -202,7 +180,6 @@ describe("gateway-cli coverage", () => {
     const out = runtimeLogs.join("\n");
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(out).toContain("Gateway Discovery");
     expect(out).toContain("Found 1 gateway(s)");
     expect(out).toContain("- Studio moltbot.internal.");
@@ -210,10 +187,6 @@ describe("gateway-cli coverage", () => {
 <<<<<<< HEAD
     expect(out).toContain("  host: studio.clawdbot.internal");
     expect(out).toContain("  ws: ws://studio.tailnet.ts.net:18789");
-=======
-    expect(out).toContain("  host: studio.openclaw.internal");
-    expect(out).toContain("  ws: ws://studio.openclaw.internal:18789");
->>>>>>> c06a962bb (test(e2e): stabilize suite)
 =======
     for (const text of expectedOutput) {
 =======
@@ -306,14 +279,9 @@ describe("gateway-cli coverage", () => {
   });
 
   it("uses env/config port when --port is omitted", async () => {
-<<<<<<< HEAD
     await withEnvOverride({ CLAWDBOT_GATEWAY_PORT: "19001" }, async () => {
       runtimeLogs.length = 0;
       runtimeErrors.length = 0;
-=======
-    await withEnvOverride({ OPENCLAW_GATEWAY_PORT: "19001" }, async () => {
-      resetRuntimeCapture();
->>>>>>> 8f866d51c (test(cli): dedupe runtime capture fixtures across command specs)
       startGatewayServer.mockClear();
 
       startGatewayServer.mockRejectedValueOnce(new Error("nope"));

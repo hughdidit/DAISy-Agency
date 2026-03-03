@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { resolveEnvApiKey } from "../agents/model-auth.js";
 import {
@@ -7,10 +6,6 @@ import {
   validateApiKeyInput,
 } from "./auth-choice.api-key.js";
 <<<<<<< HEAD
-=======
-=======
-import { normalizeApiKeyInput, validateApiKeyInput } from "./auth-choice.api-key.js";
->>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
 import {
   ensureApiKeyFromOptionEnvOrPrompt,
   normalizeSecretInputModeInput,

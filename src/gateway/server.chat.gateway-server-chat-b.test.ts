@@ -2,11 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, test, vi } from "vitest";
-<<<<<<< HEAD
 import { emitAgentEvent } from "../infra/agent-events.js";
-=======
-import { __setMaxChatHistoryMessagesBytesForTest } from "./server-constants.js";
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 import {
   connectOk,
   getReplyFromConfig,
@@ -17,11 +13,7 @@ import {
   testState,
   writeSessionStore,
 } from "./test-helpers.js";
-<<<<<<< HEAD
 import { __setMaxChatHistoryMessagesBytesForTest } from "./server-constants.js";
-=======
-
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 installGatewayTestHooks({ scope: "suite" });
 const FAST_WAIT_OPTS = { timeout: 250, interval: 2 } as const;
 
@@ -91,7 +83,6 @@ async function fetchHistoryMessages(
 }
 
 describe("gateway server chat", () => {
-<<<<<<< HEAD
   const timeoutMs = 120_000;
   test(
     "handles history, abort, idempotency, and ordering flows",
@@ -119,13 +110,6 @@ describe("gateway server chat", () => {
         ) => {
           await writeSessionStore({ entries });
         };
-=======
-  test("smoke: caps history payload and preserves routing metadata", async () => {
-    await withGatewayChatHarness(async ({ ws, createSessionDir }) => {
-      const historyMaxBytes = 64 * 1024;
-      __setMaxChatHistoryMessagesBytesForTest(historyMaxBytes);
-      await connectOk(ws);
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 
       const sessionDir = await createSessionDir();
       await writeMainSessionStore();
@@ -180,8 +164,6 @@ describe("gateway server chat", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   test("chat.send does not force-disable block streaming", async () => {
     await withGatewayChatHarness(async ({ ws, createSessionDir }) => {
       const spy = getReplyFromConfig;
@@ -216,7 +198,6 @@ describe("gateway server chat", () => {
     });
   });
 
->>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
   test("chat.history hard-caps single oversized nested payloads", async () => {
     await withGatewayChatHarness(async ({ ws, createSessionDir }) => {
       const historyMaxBytes = 64 * 1024;

@@ -3,17 +3,8 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { ModelDefinitionConfig } from "../../config/types.models.js";
-import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
-import { createOpenClawCodingTools } from "../pi-tools.js";
-import { createHostSandboxFsBridge } from "../test-helpers/host-sandbox-fs-bridge.js";
-<<<<<<< HEAD
->>>>>>> b79e7fdb7 (fix(image): propagate workspace root for image allowlist (#16722))
 =======
 import { createUnsafeMountedSandbox } from "../test-helpers/unsafe-mounted-sandbox.js";
 >>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
@@ -160,7 +151,6 @@ describe("image tool implicit imageModel config", () => {
   });
 
   it("stays disabled without auth when no pairing is possible", async () => {
-<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
     const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "openai/gpt-5.2" } } },
@@ -180,30 +170,6 @@ describe("image tool implicit imageModel config", () => {
     expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
       primary: "minimax/MiniMax-VL-01",
       fallbacks: ["openai/gpt-5-mini", "anthropic/claude-opus-4-5"],
-=======
-    await withTempAgentDir(async (agentDir) => {
-      const cfg: OpenClawConfig = {
-        agents: { defaults: { model: { primary: "openai/gpt-5.2" } } },
-      };
-      expect(resolveImageModelConfigForTool({ cfg, agentDir })).toBeNull();
-      expect(createImageTool({ config: cfg, agentDir })).toBeNull();
-    });
-  });
-
-  it("pairs minimax primary with MiniMax-VL-01 (and fallbacks) when auth exists", async () => {
-    await withTempAgentDir(async (agentDir) => {
-      vi.stubEnv("MINIMAX_API_KEY", "minimax-test");
-      vi.stubEnv("OPENAI_API_KEY", "openai-test");
-      vi.stubEnv("ANTHROPIC_API_KEY", "anthropic-test");
-      const cfg: OpenClawConfig = {
-        agents: { defaults: { model: { primary: "minimax/MiniMax-M2.1" } } },
-      };
-      expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
-        primary: "minimax/MiniMax-VL-01",
-        fallbacks: ["openai/gpt-5-mini", "anthropic/claude-opus-4-5"],
-      });
-      expect(createImageTool({ config: cfg, agentDir })).not.toBeNull();
->>>>>>> a353dae14 (test(image-tool): share temp agent dirs and table-drive validation cases)
     });
   });
 
@@ -224,7 +190,6 @@ describe("image tool implicit imageModel config", () => {
   });
 
   it("pairs a custom provider when it declares an image-capable model", async () => {
-<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
     await writeAuthProfiles(agentDir, {
       version: 1,
@@ -242,26 +207,6 @@ describe("image tool implicit imageModel config", () => {
               makeModelDefinition("text-1", ["text"]),
               makeModelDefinition("vision-1", ["text", "image"]),
             ],
-=======
-    await withTempAgentDir(async (agentDir) => {
-      await writeAuthProfiles(agentDir, {
-        version: 1,
-        profiles: {
-          "acme:default": { type: "api_key", provider: "acme", key: "sk-test" },
-        },
-      });
-      const cfg: OpenClawConfig = {
-        agents: { defaults: { model: { primary: "acme/text-1" } } },
-        models: {
-          providers: {
-            acme: {
-              baseUrl: "https://example.com",
-              models: [
-                makeModelDefinition("text-1", ["text"]),
-                makeModelDefinition("vision-1", ["text", "image"]),
-              ],
-            },
->>>>>>> a353dae14 (test(image-tool): share temp agent dirs and table-drive validation cases)
           },
         },
       };
@@ -273,22 +218,12 @@ describe("image tool implicit imageModel config", () => {
   });
 
   it("prefers explicit agents.defaults.imageModel", async () => {
-<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
     const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           model: { primary: "minimax/MiniMax-M2.1" },
           imageModel: { primary: "openai/gpt-5-mini" },
-=======
-    await withTempAgentDir(async (agentDir) => {
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            model: { primary: "minimax/MiniMax-M2.1" },
-            imageModel: { primary: "openai/gpt-5-mini" },
-          },
->>>>>>> a353dae14 (test(image-tool): share temp agent dirs and table-drive validation cases)
         },
       };
       expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
@@ -302,7 +237,6 @@ describe("image tool implicit imageModel config", () => {
     // because images are auto-injected into prompts. The tool description is
     // adjusted via modelHasVision to discourage redundant usage.
     vi.stubEnv("OPENAI_API_KEY", "test-key");
-<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
     const cfg: MoltbotConfig = {
       agents: {
@@ -316,14 +250,6 @@ describe("image tool implicit imageModel config", () => {
           acme: {
             baseUrl: "https://example.com",
             models: [makeModelDefinition("vision-1", ["text", "image"])],
-=======
-    await withTempAgentDir(async (agentDir) => {
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            model: { primary: "acme/vision-1" },
-            imageModel: { primary: "openai/gpt-5-mini" },
->>>>>>> a353dae14 (test(image-tool): share temp agent dirs and table-drive validation cases)
           },
         },
         models: {
@@ -458,15 +384,11 @@ describe("image tool implicit imageModel config", () => {
     const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "minimax/MiniMax-M2.1" } } },
     };
-<<<<<<< HEAD
     const tool = createImageTool({ config: cfg, agentDir, sandboxRoot });
     expect(tool).not.toBeNull();
     if (!tool) {
       throw new Error("expected image tool");
     }
-=======
-    const tool = requireImageTool(createImageTool({ config: cfg, agentDir, sandbox }));
->>>>>>> 3cb0c9674 (test(image-tool): dedupe repeated image tool fixture assertions)
 
     await expect(tool.execute("t1", { image: "https://example.com/a.png" })).rejects.toThrow(
       /Sandboxed image tool does not allow remote URLs/i,
@@ -477,8 +399,6 @@ describe("image tool implicit imageModel config", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("applies tools.fs.workspaceOnly to image paths in sandbox mode", async () => {
     const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-sandbox-"));
     const agentDir = path.join(stateDir, "agent");
@@ -522,7 +442,6 @@ describe("image tool implicit imageModel config", () => {
     }
   });
 
->>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
   it("rewrites inbound absolute paths into sandbox media/inbound", async () => {
     const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-sandbox-"));
     const agentDir = path.join(stateDir, "agent");
@@ -548,16 +467,11 @@ describe("image tool implicit imageModel config", () => {
         },
       },
     };
-<<<<<<< HEAD
     const tool = createImageTool({ config: cfg, agentDir, sandboxRoot });
     expect(tool).not.toBeNull();
     if (!tool) {
       throw new Error("expected image tool");
     }
-=======
-    const sandbox = { root: sandboxRoot, bridge: createHostSandboxFsBridge(sandboxRoot) };
-    const tool = requireImageTool(createImageTool({ config: cfg, agentDir, sandbox }));
->>>>>>> 3cb0c9674 (test(image-tool): dedupe repeated image tool fixture assertions)
 
     const res = await tool.execute("t1", {
       prompt: "Describe the image.",
@@ -701,7 +615,6 @@ describe("image tool MiniMax VLM routing", () => {
   });
 
   it("surfaces MiniMax API errors from /v1/coding_plan/vlm", async () => {
-<<<<<<< HEAD
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -725,9 +638,6 @@ describe("image tool MiniMax VLM routing", () => {
     if (!tool) {
       throw new Error("expected image tool");
     }
-=======
-    const { tool } = await createMinimaxVlmFixture({ status_code: 1004, status_msg: "bad key" });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     await expect(
       tool.execute("t1", {
@@ -739,8 +649,6 @@ describe("image tool MiniMax VLM routing", () => {
 });
 
 describe("image tool response validation", () => {
-<<<<<<< HEAD
-=======
   function zeroUsage() {
     return {
       input: 0,
@@ -810,7 +718,6 @@ describe("image tool response validation", () => {
     expect(__testing.resolveImageToolMaxTokens(undefined)).toBe(4096);
   });
 
->>>>>>> 5f1233476 (refactor: dedupe image, web, and auth profile test fixtures)
   it("rejects image-model responses with no final text", () => {
 =======
   it.each([

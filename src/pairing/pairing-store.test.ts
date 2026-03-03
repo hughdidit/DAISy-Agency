@@ -2,29 +2,12 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
->>>>>>> ced4ac490 (perf(test): speed up pairing-store suite)
 import { resolveOAuthDir } from "../config/paths.js";
-<<<<<<< HEAD
 import { captureEnv } from "../test-utils/env.js";
 import { listChannelPairingRequests, upsertChannelPairingRequest } from "./pairing-store.js";
-=======
-import { withEnvAsync } from "../test-utils/env.js";
-import {
-  addChannelAllowFromStoreEntry,
-  approveChannelPairingCode,
-  listChannelPairingRequests,
-  readChannelAllowFromStore,
-  readChannelAllowFromStoreSync,
-  removeChannelAllowFromStoreEntry,
-  upsertChannelPairingRequest,
-} from "./pairing-store.js";
->>>>>>> 25db01fe0 (refactor(test): use withEnvAsync in pairing store fixture)
 
 let fixtureRoot = "";
 let caseId = 0;
@@ -42,15 +25,9 @@ afterAll(async () => {
 async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>) {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   const previous = process.env.CLAWDBOT_STATE_DIR;
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-pairing-"));
   process.env.CLAWDBOT_STATE_DIR = dir;
-=======
-  const previous = process.env.OPENCLAW_STATE_DIR;
-=======
-  const envSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
->>>>>>> ee2fa5f41 (refactor(test): reuse env snapshots in unit suites)
   const dir = path.join(fixtureRoot, `case-${caseId++}`);
   await fs.mkdir(dir, { recursive: true });
   process.env.OPENCLAW_STATE_DIR = dir;
@@ -59,17 +36,8 @@ async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>) {
     return await fn(dir);
   } finally {
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (previous === undefined) delete process.env.CLAWDBOT_STATE_DIR;
     else process.env.CLAWDBOT_STATE_DIR = previous;
-=======
-    if (previous === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
-    } else {
-      process.env.OPENCLAW_STATE_DIR = previous;
-    }
-<<<<<<< HEAD
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     await fs.rm(dir, { recursive: true, force: true });
 =======
 >>>>>>> ced4ac490 (perf(test): speed up pairing-store suite)
@@ -221,8 +189,6 @@ describe("pairing store", () => {
       expect(listIds).not.toContain("+15550000004");
     });
   });
-<<<<<<< HEAD
-=======
 
   it("stores allowFrom entries per account when accountId is provided", async () => {
     await withTempStateDir(async () => {
@@ -436,5 +402,4 @@ describe("pairing store", () => {
       expect(scoped).toEqual(["1002", "1001"]);
     });
   });
->>>>>>> 6754a926e (fix(pairing): support legacy telegram allowFrom migration)
 });

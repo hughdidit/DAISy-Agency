@@ -11,7 +11,6 @@ export function formatMs(ms?: number | null): string {
   return new Date(ms).toLocaleString();
 }
 
-<<<<<<< HEAD
 export function formatAgo(ms?: number | null): string {
   if (!ms && ms !== 0) {
     return "n/a";
@@ -58,8 +57,6 @@ export function formatDurationMs(ms?: number | null): string {
   return `${day}d`;
 }
 
-=======
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 export function formatList(values?: Array<string | null | undefined>): string {
   if (!values || values.length === 0) {
     return "none";

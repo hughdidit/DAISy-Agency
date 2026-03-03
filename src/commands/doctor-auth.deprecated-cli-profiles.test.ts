@@ -6,10 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -20,11 +17,8 @@ import type { DoctorPrompter } from "./doctor-prompter.js";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 6264c5e84 (chore: Fix types in tests 41/N.)
 import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { DoctorPrompter } from "./doctor-prompter.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
@@ -50,21 +44,14 @@ function makePrompter(confirmValue: boolean): DoctorPrompter {
 }
 
 beforeEach(() => {
-<<<<<<< HEAD
   originalAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   originalPiAgentDir = process.env.PI_CODING_AGENT_DIR;
   tempAgentDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-auth-"));
   process.env.CLAWDBOT_AGENT_DIR = tempAgentDir;
-=======
-  envSnapshot = captureEnv(["OPENCLAW_AGENT_DIR", "PI_CODING_AGENT_DIR"]);
-  tempAgentDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-auth-"));
-  process.env.OPENCLAW_AGENT_DIR = tempAgentDir;
->>>>>>> 5e607ae1e (refactor(test): snapshot deprecated auth profile env in e2e)
   process.env.PI_CODING_AGENT_DIR = tempAgentDir;
 });
 
 afterEach(() => {
-<<<<<<< HEAD
   if (originalAgentDir === undefined) {
     delete process.env.CLAWDBOT_AGENT_DIR;
   } else {
@@ -75,9 +62,6 @@ afterEach(() => {
   } else {
     process.env.PI_CODING_AGENT_DIR = originalPiAgentDir;
   }
-=======
-  envSnapshot.restore();
->>>>>>> 5e607ae1e (refactor(test): snapshot deprecated auth profile env in e2e)
   if (tempAgentDir) {
     fs.rmSync(tempAgentDir, { recursive: true, force: true });
     tempAgentDir = undefined;

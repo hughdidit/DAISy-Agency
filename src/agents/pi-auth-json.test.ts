@@ -53,8 +53,6 @@ describe("ensurePiAuthJsonFromAuthProfiles", () => {
     const second = await ensurePiAuthJsonFromAuthProfiles(agentDir);
     expect(second.wrote).toBe(false);
   });
-<<<<<<< HEAD
-=======
 
   it("writes api_key credentials into auth.json", async () => {
     const agentDir = await createAgentDir();
@@ -205,5 +203,4 @@ describe("ensurePiAuthJsonFromAuthProfiles", () => {
     expect(auth["legacy-provider"]).toMatchObject({ type: "api_key", key: "legacy-key" });
     expect(auth["openrouter"]).toMatchObject({ type: "api_key", key: "new-key" });
   });
->>>>>>> 4ca75bed5 (fix(models): sync auth-profiles before availability checks)
 });

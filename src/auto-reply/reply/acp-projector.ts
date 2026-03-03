@@ -258,13 +258,7 @@ export function createAcpReplyProjector(params: {
 
   const resetTurnState = () => {
     clearLiveIdleTimer();
-<<<<<<< HEAD
     emittedTurnChars = 0;
-=======
-    blockReplyPipeline.stop();
-    blockReplyPipeline = createTurnBlockReplyPipeline();
-    emittedOutputChars = 0;
->>>>>>> 829240171 (ACP: rename stream char limits to output/sessionUpdate)
     truncationNoticeEmitted = false;
     lastStatusHash = undefined;
     lastToolHash = undefined;
@@ -333,14 +327,8 @@ export function createAcpReplyProjector(params: {
       return;
     }
 
-<<<<<<< HEAD
     const toolSummary = truncateText(renderToolSummaryText(event), settings.maxToolSummaryChars);
     const hash = hashText(toolSummary);
-=======
-    const renderedToolSummary = renderToolSummaryText(event);
-    const toolSummary = truncateText(renderedToolSummary, settings.maxSessionUpdateChars);
-    const hash = hashText(renderedToolSummary);
->>>>>>> 829240171 (ACP: rename stream char limits to output/sessionUpdate)
     const toolCallId = event.toolCallId?.trim() || undefined;
     const status = normalizeToolStatus(event.status);
     const isTerminal = status ? TERMINAL_TOOL_STATUSES.has(status) : false;

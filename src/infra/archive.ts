@@ -3,11 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import JSZip from "jszip";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import JSZip from "jszip";
 >>>>>>> ed11e93cf (chore(format))
@@ -26,15 +21,7 @@ import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import JSZip from "jszip";
 import * as tar from "tar";
-<<<<<<< HEAD
 import JSZip from "jszip";
-=======
-import {
-  resolveArchiveOutputPath,
-  stripArchivePath,
-  validateArchiveEntryPath,
-} from "./archive-path.js";
->>>>>>> 2b8f1bade (refactor(archive): share archive path safety helpers)
 
 export type ArchiveKind = "tar" | "zip";
 
@@ -132,69 +119,7 @@ export async function withTimeout<T>(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 async function extractZip(params: { archivePath: string; destDir: string }): Promise<void> {
-=======
-function resolveSafeBaseDir(destDir: string): string {
-  const resolved = path.resolve(destDir);
-  return resolved.endsWith(path.sep) ? resolved : `${resolved}${path.sep}`;
-}
-
-// Path hygiene.
-function normalizeArchivePath(raw: string): string {
-  // Archives may contain Windows separators; treat them as separators.
-  return raw.replaceAll("\\", "/");
-}
-
-function isWindowsDrivePath(p: string): boolean {
-  return /^[a-zA-Z]:[\\/]/.test(p);
-}
-
-function validateArchiveEntryPath(entryPath: string): void {
-  if (!entryPath || entryPath === "." || entryPath === "./") {
-    return;
-  }
-  if (isWindowsDrivePath(entryPath)) {
-    throw new Error(`archive entry uses a drive path: ${entryPath}`);
-  }
-  const normalized = path.posix.normalize(normalizeArchivePath(entryPath));
-  if (normalized === ".." || normalized.startsWith("../")) {
-    throw new Error(`archive entry escapes destination: ${entryPath}`);
-  }
-  if (path.posix.isAbsolute(normalized) || normalized.startsWith("//")) {
-    throw new Error(`archive entry is absolute: ${entryPath}`);
-  }
-}
-
-function stripArchivePath(entryPath: string, stripComponents: number): string | null {
-  const raw = normalizeArchivePath(entryPath);
-  if (!raw || raw === "." || raw === "./") {
-    return null;
-  }
-
-  // Important: mimic tar --strip-components semantics (raw segments before
-  // normalization) so strip-induced escapes like "a/../b" are not hidden.
-  const parts = raw.split("/").filter((part) => part.length > 0 && part !== ".");
-  const strip = Math.max(0, Math.floor(stripComponents));
-  const stripped = strip === 0 ? parts.join("/") : parts.slice(strip).join("/");
-  const result = path.posix.normalize(stripped);
-  if (!result || result === "." || result === "./") {
-    return null;
-  }
-  return result;
-}
-
-function resolveCheckedOutPath(destDir: string, relPath: string, original: string): string {
-  const safeBase = resolveSafeBaseDir(destDir);
-  const outPath = path.resolve(destDir, relPath);
-  if (!outPath.startsWith(safeBase)) {
-    throw new Error(`archive entry escapes destination: ${original}`);
-  }
-  return outPath;
-}
-
-=======
->>>>>>> 2b8f1bade (refactor(archive): share archive path safety helpers)
 type ResolvedArchiveExtractLimits = Required<ArchiveExtractLimits>;
 
 function clampLimit(value: number | undefined): number | undefined {
@@ -311,19 +236,13 @@ async function extractZip(params: {
 >>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
   const buffer = await fs.readFile(params.archivePath);
   const zip = await JSZip.loadAsync(buffer);
-<<<<<<< HEAD
   const entries = Object.values(zip.files);
-=======
-  const entries = Object.values(zip.files) as ZipEntry[];
-  const strip = Math.max(0, Math.floor(params.stripComponents ?? 0));
->>>>>>> 4c7838e3c (refactor(archive): centralize limits and budgets)
 
   assertArchiveEntryCountWithinLimit(entries.length, limits);
 
   const budget = createByteBudgetTracker(limits);
 
   for (const entry of entries) {
-<<<<<<< HEAD
     const entryPath = entry.name.replaceAll("\\", "/");
     if (!entryPath || entryPath.endsWith("/")) {
       const dirPath = path.resolve(params.destDir, entryPath);
@@ -331,23 +250,6 @@ async function extractZip(params: {
         throw new Error(`zip entry escapes destination: ${entry.name}`);
       }
       await fs.mkdir(dirPath, { recursive: true });
-=======
-    validateArchiveEntryPath(entry.name);
-
-    const relPath = stripArchivePath(entry.name, strip);
-    if (!relPath) {
-      continue;
-    }
-    validateArchiveEntryPath(relPath);
-
-    const outPath = resolveArchiveOutputPath({
-      rootDir: params.destDir,
-      relPath,
-      originalPath: entry.name,
-    });
-    if (entry.dir) {
-      await fs.mkdir(outPath, { recursive: true });
->>>>>>> 2b8f1bade (refactor(archive): share archive path safety helpers)
       continue;
     }
 
@@ -357,30 +259,8 @@ async function extractZip(params: {
     }
     await fs.mkdir(path.dirname(outPath), { recursive: true });
 <<<<<<< HEAD
-<<<<<<< HEAD
     const data = await entry.async("nodebuffer");
     await fs.writeFile(outPath, data);
-=======
-    let entryBytes = 0;
-    const onChunkBytes = (bytes: number) => {
-      entryBytes += bytes;
-      if (entryBytes > limits.maxEntryBytes) {
-        throw new Error("archive entry extracted size exceeds limit");
-      }
-      extractedBytes += bytes;
-      if (extractedBytes > limits.maxExtractedBytes) {
-        throw new Error("archive extracted size exceeds limit");
-      }
-    };
-
-    const readable =
-      typeof entry.nodeStream === "function"
-        ? (entry.nodeStream() as unknown)
-        : await entry.async("nodebuffer");
-=======
-    budget.startEntry();
-    const readable = await readZipEntryStream(entry);
->>>>>>> 4c7838e3c (refactor(archive): centralize limits and budgets)
 
     try {
       await pipeline(
@@ -430,13 +310,10 @@ export async function extractArchive(params: {
   archivePath: string;
   destDir: string;
   timeoutMs: number;
-<<<<<<< HEAD
-=======
   kind?: ArchiveKind;
   stripComponents?: number;
   tarGzip?: boolean;
   limits?: ArchiveExtractLimits;
->>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
   logger?: ArchiveLogger;
 }): Promise<void> {
   const kind = resolveArchiveKind(params.archivePath);
@@ -446,83 +323,15 @@ export async function extractArchive(params: {
 
   const label = kind === "zip" ? "extract zip" : "extract tar";
   if (kind === "tar") {
-<<<<<<< HEAD
     await withTimeout(
       tar.x({ file: params.archivePath, cwd: params.destDir }),
-=======
-    const strip = Math.max(0, Math.floor(params.stripComponents ?? 0));
-    const limits = resolveExtractLimits(params.limits);
-    let entryCount = 0;
-    const budget = createByteBudgetTracker(limits);
-    await withTimeout(
-      tar.x({
-        file: params.archivePath,
-        cwd: params.destDir,
-        strip,
-        gzip: params.tarGzip,
-        preservePaths: false,
-        strict: true,
-        onReadEntry(entry) {
-          const info = readTarEntryInfo(entry);
-
-          try {
-            validateArchiveEntryPath(info.path);
-
-            const relPath = stripArchivePath(info.path, strip);
-            if (!relPath) {
-              return;
-            }
-            validateArchiveEntryPath(relPath);
-            resolveArchiveOutputPath({
-              rootDir: params.destDir,
-              relPath,
-              originalPath: info.path,
-            });
-
-            if (
-              info.type === "SymbolicLink" ||
-              info.type === "Link" ||
-              info.type === "BlockDevice" ||
-              info.type === "CharacterDevice" ||
-              info.type === "FIFO" ||
-              info.type === "Socket"
-            ) {
-              throw new Error(`tar entry is a link: ${info.path}`);
-            }
-
-            entryCount += 1;
-            assertArchiveEntryCountWithinLimit(entryCount, limits);
-            budget.addEntrySize(info.size);
-          } catch (err) {
-            const error = err instanceof Error ? err : new Error(String(err));
-            // Node's EventEmitter calls listeners with `this` bound to the
-            // emitter (tar.Unpack), which exposes Parser.abort().
-            const emitter = this as unknown as { abort?: (error: Error) => void };
-            emitter.abort?.(error);
-          }
-        },
-      }),
->>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
       params.timeoutMs,
       label,
     );
     return;
   }
 
-<<<<<<< HEAD
   await withTimeout(extractZip(params), params.timeoutMs, label);
-=======
-  await withTimeout(
-    extractZip({
-      archivePath: params.archivePath,
-      destDir: params.destDir,
-      stripComponents: params.stripComponents,
-      limits: params.limits,
-    }),
-    params.timeoutMs,
-    label,
-  );
->>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
 }
 
 export async function fileExists(filePath: string): Promise<boolean> {

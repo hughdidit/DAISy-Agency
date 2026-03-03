@@ -17,7 +17,6 @@ import {
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const _MAIN_SESSION_KEY = "agent:main:main";
 
 const webMocks = vi.hoisted(() => ({
@@ -59,14 +58,6 @@ function makeCfg(home: string) {
 afterEach(() => {
   vi.restoreAllMocks();
 });
-=======
-=======
-let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
-beforeAll(async () => {
-  getReplyFromConfig = await loadGetReplyFromConfig();
-});
-
->>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
@@ -272,7 +263,6 @@ describe("trigger handling", () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
       const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
       const baseCfg = makeCfg(home);
       const cfg = {
@@ -283,9 +273,6 @@ describe("trigger handling", () => {
             workspace: join(home, "clawd"),
           },
         },
-=======
-        ...baseCfg,
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         channels: {
           ...baseCfg.channels,
           whatsapp: {
@@ -315,7 +302,6 @@ describe("trigger handling", () => {
       for (const command of ["/status", "/whoami"] as const) {
         await expectUnauthorizedCommandDropped(home, command);
       }
-<<<<<<< HEAD
 >>>>>>> 67bccc1fa (test: merge allow-from trigger shard and dedupe inline cases)
     });
   });
@@ -334,9 +320,6 @@ describe("trigger handling", () => {
             workspace: join(home, "clawd"),
           },
         },
-=======
-        ...baseCfg,
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         channels: {
           ...baseCfg.channels,
           whatsapp: {
@@ -378,7 +361,6 @@ describe("trigger handling", () => {
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(text).toBe("ok");
       expect(runEmbeddedPiAgentMock).toHaveBeenCalled();
-<<<<<<< HEAD
       const prompt = runEmbeddedPiAgentMock.mock.calls[0]?.[0]?.prompt ?? "";
       expect(prompt).toContain("/status");
     });
@@ -396,9 +378,6 @@ describe("trigger handling", () => {
       expect(runEmbeddedPiAgentMock).toHaveBeenCalled();
       const prompt = runEmbeddedPiAgentMock.mock.calls[0]?.[0]?.prompt ?? "";
       expect(prompt).toContain("/help");
-=======
-=======
->>>>>>> 3f03cdea5 (test: optimize redundant suites for faster runtime)
       for (const command of ["/status", "/help"] as const) {
         const runEmbeddedPiAgentMock = mockEmbeddedOk();
         const res = await runInlineUnauthorizedCommand({
@@ -411,15 +390,12 @@ describe("trigger handling", () => {
         const prompt = runEmbeddedPiAgentMock.mock.calls.at(-1)?.[0]?.prompt ?? "";
         expect(prompt).toContain(command);
       }
-<<<<<<< HEAD
 >>>>>>> 67bccc1fa (test: merge allow-from trigger shard and dedupe inline cases)
     });
   });
 
   it("returns help without invoking the agent", async () => {
     await withTempHome(async (home) => {
-=======
->>>>>>> ddc67aa4e (test: collapse duplicate trigger command coverage)
       const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
       const callsBeforeHelp = runEmbeddedPiAgentMock.mock.calls.length;
       const helpRes = await getReplyFromConfig(

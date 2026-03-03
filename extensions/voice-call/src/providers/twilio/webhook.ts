@@ -3,11 +3,8 @@ import type { WebhookContext, WebhookVerificationResult } from "../../types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { Logger } from "../../manager/context.js";
 import { defaultLogger, sanitizeLogValue } from "../../manager/context.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { verifyTwilioWebhook } from "../../webhook-security.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

@@ -164,15 +164,8 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
       });
 
       this.ws.on("error", (error) => {
-<<<<<<< HEAD
         this.logger.error(`[RealtimeSTT] WebSocket error: ${error}`);
         if (!this.connected) reject(error);
-=======
-        console.error("[RealtimeSTT] WebSocket error:", error);
-        if (!this.connected) {
-          reject(error);
-        }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       });
 
       this.ws.on("close", (code, reason) => {
@@ -200,30 +193,20 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
       return;
     }
 
-<<<<<<< HEAD
     if (
       this.reconnectAttempts >= OpenAIRealtimeSTTSession.MAX_RECONNECT_ATTEMPTS
     ) {
       this.logger.error(
-=======
-    if (this.reconnectAttempts >= OpenAIRealtimeSTTSession.MAX_RECONNECT_ATTEMPTS) {
-      console.error(
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         `[RealtimeSTT] Max reconnect attempts (${OpenAIRealtimeSTTSession.MAX_RECONNECT_ATTEMPTS}) reached`,
       );
       return;
     }
 
     this.reconnectAttempts++;
-<<<<<<< HEAD
     const delay =
       OpenAIRealtimeSTTSession.RECONNECT_DELAY_MS *
       2 ** (this.reconnectAttempts - 1);
     this.logger.info(
-=======
-    const delay = OpenAIRealtimeSTTSession.RECONNECT_DELAY_MS * 2 ** (this.reconnectAttempts - 1);
-    console.log(
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       `[RealtimeSTT] Reconnecting ${this.reconnectAttempts}/${OpenAIRealtimeSTTSession.MAX_RECONNECT_ATTEMPTS} in ${delay}ms...`,
     );
 

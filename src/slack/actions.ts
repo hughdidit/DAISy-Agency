@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import type { WebClient } from "@slack/web-api";
 
-=======
-import type { Block, KnownBlock, WebClient } from "@slack/web-api";
->>>>>>> c9684a267 (Slack: support Block Kit blocks in sendMessage actions)
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import { resolveSlackAccount } from "./accounts.js";

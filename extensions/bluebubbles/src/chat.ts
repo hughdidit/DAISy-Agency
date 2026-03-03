@@ -1,14 +1,7 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 import { resolveBlueBubblesAccount } from "./accounts.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
-=======
-import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { postMultipartFormData } from "./multipart.js";
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 >>>>>>> 719280d73 (refactor(bluebubbles): share multipart helpers)
@@ -23,7 +16,6 @@ export type BlueBubblesChatOpts = {
 };
 
 function resolveAccount(params: BlueBubblesChatOpts) {
-<<<<<<< HEAD
   const account = resolveBlueBubblesAccount({
     cfg: params.cfg ?? {},
     accountId: params.accountId,
@@ -37,17 +29,6 @@ function resolveAccount(params: BlueBubblesChatOpts) {
     throw new Error("BlueBubbles password is required");
   }
   return { baseUrl, password };
-=======
-  return resolveBlueBubblesServerAccount(params);
-}
-
-function assertPrivateApiEnabled(accountId: string, feature: string): void {
-  if (getCachedBlueBubblesPrivateApiStatus(accountId) === false) {
-    throw new Error(
-      `BlueBubbles ${feature} requires Private API, but it is disabled on the BlueBubbles server.`,
-    );
-  }
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 }
 
 function resolvePartIndex(partIndex: number | undefined): number {
@@ -150,17 +131,9 @@ export async function editBlueBubblesMessage(
     throw new Error("BlueBubbles edit requires newText");
   }
 
-<<<<<<< HEAD
   const { baseUrl, password } = resolveAccount(opts);
   const url = buildBlueBubblesApiUrl({
     baseUrl,
-=======
-  await sendPrivateApiJsonRequest({
-    opts,
-    feature: "edit",
-    action: "edit",
-    method: "POST",
->>>>>>> 5056f4e14 (fix(bluebubbles): tighten chat target handling)
     path: `/api/v1/message/${encodeURIComponent(trimmedGuid)}/edit`,
     payload: {
       editedMessage: trimmedText,
@@ -183,17 +156,9 @@ export async function unsendBlueBubblesMessage(
     throw new Error("BlueBubbles unsend requires messageGuid");
   }
 
-<<<<<<< HEAD
   const { baseUrl, password } = resolveAccount(opts);
   const url = buildBlueBubblesApiUrl({
     baseUrl,
-=======
-  await sendPrivateApiJsonRequest({
-    opts,
-    feature: "unsend",
-    action: "unsend",
-    method: "POST",
->>>>>>> 5056f4e14 (fix(bluebubbles): tighten chat target handling)
     path: `/api/v1/message/${encodeURIComponent(trimmedGuid)}/unsend`,
     payload: { partIndex: resolvePartIndex(opts.partIndex) },
   });
@@ -212,17 +177,9 @@ export async function renameBlueBubblesChat(
     throw new Error("BlueBubbles rename requires chatGuid");
   }
 
-<<<<<<< HEAD
   const { baseUrl, password } = resolveAccount(opts);
   const url = buildBlueBubblesApiUrl({
     baseUrl,
-=======
-  await sendPrivateApiJsonRequest({
-    opts,
-    feature: "renameGroup",
-    action: "rename",
-    method: "PUT",
->>>>>>> 5056f4e14 (fix(bluebubbles): tighten chat target handling)
     path: `/api/v1/chat/${encodeURIComponent(trimmedGuid)}`,
     payload: { displayName },
   });
@@ -245,17 +202,9 @@ export async function addBlueBubblesParticipant(
     throw new Error("BlueBubbles addParticipant requires address");
   }
 
-<<<<<<< HEAD
   const { baseUrl, password } = resolveAccount(opts);
   const url = buildBlueBubblesApiUrl({
     baseUrl,
-=======
-  await sendPrivateApiJsonRequest({
-    opts,
-    feature: "addParticipant",
-    action: "addParticipant",
-    method: "POST",
->>>>>>> 5056f4e14 (fix(bluebubbles): tighten chat target handling)
     path: `/api/v1/chat/${encodeURIComponent(trimmedGuid)}/participant`,
     payload: { address: trimmedAddress },
   });
@@ -278,17 +227,9 @@ export async function removeBlueBubblesParticipant(
     throw new Error("BlueBubbles removeParticipant requires address");
   }
 
-<<<<<<< HEAD
   const { baseUrl, password } = resolveAccount(opts);
   const url = buildBlueBubblesApiUrl({
     baseUrl,
-=======
-  await sendPrivateApiJsonRequest({
-    opts,
-    feature: "removeParticipant",
-    action: "removeParticipant",
-    method: "DELETE",
->>>>>>> 5056f4e14 (fix(bluebubbles): tighten chat target handling)
     path: `/api/v1/chat/${encodeURIComponent(trimmedGuid)}/participant`,
     payload: { address: trimmedAddress },
   });
@@ -306,17 +247,9 @@ export async function leaveBlueBubblesChat(
     throw new Error("BlueBubbles leaveChat requires chatGuid");
   }
 
-<<<<<<< HEAD
   const { baseUrl, password } = resolveAccount(opts);
   const url = buildBlueBubblesApiUrl({
     baseUrl,
-=======
-  await sendPrivateApiJsonRequest({
-    opts,
-    feature: "leaveGroup",
-    action: "leaveChat",
-    method: "POST",
->>>>>>> 5056f4e14 (fix(bluebubbles): tighten chat target handling)
     path: `/api/v1/chat/${encodeURIComponent(trimmedGuid)}/leave`,
   });
 }

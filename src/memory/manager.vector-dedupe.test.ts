@@ -3,12 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
->>>>>>> 7b31e8fc5 (chore: Fix types in tests 36/N.)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 =======
 import type { MemoryIndexManager } from "./index.js";

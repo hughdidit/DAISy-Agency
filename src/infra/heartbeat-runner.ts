@@ -4,10 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
@@ -16,10 +13,7 @@ import type { ChannelHeartbeatDeps } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { AgentDefaultsConfig } from "../config/types.agent-defaults.js";
 import type { OutboundSendDeps } from "./outbound/deliver.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -45,10 +39,7 @@ import { HEARTBEAT_TOKEN } from "../auto-reply/tokens.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { getReplyFromConfig } from "../auto-reply/reply.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ReplyPayload } from "../auto-reply/types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -67,11 +58,7 @@ import { parseDurationMs } from "../cli/parse-duration.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -98,12 +85,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { AgentDefaultsConfig } from "../config/types.agent-defaults.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { peekSystemEvents } from "../infra/system-events.js";
-=======
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 =======
 import type { AgentDefaultsConfig } from "../config/types.agent-defaults.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -122,31 +106,11 @@ import { getQueueSize } from "../process/command-queue.js";
 import { CommandLane } from "../process/lanes.js";
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { normalizeAgentId, toAgentStoreSessionKey } from "../routing/session-key.js";
-=======
-=======
-import { escapeRegExp } from "../utils.js";
-<<<<<<< HEAD
->>>>>>> f476c8b48 (Fix #12767: Heartbeat  strip responsePrefix before HEARTBEAT_OK suppression)
 import { formatErrorMessage } from "./errors.js";
-<<<<<<< HEAD
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
-=======
-=======
-import { formatErrorMessage, hasErrnoCode } from "./errors.js";
->>>>>>> cf4ffff3e (fix(heartbeat): run when HEARTBEAT.md is missing)
 import { isWithinActiveHours } from "./heartbeat-active-hours.js";
-<<<<<<< HEAD
 >>>>>>> 4200782a5 (fix(heartbeat): honor heartbeat.model config for heartbeat turns (#14103))
-=======
-import {
-  buildExecEventPrompt,
-  buildCronEventPrompt,
-  isCronSystemEvent,
-  isExecCompletionEvent,
-} from "./heartbeat-events-filter.js";
->>>>>>> 5a431f57f (refactor(infra): split heartbeat event filters)
 import { emitHeartbeatEvent, resolveIndicatorType } from "./heartbeat-events.js";
 import { resolveHeartbeatVisibility } from "./heartbeat-visibility.js";
 import {
@@ -194,7 +158,6 @@ export type HeartbeatSummary = {
   ackMaxChars: number;
 };
 
-<<<<<<< HEAD
 const DEFAULT_HEARTBEAT_TARGET = "last";
 
 // Prompt used when an async exec has completed and the result should be relayed to the user.
@@ -205,42 +168,10 @@ const EXEC_EVENT_PROMPT =
   "Please relay the command output to the user in a helpful way. If the command succeeded, share the relevant output. " +
   "If it failed, explain what went wrong.";
 <<<<<<< HEAD
-=======
-const DEFAULT_HEARTBEAT_TARGET = "none";
-export { isCronSystemEvent };
->>>>>>> e2362d352 (fix(heartbeat): default target none and internalize relay prompts)
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 function resolveActiveHoursTimezone(cfg: MoltbotConfig, raw?: string): string {
-=======
-// Prompt used when a scheduled cron job has fired and injected a system event.
-// This overrides the standard heartbeat prompt so the model relays the scheduled
-// reminder instead of responding with "HEARTBEAT_OK".
-const CRON_EVENT_PROMPT =
-  "A scheduled reminder has been triggered. The reminder message is shown in the system messages above. " +
-  "Please relay this reminder to the user in a helpful and friendly way.";
-=======
-// Build a dynamic prompt for cron events by embedding the actual event content.
-// This ensures the model sees the reminder text directly instead of relying on
-// "shown in the system messages above" which may not be visible in context.
-function buildCronEventPrompt(pendingEvents: string[]): string {
-  const eventText = pendingEvents.join("\n").trim();
-  if (!eventText) {
-    return (
-      "A scheduled cron event was triggered, but no event content was found. " +
-      "Reply HEARTBEAT_OK."
-    );
-  }
-  return (
-    "A scheduled reminder has been triggered. The reminder content is:\n\n" +
-    eventText +
-    "\n\nPlease relay this reminder to the user in a helpful and friendly way."
-  );
-}
->>>>>>> c12f693c5 (feat: embed actual event text in cron prompt)
 
-<<<<<<< HEAD
 function resolveActiveHoursTimezone(cfg: OpenClawConfig, raw?: string): string {
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   const trimmed = raw?.trim();
@@ -333,9 +264,6 @@ function isWithinActiveHours(
   }
   return currentMin >= startMin || currentMin < endMin;
 }
-=======
-export { isCronSystemEvent };
->>>>>>> 5a431f57f (refactor(infra): split heartbeat event filters)
 
 =======
 >>>>>>> 4200782a5 (fix(heartbeat): honor heartbeat.model config for heartbeat turns (#14103))
@@ -705,8 +633,6 @@ function normalizeHeartbeatReply(
   return { shouldSkip: false, text: finalText, hasMedia };
 }
 
-<<<<<<< HEAD
-=======
 type HeartbeatReasonFlags = {
   isExecEventReason: boolean;
   isCronEventReason: boolean;
@@ -793,7 +719,6 @@ async function resolveHeartbeatPreflight(params: {
 }
 
 <<<<<<< HEAD
->>>>>>> cf4ffff3e (fix(heartbeat): run when HEARTBEAT.md is missing)
 =======
 type HeartbeatPromptResolution = {
   prompt: string;
@@ -894,23 +819,8 @@ export async function runHeartbeatOnce(opts: {
     cfg,
     agentId,
     heartbeat,
-<<<<<<< HEAD
     opts.sessionKey,
   );
-=======
-    forcedSessionKey: opts.sessionKey,
-    reason: opts.reason,
-  });
-  if (preflight.skipReason) {
-    emitHeartbeatEvent({
-      status: "skipped",
-      reason: preflight.skipReason,
-      durationMs: Date.now() - startedAt,
-    });
-    return { status: "skipped", reason: preflight.skipReason };
-  }
-  const { entry, sessionKey, storePath } = preflight.session;
->>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
   const previousUpdatedAt = entry?.updatedAt;
   const delivery = resolveHeartbeatDeliveryTarget({ cfg, entry, heartbeat });
   const heartbeatAccountId = heartbeat?.accountId?.trim();
@@ -940,7 +850,6 @@ export async function runHeartbeatOnce(opts: {
     accountId: delivery.accountId,
   }).responsePrefix;
 
-<<<<<<< HEAD
   // Check if this is an exec event or cron event with pending system events.
   // If so, use a specialized prompt that instructs the model to relay the result
   // instead of the standard heartbeat prompt with "reply HEARTBEAT_OK".
@@ -951,26 +860,6 @@ export async function runHeartbeatOnce(opts: {
   const hasExecCompletion = pendingEvents.some((evt) => evt.includes("Exec finished"));
   const hasCronEvents = isCronEvent && pendingEvents.length > 0;
 =======
-  const pendingEventEntries = peekSystemEventEntries(sessionKey);
-  const hasTaggedCronEvents = pendingEventEntries.some((event) =>
-    event.contextKey?.startsWith("cron:"),
-  );
-  const shouldInspectPendingEvents = isExecEvent || isCronEventReason || hasTaggedCronEvents;
-  const pendingEvents = shouldInspectPendingEvents
-    ? pendingEventEntries.map((event) => event.text)
-    : [];
-  const cronEvents = pendingEventEntries
-    .filter(
-      (event) =>
-        (isCronEventReason || event.contextKey?.startsWith("cron:")) &&
-        isCronSystemEvent(event.text),
-    )
-    .map((event) => event.text);
-  const hasExecCompletion = pendingEvents.some(isExecCompletionEvent);
-  const hasCronEvents = cronEvents.length > 0;
-<<<<<<< HEAD
->>>>>>> 4c4d2558e (fix (heartbeat/cron): preserve cron prompts for tagged interval events)
-=======
   const canRelayToUser = Boolean(
     delivery.channel !== "none" && delivery.to && visibility.showAlerts,
   );
@@ -978,11 +867,7 @@ export async function runHeartbeatOnce(opts: {
   const prompt = hasExecCompletion
     ? buildExecEventPrompt({ deliverToUser: canRelayToUser })
     : hasCronEvents
-<<<<<<< HEAD
       ? buildCronEventPrompt(pendingEvents)
-=======
-      ? buildCronEventPrompt(cronEvents, { deliverToUser: canRelayToUser })
->>>>>>> e2362d352 (fix(heartbeat): default target none and internalize relay prompts)
       : resolveHeartbeatPrompt(cfg, heartbeat);
 =======
   const canRelayToUser = Boolean(
@@ -1044,10 +929,7 @@ export async function runHeartbeatOnce(opts: {
       accountId: delivery.accountId,
       threadId: delivery.threadId,
       payloads: [{ text: heartbeatOkText }],
-<<<<<<< HEAD
-=======
       session: outboundSession,
->>>>>>> a1628d89e (refactor: unify outbound session context wiring)
       deps: opts.deps,
     });
     return true;
@@ -1248,12 +1130,6 @@ export async function runHeartbeatOnce(opts: {
       to: delivery.to,
       accountId: deliveryAccountId,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-      agentId,
-=======
-      session: outboundSession,
->>>>>>> a1628d89e (refactor: unify outbound session context wiring)
       threadId: delivery.threadId,
 >>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       payloads: [
@@ -1365,15 +1241,8 @@ export function startHeartbeatRunner(opts: {
     state.timer.unref?.();
   };
 
-<<<<<<< HEAD
   const updateConfig = (cfg: MoltbotConfig) => {
     if (state.stopped) return;
-=======
-  const updateConfig = (cfg: OpenClawConfig) => {
-    if (state.stopped) {
-      return;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     const now = Date.now();
     const prevAgents = state.agents;
     const prevEnabled = prevAgents.size > 0;
@@ -1502,17 +1371,7 @@ export function startHeartbeatRunner(opts: {
     return { status: "skipped", reason: isInterval ? "not-due" : "disabled" };
   };
 
-<<<<<<< HEAD
   setHeartbeatWakeHandler(async (params) => run({ reason: params.reason }));
-=======
-  const wakeHandler: HeartbeatWakeHandler = async (params) =>
-    run({
-      reason: params.reason,
-      agentId: params.agentId,
-      sessionKey: params.sessionKey,
-    });
-  const disposeWakeHandler = setHeartbeatWakeHandler(wakeHandler);
->>>>>>> f988abf20 (Cron: route reminders by session namespace)
   updateConfig(state.cfg);
 
   const cleanup = () => {

@@ -2,10 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getChannelDock } from "../channels/dock.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -26,25 +23,12 @@ import { getChannelDock } from "../channels/dock.js";
 import { DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH } from "../config/agent-limits.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveChannelGroupToolsPolicy } from "../config/group-policy.js";
-<<<<<<< HEAD
-=======
 import { normalizeAgentId } from "../routing/session-key.js";
 import { resolveThreadParentSessionKey } from "../sessions/session-key-utils.js";
 import { normalizeMessageChannel } from "../utils/message-channel.js";
->>>>>>> 394a1af70 (fix(exec): apply per-agent exec defaults for opaque session keys)
 import { resolveAgentConfig, resolveAgentIdFromSessionKey } from "./agent-scope.js";
-<<<<<<< HEAD
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxToolPolicy } from "./sandbox.js";
-=======
-import { compileGlobPatterns, matchesAnyGlobPattern } from "./glob-pattern.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 60a7625f2 (refactor(agents): share glob matcher)
 =======
 import { pickSandboxToolPolicy } from "./sandbox-tool-policy.js";
 >>>>>>> df6d0ee92 (refactor(core): dedupe tool policy and IPv4 matcher logic)
@@ -120,35 +104,7 @@ const SUBAGENT_TOOL_DENY_ALWAYS = [
   "sessions_send",
 ];
 
-<<<<<<< HEAD
 export function resolveSubagentToolPolicy(cfg?: MoltbotConfig): SandboxToolPolicy {
-=======
-/**
- * Additional tools denied for leaf sub-agents (depth >= maxSpawnDepth).
- * These are tools that only make sense for orchestrator sub-agents that can spawn children.
- */
-const SUBAGENT_TOOL_DENY_LEAF = ["sessions_list", "sessions_history", "sessions_spawn"];
-
-/**
- * Build the deny list for a sub-agent at a given depth.
- *
- * - Depth 1 with maxSpawnDepth >= 2 (orchestrator): allowed to use sessions_spawn,
- *   subagents, sessions_list, sessions_history so it can manage its children.
- * - Depth >= maxSpawnDepth (leaf): denied sessions_spawn and
- *   session management tools. Still allowed subagents (for list/status visibility).
- */
-function resolveSubagentDenyList(depth: number, maxSpawnDepth: number): string[] {
-  const isLeaf = depth >= Math.max(1, Math.floor(maxSpawnDepth));
-  if (isLeaf) {
-    return [...SUBAGENT_TOOL_DENY_ALWAYS, ...SUBAGENT_TOOL_DENY_LEAF];
-  }
-  // Orchestrator sub-agent: only deny the always-denied tools.
-  // sessions_spawn, subagents, sessions_list, sessions_history are allowed.
-  return [...SUBAGENT_TOOL_DENY_ALWAYS];
-}
-
-export function resolveSubagentToolPolicy(cfg?: OpenClawConfig, depth?: number): SandboxToolPolicy {
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
   const configured = cfg?.tools?.subagents?.tools;
   const maxSpawnDepth =
     cfg?.agents?.defaults?.subagents?.maxSpawnDepth ?? DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH;

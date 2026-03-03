@@ -18,7 +18,6 @@ function shouldEmitRuntimeLog(env: NodeJS.ProcessEnv = process.env): boolean {
   return typeof maybeMockedLog.mock === "object";
 }
 
-<<<<<<< HEAD
 export const defaultRuntime: RuntimeEnv = {
   log: (...args: Parameters<typeof console.log>) => {
     if (!shouldEmitRuntimeLog()) {
@@ -34,9 +33,6 @@ export const defaultRuntime: RuntimeEnv = {
   exit: (code) => {
 <<<<<<< HEAD
     restoreTerminalState("runtime exit");
-=======
-    restoreTerminalState("runtime exit", { resumeStdinIfPaused: false });
->>>>>>> 994bcbf67 (refactor: clarify restoreTerminalState stdin resume option)
     process.exit(code);
     throw new Error("unreachable"); // satisfies tests when mocked
   },

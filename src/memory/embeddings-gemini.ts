@@ -3,27 +3,12 @@ import {
   executeWithApiKeyRotation,
 } from "../agents/api-key-rotation.js";
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
-<<<<<<< HEAD
 import { isTruthyEnvValue } from "../infra/env.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 =======
-import { parseGeminiAuth } from "../infra/gemini-auth.js";
-import type { SsrFPolicy } from "../infra/net/ssrf.js";
-import { debugEmbeddingsLog } from "./embeddings-debug.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
-=======
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -49,15 +34,7 @@ export type GeminiEmbeddingClient = {
 
 const DEFAULT_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 export const DEFAULT_GEMINI_EMBEDDING_MODEL = "gemini-embedding-001";
-<<<<<<< HEAD
 const debugEmbeddings = isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_MEMORY_EMBEDDINGS);
-=======
-const GEMINI_MAX_INPUT_TOKENS: Record<string, number> = {
-  "text-embedding-004": 2048,
-};
-<<<<<<< HEAD
-const debugEmbeddings = isTruthyEnvValue(process.env.OPENCLAW_DEBUG_MEMORY_EMBEDDINGS);
->>>>>>> 7f1712c1b ((fix): enforce embedding model token limit to prevent overflow (#13455))
 const log = createSubsystemLogger("memory/embeddings");
 
 const debugLog = (message: string, meta?: Record<string, unknown>) => {
@@ -218,11 +195,8 @@ export async function resolveGeminiEmbeddingClient(
   const ssrfPolicy = buildRemoteBaseUrlPolicy(baseUrl);
   const headerOverrides = Object.assign({}, providerConfig?.headers, remote?.headers);
   const headers: Record<string, string> = {
-<<<<<<< HEAD
     "Content-Type": "application/json",
     "x-goog-api-key": apiKey,
-=======
->>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
     ...headerOverrides,
   };
   const apiKeys = collectProviderApiKeysForExecution({

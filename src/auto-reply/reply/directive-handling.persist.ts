@@ -16,11 +16,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -41,13 +37,9 @@ import { resolveProfileOverride } from "./directive-handling.auth.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { InlineDirectives } from "./directive-handling.parse.js";
 import { formatElevatedEvent, formatReasoningEvent } from "./directive-handling.shared.js";
 import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
-=======
-import { enqueueModeSwitchEvents } from "./directive-handling.shared.js";
->>>>>>> ca4c2b33d (refactor(auto-reply): share mode-switch events)
 =======
 import type { InlineDirectives } from "./directive-handling.parse.js";
 import { enqueueModeSwitchEvents } from "./directive-handling.shared.js";

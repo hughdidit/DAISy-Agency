@@ -1,21 +1,11 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
 import type { TwilioConfig } from "../config.js";
-=======
-import type { TwilioConfig, WebhookSecurityConfig } from "../config.js";
-import { getHeader } from "../http-headers.js";
->>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
 import type { MediaStreamHandler } from "../media-stream.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { chunkAudio } from "../telephony-audio.js";
-=======
->>>>>>> 950f36fef (revert(voice-call): undo oxfmt formatting pass)
 =======
 import { chunkAudio } from "../telephony-audio.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -41,15 +31,12 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { escapeXml, mapVoiceToPolly } from "../voice-mapping.js";
 <<<<<<< HEAD
 import { chunkAudio } from "../telephony-audio.js";
 import type { TelephonyTtsProvider } from "../telephony-tts.js";
 import type { Logger } from "../manager/context.js";
 import { defaultLogger } from "../manager/context.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 950f36fef (revert(voice-call): undo oxfmt formatting pass)
 import type { VoiceCallProvider } from "./base.js";
@@ -68,8 +55,6 @@ import type { VoiceCallProvider } from "./base.js";
 import { twilioApiRequest } from "./twilio/api.js";
 import { verifyTwilioProviderWebhook } from "./twilio/webhook.js";
 
-<<<<<<< HEAD
-=======
 function createTwilioRequestDedupeKey(ctx: WebhookContext, verifiedRequestKey?: string): string {
   if (verifiedRequestKey) {
     return verifiedRequestKey;
@@ -91,7 +76,6 @@ function createTwilioRequestDedupeKey(ctx: WebhookContext, verifiedRequestKey?: 
     .digest("hex")}`;
 }
 
->>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
 /**
  * Twilio Voice API provider implementation.
  *
@@ -133,21 +117,6 @@ export class TwilioProvider implements VoiceCallProvider {
   /** Map of call SID to stream SID for media streams */
   private callStreamMap = new Map<string, string>();
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  /** Pre-generated greeting audio for instant inbound playback */
-  private cachedGreetingAudio: Buffer | null = null;
-
-  setCachedGreetingAudio(audio: Buffer): void {
-    this.cachedGreetingAudio = audio;
-    console.log(`[voice-call] Cached greeting audio: ${audio.length} bytes`);
-  }
-
-  getCachedGreetingAudio(): Buffer | null {
-    return this.cachedGreetingAudio;
-  }
-=======
->>>>>>> 759c7fc18 (revert(voice-call): remove cached inbound greeting)
   /** Per-call tokens for media stream authentication */
   private streamAuthTokens = new Map<string, string>();
 >>>>>>> 2c6db5755 (feat(voice-call): pre-cache inbound greeting for instant playback)

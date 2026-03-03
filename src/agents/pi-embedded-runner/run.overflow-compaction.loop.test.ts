@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 vi.mock("./run/attempt.js", () => ({
@@ -58,11 +57,6 @@ vi.mock("../../process/command-queue.js", () => ({
   enqueueCommandInLane: vi.fn((_lane: string, task: () => unknown) => task()),
 }));
 =======
-import "./run.overflow-compaction.mocks.shared.js";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
->>>>>>> b744ba341 (refactor(test): share overflow compaction mocks)
-=======
 import { isCompactionFailureError, isLikelyContextOverflowError } from "../pi-embedded-helpers.js";
 >>>>>>> f41be7159 (test(pi): share overflow-compaction test setup)
 
@@ -70,7 +64,6 @@ vi.mock("../../utils.js", () => ({
   resolveUserPath: vi.fn((p: string) => p),
 }));
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 vi.mock("../../utils/message-channel.js", () => ({
@@ -81,8 +74,6 @@ vi.mock("../agent-paths.js", () => ({
   resolveMoltbotAgentDir: vi.fn(() => "/tmp/agent-dir"),
 }));
 
-=======
->>>>>>> b744ba341 (refactor(test): share overflow compaction mocks)
 vi.mock("../auth-profiles.js", () => ({
   markAuthProfileFailure: vi.fn(async () => {}),
   markAuthProfileGood: vi.fn(async () => {}),
@@ -90,29 +81,9 @@ vi.mock("../auth-profiles.js", () => ({
 }));
 
 vi.mock("../usage.js", () => ({
-<<<<<<< HEAD
   normalizeUsage: vi.fn(() => undefined),
-=======
-  normalizeUsage: vi.fn((usage?: unknown) =>
-    usage && typeof usage === "object" ? usage : undefined,
-  ),
-  derivePromptTokens: vi.fn(
-    (usage?: { input?: number; cacheRead?: number; cacheWrite?: number }) => {
-      if (!usage) {
-        return undefined;
-      }
-      const input = usage.input ?? 0;
-      const cacheRead = usage.cacheRead ?? 0;
-      const cacheWrite = usage.cacheWrite ?? 0;
-      const sum = input + cacheRead + cacheWrite;
-      return sum > 0 ? sum : undefined;
-    },
-  ),
-  hasNonzeroUsage: vi.fn(() => false),
->>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 }));
 
-<<<<<<< HEAD
 vi.mock("./lanes.js", () => ({
   resolveSessionLane: vi.fn(() => "session-lane"),
   resolveGlobalLane: vi.fn(() => "global-lane"),
@@ -141,8 +112,6 @@ vi.mock("./utils.js", () => ({
   }),
 }));
 
-=======
->>>>>>> b744ba341 (refactor(test): share overflow compaction mocks)
 =======
 >>>>>>> 5fb4032fb (refactor(test): share overflow compaction mocks)
 vi.mock("../pi-embedded-helpers.js", async () => {
@@ -192,7 +161,6 @@ describe("overflow compaction in run loop", () => {
         lower.includes("context window exceeded") ||
         lower.includes("prompt too large")
       );
-<<<<<<< HEAD
     },
     isFailoverAssistantError: vi.fn(() => false),
     isFailoverErrorMessage: vi.fn(() => false),
@@ -210,10 +178,6 @@ describe("overflow compaction in run loop", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
-=======
-import type { EmbeddedRunAttemptResult } from "./run/types.js";
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { log } from "./logger.js";
@@ -223,15 +187,10 @@ import { makeAttemptResult, mockOverflowRetrySuccess } from "./run.overflow-comp
 import { runEmbeddedAttempt } from "./run/attempt.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { log } from "./logger.js";
 
 import type { EmbeddedRunAttemptResult } from "./run/types.js";
-=======
-import type { EmbeddedRunAttemptResult } from "./run/types.js";
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import type { EmbeddedRunAttemptResult } from "./run/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
@@ -337,30 +296,11 @@ describe("overflow compaction in run loop", () => {
     expect(log.warn).toHaveBeenCalledWith(expect.stringContaining("auto-compaction failed"));
   });
 
-<<<<<<< HEAD
   it("returns error if overflow happens again after compaction", async () => {
     const overflowError = new Error("request_too_large: Request size exceeds model context window");
 
     mockedRunEmbeddedAttempt
 <<<<<<< HEAD
-=======
-      .mockResolvedValueOnce(
-        makeAttemptResult({
-          promptError: overflowError,
-          messagesSnapshot: [
-            {
-              role: "assistant",
-              content: "big tool output",
-            } as unknown as EmbeddedRunAttemptResult["messagesSnapshot"][number],
-          ],
-        }),
-      )
-      .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
-=======
-  it("falls back to tool-result truncation and retries when oversized results are detected", async () => {
-    queueOverflowAttemptWithOversizedToolOutput(mockedRunEmbeddedAttempt, makeOverflowError());
-    mockedRunEmbeddedAttempt.mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     mockedCompactDirect.mockResolvedValueOnce({
       ok: false,
@@ -398,7 +338,6 @@ describe("overflow compaction in run loop", () => {
       .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
       .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }));
 
-<<<<<<< HEAD
     mockedCompactDirect.mockResolvedValueOnce({
       ok: true,
       compacted: true,
@@ -408,30 +347,6 @@ describe("overflow compaction in run loop", () => {
         tokensBefore: 180000,
       },
     });
-=======
-    mockedCompactDirect
-      .mockResolvedValueOnce(
-        makeCompactionSuccess({
-          summary: "Compacted 1",
-          firstKeptEntryId: "entry-3",
-          tokensBefore: 180000,
-        }),
-      )
-      .mockResolvedValueOnce(
-        makeCompactionSuccess({
-          summary: "Compacted 2",
-          firstKeptEntryId: "entry-5",
-          tokensBefore: 160000,
-        }),
-      )
-      .mockResolvedValueOnce(
-        makeCompactionSuccess({
-          summary: "Compacted 3",
-          firstKeptEntryId: "entry-7",
-          tokensBefore: 140000,
-        }),
-      );
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     const result = await runEmbeddedPiAgent(baseParams);
 
@@ -443,8 +358,6 @@ describe("overflow compaction in run loop", () => {
     expect(result.payloads?.[0]?.isError).toBe(true);
   });
 
-<<<<<<< HEAD
-=======
   it("succeeds after second compaction attempt", async () => {
     const overflowError = makeOverflowError();
 
@@ -476,7 +389,6 @@ describe("overflow compaction in run loop", () => {
     expect(result.meta.error).toBeUndefined();
   });
 
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
   it("does not attempt compaction for compaction_failure errors", async () => {
     const compactionFailureError = new Error(
       "request_too_large: summarization failed - Request size exceeds model context window",
@@ -492,8 +404,6 @@ describe("overflow compaction in run loop", () => {
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(1);
     expect(result.meta.error?.kind).toBe("compaction_failure");
   });
-<<<<<<< HEAD
-=======
 
   it("retries after successful compaction on assistant context overflow errors", async () => {
     mockedRunEmbeddedAttempt
@@ -583,5 +493,4 @@ describe("overflow compaction in run loop", () => {
     expect(result.meta.agentMeta?.usage?.input).toBe(4_000);
     expect(result.meta.agentMeta?.promptTokens).toBe(2_000);
   });
->>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 });

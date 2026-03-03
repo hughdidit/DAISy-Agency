@@ -7,10 +7,7 @@ import WebSocket from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ResolvedBrowserConfig, ResolvedBrowserProfile } from "./config.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -38,13 +35,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ResolvedBrowserConfig, ResolvedBrowserProfile } from "./config.js";
 <<<<<<< HEAD
 import { DEFAULT_CLAWD_BROWSER_COLOR, DEFAULT_CLAWD_BROWSER_PROFILE_NAME } from "./constants.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ResolvedBrowserConfig, ResolvedBrowserProfile } from "./config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

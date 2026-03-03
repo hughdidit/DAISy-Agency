@@ -56,8 +56,6 @@ describe("buildGatewayAuthConfig", () => {
 
     expect(result).toEqual({ mode: "password", password: "secret" });
   });
-<<<<<<< HEAD
-=======
 
   it("does not silently omit password when literal string is provided", () => {
     const result = buildGatewayAuthConfig({
@@ -76,7 +74,6 @@ describe("buildGatewayAuthConfig", () => {
     expectGeneratedTokenFromInput("null", "null");
   });
 <<<<<<< HEAD
->>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))
 =======
 
   it("builds trusted-proxy config with all options", () => {

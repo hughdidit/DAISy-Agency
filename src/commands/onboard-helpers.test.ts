@@ -1,16 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import { openUrl, resolveBrowserOpenCommand, resolveControlUiLinks } from "./onboard-helpers.js";
-=======
-import {
-  normalizeGatewayTokenInput,
-  openUrl,
-  resolveBrowserOpenCommand,
-  resolveControlUiLinks,
-  validateGatewayPasswordInput,
-} from "./onboard-helpers.js";
->>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))
 
 const mocks = vi.hoisted(() => ({
   runCommandWithTimeout: vi.fn<
@@ -118,8 +108,6 @@ describe("resolveControlUiLinks", () => {
     expect(links.wsUrl).toBe("ws://127.0.0.1:18789");
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("normalizeGatewayTokenInput", () => {
   it("returns empty string for undefined or null", () => {
@@ -160,4 +148,3 @@ describe("validateGatewayPasswordInput", () => {
     expect(validateGatewayPasswordInput(" secret ")).toBeUndefined();
   });
 });
->>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))

@@ -474,12 +474,7 @@ async function discoverProject(accessToken: string): Promise<string> {
     Authorization: `Bearer ${accessToken}`,
     "Content-Type": "application/json",
     "User-Agent": "google-api-nodejs-client/9.15.1",
-<<<<<<< HEAD
     "X-Goog-Api-Client": "gl-node/moltbot",
-=======
-    "X-Goog-Api-Client": `gl-node/${process.versions.node}`,
-    "Client-Metadata": JSON.stringify(metadata),
->>>>>>> 764cd5a31 (fix(gemini-oauth): align OAuth project discovery metadata and endpoint fallbacks (#16684))
   };
 
   const loadBody = {

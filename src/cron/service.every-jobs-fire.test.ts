@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
@@ -7,20 +6,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 =======
 =======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> badde6e29 (perf(test): speed up cron schedule suite)
-=======
-=======
 >>>>>>> 0a758dc71 (test(cron): improve fire-and-forget harness coverage)
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 >>>>>>> a6cd7ef49 (refactor(test): share cron service fixtures)
 import type { CronEvent } from "./service.js";
 <<<<<<< HEAD
 import type { CronJob } from "./types.js";
 >>>>>>> e6d5b5fb1 (perf(test): remove slow port inspection and reconnect sleeps)
-=======
->>>>>>> 4335668d2 (chore(test): fix cron every-jobs-fire unused import)
 =======
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import { CronService } from "./service.js";
@@ -37,30 +29,6 @@ const { makeStorePath } = createCronStoreHarness();
 installCronTestHooks({ logger: noopLogger });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-function createFinishedBarrier() {
-  const resolvers = new Map<string, (evt: CronEvent) => void>();
-  return {
-    waitForOk: (jobId: string) =>
-      new Promise<CronEvent>((resolve) => {
-        resolvers.set(jobId, resolve);
-      }),
-    onEvent: (evt: CronEvent) => {
-      if (evt.action !== "finished" || evt.status !== "ok") {
-        return;
-      }
-      const resolve = resolvers.get(evt.jobId);
-      if (!resolve) {
-        return;
-      }
-      resolvers.delete(evt.jobId);
-      resolve(evt);
-    },
-  };
-}
-
->>>>>>> e6d5b5fb1 (perf(test): remove slow port inspection and reconnect sleeps)
 =======
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 describe("CronService interval/cron jobs fire on time", () => {
@@ -112,7 +80,6 @@ describe("CronService interval/cron jobs fire on time", () => {
     const firstDueAt = job.state.nextRunAtMs!;
     expect(firstDueAt).toBe(Date.parse("2025-12-13T00:00:00.000Z") + 10_000);
 
-<<<<<<< HEAD
     // Simulate setTimeout firing 5ms late (the race condition).
     vi.setSystemTime(new Date(firstDueAt + 5));
     await vi.runOnlyPendingTimersAsync();
@@ -121,11 +88,6 @@ describe("CronService interval/cron jobs fire on time", () => {
     // Wait for the async onTimer to complete via the lock queue.
     const jobs = await cron.list();
     const updated = jobs.find((j) => j.id === job.id);
-=======
-    await finished.waitForOk(job.id);
-    const jobs = await cron.list({ includeDisabled: true });
-    const updated = jobs.find((current) => current.id === job.id);
->>>>>>> e6d5b5fb1 (perf(test): remove slow port inspection and reconnect sleeps)
 
     expect(enqueueSystemEvent).toHaveBeenCalledWith(
       "tick",
@@ -170,7 +132,6 @@ describe("CronService interval/cron jobs fire on time", () => {
 
     const firstDueAt = job.state.nextRunAtMs!;
 
-<<<<<<< HEAD
     // Simulate setTimeout firing 5ms late.
     vi.setSystemTime(new Date(firstDueAt + 5));
     await vi.runOnlyPendingTimersAsync();
@@ -179,11 +140,6 @@ describe("CronService interval/cron jobs fire on time", () => {
     // Wait for the async onTimer to complete via the lock queue.
     const jobs = await cron.list();
     const updated = jobs.find((j) => j.id === job.id);
-=======
-    await finished.waitForOk(job.id);
-    const jobs = await cron.list({ includeDisabled: true });
-    const updated = jobs.find((current) => current.id === job.id);
->>>>>>> e6d5b5fb1 (perf(test): remove slow port inspection and reconnect sleeps)
 
     expect(enqueueSystemEvent).toHaveBeenCalledWith(
       "cron-tick",
@@ -205,8 +161,6 @@ describe("CronService interval/cron jobs fire on time", () => {
     cron.stop();
     await store.cleanup();
   });
-<<<<<<< HEAD
-=======
 
   it("keeps legacy every jobs due while minute cron jobs recompute schedules", async () => {
     const store = await makeStorePath();
@@ -284,5 +238,4 @@ describe("CronService interval/cron jobs fire on time", () => {
     cron.stop();
     await store.cleanup();
   });
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 });

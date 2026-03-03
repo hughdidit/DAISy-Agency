@@ -1,13 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChannelId } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
 import { getChatChannelMeta, normalizeChatChannelId } from "../../channels/registry.js";
 <<<<<<< HEAD
 import type { ChannelId } from "../../channels/plugins/types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { OutboundDeliveryResult } from "./deliver.js";

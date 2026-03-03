@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
@@ -98,11 +97,6 @@ const _readSessionMessages = async (sessionFile: string) => {
     .filter((entry) => entry.type === "message")
     .map((entry) => entry.message as { role?: string; content?: unknown });
 };
-=======
-import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { resolveSessionAgentIds } from "./agent-scope.js";
->>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
 
 describe("resolveSessionAgentIds", () => {
   const cfg = {

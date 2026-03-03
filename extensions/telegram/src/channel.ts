@@ -18,11 +18,8 @@ import {
   parseTelegramReplyToMessageId,
   parseTelegramThreadId,
   resolveDefaultTelegramAccountId,
-<<<<<<< HEAD
-=======
   resolveAllowlistProviderRuntimeGroupPolicy,
 <<<<<<< HEAD
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 =======
   resolveDefaultGroupPolicy,
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
@@ -36,13 +33,8 @@ import {
   type ChannelPlugin,
   type MoltbotConfig,
   type ResolvedTelegramAccount,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-  type TelegramProbe,
-} from "openclaw/plugin-sdk";
->>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
 import { getTelegramRuntime } from "./runtime.js";
 
 const meta = getChatChannelMeta("telegram");
@@ -155,14 +147,9 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
       };
     },
     collectWarnings: ({ account, cfg }) => {
-<<<<<<< HEAD
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-=======
-      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
       const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.telegram !== undefined,
         groupPolicy: account.config.groupPolicy,
@@ -425,11 +412,8 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
         webhookUrl: account.config.webhookUrl,
         webhookSecret: account.config.webhookSecret,
         webhookPath: account.config.webhookPath,
-<<<<<<< HEAD
-=======
         webhookHost: account.config.webhookHost,
         webhookPort: account.config.webhookPort,
->>>>>>> d0e676326 (fix(telegram): wire webhookPort through config and startup)
       });
     },
     logoutAccount: async ({ accountId, cfg }) => {

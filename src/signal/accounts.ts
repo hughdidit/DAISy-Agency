@@ -2,12 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -30,7 +25,6 @@ export type ResolvedSignalAccount = {
   config: SignalAccountConfig;
 };
 
-<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = cfg.channels?.signal?.accounts;
   if (!accounts || typeof accounts !== "object") {
@@ -54,11 +48,6 @@ export function resolveDefaultSignalAccountId(cfg: MoltbotConfig): string {
   }
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
-=======
-const { listAccountIds, resolveDefaultAccountId } = createAccountListHelpers("signal");
-export const listSignalAccountIds = listAccountIds;
-export const resolveDefaultSignalAccountId = resolveDefaultAccountId;
->>>>>>> 59384001a (channels: migrate core channel account listing to factory)
 
 function resolveAccountConfig(
   cfg: MoltbotConfig,

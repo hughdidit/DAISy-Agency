@@ -36,13 +36,8 @@ Details: [Plugins](/tools/plugin)
    ```bash
    ./occ talk:bot:install "Moltbot" "<shared-secret>" "<webhook-url>" --feature reaction
    ```
-<<<<<<< HEAD
 3) Enable the bot in the target room settings.
 4) Configure Moltbot:
-=======
-3. Enable the bot in the target room settings.
-4. Configure OpenClaw:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Config: `channels.nextcloud-talk.baseUrl` + `channels.nextcloud-talk.botSecret`
    - Or env: `NEXTCLOUD_TALK_BOT_SECRET` (default account only)
 5. Restart the gateway (or finish onboarding).

@@ -4,18 +4,8 @@ import path from "node:path";
 
 import { CONFIG_DIR, ensureDir } from "../utils.js";
 
-<<<<<<< HEAD
 export const WIDE_AREA_DISCOVERY_DOMAIN = "moltbot.internal.";
 export const WIDE_AREA_ZONE_FILENAME = "moltbot.internal.db";
-=======
-export function normalizeWideAreaDomain(raw?: string | null): string | null {
-  const trimmed = raw?.trim();
-  if (!trimmed) {
-    return null;
-  }
-  return trimmed.endsWith(".") ? trimmed : `${trimmed}.`;
-}
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
 export function getWideAreaZonePath(): string {
   return path.join(CONFIG_DIR, "dns", WIDE_AREA_ZONE_FILENAME);

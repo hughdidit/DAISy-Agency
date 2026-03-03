@@ -1,23 +1,17 @@
-<<<<<<< HEAD
-=======
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { AgentModelConfig, AgentSandboxConfig } from "./types.agents-shared.js";
->>>>>>> 4a88c579b (refactor: dedupe shared config type definitions)
 import type {
   BlockStreamingChunkConfig,
   BlockStreamingCoalesceConfig,
   HumanDelayConfig,
   TypingMode,
 } from "./types.base.js";
-<<<<<<< HEAD
 import type { ChannelId } from "../channels/plugins/types.js";
 import type {
   SandboxBrowserSettings,
   SandboxDockerSettings,
   SandboxPruneSettings,
 } from "./types.sandbox.js";
-=======
->>>>>>> 4a88c579b (refactor: dedupe shared config type definitions)
 import type { MemorySearchConfig } from "./types.tools.js";
 
 export type AgentModelEntryConfig = {
@@ -254,7 +248,6 @@ export type AgentDefaultsConfig = {
     announceTimeoutMs?: number;
   };
   /** Optional sandbox settings for non-main sessions. */
-<<<<<<< HEAD
   sandbox?: {
     /** Enable sandboxing for sessions. */
     mode?: "off" | "non-main" | "all";
@@ -284,9 +277,6 @@ export type AgentDefaultsConfig = {
     /** Auto-prune sandbox containers. */
     prune?: SandboxPruneSettings;
   };
-=======
-  sandbox?: AgentSandboxConfig;
->>>>>>> 4a88c579b (refactor: dedupe shared config type definitions)
 };
 
 export type AgentCompactionMode = "default" | "safeguard";

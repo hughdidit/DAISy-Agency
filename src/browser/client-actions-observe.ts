@@ -3,10 +3,6 @@ import type { BrowserActionPathResult, BrowserActionTargetOk } from "./client-ac
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { buildProfileQuery, withBaseUrl } from "./client-actions-url.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { fetchBrowserJson } from "./client-fetch.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -30,11 +26,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { buildProfileQuery, withBaseUrl } from "./client-actions-url.js";
-import { fetchBrowserJson } from "./client-fetch.js";
->>>>>>> 7ef956d22 (refactor(browser): share client-actions url helpers)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======

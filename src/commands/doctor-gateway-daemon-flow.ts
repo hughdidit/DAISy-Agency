@@ -2,12 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { formatCliCommand } from "../cli/command-format.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -48,12 +43,9 @@ import { isWSL } from "../infra/wsl.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -76,12 +68,8 @@ import { buildGatewayRuntimeHints, formatGatewayRuntimeSummary } from "./doctor-
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 <<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

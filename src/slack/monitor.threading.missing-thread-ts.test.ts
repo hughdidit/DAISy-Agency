@@ -1,6 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-=======
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import {
   flush,
@@ -11,7 +9,6 @@ import {
   startSlackMonitor,
   stopSlackMonitor,
 } from "./monitor.test-helpers.js";
->>>>>>> a9cce800d (test: dedupe slack missing-thread tests and cover history failures)
 
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import { monitorSlackProvider } from "./monitor.js";
@@ -25,7 +22,6 @@ type SlackConversationsClient = {
 
 function makeThreadReplyEvent() {
   return {
-<<<<<<< HEAD
     ...actual,
     loadConfig: () => config,
   };
@@ -86,16 +82,6 @@ vi.mock("@slack/bolt", () => {
     },
     reactions: {
       add: (...args: unknown[]) => reactMock(...args),
-=======
-    event: {
-      type: "message",
-      user: "U1",
-      text: "hello",
-      ts: "456",
-      parent_user_id: "U2",
-      channel: "C1",
-      channel_type: "channel",
->>>>>>> a9cce800d (test: dedupe slack missing-thread tests and cover history failures)
     },
   };
 }

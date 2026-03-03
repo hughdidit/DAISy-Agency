@@ -1,17 +1,6 @@
-<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
 import type { MoltbotConfig, SkillConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig, SkillConfig } from "../../config/config.js";
-import {
-  evaluateRuntimeEligibility,
-  hasBinary,
-  isConfigPathTruthyWithDefaults,
-  resolveConfigPath,
-  resolveRuntimePlatform,
-} from "../../shared/config-eval.js";
->>>>>>> 25ecd4216 (refactor(shared): dedupe config path eval)
 import { resolveSkillKey } from "./frontmatter.js";
 import type { SkillEligibilityContext, SkillEntry } from "./types.js";
 
@@ -20,7 +9,6 @@ const DEFAULT_CONFIG_VALUES: Record<string, boolean> = {
   "browser.evaluateEnabled": true,
 };
 
-<<<<<<< HEAD
 function isTruthy(value: unknown): boolean {
   if (value === undefined || value === null) {
     return false;
@@ -55,12 +43,6 @@ export function isConfigPathTruthy(config: MoltbotConfig | undefined, pathStr: s
     return DEFAULT_CONFIG_VALUES[pathStr];
   }
   return isTruthy(value);
-=======
-export { hasBinary, resolveConfigPath, resolveRuntimePlatform };
-
-export function isConfigPathTruthy(config: OpenClawConfig | undefined, pathStr: string): boolean {
-  return isConfigPathTruthyWithDefaults(config, pathStr, DEFAULT_CONFIG_VALUES);
->>>>>>> 25ecd4216 (refactor(shared): dedupe config path eval)
 }
 
 export function resolveSkillConfig(

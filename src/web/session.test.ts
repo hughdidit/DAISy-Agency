@@ -154,7 +154,6 @@ describe("web session", () => {
   });
 
   it("does not clobber creds backup when creds.json is corrupted", async () => {
-<<<<<<< HEAD
     const credsSuffix = path.join(".clawdbot", "credentials", "whatsapp", "default", "creds.json");
 
     const copySpy = vi.spyOn(fsSync, "copyFileSync").mockImplementation(() => {});
@@ -176,9 +175,6 @@ describe("web session", () => {
       }
       throw new Error(`unexpected readFileSync path: ${String(p)}`);
     });
-=======
-    const creds = mockCredsJsonSpies("{");
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     await createWaSocket(false, false);
     const saveCreds = await emitCredsUpdateAndReadSaveCreds();
@@ -229,11 +225,7 @@ describe("web session", () => {
   });
 
   it("rotates creds backup when creds.json is valid JSON", async () => {
-<<<<<<< HEAD
     const credsSuffix = path.join(".clawdbot", "credentials", "whatsapp", "default", "creds.json");
-=======
-    const creds = mockCredsJsonSpies("{}");
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const backupSuffix = path.join(
       ".clawdbot",
       "credentials",

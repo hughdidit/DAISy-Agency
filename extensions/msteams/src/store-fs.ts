@@ -1,12 +1,7 @@
 import fs from "node:fs";
-<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
-=======
-import { safeParseJson } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
->>>>>>> f0924d3c4 (refactor: consolidate PNG encoder and safeParseJson utilities (#12457))
 import lockfile from "proper-lockfile";
 =======
 =======

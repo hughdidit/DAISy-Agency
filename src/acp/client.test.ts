@@ -355,8 +355,6 @@ describe("acp event mapper", () => {
     expect(text).toBe("Hello\nFile contents\n[Resource link (Spec)] https://example.com");
   });
 
-<<<<<<< HEAD
-=======
   it("escapes control and delimiter characters in resource link metadata", () => {
     const text = extractTextFromPrompt([
       {
@@ -439,7 +437,6 @@ describe("acp event mapper", () => {
     ).toBe("a\nb");
   });
 
->>>>>>> 6aa11f309 (fix(acp): harden resource link metadata formatting)
   it("extracts image blocks into gateway attachments", () => {
     const attachments = extractAttachmentsFromPrompt([
       { type: "image", data: "abc", mimeType: "image/png" },

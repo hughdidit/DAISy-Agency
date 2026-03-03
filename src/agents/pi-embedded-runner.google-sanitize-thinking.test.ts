@@ -210,8 +210,6 @@ describe("sanitizeSessionHistory (google thinking)", () => {
     ]);
   });
 
-<<<<<<< HEAD
-=======
   it("strips non-base64 thought signatures for native Google Gemini", async () => {
     const out = await sanitizeSimpleSession({
       modelApi: "google-generative-ai",
@@ -241,7 +239,6 @@ describe("sanitizeSessionHistory (google thinking)", () => {
     ]);
   });
 
->>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
   it("keeps mixed signed/unsigned thinking blocks for Google models", async () => {
     const assistant = await sanitizeGoogleAssistantWithContent([
       { type: "thinking", thinking: "signed", thinkingSignature: "sig" },

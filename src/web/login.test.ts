@@ -1,10 +1,5 @@
 import { EventEmitter } from "node:events";
-<<<<<<< HEAD
 
-=======
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
->>>>>>> 8d2029a03 (perf(test): fold qr-image tests into web login suite)
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { resetLogger, setLoggerOverride } from "../logging.js";

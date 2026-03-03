@@ -142,8 +142,6 @@ describe("sanitizeSessionHistory", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("annotates inter-session user messages before context sanitization", async () => {
     setNonGoogleModelApi();
 
@@ -175,7 +173,6 @@ describe("sanitizeSessionHistory", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
   it("drops stale assistant usage snapshots kept before latest compaction summary", async () => {
     vi.mocked(helpers.isGoogleModelApi).mockReturnValue(false);
@@ -273,114 +270,7 @@ describe("sanitizeSessionHistory", () => {
     expect(assistants[1]?.usage).toBeDefined();
   });
 
-<<<<<<< HEAD
 >>>>>>> 6bf5e76be (Agents: drop stale pre-compaction usage snapshots)
-=======
-  it("drops stale usage when compaction summary appears before kept assistant messages", async () => {
-    vi.mocked(helpers.isGoogleModelApi).mockReturnValue(false);
-
-    const compactionTs = Date.parse("2026-02-26T12:00:00.000Z");
-    const messages = [
-      {
-        role: "compactionSummary",
-        summary: "compressed",
-        tokensBefore: 191_919,
-        timestamp: new Date(compactionTs).toISOString(),
-      },
-      {
-        role: "assistant",
-        content: [{ type: "text", text: "kept pre-compaction answer" }],
-        stopReason: "stop",
-        timestamp: compactionTs - 1_000,
-        usage: {
-          input: 191_919,
-          output: 2_000,
-          cacheRead: 0,
-          cacheWrite: 0,
-          totalTokens: 193_919,
-          cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
-        },
-      },
-    ] as unknown as AgentMessage[];
-
-    const result = await sanitizeSessionHistory({
-      messages,
-      modelApi: "openai-responses",
-      provider: "openai",
-      sessionManager: mockSessionManager,
-      sessionId: TEST_SESSION_ID,
-    });
-
-    const assistant = result.find((message) => message.role === "assistant") as
-      | (AgentMessage & { usage?: unknown })
-      | undefined;
-    expect(assistant?.usage).toBeUndefined();
-  });
-
-  it("keeps fresh usage after compaction timestamp in summary-first ordering", async () => {
-    vi.mocked(helpers.isGoogleModelApi).mockReturnValue(false);
-
-    const compactionTs = Date.parse("2026-02-26T12:00:00.000Z");
-    const messages = [
-      {
-        role: "compactionSummary",
-        summary: "compressed",
-        tokensBefore: 123_000,
-        timestamp: new Date(compactionTs).toISOString(),
-      },
-      {
-        role: "assistant",
-        content: [{ type: "text", text: "kept pre-compaction answer" }],
-        stopReason: "stop",
-        timestamp: compactionTs - 2_000,
-        usage: {
-          input: 120_000,
-          output: 3_000,
-          cacheRead: 0,
-          cacheWrite: 0,
-          totalTokens: 123_000,
-          cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
-        },
-      },
-      { role: "user", content: "new question", timestamp: compactionTs + 1_000 },
-      {
-        role: "assistant",
-        content: [{ type: "text", text: "fresh answer" }],
-        stopReason: "stop",
-        timestamp: compactionTs + 2_000,
-        usage: {
-          input: 1_000,
-          output: 250,
-          cacheRead: 0,
-          cacheWrite: 0,
-          totalTokens: 1_250,
-          cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
-        },
-      },
-    ] as unknown as AgentMessage[];
-
-    const result = await sanitizeSessionHistory({
-      messages,
-      modelApi: "openai-responses",
-      provider: "openai",
-      sessionManager: mockSessionManager,
-      sessionId: TEST_SESSION_ID,
-    });
-
-    const assistants = result.filter((message) => message.role === "assistant") as Array<
-      AgentMessage & { usage?: unknown; content?: unknown }
-    >;
-    const keptAssistant = assistants.find((message) =>
-      JSON.stringify(message.content).includes("kept pre-compaction answer"),
-    );
-    const freshAssistant = assistants.find((message) =>
-      JSON.stringify(message.content).includes("fresh answer"),
-    );
-    expect(keptAssistant?.usage).toBeUndefined();
-    expect(freshAssistant?.usage).toBeDefined();
-  });
-
->>>>>>> 0ec7711bc (fix(agents): harden compaction and reset safety)
   it("keeps reasoning-only assistant messages for openai-responses", async () => {
     setNonGoogleModelApi();
 
@@ -454,59 +344,7 @@ describe("sanitizeSessionHistory", () => {
     expect(result.map((msg) => msg.role)).toEqual(["user"]);
   });
 
-<<<<<<< HEAD
   it("does not downgrade openai reasoning when the model has not changed", async () => {
-=======
-  it("drops malformed tool calls with invalid/overlong names", async () => {
-    const messages = [
-      {
-        role: "assistant",
-        content: [
-          {
-            type: "toolCall",
-            id: "call_bad",
-            name: 'toolu_01mvznfebfuu <|tool_call_argument_begin|> {"command"',
-            arguments: {},
-          },
-          { type: "toolCall", id: "call_long", name: `read_${"x".repeat(80)}`, arguments: {} },
-        ],
-      },
-      { role: "user", content: "hello" },
-    ] as unknown as AgentMessage[];
-
-    const result = await sanitizeSessionHistory({
-      messages,
-      modelApi: "openai-responses",
-      provider: "openai",
-      sessionManager: mockSessionManager,
-      sessionId: TEST_SESSION_ID,
-    });
-
-    expect(result.map((msg) => msg.role)).toEqual(["user"]);
-  });
-
-  it("drops tool calls that are not in the allowed tool set", async () => {
-    const messages = [
-      {
-        role: "assistant",
-        content: [{ type: "toolCall", id: "call_1", name: "write", arguments: {} }],
-      },
-    ] as unknown as AgentMessage[];
-
-    const result = await sanitizeSessionHistory({
-      messages,
-      modelApi: "openai-responses",
-      provider: "openai",
-      allowedToolNames: ["read"],
-      sessionManager: mockSessionManager,
-      sessionId: TEST_SESSION_ID,
-    });
-
-    expect(result).toEqual([]);
-  });
-
-  it("downgrades orphaned openai reasoning even when the model has not changed", async () => {
->>>>>>> cdfe45eeb (Agents: validate persisted tool-call names)
     const sessionEntries = [
       makeModelSnapshotEntry({
         provider: "openai",
@@ -582,8 +420,6 @@ describe("sanitizeSessionHistory", () => {
       ),
     ).toBe(false);
   });
-<<<<<<< HEAD
-=======
 
   it("drops assistant thinking blocks for github-copilot models", async () => {
     setNonGoogleModelApi();
@@ -674,5 +510,4 @@ describe("sanitizeSessionHistory", () => {
     const types = getAssistantContentTypes(result);
     expect(types).toContain("thinking");
   });
->>>>>>> 4a1b6e42f (test(agents): dedupe sanitize-session-history copilot fixtures)
 });

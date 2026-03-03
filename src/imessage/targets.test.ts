@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> e1350ff97 (perf(test): fold imessage rpc client guard into targets suite)
 import {
   formatIMessageChatTarget,
   isAllowedIMessageSender,

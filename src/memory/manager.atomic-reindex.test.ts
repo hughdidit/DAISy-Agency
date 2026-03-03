@@ -1,18 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 =======
 import type { MemoryIndexManager } from "./index.js";
@@ -27,11 +18,8 @@ import type { MemoryIndexManager } from "./index.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 7b31e8fc5 (chore: Fix types in tests 36/N.)
 import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { MemoryIndexManager } from "./index.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
@@ -59,17 +47,7 @@ describe("memory manager atomic reindex", () => {
     resetEmbeddingMocks();
     shouldFail = false;
 <<<<<<< HEAD
-<<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
-=======
-=======
-    embedBatch.mockImplementation(async (texts: string[]) => {
-      if (shouldFail) {
-        throw new Error("embedding failure");
-      }
-      return texts.map((_, index) => [index + 1, 0, 0]);
-    });
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     workspaceDir = path.join(fixtureRoot, `case-${caseId++}`);
     await fs.mkdir(workspaceDir, { recursive: true });
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)

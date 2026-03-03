@@ -2,17 +2,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { format } from "node:util";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
 import type { RuntimeEnv, ReplyPayload, MoltbotConfig } from "clawdbot/plugin-sdk";
 
-=======
-=======
-import type { RuntimeEnv, ReplyPayload, OpenClawConfig } from "openclaw/plugin-sdk";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv, ReplyPayload, OpenClawConfig } from "openclaw/plugin-sdk";
 import { format } from "node:util";
@@ -39,11 +34,8 @@ import { getTlonRuntime } from "../runtime.js";
 import { resolveTlonAccount } from "../types.js";
 import { normalizeShip, parseChannelNest } from "../targets.js";
 import { authenticate } from "../urbit/auth.js";
-<<<<<<< HEAD
-=======
 import { ssrfPolicyFromAllowPrivateNetwork } from "../urbit/context.js";
 import { sendDm, sendGroupMessage } from "../urbit/send.js";
->>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
 import { UrbitSSEClient } from "../urbit/sse-client.js";
 import { sendDm, sendGroupMessage } from "../urbit/send.js";
 import { cacheMessage, getChannelHistory } from "./history.js";
@@ -120,15 +112,8 @@ function resolveChannelAuthorization(
 
 export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<void> {
   const core = getTlonRuntime();
-<<<<<<< HEAD
   const cfg = core.config.loadConfig() as MoltbotConfig;
   if (cfg.channels?.tlon?.enabled === false) return;
-=======
-  const cfg = core.config.loadConfig();
-  if (cfg.channels?.tlon?.enabled === false) {
-    return;
-  }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
 
   const logger = core.logging.getChildLogger({ module: "tlon-auto-reply" });
   const runtime: RuntimeEnv =
@@ -150,10 +135,7 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
 
   let api: UrbitSSEClient | null = null;
   try {
-<<<<<<< HEAD
-=======
     const ssrfPolicy = ssrfPolicyFromAllowPrivateNetwork(account.allowPrivateNetwork);
->>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
     runtime.log?.(`[tlon] Attempting authentication to ${account.url}...`);
     const cookie = await authenticate(account.url, account.code);
     api = new UrbitSSEClient(account.url, cookie, {

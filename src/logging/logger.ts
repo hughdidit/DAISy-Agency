@@ -1,24 +1,16 @@
-<<<<<<< HEAD
 import { createRequire } from "node:module";
 <<<<<<< HEAD
 import fs from "node:fs";
-=======
->>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 =======
 import fs from "node:fs";
 >>>>>>> 3077c3583 (fix(ui): unblock docker onboarding build)
 import path from "node:path";
 
 import { Logger as TsLogger } from "tslog";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/types.js";
 import type { ConsoleStyle } from "./console.js";
 <<<<<<< HEAD
-=======
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
-import { readLoggingConfig } from "./config.js";
->>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 =======
 import type { OpenClawConfig } from "../config/types.js";
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
@@ -26,12 +18,9 @@ import { readLoggingConfig } from "./config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ConsoleStyle } from "./console.js";
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ConsoleStyle } from "./console.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -44,26 +33,15 @@ import type { ConsoleStyle } from "./console.js";
 import { resolveEnvLogLevelOverride } from "./env-log-level.js";
 >>>>>>> 98a03c490 (Feat/logger support log level validation0222 (#23436))
 import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
-<<<<<<< HEAD
 import { readLoggingConfig } from "./config.js";
-=======
-import { resolveNodeRequireFromMeta } from "./node-require.js";
->>>>>>> b791ac216 (refactor(logging): share node createRequire resolution)
 import { loggingState } from "./state.js";
 
-<<<<<<< HEAD
 // Pin to /tmp so mac Debug UI and docs match; os.tmpdir() can be a per-user
 // randomized path on macOS which made the “Open log” button a no-op.
 export const DEFAULT_LOG_DIR = "/tmp/moltbot";
 export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "moltbot.log"); // legacy single-file path
 
 const LOG_PREFIX = "moltbot";
-=======
-export const DEFAULT_LOG_DIR = resolvePreferredOpenClawTmpDir();
-export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "openclaw.log"); // legacy single-file path
-
-const LOG_PREFIX = "openclaw";
->>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 const LOG_SUFFIX = ".log";
 const MAX_LOG_AGE_MS = 24 * 60 * 60 * 1000; // 24h
 const DEFAULT_MAX_LOG_FILE_BYTES = 500 * 1024 * 1024; // 500 MB
@@ -109,19 +87,10 @@ function resolveSettings(): ResolvedSettings {
     (loggingState.overrideSettings as LoggerSettings | null) ?? readLoggingConfig();
   if (!cfg) {
     try {
-<<<<<<< HEAD
       const loaded = requireConfig("../config/config.js") as {
         loadConfig?: () => MoltbotConfig;
       };
       cfg = loaded.loadConfig?.().logging;
-=======
-      const loaded = requireConfig?.("../config/config.js") as
-        | {
-            loadConfig?: () => OpenClawConfig;
-          }
-        | undefined;
-      cfg = loaded?.loadConfig?.().logging;
->>>>>>> 3077c3583 (fix(ui): unblock docker onboarding build)
     } catch {
       cfg = undefined;
     }

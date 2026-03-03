@@ -19,8 +19,6 @@ const CLEANUP_SIGNALS = ["SIGINT", "SIGTERM", "SIGQUIT", "SIGABRT"] as const;
 type CleanupSignal = (typeof CLEANUP_SIGNALS)[number];
 const CLEANUP_STATE_KEY = Symbol.for("openclaw.sessionWriteLockCleanupState");
 const HELD_LOCKS_KEY = Symbol.for("openclaw.sessionWriteLockHeldLocks");
-<<<<<<< HEAD
-=======
 const WATCHDOG_STATE_KEY = Symbol.for("openclaw.sessionWriteLockWatchdogState");
 
 const DEFAULT_STALE_MS = 30 * 60 * 1000;
@@ -28,14 +26,12 @@ const DEFAULT_MAX_HOLD_MS = 5 * 60 * 1000;
 const DEFAULT_WATCHDOG_INTERVAL_MS = 60_000;
 const DEFAULT_TIMEOUT_GRACE_MS = 2 * 60 * 1000;
 const MAX_LOCK_HOLD_MS = 2_147_000_000;
->>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 
 type CleanupState = {
   registered: boolean;
   cleanupHandlers: Map<CleanupSignal, () => void>;
 };
 
-<<<<<<< HEAD
 function resolveHeldLocks(): Map<string, HeldLock> {
   const proc = process as NodeJS.Process & {
     [HELD_LOCKS_KEY]?: Map<string, HeldLock>;
@@ -47,15 +43,6 @@ function resolveHeldLocks(): Map<string, HeldLock> {
 }
 
 const HELD_LOCKS = resolveHeldLocks();
-=======
-type WatchdogState = {
-  started: boolean;
-  intervalMs: number;
-  timer?: NodeJS.Timeout;
-};
-
-const HELD_LOCKS = resolveProcessScopedMap<HeldLock>(HELD_LOCKS_KEY);
->>>>>>> 7147cd9cc (refactor: dedupe process-scoped lock maps)
 
 function resolveCleanupState(): CleanupState {
   const proc = process as NodeJS.Process & {
@@ -70,8 +57,6 @@ function resolveCleanupState(): CleanupState {
   return proc[CLEANUP_STATE_KEY];
 }
 
-<<<<<<< HEAD
-=======
 function resolveWatchdogState(): WatchdogState {
   const proc = process as NodeJS.Process & {
     [WATCHDOG_STATE_KEY]?: WatchdogState;
@@ -162,7 +147,6 @@ async function releaseHeldLock(
   }
 }
 
->>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 /**
  * Synchronously release all held locks.
  * Used during process exit when async operations aren't reliable.
@@ -248,11 +232,8 @@ export async function acquireSessionWriteLock(params: {
   sessionFile: string;
   timeoutMs?: number;
   staleMs?: number;
-<<<<<<< HEAD
-=======
   maxHoldMs?: number;
   allowReentrant?: boolean;
->>>>>>> 35016a380 (fix(sandbox): serialize registry mutations and lock usage)
 }): Promise<{
   release: () => Promise<void>;
 }> {

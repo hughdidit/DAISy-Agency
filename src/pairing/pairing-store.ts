@@ -7,12 +7,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import lockfile from "proper-lockfile";
-=======
-import type { ChannelId, ChannelPairingAdapter } from "../channels/plugins/types.js";
->>>>>>> 201ac2b72 (perf: replace proper-lockfile with lightweight file locks)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getPairingAdapter } from "../channels/plugins/pairing.js";
@@ -390,35 +386,12 @@ export async function readChannelAllowFromStore(
   channel: PairingChannel,
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<string[]> {
-<<<<<<< HEAD
   const filePath = resolveAllowFromPath(channel, env);
   const { value } = await readJsonFile<AllowFromStore>(filePath, {
     version: 1,
     allowFrom: [],
   });
   return normalizeAllowFromList(channel, value);
-=======
-  const normalizedAccountId = accountId?.trim().toLowerCase() ?? "";
-  if (!normalizedAccountId) {
-    const filePath = resolveAllowFromPath(channel, env);
-    return await readAllowFromStateForPath(channel, filePath);
-  }
-
-  if (!shouldIncludeLegacyAllowFromEntries(normalizedAccountId)) {
-    return await readNonDefaultAccountAllowFrom({
-      channel,
-      env,
-      accountId: normalizedAccountId,
-    });
-  }
-  const scopedPath = resolveAllowFromPath(channel, env, accountId);
-  const scopedEntries = await readAllowFromStateForPath(channel, scopedPath);
-  // Backward compatibility: legacy channel-level allowFrom store was unscoped.
-  // Keep honoring it for default account to prevent re-pair prompts after upgrades.
-  const legacyPath = resolveAllowFromPath(channel, env);
-  const legacyEntries = await readAllowFromStateForPath(channel, legacyPath);
-  return dedupePreserveOrder([...scopedEntries, ...legacyEntries]);
->>>>>>> 6754a926e (fix(pairing): support legacy telegram allowFrom migration)
 }
 
 export function readChannelAllowFromStoreSync(
@@ -472,7 +445,6 @@ async function updateChannelAllowFromStore(
   });
 }
 
-<<<<<<< HEAD
 export async function addChannelAllowFromStoreEntry(params: {
   channel: PairingChannel;
   entry: string | number;
@@ -483,10 +455,6 @@ export async function addChannelAllowFromStoreEntry(params: {
     channel: params.channel,
     entry: params.entry,
     env: params.env,
-=======
-  return await updateChannelAllowFromStore({
-    ...params,
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     apply: (current, normalized) => {
       if (current.includes(normalized)) {
         return null;
@@ -501,15 +469,10 @@ export async function removeChannelAllowFromStoreEntry(params: {
   entry: string | number;
   env?: NodeJS.ProcessEnv;
 }): Promise<{ changed: boolean; allowFrom: string[] }> {
-<<<<<<< HEAD
   return await updateAllowFromStoreEntry({
     channel: params.channel,
     entry: params.entry,
     env: params.env,
-=======
-  return await updateChannelAllowFromStore({
-    ...params,
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     apply: (current, normalized) => {
       const next = current.filter((entry) => entry !== normalized);
       if (next.length === current.length) {
@@ -574,13 +537,7 @@ export async function listChannelPairingRequests(
         } satisfies PairingStore);
       }
 <<<<<<< HEAD
-<<<<<<< HEAD
       return pruned
-=======
-      const normalizedAccountId = accountId?.trim().toLowerCase() || "";
-=======
-      const normalizedAccountId = normalizePairingAccountId(accountId);
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
       const filtered = normalizedAccountId
         ? pruned.filter((entry) => requestMatchesAccountId(entry, normalizedAccountId))
         : pruned;
@@ -624,10 +581,7 @@ export async function upsertChannelPairingRequest(params: {
                 .filter(([_, v]) => Boolean(v)),
             )
           : undefined;
-<<<<<<< HEAD
-=======
       const meta = normalizedAccountId ? { ...baseMeta, accountId: normalizedAccountId } : baseMeta;
->>>>>>> d19b74692 (feat(skills): add cross-platform install fallback for non-brew environments (#17687))
 
       let reqs = await readPairingRequests(filePath);
       const { requests: prunedExpired, removed: expiredRemoved } = pruneExpiredRequests(
@@ -718,7 +672,6 @@ export async function approveChannelPairingCode(params: {
     filePath,
     { version: 1, requests: [] } satisfies PairingStore,
     async () => {
-<<<<<<< HEAD
       const { value } = await readJsonFile<PairingStore>(filePath, {
         version: 1,
         requests: [],
@@ -728,12 +681,6 @@ export async function approveChannelPairingCode(params: {
       const { requests: pruned, removed } = pruneExpiredRequests(reqs, nowMs);
 <<<<<<< HEAD
       const idx = pruned.findIndex((r) => String(r.code ?? "").toUpperCase() === code);
-=======
-      const normalizedAccountId = params.accountId?.trim().toLowerCase() || "";
-=======
-      const { requests: pruned, removed } = await readPrunedPairingRequests(filePath);
-      const normalizedAccountId = normalizePairingAccountId(params.accountId);
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
       const idx = pruned.findIndex((r) => {
         if (String(r.code ?? "").toUpperCase() !== code) {
           return false;

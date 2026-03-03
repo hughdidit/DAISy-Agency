@@ -119,14 +119,7 @@ function createChatContext(): Pick<
     removeChatRun: vi.fn(),
     dedupe: new Map(),
     registerToolEventRecipient: vi.fn(),
-<<<<<<< HEAD
     logGateway: createSubsystemLogger("gateway/server-methods/chat.directive-tags.test"),
-=======
-    logGateway: {
-      warn: vi.fn(),
-      debug: vi.fn(),
-    } as unknown as GatewayRequestContext["logGateway"],
->>>>>>> 5ffcc4b73 (test: fix logger stub typing in directive-tags test)
   };
 }
 
@@ -153,29 +146,11 @@ async function runNonStreamingChatSend(params: {
     context: params.context as GatewayRequestContext,
   });
 
-<<<<<<< HEAD
   await vi.waitFor(() => {
     expect(
       (params.context.broadcast as unknown as ReturnType<typeof vi.fn>).mock.calls.length,
     ).toBe(1);
   });
-=======
-  const shouldExpectBroadcast = params.expectBroadcast ?? true;
-  if (!shouldExpectBroadcast) {
-    await vi.waitFor(() => {
-      expect(params.context.dedupe.has(`chat:${params.idempotencyKey}`)).toBe(true);
-    }, FAST_WAIT_OPTS);
-    return undefined;
-  }
-
-  await vi.waitFor(
-    () =>
-      expect(
-        (params.context.broadcast as unknown as ReturnType<typeof vi.fn>).mock.calls.length,
-      ).toBe(1),
-    FAST_WAIT_OPTS,
-  );
->>>>>>> f58c1ef34 (test(gateway): speed up contract and polling suites)
 
   const chatCall = (params.context.broadcast as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
   expect(chatCall?.[0]).toBe("chat");

@@ -5,16 +5,11 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { GatewayClient } from "../src/gateway/client.js";
 import { startGatewayServer } from "../src/gateway/server.js";
 import { getDeterministicFreePortBlock } from "../src/test-utils/ports.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../src/utils/message-channel.js";
-=======
-=======
-import { extractPayloadText } from "../src/gateway/test-helpers.agent-results.js";
->>>>>>> 64b9ae8fb (test(gateway): reuse shared openai timeout e2e helpers)
 import { startGatewayWithClient } from "../src/gateway/test-helpers.e2e.js";
 import { buildOpenAIResponsesTextSse } from "../src/gateway/test-helpers.openai-mock.js";
 import { buildOpenAiResponsesProviderConfig } from "../src/gateway/test-openai-responses-model.js";
@@ -95,7 +90,6 @@ describe("provider timeouts (e2e)", () => {
         gateway: { auth: { token } },
       };
 
-<<<<<<< HEAD
       await fs.writeFile(configPath, `${JSON.stringify(cfg, null, 2)}\n`);
       process.env.CLAWDBOT_CONFIG_PATH = configPath;
 
@@ -108,11 +102,6 @@ describe("provider timeouts (e2e)", () => {
 
       const client = await connectClient({
         url: `ws://127.0.0.1:${port}`,
-=======
-      const { server, client } = await startGatewayWithClient({
-        cfg,
-        configPath,
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
         token,
         clientDisplayName: "vitest-timeout-fallback",
       });
@@ -149,7 +138,6 @@ describe("provider timeouts (e2e)", () => {
         await server.close({ reason: "timeout fallback test complete" });
         await fs.rm(tempHome, { recursive: true, force: true });
         (globalThis as unknown as { fetch: unknown }).fetch = originalFetch;
-<<<<<<< HEAD
         if (prev.home === undefined) delete process.env.HOME;
         else process.env.HOME = prev.home;
         if (prev.configPath === undefined) delete process.env.CLAWDBOT_CONFIG_PATH;
@@ -164,43 +152,6 @@ describe("provider timeouts (e2e)", () => {
         else process.env.CLAWDBOT_SKIP_CRON = prev.skipCron;
         if (prev.skipCanvas === undefined) delete process.env.CLAWDBOT_SKIP_CANVAS_HOST;
         else process.env.CLAWDBOT_SKIP_CANVAS_HOST = prev.skipCanvas;
-=======
-        if (prev.home === undefined) {
-          delete process.env.HOME;
-        } else {
-          process.env.HOME = prev.home;
-        }
-        if (prev.configPath === undefined) {
-          delete process.env.OPENCLAW_CONFIG_PATH;
-        } else {
-          process.env.OPENCLAW_CONFIG_PATH = prev.configPath;
-        }
-        if (prev.token === undefined) {
-          delete process.env.OPENCLAW_GATEWAY_TOKEN;
-        } else {
-          process.env.OPENCLAW_GATEWAY_TOKEN = prev.token;
-        }
-        if (prev.skipChannels === undefined) {
-          delete process.env.OPENCLAW_SKIP_CHANNELS;
-        } else {
-          process.env.OPENCLAW_SKIP_CHANNELS = prev.skipChannels;
-        }
-        if (prev.skipGmail === undefined) {
-          delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
-        } else {
-          process.env.OPENCLAW_SKIP_GMAIL_WATCHER = prev.skipGmail;
-        }
-        if (prev.skipCron === undefined) {
-          delete process.env.OPENCLAW_SKIP_CRON;
-        } else {
-          process.env.OPENCLAW_SKIP_CRON = prev.skipCron;
-        }
-        if (prev.skipCanvas === undefined) {
-          delete process.env.OPENCLAW_SKIP_CANVAS_HOST;
-        } else {
-          process.env.OPENCLAW_SKIP_CANVAS_HOST = prev.skipCanvas;
-        }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       }
     },
   );

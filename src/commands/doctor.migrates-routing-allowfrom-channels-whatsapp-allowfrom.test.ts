@@ -1,7 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -226,11 +225,6 @@ vi.mock("../infra/moltbot-root.js", () => ({
 vi.mock("../infra/update-runner.js", () => ({
 =======
 import { describe, expect, it, vi } from "vitest";
-=======
-import { describe, expect, it } from "vitest";
->>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
-=======
-import { describe, expect, it, vi } from "vitest";
 >>>>>>> 32c33f4fa (test: isolate doctor allowFrom migration assertions from unrelated checks)
 =======
 import { describe, expect, it } from "vitest";
@@ -258,16 +252,12 @@ const { doctorCommand } = await import("./doctor.js");
 
 describe("doctor command", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("migrates routing.allowFrom to channels.whatsapp.allowFrom", { timeout: 60_000 }, async () => {
 <<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
       raw: "{}",
-=======
-    mockDoctorConfigSnapshot({
->>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
       parsed: { routing: { allowFrom: ["+15555550123"] } },
       valid: false,
       issues: [{ path: "routing.allowFrom", message: "legacy" }],
@@ -305,7 +295,6 @@ describe("doctor command", () => {
     },
   );
 
-<<<<<<< HEAD
   it("migrates legacy gateway services", { timeout: 60_000 }, async () => {
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
@@ -316,27 +305,9 @@ describe("doctor command", () => {
       config: {},
       issues: [],
       legacyIssues: [],
-=======
-  it("does not add a new gateway auth token while fixing legacy issues on invalid config", async () => {
-    mockDoctorConfigSnapshot({
-      config: {
-        routing: { allowFrom: ["+15555550123"] },
-        gateway: { remote: { token: "legacy-remote-token" } },
-      },
-      parsed: {
-        routing: { allowFrom: ["+15555550123"] },
-        gateway: { remote: { token: "legacy-remote-token" } },
-      },
-      valid: false,
-      issues: [{ path: "routing.allowFrom", message: "legacy" }],
-      legacyIssues: [{ path: "routing.allowFrom", message: "legacy" }],
->>>>>>> 06d93cc12 (test: dedupe doctor routing allowFrom migration coverage)
     });
-<<<<<<< HEAD
-=======
   it("skips legacy gateway services migration", { timeout: 60_000 }, async () => {
     mockDoctorConfigSnapshot();
->>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
 
     findLegacyGatewayServices.mockResolvedValueOnce([
       {
@@ -397,16 +368,9 @@ describe("doctor command", () => {
 
       await doctorCommand(createDoctorRuntime());
 
-<<<<<<< HEAD
     expect(uninstallLegacyGatewayServices).toHaveBeenCalledTimes(1);
     expect(serviceInstall).toHaveBeenCalledTimes(1);
   });
-=======
-      expect(uninstallLegacyGatewayServices).not.toHaveBeenCalled();
-      expect(serviceInstall).not.toHaveBeenCalled();
-    },
-  );
->>>>>>> 8cc3a5e46 (test(doctor): tighten legacy migration e2e timeout budgets)
 
   it("offers to update first for git checkouts", async () => {
     delete process.env.CLAWDBOT_UPDATE_IN_PROGRESS;
@@ -428,7 +392,6 @@ describe("doctor command", () => {
       durationMs: 1,
     });
 
-<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
@@ -439,9 +402,6 @@ describe("doctor command", () => {
       issues: [],
       legacyIssues: [],
     });
-=======
-    mockDoctorConfigSnapshot();
->>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
 
     await doctorCommand(createDoctorRuntime());
 

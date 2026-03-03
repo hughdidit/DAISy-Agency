@@ -106,13 +106,10 @@ describe("ensureBrowserControlAuth", () => {
     await expectExplicitModeSkipsAutoAuth("password");
   });
 
-<<<<<<< HEAD
-=======
   it("respects explicit none mode", async () => {
     await expectExplicitModeSkipsAutoAuth("none");
   });
 
->>>>>>> cdee43333 (test(browser): dedupe explicit auth-mode auto-token checks)
   it("reuses auth from latest config snapshot", async () => {
     const cfg: OpenClawConfig = {
       browser: {

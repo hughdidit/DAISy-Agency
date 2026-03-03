@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { RequestClient } from "@buape/carbon";
 import type { APIChannel, APIGuild, APIGuildMember, APIRole } from "discord-api-types/v10";
 import { ChannelType, PermissionFlagsBits, Routes } from "discord-api-types/v10";
@@ -8,18 +7,6 @@ import type { RetryConfig } from "../infra/retry.js";
 import { resolveDiscordAccount } from "./accounts.js";
 import type { DiscordPermissionsSummary, DiscordReactOpts } from "./send.types.js";
 import { normalizeDiscordToken } from "./token.js";
-=======
-import type { RequestClient } from "@buape/carbon";
-import type { APIChannel, APIGuild, APIGuildMember, APIRole } from "discord-api-types/v10";
-import { ChannelType, PermissionFlagsBits, Routes } from "discord-api-types/v10";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { resolveDiscordRest } from "./client.js";
-<<<<<<< HEAD
->>>>>>> 4734c985c (refactor(discord): share client rest helpers)
 =======
 import type { DiscordPermissionsSummary, DiscordReactOpts } from "./send.types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -90,8 +77,6 @@ async function fetchBotUserId(rest: RequestClient) {
   return me.id;
 }
 
-<<<<<<< HEAD
-=======
 /**
  * Fetch guild-level permissions for a user. This does not include channel-specific overwrites.
  */
@@ -189,7 +174,6 @@ export async function hasAllGuildPermissionsDiscord(
  */
 export const hasGuildPermissionDiscord = hasAnyGuildPermissionDiscord;
 
->>>>>>> 409a02691 (refactor(discord): dedupe directory and media send paths)
 export async function fetchChannelPermissionsDiscord(
   channelId: string,
   opts: DiscordReactOpts = {},

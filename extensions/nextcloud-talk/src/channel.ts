@@ -5,11 +5,8 @@ import {
   deleteAccountFromConfigSection,
   formatPairingApproveHint,
   normalizeAccountId,
-<<<<<<< HEAD
-=======
   resolveAllowlistProviderRuntimeGroupPolicy,
 <<<<<<< HEAD
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 =======
   resolveDefaultGroupPolicy,
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
@@ -17,16 +14,8 @@ import {
   type ChannelPlugin,
   type MoltbotConfig,
   type ChannelSetupInput,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CoreConfig } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -55,12 +44,9 @@ import { sendMessageNextcloudTalk } from "./send.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { CoreConfig } from "./types.js";
 <<<<<<< HEAD
 import { resolveNextcloudTalkGroupToolPolicy } from "./policy.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -172,14 +158,9 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> = 
       };
     },
     collectWarnings: ({ account, cfg }) => {
-<<<<<<< HEAD
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-=======
-      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
       const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent:
           (cfg.channels as Record<string, unknown> | undefined)?.["nextcloud-talk"] !== undefined,
@@ -235,11 +216,7 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> = 
     resolveAccountId: ({ accountId }) => normalizeAccountId(accountId),
     applyAccountName: ({ cfg, accountId, name }) =>
       applyAccountNameToChannelSection({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "nextcloud-talk",
         accountId,
         name,
@@ -260,11 +237,7 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> = 
     applyAccountConfig: ({ cfg, accountId, input }) => {
       const setupInput = input as NextcloudSetupInput;
       const namedConfig = applyAccountNameToChannelSection({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "nextcloud-talk",
         accountId,
         name: setupInput.name,

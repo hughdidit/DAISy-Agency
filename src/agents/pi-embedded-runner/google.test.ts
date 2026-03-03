@@ -42,8 +42,6 @@ describe("sanitizeToolsForGoogle", () => {
     });
     expectFormatRemoved(sanitized, "additionalProperties");
   });
-<<<<<<< HEAD
-=======
 
   it("returns original tools for non-google providers", () => {
     const tool = createTool({
@@ -64,5 +62,4 @@ describe("sanitizeToolsForGoogle", () => {
     expect(sanitized).toEqual([tool]);
     expect(sanitized[0]).toBe(tool);
   });
->>>>>>> 185fba1d2 (refactor(agents): dedupe plugin hooks and test helpers)
 });

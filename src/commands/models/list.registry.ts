@@ -3,18 +3,11 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
 import type { AuthProfileStore } from "../../agents/auth-profiles.js";
 <<<<<<< HEAD
-=======
-import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { ModelRow } from "./list.types.js";
-import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
->>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
 =======
 import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
 import type { AuthProfileStore } from "../../agents/auth-profiles.js";
@@ -28,12 +21,7 @@ import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { ModelRow } from "./list.types.js";
 import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
-import type { AuthProfileStore } from "../../agents/auth-profiles.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -49,14 +37,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ModelRow } from "./list.types.js";
-=======
-=======
-import { resolveForwardCompatModel } from "../../agents/model-forward-compat.js";
->>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
 =======
 import {
   ANTIGRAVITY_GEMINI_31_FORWARD_COMPAT_CANDIDATES,
@@ -74,12 +57,7 @@ import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-disco
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 07faab6ac (openai-codex: bridge OAuth profiles into pi auth.json for model discovery (#15184))
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -100,13 +78,8 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
 import { modelKey } from "./shared.js";
-=======
-import type { ModelRow } from "./list.types.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ModelRow } from "./list.types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -138,24 +111,11 @@ import { isLocalBaseUrl, modelKey } from "./shared.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const hasAuthForProvider = (provider: string, cfg: MoltbotConfig, authStore: AuthProfileStore) => {
   if (listProfilesForProvider(authStore, provider).length > 0) return true;
   if (provider === "amazon-bedrock" && resolveAwsSdkEnvVarName()) return true;
   if (resolveEnvApiKey(provider)) return true;
   if (getCustomProviderApiKey(cfg, provider)) return true;
-=======
-const hasAuthForProvider = (provider: string, cfg: OpenClawConfig, authStore: AuthProfileStore) => {
-=======
-const hasAuthForProvider = (
-  provider: string,
-  cfg?: OpenClawConfig,
-  authStore?: AuthProfileStore,
-) => {
-  if (!cfg || !authStore) {
-    return false;
-  }
->>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
   if (listProfilesForProvider(authStore, provider).length > 0) {
     return true;
   }
@@ -173,16 +133,9 @@ const hasAuthForProvider = (
 };
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export async function loadModelRegistry(cfg: MoltbotConfig) {
   await ensureMoltbotModelsJson(cfg);
   const agentDir = resolveMoltbotAgentDir();
-=======
-export async function loadModelRegistry(cfg: OpenClawConfig) {
-  await ensureOpenClawModelsJson(cfg);
-  const agentDir = resolveOpenClawAgentDir();
-  await ensurePiAuthJsonFromAuthProfiles(agentDir);
->>>>>>> 07faab6ac (openai-codex: bridge OAuth profiles into pi auth.json for model discovery (#15184))
 =======
 function createAvailabilityUnavailableError(message: string): Error {
   const err = new Error(message);
@@ -240,11 +193,7 @@ export async function loadModelRegistry(cfg: OpenClawConfig) {
   await ensureOpenClawModelsJson(cfg);
   const agentDir = resolveOpenClawAgentDir();
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
-=======
-  await ensurePiAuthJsonFromAuthProfiles(agentDir);
->>>>>>> 4ca75bed5 (fix(models): sync auth-profiles before availability checks)
 =======
 >>>>>>> 4c5a2c3c6 (Agents: inject pi auth storage from runtime profiles)
   const authStorage = discoverAuthStorage(agentDir);

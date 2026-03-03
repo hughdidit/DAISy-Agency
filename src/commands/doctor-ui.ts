@@ -5,13 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
-=======
-import type { RuntimeEnv } from "../runtime.js";
-import type { DoctorPrompter } from "./doctor-prompter.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";

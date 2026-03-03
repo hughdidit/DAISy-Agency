@@ -4,13 +4,9 @@ import type { WebhookRequestBody } from "@line/bot-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
->>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { LineChannelData, ResolvedLineAccount } from "./types.js";
@@ -54,12 +50,9 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { danger, logVerbose } from "../globals.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import { createLineBot } from "./bot.js";
 import { validateLineSignature } from "./signature.js";
-=======
->>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 =======
 import { waitForAbortSignal } from "../infra/abort-signal.js";
 >>>>>>> e915b4c64 (refactor: unify monitor abort lifecycle handling)
@@ -69,11 +62,6 @@ import { registerPluginHttpRoute } from "../plugins/http-registry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { RuntimeEnv } from "../runtime.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -106,7 +94,6 @@ import { buildTemplateMessageFromPayload } from "./template-messages.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { LineChannelData, ResolvedLineAccount } from "./types.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
 import { resolveEffectiveMessagesConfig } from "../agents/identity.js";
@@ -114,10 +101,6 @@ import { chunkMarkdownText } from "../auto-reply/chunk.js";
 import { processLineMessage } from "./markdown-to-line.js";
 import { sendLineReplyChunks } from "./reply-chunks.js";
 import { deliverLineAutoReply } from "./auto-reply-delivery.js";
-=======
-=======
-import type { LineChannelData, ResolvedLineAccount } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -187,7 +170,6 @@ export function getLineRuntimeState(accountId: string) {
   return runtimeState.get(`line:${accountId}`);
 }
 
-<<<<<<< HEAD
 async function readRequestBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -197,8 +179,6 @@ async function readRequestBody(req: IncomingMessage): Promise<string> {
   });
 }
 
-=======
->>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 function startLineLoadingKeepalive(params: {
   userId: string;
   accountId?: string;
@@ -396,7 +376,6 @@ export async function monitorLineProvider(
     pluginId: "line",
     accountId: resolvedAccountId,
     log: (msg) => logVerbose(msg),
-<<<<<<< HEAD
     handler: async (req: IncomingMessage, res: ServerResponse) => {
       // Handle GET requests for webhook verification
       if (req.method === "GET") {
@@ -476,9 +455,6 @@ export async function monitorLineProvider(
         }
       }
     },
-=======
-    handler: createLineNodeWebhookHandler({ channelSecret, bot, runtime }),
->>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
   });
 
   logVerbose(`line: registered webhook handler at ${normalizedPath}`);

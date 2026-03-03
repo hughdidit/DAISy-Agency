@@ -12,11 +12,6 @@ import type { MediaUnderstandingAttachmentsConfig } from "../config/types.tools.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -40,12 +35,9 @@ import { fetchWithTimeout } from "./providers/shared.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 <<<<<<< HEAD
 import { MediaUnderstandingSkipError } from "./errors.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

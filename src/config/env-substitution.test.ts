@@ -343,7 +343,6 @@ describe("resolveConfigEnvVars", () => {
         },
       ];
 
-<<<<<<< HEAD
     it("substitutes gateway auth token", () => {
       const config = {
         gateway: {
@@ -386,12 +385,6 @@ describe("resolveConfigEnvVars", () => {
           },
         },
       });
-=======
-      for (const scenario of scenarios) {
-        const result = resolveConfigEnvVars(scenario.config, scenario.env);
-        expect(result, scenario.name).toEqual(scenario.expected);
-      }
->>>>>>> cd5f3fe0c (test(config): consolidate env/include scenario coverage)
     });
   });
 });

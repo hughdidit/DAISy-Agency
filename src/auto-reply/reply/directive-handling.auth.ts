@@ -10,17 +10,8 @@ import {
   resolveAuthProfileOrder,
   resolveEnvApiKey,
 } from "../../agents/model-auth.js";
-<<<<<<< HEAD
 import { normalizeProviderId } from "../../agents/model-selection.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { findNormalizedProviderValue, normalizeProviderId } from "../../agents/model-selection.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 9f0fc74d1 (refactor(model): share normalized provider map lookups)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

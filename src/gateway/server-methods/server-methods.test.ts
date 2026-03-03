@@ -6,17 +6,11 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { emitAgentEvent } from "../../infra/agent-events.js";
 import { formatZonedTimestamp } from "../../infra/format-time/format-datetime.js";
-<<<<<<< HEAD
-=======
 import { buildSystemRunApprovalBinding } from "../../infra/system-run-approval-binding.js";
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import { resetLogger, setLoggerOverride } from "../../logging.js";
 import { ExecApprovalManager } from "../exec-approval-manager.js";
 import { validateExecApprovalRequestParams } from "../protocol/index.js";
-<<<<<<< HEAD
-=======
 import { buildSystemRunApprovalBindingV1 } from "../system-run-approval-binding.js";
->>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
 import { waitForAgentJob } from "./agent-job.js";
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 import { normalizeRpcAttachmentsToChatAttachments } from "./attachment-normalize.js";
@@ -255,8 +249,6 @@ describe("exec approval handlers", () => {
 
   const defaultExecApprovalRequestParams = {
     command: "echo ok",
-<<<<<<< HEAD
-=======
     commandArgv: ["echo", "ok"],
     systemRunPlan: {
       argv: ["/usr/bin/echo", "ok"],
@@ -265,7 +257,6 @@ describe("exec approval handlers", () => {
       agentId: "main",
       sessionKey: "agent:main:main",
     },
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
     cwd: "/tmp",
     nodeId: "node-1",
     host: "node",
@@ -433,8 +424,6 @@ describe("exec approval handlers", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("rejects host=node approval requests without systemRunPlan", async () => {
     const { handlers, respond, context } = createExecApprovalFixture();
     await requestExecApproval({
@@ -454,7 +443,6 @@ describe("exec approval handlers", () => {
     );
   });
 
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   it("broadcasts request + resolve", async () => {
     const { handlers, broadcasts, respond, context } = createExecApprovalFixture();
 
@@ -495,8 +483,6 @@ describe("exec approval handlers", () => {
     expect(broadcasts.some((entry) => entry.event === "exec.approval.resolved")).toBe(true);
   });
 
-<<<<<<< HEAD
-=======
   it("stores versioned system.run binding and sorted env keys on approval request", async () => {
     const { handlers, broadcasts, respond, context } = createExecApprovalFixture();
     await requestExecApproval({
@@ -525,7 +511,6 @@ describe("exec approval handlers", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
 =======
   it("prefers systemRunPlan canonical command/cwd when present", async () => {
     const { handlers, broadcasts, respond, context } = createExecApprovalFixture();

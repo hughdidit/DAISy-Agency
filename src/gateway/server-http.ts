@@ -10,7 +10,6 @@ import { createServer as createHttpsServer } from "node:https";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { TlsOptions } from "node:tls";
 import type { WebSocketServer } from "ws";
 <<<<<<< HEAD
@@ -18,24 +17,13 @@ import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
 import type { CanvasHostHandler } from "../canvas-host/server.js";
 <<<<<<< HEAD
 =======
-import type { createSubsystemLogger } from "../logging/subsystem.js";
-import type { AuthRateLimiter } from "./auth-rate-limit.js";
-import type { GatewayWsClient } from "./server/ws-types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { CanvasHostHandler } from "../canvas-host/server.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import type { TlsOptions } from "node:tls";
-import type { WebSocketServer } from "ws";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -47,7 +35,6 @@ import type { TlsOptions } from "node:tls";
 import type { WebSocketServer } from "ws";
 >>>>>>> 758ea3c5a (style: apply oxfmt import ordering for check)
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
-<<<<<<< HEAD
 import {
   A2UI_PATH,
   CANVAS_HOST_PATH,
@@ -72,10 +59,6 @@ import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./cont
 import { setSecurityHeaders } from "./http-common.js";
 =======
 =======
-import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
->>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
-=======
-=======
 import type { CanvasHostHandler } from "../canvas-host/server.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -94,11 +77,8 @@ import { handleSlackHttpRequest } from "../slack/http/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -116,7 +96,6 @@ import { loadConfig } from "../config/config.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
-<<<<<<< HEAD
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> 758ea3c5a (style: apply oxfmt import ordering for check)
 import {
@@ -127,9 +106,6 @@ import {
 } from "./auth.js";
 <<<<<<< HEAD
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
-=======
-import { CANVAS_CAPABILITY_TTL_MS, normalizeCanvasScopedUrl } from "./canvas-capability.js";
->>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
 =======
 import {
   AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH,
@@ -158,38 +134,25 @@ import {
   normalizeHookHeaders,
   normalizeWakePayload,
   readJsonBody,
-<<<<<<< HEAD
-=======
   normalizeHookDispatchSessionKey,
   resolveHookSessionKey,
->>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
   resolveHookTargetAgentId,
   resolveHookChannel,
   resolveHookDeliver,
 } from "./hooks.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { applyHookMappings } from "./hooks-mapping.js";
-=======
-import { sendUnauthorized } from "./http-common.js";
-=======
-import { sendGatewayAuthFailure } from "./http-common.js";
->>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import { getBearerToken, getHeader } from "./http-utils.js";
 import { resolveGatewayClientIp } from "./net.js";
 >>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
 =======
 import { sendGatewayAuthFailure, setDefaultSecurityHeaders } from "./http-common.js";
-<<<<<<< HEAD
 import { getBearerToken } from "./http-utils.js";
 >>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
 <<<<<<< HEAD
-=======
-import { GATEWAY_CLIENT_MODES, normalizeGatewayClientMode } from "./protocol/client-info.js";
->>>>>>> 758ea3c5a (style: apply oxfmt import ordering for check)
 =======
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
@@ -219,49 +182,6 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-function isCanvasPath(pathname: string): boolean {
-  return (
-    pathname === A2UI_PATH ||
-    pathname.startsWith(`${A2UI_PATH}/`) ||
-    pathname === CANVAS_HOST_PATH ||
-    pathname.startsWith(`${CANVAS_HOST_PATH}/`) ||
-    pathname === CANVAS_WS_PATH
-  );
-}
-
-<<<<<<< HEAD
-function hasAuthorizedWsClientForIp(clients: Set<GatewayWsClient>, clientIp: string): boolean {
-  for (const client of clients) {
-    if (client.clientIp && client.clientIp === clientIp) {
-=======
-function isNodeWsClient(client: GatewayWsClient): boolean {
-  if (client.connect.role === "node") {
-    return true;
-  }
-  return normalizeGatewayClientMode(client.connect.client.mode) === GATEWAY_CLIENT_MODES.NODE;
-}
-
-function hasAuthorizedNodeWsClientForCanvasCapability(
-  clients: Set<GatewayWsClient>,
-  capability: string,
-): boolean {
-  const nowMs = Date.now();
-  for (const client of clients) {
-    if (!isNodeWsClient(client)) {
-      continue;
-    }
-    if (!client.canvasCapability || !client.canvasCapabilityExpiresAtMs) {
-      continue;
-    }
-    if (client.canvasCapabilityExpiresAtMs <= nowMs) {
-      continue;
-    }
-    if (safeEqualSecret(client.canvasCapability, capability)) {
-      // Sliding expiration while the connected node keeps using canvas.
-      client.canvasCapabilityExpiresAtMs = nowMs + CANVAS_CAPABILITY_TTL_MS;
->>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
       return true;
     }
   }
@@ -312,7 +232,6 @@ async function authorizeCanvasRequest(params: {
     lastAuthFailure = authResult;
   }
 
-<<<<<<< HEAD
   const clientIp = resolveGatewayClientIp({
     remoteAddr: req.socket?.remoteAddress ?? "",
     forwardedFor: getHeader(req, "x-forwarded-for"),
@@ -323,16 +242,11 @@ async function authorizeCanvasRequest(params: {
     return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
   }
   if (hasAuthorizedWsClientForIp(clients, clientIp)) {
-=======
-  if (canvasCapability && hasAuthorizedNodeWsClientForCanvasCapability(clients, canvasCapability)) {
->>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
     return { ok: true };
   }
   return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
 }
 
-<<<<<<< HEAD
-=======
 async function enforcePluginRouteGatewayAuth(params: {
   req: IncomingMessage;
   res: ServerResponse;
@@ -357,7 +271,6 @@ async function enforcePluginRouteGatewayAuth(params: {
   return true;
 }
 
->>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 =======
 >>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
 =======
@@ -446,22 +359,8 @@ export function createHooksRequestHandler(
     logHooks: SubsystemLogger;
   } & HookDispatchers,
 ): HooksRequestHandler {
-<<<<<<< HEAD
   const { getHooksConfig, bindHost, port, logHooks, dispatchAgentHook, dispatchWakeHook } = opts;
 <<<<<<< HEAD
-=======
-  const hookAuthFailures = new Map<string, HookAuthFailure>();
-=======
-  const { getHooksConfig, logHooks, dispatchAgentHook, dispatchWakeHook } = opts;
-  const hookAuthLimiter = createAuthRateLimiter({
-    maxAttempts: HOOK_AUTH_FAILURE_LIMIT,
-    windowMs: HOOK_AUTH_FAILURE_WINDOW_MS,
-    lockoutMs: HOOK_AUTH_FAILURE_WINDOW_MS,
-    exemptLoopback: false,
-    // Handler lifetimes are tied to gateway runtime/tests; skip background timer fanout.
-    pruneIntervalMs: 0,
-  });
->>>>>>> 70e31c6f6 (fix(gateway): harden hooks URL parsing (#26864))
 
   const resolveHookClientKey = (req: IncomingMessage): string => {
     return req.socket?.remoteAddress?.trim() || "unknown";
@@ -594,29 +493,9 @@ export function createHooksRequestHandler(
         sendJson(res, 400, { ok: false, error: getHookAgentPolicyError() });
         return true;
       }
-<<<<<<< HEAD
       const runId = dispatchAgentHook({
         ...normalized.value,
         agentId: resolveHookTargetAgentId(hooksConfig, normalized.value.agentId),
-=======
-      const sessionKey = resolveHookSessionKey({
-        hooksConfig,
-        source: "request",
-        sessionKey: normalized.value.sessionKey,
-      });
-      if (!sessionKey.ok) {
-        sendJson(res, 400, { ok: false, error: sessionKey.error });
-        return true;
-      }
-      const targetAgentId = resolveHookTargetAgentId(hooksConfig, normalized.value.agentId);
-      const runId = dispatchAgentHook({
-        ...normalized.value,
-        sessionKey: normalizeHookDispatchSessionKey({
-          sessionKey: sessionKey.value,
-          targetAgentId,
-        }),
-        agentId: targetAgentId,
->>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
       });
       sendJson(res, 202, { ok: true, runId });
       return true;
@@ -657,8 +536,6 @@ export function createHooksRequestHandler(
             sendJson(res, 400, { ok: false, error: getHookAgentPolicyError() });
             return true;
           }
-<<<<<<< HEAD
-=======
           const sessionKey = resolveHookSessionKey({
             hooksConfig,
             source: "mapping",
@@ -669,20 +546,12 @@ export function createHooksRequestHandler(
             return true;
           }
           const targetAgentId = resolveHookTargetAgentId(hooksConfig, mapped.action.agentId);
->>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
           const runId = dispatchAgentHook({
             message: mapped.action.message,
             name: mapped.action.name ?? "Hook",
             agentId: targetAgentId,
             wakeMode: mapped.action.wakeMode,
-<<<<<<< HEAD
             sessionKey: mapped.action.sessionKey ?? "",
-=======
-            sessionKey: normalizeHookDispatchSessionKey({
-              sessionKey: sessionKey.value,
-              targetAgentId,
-            }),
->>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
             deliver: resolveHookDeliver(mapped.action.deliver),
             channel,
             to: mapped.action.to,
@@ -751,13 +620,10 @@ export function createGatewayHttpServer(opts: {
       });
 
   async function handleRequest(req: IncomingMessage, res: ServerResponse) {
-<<<<<<< HEAD
-=======
     setDefaultSecurityHeaders(res, {
       strictTransportSecurity: strictTransportSecurityHeader,
     });
 
->>>>>>> 9af3ec92a (fix(gateway): add HSTS header hardening and docs)
     // Don't interfere with WebSocket upgrades; ws handles the 'upgrade' event.
     if (String(req.headers.upgrade ?? "").toLowerCase() === "websocket") {
       return;
@@ -767,11 +633,6 @@ export function createGatewayHttpServer(opts: {
       const configSnapshot = loadConfig();
       const trustedProxies = configSnapshot.gateway?.trustedProxies ?? [];
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-      const allowRealIpFallback = configSnapshot.gateway?.allowRealIpFallback === true;
->>>>>>> be7f82500 (refactor(gateway): harden proxy client ip resolution)
       const scopedCanvas = normalizeCanvasScopedUrl(req.url ?? "/");
       if (scopedCanvas.malformedScopedPath) {
         sendGatewayAuthFailure(res, { ok: false, reason: "unauthorized" });
@@ -799,33 +660,8 @@ export function createGatewayHttpServer(opts: {
         return;
       }
 <<<<<<< HEAD
-<<<<<<< HEAD
       if (handlePluginRequest && (await handlePluginRequest(req, res))) {
         return;
-=======
-      if (handlePluginRequest) {
-        // Channel HTTP endpoints are gateway-auth protected by default.
-        // Non-channel plugin routes remain plugin-owned and must enforce
-        // their own auth when exposing sensitive functionality.
-        if (requestPath.startsWith("/api/channels/")) {
-          const token = getBearerToken(req);
-          const authResult = await authorizeHttpGatewayConnect({
-            auth: resolvedAuth,
-            connectAuth: token ? { token, password: token } : null,
-            req,
-            trustedProxies,
-            allowRealIpFallback,
-            rateLimiter,
-          });
-          if (!authResult.ok) {
-            sendGatewayAuthFailure(res, authResult);
-            return;
-          }
-        }
-        if (await handlePluginRequest(req, res)) {
-          return;
-        }
->>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
       }
 =======
 >>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
@@ -855,8 +691,6 @@ export function createGatewayHttpServer(opts: {
         }
       }
       if (canvasHost) {
-<<<<<<< HEAD
-=======
         const url = new URL(req.url ?? "/", "http://localhost");
         if (isCanvasPath(url.pathname)) {
           const ok = await authorizeCanvasRequest({
@@ -874,7 +708,6 @@ export function createGatewayHttpServer(opts: {
             return;
           }
         }
->>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
         if (await handleA2uiHttpRequest(req, res)) {
           return;
         }
@@ -897,12 +730,8 @@ export function createGatewayHttpServer(opts: {
           await handleControlUiHttpRequest(req, res, {
             basePath: controlUiBasePath,
             config: configSnapshot,
-<<<<<<< HEAD
             auth: resolvedAuth,
             trustedProxies,
-=======
-            root: controlUiRoot,
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
           })
         ) {
           return;
@@ -949,7 +778,6 @@ export function attachGatewayUpgradeHandler(opts: {
   httpServer: HttpServer;
   wss: WebSocketServer;
   canvasHost: CanvasHostHandler | null;
-<<<<<<< HEAD
 }) {
   const { httpServer, wss, canvasHost } = opts;
   httpServer.on("upgrade", (req, socket, head) => {
@@ -958,56 +786,6 @@ export function attachGatewayUpgradeHandler(opts: {
     }
     wss.handleUpgrade(req, socket, head, (ws) => {
       wss.emit("connection", ws, req);
-=======
-  clients: Set<GatewayWsClient>;
-  resolvedAuth: ResolvedGatewayAuth;
-  /** Optional rate limiter for auth brute-force protection. */
-  rateLimiter?: AuthRateLimiter;
-}) {
-  const { httpServer, wss, canvasHost, clients, resolvedAuth, rateLimiter } = opts;
-  httpServer.on("upgrade", (req, socket, head) => {
-    void (async () => {
-      const scopedCanvas = normalizeCanvasScopedUrl(req.url ?? "/");
-      if (scopedCanvas.malformedScopedPath) {
-        writeUpgradeAuthFailure(socket, { ok: false, reason: "unauthorized" });
-        socket.destroy();
-        return;
-      }
-      if (scopedCanvas.rewrittenUrl) {
-        req.url = scopedCanvas.rewrittenUrl;
-      }
-      if (canvasHost) {
-        const url = new URL(req.url ?? "/", "http://localhost");
-        if (url.pathname === CANVAS_WS_PATH) {
-          const configSnapshot = loadConfig();
-          const trustedProxies = configSnapshot.gateway?.trustedProxies ?? [];
-          const allowRealIpFallback = configSnapshot.gateway?.allowRealIpFallback === true;
-          const ok = await authorizeCanvasRequest({
-            req,
-            auth: resolvedAuth,
-            trustedProxies,
-            allowRealIpFallback,
-            clients,
-            canvasCapability: scopedCanvas.capability,
-            malformedScopedPath: scopedCanvas.malformedScopedPath,
-            rateLimiter,
-          });
-          if (!ok.ok) {
-            writeUpgradeAuthFailure(socket, ok);
-            socket.destroy();
-            return;
-          }
-        }
-        if (canvasHost.handleUpgrade(req, socket, head)) {
-          return;
-        }
-      }
-      wss.handleUpgrade(req, socket, head, (ws) => {
-        wss.emit("connection", ws, req);
-      });
-    })().catch(() => {
-      socket.destroy();
->>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
     });
   });
 }

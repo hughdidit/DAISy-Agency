@@ -8,12 +8,7 @@ import { withTempHome } from "../../test/helpers/temp-home.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -69,11 +64,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-<<<<<<< HEAD
       } as MoltbotConfig,
-=======
-      } as unknown as OpenClawConfig,
->>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       agent: {
         model: "anthropic/pi:opus",
         contextTokens: 32_000,
@@ -184,11 +175,7 @@ describe("buildStatusMessage", () => {
             { id: "discord", sandbox: { mode: "all" } },
           ],
         },
-<<<<<<< HEAD
       } as MoltbotConfig,
-=======
-      } as unknown as OpenClawConfig,
->>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       agent: {},
       sessionKey: "agent:discord:discord:channel:1456350065223270435",
       sessionScope: "per-sender",
@@ -466,11 +453,7 @@ describe("buildStatusMessage", () => {
             },
           },
         },
-<<<<<<< HEAD
       } as MoltbotConfig,
-=======
-      } as unknown as OpenClawConfig,
->>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       agent: { model: "anthropic/claude-opus-4-5" },
       sessionEntry: { sessionId: "c1", updatedAt: 0, inputTokens: 10 },
       sessionKey: "agent:main:main",
@@ -564,7 +547,6 @@ describe("buildStatusMessage", () => {
         const sessionId = "sess-1";
         writeBaselineTranscriptUsageLog({
           dir,
-<<<<<<< HEAD
           ".clawdbot",
           "agents",
           "main",
@@ -593,11 +575,6 @@ describe("buildStatusMessage", () => {
           ].join("\n"),
           "utf-8",
         );
-=======
-          agentId: "main",
-          sessionId,
-        });
->>>>>>> 7ea14a1c8 (refactor(test): share status transcript log writer)
 
         const text = buildTranscriptStatusText({
           sessionId,
@@ -630,8 +607,6 @@ describe("buildStatusMessage", () => {
       { prefix: "openclaw-status-" },
     );
   });
-<<<<<<< HEAD
-=======
 
   it("reads transcript usage using explicit agentId when sessionKey is missing", async () => {
     await withTempHome(
@@ -674,18 +649,13 @@ describe("buildStatusMessage", () => {
       { prefix: "openclaw-status-" },
     );
   });
->>>>>>> 4169a4df7 (perf(test): remove redundant status module reloads)
 });
 
 describe("buildCommandsMessage", () => {
   it("lists commands with aliases and hints", () => {
     const text = buildCommandsMessage({
       commands: { config: false, debug: false },
-<<<<<<< HEAD
     } as MoltbotConfig);
-=======
-    } as unknown as OpenClawConfig);
->>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
     expect(text).toContain("ℹ️ Slash commands");
     expect(text).toContain("Status");
     expect(text).toContain("/commands - List all slash commands.");
@@ -700,11 +670,7 @@ describe("buildCommandsMessage", () => {
     const text = buildCommandsMessage(
       {
         commands: { config: false, debug: false },
-<<<<<<< HEAD
       } as MoltbotConfig,
-=======
-      } as unknown as OpenClawConfig,
->>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       [
         {
           name: "demo_skill",
@@ -721,11 +687,7 @@ describe("buildHelpMessage", () => {
   it("hides config/debug when disabled", () => {
     const text = buildHelpMessage({
       commands: { config: false, debug: false },
-<<<<<<< HEAD
     } as MoltbotConfig);
-=======
-    } as unknown as OpenClawConfig);
->>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
     expect(text).toContain("Skills");
     expect(text).toContain("/skill <name> [input]");
     expect(text).not.toContain("/config");
@@ -738,11 +700,7 @@ describe("buildCommandsMessagePaginated", () => {
     const result = buildCommandsMessagePaginated(
       {
         commands: { config: false, debug: false },
-<<<<<<< HEAD
       } as MoltbotConfig,
-=======
-      } as unknown as OpenClawConfig,
->>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       undefined,
       { surface: "telegram", page: 1 },
     );
@@ -758,11 +716,7 @@ describe("buildCommandsMessagePaginated", () => {
     const result = buildCommandsMessagePaginated(
       {
         commands: { config: false, debug: false },
-<<<<<<< HEAD
       } as MoltbotConfig,
-=======
-      } as unknown as OpenClawConfig,
->>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       undefined,
       { surface: "telegram", page: 99 },
     );

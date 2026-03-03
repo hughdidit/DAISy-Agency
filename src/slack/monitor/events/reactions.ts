@@ -4,10 +4,7 @@ import type { SlackEventMiddlewareArgs } from "@slack/bolt";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SlackMonitorContext } from "../context.js";
 import type { SlackReactionEvent } from "../types.js";
@@ -22,11 +19,7 @@ import type { SlackReactionEvent } from "../types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { danger } from "../../../globals.js";
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
-<<<<<<< HEAD
 
-=======
-import { authorizeSlackSystemEventSender } from "../auth.js";
->>>>>>> 75dfb71e4 (fix(slack): gate pin/reaction system events by sender auth)
 import { resolveSlackChannelLabel } from "../channel-config.js";
 =======
 import { danger } from "../../../globals.js";

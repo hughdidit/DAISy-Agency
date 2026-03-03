@@ -1,9 +1,6 @@
 import { getChannelPlugin, normalizeChannelId } from "../channels/plugins/index.js";
-<<<<<<< HEAD
-=======
 import { normalizeTargetForProvider } from "../infra/outbound/target-normalization.js";
 import { splitMediaFromOutput } from "../media/parse.js";
->>>>>>> c3d11d56c (fix(agents): validate tool-result MEDIA directives with shared parser)
 import { truncateUtf16Safe } from "../utils.js";
 import { collectTextContentBlocks } from "./content-blocks.js";
 import { type MessagingToolSend } from "./pi-embedded-messaging.js";
@@ -113,8 +110,6 @@ export function extractToolResultText(result: unknown): string | undefined {
   return texts.join("\n");
 }
 
-<<<<<<< HEAD
-=======
 /**
  * Extract media file paths from a tool result.
  *
@@ -173,7 +168,6 @@ export function extractToolResultMediaPaths(result: unknown): string[] {
   return [];
 }
 
->>>>>>> 0587e4cc7 (fix(agents): restrict MEDIA: token parsing to line start in tool results (#18510))
 export function isToolResultError(result: unknown): boolean {
   if (!result || typeof result !== "object") {
     return false;
@@ -240,11 +234,7 @@ export function extractMessagingToolSend(
     if (action !== "send" && action !== "thread-reply") {
       return undefined;
     }
-<<<<<<< HEAD
     const toRaw = typeof args.to === "string" ? args.to : undefined;
-=======
-    const toRaw = resolveMessageToolTarget(args);
->>>>>>> 5c6b2cbc8 (refactor: extract iMessage echo cache and unify suppression guards)
     if (!toRaw) {
       return undefined;
     }

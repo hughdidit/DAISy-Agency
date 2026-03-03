@@ -8,12 +8,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { MsgContext } from "../auto-reply/templating.js";
@@ -35,9 +31,6 @@ import type {
   MediaUnderstandingProvider,
 } from "./types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -63,12 +56,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MsgContext } from "../auto-reply/templating.js";
 import { applyTemplate } from "../auto-reply/templating.js";
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
-=======
->>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 =======
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -84,10 +74,7 @@ import type {
 } from "../config/types.tools.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -109,7 +96,6 @@ import {
   AUTO_VIDEO_KEY_PROVIDERS,
   DEFAULT_IMAGE_MODELS,
 } from "./defaults.js";
-<<<<<<< HEAD
 import { isMediaUnderstandingSkipError, MediaUnderstandingSkipError } from "./errors.js";
 import {
   resolveMaxBytes,
@@ -135,29 +121,6 @@ import {
 import { describeImageWithModel } from "./providers/image.js";
 import { estimateBase64Size, resolveVideoMaxBase64Bytes } from "./video.js";
 =======
-import { isMediaUnderstandingSkipError } from "./errors.js";
-import { fileExists } from "./fs.js";
-import { extractGeminiResponse } from "./output-extract.js";
-import {
-  buildMediaUnderstandingRegistry,
-  getMediaUnderstandingProvider,
-  normalizeMediaProviderId,
-} from "./providers/index.js";
-import { resolveModelEntries, resolveScopeDecision } from "./resolve.js";
-import {
-  buildModelDecision,
-  formatDecisionSummary,
-  runCliEntry,
-  runProviderEntry,
-} from "./runner.entries.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
-=======
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -174,10 +137,7 @@ import type {
 } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -187,7 +147,6 @@ import type {
 =======
 >>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 
-<<<<<<< HEAD
 const AUTO_AUDIO_KEY_PROVIDERS = ["openai", "groq", "deepgram", "google"] as const;
 const AUTO_IMAGE_KEY_PROVIDERS = ["openai", "anthropic", "google", "minimax"] as const;
 const AUTO_VIDEO_KEY_PROVIDERS = ["google"] as const;
@@ -198,8 +157,6 @@ const DEFAULT_IMAGE_MODELS: Record<string, string> = {
   minimax: "MiniMax-VL-01",
 };
 
-=======
->>>>>>> 33ee8bbf1 (feat: add zai/glm-4.6v image understanding support (#10267))
 export type ActiveMediaModel = {
   provider: string;
   model?: string;
@@ -544,8 +501,6 @@ async function resolveKeyEntry(params: {
   return null;
 }
 
-<<<<<<< HEAD
-=======
 function resolveImageModelFromAgentDefaults(cfg: OpenClawConfig): MediaUnderstandingModelConfig[] {
   const refs: string[] = [];
   const primary = resolveAgentModelPrimaryValue(cfg.agents?.defaults?.imageModel);
@@ -575,7 +530,6 @@ function resolveImageModelFromAgentDefaults(cfg: OpenClawConfig): MediaUnderstan
   return entries;
 }
 
->>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 async function resolveAutoEntries(params: {
   cfg: MoltbotConfig;
   agentDir?: string;
@@ -689,7 +643,6 @@ async function resolveActiveModelEntry(params: {
   };
 }
 
-<<<<<<< HEAD
 function trimOutput(text: string, maxChars?: number): string {
   const trimmed = text.trim();
   if (!maxChars || trimmed.length <= maxChars) {
@@ -1166,8 +1119,6 @@ async function runCliEntry(params: {
   }
 }
 
-=======
->>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 async function runAttachmentEntries(params: {
   capability: MediaUnderstandingCapability;
   cfg: MoltbotConfig;

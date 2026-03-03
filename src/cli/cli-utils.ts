@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-=======
 import type { Command } from "commander";
 import { formatErrorMessage } from "../infra/errors.js";
 
 export { formatErrorMessage };
 
->>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 export type ManagerLookupResult<T> = {
   manager: T | null;
   error?: string;
@@ -50,8 +47,6 @@ export async function runCommandWithRuntime(
     runtime.exit(1);
   }
 }
-<<<<<<< HEAD
-=======
 
 export function resolveOptionFromCommand<T>(
   command: Command | undefined,
@@ -67,4 +62,3 @@ export function resolveOptionFromCommand<T>(
   }
   return undefined;
 }
->>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)

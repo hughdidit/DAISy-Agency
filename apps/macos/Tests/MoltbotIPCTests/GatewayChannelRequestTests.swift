@@ -1,9 +1,5 @@
 import Foundation
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/GatewayChannelRequestTests.swift
 import MoltbotKit
-=======
-import OpenClawKit
->>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/GatewayChannelRequestTests.swift
 import os
 import Testing
 @testable import Moltbot

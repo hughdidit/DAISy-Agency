@@ -5,8 +5,6 @@ import type {
 } from "@mariozechner/pi-agent-core";
 import type { ToolDefinition } from "@mariozechner/pi-coding-agent";
 import { logDebug, logError } from "../logger.js";
-<<<<<<< HEAD
-=======
 import { isPlainObject } from "../utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14,7 +12,6 @@ import { isPlainObject } from "../utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { runBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 =======
 import type { ClientToolDefinition } from "./pi-embedded-runner/run/params.js";
 import type { HookContext } from "./pi-tools.before-tool-call.js";
@@ -42,8 +39,6 @@ import { jsonResult } from "./tools/common.js";
 // oxlint-disable-next-line typescript/no-explicit-any
 type AnyAgentTool = AgentTool<any, unknown>;
 
-<<<<<<< HEAD
-=======
 type ToolExecuteArgsCurrent = [
   string,
   unknown,
@@ -73,7 +68,6 @@ function isLegacyToolExecuteArgs(args: ToolExecuteArgsAny): args is ToolExecuteA
   return isAbortSignal(third) || typeof fourth === "function";
 }
 
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 function describeToolExecutionError(err: unknown): {
   message: string;
   stack?: string;
@@ -85,8 +79,6 @@ function describeToolExecutionError(err: unknown): {
   return { message: String(err) };
 }
 
-<<<<<<< HEAD
-=======
 function stringifyToolPayload(payload: unknown): string {
   if (typeof payload === "string") {
     return payload;
@@ -161,7 +153,6 @@ function splitToolExecuteArgs(args: ToolExecuteArgsAny): {
   };
 }
 
->>>>>>> 8a9780347 (fix(agents): normalize malformed tool results in adapter (#27007))
 export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
   return tools.map((tool) => {
     const name = tool.name || "tool";
@@ -182,35 +173,7 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
         // than pi-agent-core `AgentTool.execute`. This adapter keeps our existing tools intact.
         try {
 <<<<<<< HEAD
-<<<<<<< HEAD
           return await tool.execute(toolCallId, params, signal, onUpdate);
-=======
-          // NOTE: before_tool_call hook is NOT called here — it is already
-          // invoked by wrapToolWithBeforeToolCallHook (applied in pi-tools.ts)
-          // before the tool reaches toToolDefinitions.  Calling it again would
-          // fire the hook twice per invocation (#15502).
-          const result = await tool.execute(toolCallId, params, signal, onUpdate);
-=======
-          if (!beforeHookWrapped) {
-            const hookOutcome = await runBeforeToolCallHook({
-              toolName: name,
-              params,
-              toolCallId,
-            });
-            if (hookOutcome.blocked) {
-              throw new Error(hookOutcome.reason);
-            }
-            executeParams = hookOutcome.params;
-          }
-          const rawResult = await tool.execute(toolCallId, executeParams, signal, onUpdate);
-          const result = normalizeToolExecutionResult({
-            toolName: normalizedName,
-            result: rawResult,
-          });
-          const afterParams = beforeHookWrapped
-            ? (consumeAdjustedParamsForToolCall(toolCallId) ?? executeParams)
-            : executeParams;
->>>>>>> 8a9780347 (fix(agents): normalize malformed tool results in adapter (#27007))
 
           // Call after_tool_call hook
           const hookRunner = getGlobalHookRunner();
@@ -265,10 +228,7 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
 export function toClientToolDefinitions(
   tools: ClientToolDefinition[],
   onClientToolCall?: (toolName: string, params: Record<string, unknown>) => void,
-<<<<<<< HEAD
-=======
   hookContext?: HookContext,
->>>>>>> 076df941a (feat: add configurable tool loop detection)
 ): ToolDefinition[] {
   return tools.map((tool) => {
     const func = tool.function;

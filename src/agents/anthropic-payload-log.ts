@@ -3,7 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import crypto from "node:crypto";
 import path from "node:path";
 <<<<<<< HEAD
@@ -11,10 +10,6 @@ import path from "node:path";
 import type { AgentMessage, StreamFn } from "@mariozechner/pi-agent-core";
 import type { Api, Model } from "@mariozechner/pi-ai";
 
-=======
-import type { AgentMessage, StreamFn } from "@mariozechner/pi-agent-core";
-import type { Api, Model } from "@mariozechner/pi-ai";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AgentMessage, StreamFn } from "@mariozechner/pi-agent-core";
 import type { Api, Model } from "@mariozechner/pi-ai";
@@ -53,13 +48,8 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveStateDir } from "../config/paths.js";
 import { parseBooleanValue } from "../utils/boolean.js";
-<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-=======
-import { safeJsonStringify } from "../utils/safe-json.js";
-<<<<<<< HEAD
->>>>>>> d82c5ea9d (refactor(utils): share safe json stringify)
 =======
 import { getQueuedFileWriter, type QueuedFileWriter } from "./queued-file-writer.js";
 >>>>>>> 817b5812e (refactor(agents): share queued JSONL file writer)

@@ -1,10 +1,6 @@
 import CoreLocation
 import Foundation
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/NodeMode/MacNodeRuntimeMainActorServices.swift
 import MoltbotKit
-=======
-import OpenClawKit
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/NodeMode/MacNodeRuntimeMainActorServices.swift
 
 @MainActor
 protocol MacNodeRuntimeMainActorServices: Sendable {

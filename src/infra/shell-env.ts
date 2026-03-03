@@ -126,15 +126,8 @@ export function shouldDeferShellEnvFallback(env: NodeJS.ProcessEnv): boolean {
 }
 
 export function resolveShellEnvFallbackTimeoutMs(env: NodeJS.ProcessEnv): number {
-<<<<<<< HEAD
   const raw = env.CLAWDBOT_SHELL_ENV_TIMEOUT_MS?.trim();
   if (!raw) return DEFAULT_TIMEOUT_MS;
-=======
-  const raw = env.OPENCLAW_SHELL_ENV_TIMEOUT_MS?.trim();
-  if (!raw) {
-    return DEFAULT_TIMEOUT_MS;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const parsed = Number.parseInt(raw, 10);
   if (!Number.isFinite(parsed)) {
     return DEFAULT_TIMEOUT_MS;

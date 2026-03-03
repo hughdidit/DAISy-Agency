@@ -1,15 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
-=======
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-<<<<<<< HEAD:src/web/auto-reply/monitor/group-gating.test.ts
-import { resolveAgentRoute } from "../../../routing/resolve-route.js";
-import { buildMentionConfig } from "../mentions.js";
->>>>>>> fb1d8f836 (perf(test): consolidate web auto-reply suites)
 import { applyGroupGating } from "./group-gating.js";
 =======
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
@@ -42,44 +32,9 @@ const makeConfig = (overrides: Record<string, unknown>) =>
         groups: { "*": { requireMention: true } },
       },
     },
-<<<<<<< HEAD
   },
   session: { store: "/tmp/moltbot-sessions.json" },
 } as const;
-=======
-    session: { store: sessionStorePath },
-    ...overrides,
-  }) as unknown as ReturnType<typeof import("../../config/config.js").loadConfig>;
-
-function runGroupGating(params: {
-  cfg: ReturnType<typeof import("../../config/config.js").loadConfig>;
-  msg: Record<string, unknown>;
-  conversationId?: string;
-  agentId?: string;
-}) {
-  const groupHistories = new Map<string, GroupHistoryEntry[]>();
-  const conversationId = params.conversationId ?? "123@g.us";
-  const agentId = params.agentId ?? "main";
-  const sessionKey = `agent:${agentId}:whatsapp:group:${conversationId}`;
-  const baseMentionConfig = buildMentionConfig(params.cfg, undefined);
-  const result = applyGroupGating({
-    cfg: params.cfg,
-    // oxlint-disable-next-line typescript/no-explicit-any
-    msg: params.msg as any,
-    conversationId,
-    groupHistoryKey: `whatsapp:default:group:${conversationId}`,
-    agentId,
-    sessionKey,
-    baseMentionConfig,
-    groupHistories,
-    groupHistoryLimit: 10,
-    groupMemberNames: new Map(),
-    logVerbose: () => {},
-    replyLogger: { debug: () => {} },
-  });
-  return { result, groupHistories };
-}
->>>>>>> fb1d8f836 (perf(test): consolidate web auto-reply suites)
 
 function createGroupMessage(overrides: Record<string, unknown> = {}) {
   return {

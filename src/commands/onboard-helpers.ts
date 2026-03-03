@@ -8,17 +8,11 @@ import { inspect } from "node:util";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { cancel, isCancel } from "@clack/prompts";
 
 import { DEFAULT_AGENT_WORKSPACE_DIR, ensureAgentWorkspace } from "../agents/workspace.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { cancel, isCancel } from "@clack/prompts";
-import { DEFAULT_AGENT_WORKSPACE_DIR, ensureAgentWorkspace } from "../agents/workspace.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -118,8 +112,6 @@ export function randomToken(): string {
   return crypto.randomBytes(24).toString("hex");
 }
 
-<<<<<<< HEAD
-=======
 export function normalizeGatewayTokenInput(value: unknown): string {
   if (typeof value !== "string") {
     return "";
@@ -147,10 +139,8 @@ export function validateGatewayPasswordInput(value: unknown): string | undefined
   return undefined;
 }
 
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 export function printWizardHeader(runtime: RuntimeEnv) {
   const header = [
-<<<<<<< HEAD
 <<<<<<< HEAD
     "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
     "██░▄▀▄░██░▄▄▄░██░████▄▄░▄▄██░▄▄▀██░▄▄▄░█▄▄░▄▄██",
@@ -158,14 +148,6 @@ export function printWizardHeader(runtime: RuntimeEnv) {
     "██░███░██░▀▀▀░██░▀▀░███░████░▀▀░██░▀▀▀░███░████",
     "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
     "               🦞 FRESH DAILY 🦞                ",
-=======
-  "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
-  "██░▄▄▄░██░▄▄░██░▄▄▄██░▀██░██░▄▄▀██░████░▄▄▀██░███░██",
-  "██░███░██░▀▀░██░▄▄▄██░█░█░██░█████░████░▀▀░██░█░█░██",
-  "██░▀▀▀░██░█████░▀▀▀██░██▄░██░▀▀▄██░▀▀░█░██░██▄▀▄▀▄██",
-  "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
-  "                  🦞 OPENCLAW 🦞                    ",
->>>>>>> 4ec9d9882 (Update ASCII art banners for CLI and wizard header)
 =======
     "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
     "██░▄▄▄░██░▄▄░██░▄▄▄██░▀██░██░▄▄▀██░████░▄▄▀██░███░██",
@@ -278,14 +260,8 @@ export function formatControlUiSshHint(params: {
   const basePath = normalizeControlUiBasePath(params.basePath);
   const uiPath = basePath ? `${basePath}/` : "/";
   const localUrl = `http://localhost:${params.port}${uiPath}`;
-<<<<<<< HEAD
   const tokenParam = params.token ? `?token=${encodeURIComponent(params.token)}` : "";
   const authedUrl = params.token ? `${localUrl}${tokenParam}` : undefined;
-=======
-  const authedUrl = params.token
-    ? `${localUrl}#token=${encodeURIComponent(params.token)}`
-    : undefined;
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
   const sshTarget = resolveSshTargetHint();
   return [
     "No GUI detected. Open from your computer:",

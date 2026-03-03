@@ -4,15 +4,11 @@ import { WebSocket, type ClientOptions, type CertMeta } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { normalizeFingerprint } from "../infra/tls/fingerprint.js";
 import { rawDataToString } from "../infra/ws.js";
 import { logDebug, logError } from "../logger.js";
 import type { DeviceIdentity } from "../infra/device-identity.js";
 <<<<<<< HEAD
-=======
-import { loadDeviceAuthToken, storeDeviceAuthToken } from "../infra/device-auth-store.js";
->>>>>>> 00b7ab7db (fix(gateway): remove unused device auth import)
 =======
 =======
 import type { DeviceIdentity } from "../infra/device-identity.js";
@@ -32,11 +28,8 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { DeviceIdentity } from "../infra/device-identity.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { DeviceIdentity } from "../infra/device-identity.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -50,30 +43,18 @@ import {
   publicKeyRawBase64UrlFromPem,
   signDevicePayload,
 } from "../infra/device-identity.js";
-<<<<<<< HEAD
 import {
   clearDeviceAuthToken,
   loadDeviceAuthToken,
   storeDeviceAuthToken,
 } from "../infra/device-auth-store.js";
-=======
-import { clearDevicePairing } from "../infra/device-pairing.js";
-import { normalizeFingerprint } from "../infra/tls/fingerprint.js";
-import { rawDataToString } from "../infra/ws.js";
-import { logDebug, logError } from "../logger.js";
->>>>>>> 5dd304d1c (fix(gateway): clear pairing state on device token mismatch (#22071))
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,
   type GatewayClientMode,
   type GatewayClientName,
 } from "../utils/message-channel.js";
-<<<<<<< HEAD
 import { buildDeviceAuthPayload } from "./device-auth.js";
-=======
-import { buildDeviceAuthPayloadV3 } from "./device-auth.js";
-import { isSecureWebSocketUrl } from "./net.js";
->>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)
 import {
   type ConnectParams,
   type EventFrame,
@@ -164,8 +145,6 @@ export class GatewayClient {
       this.opts.onConnectError?.(new Error("gateway tls fingerprint requires wss:// gateway url"));
       return;
     }
-<<<<<<< HEAD
-=======
 
     // Security check: block ALL plaintext ws:// to non-loopback addresses (CWE-319, CVSS 9.8)
     // This protects both credentials AND chat/conversation data from MITM attacks.
@@ -188,7 +167,6 @@ export class GatewayClient {
       this.opts.onConnectError?.(error);
       return;
     }
->>>>>>> 8a3d04c19 (Gateway UX: harden remote ws guidance and onboarding defaults)
     // Allow node screen snapshots and other large responses.
     const wsOptions: ClientOptions = {
       maxPayload: 25 * 1024 * 1024,
@@ -236,12 +214,6 @@ export class GatewayClient {
       this.ws = null;
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-      // If closed due to device token mismatch, clear the stored token so next attempt can get a fresh one
-=======
-      // If closed due to device token mismatch, clear the stored token and pairing so next attempt can get a fresh one
->>>>>>> 5dd304d1c (fix(gateway): clear pairing state on device token mismatch (#22071))
 =======
       // Clear persisted device auth state only when device-token auth was active.
       // Shared token/password failures can return the same close reason but should
@@ -330,13 +302,8 @@ export class GatewayClient {
           }
         : undefined;
     const signedAtMs = Date.now();
-<<<<<<< HEAD
     const nonce = this.connectNonce ?? undefined;
     const scopes = this.opts.scopes ?? ["operator.read"];
-=======
-    const scopes = this.opts.scopes ?? ["operator.admin"];
-<<<<<<< HEAD
->>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
 =======
     const platform = this.opts.platform ?? process.platform;
 >>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)

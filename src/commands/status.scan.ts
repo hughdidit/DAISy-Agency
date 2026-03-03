@@ -6,18 +6,7 @@ import { probeGateway } from "../gateway/probe.js";
 import { collectChannelStatusIssues } from "../infra/channels-status-issues.js";
 import { resolveOsSummary } from "../infra/os-summary.js";
 import { getTailnetHostname } from "../infra/tailscale.js";
-<<<<<<< HEAD
 import type { MemoryIndexManager } from "../memory/manager.js";
-=======
-import { getMemorySearchManager } from "../memory/index.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { MemoryProviderStatus } from "../memory/types.js";
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 =======
 >>>>>>> 9bef52594 (chore: apply formatter)
 =======

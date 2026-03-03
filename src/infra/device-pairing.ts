@@ -1,15 +1,8 @@
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
-=======
-import { safeEqualSecret } from "../security/secret-equal.js";
-=======
-import { normalizeDeviceAuthScopes } from "../shared/device-auth.js";
-<<<<<<< HEAD
->>>>>>> b9aed3a07 (refactor(infra): reuse device auth scope normalization)
 =======
 import { roleScopesAllow } from "../shared/operator-scope-compat.js";
 >>>>>>> 525d6e067 (Gateway: align pairing scope checks for read access)
@@ -20,12 +13,7 @@ import {
   resolvePairingPaths,
   writeJsonAtomic,
 } from "./pairing-files.js";
-<<<<<<< HEAD
 >>>>>>> cc233da37 (refactor(pairing): share json state helpers)
-=======
-import { rejectPendingPairingRequest } from "./pairing-pending.js";
-import { generatePairingToken, verifyPairingToken } from "./pairing-token.js";
->>>>>>> 06b0a60be (refactor(daemon): share runtime and service probe helpers)
 
 export type DevicePairingPendingRequest = {
   requestId: string;

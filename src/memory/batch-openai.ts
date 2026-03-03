@@ -3,18 +3,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { retryAsync } from "../infra/retry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
 import { hashText } from "./internal.js";
-=======
-=======
-=======
-import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -31,11 +24,7 @@ import { postJsonWithRetry } from "./batch-http.js";
 import { applyEmbeddingBatchOutputLine } from "./batch-output.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 7bd073340 (refactor(memory): share batch output parsing)
-=======
-import { buildBatchHeaders, normalizeBatchBaseUrl, splitBatchRequests } from "./batch-utils.js";
->>>>>>> 8251f7c23 (refactor(memory): dedupe batch helpers)
 import { hashText, runWithConcurrency } from "./internal.js";
 >>>>>>> e707a7bd3 (refactor(memory): reuse runWithConcurrency)
 =======
@@ -58,12 +47,7 @@ import { buildBatchHeaders, normalizeBatchBaseUrl } from "./batch-utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
-=======
-import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -107,7 +91,6 @@ async function submitOpenAiBatch(params: {
     errorPrefix: "openai batch file upload failed",
   });
 
-<<<<<<< HEAD
   const batchRes = await retryAsync(
     async () => {
       const res = await fetch(`${baseUrl}/batches`, {
@@ -141,19 +124,6 @@ async function submitOpenAiBatch(params: {
       shouldRetry: (err) => {
         const status = (err as { status?: number }).status;
         return status === 429 || (typeof status === "number" && status >= 500);
-=======
-  return await postJsonWithRetry<OpenAiBatchStatus>({
-    url: `${baseUrl}/batches`,
-    headers: buildBatchHeaders(params.openAi, { json: true }),
-    ssrfPolicy: params.openAi.ssrfPolicy,
-    body: {
-      input_file_id: inputFileId,
-      endpoint: OPENAI_BATCH_ENDPOINT,
-      completion_window: OPENAI_BATCH_COMPLETION_WINDOW,
-      metadata: {
-        source: "openclaw-memory",
-        agent: params.agentId,
->>>>>>> ebb54d71e (refactor(memory): share batch create retry)
       },
     },
     errorPrefix: "openai batch create failed",

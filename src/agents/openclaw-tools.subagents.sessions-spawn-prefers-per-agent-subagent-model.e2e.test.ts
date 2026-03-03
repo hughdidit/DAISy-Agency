@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const callGatewayMock = vi.fn();
@@ -25,16 +24,6 @@ vi.mock("../config/config.js", async (importOriginal) => {
 
 import "./test-helpers/fast-core-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
-=======
-import { beforeEach, describe, expect, it } from "vitest";
-import { createOpenClawTools } from "./openclaw-tools.js";
-import "./test-helpers/fast-core-tools.js";
-import {
-  callGatewayMock,
-  resetConfigOverride,
-  setConfigOverride,
-} from "./openclaw-tools.subagents.sessions-spawn.mocks.js";
->>>>>>> 615f6e1e4 (refactor(test): share sessions_spawn e2e mocks)
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {

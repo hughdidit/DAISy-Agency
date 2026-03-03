@@ -1,5 +1,4 @@
 import "./test-helpers.js";
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -16,10 +15,6 @@ vi.mock("../agents/pi-embedded.js", () => ({
 
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 01ec81dae (refactor(test): migrate web auto-reply tests to harness)
 import { monitorWebChannel } from "./auto-reply.js";
 import {
   createMockWebListener,
@@ -29,7 +24,6 @@ import {
   setLoadConfigMock,
 } from "./auto-reply.test-harness.js";
 
-<<<<<<< HEAD
 let previousHome: string | undefined;
 let tempHome: string | undefined;
 
@@ -103,9 +97,6 @@ const _makeSessionStore = async (
     cleanup,
   };
 };
-=======
-installWebAutoReplyTestHomeHooks();
->>>>>>> 01ec81dae (refactor(test): migrate web auto-reply tests to harness)
 
 describe("typing controller idle", () => {
   installWebAutoReplyUnitTestHooks();

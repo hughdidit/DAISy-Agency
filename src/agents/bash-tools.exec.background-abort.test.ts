@@ -1,25 +1,15 @@
 import { afterEach, expect, test } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { createExecTool } from "./bash-tools.exec";
-=======
-import { sleep } from "../utils.ts";
->>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 =======
 >>>>>>> e47df9ed7 (perf(test): tighten background-abort e2e wait)
 import {
   getFinishedSession,
   getSession,
   resetProcessRegistryForTests,
-<<<<<<< HEAD
 } from "./bash-process-registry";
 import { killProcessTree } from "./shell-utils";
-=======
-} from "./bash-process-registry.js";
-import { createExecTool } from "./bash-tools.exec.js";
-import { killProcessTree } from "./shell-utils.js";
->>>>>>> 2e375a549 (chore: Fix types in tests 32/N.)
 
 const BACKGROUND_HOLD_CMD = 'node -e "setTimeout(() => {}, 5000)"';
 const ABORT_SETTLE_MS = process.platform === "win32" ? 200 : 25;
@@ -135,8 +125,6 @@ test("background exec is not killed when tool signal aborts", async () => {
   });
 });
 
-<<<<<<< HEAD
-=======
 test("pty background exec is not killed when tool signal aborts", async () => {
   const tool = createTestExecTool({ allowBackground: true, backgroundMs: 0 });
   await expectBackgroundSessionSurvivesAbort({
@@ -145,7 +133,6 @@ test("pty background exec is not killed when tool signal aborts", async () => {
   });
 });
 
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 test("background exec still times out after tool signal abort", async () => {
   const tool = createTestExecTool({ allowBackground: true, backgroundMs: 0 });
   await expectBackgroundSessionTimesOut({

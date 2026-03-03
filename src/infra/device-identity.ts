@@ -2,10 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { resolveStateDir } from "../config/paths.js";
->>>>>>> 41f2f359a (perf(test): reduce module reload overhead in key suites)
 
 export type DeviceIdentity = {
   deviceId: string;
@@ -21,14 +18,8 @@ type StoredIdentity = {
   createdAtMs: number;
 };
 
-<<<<<<< HEAD
 const DEFAULT_DIR = path.join(os.homedir(), ".clawdbot", "identity");
 const DEFAULT_FILE = path.join(DEFAULT_DIR, "device.json");
-=======
-function resolveDefaultIdentityPath(): string {
-  return path.join(resolveStateDir(), "identity", "device.json");
-}
->>>>>>> 41f2f359a (perf(test): reduce module reload overhead in key suites)
 
 function ensureDir(filePath: string) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });

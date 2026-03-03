@@ -241,8 +241,6 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
           accentColor: "#5865F2",
         },
       },
-<<<<<<< HEAD
-=======
       threadBindings: {
         enabled: true,
         idleHours: 24,
@@ -264,7 +262,6 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
           openai: { voice: "alloy" },
         },
       },
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
       retry: {
         attempts: 3,
         minDelayMs: 500,
@@ -282,20 +279,14 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
 - Guild slugs are lowercase with spaces replaced by `-`; channel keys use the slugged name (no `#`). Prefer guild IDs.
 - Bot-authored messages are ignored by default. `allowBots: true` enables them (own messages still filtered).
 - `maxLinesPerMessage` (default 17) splits tall messages even when under 2000 chars.
-<<<<<<< HEAD
-=======
 - `channels.discord.threadBindings` controls Discord thread-bound routing:
   - `enabled`: Discord override for thread-bound session features (`/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`, and bound delivery/routing)
   - `idleHours`: Discord override for inactivity auto-unfocus in hours (`0` disables)
   - `maxAgeHours`: Discord override for hard max age in hours (`0` disables)
   - `spawnSubagentSessions`: opt-in switch for `sessions_spawn({ thread: true })` auto thread creation/binding
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
 - `channels.discord.ui.components.accentColor` sets the accent color for Discord components v2 containers.
-<<<<<<< HEAD
-=======
 - `channels.discord.voice` enables Discord voice channel conversations and optional auto-join + TTS overrides.
 - `channels.discord.streaming` is the canonical stream mode key. Legacy `streamMode` and boolean `streaming` values are auto-migrated.
->>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 
 **Reaction notification modes:** `off` (none), `own` (bot's messages, default), `all` (all messages), `allowlist` (from `guilds.<id>.users` on all messages).
 
@@ -433,13 +424,10 @@ Mattermost ships as a plugin: `openclaw plugins install @openclaw/mattermost`.
 
 Chat modes: `oncall` (respond on @-mention, default), `onmessage` (every message), `onchar` (messages starting with trigger prefix).
 
-<<<<<<< HEAD
-=======
 - `channels.mattermost.configWrites`: allow or deny Mattermost-initiated config writes.
 - `channels.mattermost.requireMention`: require `@mention` before replying in channels.
 - Optional `channels.mattermost.defaultAccount` overrides default account selection when it matches a configured account id.
 
->>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 ### Signal
 
 ```json5
@@ -456,8 +444,6 @@ Chat modes: `oncall` (respond on @-mention, default), `onmessage` (every message
 
 **Reaction notification modes:** `off`, `own` (default), `all`, `allowlist` (from `reactionAllowlist`).
 
-<<<<<<< HEAD
-=======
 - `channels.signal.account`: pin channel startup to a specific Signal account identity.
 - `channels.signal.configWrites`: allow or deny Signal-initiated config writes.
 - Optional `channels.signal.defaultAccount` overrides default account selection when it matches a configured account id.
@@ -483,7 +469,6 @@ BlueBubbles is the recommended iMessage path (plugin-backed, configured under `c
 - Optional `channels.bluebubbles.defaultAccount` overrides default account selection when it matches a configured account id.
 - Full BlueBubbles channel configuration is documented in [BlueBubbles](/channels/bluebubbles).
 
->>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 ### iMessage
 
 OpenClaw spawns `imsg rpc` (JSON-RPC over stdio). No daemon or port required.
@@ -523,8 +508,6 @@ exec ssh -T gateway-host imsg "$@"
 
 </Accordion>
 
-<<<<<<< HEAD
-=======
 ### Microsoft Teams
 
 Microsoft Teams is extension-backed and configured under `channels.msteams`.
@@ -572,7 +555,6 @@ IRC is extension-backed and configured under `channels.irc`.
 - Optional `channels.irc.defaultAccount` overrides default account selection when it matches a configured account id.
 - Full IRC channel configuration (host/port/TLS/channels/allowlists/mention gating) is documented in [IRC](/channels/irc).
 
->>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 ### Multi-account (all channels)
 
 Run multiple accounts per channel (each with its own `accountId`):
@@ -748,8 +730,6 @@ Max characters per workspace bootstrap file before truncation. Default: `20000`.
 }
 ```
 
-<<<<<<< HEAD
-=======
 ### `agents.defaults.bootstrapTotalMaxChars`
 
 Max total characters injected across all workspace bootstrap files. Default: `150000`.
@@ -760,7 +740,6 @@ Max total characters injected across all workspace bootstrap files. Default: `15
 }
 ```
 
->>>>>>> 8a6701664 (Agents: raise bootstrap total cap and warn on /context truncation (#18229))
 ### `agents.defaults.userTimezone`
 
 Timezone for system prompt context (not message timestamps). Falls back to host timezone.
@@ -1345,14 +1324,11 @@ See [Multi-Agent Sandbox & Tools](/tools/multi-agent-sandbox-tools) for preceden
       maxDiskBytes: "500mb", // optional hard budget
       highWaterBytes: "400mb", // optional cleanup target
     },
-<<<<<<< HEAD
-=======
     threadBindings: {
       enabled: true,
       idleHours: 24, // default inactivity auto-unfocus in hours (`0` disables)
       maxAgeHours: 0, // default hard max age in hours (`0` disables)
     },
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
     mainKey: "main", // legacy (runtime always uses "main")
     agentToAgent: { maxPingPongTurns: 5 },
     sendPolicy: {
@@ -1378,22 +1354,7 @@ See [Multi-Agent Sandbox & Tools](/tools/multi-agent-sandbox-tools) for preceden
   - Set `0` to disable this guard and always allow parent forking.
 - **`mainKey`**: legacy field. Runtime now always uses `"main"` for the main direct-chat bucket.
 - **`sendPolicy`**: match by `channel`, `chatType` (`direct|group|channel`, with legacy `dm` alias), `keyPrefix`, or `rawKeyPrefix`. First deny wins.
-<<<<<<< HEAD
 - **`maintenance`**: `warn` warns the active session on eviction; `enforce` applies pruning and rotation.
-=======
-- **`maintenance`**: session-store cleanup + retention controls.
-  - `mode`: `warn` emits warnings only; `enforce` applies cleanup.
-  - `pruneAfter`: age cutoff for stale entries (default `30d`).
-  - `maxEntries`: maximum number of entries in `sessions.json` (default `500`).
-  - `rotateBytes`: rotate `sessions.json` when it exceeds this size (default `10mb`).
-  - `resetArchiveRetention`: retention for `*.reset.<timestamp>` transcript archives. Defaults to `pruneAfter`; set `false` to disable.
-  - `maxDiskBytes`: optional sessions-directory disk budget. In `warn` mode it logs warnings; in `enforce` mode it removes oldest artifacts/sessions first.
-  - `highWaterBytes`: optional target after budget cleanup. Defaults to `80%` of `maxDiskBytes`.
-- **`threadBindings`**: global defaults for thread-bound session features.
-  - `enabled`: master default switch (providers can override; Discord uses `channels.discord.threadBindings.enabled`)
-<<<<<<< HEAD
-  - `ttlHours`: default auto-unfocus TTL in hours (`0` disables; providers can override)
->>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 =======
   - `idleHours`: default inactivity auto-unfocus in hours (`0` disables; providers can override)
   - `maxAgeHours`: default hard max age in hours (`0` disables; providers can override)
@@ -1816,8 +1777,6 @@ OpenClaw uses the pi-coding-agent model catalog. Add custom providers via `model
   - Matching model `contextWindow`/`maxTokens` use the higher value between explicit config and implicit catalog values.
   - Use `models.mode: "replace"` when you want config to fully rewrite `models.json`.
 
-<<<<<<< HEAD
-=======
 ### Provider field details
 
 - `models.mode`: provider catalog behavior (`merge` or `replace`).
@@ -1838,7 +1797,6 @@ OpenClaw uses the pi-coding-agent model catalog. Add custom providers via `model
 - `models.bedrockDiscovery.defaultContextWindow`: fallback context window for discovered models.
 - `models.bedrockDiscovery.defaultMaxTokens`: fallback max output tokens for discovered models.
 
->>>>>>> f16ecd1da (fix(ollama): unify context window handling across discovery, merge, and OpenAI-compat transport (#29205))
 ### Provider examples
 
 <Accordion title="Cerebras (GLM 4.6 / 4.7)">
@@ -2076,11 +2034,7 @@ See [Local Models](/gateway/local-models). TL;DR: run MiniMax M2.1 via LM Studio
     },
     entries: {
       "nano-banana-pro": {
-<<<<<<< HEAD
         apiKey: "GEMINI_KEY_HERE",
-=======
-        apiKey: { source: "env", provider: "default", id: "GEMINI_API_KEY" }, // or plaintext string
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
         env: { GEMINI_API_KEY: "GEMINI_KEY_HERE" },
       },
       peekaboo: { enabled: true },
@@ -2231,13 +2185,7 @@ See [Plugins](/tools/plugin).
 - `port`: single multiplexed port for WS + HTTP. Precedence: `--port` > `OPENCLAW_GATEWAY_PORT` > `gateway.port` > `18789`.
 - `bind`: `auto`, `loopback` (default), `lan` (`0.0.0.0`), `tailnet` (Tailscale IP only), or `custom`.
 - **Auth**: required by default. Non-loopback binds require a shared token/password. Onboarding wizard generates a token by default.
-<<<<<<< HEAD
 - `auth.allowTailscale`: when `true`, Tailscale Serve identity headers satisfy auth (verified via `tailscale whois`). Defaults to `true` when `tailscale.mode = "serve"`.
-=======
-- `auth.mode: "none"`: explicit no-auth mode. Use only for trusted local loopback setups; this is intentionally not offered by onboarding prompts.
-- `auth.mode: "trusted-proxy"`: delegate auth to an identity-aware reverse proxy and trust identity headers from `gateway.trustedProxies` (see [Trusted Proxy Auth](/gateway/trusted-proxy-auth)).
-- `auth.allowTailscale`: when `true`, Tailscale Serve identity headers can satisfy Control UI/WebSocket auth (verified via `tailscale whois`); HTTP API endpoints still require token/password auth. This tokenless flow assumes the gateway host is trusted. Defaults to `true` when `tailscale.mode = "serve"`.
->>>>>>> 356d61aac (fix(gateway): scope tailscale tokenless auth to websocket)
 - `auth.rateLimit`: optional failed-auth limiter. Applies per client IP and per auth scope (shared-secret and device-token are tracked independently). Blocked attempts return `429` + `Retry-After`.
   - `auth.rateLimit.exemptLoopback` defaults to `true`; set `false` when you intentionally want localhost traffic rate-limited too (for test setups or strict proxy deployments).
 - Browser-origin WS auth attempts are always throttled with loopback exemption disabled (defense-in-depth against browser-based localhost brute force).
@@ -2379,17 +2327,7 @@ Auth: `Authorization: Bearer <token>` or `x-openclaw-token: <token>`.
 }
 ```
 
-<<<<<<< HEAD
 - Serves HTML/CSS/JS over HTTP for iOS/Android nodes.
-=======
-- Serves agent-editable HTML/CSS/JS and A2UI over HTTP under the Gateway port:
-  - `http://<gateway-host>:<gateway.port>/__openclaw__/canvas/`
-  - `http://<gateway-host>:<gateway.port>/__openclaw__/a2ui/`
-- Local-only: keep `gateway.bind: "loopback"` (default).
-- Non-loopback binds: canvas routes require Gateway auth (token/password/trusted-proxy), same as other Gateway HTTP surfaces.
-- Node WebViews typically don't send auth headers; after a node is paired and connected, the Gateway advertises node-scoped capability URLs for canvas/A2UI access.
-- Capability URLs are bound to the active node WS session and expire quickly. IP-based fallback is not used.
->>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
 - Injects live-reload client into served HTML.
 - Auto-creates starter `index.html` when empty.
 - Also serves A2UI at `/__openclaw__/a2ui/`.
@@ -2475,8 +2413,6 @@ Reference env vars in any config string with `${VAR_NAME}`:
 
 ---
 
-<<<<<<< HEAD
-=======
 ## Secrets
 
 Secret refs are additive: plaintext values still work.
@@ -2544,7 +2480,6 @@ Notes:
 
 ---
 
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 ## Auth storage
 
 ```json5
@@ -2564,10 +2499,7 @@ Notes:
 - Per-agent auth profiles stored at `<agentDir>/auth-profiles.json`.
 - Legacy OAuth imports from `~/.openclaw/credentials/oauth.json`.
 - See [OAuth](/concepts/oauth).
-<<<<<<< HEAD
-=======
 - Secrets runtime behavior and `audit/configure/apply` tooling: [Secrets Management](/gateway/secrets).
->>>>>>> f413e314b (feat(secrets): replace migrate flow with audit/configure/apply)
 
 ---
 

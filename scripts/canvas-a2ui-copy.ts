@@ -5,7 +5,6 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export function getA2uiPaths(env = process.env) {
-<<<<<<< HEAD
   const srcDir =
     env.CLAWDBOT_A2UI_SRC_DIR ?? path.join(repoRoot, "src", "canvas-host", "a2ui");
   const outDir =
@@ -21,15 +20,6 @@ export async function copyA2uiAssets({
   outDir: string;
 }) {
   const skipMissing = process.env.CLAWDBOT_A2UI_SKIP_MISSING === "1";
-=======
-  const srcDir = env.OPENCLAW_A2UI_SRC_DIR ?? path.join(repoRoot, "src", "canvas-host", "a2ui");
-  const outDir = env.OPENCLAW_A2UI_OUT_DIR ?? path.join(repoRoot, "dist", "canvas-host", "a2ui");
-  return { srcDir, outDir };
-}
-
-export async function copyA2uiAssets({ srcDir, outDir }: { srcDir: string; outDir: string }) {
-  const skipMissing = process.env.OPENCLAW_A2UI_SKIP_MISSING === "1";
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   try {
     await fs.stat(path.join(srcDir, "index.html"));
     await fs.stat(path.join(srcDir, "a2ui.bundle.js"));

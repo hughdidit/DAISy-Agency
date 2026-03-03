@@ -28,21 +28,9 @@ export type GatewayBonjourAdvertiseOpts = {
 };
 
 function isDisabledByEnv() {
-<<<<<<< HEAD
   if (isTruthyEnvValue(process.env.CLAWDBOT_DISABLE_BONJOUR)) return true;
   if (process.env.NODE_ENV === "test") return true;
   if (process.env.VITEST) return true;
-=======
-  if (isTruthyEnvValue(process.env.OPENCLAW_DISABLE_BONJOUR)) {
-    return true;
-  }
-  if (process.env.NODE_ENV === "test") {
-    return true;
-  }
-  if (process.env.VITEST) {
-    return true;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return false;
 }
 

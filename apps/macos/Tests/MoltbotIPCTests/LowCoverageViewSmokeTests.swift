@@ -2,11 +2,7 @@ import AppKit
 import MoltbotProtocol
 import SwiftUI
 import Testing
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/LowCoverageViewSmokeTests.swift
 @testable import Moltbot
-=======
-@testable import OpenClaw
->>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/LowCoverageViewSmokeTests.swift
 
 @Suite(.serialized)
 @MainActor

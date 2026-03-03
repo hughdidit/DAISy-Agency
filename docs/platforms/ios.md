@@ -72,12 +72,7 @@ moltbot nodes invoke --node "iOS Node" --command canvas.navigate --params '{"url
 ```
 
 Notes:
-<<<<<<< HEAD
 - The Gateway canvas host serves `/__moltbot__/canvas/` and `/__moltbot__/a2ui/`.
-=======
-
-- The Gateway canvas host serves `/__openclaw__/canvas/` and `/__openclaw__/a2ui/`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - The iOS node auto-navigates to A2UI on connect when a canvas host URL is advertised.
 - Return to the built-in scaffold with `canvas.navigate` and `{"url":""}`.
 

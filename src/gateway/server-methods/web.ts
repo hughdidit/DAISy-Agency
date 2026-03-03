@@ -3,10 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
->>>>>>> 600260ebf (refactor(gateway): dedupe web login provider checks)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -32,11 +28,7 @@ import { formatForLog } from "../ws-log.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
-=======
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

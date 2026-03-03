@@ -253,12 +253,7 @@ works with any OpenTelemetry collector/backend that accepts OTLP/HTTP.
 ```
 
 Notes:
-<<<<<<< HEAD
 - You can also enable the plugin with `moltbot plugins enable diagnostics-otel`.
-=======
-
-- You can also enable the plugin with `openclaw plugins enable diagnostics-otel`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `protocol` currently supports `http/protobuf` only. `grpc` is ignored.
 - Metrics include token usage, cost, context size, run duration, and message-flow
   counters/histograms (webhooks, queueing, session state, queue depth/wait).
@@ -271,7 +266,6 @@ Notes:
 ### Exported metrics (names + types)
 
 Model usage:
-<<<<<<< HEAD
 - `moltbot.tokens` (counter, attrs: `moltbot.token`, `moltbot.channel`,
   `moltbot.provider`, `moltbot.model`)
 - `moltbot.cost.usd` (counter, attrs: `moltbot.channel`, `moltbot.provider`,
@@ -305,44 +299,6 @@ Queues + sessions:
 - `moltbot.session.stuck` (counter, attrs: `moltbot.state`)
 - `moltbot.session.stuck_age_ms` (histogram, attrs: `moltbot.state`)
 - `moltbot.run.attempt` (counter, attrs: `moltbot.attempt`)
-=======
-
-- `openclaw.tokens` (counter, attrs: `openclaw.token`, `openclaw.channel`,
-  `openclaw.provider`, `openclaw.model`)
-- `openclaw.cost.usd` (counter, attrs: `openclaw.channel`, `openclaw.provider`,
-  `openclaw.model`)
-- `openclaw.run.duration_ms` (histogram, attrs: `openclaw.channel`,
-  `openclaw.provider`, `openclaw.model`)
-- `openclaw.context.tokens` (histogram, attrs: `openclaw.context`,
-  `openclaw.channel`, `openclaw.provider`, `openclaw.model`)
-
-Message flow:
-
-- `openclaw.webhook.received` (counter, attrs: `openclaw.channel`,
-  `openclaw.webhook`)
-- `openclaw.webhook.error` (counter, attrs: `openclaw.channel`,
-  `openclaw.webhook`)
-- `openclaw.webhook.duration_ms` (histogram, attrs: `openclaw.channel`,
-  `openclaw.webhook`)
-- `openclaw.message.queued` (counter, attrs: `openclaw.channel`,
-  `openclaw.source`)
-- `openclaw.message.processed` (counter, attrs: `openclaw.channel`,
-  `openclaw.outcome`)
-- `openclaw.message.duration_ms` (histogram, attrs: `openclaw.channel`,
-  `openclaw.outcome`)
-
-Queues + sessions:
-
-- `openclaw.queue.lane.enqueue` (counter, attrs: `openclaw.lane`)
-- `openclaw.queue.lane.dequeue` (counter, attrs: `openclaw.lane`)
-- `openclaw.queue.depth` (histogram, attrs: `openclaw.lane` or
-  `openclaw.channel=heartbeat`)
-- `openclaw.queue.wait_ms` (histogram, attrs: `openclaw.lane`)
-- `openclaw.session.state` (counter, attrs: `openclaw.state`, `openclaw.reason`)
-- `openclaw.session.stuck` (counter, attrs: `openclaw.state`)
-- `openclaw.session.stuck_age_ms` (histogram, attrs: `openclaw.state`)
-- `openclaw.run.attempt` (counter, attrs: `openclaw.attempt`)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### Exported spans (names + key attributes)
 

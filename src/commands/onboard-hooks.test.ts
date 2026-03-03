@@ -83,7 +83,6 @@ describe("onboard-hooks", () => {
     workspaceDir: "/mock/workspace",
     managedHooksDir: "/mock/.clawdbot/hooks",
     hooks: [
-<<<<<<< HEAD
       {
         name: "session-memory",
         description: "Save session context to memory when /new command is issued",
@@ -98,19 +97,6 @@ describe("onboard-hooks", () => {
         homepage: undefined,
         always: false,
         disabled: false,
-=======
-      createMockHook(
-        {
-          name: "session-memory",
-          description: "Save session context to memory when /new or /reset command is issued",
-          filePath: "/mock/workspace/hooks/session-memory/HOOK.md",
-          baseDir: "/mock/workspace/hooks/session-memory",
-          handlerPath: "/mock/workspace/hooks/session-memory/handler.js",
-          hookKey: "session-memory",
-          emoji: "💾",
-          events: ["command:new", "command:reset"],
-        },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
         eligible,
       ),
       createMockHook(
@@ -124,7 +110,6 @@ describe("onboard-hooks", () => {
           emoji: "📝",
           events: ["command"],
         },
-<<<<<<< HEAD
         missing: {
           bins: [],
           anyBins: [],
@@ -149,8 +134,6 @@ describe("onboard-hooks", () => {
         homepage: undefined,
         always: false,
         disabled: false,
-=======
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
         eligible,
       ),
     ],
@@ -175,7 +158,6 @@ describe("onboard-hooks", () => {
 
   describe("setupInternalHooks", () => {
     it("should enable hooks when user selects them", async () => {
-<<<<<<< HEAD
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport());
 
@@ -184,11 +166,6 @@ describe("onboard-hooks", () => {
       const runtime = createMockRuntime();
 
       const result = await setupInternalHooks(cfg, runtime, prompter);
-=======
-      const { result, prompter } = await runSetupInternalHooks({
-        selected: ["session-memory"],
-      });
->>>>>>> 2d8edf85a (refactor(test): share onboarding and model auth test helpers)
 
       expect(result.hooks?.internal?.enabled).toBe(true);
       expect(result.hooks?.internal?.entries).toEqual({
@@ -214,7 +191,6 @@ describe("onboard-hooks", () => {
     });
 
     it("should not enable hooks when user skips", async () => {
-<<<<<<< HEAD
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport());
 
@@ -223,18 +199,12 @@ describe("onboard-hooks", () => {
       const runtime = createMockRuntime();
 
       const result = await setupInternalHooks(cfg, runtime, prompter);
-=======
-      const { result, prompter } = await runSetupInternalHooks({
-        selected: ["__skip__"],
-      });
->>>>>>> 2d8edf85a (refactor(test): share onboarding and model auth test helpers)
 
       expect(result.hooks?.internal).toBeUndefined();
       expect(prompter.note).toHaveBeenCalledTimes(1);
     });
 
     it("should handle no eligible hooks", async () => {
-<<<<<<< HEAD
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport(false));
 
@@ -243,12 +213,6 @@ describe("onboard-hooks", () => {
       const runtime = createMockRuntime();
 
       const result = await setupInternalHooks(cfg, runtime, prompter);
-=======
-      const { result, cfg, prompter } = await runSetupInternalHooks({
-        selected: [],
-        eligible: false,
-      });
->>>>>>> 2d8edf85a (refactor(test): share onboarding and model auth test helpers)
 
       expect(result).toEqual(cfg);
       expect(prompter.multiselect).not.toHaveBeenCalled();
@@ -259,14 +223,10 @@ describe("onboard-hooks", () => {
     });
 
     it("should preserve existing hooks config when enabled", async () => {
-<<<<<<< HEAD
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport());
 
       const cfg: MoltbotConfig = {
-=======
-      const cfg: OpenClawConfig = {
->>>>>>> 2d8edf85a (refactor(test): share onboarding and model auth test helpers)
         hooks: {
           enabled: true,
           path: "/webhook",
@@ -288,14 +248,10 @@ describe("onboard-hooks", () => {
     });
 
     it("should preserve existing config when user skips", async () => {
-<<<<<<< HEAD
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport());
 
       const cfg: MoltbotConfig = {
-=======
-      const cfg: OpenClawConfig = {
->>>>>>> 2d8edf85a (refactor(test): share onboarding and model auth test helpers)
         agents: { defaults: { workspace: "/workspace" } },
       };
       const { result } = await runSetupInternalHooks({
@@ -308,7 +264,6 @@ describe("onboard-hooks", () => {
     });
 
     it("should show informative notes to user", async () => {
-<<<<<<< HEAD
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport());
 
@@ -317,11 +272,6 @@ describe("onboard-hooks", () => {
       const runtime = createMockRuntime();
 
       await setupInternalHooks(cfg, runtime, prompter);
-=======
-      const { prompter } = await runSetupInternalHooks({
-        selected: ["session-memory"],
-      });
->>>>>>> 2d8edf85a (refactor(test): share onboarding and model auth test helpers)
 
       const noteCalls = (prompter.note as ReturnType<typeof vi.fn>).mock.calls;
       expect(noteCalls).toHaveLength(2);

@@ -78,14 +78,8 @@ moltbot nodes list
 ```
 
 Naming options:
-<<<<<<< HEAD
 - `--display-name` on `moltbot node run` / `moltbot node install` (persists in `~/.clawdbot/node.json` on the node).
 - `moltbot nodes rename --node <id|name|ip> --name "Build Node"` (gateway override).
-=======
-
-- `--display-name` on `openclaw node run` / `openclaw node install` (persists in `~/.openclaw/node.json` on the node).
-- `openclaw nodes rename --node <id|name|ip> --name "Build Node"` (gateway override).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### Allowlist the commands
 
@@ -260,11 +254,8 @@ Notes:
 - `system.notify` respects notification permission state on the macOS app.
 - Unrecognized node `platform` / `deviceFamily` metadata uses a conservative default allowlist that excludes `system.run` and `system.which`. If you intentionally need those commands for an unknown platform, add them explicitly via `gateway.nodes.allowCommands`.
 - `system.run` supports `--cwd`, `--env KEY=VAL`, `--command-timeout`, and `--needs-screen-recording`.
-<<<<<<< HEAD
-=======
 - For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped `--env` values are reduced to an explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
 - On Windows node hosts in allowlist mode, shell-wrapper runs via `cmd.exe /c` require approval (allowlist entry alone does not auto-allow the wrapper form).
->>>>>>> 0c1f491a0 (fix(gateway): clarify pairing and node auth guidance)
 - `system.notify` supports `--priority <passive|active|timeSensitive>` and `--delivery <system|overlay|auto>`.
 - macOS nodes drop `PATH` overrides; headless node hosts only accept `PATH` when it prepends the node host PATH.
 - On macOS node mode, `system.run` is gated by exec approvals in the macOS app (Settings → Exec approvals).
@@ -318,15 +309,9 @@ Notes:
 - The node host stores its node id, token, display name, and gateway connection info in `~/.clawdbot/node.json`.
 - Exec approvals are enforced locally via `~/.clawdbot/exec-approvals.json`
   (see [Exec approvals](/tools/exec-approvals)).
-<<<<<<< HEAD
 - On macOS, the headless node host prefers the companion app exec host when reachable and falls
   back to local execution if the app is unavailable. Set `CLAWDBOT_NODE_EXEC_HOST=app` to require
   the app, or `CLAWDBOT_NODE_EXEC_FALLBACK=0` to disable fallback.
-=======
-- On macOS, the headless node host executes `system.run` locally by default. Set
-  `OPENCLAW_NODE_EXEC_HOST=app` to route `system.run` through the companion app exec host; add
-  `OPENCLAW_NODE_EXEC_FALLBACK=0` to require the app host and fail closed if it is unavailable.
->>>>>>> e4d67137d (fix(node): default mac headless system.run to local host)
 - Add `--tls` / `--tls-fingerprint` when the Gateway WS uses TLS.
 
 ## Mac node mode

@@ -59,25 +59,12 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
   const broadcast = (
     event: string,
     payload: unknown,
-<<<<<<< HEAD
     opts?: {
       dropIfSlow?: boolean;
       stateVersion?: { presence?: number; health?: number };
     },
-=======
-    opts?: GatewayBroadcastOpts,
-    targetConnIds?: ReadonlySet<string>,
->>>>>>> c1cc28a4e (refactor(gateway): share broadcast function types)
   ) => {
-<<<<<<< HEAD
     const eventSeq = ++seq;
-=======
-    if (params.clients.size === 0) {
-      return;
-    }
-    const isTargeted = Boolean(targetConnIds);
-    const eventSeq = isTargeted ? undefined : ++seq;
->>>>>>> 586176730 (perf(gateway): optimize sessions/ws/routing)
     const frame = JSON.stringify({
       type: "event",
       event,
@@ -85,7 +72,6 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
       seq: eventSeq,
       stateVersion: opts?.stateVersion,
     });
-<<<<<<< HEAD
     const logMeta: Record<string, unknown> = {
       event,
       seq: eventSeq,
@@ -96,22 +82,6 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
     };
     if (event === "agent") {
       Object.assign(logMeta, summarizeAgentEventForWsLog(payload));
-=======
-    if (shouldLogWs()) {
-      const logMeta: Record<string, unknown> = {
-        event,
-        seq: eventSeq ?? "targeted",
-        clients: params.clients.size,
-        targets: targetConnIds ? targetConnIds.size : undefined,
-        dropIfSlow: opts?.dropIfSlow,
-        presenceVersion: opts?.stateVersion?.presence,
-        healthVersion: opts?.stateVersion?.health,
-      };
-      if (event === "agent") {
-        Object.assign(logMeta, summarizeAgentEventForWsLog(payload));
-      }
-      logWs("out", "event", logMeta);
->>>>>>> 586176730 (perf(gateway): optimize sessions/ws/routing)
     }
     for (const c of params.clients) {
       if (!hasEventScope(c, event)) {
@@ -136,20 +106,5 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
       }
     }
   };
-<<<<<<< HEAD
   return { broadcast };
-=======
-
-  const broadcast: GatewayBroadcastFn = (event, payload, opts) =>
-    broadcastInternal(event, payload, opts);
-
-  const broadcastToConnIds: GatewayBroadcastToConnIdsFn = (event, payload, connIds, opts) => {
-    if (connIds.size === 0) {
-      return;
-    }
-    broadcastInternal(event, payload, opts, connIds);
-  };
-
-  return { broadcast, broadcastToConnIds };
->>>>>>> c1cc28a4e (refactor(gateway): share broadcast function types)
 }

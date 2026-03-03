@@ -4,12 +4,7 @@ read_when:
   - You are building a Moltbot plugin
   - You need to ship a plugin config schema or debug plugin validation errors
 ---
-<<<<<<< HEAD
 # Plugin manifest (moltbot.plugin.json)
-=======
-
-# Plugin manifest (openclaw.plugin.json)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Every plugin **must** ship a `moltbot.plugin.json` file in the **plugin root**.
 Moltbot uses this manifest to validate configuration **without executing plugin

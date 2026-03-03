@@ -1,17 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
-<<<<<<< HEAD
-=======
 import { GatewayClient } from "../src/gateway/client.js";
 import { connectGatewayClient } from "../src/gateway/test-helpers.e2e.js";
 <<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import { loadOrCreateDeviceIdentity } from "../src/infra/device-identity.js";
-<<<<<<< HEAD
 import { GatewayClient } from "../src/gateway/client.js";
-=======
-import { sleep } from "../src/utils.js";
->>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 =======
 >>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../src/utils/message-channel.js";
@@ -28,7 +21,6 @@ import {
 } from "./helpers/gateway-e2e-harness.js";
 
 const E2E_TIMEOUT_MS = 120_000;
-<<<<<<< HEAD
 const GATEWAY_CONNECT_STATUS_TIMEOUT_MS = 2_000;
 const GATEWAY_NODE_STATUS_TIMEOUT_MS = 4_000;
 const GATEWAY_NODE_STATUS_POLL_MS = 20;
@@ -329,9 +321,6 @@ const waitForNodeStatus = async (
         CLAWDBOT_GATEWAY_PASSWORD: "",
       },
     )) as NodeListPayload;
-=======
-    const list = await fetchNodeList(inst);
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
     const match = list.nodes?.find((n) => n.nodeId === nodeId);
     if (match?.connected && match?.paired) {
       return;
@@ -350,12 +339,8 @@ const waitForNodeStatus = async (
       if (match?.connected && match?.paired) {
         return;
       }
-<<<<<<< HEAD
       await sleep(50);
 >>>>>>> b05c41f34 (perf: reduce gateway multi e2e websocket churn)
-=======
-      await sleep(GATEWAY_NODE_STATUS_POLL_MS);
->>>>>>> 4a2ff03f4 (test: dedupe channel/web cases and tighten gateway e2e waits)
     }
   } finally {
     client.stop();
@@ -425,7 +410,6 @@ describe("gateway multi-instance e2e", () => {
       const [gwA, gwB] = await Promise.all([spawnGatewayInstance("a"), spawnGatewayInstance("b")]);
       instances.push(gwA, gwB);
 
-<<<<<<< HEAD
       const [healthA, healthB] = (await Promise.all([
         runCliJson(["health", "--json", "--timeout", "10000"], {
           CLAWDBOT_GATEWAY_PORT: String(gwA.port),
@@ -441,8 +425,6 @@ describe("gateway multi-instance e2e", () => {
       expect(healthA.ok).toBe(true);
       expect(healthB.ok).toBe(true);
 
-=======
->>>>>>> 3c00a9e33 (perf: remove redundant cli health checks from gateway multi e2e)
       const [hookResA, hookResB] = await Promise.all([
         postJson(
           `http://127.0.0.1:${gwA.port}/hooks/wake`,

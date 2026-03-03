@@ -62,8 +62,6 @@ describe("restoreTerminalState", () => {
     expect(setRawMode).toHaveBeenCalledWith(false);
     expect(resume).not.toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
 
   it("resumes paused stdin when resumeStdin is true", () => {
     const setRawMode = vi.fn();
@@ -102,5 +100,4 @@ describe("restoreTerminalState", () => {
     expect(setRawMode).not.toHaveBeenCalled();
     expect(resume).not.toHaveBeenCalled();
   });
->>>>>>> 994bcbf67 (refactor: clarify restoreTerminalState stdin resume option)
 });

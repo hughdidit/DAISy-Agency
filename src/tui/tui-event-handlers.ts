@@ -170,10 +170,7 @@ export function createEventHandlers(context: EventHandlerContext) {
         return;
       }
       if (isCommandMessage(evt.message)) {
-<<<<<<< HEAD
-=======
         maybeRefreshHistoryForRun(evt.runId);
->>>>>>> 61228639c (fix (tui): preserve active stream during concurrent run finals)
         const text = extractTextFromMessage(evt.message);
         if (text) {
           chatLog.addSystem(text);
@@ -182,10 +179,7 @@ export function createEventHandlers(context: EventHandlerContext) {
         tui.requestRender();
         return;
       }
-<<<<<<< HEAD
-=======
       maybeRefreshHistoryForRun(evt.runId);
->>>>>>> 61228639c (fix (tui): preserve active stream during concurrent run finals)
       const stopReason =
         evt.message && typeof evt.message === "object" && !Array.isArray(evt.message)
           ? typeof (evt.message as Record<string, unknown>).stopReason === "string"
@@ -210,44 +204,24 @@ export function createEventHandlers(context: EventHandlerContext) {
     if (evt.state === "aborted") {
       const wasActiveRun = state.activeChatRunId === evt.runId;
       chatLog.addSystem("run aborted");
-<<<<<<< HEAD
       streamAssembler.drop(evt.runId);
       sessionRuns.delete(evt.runId);
 <<<<<<< HEAD
       state.activeChatRunId = null;
       setActivityStatus("aborted");
       void refreshSessionInfo?.();
-=======
-      clearActiveRunIfMatch(evt.runId);
-      if (wasActiveRun) {
-        setActivityStatus("aborted");
-      }
-      void refreshSessionInfo?.();
-=======
-      terminateRun({ runId: evt.runId, wasActiveRun, status: "aborted" });
->>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
       maybeRefreshHistoryForRun(evt.runId);
 >>>>>>> 61228639c (fix (tui): preserve active stream during concurrent run finals)
     }
     if (evt.state === "error") {
       const wasActiveRun = state.activeChatRunId === evt.runId;
       chatLog.addSystem(`run error: ${evt.errorMessage ?? "unknown"}`);
-<<<<<<< HEAD
       streamAssembler.drop(evt.runId);
       sessionRuns.delete(evt.runId);
 <<<<<<< HEAD
       state.activeChatRunId = null;
       setActivityStatus("error");
       void refreshSessionInfo?.();
-=======
-      clearActiveRunIfMatch(evt.runId);
-      if (wasActiveRun) {
-        setActivityStatus("error");
-      }
-      void refreshSessionInfo?.();
-=======
-      terminateRun({ runId: evt.runId, wasActiveRun, status: "error" });
->>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
       maybeRefreshHistoryForRun(evt.runId);
 >>>>>>> 61228639c (fix (tui): preserve active stream during concurrent run finals)
     }

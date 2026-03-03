@@ -3,16 +3,12 @@ import path from "node:path";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import type { ChannelPluginCatalogEntry } from "../../channels/plugins/catalog.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { recordPluginInstall } from "../../plugins/installs.js";
 import { enablePluginInConfig } from "../../plugins/enable.js";
 import { loadMoltbotPlugins } from "../../plugins/loader.js";
 import { installPluginFromNpmSpec } from "../../plugins/install.js";
-=======
-=======
->>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import type { OpenClawConfig } from "../../config/config.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { enablePluginInConfig } from "../../plugins/enable.js";
@@ -23,12 +19,7 @@ import { loadOpenClawPlugins } from "../../plugins/loader.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import { createPluginLoaderLogger } from "../../plugins/logger.js";
-<<<<<<< HEAD
->>>>>>> aa8f87a3b (refactor(plugins): reuse plugin loader logger adapter)
 import type { RuntimeEnv } from "../../runtime.js";
 import type { WizardPrompter } from "../../wizard/prompts.js";
 =======
@@ -211,10 +202,7 @@ export async function ensureOnboardingPluginInstalled(params: {
       spec: entry.install.npmSpec,
       installPath: result.targetDir,
       version: result.version,
-<<<<<<< HEAD
-=======
       ...buildNpmResolutionInstallFields(result.npmResolution),
->>>>>>> 2081b3a3c (refactor(channels): dedupe hook and monitor execution paths)
     });
     return { cfg: next, installed: true };
   }

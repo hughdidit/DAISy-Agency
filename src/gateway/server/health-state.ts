@@ -3,11 +3,6 @@ import { getHealthSnapshot, type HealthSummary } from "../../commands/health.js"
 import { CONFIG_PATH, STATE_DIR, loadConfig } from "../../config/config.js";
 import { resolveMainSessionKey } from "../../config/sessions.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { getUpdateAvailable } from "../../infra/update-startup.js";
-import { listSystemPresence } from "../../infra/system-presence.js";
->>>>>>> 2ddc13cdb (feat(ui): add update warning banner to control dashboard)
 =======
 import { listSystemPresence } from "../../infra/system-presence.js";
 import { getUpdateAvailable } from "../../infra/update-startup.js";
@@ -15,15 +10,8 @@ import { getUpdateAvailable } from "../../infra/update-startup.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { listSystemPresence } from "../../infra/system-presence.js";
 import type { Snapshot } from "../protocol/index.js";
-=======
-import { resolveGatewayAuth } from "../auth.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
 =======
 import type { Snapshot } from "../protocol/index.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

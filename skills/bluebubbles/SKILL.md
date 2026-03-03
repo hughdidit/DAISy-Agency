@@ -1,11 +1,6 @@
 ---
 name: bluebubbles
-<<<<<<< HEAD
 description: Build or update the BlueBubbles external channel plugin for Moltbot (extension package, REST send/probe, webhook inbound).
-=======
-description: Use when you need to send or manage iMessages via BlueBubbles (recommended iMessage integration). Calls go through the generic message tool with channel="bluebubbles".
-metadata: { "openclaw": { "emoji": "🫧", "requires": { "config": ["channels.bluebubbles"] } } }
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 ---
 
 # BlueBubbles Actions

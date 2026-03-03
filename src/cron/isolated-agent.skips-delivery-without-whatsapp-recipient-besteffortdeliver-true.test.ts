@@ -1,12 +1,8 @@
 import "./isolated-agent.mocks.js";
 import fs from "node:fs/promises";
-<<<<<<< HEAD
 import path from "node:path";
 
-=======
->>>>>>> 9b9dc65a2 (fix(test): remove unused cron imports)
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -41,9 +37,6 @@ vi.mock("../agents/subagent-announce.js", () => ({
   runSubagentAnnounceFlow: vi.fn(),
 }));
 
-=======
-import type { CliDeps } from "../cli/deps.js";
->>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 import { loadModelCatalog } from "../agents/model-catalog.js";
 =======
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
@@ -90,7 +83,6 @@ async function runExplicitTelegramAnnounceTurn(params: {
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-cron-" });
 }
@@ -108,14 +100,6 @@ async function writeSessionStore(home: string) {
           updatedAt: Date.now(),
           lastProvider: "webchat",
           lastTo: "",
-=======
-=======
-function expectDeliveredOk(result: Awaited<ReturnType<typeof runCronIsolatedAgentTurn>>): void {
-  expect(result.status).toBe("ok");
-  expect(result.delivered).toBe(true);
-}
-
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 async function expectBestEffortTelegramNotDelivered(
   payload: Record<string, unknown>,
 ): Promise<void> {
@@ -129,7 +113,6 @@ async function expectBestEffortTelegramNotDelivered(
       home,
       storePath,
       deps,
-<<<<<<< HEAD
       job: {
         ...makeJob({ kind: "agentTurn", message: "do it" }),
         delivery: {
@@ -139,17 +122,9 @@ async function expectBestEffortTelegramNotDelivered(
           bestEffort: true,
 >>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
         },
-=======
-      delivery: {
-        mode: "announce",
-        channel: "telegram",
-        to: "123",
-        bestEffort: true,
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       },
     });
 
-<<<<<<< HEAD
 function makeCfg(
   home: string,
   storePath: string,
@@ -181,14 +156,6 @@ function makeJob(payload: CronJob["payload"]): CronJob {
     payload,
     state: {},
   };
-=======
-    expect(res.status).toBe("ok");
-    expect(res.delivered).toBe(false);
-    expect(res.deliveryAttempted).toBe(true);
-    expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
-    expect(deps.sendMessageTelegram).toHaveBeenCalledTimes(1);
-  });
->>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 }
 
 async function expectExplicitTelegramTargetAnnounce(params: {
@@ -227,7 +194,6 @@ async function expectExplicitTelegramTargetAnnounce(params: {
 
 describe("runCronIsolatedAgentTurn", () => {
   beforeEach(() => {
-<<<<<<< HEAD
     vi.mocked(runEmbeddedPiAgent).mockReset();
     vi.mocked(loadModelCatalog).mockResolvedValue([]);
     vi.mocked(runSubagentAnnounceFlow).mockReset().mockResolvedValue(true);
@@ -236,8 +202,6 @@ describe("runCronIsolatedAgentTurn", () => {
     setDiscordRuntime(runtime);
     setTelegramRuntime(runtime);
     setWhatsAppRuntime(runtime);
-=======
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     setActivePluginRegistry(
       createTestRegistry([
         { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
@@ -251,16 +215,9 @@ describe("runCronIsolatedAgentTurn", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("announces via shared subagent flow when delivery is requested", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
-=======
-  it("delivers directly when delivery has an explicit target", async () => {
-<<<<<<< HEAD
-    await withTempCronHome(async (home) => {
-      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
->>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
         sendMessageTelegram: vi.fn(),
@@ -292,21 +249,8 @@ describe("runCronIsolatedAgentTurn", () => {
 
       expect(res.status).toBe("ok");
       expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
-<<<<<<< HEAD
       const call = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0];
       expect(call?.label).toBe("Cron: job-1");
-=======
-      const announceArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
-        | { announceType?: string }
-        | undefined;
-      expect(announceArgs?.announceType).toBe("cron job");
-      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
-=======
-    await expectExplicitTelegramTargetDelivery({
-=======
-  it("routes text-only explicit target delivery through announce flow", async () => {
-    await expectExplicitTelegramTargetAnnounce({
->>>>>>> 75001a049 (fix cron announce routing and timeout handling)
       payloads: [{ text: "hello from cron" }],
       expectedText: "hello from cron",
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
@@ -314,16 +258,9 @@ describe("runCronIsolatedAgentTurn", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("passes final payload text into shared subagent announce flow", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
-=======
-  it("delivers the final payload text when delivery has an explicit target", async () => {
-<<<<<<< HEAD
-    await withTempCronHome(async (home) => {
-      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
->>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
         sendMessageTelegram: vi.fn(),
@@ -443,7 +380,6 @@ describe("runCronIsolatedAgentTurn", () => {
       });
 
       expect(res.status).toBe("ok");
-<<<<<<< HEAD
       const announceArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
         | { requesterOrigin?: { threadId?: string | number; channel?: string; to?: string } }
         | undefined;
@@ -451,18 +387,6 @@ describe("runCronIsolatedAgentTurn", () => {
       expect(announceArgs?.requesterOrigin?.to).toBe("123");
       expect(announceArgs?.requesterOrigin?.threadId).toBe(42);
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
-=======
-      expect(res.delivered).toBe(true);
-      expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
-      expect(deps.sendMessageTelegram).toHaveBeenCalledTimes(1);
-      expect(deps.sendMessageTelegram).toHaveBeenCalledWith(
-        "123",
-        "Final weather summary",
-        expect.objectContaining({
-          messageThreadId: 42,
-        }),
-      );
->>>>>>> ffb12397a (fix(cron): direct-deliver thread and topic announce targets)
     });
   });
 
@@ -481,17 +405,10 @@ describe("runCronIsolatedAgentTurn", () => {
         deps,
       });
 
-<<<<<<< HEAD
       expect(res.status).toBe("ok");
-=======
-      expectDeliveredOk(res);
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
       expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
-<<<<<<< HEAD
-=======
       expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
 <<<<<<< HEAD
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 =======
     });
   });
@@ -518,26 +435,16 @@ describe("runCronIsolatedAgentTurn", () => {
 
       expect(res.status).toBe("ok");
       expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
-<<<<<<< HEAD
-=======
       expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     });
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("fails when shared announce flow fails and best-effort is disabled", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
-=======
-  it("fails when direct delivery fails and best-effort is disabled", async () => {
-=======
-  it("fails when structured direct delivery fails and best-effort is disabled", async () => {
->>>>>>> 75001a049 (fix cron announce routing and timeout handling)
     await withTempCronHome(async (home) => {
       const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
-<<<<<<< HEAD
 >>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
@@ -556,8 +463,6 @@ describe("runCronIsolatedAgentTurn", () => {
       vi.mocked(runSubagentAnnounceFlow).mockResolvedValue(false);
 <<<<<<< HEAD
 
-=======
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
       const res = await runCronIsolatedAgentTurn({
         cfg: makeCfg(home, storePath, {
           channels: { telegram: { botToken: "t-1" } },
@@ -582,7 +487,6 @@ describe("runCronIsolatedAgentTurn", () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("ignores shared announce flow failures when best-effort is enabled", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
@@ -603,8 +507,6 @@ describe("runCronIsolatedAgentTurn", () => {
       vi.mocked(runSubagentAnnounceFlow).mockResolvedValue(false);
 <<<<<<< HEAD
 
-=======
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
       const res = await runCronIsolatedAgentTurn({
         cfg: makeCfg(home, storePath, {
           channels: { telegram: { botToken: "t-1" } },
@@ -626,10 +528,7 @@ describe("runCronIsolatedAgentTurn", () => {
 
       expect(res.status).toBe("ok");
       expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
-<<<<<<< HEAD
-=======
       expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     });
 =======
   it("ignores direct delivery failures when best-effort is enabled", async () => {
@@ -662,37 +561,7 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
-<<<<<<< HEAD
 >>>>>>> 32e6ccb7b (test(cron): cover announce failure when best-effort is off)
-=======
-  it("marks attempted when announce delivery reports false and best-effort is enabled", async () => {
-    await withTempCronHome(async (home) => {
-      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
-      const deps = createCliDeps();
-      mockAgentPayloads([{ text: "hello from cron" }]);
-      vi.mocked(runSubagentAnnounceFlow).mockResolvedValueOnce(false);
-
-      const res = await runTelegramAnnounceTurn({
-        home,
-        storePath,
-        deps,
-        delivery: {
-          mode: "announce",
-          channel: "telegram",
-          to: "123",
-          bestEffort: true,
-        },
-      });
-
-      expect(res.status).toBe("ok");
-      expect(res.delivered).toBe(false);
-      expect(res.deliveryAttempted).toBe(true);
-      expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
-      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
-    });
-  });
-
->>>>>>> b37dc4224 (fix(cron): suppress fallback summary after attempted announce delivery)
   it("ignores structured direct delivery failures when best-effort is enabled", async () => {
     await expectBestEffortTelegramNotDelivered({
       text: "hello from cron",

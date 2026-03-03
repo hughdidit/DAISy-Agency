@@ -6,12 +6,7 @@ import { VERSION } from "../version.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { MoltbotSchema } from "./zod-schema.js";
-=======
-=======
-import { applySensitiveHints, buildBaseHints } from "./schema.hints.js";
->>>>>>> fa427f63b (refactor(config): restore schema.ts to use schema.hints)
 =======
 import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 =======
@@ -25,15 +20,10 @@ import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { applySensitiveHints, buildBaseHints, mapSensitivePaths } from "./schema.hints.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import { applyDerivedTags } from "./schema.tags.js";
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796))
 import { OpenClawSchema } from "./zod-schema.js";
 >>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
 
-<<<<<<< HEAD
 export type ConfigUiHint = {
   label?: string;
   help?: string;
@@ -45,10 +35,6 @@ export type ConfigUiHint = {
   itemTemplate?: unknown;
 };
 <<<<<<< HEAD
-=======
-
-export type ConfigUiHints = Record<string, ConfigUiHint>;
->>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
 
 export type ConfigUiHints = Record<string, ConfigUiHint>;
 =======
@@ -137,7 +123,6 @@ export type ChannelUiMetadata = {
   configUiHints?: Record<string, ConfigUiHint>;
 };
 
-<<<<<<< HEAD
 const GROUP_LABELS: Record<string, string> = {
   wizard: "Wizard",
   update: "Update",
@@ -296,9 +281,6 @@ const FIELD_LABELS: Record<string, string> = {
   "gateway.controlUi.basePath": "Control UI Base Path",
   "gateway.controlUi.root": "Control UI Assets Root",
 <<<<<<< HEAD
-=======
-  "gateway.controlUi.allowedOrigins": "Control UI Allowed Origins",
->>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "gateway.controlUi.allowInsecureAuth": "Allow Insecure Control UI Auth",
   "gateway.controlUi.dangerouslyDisableDeviceAuth": "Dangerously Disable Control UI Device Auth",
   "gateway.http.endpoints.chatCompletions.enabled": "OpenAI Chat Completions Endpoint",
@@ -356,10 +338,7 @@ const FIELD_LABELS: Record<string, string> = {
   "memory.backend": "Memory Backend",
   "memory.citations": "Memory Citations Mode",
   "memory.qmd.command": "QMD Binary",
-<<<<<<< HEAD
-=======
   "memory.qmd.searchMode": "QMD Search Mode",
->>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "memory.qmd.includeDefaultMemory": "QMD Include Default Memory",
   "memory.qmd.paths": "QMD Extra Paths",
   "memory.qmd.paths.path": "QMD Path",
@@ -406,11 +385,6 @@ const FIELD_LABELS: Record<string, string> = {
   "commands.restart": "Allow Restart",
   "commands.useAccessGroups": "Use Access Groups",
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  "commands.ownerAllowFrom": "Command Owners",
-  "commands.allowFrom": "Command Access Allowlist",
->>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
 =======
   "commands.ownerAllowFrom": "Command Owners",
 >>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
@@ -505,11 +479,7 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 const FIELD_HELP: Record<string, string> = {
-<<<<<<< HEAD
   "meta.lastTouchedVersion": "Auto-set when Moltbot writes the config.",
-=======
-  "meta.lastTouchedVersion": "Auto-set when OpenClaw writes the config.",
->>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "meta.lastTouchedAt": "ISO timestamp of the last config write (auto-set).",
   "update.channel": 'Update channel for git + npm installs ("stable", "beta", or "dev").',
   "update.checkOnStart": "Check for npm updates when the gateway starts (default: true).",
@@ -532,13 +502,7 @@ const FIELD_HELP: Record<string, string> = {
   "gateway.auth.password": "Required for Tailscale funnel.",
   "gateway.controlUi.basePath":
 <<<<<<< HEAD
-<<<<<<< HEAD
     "Optional URL prefix where the Control UI is served (e.g. /moltbot).",
-=======
-    "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
-  "gateway.controlUi.root":
-    "Optional filesystem root for Control UI assets (defaults to dist/control-ui).",
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 =======
     "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
   "gateway.controlUi.root":
@@ -569,11 +533,7 @@ const FIELD_HELP: Record<string, string> = {
   "diagnostics.cacheTrace.enabled":
     "Log cache trace snapshots for embedded agent runs (default: false).",
   "diagnostics.cacheTrace.filePath":
-<<<<<<< HEAD
     "JSONL output path for cache trace logs (default: $CLAWDBOT_STATE_DIR/logs/cache-trace.jsonl).",
-=======
-    "JSONL output path for cache trace logs (default: $OPENCLAW_STATE_DIR/logs/cache-trace.jsonl).",
->>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "diagnostics.cacheTrace.includeMessages":
     "Include full message payloads in trace output (default: true).",
   "diagnostics.cacheTrace.includePrompt": "Include prompt text in trace output (default: true).",
@@ -680,11 +640,7 @@ const FIELD_HELP: Record<string, string> = {
   "agents.defaults.memorySearch.remote.headers":
     "Extra headers for remote embeddings (merged; remote overrides OpenAI headers).",
   "agents.defaults.memorySearch.remote.batch.enabled":
-<<<<<<< HEAD
     "Enable batch API for memory embeddings (OpenAI/Gemini/Voyage; default: false).",
-=======
-    "Enable batch API for memory embeddings (OpenAI/Gemini; default: true).",
->>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "agents.defaults.memorySearch.remote.batch.wait":
     "Wait for batch completion when indexing (default: true).",
   "agents.defaults.memorySearch.remote.batch.concurrency":
@@ -698,11 +654,7 @@ const FIELD_HELP: Record<string, string> = {
   "agents.defaults.memorySearch.fallback":
     'Fallback provider when embeddings fail ("openai", "gemini", "local", or "none").',
   "agents.defaults.memorySearch.store.path":
-<<<<<<< HEAD
     "SQLite index path (default: ~/.clawdbot/memory/{agentId}.sqlite).",
-=======
-    "SQLite index path (default: ~/.openclaw/memory/{agentId}.sqlite).",
->>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "agents.defaults.memorySearch.store.vector.enabled":
     "Enable sqlite-vec extension for vector search (default: true).",
   "agents.defaults.memorySearch.store.vector.extensionPath":
@@ -721,11 +673,8 @@ const FIELD_HELP: Record<string, string> = {
   "memory.backend": 'Memory backend ("builtin" for OpenClaw embeddings, "qmd" for QMD sidecar).',
   "memory.citations": 'Default citation behavior ("auto", "on", or "off").',
   "memory.qmd.command": "Path to the qmd binary (default: resolves from PATH).",
-<<<<<<< HEAD
-=======
   "memory.qmd.searchMode":
     'QMD search command used for memory recall ("query", "search", or "vsearch"; default: "query").',
->>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "memory.qmd.includeDefaultMemory":
     "Whether to automatically index MEMORY.md + memory/**/*.md (default: true).",
   "memory.qmd.paths":
@@ -779,20 +728,12 @@ const FIELD_HELP: Record<string, string> = {
   "plugins.entries.*.enabled": "Overrides plugin enable/disable for this entry (restart required).",
   "plugins.entries.*.config": "Plugin-defined config payload (schema is provided by the plugin).",
   "plugins.installs":
-<<<<<<< HEAD
     "CLI-managed install metadata (used by `moltbot plugins update` to locate install sources).",
-=======
-    "CLI-managed install metadata (used by `openclaw plugins update` to locate install sources).",
->>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "plugins.installs.*.source": 'Install source ("npm", "archive", or "path").',
   "plugins.installs.*.spec": "Original npm spec used for install (if source is npm).",
   "plugins.installs.*.sourcePath": "Original archive/path used for install (if any).",
   "plugins.installs.*.installPath":
-<<<<<<< HEAD
     "Resolved install directory (usually ~/.clawdbot/extensions/<id>).",
-=======
-    "Resolved install directory (usually ~/.openclaw/extensions/<id>).",
->>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "plugins.installs.*.version": "Version recorded at install time (if available).",
   "plugins.installs.*.installedAt": "ISO timestamp of last install/update.",
   "agents.list.*.identity.avatar":
@@ -821,13 +762,6 @@ const FIELD_HELP: Record<string, string> = {
   "commands.restart": "Allow /restart and gateway restart tool actions (default: false).",
   "commands.useAccessGroups": "Enforce access-group allowlists/policies for commands.",
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  "commands.ownerAllowFrom":
-    "Explicit owner allowlist for owner-only tools/commands. Use channel-native IDs (optionally prefixed like \"whatsapp:+15551234567\"). '*' is ignored.",
-  "commands.allowFrom":
-    'Per-provider allowlist restricting who can use slash commands. If set, overrides the channel\'s allowFrom for command authorization. Use \'*\' key for global default; provider-specific keys (e.g. \'discord\') override the global. Example: { "*": ["user1"], "discord": ["user:123"] }.',
->>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
 =======
   "commands.ownerAllowFrom":
     "Explicit owner allowlist for owner-only tools/commands. Use channel-native IDs (optionally prefixed like \"whatsapp:+15551234567\"). '*' is ignored.",
@@ -926,12 +860,7 @@ const FIELD_PLACEHOLDERS: Record<string, string> = {
   "gateway.remote.tlsFingerprint": "sha256:ab12cd34…",
   "gateway.remote.sshTarget": "user@host",
 <<<<<<< HEAD
-<<<<<<< HEAD
   "gateway.controlUi.basePath": "/moltbot",
-=======
-  "gateway.controlUi.basePath": "/openclaw",
-  "gateway.controlUi.root": "dist/control-ui",
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
   "channels.mattermost.baseUrl": "https://chat.example.com",
   "agents.list[].identity.avatar": "avatars/clawd.png",
 =======
@@ -1246,25 +1175,13 @@ function stripChannelSchema(schema: ConfigSchema): ConfigSchema {
 }
 
 function buildBaseConfigSchema(): ConfigSchemaResponse {
-<<<<<<< HEAD
   if (cachedBase) return cachedBase;
   const schema = MoltbotSchema.toJSONSchema({
-=======
-  if (cachedBase) {
-    return cachedBase;
-  }
-  const schema = OpenClawSchema.toJSONSchema({
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     target: "draft-07",
     unrepresentable: "any",
   });
-<<<<<<< HEAD
   schema.title = "MoltbotConfig";
   const hints = applySensitiveHints(buildBaseHints());
-=======
-  schema.title = "OpenClawConfig";
-  const hints = applyDerivedTags(mapSensitivePaths(OpenClawSchema, "", buildBaseHints()));
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796))
   const next = {
     schema: stripChannelSchema(schema),
     uiHints: hints,
@@ -1291,8 +1208,6 @@ export function buildConfigSchema(params?: {
       channels,
     ),
   );
-<<<<<<< HEAD
-=======
   const extensionHintKeys = collectExtensionHintKeys(
     mergedWithoutSensitiveHints,
     plugins,
@@ -1301,7 +1216,6 @@ export function buildConfigSchema(params?: {
   const mergedHints = applyDerivedTags(
     applySensitiveHints(mergedWithoutSensitiveHints, extensionHintKeys),
   );
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796))
   const mergedSchema = applyChannelSchemas(applyPluginSchemas(base.schema, plugins), channels);
   return {
     ...base,

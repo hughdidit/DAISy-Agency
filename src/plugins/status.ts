@@ -2,16 +2,7 @@ import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-<<<<<<< HEAD
 import { loadMoltbotPlugins } from "./loader.js";
-=======
-import { loadOpenClawPlugins } from "./loader.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { createPluginLoaderLogger } from "./logger.js";
 >>>>>>> aa8f87a3b (refactor(plugins): reuse plugin loader logger adapter)

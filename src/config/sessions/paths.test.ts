@@ -1,17 +1,6 @@
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 import { resolveStorePath } from "./paths.js";
-=======
-import {
-  resolveSessionFilePath,
-  resolveSessionFilePathOptions,
-  resolveSessionTranscriptPath,
-  resolveSessionTranscriptPathInDir,
-  resolveStorePath,
-  validateSessionId,
-} from "./paths.js";
->>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
 
 describe("resolveStorePath", () => {
   afterEach(() => {
@@ -31,8 +20,6 @@ describe("resolveStorePath", () => {
     );
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("session path safety", () => {
   it("validates safe session IDs", () => {
@@ -200,4 +187,3 @@ describe("session path safety", () => {
     expect(opts).toEqual({ agentId: "ops" });
   });
 });
->>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))

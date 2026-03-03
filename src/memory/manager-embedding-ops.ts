@@ -204,15 +204,7 @@ export abstract class MemoryManagerEmbeddingOps extends MemoryManagerSyncOps {
     return embeddings;
   }
 
-<<<<<<< HEAD
   private computeProviderKey(): string {
-=======
-  protected computeProviderKey(): string {
-    // FTS-only mode: no provider, use a constant key
-    if (!this.provider) {
-      return hashText(JSON.stringify({ provider: "none", model: "fts-only" }));
-    }
->>>>>>> 1dc9bb8d6 (chore: Fix more type issues.)
     if (this.provider.id === "openai" && this.openAi) {
       const entries = Object.entries(this.openAi.headers)
         .filter(([key]) => key.toLowerCase() !== "authorization")

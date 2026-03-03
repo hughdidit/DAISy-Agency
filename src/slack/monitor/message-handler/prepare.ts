@@ -19,11 +19,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { FinalizedMsgContext } from "../../../auto-reply/templating.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { FinalizedMsgContext } from "../../../auto-reply/templating.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -53,7 +48,6 @@ import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   shouldAckReaction as shouldAckReactionGate,
   type AckReactionScope,
@@ -68,19 +62,13 @@ import { readSessionUpdatedAt, resolveStorePath } from "../../../config/sessions
 
 import type { ResolvedSlackAccount } from "../../accounts.js";
 =======
->>>>>>> da2fde7b6 (refactor(slack): share room context hints)
-=======
 import type { ResolvedSlackAccount } from "../../accounts.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { reactSlackMessage } from "../../actions.js";
 import { sendMessageSlack } from "../../send.js";
 import type { SlackMessageEvent } from "../../types.js";
 import { resolveSlackThreadContext } from "../../threading.js";
-<<<<<<< HEAD
 
-=======
-import type { SlackMessageEvent } from "../../types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { reactSlackMessage } from "../../actions.js";
 import { sendMessageSlack } from "../../send.js";
@@ -236,7 +224,6 @@ export async function prepareSlackMessage(params: {
     if (!allowed) {
       return null;
     }
-<<<<<<< HEAD
     if (ctx.dmPolicy !== "open") {
       const allowMatch = resolveSlackAllowListMatch({
         allowList: allowFromLower,
@@ -284,8 +271,6 @@ export async function prepareSlackMessage(params: {
         return null;
       }
     }
-=======
->>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
   }
 
   const route = resolveAgentRoute({
@@ -461,59 +446,7 @@ export async function prepareSlackMessage(params: {
     token: ctx.botToken,
     maxBytes: ctx.mediaMaxBytes,
   });
-<<<<<<< HEAD
   const rawBody = (message.text ?? "").trim() || media?.placeholder || "";
-=======
-
-  // Resolve forwarded message content (text + media) from Slack attachments
-  const attachmentContent = await resolveSlackAttachmentContent({
-    attachments: message.attachments,
-    token: ctx.botToken,
-    maxBytes: ctx.mediaMaxBytes,
-  });
-
-  // Merge forwarded media into the message's media array
-  const mergedMedia = [...(media ?? []), ...(attachmentContent?.media ?? [])];
-  const effectiveDirectMedia = mergedMedia.length > 0 ? mergedMedia : null;
-
-  const mediaPlaceholder = effectiveDirectMedia
-    ? effectiveDirectMedia.map((m) => m.placeholder).join(" ")
-    : undefined;
-
-  // When files were attached but all downloads failed, create a fallback
-  // placeholder so the message is still delivered to the agent instead of
-  // being silently dropped (#25064).
-  const fileOnlyFallback =
-    !mediaPlaceholder && (message.files?.length ?? 0) > 0
-      ? message
-          .files!.slice(0, MAX_SLACK_MEDIA_FILES)
-          .map((f) => f.name ?? "file")
-          .join(", ")
-      : undefined;
-  const fileOnlyPlaceholder = fileOnlyFallback ? `[Slack file: ${fileOnlyFallback}]` : undefined;
-
-  // Bot messages (e.g. Prometheus, Gatus webhooks) often carry content only in
-  // non-forwarded attachments (is_share !== true).  Extract their text/fallback
-  // so the message isn't silently dropped when `allowBots: true` (#27616).
-  const botAttachmentText =
-    isBotMessage && !attachmentContent?.text
-      ? (message.attachments ?? [])
-          .map((a) => a.text?.trim() || a.fallback?.trim())
-          .filter(Boolean)
-          .join("\n")
-      : undefined;
-
-  const rawBody =
-    [
-      (message.text ?? "").trim(),
-      attachmentContent?.text,
-      botAttachmentText,
-      mediaPlaceholder,
-      fileOnlyPlaceholder,
-    ]
-      .filter(Boolean)
-      .join("\n") || "";
->>>>>>> b57d29d83 (fix(slack): extract text and media from forwarded message attachments)
   if (!rawBody) {
     return null;
   }
@@ -624,7 +557,6 @@ export async function prepareSlackMessage(params: {
 
   const slackTo = isDirectMessage ? `user:${message.user}` : `channel:${message.channel}`;
 
-<<<<<<< HEAD
   const channelDescription = [channelInfo?.topic, channelInfo?.purpose]
     .map((entry) => entry?.trim())
     .filter((entry): entry is string => Boolean(entry))
@@ -636,13 +568,6 @@ export async function prepareSlackMessage(params: {
   ].filter((entry): entry is string => Boolean(entry));
   const groupSystemPrompt =
     systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
-=======
-  const { untrustedChannelMetadata, groupSystemPrompt } = resolveSlackRoomContextHints({
-    isRoomish,
-    channelInfo,
-    channelConfig,
-  });
->>>>>>> da2fde7b6 (refactor(slack): share room context hints)
 
   let threadStarterBody: string | undefined;
   let threadHistoryBody: string | undefined;
@@ -736,15 +661,9 @@ export async function prepareSlackMessage(params: {
     }
   }
 
-<<<<<<< HEAD
   // Use thread starter media if current message has none
   const effectiveMedia = media ?? threadStarterMedia;
 <<<<<<< HEAD
-=======
-=======
-  // Use direct media (including forwarded attachment media) if available, else thread starter media
-  const effectiveMedia = effectiveDirectMedia ?? threadStarterMedia;
->>>>>>> b57d29d83 (fix(slack): extract text and media from forwarded message attachments)
   const firstMedia = effectiveMedia?.[0];
 >>>>>>> 4b1cadaec (refactor(media): normalize inbound media type defaults (#16228))
 
@@ -789,23 +708,9 @@ export async function prepareSlackMessage(params: {
     ThreadLabel: threadLabel,
     Timestamp: message.ts ? Math.round(Number(message.ts) * 1000) : undefined,
     WasMentioned: isRoomish ? effectiveWasMentioned : undefined,
-<<<<<<< HEAD
     MediaPath: effectiveMedia?.path,
     MediaType: effectiveMedia?.contentType,
     MediaUrl: effectiveMedia?.path,
-=======
-    MediaPath: firstMedia?.path,
-    MediaType: firstMedia?.contentType,
-    MediaUrl: firstMedia?.path,
-    MediaPaths:
-      effectiveMedia && effectiveMedia.length > 0 ? effectiveMedia.map((m) => m.path) : undefined,
-    MediaUrls:
-      effectiveMedia && effectiveMedia.length > 0 ? effectiveMedia.map((m) => m.path) : undefined,
-    MediaTypes:
-      effectiveMedia && effectiveMedia.length > 0
-        ? effectiveMedia.map((m) => m.contentType ?? "")
-        : undefined,
->>>>>>> 4b1cadaec (refactor(media): normalize inbound media type defaults (#16228))
     CommandAuthorized: commandAuthorized,
     OriginatingChannel: "slack" as const,
     OriginatingTo: slackTo,

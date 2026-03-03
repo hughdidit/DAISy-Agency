@@ -1,12 +1,7 @@
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { resolveHeartbeatPrompt } from "../auto-reply/heartbeat.js";
 import type { ThinkLevel } from "../auto-reply/thinking.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { shouldLogVerbose } from "../globals.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { isTruthyEnvValue } from "../infra/env.js";
 import { shouldLogVerbose } from "../globals.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
@@ -36,12 +31,8 @@ import { classifyFailoverReason, isFailoverErrorMessage } from "./pi-embedded-he
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { EmbeddedPiRunResult } from "./pi-embedded-runner.js";
 <<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { EmbeddedPiRunResult } from "./pi-embedded-runner.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

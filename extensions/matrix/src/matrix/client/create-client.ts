@@ -1,13 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import fs from "node:fs";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -28,11 +24,8 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { IStorageProvider, ICryptoStorageProvider } from "@vector-im/matrix-bot-sdk";
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import fs from "node:fs";
 >>>>>>> ed11e93cf (chore(format))

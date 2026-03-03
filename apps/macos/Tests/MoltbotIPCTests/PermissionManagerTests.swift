@@ -1,9 +1,5 @@
 import CoreLocation
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/PermissionManagerTests.swift
 import MoltbotIPC
-=======
-import OpenClawIPC
->>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/PermissionManagerTests.swift
 import Testing
 @testable import Moltbot
 

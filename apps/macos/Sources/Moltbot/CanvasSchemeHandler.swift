@@ -1,9 +1,5 @@
 import Foundation
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CanvasSchemeHandler.swift
 import MoltbotKit
-=======
-import OpenClawKit
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/CanvasSchemeHandler.swift
 import OSLog
 import WebKit
 

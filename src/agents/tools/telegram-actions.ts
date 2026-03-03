@@ -1,15 +1,5 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import { createTelegramActionGate } from "../../telegram/accounts.js";
-import type { TelegramButtonStyle, TelegramInlineButtons } from "../../telegram/button-types.js";
-import {
-  resolveTelegramInlineButtonsScope,
-  resolveTelegramTargetChatType,
-} from "../../telegram/inline-buttons.js";
->>>>>>> 16327f21d (feat(telegram): support inline button styles (#18241))
 import { resolveTelegramReactionLevel } from "../../telegram/reaction-level.js";
 import {
   createForumTopicTelegram,
@@ -22,14 +12,11 @@ import {
 import { getCacheStats, searchStickers } from "../../telegram/sticker-cache.js";
 import { resolveTelegramToken } from "../../telegram/token.js";
 import {
-<<<<<<< HEAD
   resolveTelegramInlineButtonsScope,
   resolveTelegramTargetChatType,
 } from "../../telegram/inline-buttons.js";
 import {
   createActionGate,
-=======
->>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
   jsonResult,
   readNumberParam,
   readReactionParams,
@@ -96,22 +83,11 @@ export function readTelegramButtons(
 
 export async function handleTelegramAction(
   params: Record<string, unknown>,
-<<<<<<< HEAD
   cfg: MoltbotConfig,
-=======
-  cfg: OpenClawConfig,
-  options?: {
-    mediaLocalRoots?: readonly string[];
-  },
->>>>>>> 7bbd59738 (fix(media): enforce agent media roots in plugin send actions)
 ): Promise<AgentToolResult<unknown>> {
   const action = readStringParam(params, "action", { required: true });
   const accountId = readStringParam(params, "accountId");
-<<<<<<< HEAD
   const isActionEnabled = createActionGate(cfg.channels?.telegram?.actions);
-=======
-  const isActionEnabled = createTelegramActionGate({ cfg, accountId });
->>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
 
   if (action === "react") {
     // All react failures return soft results (jsonResult with ok:false) instead

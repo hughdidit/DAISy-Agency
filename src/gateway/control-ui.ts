@@ -1,15 +1,9 @@
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
-<<<<<<< HEAD
 import { fileURLToPath } from "node:url";
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { resolveControlUiRootSync } from "../infra/control-ui-assets.js";
-<<<<<<< HEAD
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 =======
 import { isWithinDir } from "../infra/path-safety.js";
 import { openVerifiedFileSync } from "../infra/safe-open-sync.js";
@@ -37,12 +31,8 @@ export type ControlUiRequestOptions = {
   basePath?: string;
   config?: MoltbotConfig;
   agentId?: string;
-<<<<<<< HEAD
   auth?: ResolvedGatewayAuth;
   trustedProxies?: string[];
-=======
-  root?: ControlUiRootState;
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 };
 
 export type ControlUiRootState =
@@ -113,8 +103,6 @@ type ControlUiAvatarMeta = {
   avatarUrl: string | null;
 };
 
-<<<<<<< HEAD
-=======
 function applyControlUiSecurityHeaders(res: ServerResponse) {
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("Content-Security-Policy", buildControlUiCspHeader());
@@ -122,7 +110,6 @@ function applyControlUiSecurityHeaders(res: ServerResponse) {
   res.setHeader("Referrer-Policy", "no-referrer");
 }
 
->>>>>>> adc818db4 (fix(gateway): serve Control UI bootstrap config and lock down CSP)
 function sendJson(res: ServerResponse, status: number, body: unknown) {
   setSecurityHeaders(res);
   res.statusCode = status;
@@ -230,12 +217,8 @@ function respondNotFound(res: ServerResponse) {
   res.end("Not Found");
 }
 
-<<<<<<< HEAD
 function serveFile(res: ServerResponse, filePath: string) {
   setSecurityHeaders(res);
-=======
-function setStaticFileHeaders(res: ServerResponse, filePath: string) {
->>>>>>> 4ef4aa3c1 (refactor(gateway): streamline control-ui secure file serving)
   const ext = path.extname(filePath).toLowerCase();
   res.setHeader("Content-Type", contentTypeForExt(ext));
   // Static UI should never be cached aggressively while iterating; allow the
@@ -243,7 +226,6 @@ function setStaticFileHeaders(res: ServerResponse, filePath: string) {
   res.setHeader("Cache-Control", "no-cache");
 }
 
-<<<<<<< HEAD
 function serveFile(res: ServerResponse, filePath: string) {
   setStaticFileHeaders(res, filePath);
   res.end(fs.readFileSync(filePath));
@@ -255,9 +237,6 @@ interface ControlUiInjectionOpts {
   basePath: string;
   assistantName?: string;
   assistantAvatar?: string;
-=======
-=======
->>>>>>> 6970c2c2d (fix(gateway): harden control-ui avatar reads)
 function serveResolvedFile(res: ServerResponse, filePath: string, body: Buffer) {
   setStaticFileHeaders(res, filePath);
   res.end(body);
@@ -277,13 +256,7 @@ function injectControlUiConfig(html: string, opts: ControlUiInjectionOpts): stri
     )};` +
     `</script>`;
   // Check if already injected
-<<<<<<< HEAD
   if (html.includes("__CLAWDBOT_ASSISTANT_NAME__")) return html;
-=======
-  if (html.includes("__OPENCLAW_ASSISTANT_NAME__")) {
-    return html;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const headClose = html.indexOf("</head>");
   if (headClose !== -1) {
     return `${html.slice(0, headClose)}${script}${html.slice(headClose)}`;
@@ -318,59 +291,7 @@ function serveIndexHtml(res: ServerResponse, indexPath: string) {
 >>>>>>> adc818db4 (fix(gateway): serve Control UI bootstrap config and lock down CSP)
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
-<<<<<<< HEAD
   res.end(fs.readFileSync(indexPath, "utf8"));
-=======
-  res.end(body);
-}
-
-function isContainedPath(baseDir: string, targetPath: string): boolean {
-  const relative = path.relative(baseDir, targetPath);
-  return relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
-}
-
-function isExpectedSafePathError(error: unknown): boolean {
-  const code =
-    typeof error === "object" && error !== null && "code" in error ? String(error.code) : "";
-  return code === "ENOENT" || code === "ENOTDIR" || code === "ELOOP";
-}
-
-function resolveSafeAvatarFile(filePath: string): { path: string; fd: number } | null {
-  const opened = openVerifiedFileSync({
-    filePath,
-    rejectPathSymlink: true,
-    maxBytes: AVATAR_MAX_BYTES,
-  });
-  if (!opened.ok) {
-    return null;
-  }
-  return { path: opened.path, fd: opened.fd };
-}
-
-function resolveSafeControlUiFile(
-  rootReal: string,
-  filePath: string,
-): { path: string; fd: number } | null {
-  try {
-    const fileReal = fs.realpathSync(filePath);
-    if (!isContainedPath(rootReal, fileReal)) {
-      return null;
-    }
-    const opened = openVerifiedFileSync({ filePath: fileReal, resolvedPath: fileReal });
-    if (!opened.ok) {
-      if (opened.reason === "io") {
-        throw opened.error;
-      }
-      return null;
-    }
-    return { path: opened.path, fd: opened.fd };
-  } catch (error) {
-    if (isExpectedSafePathError(error)) {
-      return null;
-    }
-    throw error;
-  }
->>>>>>> 4ef4aa3c1 (refactor(gateway): streamline control-ui secure file serving)
 }
 
 function isSafeRelativePath(relPath: string) {
@@ -434,7 +355,6 @@ export async function handleControlUiHttpRequest(
     }
   }
 
-<<<<<<< HEAD
   if (opts?.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
     const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
     const authResult = await authorizeGatewayConnect({
@@ -451,38 +371,6 @@ export async function handleControlUiHttpRequest(
 
 <<<<<<< HEAD
   const root = resolveControlUiRoot();
-=======
-=======
-  const bootstrapConfigPath = basePath
-    ? `${basePath}${CONTROL_UI_BOOTSTRAP_CONFIG_PATH}`
-    : CONTROL_UI_BOOTSTRAP_CONFIG_PATH;
-  if (pathname === bootstrapConfigPath) {
-    const config = opts?.config;
-    const identity = config
-      ? resolveAssistantIdentity({ cfg: config, agentId: opts?.agentId })
-      : DEFAULT_ASSISTANT_IDENTITY;
-    const avatarValue = resolveAssistantAvatarUrl({
-      avatar: identity.avatar,
-      agentId: identity.agentId,
-      basePath,
-    });
-    if (req.method === "HEAD") {
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json; charset=utf-8");
-      res.setHeader("Cache-Control", "no-cache");
-      res.end();
-      return true;
-    }
-    sendJson(res, 200, {
-      basePath,
-      assistantName: identity.name,
-      assistantAvatar: avatarValue ?? identity.avatar,
-      assistantAgentId: identity.agentId,
-    } satisfies ControlUiBootstrapConfig);
-    return true;
-  }
-
->>>>>>> adc818db4 (fix(gateway): serve Control UI bootstrap config and lock down CSP)
   const rootState = opts?.root;
   if (rootState?.kind === "invalid") {
     res.statusCode = 503;
@@ -563,35 +451,15 @@ export async function handleControlUiHttpRequest(
     return true;
   }
 
-<<<<<<< HEAD
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
     if (path.basename(filePath) === "index.html") {
       serveIndexHtml(res, filePath);
-=======
-  const safeFile = resolveSafeControlUiFile(rootReal, filePath);
-  if (safeFile) {
-    try {
-      if (req.method === "HEAD") {
-        res.statusCode = 200;
-        setStaticFileHeaders(res, safeFile.path);
-        res.end();
-        return true;
-      }
-      if (path.basename(safeFile.path) === "index.html") {
-        serveResolvedIndexHtml(res, fs.readFileSync(safeFile.fd, "utf8"));
-        return true;
-      }
-      serveResolvedFile(res, safeFile.path, fs.readFileSync(safeFile.fd));
->>>>>>> 4ef4aa3c1 (refactor(gateway): streamline control-ui secure file serving)
       return true;
     } finally {
       fs.closeSync(safeFile.fd);
     }
-<<<<<<< HEAD
     serveFile(res, filePath);
     return true;
-=======
->>>>>>> 4ef4aa3c1 (refactor(gateway): streamline control-ui secure file serving)
   }
 
   // If the requested path looks like a static asset (known extension), return
@@ -606,26 +474,9 @@ export async function handleControlUiHttpRequest(
 
   // SPA fallback (client-side router): serve index.html for unknown paths.
   const indexPath = path.join(root, "index.html");
-<<<<<<< HEAD
   if (fs.existsSync(indexPath)) {
     serveIndexHtml(res, indexPath);
     return true;
-=======
-  const safeIndex = resolveSafeControlUiFile(rootReal, indexPath);
-  if (safeIndex) {
-    try {
-      if (req.method === "HEAD") {
-        res.statusCode = 200;
-        setStaticFileHeaders(res, safeIndex.path);
-        res.end();
-        return true;
-      }
-      serveResolvedIndexHtml(res, fs.readFileSync(safeIndex.fd, "utf8"));
-      return true;
-    } finally {
-      fs.closeSync(safeIndex.fd);
-    }
->>>>>>> 4ef4aa3c1 (refactor(gateway): streamline control-ui secure file serving)
   }
 
   respondNotFound(res);

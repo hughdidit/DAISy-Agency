@@ -1,23 +1,13 @@
 import fs from "node:fs/promises";
-<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
-=======
-import path from "node:path";
-import { describe, expect, it } from "vitest";
-import { rotateConfigBackups } from "./backup-rotation.js";
->>>>>>> 57f40a5da (perf(test): speed up config tests)
 import { withTempHome } from "./test-helpers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
-=======
-import type { OpenClawConfig } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -32,18 +22,9 @@ import type { OpenClawConfig } from "./types.js";
 describe("config backup rotation", () => {
   it("keeps a 5-deep backup ring for config writes", async () => {
     await withTempHome(async () => {
-<<<<<<< HEAD
       const { resolveConfigPath, writeConfigFile } = await import("./config.js");
       const configPath = resolveConfigPath();
       const buildConfig = (version: number): MoltbotConfig =>
-=======
-      const stateDir = process.env.OPENCLAW_STATE_DIR?.trim();
-      if (!stateDir) {
-        throw new Error("Expected OPENCLAW_STATE_DIR to be set by withTempHome");
-      }
-      const configPath = path.join(stateDir, "openclaw.json");
-      const buildConfig = (version: number): OpenClawConfig =>
->>>>>>> 57f40a5da (perf(test): speed up config tests)
         ({
           agents: { list: [{ id: `v${version}` }] },
         }) as MoltbotConfig;

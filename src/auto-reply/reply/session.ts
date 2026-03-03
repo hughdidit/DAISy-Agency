@@ -5,18 +5,11 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { TtsAutoMode } from "../../config/types.tts.js";
-=======
-import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
-import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-import { normalizeChatType } from "../../channels/chat-type.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { TtsAutoMode } from "../../config/types.tts.js";
@@ -67,11 +60,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { TtsAutoMode } from "../../config/types.tts.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { TtsAutoMode } from "../../config/types.tts.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -84,14 +72,9 @@ import { archiveSessionTranscripts } from "../../gateway/session-utils.fs.js";
 import { deliverSessionMaintenanceWarning } from "../../infra/session-maintenance-warning.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeMainKey } from "../../routing/session-key.js";
 <<<<<<< HEAD
-=======
-=======
-import { buildAgentMainSessionKey, normalizeMainKey } from "../../routing/session-key.js";
->>>>>>> 412eabc42 (fix(session): retire stale dm main route after dmScope migration (#31010))
 import { parseAgentSessionKey } from "../../sessions/session-key-utils.js";
 import {
   deliveryContextFromSession,
@@ -111,13 +94,8 @@ import { resolveCommandAuthorization } from "../command-auth.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MsgContext, TemplateContext } from "../templating.js";
 import { normalizeChatType } from "../../channels/chat-type.js";
-=======
-import type { MsgContext, TemplateContext } from "../templating.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { MsgContext, TemplateContext } from "../templating.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -618,13 +596,6 @@ export async function initSessionState(params: {
     !alreadyForked
   ) {
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    log.warn(
-      `forking from parent session: parentKey=${parentSessionKey} → sessionKey=${sessionKey} ` +
-        `parentTokens=${sessionStore[parentSessionKey].totalTokens ?? "?"}`,
-    );
->>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
     const forked = forkSessionFromParent({
       parentEntry: sessionStore[parentSessionKey],
     });
@@ -633,11 +604,6 @@ export async function initSessionState(params: {
       sessionEntry.sessionId = forked.sessionId;
       sessionEntry.sessionFile = forked.sessionFile;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-      sessionEntry.forkedFromParent = true;
->>>>>>> 5e73f3344 (fix(slack): keep thread session fork/history context after first turn (#23843))
       log.warn(`forked session created: file=${forked.sessionFile}`);
 >>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 =======
@@ -693,44 +659,10 @@ export async function initSessionState(params: {
   }
   // Preserve per-session overrides while resetting compaction state on /new.
   sessionStore[sessionKey] = { ...sessionStore[sessionKey], ...sessionEntry };
-<<<<<<< HEAD
   await updateSessionStore(storePath, (store) => {
     // Preserve per-session overrides while resetting compaction state on /new.
     store[sessionKey] = { ...store[sessionKey], ...sessionEntry };
   });
-=======
-  await updateSessionStore(
-    storePath,
-    (store) => {
-      // Preserve per-session overrides while resetting compaction state on /new.
-      store[sessionKey] = { ...store[sessionKey], ...sessionEntry };
-      if (retiredLegacyMainDelivery) {
-        store[retiredLegacyMainDelivery.key] = retiredLegacyMainDelivery.entry;
-      }
-    },
-    {
-      activeSessionKey: sessionKey,
-      onWarn: (warning) =>
-        deliverSessionMaintenanceWarning({
-          cfg,
-          sessionKey,
-          entry: sessionEntry,
-          warning,
-        }),
-    },
-  );
-
-  // Archive old transcript so it doesn't accumulate on disk (#14869).
-  if (previousSessionEntry?.sessionId) {
-    archiveSessionTranscripts({
-      sessionId: previousSessionEntry.sessionId,
-      storePath,
-      sessionFile: previousSessionEntry.sessionFile,
-      agentId,
-      reason: "reset",
-    });
-  }
->>>>>>> 412eabc42 (fix(session): retire stale dm main route after dmScope migration (#31010))
 
   const sessionCtx: TemplateContext = {
     ...ctx,

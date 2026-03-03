@@ -10,8 +10,6 @@ export const TalkModeParamsSchema = Type.Object(
   { additionalProperties: false },
 );
 
-<<<<<<< HEAD
-=======
 export const TalkConfigParamsSchema = Type.Object(
   {
     includeSecrets: Type.Optional(Type.Boolean()),
@@ -72,7 +70,6 @@ export const TalkConfigResultSchema = Type.Object(
   { additionalProperties: false },
 );
 
->>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
 export const ChannelsStatusParamsSchema = Type.Object(
   {
     probe: Type.Optional(Type.Boolean()),

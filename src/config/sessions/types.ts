@@ -1,17 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
 import type { Skill } from "@mariozechner/pi-coding-agent";
 import type { NormalizedChatType } from "../../channels/chat-type.js";
-=======
-=======
-import type { Skill } from "@mariozechner/pi-coding-agent";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { Skill } from "@mariozechner/pi-coding-agent";
 import crypto from "node:crypto";
@@ -111,8 +106,6 @@ export type SessionEntry = {
   inputTokens?: number;
   outputTokens?: number;
   totalTokens?: number;
-<<<<<<< HEAD
-=======
   /**
    * Whether totalTokens reflects a fresh context snapshot for the latest run.
    * Undefined means legacy/unknown freshness; false forces consumers to treat
@@ -121,7 +114,6 @@ export type SessionEntry = {
   totalTokensFresh?: boolean;
   cacheRead?: number;
   cacheWrite?: number;
->>>>>>> f1e1cc4ee (feat: surface cached token counts in /status output (openclaw#21248) thanks @vishaltandale00)
   modelProvider?: string;
   model?: string;
   /**

@@ -25,7 +25,6 @@ async function writeSkill(params: { workspaceDir: string; name: string; descript
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
   runEmbeddedPiAgent: vi.fn(),
@@ -65,8 +64,6 @@ function _assertModelSelection(
 }
 
 =======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
-=======
 async function runThinkingDirective(home: string, model: string) {
   const res = await getReplyFromConfig(
     {
@@ -87,7 +84,6 @@ describe("directive behavior", () => {
 
   it("accepts /thinking xhigh for codex models", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -111,15 +107,11 @@ describe("directive behavior", () => {
       );
 
       const texts = (Array.isArray(res) ? res : [res]).map((entry) => entry?.text).filter(Boolean);
-=======
-      const texts = await runThinkingDirective(home, "openai-codex/gpt-5.2-codex");
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(texts).toContain("Thinking level set to xhigh.");
     });
   });
   it("accepts /thinking xhigh for openai gpt-5.2", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -143,15 +135,11 @@ describe("directive behavior", () => {
       );
 
       const texts = (Array.isArray(res) ? res : [res]).map((entry) => entry?.text).filter(Boolean);
-=======
-      const texts = await runThinkingDirective(home, "openai/gpt-5.2");
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(texts).toContain("Thinking level set to xhigh.");
     });
   });
   it("rejects /thinking xhigh for non-codex models", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -175,16 +163,9 @@ describe("directive behavior", () => {
       );
 
       const texts = (Array.isArray(res) ? res : [res]).map((entry) => entry?.text).filter(Boolean);
-=======
-      const texts = await runThinkingDirective(home, "openai/gpt-4.1-mini");
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(texts).toContain(
 <<<<<<< HEAD
-<<<<<<< HEAD
         'Thinking level "xhigh" is only supported for openai/gpt-5.2, openai-codex/gpt-5.2-codex or openai-codex/gpt-5.1-codex.',
-=======
-        'Thinking level "xhigh" is only supported for openai/gpt-5.2, openai-codex/gpt-5.3-codex, openai-codex/gpt-5.2-codex, openai-codex/gpt-5.1-codex, github-copilot/gpt-5.2-codex or github-copilot/gpt-5.2.',
->>>>>>> 744892de7 (Add GitHub Copilot models to xhigh list (#11646))
 =======
         'Thinking level "xhigh" is only supported for openai/gpt-5.2, openai-codex/gpt-5.3-codex, openai-codex/gpt-5.3-codex-spark, openai-codex/gpt-5.2-codex, openai-codex/gpt-5.1-codex, github-copilot/gpt-5.2-codex or github-copilot/gpt-5.2.',
 >>>>>>> e3cb2564d (Agents: allow gpt-5.3-codex-spark in fallback and thinking (#14990))
@@ -201,7 +182,6 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -210,14 +190,6 @@ describe("directive behavior", () => {
               models: {
                 "anthropic/claude-opus-4-5": { alias: " help " },
               },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          {
-            model: "anthropic/claude-opus-4-5",
-            models: {
-              "anthropic/claude-opus-4-5": { alias: " help " },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
             },
           },
           { session: { store: sessionStorePath(home) } },
@@ -231,12 +203,8 @@ describe("directive behavior", () => {
   });
   it("treats skill commands as reserved for model aliases", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       vi.mocked(runEmbeddedPiAgent).mockReset();
       const workspace = path.join(home, "clawd");
-=======
-      const workspace = path.join(home, "openclaw");
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
       await writeSkill({
         workspaceDir: workspace,
         name: "demo-skill",
@@ -279,20 +247,12 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
             },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: "anthropic/claude-opus-4-5" },
-          {
-            session: { store: sessionStorePath(home) },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
           },
         ),
       );
@@ -315,25 +275,11 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: "anthropic/claude-opus-4-5" },
-          {
-            messages: {
-              queue: {
-                mode: "collect",
-                debounceMs: 1500,
-                cap: 9,
-                drop: "summarize",
-              },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
             },
             session: { store: sessionStorePath(home) },
           },
@@ -350,7 +296,6 @@ describe("directive behavior", () => {
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
   });
-<<<<<<< HEAD
   it("shows current think level when /think has no argument", async () => {
     await withTempHome(async (home) => {
       const res = await getReplyFromConfig(
@@ -367,13 +312,6 @@ describe("directive behavior", () => {
           },
           session: { store: path.join(home, "sessions.json") },
         },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: "anthropic/claude-opus-4-5", thinkingDefault: "high" },
-          { session: { store: sessionStorePath(home) } },
-        ),
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       );
 
       const text = replyText(res);

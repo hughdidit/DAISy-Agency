@@ -1,9 +1,5 @@
 import Testing
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/CameraCaptureServiceTests.swift
 @testable import Moltbot
-=======
-@testable import OpenClaw
->>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/CameraCaptureServiceTests.swift
 
 @Suite struct CameraCaptureServiceTests {
     @Test func normalizeSnapDefaults() {

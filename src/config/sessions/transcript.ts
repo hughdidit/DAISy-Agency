@@ -4,7 +4,6 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 
@@ -12,14 +11,6 @@ import type { SessionEntry } from "./types.js";
 import { loadSessionStore, updateSessionStore } from "./store.js";
 import { resolveDefaultSessionStorePath, resolveSessionTranscriptPath } from "./paths.js";
 import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
-=======
-import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
-import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
-import { resolveDefaultSessionStorePath } from "./paths.js";
-import { resolveAndPersistSessionFile } from "./session-file.js";
-import { loadSessionStore } from "./store.js";
-import type { SessionEntry } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SessionEntry } from "./types.js";
 import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
@@ -144,29 +135,8 @@ export async function appendAssistantMessageToSessionTranscript(params: {
     return { ok: false, reason: `unknown sessionKey: ${sessionKey}` };
   }
 
-<<<<<<< HEAD
   const sessionFile =
     entry.sessionFile?.trim() || resolveSessionTranscriptPath(entry.sessionId, params.agentId);
-=======
-  let sessionFile: string;
-  try {
-    const resolvedSessionFile = await resolveAndPersistSessionFile({
-      sessionId: entry.sessionId,
-      sessionKey,
-      sessionStore: store,
-      storePath,
-      sessionEntry: entry,
-      agentId: params.agentId,
-      sessionsDir: path.dirname(storePath),
-    });
-    sessionFile = resolvedSessionFile.sessionFile;
-  } catch (err) {
-    return {
-      ok: false,
-      reason: err instanceof Error ? err.message : String(err),
-    };
-  }
->>>>>>> cab0abf52 (fix(sessions): resolve transcript paths with explicit agent context (#16288))
 
   await ensureSessionHeader({ sessionFile, sessionId: entry.sessionId });
 
@@ -195,7 +165,6 @@ export async function appendAssistantMessageToSessionTranscript(params: {
     timestamp: Date.now(),
   });
 
-<<<<<<< HEAD
   if (!entry.sessionFile || entry.sessionFile !== sessionFile) {
     await updateSessionStore(storePath, (current) => {
       current[sessionKey] = {
@@ -205,8 +174,6 @@ export async function appendAssistantMessageToSessionTranscript(params: {
     });
   }
 
-=======
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   emitSessionTranscriptUpdate(sessionFile);
   return { ok: true, sessionFile };
 }

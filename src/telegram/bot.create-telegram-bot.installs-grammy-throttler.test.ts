@@ -25,7 +25,6 @@ import {
 import { createTelegramBot, getTelegramSequentialKey } from "./bot.js";
 import { resolveTelegramFetch } from "./fetch.js";
 
-<<<<<<< HEAD
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/moltbot-telegram-throttler-${Math.random().toString(16).slice(2)}.json`,
 }));
@@ -157,12 +156,6 @@ const getOnHandler = (event: string) => {
   }
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
-=======
-const loadConfig = getLoadConfigMock();
-const loadWebMedia = getLoadWebMediaMock();
-const readChannelAllowFromStore = getReadChannelAllowFromStoreMock();
-const upsertChannelPairingRequest = getUpsertChannelPairingRequestMock();
->>>>>>> 60898821f (refactor(test): share telegram create bot harness)
 
 const ORIGINAL_TZ = process.env.TZ;
 

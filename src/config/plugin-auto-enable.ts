@@ -4,12 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./config.js";
-=======
-=======
-import type { OpenClawConfig } from "./config.js";
->>>>>>> 519517915 (refactor: centralize plugin allowlist mutation)
 =======
 >>>>>>> 5115f6fdf (style: normalize imports for oxfmt 0.33)
 =======
@@ -34,19 +29,11 @@ import {
   normalizeChatChannelId,
 } from "../channels/registry.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   getChannelPluginCatalogEntry,
   listChannelPluginCatalogEntries,
 } from "../channels/plugins/catalog.js";
 import { normalizeProviderId } from "../agents/model-selection.js";
-=======
-=======
-import {
-  loadPluginManifestRegistry,
-  type PluginManifestRegistry,
-} from "../plugins/manifest-registry.js";
->>>>>>> 203de1421 (fix(doctor): use plugin manifest id for third-party channel auto-enable)
 import { isRecord } from "../utils.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { hasAnyWhatsAppAuth } from "../web/accounts.js";
@@ -111,15 +98,8 @@ function resolveChannelConfig(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function isTelegramConfigured(cfg: MoltbotConfig, env: NodeJS.ProcessEnv): boolean {
   if (hasNonEmptyString(env.TELEGRAM_BOT_TOKEN)) return true;
-=======
-function isTelegramConfigured(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): boolean {
-  if (hasNonEmptyString(env.TELEGRAM_BOT_TOKEN)) {
-    return true;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const entry = resolveChannelConfig(cfg, "telegram");
   if (!entry) {
     return false;
@@ -133,15 +113,8 @@ function isTelegramConfigured(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): bool
   return recordHasKeys(entry);
 }
 
-<<<<<<< HEAD
 function isDiscordConfigured(cfg: MoltbotConfig, env: NodeJS.ProcessEnv): boolean {
   if (hasNonEmptyString(env.DISCORD_BOT_TOKEN)) return true;
-=======
-function isDiscordConfigured(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): boolean {
-  if (hasNonEmptyString(env.DISCORD_BOT_TOKEN)) {
-    return true;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const entry = resolveChannelConfig(cfg, "discord");
   if (!entry) {
     return false;
@@ -251,7 +224,6 @@ function isStructuredChannelConfigured(
   if (spec.numberKeys && hasAnyNumberKeys(entry, spec.numberKeys)) {
     return true;
   }
-<<<<<<< HEAD
   return recordHasKeys(entry);
 }
 
@@ -281,23 +253,13 @@ function isIMessageConfigured(cfg: MoltbotConfig): boolean {
     return false;
   }
   if (hasNonEmptyString(entry.cliPath)) {
-=======
-  if (spec.accountStringKeys && accountsHaveKeys(entry.accounts, spec.accountStringKeys)) {
->>>>>>> d18ae2256 (refactor: unify channel plugin resolution, family ordering, and changelog entry tooling)
     return true;
   }
   return recordHasKeys(entry);
 }
 
-<<<<<<< HEAD
 function isWhatsAppConfigured(cfg: MoltbotConfig): boolean {
   if (hasAnyWhatsAppAuth(cfg)) return true;
-=======
-function isWhatsAppConfigured(cfg: OpenClawConfig): boolean {
-  if (hasAnyWhatsAppAuth(cfg)) {
-    return true;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const entry = resolveChannelConfig(cfg, "whatsapp");
   if (!entry) {
     return false;
@@ -315,7 +277,6 @@ export function isChannelConfigured(
   channelId: string,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-<<<<<<< HEAD
   switch (channelId) {
     case "whatsapp":
       return isWhatsAppConfigured(cfg);
@@ -331,10 +292,6 @@ export function isChannelConfigured(
       return isIMessageConfigured(cfg);
     default:
       return isGenericChannelConfigured(cfg, channelId);
-=======
-  if (channelId === "whatsapp") {
-    return isWhatsAppConfigured(cfg);
->>>>>>> d18ae2256 (refactor: unify channel plugin resolution, family ordering, and changelog entry tooling)
   }
   const spec = STRUCTURED_CHANNEL_CONFIG_SPECS[channelId];
   if (spec) {
@@ -500,24 +457,7 @@ function resolveConfiguredPlugins(
   return changes;
 }
 
-<<<<<<< HEAD
 function isPluginExplicitlyDisabled(cfg: MoltbotConfig, pluginId: string): boolean {
-=======
-function isPluginExplicitlyDisabled(cfg: OpenClawConfig, pluginId: string): boolean {
-  const builtInChannelId = normalizeChatChannelId(pluginId);
-  if (builtInChannelId) {
-    const channels = cfg.channels as Record<string, unknown> | undefined;
-    const channelConfig = channels?.[builtInChannelId];
-    if (
-      channelConfig &&
-      typeof channelConfig === "object" &&
-      !Array.isArray(channelConfig) &&
-      (channelConfig as { enabled?: unknown }).enabled === false
-    ) {
-      return true;
-    }
-  }
->>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
   const entry = cfg.plugins?.entries?.[pluginId];
   return entry?.enabled === false;
 }
@@ -559,7 +499,6 @@ function shouldSkipPreferredPluginAutoEnable(
   return false;
 }
 
-<<<<<<< HEAD
 function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig {
   const allow = cfg.plugins?.allow;
   if (!Array.isArray(allow) || allow.includes(pluginId)) {
@@ -575,10 +514,6 @@ function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig 
 }
 
 function enablePluginEntry(cfg: MoltbotConfig, pluginId: string): MoltbotConfig {
-=======
-function registerPluginEntry(cfg: OpenClawConfig, pluginId: string): OpenClawConfig {
-<<<<<<< HEAD
->>>>>>> 519517915 (refactor: centralize plugin allowlist mutation)
 =======
   const builtInChannelId = normalizeChatChannelId(pluginId);
   if (builtInChannelId) {
@@ -681,15 +616,8 @@ export function applyPluginAutoEnable(params: {
     if (alreadyEnabled && !allowMissing) {
       continue;
     }
-<<<<<<< HEAD
     next = enablePluginEntry(next, entry.pluginId);
     next = ensureAllowlisted(next, entry.pluginId);
-=======
-    next = registerPluginEntry(next, entry.pluginId);
-<<<<<<< HEAD
-<<<<<<< HEAD
-    next = ensurePluginAllowlisted(next, entry.pluginId);
->>>>>>> 519517915 (refactor: centralize plugin allowlist mutation)
 =======
     if (!builtInChannelId) {
 =======

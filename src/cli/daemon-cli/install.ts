@@ -2,11 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { DaemonInstallOptions } from "./types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -20,18 +15,8 @@ import {
   DEFAULT_GATEWAY_DAEMON_RUNTIME,
   isGatewayDaemonRuntime,
 } from "../../commands/daemon-runtime.js";
-<<<<<<< HEAD
 import { buildGatewayInstallPlan } from "../../commands/daemon-install-helpers.js";
 import { loadConfig, resolveGatewayPort } from "../../config/config.js";
-=======
-import { randomToken } from "../../commands/onboard-helpers.js";
-import {
-  loadConfig,
-  readConfigFileSnapshot,
-  resolveGatewayPort,
-  writeConfigFile,
-} from "../../config/config.js";
->>>>>>> 94d685816 (fix(gateway): auto-generate token during `gateway install` to prevent launchd restart loop (#13813))
 import { resolveIsNixMode } from "../../config/paths.js";
 import { resolveGatewayService } from "../../daemon/service.js";
 import { resolveGatewayAuth } from "../../gateway/auth.js";
@@ -168,11 +153,7 @@ export async function runDaemonInstall(opts: DaemonInstallOptions) {
   const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
     env: process.env,
     port,
-<<<<<<< HEAD
     token: opts.token || cfg.gateway?.auth?.token || process.env.CLAWDBOT_GATEWAY_TOKEN,
-=======
-    token,
->>>>>>> 94d685816 (fix(gateway): auto-generate token during `gateway install` to prevent launchd restart loop (#13813))
     runtime: runtimeRaw,
     warn: (message) => {
       if (json) {

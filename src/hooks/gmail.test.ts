@@ -96,7 +96,6 @@ describe("gmail hook config", () => {
   });
 
   it("defaults serve path to / when tailscale is enabled", () => {
-<<<<<<< HEAD
     const result = resolveGmailHookRuntimeConfig(
       {
         hooks: {
@@ -189,34 +188,5 @@ describe("gmail hook config", () => {
       expect(result.value.tailscale.path).toBe("/custom");
       expect(result.value.tailscale.target).toBe("http://127.0.0.1:8788/custom");
     }
-=======
-    const result = resolveWithGmailOverrides({ tailscale: { mode: "funnel" } });
-    expectResolvedPaths(result, { servePath: "/", publicPath: "/gmail-pubsub" });
-  });
-
-  it("keeps the default public path when serve path is explicit", () => {
-    const result = resolveWithGmailOverrides({
-      serve: { path: "/gmail-pubsub" },
-      tailscale: { mode: "funnel" },
-    });
-    expectResolvedPaths(result, { servePath: "/", publicPath: "/gmail-pubsub" });
-  });
-
-  it("keeps custom public path when serve path is set", () => {
-    const result = resolveWithGmailOverrides({
-      serve: { path: "/custom" },
-      tailscale: { mode: "funnel" },
-    });
-    expectResolvedPaths(result, { servePath: "/", publicPath: "/custom" });
-  });
-
-  it("keeps serve path when tailscale target is set", () => {
-    const target = "http://127.0.0.1:8788/custom";
-    const result = resolveWithGmailOverrides({
-      serve: { path: "/custom" },
-      tailscale: { mode: "funnel", target },
-    });
-    expectResolvedPaths(result, { servePath: "/custom", publicPath: "/custom", target });
->>>>>>> 733e38584 (test(hooks): dedupe gmail runtime path assertions)
   });
 });

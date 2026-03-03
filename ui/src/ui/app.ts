@@ -8,16 +8,7 @@ import { customElement, state } from "lit/decorators.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { EventLogEntry } from "./app-events";
-import type { AppViewState } from "./app-view-state";
-import type { DevicePairingList } from "./controllers/devices";
-import type { ExecApprovalRequest } from "./controllers/exec-approval";
-import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals";
-<<<<<<< HEAD
->>>>>>> 2af977f94 (fix(ui): add core state and logic for scroll control)
 =======
 import type { SkillMessage } from "./controllers/skills";
 >>>>>>> 2a68bcbeb (feat(ui): add Agents dashboard)
@@ -45,10 +36,7 @@ import type { Tab } from "./navigation.ts";
 import type { ResolvedTheme, ThemeMode } from "./theme.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
->>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -71,7 +59,6 @@ import type {
   SkillStatusReport,
   StatusSummary,
   NostrProfile,
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -113,11 +100,6 @@ import {
   removeQueuedMessage as removeQueuedMessageInternal,
 } from "./app-chat";
 =======
-} from "./types.ts";
-import type { NostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
-<<<<<<< HEAD
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { i18n, I18nController, type Locale } from "../i18n/index.ts";
@@ -153,14 +135,9 @@ import {
   handleWhatsAppLogout as handleWhatsAppLogoutInternal,
   handleWhatsAppStart as handleWhatsAppStartInternal,
   handleWhatsAppWait as handleWhatsAppWaitInternal,
-<<<<<<< HEAD
 } from "./app-channels";
 <<<<<<< HEAD
 import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
-=======
-=======
-} from "./app-channels.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   handleAbortChat as handleAbortChatInternal,
   handleSendChat as handleSendChatInternal,
@@ -195,16 +172,10 @@ import {
   resetToolStream as resetToolStreamInternal,
   type ToolStreamEntry,
 <<<<<<< HEAD
-<<<<<<< HEAD
 } from "./app-tool-stream";
 import { resolveInjectedAssistantIdentity } from "./assistant-identity";
 >>>>>>> 2af977f94 (fix(ui): add core state and logic for scroll control)
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity";
-=======
-=======
-  type CompactionStatus,
-<<<<<<< HEAD
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 =======
   type FallbackStatus,
 >>>>>>> c2876b69f (feat(auto-reply): add model fallback lifecycle visibility in status, verbose logs, and WebUI (#20704))
@@ -250,11 +221,7 @@ import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./u
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
-import { i18n, I18nController, type Locale } from "../i18n/index.ts";
->>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
 =======
 >>>>>>> e0c45eab4 (style: apply oxfmt formatting)
 =======
@@ -297,14 +264,8 @@ function resolveOnboardingMode(): boolean {
   return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
 }
 
-<<<<<<< HEAD
 @customElement("moltbot-app")
 export class MoltbotApp extends LitElement {
-=======
-@customElement("openclaw-app")
-export class OpenClawApp extends LitElement {
-  private i18nController = new I18nController(this);
->>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
   @state() settings: UiSettings = loadSettings();
   constructor() {
     super();

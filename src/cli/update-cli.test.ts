@@ -1,12 +1,7 @@
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
->>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 =======
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -228,7 +223,6 @@ describe("update-cli", () => {
 
   beforeEach(() => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     vi.clearAllMocks();
 <<<<<<< HEAD
     const { resolveMoltbotPackageRoot } = await import("../infra/moltbot-root.js");
@@ -237,16 +231,6 @@ describe("update-cli", () => {
       await import("../infra/update-check.js");
     const { runCommandWithTimeout } = await import("../process/exec.js");
     vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(process.cwd());
-=======
-=======
-    confirm.mockReset();
-    select.mockReset();
-    vi.mocked(runGatewayUpdate).mockReset();
-=======
-    confirm.mockClear();
-    select.mockClear();
-    vi.mocked(runGatewayUpdate).mockClear();
->>>>>>> 42f27ca39 (test(cli): seed stable defaults while replacing setup resets)
     vi.mocked(resolveOpenClawPackageRoot).mockClear();
     vi.mocked(readConfigFileSnapshot).mockClear();
     vi.mocked(writeConfigFile).mockClear();
@@ -256,7 +240,6 @@ describe("update-cli", () => {
     vi.mocked(runCommandWithTimeout).mockClear();
     vi.mocked(runDaemonRestart).mockClear();
     vi.mocked(mockedRunDaemonInstall).mockClear();
-<<<<<<< HEAD
     vi.mocked(doctorCommand).mockReset();
 <<<<<<< HEAD
     vi.mocked(defaultRuntime.log).mockReset();
@@ -267,11 +250,6 @@ describe("update-cli", () => {
     resolveGlobalManager.mockReset();
 <<<<<<< HEAD
 >>>>>>> 76e4e9d17 (perf(test): reduce skills + update + memory suite overhead)
-=======
-    serviceLoaded.mockReset();
-    prepareRestartScript.mockReset();
-    runRestartScript.mockReset();
->>>>>>> 0a188ee49 (test(ci): stabilize update and discord process tests)
 =======
 =======
     vi.mocked(doctorCommand).mockClear();
@@ -455,7 +433,6 @@ describe("update-cli", () => {
 
     await updateCommand(options);
 
-<<<<<<< HEAD
     expectUpdateCallChannel("dev");
   });
 
@@ -476,9 +453,6 @@ describe("update-cli", () => {
       const { updateCommand } = await import("./update-cli.js");
 
       vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(tempDir);
-=======
-      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
->>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
       vi.mocked(checkUpdateStatus).mockResolvedValue({
         root: tempDir,
         installKind: "package",
@@ -494,7 +468,6 @@ describe("update-cli", () => {
 =======
     const tempDir = await createCaseDir("openclaw-update");
 
-<<<<<<< HEAD
     vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
     vi.mocked(checkUpdateStatus).mockResolvedValue({
       root: tempDir,
@@ -508,9 +481,6 @@ describe("update-cli", () => {
         markerPath: null,
       },
     });
-=======
-    mockPackageInstallStatus(tempDir);
->>>>>>> 4750be9d5 (test(cli): extract update-cli package-install test helpers)
     vi.mocked(runGatewayUpdate).mockResolvedValue({
       status: "ok",
       mode: "npm",
@@ -542,7 +512,6 @@ describe("update-cli", () => {
   });
 
   it("falls back to latest when beta tag is older than release", async () => {
-<<<<<<< HEAD
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-update-"));
     try {
       await fs.writeFile(
@@ -560,9 +529,6 @@ describe("update-cli", () => {
       const { checkUpdateStatus } = await import("../infra/update-check.js");
 
       vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(tempDir);
-=======
-      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
->>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
       vi.mocked(readConfigFileSnapshot).mockResolvedValue({
         ...baseSnapshot,
         config: { update: { channel: "beta" } },
@@ -601,7 +567,6 @@ describe("update-cli", () => {
       ...baseSnapshot,
       config: { update: { channel: "beta" } } as OpenClawConfig,
     });
-<<<<<<< HEAD
     vi.mocked(checkUpdateStatus).mockResolvedValue({
       root: tempDir,
       installKind: "package",
@@ -614,8 +579,6 @@ describe("update-cli", () => {
         markerPath: null,
       },
     });
-=======
->>>>>>> 4750be9d5 (test(cli): extract update-cli package-install test helpers)
     vi.mocked(resolveNpmChannelTag).mockResolvedValue({
       tag: "latest",
       version: "1.2.3-1",
@@ -634,7 +597,6 @@ describe("update-cli", () => {
 
   it("honors --tag override", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-update-"));
     try {
       await fs.writeFile(
@@ -649,9 +611,6 @@ describe("update-cli", () => {
       const { updateCommand } = await import("./update-cli.js");
 
       vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(tempDir);
-=======
-      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
->>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
       vi.mocked(runGatewayUpdate).mockResolvedValue({
         status: "ok",
         mode: "npm",
@@ -858,7 +817,6 @@ describe("update-cli", () => {
     expect(call?.update?.channel).toBe("beta");
   });
 
-<<<<<<< HEAD
   it("requires confirmation on downgrade when non-interactive", async () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -880,9 +838,6 @@ describe("update-cli", () => {
       const { checkUpdateStatus } = await import("../infra/update-check.js");
 
       vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(tempDir);
-=======
-      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
->>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
       vi.mocked(checkUpdateStatus).mockResolvedValue({
         root: tempDir,
         installKind: "package",
@@ -958,7 +913,6 @@ describe("update-cli", () => {
     expect(vi.mocked(defaultRuntime.exit).mock.calls.some((call) => call[0] === 1)).toBe(
       shouldExit,
     );
-<<<<<<< HEAD
     expect(defaultRuntime.exit).toHaveBeenCalledWith(1);
   });
 
@@ -983,9 +937,6 @@ describe("update-cli", () => {
       const { checkUpdateStatus } = await import("../infra/update-check.js");
 
       vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(tempDir);
-=======
-      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
->>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
       vi.mocked(checkUpdateStatus).mockResolvedValue({
         root: tempDir,
         installKind: "package",
@@ -1072,28 +1023,17 @@ describe("update-cli", () => {
 
   it("updateWizardCommand offers dev checkout and forwards selections", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-update-wizard-"));
     const previousGitDir = process.env.CLAWDBOT_GIT_DIR;
 =======
-    const tempDir = await createCaseDir("openclaw-update-wizard");
-<<<<<<< HEAD
-    const previousGitDir = process.env.OPENCLAW_GIT_DIR;
->>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
-=======
 =======
     const tempDir = createCaseDir("openclaw-update-wizard");
-<<<<<<< HEAD
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
     const envSnapshot = captureEnv(["OPENCLAW_GIT_DIR"]);
 >>>>>>> be4a490c2 (refactor(test): fix update-cli env restore)
     try {
       setTty(true);
       process.env.CLAWDBOT_GIT_DIR = tempDir;
-=======
-    await withEnvAsync({ OPENCLAW_GIT_DIR: tempDir }, async () => {
-      setTty(true);
->>>>>>> bd9d3e2f8 (refactor(test): reuse env helper in update cli tests)
 
       vi.mocked(checkUpdateStatus).mockResolvedValue({
         root: "/test/path",
@@ -1119,15 +1059,11 @@ describe("update-cli", () => {
 
       const call = vi.mocked(runGatewayUpdate).mock.calls[0]?.[0];
       expect(call?.channel).toBe("dev");
-<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
 <<<<<<< HEAD
       process.env.CLAWDBOT_GIT_DIR = previousGitDir;
       await fs.rm(tempDir, { recursive: true, force: true });
-=======
-      process.env.OPENCLAW_GIT_DIR = previousGitDir;
->>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 =======
       envSnapshot.restore();
 >>>>>>> be4a490c2 (refactor(test): fix update-cli env restore)

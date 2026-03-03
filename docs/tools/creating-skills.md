@@ -9,13 +9,7 @@ A skill is a directory containing a `SKILL.md` file (which provides instructions
 ## Step-by-Step: Your First Skill
 
 ### 1. Create the Directory
-<<<<<<< HEAD
 Skills live in your workspace, usually `~/clawd/skills/`. Create a new folder for your skill:
-=======
-
-Skills live in your workspace, usually `~/.openclaw/workspace/skills/`. Create a new folder for your skill:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ```bash
 mkdir -p ~/clawd/skills/hello-world
 ```
@@ -39,14 +33,8 @@ When the user asks for a greeting, use the `echo` tool to say "Hello from your c
 
 You can define custom tools in the frontmatter or instruct the agent to use existing system tools (like `bash` or `browser`).
 
-<<<<<<< HEAD
 ### 4. Refresh Moltbot
 Ask your agent to "refresh skills" or restart the gateway. Moltbot will discover the new directory and index the `SKILL.md`.
-=======
-### 4. Refresh OpenClaw
-
-Ask your agent to "refresh skills" or restart the gateway. OpenClaw will discover the new directory and index the `SKILL.md`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Best Practices
 

@@ -1,15 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { packNpmSpecToArchive, withTempDir } from "./install-source-utils.js";
-<<<<<<< HEAD
 import { installFromNpmSpecArchive } from "./npm-pack-install.js";
-=======
-import type { NpmIntegrityDriftPayload } from "./npm-integrity.js";
-import {
-  finalizeNpmSpecArchiveInstall,
-  installFromNpmSpecArchive,
-  installFromNpmSpecArchiveWithInstaller,
-} from "./npm-pack-install.js";
->>>>>>> 12635de1c (test: cover shared installer flow helpers)
 
 vi.mock("./install-source-utils.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./install-source-utils.js")>();

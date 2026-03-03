@@ -14,15 +14,8 @@ Status: experimental. This integration automates a **personal Zalo account** via
 ## Plugin required
 
 Zalo Personal ships as a plugin and is not bundled with the core install.
-<<<<<<< HEAD
 - Install via CLI: `moltbot plugins install @moltbot/zalouser`
 - Or from a source checkout: `moltbot plugins install ./extensions/zalouser`
-=======
-
-- Install via CLI: `openclaw plugins install @openclaw/zalouser`
-- Or from a source checkout: `openclaw plugins install ./extensions/zalouser`
-<<<<<<< HEAD
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Details: [Plugins](/plugin)
 =======
 - Details: [Plugins](/tools/plugin)
@@ -36,16 +29,9 @@ The Gateway machine must have the `zca` binary available in `PATH`.
 - If missing, install zca-cli (see `extensions/zalouser/README.md` or the upstream zca-cli docs).
 
 ## Quick setup (beginner)
-<<<<<<< HEAD
 1) Install the plugin (see above).
 2) Login (QR, on the Gateway machine):
    - `moltbot channels login --channel zalouser`
-=======
-
-1. Install the plugin (see above).
-2. Login (QR, on the Gateway machine):
-   - `openclaw channels login --channel zalouser`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Scan the QR code in the terminal with the Zalo mobile app.
 3. Enable the channel:
 
@@ -94,14 +80,8 @@ moltbot directory groups list --channel zalouser --query "work"
 `channels.zalouser.allowFrom` accepts user IDs or names. The wizard resolves names to IDs via `zca friend find` when available.
 
 Approve via:
-<<<<<<< HEAD
 - `moltbot pairing list zalouser`
 - `moltbot pairing approve zalouser <code>`
-=======
-
-- `openclaw pairing list zalouser`
-- `openclaw pairing approve zalouser <code>`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Group access (optional)
 
@@ -154,11 +134,5 @@ Accounts map to zca profiles. Example:
 - Install zca-cli and ensure it’s on `PATH` for the Gateway process.
 
 **Login doesn’t stick:**
-<<<<<<< HEAD
 - `moltbot channels status --probe`
 - Re-login: `moltbot channels logout --channel zalouser && moltbot channels login --channel zalouser`
-=======
-
-- `openclaw channels status --probe`
-- Re-login: `openclaw channels logout --channel zalouser && openclaw channels login --channel zalouser`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)

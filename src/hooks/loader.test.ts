@@ -2,20 +2,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { loadInternalHooks } from "./loader.js";
-=======
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
 >>>>>>> 1c928e493 (fix(hooks): replace console logging with proper subsystem logging in loader (openclaw#11029) thanks @shadril238)
-=======
-import { captureEnv } from "../test-utils/env.js";
->>>>>>> c3e1c8287 (refactor(test): snapshot bundled hooks env in loader tests)
 import {
   clearInternalHooks,
   getRegisteredEventKeys,
@@ -37,21 +27,12 @@ describe("loader", () => {
   beforeEach(async () => {
     clearInternalHooks();
     // Create a temp directory for test modules
-<<<<<<< HEAD
     tmpDir = path.join(os.tmpdir(), `moltbot-test-${Date.now()}`);
-=======
-    tmpDir = path.join(fixtureRoot, `case-${caseId++}`);
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     await fs.mkdir(tmpDir, { recursive: true });
 
     // Disable bundled hooks during tests by setting env var to non-existent directory
-<<<<<<< HEAD
     originalBundledDir = process.env.CLAWDBOT_BUNDLED_HOOKS_DIR;
     process.env.CLAWDBOT_BUNDLED_HOOKS_DIR = "/nonexistent/bundled/hooks";
-=======
-    envSnapshot = captureEnv(["OPENCLAW_BUNDLED_HOOKS_DIR"]);
-    process.env.OPENCLAW_BUNDLED_HOOKS_DIR = "/nonexistent/bundled/hooks";
->>>>>>> c3e1c8287 (refactor(test): snapshot bundled hooks env in loader tests)
   });
 
   async function writeHandlerModule(
@@ -75,16 +56,12 @@ describe("loader", () => {
 
   afterEach(async () => {
     clearInternalHooks();
-<<<<<<< HEAD
     // Restore original env var
     if (originalBundledDir === undefined) {
       delete process.env.CLAWDBOT_BUNDLED_HOOKS_DIR;
     } else {
       process.env.CLAWDBOT_BUNDLED_HOOKS_DIR = originalBundledDir;
     }
-=======
-    envSnapshot.restore();
->>>>>>> c3e1c8287 (refactor(test): snapshot bundled hooks env in loader tests)
   });
 
   afterAll(async () => {
@@ -121,7 +98,6 @@ describe("loader", () => {
           // Test handler
         }
       `;
-<<<<<<< HEAD
       await fs.writeFile(handlerPath, handlerCode, "utf-8");
 
       const cfg: MoltbotConfig = {
@@ -135,13 +111,6 @@ describe("loader", () => {
               },
             ],
           },
-=======
-      const handlerPath = await writeHandlerModule("test-handler.js", handlerCode);
-      const cfg = createEnabledHooksConfig([
-        {
-          event: "command:new",
-          module: path.basename(handlerPath),
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
         },
       ]);
 
@@ -157,7 +126,6 @@ describe("loader", () => {
       const handler1Path = await writeHandlerModule("handler1.js");
       const handler2Path = await writeHandlerModule("handler2.js");
 
-<<<<<<< HEAD
       await fs.writeFile(handler1Path, "export default async function() {}", "utf-8");
       await fs.writeFile(handler2Path, "export default async function() {}", "utf-8");
 
@@ -172,12 +140,6 @@ describe("loader", () => {
           },
         },
       };
-=======
-      const cfg = createEnabledHooksConfig([
-        { event: "command:new", module: path.basename(handler1Path) },
-        { event: "command:stop", module: path.basename(handler2Path) },
-      ]);
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 
       const count = await loadInternalHooks(cfg, tmpDir);
       expect(count).toBe(2);
@@ -196,7 +158,6 @@ describe("loader", () => {
       `;
       const handlerPath = await writeHandlerModule("named-export.js", handlerCode);
 
-<<<<<<< HEAD
       const cfg: MoltbotConfig = {
         hooks: {
           internal: {
@@ -209,13 +170,6 @@ describe("loader", () => {
               },
             ],
           },
-=======
-      const cfg = createEnabledHooksConfig([
-        {
-          event: "command:new",
-          module: path.basename(handlerPath),
-          export: "myHandler",
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
         },
       ]);
 
@@ -225,13 +179,9 @@ describe("loader", () => {
 
     it("should handle module loading errors gracefully", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
 
       const cfg: MoltbotConfig = {
-=======
-      const cfg: OpenClawConfig = {
->>>>>>> 1c928e493 (fix(hooks): replace console logging with proper subsystem logging in loader (openclaw#11029) thanks @shadril238)
         hooks: {
           internal: {
             enabled: true,
@@ -263,7 +213,6 @@ describe("loader", () => {
         'export default "not a function";',
       );
 
-<<<<<<< HEAD
       const cfg: MoltbotConfig = {
         hooks: {
           internal: {
@@ -275,12 +224,6 @@ describe("loader", () => {
               },
             ],
           },
-=======
-      const cfg = createEnabledHooksConfig([
-        {
-          event: "command:new",
-          module: path.basename(handlerPath),
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
         },
       ]);
 
@@ -296,7 +239,6 @@ describe("loader", () => {
       // Get relative path from cwd
       const relativePath = path.relative(process.cwd(), handlerPath);
 
-<<<<<<< HEAD
       const cfg: MoltbotConfig = {
         hooks: {
           internal: {
@@ -308,12 +250,6 @@ describe("loader", () => {
               },
             ],
           },
-=======
-      const cfg = createEnabledHooksConfig([
-        {
-          event: "command:new",
-          module: relativePath,
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
         },
       ]);
 
@@ -334,7 +270,6 @@ describe("loader", () => {
       `;
       const handlerPath = await writeHandlerModule("callable-handler.js", handlerCode);
 
-<<<<<<< HEAD
       const cfg: MoltbotConfig = {
         hooks: {
           internal: {
@@ -346,12 +281,6 @@ describe("loader", () => {
               },
             ],
           },
-=======
-      const cfg = createEnabledHooksConfig([
-        {
-          event: "command:new",
-          module: path.basename(handlerPath),
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
         },
       ]);
 
@@ -366,8 +295,6 @@ describe("loader", () => {
       // This test mainly verifies that loading and triggering doesn't crash
       expect(getRegisteredEventKeys()).toContain("command:new");
     });
-<<<<<<< HEAD
-=======
 
     it("rejects directory hook handlers that escape hook dir via symlink", async () => {
       const outsideHandlerPath = path.join(fixtureRoot, `outside-handler-${caseId}.js`);
@@ -424,7 +351,6 @@ describe("loader", () => {
       expect(getRegisteredEventKeys()).not.toContain("command:new");
     });
 <<<<<<< HEAD
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 =======
 
     it("rejects directory hook handlers that escape hook dir via hardlink", async () => {

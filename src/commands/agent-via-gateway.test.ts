@@ -12,18 +12,10 @@ vi.mock("./agent.js", () => ({
   agentCommand: vi.fn(),
 }));
 
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import * as configModule from "../config/config.js";
 import { callGateway } from "../gateway/call.js";
 import type { RuntimeEnv } from "../runtime.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import * as configModule from "../config/config.js";
-import { callGateway } from "../gateway/call.js";
-import type { RuntimeEnv } from "../runtime.js";
-import { agentCliCommand } from "./agent-via-gateway.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { agentCommand } from "./agent.js";
 import { agentCliCommand } from "./agent-via-gateway.js";
 
@@ -105,22 +97,9 @@ describe("agentCliCommand", () => {
   });
 
   it("uses gateway by default", async () => {
-<<<<<<< HEAD
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-agent-cli-"));
     const store = path.join(dir, "sessions.json");
     mockConfig(store);
-=======
-    await withTempStore(async () => {
-<<<<<<< HEAD
-      vi.mocked(callGateway).mockResolvedValue({
-        runId: "idem-1",
-        status: "ok",
-        result: {
-          payloads: [{ text: "hello" }],
-          meta: { stub: true },
-        },
-      });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
       mockGatewaySuccessReply();
 >>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
@@ -134,19 +113,9 @@ describe("agentCliCommand", () => {
   });
 
   it("falls back to embedded agent when gateway fails", async () => {
-<<<<<<< HEAD
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-agent-cli-"));
     const store = path.join(dir, "sessions.json");
     mockConfig(store);
-=======
-    await withTempStore(async () => {
-      vi.mocked(callGateway).mockRejectedValue(new Error("gateway not connected"));
-<<<<<<< HEAD
-      vi.mocked(agentCommand).mockImplementationOnce(async (_opts, rt) => {
-        rt.log?.("local");
-        return { payloads: [{ text: "local" }], meta: { stub: true } };
-      });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
       mockLocalAgentReply();
 >>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
@@ -160,18 +129,9 @@ describe("agentCliCommand", () => {
   });
 
   it("skips gateway when --local is set", async () => {
-<<<<<<< HEAD
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-agent-cli-"));
     const store = path.join(dir, "sessions.json");
     mockConfig(store);
-=======
-    await withTempStore(async () => {
-<<<<<<< HEAD
-      vi.mocked(agentCommand).mockImplementationOnce(async (_opts, rt) => {
-        rt.log?.("local");
-        return { payloads: [{ text: "local" }], meta: { stub: true } };
-      });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
       mockLocalAgentReply();
 >>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)

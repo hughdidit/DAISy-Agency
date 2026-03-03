@@ -1,19 +1,13 @@
 import { runCommandWithTimeout } from "../process/exec.js";
-<<<<<<< HEAD
-=======
 import { isErrno } from "./errors.js";
 import { buildPortHints } from "./ports-format.js";
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { resolveLsofCommand } from "./ports-lsof.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { buildPortHints } from "./ports-format.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { tryListenOnPort } from "./ports-probe.js";
 >>>>>>> 06b0a60be (refactor(daemon): share runtime and service probe helpers)

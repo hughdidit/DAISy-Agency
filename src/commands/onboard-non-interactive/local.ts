@@ -2,16 +2,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveGatewayPort, writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { formatCliCommand } from "../../cli/command-format.js";
-=======
-import { formatCliCommand } from "../../cli/command-format.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { OnboardOptions } from "../onboard-types.js";
@@ -32,11 +27,8 @@ import { logConfigUpdated } from "../../config/logging.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -57,13 +49,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { OnboardOptions } from "../onboard-types.js";
 <<<<<<< HEAD
 
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { OnboardOptions } from "../onboard-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -73,12 +61,9 @@ import type { OnboardOptions } from "../onboard-types.js";
 import type { OnboardOptions } from "../onboard-types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { inferAuthChoiceFromFlags } from "./local/auth-choice-inference.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyNonInteractiveAuthChoice } from "./local/auth-choice.js";
 import { installGatewayDaemonNonInteractive } from "./local/daemon-install.js";
-=======
->>>>>>> 013299b00 (perf: lazy-load non-interactive onboarding heavy paths)
 import { applyNonInteractiveGatewayConfig } from "./local/gateway-config.js";
 import { logNonInteractiveOnboardingJson } from "./local/output.js";
 import { applyNonInteractiveSkillsConfig } from "./local/skills-config.js";
@@ -98,7 +83,6 @@ export async function runNonInteractiveOnboardingLocal(params: {
     defaultWorkspaceDir: DEFAULT_WORKSPACE,
   });
 
-<<<<<<< HEAD
   let nextConfig: MoltbotConfig = {
     ...baseConfig,
     agents: {
@@ -113,11 +97,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
       mode: "local",
     },
   };
-=======
-  let nextConfig: OpenClawConfig = applyOnboardingLocalWorkspaceConfig(baseConfig, workspaceDir);
->>>>>>> af34c8faf (refactor(onboard): share local workspace+gateway config)
 
-<<<<<<< HEAD
   const authChoice = opts.authChoice ?? "skip";
   const nextConfigAfterAuth = await applyNonInteractiveAuthChoice({
     nextConfig,
@@ -128,34 +108,6 @@ export async function runNonInteractiveOnboardingLocal(params: {
   });
   if (!nextConfigAfterAuth) {
     return;
-=======
-  const inferredAuthChoice = inferAuthChoiceFromFlags(opts);
-  if (!opts.authChoice && inferredAuthChoice.matches.length > 1) {
-    runtime.error(
-      [
-        "Multiple API key flags were provided for non-interactive onboarding.",
-        "Use a single provider flag or pass --auth-choice explicitly.",
-        `Flags: ${inferredAuthChoice.matches.map((match) => match.label).join(", ")}`,
-      ].join("\n"),
-    );
-    runtime.exit(1);
-    return;
-  }
-  const authChoice = opts.authChoice ?? inferredAuthChoice.choice ?? "skip";
-  if (authChoice !== "skip") {
-    const { applyNonInteractiveAuthChoice } = await import("./local/auth-choice.js");
-    const nextConfigAfterAuth = await applyNonInteractiveAuthChoice({
-      nextConfig,
-      authChoice,
-      opts,
-      runtime,
-      baseConfig,
-    });
-    if (!nextConfigAfterAuth) {
-      return;
-    }
-    nextConfig = nextConfigAfterAuth;
->>>>>>> 013299b00 (perf: lazy-load non-interactive onboarding heavy paths)
   }
 
   const gatewayBasePort = resolveGatewayPort(baseConfig);

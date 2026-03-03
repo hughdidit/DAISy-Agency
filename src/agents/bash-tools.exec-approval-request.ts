@@ -8,12 +8,9 @@ import { callGatewayTool } from "./tools/gateway.js";
 export type RequestExecApprovalDecisionParams = {
   id: string;
   command: string;
-<<<<<<< HEAD
-=======
   commandArgv?: string[];
   systemRunPlan?: SystemRunApprovalPlan;
   env?: Record<string, string>;
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   cwd: string;
   nodeId?: string;
   host: "gateway" | "node";
@@ -113,7 +110,6 @@ export async function registerExecApprovalRequest(
   }>(
     "exec.approval.request",
     { timeoutMs: DEFAULT_APPROVAL_REQUEST_TIMEOUT_MS },
-<<<<<<< HEAD
     {
       id: params.id,
       command: params.command,
@@ -128,9 +124,6 @@ export async function registerExecApprovalRequest(
       timeoutMs: DEFAULT_APPROVAL_TIMEOUT_MS,
       twoPhase: true,
     },
-=======
-    buildExecApprovalRequestToolParams(params),
->>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
     { expectFinal: false },
   );
   const decision = parseDecision(registrationResult);
@@ -174,12 +167,9 @@ export async function requestExecApprovalDecision(
 export async function requestExecApprovalDecisionForHost(params: {
   approvalId: string;
   command: string;
-<<<<<<< HEAD
-=======
   commandArgv?: string[];
   systemRunPlan?: SystemRunApprovalPlan;
   env?: Record<string, string>;
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   workdir: string;
   host: "gateway" | "node";
   nodeId?: string;
@@ -192,12 +182,9 @@ export async function requestExecApprovalDecisionForHost(params: {
   return await requestExecApprovalDecision({
     id: params.approvalId,
     command: params.command,
-<<<<<<< HEAD
-=======
     commandArgv: params.commandArgv,
     systemRunPlan: params.systemRunPlan,
     env: params.env,
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
     cwd: params.workdir,
     nodeId: params.nodeId,
     host: params.host,
@@ -212,12 +199,9 @@ export async function requestExecApprovalDecisionForHost(params: {
 export async function registerExecApprovalRequestForHost(params: {
   approvalId: string;
   command: string;
-<<<<<<< HEAD
-=======
   commandArgv?: string[];
   systemRunPlan?: SystemRunApprovalPlan;
   env?: Record<string, string>;
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   workdir: string;
   host: "gateway" | "node";
   nodeId?: string;
@@ -230,12 +214,9 @@ export async function registerExecApprovalRequestForHost(params: {
   return await registerExecApprovalRequest({
     id: params.approvalId,
     command: params.command,
-<<<<<<< HEAD
-=======
     commandArgv: params.commandArgv,
     systemRunPlan: params.systemRunPlan,
     env: params.env,
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
     cwd: params.workdir,
     nodeId: params.nodeId,
     host: params.host,

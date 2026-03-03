@@ -4,15 +4,10 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ConfigUiHints } from "../types";
 import { icons } from "../icons";
 import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared";
 import { renderNode } from "./config-form.node";
-=======
-import type { ConfigUiHints } from "../types.ts";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { icons } from "../icons.ts";
 =======
 >>>>>>> ed11e93cf (chore(format))

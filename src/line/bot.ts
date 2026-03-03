@@ -1,15 +1,5 @@
 import type { WebhookRequestBody } from "@line/bot-sdk";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { Request, Response, NextFunction } from "express";
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 59cfff02f (chore: Emit TypeScript declaration files so that we can type-check the extensions folder soon.)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../config/config.js";
@@ -18,11 +8,8 @@ import { logVerbose } from "../globals.js";
 >>>>>>> ed11e93cf (chore(format))
 import type { RuntimeEnv } from "../runtime.js";
 import type { LineInboundContext } from "./bot-message-context.js";
-<<<<<<< HEAD
-=======
 import type { ResolvedLineAccount } from "./types.js";
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -31,12 +18,7 @@ import { logVerbose } from "../globals.js";
 import { createNonExitingRuntime, type RuntimeEnv } from "../runtime.js";
 import { resolveLineAccount } from "./accounts.js";
 import { handleLineWebhookEvents } from "./bot-handlers.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import type { LineInboundContext } from "./bot-message-context.js";
-import type { ResolvedLineAccount } from "./types.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
 import type { LineInboundContext } from "./bot-message-context.js";
@@ -48,12 +30,7 @@ import { logVerbose } from "../globals.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { resolveLineAccount } from "./accounts.js";
 import { handleLineWebhookEvents } from "./bot-handlers.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { LineInboundContext } from "./bot-message-context.js";
-import type { ResolvedLineAccount } from "./types.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { startLineWebhook } from "./webhook.js";
 import type { ResolvedLineAccount } from "./types.js";
 

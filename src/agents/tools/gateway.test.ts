@@ -1,22 +1,8 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { callGatewayTool, resolveGatewayOptions } from "./gateway.js";
 
 const callGatewayMock = vi.fn();
-=======
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { callGatewayTool, resolveGatewayOptions } from "./gateway.js";
-
-const callGatewayMock = vi.fn();
-const configState = vi.hoisted(() => ({
-  value: {} as Record<string, unknown>,
-}));
-vi.mock("../../config/config.js", () => ({
-  loadConfig: () => configState.value,
-  resolveGatewayPort: () => 18789,
-}));
->>>>>>> 08431da5d (refactor(gateway): unify credential precedence across entrypoints)
 vi.mock("../../gateway/call.js", () => ({
   callGateway: (...args: unknown[]) => callGatewayMock(...args),
 }));
@@ -67,8 +53,6 @@ describe("gateway tool defaults", () => {
       }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("uses OPENCLAW_GATEWAY_TOKEN for allowlisted local overrides", () => {
     process.env.OPENCLAW_GATEWAY_TOKEN = "env-token";
@@ -174,5 +158,4 @@ describe("gateway tool defaults", () => {
       callGatewayTool("health", { gatewayUrl: "ws://169.254.169.254", gatewayToken: "t" }, {}),
     ).rejects.toThrow(/gatewayUrl override rejected/i);
   });
->>>>>>> 08431da5d (refactor(gateway): unify credential precedence across entrypoints)
 });

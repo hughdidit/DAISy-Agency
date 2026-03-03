@@ -3,7 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,11 +12,6 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 
 import { assertSandboxPath } from "../../sandbox-paths.js";
 =======
-import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
-import { resolveUserPath } from "../../../utils.js";
-import { loadWebMedia } from "../../../web/media.js";
->>>>>>> 31c6a12cf (fix(agents): restore missing runtime helpers and sandbox types)
-=======
 =======
 import type { ImageContent } from "@mariozechner/pi-ai";
 >>>>>>> ed11e93cf (chore(format))
@@ -37,15 +31,12 @@ import type { ImageSanitizationLimits } from "../../image-sanitization.js";
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 import { resolveUserPath } from "../../../utils.js";
 import { loadWebMedia } from "../../../web/media.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
->>>>>>> ed11e93cf (chore(format))
-=======
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -59,11 +50,8 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 import { resolveUserPath } from "../../../utils.js";
 import { loadWebMedia } from "../../../web/media.js";
 import type { ImageSanitizationLimits } from "../../image-sanitization.js";
-<<<<<<< HEAD
-=======
 import { resolveSandboxedBridgeMediaPath } from "../../sandbox-media-paths.js";
 import { assertSandboxPath } from "../../sandbox-paths.js";
->>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { sanitizeImageBlocks } from "../../tool-images.js";
@@ -262,7 +250,6 @@ export async function loadImageFromRef(
   try {
     let targetPath = ref.resolved;
 
-<<<<<<< HEAD
     // Remote URL loading is disabled (local-only).
     if (ref.type === "url") {
       log.debug(`Native image: rejecting remote URL (local-only): ${ref.resolved}`);
@@ -284,33 +271,6 @@ export async function loadImageFromRef(
     if (ref.type === "path" && options?.sandboxRoot) {
       try {
         const validated = await assertSandboxPath({
-=======
-    // Resolve paths relative to sandbox or workspace as needed
-    if (ref.type === "path") {
-      if (options?.sandbox) {
-        try {
-          const resolved = await resolveSandboxedBridgeMediaPath({
-            sandbox: {
-              root: options.sandbox.root,
-              bridge: options.sandbox.bridge,
-              workspaceOnly: options.workspaceOnly,
-            },
-            mediaPath: targetPath,
-          });
-          targetPath = resolved.resolved;
-        } catch (err) {
-          log.debug(
-            `Native image: sandbox validation failed for ${ref.resolved}: ${err instanceof Error ? err.message : String(err)}`,
-          );
-          return null;
-        }
-      } else if (!path.isAbsolute(targetPath)) {
-        targetPath = path.resolve(workspaceDir, targetPath);
-      }
-      if (options?.workspaceOnly && !options?.sandbox) {
-        const root = options?.sandbox?.root ?? workspaceDir;
-        await assertSandboxPath({
->>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
           filePath: targetPath,
           cwd: options.sandboxRoot,
           root: options.sandboxRoot,
@@ -337,7 +297,6 @@ export async function loadImageFromRef(
           `Native image: sandbox validation failed for ${ref.resolved}: ${err instanceof Error ? err.message : String(err)}`,
         );
         return null;
-<<<<<<< HEAD
       }
     }
 
@@ -348,8 +307,6 @@ export async function loadImageFromRef(
       } catch {
         log.debug(`Native image: file not found: ${targetPath}`);
         return null;
-=======
->>>>>>> 1708b11fa (refactor(pi): simplify image reference detection)
       }
     } else if (!path.isAbsolute(targetPath)) {
       targetPath = path.resolve(workspaceDir, targetPath);
@@ -364,18 +321,7 @@ export async function loadImageFromRef(
     }
 
     // loadWebMedia handles local file paths (including file:// URLs)
-<<<<<<< HEAD
     const media = await loadWebMedia(targetPath, options?.maxBytes);
-=======
-    const media = options?.sandbox
-      ? await loadWebMedia(targetPath, {
-          maxBytes: options.maxBytes,
-          sandboxValidated: true,
-          readFile: (filePath) =>
-            options.sandbox!.bridge.readFile({ filePath, cwd: options.sandbox!.root }),
-        })
-      : await loadWebMedia(targetPath, options?.maxBytes);
->>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
 
     if (media.kind !== "image") {
       log.debug(`Native image: not an image file: ${targetPath} (got ${media.kind})`);
@@ -423,13 +369,8 @@ export async function detectAndLoadPromptImages(params: {
   model: { input?: string[] };
   existingImages?: ImageContent[];
   maxBytes?: number;
-<<<<<<< HEAD
   /** If set, enforce that file paths are within this sandbox root */
   sandboxRoot?: string;
-=======
-  maxDimensionPx?: number;
-  sandbox?: { root: string; bridge: SandboxFsBridge };
->>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 }): Promise<{
   /** Images for the current prompt (existingImages + detected in current prompt) */
   images: ImageContent[];

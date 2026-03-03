@@ -4,17 +4,8 @@ import type {
   ChannelMessageActionName,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { getChannelMessageAdapter } from "./channel-adapters.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import {
-  getChannelMessageAdapter,
-  type CrossContextComponentsBuilder,
-} from "./channel-adapters.js";
-import { normalizeTargetForProvider } from "./target-normalization.js";
->>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 import { formatTargetDisplay, lookupDirectoryDisplay } from "./target-resolver.js";
 
 export type CrossContextDecoration = {

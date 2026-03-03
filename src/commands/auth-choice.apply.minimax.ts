@@ -1,6 +1,5 @@
 import { normalizeApiKeyInput, validateApiKeyInput } from "./auth-choice.api-key.js";
 import {
-<<<<<<< HEAD
   formatApiKeyPreview,
   normalizeApiKeyInput,
   validateApiKeyInput,
@@ -11,9 +10,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
-import { createAuthChoiceAgentModelNoter } from "./auth-choice.apply-helpers.js";
->>>>>>> 0048af4e2 (refactor(commands): dedupe auth-choice model notes)
-=======
   createAuthChoiceDefaultModelApplier,
   createAuthChoiceModelStateBridge,
   ensureApiKeyFromOptionEnvOrPrompt,
@@ -21,10 +17,7 @@ import { createAuthChoiceAgentModelNoter } from "./auth-choice.apply-helpers.js"
 } from "./auth-choice.apply-helpers.js";
 >>>>>>> fc60f4923 (refactor(auth-choice): unify api-key resolution flows)
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
-<<<<<<< HEAD
 =======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -34,11 +27,8 @@ import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { applyAuthChoicePluginProvider } from "./auth-choice.apply.plugin-provider.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
-=======
->>>>>>> fc60f4923 (refactor(auth-choice): unify api-key resolution flows)
 import {
   applyAuthProfileConfig,
   applyMinimaxApiConfig,
@@ -118,7 +108,6 @@ export async function applyAuthChoiceMiniMax(
     return { config: nextConfig, agentModelOverride };
   };
 <<<<<<< HEAD
-<<<<<<< HEAD
   const noteAgentModel = async (model: string) => {
     if (!params.agentId) {
       return;
@@ -128,10 +117,6 @@ export async function applyAuthChoiceMiniMax(
       "Model configured",
     );
   };
-=======
-  const noteAgentModel = createAuthChoiceAgentModelNoter(params);
-=======
->>>>>>> fc60f4923 (refactor(auth-choice): unify api-key resolution flows)
   if (params.authChoice === "minimax-portal") {
     // Let user choose between Global/CN endpoints
     const endpoint = await params.prompter.select({

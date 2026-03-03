@@ -4,7 +4,6 @@ import type { MoltbotConfig } from "../config/config.js";
 import { applyExclusiveSlotSelection } from "./slots.js";
 
 describe("applyExclusiveSlotSelection", () => {
-<<<<<<< HEAD
   it("selects the slot and disables other entries for the same kind", () => {
     const config: MoltbotConfig = {
       plugins: {
@@ -12,16 +11,6 @@ describe("applyExclusiveSlotSelection", () => {
         entries: {
           "memory-core": { enabled: true },
           memory: { enabled: true },
-=======
-  const createMemoryConfig = (plugins?: OpenClawConfig["plugins"]): OpenClawConfig => ({
-    plugins: {
-      ...plugins,
-      entries: {
-        ...plugins?.entries,
-        memory: {
-          enabled: true,
-          ...plugins?.entries?.memory,
->>>>>>> 185fba1d2 (refactor(agents): dedupe plugin hooks and test helpers)
         },
       },
     },
@@ -57,7 +46,6 @@ describe("applyExclusiveSlotSelection", () => {
   });
 
   it("does nothing when the slot already matches", () => {
-<<<<<<< HEAD
     const config: MoltbotConfig = {
       plugins: {
         slots: { memory: "memory" },
@@ -67,11 +55,6 @@ describe("applyExclusiveSlotSelection", () => {
       },
     };
 
-=======
-    const config = createMemoryConfig({
-      slots: { memory: "memory" },
-    });
->>>>>>> 185fba1d2 (refactor(agents): dedupe plugin hooks and test helpers)
     const result = applyExclusiveSlotSelection({
       config,
       selectedId: "memory",
@@ -85,7 +68,6 @@ describe("applyExclusiveSlotSelection", () => {
   });
 
   it("warns when the slot falls back to a default", () => {
-<<<<<<< HEAD
     const config: MoltbotConfig = {
       plugins: {
         entries: {
@@ -94,9 +76,6 @@ describe("applyExclusiveSlotSelection", () => {
       },
     };
 
-=======
-    const config = createMemoryConfig();
->>>>>>> 185fba1d2 (refactor(agents): dedupe plugin hooks and test helpers)
     const result = applyExclusiveSlotSelection({
       config,
       selectedId: "memory",

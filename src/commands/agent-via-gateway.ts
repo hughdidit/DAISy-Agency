@@ -2,13 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../channels/registry.js";
-=======
-import { listAgentIds } from "../agents/agent-scope.js";
-import { DEFAULT_CHAT_CHANNEL } from "../channels/registry.js";
-import { formatCliCommand } from "../cli/command-format.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { CliDeps } from "../cli/deps.js";
 =======
 import type { CliDeps } from "../cli/deps.js";
@@ -45,12 +39,9 @@ import { normalizeAgentId } from "../routing/session-key.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

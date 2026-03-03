@@ -189,61 +189,8 @@ describe("/focus, /unfocus, /agents", () => {
         createThread: false,
         targetKind: "acp",
         targetSessionKey: "agent:codex-acp:session-1",
-<<<<<<< HEAD
         introText:
           "🤖 codex-acp session active (auto-unfocus in 24h). Messages here go directly to this session.",
-=======
-        metadata: expect.objectContaining({
-          introText:
-            "⚙️ codex-acp session active (idle auto-unfocus after 24h inactivity). Messages here go directly to this session.",
-        }),
-      }),
-    );
-  });
-
-  it("/focus includes ACP session identifiers in intro text when available", async () => {
-    hoisted.readAcpSessionEntryMock.mockReturnValue({
-      sessionKey: "agent:codex-acp:session-1",
-      storeSessionKey: "agent:codex-acp:session-1",
-      acp: {
-        backend: "acpx",
-        agent: "codex",
-        runtimeSessionName: "runtime-1",
-        identity: {
-          state: "resolved",
-          source: "status",
-          acpxSessionId: "acpx-456",
-          agentSessionId: "codex-123",
-          lastUpdatedAt: Date.now(),
-        },
-        mode: "persistent",
-        state: "idle",
-        lastActivityAt: Date.now(),
-      },
-    });
-    const { result } = await focusCodexAcpInThread();
-
-    expect(result?.reply?.text).toContain("bound this thread");
-    expect(hoisted.sessionBindingBindMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        metadata: expect.objectContaining({
-          introText: expect.stringContaining("agent session id: codex-123"),
-        }),
-      }),
-    );
-    expect(hoisted.sessionBindingBindMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        metadata: expect.objectContaining({
-          introText: expect.stringContaining("acpx session id: acpx-456"),
-        }),
-      }),
-    );
-    expect(hoisted.sessionBindingBindMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        metadata: expect.objectContaining({
-          introText: expect.stringContaining("codex resume codex-123"),
-        }),
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
       }),
     );
   });

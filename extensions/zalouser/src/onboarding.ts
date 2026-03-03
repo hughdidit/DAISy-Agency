@@ -11,16 +11,8 @@ import {
   normalizeAccountId,
   promptAccountId,
   promptChannelAccessConfig,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ZcaFriend, ZcaGroup } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -182,7 +174,6 @@ async function promptZalouserAllowFrom(params: {
       continue;
     }
     const unique = mergeAllowFromEntries(existingAllowFrom, results.filter(Boolean) as string[]);
-<<<<<<< HEAD
     if (accountId === DEFAULT_ACCOUNT_ID) {
       return {
         ...cfg,
@@ -217,12 +208,6 @@ async function promptZalouserAllowFrom(params: {
         },
       },
     } as MoltbotConfig;
-=======
-    return setZalouserAccountScopedConfig(cfg, accountId, {
-      dmPolicy: "allowlist",
-      allowFrom: unique,
-    });
->>>>>>> 49648daec (fix(zalouser): normalize send and onboarding flows)
   }
 }
 
@@ -230,7 +215,6 @@ function setZalouserGroupPolicy(
   cfg: MoltbotConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
-<<<<<<< HEAD
 ): MoltbotConfig {
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
@@ -263,12 +247,6 @@ function setZalouserGroupPolicy(
       },
     },
   } as MoltbotConfig;
-=======
-): OpenClawConfig {
-  return setZalouserAccountScopedConfig(cfg, accountId, {
-    groupPolicy,
-  });
->>>>>>> 49648daec (fix(zalouser): normalize send and onboarding flows)
 }
 
 function setZalouserGroupAllowlist(
@@ -277,7 +255,6 @@ function setZalouserGroupAllowlist(
   groupKeys: string[],
 ): MoltbotConfig {
   const groups = Object.fromEntries(groupKeys.map((key) => [key, { allow: true }]));
-<<<<<<< HEAD
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -309,11 +286,6 @@ function setZalouserGroupAllowlist(
       },
     },
   } as MoltbotConfig;
-=======
-  return setZalouserAccountScopedConfig(cfg, accountId, {
-    groups,
-  });
->>>>>>> 49648daec (fix(zalouser): normalize send and onboarding flows)
 }
 
 async function resolveZalouserGroups(params: {
@@ -365,7 +337,6 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   policyKey: "channels.zalouser.dmPolicy",
   allowFromKey: "channels.zalouser.allowFrom",
 <<<<<<< HEAD
-<<<<<<< HEAD
   getCurrent: (cfg) => ((cfg as MoltbotConfig).channels?.zalouser?.dmPolicy ?? "pairing") as "pairing",
   setPolicy: (cfg, policy) => setZalouserDmPolicy(cfg as MoltbotConfig, policy),
   promptAllowFrom: async ({ cfg, prompter, accountId }) => {
@@ -373,28 +344,14 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
       accountId && normalizeAccountId(accountId)
         ? normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID
         : resolveDefaultZalouserAccountId(cfg as MoltbotConfig);
-=======
-  getCurrent: (cfg) =>
-    ((cfg as OpenClawConfig).channels?.zalouser?.dmPolicy ?? "pairing") as "pairing",
-  setPolicy: (cfg, policy) => setZalouserDmPolicy(cfg as OpenClawConfig, policy),
-=======
-  getCurrent: (cfg) => (cfg.channels?.zalouser?.dmPolicy ?? "pairing") as "pairing",
-  setPolicy: (cfg, policy) => setZalouserDmPolicy(cfg, policy),
->>>>>>> 230ca789e (chore: Lint extensions folder.)
   promptAllowFrom: async ({ cfg, prompter, accountId }) => {
     const id =
       accountId && normalizeAccountId(accountId)
         ? (normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID)
-<<<<<<< HEAD
         : resolveDefaultZalouserAccountId(cfg as OpenClawConfig);
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     return promptZalouserAllowFrom({
       cfg: cfg as MoltbotConfig,
-=======
-        : resolveDefaultZalouserAccountId(cfg);
-    return promptZalouserAllowFrom({
-      cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       prompter,
       accountId: id,
     });
@@ -405,17 +362,10 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
   channel,
   dmPolicy,
   getStatus: async ({ cfg }) => {
-<<<<<<< HEAD
     const ids = listZalouserAccountIds(cfg as MoltbotConfig);
     let configured = false;
     for (const accountId of ids) {
       const account = resolveZalouserAccountSync({ cfg: cfg as MoltbotConfig, accountId });
-=======
-    const ids = listZalouserAccountIds(cfg);
-    let configured = false;
-    for (const accountId of ids) {
-      const account = resolveZalouserAccountSync({ cfg: cfg, accountId });
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       const isAuth = await checkZcaAuthenticated(account.profile);
       if (isAuth) {
         configured = true;
@@ -454,26 +404,16 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
 
     const zalouserOverride = accountOverrides.zalouser?.trim();
 <<<<<<< HEAD
-<<<<<<< HEAD
     const defaultAccountId = resolveDefaultZalouserAccountId(cfg as MoltbotConfig);
     let accountId = zalouserOverride
       ? normalizeAccountId(zalouserOverride)
       : defaultAccountId;
-=======
-    const defaultAccountId = resolveDefaultZalouserAccountId(cfg as OpenClawConfig);
-=======
-    const defaultAccountId = resolveDefaultZalouserAccountId(cfg);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
     let accountId = zalouserOverride ? normalizeAccountId(zalouserOverride) : defaultAccountId;
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
     if (shouldPromptAccountIds && !zalouserOverride) {
       accountId = await promptAccountId({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         prompter,
         label: "Zalo Personal",
         currentId: accountId,
@@ -482,11 +422,7 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
       });
     }
 
-<<<<<<< HEAD
     let next = cfg as MoltbotConfig;
-=======
-    let next = cfg;
->>>>>>> 230ca789e (chore: Lint extensions folder.)
     const account = resolveZalouserAccountSync({ cfg: next, accountId });
     const alreadyAuthenticated = await checkZcaAuthenticated(account.profile);
 
@@ -530,7 +466,6 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
     }
 
     // Enable the channel
-<<<<<<< HEAD
     if (accountId === DEFAULT_ACCOUNT_ID) {
       next = {
         ...next,
@@ -563,14 +498,6 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
         },
       } as MoltbotConfig;
     }
-=======
-    next = setZalouserAccountScopedConfig(
-      next,
-      accountId,
-      { profile: account.profile !== "default" ? account.profile : undefined },
-      { profile: account.profile, enabled: true },
-    );
->>>>>>> 49648daec (fix(zalouser): normalize send and onboarding flows)
 
     if (forceAllowFrom) {
       next = await promptZalouserAllowFrom({

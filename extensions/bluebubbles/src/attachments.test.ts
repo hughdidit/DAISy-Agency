@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { downloadBlueBubblesAttachment, sendBlueBubblesAttachment } from "./attachments.js";
@@ -15,19 +14,6 @@ vi.mock("./accounts.js", () => ({
     };
   }),
 }));
-=======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import "./test-mocks.js";
-import { downloadBlueBubblesAttachment, sendBlueBubblesAttachment } from "./attachments.js";
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
-<<<<<<< HEAD
-import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 =======
 =======
 import { setBlueBubblesRuntime } from "./runtime.js";
@@ -52,8 +38,6 @@ import type { BlueBubblesAttachment } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const mockFetch = vi.fn();
-<<<<<<< HEAD
-=======
 const fetchRemoteMediaMock = vi.fn(
   async (params: {
     url: string;
@@ -83,7 +67,6 @@ const fetchRemoteMediaMock = vi.fn(
     };
   },
 );
->>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
 
 installBlueBubblesFetchTestHooks({
   mockFetch,
@@ -91,7 +74,6 @@ installBlueBubblesFetchTestHooks({
 });
 
 describe("downloadBlueBubblesAttachment", () => {
-<<<<<<< HEAD
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
     mockFetch.mockReset();
@@ -102,8 +84,6 @@ describe("downloadBlueBubblesAttachment", () => {
     vi.unstubAllGlobals();
   });
 
-=======
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 =======
   async function expectAttachmentTooLarge(params: { bufferBytes: number; maxBytes?: number }) {
     const largeBuffer = new Uint8Array(params.bufferBytes);
@@ -359,8 +339,6 @@ describe("sendBlueBubblesAttachment", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
     mockFetch.mockReset();
-<<<<<<< HEAD
-=======
     fetchRemoteMediaMock.mockClear();
     setBlueBubblesRuntime(runtimeStub);
     vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReset();
@@ -368,7 +346,6 @@ describe("sendBlueBubblesAttachment", () => {
       vi.mocked(getCachedBlueBubblesPrivateApiStatus),
       BLUE_BUBBLES_PRIVATE_API_STATUS.unknown,
     );
->>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
   });
 
   afterEach(() => {
@@ -469,8 +446,6 @@ describe("sendBlueBubblesAttachment", () => {
     expect(bodyText).toContain('filename="evil.mp3"');
     expect(bodyText).toContain('name="evil.mp3"');
   });
-<<<<<<< HEAD
-=======
 
   it("downgrades attachment reply threading when private API is disabled", async () => {
     mockBlueBubblesPrivateApiStatusOnce(
@@ -525,5 +500,4 @@ describe("sendBlueBubblesAttachment", () => {
     expect(bodyText).not.toContain('name="selectedMessageGuid"');
     expect(bodyText).not.toContain('name="partIndex"');
   });
->>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
 });

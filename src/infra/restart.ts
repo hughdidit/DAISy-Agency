@@ -3,11 +3,8 @@ import {
   resolveGatewayLaunchAgentLabel,
   resolveGatewaySystemdServiceName,
 } from "../daemon/constants.js";
-<<<<<<< HEAD
-=======
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { cleanStaleGatewayProcessesSync, findGatewayPidsOnPortSync } from "./restart-stale-pids.js";
->>>>>>> 4da6a7f21 (refactor(restart): extract stale pid cleanup and supervisor markers)
 
 export type RestartAttempt = {
   ok: boolean;
@@ -26,8 +23,6 @@ export { findGatewayPidsOnPortSync };
 let sigusr1AuthorizedCount = 0;
 let sigusr1AuthorizedUntil = 0;
 let sigusr1ExternalAllowed = false;
-<<<<<<< HEAD
-=======
 let preRestartCheck: (() => number) | null = null;
 let restartCycleToken = 0;
 let emittedRestartToken = 0;
@@ -71,7 +66,6 @@ export function emitGatewayRestart(): boolean {
   }
   return true;
 }
->>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
 
 function resetSigusr1AuthorizationIfExpired(now = Date.now()) {
   if (sigusr1AuthorizedCount <= 0) {
@@ -232,11 +226,7 @@ function normalizeSystemdUnit(raw?: string, profile?: string): string {
   return unit.endsWith(".service") ? unit : `${unit}.service`;
 }
 
-<<<<<<< HEAD
 export function triggerMoltbotRestart(): RestartAttempt {
-=======
-export function triggerOpenClawRestart(): RestartAttempt {
->>>>>>> 4da6a7f21 (refactor(restart): extract stale pid cleanup and supervisor markers)
   if (process.env.VITEST || process.env.NODE_ENV === "test") {
     return { ok: true, method: "supervisor", detail: "test mode" };
   }
@@ -322,7 +312,6 @@ export function scheduleGatewaySigusr1Restart(opts?: {
     typeof opts?.reason === "string" && opts.reason.trim()
       ? opts.reason.trim().slice(0, 200)
       : undefined;
-<<<<<<< HEAD
   authorizeGatewaySigusr1Restart(delayMs);
   const pid = process.pid;
   const hasListener = process.listenerCount("SIGUSR1") > 0;
@@ -336,16 +325,6 @@ export function scheduleGatewaySigusr1Restart(opts?: {
     } catch {
       /* ignore */
     }
-=======
-
-  setTimeout(() => {
-    const pendingCheck = preRestartCheck;
-    if (!pendingCheck) {
-      emitGatewayRestart();
-      return;
-    }
-    deferGatewayRestartUntilIdle({ getPendingCount: pendingCheck });
->>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
   }, delayMs);
   return {
     ok: true,
@@ -362,12 +341,9 @@ export const __testing = {
     sigusr1AuthorizedCount = 0;
     sigusr1AuthorizedUntil = 0;
     sigusr1ExternalAllowed = false;
-<<<<<<< HEAD
-=======
     preRestartCheck = null;
     restartCycleToken = 0;
     emittedRestartToken = 0;
     consumedRestartToken = 0;
->>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
   },
 };

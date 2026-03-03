@@ -11,15 +11,7 @@ vi.mock("@mariozechner/pi-coding-agent", () => ({
   },
 }));
 
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { discoverModels } from "../pi-model-discovery.js";
->>>>>>> 370bbcd89 (Model: add strict gpt-5.3-codex fallback for OpenAI Codex (fixes #9989) (#9995))
 =======
 >>>>>>> e63dcc320 (refactor(test): share pi embedded model fixtures)
 =======

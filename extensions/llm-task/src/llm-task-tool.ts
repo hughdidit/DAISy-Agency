@@ -2,7 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import os from "node:os";
 import path from "node:path";
 import fs from "node:fs/promises";
@@ -12,11 +11,6 @@ import { Type } from "@sinclair/typebox";
 
 // NOTE: This extension is intended to be bundled with Moltbot.
 // When running from source (tests/dev), Moltbot internals live under src/.
-=======
-=======
-import { Type } from "@sinclair/typebox";
-import Ajv from "ajv";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======

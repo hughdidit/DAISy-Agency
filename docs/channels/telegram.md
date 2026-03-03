@@ -117,13 +117,7 @@ group messages, so use admin if you need full visibility.
 - If Telegram rejects the HTML payload, Moltbot retries the same message as plain text.
 
 ## Commands (native + custom)
-<<<<<<< HEAD
 Moltbot registers native commands (like `/status`, `/reset`, `/model`) with Telegram’s bot menu on startup.
-=======
-
-<<<<<<< HEAD
-OpenClaw registers native commands (like `/status`, `/reset`, `/model`) with Telegram’s bot menu on startup.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 You can add custom commands to the menu via config:
 =======
   <Accordion title="Helpful BotFather toggles">
@@ -318,13 +312,7 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 More help: [Channel troubleshooting](/channels/troubleshooting).
 
 Notes:
-<<<<<<< HEAD
 - Custom commands are **menu entries only**; Moltbot does not implement them unless you handle them elsewhere.
-=======
-
-- Custom commands are **menu entries only**; OpenClaw does not implement them unless you handle them elsewhere.
-<<<<<<< HEAD
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 - Some commands can be handled by plugins/skills without being registered in Telegram’s command menu. These still work when typed (they just won't show up in `/commands` / the menu).
 >>>>>>> 730f86dd5 (Gateway/Plugins: device pairing + phone control plugins (#11755))
@@ -422,12 +410,7 @@ Forward any message from the group to `@userinfobot` or `@getidsbot` on Telegram
 By default, Telegram is allowed to write config updates triggered by channel events or `/config set|unset`.
 
 This happens when:
-<<<<<<< HEAD
 - A group is upgraded to a supergroup and Telegram emits `migrate_to_chat_id` (chat ID changes). Moltbot can migrate `channels.telegram.groups` automatically.
-=======
-
-- A group is upgraded to a supergroup and Telegram emits `migrate_to_chat_id` (chat ID changes). OpenClaw can migrate `channels.telegram.groups` automatically.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - You run `/config set` or `/config unset` in a Telegram chat (requires `commands.config: true`).
 
 Disable with:
@@ -439,13 +422,7 @@ Disable with:
 ```
 
 ## Topics (forum supergroups)
-<<<<<<< HEAD
 Telegram forum topics include a `message_thread_id` per message. Moltbot:
-=======
-
-Telegram forum topics include a `message_thread_id` per message. OpenClaw:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Appends `:topic:<threadId>` to the Telegram group session key so each topic is isolated.
 - Sends typing indicators and replies with `message_thread_id` so responses stay in the topic.
 - General topic (thread id `1`) is special: message sends omit `message_thread_id` (Telegram rejects it), but typing indicators still include it.
@@ -538,28 +515,16 @@ Use the global setting when all Telegram bots/accounts should behave the same. U
 
 - Default: `channels.telegram.dmPolicy = "pairing"`. Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
-<<<<<<< HEAD
   - `moltbot pairing list telegram`
   - `moltbot pairing approve telegram <CODE>`
 - Pairing is the default token exchange used for Telegram DMs. Details: [Pairing](/start/pairing)
-=======
-  - `openclaw pairing list telegram`
-  - `openclaw pairing approve telegram <CODE>`
-- Pairing is the default token exchange used for Telegram DMs. Details: [Pairing](/channels/pairing)
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - `channels.telegram.allowFrom` accepts numeric user IDs (recommended) or `@username` entries. It is **not** the bot username; use the human sender’s ID. The wizard accepts `@username` and resolves it to the numeric ID when possible.
 
 #### Finding your Telegram user ID
 
 Safer (no third-party bot):
-<<<<<<< HEAD
 1) Start the gateway and DM your bot.
 2) Run `moltbot logs --follow` and look for `from.id`.
-=======
-
-1. Start the gateway and DM your bot.
-2. Run `openclaw logs --follow` and look for `from.id`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Alternate (official Bot API):
 
@@ -569,13 +534,7 @@ Alternate (official Bot API):
    curl "https://api.telegram.org/bot<bot_token>/getUpdates"
    ```
 
-<<<<<<< HEAD
 Third-party (less private):
-=======
-    Note: `off` disables implicit reply threading. Explicit `[[reply_to_*]]` tags are still honored.
-
-  </Accordion>
->>>>>>> 7b39543e8 (fix(reply): honour explicit [[reply_to_*]] tags when replyToMode is off (#16174))
 
 - DM `@userinfobot` or `@getidsbot` and use the returned user id.
 
@@ -822,7 +781,6 @@ Requirements (Telegram Bot API 9.3+):
 
 Config:
 
-<<<<<<< HEAD
 - `channels.telegram.streamMode: "off" | "partial" | "block"` (default: `partial`)
   - `partial`: update the draft bubble with the latest streaming text.
   - `block`: update the draft bubble in larger blocks (chunked).
@@ -830,27 +788,6 @@ Config:
 - Optional (only for `streamMode: "block"`):
   - `channels.telegram.draftChunk: { minChars?, maxChars?, breakPreference? }`
     - defaults: `minChars: 200`, `maxChars: 800`, `breakPreference: "paragraph"` (clamped to `channels.telegram.textChunkLimit`).
-=======
-  <Accordion title="Ack reactions">
-    `ackReaction` sends an acknowledgement emoji while OpenClaw is processing an inbound message.
-
-    Resolution order:
-
-    - `channels.telegram.accounts.<accountId>.ackReaction`
-    - `channels.telegram.ackReaction`
-    - `messages.ackReaction`
-    - agent identity emoji fallback (`agents.list[].identity.emoji`, else "👀")
-
-    Notes:
-
-    - Telegram expects unicode emoji (for example "👀").
-    - Use `""` to disable the reaction for a channel or account.
-
-  </Accordion>
-
-  <Accordion title="Config writes from Telegram events and commands">
-    Channel config writes are enabled by default (`configWrites !== false`).
->>>>>>> b6069fc68 (feat: support per-channel ackReaction config (#17092) (thanks @zerone0x))
 
 Note: draft streaming is separate from **block streaming** (channel messages).
 Block streaming is off by default and requires `channels.telegram.blockStreaming: true`
@@ -916,12 +853,7 @@ The agent sees reactions as **system notifications** in the conversation history
 ```
 
 **Requirements:**
-<<<<<<< HEAD
 - Telegram bots must explicitly request `message_reaction` in `allowed_updates` (configured automatically by Moltbot)
-=======
-
-- Telegram bots must explicitly request `message_reaction` in `allowed_updates` (configured automatically by OpenClaw)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - For webhook mode, reactions are included in the webhook `allowed_updates`
 - For polling mode, reactions are included in the `getUpdates` `allowed_updates`
 
@@ -962,32 +894,7 @@ The agent sees reactions as **system notifications** in the conversation history
 - Node 22+ is stricter about `AbortSignal` instances; foreign signals can abort `fetch` calls right away.
 - Upgrade to a Moltbot build that normalizes abort signals, or run the gateway on Node 20 until you can upgrade.
 
-<<<<<<< HEAD
 **Bot starts, then silently stops responding (or logs `HttpError: Network request ... failed`):**
-=======
-    - Node 22+ + custom fetch/proxy can trigger immediate abort behavior if AbortSignal types mismatch.
-    - Some hosts resolve `api.telegram.org` to IPv6 first; broken IPv6 egress can cause intermittent Telegram API failures.
-    - If logs include `TypeError: fetch failed` or `Network request for 'getUpdates' failed!`, OpenClaw now retries these as recoverable network errors.
-    - On VPS hosts with unstable direct egress/TLS, route Telegram API calls through `channels.telegram.proxy`:
-
-```yaml
-channels:
-  telegram:
-    proxy: socks5://user:pass@proxy-host:1080
-```
-
-    - If DNS/IPv6 selection is unstable, force Node family selection behavior explicitly:
-
-```yaml
-channels:
-  telegram:
-    network:
-      autoSelectFamily: false
-```
-
-    - Environment override (temporary): set `OPENCLAW_TELEGRAM_DISABLE_AUTO_SELECT_FAMILY=1`.
-    - Validate DNS answers:
->>>>>>> 273932850 (fix(telegram): classify undici fetch errors as recoverable for retry (#16699))
 
 - Some hosts resolve `api.telegram.org` to IPv6 first. If your server does not have working IPv6 egress, grammY can get stuck on IPv6-only requests.
 - Fix by enabling IPv6 egress **or** forcing IPv4 resolution for `api.telegram.org` (for example, add an `/etc/hosts` entry using the IPv4 A record, or prefer IPv4 in your OS DNS stack), then restart the gateway.
@@ -1005,15 +912,7 @@ Provider options:
 - `channels.telegram.dmPolicy`: `pairing | allowlist | open | disabled` (default: pairing).
 - `channels.telegram.allowFrom`: DM allowlist (numeric Telegram user IDs). `open` requires `"*"`.
 - `channels.telegram.groupPolicy`: `open | allowlist | disabled` (default: allowlist).
-<<<<<<< HEAD
 - `channels.telegram.groupAllowFrom`: group sender allowlist (numeric Telegram user IDs).
-=======
-- `channels.telegram.groupAllowFrom`: group sender allowlist (numeric Telegram user IDs). `openclaw doctor --fix` can resolve legacy `@username` entries to IDs.
-- Multi-account precedence:
-  - `channels.telegram.accounts.default.allowFrom` and `channels.telegram.accounts.default.groupAllowFrom` apply only to the `default` account.
-  - Named accounts inherit `channels.telegram.allowFrom` and `channels.telegram.groupAllowFrom` when account-level values are unset.
-  - Named accounts do not inherit `channels.telegram.accounts.default.allowFrom` / `groupAllowFrom`.
->>>>>>> 1ffc31983 (Doctor: keep allowFrom account-scoped in multi-account configs)
 - `channels.telegram.groups`: per-group defaults + allowlist (use `"*"` for global defaults).
   - `channels.telegram.groups.<id>.groupPolicy`: per-group override for groupPolicy (`open | allowlist | disabled`).
   - `channels.telegram.groups.<id>.requireMention`: mention gating default.
@@ -1047,29 +946,7 @@ Provider options:
 
 Related global options:
 
-<<<<<<< HEAD
 - `agents.list[].groupChat.mentionPatterns` (mention gating patterns).
 - `messages.groupChat.mentionPatterns` (global fallback).
 - `commands.native` (defaults to `"auto"` → on for Telegram/Discord, off for Slack), `commands.text`, `commands.useAccessGroups` (command behavior). Override with `channels.telegram.commands.native`.
 - `messages.responsePrefix`, `messages.ackReaction`, `messages.ackReactionScope`, `messages.removeAckAfterReply`.
-=======
-Telegram-specific high-signal fields:
-
-- startup/auth: `enabled`, `botToken`, `tokenFile`, `accounts.*`
-- access control: `dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`, `groups`, `groups.*.topics.*`
-- command/menu: `commands.native`, `customCommands`
-- threading/replies: `replyToMode`
-- streaming: `streaming` (preview), `blockStreaming`
-- formatting/delivery: `textChunkLimit`, `chunkMode`, `linkPreview`, `responsePrefix`
-- media/network: `mediaMaxMb`, `timeoutSeconds`, `retry`, `network.autoSelectFamily`, `proxy`
-- webhook: `webhookUrl`, `webhookSecret`, `webhookPath`, `webhookHost`
-- actions/capabilities: `capabilities.inlineButtons`, `actions.sendMessage|editMessage|deleteMessage|reactions|sticker`
-- reactions: `reactionNotifications`, `reactionLevel`
-- writes/history: `configWrites`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
-
-## Related
-
-- [Pairing](/channels/pairing)
-- [Channel routing](/channels/channel-routing)
-- [Troubleshooting](/channels/troubleshooting)
->>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)

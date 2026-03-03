@@ -14,14 +14,9 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 import type { MoltbotConfig } from "../../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../../config/config.js";
-import type { HookHandler } from "../../hooks.js";
->>>>>>> 4ba9809f1 (test(hooks): stabilize session-memory hook tests)
 import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
 =======
 import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
@@ -59,12 +54,7 @@ import { resolveHookConfig } from "../../config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { HookHandler } from "../../hooks.js";
-=======
-=======
-import type { HookHandler } from "../../hooks.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 3fff266d5 (fix(session-memory): harden reset transcript recovery)
 =======
@@ -239,11 +229,7 @@ const saveSessionToMemory: HookHandler = async (event) => {
   }
 
   try {
-<<<<<<< HEAD
     console.log("[session-memory] Hook triggered for /new command");
-=======
-    log.debug("Hook triggered for reset/new command", { action: event.action });
->>>>>>> d583399c9 (Hooks: persist session memory on /reset)
 
     const context = event.context || {};
     const cfg = context.cfg as MoltbotConfig | undefined;
@@ -307,20 +293,10 @@ const saveSessionToMemory: HookHandler = async (event) => {
     let sessionContent: string | null = null;
 
     if (sessionFile) {
-<<<<<<< HEAD
       // Get recent conversation content
       sessionContent = await getRecentSessionContent(sessionFile, messageCount);
       console.log("[session-memory] sessionContent length:", sessionContent?.length || 0);
-=======
-      // Get recent conversation content, with fallback to rotated reset transcript.
-      sessionContent = await getRecentSessionContentWithResetFallback(sessionFile, messageCount);
-      log.debug("Session content loaded", {
-        length: sessionContent?.length ?? 0,
-        messageCount,
-      });
->>>>>>> 19ae7a4e1 (fix(session-memory): fallback to rotated transcript after /new)
 
-<<<<<<< HEAD
 <<<<<<< HEAD
       if (sessionContent && cfg) {
         console.log("[session-memory] Calling generateSlugViaLLM...");
@@ -331,20 +307,6 @@ const saveSessionToMemory: HookHandler = async (event) => {
         const slugGenPath = path.join(moltbotRoot, "llm-slug-generator.js");
         const { generateSlugViaLLM } = await import(slugGenPath);
 
-=======
-      // Avoid calling the model provider in unit tests, keep hooks fast and deterministic.
-      if (sessionContent && cfg && !process.env.VITEST && process.env.NODE_ENV !== "test") {
-=======
-      // Avoid calling the model provider in unit tests; keep hooks fast and deterministic.
-      const isTestEnv =
-        process.env.OPENCLAW_TEST_FAST === "1" ||
-        process.env.VITEST === "true" ||
-        process.env.VITEST === "1" ||
-        process.env.NODE_ENV === "test";
-      const allowLlmSlug = !isTestEnv && hookConfig?.llmSlug !== false;
-
-      if (sessionContent && cfg && allowLlmSlug) {
->>>>>>> 9f507112b (perf(test): speed up vitest by skipping plugins + LLM slug)
         log.debug("Calling generateSlugViaLLM...");
 >>>>>>> 4ba9809f1 (test(hooks): stabilize session-memory hook tests)
         // Use LLM to generate a descriptive slug

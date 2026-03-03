@@ -3,14 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
-<<<<<<< HEAD
 import { createMoltbotCodingTools } from "./pi-tools.js";
-=======
-import { createOpenClawCodingTools } from "./pi-tools.js";
-import { expectReadWriteEditTools } from "./test-helpers/pi-tools-fs-helpers.js";
->>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 
-<<<<<<< HEAD
 describe("createMoltbotCodingTools", () => {
   it("uses workspaceDir for Read tool path resolution", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-ws-"));
@@ -24,15 +18,6 @@ describe("createMoltbotCodingTools", () => {
       const tools = createMoltbotCodingTools({ workspaceDir: tmpDir });
       const readTool = tools.find((tool) => tool.name === "read");
       expect(readTool).toBeDefined();
-=======
-describe("createOpenClawCodingTools", () => {
-<<<<<<< HEAD
-  it("uses workspaceDir for read/write/edit path resolution", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ws-"));
-    try {
-      const tools = createOpenClawCodingTools({ workspaceDir: tmpDir });
-      const { readTool, writeTool, editTool } = expectReadWriteEditTools(tools);
->>>>>>> 60a0291bf (test: dedupe workspace path-resolution scenarios)
 
       const readPath = "test-workspace-file.txt";
       const readContent = "workspace path resolution test";
@@ -44,7 +29,6 @@ describe("createOpenClawCodingTools", () => {
         | Array<{ text?: string }>
         | undefined;
       const combinedText = textBlocks?.map((block) => block.text ?? "").join("\n");
-<<<<<<< HEAD
       expect(combinedText).toContain(testContent);
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
@@ -62,19 +46,12 @@ describe("createOpenClawCodingTools", () => {
       expect(writeTool).toBeDefined();
 
       // Write using relative path - should resolve against workspaceDir
-=======
-      expect(combinedText).toContain(readContent);
-
-      const writePath = "test-write-file.txt";
-      const writeContent = "written via workspace path";
->>>>>>> 60a0291bf (test: dedupe workspace path-resolution scenarios)
       await writeTool?.execute("tool-ws-2", {
         path: writePath,
         content: writeContent,
       });
       expect(await fs.readFile(path.join(tmpDir, writePath), "utf8")).toBe(writeContent);
 
-<<<<<<< HEAD
       // Verify file was written to workspaceDir
       const written = await fs.readFile(path.join(tmpDir, testFile), "utf8");
       expect(written).toBe(testContent);
@@ -96,10 +73,6 @@ describe("createOpenClawCodingTools", () => {
       expect(editTool).toBeDefined();
 
       // Edit using relative path - should resolve against workspaceDir
-=======
-      const editPath = "test-edit-file.txt";
-      await fs.writeFile(path.join(tmpDir, editPath), "hello world", "utf8");
->>>>>>> 60a0291bf (test: dedupe workspace path-resolution scenarios)
       await editTool?.execute("tool-ws-3", {
         path: editPath,
         oldText: "world",
@@ -115,7 +88,6 @@ describe("createOpenClawCodingTools", () => {
   it("accepts Claude Code parameter aliases for read/write/edit", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-alias-"));
     try {
-<<<<<<< HEAD
       const tools = createMoltbotCodingTools({ workspaceDir: tmpDir });
       const readTool = tools.find((tool) => tool.name === "read");
       const writeTool = tools.find((tool) => tool.name === "write");
@@ -123,10 +95,6 @@ describe("createOpenClawCodingTools", () => {
       expect(readTool).toBeDefined();
       expect(writeTool).toBeDefined();
       expect(editTool).toBeDefined();
-=======
-      const tools = createOpenClawCodingTools({ workspaceDir: tmpDir });
-      const { readTool, writeTool, editTool } = expectReadWriteEditTools(tools);
->>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 
       const filePath = "alias-test.txt";
       await writeTool?.execute("tool-alias-1", {

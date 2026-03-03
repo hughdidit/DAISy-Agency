@@ -14,7 +14,6 @@ function cleanCandidate(raw: string) {
   return raw.replace(/^[`"'[{(]+/, "").replace(/[`"'\\})\],]+$/, "");
 }
 
-<<<<<<< HEAD
 function isValidMedia(candidate: string, opts?: { allowSpaces?: boolean }) {
 <<<<<<< HEAD
   if (!candidate) return false;
@@ -26,32 +25,6 @@ function isValidMedia(candidate: string, opts?: { allowSpaces?: boolean }) {
   if (candidate.startsWith("../")) return true;
   if (candidate.startsWith("~")) return true;
   return false;
-=======
-=======
-const WINDOWS_DRIVE_RE = /^[a-zA-Z]:[\\/]/;
-const SCHEME_RE = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
-const HAS_FILE_EXT = /\.\w{1,10}$/;
-
-// Recognize local file path patterns. Security validation is deferred to the
-// load layer (loadWebMedia / resolveSandboxedMediaSource) which has the context
-// needed to enforce sandbox roots and allowed directories.
-function isLikelyLocalPath(candidate: string): boolean {
-  return (
-    candidate.startsWith("/") ||
-    candidate.startsWith("./") ||
-    candidate.startsWith("../") ||
-    candidate.startsWith("~") ||
-    WINDOWS_DRIVE_RE.test(candidate) ||
-    candidate.startsWith("\\\\") ||
-    (!SCHEME_RE.test(candidate) && (candidate.includes("/") || candidate.includes("\\")))
-  );
-}
-
-function isValidMedia(
-  candidate: string,
-  opts?: { allowSpaces?: boolean; allowBareFilename?: boolean },
-) {
->>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
   if (!candidate) {
     return false;
   }
@@ -65,23 +38,9 @@ function isValidMedia(
     return true;
   }
 
-<<<<<<< HEAD
   // Local paths: only allow safe relative paths starting with ./ that do not traverse upwards.
   return candidate.startsWith("./") && !candidate.includes("..");
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
-=======
-  if (isLikelyLocalPath(candidate)) {
-    return true;
-  }
-
-  // Accept bare filenames (e.g. "image.png") only when the caller opts in.
-  // This avoids treating space-split path fragments as separate media items.
-  if (opts?.allowBareFilename && !SCHEME_RE.test(candidate) && HAS_FILE_EXT.test(candidate)) {
-    return true;
-  }
-
-  return false;
->>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
 }
 
 function unwrapQuoted(value: string): string | undefined {
@@ -206,22 +165,8 @@ export function splitMediaFromOutput(raw: string): {
         }
       }
 
-<<<<<<< HEAD
       if (hasValidMedia && invalidParts.length > 0) {
         pieces.push(invalidParts.join(" "));
-=======
-      if (hasValidMedia) {
-        if (invalidParts.length > 0) {
-          pieces.push(invalidParts.join(" "));
-        }
-      } else if (looksLikeLocalPath) {
-        // Strip MEDIA: lines with local paths even when invalid (e.g. absolute paths
-        // from internal tools like TTS). They should never leak as visible text.
-        foundMediaToken = true;
-      } else {
-        // If no valid media was found in this match, keep the original token text.
-        pieces.push(match[0]);
->>>>>>> 94bc62ad4 (fix(media): strip MEDIA: lines with local paths instead of leaking as text (#14399))
       }
 
       cursor = start + match[0].length;

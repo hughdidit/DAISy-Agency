@@ -179,7 +179,6 @@ describe("hooks mapping", () => {
     }
   });
 
-<<<<<<< HEAD
   it("treats null transform as a handled skip", async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-hooks-skip-"));
     const modPath = path.join(dir, "transform.mjs");
@@ -208,100 +207,6 @@ describe("hooks mapping", () => {
       expect(result.action).toBeNull();
       expect("skipped" in result).toBe(true);
     }
-=======
-  it("rejects transform module traversal outside transformsDir", () => {
-    const configDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-config-traversal-"));
-    const transformsRoot = path.join(configDir, "hooks", "transforms");
-    fs.mkdirSync(transformsRoot, { recursive: true });
-    expect(() =>
-      resolveHookMappings(
-        {
-          mappings: [
-            {
-              match: { path: "custom" },
-              action: "agent",
-              transform: { module: "../evil.mjs" },
-            },
-          ],
-        },
-        { configDir },
-      ),
-    ).toThrow(/must be within/);
-  });
-
-  it("rejects absolute transform module path outside transformsDir", () => {
-    const configDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-config-abs-"));
-    const transformsRoot = path.join(configDir, "hooks", "transforms");
-    fs.mkdirSync(transformsRoot, { recursive: true });
-    const outside = path.join(os.tmpdir(), "evil.mjs");
-    expect(() =>
-      resolveHookMappings(
-        {
-          mappings: [
-            {
-              match: { path: "custom" },
-              action: "agent",
-              transform: { module: outside },
-            },
-          ],
-        },
-        { configDir },
-      ),
-    ).toThrow(/must be within/);
-  });
-
-  it("rejects transformsDir traversal outside the transforms root", () => {
-    const configDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-config-xformdir-trav-"));
-    const transformsRoot = path.join(configDir, "hooks", "transforms");
-    fs.mkdirSync(transformsRoot, { recursive: true });
-    expect(() =>
-      resolveHookMappings(
-        {
-          transformsDir: "..",
-          mappings: [
-            {
-              match: { path: "custom" },
-              action: "agent",
-              transform: { module: "transform.mjs" },
-            },
-          ],
-        },
-        { configDir },
-      ),
-    ).toThrow(/Hook transformsDir/);
-  });
-
-  it("rejects transformsDir absolute path outside the transforms root", () => {
-    const configDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-config-xformdir-abs-"));
-    const transformsRoot = path.join(configDir, "hooks", "transforms");
-    fs.mkdirSync(transformsRoot, { recursive: true });
-    expect(() =>
-      resolveHookMappings(
-        {
-          transformsDir: os.tmpdir(),
-          mappings: [
-            {
-              match: { path: "custom" },
-              action: "agent",
-              transform: { module: "transform.mjs" },
-            },
-          ],
-        },
-        { configDir },
-      ),
-    ).toThrow(/Hook transformsDir/);
-  });
-
-  it("accepts transformsDir subdirectory within the transforms root", async () => {
-    const configDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-config-xformdir-ok-"));
-    const result = await applyNullTransformFromTempConfig({ configDir, transformsDir: "subdir" });
-    expectSkippedTransformResult(result);
-  });
-  it("treats null transform as a handled skip", async () => {
-    const configDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-config-skip-"));
-    const result = await applyNullTransformFromTempConfig({ configDir });
-    expectSkippedTransformResult(result);
->>>>>>> 3d38e5640 (refactor(test): dedupe hook transform skip assertions)
   });
 
   it("prefers explicit mappings over presets", async () => {
@@ -426,8 +331,6 @@ describe("hooks mapping", () => {
     });
     expect(result?.ok).toBe(false);
   });
-<<<<<<< HEAD
-=======
 
   describe("prototype pollution protection", () => {
     it("blocks __proto__ traversal in webhook payload", async () => {
@@ -457,5 +360,4 @@ describe("hooks mapping", () => {
       });
     });
   });
->>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 });

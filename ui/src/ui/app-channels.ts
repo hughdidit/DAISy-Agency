@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import type { OpenClawApp } from "./app.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7,7 +5,6 @@ import type { OpenClawApp } from "./app.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { NostrProfile } from "./types.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -25,18 +22,11 @@ import {
   logoutWhatsApp,
   startWhatsAppLogin,
   waitWhatsAppLogin,
-<<<<<<< HEAD
 } from "./controllers/channels";
 import { loadConfig, saveConfig } from "./controllers/config";
 import type { MoltbotApp } from "./app";
 import type { NostrProfile } from "./types";
 import { createNostrProfileFormState } from "./views/channels.nostr-profile-form";
-=======
-} from "./controllers/channels.ts";
-import { loadConfig, saveConfig } from "./controllers/config.ts";
-import type { NostrProfile } from "./types.ts";
-import { createNostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export async function handleWhatsAppStart(host: MoltbotApp, force: boolean) {
   await startWhatsAppLogin(host, force);

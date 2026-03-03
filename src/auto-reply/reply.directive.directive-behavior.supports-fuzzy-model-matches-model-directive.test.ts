@@ -12,7 +12,6 @@ import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -53,8 +52,6 @@ function assertModelSelection(
   expect(entry?.providerOverride).toBe(selection.provider);
 }
 
-=======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
 =======
 =======
 function makeModelDefinition(id: string, name: string) {
@@ -130,7 +127,6 @@ describe("directive behavior", () => {
     await withTempHome(async (home) => {
       const storePath = path.join(home, "sessions.json");
 
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         { Body: "/model kimi", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
@@ -159,9 +155,6 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
-=======
-        makeMoonshotConfig(home, storePath),
->>>>>>> a54707b86 (refactor(test): dedupe fuzzy model directive config)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
@@ -184,7 +177,6 @@ describe("directive behavior", () => {
     await withTempHome(async (home) => {
       const storePath = path.join(home, "sessions.json");
 
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         {
           Body: "/model kimi-k2-0905-preview",
@@ -218,9 +210,6 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
-=======
-        makeMoonshotConfig(home, storePath),
->>>>>>> a54707b86 (refactor(test): dedupe fuzzy model directive config)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
@@ -243,7 +232,6 @@ describe("directive behavior", () => {
     await withTempHome(async (home) => {
       const storePath = path.join(home, "sessions.json");
 
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         { Body: "/model moonshot/kimi", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
@@ -272,9 +260,6 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
-=======
-        makeMoonshotConfig(home, storePath),
->>>>>>> a54707b86 (refactor(test): dedupe fuzzy model directive config)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;

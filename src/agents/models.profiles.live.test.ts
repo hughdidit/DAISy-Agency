@@ -266,14 +266,8 @@ describeLive("live models (profile keys)", () => {
       const useExplicit = Boolean(rawModels) && !useModern;
       const filter = useExplicit ? parseModelFilter(rawModels) : null;
       const allowNotFoundSkip = useModern;
-<<<<<<< HEAD
       const providers = parseProviderFilter(process.env.CLAWDBOT_LIVE_PROVIDERS);
       const perModelTimeoutMs = toInt(process.env.CLAWDBOT_LIVE_MODEL_TIMEOUT_MS, 30_000);
-=======
-      const providers = parseProviderFilter(process.env.OPENCLAW_LIVE_PROVIDERS);
-      const perModelTimeoutMs = toInt(process.env.OPENCLAW_LIVE_MODEL_TIMEOUT_MS, 30_000);
-      const maxModels = toInt(process.env.OPENCLAW_LIVE_MAX_MODELS, 0);
->>>>>>> 7c59b78ae (test: cap docker live model sweeps and harden timeouts)
 
       const failures: Array<{ model: string; error: string }> = [];
       const skipped: Array<{ model: string; reason: string }> = [];

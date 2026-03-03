@@ -1,9 +1,5 @@
 import Foundation
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/SkillsModels.swift
 import MoltbotProtocol
-=======
-import OpenClawProtocol
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/SkillsModels.swift
 
 struct SkillsStatusReport: Codable {
     let workspaceDir: String

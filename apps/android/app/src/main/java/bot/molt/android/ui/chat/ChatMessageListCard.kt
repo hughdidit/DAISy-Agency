@@ -15,18 +15,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/chat/ChatMessageListCard.kt
 import bot.molt.android.chat.ChatMessage
 import bot.molt.android.chat.ChatPendingToolCall
-=======
-import ai.openclaw.android.chat.ChatMessage
-import ai.openclaw.android.chat.ChatPendingToolCall
-import ai.openclaw.android.ui.mobileBorder
-import ai.openclaw.android.ui.mobileCallout
-import ai.openclaw.android.ui.mobileHeadline
-import ai.openclaw.android.ui.mobileText
-import ai.openclaw.android.ui.mobileTextSecondary
->>>>>>> b658000bf (style(android-chat): refine thread shell and empty states):apps/android/app/src/main/java/ai/openclaw/android/ui/chat/ChatMessageListCard.kt
 
 @Composable
 fun ChatMessageListCard(
@@ -93,7 +83,6 @@ private fun EmptyChatHint(modifier: Modifier = Modifier, healthOk: Boolean) {
     color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.9f),
     border = androidx.compose.foundation.BorderStroke(1.dp, mobileBorder),
   ) {
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/chat/ChatMessageListCard.kt
     Icon(
       imageVector = Icons.Default.ArrowCircleDown,
       contentDescription = null,
@@ -104,23 +93,5 @@ private fun EmptyChatHint(modifier: Modifier = Modifier, healthOk: Boolean) {
       style = MaterialTheme.typography.bodyMedium,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
-=======
-    androidx.compose.foundation.layout.Column(
-      modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-      verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-      Text("No messages yet", style = mobileHeadline, color = mobileText)
-      Text(
-        text =
-          if (healthOk) {
-            "Send the first prompt to start this session."
-          } else {
-            "Connect gateway first, then return to chat."
-          },
-        style = mobileCallout,
-        color = mobileTextSecondary,
-      )
-    }
->>>>>>> b658000bf (style(android-chat): refine thread shell and empty states):apps/android/app/src/main/java/ai/openclaw/android/ui/chat/ChatMessageListCard.kt
   }
 }

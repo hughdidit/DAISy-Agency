@@ -14,16 +14,9 @@ import {
   type ExecSecurity,
 } from "../infra/exec-approvals.js";
 import type { ExecHostRequest, ExecHostResponse, ExecHostRunResult } from "../infra/exec-host.js";
-<<<<<<< HEAD
 import { resolveSafeBinProfiles } from "../infra/exec-safe-bin-policy.js";
 import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
-=======
-import { resolveExecSafeBinRuntimePolicy } from "../infra/exec-safe-bin-runtime-policy.js";
-import { sanitizeSystemRunEnvOverrides } from "../infra/host-env-security.js";
->>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
 import { resolveSystemRunCommand } from "../infra/system-run-command.js";
-<<<<<<< HEAD
-=======
 import { evaluateSystemRunPolicy, resolveExecApprovalDecision } from "./exec-policy.js";
 import {
   applyOutputTruncation,
@@ -32,7 +25,6 @@ import {
   resolveSystemRunExecArgv,
 } from "./invoke-system-run-allowlist.js";
 import { hardenApprovedExecutionPaths } from "./invoke-system-run-plan.js";
->>>>>>> d82c042b0 (refactor(node-host): split system.run plan and allowlist internals)
 import type {
   ExecEventPayload,
   RunResult,
@@ -46,7 +38,6 @@ type SystemRunInvokeResult = {
   error?: { code?: string; message?: string } | null;
 };
 
-<<<<<<< HEAD
 export function formatSystemRunAllowlistMissMessage(params?: {
   windowsShellWrapperBlocked?: boolean;
 }): string {
@@ -56,83 +47,11 @@ export function formatSystemRunAllowlistMissMessage(params?: {
       "(Windows shell wrappers like cmd.exe /c require approval; " +
       "approve once/always or run with --ask on-miss|always)"
     );
-=======
-type SystemRunDeniedReason =
-  | "security=deny"
-  | "approval-required"
-  | "allowlist-miss"
-  | "execution-plan-miss"
-  | "companion-unavailable"
-  | "permission:screenRecording";
-
-type SystemRunExecutionContext = {
-  sessionKey: string;
-  runId: string;
-  cmdText: string;
-};
-
-type ResolvedExecApprovals = ReturnType<typeof resolveExecApprovals>;
-
-type SystemRunParsePhase = {
-  argv: string[];
-  shellCommand: string | null;
-  cmdText: string;
-  agentId: string | undefined;
-  sessionKey: string;
-  runId: string;
-  execution: SystemRunExecutionContext;
-  approvalDecision: ReturnType<typeof resolveExecApprovalDecision>;
-  envOverrides: Record<string, string> | undefined;
-  env: Record<string, string> | undefined;
-  cwd: string | undefined;
-  timeoutMs: number | undefined;
-  needsScreenRecording: boolean;
-  approved: boolean;
-};
-
-type SystemRunPolicyPhase = SystemRunParsePhase & {
-  approvals: ResolvedExecApprovals;
-  security: ExecSecurity;
-  policy: ReturnType<typeof evaluateSystemRunPolicy>;
-  allowlistMatches: ExecAllowlistEntry[];
-  analysisOk: boolean;
-  allowlistSatisfied: boolean;
-  segments: ExecCommandSegment[];
-  plannedAllowlistArgv: string[] | undefined;
-  isWindows: boolean;
-};
-
-const safeBinTrustedDirWarningCache = new Set<string>();
-
-function warnWritableTrustedDirOnce(message: string): void {
-  if (safeBinTrustedDirWarningCache.has(message)) {
-    return;
-  }
-  safeBinTrustedDirWarningCache.add(message);
-  console.warn(message);
-}
-
-function normalizeDeniedReason(reason: string | null | undefined): SystemRunDeniedReason {
-  switch (reason) {
-    case "security=deny":
-    case "approval-required":
-    case "allowlist-miss":
-    case "execution-plan-miss":
-    case "companion-unavailable":
-    case "permission:screenRecording":
-      return reason;
-    default:
-      return "approval-required";
->>>>>>> 4355e0826 (refactor: harden safe-bin trusted dir diagnostics)
   }
   return "SYSTEM_RUN_DENIED: allowlist miss";
 }
 
-<<<<<<< HEAD
 export async function handleSystemRunInvoke(opts: {
-=======
-export type HandleSystemRunInvokeOptions = {
->>>>>>> d82c042b0 (refactor(node-host): split system.run plan and allowlist internals)
   client: GatewayClient;
   params: SystemRunParams;
   skillBins: SkillBinsProvider;
@@ -169,46 +88,7 @@ export type HandleSystemRunInvokeOptions = {
     };
   }) => Promise<void>;
   preferMacAppExecHost: boolean;
-<<<<<<< HEAD
 }): Promise<void> {
-=======
-};
-
-async function sendSystemRunDenied(
-  opts: Pick<
-    HandleSystemRunInvokeOptions,
-    "client" | "sendNodeEvent" | "buildExecEventPayload" | "sendInvokeResult"
-  >,
-  execution: SystemRunExecutionContext,
-  params: {
-    reason: SystemRunDeniedReason;
-    message: string;
-  },
-) {
-  await opts.sendNodeEvent(
-    opts.client,
-    "exec.denied",
-    opts.buildExecEventPayload({
-      sessionKey: execution.sessionKey,
-      runId: execution.runId,
-      host: "node",
-      command: execution.cmdText,
-      reason: params.reason,
-    }),
-  );
-  await opts.sendInvokeResult({
-    ok: false,
-    error: { code: "UNAVAILABLE", message: params.message },
-  });
-}
-
-export { formatSystemRunAllowlistMissMessage } from "./exec-policy.js";
-export { buildSystemRunApprovalPlan } from "./invoke-system-run-plan.js";
-
-async function parseSystemRunPhase(
-  opts: HandleSystemRunInvokeOptions,
-): Promise<SystemRunParsePhase | null> {
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
   const command = resolveSystemRunCommand({
     command: opts.params.command,
     rawCommand: opts.params.rawCommand,
@@ -228,11 +108,8 @@ async function parseSystemRunPhase(
     return null;
   }
 
-<<<<<<< HEAD
   const argv = command.argv;
   const rawCommand = command.rawCommand ?? "";
-=======
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
   const shellCommand = command.shellCommand;
   const cmdText = command.cmdText;
   const agentId = opts.params.agentId?.trim() || undefined;
@@ -279,7 +156,6 @@ async function evaluateSystemRunPolicyPhase(
   const security = approvals.agent.security;
   const ask = approvals.agent.ask;
   const autoAllowSkills = approvals.agent.autoAllowSkills;
-<<<<<<< HEAD
   const sessionKey = opts.params.sessionKey?.trim() || "node";
   const runId = opts.params.runId?.trim() || crypto.randomUUID();
 <<<<<<< HEAD
@@ -288,24 +164,11 @@ async function evaluateSystemRunPolicyPhase(
   const safeBinProfiles = resolveSafeBinProfiles({
     ...cfg.tools?.exec?.safeBinProfiles,
     ...agentExec?.safeBinProfiles,
-=======
-  const envOverrides = sanitizeSystemRunEnvOverrides({
-    overrides: opts.params.env ?? undefined,
-    shellWrapper: shellCommand !== null,
-  });
-  const env = opts.sanitizeEnv(envOverrides);
-=======
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
   const { safeBins, safeBinProfiles, trustedSafeBinDirs } = resolveExecSafeBinRuntimePolicy({
     global: cfg.tools?.exec,
     local: agentExec,
-<<<<<<< HEAD
 >>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
-=======
-    onWarning: warnWritableTrustedDirOnce,
->>>>>>> 4355e0826 (refactor: harden safe-bin trusted dir diagnostics)
   });
-<<<<<<< HEAD
   const bins = autoAllowSkills ? await opts.skillBins.current() : new Set<string>();
   let analysisOk = false;
   let allowlistMatches: ExecAllowlistEntry[] = [];
@@ -347,79 +210,14 @@ async function evaluateSystemRunPolicyPhase(
       security === "allowlist" && analysisOk ? allowlistEval.allowlistSatisfied : false;
     segments = analysis.segments;
   }
-=======
-  const bins = autoAllowSkills ? await opts.skillBins.current() : [];
-  let { analysisOk, allowlistMatches, allowlistSatisfied, segments } = evaluateSystemRunAllowlist({
-    shellCommand: parsed.shellCommand,
-    argv: parsed.argv,
-    approvals,
-    security,
-    safeBins,
-    safeBinProfiles,
-    trustedSafeBinDirs,
-    cwd: parsed.cwd,
-    env: parsed.env,
-    skillBins: bins,
-    autoAllowSkills,
-  });
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
   const isWindows = process.platform === "win32";
   const cmdInvocation = parsed.shellCommand
     ? opts.isCmdExeInvocation(segments[0]?.argv ?? [])
-<<<<<<< HEAD
     : opts.isCmdExeInvocation(argv);
   const windowsShellWrapperBlocked = security === "allowlist" && isWindows && cmdInvocation;
   if (windowsShellWrapperBlocked) {
     analysisOk = false;
     allowlistSatisfied = false;
-=======
-    : opts.isCmdExeInvocation(parsed.argv);
-  const policy = evaluateSystemRunPolicy({
-    security,
-    ask,
-    analysisOk,
-    allowlistSatisfied,
-    approvalDecision: parsed.approvalDecision,
-    approved: parsed.approved,
-    isWindows,
-    cmdInvocation,
-    shellWrapperInvocation: parsed.shellCommand !== null,
-  });
-  analysisOk = policy.analysisOk;
-  allowlistSatisfied = policy.allowlistSatisfied;
-  if (!policy.allowed) {
-    await sendSystemRunDenied(opts, parsed.execution, {
-      reason: policy.eventReason,
-      message: policy.errorMessage,
-    });
-    return null;
-  }
-
-  // Fail closed if policy/runtime drift re-allows unapproved shell wrappers.
-  if (security === "allowlist" && parsed.shellCommand && !policy.approvedByAsk) {
-    await sendSystemRunDenied(opts, parsed.execution, {
-      reason: "approval-required",
-      message: "SYSTEM_RUN_DENIED: approval required",
-    });
-    return null;
-  }
-
-<<<<<<< HEAD
-=======
-  const hardenedPaths = hardenApprovedExecutionPaths({
-    approvedByAsk: policy.approvedByAsk,
-    argv: parsed.argv,
-    cwd: parsed.cwd,
-  });
-  if (!hardenedPaths.ok) {
-    await sendSystemRunDenied(opts, parsed.execution, {
-      reason: "approval-required",
-      message: hardenedPaths.message,
-    });
-    return null;
-  }
-
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   const plannedAllowlistArgv = resolvePlannedAllowlistArgv({
     security,
     shellCommand: parsed.shellCommand,
@@ -460,7 +258,6 @@ async function executeSystemRunPhase(
         ? opts.params.approvalDecision
         : null;
     const execRequest: ExecHostRequest = {
-<<<<<<< HEAD
       command: argv,
       rawCommand: rawCommand || shellCommand || null,
       cwd: opts.params.cwd ?? null,
@@ -470,19 +267,6 @@ async function executeSystemRunPhase(
       agentId: agentId ?? null,
       sessionKey: sessionKey ?? null,
       approvalDecision,
-=======
-      command: phase.plannedAllowlistArgv ?? phase.argv,
-      // Forward canonical display text so companion approval/prompt surfaces bind to
-      // the exact command context already validated on the node-host.
-      rawCommand: phase.cmdText || null,
-      cwd: phase.cwd ?? null,
-      env: phase.envOverrides ?? null,
-      timeoutMs: phase.timeoutMs ?? null,
-      needsScreenRecording: phase.needsScreenRecording,
-      agentId: phase.agentId ?? null,
-      sessionKey: phase.sessionKey ?? null,
-      approvalDecision: phase.approvalDecision,
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
     };
     const response = await opts.runViaMacAppExecHost({
       approvals: phase.approvals,
@@ -490,7 +274,6 @@ async function executeSystemRunPhase(
     });
     if (!response) {
       if (opts.execHostEnforced || !opts.execHostFallbackAllowed) {
-<<<<<<< HEAD
         await opts.sendNodeEvent(
           opts.client,
           "exec.denied",
@@ -508,16 +291,10 @@ async function executeSystemRunPhase(
             code: "UNAVAILABLE",
             message: "COMPANION_APP_UNAVAILABLE: macOS app exec host unreachable",
           },
-=======
-        await sendSystemRunDenied(opts, phase.execution, {
-          reason: "companion-unavailable",
-          message: "COMPANION_APP_UNAVAILABLE: macOS app exec host unreachable",
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
         });
         return;
       }
     } else if (!response.ok) {
-<<<<<<< HEAD
       const reason = response.error.reason ?? "approval-required";
       await opts.sendNodeEvent(
         opts.client,
@@ -533,11 +310,6 @@ async function executeSystemRunPhase(
       await opts.sendInvokeResult({
         ok: false,
         error: { code: "UNAVAILABLE", message: response.error.message },
-=======
-      await sendSystemRunDenied(opts, phase.execution, {
-        reason: normalizeDeniedReason(response.error.reason),
-        message: response.error.message,
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
       });
       return;
     } else {
@@ -556,7 +328,6 @@ async function executeSystemRunPhase(
     }
   }
 
-<<<<<<< HEAD
   if (security === "deny") {
     await opts.sendNodeEvent(
       opts.client,
@@ -608,10 +379,6 @@ async function executeSystemRunPhase(
   }
   if (approvalDecision === "allow-always" && security === "allowlist") {
     if (analysisOk) {
-=======
-  if (phase.policy.approvalDecision === "allow-always" && phase.security === "allowlist") {
-    if (phase.policy.analysisOk) {
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
       const patterns = resolveAllowAlwaysPatterns({
         segments: phase.segments,
         cwd: phase.cwd,
@@ -626,7 +393,6 @@ async function executeSystemRunPhase(
     }
   }
 
-<<<<<<< HEAD
   if (security === "allowlist" && (!analysisOk || !allowlistSatisfied) && !approvedByAsk) {
     await opts.sendNodeEvent(
       opts.client,
@@ -650,9 +416,6 @@ async function executeSystemRunPhase(
   }
 
   if (allowlistMatches.length > 0) {
-=======
-  if (phase.allowlistMatches.length > 0) {
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
     const seen = new Set<string>();
     for (const match of phase.allowlistMatches) {
       if (!match?.pattern || seen.has(match.pattern)) {
@@ -669,7 +432,6 @@ async function executeSystemRunPhase(
     }
   }
 
-<<<<<<< HEAD
   if (opts.params.needsScreenRecording === true) {
     await opts.sendNodeEvent(
       opts.client,
@@ -685,17 +447,10 @@ async function executeSystemRunPhase(
     await opts.sendInvokeResult({
       ok: false,
       error: { code: "UNAVAILABLE", message: "PERMISSION_MISSING: screenRecording" },
-=======
-  if (phase.needsScreenRecording) {
-    await sendSystemRunDenied(opts, phase.execution, {
-      reason: "permission:screenRecording",
-      message: "PERMISSION_MISSING: screenRecording",
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
     });
     return;
   }
 
-<<<<<<< HEAD
   let execArgv = argv;
   if (
     security === "allowlist" &&
@@ -725,26 +480,6 @@ async function executeSystemRunPhase(
     }
   }
   await opts.sendExecFinishedEvent({ sessionKey, runId, cmdText, result });
-=======
-  const execArgv = resolveSystemRunExecArgv({
-    plannedAllowlistArgv: phase.plannedAllowlistArgv,
-    argv: phase.argv,
-    security: phase.security,
-    isWindows: phase.isWindows,
-    policy: phase.policy,
-    shellCommand: phase.shellCommand,
-    segments: phase.segments,
-  });
-
-  const result = await opts.runCommand(execArgv, phase.cwd, phase.env, phase.timeoutMs);
-  applyOutputTruncation(result);
-  await opts.sendExecFinishedEvent({
-    sessionKey: phase.sessionKey,
-    runId: phase.runId,
-    cmdText: phase.cmdText,
-    result,
-  });
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
 
   await opts.sendInvokeResult({
     ok: true,

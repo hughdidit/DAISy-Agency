@@ -7,12 +7,7 @@ import type { ExecApprovalsResolved } from "../infra/exec-approvals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { createMoltbotCodingTools } from "./pi-tools.js";
-=======
-=======
-import type { SafeBinProfileFixture } from "../infra/exec-safe-bin-policy.js";
->>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 import { captureEnv } from "../test-utils/env.js";
 =======
 import { captureEnv, withEnvAsync } from "../test-utils/env.js";
@@ -84,13 +79,7 @@ vi.mock("../infra/exec-approvals.js", async (importOriginal) => {
 });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 describe("createMoltbotCodingTools safeBins", () => {
-=======
-=======
-const { createOpenClawCodingTools } = await import("./pi-tools.js");
-
->>>>>>> 6042075bd (test: preload safe-bins tool module in suite)
 type ExecToolResult = {
   content: Array<{ type: string; text?: string }>;
   details?: { status?: string };
@@ -177,7 +166,6 @@ describe("createOpenClawCodingTools safeBins", () => {
         });
         const text = result.content.find((content) => content.type === "text")?.text ?? "";
 
-<<<<<<< HEAD
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-safe-bins-"));
     const cfg: MoltbotConfig = {
       tools: {
@@ -206,12 +194,6 @@ describe("createOpenClawCodingTools safeBins", () => {
       try {
         process.env.OPENCLAW_SHELL_ENV_TIMEOUT_MS = "1000";
         return await execTool!.execute("call1", {
-=======
-    const result = await withEnvAsync(
-      { OPENCLAW_SHELL_ENV_TIMEOUT_MS: "1000" },
-      async () =>
-        await execTool.execute("call1", {
->>>>>>> a410dad60 (refactor(test): simplify env setup in safe bins and skills status)
           command: `echo ${marker}`,
           workdir: tmpDir,
         }),
@@ -223,8 +205,6 @@ describe("createOpenClawCodingTools safeBins", () => {
 >>>>>>> a97992fcf (test(pi-tools): share safeBins e2e setup and teardown)
     );
   });
-<<<<<<< HEAD
-=======
 
   it("rejects unprofiled custom safe-bin entries", async () => {
     await withSafeBinsExecTool(
@@ -345,7 +325,6 @@ describe("createOpenClawCodingTools safeBins", () => {
 <<<<<<< HEAD
       },
     );
->>>>>>> a97992fcf (test(pi-tools): share safeBins e2e setup and teardown)
   });
 =======
 >>>>>>> eda941f39 (perf(test): remove flaky transport timeout and dedupe safeBins checks)
@@ -354,7 +333,6 @@ describe("createOpenClawCodingTools safeBins", () => {
           { command: "sort -oblocked-short.txt", target: "blocked-short.txt" },
           { command: "sort --output=blocked-long.txt", target: "blocked-long.txt" },
         ] as const;
-<<<<<<< HEAD
 
 <<<<<<< HEAD
     const { createOpenClawCodingTools } = await import("./pi-tools.js");
@@ -439,11 +417,6 @@ describe("createOpenClawCodingTools safeBins", () => {
       }),
     ).rejects.toThrow("exec denied: allowlist miss");
 >>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
-=======
-        for (const [index, testCase] of cases.entries()) {
-=======
-        for (const [index, testCase] of outputFlagCases.entries()) {
->>>>>>> eda941f39 (perf(test): remove flaky transport timeout and dedupe safeBins checks)
           await expect(
             execTool.execute(`call-output-${index + 1}`, {
               command: testCase.command,

@@ -5,11 +5,7 @@ import type { GatewayDaemonRuntime } from "../../commands/daemon-runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { onboardCommand } from "../../commands/onboard.js";
-=======
-import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-auth-flags.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -34,12 +30,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { formatAuthChoiceChoicesForCli } from "../../commands/auth-choice-options.js";
-import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-auth-flags.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { formatAuthChoiceChoicesForCli } from "../../commands/auth-choice-options.js";
 import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-auth-flags.js";
@@ -97,17 +87,8 @@ export function registerOnboardCommand(program: Command) {
       () =>
         `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/onboard", "docs.molt.bot/cli/onboard")}\n`,
     )
-<<<<<<< HEAD
     .option("--workspace <dir>", "Agent workspace directory (default: ~/clawd)")
     .option("--reset", "Reset config + credentials + sessions + workspace before running wizard")
-=======
-    .option("--workspace <dir>", "Agent workspace directory (default: ~/.openclaw/workspace)")
-    .option(
-      "--reset",
-      "Reset config + credentials + sessions before running wizard (workspace only with --reset-scope full)",
-    )
-    .option("--reset-scope <scope>", "Reset scope: config|config+creds+sessions|full")
->>>>>>> 0ec7711bc (fix(agents): harden compaction and reset safety)
     .option("--non-interactive", "Run without prompts", false)
     .option(
       "--accept-risk",
@@ -116,7 +97,6 @@ export function registerOnboardCommand(program: Command) {
     )
     .option("--flow <flow>", "Wizard flow: quickstart|advanced|manual")
     .option("--mode <mode>", "Wizard mode: local|remote")
-<<<<<<< HEAD
     .option(
       "--auth-choice <choice>",
 <<<<<<< HEAD
@@ -130,9 +110,6 @@ export function registerOnboardCommand(program: Command) {
 <<<<<<< HEAD
 <<<<<<< HEAD
       "Auth: setup-token|token|chutes|openai-codex|openai-api-key|openrouter-api-key|ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip",
-=======
-      "Auth: setup-token|token|chutes|openai-codex|openai-api-key|openrouter-api-key|ai-gateway-api-key|moonshot-api-key|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|qianfan-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip",
->>>>>>> 30ac80b96 (Add baidu qianfan model provider)
 =======
       "Auth: setup-token|token|chutes|openai-codex|openai-api-key|openrouter-api-key|ai-gateway-api-key|cloudflare-ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip",
 >>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
@@ -180,7 +157,6 @@ export function registerOnboardCommand(program: Command) {
       "API key persistence mode: plaintext|ref (default: plaintext)",
     )
     .option("--cloudflare-ai-gateway-account-id <id>", "Cloudflare Account ID")
-<<<<<<< HEAD
     .option("--cloudflare-ai-gateway-gateway-id <id>", "Cloudflare AI Gateway ID")
     .option("--cloudflare-ai-gateway-api-key <key>", "Cloudflare AI Gateway API key")
     .option("--moonshot-api-key <key>", "Moonshot API key")
@@ -197,11 +173,6 @@ export function registerOnboardCommand(program: Command) {
     .option("--opencode-zen-api-key <key>", "OpenCode Zen API key")
     .option("--xai-api-key <key>", "xAI API key")
 <<<<<<< HEAD
-=======
-    .option("--litellm-api-key <key>", "LiteLLM API key")
-    .option("--qianfan-api-key <key>", "QIANFAN API key")
-<<<<<<< HEAD
->>>>>>> a36b9be24 (Feat/litellm provider (#12823))
 =======
 =======
     .option("--cloudflare-ai-gateway-gateway-id <id>", "Cloudflare AI Gateway ID");

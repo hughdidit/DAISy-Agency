@@ -3,11 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { HealthSummary } from "./health.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { HealthSummary } from "./health.js";
 >>>>>>> ed11e93cf (chore(format))

@@ -3,11 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { ChannelId, ChannelSetupInput } from "../../channels/plugins/types.js";
-import type { ChannelChoice } from "../onboard-types.js";
->>>>>>> 4c74a2f06 (refactor(channels): reuse setup input types)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { listChannelPluginCatalogEntries } from "../../channels/plugins/catalog.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";

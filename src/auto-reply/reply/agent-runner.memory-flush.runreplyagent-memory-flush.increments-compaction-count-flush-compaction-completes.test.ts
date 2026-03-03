@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 import type { TemplateContext } from "../templating.js";
 import { DEFAULT_MEMORY_FLUSH_PROMPT } from "./memory-flush.js";
@@ -51,10 +50,6 @@ vi.mock("./queue.js", async () => {
   };
 });
 
-=======
-import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
->>>>>>> 4d8a4fbb4 (refactor(test): share runReplyAgent memory flush harness)
 import { runReplyAgent } from "./agent-runner.js";
 =======
 >>>>>>> 5b7a33272 (test: stabilize vitest mocks and harness typing)

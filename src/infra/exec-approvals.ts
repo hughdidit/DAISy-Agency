@@ -13,13 +13,6 @@ export type ExecSecurity = "deny" | "allowlist" | "full";
 export type ExecAsk = "off" | "on-miss" | "always";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-export type SystemRunApprovalBindingV1 = {
-  version: 1;
-=======
-export type SystemRunApprovalBinding = {
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   argv: string[];
   cwd: string | null;
   agentId: string | null;
@@ -27,8 +20,6 @@ export type SystemRunApprovalBinding = {
   envHash: string | null;
 };
 
-<<<<<<< HEAD
-=======
 export type SystemRunApprovalPlan = {
   argv: string[];
   cwd: string | null;
@@ -37,7 +28,6 @@ export type SystemRunApprovalPlan = {
   sessionKey: string | null;
 };
 
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 export type ExecApprovalRequestPayload = {
   command: string;
   commandArgv?: string[];
@@ -45,12 +35,7 @@ export type ExecApprovalRequestPayload = {
   envHash?: string | null;
   // Optional UI-safe env key preview for approval prompts.
   envKeys?: string[];
-<<<<<<< HEAD
   systemRunBindingV1?: SystemRunApprovalBindingV1 | null;
-=======
-  systemRunBinding?: SystemRunApprovalBinding | null;
-  systemRunPlan?: SystemRunApprovalPlan | null;
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   cwd?: string | null;
   nodeId?: string | null;
   host?: string | null;
@@ -145,14 +130,9 @@ const DEFAULT_SECURITY: ExecSecurity = "deny";
 const DEFAULT_ASK: ExecAsk = "on-miss";
 const DEFAULT_ASK_FALLBACK: ExecSecurity = "deny";
 const DEFAULT_AUTO_ALLOW_SKILLS = false;
-<<<<<<< HEAD
 const DEFAULT_SOCKET = "~/.clawdbot/exec-approvals.sock";
 const DEFAULT_FILE = "~/.clawdbot/exec-approvals.json";
 export const DEFAULT_SAFE_BINS = ["jq", "grep", "cut", "sort", "uniq", "head", "tail", "tr", "wc"];
-=======
-const DEFAULT_SOCKET = "~/.openclaw/exec-approvals.sock";
-const DEFAULT_FILE = "~/.openclaw/exec-approvals.json";
->>>>>>> 81fbfa06e (refactor(exec-approvals): extract command analysis module)
 
 function hashExecApprovalsRaw(raw: string | null): string {
   return crypto
@@ -482,7 +462,6 @@ export function resolveExecApprovalsFromFile(params: {
   };
 }
 
-<<<<<<< HEAD
 type CommandResolution = {
   rawExecutable: string;
   resolvedPath?: string;
@@ -1363,8 +1342,6 @@ export function evaluateShellAllowlist(params: {
   };
 }
 
-=======
->>>>>>> 81fbfa06e (refactor(exec-approvals): extract command analysis module)
 export function requiresExecApproval(params: {
   ask: ExecAsk;
   security: ExecSecurity;

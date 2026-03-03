@@ -5,10 +5,7 @@ import type { SlackEventMiddlewareArgs } from "@slack/bolt";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SlackMonitorContext } from "../context.js";
 import type { SlackPinEvent } from "../types.js";

@@ -3,12 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-=======
-import type { ChatCommandDefinition } from "./commands-registry.types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -38,13 +33,10 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChatCommandDefinition } from "./commands-registry.types.js";
 <<<<<<< HEAD
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -134,21 +126,6 @@ describe("commands registry", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  it("renames status to agentstatus for slack", () => {
-    const native = listNativeCommandSpecsForConfig(
-      { commands: { native: true } },
-      { provider: "slack" },
-    );
-    expect(native.find((spec) => spec.name === "agentstatus")).toBeTruthy();
-    expect(native.find((spec) => spec.name === "status")).toBeFalsy();
-    expect(findCommandByNativeName("agentstatus", "slack")?.key).toBe("status");
-    expect(findCommandByNativeName("status", "slack")).toBeUndefined();
-  });
-
->>>>>>> 8bc80fad4 (fix(slack): land #29032 /agentstatus alias from @maloqab)
   it("keeps discord native command specs within slash-command limits", () => {
     const cfg = { commands: { native: true } };
     const native = listNativeCommandSpecsForConfig(cfg, { provider: "discord" });

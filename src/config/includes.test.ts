@@ -5,11 +5,8 @@ import { describe, expect, it } from "vitest";
 import {
   CircularIncludeError,
   ConfigIncludeError,
-<<<<<<< HEAD
-=======
   MAX_INCLUDE_FILE_BYTES,
   deepMerge,
->>>>>>> 9925ac6a2 (fix(config): harden include file loading path checks)
   type IncludeResolver,
   resolveConfigIncludes,
 } from "./includes.js";
@@ -89,13 +86,9 @@ describe("resolveConfigIncludes", () => {
     const absolute = etcMoltbotPath("agents.json");
     const files = { [absolute]: { list: [{ id: "main" }] } };
     const obj = { agents: { $include: absolute } };
-<<<<<<< HEAD
     expect(resolve(obj, files)).toEqual({
       agents: { list: [{ id: "main" }] },
     });
-=======
-    expectResolveIncludeError(() => resolve(obj, files), /escapes config directory/);
->>>>>>> b97691f3a (test(config): avoid duplicate include resolution in throw assertions)
   });
 
   it("resolves single and array include merges", () => {
@@ -325,7 +318,6 @@ describe("resolveConfigIncludes", () => {
     }
   });
 
-<<<<<<< HEAD
   it("applies nested includes before sibling overrides", () => {
     const files = {
       [configPath("base.json")]: { nested: { $include: "./nested.json" } },
@@ -342,10 +334,6 @@ describe("resolveConfigIncludes", () => {
     const obj = { $include: "../../shared/common.json" };
 <<<<<<< HEAD
     expect(resolve(obj, files, configPath("sub", "moltbot.json"))).toEqual({
-=======
-=======
-  it("enforces traversal boundaries while allowing safe nested-parent paths", () => {
->>>>>>> cd5f3fe0c (test(config): consolidate env/include scenario coverage)
     expectResolveIncludeError(
       () =>
         resolve(
@@ -356,7 +344,6 @@ describe("resolveConfigIncludes", () => {
       /escapes config directory/,
     );
 
-<<<<<<< HEAD
   it("allows nested parent traversal when path stays under top-level config directory", () => {
     const files = {
       [configPath("sub", "child.json")]: { $include: "../shared/common.json" },
@@ -365,17 +352,6 @@ describe("resolveConfigIncludes", () => {
     const obj = { $include: "./sub/child.json" };
     expect(resolve(obj, files)).toEqual({
 >>>>>>> b97691f3a (test(config): avoid duplicate include resolution in throw assertions)
-=======
-    expect(
-      resolve(
-        { $include: "./sub/child.json" },
-        {
-          [configPath("sub", "child.json")]: { $include: "../shared/common.json" },
-          [configPath("shared", "common.json")]: { shared: true },
-        },
-      ),
-    ).toEqual({
->>>>>>> cd5f3fe0c (test(config): consolidate env/include scenario coverage)
       shared: true,
     });
   });
@@ -458,8 +434,6 @@ describe("real-world config patterns", () => {
     }
   });
 });
-<<<<<<< HEAD
-=======
 describe("security: path traversal protection (CWE-22)", () => {
   function expectRejectedTraversalPaths(
     cases: ReadonlyArray<{ includePath: string; expectEscapesMessage: boolean }>,
@@ -735,4 +709,3 @@ describe("security: path traversal protection (CWE-22)", () => {
     });
   });
 });
->>>>>>> 861718e4d (test: group remaining suite cleanups)

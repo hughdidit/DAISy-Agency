@@ -1,23 +1,11 @@
 ---
-<<<<<<< HEAD
 summary: "Top-level overview of Moltbot, features, and purpose"
-=======
-summary: "OpenClaw is a multi-channel gateway for AI agents that runs on any OS."
->>>>>>> 718dba8cb (Docs: landing page revamp (#8885))
 read_when:
   - Introducing Moltbot to newcomers
 ---
-<<<<<<< HEAD
 # Moltbot 🦞
 
 > *"EXFOLIATE! EXFOLIATE!"* — A space lobster, probably
-=======
-
-# OpenClaw 🦞
-
-<<<<<<< HEAD
-> _"EXFOLIATE! EXFOLIATE!"_ — A space lobster, probably
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 =======
 >>>>>>> 718dba8cb (Docs: landing page revamp (#8885))
@@ -28,7 +16,6 @@ read_when:
 > _"EXFOLIATE! EXFOLIATE!"_ — A space lobster, probably
 
 <p align="center">
-<<<<<<< HEAD
   <a href="https://github.com/moltbot/moltbot">GitHub</a> ·
   <a href="https://github.com/moltbot/moltbot/releases">Releases</a> ·
   <a href="/">Docs</a> ·
@@ -37,46 +24,15 @@ read_when:
 
 Moltbot bridges WhatsApp (via WhatsApp Web / Baileys), Telegram (Bot API / grammY), Discord (Bot API / channels.discord.js), and iMessage (imsg CLI) to coding agents like [Pi](https://github.com/badlogic/pi-mono). Plugins add Mattermost (Bot API + WebSocket) and more.
 Moltbot also powers [Clawd](https://clawd.me), the space‑lobster assistant.
-=======
-  <strong>Any OS gateway for AI agents across WhatsApp, Telegram, Discord, iMessage, and more.</strong><br />
-  Send a message, get an agent response from your pocket. Plugins add Mattermost and more.
-</p>
-
-<Columns>
-  <Card title="Get Started" href="/start/getting-started" icon="rocket">
-    Install OpenClaw and bring up the Gateway in minutes.
-  </Card>
-  <Card title="Run the Wizard" href="/start/wizard" icon="sparkles">
-    Guided setup with `openclaw onboard` and pairing flows.
-  </Card>
-  <Card title="Open the Control UI" href="/web/control-ui" icon="layout-dashboard">
-    Launch the browser dashboard for chat, config, and sessions.
-  </Card>
-</Columns>
->>>>>>> 718dba8cb (Docs: landing page revamp (#8885))
 
 OpenClaw connects chat apps to coding agents like Pi through a single Gateway process. It powers the OpenClaw assistant and supports local or remote setups.
 
-<<<<<<< HEAD
 - **New install from zero:** [Getting Started](/start/getting-started)
 - **Guided setup (recommended):** [Wizard](/start/wizard) (`moltbot onboard`)
 - **Open the dashboard (local Gateway):** http://127.0.0.1:18789/ (or http://localhost:18789/)
 
 If the Gateway is running on the same computer, that link opens the browser Control UI
 immediately. If it fails, start the Gateway first: `moltbot gateway`.
-=======
-## How it works
-
-```mermaid
-flowchart LR
-  A["Chat apps + plugins"] --> B["Gateway"]
-  B --> C["Pi agent"]
-  B --> D["CLI"]
-  B --> E["Web Control UI"]
-  B --> F["macOS app"]
-  B --> G["iOS and Android nodes"]
-```
->>>>>>> 718dba8cb (Docs: landing page revamp (#8885))
 
 The Gateway is the single source of truth for sessions, routing, and channel connections.
 
@@ -133,7 +89,6 @@ Open the browser Control UI after the Gateway starts.
 - Local default: http://127.0.0.1:18789/
 - Remote access: [Web surfaces](/web) and [Tailscale](/gateway/tailscale)
 
-<<<<<<< HEAD
 ## How it works
 
 ```
@@ -235,11 +190,6 @@ Send a test message (requires a running Gateway):
 ```bash
 moltbot message send --target +15555550123 --message "Hello from Moltbot"
 ```
-=======
-<p align="center">
-  <img src="whatsapp-openclaw.jpg" alt="OpenClaw" width="420" />
-</p>
->>>>>>> 718dba8cb (Docs: landing page revamp (#8885))
 
 ## Configuration (optional)
 
@@ -258,17 +208,12 @@ Example:
       groups: { "*": { requireMention: true } },
     },
   },
-<<<<<<< HEAD
   messages: { groupChat: { mentionPatterns: ["@clawd"] } }
-=======
-  messages: { groupChat: { mentionPatterns: ["@openclaw"] } },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
 ## Start here
 
-<<<<<<< HEAD
 - Start here:
   - [Docs hubs (all pages linked)](/start/hubs)
   - [Help](/help) ← _common fixes + troubleshooting_
@@ -314,32 +259,9 @@ Example:
   - [Gmail hooks (Pub/Sub)](/automation/gmail-pubsub)
   - [Security](/gateway/security)
   - [Troubleshooting](/gateway/troubleshooting)
-=======
-<Columns>
-  <Card title="Docs hubs" href="/start/hubs" icon="book-open">
-    All docs and guides, organized by use case.
-  </Card>
-  <Card title="Configuration" href="/gateway/configuration" icon="settings">
-    Core Gateway settings, tokens, and provider config.
-  </Card>
-  <Card title="Remote access" href="/gateway/remote" icon="globe">
-    SSH and tailnet access patterns.
-  </Card>
-  <Card title="Channels" href="/channels/telegram" icon="message-square">
-    Channel-specific setup for WhatsApp, Telegram, Discord, and more.
-  </Card>
-  <Card title="Nodes" href="/nodes" icon="smartphone">
-    iOS and Android nodes with pairing and Canvas.
-  </Card>
-  <Card title="Help" href="/help" icon="life-buoy">
-    Common fixes and troubleshooting entry point.
-  </Card>
-</Columns>
->>>>>>> 718dba8cb (Docs: landing page revamp (#8885))
 
 ## Learn more
 
-<<<<<<< HEAD
 **Moltbot = CLAW + TARDIS** — because every space lobster needs a time-and-space machine.
 
 ---
@@ -364,22 +286,3 @@ MIT — Free as a lobster in the ocean 🦞
 ---
 
 _"We're all just playing with our own prompts."_ — An AI, probably high on tokens
-=======
-<Columns>
-  <Card title="Full feature list" href="/concepts/features" icon="list">
-    Complete channel, routing, and media capabilities.
-  </Card>
-  <Card title="Multi-agent routing" href="/concepts/multi-agent" icon="route">
-    Workspace isolation and per-agent sessions.
-  </Card>
-  <Card title="Security" href="/gateway/security" icon="shield">
-    Tokens, allowlists, and safety controls.
-  </Card>
-  <Card title="Troubleshooting" href="/gateway/troubleshooting" icon="wrench">
-    Gateway diagnostics and common errors.
-  </Card>
-  <Card title="About and credits" href="/reference/credits" icon="info">
-    Project origins, contributors, and license.
-  </Card>
-</Columns>
->>>>>>> 718dba8cb (Docs: landing page revamp (#8885))

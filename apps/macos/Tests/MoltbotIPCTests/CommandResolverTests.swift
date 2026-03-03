@@ -24,11 +24,7 @@ import Testing
         try FileManager().setAttributes([.posixPermissions: 0o755], ofItemAtPath: path.path)
     }
 
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/CommandResolverTests.swift
     @Test func prefersMoltbotBinary() throws {
-=======
-    @Test func prefersOpenClawBinary() throws {
->>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/CommandResolverTests.swift
         let defaults = self.makeDefaults()
         defaults.set(AppState.ConnectionMode.local.rawValue, forKey: connectionModeKey)
 
@@ -70,8 +66,6 @@ import Testing
         }
     }
 
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/CommandResolverTests.swift
-=======
     @Test func prefersOpenClawBinaryOverPnpm() throws {
         let defaults = self.makeDefaults()
         defaults.set(AppState.ConnectionMode.local.rawValue, forKey: connectionModeKey)
@@ -114,7 +108,6 @@ import Testing
         #expect(cmd.prefix(2).elementsEqual([openclawPath.path, "gateway"]))
     }
 
->>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/CommandResolverTests.swift
     @Test func fallsBackToPnpm() throws {
         let defaults = self.makeDefaults()
         defaults.set(AppState.ConnectionMode.local.rawValue, forKey: connectionModeKey)

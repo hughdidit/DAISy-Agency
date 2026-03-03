@@ -3,12 +3,8 @@ import { buildChannelAccountSnapshot } from "../../channels/plugins/status.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChannelAccountSnapshot } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ChannelAccountSnapshot } from "../../channels/plugins/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

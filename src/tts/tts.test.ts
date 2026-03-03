@@ -1,18 +1,11 @@
-<<<<<<< HEAD
-=======
 import { completeSimple, type AssistantMessage } from "@mariozechner/pi-ai";
->>>>>>> cf6cdc74d (chore: Fix types in tests 23/N.)
 import { describe, expect, it, vi, beforeEach } from "vitest";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
 import { completeSimple } from "@mariozechner/pi-ai";
 
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -469,17 +462,9 @@ describe("tts", () => {
       },
     };
 
-<<<<<<< HEAD
     it("skips auto-TTS when inbound audio gating is on and the message is not audio", async () => {
       const prevPrefs = process.env.CLAWDBOT_TTS_PREFS;
       process.env.CLAWDBOT_TTS_PREFS = `/tmp/tts-test-${Date.now()}.json`;
-=======
-    const withMockedAutoTtsFetch = async (
-      run: (fetchMock: ReturnType<typeof vi.fn>) => Promise<void>,
-    ) => {
-      const prevPrefs = process.env.OPENCLAW_TTS_PREFS;
-      process.env.OPENCLAW_TTS_PREFS = `/tmp/tts-test-${Date.now()}.json`;
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
       const originalFetch = globalThis.fetch;
       const fetchMock = vi.fn(async () => ({
         ok: true,
@@ -502,7 +487,6 @@ describe("tts", () => {
       },
     };
 
-<<<<<<< HEAD
     it("skips auto-TTS when inbound audio gating is on and the message is not audio", async () => {
       await withMockedAutoTtsFetch(async (fetchMock) => {
         const payload = { text: "Hello world" };
@@ -523,8 +507,6 @@ describe("tts", () => {
 
       globalThis.fetch = originalFetch;
       process.env.CLAWDBOT_TTS_PREFS = prevPrefs;
-=======
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     });
 
     it("skips auto-TTS when markdown stripping leaves text too short", async () => {
@@ -543,7 +525,6 @@ describe("tts", () => {
     });
 
     it("attempts auto-TTS when inbound audio gating is on and the message is audio", async () => {
-<<<<<<< HEAD
       const prevPrefs = process.env.CLAWDBOT_TTS_PREFS;
       process.env.CLAWDBOT_TTS_PREFS = `/tmp/tts-test-${Date.now()}.json`;
       const originalFetch = globalThis.fetch;
@@ -552,15 +533,6 @@ describe("tts", () => {
         arrayBuffer: async () => new ArrayBuffer(1),
       }));
       globalThis.fetch = fetchMock as unknown as typeof fetch;
-=======
-      await withMockedAutoTtsFetch(async (fetchMock) => {
-        const result = await maybeApplyTtsToPayload({
-=======
-    it("applies inbound auto-TTS gating by audio status and cleaned text length", async () => {
-      const cases = [
-        {
-          name: "inbound gating blocks non-audio",
->>>>>>> 52ddb6ae1 (test: streamline auto-reply and tts suites)
           payload: { text: "Hello world" },
           inboundAudio: false,
           expectedFetchCalls: 0,
@@ -570,7 +542,6 @@ describe("tts", () => {
           name: "inbound gating blocks too-short cleaned text",
           payload: { text: "### **bold**" },
           inboundAudio: true,
-<<<<<<< HEAD
         });
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
@@ -595,37 +566,6 @@ describe("tts", () => {
         arrayBuffer: async () => new ArrayBuffer(1),
       }));
       globalThis.fetch = fetchMock as unknown as typeof fetch;
-=======
-=======
-          expectedFetchCalls: 0,
-          expectSamePayload: true,
-        },
-        {
-          name: "inbound gating allows audio with real text",
-          payload: { text: "Hello world" },
-          inboundAudio: true,
-          expectedFetchCalls: 1,
-          expectSamePayload: false,
-        },
-      ] as const;
-
-      for (const testCase of cases) {
-        await withMockedAutoTtsFetch(async (fetchMock) => {
-          const result = await maybeApplyTtsToPayload({
-            payload: testCase.payload,
-            cfg: baseCfg,
-            kind: "final",
-            inboundAudio: testCase.inboundAudio,
-          });
-          expect(fetchMock, testCase.name).toHaveBeenCalledTimes(testCase.expectedFetchCalls);
-          if (testCase.expectSamePayload) {
-            expect(result, testCase.name).toBe(testCase.payload);
-          } else {
-            expect(result.mediaUrl, testCase.name).toBeDefined();
-          }
-        });
-      }
->>>>>>> 52ddb6ae1 (test: streamline auto-reply and tts suites)
     });
 
     it("skips auto-TTS in tagged mode unless a tts tag is present", async () => {
@@ -641,7 +581,6 @@ describe("tts", () => {
         expect(result).toBe(payload);
         expect(fetchMock).not.toHaveBeenCalled();
       });
-<<<<<<< HEAD
 
       expect(result).toBe(payload);
       expect(fetchMock).not.toHaveBeenCalled();
@@ -659,30 +598,16 @@ describe("tts", () => {
         arrayBuffer: async () => new ArrayBuffer(1),
       }));
       globalThis.fetch = fetchMock as unknown as typeof fetch;
-=======
-    });
-
-    it("runs auto-TTS in tagged mode when tags are present", async () => {
-      await withMockedAutoTtsFetch(async (fetchMock) => {
-        const result = await maybeApplyTtsToPayload({
-          payload: { text: "[[tts:text]]Hello world[[/tts:text]]" },
-          cfg: taggedCfg,
-          kind: "final",
-        });
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
         expect(result.mediaUrl).toBeDefined();
         expect(fetchMock).toHaveBeenCalledTimes(1);
       });
-<<<<<<< HEAD
 
       expect(result.mediaUrl).toBeDefined();
       expect(fetchMock).toHaveBeenCalledTimes(1);
 
       globalThis.fetch = originalFetch;
       process.env.CLAWDBOT_TTS_PREFS = prevPrefs;
-=======
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     });
   });
 });

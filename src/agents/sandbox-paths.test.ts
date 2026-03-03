@@ -128,7 +128,6 @@ describe("resolveSandboxedMediaSource", () => {
   });
 
   // Group 3: Rejections (security)
-<<<<<<< HEAD
   it("rejects paths outside sandbox root and tmpdir", async () => {
     const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "sandbox-media-"));
     try {
@@ -180,60 +179,6 @@ describe("resolveSandboxedMediaSource", () => {
     } finally {
       await fs.rm(sandboxDir, { recursive: true, force: true });
     }
-=======
-  it.each([
-    {
-      name: "paths outside sandbox root and tmpdir",
-      media: "/etc/passwd",
-      expected: /sandbox/i,
-    },
-    {
-      name: "paths under similarly named container roots",
-      media: "/workspace-two/secret.txt",
-      expected: /sandbox/i,
-    },
-    {
-      name: "path traversal through tmpdir",
-      media: path.join(os.tmpdir(), "..", "etc", "passwd"),
-      expected: /sandbox/i,
-    },
-    {
-      name: "relative traversal outside sandbox",
-      media: "../outside-sandbox.png",
-      expected: /sandbox/i,
-    },
-    {
-      name: "file:// URLs outside sandbox",
-      media: "file:///etc/passwd",
-      expected: /sandbox/i,
-    },
-    {
-      name: "invalid file:// URLs",
-      media: "file://not a valid url\x00",
-      expected: /Invalid file:\/\/ URL/,
-    },
-  ])("rejects $name", async ({ media, expected }) => {
-    await withSandboxRoot(async (sandboxDir) => {
-      await expectSandboxRejection(media, sandboxDir, expected);
-    });
-  });
-
-  it("rejects symlinked tmpdir paths escaping tmpdir", async () => {
-    if (process.platform === "win32") {
-      return;
-    }
-    const outsideTmpTarget = path.resolve(process.cwd(), "package.json");
-    if (isPathInside(os.tmpdir(), outsideTmpTarget)) {
-      return;
-    }
-
-    await withSandboxRoot(async (sandboxDir) => {
-      await fs.access(outsideTmpTarget);
-      const symlinkPath = path.join(sandboxDir, "tmp-link-escape");
-      await fs.symlink(outsideTmpTarget, symlinkPath);
-      await expectSandboxRejection(symlinkPath, sandboxDir, /symlink|sandbox/i);
-    });
->>>>>>> 8922cb408 (test(sandbox): share sandbox-root setup across path cases)
   });
 
   it("rejects hardlinked OpenClaw tmp paths to outside files", async () => {

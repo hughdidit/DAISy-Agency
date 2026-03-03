@@ -99,7 +99,6 @@ describe("LINE accounts", () => {
     });
   });
 
-<<<<<<< HEAD
   describe("listLineAccountIds", () => {
     it("returns default account when configured at base level", () => {
       const cfg: MoltbotConfig = {
@@ -135,8 +134,6 @@ describe("LINE accounts", () => {
       expect(ids).toContain("personal");
     });
 
-=======
->>>>>>> 357b1e8fe (test: remove duplicate line account listing case)
     it("returns default from env", () => {
       process.env.LINE_CHANNEL_ACCESS_TOKEN = "env-token";
       const cfg: MoltbotConfig = {};
@@ -153,35 +150,20 @@ describe("LINE accounts", () => {
 >>>>>>> 242e8f5c4 (test: remove low-signal line account listing coverage)
   describe("resolveDefaultLineAccountId", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     it("returns default when configured", () => {
       const cfg: MoltbotConfig = {
         channels: {
           line: {
             channelAccessToken: "test-token",
-=======
-    it("prefers channels.line.defaultAccount when configured", () => {
-      const cfg: OpenClawConfig = {
-        channels: {
-          line: {
-            defaultAccount: "business",
-            accounts: {
-              business: { enabled: true },
-              support: { enabled: true },
-            },
->>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
           },
         },
       };
 
       const id = resolveDefaultLineAccountId(cfg);
-<<<<<<< HEAD
 
       expect(id).toBe(DEFAULT_ACCOUNT_ID);
     });
 
-=======
->>>>>>> 4c46c23ca (test: remove redundant default line account id case)
 =======
       expect(id).toBe("business");
     });

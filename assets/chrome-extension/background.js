@@ -190,7 +190,6 @@ function onRelayClosed(reason) {
     p.reject(new Error(`Relay disconnected (${reason})`))
   }
 
-<<<<<<< HEAD
   for (const tabId of tabs.keys()) {
     void chrome.debugger.detach({ tabId }).catch(() => {})
     setBadge(tabId, 'connecting')
@@ -198,16 +197,6 @@ function onRelayClosed(reason) {
       tabId,
       title: 'Moltbot Browser Relay: disconnected (click to re-attach)',
     })
-=======
-  for (const [tabId, tab] of tabs.entries()) {
-    if (tab.state === 'connected') {
-      setBadge(tabId, 'connecting')
-      void chrome.action.setTitle({
-        tabId,
-        title: 'OpenClaw Browser Relay: relay reconnecting…',
-      })
-    }
->>>>>>> 1fe204374 (fix(browser): harden extension relay worker recovery)
   }
 
   scheduleReconnect()
@@ -498,7 +487,6 @@ async function connectOrToggleForActiveTab() {
   const tabId = active?.id
   if (!tabId) return
 
-<<<<<<< HEAD
   const existing = tabs.get(tabId)
   if (existing?.state === 'connected') {
     await detachTab(tabId, 'toggle')
@@ -511,11 +499,6 @@ async function connectOrToggleForActiveTab() {
     tabId,
     title: 'Moltbot Browser Relay: connecting to local relay…',
   })
-=======
-  // Prevent concurrent operations on the same tab.
-  if (tabOperationLocks.has(tabId)) return
-  tabOperationLocks.add(tabId)
->>>>>>> 1fe204374 (fix(browser): harden extension relay worker recovery)
 
   try {
     const existing = tabs.get(tabId)
@@ -531,11 +514,7 @@ async function connectOrToggleForActiveTab() {
     setBadge(tabId, 'connecting')
     void chrome.action.setTitle({
       tabId,
-<<<<<<< HEAD
       title: 'Moltbot Browser Relay: relay not running (open options for setup)',
-=======
-      title: 'OpenClaw Browser Relay: connecting to local relay…',
->>>>>>> 1fe204374 (fix(browser): harden extension relay worker recovery)
     })
 
     try {

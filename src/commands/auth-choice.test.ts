@@ -1,20 +1,14 @@
 import fs from "node:fs/promises";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import path from "node:path";
 
-=======
->>>>>>> f1351fc54 (refactor(test): centralize auth test agent-dir helpers)
 =======
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 >>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
 import { afterEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { RuntimeEnv } from "../runtime.js";
-=======
->>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
 =======
 import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
 >>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
@@ -24,12 +18,6 @@ import type { WizardPrompter } from "../wizard/prompts.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { AuthChoice } from "./onboard-types.js";
-<<<<<<< HEAD
-import { captureEnv } from "../test-utils/env.js";
->>>>>>> 07dea4c6c (refactor(test): dedupe auth choice env cleanup)
 =======
 >>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
 =======
@@ -45,13 +33,9 @@ import type { AuthChoice } from "./onboard-types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
-<<<<<<< HEAD:src/commands/auth-choice.test.ts
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { AuthChoice } from "./onboard-types.js";
-=======
-import { ZAI_CODING_CN_BASE_URL, ZAI_CODING_GLOBAL_BASE_URL } from "./onboard-auth.js";
->>>>>>> 540996f10 (feat(provider): Z.AI endpoints + model catalog (#13456) (thanks @tomsun28) (#13456))
 =======
 =======
 import { GOOGLE_GEMINI_DEFAULT_MODEL } from "./google-gemini-model-default.js";
@@ -91,19 +75,12 @@ vi.mock("../plugins/providers.js", () => ({
   resolvePluginProviders,
 }));
 
-<<<<<<< HEAD:src/commands/auth-choice.test.ts
 <<<<<<< HEAD
 const authProfilePathFor = (agentDir: string) => path.join(agentDir, "auth-profiles.json");
 const requireAgentDir = () => {
 <<<<<<< HEAD
   const agentDir = process.env.CLAWDBOT_AGENT_DIR;
   if (!agentDir) throw new Error("CLAWDBOT_AGENT_DIR not set");
-=======
-  const agentDir = process.env.OPENCLAW_AGENT_DIR;
-  if (!agentDir) {
-    throw new Error("OPENCLAW_AGENT_DIR not set");
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return agentDir;
 };
 =======
@@ -128,7 +105,6 @@ type StoredAuthProfile = {
 
 describe("applyAuthChoice", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
@@ -140,11 +116,6 @@ describe("applyAuthChoice", () => {
   const previousCloudflareGatewayKey = process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;
   const previousSshTty = process.env.SSH_TTY;
   const previousChutesClientId = process.env.CHUTES_CLIENT_ID;
-=======
-  const envSnapshot = captureEnv([
-=======
-  const lifecycle = createAuthTestLifecycle([
->>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
     "OPENCLAW_STATE_DIR",
     "OPENCLAW_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
@@ -169,11 +140,8 @@ describe("applyAuthChoice", () => {
     "CHUTES_CLIENT_ID",
   ]);
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 07dea4c6c (refactor(test): dedupe auth choice env cleanup)
   let tempStateDir: string | null = null;
-=======
->>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
 =======
   let activeStateDir: string | null = null;
 >>>>>>> 0cc46d774 (test: consolidate auth-choice tests for faster coverage)
@@ -227,7 +195,6 @@ describe("applyAuthChoice", () => {
     detectZaiEndpoint.mockResolvedValue(null);
     loginOpenAICodexOAuth.mockReset();
     loginOpenAICodexOAuth.mockResolvedValue(null);
-<<<<<<< HEAD
     if (tempStateDir) {
       await fs.rm(tempStateDir, { recursive: true, force: true });
       tempStateDir = null;
@@ -289,15 +256,8 @@ describe("applyAuthChoice", () => {
       process.env.CHUTES_CLIENT_ID = previousChutesClientId;
     }
 =======
-    envSnapshot.restore();
->>>>>>> 07dea4c6c (refactor(test): dedupe auth choice env cleanup)
-=======
     await lifecycle.cleanup();
-<<<<<<< HEAD
 >>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
-=======
-    activeStateDir = null;
->>>>>>> 0cc46d774 (test: consolidate auth-choice tests for faster coverage)
   });
 
   it("does not throw when openai-codex oauth fails", async () => {
@@ -354,16 +314,12 @@ describe("applyAuthChoice", () => {
     });
   });
 
-<<<<<<< HEAD
   it("prompts and writes MiniMax API key when selecting minimax-api", async () => {
 <<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-    await setupTempState();
->>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
 =======
   it("prompts and writes provider API key for common providers", async () => {
     const scenarios: Array<{
@@ -425,7 +381,6 @@ describe("applyAuthChoice", () => {
         setDefaultModel: true,
       });
 
-<<<<<<< HEAD
     expect(text).toHaveBeenCalledWith(
       expect.objectContaining({ message: "Enter MiniMax API key" }),
     );
@@ -438,43 +393,11 @@ describe("applyAuthChoice", () => {
   });
 
 <<<<<<< HEAD
-=======
-  it("prompts and writes MiniMax API key when selecting minimax-api-key-cn", async () => {
-    await setupTempState();
-
-    const text = vi.fn().mockResolvedValue("sk-minimax-test");
-    const { prompter, runtime } = createApiKeyPromptHarness({ text });
-
-    const result = await applyAuthChoice({
-      authChoice: "minimax-api-key-cn",
-      config: {},
-      prompter,
-      runtime,
-      setDefaultModel: true,
-    });
-
-    expect(text).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "Enter MiniMax China API key" }),
-    );
-    expect(result.config.auth?.profiles?.["minimax-cn:default"]).toMatchObject({
-      provider: "minimax-cn",
-      mode: "api_key",
-    });
-    expect(result.config.models?.providers?.["minimax-cn"]?.baseUrl).toBe(MINIMAX_CN_API_BASE_URL);
-
-    expect((await readAuthProfile("minimax-cn:default"))?.key).toBe("sk-minimax-test");
-  });
-
->>>>>>> 1ba266a8e (refactor: split minimax-cn provider)
   it("prompts and writes Synthetic API key when selecting synthetic-api-key", async () => {
-<<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-    await setupTempState();
->>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
 
     const text = vi.fn().mockResolvedValue("sk-synthetic-test");
     const { prompter, runtime } = createApiKeyPromptHarness({ text });
@@ -1054,21 +977,7 @@ describe("applyAuthChoice", () => {
 
     const result = await applyAuthChoice({
       authChoice: "openai-api-key",
-<<<<<<< HEAD
       config: {},
-=======
-      config: {
-        secrets: {
-          providers: {
-            filemain: {
-              source: "file",
-              path: "/tmp/openclaw-missing-secrets.json",
-              mode: "json",
-            },
-          },
-        },
-      },
->>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
       prompter,
       runtime,
       setDefaultModel: false,
@@ -1161,14 +1070,10 @@ describe("applyAuthChoice", () => {
   });
 
   it("sets default model when selecting github-copilot", async () => {
-<<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-    await setupTempState();
->>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
 
     const prompter = createPrompter({});
     const runtime = createExitThrowingRuntime();
@@ -1203,16 +1108,12 @@ describe("applyAuthChoice", () => {
     }
   });
 
-<<<<<<< HEAD
   it("does not override the default model when selecting opencode-zen without setDefaultModel", async () => {
 <<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-    await setupTempState();
->>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
 
     const text = vi.fn().mockResolvedValue("sk-opencode-zen-test");
     const { prompter, runtime } = createApiKeyPromptHarness({ text });
@@ -1238,7 +1139,6 @@ describe("applyAuthChoice", () => {
       "anthropic/claude-opus-4-5",
     );
     expect(result.config.models?.providers?.["opencode-zen"]).toBeUndefined();
-<<<<<<< HEAD
     expect(result.agentModelOverride).toBe("opencode/claude-opus-4-5");
   });
 
@@ -1247,12 +1147,6 @@ describe("applyAuthChoice", () => {
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-    expect(result.agentModelOverride).toBe("opencode/claude-opus-4-6");
-  });
-
-=======
->>>>>>> 0cc46d774 (test: consolidate auth-choice tests for faster coverage)
   it("does not persist literal 'undefined' when API key prompts return undefined", async () => {
     const scenarios = [
       {
@@ -1296,7 +1190,6 @@ describe("applyAuthChoice", () => {
     }
   });
 
-<<<<<<< HEAD
   it("uses existing OPENROUTER_API_KEY when selecting openrouter-api-key", async () => {
     await setupTempState();
 >>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
@@ -1333,8 +1226,6 @@ describe("applyAuthChoice", () => {
     delete process.env.OPENROUTER_API_KEY;
   });
 
-=======
->>>>>>> 0cc46d774 (test: consolidate auth-choice tests for faster coverage)
   it("ignores legacy LiteLLM oauth profiles when selecting litellm-api-key", async () => {
     await setupTempState();
     process.env.LITELLM_API_KEY = "sk-litellm-test";
@@ -1397,16 +1288,12 @@ describe("applyAuthChoice", () => {
     });
   });
 
-<<<<<<< HEAD
   it("uses existing AI_GATEWAY_API_KEY when selecting ai-gateway-api-key", async () => {
 <<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-    await setupTempState();
->>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
     process.env.AI_GATEWAY_API_KEY = "gateway-test-key";
 
     const text = vi.fn();
@@ -1431,13 +1318,8 @@ describe("applyAuthChoice", () => {
       provider: "vercel-ai-gateway",
       mode: "api_key",
     });
-<<<<<<< HEAD
     expect(result.config.agents?.defaults?.model?.primary).toBe(
       "vercel-ai-gateway/anthropic/claude-opus-4.5",
-=======
-    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
-      "vercel-ai-gateway/anthropic/claude-opus-4.6",
->>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
     );
 
     expect((await readAuthProfile("vercel-ai-gateway:default"))?.key).toBe("gateway-test-key");
@@ -1625,14 +1507,10 @@ describe("applyAuthChoice", () => {
   });
 
   it("writes Chutes OAuth credentials when selecting chutes (remote/manual)", async () => {
-<<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-    await setupTempState();
->>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
     process.env.SSH_TTY = "1";
     process.env.CHUTES_CLIENT_ID = "cid_test";
 
@@ -1701,16 +1579,12 @@ describe("applyAuthChoice", () => {
     });
   });
 
-<<<<<<< HEAD
   it("writes Qwen credentials when selecting qwen-portal", async () => {
 <<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-    await setupTempState();
->>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
 
     resolvePluginProviders.mockReturnValue([
 =======
@@ -1741,7 +1615,6 @@ describe("applyAuthChoice", () => {
         defaultModel: "qwen-portal/coder-model",
         apiKey: "qwen-oauth",
       },
-<<<<<<< HEAD
     ] as never);
 
     const prompter = createPrompter({});
@@ -1774,14 +1647,6 @@ describe("applyAuthChoice", () => {
     });
   });
 <<<<<<< HEAD
-=======
-
-  it("writes MiniMax credentials when selecting minimax-portal", async () => {
-    await setupTempState();
-
-    resolvePluginProviders.mockReturnValue([
-=======
->>>>>>> 0cc46d774 (test: consolidate auth-choice tests for faster coverage)
       {
         authChoice: "minimax-portal",
         label: "MiniMax",

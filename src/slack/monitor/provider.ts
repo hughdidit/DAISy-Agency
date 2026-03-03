@@ -6,12 +6,7 @@ import SlackBolt from "@slack/bolt";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { SessionScope } from "../../config/sessions.js";
-import type { MonitorSlackOpts } from "./types.js";
->>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -36,28 +31,18 @@ import {
   summarizeMapping,
 } from "../../channels/allowlists/resolve-utils.js";
 import { loadConfig } from "../../config/config.js";
-<<<<<<< HEAD
-=======
 import {
   resolveOpenProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "../../config/runtime-group-policy.js";
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import type { SessionScope } from "../../config/sessions.js";
 import { warn } from "../../globals.js";
-<<<<<<< HEAD
-=======
 import { computeBackoff, sleepWithAbort } from "../../infra/backoff.js";
 import { installRequestBodyLimitGuard } from "../../infra/http-body.js";
->>>>>>> 949faff5c (fix(slack): reconnect socket mode after disconnect (#27232))
 import { normalizeMainKey } from "../../routing/session-key.js";
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 
-=======
-import { createNonExitingRuntime, type RuntimeEnv } from "../../runtime.js";
->>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 import { resolveSlackAccount } from "../accounts.js";
 import { resolveSlackChannelAllowlist } from "../resolve-channels.js";
 import { resolveSlackUserAllowlist } from "../resolve-users.js";
@@ -73,11 +58,8 @@ import { registerSlackMonitorSlashCommands } from "./slash.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { normalizeAllowList } from "./allow-list.js";
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { MonitorSlackOpts } from "./types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -98,8 +80,6 @@ const slackBoltModule = SlackBolt as typeof import("@slack/bolt") & {
 const slackBolt =
   (slackBoltModule.App ? slackBoltModule : slackBoltModule.default) ?? slackBoltModule;
 const { App, HTTPReceiver } = slackBolt;
-<<<<<<< HEAD
-=======
 
 const SLACK_WEBHOOK_MAX_BODY_BYTES = 1024 * 1024;
 const SLACK_WEBHOOK_BODY_TIMEOUT_MS = 30_000;
@@ -218,7 +198,6 @@ function resolveSlackRuntimeGroupPolicy(params: {
   return { groupPolicy, providerMissingFallbackApplied };
 }
 
->>>>>>> 3700151ec (Channels: fail closed when Slack/Discord config is missing)
 =======
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 function parseApiAppIdFromAppToken(raw?: string) {

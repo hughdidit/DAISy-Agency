@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { resolveUserPath } from "./utils.js";
 import type { CallMode, VoiceCallConfig } from "./config.js";
@@ -19,26 +18,7 @@ import {
   type TranscriptEntry,
 } from "./types.js";
 import { escapeXml, mapVoiceToPolly } from "./voice-mapping.js";
-=======
-import type { VoiceCallConfig } from "./config.js";
-import type { CallManagerContext } from "./manager/context.js";
-import { processEvent as processManagerEvent } from "./manager/events.js";
-import { getCallByProviderCallId as getCallByProviderCallIdFromMaps } from "./manager/lookup.js";
-import {
-  continueCall as continueCallWithContext,
-  endCall as endCallWithContext,
-  initiateCall as initiateCallWithContext,
-  speak as speakWithContext,
-  speakInitialMessage as speakInitialMessageWithContext,
-} from "./manager/outbound.js";
-import { getCallHistoryFromStore, loadActiveCallsFromStore } from "./manager/store.js";
-import type { VoiceCallProvider } from "./providers/base.js";
-import type { CallId, CallRecord, NormalizedEvent, OutboundCallOptions } from "./types.js";
-import { resolveUserPath } from "./utils.js";
->>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
 
-<<<<<<< HEAD
-=======
 function resolveDefaultStoreBase(config: VoiceCallConfig, storePath?: string): string {
   const rawOverride = storePath?.trim() || config.store?.trim();
   if (rawOverride) {
@@ -57,7 +37,6 @@ function resolveDefaultStoreBase(config: VoiceCallConfig, storePath?: string): s
   return existing;
 }
 
->>>>>>> 230ca789e (chore: Lint extensions folder.)
 /**
  * Manages voice calls: state ownership and delegation to manager helper modules.
  */
@@ -84,7 +63,6 @@ export class CallManager {
 
   constructor(config: VoiceCallConfig, storePath?: string, logger?: Logger) {
     this.config = config;
-<<<<<<< HEAD
     this.logger = logger ?? defaultLogger;
     // Resolve store path with tilde expansion (like other config values)
     const rawPath =
@@ -92,9 +70,6 @@ export class CallManager {
       config.store ||
       path.join(os.homedir(), "clawd", "voice-calls");
     this.storePath = resolveUserPath(rawPath);
-=======
-    this.storePath = resolveDefaultStoreBase(config, storePath);
->>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   }
 
   /**
@@ -128,7 +103,6 @@ export class CallManager {
     sessionKey?: string,
     options?: OutboundCallOptions | string,
   ): Promise<{ callId: CallId; success: boolean; error?: string }> {
-<<<<<<< HEAD
     // Support legacy string argument for initialMessage
     const opts: OutboundCallOptions =
       typeof options === "string" ? { message: options } : (options ?? {});
@@ -194,9 +168,6 @@ export class CallManager {
         this.logger.info(
           `[voice-call] Using inline TwiML for notify mode (voice: ${pollyVoice})`,
         );
-=======
-        console.log(`[voice-call] Using inline TwiML for notify mode (voice: ${pollyVoice})`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       }
 
       const result = await this.provider.initiateCall({
@@ -244,16 +215,12 @@ export class CallManager {
    * Speak the initial message for a call (called when media stream connects).
    */
   async speakInitialMessage(providerCallId: string): Promise<void> {
-<<<<<<< HEAD
     const call = this.getCallByProviderCallId(providerCallId);
     if (!call) {
 <<<<<<< HEAD
       this.logger.warn(
         `[voice-call] speakInitialMessage: no call found for ${providerCallId}`,
       );
-=======
-      console.warn(`[voice-call] speakInitialMessage: no call found for ${providerCallId}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       return;
     }
 
@@ -261,13 +228,9 @@ export class CallManager {
     const mode = (call.metadata?.mode as CallMode) ?? "conversation";
 
     if (!initialMessage) {
-<<<<<<< HEAD
       this.logger.info(
         `[voice-call] speakInitialMessage: no initial message for ${call.callId}`,
       );
-=======
-      console.log(`[voice-call] speakInitialMessage: no initial message for ${call.callId}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       return;
     }
 
@@ -277,7 +240,6 @@ export class CallManager {
       this.persistCallRecord(call);
     }
 
-<<<<<<< HEAD
     this.logger.info(
       `[voice-call] Speaking initial message for call ${call.callId} (mode: ${mode})`,
     );
@@ -286,19 +248,12 @@ export class CallManager {
       this.logger.warn(
         `[voice-call] Failed to speak initial message: ${result.error}`,
       );
-=======
-    console.log(`[voice-call] Speaking initial message for call ${call.callId} (mode: ${mode})`);
-    const result = await this.speak(call.callId, initialMessage);
-    if (!result.success) {
-      console.warn(`[voice-call] Failed to speak initial message: ${result.error}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       return;
     }
 
     // In notify mode, auto-hangup after delay
     if (mode === "notify") {
       const delaySec = this.config.outbound.notifyHangupDelaySec;
-<<<<<<< HEAD
       this.logger.info(
         `[voice-call] Notify mode: auto-hangup in ${delaySec}s for call ${call.callId}`,
       );
@@ -308,13 +263,6 @@ export class CallManager {
           this.logger.info(
             `[voice-call] Notify mode: hanging up call ${call.callId}`,
           );
-=======
-      console.log(`[voice-call] Notify mode: auto-hangup in ${delaySec}s for call ${call.callId}`);
-      setTimeout(async () => {
-        const currentCall = this.getCall(call.callId);
-        if (currentCall && !TerminalStates.has(currentCall.state)) {
-          console.log(`[voice-call] Notify mode: hanging up call ${call.callId}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
           await this.endCall(call.callId);
         }
       }, delaySec * 1000);
@@ -423,7 +371,6 @@ export class CallManager {
     return endCallWithContext(this.getContext(), callId);
   }
 
-<<<<<<< HEAD
   /**
    * Check if an inbound call should be accepted based on policy.
    */
@@ -477,23 +424,6 @@ export class CallManager {
       processedEventIds: [],
       metadata: {
         initialMessage: this.config.inboundGreeting || "Hello! How can I help you today?",
-=======
-  private getContext(): CallManagerContext {
-    return {
-      activeCalls: this.activeCalls,
-      providerCallIdMap: this.providerCallIdMap,
-      processedEventIds: this.processedEventIds,
-      rejectedProviderCallIds: this.rejectedProviderCallIds,
-      provider: this.provider,
-      config: this.config,
-      storePath: this.storePath,
-      webhookUrl: this.webhookUrl,
-      activeTurnCalls: this.activeTurnCalls,
-      transcriptWaiters: this.transcriptWaiters,
-      maxDurationTimers: this.maxDurationTimers,
-      onCallAnswered: (call) => {
-        this.maybeSpeakInitialMessageOnAnswered(call);
->>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
       },
     };
 
@@ -501,13 +431,9 @@ export class CallManager {
     this.providerCallIdMap.set(providerCallId, callId); // Map providerCallId to internal callId
     this.persistCallRecord(callRecord);
 
-<<<<<<< HEAD
     this.logger.info(
       `[voice-call] Created inbound call record: ${callId} from ${from}`,
     );
-=======
-    console.log(`[voice-call] Created inbound call record: ${callId} from ${from}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     return callRecord;
   }
 
@@ -702,7 +628,6 @@ export class CallManager {
    * Get call history (from persisted logs).
    */
   async getCallHistory(limit = 50): Promise<CallRecord[]> {
-<<<<<<< HEAD
     const logPath = path.join(this.storePath, "calls.jsonl");
 
     try {
@@ -853,8 +778,5 @@ export class CallManager {
   <Say voice="${voice}">${escapeXml(message)}</Say>
   <Hangup/>
 </Response>`;
-=======
-    return getCallHistoryFromStore(this.storePath, limit);
->>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   }
 }

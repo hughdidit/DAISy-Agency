@@ -27,12 +27,8 @@ const { discordMessageActions } = await import("./discord.js");
 
 describe("discord message actions", () => {
   it("lists channel and upload actions by default", async () => {
-<<<<<<< HEAD
     const cfg = { channels: { discord: { token: "d0" } } } as MoltbotConfig;
     const discordMessageActions = await loadDiscordMessageActions();
-=======
-    const cfg = { channels: { discord: { token: "d0" } } } as OpenClawConfig;
->>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
     const actions = discordMessageActions.listActions?.({ cfg }) ?? [];
 
     expect(actions).toContain("emoji-upload");
@@ -43,12 +39,8 @@ describe("discord message actions", () => {
   it("respects disabled channel actions", async () => {
     const cfg = {
       channels: { discord: { token: "d0", actions: { channels: false } } },
-<<<<<<< HEAD
     } as MoltbotConfig;
     const discordMessageActions = await loadDiscordMessageActions();
-=======
-    } as OpenClawConfig;
->>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
     const actions = discordMessageActions.listActions?.({ cfg }) ?? [];
 
     expect(actions).not.toContain("channel-create");

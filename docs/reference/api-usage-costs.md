@@ -24,24 +24,14 @@ Moltbot features that can generate provider usage or paid API calls.
 - `/usage tokens` shows tokens only; OAuth flows hide dollar cost.
 
 **CLI usage windows (provider quotas)**
-<<<<<<< HEAD
 - `moltbot status --usage` and `moltbot channels list` show provider **usage windows**
-=======
-
-- `openclaw status --usage` and `openclaw channels list` show provider **usage windows**
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   (quota snapshots, not per-message costs).
 
 See [Token use & costs](/reference/token-use) for details and examples.
 
 ## How keys are discovered
 
-<<<<<<< HEAD
 Moltbot can pick up credentials from:
-=======
-OpenClaw can pick up credentials from:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Auth profiles** (per-agent, stored in `auth-profiles.json`).
 - **Environment variables** (e.g. `OPENAI_API_KEY`, `BRAVE_API_KEY`, `FIRECRAWL_API_KEY`).
 - **Config** (`models.providers.*.apiKey`, `tools.web.search.*`, `tools.web.fetch.firecrawl.*`,
@@ -110,14 +100,8 @@ See [Web tools](/tools/web).
 
 Some status commands call **provider usage endpoints** to display quota windows or auth health.
 These are typically low-volume calls but still hit provider APIs:
-<<<<<<< HEAD
 - `moltbot status --usage`
 - `moltbot models status --json`
-=======
-
-- `openclaw status --usage`
-- `openclaw models status --json`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 See [Models CLI](/cli/models).
 
@@ -129,12 +113,7 @@ invokes provider APIs when it runs.
 See [Session management + compaction](/reference/session-management-compaction).
 
 ### 8) Model scan / probe
-<<<<<<< HEAD
 `moltbot models scan` can probe OpenRouter models and uses `OPENROUTER_API_KEY` when
-=======
-
-`openclaw models scan` can probe OpenRouter models and uses `OPENROUTER_API_KEY` when
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 probing is enabled.
 
 See [Models CLI](/cli/models).

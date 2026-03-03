@@ -149,16 +149,11 @@ export async function writeOAuthCredentials(
   creds: OAuthCredentials,
   agentDir?: string,
 <<<<<<< HEAD
-<<<<<<< HEAD
 ): Promise<void> {
   // Write to resolved agent dir so gateway finds credentials on startup.
   const email = typeof creds.email === "string" ? creds.email.trim() : "";
   upsertAuthProfile({
     profileId: `${provider}:${email || "default"}`,
-=======
-=======
-  options?: WriteOAuthCredentialsOptions,
->>>>>>> 7ecfc1d93 (fix(auth): bidirectional mode/type compat + sync OAuth to all agents (#12692))
 ): Promise<string> {
   const email =
     typeof creds.email === "string" && creds.email.trim() ? creds.email.trim() : "default";
@@ -177,7 +172,6 @@ export async function writeOAuthCredentials(
   // Primary write must succeed — let it throw on failure.
   upsertAuthProfile({
     profileId,
-<<<<<<< HEAD
 >>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
     credential: {
       type: "oauth",
@@ -185,10 +179,6 @@ export async function writeOAuthCredentials(
       ...creds,
     },
     agentDir: resolveAuthAgentDir(agentDir),
-=======
-    credential,
-    agentDir: resolvedAgentDir,
->>>>>>> 7ecfc1d93 (fix(auth): bidirectional mode/type compat + sync OAuth to all agents (#12692))
   });
 
   // Sibling sync is best-effort — log and ignore individual failures.
@@ -347,27 +337,12 @@ export const XIAOMI_DEFAULT_MODEL_REF = "xiaomi/mimo-v2-flash";
 export const OPENROUTER_DEFAULT_MODEL_REF = "openrouter/auto";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.5";
-=======
-export const TOGETHER_DEFAULT_MODEL_REF = "together/zai-org/GLM-4.7";
-=======
-=======
-export const HUGGINGFACE_DEFAULT_MODEL_REF = "huggingface/deepseek-ai/DeepSeek-R1";
->>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 export const TOGETHER_DEFAULT_MODEL_REF = "together/moonshotai/Kimi-K2.5";
-<<<<<<< HEAD
 >>>>>>> be6de9bb7 (Update Together default model to together/moonshotai/Kimi-K2.5 (#13324))
-=======
-export const LITELLM_DEFAULT_MODEL_REF = "litellm/claude-opus-4-6";
->>>>>>> a36b9be24 (Feat/litellm provider (#12823))
 export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.6";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
-=======
-export const KILOCODE_DEFAULT_MODEL_REF = "kilocode/anthropic/claude-opus-4.6";
->>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
 =======
 >>>>>>> e6484cb65 (refactor: harden kilocode auth ordering and dedupe provider wiring)
 
@@ -474,12 +449,6 @@ export async function setOpencodeZenApiKey(
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-export async function setTogetherApiKey(key: string, agentDir?: string) {
-=======
-export async function setTogetherApiKey(key: SecretInput, agentDir?: string) {
->>>>>>> 7e1557b8c (Onboard: persist env-backed API keys as secret refs)
 =======
 export async function setTogetherApiKey(
   key: SecretInput,
@@ -496,13 +465,7 @@ export async function setTogetherApiKey(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
-=======
-export async function setHuggingfaceApiKey(key: string, agentDir?: string) {
-=======
-export async function setHuggingfaceApiKey(key: SecretInput, agentDir?: string) {
->>>>>>> 7e1557b8c (Onboard: persist env-backed API keys as secret refs)
 =======
 export async function setHuggingfaceApiKey(
   key: SecretInput,
@@ -518,7 +481,6 @@ export async function setHuggingfaceApiKey(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 export function setQianfanApiKey(key: string, agentDir?: string) {
   upsertAuthProfile({
@@ -526,11 +488,6 @@ export function setQianfanApiKey(key: string, agentDir?: string) {
     credential: {
       type: "api_key",
       provider: "qianfan",
-=======
-export async function setXaiApiKey(key: string, agentDir?: string) {
-=======
-export function setXaiApiKey(key: string, agentDir?: string) {
->>>>>>> 155dfa93e (fix(onboard): align xAI default model to grok-4)
   upsertAuthProfile({
     profileId: "xai:default",
     credential: {
@@ -558,12 +515,8 @@ export function setQianfanApiKey(
 export function setXaiApiKey(key: SecretInput, agentDir?: string, options?: ApiKeyStorageOptions) {
   upsertAuthProfile({
     profileId: "xai:default",
-<<<<<<< HEAD
     credential: buildApiKeyCredential("xai", key),
 >>>>>>> 7e1557b8c (Onboard: persist env-backed API keys as secret refs)
-=======
-    credential: buildApiKeyCredential("xai", key, undefined, options),
->>>>>>> 04aa856fc (Onboard: require explicit mode for env secret refs)
     agentDir: resolveAuthAgentDir(agentDir),
   });
 }

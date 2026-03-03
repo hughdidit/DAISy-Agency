@@ -1,9 +1,6 @@
 import type { Guild, Message, User } from "@buape/carbon";
-<<<<<<< HEAD
 
 import { formatAgentEnvelope, type EnvelopeFormatOptions } from "../../auto-reply/envelope.js";
-=======
->>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
 import { resolveTimestampMs } from "./format.js";
 import { resolveDiscordSenderIdentity } from "./sender-identity.js";
 

@@ -121,14 +121,8 @@ Notes:
 - `/new <model>` accepts a model alias, `provider/model`, or a provider name (fuzzy match); if no match, the text is treated as the message body.
 - For full provider usage breakdown, use `moltbot status --usage`.
 - `/allowlist add|remove` requires `commands.config=true` and honors channel `configWrites`.
-<<<<<<< HEAD
 - `/usage` controls the per-response usage footer; `/usage cost` prints a local cost summary from Moltbot session logs.
 - `/restart` is disabled by default; set `commands.restart: true` to enable it.
-=======
-- `/usage` controls the per-response usage footer; `/usage cost` prints a local cost summary from OpenClaw session logs.
-- `/restart` is enabled by default; set `commands.restart: false` to disable it.
-<<<<<<< HEAD
->>>>>>> b4dbe0329 (refactor: unify restart gating and update availability sync)
 =======
 - Discord-only native command: `/vc join|leave|status` controls voice channels (requires `channels.discord.voice` and native commands; not available as text).
 - Discord thread-binding commands (`/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`) require effective thread bindings to be enabled (`session.threadBindings.enabled` and/or `channels.discord.threadBindings.enabled`).
@@ -191,12 +185,7 @@ Examples:
 ```
 
 Notes:
-<<<<<<< HEAD
 - Overrides apply immediately to new config reads, but do **not** write to `moltbot.json`.
-=======
-
-- Overrides apply immediately to new config reads, but do **not** write to `openclaw.json`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Use `/debug reset` to clear all overrides and return to the on-disk config.
 
 ## Config updates
@@ -226,9 +215,4 @@ Notes:
   - Slack: `agent:<agentId>:slack:slash:<userId>` (prefix configurable via `channels.slack.slashCommand.sessionPrefix`)
   - Telegram: `telegram:slash:<userId>` (targets the chat session via `CommandTargetSessionKey`)
 - **`/stop`** targets the active chat session so it can abort the current run.
-<<<<<<< HEAD
 - **Slack:** `channels.slack.slashCommand` is still supported for a single `/clawd`-style command. If you enable `commands.native`, you must create one Slack slash command per built-in command (same names as `/help`). Command argument menus for Slack are delivered as ephemeral Block Kit buttons.
-=======
-- **Slack:** `channels.slack.slashCommand` is still supported for a single `/openclaw`-style command. If you enable `commands.native`, you must create one Slack slash command per built-in command (same names as `/help`). Command argument menus for Slack are delivered as ephemeral Block Kit buttons.
-  - Slack native exception: register `/agentstatus` (not `/status`) because Slack reserves `/status`. Text `/status` still works in Slack messages.
->>>>>>> 8bc80fad4 (fix(slack): land #29032 /agentstatus alias from @maloqab)

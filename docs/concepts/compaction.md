@@ -20,20 +20,10 @@ Compaction **persists** in the session’s JSONL history.
 
 ## Configuration
 
-<<<<<<< HEAD
 See [Compaction config & modes](/concepts/compaction) for the `agents.defaults.compaction` settings.
-=======
-Use the `agents.defaults.compaction` setting in your `openclaw.json` to configure compaction behavior (mode, target tokens, etc.).
-Compaction summarization preserves opaque identifiers by default (`identifierPolicy: "strict"`). You can override this with `identifierPolicy: "off"` or provide custom text with `identifierPolicy: "custom"` and `identifierInstructions`.
->>>>>>> 0fe6cf06b (Compaction: preserve opaque identifiers in summaries (openclaw#25553) thanks @rodrigouroz)
 
 ## Auto-compaction (default on)
-<<<<<<< HEAD
 When a session nears or exceeds the model’s context window, Moltbot triggers auto-compaction and may retry the original request using the compacted context.
-=======
-
-When a session nears or exceeds the model’s context window, OpenClaw triggers auto-compaction and may retry the original request using the compacted context.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 You’ll see:
 
@@ -52,12 +42,7 @@ Use `/compact` (optionally with instructions) to force a compaction pass:
 ```
 
 ## Context window source
-<<<<<<< HEAD
 Context window is model-specific. Moltbot uses the model definition from the configured provider catalog to determine limits.
-=======
-
-Context window is model-specific. OpenClaw uses the model definition from the configured provider catalog to determine limits.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Compaction vs pruning
 

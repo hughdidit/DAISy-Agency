@@ -85,13 +85,10 @@ public struct GatewayConnectOptions: Sendable {
     public var clientId: String
     public var clientMode: String
     public var clientDisplayName: String?
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
-=======
     // When false, the connection omits the signed device identity payload and cannot use
     // device-scoped auth (role/scope upgrades will require pairing). Keep this true for
     // role/scoped sessions such as operator UI clients.
     public var includeDeviceIdentity: Bool
->>>>>>> 8775d34fb (fix(pairing): simplify pending merge and harden mixed-role onboarding):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
 
     public init(
         role: String,
@@ -129,17 +126,7 @@ private enum ConnectChallengeError: Error {
 }
 
 public actor GatewayChannelActor {
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
     private let logger = Logger(subsystem: "bot.molt", category: "gateway")
-=======
-    private let logger = Logger(subsystem: "ai.openclaw", category: "gateway")
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
-    #if DEBUG
-    private var debugEventLogCount = 0
-    private var debugMessageLogCount = 0
-    private var debugListenLogCount = 0
-    #endif
->>>>>>> 84e115834 (Gateway: fix node invoke receive loop):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
 =======
 >>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests"):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
     private var task: WebSocketTaskBox?
@@ -159,18 +146,8 @@ public actor GatewayChannelActor {
     private var lastAuthSource: GatewayAuthSource = .none
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
     private let connectTimeoutSeconds: Double = 6
     private let connectChallengeTimeoutSeconds: Double = 0.75
-=======
-    // Remote gateways (tailscale/wan) can take longer to deliver connect.challenge.
-    // Connect now requires this nonce before we send device-auth.
-    private let connectTimeoutSeconds: Double = 12
-    private let connectChallengeTimeoutSeconds: Double = 6.0
-    // Some networks will silently drop idle TCP/TLS flows around ~30s. The gateway tick is server->client,
-    // but NATs/proxies often require outbound traffic to keep the connection alive.
-    private let keepaliveIntervalSeconds: Double = 15.0
->>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
     private var watchdogTask: Task<Void, Never>?
     private var tickTask: Task<Void, Never>?
     private let defaultRequestTimeoutMs: Double = 15000
@@ -301,8 +278,6 @@ public actor GatewayChannelActor {
         }
     }
 
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
-=======
     private func startKeepalive() {
         self.keepaliveTask?.cancel()
         self.keepaliveTask = Task { [weak self] in
@@ -328,7 +303,6 @@ public actor GatewayChannelActor {
         }
     }
 
->>>>>>> e98ccc8e1 (iOS/Gateway: stabilize background wake and reconnect behavior (#21226)):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
     private func sendConnect() async throws {
         let platform = InstanceIdentity.platformString
         let primaryLocale = Locale.preferredLanguages.first ?? Locale.current.identifier
@@ -400,17 +374,11 @@ public actor GatewayChannelActor {
         }
         let signedAtMs = Int(Date().timeIntervalSince1970 * 1000)
         let connectNonce = try await self.waitForConnectChallenge()
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
         let scopesValue = scopes.joined(separator: ",")
 <<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
         var payloadParts = [
             connectNonce == nil ? "v1" : "v2",
             identity.deviceId,
-=======
-        let payloadParts = [
-            "v2",
-            identity?.deviceId ?? "",
->>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
             clientId,
             clientMode,
             role,
@@ -420,7 +388,6 @@ public actor GatewayChannelActor {
             connectNonce,
         ]
         let payload = payloadParts.joined(separator: "|")
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
         if let signature = DeviceIdentityStore.signPayload(payload, identity: identity),
            let publicKey = DeviceIdentityStore.publicKeyBase64Url(identity) {
             var device: [String: ProtoAnyCodable] = [
@@ -431,9 +398,6 @@ public actor GatewayChannelActor {
             ]
             if let connectNonce {
                 device["nonce"] = ProtoAnyCodable(connectNonce)
-=======
-=======
->>>>>>> 490cb5174 (fix(apps): sign gateway device auth with v3 payload):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
         if includeDeviceIdentity, let identity {
             let payload = GatewayDeviceAuthPayload.buildV3(
                 deviceId: identity.deviceId,
@@ -597,16 +561,11 @@ public actor GatewayChannelActor {
                     {
                         return nonce
                     }
-<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
                 })
         } catch {
             if error is ConnectChallengeError { return nil }
             throw error
         }
-=======
-                }
-            })
->>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
     }
 
     private func waitForConnectResponse(reqId: String) async throws -> ResponseFrame {

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
 <<<<<<< HEAD
@@ -7,8 +6,6 @@ import type { DmPolicy } from "../../../config/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { DiscordGuildEntry } from "../../../config/types.discord.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
@@ -36,12 +33,7 @@ import {
   resolveDiscordChannelAllowlist,
   type DiscordChannelResolution,
 } from "../../../discord/resolve-channels.js";
-<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
-=======
-import { resolveDiscordUserAllowlist } from "../../../discord/resolve-users.js";
-import { DEFAULT_ACCOUNT_ID } from "../../../routing/session-key.js";
->>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
 import { formatDocsLink } from "../../../terminal/links.js";
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
@@ -64,18 +56,9 @@ import {
 const channel = "discord" as const;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function setDiscordDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.discord?.dm?.allowFrom) : undefined;
-=======
-function setDiscordDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
-  const existingAllowFrom =
-    cfg.channels?.discord?.allowFrom ?? cfg.channels?.discord?.dm?.allowFrom;
-<<<<<<< HEAD
-<<<<<<< HEAD
-  const allowFrom = dmPolicy === "open" ? addWildcardAllowFrom(existingAllowFrom) : undefined;
->>>>>>> 47b6cde8c (refactor(config): add dmPolicy aliases for Slack/Discord)
 =======
   const allowFrom =
     dmPolicy === "open" ? addDiscordWildcardAllowFrom(existingAllowFrom) : undefined;
@@ -116,19 +99,11 @@ async function noteDiscordTokenHelp(prompter: WizardPrompter): Promise<void> {
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function setDiscordGroupPolicy(
   cfg: MoltbotConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
 ): MoltbotConfig {
-=======
-function patchDiscordConfigForAccount(
-  cfg: OpenClawConfig,
-  accountId: string,
-  patch: Record<string, unknown>,
-): OpenClawConfig {
->>>>>>> 360b73bbb (refactor(discord): dedupe onboarding config patching)
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -196,7 +171,6 @@ function setDiscordGuildChannelAllowlist(
       guilds[guildKey] = existing;
     }
   }
-<<<<<<< HEAD
   return patchDiscordConfigForAccount(cfg, accountId, { guilds });
 }
 
@@ -215,33 +189,17 @@ function setDiscordAllowFrom(cfg: MoltbotConfig, allowFrom: string[]): MoltbotCo
       },
     },
   };
-=======
-  return patchChannelConfigForAccount({
-    cfg,
-    channel: "discord",
-    accountId,
-    patch: { guilds },
-  });
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 }
 
 async function promptDiscordAllowFrom(params: {
   cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
-<<<<<<< HEAD
 }): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
       : resolveDefaultDiscordAccountId(params.cfg);
-=======
-}): Promise<OpenClawConfig> {
-  const accountId = resolveOnboardingAccountId({
-    accountId: params.accountId,
-    defaultAccountId: resolveDefaultDiscordAccountId(params.cfg),
-  });
->>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   const resolved = resolveDiscordAccount({ cfg: params.cfg, accountId });
   const token = resolved.token;
   const existing =

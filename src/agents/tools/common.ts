@@ -4,15 +4,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 
-=======
-import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import fs from "node:fs/promises";

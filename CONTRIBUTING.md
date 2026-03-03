@@ -3,18 +3,12 @@
 Welcome to the lobster tank! 🦞
 
 ## Quick Links
-<<<<<<< HEAD
 - **GitHub:** https://github.com/moltbot/moltbot
-=======
-
-- **GitHub:** https://github.com/openclaw/openclaw
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Discord:** https://discord.gg/qkhbAGHRBT
 - **X/Twitter:** [@steipete](https://x.com/steipete) / [@moltbot](https://x.com/moltbot)
 
 ## Contributors
 
-<<<<<<< HEAD
 - **Peter Steinberger** - Benevolent Dictator
   - GitHub: [@steipete](https://github.com/steipete) · X: [@steipete](https://x.com/steipete)
 
@@ -23,9 +17,6 @@ Welcome to the lobster tank! 🦞
 
 - **Jos** - Telegram, API, Nix mode
   - GitHub: [@joshp123](https://github.com/joshp123) · X: [@jjpcodes](https://x.com/jjpcodes)
-=======
-See [Credits & Maintainers](https://docs.openclaw.ai/reference/credits) for the full list.
->>>>>>> cc87c0ed7 (Update contributing, deduplicate more functions)
 
 ## How to Contribute
 
@@ -34,15 +25,8 @@ See [Credits & Maintainers](https://docs.openclaw.ai/reference/credits) for the 
 3. **Questions** → Discord #setup-help
 
 ## Before You PR
-<<<<<<< HEAD
 - Test locally with your Moltbot instance
 - Run linter: `npm run lint`
-=======
-
-- Test locally with your OpenClaw instance
-<<<<<<< HEAD
-- Run tests: `pnpm tsgo && pnpm format && pnpm lint && pnpm build && pnpm test`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 - Run tests: `pnpm build && pnpm check && pnpm test`
 - Ensure CI checks pass

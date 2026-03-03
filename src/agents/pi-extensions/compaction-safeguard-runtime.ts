@@ -4,8 +4,6 @@ import { createSessionManagerRuntimeRegistry } from "./session-manager-runtime-r
 
 export type CompactionSafeguardRuntimeValue = {
   maxHistoryShare?: number;
-<<<<<<< HEAD
-=======
   contextWindowTokens?: number;
   identifierPolicy?: AgentCompactionIdentifierPolicy;
   identifierInstructions?: string;
@@ -15,7 +13,6 @@ export type CompactionSafeguardRuntimeValue = {
    * (extensionRunner.initialize() is never called in that path).
    */
   model?: Model<Api>;
->>>>>>> 01380f49f (fix(compaction): pass model through runtime for safeguard summaries (#17864))
 };
 
 const registry = createSessionManagerRuntimeRegistry<CompactionSafeguardRuntimeValue>();

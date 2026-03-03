@@ -4,17 +4,11 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import type { ChannelAccountSnapshot, NostrStatus } from "../types";
 import type { ChannelsProps } from "./channels.types";
 import { renderChannelConfigSection } from "./channels.config";
-=======
-import type { ChannelAccountSnapshot, NostrStatus } from "../types.ts";
-import type { ChannelsProps } from "./channels.types.ts";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatRelativeTimestamp } from "../format.ts";
 =======
 >>>>>>> ed11e93cf (chore(format))

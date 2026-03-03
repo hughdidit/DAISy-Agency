@@ -1,11 +1,7 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
-=======
-import { describe, expect, it, vi } from "vitest";
->>>>>>> 6ec76af3a (refactor(test): share slack slash mocks)
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 723e314e2 (fix(ci): avoid vitest TDZ in shared mocks)
@@ -114,15 +110,8 @@ describe("Slack native command argument menus", () => {
     const { actions, ctx, account } = createHarness();
     await registerCommands(ctx, account);
 
-<<<<<<< HEAD
     const handler = actions.get("moltbot_cmdarg");
     if (!handler) throw new Error("Missing arg-menu action handler");
-=======
-    const handler = actions.get("openclaw_cmdarg");
-    if (!handler) {
-      throw new Error("Missing arg-menu action handler");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
     const respond = vi.fn().mockResolvedValue(undefined);
     await handler({
@@ -147,15 +136,8 @@ describe("Slack native command argument menus", () => {
     const { actions, ctx, account } = createHarness();
     await registerCommands(ctx, account);
 
-<<<<<<< HEAD
     const handler = actions.get("moltbot_cmdarg");
     if (!handler) throw new Error("Missing arg-menu action handler");
-=======
-    const handler = actions.get("openclaw_cmdarg");
-    if (!handler) {
-      throw new Error("Missing arg-menu action handler");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
     const respond = vi.fn().mockResolvedValue(undefined);
     await handler({
@@ -182,15 +164,8 @@ describe("Slack native command argument menus", () => {
     const { actions, postEphemeral, ctx, account } = createHarness();
     await registerCommands(ctx, account);
 
-<<<<<<< HEAD
     const handler = actions.get("moltbot_cmdarg");
     if (!handler) throw new Error("Missing arg-menu action handler");
-=======
-    const handler = actions.get("openclaw_cmdarg");
-    if (!handler) {
-      throw new Error("Missing arg-menu action handler");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
     await handler({
       ack: vi.fn().mockResolvedValue(undefined),
@@ -211,15 +186,8 @@ describe("Slack native command argument menus", () => {
     const { actions, postEphemeral, ctx, account } = createHarness();
     await registerCommands(ctx, account);
 
-<<<<<<< HEAD
     const handler = actions.get("moltbot_cmdarg");
     if (!handler) throw new Error("Missing arg-menu action handler");
-=======
-    const handler = actions.get("openclaw_cmdarg");
-    if (!handler) {
-      throw new Error("Missing arg-menu action handler");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
     await handler({
       ack: vi.fn().mockResolvedValue(undefined),

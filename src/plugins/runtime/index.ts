@@ -6,12 +6,7 @@ import { createRequire } from "node:module";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { PluginRuntime } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 01ea80887 (chore: Format files.)
 =======
@@ -75,13 +70,7 @@ import { discordMessageActions } from "../../channels/plugins/actions/discord.js
 import { signalMessageActions } from "../../channels/plugins/actions/signal.js";
 import { telegramMessageActions } from "../../channels/plugins/actions/telegram.js";
 import { createWhatsAppLoginTool } from "../../channels/plugins/agent-tools/whatsapp-login.js";
-<<<<<<< HEAD
 import { monitorWebChannel } from "../../channels/web/index.js";
-=======
-import { recordInboundSession } from "../../channels/session.js";
-import { registerMemoryCli } from "../../cli/memory-cli.js";
-import { loadConfig, writeConfigFile } from "../../config/config.js";
->>>>>>> 39e6e4cd2 (perf: reduce test/runtime overhead in plugin runtime and e2e harness)
 import {
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
@@ -156,16 +145,11 @@ import {
   readWebSelfId,
   webAuthExists,
 } from "../../web/auth-store.js";
-<<<<<<< HEAD
 import { loginWeb } from "../../web/login.js";
 import { startWebLoginWithQr, waitForWebLogin } from "../../web/login-qr.js";
 import { sendMessageWhatsApp, sendPollWhatsApp } from "../../web/outbound.js";
 import { registerMemoryCli } from "../../cli/memory-cli.js";
-=======
-import { loadWebMedia } from "../../web/media.js";
->>>>>>> 39e6e4cd2 (perf: reduce test/runtime overhead in plugin runtime and e2e harness)
 import { formatNativeDependencyHint } from "./native-deps.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -193,8 +177,6 @@ import {
 import { monitorLineProvider } from "../../line/monitor.js";
 import { buildTemplateMessageFromPayload } from "../../line/template-messages.js";
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 01ea80887 (chore: Format files.)
 import type { PluginRuntime } from "./types.js";

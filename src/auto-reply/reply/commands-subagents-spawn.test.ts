@@ -152,8 +152,6 @@ describe("/subagents spawn command", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("prefers CommandTargetSessionKey for native /subagents spawn", async () => {
     const { spawnCtx } = await runSuccessfulSpawn({
       context: {
@@ -183,7 +181,6 @@ describe("/subagents spawn command", () => {
     });
     expect(spawnCtx).toMatchObject({ agentTo: "channel:manual" });
   });
->>>>>>> 24ea941e2 (test: dedupe auto-reply web and signal flows)
   it("returns forbidden for unauthorized cross-agent spawn", async () => {
     spawnSubagentDirectMock.mockResolvedValue(
       forbiddenResult("agentId is not allowed for sessions_spawn (allowed: alpha)"),

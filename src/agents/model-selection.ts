@@ -1,13 +1,6 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { ModelCatalogEntry } from "./model-catalog.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { ModelCatalogEntry } from "./model-catalog.js";
-import { resolveAgentModelPrimary } from "./agent-scope.js";
-import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { normalizeGoogleModelId } from "./models-config.providers.js";
 import { resolveAgentModelPrimary } from "./agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
@@ -36,8 +29,6 @@ export type ModelAliasIndex = {
   byKey: Map<string, string[]>;
 };
 
-<<<<<<< HEAD
-=======
 const ANTHROPIC_MODEL_ALIASES: Record<string, string> = {
   "opus-4.6": "claude-opus-4-6",
   "opus-4.5": "claude-opus-4-5",
@@ -46,7 +37,6 @@ const ANTHROPIC_MODEL_ALIASES: Record<string, string> = {
 };
 const CLAUDE_46_MODEL_RE = /claude-(?:opus|sonnet)-4(?:\.|-)6(?:$|[-.])/i;
 
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 function normalizeAliasKey(value: string): string {
   return value.trim().toLowerCase();
 }
@@ -76,38 +66,7 @@ export function normalizeProviderId(provider: string): string {
   return normalized;
 }
 
-<<<<<<< HEAD
 export function isCliProvider(provider: string, cfg?: MoltbotConfig): boolean {
-=======
-export function findNormalizedProviderValue<T>(
-  entries: Record<string, T> | undefined,
-  provider: string,
-): T | undefined {
-  if (!entries) {
-    return undefined;
-  }
-  const providerKey = normalizeProviderId(provider);
-  for (const [key, value] of Object.entries(entries)) {
-    if (normalizeProviderId(key) === providerKey) {
-      return value;
-    }
-  }
-  return undefined;
-}
-
-export function findNormalizedProviderKey(
-  entries: Record<string, unknown> | undefined,
-  provider: string,
-): string | undefined {
-  if (!entries) {
-    return undefined;
-  }
-  const providerKey = normalizeProviderId(provider);
-  return Object.keys(entries).find((key) => normalizeProviderId(key) === providerKey);
-}
-
-export function isCliProvider(provider: string, cfg?: OpenClawConfig): boolean {
->>>>>>> 9f0fc74d1 (refactor(model): share normalized provider map lookups)
   const normalized = normalizeProviderId(provider);
   if (normalized === "claude-cli") {
     return true;
@@ -182,47 +141,6 @@ export function parseModelRef(raw: string, defaultProvider: string): ModelRef | 
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-export function inferUniqueProviderFromConfiguredModels(params: {
-  cfg: OpenClawConfig;
-  model: string;
-}): string | undefined {
-  const model = params.model.trim();
-  if (!model) {
-    return undefined;
-  }
-  const configuredModels = params.cfg.agents?.defaults?.models;
-  if (!configuredModels) {
-    return undefined;
-  }
-  const normalized = model.toLowerCase();
-  const providers = new Set<string>();
-  for (const key of Object.keys(configuredModels)) {
-    const ref = key.trim();
-    if (!ref || !ref.includes("/")) {
-      continue;
-    }
-    const parsed = parseModelRef(ref, DEFAULT_PROVIDER);
-    if (!parsed) {
-      continue;
-    }
-    if (parsed.model === model || parsed.model.toLowerCase() === normalized) {
-      providers.add(parsed.provider);
-      if (providers.size > 1) {
-        return undefined;
-      }
-    }
-  }
-  if (providers.size !== 1) {
-    return undefined;
-  }
-  return providers.values().next().value;
-}
-
-<<<<<<< HEAD
->>>>>>> 177386ed7 (fix(tui): resolve wrong provider prefix when session has model without modelProvider (#25874))
 export function normalizeModelSelection(value: unknown): string | undefined {
   if (typeof value === "string") {
     const trimmed = value.trim();
@@ -340,13 +258,8 @@ export function resolveConfiguredModelRef(params: {
       }
 
       // Default to anthropic if no provider is specified, but warn as this is deprecated.
-<<<<<<< HEAD
       console.warn(
         `[moltbot] Model "${trimmed}" specified without provider. Falling back to "anthropic/${trimmed}". Please use "anthropic/${trimmed}" in your config.`,
-=======
-      log.warn(
-        `Model "${trimmed}" specified without provider. Falling back to "anthropic/${trimmed}". Please use "anthropic/${trimmed}" in your config.`,
->>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
       );
       return { provider: "anthropic", model: trimmed };
     }

@@ -3,14 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import * as ssrf from "../../infra/net/ssrf.js";
-import * as mediaStore from "../../media/store.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { fetchWithSlackAuth, resolveSlackMedia, resolveSlackThreadHistory } from "./media.js";
->>>>>>> faec6ccb1 (perf(test): reduce module reload churn in unit suites)
 =======
 =======
 import type { SavedMedia } from "../../media/store.js";
@@ -31,11 +23,7 @@ import type { SavedMedia } from "../../media/store.js";
 import * as mediaStore from "../../media/store.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
->>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 =======
 =======
 import { mockPinnedHostnameResolution } from "../../test-helpers/ssrf.js";
@@ -94,8 +82,6 @@ describe("fetchWithSlackAuth", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("rejects non-Slack hosts to avoid leaking tokens", async () => {
     await expect(
       fetchWithSlackAuth("https://example.com/test.jpg", "xoxb-test-token"),
@@ -105,7 +91,6 @@ describe("fetchWithSlackAuth", () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
->>>>>>> faec6ccb1 (perf(test): reduce module reload churn in unit suites)
   it("follows redirects without Authorization header", async () => {
     // First call: redirect response from Slack
     const redirectResponse = new Response(null, {
@@ -215,21 +200,7 @@ describe("fetchWithSlackAuth", () => {
 describe("resolveSlackMedia", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
-<<<<<<< HEAD
     globalThis.fetch = mockFetch as typeof fetch;
-=======
-    globalThis.fetch = withFetchPreconnect(mockFetch);
-<<<<<<< HEAD
-    vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
-      const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
-      const addresses = ["93.184.216.34"];
-      return {
-        hostname: normalized,
-        addresses,
-        lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
-      };
-    });
->>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 =======
     mockPinnedHostnameResolution();
 >>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
@@ -237,11 +208,7 @@ describe("resolveSlackMedia", () => {
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
-<<<<<<< HEAD
     vi.resetModules();
-=======
-    vi.restoreAllMocks();
->>>>>>> faec6ccb1 (perf(test): reduce module reload churn in unit suites)
   });
 
   it("prefers url_private_download over url_private", async () => {
@@ -452,8 +419,6 @@ describe("resolveSlackMedia", () => {
     expect(result).not.toBeNull();
     expect(mockFetch).toHaveBeenCalledTimes(2);
   });
-<<<<<<< HEAD
-=======
 
   it("returns all successfully downloaded files as an array", async () => {
     vi.spyOn(mediaStore, "saveMediaBuffer").mockImplementation(async (buffer, _contentType) => {
@@ -530,7 +495,6 @@ describe("resolveSlackMedia", () => {
     expect(saveMediaBufferMock).toHaveBeenCalledTimes(8);
     expect(mockFetch).toHaveBeenCalledTimes(8);
   });
->>>>>>> 4b1cadaec (refactor(media): normalize inbound media type defaults (#16228))
 });
 
 describe("Slack media SSRF policy", () => {

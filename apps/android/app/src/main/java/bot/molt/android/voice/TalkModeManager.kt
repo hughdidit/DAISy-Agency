@@ -21,17 +21,9 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import androidx.core.content.ContextCompat
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/voice/TalkModeManager.kt
 import bot.molt.android.gateway.GatewaySession
 import bot.molt.android.isCanonicalMainSessionKey
 import bot.molt.android.normalizeMainKey
-=======
-import ai.openclaw.android.gateway.GatewaySession
-import ai.openclaw.android.isCanonicalMainSessionKey
-import ai.openclaw.android.normalizeMainKey
-import android.os.Build
-import java.io.File
->>>>>>> 68db055f1 (feat(android): wire TalkModeManager into NodeRuntime for voice screen TTS):apps/android/app/src/main/java/ai/openclaw/android/voice/TalkModeManager.kt
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.UUID

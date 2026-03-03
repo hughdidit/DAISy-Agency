@@ -16,11 +16,8 @@ let server: Awaited<ReturnType<typeof startGatewayServer>>;
 let port = 0;
 
 beforeAll(async () => {
-<<<<<<< HEAD
   previousToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
   delete process.env.CLAWDBOT_GATEWAY_TOKEN;
-=======
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
   port = await getFreePort();
   server = await startGatewayServer(port, { controlUiEnabled: true });
 });
@@ -28,16 +25,8 @@ beforeAll(async () => {
 afterAll(async () => {
   await server.close();
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (previousToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   else process.env.CLAWDBOT_GATEWAY_TOKEN = previousToken;
-=======
-  if (previousToken === undefined) {
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
-  } else {
-    process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 });
@@ -66,7 +55,6 @@ const sendConfigApply = async (ws: WebSocket, id: string, raw: unknown) => {
 };
 
 describe("gateway config.apply", () => {
-<<<<<<< HEAD
   it("writes config, stores sentinel, and schedules restart", async () => {
     const ws = await openClient();
     try {
@@ -108,8 +96,6 @@ describe("gateway config.apply", () => {
     }
   });
 
-=======
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
   it("rejects invalid raw config", async () => {
     const ws = await openClient();
     try {

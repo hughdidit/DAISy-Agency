@@ -33,15 +33,9 @@ read_when:
 
 - Each plugin provides a strict JSON Schema for its config (inline in the manifest).
 - Plugin load flow:
-<<<<<<< HEAD
   1) Resolve plugin manifest + schema (`moltbot.plugin.json`).
   2) Validate config against the schema.
   3) If missing schema or invalid config: block plugin load, record error.
-=======
-  1. Resolve plugin manifest + schema (`openclaw.plugin.json`).
-  2. Validate config against the schema.
-  3. If missing schema or invalid config: block plugin load, record error.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Error message includes:
   - Plugin id
   - Reason (missing schema / invalid config)
@@ -62,22 +56,12 @@ read_when:
 ## Command gating (when config is invalid)
 
 Allowed (diagnostic-only):
-<<<<<<< HEAD
 - `moltbot doctor`
 - `moltbot logs`
 - `moltbot health`
 - `moltbot help`
 - `moltbot status`
 - `moltbot gateway status`
-=======
-
-- `openclaw doctor`
-- `openclaw logs`
-- `openclaw health`
-- `openclaw help`
-- `openclaw status`
-- `openclaw gateway status`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Everything else must hard-fail with: “Config invalid. Run `moltbot doctor --fix`.”
 

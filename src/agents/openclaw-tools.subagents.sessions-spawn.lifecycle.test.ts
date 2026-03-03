@@ -1,22 +1,16 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { emitAgentEvent } from "../infra/agent-events.js";
-<<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.e2e.test.ts
 <<<<<<< HEAD
 import "./test-helpers/fast-core-tools.js";
 <<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
 import { createMoltbotTools } from "./moltbot-tools.js";
 =======
-import { sleep } from "../utils.js";
-import { createOpenClawTools } from "./openclaw-tools.js";
->>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:):src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
-=======
 =======
 import { sleep } from "../utils.js";
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.lifecycle.e2e.test.ts
 import { createOpenClawTools } from "./openclaw-tools.js";
 import "./test-helpers/fast-core-tools.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 import {
   callGatewayMock,
@@ -27,15 +21,6 @@ import {
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {
-=======
-=======
-=======
-import "./test-helpers/fast-core-tools.js";
-<<<<<<< HEAD
-import { sleep } from "../utils.js";
-<<<<<<< HEAD
-import { createOpenClawTools } from "./openclaw-tools.js";
->>>>>>> 6b4590be0 (fix(agents): stabilize sessions_spawn e2e suite)
 =======
 >>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
 =======
@@ -72,27 +57,9 @@ const RUN_TIMEOUT_SECONDS = 1;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
 >>>>>>> e720e022e (test: stabilize sessions_spawn e2e mocks)
-=======
-=======
-=======
-type CreateOpenClawTools = (typeof import("./openclaw-tools.js"))["createOpenClawTools"];
-type CreateOpenClawToolsOpts = Parameters<CreateOpenClawTools>[0];
-
-async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
-  // Dynamic import: ensure harness mocks are installed before tool modules load.
-  const { createOpenClawTools } = await import("./openclaw-tools.js");
-  const tool = createOpenClawTools(opts).find((candidate) => candidate.name === "sessions_spawn");
-  if (!tool) {
-    throw new Error("missing sessions_spawn tool");
-  }
-  return tool;
-}
-
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
 type GatewayRequest = { method?: string; params?: unknown };
 type AgentWaitCall = { runId?: string; timeoutMs?: number };
 
@@ -112,7 +79,6 @@ function buildDiscordCleanupHooks(onDelete: (key: string | undefined) => void) {
   };
 }
 
-<<<<<<< HEAD
 function setupSessionsSpawnGatewayMock(opts: {
   includeSessionsList?: boolean;
   includeChatHistory?: boolean;
@@ -208,11 +174,6 @@ function setupSessionsSpawnGatewayMock(opts: {
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 6b4590be0 (fix(agents): stabilize sessions_spawn e2e suite)
-=======
-const waitFor = async (predicate: () => boolean, timeoutMs = 2000) => {
-=======
-=======
->>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
 const waitFor = async (predicate: () => boolean, timeoutMs = 1_500) => {
 >>>>>>> 0b7c7ee1a (perf(test): speed up sessions_spawn lifecycle suite setup)
   await vi.waitFor(
@@ -226,11 +187,7 @@ const waitFor = async (predicate: () => boolean, timeoutMs = 1_500) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> bbcbabab7 (fix(ci): repair e2e mocks and tool schemas)
-=======
-=======
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 function expectSingleCompletionSend(
   calls: GatewayRequest[],
   expected: { sessionKey: string; channel: string; to: string; message: string },
@@ -247,11 +204,7 @@ function expectSingleCompletionSend(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 1934eebbf (refactor(agents): dedupe lifecycle send assertions and stable payload stringify)
-=======
-=======
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 function createDeleteCleanupHooks(setDeletedKey: (key: string | undefined) => void) {
   return {
     onAgentSubagentSpawn: (params: unknown) => {
@@ -266,10 +219,7 @@ function createDeleteCleanupHooks(setDeletedKey: (key: string | undefined) => vo
   };
 }
 
-<<<<<<< HEAD
 >>>>>>> d1cb779f5 (test(agents): dedupe embedded runner and sessions lifecycle fixtures)
-=======
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 =======
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 =======
@@ -299,41 +249,10 @@ async function executeSpawnAndExpectAccepted(params: {
   return result;
 }
 
-<<<<<<< HEAD
 >>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
-=======
-async function emitLifecycleEndAndFlush(params: {
-  runId: string;
-  startedAt: number;
-  endedAt: number;
-}) {
-  vi.useFakeTimers();
-  try {
-    emitAgentEvent({
-      runId: params.runId,
-      stream: "lifecycle",
-      data: {
-        phase: "end",
-        startedAt: params.startedAt,
-        endedAt: params.endedAt,
-      },
-    });
-
-    await vi.runAllTimersAsync();
-  } finally {
-    vi.useRealTimers();
-  }
-}
-
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.lifecycle.e2e.test.ts
-=======
-  let previousFastTestEnv: string | undefined;
-
->>>>>>> 0b7c7ee1a (perf(test): speed up sessions_spawn lifecycle suite setup)
 =======
 >>>>>>> 610863e73 (test: speed up long-running async suites)
   beforeEach(() => {
@@ -373,11 +292,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       },
     });
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({
-=======
-    const tool = await getSessionsSpawnTool({
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     });
@@ -388,7 +303,6 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       label: "my-task",
     });
 
-<<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.e2e.test.ts
     const tool = createMoltbotTools({
       agentSessionKey: "main",
@@ -396,12 +310,6 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
     }).find((candidate) => candidate.name === "sessions_spawn");
     if (!tool) {
       throw new Error("missing sessions_spawn tool");
-=======
-    if (!childRunId) {
-=======
-    const child = ctx.getChild();
-    if (!child.runId) {
->>>>>>> 6b4590be0 (fix(agents): stabilize sessions_spawn e2e suite)
       throw new Error("missing child runId");
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.lifecycle.e2e.test.ts
     }
@@ -447,11 +355,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
     });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     const tool = createMoltbotTools({
-=======
-    const tool = await getSessionsSpawnTool({
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     });
@@ -473,7 +377,6 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       throw new Error("missing child runId");
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
     emitAgentEvent({
       runId: childRunId,
       stream: "lifecycle",
@@ -483,19 +386,6 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
         endedAt: 2345,
       },
     });
-=======
-    vi.useFakeTimers();
-    try {
-      emitAgentEvent({
-        runId: child.runId,
-        stream: "lifecycle",
-        data: {
-          phase: "end",
-          startedAt: 1234,
-          endedAt: 2345,
-        },
-      });
->>>>>>> 6b4590be0 (fix(agents): stabilize sessions_spawn e2e suite)
 
     await sleep(0);
     await sleep(0);
@@ -633,11 +523,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
   it("sessions_spawn announces with requester accountId", async () => {
     const ctx = setupSessionsSpawnGatewayMock({});
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({
-=======
-    const tool = await getSessionsSpawnTool({
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "main",
       agentChannel: "whatsapp",
       agentAccountId: "kev",
@@ -654,7 +540,6 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       throw new Error("missing child runId");
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
     emitAgentEvent({
       runId: childRunId,
       stream: "lifecycle",
@@ -664,19 +549,6 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
         endedAt: 2000,
       },
     });
-=======
-    vi.useFakeTimers();
-    try {
-      emitAgentEvent({
-        runId: child.runId,
-        stream: "lifecycle",
-        data: {
-          phase: "end",
-          startedAt: 1000,
-          endedAt: 2000,
-        },
-      });
->>>>>>> 29cc7f431 (test: share runtime scan filters and cached test scans)
 
     await sleep(0);
     await sleep(0);

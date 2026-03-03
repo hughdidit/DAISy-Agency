@@ -1,7 +1,6 @@
 import { ChannelType } from "@buape/carbon";
 import { resolveAckReaction, resolveHumanDelayConfig } from "../../agents/identity.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   removeAckReactionAfterReply,
   shouldAckReaction as shouldAckReactionGate,
@@ -9,10 +8,6 @@ import {
 import { logTypingFailure, logAckFailure } from "../../channels/logging.js";
 <<<<<<< HEAD
 import { createReplyPrefixContext } from "../../channels/reply-prefix.js";
-=======
-import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
-import { recordInboundSession } from "../../channels/session.js";
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { createTypingCallbacks } from "../../channels/typing.js";
 import {
   formatInboundEnvelope,
@@ -39,12 +34,7 @@ import { createReplyDispatcherWithTyping } from "../../auto-reply/reply/reply-di
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
-=======
-=======
-import type { ReplyPayload } from "../../auto-reply/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -60,8 +50,6 @@ import { logTypingFailure, logAckFailure } from "../../channels/logging.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 >>>>>>> 7c240a2b5 (feat(discord): faster reaction status state machine (watchdog + debounce) (#18248))
 import { recordInboundSession } from "../../channels/session.js";
-<<<<<<< HEAD
-=======
 import {
   createStatusReactionController,
   DEFAULT_TIMING,
@@ -70,7 +58,6 @@ import {
 import { createTypingCallbacks } from "../../channels/typing.js";
 import { resolveDiscordPreviewStreamMode } from "../../config/discord-preview-streaming.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
->>>>>>> 30a0d3fce (Status reactions: fix stall timers and gating (#22190))
 import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
 import { resolveChunkMode } from "../../auto-reply/chunk.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
@@ -78,26 +65,18 @@ import { danger, logVerbose, shouldLogVerbose } from "../../globals.js";
 import { convertMarkdownTables } from "../../markdown/tables.js";
 import { buildAgentSessionKey } from "../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../routing/session-key.js";
-<<<<<<< HEAD
-=======
 import { buildUntrustedChannelMetadata } from "../../security/channel-metadata.js";
 import { stripReasoningTagsFromText } from "../../shared/text/reasoning-tags.js";
->>>>>>> e8a4d5d9b (fix(discord): strip reasoning tags from partial stream preview)
 import { truncateUtf16Safe } from "../../utils.js";
 import { chunkDiscordTextWithMode } from "../chunk.js";
 import { resolveDiscordDraftStreamingChunking } from "../draft-chunking.js";
 import { createDiscordDraftStream } from "../draft-stream.js";
 import { reactMessageDiscord, removeReactionDiscord } from "../send.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { normalizeDiscordSlug } from "./allow-list.js";
 <<<<<<< HEAD
 import { formatDiscordUserTag, resolveTimestampMs } from "./format.js";
 import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
-=======
-import { resolveTimestampMs } from "./format.js";
-<<<<<<< HEAD
->>>>>>> abcca0f9b (Discord: fix PK sender identity context)
 =======
 import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -109,11 +88,7 @@ import { normalizeDiscordSlug, resolveDiscordOwnerAllowFrom } from "./allow-list
 import { resolveTimestampMs } from "./format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -263,12 +238,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   const groupChannel = isGuildMessage && displayChannelSlug ? `#${displayChannelSlug}` : undefined;
   const groupSubject = isDirectMessage ? undefined : groupChannel;
 <<<<<<< HEAD
-<<<<<<< HEAD
   const channelDescription = channelInfo?.topic?.trim();
-=======
-  const channelTopic = isGuildMessage ? channelInfo?.topic : undefined;
-=======
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
   const untrustedChannelMetadata = isGuildMessage
     ? buildUntrustedChannelMetadata({
         source: "discord",
@@ -428,11 +398,6 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     GroupSubject: groupSubject,
     GroupChannel: groupChannel,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    ChannelTopic: channelTopic,
-=======
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
     UntrustedContext: untrustedChannelMetadata ? [untrustedChannelMetadata] : undefined,
 >>>>>>> eedea6cf3 (Discord: add trusted channel topics on new sessions)
     GroupSystemPrompt: isGuildMessage ? groupSystemPrompt : undefined,

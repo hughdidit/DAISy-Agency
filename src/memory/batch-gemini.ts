@@ -4,17 +4,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { createSubsystemLogger } from "../logging/subsystem.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { isTruthyEnvValue } from "../infra/env.js";
 import type { GeminiEmbeddingClient } from "./embeddings-gemini.js";
 import { hashText } from "./internal.js";
-=======
-=======
-import { buildBatchHeaders, normalizeBatchBaseUrl, splitBatchRequests } from "./batch-utils.js";
->>>>>>> 58cf37cee (refactor(memory): reuse batch utils in gemini)
 import { hashText, runWithConcurrency } from "./internal.js";
 >>>>>>> e707a7bd3 (refactor(memory): reuse runWithConcurrency)
 =======
@@ -43,11 +38,7 @@ import { buildBatchHeaders, normalizeBatchBaseUrl } from "./batch-utils.js";
 import { debugEmbeddingsLog } from "./embeddings-debug.js";
 import type { GeminiEmbeddingClient } from "./embeddings-gemini.js";
 import { hashText } from "./internal.js";
-<<<<<<< HEAD
 >>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
-=======
-import { withRemoteHttpResponse } from "./remote-http.js";
->>>>>>> eb041daee (fix(memory): route batch APIs through guarded remote HTTP)
 
 export type GeminiBatchRequest = {
   custom_id: string;
@@ -80,7 +71,6 @@ export type GeminiBatchOutputLine = {
 };
 
 const GEMINI_BATCH_MAX_REQUESTS = 50000;
-<<<<<<< HEAD
 const debugEmbeddings = isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_MEMORY_EMBEDDINGS);
 const log = createSubsystemLogger("memory/embeddings");
 
@@ -92,8 +82,6 @@ const debugLog = (message: string, meta?: Record<string, unknown>) => {
   log.raw(`${message}${suffix}`);
 };
 
-=======
->>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 function getGeminiUploadUrl(baseUrl: string): string {
   if (baseUrl.includes("/v1beta")) {
     return baseUrl.replace(/\/v1beta\/?$/, "/upload/v1beta");

@@ -1,9 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { constants as fsConstants } from "node:fs";
->>>>>>> 125f4071b (fix(gateway): block agents.files symlink escapes)
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
@@ -24,26 +19,9 @@ import {
   ensureAgentWorkspace,
   isWorkspaceOnboardingCompleted,
 } from "../../agents/workspace.js";
-<<<<<<< HEAD
 >>>>>>> 2a68bcbeb (feat(ui): add Agents dashboard)
 import { loadConfig } from "../../config/config.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
-=======
-import { movePathToTrash } from "../../browser/trash.js";
-import {
-  applyAgentConfig,
-  findAgentEntryIndex,
-  listAgentEntries,
-  pruneAgentConfig,
-} from "../../commands/agents.config.js";
-import { loadConfig, writeConfigFile } from "../../config/config.js";
-import { resolveSessionTranscriptsDirForAgent } from "../../config/sessions/paths.js";
-import { sameFileIdentity } from "../../infra/file-identity.js";
-import { SafeOpenError, readLocalFileSafely } from "../../infra/fs-safe.js";
-import { isNotFoundPathError, isPathInside } from "../../infra/path-guards.js";
-import { DEFAULT_AGENT_ID, normalizeAgentId } from "../../routing/session-key.js";
-import { resolveUserPath } from "../../utils.js";
->>>>>>> 980f78873 (feat(gateway): add agents.create/update/delete methods (#11045))
 import {
   ErrorCodes,
   errorShape,
@@ -61,11 +39,7 @@ import { listAgentsForGateway } from "../session-utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
-=======
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

@@ -1,9 +1,5 @@
 import type { AgentMessage, AgentToolResult } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 
-=======
-import type { ImageSanitizationLimits } from "../image-sanitization.js";
->>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 import type { ToolCallIdMode } from "../tool-call-id.js";
 import { sanitizeToolCallIdsForCloudCodeAssist } from "../tool-call-id.js";
 import { sanitizeContentBlocksImages } from "../tool-images.js";

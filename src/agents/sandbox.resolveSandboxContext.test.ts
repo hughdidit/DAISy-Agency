@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
 
@@ -17,15 +16,6 @@ describe("resolveSandboxContext", () => {
     const { resolveSandboxContext } = await import("./sandbox.js");
 
     const cfg: MoltbotConfig = {
-=======
-import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { ensureSandboxWorkspaceForSession, resolveSandboxContext } from "./sandbox/context.js";
-
-describe("resolveSandboxContext", () => {
-  it("does not sandbox the agent main session in non-main mode", async () => {
-    const cfg: OpenClawConfig = {
->>>>>>> de7d94d9e (perf(test): remove resetModules from config/sandbox/message suites)
       agents: {
         defaults: {
           sandbox: { mode: "non-main", scope: "session" },
@@ -44,7 +34,6 @@ describe("resolveSandboxContext", () => {
   }, 15_000);
 
   it("does not create a sandbox workspace for the agent main session in non-main mode", async () => {
-<<<<<<< HEAD
     vi.resetModules();
 
     const spawn = vi.fn(() => {
@@ -58,9 +47,6 @@ describe("resolveSandboxContext", () => {
     const { ensureSandboxWorkspaceForSession } = await import("./sandbox.js");
 
     const cfg: MoltbotConfig = {
-=======
-    const cfg: OpenClawConfig = {
->>>>>>> de7d94d9e (perf(test): remove resetModules from config/sandbox/message suites)
       agents: {
         defaults: {
           sandbox: { mode: "non-main", scope: "session" },
@@ -79,7 +65,6 @@ describe("resolveSandboxContext", () => {
   }, 15_000);
 
   it("treats main session aliases as main in non-main mode", async () => {
-<<<<<<< HEAD
     vi.resetModules();
 
     const spawn = vi.fn(() => {
@@ -94,9 +79,6 @@ describe("resolveSandboxContext", () => {
       await import("./sandbox.js");
 
     const cfg: MoltbotConfig = {
-=======
-    const cfg: OpenClawConfig = {
->>>>>>> de7d94d9e (perf(test): remove resetModules from config/sandbox/message suites)
       session: { mainKey: "work" },
       agents: {
         defaults: {

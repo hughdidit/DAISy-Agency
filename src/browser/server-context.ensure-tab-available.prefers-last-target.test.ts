@@ -1,16 +1,9 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-=======
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
 =======
 import { describe, expect, it, vi } from "vitest";
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
@@ -27,7 +20,6 @@ import type { BrowserServerState } from "./server-context.js";
 import "./server-context.chrome-test-harness.js";
 import { createBrowserRouteContext } from "./server-context.js";
 
-<<<<<<< HEAD
 const chromeUserDataDir = vi.hoisted(() => ({ dir: "/tmp/openclaw" }));
 
 beforeAll(async () => {
@@ -47,10 +39,6 @@ vi.mock("./chrome.js", () => ({
 <<<<<<< HEAD
   resolveClawdUserDataDir: vi.fn(() => "/tmp/clawd"),
   stopClawdChrome: vi.fn(async () => {}),
-=======
-  resolveOpenClawUserDataDir: vi.fn(() => chromeUserDataDir.dir),
-  stopOpenClawChrome: vi.fn(async () => {}),
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
 }));
 
 =======
@@ -134,7 +122,6 @@ describe("browser server-context ensureTabAvailable", () => {
         { id: "A", type: "page", url: "https://a.example", webSocketDebuggerUrl: "ws://x/a" },
       ],
     ];
-<<<<<<< HEAD
 
     fetchMock.mockImplementation(async (url: unknown) => {
       const u = String(url);
@@ -181,10 +168,6 @@ describe("browser server-context ensureTabAvailable", () => {
       },
       profiles: new Map(),
     };
-=======
-    stubChromeJsonList(responses);
-    const state = makeBrowserState();
->>>>>>> aeb953bdf (refactor(test): reuse chrome json list stubs)
 
     const ctx = createBrowserRouteContext({
       getState: () => state,
@@ -202,7 +185,6 @@ describe("browser server-context ensureTabAvailable", () => {
       [{ id: "A", type: "page", url: "https://a.example", webSocketDebuggerUrl: "ws://x/a" }],
       [{ id: "A", type: "page", url: "https://a.example", webSocketDebuggerUrl: "ws://x/a" }],
     ];
-<<<<<<< HEAD
 
     fetchMock.mockImplementation(async (url: unknown) => {
       const u = String(url);
@@ -245,10 +227,6 @@ describe("browser server-context ensureTabAvailable", () => {
       },
       profiles: new Map(),
     };
-=======
-    stubChromeJsonList(responses);
-    const state = makeBrowserState();
->>>>>>> aeb953bdf (refactor(test): reuse chrome json list stubs)
 
     const ctx = createBrowserRouteContext({ getState: () => state });
     const chrome = ctx.forProfile("chrome");
@@ -258,7 +236,6 @@ describe("browser server-context ensureTabAvailable", () => {
 
   it("returns a descriptive message when no extension tabs are attached", async () => {
     const responses = [[]];
-<<<<<<< HEAD
     fetchMock.mockImplementation(async (url: unknown) => {
       const u = String(url);
       if (!u.includes("/json/list")) {
@@ -300,10 +277,6 @@ describe("browser server-context ensureTabAvailable", () => {
       },
       profiles: new Map(),
     };
-=======
-    stubChromeJsonList(responses);
-    const state = makeBrowserState();
->>>>>>> aeb953bdf (refactor(test): reuse chrome json list stubs)
 
     const ctx = createBrowserRouteContext({ getState: () => state });
     const chrome = ctx.forProfile("chrome");

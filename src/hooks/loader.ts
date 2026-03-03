@@ -5,27 +5,15 @@
  * and from directory-based discovery (bundled, managed, workspace)
  */
 
-<<<<<<< HEAD
 import { pathToFileURL } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import fs from "node:fs";
->>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
 import path from "node:path";
 import { registerInternalHook } from "./internal-hooks.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { InternalHookHandler } from "./internal-hooks.js";
-<<<<<<< HEAD
 import { loadWorkspaceHookEntries } from "./workspace.js";
-=======
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { InternalHookHandler } from "./internal-hooks.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -51,11 +39,6 @@ import { shouldIncludeHook } from "./config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { buildImportUrl } from "./import-url.js";
->>>>>>> 3645420a3 (perf: skip cache-busting for bundled hooks, use mtime for workspace hooks (openclaw#16960) thanks @mudrii)
 import type { InternalHookHandler } from "./internal-hooks.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -68,10 +51,7 @@ import type { InternalHookHandler } from "./internal-hooks.js";
 import type { InternalHookHandler } from "./internal-hooks.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { registerInternalHook } from "./internal-hooks.js";
-<<<<<<< HEAD
-=======
 import { resolveFunctionModuleExport } from "./module-loader.js";
->>>>>>> 3645420a3 (perf: skip cache-busting for bundled hooks, use mtime for workspace hooks (openclaw#16960) thanks @mudrii)
 import { loadWorkspaceHookEntries } from "./workspace.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 
@@ -96,18 +76,7 @@ const log = createSubsystemLogger("hooks:loader");
  * console.log(`Loaded ${count} hook handlers`);
  * ```
  */
-<<<<<<< HEAD
 export async function loadInternalHooks(cfg: MoltbotConfig, workspaceDir: string): Promise<number> {
-=======
-export async function loadInternalHooks(
-  cfg: OpenClawConfig,
-  workspaceDir: string,
-  opts?: {
-    managedHooksDir?: string;
-    bundledHooksDir?: string;
-  },
-): Promise<number> {
->>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
   // Check if hooks are enabled
   if (!cfg.hooks?.internal?.enabled) {
     return 0;
@@ -136,7 +105,6 @@ export async function loadInternalHooks(
 
       try {
 <<<<<<< HEAD
-<<<<<<< HEAD
         // Import handler module with cache-busting
         const url = pathToFileURL(entry.hook.handlerPath).href;
         const cacheBustedUrl = `${url}?t=${Date.now()}`;
@@ -145,21 +113,6 @@ export async function loadInternalHooks(
         // Get handler function (default or named export)
         const exportName = entry.metadata?.export ?? "default";
         const handler = mod[exportName];
-=======
-        if (
-          !isPathInsideWithRealpath(entry.hook.baseDir, entry.hook.handlerPath, {
-            requireRealpath: true,
-          })
-        ) {
-=======
-        const hookBaseDir = safeRealpathOrResolve(entry.hook.baseDir);
-        const opened = await openBoundaryFile({
-          absolutePath: entry.hook.handlerPath,
-          rootPath: hookBaseDir,
-          boundaryLabel: "hook directory",
-        });
-        if (!opened.ok) {
->>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
           log.error(
             `Hook '${entry.hook.name}' handler path fails boundary checks: ${entry.hook.handlerPath}`,
           );
@@ -216,7 +169,6 @@ export async function loadInternalHooks(
   const handlers = cfg.hooks.internal.handlers ?? [];
   for (const handlerConfig of handlers) {
     try {
-<<<<<<< HEAD
       // Resolve module path (absolute or relative to cwd)
       const modulePath = path.isAbsolute(handlerConfig.module)
         ? handlerConfig.module
@@ -226,40 +178,6 @@ export async function loadInternalHooks(
       const url = pathToFileURL(modulePath).href;
       const cacheBustedUrl = `${url}?t=${Date.now()}`;
       const mod = (await import(cacheBustedUrl)) as Record<string, unknown>;
-=======
-      // Legacy handler paths: keep them workspace-relative.
-      const rawModule = handlerConfig.module.trim();
-      if (!rawModule) {
-        log.error("Handler module path is empty");
-        continue;
-      }
-      if (path.isAbsolute(rawModule)) {
-        log.error(
-          `Handler module path must be workspace-relative (got absolute path): ${rawModule}`,
-        );
-        continue;
-      }
-      const baseDir = path.resolve(workspaceDir);
-      const modulePath = path.resolve(baseDir, rawModule);
-      const baseDirReal = safeRealpathOrResolve(baseDir);
-      const modulePathSafe = safeRealpathOrResolve(modulePath);
-      const rel = path.relative(baseDir, modulePath);
-      if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) {
-        log.error(`Handler module path must stay within workspaceDir: ${rawModule}`);
-        continue;
-      }
-      const opened = await openBoundaryFile({
-        absolutePath: modulePathSafe,
-        rootPath: baseDirReal,
-        boundaryLabel: "workspace directory",
-      });
-      if (!opened.ok) {
-        log.error(`Handler module path fails boundary checks under workspaceDir: ${rawModule}`);
-        continue;
-      }
-      const safeModulePath = opened.path;
-      fs.closeSync(opened.fd);
->>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
 
       // Legacy handlers are always workspace-relative, so use mtime-based cache busting
       const importUrl = buildImportUrl(safeModulePath, "openclaw-workspace");
@@ -267,14 +185,7 @@ export async function loadInternalHooks(
 
       // Get the handler function
       const exportName = handlerConfig.export ?? "default";
-<<<<<<< HEAD
       const handler = mod[exportName];
-=======
-      const handler = resolveFunctionModuleExport<InternalHookHandler>({
-        mod,
-        exportName,
-      });
->>>>>>> 3645420a3 (perf: skip cache-busting for bundled hooks, use mtime for workspace hooks (openclaw#16960) thanks @mudrii)
 
       if (typeof handler !== "function") {
         log.error(`Handler '${exportName}' from ${modulePath} is not a function`);

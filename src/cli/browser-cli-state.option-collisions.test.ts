@@ -99,7 +99,6 @@ describe("browser state option collisions", () => {
       "tab-1",
     ]);
 
-<<<<<<< HEAD
     await program.parseAsync(
       [
         "browser",
@@ -122,9 +121,6 @@ describe("browser state option collisions", () => {
       throw new Error("Expected callBrowserRequest to be called");
     }
     const request = call[1] as { body?: { targetId?: string } };
-=======
-    const request = getLastRequest() as { body?: { targetId?: string } };
->>>>>>> 148116048 (test(cli): dedupe browser state command setup)
     expect(request.body?.targetId).toBe("tab-1");
   });
 
@@ -135,16 +131,12 @@ describe("browser state option collisions", () => {
       from: "user",
     });
 
-<<<<<<< HEAD
     const call = mocks.callBrowserRequest.mock.calls.at(-1);
     expect(call).toBeDefined();
     if (!call) {
       throw new Error("Expected callBrowserRequest to be called");
     }
     const request = call[1] as { body?: { headers?: Record<string, string> } };
-=======
-    const request = getLastRequest() as { body?: { headers?: Record<string, string> } };
->>>>>>> 148116048 (test(cli): dedupe browser state command setup)
 =======
     expect((request as { body?: { targetId?: string } }).body?.targetId).toBe("tab-1");
   });

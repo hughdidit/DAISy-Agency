@@ -34,8 +34,6 @@ function pickBestGroupMatch(
   return exact ?? matches[0];
 }
 
-<<<<<<< HEAD
-=======
 function pickBestUserMatch(
   matches: ChannelDirectoryEntry[],
   query: string,
@@ -68,7 +66,6 @@ function describeUserMatchFailure(matches: ChannelDirectoryEntry[], query: strin
   return "no exact match; use full Matrix ID";
 }
 
->>>>>>> eb4f1e765 (refactor(matrix): dedupe directory/target match helpers)
 export async function resolveMatrixTargets(params: {
   cfg: unknown;
   inputs: string[];

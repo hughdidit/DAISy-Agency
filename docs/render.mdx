@@ -11,17 +11,7 @@ Deploy Moltbot on Render using Infrastructure as Code. The included `render.yaml
 
 ## Deploy with a Render Blueprint
 
-<<<<<<< HEAD
 <a href="https://render.com/deploy?repo=https://github.com/moltbot/moltbot" target="_blank" rel="noreferrer">Deploy to Render</a>
-=======
-<a
-  href="https://render.com/deploy?repo=https://github.com/openclaw/openclaw"
-  target="_blank"
-  rel="noreferrer"
->
-  Deploy to Render
-</a>
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Clicking this link will:
 
@@ -47,7 +37,6 @@ services:
       - key: PORT
         value: "8080"
       - key: SETUP_PASSWORD
-<<<<<<< HEAD
         sync: false          # prompts during deploy
       - key: CLAWDBOT_STATE_DIR
         value: /data/.clawdbot
@@ -55,15 +44,6 @@ services:
         value: /data/workspace
       - key: CLAWDBOT_GATEWAY_TOKEN
         generateValue: true  # auto-generates a secure token
-=======
-        sync: false # prompts during deploy
-      - key: OPENCLAW_STATE_DIR
-        value: /data/.openclaw
-      - key: OPENCLAW_WORKSPACE_DIR
-        value: /data/workspace
-      - key: OPENCLAW_GATEWAY_TOKEN
-        generateValue: true # auto-generates a secure token
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     disk:
       name: moltbot-data
       mountPath: /data

@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> e915b4c64 (refactor: unify monitor abort lifecycle handling)
 import { monitorTelegramProvider } from "./monitor.js";
 
 type MockCtx = {
@@ -154,14 +150,6 @@ vi.mock("../infra/backoff.js", () => ({
 }));
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-vi.mock("../infra/unhandled-rejections.js", () => ({
-  registerUnhandledRejectionHandler: registerUnhandledRejectionHandlerMock,
-}));
-
->>>>>>> 4d0ca7c31 (fix(telegram): restart stalled polling after unhandled network errors)
 vi.mock("./webhook.js", () => ({
   startTelegramWebhook: startTelegramWebhookSpy,
 }));
@@ -189,22 +177,14 @@ describe("monitorTelegramProvider (grammY)", () => {
     );
     computeBackoff.mockClear();
     sleepWithAbort.mockClear();
-<<<<<<< HEAD
-=======
     startTelegramWebhookSpy.mockClear();
     registerUnhandledRejectionHandlerMock.mockClear();
     resetUnhandledRejection();
 <<<<<<< HEAD
->>>>>>> 4d0ca7c31 (fix(telegram): restart stalled polling after unhandled network errors)
 =======
     createTelegramBotErrors.length = 0;
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 81384daeb (fix(telegram): harden polling retry setup and teardown order)
-=======
-=======
-    createdBotStops.length = 0;
->>>>>>> 042d06a19 (Telegram: stop bot on polling teardown)
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
@@ -434,8 +414,6 @@ describe("monitorTelegramProvider (grammY)", () => {
 
     await expect(monitorTelegramProvider({ token: "tok" })).rejects.toThrow("bad token");
   });
-<<<<<<< HEAD
-=======
 
   it("force-restarts polling when unhandled network rejection stalls runner", async () => {
     const abort = new AbortController();
@@ -542,5 +520,4 @@ describe("monitorTelegramProvider (grammY)", () => {
     );
     expect(runSpy).not.toHaveBeenCalled();
   });
->>>>>>> 4d0ca7c31 (fix(telegram): restart stalled polling after unhandled network errors)
 });

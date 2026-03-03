@@ -13,7 +13,6 @@ import {
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const _MAIN_SESSION_KEY = "agent:main:main";
 
 const webMocks = vi.hoisted(() => ({
@@ -55,14 +54,6 @@ function makeCfg(home: string) {
 afterEach(() => {
   vi.restoreAllMocks();
 });
-=======
-=======
-let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
-beforeAll(async () => {
-  getReplyFromConfig = await loadGetReplyFromConfig();
-});
-
->>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
@@ -85,15 +76,8 @@ function replyText(res: Awaited<ReturnType<typeof getReplyFromConfig>>) {
 describe("trigger handling", () => {
   it("runs /compact as a gated command", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const storePath = join(tmpdir(), `moltbot-session-test-${Date.now()}.json`);
       vi.mocked(compactEmbeddedPiSession).mockResolvedValue({
-=======
-      const storePath = join(tmpdir(), `openclaw-session-test-${Date.now()}.json`);
-<<<<<<< HEAD
-<<<<<<< HEAD
-      getCompactEmbeddedPiSessionMock().mockResolvedValue({
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         ok: true,
         compacted: true,
         result: {
@@ -118,17 +102,12 @@ describe("trigger handling", () => {
           CommandAuthorized: true,
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
 <<<<<<< HEAD
               model: "anthropic/claude-opus-4-5",
               workspace: join(home, "clawd"),
-=======
-              model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: join(home, "openclaw"),
->>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
             },
           },
           channels: {

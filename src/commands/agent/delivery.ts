@@ -3,24 +3,16 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { AGENT_LANE_NESTED } from "../../agents/lanes.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
-=======
-=======
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { AgentCommandOpts } from "./types.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -52,13 +44,10 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
 } from "../../infra/outbound/agent-delivery.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { buildOutboundSessionContext } from "../../infra/outbound/session-context.js";
 >>>>>>> a1628d89e (refactor: unify outbound session context wiring)
@@ -240,14 +229,6 @@ export async function deliverAgentCommandResult(params: {
   if (deliver && deliveryChannel && !isInternalMessageChannel(deliveryChannel)) {
     if (deliveryTarget) {
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-      const deliverySession = buildOutboundSessionContext({
-        cfg,
-        agentId: opts.agentId,
-        sessionKey: opts.sessionKey,
-      });
->>>>>>> a1628d89e (refactor: unify outbound session context wiring)
 =======
 >>>>>>> 712e23172 (fix(agent): forward resolved outbound session context for delivery)
       await deliverOutboundPayloads({
@@ -257,10 +238,6 @@ export async function deliverAgentCommandResult(params: {
         accountId: resolvedAccountId,
         payloads: deliveryPayloads,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        session: deliverySession,
->>>>>>> a1628d89e (refactor: unify outbound session context wiring)
 =======
         session: outboundSession,
 >>>>>>> 712e23172 (fix(agent): forward resolved outbound session context for delivery)

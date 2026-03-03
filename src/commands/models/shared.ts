@@ -10,12 +10,9 @@ import {
   readConfigFileSnapshot,
   writeConfigFile,
 } from "../../config/config.js";
-<<<<<<< HEAD
-=======
 import { toAgentModelListLike } from "../../config/model-input.js";
 import type { AgentModelConfig } from "../../config/types.agents-shared.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
->>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 
 export const ensureFlagCompatibility = (opts: { json?: boolean; plain?: boolean }) => {
   if (opts.json && opts.plain) {
@@ -62,13 +59,9 @@ export const isLocalBaseUrl = (baseUrl: string) => {
   }
 };
 
-<<<<<<< HEAD
 export async function updateConfig(
   mutator: (cfg: MoltbotConfig) => MoltbotConfig,
 ): Promise<MoltbotConfig> {
-=======
-export async function loadValidConfigOrThrow(): Promise<OpenClawConfig> {
->>>>>>> 8369913c7 (refactor(models): reuse validated config snapshot loader)
   const snapshot = await readConfigFileSnapshot();
   if (!snapshot.valid) {
     const issues = snapshot.issues.map((issue) => `- ${issue.path}: ${issue.message}`).join("\n");
@@ -105,31 +98,7 @@ export function resolveModelTarget(params: { raw: string; cfg: MoltbotConfig }):
   return resolved.ref;
 }
 
-<<<<<<< HEAD
 export function buildAllowlistSet(cfg: MoltbotConfig): Set<string> {
-=======
-export function resolveModelKeysFromEntries(params: {
-  cfg: OpenClawConfig;
-  entries: readonly string[];
-}): string[] {
-  const aliasIndex = buildModelAliasIndex({
-    cfg: params.cfg,
-    defaultProvider: DEFAULT_PROVIDER,
-  });
-  return params.entries
-    .map((entry) =>
-      resolveModelRefFromString({
-        raw: entry,
-        defaultProvider: DEFAULT_PROVIDER,
-        aliasIndex,
-      }),
-    )
-    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
-    .map((entry) => modelKey(entry.ref.provider, entry.ref.model));
-}
-
-export function buildAllowlistSet(cfg: OpenClawConfig): Set<string> {
->>>>>>> d4c7b0505 (refactor(models): dedupe fallback key parsing)
   const allowed = new Set<string>();
   const models = cfg.agents?.defaults?.models ?? {};
   for (const raw of Object.keys(models)) {
@@ -153,8 +122,6 @@ export function normalizeAlias(alias: string): string {
   return trimmed;
 }
 
-<<<<<<< HEAD
-=======
 export function resolveKnownAgentId(params: {
   cfg: OpenClawConfig;
   rawAgentId?: string | null;
@@ -174,7 +141,6 @@ export function resolveKnownAgentId(params: {
 }
 
 <<<<<<< HEAD
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
 export type PrimaryFallbackConfig = { primary?: string; fallbacks?: string[] };
 
@@ -193,41 +159,7 @@ export function mergePrimaryFallbackConfig(
   return next;
 }
 
-<<<<<<< HEAD
 >>>>>>> cbf6ee3a6 (refactor(models): share primary/fallback merge)
-=======
-export function applyDefaultModelPrimaryUpdate(params: {
-  cfg: OpenClawConfig;
-  modelRaw: string;
-  field: "model" | "imageModel";
-}): OpenClawConfig {
-  const resolved = resolveModelTarget({ raw: params.modelRaw, cfg: params.cfg });
-  const key = `${resolved.provider}/${resolved.model}`;
-
-  const nextModels = { ...params.cfg.agents?.defaults?.models };
-  if (!nextModels[key]) {
-    nextModels[key] = {};
-  }
-
-  const defaults = params.cfg.agents?.defaults ?? {};
-  const existing = toAgentModelListLike(
-    (defaults as Record<string, unknown>)[params.field] as AgentModelConfig | undefined,
-  );
-
-  return {
-    ...params.cfg,
-    agents: {
-      ...params.cfg.agents,
-      defaults: {
-        ...defaults,
-        [params.field]: mergePrimaryFallbackConfig(existing, { primary: key }),
-        models: nextModels,
-      },
-    },
-  };
-}
-
->>>>>>> cb46ea037 (refactor(models): dedupe set default model updates)
 export { modelKey };
 export { DEFAULT_MODEL, DEFAULT_PROVIDER };
 

@@ -122,8 +122,6 @@ describe("sandbox fs bridge shell compatibility", () => {
     expect(canonicalScript).toBeDefined();
     // "; " joining can create "do; cmd", which is invalid in POSIX sh.
     expect(canonicalScript).not.toMatch(/\bdo;/);
-<<<<<<< HEAD
-=======
     // Keep command on the next line after "do" for POSIX-sh safety.
     expect(canonicalScript).toMatch(/\bdo\n\s*parent=/);
   });
@@ -138,7 +136,6 @@ describe("sandbox fs bridge shell compatibility", () => {
     expect(readCall).toBeDefined();
     const readPath = readCall ? getDockerPathArg(readCall[0]) : "";
     expect(readPath).toContain("file_1095---");
->>>>>>> 58309fd8d (refactor(matrix,tests): extract helpers and inject send-queue timing)
   });
 
   it("resolves bind-mounted absolute container paths for reads", async () => {
@@ -196,8 +193,6 @@ describe("sandbox fs bridge shell compatibility", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("rejects mkdirp when target exists as a file", async () => {
     await withTempDir("openclaw-fs-bridge-mkdirp-file-", async (stateDir) => {
       const workspaceDir = path.join(stateDir, "workspace");
@@ -219,7 +214,6 @@ describe("sandbox fs bridge shell compatibility", () => {
     });
   });
 
->>>>>>> dcd19da42 (refactor: simplify sandbox boundary open flow)
   it("rejects pre-existing host symlink escapes before docker exec", async () => {
     await withTempDir("openclaw-fs-bridge-", async (stateDir) => {
       const workspaceDir = path.join(stateDir, "workspace");
@@ -242,8 +236,6 @@ describe("sandbox fs bridge shell compatibility", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("rejects pre-existing host hardlink escapes before docker exec", async () => {
     if (process.platform === "win32") {
       return;
@@ -277,7 +269,6 @@ describe("sandbox fs bridge shell compatibility", () => {
     });
   });
 
->>>>>>> dcd19da42 (refactor: simplify sandbox boundary open flow)
   it("rejects container-canonicalized paths outside allowed mounts", async () => {
     mockedExecDockerRaw.mockImplementation(async (args) => {
       const script = getDockerScript(args);

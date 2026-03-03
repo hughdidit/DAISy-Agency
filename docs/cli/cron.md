@@ -32,11 +32,7 @@ Note: retention/pruning is controlled in config:
 Update delivery settings without changing the message:
 
 ```bash
-<<<<<<< HEAD
 moltbot cron edit <job-id> --deliver --channel telegram --to "123456789"
-=======
-openclaw cron edit <job-id> --announce --channel telegram --to "123456789"
->>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 ```
 
 Disable delivery for an isolated job:

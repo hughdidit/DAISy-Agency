@@ -13,19 +13,11 @@ This page assumes exe.dev's default **exeuntu** image. If you picked a different
 
 ## Beginner quick path
 
-<<<<<<< HEAD
 1) [https://exe.new/moltbot](https://exe.new/moltbot)
 2) Fill in your auth key/token as needed
 3) Click on "Agent" next to your VM, and wait...
 4) ???
 5) Profit
-=======
-1. [https://exe.new/openclaw](https://exe.new/openclaw)
-2. Fill in your auth key/token as needed
-3. Click on "Agent" next to your VM, and wait...
-4. ???
-5. Profit
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## What you need
 

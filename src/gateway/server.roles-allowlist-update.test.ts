@@ -9,12 +9,7 @@ import { WebSocket } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-=======
-import type { GatewayClient } from "./client.js";
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -28,11 +23,7 @@ import type { GatewayClient } from "./client.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { CONFIG_PATH } from "../config/config.js";
-<<<<<<< HEAD
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
-=======
-import type { DeviceIdentity } from "../infra/device-identity.js";
->>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import type { GatewayClient } from "./client.js";
 

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import { join } from "node:path";
@@ -7,9 +6,6 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 387fb4074 (perf(test): skip heavy boot paths in reply suites)
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -51,7 +47,6 @@ const { withTempHome } = createTempHomeHarness({
   beforeEachCase: () => runEmbeddedPiAgentMock.mockClear(),
 });
 
-<<<<<<< HEAD
 afterAll(async () => {
   if (!fixtureRoot) {
     return;
@@ -68,31 +63,6 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
     },
     { prefix: "moltbot-typing-" },
   );
-=======
-  const home = join(fixtureRoot, `case-${++caseId}`);
-  await fs.mkdir(join(home, ".openclaw", "agents", "main", "sessions"), { recursive: true });
-  const envSnapshot = snapshotHomeEnv();
-  process.env.HOME = home;
-  process.env.USERPROFILE = home;
-  process.env.OPENCLAW_STATE_DIR = join(home, ".openclaw");
-  process.env.OPENCLAW_AGENT_DIR = join(home, ".openclaw", "agent");
-  process.env.PI_CODING_AGENT_DIR = join(home, ".openclaw", "agent");
-
-  if (process.platform === "win32") {
-    const match = home.match(/^([A-Za-z]:)(.*)$/);
-    if (match) {
-      process.env.HOMEDRIVE = match[1];
-      process.env.HOMEPATH = match[2] || "\\";
-    }
-  }
-
-  try {
-    runEmbeddedPiAgentMock.mockClear();
-    return await fn(home);
-  } finally {
-    restoreHomeEnv(envSnapshot);
-  }
->>>>>>> cfc2604d3 (perf(test): speed up heartbeat typing suite)
 }
 
 function makeCfg(home: string) {

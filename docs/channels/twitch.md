@@ -33,15 +33,9 @@ Details: [Plugins](/tools/plugin)
    - Select **Bot Token**
    - Verify scopes `chat:read` and `chat:write` are selected
    - Copy the **Client ID** and **Access Token**
-<<<<<<< HEAD
 3) Find your Twitch user ID: https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
 4) Configure the token:
    - Env: `CLAWDBOT_TWITCH_ACCESS_TOKEN=...` (default account only)
-=======
-3. Find your Twitch user ID: https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
-4. Configure the token:
-   - Env: `OPENCLAW_TWITCH_ACCESS_TOKEN=...` (default account only)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Or config: `channels.twitch.accessToken`
    - If both are set, config takes precedence (env fallback is default-account only).
 5. Start the gateway.
@@ -55,7 +49,6 @@ Minimal config:
   channels: {
     twitch: {
       enabled: true,
-<<<<<<< HEAD
       username: "moltbot",              // Bot's Twitch account
       accessToken: "oauth:abc123...",    // OAuth Access Token (or use CLAWDBOT_TWITCH_ACCESS_TOKEN env var)
       clientId: "xyz789...",             // Client ID from Token Generator
@@ -63,15 +56,6 @@ Minimal config:
       allowFrom: ["123456789"]           // (recommended) Your Twitch user ID only - get it from https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
     }
   }
-=======
-      username: "openclaw", // Bot's Twitch account
-      accessToken: "oauth:abc123...", // OAuth Access Token (or use OPENCLAW_TWITCH_ACCESS_TOKEN env var)
-      clientId: "xyz789...", // Client ID from Token Generator
-      channel: "vevisk", // Which Twitch channel's chat to join (required)
-      allowFrom: ["123456789"], // (recommended) Your Twitch user ID only - get it from https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 

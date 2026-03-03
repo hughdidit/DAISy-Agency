@@ -1,17 +1,10 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import {
   formatSandboxToolPolicyBlockedMessage,
   resolveSandboxConfigForAgent,
   resolveSandboxToolPolicyForAgent,
 } from "./sandbox.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { resolveSandboxConfigForAgent } from "./sandbox/config.js";
-import { formatSandboxToolPolicyBlockedMessage } from "./sandbox/runtime-status.js";
-import { resolveSandboxToolPolicyForAgent } from "./sandbox/tool-policy.js";
->>>>>>> 467666adc (test(sandbox): use focused modules in lightweight suites)
 
 describe("sandbox explain helpers", () => {
   it("prefers agent overrides > global > defaults (sandbox tool policy)", () => {

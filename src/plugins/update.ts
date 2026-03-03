@@ -1,20 +1,9 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import fsSync from "node:fs";
-import path from "node:path";
-import type { OpenClawConfig } from "../config/config.js";
-import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
->>>>>>> a97cec001 (refactor: harden remaining plugin manifest reads)
 import type { UpdateChannel } from "../infra/update-channels.js";
 import { resolveUserPath } from "../utils.js";
-<<<<<<< HEAD
 import { discoverMoltbotPlugins } from "./discovery.js";
-=======
-import { resolveBundledPluginSources } from "./bundled-sources.js";
->>>>>>> cf311978e (fix(plugins): fallback bundled channel specs when npm install returns 404 (#12849))
 import { installPluginFromNpmSpec, resolvePluginInstallDir } from "./install.js";
 import { buildNpmResolutionInstallFields, recordPluginInstall } from "./installs.js";
 
@@ -84,7 +73,6 @@ async function readInstalledPackageVersion(dir: string): Promise<string | undefi
   }
 }
 
-<<<<<<< HEAD
 function resolveBundledPluginSources(params: {
   workspaceDir?: string;
 }): Map<string, BundledPluginSource> {
@@ -119,8 +107,6 @@ function resolveBundledPluginSources(params: {
   return bundled;
 }
 
-=======
->>>>>>> cf311978e (fix(plugins): fallback bundled channel specs when npm install returns 404 (#12849))
 function pathsEqual(left?: string, right?: string): boolean {
   if (!left || !right) {
     return false;
@@ -255,8 +241,6 @@ export async function updateNpmInstalledPlugins(params: {
           mode: "update",
           dryRun: true,
           expectedPluginId: pluginId,
-<<<<<<< HEAD
-=======
           expectedIntegrity: record.integrity,
           onIntegrityDrift: createPluginUpdateIntegrityDriftHandler({
             pluginId,
@@ -264,7 +248,6 @@ export async function updateNpmInstalledPlugins(params: {
             logger,
             onIntegrityDrift: params.onIntegrityDrift,
           }),
->>>>>>> edf92f1cb (refactor: share npm integrity drift handling)
           logger,
         });
       } catch (err) {
@@ -312,8 +295,6 @@ export async function updateNpmInstalledPlugins(params: {
         spec: record.spec,
         mode: "update",
         expectedPluginId: pluginId,
-<<<<<<< HEAD
-=======
         expectedIntegrity: record.integrity,
         onIntegrityDrift: createPluginUpdateIntegrityDriftHandler({
           pluginId,
@@ -321,7 +302,6 @@ export async function updateNpmInstalledPlugins(params: {
           logger,
           onIntegrityDrift: params.onIntegrityDrift,
         }),
->>>>>>> edf92f1cb (refactor: share npm integrity drift handling)
         logger,
       });
     } catch (err) {
@@ -348,10 +328,7 @@ export async function updateNpmInstalledPlugins(params: {
       spec: record.spec,
       installPath: result.targetDir,
       version: nextVersion,
-<<<<<<< HEAD
-=======
       ...buildNpmResolutionInstallFields(result.npmResolution),
->>>>>>> 2081b3a3c (refactor(channels): dedupe hook and monitor execution paths)
     });
     changed = true;
 
@@ -475,10 +452,7 @@ export async function syncPluginsForUpdateChannel(params: {
         spec,
         installPath: result.targetDir,
         version: result.version,
-<<<<<<< HEAD
-=======
         ...buildNpmResolutionInstallFields(result.npmResolution),
->>>>>>> 2081b3a3c (refactor(channels): dedupe hook and monitor execution paths)
         sourcePath: undefined,
       });
       summary.switchedToNpm.push(pluginId);

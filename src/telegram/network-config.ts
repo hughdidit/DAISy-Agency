@@ -1,21 +1,11 @@
 import process from "node:process";
 
 import { isTruthyEnvValue } from "../infra/env.js";
-<<<<<<< HEAD
 import type { TelegramNetworkConfig } from "../config/types.telegram.js";
-=======
-import { isWSL2Sync } from "../infra/wsl.js";
->>>>>>> 2f023a477 (fix(telegram): disable autoSelectFamily by default on WSL2 (#21916))
 
 export const TELEGRAM_DISABLE_AUTO_SELECT_FAMILY_ENV =
-<<<<<<< HEAD
   "CLAWDBOT_TELEGRAM_DISABLE_AUTO_SELECT_FAMILY";
 export const TELEGRAM_ENABLE_AUTO_SELECT_FAMILY_ENV = "CLAWDBOT_TELEGRAM_ENABLE_AUTO_SELECT_FAMILY";
-=======
-  "OPENCLAW_TELEGRAM_DISABLE_AUTO_SELECT_FAMILY";
-export const TELEGRAM_ENABLE_AUTO_SELECT_FAMILY_ENV = "OPENCLAW_TELEGRAM_ENABLE_AUTO_SELECT_FAMILY";
-export const TELEGRAM_DNS_RESULT_ORDER_ENV = "OPENCLAW_TELEGRAM_DNS_RESULT_ORDER";
->>>>>>> 53adae9ce (fix(telegram): add dnsResultOrder=ipv4first default on Node 22+ to fix fetch failures (#5405))
 
 export type TelegramAutoSelectFamilyDecision = {
   value: boolean | null;

@@ -13,12 +13,7 @@ app's code signature, bundle identifier, and on-disk path. If any of those chang
 macOS treats the app as new and may drop or hide prompts.
 
 ## Requirements for stable permissions
-<<<<<<< HEAD
 - Same path: run the app from a fixed location (for Moltbot, `dist/Moltbot.app`).
-=======
-
-- Same path: run the app from a fixed location (for OpenClaw, `dist/OpenClaw.app`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Same bundle identifier: changing the bundle ID creates a new permission identity.
 - Signed app: unsigned or ad-hoc signed builds do not persist permissions.
 - Consistent signature: use a real Apple Development or Developer ID certificate

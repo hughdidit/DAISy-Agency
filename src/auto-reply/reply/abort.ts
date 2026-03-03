@@ -1,24 +1,8 @@
 import { getAcpSessionManager } from "../../acp/control-plane/manager.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
-<<<<<<< HEAD
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import {
-  listSubagentRunsForRequester,
-  markSubagentRunTerminated,
-} from "../../agents/subagent-registry.js";
-import {
-  resolveInternalSessionKey,
-  resolveMainSessionAlias,
-} from "../../agents/tools/sessions-helpers.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -42,17 +26,10 @@ import { parseAgentSessionKey } from "../../routing/session-key.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { normalizeCommandBody } from "../commands-registry.js";
 import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 <<<<<<< HEAD
 import { logVerbose } from "../../globals.js";
-=======
-import { normalizeCommandBody, type CommandNormalizeOptions } from "../commands-registry.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> b2aa6e094 (fix(telegram): prevent non-abort slash commands from racing chat replies (#17899))
 =======
 import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import type { OpenClawConfig, RuntimeEnv } from "openclaw/plugin-sdk";
->>>>>>> a74198557 (chore: Fix more extension test types, 2/N.)
 import { describe, expect, it } from "vitest";
 
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";

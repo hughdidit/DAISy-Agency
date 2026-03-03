@@ -3,10 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -26,8 +23,6 @@ import {
 } from "../plugins/config-state.js";
 import { loadPluginManifestRegistry } from "../plugins/manifest-registry.js";
 import { validateJsonSchemaValue } from "../plugins/schema-validator.js";
-<<<<<<< HEAD
-=======
 import {
   hasAvatarUriScheme,
   isAvatarDataUrl,
@@ -36,7 +31,6 @@ import {
   isWindowsAbsolutePath,
 } from "../shared/avatar-policy.js";
 import { isCanonicalDottedDecimalIPv4, isLoopbackIpAddress } from "../shared/net/ip.js";
->>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 import { isRecord } from "../utils.js";
 import { findDuplicateAgentDirs, formatDuplicateAgentDirError } from "./agent-dirs.js";
 import { applyAgentDefaults, applyModelDefaults, applySessionDefaults } from "./defaults.js";
@@ -45,13 +39,8 @@ import { findLegacyConfigIssues } from "./legacy.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig, ConfigValidationIssue } from "./types.js";
 import { MoltbotSchema } from "./zod-schema.js";
-=======
-import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -209,26 +198,9 @@ export function validateConfigObjectRaw(
   }
   return {
     ok: true,
-<<<<<<< HEAD
     config: applyModelDefaults(
       applyAgentDefaults(applySessionDefaults(validated.data as MoltbotConfig)),
     ),
-=======
-    config: validated.data as OpenClawConfig,
-  };
-}
-
-export function validateConfigObject(
-  raw: unknown,
-): { ok: true; config: OpenClawConfig } | { ok: false; issues: ConfigValidationIssue[] } {
-  const result = validateConfigObjectRaw(raw);
-  if (!result.ok) {
-    return result;
-  }
-  return {
-    ok: true,
-    config: applyModelDefaults(applyAgentDefaults(applySessionDefaults(result.config))),
->>>>>>> 3189e2f11 (fix(config): add resolved field to ConfigFileSnapshot for pre-defaults config)
   };
 }
 

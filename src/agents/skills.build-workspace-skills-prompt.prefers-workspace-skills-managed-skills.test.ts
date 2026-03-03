@@ -18,11 +18,7 @@ afterAll(async () => {
 describe("buildWorkspaceSkillsPrompt", () => {
   it("prefers workspace skills over managed skills", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
-=======
-    const workspaceDir = await createCaseDir("workspace");
->>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
 =======
     const workspaceDir = await fixtureSuite.createCaseDir("workspace");
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
@@ -65,11 +61,7 @@ describe("buildWorkspaceSkillsPrompt", () => {
   });
   it("gates by bins, config, and always", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
-=======
-    const workspaceDir = await createCaseDir("workspace");
->>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
 =======
     const workspaceDir = await fixtureSuite.createCaseDir("workspace");
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
@@ -151,11 +143,7 @@ describe("buildWorkspaceSkillsPrompt", () => {
   });
   it("uses skillKey for config lookups", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
-=======
-    const workspaceDir = await createCaseDir("workspace");
->>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
 =======
     const workspaceDir = await fixtureSuite.createCaseDir("workspace");
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)

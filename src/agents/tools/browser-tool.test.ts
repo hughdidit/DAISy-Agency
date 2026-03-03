@@ -321,11 +321,7 @@ describe("browser tool snapshot labels", () => {
     expect(toolCommonMocks.imageResultFromFile).toHaveBeenCalledWith(
       expect.objectContaining({
         path: "/tmp/snap.png",
-<<<<<<< HEAD:src/agents/tools/browser-tool.e2e.test.ts
         extraText: "label text",
-=======
-        extraText: expect.stringContaining("<<<EXTERNAL_UNTRUSTED_CONTENT"),
->>>>>>> 7d09a9e74 (test: update agent tool assertions and reclassify suites):src/agents/tools/browser-tool.test.ts
       }),
     );
     expect(result).toEqual(imageResult);
@@ -334,8 +330,6 @@ describe("browser tool snapshot labels", () => {
     expect(result?.content?.[1]).toMatchObject({ type: "image" });
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("browser tool external content wrapping", () => {
   afterEach(() => {
@@ -452,4 +446,3 @@ describe("browser tool external content wrapping", () => {
     });
   });
 });
->>>>>>> b6d4f7c00 (chore: Fix types in tests 5/N.)

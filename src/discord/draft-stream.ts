@@ -118,19 +118,12 @@ export function createDiscordDraftStream(params: {
     throttleMs,
     state: streamState,
     sendOrEditStreamMessage,
-<<<<<<< HEAD
     readMessageId: () => streamMessageId,
     clearMessageId: () => {
       streamMessageId = undefined;
     },
     isValidMessageId: (value): value is string => typeof value === "string",
     deleteMessage: (messageId) => rest.delete(Routes.channelMessage(channelId, messageId)),
-=======
-    readMessageId,
-    clearMessageId,
-    isValidMessageId: isValidStreamMessageId,
-    deleteMessage: deleteStreamMessage,
->>>>>>> 2dcb24498 (refactor(test): dedupe gateway and web scaffolding)
     warn: params.warn,
     warnPrefix: "discord stream preview cleanup failed",
   });

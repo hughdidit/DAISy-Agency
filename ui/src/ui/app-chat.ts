@@ -3,7 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { abortChatRun, loadChatHistory, sendChatMessage } from "./controllers/chat";
 import { loadSessions } from "./controllers/sessions";
 import { generateUUID } from "./uuid";
@@ -15,12 +14,6 @@ import type { GatewayHelloOk } from "./gateway";
 import { parseAgentSessionKey } from "../../../src/sessions/session-key-utils.js";
 import type { MoltbotApp } from "./app";
 import type { ChatAttachment, ChatQueueItem } from "./ui-types";
-=======
-import type { OpenClawApp } from "./app.ts";
-import type { GatewayHelloOk } from "./gateway.ts";
-import type { ChatAttachment, ChatQueueItem } from "./ui-types.ts";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawApp } from "./app.ts";
 import type { GatewayHelloOk } from "./gateway.ts";
@@ -232,15 +225,8 @@ export async function handleSendChat(
 
 export async function refreshChat(host: ChatHost) {
   await Promise.all([
-<<<<<<< HEAD
     loadChatHistory(host as unknown as MoltbotApp),
     loadSessions(host as unknown as MoltbotApp, { activeMinutes: 0 }),
-=======
-    loadChatHistory(host as unknown as OpenClawApp),
-    loadSessions(host as unknown as OpenClawApp, {
-      activeMinutes: CHAT_SESSIONS_ACTIVE_MINUTES,
-    }),
->>>>>>> 57c34a324 (UI: introduce active minutes constant for chat sessions and enhance session display names)
     refreshChatAvatar(host),
   ]);
   scheduleChatScroll(host as unknown as Parameters<typeof scheduleChatScroll>[0]);

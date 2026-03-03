@@ -5,14 +5,10 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { promisify } from "node:util";
 <<<<<<< HEAD
 
 import { colorize, isRich, theme } from "../terminal/theme.js";
-=======
-=======
->>>>>>> f33031bc9 (refactor: dedupe daemon exec wrappers)
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 =======
@@ -39,16 +35,9 @@ import {
   readLaunchAgentProgramArgumentsFromFile,
 } from "./launchd-plist.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { formatLine, toPosixPath } from "./output.js";
-=======
-import { formatLine, toPosixPath, writeFormattedLines } from "./output.js";
->>>>>>> 2709c0ba5 (refactor(daemon): dedupe install output line writing)
 import { resolveGatewayStateDir, resolveHomeDir } from "./paths.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import { parseKeyValueOutput } from "./runtime-parse.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -56,8 +45,6 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { resolveGatewayStateDir, resolveHomeDir } from "./paths.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -80,17 +67,9 @@ import type {
 >>>>>>> 70900feaa (refactor(daemon): share service arg types across backends)
 
 function resolveLaunchAgentLabel(args?: { env?: Record<string, string | undefined> }): string {
-<<<<<<< HEAD
   const envLabel = args?.env?.CLAWDBOT_LAUNCHD_LABEL?.trim();
   if (envLabel) return envLabel;
   return resolveGatewayLaunchAgentLabel(args?.env?.CLAWDBOT_PROFILE);
-=======
-  const envLabel = args?.env?.OPENCLAW_LAUNCHD_LABEL?.trim();
-  if (envLabel) {
-    return envLabel;
-  }
-  return resolveGatewayLaunchAgentLabel(args?.env?.OPENCLAW_PROFILE);
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 function resolveLaunchAgentPlistPathForLabel(
@@ -159,19 +138,12 @@ export function buildLaunchAgentPlist({
 async function execLaunchctl(
   args: string[],
 ): Promise<{ stdout: string; stderr: string; code: number }> {
-<<<<<<< HEAD
   try {
 <<<<<<< HEAD
     const { stdout, stderr } = await execFileAsync("launchctl", args, {
       encoding: "utf8",
       shell: process.platform === "win32",
     });
-=======
-    const isWindows = process.platform === "win32";
-    const file = isWindows ? (process.env.ComSpec ?? "cmd.exe") : "launchctl";
-    const fileArgs = isWindows ? ["/d", "/s", "/c", "launchctl", ...args] : args;
-    const { stdout, stderr } = await execFileAsync(file, fileArgs, { encoding: "utf8" });
->>>>>>> a47b08d55 (fix(ci): make Windows unit tests deterministic)
     return {
       stdout: String(stdout ?? ""),
       stderr: String(stderr ?? ""),
@@ -491,16 +463,12 @@ export async function installLaunchAgent({
   const plistPath = resolveLaunchAgentPlistPathForLabel(env, label);
   await fs.mkdir(path.dirname(plistPath), { recursive: true });
 
-<<<<<<< HEAD
   const serviceDescription =
     description ??
     formatGatewayServiceDescription({
       profile: env.CLAWDBOT_PROFILE,
       version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
     });
-=======
-  const serviceDescription = resolveGatewayServiceDescription({ env, environment, description });
->>>>>>> 0dbc51aa5 (refactor(daemon): share service description resolve)
   const plist = buildLaunchAgentPlist({
     label,
     comment: serviceDescription,

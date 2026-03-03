@@ -1,14 +1,8 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-events.js";
-=======
-import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { peekSystemEvents } from "../infra/system-events.js";
->>>>>>> 20cefd78c (refactor(test): share signal tool result test setup)
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { normalizeE164 } from "../utils.js";
 import type { SignalDaemonExitEvent } from "./daemon.js";
@@ -23,7 +17,6 @@ import {
 
 installSignalToolResultTestHooks();
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/config.js")>();
@@ -94,12 +87,6 @@ beforeEach(() => {
   waitForTransportReadyMock.mockReset().mockResolvedValue(undefined);
   resetSystemEventsForTest();
 });
-=======
-=======
-// Import after the harness registers `vi.mock(...)` for Signal internals.
-const { monitorSignalProvider } = await import("./monitor.js");
-
->>>>>>> 43f75e53b (test: fix TS2742 in harness exports)
 const {
   replyMock,
   sendMock,
@@ -332,8 +319,6 @@ describe("monitorSignalProvider tool results", () => {
     ).rejects.toThrow(/signal daemon exited/i);
   });
 
-<<<<<<< HEAD
-=======
   it("treats daemon exit after user abort as clean shutdown", async () => {
     const runtime = createMonitorRuntime();
     setSignalAutoStartConfig();
@@ -371,7 +356,6 @@ describe("monitorSignalProvider tool results", () => {
     ).resolves.toBeUndefined();
   });
 
->>>>>>> 5a0032de3 (refactor(signal): extract daemon lifecycle and typed exit handling)
   it("skips tool summaries with responsePrefix", async () => {
     replyMock.mockResolvedValue({ text: "final reply" });
 
@@ -460,7 +444,6 @@ describe("monitorSignalProvider tool results", () => {
       },
     });
 
-<<<<<<< HEAD
     const route = resolveAgentRoute({
       cfg: config as MoltbotConfig,
       channel: "signal",
@@ -468,9 +451,6 @@ describe("monitorSignalProvider tool results", () => {
       peer: { kind: "direct", id: normalizeE164("+15550001111") },
     });
     const events = peekSystemEvents(route.sessionKey);
-=======
-    const events = getDirectSignalEventsFor("+15550001111");
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     expect(events.some((text) => text.includes("Signal reaction added"))).toBe(true);
   });
 
@@ -529,7 +509,6 @@ describe("monitorSignalProvider tool results", () => {
       },
     });
 
-<<<<<<< HEAD
     const route = resolveAgentRoute({
       cfg: config as MoltbotConfig,
       channel: "signal",
@@ -537,9 +516,6 @@ describe("monitorSignalProvider tool results", () => {
       peer: { kind: "direct", id: normalizeE164("+15550001111") },
     });
     const events = peekSystemEvents(route.sessionKey);
-=======
-    const events = getDirectSignalEventsFor("+15550001111");
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     expect(events.some((text) => text.includes("Signal reaction added"))).toBe(true);
   });
 

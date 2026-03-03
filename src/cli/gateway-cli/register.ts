@@ -5,13 +5,9 @@ import { discoverGatewayBeacons } from "../../infra/bonjour-discovery.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
 <<<<<<< HEAD
 import { WIDE_AREA_DISCOVERY_DOMAIN } from "../../infra/widearea-dns.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -30,7 +26,6 @@ import { formatTokenCount, formatUsd } from "../../utils/usage-format.js";
 import { withProgress } from "../progress.js";
 import { runCommandWithRuntime } from "../cli-utils.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   runDaemonInstall,
   runDaemonRestart,
@@ -39,10 +34,6 @@ import {
   runDaemonStop,
   runDaemonUninstall,
 } from "../daemon-cli.js";
-=======
-=======
-import { inheritOptionFromParent } from "../command-options.js";
->>>>>>> 985ec71c5 (CLI: resolve parent/subcommand option collisions (#18725))
 import { addGatewayServiceCommands } from "../daemon-cli.js";
 import { formatHelpExamples } from "../help-format.js";
 import { withProgress } from "../progress.js";
@@ -126,16 +117,7 @@ export function registerGatewayCli(program: Command) {
       .addHelpText(
         "after",
         () =>
-<<<<<<< HEAD
           `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.molt.bot/cli/gateway")}\n`,
-=======
-          `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-            ["openclaw gateway run", "Run the gateway in the foreground."],
-            ["openclaw gateway status", "Show service status and probe reachability."],
-            ["openclaw gateway discover", "Find local and wide-area gateway beacons."],
-            ["openclaw gateway call health", "Call a gateway RPC method directly."],
-          ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.openclaw.ai/cli/gateway")}\n`,
->>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
       ),
   );
 

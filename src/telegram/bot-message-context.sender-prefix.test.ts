@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import { buildTelegramMessageContext } from "./bot-message-context.js";
@@ -47,22 +46,6 @@ describe("buildTelegramMessageContext sender prefix", () => {
         groupConfig: { requireMention: false },
         topicConfig: undefined,
       }),
-=======
-import { describe, expect, it } from "vitest";
-import { buildTelegramMessageContextForTest } from "./bot-message-context.test-harness.js";
-
-describe("buildTelegramMessageContext sender prefix", () => {
-  async function buildCtx(params: { messageId: number; options?: Record<string, unknown> }) {
-    return await buildTelegramMessageContextForTest({
-      message: {
-        message_id: params.messageId,
-        chat: { id: -99, type: "supergroup", title: "Dev Chat" },
-        date: 1700000000,
-        text: "hello",
-        from: { id: 42, first_name: "Alice" },
-      },
-      options: params.options,
->>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
     });
   }
 
@@ -75,7 +58,6 @@ describe("buildTelegramMessageContext sender prefix", () => {
   });
 
   it("sets MessageSid from message_id", async () => {
-<<<<<<< HEAD
     const ctx = await buildTelegramMessageContext({
       primaryCtx: {
         message: {
@@ -116,9 +98,6 @@ describe("buildTelegramMessageContext sender prefix", () => {
         topicConfig: undefined,
       }),
     });
-=======
-    const ctx = await buildCtx({ messageId: 12345 });
->>>>>>> b8f70ffca (refactor(test): share telegram message ctx setup)
 
     expect(ctx).not.toBeNull();
     expect(ctx?.ctxPayload?.MessageSid).toBe("12345");
@@ -128,7 +107,6 @@ describe("buildTelegramMessageContext sender prefix", () => {
     const ctx = await buildCtx({
       messageId: 12345,
       options: { messageIdOverride: "67890" },
-<<<<<<< HEAD
       bot: {
         api: {
           sendChatAction: vi.fn(),
@@ -154,8 +132,6 @@ describe("buildTelegramMessageContext sender prefix", () => {
         groupConfig: { requireMention: false },
         topicConfig: undefined,
       }),
-=======
->>>>>>> b8f70ffca (refactor(test): share telegram message ctx setup)
     });
 
     expect(ctx).not.toBeNull();

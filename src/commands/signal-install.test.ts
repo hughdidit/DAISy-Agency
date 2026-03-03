@@ -2,11 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import JSZip from "jszip";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -148,8 +143,6 @@ describe("pickAsset", () => {
     });
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("extractSignalCliArchive", () => {
   async function withArchiveWorkspace(run: (workDir: string) => Promise<void>) {
@@ -211,4 +204,3 @@ describe("extractSignalCliArchive", () => {
     });
   });
 });
->>>>>>> 5d61afb36 (test(commands): dedupe signal install extract fixture and cover zip extract)

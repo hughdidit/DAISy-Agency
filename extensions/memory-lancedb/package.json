@@ -1,20 +1,8 @@
 {
-<<<<<<< HEAD
   "name": "@moltbot/memory-lancedb",
   "version": "2026.1.27-beta.1",
   "type": "module",
   "description": "Moltbot LanceDB-backed long-term memory plugin with auto-recall/capture",
-=======
-  "name": "@openclaw/memory-lancedb",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.1.30",
-=======
-  "version": "2026.2.9",
-=======
-  "version": "2026.2.22",
->>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
 =======
   "version": "2026.2.23",
 >>>>>>> 8d9d01447 (chore: align plugin versions and harden outbound cross-provider test)
@@ -25,13 +13,8 @@
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   "dependencies": {
     "@lancedb/lancedb": "^0.23.0",
-<<<<<<< HEAD
     "@sinclair/typebox": "0.34.47",
     "openai": "^6.16.0"
-=======
-    "@sinclair/typebox": "0.34.48",
-    "openai": "^6.17.0"
->>>>>>> b56e7e66c (chore: Update deps + `pnpm dedupe`.)
   },
   "moltbot": {
     "extensions": [

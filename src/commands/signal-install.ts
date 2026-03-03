@@ -8,12 +8,7 @@ import { pipeline } from "node:stream/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-=======
-import type { RuntimeEnv } from "../runtime.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -55,24 +50,7 @@ export function looksLikeArchive(name: string): boolean {
   return name.endsWith(".tar.gz") || name.endsWith(".tgz") || name.endsWith(".zip");
 }
 
-<<<<<<< HEAD
 function pickAsset(assets: ReleaseAsset[], platform: NodeJS.Platform) {
-=======
-/**
- * Pick a native release asset from the official GitHub releases.
- *
- * The official signal-cli releases only publish native (GraalVM) binaries for
- * x86-64 Linux.  On architectures where no native asset is available this
- * returns `undefined` so the caller can fall back to a different install
- * strategy (e.g. Homebrew).
- */
-/** @internal Exported for testing. */
-export function pickAsset(
-  assets: ReleaseAsset[],
-  platform: NodeJS.Platform,
-  arch: string,
-): NamedAsset | undefined {
->>>>>>> 771c7ba14 (test: add pickAsset unit tests for architecture-aware signal-cli install)
   const withName = assets.filter((asset): asset is NamedAsset =>
     Boolean(asset.name && asset.browser_download_url),
   );

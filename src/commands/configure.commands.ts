@@ -2,15 +2,10 @@ import type { RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { defaultRuntime } from "../runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { WizardSection } from "./configure.shared.js";
-=======
-=======
-import type { WizardSection } from "./configure.shared.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { WizardSection } from "./configure.shared.js";
 import { defaultRuntime } from "../runtime.js";

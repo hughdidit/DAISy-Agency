@@ -4,27 +4,14 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 =======
-import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
-import { resolveRemoteEmbeddingBearerClient } from "./embeddings-remote-client.js";
-import { fetchRemoteEmbeddingVectors } from "./embeddings-remote-fetch.js";
->>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
-=======
 =======
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
-<<<<<<< HEAD
 >>>>>>> f87db7c62 (fix(memory): enforce guarded remote policy for embeddings)
 import { resolveRemoteEmbeddingBearerClient } from "./embeddings-remote-client.js";
 import { fetchRemoteEmbeddingVectors } from "./embeddings-remote-fetch.js";
-=======
-import {
-  createRemoteEmbeddingProvider,
-  resolveRemoteEmbeddingClient,
-} from "./embeddings-remote-provider.js";
->>>>>>> 8af19ddc5 (refactor: extract shared dedupe helpers for runtime paths)
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======

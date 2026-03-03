@@ -221,8 +221,6 @@ Stop and escalate instead of continuing if:
 - Fixing findings requires broad architecture changes outside safe PR scope.
 - Security hardening requirements remain unresolved.
 
-<<<<<<< HEAD
-=======
 ### Security advisory companion flow
 
 Use this for GHSA-linked fixes and private reports.
@@ -247,7 +245,6 @@ Maintainer checkpoint for security advisories:
 - Are credits present and accurate?
 - Do we have Publisher action if state controls are unavailable?
 
->>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 ### 3) `merge-pr`
 
 Purpose:

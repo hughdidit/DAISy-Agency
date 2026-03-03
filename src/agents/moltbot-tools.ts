@@ -1,16 +1,4 @@
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
->>>>>>> 90ef2d6bd (chore: Update formatting.):src/agents/openclaw-tools.ts
 import { resolvePluginTools } from "../plugins/tools.js";
 =======
 >>>>>>> 25126d75c (Revert "Agents: improve Windows scaffold helpers for venture studio"):src/agents/openclaw-tools.ts
@@ -62,24 +50,17 @@ import { createSessionsHistoryTool } from "./tools/sessions-history-tool.js";
 import { createSessionsListTool } from "./tools/sessions-list-tool.js";
 import { createSessionsSendTool } from "./tools/sessions-send-tool.js";
 import { createSessionsSpawnTool } from "./tools/sessions-spawn-tool.js";
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-=======
 import { createSubagentsTool } from "./tools/subagents-tool.js";
 import { createTtsTool } from "./tools/tts-tool.js";
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447)):src/agents/openclaw-tools.ts
 =======
 import { createVentureStudioTool } from "./tools/venture-studio-tool.js";
 >>>>>>> b6d934c2c (Agents: improve Windows scaffold helpers for venture studio):src/agents/openclaw-tools.ts
 =======
 >>>>>>> 25126d75c (Revert "Agents: improve Windows scaffold helpers for venture studio"):src/agents/openclaw-tools.ts
 import { createWebFetchTool, createWebSearchTool } from "./tools/web-tools.js";
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
 import { createTtsTool } from "./tools/tts-tool.js";
-=======
-import { resolveWorkspaceRoot } from "./workspace-dir.js";
->>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739)):src/agents/openclaw-tools.ts
 
 export function createMoltbotTools(options?: {
   sandboxBrowserBridgeUrl?: string;
@@ -99,11 +80,8 @@ export function createMoltbotTools(options?: {
   agentGroupSpace?: string | null;
   agentDir?: string;
   sandboxRoot?: string;
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-=======
   sandboxFsBridge?: SandboxFsBridge;
   fsPolicy?: ToolFsPolicy;
->>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers):src/agents/openclaw-tools.ts
   workspaceDir?: string;
   sandboxed?: boolean;
   config?: MoltbotConfig;
@@ -133,22 +111,12 @@ export function createMoltbotTools(options?: {
         config: options?.config,
         agentDir: options.agentDir,
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
         sandboxRoot: options?.sandboxRoot,
-=======
-        workspaceDir: options?.workspaceDir,
-=======
-        workspaceDir,
->>>>>>> b79e7fdb7 (fix(image): propagate workspace root for image allowlist (#16722)):src/agents/openclaw-tools.ts
         sandbox:
           options?.sandboxRoot && options?.sandboxFsBridge
             ? { root: options.sandboxRoot, bridge: options.sandboxFsBridge }
             : undefined,
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
 >>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541)):src/agents/openclaw-tools.ts
-=======
-        fsPolicy: options?.fsPolicy,
->>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers):src/agents/openclaw-tools.ts
         modelHasVision: options?.modelHasVision,
       })
     : null;
@@ -190,7 +158,6 @@ export function createMoltbotTools(options?: {
     }),
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
     createMessageTool({
       agentAccountId: options?.agentAccountId,
       agentSessionKey: options?.agentSessionKey,
@@ -201,11 +168,6 @@ export function createMoltbotTools(options?: {
       replyToMode: options?.replyToMode,
       hasRepliedRef: options?.hasRepliedRef,
     }),
-=======
-=======
-    createArchitectPipelineTool({ workspaceDir }),
-    createVentureStudioTool({ workspaceDir }),
->>>>>>> b6d934c2c (Agents: improve Windows scaffold helpers for venture studio):src/agents/openclaw-tools.ts
 =======
 >>>>>>> 25126d75c (Revert "Agents: improve Windows scaffold helpers for venture studio"):src/agents/openclaw-tools.ts
     ...(messageTool ? [messageTool] : []),

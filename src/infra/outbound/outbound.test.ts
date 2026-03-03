@@ -452,97 +452,13 @@ describe("delivery-queue", () => {
       });
 
       expect(deliver).not.toHaveBeenCalled();
-<<<<<<< HEAD
       expect(delay).not.toHaveBeenCalled();
       expect(result).toEqual({ recovered: 0, failed: 0, skipped: 1 });
-=======
-      expect(result).toEqual({
-        recovered: 0,
-        failed: 0,
-        skippedMaxRetries: 0,
-        deferredBackoff: 1,
-      });
->>>>>>> 10c7ae1ec (refactor(outbound): split recovery counters and normalize legacy retry entries)
 
       const remaining = await loadPendingDeliveries(tmpDir);
       expect(remaining).toHaveLength(1);
 
-<<<<<<< HEAD
       expect(log.info).toHaveBeenCalledWith(expect.stringContaining("Backoff"));
-=======
-      expect(log.info).toHaveBeenCalledWith(expect.stringContaining("not ready for retry yet"));
-    });
-
-    it("continues past high-backoff entries and recovers ready entries behind them", async () => {
-      const now = Date.now();
-      const blockedId = await enqueueDelivery(
-        { channel: "whatsapp", to: "+1", payloads: [{ text: "blocked" }] },
-        tmpDir,
-      );
-      const readyId = await enqueueDelivery(
-        { channel: "telegram", to: "2", payloads: [{ text: "ready" }] },
-        tmpDir,
-      );
-
-      setEntryState(blockedId, { retryCount: 3, lastAttemptAt: now, enqueuedAt: now - 30_000 });
-      setEntryState(readyId, { retryCount: 0, enqueuedAt: now - 10_000 });
-
-      const deliver = vi.fn().mockResolvedValue([]);
-      const { result } = await runRecovery({ deliver, maxRecoveryMs: 60_000 });
-
-      expect(result).toEqual({
-        recovered: 1,
-        failed: 0,
-        skippedMaxRetries: 0,
-        deferredBackoff: 1,
-      });
-      expect(deliver).toHaveBeenCalledTimes(1);
-      expect(deliver).toHaveBeenCalledWith(
-        expect.objectContaining({ channel: "telegram", to: "2", skipQueue: true }),
-      );
-
-      const remaining = await loadPendingDeliveries(tmpDir);
-      expect(remaining).toHaveLength(1);
-      expect(remaining[0]?.id).toBe(blockedId);
-    });
-
-    it("recovers deferred entries on a later restart once backoff elapsed", async () => {
-      vi.useFakeTimers();
-      const start = new Date("2026-01-01T00:00:00.000Z");
-      vi.setSystemTime(start);
-
-      const id = await enqueueDelivery(
-        { channel: "whatsapp", to: "+1", payloads: [{ text: "later" }] },
-        tmpDir,
-      );
-      setEntryState(id, { retryCount: 3, lastAttemptAt: start.getTime() });
-
-      const firstDeliver = vi.fn().mockResolvedValue([]);
-      const firstRun = await runRecovery({ deliver: firstDeliver, maxRecoveryMs: 60_000 });
-      expect(firstRun.result).toEqual({
-        recovered: 0,
-        failed: 0,
-        skippedMaxRetries: 0,
-        deferredBackoff: 1,
-      });
-      expect(firstDeliver).not.toHaveBeenCalled();
-
-      vi.setSystemTime(new Date(start.getTime() + 600_000 + 1));
-      const secondDeliver = vi.fn().mockResolvedValue([]);
-      const secondRun = await runRecovery({ deliver: secondDeliver, maxRecoveryMs: 60_000 });
-      expect(secondRun.result).toEqual({
-        recovered: 1,
-        failed: 0,
-        skippedMaxRetries: 0,
-        deferredBackoff: 0,
-      });
-      expect(secondDeliver).toHaveBeenCalledTimes(1);
-
-      const remaining = await loadPendingDeliveries(tmpDir);
-      expect(remaining).toHaveLength(0);
-
-      vi.useRealTimers();
->>>>>>> 10c7ae1ec (refactor(outbound): split recovery counters and normalize legacy retry entries)
     });
 
     it("returns zeros when queue is empty", async () => {
@@ -579,34 +495,11 @@ describe("DirectoryCache", () => {
     expect(cache.get("a", cfg)).toBeUndefined();
   });
 
-<<<<<<< HEAD
   it("evicts oldest keys when max size is exceeded", () => {
     const cache = new DirectoryCache<string>(60_000, 2);
     cache.set("a", "value-a", cfg);
     cache.set("b", "value-b", cfg);
     cache.set("c", "value-c", cfg);
-=======
-  it("evicts least-recent entries when capacity is exceeded", () => {
-    const cases = [
-      {
-        actions: [
-          ["set", "a", "value-a"],
-          ["set", "b", "value-b"],
-          ["set", "c", "value-c"],
-        ] as const,
-        expected: { a: undefined, b: "value-b", c: "value-c" },
-      },
-      {
-        actions: [
-          ["set", "a", "value-a"],
-          ["set", "b", "value-b"],
-          ["set", "a", "value-a2"],
-          ["set", "c", "value-c"],
-        ] as const,
-        expected: { a: "value-a2", b: undefined, c: "value-c" },
-      },
-    ];
->>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
     expect(cache.get("a", cfg)).toBeUndefined();
     expect(cache.get("b", cfg)).toBe("value-b");
@@ -695,7 +588,6 @@ describe("buildOutboundResultEnvelope", () => {
 });
 
 describe("formatOutboundDeliverySummary", () => {
-<<<<<<< HEAD
   it("falls back when result is missing", () => {
     expect(formatOutboundDeliverySummary("telegram")).toBe(
       "✅ Sent via Telegram. Message ID: unknown",
@@ -704,43 +596,6 @@ describe("formatOutboundDeliverySummary", () => {
       "✅ Sent via iMessage. Message ID: unknown",
     );
   });
-=======
-  it("formats fallback and channel-specific detail variants", () => {
-    const cases = [
-      {
-        name: "fallback telegram",
-        channel: "telegram" as const,
-        result: undefined,
-        expected: "✅ Sent via Telegram. Message ID: unknown",
-      },
-      {
-        name: "fallback imessage",
-        channel: "imessage" as const,
-        result: undefined,
-        expected: "✅ Sent via iMessage. Message ID: unknown",
-      },
-      {
-        name: "telegram with chat detail",
-        channel: "telegram" as const,
-        result: {
-          channel: "telegram" as const,
-          messageId: "m1",
-          chatId: "c1",
-        },
-        expected: "✅ Sent via Telegram. Message ID: m1 (chat c1)",
-      },
-      {
-        name: "discord with channel detail",
-        channel: "discord" as const,
-        result: {
-          channel: "discord" as const,
-          messageId: "d1",
-          channelId: "chan",
-        },
-        expected: "✅ Sent via Discord. Message ID: d1 (channel chan)",
-      },
-    ];
->>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
   it("adds chat or channel details", () => {
     expect(
@@ -762,7 +617,6 @@ describe("formatOutboundDeliverySummary", () => {
 });
 
 describe("buildOutboundDeliveryJson", () => {
-<<<<<<< HEAD
   it("builds direct delivery payloads", () => {
     expect(
       buildOutboundDeliveryJson({
@@ -780,60 +634,6 @@ describe("buildOutboundDeliveryJson", () => {
       chatId: "c1",
     });
   });
-=======
-  it("builds direct delivery payloads across provider-specific fields", () => {
-    const cases = [
-      {
-        name: "telegram direct payload",
-        input: {
-          channel: "telegram" as const,
-          to: "123",
-          result: { channel: "telegram" as const, messageId: "m1", chatId: "c1" },
-          mediaUrl: "https://example.com/a.png",
-        },
-        expected: {
-          channel: "telegram",
-          via: "direct",
-          to: "123",
-          messageId: "m1",
-          mediaUrl: "https://example.com/a.png",
-          chatId: "c1",
-        },
-      },
-      {
-        name: "whatsapp metadata",
-        input: {
-          channel: "whatsapp" as const,
-          to: "+1",
-          result: { channel: "whatsapp" as const, messageId: "w1", toJid: "jid" },
-        },
-        expected: {
-          channel: "whatsapp",
-          via: "direct",
-          to: "+1",
-          messageId: "w1",
-          mediaUrl: null,
-          toJid: "jid",
-        },
-      },
-      {
-        name: "signal timestamp",
-        input: {
-          channel: "signal" as const,
-          to: "+1",
-          result: { channel: "signal" as const, messageId: "s1", timestamp: 123 },
-        },
-        expected: {
-          channel: "signal",
-          via: "direct",
-          to: "+1",
-          messageId: "s1",
-          mediaUrl: null,
-          timestamp: 123,
-        },
-      },
-    ];
->>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
   it("supports whatsapp metadata when present", () => {
     expect(
@@ -871,27 +671,11 @@ describe("buildOutboundDeliveryJson", () => {
 });
 
 describe("formatGatewaySummary", () => {
-<<<<<<< HEAD
   it("formats gateway summaries with channel", () => {
     expect(formatGatewaySummary({ channel: "whatsapp", messageId: "m1" })).toBe(
       "✅ Sent via gateway (whatsapp). Message ID: m1",
     );
   });
-=======
-  it("formats default and custom gateway action summaries", () => {
-    const cases = [
-      {
-        name: "default send action",
-        input: { channel: "whatsapp", messageId: "m1" },
-        expected: "✅ Sent via gateway (whatsapp). Message ID: m1",
-      },
-      {
-        name: "custom action",
-        input: { action: "Poll sent", channel: "discord", messageId: "p1" },
-        expected: "✅ Poll sent via gateway (discord). Message ID: p1",
-      },
-    ];
->>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
   it("supports custom actions", () => {
     expect(
@@ -1164,7 +948,6 @@ describe("resolveOutboundSessionRoute", () => {
 });
 
 describe("normalizeOutboundPayloadsForJson", () => {
-<<<<<<< HEAD
   it("normalizes payloads with mediaUrl and mediaUrls", () => {
     expect(
       normalizeOutboundPayloadsForJson([
@@ -1174,13 +957,6 @@ describe("normalizeOutboundPayloadsForJson", () => {
       ]),
     ).toEqual([
       { text: "hi", mediaUrl: null, mediaUrls: undefined, channelData: undefined },
-=======
-  it("normalizes payloads for JSON output", () => {
-    const cases = typedCases<{
-      input: Parameters<typeof normalizeOutboundPayloadsForJson>[0];
-      expected: ReturnType<typeof normalizeOutboundPayloadsForJson>;
-    }>([
->>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
       {
         text: "photo",
         mediaUrl: "https://x.test/a.jpg",
@@ -1194,17 +970,12 @@ describe("normalizeOutboundPayloadsForJson", () => {
         channelData: undefined,
       },
 <<<<<<< HEAD
-<<<<<<< HEAD
     ]);
   });
-=======
-    ];
->>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 =======
     ]);
 >>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
 
-<<<<<<< HEAD
   it("keeps mediaUrl null for multi MEDIA tags", () => {
     expect(
       normalizeOutboundPayloadsForJson([
@@ -1220,19 +991,6 @@ describe("normalizeOutboundPayloadsForJson", () => {
         channelData: undefined,
       },
     ]);
-=======
-    for (const testCase of cases) {
-      const input: ReplyPayload[] = testCase.input.map((payload) =>
-        "mediaUrls" in payload
-          ? ({
-              ...payload,
-              mediaUrls: payload.mediaUrls ? [...payload.mediaUrls] : undefined,
-            } as ReplyPayload)
-          : ({ ...payload } as ReplyPayload),
-      );
-      expect(normalizeOutboundPayloadsForJson(input)).toEqual(testCase.expected);
-    }
->>>>>>> 828f4e18e (test: finish readonly fixture compatibility for CI check)
   });
 });
 
@@ -1245,7 +1003,6 @@ describe("normalizeOutboundPayloads", () => {
 });
 
 describe("formatOutboundPayloadLog", () => {
-<<<<<<< HEAD
   it("trims trailing text and appends media lines", () => {
     expect(
       formatOutboundPayloadLog({
@@ -1254,32 +1011,6 @@ describe("formatOutboundPayloadLog", () => {
       }),
     ).toBe("hello\nMEDIA:https://x.test/a.png\nMEDIA:https://x.test/b.png");
   });
-=======
-  it("formats text+media and media-only logs", () => {
-    const cases = typedCases<{
-      name: string;
-      input: Parameters<typeof formatOutboundPayloadLog>[0];
-      expected: string;
-    }>([
-      {
-        name: "text with media lines",
-        input: {
-          text: "hello  ",
-          mediaUrls: ["https://x.test/a.png", "https://x.test/b.png"],
-        },
-        expected: "hello\nMEDIA:https://x.test/a.png\nMEDIA:https://x.test/b.png",
-      },
-      {
-        name: "media only",
-        input: {
-          text: "",
-          mediaUrls: ["https://x.test/a.png"],
-        },
-        expected: "MEDIA:https://x.test/a.png",
-      },
-<<<<<<< HEAD
-    ];
->>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 =======
     ]);
 >>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
@@ -1294,7 +1025,6 @@ describe("formatOutboundPayloadLog", () => {
   });
 });
 
-<<<<<<< HEAD
 describe("resolveOutboundTarget", () => {
   beforeEach(() => {
     setActivePluginRegistry(
@@ -1401,6 +1131,3 @@ describe("resolveOutboundTarget", () => {
     }
   });
 });
-=======
-runResolveOutboundTargetCoreTests();
->>>>>>> fd8b7b5c4 (test(outbound): share resolveOutboundTarget test suite)

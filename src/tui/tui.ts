@@ -31,9 +31,6 @@ import { createSessionActions } from "./tui-session-actions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
@@ -45,10 +42,6 @@ import type {
 } from "./tui-types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -337,11 +330,8 @@ export async function runTui(opts: TuiOptions) {
   let wasDisconnected = false;
   let toolsExpanded = false;
   let showThinking = false;
-<<<<<<< HEAD
-=======
   let pairingHintShown = false;
   const localRunIds = new Set<string>();
->>>>>>> 18b4b4770 (TUI: guide pairing-required recovery in disconnect state)
 
   const deliverDefault = opts.deliver ?? false;
   const autoMessage = opts.message?.trim();
@@ -806,12 +796,9 @@ export async function runTui(opts: TuiOptions) {
       abortActive,
       setActivityStatus,
       formatSessionKey,
-<<<<<<< HEAD
-=======
       noteLocalRunId,
       forgetLocalRunId,
       requestExit,
->>>>>>> b4cdffc7a (TUI: make Ctrl+C exit behavior reliably responsive)
     });
 
   const { runLocalShellLine } = createLocalShellRunner({

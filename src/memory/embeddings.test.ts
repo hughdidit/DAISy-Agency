@@ -1,10 +1,6 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
->>>>>>> faec6ccb1 (perf(test): reduce module reload churn in unit suites)
 =======
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as authModule from "../agents/model-auth.js";
@@ -369,8 +365,6 @@ describe("embedding provider local fallback", () => {
     await expect(createLocalProvider()).rejects.toThrow(/provider = "mistral"/i);
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("local embedding normalization", () => {
   async function createLocalProviderForTest() {
@@ -482,7 +476,6 @@ describe("local embedding normalization", () => {
   });
 });
 <<<<<<< HEAD
->>>>>>> 5d8eef8b3 (perf(test): remove module reloads in browser and embedding suites)
 =======
 
 describe("FTS-only fallback when no provider available", () => {

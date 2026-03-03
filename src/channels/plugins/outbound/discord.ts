@@ -1,31 +1,13 @@
-<<<<<<< HEAD
 import { sendMessageDiscord, sendPollDiscord } from "../../../discord/send.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import {
-  getThreadBindingManager,
-  type ThreadBindingRecord,
-} from "../../../discord/monitor/thread-bindings.js";
-import {
-  sendMessageDiscord,
-  sendPollDiscord,
-  sendWebhookMessageDiscord,
-} from "../../../discord/send.js";
-import type { OutboundIdentity } from "../../../infra/outbound/identity.js";
-import { normalizeDiscordOutboundTarget } from "../normalize/discord.js";
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import type { ChannelOutboundAdapter } from "../types.js";
 =======
 import { normalizeDiscordOutboundTarget } from "../normalize/discord.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 3238bd78d (fix(discord): normalize bare numeric IDs in outbound target resolution)
-=======
-import type { ChannelOutboundAdapter } from "../types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { normalizeDiscordOutboundTarget } from "../normalize/discord.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -131,21 +113,7 @@ export const discordOutbound: ChannelOutboundAdapter = {
     });
     return { channel: "discord", ...result };
   },
-<<<<<<< HEAD
   sendMedia: async ({ to, text, mediaUrl, accountId, deps, replyToId, silent }) => {
-=======
-  sendMedia: async ({
-    to,
-    text,
-    mediaUrl,
-    mediaLocalRoots,
-    accountId,
-    deps,
-    replyToId,
-    threadId,
-    silent,
-  }) => {
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
     const send = deps?.sendDiscord ?? sendMessageDiscord;
     const target = resolveDiscordOutboundTarget({ to, threadId });
     const result = await send(target, text, {

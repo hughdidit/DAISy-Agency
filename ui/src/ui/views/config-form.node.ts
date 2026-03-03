@@ -544,15 +544,9 @@ function renderTextInput(params: {
   const { schema, value, path, hints, disabled, onPatch, inputType } = params;
   const showLabel = params.showLabel ?? true;
   const hint = hintForPath(path, hints);
-<<<<<<< HEAD
   const label = hint?.label ?? schema.title ?? humanize(String(path.at(-1)));
   const help = hint?.help ?? schema.description;
   const isSensitive = hint?.sensitive ?? isSensitivePath(path);
-=======
-  const { label, help, tags } = resolveFieldMeta(path, schema, hints);
-  const isSensitive =
-    (hint?.sensitive ?? false) && !/^\$\{[^}]*\}$/.test(String(value ?? "").trim());
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796))
   const placeholder =
     hint?.placeholder ??
     // oxlint-disable typescript/no-base-to-string

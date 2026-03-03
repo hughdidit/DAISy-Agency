@@ -3,42 +3,24 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { fileURLToPath } from "node:url";
 
-=======
-=======
-import { openBoundaryFile } from "../infra/boundary-file-read.js";
->>>>>>> 242188b7b (refactor: unify boundary-safe reads for bootstrap and includes)
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-<<<<<<< HEAD
 >>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-=======
-import { isCronSessionKey, isSubagentSessionKey } from "../routing/session-key.js";
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import { resolveUserPath } from "../utils.js";
 
 export function resolveDefaultAgentWorkspaceDir(
   env: NodeJS.ProcessEnv = process.env,
   homedir: () => string = os.homedir,
 ): string {
-<<<<<<< HEAD
   const profile = env.CLAWDBOT_PROFILE?.trim();
   if (profile && profile.toLowerCase() !== "default") {
     return path.join(homedir(), `clawd-${profile}`);
   }
   return path.join(homedir(), "clawd");
-=======
-  const home = resolveRequiredHomeDir(env, homedir);
-  const profile = env.OPENCLAW_PROFILE?.trim();
-  if (profile && profile.toLowerCase() !== "default") {
-    return path.join(home, ".openclaw", `workspace-${profile}`);
-  }
-  return path.join(home, ".openclaw", "workspace");
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 }
 
 export const DEFAULT_AGENT_WORKSPACE_DIR = resolveDefaultAgentWorkspaceDir();
@@ -55,16 +37,10 @@ const WORKSPACE_STATE_DIRNAME = ".openclaw";
 const WORKSPACE_STATE_FILENAME = "workspace-state.json";
 const WORKSPACE_STATE_VERSION = 1;
 
-<<<<<<< HEAD
 const TEMPLATE_DIR = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../docs/reference/templates",
 );
-=======
-const workspaceTemplateCache = new Map<string, Promise<string>>();
-let gitAvailabilityPromise: Promise<boolean> | null = null;
-<<<<<<< HEAD
->>>>>>> a7d6e4471 (perf(test): reduce test startup overhead)
 =======
 const MAX_WORKSPACE_BOOTSTRAP_FILE_BYTES = 2 * 1024 * 1024;
 >>>>>>> 242188b7b (refactor: unify boundary-safe reads for bootstrap and includes)
@@ -132,29 +108,7 @@ function stripFrontMatter(content: string): string {
 }
 
 async function loadTemplate(name: string): Promise<string> {
-<<<<<<< HEAD
   const templatePath = path.join(TEMPLATE_DIR, name);
-=======
-  const cached = workspaceTemplateCache.get(name);
-  if (cached) {
-    return cached;
-  }
-
-  const pending = (async () => {
-    const templateDir = await resolveWorkspaceTemplateDir();
-    const templatePath = path.join(templateDir, name);
-    try {
-      const content = await fs.readFile(templatePath, "utf-8");
-      return stripFrontMatter(content);
-    } catch {
-      throw new Error(
-        `Missing workspace template: ${name} (${templatePath}). Ensure docs/reference/templates are packaged.`,
-      );
-    }
-  })();
-
-  workspaceTemplateCache.set(name, pending);
->>>>>>> a7d6e4471 (perf(test): reduce test startup overhead)
   try {
     return await pending;
   } catch (error) {

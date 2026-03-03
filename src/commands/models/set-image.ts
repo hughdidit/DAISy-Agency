@@ -1,21 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { logConfigUpdated } from "../../config/logging.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 import { resolveModelTarget, updateConfig } from "./shared.js";
-=======
-import {
-  mergePrimaryFallbackConfig,
-  type PrimaryFallbackConfig,
-  resolveModelTarget,
-  updateConfig,
-} from "./shared.js";
->>>>>>> cbf6ee3a6 (refactor(models): share primary/fallback merge)
 =======
 =======
 import type { RuntimeEnv } from "../../runtime.js";

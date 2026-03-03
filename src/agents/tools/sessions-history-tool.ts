@@ -3,30 +3,18 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 import { capArrayByJsonBytes } from "../../gateway/session-utils.fs.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 <<<<<<< HEAD
 import type { AnyAgentTool } from "./common.js";
 =======
-=======
-import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
->>>>>>> 8a4f9f168 (refactor(agents): share sandboxed session tool context)
-=======
 >>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 import { truncateUtf16Safe } from "../../utils.js";
-<<<<<<< HEAD
 >>>>>>> bccdc95a9 (Cap sessions_history payloads to prevent context overflow (#10000))
-=======
-import type { AnyAgentTool } from "./common.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AnyAgentTool } from "./common.js";
 =======
@@ -42,11 +30,7 @@ import { capArrayByJsonBytes } from "../../gateway/session-utils.fs.js";
 import { truncateUtf16Safe } from "../../utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import type { AnyAgentTool } from "./common.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -57,12 +41,6 @@ import {
   createSessionVisibilityGuard,
   createAgentToAgentPolicy,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  isRequesterSpawnedSessionVisible,
-=======
-  isResolvedSessionVisibleToRequester,
->>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
   resolveEffectiveSessionToolsVisibility,
 >>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
   resolveSessionReference,
@@ -203,7 +181,6 @@ function enforceSessionsHistoryHardCap(params: {
   return { items: placeholder, bytes: jsonUtf8Bytes(placeholder), hardCapped: true };
 }
 
-<<<<<<< HEAD
 async function isSpawnedSessionAllowed(params: {
   requesterSessionKey: string;
   targetSessionKey: string;
@@ -225,8 +202,6 @@ async function isSpawnedSessionAllowed(params: {
   }
 }
 
-=======
->>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 export function createSessionsHistoryTool(opts?: {
   agentSessionKey?: string;
   sandboxed?: boolean;
@@ -263,15 +238,9 @@ export function createSessionsHistoryTool(opts?: {
       const displayKey = resolvedSession.displayKey;
       const resolvedViaSessionId = resolvedSession.resolvedViaSessionId;
 <<<<<<< HEAD
-<<<<<<< HEAD
       if (restrictToSpawned && requesterInternalKey && !resolvedViaSessionId) {
         const ok = await isSpawnedSessionAllowed({
           requesterSessionKey: requesterInternalKey,
-=======
-      if (restrictToSpawned && !resolvedViaSessionId && resolvedKey !== effectiveRequesterKey) {
-        const ok = await isRequesterSpawnedSessionVisible({
-          requesterSessionKey: effectiveRequesterKey,
->>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
           targetSessionKey: resolvedKey,
 =======
 
@@ -290,7 +259,6 @@ export function createSessionsHistoryTool(opts?: {
       }
 
       const a2aPolicy = createAgentToAgentPolicy(cfg);
-<<<<<<< HEAD
       const requesterAgentId = resolveAgentIdFromSessionKey(requesterInternalKey);
       const targetAgentId = resolveAgentIdFromSessionKey(resolvedKey);
       const isCrossAgent = requesterAgentId !== targetAgentId;
@@ -308,24 +276,6 @@ export function createSessionsHistoryTool(opts?: {
             error: "Agent-to-agent history denied by tools.agentToAgent.allow.",
           });
         }
-=======
-      const visibility = resolveEffectiveSessionToolsVisibility({
-        cfg,
-        sandboxed: opts?.sandboxed === true,
-      });
-      const visibilityGuard = await createSessionVisibilityGuard({
-        action: "history",
-        requesterSessionKey: effectiveRequesterKey,
-        visibility,
-        a2aPolicy,
-      });
-      const access = visibilityGuard.check(resolvedKey);
-      if (!access.allowed) {
-        return jsonResult({
-          status: access.status,
-          error: access.error,
-        });
->>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
       }
 
       const limit =

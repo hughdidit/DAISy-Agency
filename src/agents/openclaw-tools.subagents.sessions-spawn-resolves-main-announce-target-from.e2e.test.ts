@@ -1,18 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { emitAgentEvent } from "../infra/agent-events.js";
-<<<<<<< HEAD
 import "./test-helpers/fast-core-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
-=======
-import { sleep } from "../utils.ts";
-import { createOpenClawTools } from "./openclaw-tools.js";
-import "./test-helpers/fast-core-tools.js";
-<<<<<<< HEAD
-import {
-  callGatewayMock,
-  resetConfigOverride,
-} from "./openclaw-tools.subagents.sessions-spawn.mocks.js";
->>>>>>> 615f6e1e4 (refactor(test): share sessions_spawn e2e mocks)
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {

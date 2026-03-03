@@ -115,15 +115,11 @@ describe("gateway bonjour advertiser", () => {
   });
 
   it("does not block on advertise and publishes expected txt keys", async () => {
-<<<<<<< HEAD
     // Allow advertiser to run in unit tests.
     delete process.env.VITEST;
     process.env.NODE_ENV = "development";
 
     vi.spyOn(os, "hostname").mockReturnValue("test-host");
-=======
-    enableAdvertiserUnitMode();
->>>>>>> 0d25b6a31 (perf(test): remove fixed sleeps in async test flows)
 
     const destroy = vi.fn().mockResolvedValue(undefined);
     let resolveAdvertise = () => {};
@@ -190,15 +186,11 @@ describe("gateway bonjour advertiser", () => {
   });
 
   it("attaches conflict listeners for services", async () => {
-<<<<<<< HEAD
     // Allow advertiser to run in unit tests.
     delete process.env.VITEST;
     process.env.NODE_ENV = "development";
 
     vi.spyOn(os, "hostname").mockReturnValue("test-host");
-=======
-    enableAdvertiserUnitMode();
->>>>>>> 0d25b6a31 (perf(test): remove fixed sleeps in async test flows)
 
     const destroy = vi.fn().mockResolvedValue(undefined);
     const advertise = vi.fn().mockResolvedValue(undefined);
@@ -221,15 +213,11 @@ describe("gateway bonjour advertiser", () => {
   });
 
   it("cleans up unhandled rejection handler after shutdown", async () => {
-<<<<<<< HEAD
     // Allow advertiser to run in unit tests.
     delete process.env.VITEST;
     process.env.NODE_ENV = "development";
 
     vi.spyOn(os, "hostname").mockReturnValue("test-host");
-=======
-    enableAdvertiserUnitMode();
->>>>>>> 0d25b6a31 (perf(test): remove fixed sleeps in async test flows)
 
     const destroy = vi.fn().mockResolvedValue(undefined);
     const advertise = vi.fn().mockResolvedValue(undefined);
@@ -259,10 +247,7 @@ describe("gateway bonjour advertiser", () => {
   it("logs advertise failures and retries via watchdog", async () => {
     enableAdvertiserUnitMode();
     vi.useFakeTimers();
-<<<<<<< HEAD
     vi.spyOn(os, "hostname").mockReturnValue("test-host");
-=======
->>>>>>> 0d25b6a31 (perf(test): remove fixed sleeps in async test flows)
 
     const destroy = vi.fn().mockResolvedValue(undefined);
     const advertise = vi
@@ -294,15 +279,11 @@ describe("gateway bonjour advertiser", () => {
   });
 
   it("handles advertise throwing synchronously", async () => {
-<<<<<<< HEAD
     // Allow advertiser to run in unit tests.
     delete process.env.VITEST;
     process.env.NODE_ENV = "development";
 
     vi.spyOn(os, "hostname").mockReturnValue("test-host");
-=======
-    enableAdvertiserUnitMode();
->>>>>>> 0d25b6a31 (perf(test): remove fixed sleeps in async test flows)
 
     const destroy = vi.fn().mockResolvedValue(undefined);
     const advertise = vi.fn(() => {

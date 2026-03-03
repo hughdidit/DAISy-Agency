@@ -1,10 +1,6 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
-<<<<<<< HEAD
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 
-=======
-import type { PluginRuntime, RuntimeLogger } from "openclaw/plugin-sdk";
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import type { MatrixAuth } from "../client.js";
 import { sendReadReceiptMatrix } from "../send.js";
 import type { MatrixRawEvent } from "./types.js";
@@ -77,11 +73,7 @@ export function registerMatrixMonitorEvents(params: {
     onRoomMessage,
   } = params;
 
-<<<<<<< HEAD
   let selfUserId: string | undefined;
-=======
-  const resolveSelfUserId = createSelfUserIdResolver(client);
->>>>>>> 58309fd8d (refactor(matrix,tests): extract helpers and inject send-queue timing)
   client.on("room.message", (roomId: string, event: MatrixRawEvent) => {
     const eventId = event?.event_id;
     const senderId = event?.sender;

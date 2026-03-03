@@ -5,19 +5,11 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../cron/normalize.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { loadConfig } from "../../config/config.js";
 import { truncateUtf16Safe } from "../../utils.js";
-=======
-=======
-=======
-import { loadConfig } from "../../config/config.js";
-import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../cron/normalize.js";
-import type { CronDelivery, CronMessageChannel } from "../../cron/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CronDelivery, CronMessageChannel } from "../../cron/types.js";
 import { loadConfig } from "../../config/config.js";
@@ -76,7 +68,6 @@ const REMINDER_CONTEXT_TOTAL_MAX = 700;
 const REMINDER_CONTEXT_MARKER = "\n\nRecent context:\n";
 
 // Flattened schema: runtime validates per-action requirements.
-<<<<<<< HEAD
 const CronToolSchema = Type.Object({
   action: stringEnum(CRON_ACTIONS),
   gatewayUrl: Type.Optional(Type.String()),
@@ -93,28 +84,6 @@ const CronToolSchema = Type.Object({
     Type.Number({ minimum: 0, maximum: REMINDER_CONTEXT_MESSAGES_MAX }),
   ),
 });
-=======
-const CronToolSchema = Type.Object(
-  {
-    action: stringEnum(CRON_ACTIONS),
-    gatewayUrl: Type.Optional(Type.String()),
-    gatewayToken: Type.Optional(Type.String()),
-    timeoutMs: Type.Optional(Type.Number()),
-    includeDisabled: Type.Optional(Type.Boolean()),
-    job: Type.Optional(Type.Object({}, { additionalProperties: true })),
-    jobId: Type.Optional(Type.String()),
-    id: Type.Optional(Type.String()),
-    patch: Type.Optional(Type.Object({}, { additionalProperties: true })),
-    text: Type.Optional(Type.String()),
-    mode: optionalStringEnum(CRON_WAKE_MODES),
-    runMode: optionalStringEnum(CRON_RUN_MODES),
-    contextMessages: Type.Optional(
-      Type.Number({ minimum: 0, maximum: REMINDER_CONTEXT_MESSAGES_MAX }),
-    ),
-  },
-  { additionalProperties: true },
-);
->>>>>>> 757e09fe4 (fix(cron): recover flat patch params for update action and fix schema (openclaw#23221) thanks @charojo)
 
 type CronToolOptions = {
   agentSessionKey?: string;
@@ -212,14 +181,6 @@ async function buildReminderContextLines(params: {
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-=======
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 function stripThreadSuffixFromSessionKey(sessionKey: string): string {
   const normalized = sessionKey.toLowerCase();
   const idx = normalized.lastIndexOf(":thread:");
@@ -283,13 +244,8 @@ function inferDeliveryFromSessionKey(agentSessionKey?: string): CronDelivery | n
   return delivery;
 }
 
-<<<<<<< HEAD
 >>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
 export function createCronTool(opts?: CronToolOptions): AnyAgentTool {
-=======
-export function createCronTool(opts?: CronToolOptions, deps?: CronToolDeps): AnyAgentTool {
-  const callGateway = deps?.callGatewayTool ?? callGatewayTool;
->>>>>>> cc9be84b9 (refactor(runtime): split runtime builders and stabilize cron tool seam)
   return {
     label: "Cron",
     name: "cron",
@@ -442,8 +398,6 @@ Use jobId as the canonical identifier; id is accepted for compatibility. Use con
               (job as { sessionKey?: string }).sessionKey = resolvedSessionKey;
             }
           }
-<<<<<<< HEAD
-=======
 
           if (
             opts?.agentSessionKey &&
@@ -486,7 +440,6 @@ Use jobId as the canonical identifier; id is accepted for compatibility. Use con
             }
           }
 
->>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
           const contextMessages =
             typeof params.contextMessages === "number" && Number.isFinite(params.contextMessages)
               ? params.contextMessages
@@ -577,13 +530,7 @@ Use jobId as the canonical identifier; id is accepted for compatibility. Use con
           if (!id) {
             throw new Error("jobId required (id accepted for backward compatibility)");
           }
-<<<<<<< HEAD
           return jsonResult(await callGatewayTool("cron.run", gatewayOpts, { id }));
-=======
-          const runMode =
-            params.runMode === "due" || params.runMode === "force" ? params.runMode : "force";
-          return jsonResult(await callGateway("cron.run", gatewayOpts, { id, mode: runMode }));
->>>>>>> cc9be84b9 (refactor(runtime): split runtime builders and stabilize cron tool seam)
         }
         case "runs": {
           const id = readStringParam(params, "jobId") ?? readStringParam(params, "id");

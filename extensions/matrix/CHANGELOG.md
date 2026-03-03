@@ -1,19 +1,12 @@
 # Changelog
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## 2026.1.27-beta.1
-=======
-## 2026.2.1
-=======
-## 2026.2.22
->>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
 
 ### Changes
 
 - Version alignment with core OpenClaw release numbers.
 
-<<<<<<< HEAD
 ## 2026.1.31
 
 ### Changes
@@ -26,108 +19,53 @@
 ### Changes
 <<<<<<< HEAD
 - Version alignment with core Moltbot release numbers.
-=======
-
-- Version alignment with core OpenClaw release numbers.
-
-## 2026.1.29
-
-### Changes
-
-- Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.23
 
 ### Changes
-<<<<<<< HEAD
 - Version alignment with core Moltbot release numbers.
-=======
-
-- Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.22
 
 ### Changes
-<<<<<<< HEAD
 - Version alignment with core Moltbot release numbers.
-=======
-
-- Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.21
 
 ### Changes
-<<<<<<< HEAD
 - Version alignment with core Moltbot release numbers.
-=======
-
-- Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.20
 
 ### Changes
-<<<<<<< HEAD
 - Version alignment with core Moltbot release numbers.
-=======
-
-- Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.17-1
 
 ### Changes
-<<<<<<< HEAD
 - Version alignment with core Moltbot release numbers.
-=======
-
-- Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.17
 
 ### Changes
-<<<<<<< HEAD
 - Version alignment with core Moltbot release numbers.
-=======
-
-- Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.16
 
 ### Changes
-<<<<<<< HEAD
 - Version alignment with core Moltbot release numbers.
-=======
-
-- Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.15
 
 ### Changes
-<<<<<<< HEAD
 - Version alignment with core Moltbot release numbers.
-=======
-
-- Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 =======
 >>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
 ## 2026.1.14
 
 ### Features
-<<<<<<< HEAD
 - Version alignment with core Moltbot release numbers.
-=======
-
-- Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Matrix channel plugin with homeserver + user ID auth (access token or password login with device name).
 - Direct messages with pairing/allowlist/open/disabled policies and allowFrom support.
 - Group/room controls: allowlist policy, per-room config, mention gating, auto-reply, per-room skills/system prompts.

@@ -8,15 +8,7 @@ import {
   type ChannelOnboardingAdapter,
   type ChannelOnboardingDmPolicy,
   type WizardPrompter,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
-=======
-} from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -299,11 +291,7 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   setPolicy: (cfg, policy) => {
     const allowedRoles: TwitchRole[] =
       policy === "open" ? ["all"] : policy === "allowlist" ? [] : ["moderator"];
-<<<<<<< HEAD
     return setTwitchAccessControl(cfg as MoltbotConfig, allowedRoles, true);
-=======
-    return setTwitchAccessControl(cfg, allowedRoles, true);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
   },
   promptAllowFrom: async ({ cfg, prompter }) => {
     const account = getAccountConfig(cfg, DEFAULT_ACCOUNT_ID);
@@ -320,11 +308,7 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
       .map((s) => s.trim())
       .filter(Boolean);
 
-<<<<<<< HEAD
     return setTwitchAccount(cfg as MoltbotConfig, {
-=======
-    return setTwitchAccount(cfg, {
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       ...(account ?? undefined),
       allowFrom,
     });

@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.content.ContextCompat
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 import bot.molt.android.chat.ChatController
 import bot.molt.android.chat.ChatMessage
 import bot.molt.android.chat.ChatPendingToolCall
@@ -37,31 +36,9 @@ import bot.molt.android.protocol.MoltbotSmsCommand
 import bot.molt.android.voice.TalkModeManager
 import bot.molt.android.voice.VoiceWakeManager
 =======
-import ai.openclaw.android.chat.ChatController
-import ai.openclaw.android.chat.ChatMessage
-import ai.openclaw.android.chat.ChatPendingToolCall
-import ai.openclaw.android.chat.ChatSessionEntry
-import ai.openclaw.android.chat.OutgoingAttachment
-import ai.openclaw.android.gateway.DeviceAuthStore
-import ai.openclaw.android.gateway.DeviceIdentityStore
-import ai.openclaw.android.gateway.GatewayDiscovery
-import ai.openclaw.android.gateway.GatewayEndpoint
-import ai.openclaw.android.gateway.GatewaySession
-import ai.openclaw.android.node.*
-import ai.openclaw.android.protocol.OpenClawCanvasA2UIAction
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
-import ai.openclaw.android.voice.TalkModeManager
-import ai.openclaw.android.voice.VoiceWakeManager
->>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541)):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
-=======
 import ai.openclaw.android.voice.MicCaptureManager
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 >>>>>>> 3d29233ba (feat(android): add single-path mic capture runtime manager):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
-=======
-=======
-import ai.openclaw.android.voice.TalkModeManager
->>>>>>> fb92a91ef (fix(android): speak final voice replies in mic capture flow):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 import ai.openclaw.android.voice.VoiceConversationEntry
 >>>>>>> f9c3fdba4 (refactor(android): expose voice conversation state to viewmodel):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 import kotlinx.coroutines.CoroutineScope
@@ -222,14 +199,7 @@ class NodeRuntime(context: Context) {
     motionPedometerAvailable = { motionHandler.isPedometerAvailable() },
   )
 
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
   private lateinit var gatewayEventHandler: GatewayEventHandler
-=======
-  data class GatewayTrustPrompt(
-    val endpoint: GatewayEndpoint,
-    val fingerprintSha256: String,
-  )
->>>>>>> 3d29233ba (feat(android): add single-path mic capture runtime manager):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 
   private val _isConnected = MutableStateFlow(false)
   val isConnected: StateFlow<Boolean> = _isConnected.asStateFlow()
@@ -720,7 +690,6 @@ class NodeRuntime(context: Context) {
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
   private fun buildInvokeCommands(): List<String> =
     buildList {
       add(MoltbotCanvasCommand.Present.rawValue)
@@ -818,8 +787,6 @@ class NodeRuntime(context: Context) {
     )
   }
 
-=======
->>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541)):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 =======
   fun logGatewayDebugSnapshot(source: String = "manual") {
     val flowToken = gatewayToken.value.trim()
@@ -1034,7 +1001,6 @@ class NodeRuntime(context: Context) {
     }
   }
 
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
   private suspend fun handleInvoke(command: String, paramsJson: String?): GatewaySession.InvokeResult {
     if (
       command.startsWith(MoltbotCanvasCommand.NamespacePrefix) ||
@@ -1271,8 +1237,6 @@ class NodeRuntime(context: Context) {
     }
   }
 
-=======
->>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541)):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
   private fun triggerCameraFlash() {
     // Token is used as a pulse trigger; value doesn't matter as long as it changes.
     _cameraFlashToken.value = SystemClock.elapsedRealtimeNanos()
@@ -1290,7 +1254,6 @@ class NodeRuntime(context: Context) {
     }
   }
 
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
   private fun invokeErrorFromThrowable(err: Throwable): Pair<String, String> {
     val raw = (err.message ?: "").trim()
     if (raw.isEmpty()) return "UNAVAILABLE" to "UNAVAILABLE: camera error"
@@ -1478,6 +1441,4 @@ private fun parseHexColorArgb(raw: String?): Long? {
   if (hex.length != 6) return null
   val rgb = hex.toLongOrNull(16) ?: return null
   return 0xFF000000L or rgb
-=======
->>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541)):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 }

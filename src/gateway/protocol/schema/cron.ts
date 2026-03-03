@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import { Type } from "@sinclair/typebox";
 
-=======
-import { Type, type TSchema } from "@sinclair/typebox";
->>>>>>> f8fbeb52b (refactor(protocol): dedupe cron/config schemas)
 import { NonEmptyString } from "./primitives.js";
 
 function cronAgentTurnPayloadSchema(params: { message: TSchema }) {
@@ -129,7 +125,6 @@ export const CronPayloadSchema = Type.Union([
     },
     { additionalProperties: false },
   ),
-<<<<<<< HEAD
   Type.Object(
     {
       kind: Type.Literal("agentTurn"),
@@ -140,9 +135,6 @@ export const CronPayloadSchema = Type.Union([
     },
     { additionalProperties: false },
   ),
-=======
-  cronAgentTurnPayloadSchema({ message: NonEmptyString }),
->>>>>>> f8fbeb52b (refactor(protocol): dedupe cron/config schemas)
 ]);
 
 export const CronPayloadPatchSchema = Type.Union([
@@ -153,7 +145,6 @@ export const CronPayloadPatchSchema = Type.Union([
     },
     { additionalProperties: false },
   ),
-<<<<<<< HEAD
   Type.Object(
     {
       kind: Type.Literal("agentTurn"),
@@ -164,9 +155,6 @@ export const CronPayloadPatchSchema = Type.Union([
     },
     { additionalProperties: false },
   ),
-=======
-  cronAgentTurnPayloadSchema({ message: Type.Optional(NonEmptyString) }),
->>>>>>> f8fbeb52b (refactor(protocol): dedupe cron/config schemas)
 ]);
 
 const CronDeliverySharedProperties = {
@@ -350,14 +338,11 @@ export const CronRunLogEntrySchema = Type.Object(
     status: Type.Optional(CronRunStatusSchema),
     error: Type.Optional(Type.String()),
     summary: Type.Optional(Type.String()),
-<<<<<<< HEAD
-=======
     delivered: Type.Optional(Type.Boolean()),
     deliveryStatus: Type.Optional(CronDeliveryStatusSchema),
     deliveryError: Type.Optional(Type.String()),
     sessionId: Type.Optional(NonEmptyString),
     sessionKey: Type.Optional(NonEmptyString),
->>>>>>> aa4c250eb (fix(cron): split run and delivery status tracking)
     runAtMs: Type.Optional(Type.Integer({ minimum: 0 })),
     durationMs: Type.Optional(Type.Integer({ minimum: 0 })),
     nextRunAtMs: Type.Optional(Type.Integer({ minimum: 0 })),

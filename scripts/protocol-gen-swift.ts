@@ -15,7 +15,6 @@ type JsonSchema = {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
 const outPaths = [
-<<<<<<< HEAD
   path.join(
     repoRoot,
     "apps",
@@ -24,9 +23,6 @@ const outPaths = [
     "MoltbotProtocol",
     "GatewayModels.swift",
   ),
-=======
-  path.join(repoRoot, "apps", "macos", "Sources", "OpenClawProtocol", "GatewayModels.swift"),
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   path.join(
     repoRoot,
     "apps",

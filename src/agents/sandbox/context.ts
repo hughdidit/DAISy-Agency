@@ -4,14 +4,8 @@ import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { SandboxContext, SandboxWorkspaceInfo } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SandboxContext, SandboxWorkspaceInfo } from "./types.js";
@@ -91,38 +85,11 @@ async function ensureSandboxWorkspaceLayout(params: {
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export async function resolveSandboxContext(params: {
   config?: MoltbotConfig;
   sessionKey?: string;
   workspaceDir?: string;
 }): Promise<SandboxContext | null> {
-=======
-=======
-export async function resolveSandboxDockerUser(params: {
-  docker: SandboxDockerConfig;
-  workspaceDir: string;
-  stat?: (workspaceDir: string) => Promise<{ uid: number; gid: number }>;
-}): Promise<SandboxDockerConfig> {
-  const configuredUser = params.docker.user?.trim();
-  if (configuredUser) {
-    return params.docker;
-  }
-  const stat = params.stat ?? ((workspaceDir: string) => fs.stat(workspaceDir));
-  try {
-    const workspaceStat = await stat(params.workspaceDir);
-    const uid = Number.isInteger(workspaceStat.uid) ? workspaceStat.uid : null;
-    const gid = Number.isInteger(workspaceStat.gid) ? workspaceStat.gid : null;
-    if (uid === null || gid === null || uid < 0 || gid < 0) {
-      return params.docker;
-    }
-    return { ...params.docker, user: `${uid}:${gid}` };
-  } catch {
-    return params.docker;
-  }
-}
-
->>>>>>> a30f9c867 (fix(sandbox): fallback docker user to workspace owner uid/gid)
 function resolveSandboxSession(params: { config?: OpenClawConfig; sessionKey?: string }) {
 >>>>>>> d4476c689 (refactor(sandbox): dedupe session resolution)
   const rawSessionKey = params.sessionKey?.trim();

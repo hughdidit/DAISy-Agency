@@ -68,66 +68,18 @@ function collectEnvPrefixedKeys(prefix: string): string[] {
   return keys;
 }
 
-<<<<<<< HEAD
 export function collectAnthropicApiKeys(): string[] {
 <<<<<<< HEAD
   const forcedSingle = process.env.CLAWDBOT_LIVE_ANTHROPIC_KEY?.trim();
   if (forcedSingle) return [forcedSingle];
-=======
-  const forcedSingle = process.env.OPENCLAW_LIVE_ANTHROPIC_KEY?.trim();
-=======
-function resolveProviderApiKeyConfig(provider: string): ProviderApiKeyConfig {
-  const normalized = normalizeProviderId(provider);
-  const custom = PROVIDER_API_KEY_CONFIG[normalized];
-  const base = PROVIDER_PREFIX_OVERRIDES[normalized] ?? normalized.toUpperCase().replace(/-/g, "_");
-
-  const liveSingle = custom?.liveSingle ?? `OPENCLAW_LIVE_${base}_KEY`;
-  const listVar = custom?.listVar ?? `${base}_API_KEYS`;
-  const primaryVar = custom?.primaryVar ?? `${base}_API_KEY`;
-  const prefixedVar = custom?.prefixedVar ?? `${base}_API_KEY_`;
-
-  if (normalized === "google" || normalized === "google-vertex") {
-    return {
-      liveSingle,
-      listVar,
-      primaryVar,
-      prefixedVar,
-      fallbackVars: ["GOOGLE_API_KEY"],
-    };
-  }
-
-  return {
-    liveSingle,
-    listVar,
-    primaryVar,
-    prefixedVar,
-    fallbackVars: [],
-  };
-}
-
-export function collectProviderApiKeys(provider: string): string[] {
-  const config = resolveProviderApiKeyConfig(provider);
-
-  const forcedSingle = config.liveSingle ? process.env[config.liveSingle]?.trim() : undefined;
->>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
   if (forcedSingle) {
     return [forcedSingle];
   }
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
-<<<<<<< HEAD
   const fromList = parseKeyList(process.env.CLAWDBOT_LIVE_ANTHROPIC_KEYS);
   const fromEnv = collectEnvPrefixedKeys("ANTHROPIC_API_KEY");
   const primary = process.env.ANTHROPIC_API_KEY?.trim();
-=======
-  const fromList = parseKeyList(config.listVar ? process.env[config.listVar] : undefined);
-  const primary = config.primaryVar ? process.env[config.primaryVar]?.trim() : undefined;
-  const fromPrefixed = config.prefixedVar ? collectEnvPrefixedKeys(config.prefixedVar) : [];
-
-  const fallback = config.fallbackVars
-    .map((envVar) => process.env[envVar]?.trim())
-    .filter(Boolean) as string[];
->>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
 
   const seen = new Set<string>();
 

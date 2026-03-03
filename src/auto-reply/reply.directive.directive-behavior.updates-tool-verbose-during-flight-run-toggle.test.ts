@@ -15,7 +15,6 @@ import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -56,8 +55,6 @@ function _assertModelSelection(
   expect(entry?.providerOverride).toBe(selection.provider);
 }
 
-=======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
 =======
 =======
 function makeRunConfig(home: string, storePath: string) {
@@ -116,7 +113,6 @@ async function runInFlightVerboseToggleCase(params: {
   return { res };
 }
 
-<<<<<<< HEAD
 >>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
 async function runModelDirectiveAndGetText(
   home: string,
@@ -137,8 +133,6 @@ async function runModelDirectiveAndGetText(
 }
 
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-=======
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
@@ -150,7 +144,6 @@ describe("directive behavior", () => {
         toggledVerboseLevel: "on",
       });
 
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         ctx,
         {},
@@ -161,13 +154,6 @@ describe("directive behavior", () => {
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
             },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: "anthropic/claude-opus-4-5" },
-          {
-            session: { store: storePath },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
           },
         ),
       );
@@ -188,7 +174,6 @@ describe("directive behavior", () => {
         seedVerboseOn: true,
       });
 
-<<<<<<< HEAD
       await getReplyFromConfig(
         { Body: "/verbose on", From: ctx.From, To: ctx.To, CommandAuthorized: true },
         {},
@@ -199,13 +184,6 @@ describe("directive behavior", () => {
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
             },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: "anthropic/claude-opus-4-5" },
-          {
-            session: { store: storePath },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
           },
         ),
       );
@@ -213,20 +191,12 @@ describe("directive behavior", () => {
       const res = await getReplyFromConfig(
         ctx,
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
             },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: "anthropic/claude-opus-4-5" },
-          {
-            session: { store: storePath },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
           },
         ),
       );
@@ -240,7 +210,6 @@ describe("directive behavior", () => {
   });
   it("shows summary on /model", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
 <<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
@@ -264,9 +233,6 @@ describe("directive behavior", () => {
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
 =======
-      const text = await runModelDirectiveAndGetText(home, "/model");
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-=======
       const text = await runModelDirectiveText(home, "/model", { includeSessionStore: false });
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
       expect(text).toContain("Current: anthropic/claude-opus-4-5");
@@ -279,7 +245,6 @@ describe("directive behavior", () => {
   });
   it("lists allowlisted models on /model status", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
 <<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
@@ -302,9 +267,6 @@ describe("directive behavior", () => {
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
-=======
-      const text = await runModelDirectiveAndGetText(home, "/model status");
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
       const text = await runModelDirectiveText(home, "/model status", {
         includeSessionStore: false,

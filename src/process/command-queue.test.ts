@@ -24,11 +24,8 @@ import {
   GatewayDrainingError,
   getActiveTaskCount,
   getQueueSize,
-<<<<<<< HEAD
-=======
   markGatewayDraining,
   resetAllLanes,
->>>>>>> c397a02c9 (fix(queue): harden drain/abort/timeout race handling)
   setCommandLaneConcurrency,
   waitForActiveTasks,
 } from "./command-queue.js";

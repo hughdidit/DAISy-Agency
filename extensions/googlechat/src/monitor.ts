@@ -1,27 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { resolveMentionGatingWithBypass } from "clawdbot/plugin-sdk";
 
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-import { createReplyPrefixOptions, resolveMentionGatingWithBypass } from "openclaw/plugin-sdk";
-=======
-import {
-  GROUP_POLICY_BLOCKED_LABEL,
-  createScopedPairingAccess,
-  createReplyPrefixOptions,
-  readJsonBodyWithLimit,
-  registerWebhookTarget,
-  rejectNonPostWebhookRequest,
-<<<<<<< HEAD
-=======
-  resolveAllowlistProviderRuntimeGroupPolicy,
-  resolveDefaultGroupPolicy,
-  resolveSingleWebhookTargetAsync,
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   resolveWebhookPath,
   resolveWebhookTargets,
   warnMissingProviderGroupPolicyFallbackOnce,
@@ -32,10 +13,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 00e63da33 (refactor(webhooks): reuse plugin-sdk webhook path helpers)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
@@ -47,10 +25,7 @@ import type {
   GoogleChatUser,
 } from "./types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -114,7 +89,6 @@ function logVerbose(core: GoogleChatCoreRuntime, runtime: GoogleChatRuntimeEnv, 
   }
 }
 
-<<<<<<< HEAD
 function normalizeWebhookPath(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) {
@@ -181,31 +155,6 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
       doResolve({ ok: false, error: err instanceof Error ? err.message : String(err) });
     });
   });
-=======
-const warnedDeprecatedUsersEmailAllowFrom = new Set<string>();
-function warnDeprecatedUsersEmailEntries(
-  core: GoogleChatCoreRuntime,
-  runtime: GoogleChatRuntimeEnv,
-  entries: string[],
-) {
-  const deprecated = entries.map((v) => String(v).trim()).filter((v) => /^users\/.+@.+/i.test(v));
-  if (deprecated.length === 0) {
-    return;
-  }
-  const key = deprecated
-    .map((v) => v.toLowerCase())
-    .sort()
-    .join(",");
-  if (warnedDeprecatedUsersEmailAllowFrom.has(key)) {
-    return;
-  }
-  warnedDeprecatedUsersEmailAllowFrom.add(key);
-  logVerbose(
-    core,
-    runtime,
-    `Deprecated allowFrom entry detected: "users/<email>" is no longer treated as an email allowlist. Use raw email (alice@example.com) or immutable user id (users/<id>). entries=${deprecated.join(", ")}`,
-  );
->>>>>>> 00e63da33 (refactor(webhooks): reuse plugin-sdk webhook path helpers)
 }
 
 export function registerGoogleChatWebhookTarget(target: WebhookTarget): () => void {
@@ -476,15 +425,8 @@ function resolveBotDisplayName(params: {
     return accountName.trim();
   }
   const agent = config.agents?.list?.find((a) => a.id === agentId);
-<<<<<<< HEAD
   if (agent?.name?.trim()) return agent.name.trim();
   return "Moltbot";
-=======
-  if (agent?.name?.trim()) {
-    return agent.name.trim();
-  }
-  return "OpenClaw";
->>>>>>> 230ca789e (chore: Lint extensions folder.)
 }
 
 async function processMessageWithPipeline(params: {
@@ -539,14 +481,9 @@ async function processMessageWithPipeline(params: {
     return;
   }
 
-<<<<<<< HEAD
   const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-=======
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(config);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: config.channels?.googlechat !== undefined,
@@ -613,13 +550,8 @@ async function processMessageWithPipeline(params: {
   const configAllowFrom = (account.config.dm?.allowFrom ?? []).map((v) => String(v));
   const shouldComputeAuth = core.channel.commands.shouldComputeCommandAuthorized(rawBody, config);
   const storeAllowFrom =
-<<<<<<< HEAD
     !isGroup && (dmPolicy !== "open" || shouldComputeAuth)
       ? await core.channel.pairing.readAllowFromStore("googlechat").catch(() => [])
-=======
-    !isGroup && dmPolicy !== "allowlist" && (dmPolicy !== "open" || shouldComputeAuth)
-      ? await pairing.readAllowFromStore().catch(() => [])
->>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
       : [];
   const effectiveAllowFrom = [...configAllowFrom, ...storeAllowFrom];
   const commandAllowFrom = isGroup ? groupUsers.map((v) => String(v)) : effectiveAllowFrom;
@@ -666,7 +598,6 @@ async function processMessageWithPipeline(params: {
       return;
     }
 
-<<<<<<< HEAD
     if (dmPolicy !== "open") {
       const allowed = senderAllowedForCommands;
       if (!allowed) {
@@ -692,29 +623,6 @@ async function processMessageWithPipeline(params: {
             } catch (err) {
               logVerbose(core, runtime, `pairing reply failed for ${senderId}: ${String(err)}`);
             }
-=======
-    if (access.decision !== "allow") {
-      if (access.decision === "pairing") {
-        const { code, created } = await pairing.upsertPairingRequest({
-          id: senderId,
-          meta: { name: senderName || undefined, email: senderEmail },
-        });
-        if (created) {
-          logVerbose(core, runtime, `googlechat pairing request sender=${senderId}`);
-          try {
-            await sendGoogleChatMessage({
-              account,
-              space: spaceId,
-              text: core.channel.pairing.buildPairingReply({
-                channel: "googlechat",
-                idLine: `Your Google Chat user id: ${senderId}`,
-                code,
-              }),
-            });
-            statusSink?.({ lastOutboundAt: Date.now() });
-          } catch (err) {
-            logVerbose(core, runtime, `pairing reply failed for ${senderId}: ${String(err)}`);
->>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
           }
         } else {
           logVerbose(

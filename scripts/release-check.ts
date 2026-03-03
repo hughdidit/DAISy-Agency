@@ -11,36 +11,19 @@ type PackResult = { files?: PackFile[] };
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 const requiredPaths = [
   "dist/discord/send.js",
   "dist/hooks/gmail.js",
   "dist/whatsapp/normalize.js",
 ];
 const forbiddenPrefixes = ["dist/Moltbot.app/"];
-=======
-const requiredPaths = ["dist/discord/send.js", "dist/hooks/gmail.js", "dist/whatsapp/normalize.js"];
-=======
-const requiredPaths = [
-  "dist/index.js",
-  "dist/entry.js",
-=======
-const requiredPathGroups = [
-  ["dist/index.js", "dist/index.mjs"],
-  ["dist/entry.js", "dist/entry.mjs"],
->>>>>>> 80d42eb0b (fix(docker): support .mjs entrypoints in images and e2e)
   "dist/plugin-sdk/index.js",
   "dist/plugin-sdk/index.d.ts",
   "dist/build-info.json",
 ];
 >>>>>>> 539a15e63 (chore: prep 2026.2.2 docs/release checks)
 const forbiddenPrefixes = ["dist/OpenClaw.app/"];
-<<<<<<< HEAD
 >>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
-=======
-const appcastPath = resolve("appcast.xml");
-<<<<<<< HEAD
->>>>>>> 3be12b9fc (release-check: validate appcast sparkle version floor)
 =======
 const laneBuildMin = 1_000_000_000;
 const laneFloorAdoptionDateKey = 20260227;
@@ -52,16 +35,6 @@ type PackageJson = {
 };
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-type CalverSparkleFloors = {
-  dateKey: number;
-  legacyFloor: number;
-  laneFloor: number;
-};
-
-=======
->>>>>>> af9edc98e (fix(release): unify sparkle build policy and defaults)
 function normalizePluginSyncVersion(version: string): string {
   const normalized = version.trim().replace(/^v/, "");
   const base = /^([0-9]+\.[0-9]+\.[0-9]+)/.exec(normalized)?.[1];

@@ -236,16 +236,10 @@ export function buildParseArgv(params: {
         ? baseArgv.slice(1)
         : baseArgv;
   const looksLikeNode =
-<<<<<<< HEAD
     normalizedArgv.length >= 2 && (isNodeExecutable(executable) || isBunExecutable(executable));
 <<<<<<< HEAD
   if (looksLikeNode) return normalizedArgv;
   return ["node", programName || "moltbot", ...normalizedArgv];
-=======
-=======
-    normalizedArgv.length >= 2 &&
-    (isNodeRuntime(normalizedArgv[0] ?? "") || isBunRuntime(normalizedArgv[0] ?? ""));
->>>>>>> 5dd264d2f (refactor(daemon): unify runtime binary detection)
   if (looksLikeNode) {
     return normalizedArgv;
   }

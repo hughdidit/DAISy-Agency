@@ -1,9 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { ReplyPayload } from "../../auto-reply/types.js";
-import { appendCronStyleCurrentTimeLine } from "../../agents/current-time.js";
->>>>>>> d2c2f4185 (Heartbeat: inject cron-style current time into prompts (#13733))
 =======
 import { appendCronStyleCurrentTimeLine } from "../../agents/current-time.js";
 import { resolveHeartbeatReplyPayload } from "../../auto-reply/heartbeat-reply-payload.js";

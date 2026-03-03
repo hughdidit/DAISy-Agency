@@ -18,13 +18,8 @@ function normalizeBase(input: string): string {
   return `${trimmed}/`;
 }
 
-<<<<<<< HEAD
 export default defineConfig(({ command }) => {
   const envBase = process.env.CLAWDBOT_CONTROL_UI_BASE_PATH?.trim();
-=======
-export default defineConfig(() => {
-  const envBase = process.env.OPENCLAW_CONTROL_UI_BASE_PATH?.trim();
->>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
   const base = envBase ? normalizeBase(envBase) : "./";
   return {
     base,

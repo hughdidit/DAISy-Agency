@@ -48,7 +48,6 @@ describe("resolveHeartbeatVisibility", () => {
   });
 
   it("uses channel defaults when provided", () => {
-<<<<<<< HEAD
     const cfg = {
       channels: {
         defaults: {
@@ -60,13 +59,6 @@ describe("resolveHeartbeatVisibility", () => {
         },
       },
     } as MoltbotConfig;
-=======
-    const cfg = createChannelDefaultsHeartbeatConfig({
-      showOk: true,
-      showAlerts: false,
-      useIndicator: false,
-    });
->>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
 
     const result = resolveHeartbeatVisibility({ cfg, channel: "telegram" });
 
@@ -177,7 +169,6 @@ describe("resolveHeartbeatVisibility", () => {
   });
 
   it("handles missing accountId gracefully", () => {
-<<<<<<< HEAD
     const cfg = {
       channels: {
         telegram: {
@@ -195,16 +186,12 @@ describe("resolveHeartbeatVisibility", () => {
       },
     } as MoltbotConfig;
 
-=======
-    const cfg = createTelegramAccountHeartbeatConfig();
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     const result = resolveHeartbeatVisibility({ cfg, channel: "telegram" });
 
     expect(result.showOk).toBe(true);
   });
 
   it("handles non-existent account gracefully", () => {
-<<<<<<< HEAD
     const cfg = {
       channels: {
         telegram: {
@@ -222,9 +209,6 @@ describe("resolveHeartbeatVisibility", () => {
       },
     } as MoltbotConfig;
 
-=======
-    const cfg = createTelegramAccountHeartbeatConfig();
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     const result = resolveHeartbeatVisibility({
       cfg,
       channel: "telegram",
@@ -298,7 +282,6 @@ describe("resolveHeartbeatVisibility", () => {
   });
 
   it("webchat uses channel defaults only (no per-channel config)", () => {
-<<<<<<< HEAD
     const cfg = {
       channels: {
         defaults: {
@@ -310,13 +293,6 @@ describe("resolveHeartbeatVisibility", () => {
         },
       },
     } as MoltbotConfig;
-=======
-    const cfg = createChannelDefaultsHeartbeatConfig({
-      showOk: true,
-      showAlerts: false,
-      useIndicator: false,
-    });
->>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
 
     const result = resolveHeartbeatVisibility({ cfg, channel: "webchat" });
 

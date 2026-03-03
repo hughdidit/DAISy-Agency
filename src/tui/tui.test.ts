@@ -1,13 +1,7 @@
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { resolveFinalAssistantText } from "./tui.js";
-=======
-=======
-import { getSlashCommands, parseCommand } from "./commands.js";
-<<<<<<< HEAD
->>>>>>> c82dc02b4 (perf(test): fold tui command parsing into tui suite)
 import { resolveFinalAssistantText, resolveTuiSessionKey } from "./tui.js";
 >>>>>>> 56b38d2fb (TUI: honor explicit session key in global scope)
 =======

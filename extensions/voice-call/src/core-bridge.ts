@@ -87,17 +87,9 @@ function findPackageRoot(startDir: string, name: string): string | null {
   }
 }
 
-<<<<<<< HEAD
 function resolveMoltbotRoot(): string {
   if (coreRootCache) return coreRootCache;
   const override = process.env.MOLTBOT_ROOT?.trim() || process.env.CLAWDBOT_ROOT?.trim();
-=======
-function resolveOpenClawRoot(): string {
-  if (coreRootCache) {
-    return coreRootCache;
-  }
-  const override = process.env.OPENCLAW_ROOT?.trim();
->>>>>>> 230ca789e (chore: Lint extensions folder.)
   if (override) {
     coreRootCache = override;
     return override;
@@ -125,13 +117,9 @@ function resolveOpenClawRoot(): string {
     }
   }
 
-<<<<<<< HEAD
   throw new Error(
     "Unable to resolve core root. Set MOLTBOT_ROOT (or legacy CLAWDBOT_ROOT) to the package root.",
   );
-=======
-  throw new Error("Unable to resolve core root. Set OPENCLAW_ROOT to the package root.");
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 
 async function importCoreModule<T>(relativePath: string): Promise<T> {

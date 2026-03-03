@@ -1,12 +1,9 @@
 import { loadConfig } from "../../config/config.js";
-<<<<<<< HEAD
-=======
 import {
   resolveOpenProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "../../config/runtime-group-policy.js";
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { logVerbose } from "../../globals.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
@@ -26,8 +23,6 @@ export type InboundAccessControlResult = {
 
 const PAIRING_REPLY_HISTORY_GRACE_MS = 30_000;
 
-<<<<<<< HEAD
-=======
 function resolveWhatsAppRuntimeGroupPolicy(params: {
   providerConfigPresent: boolean;
   groupPolicy?: "open" | "allowlist" | "disabled";
@@ -43,7 +38,6 @@ function resolveWhatsAppRuntimeGroupPolicy(params: {
   });
 }
 
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 export async function checkInboundAccessControl(params: {
   accountId: string;
   from: string;
@@ -67,19 +61,11 @@ export async function checkInboundAccessControl(params: {
   });
   const dmPolicy = account.dmPolicy ?? "pairing";
   const configuredAllowFrom = account.allowFrom;
-<<<<<<< HEAD
   const storeAllowFrom = await readChannelAllowFromStore(
     "whatsapp",
     process.env,
     account.accountId,
   ).catch(() => []);
-=======
-  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-    provider: "whatsapp",
-    dmPolicy,
-    readStore: (provider) => readChannelAllowFromStore(provider, process.env, account.accountId),
-  });
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   // Without user config, default to self-only DM access so the owner can talk to themselves.
   const combinedAllowFrom = Array.from(
     new Set([...(configuredAllowFrom ?? []), ...storeAllowFrom]),
@@ -117,14 +103,9 @@ export async function checkInboundAccessControl(params: {
   // - "open": groups bypass allowFrom, only mention-gating applies
   // - "disabled": block all group messages entirely
   // - "allowlist": only allow group messages from senders in groupAllowFrom/allowFrom
-<<<<<<< HEAD
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = account.groupPolicy ?? defaultGroupPolicy ?? "open";
-=======
-=======
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } = resolveWhatsAppRuntimeGroupPolicy({
     providerConfigPresent: cfg.channels?.whatsapp !== undefined,
     groupPolicy: account.groupPolicy,

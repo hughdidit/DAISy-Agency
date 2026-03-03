@@ -1,12 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { wrapFetchWithAbortSignal } from "./fetch.js";
-=======
-=======
-import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
->>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import { resolveFetch, wrapFetchWithAbortSignal } from "./fetch.js";
 >>>>>>> b4fa10ae6 (refactor(infra): make fetch wrapping idempotent)
 

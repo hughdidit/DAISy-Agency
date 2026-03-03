@@ -48,8 +48,6 @@ describe("media understanding attachments SSRF", () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
 
   it("reads local attachments inside configured roots", async () => {
     await withTempRoot("openclaw-media-cache-allowed-", async (base) => {
@@ -116,5 +114,4 @@ describe("media understanding attachments SSRF", () => {
       ).rejects.toThrow(/has no path or URL/i);
     });
   });
->>>>>>> 4f835c4c0 (test(media): dedupe temp roots and cover directory attachment rejection)
 });

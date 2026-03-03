@@ -5,10 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -23,11 +20,7 @@ import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { afterEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import { captureEnv } from "../test-utils/env.js";
->>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
 =======
 >>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
 =======
@@ -68,19 +61,12 @@ import {
   ZAI_GLOBAL_BASE_URL,
 } from "./onboard-auth.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 const authProfilePathFor = (agentDir: string) => path.join(agentDir, "auth-profiles.json");
 const requireAgentDir = () => {
 <<<<<<< HEAD
   const agentDir = process.env.CLAWDBOT_AGENT_DIR;
   if (!agentDir) throw new Error("CLAWDBOT_AGENT_DIR not set");
-=======
-  const agentDir = process.env.OPENCLAW_AGENT_DIR;
-  if (!agentDir) {
-    throw new Error("OPENCLAW_AGENT_DIR not set");
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return agentDir;
 };
 =======
@@ -168,21 +154,14 @@ function expectAliasPreserved(
 
 describe("writeOAuthCredentials", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
-=======
-  const envSnapshot = captureEnv([
-=======
-  const lifecycle = createAuthTestLifecycle([
->>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
     "OPENCLAW_STATE_DIR",
     "OPENCLAW_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
     "OPENCLAW_OAUTH_DIR",
   ]);
-<<<<<<< HEAD
 >>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
   let tempStateDir: string | null = null;
 
@@ -209,9 +188,6 @@ describe("writeOAuthCredentials", () => {
     }
     delete process.env.CLAWDBOT_OAUTH_DIR;
 =======
-    envSnapshot.restore();
->>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
-=======
 
   let tempStateDir: string;
   const authProfilePathFor = (dir: string) => path.join(dir, "auth-profiles.json");
@@ -221,18 +197,11 @@ describe("writeOAuthCredentials", () => {
 >>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
   });
 
-<<<<<<< HEAD
   it("writes auth-profiles.json under CLAWDBOT_AGENT_DIR when set", async () => {
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-oauth-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-  it("writes auth-profiles.json under OPENCLAW_AGENT_DIR when set", async () => {
-    const env = await setupAuthTestEnv("openclaw-oauth-");
-<<<<<<< HEAD
-    tempStateDir = env.stateDir;
->>>>>>> 94f455c69 (refactor(test): share auth test env/profile helpers)
 =======
     lifecycle.setStateDir(env.stateDir);
 >>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
@@ -372,20 +341,13 @@ describe("writeOAuthCredentials", () => {
 
 describe("setMinimaxApiKey", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
-=======
-  const envSnapshot = captureEnv([
-=======
-  const lifecycle = createAuthTestLifecycle([
->>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
     "OPENCLAW_STATE_DIR",
     "OPENCLAW_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
-<<<<<<< HEAD
 >>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
   let tempStateDir: string | null = null;
 
@@ -411,27 +373,17 @@ describe("setMinimaxApiKey", () => {
       process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
     }
 =======
-    envSnapshot.restore();
->>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
-=======
 
   afterEach(async () => {
     await lifecycle.cleanup();
 >>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
   });
 
-<<<<<<< HEAD
   it("writes to CLAWDBOT_AGENT_DIR when set", async () => {
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-minimax-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "custom-agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-  it("writes to OPENCLAW_AGENT_DIR when set", async () => {
-    const env = await setupAuthTestEnv("openclaw-minimax-", { agentSubdir: "custom-agent" });
-<<<<<<< HEAD
-    tempStateDir = env.stateDir;
->>>>>>> 94f455c69 (refactor(test): share auth test env/profile helpers)
 =======
     lifecycle.setStateDir(env.stateDir);
 >>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
@@ -745,16 +697,12 @@ describe("applyXaiProviderConfig", () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 describe("applyOpencodeZenProviderConfig", () => {
   it("adds allowlist entry for the default model", () => {
     const cfg = applyOpencodeZenProviderConfig({});
 <<<<<<< HEAD
     const models = cfg.agents?.defaults?.models ?? {};
     expect(Object.keys(models)).toContain("opencode/claude-opus-4-5");
-=======
-    expectAllowlistContains(cfg, "opencode/claude-opus-4-6");
->>>>>>> 2d8edf85a (refactor(test): share onboarding and model auth test helpers)
   });
 
   it("preserves existing alias for the default model", () => {
@@ -767,11 +715,7 @@ describe("applyOpencodeZenProviderConfig", () => {
         },
       },
     });
-<<<<<<< HEAD
     expect(cfg.agents?.defaults?.models?.["opencode/claude-opus-4-5"]?.alias).toBe("My Opus");
-=======
-    expectAliasPreserved(cfg, "opencode/claude-opus-4-6", "My Opus");
->>>>>>> 2d8edf85a (refactor(test): share onboarding and model auth test helpers)
   });
 });
 
@@ -913,14 +857,9 @@ describe("allowlist provider helpers", () => {
         },
       });
       expectAliasPreserved(withAlias, modelRef, alias);
-<<<<<<< HEAD
     },
   );
 >>>>>>> 749edf25c (test: dedupe repeated onboarding provider config cases)
-=======
-    }
-  });
->>>>>>> 90b05b18f (test: collapse duplicate onboard auth assertions)
 });
 
 describe("applyLitellmProviderConfig", () => {

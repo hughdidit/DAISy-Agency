@@ -4,10 +4,7 @@ import express from "express";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -29,14 +26,9 @@ import { registerBrowserRoutes } from "./routes/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 import { type BrowserServerState, createBrowserRouteContext } from "./server-context.js";
 <<<<<<< HEAD
-=======
-=======
-import type { BrowserRouteRegistrar } from "./routes/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -52,12 +44,7 @@ import {
   createBrowserRouteContext,
   listKnownProfileNames,
 } from "./server-context.js";
-<<<<<<< HEAD
 >>>>>>> 3bda3df72 (fix(browser): hot-reload profiles added after gateway start (#4841) (#8816))
-=======
-=======
-import { ensureExtensionRelayForProfiles, stopKnownBrowserProfiles } from "./server-lifecycle.js";
->>>>>>> b51166e87 (refactor(browser): share control lifecycle helpers)
 import {
   installBrowserAuthMiddleware,
   installBrowserCommonMiddleware,
@@ -102,7 +89,6 @@ export async function startBrowserControlServerFromConfig(): Promise<BrowserServ
   }
 
   const app = express();
-<<<<<<< HEAD
   app.use(express.json({ limit: "1mb" }));
 
   if (browserAuth.token || browserAuth.password) {
@@ -113,10 +99,6 @@ export async function startBrowserControlServerFromConfig(): Promise<BrowserServ
       res.status(401).send("Unauthorized");
     });
   }
-=======
-  installBrowserCommonMiddleware(app);
-  installBrowserAuthMiddleware(app, browserAuth);
->>>>>>> 28014de97 (refactor(browser): share common server middleware)
 
   const ctx = createBrowserRouteContext({
     getState: () => state,
@@ -165,7 +147,6 @@ export async function stopBrowserControlServer(): Promise<void> {
     onWarn: (message) => logServer.warn(message),
   });
 
-<<<<<<< HEAD
   try {
     const current = state;
     if (current) {
@@ -181,8 +162,6 @@ export async function stopBrowserControlServer(): Promise<void> {
     logServer.warn(`clawd browser stop failed: ${String(err)}`);
   }
 
-=======
->>>>>>> b51166e87 (refactor(browser): share control lifecycle helpers)
   if (current.server) {
     await new Promise<void>((resolve) => {
       current.server?.close(() => resolve());

@@ -10,16 +10,10 @@ import { truncateUtf16Safe } from "../../utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { DiscordChannelConfigResolved } from "./allow-list.js";
 import type { DiscordMessageEvent } from "./listeners.js";
 <<<<<<< HEAD
 import { resolveDiscordChannelInfo } from "./message-utils.js";
-=======
-=======
-import type { DiscordChannelConfigResolved } from "./allow-list.js";
-import type { DiscordMessageEvent } from "./listeners.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -344,19 +338,7 @@ export async function resolveDiscordAutoThreadReplyPlan(params: {
   agentId: string;
   channel: string;
 }): Promise<DiscordAutoThreadReplyPlan> {
-<<<<<<< HEAD
   const originalReplyTarget = `channel:${params.message.channelId}`;
-=======
-  const messageChannelId = (
-    params.messageChannelId ||
-    resolveDiscordMessageChannelId({
-      message: params.message,
-    })
-  ).trim();
-  // Prefer the resolved thread channel ID when available so replies stay in-thread.
-  const targetChannelId = params.threadChannel?.id ?? (messageChannelId || "unknown");
-  const originalReplyTarget = `channel:${targetChannelId}`;
->>>>>>> 09566b169 (fix(discord): preserve channel session keys via channel_id fallbacks (#17622))
   const createdThreadId = await maybeCreateDiscordAutoThread({
     client: params.client,
     message: params.message,

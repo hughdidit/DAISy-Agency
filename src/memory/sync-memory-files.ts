@@ -4,11 +4,7 @@ import type { DatabaseSync } from "node:sqlite";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { SyncProgressState } from "./sync-progress.js";
->>>>>>> d8691ff4e (refactor(memory): share sync progress helpers)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======

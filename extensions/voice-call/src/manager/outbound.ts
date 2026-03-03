@@ -1,13 +1,5 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
-=======
-import type { CallMode } from "../config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CallManagerContext } from "./context.js";
 >>>>>>> ed11e93cf (chore(format))

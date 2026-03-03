@@ -1,27 +1,9 @@
-<<<<<<< HEAD
 import { describe, expect, it, afterEach } from "vitest";
 
 import { createInMemorySessionStore } from "./session.js";
 
 describe("acp session manager", () => {
   const store = createInMemorySessionStore();
-=======
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createInMemorySessionStore } from "./session.js";
-
-describe("acp session manager", () => {
-  let nowMs = 0;
-  const now = () => nowMs;
-  const advance = (ms: number) => {
-    nowMs += ms;
-  };
-  let store = createInMemorySessionStore({ now });
-
-  beforeEach(() => {
-    nowMs = 1_000;
-    store = createInMemorySessionStore({ now });
-  });
->>>>>>> f8b61bb4e (refactor(acp): split session tests and share rate limiter)
 
   afterEach(() => {
     store.clearAllSessionsForTest();
@@ -41,8 +23,6 @@ describe("acp session manager", () => {
     expect(cancelled).toBe(true);
     expect(store.getSessionByRunId("run-1")).toBeUndefined();
   });
-<<<<<<< HEAD
-=======
 
   it("refreshes existing session IDs instead of creating duplicates", () => {
     const first = store.createSession({
@@ -154,5 +134,4 @@ describe("acp session manager", () => {
       boundedStore.clearAllSessionsForTest();
     }
   });
->>>>>>> f8b61bb4e (refactor(acp): split session tests and share rate limiter)
 });

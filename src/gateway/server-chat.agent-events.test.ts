@@ -1,18 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import { createAgentEventHandler, createChatRunState } from "./server-chat.js";
-=======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { loadConfig } from "../config/config.js";
-import { registerAgentRunContext, resetAgentRunContextForTest } from "../infra/agent-events.js";
-import { resolveHeartbeatVisibility } from "../infra/heartbeat-visibility.js";
-import {
-  createAgentEventHandler,
-  createChatRunState,
-  createToolEventRecipientRegistry,
-} from "./server-chat.js";
->>>>>>> 222784098 (Gateway/TUI: filter heartbeat ACK noise in chat events)
 
 vi.mock("../config/config.js", () => ({
   loadConfig: vi.fn(() => ({})),
@@ -51,11 +39,7 @@ describe("agent event handler", () => {
     const nodeSendToSession = vi.fn();
     const agentRunSeq = new Map<string, number>();
     const chatRunState = createChatRunState();
-<<<<<<< HEAD
     chatRunState.registry.add("run-1", { sessionKey: "session-1", clientRunId: "client-1" });
-=======
-    const toolEventRecipients = createToolEventRecipientRegistry();
->>>>>>> e687ad15a (refactor(test): share server chat event harness)
 
     const handler = createAgentEventHandler({
       broadcast,
@@ -180,8 +164,6 @@ describe("agent event handler", () => {
     expect(sessionChatCalls(nodeSendToSession)).toHaveLength(1);
     nowSpy?.mockRestore();
   });
-<<<<<<< HEAD
-=======
 
   it("strips inline directives from assistant chat events", () => {
     const { broadcast, nodeSendToSession, nowSpy } = emitRun1AssistantText(
@@ -360,7 +342,6 @@ describe("agent event handler", () => {
     resetAgentRunContextForTest();
   });
 <<<<<<< HEAD
->>>>>>> 2b02e8a7a (feat(gateway): stream thinking events and decouple tool events from verbose level (#10568))
 =======
 
   it("broadcasts fallback events to agent subscribers and node session", () => {
@@ -451,78 +432,5 @@ describe("agent event handler", () => {
     expect(payload.runId).toBe("run-tool-client");
     resetAgentRunContextForTest();
   });
-<<<<<<< HEAD
 >>>>>>> c2876b69f (feat(auto-reply): add model fallback lifecycle visibility in status, verbose logs, and WebUI (#20704))
-=======
-
-  it("suppresses heartbeat ack-like chat output when showOk is false", () => {
-    const { broadcast, nodeSendToSession, chatRunState, handler } = createHarness({
-      now: 2_000,
-    });
-    chatRunState.registry.add("run-heartbeat", {
-      sessionKey: "session-heartbeat",
-      clientRunId: "client-heartbeat",
-    });
-    registerAgentRunContext("run-heartbeat", {
-      sessionKey: "session-heartbeat",
-      isHeartbeat: true,
-      verboseLevel: "off",
-    });
-
-    handler({
-      runId: "run-heartbeat",
-      seq: 1,
-      stream: "assistant",
-      ts: Date.now(),
-      data: {
-        text: "HEARTBEAT_OK Read HEARTBEAT.md if it exists (workspace context). Follow it strictly.",
-      },
-    });
-
-    expect(chatBroadcastCalls(broadcast)).toHaveLength(0);
-    expect(sessionChatCalls(nodeSendToSession)).toHaveLength(0);
-
-    emitLifecycleEnd(handler, "run-heartbeat");
-
-    const finalPayload = expectSingleFinalChatPayload(broadcast) as { message?: unknown };
-    expect(finalPayload.message).toBeUndefined();
-    expect(sessionChatCalls(nodeSendToSession)).toHaveLength(1);
-  });
-
-  it("keeps heartbeat alert text in final chat output when remainder exceeds ackMaxChars", () => {
-    vi.mocked(loadConfig).mockReturnValue({
-      agents: { defaults: { heartbeat: { ackMaxChars: 10 } } },
-    });
-
-    const { broadcast, chatRunState, handler } = createHarness({ now: 3_000 });
-    chatRunState.registry.add("run-heartbeat-alert", {
-      sessionKey: "session-heartbeat-alert",
-      clientRunId: "client-heartbeat-alert",
-    });
-    registerAgentRunContext("run-heartbeat-alert", {
-      sessionKey: "session-heartbeat-alert",
-      isHeartbeat: true,
-      verboseLevel: "off",
-    });
-
-    handler({
-      runId: "run-heartbeat-alert",
-      seq: 1,
-      stream: "assistant",
-      ts: Date.now(),
-      data: {
-        text: "HEARTBEAT_OK Disk usage crossed 95 percent on /data and needs cleanup now.",
-      },
-    });
-
-    emitLifecycleEnd(handler, "run-heartbeat-alert");
-
-    const payload = expectSingleFinalChatPayload(broadcast) as {
-      message?: { content?: Array<{ text?: string }> };
-    };
-    expect(payload.message?.content?.[0]?.text).toBe(
-      "Disk usage crossed 95 percent on /data and needs cleanup now.",
-    );
-  });
->>>>>>> 222784098 (Gateway/TUI: filter heartbeat ACK noise in chat events)
 });

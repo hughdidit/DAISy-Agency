@@ -10,7 +10,6 @@ import {
 } from "./bot.create-telegram-bot.test-harness.js";
 import { createTelegramBot } from "./bot.js";
 
-<<<<<<< HEAD
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/moltbot-telegram-${Math.random().toString(16).slice(2)}.json`,
 }));
@@ -141,10 +140,6 @@ const getOnHandler = (event: string) => {
   }
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
-=======
-const loadConfig = getLoadConfigMock();
-const loadWebMedia = getLoadWebMediaMock();
->>>>>>> 60898821f (refactor(test): share telegram create bot harness)
 
 describe("createTelegramBot", () => {
   // groupPolicy tests

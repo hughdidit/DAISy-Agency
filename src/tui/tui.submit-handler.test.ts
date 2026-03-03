@@ -1,15 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { createEditorSubmitHandler } from "./tui.js";
-=======
-import {
-  createEditorSubmitHandler,
-  createSubmitBurstCoalescer,
-  shouldEnableWindowsGitBashPasteFallback,
-} from "./tui.js";
->>>>>>> cd53387c9 (fix (tui): coalesce rapid git-bash submit bursts into multiline paste)
 
 function createSubmitHarness() {
   const editor = {

@@ -109,15 +109,8 @@ export function extractMSTeamsPollVote(
     readNestedString(value, ["moltbot", "poll", "id"]) ??
     readNestedString(value, ["data", "moltbotPollId"]) ??
     readNestedString(value, ["data", "pollId"]) ??
-<<<<<<< HEAD
     readNestedString(value, ["data", "moltbot", "pollId"]);
   if (!pollId) return null;
-=======
-    readNestedString(value, ["data", "openclaw", "pollId"]);
-  if (!pollId) {
-    return null;
-  }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
 
   const directSelections = extractSelections(value.choices);
   const nestedSelections = extractSelections(readNestedValue(value, ["choices"]));

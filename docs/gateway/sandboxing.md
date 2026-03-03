@@ -54,12 +54,7 @@ Not sandboxed:
 ## Workspace access
 
 `agents.defaults.sandbox.workspaceAccess` controls **what the sandbox can see**:
-<<<<<<< HEAD
 - `"none"` (default): tools see a sandbox workspace under `~/.clawdbot/sandboxes`.
-=======
-
-- `"none"` (default): tools see a sandbox workspace under `~/.openclaw/sandboxes`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `"ro"`: mounts the agent workspace read-only at `/agent` (disables `write`/`edit`/`apply_patch`).
 - `"rw"`: mounts the agent workspace read/write at `/workspace`.
 
@@ -115,12 +110,7 @@ Security notes:
 - See [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated) for how binds interact with tool policy and elevated exec.
 
 ## Images + setup
-<<<<<<< HEAD
 Default image: `moltbot-sandbox:bookworm-slim`
-=======
-
-Default image: `openclaw-sandbox:bookworm-slim`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Build it once:
 
@@ -180,12 +170,7 @@ globally or per-agent, sandboxing doesn’t bring it back.
 `exec`, use tool policy deny (see [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated)).
 
 Debugging:
-<<<<<<< HEAD
 - Use `moltbot sandbox explain` to inspect effective sandbox mode, tool policy, and fix-it config keys.
-=======
-
-- Use `openclaw sandbox explain` to inspect effective sandbox mode, tool policy, and fix-it config keys.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - See [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated) for the “why is this blocked?” mental model.
   Keep it locked down.
 

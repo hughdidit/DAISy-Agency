@@ -1,7 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9,14 +8,6 @@ import type { IncomingMessage } from "node:http";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { ChannelId } from "../channels/plugins/types.js";
-import type { OpenClawConfig } from "../config/config.js";
-import { listAgentIds, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { listChannelPlugins } from "../channels/plugins/index.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { IncomingMessage } from "node:http";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -33,13 +24,9 @@ import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { readJsonBodyWithLimit, requestBodyErrorToText } from "../infra/http-body.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeAgentId } from "../routing/session-key.js";
 >>>>>>> ca629296c (feat(hooks): add agentId support to webhook mappings (#13672))
-=======
-import { normalizeAgentId, parseAgentSessionKey } from "../routing/session-key.js";
->>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
 import { normalizeMessageChannel } from "../utils/message-channel.js";
 import { type HookMappingResolved, resolveHookMappings } from "./hooks-mapping.js";
 
@@ -60,15 +47,8 @@ export type HookAgentPolicyResolved = {
   allowedAgentIds?: Set<string>;
 };
 
-<<<<<<< HEAD
 export function resolveHooksConfig(cfg: MoltbotConfig): HooksConfigResolved | null {
   if (cfg.hooks?.enabled !== true) return null;
-=======
-export function resolveHooksConfig(cfg: OpenClawConfig): HooksConfigResolved | null {
-  if (cfg.hooks?.enabled !== true) {
-    return null;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const token = cfg.hooks?.token?.trim();
   if (!token) {
     throw new Error("hooks.enabled requires hooks.token");
@@ -100,45 +80,12 @@ export function resolveHooksConfig(cfg: OpenClawConfig): HooksConfigResolved | n
   };
 }
 
-<<<<<<< HEAD
 export type HookTokenResult = {
   token: string | undefined;
   fromQuery: boolean;
 };
 
 export function extractHookToken(req: IncomingMessage, url: URL): HookTokenResult {
-=======
-function resolveKnownAgentIds(cfg: OpenClawConfig, defaultAgentId: string): Set<string> {
-  const known = new Set(listAgentIds(cfg));
-  known.add(defaultAgentId);
-  return known;
-}
-
-function resolveAllowedAgentIds(raw: string[] | undefined): Set<string> | undefined {
-  if (!Array.isArray(raw)) {
-    return undefined;
-  }
-  const allowed = new Set<string>();
-  let hasWildcard = false;
-  for (const entry of raw) {
-    const trimmed = entry.trim();
-    if (!trimmed) {
-      continue;
-    }
-    if (trimmed === "*") {
-      hasWildcard = true;
-      break;
-    }
-    allowed.add(normalizeAgentId(trimmed));
-  }
-  if (hasWildcard) {
-    return undefined;
-  }
-  return allowed;
-}
-
-export function extractHookToken(req: IncomingMessage): string | undefined {
->>>>>>> ca629296c (feat(hooks): add agentId support to webhook mappings (#13672))
   const auth =
     typeof req.headers.authorization === "string" ? req.headers.authorization.trim() : "";
   if (auth.toLowerCase().startsWith("bearer ")) {
@@ -148,17 +95,8 @@ export function extractHookToken(req: IncomingMessage): string | undefined {
     }
   }
   const headerToken =
-<<<<<<< HEAD
     typeof req.headers["x-moltbot-token"] === "string" ? req.headers["x-moltbot-token"].trim() : "";
   if (headerToken) return { token: headerToken, fromQuery: false };
-=======
-    typeof req.headers["x-openclaw-token"] === "string"
-      ? req.headers["x-openclaw-token"].trim()
-      : "";
-  if (headerToken) {
-    return { token: headerToken, fromQuery: false };
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const queryToken = url.searchParams.get("token");
   if (queryToken) {
     return { token: queryToken.trim(), fromQuery: true };
@@ -317,64 +255,10 @@ export function isHookAgentAllowed(
 
 export const getHookAgentPolicyError = () => "agentId is not allowed by hooks.allowedAgentIds";
 
-<<<<<<< HEAD
 export function normalizeAgentPayload(
   payload: Record<string, unknown>,
   opts?: { idFactory?: () => string },
 ):
-=======
-export function resolveHookSessionKey(params: {
-  hooksConfig: HooksConfigResolved;
-  source: "request" | "mapping";
-  sessionKey?: string;
-  idFactory?: () => string;
-}): { ok: true; value: string } | { ok: false; error: string } {
-  const requested = resolveSessionKey(params.sessionKey);
-  if (requested) {
-    if (params.source === "request" && !params.hooksConfig.sessionPolicy.allowRequestSessionKey) {
-      return { ok: false, error: getHookSessionKeyRequestPolicyError() };
-    }
-    const allowedPrefixes = params.hooksConfig.sessionPolicy.allowedSessionKeyPrefixes;
-    if (allowedPrefixes && !isSessionKeyAllowedByPrefix(requested, allowedPrefixes)) {
-      return { ok: false, error: getHookSessionKeyPrefixError(allowedPrefixes) };
-    }
-    return { ok: true, value: requested };
-  }
-
-  const defaultSessionKey = params.hooksConfig.sessionPolicy.defaultSessionKey;
-  if (defaultSessionKey) {
-    return { ok: true, value: defaultSessionKey };
-  }
-
-  const generated = `hook:${(params.idFactory ?? randomUUID)()}`;
-  const allowedPrefixes = params.hooksConfig.sessionPolicy.allowedSessionKeyPrefixes;
-  if (allowedPrefixes && !isSessionKeyAllowedByPrefix(generated, allowedPrefixes)) {
-    return { ok: false, error: getHookSessionKeyPrefixError(allowedPrefixes) };
-  }
-  return { ok: true, value: generated };
-}
-
-export function normalizeHookDispatchSessionKey(params: {
-  sessionKey: string;
-  targetAgentId: string | undefined;
-}): string {
-  const trimmed = params.sessionKey.trim();
-  if (!trimmed || !params.targetAgentId) {
-    return trimmed;
-  }
-  const parsed = parseAgentSessionKey(trimmed);
-  if (!parsed) {
-    return trimmed;
-  }
-  const targetAgentId = normalizeAgentId(params.targetAgentId);
-  if (parsed.agentId !== targetAgentId) {
-    return `agent:${parsed.agentId}:${parsed.rest}`;
-  }
-  return parsed.rest;
-}
-
-export function normalizeAgentPayload(payload: Record<string, unknown>):
->>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
   | {
       ok: true;
       value: HookAgentPayload;

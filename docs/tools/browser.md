@@ -68,7 +68,6 @@ Browser settings live in `~/.clawdbot/moltbot.json`.
     attachOnly: false,
     executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
     profiles: {
-<<<<<<< HEAD
       daisy: { cdpPort: 18800, color: "#FF4500" },
       brave: { cdpPort: 18801, color: "#F76808" },
       edge: { cdpPort: 18802, color: "#0078D4" },
@@ -76,13 +75,6 @@ Browser settings live in `~/.clawdbot/moltbot.json`.
       remote: { cdpUrl: "http://10.0.0.42:9222", color: "#00AA00" }
     }
   }
-=======
-      openclaw: { cdpPort: 18800, color: "#FF4500" },
-      work: { cdpPort: 18801, color: "#0066CC" },
-      remote: { cdpUrl: "http://10.0.0.42:9222", color: "#00AA00" },
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -228,24 +220,13 @@ Remote CDP tips:
 
 ## Profiles (multi-browser)
 
-<<<<<<< HEAD
 Moltbot supports multiple named profiles (routing configs). Profiles can be:
 - **daisy-managed**: a dedicated Chromium-based browser instance with its own user data directory + CDP port
-=======
-OpenClaw supports multiple named profiles (routing configs). Profiles can be:
-
-- **openclaw-managed**: a dedicated Chromium-based browser instance with its own user data directory + CDP port
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **remote**: an explicit CDP URL (Chromium-based browser running elsewhere)
 - **extension relay**: your existing Chrome tab(s) via the local relay + Chrome extension
 
 Defaults:
-<<<<<<< HEAD
 - The `daisy` profile is auto-created if missing.
-=======
-
-- The `openclaw` profile is auto-created if missing.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - The `chrome` profile is built-in for the Chrome extension relay (points at `http://127.0.0.1:18792` by default).
 - Local CDP ports allocate from **18800–18899** by default.
 - Deleting a profile moves its local data directory to Trash.
@@ -287,14 +268,8 @@ moltbot browser extension install
 - “Load unpacked” → select the directory printed by `moltbot browser extension path`
 - Pin the extension, then click it on the tab you want to control (badge shows `ON`).
 
-<<<<<<< HEAD
 2) Use it:
 - CLI: `moltbot browser --browser-profile chrome tabs`
-=======
-2. Use it:
-
-- CLI: `openclaw browser --browser-profile chrome tabs`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Agent tool: `browser` with `profile="chrome"`
 
 Optional: if you want a different name or relay port, create your own profile:
@@ -320,12 +295,7 @@ Notes:
 
 ## Browser selection
 
-<<<<<<< HEAD
 When launching locally, Moltbot picks the first available:
-=======
-When launching locally, OpenClaw picks the first available:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 1. Chrome
 2. Brave
 3. Edge
@@ -394,7 +364,6 @@ All commands accept `--browser-profile <name>` to target a specific profile.
 All commands also accept `--json` for machine-readable output (stable payloads).
 
 Basics:
-<<<<<<< HEAD
 - `moltbot browser status`
 - `moltbot browser start`
 - `moltbot browser stop`
@@ -465,82 +434,6 @@ State:
 - `moltbot browser set timezone America/New_York`
 - `moltbot browser set locale en-US`
 - `moltbot browser set device "iPhone 14"`
-=======
-
-- `openclaw browser status`
-- `openclaw browser start`
-- `openclaw browser stop`
-- `openclaw browser tabs`
-- `openclaw browser tab`
-- `openclaw browser tab new`
-- `openclaw browser tab select 2`
-- `openclaw browser tab close 2`
-- `openclaw browser open https://example.com`
-- `openclaw browser focus abcd1234`
-- `openclaw browser close abcd1234`
-
-Inspection:
-
-- `openclaw browser screenshot`
-- `openclaw browser screenshot --full-page`
-- `openclaw browser screenshot --ref 12`
-- `openclaw browser screenshot --ref e12`
-- `openclaw browser snapshot`
-- `openclaw browser snapshot --format aria --limit 200`
-- `openclaw browser snapshot --interactive --compact --depth 6`
-- `openclaw browser snapshot --efficient`
-- `openclaw browser snapshot --labels`
-- `openclaw browser snapshot --selector "#main" --interactive`
-- `openclaw browser snapshot --frame "iframe#main" --interactive`
-- `openclaw browser console --level error`
-- `openclaw browser errors --clear`
-- `openclaw browser requests --filter api --clear`
-- `openclaw browser pdf`
-- `openclaw browser responsebody "**/api" --max-chars 5000`
-
-Actions:
-
-- `openclaw browser navigate https://example.com`
-- `openclaw browser resize 1280 720`
-- `openclaw browser click 12 --double`
-- `openclaw browser click e12 --double`
-- `openclaw browser type 23 "hello" --submit`
-- `openclaw browser press Enter`
-- `openclaw browser hover 44`
-- `openclaw browser scrollintoview e12`
-- `openclaw browser drag 10 11`
-- `openclaw browser select 9 OptionA OptionB`
-- `openclaw browser download e12 /tmp/report.pdf`
-- `openclaw browser waitfordownload /tmp/report.pdf`
-- `openclaw browser upload /tmp/file.pdf`
-- `openclaw browser fill --fields '[{"ref":"1","type":"text","value":"Ada"}]'`
-- `openclaw browser dialog --accept`
-- `openclaw browser wait --text "Done"`
-- `openclaw browser wait "#main" --url "**/dash" --load networkidle --fn "window.ready===true"`
-- `openclaw browser evaluate --fn '(el) => el.textContent' --ref 7`
-- `openclaw browser highlight e12`
-- `openclaw browser trace start`
-- `openclaw browser trace stop`
-
-State:
-
-- `openclaw browser cookies`
-- `openclaw browser cookies set session abc123 --url "https://example.com"`
-- `openclaw browser cookies clear`
-- `openclaw browser storage local get`
-- `openclaw browser storage local set theme dark`
-- `openclaw browser storage session clear`
-- `openclaw browser set offline on`
-- `openclaw browser set headers --headers-json '{"X-Debug":"1"}'`
-- `openclaw browser set credentials user pass`
-- `openclaw browser set credentials --clear`
-- `openclaw browser set geo 37.7749 -122.4194 --origin "https://example.com"`
-- `openclaw browser set geo --clear`
-- `openclaw browser set media dark`
-- `openclaw browser set timezone America/New_York`
-- `openclaw browser set locale en-US`
-- `openclaw browser set device "iPhone 14"`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Notes:
 

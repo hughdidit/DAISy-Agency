@@ -11,26 +11,14 @@ Status: experimental. Direct messages only; groups coming soon per Zalo docs.
 ## Plugin required
 
 Zalo ships as a plugin and is not bundled with the core install.
-<<<<<<< HEAD
 - Install via CLI: `moltbot plugins install @moltbot/zalo`
-=======
-
-- Install via CLI: `openclaw plugins install @openclaw/zalo`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Or select **Zalo** during onboarding and confirm the install prompt
 - Details: [Plugins](/tools/plugin)
 
 ## Quick setup (beginner)
-<<<<<<< HEAD
 1) Install the Zalo plugin:
    - From a source checkout: `moltbot plugins install ./extensions/zalo`
    - From npm (if published): `moltbot plugins install @moltbot/zalo`
-=======
-
-1. Install the Zalo plugin:
-   - From a source checkout: `openclaw plugins install ./extensions/zalo`
-   - From npm (if published): `openclaw plugins install @openclaw/zalo`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Or pick **Zalo** in onboarding and confirm the install prompt
 2. Set the token:
    - Env: `ZALO_BOT_TOKEN=...`
@@ -111,15 +99,9 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 
 - Default: `channels.zalo.dmPolicy = "pairing"`. Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
-<<<<<<< HEAD
   - `moltbot pairing list zalo`
   - `moltbot pairing approve zalo <CODE>`
 - Pairing is the default token exchange. Details: [Pairing](/start/pairing)
-=======
-  - `openclaw pairing list zalo`
-  - `openclaw pairing approve zalo <CODE>`
-- Pairing is the default token exchange. Details: [Pairing](/channels/pairing)
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - `channels.zalo.allowFrom` accepts numeric user IDs (no username lookup available).
 
 ## Long-polling vs webhook
@@ -161,12 +143,7 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 ## Troubleshooting
 
 **Bot doesn't respond:**
-<<<<<<< HEAD
 - Check that the token is valid: `moltbot channels status --probe`
-=======
-
-- Check that the token is valid: `openclaw channels status --probe`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Verify the sender is approved (pairing or allowFrom)
 - Check gateway logs: `moltbot logs --follow`
 

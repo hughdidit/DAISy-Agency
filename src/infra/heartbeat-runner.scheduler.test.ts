@@ -25,16 +25,12 @@ describe("startHeartbeatRunner", () => {
 
     const runSpy = vi.fn().mockResolvedValue({ status: "ran", durationMs: 1 });
 
-<<<<<<< HEAD
     const runner = startHeartbeatRunner({
       cfg: {
         agents: { defaults: { heartbeat: { every: "30m" } } },
       } as MoltbotConfig,
       runOnce: runSpy,
     });
-=======
-    const runner = startDefaultRunner(runSpy);
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 
     await vi.advanceTimersByTimeAsync(30 * 60_000 + 1_000);
 
@@ -69,8 +65,6 @@ describe("startHeartbeatRunner", () => {
 
     runner.stop();
   });
-<<<<<<< HEAD
-=======
 
   it("continues scheduling after runOnce throws an unhandled error", async () => {
     vi.useFakeTimers();
@@ -176,7 +170,6 @@ describe("startHeartbeatRunner", () => {
     runner.stop();
   });
 <<<<<<< HEAD
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 =======
 
   it("routes targeted wake requests to the requested agent/session", async () => {

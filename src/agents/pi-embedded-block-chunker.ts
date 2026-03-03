@@ -16,8 +16,6 @@ type BreakResult = {
   fenceSplit?: FenceSplit;
 };
 
-<<<<<<< HEAD
-=======
 type ParagraphBreak = {
   index: number;
   length: number;
@@ -44,7 +42,6 @@ function findSafeSentenceBreakIndex(
 }
 
 <<<<<<< HEAD
->>>>>>> 0f86ee531 (refactor(agents): dedupe sentence break scanning)
 =======
 function findSafeParagraphBreakIndex(params: {
   text: string;

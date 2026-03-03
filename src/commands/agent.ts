@@ -70,13 +70,9 @@ import { resolveSession } from "./agent/session.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { updateSessionStoreAfterAgentRun } from "./agent/session-store.js";
 import type { AgentCommandOpts } from "./agent/types.js";
 import { normalizeAgentId } from "../routing/session-key.js";
-=======
-import type { AgentCommandOpts } from "./agent/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -348,8 +344,6 @@ export async function agentCommand(
       }
     }
 
-<<<<<<< HEAD
-=======
     if (acpResolution?.kind === "stale") {
       throw acpResolution.error;
     }
@@ -472,7 +466,6 @@ export async function agentCommand(
     }
 
 <<<<<<< HEAD
->>>>>>> 712e23172 (fix(agent): forward resolved outbound session context for delivery)
     let resolvedThinkLevel =
       thinkOnce ??
       thinkOverride ??
@@ -730,7 +723,6 @@ export async function agentCommand(
         run: (providerOverride, modelOverride) => {
           const isFallbackRetry = fallbackAttemptIndex > 0;
           fallbackAttemptIndex += 1;
-<<<<<<< HEAD
           // On fallback retries the session file already contains the original
           // prompt from the first attempt.  Re-injecting the full prompt would
           // create a duplicate user message.  Use a short continuation hint
@@ -775,16 +767,6 @@ export async function agentCommand(
             currentThreadTs: runContext.currentThreadTs,
             replyToMode: runContext.replyToMode,
             hasRepliedRef: runContext.hasRepliedRef,
-=======
-          return runAgentAttempt({
-            providerOverride,
-            modelOverride,
-            cfg,
-            sessionEntry,
-            sessionId,
-            sessionKey,
-            sessionAgentId,
->>>>>>> 2da512e24 (refactor(agent): centralize fallback run helpers)
             sessionFile,
             workspaceDir,
             body,
@@ -792,19 +774,10 @@ export async function agentCommand(
             resolvedThinkLevel,
             timeoutMs,
             runId,
-<<<<<<< HEAD
             lane: opts.lane,
             abortSignal: opts.abortSignal,
             extraSystemPrompt: opts.extraSystemPrompt,
             streamParams: opts.streamParams,
-=======
-            opts,
-            runContext,
-            spawnedBy,
-            messageChannel,
-            skillsSnapshot,
-            resolvedVerboseLevel,
->>>>>>> 2da512e24 (refactor(agent): centralize fallback run helpers)
             agentDir,
             primaryProvider: provider,
             onAgentEvent: (evt) => {

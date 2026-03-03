@@ -6,10 +6,6 @@ import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
->>>>>>> a5cbd036d (refactor(gateway): dedupe wizard param validation)
 =======
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> 71cee673b (fix(gateway): satisfy server-method lint)
@@ -44,7 +40,6 @@ import { formatForLog } from "../ws-log.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
 
 type Validator<T> = ((params: unknown) => params is T) & {
@@ -70,10 +65,6 @@ function assertValidParams<T>(
   );
   return false;
 }
-=======
-=======
-import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

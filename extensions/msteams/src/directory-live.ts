@@ -1,10 +1,6 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChannelDirectoryEntry } from "clawdbot/plugin-sdk";
 
-=======
-import type { ChannelDirectoryEntry, MSTeamsConfig } from "openclaw/plugin-sdk";
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { GRAPH_ROOT } from "./attachments/shared.js";
 import { loadMSTeamsSdkWithAuth } from "./sdk.js";
 import { resolveMSTeamsCredentials } from "./token.js";

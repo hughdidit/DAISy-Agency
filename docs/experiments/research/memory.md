@@ -169,14 +169,8 @@ Opinion evolution (simple, explainable):
 
 Recommendation: **deep integration in Moltbot**, but keep a separable core library.
 
-<<<<<<< HEAD
 ### Why integrate into Moltbot?
 - Moltbot already knows:
-=======
-### Why integrate into OpenClaw?
-
-- OpenClaw already knows:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   - the workspace path (`agents.defaults.workspace`)
   - the session model + heartbeats
   - logging + troubleshooting patterns
@@ -196,12 +190,7 @@ The memory tooling is intended to be a small CLI + library layer, but this is ex
 
 If “S-Collide” refers to **SuCo (Subspace Collision)**: it’s an ANN retrieval approach that targets strong recall/latency tradeoffs by using learned/structured collisions in subspaces (paper: arXiv 2411.14754, 2024).
 
-<<<<<<< HEAD
 Pragmatic take for `~/clawd`:
-=======
-Pragmatic take for `~/.openclaw/workspace`:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **don’t start** with SuCo.
 - start with SQLite FTS + (optional) simple embeddings; you’ll get most UX wins immediately.
 - consider SuCo/HNSW/ScaNN-class solutions only once:

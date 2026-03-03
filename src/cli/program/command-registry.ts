@@ -4,7 +4,6 @@ import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { agentsListCommand } from "../../commands/agents.js";
 import { healthCommand } from "../../commands/health.js";
@@ -12,11 +11,6 @@ import { sessionsCommand } from "../../commands/sessions.js";
 import { statusCommand } from "../../commands/status.js";
 import { defaultRuntime } from "../../runtime.js";
 import { getFlagValue, getPositiveIntFlagValue, getVerboseFlag, hasFlag } from "../argv.js";
-=======
-import type { ProgramContext } from "./context.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 2f49d8858 (perf(cli): slim route-first bootstrap with lazy route handlers)
 import { registerBrowserCli } from "../browser-cli.js";
 import { registerConfigCli } from "../config-cli.js";
 import { registerMemoryCli } from "../memory-cli.js";

@@ -16,21 +16,12 @@ import { loadSessionStore } from "../../config/sessions/store.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
-=======
-=======
-import type { SessionEntry } from "../../config/sessions/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveUserPath } from "../../utils.js";
 import type { ReplyPayload } from "../types.js";
 import { resolveCommandsSystemPromptBundle } from "./commands-system-prompt.js";
-<<<<<<< HEAD
 >>>>>>> f6111622e (refactor(commands): share system prompt bundle for context and export)
-=======
-import type { HandleCommandsParams } from "./commands-types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { resolveCommandsSystemPromptBundle } from "./commands-system-prompt.js";
 >>>>>>> 4fa35d3fd (Revert "fix: use resolveUserPath utility for tilde expansion")
@@ -191,15 +182,7 @@ export async function buildExportSessionReply(params: HandleCommandsParams): Pro
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
   const defaultFileName = `openclaw-session-${entry.sessionId.slice(0, 8)}-${timestamp}.html`;
   const outputPath = args.outputPath
-<<<<<<< HEAD
     ? path.resolve(args.outputPath.startsWith("~") ? args.outputPath.replace("~", process.env.HOME ?? "") : args.outputPath)
-=======
-    ? path.resolve(
-        args.outputPath.startsWith("~")
-          ? args.outputPath.replace("~", process.env.HOME ?? "")
-          : args.outputPath,
-      )
->>>>>>> 4fa35d3fd (Revert "fix: use resolveUserPath utility for tilde expansion")
     : path.join(params.workspaceDir, defaultFileName);
 
   // Ensure directory exists

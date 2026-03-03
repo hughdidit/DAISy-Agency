@@ -5,11 +5,7 @@ import { applyModelDefaults } from "./defaults.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
-=======
-import type { OpenClawConfig } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -101,7 +97,6 @@ describe("applyModelDefaults", () => {
   });
 
   it("fills missing model provider defaults", () => {
-<<<<<<< HEAD
     const cfg = {
       models: {
         providers: {
@@ -124,9 +119,6 @@ describe("applyModelDefaults", () => {
         },
       },
     } satisfies MoltbotConfig;
-=======
-    const cfg = buildProxyProviderConfig();
->>>>>>> d8b720cc5 (test(config): dedupe model provider fixture setup)
 
     const next = applyModelDefaults(cfg);
     const model = next.models?.providers?.myproxy?.models?.[0];

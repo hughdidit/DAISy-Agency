@@ -6,12 +6,7 @@ import { resolveSenderLabel, type SenderLabelParams } from "../channels/sender-l
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -72,22 +67,7 @@ type ResolvedEnvelopeTimezone =
   | { mode: "local" }
   | { mode: "iana"; timeZone: string };
 
-<<<<<<< HEAD
 export function resolveEnvelopeFormatOptions(cfg?: MoltbotConfig): EnvelopeFormatOptions {
-=======
-function sanitizeEnvelopeHeaderPart(value: string): string {
-  // Header parts are metadata and must not be able to break the bracketed prefix.
-  // Keep ASCII; collapse newlines/whitespace; neutralize brackets.
-  return value
-    .replace(/\r\n|\r|\n/g, " ")
-    .replaceAll("[", "(")
-    .replaceAll("]", ")")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-export function resolveEnvelopeFormatOptions(cfg?: OpenClawConfig): EnvelopeFormatOptions {
->>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
   const defaults = cfg?.agents?.defaults;
   return {
     timezone: defaults?.envelopeTimezone,

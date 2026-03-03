@@ -33,18 +33,10 @@ Moltbot will offer the local install path automatically.
 Details: [Plugins](/tools/plugin)
 
 ## Quick setup
-<<<<<<< HEAD
 1) Install the Mattermost plugin.
 2) Create a Mattermost bot account and copy the **bot token**.
 3) Copy the Mattermost **base URL** (e.g., `https://chat.example.com`).
 4) Configure Moltbot and start the gateway.
-=======
-
-1. Install the Mattermost plugin.
-2. Create a Mattermost bot account and copy the **bot token**.
-3. Copy the Mattermost **base URL** (e.g., `https://chat.example.com`).
-4. Configure OpenClaw and start the gateway.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Minimal config:
 
@@ -111,12 +103,7 @@ Notes:
 - Open channels: `channels.mattermost.groupPolicy="open"` (mention-gated).
 
 ## Targets for outbound delivery
-<<<<<<< HEAD
 Use these target formats with `moltbot message send` or cron/webhooks:
-=======
-
-Use these target formats with `openclaw message send` or cron/webhooks:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 - `channel:<id>` for a channel
 - `user:<id>` for a DM

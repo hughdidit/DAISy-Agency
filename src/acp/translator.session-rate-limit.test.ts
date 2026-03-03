@@ -6,7 +6,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { GatewayClient } from "../gateway/client.js";
 import { createInMemorySessionStore } from "./session.js";
 import { AcpGatewayAgent } from "./translator.js";
-<<<<<<< HEAD
 
 function createConnection(): AgentSideConnection {
   return {
@@ -19,9 +18,6 @@ function createGateway(): GatewayClient {
     request: vi.fn(async () => ({ ok: true })),
   } as unknown as GatewayClient;
 }
-=======
-import { createAcpConnection, createAcpGateway } from "./translator.test-helpers.js";
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
 function createNewSessionRequest(cwd = "/tmp"): NewSessionRequest {
   return {
@@ -40,8 +36,6 @@ function createLoadSessionRequest(sessionId: string, cwd = "/tmp"): LoadSessionR
   } as unknown as LoadSessionRequest;
 }
 
-<<<<<<< HEAD
-=======
 function createPromptRequest(
   sessionId: string,
   text: string,
@@ -73,7 +67,6 @@ async function expectOversizedPromptRejected(params: { sessionId: string; text: 
   sessionStore.clearAllSessionsForTest();
 }
 
->>>>>>> 86907aa50 (test: dedupe lifecycle oauth and prompt-limit fixtures)
 describe("acp session creation rate limit", () => {
   it("rate limits excessive newSession bursts", async () => {
     const sessionStore = createInMemorySessionStore();
@@ -113,8 +106,6 @@ describe("acp session creation rate limit", () => {
     sessionStore.clearAllSessionsForTest();
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("acp prompt size hardening", () => {
   it("rejects oversized prompt blocks without leaking active runs", async () => {
@@ -131,4 +122,3 @@ describe("acp prompt size hardening", () => {
     });
   });
 });
->>>>>>> bc6f983f8 (fix(ci): resolve format drift and acp mock typing)

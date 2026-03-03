@@ -10,15 +10,9 @@ read_when:
 
 Moltbot ships two installer scripts (served from `molt.bot`):
 
-<<<<<<< HEAD
 - `https://molt.bot/install.sh` — “recommended” installer (global npm install by default; can also install from a GitHub checkout)
 - `https://molt.bot/install-cli.sh` — non-root-friendly CLI installer (installs into a prefix with its own Node)
  - `https://molt.bot/install.ps1` — Windows PowerShell installer (npm by default; optional git install)
-=======
-- `https://openclaw.bot/install.sh` — “recommended” installer (global npm install by default; can also install from a GitHub checkout)
-- `https://openclaw.bot/install-cli.sh` — non-root-friendly CLI installer (installs into a prefix with its own Node)
-- `https://openclaw.ai/install.ps1` — Windows PowerShell installer (npm by default; optional git install)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 To see the current flags/behavior, run:
 

@@ -7,17 +7,7 @@ import {
   type ChannelOnboardingAdapter,
   type ChannelOnboardingDmPolicy,
   type WizardPrompter,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
-=======
-} from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { CoreConfig } from "./types.js";
->>>>>>> eb3e9c649 (chore: fix vitest standalone configs and update package description (#11865))
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -33,16 +23,7 @@ import type { CoreConfig } from "./types.js";
 import { listMatrixDirectoryGroupsLive } from "./directory-live.js";
 import { resolveMatrixAccount } from "./matrix/accounts.js";
 import { ensureMatrixSdkInstalled, isMatrixSdkAvailable } from "./matrix/deps.js";
-<<<<<<< HEAD
 import type { CoreConfig, DmPolicy } from "./types.js";
-=======
-import { resolveMatrixTargets } from "./resolve-targets.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 41d2993f7 (fix(matrix): require unique allowlist matches in wizard)
 =======
 import type { CoreConfig } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

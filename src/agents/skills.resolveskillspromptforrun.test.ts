@@ -17,12 +17,7 @@ describe("resolveSkillsPromptForRun", () => {
         description: "Demo",
         filePath: "/app/skills/demo-skill/SKILL.md",
         baseDir: "/app/skills/demo-skill",
-<<<<<<< HEAD
         source: "moltbot-bundled",
-=======
-        source: "openclaw-bundled",
-        disableModelInvocation: false,
->>>>>>> 52ad28e09 (chore: Fix types in tests 44/N.)
       },
       frontmatter: {},
     };

@@ -6,10 +6,7 @@ import type {
   ChannelPlugin,
 } from "../channels/plugins/types.js";
 import type { PluginRegistry } from "../plugins/registry.js";
-<<<<<<< HEAD
 import { normalizeIMessageHandle } from "../imessage/targets.js";
-=======
->>>>>>> eb4215d57 (perf(test): speed up Vitest bootstrap)
 
 type TestChannelRegistration = {
   pluginId: string;

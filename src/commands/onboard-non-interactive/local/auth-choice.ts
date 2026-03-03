@@ -5,19 +5,10 @@ import { parseDurationMs } from "../../../cli/parse-duration.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
 import { upsertSharedEnvVar } from "../../../infra/env-file.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../../runtime.js";
-=======
-=======
-import type { OpenClawConfig } from "../../../config/config.js";
-import type { SecretInput } from "../../../config/types.secrets.js";
-import type { RuntimeEnv } from "../../../runtime.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { upsertSharedEnvVar } from "../../../infra/env-file.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -41,21 +32,12 @@ import { shortenHomePath } from "../../../utils.js";
 import { resolveDefaultSecretProviderAlias } from "../../../secrets/ref-contract.js";
 >>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
 import { normalizeSecretInput } from "../../../utils/normalize-secret-input.js";
-<<<<<<< HEAD
 >>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
-=======
-import { normalizeSecretInputModeInput } from "../../auth-choice.apply-helpers.js";
->>>>>>> cb119874d (Onboard: require explicit mode for env secret refs)
 import { buildTokenProfileId, validateAnthropicSetupToken } from "../../auth-token.js";
 import { applyGoogleGeminiModelDefault } from "../../google-gemini-model-default.js";
 import {
   applyAuthProfileConfig,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  applyCloudflareAiGatewayConfig,
-  applyKilocodeConfig,
->>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
   applyQianfanConfig,
 =======
   applyCloudflareAiGatewayConfig,
@@ -79,11 +61,6 @@ import {
   applyZaiConfig,
   setAnthropicApiKey,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  setCloudflareAiGatewayConfig,
-  setByteplusApiKey,
->>>>>>> 59e5f12bf (Onboard: move volcengine/byteplus auth from .env to profiles)
   setQianfanApiKey,
 =======
   setCloudflareAiGatewayConfig,
@@ -108,20 +85,7 @@ import {
   setXiaomiApiKey,
   setZaiApiKey,
 } from "../../onboard-auth.js";
-<<<<<<< HEAD
 import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
-=======
-import {
-  applyCustomApiConfig,
-  CustomApiError,
-  parseNonInteractiveCustomApiFlags,
-  resolveCustomProviderId,
-} from "../../onboard-custom.js";
-import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
-import { applyPrimaryModel } from "../../model-picker.js";
-import { applyOpenAIConfig } from "../../openai-model-default.js";
-<<<<<<< HEAD
->>>>>>> 029b77c85 (onboard: support custom provider in non-interactive flow (#14223))
 =======
 import { detectZaiEndpoint } from "../../zai-endpoint-detect.js";
 >>>>>>> 5e7842a41 (feat(zai): auto-detect endpoint + default glm-5 (#14786))
@@ -422,7 +386,6 @@ export async function applyNonInteractiveAuthChoice(params: {
     return applyXiaomiConfig(nextConfig);
   }
 
-<<<<<<< HEAD
   if (authChoice === "qianfan-api-key") {
     const resolved = await resolveNonInteractiveApiKey({
       provider: "qianfan",
@@ -432,15 +395,6 @@ export async function applyNonInteractiveAuthChoice(params: {
       envVar: "QIANFAN_API_KEY",
 <<<<<<< HEAD
 =======
-  if (authChoice === "xai-api-key") {
-    const resolved = await resolveNonInteractiveApiKey({
-      provider: "xai",
-      cfg: baseConfig,
-      flagValue: opts.xaiApiKey,
-      flagName: "--xai-api-key",
-      envVar: "XAI_API_KEY",
->>>>>>> db31c0ccc (feat: add xAI Grok provider support)
-=======
 >>>>>>> 7a9deb240 (Resolve conflicts)
       runtime,
     });
@@ -448,7 +402,6 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-<<<<<<< HEAD
 <<<<<<< HEAD
       setQianfanApiKey(resolved.key);
     }
@@ -459,11 +412,6 @@ export async function applyNonInteractiveAuthChoice(params: {
     });
     return applyQianfanConfig(nextConfig);
 <<<<<<< HEAD
-=======
-      await setXaiApiKey(resolved.key);
-=======
-      setXaiApiKey(resolved.key);
->>>>>>> 155dfa93e (fix(onboard): align xAI default model to grok-4)
 =======
   }
 
@@ -493,118 +441,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       mode: "api_key",
     });
     return applyXaiConfig(nextConfig);
-<<<<<<< HEAD
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
-=======
-  }
-
-  if (authChoice === "mistral-api-key") {
-    const resolved = await resolveApiKey({
-      provider: "mistral",
-      cfg: baseConfig,
-      flagValue: opts.mistralApiKey,
-      flagName: "--mistral-api-key",
-      envVar: "MISTRAL_API_KEY",
-      runtime,
-    });
-    if (!resolved) {
-      return null;
-    }
-    if (
-      !(await maybeSetResolvedApiKey(resolved, (value) =>
-        setMistralApiKey(value, undefined, apiKeyStorageOptions),
-      ))
-    ) {
-      return null;
-    }
-    nextConfig = applyAuthProfileConfig(nextConfig, {
-      profileId: "mistral:default",
-      provider: "mistral",
-      mode: "api_key",
-    });
-    return applyMistralConfig(nextConfig);
-  }
-
-  if (authChoice === "volcengine-api-key") {
-    const resolved = await resolveApiKey({
-      provider: "volcengine",
-      cfg: baseConfig,
-      flagValue: opts.volcengineApiKey,
-      flagName: "--volcengine-api-key",
-      envVar: "VOLCANO_ENGINE_API_KEY",
-      runtime,
-    });
-    if (!resolved) {
-      return null;
-    }
-    if (
-      !(await maybeSetResolvedApiKey(resolved, (value) =>
-        setVolcengineApiKey(value, undefined, apiKeyStorageOptions),
-      ))
-    ) {
-      return null;
-    }
-    nextConfig = applyAuthProfileConfig(nextConfig, {
-      profileId: "volcengine:default",
-      provider: "volcengine",
-      mode: "api_key",
-    });
-    return applyPrimaryModel(nextConfig, "volcengine-plan/ark-code-latest");
-  }
-
-  if (authChoice === "byteplus-api-key") {
-    const resolved = await resolveApiKey({
-      provider: "byteplus",
-      cfg: baseConfig,
-      flagValue: opts.byteplusApiKey,
-      flagName: "--byteplus-api-key",
-      envVar: "BYTEPLUS_API_KEY",
-      runtime,
-    });
-    if (!resolved) {
-      return null;
-    }
-    if (
-      !(await maybeSetResolvedApiKey(resolved, (value) =>
-        setByteplusApiKey(value, undefined, apiKeyStorageOptions),
-      ))
-    ) {
-      return null;
-    }
-    nextConfig = applyAuthProfileConfig(nextConfig, {
-      profileId: "byteplus:default",
-      provider: "byteplus",
-      mode: "api_key",
-    });
-    return applyPrimaryModel(nextConfig, "byteplus-plan/ark-code-latest");
-  }
-
-  if (authChoice === "qianfan-api-key") {
-    const resolved = await resolveApiKey({
-      provider: "qianfan",
-      cfg: baseConfig,
-      flagValue: opts.qianfanApiKey,
-      flagName: "--qianfan-api-key",
-      envVar: "QIANFAN_API_KEY",
-      runtime,
-    });
-    if (!resolved) {
-      return null;
-    }
-    if (
-      !(await maybeSetResolvedApiKey(resolved, (value) =>
-        setQianfanApiKey(value, undefined, apiKeyStorageOptions),
-      ))
-    ) {
-      return null;
-    }
-    nextConfig = applyAuthProfileConfig(nextConfig, {
-      profileId: "qianfan:default",
-      provider: "qianfan",
-      mode: "api_key",
-    });
-    return applyQianfanConfig(nextConfig);
->>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
   }
 
   if (authChoice === "openai-api-key") {
@@ -621,25 +458,11 @@ export async function applyNonInteractiveAuthChoice(params: {
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     const key = resolved.key;
     const result = upsertSharedEnvVar({ key: "OPENAI_API_KEY", value: key });
     process.env.OPENAI_API_KEY = key;
     runtime.log(`Saved OPENAI_API_KEY to ${shortenHomePath(result.path)}`);
     return nextConfig;
-=======
-    await setOpenaiApiKey(resolved.key);
-=======
-    if (resolved.source !== "profile") {
-      await setOpenaiApiKey(resolved.key, undefined, apiKeyStorageOptions);
-=======
-    if (
-      !(await maybeSetResolvedApiKey(resolved, (value) =>
-        setOpenaiApiKey(value, undefined, apiKeyStorageOptions),
-      ))
-    ) {
-      return null;
->>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
     }
 >>>>>>> 13b499328 (Onboard non-interactive: avoid rewriting profile-backed keys)
     nextConfig = applyAuthProfileConfig(nextConfig, {
@@ -957,15 +780,8 @@ export async function applyNonInteractiveAuthChoice(params: {
       mode: "api_key",
     });
     const modelId =
-<<<<<<< HEAD
       authChoice === "minimax-api-lightning" ? "MiniMax-M2.1-lightning" : "MiniMax-M2.1";
     return applyMinimaxApiConfig(nextConfig, modelId);
-=======
-      authChoice === "minimax-api-lightning" ? "MiniMax-M2.5-Lightning" : "MiniMax-M2.5";
-    return isCn
-      ? applyMinimaxApiConfigCn(nextConfig, modelId)
-      : applyMinimaxApiConfig(nextConfig, modelId);
->>>>>>> 1ba266a8e (refactor: split minimax-cn provider)
   }
 
   if (authChoice === "minimax") {
@@ -1077,25 +893,10 @@ export async function applyNonInteractiveAuthChoice(params: {
         runtime,
         required: false,
       });
-<<<<<<< HEAD
       const customApiKeyInput: SecretInput | undefined =
         requestedSecretInputMode === "ref" && resolvedCustomApiKey?.source === "env"
           ? { source: "env", id: "CUSTOM_API_KEY" }
           : resolvedCustomApiKey?.key;
-=======
-      let customApiKeyInput: SecretInput | undefined;
-      if (resolvedCustomApiKey) {
-        if (requestedSecretInputMode === "ref") {
-          const stored = toStoredSecretInput(resolvedCustomApiKey);
-          if (!stored) {
-            return null;
-          }
-          customApiKeyInput = stored;
-        } else {
-          customApiKeyInput = resolvedCustomApiKey.key;
-        }
-      }
->>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
       const result = applyCustomApiConfig({
         config: nextConfig,
         baseUrl: customAuth.baseUrl,

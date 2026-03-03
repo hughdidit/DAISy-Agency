@@ -3,16 +3,9 @@ import { shouldLogVerbose } from "../../../globals.js";
 import { sendPollWhatsApp } from "../../../web/outbound.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { isWhatsAppGroupJid, normalizeWhatsAppTarget } from "../../../whatsapp/normalize.js";
 import type { ChannelOutboundAdapter } from "../types.js";
 import { missingTargetError } from "../../../infra/outbound/target-errors.js";
-=======
-import { resolveWhatsAppOutboundTarget } from "../../../whatsapp/resolve-outbound-target.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> eccd4d8c3 (refactor(whatsapp): share target resolver)
 =======
 import type { ChannelOutboundAdapter } from "../types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

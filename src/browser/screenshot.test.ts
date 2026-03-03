@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import crypto from "node:crypto";
 
-=======
->>>>>>> 212da860a (perf(test): speed up screenshot normalization e2e fixture)
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 

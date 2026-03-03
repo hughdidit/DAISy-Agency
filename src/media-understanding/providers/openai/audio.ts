@@ -2,11 +2,7 @@ import path from "node:path";
 
 import type { AudioTranscriptionRequest, AudioTranscriptionResult } from "../../types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { fetchWithTimeout, normalizeBaseUrl, readErrorResponse } from "../shared.js";
-=======
-import { assertOkOrThrowHttpError, fetchWithTimeoutGuarded, normalizeBaseUrl } from "../shared.js";
->>>>>>> 652318e56 (refactor(media): share http error handling)
 =======
 import {
   assertOkOrThrowHttpError,
@@ -52,41 +48,18 @@ export async function transcribeOpenAiCompatibleAudio(
     headers.set("authorization", `Bearer ${params.apiKey}`);
   }
 
-<<<<<<< HEAD
   const res = await fetchWithTimeout(
-=======
-  const { response: res, release } = await postTranscriptionRequest({
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
     url,
     headers,
     body: form,
     timeoutMs: params.timeoutMs,
     fetchFn,
-<<<<<<< HEAD
   );
-=======
-    allowPrivateNetwork: allowPrivate,
-  });
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 
-<<<<<<< HEAD
   if (!res.ok) {
     const detail = await readErrorResponse(res);
     const suffix = detail ? `: ${detail}` : "";
     throw new Error(`Audio transcription failed (HTTP ${res.status})${suffix}`);
-=======
-  try {
-    await assertOkOrThrowHttpError(res, "Audio transcription failed");
-
-    const payload = (await res.json()) as { text?: string };
-    const text = requireTranscriptionText(
-      payload.text,
-      "Audio transcription response missing text",
-    );
-    return { text, model };
-  } finally {
-    await release();
->>>>>>> 652318e56 (refactor(media): share http error handling)
   }
 
   const payload = (await res.json()) as { text?: string };

@@ -1,9 +1,5 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
-=======
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> e211b7547 (perf(test): reuse imports in models cli suite)
 =======
 import { Command } from "commander";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -11,7 +7,6 @@ import { runRegisteredCli } from "../test-utils/command-runner.js";
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 
 const githubCopilotLoginCommand = vi.fn();
-<<<<<<< HEAD
 
 vi.mock("../commands/models.js", async () => {
   const actual =
@@ -22,49 +17,13 @@ vi.mock("../commands/models.js", async () => {
     githubCopilotLoginCommand,
   };
 });
-=======
-const modelsStatusCommand = vi.fn().mockResolvedValue(undefined);
-const noopAsync = vi.fn(async () => undefined);
-
-vi.mock("../commands/models.js", () => ({
-  githubCopilotLoginCommand,
-  modelsStatusCommand,
-  modelsAliasesAddCommand: noopAsync,
-  modelsAliasesListCommand: noopAsync,
-  modelsAliasesRemoveCommand: noopAsync,
-  modelsAuthAddCommand: noopAsync,
-  modelsAuthLoginCommand: noopAsync,
-  modelsAuthOrderClearCommand: noopAsync,
-  modelsAuthOrderGetCommand: noopAsync,
-  modelsAuthOrderSetCommand: noopAsync,
-  modelsAuthPasteTokenCommand: noopAsync,
-  modelsAuthSetupTokenCommand: noopAsync,
-  modelsFallbacksAddCommand: noopAsync,
-  modelsFallbacksClearCommand: noopAsync,
-  modelsFallbacksListCommand: noopAsync,
-  modelsFallbacksRemoveCommand: noopAsync,
-  modelsImageFallbacksAddCommand: noopAsync,
-  modelsImageFallbacksClearCommand: noopAsync,
-  modelsImageFallbacksListCommand: noopAsync,
-  modelsImageFallbacksRemoveCommand: noopAsync,
-  modelsListCommand: noopAsync,
-  modelsScanCommand: noopAsync,
-  modelsSetCommand: noopAsync,
-  modelsSetImageCommand: noopAsync,
-}));
->>>>>>> 9131b22a2 (test: migrate suites to e2e coverage layout)
 
 describe("models cli", () => {
-<<<<<<< HEAD
 <<<<<<< HEAD
   it("registers github-copilot login command", { timeout: 60_000 }, async () => {
     const { Command } = await import("commander");
     const { registerModelsCli } = await import("./models-cli.js");
 
-=======
-  let Command: typeof import("commander").Command;
-=======
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
   let registerModelsCli: (typeof import("./models-cli.js"))["registerModelsCli"];
 
   beforeAll(async () => {
@@ -112,8 +71,6 @@ describe("models cli", () => {
       expect.any(Object),
     );
   });
-<<<<<<< HEAD
-=======
 
   it.each([
     { label: "status flag", args: ["models", "status", "--agent", "poe"] },
@@ -143,5 +100,4 @@ describe("models cli", () => {
       expect(error.exitCode).toBe(0);
     }
   });
->>>>>>> e211b7547 (perf(test): reuse imports in models cli suite)
 });

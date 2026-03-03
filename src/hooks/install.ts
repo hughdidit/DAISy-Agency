@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
 import { runCommandWithTimeout } from "../process/exec.js";
@@ -13,25 +12,10 @@ import {
   resolvePackedRootDir,
 } from "../infra/archive.js";
 <<<<<<< HEAD
-=======
-=======
-import { MANIFEST_KEY } from "../compat/legacy-names.js";
-import { fileExists, readJsonFile, resolveArchiveKind } from "../infra/archive.js";
-import { resolveExistingInstallPath, withExtractedArchiveRoot } from "../infra/install-flow.js";
-import {
-  resolveInstallModeOptions,
-  resolveTimedInstallModeOptions,
-} from "../infra/install-mode-options.js";
->>>>>>> 07888bee3 (refactor: share install flows across hooks and plugins)
 import { installPackageDir } from "../infra/install-package-dir.js";
 import { resolveSafeInstallDir, unscopedPackageName } from "../infra/install-safe-path.js";
 import {
-<<<<<<< HEAD
   packNpmSpecToArchive,
-=======
-  type NpmIntegrityDrift,
-  type NpmSpecResolution,
->>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
   resolveArchiveSourcePath,
 } from "../infra/install-source-utils.js";
 import {
@@ -68,7 +52,6 @@ export type InstallHooksResult =
 
 const defaultLogger: HookInstallLogger = {};
 
-<<<<<<< HEAD
 function unscopedPackageName(name: string): string {
   const trimmed = name.trim();
   if (!trimmed) {
@@ -83,48 +66,15 @@ function safeDirName(input: string): string {
     return trimmed;
   }
   return trimmed.replaceAll("/", "__");
-=======
-function validateHookId(hookId: string): string | null {
-  if (!hookId) {
-    return "invalid hook name: missing";
-  }
-  if (hookId === "." || hookId === "..") {
-    return "invalid hook name: reserved path segment";
-  }
-  if (hookId.includes("/") || hookId.includes("\\")) {
-    return "invalid hook name: path separators not allowed";
-  }
-  return null;
->>>>>>> e93764350 (refactor(install): share safe install path helpers)
 }
 
 export function resolveHookInstallDir(hookId: string, hooksDir?: string): string {
   const hooksBase = hooksDir ? resolveUserPath(hooksDir) : path.join(CONFIG_DIR, "hooks");
-<<<<<<< HEAD
   return path.join(hooksBase, safeDirName(hookId));
 }
 
 async function ensureMoltbotHooks(manifest: HookPackageManifest) {
   const hooks = manifest.moltbot?.hooks ?? manifest[LEGACY_MANIFEST_KEY]?.hooks;
-=======
-  const hookIdError = validateHookId(hookId);
-  if (hookIdError) {
-    throw new Error(hookIdError);
-  }
-  const targetDirResult = resolveSafeInstallDir({
-    baseDir: hooksBase,
-    id: hookId,
-    invalidNameMessage: "invalid hook name: path traversal detected",
-  });
-  if (!targetDirResult.ok) {
-    throw new Error(targetDirResult.error);
-  }
-  return targetDirResult.path;
-}
-
-async function ensureOpenClawHooks(manifest: HookPackageManifest) {
-  const hooks = manifest[MANIFEST_KEY]?.hooks;
->>>>>>> e93764350 (refactor(install): share safe install path helpers)
   if (!Array.isArray(hooks)) {
     throw new Error("package.json missing moltbot.hooks");
   }
@@ -218,7 +168,6 @@ async function installHookPackageFromDir(params: {
     };
   }
 
-<<<<<<< HEAD
   const hooksDir = params.hooksDir
     ? resolveUserPath(params.hooksDir)
     : path.join(CONFIG_DIR, "hooks");
@@ -226,17 +175,6 @@ async function installHookPackageFromDir(params: {
 
 <<<<<<< HEAD
   const targetDir = resolveHookInstallDir(hookPackId, hooksDir);
-=======
-  const targetDirResult = resolveSafeInstallDir({
-    baseDir: hooksDir,
-    id: hookPackId,
-    invalidNameMessage: "invalid hook name: path traversal detected",
-  });
-  if (!targetDirResult.ok) {
-    return { ok: false, error: targetDirResult.error };
-  }
-  const targetDir = targetDirResult.path;
->>>>>>> e93764350 (refactor(install): share safe install path helpers)
 =======
   const targetDirResult = await resolveInstallTargetDir(hookPackId, params.hooksDir);
   if (!targetDirResult.ok) {
@@ -311,7 +249,6 @@ async function installHookFromDir(params: {
     };
   }
 
-<<<<<<< HEAD
   const hooksDir = params.hooksDir
     ? resolveUserPath(params.hooksDir)
     : path.join(CONFIG_DIR, "hooks");
@@ -319,17 +256,6 @@ async function installHookFromDir(params: {
 
 <<<<<<< HEAD
   const targetDir = resolveHookInstallDir(hookName, hooksDir);
-=======
-  const targetDirResult = resolveSafeInstallDir({
-    baseDir: hooksDir,
-    id: hookName,
-    invalidNameMessage: "invalid hook name: path traversal detected",
-  });
-  if (!targetDirResult.ok) {
-    return { ok: false, error: targetDirResult.error };
-  }
-  const targetDir = targetDirResult.path;
->>>>>>> e93764350 (refactor(install): share safe install path helpers)
 =======
   const targetDirResult = await resolveInstallTargetDir(hookName, params.hooksDir);
   if (!targetDirResult.ok) {
@@ -387,7 +313,6 @@ export async function installHooksFromArchive(params: {
   const archivePath = archivePathResult.path;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hook-"));
   const extractDir = path.join(tmpDir, "extract");
   await fs.mkdir(extractDir, { recursive: true });
@@ -398,11 +323,6 @@ export async function installHooksFromArchive(params: {
   } catch (err) {
     return { ok: false, error: `failed to extract archive: ${String(err)}` };
   }
-=======
-  return await withTempDir("openclaw-hook-", async (tmpDir) => {
-    const extractDir = path.join(tmpDir, "extract");
-    await fs.mkdir(extractDir, { recursive: true });
->>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
 
   let rootDir = "";
   try {
@@ -422,7 +342,6 @@ export async function installHooksFromArchive(params: {
       dryRun: params.dryRun,
       expectedHookPackId: params.expectedHookPackId,
     });
-<<<<<<< HEAD
   }
 
   return await installHookFromDir({
@@ -432,8 +351,6 @@ export async function installHooksFromArchive(params: {
     mode: params.mode,
     dryRun: params.dryRun,
     expectedHookPackId: params.expectedHookPackId,
-=======
->>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
 =======
   return await withExtractedArchiveRoot({
     archivePath,
@@ -484,7 +401,6 @@ export async function installHooksFromNpmSpec(params: {
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hook-pack-"));
   logger.info?.(`Downloading ${spec}…`);
   const res = await runCommandWithTimeout(["npm", "pack", spec], {
@@ -514,45 +430,6 @@ export async function installHooksFromNpmSpec(params: {
     mode,
     dryRun,
     expectedHookPackId,
-=======
-  return await withTempDir("openclaw-hook-pack-", async (tmpDir) => {
-    logger.info?.(`Downloading ${spec}…`);
-    const packedResult = await packNpmSpecToArchive({
-      spec,
-      timeoutMs,
-      cwd: tmpDir,
-    });
-    if (!packedResult.ok) {
-      return packedResult;
-    }
-
-<<<<<<< HEAD
-    return await installHooksFromArchive({
-=======
-    const npmResolution: NpmSpecResolution = {
-      ...packedResult.metadata,
-      resolvedAt: new Date().toISOString(),
-    };
-
-    const driftResult = await resolveNpmIntegrityDriftWithDefaultMessage({
-      spec,
-      expectedIntegrity: params.expectedIntegrity,
-      resolution: npmResolution,
-      onIntegrityDrift: params.onIntegrityDrift,
-      warn: (message) => {
-        logger.warn?.(message);
-      },
-    });
-    const integrityDrift = driftResult.integrityDrift;
-    if (driftResult.error) {
-      return {
-        ok: false,
-        error: driftResult.error,
-      };
-    }
-
-    const installResult = await installHooksFromArchive({
->>>>>>> edf92f1cb (refactor: share npm integrity drift handling)
       archivePath: packedResult.archivePath,
       hooksDir: params.hooksDir,
       timeoutMs,
@@ -573,7 +450,6 @@ export async function installHooksFromNpmSpec(params: {
     warn: (message) => {
       logger.warn?.(message);
     },
-<<<<<<< HEAD
     installFromArchive: async ({ archivePath }) =>
       await installHooksFromArchive({
         archivePath,
@@ -585,17 +461,6 @@ export async function installHooksFromNpmSpec(params: {
         expectedHookPackId,
       }),
 >>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
-=======
-    installFromArchive: installHooksFromArchive,
-    archiveInstallParams: {
-      hooksDir: params.hooksDir,
-      timeoutMs,
-      logger,
-      mode,
-      dryRun,
-      expectedHookPackId,
-    },
->>>>>>> 07888bee3 (refactor: share install flows across hooks and plugins)
   });
   return finalizeNpmSpecArchiveInstall(flowResult);
 }

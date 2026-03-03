@@ -5,12 +5,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-=======
-import { captureEnv } from "../test-utils/env.js";
->>>>>>> bfa59bd22 (refactor(test): collapse gateway e2e env snapshots)
 import { startGatewayServer } from "./server.js";
 import { extractPayloadText } from "./test-helpers.agent-results.js";
 >>>>>>> 947e11c33 (test(gateway): dedupe agent payload and stream fixtures)
@@ -21,12 +16,7 @@ import {
   startGatewayWithClient,
 } from "./test-helpers.e2e.js";
 import { installOpenAiResponsesMock } from "./test-helpers.openai-mock.js";
-<<<<<<< HEAD
 import { startGatewayServer } from "./server.js";
-=======
-import { buildOpenAiResponsesProviderConfig } from "./test-openai-responses-model.js";
-<<<<<<< HEAD
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 =======
 
 let writeConfigFile: typeof import("../config/config.js").writeConfigFile;
@@ -39,7 +29,6 @@ describe("gateway e2e", () => {
     "runs a mock OpenAI tool call end-to-end via gateway agent loop",
     { timeout: GATEWAY_E2E_TIMEOUT_MS },
     async () => {
-<<<<<<< HEAD
       const prev = {
         home: process.env.HOME,
         configPath: process.env.CLAWDBOT_CONFIG_PATH,
@@ -50,18 +39,6 @@ describe("gateway e2e", () => {
         skipCanvas: process.env.CLAWDBOT_SKIP_CANVAS_HOST,
         skipBrowser: process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER,
       };
-=======
-      const envSnapshot = captureEnv([
-        "HOME",
-        "OPENCLAW_CONFIG_PATH",
-        "OPENCLAW_GATEWAY_TOKEN",
-        "OPENCLAW_SKIP_CHANNELS",
-        "OPENCLAW_SKIP_GMAIL_WATCHER",
-        "OPENCLAW_SKIP_CRON",
-        "OPENCLAW_SKIP_CANVAS_HOST",
-        "OPENCLAW_SKIP_BROWSER_CONTROL_SERVER",
-      ]);
->>>>>>> bfa59bd22 (refactor(test): collapse gateway e2e env snapshots)
 
       const { baseUrl: openaiBaseUrl, restore } = installOpenAiResponsesMock();
 
@@ -99,7 +76,6 @@ describe("gateway e2e", () => {
         gateway: { auth: { token } },
       };
 
-<<<<<<< HEAD
       await fs.writeFile(configPath, `${JSON.stringify(cfg, null, 2)}\n`);
       process.env.CLAWDBOT_CONFIG_PATH = configPath;
 
@@ -112,11 +88,6 @@ describe("gateway e2e", () => {
 
       const client = await connectGatewayClient({
         url: `ws://127.0.0.1:${port}`,
-=======
-      const { server, client } = await startGatewayWithClient({
-        cfg,
-        configPath,
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
         token,
         clientDisplayName: "vitest-mock-openai",
       });
@@ -155,7 +126,6 @@ describe("gateway e2e", () => {
         await server.close({ reason: "mock openai test complete" });
         await fs.rm(tempHome, { recursive: true, force: true });
         restore();
-<<<<<<< HEAD
         process.env.HOME = prev.home;
         process.env.CLAWDBOT_CONFIG_PATH = prev.configPath;
         process.env.CLAWDBOT_GATEWAY_TOKEN = prev.token;
@@ -164,14 +134,10 @@ describe("gateway e2e", () => {
         process.env.CLAWDBOT_SKIP_CRON = prev.skipCron;
         process.env.CLAWDBOT_SKIP_CANVAS_HOST = prev.skipCanvas;
         process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = prev.skipBrowser;
-=======
-        envSnapshot.restore();
->>>>>>> bfa59bd22 (refactor(test): collapse gateway e2e env snapshots)
       }
     },
   );
 
-<<<<<<< HEAD
   it("runs wizard over ws and writes auth token config", { timeout: 90_000 }, async () => {
 <<<<<<< HEAD
     const prev = {
@@ -185,19 +151,6 @@ describe("gateway e2e", () => {
       skipCanvas: process.env.CLAWDBOT_SKIP_CANVAS_HOST,
       skipBrowser: process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER,
     };
-=======
-    const envSnapshot = captureEnv([
-      "HOME",
-      "OPENCLAW_STATE_DIR",
-      "OPENCLAW_CONFIG_PATH",
-      "OPENCLAW_GATEWAY_TOKEN",
-      "OPENCLAW_SKIP_CHANNELS",
-      "OPENCLAW_SKIP_GMAIL_WATCHER",
-      "OPENCLAW_SKIP_CRON",
-      "OPENCLAW_SKIP_CANVAS_HOST",
-      "OPENCLAW_SKIP_BROWSER_CONTROL_SERVER",
-    ]);
->>>>>>> bfa59bd22 (refactor(test): collapse gateway e2e env snapshots)
 
     process.env.CLAWDBOT_SKIP_CHANNELS = "1";
     process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = "1";
@@ -325,7 +278,6 @@ describe("gateway e2e", () => {
         await server.close({ reason: "wizard e2e complete" });
       }
 
-<<<<<<< HEAD
       expect(didSendToken).toBe(true);
       expect(next.status).toBe("done");
 
@@ -348,12 +300,6 @@ describe("gateway e2e", () => {
     try {
       const resNoToken = await connectDeviceAuthReq({
         url: `ws://127.0.0.1:${port2}`,
-=======
-      const port2 = await getFreeGatewayPort();
-      const server2 = await startGatewayServer(port2, {
-        bind: "loopback",
-        controlUiEnabled: false,
->>>>>>> 833144fd7 (test(gateway): tighten e2e timeout budget)
       });
       try {
         const resNoToken = await connectDeviceAuthReq({
@@ -362,7 +308,6 @@ describe("gateway e2e", () => {
         expect(resNoToken.ok).toBe(false);
         expect(resNoToken.error?.message ?? "").toContain("unauthorized");
 
-<<<<<<< HEAD
       const resToken = await connectDeviceAuthReq({
         url: `ws://127.0.0.1:${port2}`,
         token: wizardToken,
@@ -381,9 +326,6 @@ describe("gateway e2e", () => {
       process.env.CLAWDBOT_SKIP_CRON = prev.skipCron;
       process.env.CLAWDBOT_SKIP_CANVAS_HOST = prev.skipCanvas;
       process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = prev.skipBrowser;
-=======
-      envSnapshot.restore();
->>>>>>> bfa59bd22 (refactor(test): collapse gateway e2e env snapshots)
     }
   });
 =======

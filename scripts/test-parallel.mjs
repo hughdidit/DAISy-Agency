@@ -10,12 +10,9 @@ const unitIsolatedFilesRaw = [
   "src/plugins/tools.optional.test.ts",
   "src/agents/session-tool-result-guard.tool-result-persist-hook.test.ts",
   "src/security/fix.test.ts",
-<<<<<<< HEAD
-=======
   // Runtime source guard scans are sensitive to filesystem contention.
   "src/security/temp-path-guard.test.ts",
   "src/security/audit.test.ts",
->>>>>>> 70cac824b (perf(test): optimize parallel vitest worker budget)
   "src/utils.test.ts",
   "src/auto-reply/tool-meta.test.ts",
   "src/commands/auth-choice.test.ts",
@@ -72,33 +69,14 @@ const isWindowsCi = isCI && isWindows;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 const shardOverride = Number.parseInt(process.env.CLAWDBOT_TEST_SHARDS ?? "", 10);
 const shardCount = isWindowsCi ? (Number.isFinite(shardOverride) && shardOverride > 1 ? shardOverride : 2) : 1;
 const windowsCiArgs = isWindowsCi ? ["--no-file-parallelism", "--dangerouslyIgnoreUnhandledErrors"] : [];
 const overrideWorkers = Number.parseInt(process.env.CLAWDBOT_TEST_WORKERS ?? "", 10);
 const resolvedOverride = Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
-=======
-=======
-=======
-=======
-const hostCpuCount = os.cpus().length;
-const hostMemoryGiB = Math.floor(os.totalmem() / 1024 ** 3);
-// Keep aggressive local defaults for high-memory workstations (Mac Studio class).
-const highMemLocalHost = !isCI && hostMemoryGiB >= 96;
-const lowMemLocalHost = !isCI && hostMemoryGiB < 64;
->>>>>>> b3f46f0e2 (fix(test): stabilize low-mem parallel runner and cron session mock (#26324))
 const nodeMajor = Number.parseInt(process.versions.node.split(".")[0] ?? "", 10);
-<<<<<<< HEAD
 const supportsVmForks = Number.isFinite(nodeMajor) ? nodeMajor < 24 : true;
 >>>>>>> 5d37b204c (Tests: disable vmForks on Node 24 and document override)
-=======
-// vmForks is a big win for transform/import heavy suites, but Node 24 had
-// regressions with Vitest's vm runtime in this repo, and low-memory local hosts
-// are more likely to hit per-worker V8 heap ceilings. Keep it opt-out via
-// OPENCLAW_TEST_VM_FORKS=0, and let users force-enable with =1.
-const supportsVmForks = Number.isFinite(nodeMajor) ? nodeMajor !== 24 : true;
->>>>>>> d1f01de59 (perf(test): default to vmForks on Node 25; unstub envs)
 const useVmForks =
   process.env.OPENCLAW_TEST_VM_FORKS === "1" ||
   (process.env.OPENCLAW_TEST_VM_FORKS !== "0" && !isWindows && supportsVmForks && !lowMemLocalHost);
@@ -166,7 +144,6 @@ const shardCount = isWindowsCi
     ? shardOverride
     : 2
   : 1;
-<<<<<<< HEAD
 const windowsCiArgs = isWindowsCi
   ? ["--no-file-parallelism", "--dangerouslyIgnoreUnhandledErrors"]
   : [];
@@ -176,37 +153,6 @@ const resolvedOverride =
 >>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 const parallelRuns = isWindowsCi ? [] : runs.filter((entry) => entry.name !== "gateway");
 const serialRuns = isWindowsCi ? runs : runs.filter((entry) => entry.name === "gateway");
-=======
-const windowsCiArgs = isWindowsCi ? ["--dangerouslyIgnoreUnhandledErrors"] : [];
-const silentArgs =
-  process.env.OPENCLAW_TEST_SHOW_PASSED_LOGS === "1" ? [] : ["--silent=passed-only"];
-const rawPassthroughArgs = process.argv.slice(2);
-const passthroughArgs =
-  rawPassthroughArgs[0] === "--" ? rawPassthroughArgs.slice(1) : rawPassthroughArgs;
-const rawTestProfile = process.env.OPENCLAW_TEST_PROFILE?.trim().toLowerCase();
-const testProfile =
-  rawTestProfile === "low" ||
-  rawTestProfile === "max" ||
-  rawTestProfile === "normal" ||
-  rawTestProfile === "serial"
-    ? rawTestProfile
-    : "normal";
-const overrideWorkers = Number.parseInt(process.env.OPENCLAW_TEST_WORKERS ?? "", 10);
-const resolvedOverride =
-  Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
-const parallelGatewayEnabled =
-  process.env.OPENCLAW_TEST_PARALLEL_GATEWAY === "1" || (!isCI && highMemLocalHost);
-// Keep gateway serial by default except when explicitly requested or on high-memory local hosts.
-const keepGatewaySerial =
-  isWindowsCi ||
-  process.env.OPENCLAW_TEST_SERIAL_GATEWAY === "1" ||
-  testProfile === "serial" ||
-  !parallelGatewayEnabled;
-const parallelRuns = keepGatewaySerial ? runs.filter((entry) => entry.name !== "gateway") : runs;
-const serialRuns = keepGatewaySerial ? runs.filter((entry) => entry.name === "gateway") : [];
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 069670388 (perf(test): speed up test runs and harden temp cleanup)
 const localWorkers = Math.max(4, Math.min(16, os.cpus().length));
 =======
 const hostCpuCount = os.cpus().length;
@@ -300,8 +246,6 @@ const WARNING_SUPPRESSION_FLAGS = [
   "--disable-warning=MaxListenersExceededWarning",
 ];
 
-<<<<<<< HEAD
-=======
 const DEFAULT_CI_MAX_OLD_SPACE_SIZE_MB = 4096;
 const maxOldSpaceSizeMb = (() => {
   // CI can hit Node heap limits (especially on large suites). Allow override, default to 4GB.
@@ -355,12 +299,9 @@ function buildReporterArgs(entry, extraArgs) {
   return ["--reporter=default", "--reporter=json", "--outputFile", outputFile];
 }
 
->>>>>>> 3faf5ada2 (ci(test): raise node heap for CI vitest)
 const runOnce = (entry, extraArgs = []) =>
   new Promise((resolve) => {
     const maxWorkers = maxWorkersForRun(entry.name);
-<<<<<<< HEAD
-=======
     const reporterArgs = buildReporterArgs(entry, extraArgs);
     // vmForks with a single worker has shown cross-file leakage in extension suites.
     // Fall back to process forks when we intentionally clamp that lane to one worker.
@@ -368,24 +309,9 @@ const runOnce = (entry, extraArgs = []) =>
       entry.name === "extensions" && maxWorkers === 1 && entry.args.includes("--pool=vmForks")
         ? entry.args.map((arg) => (arg === "--pool=vmForks" ? "--pool=forks" : arg))
         : entry.args;
->>>>>>> b3f46f0e2 (fix(test): stabilize low-mem parallel runner and cron session mock (#26324))
     const args = maxWorkers
-<<<<<<< HEAD
       ? [...entry.args, "--maxWorkers", String(maxWorkers), ...windowsCiArgs, ...extraArgs]
       : [...entry.args, ...windowsCiArgs, ...extraArgs];
-=======
-      ? [
-          ...entryArgs,
-          "--maxWorkers",
-          String(maxWorkers),
-          ...silentArgs,
-          ...reporterArgs,
-          ...windowsCiArgs,
-          ...extraArgs,
-        ]
-<<<<<<< HEAD
-      : [...entry.args, ...silentArgs, ...reporterArgs, ...windowsCiArgs, ...extraArgs];
->>>>>>> 069670388 (perf(test): speed up test runs and harden temp cleanup)
 =======
       : [...entryArgs, ...silentArgs, ...reporterArgs, ...windowsCiArgs, ...extraArgs];
 >>>>>>> b3f46f0e2 (fix(test): stabilize low-mem parallel runner and cron session mock (#26324))
@@ -395,22 +321,11 @@ const runOnce = (entry, extraArgs = []) =>
       nodeOptions,
     );
 <<<<<<< HEAD
-<<<<<<< HEAD
     const child = spawn(pnpm, args, {
       stdio: "inherit",
       env: { ...process.env, VITEST_GROUP: entry.name, NODE_OPTIONS: nextNodeOptions },
       shell: process.platform === "win32",
     });
-=======
-=======
-    const heapFlag =
-      maxOldSpaceSizeMb && !nextNodeOptions.includes("--max-old-space-size=")
-        ? `--max-old-space-size=${maxOldSpaceSizeMb}`
-        : null;
-    const resolvedNodeOptions = heapFlag
-      ? `${nextNodeOptions} ${heapFlag}`.trim()
-      : nextNodeOptions;
->>>>>>> 3faf5ada2 (ci(test): raise node heap for CI vitest)
     let child;
     try {
       child = spawn(pnpm, args, {
@@ -457,8 +372,6 @@ const shutdown = (signal) => {
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
-<<<<<<< HEAD
-=======
 if (passthroughArgs.length > 0) {
   const maxWorkers = maxWorkersForRun("unit");
   const args = maxWorkers
@@ -497,7 +410,6 @@ if (passthroughArgs.length > 0) {
       resolve(1);
       return;
     }
->>>>>>> d355fecd4 (fix(ci): avoid Windows spawn EINVAL in test runner)
     children.add(child);
     child.on("error", (err) => {
       console.error(`[test-parallel] child error: ${String(err)}`);

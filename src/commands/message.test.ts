@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 1fd88af21 (test(commands): stabilize message e2e env and gateway mock)
 import type {
   ChannelMessageActionAdapter,
   ChannelOutboundAdapter,

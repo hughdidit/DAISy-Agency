@@ -82,11 +82,7 @@ describe("canvas host", () => {
   });
 
   it("creates a default index.html when missing", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
-=======
-    const dir = await createCaseDir();
->>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 
     const server = await startCanvasHost({
       runtime: quietRuntime,
@@ -109,11 +105,7 @@ describe("canvas host", () => {
   });
 
   it("skips live reload injection when disabled", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
-=======
-    const dir = await createCaseDir();
->>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
     await fs.writeFile(path.join(dir, "index.html"), "<html><body>no-reload</body></html>", "utf8");
 
     const server = await startCanvasHost({
@@ -140,11 +132,7 @@ describe("canvas host", () => {
   });
 
   it("serves canvas content from the mounted base path", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
-=======
-    const dir = await createCaseDir();
->>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
     await fs.writeFile(path.join(dir, "index.html"), "<html><body>v1</body></html>", "utf8");
 
     const handler = await createCanvasHostHandler({
@@ -192,11 +180,7 @@ describe("canvas host", () => {
   });
 
   it("reuses a handler without closing it twice", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
-=======
-    const dir = await createCaseDir();
->>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
     await fs.writeFile(path.join(dir, "index.html"), "<html><body>v1</body></html>", "utf8");
 
     const handler = await createCanvasHostHandler({
@@ -227,13 +211,9 @@ describe("canvas host", () => {
     }
   });
 
-<<<<<<< HEAD
   it("serves HTML with injection and broadcasts reload on file changes", async () => {
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
-=======
-    const dir = await createCaseDir();
->>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
     const index = path.join(dir, "index.html");
     await fs.writeFile(index, "<html><body>v1</body></html>", "utf8");
 =======
@@ -302,13 +282,9 @@ describe("canvas host", () => {
     CANVAS_RELOAD_TEST_TIMEOUT_MS,
   );
 
-<<<<<<< HEAD
   it("serves the gateway-hosted A2UI scaffold", async () => {
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
-=======
-    const dir = await createCaseDir();
->>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
     const a2uiRoot = path.resolve(process.cwd(), "src/canvas-host/a2ui");
     const bundlePath = path.join(a2uiRoot, "a2ui.bundle.js");
     let createdBundle = false;
@@ -348,8 +324,6 @@ describe("canvas host", () => {
       }
     }
   });
-<<<<<<< HEAD
-=======
 
   it("rejects traversal-style A2UI asset requests", async () => {
     const dir = await createCaseDir();
@@ -387,7 +361,6 @@ describe("canvas host", () => {
   it("rejects A2UI symlink escapes", async () => {
 =======
   it("serves A2UI scaffold and blocks traversal/symlink escapes", async () => {
->>>>>>> 8796bfaaa (perf(test): consolidate browser and canvas hotspot suites)
     const dir = await createCaseDir();
     const a2uiRoot = path.resolve(process.cwd(), "src/canvas-host/a2ui");
     const bundlePath = path.join(a2uiRoot, "a2ui.bundle.js");

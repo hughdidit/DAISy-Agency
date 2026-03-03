@@ -5,30 +5,7 @@ import {
   registerSessionBindingAdapter,
 } from "../infra/outbound/session-binding-service.js";
 
-<<<<<<< HEAD
 const agentSpy = vi.fn(async () => ({ runId: "run-main", status: "ok" }));
-=======
-type AgentCallRequest = { method?: string; params?: Record<string, unknown> };
-type RequesterResolution = {
-  requesterSessionKey: string;
-  requesterOrigin?: Record<string, unknown>;
-} | null;
-type SubagentDeliveryTargetResult = {
-  origin?: {
-    channel?: string;
-    accountId?: string;
-    to?: string;
-    threadId?: string | number;
-  };
-};
-
-const agentSpy = vi.fn(async (_req: AgentCallRequest) => ({ runId: "run-main", status: "ok" }));
-const sendSpy = vi.fn(async (_req: AgentCallRequest) => ({ runId: "send-main", status: "ok" }));
-const sessionsDeleteSpy = vi.fn((_req: AgentCallRequest) => undefined);
-const readLatestAssistantReplyMock = vi.fn(
-  async (_sessionKey?: string): Promise<string | undefined> => "raw subagent reply",
-);
->>>>>>> b6d4f7c00 (chore: Fix types in tests 5/N.)
 const embeddedRunMock = {
   isEmbeddedPiRunActive: vi.fn(() => false),
   isEmbeddedPiRunStreaming: vi.fn(() => false),
@@ -162,13 +139,9 @@ describe("subagent announce formatting", () => {
 
   beforeEach(() => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     agentSpy.mockClear();
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-=======
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
     sendSpy.mockClear();
     sessionsDeleteSpy.mockClear();
 >>>>>>> 289f215b3 (fix(agents): make manual subagent completion announce deterministic)
@@ -182,27 +155,13 @@ describe("subagent announce formatting", () => {
     sendSpy
       .mockClear()
       .mockImplementation(async (_req: AgentCallRequest) => ({ runId: "send-main", status: "ok" }));
-<<<<<<< HEAD
     sessionsDeleteSpy.mockReset().mockImplementation((_req: AgentCallRequest) => undefined);
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
-=======
-    sessionsDeleteSpy.mockClear().mockImplementation((_req: AgentCallRequest) => undefined);
-<<<<<<< HEAD
->>>>>>> 5e9cbdc1a (test(subagents): lighten session delete mock reset in announce spec)
     embeddedRunMock.isEmbeddedPiRunActive.mockReset().mockReturnValue(false);
-<<<<<<< HEAD
     embeddedRunMock.isEmbeddedPiRunStreaming.mockReset().mockReturnValue(false);
     embeddedRunMock.queueEmbeddedPiMessage.mockReset().mockReturnValue(false);
     embeddedRunMock.waitForEmbeddedPiRunEnd.mockReset().mockResolvedValue(true);
 <<<<<<< HEAD
-=======
-    subagentRegistryMock.isSubagentSessionRunActive.mockReset().mockReturnValue(true);
-    subagentRegistryMock.countActiveDescendantRuns.mockReset().mockReturnValue(0);
-    subagentRegistryMock.resolveRequesterForChildSession.mockReset().mockReturnValue(null);
-=======
-=======
-    embeddedRunMock.isEmbeddedPiRunActive.mockClear().mockReturnValue(false);
->>>>>>> d9a7b447f (test(agents): use lightweight clear for active-run announce mock)
     embeddedRunMock.isEmbeddedPiRunStreaming.mockClear().mockReturnValue(false);
     embeddedRunMock.queueEmbeddedPiMessage.mockClear().mockReturnValue(false);
     embeddedRunMock.waitForEmbeddedPiRunEnd.mockClear().mockResolvedValue(true);
@@ -214,15 +173,10 @@ describe("subagent announce formatting", () => {
     hookRunnerMock.hasHooks.mockClear();
     hookRunnerMock.runSubagentDeliveryTarget.mockClear();
     subagentDeliveryTargetHookMock.mockReset().mockResolvedValue(undefined);
-<<<<<<< HEAD
     readLatestAssistantReplyMock.mockReset().mockResolvedValue("raw subagent reply");
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
-=======
-=======
-    readLatestAssistantReplyMock.mockClear().mockResolvedValue("raw subagent reply");
->>>>>>> 76828e8dc (test(agents): use lightweight clears for stable subagent announce defaults)
     chatHistoryMock.mockReset().mockResolvedValue({ messages: [] });
 >>>>>>> fa4f66255 (fix(subagents): return completion message for manual session spawns)
 =======
@@ -1056,19 +1010,12 @@ describe("subagent announce formatting", () => {
     });
 
     expect(didAnnounce).toBe(true);
-<<<<<<< HEAD
     await new Promise((r) => setTimeout(r, 5));
 
     const call = agentSpy.mock.calls[0]?.[0] as { params?: Record<string, unknown> };
     expect(call?.params?.channel).toBe("whatsapp");
     expect(call?.params?.to).toBe("+1555");
     expect(call?.params?.accountId).toBe("kev");
-=======
-    const params = await getSingleAgentCallParams();
-    expect(params.channel).toBe("whatsapp");
-    expect(params.to).toBe("+1555");
-    expect(params.accountId).toBe("kev");
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 
   it("does not report cron announce as delivered when it was only queued", async () => {
@@ -1479,37 +1426,6 @@ describe("subagent announce formatting", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  it("keeps completion-mode announce internal for nested requester subagent sessions", async () => {
-    embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(false);
-    embeddedRunMock.isEmbeddedPiRunStreaming.mockReturnValue(false);
-
-    const didAnnounce = await runSubagentAnnounceFlow({
-      childSessionKey: "agent:main:subagent:orchestrator:subagent:worker",
-      childRunId: "run-worker-nested-completion",
-      requesterSessionKey: "agent:main:subagent:orchestrator",
-      requesterOrigin: { channel: "whatsapp", accountId: "acct-123", to: "+1555" },
-      requesterDisplayKey: "agent:main:subagent:orchestrator",
-      expectsCompletionMessage: true,
-      ...defaultOutcomeAnnounce,
-    });
-
-    expect(didAnnounce).toBe(true);
-    expect(sendSpy).not.toHaveBeenCalled();
-    const call = agentSpy.mock.calls[0]?.[0] as { params?: Record<string, unknown> };
-    expect(call?.params?.sessionKey).toBe("agent:main:subagent:orchestrator");
-    expect(call?.params?.deliver).toBe(false);
-    expect(call?.params?.channel).toBeUndefined();
-    expect(call?.params?.to).toBeUndefined();
-    const message = typeof call?.params?.message === "string" ? call.params.message : "";
-    expect(message).toContain(
-      "Convert this completion into a concise internal orchestration update for your parent agent",
-    );
-  });
-
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   it("retries reading subagent output when early lifecycle completion had no text", async () => {
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValueOnce(true).mockReturnValue(false);
     embeddedRunMock.waitForEmbeddedPiRunEnd.mockResolvedValue(true);
@@ -1683,7 +1599,6 @@ describe("subagent announce formatting", () => {
         task: "context-stress-test",
         expectsCompletionMessage: false,
       },
-<<<<<<< HEAD
     };
 
     const didAnnounce = await runSubagentAnnounceFlow({
@@ -1709,9 +1624,6 @@ describe("subagent announce formatting", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
   it("does not delete child session when announce is deferred for an active run", async () => {
-=======
-  it("defers completion-mode announce when child run is still active after settle timeout", async () => {
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
     embeddedRunMock.waitForEmbeddedPiRunEnd.mockResolvedValue(false);
@@ -1727,7 +1639,6 @@ describe("subagent announce formatting", () => {
       },
     ] as const;
 
-<<<<<<< HEAD
     const didAnnounce = await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:test",
 <<<<<<< HEAD
@@ -1737,19 +1648,10 @@ describe("subagent announce formatting", () => {
       task: "context-stress-test",
       timeoutMs: 1000,
       cleanup: "delete",
-=======
-      childRunId: "run-child-active-completion",
-      requesterSessionKey: "agent:main:main",
-      requesterDisplayKey: "main",
-      task: "completion-context-stress-test",
-      timeoutMs: 1000,
-      cleanup: "keep",
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
       waitForCompletion: false,
       startedAt: 10,
       endedAt: 20,
       outcome: { status: "ok" },
-<<<<<<< HEAD
     });
 
     expect(didAnnounce).toBe(false);
@@ -1757,8 +1659,6 @@ describe("subagent announce formatting", () => {
   });
 
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
-=======
->>>>>>> 15f8c5779 (test: speed up subagent announce e2e and drop duplicate defer case)
   it("normalizes requesterOrigin for direct announce delivery", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(false);
@@ -1779,7 +1679,6 @@ describe("subagent announce formatting", () => {
     expect(call?.params?.accountId).toBe("acct-987");
   });
 
-<<<<<<< HEAD
   it("splits collect-mode announces when accountId differs", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
@@ -1789,9 +1688,6 @@ describe("subagent announce formatting", () => {
         sessionId: "session-789",
         lastChannel: "whatsapp",
         lastTo: "+1555",
-=======
-=======
->>>>>>> c25a18493 (test: merge direct announce origin variants)
 =======
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 =======
@@ -1841,20 +1737,11 @@ describe("subagent announce formatting", () => {
       },
     };
 
-<<<<<<< HEAD
     await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:test",
       childRunId: "run-a",
       requesterSessionKey: "main",
       requesterOrigin: { accountId: "acct-a" },
-=======
-    const didAnnounce = await runSubagentAnnounceFlow({
-      childSessionKey: "agent:main:subagent:test",
-      childRunId: "run-stale-channel",
-      requesterSessionKey: "main",
-<<<<<<< HEAD
-      requesterOrigin: { channel: "bluebubbles", to: "bluebubbles:chat_guid:123" },
->>>>>>> 6daa4911e (perf(subagents): speed announce retry polling and trim duplicate e2e coverage)
 =======
       requesterOrigin: { channel: "telegram", to: "telegram:123" },
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
@@ -1862,7 +1749,6 @@ describe("subagent announce formatting", () => {
       ...defaultOutcomeAnnounce,
     });
 
-<<<<<<< HEAD
     await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:test",
       childRunId: "run-b",
@@ -1886,17 +1772,6 @@ describe("subagent announce formatting", () => {
     expect(accountIds).toContain("acct-a");
     expect(accountIds).toContain("acct-b");
     expect(agentSpy).toHaveBeenCalledTimes(2);
-=======
-    expect(didAnnounce).toBe(true);
-    expect(agentSpy).toHaveBeenCalledTimes(1);
-
-    const call = agentSpy.mock.calls[0]?.[0] as { params?: Record<string, unknown> };
-    // The channel should match requesterOrigin, NOT the stale session entry.
-<<<<<<< HEAD
-    expect(call?.params?.channel).toBe("bluebubbles");
-    expect(call?.params?.to).toBe("bluebubbles:chat_guid:123");
-<<<<<<< HEAD
->>>>>>> 6daa4911e (perf(subagents): speed announce retry polling and trim duplicate e2e coverage)
 =======
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 =======
@@ -1981,7 +1856,6 @@ describe("subagent announce formatting", () => {
         requesterOrigin: { channel: "discord", accountId: "jaris-account" },
       });
 
-<<<<<<< HEAD
     expect(didAnnounce).toBe(true);
     // Verify announce fell back to Jaris (grandparent) since Newton is gone
     const call = agentSpy.mock.calls[0]?.[0] as { params?: Record<string, unknown> };
@@ -1989,22 +1863,5 @@ describe("subagent announce formatting", () => {
     // deliver=true because Jaris is main (user-facing)
     expect(call?.params?.deliver).toBe(true);
     expect(call?.params?.channel).toBe("discord");
-=======
-      const didAnnounce = await runSubagentAnnounceFlow({
-        childSessionKey: testCase.childSessionKey,
-        childRunId: testCase.childRunId,
-        requesterSessionKey: testCase.requesterSessionKey,
-        requesterDisplayKey: testCase.requesterDisplayKey,
-        ...defaultOutcomeAnnounce,
-        task: "QA task",
-      });
-
-      expect(didAnnounce, testCase.name).toBe(true);
-      const call = agentSpy.mock.calls[0]?.[0] as { params?: Record<string, unknown> };
-      expect(call?.params?.sessionKey, testCase.name).toBe(testCase.expectedSessionKey);
-      expect(call?.params?.deliver, testCase.name).toBe(testCase.expectedDeliver);
-      expect(call?.params?.channel, testCase.name).toBe(testCase.expectedChannel);
-    }
->>>>>>> 833d7574e (test(agents): consolidate repeated announce deferral and fallback matrices)
   });
 });

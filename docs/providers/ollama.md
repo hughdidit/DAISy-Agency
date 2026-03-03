@@ -7,11 +7,7 @@ read_when:
 
 # Ollama
 
-<<<<<<< HEAD
 Ollama is a local LLM runtime that makes it easy to run open-source models on your machine. Moltbot integrates with Ollama's OpenAI-compatible API and can **auto-discover tool-capable models** when you opt in with `OLLAMA_API_KEY` (or an auth profile) and do not define an explicit `models.providers.ollama` entry.
-=======
-Ollama is a local LLM runtime that makes it easy to run open-source models on your machine. OpenClaw integrates with Ollama's native API (`/api/chat`), supporting streaming and tool calling, and can **auto-discover tool-capable models** when you opt in with `OLLAMA_API_KEY` (or an auth profile) and do not define an explicit `models.providers.ollama` entry.
->>>>>>> 11702290f (feat(ollama): add native /api/chat provider for streaming + tool calling (#11853))
 
 ## Quick start
 
@@ -29,11 +25,7 @@ ollama pull qwen2.5-coder:32b
 ollama pull deepseek-r1:32b
 ```
 
-<<<<<<< HEAD
 3) Enable Ollama for Moltbot (any value works; Ollama doesn't require a real key):
-=======
-3. Enable Ollama for OpenClaw (any value works; Ollama doesn't require a real key):
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```bash
 # Set environment variable
@@ -156,13 +148,8 @@ Once configured, all your Ollama models are available:
   agents: {
     defaults: {
       model: {
-<<<<<<< HEAD
         primary: "ollama/llama3.3",
         fallback: ["ollama/qwen2.5-coder:32b"],
-=======
-        primary: "ollama/gpt-oss:20b",
-        fallbacks: ["ollama/llama3.3", "ollama/qwen2.5-coder:32b"],
->>>>>>> 34a58b839 (fix(ollama): add streaming config and fix OLLAMA_API_KEY env var support (#9870))
       },
     },
   },
@@ -249,12 +236,7 @@ curl http://localhost:11434/api/tags
 
 ### No models available
 
-<<<<<<< HEAD
 Moltbot only auto-discovers models that report tool support. If your model isn't listed, either:
-=======
-OpenClaw only auto-discovers models that report tool support. If your model isn't listed, either:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Pull a tool-capable model, or
 - Define the model explicitly in `models.providers.ollama`.
 

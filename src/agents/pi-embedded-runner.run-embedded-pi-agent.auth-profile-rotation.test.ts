@@ -5,10 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -21,13 +18,8 @@ import type { AssistantMessage } from "@mariozechner/pi-ai";
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { AuthProfileFailureReason } from "./auth-profiles.js";
->>>>>>> 5c7c37a02 (Agents: infer auth-profile unavailable failover reason)
 import type { EmbeddedRunAttemptResult } from "./pi-embedded-runner/run/types.js";
 
 const runEmbeddedAttemptMock = vi.fn<(params: unknown) => Promise<EmbeddedRunAttemptResult>>();
@@ -398,7 +390,6 @@ async function runTurnWithCooldownSeed(params: {
 }
 
 describe("runEmbeddedPiAgent auth profile rotation", () => {
-<<<<<<< HEAD
   it("rotates for auto-pinned profiles", async () => {
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
@@ -408,13 +399,6 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
       await runAutoPinnedOpenAiTurn({
         agentDir,
         workspaceDir,
-=======
-  it("rotates for auto-pinned profiles across retryable stream failures", async () => {
-<<<<<<< HEAD
-    const cases = [
-      {
-        errorMessage: "rate limit",
->>>>>>> cfb3cee7a (test(core): dedupe auth rotation and credential injection specs)
         sessionKey: "agent:test:auto",
         runId: "run:auto",
       },
@@ -439,8 +423,6 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
 >>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
   });
 
-<<<<<<< HEAD
-=======
   it("rotates on timeout without cooling down the timed-out profile", async () => {
     const { usageStats } = await runAutoPinnedRotationCase({
       errorMessage: "request ended without sending any chunks",
@@ -451,7 +433,6 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
     expect(usageStats["openai:p1"]?.cooldownUntil).toBeUndefined();
   });
 
->>>>>>> d0b59270a (refactor: dedupe auth-profile failure marking and rotation test setup)
   it("does not rotate for compaction timeouts", async () => {
     await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
       await writeAuthStore(agentDir);
@@ -493,13 +474,9 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("does not rotate for user-pinned profiles", async () => {
-<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
     try {
-=======
-    await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
->>>>>>> 7d13227d4 (test(agents): dedupe auth profile rotation fixture setup)
       await writeAuthStore(agentDir);
 
       mockSingleErrorAttempt({ errorMessage: "rate limit" });
@@ -526,21 +503,12 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("honors user-pinned profiles even when in cooldown", async () => {
-<<<<<<< HEAD
     vi.useFakeTimers();
     try {
       const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
       const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
-=======
-    const { usageStats } = await runTurnWithCooldownSeed({
-      sessionKey: "agent:test:user-cooldown",
-      runId: "run:user-cooldown",
-      authProfileId: "openai:p1",
-      authProfileIdSource: "user",
-    });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     expect(usageStats["openai:p1"]?.cooldownUntil).toBeUndefined();
     expect(usageStats["openai:p1"]?.lastUsed).not.toBe(1);
@@ -548,13 +516,9 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("ignores user-locked profile when provider mismatches", async () => {
-<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
     try {
-=======
-    await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
->>>>>>> 7d13227d4 (test(agents): dedupe auth profile rotation fixture setup)
       await writeAuthStore(agentDir, { includeAnthropic: true });
 
       runEmbeddedAttemptMock.mockResolvedValueOnce(
@@ -588,43 +552,24 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("skips profiles in cooldown during initial selection", async () => {
-<<<<<<< HEAD
     vi.useFakeTimers();
     try {
       const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
       const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
-=======
-    const { usageStats, now } = await runTurnWithCooldownSeed({
-      sessionKey: "agent:test:skip-cooldown",
-      runId: "run:skip-cooldown",
-      authProfileId: undefined,
-      authProfileIdSource: "auto",
-    });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     expect(usageStats["openai:p1"]?.cooldownUntil).toBe(now + 60 * 60 * 1000);
     expect(typeof usageStats["openai:p2"]?.lastUsed).toBe("number");
   });
 
   it("fails over when all profiles are in cooldown and fallbacks are configured", async () => {
-<<<<<<< HEAD
     vi.useFakeTimers();
     try {
       const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
       const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
-=======
-    await withTimedAgentWorkspace(async ({ agentDir, workspaceDir, now }) => {
-      await writeAuthStore(agentDir, {
-        usageStats: {
-          "openai:p1": { lastUsed: 1, cooldownUntil: now + 60 * 60 * 1000 },
-          "openai:p2": { lastUsed: 2, cooldownUntil: now + 60 * 60 * 1000 },
-        },
-      });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
       await expect(
         runEmbeddedPiAgent({
@@ -733,11 +678,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("fails over when auth is unavailable and fallbacks are configured", async () => {
-<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
-=======
->>>>>>> 7d13227d4 (test(agents): dedupe auth profile rotation fixture setup)
     const previousOpenAiKey = process.env.OPENAI_API_KEY;
     delete process.env.OPENAI_API_KEY;
     try {
@@ -773,8 +715,6 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
     }
   });
 
-<<<<<<< HEAD
-=======
   it("uses the active erroring model in billing failover errors", async () => {
     await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
       await writeAuthStore(agentDir);
@@ -817,33 +757,13 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
     });
   });
 
->>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
   it("skips profiles in cooldown when rotating after failure", async () => {
-<<<<<<< HEAD
     vi.useFakeTimers();
     try {
       const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
       const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
-=======
-    await withTimedAgentWorkspace(async ({ agentDir, workspaceDir, now }) => {
-      const authPath = path.join(agentDir, "auth-profiles.json");
-      const payload = {
-        version: 1,
-        profiles: {
-          "openai:p1": { type: "api_key", provider: "openai", key: "sk-one" },
-          "openai:p2": { type: "api_key", provider: "openai", key: "sk-two" },
-          "openai:p3": { type: "api_key", provider: "openai", key: "sk-three" },
-        },
-        usageStats: {
-          "openai:p1": { lastUsed: 1 },
-          "openai:p2": { cooldownUntil: now + 60 * 60 * 1000 }, // p2 in cooldown
-          "openai:p3": { lastUsed: 3 },
-        },
-      };
-      await fs.writeFile(authPath, JSON.stringify(payload));
->>>>>>> 7d13227d4 (test(agents): dedupe auth profile rotation fixture setup)
 
       mockFailedThenSuccessfulAttempt("rate limit");
       await runAutoPinnedOpenAiTurn({

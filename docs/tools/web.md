@@ -4,11 +4,8 @@ read_when:
   - You want to enable web_search or web_fetch
   - You need Brave Search API key setup
   - You want to use Perplexity Sonar for web search
-<<<<<<< HEAD
-=======
   - You want to use Gemini with Google Search grounding
 title: "Web Tools"
->>>>>>> 3a3c2da91 ([Feature]: Add Gemini (Google Search grounding) as web_search provider (#13075))
 ---
 
 # Web tools
@@ -90,15 +87,9 @@ Example: switch to Perplexity Sonar (direct API):
 
 ## Getting a Brave API key
 
-<<<<<<< HEAD
 1) Create a Brave Search API account at https://brave.com/search/api/
 2) In the dashboard, choose the **Data for Search** plan (not “Data for AI”) and generate an API key.
 3) Run `moltbot configure --section web` to store the key in config (recommended), or set `BRAVE_API_KEY` in your environment.
-=======
-1. Create a Brave Search API account at https://brave.com/search/api/
-2. In the dashboard, choose the **Data for Search** plan (not “Data for AI”) and generate an API key.
-3. Run `openclaw configure --section web` to store the key in config (recommended), or set `BRAVE_API_KEY` in your environment.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Brave provides a free tier plus paid plans; check the Brave API portal for the
 current limits and pricing.

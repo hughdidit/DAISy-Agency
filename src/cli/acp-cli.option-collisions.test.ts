@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-=======
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
->>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { Command } from "commander";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { runRegisteredCli } from "../test-utils/command-runner.js";
@@ -92,8 +89,6 @@ describe("acp cli option collisions", () => {
       }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("loads gateway token/password from files", async () => {
     await withSecretFiles({ token: "tok_file\n", password: "pw_file\n" }, async (files) => {
@@ -140,7 +135,6 @@ describe("acp cli option collisions", () => {
     );
   });
 <<<<<<< HEAD
->>>>>>> 0ecb07e6d (test(cli): dedupe acp secret file setup and cover password flag collisions)
 =======
 
   it("trims token file path before reading", async () => {

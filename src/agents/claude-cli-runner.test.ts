@@ -1,10 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import { sleep } from "../utils.js";
->>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 =======
 >>>>>>> c68d1073b (perf(test): replace claude runner call polling loop)
 import { runClaudeCliAgent } from "./claude-cli-runner.js";

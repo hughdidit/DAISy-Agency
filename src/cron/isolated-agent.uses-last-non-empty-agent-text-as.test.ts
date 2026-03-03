@@ -4,7 +4,6 @@ import path from "node:path";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -13,12 +12,6 @@ import type { CliDeps } from "../cli/deps.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { CronJob } from "./types.js";
-=======
-import type { CliDeps } from "../cli/deps.js";
-<<<<<<< HEAD
-import { makeCfg, makeJob, withTempCronHome } from "./isolated-agent.test-harness.js";
-<<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 import type { CronJob } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -56,18 +49,6 @@ import type { CliDeps } from "../cli/deps.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { makeCfg, makeJob, withTempCronHome } from "./isolated-agent.test-harness.js";
-=======
-import {
-  makeCfg,
-  makeJob,
-  withTempCronHome,
-  writeSessionStore,
-  writeSessionStoreEntries,
-} from "./isolated-agent.test-harness.js";
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 import type { CronJob } from "./types.js";
 const withTempHome = withTempCronHome;
 >>>>>>> 72e426be6 (test: reuse isolated agent mock module)
@@ -79,55 +60,8 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 const withTempHome = withTempCronHome;
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
-<<<<<<< HEAD
 async function writeSessionStore(home: string) {
   const dir = path.join(home, ".clawdbot", "sessions");
-=======
-function makeDeps(): CliDeps {
-  return {
-    sendMessageSlack: vi.fn(),
-    sendMessageWhatsApp: vi.fn(),
-    sendMessageTelegram: vi.fn(),
-    sendMessageDiscord: vi.fn(),
-    sendMessageSignal: vi.fn(),
-    sendMessageIMessage: vi.fn(),
-  };
-}
-
-function mockEmbeddedPayloads(payloads: Array<{ text?: string; isError?: boolean }>) {
-  vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
-    payloads,
-    meta: {
-      durationMs: 5,
-      agentMeta: { sessionId: "s", provider: "p", model: "m" },
-    },
-  });
-}
-
-function mockEmbeddedTexts(texts: string[]) {
-  mockEmbeddedPayloads(texts.map((text) => ({ text })));
-}
-
-function mockEmbeddedOk() {
-  mockEmbeddedTexts(["ok"]);
-}
-
-function expectEmbeddedProviderModel(expected: { provider: string; model: string }) {
-  const call = vi.mocked(runEmbeddedPiAgent).mock.calls[0]?.[0] as {
-    provider?: string;
-    model?: string;
-  };
-  expect(call?.provider).toBe(expected.provider);
-  expect(call?.model).toBe(expected.model);
-}
-
-<<<<<<< HEAD
-async function writeSessionStore(
-  home: string,
-  entries: Record<string, Record<string, unknown>> = {},
-) {
-  const dir = path.join(home, ".openclaw", "sessions");
->>>>>>> 775a6c662 (refactor(test): reuse isolated agent turn helpers)
   await fs.mkdir(dir, { recursive: true });
   const storePath = path.join(dir, "sessions.json");
   await fs.writeFile(
@@ -212,7 +146,6 @@ async function runCronTurn(home: string, options: RunCronTurnOptions = {}) {
 
 async function runGmailHookTurn(
   home: string,
-<<<<<<< HEAD
   storePath: string,
   overrides: Partial<MoltbotConfig> = {},
 ): MoltbotConfig {
@@ -226,22 +159,6 @@ async function runGmailHookTurn(
     session: { store: storePath, mainKey: "main" },
   } as MoltbotConfig;
   return { ...base, ...overrides };
-=======
-  storeEntries?: Record<string, Record<string, unknown>>,
-) {
-  return runCronTurn(home, {
-    cfgOverrides: {
-      hooks: {
-        gmail: {
-          model: GMAIL_MODEL,
-        },
-      },
-    },
-    jobPayload: DEFAULT_AGENT_TURN_PAYLOAD,
-    sessionKey: "hook:gmail:msg-1",
-    storeEntries,
-  });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 }
 
 async function runTurnWithStoredModelOverride(
@@ -268,8 +185,6 @@ describe("runCronIsolatedAgentTurn", () => {
     vi.mocked(loadModelCatalog).mockResolvedValue([]);
   });
 
-<<<<<<< HEAD
-=======
   it("treats blank model overrides as unset", async () => {
     await withTempHome(async (home) => {
       const { res } = await runCronTurn(home, {
@@ -281,7 +196,6 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
->>>>>>> 8a3293685 (refactor(test): dedupe cron isolated-agent e2e setup)
   it("uses last non-empty agent text as summary", async () => {
     await withTempHome(async (home) => {
       const { res } = await runCronTurn(home, {
@@ -452,8 +366,6 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("uses stored session override when no job model override is provided", async () => {
     await withTempHome(async (home) => {
       const { res } = await runTurnWithStoredModelOverride(home, {
@@ -483,7 +395,6 @@ describe("runCronIsolatedAgentTurn", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 
->>>>>>> 8a3293685 (refactor(test): dedupe cron isolated-agent e2e setup)
 =======
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
@@ -501,8 +412,6 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("keeps hooks.gmail.model precedence over stored session override", async () => {
     await withTempHome(async (home) => {
       const { res } = await runGmailHookTurn(home, {
@@ -522,7 +431,6 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
->>>>>>> 775a6c662 (refactor(test): reuse isolated agent turn helpers)
   it("wraps external hook content by default", async () => {
     await withTempHome(async (home) => {
       const { res } = await runCronTurn(home, {
@@ -676,41 +584,9 @@ describe("runCronIsolatedAgentTurn", () => {
         })
       ).res;
 
-<<<<<<< HEAD
       expect(first?.sessionId).toBeDefined();
       expect(second?.sessionId).toBeDefined();
       expect(second?.sessionId).not.toBe(first?.sessionId);
-=======
-      expect(first.sessionId).toBeDefined();
-      expect(second.sessionId).toBeDefined();
-      expect(second.sessionId).not.toBe(first.sessionId);
-      expect(first.sessionKey).toMatch(/^agent:main:cron:job-1:run:/);
-      expect(second.sessionKey).toMatch(/^agent:main:cron:job-1:run:/);
-      expect(second.sessionKey).not.toBe(first.sessionKey);
-    });
-  });
-
-  it("preserves an existing cron session label", async () => {
-    await withTempHome(async (home) => {
-      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
-      const raw = await fs.readFile(storePath, "utf-8");
-      const store = JSON.parse(raw) as Record<string, Record<string, unknown>>;
-      store["agent:main:cron:job-1"] = {
-        sessionId: "old",
-        updatedAt: Date.now(),
-        label: "Nightly digest",
-      };
-      await fs.writeFile(storePath, JSON.stringify(store, null, 2), "utf-8");
-
-      await runCronTurn(home, {
-        jobPayload: { kind: "agentTurn", message: "ping", deliver: false },
-        message: "ping",
-        storePath,
-      });
-      const entry = await readSessionEntry(storePath, "agent:main:cron:job-1");
-
-      expect(entry?.label).toBe("Nightly digest");
->>>>>>> 5c6318b58 (test(cron): assert cron run session ids)
     });
   });
 });

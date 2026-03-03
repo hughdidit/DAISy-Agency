@@ -7,13 +7,10 @@ import {
   createScopedPairingAccess,
   DEFAULT_GROUP_HISTORY_LIMIT,
   type HistoryEntry,
-<<<<<<< HEAD
-=======
   recordPendingHistoryEntryIfEnabled,
   resolveOpenProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 } from "openclaw/plugin-sdk";
 import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
 import type { DynamicAgentCreationConfig } from "./types.js";
@@ -21,19 +18,8 @@ import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { tryRecordMessagePersistent } from "./dedup.js";
 import { maybeCreateDynamicAgent } from "./dynamic-agent.js";
-<<<<<<< HEAD
 import { downloadImageFeishu, downloadMessageResourceFeishu } from "./media.js";
 import { extractMentionTargets, extractMessageBody, isMentionForwardRequest } from "./mention.js";
-=======
-import { normalizeFeishuExternalKey } from "./external-keys.js";
-import { downloadMessageResourceFeishu } from "./media.js";
-import {
-  escapeRegExp,
-  extractMentionTargets,
-  extractMessageBody,
-  isMentionForwardRequest,
-} from "./mention.js";
->>>>>>> f4b288b8f (refactor(feishu): dedupe mention regex escaping)
 import {
   resolveFeishuGroupConfig,
   resolveFeishuReplyPolicy,
@@ -42,19 +28,7 @@ import {
 } from "./policy.js";
 import { createFeishuReplyDispatcher } from "./reply-dispatcher.js";
 import { getFeishuRuntime } from "./runtime.js";
-<<<<<<< HEAD
 import { getMessageFeishu } from "./send.js";
-=======
-import { getMessageFeishu, sendMessageFeishu } from "./send.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
-import type { DynamicAgentCreationConfig } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -235,24 +209,10 @@ function parseMessageContent(content: string, messageType: string): string {
 }
 
 function checkBotMentioned(event: FeishuMessageEvent, botOpenId?: string): boolean {
-<<<<<<< HEAD
   const mentions = event.message.mentions ?? [];
   if (mentions.length === 0) return false;
   if (!botOpenId) return mentions.length > 0;
   return mentions.some((m) => m.id.open_id === botOpenId);
-=======
-  if (!botOpenId) return false;
-  const mentions = event.message.mentions ?? [];
-  if (mentions.length > 0) {
-    return mentions.some((m) => m.id.open_id === botOpenId);
-  }
-  // Post (rich text) messages may have empty message.mentions when they contain docs/paste
-  if (event.message.message_type === "post") {
-    const { mentionedOpenIds } = parsePostContent(event.message.content);
-    return mentionedOpenIds.some((id) => id === botOpenId);
-  }
-  return false;
->>>>>>> c31524697 (fix(feishu): fix mention detection for post messages with embedded docs)
 }
 
 export function stripBotMention(
@@ -639,17 +599,7 @@ export async function handleFeishuMessage(params: {
   if (isGroup) {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     const groupPolicy = feishuCfg?.groupPolicy ?? "open";
-=======
-    const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-=======
-=======
-    if (groupConfig?.enabled === false) {
-      log(`feishu[${account.accountId}]: group ${ctx.chatId} is disabled`);
-      return;
-    }
->>>>>>> b0a8909a7 (fix(feishu): fix group policy enforcement gaps (#25439))
     const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
     const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
@@ -741,8 +691,6 @@ export async function handleFeishuMessage(params: {
 
   try {
     const core = getFeishuRuntime();
-<<<<<<< HEAD
-=======
     const pairing = createScopedPairingAccess({
       core,
       channel: "feishu",
@@ -816,7 +764,6 @@ export async function handleFeishuMessage(params: {
           ],
         })
       : undefined;
->>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
 
     // In group chats, the session is scoped to the group, but the *speaker* is the sender.
     // Using a group-scoped From causes the agent to treat different users as the same person.
@@ -930,7 +877,6 @@ export async function handleFeishuMessage(params: {
     }
 
     const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(cfg);
-<<<<<<< HEAD
 
     // Build message body with quoted content if available
     let messageBody = ctx.content;
@@ -952,16 +898,8 @@ export async function handleFeishuMessage(params: {
     // Include message_id in body so the agent can use it (e.g. for Feishu API media download or reply).
     messageBody = `[message_id: ${ctx.messageId}] ${messageBody}`;
 
-=======
-    const messageBody = buildFeishuAgentBody({
-      ctx,
-      quotedContent,
-      permissionErrorForAgent,
-    });
->>>>>>> 125dc322f (refactor(feishu): unify account-aware tool routing and message body)
     const envelopeFrom = isGroup ? `${ctx.chatId}:${ctx.senderOpenId}` : ctx.senderOpenId;
     if (permissionErrorForAgent) {
-<<<<<<< HEAD
       const grantUrl = permissionErrorForAgent.grantUrl ?? "";
 <<<<<<< HEAD
       const permissionNotifyBody = `[System: The bot encountered a Feishu API permission error. Please inform the user about this issue and provide the permission grant URL for the admin to authorize. Permission grant URL: ${grantUrl}]`;
@@ -1020,11 +958,6 @@ export async function handleFeishuMessage(params: {
       });
 
       markPermIdle();
-=======
-      messageBody += `\n\n[System: The bot encountered a Feishu API permission error. Please inform the user about this issue and provide the permission grant URL for the admin to authorize. Permission grant URL: ${grantUrl}]`;
-=======
-      // Keep the notice in a single dispatch to avoid duplicate replies (#27372).
->>>>>>> 125dc322f (refactor(feishu): unify account-aware tool routing and message body)
       log(`feishu[${account.accountId}]: appending permission error notice to message body`);
 >>>>>>> 736ec9690 (fix(feishu): merge permission error notice into main dispatch instead of separate agent turn)
     }
@@ -1108,19 +1041,15 @@ export async function handleFeishuMessage(params: {
       runtime: runtime as RuntimeEnv,
       chatId: ctx.chatId,
       replyToMessageId: ctx.messageId,
-<<<<<<< HEAD
-=======
       skipReplyToInMessages: !isGroup,
       replyInThread,
       rootId: ctx.rootId,
->>>>>>> d9230b13a (feat(feishu): skip reply-to in DM conversations (#13211))
       mentionTargets: ctx.mentionTargets,
       accountId: account.accountId,
       messageCreateTimeMs,
     });
 
     log(`feishu[${account.accountId}]: dispatching to agent (session=${route.sessionKey})`);
-<<<<<<< HEAD
 
     const { queuedFinal, counts } = await core.channel.reply.dispatchReplyFromConfig({
       ctx: ctxPayload,
@@ -1131,22 +1060,6 @@ export async function handleFeishuMessage(params: {
 
     markDispatchIdle();
 
-=======
-    const { queuedFinal, counts } = await core.channel.reply.withReplyDispatcher({
-      dispatcher,
-      onSettled: () => {
-        markDispatchIdle();
-      },
-      run: () =>
-        core.channel.reply.dispatchReplyFromConfig({
-          ctx: ctxPayload,
-          cfg,
-          dispatcher,
-          replyOptions,
-        }),
-    });
-
->>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
     if (isGroup && historyKey && chatHistories) {
       clearHistoryEntriesIfEnabled({
         historyMap: chatHistories,

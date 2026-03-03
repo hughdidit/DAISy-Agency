@@ -79,8 +79,6 @@ def package_skill(skill_path, output_dir=None):
         with zipfile.ZipFile(skill_filename, "w", zipfile.ZIP_DEFLATED) as zipf:
             # Walk through the skill directory
             for file_path in skill_path.rglob("*"):
-<<<<<<< HEAD
-=======
                 # Security: never follow or package symlinks.
                 if file_path.is_symlink():
                     print(f"[WARN] Skipping symlink: {file_path}")
@@ -90,20 +88,9 @@ def package_skill(skill_path, output_dir=None):
                 if any(part in EXCLUDED_DIRS for part in rel_parts):
                     continue
 
->>>>>>> 3bfe990c3 (fix(skill-creator): exclude .git and VCS internals from .skill archives (#23180))
                 if file_path.is_file():
-<<<<<<< HEAD
                     # Calculate the relative path within the zip
                     arcname = file_path.relative_to(skill_path.parent)
-=======
-                    resolved_file = file_path.resolve()
-                    if not _is_within(resolved_file, skill_path):
-                        print(f"[ERROR] File escapes skill root: {file_path}")
-                        return None
-
-                    # Calculate the relative path within the zip.
-                    arcname = Path(skill_name) / file_path.relative_to(skill_path)
->>>>>>> 844924cf8 (fix(skill-creator): harden skill packaging path handling (#24260))
                     zipf.write(file_path, arcname)
                     print(f"  Added: {arcname}")
 

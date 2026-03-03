@@ -3,12 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../agents/agent-paths.js";
-=======
-import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -35,13 +30,8 @@ import { resolvePluginProviders } from "../plugins/providers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ProviderAuthMethod, ProviderPlugin } from "../plugins/types.js";
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
-=======
-import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -55,17 +45,8 @@ import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyAuthProfileConfig } from "./onboard-auth.js";
 import { openUrl } from "./onboard-helpers.js";
-<<<<<<< HEAD
 import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
-=======
-import {
-  applyDefaultModel,
-  mergeConfigPatch,
-  pickAuthMethod,
-  resolveProviderMatch,
-} from "./provider-auth-helpers.js";
->>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 
 export type PluginProviderAuthChoiceOptions = {
   authChoice: string;
@@ -75,7 +56,6 @@ export type PluginProviderAuthChoiceOptions = {
   label: string;
 };
 
-<<<<<<< HEAD
 function resolveProviderMatch(
   providers: ProviderPlugin[],
   rawProvider: string,
@@ -148,8 +128,6 @@ function applyDefaultModel(cfg: MoltbotConfig, model: string): MoltbotConfig {
   };
 }
 
-=======
->>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 export async function applyAuthChoicePluginProvider(
   params: ApplyAuthChoiceParams,
   options: PluginProviderAuthChoiceOptions,

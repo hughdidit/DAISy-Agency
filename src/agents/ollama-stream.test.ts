@@ -344,8 +344,6 @@ describe("createOllamaStreamFn", () => {
       },
     );
   });
-<<<<<<< HEAD
-=======
 
   it("accumulates reasoning chunks when content is empty", async () => {
     await withMockNdjsonFetch(
@@ -367,5 +365,4 @@ describe("createOllamaStreamFn", () => {
       },
     );
   });
->>>>>>> 52ad28e09 (chore: Fix types in tests 44/N.)
 });

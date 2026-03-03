@@ -1,13 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
->>>>>>> b73a2de9f (refactor(infra): reuse shared home prefix expansion)
 =======
 import { makePathEnv, makeTempDir } from "./exec-approvals-test-helpers.js";
 >>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
@@ -24,7 +19,6 @@ import {
   normalizeSafeBins,
   requiresExecApproval,
   resolveCommandResolution,
-<<<<<<< HEAD
   resolveExecApprovals,
   resolveExecApprovalsFromFile,
   resolveExecApprovalsPath,
@@ -34,13 +28,6 @@ import {
   type ExecApprovalsFile,
 } from "./exec-approvals.js";
 <<<<<<< HEAD
-=======
-import {
-  SAFE_BIN_PROFILE_FIXTURES,
-  SAFE_BIN_PROFILES,
-  resolveSafeBinProfiles,
-} from "./exec-safe-bin-policy.js";
->>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 
 function makePathEnv(binDir: string): NodeJS.ProcessEnv {
   if (process.platform !== "win32") {
@@ -178,8 +165,6 @@ describe("exec approvals allowlist matching", () => {
   });
 });
 
-<<<<<<< HEAD
-=======
 describe("mergeExecApprovalsSocketDefaults", () => {
   it("prefers normalized socket, then current, then default path", () => {
     const normalized = normalizeExecApprovals({
@@ -260,7 +245,6 @@ describe("exec approvals safe shell command builder", () => {
   });
 });
 
->>>>>>> fdd0e78d1 (perf(test): fold exec approvals socket defaults into main suite)
 describe("exec approvals command resolution", () => {
   it("resolves PATH, relative, and quoted executables", () => {
     const cases = [
@@ -330,8 +314,6 @@ describe("exec approvals command resolution", () => {
       }
     }
   });
-<<<<<<< HEAD
-=======
 
   it("unwraps transparent env wrapper argv to resolve the effective executable", () => {
     const dir = makeTempDir();
@@ -442,7 +424,6 @@ describe("exec approvals command resolution", () => {
     expect(resolution?.rawExecutable).toBe("bash");
     expect(resolution?.executableName.toLowerCase()).toContain("bash");
   });
->>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
 });
 
 describe("exec approvals shell parsing", () => {
@@ -481,8 +462,6 @@ describe("exec approvals shell parsing", () => {
     expect(res.ok).toBe(true);
     expect(res.segments[0]?.argv).toEqual(["/bin/echo", "ok"]);
   });
-<<<<<<< HEAD
-=======
 
   it("rejects unsupported shell constructs", () => {
     const cases: Array<{ command: string; reason: string; platform?: NodeJS.Platform }> = [
@@ -605,7 +584,6 @@ describe("exec approvals shell parsing", () => {
     expect(parsed.flag).toBe("--output");
     expect(parsed.inlineValue).toBe("blocked.txt");
   });
->>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
 });
 
 describe("exec approvals shell allowlist (chained commands)", () => {
@@ -659,7 +637,6 @@ describe("exec approvals shell allowlist (chained commands)", () => {
 
   it("respects quoted chain separators", () => {
     const allowlist: ExecAllowlistEntry[] = [{ pattern: "/usr/bin/echo" }];
-<<<<<<< HEAD
     const result = evaluateShellAllowlist({
       command: "/usr/bin/echo ok &&",
       allowlist,
@@ -680,19 +657,6 @@ describe("exec approvals shell allowlist (chained commands)", () => {
     });
     expect(result.analysisOk).toBe(true);
     expect(result.allowlistSatisfied).toBe(true);
-=======
-    const commands = ['/usr/bin/echo "foo && bar"', '/usr/bin/echo "foo\\" && bar"'];
-    for (const command of commands) {
-      const result = evaluateShellAllowlist({
-        command,
-        allowlist,
-        safeBins: new Set(),
-        cwd: "/tmp",
-      });
-      expect(result.analysisOk).toBe(true);
-      expect(result.allowlistSatisfied).toBe(true);
-    }
->>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
   });
 
   it("satisfies allowlist when bare * wildcard is present", () => {
@@ -716,7 +680,6 @@ describe("exec approvals shell allowlist (chained commands)", () => {
   });
 });
 
-<<<<<<< HEAD
 describe("exec approvals safe bins", () => {
 <<<<<<< HEAD
   it("allows safe bins with non-path args", () => {
@@ -732,176 +695,6 @@ describe("exec approvals safe bins", () => {
       command: "jq .foo",
       cwd: dir,
       env: makePathEnv(binDir),
-=======
-  type SafeBinCase = {
-    name: string;
-    argv: string[];
-    resolvedPath: string;
-    expected: boolean;
-    safeBins?: string[];
-    executableName?: string;
-    rawExecutable?: string;
-    cwd?: string;
-    setup?: (cwd: string) => void;
-  };
-
-  function buildDeniedFlagVariantCases(params: {
-    executableName: string;
-    resolvedPath: string;
-    safeBins?: string[];
-    flag: string;
-    takesValue: boolean;
-    label: string;
-  }): SafeBinCase[] {
-    const value = "blocked";
-    const argvVariants: string[][] = [];
-    if (!params.takesValue) {
-      argvVariants.push([params.executableName, params.flag]);
-    } else if (params.flag.startsWith("--")) {
-      argvVariants.push([params.executableName, `${params.flag}=${value}`]);
-      argvVariants.push([params.executableName, params.flag, value]);
-    } else if (params.flag.startsWith("-")) {
-      argvVariants.push([params.executableName, `${params.flag}${value}`]);
-      argvVariants.push([params.executableName, params.flag, value]);
-    } else {
-      argvVariants.push([params.executableName, params.flag, value]);
-    }
-    return argvVariants.map((argv) => ({
-      name: `${params.label} (${argv.slice(1).join(" ")})`,
-      argv,
-      resolvedPath: params.resolvedPath,
-      expected: false,
-      safeBins: params.safeBins ?? [params.executableName],
-      executableName: params.executableName,
-    }));
-  }
-
-  const deniedFlagCases: SafeBinCase[] = [
-    ...buildDeniedFlagVariantCases({
-      executableName: "sort",
-      resolvedPath: "/usr/bin/sort",
-      flag: "-o",
-      takesValue: true,
-      label: "blocks sort output flag",
-    }),
-    ...buildDeniedFlagVariantCases({
-      executableName: "sort",
-      resolvedPath: "/usr/bin/sort",
-      flag: "--output",
-      takesValue: true,
-      label: "blocks sort output flag",
-    }),
-    ...buildDeniedFlagVariantCases({
-      executableName: "sort",
-      resolvedPath: "/usr/bin/sort",
-      flag: "--compress-program",
-      takesValue: true,
-      label: "blocks sort external program flag",
-    }),
-    ...buildDeniedFlagVariantCases({
-      executableName: "grep",
-      resolvedPath: "/usr/bin/grep",
-      flag: "-R",
-      takesValue: false,
-      label: "blocks grep recursive flag",
-    }),
-    ...buildDeniedFlagVariantCases({
-      executableName: "grep",
-      resolvedPath: "/usr/bin/grep",
-      flag: "--recursive",
-      takesValue: false,
-      label: "blocks grep recursive flag",
-    }),
-    ...buildDeniedFlagVariantCases({
-      executableName: "grep",
-      resolvedPath: "/usr/bin/grep",
-      flag: "--file",
-      takesValue: true,
-      label: "blocks grep file-pattern flag",
-    }),
-    ...buildDeniedFlagVariantCases({
-      executableName: "jq",
-      resolvedPath: "/usr/bin/jq",
-      flag: "-f",
-      takesValue: true,
-      label: "blocks jq file-program flag",
-    }),
-    ...buildDeniedFlagVariantCases({
-      executableName: "jq",
-      resolvedPath: "/usr/bin/jq",
-      flag: "--from-file",
-      takesValue: true,
-      label: "blocks jq file-program flag",
-    }),
-    ...buildDeniedFlagVariantCases({
-      executableName: "wc",
-      resolvedPath: "/usr/bin/wc",
-      flag: "--files0-from",
-      takesValue: true,
-      label: "blocks wc file-list flag",
-    }),
-  ];
-
-  const cases: SafeBinCase[] = [
-    {
-      name: "allows safe bins with non-path args",
-      argv: ["jq", ".foo"],
-      resolvedPath: "/usr/bin/jq",
-      expected: true,
-    },
-    {
-      name: "blocks safe bins with file args",
-      argv: ["jq", ".foo", "secret.json"],
-      resolvedPath: "/usr/bin/jq",
-      expected: false,
-      setup: (cwd) => fs.writeFileSync(path.join(cwd, "secret.json"), "{}"),
-    },
-    {
-      name: "blocks safe bins resolved from untrusted directories",
-      argv: ["jq", ".foo"],
-      resolvedPath: "/tmp/evil-bin/jq",
-      expected: false,
-      cwd: "/tmp",
-    },
-    ...deniedFlagCases,
-    {
-      name: "blocks grep file positional when pattern uses -e",
-      argv: ["grep", "-e", "needle", ".env"],
-      resolvedPath: "/usr/bin/grep",
-      expected: false,
-      safeBins: ["grep"],
-      executableName: "grep",
-    },
-    {
-      name: "blocks grep file positional after -- terminator",
-      argv: ["grep", "-e", "needle", "--", ".env"],
-      resolvedPath: "/usr/bin/grep",
-      expected: false,
-      safeBins: ["grep"],
-      executableName: "grep",
-    },
-  ];
-
-  for (const testCase of cases) {
-    it(testCase.name, () => {
-      if (process.platform === "win32") {
-        return;
-      }
-      const cwd = testCase.cwd ?? makeTempDir();
-      testCase.setup?.(cwd);
-      const executableName = testCase.executableName ?? "jq";
-      const rawExecutable = testCase.rawExecutable ?? executableName;
-      const ok = isSafeBinUsage({
-        argv: testCase.argv,
-        resolution: {
-          rawExecutable,
-          resolvedPath: testCase.resolvedPath,
-          executableName,
-        },
-        safeBins: normalizeSafeBins(testCase.safeBins ?? [executableName]),
-      });
-      expect(ok).toBe(testCase.expected);
->>>>>>> 89aad7b92 (refactor: tighten safe-bin policy model and docs parity)
     });
     expect(res.ok).toBe(true);
     const segment = res.segments[0];
@@ -919,7 +712,6 @@ describe("exec approvals safe bins", () => {
     });
     expect(ok).toBe(true);
   });
-<<<<<<< HEAD
 
 <<<<<<< HEAD
   it("blocks safe bins with file args", () => {
@@ -934,66 +726,6 @@ describe("exec approvals safe bins", () => {
     const file = path.join(dir, "secret.json");
     fs.writeFileSync(file, "{}");
     const res = analyzeShellCommand({
-=======
-=======
-=======
-  it("supports injected platform for deterministic safe-bin checks", () => {
-    const ok = isSafeBinUsage({
-      argv: ["jq", ".foo"],
-      resolution: {
-        rawExecutable: "jq",
-        resolvedPath: "/usr/bin/jq",
-        executableName: "jq",
-      },
-      safeBins: normalizeSafeBins(["jq"]),
-      platform: "win32",
-    });
-    expect(ok).toBe(false);
-  });
-
-  it("supports injected trusted path checker for deterministic callers", () => {
-    if (process.platform === "win32") {
-      return;
-    }
-    const baseParams = {
-      argv: ["jq", ".foo"],
-      resolution: {
-        rawExecutable: "jq",
-        resolvedPath: "/tmp/custom/jq",
-        executableName: "jq",
-      },
-      safeBins: normalizeSafeBins(["jq"]),
-    };
-    expect(
-      isSafeBinUsage({
-        ...baseParams,
-        isTrustedSafeBinPathFn: () => true,
-      }),
-    ).toBe(true);
-    expect(
-      isSafeBinUsage({
-        ...baseParams,
-        isTrustedSafeBinPathFn: () => false,
-      }),
-    ).toBe(false);
-  });
-
-  it("keeps safe-bin profile fixtures aligned with compiled profiles", () => {
-    for (const [name, fixture] of Object.entries(SAFE_BIN_PROFILE_FIXTURES)) {
-      const profile = SAFE_BIN_PROFILES[name];
-      expect(profile).toBeDefined();
-      const fixtureDeniedFlags = fixture.deniedFlags ?? [];
-      const compiledDeniedFlags = profile?.deniedFlags ?? new Set<string>();
-      for (const deniedFlag of fixtureDeniedFlags) {
-        expect(compiledDeniedFlags.has(deniedFlag)).toBe(true);
-      }
-      expect(Array.from(compiledDeniedFlags).toSorted()).toEqual(
-        [...fixtureDeniedFlags].toSorted(),
-      );
-    }
-  });
-
->>>>>>> 89aad7b92 (refactor: tighten safe-bin policy model and docs parity)
   it("does not include sort/grep in default safeBins", () => {
     const defaults = resolveSafeBins(undefined);
     expect(defaults.has("jq")).toBe(true);
@@ -1269,7 +1001,6 @@ describe("exec approvals policy helpers", () => {
     ).toBe(false);
   });
 });
-<<<<<<< HEAD
 
 describe("exec approvals wildcard agent", () => {
   it("merges wildcard allowlist entries with agent entries", () => {
@@ -1279,10 +1010,6 @@ describe("exec approvals wildcard agent", () => {
     try {
 <<<<<<< HEAD
       const approvalsPath = path.join(dir, ".clawdbot", "exec-approvals.json");
-=======
-      process.env.OPENCLAW_HOME = dir;
-      const approvalsPath = path.join(dir, ".openclaw", "exec-approvals.json");
->>>>>>> b73a2de9f (refactor(infra): reuse shared home prefix expansion)
       fs.mkdirSync(path.dirname(approvalsPath), { recursive: true });
       fs.writeFileSync(
         approvalsPath,

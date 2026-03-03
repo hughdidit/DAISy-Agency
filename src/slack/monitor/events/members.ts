@@ -3,10 +3,7 @@ import type { SlackEventMiddlewareArgs } from "@slack/bolt";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SlackMonitorContext } from "../context.js";
 import type { SlackMemberChannelEvent } from "../types.js";
@@ -21,11 +18,8 @@ import type { SlackMemberChannelEvent } from "../types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { danger } from "../../../globals.js";
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
-<<<<<<< HEAD
 
 import { resolveSlackChannelLabel } from "../channel-config.js";
-=======
->>>>>>> 3d30ba18a (fix(slack): gate member and message subtype system events)
 import type { SlackMonitorContext } from "../context.js";
 import type { SlackMemberChannelEvent } from "../types.js";
 import { authorizeAndResolveSlackSystemEventContext } from "./system-event-context.js";

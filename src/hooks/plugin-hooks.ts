@@ -1,13 +1,7 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-<<<<<<< HEAD
 
 import type { MoltbotPluginApi } from "../plugins/types.js";
-=======
-import type { OpenClawPluginApi } from "../plugins/types.js";
-import { shouldIncludeHook } from "./config.js";
-import type { InternalHookHandler } from "./internal-hooks.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { HookEntry } from "./types.js";
 import { loadHookEntriesFromDir } from "./workspace.js";
 import type { InternalHookHandler } from "./internal-hooks.js";
@@ -19,15 +13,8 @@ export type PluginHookLoadResult = {
   errors: string[];
 };
 
-<<<<<<< HEAD
 function resolveHookDir(api: MoltbotPluginApi, dir: string): string {
   if (path.isAbsolute(dir)) return dir;
-=======
-function resolveHookDir(api: OpenClawPluginApi, dir: string): string {
-  if (path.isAbsolute(dir)) {
-    return dir;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return path.resolve(path.dirname(api.source), dir);
 }
 

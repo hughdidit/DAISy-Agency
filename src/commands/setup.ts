@@ -1,15 +1,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 
 import JSON5 from "json5";
 
-=======
-import JSON5 from "json5";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import JSON5 from "json5";
 import fs from "node:fs/promises";

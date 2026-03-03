@@ -32,7 +32,6 @@ async function expectLoggedSingleMediaFile(params?: {
   return mediaPath;
 }
 
-<<<<<<< HEAD
 function expectParserAcceptsUrlWithoutBase64(
   parse: (payload: Record<string, unknown>) => { url?: string; base64?: string },
   payload: Record<string, unknown>,
@@ -73,18 +72,10 @@ function mockCameraGateway(
   payload: Record<string, unknown>,
 ) {
 =======
-=======
->>>>>>> d6ad647f5 (test(cli): share nodes ios fixture helpers)
-=======
 >>>>>>> 3e819f0af (test: drop duplicate nodes media parser coverage)
 function mockNodeGateway(command?: string, payload?: Record<string, unknown>) {
-<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   callGateway.mockImplementation(async (opts: { method?: string }) => {
-=======
-  callGateway.mockImplementation(async (...args: unknown[]) => {
-    const opts = (args[0] ?? {}) as { method?: string };
->>>>>>> 048e29ea3 (chore: Fix types in tests 45/N.)
     if (opts.method === "node.list") {
       return createIosNodeListResponse();
     }
@@ -195,7 +186,6 @@ describe("cli program (nodes media)", () => {
       }),
     );
 
-<<<<<<< HEAD
     const out = getFirstRuntimeLogLine();
     const mediaPath = out.replace(/^MEDIA:/, "").trim();
     expect(mediaPath).toMatch(/moltbot-camera-clip-front-.*\.mp4$/);
@@ -205,11 +195,6 @@ describe("cli program (nodes media)", () => {
     } finally {
       await fs.unlink(mediaPath).catch(() => {});
     }
-=======
-    await expectLoggedSingleMediaFile({
-      expectedPathPattern: /openclaw-camera-clip-front-.*\.mp4$/,
-    });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 
   it("runs nodes camera snap with facing front and passes params", async () => {
@@ -322,7 +307,6 @@ describe("cli program (nodes media)", () => {
 
     await runNodesCommand(["nodes", "canvas", "snapshot", "--node", "ios-node", "--format", "png"]);
 
-<<<<<<< HEAD
     const out = getFirstRuntimeLogLine();
     const mediaPath = out.replace(/^MEDIA:/, "").trim();
     expect(mediaPath).toMatch(/moltbot-canvas-snapshot-.*\.png$/);
@@ -332,11 +316,6 @@ describe("cli program (nodes media)", () => {
     } finally {
       await fs.unlink(mediaPath).catch(() => {});
     }
-=======
-    await expectLoggedSingleMediaFile({
-      expectedPathPattern: /openclaw-canvas-snapshot-.*\.png$/,
-    });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 
   it("fails nodes camera snap on invalid facing", async () => {

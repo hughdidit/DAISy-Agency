@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { ChannelOutboundAdapter, ChannelPlugin } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
@@ -15,8 +14,6 @@ import {
   createOutboundTestPlugin,
   createTestRegistry,
 } from "../../test-utils/channel-plugins.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ChannelOutboundAdapter, ChannelPlugin } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -41,14 +38,6 @@ import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { ChannelOutboundAdapter, ChannelPlugin } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { PluginRegistry } from "../../plugins/registry.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ChannelOutboundAdapter, ChannelPlugin } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";

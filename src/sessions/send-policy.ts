@@ -2,12 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { normalizeChatType } from "../channels/chat-type.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { normalizeChatType } from "../channels/chat-type.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

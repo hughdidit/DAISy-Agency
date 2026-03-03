@@ -1,14 +1,6 @@
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 import type { ChannelId, ChannelSetupInput } from "../../channels/plugins/types.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -39,7 +31,6 @@ export function applyChannelAccountConfig(params: {
   cfg: MoltbotConfig;
   channel: ChatChannel;
   accountId: string;
-<<<<<<< HEAD
   name?: string;
   token?: string;
   tokenFile?: string;
@@ -72,10 +63,6 @@ export function applyChannelAccountConfig(params: {
   dmAllowlist?: string[];
   autoDiscoverChannels?: boolean;
 }): MoltbotConfig {
-=======
-  input: ChannelSetupInput;
-}): OpenClawConfig {
->>>>>>> 3150ece95 (refactor(channels): pass setup input to mutator)
   const accountId = normalizeAccountId(params.accountId);
   const plugin = getChannelPlugin(params.channel);
   const apply = plugin?.setup?.applyAccountConfig;

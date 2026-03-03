@@ -2,11 +2,7 @@ import AppKit
 import CryptoKit
 import Darwin
 import Foundation
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
 import MoltbotKit
-=======
-import OpenClawKit
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
 import OSLog
 
 struct ExecApprovalPromptRequest: Codable, Sendable {
@@ -384,7 +380,6 @@ private enum ExecHostExecutor {
     ]
 
     static func handle(_ request: ExecHostRequest) async -> ExecHostResponse {
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
         let command = request.command.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
         guard !command.isEmpty else {
             return self.errorResponse(
@@ -395,32 +390,10 @@ private enum ExecHostExecutor {
 
 <<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
         let context = await self.buildContext(request: request, command: command)
-=======
-        let validatedCommand = ExecSystemRunCommandValidator.resolve(
-            command: command,
-            rawCommand: request.rawCommand)
-        let displayCommand: String
-        switch validatedCommand {
-        case let .ok(resolved):
-            displayCommand = resolved.displayCommand
-        case let .invalid(message):
-            return self.errorResponse(
-                code: "INVALID_REQUEST",
-                message: message,
-                reason: "invalid")
-=======
-        let validatedRequest: ExecHostValidatedRequest
-        switch ExecHostRequestEvaluator.validateRequest(request) {
-        case let .success(request):
-            validatedRequest = request
-        case let .failure(error):
-            return self.errorResponse(error)
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
         }
 
         let context = await self.buildContext(
             request: request,
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
             command: command,
             rawCommand: displayCommand)
 >>>>>>> ce1dbeb98 (fix(macos): clean warnings and harden gateway/talk config parsing):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
@@ -430,10 +403,6 @@ private enum ExecHostExecutor {
                 message: "SYSTEM_RUN_DISABLED: security=deny",
                 reason: "security=deny")
         }
-=======
-            command: validatedRequest.command,
-            rawCommand: validatedRequest.displayCommand)
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
 
         switch ExecHostRequestEvaluator.evaluate(
             context: context,
@@ -482,7 +451,6 @@ private enum ExecHostExecutor {
             }
         }
 
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
         self.persistAllowlistEntry(decision: approvalDecision, context: context)
 
         if context.security == .allowlist,
@@ -495,9 +463,6 @@ private enum ExecHostExecutor {
                 message: "SYSTEM_RUN_DENIED: allowlist miss",
                 reason: "allowlist-miss")
         }
-=======
-        self.persistAllowlistEntry(decision: request.approvalDecision, context: context)
->>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
 
         if let match = context.allowlistMatch {
             ExecApprovalsStore.recordAllowlistUse(

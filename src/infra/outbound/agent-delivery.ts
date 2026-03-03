@@ -1,11 +1,5 @@
-<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
-=======
-import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
-import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { SessionEntry } from "../../config/sessions.js";
 import { normalizeAccountId } from "../../utils/account-id.js";
 import {

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import { describe, expect, it, vi } from "vitest";
@@ -100,14 +99,6 @@ const _readSessionMessages = async (sessionFile: string) => {
     .map((entry) => entry.message as { role?: string; content?: unknown });
 };
 
-=======
-import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
-import { Type } from "@sinclair/typebox";
-import { describe, expect, it } from "vitest";
-import { splitSdkTools } from "./pi-embedded-runner.js";
-
-<<<<<<< HEAD
->>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
 function createStubTool(name: string): AgentTool<unknown, unknown> {
 =======
 function createStubTool(name: string): AgentTool {

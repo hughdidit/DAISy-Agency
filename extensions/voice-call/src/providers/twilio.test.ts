@@ -32,10 +32,7 @@ describe("TwilioProvider", () => {
     const result = provider.parseWebhookEvent(ctx);
 
     expect(result.providerResponseBody).toContain(STREAM_URL);
-<<<<<<< HEAD
-=======
     expect(result.providerResponseBody).toContain('<Parameter name="token" value="');
->>>>>>> d31caa81e (fix(runtime): guard cleanup and preserve skipped cron jobs)
     expect(result.providerResponseBody).toContain("<Connect>");
   });
 
@@ -60,10 +57,7 @@ describe("TwilioProvider", () => {
     const result = provider.parseWebhookEvent(ctx);
 
     expect(result.providerResponseBody).toContain(STREAM_URL);
-<<<<<<< HEAD
-=======
     expect(result.providerResponseBody).toContain('<Parameter name="token" value="');
->>>>>>> d31caa81e (fix(runtime): guard cleanup and preserve skipped cron jobs)
     expect(result.providerResponseBody).toContain("<Connect>");
   });
 });

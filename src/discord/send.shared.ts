@@ -3,7 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { RequestClient } from "@buape/carbon";
 import { PollLayoutType } from "discord-api-types/payloads/v10";
 import type { RESTAPIPoll } from "discord-api-types/rest/v10";
@@ -13,11 +12,6 @@ import { Routes } from "discord-api-types/v10";
 import { loadConfig } from "../config/config.js";
 import type { RetryConfig } from "../infra/retry.js";
 import { createDiscordRetryRunner, type RetryRunner } from "../infra/retry-policy.js";
-=======
-=======
-import type { RESTAPIPoll } from "discord-api-types/rest/v10";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RESTAPIPoll } from "discord-api-types/rest/v10";
 >>>>>>> ed11e93cf (chore(format))
@@ -38,14 +32,9 @@ import {
 } from "@buape/carbon";
 import { PollLayoutType } from "discord-api-types/payloads/v10";
 import type { RESTAPIPoll } from "discord-api-types/rest/v10";
-<<<<<<< HEAD
 import { Routes, type APIEmbed } from "discord-api-types/v10";
 >>>>>>> 9203a2fdb (Discord: CV2! (#16364))
-=======
-import { Routes, type APIChannel, type APIEmbed } from "discord-api-types/v10";
->>>>>>> 409a02691 (refactor(discord): dedupe directory and media send paths)
 import type { ChunkMode } from "../auto-reply/chunk.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -54,20 +43,12 @@ import { loadConfig } from "../config/config.js";
 >>>>>>> 4734c985c (refactor(discord): share client rest helpers)
 =======
 import type { RetryRunner } from "../infra/retry-policy.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import type { RetryRunner } from "../infra/retry-policy.js";
 import { loadConfig } from "../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 import { loadConfig } from "../config/config.js";
 import type { RetryRunner } from "../infra/retry-policy.js";
-<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
-=======
-import type { RetryRunner } from "../infra/retry-policy.js";
-import { loadConfig } from "../config/config.js";
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import { loadConfig } from "../config/config.js";
 import type { RetryRunner } from "../infra/retry-policy.js";
@@ -483,11 +464,7 @@ async function sendDiscordMedia(
   chunkMode?: ChunkMode,
   silent?: boolean,
 ) {
-<<<<<<< HEAD
   const media = await loadWebMedia(mediaUrl);
-=======
-  const media = await loadWebMedia(mediaUrl, buildOutboundMediaLoadOptions({ mediaLocalRoots }));
->>>>>>> e1f3ded03 (refactor: split telegram delivery and unify media/frontmatter/i18n pipelines)
   const chunks = text ? buildDiscordTextChunks(text, { maxLinesPerMessage, chunkMode }) : [];
   const caption = chunks[0] ?? "";
   const messageReference = replyTo ? { message_id: replyTo, fail_if_not_exists: false } : undefined;

@@ -9,12 +9,9 @@ import type { ExecAsk, ExecHost, ExecSecurity } from "../infra/exec-approvals.js
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ProcessSession, SessionStdin } from "./bash-process-registry.js";
 import type { ExecToolDetails } from "./bash-tools.exec.js";
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { mergePathPrepend } from "../infra/path-prepend.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
@@ -57,13 +54,9 @@ export { applyPathPrepend, normalizePathPrepend } from "../infra/path-prepend.js
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { logWarn } from "../logger.js";
 <<<<<<< HEAD
 import { formatSpawnError, spawnWithFallback } from "../process/spawn-utils.js";
-=======
-=======
->>>>>>> 607011638 (revert(exec): undo accidental merge of PR #18521)
 import type { ManagedRun } from "../process/supervisor/index.js";
 =======
 >>>>>>> 6b8c0bc69 (chore: Format files.)
@@ -387,18 +380,9 @@ export async function runExecProcess(opts: {
 }): Promise<ExecProcessHandle> {
   const startedAt = Date.now();
   const sessionId = createSessionSlug();
-<<<<<<< HEAD
   let child: ChildProcessWithoutNullStreams | null = null;
   let pty: PtyHandle | null = null;
   let stdin: SessionStdin | undefined;
-=======
-  const execCommand = opts.execCommand ?? opts.command;
-  const supervisor = getProcessSupervisor();
-  const shellRuntimeEnv: Record<string, string> = {
-    ...opts.env,
-    OPENCLAW_SHELL: "exec",
-  };
->>>>>>> b7615e0ce (Exec/ACP: inject OPENCLAW_SHELL into child shell env (#31271))
 
   const spawnFallbacks = [
     {
@@ -516,7 +500,6 @@ export async function runExecProcess(opts: {
       const warning = `Warning: PTY spawn failed (${errText}); retrying without PTY for \`${opts.command}\`.`;
       logWarn(`exec: PTY spawn failed (${errText}); retrying without PTY for "${opts.command}".`);
       opts.warnings.push(warning);
-<<<<<<< HEAD
       const { child: spawned } = await spawnWithFallback({
         argv: [shell, ...shellArgs, opts.command],
         options: {
@@ -530,14 +513,10 @@ export async function runExecProcess(opts: {
         onFallback: handleSpawnFallback,
       });
       child = spawned as ChildProcessWithoutNullStreams;
-=======
-      child = await spawnShellChild(shell, shellArgs);
->>>>>>> 85b267aae (refactor(agents): dedupe exec spawn and process failures)
       stdin = child.stdin;
     }
   } else {
     const { shell, args: shellArgs } = getShellConfig();
-<<<<<<< HEAD
     const { child: spawned } = await spawnWithFallback({
       argv: [shell, ...shellArgs, opts.command],
       options: {
@@ -551,9 +530,6 @@ export async function runExecProcess(opts: {
       onFallback: handleSpawnFallback,
     });
     child = spawned as ChildProcessWithoutNullStreams;
-=======
-    child = await spawnShellChild(shell, shellArgs);
->>>>>>> 85b267aae (refactor(agents): dedupe exec spawn and process failures)
     stdin = child.stdin;
     maybeCloseNonPtyStdin();
   }
@@ -673,78 +649,12 @@ export async function runExecProcess(opts: {
     }
   };
 
-<<<<<<< HEAD
   if (pty) {
     const cursorResponse = buildCursorPositionResponse();
     pty.onData((data) => {
       const raw = data.toString();
       const { cleaned, requests } = stripDsrRequests(raw);
       if (requests > 0) {
-=======
-  const timeoutMs =
-    typeof opts.timeoutSec === "number" && opts.timeoutSec > 0
-      ? Math.floor(opts.timeoutSec * 1000)
-      : undefined;
-
-  const spawnSpec:
-    | {
-        mode: "child";
-        argv: string[];
-        env: NodeJS.ProcessEnv;
-        stdinMode: "pipe-open" | "pipe-closed";
-      }
-    | {
-        mode: "pty";
-        ptyCommand: string;
-        childFallbackArgv: string[];
-        env: NodeJS.ProcessEnv;
-        stdinMode: "pipe-open";
-      } = (() => {
-    if (opts.sandbox) {
-      return {
-        mode: "child" as const,
-        argv: [
-          "docker",
-          ...buildDockerExecArgs({
-            containerName: opts.sandbox.containerName,
-            command: execCommand,
-            workdir: opts.containerWorkdir ?? opts.sandbox.containerWorkdir,
-            env: shellRuntimeEnv,
-            tty: opts.usePty,
-          }),
-        ],
-        env: process.env,
-        stdinMode: opts.usePty ? ("pipe-open" as const) : ("pipe-closed" as const),
-      };
-    }
-    const { shell, args: shellArgs } = getShellConfig();
-    const childArgv = [shell, ...shellArgs, execCommand];
-    if (opts.usePty) {
-      return {
-        mode: "pty" as const,
-        ptyCommand: execCommand,
-        childFallbackArgv: childArgv,
-        env: shellRuntimeEnv,
-        stdinMode: "pipe-open" as const,
-      };
-    }
-    return {
-      mode: "child" as const,
-      argv: childArgv,
-      env: shellRuntimeEnv,
-      stdinMode: "pipe-closed" as const,
-    };
-  })();
-
-  let managedRun: ManagedRun | null = null;
-  let usingPty = spawnSpec.mode === "pty";
-  const cursorResponse = buildCursorPositionResponse();
-
-  const onSupervisorStdout = (chunk: string) => {
-    if (usingPty) {
-      const { cleaned, requests } = stripDsrRequests(chunk);
-      if (requests > 0 && managedRun?.stdin) {
->>>>>>> b7615e0ce (Exec/ACP: inject OPENCLAW_SHELL into child shell env (#31271))
         for (let i = 0; i < requests; i += 1) {
           pty.write(cursorResponse);
         }
@@ -766,28 +676,14 @@ export async function runExecProcess(opts: {
         clearTimeout(timeoutFinalizeTimer);
       }
       const durationMs = Date.now() - startedAt;
-<<<<<<< HEAD
       const wasSignal = exitSignal != null;
       const isSuccess = code === 0 && !wasSignal && !timedOut;
       const status: "completed" | "failed" = isSuccess ? "completed" : "failed";
       markExited(session, code, exitSignal, status);
-=======
-      const isNormalExit = exit.reason === "exit";
-      const exitCode = exit.exitCode ?? 0;
-      // Shell exit codes 126 (not executable) and 127 (command not found) are
-      // unrecoverable infrastructure failures that should surface as real errors
-      // rather than silently completing — e.g. `python: command not found`.
-      const isShellFailure = exitCode === 126 || exitCode === 127;
-      const status: "completed" | "failed" =
-        isNormalExit && !isShellFailure ? "completed" : "failed";
-
-      markExited(session, exit.exitCode, exit.exitSignal, status);
->>>>>>> f3459d71e (fix(exec): treat shell exit codes 126/127 as failures instead of completed)
       maybeNotifyOnExit(session, status);
       if (!session.child && session.stdin) {
         session.stdin.destroyed = true;
       }
-<<<<<<< HEAD
 
       if (settled) {
         return;
@@ -818,28 +714,6 @@ export async function runExecProcess(opts: {
         status: "completed",
         exitCode: code ?? 0,
         exitSignal: exitSignal ?? null,
-=======
-      const reason =
-        exit.reason === "overall-timeout"
-=======
-      const aggregated = session.aggregated.trim();
-      if (status === "completed") {
-        const exitMsg = exitCode !== 0 ? `\n\n(Command exited with code ${exitCode})` : "";
-        return {
-          status: "completed",
-          exitCode,
-          exitSignal: exit.exitSignal,
-          durationMs,
-          aggregated: aggregated + exitMsg,
-          timedOut: false,
-        };
-      }
-      const reason = isShellFailure
-        ? exitCode === 127
-          ? "Command not found"
-          : "Command not executable (permission denied)"
-        : exit.reason === "overall-timeout"
->>>>>>> f3459d71e (fix(exec): treat shell exit codes 126/127 as failures instead of completed)
           ? typeof opts.timeoutSec === "number" && opts.timeoutSec > 0
             ? `Command timed out after ${opts.timeoutSec} seconds`
             : "Command timed out"

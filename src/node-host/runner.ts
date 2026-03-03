@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import crypto from "node:crypto";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
@@ -43,36 +42,11 @@ import { createBrowserRouteDispatcher } from "../browser/routes/dispatcher.js";
 import { detectMime } from "../media/mime.js";
 import { resolveAgentConfig } from "../agents/agent-scope.js";
 import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
-=======
-import { resolveBrowserConfig } from "../browser/config.js";
-import { loadConfig } from "../config/config.js";
-import { GatewayClient } from "../gateway/client.js";
-import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
-import { getMachineDisplayName } from "../infra/machine-name.js";
-import {
-  NODE_BROWSER_PROXY_COMMAND,
-  NODE_EXEC_APPROVALS_COMMANDS,
-  NODE_SYSTEM_RUN_COMMANDS,
-} from "../infra/node-commands.js";
-import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
-import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
 import { VERSION } from "../version.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 
 import { ensureNodeHostConfig, saveNodeHostConfig, type NodeHostGatewayConfig } from "./config.js";
-<<<<<<< HEAD
 import { GatewayClient } from "../gateway/client.js";
-=======
-import {
-  coerceNodeInvokePayload,
-  handleInvoke,
-  type SkillBinsProvider,
-  buildNodeInvokeResultParams,
-} from "./invoke.js";
-
-export { buildNodeInvokeResultParams };
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
 
 type NodeHostRunOptions = {
   gatewayHost: string;
@@ -83,7 +57,6 @@ type NodeHostRunOptions = {
   displayName?: string;
 };
 
-<<<<<<< HEAD
 type SystemRunParams = {
   command: string[];
   rawCommand?: string | null;
@@ -175,11 +148,8 @@ type NodeInvokeRequestPayload = {
 
 const OUTPUT_CAP = 200_000;
 const OUTPUT_EVENT_TAIL = 20_000;
-=======
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
 const DEFAULT_NODE_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
 
-<<<<<<< HEAD
 const execHostEnforced = process.env.CLAWDBOT_NODE_EXEC_HOST?.trim().toLowerCase() === "app";
 const execHostFallbackAllowed =
   process.env.CLAWDBOT_NODE_EXEC_FALLBACK?.trim().toLowerCase() !== "0";
@@ -196,9 +166,6 @@ const blockedEnvKeys = new Set([
 const blockedEnvPrefixes = ["DYLD_", "LD_"];
 
 class SkillBinsCache {
-=======
-class SkillBinsCache implements SkillBinsProvider {
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
   private bins = new Set<string>();
   private lastRefresh = 0;
   private readonly ttlMs = 90_000;
@@ -228,7 +195,6 @@ class SkillBinsCache implements SkillBinsProvider {
   }
 }
 
-<<<<<<< HEAD
 function sanitizeEnv(
   overrides?: Record<string, string> | null,
 ): Record<string, string> | undefined {
@@ -516,8 +482,6 @@ function resolveEnvPath(env?: Record<string, string>): string[] {
   return raw.split(path.delimiter).filter(Boolean);
 }
 
-=======
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
 function ensureNodePathEnv(): string {
   ensureMoltbotCliOnPath({ pathEnv: process.env.PATH ?? "" });
   const current = process.env.PATH ?? "";
@@ -581,17 +545,11 @@ export async function runNodeHost(opts: NodeHostRunOptions): Promise<void> {
     scopes: [],
     caps: ["system", ...(browserProxyEnabled ? ["browser"] : [])],
     commands: [
-<<<<<<< HEAD
       "system.run",
       "system.which",
       "system.execApprovals.get",
       "system.execApprovals.set",
       ...(browserProxyEnabled ? ["browser.proxy"] : []),
-=======
-      ...NODE_SYSTEM_RUN_COMMANDS,
-      ...NODE_EXEC_APPROVALS_COMMANDS,
-      ...(browserProxyEnabled ? [NODE_BROWSER_PROXY_COMMAND] : []),
->>>>>>> d06632ba4 (refactor(gateway): share node command catalog)
     ],
     pathEnv,
     permissions: undefined,
@@ -627,7 +585,6 @@ export async function runNodeHost(opts: NodeHostRunOptions): Promise<void> {
   client.start();
   await new Promise(() => {});
 }
-<<<<<<< HEAD
 
 async function handleInvoke(
   frame: NodeInvokeRequestPayload,
@@ -1261,5 +1218,3 @@ async function sendNodeEvent(client: GatewayClient, event: string, payload: unkn
     // ignore: node events are best-effort
   }
 }
-=======
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)

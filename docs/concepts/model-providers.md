@@ -39,23 +39,12 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `openai`
 - Auth: `OPENAI_API_KEY`
-<<<<<<< HEAD
 - Example model: `openai/gpt-5.2`
 - CLI: `moltbot onboard --auth-choice openai-api-key`
 =======
-- Optional rotation: `OPENAI_API_KEYS`, `OPENAI_API_KEY_1`, `OPENAI_API_KEY_2`, plus `OPENCLAW_LIVE_OPENAI_KEY` (single override)
-- Example model: `openai/gpt-5.1-codex`
-- CLI: `openclaw onboard --auth-choice openai-api-key`
-<<<<<<< HEAD
->>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
-=======
 - Default transport is `auto` (WebSocket-first, SSE fallback)
 - Override per model via `agents.defaults.models["openai/<model>"].params.transport` (`"sse"`, `"websocket"`, or `"auto"`)
-<<<<<<< HEAD
 >>>>>>> 7ced38b5e (feat(agents): make openai responses websocket-first with fallback)
-=======
-- OpenAI Responses WebSocket warm-up defaults to enabled via `params.openaiWsWarmup` (`true`/`false`)
->>>>>>> d1615eb35 (feat(openai): add websocket warm-up with configurable toggle)
 
 ```json5
 {
@@ -67,14 +56,8 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `anthropic`
 - Auth: `ANTHROPIC_API_KEY` or `claude setup-token`
-<<<<<<< HEAD
 - Example model: `anthropic/claude-opus-4-5`
 - CLI: `moltbot onboard --auth-choice token` (paste setup-token) or `moltbot models auth paste-token --provider anthropic`
-=======
-- Optional rotation: `ANTHROPIC_API_KEYS`, `ANTHROPIC_API_KEY_1`, `ANTHROPIC_API_KEY_2`, plus `OPENCLAW_LIVE_ANTHROPIC_KEY` (single override)
-- Example model: `anthropic/claude-opus-4-6`
-- CLI: `openclaw onboard --auth-choice token` (paste setup-token) or `openclaw models auth paste-token --provider anthropic`
->>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
 
 ```json5
 {
@@ -86,15 +69,8 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `openai-codex`
 - Auth: OAuth (ChatGPT)
-<<<<<<< HEAD
 - Example model: `openai-codex/gpt-5.2`
 - CLI: `moltbot onboard --auth-choice openai-codex` or `moltbot models auth login --provider openai-codex`
-=======
-- Example model: `openai-codex/gpt-5.3-codex`
-- CLI: `openclaw onboard --auth-choice openai-codex` or `openclaw models auth login --provider openai-codex`
-- Default transport is `auto` (WebSocket-first, SSE fallback)
-- Override per model via `agents.defaults.models["openai-codex/<model>"].params.transport` (`"sse"`, `"websocket"`, or `"auto"`)
->>>>>>> 03d7641b0 (feat(agents): default codex transport to websocket-first)
 
 ```json5
 {

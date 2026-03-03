@@ -23,11 +23,7 @@ vi.mock("./subagent-announce.js", () => ({
 }));
 
 describe("subagent registry persistence", () => {
-<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
-=======
-  const envSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
->>>>>>> f809ff5e5 (refactor(test): reuse env snapshot helper)
   let tempStateDir: string | null = null;
 
   const resolveAgentIdFromSessionKey = (sessionKey: string) => {
@@ -163,15 +159,11 @@ describe("subagent registry persistence", () => {
       await fs.rm(tempStateDir, { recursive: true, force: true });
       tempStateDir = null;
     }
-<<<<<<< HEAD
     if (previousStateDir === undefined) {
       delete process.env.CLAWDBOT_STATE_DIR;
     } else {
       process.env.CLAWDBOT_STATE_DIR = previousStateDir;
     }
-=======
-    envSnapshot.restore();
->>>>>>> f809ff5e5 (refactor(test): reuse env snapshot helper)
   });
 
   it("persists runs to disk and resumes after restart", async () => {
@@ -283,13 +275,10 @@ describe("subagent registry persistence", () => {
   });
 
   it("maps legacy announce fields into cleanup state", async () => {
-<<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-subagent-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
 
     const registryPath = path.join(tempStateDir, "subagents", "runs.json");
-=======
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     const persisted = {
       version: 1,
       runs: {
@@ -324,7 +313,6 @@ describe("subagent registry persistence", () => {
   });
 
   it("retries cleanup announce after a failed announce", async () => {
-<<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-subagent-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
 
@@ -347,15 +335,6 @@ describe("subagent registry persistence", () => {
     };
     await fs.mkdir(path.dirname(registryPath), { recursive: true });
     await fs.writeFile(registryPath, `${JSON.stringify(persisted)}\n`, "utf8");
-=======
-    const persisted = createPersistedEndedRun({
-      runId: "run-3",
-      childSessionKey: "agent:main:subagent:three",
-      task: "retry announce",
-      cleanup: "keep",
-    });
-    const registryPath = await writePersistedRegistry(persisted);
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     announceSpy.mockResolvedValueOnce(false);
     await restartRegistryAndFlush();
@@ -376,8 +355,6 @@ describe("subagent registry persistence", () => {
     };
     expect(afterSecond.runs["run-3"].cleanupCompletedAt).toBeDefined();
   });
-<<<<<<< HEAD
-=======
 
   it("keeps delete-mode runs retryable when announce is deferred", async () => {
     const persisted = createPersistedEndedRun({
@@ -407,7 +384,6 @@ describe("subagent registry persistence", () => {
     expect(afterSecond.runs?.["run-4"]).toBeUndefined();
   });
 <<<<<<< HEAD
->>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 =======
 
   it("reconciles orphaned restored runs by pruning them from registry", async () => {

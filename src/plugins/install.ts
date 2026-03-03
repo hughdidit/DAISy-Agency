@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
@@ -13,17 +12,6 @@ import {
 } from "../infra/archive.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-=======
-=======
-import { MANIFEST_KEY } from "../compat/legacy-names.js";
-import { fileExists, readJsonFile, resolveArchiveKind } from "../infra/archive.js";
-import { resolveExistingInstallPath, withExtractedArchiveRoot } from "../infra/install-flow.js";
-import {
-  resolveInstallModeOptions,
-  resolveTimedInstallModeOptions,
-} from "../infra/install-mode-options.js";
->>>>>>> 07888bee3 (refactor: share install flows across hooks and plugins)
 import { installPackageDir } from "../infra/install-package-dir.js";
 import {
   resolveSafeInstallDir,
@@ -31,12 +19,7 @@ import {
   unscopedPackageName,
 } from "../infra/install-safe-path.js";
 import {
-<<<<<<< HEAD
   packNpmSpecToArchive,
-=======
-  type NpmIntegrityDrift,
-  type NpmSpecResolution,
->>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
   resolveArchiveSourcePath,
 } from "../infra/install-source-utils.js";
 import {
@@ -44,19 +27,11 @@ import {
   installFromNpmSpecArchiveWithInstaller,
 } from "../infra/npm-pack-install.js";
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
-<<<<<<< HEAD
 >>>>>>> 4caeb203a (refactor(install): share package dir install)
 import { runCommandWithTimeout } from "../process/exec.js";
-=======
-import { extensionUsesSkippedScannerPath, isPathInside } from "../security/scan-paths.js";
->>>>>>> 8a9fddedc (refactor: extract shared install and embedding utilities)
 import * as skillScanner from "../security/skill-scanner.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
-<<<<<<< HEAD
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
-=======
-import { loadPluginManifest } from "./manifest.js";
->>>>>>> bf91b347c (fix(plugins): use manifest id as config entry key instead of npm package name (#24796))
 
 type PluginInstallLogger = {
   info?: (message: string) => void;
@@ -83,7 +58,6 @@ export type InstallPluginResult =
   | { ok: false; error: string };
 
 const defaultLogger: PluginInstallLogger = {};
-<<<<<<< HEAD
 
 function unscopedPackageName(name: string): string {
   const trimmed = name.trim();
@@ -101,8 +75,6 @@ function safeDirName(input: string): string {
   return trimmed.replaceAll("/", "__");
 }
 
-=======
->>>>>>> e93764350 (refactor(install): share safe install path helpers)
 function safeFileName(input: string): string {
   return safeDirName(input);
 }
@@ -134,23 +106,7 @@ export function resolvePluginInstallDir(pluginId: string, extensionsDir?: string
   const extensionsBase = extensionsDir
     ? resolveUserPath(extensionsDir)
     : path.join(CONFIG_DIR, "extensions");
-<<<<<<< HEAD
   return path.join(extensionsBase, safeDirName(pluginId));
-=======
-  const pluginIdError = validatePluginId(pluginId);
-  if (pluginIdError) {
-    throw new Error(pluginIdError);
-  }
-  const targetDirResult = resolveSafeInstallDir({
-    baseDir: extensionsBase,
-    id: pluginId,
-    invalidNameMessage: "invalid plugin name: path traversal detected",
-  });
-  if (!targetDirResult.ok) {
-    throw new Error(targetDirResult.error);
-  }
-  return targetDirResult.path;
->>>>>>> e93764350 (refactor(install): share safe install path helpers)
 }
 
 async function installPluginFromPackageDir(params: {
@@ -184,25 +140,7 @@ async function installPluginFromPackageDir(params: {
   }
 
   const pkgName = typeof manifest.name === "string" ? manifest.name : "";
-<<<<<<< HEAD
   const pluginId = pkgName ? unscopedPackageName(pkgName) : "plugin";
-=======
-  const npmPluginId = pkgName ? unscopedPackageName(pkgName) : "plugin";
-
-  // Prefer the canonical `id` from openclaw.plugin.json over the npm package name.
-  // This avoids a latent key-mismatch bug: if the manifest id (e.g. "memory-cognee")
-  // differs from the npm package name (e.g. "cognee-openclaw"), the plugin registry
-  // uses the manifest id as the authoritative key, so the config entry must match it.
-  const ocManifestResult = loadPluginManifest(params.packageDir);
-  const manifestPluginId =
-    ocManifestResult.ok && ocManifestResult.manifest.id ? ocManifestResult.manifest.id : undefined;
-
-  const pluginId = manifestPluginId ?? npmPluginId;
-  const pluginIdError = validatePluginId(pluginId);
-  if (pluginIdError) {
-    return { ok: false, error: pluginIdError };
-  }
->>>>>>> bf91b347c (fix(plugins): use manifest id as config entry key instead of npm package name (#24796))
   if (params.expectedPluginId && params.expectedPluginId !== pluginId) {
     return {
       ok: false,
@@ -211,16 +149,6 @@ async function installPluginFromPackageDir(params: {
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  if (manifestPluginId && manifestPluginId !== npmPluginId) {
-    logger.info?.(
-      `Plugin manifest id "${manifestPluginId}" differs from npm package name "${npmPluginId}"; using manifest id as the config key.`,
-    );
-  }
-
->>>>>>> bf91b347c (fix(plugins): use manifest id as config entry key instead of npm package name (#24796))
   const packageDir = path.resolve(params.packageDir);
   const forcedScanEntries: string[] = [];
   for (const entry of extensions) {
@@ -267,19 +195,7 @@ async function installPluginFromPackageDir(params: {
     : path.join(CONFIG_DIR, "extensions");
   await fs.mkdir(extensionsDir, { recursive: true });
 
-<<<<<<< HEAD
   const targetDir = path.join(extensionsDir, safeDirName(pluginId));
-=======
-  const targetDirResult = resolveSafeInstallDir({
-    baseDir: extensionsDir,
-    id: pluginId,
-    invalidNameMessage: "invalid plugin name: path traversal detected",
-  });
-  if (!targetDirResult.ok) {
-    return { ok: false, error: targetDirResult.error };
-  }
-  const targetDir = targetDirResult.path;
->>>>>>> e93764350 (refactor(install): share safe install path helpers)
 
   if (mode === "install" && (await fileExists(targetDir))) {
     return {
@@ -299,7 +215,6 @@ async function installPluginFromPackageDir(params: {
     };
   }
 
-<<<<<<< HEAD
   logger.info?.(`Installing to ${targetDir}…`);
   let backupDir: string | null = null;
   if (mode === "update" && (await fileExists(targetDir))) {
@@ -323,8 +238,6 @@ async function installPluginFromPackageDir(params: {
     }
   }
 
-=======
->>>>>>> 4caeb203a (refactor(install): share package dir install)
   const deps = manifest.dependencies ?? {};
   const hasDeps = Object.keys(deps).length > 0;
   const installRes = await installPackageDir({
@@ -382,7 +295,6 @@ export async function installPluginFromArchive(params: {
   const archivePath = archivePathResult.path;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (!resolveArchiveKind(archivePath)) {
     return { ok: false, error: `unsupported archive: ${archivePath}` };
   }
@@ -396,38 +308,9 @@ export async function installPluginFromArchive(params: {
     await extractArchive({
       archivePath,
       destDir: extractDir,
-=======
-  return await withTempDir("openclaw-plugin-", async (tmpDir) => {
-    const extractDir = path.join(tmpDir, "extract");
-    await fs.mkdir(extractDir, { recursive: true });
-
-    logger.info?.(`Extracting ${archivePath}…`);
-    try {
-      await extractArchive({
-        archivePath,
-        destDir: extractDir,
-        timeoutMs,
-        logger,
-      });
-    } catch (err) {
-      return { ok: false, error: `failed to extract archive: ${String(err)}` };
-    }
-
-    let packageDir = "";
-    try {
-      packageDir = await resolvePackedRootDir(extractDir);
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-
-    return await installPluginFromPackageDir({
-      packageDir,
-      extensionsDir: params.extensionsDir,
->>>>>>> 8a9fddedc (refactor: extract shared install and embedding utilities)
       timeoutMs,
       logger,
     });
-<<<<<<< HEAD
   } catch (err) {
     return { ok: false, error: `failed to extract archive: ${String(err)}` };
   }
@@ -447,8 +330,6 @@ export async function installPluginFromArchive(params: {
     mode,
     dryRun: params.dryRun,
     expectedPluginId: params.expectedPluginId,
-=======
->>>>>>> 8a9fddedc (refactor: extract shared install and embedding utilities)
 =======
   return await withExtractedArchiveRoot({
     archivePath,
@@ -552,7 +433,6 @@ export async function installPluginFromNpmSpec(params: {
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-npm-pack-"));
   logger.info?.(`Downloading ${spec}…`);
   const res = await runCommandWithTimeout(["npm", "pack", spec], {
@@ -585,45 +465,6 @@ export async function installPluginFromNpmSpec(params: {
     mode,
     dryRun,
     expectedPluginId,
-=======
-  return await withTempDir("openclaw-npm-pack-", async (tmpDir) => {
-    logger.info?.(`Downloading ${spec}…`);
-    const packedResult = await packNpmSpecToArchive({
-      spec,
-      timeoutMs,
-      cwd: tmpDir,
-    });
-    if (!packedResult.ok) {
-      return packedResult;
-    }
-
-<<<<<<< HEAD
-    return await installPluginFromArchive({
-=======
-    const npmResolution: NpmSpecResolution = {
-      ...packedResult.metadata,
-      resolvedAt: new Date().toISOString(),
-    };
-
-    const driftResult = await resolveNpmIntegrityDriftWithDefaultMessage({
-      spec,
-      expectedIntegrity: params.expectedIntegrity,
-      resolution: npmResolution,
-      onIntegrityDrift: params.onIntegrityDrift,
-      warn: (message) => {
-        logger.warn?.(message);
-      },
-    });
-    const integrityDrift = driftResult.integrityDrift;
-    if (driftResult.error) {
-      return {
-        ok: false,
-        error: driftResult.error,
-      };
-    }
-
-    const installResult = await installPluginFromArchive({
->>>>>>> edf92f1cb (refactor: share npm integrity drift handling)
       archivePath: packedResult.archivePath,
       extensionsDir: params.extensionsDir,
       timeoutMs,
@@ -644,7 +485,6 @@ export async function installPluginFromNpmSpec(params: {
     warn: (message) => {
       logger.warn?.(message);
     },
-<<<<<<< HEAD
     installFromArchive: async ({ archivePath }) =>
       await installPluginFromArchive({
         archivePath,
@@ -656,17 +496,6 @@ export async function installPluginFromNpmSpec(params: {
         expectedPluginId,
       }),
 >>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
-=======
-    installFromArchive: installPluginFromArchive,
-    archiveInstallParams: {
-      extensionsDir: params.extensionsDir,
-      timeoutMs,
-      logger,
-      mode,
-      dryRun,
-      expectedPluginId,
-    },
->>>>>>> 07888bee3 (refactor: share install flows across hooks and plugins)
   });
   return finalizeNpmSpecArchiveInstall(flowResult);
 }

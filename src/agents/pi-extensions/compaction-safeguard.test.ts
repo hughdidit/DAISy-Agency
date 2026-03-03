@@ -1,12 +1,6 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
-=======
-import type { Api, Model } from "@mariozechner/pi-ai";
-import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
-import { describe, expect, it, vi } from "vitest";
->>>>>>> 01380f49f (fix(compaction): pass model through runtime for safeguard summaries (#17864))
 import {
   getCompactionSafeguardRuntime,
   setCompactionSafeguardRuntime,
@@ -387,7 +381,6 @@ describe("compaction-safeguard extension model fallback", () => {
     const getApiKeyMock = vi.fn().mockResolvedValue(null);
     const mockContext = createCompactionContext({
       sessionManager,
-<<<<<<< HEAD
       modelRegistry: {
         getApiKey: getApiKeyMock, // No API key, should use fallback
       },
@@ -397,14 +390,6 @@ describe("compaction-safeguard extension model fallback", () => {
     // oxlint-disable-next-line typescript/no-non-null-assertion
     const result = (await compactionHandler!(mockEvent, mockContext)) as {
       compaction?: { summary?: string; firstKeptEntryId?: string };
-=======
-      getApiKeyMock,
-    });
-
-    // Call the handler and wait for result
-    const result = (await compactionHandler(mockEvent, mockContext)) as {
-      cancel?: boolean;
->>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
     };
     const compactionResult = result?.compaction;
 
@@ -440,14 +425,9 @@ describe("compaction-safeguard extension model fallback", () => {
       getApiKeyMock,
     });
 
-<<<<<<< HEAD
     // oxlint-disable-next-line typescript/no-non-null-assertion
     const result = (await compactionHandler!(mockEvent, mockContext)) as {
       compaction?: { summary?: string; firstKeptEntryId?: string };
-=======
-    const result = (await compactionHandler(mockEvent, mockContext)) as {
-      cancel?: boolean;
->>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
     };
     const compactionResult = result?.compaction;
 

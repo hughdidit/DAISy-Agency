@@ -1,13 +1,7 @@
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 <<<<<<< HEAD
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f72214725 (chore: restore OpenClaw branding)
 import type { MemoryCitationsMode } from "../../config/types.memory.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16,22 +10,12 @@ import type { MemoryCitationsMode } from "../../config/types.memory.js";
 <<<<<<< HEAD
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 =======
-=======
-import type { MemorySearchResult } from "../../memory/types.js";
-import type { AnyAgentTool } from "./common.js";
->>>>>>> 9bef52594 (chore: apply formatter)
-=======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveMemoryBackendConfig } from "../../memory/backend-config.js";
 >>>>>>> 1861e7636 (Memory: clamp QMD citations to injected budget)
 import { getMemorySearchManager } from "../../memory/index.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MemorySearchResult } from "../../memory/types.js";
-=======
-=======
-import type { MemorySearchResult } from "../../memory/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { MemorySearchResult } from "../../memory/types.js";
 import type { AnyAgentTool } from "./common.js";
@@ -281,15 +265,7 @@ function deriveChatTypeFromSessionKey(sessionKey?: string): "direct" | "group" |
   }
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (sessionKey.includes(":group:")) {
-=======
-  const tokens = parsed.rest.toLowerCase().split(":").filter(Boolean);
-  if (tokens.includes("channel")) {
-    return "channel";
-  }
-  if (tokens.includes("group")) {
->>>>>>> 9bef52594 (chore: apply formatter)
 =======
   const tokens = new Set(
     parsed.rest

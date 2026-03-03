@@ -4,12 +4,7 @@ read_when:
   - Starting a new Moltbot agent session
   - Enabling or auditing default skills
 ---
-<<<<<<< HEAD
 # AGENTS.md — Moltbot Personal Assistant (default)
-=======
-
-# AGENTS.md — OpenClaw Personal Assistant (default)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## First run (recommended)
 
@@ -39,11 +34,7 @@ cp docs/reference/AGENTS.default.md ~/clawd/AGENTS.md
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { workspace: "~/clawd" } }
-=======
-  agents: { defaults: { workspace: "~/.openclaw/workspace" } },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -94,12 +85,7 @@ git commit -m "Add Clawd workspace"
 # Optional: add a private remote + push
 ```
 
-<<<<<<< HEAD
 ## What Moltbot Does
-=======
-## What OpenClaw Does
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Runs WhatsApp gateway + Pi coding agent so the assistant can read/write chats, fetch context, and run skills via the host Mac.
 - macOS app manages permissions (screen recording, notifications, microphone) and exposes the `moltbot` CLI via its bundled binary.
 - Direct chats collapse into the agent's `main` session by default; groups stay isolated as `agent:<agentId>:<channel>:group:<id>` (rooms/channels: `agent:<agentId>:<channel>:channel:<id>`); heartbeats keep background tasks alive.
@@ -126,12 +112,7 @@ git commit -m "Add Clawd workspace"
 - **agent-tools** — Utility toolkit for automations and helper scripts.
 
 ## Usage Notes
-<<<<<<< HEAD
 - Prefer the `moltbot` CLI for scripting; mac app handles permissions.
-=======
-
-- Prefer the `openclaw` CLI for scripting; mac app handles permissions.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Run installs from the Skills tab; it hides the button if a binary is already present.
 - Keep heartbeats enabled so the assistant can schedule reminders, monitor inboxes, and trigger camera captures.
 - Canvas UI runs full-screen with native overlays. Avoid placing critical controls in the top-left/top-right/bottom edges; add explicit gutters in the layout and don’t rely on safe-area insets.

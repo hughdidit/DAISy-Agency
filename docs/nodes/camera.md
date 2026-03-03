@@ -132,12 +132,7 @@ moltbot nodes camera clip --node <id> --no-audio
 ```
 
 Notes:
-<<<<<<< HEAD
 - `moltbot nodes camera snap` defaults to `maxWidth=1600` unless overridden.
-=======
-
-- `openclaw nodes camera snap` defaults to `maxWidth=1600` unless overridden.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - On macOS, `camera.snap` waits `delayMs` (default 2000ms) after warm-up/exposure settle before capturing.
 - Photo payloads are recompressed to keep base64 under 5 MB.
 

@@ -30,8 +30,6 @@ import {
   inspectPathPermissions,
   safeStat,
 } from "./audit-fs.js";
-<<<<<<< HEAD
-=======
 import { pickSandboxToolPolicy } from "./audit-tool-policy.js";
 import { extensionUsesSkippedScannerPath, isPathInside } from "./scan-paths.js";
 <<<<<<< HEAD
@@ -40,7 +38,6 @@ import { extensionUsesSkippedScannerPath, isPathInside } from "./scan-paths.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { SkillScanFinding } from "./skill-scanner.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -266,8 +263,6 @@ function hasProviderPluginAllow(params: {
 // Exported collectors
 // --------------------------------------------------------------------------
 
-<<<<<<< HEAD
-=======
 function normalizeDockerLabelValue(raw: string | undefined): string | null {
   const trimmed = raw?.trim() ?? "";
   if (!trimmed || trimmed === "<no value>") {
@@ -449,7 +444,6 @@ export async function collectSandboxBrowserHashLabelFindings(params?: {
   return findings;
 }
 
->>>>>>> 8c1518f0f (fix(sandbox): use one-time noVNC observer tokens)
 export async function collectPluginsTrustFindings(params: {
   cfg: OpenClawConfig;
   stateDir: string;

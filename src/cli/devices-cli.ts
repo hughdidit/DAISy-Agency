@@ -1,20 +1,8 @@
 import type { Command } from "commander";
-<<<<<<< HEAD
 
 import { callGateway } from "../gateway/call.js";
 <<<<<<< HEAD
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
-=======
-=======
-import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
-import { isLoopbackHost } from "../gateway/net.js";
-import {
-  approveDevicePairing,
-  listDevicePairing,
-  summarizeDeviceTokens,
-  type PairedDevice as InfraPairedDevice,
-} from "../infra/device-pairing.js";
->>>>>>> aa3c8f732 (CLI: recover devices commands via local pairing fallback)
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { defaultRuntime } from "../runtime.js";

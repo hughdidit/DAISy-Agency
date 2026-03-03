@@ -5,10 +5,7 @@ import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -27,10 +24,6 @@ import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { dispatchInboundMessage, withReplyDispatcher } from "../../auto-reply/dispatch.js";
->>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
 =======
 import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 >>>>>>> d5e25e0ad (refactor: centralize dispatcher lifecycle ownership)
@@ -45,29 +38,14 @@ import {
   DEFAULT_GROUP_HISTORY_LIMIT,
   type HistoryEntry,
 } from "../../auto-reply/reply/history.js";
-<<<<<<< HEAD
 import { buildMentionRegexes, matchesMentionPatterns } from "../../auto-reply/reply/mentions.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
 import { logInboundDrop } from "../../channels/logging.js";
-=======
-import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
->>>>>>> a6158873f (refactor(imessage): split monitor inbound processing)
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 import { recordInboundSession } from "../../channels/session.js";
 import { loadConfig } from "../../config/config.js";
-<<<<<<< HEAD
 import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../../globals.js";
-=======
-import {
-  resolveOpenProviderRuntimeGroupPolicy,
-  resolveDefaultGroupPolicy,
-  warnMissingProviderGroupPolicyFallbackOnce,
-} from "../../config/runtime-group-policy.js";
-import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
-import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
-import { normalizeScpRemoteHost } from "../../infra/scp-host.js";
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { waitForTransportReady } from "../../infra/transport-ready.js";
 import { mediaKindFromMime } from "../../media/constants.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
@@ -120,7 +98,6 @@ async function detectRemoteHostFromCliPath(cliPath: string): Promise<string | un
   }
 }
 
-<<<<<<< HEAD
 /**
  * Cache for recently sent messages, used for echo detection.
  * Keys are scoped by conversation (accountId:target) so the same text in different chats is not conflated.
@@ -166,8 +143,6 @@ class SentMessageCache {
   }
 }
 
-=======
->>>>>>> 5c6b2cbc8 (refactor: extract iMessage echo cache and unify suppression guards)
 export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): Promise<void> {
   const runtime = resolveRuntime(opts);
   const cfg = opts.config ?? loadConfig();
@@ -191,14 +166,9 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
       imessageCfg.groupAllowFrom ??
       (imessageCfg.allowFrom && imessageCfg.allowFrom.length > 0 ? imessageCfg.allowFrom : []),
   );
-<<<<<<< HEAD
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = imessageCfg.groupPolicy ?? defaultGroupPolicy ?? "open";
-=======
-=======
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
     providerConfigPresent: cfg.channels?.imessage !== undefined,
     groupPolicy: imessageCfg.groupPolicy,
@@ -540,11 +510,8 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     await client.stop();
   }
 }
-<<<<<<< HEAD
-=======
 
 export const __testing = {
   resolveIMessageRuntimeGroupPolicy: resolveOpenProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
 };
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)

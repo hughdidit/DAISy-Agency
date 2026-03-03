@@ -1,15 +1,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
 import { type Api, getEnvApiKey, type Model } from "@mariozechner/pi-ai";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 import { type Api, getEnvApiKey, type Model } from "@mariozechner/pi-ai";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -302,8 +298,6 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
     return pick("QWEN_OAUTH_TOKEN") ?? pick("QWEN_PORTAL_API_KEY");
   }
 
-<<<<<<< HEAD
-=======
   if (normalized === "volcengine" || normalized === "volcengine-plan") {
     return pick("VOLCANO_ENGINE_API_KEY");
   }
@@ -315,7 +309,6 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
     return pick("MINIMAX_OAUTH_TOKEN") ?? pick("MINIMAX_API_KEY");
   }
 
->>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
   if (normalized === "kimi-coding") {
     return pick("KIMI_API_KEY") ?? pick("KIMICODE_API_KEY");
   }
@@ -344,19 +337,10 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
     mistral: "MISTRAL_API_KEY",
     opencode: "OPENCODE_API_KEY",
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    together: "TOGETHER_API_KEY",
->>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
     qianfan: "QIANFAN_API_KEY",
 =======
     ollama: "OLLAMA_API_KEY",
-<<<<<<< HEAD
 >>>>>>> 34a58b839 (fix(ollama): add streaming config and fix OLLAMA_API_KEY env var support (#9870))
-=======
-    vllm: "VLLM_API_KEY",
-<<<<<<< HEAD
->>>>>>> e73d881c5 (Onboarding: add vLLM provider support)
 =======
     kilocode: "KILOCODE_API_KEY",
 >>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))

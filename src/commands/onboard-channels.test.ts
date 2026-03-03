@@ -1,18 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 import { createEmptyPluginRegistry } from "../plugins/registry.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 >>>>>>> b3e665350 (fix(onboard): avoid false 'telegram plugin not available' block)
 import type { WizardPrompter } from "../wizard/prompts.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 import { setupChannels } from "./onboard-channels.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
@@ -36,12 +30,6 @@ function createRuntime(): RuntimeEnv {
     }),
   };
 }
-=======
-import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createTestRegistry } from "../test-utils/channel-plugins.js";
-=======
-import { setDefaultChannelPluginRegistryForTests } from "./channel-test-helpers.js";
->>>>>>> def3a3ced (refactor(test): reduce auth and channel setup duplication)
 =======
 import {
   patchChannelOnboardingAdapter,
@@ -138,49 +126,6 @@ describe("setupChannels", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  it("continues Telegram onboarding even when plugin registry is empty (avoids 'plugin not available' block)", async () => {
-    // Simulate missing registry entries (the scenario reported in #25545).
-    setActivePluginRegistry(createEmptyPluginRegistry());
-    // Avoid accidental env-token configuration changing the prompt path.
-    process.env.TELEGRAM_BOT_TOKEN = "";
-
-    const note = vi.fn(async (_message?: string, _title?: string) => {});
-    const select = vi.fn(async ({ message }: { message: string }) => {
-      if (message === "Select channel (QuickStart)") {
-        return "telegram";
-      }
-      return "__done__";
-    });
-    const text = vi.fn(async () => "123:token");
-
-    const prompter = createPrompter({
-      note,
-      select: select as unknown as WizardPrompter["select"],
-      text: text as unknown as WizardPrompter["text"],
-    });
-
-    const runtime = createExitThrowingRuntime();
-
-    await setupChannels({} as OpenClawConfig, runtime, prompter, {
-      skipConfirm: true,
-      quickstartDefaults: true,
-    });
-
-    // The new flow should not stop setup with a hard "plugin not available" note.
-    const sawHardStop = note.mock.calls.some((call) => {
-      const message = call[0];
-      const title = call[1];
-      return (
-        title === "Channel setup" && String(message).trim() === "telegram plugin not available."
-      );
-    });
-    expect(sawHardStop).toBe(false);
-  });
-
->>>>>>> b3e665350 (fix(onboard): avoid false 'telegram plugin not available' block)
   it("shows explicit dmScope config command in channel primer", async () => {
     const note = vi.fn(async (_message?: string, _title?: string) => {});
     const select = vi.fn(async () => "__done__");

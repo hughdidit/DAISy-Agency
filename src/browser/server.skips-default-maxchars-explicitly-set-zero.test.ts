@@ -1,11 +1,7 @@
 import { type AddressInfo, createServer } from "node:net";
 import { fetch as realFetch } from "undici";
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-=======
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
->>>>>>> db8cabedd (perf(test): reduce lock wait and fixture setup overhead)
 
 let testPort = 0;
 let cdpBaseUrl = "";
@@ -277,7 +273,6 @@ describe("browser control server", () => {
       cdpUrl: cdpBaseUrl,
       targetId: "abcd1234",
     });
-<<<<<<< HEAD
 
     const stopped = (await realFetch(`${base}/stop`, { method: "POST" }).then((r) => r.json())) as {
       ok: boolean;
@@ -339,8 +334,6 @@ describe("browser control server", () => {
     expect(ensured).toHaveBeenCalledTimes(1);
 
     await new Promise<void>((resolve) => bridge.server.close(() => resolve()));
-=======
->>>>>>> c4f550ef2 (perf(test): trim browser smoke and speed canvas test reload)
 =======
 >>>>>>> 8d52ed318 (perf(test): narrow browser maxchars smoke to core contract)
 =======

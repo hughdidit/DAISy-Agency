@@ -3,47 +3,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveOpenClawPackageRootSync } from "../../infra/openclaw-root.js";
 
-<<<<<<< HEAD
 export function resolveBundledSkillsDir(): string | undefined {
 <<<<<<< HEAD
   const override = process.env.CLAWDBOT_BUNDLED_SKILLS_DIR?.trim();
   if (override) return override;
-=======
-=======
-function looksLikeSkillsDir(dir: string): boolean {
-  try {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (entry.name.startsWith(".")) {
-        continue;
-      }
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isFile() && entry.name.endsWith(".md")) {
-        return true;
-      }
-      if (entry.isDirectory()) {
-        if (fs.existsSync(path.join(fullPath, "SKILL.md"))) {
-          return true;
-        }
-      }
-    }
-  } catch {
-    return false;
-  }
-  return false;
-}
-
-export type BundledSkillsResolveOptions = {
-  argv1?: string;
-  moduleUrl?: string;
-  cwd?: string;
-  execPath?: string;
-};
-
-export function resolveBundledSkillsDir(
-  opts: BundledSkillsResolveOptions = {},
-): string | undefined {
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
   const override = process.env.OPENCLAW_BUNDLED_SKILLS_DIR?.trim();
   if (override) {
     return override;

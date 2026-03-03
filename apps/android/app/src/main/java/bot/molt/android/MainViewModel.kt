@@ -2,22 +2,12 @@ package bot.molt.android
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/MainViewModel.kt
 import bot.molt.android.gateway.GatewayEndpoint
 import bot.molt.android.chat.OutgoingAttachment
 import bot.molt.android.node.CameraCaptureManager
 import bot.molt.android.node.CanvasController
 import bot.molt.android.node.ScreenRecordManager
 import bot.molt.android.node.SmsManager
-=======
-import ai.openclaw.android.gateway.GatewayEndpoint
-import ai.openclaw.android.chat.OutgoingAttachment
-import ai.openclaw.android.node.CameraCaptureManager
-import ai.openclaw.android.node.CanvasController
-import ai.openclaw.android.node.ScreenRecordManager
-import ai.openclaw.android.node.SmsManager
-import ai.openclaw.android.voice.VoiceConversationEntry
->>>>>>> f9c3fdba4 (refactor(android): expose voice conversation state to viewmodel):apps/android/app/src/main/java/ai/openclaw/android/MainViewModel.kt
 import kotlinx.coroutines.flow.StateFlow
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {

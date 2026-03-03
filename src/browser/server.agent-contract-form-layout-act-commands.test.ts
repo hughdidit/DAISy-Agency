@@ -1,12 +1,8 @@
 import path from "node:path";
 import { fetch as realFetch } from "undici";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
 
 let testPort = 0;
 let cdpBaseUrl = "";
@@ -131,23 +127,14 @@ vi.mock("./chrome.js", () => ({
     return {
       pid: 123,
       exe: { kind: "chrome", path: "/fake/chrome" },
-<<<<<<< HEAD
       userDataDir: "/tmp/clawd",
-=======
-      userDataDir: chromeUserDataDir.dir,
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
       cdpPort: profile.cdpPort,
       startedAt: Date.now(),
       proc,
     };
   }),
-<<<<<<< HEAD
   resolveClawdUserDataDir: vi.fn(() => "/tmp/clawd"),
   stopClawdChrome: vi.fn(async () => {
-=======
-  resolveOpenClawUserDataDir: vi.fn(() => chromeUserDataDir.dir),
-  stopOpenClawChrome: vi.fn(async () => {
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
     reachable = false;
   }),
 }));
@@ -321,7 +308,6 @@ const state = getBrowserControlServerTestState();
 const pwMocks = getPwMocks();
 
 describe("browser control server", () => {
-<<<<<<< HEAD
   installBrowserControlServerHooks();
 >>>>>>> 186ecd216 (refactor(test): reuse browser control server harness)
 
@@ -340,9 +326,6 @@ describe("browser control server", () => {
     });
     return (await res.json()) as T;
   };
-=======
-  installAgentContractHooks();
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
   const slowTimeoutMs = process.platform === "win32" ? 40_000 : 20_000;
 
@@ -426,24 +409,12 @@ describe("browser control server", () => {
       });
       expect(evalRes.ok).toBe(true);
       expect(evalRes.result).toBe("ok");
-<<<<<<< HEAD
       expect(pwMocks.evaluateViaPlaywright).toHaveBeenCalledWith({
         cdpUrl: cdpBaseUrl,
         targetId: "abcd1234",
         fn: "() => 1",
         ref: undefined,
       });
-=======
-      expect(pwMocks.evaluateViaPlaywright).toHaveBeenCalledWith(
-        expect.objectContaining({
-          cdpUrl: state.cdpBaseUrl,
-          targetId: "abcd1234",
-          fn: "() => 1",
-          ref: undefined,
-          signal: expect.any(AbortSignal),
-        }),
-      );
->>>>>>> 186ecd216 (refactor(test): reuse browser control server harness)
     },
     slowTimeoutMs,
   );
@@ -483,12 +454,7 @@ describe("browser control server", () => {
     expect(pwMocks.armFileUploadViaPlaywright).toHaveBeenCalledWith({
       cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
-<<<<<<< HEAD
       paths: ["/tmp/a.txt"],
-=======
-      // The server resolves paths (which adds a drive letter on Windows for `\\tmp\\...` style roots).
-      paths: [path.resolve(DEFAULT_UPLOAD_DIR, "a.txt")],
->>>>>>> 1a7e180e6 (refactor(media): normalize inbound MediaType/MediaTypes defaults (#16233))
       timeoutMs: 1234,
     });
 
@@ -563,8 +529,6 @@ describe("browser control server", () => {
     expect(stopped.ok).toBe(true);
     expect(stopped.stopped).toBe(true);
   });
-<<<<<<< HEAD
-=======
 
   it("trace stop rejects traversal path outside trace dir", async () => {
     const base = await startServerAndBase();
@@ -644,5 +608,4 @@ describe("browser control server", () => {
       }),
     );
   });
->>>>>>> 186ecd216 (refactor(test): reuse browser control server harness)
 });

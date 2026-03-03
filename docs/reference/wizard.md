@@ -54,10 +54,7 @@ For a high-level overview, see [Onboarding Wizard](/start/wizard).
     - **Skip**: no auth configured yet.
     - Pick a default model from detected options (or enter provider/model manually).
     - Wizard runs a model check and warns if the configured model is unknown or missing auth.
-<<<<<<< HEAD
-=======
     - API key storage mode defaults to plaintext auth-profile values. Use `--secret-input-mode ref` to store env-backed refs instead (for example `keyRef: { source: "env", provider: "default", id: "OPENAI_API_KEY" }`).
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
     - OAuth credentials live in `~/.openclaw/credentials/oauth.json`; auth profiles live in `~/.openclaw/agents/<agentId>/agent/auth-profiles.json` (API keys + OAuth).
     - More detail: [/concepts/oauth](/concepts/oauth)
     <Note>
@@ -249,10 +246,7 @@ Typical fields in `~/.openclaw/openclaw.json`:
 - `agents.defaults.workspace`
 - `agents.defaults.model` / `models.providers` (if Minimax chosen)
 - `gateway.*` (mode, bind, auth, tailscale)
-<<<<<<< HEAD
-=======
 - `session.dmScope` (behavior details: [CLI Onboarding Reference](/start/wizard-cli-reference#outputs-and-internals))
->>>>>>> 6fda04e93 (refactor: tighten onboarding dmScope typing and docs links)
 - `channels.telegram.botToken`, `channels.discord.token`, `channels.signal.*`, `channels.imessage.*`
 - Channel allowlists (Slack/Discord/Matrix/Microsoft Teams) when you opt in during the prompts (names resolve to IDs when possible).
 - `skills.install.nodeManager`

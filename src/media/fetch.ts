@@ -3,12 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
-import type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
 import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
@@ -101,42 +96,15 @@ async function readErrorBodySnippet(res: Response, maxChars = 200): Promise<stri
 }
 
 export async function fetchRemoteMedia(options: FetchMediaOptions): Promise<FetchMediaResult> {
-<<<<<<< HEAD
   const { url, fetchImpl, filePathHint, maxBytes } = options;
   const fetcher: FetchLike | undefined = fetchImpl ?? globalThis.fetch;
   if (!fetcher) {
     throw new Error("fetch is not available");
   }
-=======
-  const {
-    url,
-    fetchImpl,
-    requestInit,
-    filePathHint,
-    maxBytes,
-    maxRedirects,
-    ssrfPolicy,
-    lookupFn,
-  } = options;
->>>>>>> b044c149c (Mattermost: avoid raw fetch in monitor media download)
 
   let res: Response;
   try {
-<<<<<<< HEAD
     res = await fetcher(url);
-=======
-    const result = await fetchWithSsrFGuard({
-      url,
-      fetchImpl,
-      init: requestInit,
-      maxRedirects,
-      policy: ssrfPolicy,
-      lookupFn,
-    });
-    res = result.response;
-    finalUrl = result.finalUrl;
-    release = result.release;
->>>>>>> b044c149c (Mattermost: avoid raw fetch in monitor media download)
   } catch (err) {
     throw new MediaFetchError("fetch_failed", `Failed to fetch media from ${url}: ${String(err)}`);
   }
@@ -182,29 +150,9 @@ export async function fetchRemoteMedia(options: FetchMediaOptions): Promise<Fetc
     // ignore parse errors; leave undefined
   }
 
-<<<<<<< HEAD
   const headerFileName = parseContentDispositionFileName(res.headers.get("content-disposition"));
   let fileName =
     headerFileName || fileNameFromUrl || (filePathHint ? path.basename(filePathHint) : undefined);
-=======
-    const buffer = maxBytes
-      ? await readResponseWithLimit(res, maxBytes, {
-          onOverflow: ({ maxBytes, res }) =>
-            new MediaFetchError(
-              "max_bytes",
-              `Failed to fetch media from ${res.url || url}: payload exceeds maxBytes ${maxBytes}`,
-            ),
-        })
-      : Buffer.from(await res.arrayBuffer());
-    let fileNameFromUrl: string | undefined;
-    try {
-      const parsed = new URL(finalUrl);
-      const base = path.basename(parsed.pathname);
-      fileNameFromUrl = base || undefined;
-    } catch {
-      // ignore parse errors; leave undefined
-    }
->>>>>>> b289441e6 (refactor(media): share response size limiter)
 
   const filePathForMime =
     headerFileName && path.extname(headerFileName) ? headerFileName : (filePathHint ?? url);

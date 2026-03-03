@@ -2,13 +2,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 
-=======
-import path from "node:path";
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -62,37 +57,11 @@ function buildInjectedWorkspaceFiles(params: {
   bootstrapFiles: WorkspaceBootstrapFile[];
   injectedFiles: EmbeddedContextFile[];
 }): SessionSystemPromptReport["injectedWorkspaceFiles"] {
-<<<<<<< HEAD
   const injectedByName = new Map(params.injectedFiles.map((f) => [f.path, f.content]));
-=======
-  const injectedByPath = new Map<string, string>();
-  const injectedByBaseName = new Map<string, string>();
-  for (const file of params.injectedFiles) {
-    const pathValue = typeof file.path === "string" ? file.path.trim() : "";
-    if (!pathValue) {
-      continue;
-    }
-    if (!injectedByPath.has(pathValue)) {
-      injectedByPath.set(pathValue, file.content);
-    }
-    const normalizedPath = pathValue.replace(/\\/g, "/");
-    const baseName = path.posix.basename(normalizedPath);
-    if (!injectedByBaseName.has(baseName)) {
-      injectedByBaseName.set(baseName, file.content);
-    }
-  }
->>>>>>> 51e9c54f0 (fix(agents): skip bootstrap files with undefined path (#22698))
   return params.bootstrapFiles.map((file) => {
     const pathValue = typeof file.path === "string" ? file.path.trim() : "";
     const rawChars = file.missing ? 0 : (file.content ?? "").trimEnd().length;
-<<<<<<< HEAD
     const injected = injectedByName.get(file.name);
-=======
-    const injected =
-      (pathValue ? injectedByPath.get(pathValue) : undefined) ??
-      injectedByPath.get(file.name) ??
-      injectedByBaseName.get(file.name);
->>>>>>> 51e9c54f0 (fix(agents): skip bootstrap files with undefined path (#22698))
     const injectedChars = injected ? injected.length : 0;
     const truncated = !file.missing && injectedChars < rawChars;
     return {

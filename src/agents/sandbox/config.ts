@@ -1,12 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
@@ -17,10 +9,7 @@ import type {
   SandboxPruneConfig,
   SandboxScope,
 } from "./types.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======

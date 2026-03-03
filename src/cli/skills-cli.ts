@@ -6,7 +6,6 @@ import { formatDocsLink } from "../terminal/links.js";
 import { theme } from "../terminal/theme.js";
 import { formatSkillInfo, formatSkillsCheck, formatSkillsList } from "./skills-cli.format.js";
 
-<<<<<<< HEAD
 export type SkillsListOptions = {
   json?: boolean;
   eligible?: boolean;
@@ -155,10 +154,6 @@ export function formatSkillInfo(
 <<<<<<< HEAD
     return appendClawdHubHint(
       `Skill "${skillName}" not found. Run \`${formatCliCommand("moltbot skills list")}\` to see available skills.`,
-=======
-    return appendClawHubHint(
-      `Skill "${skillName}" not found. Run \`${formatCliCommand("openclaw skills list")}\` to see available skills.`,
->>>>>>> fd00d5688 (chore: update openclaw naming)
       opts.json,
     );
   }

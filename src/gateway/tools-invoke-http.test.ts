@@ -3,7 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -12,11 +11,6 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
 
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
-=======
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { resetTestPluginRegistry, setTestPluginRegistry, testState } from "./test-helpers.mocks.js";
 >>>>>>> 476f367cf (Gateway: avoid writing host config in tools invoke test)
@@ -215,20 +209,14 @@ afterAll(async () => {
   sharedServer = undefined;
 });
 
-<<<<<<< HEAD
 beforeEach(async () => {
   // Ensure these tests are not affected by host env vars.
 <<<<<<< HEAD
   delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   delete process.env.CLAWDBOT_GATEWAY_PASSWORD;
-=======
-=======
-beforeEach(() => {
->>>>>>> b1dd23f61 (perf(test): mock config stack in tools invoke http tests)
   delete process.env.OPENCLAW_GATEWAY_TOKEN;
   delete process.env.OPENCLAW_GATEWAY_PASSWORD;
   pluginHttpHandlers = [];
-<<<<<<< HEAD
   testState.agentConfig = undefined;
   testState.agentsConfig = undefined;
   testState.sessionConfig = undefined;
@@ -236,10 +224,6 @@ beforeEach(() => {
   await writeConfigFile({});
   clearConfigCache();
 >>>>>>> 4d4296cae (perf(test): speed up gateway tools invoke HTTP tests)
-=======
-  cfg = {};
-<<<<<<< HEAD
->>>>>>> b1dd23f61 (perf(test): mock config stack in tools invoke http tests)
 =======
   lastCreateOpenClawToolsContext = undefined;
 >>>>>>> 28d658e17 (Tests: verify tools invoke propagates route headers for subagent spawn context)
@@ -288,8 +272,6 @@ const invokeAgentsList = async (params: {
   return await postToolsInvoke({ port: params.port, headers: params.headers, body });
 };
 
-<<<<<<< HEAD
-=======
 const invokeTool = async (params: {
   port: number;
   tool: string;
@@ -312,7 +294,6 @@ const invokeTool = async (params: {
 };
 
 <<<<<<< HEAD
->>>>>>> 4bef423d8 (perf(test): reduce gateway reload waits and trim duplicate invoke coverage)
 =======
 const invokeAgentsListAuthed = async (params: { sessionKey?: string } = {}) =>
   invokeAgentsList({
@@ -412,8 +393,6 @@ describe("POST /tools/invoke", () => {
     expect(profileRes.status).toBe(404);
   });
 
-<<<<<<< HEAD
-=======
   it("denies sessions_spawn via HTTP even when agent policy allows", async () => {
     cfg = {
       ...cfg,
@@ -502,7 +481,6 @@ describe("POST /tools/invoke", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> 644251295 (perf: reduce hotspot test startup and timeout costs)
 =======
   it("allows gateway tool via HTTP when explicitly enabled in gateway.tools.allow", async () => {
     cfg = {
@@ -572,8 +550,6 @@ describe("POST /tools/invoke", () => {
     const resMain = await invokeAgentsListAuthed({ sessionKey: "main" });
     expect(resMain.status).toBe(200);
   });
-<<<<<<< HEAD
-=======
 
   it("maps tool input errors to 400 and unexpected execution errors to 500", async () => {
     cfg = {
@@ -605,5 +581,4 @@ describe("POST /tools/invoke", () => {
     expect(crashBody.error?.type).toBe("tool_error");
     expect(crashBody.error?.message).toBe("tool execution failed");
   });
->>>>>>> 4d4296cae (perf(test): speed up gateway tools invoke HTTP tests)
 });

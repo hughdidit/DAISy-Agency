@@ -7,16 +7,11 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { Api, Model } from "@mariozechner/pi-ai";
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 import { describe, it } from "vitest";
 import { resolveMoltbotAgentDir } from "../agents/agent-paths.js";
-=======
-import type { Api, Model } from "@mariozechner/pi-ai";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { Api, Model } from "@mariozechner/pi-ai";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -48,11 +43,7 @@ import { loadConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig, ModelProviderConfig } from "../config/types.js";
-=======
-import type { OpenClawConfig, ModelProviderConfig } from "../config/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -802,7 +793,6 @@ async function runGatewayModelSuite(params: GatewayModelSuiteParams) {
           // Real tool invocation: force the agent to Read a local file and echo a nonce.
           logProgress(`${progressLabel}: tool-read`);
           const runIdTool = randomUUID();
-<<<<<<< HEAD
           const toolProbe = await client.request<AgentFinalPayload>(
             "agent",
             {
@@ -824,14 +814,6 @@ async function runGatewayModelSuite(params: GatewayModelSuiteParams) {
           if (
             isEmptyStreamText(toolText) &&
             (model.provider === "minimax" || model.provider === "openai-codex")
-=======
-          const maxToolReadAttempts = 3;
-          let toolText = "";
-          for (
-            let toolReadAttempt = 0;
-            toolReadAttempt < maxToolReadAttempts;
-            toolReadAttempt += 1
->>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
           ) {
             const strictReply = toolReadAttempt > 0;
             const toolProbe = await client.request<AgentFinalPayload>(

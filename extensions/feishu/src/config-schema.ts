@@ -148,7 +148,6 @@ export const FeishuAccountConfigSchema = z
     domain: FeishuDomainSchema.optional(),
     connectionMode: FeishuConnectionModeSchema.optional(),
     webhookPath: z.string().optional(),
-<<<<<<< HEAD
     webhookPort: z.number().int().positive().optional(),
     capabilities: z.array(z.string()).optional(),
     markdown: MarkdownConfigSchema,
@@ -169,9 +168,6 @@ export const FeishuAccountConfigSchema = z
     heartbeat: ChannelHeartbeatVisibilitySchema,
     renderMode: RenderModeSchema,
     tools: FeishuToolsConfigSchema,
-=======
-    ...FeishuSharedConfigShape,
->>>>>>> 5574eb6b3 (fix(feishu): harden onboarding and webhook validation)
   })
   .strict();
 
@@ -186,19 +182,14 @@ export const FeishuConfigSchema = z
     domain: FeishuDomainSchema.optional().default("feishu"),
     connectionMode: FeishuConnectionModeSchema.optional().default("websocket"),
     webhookPath: z.string().optional().default("/feishu/events"),
-<<<<<<< HEAD
     webhookPort: z.number().int().positive().optional(),
     capabilities: z.array(z.string()).optional(),
     markdown: MarkdownConfigSchema,
     configWrites: z.boolean().optional(),
-=======
-    ...FeishuSharedConfigShape,
->>>>>>> 5574eb6b3 (fix(feishu): harden onboarding and webhook validation)
     dmPolicy: DmPolicySchema.optional().default("pairing"),
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     requireMention: z.boolean().optional().default(true),
     topicSessionMode: TopicSessionModeSchema,
-<<<<<<< HEAD
     historyLimit: z.number().int().min(0).optional(),
     dmHistoryLimit: z.number().int().min(0).optional(),
     dms: z.record(z.string(), DmConfigSchema).optional(),
@@ -209,8 +200,6 @@ export const FeishuConfigSchema = z
     heartbeat: ChannelHeartbeatVisibilitySchema,
     renderMode: RenderModeSchema, // raw = plain text (default), card = interactive card with markdown
     tools: FeishuToolsConfigSchema,
-=======
->>>>>>> 5574eb6b3 (fix(feishu): harden onboarding and webhook validation)
     // Dynamic agent creation for DM users
     dynamicAgentCreation: DynamicAgentCreationSchema,
     // Multi-account configuration

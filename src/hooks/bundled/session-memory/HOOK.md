@@ -1,13 +1,8 @@
 ---
 name: session-memory
-<<<<<<< HEAD
 description: "Save session context to memory when /new command is issued"
 <<<<<<< HEAD
 homepage: https://docs.molt.bot/hooks#session-memory
-=======
-=======
-description: "Save session context to memory when /new or /reset command is issued"
->>>>>>> d583399c9 (Hooks: persist session memory on /reset)
 homepage: https://docs.openclaw.ai/automation/hooks#session-memory
 >>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 metadata:

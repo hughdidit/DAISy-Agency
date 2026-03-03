@@ -8,7 +8,6 @@ import {
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
-<<<<<<< HEAD
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
   compactEmbeddedPiSession: vi.fn(),
@@ -98,12 +97,6 @@ function makeCfg(home: string) {
 
 afterEach(() => {
   vi.restoreAllMocks();
-=======
-let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
-beforeAll(async () => {
-<<<<<<< HEAD
-  ({ getReplyFromConfig } = await import("./reply.js"));
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
   getReplyFromConfig = await loadGetReplyFromConfig();
 >>>>>>> 24ea941e2 (test: dedupe auto-reply web and signal flows)

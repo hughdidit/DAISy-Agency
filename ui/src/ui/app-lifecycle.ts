@@ -1,7 +1,5 @@
 import { connectGateway } from "./app-gateway.ts";
 import {
-<<<<<<< HEAD
-=======
   startLogsPolling,
   startNodesPolling,
   stopLogsPolling,
@@ -11,14 +9,12 @@ import {
 } from "./app-polling.ts";
 import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll.ts";
 import {
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
   applySettingsFromUrl,
   attachThemeListener,
   detachThemeListener,
   inferBasePath,
   syncTabWithLocation,
   syncThemeWithSettings,
-<<<<<<< HEAD
 } from "./app-settings";
 import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
 import {
@@ -30,20 +26,12 @@ import {
   stopDebugPolling,
 } from "./app-polling";
 =======
-} from "./app-settings.ts";
-<<<<<<< HEAD
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
 import { loadControlUiBootstrapConfig } from "./controllers/control-ui-bootstrap.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 3b4096e02 (fix(ui): load Control UI bootstrap config via JSON endpoint)
-=======
-import type { Tab } from "./navigation.ts";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

@@ -14,30 +14,15 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { createModelSelectionState } from "./model-selection.js";
 import type { TypingController } from "./typing.js";
-=======
-=======
-import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
->>>>>>> 22c1210a1 (refactor(auto-reply): share directive level resolution)
 import { clearInlineDirectives } from "./get-reply-directives-utils.js";
-<<<<<<< HEAD
 >>>>>>> 7b39aa344 (refactor(auto-reply): reuse inline directive clearer)
 =======
-import type { createModelSelectionState } from "./model-selection.js";
-import type { TypingController } from "./typing.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
 import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
 import { clearInlineDirectives } from "./get-reply-directives-utils.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import type { createModelSelectionState } from "./model-selection.js";
-import type { TypingController } from "./typing.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
 import { clearInlineDirectives } from "./get-reply-directives-utils.js";

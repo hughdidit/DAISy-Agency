@@ -3,13 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveImplicitProviders, buildNvidiaProvider } from "./models-config.providers.js";
-=======
-import { captureEnv } from "../test-utils/env.js";
-=======
-import { withEnvAsync } from "../test-utils/env.js";
->>>>>>> bc037dfe0 (refactor(test): dedupe provider env setup in model config tests)
 import { resolveApiKeyForProvider } from "./model-auth.js";
 import { buildNvidiaProvider, resolveImplicitProviders } from "./models-config.providers.js";
 >>>>>>> 997b9ad23 (refactor(test): dedupe provider api key env restore)
@@ -20,26 +14,7 @@ describe("NVIDIA provider", () => {
     await withEnvAsync({ NVIDIA_API_KEY: "test-key" }, async () => {
       const providers = await resolveImplicitProviders({ agentDir });
       expect(providers?.nvidia).toBeDefined();
-<<<<<<< HEAD
       expect(providers?.nvidia?.apiKey).toBe("NVIDIA_API_KEY");
-=======
-      expect(providers?.nvidia?.models?.length).toBeGreaterThan(0);
-    });
-  });
-
-  it("resolves the nvidia api key value from env", async () => {
-    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
-    await withEnvAsync({ NVIDIA_API_KEY: "nvidia-test-api-key" }, async () => {
-      const auth = await resolveApiKeyForProvider({
-        provider: "nvidia",
-        agentDir,
-      });
-
-      expect(auth.apiKey).toBe("nvidia-test-api-key");
-      expect(auth.mode).toBe("api-key");
-      expect(auth.source).toContain("NVIDIA_API_KEY");
-<<<<<<< HEAD
->>>>>>> 997b9ad23 (refactor(test): dedupe provider api key env restore)
     } finally {
       envSnapshot.restore();
     }

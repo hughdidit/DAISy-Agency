@@ -5,10 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 =======
@@ -24,17 +21,9 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { describe, expect, it, afterEach } from "vitest";
-<<<<<<< HEAD
 
 import { loadMoltbotPlugins } from "../plugins/loader.js";
 import { resetGlobalHookRunner } from "../plugins/hook-runner-global.js";
-=======
-import {
-  initializeGlobalHookRunner,
-  resetGlobalHookRunner,
-} from "../plugins/hook-runner-global.js";
-import { loadOpenClawPlugins } from "../plugins/loader.js";
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 import { guardSessionManager } from "./session-tool-result-guard-wrapper.js";
 
 const EMPTY_PLUGIN_SCHEMA = { type: "object", additionalProperties: false, properties: {} };
@@ -102,15 +91,9 @@ describe("tool_result_persist hook", () => {
     expect(toolResult.details).toBeTruthy();
   });
 
-<<<<<<< HEAD
   it("composes transforms in priority order and allows stripping toolResult.details", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-toolpersist-"));
     process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
-=======
-  it("loads tool_result_persist hooks without breaking persistence", () => {
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-toolpersist-"));
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 
     const pluginA = writeTempPlugin({
       dir: tmp,
@@ -136,11 +119,7 @@ describe("tool_result_persist hook", () => {
 } };`,
     });
 
-<<<<<<< HEAD
     loadMoltbotPlugins({
-=======
-    const registry = loadOpenClawPlugins({
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
       cache: false,
       workspaceDir: tmp,
       config: {

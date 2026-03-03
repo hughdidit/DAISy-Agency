@@ -1,12 +1,7 @@
 import CoreGraphics
 import Foundation
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsGatewayPrompter.swift
 import MoltbotKit
 import MoltbotProtocol
-=======
-import OpenClawKit
-import OpenClawProtocol
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/ExecApprovalsGatewayPrompter.swift
 import OSLog
 
 @MainActor

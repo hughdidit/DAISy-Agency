@@ -2,25 +2,16 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import JSZip from "jszip";
 import * as tar from "tar";
 <<<<<<< HEAD
 import { afterAll, describe, expect, it, vi } from "vitest";
 =======
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> a7142c621 (perf(test): cache hook installer fixtures)
-=======
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> fa472623f (perf(test): use prebuilt hook install fixtures)
-=======
-=======
-import { expectSingleNpmInstallIgnoreScriptsCall } from "../test-utils/exec-assertions.js";
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 =======
 import {
   expectSingleNpmInstallIgnoreScriptsCall,
@@ -57,12 +48,7 @@ vi.mock("../process/exec.js", () => ({
 
 function makeTempDir() {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const dir = path.join(os.tmpdir(), `moltbot-hook-install-${randomUUID()}`);
-=======
-=======
-  fs.mkdirSync(fixtureRoot, { recursive: true });
->>>>>>> fa472623f (perf(test): use prebuilt hook install fixtures)
   const dir = path.join(fixtureRoot, `case-${tempDirIndex++}`);
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
   fs.mkdirSync(dir, { recursive: true });
@@ -80,7 +66,6 @@ afterAll(() => {
   }
 });
 
-<<<<<<< HEAD
 describe("installHooksFromArchive", () => {
   it("installs hook packs from zip archives", async () => {
     const stateDir = makeTempDir();
@@ -112,9 +97,6 @@ describe("installHooksFromArchive", () => {
     zip.file("package/hooks/zip-hook/handler.ts", "export default async () => {};\n");
     const buffer = await zip.generateAsync({ type: "nodebuffer" });
     fs.writeFileSync(archivePath, buffer);
-=======
-    fs.writeFileSync(archivePath, zipHooksBuffer);
->>>>>>> a7142c621 (perf(test): cache hook installer fixtures)
 
     const hooksDir = path.join(stateDir, "hooks");
     const result = await installHooksFromArchive({ archivePath, hooksDir });
@@ -185,38 +167,6 @@ describe("installHooksFromArchive", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  it("rejects zip archives with traversal entries", async () => {
-    const stateDir = makeTempDir();
-    const workDir = makeTempDir();
-    const archivePath = path.join(workDir, "traversal.zip");
-    fs.writeFileSync(archivePath, zipTraversalBuffer);
-
-    const hooksDir = path.join(stateDir, "hooks");
-    const result = await installHooksFromArchive({ archivePath, hooksDir });
-=======
-  it.each([
-    {
-      name: "zip",
-      fileName: "traversal.zip",
-      contents: zipTraversalBuffer,
-      expectedDetail: "archive entry",
-    },
-    {
-      name: "tar",
-      fileName: "traversal.tar",
-      contents: tarTraversalBuffer,
-      expectedDetail: "escapes destination",
-    },
-  ])("rejects $name archives with traversal entries", async (tc) => {
-    const fixture = writeArchiveFixture({ fileName: tc.fileName, contents: tc.contents });
-    const result = await installHooksFromArchive({
-      archivePath: fixture.archivePath,
-      hooksDir: fixture.hooksDir,
-    });
-<<<<<<< HEAD
->>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
 
     expect(result.ok).toBe(false);
     if (result.ok) {
@@ -229,7 +179,6 @@ describe("installHooksFromArchive", () => {
 >>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
   });
 
-<<<<<<< HEAD
 >>>>>>> a7142c621 (perf(test): cache hook installer fixtures)
   it("installs hook packs from tar archives", async () => {
     const stateDir = makeTempDir();
@@ -267,9 +216,6 @@ describe("installHooksFromArchive", () => {
       "utf-8",
     );
     await tar.c({ cwd: workDir, file: archivePath }, ["package"]);
-=======
-    fs.writeFileSync(archivePath, tarHooksBuffer);
->>>>>>> a7142c621 (perf(test): cache hook installer fixtures)
 
     const hooksDir = path.join(stateDir, "hooks");
     const result = await installHooksFromArchive({ archivePath, hooksDir });
@@ -283,27 +229,6 @@ describe("installHooksFromArchive", () => {
     expect(result.targetDir).toBe(path.join(stateDir, "hooks", "tar-hooks"));
   });
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-
-  it("rejects tar archives with traversal entries", async () => {
-    const stateDir = makeTempDir();
-    const workDir = makeTempDir();
-    const archivePath = path.join(workDir, "traversal.tar");
-    fs.writeFileSync(archivePath, tarTraversalBuffer);
-
-    const hooksDir = path.join(stateDir, "hooks");
-    const result = await installHooksFromArchive({ archivePath, hooksDir });
-
-    expect(result.ok).toBe(false);
-    if (result.ok) {
-      return;
-    }
-    expect(result.error).toContain("failed to extract archive");
-    expect(result.error).toContain("escapes destination");
-  });
->>>>>>> a7142c621 (perf(test): cache hook installer fixtures)
 
   it("rejects hook packs with traversal-like ids", async () => {
     const stateDir = makeTempDir();
@@ -345,7 +270,6 @@ describe("installHooksFromArchive", () => {
       archivePath: fixture.archivePath,
       hooksDir: fixture.hooksDir,
     });
-<<<<<<< HEAD
 >>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
 
     expect(result.ok).toBe(false);
@@ -353,9 +277,6 @@ describe("installHooksFromArchive", () => {
       return;
     }
     expect(result.error).toContain("reserved path segment");
-=======
-    expectInstallFailureContains(result, ["reserved path segment"]);
->>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
   });
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 });
@@ -439,8 +360,6 @@ describe("installHooksFromPath", () => {
     expect(fs.existsSync(path.join(result.targetDir, "HOOK.md"))).toBe(true);
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("installHooksFromNpmSpec", () => {
   it("uses --ignore-scripts for npm pack and cleans up temp dir", async () => {
@@ -517,19 +436,5 @@ describe("installHooksFromNpmSpec", () => {
       actualIntegrity: "sha512-new",
     });
   });
->>>>>>> 12635de1c (test: cover shared installer flow helpers)
 });
-<<<<<<< HEAD
 >>>>>>> a7142c621 (perf(test): cache hook installer fixtures)
-=======
-
-describe("gmail watcher", () => {
-  it("detects address already in use errors", () => {
-    expect(isAddressInUseError("listen tcp 127.0.0.1:8788: bind: address already in use")).toBe(
-      true,
-    );
-    expect(isAddressInUseError("EADDRINUSE: address already in use")).toBe(true);
-    expect(isAddressInUseError("some other error")).toBe(false);
-  });
-});
->>>>>>> 5e3b211d9 (perf(test): fold gmail watcher assertions into hooks install suite)

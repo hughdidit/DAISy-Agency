@@ -1,17 +1,11 @@
-<<<<<<< HEAD
 import { sanitizeBinaryOutput } from "../../agents/shell-utils.js";
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
-=======
->>>>>>> ea0ef1870 (refactor: centralize exec approval timeout)
 import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
 import type { GatewayRequestHandlers } from "./types.js";
@@ -29,12 +23,6 @@ import {
   type ExecApprovalDecision,
 } from "../../infra/exec-approvals.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { buildSystemRunApprovalBindingV1 } from "../../infra/system-run-approval-binding.js";
-=======
-import { buildSystemRunApprovalBinding } from "../../infra/system-run-approval-binding.js";
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import { resolveSystemRunApprovalRequestContext } from "../../infra/system-run-approval-context.js";
 >>>>>>> 4e690e09c (refactor(gateway): centralize system.run approval context and errors)
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
@@ -45,10 +33,7 @@ import {
   validateExecApprovalRequestParams,
   validateExecApprovalResolveParams,
 } from "../protocol/index.js";
-<<<<<<< HEAD
-=======
 import { buildSystemRunApprovalBindingV1 } from "../system-run-approval-binding.js";
->>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
 import type { GatewayRequestHandlers } from "./types.js";
 
 export function createExecApprovalHandlers(
@@ -82,10 +67,7 @@ export function createExecApprovalHandlers(
         id?: string;
         command: string;
         cwd?: string;
-<<<<<<< HEAD
-=======
         systemRunPlan?: unknown;
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
         nodeId?: string;
         host?: string;
         security?: string;
@@ -95,33 +77,11 @@ export function createExecApprovalHandlers(
         sessionKey?: string;
         timeoutMs?: number;
       };
-<<<<<<< HEAD
       const timeoutMs = typeof p.timeoutMs === "number" ? p.timeoutMs : 120_000;
-=======
-      const twoPhase = p.twoPhase === true;
-      const timeoutMs =
-        typeof p.timeoutMs === "number" ? p.timeoutMs : DEFAULT_EXEC_APPROVAL_TIMEOUT_MS;
->>>>>>> ea0ef1870 (refactor: centralize exec approval timeout)
       const explicitId = typeof p.id === "string" && p.id.trim().length > 0 ? p.id.trim() : null;
       const host = typeof p.host === "string" ? p.host.trim() : "";
       const nodeId = typeof p.nodeId === "string" ? p.nodeId.trim() : "";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-      const commandArgv = Array.isArray(p.commandArgv)
-        ? p.commandArgv.map((entry) => String(entry))
-        : undefined;
-      const systemRunBindingV1 =
-        host === "node" && Array.isArray(commandArgv) && commandArgv.length > 0
-          ? buildSystemRunApprovalBindingV1({
-              argv: commandArgv,
-              cwd: p.cwd,
-              agentId: p.agentId,
-              sessionKey: p.sessionKey,
-              env: p.env,
-            })
-          : null;
->>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
 =======
       const approvalContext = resolveSystemRunApprovalRequestContext({
         host,
@@ -146,8 +106,6 @@ export function createExecApprovalHandlers(
         );
         return;
       }
-<<<<<<< HEAD
-=======
       if (host === "node" && !approvalContext.plan) {
         respond(
           false,
@@ -177,7 +135,6 @@ export function createExecApprovalHandlers(
               env: p.env,
             })
           : null;
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
       if (explicitId && manager.getSnapshot(explicitId)) {
         respond(
           false,
@@ -188,15 +145,7 @@ export function createExecApprovalHandlers(
       }
       const request = {
 <<<<<<< HEAD
-<<<<<<< HEAD
         command: sanitizeBinaryOutput(p.command).replace(/\r/g, ""),
-=======
-        command: p.command,
-        commandArgv,
-        envKeys: systemRunBindingV1?.envKeys?.length ? systemRunBindingV1.envKeys : undefined,
-        systemRunBindingV1: systemRunBindingV1?.binding ?? null,
-<<<<<<< HEAD
->>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
         cwd: p.cwd ?? null,
 =======
         systemRunPlanV2: approvalContext.planV2,
@@ -218,28 +167,7 @@ export function createExecApprovalHandlers(
         sessionKey: p.sessionKey ?? null,
       };
       const record = manager.create(request, timeoutMs, explicitId);
-<<<<<<< HEAD
       const decisionPromise = manager.waitForDecision(record, timeoutMs);
-=======
-      record.requestedByConnId = client?.connId ?? null;
-      record.requestedByDeviceId = client?.connect?.device?.id ?? null;
-      record.requestedByClientId = client?.connect?.client?.id ?? null;
-      // Use register() to synchronously add to pending map before sending any response.
-      // This ensures the approval ID is valid immediately after the "accepted" response.
-      let decisionPromise: Promise<
-        import("../../infra/exec-approvals.js").ExecApprovalDecision | null
-      >;
-      try {
-        decisionPromise = manager.register(record, timeoutMs);
-      } catch (err) {
-        respond(
-          false,
-          undefined,
-          errorShape(ErrorCodes.INVALID_REQUEST, `registration failed: ${String(err)}`),
-        );
-        return;
-      }
->>>>>>> 318379cdb (fix(gateway): bind system.run approvals to exec approvals)
       context.broadcast(
         "exec.approval.requested",
         {
@@ -261,32 +189,7 @@ export function createExecApprovalHandlers(
           });
         } catch (err) {
           context.logGateway?.error?.(`exec approvals: forward request failed: ${String(err)}`);
-<<<<<<< HEAD
         });
-=======
-        }
-      }
-
-      if (!hasApprovalClients(context) && !forwardedToTargets) {
-        manager.expire(record.id, "auto-expire:no-approver-clients");
-      }
-
-      // Only send immediate "accepted" response when twoPhase is requested.
-      // This preserves single-response semantics for existing callers.
-      if (twoPhase) {
-        respond(
-          true,
-          {
-            status: "accepted",
-            id: record.id,
-            createdAtMs: record.createdAtMs,
-            expiresAtMs: record.expiresAtMs,
-          },
-          undefined,
-        );
-      }
-
->>>>>>> d24f5c1e3 (fix(gateway): fail fast exec approvals when no approvers are reachable)
       const decision = await decisionPromise;
       respond(
         true,

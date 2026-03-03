@@ -6,13 +6,8 @@ import {
   resolveGatewayPort,
   resolveStateDir,
 } from "../config/config.js";
-<<<<<<< HEAD
 import { pickPrimaryTailnetIPv4 } from "../infra/tailnet.js";
 import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
-=======
-import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
-import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
->>>>>>> 47f397975 (Gateway: force loopback self-connections for local binds)
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,
@@ -22,12 +17,7 @@ import {
 import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
 import { GatewayClient } from "./client.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { pickPrimaryLanIPv4 } from "./net.js";
-=======
-=======
-import { resolveGatewayCredentialsFromConfig } from "./credentials.js";
->>>>>>> 66529c7aa (refactor(gateway): unify auth credential resolution)
 import {
   CLI_DEFAULT_OPERATOR_SCOPES,
   resolveLeastPrivilegeOperatorScopesForMethod,
@@ -103,8 +93,6 @@ export function buildGatewayConnectionDetails(
     ? "Warn: gateway.mode=remote but gateway.remote.url is missing; set gateway.remote.url or switch gateway.mode=local."
     : undefined;
   const bindDetail = !urlOverride && !remoteUrl ? `Bind: ${bindMode}` : undefined;
-<<<<<<< HEAD
-=======
 
   // Security check: block ALL insecure ws:// to non-loopback addresses (CWE-319, CVSS 9.8)
   // This applies to the FINAL resolved URL, regardless of source (config, CLI override, etc).
@@ -126,7 +114,6 @@ export function buildGatewayConnectionDetails(
     );
   }
 
->>>>>>> 8a3d04c19 (Gateway UX: harden remote ws guidance and onboarding defaults)
   const message = [
     `Gateway target: ${url}`,
     `Source: ${urlSource}`,
@@ -166,7 +153,6 @@ export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promis
       ].join("\n"),
     );
   }
-<<<<<<< HEAD
   const authToken = config.gateway?.auth?.token;
   const authPassword = config.gateway?.auth?.password;
   const connectionDetails = buildGatewayConnectionDetails({
@@ -175,36 +161,6 @@ export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promis
     ...(opts.configPath ? { configPath: opts.configPath } : {}),
   });
   const url = connectionDetails.url;
-=======
-  throw new Error(
-    [
-      "gateway remote mode misconfigured: gateway.remote.url missing",
-      `Config: ${context.configPath}`,
-      "Fix: set gateway.remote.url, or set gateway.mode=local.",
-    ].join("\n"),
-  );
-}
-
-function resolveGatewayCredentials(context: ResolvedGatewayCallContext): {
-  token?: string;
-  password?: string;
-} {
-  return resolveGatewayCredentialsFromConfig({
-    cfg: context.config,
-    env: process.env,
-    explicitAuth: context.explicitAuth,
-    urlOverride: context.urlOverride,
-    remotePasswordPrecedence: "env-first",
-  });
-}
-
-async function resolveGatewayTlsFingerprint(params: {
-  opts: CallGatewayBaseOptions;
-  context: ResolvedGatewayCallContext;
-  url: string;
-}): Promise<string | undefined> {
-  const { opts, context, url } = params;
->>>>>>> 66529c7aa (refactor(gateway): unify auth credential resolution)
   const useLocalTls =
     config.gateway?.tls?.enabled === true && !urlOverride && !remoteUrl && url.startsWith("wss://");
   const tlsRuntime = useLocalTls ? await loadGatewayTlsRuntime(config.gateway?.tls) : undefined;

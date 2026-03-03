@@ -78,17 +78,11 @@ export function registerSecretsCli(program: Command) {
   });
 
   secrets
-<<<<<<< HEAD
     .command("migrate")
     .description("Migrate plaintext secrets to file-backed SecretRefs (sops)")
     .option("--write", "Apply migration changes (default is dry-run)", false)
     .option("--rollback <backup-id>", "Rollback a previous migration backup id")
     .option("--no-scrub-env", "Keep matching plaintext values in ~/.openclaw/.env")
-=======
-    .command("audit")
-    .description("Audit plaintext secrets, unresolved refs, and precedence drift")
-    .option("--check", "Exit non-zero when findings are present", false)
->>>>>>> f413e314b (feat(secrets): replace migrate flow with audit/configure/apply)
     .option("--json", "Output JSON", false)
     .action(async (opts: SecretsAuditOptions) => {
       try {

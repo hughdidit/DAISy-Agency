@@ -1,13 +1,6 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isNotFoundPathError, isPathInside } from "../../infra/path-guards.js";
-=======
-import fs from "node:fs";
-import { openBoundaryFile } from "../../infra/boundary-file-read.js";
-import { PATH_ALIAS_POLICIES, type PathAliasPolicy } from "../../infra/path-alias-guards.js";
-<<<<<<< HEAD
->>>>>>> 242188b7b (refactor: unify boundary-safe reads for bootstrap and includes)
 =======
 import type { SafeOpenSyncAllowedType } from "../../infra/safe-open-sync.js";
 >>>>>>> 687f5779d (sandbox: allow directory boundary checks for mkdirp)
@@ -32,12 +25,8 @@ type PathSafetyOptions = {
   action: string;
   allowFinalSymlink?: boolean;
   requireWritable?: boolean;
-<<<<<<< HEAD
   allowMissingTarget?: boolean;
   allowedTypes?: readonly SafeOpenSyncAllowedType[];
-=======
-  allowedType?: SafeOpenSyncAllowedType;
->>>>>>> dcd19da42 (refactor: simplify sandbox boundary open flow)
 };
 
 export type SandboxResolvedPath = {
@@ -272,19 +261,10 @@ class SandboxFsBridgeImpl implements SandboxFsBridge {
       );
     }
 
-<<<<<<< HEAD
     await assertNoHostSymlinkEscape({
       absolutePath: target.hostPath,
       rootPath: lexicalMount.hostRoot,
       allowFinalSymlink: options.allowFinalSymlink === true,
-=======
-    const guarded = await openBoundaryFile({
-      absolutePath: target.hostPath,
-      rootPath: lexicalMount.hostRoot,
-      boundaryLabel: "sandbox mount root",
-      aliasPolicy: options.aliasPolicy,
-<<<<<<< HEAD
->>>>>>> 242188b7b (refactor: unify boundary-safe reads for bootstrap and includes)
 =======
       allowedTypes: options.allowedTypes,
 >>>>>>> 687f5779d (sandbox: allow directory boundary checks for mkdirp)
@@ -395,7 +375,6 @@ function coerceStatType(typeRaw?: string): "file" | "directory" | "other" {
   return "other";
 }
 
-<<<<<<< HEAD
 function normalizeContainerPath(value: string): string {
   const normalized = path.posix.normalize(value);
   return normalized === "." ? "/" : normalized;
@@ -421,8 +400,6 @@ function ensurePathNotInterpretedAsOption(path: string): string {
   return path;
 }
 
-=======
->>>>>>> eb4a93a8d (refactor(sandbox): share container-path utils and tighten fs bridge tests)
 async function assertNoHostSymlinkEscape(params: {
   absolutePath: string;
   rootPath: string;

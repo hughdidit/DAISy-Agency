@@ -3,14 +3,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
 
 import { resolveChannelMediaMaxBytes, type MoltbotConfig } from "clawdbot/plugin-sdk";
 
-=======
-import { resolveChannelMediaMaxBytes, type OpenClawConfig } from "openclaw/plugin-sdk";
-import { resolveBlueBubblesAccount } from "./accounts.js";
->>>>>>> 71f357d94 (bluebubbles: harden local media path handling against LFI (#16322))
 import { sendBlueBubblesAttachment } from "./attachments.js";
 import { resolveBlueBubblesMessageId } from "./monitor.js";
 import { getBlueBubblesRuntime } from "./runtime.js";

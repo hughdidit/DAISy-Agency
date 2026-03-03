@@ -530,7 +530,6 @@ final class AppState {
             }
 
             if connectionMode == .remote {
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/AppState.swift
                 var remote = gateway["remote"] as? [String: Any] ?? [:]
                 var remoteChanged = false
 
@@ -595,18 +594,6 @@ final class AppState {
 
                 if remoteChanged {
                     gateway["remote"] = remote
-=======
-                let currentRemote = gateway["remote"] as? [String: Any] ?? [:]
-                let updated = Self.updatedRemoteGatewayConfig(
-                    current: currentRemote,
-                    transport: remoteTransport,
-                    remoteUrl: remoteUrl,
-                    remoteHost: remoteHost,
-                    remoteTarget: remoteTarget,
-                    remoteIdentity: remoteIdentity)
-                if updated.changed {
-                    gateway["remote"] = updated.remote
->>>>>>> ce1dbeb98 (fix(macos): clean warnings and harden gateway/talk config parsing):apps/macos/Sources/OpenClaw/AppState.swift
                     changed = true
                 }
             }

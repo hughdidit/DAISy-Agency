@@ -38,13 +38,7 @@ describe("runInteractiveOnboarding", () => {
 
     expect(runtime.exit).toHaveBeenCalledWith(1);
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(mocks.restoreTerminalState).toHaveBeenCalledWith("onboarding finish");
-=======
-    expect(mocks.restoreTerminalState).toHaveBeenCalledWith("onboarding finish", {
-=======
-    expect(restoreTerminalStateMock).toHaveBeenCalledWith("onboarding finish", {
->>>>>>> 5b185da36 (refactor(test): remove remaining command test duplication)
       resumeStdinIfPaused: false,
     });
 >>>>>>> 994bcbf67 (refactor: clarify restoreTerminalState stdin resume option)
@@ -58,13 +52,7 @@ describe("runInteractiveOnboarding", () => {
 
     expect(runtime.exit).not.toHaveBeenCalled();
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(mocks.restoreTerminalState).toHaveBeenCalledWith("onboarding finish");
-=======
-    expect(mocks.restoreTerminalState).toHaveBeenCalledWith("onboarding finish", {
-=======
-    expect(restoreTerminalStateMock).toHaveBeenCalledWith("onboarding finish", {
->>>>>>> 5b185da36 (refactor(test): remove remaining command test duplication)
       resumeStdinIfPaused: false,
     });
 >>>>>>> 994bcbf67 (refactor: clarify restoreTerminalState stdin resume option)

@@ -45,22 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/chat/ChatComposer.kt
 import bot.molt.android.chat.ChatSessionEntry
-=======
-import androidx.compose.ui.unit.sp
-import ai.openclaw.android.ui.mobileAccent
-import ai.openclaw.android.ui.mobileAccentSoft
-import ai.openclaw.android.ui.mobileBorder
-import ai.openclaw.android.ui.mobileBorderStrong
-import ai.openclaw.android.ui.mobileCallout
-import ai.openclaw.android.ui.mobileCaption1
-import ai.openclaw.android.ui.mobileHeadline
-import ai.openclaw.android.ui.mobileSurface
-import ai.openclaw.android.ui.mobileText
-import ai.openclaw.android.ui.mobileTextSecondary
-import ai.openclaw.android.ui.mobileTextTertiary
->>>>>>> 577c55415 (style(android-chat): redesign composer controls and actions):apps/android/app/src/main/java/ai/openclaw/android/ui/chat/ChatComposer.kt
 
 @Composable
 fun ChatComposer(
@@ -81,7 +66,6 @@ fun ChatComposer(
   val canSend = pendingRunCount == 0 && (input.trim().isNotEmpty() || attachments.isNotEmpty()) && healthOk
   val sendBusy = pendingRunCount > 0
 
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/chat/ChatComposer.kt
   Surface(
     shape = MaterialTheme.shapes.large,
     color = MaterialTheme.colorScheme.surfaceContainer,
@@ -158,19 +142,6 @@ fun ChatComposer(
         placeholder = { Text("Message Clawd…") },
         minLines = 2,
         maxLines = 6,
-=======
-  Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      verticalAlignment = Alignment.CenterVertically,
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/chat/ChatComposer.kt
-      horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-      Text(
-        text = "SESSION",
-        style = mobileCaption1.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp),
-        color = mobileTextSecondary,
->>>>>>> 577c55415 (style(android-chat): redesign composer controls and actions):apps/android/app/src/main/java/ai/openclaw/android/ui/chat/ChatComposer.kt
       )
       Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(

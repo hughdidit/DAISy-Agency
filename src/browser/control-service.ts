@@ -68,7 +68,6 @@ export async function stopBrowserControlService(): Promise<void> {
     onWarn: (message) => logService.warn(message),
   });
 
-<<<<<<< HEAD
   try {
     for (const name of listKnownProfileNames(current)) {
       try {
@@ -81,8 +80,6 @@ export async function stopBrowserControlService(): Promise<void> {
     logService.warn(`clawd browser stop failed: ${String(err)}`);
   }
 
-=======
->>>>>>> b51166e87 (refactor(browser): share control lifecycle helpers)
   state = null;
 
   // Optional: Playwright is not always available (e.g. embedded gateway builds).

@@ -4,7 +4,6 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { discoverMoltbotPlugins } from "../../plugins/discovery.js";
@@ -13,21 +12,13 @@ import type { PluginOrigin } from "../../plugins/types.js";
 import type { MoltbotPackageManifest } from "../../plugins/manifest.js";
 import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
 import type { ChannelMeta } from "./types.js";
-=======
-import type { ChannelMeta } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { discoverOpenClawPlugins } from "../../plugins/discovery.js";
 import type { OpenClawPackageManifest } from "../../plugins/manifest.js";
 import type { PluginOrigin } from "../../plugins/types.js";
 import { CONFIG_DIR, isRecord, resolveUserPath } from "../../utils.js";
-<<<<<<< HEAD
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 =======
-import type { ChannelMeta } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
 import type { OpenClawPackageManifest } from "../../plugins/manifest.js";
 import type { PluginOrigin } from "../../plugins/types.js";
 import type { ChannelMeta } from "./types.js";
@@ -38,12 +29,8 @@ import { discoverOpenClawPlugins } from "../../plugins/discovery.js";
 import type { OpenClawPackageManifest } from "../../plugins/manifest.js";
 import type { PluginOrigin } from "../../plugins/types.js";
 import { CONFIG_DIR, isRecord, resolveUserPath } from "../../utils.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
-import type { ChannelMeta } from "./types.js";
->>>>>>> d0cb8c19b (chore: wtf.)
-=======
 import type { OpenClawPackageManifest } from "../../plugins/manifest.js";
 import type { PluginOrigin } from "../../plugins/types.js";
 import type { ChannelMeta } from "./types.js";
@@ -54,11 +41,7 @@ import { discoverOpenClawPlugins } from "../../plugins/discovery.js";
 import type { OpenClawPackageManifest } from "../../plugins/manifest.js";
 import type { PluginOrigin } from "../../plugins/types.js";
 import { CONFIG_DIR, isRecord, resolveUserPath } from "../../utils.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { ChannelMeta } from "./types.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type ChannelUiMetaEntry = {
   id: string;
@@ -249,15 +232,8 @@ function buildCatalogEntry(candidate: {
   workspaceDir?: string;
   packageMoltbot?: MoltbotPackageManifest;
 }): ChannelPluginCatalogEntry | null {
-<<<<<<< HEAD
   const manifest = candidate.packageMoltbot;
   if (!manifest?.channel) return null;
-=======
-  const manifest = candidate.packageManifest;
-  if (!manifest?.channel) {
-    return null;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const id = manifest.channel.id?.trim();
   if (!id) {
     return null;

@@ -1,13 +1,5 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ChannelId } from "./types.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeAccountId } from "../../routing/session-key.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

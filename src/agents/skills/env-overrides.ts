@@ -1,14 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SkillEntry, SkillSnapshot } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -31,15 +21,9 @@ import { resolveSkillKey } from "./frontmatter.js";
 import type { SkillEntry, SkillSnapshot } from "./types.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export function applySkillEnvOverrides(params: { skills: SkillEntry[]; config?: MoltbotConfig }) {
   const { skills, config } = params;
   const updates: Array<{ key: string; prev: string | undefined }> = [];
-=======
-=======
-const log = createSubsystemLogger("env-overrides");
-
->>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 type EnvUpdate = { key: string; prev: string | undefined };
 type SkillConfig = NonNullable<ReturnType<typeof resolveSkillConfig>>;
 >>>>>>> a76777759 (refactor(skills): dedupe env overrides)

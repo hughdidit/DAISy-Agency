@@ -91,46 +91,16 @@ describe("runBootOnce", () => {
   };
 
   it("skips when BOOT.md is missing", async () => {
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-boot-"));
     await expect(runBootOnce({ cfg: {}, deps: makeDeps(), workspaceDir })).resolves.toEqual({
       status: "skipped",
       reason: "missing",
-=======
-    await withBootWorkspace({}, async (workspaceDir) => {
-      await expect(runBootOnce({ cfg: {}, deps: makeDeps(), workspaceDir })).resolves.toEqual({
-        status: "skipped",
-        reason: "missing",
-      });
-      expect(agentCommand).not.toHaveBeenCalled();
     });
   });
 
-  it("returns failed when BOOT.md cannot be read", async () => {
-    await withBootWorkspace({ bootAsDirectory: true }, async (workspaceDir) => {
-      const result = await runBootOnce({ cfg: {}, deps: makeDeps(), workspaceDir });
-      expect(result.status).toBe("failed");
-      if (result.status === "failed") {
-        expect(result.reason.length).toBeGreaterThan(0);
-      }
-      expect(agentCommand).not.toHaveBeenCalled();
->>>>>>> 8f11868cc (test(gateway): dedupe boot workspace setup and cover boot failures)
-    });
-  });
-
-<<<<<<< HEAD
   it("skips when BOOT.md is empty", async () => {
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-boot-"));
     await fs.writeFile(path.join(workspaceDir, "BOOT.md"), "   \n", "utf-8");
-=======
-  it.each([
-    { title: "empty", content: "   \n", reason: "empty" as const },
-    { title: "whitespace-only", content: "\n\t ", reason: "empty" as const },
-  ])("skips when BOOT.md is $title", async ({ content, reason }) => {
-<<<<<<< HEAD
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-boot-"));
-    await fs.writeFile(path.join(workspaceDir, "BOOT.md"), content, "utf-8");
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
     await expect(runBootOnce({ cfg: {}, deps: makeDeps(), workspaceDir })).resolves.toEqual({
       status: "skipped",
       reason,
@@ -146,10 +116,7 @@ describe("runBootOnce", () => {
   });
 
   it("runs agent command when BOOT.md exists", async () => {
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-boot-"));
-=======
->>>>>>> 8f11868cc (test(gateway): dedupe boot workspace setup and cover boot failures)
     const content = "Say hello when you wake up.";
     await withBootWorkspace({ bootContent: content }, async (workspaceDir) => {
       agentCommand.mockResolvedValue(undefined);
@@ -182,8 +149,6 @@ describe("runBootOnce", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("uses per-agent session key when agentId is provided", async () => {
     await withBootWorkspace({ bootContent: "Check status." }, async (workspaceDir) => {
       agentCommand.mockResolvedValue(undefined);
@@ -199,7 +164,6 @@ describe("runBootOnce", () => {
     });
   });
 
->>>>>>> 8f11868cc (test(gateway): dedupe boot workspace setup and cover boot failures)
   it("generates new session ID when no existing session exists", async () => {
     const content = "Say hello when you wake up.";
     await withBootWorkspace({ bootContent: content }, async (workspaceDir) => {

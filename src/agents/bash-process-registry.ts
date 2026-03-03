@@ -158,8 +158,6 @@ export function markBackgrounded(session: ProcessSession) {
 
 function moveToFinished(session: ProcessSession, status: ProcessStatus) {
   runningSessions.delete(session.id);
-<<<<<<< HEAD
-=======
 
   // Clean up child process stdio streams to prevent FD leaks
   if (session.child) {
@@ -192,7 +190,6 @@ function moveToFinished(session: ProcessSession, status: ProcessStatus) {
     delete session.stdin;
   }
 
->>>>>>> d31caa81e (fix(runtime): guard cleanup and preserve skipped cron jobs)
   if (!session.backgrounded) {
     return;
   }

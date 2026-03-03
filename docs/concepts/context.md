@@ -11,12 +11,7 @@ read_when:
 “Context” is **everything Moltbot sends to the model for a run**. It is bounded by the model’s **context window** (token limit).
 
 Beginner mental model:
-<<<<<<< HEAD
 - **System prompt** (Moltbot-built): rules, tools, skills list, time/runtime, and injected workspace files.
-=======
-
-- **System prompt** (OpenClaw-built): rules, tools, skills list, time/runtime, and injected workspace files.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Conversation history**: your messages + the assistant’s messages for this session.
 - **Tool calls/results + attachments**: command output, file reads, images/audio, etc.
 
@@ -92,12 +87,7 @@ Everything the model receives counts, including:
 
 ## How Moltbot builds the system prompt
 
-<<<<<<< HEAD
 The system prompt is **Moltbot-owned** and rebuilt each run. It includes:
-=======
-The system prompt is **OpenClaw-owned** and rebuilt each run. It includes:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Tool list + short descriptions.
 - Skills list (metadata only; see below).
 - Workspace location.
@@ -109,12 +99,7 @@ Full breakdown: [System Prompt](/concepts/system-prompt).
 
 ## Injected workspace files (Project Context)
 
-<<<<<<< HEAD
 By default, Moltbot injects a fixed set of workspace files (if present):
-=======
-By default, OpenClaw injects a fixed set of workspace files (if present):
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `AGENTS.md`
 - `SOUL.md`
 - `TOOLS.md`
@@ -123,11 +108,7 @@ By default, OpenClaw injects a fixed set of workspace files (if present):
 - `HEARTBEAT.md`
 - `BOOTSTRAP.md` (first-run only)
 
-<<<<<<< HEAD
 Large files are truncated per-file using `agents.defaults.bootstrapMaxChars` (default `20000` chars). `/context` shows **raw vs injected** sizes and whether truncation happened.
-=======
-Large files are truncated per-file using `agents.defaults.bootstrapMaxChars` (default `20000` chars). OpenClaw also enforces a total bootstrap injection cap across files with `agents.defaults.bootstrapTotalMaxChars` (default `150000` chars). `/context` shows **raw vs injected** sizes and whether truncation happened.
->>>>>>> 8a6701664 (Agents: raise bootstrap total cap and warn on /context truncation (#18229))
 
 ## Skills: what’s injected vs loaded on-demand
 

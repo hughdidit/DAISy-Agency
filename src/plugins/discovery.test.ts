@@ -17,18 +17,11 @@ function makeTempDir() {
 
 async function withStateDir<T>(stateDir: string, fn: () => Promise<T>) {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const prev = process.env.CLAWDBOT_STATE_DIR;
   const prevBundled = process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR;
   process.env.CLAWDBOT_STATE_DIR = stateDir;
   process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
   vi.resetModules();
-=======
-  const prev = process.env.OPENCLAW_STATE_DIR;
-  const prevBundled = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
-  process.env.OPENCLAW_STATE_DIR = stateDir;
-  process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
->>>>>>> 41f2f359a (perf(test): reduce module reload overhead in key suites)
   try {
     return await fn();
   } finally {
@@ -79,12 +72,8 @@ describe("discoverMoltbotPlugins", () => {
     fs.writeFileSync(path.join(workspaceExt, "beta.ts"), "export default function () {}", "utf-8");
 
     const { candidates } = await withStateDir(stateDir, async () => {
-<<<<<<< HEAD
       const { discoverMoltbotPlugins } = await import("./discovery.js");
       return discoverMoltbotPlugins({ workspaceDir });
-=======
-      return discoverOpenClawPlugins({ workspaceDir });
->>>>>>> 41f2f359a (perf(test): reduce module reload overhead in key suites)
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -149,12 +138,8 @@ describe("discoverMoltbotPlugins", () => {
     );
 
     const { candidates } = await withStateDir(stateDir, async () => {
-<<<<<<< HEAD
       const { discoverMoltbotPlugins } = await import("./discovery.js");
       return discoverMoltbotPlugins({});
-=======
-      return discoverOpenClawPlugins({});
->>>>>>> 41f2f359a (perf(test): reduce module reload overhead in key suites)
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -182,12 +167,8 @@ describe("discoverMoltbotPlugins", () => {
     );
 
     const { candidates } = await withStateDir(stateDir, async () => {
-<<<<<<< HEAD
       const { discoverMoltbotPlugins } = await import("./discovery.js");
       return discoverMoltbotPlugins({});
-=======
-      return discoverOpenClawPlugins({});
->>>>>>> 41f2f359a (perf(test): reduce module reload overhead in key suites)
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -210,12 +191,8 @@ describe("discoverMoltbotPlugins", () => {
     fs.writeFileSync(path.join(packDir, "index.js"), "module.exports = {}", "utf-8");
 
     const { candidates } = await withStateDir(stateDir, async () => {
-<<<<<<< HEAD
       const { discoverMoltbotPlugins } = await import("./discovery.js");
       return discoverMoltbotPlugins({ extraPaths: [packDir] });
-=======
-      return discoverOpenClawPlugins({ extraPaths: [packDir] });
->>>>>>> 41f2f359a (perf(test): reduce module reload overhead in key suites)
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -248,8 +225,6 @@ describe("discoverMoltbotPlugins", () => {
     ).toBe(true);
   });
 
-<<<<<<< HEAD
-=======
   it("rejects package extension entries that escape via symlink", async () => {
     const stateDir = makeTempDir();
     const globalExt = path.join(stateDir, "extensions", "pack");
@@ -324,7 +299,6 @@ describe("discoverMoltbotPlugins", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
 =======
   it("ignores package manifests that are hardlinked aliases", async () => {
     if (process.platform === "win32") {

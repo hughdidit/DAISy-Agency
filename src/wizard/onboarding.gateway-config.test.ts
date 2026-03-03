@@ -89,44 +89,6 @@ describe("configureGatewayForOnboarding", () => {
     ]);
   });
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-
-  it("prefers OPENCLAW_GATEWAY_TOKEN during quickstart token setup", async () => {
-    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "token-from-env";
-    mocks.randomToken.mockReturnValue("generated-token");
-    mocks.randomToken.mockClear();
-
-    const prompter = createPrompter({
-      selectQueue: ["loopback", "token", "off"],
-      textQueue: [],
-    });
-    const runtime = createRuntime();
-
-    try {
-      const result = await configureGatewayForOnboarding({
-        flow: "quickstart",
-        baseConfig: {},
-        nextConfig: {},
-        localPort: 18789,
-        quickstartGateway: createQuickstartGateway("token"),
-        prompter,
-        runtime,
-      });
-
-      expect(result.settings.gatewayToken).toBe("token-from-env");
-    } finally {
-      if (prevToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
-      }
-    }
-  });
-
->>>>>>> 77ccd35e5 (Fix onboard ignoring OPENCLAW_GATEWAY_TOKEN env var (#22658))
   it("does not set password to literal 'undefined' when prompt returns undefined", async () => {
     mocks.randomToken.mockReturnValue("unused");
 
@@ -152,36 +114,7 @@ describe("configureGatewayForOnboarding", () => {
     expect(authConfig?.password).toBe("");
     expect(authConfig?.password).not.toBe("undefined");
   });
-<<<<<<< HEAD
 >>>>>>> 3e7800bef (refactor(test): dedupe onboarding gateway prompter)
-=======
-
-  it("seeds control UI allowed origins for non-loopback binds", async () => {
-    mocks.randomToken.mockReturnValue("generated-token");
-
-    const prompter = createPrompter({
-      selectQueue: ["lan", "token", "off"],
-      textQueue: ["18789", undefined],
-    });
-    const runtime = createRuntime();
-
-    const result = await configureGatewayForOnboarding({
-      flow: "advanced",
-      baseConfig: {},
-      nextConfig: {},
-      localPort: 18789,
-      quickstartGateway: createQuickstartGateway("token"),
-      prompter,
-      runtime,
-    });
-
-    expect(result.nextConfig.gateway?.controlUi?.allowedOrigins).toEqual([
-      "http://localhost:18789",
-      "http://127.0.0.1:18789",
-    ]);
-  });
-<<<<<<< HEAD
->>>>>>> da53015ef (fix(onboard): seed Control UI origins for non-loopback binds (land #26157, thanks @stakeswky))
 =======
 
   it("adds Tailscale origin to controlUi.allowedOrigins when tailscale serve is enabled", async () => {

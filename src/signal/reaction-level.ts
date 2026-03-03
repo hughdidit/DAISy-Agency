@@ -1,13 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import {
-  resolveReactionLevel,
-  type ReactionLevel,
-  type ResolvedReactionLevel,
-} from "../utils/reaction-level.js";
->>>>>>> 81361755b (refactor(reactions): share reaction level resolver)
 import { resolveSignalAccount } from "./accounts.js";
 
 export type SignalReactionLevel = ReactionLevel;

@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 8fdde0429 (perf(auto-reply): avoid skill scans for inline directives)
 import type { FollowupRun, QueueSettings } from "./queue.js";
 import { defaultRuntime } from "../../runtime.js";
 import { enqueueFollowupRun, scheduleFollowupDrain } from "./queue.js";

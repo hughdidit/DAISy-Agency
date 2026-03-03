@@ -1,15 +1,4 @@
-<<<<<<< HEAD
 import { IRC_FIELD_HELP, IRC_FIELD_LABELS } from "./schema.irc.js";
-=======
-import { z } from "zod";
-import { createSubsystemLogger } from "../logging/subsystem.js";
-import { FIELD_HELP } from "./schema.help.js";
-import { FIELD_LABELS } from "./schema.labels.js";
-import { applyDerivedTags } from "./schema.tags.js";
-import { sensitive } from "./zod-schema.sensitive.js";
-
-const log = createSubsystemLogger("config/schema");
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796))
 
 export type ConfigUiHint = {
   label?: string;
@@ -760,38 +749,7 @@ const FIELD_PLACEHOLDERS: Record<string, string> = {
   "agents.list[].identity.avatar": "avatars/openclaw.png",
 };
 
-<<<<<<< HEAD
 const SENSITIVE_PATTERNS = [/token$/i, /password/i, /secret/i, /api.?key/i];
-=======
-/**
- * Non-sensitive field names that happen to match sensitive patterns.
- * These are explicitly excluded from redaction (plugin config) and
- * warnings about not being marked sensitive (base config).
- */
-const SENSITIVE_KEY_WHITELIST_SUFFIXES = [
-  "maxtokens",
-  "maxoutputtokens",
-  "maxinputtokens",
-  "maxcompletiontokens",
-  "contexttokens",
-  "totaltokens",
-  "tokencount",
-  "tokenlimit",
-  "tokenbudget",
-  "passwordFile",
-] as const;
-const NORMALIZED_SENSITIVE_KEY_WHITELIST_SUFFIXES = SENSITIVE_KEY_WHITELIST_SUFFIXES.map((suffix) =>
-  suffix.toLowerCase(),
-);
-
-const SENSITIVE_PATTERNS = [
-  /token$/i,
-  /password/i,
-  /secret/i,
-  /api.?key/i,
-  /serviceaccount(?:ref)?$/i,
-];
->>>>>>> c3a4251a6 (Config: add secret ref schema and redaction foundations)
 
 function isSensitiveConfigPath(path: string): boolean {
   return SENSITIVE_PATTERNS.some((pattern) => pattern.test(path));
@@ -830,8 +788,6 @@ export function applySensitiveHints(hints: ConfigUiHints): ConfigUiHints {
   }
   return next;
 }
-<<<<<<< HEAD
-=======
 
 // Seems to be the only way tsgo accepts us to check if we have a ZodClass
 // with an unwrap() method. And it's overly complex because oxlint and
@@ -905,4 +861,3 @@ export function mapSensitivePaths(
 export const __test__ = {
   mapSensitivePaths,
 };
->>>>>>> 13478cc79 (refactor(config): harden catchall hint mapping and array fallback)

@@ -5,15 +5,11 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { Command } from "commander";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveArchiveKind } from "../infra/archive.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
 import type { HookEntry } from "../hooks/types.js";
 =======
@@ -54,11 +50,6 @@ import { recordHookInstall } from "../hooks/installs.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { HookEntry } from "../hooks/types.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { HookEntry } from "../hooks/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -79,15 +70,7 @@ import { formatDocsLink } from "../terminal/links.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
 import { formatCliCommand } from "./command-format.js";
-<<<<<<< HEAD
 import { resolveUserPath, shortenHomePath } from "../utils.js";
-=======
-import {
-  buildNpmInstallRecordFields,
-  resolvePinnedNpmInstallRecordForCli,
-} from "./npm-resolution.js";
-import { promptYesNo } from "./prompt.js";
->>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
 
 export type HooksListOptions = {
   json?: boolean;
@@ -692,7 +675,6 @@ export function registerHooksCli(program: Command): void {
           process.exit(1);
         }
 
-<<<<<<< HEAD
         let next: MoltbotConfig = {
           ...cfg,
           hooks: {
@@ -725,9 +707,6 @@ export function registerHooksCli(program: Command): void {
             },
           };
         }
-=======
-        let next = enableInternalHookEntries(cfg, result.hooks);
->>>>>>> 29e84dc13 (refactor(cli): dedupe hooks install config updates)
 
         const source: "archive" | "path" = resolveArchiveKind(resolved) ? "archive" : "path";
 
@@ -773,7 +752,6 @@ export function registerHooksCli(program: Command): void {
         process.exit(1);
       }
 
-<<<<<<< HEAD
       let next: MoltbotConfig = {
         ...cfg,
         hooks: {
@@ -806,11 +784,6 @@ export function registerHooksCli(program: Command): void {
           },
         };
       }
-=======
-      let next = enableInternalHookEntries(cfg, result.hooks);
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 29e84dc13 (refactor(cli): dedupe hooks install config updates)
 
       next = recordHookInstall(next, {
         hookId: result.hookPackId,
@@ -842,7 +815,6 @@ export function registerHooksCli(program: Command): void {
 
       next = recordHookInstall(next, {
         hookId: result.hookPackId,
-<<<<<<< HEAD
         ...buildNpmInstallRecordFields({
           spec: pinInfo.recordSpec,
           installPath: result.targetDir,
@@ -850,9 +822,6 @@ export function registerHooksCli(program: Command): void {
           resolution: result.npmResolution,
         }),
 >>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
-=======
-        ...installRecord,
->>>>>>> 9d17a3064 (refactor(cli): share pinned npm install record helper)
         hooks: result.hooks,
       });
       await writeConfigFile(next);
@@ -903,14 +872,11 @@ export function registerHooksCli(program: Command): void {
             mode: "update",
             dryRun: true,
             expectedHookPackId: hookId,
-<<<<<<< HEAD
-=======
             expectedIntegrity: record.integrity,
             onIntegrityDrift: async (drift) => {
               logIntegrityDriftWarning(hookId, drift);
               return true;
             },
->>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
             logger: createInstallLogger(),
           });
           if (!probe.ok) {
@@ -932,14 +898,11 @@ export function registerHooksCli(program: Command): void {
           spec: record.spec,
           mode: "update",
           expectedHookPackId: hookId,
-<<<<<<< HEAD
-=======
           expectedIntegrity: record.integrity,
           onIntegrityDrift: async (drift) => {
             logIntegrityDriftWarning(hookId, drift);
             return await promptYesNo(`Continue updating "${hookId}" with this artifact?`);
           },
->>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
           logger: createInstallLogger(),
         });
         if (!result.ok) {
@@ -950,19 +913,10 @@ export function registerHooksCli(program: Command): void {
         const nextVersion = result.version ?? (await readInstalledPackageVersion(result.targetDir));
         nextCfg = recordHookInstall(nextCfg, {
           hookId,
-<<<<<<< HEAD
           source: "npm",
           spec: record.spec,
           installPath: result.targetDir,
           version: nextVersion,
-=======
-          ...buildNpmInstallRecordFields({
-            spec: record.spec,
-            installPath: result.targetDir,
-            version: nextVersion,
-            resolution: result.npmResolution,
-          }),
->>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
           hooks: result.hooks,
         });
         updatedCount += 1;

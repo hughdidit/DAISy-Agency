@@ -35,11 +35,7 @@ describe("usage-format", () => {
           },
         },
       },
-<<<<<<< HEAD
     } as MoltbotConfig;
-=======
-    } as unknown as OpenClawConfig;
->>>>>>> 97c8f4999 (chore: Fix types in tests 27/N.)
 
     const cost = resolveModelCostConfig({
       provider: "test",

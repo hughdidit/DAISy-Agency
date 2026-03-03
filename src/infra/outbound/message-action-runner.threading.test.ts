@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8,11 +7,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import { slackPlugin } from "../../../extensions/slack/src/channel.js";
-import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
->>>>>>> 6ac5dd2c0 (test: cover telegram topic threadId auto-injection and subagent origin threading)
 =======
 =======
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -221,43 +215,7 @@ describe("runMessageAction threading auto-injection", () => {
     });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     const call = mocks.executeSendAction.mock.calls[0]?.[0] as { ctx?: { params?: any } };
-=======
-    expect(call?.threadId).toBe("42");
-    expect(call?.ctx?.params?.threadId).toBe("42");
-  });
-
-  it("skips telegram auto-threading when target chat differs", async () => {
-    mockHandledSendAction();
-
-    const call = await runThreadingAction({
-      cfg: telegramConfig,
-      actionParams: {
-        channel: "telegram",
-        target: "telegram:999",
-        message: "hi",
-      },
-      toolContext: defaultTelegramToolContext,
-    });
-
-    expect(call?.ctx?.params?.threadId).toBeUndefined();
-  });
-
-  it("matches telegram target with internal prefix variations", async () => {
-    mockHandledSendAction();
-
-    const call = await runThreadingAction({
-      cfg: telegramConfig,
-      actionParams: {
-        channel: "telegram",
-        target: "telegram:group:123",
-        message: "hi",
-      },
-      toolContext: defaultTelegramToolContext,
-    });
-
->>>>>>> 71111c997 (refactor(tests): dedupe gateway send and threading fixtures)
     expect(call?.ctx?.params?.threadId).toBe("42");
 =======
     expect(call?.ctx?.params?.threadId).toBe(testCase.expectedThreadId);
@@ -281,31 +239,7 @@ describe("runMessageAction threading auto-injection", () => {
       toolContext: defaultTelegramToolContext,
     });
 
-<<<<<<< HEAD
     const call = mocks.executeSendAction.mock.calls[0]?.[0] as { ctx?: { params?: any } };
     expect(call?.ctx?.params?.threadId).toBe("999");
   });
-=======
-    expect(call?.threadId).toBe("999");
-    expect(call?.ctx?.params?.threadId).toBe("999");
-  });
-
-  it("threads explicit replyTo through executeSendAction", async () => {
-    mockHandledSendAction();
-
-    const call = await runThreadingAction({
-      cfg: telegramConfig,
-      actionParams: {
-        channel: "telegram",
-        target: "telegram:123",
-        message: "hi",
-        replyTo: "777",
-      },
-      toolContext: defaultTelegramToolContext,
-    });
-
-    expect(call?.replyToId).toBe("777");
-    expect(call?.ctx?.params?.replyTo).toBe("777");
-  });
->>>>>>> 71111c997 (refactor(tests): dedupe gateway send and threading fixtures)
 });

@@ -3,13 +3,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { ChatType } from "../../channels/chat-type.js";
->>>>>>> a805d6b43 (fix(heartbeat): block dm targets and internalize blocked prompts)
 =======
 import { normalizeChatType, type ChatType } from "../../channels/chat-type.js";
-<<<<<<< HEAD
 >>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
@@ -17,9 +12,6 @@ import { formatCliCommand } from "../../cli/command-format.js";
 <<<<<<< HEAD
 import type { ChannelId, ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -43,10 +35,6 @@ import type { AgentDefaultsConfig } from "../../config/types.agent-defaults.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { normalizeAccountId } from "../../routing/session-key.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -74,10 +62,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
@@ -85,10 +69,7 @@ import { formatCliCommand } from "../../cli/command-format.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> a42e3cb78 (feat(heartbeat): add accountId config option for multi-agent routing (#8702))
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -585,16 +566,8 @@ export function resolveHeartbeatSenderContext(params: {
   const accountId =
     params.delivery.accountId ??
     (provider === params.delivery.lastChannel ? params.delivery.lastAccountId : undefined);
-<<<<<<< HEAD
   const allowFrom = provider
     ? (getChannelPlugin(provider)?.config.resolveAllowFrom?.({
-=======
-  const allowFromRaw = provider
-    ? (resolveOutboundChannelPlugin({
-        channel: provider,
-        cfg: params.cfg,
-      })?.config.resolveAllowFrom?.({
->>>>>>> 4258a3307 (refactor(agents): unify subagent announce delivery pipeline)
         cfg: params.cfg,
         accountId,
       }) ?? [])

@@ -107,11 +107,7 @@ const createStubPlugin = (params: {
       const ids = accounts ? Object.keys(accounts).filter(Boolean) : [];
       return ids.length > 0 ? ids : ["default"];
     },
-<<<<<<< HEAD
     resolveAccount: (cfg: MoltbotConfig, accountId: string) => {
-=======
-    resolveAccount: (cfg: OpenClawConfig, accountId?: string | null) => {
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
       const channels = cfg.channels as Record<string, unknown> | undefined;
       const entry = channels?.[params.id];
       if (!entry || typeof entry !== "object") {

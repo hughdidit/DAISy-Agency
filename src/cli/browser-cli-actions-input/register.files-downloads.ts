@@ -1,28 +1,10 @@
 import type { Command } from "commander";
-<<<<<<< HEAD
-=======
 import { DEFAULT_UPLOAD_DIR, resolveExistingPathsWithinRoot } from "../../browser/paths.js";
->>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
 import { danger } from "../../globals.js";
 import { defaultRuntime } from "../../runtime.js";
 import { callBrowserRequest, type BrowserParentOpts } from "../browser-cli-shared.js";
 import { resolveBrowserActionContext } from "./shared.js";
-<<<<<<< HEAD
 import { shortenHomePath } from "../../utils.js";
-=======
-
-async function normalizeUploadPaths(paths: string[]): Promise<string[]> {
-  const result = await resolveExistingPathsWithinRoot({
-    rootDir: DEFAULT_UPLOAD_DIR,
-    requestedPaths: paths,
-    scopeLabel: `uploads directory (${DEFAULT_UPLOAD_DIR})`,
-  });
-  if (!result.ok) {
-    throw new Error(result.error);
-  }
-  return result.paths;
-}
->>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
 
 export function registerBrowserFilesAndDownloadsCommands(
   browser: Command,
@@ -78,12 +60,7 @@ export function registerBrowserFilesAndDownloadsCommands(
     .action(async (paths: string[], opts, cmd) => {
       const { parent, profile } = resolveBrowserActionContext(cmd, parentOpts);
       try {
-<<<<<<< HEAD
         const timeoutMs = Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : undefined;
-=======
-        const normalizedPaths = await normalizeUploadPaths(paths);
-        const { timeoutMs, targetId } = resolveTimeoutAndTarget(opts);
->>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
         const result = await callBrowserRequest<{ download: { path: string } }>(
           parent,
           {
@@ -115,14 +92,7 @@ export function registerBrowserFilesAndDownloadsCommands(
   browser
     .command("waitfordownload")
     .description("Wait for the next download (and save it)")
-<<<<<<< HEAD
     .argument("[path]", "Save path (default: /tmp/moltbot/downloads/...)")
-=======
-    .argument(
-      "[path]",
-      "Save path (default: /tmp/openclaw/downloads/...; fallback: os.tmpdir()/openclaw/downloads/...)",
-    )
->>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
     .option("--target-id <id>", "CDP target id (or unique prefix)")
     .option(
       "--timeout-ms <ms>",

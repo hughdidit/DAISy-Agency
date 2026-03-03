@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { markBlueBubblesChatRead, sendBlueBubblesTyping, setGroupIconBlueBubbles } from "./chat.js";
@@ -14,23 +13,6 @@ vi.mock("./accounts.js", () => ({
     };
   }),
 }));
-=======
-import { describe, expect, it, vi } from "vitest";
-import "./test-mocks.js";
-import {
-  addBlueBubblesParticipant,
-  editBlueBubblesMessage,
-  leaveBlueBubblesChat,
-  markBlueBubblesChatRead,
-  removeBlueBubblesParticipant,
-  renameBlueBubblesChat,
-  sendBlueBubblesTyping,
-  setGroupIconBlueBubbles,
-  unsendBlueBubblesMessage,
-} from "./chat.js";
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
-import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
 const mockFetch = vi.fn();
 
@@ -41,7 +23,6 @@ installBlueBubblesFetchTestHooks({
 
 describe("chat", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
     mockFetch.mockReset();
@@ -51,8 +32,6 @@ describe("chat", () => {
     vi.unstubAllGlobals();
   });
 
-=======
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 =======
   function mockOkTextResponse() {
     mockFetch.mockResolvedValueOnce({
@@ -208,23 +187,17 @@ describe("chat", () => {
       ).rejects.toThrow("password is required");
     });
 
-<<<<<<< HEAD
     it("sends typing start with POST method", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         text: () => Promise.resolve(""),
       });
-=======
-    it("does not send typing when private API is disabled", async () => {
-      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(false);
->>>>>>> 53aecf7a8 (test(bluebubbles): merge typing start stop method checks)
 
       await sendBlueBubblesTyping("iMessage;-;+15551234567", true, {
         serverUrl: "http://localhost:1234",
         password: "test",
       });
 
-<<<<<<< HEAD
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/chat/iMessage%3B-%3B%2B15551234567/typing"),
         expect.objectContaining({ method: "POST" }),
@@ -236,21 +209,6 @@ describe("chat", () => {
         ok: true,
         text: () => Promise.resolve(""),
       });
-=======
-      expect(mockFetch).not.toHaveBeenCalled();
-    });
-
-    it("uses POST for start and DELETE for stop", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () => Promise.resolve(""),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () => Promise.resolve(""),
-        });
->>>>>>> 53aecf7a8 (test(bluebubbles): merge typing start stop method checks)
 
       await sendBlueBubblesTyping("iMessage;-;+15551234567", true, {
         serverUrl: "http://localhost:1234",

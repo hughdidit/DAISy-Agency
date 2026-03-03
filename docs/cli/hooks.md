@@ -87,17 +87,10 @@ moltbot hooks info session-memory
 Save session context to memory when /new command is issued
 
 Details:
-<<<<<<< HEAD
   Source: moltbot-bundled
   Path: /path/to/moltbot/hooks/bundled/session-memory/HOOK.md
   Handler: /path/to/moltbot/hooks/bundled/session-memory/handler.ts
   Homepage: https://docs.molt.bot/hooks#session-memory
-=======
-  Source: openclaw-bundled
-  Path: /path/to/openclaw/hooks/bundled/session-memory/HOOK.md
-  Handler: /path/to/openclaw/hooks/bundled/session-memory/handler.ts
-  Homepage: https://docs.openclaw.ai/automation/hooks#session-memory
->>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
   Events: command:new
 
 Requirements:
@@ -200,12 +193,7 @@ moltbot hooks install <path-or-spec>
 Install a hook pack from a local folder/archive or npm.
 
 **What it does:**
-<<<<<<< HEAD
 - Copies the hook pack into `~/.clawdbot/hooks/<id>`
-=======
-
-- Copies the hook pack into `~/.openclaw/hooks/<id>`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Enables the installed hooks in `hooks.internal.entries.*`
 - Records the install under `hooks.internal.installs`
 

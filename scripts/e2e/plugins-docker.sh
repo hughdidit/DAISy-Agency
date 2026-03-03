@@ -21,15 +21,9 @@ echo "Running plugins Docker E2E..."
 	  fi
 	  export OPENCLAW_ENTRY
 
-<<<<<<< HEAD
   home_dir=$(mktemp -d "/tmp/moltbot-plugins-e2e.XXXXXX")
   export HOME="$home_dir"
   mkdir -p "$HOME/.clawdbot/extensions"
-=======
-	  home_dir=$(mktemp -d "/tmp/openclaw-plugins-e2e.XXXXXX")
-	  export HOME="$home_dir"
-  mkdir -p "$HOME/.openclaw/extensions/demo-plugin"
->>>>>>> 80d42eb0b (fix(docker): support .mjs entrypoints in images and e2e)
 
   cat > "$HOME/.clawdbot/extensions/demo-plugin.js" <<'"'"'JS'"'"'
 module.exports = {

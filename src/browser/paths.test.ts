@@ -267,8 +267,6 @@ describe("resolvePathWithinRoot", () => {
   });
 });
 
-<<<<<<< HEAD
-=======
 describe("resolveWritablePathWithinRoot", () => {
   it("accepts a writable path under root when parent is a real directory", async () => {
     await withFixtureRoot(async ({ uploadsDir }) => {
@@ -331,7 +329,6 @@ describe("resolveWritablePathWithinRoot", () => {
   );
 });
 
->>>>>>> 6a80e9db0 (fix(browser): harden writable output paths)
 describe("resolvePathsWithinRoot", () => {
   it("resolves all valid in-root paths", () => {
     const result = resolvePathsWithinRoot({

@@ -41,12 +41,7 @@ enum class MoltbotCanvasA2UICommand(val rawValue: String) {
   }
 }
 
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/protocol/ClawdbotProtocolConstants.kt
 enum class MoltbotCameraCommand(val rawValue: String) {
-=======
-enum class OpenClawCameraCommand(val rawValue: String) {
-  List("camera.list"),
->>>>>>> 1f7b3c613 (feat(android): add camera list and device selection):apps/android/app/src/main/java/ai/openclaw/android/protocol/OpenClawProtocolConstants.kt
   Snap("camera.snap"),
   Clip("camera.clip"),
   ;

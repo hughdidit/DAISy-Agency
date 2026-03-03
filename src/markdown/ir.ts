@@ -3,10 +3,7 @@ import MarkdownIt from "markdown-it";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { chunkText } from "../auto-reply/chunk.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

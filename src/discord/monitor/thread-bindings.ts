@@ -9,8 +9,6 @@ export {
   resolveThreadBindingIntroText,
   resolveThreadBindingThreadName,
 } from "./thread-bindings.messages.js";
-<<<<<<< HEAD
-=======
 export {
   resolveThreadBindingPersona,
   resolveThreadBindingPersonaFromRecord,
@@ -21,7 +19,6 @@ export {
   resolveDiscordThreadBindingMaxAgeMs,
   resolveThreadBindingsEnabled,
 } from "./thread-bindings.config.js";
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
 
 export {
   isRecentlyUnboundThreadWebhookMessage,
@@ -35,13 +32,7 @@ export {
   autoBindSpawnedDiscordSubagent,
   listThreadBindingsBySessionKey,
   listThreadBindingsForAccount,
-<<<<<<< HEAD
   setThreadBindingTtlBySessionKey,
-=======
-  reconcileAcpThreadBindingsOnStartup,
-  setThreadBindingIdleTimeoutBySessionKey,
-  setThreadBindingMaxAgeBySessionKey,
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
   unbindThreadBindingsBySessionKey,
 } from "./thread-bindings.lifecycle.js";
 

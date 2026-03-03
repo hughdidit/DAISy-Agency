@@ -1,19 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import { afterEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 5d8eef8b3 (perf(test): remove module reloads in browser and embedding suites)
 =======
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -51,7 +39,6 @@ import type { BrowserServerState } from "./server-context.js";
 import "./server-context.chrome-test-harness.js";
 import { createBrowserRouteContext } from "./server-context.js";
 
-<<<<<<< HEAD
 const chromeUserDataDir = vi.hoisted(() => ({ dir: "/tmp/openclaw" }));
 
 beforeAll(async () => {
@@ -71,10 +58,6 @@ vi.mock("./chrome.js", () => ({
 <<<<<<< HEAD
   resolveClawdUserDataDir: vi.fn(() => "/tmp/clawd"),
   stopClawdChrome: vi.fn(async () => {}),
-=======
-  resolveOpenClawUserDataDir: vi.fn(() => chromeUserDataDir.dir),
-  stopOpenClawChrome: vi.fn(async () => {}),
->>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
 }));
 
 =======
@@ -367,31 +350,14 @@ describe("browser server-context tab selection state", () => {
 
     global.fetch = withFetchPreconnect(fetchMock);
 
-<<<<<<< HEAD
     const { createBrowserRouteContext } = await import("./server-context.js");
     const state = makeState("clawd");
-=======
-    const state = makeState("openclaw");
->>>>>>> 5d8eef8b3 (perf(test): remove module reloads in browser and embedding suites)
     const ctx = createBrowserRouteContext({ getState: () => state });
     const clawd = ctx.forProfile("clawd");
 
-<<<<<<< HEAD
     const opened = await clawd.openTab("https://created.example");
-=======
-    const opened = await openclaw.openTab("http://127.0.0.1:8080");
->>>>>>> 6195660b1 (fix(browser): unify SSRF guard path for navigation)
     expect(opened.targetId).toBe("CREATED");
-<<<<<<< HEAD
     expect(state.profiles.get("clawd")?.lastTargetId).toBe("CREATED");
-=======
-    expect(state.profiles.get("openclaw")?.lastTargetId).toBe("CREATED");
-    expect(createTargetViaCdp).toHaveBeenCalledWith({
-      cdpUrl: "http://127.0.0.1:18800",
-      url: "http://127.0.0.1:8080",
-      ssrfPolicy: { allowPrivateNetwork: true },
-    });
->>>>>>> 9f9cd5cbb (refactor(browser): unify navigation guard path and error typing)
   });
 
   it("blocks unsupported non-network URLs before any HTTP tab-open fallback", async () => {

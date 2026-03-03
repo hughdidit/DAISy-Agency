@@ -2,15 +2,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 <<<<<<< HEAD
 import type { MoltbotConfig, GatewayAuthConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -53,11 +49,6 @@ function sanitizeTokenValue(value: string | undefined): string | undefined {
 
 const ANTHROPIC_OAUTH_MODEL_KEYS = [
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  "anthropic/claude-opus-4-6",
-  "anthropic/claude-sonnet-4-6",
->>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
 =======
   "anthropic/claude-sonnet-4-6",
   "anthropic/claude-opus-4-6",
@@ -85,13 +76,7 @@ export function buildGatewayAuthConfig(params: {
   }
 
   if (params.mode === "token") {
-<<<<<<< HEAD
     return { ...base, mode: "token", token: params.token };
-=======
-    // Keep token mode always valid: treat empty/undefined/"undefined"/"null" as missing and generate a token.
-    const token = sanitizeTokenValue(params.token) ?? randomToken();
-    return { ...base, mode: "token", token };
->>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))
   }
   if (params.mode === "password") {
     const password = params.password?.trim();
@@ -151,7 +136,6 @@ export async function promptAuthConfig(
   const anthropicOAuth =
     authChoice === "setup-token" || authChoice === "token" || authChoice === "oauth";
 
-<<<<<<< HEAD
   const allowlistSelection = await promptModelAllowlist({
     config: next,
     prompter,
@@ -162,20 +146,6 @@ export async function promptAuthConfig(
   if (allowlistSelection.models) {
     next = applyModelAllowlist(next, allowlistSelection.models);
     next = applyModelFallbacksFromSelection(next, allowlistSelection.models);
-=======
-  if (authChoice !== "custom-api-key") {
-    const allowlistSelection = await promptModelAllowlist({
-      config: next,
-      prompter,
-      allowedKeys: anthropicOAuth ? ANTHROPIC_OAUTH_MODEL_KEYS : undefined,
-      initialSelections: anthropicOAuth ? ["anthropic/claude-sonnet-4-6"] : undefined,
-      message: anthropicOAuth ? "Anthropic OAuth models" : undefined,
-    });
-    if (allowlistSelection.models) {
-      next = applyModelAllowlist(next, allowlistSelection.models);
-      next = applyModelFallbacksFromSelection(next, allowlistSelection.models);
-    }
->>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
   }
 
   return next;

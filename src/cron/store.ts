@@ -5,14 +5,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import JSON5 from "json5";
-=======
-import type { CronStoreFile } from "./types.js";
-=======
-import JSON5 from "json5";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CronStoreFile } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -60,11 +54,7 @@ export async function loadCronStore(storePath: string): Promise<CronStoreFile> {
 
 export async function saveCronStore(storePath: string, store: CronStoreFile) {
   await fs.promises.mkdir(path.dirname(storePath), { recursive: true });
-<<<<<<< HEAD
   const tmp = `${storePath}.${process.pid}.${Math.random().toString(16).slice(2)}.tmp`;
-=======
-  const { randomBytes } = await import("node:crypto");
->>>>>>> 578496360 (fix cron store backup churn (#19484))
   const json = JSON.stringify(store, null, 2);
   let previous: string | null = null;
   try {

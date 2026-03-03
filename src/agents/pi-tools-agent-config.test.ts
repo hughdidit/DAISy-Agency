@@ -1,26 +1,14 @@
 import { describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { createMoltbotCodingTools } from "./pi-tools.js";
 =======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { createOpenClawCodingTools } from "./pi-tools.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
 >>>>>>> ed11e93cf (chore(format))
 import type { SandboxDockerConfig } from "./sandbox.js";
-<<<<<<< HEAD
-=======
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { createOpenClawCodingTools } from "./pi-tools.js";
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 =======
 =======
 import { createOpenClawCodingTools } from "./pi-tools.js";
@@ -29,13 +17,7 @@ import { createOpenClawCodingTools } from "./pi-tools.js";
 import { createOpenClawCodingTools } from "./pi-tools.js";
 import type { SandboxDockerConfig } from "./sandbox.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
-<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
-=======
-import type { SandboxDockerConfig } from "./sandbox.js";
-import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
-import { createOpenClawCodingTools } from "./pi-tools.js";
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import { createOpenClawCodingTools } from "./pi-tools.js";
 import type { SandboxDockerConfig } from "./sandbox.js";
@@ -123,7 +105,6 @@ describe("Agent-specific tool filtering", () => {
     }
   }
 
-<<<<<<< HEAD
   it("should apply global tool policy when no agent-specific policy exists", () => {
     const cfg: MoltbotConfig = {
       tools: {
@@ -141,10 +122,6 @@ describe("Agent-specific tool filtering", () => {
     };
 
     const tools = createMoltbotCodingTools({
-=======
-  function createMainSessionTools(cfg: OpenClawConfig) {
-    return createOpenClawCodingTools({
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test",
@@ -215,7 +192,6 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should keep global tool policy when agent only sets tools.elevated", () => {
-<<<<<<< HEAD
     const cfg: MoltbotConfig = {
       tools: {
         deny: ["write"],
@@ -241,18 +217,6 @@ describe("Agent-specific tool filtering", () => {
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test",
       agentDir: "/tmp/agent",
-=======
-    const cfg = createMainAgentConfig({
-      tools: {
-        deny: ["write"],
-      },
-      agentTools: {
-        elevated: {
-          enabled: true,
-          allowFrom: { whatsapp: ["+15555550123"] },
-        },
-      },
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
     });
     const tools = createMainSessionTools(cfg);
 
@@ -288,8 +252,6 @@ describe("Agent-specific tool filtering", () => {
     expect(toolNames).toContain("apply_patch");
   });
 
-<<<<<<< HEAD
-=======
   it("defaults apply_patch to workspace-only (blocks traversal)", async () => {
     await withApplyPatchEscapeCase({}, async ({ applyPatchTool, escapedPath, patch }) => {
       await expect(applyPatchTool.execute("tc1", { input: patch })).rejects.toThrow(
@@ -310,7 +272,6 @@ describe("Agent-specific tool filtering", () => {
     );
   });
 
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   it("should apply agent-specific tool policy", () => {
     const cfg: MoltbotConfig = {
       tools: {
@@ -640,7 +601,6 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should work with sandbox tools filtering", () => {
-<<<<<<< HEAD
     const cfg: MoltbotConfig = {
       agents: {
         defaults: {
@@ -663,12 +623,6 @@ describe("Agent-specific tool filtering", () => {
             },
           },
         ],
-=======
-    const cfg = createRestrictedAgentSandboxConfig({
-      agentTools: {
-        allow: ["read"], // Agent further restricts to only read
-        deny: ["exec", "write"],
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
       },
       globalSandboxTools: {
         allow: ["read", "write", "exec"], // Sandbox allows these
@@ -745,8 +699,6 @@ describe("Agent-specific tool filtering", () => {
     const resultDetails = result?.details as { status?: string } | undefined;
     expect(resultDetails?.status).toBe("completed");
   });
-<<<<<<< HEAD
-=======
 
   it("keeps sandbox as the implicit exec host default without forcing gateway approvals", async () => {
     const tools = createOpenClawCodingTools({
@@ -839,7 +791,6 @@ describe("Agent-specific tool filtering", () => {
     ).rejects.toThrow("exec host=sandbox is configured");
   });
 <<<<<<< HEAD
->>>>>>> c06a962bb (test(e2e): stabilize suite)
 =======
 
   it("applies explicit agentId exec defaults when sessionKey is opaque", async () => {

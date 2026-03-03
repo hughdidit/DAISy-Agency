@@ -1,18 +1,7 @@
-<<<<<<< HEAD
-=======
 import type { PluginRuntime, SsrFPolicy } from "openclaw/plugin-sdk";
->>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { downloadMSTeamsAttachments } from "./attachments/download.js";
-import { buildMSTeamsGraphMessageUrls, downloadMSTeamsGraphMedia } from "./attachments/graph.js";
-import { buildMSTeamsAttachmentPlaceholder } from "./attachments/html.js";
-import { buildMSTeamsMediaPayload } from "./attachments/payload.js";
-=======
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 =======
 import {
   buildMSTeamsAttachmentPlaceholder,
@@ -27,32 +16,13 @@ import { setMSTeamsRuntime } from "./runtime.js";
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 import { setMSTeamsRuntime } from "./runtime.js";
-=======
-vi.mock("openclaw/plugin-sdk", () => ({
-  isPrivateIpAddress: () => false,
-}));
-=======
-vi.mock("openclaw/plugin-sdk", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("openclaw/plugin-sdk")>();
-  return {
-    ...actual,
-    isPrivateIpAddress: () => false,
-  };
-});
->>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 
 /** Mock DNS resolver that always returns a public IP (for anti-SSRF validation in tests). */
 const publicResolveFn = async () => ({ address: "13.107.136.10" });
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 3f03cdea5 (test: optimize redundant suites for faster runtime)
-=======
-=======
-=======
->>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)
 const GRAPH_HOST = "graph.microsoft.com";
 const SHAREPOINT_HOST = "contoso.sharepoint.com";
 const AZUREEDGE_HOST = "azureedge.net";
@@ -79,27 +49,13 @@ const CONTENT_TYPE_IMAGE_PNG = "image/png";
 const CONTENT_TYPE_APPLICATION_PDF = "application/pdf";
 const CONTENT_TYPE_TEXT_HTML = "text/html";
 const CONTENT_TYPE_TEAMS_FILE_DOWNLOAD_INFO = "application/vnd.microsoft.teams.file.download.info";
-<<<<<<< HEAD
 >>>>>>> cc7a498ac (refactor(tests): deduplicate repeated fixtures in msteams and bash tests)
-=======
-const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308];
-const MAX_REDIRECT_HOPS = 5;
-type RemoteMediaFetchParams = {
-  url: string;
-  maxBytes?: number;
-  filePathHint?: string;
-  ssrfPolicy?: SsrFPolicy;
-  fetchImpl?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
-};
->>>>>>> 47723b646 (refactor(test): de-duplicate msteams and bash test helpers)
 
 const detectMimeMock = vi.fn(async () => CONTENT_TYPE_IMAGE_PNG);
 const saveMediaBufferMock = vi.fn(async () => ({
   path: SAVED_PNG_PATH,
   contentType: CONTENT_TYPE_IMAGE_PNG,
 }));
-<<<<<<< HEAD
-=======
 const readRemoteMediaResponse = async (
   res: Response,
   params: Pick<RemoteMediaFetchParams, "maxBytes" | "filePathHint">,
@@ -156,7 +112,6 @@ const fetchRemoteMediaMock = vi.fn(async (params: RemoteMediaFetchParams) => {
   }
   throw new Error("too many redirects");
 });
->>>>>>> 47723b646 (refactor(test): de-duplicate msteams and bash test helpers)
 
 const runtimeStub = {
   media: {
@@ -723,7 +678,6 @@ describe("msteams attachments", () => {
 
   describe("downloadMSTeamsAttachments", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     it("downloads and stores image contentUrl attachments", async () => {
 <<<<<<< HEAD
       const fetchMock = vi.fn(async () => {
@@ -739,15 +693,6 @@ describe("msteams attachments", () => {
         allowHosts: ["x"],
         fetchFn: fetchMock as unknown as typeof fetch,
       });
-=======
-      const { downloadMSTeamsAttachments } = await load();
-      const fetchMock = createOkFetchMock("image/png");
-      const media = await downloadMSTeamsAttachments(
-        buildDownloadParams([{ contentType: "image/png", contentUrl: "https://x/img" }], {
-          fetchFn: fetchMock as unknown as typeof fetch,
-        }),
-      );
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
       expect(fetchMock).toHaveBeenCalledWith("https://x/img");
       expect(saveMediaBufferMock).toHaveBeenCalled();
@@ -756,7 +701,6 @@ describe("msteams attachments", () => {
     });
 
     it("supports Teams file.download.info downloadUrl attachments", async () => {
-<<<<<<< HEAD
       const fetchMock = vi.fn(async () => {
         return new Response(Buffer.from("png"), {
           status: 200,
@@ -775,21 +719,6 @@ describe("msteams attachments", () => {
         allowHosts: ["x"],
         fetchFn: fetchMock as unknown as typeof fetch,
       });
-=======
-      const { downloadMSTeamsAttachments } = await load();
-      const fetchMock = createOkFetchMock("image/png");
-      const media = await downloadMSTeamsAttachments(
-        buildDownloadParams(
-          [
-            {
-              contentType: "application/vnd.microsoft.teams.file.download.info",
-              content: { downloadUrl: "https://x/dl", fileType: "png" },
-            },
-          ],
-          { fetchFn: fetchMock as unknown as typeof fetch },
-        ),
-      );
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
       expect(fetchMock).toHaveBeenCalledWith("https://x/dl");
 =======
@@ -812,12 +741,8 @@ describe("msteams attachments", () => {
       },
     ])("$label", async ({ attachments, assert }) => {
       const media = await downloadAttachmentsWithOkImageFetch(attachments);
-<<<<<<< HEAD
 >>>>>>> a8a4fa5b8 (test: de-duplicate attachment and bash tool tests)
       expect(media).toHaveLength(1);
-=======
-      expectSingleMedia(media);
->>>>>>> cc7a498ac (refactor(tests): deduplicate repeated fixtures in msteams and bash tests)
       assert?.(media);
     });
 
@@ -830,31 +755,17 @@ describe("msteams attachments", () => {
       });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
       const media = await downloadMSTeamsAttachments({
         attachments: [{ contentType: "application/pdf", contentUrl: "https://x/doc.pdf" }],
         maxBytes: 1024 * 1024,
         allowHosts: ["x"],
         fetchFn: fetchMock as unknown as typeof fetch,
       });
-=======
-      const media = await downloadMSTeamsAttachments(
-        buildDownloadParams([{ contentType: "application/pdf", contentUrl: "https://x/doc.pdf" }], {
-          fetchFn: fetchMock as unknown as typeof fetch,
-        }),
-=======
-      const media = await downloadAttachmentsWithFetch(
-        createPdfAttachments(TEST_URL_DOC_PDF),
-        fetchMock,
->>>>>>> a8a4fa5b8 (test: de-duplicate attachment and bash tool tests)
       );
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
 <<<<<<< HEAD
-<<<<<<< HEAD
       expect(fetchMock).toHaveBeenCalledWith("https://x/doc.pdf");
-=======
->>>>>>> a8a4fa5b8 (test: de-duplicate attachment and bash tool tests)
       expect(media).toHaveLength(1);
       expect(media[0]?.path).toBe("/tmp/saved.pdf");
       expect(media[0]?.placeholder).toBe("<media:document>");
@@ -872,7 +783,6 @@ describe("msteams attachments", () => {
     );
 >>>>>>> 47723b646 (refactor(test): de-duplicate msteams and bash test helpers)
 
-<<<<<<< HEAD
     it("downloads inline image URLs from html attachments", async () => {
 <<<<<<< HEAD
       const fetchMock = vi.fn(async () => {
@@ -893,21 +803,6 @@ describe("msteams attachments", () => {
         allowHosts: ["x"],
         fetchFn: fetchMock as unknown as typeof fetch,
       });
-=======
-      const { downloadMSTeamsAttachments } = await load();
-      const fetchMock = createOkFetchMock("image/png");
-      const media = await downloadMSTeamsAttachments(
-        buildDownloadParams(
-          [
-            {
-              contentType: "text/html",
-              content: '<img src="https://x/inline.png" />',
-            },
-          ],
-          { fetchFn: fetchMock as unknown as typeof fetch },
-        ),
-      );
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
       expect(media).toHaveLength(1);
       expect(fetchMock).toHaveBeenCalledWith("https://x/inline.png");
@@ -926,7 +821,6 @@ describe("msteams attachments", () => {
       expectMediaBufferSaved();
     });
 
-<<<<<<< HEAD
 <<<<<<< HEAD
     it("retries with auth when the first request is unauthorized", async () => {
       const { downloadMSTeamsAttachments } = await load();
@@ -954,68 +848,13 @@ describe("msteams attachments", () => {
         allowHosts: ["x"],
         fetchFn: fetchMock as unknown as typeof fetch,
       });
-=======
-      const media = await downloadMSTeamsAttachments(
-        buildDownloadParams([{ contentType: "image/png", contentUrl: "https://x/img" }], {
-          tokenProvider: { getAccessToken: vi.fn(async () => "token") },
-          authAllowHosts: ["x"],
-          fetchFn: fetchMock as unknown as typeof fetch,
-        }),
-      );
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
       expect(fetchMock).toHaveBeenCalled();
       expect(media).toHaveLength(1);
-<<<<<<< HEAD
       expect(fetchMock).toHaveBeenCalledTimes(2);
-=======
-    });
-
-    it("skips auth retries when the host is not in auth allowlist", async () => {
-      const { downloadMSTeamsAttachments } = await load();
-      const tokenProvider = { getAccessToken: vi.fn(async () => "token") };
-      const fetchMock = vi.fn(async (_url: string, opts?: RequestInit) => {
-        const headers = new Headers(opts?.headers);
-        const hasAuth = Boolean(headers.get("Authorization"));
-        if (!hasAuth) {
-          return new Response("forbidden", { status: 403 });
-        }
-        return new Response(Buffer.from("png"), {
-          status: 200,
-          headers: { "content-type": "image/png" },
-        });
-      });
-
-      const media = await downloadMSTeamsAttachments(
-        buildDownloadParams(
-          [{ contentType: "image/png", contentUrl: "https://attacker.azureedge.net/img" }],
-          {
-            tokenProvider,
-=======
-    it.each<AttachmentAuthRetryCase>([
-      {
-        label: "retries with auth when the first request is unauthorized",
-        scenario: {
-          attachmentUrl: IMAGE_ATTACHMENT.contentUrl,
-          unauthStatus: 401,
-          unauthBody: "unauthorized",
-          overrides: { authAllowHosts: ["x"] },
-        },
-        expectedMediaLength: 1,
-        expectTokenFetch: true,
-      },
-      {
-        label: "skips auth retries when the host is not in auth allowlist",
-        scenario: {
-          attachmentUrl: "https://attacker.azureedge.net/img",
-          unauthStatus: 403,
-          unauthBody: "forbidden",
-          overrides: {
->>>>>>> a8a4fa5b8 (test: de-duplicate attachment and bash tool tests)
             allowHosts: ["azureedge.net"],
             authAllowHosts: ["graph.microsoft.com"],
           },
-<<<<<<< HEAD
         ),
       );
 
@@ -1023,21 +862,6 @@ describe("msteams attachments", () => {
       expect(fetchMock).toHaveBeenCalled();
       expect(tokenProvider.getAccessToken).not.toHaveBeenCalled();
 >>>>>>> 48f327c20 (test: consolidate redundant suites and speed attachment tests)
-=======
-        },
-        expectedMediaLength: 0,
-        expectTokenFetch: false,
-      },
-    ])("$label", async ({ scenario, expectedMediaLength, expectTokenFetch }) => {
-      const { tokenProvider, media } = await runAttachmentAuthRetryScenario(scenario);
-<<<<<<< HEAD
-      expect(media).toHaveLength(expectedMediaLength);
-      if (expectTokenFetch) {
-        expect(tokenProvider.getAccessToken).toHaveBeenCalled();
-      } else {
-        expect(tokenProvider.getAccessToken).not.toHaveBeenCalled();
-      }
->>>>>>> a8a4fa5b8 (test: de-duplicate attachment and bash tool tests)
 =======
       expectMediaLength(media, expectedMediaLength);
       expectMockCallState(tokenProvider.getAccessToken, expectTokenFetch);
@@ -1098,7 +922,6 @@ describe("msteams attachments", () => {
   });
 
   describe("downloadMSTeamsGraphMedia", () => {
-<<<<<<< HEAD
     it.each<GraphMediaSuccessCase>([
       {
         label: "downloads hostedContents images",
@@ -1127,10 +950,6 @@ describe("msteams attachments", () => {
       assert?.({ fetchMock, media });
     });
 <<<<<<< HEAD
-=======
-=======
-    it.each<GraphMediaSuccessCase>(GRAPH_MEDIA_SUCCESS_CASES)("$label", runGraphMediaSuccessCase);
->>>>>>> 47723b646 (refactor(test): de-duplicate msteams and bash test helpers)
 
     it("blocks SharePoint redirects to hosts outside allowHosts", async () => {
       const escapedUrl = "https://evil.example/internal.pdf";

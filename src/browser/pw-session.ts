@@ -8,13 +8,9 @@ import type {
 } from "playwright-core";
 import { chromium } from "playwright-core";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { formatErrorMessage } from "../infra/errors.js";
 <<<<<<< HEAD
 import { getHeadersWithAuth } from "./cdp.helpers.js";
-=======
-=======
->>>>>>> 55aaeb508 (refactor(browser): centralize navigation guard enforcement)
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
 =======
 >>>>>>> 4cd7d9574 (style(browser): apply oxfmt cleanup for gate)

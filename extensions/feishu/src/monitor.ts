@@ -3,15 +3,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ClawdbotConfig, RuntimeEnv, HistoryEntry } from "openclaw/plugin-sdk";
 import * as Lark from "@larksuiteoapi/node-sdk";
 import * as http from "http";
 import type { ResolvedFeishuAccount } from "./types.js";
-=======
-import * as http from "http";
-=======
->>>>>>> ed11e93cf (chore(format))
 import * as Lark from "@larksuiteoapi/node-sdk";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -32,11 +27,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import type { ResolvedFeishuAccount } from "./types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -74,7 +65,6 @@ export type MonitorFeishuOpts = {
   accountId?: string;
 };
 
-<<<<<<< HEAD
 // Per-account WebSocket clients, HTTP servers, and bot info
 const wsClients = new Map<string, Lark.WSClient>();
 const httpServers = new Map<string, http.Server>();
@@ -151,76 +141,6 @@ function registerEventHandlers(
       }
     },
 <<<<<<< HEAD
-=======
-    "im.message.reaction.created_v1": async (data) => {
-      const processReaction = async () => {
-        const event = data as FeishuReactionCreatedEvent;
-        const myBotId = botOpenIds.get(accountId);
-        const syntheticEvent = await resolveReactionSyntheticEvent({
-          cfg,
-          accountId,
-          event,
-          botOpenId: myBotId,
-          logger: log,
-        });
-        if (!syntheticEvent) {
-          return;
-        }
-        const promise = handleFeishuMessage({
-          cfg,
-          event: syntheticEvent,
-          botOpenId: myBotId,
-          runtime,
-          chatHistories,
-          accountId,
-        });
-        if (fireAndForget) {
-          promise.catch((err) => {
-            error(`feishu[${accountId}]: error handling reaction: ${String(err)}`);
-          });
-          return;
-        }
-        await promise;
-      };
-
-      if (fireAndForget) {
-        void processReaction().catch((err) => {
-          error(`feishu[${accountId}]: error handling reaction event: ${String(err)}`);
-        });
-        return;
-      }
-
-      try {
-        await processReaction();
-      } catch (err) {
-        error(`feishu[${accountId}]: error handling reaction event: ${String(err)}`);
-      }
-    },
-    "im.message.reaction.deleted_v1": async () => {
-      // Ignore reaction removals
-    },
-    "card.action.trigger": async (data) => {
-      try {
-        const event = data as unknown as FeishuCardActionEvent;
-        const promise = handleFeishuCardAction({
-          cfg,
-          event,
-          botOpenId: botOpenIds.get(accountId),
-          runtime,
-          accountId,
-        });
-        if (fireAndForget) {
-          promise.catch((err) => {
-            error(`feishu[${accountId}]: error handling card action: ${String(err)}`);
-          });
-        } else {
-          await promise;
-        }
-      } catch (err) {
-        error(`feishu[${accountId}]: error handling card action: ${String(err)}`);
-      }
-    },
->>>>>>> 49cf2bceb (fix(feishu): handle card.action.trigger callbacks (openclaw#17863))
   });
 }
 
@@ -229,11 +149,8 @@ type MonitorAccountParams = {
   account: ResolvedFeishuAccount;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
-<<<<<<< HEAD
-=======
   botOpenId?: string;
   botOpenIdPrefetched?: boolean;
->>>>>>> abc7b6fbe (Feishu: skip duplicate bot-info retries after preflight)
 };
 
 /**
@@ -245,11 +162,7 @@ async function monitorSingleAccount(params: MonitorAccountParams): Promise<void>
   const log = runtime?.log ?? console.log;
 
   // Fetch bot open_id
-<<<<<<< HEAD
   const botOpenId = await fetchBotOpenId(account);
-=======
-  const botOpenId = params.botOpenIdPrefetched ? params.botOpenId : await fetchBotOpenId(account);
->>>>>>> abc7b6fbe (Feishu: skip duplicate bot-info retries after preflight)
   botOpenIds.set(accountId, botOpenId ?? "");
   log(`feishu[${accountId}]: bot open_id resolved: ${botOpenId ?? "unknown"}`);
 
@@ -417,42 +330,15 @@ export async function monitorFeishuProvider(opts: MonitorFeishuOpts = {}): Promi
     `feishu: starting ${accounts.length} account(s): ${accounts.map((a) => a.accountId).join(", ")}`,
   );
 
-<<<<<<< HEAD
   // Start all accounts in parallel
   await Promise.all(
     accounts.map((account) =>
-=======
-  const monitorPromises: Promise<void>[] = [];
-  for (const account of accounts) {
-    if (opts.abortSignal?.aborted) {
-      log("feishu: abort signal received during startup preflight; stopping startup");
-      break;
-    }
-
-    // Probe sequentially so large multi-account startups do not burst Feishu's bot-info endpoint.
-    const botOpenId = await fetchBotOpenIdForMonitor(account, {
-      runtime: opts.runtime,
-      abortSignal: opts.abortSignal,
-    });
-
-    if (opts.abortSignal?.aborted) {
-      log("feishu: abort signal received during startup preflight; stopping startup");
-      break;
-    }
-
-    monitorPromises.push(
->>>>>>> f46bd2e0c (refactor(feishu): split monitor startup and transport concerns)
       monitorSingleAccount({
         cfg,
         account,
         runtime: opts.runtime,
         abortSignal: opts.abortSignal,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        botOpenId,
-        botOpenIdPrefetched: true,
->>>>>>> abc7b6fbe (Feishu: skip duplicate bot-info retries after preflight)
       }),
     ),
   );

@@ -50,11 +50,7 @@ async function setupWorkspaceWithProsePlugin() {
 
 describe("loadWorkspaceSkillEntries", () => {
   it("handles an empty managed skills dir without throwing", async () => {
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
-=======
-    const workspaceDir = await createTempWorkspaceDir();
->>>>>>> 85c768d3d (refactor(test): dedupe temp workspace setup in skills load entries e2e)
     const managedDir = path.join(workspaceDir, ".managed");
     await fs.mkdir(managedDir, { recursive: true });
 
@@ -67,7 +63,6 @@ describe("loadWorkspaceSkillEntries", () => {
   });
 
   it("includes plugin-shipped skills when the plugin is enabled", async () => {
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     const managedDir = path.join(workspaceDir, ".managed");
     const bundledDir = path.join(workspaceDir, ".bundled");
@@ -93,9 +88,6 @@ describe("loadWorkspaceSkillEntries", () => {
       `---\nname: prose\ndescription: test\n---\n`,
       "utf-8",
     );
-=======
-    const { workspaceDir, managedDir, bundledDir } = await setupWorkspaceWithProsePlugin();
->>>>>>> 20abab7c4 (refactor(test): dedupe loadWorkspaceSkillEntries plugin setup)
 
     const entries = loadWorkspaceSkillEntries(workspaceDir, {
       config: {
@@ -111,7 +103,6 @@ describe("loadWorkspaceSkillEntries", () => {
   });
 
   it("excludes plugin-shipped skills when the plugin is not allowed", async () => {
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     const managedDir = path.join(workspaceDir, ".managed");
     const bundledDir = path.join(workspaceDir, ".bundled");
@@ -137,9 +128,6 @@ describe("loadWorkspaceSkillEntries", () => {
       `---\nname: prose\ndescription: test\n---\n`,
       "utf-8",
     );
-=======
-    const { workspaceDir, managedDir, bundledDir } = await setupWorkspaceWithProsePlugin();
->>>>>>> 20abab7c4 (refactor(test): dedupe loadWorkspaceSkillEntries plugin setup)
 
     const entries = loadWorkspaceSkillEntries(workspaceDir, {
       config: {

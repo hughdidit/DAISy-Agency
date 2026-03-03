@@ -1,15 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { AddressInfo } from "node:net";
-=======
-=======
-import type { AddressInfo } from "node:net";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AddressInfo } from "node:net";
 import fs from "node:fs/promises";
@@ -86,16 +81,12 @@ describe("media server", () => {
   });
 
   it("serves media and cleans up after send", async () => {
-<<<<<<< HEAD
     const file = path.join(MEDIA_DIR, "file1");
     await fs.writeFile(file, "hello");
 <<<<<<< HEAD
     const server = await startMediaServer(0, 5_000);
     const port = (server.address() as AddressInfo).port;
     const res = await fetch(`http://localhost:${port}/media/file1`);
-=======
-    const res = await fetch(`http://127.0.0.1:${port}/media/file1`);
->>>>>>> 7e065d90f (perf(test): keep single media server and fast cleanup)
 =======
     const file = await writeMediaFile("file1", "hello");
     const res = await fetch(mediaUrl("file1"));
@@ -110,13 +101,9 @@ describe("media server", () => {
     const past = Date.now() - 10_000;
     await fs.utimes(file, past / 1000, past / 1000);
 <<<<<<< HEAD
-<<<<<<< HEAD
     const server = await startMediaServer(0, 1_000);
     const port = (server.address() as AddressInfo).port;
     const res = await fetch(`http://localhost:${port}/media/old`);
-=======
-    const res = await fetch(`http://127.0.0.1:${port}/media/old`);
->>>>>>> 7e065d90f (perf(test): keep single media server and fast cleanup)
 =======
     const res = await fetch(mediaUrl("old"));
 >>>>>>> e46634db9 (test(media): dedupe server fixture helpers and cover 404/id validation)
@@ -124,7 +111,6 @@ describe("media server", () => {
     await expect(fs.stat(file)).rejects.toThrow();
   });
 
-<<<<<<< HEAD
   it("blocks path traversal attempts", async () => {
     // URL-encoded "../" to bypass client-side path normalization
     const res = await fetch(`http://localhost:${port}/media/%2e%2e%2fpackage.json`);
@@ -141,9 +127,6 @@ describe("media server", () => {
     const server = await startMediaServer(0, 5_000);
     const port = (server.address() as AddressInfo).port;
     const res = await fetch(`http://localhost:${port}/media/link-out`);
-=======
-    const res = await fetch(`http://127.0.0.1:${port}/media/link-out`);
->>>>>>> 7e065d90f (perf(test): keep single media server and fast cleanup)
     expect(res.status).toBe(400);
     expect(await res.text()).toBe("invalid path");
   });
@@ -151,13 +134,9 @@ describe("media server", () => {
   it("rejects invalid media ids", async () => {
     const file = path.join(MEDIA_DIR, "file2");
     await fs.writeFile(file, "hello");
-<<<<<<< HEAD
     const server = await startMediaServer(0, 5_000);
     const port = (server.address() as AddressInfo).port;
     const res = await fetch(`http://localhost:${port}/media/invalid%20id`);
-=======
-    const res = await fetch(`http://127.0.0.1:${port}/media/invalid%20id`);
->>>>>>> 7e065d90f (perf(test): keep single media server and fast cleanup)
 =======
   it.each([
     {
@@ -182,12 +161,8 @@ describe("media server", () => {
     },
   ] as const)("$testName", async (testCase) => {
     await testCase.setup?.();
-<<<<<<< HEAD
     const res = await fetch(`http://127.0.0.1:${port}/media/${testCase.mediaPath}`);
 >>>>>>> 20849df70 (test: merge media invalid-path scenarios)
-=======
-    const res = await fetch(mediaUrl(testCase.mediaPath));
->>>>>>> e46634db9 (test(media): dedupe server fixture helpers and cover 404/id validation)
     expect(res.status).toBe(400);
     expect(await res.text()).toBe("invalid path");
   });
@@ -196,13 +171,9 @@ describe("media server", () => {
     const file = await writeMediaFile("big", "");
     await fs.truncate(file, MEDIA_MAX_BYTES + 1);
 <<<<<<< HEAD
-<<<<<<< HEAD
     const server = await startMediaServer(0, 5_000);
     const port = (server.address() as AddressInfo).port;
     const res = await fetch(`http://localhost:${port}/media/big`);
-=======
-    const res = await fetch(`http://127.0.0.1:${port}/media/big`);
->>>>>>> 7e065d90f (perf(test): keep single media server and fast cleanup)
 =======
     const res = await fetch(mediaUrl("big"));
 >>>>>>> e46634db9 (test(media): dedupe server fixture helpers and cover 404/id validation)

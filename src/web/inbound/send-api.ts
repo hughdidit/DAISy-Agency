@@ -1,30 +1,16 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { AnyMessageContent, WAPresence } from "@whiskeysockets/baileys";
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import type { AnyMessageContent, MiscMessageGenerationOptions, WAPresence } from "@whiskeysockets/baileys";
-=======
-import type {
-  AnyMessageContent,
-  MiscMessageGenerationOptions,
-  WAPresence,
-} from "@whiskeysockets/baileys";
-<<<<<<< HEAD
->>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
 import type { ActiveWebSendOptions } from "../active-listener.js";
 >>>>>>> 1bef2fc68 (fix(whatsapp): allow per-message link preview override\n\nWhatsApp messages default to enabling link previews for URLs. This adds\nsupport for overriding this behavior per-message via the \nparameter (e.g. from  tool options), consistent with Telegram.\n\nFix: Updated internal WhatsApp Web API layers to pass  option\ndown to Baileys .)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AnyMessageContent, WAPresence } from "@whiskeysockets/baileys";
-<<<<<<< HEAD
 import type { ActiveWebSendOptions } from "../active-listener.js";
 >>>>>>> 65fa529e0 (Revert "fix(whatsapp): allow per-message link preview override\n\nWhatsApp messages default to enabling link previews for URLs. This adds\nsupport for overriding this behavior per-message via the \nparameter (e.g. from  tool options), consistent with Telegram.\n\nFix: Updated internal WhatsApp Web API layers to pass  option\ndown to Baileys .")
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import type { ActiveWebSendOptions } from "../active-listener.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)

@@ -6,10 +6,7 @@ import fs from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -21,10 +18,7 @@ import type { MediaUnderstandingDecision } from "../media-understanding/types.js
 import type { CommandCategory } from "./commands-registry.types.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./thinking.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
-=======
->>>>>>> 5dc898395 (chore: Fix types in tests 8/N.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -54,12 +48,7 @@ import { derivePromptTokens, normalizeUsage, type UsageLike } from "../agents/us
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
-import { resolveChannelModelOverride } from "../channels/model-overrides.js";
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -84,14 +73,11 @@ import {
   type SessionEntry,
   type SessionScope,
 } from "../config/sessions.js";
-<<<<<<< HEAD
-=======
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 import { resolveCommitHash } from "../infra/git-commit.js";
 import type { MediaUnderstandingDecision } from "../media-understanding/types.js";
 import { listPluginCommands } from "../plugins/commands.js";
 <<<<<<< HEAD
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 =======
 import { resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 >>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
@@ -122,7 +108,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { listPluginCommands } from "../plugins/commands.js";
 import type { SkillCommandSpec } from "../agents/skills.js";
 import type { CommandCategory } from "./commands-registry.types.js";
@@ -130,10 +115,6 @@ import { resolveActiveFallbackState } from "./fallback-state.js";
 import { formatProviderModelRef, resolveSelectedAndActiveModel } from "./model-runtime.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./thinking.js";
 import type { MediaUnderstandingDecision } from "../media-understanding/types.js";
-=======
-import type { CommandCategory } from "./commands-registry.types.js";
-import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./thinking.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
 
@@ -297,16 +278,8 @@ const readUsageFromSessionLog = (
       model?: string;
     }
   | undefined => {
-<<<<<<< HEAD
   // Transcripts are stored at the session file path (fallback: ~/.clawdbot/sessions/<SessionId>.jsonl)
   if (!sessionId) return undefined;
-=======
-  // Transcripts are stored at the session file path (fallback: ~/.openclaw/sessions/<SessionId>.jsonl)
-  if (!sessionId) {
-    return undefined;
-  }
-<<<<<<< HEAD
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const logPath = resolveSessionFilePath(sessionId, sessionEntry);
 =======
   let logPath: string;
@@ -516,15 +489,11 @@ export function buildStatusMessage(args: StatusArgs): string {
         },
       } as OpenClawConfig);
   const resolved = resolveConfiguredModelRef({
-<<<<<<< HEAD
     cfg: {
       agents: {
         defaults: args.agent ?? {},
       },
     } as MoltbotConfig,
-=======
-    cfg: selectionConfig,
->>>>>>> f03ff3975 (Providers: skip context1m beta for Anthropic OAuth tokens (#24620))
     defaultProvider: DEFAULT_PROVIDER,
     defaultModel: DEFAULT_MODEL,
   });

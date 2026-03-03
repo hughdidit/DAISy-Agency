@@ -3,13 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { stripAnsi } from "../terminal/ansi.js";
-import { createTestRegistry } from "../test-utils/channel-plugins.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { HealthSummary } from "./health.js";
 =======
 import type { HealthSummary } from "./health.js";

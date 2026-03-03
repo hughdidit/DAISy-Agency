@@ -4,14 +4,11 @@ import { probeGateway } from "../gateway/probe.js";
 import { discoverGatewayBeacons } from "../infra/bonjour-discovery.js";
 import { resolveSshConfig } from "../infra/ssh-config.js";
 import { parseSshTarget, startSshPortForward } from "../infra/ssh-tunnel.js";
-<<<<<<< HEAD
-=======
 import { resolveWideAreaDiscoveryDomain } from "../infra/widearea-dns.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../runtime.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -131,17 +128,8 @@ export async function gatewayStatusCommand(
             const base = user ? `${user}@${host.trim()}` : host.trim();
             return sshPort !== 22 ? `${base}:${sshPort}` : base;
           })
-<<<<<<< HEAD
           .filter((x): x is string => Boolean(x));
         if (candidates.length > 0) sshTarget = candidates[0] ?? null;
-=======
-          .filter((candidate): candidate is string =>
-            Boolean(candidate && parseSshTarget(candidate)),
-          );
-        if (candidates.length > 0) {
-          sshTarget = candidates[0] ?? null;
-        }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       }
 
       const tunnel =

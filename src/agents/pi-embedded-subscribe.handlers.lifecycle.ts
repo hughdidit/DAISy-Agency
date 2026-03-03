@@ -3,12 +3,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { AgentEvent } from "@mariozechner/pi-agent-core";
 
-=======
-import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
->>>>>>> 77e8a8090 (chore: fix lint after compaction handler split)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -24,12 +20,7 @@ import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handler
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { createInlineCodeState } from "../markdown/code-spans.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
-=======
-import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
-=======
->>>>>>> a3c695faa (perf(test): speed up compaction hook wiring tests)
 import { formatAssistantErrorText } from "./pi-embedded-helpers.js";
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 import { isAssistantMessage } from "./pi-embedded-utils.js";
@@ -56,7 +47,6 @@ export function handleAgentStart(ctx: EmbeddedPiSubscribeContext) {
   });
 }
 
-<<<<<<< HEAD
 export function handleAutoCompactionStart(ctx: EmbeddedPiSubscribeContext) {
   ctx.state.compactionInFlight = true;
   ctx.ensureCompactionPromise();
@@ -96,8 +86,6 @@ export function handleAutoCompactionEnd(
   });
 }
 
-=======
->>>>>>> a3c695faa (perf(test): speed up compaction hook wiring tests)
 export function handleAgentEnd(ctx: EmbeddedPiSubscribeContext) {
   const lastAssistant = ctx.state.lastAssistant;
   const isError = isAssistantMessage(lastAssistant) && lastAssistant.stopReason === "error";

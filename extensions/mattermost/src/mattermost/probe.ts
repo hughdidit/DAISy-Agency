@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import { normalizeMattermostBaseUrl, type MattermostUser } from "./client.js";
-=======
-import type { BaseProbeResult } from "openclaw/plugin-sdk";
-import { normalizeMattermostBaseUrl, readMattermostError, type MattermostUser } from "./client.js";
->>>>>>> e80c66a57 (fix(mattermost): refine probe and onboarding flows)
 
 export type MattermostProbe = {
   ok: boolean;

@@ -59,12 +59,7 @@ import {
   resolveDiscordAllowListMatch,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
-<<<<<<< HEAD
   resolveDiscordUserAllowed,
-=======
-  resolveDiscordMemberAccessState,
-<<<<<<< HEAD
->>>>>>> 555eb3f62 (refactor(discord): share member access state)
 =======
   resolveDiscordOwnerAllowFrom,
 >>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
@@ -496,15 +491,7 @@ async function ensureDmComponentAuthorized(params: {
     return true;
   }
 
-<<<<<<< HEAD
   const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
-=======
-  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-    provider: "discord",
-    dmPolicy,
-    readStore: (provider) => readChannelAllowFromStore(provider),
-  });
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const effectiveAllowFrom = [...(ctx.allowFrom ?? []), ...storeAllowFrom];
   const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:", "pk:"]);
   const allowMatch = allowList
@@ -869,8 +856,6 @@ async function dispatchDiscordComponentEvent(params: {
     channelConfig,
     guildInfo,
     sender: { id: interactionCtx.user.id, name: interactionCtx.user.username, tag: senderTag },
-<<<<<<< HEAD
-=======
     allowNameMatching,
   });
   const commandAuthorized = resolveComponentCommandAuthorized({
@@ -879,7 +864,6 @@ async function dispatchDiscordComponentEvent(params: {
     channelConfig,
     guildInfo,
     allowNameMatching,
->>>>>>> c1964e73a (fix(discord): gate component command authorization for guild interactions (#26119))
   });
   const storePath = resolveStorePath(ctx.cfg.session?.store, { agentId });
   const envelopeOptions = resolveEnvelopeFormatOptions(ctx.cfg);
@@ -1319,7 +1303,6 @@ export class AgentComponentButton extends Button {
     if (!interactionCtx) {
       return;
     }
-<<<<<<< HEAD
 
     const user = interaction.user;
     if (!user) {
@@ -1346,20 +1329,7 @@ export class AgentComponentButton extends Button {
     // when guild is not cached even though guild_id is present in rawData
     const rawGuildId = interaction.rawData.guild_id;
     const isDirectMessage = !rawGuildId;
-=======
-    const {
-      channelId,
-      user,
-      username,
-      userId,
-      replyOpts,
-      rawGuildId,
-      isDirectMessage,
-      memberRoleIds,
-    } = interactionCtx;
->>>>>>> 2bd672f3a (refactor(discord): dedupe component context + reaction timing)
 
-<<<<<<< HEAD
     // P2 FIX: Check user allowlist before processing component interaction
     // This prevents unauthorized users from injecting system events
     const guildInfo = resolveDiscordGuildEntry({
@@ -1427,26 +1397,6 @@ export class AgentComponentButton extends Button {
             // Interaction may have expired
           }
           return;
-=======
-      const channelRoles = channelConfig?.roles ?? guildInfo?.roles;
-      const memberAllowed = resolveDiscordMemberAllowed({
-        userAllowList: channelUsers,
-        roleAllowList: channelRoles,
-        memberRoleIds,
-        userId,
-        userName: user.username,
-        userTag: user.discriminator ? `${user.username}#${user.discriminator}` : undefined,
-      });
-      if (!memberAllowed) {
-        logVerbose(`agent button: blocked user ${userId} (not in users/roles allowlist)`);
-        try {
-          await interaction.reply({
-            content: "You are not authorized to use this button.",
-            ...replyOpts,
-          });
-        } catch {
-          // Interaction may have expired
->>>>>>> 078642b30 (fix(discord): defer component interactions to prevent timeout (#16287))
         }
       }
 =======
@@ -1474,7 +1424,6 @@ export class AgentComponentButton extends Button {
     }
     const { parentId } = allowed;
 
-<<<<<<< HEAD
     // Resolve route with full context (guildId, proper peer kind, parentPeer)
     const route = resolveAgentRoute({
       cfg: this.ctx.cfg,
@@ -1486,16 +1435,6 @@ export class AgentComponentButton extends Button {
         id: isDirectMessage ? userId : channelId,
       },
       parentPeer: parentId ? { kind: "channel", id: parentId } : undefined,
-=======
-    const route = resolveAgentComponentRoute({
-      ctx: this.ctx,
-      rawGuildId,
-      memberRoleIds,
-      isDirectMessage,
-      userId,
-      channelId,
-      parentId,
->>>>>>> 63ab5bfdd (refactor(discord): share component route + ack)
     });
 
     const eventText = `[Discord component: ${componentId} clicked by ${username} (${userId})]`;
@@ -1548,7 +1487,6 @@ export class AgentSelectMenu extends StringSelectMenu {
     if (!interactionCtx) {
       return;
     }
-<<<<<<< HEAD
 
     const user = interaction.user;
     if (!user) {
@@ -1575,20 +1513,7 @@ export class AgentSelectMenu extends StringSelectMenu {
     // when guild is not cached even though guild_id is present in rawData
     const rawGuildId = interaction.rawData.guild_id;
     const isDirectMessage = !rawGuildId;
-=======
-    const {
-      channelId,
-      user,
-      username,
-      userId,
-      replyOpts,
-      rawGuildId,
-      isDirectMessage,
-      memberRoleIds,
-    } = interactionCtx;
->>>>>>> 2bd672f3a (refactor(discord): dedupe component context + reaction timing)
 
-<<<<<<< HEAD
     // Check user allowlist before processing component interaction
     const guildInfo = resolveDiscordGuildEntry({
       guild: interaction.guild ?? undefined,
@@ -1652,26 +1577,6 @@ export class AgentSelectMenu extends StringSelectMenu {
             // Interaction may have expired
           }
           return;
-=======
-      const channelRoles = channelConfig?.roles ?? guildInfo?.roles;
-      const memberAllowed = resolveDiscordMemberAllowed({
-        userAllowList: channelUsers,
-        roleAllowList: channelRoles,
-        memberRoleIds,
-        userId,
-        userName: user.username,
-        userTag: user.discriminator ? `${user.username}#${user.discriminator}` : undefined,
-      });
-      if (!memberAllowed) {
-        logVerbose(`agent select: blocked user ${userId} (not in users/roles allowlist)`);
-        try {
-          await interaction.reply({
-            content: "You are not authorized to use this select menu.",
-            ...replyOpts,
-          });
-        } catch {
-          // Interaction may have expired
->>>>>>> 078642b30 (fix(discord): defer component interactions to prevent timeout (#16287))
         }
       }
 =======
@@ -1702,7 +1607,6 @@ export class AgentSelectMenu extends StringSelectMenu {
     const values = interaction.values ?? [];
     const valuesText = values.length > 0 ? ` (selected: ${values.join(", ")})` : "";
 
-<<<<<<< HEAD
     // Resolve route with full context (guildId, proper peer kind, parentPeer)
     const route = resolveAgentRoute({
       cfg: this.ctx.cfg,
@@ -1714,16 +1618,6 @@ export class AgentSelectMenu extends StringSelectMenu {
         id: isDirectMessage ? userId : channelId,
       },
       parentPeer: parentId ? { kind: "channel", id: parentId } : undefined,
-=======
-    const route = resolveAgentComponentRoute({
-      ctx: this.ctx,
-      rawGuildId,
-      memberRoleIds,
-      isDirectMessage,
-      userId,
-      channelId,
-      parentId,
->>>>>>> 63ab5bfdd (refactor(discord): share component route + ack)
     });
 
     const eventText = `[Discord select menu: ${componentId} interacted by ${username} (${userId})${valuesText}]`;

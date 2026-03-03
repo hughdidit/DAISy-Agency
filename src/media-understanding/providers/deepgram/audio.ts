@@ -1,10 +1,6 @@
 import type { AudioTranscriptionRequest, AudioTranscriptionResult } from "../../types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { fetchWithTimeout, normalizeBaseUrl, readErrorResponse } from "../shared.js";
-=======
-import { assertOkOrThrowHttpError, fetchWithTimeoutGuarded, normalizeBaseUrl } from "../shared.js";
->>>>>>> 652318e56 (refactor(media): share http error handling)
 =======
 import {
   assertOkOrThrowHttpError,
@@ -62,7 +58,6 @@ export async function transcribeDeepgramAudio(
   }
 
   const body = new Uint8Array(params.buffer);
-<<<<<<< HEAD
   const res = await fetchWithTimeout(
     url.toString(),
     {
@@ -73,35 +68,11 @@ export async function transcribeDeepgramAudio(
     params.timeoutMs,
     fetchFn,
   );
-=======
-  const { response: res, release } = await postTranscriptionRequest({
-    url: url.toString(),
-    headers,
-    body,
-    timeoutMs: params.timeoutMs,
-    fetchFn,
-    allowPrivateNetwork: allowPrivate,
-  });
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 
-<<<<<<< HEAD
   if (!res.ok) {
     const detail = await readErrorResponse(res);
     const suffix = detail ? `: ${detail}` : "";
     throw new Error(`Audio transcription failed (HTTP ${res.status})${suffix}`);
-=======
-  try {
-    await assertOkOrThrowHttpError(res, "Audio transcription failed");
-
-    const payload = (await res.json()) as DeepgramTranscriptResponse;
-    const transcript = requireTranscriptionText(
-      payload.results?.channels?.[0]?.alternatives?.[0]?.transcript,
-      "Audio transcription response missing transcript",
-    );
-    return { text: transcript, model };
-  } finally {
-    await release();
->>>>>>> 652318e56 (refactor(media): share http error handling)
   }
 
   const payload = (await res.json()) as DeepgramTranscriptResponse;

@@ -16,14 +16,6 @@ import { defaultRuntime } from "../runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { parseMessageWithAttachments } from "./chat-attachments.js";
-import { normalizeRpcAttachmentsToChatAttachments } from "./server-methods/attachment-normalize.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
 import type { NodeEvent, NodeEventContext } from "./server-node-events-types.js";
 import { loadSessionEntry } from "./session-utils.js";
 =======

@@ -1,19 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import {
-  resolveAgentModelFallbackValues,
-  resolveAgentModelPrimaryValue,
-} from "../config/model-input.js";
-import {
-  ensureAuthProfileStore,
-  getSoonestCooldownExpiry,
-  isProfileInCooldown,
-  resolveProfilesUnavailableReason,
-  resolveAuthProfileOrder,
-} from "./auth-profiles.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import {
   coerceToFailoverError,
@@ -24,7 +9,6 @@ import {
 import {
   buildModelAliasIndex,
   modelKey,
-<<<<<<< HEAD
   parseModelRef,
   resolveConfiguredModelRef,
   resolveModelRefFromString,
@@ -35,14 +19,6 @@ import {
   isProfileInCooldown,
   resolveAuthProfileOrder,
 } from "./auth-profiles.js";
-=======
-  normalizeModelRef,
-  resolveConfiguredModelRef,
-  resolveModelRefFromString,
-} from "./model-selection.js";
-import type { FailoverReason } from "./pi-embedded-helpers.js";
-import { isLikelyContextOverflowError } from "./pi-embedded-helpers.js";
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 
 type ModelCandidate = {
   provider: string;
@@ -77,7 +53,6 @@ function shouldRethrowAbort(err: unknown): boolean {
   return isFallbackAbortError(err) && !isTimeoutError(err);
 }
 
-<<<<<<< HEAD
 function buildAllowedModelKeys(
   cfg: MoltbotConfig | undefined,
   defaultProvider: string,
@@ -110,13 +85,6 @@ function resolveImageFallbackCandidates(params: {
     defaultProvider: params.defaultProvider,
   });
   const allowlist = buildAllowedModelKeys(params.cfg, params.defaultProvider);
-=======
-function createModelCandidateCollector(allowlist: Set<string> | null | undefined): {
-  candidates: ModelCandidate[];
-  addExplicitCandidate: (candidate: ModelCandidate) => void;
-  addAllowlistedCandidate: (candidate: ModelCandidate) => void;
-} {
->>>>>>> ed03b834d (refactor(agents): dedupe model fallback candidate logic)
   const seen = new Set<string>();
   const candidates: ModelCandidate[] = [];
 
@@ -260,7 +228,6 @@ function resolveFallbackCandidates(params: {
     cfg: params.cfg ?? {},
     defaultProvider,
   });
-<<<<<<< HEAD
   const allowlist = buildAllowedModelKeys(params.cfg, defaultProvider);
   const seen = new Set<string>();
   const candidates: ModelCandidate[] = [];
@@ -279,14 +246,6 @@ function resolveFallbackCandidates(params: {
     seen.add(key);
     candidates.push(candidate);
   };
-=======
-  const allowlist = buildConfiguredAllowlistKeys({
-    cfg: params.cfg,
-    defaultProvider,
-  });
-<<<<<<< HEAD
-  const { candidates, addCandidate } = createModelCandidateCollector(allowlist);
->>>>>>> ed03b834d (refactor(agents): dedupe model fallback candidate logic)
 =======
   const { candidates, addExplicitCandidate } = createModelCandidateCollector(allowlist);
 >>>>>>> 9beec48e9 (refactor(agents): centralize model fallback resolution)
@@ -338,8 +297,6 @@ function resolveFallbackCandidates(params: {
   return candidates;
 }
 
-<<<<<<< HEAD
-=======
 const lastProbeAttempt = new Map<string, number>();
 const MIN_PROBE_INTERVAL_MS = 30_000; // 30 seconds between probes per key
 const PROBE_MARGIN_MS = 2 * 60 * 1000;
@@ -385,7 +342,6 @@ export const _probeThrottleInternals = {
 } as const;
 
 <<<<<<< HEAD
->>>>>>> d224776ff (refactor(agents): extract cooldown probe decision helper)
 =======
 type CooldownDecision =
   | {
@@ -491,7 +447,6 @@ export async function runWithModelFallback<T>(params: {
       const isAnyProfileAvailable = profileIds.some((id) => !isProfileInCooldown(authStore, id));
 
       if (profileIds.length > 0 && !isAnyProfileAvailable) {
-<<<<<<< HEAD
         // All profiles for this provider are in cooldown; skip without attempting
         attempts.push({
           provider: candidate.provider,
@@ -500,39 +455,6 @@ export async function runWithModelFallback<T>(params: {
           reason: "rate_limit",
         });
         continue;
-=======
-        // All profiles for this provider are in cooldown.
-        const isPrimary = i === 0;
-        const requestedModel =
-          params.provider === candidate.provider && params.model === candidate.model;
-        const now = Date.now();
-        const probeThrottleKey = resolveProbeThrottleKey(candidate.provider, params.agentDir);
-        const decision = resolveCooldownDecision({
-          candidate,
-          isPrimary,
-          requestedModel,
-          hasFallbackCandidates,
-          now,
-          probeThrottleKey,
-          authStore,
-          profileIds,
-        });
-
-        if (decision.type === "skip") {
-          attempts.push({
-            provider: candidate.provider,
-            model: candidate.model,
-            error: decision.error,
-            reason: decision.reason,
-          });
-          continue;
-        }
-<<<<<<< HEAD
-        // Primary model probe: attempt it despite cooldown to detect recovery.
-        // If it fails, the error is caught below and we fall through to the
-        // next candidate as usual.
-        lastProbeAttempt.set(probeThrottleKey, now);
->>>>>>> d224776ff (refactor(agents): extract cooldown probe decision helper)
 =======
 
         if (decision.markProbe) {

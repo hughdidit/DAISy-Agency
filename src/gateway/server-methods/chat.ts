@@ -5,11 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
-=======
-import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
->>>>>>> 0cf93b8fa (Gateway: fix post-compaction amnesia for injected messages (#12283))
 import fs from "node:fs";
 import path from "node:path";
 
@@ -17,16 +13,8 @@ import { CURRENT_SESSION_VERSION } from "@mariozechner/pi-coding-agent";
 =======
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
-import fs from "node:fs";
-import path from "node:path";
-import type { MsgContext } from "../../auto-reply/templating.js";
-import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
->>>>>>> 81fd771cb (fix(gateway): preserve chat.history context under hard caps)
 =======
 import fs from "node:fs";
 import path from "node:path";
@@ -60,16 +48,12 @@ import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding
 import { CURRENT_SESSION_VERSION } from "@mariozechner/pi-coding-agent";
 >>>>>>> 142c0a7f7 (refactor: extract gateway transcript append helper)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-<<<<<<< HEAD
 import { resolveEffectiveMessagesConfig, resolveIdentityName } from "../../agents/identity.js";
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
-=======
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveThinkingDefault } from "../../agents/model-selection.js";
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -82,10 +66,6 @@ import {
   type ResponsePrefixContext,
 } from "../../auto-reply/reply/response-prefix-template.js";
 import type { MsgContext } from "../../auto-reply/templating.js";
-=======
-=======
-import type { MsgContext } from "../../auto-reply/templating.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 81fd771cb (fix(gateway): preserve chat.history context under hard caps)
 =======
@@ -115,11 +95,8 @@ import {
   resolveChatRunExpiresAtMs,
 } from "../chat-abort.js";
 import { type ChatImageContent, parseMessageWithAttachments } from "../chat-attachments.js";
-<<<<<<< HEAD
-=======
 import { stripEnvelopeFromMessage, stripEnvelopeFromMessages } from "../chat-sanitize.js";
 import { GATEWAY_CLIENT_CAPS, hasGatewayClientCap } from "../protocol/client-info.js";
->>>>>>> a10ec2607 (Gateway/Chat UI: sanitize untrusted wrapper markup in final payloads)
 import {
   ErrorCodes,
   errorShape,
@@ -138,20 +115,7 @@ import {
 } from "../session-utils.js";
 import { stripEnvelopeFromMessages } from "../chat-sanitize.js";
 import { formatForLog } from "../ws-log.js";
-<<<<<<< HEAD
 import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
-=======
-import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
-import { normalizeRpcAttachmentsToChatAttachments } from "./attachment-normalize.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 9f9978635 (refactor(gateway): share rpc attachment normalization)
 =======
 =======
 import { appendInjectedAssistantMessageToTranscript } from "./chat-transcript-inject.js";
@@ -400,26 +364,11 @@ function resolveTranscriptPath(params: {
   sessionFile?: string;
   agentId?: string;
 }): string | null {
-<<<<<<< HEAD
   const { sessionId, storePath, sessionFile } = params;
   if (sessionFile) {
     return sessionFile;
   }
   if (!storePath) {
-=======
-  const { sessionId, storePath, sessionFile, agentId } = params;
-  if (!storePath && !sessionFile) {
-    return null;
-  }
-  try {
-    const sessionsDir = storePath ? path.dirname(storePath) : undefined;
-    return resolveSessionFilePath(
-      sessionId,
-      sessionFile ? { sessionFile } : undefined,
-      sessionsDir || agentId ? { sessionsDir, agentId } : undefined,
-    );
-  } catch {
->>>>>>> cab0abf52 (fix(sessions): resolve transcript paths with explicit agent context (#16288))
     return null;
   }
   return path.join(path.dirname(storePath), `${sessionId}.jsonl`);
@@ -654,11 +603,7 @@ function broadcastChatFinal(params: {
     sessionKey: params.sessionKey,
     seq,
     state: "final" as const,
-<<<<<<< HEAD
     message: stripMessageDirectiveTags(params.message),
-=======
-    message: stripInlineDirectiveTagsFromMessageForDisplay(strippedEnvelopeMessage),
->>>>>>> a10ec2607 (Gateway/Chat UI: sanitize untrusted wrapper markup in final payloads)
   };
   params.context.broadcast("chat", payload);
   params.context.nodeSendToSession(params.sessionKey, "chat", payload);
@@ -729,7 +674,6 @@ export const chatHandlers: GatewayRequestHandlers = {
     }
     let thinkingLevel = entry?.thinkingLevel;
     if (!thinkingLevel) {
-<<<<<<< HEAD
       const configured = cfg.agents?.defaults?.thinkingDefault;
       if (configured) {
         thinkingLevel = configured;
@@ -743,17 +687,6 @@ export const chatHandlers: GatewayRequestHandlers = {
           catalog,
         });
       }
-=======
-      const sessionAgentId = resolveSessionAgentId({ sessionKey, config: cfg });
-      const { provider, model } = resolveSessionModelRef(cfg, entry, sessionAgentId);
-      const catalog = await context.loadGatewayModelCatalog();
-      thinkingLevel = resolveThinkingDefault({
-        cfg,
-        provider,
-        model,
-        catalog,
-      });
->>>>>>> 0f2dce048 (fix(agents): prioritize per-model thinking defaults (#30439))
     }
     respond(true, {
       sessionKey,
@@ -1028,23 +961,14 @@ export const chatHandlers: GatewayRequestHandlers = {
         cfg,
         dispatcher,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> d5e25e0ad (refactor: centralize dispatcher lifecycle ownership)
         replyOptions: {
           runId: clientRunId,
           abortSignal: abortController.signal,
           images: parsedImages.length > 0 ? parsedImages : undefined,
           disableBlockStreaming: true,
-<<<<<<< HEAD
           onAgentRunStart: () => {
             agentRunStarted = true;
 <<<<<<< HEAD
-=======
-=======
-          onAgentRunStart: (runId) => {
-            agentRunStarted = true;
->>>>>>> d5e25e0ad (refactor: centralize dispatcher lifecycle ownership)
             const connId = typeof client?.connId === "string" ? client.connId : undefined;
             const wantsToolEvents = hasGatewayClientCap(
               client?.connect?.caps,
@@ -1058,7 +982,6 @@ export const chatHandlers: GatewayRequestHandlers = {
               for (const [activeRunId, active] of context.chatAbortControllers) {
                 if (activeRunId !== runId && active.sessionKey === p.sessionKey) {
                   context.registerToolEventRecipient(activeRunId, connId);
-<<<<<<< HEAD
                 }
               }
             }
@@ -1066,40 +989,6 @@ export const chatHandlers: GatewayRequestHandlers = {
           },
           onModelSelected,
         },
-=======
-        run: () =>
-          dispatchInboundMessage({
-            ctx,
-            cfg,
-            dispatcher,
-            replyOptions: {
-              runId: clientRunId,
-              abortSignal: abortController.signal,
-              images: parsedImages.length > 0 ? parsedImages : undefined,
-              disableBlockStreaming: true,
-              onAgentRunStart: (runId) => {
-                agentRunStarted = true;
-                const connId = typeof client?.connId === "string" ? client.connId : undefined;
-                const wantsToolEvents = hasGatewayClientCap(
-                  client?.connect?.caps,
-                  GATEWAY_CLIENT_CAPS.TOOL_EVENTS,
-                );
-                if (connId && wantsToolEvents) {
-                  context.registerToolEventRecipient(runId, connId);
-                  // Register for any other active runs *in the same session* so
-                  // late-joining clients (e.g. page refresh mid-response) receive
-                  // in-progress tool events without leaking cross-session data.
-                  for (const [activeRunId, active] of context.chatAbortControllers) {
-                    if (activeRunId !== runId && active.sessionKey === p.sessionKey) {
-                      context.registerToolEventRecipient(activeRunId, connId);
-                    }
-                  }
-                }
-              },
-              onModelSelected,
-            },
-          }),
->>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
 =======
                 }
               }
@@ -1255,13 +1144,7 @@ export const chatHandlers: GatewayRequestHandlers = {
       sessionKey: rawSessionKey,
       seq: 0,
       state: "final" as const,
-<<<<<<< HEAD
       message: stripMessageDirectiveTags(appended.message),
-=======
-      message: stripInlineDirectiveTagsFromMessageForDisplay(
-        stripEnvelopeFromMessage(appended.message) as Record<string, unknown>,
-      ),
->>>>>>> a10ec2607 (Gateway/Chat UI: sanitize untrusted wrapper markup in final payloads)
     };
     context.broadcast("chat", chatPayload);
     context.nodeSendToSession(rawSessionKey, "chat", chatPayload);

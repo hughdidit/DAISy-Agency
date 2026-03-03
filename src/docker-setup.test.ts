@@ -135,7 +135,6 @@ describe("docker-setup.sh", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     const rootDir = await mkdtemp(join(tmpdir(), "moltbot-docker-setup-"));
     const scriptPath = join(rootDir, "docker-setup.sh");
     const dockerfilePath = join(rootDir, "Dockerfile");
@@ -166,10 +165,6 @@ describe("docker-setup.sh", () => {
 
     const result = spawnSync("bash", [scriptPath], {
       cwd: rootDir,
-=======
-    const result = spawnSync("bash", [sandbox.scriptPath], {
-      cwd: sandbox.rootDir,
->>>>>>> 6731c6a1c (fix(docker): support Bash 3.2 in docker-setup.sh (#9441))
       env,
 =======
     const defaultsResult = spawnSync("bash", [sandbox.scriptPath], {
@@ -179,12 +174,8 @@ describe("docker-setup.sh", () => {
         OPENCLAW_EXTRA_MOUNTS: undefined,
         OPENCLAW_HOME_VOLUME: undefined,
       }),
-<<<<<<< HEAD
 >>>>>>> 59d2d89fe (perf(test): collapse docker setup sandbox churn)
       encoding: "utf8",
-=======
-      stdio: ["ignore", "ignore", "pipe"],
->>>>>>> ad5e7b968 (perf(test): speed up docker-setup suite)
     });
     expect(defaultsResult.status).toBe(0);
     const defaultsEnvFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
@@ -192,7 +183,6 @@ describe("docker-setup.sh", () => {
     expect(defaultsEnvFile).toContain("OPENCLAW_EXTRA_MOUNTS=");
     expect(defaultsEnvFile).toContain("OPENCLAW_HOME_VOLUME=");
 
-<<<<<<< HEAD
 <<<<<<< HEAD
     expect(result.status).toBe(0);
 
@@ -238,20 +228,6 @@ describe("docker-setup.sh", () => {
       CLAWDBOT_EXTRA_MOUNTS: "",
       CLAWDBOT_HOME_VOLUME: "",
     };
-=======
-    const envFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
-    expect(envFile).toContain("OPENCLAW_DOCKER_APT_PACKAGES=");
-    expect(envFile).toContain("OPENCLAW_EXTRA_MOUNTS=");
-    expect(envFile).toContain("OPENCLAW_HOME_VOLUME=");
-  });
-
-  it("supports a home volume when extra mounts are empty", async () => {
-    const sandbox = await createDockerSetupSandbox();
-    const env = createEnv(sandbox, {
-      OPENCLAW_EXTRA_MOUNTS: "",
-      OPENCLAW_HOME_VOLUME: "openclaw-home",
-    });
->>>>>>> 6731c6a1c (fix(docker): support Bash 3.2 in docker-setup.sh (#9441))
 
     const result = spawnSync("bash", [sandbox.scriptPath], {
 =======
@@ -280,7 +256,6 @@ describe("docker-setup.sh", () => {
     });
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
     expect(result.status).toBe(0);
 
@@ -290,10 +265,6 @@ describe("docker-setup.sh", () => {
 
     const log = await readFile(logPath, "utf8");
     expect(log).toContain("--build-arg CLAWDBOT_DOCKER_APT_PACKAGES=ffmpeg build-essential");
-=======
-=======
-    expect(homeVolumeResult.status).toBe(0);
->>>>>>> 59d2d89fe (perf(test): collapse docker setup sandbox churn)
 =======
     expect(aptAndHomeVolumeResult.status).toBe(0);
     const aptEnvFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
@@ -305,15 +276,8 @@ describe("docker-setup.sh", () => {
     expect(envFile).toContain("OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
     expect(envFile).toContain("OPENCLAW_EXTRA_MOUNTS=");
     expect(envFile).toContain("OPENCLAW_HOME_VOLUME=openclaw-home");
-<<<<<<< HEAD
 >>>>>>> e9294ff92 (perf(test): speed up docker-setup and web media fallback)
     const extraCompose = await readFile(join(sandbox.rootDir, "docker-compose.extra.yml"), "utf8");
-=======
-    const extraCompose = await readFile(
-      join(activeSandbox.rootDir, "docker-compose.extra.yml"),
-      "utf8",
-    );
->>>>>>> 9f2b25426 (test(core): increase coverage for sessions, auth choice, and model listing)
     expect(extraCompose).toContain("openclaw-home:/home/node");
     expect(extraCompose).toContain("volumes:");
     expect(extraCompose).toContain("openclaw-home:");
@@ -336,8 +300,6 @@ describe("docker-setup.sh", () => {
     expect(identityDirStat.isDirectory()).toBe(true);
   });
 
-<<<<<<< HEAD
-=======
   it("precreates agent data dirs to avoid EACCES in container", async () => {
     const activeSandbox = requireSandbox(sandbox);
     const configDir = join(activeSandbox.rootDir, "config-agent-dirs");
@@ -383,7 +345,6 @@ describe("docker-setup.sh", () => {
     expect(envFile).toContain("OPENCLAW_GATEWAY_TOKEN=config-token-123");
   });
 
->>>>>>> a262a3ea0 (fix(docker): ensure agent directory permissions in docker-setup.sh (#28841))
   it("rejects injected multiline OPENCLAW_EXTRA_MOUNTS values", async () => {
     const activeSandbox = requireSandbox(sandbox);
 
@@ -443,7 +404,6 @@ describe("docker-setup.sh", () => {
     expect(syntaxCheck.stderr).not.toContain("declare: -A: invalid option");
   });
 
-<<<<<<< HEAD
   it("plumbs OPENCLAW_DOCKER_APT_PACKAGES into .env and docker build args", async () => {
     const sandbox = await createDockerSetupSandbox();
     const env = createEnv(sandbox, {
@@ -468,8 +428,6 @@ describe("docker-setup.sh", () => {
 >>>>>>> 6731c6a1c (fix(docker): support Bash 3.2 in docker-setup.sh (#9441))
   });
 
-=======
->>>>>>> 59d2d89fe (perf(test): collapse docker setup sandbox churn)
   it("keeps docker-compose gateway command in sync", async () => {
     const compose = await readFile(join(repoRoot, "docker-compose.yml"), "utf8");
     expect(compose).not.toContain("gateway-daemon");

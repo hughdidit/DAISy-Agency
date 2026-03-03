@@ -1,12 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> fb1d8f836 (perf(test): consolidate web auto-reply suites)
 import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 
 let capturedCtx: unknown;

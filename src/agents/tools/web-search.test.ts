@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { withEnv } from "../../test-utils/env.js";
->>>>>>> 65ea200c3 (refactor(test): share env var helpers)
 import { __testing } from "./web-search.js";
 
 const {

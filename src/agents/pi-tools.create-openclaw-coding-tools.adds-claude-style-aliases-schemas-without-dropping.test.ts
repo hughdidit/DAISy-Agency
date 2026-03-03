@@ -2,100 +2,22 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
-<<<<<<< HEAD
 import { createMoltbotTools } from "./moltbot-tools.js";
 import { __testing, createMoltbotCodingTools } from "./pi-tools.js";
 import { createSandboxedReadTool } from "./pi-tools.read.js";
-=======
-import { createOpenClawTools } from "./openclaw-tools.js";
-import { __testing, createOpenClawCodingTools } from "./pi-tools.js";
-import { createOpenClawReadTool, createSandboxedReadTool } from "./pi-tools.read.js";
-import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
->>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
 import { createBrowserTool } from "./tools/browser-tool.js";
 
 const defaultTools = createMoltbotCodingTools();
 
-<<<<<<< HEAD
 describe("createMoltbotCodingTools", () => {
-=======
-function findUnionKeywordOffenders(
-  tools: Array<{ name: string; parameters: unknown }>,
-  opts?: { onlyNames?: Set<string> },
-) {
-  const offenders: Array<{
-    name: string;
-    keyword: string;
-    path: string;
-  }> = [];
-  const keywords = new Set(["anyOf", "oneOf", "allOf"]);
-
-  const walk = (value: unknown, path: string, name: string): void => {
-    if (!value) {
-      return;
-    }
-    if (Array.isArray(value)) {
-      for (const [index, entry] of value.entries()) {
-        walk(entry, `${path}[${index}]`, name);
-      }
-      return;
-    }
-    if (typeof value !== "object") {
-      return;
-    }
-
-    const record = value as Record<string, unknown>;
-    for (const [key, entry] of Object.entries(record)) {
-      const nextPath = path ? `${path}.${key}` : key;
-      if (keywords.has(key)) {
-        offenders.push({ name, keyword: key, path: nextPath });
-      }
-      walk(entry, nextPath, name);
-    }
-  };
-
-  for (const tool of tools) {
-    if (opts?.onlyNames && !opts.onlyNames.has(tool.name)) {
-      continue;
-    }
-    walk(tool.parameters, "", tool.name);
-  }
-
-  return offenders;
-}
-
-function extractToolText(result: unknown): string {
-  if (!result || typeof result !== "object") {
-    return "";
-  }
-  const content = (result as { content?: unknown }).content;
-  if (!Array.isArray(content)) {
-    return "";
-  }
-  const textBlock = content.find((block) => {
-    return (
-      block &&
-      typeof block === "object" &&
-      (block as { type?: unknown }).type === "text" &&
-      typeof (block as { text?: unknown }).text === "string"
-    );
-  }) as { text?: string } | undefined;
-  return textBlock?.text ?? "";
-}
-
-describe("createOpenClawCodingTools", () => {
->>>>>>> 772c03d41 (refactor(test): dedupe pi-tools schema union checks)
   describe("Claude/Gemini alias support", () => {
     it("adds Claude-style aliases to schemas without dropping metadata", () => {
       const base: AgentTool = {

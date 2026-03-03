@@ -6,15 +6,9 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import JSON5 from "json5";
 import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
-=======
-import type { MsgContext } from "../../auto-reply/templating.js";
-import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { acquireSessionWriteLock } from "../../agents/session-write-lock.js";
 =======
 >>>>>>> 826e62a3b (fix(sessions): purge deleted transcript archives)
@@ -46,18 +40,7 @@ import {
   normalizeSessionDeliveryFields,
   type DeliveryContext,
 } from "../../utils/delivery-context.js";
-<<<<<<< HEAD
 import type { MsgContext } from "../../auto-reply/templating.js";
-=======
-import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
-import { loadConfig } from "../config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 826e62a3b (fix(sessions): purge deleted transcript archives)
 =======
@@ -150,8 +133,6 @@ function normalizeSessionEntryDelivery(entry: SessionEntry): SessionEntry {
   };
 }
 
-<<<<<<< HEAD
-=======
 function removeThreadFromDeliveryContext(context?: DeliveryContext): DeliveryContext | undefined {
   if (!context || context.threadId == null) {
     return context;
@@ -206,7 +187,6 @@ function resolveStoreSessionEntry(params: {
   };
 }
 
->>>>>>> 9ea740afb (Sessions: canonicalize mixed-case session keys)
 function normalizeSessionStore(store: Record<string, SessionEntry>): void {
   for (const [key, entry] of Object.entries(store)) {
     if (!entry) {
@@ -221,8 +201,6 @@ function normalizeSessionStore(store: Record<string, SessionEntry>): void {
 
 export function clearSessionStoreCacheForTest(): void {
   SESSION_STORE_CACHE.clear();
-<<<<<<< HEAD
-=======
   for (const queue of LOCK_QUEUES.values()) {
     for (const task of queue.pending) {
       task.reject(new Error("session store queue cleared for test"));
@@ -242,7 +220,6 @@ export async function withSessionStoreLockForTest<T>(
   opts: SessionStoreLockOptions = {},
 ): Promise<T> {
   return await withSessionStoreLock(storePath, fn, opts);
->>>>>>> 12a947223 (fix(ci): restore main checks after bulk merges)
 }
 
 type LoadSessionStoreOptions = {
@@ -269,37 +246,11 @@ export function loadSessionStore(
   // Cache miss or disabled - load from disk
   let store: Record<string, SessionEntry> = {};
   let mtimeMs = getFileMtimeMs(storePath);
-<<<<<<< HEAD
   try {
     const raw = fs.readFileSync(storePath, "utf-8");
     const parsed = JSON.parse(raw);
     if (isSessionStoreRecord(parsed)) {
       store = parsed;
-=======
-  const maxReadAttempts = process.platform === "win32" ? 3 : 1;
-  const retryBuf = maxReadAttempts > 1 ? new Int32Array(new SharedArrayBuffer(4)) : undefined;
-  for (let attempt = 0; attempt < maxReadAttempts; attempt++) {
-    try {
-      const raw = fs.readFileSync(storePath, "utf-8");
-      if (raw.length === 0 && attempt < maxReadAttempts - 1) {
-        // File is empty — likely caught mid-write; retry after a brief pause.
-        Atomics.wait(retryBuf!, 0, 0, 50);
-        continue;
-      }
-      const parsed = JSON.parse(raw);
-      if (isSessionStoreRecord(parsed)) {
-        store = parsed;
-      }
-      mtimeMs = getFileMtimeMs(storePath) ?? mtimeMs;
-      break;
-    } catch {
-      // File missing, locked, or transiently corrupt — retry on Windows.
-      if (attempt < maxReadAttempts - 1) {
-        Atomics.wait(retryBuf!, 0, 0, 50);
-        continue;
-      }
-      // Final attempt failed; proceed with an empty store.
->>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
     }
     mtimeMs = getFileMtimeMs(storePath) ?? mtimeMs;
   } catch {
@@ -356,8 +307,6 @@ export function readSessionUpdatedAt(params: {
   }
 }
 
-<<<<<<< HEAD
-=======
 // ============================================================================
 // Session Store Pruning, Capping & File Rotation
 // ============================================================================
@@ -701,7 +650,6 @@ type SaveSessionStoreOptions = {
   maintenanceOverride?: Partial<ResolvedSessionMaintenanceConfig>;
 };
 
->>>>>>> 93fbe6482 (fix(sessions): archive transcript files when pruning stale entries)
 async function saveSessionStoreUnlocked(
   storePath: string,
   store: Record<string, SessionEntry>,
@@ -711,8 +659,6 @@ async function saveSessionStoreUnlocked(
 
   normalizeSessionStore(store);
 
-<<<<<<< HEAD
-=======
   if (!opts?.skipMaintenance) {
     // Resolve maintenance config once (avoids repeated loadConfig() calls).
     const maintenance = { ...resolveMaintenanceConfig(), ...opts?.maintenanceOverride };
@@ -832,7 +778,6 @@ async function saveSessionStoreUnlocked(
     }
   }
 
->>>>>>> 93fbe6482 (fix(sessions): archive transcript files when pruning stale entries)
   await fs.promises.mkdir(path.dirname(storePath), { recursive: true });
   const json = JSON.stringify(store, null, 2);
 
@@ -840,33 +785,7 @@ async function saveSessionStoreUnlocked(
   // We serialize writers via the session-store lock instead.
   if (process.platform === "win32") {
     try {
-<<<<<<< HEAD
       await fs.promises.writeFile(storePath, json, "utf-8");
-=======
-      await fs.promises.writeFile(tmp, json, "utf-8");
-      // Retry rename up to 5 times with increasing backoff — rename can fail
-      // on Windows when the target is locked by a concurrent reader.  We do
-      // NOT fall back to writeFile or copyFile because both use CREATE_ALWAYS
-      // on Windows, which truncates the target to 0 bytes before writing —
-      // reintroducing the exact race this fix addresses.  If all attempts
-      // fail, the temp file is cleaned up and the next save cycle (which is
-      // serialized by the write lock) will succeed.
-      for (let i = 0; i < 5; i++) {
-        try {
-          await fs.promises.rename(tmp, storePath);
-          break;
-        } catch {
-          if (i < 4) {
-            await new Promise((r) => setTimeout(r, 50 * (i + 1)));
-          }
-          // Final attempt failed — skip this save.  The write lock ensures
-          // the next save will retry with fresh data.  Log for diagnostics.
-          if (i === 4) {
-            log.warn(`rename failed after 5 attempts: ${storePath}`);
-          }
-        }
-      }
->>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
     } catch (err) {
       const code =
         err && typeof err === "object" && "code" in err
@@ -946,8 +865,6 @@ type SessionStoreLockOptions = {
   staleMs?: number;
 };
 
-<<<<<<< HEAD
-=======
 type SessionStoreLockTask = {
   fn: () => Promise<unknown>;
   resolve: (value: unknown) => void;
@@ -1031,7 +948,6 @@ async function drainSessionStoreLockQueue(storePath: string): Promise<void> {
   }
 }
 
->>>>>>> 12a947223 (fix(ci): restore main checks after bulk merges)
 async function withSessionStoreLock<T>(
   storePath: string,
   fn: () => Promise<T>,
@@ -1048,7 +964,6 @@ async function withSessionStoreLock<T>(
   const lockPath = `${storePath}.lock`;
   const startedAt = Date.now();
 
-<<<<<<< HEAD
   await fs.promises.mkdir(path.dirname(storePath), { recursive: true });
 
   while (true) {
@@ -1108,25 +1023,6 @@ async function withSessionStoreLock<T>(
   } finally {
     await fs.promises.unlink(lockPath).catch(() => undefined);
   }
-=======
-  const hasTimeout = timeoutMs > 0 && Number.isFinite(timeoutMs);
-  const queue = getOrCreateLockQueue(storePath);
-
-  const promise = new Promise<T>((resolve, reject) => {
-    const task: SessionStoreLockTask = {
-      fn: async () => await fn(),
-      resolve: (value) => resolve(value as T),
-      reject,
-      timeoutMs: hasTimeout ? timeoutMs : undefined,
-      staleMs,
-    };
-
-    queue.pending.push(task);
-    void drainSessionStoreLockQueue(storePath);
-  });
-
-  return await promise;
->>>>>>> 12a947223 (fix(ci): restore main checks after bulk merges)
 }
 
 export async function updateSessionStoreEntry(params: {
@@ -1147,18 +1043,8 @@ export async function updateSessionStoreEntry(params: {
       return existing;
     }
     const next = mergeSessionEntry(existing, patch);
-<<<<<<< HEAD
     store[sessionKey] = next;
     await saveSessionStoreUnlocked(storePath, store);
-=======
-    store[resolved.normalizedKey] = next;
-    for (const legacyKey of resolved.legacyKeys) {
-      delete store[legacyKey];
-    }
-    await saveSessionStoreUnlocked(storePath, store, {
-      activeSessionKey: resolved.normalizedKey,
-    });
->>>>>>> 9ea740afb (Sessions: canonicalize mixed-case session keys)
     return next;
   });
 }
@@ -1172,7 +1058,6 @@ export async function recordSessionMetaFromInbound(params: {
 }): Promise<SessionEntry | null> {
   const { storePath, sessionKey, ctx } = params;
   const createIfMissing = params.createIfMissing ?? true;
-<<<<<<< HEAD
   return await updateSessionStore(storePath, (store) => {
     const existing = store[sessionKey];
     const patch = deriveSessionMetaPatch({
@@ -1191,40 +1076,6 @@ export async function recordSessionMetaFromInbound(params: {
     store[sessionKey] = next;
     return next;
   });
-=======
-  return await updateSessionStore(
-    storePath,
-    (store) => {
-      const resolved = resolveStoreSessionEntry({ store, sessionKey });
-      const existing = resolved.existing;
-      const patch = deriveSessionMetaPatch({
-        ctx,
-        sessionKey: resolved.normalizedKey,
-        existing,
-        groupResolution: params.groupResolution,
-      });
-      if (!patch) {
-        if (existing && resolved.legacyKeys.length > 0) {
-          store[resolved.normalizedKey] = existing;
-          for (const legacyKey of resolved.legacyKeys) {
-            delete store[legacyKey];
-          }
-        }
-        return existing ?? null;
-      }
-      if (!existing && !createIfMissing) {
-        return null;
-      }
-      const next = mergeSessionEntry(existing, patch);
-      store[resolved.normalizedKey] = next;
-      for (const legacyKey of resolved.legacyKeys) {
-        delete store[legacyKey];
-      }
-      return next;
-    },
-    { activeSessionKey: normalizeStoreSessionKey(sessionKey) },
-  );
->>>>>>> 9ea740afb (Sessions: canonicalize mixed-case session keys)
 }
 
 export async function updateLastRoute(params: {
@@ -1281,18 +1132,8 @@ export async function updateLastRoute(params: {
       existing,
       metaPatch ? { ...basePatch, ...metaPatch } : basePatch,
     );
-<<<<<<< HEAD
     store[sessionKey] = next;
     await saveSessionStoreUnlocked(storePath, store);
-=======
-    store[resolved.normalizedKey] = next;
-    for (const legacyKey of resolved.legacyKeys) {
-      delete store[legacyKey];
-    }
-    await saveSessionStoreUnlocked(storePath, store, {
-      activeSessionKey: resolved.normalizedKey,
-    });
->>>>>>> 9ea740afb (Sessions: canonicalize mixed-case session keys)
     return next;
   });
 }

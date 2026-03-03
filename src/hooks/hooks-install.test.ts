@@ -25,7 +25,6 @@ describe("hooks install (e2e)", () => {
     const baseDir = await makeTempDir();
     workspaceDir = path.join(baseDir, "workspace");
     await fs.mkdir(workspaceDir, { recursive: true });
-<<<<<<< HEAD
 
     prevStateDir = process.env.CLAWDBOT_STATE_DIR;
     prevBundledDir = process.env.CLAWDBOT_BUNDLED_HOOKS_DIR;
@@ -48,11 +47,6 @@ describe("hooks install (e2e)", () => {
     }
 
     vi.resetModules();
-=======
-  });
-
-  afterEach(async () => {
->>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
     for (const dir of tempDirs.splice(0)) {
       try {
         await fs.rm(dir, { recursive: true, force: true });

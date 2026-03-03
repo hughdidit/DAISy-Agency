@@ -3,18 +3,11 @@ import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { resolveUserTimezone } from "../../agents/date-time.js";
 import { buildWorkspaceSkillSnapshot } from "../../agents/skills.js";
 import { ensureSkillsWatcher, getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { resolveUserTimezone } from "../../agents/date-time.js";
-import { buildWorkspaceSkillSnapshot } from "../../agents/skills.js";
-import { ensureSkillsWatcher, getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import { resolveUserTimezone } from "../../agents/date-time.js";
@@ -80,7 +73,6 @@ export async function prependSystemEvents(params: {
     return trimmed;
   };
 
-<<<<<<< HEAD
   const resolveExplicitTimezone = (value: string): string | undefined => {
     try {
       new Intl.DateTimeFormat("en-US", { timeZone: value }).format(new Date());
@@ -91,9 +83,6 @@ export async function prependSystemEvents(params: {
   };
 
   const resolveSystemEventTimezone = (cfg: MoltbotConfig) => {
-=======
-  const resolveSystemEventTimezone = (cfg: OpenClawConfig) => {
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
     const raw = cfg.agents?.defaults?.envelopeTimezone?.trim();
     if (!raw) {
       return { mode: "local" as const };
@@ -115,7 +104,6 @@ export async function prependSystemEvents(params: {
     return explicit ? { mode: "iana" as const, timeZone: explicit } : { mode: "local" as const };
   };
 
-<<<<<<< HEAD
   const formatUtcTimestamp = (date: Date): string => {
     const yyyy = String(date.getUTCFullYear()).padStart(4, "0");
     const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
@@ -156,9 +144,6 @@ export async function prependSystemEvents(params: {
   };
 
   const formatSystemEventTimestamp = (ts: number, cfg: MoltbotConfig) => {
-=======
-  const formatSystemEventTimestamp = (ts: number, cfg: OpenClawConfig) => {
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
     const date = new Date(ts);
     if (Number.isNaN(date.getTime())) {
       return "unknown-time";

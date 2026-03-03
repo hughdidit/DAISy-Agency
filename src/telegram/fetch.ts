@@ -2,12 +2,6 @@ import * as dns from "node:dns";
 import * as net from "node:net";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { Agent, setGlobalDispatcher } from "undici";
-=======
-import { EnvHttpProxyAgent, setGlobalDispatcher } from "undici";
->>>>>>> e6049345d (fix(telegram): preserve HTTP proxy env in global dispatcher workaround (#29940))
 =======
 import { EnvHttpProxyAgent, getGlobalDispatcher, setGlobalDispatcher } from "undici";
 >>>>>>> 666a4763e (Telegram: preserve proxy-aware global dispatcher)
@@ -98,7 +92,6 @@ function applyTelegramNetworkWorkarounds(network?: TelegramNetworkConfig): void 
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (typeof net.setDefaultAutoSelectFamily === "function") {
     try {
       net.setDefaultAutoSelectFamily(decision.value);
@@ -106,41 +99,6 @@ function applyTelegramNetworkWorkarounds(network?: TelegramNetworkConfig): void 
       log.info(`telegram: autoSelectFamily=${decision.value}${label}`);
     } catch {
       // ignore if unsupported by the runtime
-=======
-=======
-  // Node 22's built-in globalThis.fetch uses undici's internal Agent whose
-  // connect options are frozen at construction time. Calling
-  // net.setDefaultAutoSelectFamily() after that agent is created has no
-  // effect on it. Replace the global dispatcher with one that carries the
-  // current autoSelectFamily setting so subsequent globalThis.fetch calls
-  // inherit the same decision.
-  // See: https://github.com/openclaw/openclaw/issues/25676
-  if (
-    autoSelectDecision.value !== null &&
-    autoSelectDecision.value !== appliedGlobalDispatcherAutoSelectFamily
-  ) {
-    const existingGlobalDispatcher = getGlobalDispatcher();
-    const shouldPreserveExistingProxy =
-      isProxyLikeDispatcher(existingGlobalDispatcher) && !hasProxyEnvConfigured();
-    if (!shouldPreserveExistingProxy) {
-      try {
-        setGlobalDispatcher(
-          new EnvHttpProxyAgent({
-            connect: {
-              autoSelectFamily: autoSelectDecision.value,
-              autoSelectFamilyAttemptTimeout: 300,
-            },
-          }),
-        );
-        appliedGlobalDispatcherAutoSelectFamily = autoSelectDecision.value;
-        log.info(`global undici dispatcher autoSelectFamily=${autoSelectDecision.value}`);
-      } catch {
-        // ignore if setGlobalDispatcher is unavailable
-      }
-    }
-  }
-
->>>>>>> 007807068 (fix(telegram): refresh global undici dispatcher for autoSelectFamily (#25682))
   // Apply DNS result order workaround for IPv4/IPv6 issues.
   // Some APIs (including Telegram) may fail with IPv6 on certain networks.
   // See: https://github.com/openclaw/openclaw/issues/5311

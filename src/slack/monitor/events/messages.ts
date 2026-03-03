@@ -3,15 +3,10 @@ import type { SlackEventMiddlewareArgs } from "@slack/bolt";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { danger } from "../../../globals.js";
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
 
-=======
-import { danger } from "../../../globals.js";
-import { enqueueSystemEvent } from "../../../infra/system-events.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

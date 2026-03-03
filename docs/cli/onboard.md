@@ -10,15 +10,7 @@ Interactive onboarding wizard (local or remote Gateway setup).
 
 Related:
 
-<<<<<<< HEAD
 - Wizard guide: [Onboarding](/start/onboarding)
-=======
-- CLI onboarding hub: [Onboarding Wizard (CLI)](/start/wizard)
-- Onboarding overview: [Onboarding Overview](/start/onboarding-overview)
-- CLI onboarding reference: [CLI Onboarding Reference](/start/wizard-cli-reference)
-- CLI automation: [CLI Automation](/start/wizard-cli-automation)
-- macOS onboarding: [Onboarding (macOS App)](/start/onboarding)
->>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 
 ## Examples
 
@@ -42,8 +34,6 @@ openclaw onboard --non-interactive \
 
 `--custom-api-key` is optional in non-interactive mode. If omitted, onboarding checks `CUSTOM_API_KEY`.
 
-<<<<<<< HEAD
-=======
 Store provider keys as refs instead of plaintext:
 
 ```bash
@@ -71,7 +61,6 @@ Interactive onboarding behavior with reference mode:
 - Onboarding performs a fast preflight validation before saving the ref.
   - If validation fails, onboarding shows the error and lets you retry.
 
->>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
 Non-interactive Z.AI endpoint choices:
 
 Note: `--auth-choice zai-api-key` now auto-detects the best Z.AI endpoint for your key (prefers the general API with `zai/glm-5`).
@@ -102,12 +91,7 @@ Flow notes:
 - `quickstart`: minimal prompts, auto-generates a gateway token.
 - `manual`: full prompts for port/bind/auth (alias of `advanced`).
 <<<<<<< HEAD
-<<<<<<< HEAD
 - Fastest first chat: `moltbot dashboard` (Control UI, no channel setup).
-=======
-=======
-- Local onboarding DM scope behavior: [CLI Onboarding Reference](/start/wizard-cli-reference#outputs-and-internals).
->>>>>>> 6fda04e93 (refactor: tighten onboarding dmScope typing and docs links)
 - Fastest first chat: `openclaw dashboard` (Control UI, no channel setup).
 - Custom Provider: connect any OpenAI or Anthropic compatible endpoint,
   including hosted providers not listed. Use Unknown to auto-detect.

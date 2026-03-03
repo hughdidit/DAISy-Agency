@@ -4,11 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { loginOpenAICodex } from "@mariozechner/pi-ai";
-=======
-import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
->>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -22,11 +18,8 @@ import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveEnvApiKey } from "../agents/model-auth.js";
-<<<<<<< HEAD
 import { upsertSharedEnvVar } from "../infra/env-file.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
-=======
->>>>>>> 68b9d89ee (Onboard: store OpenAI auth in profiles instead of .env)
 import {
   formatApiKeyPreview,
   normalizeApiKeyInput,
@@ -39,10 +32,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { createAuthChoiceAgentModelNoter } from "./auth-choice.apply-helpers.js";
->>>>>>> 0048af4e2 (refactor(commands): dedupe auth-choice model notes)
 =======
 =======
 import { normalizeApiKeyInput, validateApiKeyInput } from "./auth-choice.api-key.js";
@@ -71,26 +60,19 @@ import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
-<<<<<<< HEAD
 >>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))
 import { applyAuthProfileConfig, writeOAuthCredentials } from "./onboard-auth.js";
-=======
-import { applyAuthProfileConfig, setOpenaiApiKey, writeOAuthCredentials } from "./onboard-auth.js";
->>>>>>> 68b9d89ee (Onboard: store OpenAI auth in profiles instead of .env)
 import { openUrl } from "./onboard-helpers.js";
 import {
   applyOpenAICodexModelDefault,
   OPENAI_CODEX_DEFAULT_MODEL,
 } from "./openai-codex-model-default.js";
-<<<<<<< HEAD
-=======
 import { loginOpenAICodexOAuth } from "./openai-codex-oauth.js";
 import {
   applyOpenAIConfig,
   applyOpenAIProviderConfig,
   OPENAI_DEFAULT_MODEL,
 } from "./openai-model-default.js";
->>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))
 
 export async function applyAuthChoiceOpenAI(
   params: ApplyAuthChoiceParams,
@@ -103,8 +85,6 @@ export async function applyAuthChoiceOpenAI(
   }
 
   if (authChoice === "openai-api-key") {
-<<<<<<< HEAD
-=======
     let nextConfig = params.config;
     let agentModelOverride: string | undefined;
 
@@ -125,7 +105,6 @@ export async function applyAuthChoiceOpenAI(
     };
 
 <<<<<<< HEAD
->>>>>>> aa2d74a84 (refactor(commands): dedupe OpenAI default model apply)
     const envKey = resolveEnvApiKey("openai");
     if (envKey) {
       const useExisting = await params.prompter.confirm({
@@ -143,7 +122,6 @@ export async function applyAuthChoiceOpenAI(
           provider: "openai",
           mode: "api_key",
         });
-<<<<<<< HEAD
         if (!process.env.OPENAI_API_KEY) {
           process.env.OPENAI_API_KEY = envKey.apiKey;
         }
@@ -153,9 +131,6 @@ export async function applyAuthChoiceOpenAI(
         );
 <<<<<<< HEAD
         return { config: params.config };
-=======
-=======
->>>>>>> 68b9d89ee (Onboard: store OpenAI auth in profiles instead of .env)
         return await applyOpenAiDefaultModelChoice();
 >>>>>>> aa2d74a84 (refactor(commands): dedupe OpenAI default model apply)
       }
@@ -195,7 +170,6 @@ export async function applyAuthChoiceOpenAI(
       provider: "openai",
       mode: "api_key",
     });
-<<<<<<< HEAD
     process.env.OPENAI_API_KEY = trimmed;
     await params.prompter.note(
       `Saved OPENAI_API_KEY to ${result.path} for launchd compatibility.`,
@@ -203,9 +177,6 @@ export async function applyAuthChoiceOpenAI(
     );
 <<<<<<< HEAD
     return { config: params.config };
-=======
-=======
->>>>>>> 68b9d89ee (Onboard: store OpenAI auth in profiles instead of .env)
     return await applyOpenAiDefaultModelChoice();
 >>>>>>> aa2d74a84 (refactor(commands): dedupe OpenAI default model apply)
   }
@@ -252,7 +223,6 @@ export async function applyAuthChoiceOpenAI(
         agentModelOverride = OPENAI_CODEX_DEFAULT_MODEL;
         await noteAgentModel(OPENAI_CODEX_DEFAULT_MODEL);
       }
-<<<<<<< HEAD
     } catch (err) {
       spin.stop("OpenAI OAuth failed");
       params.runtime.error(String(err));
@@ -260,8 +230,6 @@ export async function applyAuthChoiceOpenAI(
         "Trouble with OAuth? See https://docs.molt.bot/start/faq",
         "OAuth help",
       );
-=======
->>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))
     }
     return { config: nextConfig, agentModelOverride };
   }

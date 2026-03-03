@@ -1,18 +1,8 @@
 import Foundation
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ClawdbotConfigFile.swift
 import MoltbotProtocol
-=======
-import OpenClawProtocol
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/OpenClawConfigFile.swift
 
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ClawdbotConfigFile.swift
 enum MoltbotConfigFile {
     private static let logger = Logger(subsystem: "bot.molt", category: "config")
-=======
-enum OpenClawConfigFile {
-    private static let logger = Logger(subsystem: "ai.openclaw", category: "config")
-    private static let configAuditFileName = "config-audit.jsonl"
->>>>>>> 748d6821d (fix(config): add forensic config write audit and watch attribution):apps/macos/Sources/OpenClaw/OpenClawConfigFile.swift
 
     static func url() -> URL {
         MoltbotPaths.configURL

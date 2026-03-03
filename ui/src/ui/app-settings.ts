@@ -4,15 +4,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { OpenClawApp } from "./app";
-import { refreshChat } from "./app-chat";
-=======
-import type { OpenClawApp } from "./app.ts";
-import type { AgentsListResult } from "./types.ts";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawApp } from "./app.ts";
 import type { AgentsListResult } from "./types.ts";
@@ -32,7 +23,6 @@ import {
   stopLogsPolling,
   startDebugPolling,
   stopDebugPolling,
-<<<<<<< HEAD
 } from "./app-polling";
 import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity";
@@ -52,32 +42,6 @@ import { loadPresence } from "./controllers/presence";
 import { loadSessions } from "./controllers/sessions";
 import { loadSkills } from "./controllers/skills";
 =======
-} from "./app-polling.ts";
-import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll.ts";
-import type { OpenClawApp } from "./app.ts";
-import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
-import { loadAgentSkills } from "./controllers/agent-skills.ts";
-import { loadAgents, loadToolsCatalog } from "./controllers/agents.ts";
-import { loadChannels } from "./controllers/channels.ts";
-import { loadConfig, loadConfigSchema } from "./controllers/config.ts";
-import {
-  loadCronJobs,
-  loadCronModelSuggestions,
-  loadCronRuns,
-  loadCronStatus,
-} from "./controllers/cron.ts";
-import { loadDebug } from "./controllers/debug.ts";
-import { loadDevices } from "./controllers/devices.ts";
-import { loadExecApprovals } from "./controllers/exec-approvals.ts";
-import { loadLogs } from "./controllers/logs.ts";
-import { loadNodes } from "./controllers/nodes.ts";
-import { loadPresence } from "./controllers/presence.ts";
-import { loadSessions } from "./controllers/sessions.ts";
-import { loadSkills } from "./controllers/skills.ts";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
 import { loadUsage } from "./controllers/usage.ts";
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
 =======
@@ -89,7 +53,6 @@ import {
   pathForTab,
   tabFromPath,
   type Tab,
-<<<<<<< HEAD
 } from "./navigation";
 import { saveSettings, type UiSettings } from "./storage";
 import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme";
@@ -103,19 +66,6 @@ import {
 } from "./app-polling";
 import { refreshChat } from "./app-chat";
 import type { MoltbotApp } from "./app";
-=======
-} from "./navigation.ts";
-import { saveSettings, type UiSettings } from "./storage.ts";
-import { startThemeTransition, type ThemeTransitionContext } from "./theme-transition.ts";
-import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme.ts";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import type { AgentsListResult } from "./types.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -208,14 +158,10 @@ export function applySettingsFromUrl(host: SettingsHost) {
   }
 
   if (passwordRaw != null) {
-<<<<<<< HEAD
     const password = passwordRaw.trim();
     if (password) {
 <<<<<<< HEAD
       (host as unknown as { password: string }).password = password;
-=======
-      (host as { password: string }).password = password;
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
     }
 =======
     // Never hydrate password from URL params; strip only.
@@ -293,21 +239,12 @@ export function setTheme(host: SettingsHost, next: ThemeMode, context?: ThemeTra
 
 export async function refreshActiveTab(host: SettingsHost) {
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (host.tab === "overview") await loadOverview(host);
   if (host.tab === "channels") await loadChannelsTab(host);
   if (host.tab === "instances") await loadPresence(host as unknown as MoltbotApp);
   if (host.tab === "sessions") await loadSessions(host as unknown as MoltbotApp);
   if (host.tab === "cron") await loadCron(host);
   if (host.tab === "skills") await loadSkills(host as unknown as MoltbotApp);
-=======
-  if (host.tab === "overview") {await loadOverview(host);}
-  if (host.tab === "channels") {await loadChannelsTab(host);}
-  if (host.tab === "instances") {await loadPresence(host as unknown as OpenClawApp);}
-  if (host.tab === "sessions") {await loadSessions(host as unknown as OpenClawApp);}
-  if (host.tab === "cron") {await loadCron(host);}
-  if (host.tab === "skills") {await loadSkills(host as unknown as OpenClawApp);}
->>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
 =======
   if (host.tab === "overview") {
     await loadOverview(host);
@@ -327,33 +264,7 @@ export async function refreshActiveTab(host: SettingsHost) {
   if (host.tab === "skills") {
     await loadSkills(host as unknown as OpenClawApp);
   }
-<<<<<<< HEAD
 >>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
-=======
-  if (host.tab === "agents") {
-    await loadAgents(host as unknown as OpenClawApp);
-    await loadToolsCatalog(host as unknown as OpenClawApp);
-    await loadConfig(host as unknown as OpenClawApp);
-    const agentIds = host.agentsList?.agents?.map((entry) => entry.id) ?? [];
-    if (agentIds.length > 0) {
-      void loadAgentIdentities(host as unknown as OpenClawApp, agentIds);
-    }
-    const agentId =
-      host.agentsSelectedId ?? host.agentsList?.defaultId ?? host.agentsList?.agents?.[0]?.id;
-    if (agentId) {
-      void loadAgentIdentity(host as unknown as OpenClawApp, agentId);
-      if (host.agentsPanel === "skills") {
-        void loadAgentSkills(host as unknown as OpenClawApp, agentId);
-      }
-      if (host.agentsPanel === "channels") {
-        void loadChannels(host as unknown as OpenClawApp, false);
-      }
-      if (host.agentsPanel === "cron") {
-        void loadCron(host);
-      }
-    }
-  }
->>>>>>> 2a68bcbeb (feat(ui): add Agents dashboard)
   if (host.tab === "nodes") {
     await loadNodes(host as unknown as MoltbotApp);
     await loadDevices(host as unknown as MoltbotApp);
@@ -377,31 +288,18 @@ export async function refreshActiveTab(host: SettingsHost) {
   }
   if (host.tab === "logs") {
     host.logsAtBottom = true;
-<<<<<<< HEAD
     await loadLogs(host as unknown as MoltbotApp, { reset: true });
     scheduleLogsScroll(
       host as unknown as Parameters<typeof scheduleLogsScroll>[0],
       true,
     );
-=======
-    await loadLogs(host as unknown as OpenClawApp, { reset: true });
-    scheduleLogsScroll(host as unknown as Parameters<typeof scheduleLogsScroll>[0], true);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   }
 }
 
 export function inferBasePath() {
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (typeof window === "undefined") return "";
   const configured = window.__CLAWDBOT_CONTROL_UI_BASE_PATH__;
-=======
-  if (typeof window === "undefined") {return "";}
-=======
-  if (typeof window === "undefined") {
-    return "";
-  }
->>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
   const configured = window.__OPENCLAW_CONTROL_UI_BASE_PATH__;
 >>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
   if (typeof configured === "string" && configured.trim()) {
@@ -556,26 +454,12 @@ export function syncUrlWithSessionKey(host: SettingsHost, sessionKey: string, re
 
 export async function loadOverview(host: SettingsHost) {
 <<<<<<< HEAD
-<<<<<<< HEAD
   await Promise.all([
     loadChannels(host as unknown as MoltbotApp, false),
     loadPresence(host as unknown as MoltbotApp),
     loadSessions(host as unknown as MoltbotApp),
     loadCronStatus(host as unknown as MoltbotApp),
     loadDebug(host as unknown as MoltbotApp),
-=======
-  const app = host as unknown as OpenClawApp;
-  await Promise.allSettled([
-    loadChannels(app, false),
-    loadPresence(app),
-    loadSessions(app),
-    loadCronStatus(app),
-    loadCronJobs(app),
-    loadDebug(app),
-    loadSkills(app),
-    loadUsage(app),
-    loadOverviewLogs(app),
->>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
 =======
   await Promise.all([
     loadChannels(host as unknown as OpenClawApp, false),
@@ -598,16 +482,9 @@ export async function loadChannelsTab(host: SettingsHost) {
 export async function loadCron(host: SettingsHost) {
   const cronHost = host as unknown as OpenClawApp;
   await Promise.all([
-<<<<<<< HEAD
     loadChannels(host as unknown as MoltbotApp, false),
     loadCronStatus(host as unknown as MoltbotApp),
     loadCronJobs(host as unknown as MoltbotApp),
-=======
-    loadChannels(host as unknown as OpenClawApp, false),
-    loadCronStatus(cronHost),
-    loadCronJobs(cronHost),
-    loadCronModelSuggestions(cronHost),
->>>>>>> 77c3b142a (Web UI: add full cron edit parity, all-jobs run history, and compact filters (openclaw#24155) thanks @Takhoffman)
   ]);
   if (cronHost.cronRunsScope === "all") {
     await loadCronRuns(cronHost, null);

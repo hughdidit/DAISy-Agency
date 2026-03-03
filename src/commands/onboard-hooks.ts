@@ -2,37 +2,22 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 import { buildWorkspaceHookStatus } from "../hooks/hooks-status.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { formatCliCommand } from "../cli/command-format.js";
-=======
-import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { formatCliCommand } from "../cli/command-format.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { buildWorkspaceHookStatus } from "../hooks/hooks-status.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
-import type { RuntimeEnv } from "../runtime.js";
-import type { WizardPrompter } from "../wizard/prompts.js";
->>>>>>> d0cb8c19b (chore: wtf.)
-=======
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
@@ -42,12 +27,7 @@ import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { buildWorkspaceHookStatus } from "../hooks/hooks-status.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { RuntimeEnv } from "../runtime.js";
-import type { WizardPrompter } from "../wizard/prompts.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export async function setupInternalHooks(
   cfg: MoltbotConfig,
@@ -59,11 +39,7 @@ export async function setupInternalHooks(
       "Hooks let you automate actions when agent commands are issued.",
       "Example: Save session context to memory when you issue /new or /reset.",
       "",
-<<<<<<< HEAD
       "Learn more: https://docs.molt.bot/hooks",
-=======
-      "Learn more: https://docs.openclaw.ai/automation/hooks",
->>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
     ].join("\n"),
     "Hooks",
   );

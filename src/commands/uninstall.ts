@@ -1,7 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14,11 +13,6 @@ import {
   resolveOAuthDir,
   resolveStateDir,
 } from "../config/config.js";
-=======
-import type { RuntimeEnv } from "../runtime.js";
-=======
-import { cancel, confirm, isCancel, multiselect } from "@clack/prompts";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { cancel, confirm, isCancel, multiselect } from "@clack/prompts";
 import path from "node:path";
@@ -121,15 +115,8 @@ async function stopAndUninstallService(runtime: RuntimeEnv): Promise<boolean> {
 }
 
 async function removeMacApp(runtime: RuntimeEnv, dryRun?: boolean) {
-<<<<<<< HEAD
   if (process.platform !== "darwin") return;
   await removePath("/Applications/Moltbot.app", runtime, {
-=======
-  if (process.platform !== "darwin") {
-    return;
-  }
-  await removePath("/Applications/OpenClaw.app", runtime, {
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     dryRun,
     label: "/Applications/Moltbot.app",
   });

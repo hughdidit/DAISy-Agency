@@ -1,17 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { Readable } from "node:stream";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import { ensureUrbitChannelOpen } from "./channel-ops.js";
-=======
-=======
-import type { LookupFn, SsrFPolicy } from "openclaw/plugin-sdk";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { LookupFn, SsrFPolicy } from "openclaw/plugin-sdk";
 import { Readable } from "node:stream";
@@ -78,16 +71,9 @@ export class UrbitSSEClient {
   logger: UrbitSseLogger;
 
   constructor(url: string, cookie: string, options: UrbitSseOptions = {}) {
-<<<<<<< HEAD
     this.url = url;
     this.cookie = cookie.split(";")[0];
     this.ship = options.ship?.replace(/^~/, "") ?? this.resolveShipFromUrl(url);
-=======
-    const ctx = getUrbitContext(url, options.ship);
-    this.url = ctx.baseUrl;
-    this.cookie = normalizeUrbitCookie(cookie);
-    this.ship = ctx.ship;
->>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
     this.channelId = `${Math.floor(Date.now() / 1000)}-${Math.random().toString(36).substring(2, 8)}`;
     this.channelUrl = `${url}/~/channel/${this.channelId}`;
     this.onReconnect = options.onReconnect ?? null;
@@ -98,7 +84,6 @@ export class UrbitSSEClient {
     this.logger = options.logger ?? {};
   }
 
-<<<<<<< HEAD
   private resolveShipFromUrl(url: string): string {
     try {
       const parsed = new URL(url);
@@ -112,8 +97,6 @@ export class UrbitSSEClient {
     }
   }
 
-=======
->>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
   async subscribe(params: {
     app: string;
     path: string;
@@ -168,7 +151,6 @@ export class UrbitSSEClient {
   }
 
   async connect() {
-<<<<<<< HEAD
     const createResp = await fetch(this.channelUrl, {
       method: "PUT",
       headers: {
@@ -205,23 +187,6 @@ export class UrbitSSEClient {
     if (!pokeResp.ok && pokeResp.status !== 204) {
       throw new Error(`Channel activation failed: ${pokeResp.status}`);
     }
-=======
-    await ensureUrbitChannelOpen(
-      {
-        baseUrl: this.url,
-        cookie: this.cookie,
-        ship: this.ship,
-        channelId: this.channelId,
-        ssrfPolicy: this.ssrfPolicy,
-        lookupFn: this.lookupFn,
-        fetchImpl: this.fetchImpl,
-      },
-      {
-        createBody: this.subscriptions,
-        createAuditContext: "tlon-urbit-channel-create",
-      },
-    );
->>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
 
     await this.openStream();
     this.isConnected = true;
@@ -337,7 +302,6 @@ export class UrbitSSEClient {
   }
 
   async poke(params: { app: string; mark: string; json: unknown }) {
-<<<<<<< HEAD
     const pokeId = Date.now();
     const pokeData = {
       id: pokeId,
@@ -381,33 +345,6 @@ export class UrbitSSEClient {
     }
 
     return await response.json();
-=======
-    return await pokeUrbitChannel(
-      {
-        baseUrl: this.url,
-        cookie: this.cookie,
-        ship: this.ship,
-        channelId: this.channelId,
-        ssrfPolicy: this.ssrfPolicy,
-        lookupFn: this.lookupFn,
-        fetchImpl: this.fetchImpl,
-      },
-      { ...params, auditContext: "tlon-urbit-poke" },
-    );
-  }
-
-  async scry(path: string) {
-    return await scryUrbitPath(
-      {
-        baseUrl: this.url,
-        cookie: this.cookie,
-        ssrfPolicy: this.ssrfPolicy,
-        lookupFn: this.lookupFn,
-        fetchImpl: this.fetchImpl,
-      },
-      { path, auditContext: "tlon-urbit-scry" },
-    );
->>>>>>> de103773c (refactor(tlon): share urbit poke/scry ops)
   }
 
   async attemptReconnect() {

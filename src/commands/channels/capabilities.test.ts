@@ -5,13 +5,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
-=======
-import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)

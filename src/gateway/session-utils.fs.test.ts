@@ -51,13 +51,8 @@ describe("readFirstUserMessageFromTranscript", () => {
   let storePath: string;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-session-fs-test-"));
-=======
-  beforeAll(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-session-fs-test-"));
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     storePath = path.join(tmpDir, "sessions.json");
   });
 
@@ -208,13 +203,8 @@ describe("readLastMessagePreviewFromTranscript", () => {
   let storePath: string;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-session-fs-test-"));
-=======
-  beforeAll(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-session-fs-test-"));
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     storePath = path.join(tmpDir, "sessions.json");
   });
 
@@ -572,13 +562,8 @@ describe("readSessionPreviewItemsFromTranscript", () => {
   let storePath: string;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-session-preview-test-"));
-=======
-  beforeAll(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-session-preview-test-"));
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     storePath = path.join(tmpDir, "sessions.json");
 =======
   registerTempSessionStore("openclaw-session-preview-test-", (nextTmpDir, nextStorePath) => {
@@ -682,55 +667,7 @@ describe("resolveSessionTranscriptCandidates", () => {
 
     const candidates = resolveSessionTranscriptCandidates("sess-1", undefined);
     const fallback = candidates[candidates.length - 1];
-<<<<<<< HEAD
     expect(fallback).toBe(path.join("/srv/openclaw-home", ".openclaw", "sessions", "sess-1.jsonl"));
-=======
-    expect(fallback).toBe(
-      path.join(path.resolve("/srv/openclaw-home"), ".openclaw", "sessions", "sess-1.jsonl"),
-    );
-  });
-});
-
-describe("resolveSessionTranscriptCandidates safety", () => {
-  test("keeps cross-agent absolute sessionFile when storePath agent context differs", () => {
-    const storePath = "/tmp/openclaw/agents/main/sessions/sessions.json";
-    const sessionFile = "/tmp/openclaw/agents/ops/sessions/sess-safe.jsonl";
-    const candidates = resolveSessionTranscriptCandidates("sess-safe", storePath, sessionFile);
-
-    expect(candidates.map((value) => path.resolve(value))).toContain(path.resolve(sessionFile));
-  });
-
-  test("keeps cross-agent absolute sessionFile for custom per-agent store roots", () => {
-    const storePath = "/srv/custom/agents/main/sessions/sessions.json";
-    const sessionFile = "/srv/custom/agents/ops/sessions/sess-safe.jsonl";
-    const candidates = resolveSessionTranscriptCandidates("sess-safe", storePath, sessionFile);
-
-    expect(candidates.map((value) => path.resolve(value))).toContain(path.resolve(sessionFile));
-  });
-
-  test("drops unsafe session IDs instead of producing traversal paths", () => {
-    const candidates = resolveSessionTranscriptCandidates(
-      "../etc/passwd",
-      "/tmp/openclaw/agents/main/sessions/sessions.json",
-    );
-
-    expect(candidates).toEqual([]);
-  });
-
-  test("drops unsafe sessionFile candidates and keeps safe fallbacks", () => {
-    const storePath = "/tmp/openclaw/agents/main/sessions/sessions.json";
-    const candidates = resolveSessionTranscriptCandidates(
-      "sess-safe",
-      storePath,
-      "../../etc/passwd",
-    );
-    const normalizedCandidates = candidates.map((value) => path.resolve(value));
-    const expectedFallback = path.resolve(path.dirname(storePath), "sess-safe.jsonl");
-
-    expect(candidates.some((value) => value.includes("etc/passwd"))).toBe(false);
-    expect(normalizedCandidates).toContain(expectedFallback);
-<<<<<<< HEAD
->>>>>>> 8ff89ba14 (fix(ci): resolve windows test path assertion and sync protocol swift models)
 =======
   });
 });

@@ -1,6 +1,5 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 import type { MoltbotConfig } from "../../config/config.js";
 
@@ -8,14 +7,6 @@ import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
-=======
-import { beforeEach, describe, expect, it } from "vitest";
-import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
-import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import { setActivePluginRegistry } from "../../plugins/runtime.js";
-import { createTestRegistry } from "../../test-utils/channel-plugins.js";
->>>>>>> ee519086f (Feature/default messenger delivery target (openclaw#16985) thanks @KirillShchetinin)
 =======
 import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -46,40 +37,8 @@ describe("resolveOutboundTarget defaultTo config fallback", () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("falls back to whatsapp allowFrom via config", () => {
     const cfg: MoltbotConfig = {
-=======
-  it("rejects whatsapp with empty target even when allowFrom configured", () => {
-=======
-  it("uses telegram defaultTo when no explicit target is provided", () => {
-    const cfg: OpenClawConfig = {
-      channels: { telegram: { defaultTo: "123456789" } },
-    };
-    const res = resolveOutboundTarget({
-      channel: "telegram",
-      to: "",
-      cfg,
-      mode: "implicit",
-    });
-    expect(res).toEqual({ ok: true, to: "123456789" });
-  });
-
-  it("explicit --reply-to overrides defaultTo", () => {
-    const cfg: OpenClawConfig = {
-      channels: { whatsapp: { defaultTo: "+15551234567", allowFrom: ["*"] } },
-    };
-    const res = resolveOutboundTarget({
-      channel: "whatsapp",
-      to: "+15559999999",
-      cfg,
-      mode: "explicit",
-    });
-    expect(res).toEqual({ ok: true, to: "+15559999999" });
-  });
-
-  it("still errors when no defaultTo and no explicit target", () => {
->>>>>>> fd8b7b5c4 (test(outbound): share resolveOutboundTarget test suite)
     const cfg: OpenClawConfig = {
 >>>>>>> 39ee708df (fix(outbound): return error instead of silently redirecting to allowList[0] (#13578))
 =======
@@ -95,7 +54,6 @@ describe("resolveOutboundTarget defaultTo config fallback", () => {
       mode: "implicit",
     });
     expect(res.ok).toBe(false);
-<<<<<<< HEAD
     if (!res.ok) {
       expect(res.error.message).toContain("WhatsApp");
     }
@@ -179,10 +137,6 @@ describe("resolveOutboundTarget defaultTo config fallback", () => {
 <<<<<<< HEAD
 });
 =======
-import { describe, expect, it } from "vitest";
-import { resolveSessionDeliveryTarget } from "./targets.js";
->>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
-=======
 
   describe("defaultTo config fallback", () => {
     it("uses whatsapp defaultTo when no explicit target is provided", () => {
@@ -260,10 +214,7 @@ describe("resolveSessionDeliveryTarget", () => {
       to: "+1555",
       accountId: "acct-1",
       threadId: undefined,
-<<<<<<< HEAD
-=======
       threadIdExplicit: false,
->>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       mode: "implicit",
       lastChannel: "whatsapp",
       lastTo: "+1555",
@@ -288,10 +239,7 @@ describe("resolveSessionDeliveryTarget", () => {
       to: undefined,
       accountId: undefined,
       threadId: undefined,
-<<<<<<< HEAD
-=======
       threadIdExplicit: false,
->>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       mode: "implicit",
       lastChannel: "whatsapp",
       lastTo: "+1555",
@@ -317,10 +265,7 @@ describe("resolveSessionDeliveryTarget", () => {
       to: "+1555",
       accountId: undefined,
       threadId: undefined,
-<<<<<<< HEAD
-=======
       threadIdExplicit: false,
->>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       mode: "implicit",
       lastChannel: "whatsapp",
       lastTo: "+1555",
@@ -329,8 +274,6 @@ describe("resolveSessionDeliveryTarget", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("passes through explicitThreadId when provided", () => {
     const resolved = resolveSessionDeliveryTarget({
       entry: {
@@ -364,7 +307,6 @@ describe("resolveSessionDeliveryTarget", () => {
     expect(resolved.threadId).toBe(999);
   });
 
->>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
   it("falls back to a provided channel when requested is unsupported", () => {
     const resolved = resolveSessionDeliveryTarget({
       entry: {
@@ -382,10 +324,7 @@ describe("resolveSessionDeliveryTarget", () => {
       to: undefined,
       accountId: undefined,
       threadId: undefined,
-<<<<<<< HEAD
-=======
       threadIdExplicit: false,
->>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       mode: "implicit",
       lastChannel: "whatsapp",
       lastTo: "+1555",
@@ -393,8 +332,6 @@ describe("resolveSessionDeliveryTarget", () => {
       lastThreadId: undefined,
     });
   });
-<<<<<<< HEAD
-=======
 
   it("parses :topic:NNN from explicitTo into threadId", () => {
     const resolved = resolveSessionDeliveryTarget({
@@ -476,7 +413,6 @@ describe("resolveSessionDeliveryTarget", () => {
     expect(resolved.to).toBe("63448508");
   });
 <<<<<<< HEAD
->>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
 =======
 
   it("allows heartbeat delivery to Slack DMs and avoids inherited threadId by default", () => {

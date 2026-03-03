@@ -19,14 +19,11 @@ export type CronEvent = {
   status?: CronRunStatus;
   error?: string;
   summary?: string;
-<<<<<<< HEAD
-=======
   delivered?: boolean;
   deliveryStatus?: CronDeliveryStatus;
   deliveryError?: string;
   sessionId?: string;
   sessionKey?: string;
->>>>>>> 09d5f508b (fix(cron): persist delivered flag in job state to surface delivery failures (openclaw#19174) thanks @simonemacario)
   nextRunAtMs?: number;
 } & CronRunTelemetry;
 
@@ -42,20 +39,7 @@ export type CronServiceDeps = {
   log: Logger;
   storePath: string;
   cronEnabled: boolean;
-<<<<<<< HEAD
   enqueueSystemEvent: (text: string, opts?: { agentId?: string }) => void;
-=======
-  /** CronConfig for session retention settings. */
-  cronConfig?: CronConfig;
-  /** Default agent id for jobs without an agent id. */
-  defaultAgentId?: string;
-  /** Resolve session store path for a given agent id. */
-  resolveSessionStorePath?: (agentId?: string) => string;
-  /** Path to the session store (sessions.json) for reaper use. */
-  sessionStorePath?: string;
-<<<<<<< HEAD
-  enqueueSystemEvent: (text: string, opts?: { agentId?: string; contextKey?: string }) => void;
->>>>>>> 4c4d2558e (fix (heartbeat/cron): preserve cron prompts for tagged interval events)
   requestHeartbeatNow: (opts?: { reason?: string }) => void;
   runHeartbeatOnce?: (opts?: { reason?: string; agentId?: string }) => Promise<HeartbeatRunResult>;
 =======
@@ -81,7 +65,6 @@ export type CronServiceDeps = {
   /** WakeMode=now: delay between runHeartbeatOnce retries while busy. */
   wakeNowHeartbeatBusyRetryDelayMs?: number;
 <<<<<<< HEAD
-<<<<<<< HEAD
   runIsolatedAgentJob: (params: { job: CronJob; message: string }) => Promise<{
     status: "ok" | "error" | "skipped";
     summary?: string;
@@ -89,16 +72,6 @@ export type CronServiceDeps = {
     outputText?: string;
     error?: string;
 <<<<<<< HEAD
-=======
-    sessionId?: string;
-    sessionKey?: string;
-    /**
-     * `true` when the isolated run already delivered its output to the target
-     * channel.  See: https://github.com/openclaw/openclaw/issues/15692
-     */
-    delivered?: boolean;
-<<<<<<< HEAD
->>>>>>> ea95e88dd (fix(cron): prevent duplicate delivery for isolated jobs with announce mode)
 =======
 
     // Telemetry (best-effort)
@@ -140,16 +113,7 @@ export type CronServiceDeps = {
     } & CronRunOutcome &
       CronRunTelemetry
   >;
-<<<<<<< HEAD
 >>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
-=======
-  sendCronFailureAlert?: (params: {
-    job: CronJob;
-    text: string;
-    channel: CronMessageChannel;
-    to?: string;
-  }) => Promise<void>;
->>>>>>> 4637b90c0 (feat(cron): configurable failure alerts for repeated job errors (openclaw#24789) thanks @0xbrak)
   onEvent?: (evt: CronEvent) => void;
 };
 

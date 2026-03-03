@@ -2,13 +2,9 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 50900721c (perf(test): speed up cron one-shot suite)
 =======
 import { afterEach, describe, expect, it, vi } from "vitest";
 >>>>>>> a6cd7ef49 (refactor(test): share cron service fixtures)
@@ -20,17 +16,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import type { HeartbeatRunResult } from "../infra/heartbeat-wake.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { CronEvent } from "./service.js";
->>>>>>> 97cde1481 (perf(test): stop polling cron job list)
 =======
 import type { CronEvent, CronServiceDeps } from "./service.js";
 >>>>>>> 058eb8576 (chore: Fix types in tests 10/N.)
 import { CronService } from "./service.js";
 import { createDeferred, createNoopLogger, installCronTestHooks } from "./service.test-harness.js";
 
-<<<<<<< HEAD
 const noopLogger = {
   debug: vi.fn(),
   info: vi.fn(),
@@ -54,10 +45,6 @@ afterAll(async () => {
 async function makeStorePath() {
 <<<<<<< HEAD
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-cron-"));
-=======
-  const dir = path.join(fixtureRoot, `case-${caseId++}`);
-  await fs.mkdir(dir, { recursive: true });
->>>>>>> 50900721c (perf(test): speed up cron one-shot suite)
   return {
     storePath: path.join(dir, "cron", "jobs.json"),
     cleanup: async () => {},
@@ -66,230 +53,7 @@ async function makeStorePath() {
 =======
 const noopLogger = createNoopLogger();
 installCronTestHooks({ logger: noopLogger });
-<<<<<<< HEAD
 >>>>>>> a6cd7ef49 (refactor(test): share cron service fixtures)
-=======
-
-type FakeFsEntry =
-  | { kind: "file"; content: string; mtimeMs: number }
-  | { kind: "dir"; mtimeMs: number };
-
-const fsState = vi.hoisted(() => ({
-  entries: new Map<string, FakeFsEntry>(),
-  nowMs: 0,
-  fixtureCount: 0,
-}));
-
-const abs = (p: string) => path.resolve(p);
-const fixturesRoot = abs(path.join("__openclaw_vitest__", "cron", "runs-one-shot"));
-const isFixturePath = (p: string) => {
-  const resolved = abs(p);
-  const rootPrefix = `${fixturesRoot}${path.sep}`;
-  return resolved === fixturesRoot || resolved.startsWith(rootPrefix);
-};
-
-function bumpMtimeMs() {
-  fsState.nowMs += 1;
-  return fsState.nowMs;
-}
-
-function ensureDir(dirPath: string) {
-  let current = abs(dirPath);
-  while (true) {
-    if (!fsState.entries.has(current)) {
-      fsState.entries.set(current, { kind: "dir", mtimeMs: bumpMtimeMs() });
-    }
-    const parent = path.dirname(current);
-    if (parent === current) {
-      break;
-    }
-    current = parent;
-  }
-}
-
-function setFile(filePath: string, content: string) {
-  const resolved = abs(filePath);
-  ensureDir(path.dirname(resolved));
-  fsState.entries.set(resolved, { kind: "file", content, mtimeMs: bumpMtimeMs() });
-}
-
-async function makeStorePath() {
-  const dir = path.join(fixturesRoot, `case-${fsState.fixtureCount++}`);
-  ensureDir(dir);
-  const storePath = path.join(dir, "cron", "jobs.json");
-  ensureDir(path.dirname(storePath));
-  return { storePath, cleanup: async () => {} };
-}
-
-function writeStoreFile(storePath: string, payload: unknown) {
-  setFile(storePath, JSON.stringify(payload, null, 2));
-}
-
-vi.mock("node:fs", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("node:fs")>();
-  const pathMod = await import("node:path");
-  const absInMock = (p: string) => pathMod.resolve(p);
-  const isFixtureInMock = (p: string) => {
-    const resolved = absInMock(p);
-    const rootPrefix = `${absInMock(fixturesRoot)}${pathMod.sep}`;
-    return resolved === absInMock(fixturesRoot) || resolved.startsWith(rootPrefix);
-  };
-
-  const mkErr = (code: string, message: string) => Object.assign(new Error(message), { code });
-
-  const promises = {
-    ...actual.promises,
-    mkdir: async (p: string) => {
-      if (!isFixtureInMock(p)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await (actual.promises.mkdir as any)(p, { recursive: true });
-      }
-      ensureDir(p);
-    },
-    readFile: async (p: string) => {
-      if (!isFixtureInMock(p)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await (actual.promises.readFile as any)(p, "utf-8");
-      }
-      const entry = fsState.entries.get(absInMock(p));
-      if (!entry || entry.kind !== "file") {
-        throw mkErr("ENOENT", `ENOENT: no such file or directory, open '${p}'`);
-      }
-      return entry.content;
-    },
-    writeFile: async (p: string, data: string | Uint8Array) => {
-      if (!isFixtureInMock(p)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await (actual.promises.writeFile as any)(p, data, "utf-8");
-      }
-      const content = typeof data === "string" ? data : Buffer.from(data).toString("utf-8");
-      setFile(p, content);
-    },
-    rename: async (from: string, to: string) => {
-      if (!isFixtureInMock(from) || !isFixtureInMock(to)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await (actual.promises.rename as any)(from, to);
-      }
-      const fromAbs = absInMock(from);
-      const toAbs = absInMock(to);
-      const entry = fsState.entries.get(fromAbs);
-      if (!entry || entry.kind !== "file") {
-        throw mkErr("ENOENT", `ENOENT: no such file or directory, rename '${from}' -> '${to}'`);
-      }
-      ensureDir(pathMod.dirname(toAbs));
-      fsState.entries.delete(fromAbs);
-      fsState.entries.set(toAbs, { ...entry, mtimeMs: bumpMtimeMs() });
-    },
-    copyFile: async (from: string, to: string) => {
-      if (!isFixtureInMock(from) || !isFixtureInMock(to)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await (actual.promises.copyFile as any)(from, to);
-      }
-      const entry = fsState.entries.get(absInMock(from));
-      if (!entry || entry.kind !== "file") {
-        throw mkErr("ENOENT", `ENOENT: no such file or directory, copyfile '${from}' -> '${to}'`);
-      }
-      setFile(to, entry.content);
-    },
-    stat: async (p: string) => {
-      if (!isFixtureInMock(p)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await (actual.promises.stat as any)(p);
-      }
-      const entry = fsState.entries.get(absInMock(p));
-      if (!entry) {
-        throw mkErr("ENOENT", `ENOENT: no such file or directory, stat '${p}'`);
-      }
-      return {
-        mtimeMs: entry.mtimeMs,
-        isDirectory: () => entry.kind === "dir",
-        isFile: () => entry.kind === "file",
-      };
-    },
-    access: async (p: string) => {
-      if (!isFixtureInMock(p)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await (actual.promises.access as any)(p);
-      }
-      const entry = fsState.entries.get(absInMock(p));
-      if (!entry) {
-        throw mkErr("ENOENT", `ENOENT: no such file or directory, access '${p}'`);
-      }
-    },
-    unlink: async (p: string) => {
-      if (!isFixtureInMock(p)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await (actual.promises.unlink as any)(p);
-      }
-      fsState.entries.delete(absInMock(p));
-    },
-  } as unknown as typeof actual.promises;
-
-  const wrapped = { ...actual, promises };
-  return { ...wrapped, default: wrapped };
-});
-
-vi.mock("node:fs/promises", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("node:fs/promises")>();
-  const wrapped = {
-    ...actual,
-    mkdir: async (p: string, _opts?: unknown) => {
-      if (!isFixturePath(p)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await (actual.mkdir as any)(p, { recursive: true });
-      }
-      ensureDir(p);
-    },
-    writeFile: async (p: string, data: string, _enc?: unknown) => {
-      if (!isFixturePath(p)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await (actual.writeFile as any)(p, data, "utf-8");
-      }
-      setFile(p, data);
-    },
-  };
-  return { ...wrapped, default: wrapped };
-});
-
-beforeEach(() => {
-  fsState.entries.clear();
-  fsState.nowMs = 0;
-  fsState.fixtureCount = 0;
-  ensureDir(fixturesRoot);
-});
-
-function createCronEventHarness() {
-  const events: CronEvent[] = [];
-  const waiters: Array<{
-    predicate: (evt: CronEvent) => boolean;
-    deferred: ReturnType<typeof createDeferred<CronEvent>>;
-  }> = [];
-
-  const onEvent = (evt: CronEvent) => {
-    events.push(evt);
-    for (let i = waiters.length - 1; i >= 0; i -= 1) {
-      const waiter = waiters[i];
-      if (waiter && waiter.predicate(evt)) {
-        waiters.splice(i, 1);
-        waiter.deferred.resolve(evt);
-      }
-    }
-  };
-
-  const waitFor = (predicate: (evt: CronEvent) => boolean) => {
-    for (const evt of events) {
-      if (predicate(evt)) {
-        return Promise.resolve(evt);
-      }
-    }
-    const deferred = createDeferred<CronEvent>();
-    waiters.push({ predicate, deferred });
-    return deferred.promise;
-  };
-
-  return { onEvent, waitFor, events };
-}
->>>>>>> 97cde1481 (perf(test): stop polling cron job list)
 
 type CronHarnessOptions = {
   runIsolatedAgentJob?: CronServiceDeps["runIsolatedAgentJob"];
@@ -576,12 +340,6 @@ describe("CronService", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  it("passes agentId to runHeartbeatOnce for main-session wakeMode now jobs", async () => {
-=======
-  it("passes agentId + sessionKey to runHeartbeatOnce for main-session wakeMode now jobs", async () => {
->>>>>>> f988abf20 (Cron: route reminders by session namespace)
 =======
   it("passes agentId and resolves main session for wakeMode now main jobs", async () => {
 >>>>>>> fe9a7c408 (fix(cron): force main-target system events onto main session (#28898))
@@ -657,7 +415,6 @@ describe("CronService", () => {
     const runIsolatedAgentJob = vi.fn(async () => ({ status: "ok" as const, summary: "done" }));
     const { store, cron, enqueueSystemEvent, requestHeartbeatNow, events } =
       await createIsolatedAnnounceHarness(runIsolatedAgentJob);
-<<<<<<< HEAD
     const { job, runAt } = await addDefaultIsolatedAnnounceJob(cron, "weekly");
 
 <<<<<<< HEAD
@@ -683,18 +440,9 @@ describe("CronService", () => {
     });
 
     vi.setSystemTime(new Date("2025-12-13T00:00:01.000Z"));
-=======
-    vi.setSystemTime(runAt);
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     await vi.runOnlyPendingTimersAsync();
 
-<<<<<<< HEAD
     await cron.list({ includeDisabled: true });
-=======
-    await events.waitFor(
-      (evt) => evt.jobId === job.id && evt.action === "finished" && evt.status === "ok",
-    );
->>>>>>> 97cde1481 (perf(test): stop polling cron job list)
 =======
     await runIsolatedAnnounceJobAndWait({ cron, events, name: "weekly", status: "ok" });
 >>>>>>> 11f3da766 (refactor(test): dedupe cron service test harness setup)
@@ -708,8 +456,6 @@ describe("CronService", () => {
     await store.cleanup();
   });
 
-<<<<<<< HEAD
-=======
   it("does not post isolated summary to main when run already delivered output", async () => {
     const runIsolatedAgentJob = vi.fn(async () => ({
       status: "ok" as const,
@@ -732,7 +478,6 @@ describe("CronService", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> 97cde1481 (perf(test): stop polling cron job list)
 =======
   it("does not post isolated summary to main when announce delivery was attempted", async () => {
     const runIsolatedAgentJob = vi.fn(async () => ({
@@ -796,7 +541,6 @@ describe("CronService", () => {
     }));
     const { store, cron, enqueueSystemEvent, requestHeartbeatNow, events } =
       await createIsolatedAnnounceHarness(runIsolatedAgentJob);
-<<<<<<< HEAD
     const { job, runAt } = await addDefaultIsolatedAnnounceJob(cron, "isolated error test");
 
 <<<<<<< HEAD
@@ -822,17 +566,8 @@ describe("CronService", () => {
     });
 
     vi.setSystemTime(new Date("2025-12-13T00:00:01.000Z"));
-=======
-    vi.setSystemTime(runAt);
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     await vi.runOnlyPendingTimersAsync();
-<<<<<<< HEAD
     await cron.list({ includeDisabled: true });
-=======
-    await events.waitFor(
-      (evt) => evt.jobId === job.id && evt.action === "finished" && evt.status === "error",
-    );
->>>>>>> 97cde1481 (perf(test): stop polling cron job list)
 =======
     await runIsolatedAnnounceJobAndWait({
       cron,

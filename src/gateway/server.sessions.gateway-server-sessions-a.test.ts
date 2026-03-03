@@ -2,13 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
-<<<<<<< HEAD
 import { WebSocket } from "ws";
-=======
-import { DEFAULT_PROVIDER } from "../agents/defaults.js";
-import { startGatewayServerHarness, type GatewayServerHarness } from "./server.e2e-ws-harness.js";
-<<<<<<< HEAD
->>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
 =======
 import { createToolSummaryPreviewTranscriptLines } from "./session-preview.test-helpers.js";
 >>>>>>> c7831fdf1 (refactor(gateway-test): share preview transcript fixture)
@@ -103,7 +97,6 @@ let sharedSessionStoreDir: string;
 let sharedSessionStorePath: string;
 
 beforeAll(async () => {
-<<<<<<< HEAD
   previousToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
   delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   port = await getFreePort();
@@ -116,13 +109,6 @@ afterAll(async () => {
   if (previousToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   else process.env.CLAWDBOT_GATEWAY_TOKEN = previousToken;
 =======
-  if (previousToken === undefined) {
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
-  } else {
-    process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
-=======
   harness = await startGatewayServerHarness();
   sharedSessionStoreDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-"));
   sharedSessionStorePath = path.join(sharedSessionStoreDir, "sessions.json");
@@ -130,11 +116,7 @@ afterAll(async () => {
 
 afterAll(async () => {
   await harness.close();
-<<<<<<< HEAD
 >>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
-=======
-  await fs.rm(sharedSessionStoreDir, { recursive: true, force: true });
->>>>>>> 0cc327546 (test(gateway): speed up slow e2e test setup)
 });
 
 const openClient = async (opts?: Parameters<typeof connectOk>[1]) => await harness.openClient(opts);
@@ -209,12 +191,8 @@ describe("gateway server sessions", () => {
   });
 
   test("lists and patches session store via sessions.* RPC", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
     const storePath = path.join(dir, "sessions.json");
-=======
-    const { dir, storePath } = await createSessionStoreDir();
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const now = Date.now();
     const recent = now - 30_000;
     const stale = now - 15 * 60_000;
@@ -517,14 +495,6 @@ describe("gateway server sessions", () => {
     expect(reset.payload?.key).toBe("agent:main:main");
     expect(reset.payload?.entry.sessionId).not.toBe("sess-main");
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    expect(reset.payload?.entry.modelProvider).toBe("anthropic");
-    expect(reset.payload?.entry.model).toBe("claude-sonnet-4-6");
-=======
-    expect(reset.payload?.entry.modelProvider).toBe("openai");
-    expect(reset.payload?.entry.model).toBe("gpt-test-a");
->>>>>>> 0929c233d (TUI: sync /model status immediately)
     const filesAfterReset = await fs.readdir(dir);
     expect(filesAfterReset.some((f) => f.startsWith("sess-main.jsonl.reset."))).toBe(true);
 >>>>>>> 177386ed7 (fix(tui): resolve wrong provider prefix when session has model without modelProvider (#25874))
@@ -542,13 +512,9 @@ describe("gateway server sessions", () => {
   });
 
   test("sessions.preview returns transcript previews", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-preview-"));
     const storePath = path.join(dir, "sessions.json");
     testState.sessionStorePath = storePath;
-=======
-    const { dir } = await createSessionStoreDir();
->>>>>>> 0cc327546 (test(gateway): speed up slow e2e test setup)
     const sessionId = "sess-preview";
     const transcriptPath = path.join(dir, `${sessionId}.jsonl`);
     const lines = createToolSummaryPreviewTranscriptLines(sessionId);
@@ -680,7 +646,6 @@ describe("gateway server sessions", () => {
   });
 
   test("sessions.delete rejects main and aborts active runs", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
     const storePath = path.join(dir, "sessions.json");
     testState.sessionStorePath = storePath;
@@ -695,11 +660,6 @@ describe("gateway server sessions", () => {
       `${JSON.stringify({ role: "user", content: "active" })}\n`,
       "utf-8",
     );
-=======
-    const { dir } = await createSessionStoreDir();
-    await writeSingleLineSession(dir, "sess-main", "hello");
-    await writeSingleLineSession(dir, "sess-active", "active");
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     await writeSessionStore({
       entries: {
@@ -1129,8 +1089,6 @@ describe("gateway server sessions", () => {
 
     ws.close();
   });
-<<<<<<< HEAD:src/gateway/server.sessions.gateway-server-sessions-a.e2e.test.ts
-=======
 
   test("webchat clients cannot patch or delete sessions", async () => {
     await createSessionStoreDir();
@@ -1179,7 +1137,6 @@ describe("gateway server sessions", () => {
     ws.close();
   });
 <<<<<<< HEAD
->>>>>>> aa1483560 (test: reclassify gateway local suites from e2e):src/gateway/server.sessions.gateway-server-sessions-a.test.ts
 =======
 
   test("control-ui client can delete sessions even in webchat mode", async () => {

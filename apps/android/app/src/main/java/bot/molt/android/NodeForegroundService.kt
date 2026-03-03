@@ -39,7 +39,6 @@ class NodeForegroundService : Service() {
           runtime.statusText,
           runtime.serverName,
           runtime.isConnected,
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeForegroundService.kt
           runtime.voiceWakeMode,
           runtime.voiceWakeIsListening,
         ) { status, server, connected, voiceMode, voiceListening ->
@@ -49,17 +48,6 @@ class NodeForegroundService : Service() {
           val voiceSuffix =
             if (voiceMode == VoiceWakeMode.Always) {
               if (voiceListening) " · Voice Wake: Listening" else " · Voice Wake: Paused"
-=======
-          runtime.micEnabled,
-          runtime.micIsListening,
-        ) { status, server, connected, micEnabled, micListening ->
-          Quint(status, server, connected, micEnabled, micListening)
-        }.collect { (status, server, connected, micEnabled, micListening) ->
-          val title = if (connected) "OpenClaw Node · Connected" else "OpenClaw Node"
-          val micSuffix =
-            if (micEnabled) {
-              if (micListening) " · Mic: Listening" else " · Mic: Pending"
->>>>>>> 3d29233ba (feat(android): add single-path mic capture runtime manager):apps/android/app/src/main/java/ai/openclaw/android/NodeForegroundService.kt
             } else {
               ""
             }

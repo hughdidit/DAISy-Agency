@@ -1,31 +1,17 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 import type { CoreConfig } from "./types.js";
 
-=======
-import type { PluginRuntime } from "openclaw/plugin-sdk";
-=======
-import type { PluginRuntime, RuntimeEnv } from "openclaw/plugin-sdk";
->>>>>>> a74198557 (chore: Fix more extension test types, 2/N.)
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
-import type { CoreConfig } from "./types.js";
->>>>>>> ed11e93cf (chore(format))
-=======
 import type { PluginRuntime, RuntimeEnv } from "openclaw/plugin-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
-=======
-import type { CoreConfig } from "./types.js";
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { matrixPlugin } from "./channel.js";
@@ -99,8 +85,6 @@ describe("matrix directory", () => {
       ]),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("resolves replyToMode from account config", () => {
     const cfg = {
@@ -162,5 +146,4 @@ describe("matrix directory", () => {
       }),
     ).toBe(false);
   });
->>>>>>> a74198557 (chore: Fix more extension test types, 2/N.)
 });

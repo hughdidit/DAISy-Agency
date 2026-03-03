@@ -77,8 +77,6 @@ describe("onboardCommand", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("uses configured default workspace for --reset when --workspace is not provided", async () => {
     const runtime = makeRuntime();
     mocks.readConfigFileSnapshot.mockResolvedValue({
@@ -107,7 +105,6 @@ describe("onboardCommand", () => {
     );
   });
 
->>>>>>> f7041fbee (fix(windows): normalize namespaced path containment checks)
   it("accepts explicit --reset-scope full", async () => {
     const runtime = makeRuntime();
 

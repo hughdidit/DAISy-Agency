@@ -7,20 +7,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import crypto from "node:crypto";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import path from "node:path";
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 
-=======
-import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
-import crypto from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
-import type { BashSandboxConfig } from "./bash-tools.shared.js";
->>>>>>> b47fa9e71 (refactor(exec): extract bash tool runtime internals)
 =======
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
@@ -90,20 +82,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 import { type ExecHost, maxAsk, minSecurity, resolveSafeBins } from "../infra/exec-approvals.js";
 import { resolveSafeBinProfiles } from "../infra/exec-safe-bin-policy.js";
 import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
 >>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
-=======
-import { type ExecHost, maxAsk, minSecurity } from "../infra/exec-approvals.js";
-import { resolveExecSafeBinRuntimePolicy } from "../infra/exec-safe-bin-runtime-policy.js";
->>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
 import {
   getShellPathFromLoginShell,
   resolveShellEnvFallbackTimeoutMs,
 } from "../infra/shell-env.js";
-<<<<<<< HEAD
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { logInfo, logWarn } from "../logger.js";
 import { formatSpawnError, spawnWithFallback } from "../process/spawn-utils.js";
@@ -118,38 +104,6 @@ import {
   tail,
 } from "./bash-process-registry.js";
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
-=======
-import { logInfo } from "../logger.js";
-import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
-import { markBackgrounded } from "./bash-process-registry.js";
-import { processGatewayAllowlist } from "./bash-tools.exec-host-gateway.js";
-import { executeNodeHostCommand } from "./bash-tools.exec-host-node.js";
-import {
-  DEFAULT_MAX_OUTPUT,
-  DEFAULT_PATH,
-  DEFAULT_PENDING_MAX_OUTPUT,
-  applyPathPrepend,
-  applyShellPath,
-  normalizeExecAsk,
-  normalizeExecHost,
-  normalizeExecSecurity,
-  normalizePathPrepend,
-  renderExecHostLabel,
-  resolveApprovalRunningNoticeMs,
-  runExecProcess,
-  execSchema,
-  validateHostEnv,
-} from "./bash-tools.exec-runtime.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> b47fa9e71 (refactor(exec): extract bash tool runtime internals)
 =======
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -176,10 +130,7 @@ import type {
   ExecToolDefaults,
   ExecToolDetails,
 } from "./bash-tools.exec-types.js";
-<<<<<<< HEAD
 >>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
-=======
->>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import {
   buildSandboxEnv,
   clampWithDefault,
@@ -189,7 +140,6 @@ import {
   resolveWorkdir,
   truncateMiddle,
 } from "./bash-tools.shared.js";
-<<<<<<< HEAD
 import { callGatewayTool } from "./tools/gateway.js";
 import { listNodes, resolveNodeIdFromList } from "./tools/nodes-utils.js";
 import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
@@ -199,70 +149,13 @@ import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/s
 <<<<<<< HEAD
 <<<<<<< HEAD
 const DEFAULT_MAX_OUTPUT = clampNumber(
-=======
-// Security: Blocklist of environment variables that could alter execution flow
-// or inject code when running on non-sandboxed hosts (Gateway/Node).
-const DANGEROUS_HOST_ENV_VARS = new Set([
-  "LD_PRELOAD",
-  "LD_LIBRARY_PATH",
-  "LD_AUDIT",
-  "DYLD_INSERT_LIBRARIES",
-  "DYLD_LIBRARY_PATH",
-  "NODE_OPTIONS",
-  "NODE_PATH",
-  "PYTHONPATH",
-  "PYTHONHOME",
-  "RUBYLIB",
-  "PERL5LIB",
-  "BASH_ENV",
-  "ENV",
-  "GCONV_PATH",
-  "IFS",
-  "SSLKEYLOGFILE",
-]);
-const DANGEROUS_HOST_ENV_PREFIXES = ["DYLD_", "LD_"];
-
-// Centralized sanitization helper.
-// Throws an error if dangerous variables or PATH modifications are detected on the host.
-function validateHostEnv(env: Record<string, string>): void {
-  for (const key of Object.keys(env)) {
-    const upperKey = key.toUpperCase();
-
-    // 1. Block known dangerous variables (Fail Closed)
-    if (DANGEROUS_HOST_ENV_PREFIXES.some((prefix) => upperKey.startsWith(prefix))) {
-      throw new Error(
-        `Security Violation: Environment variable '${key}' is forbidden during host execution.`,
-      );
-    }
-    if (DANGEROUS_HOST_ENV_VARS.has(upperKey)) {
-      throw new Error(
-        `Security Violation: Environment variable '${key}' is forbidden during host execution.`,
-      );
-    }
-
-    // 2. Strictly block PATH modification on host
-    // Allowing custom PATH on the gateway/node can lead to binary hijacking.
-    if (upperKey === "PATH") {
-      throw new Error(
-        "Security Violation: Custom 'PATH' variable is forbidden during host execution.",
-      );
-    }
-  }
-}
-const DEFAULT_MAX_OUTPUT = clampWithDefault(
->>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
   readEnvInt("PI_BASH_MAX_OUTPUT_CHARS"),
   200_000,
   1_000,
   200_000,
 );
-<<<<<<< HEAD
 const DEFAULT_PENDING_MAX_OUTPUT = clampNumber(
   readEnvInt("CLAWDBOT_BASH_PENDING_MAX_OUTPUT_CHARS"),
-=======
-const DEFAULT_PENDING_MAX_OUTPUT = clampWithDefault(
-  readEnvInt("OPENCLAW_BASH_PENDING_MAX_OUTPUT_CHARS"),
->>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
   200_000,
   1_000,
   200_000,
@@ -684,7 +577,6 @@ export function createExecTool(
       applyPathPrepend(env, defaultPathPrepend);
 
       if (host === "node") {
-<<<<<<< HEAD
         const approvals = resolveExecApprovals(agentId, { security, ask });
         const hostSecurity = minSecurity(security, approvals.agent.security);
         const hostAsk = maxAsk(ask, approvals.agent.ask);
@@ -731,13 +623,9 @@ export function createExecTool(
           applyPathPrepend(nodeEnv, defaultPathPrepend, { requireExisting: true });
         }
         const baseAllowlistEval = evaluateShellAllowlist({
-=======
-        return executeNodeHostCommand({
->>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
           command: params.command,
           workdir,
           env,
-<<<<<<< HEAD
         });
         let analysisOk = baseAllowlistEval.analysisOk;
         let allowlistSatisfied = false;
@@ -953,22 +841,6 @@ export function createExecTool(
             cwd: workdir,
           } satisfies ExecToolDetails,
         };
-=======
-          requestedEnv: params.env,
-          requestedNode: params.node?.trim(),
-          boundNode: defaults?.node?.trim(),
-          sessionKey: defaults?.sessionKey,
-          agentId,
-          security,
-          ask,
-          timeoutSec: params.timeout,
-          defaultTimeoutSec,
-          approvalRunningNoticeMs,
-          warnings,
-          notifySessionKey,
-          trustedSafeBinDirs,
-        });
->>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
       }
 
       if (host === "gateway" && !bypassApprovals) {
@@ -976,7 +848,6 @@ export function createExecTool(
           command: params.command,
           workdir,
           env,
-<<<<<<< HEAD
         });
         const allowlistMatches = allowlistEval.allowlistMatches;
         const analysisOk = allowlistEval.analysisOk;
@@ -1188,27 +1059,6 @@ export function createExecTool(
               allowlistEval.segments[0]?.resolution?.resolvedPath,
             );
           }
-=======
-          pty: params.pty === true && !sandbox,
-          timeoutSec: params.timeout,
-          defaultTimeoutSec,
-          security,
-          ask,
-          safeBins,
-          safeBinProfiles,
-          agentId,
-          sessionKey: defaults?.sessionKey,
-          scopeKey: defaults?.scopeKey,
-          warnings,
-          notifySessionKey,
-          approvalRunningNoticeMs,
-          maxOutput,
-          pendingMaxOutput,
-          trustedSafeBinDirs,
-        });
-        if (gatewayResult.pendingResult) {
-          return gatewayResult.pendingResult;
->>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
         }
         execCommandOverride = gatewayResult.execCommandOverride;
       }

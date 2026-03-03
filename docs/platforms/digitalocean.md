@@ -127,11 +127,7 @@ Open: `https://<magicdns>/`
 
 Notes:
 
-<<<<<<< HEAD
 - Serve keeps the Gateway loopback-only and authenticates via Tailscale identity headers.
-=======
-- Serve keeps the Gateway loopback-only and authenticates Control UI/WebSocket traffic via Tailscale identity headers (tokenless auth assumes trusted gateway host; HTTP APIs still require token/password).
->>>>>>> 356d61aac (fix(gateway): scope tailscale tokenless auth to websocket)
 - To require token/password instead, set `gateway.auth.allowTailscale: false` or use `gateway.auth.mode: "password"`.
 
 **Option C: Tailnet bind (no Serve)**
@@ -196,14 +192,8 @@ htop
 ## Persistence
 
 All state lives in:
-<<<<<<< HEAD
 - `~/.clawdbot/` — config, credentials, session data
 - `~/clawd/` — workspace (SOUL.md, memory, etc.)
-=======
-
-- `~/.openclaw/` — config, credentials, session data
-- `~/.openclaw/workspace/` — workspace (SOUL.md, memory, etc.)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 These survive reboots. Back them up periodically:
 

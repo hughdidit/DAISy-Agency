@@ -2,13 +2,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 =======
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 110cc5d79 (perf(test): speed up memory index suite)
@@ -80,13 +76,9 @@ describe("memory index", () => {
     vi.stubEnv("OPENCLAW_TEST_MEMORY_UNSAFE_REINDEX", "1");
     embedBatchCalls = 0;
 <<<<<<< HEAD
-<<<<<<< HEAD
     failEmbeddings = false;
 <<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
-=======
-=======
->>>>>>> 36726b52f (perf(test): drop redundant memory reindex integration case)
     workspaceDir = path.join(fixtureRoot, `case-${fixtureCount++}`);
     await fs.mkdir(workspaceDir, { recursive: true });
 >>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
@@ -96,14 +88,11 @@ describe("memory index", () => {
 
     // Keep the workspace stable to allow manager reuse across tests.
     await fs.mkdir(memoryDir, { recursive: true });
-<<<<<<< HEAD
 >>>>>>> 110cc5d79 (perf(test): speed up memory index suite)
     await fs.writeFile(
       path.join(memoryDir, "2026-01-12.md"),
       "# Log\nAlpha memory line.\nZebra memory line.",
     );
-=======
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 
     // Clean additional paths that may have been created by earlier cases.
     await fs.rm(extraDir, { recursive: true, force: true });
@@ -205,8 +194,6 @@ describe("memory index", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("keeps dirty false in status-only manager after prior indexing", async () => {
     const indexStatusPath = path.join(workspaceDir, `index-status-${Date.now()}.sqlite`);
     const cfg = createCfg({ storePath: indexStatusPath });
@@ -235,7 +222,6 @@ describe("memory index", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 =======
   it("reindexes sessions when source config adds sessions to an existing index", async () => {
     const indexSourceChangePath = path.join(

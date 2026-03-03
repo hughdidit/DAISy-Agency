@@ -5,13 +5,9 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { promisify } from "node:util";
 <<<<<<< HEAD
 import { colorize, isRich, theme } from "../terminal/theme.js";
-=======
-=======
->>>>>>> f33031bc9 (refactor: dedupe daemon exec wrappers)
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 =======
@@ -32,12 +28,6 @@ import {
   resolveGatewaySystemdServiceName,
 } from "./constants.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { execFileUtf8 } from "./exec-file.js";
-<<<<<<< HEAD
->>>>>>> f33031bc9 (refactor: dedupe daemon exec wrappers)
 import { formatLine, toPosixPath } from "./output.js";
 =======
 import { formatLine, toPosixPath, writeFormattedLines } from "./output.js";
@@ -48,13 +38,10 @@ import { parseKeyValueOutput } from "./runtime-parse.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { resolveHomeDir } from "./paths.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -91,13 +78,8 @@ function resolveSystemdUnitPathForName(env: GatewayServiceEnv, name: string): st
   return path.posix.join(home, ".config", "systemd", "user", `${name}.service`);
 }
 
-<<<<<<< HEAD
 function resolveSystemdServiceName(env: Record<string, string | undefined>): string {
   const override = env.CLAWDBOT_SYSTEMD_UNIT?.trim();
-=======
-function resolveSystemdServiceName(env: GatewayServiceEnv): string {
-  const override = env.OPENCLAW_SYSTEMD_UNIT?.trim();
->>>>>>> 70900feaa (refactor(daemon): share service arg types across backends)
   if (override) {
     return override.endsWith(".service") ? override.slice(0, -".service".length) : override;
   }
@@ -255,16 +237,12 @@ export async function installSystemdService({
 
   const unitPath = resolveSystemdUnitPath(env);
   await fs.mkdir(path.dirname(unitPath), { recursive: true });
-<<<<<<< HEAD
   const serviceDescription =
     description ??
     formatGatewayServiceDescription({
       profile: env.CLAWDBOT_PROFILE,
       version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
     });
-=======
-  const serviceDescription = resolveGatewayServiceDescription({ env, environment, description });
->>>>>>> 0dbc51aa5 (refactor(daemon): share service description resolve)
   const unit = buildSystemdUnit({
     description: serviceDescription,
     programArguments,

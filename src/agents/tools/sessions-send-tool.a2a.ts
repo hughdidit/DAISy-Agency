@@ -3,10 +3,7 @@ import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
 >>>>>>> ed11e93cf (chore(format))

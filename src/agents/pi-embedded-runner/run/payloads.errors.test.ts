@@ -111,17 +111,10 @@ describe("buildEmbeddedRunPayloads", () => {
       lastToolError: { toolName: "browser", error: "tab not found" },
     });
 
-<<<<<<< HEAD
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("Browser");
     expect(payloads[0]?.text).toContain("tab not found");
-=======
-    expectSingleToolErrorPayload(payloads, {
-      title: "Browser",
-      absentDetail: "tab not found",
-    });
->>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
   });
 
   it("does not add tool error fallback when assistant output exists", () => {
@@ -135,13 +128,7 @@ describe("buildEmbeddedRunPayloads", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("adds tool error fallback when the assistant only invoked tools", () => {
-=======
-  it("adds completion fallback when tools run successfully without final assistant text", () => {
-=======
-  it("does not add synthetic completion text when tools run without final assistant text", () => {
->>>>>>> f79e3d5f0 (fix(agents): remove synthetic done fallback reply)
     const payloads = buildPayloads({
       sessionKey: "agent:main:discord:direct:u123",
       toolMetas: [{ toolName: "write", meta: "/tmp/out.md" }],
@@ -236,34 +223,7 @@ describe("buildEmbeddedRunPayloads", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("suppresses recoverable tool errors containing 'required'", () => {
-=======
-=======
-  it("does not add tool error fallback when assistant text exists after tool calls", () => {
-    const payloads = buildPayloads({
-      assistantTexts: ["Checked the page and recovered with final answer."],
-      lastAssistant: makeAssistant({
-        stopReason: "toolUse",
-        errorMessage: undefined,
-        content: [
-          {
-            type: "toolCall",
-            id: "toolu_01",
-            name: "browser",
-            arguments: { action: "search", query: "openclaw docs" },
-          },
-        ],
-      }),
-      lastToolError: { toolName: "browser", error: "connection timeout" },
-    });
-
-    expect(payloads).toHaveLength(1);
-    expect(payloads[0]?.isError).toBeUndefined();
-    expect(payloads[0]?.text).toContain("recovered");
-  });
-
->>>>>>> dddb1bc94 (fix(telegram): fix streaming with extended thinking models overwriting previous messages/ also happens to Execution error (#17973))
   it("suppresses recoverable tool errors containing 'required' for non-mutating tools", () => {
     const payloads = buildPayloads({
       lastToolError: { toolName: "browser", error: "url required" },
@@ -298,7 +258,6 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(0);
   });
 
-<<<<<<< HEAD
   it("still shows mutating tool errors when messages.suppressToolErrors is enabled", () => {
     const payloads = buildPayloads({
       lastToolError: { toolName: "write", error: "connection timeout" },
@@ -310,8 +269,6 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads[0]?.text).toContain("connection timeout");
   });
 
-=======
->>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
   it("suppresses mutating tool errors when suppressToolErrorWarnings is enabled", () => {
     const payloads = buildPayloads({
       lastToolError: { toolName: "exec", error: "command not found" },
@@ -321,7 +278,6 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(0);
   });
 
-<<<<<<< HEAD
   it("shows recoverable tool errors for mutating tools", () => {
 <<<<<<< HEAD
 >>>>>>> 2c8b92105 (feat: add messages.suppressToolErrors config option (#16620))
@@ -329,9 +285,6 @@ describe("buildEmbeddedRunPayloads", () => {
       assistantTexts: [],
       toolMetas: [],
       lastAssistant: undefined,
-=======
-    const payloads = buildPayloads({
->>>>>>> bcadef2e2 (test(agents): add payload builder fixture helper)
       lastToolError: { toolName: "message", meta: "reply", error: "text required" },
     });
 
@@ -370,7 +323,6 @@ describe("buildEmbeddedRunPayloads", () => {
 >>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
   });
 
-<<<<<<< HEAD
   it("suppresses recoverable tool errors containing 'missing'", () => {
     const payloads = buildEmbeddedRunPayloads({
       assistantTexts: [],
@@ -382,46 +334,8 @@ describe("buildEmbeddedRunPayloads", () => {
       verboseLevel: "off",
       reasoningLevel: "off",
       toolResultFormat: "plain",
-=======
-  it("shows mutating tool errors even when assistant output exists", () => {
-    const payloads = buildPayloads({
-      assistantTexts: ["Done."],
-      lastAssistant: { stopReason: "end_turn" } as unknown as AssistantMessage,
-      lastToolError: { toolName: "write", error: "file missing" },
     });
 
-    expect(payloads).toHaveLength(2);
-    expect(payloads[0]?.text).toBe("Done.");
-    expect(payloads[1]?.isError).toBe(true);
-    expect(payloads[1]?.text).toContain("missing");
-  });
-
-  it("does not treat session_status read failures as mutating when explicitly flagged", () => {
-    const payloads = buildPayloads({
-      assistantTexts: ["Status loaded."],
-      lastAssistant: { stopReason: "end_turn" } as unknown as AssistantMessage,
-      lastToolError: {
-        toolName: "session_status",
-        error: "model required",
-        mutatingAction: false,
-      },
-    });
-
-    expect(payloads).toHaveLength(1);
-    expect(payloads[0]?.text).toBe("Status loaded.");
-  });
-
-  it("dedupes identical tool warning text already present in assistant output", () => {
-    const seed = buildPayloads({
-      lastToolError: {
-        toolName: "write",
-        error: "file missing",
-        mutatingAction: true,
-      },
->>>>>>> bcadef2e2 (test(agents): add payload builder fixture helper)
-    });
-
-<<<<<<< HEAD
     expect(payloads).toHaveLength(0);
   });
 
@@ -436,22 +350,11 @@ describe("buildEmbeddedRunPayloads", () => {
       verboseLevel: "off",
       reasoningLevel: "off",
       toolResultFormat: "plain",
-=======
-    const payloads = buildPayloads({
-      assistantTexts: [warningText ?? ""],
-      lastAssistant: { stopReason: "end_turn" } as unknown as AssistantMessage,
-      lastToolError: {
-        toolName: "write",
-        error: "file missing",
-        mutatingAction: true,
-      },
->>>>>>> bcadef2e2 (test(agents): add payload builder fixture helper)
     });
 
     expect(payloads).toHaveLength(0);
   });
 
-<<<<<<< HEAD
   it("shows non-recoverable tool errors to the user", () => {
     const payloads = buildPayloads({
       lastToolError: { toolName: "browser", error: "connection timeout" },
@@ -461,17 +364,5 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("connection timeout");
-=======
-  it("includes non-recoverable tool error details when verbose mode is on", () => {
-    const payloads = buildPayloads({
-      lastToolError: { toolName: "browser", error: "connection timeout" },
-      verboseLevel: "on",
-    });
-
-    expectSingleToolErrorPayload(payloads, {
-      title: "Browser",
-      detail: "connection timeout",
-    });
->>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
   });
 });

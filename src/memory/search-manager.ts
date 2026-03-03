@@ -1,15 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { createSubsystemLogger } from "../logging/subsystem.js";
-=======
->>>>>>> 9bef52594 (chore: apply formatter)
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -19,8 +13,6 @@ import type { ResolvedQmdConfig } from "./backend-config.js";
 <<<<<<< HEAD
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 import type { MemoryIndexManager } from "./manager.js";
-=======
->>>>>>> dd8373a42 (fix(memory-qmd): write XDG index.yml + legacy compat)
 =======
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import type { ResolvedQmdConfig } from "./backend-config.js";
@@ -257,26 +249,5 @@ class FallbackMemoryManager implements MemorySearchManager {
 }
 
 function buildQmdCacheKey(agentId: string, config: ResolvedQmdConfig): string {
-<<<<<<< HEAD
   return `${agentId}:${JSON.stringify(config)}`;
-=======
-  return `${agentId}:${stableSerialize(config)}`;
-}
-
-function stableSerialize(value: unknown): string {
-  return JSON.stringify(sortValue(value));
-}
-
-function sortValue(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    return value.map((entry) => sortValue(entry));
-  }
-  if (value && typeof value === "object") {
-    const sortedEntries = Object.keys(value as Record<string, unknown>)
-      .toSorted((a, b) => a.localeCompare(b))
-      .map((key) => [key, sortValue((value as Record<string, unknown>)[key])]);
-    return Object.fromEntries(sortedEntries);
-  }
-  return value;
->>>>>>> 30098b04d (chore: fix lint warnings)
 }

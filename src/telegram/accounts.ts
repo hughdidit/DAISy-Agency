@@ -1,13 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { TelegramAccountConfig } from "../config/types.js";
-=======
-=======
-=======
-import util from "node:util";
->>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 import { createAccountActionGate } from "../channels/plugins/account-action-gate.js";
 >>>>>>> e702a9eb5 (refactor(channels): share account action gate resolution)
 import type { OpenClawConfig } from "../config/config.js";
@@ -36,14 +30,8 @@ function formatDebugArg(value: unknown): string {
 }
 
 const debugAccounts = (...args: unknown[]) => {
-<<<<<<< HEAD
   if (isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_TELEGRAM_ACCOUNTS)) {
     console.warn("[telegram:accounts]", ...args);
-=======
-  if (isTruthyEnvValue(process.env.OPENCLAW_DEBUG_TELEGRAM_ACCOUNTS)) {
-    const parts = args.map((arg) => formatDebugArg(arg));
-    log.warn(parts.join(" ").trim());
->>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
   }
 };
 
@@ -118,14 +106,8 @@ function resolveAccountConfig(
   return matchKey ? (accounts[matchKey] as TelegramAccountConfig | undefined) : undefined;
 }
 
-<<<<<<< HEAD
 function mergeTelegramAccountConfig(cfg: MoltbotConfig, accountId: string): TelegramAccountConfig {
   const { accounts: _ignored, ...base } = (cfg.channels?.telegram ??
-=======
-function mergeTelegramAccountConfig(cfg: OpenClawConfig, accountId: string): TelegramAccountConfig {
-<<<<<<< HEAD
-  const { accounts: _ignored, groups: channelGroups, ...base } = (cfg.channels?.telegram ??
->>>>>>> 3b2ed8fe6 (fix(telegram): prevent channel-level groups from leaking to all accounts in multi-account setups)
     {}) as TelegramAccountConfig & { accounts?: unknown };
 =======
   const {
@@ -133,15 +115,8 @@ function mergeTelegramAccountConfig(cfg: OpenClawConfig, accountId: string): Tel
     defaultAccount: _ignoredDefaultAccount,
     groups: channelGroups,
     ...base
-<<<<<<< HEAD
   } = (cfg.channels?.telegram ?? {}) as TelegramAccountConfig & { accounts?: unknown };
 >>>>>>> f64d25bd3 (fix(telegram): scope DM topic thread keys by chat id (#31064))
-=======
-  } = (cfg.channels?.telegram ?? {}) as TelegramAccountConfig & {
-    accounts?: unknown;
-    defaultAccount?: unknown;
-  };
->>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
   const account = resolveAccountConfig(cfg, accountId) ?? {};
 
   // In multi-account setups, channel-level `groups` must NOT be inherited by

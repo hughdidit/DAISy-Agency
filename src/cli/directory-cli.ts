@@ -8,11 +8,7 @@ import { resolveMessageChannelSelection } from "../infra/outbound/channel-select
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { theme } from "../terminal/theme.js";
-<<<<<<< HEAD
 import { renderTable } from "../terminal/table.js";
-=======
-import { formatHelpExamples } from "./help-format.js";
->>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
 
 function parseLimit(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) {

@@ -9,14 +9,8 @@ read_when:
 Moltbot treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams.
 
 ## Beginner intro (2 minutes)
-<<<<<<< HEAD
 Moltbot “lives” on your own messaging accounts. There is no separate WhatsApp bot user.
 If **you** are in a group, Moltbot can see that group and respond there.
-=======
-
-OpenClaw “lives” on your own messaging accounts. There is no separate WhatsApp bot user.
-If **you** are in a group, OpenClaw can see that group and respond there.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Default behavior:
 
@@ -233,21 +227,12 @@ Replying to a bot message counts as an implicit mention (when the channel suppor
       {
         id: "main",
         groupChat: {
-<<<<<<< HEAD
           mentionPatterns: ["@clawd", "moltbot", "\\+15555550123"],
           historyLimit: 50
         }
       }
     ]
   }
-=======
-          mentionPatterns: ["@openclaw", "openclaw", "\\+15555550123"],
-          historyLimit: 50,
-        },
-      },
-    ],
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 

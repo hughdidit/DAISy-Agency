@@ -22,10 +22,7 @@ function buildMediaLocalRoots(
   options: BuildMediaLocalRootsOptions = {},
 ): string[] {
   const resolvedStateDir = path.resolve(stateDir);
-<<<<<<< HEAD
-=======
   const preferredTmpDir = options.preferredTmpDir ?? resolveCachedPreferredTmpDir();
->>>>>>> def993dbd (refactor(tmp): harden temp boundary guardrails)
   return [
     os.tmpdir(),
     path.join(resolvedStateDir, "media"),

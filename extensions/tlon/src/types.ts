@@ -14,14 +14,7 @@ export type TlonResolvedAccount = {
   showModelSignature: boolean | null;
 };
 
-<<<<<<< HEAD
 export function resolveTlonAccount(cfg: MoltbotConfig, accountId?: string | null): TlonResolvedAccount {
-=======
-export function resolveTlonAccount(
-  cfg: OpenClawConfig,
-  accountId?: string | null,
-): TlonResolvedAccount {
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   const base = cfg.channels?.tlon as
     | {
         name?: string;

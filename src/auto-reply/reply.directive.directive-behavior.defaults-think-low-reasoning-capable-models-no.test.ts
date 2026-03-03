@@ -20,7 +20,6 @@ import { getReplyFromConfig } from "./reply.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -61,8 +60,6 @@ function _assertModelSelection(
   expect(entry?.providerOverride).toBe(selection.provider);
 }
 
-=======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
 =======
 function makeThinkConfig(home: string) {
   return {
@@ -120,36 +117,7 @@ async function runReplyToCurrentCase(home: string, text: string) {
   return Array.isArray(res) ? res[0] : res;
 }
 
-<<<<<<< HEAD
 >>>>>>> 98f2ad56a (refactor(test): reuse think directive fixtures)
-=======
-async function expectThinkStatusForReasoningModel(params: {
-  home: string;
-  reasoning: boolean;
-  expectedLevel: "low" | "off";
-}): Promise<void> {
-  vi.mocked(loadModelCatalog).mockResolvedValueOnce([
-    {
-      id: "claude-opus-4-5",
-      name: "Opus 4.5",
-      provider: "anthropic",
-      reasoning: params.reasoning,
-    },
-  ]);
-
-  const res = await getReplyFromConfig(
-    { Body: "/think", From: "+1222", To: "+1222", CommandAuthorized: true },
-    {},
-    makeWhatsAppDirectiveConfig(params.home, { model: "anthropic/claude-opus-4-5" }),
-  );
-
-  const text = replyText(res);
-  expect(text).toContain(`Current thinking level: ${params.expectedLevel}`);
-  expect(text).toContain("Options: off, minimal, low, medium, high.");
-}
-
-<<<<<<< HEAD
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 =======
 function mockReasoningCapableCatalog() {
   vi.mocked(loadModelCatalog).mockResolvedValueOnce([
@@ -195,7 +163,6 @@ async function runReasoningDefaultCase(params: {
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
-<<<<<<< HEAD
   it("defaults /think to low for reasoning-capable models when no default set", async () => {
 <<<<<<< HEAD
     await withTempHome(async (home) => {
@@ -223,9 +190,6 @@ describe("directive behavior", () => {
           session: { store: path.join(home, "sessions.json") },
         },
 =======
-        makeThinkConfig(home),
->>>>>>> 98f2ad56a (refactor(test): reuse think directive fixtures)
-=======
         makeWhatsAppDirectiveConfig(home, { model: "anthropic/claude-opus-4-5" }),
 >>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
@@ -251,7 +215,6 @@ describe("directive behavior", () => {
         { Body: "/think", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
 <<<<<<< HEAD
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -261,9 +224,6 @@ describe("directive behavior", () => {
           },
           session: { store: path.join(home, "sessions.json") },
         },
-=======
-        makeThinkConfig(home),
->>>>>>> 98f2ad56a (refactor(test): reuse think directive fixtures)
 =======
         makeWhatsAppDirectiveConfig(home, { model: "anthropic/claude-opus-4-5" }),
 >>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
@@ -286,7 +246,6 @@ describe("directive behavior", () => {
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
     });
   });
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -322,16 +281,12 @@ describe("directive behavior", () => {
       );
 
       const payload = Array.isArray(res) ? res[0] : res;
-=======
-      const payload = await runReplyToCurrentCase(home, "hello [[reply_to_current]]");
->>>>>>> 98f2ad56a (refactor(test): reuse think directive fixtures)
       expect(payload?.text).toBe("hello");
       expect(payload?.replyToId).toBe("msg-123");
     });
   });
   it("strips reply tags with whitespace and maps reply_to_current to MessageSid", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
         payloads: [{ text: "hello [[ reply_to_current ]]" }],
         meta: {
@@ -361,9 +316,6 @@ describe("directive behavior", () => {
       );
 
       const payload = Array.isArray(res) ? res[0] : res;
-=======
-      const payload = await runReplyToCurrentCase(home, "hello [[ reply_to_current ]]");
->>>>>>> 98f2ad56a (refactor(test): reuse think directive fixtures)
       expect(payload?.text).toBe("hello");
       expect(payload?.replyToId).toBe("msg-123");
     });
@@ -508,12 +460,8 @@ describe("directive behavior", () => {
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
   });
-<<<<<<< HEAD
 >>>>>>> 89a469502 (test: consolidate shard tests for faster trigger/directive suites)
   it("ignores inline /model and uses the default model", async () => {
-=======
-  it("ignores inline /model and /think directives while still running agent content", async () => {
->>>>>>> b9f01e8d3 (test: consolidate directive behavior suites for faster runs)
     await withTempHome(async (home) => {
       mockEmbeddedTextResult("done");
 
@@ -670,7 +618,6 @@ describe("directive behavior", () => {
       expect(call?.reasoningLevel).toBe("off");
     });
   });
-<<<<<<< HEAD
 >>>>>>> 14c54e650 (fix(reasoning): persist off override for discord directives)
   for (const replyTag of ["[[reply_to_current]]", "[[ reply_to_current ]]"]) {
     it(`strips ${replyTag} and maps reply_to_current to MessageSid`, async () => {
@@ -684,16 +631,6 @@ describe("directive behavior", () => {
 >>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
   it("prefers explicit reply_to id over reply_to_current", async () => {
     await withTempHome(async (home) => {
-=======
-  it("handles reply_to_current tags and explicit reply_to precedence", async () => {
-    await withTempHome(async (home) => {
-      for (const replyTag of ["[[reply_to_current]]", "[[ reply_to_current ]]"]) {
-        const payload = await runReplyToCurrentCase(home, `hello ${replyTag}`);
-        expect(payload?.text).toBe("hello");
-        expect(payload?.replyToId).toBe("msg-123");
-      }
-
->>>>>>> b9f01e8d3 (test: consolidate directive behavior suites for faster runs)
       vi.mocked(runEmbeddedPiAgent).mockResolvedValue(
         makeEmbeddedTextResult("hi [[reply_to_current]] [[reply_to:abc-456]]"),
       );
@@ -706,17 +643,12 @@ describe("directive behavior", () => {
           MessageSid: "msg-123",
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
 <<<<<<< HEAD
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
-=======
-              model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: path.join(home, "openclaw"),
->>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
             },
           },
           channels: { whatsapp: { allowFrom: ["*"] } },
@@ -732,7 +664,6 @@ describe("directive behavior", () => {
       expect(payload?.replyToId).toBe("abc-456");
     });
   });
-<<<<<<< HEAD
   it("applies inline think and still runs agent content", async () => {
     await withTempHome(async (home) => {
       mockEmbeddedTextResult("done");
@@ -751,10 +682,6 @@ describe("directive behavior", () => {
 <<<<<<< HEAD
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
-=======
-              model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: path.join(home, "openclaw"),
->>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
             },
           },
           channels: { whatsapp: { allowFrom: ["*"] } },

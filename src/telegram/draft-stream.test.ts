@@ -108,7 +108,6 @@ describe("createTelegramDraftStream", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("keeps message_thread_id for dm threads and clears preview on cleanup", async () => {
     const api = {
       sendMessage: vi.fn().mockResolvedValue({ message_id: 17 }),
@@ -121,11 +120,6 @@ describe("createTelegramDraftStream", () => {
       chatId: 123,
       thread: { id: 1, scope: "dm" },
     });
-=======
-  it("omits message_thread_id for dm threads and clears preview on cleanup", async () => {
-    const api = createMockDraftApi();
-    const stream = createThreadedDraftStream(api, { id: 1, scope: "dm" });
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     stream.update("Hello");
     await vi.waitFor(() =>
@@ -146,7 +140,6 @@ describe("createTelegramDraftStream", () => {
   });
 
   it("creates new message after forceNewMessage is called", async () => {
-<<<<<<< HEAD
     const api = {
       sendMessage: vi
         .fn()
@@ -160,9 +153,6 @@ describe("createTelegramDraftStream", () => {
       api: api as any,
       chatId: 123,
     });
-=======
-    const { api, stream } = createForceNewMessageHarness();
->>>>>>> bdbbcbcc1 (test: dedupe telegram draft stream setup and extend state-dir env coverage)
 
     // First message
     stream.update("Hello");
@@ -183,8 +173,6 @@ describe("createTelegramDraftStream", () => {
     expect(api.sendMessage).toHaveBeenCalledTimes(2);
     expect(api.sendMessage).toHaveBeenLastCalledWith(123, "After thinking", undefined);
   });
-<<<<<<< HEAD
-=======
 
   it("sends first update immediately after forceNewMessage within throttle window", async () => {
     vi.useFakeTimers();
@@ -206,7 +194,6 @@ describe("createTelegramDraftStream", () => {
       });
 =======
       const { api, stream } = createForceNewMessageHarness({ throttleMs: 1000 });
->>>>>>> bdbbcbcc1 (test: dedupe telegram draft stream setup and extend state-dir env coverage)
 
       stream.update("Hello");
       await vi.waitFor(() => expect(api.sendMessage).toHaveBeenCalledTimes(1));

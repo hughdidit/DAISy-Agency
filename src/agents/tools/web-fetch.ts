@@ -1,19 +1,7 @@
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import { SsrFBlockedError } from "../../infra/net/ssrf.js";
-import { logDebug } from "../../logger.js";
-import { wrapExternalContent, wrapWebContent } from "../../security/external-content.js";
-import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
-import { stringEnum } from "../schema/typebox.js";
-import type { AnyAgentTool } from "./common.js";
-import { jsonResult, readNumberParam, readStringParam } from "./common.js";
->>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
 import {
-<<<<<<< HEAD
   closeDispatcher,
   createPinnedDispatcher,
   resolvePinnedHostname,
@@ -23,15 +11,6 @@ import type { Dispatcher } from "undici";
 import { stringEnum } from "../schema/typebox.js";
 import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
-=======
-  extractReadableContent,
-  htmlToMarkdown,
-  markdownToText,
-  truncateText,
-  type ExtractMode,
-} from "./web-fetch-utils.js";
-import { fetchWithWebToolsNetworkGuard } from "./web-guarded-fetch.js";
->>>>>>> b74be2577 (refactor(web): unify proxy-guarded fetch path for web tools)
 import {
   CacheEntry,
   DEFAULT_CACHE_TTL_MINUTES,
@@ -325,8 +304,6 @@ function formatWebFetchErrorDetail(params: {
   const truncated = truncateText(text.trim(), maxChars);
   return truncated.text;
 }
-<<<<<<< HEAD
-=======
 
 function redactUrlForDebugLog(rawUrl: string): string {
   try {
@@ -447,7 +424,6 @@ function normalizeContentType(value: string | null | undefined): string | undefi
   return trimmed || undefined;
 }
 
->>>>>>> 54bf5d0f4 (feat(web-fetch): support Cloudflare Markdown for Agents (#15376))
 export async function fetchFirecrawlContent(params: {
   url: string;
   extractMode: ExtractMode;
@@ -621,7 +597,6 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
   let dispatcher: Dispatcher | null = null;
   let finalUrl = params.url;
   try {
-<<<<<<< HEAD
     const result = await fetchWithRedirects({
       url: params.url,
       maxRedirects: params.maxRedirects,
@@ -632,14 +607,6 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
     res = result.response;
     finalUrl = result.finalUrl;
     dispatcher = result.dispatcher;
-=======
-      timeoutMs: params.timeoutSeconds * 1000,
-=======
-    const result = await fetchWithWebToolsNetworkGuard({
-      url: params.url,
-      maxRedirects: params.maxRedirects,
-      timeoutSeconds: params.timeoutSeconds,
->>>>>>> b74be2577 (refactor(web): unify proxy-guarded fetch path for web tools)
       init: {
         headers: {
           Accept: "text/markdown, text/html;q=0.9, */*;q=0.1",
@@ -664,7 +631,6 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
     if (error instanceof SsrFBlockedError) {
       throw error;
     }
-<<<<<<< HEAD
     if (params.firecrawlEnabled && params.firecrawlApiKey) {
       const firecrawl = await fetchFirecrawlContent({
         url: finalUrl,
@@ -694,17 +660,6 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
         text: truncated.text,
         warning: firecrawl.warning,
       };
-=======
-      const payload = buildFirecrawlWebFetchPayload({
-        firecrawl,
-        rawUrl: params.url,
-        finalUrlFallback: finalUrl,
-        statusFallback: 200,
-        extractMode: params.extractMode,
-        maxChars: params.maxChars,
-        tookMs: Date.now() - start,
-      });
->>>>>>> 485b78bb9 (refactor(web-fetch): dedupe firecrawl payload builder)
       writeCache(FETCH_CACHE, cacheKey, payload, params.cacheTtlMs);
 =======
     const payload = await maybeFetchFirecrawlWebFetchPayload({
@@ -724,7 +679,6 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
 
   try {
     if (!res.ok) {
-<<<<<<< HEAD
       if (params.firecrawlEnabled && params.firecrawlApiKey) {
         const firecrawl = await fetchFirecrawlContent({
           url: params.url,
@@ -754,17 +708,6 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
           text: truncated.text,
           warning: firecrawl.warning,
         };
-=======
-        const payload = buildFirecrawlWebFetchPayload({
-          firecrawl,
-          rawUrl: params.url,
-          finalUrlFallback: finalUrl,
-          statusFallback: res.status,
-          extractMode: params.extractMode,
-          maxChars: params.maxChars,
-          tookMs: Date.now() - start,
-        });
->>>>>>> 485b78bb9 (refactor(web-fetch): dedupe firecrawl payload builder)
         writeCache(FETCH_CACHE, cacheKey, payload, params.cacheTtlMs);
 =======
       const payload = await maybeFetchFirecrawlWebFetchPayload({
@@ -790,16 +733,7 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
     }
 
     const contentType = res.headers.get("content-type") ?? "application/octet-stream";
-<<<<<<< HEAD
     const body = await readResponseText(res);
-=======
-    const normalizedContentType = normalizeContentType(contentType) ?? "application/octet-stream";
-    const bodyResult = await readResponseText(res, { maxBytes: params.maxResponseBytes });
-    const body = bodyResult.text;
-    const responseTruncatedWarning = bodyResult.truncated
-      ? `Response body truncated after ${params.maxResponseBytes} bytes.`
-      : undefined;
->>>>>>> 166cf6a3e (fix(web_fetch): cap response body before parsing)
 
     let title: string | undefined;
     let extractor = "raw";
@@ -848,13 +782,7 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
       }
     }
 
-<<<<<<< HEAD
     const truncated = truncateText(text, params.maxChars);
-=======
-    const wrapped = wrapWebFetchContent(text, params.maxChars);
-    const wrappedTitle = title ? wrapWebFetchField(title) : undefined;
-    const wrappedWarning = wrapWebFetchField(responseTruncatedWarning);
->>>>>>> 166cf6a3e (fix(web_fetch): cap response body before parsing)
     const payload = {
       url: params.url,
       finalUrl,
@@ -867,12 +795,7 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
       length: truncated.text.length,
       fetchedAt: new Date().toISOString(),
       tookMs: Date.now() - start,
-<<<<<<< HEAD
       text: truncated.text,
-=======
-      text: wrapped.text,
-      warning: wrappedWarning,
->>>>>>> 166cf6a3e (fix(web_fetch): cap response body before parsing)
     };
     writeCache(FETCH_CACHE, cacheKey, payload, params.cacheTtlMs);
     return payload;

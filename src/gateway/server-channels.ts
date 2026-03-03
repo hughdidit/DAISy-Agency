@@ -3,18 +3,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { type ChannelId, getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
-import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -40,14 +34,7 @@ import type { createSubsystemLogger } from "../logging/subsystem.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { type ChannelId, getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
-import { type ChannelId, getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
-import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======

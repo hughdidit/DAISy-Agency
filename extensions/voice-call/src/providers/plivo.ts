@@ -1,11 +1,6 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
 import type { PlivoConfig } from "../config.js";
-=======
-import type { PlivoConfig, WebhookSecurityConfig } from "../config.js";
-import { getHeader } from "../http-headers.js";
->>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
 import type {
   HangupCallInput,
   InitiateCallInput,
@@ -37,8 +32,6 @@ export interface PlivoProviderOptions {
 type PendingSpeak = { text: string; locale?: string };
 type PendingListen = { language?: string };
 
-<<<<<<< HEAD
-=======
 function createPlivoRequestDedupeKey(ctx: WebhookContext): string {
   const nonceV3 = getHeader(ctx.headers, "x-plivo-signature-v3-nonce");
   if (nonceV3) {
@@ -51,7 +44,6 @@ function createPlivoRequestDedupeKey(ctx: WebhookContext): string {
   return `plivo:fallback:${crypto.createHash("sha256").update(ctx.rawBody).digest("hex")}`;
 }
 
->>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
 export class PlivoProvider implements VoiceCallProvider {
   readonly name = "plivo" as const;
 
@@ -94,18 +86,12 @@ export class PlivoProvider implements VoiceCallProvider {
     allowNotFound?: boolean;
   }): Promise<T> {
     const { method, endpoint, body, allowNotFound } = params;
-<<<<<<< HEAD
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
-=======
-    return await guardedJsonApiRequest<T>({
-      url: `${this.baseUrl}${endpoint}`,
->>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
       method,
       headers: {
         Authorization: `Basic ${Buffer.from(`${this.authId}:${this.authToken}`).toString("base64")}`,
         "Content-Type": "application/json",
       },
-<<<<<<< HEAD
       body: body ? JSON.stringify(body) : undefined,
     });
 
@@ -119,14 +105,6 @@ export class PlivoProvider implements VoiceCallProvider {
 
     const text = await response.text();
     return text ? (JSON.parse(text) as T) : (undefined as T);
-=======
-      body,
-      allowNotFound,
-      allowedHostnames: [this.apiHost],
-      auditContext: "voice-call.plivo.api",
-      errorPrefix: "Plivo API error",
-    });
->>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
   }
 
   verifyWebhook(ctx: WebhookContext): WebhookVerificationResult {

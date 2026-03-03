@@ -2,20 +2,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   ProviderUsageSnapshot,
   UsageProviderId,
   UsageSummary,
 } from "./provider-usage.types.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -41,9 +33,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
@@ -53,10 +42,7 @@ import type {
 } from "./provider-usage.types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveFetch } from "./fetch.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

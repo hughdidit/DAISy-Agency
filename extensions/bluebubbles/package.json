@@ -1,18 +1,9 @@
 {
-<<<<<<< HEAD
   "name": "@moltbot/bluebubbles",
   "version": "2026.1.27-beta.1",
   "type": "module",
   "description": "Moltbot BlueBubbles channel plugin",
   "moltbot": {
-=======
-  "name": "@openclaw/bluebubbles",
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.1.30",
-=======
-  "version": "2026.2.22",
->>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
 =======
   "version": "2026.2.23",
 >>>>>>> 8d9d01447 (chore: align plugin versions and harden outbound cross-provider test)

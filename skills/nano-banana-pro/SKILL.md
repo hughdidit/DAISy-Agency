@@ -2,29 +2,7 @@
 name: nano-banana-pro
 description: Generate or edit images via Gemini 3 Pro Image (Nano Banana Pro).
 homepage: https://ai.google.dev/
-<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"🍌","requires":{"bins":["uv"],"env":["GEMINI_API_KEY"]},"primaryEnv":"GEMINI_API_KEY","install":[{"id":"uv-brew","kind":"brew","formula":"uv","bins":["uv"],"label":"Install uv (brew)"}]}}
-=======
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🍌",
-        "requires": { "bins": ["uv"], "env": ["GEMINI_API_KEY"] },
-        "primaryEnv": "GEMINI_API_KEY",
-        "install":
-          [
-            {
-              "id": "uv-brew",
-              "kind": "brew",
-              "formula": "uv",
-              "bins": ["uv"],
-              "label": "Install uv (brew)",
-            },
-          ],
-      },
-  }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 ---
 
 # Nano Banana Pro (Gemini 3 Pro Image)
@@ -52,11 +30,7 @@ uv run {baseDir}/scripts/generate_image.py --prompt "combine these into one scen
 API key
 
 - `GEMINI_API_KEY` env var
-<<<<<<< HEAD
 - Or set `skills."nano-banana-pro".apiKey` / `skills."nano-banana-pro".env.GEMINI_API_KEY` in `~/.clawdbot/moltbot.json`
-=======
-- Or set `skills."nano-banana-pro".apiKey` / `skills."nano-banana-pro".env.GEMINI_API_KEY` in `~/.openclaw/openclaw.json`
->>>>>>> fd00d5688 (chore: update openclaw naming)
 
 Notes
 

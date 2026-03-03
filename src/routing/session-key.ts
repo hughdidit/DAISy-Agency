@@ -18,11 +18,7 @@ export {
 
 export const DEFAULT_AGENT_ID = "main";
 export const DEFAULT_MAIN_KEY = "main";
-<<<<<<< HEAD
 export const DEFAULT_ACCOUNT_ID = "default";
-=======
-export type SessionKeyShape = "missing" | "agent" | "legacy_or_alias" | "malformed_agent";
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 
 // Pre-compiled regex
 const VALID_ID_RE = /^[a-z0-9][a-z0-9_-]{0,63}$/i;

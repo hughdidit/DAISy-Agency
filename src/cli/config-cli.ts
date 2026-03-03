@@ -4,12 +4,8 @@ import JSON5 from "json5";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { Command } from "commander";
 
-=======
-import type { RuntimeEnv } from "../runtime.js";
->>>>>>> 4d1461011 (perf(cli): speed up help/config paths and route config get/unset)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -23,11 +19,8 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
-<<<<<<< HEAD
-=======
 import { isBlockedObjectKey } from "../config/prototype-keys.js";
 import { redactConfigObject } from "../config/redact-snapshot.js";
->>>>>>> f208518cb (fix(config): keep write inputs immutable when using unsetPaths (#24134))
 import { danger, info } from "../globals.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
@@ -257,13 +250,8 @@ async function loadValidConfig(runtime: RuntimeEnv = defaultRuntime) {
   for (const issue of snapshot.issues) {
     runtime.error(`- ${issue.path || "<root>"}: ${issue.message}`);
   }
-<<<<<<< HEAD
   defaultRuntime.error(`Run \`${formatCliCommand("moltbot doctor")}\` to repair, then retry.`);
   defaultRuntime.exit(1);
-=======
-  runtime.error(`Run \`${formatCliCommand("openclaw doctor")}\` to repair, then retry.`);
-  runtime.exit(1);
->>>>>>> 4d1461011 (perf(cli): speed up help/config paths and route config get/unset)
   return snapshot;
 }
 

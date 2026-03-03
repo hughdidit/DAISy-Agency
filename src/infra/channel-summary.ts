@@ -3,11 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -27,13 +22,9 @@ import { listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 import { type MoltbotConfig, loadConfig } from "../config/config.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -103,7 +94,6 @@ const resolveAccountConfigured = async (
   return true;
 };
 
-<<<<<<< HEAD
 const buildAccountSnapshot = (params: {
   plugin: ChannelPlugin;
   account: unknown;
@@ -139,8 +129,6 @@ const formatAllowFrom = (params: {
   return params.allowFrom.map((entry) => String(entry).trim()).filter(Boolean);
 };
 
-=======
->>>>>>> 64df78744 (refactor(channels): share account summary helpers)
 const buildAccountDetails = (params: {
   entry: ChannelAccountEntry;
   plugin: ChannelPlugin;

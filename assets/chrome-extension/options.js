@@ -39,7 +39,6 @@ async function checkRelayReachable(port, token) {
       url,
       token: relayToken,
     })
-<<<<<<< HEAD
     if (!res) throw new Error('No response from service worker')
     if (res.status === 401) {
       setStatus('error', 'Gateway token rejected. Check token and save again.')
@@ -73,9 +72,6 @@ async function checkRelayReachable(port, token) {
       'error',
 <<<<<<< HEAD
       `Relay not reachable at ${url}. Start Moltbot’s browser relay on this machine, then click the toolbar button again.`,
-=======
-      `Relay not reachable/authenticated at http://127.0.0.1:${port}/. Start OpenClaw browser relay and verify token.`,
->>>>>>> 7e54b6c96 (fix(browser): unify extension relay auth on gateway token)
     )
 =======
   } catch (err) {
@@ -91,23 +87,7 @@ async function checkRelayReachable(port, token) {
         `Relay not reachable/authenticated at http://127.0.0.1:${port}/. Start OpenClaw browser relay and verify token.`,
       )
     }
-<<<<<<< HEAD
 >>>>>>> 0a53a77dd (Chrome extension: validate relay endpoint response format)
-=======
-  } catch (err) {
-    const message = String(err || '').toLowerCase()
-    if (message.includes('json') || message.includes('syntax')) {
-      setStatus(
-        'error',
-        'Wrong port: this is not a relay endpoint. Use gateway port + 3 (for gateway 18789, relay is 18792).',
-      )
-    } else {
-      setStatus(
-        'error',
-        `Relay not reachable/authenticated at http://127.0.0.1:${port}/. Start OpenClaw browser relay and verify token.`,
-      )
-    }
->>>>>>> b7949d317 (Chrome extension: simplify validation logic)
 =======
     const result = classifyRelayCheckResponse(res, port)
     if (result.action === 'throw') throw new Error(result.error)

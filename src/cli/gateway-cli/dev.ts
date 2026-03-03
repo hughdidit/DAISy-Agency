@@ -36,15 +36,8 @@ async function loadDevTemplate(name: string, fallback: string): Promise<string> 
 
 const resolveDevWorkspaceDir = (env: NodeJS.ProcessEnv = process.env): string => {
   const baseDir = resolveDefaultAgentWorkspaceDir(env, os.homedir);
-<<<<<<< HEAD
   const profile = env.CLAWDBOT_PROFILE?.trim().toLowerCase();
   if (profile === "dev") return baseDir;
-=======
-  const profile = env.OPENCLAW_PROFILE?.trim().toLowerCase();
-  if (profile === "dev") {
-    return baseDir;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return `${baseDir}-${DEV_AGENT_WORKSPACE_SUFFIX}`;
 };
 

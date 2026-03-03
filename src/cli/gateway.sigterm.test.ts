@@ -1,7 +1,6 @@
 import { describe, it } from "vitest";
 
 describe("gateway SIGTERM", () => {
-<<<<<<< HEAD
   let child: ReturnType<typeof spawn> | null = null;
 
   afterEach(() => {
@@ -20,11 +19,6 @@ describe("gateway SIGTERM", () => {
 <<<<<<< HEAD
   it("exits 0 on SIGTERM", { timeout: 180_000 }, async () => {
     const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-gateway-test-"));
-=======
-  runSigtermTest("exits 0 on SIGTERM", { timeout: 180_000 }, async () => {
-=======
-  it("exits 0 on SIGTERM", { timeout: 180_000 }, async () => {
->>>>>>> 5636e6257 (test: make gateway sigterm e2e node25-compatible)
     const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-gateway-test-"));
 >>>>>>> 3f0ab7642 (test: stabilize remaining e2e gateway suites)
     const out: string[] = [];
@@ -41,11 +35,7 @@ describe("gateway SIGTERM", () => {
       CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER: "1",
       CLAWDBOT_SKIP_CANVAS_HOST: "1",
     };
-<<<<<<< HEAD
     const bootstrapPath = path.join(stateDir, "moltbot-entry-bootstrap.mjs");
-=======
-    const bootstrapPath = path.join(stateDir, "openclaw-entry-bootstrap.cjs");
->>>>>>> 5636e6257 (test: make gateway sigterm e2e node25-compatible)
     const runLoopPath = path.resolve("src/cli/gateway-cli/run-loop.ts");
     const jitiPath = require.resolve("jiti");
     fs.writeFileSync(

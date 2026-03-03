@@ -9,17 +9,9 @@ read_when:
 List stored conversation sessions.
 
 ```bash
-<<<<<<< HEAD
 moltbot sessions
 moltbot sessions --active 120
 moltbot sessions --json
-=======
-openclaw sessions
-openclaw sessions --agent work
-openclaw sessions --all-agents
-openclaw sessions --active 120
-openclaw sessions --json
->>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 ```
 
 Scope selection:

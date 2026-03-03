@@ -6,15 +6,10 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { Command } from "commander";
 
 import { STATE_DIR } from "../config/paths.js";
-=======
-=======
-import type { Command } from "commander";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

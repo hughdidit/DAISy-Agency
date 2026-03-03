@@ -2,7 +2,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
@@ -15,10 +14,6 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 =======
-=======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 9ebfc99c1 (refactor(test): dedupe temp media fixture setup in apply e2e)
-=======
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
 =======
@@ -27,13 +22,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import type { MsgContext } from "../auto-reply/templating.js";
-import type { OpenClawConfig } from "../config/config.js";
-import { resolveApiKeyForProvider } from "../agents/model-auth.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 import type { MsgContext } from "../auto-reply/templating.js";
@@ -284,7 +273,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("sets Transcript and replaces Body when audio transcription succeeds", async () => {
-<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
@@ -308,9 +296,6 @@ describe("applyMediaUnderstanding", () => {
       },
     };
 
-=======
-=======
->>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const ctx = await createAudioCtx();
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const result = await applyMediaUnderstanding({
@@ -329,7 +314,6 @@ describe("applyMediaUnderstanding", () => {
     expect((ctx as unknown as { BodyForAgent?: string }).BodyForAgent).toBe(ctx.Body);
   });
 
-<<<<<<< HEAD
   it("keeps caption for command parsing when audio has user text", async () => {
     const { applyMediaUnderstanding } = await loadApply();
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
@@ -353,30 +337,6 @@ describe("applyMediaUnderstanding", () => {
       },
     };
 
-=======
-  it("skips file blocks for text-like audio when transcription succeeds", async () => {
-    const ctx = await createAudioCtx({
-      fileName: "data.mp3",
-      mediaType: "audio/mpeg",
-      content: '"a","b"\n"1","2"',
-    });
-    const result = await applyMediaUnderstanding({
-      ctx,
-      cfg: createGroqAudioConfig(),
-      providers: createGroqProviders(),
-    });
-
-    expect(result.appliedAudio).toBe(true);
-    expect(result.appliedFile).toBe(false);
-    expect(ctx.Body).toBe("[Audio]\nTranscript:\ntranscribed text");
-    expect(ctx.Body).not.toContain("<file");
-  });
-
-  it("keeps caption for command parsing when audio has user text", async () => {
-    const ctx = await createAudioCtx({
-      body: "<media:audio> /capture status",
-    });
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const result = await applyMediaUnderstanding({
       ctx,
       cfg: createGroqAudioConfig(),
@@ -432,7 +392,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("skips audio transcription when attachment exceeds maxBytes", async () => {
-<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
@@ -444,9 +403,6 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: audioPath,
       MediaType: "audio/wav",
     };
-=======
-=======
->>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const ctx = await createAudioCtx({
       fileName: "large.wav",
       mediaType: "audio/wav",
@@ -478,7 +434,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("falls back to CLI model when provider fails", async () => {
-<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
@@ -491,9 +446,6 @@ describe("applyMediaUnderstanding", () => {
       MediaType: "audio/ogg",
     };
     const cfg: MoltbotConfig = {
-=======
-=======
->>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const ctx = await createAudioCtx();
     const cfg: OpenClawConfig = {
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
@@ -632,14 +584,10 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("uses CLI image understanding and preserves caption for commands", async () => {
-<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
-=======
-    const dir = await createMediaTempDir();
->>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
     const imagePath = path.join(dir, "photo.jpg");
     await fs.writeFile(imagePath, "image-bytes");
 =======
@@ -693,14 +641,10 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("uses shared media models list when capability config is missing", async () => {
-<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
-=======
-    const dir = await createMediaTempDir();
->>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
     const imagePath = path.join(dir, "shared.jpg");
     await fs.writeFile(imagePath, "image-bytes");
 =======
@@ -748,14 +692,10 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("uses active model when enabled and models are missing", async () => {
-<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
-=======
-    const dir = await createMediaTempDir();
->>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
     const audioPath = path.join(dir, "fallback.ogg");
     await fs.writeFile(audioPath, Buffer.from([0, 255, 0, 1, 2, 3, 4, 5, 6]));
 =======
@@ -799,14 +739,10 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("handles multiple audio attachments when attachment mode is all", async () => {
-<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
-=======
-    const dir = await createMediaTempDir();
->>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
 =======
 =======
 >>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
@@ -854,14 +790,10 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("orders mixed media outputs as image, audio, video", async () => {
-<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
-=======
-    const dir = await createMediaTempDir();
->>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
 =======
 =======
 >>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
@@ -924,17 +856,10 @@ describe("applyMediaUnderstanding", () => {
     expect(ctx.BodyForCommands).toBe("audio ok");
   });
 
-<<<<<<< HEAD
   it("treats text-like audio attachments as CSV (comma wins over tabs)", async () => {
     const { applyMediaUnderstanding } = await loadApply();
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
     const csvPath = path.join(dir, "data.mp3");
-=======
-  it("treats text-like attachments as CSV (comma wins over tabs)", async () => {
-<<<<<<< HEAD
-    const dir = await createMediaTempDir();
-    const csvPath = path.join(dir, "data.bin");
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const csvText = '"a","b"\t"c"\n"1","2"\t"3"';
     const csvBuffer = Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(csvText, "utf16le")]);
     await fs.writeFile(csvPath, csvBuffer);
@@ -946,7 +871,6 @@ describe("applyMediaUnderstanding", () => {
     });
 >>>>>>> 9ebfc99c1 (refactor(test): dedupe temp media fixture setup in apply e2e)
 
-<<<<<<< HEAD
     const ctx: MsgContext = {
       Body: "<media:audio>",
       MediaPath: csvPath,
@@ -963,12 +887,6 @@ describe("applyMediaUnderstanding", () => {
     };
 
     const result = await applyMediaUnderstanding({ ctx, cfg });
-=======
-    const { ctx, result } = await applyWithDisabledMedia({
-      body: "<media:file>",
-      mediaPath: csvPath,
-    });
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     expect(result.appliedFile).toBe(true);
     expect(ctx.Body).toContain('<file name="data.mp3" mime="text/csv">');
@@ -976,7 +894,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("infers TSV when tabs are present without commas", async () => {
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
@@ -1001,11 +918,6 @@ describe("applyMediaUnderstanding", () => {
     };
 
     const result = await applyMediaUnderstanding({ ctx, cfg });
-=======
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
-=======
-    const dir = await createMediaTempDir();
->>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
     const tsvPath = path.join(dir, "report.bin");
 =======
 >>>>>>> 9ebfc99c1 (refactor(test): dedupe temp media fixture setup in apply e2e)
@@ -1056,16 +968,11 @@ describe("applyMediaUnderstanding", () => {
     });
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
-<<<<<<< HEAD
     expect(result.appliedFile).toBe(true);
     expect(ctx.Body).toContain('<file name="report.mp3" mime="text/tab-separated-values">');
     expect(ctx.Body).toContain("a\tb\tc");
-=======
-    expectFileNotApplied({ ctx, result, body: "<media:audio>" });
->>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
   });
 
-<<<<<<< HEAD
 <<<<<<< HEAD
   // Windows NTFS disallows < and > in filenames; XML escaping is
   // platform-independent string logic tested adequately on Linux/macOS.
@@ -1111,28 +1018,6 @@ describe("applyMediaUnderstanding", () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
     const filePath = path.join(dir, "data.txt");
     await fs.writeFile(filePath, "test content");
-=======
-=======
-  it("does not reclassify PDF attachments as text/plain", async () => {
-    const pseudoPdf = Buffer.from("%PDF-1.7\n1 0 obj\n<< /Type /Catalog >>\nendobj\n", "utf8");
-    const filePath = await createTempMediaFile({
-      fileName: "report.pdf",
-      content: pseudoPdf,
-    });
-
-    const cfg = createMediaDisabledConfigWithAllowedMimes(["text/plain"]);
-
-    const { ctx, result } = await applyWithDisabledMedia({
-      body: "<media:file>",
-      mediaPath: filePath,
-      mediaType: "application/pdf",
-      cfg,
-    });
-
-    expectFileNotApplied({ ctx, result, body: "<media:file>" });
-  });
-
->>>>>>> 6d11b4699 (Media: preserve PDF MIME classification in file extraction)
   it("respects configured allowedMimes for text-like attachments", async () => {
     const tsvText = "a\tb\tc\n1\t2\t3";
     const tsvPath = await createTempMediaFile({
@@ -1193,23 +1078,15 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("normalizes MIME types to prevent attribute injection", async () => {
-<<<<<<< HEAD
     const dir = await createMediaTempDir();
     const filePath = path.join(dir, "data.json");
     await fs.writeFile(filePath, JSON.stringify({ ok: true }));
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
-=======
-    const filePath = await createTempMediaFile({
-      fileName: "data.json",
-      content: JSON.stringify({ ok: true }),
-    });
->>>>>>> 9ebfc99c1 (refactor(test): dedupe temp media fixture setup in apply e2e)
 
     const { ctx, result } = await applyWithDisabledMedia({
       body: "<media:document>",
       mediaPath: filePath,
       // Attempt to inject via MIME type with quotes - normalization should strip this
-<<<<<<< HEAD
       MediaType: 'text/plain" onclick="alert(1)',
     };
     const cfg: MoltbotConfig = {
@@ -1223,10 +1100,6 @@ describe("applyMediaUnderstanding", () => {
     };
 
     const result = await applyMediaUnderstanding({ ctx, cfg });
-=======
-      mediaType: 'application/json" onclick="alert(1)',
-    });
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     expect(result.appliedFile).toBe(true);
     // MIME normalization strips everything after first ; or " - verify injection is blocked
@@ -1239,12 +1112,8 @@ describe("applyMediaUnderstanding", () => {
   it("handles path traversal attempts in filenames safely", async () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
-=======
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 =======
     const dir = await createMediaTempDir();
 >>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
@@ -1256,7 +1125,6 @@ describe("applyMediaUnderstanding", () => {
       content: "legitimate content",
     });
 
-<<<<<<< HEAD
     const ctx: MsgContext = {
       Body: "<media:document>",
       MediaPath: filePath,
@@ -1273,13 +1141,6 @@ describe("applyMediaUnderstanding", () => {
     };
 
     const result = await applyMediaUnderstanding({ ctx, cfg });
-=======
-    const { ctx, result } = await applyWithDisabledMedia({
-      body: "<media:document>",
-      mediaPath: filePath,
-      mediaType: "text/plain",
-    });
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     expect(result.appliedFile).toBe(true);
     // Verify the file was processed and output contains expected structure
@@ -1288,7 +1149,6 @@ describe("applyMediaUnderstanding", () => {
     expect(ctx.Body).toContain("legitimate content");
   });
 
-<<<<<<< HEAD
   it("handles files with non-ASCII Unicode filenames", async () => {
     const { applyMediaUnderstanding } = await loadApply();
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
@@ -1311,36 +1171,6 @@ describe("applyMediaUnderstanding", () => {
     };
 
     const result = await applyMediaUnderstanding({ ctx, cfg });
-=======
-  it("forces BodyForCommands when only file blocks are added", async () => {
-    const filePath = await createTempMediaFile({
-      fileName: "notes.txt",
-      content: "file content",
-    });
-
-    const { ctx, result } = await applyWithDisabledMedia({
-      body: "<media:document>",
-      mediaPath: filePath,
-      mediaType: "text/plain",
-    });
-
-    expect(result.appliedFile).toBe(true);
-    expect(ctx.Body).toContain('<file name="notes.txt" mime="text/plain">');
-    expect(ctx.BodyForCommands).toBe(ctx.Body);
-  });
-
-  it("handles files with non-ASCII Unicode filenames", async () => {
-    const filePath = await createTempMediaFile({
-      fileName: "文档.txt",
-      content: "中文内容",
-    });
-
-    const { ctx, result } = await applyWithDisabledMedia({
-      body: "<media:document>",
-      mediaPath: filePath,
-      mediaType: "text/plain",
-    });
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     expect(result.appliedFile).toBe(true);
     expect(ctx.Body).toContain("中文内容");

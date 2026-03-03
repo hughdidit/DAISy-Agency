@@ -56,8 +56,6 @@ describe("infra parsing", () => {
       ).toBe(true);
     });
 
-<<<<<<< HEAD
-=======
     it("returns true for dist/entry.js when launched via openclaw.mjs wrapper", () => {
       expect(
         isMainModule({
@@ -93,7 +91,6 @@ describe("infra parsing", () => {
       ).toBe(false);
     });
 
->>>>>>> edaa5ef7a (refactor(gateway): simplify restart flow and expand lock tests)
     it("returns false when running under PM2 but this module is imported", () => {
       expect(
         isMainModule({

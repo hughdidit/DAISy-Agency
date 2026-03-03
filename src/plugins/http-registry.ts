@@ -3,11 +3,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import { normalizePluginHttpPath } from "./http-path.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { PluginHttpRouteRegistration, PluginRegistry } from "./registry.js";

@@ -1,15 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 import path from "node:path";
 
-=======
-import os from "node:os";
-import path from "node:path";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -34,7 +29,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -49,19 +43,13 @@ import {
 import { resolvePluginSkillDirs } from "./plugin-skills.js";
 import { serializeByKey } from "./serialize.js";
 =======
-=======
->>>>>>> ed11e93cf (chore(format))
-=======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> d85150357 (feat: support .agents/skills/ directory for cross-agent skill discovery (#9966))
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
@@ -73,11 +61,6 @@ import type {
 } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -105,11 +88,7 @@ import { serializeByKey } from "./serialize.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
-=======
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
@@ -120,10 +99,7 @@ import type {
   SkillSnapshot,
 } from "./types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -548,7 +524,6 @@ function applySkillsPromptLimits(params: { skills: Skill[]; config?: OpenClawCon
 
 export function buildWorkspaceSkillSnapshot(
   workspaceDir: string,
-<<<<<<< HEAD
   opts?: {
     config?: MoltbotConfig;
     managedSkillsDir?: string;
@@ -584,11 +559,6 @@ export function buildWorkspaceSkillSnapshot(
   const prompt = [remoteNote, truncationNote, formatSkillsForPrompt(compactSkillPaths(skillsForPrompt))]
     .filter(Boolean)
     .join("\n");
-=======
-  opts?: WorkspaceSkillBuildOptions & { snapshotVersion?: number },
-): SkillSnapshot {
-  const { eligible, prompt, resolvedSkills } = resolveWorkspaceSkillPromptState(workspaceDir, opts);
->>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
   const skillFilter = normalizeSkillFilter(opts?.skillFilter);
   return {
     prompt,
@@ -605,7 +575,6 @@ export function buildWorkspaceSkillSnapshot(
 
 export function buildWorkspaceSkillsPrompt(
   workspaceDir: string,
-<<<<<<< HEAD
   opts?: {
     config?: MoltbotConfig;
     managedSkillsDir?: string;
@@ -615,9 +584,6 @@ export function buildWorkspaceSkillsPrompt(
     skillFilter?: string[];
     eligibility?: SkillEligibilityContext;
   },
-=======
-  opts?: WorkspaceSkillBuildOptions,
->>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
 ): string {
   return resolveWorkspaceSkillPromptState(workspaceDir, opts).prompt;
 }
@@ -726,28 +692,7 @@ export async function syncSkillsToWorkspace(params: {
     await fsp.mkdir(targetSkillsDir, { recursive: true });
 
     for (const entry of entries) {
-<<<<<<< HEAD
       const dest = path.join(targetSkillsDir, entry.skill.name);
-=======
-      let dest: string | null = null;
-      try {
-        dest = resolveSyncedSkillDestinationPath({
-          targetSkillsDir,
-          entry,
-          usedDirNames,
-        });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : JSON.stringify(error);
-        skillsLogger.warn(`Failed to resolve safe destination for ${entry.skill.name}: ${message}`);
-        continue;
-      }
-      if (!dest) {
-        skillsLogger.warn(
-          `Failed to resolve safe destination for ${entry.skill.name}: invalid source directory name`,
-        );
-        continue;
-      }
->>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
       try {
         await fsp.cp(entry.skill.baseDir, dest, {
           recursive: true,

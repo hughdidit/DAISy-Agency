@@ -41,17 +41,11 @@ afterEach(() => {
 });
 
 function clearSupervisorHints() {
-<<<<<<< HEAD
   delete process.env.LAUNCH_JOB_LABEL;
   delete process.env.LAUNCH_JOB_NAME;
   delete process.env.INVOCATION_ID;
   delete process.env.SYSTEMD_EXEC_PID;
   delete process.env.JOURNAL_STREAM;
-=======
-  for (const key of SUPERVISOR_HINT_ENV_VARS) {
-    delete process.env[key];
-  }
->>>>>>> 4da6a7f21 (refactor(restart): extract stale pid cleanup and supervisor markers)
 }
 
 describe("restartGatewayProcessWithFreshPid", () => {
@@ -130,8 +124,6 @@ describe("restartGatewayProcessWithFreshPid", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("returns supervised when OPENCLAW_LAUNCHD_LABEL is set (stock launchd plist)", () => {
     clearSupervisorHints();
     setPlatform("darwin");
@@ -159,7 +151,6 @@ describe("restartGatewayProcessWithFreshPid", () => {
     expect(spawnMock).not.toHaveBeenCalled();
   });
 
->>>>>>> db67492a0 (fix(infra): actively kickstart launchd on supervised gateway restart)
   it("returns failed when spawn throws", () => {
     delete process.env.OPENCLAW_NO_RESPAWN;
     clearSupervisorHints();

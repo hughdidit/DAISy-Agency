@@ -14,14 +14,8 @@ Hooks provide an extensible event-driven system for automating actions in respon
 Hooks are small scripts that run when something happens. There are two kinds:
 
 - **Hooks** (this page): run inside the Gateway when agent events fire, like `/new`, `/reset`, `/stop`, or lifecycle events.
-<<<<<<< HEAD
 - **Webhooks**: external HTTP webhooks that let other systems trigger work in Moltbot. See [Webhook Hooks](/automation/webhook) or use `moltbot webhooks` for Gmail helper commands.
   
-=======
-- **Webhooks**: external HTTP webhooks that let other systems trigger work in OpenClaw. See [Webhook Hooks](/automation/webhook) or use `openclaw webhooks` for Gmail helper commands.
-
-<<<<<<< HEAD:docs/hooks.md
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 Hooks can also be bundled inside plugins; see [Plugins](/plugin#plugin-hooks).
 =======
 Hooks can also be bundled inside plugins; see [Plugins](/tools/plugin#plugin-hooks).
@@ -49,18 +43,10 @@ The hooks system allows you to:
 
 ### Bundled Hooks
 
-<<<<<<< HEAD
 Moltbot ships with four bundled hooks that are automatically discovered:
 
 - **💾 session-memory**: Saves session context to your agent workspace (default `~/clawd/memory/`) when you issue `/new`
 - **📝 command-logger**: Logs all command events to `~/.clawdbot/logs/commands.log`
-=======
-OpenClaw ships with four bundled hooks that are automatically discovered:
-
-- **💾 session-memory**: Saves session context to your agent workspace (default `~/.openclaw/workspace/memory/`) when you issue `/new`
-- **📎 bootstrap-extra-files**: Injects additional workspace bootstrap files from configured glob/path patterns during `agent:bootstrap`
-- **📝 command-logger**: Logs all command events to `~/.openclaw/logs/commands.log`
->>>>>>> ab71fdf82 (Plugin API: compaction/reset hooks, bootstrap file globs, memory plugin status (#13287))
 - **🚀 boot-md**: Runs `BOOT.md` when the gateway starts (requires internal hooks enabled)
 - **😈 soul-evil**: Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by random chance
 
@@ -145,14 +131,8 @@ The `HOOK.md` file contains metadata in YAML frontmatter plus Markdown documenta
 name: my-hook
 description: "Short description of what this hook does"
 <<<<<<< HEAD
-<<<<<<< HEAD
 homepage: https://docs.molt.bot/hooks#my-hook
 metadata: {"moltbot":{"emoji":"🔗","events":["command:new"],"requires":{"bins":["node"]}}}
-=======
-homepage: https://docs.openclaw.ai/hooks#my-hook
-=======
-homepage: https://docs.openclaw.ai/automation/hooks#my-hook
->>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 metadata:
   { "openclaw": { "emoji": "🔗", "events": ["command:new"], "requires": { "bins": ["node"] } } }
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
@@ -240,17 +220,7 @@ Each event includes:
     senderId?: string,
     workspaceDir?: string,
     bootstrapFiles?: WorkspaceBootstrapFile[],
-<<<<<<< HEAD
     cfg?: MoltbotConfig
-=======
-    cfg?: OpenClawConfig,
-    // Message events (see Message Events section for full details):
-    from?: string,             // message:received
-    to?: string,               // message:sent
-    content?: string,
-    channelId?: string,
-    success?: boolean,         // message:sent
->>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
   }
 }
 ```
@@ -374,11 +344,7 @@ cd ~/.clawdbot/hooks/my-hook
 ---
 name: my-hook
 description: "Does something useful"
-<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"🎯","events":["command:new"]}}
-=======
-metadata: { "openclaw": { "emoji": "🎯", "events": ["command:new"] } }
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ---
 
 # My Custom Hook
@@ -781,21 +747,13 @@ const handler: HookHandler = async (event) => {
 Specify exact events in metadata when possible:
 
 ```yaml
-<<<<<<< HEAD
 metadata: {"moltbot":{"events":["command:new"]}}  # Specific
-=======
-metadata: { "openclaw": { "events": ["command:new"] } } # Specific
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ```
 
 Rather than:
 
 ```yaml
-<<<<<<< HEAD
 metadata: {"moltbot":{"events":["command"]}}      # General - more overhead
-=======
-metadata: { "openclaw": { "events": ["command"] } } # General - more overhead
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ```
 
 ## Debugging
@@ -1020,11 +978,7 @@ node -e "import('./path/to/handler.ts').then(console.log)"
    ---
    name: my-hook
    description: "My custom hook"
-<<<<<<< HEAD
    metadata: {"moltbot":{"emoji":"🎯","events":["command:new"]}}
-=======
-   metadata: { "openclaw": { "emoji": "🎯", "events": ["command:new"] } }
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    ---
 
    # My Hook

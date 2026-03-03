@@ -7,12 +7,7 @@ read_when:
 
 # Channel location parsing
 
-<<<<<<< HEAD
 Moltbot normalizes shared locations from chat channels into:
-=======
-OpenClaw normalizes shared locations from chat channels into:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - human-readable text appended to the inbound body, and
 - structured fields in the auto-reply context payload.
 

@@ -1,19 +1,8 @@
 import { z } from "zod";
-<<<<<<< HEAD
 
 =======
-import { parseByteSize } from "../cli/parse-bytes.js";
-import { parseDurationMs } from "../cli/parse-duration.js";
-import { ElevatedAllowFromSchema } from "./zod-schema.agent-runtime.js";
-<<<<<<< HEAD
->>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
-=======
 import { createAllowDenyChannelRulesSchema } from "./zod-schema.allowdeny.js";
-<<<<<<< HEAD
 >>>>>>> 747b11c83 (refactor(config): share allow/deny channel policy schema)
-=======
-import { sensitive } from "./zod-schema.sensitive.js";
->>>>>>> 9abab6a2c (Add explicit ownerDisplaySecret for owner ID hash obfuscation (#22520))
 import {
   GroupChatSchema,
   InboundDebounceSchema,
@@ -71,8 +60,6 @@ export const SessionSchema = z
       })
       .strict()
       .optional(),
-<<<<<<< HEAD
-=======
     threadBindings: z
       .object({
         enabled: z.boolean().optional(),
@@ -152,7 +139,6 @@ export const SessionSchema = z
         }
       })
       .optional(),
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   })
   .strict()
   .optional();
@@ -215,20 +201,11 @@ export const CommandsSchema = z
     debug: z.boolean().optional(),
     restart: z.boolean().optional().default(true),
     useAccessGroups: z.boolean().optional(),
-<<<<<<< HEAD
-=======
     ownerAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
     ownerDisplay: z.enum(["raw", "hash"]).optional().default("raw"),
     ownerDisplaySecret: z.string().optional().register(sensitive),
     allowFrom: ElevatedAllowFromSchema.optional(),
->>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
   })
   .strict()
   .optional()
-<<<<<<< HEAD
   .default({ native: "auto", nativeSkills: "auto", restart: true });
-=======
-  .default(
-    () => ({ native: "auto", nativeSkills: "auto", restart: true, ownerDisplay: "raw" }) as const,
-  );
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))

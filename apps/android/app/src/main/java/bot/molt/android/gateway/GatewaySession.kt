@@ -154,12 +154,7 @@ class GatewaySession(
       conn.request("node.event", params, timeoutMs = 8_000)
       return true
     } catch (err: Throwable) {
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/gateway/GatewaySession.kt
       Log.w("MoltbotGateway", "node.event failed: ${err.message ?: err::class.java.simpleName}")
-=======
-      Log.w("OpenClawGateway", "node.event failed: ${err.message ?: err::class.java.simpleName}")
-      return false
->>>>>>> 81752564e (refactor(android): return sendNodeEvent status to callers):apps/android/app/src/main/java/ai/openclaw/android/gateway/GatewaySession.kt
     }
   }
 

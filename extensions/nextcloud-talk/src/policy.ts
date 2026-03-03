@@ -1,13 +1,4 @@
-<<<<<<< HEAD
 import type { AllowlistMatch, ChannelGroupContext, GroupPolicy, GroupToolPolicyConfig } from "clawdbot/plugin-sdk";
-=======
-import type {
-  AllowlistMatch,
-  ChannelGroupContext,
-  GroupPolicy,
-  GroupToolPolicyConfig,
-} from "openclaw/plugin-sdk";
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 import {
   buildChannelKeyCandidates,
   normalizeChannelSlug,

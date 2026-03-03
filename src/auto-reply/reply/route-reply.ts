@@ -15,14 +15,10 @@ import { normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
-=======
-import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../../utils/message-channel.js";
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import { buildOutboundSessionContext } from "../../infra/outbound/session-context.js";
@@ -91,12 +87,9 @@ export type RouteReplyResult = {
  */
 export async function routeReply(params: RouteReplyParams): Promise<RouteReplyResult> {
   const { payload, channel, to, accountId, threadId, cfg, abortSignal } = params;
-<<<<<<< HEAD
-=======
   if (shouldSuppressReasoningPayload(payload)) {
     return { ok: true };
   }
->>>>>>> 5c6b2cbc8 (refactor: extract iMessage echo cache and unify suppression guards)
   const normalizedChannel = normalizeMessageChannel(channel);
 
   // Debug: `pnpm test src/auto-reply/reply/route-reply.test.ts`
@@ -169,10 +162,7 @@ export async function routeReply(params: RouteReplyParams): Promise<RouteReplyRe
       payloads: [normalized],
       replyToId: resolvedReplyToId ?? null,
       threadId: resolvedThreadId,
-<<<<<<< HEAD
-=======
       session: outboundSession,
->>>>>>> a1628d89e (refactor: unify outbound session context wiring)
       abortSignal,
       mirror:
         params.mirror !== false && params.sessionKey

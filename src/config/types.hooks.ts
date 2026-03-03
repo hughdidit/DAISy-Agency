@@ -86,7 +86,6 @@ export type HookConfig = {
   [key: string]: unknown;
 };
 
-<<<<<<< HEAD
 export type HookInstallRecord = {
   source: "npm" | "archive" | "path";
   spec?: string;
@@ -94,9 +93,6 @@ export type HookInstallRecord = {
   installPath?: string;
   version?: string;
   installedAt?: string;
-=======
-export type HookInstallRecord = InstallRecordBase & {
->>>>>>> e029f7844 (refactor(config): dedupe install and typing schema definitions)
   hooks?: string[];
 };
 

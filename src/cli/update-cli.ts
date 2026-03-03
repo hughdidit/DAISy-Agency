@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { confirm, isCancel, select, spinner } from "@clack/prompts";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
@@ -7,35 +6,8 @@ import path from "node:path";
 <<<<<<< HEAD
 import type { Command } from "commander";
 
-=======
-import {
-  checkShellCompletionStatus,
-  ensureCompletionCacheExists,
-} from "../commands/doctor-completion.js";
-import {
-  formatUpdateAvailableHint,
-  formatUpdateOneLiner,
-  resolveUpdateAvailability,
-} from "../commands/status.update.js";
->>>>>>> dbaf0a8ae (update: use shared completion helpers for shell completion setup)
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
-<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
-=======
-import { resolveStateDir } from "../config/paths.js";
-import { formatDurationPrecise } from "../infra/format-time/format-duration.ts";
-import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
-import { trimLogTail } from "../infra/restart-sentinel.js";
-import { parseSemver } from "../infra/runtime-guard.js";
-import {
-  channelToNpmTag,
-  DEFAULT_GIT_CHANNEL,
-  DEFAULT_PACKAGE_CHANNEL,
-  formatUpdateChannelLabel,
-  normalizeUpdateChannel,
-  resolveEffectiveUpdateChannel,
-} from "../infra/update-channels.js";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import {
   checkUpdateStatus,
   compareSemverStrings,
@@ -69,29 +41,21 @@ import {
 import { trimLogTail } from "../infra/restart-sentinel.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
-<<<<<<< HEAD
-=======
 import { stylePromptHint, stylePromptMessage } from "../terminal/prompt-style.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
 import { pathExists } from "../utils.js";
 import { replaceCliName, resolveCliName } from "./cli-name.js";
->>>>>>> 53910f364 (Deduplicate more)
 import { formatCliCommand } from "./command-format.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 import { replaceCliName, resolveCliName } from "./cli-name.js";
 import { stylePromptHint, stylePromptMessage } from "../terminal/prompt-style.js";
 import { theme } from "../terminal/theme.js";
 import { renderTable } from "../terminal/table.js";
 =======
-import { installCompletion, isCompletionInstalled, resolveShellFromEnv } from "./completion-cli.js";
->>>>>>> 1d17630dc (feat: add shell completion installation prompt to CLI update command)
-=======
 import { installCompletion } from "./completion-cli.js";
 >>>>>>> dbaf0a8ae (update: use shared completion helpers for shell completion setup)
 import { formatHelpExamples } from "./help-format.js";
-<<<<<<< HEAD
 import {
   formatUpdateAvailableHint,
   formatUpdateOneLiner,
@@ -99,9 +63,6 @@ import {
 } from "../commands/status.update.js";
 import { syncPluginsForUpdateChannel, updateNpmInstalledPlugins } from "../plugins/update.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-=======
-import { suppressDeprecations } from "./update-cli/suppress-deprecations.js";
->>>>>>> 971ac0886 (fix(cli): guard against read-only process.noDeprecation on Node.js v23+ (#14152))
 
 export type UpdateCommandOptions = {
   json?: boolean;
@@ -131,16 +92,8 @@ const STEP_LABELS: Record<string, string> = {
   "preflight cleanup": "Cleaning preflight worktree",
   "deps install": "Installing dependencies",
   build: "Building",
-<<<<<<< HEAD
   "ui:build": "Building UI",
   "moltbot doctor": "Running doctor checks",
-=======
-  "ui:build": "Building UI assets",
-  "ui:build (post-doctor repair)": "Restoring missing UI assets",
-  "ui assets verify": "Validating UI assets",
-  "openclaw doctor entry": "Checking doctor entrypoint",
-  "openclaw doctor": "Running doctor checks",
->>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
   "git rev-parse HEAD (after)": "Verifying update",
   "global update": "Updating via package manager",
   "global install": "Installing global package",
@@ -181,17 +134,8 @@ function normalizeTag(value?: string | null): string | null {
     return null;
   }
   const trimmed = value.trim();
-<<<<<<< HEAD
   if (!trimmed) return null;
   if (trimmed.startsWith("moltbot@")) return trimmed.slice("moltbot@".length);
-=======
-  if (!trimmed) {
-    return null;
-  }
-  if (trimmed.startsWith("openclaw@")) {
-    return trimmed.slice("openclaw@".length);
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   if (trimmed.startsWith(`${DEFAULT_PACKAGE_NAME}@`)) {
     return trimmed.slice(`${DEFAULT_PACKAGE_NAME}@`.length);
   }
@@ -349,19 +293,8 @@ async function isEmptyDir(targetPath: string): Promise<boolean> {
 }
 
 function resolveGitInstallDir(): string {
-<<<<<<< HEAD
   const override = process.env.CLAWDBOT_GIT_DIR?.trim();
   if (override) return path.resolve(override);
-=======
-  const override = process.env.OPENCLAW_GIT_DIR?.trim();
-  if (override) {
-    return path.resolve(override);
-  }
-  return resolveDefaultGitDir();
-}
-
-function resolveDefaultGitDir(): string {
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return DEFAULT_GIT_DIR;
 }
 
@@ -1330,11 +1263,7 @@ function inheritedUpdateTimeout(
 export function registerUpdateCli(program: Command) {
   const update = program
     .command("update")
-<<<<<<< HEAD
     .description("Update Moltbot to the latest version")
-=======
-    .description("Update OpenClaw and inspect update channel status")
->>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
     .option("--json", "Output result as JSON", false)
     .option("--no-restart", "Skip restarting the gateway service after a successful update")
     .option("--dry-run", "Preview update actions without making changes", false)
@@ -1344,7 +1273,6 @@ export function registerUpdateCli(program: Command) {
     .option("--yes", "Skip confirmation prompts (non-interactive)", false)
     .addHelpText("after", () => {
       const examples = [
-<<<<<<< HEAD
         ["moltbot update", "Update a source checkout (git)"],
         ["moltbot update --channel beta", "Switch to beta channel (git + npm)"],
         ["moltbot update --channel dev", "Switch to dev channel (git + npm)"],
@@ -1354,18 +1282,6 @@ export function registerUpdateCli(program: Command) {
         ["moltbot update --yes", "Non-interactive (accept downgrade prompts)"],
         ["moltbot update wizard", "Interactive update wizard"],
         ["moltbot --update", "Shorthand for moltbot update"],
-=======
-        ["openclaw update", "Update a source checkout (git)"],
-        ["openclaw update --channel beta", "Switch to beta channel (git + npm)"],
-        ["openclaw update --channel dev", "Switch to dev channel (git + npm)"],
-        ["openclaw update --tag beta", "One-off update to a dist-tag or version"],
-        ["openclaw update --dry-run", "Preview actions without changing anything"],
-        ["openclaw update --no-restart", "Update without restarting the service"],
-        ["openclaw update --json", "Output result as JSON"],
-        ["openclaw update --yes", "Non-interactive (accept downgrade prompts)"],
-        ["openclaw update wizard", "Interactive update wizard"],
-        ["openclaw --update", "Shorthand for openclaw update"],
->>>>>>> f442a3539 (feat(update): add core auto-updater and dry-run preview)
       ] as const;
       const fmtExamples = examples
         .map(([cmd, desc]) => `  ${theme.command(cmd)} ${theme.muted(`# ${desc}`)}`)
@@ -1423,13 +1339,7 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.molt.bot/cli/updat
     )
     .action(async (opts, command) => {
       try {
-<<<<<<< HEAD
         await updateWizardCommand({ timeout: opts.timeout as string | undefined });
-=======
-        await updateWizardCommand({
-          timeout: inheritedUpdateTimeout(opts, command),
-        });
->>>>>>> 985ec71c5 (CLI: resolve parent/subcommand option collisions (#18725))
       } catch (err) {
         defaultRuntime.error(String(err));
         defaultRuntime.exit(1);

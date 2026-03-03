@@ -35,21 +35,12 @@ export type EnvSecretSourceConfig = {
   type?: "env";
 };
 
-<<<<<<< HEAD
 export type SopsSecretSourceConfig = {
   type: "sops";
-=======
-export type FileSecretProviderMode = "singleValue" | "json";
-
-export type FileSecretProviderConfig = {
-  source: "file";
->>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
   path: string;
   timeoutMs?: number;
 };
 
-<<<<<<< HEAD
-=======
 export type ExecSecretProviderConfig = {
   source: "exec";
   command: string;
@@ -70,7 +61,6 @@ export type SecretProviderConfig =
   | FileSecretProviderConfig
   | ExecSecretProviderConfig;
 
->>>>>>> f46b9c996 (feat(secrets): allow opt-in symlink exec command paths)
 export type SecretsConfig = {
   sources?: {
     env?: EnvSecretSourceConfig;

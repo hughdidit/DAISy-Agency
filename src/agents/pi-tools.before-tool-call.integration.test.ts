@@ -172,8 +172,6 @@ describe("before_tool_call hook deduplication (#15502)", () => {
 
     expect(hookRunner.runBeforeToolCall).toHaveBeenCalledTimes(1);
   });
-<<<<<<< HEAD
-=======
 
   it("fires hook exactly once when tool goes through wrap + abort + toToolDefinitions", async () => {
     const execute = vi.fn().mockResolvedValue({ content: [], details: { ok: true } });
@@ -199,7 +197,6 @@ describe("before_tool_call hook deduplication (#15502)", () => {
 
     expect(hookRunner.runBeforeToolCall).toHaveBeenCalledTimes(1);
   });
->>>>>>> f8b9e26c4 (test: pass extensionContext in abort dedupe e2e)
 });
 
 describe("before_tool_call hook integration for client tools", () => {

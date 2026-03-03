@@ -90,13 +90,8 @@ export async function generateWaveform(filePath: string): Promise<string> {
  * Generate waveform by extracting raw PCM data and sampling amplitudes
  */
 async function generateWaveformFromPcm(filePath: string): Promise<string> {
-<<<<<<< HEAD
   const tempDir = os.tmpdir();
   const tempPcm = path.join(tempDir, `waveform-${Date.now()}.raw`);
-=======
-  const tempDir = resolvePreferredOpenClawTmpDir();
-  const tempPcm = path.join(tempDir, `waveform-${crypto.randomUUID()}.raw`);
->>>>>>> 725741486 (fix(discord): harden voice message media loading)
 
   try {
     // Convert to raw 16-bit signed PCM, mono, 8kHz
@@ -204,13 +199,8 @@ export async function ensureOggOpus(filePath: string): Promise<{ path: string; c
   }
 
   // Convert to OGG/Opus
-<<<<<<< HEAD
   const tempDir = os.tmpdir();
   const outputPath = path.join(tempDir, `voice-${Date.now()}.ogg`);
-=======
-  const tempDir = resolvePreferredOpenClawTmpDir();
-  const outputPath = path.join(tempDir, `voice-${crypto.randomUUID()}.ogg`);
->>>>>>> 725741486 (fix(discord): harden voice message media loading)
 
   await execFileAsync("ffmpeg", [
     "-y",
@@ -266,7 +256,6 @@ export async function sendDiscordVoiceMessage(
   const filename = "voice-message.ogg";
   const fileSize = audioBuffer.byteLength;
 
-<<<<<<< HEAD
   // Step 1: Request upload URL (using fetch directly for proper headers)
   const uploadUrlRes = await fetch(
     `https://discord.com/api/v10/channels/${channelId}/attachments`,
@@ -294,24 +283,6 @@ export async function sendDiscordVoiceMessage(
   }
 
   const uploadUrlResponse = (await uploadUrlRes.json()) as UploadUrlResponse;
-=======
-  // Step 1: Request upload URL from Discord
-  const uploadUrlResponse = await request(
-    () =>
-      rest.post(`/channels/${channelId}/attachments`, {
-        body: {
-          files: [
-            {
-              filename,
-              file_size: fileSize,
-              id: "0",
-            },
-          ],
-        },
-      }) as Promise<UploadUrlResponse>,
-    "voice-upload-url",
-  );
->>>>>>> 1c9c01ff4 (Discord: refine voice message handling)
 
   if (!uploadUrlResponse.attachments?.[0]) {
     throw new Error("Failed to get upload URL for voice message");

@@ -153,21 +153,11 @@ moltbot onboard --auth-choice setup-token
   gateway host, then verify with `moltbot models status`.
 
 **No credentials found for profile `anthropic:default`**
-<<<<<<< HEAD
 - Run `moltbot models status` to see which auth profile is active.
 - Re-run onboarding, or paste a setup-token / API key for that profile.
 
 **No available auth profile (all in cooldown/unavailable)**
 - Check `moltbot models status --json` for `auth.unusableProfiles`.
-=======
-
-- Run `openclaw models status` to see which auth profile is active.
-- Re-run onboarding, or paste a setup-token / API key for that profile.
-
-**No available auth profile (all in cooldown/unavailable)**
-
-- Check `openclaw models status --json` for `auth.unusableProfiles`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Add another Anthropic profile or wait for cooldown.
 
 More: [/gateway/troubleshooting](/gateway/troubleshooting) and [/help/faq](/help/faq).

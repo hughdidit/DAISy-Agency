@@ -3,7 +3,6 @@ import path from "node:path";
 
 import { beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 
@@ -24,11 +23,6 @@ vi.mock("../agents/model-catalog.js", () => ({
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -51,11 +45,8 @@ import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -72,12 +63,8 @@ import { setActivePluginRegistry } from "../plugins/runtime.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { agentCommand } from "./agent.js";
-<<<<<<< HEAD
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
-=======
-import * as agentDeliveryModule from "./agent/delivery.js";
->>>>>>> 712e23172 (fix(agent): forward resolved outbound session context for delivery)
 
 vi.mock("../agents/auth-profiles.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../agents/auth-profiles.js")>();
@@ -122,13 +109,8 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 function mockConfig(
   home: string,
   storePath: string,
-<<<<<<< HEAD
   agentOverrides?: Partial<NonNullable<NonNullable<MoltbotConfig["agents"]>["defaults"]>>,
   telegramOverrides?: Partial<NonNullable<MoltbotConfig["telegram"]>>,
-=======
-  agentOverrides?: Partial<NonNullable<NonNullable<OpenClawConfig["agents"]>["defaults"]>>,
-  telegramOverrides?: Partial<NonNullable<NonNullable<OpenClawConfig["channels"]>["telegram"]>>,
->>>>>>> ecf1c955a (chore: Fix types in tests 29/N.)
   agentsList?: Array<{ id: string; default?: boolean }>,
 ) {
   configSpy.mockReturnValue({

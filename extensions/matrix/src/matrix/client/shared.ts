@@ -1,22 +1,13 @@
 import { LogService } from "@vector-im/matrix-bot-sdk";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
 
 import type { CoreConfig } from "../types.js";
-=======
-=======
-import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
->>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import { resolveMatrixAuth } from "./config.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { createMatrixClient } from "./create-client.js";
-<<<<<<< HEAD
 import { resolveMatrixAuth } from "./config.js";
-=======
-import { startMatrixClientWithGrace } from "./startup.js";
->>>>>>> dc816b84e (refactor(matrix): unify startup + split monitor config flow)
 import { DEFAULT_ACCOUNT_KEY } from "./storage.js";
 import type { MatrixAuth } from "./types.js";
 
@@ -93,7 +84,6 @@ async function ensureSharedClientStarted(params: {
       }
     }
 
-<<<<<<< HEAD
     // bot-sdk start() returns a promise that never resolves (infinite sync loop).
     // Fire-and-forget: the sync loop runs, events fire on the client,
     // but we must not await or the entire provider startup hangs.
@@ -103,15 +93,6 @@ async function ensureSharedClientStarted(params: {
     });
     // Give the sync loop a moment to initialize
     await new Promise(resolve => setTimeout(resolve, 2000));
-=======
-    await startMatrixClientWithGrace({
-      client,
-      onError: (err: unknown) => {
-        params.state.started = false;
-        LogService.error("MatrixClientLite", "client.start() error:", err);
-      },
-    });
->>>>>>> dc816b84e (refactor(matrix): unify startup + split monitor config flow)
     params.state.started = true;
   })();
   try {

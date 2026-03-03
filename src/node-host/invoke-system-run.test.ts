@@ -144,8 +144,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("handles transparent env wrappers in allowlist mode", async () => {
     const { runCommand, sendInvokeResult } = await runSystemInvoke({
@@ -419,7 +417,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
   });
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   it("denies ./sh wrapper spoof in allowlist on-miss mode before execution", async () => {
     const marker = path.join(os.tmpdir(), `openclaw-wrapper-spoof-${process.pid}-${Date.now()}`);
     const runCommand = vi.fn(async () => {
@@ -483,8 +480,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     }
   });
 
-<<<<<<< HEAD
-=======
   it("denies ./skill-bin even when autoAllowSkills trust entry exists", async () => {
     const runCommand = vi.fn(async () => ({
       success: true,
@@ -556,7 +551,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     );
   });
 
->>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
   it("denies env -S shell payloads in allowlist mode", async () => {
     const { runCommand, sendInvokeResult } = await runSystemInvoke({
       preferMacAppExecHost: false,
@@ -573,80 +567,5 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       }),
     );
   });
-<<<<<<< HEAD
 >>>>>>> 60f1d1959 (test: stabilize invoke-system-run env-wrapper assertion on Windows)
-=======
-
-  it("denies nested env shell payloads when wrapper depth is exceeded", async () => {
-    if (process.platform === "win32") {
-      return;
-    }
-    const runCommand = vi.fn(async () => {
-      throw new Error("runCommand should not be called for nested env depth overflow");
-    });
-    const sendInvokeResult = vi.fn(async () => {});
-    const sendNodeEvent = vi.fn(async () => {});
-
-    await withTempApprovalsHome({
-      approvals: {
-        version: 1,
-        defaults: {
-          security: "allowlist",
-          ask: "on-miss",
-          askFallback: "deny",
-        },
-        agents: {
-          main: {
-            allowlist: [{ pattern: "/usr/bin/env" }],
-          },
-        },
-      },
-      run: async ({ tempHome }) => {
-        const marker = path.join(tempHome, "pwned.txt");
-        await handleSystemRunInvoke({
-          client: {} as never,
-          params: {
-            command: buildNestedEnvShellCommand({
-              depth: 5,
-              payload: `echo PWNED > ${marker}`,
-            }),
-            sessionKey: "agent:main:main",
-          },
-          skillBins: {
-            current: async () => [],
-          },
-          execHostEnforced: false,
-          execHostFallbackAllowed: true,
-          resolveExecSecurity: () => "allowlist",
-          resolveExecAsk: () => "on-miss",
-          isCmdExeInvocation: () => false,
-          sanitizeEnv: () => undefined,
-          runCommand,
-          runViaMacAppExecHost: vi.fn(async () => null),
-          sendNodeEvent,
-          buildExecEventPayload: (payload) => payload,
-          sendInvokeResult,
-          sendExecFinishedEvent: vi.fn(async () => {}),
-          preferMacAppExecHost: false,
-        });
-        expect(fs.existsSync(marker)).toBe(false);
-      },
-    });
-
-    expect(runCommand).not.toHaveBeenCalled();
-    expect(sendNodeEvent).toHaveBeenCalledWith(
-      expect.anything(),
-      "exec.denied",
-      expect.objectContaining({ reason: "approval-required" }),
-    );
-    expect(sendInvokeResult).toHaveBeenCalledWith(
-      expect.objectContaining({
-        ok: false,
-        error: expect.objectContaining({
-          message: "SYSTEM_RUN_DENIED: approval required",
-        }),
-      }),
-    );
-  });
->>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
 });

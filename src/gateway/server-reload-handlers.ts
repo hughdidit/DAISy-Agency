@@ -2,22 +2,14 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
-=======
-=======
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -34,11 +26,8 @@ import { isTruthyEnvValue } from "../infra/env.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -49,28 +38,17 @@ import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resetDirectoryCache } from "../infra/outbound/target-resolver.js";
 import {
-<<<<<<< HEAD
   authorizeGatewaySigusr1Restart,
   setGatewaySigusr1RestartPolicy,
 } from "../infra/restart.js";
 import { setCommandLaneConcurrency } from "../process/command-queue.js";
 import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../config/agent-limits.js";
-=======
-  deferGatewayRestartUntilIdle,
-  emitGatewayRestart,
-  setGatewaySigusr1RestartPolicy,
-} from "../infra/restart.js";
-import { setCommandLaneConcurrency, getTotalQueueSize } from "../process/command-queue.js";
->>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
 import { CommandLane } from "../process/lanes.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { isTruthyEnvValue } from "../infra/env.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -157,7 +135,6 @@ export function createGatewayReloadHandlers(params: {
 
     if (plan.restartGmailWatcher) {
       await stopGmailWatcher().catch(() => {});
-<<<<<<< HEAD
       if (!isTruthyEnvValue(process.env.CLAWDBOT_SKIP_GMAIL_WATCHER)) {
         try {
           const gmailResult = await startGmailWatcher(nextConfig);
@@ -176,14 +153,6 @@ export function createGatewayReloadHandlers(params: {
       } else {
         params.logHooks.info("skipping gmail watcher restart (CLAWDBOT_SKIP_GMAIL_WATCHER=1)");
       }
-=======
-      await startGmailWatcherWithLogs({
-        cfg: nextConfig,
-        log: params.logHooks,
-        onSkipped: () =>
-          params.logHooks.info("skipping gmail watcher restart (OPENCLAW_SKIP_GMAIL_WATCHER=1)"),
-      });
->>>>>>> 6187e2afb (refactor(gateway): share gmail watcher startup flow)
     }
 
     if (plan.restartChannels.size > 0) {
@@ -232,82 +201,8 @@ export function createGatewayReloadHandlers(params: {
       params.logReload.warn("no SIGUSR1 listener found; restart skipped");
       return;
     }
-<<<<<<< HEAD
     authorizeGatewaySigusr1Restart();
     process.emit("SIGUSR1");
-=======
-
-    const getActiveCounts = () => {
-      const queueSize = getTotalQueueSize();
-      const pendingReplies = getTotalPendingReplies();
-      const embeddedRuns = getActiveEmbeddedRunCount();
-      return {
-        queueSize,
-        pendingReplies,
-        embeddedRuns,
-        totalActive: queueSize + pendingReplies + embeddedRuns,
-      };
-    };
-    const formatActiveDetails = (counts: ReturnType<typeof getActiveCounts>) => {
-      const details = [];
-      if (counts.queueSize > 0) {
-        details.push(`${counts.queueSize} operation(s)`);
-      }
-      if (counts.pendingReplies > 0) {
-        details.push(`${counts.pendingReplies} reply(ies)`);
-      }
-      if (counts.embeddedRuns > 0) {
-        details.push(`${counts.embeddedRuns} embedded run(s)`);
-      }
-      return details;
-    };
-    const active = getActiveCounts();
-
-    if (active.totalActive > 0) {
-      // Avoid spinning up duplicate polling loops from repeated config changes.
-      if (restartPending) {
-        params.logReload.info(
-          `config change requires gateway restart (${reasons}) — already waiting for operations to complete`,
-        );
-        return;
-      }
-      restartPending = true;
-      const initialDetails = formatActiveDetails(active);
-      params.logReload.warn(
-        `config change requires gateway restart (${reasons}) — deferring until ${initialDetails.join(", ")} complete`,
-      );
-
-      deferGatewayRestartUntilIdle({
-        getPendingCount: () => getActiveCounts().totalActive,
-        hooks: {
-          onReady: () => {
-            restartPending = false;
-            params.logReload.info("all operations and replies completed; restarting gateway now");
-          },
-          onTimeout: (_pending, elapsedMs) => {
-            const remaining = formatActiveDetails(getActiveCounts());
-            restartPending = false;
-            params.logReload.warn(
-              `restart timeout after ${elapsedMs}ms with ${remaining.join(", ")} still active; restarting anyway`,
-            );
-          },
-          onCheckError: (err) => {
-            restartPending = false;
-            params.logReload.warn(
-              `restart deferral check failed (${String(err)}); restarting gateway now`,
-            );
-          },
-        },
-      });
-    } else {
-      // No active operations or pending replies, restart immediately
-      params.logReload.warn(`config change requires gateway restart (${reasons})`);
-      const emitted = emitGatewayRestart();
-      if (!emitted) {
-        params.logReload.info("gateway restart already scheduled; skipping duplicate signal");
-      }
-    }
->>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
   };
 
   return { applyHotReload, requestGatewayRestart };

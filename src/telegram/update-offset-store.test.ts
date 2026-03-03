@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -20,10 +19,6 @@ async function withTempStateDir<T>(fn: (dir: string) => Promise<T>) {
     if (previous === undefined) delete process.env.CLAWDBOT_STATE_DIR;
     else process.env.CLAWDBOT_STATE_DIR = previous;
 =======
-=======
-=======
->>>>>>> cf8261425 (refactor(test): reuse state-dir helper in telegram tests)
-=======
 import fs from "node:fs/promises";
 import path from "node:path";
 >>>>>>> 8e821a061 (fix(telegram): scope polling offsets per bot and await shared runner stop (#24549))
@@ -35,7 +30,6 @@ import {
   writeTelegramUpdateOffset,
 } from "./update-offset-store.js";
 
-<<<<<<< HEAD
 async function withTempStateDir<T>(fn: (dir: string) => Promise<T>) {
   const previous = process.env.OPENCLAW_STATE_DIR;
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-tg-offset-"));
@@ -51,13 +45,10 @@ async function withTempStateDir<T>(fn: (dir: string) => Promise<T>) {
     }
 <<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
-=======
->>>>>>> 6757a9fed (fix(telegram): clean up update offset on channels remove --delete (#18233))
     await fs.rm(dir, { recursive: true, force: true });
   }
 }
 
-<<<<<<< HEAD
 describe("telegram update offset store", () => {
   it("persists and reloads the last update id", async () => {
     await withTempStateDir(async () => {
@@ -69,9 +60,6 @@ describe("telegram update offset store", () => {
       });
 
       expect(await readTelegramUpdateOffset({ accountId: "primary" })).toBe(421);
-=======
-=======
->>>>>>> cf8261425 (refactor(test): reuse state-dir helper in telegram tests)
 describe("deleteTelegramUpdateOffset", () => {
   it("removes the offset file so a new bot starts fresh", async () => {
     await withStateDirEnv("openclaw-tg-offset-", async () => {

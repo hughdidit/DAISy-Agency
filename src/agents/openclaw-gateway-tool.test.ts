@@ -3,11 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import { captureEnv } from "../test-utils/env.js";
->>>>>>> 94e84e6f7 (refactor(test): clean up gateway tool env restore)
 =======
 import { withEnvAsync } from "../test-utils/env.js";
 >>>>>>> 8fd8988ff (refactor(test): reuse env helper in gateway tool e2e)
@@ -58,30 +54,20 @@ function expectConfigMutationCall(params: {
 }
 
 describe("gateway tool", () => {
-<<<<<<< HEAD
-=======
   it("marks gateway as owner-only", async () => {
     const tool = requireGatewayTool();
     expect(tool.ownerOnly).toBe(true);
   });
 
->>>>>>> 185fba1d2 (refactor(agents): dedupe plugin hooks and test helpers)
   it("schedules SIGUSR1 restart", async () => {
     vi.useFakeTimers();
     const kill = vi.spyOn(process, "kill").mockImplementation(() => true);
-<<<<<<< HEAD
 <<<<<<< HEAD
     const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
     const previousProfile = process.env.CLAWDBOT_PROFILE;
     const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-test-"));
     process.env.CLAWDBOT_STATE_DIR = stateDir;
     process.env.CLAWDBOT_PROFILE = "isolated";
-=======
-    const envSnapshot = captureEnv(["OPENCLAW_STATE_DIR", "OPENCLAW_PROFILE"]);
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
-    process.env.OPENCLAW_STATE_DIR = stateDir;
-    process.env.OPENCLAW_PROFILE = "isolated";
->>>>>>> 94e84e6f7 (refactor(test): clean up gateway tool env restore)
 
     try {
       const tool = createMoltbotTools({
@@ -98,7 +84,6 @@ describe("gateway tool", () => {
       await withEnvAsync(
         { OPENCLAW_STATE_DIR: stateDir, OPENCLAW_PROFILE: "isolated" },
         async () => {
-<<<<<<< HEAD
           const tool = createOpenClawTools({
             config: { commands: { restart: true } },
           }).find((candidate) => candidate.name === "gateway");
@@ -107,9 +92,6 @@ describe("gateway tool", () => {
             throw new Error("missing gateway tool");
           }
 >>>>>>> 8fd8988ff (refactor(test): reuse env helper in gateway tool e2e)
-=======
-          const tool = requireGatewayTool();
->>>>>>> 185fba1d2 (refactor(agents): dedupe plugin hooks and test helpers)
 
           const result = await tool.execute("call1", {
             action: "restart",
@@ -122,7 +104,6 @@ describe("gateway tool", () => {
             delayMs: 0,
           });
 
-<<<<<<< HEAD
       const sentinelPath = path.join(stateDir, "restart-sentinel.json");
       const raw = await fs.readFile(sentinelPath, "utf-8");
       const parsed = JSON.parse(raw) as {
@@ -131,27 +112,10 @@ describe("gateway tool", () => {
       expect(parsed.payload?.kind).toBe("restart");
       expect(parsed.payload?.doctorHint).toBe(
         "Run: moltbot --profile isolated doctor --non-interactive",
-=======
-          const sentinelPath = path.join(stateDir, "restart-sentinel.json");
-          const raw = await fs.readFile(sentinelPath, "utf-8");
-          const parsed = JSON.parse(raw) as {
-            payload?: { kind?: string; doctorHint?: string | null };
-          };
-          expect(parsed.payload?.kind).toBe("restart");
-          expect(parsed.payload?.doctorHint).toBe(
-            "Run: openclaw --profile isolated doctor --non-interactive",
-          );
-
-          expect(kill).not.toHaveBeenCalled();
-          await vi.runAllTimersAsync();
-          expect(kill).toHaveBeenCalledWith(process.pid, "SIGUSR1");
-        },
->>>>>>> 8fd8988ff (refactor(test): reuse env helper in gateway tool e2e)
       );
     } finally {
       kill.mockRestore();
       vi.useRealTimers();
-<<<<<<< HEAD
 <<<<<<< HEAD
       if (previousStateDir === undefined) {
         delete process.env.CLAWDBOT_STATE_DIR;
@@ -163,10 +127,6 @@ describe("gateway tool", () => {
       } else {
         process.env.CLAWDBOT_PROFILE = previousProfile;
       }
-=======
-      envSnapshot.restore();
-=======
->>>>>>> 8fd8988ff (refactor(test): reuse env helper in gateway tool e2e)
       await fs.rm(stateDir, { recursive: true, force: true });
 >>>>>>> 94e84e6f7 (refactor(test): clean up gateway tool env restore)
     }
@@ -174,7 +134,6 @@ describe("gateway tool", () => {
 
   it("passes config.apply through gateway call", async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
-<<<<<<< HEAD
     const tool = createMoltbotTools({
       agentSessionKey: "agent:main:whatsapp:dm:+15555550123",
     }).find((candidate) => candidate.name === "gateway");
@@ -182,10 +141,6 @@ describe("gateway tool", () => {
     if (!tool) {
       throw new Error("missing gateway tool");
     }
-=======
-    const sessionKey = "agent:main:whatsapp:dm:+15555550123";
-    const tool = requireGatewayTool(sessionKey);
->>>>>>> 185fba1d2 (refactor(agents): dedupe plugin hooks and test helpers)
 
     const raw = '{\n  agents: { defaults: { workspace: "~/clawd" } }\n}\n';
     await tool.execute("call2", {
@@ -203,7 +158,6 @@ describe("gateway tool", () => {
 
   it("passes config.patch through gateway call", async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
-<<<<<<< HEAD
     const tool = createMoltbotTools({
       agentSessionKey: "agent:main:whatsapp:dm:+15555550123",
     }).find((candidate) => candidate.name === "gateway");
@@ -211,10 +165,6 @@ describe("gateway tool", () => {
     if (!tool) {
       throw new Error("missing gateway tool");
     }
-=======
-    const sessionKey = "agent:main:whatsapp:dm:+15555550123";
-    const tool = requireGatewayTool(sessionKey);
->>>>>>> 185fba1d2 (refactor(agents): dedupe plugin hooks and test helpers)
 
     const raw = '{\n  channels: { telegram: { groups: { "*": { requireMention: false } } } }\n}\n';
     await tool.execute("call4", {
@@ -232,7 +182,6 @@ describe("gateway tool", () => {
 
   it("passes update.run through gateway call", async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
-<<<<<<< HEAD
     const tool = createMoltbotTools({
       agentSessionKey: "agent:main:whatsapp:dm:+15555550123",
     }).find((candidate) => candidate.name === "gateway");
@@ -240,10 +189,6 @@ describe("gateway tool", () => {
     if (!tool) {
       throw new Error("missing gateway tool");
     }
-=======
-    const sessionKey = "agent:main:whatsapp:dm:+15555550123";
-    const tool = requireGatewayTool(sessionKey);
->>>>>>> 185fba1d2 (refactor(agents): dedupe plugin hooks and test helpers)
 
     await tool.execute("call3", {
       action: "update.run",

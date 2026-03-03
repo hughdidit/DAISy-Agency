@@ -6,7 +6,6 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveAgentDir } from "../../agents/agent-scope.js";
 import {
   ensureAuthProfileStore,
@@ -25,20 +24,11 @@ import {
 } from "../../agents/model-selection.js";
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
 =======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { AnyAgentTool } from "./common.js";
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
-=======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeGroupActivation } from "../../auto-reply/group-activation.js";
 import { getFollowupQueueDepth, resolveQueueSettings } from "../../auto-reply/reply/queue.js";
-<<<<<<< HEAD
 import { buildStatusMessage } from "../../auto-reply/status.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { buildStatusMessage, getTranscriptInfo } from "../../auto-reply/status.js";
-<<<<<<< HEAD
->>>>>>> 15dd2cda2 (feat: show transcript file size in session status)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -99,28 +89,7 @@ import {
   resolveAgentIdFromSessionKey,
 } from "../../routing/session-key.js";
 import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
-<<<<<<< HEAD
 import type { AnyAgentTool } from "./common.js";
-=======
-import { resolveAgentDir } from "../agent-scope.js";
-import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
-import { resolveModelAuthLabel } from "../model-auth-label.js";
-import { loadModelCatalog } from "../model-catalog.js";
-import {
-  buildAllowedModelSet,
-  buildModelAliasIndex,
-  modelKey,
-  resolveDefaultModelForAgent,
-  resolveModelRefFromString,
-} from "../model-selection.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 =======
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -153,7 +122,6 @@ const SessionStatusToolSchema = Type.Object({
   model: Type.Optional(Type.String()),
 });
 
-<<<<<<< HEAD
 function formatApiKeySnippet(apiKey: string): string {
   const compact = apiKey.replace(/\s+/g, "");
   if (!compact) {
@@ -224,8 +192,6 @@ function resolveModelAuthLabel(params: {
   return "unknown";
 }
 
-=======
->>>>>>> 246bb7f30 (refactor(agents): share model auth label resolution)
 function resolveSessionEntry(params: {
   store: Record<string, SessionEntry>;
   keyRaw: string;

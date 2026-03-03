@@ -108,23 +108,15 @@ struct SystemRunSettingsView: View {
                     TextField("Add allowlist pattern (case-insensitive globs)", text: self.$newPattern)
                         .textFieldStyle(.roundedBorder)
                     Button("Add") {
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/SystemRunSettingsView.swift
                         let pattern = self.newPattern.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !pattern.isEmpty else { return }
                         self.model.addEntry(pattern)
                         self.newPattern = ""
-=======
-                        if self.model.addEntry(self.newPattern) == nil {
-                            self.newPattern = ""
-                        }
->>>>>>> 2028ca442 (fix(macos): unify exec allowlist validation pipeline):apps/macos/Sources/OpenClaw/SystemRunSettingsView.swift
                     }
                     .buttonStyle(.bordered)
                     .disabled(self.newPattern.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
 
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/SystemRunSettingsView.swift
-=======
                 Text("Path patterns only. Basename entries like \"echo\" are ignored.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -134,7 +126,6 @@ struct SystemRunSettingsView: View {
                         .foregroundStyle(.orange)
                 }
 
->>>>>>> 2028ca442 (fix(macos): unify exec allowlist validation pipeline):apps/macos/Sources/OpenClaw/SystemRunSettingsView.swift
                 if self.model.entries.isEmpty {
                     Text("No allowlisted commands yet.")
                         .font(.footnote)
@@ -389,7 +380,6 @@ final class ExecApprovalsSettingsModel {
         Task { await self.refreshSkillBins(force: enabled) }
     }
 
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/SystemRunSettingsView.swift
     func addEntry(_ pattern: String) {
         guard !self.isDefaultsScope else { return }
         let trimmed = pattern.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -403,39 +393,6 @@ final class ExecApprovalsSettingsModel {
         guard let index = self.entries.firstIndex(where: { $0.id == id }) else { return }
         self.entries[index] = entry
         ExecApprovalsStore.updateAllowlist(agentId: self.selectedAgentId, allowlist: self.entries)
-=======
-    @discardableResult
-    func addEntry(_ pattern: String) -> ExecAllowlistPatternValidationReason? {
-        guard !self.isDefaultsScope else { return nil }
-        switch ExecApprovalHelpers.validateAllowlistPattern(pattern) {
-        case let .valid(normalizedPattern):
-            self.entries.append(ExecAllowlistEntry(pattern: normalizedPattern, lastUsedAt: nil))
-            let rejected = ExecApprovalsStore.updateAllowlist(agentId: self.selectedAgentId, allowlist: self.entries)
-            self.allowlistValidationMessage = rejected.first?.reason.message
-            return rejected.first?.reason
-        case let .invalid(reason):
-            self.allowlistValidationMessage = reason.message
-            return reason
-        }
-    }
-
-    @discardableResult
-    func updateEntry(_ entry: ExecAllowlistEntry, id: UUID) -> ExecAllowlistPatternValidationReason? {
-        guard !self.isDefaultsScope else { return nil }
-        guard let index = self.entries.firstIndex(where: { $0.id == id }) else { return nil }
-        var next = entry
-        switch ExecApprovalHelpers.validateAllowlistPattern(next.pattern) {
-        case let .valid(normalizedPattern):
-            next.pattern = normalizedPattern
-        case let .invalid(reason):
-            self.allowlistValidationMessage = reason.message
-            return reason
-        }
-        self.entries[index] = next
-        let rejected = ExecApprovalsStore.updateAllowlist(agentId: self.selectedAgentId, allowlist: self.entries)
-        self.allowlistValidationMessage = rejected.first?.reason.message
-        return rejected.first?.reason
->>>>>>> 2028ca442 (fix(macos): unify exec allowlist validation pipeline):apps/macos/Sources/OpenClaw/SystemRunSettingsView.swift
     }
 
     func removeEntry(id: UUID) {
@@ -450,13 +407,10 @@ final class ExecApprovalsSettingsModel {
         self.entries.first(where: { $0.id == id })
     }
 
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/SystemRunSettingsView.swift
-=======
     func isPathPattern(_ pattern: String) -> Bool {
         ExecApprovalHelpers.isPathPattern(pattern)
     }
 
->>>>>>> 2028ca442 (fix(macos): unify exec allowlist validation pipeline):apps/macos/Sources/OpenClaw/SystemRunSettingsView.swift
     func refreshSkillBins(force: Bool = false) async {
         guard self.autoAllowSkills else {
             self.skillBins = []

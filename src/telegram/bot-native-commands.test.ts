@@ -11,25 +11,8 @@ const { listSkillCommandsForAgents } = vi.hoisted(() => ({
   listSkillCommandsForAgents: vi.fn(() => []),
 }));
 
-<<<<<<< HEAD
 vi.mock("../auto-reply/skill-commands.js", () => ({
   listSkillCommandsForAgents,
-=======
-vi.mock("../auto-reply/skill-commands.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../auto-reply/skill-commands.js")>();
-  return {
-    ...actual,
-    listSkillCommandsForAgents,
-  };
-});
-vi.mock("../plugins/commands.js", () => ({
-  getPluginCommandSpecs: pluginCommandMocks.getPluginCommandSpecs,
-  matchPluginCommand: pluginCommandMocks.matchPluginCommand,
-  executePluginCommand: pluginCommandMocks.executePluginCommand,
-}));
-vi.mock("./bot/delivery.js", () => ({
-  deliverReplies: deliveryMocks.deliverReplies,
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 }));
 
 describe("registerTelegramNativeCommands", () => {
@@ -48,20 +31,7 @@ describe("registerTelegramNativeCommands", () => {
   }
 
   beforeEach(() => {
-<<<<<<< HEAD
     listSkillCommandsForAgents.mockReset();
-=======
-    listSkillCommandsForAgents.mockClear();
-    listSkillCommandsForAgents.mockReturnValue([]);
-    pluginCommandMocks.getPluginCommandSpecs.mockClear();
-    pluginCommandMocks.getPluginCommandSpecs.mockReturnValue([]);
-    pluginCommandMocks.matchPluginCommand.mockClear();
-    pluginCommandMocks.matchPluginCommand.mockReturnValue(null);
-    pluginCommandMocks.executePluginCommand.mockClear();
-    pluginCommandMocks.executePluginCommand.mockResolvedValue({ text: "ok" });
-    deliveryMocks.deliverReplies.mockClear();
-    deliveryMocks.deliverReplies.mockResolvedValue({ delivered: true });
->>>>>>> e14af1a34 (test(telegram): use lightweight mock clears in native command setup)
   });
 
   const buildParams = (cfg: OpenClawConfig, accountId = "default") =>
@@ -152,34 +122,6 @@ describe("registerTelegramNativeCommands", () => {
     );
   });
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-
-  it("normalizes hyphenated native command names for Telegram registration", async () => {
-    const setMyCommands = vi.fn().mockResolvedValue(undefined);
-    const command = vi.fn();
-
-    registerTelegramNativeCommands({
-      ...buildParams({}),
-      bot: {
-        api: {
-          setMyCommands,
-          sendMessage: vi.fn().mockResolvedValue(undefined),
-        },
-        command,
-      } as unknown as Parameters<typeof registerTelegramNativeCommands>[0]["bot"],
-    });
-
-    const registeredCommands = await waitForRegisteredCommands(setMyCommands);
-    expect(registeredCommands.some((entry) => entry.command === "export_session")).toBe(true);
-    expect(registeredCommands.some((entry) => entry.command === "export-session")).toBe(false);
-
-    const registeredHandlers = command.mock.calls.map(([name]) => name);
-    expect(registeredHandlers).toContain("export_session");
-    expect(registeredHandlers).not.toContain("export-session");
-  });
->>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 
   it("registers only Telegram-safe command names across native, custom, and plugin sources", async () => {
     const setMyCommands = vi.fn().mockResolvedValue(undefined);

@@ -1,25 +1,6 @@
 import os from "node:os";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
 import { approveDevicePairing, listDevicePairing } from "openclaw/plugin-sdk";
-=======
-import {
-  approveDevicePairing,
-  listDevicePairing,
-  resolveGatewayBindUrl,
-  runPluginCommandWithTimeout,
-  resolveTailnetHostWithRunner,
-} from "openclaw/plugin-sdk";
-import qrcode from "qrcode-terminal";
-
-function renderQrAscii(data: string): Promise<string> {
-  return new Promise((resolve) => {
-    qrcode.generate(data, { small: true }, (output: string) => {
-      resolve(output);
-    });
-  });
-}
->>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 
 const DEFAULT_GATEWAY_PORT = 18789;
 
@@ -176,7 +157,6 @@ function pickTailnetIPv4(): string | null {
   return pickMatchingIPv4(isTailnetIPv4);
 }
 
-<<<<<<< HEAD
 async function resolveTailnetHost(api: OpenClawPluginApi): Promise<string | null> {
   const candidates = ["tailscale", "/Applications/Tailscale.app/Contents/MacOS/Tailscale"];
   for (const candidate of candidates) {
@@ -225,15 +205,6 @@ function parsePossiblyNoisyJsonObject(raw: string): Record<string, unknown> {
   } catch {
     return {};
   }
-=======
-async function resolveTailnetHost(): Promise<string | null> {
-  return await resolveTailnetHostWithRunner((argv, opts) =>
-    runPluginCommandWithTimeout({
-      argv,
-      timeoutMs: opts.timeoutMs,
-    }),
-  );
->>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 }
 
 function resolveAuth(cfg: OpenClawPluginApi["config"]): ResolveAuthResult {

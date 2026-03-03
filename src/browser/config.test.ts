@@ -25,15 +25,10 @@ describe("browser config", () => {
     expect(resolved.remoteCdpHandshakeTimeoutMs).toBe(3000);
   });
 
-<<<<<<< HEAD
   it("derives default ports from CLAWDBOT_GATEWAY_PORT when unset", () => {
     const prev = process.env.CLAWDBOT_GATEWAY_PORT;
     process.env.CLAWDBOT_GATEWAY_PORT = "19001";
     try {
-=======
-  it("derives default ports from OPENCLAW_GATEWAY_PORT when unset", () => {
-    withEnv({ OPENCLAW_GATEWAY_PORT: "19001" }, () => {
->>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
       const resolved = resolveBrowserConfig(undefined);
       expect(resolved.controlPort).toBe(19003);
       const chrome = resolveProfile(resolved, "chrome");
@@ -41,7 +36,6 @@ describe("browser config", () => {
       expect(chrome?.cdpPort).toBe(19004);
       expect(chrome?.cdpUrl).toBe("http://127.0.0.1:19004");
 
-<<<<<<< HEAD
       const daisy = resolveProfile(resolved, "daisy");
       expect(daisy?.cdpPort).toBe(19012);
       expect(daisy?.cdpUrl).toBe("http://127.0.0.1:19012");
@@ -58,16 +52,6 @@ describe("browser config", () => {
     const prev = process.env.CLAWDBOT_GATEWAY_PORT;
     delete process.env.CLAWDBOT_GATEWAY_PORT;
     try {
-=======
-      const openclaw = resolveProfile(resolved, "openclaw");
-      expect(openclaw?.cdpPort).toBe(19012);
-      expect(openclaw?.cdpUrl).toBe("http://127.0.0.1:19012");
-    });
-  });
-
-  it("derives default ports from gateway.port when env is unset", () => {
-    withEnv({ OPENCLAW_GATEWAY_PORT: undefined }, () => {
->>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
       const resolved = resolveBrowserConfig(undefined, { gateway: { port: 19011 } });
       expect(resolved.controlPort).toBe(19013);
       const chrome = resolveProfile(resolved, "chrome");
@@ -75,7 +59,6 @@ describe("browser config", () => {
       expect(chrome?.cdpPort).toBe(19014);
       expect(chrome?.cdpUrl).toBe("http://127.0.0.1:19014");
 
-<<<<<<< HEAD
       const daisy = resolveProfile(resolved, "daisy");
       expect(daisy?.cdpPort).toBe(19022);
       expect(daisy?.cdpUrl).toBe("http://127.0.0.1:19022");
@@ -86,12 +69,6 @@ describe("browser config", () => {
         process.env.CLAWDBOT_GATEWAY_PORT = prev;
       }
     }
-=======
-      const openclaw = resolveProfile(resolved, "openclaw");
-      expect(openclaw?.cdpPort).toBe(19022);
-      expect(openclaw?.cdpUrl).toBe("http://127.0.0.1:19022");
-    });
->>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
   });
 
   it("normalizes hex colors", () => {

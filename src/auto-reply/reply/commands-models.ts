@@ -3,13 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { ReplyPayload } from "../types.js";
-import type { CommandHandler } from "./commands-types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -39,16 +32,10 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../../agents/defaults.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ReplyPayload } from "../types.js";
 import type { CommandHandler } from "./commands-types.js";
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -73,12 +60,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
-=======
-import type { ReplyPayload } from "../types.js";
-import type { CommandHandler } from "./commands-types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

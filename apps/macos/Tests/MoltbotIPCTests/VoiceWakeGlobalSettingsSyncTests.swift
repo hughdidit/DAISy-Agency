@@ -1,9 +1,5 @@
 import Foundation
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/VoiceWakeGlobalSettingsSyncTests.swift
 import MoltbotProtocol
-=======
-import OpenClawProtocol
->>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/VoiceWakeGlobalSettingsSyncTests.swift
 import Testing
 @testable import Moltbot
 

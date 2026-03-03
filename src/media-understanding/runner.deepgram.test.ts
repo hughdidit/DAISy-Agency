@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -8,11 +7,6 @@ import { describe, expect, it } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 <<<<<<< HEAD
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
->>>>>>> 22ffde90b (tests: align macmini suite expectations with current behavior (openclaw#22379) thanks @Takhoffman)
 =======
 >>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
 import {
@@ -50,7 +44,6 @@ async function withAudioFixture(
 
 describe("runCapability deepgram provider options", () => {
   it("merges provider options, headers, and baseUrl overrides", async () => {
-<<<<<<< HEAD
     const tmpPath = path.join(os.tmpdir(), `moltbot-deepgram-${Date.now()}.wav`);
     await fs.writeFile(tmpPath, Buffer.from("RIFF"));
     const ctx: MsgContext = { MediaPath: tmpPath, MediaType: "audio/wav" };
@@ -58,18 +51,6 @@ describe("runCapability deepgram provider options", () => {
     const cache = createMediaAttachmentCache(media, {
       localPathRoots: [resolvePreferredOpenClawTmpDir(), os.tmpdir()],
     });
-=======
-    await withAudioFixture(async ({ ctx, media, cache }) => {
-=======
-import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { buildProviderRegistry, runCapability } from "./runner.js";
-import { withAudioFixture } from "./runner.test-utils.js";
-
-describe("runCapability deepgram provider options", () => {
-  it("merges provider options, headers, and baseUrl overrides", async () => {
-    await withAudioFixture("openclaw-deepgram", async ({ ctx, media, cache }) => {
->>>>>>> 01f42a037 (refactor(test): share media audio fixture across runner tests)
       let seenQuery: Record<string, string | number | boolean> | undefined;
       let seenBaseUrl: string | undefined;
       let seenHeaders: Record<string, string> | undefined;
@@ -130,12 +111,8 @@ describe("runCapability deepgram provider options", () => {
             },
           },
         },
-<<<<<<< HEAD
       },
     } as unknown as MoltbotConfig;
-=======
-      } as unknown as OpenClawConfig;
->>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
 
       const result = await runCapability({
         capability: "audio",

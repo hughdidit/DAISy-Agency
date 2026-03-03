@@ -131,19 +131,11 @@ The provider id becomes the left side of your model ref:
 
 ## How it works
 
-<<<<<<< HEAD
 1) **Selects a backend** based on the provider prefix (`claude-cli/...`).
 2) **Builds a system prompt** using the same Moltbot prompt + workspace context.
 3) **Executes the CLI** with a session id (if supported) so history stays consistent.
 4) **Parses output** (JSON or plain text) and returns the final text.
 5) **Persists session ids** per backend, so follow-ups reuse the same CLI session.
-=======
-1. **Selects a backend** based on the provider prefix (`claude-cli/...`).
-2. **Builds a system prompt** using the same OpenClaw prompt + workspace context.
-3. **Executes the CLI** with a session id (if supported) so history stays consistent.
-4. **Parses output** (JSON or plain text) and returns the final text.
-5. **Persists session ids** per backend, so follow-ups reuse the same CLI session.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Sessions
 

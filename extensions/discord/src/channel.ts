@@ -23,11 +23,8 @@ import {
   resolveDefaultDiscordAccountId,
   resolveDiscordGroupRequireMention,
   resolveDiscordGroupToolPolicy,
-<<<<<<< HEAD
-=======
   resolveOpenProviderRuntimeGroupPolicy,
 <<<<<<< HEAD
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 =======
   resolveDefaultGroupPolicy,
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
@@ -140,14 +137,9 @@ export const discordPlugin: ChannelPlugin<ResolvedDiscordAccount> = {
     },
     collectWarnings: ({ account, cfg }) => {
       const warnings: string[] = [];
-<<<<<<< HEAD
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "open";
-=======
-=======
-      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
       const { groupPolicy } = resolveOpenProviderRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.discord !== undefined,
         groupPolicy: account.config.groupPolicy,

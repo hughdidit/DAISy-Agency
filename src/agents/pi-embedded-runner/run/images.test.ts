@@ -2,18 +2,8 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { detectAndLoadPromptImages, detectImageReferences, modelSupportsImages } from "./images.js";
-=======
-import { createHostSandboxFsBridge } from "../../test-helpers/host-sandbox-fs-bridge.js";
-import {
-  detectAndLoadPromptImages,
-  detectImageReferences,
-  loadImageFromRef,
-  modelSupportsImages,
-} from "./images.js";
->>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
 
 describe("detectImageReferences", () => {
   it("detects absolute file paths with common extensions", () => {
@@ -280,8 +270,6 @@ describe("detectAndLoadPromptImages", () => {
     expect(result.detectedRefs).toHaveLength(0);
     expect(result.images).toHaveLength(0);
   });
-<<<<<<< HEAD
-=======
 
   it("blocks prompt image refs outside workspace when sandbox workspaceOnly is enabled", async () => {
     const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-native-image-sandbox-"));
@@ -315,5 +303,4 @@ describe("detectAndLoadPromptImages", () => {
       await fs.rm(stateDir, { recursive: true, force: true });
     }
   });
->>>>>>> c81e9866f (fix(pi): stop history image reinjection token blowup)
 });

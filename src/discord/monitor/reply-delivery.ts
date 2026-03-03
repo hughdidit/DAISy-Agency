@@ -1,9 +1,5 @@
 import type { RequestClient } from "@buape/carbon";
-<<<<<<< HEAD
 
-=======
-import { resolveAgentAvatar } from "../../agents/identity-avatar.js";
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import type { ChunkMode } from "../../auto-reply/chunk.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import { loadConfig } from "../../config/config.js";
@@ -12,24 +8,7 @@ import { convertMarkdownTables } from "../../markdown/tables.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { chunkDiscordTextWithMode } from "../chunk.js";
 import { sendMessageDiscord, sendVoiceMessageDiscord, sendWebhookMessageDiscord } from "../send.js";
-<<<<<<< HEAD
 import type { ThreadBindingManager, ThreadBindingRecord } from "./thread-bindings.js";
-=======
-
-export type DiscordThreadBindingLookupRecord = {
-  accountId: string;
-  threadId: string;
-  agentId: string;
-  label?: string;
-  webhookId?: string;
-  webhookToken?: string;
-};
-
-export type DiscordThreadBindingLookup = {
-  listBySessionKey: (targetSessionKey: string) => DiscordThreadBindingLookupRecord[];
-  touchThread?: (params: { threadId: string; at?: number; persist?: boolean }) => unknown;
-};
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
 
 function resolveTargetChannelId(target: string): string | undefined {
   if (!target.startsWith("channel:")) {

@@ -2,7 +2,6 @@ import crypto from "node:crypto";
 import fsSync from "node:fs";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -30,22 +29,6 @@ describe("web monitor inbox", () => {
     vi.useRealTimers();
     fsSync.rmSync(authDir, { recursive: true, force: true });
   });
-=======
-import "./monitor-inbox.test-harness.js";
-import { describe, expect, it, vi } from "vitest";
-import { setLoggerOverride } from "../logging.js";
-import { monitorWebInbox } from "./inbound.js";
-import {
-  DEFAULT_ACCOUNT_ID,
-  getAuthDir,
-  getSock,
-  installWebMonitorInboxUnitTestHooks,
-  mockLoadConfig,
-} from "./monitor-inbox.test-harness.js";
-
-describe("web monitor inbox", () => {
-  installWebMonitorInboxUnitTestHooks();
->>>>>>> b8b7a6e0f (refactor(test): dedupe web monitor inbox test setup)
 
   async function openMonitor(onMessage = vi.fn()) {
     return await monitorWebInbox({

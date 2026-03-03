@@ -10,19 +10,9 @@
  * - Registry integration
  */
 
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { sendMessageTwitchInternal } from "./send.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
-import { describe, expect, it, vi } from "vitest";
-import { sendMessageTwitchInternal } from "./send.js";
-import {
-  BASE_TWITCH_TEST_ACCOUNT,
-  installTwitchTestHooks,
-  makeTwitchTestConfig,
-} from "./test-fixtures.js";
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
 // Mock dependencies
 vi.mock("./config.js", () => ({
@@ -57,7 +47,6 @@ describe("send", () => {
     accessToken: "test123",
   };
 
-<<<<<<< HEAD
   const mockConfig = {
     channels: {
       twitch: {
@@ -75,10 +64,6 @@ describe("send", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
-=======
-  const mockConfig = makeTwitchTestConfig(mockAccount);
-  installTwitchTestHooks();
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
   describe("sendMessageTwitchInternal", () => {
     it("should send a message successfully", async () => {

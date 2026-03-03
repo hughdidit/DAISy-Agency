@@ -82,7 +82,6 @@ struct RootTabs: View {
     }
 
     private var statusActivity: StatusPill.Activity? {
-<<<<<<< HEAD
         // Keep the top pill consistent across tabs (camera + voice wake + pairing states).
         if self.appModel.isBackgrounded {
             return StatusPill.Activity(
@@ -140,12 +139,5 @@ struct RootTabs: View {
         }
 
         return nil
-=======
-        StatusActivityBuilder.build(
-            appModel: self.appModel,
-            voiceWakeEnabled: self.voiceWakeEnabled,
-            cameraHUDText: self.appModel.cameraHUDText,
-            cameraHUDKind: self.appModel.cameraHUDKind)
->>>>>>> 778959b3d (refactor(ios): dedupe gateway helpers)
     }
 }

@@ -8,12 +8,9 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { AppViewState } from "./app-view-state";
-=======
->>>>>>> 6b8c0bc69 (chore: Format files.)
 =======
 import type { AppViewState } from "./app-view-state.ts";
 >>>>>>> ed11e93cf (chore(format))
@@ -25,7 +22,6 @@ import type { AppViewState } from "./app-view-state.ts";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
-<<<<<<< HEAD
 import {
   TAB_GROUPS,
   iconForTab,
@@ -53,10 +49,6 @@ import type {
   StatusSummary,
 } from "./types";
 import type { ChatQueueItem, CronFormState } from "./ui-types";
-=======
-import type { AppViewState } from "./app-view-state";
-import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
->>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
 import { refreshChatAvatar } from "./app-chat";
 import { renderChat } from "./views/chat";
 import { renderConfig } from "./views/config";
@@ -88,7 +80,6 @@ import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-iden
 import { loadAgentSkills } from "./controllers/agent-skills";
 import { loadAgents } from "./controllers/agents";
 import { loadChannels } from "./controllers/channels";
-<<<<<<< HEAD
 import { loadPresence } from "./controllers/presence";
 import { deleteSession, loadSessions, patchSession } from "./controllers/sessions";
 import {
@@ -101,9 +92,6 @@ import {
 <<<<<<< HEAD
 import { loadNodes } from "./controllers/nodes";
 import { loadChatHistory } from "./controllers/chat";
-=======
-import { ChatState, loadChatHistory } from "./controllers/chat";
->>>>>>> 27677dd8b (chore: Fix all TypeScript errors in `ui`.)
 =======
 import type { AppViewState } from "./app-view-state.ts";
 =======
@@ -129,12 +117,8 @@ import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-iden
 import { loadAgentSkills } from "./controllers/agent-skills.ts";
 import { loadAgents, loadToolsCatalog } from "./controllers/agents.ts";
 import { loadChannels } from "./controllers/channels.ts";
-<<<<<<< HEAD
 import { ChatState, loadChatHistory } from "./controllers/chat.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
-import { loadChatHistory } from "./controllers/chat.ts";
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 import {
   applyConfig,
   loadConfig,
@@ -160,17 +144,10 @@ import {
   addCronJob,
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 } from "./controllers/cron";
 import { loadDebug, callDebugMethod } from "./controllers/debug";
 <<<<<<< HEAD
 import { loadLogs } from "./controllers/logs";
-=======
-=======
-=======
-=======
-  normalizeCronFormState,
->>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 =======
   startCronEdit,
   startCronClone,
@@ -208,7 +185,6 @@ import {
   updateSkillEdit,
   updateSkillEnabled,
 <<<<<<< HEAD
-<<<<<<< HEAD
 } from "./controllers/skills";
 >>>>>>> 27677dd8b (chore: Fix all TypeScript errors in `ui`.)
 import { icons } from "./icons";
@@ -229,14 +205,9 @@ import { renderOverview } from "./views/overview";
 import { renderSessions } from "./views/sessions";
 import { renderSkills } from "./views/skills";
 >>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
-=======
-=======
-  type SkillMessage,
->>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
 } from "./controllers/skills.ts";
 import { buildExternalLinkRel, EXTERNAL_LINK_TARGET } from "./external-link.ts";
 import { icons } from "./icons.ts";
-<<<<<<< HEAD
 import {
   normalizeBasePath,
   TAB_GROUPS,
@@ -246,9 +217,6 @@ import {
   titleForTab,
   type Tab,
 } from "./navigation.ts";
-=======
-import { normalizeBasePath, TAB_GROUPS, subtitleForTab, titleForTab } from "./navigation.ts";
->>>>>>> 66fc12a40 (style: apply oxfmt formatting to app-render.ts)
 import { renderAgents } from "./views/agents.ts";
 import { renderChannels } from "./views/channels.ts";
 import { renderChat } from "./views/chat.ts";
@@ -266,11 +234,7 @@ import { renderSkills } from "./views/skills.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
-import { renderUsage } from "./views/usage.ts";
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 =======
 >>>>>>> d443a7379 (refactor(ui): extract usage tab render module)
 =======
@@ -418,7 +382,6 @@ export function renderApp(state: AppViewState) {
     <div class="shell ${isChat ? "shell--chat" : ""} ${chatFocus ? "shell--chat-focus" : ""} ${state.settings.navCollapsed ? "shell--nav-collapsed" : ""} ${state.onboarding ? "shell--onboarding" : ""}">
       <header class="topbar">
 <<<<<<< HEAD
-<<<<<<< HEAD
         <div class="topbar-left">
           <button
             class="nav-collapse-toggle"
@@ -439,9 +402,6 @@ export function renderApp(state: AppViewState) {
 <<<<<<< HEAD
 <<<<<<< HEAD
               <img src="https://mintcdn.com/clawdhub/4rYvG-uuZrMK_URE/assets/pixel-lobster.svg?fit=max&auto=format&n=4rYvG-uuZrMK_URE&q=85&s=da2032e9eac3b5d9bfe7eb96ca6a8a26" alt="Moltbot" />
-=======
-              <img src="https://mintcdn.com/clawhub/4rYvG-uuZrMK_URE/assets/pixel-lobster.svg?fit=max&auto=format&n=4rYvG-uuZrMK_URE&q=85&s=da2032e9eac3b5d9bfe7eb96ca6a8a26" alt="OpenClaw" />
->>>>>>> fd00d5688 (chore: update openclaw naming)
 =======
               <img src="/favicon.svg" alt="OpenClaw" />
 >>>>>>> f8575c401 (feat: update chat layout and session management)
@@ -486,7 +446,6 @@ export function renderApp(state: AppViewState) {
             title="${state.settings.navCollapsed ? t("nav.expand") : t("nav.collapse")}"
             aria-label="${state.settings.navCollapsed ? t("nav.expand") : t("nav.collapse")}"
           >
-<<<<<<< HEAD
             ${state.streamMode ? icons.eye : icons.eyeOff}
             ${
               state.streamMode
@@ -495,9 +454,6 @@ export function renderApp(state: AppViewState) {
                   `
                 : nothing
             }
-=======
-            <span class="nav-collapse-toggle__icon">${icons.menu}</span>
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
           </button>
           <div class="brand">
             <div class="brand-logo">
@@ -548,9 +504,6 @@ export function renderApp(state: AppViewState) {
                 ${group.tabs.map((tab) => renderTab(state, tab))}
               </div>
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
             </div>
           `;
         })}
@@ -561,12 +514,7 @@ export function renderApp(state: AppViewState) {
           <div class="nav-group__items">
             <a
               class="nav-item nav-item--external"
-<<<<<<< HEAD
               href="https://docs.molt.bot"
-=======
-              href="https://docs.openclaw.ai"
-<<<<<<< HEAD
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
               target="_blank"
               rel="noreferrer"
 =======
@@ -576,8 +524,6 @@ export function renderApp(state: AppViewState) {
               title="${t("common.docs")} (opens in new tab)"
             >
               <span class="nav-item__icon" aria-hidden="true">${icons.book}</span>
-<<<<<<< HEAD
-=======
             `;
           })}
         </nav>
@@ -594,7 +540,6 @@ export function renderApp(state: AppViewState) {
             ${
               !state.settings.navCollapsed
                 ? html`
->>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
 =======
 >>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
               <span class="nav-item__text">${t("common.docs")}</span>
@@ -1141,26 +1086,9 @@ export function renderApp(state: AppViewState) {
                   }
                   const basePath = ["agents", "list", index, "model"];
 <<<<<<< HEAD
-<<<<<<< HEAD
                   const entry = list[index] as { model?: unknown };
                   const normalized = fallbacks.map((name) => name.trim()).filter(Boolean);
                   const existing = entry.model;
-=======
-                  const list = (
-                    (state.configForm ??
-                      (state.configSnapshot?.config as Record<string, unknown> | null)) as {
-                      agents?: { list?: unknown[] };
-                    }
-                  )?.agents?.list;
-                  const entry =
-                    Array.isArray(list) && list[index]
-                      ? (list[index] as { model?: unknown })
-                      : null;
-                  const existing = entry?.model;
-                  if (!existing) {
-                    return;
-                  }
->>>>>>> 01ce144fa (fix(app-render): handle optional model in renderApp function)
 =======
                   const entry = list[index] as { model?: unknown };
                   const normalized = fallbacks.map((name) => name.trim()).filter(Boolean);
@@ -1362,50 +1290,7 @@ export function renderApp(state: AppViewState) {
                 onQueueRemove: (id) => state.removeQueuedMessage(id),
                 onNewSession: () => state.handleSendChat("/new", { restoreDraft: true }),
 <<<<<<< HEAD
-<<<<<<< HEAD
                 showNewMessages: state.chatNewMessagesBelow,
-=======
-                onClearHistory: async () => {
-                  if (!state.client || !state.connected) {
-                    return;
-                  }
-                  try {
-                    await state.client.request("sessions.reset", { key: state.sessionKey });
-                    state.chatMessages = [];
-                    state.chatStream = null;
-                    state.chatRunId = null;
-                    await loadChatHistory(state);
-                  } catch (err) {
-                    state.lastError = String(err);
-                  }
-                },
-                agentsList: state.agentsList,
-                currentAgentId: resolvedAgentId ?? "main",
-                onAgentChange: (agentId: string) => {
-                  state.sessionKey = buildAgentMainSessionKey({ agentId });
-                  state.chatMessages = [];
-                  state.chatStream = null;
-                  state.chatRunId = null;
-                  state.applySettings({
-                    ...state.settings,
-                    sessionKey: state.sessionKey,
-                    lastActiveSessionKey: state.sessionKey,
-                  });
-                  void loadChatHistory(state);
-                  void state.loadAssistantIdentity();
-                },
-                onNavigateToAgent: () => {
-                  state.agentsSelectedId = resolvedAgentId;
-                  state.setTab("agents" as import("./navigation.ts").Tab);
-                },
-                onSessionSelect: (key: string) => {
-                  state.setSessionKey(key);
-                  state.chatMessages = [];
-                  void loadChatHistory(state);
-                  void state.loadAssistantIdentity();
-                },
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                 showNewMessages: state.chatNewMessagesBelow && !state.chatManualRefreshInFlight,
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
                 onScrollToBottom: () => state.scrollToBottom(),

@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { countLines, hasBalancedFences } from "../test-utils/chunk-test-helpers.js";
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 import { chunkDiscordText, chunkDiscordTextWithMode } from "./chunk.js";
 
 describe("chunkDiscordText", () => {

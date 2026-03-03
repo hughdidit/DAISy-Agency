@@ -2,10 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { loadConfig } from "../../../config/config.js";

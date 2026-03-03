@@ -2,13 +2,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { BrowserRouteContext } from "../server-context.js";
 <<<<<<< HEAD
-=======
-import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
-import { escapeRegExp } from "../../utils.js";
->>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 =======
 import { escapeRegExp } from "../../utils.js";
 import type { BrowserRouteContext } from "../server-context.js";

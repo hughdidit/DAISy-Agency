@@ -1,19 +1,11 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { OutboundSendDeps } from "../../../infra/outbound/deliver.js";
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 import type { TelegramInlineButtons } from "../../../telegram/button-types.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ChannelOutboundAdapter } from "../types.js";
 >>>>>>> 16327f21d (feat(telegram): support inline button styles (#18241))
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ChannelOutboundAdapter } from "../types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -77,33 +69,13 @@ export const telegramOutbound: ChannelOutboundAdapter = {
     });
     return { channel: "telegram", ...result };
   },
-<<<<<<< HEAD
   sendMedia: async ({ to, text, mediaUrl, accountId, deps, replyToId, threadId }) => {
     const send = deps?.sendTelegram ?? sendMessageTelegram;
     const replyToMessageId = parseTelegramReplyToMessageId(replyToId);
     const messageThreadId = parseTelegramThreadId(threadId);
-=======
-  sendMedia: async ({
-    to,
-    text,
-    mediaUrl,
-    mediaLocalRoots,
-    accountId,
-    deps,
-    replyToId,
-    threadId,
-  }) => {
-    const { send, baseOpts } = resolveTelegramSendContext({
-      deps,
-      accountId,
-      replyToId,
-      threadId,
-    });
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
     const result = await send(to, text, {
       ...baseOpts,
       mediaUrl,
-<<<<<<< HEAD
       textMode: "html",
       messageThreadId,
       replyToMessageId,
@@ -115,19 +87,6 @@ export const telegramOutbound: ChannelOutboundAdapter = {
     const send = deps?.sendTelegram ?? sendMessageTelegram;
     const replyToMessageId = parseTelegramReplyToMessageId(replyToId);
     const messageThreadId = parseTelegramThreadId(threadId);
-=======
-      mediaLocalRoots,
-    });
-    return { channel: "telegram", ...result };
-  },
-  sendPayload: async ({ to, payload, mediaLocalRoots, accountId, deps, replyToId, threadId }) => {
-    const { send, baseOpts: contextOpts } = resolveTelegramSendContext({
-      deps,
-      accountId,
-      replyToId,
-      threadId,
-    });
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
     const telegramData = payload.channelData?.telegram as
       | { buttons?: TelegramInlineButtons; quoteText?: string }
       | undefined;
@@ -142,11 +101,7 @@ export const telegramOutbound: ChannelOutboundAdapter = {
     const payloadOpts = {
       ...contextOpts,
       quoteText,
-<<<<<<< HEAD
       accountId: accountId ?? undefined,
-=======
-      mediaLocalRoots,
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
     };
 
     if (mediaUrls.length === 0) {

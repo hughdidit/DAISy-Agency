@@ -2,19 +2,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import JSZip from "jszip";
 import sharp from "sharp";
-<<<<<<< HEAD
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-=======
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
->>>>>>> 4d4f693f9 (test: consolidate media store header extension coverage)
 import { isPathWithinBase } from "../../test/helpers/paths.js";
 import { createTempHomeEnv, type TempHomeEnv } from "../test-utils/temp-home.js";
 
 describe("media store", () => {
   let store: typeof import("./store.js");
   let home = "";
-<<<<<<< HEAD
 <<<<<<< HEAD
   const envSnapshot: Record<string, string | undefined> = {};
 
@@ -37,19 +32,6 @@ describe("media store", () => {
   beforeAll(async () => {
     snapshotEnv();
     home = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-test-home-"));
-=======
-  let envSnapshot: ReturnType<typeof captureEnv>;
-
-  beforeAll(async () => {
-    envSnapshot = captureEnv([
-      "HOME",
-      "USERPROFILE",
-      "HOMEDRIVE",
-      "HOMEPATH",
-      "OPENCLAW_STATE_DIR",
-    ]);
-    home = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-home-"));
->>>>>>> 70f86e326 (refactor(test): reuse shared env snapshots)
     process.env.HOME = home;
     process.env.USERPROFILE = home;
     process.env.CLAWDBOT_STATE_DIR = path.join(home, ".clawdbot");

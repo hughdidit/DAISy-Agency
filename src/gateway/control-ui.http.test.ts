@@ -196,8 +196,6 @@ describe("handleControlUiHttpRequest", () => {
       },
     });
   });
-<<<<<<< HEAD
-=======
 
   it("serves local avatar bytes through hardened avatar handler", async () => {
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-avatar-http-"));
@@ -328,7 +326,6 @@ describe("handleControlUiHttpRequest", () => {
     });
   });
 <<<<<<< HEAD
->>>>>>> 4ef4aa3c1 (refactor(gateway): streamline control-ui secure file serving)
 =======
 
   it("does not handle /api paths when basePath is empty", async () => {

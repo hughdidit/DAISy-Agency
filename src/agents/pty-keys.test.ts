@@ -1,9 +1,5 @@
 import { expect, test } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { buildCursorPositionResponse, stripDsrRequests } from "./pty-dsr.js";
->>>>>>> ea07d3fdd (perf(test): consolidate auth/pty/health mini suites)
 import {
   BRACKETED_PASTE_END,
   BRACKETED_PASTE_START,

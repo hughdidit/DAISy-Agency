@@ -390,8 +390,6 @@ describe("handleDiscordMessageAction", () => {
         archived: true,
         locked: false,
         autoArchiveDuration: 1440,
-<<<<<<< HEAD
-=======
       },
     },
   ] as const;
@@ -431,7 +429,6 @@ describe("handleDiscordMessageAction", () => {
         userId: "user-2",
         durationMinutes: 5,
         senderUserId: "trusted-sender-id",
->>>>>>> 8cdb184f1 (test(actions): table-drive discord forwarding cases)
       }),
     );
     expect(call?.[1]).toEqual(expect.any(Object));

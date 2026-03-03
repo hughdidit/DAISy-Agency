@@ -1,13 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { getChannelDock } from "../channels/dock.js";
 import { getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
 import { normalizeAnyChannelId } from "../channels/registry.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -29,12 +26,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { normalizeAnyChannelId } from "../channels/registry.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import { getChannelDock } from "../channels/dock.js";
@@ -69,15 +61,8 @@ export function listChannelSupportedActions(params: {
     return [];
   }
   const plugin = getChannelPlugin(params.channel as Parameters<typeof getChannelPlugin>[0]);
-<<<<<<< HEAD
   if (!plugin?.actions?.listActions) return [];
   const cfg = params.cfg ?? ({} as MoltbotConfig);
-=======
-  if (!plugin?.actions?.listActions) {
-    return [];
-  }
-  const cfg = params.cfg ?? ({} as OpenClawConfig);
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return runPluginListActions(plugin, cfg);
 }
 
@@ -89,15 +74,8 @@ export function listAllChannelSupportedActions(params: {
 }): ChannelMessageActionName[] {
   const actions = new Set<ChannelMessageActionName>();
   for (const plugin of listChannelPlugins()) {
-<<<<<<< HEAD
     if (!plugin.actions?.listActions) continue;
     const cfg = params.cfg ?? ({} as MoltbotConfig);
-=======
-    if (!plugin.actions?.listActions) {
-      continue;
-    }
-    const cfg = params.cfg ?? ({} as OpenClawConfig);
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     const channelActions = runPluginListActions(plugin, cfg);
     for (const action of channelActions) {
       actions.add(action);
@@ -133,15 +111,8 @@ export function resolveChannelMessageToolHints(params: {
   }
   const dock = getChannelDock(channelId);
   const resolve = dock?.agentPrompt?.messageToolHints;
-<<<<<<< HEAD
   if (!resolve) return [];
   const cfg = params.cfg ?? ({} as MoltbotConfig);
-=======
-  if (!resolve) {
-    return [];
-  }
-  const cfg = params.cfg ?? ({} as OpenClawConfig);
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return (resolve({ cfg, accountId: params.accountId }) ?? [])
     .map((entry) => entry.trim())
     .filter(Boolean);

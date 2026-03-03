@@ -162,12 +162,7 @@ Note: Binary detection is best-effort across macOS/Linux/Windows; ensure the CLI
 ## Capabilities (optional)
 
 If you set `capabilities`, the entry only runs for those media types. For shared
-<<<<<<< HEAD
 lists, Moltbot can infer defaults:
-=======
-lists, OpenClaw can infer defaults:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `openai`, `anthropic`, `minimax`: **image**
 - `google` (Gemini API): **image + audio + video**
 - `groq`: **audio**
@@ -176,23 +171,12 @@ lists, OpenClaw can infer defaults:
 For CLI entries, **set `capabilities` explicitly** to avoid surprising matches.
 If you omit `capabilities`, the entry is eligible for the list it appears in.
 
-<<<<<<< HEAD
 ## Provider support matrix (Moltbot integrations)
 | Capability | Provider integration | Notes |
 |------------|----------------------|-------|
 | Image | OpenAI / Anthropic / Google / others via `pi-ai` | Any image-capable model in the registry works. |
 | Audio | OpenAI, Groq, Deepgram, Google | Provider transcription (Whisper/Deepgram/Gemini). |
 | Video | Google (Gemini API) | Provider video understanding. |
-=======
-## Provider support matrix (OpenClaw integrations)
-
-<<<<<<< HEAD
-| Capability | Provider integration                             | Notes                                             |
-| ---------- | ------------------------------------------------ | ------------------------------------------------- |
-| Image      | OpenAI / Anthropic / Google / others via `pi-ai` | Any image-capable model in the registry works.    |
-| Audio      | OpenAI, Groq, Deepgram, Google                   | Provider transcription (Whisper/Deepgram/Gemini). |
-| Video      | Google (Gemini API)                              | Provider video understanding.                     |
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 | Capability | Provider integration                             | Notes                                                     |
 | ---------- | ------------------------------------------------ | --------------------------------------------------------- |

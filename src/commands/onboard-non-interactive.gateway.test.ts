@@ -5,12 +5,8 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { getDeterministicFreePortBlock } from "../test-utils/ports.js";
-=======
-import { getFreePortBlockWithPermissionFallback } from "../test-utils/ports.js";
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 =======
 import type { GatewayAuthConfig } from "../config/config.js";
@@ -19,16 +15,12 @@ import type { GatewayAuthConfig } from "../config/config.js";
 >>>>>>> 648d2daf6 (test: drop duplicate timeout-fallback e2e and trim onboarding auth overlap)
 import { makeTempWorkspace } from "../test-helpers/workspace.js";
 import { captureEnv } from "../test-utils/env.js";
-<<<<<<< HEAD
 import {
   createThrowingRuntime,
   readJsonFile,
   runNonInteractiveOnboarding,
 } from "./onboard-non-interactive.test-helpers.js";
 >>>>>>> 9adcaccd0 (refactor(test): share non-interactive onboarding test helpers)
-=======
-import { createThrowingRuntime, readJsonFile } from "./onboard-non-interactive.test-helpers.js";
->>>>>>> 71747a768 (test: preload onboarding command modules in hot suites)
 
 const gatewayClientCalls: Array<{
   url?: string;
@@ -66,7 +58,6 @@ vi.mock("../gateway/client.js", () => ({
   },
 }));
 
-<<<<<<< HEAD
 async function getFreePort(): Promise<number> {
 <<<<<<< HEAD
   return await new Promise((resolve, reject) => {
@@ -88,23 +79,11 @@ async function getFreePort(): Promise<number> {
         }
       });
     });
-=======
-  return await getFreePortBlockWithPermissionFallback({
-    offsets: [0],
-    fallbackBase: 30_000,
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 }
 
 async function getFreeGatewayPort(): Promise<number> {
-<<<<<<< HEAD
   return await getDeterministicFreePortBlock({ offsets: [0, 1, 2, 4] });
-=======
-  return await getFreePortBlockWithPermissionFallback({
-    offsets: [0, 1, 2, 4],
-    fallbackBase: 40_000,
-  });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 vi.mock("./onboard-helpers.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./onboard-helpers.js")>();
@@ -127,7 +106,6 @@ function getPseudoPort(base: number): number {
 const runtime = createThrowingRuntime();
 
 describe("onboard (non-interactive): gateway and remote auth", () => {
-<<<<<<< HEAD
   const prev = {
     home: process.env.HOME,
     stateDir: process.env.CLAWDBOT_STATE_DIR,
@@ -140,9 +118,6 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     token: process.env.CLAWDBOT_GATEWAY_TOKEN,
     password: process.env.CLAWDBOT_GATEWAY_PASSWORD,
   };
-=======
-  let envSnapshot: ReturnType<typeof captureEnv>;
->>>>>>> dda9e9f09 (refactor(test): snapshot onboarding gateway env via helper)
   let tempHome: string | undefined;
 
   const initStateDir = async (prefix: string) => {
@@ -166,7 +141,6 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     }
   };
   beforeAll(async () => {
-<<<<<<< HEAD
     process.env.CLAWDBOT_SKIP_CHANNELS = "1";
     process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = "1";
     process.env.CLAWDBOT_SKIP_CRON = "1";
@@ -174,33 +148,8 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = "1";
     delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     delete process.env.CLAWDBOT_GATEWAY_PASSWORD;
-=======
-    envSnapshot = captureEnv([
-      "HOME",
-      "OPENCLAW_STATE_DIR",
-      "OPENCLAW_CONFIG_PATH",
-      "OPENCLAW_SKIP_CHANNELS",
-      "OPENCLAW_SKIP_GMAIL_WATCHER",
-      "OPENCLAW_SKIP_CRON",
-      "OPENCLAW_SKIP_CANVAS_HOST",
-      "OPENCLAW_SKIP_BROWSER_CONTROL_SERVER",
-      "OPENCLAW_GATEWAY_TOKEN",
-      "OPENCLAW_GATEWAY_PASSWORD",
-    ]);
-    process.env.OPENCLAW_SKIP_CHANNELS = "1";
-    process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
-    process.env.OPENCLAW_SKIP_CRON = "1";
-    process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
-    process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = "1";
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
-    delete process.env.OPENCLAW_GATEWAY_PASSWORD;
->>>>>>> dda9e9f09 (refactor(test): snapshot onboarding gateway env via helper)
 
-<<<<<<< HEAD
     tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-onboard-"));
-=======
-    tempHome = await makeTempWorkspace("openclaw-onboard-");
->>>>>>> 9adcaccd0 (refactor(test): share non-interactive onboarding test helpers)
     process.env.HOME = tempHome;
   });
 
@@ -208,7 +157,6 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     if (tempHome) {
       await fs.rm(tempHome, { recursive: true, force: true });
     }
-<<<<<<< HEAD
     process.env.HOME = prev.home;
     process.env.CLAWDBOT_STATE_DIR = prev.stateDir;
     process.env.CLAWDBOT_CONFIG_PATH = prev.configPath;
@@ -219,21 +167,13 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = prev.skipBrowser;
     process.env.CLAWDBOT_GATEWAY_TOKEN = prev.token;
     process.env.CLAWDBOT_GATEWAY_PASSWORD = prev.password;
-=======
-    envSnapshot.restore();
->>>>>>> dda9e9f09 (refactor(test): snapshot onboarding gateway env via helper)
   });
 
-<<<<<<< HEAD
   it("writes gateway token auth into config and gateway enforces it", async () => {
 <<<<<<< HEAD
     const stateDir = await initStateDir("state-noninteractive-");
     const token = "tok_test_123";
     const workspace = path.join(stateDir, "clawd");
-=======
-=======
-  it("writes gateway token auth into config", async () => {
->>>>>>> 648d2daf6 (test: drop duplicate timeout-fallback e2e and trim onboarding auth overlap)
     await withStateDir("state-noninteractive-", async (stateDir) => {
       const token = "tok_test_123";
       const workspace = path.join(stateDir, "openclaw");
@@ -345,21 +285,12 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
       // Windows runner occasionally drops the temp config write in this flow; skip to keep CI green.
       return;
     }
-<<<<<<< HEAD
     const stateDir = await initStateDir("state-lan-");
     process.env.CLAWDBOT_STATE_DIR = stateDir;
     process.env.CLAWDBOT_CONFIG_PATH = path.join(stateDir, "moltbot.json");
 
     const port = await getFreeGatewayPort();
     const workspace = path.join(stateDir, "clawd");
-=======
-    await withStateDir("state-lan-", async (stateDir) => {
-      process.env.OPENCLAW_STATE_DIR = stateDir;
-      process.env.OPENCLAW_CONFIG_PATH = path.join(stateDir, "openclaw.json");
-
-      const port = getPseudoPort(40_000);
-      const workspace = path.join(stateDir, "openclaw");
->>>>>>> a948a3bd0 (refactor(test): share gateway onboarding state-dir lifecycle)
 
       await runNonInteractiveOnboarding(
         {

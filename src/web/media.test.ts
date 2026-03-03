@@ -4,54 +4,28 @@ import path from "node:path";
 
 import sharp from "sharp";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-=======
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 2c849ea4c (perf(test): reuse SSRF mock setup in web media tests)
 =======
 =======
 import { resolveStateDir } from "../config/paths.js";
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 import { sendVoiceMessageDiscord } from "../discord/send.js";
-<<<<<<< HEAD
 >>>>>>> acb2a1ce3 (perf(test): fold discord voice hardening into web media suite)
 import * as ssrf from "../infra/net/ssrf.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
-=======
-=======
->>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 >>>>>>> 2dba150c1 (Fix path-root flaky tests and restore status emoji defaults (#22274))
 =======
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import { optimizeImageToPng } from "../media/image-ops.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { loadWebMedia, optimizeImageToJpeg } from "./media.js";
-=======
-=======
-import { mockPinnedHostnameResolution } from "../test-helpers/ssrf.js";
->>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
 import { captureEnv } from "../test-utils/env.js";
-<<<<<<< HEAD
 import { loadWebMedia, loadWebMediaRaw, optimizeImageToJpeg } from "./media.js";
 >>>>>>> f0e373b82 (refactor(test): simplify state dir env restore)
-=======
-import {
-  LocalMediaAccessError,
-  loadWebMedia,
-  loadWebMediaRaw,
-  optimizeImageToJpeg,
-} from "./media.js";
->>>>>>> bf3f8ec42 (refactor(media): unify safe local file reads)
 
 let fixtureRoot = "";
 let fixtureFileCount = 0;
@@ -68,15 +42,11 @@ let fallbackPngCap = 0;
 let stateDirSnapshot: ReturnType<typeof captureEnv>;
 
 async function writeTempFile(buffer: Buffer, ext: string): Promise<string> {
-<<<<<<< HEAD
   const file = path.join(
     os.tmpdir(),
     `moltbot-media-${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`,
   );
   tmpFiles.push(file);
-=======
-  const file = path.join(fixtureRoot, `media-${fixtureFileCount++}${ext}`);
->>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
   await fs.writeFile(file, buffer);
   return file;
 }
@@ -91,71 +61,9 @@ function buildDeterministicBytes(length: number): Buffer {
   return buffer;
 }
 
-<<<<<<< HEAD
 afterEach(async () => {
   await Promise.all(tmpFiles.map((file) => fs.rm(file, { force: true })));
   tmpFiles.length = 0;
-=======
-async function createLargeTestJpeg(): Promise<{ buffer: Buffer; file: string }> {
-  return { buffer: largeJpegBuffer, file: largeJpegFile };
-}
-
-beforeAll(async () => {
-  fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-test-"));
-  largeJpegBuffer = await sharp({
-    create: {
-      width: 400,
-      height: 400,
-      channels: 3,
-      background: "#ff0000",
-    },
-  })
-    .jpeg({ quality: 95 })
-    .toBuffer();
-  largeJpegFile = await writeTempFile(largeJpegBuffer, ".jpg");
-  tinyPngBuffer = await sharp({
-    create: { width: 10, height: 10, channels: 3, background: "#00ff00" },
-  })
-    .png()
-    .toBuffer();
-  tinyPngFile = await writeTempFile(tinyPngBuffer, ".png");
-  tinyPngWrongExtFile = await writeTempFile(tinyPngBuffer, ".bin");
-  alphaPngBuffer = await sharp({
-    create: {
-      width: 64,
-      height: 64,
-      channels: 4,
-      background: { r: 255, g: 0, b: 0, alpha: 0.5 },
-    },
-  })
-    .png()
-    .toBuffer();
-  alphaPngFile = await writeTempFile(alphaPngBuffer, ".png");
-  // Keep this small so the alpha-fallback test stays deterministic but fast.
-  const size = 24;
-  const raw = buildDeterministicBytes(size * size * 4);
-  fallbackPngBuffer = await sharp(raw, { raw: { width: size, height: size, channels: 4 } })
-    .png()
-    .toBuffer();
-  fallbackPngFile = await writeTempFile(fallbackPngBuffer, ".png");
-  const smallestPng = await optimizeImageToPng(fallbackPngBuffer, 1);
-  fallbackPngCap = Math.max(1, smallestPng.optimizedSize - 1);
-  const jpegOptimized = await optimizeImageToJpeg(fallbackPngBuffer, fallbackPngCap);
-  if (jpegOptimized.buffer.length >= smallestPng.optimizedSize) {
-    throw new Error(
-      `JPEG fallback did not shrink below PNG (jpeg=${jpegOptimized.buffer.length}, png=${smallestPng.optimizedSize})`,
-    );
-  }
-});
-
-afterAll(async () => {
-  await fs.rm(fixtureRoot, { recursive: true, force: true });
-});
-
-afterEach(() => {
-<<<<<<< HEAD
-  vi.restoreAllMocks();
->>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 });
 
 describe("web media loading", () => {
@@ -185,29 +93,7 @@ describe("web media loading", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 2c849ea4c (perf(test): reuse SSRF mock setup in web media tests)
-=======
-  it("strips MEDIA: prefix before reading local file", async () => {
-    const result = await loadWebMedia(`MEDIA:${tinyPngFile}`, 1024 * 1024);
-
-    expect(result.kind).toBe("image");
-    expect(result.buffer.length).toBeGreaterThan(0);
-  });
-
-  it("strips MEDIA: prefix with extra whitespace (LLM-friendly)", async () => {
-    const result = await loadWebMedia(`  MEDIA :  ${tinyPngFile}`, 1024 * 1024);
-
-    expect(result.kind).toBe("image");
-    expect(result.buffer.length).toBeGreaterThan(0);
-=======
-  it("strips MEDIA: prefix before reading local file (including whitespace variants)", async () => {
-    for (const input of [`MEDIA:${tinyPngFile}`, `  MEDIA :  ${tinyPngFile}`]) {
-      const result = await loadWebMedia(input, 1024 * 1024);
-      expect(result.kind).toBe("image");
-      expect(result.buffer.length).toBeGreaterThan(0);
-    }
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
   });
 
 >>>>>>> 07850e8a9 (fix(media): strip MEDIA: prefix in loadWebMediaInternal (#13107))
@@ -248,12 +134,6 @@ describe("web media loading", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  it("blocks private network URL fetches (SSRF guard)", async () => {
-=======
-  it("blocks SSRF URLs before fetch", async () => {
->>>>>>> 59563847e (test(web): table-drive SSRF and voice input rejection cases)
     const fetchMock = vi.spyOn(globalThis, "fetch");
     const cases = [
       {
@@ -293,22 +173,7 @@ describe("web media loading", () => {
     fetchMock.mockRestore();
   });
 
-<<<<<<< HEAD
 >>>>>>> 7cc6add9b (test(web): add SSRF guard cases)
-=======
-  it("keeps raw mode when options object sets optimizeImages true", async () => {
-    const { buffer, file } = await createLargeTestJpeg();
-    const cap = Math.max(1, Math.floor(buffer.length * 0.8));
-
-    await expect(
-      loadWebMediaRaw(file, {
-        maxBytes: cap,
-        optimizeImages: true,
-      }),
-    ).rejects.toThrow(/Media exceeds/i);
-  });
-
->>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
   it("uses content-disposition filename when available", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
       ok: true,
@@ -478,8 +343,6 @@ describe("local media root guard", () => {
       }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("rejects default OpenClaw state per-agent workspace-* roots without explicit local roots", async () => {
     const stateDir = resolveStateDir();
@@ -510,5 +373,4 @@ describe("local media root guard", () => {
       }),
     );
   });
->>>>>>> be9b5cefb (fix(ci): stabilize state-dir dependent tests)
 });

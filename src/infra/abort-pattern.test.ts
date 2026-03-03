@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
-=======
-import { describe, expect, it, vi } from "vitest";
-import { bindAbortRelay } from "../utils/fetch-timeout.js";
->>>>>>> 7648f6bb0 (perf(test): fake abort timer and dedupe slack thread cases)
 
 /**
  * Regression test for #7174: Memory leak from closure-wrapped controller.abort().

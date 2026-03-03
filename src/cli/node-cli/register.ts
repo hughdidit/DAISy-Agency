@@ -1,13 +1,8 @@
 import type { Command } from "commander";
 import { formatDocsLink } from "../../terminal/links.js";
 import { theme } from "../../terminal/theme.js";
-<<<<<<< HEAD
 import { loadNodeHostConfig } from "../../node-host/config.js";
 import { runNodeHost } from "../../node-host/runner.js";
-=======
-import { parsePort } from "../daemon-cli/shared.js";
-import { formatHelpExamples } from "../help-format.js";
->>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
 import {
   runNodeDaemonInstall,
   runNodeDaemonRestart,
@@ -28,20 +23,7 @@ export function registerNodeCli(program: Command) {
     .description("Run and manage the headless node host service")
     .addHelpText(
       "after",
-<<<<<<< HEAD
       () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/node", "docs.molt.bot/cli/node")}\n`,
-=======
-      () =>
-        `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          [
-            "openclaw node run --host 127.0.0.1 --port 18789",
-            "Run the node host in the foreground.",
-          ],
-          ["openclaw node status", "Check node host service status."],
-          ["openclaw node install", "Install the node host service."],
-          ["openclaw node restart", "Restart the installed node host service."],
-        ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/node", "docs.openclaw.ai/cli/node")}\n`,
->>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
     );
 
   node

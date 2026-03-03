@@ -180,8 +180,6 @@ describe("Feishu webhook security hardening", () => {
       },
     );
   });
-<<<<<<< HEAD
-=======
 
   it("caps tracked webhook rate-limit keys to prevent unbounded growth", () => {
     const now = 1_000_000;
@@ -274,7 +272,6 @@ describe("Feishu webhook security hardening", () => {
       await monitorPromise;
     }
   });
->>>>>>> abc7b6fbe (Feishu: skip duplicate bot-info retries after preflight)
 =======
 >>>>>>> f46bd2e0c (refactor(feishu): split monitor startup and transport concerns)
 });

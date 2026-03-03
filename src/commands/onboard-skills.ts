@@ -6,13 +6,9 @@ import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-=======
-import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
->>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";

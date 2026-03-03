@@ -1,8 +1,5 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ChannelId, ChannelPlugin } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { PluginRegistry } from "../../plugins/registry.js";
 import { getActivePluginRegistry } from "../../plugins/runtime.js";
 =======

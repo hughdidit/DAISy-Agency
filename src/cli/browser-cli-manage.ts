@@ -116,7 +116,6 @@ export function registerBrowserManageCommands(
       const parent = parentOpts(cmd);
       const profile = parent?.browserProfile;
       await runBrowserCommand(async () => {
-<<<<<<< HEAD
         await callBrowserRequest(
           parent,
           {
@@ -141,9 +140,6 @@ export function registerBrowserManageCommands(
         }
         const name = status.profile ?? "daisy";
         defaultRuntime.log(info(`🦞 browser [${name}] running: ${status.running}`));
-=======
-        await runBrowserToggle(parent, { profile, path: "/start" });
->>>>>>> 84ffb0588 (refactor(cli): dedupe browser start/stop)
       });
     });
 
@@ -154,7 +150,6 @@ export function registerBrowserManageCommands(
       const parent = parentOpts(cmd);
       const profile = parent?.browserProfile;
       await runBrowserCommand(async () => {
-<<<<<<< HEAD
         await callBrowserRequest(
           parent,
           {
@@ -179,9 +174,6 @@ export function registerBrowserManageCommands(
         }
         const name = status.profile ?? "daisy";
         defaultRuntime.log(info(`🦞 browser [${name}] running: ${status.running}`));
-=======
-        await runBrowserToggle(parent, { profile, path: "/stop" });
->>>>>>> 84ffb0588 (refactor(cli): dedupe browser start/stop)
       });
     });
 

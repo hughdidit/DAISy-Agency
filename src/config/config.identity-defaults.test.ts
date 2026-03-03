@@ -7,7 +7,6 @@ import { withTempHome } from "./home-env.test-harness.js";
 
 describe("config identity defaults", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   let fixtureRoot = "";
   let fixtureCount = 0;
 
@@ -48,9 +47,6 @@ describe("config identity defaults", () => {
         "utf-8",
       );
 =======
-=======
->>>>>>> d8da64261 (refactor(test): share temp home env harness)
-=======
   const defaultIdentity = {
     name: "Samantha",
     theme: "helpful sloth",
@@ -88,7 +84,6 @@ describe("config identity defaults", () => {
 
       expect(cfg.messages?.responsePrefix).toBeUndefined();
       expect(cfg.messages?.groupChat?.mentionPatterns).toBeUndefined();
-<<<<<<< HEAD
     });
   });
 
@@ -124,15 +119,12 @@ describe("config identity defaults", () => {
       const { loadConfig } = await import("./config.js");
       const cfg = loadConfig();
 
-=======
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
       expect(cfg.messages?.ackReaction).toBeUndefined();
       expect(cfg.messages?.ackReactionScope).toBe("group-mentions");
     });
   });
 
   it("keeps ackReaction unset and does not synthesize agent/session defaults when identity is missing", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       const configDir = path.join(home, ".clawdbot");
@@ -152,10 +144,6 @@ describe("config identity defaults", () => {
       vi.resetModules();
       const { loadConfig } = await import("./config.js");
       const cfg = loadConfig();
-=======
-=======
-    await withTempHome("openclaw-config-identity-", async (home) => {
->>>>>>> d8da64261 (refactor(test): share temp home env harness)
       const cfg = await writeAndLoadConfig(home, { messages: {} });
 >>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
 
@@ -171,7 +159,6 @@ describe("config identity defaults", () => {
   });
 
   it("does not override explicit values", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       const configDir = path.join(home, ".clawdbot");
@@ -192,10 +179,6 @@ describe("config identity defaults", () => {
                   groupChat: { mentionPatterns: ["@clawd"] },
                 },
               ],
-=======
-=======
-    await withTempHome("openclaw-config-identity-", async (home) => {
->>>>>>> d8da64261 (refactor(test): share temp home env harness)
       const cfg = await writeAndLoadConfig(home, {
         agents: {
           list: [
@@ -222,7 +205,6 @@ describe("config identity defaults", () => {
   });
 
   it("supports provider textChunkLimit config", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       const configDir = path.join(home, ".clawdbot");
@@ -246,10 +228,6 @@ describe("config identity defaults", () => {
               signal: { enabled: true, textChunkLimit: 2222 },
               imessage: { enabled: true, textChunkLimit: 1111 },
             },
-=======
-=======
-    await withTempHome("openclaw-config-identity-", async (home) => {
->>>>>>> d8da64261 (refactor(test): share temp home env harness)
       const cfg = await writeAndLoadConfig(home, {
         messages: {
           messagePrefix: "[openclaw]",
@@ -282,7 +260,6 @@ describe("config identity defaults", () => {
   });
 
   it("accepts blank model provider apiKey values", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       const configDir = path.join(home, ".clawdbot");
@@ -314,10 +291,6 @@ describe("config identity defaults", () => {
                       maxTokens: 8192,
                     },
                   ],
-=======
-=======
-    await withTempHome("openclaw-config-identity-", async (home) => {
->>>>>>> d8da64261 (refactor(test): share temp home env harness)
       const cfg = await writeAndLoadConfig(home, {
         models: {
           mode: "merge",
@@ -353,7 +326,6 @@ describe("config identity defaults", () => {
   });
 
   it("respects empty responsePrefix to disable identity defaults", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       const configDir = path.join(home, ".clawdbot");
@@ -373,11 +345,6 @@ describe("config identity defaults", () => {
                   },
                 },
               ],
-=======
-=======
-    await withTempHome("openclaw-config-identity-", async (home) => {
-<<<<<<< HEAD
->>>>>>> d8da64261 (refactor(test): share temp home env harness)
       const cfg = await writeAndLoadConfig(home, {
         agents: {
           list: [
@@ -401,7 +368,6 @@ describe("config identity defaults", () => {
       expect(cfg.messages?.responsePrefix).toBe("");
     });
   });
-<<<<<<< HEAD
 
 <<<<<<< HEAD
   it("does not synthesize agent list/session when absent", async () => {
@@ -452,20 +418,6 @@ describe("config identity defaults", () => {
                   },
                 },
               ],
-=======
-  it("does not derive responsePrefix from identity emoji", async () => {
-    await withTempHome("openclaw-config-identity-", async (home) => {
-      const cfg = await writeAndLoadConfig(home, {
-        agents: {
-          list: [
-            {
-              id: "main",
-              identity: {
-                name: "OpenClaw",
-                theme: "space lobster",
-                emoji: "🦞",
-              },
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
             },
           ],
         },

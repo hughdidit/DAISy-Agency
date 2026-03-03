@@ -1,9 +1,5 @@
 import { z } from "zod";
-<<<<<<< HEAD
 
-=======
-import { getBlockedNetworkModeReason } from "../agents/sandbox/network-mode.js";
->>>>>>> 5552f9073 (refactor(sandbox): centralize network mode policy helpers)
 import { parseDurationMs } from "../cli/parse-duration.js";
 import { AgentModelSchema } from "./zod-schema.agent-model.js";
 import {
@@ -135,8 +131,6 @@ export const SandboxDockerSchema = z
     dangerouslyAllowContainerNamespaceJoin: z.boolean().optional(),
   })
   .strict()
-<<<<<<< HEAD
-=======
   .superRefine((data, ctx) => {
     if (data.binds) {
       for (let i = 0; i < data.binds.length; i += 1) {
@@ -202,7 +196,6 @@ export const SandboxDockerSchema = z
       });
     }
   })
->>>>>>> 14b6eea6e (feat(sandbox): block container namespace joins by default)
   .optional();
 
 export const SandboxBrowserSchema = z
@@ -252,21 +245,8 @@ export const ToolPolicySchema = ToolPolicyBaseSchema.superRefine((value, ctx) =>
 export const ToolsWebSearchSchema = z
   .object({
     enabled: z.boolean().optional(),
-<<<<<<< HEAD
     provider: z.union([z.literal("brave"), z.literal("perplexity"), z.literal("grok")]).optional(),
     apiKey: z.string().optional(),
-=======
-    provider: z
-      .union([
-        z.literal("brave"),
-        z.literal("perplexity"),
-        z.literal("grok"),
-        z.literal("gemini"),
-        z.literal("kimi"),
-      ])
-      .optional(),
-    apiKey: z.string().optional().register(sensitive),
->>>>>>> 3a3c2da91 ([Feature]: Add Gemini (Google Search grounding) as web_search provider (#13075))
     maxResults: z.number().int().positive().optional(),
     timeoutSeconds: z.number().int().positive().optional(),
     cacheTtlMinutes: z.number().nonnegative().optional(),
@@ -515,7 +495,6 @@ export const AgentToolsSchema = z
       })
       .strict()
       .optional(),
-<<<<<<< HEAD
     exec: z
       .object({
         host: z.enum(["sandbox", "gateway", "node"]).optional(),
@@ -540,11 +519,6 @@ export const AgentToolsSchema = z
       })
       .strict()
       .optional(),
-=======
-    exec: AgentToolExecSchema,
-    fs: ToolFsSchema,
-<<<<<<< HEAD
->>>>>>> cc2a63cd2 (refactor(config): dedupe exec/fs zod schemas)
 =======
     loopDetection: ToolLoopDetectionSchema,
 >>>>>>> 076df941a (feat: add configurable tool loop detection)
@@ -736,8 +710,6 @@ export const ToolsSchema = z
     web: ToolsWebSchema,
     media: ToolsMediaSchema,
     links: ToolsLinksSchema,
-<<<<<<< HEAD
-=======
     sessions: z
       .object({
         visibility: z.enum(["self", "tree", "agent", "all"]).optional(),
@@ -745,7 +717,6 @@ export const ToolsSchema = z
       .strict()
       .optional(),
     loopDetection: ToolLoopDetectionSchema,
->>>>>>> 076df941a (feat: add configurable tool loop detection)
     message: z
       .object({
         allowCrossContextSend: z.boolean().optional(),
@@ -787,7 +758,6 @@ export const ToolsSchema = z
       })
       .strict()
       .optional(),
-<<<<<<< HEAD
     exec: z
       .object({
         host: z.enum(["sandbox", "gateway", "node"]).optional(),
@@ -811,10 +781,6 @@ export const ToolsSchema = z
       })
       .strict()
       .optional(),
-=======
-    exec: ToolExecSchema,
-    fs: ToolFsSchema,
->>>>>>> cc2a63cd2 (refactor(config): dedupe exec/fs zod schemas)
     subagents: z
       .object({
         tools: ToolPolicySchema,

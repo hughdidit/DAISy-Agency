@@ -18,7 +18,6 @@ import { getReplyFromConfig } from "./reply.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -59,8 +58,6 @@ function _assertModelSelection(
   expect(entry?.providerOverride).toBe(selection.provider);
 }
 
-=======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
 =======
 async function runThinkDirectiveAndGetText(
   home: string,
@@ -141,66 +138,7 @@ async function runInlineReasoningMessage(params: {
   );
 }
 
-<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-=======
-function makeRunConfig(home: string, storePath: string) {
-  return makeWhatsAppDirectiveConfig(
-    home,
-    { model: "anthropic/claude-opus-4-5" },
-    { session: { store: storePath } },
-  );
-}
-
-async function runInFlightVerboseToggleCase(params: {
-  home: string;
-  shouldEmitBefore: boolean;
-  toggledVerboseLevel: "on" | "off";
-  seedVerboseOn?: boolean;
-}) {
-  const storePath = sessionStorePath(params.home);
-  const ctx = {
-    Body: "please do the thing",
-    From: "+1004",
-    To: "+2000",
-  };
-  const sessionKey = resolveSessionKey(
-    "per-sender",
-    { From: ctx.From, To: ctx.To, Body: ctx.Body },
-    "main",
-  );
-
-  vi.mocked(runEmbeddedPiAgent).mockImplementation(async (agentParams) => {
-    const shouldEmit = agentParams.shouldEmitToolResult;
-    expect(shouldEmit?.()).toBe(params.shouldEmitBefore);
-    const store = loadSessionStore(storePath);
-    const entry = store[sessionKey] ?? {
-      sessionId: "s",
-      updatedAt: Date.now(),
-    };
-    store[sessionKey] = {
-      ...entry,
-      verboseLevel: params.toggledVerboseLevel,
-      updatedAt: Date.now(),
-    };
-    await saveSessionStore(storePath, store);
-    expect(shouldEmit?.()).toBe(!params.shouldEmitBefore);
-    return makeEmbeddedTextResult("done");
-  });
-
-  if (params.seedVerboseOn) {
-    await getReplyFromConfig(
-      { Body: "/verbose on", From: ctx.From, To: ctx.To, CommandAuthorized: true },
-      {},
-      makeRunConfig(params.home, storePath),
-    );
-  }
-
-  const res = await getReplyFromConfig(ctx, {}, makeRunConfig(params.home, storePath));
-  return { res };
-}
-
->>>>>>> b11ff9f7d (test: collapse directive behavior shards)
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
@@ -211,7 +149,6 @@ describe("directive behavior", () => {
       const blockReplies: string[] = [];
       const storePath = sessionStorePath(home);
 
-<<<<<<< HEAD
 <<<<<<< HEAD
       const res = await getReplyFromConfig(
         {
@@ -238,17 +175,11 @@ describe("directive behavior", () => {
           session: { store: storePath },
         },
       );
-=======
-      const res = await runInlineReasoningMessage({
-=======
-      const firstRes = await runInlineReasoningMessage({
->>>>>>> 31ca7fb27 (test: consolidate directive behavior test scenarios)
         home,
         body: "please reply\n/reasoning on",
         storePath,
         blockReplies,
       });
-<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
       const texts = replyTexts(res);
@@ -316,16 +247,6 @@ describe("directive behavior", () => {
           session: { store: storePath },
         },
       );
-=======
-      await runInlineReasoningMessage({
-        home,
-        body: "do it\n/reasoning on",
-        storePath,
-        blockReplies,
-      });
-=======
-      expect(replyTexts(firstRes)).toContain("done");
->>>>>>> 31ca7fb27 (test: consolidate directive behavior test scenarios)
 
       await runInlineReasoningMessage({
         home,
@@ -346,7 +267,6 @@ describe("directive behavior", () => {
       const enabledRes = await getReplyFromConfig(
         { Body: "/verbose on", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -356,29 +276,18 @@ describe("directive behavior", () => {
           },
           session: { store: path.join(home, "sessions.json") },
         },
-=======
-        makeWhatsAppDirectiveConfig(home, { model: "anthropic/claude-opus-4-5" }),
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       );
       expect(replyText(enabledRes)).toMatch(/^⚙️ Verbose logging enabled\./);
 
       const disabledRes = await getReplyFromConfig(
         { Body: "/verbose off", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
             },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: "anthropic/claude-opus-4-5" },
-          {
-            session: { store: storePath },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
           },
         ),
       );
@@ -418,7 +327,6 @@ describe("directive behavior", () => {
   it("covers think status and /thinking xhigh support matrix", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         { Body: "/think", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
@@ -436,14 +344,10 @@ describe("directive behavior", () => {
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
 =======
-      const text = await runThinkDirectiveAndGetText(home, { thinkingDefault: "high" });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-=======
       const text = await runThinkDirectiveAndGetText(home);
 >>>>>>> b11ff9f7d (test: collapse directive behavior shards)
       expect(text).toContain("Current thinking level: high");
       expect(text).toContain("Options: off, minimal, low, medium, high.");
-<<<<<<< HEAD
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
   });
@@ -467,9 +371,6 @@ describe("directive behavior", () => {
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
-=======
-      const text = await runThinkDirectiveAndGetText(home);
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(text).toContain("Current thinking level: off");
       expect(text).toContain("Options: off, minimal, low, medium, high.");
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();

@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7,7 +5,6 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { InlineCodeState } from "../markdown/code-spans.js";
@@ -17,10 +14,7 @@ import type {
 } from "./pi-embedded-subscribe.handlers.types.js";
 import type { SubscribeEmbeddedPiSessionParams } from "./pi-embedded-subscribe.types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> d714ac779 (refactor(agents): dedupe transient error copy (#16324))
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -47,9 +41,6 @@ import { createEmbeddedPiSessionEventHandler } from "./pi-embedded-subscribe.han
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -61,11 +52,7 @@ import type {
 import type { SubscribeEmbeddedPiSessionParams } from "./pi-embedded-subscribe.types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { formatReasoningMessage } from "./pi-embedded-utils.js";
-=======
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -321,7 +308,6 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     if (!params.onToolResult) {
       return;
     }
-<<<<<<< HEAD
     const agg = formatToolAggregate(toolName, meta ? [meta] : undefined, {
       markdown: useMarkdown,
     });
@@ -346,8 +332,6 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
       markdown: useMarkdown,
     });
     const message = `${agg}\n${formatToolOutputBlock(output)}`;
-=======
->>>>>>> 8af19ddc5 (refactor: extract shared dedupe helpers for runtime paths)
     const { text: cleanedText, mediaUrls } = parseReplyDirectives(message);
     if (!cleanedText && (!mediaUrls || mediaUrls.length === 0)) {
       return;
@@ -625,11 +609,8 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     log,
     blockChunking,
     blockChunker,
-<<<<<<< HEAD
-=======
     hookRunner: params.hookRunner,
     noteLastAssistant,
->>>>>>> d714ac779 (refactor(agents): dedupe transient error copy (#16324))
     shouldEmitToolResult,
     shouldEmitToolOutput,
     emitToolSummary,

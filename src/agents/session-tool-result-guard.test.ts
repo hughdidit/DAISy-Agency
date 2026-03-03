@@ -271,8 +271,6 @@ describe("installSessionToolResultGuard", () => {
 
     expectPersistedRoles(sm, ["assistant", "toolResult"]);
   });
-<<<<<<< HEAD
-=======
 
   it("caps oversized tool result text during persistence", () => {
     const sm = SessionManager.inMemory();
@@ -325,5 +323,4 @@ describe("installSessionToolResultGuard", () => {
       sourceTool: "sessions_send",
     });
   });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 });

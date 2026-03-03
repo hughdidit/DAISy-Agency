@@ -5,32 +5,17 @@ import {
   DEFAULT_ACCOUNT_ID,
   formatPairingApproveHint,
   type ChannelPlugin,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import { NostrConfigSchema } from "./config-schema.js";
 =======
-} from "openclaw/plugin-sdk";
-import type { NostrProfile } from "./config-schema.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
-import type { ProfilePublishResult } from "./nostr-profile.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { NostrConfigSchema } from "./config-schema.js";
 import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
 import { normalizePubkey, startNostrBus, type NostrBusHandle } from "./nostr-bus.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
-import type { ProfilePublishResult } from "./nostr-profile.js";
->>>>>>> d0cb8c19b (chore: wtf.)
-=======
 import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
 import type { ProfilePublishResult } from "./nostr-profile.js";
 =======
@@ -38,11 +23,7 @@ import type { ProfilePublishResult } from "./nostr-profile.js";
 import { NostrConfigSchema } from "./config-schema.js";
 import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
 import { normalizePubkey, startNostrBus, type NostrBusHandle } from "./nostr-bus.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { ProfilePublishResult } from "./nostr-profile.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getNostrRuntime } from "./runtime.js";
 import {
   listNostrAccountIds,
@@ -250,15 +231,8 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = {
             `[${account.accountId}] DM from ${senderPubkey}: ${text.slice(0, 50)}...`,
           );
 
-<<<<<<< HEAD
           // Forward to moltbot's message pipeline
           await runtime.channel.reply.handleInboundMessage({
-=======
-          // Forward to OpenClaw's message pipeline
-          await (
-            runtime.channel.reply as { handleInboundMessage?: (params: unknown) => Promise<void> }
-          ).handleInboundMessage?.({
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
             channel: "nostr",
             accountId: account.accountId,
             senderId: senderPubkey,

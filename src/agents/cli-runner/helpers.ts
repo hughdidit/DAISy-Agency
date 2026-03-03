@@ -6,10 +6,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 =======
@@ -31,13 +28,9 @@ import type { CliBackendConfig } from "../../config/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { runExec } from "../../process/exec.js";
 <<<<<<< HEAD
 import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
-=======
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -219,7 +212,6 @@ export type CliOutput = {
   usage?: CliUsage;
 };
 
-<<<<<<< HEAD
 function buildModelAliasLines(cfg?: MoltbotConfig) {
   const models = cfg?.agents?.defaults?.models ?? {};
   const entries: Array<{ alias: string; model: string }> = [];
@@ -239,8 +231,6 @@ function buildModelAliasLines(cfg?: MoltbotConfig) {
     .map((entry) => `- ${entry.alias}: ${entry.model}`);
 }
 
-=======
->>>>>>> cb2f978ed (refactor(agents): share model alias line builder)
 export function buildSystemPrompt(params: {
   workspaceDir: string;
   config?: MoltbotConfig;

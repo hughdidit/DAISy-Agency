@@ -9,11 +9,8 @@ final class ConfigFileWatcher: @unchecked Sendable {
 
     init(url: URL, onChange: @escaping () -> Void) {
         self.url = url
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ConfigFileWatcher.swift
         self.queue = DispatchQueue(label: "bot.molt.configwatcher")
         self.onChange = onChange
-=======
->>>>>>> 375e16170 (refactor(macos): dedupe file watcher):apps/macos/Sources/OpenClaw/ConfigFileWatcher.swift
         self.watchedDir = url.deletingLastPathComponent()
         self.targetPath = url.path
         self.targetName = url.lastPathComponent

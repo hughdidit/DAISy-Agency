@@ -3,11 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -20,16 +15,12 @@ import { ensureAuthProfileStore, listProfilesForProvider } from "../agents/auth-
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
-<<<<<<< HEAD
 import {
   ensureAuthProfileStore,
   listProfilesForProvider,
   upsertAuthProfileWithLock,
 } from "../agents/auth-profiles.js";
 >>>>>>> e73d881c5 (Onboarding: add vLLM provider support)
-=======
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { ensureAuthProfileStore, listProfilesForProvider } from "../agents/auth-profiles.js";
 >>>>>>> 8d1a1d9e8 (refactor(commands): share vllm setup)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
@@ -46,11 +37,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -66,11 +53,8 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { formatTokenK } from "./models/shared.js";
-<<<<<<< HEAD
-=======
 import { OPENAI_CODEX_DEFAULT_MODEL } from "./openai-codex-model-default.js";
 import { promptAndConfigureVllm } from "./vllm-setup.js";
->>>>>>> 8d1a1d9e8 (refactor(commands): share vllm setup)
 
 const KEEP_VALUE = "__keep__";
 const MANUAL_VALUE = "__manual__";
@@ -114,31 +98,7 @@ function hasAuthForProvider(
   return false;
 }
 
-<<<<<<< HEAD
 function resolveConfiguredModelRaw(cfg: MoltbotConfig): string {
-=======
-function createProviderAuthChecker(params: {
-  cfg: OpenClawConfig;
-  agentDir?: string;
-}): (provider: string) => boolean {
-  const authStore = ensureAuthProfileStore(params.agentDir, {
-    allowKeychainPrompt: false,
-  });
-  const authCache = new Map<string, boolean>();
-  return (provider: string) => {
-    const cached = authCache.get(provider);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const value = hasAuthForProvider(provider, params.cfg, authStore);
-    authCache.set(provider, value);
-    return value;
-  };
-}
-
-function resolveConfiguredModelRaw(cfg: OpenClawConfig): string {
-<<<<<<< HEAD
->>>>>>> 95c986dee (refactor(models): share model picker auth checker)
   const raw = cfg.agents?.defaults?.model as { primary?: string } | string | undefined;
   if (typeof raw === "string") {
     return raw.trim();

@@ -269,18 +269,11 @@ TRASH
   }
 
   send_skills_flow() {
-<<<<<<< HEAD
     # Select skills section and skip optional installs.
     wait_for_log "Where will the Gateway run?" 60 || true
     send $'"'"'\r'"'"' 0.6
     # Configure skills now? -> No
     wait_for_log "Configure skills now?" 60 || true
-=======
-    # configure --section skills still runs the configure wizard; the first prompt is gateway location.
-    # Avoid log-based synchronization here; clack output can fragment ANSI sequences and break matching.
-    send $'"'"'\r'"'"' 3.0
-    wait_for_log "Configure skills now?" 120 true || true
->>>>>>> 2690dfa77 (test: quiet docker onboard e2e noise)
     send $'"'"'n\r'"'"' 0.8
     send "" 1.0
   }
@@ -410,11 +403,7 @@ NODE
     export HOME="$home_dir"
     mkdir -p "$HOME/.clawdbot"
     # Seed a remote config to exercise reset path.
-<<<<<<< HEAD
     cat > "$HOME/.clawdbot/moltbot.json" <<'"'"'JSON'"'"'
-=======
-	    cat > "$HOME/.openclaw/openclaw.json" <<'"'"'JSON'"'"'
->>>>>>> 80d42eb0b (fix(docker): support .mjs entrypoints in images and e2e)
 {
   "meta": {},
   "agents": { "defaults": { "workspace": "/root/old" } },
@@ -510,11 +499,7 @@ NODE
     export HOME="$home_dir"
     mkdir -p "$HOME/.clawdbot"
     # Seed skills config to ensure it survives the wizard.
-<<<<<<< HEAD
     cat > "$HOME/.clawdbot/moltbot.json" <<'"'"'JSON'"'"'
-=======
-	    cat > "$HOME/.openclaw/openclaw.json" <<'"'"'JSON'"'"'
->>>>>>> 80d42eb0b (fix(docker): support .mjs entrypoints in images and e2e)
 {
   "meta": {},
   "skills": {

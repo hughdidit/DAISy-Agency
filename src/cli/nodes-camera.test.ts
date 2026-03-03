@@ -113,17 +113,11 @@ describe("nodes camera helpers", () => {
 
   it("writes base64 to file", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-test-"));
     const out = path.join(dir, "x.bin");
     await writeBase64ToFile(out, "aGk=");
     await expect(fs.readFile(out, "utf8")).resolves.toBe("hi");
     await fs.rm(dir, { recursive: true, force: true });
-=======
-    await withTempDir("openclaw-test-", async (dir) => {
-=======
-    await withCameraTempDir(async (dir) => {
->>>>>>> bd74d4916 (test(cli): dedupe camera temp fixtures and cover clip url error paths)
       const out = path.join(dir, "x.bin");
       await writeBase64ToFile(out, "aGk=");
       await expect(fs.readFile(out, "utf8")).resolves.toBe("hi");

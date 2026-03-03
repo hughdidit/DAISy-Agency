@@ -74,14 +74,8 @@ ssh -N -L 18789:127.0.0.1:18789 user@host
 ```
 
 With the tunnel up:
-<<<<<<< HEAD
 - `moltbot health` and `moltbot status --deep` now reach the remote gateway via `ws://127.0.0.1:18789`.
 - `moltbot gateway {status,health,send,agent,call}` can also target the forwarded URL via `--url` when needed.
-=======
-
-- `openclaw health` and `openclaw status --deep` now reach the remote gateway via `ws://127.0.0.1:18789`.
-- `openclaw gateway {status,health,send,agent,call}` can also target the forwarded URL via `--url` when needed.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Note: replace `18789` with your configured `gateway.port` (or `--port`/`CLAWDBOT_GATEWAY_PORT`).
 
@@ -138,15 +132,8 @@ Short version: **keep the Gateway loopback-only** unless you’re sure you need 
 - **Non-loopback binds** (`lan`/`tailnet`/`custom`, or `auto` when loopback is unavailable) must use auth tokens/passwords.
 - `gateway.remote.token` is **only** for remote CLI calls — it does **not** enable local auth.
 - `gateway.remote.tlsFingerprint` pins the remote TLS cert when using `wss://`.
-<<<<<<< HEAD
 - **Tailscale Serve** can authenticate via identity headers when `gateway.auth.allowTailscale: true`.
   Set it to `false` if you want tokens/passwords instead.
-=======
-- **Tailscale Serve** can authenticate Control UI/WebSocket traffic via identity
-  headers when `gateway.auth.allowTailscale: true`; HTTP API endpoints still
-  require token/password auth. This tokenless flow assumes the gateway host is
-  trusted. Set it to `false` if you want tokens/passwords everywhere.
->>>>>>> 356d61aac (fix(gateway): scope tailscale tokenless auth to websocket)
 - Treat browser control like operator access: tailnet-only + deliberate node pairing.
 
 Deep dive: [Security](/gateway/security).

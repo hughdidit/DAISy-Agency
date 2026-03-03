@@ -3,10 +3,7 @@ import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { BrowserParentOpts } from "./browser-cli-shared.js";
 >>>>>>> ed11e93cf (chore(format))

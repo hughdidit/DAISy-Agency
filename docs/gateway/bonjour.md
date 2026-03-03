@@ -19,17 +19,10 @@ boundary. You can keep the same discovery UX by switching to **unicast DNS‑SD*
 
 High‑level steps:
 
-<<<<<<< HEAD
 1) Run a DNS server on the gateway host (reachable over Tailnet).
 2) Publish DNS‑SD records for `_moltbot-gw._tcp` under a dedicated zone
    (example: `moltbot.internal.`).
 3) Configure Tailscale **split DNS** so `moltbot.internal` resolves via that
-=======
-1. Run a DNS server on the gateway host (reachable over Tailnet).
-2. Publish DNS‑SD records for `_openclaw-gw._tcp` under a dedicated zone
-   (example: `openclaw.internal.`).
-3. Configure Tailscale **split DNS** so your chosen domain resolves via that
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    DNS server for clients (including iOS).
 
 Moltbot standardizes on `moltbot.internal.` for this mode. iOS/Android nodes
@@ -40,11 +33,7 @@ browse both `local.` and `moltbot.internal.` automatically.
 ```json5
 {
   gateway: { bind: "tailnet" }, // tailnet-only (recommended)
-<<<<<<< HEAD
   discovery: { wideArea: { enabled: true } } // enables moltbot.internal DNS-SD publishing
-=======
-  discovery: { wideArea: { enabled: true } }, // enables wide-area DNS-SD publishing
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -82,12 +71,7 @@ The Gateway WS port (default `18789`) binds to loopback by default. For LAN/tail
 access, bind explicitly and keep auth enabled.
 
 For tailnet‑only setups:
-<<<<<<< HEAD
 - Set `gateway.bind: "tailnet"` in `~/.clawdbot/moltbot.json`.
-=======
-
-- Set `gateway.bind: "tailnet"` in `~/.openclaw/openclaw.json`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Restart the Gateway (or restart the macOS menubar app).
 
 ## What advertises

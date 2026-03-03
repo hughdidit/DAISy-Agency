@@ -1,14 +1,6 @@
-<<<<<<< HEAD
 import path from "node:path";
 import type { Command } from "commander";
-=======
-import type { Command } from "commander";
-import { resolveAgentConfig, resolveDefaultAgentId } from "../../agents/agent-scope.js";
-import { loadConfig } from "../../config/config.js";
->>>>>>> f1a76e1a3 (refactor: dedupe PATH prepend helpers)
 import { randomIdempotencyKey } from "../../gateway/call.js";
-<<<<<<< HEAD
-=======
 import {
   DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
   type ExecApprovalsFile,
@@ -21,7 +13,6 @@ import {
 import { buildNodeShellCommand } from "../../infra/node-shell.js";
 import { applyPathPrepend } from "../../infra/path-prepend.js";
 import { parsePreparedSystemRunPayload } from "../../infra/system-run-approval-context.js";
->>>>>>> 4b4718c8d (refactor(cli): decompose nodes run approval flow)
 import { defaultRuntime } from "../../runtime.js";
 import { parseEnvPairs, parseTimeoutMs } from "../nodes-run.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
@@ -40,8 +31,6 @@ import {
   resolveExecApprovalsFromFile,
 } from "../../infra/exec-approvals.js";
 import { buildNodeShellCommand } from "../../infra/node-shell.js";
-<<<<<<< HEAD
-=======
 import { applyPathPrepend } from "../../infra/path-prepend.js";
 import { defaultRuntime } from "../../runtime.js";
 import { parseEnvPairs, parseTimeoutMs } from "../nodes-run.js";
@@ -53,7 +42,6 @@ import { callGatewayCli, nodesCallOpts, resolveNodeId, unauthorizedHintForMessag
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> f1a76e1a3 (refactor: dedupe PATH prepend helpers)
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -437,7 +425,6 @@ export function registerNodesInvokeCommands(nodes: Command) {
             throw new Error("node required (set --node or tools.exec.node)");
           }
           const nodeId = await resolveNodeId(opts, nodeQuery);
-<<<<<<< HEAD
 
           const env = parseEnvPairs(opts.env);
           const timeoutMs = parseTimeoutMs(opts.commandTimeout);
@@ -485,13 +472,6 @@ export function registerNodesInvokeCommands(nodes: Command) {
           }
           const approvals = resolveExecApprovalsFromFile({
             file: approvalsFile as ExecApprovalsFile,
-=======
-          const preparedContext = await prepareNodesRunContext({
-            opts,
-            command,
-            raw,
-            nodeId,
->>>>>>> 4b4718c8d (refactor(cli): decompose nodes run approval flow)
             agentId,
             execDefaults,
           });
@@ -507,7 +487,6 @@ export function registerNodesInvokeCommands(nodes: Command) {
           if (approvals.hostSecurity === "deny") {
             throw new Error("exec denied: host=node security=deny");
           }
-<<<<<<< HEAD
 
           const requiresAsk = hostAsk === "always" || hostAsk === "on-miss";
           let approvalId: string | null = null;
@@ -596,31 +575,6 @@ export function registerNodesInvokeCommands(nodes: Command) {
           if (invokeTimeout !== undefined) {
             invokeParams.timeoutMs = invokeTimeout;
           }
-=======
-          const approvalResult = await maybeRequestNodesRunApproval({
-            opts,
-            nodeId,
-            agentId,
-            preparedCmdText: preparedContext.prepared.cmdText,
-            approvalPlan,
-            hostSecurity: approvals.hostSecurity,
-            hostAsk: approvals.hostAsk,
-            askFallback: approvals.askFallback,
-          });
-          const invokeParams = buildSystemRunInvokeParams({
-            nodeId,
-            approvalPlan,
-            nodeEnv: preparedContext.nodeEnv,
-            timeoutMs: preparedContext.timeoutMs,
-            invokeTimeout: preparedContext.invokeTimeout,
-            approvedByAsk: approvalResult.approvedByAsk,
-            approvalDecision: approvalResult.approvalDecision,
-            approvalId: approvalResult.approvalId,
-            idempotencyKey: opts.idempotencyKey,
-            fallbackAgentId: agentId,
-            needsScreenRecording: opts.needsScreenRecording === true,
-          });
->>>>>>> 4b4718c8d (refactor(cli): decompose nodes run approval flow)
 
           const result = await callGatewayCli("node.invoke", opts, invokeParams);
           if (opts.json) {

@@ -622,7 +622,6 @@ describe("cron cli", () => {
   });
 
   it("applies --exact to existing cron job without requiring --cron on edit", async () => {
-<<<<<<< HEAD
     resetGatewayMock();
 <<<<<<< HEAD
     callGatewayFromCli.mockImplementation(
@@ -643,9 +642,6 @@ describe("cron cli", () => {
         return { ok: true, params };
       },
     );
-=======
-    mockCronEditJobLookup({ kind: "cron", expr: "0 */2 * * *", tz: "UTC", staggerMs: 300_000 });
->>>>>>> 64546d33e (test(cli): dedupe cron edit existing-job lookup mocks)
     const program = buildProgram();
 
     await program.parseAsync(["cron", "edit", "job-1", "--exact"], { from: "user" });
@@ -669,7 +665,6 @@ describe("cron cli", () => {
   });
 
   it("rejects --exact on edit when existing job is not cron", async () => {
-<<<<<<< HEAD
     resetGatewayMock();
 <<<<<<< HEAD
     callGatewayFromCli.mockImplementation(
@@ -685,9 +680,6 @@ describe("cron cli", () => {
         return { ok: true, params };
       },
     );
-=======
-    mockCronEditJobLookup({ kind: "every", everyMs: 60_000 });
->>>>>>> 64546d33e (test(cli): dedupe cron edit existing-job lookup mocks)
     const program = buildProgram();
 
     await expect(

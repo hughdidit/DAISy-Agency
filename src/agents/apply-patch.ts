@@ -73,14 +73,9 @@ const applyPatchSchema = Type.Object({
 });
 
 export function createApplyPatchTool(
-<<<<<<< HEAD
   options: { cwd?: string; sandboxRoot?: string } = {},
   // oxlint-disable-next-line typescript/no-explicit-any
 ): AgentTool<any, ApplyPatchToolDetails> {
-=======
-  options: { cwd?: string; sandbox?: SandboxApplyPatchConfig } = {},
-): AgentTool<typeof applyPatchSchema, ApplyPatchToolDetails> {
->>>>>>> 31c6a12cf (fix(agents): restore missing runtime helpers and sandbox types)
   const cwd = options.cwd ?? process.cwd();
   const sandboxRoot = options.sandboxRoot;
 
@@ -152,13 +147,8 @@ export async function applyPatch(
     }
 
     if (hunk.kind === "delete") {
-<<<<<<< HEAD
       const target = await resolvePatchPath(hunk.path, options);
       await fs.rm(target.resolved);
-=======
-      const target = await resolvePatchPath(hunk.path, options, "unlink");
-      await fileOps.remove(target.resolved);
->>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
       recordSummary(summary, seen, "deleted", target.display);
       continue;
     }
@@ -215,67 +205,7 @@ function formatSummary(summary: ApplyPatchSummary): string {
   return lines.join("\n");
 }
 
-<<<<<<< HEAD
 async function ensureDir(filePath: string) {
-=======
-type PatchFileOps = {
-  readFile: (filePath: string) => Promise<string>;
-  writeFile: (filePath: string, content: string) => Promise<void>;
-  remove: (filePath: string) => Promise<void>;
-  mkdirp: (dir: string) => Promise<void>;
-};
-
-function resolvePatchFileOps(options: ApplyPatchOptions): PatchFileOps {
-  if (options.sandbox) {
-    const { root, bridge } = options.sandbox;
-    return {
-      readFile: async (filePath) => {
-        const buf = await bridge.readFile({ filePath, cwd: root });
-        return buf.toString("utf8");
-      },
-      writeFile: (filePath, content) => bridge.writeFile({ filePath, cwd: root, data: content }),
-      remove: (filePath) => bridge.remove({ filePath, cwd: root, force: false }),
-      mkdirp: (dir) => bridge.mkdirp({ filePath: dir, cwd: root }),
-    };
-  }
-  const workspaceOnly = options.workspaceOnly !== false;
-  return {
-    readFile: async (filePath) => {
-      if (!workspaceOnly) {
-        return await fs.readFile(filePath, "utf8");
-      }
-      const opened = await openBoundaryFile({
-        absolutePath: filePath,
-        rootPath: options.cwd,
-        boundaryLabel: "workspace root",
-      });
-      assertBoundaryRead(opened, filePath);
-      try {
-        return syncFs.readFileSync(opened.fd, "utf8");
-      } finally {
-        syncFs.closeSync(opened.fd);
-      }
-    },
-    writeFile: async (filePath, content) => {
-      if (!workspaceOnly) {
-        await fs.writeFile(filePath, content, "utf8");
-        return;
-      }
-      const relative = toRelativeSandboxPath(options.cwd, filePath);
-      await writeFileWithinRoot({
-        rootDir: options.cwd,
-        relativePath: relative,
-        data: content,
-        encoding: "utf8",
-      });
-    },
-    remove: (filePath) => fs.rm(filePath),
-    mkdirp: (dir) => fs.mkdir(dir, { recursive: true }).then(() => {}),
-  };
-}
-
-async function ensureDir(filePath: string, ops: PatchFileOps) {
->>>>>>> c0bf42f2a (refactor: centralize delivery/path/media/version lifecycle)
   const parent = path.dirname(filePath);
   if (!parent || parent === ".") {
     return;
@@ -300,22 +230,7 @@ async function resolvePatchPath(
     };
   }
 
-<<<<<<< HEAD
   const resolved = resolvePathFromCwd(filePath, options.cwd);
-=======
-  const workspaceOnly = options.workspaceOnly !== false;
-  const resolved = workspaceOnly
-    ? (
-        await assertSandboxPath({
-          filePath,
-          cwd: options.cwd,
-          root: options.cwd,
-          allowFinalSymlink: purpose === "unlink",
-        })
-      ).resolved
-<<<<<<< HEAD
-    : resolvePathFromCwd(filePath, options.cwd);
->>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
 =======
     : resolvePathFromInput(filePath, options.cwd);
 >>>>>>> c0bf42f2a (refactor: centralize delivery/path/media/version lifecycle)
@@ -325,7 +240,6 @@ async function resolvePatchPath(
   };
 }
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 function normalizeUnicodeSpaces(value: string): string {
   return value.replace(UNICODE_SPACES, " ");
@@ -342,8 +256,6 @@ function expandPath(filePath: string): string {
   return normalized;
 }
 
-=======
->>>>>>> 9032a5098 (refactor: reuse sandbox path expansion in apply-patch)
 function resolvePathFromCwd(filePath: string, cwd: string): string {
   return path.normalize(resolveSandboxInputPath(filePath, cwd));
 =======

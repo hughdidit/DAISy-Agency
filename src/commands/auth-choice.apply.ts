@@ -14,18 +14,9 @@ import { applyAuthChoiceOpenAI } from "./auth-choice.apply.openai.js";
 import { applyAuthChoiceQwenPortal } from "./auth-choice.apply.qwen-portal.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { AuthChoice } from "./onboard-types.js";
-=======
-=======
-import { applyAuthChoiceVllm } from "./auth-choice.apply.vllm.js";
->>>>>>> e73d881c5 (Onboarding: add vLLM provider support)
 import { applyAuthChoiceXAI } from "./auth-choice.apply.xai.js";
-<<<<<<< HEAD
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
-=======
-import type { AuthChoice } from "./onboard-types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { applyAuthChoiceVllm } from "./auth-choice.apply.vllm.js";
 import { applyAuthChoiceVolcengine } from "./auth-choice.apply.volcengine.js";
@@ -33,11 +24,7 @@ import { applyAuthChoiceXAI } from "./auth-choice.apply.xai.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import type { AuthChoice } from "./onboard-types.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======

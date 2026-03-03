@@ -6,13 +6,9 @@ import { withTempHomeConfig } from "./test-helpers.js";
 
 describe("multi-agent agentDir validation", () => {
   it("rejects shared agents.list agentDir", async () => {
-<<<<<<< HEAD
     vi.resetModules();
     const { validateConfigObject } = await import("./config.js");
     const shared = path.join(tmpdir(), "moltbot-shared-agentdir");
-=======
-    const shared = path.join(tmpdir(), "openclaw-shared-agentdir");
->>>>>>> 79f4c4c58 (perf(test): trim module resets in config suites)
     const res = validateConfigObject({
       agents: {
         list: [
@@ -29,7 +25,6 @@ describe("multi-agent agentDir validation", () => {
   });
 
   it("throws on shared agentDir during loadConfig()", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
@@ -56,24 +51,5 @@ describe("multi-agent agentDir validation", () => {
       expect(spy.mock.calls.flat().join(" ")).toMatch(/Duplicate agentDir/i);
       spy.mockRestore();
     });
-=======
-    await withTempHomeConfig(
-      {
-        agents: {
-          list: [
-            { id: "a", agentDir: "~/.openclaw/agents/shared/agent" },
-            { id: "b", agentDir: "~/.openclaw/agents/shared/agent" },
-          ],
-        },
-        bindings: [{ agentId: "a", match: { channel: "telegram" } }],
-      },
-      async () => {
-        const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-        expect(() => loadConfig()).toThrow(/duplicate agentDir/i);
-        expect(spy.mock.calls.flat().join(" ")).toMatch(/Duplicate agentDir/i);
-        spy.mockRestore();
-      },
-    );
->>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
   });
 });

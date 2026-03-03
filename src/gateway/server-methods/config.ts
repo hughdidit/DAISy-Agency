@@ -4,11 +4,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
->>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -37,24 +32,8 @@ import {
 } from "../../config/config.js";
 import { applyLegacyMigrations } from "../../config/legacy.js";
 import { applyMergePatch } from "../../config/merge-patch.js";
-<<<<<<< HEAD
 import { buildConfigSchema } from "../../config/schema.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
-=======
-import {
-  redactConfigObject,
-  redactConfigSnapshot,
-  restoreRedactedValues,
-} from "../../config/redact-snapshot.js";
-import { buildConfigSchema, type ConfigSchemaResponse } from "../../config/schema.js";
-import { extractDeliveryInfo } from "../../config/sessions.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -84,7 +63,6 @@ import {
   validateConfigSchemaParams,
   validateConfigSetParams,
 } from "../protocol/index.js";
-<<<<<<< HEAD
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 
 function resolveBaseHash(params: unknown): string | null {
@@ -95,12 +73,6 @@ function resolveBaseHash(params: unknown): string | null {
   const trimmed = raw.trim();
   return trimmed ? trimmed : null;
 }
-=======
-import { resolveBaseHashParam } from "./base-hash.js";
-import { parseRestartRequestParams } from "./restart-request.js";
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
-import { assertValidParams } from "./validation.js";
->>>>>>> b743e652c (refactor(gateway): reuse shared validators + baseHash)
 
 function requireConfigBaseHash(
   params: unknown,
@@ -149,69 +121,6 @@ function requireConfigBaseHash(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-function parseRawConfigOrRespond(
-  params: unknown,
-  requestName: string,
-  respond: RespondFn,
-): string | null {
-  const rawValue = (params as { raw?: unknown }).raw;
-  if (typeof rawValue !== "string") {
-    respond(
-      false,
-      undefined,
-      errorShape(
-        ErrorCodes.INVALID_REQUEST,
-        `invalid ${requestName} params: raw (string) required`,
-      ),
-    );
-    return null;
-  }
-  return rawValue;
-}
-
-function parseValidateConfigFromRawOrRespond(
-  params: unknown,
-  requestName: string,
-  snapshot: Awaited<ReturnType<typeof readConfigFileSnapshot>>,
-  respond: RespondFn,
-): { config: OpenClawConfig; schema: ConfigSchemaResponse } | null {
-  const rawValue = parseRawConfigOrRespond(params, requestName, respond);
-  if (!rawValue) {
-    return null;
-  }
-  const parsedRes = parseConfigJson5(rawValue);
-  if (!parsedRes.ok) {
-    respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
-    return null;
-  }
-  const schema = loadSchemaWithPlugins();
-  const restored = restoreRedactedValues(parsedRes.parsed, snapshot.config, schema.uiHints);
-  if (!restored.ok) {
-    respond(
-      false,
-      undefined,
-      errorShape(ErrorCodes.INVALID_REQUEST, restored.humanReadableMessage ?? "invalid config"),
-    );
-    return null;
-  }
-  const validated = validateConfigObjectWithPlugins(restored.result);
-  if (!validated.ok) {
-    respond(
-      false,
-      undefined,
-      errorShape(ErrorCodes.INVALID_REQUEST, "invalid config", {
-        details: { issues: validated.issues },
-      }),
-    );
-    return null;
-  }
-  return { config: validated.config, schema };
-}
-
->>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
 function resolveConfigRestartRequest(params: unknown): {
   sessionKey: string | undefined;
   note: string | undefined;
@@ -358,7 +267,6 @@ export const configHandlers: GatewayRequestHandlers = {
     if (!parsed) {
       return;
     }
-<<<<<<< HEAD
     const parsedRes = parseConfigJson5(rawValue);
     if (!parsedRes.ok) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
@@ -376,19 +284,12 @@ export const configHandlers: GatewayRequestHandlers = {
       return;
     }
     await writeConfigFile(validated.config);
-=======
-    await writeConfigFile(parsed.config, writeOptions);
->>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
     respond(
       true,
       {
         ok: true,
         path: CONFIG_PATH,
-<<<<<<< HEAD
         config: validated.config,
-=======
-        config: redactConfigObject(parsed.config, parsed.schema.uiHints),
->>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
       },
       undefined,
     );
@@ -438,30 +339,9 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-<<<<<<< HEAD
     const merged = applyMergePatch(snapshot.config, parsedRes.parsed);
     const migrated = applyLegacyMigrations(merged);
     const resolved = migrated.next ?? merged;
-=======
-    const merged = applyMergePatch(snapshot.config, parsedRes.parsed, {
-      mergeObjectArraysById: true,
-    });
-    const schemaPatch = loadSchemaWithPlugins();
-    const restoredMerge = restoreRedactedValues(merged, snapshot.config, schemaPatch.uiHints);
-    if (!restoredMerge.ok) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          restoredMerge.humanReadableMessage ?? "invalid config",
-        ),
-      );
-      return;
-    }
-    const migrated = applyLegacyMigrations(restoredMerge.result);
-    const resolved = migrated.next ?? restoredMerge.result;
->>>>>>> 8ec0ef586 (fix (gateway/config): merge config.patch object arrays by id)
     const validated = validateConfigObjectWithPlugins(resolved);
     if (!validated.ok) {
       respond(
@@ -475,7 +355,6 @@ export const configHandlers: GatewayRequestHandlers = {
     }
     await writeConfigFile(validated.config);
 
-<<<<<<< HEAD
     const sessionKey =
       typeof (params as { sessionKey?: unknown }).sessionKey === "string"
         ? (params as { sessionKey?: string }).sessionKey?.trim() || undefined
@@ -508,19 +387,6 @@ export const configHandlers: GatewayRequestHandlers = {
     } catch {
       sentinelPath = null;
     }
-=======
-    const { sessionKey, note, restartDelayMs, deliveryContext, threadId } =
-      resolveConfigRestartRequest(params);
-    const payload = buildConfigRestartSentinelPayload({
-      kind: "config-patch",
-      mode: "config.patch",
-      sessionKey,
-      deliveryContext,
-      threadId,
-      note,
-    });
-    const sentinelPath = await tryWriteRestartSentinelPayload(payload);
->>>>>>> 410422999 (refactor(gateway): share config restart sentinel builder)
     const restart = scheduleGatewaySigusr1Restart({
       delayMs: restartDelayMs,
       reason: "config.patch",
@@ -552,7 +418,6 @@ export const configHandlers: GatewayRequestHandlers = {
     if (!parsed) {
       return;
     }
-<<<<<<< HEAD
     const parsedRes = parseConfigJson5(rawValue);
     if (!parsedRes.ok) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
@@ -570,11 +435,7 @@ export const configHandlers: GatewayRequestHandlers = {
       return;
     }
     await writeConfigFile(validated.config);
-=======
-    await writeConfigFile(parsed.config, writeOptions);
->>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
 
-<<<<<<< HEAD
     const sessionKey =
       typeof (params as { sessionKey?: unknown }).sessionKey === "string"
         ? (params as { sessionKey?: string }).sessionKey?.trim() || undefined
@@ -590,15 +451,9 @@ export const configHandlers: GatewayRequestHandlers = {
         : undefined;
 
     const payload: RestartSentinelPayload = {
-=======
-    const { sessionKey, note, restartDelayMs, deliveryContext, threadId } =
-      resolveConfigRestartRequest(params);
-    const payload = buildConfigRestartSentinelPayload({
->>>>>>> 410422999 (refactor(gateway): share config restart sentinel builder)
       kind: "config-apply",
       mode: "config.apply",
       sessionKey,
-<<<<<<< HEAD
       message: note ?? null,
       doctorHint: formatDoctorNonInteractiveHint(),
       stats: {
@@ -612,13 +467,6 @@ export const configHandlers: GatewayRequestHandlers = {
     } catch {
       sentinelPath = null;
     }
-=======
-      deliveryContext,
-      threadId,
-      note,
-    });
-    const sentinelPath = await tryWriteRestartSentinelPayload(payload);
->>>>>>> 410422999 (refactor(gateway): share config restart sentinel builder)
     const restart = scheduleGatewaySigusr1Restart({
       delayMs: restartDelayMs,
       reason: "config.apply",
@@ -628,11 +476,7 @@ export const configHandlers: GatewayRequestHandlers = {
       {
         ok: true,
         path: CONFIG_PATH,
-<<<<<<< HEAD
         config: validated.config,
-=======
-        config: redactConfigObject(parsed.config, parsed.schema.uiHints),
->>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
         restart,
         sentinel: {
           path: sentinelPath,

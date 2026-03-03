@@ -1,15 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import type { GatewayRequestContext } from "./types.js";
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { sendHandlers } from "./send.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -91,8 +82,6 @@ function mockDeliverySuccess(messageId: string) {
 }
 
 describe("gateway send mirroring", () => {
-<<<<<<< HEAD
-=======
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.resolveOutboundTarget.mockReturnValue({ ok: true, to: "resolved" });
@@ -164,7 +153,6 @@ describe("gateway send mirroring", () => {
     );
   });
 
->>>>>>> 6565ec2e5 (gateway: return actionable error for send channel webchat (openclaw#15703) thanks @rodrigouroz)
   it("does not mirror when delivery returns no results", async () => {
     mocks.deliverOutboundPayloads.mockResolvedValue([]);
 

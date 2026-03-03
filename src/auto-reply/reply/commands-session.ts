@@ -11,7 +11,6 @@ import {
   setThreadBindingMaxAgeBySessionKey,
 } from "../../discord/monitor/thread-bindings.js";
 import { logVerbose } from "../../globals.js";
-<<<<<<< HEAD
 import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
 import { scheduleGatewaySigusr1Restart, triggerMoltbotRestart } from "../../infra/restart.js";
 import { parseActivationCommand } from "../group-activation.js";
@@ -27,16 +26,6 @@ import {
   setAbortMemory,
   stopSubagentsForRequester,
 } from "./abort.js";
-=======
-import { scheduleGatewaySigusr1Restart, triggerOpenClawRestart } from "../../infra/restart.js";
-import { loadCostUsageSummary, loadSessionCostSummary } from "../../infra/session-cost-usage.js";
-import { formatTokenCount, formatUsd } from "../../utils/usage-format.js";
-import { parseActivationCommand } from "../group-activation.js";
-import { parseSendPolicyCommand } from "../send-policy.js";
-import { normalizeUsageDisplay, resolveResponseUsageMode } from "../thinking.js";
-import { handleAbortTrigger, handleStopCommand } from "./commands-session-abort.js";
-import { persistSessionEntry } from "./commands-session-store.js";
->>>>>>> b402770f6 (refactor(reply): split abort cutoff and timeout policy modules)
 import type { CommandHandler } from "./commands-types.js";
 
 const SESSION_COMMAND_PREFIX = "/session";

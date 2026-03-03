@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import type { MsgContext } from "../auto-reply/templating.js";
-<<<<<<< HEAD
->>>>>>> b97c5d615 (perf(test): fold sender identity checks into channel config suite)
 =======
 import { typedCases } from "../test-utils/typed-cases.js";
 >>>>>>> 843a03753 (fix(test): repair readonly case table typing)

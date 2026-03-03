@@ -5,13 +5,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { STATE_DIR } from "../config/paths.js";
-=======
-import type { SubagentRunRecord } from "./subagent-registry.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SubagentRunRecord } from "./subagent-registry.js";
 >>>>>>> ed11e93cf (chore(format))

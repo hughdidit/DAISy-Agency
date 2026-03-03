@@ -46,8 +46,6 @@ export function isMainModule({
     return true;
   }
 
-<<<<<<< HEAD
-=======
   // Optional wrapper->entry mapping for wrapper launchers that import the real entry.
   if (normalizedCurrent && normalizedArgv1 && wrapperEntryPairs.length > 0) {
     const currentBase = path.basename(normalizedCurrent);
@@ -61,7 +59,6 @@ export function isMainModule({
     }
   }
 
->>>>>>> edaa5ef7a (refactor(gateway): simplify restart flow and expand lock tests)
   // Fallback: basename match (relative paths, symlinked bins).
   if (
     normalizedCurrent &&

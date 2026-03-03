@@ -1,17 +1,6 @@
-<<<<<<< HEAD
 import type { BrowserRouteContext, ProfileContext } from "../server-context.js";
 import type { PwAiModule } from "../pw-ai-module.js";
 import { getPwAiModule as getPwAiModuleBase } from "../pw-ai-module.js";
-=======
-import type { PwAiModule } from "../pw-ai-module.js";
-import { getPwAiModule as getPwAiModuleBase } from "../pw-ai-module.js";
-import type { BrowserRouteContext, ProfileContext } from "../server-context.js";
-import type { BrowserRequest, BrowserResponse } from "./types.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { getPwAiModule as getPwAiModuleBase } from "../pw-ai-module.js";
 >>>>>>> ed11e93cf (chore(format))

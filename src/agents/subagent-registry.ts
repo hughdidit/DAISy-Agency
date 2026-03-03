@@ -43,7 +43,6 @@ import {
 import type { SubagentRunRecord } from "./subagent-registry.types.js";
 import { resolveAgentTimeoutMs } from "./timeout.js";
 
-<<<<<<< HEAD
 export type SubagentRunRecord = {
   runId: string;
   childSessionKey: string;
@@ -68,9 +67,6 @@ export type SubagentRunRecord = {
   /** Timestamp of the last announce retry attempt (for backoff). */
   lastAnnounceRetryAt?: number;
 };
-=======
-export type { SubagentRunRecord } from "./subagent-registry.types.js";
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 
 const subagentRuns = new Map<string, SubagentRunRecord>();
 let sweeper: NodeJS.Timeout | null = null;
@@ -78,8 +74,6 @@ let listenerStarted = false;
 let listenerStop: (() => void) | null = null;
 // Use var to avoid TDZ when init runs across circular imports during bootstrap.
 var restoreAttempted = false;
-<<<<<<< HEAD
-=======
 const SUBAGENT_ANNOUNCE_TIMEOUT_MS = 120_000;
 /**
  * Maximum number of announce delivery attempts before giving up.
@@ -96,7 +90,6 @@ const ANNOUNCE_EXPIRY_MS = 5 * 60_000; // 5 minutes
 <<<<<<< HEAD
 <<<<<<< HEAD
 // (Backoff constant removed — max-retry + expiry guards are sufficient.)
->>>>>>> a6c741eb4 (fix(announce): break infinite retry loop with max attempts and expiry (#18264))
 =======
 =======
 =======
@@ -429,12 +422,6 @@ function resumeSubagentRun(runId: string) {
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    if (!beginSubagentCleanup(runId)) {
-      return;
-    }
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
     const requesterOrigin = normalizeDeliveryContext(entry.requesterOrigin);
     void runSubagentAnnounceFlow({
       childSessionKey: entry.childSessionKey,
@@ -443,11 +430,7 @@ function resumeSubagentRun(runId: string) {
       requesterOrigin,
       requesterDisplayKey: entry.requesterDisplayKey,
       task: entry.task,
-<<<<<<< HEAD
       timeoutMs: 30_000,
-=======
-      timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
       cleanup: entry.cleanup,
       waitForCompletion: false,
       startedAt: entry.startedAt,
@@ -457,9 +440,6 @@ function resumeSubagentRun(runId: string) {
     }).then((didAnnounce) => {
       finalizeSubagentCleanup(runId, entry.cleanup, didAnnounce);
     });
-<<<<<<< HEAD
-=======
->>>>>>> 2f4b91d73 (refactor(agents): dedupe subagent announce cleanup)
 =======
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 =======
@@ -603,7 +583,6 @@ function ensureListener() {
       }
       const endedAt = typeof evt.data?.endedAt === "number" ? evt.data.endedAt : Date.now();
       const error = typeof evt.data?.error === "string" ? evt.data.error : undefined;
-<<<<<<< HEAD
       entry.outcome = { status: "error", error };
     } else {
       entry.outcome = { status: "ok" };
@@ -612,13 +591,6 @@ function ensureListener() {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-    if (suppressAnnounceForSteerRestart(entry)) {
-      return;
-    }
-
-<<<<<<< HEAD
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
     if (!beginSubagentCleanup(evt.runId)) {
       return;
     }
@@ -630,11 +602,7 @@ function ensureListener() {
       requesterOrigin,
       requesterDisplayKey: entry.requesterDisplayKey,
       task: entry.task,
-<<<<<<< HEAD
       timeoutMs: 30_000,
-=======
-      timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
       cleanup: entry.cleanup,
       waitForCompletion: false,
       startedAt: entry.startedAt,
@@ -644,10 +612,7 @@ function ensureListener() {
     }).then((didAnnounce) => {
       finalizeSubagentCleanup(evt.runId, entry.cleanup, didAnnounce);
     });
-<<<<<<< HEAD
-=======
     void startSubagentAnnounceCleanupFlow(evt.runId, entry);
->>>>>>> 2f4b91d73 (refactor(agents): dedupe subagent announce cleanup)
 =======
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 =======
@@ -686,46 +651,13 @@ async function finalizeSubagentCleanup(
     return;
   }
 <<<<<<< HEAD
-<<<<<<< HEAD
   if (cleanup === "delete") {
     subagentRuns.delete(runId);
-=======
-  if (!didAnnounce) {
-    const now = Date.now();
-    const retryCount = (entry.announceRetryCount ?? 0) + 1;
-    entry.announceRetryCount = retryCount;
-=======
-  if (didAnnounce) {
-    const completionReason = resolveCleanupCompletionReason(entry);
-    await emitCompletionEndedHookIfNeeded(entry, completionReason);
-    completeCleanupBookkeeping({
-      runId,
-      entry,
-      cleanup,
-      completedAt: Date.now(),
-    });
-    return;
-  }
-
-  const now = Date.now();
-  const deferredDecision = resolveDeferredCleanupDecision({
-    entry,
-    now,
-    activeDescendantRuns: Math.max(0, countActiveDescendantRuns(entry.childSessionKey)),
-    announceExpiryMs: ANNOUNCE_EXPIRY_MS,
-    maxAnnounceRetryCount: MAX_ANNOUNCE_RETRY_COUNT,
-    deferDescendantDelayMs: MIN_ANNOUNCE_RETRY_DELAY_MS,
-    resolveAnnounceRetryDelayMs,
-  });
-
-  if (deferredDecision.kind === "defer-descendants") {
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
     entry.lastAnnounceRetryAt = now;
     entry.cleanupHandled = false;
     resumedRuns.delete(runId);
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
     persistSubagentRuns();
-<<<<<<< HEAD
     return;
   }
   if (!didAnnounce) {
@@ -733,29 +665,6 @@ async function finalizeSubagentCleanup(
     entry.cleanupHandled = false;
     persistSubagentRuns();
     retryDeferredCompletedAnnounces(runId);
-=======
-    setTimeout(() => {
-      resumeSubagentRun(runId);
-    }, deferredDecision.delayMs).unref?.();
-    return;
-  }
-
-  if (deferredDecision.retryCount != null) {
-    entry.announceRetryCount = deferredDecision.retryCount;
-    entry.lastAnnounceRetryAt = now;
-  }
-
-  if (deferredDecision.kind === "give-up") {
-    const completionReason = resolveCleanupCompletionReason(entry);
-    await emitCompletionEndedHookIfNeeded(entry, completionReason);
-    logAnnounceGiveUp(entry, deferredDecision.reason);
-    completeCleanupBookkeeping({
-      runId,
-      entry,
-      cleanup: "keep",
-      completedAt: now,
-    });
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
     return;
   }
 
@@ -934,12 +843,9 @@ export function replaceSubagentRunAfterSteer(params: {
     cleanupCompletedAt: undefined,
     cleanupHandled: false,
     suppressAnnounceReason: undefined,
-<<<<<<< HEAD
-=======
     announceRetryCount: undefined,
     lastAnnounceRetryAt: undefined,
     spawnMode,
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
     archiveAtMs,
     runTimeoutSeconds,
   };
@@ -965,11 +871,8 @@ export function registerSubagentRun(params: {
   label?: string;
   model?: string;
   runTimeoutSeconds?: number;
-<<<<<<< HEAD
-=======
   expectsCompletionMessage?: boolean;
   spawnMode?: "run" | "session";
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 }) {
   const now = Date.now();
   const cfg = loadConfig();
@@ -988,11 +891,8 @@ export function registerSubagentRun(params: {
     requesterDisplayKey: params.requesterDisplayKey,
     task: params.task,
     cleanup: params.cleanup,
-<<<<<<< HEAD
-=======
     expectsCompletionMessage: params.expectsCompletionMessage,
     spawnMode,
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
     label: params.label,
     model: params.model,
     runTimeoutSeconds,
@@ -1047,7 +947,6 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
       entry.endedAt = Date.now();
       mutated = true;
     }
-<<<<<<< HEAD
     entry.outcome =
       wait.status === "error" ? { status: "error", error: wait.error } : { status: "ok" };
     mutated = true;
@@ -1056,12 +955,6 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-    if (suppressAnnounceForSteerRestart(entry)) {
-      return;
-    }
-<<<<<<< HEAD
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
     if (!beginSubagentCleanup(runId)) {
       return;
     }
@@ -1073,11 +966,7 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
       requesterOrigin,
       requesterDisplayKey: entry.requesterDisplayKey,
       task: entry.task,
-<<<<<<< HEAD
       timeoutMs: 30_000,
-=======
-      timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
       cleanup: entry.cleanup,
       waitForCompletion: false,
       startedAt: entry.startedAt,
@@ -1087,10 +976,7 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
     }).then((didAnnounce) => {
       finalizeSubagentCleanup(runId, entry.cleanup, didAnnounce);
     });
-<<<<<<< HEAD
-=======
     void startSubagentAnnounceCleanupFlow(runId, entry);
->>>>>>> 2f4b91d73 (refactor(agents): dedupe subagent announce cleanup)
 =======
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 =======

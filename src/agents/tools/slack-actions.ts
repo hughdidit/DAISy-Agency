@@ -1,12 +1,7 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { Block, KnownBlock } from "@slack/web-api";
-=======
->>>>>>> 10d876e31 (Slack: validate blocks input shape centrally)
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> c9684a267 (Slack: support Block Kit blocks in sendMessage actions)
 import { resolveSlackAccount } from "../../slack/accounts.js";

@@ -1,10 +1,5 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
-import { normalizeChatChannelId } from "../channels/registry.js";
->>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
 import type { OpenClawConfig } from "../config/config.js";
 import { ensurePluginAllowlisted } from "../config/plugins-allowlist.js";
 >>>>>>> 519517915 (refactor: centralize plugin allowlist mutation)
@@ -15,7 +10,6 @@ export type PluginEnableResult = {
   reason?: string;
 };
 
-<<<<<<< HEAD
 function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig {
   const allow = cfg.plugins?.allow;
   if (!Array.isArray(allow) || allow.includes(pluginId)) {
@@ -31,10 +25,6 @@ function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig 
 }
 
 export function enablePluginInConfig(cfg: MoltbotConfig, pluginId: string): PluginEnableResult {
-=======
-export function enablePluginInConfig(cfg: OpenClawConfig, pluginId: string): PluginEnableResult {
-<<<<<<< HEAD
->>>>>>> 519517915 (refactor: centralize plugin allowlist mutation)
 =======
   const builtInChannelId = normalizeChatChannelId(pluginId);
   const resolvedId = builtInChannelId ?? pluginId;

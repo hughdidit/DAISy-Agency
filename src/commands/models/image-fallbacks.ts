@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 import { buildModelAliasIndex, resolveModelRefFromString } from "../../agents/model-selection.js";
 import { loadConfig } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
-=======
->>>>>>> 99fda7b92 (refactor(models): share fallback command logic)
 import type { RuntimeEnv } from "../../runtime.js";
 import {
   addFallbackCommand,

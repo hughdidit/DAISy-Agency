@@ -1,20 +1,8 @@
 import type { SlackActionMiddlewareArgs, SlackCommandMiddlewareArgs } from "@slack/bolt";
 import type { ChatCommandDefinition, CommandArgs } from "../../auto-reply/commands-registry.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { ReplyPayload } from "../../auto-reply/types.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 1d7b2bc9c (refactor(slack): dedupe slash reply delivery)
 import type { ResolvedSlackAccount } from "../accounts.js";
 import type { SlackMonitorContext } from "./context.js";
-<<<<<<< HEAD
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveChunkMode } from "../../auto-reply/chunk.js";
 import { resolveEffectiveMessagesConfig } from "../../agents/identity.js";
@@ -29,9 +17,6 @@ import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
 <<<<<<< HEAD
 import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
-=======
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ResolvedSlackAccount } from "../accounts.js";
 import type { SlackMonitorContext } from "./context.js";
@@ -57,7 +42,6 @@ import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-
 >>>>>>> a91553c7c (perf(slack): consolidate slash tests)
 import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "../../config/commands.js";
 import { danger, logVerbose } from "../../globals.js";
-<<<<<<< HEAD
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
   readChannelAllowFromStore,
@@ -74,28 +58,17 @@ import { resolveConversationLabel } from "../../channels/conversation-label.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 
-=======
-import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
-=======
->>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
 import { chunkItems } from "../../utils/chunk-items.js";
 >>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
 import type { ResolvedSlackAccount } from "../accounts.js";
-<<<<<<< HEAD
 
-=======
->>>>>>> da2fde7b6 (refactor(slack): share room context hints)
 =======
 >>>>>>> a91553c7c (perf(slack): consolidate slash tests)
 =======
 import { chunkItems } from "../../utils/chunk-items.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 19f53543d (refactor(utils): share chunkItems helper)
-=======
-import type { ResolvedSlackAccount } from "../accounts.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { chunkItems } from "../../utils/chunk-items.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -125,12 +98,7 @@ import { buildSlackSlashCommandMatcher, resolveSlackSlashCommandConfig } from ".
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { SlackMonitorContext } from "./context.js";
-=======
-=======
-import type { SlackMonitorContext } from "./context.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -143,17 +111,7 @@ import type { SlackMonitorContext } from "./context.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeSlackChannelType } from "./context.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> fff59da96 (fix(slack): fail closed on slash command channel type lookup)
-=======
-=======
-import { authorizeSlackDirectMessage } from "./dm-auth.js";
-import {
-  createSlackExternalArgMenuStore,
-  SLACK_EXTERNAL_ARG_MENU_PREFIX,
-  type SlackExternalArgMenuChoice,
-} from "./external-arg-menu-store.js";
->>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
 import { escapeSlackMrkdwn } from "./mrkdwn.js";
 >>>>>>> 672b1c508 (refactor: dedupe slack monitor mrkdwn and modal event base)
 import { isSlackChannelAllowedByPolicy } from "./policy.js";
@@ -494,15 +452,7 @@ export async function registerSlackMonitorSlashCommands(params: {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
-=======
-      const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-        provider: "slack",
-        dmPolicy: ctx.dmPolicy,
-        readStore: (provider) => readChannelAllowFromStore(provider),
-      });
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
 =======
       const storeAllowFrom = isDirectMessage
         ? await readStoreAllowFromForDmPolicy({
@@ -560,7 +510,6 @@ export async function registerSlackMonitorSlashCommands(params: {
         if (!allowed) {
           return;
         }
-<<<<<<< HEAD
         if (ctx.dmPolicy !== "open") {
           const sender = await ctx.resolveUserName(command.user_id);
           const senderName = sender?.name ?? undefined;
@@ -604,8 +553,6 @@ export async function registerSlackMonitorSlashCommands(params: {
             return;
           }
         }
-=======
->>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
       }
 
       if (isRoom) {
@@ -754,7 +701,6 @@ export async function registerSlackMonitorSlashCommands(params: {
         },
       });
 
-<<<<<<< HEAD
       const channelDescription = [channelInfo?.topic, channelInfo?.purpose]
         .map((entry) => entry?.trim())
         .filter((entry): entry is string => Boolean(entry))
@@ -766,13 +712,6 @@ export async function registerSlackMonitorSlashCommands(params: {
       ].filter((entry): entry is string => Boolean(entry));
       const groupSystemPrompt =
         systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
-=======
-      const { untrustedChannelMetadata, groupSystemPrompt } = resolveSlackRoomContextHints({
-        isRoomish,
-        channelInfo,
-        channelConfig,
-      });
->>>>>>> da2fde7b6 (refactor(slack): share room context hints)
 
       const ctxPayload = finalizeInboundContext({
         Body: prompt,
@@ -961,7 +900,6 @@ export async function registerSlackMonitorSlashCommands(params: {
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   (
     ctx.app as unknown as { action: NonNullable<(typeof ctx.app & { action?: unknown })["action"]> }
   ).action(SLACK_COMMAND_ARG_ACTION_ID, async (args: SlackActionMiddlewareArgs) => {
@@ -978,73 +916,6 @@ export async function registerSlackMonitorSlashCommands(params: {
           user: body.user.id,
           text: payload.text,
           blocks: payload.blocks,
-=======
-=======
-  const registerArgOptions = () => {
-    const appWithOptions = ctx.app as unknown as {
-      options?: (
-        actionId: string,
-        handler: (args: {
-          ack: (payload: { options: unknown[] }) => Promise<void>;
-          body: unknown;
-        }) => Promise<void>,
-      ) => void;
-    };
-    if (typeof appWithOptions.options !== "function") {
-      return;
-    }
-    appWithOptions.options(SLACK_COMMAND_ARG_ACTION_ID, async ({ ack, body }) => {
-      if (ctx.shouldDropMismatchedSlackEvent?.(body)) {
-        await ack({ options: [] });
-        runtime.log?.("slack: drop slash arg options payload (mismatched app/team)");
-        return;
-      }
-      const typedBody = body as {
-        value?: string;
-        user?: { id?: string };
-        actions?: Array<{ block_id?: string }>;
-        block_id?: string;
-      };
-      pruneSlackExternalArgMenuStore();
-      const blockId = typedBody.actions?.[0]?.block_id ?? typedBody.block_id;
-      const token = readSlackExternalArgMenuToken(blockId);
-      if (!token) {
-        await ack({ options: [] });
-        return;
-      }
-      const entry = slackExternalArgMenuStore.get(token);
-      if (!entry) {
-        await ack({ options: [] });
-        return;
-      }
-      if (typedBody.user?.id && typedBody.user.id !== entry.userId) {
-        await ack({ options: [] });
-        return;
-      }
-      const query = typedBody.value?.trim().toLowerCase() ?? "";
-      const options = entry.choices
-        .filter((choice) => !query || choice.label.toLowerCase().includes(query))
-        .slice(0, SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX)
-        .map((choice) => ({
-          text: { type: "plain_text", text: choice.label.slice(0, 75) },
-          value: choice.value,
-        }));
-      await ack({ options });
-    });
-  };
-  // Treat external arg-menu registration as best-effort: if Bolt's app.options()
-  // throws (e.g. from receiver init issues), disable external selects and fall back
-  // to static_select/button menus instead of crashing the entire provider startup.
-  try {
-    registerArgOptions();
-  } catch (err) {
-    supportsExternalArgMenus = false;
-    logVerbose(
-      `slack: external arg-menu registration failed, falling back to static menus: ${String(err)}`,
-    );
-  }
-
->>>>>>> 1faf8e8e9 (Slack: add external select flow for large arg menus)
   const registerArgAction = (actionId: string) => {
     (
       ctx.app as unknown as {
@@ -1074,13 +945,6 @@ export async function registerSlackMonitorSlashCommands(params: {
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
         });
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-      const parsed = parseSlackCommandArgValue(action?.value);
-=======
-      const actionValue = action?.value ?? action?.selected_option?.value;
-      const parsed = parseSlackCommandArgValue(actionValue);
->>>>>>> d57cbcf71 (Slack: use static_select for large slash arg menus)
       if (!parsed) {
         await respondFn({
           text: "Sorry, that button is no longer valid.",

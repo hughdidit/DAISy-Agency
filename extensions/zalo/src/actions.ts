@@ -1,16 +1,10 @@
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
-<<<<<<< HEAD
   MoltbotConfig,
 } from "clawdbot/plugin-sdk";
 import { jsonResult, readStringParam } from "clawdbot/plugin-sdk";
 
-=======
-  OpenClawConfig,
-} from "openclaw/plugin-sdk";
-import { extractToolSend, jsonResult, readStringParam } from "openclaw/plugin-sdk";
->>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import { listEnabledZaloAccounts } from "./accounts.js";
 import { sendMessageZalo } from "./send.js";
 
@@ -24,15 +18,8 @@ function listEnabledAccounts(cfg: MoltbotConfig) {
 
 export const zaloMessageActions: ChannelMessageActionAdapter = {
   listActions: ({ cfg }) => {
-<<<<<<< HEAD
     const accounts = listEnabledAccounts(cfg as MoltbotConfig);
     if (accounts.length === 0) return [];
-=======
-    const accounts = listEnabledAccounts(cfg);
-    if (accounts.length === 0) {
-      return [];
-    }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
     const actions = new Set<ChannelMessageActionName>(["send"]);
     return Array.from(actions);
   },
@@ -50,11 +37,7 @@ export const zaloMessageActions: ChannelMessageActionAdapter = {
       const result = await sendMessageZalo(to ?? "", content ?? "", {
         accountId: accountId ?? undefined,
         mediaUrl: mediaUrl ?? undefined,
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       });
 
       if (!result.ok) {

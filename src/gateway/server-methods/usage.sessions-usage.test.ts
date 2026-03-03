@@ -141,52 +141,9 @@ describe("sessions.usage", () => {
 
   it("resolves store entries by sessionId when queried via discovered agent-prefixed key", async () => {
     const storeKey = "agent:opus:slack:dm:u123";
-<<<<<<< HEAD
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-usage-test-"));
     const sessionFile = path.join(tempDir, "s-opus.jsonl");
     fs.writeFileSync(sessionFile, "", "utf-8");
-=======
-    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-usage-test-"));
-
-    try {
-      await withEnvAsync({ OPENCLAW_STATE_DIR: stateDir }, async () => {
-        const agentSessionsDir = path.join(stateDir, "agents", "opus", "sessions");
-        fs.mkdirSync(agentSessionsDir, { recursive: true });
-        const sessionFile = path.join(agentSessionsDir, "s-opus.jsonl");
-        fs.writeFileSync(sessionFile, "", "utf-8");
-
-        // Swap the store mock for this test: the canonical key differs from the discovered key
-        // but points at the same sessionId.
-        vi.mocked(loadCombinedSessionStoreForGateway).mockReturnValue({
-          storePath: "(multiple)",
-          store: {
-            [storeKey]: {
-              sessionId: "s-opus",
-              sessionFile: "s-opus.jsonl",
-              label: "Named session",
-              updatedAt: 999,
-            },
-          },
-        });
-
-        // Query via discovered key: agent:<id>:<sessionId>
-        const respond = await runSessionsUsage({ ...BASE_USAGE_RANGE, key: "agent:opus:s-opus" });
-        const sessions = expectSuccessfulSessionsUsage(respond);
-        expect(sessions).toHaveLength(1);
-        expect(sessions[0]?.key).toBe(storeKey);
-        expect(vi.mocked(loadSessionCostSummary)).toHaveBeenCalled();
-        expect(
-          vi.mocked(loadSessionCostSummary).mock.calls.some((call) => call[0]?.agentId === "opus"),
-        ).toBe(true);
-      });
-    } finally {
-      fs.rmSync(stateDir, { recursive: true, force: true });
-    }
-  });
-
-  it("rejects traversal-style keys in specific session usage lookups", async () => {
-<<<<<<< HEAD
->>>>>>> f809ff5e5 (refactor(test): reuse env snapshot helper)
     const respond = vi.fn();
 
     // Swap the store mock for this test: the canonical key differs from the discovered key

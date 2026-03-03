@@ -4,18 +4,11 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import { formatSessionTokens } from "../presenter";
 import { pathForTab } from "../navigation";
 import type { GatewaySessionRow, SessionsListResult } from "../types";
-=======
-import type { GatewaySessionRow, SessionsListResult } from "../types.ts";
-import { formatRelativeTimestamp } from "../format.ts";
-import { pathForTab } from "../navigation.ts";
-import { formatSessionTokens } from "../presenter.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import { formatRelativeTimestamp } from "../format.ts";
 import { pathForTab } from "../navigation.ts";

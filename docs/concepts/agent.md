@@ -22,12 +22,7 @@ per-session workspaces under `agents.defaults.sandbox.workspaceRoot` (see
 
 ## Bootstrap files (injected)
 
-<<<<<<< HEAD
 Inside `agents.defaults.workspace`, Moltbot expects these user-editable files:
-=======
-Inside `agents.defaults.workspace`, OpenClaw expects these user-editable files:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `AGENTS.md` — operating instructions + “memory”
 - `SOUL.md` — persona, boundaries, tone
 - `TOOLS.md` — user-maintained tool notes (e.g. `imsg`, `sag`, conventions)
@@ -58,12 +53,7 @@ guidance for how _you_ want them used.
 
 ## Skills
 
-<<<<<<< HEAD
 Moltbot loads skills from three locations (workspace wins on name conflict):
-=======
-OpenClaw loads skills from three locations (workspace wins on name conflict):
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Bundled (shipped with the install)
 - Managed/local: `~/.clawdbot/skills`
 - Workspace: `<workspace>/skills`
@@ -80,12 +70,7 @@ Moltbot reuses pieces of the p-mono codebase (models/tools), but **session manag
 ## Sessions
 
 Session transcripts are stored as JSONL at:
-<<<<<<< HEAD
 - `~/.clawdbot/agents/<agentId>/sessions/<SessionId>.jsonl`
-=======
-
-- `~/.openclaw/agents/<agentId>/sessions/<SessionId>.jsonl`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 The session ID is stable and chosen by Moltbot.
 Legacy Pi/Tau session folders are **not** read.

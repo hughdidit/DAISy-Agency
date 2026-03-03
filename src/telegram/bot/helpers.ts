@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
 import type { TelegramAccountConfig } from "../../config/types.telegram.js";
 import type {
@@ -11,16 +10,6 @@ import type {
   TelegramStreamMode,
   TelegramVenue,
 } from "./types.js";
-=======
-import type { Chat, Message, MessageOrigin, User } from "@grammyjs/types";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
 
 const TELEGRAM_GENERAL_TOPIC_ID = 1;
 
@@ -36,14 +25,8 @@ import { formatLocationText, type NormalizedLocation } from "../../channels/loca
 =======
 import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
 import { resolveTelegramPreviewStreamMode } from "../../config/discord-preview-streaming.js";
-<<<<<<< HEAD
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../../config/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
-=======
-import type { TelegramGroupConfig, TelegramTopicConfig } from "../../config/types.js";
-import type { TelegramStreamMode } from "./types.js";
-import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../../config/types.js";
@@ -94,7 +77,6 @@ export async function resolveTelegramGroupAllowFromContext(params: {
   effectiveGroupAllow: NormalizedAllowFrom;
   hasGroupAllowOverride: boolean;
 }> {
-<<<<<<< HEAD
   const resolvedThreadId = resolveTelegramForumThreadId({
     isForum: params.isForum,
     messageThreadId: params.messageThreadId,
@@ -104,21 +86,6 @@ export async function resolveTelegramGroupAllowFromContext(params: {
     process.env,
     params.accountId,
   ).catch(() => []);
-=======
-  const accountId = normalizeAccountId(params.accountId);
-  // Use resolveTelegramThreadSpec to handle both forum groups AND DM topics
-  const threadSpec = resolveTelegramThreadSpec({
-    isGroup: params.isGroup ?? false,
-    isForum: params.isForum,
-    messageThreadId: params.messageThreadId,
-  });
-  const resolvedThreadId = threadSpec.scope === "forum" ? threadSpec.id : undefined;
-  const dmThreadId = threadSpec.scope === "dm" ? threadSpec.id : undefined;
-  const threadIdForConfig = resolvedThreadId ?? dmThreadId;
-  const storeAllowFrom = await readChannelAllowFromStore("telegram", process.env, accountId).catch(
-    () => [],
-  );
->>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
   const { groupConfig, topicConfig } = params.resolveTelegramGroupConfig(
     params.chatId,
     threadIdForConfig,
@@ -163,8 +130,6 @@ export function resolveTelegramForumThreadId(params: {
   return params.messageThreadId;
 }
 
-<<<<<<< HEAD
-=======
 export function resolveTelegramThreadSpec(params: {
   isGroup: boolean;
   isForum?: boolean;
@@ -189,18 +154,14 @@ export function resolveTelegramThreadSpec(params: {
   };
 }
 
->>>>>>> 9f907320c (Revert "fix: handle forum/topics in Telegram DM thread routing (#17980)")
 /**
  * Build thread params for Telegram API calls (messages, media).
-<<<<<<< HEAD
-=======
  *
  * IMPORTANT: Thread IDs behave differently based on chat type:
  * - DMs (private chats): Include message_thread_id when present (DM topics)
  * - Forum topics: Skip thread_id=1 (General topic), include others
  * - Regular groups: Thread IDs are ignored by Telegram
  *
->>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
  * General forum topic (id=1) must be treated like a regular supergroup send:
  * Telegram rejects sendMessage/sendMedia with message_thread_id=1 ("thread not found").
  */
@@ -208,17 +169,7 @@ export function buildTelegramThreadParams(messageThreadId?: number) {
   if (messageThreadId == null) {
     return undefined;
   }
-<<<<<<< HEAD
   const normalized = Math.trunc(messageThreadId);
-=======
-  const normalized = Math.trunc(thread.id);
-
-  if (thread.scope === "dm") {
-    return normalized > 0 ? { message_thread_id: normalized } : undefined;
-  }
-
-  // Telegram rejects message_thread_id=1 for General forum topic
->>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
   if (normalized === TELEGRAM_GENERAL_TOPIC_ID) {
     return undefined;
   }
@@ -236,20 +187,9 @@ export function buildTypingThreadParams(messageThreadId?: number) {
   return { message_thread_id: Math.trunc(messageThreadId) };
 }
 
-<<<<<<< HEAD
 export function resolveTelegramStreamMode(
   telegramCfg: Pick<TelegramAccountConfig, "streamMode"> | undefined,
 ): TelegramStreamMode {
-=======
-export function resolveTelegramStreamMode(telegramCfg?: {
-  streaming?: unknown;
-  streamMode?: unknown;
-}): TelegramStreamMode {
-<<<<<<< HEAD
-  if (typeof telegramCfg?.streaming === "boolean") {
-    return telegramCfg.streaming ? "partial" : "off";
-  }
->>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
   const raw = telegramCfg?.streamMode?.trim().toLowerCase();
   if (raw === "off") {
     return "off";
@@ -430,12 +370,8 @@ export function describeReplyTarget(msg: Message): TelegramReplyTarget | null {
   const externalReply = (msg as Message & { external_reply?: Message }).external_reply;
   const quoteText =
     msg.quote?.text ??
-<<<<<<< HEAD
     (reply as Message & { quote?: { text?: string } } | undefined)?.quote?.text ??
     (externalReply as Message & { quote?: { text?: string } } | undefined)?.quote?.text;
-=======
-    (externalReply as (Message & { quote?: { text?: string } }) | undefined)?.quote?.text;
->>>>>>> 582732391 (fix(telegram): avoid nested reply quote misclassification)
   let body = "";
   let kind: TelegramReplyTarget["kind"] = "reply";
 

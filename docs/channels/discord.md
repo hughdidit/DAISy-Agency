@@ -9,16 +9,9 @@ read_when:
 Status: ready for DM and guild text channels via the official Discord bot gateway.
 
 ## Quick setup (beginner)
-<<<<<<< HEAD
 1) Create a Discord bot and copy the bot token.
 2) In the Discord app settings, enable **Message Content Intent** (and **Server Members Intent** if you plan to use allowlists or name lookups).
 3) Set the token for Moltbot:
-=======
-
-1. Create a Discord bot and copy the bot token.
-2. In the Discord app settings, enable **Message Content Intent** (and **Server Members Intent** if you plan to use allowlists or name lookups).
-3. Set the token for OpenClaw:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Env: `DISCORD_BOT_TOKEN=...`
    - Or config: `channels.discord.token: "..."`.
    - If both are set, config takes precedence (env fallback is default-account only).
@@ -40,12 +33,7 @@ Minimal config:
 ```
 
 ## Goals
-<<<<<<< HEAD
 - Talk to Moltbot via Discord DMs or guild channels.
-=======
-
-- Talk to OpenClaw via Discord DMs or guild channels.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Direct chats collapse into the agent's main session (default `agent:main:main`); guild channels stay isolated as `agent:<agentId>:discord:channel:<channelId>` (display names use `discord:<guildSlug>#<channelSlug>`).
 - Group DMs are ignored by default; enable via `channels.discord.dm.groupEnabled` and optionally restrict by `channels.discord.dm.groupChannels`.
 - Keep routing deterministic: replies always go back to the channel they arrived on.
@@ -100,12 +88,7 @@ This is the “Discord Developer Portal” setup for running Moltbot in a server
    - **Bot** → **Add Bot**
    - Copy the **Bot Token** (this is what you put in `DISCORD_BOT_TOKEN`)
 
-<<<<<<< HEAD
 ### 2) Enable the gateway intents Moltbot needs
-=======
-### 2) Enable the gateway intents OpenClaw needs
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 Discord blocks “privileged intents” unless you explicitly enable them.
 
 In **Bot** → **Privileged Gateway Intents**, enable:
@@ -119,91 +102,7 @@ You usually do **not** need **Presence Intent**. Setting the bot's own presence 
 
 In your app: **OAuth2** → **URL Generator**
 
-<<<<<<< HEAD
 **Scopes**
-=======
-## Interactive components
-
-OpenClaw supports Discord components v2 containers for agent messages. Use the message tool with a `components` payload. Interaction results are routed back to the agent as normal inbound messages and follow the existing Discord `replyToMode` settings.
-
-Supported blocks:
-
-- `text`, `section`, `separator`, `actions`, `media-gallery`, `file`
-- Action rows allow up to 5 buttons or a single select menu
-- Select types: `string`, `user`, `role`, `mentionable`, `channel`
-
-By default, components are single use. Set `components.reusable=true` to allow buttons, selects, and forms to be used multiple times until they expire.
-
-To restrict who can click a button, set `allowedUsers` on that button (Discord user IDs, tags, or `*`). When configured, unmatched users receive an ephemeral denial.
-
-File attachments:
-
-- `file` blocks must point to an attachment reference (`attachment://<filename>`)
-- Provide the attachment via `media`/`path`/`filePath` (single file); use `media-gallery` for multiple files
-- Use `filename` to override the upload name when it should match the attachment reference
-
-Modal forms:
-
-- Add `components.modal` with up to 5 fields
-- Field types: `text`, `checkbox`, `radio`, `select`, `role-select`, `user-select`
-- OpenClaw adds a trigger button automatically
-
-Example:
-
-```json5
-{
-  channel: "discord",
-  action: "send",
-  to: "channel:123456789012345678",
-  message: "Optional fallback text",
-  components: {
-    reusable: true,
-    text: "Choose a path",
-    blocks: [
-      {
-        type: "actions",
-        buttons: [
-          {
-            label: "Approve",
-            style: "success",
-            allowedUsers: ["123456789012345678"],
-          },
-          { label: "Decline", style: "danger" },
-        ],
-      },
-      {
-        type: "actions",
-        select: {
-          type: "string",
-          placeholder: "Pick an option",
-          options: [
-            { label: "Option A", value: "a" },
-            { label: "Option B", value: "b" },
-          ],
-        },
-      },
-    ],
-    modal: {
-      title: "Details",
-      triggerLabel: "Open form",
-      fields: [
-        { type: "text", label: "Requester" },
-        {
-          type: "select",
-          label: "Priority",
-          options: [
-            { label: "Low", value: "low" },
-            { label: "High", value: "high" },
-          ],
-        },
-      ],
-    },
-  },
-}
-```
-
-## Access control and routing
->>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
 
 - ✅ `bot`
 - ✅ `applications.commands` (required for native commands)
@@ -218,27 +117,12 @@ Example:
 - ✅ Add Reactions (optional but recommended)
 - ✅ Use External Emojis / Stickers (optional; only if you want them)
 
-<<<<<<< HEAD
 Avoid **Administrator** unless you’re debugging and fully trust the bot.
-=======
-    Multi-account precedence:
-
-    - `channels.discord.accounts.default.allowFrom` applies only to the `default` account.
-    - Named accounts inherit `channels.discord.allowFrom` when their own `allowFrom` is unset.
-    - Named accounts do not inherit `channels.discord.accounts.default.allowFrom`.
-
-    DM target format for delivery:
->>>>>>> 1ffc31983 (Doctor: keep allowFrom account-scoped in multi-account configs)
 
 Copy the generated URL, open it, pick your server, and install the bot.
 
 ### 4) Get the ids (guild/user/channel)
-<<<<<<< HEAD
 Discord uses numeric ids everywhere; Moltbot config prefers ids.
-=======
-
-Discord uses numeric ids everywhere; OpenClaw config prefers ids.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 1. Discord (desktop/web) → **User Settings** → **Advanced** → enable **Developer Mode**
 2. Right-click:
@@ -317,12 +201,7 @@ Notes:
 3. If nothing happens: check **Troubleshooting** below.
 
 ### Troubleshooting
-<<<<<<< HEAD
 - First: run `moltbot doctor` and `moltbot channels status --probe` (actionable warnings + quick audits).
-=======
-
-- First: run `openclaw doctor` and `openclaw channels status --probe` (actionable warnings + quick audits).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **“Used disallowed intents”**: enable **Message Content Intent** (and likely **Server Members Intent**) in the Developer Portal, then restart the gateway.
 - **Bot connects but never replies in a guild channel**:
   - Missing **Message Content Intent**, or
@@ -396,11 +275,7 @@ Outbound Discord API calls retry on rate limits (429) using Discord `retry_after
         policy: "pairing", // pairing | allowlist | open | disabled
         allowFrom: ["123456789012345678", "steipete"],
         groupEnabled: false,
-<<<<<<< HEAD
         groupChannels: ["clawd-dm"]
-=======
-        groupChannels: ["openclaw-dm"],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       },
       guilds: {
         "*": { requireMention: true },
@@ -426,13 +301,9 @@ Outbound Discord API calls retry on rate limits (429) using Discord `retry_after
 }
 ```
 
-<<<<<<< HEAD
 Ack reactions are controlled globally via `messages.ackReaction` +
 `messages.ackReactionScope`. Use `messages.removeAckAfterReply` to clear the
 ack reaction after the bot replies.
-=======
-    If you only set `DISCORD_BOT_TOKEN` and do not create a `channels.discord` block, runtime fallback is `groupPolicy="allowlist"` (with a warning in logs).
->>>>>>> 3700151ec (Channels: fail closed when Slack/Discord config is missing)
 
 - `dm.enabled`: set `false` to ignore all DMs (default `true`).
 - `dm.policy`: DM access control (`pairing` recommended). `"open"` requires `dm.allowFrom=["*"]`.
@@ -472,12 +343,9 @@ ack reaction after the bot replies.
   - `channels` (create/edit/delete channels + categories + permissions)
   - `roles` (role add/remove, default `false`)
   - `moderation` (timeout/kick/ban, default `false`)
-<<<<<<< HEAD
-=======
   - `presence` (bot status/activity, default `false`)
 <<<<<<< HEAD
 - `execApprovals`: Discord-only exec approval DMs (button UI). Supports `enabled`, `approvers`, `agentFilter`, `sessionFilter`.
->>>>>>> 5af322f71 (feat(discord): add set-presence action for bot activity and status)
 =======
 - `execApprovals`: Discord-only exec approval DMs (button UI). Supports `enabled`, `approvers`, `agentFilter`, `sessionFilter`, `cleanupAfterResolve`.
 >>>>>>> 8ff1618bf (Discord: add exec approval cleanup option (#13205))
@@ -491,250 +359,9 @@ Reaction notifications use `guilds.<id>.reactionNotifications`:
 
 ### PluralKit (PK) support
 
-<<<<<<< HEAD
 Enable PK lookups so proxied messages resolve to the underlying system + member.
 When enabled, OpenClaw uses the member identity for allowlists and labels the
 sender as `Member (PK:System)` to avoid accidental Discord pings.
-=======
-    `requireMention` is configured per guild/channel (`channels.discord.guilds...`).
-
-    Group DMs:
-
-    - default: ignored (`dm.groupEnabled=false`)
-    - optional allowlist via `dm.groupChannels` (channel IDs or slugs)
-
-  </Tab>
-</Tabs>
-
-### Role-based agent routing
-
-Use `bindings[].match.roles` to route Discord guild members to different agents by role ID. Role-based bindings accept role IDs only and are evaluated after peer or parent-peer bindings and before guild-only bindings. If a binding also sets other match fields (for example `peer` + `guildId` + `roles`), all configured fields must match.
-
-```json5
-{
-  bindings: [
-    {
-      agentId: "opus",
-      match: {
-        channel: "discord",
-        guildId: "123456789012345678",
-        roles: ["111111111111111111"],
-      },
-    },
-    {
-      agentId: "sonnet",
-      match: {
-        channel: "discord",
-        guildId: "123456789012345678",
-      },
-    },
-  ],
-}
-```
-
-## Developer Portal setup
-
-<AccordionGroup>
-  <Accordion title="Create app and bot">
-
-    1. Discord Developer Portal -> **Applications** -> **New Application**
-    2. **Bot** -> **Add Bot**
-    3. Copy bot token
-
-  </Accordion>
-
-  <Accordion title="Privileged intents">
-    In **Bot -> Privileged Gateway Intents**, enable:
-
-    - Message Content Intent
-    - Server Members Intent (recommended)
-
-    Presence intent is optional and only required if you want to receive presence updates. Setting bot presence (`setPresence`) does not require enabling presence updates for members.
-
-  </Accordion>
-
-  <Accordion title="OAuth scopes and baseline permissions">
-    OAuth URL generator:
-
-    - scopes: `bot`, `applications.commands`
-
-    Typical baseline permissions:
-
-    - View Channels
-    - Send Messages
-    - Read Message History
-    - Embed Links
-    - Attach Files
-    - Add Reactions (optional)
-
-    Avoid `Administrator` unless explicitly needed.
-
-  </Accordion>
-
-  <Accordion title="Copy IDs">
-    Enable Discord Developer Mode, then copy:
-
-    - server ID
-    - channel ID
-    - user ID
-
-    Prefer numeric IDs in OpenClaw config for reliable audits and probes.
-
-  </Accordion>
-</AccordionGroup>
-
-## Native commands and command auth
-
-- `commands.native` defaults to `"auto"` and is enabled for Discord.
-- Per-channel override: `channels.discord.commands.native`.
-- `commands.native=false` explicitly clears previously registered Discord native commands.
-- Native command auth uses the same Discord allowlists/policies as normal message handling.
-- Commands may still be visible in Discord UI for users who are not authorized; execution still enforces OpenClaw auth and returns "not authorized".
-
-See [Slash commands](/tools/slash-commands) for command catalog and behavior.
-
-Default slash command settings:
-
-- `ephemeral: true`
-
-## Feature details
-
-<AccordionGroup>
-  <Accordion title="Reply tags and native replies">
-    Discord supports reply tags in agent output:
-
-    - `[[reply_to_current]]`
-    - `[[reply_to:<id>]]`
-
-    Controlled by `channels.discord.replyToMode`:
-
-    - `off` (default)
-    - `first`
-    - `all`
-
-    Note: `off` disables implicit reply threading. Explicit `[[reply_to_*]]` tags are still honored.
-
-    Message IDs are surfaced in context/history so agents can target specific messages.
-
-  </Accordion>
-
-  <Accordion title="Live stream preview">
-    OpenClaw can stream draft replies by sending a temporary message and editing it as text arrives.
-
-    - `channels.discord.streaming` controls preview streaming (`off` | `partial` | `block` | `progress`, default: `off`).
-    - `progress` is accepted for cross-channel consistency and maps to `partial` on Discord.
-    - `channels.discord.streamMode` is a legacy alias and is auto-migrated.
-    - `partial` edits a single preview message as tokens arrive.
-    - `block` emits draft-sized chunks (use `draftChunk` to tune size and breakpoints).
-
-    Example:
-
-```json5
-{
-  channels: {
-    discord: {
-      streaming: "partial",
-    },
-  },
-}
-```
-
-    `block` mode chunking defaults (clamped to `channels.discord.textChunkLimit`):
-
-```json5
-{
-  channels: {
-    discord: {
-      streaming: "block",
-      draftChunk: {
-        minChars: 200,
-        maxChars: 800,
-        breakPreference: "paragraph",
-      },
-    },
-  },
-}
-```
-
-    Preview streaming is text-only; media replies fall back to normal delivery.
-
-    Note: preview streaming is separate from block streaming. When block streaming is explicitly
-    enabled for Discord, OpenClaw skips the preview stream to avoid double streaming.
-
-  </Accordion>
-
-  <Accordion title="History, context, and thread behavior">
-    Guild history context:
-
-    - `channels.discord.historyLimit` default `20`
-    - fallback: `messages.groupChat.historyLimit`
-    - `0` disables
-
-    DM history controls:
-
-    - `channels.discord.dmHistoryLimit`
-    - `channels.discord.dms["<user_id>"].historyLimit`
-
-    Thread behavior:
-
-    - Discord threads are routed as channel sessions
-    - parent thread metadata can be used for parent-session linkage
-    - thread config inherits parent channel config unless a thread-specific entry exists
-
-    Channel topics are injected as **untrusted** context (not as system prompt).
-
-  </Accordion>
-
-<<<<<<< HEAD
-=======
-  <Accordion title="Thread-bound sessions for subagents">
-    Discord can bind a thread to a session target so follow-up messages in that thread keep routing to the same session (including subagent sessions).
-
-    Commands:
-
-    - `/focus <target>` bind current/new thread to a subagent/session target
-    - `/unfocus` remove current thread binding
-    - `/agents` show active runs and binding state
-    - `/session idle <duration|off>` inspect/update inactivity auto-unfocus for focused bindings
-    - `/session max-age <duration|off>` inspect/update hard max age for focused bindings
-
-    Config:
-
-```json5
-{
-  session: {
-    threadBindings: {
-      enabled: true,
-      idleHours: 24,
-      maxAgeHours: 0,
-    },
-  },
-  channels: {
-    discord: {
-      threadBindings: {
-        enabled: true,
-        idleHours: 24,
-        maxAgeHours: 0,
-        spawnSubagentSessions: false, // opt-in
-      },
-    },
-  },
-}
-```
-
-    Notes:
-
-    - `session.threadBindings.*` sets global defaults.
-    - `channels.discord.threadBindings.*` overrides Discord behavior.
-    - `spawnSubagentSessions` must be true to auto-create/bind threads for `sessions_spawn({ thread: true })`.
-    - `spawnAcpSessions` must be true to auto-create/bind threads for ACP (`/acp spawn ... --thread ...` or `sessions_spawn({ runtime: "acp", thread: true })`).
-    - If thread bindings are disabled for an account, `/focus` and related thread binding operations are unavailable.
-
-    See [Sub-agents](/tools/subagents), [ACP Agents](/tools/acp-agents), and [Configuration Reference](/gateway/configuration-reference).
-
-  </Accordion>
-
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
   <Accordion title="Reaction notifications">
     Per-guild reaction notification mode:
 
@@ -893,12 +520,7 @@ Allowlist matching notes:
   and logs the mapping; unresolved entries are kept as typed.
 
 Native command notes:
-<<<<<<< HEAD
 - The registered commands mirror Moltbot’s chat commands.
-=======
-
-- The registered commands mirror OpenClaw’s chat commands.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Native commands honor the same allowlists as DMs/guild messages (`channels.discord.dm.allowFrom`, `channels.discord.guilds`, per-channel rules).
 - Slash commands may still be visible in Discord UI to users who aren’t allowlisted; Moltbot enforces allowlists on execution and replies “not authorized”.
 
@@ -906,7 +528,6 @@ Native command notes:
 
 The agent can call `discord` with actions like:
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 - `react` / `reactions` (add or list reactions)
 - `sticker`, `poll`, `permissions`
@@ -918,33 +539,6 @@ The agent can call `discord` with actions like:
 - `channelInfo`, `channelList`, `voiceStatus`, `eventList`, `eventCreate`
 - `timeout`, `kick`, `ban`
 - `setPresence` (bot activity and online status)
-=======
-=======
-## Components v2 UI
-
-OpenClaw uses Discord components v2 for exec approvals and cross-context markers. Discord message actions can also accept `components` for custom UI (advanced; requires Carbon component instances), while legacy `embeds` remain available but are not recommended.
-
-- `channels.discord.ui.components.accentColor` sets the accent color used by Discord component containers (hex).
-- Set per account with `channels.discord.accounts.<id>.ui.components.accentColor`.
-- `embeds` are ignored when components v2 are present.
-
-Example:
-
-```json5
-{
-  channels: {
-    discord: {
-      ui: {
-        components: {
-          accentColor: "#5865F2",
-        },
-      },
-    },
-  },
-}
-```
-
->>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 ## Voice messages
 
 Discord voice messages show a waveform preview and require OGG/Opus audio plus metadata. OpenClaw generates the waveform automatically, but it needs `ffmpeg` and `ffprobe` available on the gateway host to inspect and convert audio files.
@@ -969,127 +563,6 @@ Emoji can be unicode (e.g., `✅`) or custom emoji syntax like `<:party_blob:123
 
 ## Safety & ops
 
-<<<<<<< HEAD
 - Treat the bot token like a password; prefer the `DISCORD_BOT_TOKEN` env var on supervised hosts or lock down the config file permissions.
 - Only grant the bot permissions it needs (typically Read/Send Messages).
 - If the bot is stuck or rate limited, restart the gateway (`moltbot gateway --force`) after confirming no other processes own the Discord session.
-=======
-  </Accordion>
-
-  <Accordion title="Guild messages blocked unexpectedly">
-
-    - verify `groupPolicy`
-    - verify guild allowlist under `channels.discord.guilds`
-    - if guild `channels` map exists, only listed channels are allowed
-    - verify `requireMention` behavior and mention patterns
-
-    Useful checks:
-
-```bash
-openclaw doctor
-openclaw channels status --probe
-openclaw logs --follow
-```
-
-  </Accordion>
-
-  <Accordion title="Require mention false but still blocked">
-    Common causes:
-
-    - `groupPolicy="allowlist"` without matching guild/channel allowlist
-    - `requireMention` configured in the wrong place (must be under `channels.discord.guilds` or channel entry)
-    - sender blocked by guild/channel `users` allowlist
-
-  </Accordion>
-
-  <Accordion title="Long-running handlers time out or duplicate replies">
-
-    Typical logs:
-
-    - `Listener DiscordMessageListener timed out after 30000ms for event MESSAGE_CREATE`
-    - `Slow listener detected ...`
-
-    Canonical knob:
-
-    - single-account: `channels.discord.eventQueue.listenerTimeout`
-    - multi-account: `channels.discord.accounts.<accountId>.eventQueue.listenerTimeout`
-
-    Recommended baseline:
-
-```json5
-{
-  channels: {
-    discord: {
-      accounts: {
-        default: {
-          eventQueue: {
-            listenerTimeout: 120000,
-          },
-        },
-      },
-    },
-  },
-}
-```
-
-    Tune this first before adding alternate timeout controls elsewhere.
-
-  </Accordion>
-
-  <Accordion title="Permissions audit mismatches">
-    `channels status --probe` permission checks only work for numeric channel IDs.
-
-    If you use slug keys, runtime matching can still work, but probe cannot fully verify permissions.
-
-  </Accordion>
-
-  <Accordion title="DM and pairing issues">
-
-    - DM disabled: `channels.discord.dm.enabled=false`
-    - DM policy disabled: `channels.discord.dmPolicy="disabled"` (legacy: `channels.discord.dm.policy`)
-    - awaiting pairing approval in `pairing` mode
-
-  </Accordion>
-
-  <Accordion title="Bot to bot loops">
-    By default bot-authored messages are ignored.
-
-    If you set `channels.discord.allowBots=true`, use strict mention and allowlist rules to avoid loop behavior.
-
-  </Accordion>
-</AccordionGroup>
-
-## Configuration reference pointers
-
-Primary reference:
-
-- [Configuration reference - Discord](/gateway/configuration-reference#discord)
-
-High-signal Discord fields:
-
-- startup/auth: `enabled`, `token`, `accounts.*`, `allowBots`
-- policy: `groupPolicy`, `dm.*`, `guilds.*`, `guilds.*.channels.*`
-- command: `commands.native`, `commands.useAccessGroups`, `configWrites`, `slashCommand.*`
-- event queue: `eventQueue.listenerTimeout` (canonical), `eventQueue.maxQueueSize`, `eventQueue.maxConcurrency`
-- reply/history: `replyToMode`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
-- delivery: `textChunkLimit`, `chunkMode`, `maxLinesPerMessage`
-- streaming: `streaming` (legacy alias: `streamMode`), `draftChunk`, `blockStreaming`, `blockStreamingCoalesce`
-- media/retry: `mediaMaxMb`, `retry`
-- actions: `actions.*`
-- presence: `activity`, `status`, `activityType`, `activityUrl`
-- UI: `ui.components.accentColor`
-- features: `pluralkit`, `execApprovals`, `intents`, `agentComponents`, `heartbeat`, `responsePrefix`
-
-## Safety and operations
-
-- Treat bot tokens as secrets (`DISCORD_BOT_TOKEN` preferred in supervised environments).
-- Grant least-privilege Discord permissions.
-- If command deploy/state is stale, restart gateway and re-check with `openclaw channels status --probe`.
-
-## Related
-
-- [Pairing](/channels/pairing)
-- [Channel routing](/channels/channel-routing)
-- [Troubleshooting](/channels/troubleshooting)
-- [Slash commands](/tools/slash-commands)
->>>>>>> 9203a2fdb (Discord: CV2! (#16364))

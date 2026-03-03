@@ -83,45 +83,12 @@ export async function processGatewayAllowlist(
   const analysisOk = allowlistEval.analysisOk;
   const allowlistSatisfied =
     hostSecurity === "allowlist" && analysisOk ? allowlistEval.allowlistSatisfied : false;
-<<<<<<< HEAD
   const requiresAsk = requiresExecApproval({
     ask: hostAsk,
     security: hostSecurity,
     analysisOk,
     allowlistSatisfied,
   });
-=======
-  const recordMatchedAllowlistUse = (resolvedPath?: string) => {
-    if (allowlistMatches.length === 0) {
-      return;
-    }
-    const seen = new Set<string>();
-    for (const match of allowlistMatches) {
-      if (seen.has(match.pattern)) {
-        continue;
-      }
-      seen.add(match.pattern);
-      recordAllowlistUse(approvals.file, params.agentId, match, params.command, resolvedPath);
-    }
-  };
-  const hasHeredocSegment = allowlistEval.segments.some((segment) =>
-    segment.argv.some((token) => token.startsWith("<<")),
-  );
-  const requiresHeredocApproval =
-    hostSecurity === "allowlist" && analysisOk && allowlistSatisfied && hasHeredocSegment;
-  const requiresAsk =
-    requiresExecApproval({
-      ask: hostAsk,
-      security: hostSecurity,
-      analysisOk,
-      allowlistSatisfied,
-    }) || requiresHeredocApproval;
-  if (requiresHeredocApproval) {
-    params.warnings.push(
-      "Warning: heredoc execution requires explicit approval in allowlist mode.",
-    );
-  }
->>>>>>> 8af19ddc5 (refactor: extract shared dedupe helpers for runtime paths)
 
   if (requiresAsk) {
     const approvalId = crypto.randomUUID();

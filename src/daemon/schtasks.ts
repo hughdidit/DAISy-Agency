@@ -8,17 +8,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { promisify } from "node:util";
 
-=======
-=======
-import { splitArgsPreservingQuotes } from "./arg-split.js";
-import { parseCmdSetAssignment, renderCmdSetAssignment } from "./cmd-set.js";
-=======
-import { parseCmdScriptCommandLine, quoteCmdScriptArg } from "./cmd-argv.js";
-import { assertNoCmdLineBreak, parseCmdSetAssignment, renderCmdSetAssignment } from "./cmd-set.js";
->>>>>>> 035832b4c (refactor(daemon): extract windows cmd argv helpers)
 import { resolveGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
 import { formatLine, writeFormattedLines } from "./output.js";
 import { resolveGatewayStateDir } from "./paths.js";
@@ -27,11 +18,8 @@ import { execSchtasks } from "./schtasks-exec.js";
 >>>>>>> bc6f983f8 (fix(ci): resolve format drift and acp mock typing)
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 2004ce919 (refactor(daemon): share schtasks exec helper)
 import { colorize, isRich, theme } from "../terminal/theme.js";
-=======
->>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 =======
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -46,13 +34,8 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { splitArgsPreservingQuotes } from "./arg-split.js";
-<<<<<<< HEAD
 >>>>>>> 108ea4336 (refactor(daemon): share quoted arg splitter)
 import { formatGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
-=======
-import { resolveGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
-<<<<<<< HEAD
->>>>>>> 0dbc51aa5 (refactor(daemon): share service description resolve)
 import { formatLine } from "./output.js";
 =======
 import { formatLine, writeFormattedLines } from "./output.js";
@@ -61,25 +44,15 @@ import { resolveGatewayStateDir } from "./paths.js";
 import { parseKeyValueOutput } from "./runtime-parse.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> dafe52e8c (fix(daemon): escape schtasks environment assignments)
 import type { GatewayServiceRuntime } from "./service-runtime.js";
-<<<<<<< HEAD
-=======
 import { execSchtasks } from "./schtasks-exec.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> ed11e93cf (chore(format))
 
 const execFileAsync = promisify(execFile);
 =======
 import { execSchtasks } from "./schtasks-exec.js";
-<<<<<<< HEAD
 >>>>>>> 2004ce919 (refactor(daemon): share schtasks exec helper)
-=======
-import type { GatewayServiceRuntime } from "./service-runtime.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -91,7 +64,6 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 function resolveTaskName(env: Record<string, string | undefined>): string {
-<<<<<<< HEAD
   const override = env.CLAWDBOT_WINDOWS_TASK_NAME?.trim();
   if (override) return override;
   return resolveGatewayWindowsTaskName(env.CLAWDBOT_PROFILE);
@@ -101,20 +73,6 @@ export function resolveTaskScriptPath(env: Record<string, string | undefined>): 
   const override = env.CLAWDBOT_TASK_SCRIPT?.trim();
   if (override) return override;
   const scriptName = env.CLAWDBOT_TASK_SCRIPT_NAME?.trim() || "gateway.cmd";
-=======
-=======
-import type {
-  GatewayServiceCommandConfig,
-  GatewayServiceControlArgs,
-  GatewayServiceEnv,
-  GatewayServiceEnvArgs,
-  GatewayServiceInstallArgs,
-  GatewayServiceManageArgs,
-  GatewayServiceRenderArgs,
-} from "./service-types.js";
-
-function resolveTaskName(env: GatewayServiceEnv): string {
->>>>>>> 70900feaa (refactor(daemon): share service arg types across backends)
   const override = env.OPENCLAW_WINDOWS_TASK_NAME?.trim();
   if (override) {
     return override;
@@ -277,16 +235,12 @@ export async function installScheduledTask({
   await assertSchtasksAvailable();
   const scriptPath = resolveTaskScriptPath(env);
   await fs.mkdir(path.dirname(scriptPath), { recursive: true });
-<<<<<<< HEAD
   const taskDescription =
     description ??
     formatGatewayServiceDescription({
       profile: env.CLAWDBOT_PROFILE,
       version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
     });
-=======
-  const taskDescription = resolveGatewayServiceDescription({ env, environment, description });
->>>>>>> 0dbc51aa5 (refactor(daemon): share service description resolve)
   const script = buildTaskScript({
     description: taskDescription,
     programArguments,

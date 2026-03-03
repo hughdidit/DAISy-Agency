@@ -1,22 +1,12 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
 import { buildModelAliasIndex } from "../../agents/model-selection.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-=======
-import { saveSessionStore } from "../../config/sessions.js";
->>>>>>> 9c3bc4939 (perf(test): avoid dynamic imports in session reset suites)
 import { formatZonedTimestamp } from "../../infra/format-time/format-datetime.ts";
 >>>>>>> 417509c53 (test: stabilize local-timestamp assertion in session resets)
 import { enqueueSystemEvent, resetSystemEventsForTest } from "../../infra/system-events.js";
@@ -641,7 +631,6 @@ describe("prependSystemEvents", () => {
 
       enqueueSystemEvent("Model switched.", { sessionKey: "agent:main:main" });
 
-<<<<<<< HEAD
     const result = await prependSystemEvents({
       cfg: {} as MoltbotConfig,
       sessionKey: "agent:main:main",
@@ -649,15 +638,6 @@ describe("prependSystemEvents", () => {
       isNewSession: false,
       prefixedBodyBase: "User: hi",
     });
-=======
-      const result = await prependSystemEvents({
-        cfg: {} as OpenClawConfig,
-        sessionKey: "agent:main:main",
-        isMainSession: false,
-        isNewSession: false,
-        prefixedBodyBase: "User: hi",
-      });
->>>>>>> 417509c53 (test: stabilize local-timestamp assertion in session resets)
 
       expect(expectedTimestamp).toBeDefined();
       expect(result).toContain(`System: [${expectedTimestamp}] Model switched.`);

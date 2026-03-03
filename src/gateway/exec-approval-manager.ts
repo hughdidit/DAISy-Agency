@@ -54,8 +54,6 @@ export class ExecApprovalManager {
     return record;
   }
 
-<<<<<<< HEAD
-=======
   /**
    * Register an approval record and return a promise that resolves when the decision is made.
    * This separates registration (synchronous) from waiting (async), allowing callers to
@@ -95,7 +93,6 @@ export class ExecApprovalManager {
   /**
    * @deprecated Use register() instead for explicit separation of registration and waiting.
    */
->>>>>>> d24f5c1e3 (fix(gateway): fail fast exec approvals when no approvers are reachable)
   async waitForDecision(
     record: ExecApprovalRecord,
     timeoutMs: number,
@@ -148,8 +145,6 @@ export class ExecApprovalManager {
     const entry = this.pending.get(recordId);
     return entry?.record ?? null;
   }
-<<<<<<< HEAD
-=======
 
   consumeAllowOnce(recordId: string): boolean {
     const entry = this.pending.get(recordId);
@@ -174,5 +169,4 @@ export class ExecApprovalManager {
     const entry = this.pending.get(recordId);
     return entry?.promise ?? null;
   }
->>>>>>> 3f5e7f815 (fix(gateway): consume allow-once approvals to prevent replay)
 }

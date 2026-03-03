@@ -34,7 +34,6 @@ export function createGatewayHooksRequestHandler(params: {
     }
   };
 
-<<<<<<< HEAD
   const dispatchAgentHook = (value: {
     message: string;
     name: string;
@@ -50,11 +49,6 @@ export function createGatewayHooksRequestHandler(params: {
     allowUnsafeExternalContent?: boolean;
   }) => {
     const sessionKey = value.sessionKey.trim() ? value.sessionKey.trim() : `hook:${randomUUID()}`;
-=======
-  const dispatchAgentHook = (value: HookAgentDispatchPayload) => {
-<<<<<<< HEAD
-    const sessionKey = value.sessionKey.trim();
->>>>>>> 2081b3a3c (refactor(channels): dedupe hook and monitor execution paths)
 =======
     const sessionKey = normalizeHookDispatchSessionKey({
       sessionKey: value.sessionKey,

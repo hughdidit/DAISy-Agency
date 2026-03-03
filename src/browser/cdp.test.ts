@@ -1,10 +1,6 @@
 import { createServer } from "node:http";
-<<<<<<< HEAD
 
 import { afterEach, describe, expect, it } from "vitest";
-=======
-import { afterEach, describe, expect, it, vi } from "vitest";
->>>>>>> 6195660b1 (fix(browser): unify SSRF guard path for navigation)
 import { type WebSocket, WebSocketServer } from "ws";
 import { SsrFBlockedError } from "../infra/net/ssrf.js";
 import { rawDataToString } from "../infra/ws.js";

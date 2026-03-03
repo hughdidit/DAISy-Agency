@@ -7,14 +7,7 @@ import {
 import { resolveModelRefFromString } from "../../agents/model-selection.js";
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { DEFAULT_AGENT_WORKSPACE_DIR, ensureAgentWorkspace } from "../../agents/workspace.js";
-<<<<<<< HEAD
 import { type MoltbotConfig, loadConfig } from "../../config/config.js";
-=======
-import { resolveChannelModelOverride } from "../../channels/model-overrides.js";
-import { type OpenClawConfig, loadConfig } from "../../config/config.js";
-import { applyLinkUnderstanding } from "../../link-understanding/apply.js";
-import { applyMediaUnderstanding } from "../../media-understanding/apply.js";
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import { defaultRuntime } from "../../runtime.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
 import type { MsgContext } from "../templating.js";
@@ -23,15 +16,9 @@ import { SILENT_REPLY_TOKEN } from "../tokens.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { applyMediaUnderstanding } from "../../media-understanding/apply.js";
 import { applyLinkUnderstanding } from "../../link-understanding/apply.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
-<<<<<<< HEAD
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

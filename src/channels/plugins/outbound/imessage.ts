@@ -9,7 +9,6 @@ function resolveIMessageSender(deps: OutboundSendDeps | undefined) {
   return deps?.sendIMessage ?? sendMessageIMessage;
 }
 
-<<<<<<< HEAD
 export const imessageOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",
   chunker: chunkText,
@@ -27,20 +26,14 @@ export const imessageOutbound: ChannelOutboundAdapter = {
   },
 <<<<<<< HEAD
   sendMedia: async ({ cfg, to, text, mediaUrl, accountId, deps }) => {
-=======
-  sendMedia: async ({ cfg, to, text, mediaUrl, mediaLocalRoots, accountId, deps, replyToId }) => {
->>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
     const send = deps?.sendIMessage ?? sendMessageIMessage;
     const maxBytes = resolveIMessageMaxBytes({ cfg, accountId });
     const result = await send(to, text, {
       mediaUrl,
       maxBytes,
       accountId: accountId ?? undefined,
-<<<<<<< HEAD
-=======
       replyToId: replyToId ?? undefined,
       mediaLocalRoots,
->>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
     });
     return { channel: "imessage", ...result };
   },

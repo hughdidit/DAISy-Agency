@@ -66,13 +66,7 @@ export async function runCli(argv: string[] = process.argv) {
   const normalizedArgv = normalizeWindowsArgv(argv);
   loadDotEnv({ quiet: true });
   normalizeEnv();
-<<<<<<< HEAD
   ensureMoltbotCliOnPath();
-=======
-  if (shouldEnsureCliPath(normalizedArgv)) {
-    ensureOpenClawCliOnPath();
-  }
->>>>>>> f86840f4d (perf(cli): reduce read-only startup overhead)
 
   // Enforce the minimum supported runtime before doing any work.
   assertSupportedRuntime();

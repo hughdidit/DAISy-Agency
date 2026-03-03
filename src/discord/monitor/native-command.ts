@@ -15,14 +15,8 @@ import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
-=======
-=======
-import { resolveHumanDelayConfig } from "../../agents/identity.js";
-import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -46,14 +40,11 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
@@ -61,10 +52,7 @@ import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -91,14 +79,9 @@ import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dis
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { MoltbotConfig, loadConfig } from "../../config/config.js";
-=======
-import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
-import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 =======
 import type { ReplyPayload } from "../../auto-reply/types.js";
 =======
@@ -115,11 +98,6 @@ import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { resolveOpenProviderRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -127,20 +105,12 @@ import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
-<<<<<<< HEAD
 import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
-=======
->>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import { buildUntrustedChannelMetadata } from "../../security/channel-metadata.js";
 import { chunkItems } from "../../utils/chunk-items.js";
 >>>>>>> 19f53543d (refactor(utils): share chunkItems helper)
@@ -154,15 +124,8 @@ import {
   normalizeDiscordSlug,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
-<<<<<<< HEAD
   resolveDiscordUserAllowed,
-=======
-  resolveDiscordMemberAccessState,
-  resolveDiscordOwnerAllowFrom,
->>>>>>> 555eb3f62 (refactor(discord): share member access state)
 } from "./allow-list.js";
-<<<<<<< HEAD
-=======
 import { resolveDiscordDmCommandAccess } from "./dm-command-auth.js";
 import { handleDiscordDmCommandDecision } from "./dm-command-decision.js";
 import { resolveDiscordChannelInfo } from "./message-utils.js";
@@ -181,21 +144,11 @@ import {
   toDiscordModelPickerMessagePayload,
   type DiscordModelPickerCommandContext,
 } from "./model-picker.js";
->>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
 import { resolveDiscordSenderIdentity } from "./sender-identity.js";
-<<<<<<< HEAD
 import { resolveDiscordChannelInfo } from "./message-utils.js";
-=======
-import type { ThreadBindingManager } from "./thread-bindings.js";
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import { resolveDiscordThreadParentInfo } from "./threading.js";
 
-<<<<<<< HEAD
 type DiscordConfig = NonNullable<MoltbotConfig["channels"]>["discord"];
-=======
-type DiscordConfig = NonNullable<OpenClawConfig["channels"]>["discord"];
-const log = createSubsystemLogger("discord/native-command");
->>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 
 function buildDiscordCommandOptions(params: {
   command: ChatCommandDefinition;
@@ -384,8 +337,6 @@ type DiscordCommandArgContext = {
   threadBindings: ThreadBindingManager;
 };
 
-<<<<<<< HEAD
-=======
 type DiscordModelPickerContext = DiscordCommandArgContext;
 
 function resolveDiscordModelPickerCommandContext(
@@ -1032,7 +983,6 @@ async function handleDiscordModelPickerInteraction(
   }
 }
 
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 async function handleDiscordCommandArgInteraction(
   interaction: ButtonInteraction,
   data: ComponentData,
@@ -1291,11 +1241,8 @@ async function dispatchDiscordCommandInteraction(params: {
   accountId: string;
   sessionPrefix: string;
   preferFollowUp: boolean;
-<<<<<<< HEAD
-=======
   threadBindings: ThreadBindingManager;
   suppressReplies?: boolean;
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 }) {
   const {
     interaction,
@@ -1307,11 +1254,8 @@ async function dispatchDiscordCommandInteraction(params: {
     accountId,
     sessionPrefix,
     preferFollowUp,
-<<<<<<< HEAD
-=======
     threadBindings,
     suppressReplies,
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   } = params;
   const respond = async (content: string, options?: { ephemeral?: boolean }) => {
     const payload = {
@@ -1344,41 +1288,18 @@ async function dispatchDiscordCommandInteraction(params: {
   const channelName = channel && "name" in channel ? (channel.name as string) : undefined;
   const channelSlug = channelName ? normalizeDiscordSlug(channelName) : "";
   const rawChannelId = channel?.id ?? "";
-<<<<<<< HEAD
   const ownerAllowList = normalizeDiscordAllowList(discordConfig?.dm?.allowFrom ?? [], [
     "discord:",
     "user:",
     "pk:",
   ]);
-=======
-  const memberRoleIds = Array.isArray(interaction.rawData.member?.roles)
-    ? interaction.rawData.member.roles.map((roleId: string) => String(roleId))
-    : [];
-  const allowNameMatching = isDangerousNameMatchingEnabled(discordConfig);
-  const ownerAllowList = normalizeDiscordAllowList(
-    discordConfig?.allowFrom ?? discordConfig?.dm?.allowFrom ?? [],
-    ["discord:", "user:", "pk:"],
-  );
->>>>>>> 47b6cde8c (refactor(config): add dmPolicy aliases for Slack/Discord)
   const ownerOk =
     ownerAllowList && user
-<<<<<<< HEAD
       ? allowListMatches(ownerAllowList, {
           id: sender.id,
           name: sender.name,
           tag: sender.tag,
         })
-=======
-      ? allowListMatches(
-          ownerAllowList,
-          {
-            id: sender.id,
-            name: sender.name,
-            tag: sender.tag,
-          },
-          { allowNameMatching },
-        )
->>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
       : false;
   const guildInfo = resolveDiscordGuildEntry({
     guild: interaction.guild ?? undefined,
@@ -1428,14 +1349,11 @@ async function dispatchDiscordCommandInteraction(params: {
     const channelAllowlistConfigured =
       Boolean(guildInfo?.channels) && Object.keys(guildInfo?.channels ?? {}).length > 0;
     const channelAllowed = channelConfig?.allowed !== false;
-<<<<<<< HEAD
-=======
     const { groupPolicy } = resolveOpenProviderRuntimeGroupPolicy({
       providerConfigPresent: cfg.channels?.discord !== undefined,
       groupPolicy: discordConfig?.groupPolicy,
       defaultGroupPolicy: cfg.channels?.defaults?.groupPolicy,
     });
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
     const allowByPolicy = isDiscordGroupAllowedByPolicy({
       groupPolicy: discordConfig?.groupPolicy ?? "open",
       guildAllowlisted: Boolean(guildInfo),
@@ -1455,17 +1373,9 @@ async function dispatchDiscordCommandInteraction(params: {
       await respond("Discord DMs are disabled.");
       return;
     }
-<<<<<<< HEAD
     if (dmPolicy !== "open") {
 <<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
-=======
-      const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-        provider: "discord",
-        dmPolicy,
-        readStore: (provider) => readChannelAllowFromStore(provider),
-      });
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
       const effectiveAllowFrom = [
         ...(discordConfig?.allowFrom ?? discordConfig?.dm?.allowFrom ?? []),
         ...storeAllowFrom,
@@ -1533,24 +1443,15 @@ async function dispatchDiscordCommandInteraction(params: {
             }),
             { ephemeral: true },
           );
-<<<<<<< HEAD
 >>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
         }
       } else {
         await respond("You are not authorized to use this command.", { ephemeral: true });
       }
-=======
-        },
-        onUnauthorized: async () => {
-          await respond("You are not authorized to use this command.", { ephemeral: true });
-        },
-      });
->>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
       return;
     }
   }
   if (!isDirectMessage) {
-<<<<<<< HEAD
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
     const hasUserAllowlist = Array.isArray(channelUsers) && channelUsers.length > 0;
     const userOk = hasUserAllowlist
@@ -1561,16 +1462,6 @@ async function dispatchDiscordCommandInteraction(params: {
           userTag: sender.tag,
         })
       : false;
-=======
-    const { hasAccessRestrictions, memberAllowed } = resolveDiscordMemberAccessState({
-      channelConfig,
-      guildInfo,
-      memberRoleIds,
-      sender,
-<<<<<<< HEAD
-=======
-      allowNameMatching,
->>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
     });
 >>>>>>> 555eb3f62 (refactor(discord): share member access state)
     const authorizers = useAccessGroups
@@ -1630,8 +1521,6 @@ async function dispatchDiscordCommandInteraction(params: {
     return;
   }
 
-<<<<<<< HEAD
-=======
   const pickerCommandContext = shouldOpenDiscordModelPickerFromCommand({
     command,
     commandArgs,
@@ -1649,7 +1538,6 @@ async function dispatchDiscordCommandInteraction(params: {
     return;
   }
 
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   const isGuild = Boolean(interaction.guild);
   const channelId = rawChannelId || "unknown";
   const interactionId = interaction.rawData.id;
@@ -1675,15 +1563,12 @@ async function dispatchDiscordCommandInteraction(params: {
       }
     : route;
   const conversationLabel = isDirectMessage ? (user.globalName ?? user.username) : channelId;
-<<<<<<< HEAD
-=======
   const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
     channelConfig,
     guildInfo,
     sender: { id: sender.id, name: sender.name, tag: sender.tag },
     allowNameMatching,
   });
->>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
   const ctxPayload = finalizeInboundContext({
     Body: prompt,
     BodyForAgent: prompt,
@@ -1734,10 +1619,7 @@ async function dispatchDiscordCommandInteraction(params: {
     channel: "discord",
     accountId: effectiveRoute.accountId,
   });
-<<<<<<< HEAD
-=======
   const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, effectiveRoute.agentId);
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 
   let didReply = false;
   await dispatchReplyWithDispatcher({

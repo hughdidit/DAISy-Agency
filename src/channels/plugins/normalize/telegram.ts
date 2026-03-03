@@ -1,17 +1,8 @@
-<<<<<<< HEAD
 export function normalizeTelegramMessagingTarget(raw: string): string | undefined {
-=======
-import { normalizeTelegramLookupTarget, parseTelegramTarget } from "../../../telegram/targets.js";
-
-const TELEGRAM_PREFIX_RE = /^(telegram|tg):/i;
-
-function normalizeTelegramTargetBody(raw: string): string | undefined {
->>>>>>> d5105ca45 (fix(telegram): unify topic target normalization path)
   const trimmed = raw.trim();
   if (!trimmed) {
     return undefined;
   }
-<<<<<<< HEAD
   let normalized = trimmed;
   if (normalized.startsWith("telegram:")) {
     normalized = normalized.slice("telegram:".length).trim();
@@ -27,11 +18,6 @@ function normalizeTelegramTargetBody(raw: string): string | undefined {
   if (tmeMatch?.[1]) {
     normalized = `@${tmeMatch[1]}`;
   }
-=======
-
-<<<<<<< HEAD
-  const normalized = normalizeTelegramLookupTarget(trimmed);
->>>>>>> fddc60d17 (fix(telegram): preserve legacy prefixed messaging targets)
   if (!normalized) {
     // Keep legacy prefixed targets (including :topic: suffixes) valid.
     if (/^(telegram|tg):/i.test(trimmed)) {
@@ -74,7 +60,6 @@ export function normalizeTelegramMessagingTarget(raw: string): string | undefine
 }
 
 export function looksLikeTelegramTargetId(raw: string): boolean {
-<<<<<<< HEAD
   const trimmed = raw.trim();
   if (!trimmed) {
     return false;
@@ -87,12 +72,6 @@ export function looksLikeTelegramTargetId(raw: string): boolean {
     return true;
   }
   return /^-?\d{6,}$/.test(trimmed);
-=======
-  if (normalizeTelegramLookupTarget(trimmed)) {
-    return true;
-  }
-  return /^(telegram|tg):/i.test(trimmed);
->>>>>>> fddc60d17 (fix(telegram): preserve legacy prefixed messaging targets)
 =======
   return normalizeTelegramTargetBody(raw) !== undefined;
 >>>>>>> d5105ca45 (fix(telegram): unify topic target normalization path)

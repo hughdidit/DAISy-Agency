@@ -1,12 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
-=======
-import { describe, expect, it, vi } from "vitest";
-import type { AuthRateLimiter } from "./auth-rate-limit.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import { authorizeGatewayConnect } from "./auth.js";
 =======
 import { authorizeGatewayConnect, resolveGatewayAuth } from "./auth.js";
@@ -125,8 +118,6 @@ describe("gateway auth", () => {
         } as NodeJS.ProcessEnv,
       }),
     ).toMatchObject({
-<<<<<<< HEAD
-=======
       mode: "token",
       modeSource: "default",
       token: undefined,
@@ -159,7 +150,6 @@ describe("gateway auth", () => {
         env: {} as NodeJS.ProcessEnv,
       }),
     ).toMatchObject({
->>>>>>> 08431da5d (refactor(gateway): unify credential precedence across entrypoints)
       mode: "none",
       token: undefined,
       password: undefined,

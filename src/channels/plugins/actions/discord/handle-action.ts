@@ -5,15 +5,12 @@ import {
   readStringParam,
 } from "../../../../agents/tools/common.js";
 import { handleDiscordAction } from "../../../../agents/tools/discord-actions.js";
-<<<<<<< HEAD
-=======
 import { resolveDiscordChannelId } from "../../../../discord/targets.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ChannelMessageActionContext } from "../../types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -44,20 +41,7 @@ function readParentIdParam(params: Record<string, unknown>): string | null | und
 }
 
 export async function handleDiscordMessageAction(
-<<<<<<< HEAD
   ctx: Pick<ChannelMessageActionContext, "action" | "params" | "cfg" | "accountId">,
-=======
-  ctx: Pick<
-    ChannelMessageActionContext,
-    | "action"
-    | "params"
-    | "cfg"
-    | "accountId"
-    | "requesterSenderId"
-    | "toolContext"
-    | "mediaLocalRoots"
-  >,
->>>>>>> 7bbd59738 (fix(media): enforce agent media roots in plugin send actions)
 ): Promise<AgentToolResult<unknown>> {
   const { action, params, cfg } = ctx;
   const accountId = ctx.accountId ?? readStringParam(params, "accountId");

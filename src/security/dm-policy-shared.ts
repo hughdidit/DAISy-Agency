@@ -135,8 +135,6 @@ export function resolveDmGroupAccessDecision(params: {
   };
 }
 
-<<<<<<< HEAD
-=======
 export function resolveDmGroupAccessWithLists(params: {
   isGroup: boolean;
   dmPolicy?: string | null;
@@ -175,7 +173,6 @@ export function resolveDmGroupAccessWithLists(params: {
   };
 }
 
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
 export async function resolveDmAllowState(params: {
   provider: ChannelId;
   allowFrom?: Array<string | number> | null;

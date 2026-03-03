@@ -5,7 +5,6 @@ import { describe, expect, it } from "vitest";
 import { listRuntimeSourceFiles, shouldSkipRuntimeSourcePath } from "../test-utils/repo-scan.js";
 
 const RUNTIME_ROOTS = ["src", "extensions"] as const;
-<<<<<<< HEAD
 const SKIP_PATTERNS = [
   /\.test\.tsx?$/,
   /\.test-utils\.tsx?$/,
@@ -18,9 +17,6 @@ const SKIP_PATTERNS = [
   /[\\/][^\\/]*test-harness(?:\.[^\\/]+)?\.ts$/,
 ];
 <<<<<<< HEAD
-=======
-const QUICK_TMPDIR_JOIN_PATTERN = /\bpath\.join\s*\(\s*os\.tmpdir\s*\(\s*\)/;
->>>>>>> 29cc7f431 (test: share runtime scan filters and cached test scans)
 =======
 
 type QuoteChar = "'" | '"' | "`";
@@ -200,8 +196,6 @@ function hasDynamicTmpdirJoin(source: string): boolean {
   return false;
 }
 
-<<<<<<< HEAD
-=======
 async function listTsFiles(dir: string): Promise<string[]> {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const out: string[] = [];
@@ -296,7 +290,6 @@ function prefilterLikelyTmpdirJoinFiles(roots: readonly string[]): Set<string> |
   return parsePathList(candidateCall.stdout);
 }
 
->>>>>>> a0d0104a8 (test: speed up signal reconnect and temp path guard scans)
 describe("temp path guard", () => {
   it("skips test helper filename variants", () => {
     expect(shouldSkipRuntimeSourcePath("src/commands/test-helpers.ts")).toBe(true);
@@ -346,7 +339,6 @@ describe("temp path guard", () => {
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     for (const root of RUNTIME_ROOTS) {
       const absRoot = path.join(repoRoot, root);
       const files = rgPrefiltered
@@ -361,11 +353,6 @@ describe("temp path guard", () => {
         if (hasDynamicTmpdirJoin(source, relativePath)) {
           offenders.push(relativePath);
         }
-=======
-    const files = await listRepoFiles(repoRoot, {
-=======
-    const files = await listRuntimeSourceFiles(repoRoot, {
->>>>>>> 29cc7f431 (test: share runtime scan filters and cached test scans)
       roots: RUNTIME_ROOTS,
       extensions: [".ts", ".tsx"],
     });

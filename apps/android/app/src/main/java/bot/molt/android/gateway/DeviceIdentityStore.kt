@@ -17,12 +17,7 @@ data class DeviceIdentity(
 
 class DeviceIdentityStore(context: Context) {
   private val json = Json { ignoreUnknownKeys = true }
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/gateway/DeviceIdentityStore.kt
   private val identityFile = File(context.filesDir, "moltbot/identity/device.json")
-=======
-  private val identityFile = File(context.filesDir, "openclaw/identity/device.json")
-  @Volatile private var cachedIdentity: DeviceIdentity? = null
->>>>>>> 8d6819979 (perf(android): cache device identity and speed hex encoding):apps/android/app/src/main/java/ai/openclaw/android/gateway/DeviceIdentityStore.kt
 
   @Synchronized
   fun loadOrCreate(): DeviceIdentity {

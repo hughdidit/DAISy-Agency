@@ -1,14 +1,9 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD:src/gateway/system-run-approval-binding.ts
 import type {
   ExecApprovalRequestPayload,
   SystemRunApprovalBindingV1,
 } from "../infra/exec-approvals.js";
 import { normalizeEnvVarKey } from "../infra/host-env-security.js";
-=======
-import type { SystemRunApprovalBinding, SystemRunApprovalPlan } from "./exec-approvals.js";
-import { normalizeEnvVarKey } from "./host-env-security.js";
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract):src/infra/system-run-approval-binding.ts
 
 type NormalizedSystemRunEnvEntry = [key: string, value: string];
 
@@ -24,8 +19,6 @@ function normalizeStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.map((entry) => String(entry)) : [];
 }
 
-<<<<<<< HEAD:src/gateway/system-run-approval-binding.ts
-=======
 export function normalizeSystemRunApprovalPlan(value: unknown): SystemRunApprovalPlan | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return null;
@@ -44,7 +37,6 @@ export function normalizeSystemRunApprovalPlan(value: unknown): SystemRunApprova
   };
 }
 
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract):src/infra/system-run-approval-binding.ts
 function normalizeSystemRunEnvEntries(env: unknown): NormalizedSystemRunEnvEntry[] {
   if (!env || typeof env !== "object" || Array.isArray(env)) {
     return [];
@@ -199,7 +191,6 @@ export function matchSystemRunApprovalBinding(params: {
   });
 }
 
-<<<<<<< HEAD:src/gateway/system-run-approval-binding.ts
 export function matchLegacySystemRunApprovalBinding(params: {
   request: Pick<
     ExecApprovalRequestPayload,
@@ -236,13 +227,6 @@ export function matchLegacySystemRunApprovalBinding(params: {
     expectedEnvHash: readExpectedEnvHash(params.request),
     actualEnvHash: actualEnvBinding.envHash,
     actualEnvKeys: actualEnvBinding.envKeys,
-=======
-export function missingSystemRunApprovalBinding(params: {
-  actualEnvKeys: string[];
-}): SystemRunApprovalMatchResult {
-  return requestMismatch({
-    envKeys: params.actualEnvKeys,
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract):src/infra/system-run-approval-binding.ts
   });
 }
 

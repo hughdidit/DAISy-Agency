@@ -3,12 +3,8 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { formatAgo } from "../format";
-=======
-import { formatRelativeTimestamp } from "../format.ts";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -32,7 +28,6 @@ import type {
   SlackStatus,
   TelegramStatus,
   WhatsAppStatus,
-<<<<<<< HEAD
 } from "../types";
 import type { ChannelKey, ChannelsChannelData, ChannelsProps } from "./channels.types";
 import { channelEnabled, renderChannelAccountCount } from "./channels.shared";
@@ -45,20 +40,6 @@ import { renderSignalCard } from "./channels.signal";
 import { renderSlackCard } from "./channels.slack";
 import { renderTelegramCard } from "./channels.telegram";
 import { renderWhatsAppCard } from "./channels.whatsapp";
-=======
-} from "../types.ts";
-import { renderChannelConfigSection } from "./channels.config.ts";
-import { renderDiscordCard } from "./channels.discord.ts";
-import { renderGoogleChatCard } from "./channels.googlechat.ts";
-import { renderIMessageCard } from "./channels.imessage.ts";
-import { renderNostrCard } from "./channels.nostr.ts";
-import { channelEnabled, renderChannelAccountCount } from "./channels.shared.ts";
-import { renderSignalCard } from "./channels.signal.ts";
-import { renderSlackCard } from "./channels.slack.ts";
-import { renderTelegramCard } from "./channels.telegram.ts";
-import type { ChannelKey, ChannelsChannelData, ChannelsProps } from "./channels.types.ts";
-import { renderWhatsAppCard } from "./channels.whatsapp.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export function renderChannels(props: ChannelsProps) {
   const channels = props.snapshot?.channels as Record<string, unknown> | null;

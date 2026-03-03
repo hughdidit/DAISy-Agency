@@ -6,10 +6,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getMatrixRuntime } from "../../runtime.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

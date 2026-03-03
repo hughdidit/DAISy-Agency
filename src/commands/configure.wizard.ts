@@ -2,13 +2,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -57,10 +53,7 @@ import { promptGatewayConfig } from "./configure.gateway.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { promptAuthConfig } from "./configure.gateway-auth.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -71,9 +64,6 @@ import type {
   WizardSection,
 } from "./configure.shared.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -506,7 +496,6 @@ export async function runConfigureWizard(
       }
 
       if (selected.includes("health")) {
-<<<<<<< HEAD
         const localLinks = resolveControlUiLinks({
           bind: nextConfig.gateway?.bind ?? "loopback",
           port: gatewayPort,
@@ -538,9 +527,6 @@ export async function runConfigureWizard(
             "Health check help",
           );
         }
-=======
-        await runGatewayHealthCheck({ cfg: nextConfig, runtime, port: gatewayPort });
->>>>>>> bc299ae17 (refactor(wizard): dedupe gateway health check)
       }
     } else {
       let ranSection = false;
@@ -600,7 +586,6 @@ export async function runConfigureWizard(
         }
 
         if (choice === "health") {
-<<<<<<< HEAD
           const localLinks = resolveControlUiLinks({
             bind: nextConfig.gateway?.bind ?? "loopback",
             port: gatewayPort,
@@ -632,9 +617,6 @@ export async function runConfigureWizard(
               "Health check help",
             );
           }
-=======
-          await runGatewayHealthCheck({ cfg: nextConfig, runtime, port: gatewayPort });
->>>>>>> bc299ae17 (refactor(wizard): dedupe gateway health check)
         }
       }
 

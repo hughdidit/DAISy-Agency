@@ -10,11 +10,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { PluginRegistry } from "./registry.js";
-import type { PluginHookGatewayContext, PluginHookGatewayStopEvent } from "./types.js";
->>>>>>> 8217d77ec (fix(cli): run plugin gateway_stop hooks before message exit (#16580))
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { createHookRunner, type HookRunner } from "./hooks.js";
 import type { PluginRegistry } from "./registry.js";

@@ -1,12 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../config/config.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 =======
@@ -30,13 +22,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { createSubsystemLogger } from "../logging/subsystem.js";
-import { normalizeAccountId, parseAgentSessionKey } from "../routing/session-key.js";
-import { isDeliverableMessageChannel, normalizeMessageChannel } from "../utils/message-channel.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -60,7 +45,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { loadConfig } from "../config/config.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 >>>>>>> e9de24215 (refactor(exec-approvals): share request event types)
@@ -69,8 +53,6 @@ import { parseAgentSessionKey } from "../routing/session-key.js";
 import { isDeliverableMessageChannel, normalizeMessageChannel } from "../utils/message-channel.js";
 import type { ExecApprovalDecision } from "./exec-approvals.js";
 =======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig } from "../config/config.js";
@@ -78,10 +60,7 @@ import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { parseAgentSessionKey } from "../routing/session-key.js";
 import { isDeliverableMessageChannel, normalizeMessageChannel } from "../utils/message-channel.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======

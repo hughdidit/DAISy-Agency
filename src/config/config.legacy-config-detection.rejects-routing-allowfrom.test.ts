@@ -112,13 +112,8 @@ describe("legacy config detection", () => {
     expect(res.changes).toContain(
       "Moved routing.groupChat.mentionPatterns → messages.groupChat.mentionPatterns.",
     );
-<<<<<<< HEAD
     expect(res.config?.messages?.groupChat?.mentionPatterns).toEqual(["@clawd"]);
     expect(res.config?.routing?.groupChat?.mentionPatterns).toBeUndefined();
-=======
-    expect(res.config?.messages?.groupChat?.mentionPatterns).toEqual(["@openclaw"]);
-    expect(getLegacyRouting(res.config)?.groupChat).toBeUndefined();
->>>>>>> ecf1c955a (chore: Fix types in tests 29/N.)
   });
   it("migrates routing agentToAgent/queue/transcribeAudio to tools/messages/media", async () => {
     const res = migrateLegacyConfig({

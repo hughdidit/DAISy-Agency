@@ -38,15 +38,7 @@ function createHooksConfig(): HooksConfigResolved {
   };
 }
 
-<<<<<<< HEAD
 function createRequest(): IncomingMessage {
-=======
-function createRequest(params?: {
-  authorization?: string;
-  remoteAddress?: string;
-  url?: string;
-}): IncomingMessage {
->>>>>>> 70e31c6f6 (fix(gateway): harden hooks URL parsing (#26864))
   return {
     method: "POST",
     url: params?.url ?? "/hooks/wake",
@@ -119,8 +111,6 @@ describe("createHooksRequestHandler timeout status mapping", () => {
     expect(dispatchWakeHook).not.toHaveBeenCalled();
     expect(dispatchAgentHook).not.toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
 
   test("shares hook auth rate-limit bucket across ipv4 and ipv4-mapped ipv6 forms", async () => {
     const handler = createHandler();
@@ -148,7 +138,6 @@ describe("createHooksRequestHandler timeout status mapping", () => {
     expect(setHeader).toHaveBeenCalledWith("Retry-After", expect.any(String));
   });
 <<<<<<< HEAD
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 =======
 
   test.each(["0.0.0.0", "::"])(

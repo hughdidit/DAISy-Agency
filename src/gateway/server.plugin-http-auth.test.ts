@@ -3,10 +3,7 @@ import { describe, expect, test, vi } from "vitest";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import type { ResolvedGatewayAuth } from "./auth.js";
 import type { HooksConfigResolved } from "./hooks.js";
-<<<<<<< HEAD
-=======
 import { canonicalizePathVariant, isProtectedPluginRoutePath } from "./security-path.js";
->>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 import { createGatewayHttpServer, createHooksRequestHandler } from "./server-http.js";
 import { withTempConfig } from "./test-temp-config.js";
 
@@ -521,106 +518,6 @@ describe("gateway plugin HTTP auth boundary", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  test("serves plugin routes before control ui spa fallback", async () => {
-    const resolvedAuth: ResolvedGatewayAuth = {
-      mode: "none",
-      token: undefined,
-      password: undefined,
-      allowTailscale: false,
-    };
-
-    await withTempConfig({
-      cfg: { gateway: { trustedProxies: [] } },
-      prefix: "openclaw-plugin-http-control-ui-precedence-test-",
-      run: async () => {
-        const handlePluginRequest = vi.fn(async (req: IncomingMessage, res: ServerResponse) => {
-          const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
-          if (pathname === "/plugins/diffs/view/demo-id/demo-token") {
-            res.statusCode = 200;
-            res.setHeader("Content-Type", "text/html; charset=utf-8");
-            res.end("<!doctype html><title>diff-view</title>");
-            return true;
-          }
-          return false;
-        });
-
-        const server = createGatewayHttpServer({
-          canvasHost: null,
-          clients: new Set(),
-          controlUiEnabled: true,
-          controlUiBasePath: "",
-          controlUiRoot: { kind: "missing" },
-          openAiChatCompletionsEnabled: false,
-          openResponsesEnabled: false,
-          handleHooksRequest: async () => false,
-          handlePluginRequest,
-          resolvedAuth,
-        });
-
-        const response = createResponse();
-        await dispatchRequest(
-          server,
-          createRequest({ path: "/plugins/diffs/view/demo-id/demo-token" }),
-          response.res,
-        );
-
-        expect(response.res.statusCode).toBe(200);
-        expect(response.getBody()).toContain("diff-view");
-        expect(handlePluginRequest).toHaveBeenCalledTimes(1);
-      },
-    });
-  });
-
-  test("does not let plugin handlers shadow control ui routes", async () => {
-    const resolvedAuth: ResolvedGatewayAuth = {
-      mode: "none",
-      token: undefined,
-      password: undefined,
-      allowTailscale: false,
-    };
-
-    await withTempConfig({
-      cfg: { gateway: { trustedProxies: [] } },
-      prefix: "openclaw-plugin-http-control-ui-shadow-test-",
-      run: async () => {
-        const handlePluginRequest = vi.fn(async (req: IncomingMessage, res: ServerResponse) => {
-          const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
-          if (pathname === "/chat") {
-            res.statusCode = 200;
-            res.setHeader("Content-Type", "text/plain; charset=utf-8");
-            res.end("plugin-shadow");
-            return true;
-          }
-          return false;
-        });
-
-        const server = createGatewayHttpServer({
-          canvasHost: null,
-          clients: new Set(),
-          controlUiEnabled: true,
-          controlUiBasePath: "",
-          controlUiRoot: { kind: "missing" },
-          openAiChatCompletionsEnabled: false,
-          openResponsesEnabled: false,
-          handleHooksRequest: async () => false,
-          handlePluginRequest,
-          resolvedAuth,
-        });
-
-        const response = createResponse();
-        await dispatchRequest(server, createRequest({ path: "/chat" }), response.res);
-
-        expect(response.res.statusCode).toBe(503);
-        expect(response.getBody()).toContain("Control UI assets not found");
-        expect(handlePluginRequest).not.toHaveBeenCalled();
-      },
-    });
-  });
-
->>>>>>> 8e69fd80e (Gateway: harden control-ui vs plugin HTTP precedence)
   test("requires gateway auth for canonicalized /api/channels variants", async () => {
     const resolvedAuth: ResolvedGatewayAuth = {
       mode: "token",

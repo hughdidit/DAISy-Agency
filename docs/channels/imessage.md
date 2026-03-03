@@ -18,13 +18,8 @@ Status: legacy external CLI integration. Gateway spawns `imsg rpc` (JSON-RPC ove
 1. Ensure Messages is signed in on this Mac.
 2. Install `imsg`:
    - `brew install steipete/tap/imsg`
-<<<<<<< HEAD
 3) Configure Moltbot with `channels.imessage.cliPath` and `channels.imessage.dbPath`.
 4) Start the gateway and approve any macOS prompts (Automation + Full Disk Access).
-=======
-3. Configure OpenClaw with `channels.imessage.cliPath` and `channels.imessage.dbPath`.
-4. Start the gateway and approve any macOS prompts (Automation + Full Disk Access).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Minimal config:
 
@@ -77,17 +72,10 @@ If you want the bot to send from a **separate iMessage identity** (and keep your
 
 1. Create a dedicated Apple ID (example: `my-cool-bot@icloud.com`).
    - Apple may require a phone number for verification / 2FA.
-<<<<<<< HEAD
 2) Create a macOS user (example: `clawdshome`) and sign into it.
 3) Open Messages in that macOS user and sign into iMessage using the bot Apple ID.
 4) Enable Remote Login (System Settings → General → Sharing → Remote Login).
 5) Install `imsg`:
-=======
-2. Create a macOS user (example: `openclawhome`) and sign into it.
-3. Open Messages in that macOS user and sign into iMessage using the bot Apple ID.
-4. Enable Remote Login (System Settings → General → Sharing → Remote Login).
-5. Install `imsg`:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - `brew install steipete/tap/imsg`
 6. Set up SSH so `ssh <bot-macos-user>@localhost true` works without a password.
 7. Point `channels.imessage.accounts.bot.cliPath` at an SSH wrapper that runs `imsg` as the bot user.
@@ -129,12 +117,7 @@ Example config:
 For single-account setups, use flat options (`channels.imessage.cliPath`, `channels.imessage.dbPath`) instead of the `accounts` map.
 
 ### Remote/SSH variant (optional)
-<<<<<<< HEAD
 If you want iMessage on another Mac, set `channels.imessage.cliPath` to a wrapper that runs `imsg` on the remote macOS host over SSH. Moltbot only needs stdio.
-=======
-
-If you want iMessage on another Mac, set `channels.imessage.cliPath` to a wrapper that runs `imsg` on the remote macOS host over SSH. OpenClaw only needs stdio.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Example wrapper:
 
@@ -193,12 +176,7 @@ Concrete config example (Tailscale hostname):
 }
 ```
 
-<<<<<<< HEAD
 Example wrapper (`~/.clawdbot/scripts/imsg-ssh`):
-=======
-Example wrapper (`~/.openclaw/scripts/imsg-ssh`):
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ```bash
 #!/usr/bin/env bash
 exec ssh -T bot@mac-mini.tailnet-1234.ts.net imsg "$@"
@@ -219,15 +197,9 @@ DMs:
 - Default: `channels.imessage.dmPolicy = "pairing"`.
 - Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
-<<<<<<< HEAD
   - `moltbot pairing list imessage`
   - `moltbot pairing approve imessage <CODE>`
 - Pairing is the default token exchange for iMessage DMs. Details: [Pairing](/start/pairing)
-=======
-  - `openclaw pairing list imessage`
-  - `openclaw pairing approve imessage <CODE>`
-- Pairing is the default token exchange for iMessage DMs. Details: [Pairing](/channels/pairing)
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 
 Groups:
 
@@ -245,12 +217,7 @@ Groups:
 
 Some iMessage threads can have multiple participants but still arrive with `is_group=false` depending on how Messages stores the chat identifier.
 
-<<<<<<< HEAD
 If you explicitly configure a `chat_id` under `channels.imessage.groups`, Moltbot treats that thread as a “group” for:
-=======
-If you explicitly configure a `chat_id` under `channels.imessage.groups`, OpenClaw treats that thread as a “group” for:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - session isolation (separate `agent:<agentId>:imessage:group:<chat_id>` session key)
 - group allowlisting / mention gating behavior
 

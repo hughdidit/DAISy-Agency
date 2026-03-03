@@ -47,14 +47,8 @@ moltbot browser extension path
 
 The extension ships inside the Moltbot release (npm package) as static files. There is no separate “build” step.
 
-<<<<<<< HEAD
 After upgrading Moltbot:
 - Re-run `moltbot browser extension install` to refresh the installed files under your Moltbot state directory.
-=======
-After upgrading OpenClaw:
-
-- Re-run `openclaw browser extension install` to refresh the installed files under your OpenClaw state directory.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Chrome → `chrome://extensions` → click “Reload” on the extension.
 
 ## Use it (set gateway token once)
@@ -67,12 +61,7 @@ Before first attach, open extension Options and set:
 - `Gateway token` (must match `gateway.auth.token` / `OPENCLAW_GATEWAY_TOKEN`)
 
 Use it:
-<<<<<<< HEAD
 - CLI: `moltbot browser --browser-profile chrome tabs`
-=======
-
-- CLI: `openclaw browser --browser-profile chrome tabs`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Agent tool: `browser` with `profile="chrome"`
 
 If you want a different name or a different relay port, create your own profile:
@@ -182,10 +171,7 @@ Recommendations:
 - Prefer a dedicated Chrome profile (separate from your personal browsing) for extension relay usage.
 - Keep the Gateway and any node hosts tailnet-only; rely on Gateway auth + node pairing.
 - Avoid exposing relay ports over LAN (`0.0.0.0`) and avoid Funnel (public).
-<<<<<<< HEAD
-=======
 - The relay blocks non-extension origins and requires gateway-token auth for both `/cdp` and `/extension`.
->>>>>>> 7e54b6c96 (fix(browser): unify extension relay auth on gateway token)
 
 Related:
 

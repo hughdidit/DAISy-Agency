@@ -244,30 +244,18 @@ export function buildServiceEnvironment(params: {
     launchdLabel ||
     (process.platform === "darwin" ? resolveGatewayLaunchAgentLabel(profile) : undefined);
   const systemdUnit = `${resolveGatewaySystemdServiceName(profile)}.service`;
-<<<<<<< HEAD
-=======
   const stateDir = env.OPENCLAW_STATE_DIR;
   const configPath = env.OPENCLAW_CONFIG_PATH;
   // Keep a usable temp directory for supervised services even when the host env omits TMPDIR.
   const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
 <<<<<<< HEAD
->>>>>>> 2bb8ead18 (Fix LaunchAgent missing TMPDIR causing SQLITE_CANTOPEN on macOS (#20512))
 =======
   const proxyEnv = readServiceProxyEnvironment(env);
-<<<<<<< HEAD
 >>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
-=======
-  // On macOS, launchd services don't inherit the shell environment, so Node's undici/fetch
-  // cannot locate the system CA bundle. Default to /etc/ssl/cert.pem so TLS verification
-  // works correctly when running as a LaunchAgent without extra user configuration.
-  const nodeCaCerts =
-    env.NODE_EXTRA_CA_CERTS ?? (process.platform === "darwin" ? "/etc/ssl/cert.pem" : undefined);
->>>>>>> d33f24c4e (Fix NODE_EXTRA_CA_CERTS missing from LaunchAgent environment on macOS)
   return {
     HOME: env.HOME,
     TMPDIR: tmpDir,
     PATH: buildMinimalServicePath({ env }),
-<<<<<<< HEAD
     CLAWDBOT_PROFILE: profile,
     CLAWDBOT_STATE_DIR: env.CLAWDBOT_STATE_DIR,
     CLAWDBOT_CONFIG_PATH: env.CLAWDBOT_CONFIG_PATH,
@@ -278,20 +266,6 @@ export function buildServiceEnvironment(params: {
     CLAWDBOT_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
     CLAWDBOT_SERVICE_KIND: GATEWAY_SERVICE_KIND,
     CLAWDBOT_SERVICE_VERSION: VERSION,
-=======
-    ...proxyEnv,
-    NODE_EXTRA_CA_CERTS: nodeCaCerts,
-    OPENCLAW_PROFILE: profile,
-    OPENCLAW_STATE_DIR: stateDir,
-    OPENCLAW_CONFIG_PATH: configPath,
-    OPENCLAW_GATEWAY_PORT: String(port),
-    OPENCLAW_GATEWAY_TOKEN: token,
-    OPENCLAW_LAUNCHD_LABEL: resolvedLaunchdLabel,
-    OPENCLAW_SYSTEMD_UNIT: systemdUnit,
-    OPENCLAW_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
-    OPENCLAW_SERVICE_KIND: GATEWAY_SERVICE_KIND,
-    OPENCLAW_SERVICE_VERSION: VERSION,
->>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
   };
 }
 
@@ -300,22 +274,10 @@ export function buildNodeServiceEnvironment(params: {
 }): Record<string, string | undefined> {
   const { env } = params;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  const platform = params.platform ?? process.platform;
-  const gatewayToken =
-    env.OPENCLAW_GATEWAY_TOKEN?.trim() || env.CLAWDBOT_GATEWAY_TOKEN?.trim() || undefined;
->>>>>>> f1354869b (Node install: persist gateway token in service env (#31122))
   const stateDir = env.OPENCLAW_STATE_DIR;
   const configPath = env.OPENCLAW_CONFIG_PATH;
   const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
-<<<<<<< HEAD
 >>>>>>> 2bb8ead18 (Fix LaunchAgent missing TMPDIR causing SQLITE_CANTOPEN on macOS (#20512))
-=======
-  const proxyEnv = readServiceProxyEnvironment(env);
-<<<<<<< HEAD
->>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
 =======
   // On macOS, launchd services don't inherit the shell environment, so Node's undici/fetch
   // cannot locate the system CA bundle. Default to /etc/ssl/cert.pem so TLS verification
@@ -327,7 +289,6 @@ export function buildNodeServiceEnvironment(params: {
     HOME: env.HOME,
     TMPDIR: tmpDir,
     PATH: buildMinimalServicePath({ env }),
-<<<<<<< HEAD
     CLAWDBOT_STATE_DIR: env.CLAWDBOT_STATE_DIR,
     CLAWDBOT_CONFIG_PATH: env.CLAWDBOT_CONFIG_PATH,
     CLAWDBOT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
@@ -338,20 +299,5 @@ export function buildNodeServiceEnvironment(params: {
     CLAWDBOT_SERVICE_MARKER: NODE_SERVICE_MARKER,
     CLAWDBOT_SERVICE_KIND: NODE_SERVICE_KIND,
     CLAWDBOT_SERVICE_VERSION: VERSION,
-=======
-    ...proxyEnv,
-    NODE_EXTRA_CA_CERTS: nodeCaCerts,
-    OPENCLAW_STATE_DIR: stateDir,
-    OPENCLAW_CONFIG_PATH: configPath,
-    OPENCLAW_GATEWAY_TOKEN: gatewayToken,
-    OPENCLAW_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
-    OPENCLAW_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
-    OPENCLAW_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
-    OPENCLAW_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
-    OPENCLAW_LOG_PREFIX: "node",
-    OPENCLAW_SERVICE_MARKER: NODE_SERVICE_MARKER,
-    OPENCLAW_SERVICE_KIND: NODE_SERVICE_KIND,
-    OPENCLAW_SERVICE_VERSION: VERSION,
->>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
   };
 }

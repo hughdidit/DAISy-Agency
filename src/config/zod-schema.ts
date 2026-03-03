@@ -40,8 +40,6 @@ const NodeHostSchema = z
   .strict()
   .optional();
 
-<<<<<<< HEAD
-=======
 const MemoryQmdPathSchema = z
   .object({
     path: z.string(),
@@ -122,7 +120,6 @@ const MemorySchema = z
   .optional();
 
 <<<<<<< HEAD
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 export const MoltbotSchema = z
 =======
 const HttpUrlSchema = z
@@ -328,8 +325,6 @@ export const OpenClawSchema = z
       })
       .strict()
       .optional(),
-<<<<<<< HEAD
-=======
     acp: z
       .object({
         enabled: z.boolean().optional(),
@@ -373,7 +368,6 @@ export const OpenClawSchema = z
       })
       .strict()
       .optional(),
->>>>>>> 2466a9bb1 (ACP: carry dedupe/projector updates onto configurable acpx branch)
     models: ModelsConfigSchema,
     nodeHost: NodeHostSchema,
     agents: AgentsSchema,
@@ -397,36 +391,10 @@ export const OpenClawSchema = z
         store: z.string().optional(),
         maxConcurrentRuns: z.number().int().positive().optional(),
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-        retry: z
-          .object({
-            maxAttempts: z.number().int().min(0).max(10).optional(),
-            backoffMs: z.array(z.number().int().nonnegative()).min(1).max(10).optional(),
-            retryOn: z
-              .array(z.enum(["rate_limit", "network", "timeout", "server_error"]))
-              .min(1)
-              .optional(),
-          })
-          .strict()
-          .optional(),
->>>>>>> ea3955cd7 (fix(cron): add retry policy for one-shot jobs on transient errors (#24355) (openclaw#24435) thanks @hugenshen)
         webhook: HttpUrlSchema.optional(),
         webhookToken: z.string().optional().register(sensitive),
         sessionRetention: z.union([z.string(), z.literal(false)]).optional(),
-<<<<<<< HEAD
 >>>>>>> 115cfb443 (gateway: add cron finished-run webhook (#14535))
-=======
-        runLog: z
-          .object({
-            maxBytes: z.union([z.string(), z.number()]).optional(),
-            keepLines: z.number().int().positive().optional(),
-          })
-          .strict()
-          .optional(),
-<<<<<<< HEAD
->>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 =======
         failureAlert: z
           .object({
@@ -567,11 +535,8 @@ export const OpenClawSchema = z
             enabled: z.boolean().optional(),
             basePath: z.string().optional(),
             root: z.string().optional(),
-<<<<<<< HEAD
-=======
             allowedOrigins: z.array(z.string()).optional(),
             dangerouslyAllowHostHeaderOriginFallback: z.boolean().optional(),
->>>>>>> 223d7dc23 (feat(gateway)!: require explicit non-loopback control-ui origins)
             allowInsecureAuth: z.boolean().optional(),
             dangerouslyDisableDeviceAuth: z.boolean().optional(),
           })
@@ -579,17 +544,9 @@ export const OpenClawSchema = z
           .optional(),
         auth: z
           .object({
-<<<<<<< HEAD
             mode: z.union([z.literal("token"), z.literal("password")]).optional(),
             token: z.string().optional(),
             password: z.string().optional(),
-=======
-            mode: z
-              .union([z.literal("token"), z.literal("password"), z.literal("trusted-proxy")])
-              .optional(),
-            token: z.string().optional().register(sensitive),
-            password: z.string().optional().register(sensitive),
->>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
             allowTailscale: z.boolean().optional(),
             rateLimit: z
               .object({
@@ -613,11 +570,6 @@ export const OpenClawSchema = z
           .optional(),
         trustedProxies: z.array(z.string()).optional(),
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-        allowRealIpFallback: z.boolean().optional(),
->>>>>>> be7f82500 (refactor(gateway): harden proxy client ip resolution)
         tools: z
           .object({
             deny: z.array(z.string()).optional(),
@@ -783,11 +735,7 @@ export const OpenClawSchema = z
             z
               .object({
                 enabled: z.boolean().optional(),
-<<<<<<< HEAD
                 apiKey: z.string().optional(),
-=======
-                apiKey: SecretInputSchema.optional().register(sensitive),
->>>>>>> f6a854bd3 (Secrets: add migrate rollback and skill ref support)
                 env: z.record(z.string(), z.string()).optional(),
                 config: z.record(z.string(), z.unknown()).optional(),
               })

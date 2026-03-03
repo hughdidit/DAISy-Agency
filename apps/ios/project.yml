@@ -36,22 +36,11 @@ targets:
     sources:
       - path: Sources
     dependencies:
-<<<<<<< HEAD
       - package: MoltbotKit
       - package: MoltbotKit
         product: MoltbotChatUI
       - package: MoltbotKit
         product: MoltbotProtocol
-=======
-      - target: OpenClawShareExtension
-        embed: true
-      - target: OpenClawWatchApp
-      - package: OpenClawKit
-      - package: OpenClawKit
-        product: OpenClawChatUI
-      - package: OpenClawKit
-        product: OpenClawProtocol
->>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
       - package: Swabble
         product: SwabbleKit
       - sdk: AppIntents.framework
@@ -84,26 +73,18 @@ targets:
     settings:
       base:
 <<<<<<< HEAD
-<<<<<<< HEAD
         CODE_SIGN_IDENTITY: "Apple Development"
         CODE_SIGN_STYLE: Manual
         DEVELOPMENT_TEAM: Y5PE65HELJ
         PRODUCT_BUNDLE_IDENTIFIER: bot.molt.ios
         PROVISIONING_PROFILE_SPECIFIER: "bot.molt.ios Development"
 =======
-        PRODUCT_BUNDLE_IDENTIFIER: ai.openclaw.ios
->>>>>>> 98962ed81 (feat(ios): auto-select local signing team (#18421))
-=======
         CODE_SIGN_IDENTITY: "Apple Development"
         CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
         DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
         PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_APP_BUNDLE_ID)"
         PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_APP_PROFILE)"
-<<<<<<< HEAD
 >>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
-=======
-        TARGETED_DEVICE_FAMILY: "1"
->>>>>>> 0a1eac6b0 (fix(ios): eliminate voice wake and xcode build warnings)
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
         ENABLE_APPINTENTS_METADATA: NO
@@ -113,17 +94,8 @@ targets:
       properties:
         CFBundleDisplayName: Moltbot
         CFBundleIconName: AppIcon
-<<<<<<< HEAD
         CFBundleShortVersionString: "2026.1.27-beta.1"
         CFBundleVersion: "20260126"
-=======
-        CFBundleURLTypes:
-          - CFBundleURLName: ai.openclaw.ios
-            CFBundleURLSchemes:
-              - openclaw
-        CFBundleShortVersionString: "2026.2.16"
-        CFBundleVersion: "20260216"
->>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -150,54 +122,7 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
 
-<<<<<<< HEAD
   MoltbotTests:
-=======
-  OpenClawShareExtension:
-    type: app-extension
-    platform: iOS
-    configFiles:
-      Debug: Signing.xcconfig
-      Release: Signing.xcconfig
-    sources:
-      - path: ShareExtension
-    dependencies:
-      - package: OpenClawKit
-      - sdk: AppIntents.framework
-    settings:
-      base:
-        CODE_SIGN_IDENTITY: "Apple Development"
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
-        ENABLE_APPINTENTS_METADATA: NO
-        ENABLE_APP_INTENTS_METADATA_GENERATION: NO
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_SHARE_BUNDLE_ID)"
-        PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_SHARE_PROFILE)"
-        SWIFT_VERSION: "6.0"
-        SWIFT_STRICT_CONCURRENCY: complete
-    info:
-      path: ShareExtension/Info.plist
-
-  OpenClawWatchApp:
-    type: application.watchapp2
-    platform: watchOS
-    deploymentTarget: "11.0"
-    sources:
-      - path: WatchApp
-    dependencies:
-      - target: OpenClawWatchExtension
-    configFiles:
-      Debug: Config/Signing.xcconfig
-      Release: Config/Signing.xcconfig
-    settings:
-      base:
-<<<<<<< HEAD
-        PRODUCT_BUNDLE_IDENTIFIER: ai.openclaw.ios.watchkitapp
-=======
-        ENABLE_APPINTENTS_METADATA: NO
-        ENABLE_APP_INTENTS_METADATA_GENERATION: NO
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_WATCH_APP_BUNDLE_ID)"
->>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)
     info:
       path: WatchApp/Info.plist
       properties:
@@ -250,15 +175,7 @@ targets:
       - sdk: AppIntents.framework
     settings:
       base:
-<<<<<<< HEAD
         PRODUCT_BUNDLE_IDENTIFIER: bot.molt.ios.tests
-=======
-        CODE_SIGN_IDENTITY: "Apple Development"
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
-        PRODUCT_BUNDLE_IDENTIFIER: ai.openclaw.ios.tests
-<<<<<<< HEAD
->>>>>>> d06d8701f (iOS: normalize watch quick actions and fix test signing)
 =======
         ENABLE_APP_INTENTS_METADATA_GENERATION: NO
 >>>>>>> 0a1eac6b0 (fix(ios): eliminate voice wake and xcode build warnings)

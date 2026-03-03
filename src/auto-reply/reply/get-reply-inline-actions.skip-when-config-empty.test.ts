@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { SessionEntry } from "../../config/sessions.js";
->>>>>>> c397a02c9 (fix(queue): harden drain/abort/timeout race handling)
 import type { TemplateContext } from "../templating.js";
 import { clearInlineDirectives } from "./get-reply-directives-utils.js";
 import { buildTestCtx } from "./test-ctx.js";
@@ -110,8 +105,6 @@ describe("handleInlineActions", () => {
     expect(typing.cleanup).toHaveBeenCalled();
     expect(handleCommandsMock).not.toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
 
   it("forwards agentDir into handleCommands", async () => {
     const typing = createTypingController();
@@ -150,7 +143,6 @@ describe("handleInlineActions", () => {
     );
   });
 <<<<<<< HEAD
->>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
 =======
 
   it("skips stale queued messages that are at or before the /stop cutoff", async () => {

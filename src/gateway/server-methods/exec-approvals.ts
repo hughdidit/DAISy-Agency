@@ -16,7 +16,6 @@ import {
   validateExecApprovalsSetParams,
 } from "../protocol/index.js";
 import { resolveBaseHashParam } from "./base-hash.js";
-<<<<<<< HEAD
 import { respondUnavailableOnThrow, safeParseJson } from "./nodes.helpers.js";
 <<<<<<< HEAD
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
@@ -29,19 +28,6 @@ function resolveBaseHash(params: unknown): string | null {
   const trimmed = raw.trim();
   return trimmed ? trimmed : null;
 }
-=======
-=======
-import {
-  respondUnavailableOnNodeInvokeError,
-  respondUnavailableOnThrow,
-  safeParseJson,
-} from "./nodes.helpers.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 73a97ee25 (refactor(gateway): share node invoke error handling)
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

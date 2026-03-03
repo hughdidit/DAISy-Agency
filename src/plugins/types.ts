@@ -3,17 +3,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 import type { Command } from "commander";
 
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 
-=======
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
-import type { Command } from "commander";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { Command } from "commander";
@@ -47,16 +42,8 @@ import type { Command } from "commander";
 import type { AuthProfileCredential, OAuthCredential } from "../agents/auth-profiles/types.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
 import type { ChannelDock } from "../channels/dock.js";
-<<<<<<< HEAD
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { ChannelId, ChannelPlugin } from "../channels/plugins/types.js";
-import type { createVpsAwareOAuthHandlers } from "../commands/oauth-flow.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { ModelProviderConfig } from "../config/types.js";
-import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
->>>>>>> 730f86dd5 (Gateway/Plugins: device pairing + phone control plugins (#11755))
 import type { InternalHookHandler } from "../hooks/internal-hooks.js";
 import type { HookEntry } from "../hooks/types.js";
 import type { ModelProviderConfig } from "../config/types.js";
@@ -201,21 +188,8 @@ export type PluginCommandContext = {
   args?: string;
   /** The full normalized command body */
   commandBody: string;
-<<<<<<< HEAD
   /** Current moltbot configuration */
   config: MoltbotConfig;
-=======
-  /** Current OpenClaw configuration */
-  config: OpenClawConfig;
-  /** Raw "From" value (channel-scoped id) */
-  from?: string;
-  /** Raw "To" value (channel-scoped id) */
-  to?: string;
-  /** Account id for multi-account channels */
-  accountId?: string;
-  /** Thread/topic id if available */
-  messageThreadId?: number;
->>>>>>> 730f86dd5 (Gateway/Plugins: device pairing + phone control plugins (#11755))
 };
 
 /**

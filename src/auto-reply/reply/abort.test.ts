@@ -1,27 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../../config/config.js";
 import { isAbortTrigger, tryFastAbortFromMessage } from "./abort.js";
-=======
-import { afterEach, describe, expect, it, vi } from "vitest";
-import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import {
-  getAbortMemory,
-  getAbortMemorySizeForTest,
-  isAbortRequestText,
-  isAbortTrigger,
-  resetAbortMemoryForTest,
-  resolveAbortCutoffFromContext,
-  resolveSessionEntryForKey,
-  setAbortMemory,
-  shouldSkipMessageByAbortCutoff,
-  tryFastAbortFromMessage,
-} from "./abort.js";
->>>>>>> 414b7db8a (Auto-reply: bound abort memory map growth)
 import { enqueueFollowupRun, getFollowupQueueDepth, type FollowupRun } from "./queue.js";
 import { initSessionState } from "./session.js";
 import { buildTestCtx } from "./test-ctx.js";
@@ -326,13 +308,9 @@ describe("abort detection", () => {
   });
 
   it("fast-aborts even when text commands are disabled", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-abort-"));
     const storePath = path.join(root, "sessions.json");
     const cfg = { session: { store: storePath }, commands: { text: false } } as MoltbotConfig;
-=======
-    const { cfg } = await createAbortConfig({ commandsTextEnabled: false });
->>>>>>> 24ea941e2 (test: dedupe auto-reply web and signal flows)
 
     const result = await runStopCommand({
       cfg,
@@ -345,12 +323,9 @@ describe("abort detection", () => {
   });
 
   it("fast-abort clears queued followups and session lane", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-abort-"));
     const storePath = path.join(root, "sessions.json");
     const cfg = { session: { store: storePath } } as MoltbotConfig;
-=======
->>>>>>> 24ea941e2 (test: dedupe auto-reply web and signal flows)
     const sessionKey = "telegram:123";
     const sessionId = "session-123";
     const { root, cfg } = await createAbortConfig({
@@ -533,12 +508,9 @@ describe("abort detection", () => {
   });
 
   it("fast-abort stops active subagent runs for requester session", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-abort-"));
     const storePath = path.join(root, "sessions.json");
     const cfg = { session: { store: storePath } } as MoltbotConfig;
-=======
->>>>>>> 24ea941e2 (test: dedupe auto-reply web and signal flows)
     const sessionKey = "telegram:parent";
     const childKey = "agent:main:subagent:child-1";
     const sessionId = "session-parent";

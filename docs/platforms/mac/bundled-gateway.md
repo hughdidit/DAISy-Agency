@@ -26,13 +26,7 @@ The macOS app’s **Install CLI** button runs the same flow via npm/pnpm (bun no
 ## Launchd (Gateway as LaunchAgent)
 
 Label:
-<<<<<<< HEAD
 - `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.clawdbot.*` may remain)
-=======
-
-<<<<<<< HEAD
-- `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.openclaw.*` may remain)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 - `ai.openclaw.gateway` (or `ai.openclaw.<profile>`; legacy `com.openclaw.*` may remain)
 >>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
@@ -48,23 +42,13 @@ Manager:
 - The CLI can also install it: `moltbot gateway install`.
 
 Behavior:
-<<<<<<< HEAD
 - “Moltbot Active” enables/disables the LaunchAgent.
-=======
-
-- “OpenClaw Active” enables/disables the LaunchAgent.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - App quit does **not** stop the gateway (launchd keeps it alive).
 - If a Gateway is already running on the configured port, the app attaches to
   it instead of starting a new one.
 
 Logging:
-<<<<<<< HEAD
 - launchd stdout/err: `/tmp/moltbot/moltbot-gateway.log`
-=======
-
-- launchd stdout/err: `/tmp/openclaw/openclaw-gateway.log`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Version compatibility
 

@@ -39,7 +39,6 @@ function makeEntry(params: {
 
 describe("buildWorkspaceSkillStatus", () => {
   it("reports missing requirements and install options", async () => {
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     const skillDir = path.join(workspaceDir, "skills", "status-skill");
 
@@ -49,24 +48,6 @@ describe("buildWorkspaceSkillStatus", () => {
       description: "Needs setup",
       metadata:
         '{"moltbot":{"requires":{"bins":["fakebin"],"env":["ENV_KEY"],"config":["browser.enabled"]},"install":[{"id":"brew","kind":"brew","formula":"fakebin","bins":["fakebin"],"label":"Install fakebin"}]}}',
-=======
-    const entry = makeEntry({
-      name: "status-skill",
-      requires: {
-        bins: ["fakebin"],
-        env: ["ENV_KEY"],
-        config: ["browser.enabled"],
-      },
-      install: [
-        {
-          id: "brew",
-          kind: "brew",
-          formula: "fakebin",
-          bins: ["fakebin"],
-          label: "Install fakebin",
-        },
-      ],
->>>>>>> 7e5f771d2 (test: speed up skills test suites)
     });
 
     const report = withEnv({ PATH: "" }, () =>
@@ -85,7 +66,6 @@ describe("buildWorkspaceSkillStatus", () => {
     expect(skill?.install[0]?.id).toBe("brew");
   });
   it("respects OS-gated skills", async () => {
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     const skillDir = path.join(workspaceDir, "skills", "os-skill");
 
@@ -94,11 +74,6 @@ describe("buildWorkspaceSkillStatus", () => {
       name: "os-skill",
       description: "Darwin only",
       metadata: '{"moltbot":{"os":["darwin"]}}',
-=======
-    const entry = makeEntry({
-      name: "os-skill",
-      os: ["darwin"],
->>>>>>> 7e5f771d2 (test: speed up skills test suites)
     });
 
     const report = buildWorkspaceSkillStatus("/tmp/ws", { entries: [entry] });
@@ -114,14 +89,11 @@ describe("buildWorkspaceSkillStatus", () => {
     }
   });
   it("marks bundled skills blocked by allowlist", async () => {
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     const bundledDir = path.join(workspaceDir, ".bundled");
     const bundledSkillDir = path.join(bundledDir, "peekaboo");
 <<<<<<< HEAD
     const originalBundled = process.env.CLAWDBOT_BUNDLED_SKILLS_DIR;
-=======
->>>>>>> c0706b779 (refactor(test): reuse env helper in workspace skill status tests)
 
     await writeSkill({
       dir: bundledSkillDir,
@@ -133,12 +105,8 @@ describe("buildWorkspaceSkillStatus", () => {
     });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     try {
       process.env.CLAWDBOT_BUNDLED_SKILLS_DIR = bundledDir;
-=======
-    withEnv({ OPENCLAW_BUNDLED_SKILLS_DIR: bundledDir }, () => {
->>>>>>> c0706b779 (refactor(test): reuse env helper in workspace skill status tests)
       const report = buildWorkspaceSkillStatus(workspaceDir, {
         managedSkillsDir: path.join(workspaceDir, ".managed"),
         config: { skills: { allowBundled: ["other-skill"] } },
@@ -148,7 +116,6 @@ describe("buildWorkspaceSkillStatus", () => {
       expect(skill).toBeDefined();
       expect(skill?.blockedByAllowlist).toBe(true);
       expect(skill?.eligible).toBe(false);
-<<<<<<< HEAD
     } finally {
       if (originalBundled === undefined) {
         delete process.env.CLAWDBOT_BUNDLED_SKILLS_DIR;
@@ -156,9 +123,6 @@ describe("buildWorkspaceSkillStatus", () => {
         process.env.CLAWDBOT_BUNDLED_SKILLS_DIR = originalBundled;
       }
     }
-=======
-    });
->>>>>>> c0706b779 (refactor(test): reuse env helper in workspace skill status tests)
   });
 
   it("filters install options by OS", async () => {

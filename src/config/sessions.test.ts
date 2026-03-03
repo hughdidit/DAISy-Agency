@@ -1,16 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 
-=======
-=======
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
 import { sleep } from "../utils.js";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 =======
@@ -176,11 +169,7 @@ describe("sessions", () => {
 
   it("updateLastRoute persists channel and target", async () => {
     const mainSessionKey = "agent:main:main";
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-    const dir = await createCaseDir("updateLastRoute");
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(
       storePath,
@@ -233,11 +222,7 @@ describe("sessions", () => {
 
   it("updateLastRoute prefers explicit deliveryContext", async () => {
     const mainSessionKey = "agent:main:main";
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-    const dir = await createCaseDir("updateLastRoute");
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(storePath, "{}", "utf-8");
 
@@ -265,59 +250,9 @@ describe("sessions", () => {
     });
   });
 
-<<<<<<< HEAD
   it("updateLastRoute records origin + group metadata when ctx is provided", async () => {
     const sessionKey = "agent:main:whatsapp:group:123@g.us";
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-  it("updateLastRoute clears threadId when explicit route omits threadId", async () => {
-    const mainSessionKey = "agent:main:main";
-    const dir = await createCaseDir("updateLastRoute");
-    const storePath = path.join(dir, "sessions.json");
-    await fs.writeFile(
-      storePath,
-      JSON.stringify(
-        {
-          [mainSessionKey]: {
-            sessionId: "sess-1",
-            updatedAt: 123,
-            deliveryContext: {
-              channel: "telegram",
-              to: "222",
-              threadId: "42",
-            },
-            lastChannel: "telegram",
-            lastTo: "222",
-            lastThreadId: "42",
-          },
-        },
-        null,
-        2,
-      ),
-      "utf-8",
-    );
-
-    await updateLastRoute({
-      storePath,
-      sessionKey: mainSessionKey,
-      deliveryContext: {
-        channel: "telegram",
-        to: "222",
-      },
-    });
-
-    const store = loadSessionStore(storePath);
-    expect(store[mainSessionKey]?.deliveryContext).toEqual({
-      channel: "telegram",
-      to: "222",
-    });
-    expect(store[mainSessionKey]?.lastThreadId).toBeUndefined();
-  });
-
-  it("updateLastRoute records origin + group metadata when ctx is provided", async () => {
-    const sessionKey = "agent:main:whatsapp:group:123@g.us";
-    const dir = await createCaseDir("updateLastRoute");
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(storePath, "{}", "utf-8");
 
@@ -348,11 +283,7 @@ describe("sessions", () => {
   it("updateSessionStoreEntry preserves existing fields when patching", async () => {
     const sessionKey = "agent:main:main";
 <<<<<<< HEAD
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-    const dir = await createCaseDir("updateSessionStoreEntry");
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(
       storePath,
@@ -426,11 +357,7 @@ describe("sessions", () => {
   });
 
   it("updateSessionStore preserves concurrent additions", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-    const dir = await createCaseDir("updateSessionStore");
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(storePath, "{}", "utf-8");
 
@@ -449,11 +376,7 @@ describe("sessions", () => {
   });
 
   it("recovers from array-backed session stores", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-    const dir = await createCaseDir("updateSessionStore");
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(storePath, "[]", "utf-8");
 
@@ -469,11 +392,7 @@ describe("sessions", () => {
   });
 
   it("normalizes last route fields on write", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-    const dir = await createCaseDir("updateSessionStore");
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(storePath, "{}", "utf-8");
 
@@ -499,11 +418,7 @@ describe("sessions", () => {
   });
 
   it("updateSessionStore keeps deletions when concurrent writes happen", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-    const dir = await createCaseDir("updateSessionStore");
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(
       storePath,
@@ -535,11 +450,7 @@ describe("sessions", () => {
 
   it("loadSessionStore auto-migrates legacy provider keys to channel keys", async () => {
     const mainSessionKey = "agent:main:main";
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-    const dir = await createCaseDir("loadSessionStore");
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(
       storePath,
@@ -576,13 +487,9 @@ describe("sessions", () => {
   });
 
   it("includes topic ids in session transcript filenames", () => {
-<<<<<<< HEAD
     const prev = process.env.CLAWDBOT_STATE_DIR;
     process.env.CLAWDBOT_STATE_DIR = "/custom/state";
     try {
-=======
-    withStateDir("/custom/state", () => {
->>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
       const sessionFile = resolveSessionTranscriptPath("sess-1", "main", 123);
       expect(sessionFile).toBe(
         path.join(
@@ -593,7 +500,6 @@ describe("sessions", () => {
           "sess-1-topic-123.jsonl",
         ),
       );
-<<<<<<< HEAD
     } finally {
       if (prev === undefined) {
         delete process.env.CLAWDBOT_STATE_DIR;
@@ -607,20 +513,12 @@ describe("sessions", () => {
     const prev = process.env.CLAWDBOT_STATE_DIR;
     process.env.CLAWDBOT_STATE_DIR = "/custom/state";
     try {
-=======
-    });
-  });
-
-  it("uses agent id when resolving session file fallback paths", () => {
-    withStateDir("/custom/state", () => {
->>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
       const sessionFile = resolveSessionFilePath("sess-2", undefined, {
         agentId: "codex",
       });
       expect(sessionFile).toBe(
         path.join(path.resolve("/custom/state"), "agents", "codex", "sessions", "sess-2.jsonl"),
       );
-<<<<<<< HEAD
     } finally {
       if (prev === undefined) {
         delete process.env.CLAWDBOT_STATE_DIR;
@@ -628,9 +526,6 @@ describe("sessions", () => {
         process.env.CLAWDBOT_STATE_DIR = prev;
       }
     }
-=======
-    });
->>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
   });
 
   it("resolves cross-agent absolute sessionFile paths", () => {
@@ -661,8 +556,6 @@ describe("sessions", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("falls back when structural cross-root path traverses after sessions", () => {
     withStateDir(path.resolve("/different/state"), () => {
       const originalBase = path.resolve("/original/state");
@@ -725,7 +618,6 @@ describe("sessions", () => {
     });
   });
 
->>>>>>> 53d6e07a6 (fix(sessions): set transcriptPath to agent sessions directory (openclaw#24775) thanks @martinfrancois)
   it("falls back to derived transcript path when sessionFile is outside agent sessions directories", () => {
     withStateDir(path.resolve("/home/user/.openclaw"), () => {
       const sessionFile = resolveSessionFilePath(
@@ -748,11 +640,7 @@ describe("sessions", () => {
   it("updateSessionStoreEntry merges concurrent patches", async () => {
     const mainSessionKey = "agent:main:main";
 <<<<<<< HEAD
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
-=======
-    const dir = await createCaseDir("updateSessionStoreEntry");
->>>>>>> 66951e52e (perf(test): speed up sessions suite)
     const storePath = path.join(dir, "sessions.json");
     await fs.writeFile(
       storePath,

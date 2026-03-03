@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/OnboardingView+Wizard.swift
 import MoltbotProtocol
-=======
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/OnboardingView+Wizard.swift
 import Observation
 import OpenClawProtocol
 import SwiftUI

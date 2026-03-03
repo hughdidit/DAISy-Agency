@@ -3,7 +3,6 @@ import {
   resolveDefaultAgentId,
   resolveSessionAgentId,
 } from "../../agents/agent-scope.js";
-<<<<<<< HEAD
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
 import {
   ensureAuthProfileStore,
@@ -11,10 +10,6 @@ import {
   resolveAuthProfileOrder,
 } from "../../agents/auth-profiles.js";
 import { getCustomProviderApiKey, resolveEnvApiKey } from "../../agents/model-auth.js";
-=======
-import { resolveModelAuthLabel } from "../../agents/model-auth-label.js";
-import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
->>>>>>> 246bb7f30 (refactor(agents): share model auth label resolution)
 import {
   resolveInternalSessionKey,
   resolveMainSessionAlias,
@@ -25,12 +20,8 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { normalizeProviderId } from "../../agents/model-selection.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { SessionEntry, SessionScope } from "../../config/sessions.js";
 =======
 >>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
@@ -61,12 +52,7 @@ import type { MediaUnderstandingDecision } from "../../media-understanding/types
 import { normalizeGroupActivation } from "../group-activation.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { resolveSelectedAndActiveModel } from "../model-runtime.js";
->>>>>>> c2876b69f (feat(auto-reply): add model fallback lifecycle visibility in status, verbose logs, and WebUI (#20704))
 import { buildStatusMessage } from "../status.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -74,10 +60,6 @@ import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "..
 import type { ReplyPayload } from "../types.js";
 import type { CommandContext } from "./commands-types.js";
 <<<<<<< HEAD
-=======
-import { buildStatusMessage, getTranscriptInfo } from "../status.js";
-<<<<<<< HEAD
->>>>>>> 15dd2cda2 (feat: show transcript file size in session status)
 =======
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
 import type { ReplyPayload } from "../types.js";
@@ -106,7 +88,6 @@ import { getFollowupQueueDepth, resolveQueueSettings } from "./queue.js";
 import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
 import { resolveSubagentLabel } from "./subagents-utils.js";
 
-<<<<<<< HEAD
 function formatApiKeySnippet(apiKey: string): string {
   const compact = apiKey.replace(/\s+/g, "");
   if (!compact) {
@@ -175,8 +156,6 @@ function resolveModelAuthLabel(
   return "unknown";
 }
 
-=======
->>>>>>> 246bb7f30 (refactor(agents): share model auth label resolution)
 export async function buildStatusReply(params: {
   cfg: MoltbotConfig;
   command: CommandContext;

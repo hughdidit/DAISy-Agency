@@ -1,7 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -330,11 +329,6 @@ vi.mock("./doctor-state-migrations.js", () => ({
 }));
 =======
 import { describe, expect, it, vi } from "vitest";
-=======
-import { describe, expect, it } from "vitest";
->>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
-=======
-import { describe, expect, it, vi } from "vitest";
 >>>>>>> 6264c5e84 (chore: Fix types in tests 41/N.)
 =======
 import { beforeAll, describe, expect, it, vi } from "vitest";
@@ -361,7 +355,6 @@ describe("doctor command", () => {
   });
 
   it("runs legacy state migrations in yes mode without prompting", async () => {
-<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
@@ -413,10 +406,6 @@ describe("doctor command", () => {
 
     runLegacyStateMigrations.mockClear();
     confirm.mockClear();
-=======
-    const { doctorCommand, runtime, runLegacyStateMigrations } =
-      await arrangeLegacyStateMigrationTest();
->>>>>>> 5f55a53f0 (refactor(test): share doctor legacy migration setup)
 
     await (doctorCommand as (runtime: unknown, opts: Record<string, unknown>) => Promise<void>)(
       runtime,
@@ -441,7 +430,6 @@ describe("doctor command", () => {
   }, 30_000);
 
   it("skips gateway restarts in non-interactive mode", async () => {
-<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
@@ -452,9 +440,6 @@ describe("doctor command", () => {
       issues: [],
       legacyIssues: [],
     });
-=======
-    mockDoctorConfigSnapshot();
->>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
 
     vi.mocked(healthCommand).mockRejectedValueOnce(new Error("gateway closed"));
 
@@ -469,16 +454,12 @@ describe("doctor command", () => {
   });
 
   it("migrates anthropic oauth config profile id when only email profile exists", async () => {
-<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
       raw: "{}",
       parsed: {},
       valid: true,
-=======
-    mockDoctorConfigSnapshot({
->>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
       config: {
         auth: {
           profiles: {

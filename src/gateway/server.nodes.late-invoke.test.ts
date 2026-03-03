@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
 
@@ -59,12 +58,6 @@ afterAll(async () => {
   nodeWs.terminate();
   await server.close();
 });
-=======
-import { describe, expect, test, vi } from "vitest";
-import type { RequestFrame } from "./protocol/index.js";
-import type { GatewayClient, GatewayRequestContext, RespondFn } from "./server-methods/types.js";
-import { handleNodeInvokeResult } from "./server-methods/nodes.handlers.invoke-result.js";
->>>>>>> 615c9c3c9 (perf(test): avoid gateway boot for late invoke results)
 
 describe("late-arriving invoke results", () => {
   test("returns success for unknown invoke ids for both success and error payloads", async () => {

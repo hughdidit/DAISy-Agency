@@ -39,12 +39,9 @@ const privateIpCases = [
   "fe80::1%lo0",
   "fd00::1",
   "fec0::1",
-<<<<<<< HEAD
-=======
   ...blockedIpv6MulticastLiterals,
   "2001:db8:1234::5efe:127.0.0.1",
   "2001:db8:1234:1:200:5efe:7f00:1",
->>>>>>> 61b3246a7 (fix(ssrf): unify ipv6 special-use blocking)
 ];
 
 const publicIpCases = [
@@ -75,7 +72,6 @@ describe("ssrf ip classification", () => {
     expect(isPrivateIpAddress(address)).toBe(false);
   });
 
-<<<<<<< HEAD
   it("treats common IPv6 private/internal ranges as private", () => {
     expect(isPrivateIpAddress("::")).toBe(true);
     expect(isPrivateIpAddress("::1")).toBe(true);
@@ -88,10 +84,6 @@ describe("ssrf ip classification", () => {
     expect(isPrivateIpAddress("93.184.216.34")).toBe(false);
     expect(isPrivateIpAddress("2606:4700:4700::1111")).toBe(false);
     expect(isPrivateIpAddress("2001:db8::1")).toBe(false);
-=======
-  it.each(malformedIpv6Cases)("fails closed for malformed IPv6 %s", (address) => {
-    expect(isPrivateIpAddress(address)).toBe(true);
->>>>>>> e8154c12e (refactor(net): table-drive embedded IPv6 decoding and SSRF tests)
   });
 });
 
@@ -102,8 +94,6 @@ describe("normalizeFingerprint", () => {
     expect(normalizeFingerprint("aa:bb:cc")).toBe("aabbcc");
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("isBlockedHostnameOrIp", () => {
   it("blocks localhost.localdomain and metadata hostname aliases", () => {
@@ -128,4 +118,3 @@ describe("isBlockedHostnameOrIp", () => {
     expect(isBlockedHostnameOrIp("2130706433")).toBe(true);
   });
 });
->>>>>>> 71bd15bb4 (fix(ssrf): block special-use ipv4 ranges)

@@ -96,17 +96,9 @@ export function createClackPrompter(): WizardPrompter {
           options,
           initialValues: params.initialValues,
         }),
-<<<<<<< HEAD
       ),
     text: async (params) =>
       guardCancel(
-=======
-      );
-    },
-    text: async (params) => {
-      const validate = params.validate;
-      return guardCancel(
->>>>>>> 01fcac072 (Configure: make model picker allowlist searchable)
         await text({
           message: stylePromptMessage(params.message),
           initialValue: params.initialValue,

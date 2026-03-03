@@ -7,14 +7,8 @@ private struct KeychainEntry: Hashable {
     let account: String
 }
 
-<<<<<<< HEAD
 private let gatewayService = "bot.molt.gateway"
 private let nodeService = "bot.molt.node"
-=======
-private let gatewayService = "ai.openclaw.gateway"
-private let nodeService = "ai.openclaw.node"
-private let talkService = "ai.openclaw.talk"
->>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
 private let instanceIdEntry = KeychainEntry(service: nodeService, account: "instanceId")
 private let preferredGatewayEntry = KeychainEntry(service: gatewayService, account: "preferredStableID")
 private let lastGatewayEntry = KeychainEntry(service: gatewayService, account: "lastDiscoveredStableID")
@@ -131,8 +125,6 @@ private func restoreKeychain(_ snapshot: [KeychainEntry: String?]) {
         #expect(defaults.string(forKey: "gateway.preferredStableID") == "preferred-from-keychain")
         #expect(defaults.string(forKey: "gateway.lastDiscoveredStableID") == "last-from-keychain")
     }
-<<<<<<< HEAD
-=======
 
     @Test func lastGateway_manualRoundTrip() {
         let keys = [
@@ -236,7 +228,6 @@ private func restoreKeychain(_ snapshot: [KeychainEntry: String?]) {
             KeychainStore.loadString(service: talkService, account: talkElevenLabsProviderEntry.account)
                 == "legacy-eleven-key")
     }
->>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
 =======
 >>>>>>> f4e6f8730 (refactor(ios): drop legacy talk payload and keychain fallbacks)
 }

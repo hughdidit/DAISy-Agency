@@ -2,12 +2,9 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
-<<<<<<< HEAD
-=======
 import { withEnvAsync } from "../test-utils/env.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { buildDeviceAuthPayload } from "./device-auth.js";
->>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))
 import { PROTOCOL_VERSION } from "./protocol/index.js";
 import { getHandshakeTimeoutMs } from "./server-constants.js";
 import { buildDeviceAuthPayload } from "./device-auth.js";
@@ -351,13 +348,8 @@ describe("gateway server auth/connect", () => {
 
     test("closes silent handshakes after timeout", async () => {
       vi.useRealTimers();
-<<<<<<< HEAD
       const prevHandshakeTimeout = process.env.CLAWDBOT_TEST_HANDSHAKE_TIMEOUT_MS;
       process.env.CLAWDBOT_TEST_HANDSHAKE_TIMEOUT_MS = "50";
-=======
-      const prevHandshakeTimeout = process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS;
-      process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS = "20";
->>>>>>> f52a0228c (test: optimize auth and audit test runtime)
       try {
         const ws = await openWs(port);
         const handshakeTimeoutMs = getHandshakeTimeoutMs();
@@ -810,8 +802,6 @@ describe("gateway server auth/connect", () => {
       });
       expect(res.ok).toBe(false);
       expect(res.error?.message ?? "").toContain("secure context");
-<<<<<<< HEAD
-=======
       expect((res.error?.details as { code?: string } | undefined)?.code).toBe(
         ConnectErrorDetailCodes.CONTROL_UI_DEVICE_IDENTITY_REQUIRED,
       );
@@ -845,7 +835,6 @@ describe("gateway server auth/connect", () => {
       const ws = await openWs(port);
       const res = await connectReq(ws, { skipDefaultAuth: true });
       expect(res.ok).toBe(true);
->>>>>>> c736f11a1 (fix(gateway): harden browser websocket auth chain)
       ws.close();
     });
   });
@@ -884,85 +873,18 @@ describe("gateway server auth/connect", () => {
       const ws = await openTailscaleWs(port);
       const res = await connectReq(ws, { token: "secret", device: null });
       expect(res.ok).toBe(true);
-<<<<<<< HEAD
-=======
       const status = await rpcReq(ws, "status");
       expect(status.ok).toBe(false);
       expect(status.error?.message).toContain("missing scope");
       const health = await rpcReq(ws, "health");
       expect(health.ok).toBe(true);
->>>>>>> 868fe48d5 (fix(gateway): allow health method for all authenticated roles (#19699))
       ws.close();
     });
   });
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   test("allows control ui without device identity when insecure auth is enabled", async () => {
-=======
-=======
-  test("allows trusted-proxy control ui operator without device identity", async () => {
-    await configureTrustedProxyControlUiAuth();
-    await withGatewayServer(async ({ port }) => {
-      const ws = await openWs(port, {
-        origin: "https://localhost",
-        "x-forwarded-for": "203.0.113.10",
-        "x-forwarded-proto": "https",
-        "x-forwarded-user": "peter@example.com",
-      });
-      const res = await connectReq(ws, {
-        skipDefaultAuth: true,
-        role: "operator",
-        device: null,
-        client: { ...CONTROL_UI_CLIENT },
-      });
-      expect(res.ok).toBe(true);
-      const status = await rpcReq(ws, "status");
-      expect(status.ok).toBe(false);
-      expect(status.error?.message ?? "").toContain("missing scope");
-      const health = await rpcReq(ws, "health");
-      expect(health.ok).toBe(true);
-      ws.close();
-    });
-  });
-=======
-  const trustedProxyControlUiCases: Array<{
-    name: string;
-    role: "operator" | "node";
-    withUnpairedNodeDevice: boolean;
-    expectedOk: boolean;
-    expectedErrorSubstring?: string;
-    expectedErrorCode?: string;
-    expectStatusChecks: boolean;
-  }> = [
-    {
-      name: "allows trusted-proxy control ui operator without device identity",
-      role: "operator",
-      withUnpairedNodeDevice: false,
-      expectedOk: true,
-      expectStatusChecks: true,
-    },
-    {
-      name: "rejects trusted-proxy control ui node role without device identity",
-      role: "node",
-      withUnpairedNodeDevice: false,
-      expectedOk: false,
-      expectedErrorSubstring: "control ui requires device identity",
-      expectedErrorCode: ConnectErrorDetailCodes.CONTROL_UI_DEVICE_IDENTITY_REQUIRED,
-      expectStatusChecks: false,
-    },
-    {
-      name: "requires pairing for trusted-proxy control ui node role with unpaired device",
-      role: "node",
-      withUnpairedNodeDevice: true,
-      expectedOk: false,
-      expectedErrorSubstring: "pairing required",
-      expectedErrorCode: ConnectErrorDetailCodes.PAIRING_REQUIRED,
-      expectStatusChecks: false,
-    },
-  ];
->>>>>>> 0cc3e8137 (refactor(gateway): centralize trusted-proxy control-ui bypass policy)
 
   for (const tc of trustedProxyControlUiCases) {
     test(tc.name, async () => {
@@ -1033,54 +955,21 @@ describe("gateway server auth/connect", () => {
       },
     });
     expect(res.ok).toBe(true);
-<<<<<<< HEAD
-=======
     const status = await rpcReq(ws, "status");
     expect(status.ok).toBe(false);
     expect(status.error?.message ?? "").toContain("missing scope");
     const health = await rpcReq(ws, "health");
     expect(health.ok).toBe(true);
->>>>>>> fa4e4efd9 (fix(gateway): restore localhost Control UI pairing when allowInsecureAuth is set (#22996))
     ws.close();
     await server.close();
-<<<<<<< HEAD
     if (prevToken === undefined) {
       delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
       process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
-=======
-    restoreGatewayToken(prevToken);
->>>>>>> 12ad708ce (test: dedupe gateway auth and sessions patch coverage)
   });
 
-<<<<<<< HEAD
   test("allows control ui with device identity when insecure auth is enabled", async () => {
-=======
-  test("allows control ui password-only auth on localhost when insecure auth is enabled", async () => {
-    testState.gatewayControlUi = { allowInsecureAuth: true };
-    testState.gatewayAuth = { mode: "password", password: "secret" };
-    await withGatewayServer(async ({ port }) => {
-      const ws = await openWs(port, { origin: originForPort(port) });
-      const res = await connectReq(ws, {
-        password: "secret",
-        device: null,
-        client: {
-          ...CONTROL_UI_CLIENT,
-        },
-      });
-      expect(res.ok).toBe(true);
-      const status = await rpcReq(ws, "status");
-      expect(status.ok).toBe(false);
-      expect(status.error?.message ?? "").toContain("missing scope");
-      const health = await rpcReq(ws, "health");
-      expect(health.ok).toBe(true);
-      ws.close();
-    });
-  });
-
-  test("does not bypass pairing for control ui device identity when insecure auth is enabled", async () => {
->>>>>>> fa4e4efd9 (fix(gateway): restore localhost Control UI pairing when allowInsecureAuth is set (#22996))
     testState.gatewayControlUi = { allowInsecureAuth: true };
     testState.gatewayAuth = { mode: "token", token: "secret" };
     const { writeConfigFile } = await import("../config/config.js");
@@ -1090,7 +979,6 @@ describe("gateway server auth/connect", () => {
       },
       // oxlint-disable-next-line typescript/no-explicit-any
     } as any);
-<<<<<<< HEAD
     const prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
     process.env.CLAWDBOT_GATEWAY_TOKEN = "secret";
     const port = await getFreePort();
@@ -1150,57 +1038,6 @@ describe("gateway server auth/connect", () => {
     } else {
       process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
 =======
-    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
-    try {
-      await withGatewayServer(async ({ port }) => {
-        const ws = new WebSocket(`ws://127.0.0.1:${port}`, {
-          headers: {
-            origin: "https://localhost",
-            "x-forwarded-for": "203.0.113.10",
-          },
-        });
-        const challengePromise = onceMessage<{
-          type?: string;
-          event?: string;
-          payload?: Record<string, unknown> | null;
-        }>(ws, (o) => o.type === "event" && o.event === "connect.challenge");
-        await new Promise<void>((resolve) => ws.once("open", resolve));
-        const challenge = await challengePromise;
-        const nonce = (challenge.payload as { nonce?: unknown } | undefined)?.nonce;
-        expect(typeof nonce).toBe("string");
-        const { randomUUID } = await import("node:crypto");
-        const os = await import("node:os");
-        const path = await import("node:path");
-        const scopes = ["operator.admin", "operator.approvals", "operator.pairing"];
-        const { device } = await createSignedDevice({
-          token: "secret",
-          scopes,
-          clientId: GATEWAY_CLIENT_NAMES.CONTROL_UI,
-          clientMode: GATEWAY_CLIENT_MODES.WEBCHAT,
-          identityPath: path.join(os.tmpdir(), `openclaw-controlui-device-${randomUUID()}.json`),
-          nonce: String(nonce),
-        });
-        const res = await connectReq(ws, {
-          token: "secret",
-          scopes,
-          device,
-          client: {
-            ...CONTROL_UI_CLIENT,
-          },
-        });
-        expect(res.ok).toBe(true);
-        ws.close();
-      });
-    } finally {
-<<<<<<< HEAD
-      if (prevToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
-      }
->>>>>>> 8ba16a894 (refactor(test): reuse withGatewayServer in auth/http suites)
-=======
       restoreGatewayToken(prevToken);
 >>>>>>> 12ad708ce (test: dedupe gateway auth and sessions patch coverage)
     }
@@ -1209,7 +1046,6 @@ describe("gateway server auth/connect", () => {
   test("allows control ui with stale device identity when device auth is disabled", async () => {
     testState.gatewayControlUi = { dangerouslyDisableDeviceAuth: true };
     testState.gatewayAuth = { mode: "token", token: "secret" };
-<<<<<<< HEAD
     const prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
     process.env.CLAWDBOT_GATEWAY_TOKEN = "secret";
     const port = await getFreePort();
@@ -1252,41 +1088,6 @@ describe("gateway server auth/connect", () => {
       delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
       process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
-=======
-    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
-    try {
-      await withGatewayServer(async ({ port }) => {
-        const ws = await openWs(port, { origin: originForPort(port) });
-        const challengeNonce = await readConnectChallengeNonce(ws);
-        expect(challengeNonce).toBeTruthy();
-        const { device } = await createSignedDevice({
-          token: "secret",
-          scopes: [],
-          clientId: GATEWAY_CLIENT_NAMES.CONTROL_UI,
-          clientMode: GATEWAY_CLIENT_MODES.WEBCHAT,
-          signedAtMs: Date.now() - 60 * 60 * 1000,
-          nonce: String(challengeNonce),
-        });
-        const res = await connectReq(ws, {
-          token: "secret",
-          device,
-          client: {
-            ...CONTROL_UI_CLIENT,
-          },
-        });
-        expect(res.ok).toBe(true);
-        expect((res.payload as { auth?: unknown } | undefined)?.auth).toBeUndefined();
-        ws.close();
-      });
-    } finally {
-<<<<<<< HEAD
-      if (prevToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
-      }
->>>>>>> 8ba16a894 (refactor(test): reuse withGatewayServer in auth/http suites)
 =======
       restoreGatewayToken(prevToken);
 >>>>>>> 12ad708ce (test: dedupe gateway auth and sessions patch coverage)
@@ -1358,7 +1159,6 @@ describe("gateway server auth/connect", () => {
       },
     ];
 
-<<<<<<< HEAD
     ws2.close();
     await server.close();
 <<<<<<< HEAD
@@ -1367,9 +1167,6 @@ describe("gateway server auth/connect", () => {
     } else {
       process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
-=======
-    restoreGatewayToken(prevToken);
->>>>>>> 12ad708ce (test: dedupe gateway auth and sessions patch coverage)
   });
 
   test("accepts explicit auth.deviceToken when shared token is omitted", async () => {
@@ -1591,25 +1388,7 @@ describe("gateway server auth/connect", () => {
     });
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(res.ok).toBe(true);
-=======
-    expect(res.ok).toBe(false);
-    expect(res.error?.message ?? "").toContain("pairing required");
-
-    await approvePendingPairingIfNeeded();
-    ws2.close();
-
-    const ws3 = await openWs(port);
-    const nonce3 = await readConnectChallengeNonce(ws3);
-    const approved = await connectReq(ws3, {
-      token: "secret",
-      scopes: ["operator.admin"],
-      client,
-      device: buildDevice(["operator.admin"], nonce3),
-    });
-    expect(approved.ok).toBe(true);
->>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
     paired = await getPairedDevice(identity.deviceId);
     expect(paired?.scopes).toContain("operator.admin");
 
@@ -1632,7 +1411,6 @@ describe("gateway server auth/connect", () => {
     ws2.close();
 >>>>>>> b13bba9c3 (fix(gateway): skip operator pairing on valid shared auth)
     await server.close();
-<<<<<<< HEAD
     if (prevToken === undefined) {
       delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
@@ -1670,9 +1448,6 @@ describe("gateway server auth/connect", () => {
     } else {
       process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
-=======
-    restoreGatewayToken(prevToken);
->>>>>>> 12ad708ce (test: dedupe gateway auth and sessions patch coverage)
   });
 
   test("auto-approves loopback scope upgrades for control ui clients", async () => {

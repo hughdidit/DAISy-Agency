@@ -10,20 +10,11 @@ read_when:
 Status: external CLI integration. Gateway talks to `signal-cli` over HTTP JSON-RPC + SSE.
 
 ## Quick setup (beginner)
-<<<<<<< HEAD
 1) Use a **separate Signal number** for the bot (recommended).
 2) Install `signal-cli` (Java required).
 3) Link the bot device and start the daemon:
    - `signal-cli link -n "Moltbot"`
 4) Configure Moltbot and start the gateway.
-=======
-
-1. Use a **separate Signal number** for the bot (recommended).
-2. Install `signal-cli` (Java required).
-3. Link the bot device and start the daemon:
-   - `signal-cli link -n "OpenClaw"`
-4. Configure OpenClaw and start the gateway.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Minimal config:
 
@@ -66,18 +57,10 @@ Disable with:
 - For "I text the bot and it replies," use a **separate bot number**.
 
 ## Setup (fast path)
-<<<<<<< HEAD
 1) Install `signal-cli` (Java required).
 2) Link a bot account:
    - `signal-cli link -n "Moltbot"` then scan the QR in Signal.
 3) Configure Signal and start the gateway.
-=======
-
-1. Install `signal-cli` (Java required).
-2. Link a bot account:
-   - `signal-cli link -n "OpenClaw"` then scan the QR in Signal.
-3. Configure Signal and start the gateway.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Example:
 
@@ -98,12 +81,7 @@ Example:
 Multi-account support: use `channels.signal.accounts` with per-account config and optional `name`. See [`gateway/configuration`](/gateway/configuration#telegramaccounts--discordaccounts--slackaccounts--signalaccounts--imessageaccounts) for the shared pattern.
 
 ## External daemon mode (httpUrl)
-<<<<<<< HEAD
 If you want to manage `signal-cli` yourself (slow JVM cold starts, container init, or shared CPUs), run the daemon separately and point Moltbot at it:
-=======
-
-If you want to manage `signal-cli` yourself (slow JVM cold starts, container init, or shared CPUs), run the daemon separately and point OpenClaw at it:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```json5
 {
@@ -125,15 +103,9 @@ DMs:
 - Default: `channels.signal.dmPolicy = "pairing"`.
 - Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
-<<<<<<< HEAD
   - `moltbot pairing list signal`
   - `moltbot pairing approve signal <CODE>`
 - Pairing is the default token exchange for Signal DMs. Details: [Pairing](/start/pairing)
-=======
-  - `openclaw pairing list signal`
-  - `openclaw pairing approve signal <CODE>`
-- Pairing is the default token exchange for Signal DMs. Details: [Pairing](/channels/pairing)
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - UUID-only senders (from `sourceUuid`) are stored as `uuid:<id>` in `channels.signal.allowFrom`.
 
 Groups:
@@ -157,14 +129,8 @@ Groups:
 - Group history context uses `channels.signal.historyLimit` (or `channels.signal.accounts.*.historyLimit`), falling back to `messages.groupChat.historyLimit`. Set `0` to disable (default 50).
 
 ## Typing + read receipts
-<<<<<<< HEAD
 - **Typing indicators**: Moltbot sends typing signals via `signal-cli sendTyping` and refreshes them while a reply is running.
 - **Read receipts**: when `channels.signal.sendReadReceipts` is true, Moltbot forwards read receipts for allowed DMs.
-=======
-
-- **Typing indicators**: OpenClaw sends typing signals via `signal-cli sendTyping` and refreshes them while a reply is running.
-- **Read receipts**: when `channels.signal.sendReadReceipts` is true, OpenClaw forwards read receipts for allowed DMs.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Signal-cli does not expose read receipts for groups.
 
 ## Reactions (message tool)

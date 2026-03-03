@@ -1,15 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { rewriteUpdateFlagArgv } from "./run-main.js";
-=======
-import {
-  rewriteUpdateFlagArgv,
-  shouldEnsureCliPath,
-  shouldRegisterPrimarySubcommand,
-  shouldSkipPluginCommandRegistration,
-} from "./run-main.js";
->>>>>>> 4d1461011 (perf(cli): speed up help/config paths and route config get/unset)
 
 describe("rewriteUpdateFlagArgv", () => {
   it("leaves argv unchanged when --update is absent", () => {

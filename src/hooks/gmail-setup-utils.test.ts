@@ -27,21 +27,10 @@ describe("resolvePythonExecutablePath", () => {
     "resolves a working python path and caches the result",
     async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-python-"));
-=======
-      vi.doMock("../process/exec.js", () => ({
-        runCommandWithTimeout: vi.fn(),
-      }));
-
-=======
->>>>>>> b272158fe (perf(test): eliminate resetModules via injectable seams)
       const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-python-"));
-<<<<<<< HEAD
 >>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
       const originalPath = process.env.PATH;
-=======
->>>>>>> 807968e4d (refactor(test): replace manual PATH restore with env helpers)
       try {
         const realPython = path.join(tmp, "python-real");
         await fs.writeFile(realPython, "#!/bin/sh\nexit 0\n", "utf-8");

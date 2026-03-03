@@ -1,6 +1,4 @@
 import { z } from "zod";
-<<<<<<< HEAD
-=======
 import { InstallRecordShape } from "./zod-schema.installs.js";
 import { sensitive } from "./zod-schema.sensitive.js";
 
@@ -31,7 +29,6 @@ function isSafeRelativeModulePath(raw: string): boolean {
 const SafeRelativeModulePathSchema = z
   .string()
   .refine(isSafeRelativeModulePath, "module must be a safe relative path (no absolute paths)");
->>>>>>> 2d55cc446 (refactor(config): share install record schema shape)
 
 export const HookMappingSchema = z
   .object({

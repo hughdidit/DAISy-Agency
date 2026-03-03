@@ -1,24 +1,14 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";
-=======
-=======
-import type { SessionManager as PiSessionManager } from "@mariozechner/pi-coding-agent";
-import "./test-helpers/fast-coding-tools.js";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
->>>>>>> 239f72c58 (perf(test): consolidate archive safety cases and cache session manager)
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
 >>>>>>> 47514e35a (test: dedupe pi embedded runner setup and orphan case)
-=======
->>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
 
 function createMockUsage(input: number, output: number) {
   return {
@@ -86,14 +76,7 @@ vi.mock("@mariozechner/pi-ai", async () => {
     streamSimple: (model: { api: string; provider: string; id: string }) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
       const stream = new actual.AssistantMessageEventStream();
-=======
-      if (model.id === "mock-throw") {
-        throw new Error("transport failed");
-      }
-=======
->>>>>>> eda941f39 (perf(test): remove flaky transport timeout and dedupe safeBins checks)
 =======
 >>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
       const stream = actual.createAssistantMessageEventStream();
@@ -124,14 +107,8 @@ let runCounter = 0;
 
 beforeAll(async () => {
   vi.useRealTimers();
-<<<<<<< HEAD
   ({ runEmbeddedPiAgent } = await import("./pi-embedded-runner.js"));
   tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-embedded-agent-"));
-=======
-  ({ runEmbeddedPiAgent } = await import("./pi-embedded-runner/run.js"));
-  ({ SessionManager } = await import("@mariozechner/pi-coding-agent"));
-  tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-embedded-agent-"));
->>>>>>> a9b26d83d (perf(test): narrow pi-embedded runner e2e import path)
   agentDir = path.join(tempRoot, "agent");
   workspaceDir = path.join(tempRoot, "workspace");
   await fs.mkdir(agentDir, { recursive: true });
@@ -168,11 +145,8 @@ const makeOpenAiConfig = (modelIds: string[]) =>
     },
   }) satisfies MoltbotConfig;
 
-<<<<<<< HEAD
 const ensureModels = (cfg: MoltbotConfig) => ensureMoltbotModelsJson(cfg, agentDir) as unknown;
 
-=======
->>>>>>> 47514e35a (test: dedupe pi embedded runner setup and orphan case)
 const nextSessionFile = () => {
   sessionCounter += 1;
   return path.join(workspaceDir, `session-${sessionCounter}.jsonl`);
@@ -253,7 +227,6 @@ const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string, sessi
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 describe("runEmbeddedPiAgent", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -311,55 +284,19 @@ describe("runEmbeddedPiAgent", () => {
       const sessionFile = nextSessionFile();
       const cfg = makeOpenAiConfig(["mock-1"]);
       await ensureModels(cfg);
-=======
-  it("falls back to per-agent workspace when runtime workspaceDir is missing", async () => {
-    const sessionFile = nextSessionFile();
-    const fallbackWorkspace = path.join(tempRoot ?? os.tmpdir(), "workspace-fallback-main");
-    const cfg = {
-      ...makeOpenAiConfig(["mock-1"]),
-      agents: {
-        defaults: {
-          workspace: fallbackWorkspace,
-        },
-      },
-    } satisfies OpenClawConfig;
-
-    const result = await runEmbeddedPiAgent({
-      sessionId: "session:test-fallback",
-      sessionKey: "agent:main:subagent:fallback-workspace",
-=======
-describe("runEmbeddedPiAgent", () => {
-  it("handles prompt error paths without dropping user state", async () => {
-    const sessionFile = nextSessionFile();
-    const cfg = makeOpenAiConfig(["mock-error"]);
-    const sessionKey = nextSessionKey();
-    const result = await runEmbeddedPiAgent({
-      sessionId: "session:test",
-      sessionKey,
->>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
       sessionFile,
       workspaceDir: undefined as unknown as string,
       config: cfg,
-<<<<<<< HEAD
       prompt: "hello",
       provider: "openai",
       model: "mock-1",
       timeoutMs: 5_000,
       agentDir,
       runId: "run-fallback-workspace",
-=======
-      prompt: "boom",
-      provider: "openai",
-      model: "mock-error",
-      timeoutMs: 5_000,
-      agentDir,
-      runId: nextRunId("prompt-error"),
->>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
       enqueue: immediateEnqueue,
     });
     expect(result.payloads?.[0]?.isError).toBe(true);
 
-<<<<<<< HEAD
     expect(result.payloads?.[0]?.text).toBe("ok");
     await expect(fs.stat(fallbackWorkspace)).resolves.toBeTruthy();
   });
@@ -421,9 +358,6 @@ describe("runEmbeddedPiAgent", () => {
       agentDir,
       enqueue: immediateEnqueue,
     });
-=======
-    await runDefaultEmbeddedTurn(sessionFile, "hello");
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     const messages = await readSessionMessages(sessionFile);
     const firstUserIndex = messages.findIndex(
@@ -467,16 +401,10 @@ describe("runEmbeddedPiAgent", () => {
       (message) => message?.role === "user" && textFromContent(message.content) === "boom",
     );
     expect(userIndex).toBeGreaterThanOrEqual(0);
-<<<<<<< HEAD
   });
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-  it("persists prompt transport errors as transcript entries", async () => {
-=======
-  it("fails fast on prompt transport errors", async () => {
->>>>>>> eda941f39 (perf(test): remove flaky transport timeout and dedupe safeBins checks)
     const sessionFile = nextSessionFile();
     const cfg = makeOpenAiConfig(["mock-throw"]);
 

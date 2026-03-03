@@ -10,7 +10,6 @@ import {
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const _MAIN_SESSION_KEY = "agent:main:main";
 
 const webMocks = vi.hoisted(() => ({
@@ -52,15 +51,6 @@ function makeCfg(home: string) {
 afterEach(() => {
   vi.restoreAllMocks();
 });
-=======
-=======
-let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
-installTriggerHandlingReplyHarness((loader) => {
-  getReplyFromConfig = loader;
-});
-
-<<<<<<< HEAD
->>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
@@ -152,17 +142,12 @@ describe("trigger handling", () => {
           GroupMembers: "Alice (+1), Bob (+2)",
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
 <<<<<<< HEAD
               model: "anthropic/claude-opus-4-5",
               workspace: join(home, "clawd"),
-=======
-              model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: join(home, "openclaw"),
->>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
             },
           },
           channels: {
@@ -189,7 +174,6 @@ describe("trigger handling", () => {
       expect(extra).toContain("Activation: always-on");
     });
   });
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   it("runs a greeting prompt for a bare /new", async () => {
@@ -233,9 +217,6 @@ describe("trigger handling", () => {
       expect(getRunEmbeddedPiAgentMock()).toHaveBeenCalledOnce();
       const prompt = getRunEmbeddedPiAgentMock().mock.calls[0]?.[0]?.prompt ?? "";
       expect(prompt).toContain("A new session was started via /new or /reset");
-=======
-      await runGreetingPromptForBareNewOrReset({ home, body: "/new", getReplyFromConfig });
->>>>>>> 516cbf436 (refactor(test): dedupe trigger greeting prompt cases)
     });
   });
 =======

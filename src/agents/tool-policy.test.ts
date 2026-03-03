@@ -1,14 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 import type { AnyAgentTool } from "./tools/common.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { SandboxToolPolicy } from "./sandbox/types.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AnyAgentTool } from "./tools/common.js";
 import { isToolAllowed, resolveSandboxToolPolicyForAgent } from "./sandbox/tool-policy.js";

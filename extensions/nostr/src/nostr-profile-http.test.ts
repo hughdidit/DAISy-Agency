@@ -245,13 +245,10 @@ describe("nostr-profile-http", () => {
       await expectPrivatePictureRejected("https://127.0.0.1/evil.jpg");
     });
 
-<<<<<<< HEAD
-=======
     it("rejects ISATAP-embedded private IPv4 in picture URL", async () => {
       await expectPrivatePictureRejected("https://[2001:db8:1234::5efe:127.0.0.1]/evil.jpg");
     });
 
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
     it("rejects non-https URLs", async () => {
       const ctx = createMockContext();
       const handler = createNostrProfileHttpHandler(ctx);

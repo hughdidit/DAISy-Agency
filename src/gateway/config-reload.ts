@@ -3,11 +3,7 @@ import chokidar from "chokidar";
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import type { OpenClawConfig, ConfigFileSnapshot, GatewayReloadMode } from "../config/config.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
-<<<<<<< HEAD
 import type { MoltbotConfig, ConfigFileSnapshot, GatewayReloadMode } from "../config/config.js";
-=======
-import { isPlainObject } from "../utils.js";
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 
 export type GatewayReloadSettings = {
   mode: GatewayReloadMode;
@@ -257,13 +253,8 @@ export type GatewayConfigReloader = {
 export function startGatewayConfigReloader(opts: {
   initialConfig: MoltbotConfig;
   readSnapshot: () => Promise<ConfigFileSnapshot>;
-<<<<<<< HEAD
   onHotReload: (plan: GatewayReloadPlan, nextConfig: MoltbotConfig) => Promise<void>;
   onRestart: (plan: GatewayReloadPlan, nextConfig: MoltbotConfig) => void;
-=======
-  onHotReload: (plan: GatewayReloadPlan, nextConfig: OpenClawConfig) => Promise<void>;
-  onRestart: (plan: GatewayReloadPlan, nextConfig: OpenClawConfig) => void | Promise<void>;
->>>>>>> b50c4c2c4 (Gateway: add eager secrets runtime snapshot activation)
   log: {
     info: (msg: string) => void;
     warn: (msg: string) => void;
@@ -291,8 +282,6 @@ export function startGatewayConfigReloader(opts: {
       void runReload();
     }, wait);
   };
-<<<<<<< HEAD
-=======
   const schedule = () => {
     scheduleAfter(settings.debounceMs);
   };
@@ -372,7 +361,6 @@ export function startGatewayConfigReloader(opts: {
 
     await opts.onHotReload(plan, nextConfig);
   };
->>>>>>> 39be5e44d (refactor: split config reload flow and test harness)
 
   const runReload = async () => {
     if (stopped) {
@@ -389,7 +377,6 @@ export function startGatewayConfigReloader(opts: {
     }
     try {
       const snapshot = await opts.readSnapshot();
-<<<<<<< HEAD
       if (!snapshot.exists) {
         opts.log.warn("config reload skipped (config file not found; may be mid-write)");
         return;
@@ -397,12 +384,6 @@ export function startGatewayConfigReloader(opts: {
       if (!snapshot.valid) {
         const issues = snapshot.issues.map((issue) => `${issue.path}: ${issue.message}`).join(", ");
         opts.log.warn(`config reload skipped (invalid config): ${issues}`);
-=======
-      if (handleMissingSnapshot(snapshot)) {
-        return;
-      }
-      if (handleInvalidSnapshot(snapshot)) {
->>>>>>> 39be5e44d (refactor: split config reload flow and test harness)
         return;
       }
       await applySnapshot(snapshot.config);

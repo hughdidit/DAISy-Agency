@@ -5,16 +5,7 @@
  * These commands are processed before built-in commands and before agent invocation.
  */
 
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { logVerbose } from "../globals.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -253,15 +244,7 @@ export async function executePluginCommand(params: {
   channelId?: PluginCommandContext["channelId"];
   isAuthorizedSender: boolean;
   commandBody: string;
-<<<<<<< HEAD
   config: MoltbotConfig;
-=======
-  config: OpenClawConfig;
-  from?: PluginCommandContext["from"];
-  to?: PluginCommandContext["to"];
-  accountId?: PluginCommandContext["accountId"];
-  messageThreadId?: PluginCommandContext["messageThreadId"];
->>>>>>> 730f86dd5 (Gateway/Plugins: device pairing + phone control plugins (#11755))
 }): Promise<PluginCommandResult> {
   const { command, args, senderId, channel, isAuthorizedSender, commandBody, config } = params;
 

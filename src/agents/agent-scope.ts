@@ -1,11 +1,6 @@
 import path from "node:path";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { resolveAgentModelFallbackValues } from "../config/model-input.js";
->>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 import { resolveStateDir } from "../config/paths.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
@@ -47,11 +42,7 @@ type ResolvedAgentConfig = {
 
 let defaultAgentWarned = false;
 
-<<<<<<< HEAD
 function listAgents(cfg: MoltbotConfig): AgentEntry[] {
-=======
-export function listAgentEntries(cfg: OpenClawConfig): AgentEntry[] {
->>>>>>> 8b17a369e (refactor(agents): share agent entry and block reply payload types)
   const list = cfg.agents?.list;
   if (!Array.isArray(list)) {
     return [];
@@ -59,13 +50,8 @@ export function listAgentEntries(cfg: OpenClawConfig): AgentEntry[] {
   return list.filter((entry): entry is AgentEntry => Boolean(entry && typeof entry === "object"));
 }
 
-<<<<<<< HEAD
 export function listAgentIds(cfg: MoltbotConfig): string[] {
   const agents = listAgents(cfg);
-=======
-export function listAgentIds(cfg: OpenClawConfig): string[] {
-  const agents = listAgentEntries(cfg);
->>>>>>> 8b17a369e (refactor(agents): share agent entry and block reply payload types)
   if (agents.length === 0) {
     return [DEFAULT_AGENT_ID];
   }
@@ -82,13 +68,8 @@ export function listAgentIds(cfg: OpenClawConfig): string[] {
   return ids.length > 0 ? ids : [DEFAULT_AGENT_ID];
 }
 
-<<<<<<< HEAD
 export function resolveDefaultAgentId(cfg: MoltbotConfig): string {
   const agents = listAgents(cfg);
-=======
-export function resolveDefaultAgentId(cfg: OpenClawConfig): string {
-  const agents = listAgentEntries(cfg);
->>>>>>> 8b17a369e (refactor(agents): share agent entry and block reply payload types)
   if (agents.length === 0) {
     return DEFAULT_AGENT_ID;
   }
@@ -101,15 +82,7 @@ export function resolveDefaultAgentId(cfg: OpenClawConfig): string {
   return normalizeAgentId(chosen || DEFAULT_AGENT_ID);
 }
 
-<<<<<<< HEAD
 export function resolveSessionAgentIds(params: { sessionKey?: string; config?: MoltbotConfig }): {
-=======
-export function resolveSessionAgentIds(params: {
-  sessionKey?: string;
-  config?: OpenClawConfig;
-  agentId?: string;
-}): {
->>>>>>> 394a1af70 (fix(exec): apply per-agent exec defaults for opaque session keys)
   defaultAgentId: string;
   sessionAgentId: string;
 } {
@@ -166,19 +139,7 @@ export function resolveAgentConfig(
   };
 }
 
-<<<<<<< HEAD
 export function resolveAgentModelPrimary(cfg: MoltbotConfig, agentId: string): string | undefined {
-=======
-export function resolveAgentSkillsFilter(
-  cfg: OpenClawConfig,
-  agentId: string,
-): string[] | undefined {
-  return normalizeSkillFilter(resolveAgentConfig(cfg, agentId)?.skills);
-}
-
-<<<<<<< HEAD
-export function resolveAgentModelPrimary(cfg: OpenClawConfig, agentId: string): string | undefined {
->>>>>>> 2a68bcbeb (feat(ui): add Agents dashboard)
   const raw = resolveAgentConfig(cfg, agentId)?.model;
   if (!raw) {
 =======
@@ -238,46 +199,7 @@ export function resolveAgentModelFallbacksOverride(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export function resolveAgentWorkspaceDir(cfg: MoltbotConfig, agentId: string) {
-=======
-=======
-export function resolveFallbackAgentId(params: {
-  agentId?: string | null;
-  sessionKey?: string | null;
-}): string {
-  const explicitAgentId = typeof params.agentId === "string" ? params.agentId.trim() : "";
-  if (explicitAgentId) {
-    return normalizeAgentId(explicitAgentId);
-  }
-  return resolveAgentIdFromSessionKey(params.sessionKey);
-}
-
-export function resolveRunModelFallbacksOverride(params: {
-  cfg: OpenClawConfig | undefined;
-  agentId?: string | null;
-  sessionKey?: string | null;
-}): string[] | undefined {
-  if (!params.cfg) {
-    return undefined;
-  }
-  return resolveAgentModelFallbacksOverride(
-    params.cfg,
-    resolveFallbackAgentId({ agentId: params.agentId, sessionKey: params.sessionKey }),
-  );
-}
-
-export function hasConfiguredModelFallbacks(params: {
-  cfg: OpenClawConfig | undefined;
-  agentId?: string | null;
-  sessionKey?: string | null;
-}): boolean {
-  const fallbacksOverride = resolveRunModelFallbacksOverride(params);
-  const defaultFallbacks = resolveAgentModelFallbackValues(params.cfg?.agents?.defaults?.model);
-  return (fallbacksOverride ?? defaultFallbacks).length > 0;
-}
-
->>>>>>> 9beec48e9 (refactor(agents): centralize model fallback resolution)
 export function resolveEffectiveModelFallbacks(params: {
   cfg: OpenClawConfig;
   agentId: string;
@@ -306,13 +228,7 @@ export function resolveAgentWorkspaceDir(cfg: OpenClawConfig, agentId: string) {
     }
     return stripNullBytes(resolveDefaultAgentWorkspaceDir(process.env));
   }
-<<<<<<< HEAD
   return path.join(os.homedir(), `clawd-${id}`);
-=======
-  const stateDir = resolveStateDir(process.env);
-<<<<<<< HEAD
-  return path.join(stateDir, `workspace-${id}`);
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 =======
   return stripNullBytes(path.join(stateDir, `workspace-${id}`));
 >>>>>>> 19c43eade (fix(memory): strip null bytes from workspace paths causing ENOTDIR (#24876))

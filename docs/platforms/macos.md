@@ -4,12 +4,7 @@ read_when:
   - Implementing macOS app features
   - Changing gateway lifecycle or node bridging on macOS
 ---
-<<<<<<< HEAD
 # Moltbot macOS Companion (menu bar + gateway broker)
-=======
-
-# OpenClaw macOS Companion (menu bar + gateway broker)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 The macOS app is the **menu‑bar companion** for Moltbot. It owns permissions,
 manages/attaches to the Gateway locally (launchd or manual), and exposes macOS
@@ -37,13 +32,8 @@ capabilities to the agent as a node.
 
 ## Launchd control
 
-<<<<<<< HEAD
 The app manages a per‑user LaunchAgent labeled `bot.molt.gateway`
 (or `bot.molt.<profile>` when using `--profile`/`CLAWDBOT_PROFILE`; legacy `com.clawdbot.*` still unloads).
-=======
-The app manages a per‑user LaunchAgent labeled `ai.openclaw.gateway`
-(or `ai.openclaw.<profile>` when using `--profile`/`OPENCLAW_PROFILE`; legacy `com.openclaw.*` still unloads).
->>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 
 ```bash
 launchctl kickstart -k gui/$UID/ai.openclaw.gateway
@@ -142,17 +132,10 @@ Safety:
 
 ## Onboarding flow (typical)
 
-<<<<<<< HEAD
 1) Install and launch **Moltbot.app**.
 2) Complete the permissions checklist (TCC prompts).
 3) Ensure **Local** mode is active and the Gateway is running.
 4) Install the CLI if you want terminal access.
-=======
-1. Install and launch **OpenClaw.app**.
-2. Complete the permissions checklist (TCC prompts).
-3. Ensure **Local** mode is active and the Gateway is running.
-4. Install the CLI if you want terminal access.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## State dir placement (macOS)
 

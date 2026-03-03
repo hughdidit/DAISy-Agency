@@ -47,8 +47,6 @@ describe("applyReplyThreading auto-injects replyToCurrent", () => {
     expect(result).toHaveLength(1);
     expect(result[0].replyToId).toBeUndefined();
   });
-<<<<<<< HEAD
-=======
 
   it("does not bypass off mode for Slack when reply is implicit", () => {
     const result = applyReplyThreading({
@@ -87,5 +85,4 @@ describe("applyReplyThreading auto-injects replyToCurrent", () => {
     expect(result[0].replyToId).toBe("42");
     expect(result[0].replyToTag).toBe(true);
   });
->>>>>>> 7b39543e8 (fix(reply): honour explicit [[reply_to_*]] tags when replyToMode is off (#16174))
 });

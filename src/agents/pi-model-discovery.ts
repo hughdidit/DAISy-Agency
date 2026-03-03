@@ -10,27 +10,12 @@ import { resolvePiCredentialMapFromStore, type PiCredentialMap } from "./pi-auth
 
 export { AuthStorage, ModelRegistry } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
 // Compatibility helpers for pi-coding-agent 0.50+ (discover* helpers removed).
 export function discoverAuthStorage(agentDir: string): AuthStorage {
   return new AuthStorage(path.join(agentDir, "auth.json"));
-=======
-type PiApiKeyCredential = { type: "api_key"; key: string };
-type PiOAuthCredential = {
-  type: "oauth";
-  access: string;
-  refresh: string;
-  expires: number;
-};
-
-type PiCredential = PiApiKeyCredential | PiOAuthCredential;
-type PiCredentialMap = Record<string, PiCredential>;
-
-=======
->>>>>>> cec404225 (Auth labels: handle token refs and share Pi credential conversion)
 =======
 >>>>>>> 301fe1890 (Agents: inject pi auth storage from runtime profiles)
 =======
@@ -129,14 +114,8 @@ function resolvePiCredentials(agentDir: string): PiCredentialMap {
 // Compatibility helpers for pi-coding-agent 0.50+ (discover* helpers removed).
 export function discoverAuthStorage(agentDir: string): AuthStorage {
   const credentials = resolvePiCredentials(agentDir);
-<<<<<<< HEAD
   return createAuthStorage(AuthStorage, path.join(agentDir, "auth.json"), credentials);
 >>>>>>> 4c5a2c3c6 (Agents: inject pi auth storage from runtime profiles)
-=======
-  const authPath = path.join(agentDir, "auth.json");
-  scrubLegacyStaticAuthJsonEntries(authPath);
-  return createAuthStorage(AuthStorage, authPath, credentials);
->>>>>>> 4807e40cb (Agents: restore auth.json static scrub during pi auth discovery)
 }
 
 export function discoverModels(authStorage: AuthStorage, agentDir: string): ModelRegistry {

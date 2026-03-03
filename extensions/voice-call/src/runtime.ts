@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import type { CoreConfig } from "./core-bridge.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { VoiceCallConfig } from "./config.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { CoreConfig } from "./core-bridge.js";
@@ -12,8 +8,6 @@ import { CallManager } from "./manager.js";
 <<<<<<< HEAD
 import type { Logger } from "./manager/context.js";
 import { defaultLogger } from "./manager/context.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 950f36fef (revert(voice-call): undo oxfmt formatting pass)
 import type { VoiceCallProvider } from "./providers/base.js";
@@ -55,8 +49,6 @@ export type VoiceCallRuntime = {
   stop: () => Promise<void>;
 };
 
-<<<<<<< HEAD
-=======
 type Logger = {
   info: (message: string) => void;
   warn: (message: string) => void;
@@ -64,7 +56,6 @@ type Logger = {
   debug?: (message: string) => void;
 };
 
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 function isLoopbackBind(bind: string | undefined): boolean {
   if (!bind) {
     return false;
@@ -139,7 +130,6 @@ export async function createVoiceCallRuntime(params: {
     throw new Error(`Invalid voice-call config: ${validation.errors.join("; ")}`);
   }
 
-<<<<<<< HEAD
   const provider = resolveProvider(config, log);
   const manager = new CallManager(config, undefined, log);
   const webhookServer = new VoiceCallWebhookServer(
@@ -149,11 +139,6 @@ export async function createVoiceCallRuntime(params: {
     coreConfig,
     log,
   );
-=======
-  const provider = resolveProvider(config);
-  const manager = new CallManager(config);
-  const webhookServer = new VoiceCallWebhookServer(config, manager, provider, coreConfig);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   const localUrl = await webhookServer.start();
 

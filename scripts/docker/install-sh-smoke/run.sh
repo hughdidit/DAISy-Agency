@@ -60,7 +60,6 @@ curl -fsSL "$INSTALL_URL" | bash
 
 echo "==> Verify installed version"
 CLI_NAME="$PACKAGE_NAME"
-<<<<<<< HEAD
 if ! command -v "$CLI_NAME" >/dev/null 2>&1; then
   if command -v "$ALT_PACKAGE_NAME" >/dev/null 2>&1; then
     CLI_NAME="$ALT_PACKAGE_NAME"
@@ -70,22 +69,6 @@ if ! command -v "$CLI_NAME" >/dev/null 2>&1; then
     echo "ERROR: neither $PACKAGE_NAME nor $ALT_PACKAGE_NAME is on PATH" >&2
     exit 1
   fi
-=======
-CMD_PATH="$(command -v "$CLI_NAME" || true)"
-if [[ -z "$CMD_PATH" && -x "$HOME/.npm-global/bin/$PACKAGE_NAME" ]]; then
-  CMD_PATH="$HOME/.npm-global/bin/$PACKAGE_NAME"
-fi
-ENTRY_PATH=""
-if [[ -z "$CMD_PATH" ]]; then
-  NPM_ROOT="$(npm root -g 2>/dev/null || true)"
-  if [[ -n "$NPM_ROOT" && -f "$NPM_ROOT/$PACKAGE_NAME/dist/entry.js" ]]; then
-    ENTRY_PATH="$NPM_ROOT/$PACKAGE_NAME/dist/entry.js"
-  fi
-fi
-if [[ -z "$CMD_PATH" && -z "$ENTRY_PATH" ]]; then
-  echo "ERROR: $PACKAGE_NAME is not on PATH" >&2
-  exit 1
->>>>>>> 48ddb1cc8 (fix(ci): stabilize install smoke in docker)
 fi
 if [[ -n "${CLAWDBOT_INSTALL_LATEST_OUT:-}" ]]; then
   printf "%s" "$LATEST_VERSION" > "$CLAWDBOT_INSTALL_LATEST_OUT"

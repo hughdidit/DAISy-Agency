@@ -59,15 +59,8 @@ function candidateBinDirs(opts: EnsureMoltbotPathOpts): string[] {
   // Bundled macOS app: `moltbot` lives next to the executable (process.execPath).
   try {
     const execDir = path.dirname(execPath);
-<<<<<<< HEAD
     const siblingMoltbot = path.join(execDir, "moltbot");
     if (isExecutable(siblingMoltbot)) candidates.push(execDir);
-=======
-    const siblingCli = path.join(execDir, "openclaw");
-    if (isExecutable(siblingCli)) {
-      candidates.push(execDir);
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   } catch {
     // ignore
   }
@@ -75,13 +68,7 @@ function candidateBinDirs(opts: EnsureMoltbotPathOpts): string[] {
   // Project-local installs (best effort): if a `node_modules/.bin/moltbot` exists near cwd,
   // include it. This helps when running under launchd or other minimal PATH environments.
   const localBinDir = path.join(cwd, "node_modules", ".bin");
-<<<<<<< HEAD
   if (isExecutable(path.join(localBinDir, "moltbot"))) candidates.push(localBinDir);
-=======
-  if (isExecutable(path.join(localBinDir, "openclaw"))) {
-    candidates.push(localBinDir);
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   const miseDataDir = process.env.MISE_DATA_DIR ?? path.join(homeDir, ".local", "share", "mise");
   const miseShims = path.join(miseDataDir, "shims");

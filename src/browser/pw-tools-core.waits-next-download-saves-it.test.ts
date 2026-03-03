@@ -209,8 +209,6 @@ describe("pw-tools-core", () => {
     expect(path.normalize(res.path)).toContain(path.normalize(expectedDownloadsTail));
     expect(tmpDirMocks.resolvePreferredOpenClawTmpDir).toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
 
   it("sanitizes suggested download filenames to prevent traversal escapes", async () => {
     tmpDirMocks.resolvePreferredOpenClawTmpDir.mockReturnValue("/tmp/openclaw-preferred");
@@ -227,7 +225,6 @@ describe("pw-tools-core", () => {
       path.normalize(`${path.join("tmp", "openclaw-preferred", "downloads")}${path.sep}`),
     );
   });
->>>>>>> 09fa33f7e (refactor(test): share pw-tools-core test setup)
   it("waits for a matching response and returns its body", async () => {
     let responseHandler: ((resp: unknown) => void) | undefined;
     const on = vi.fn((event: string, handler: (resp: unknown) => void) => {

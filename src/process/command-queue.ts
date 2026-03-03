@@ -1,19 +1,5 @@
 import { CommandLane } from "./lanes.js";
-<<<<<<< HEAD
 import { diagnosticLogger as diag, logLaneDequeue, logLaneEnqueue } from "../logging/diagnostic.js";
-=======
-/**
- * Dedicated error type thrown when a queued command is rejected because
- * its lane was cleared.  Callers that fire-and-forget enqueued tasks can
- * catch (or ignore) this specific type to avoid unhandled-rejection noise.
- */
-export class CommandLaneClearedError extends Error {
-  constructor(lane?: string) {
-    super(lane ? `Command lane "${lane}" cleared` : "Command lane cleared");
-    this.name = "CommandLaneClearedError";
-  }
-}
->>>>>>> a5ccfa57a (refactor(process): use dedicated CommandLaneClearedError in clearCommandLane)
 
 /**
  * Dedicated error type thrown when a new command is rejected because the
@@ -85,7 +71,6 @@ function drainLane(lane: string) {
   state.draining = true;
 
   const pump = () => {
-<<<<<<< HEAD
     while (state.active < state.maxConcurrent && state.queue.length > 0) {
       const entry = state.queue.shift() as QueueEntry;
       const waitedMs = Date.now() - entry.enqueuedAt;
@@ -121,21 +106,6 @@ function drainLane(lane: string) {
           }
           pump();
           entry.reject(err);
-=======
-    try {
-      while (state.activeTaskIds.size < state.maxConcurrent && state.queue.length > 0) {
-        const entry = state.queue.shift() as QueueEntry;
-        const waitedMs = Date.now() - entry.enqueuedAt;
-        if (waitedMs >= entry.warnAfterMs) {
-          try {
-            entry.onWait?.(waitedMs, state.queue.length);
-          } catch (err) {
-            diag.error(`lane onWait callback failed: lane=${lane} error="${String(err)}"`);
-          }
-          diag.warn(
-            `lane wait exceeded: lane=${lane} waitedMs=${waitedMs} queueAhead=${state.queue.length}`,
-          );
->>>>>>> c397a02c9 (fix(queue): harden drain/abort/timeout race handling)
         }
         logLaneDequeue(lane, waitedMs, state.queue.length);
         const taskId = nextTaskId++;
@@ -261,8 +231,6 @@ export function clearCommandLane(lane: string = CommandLane.Main) {
 }
 
 /**
-<<<<<<< HEAD
-=======
  * Reset all lane runtime state to idle. Used after SIGUSR1 in-process
  * restarts where interrupted tasks' finally blocks may not run, leaving
  * stale active task IDs that permanently block new work from draining.
@@ -294,7 +262,6 @@ export function resetAllLanes(): void {
 }
 
 /**
->>>>>>> c397a02c9 (fix(queue): harden drain/abort/timeout race handling)
  * Returns the total number of actively executing tasks across all lanes
  * (excludes queued-but-not-started entries).
  */

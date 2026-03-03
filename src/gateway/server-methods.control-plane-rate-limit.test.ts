@@ -127,8 +127,6 @@ describe("gateway control-plane write rate limit", () => {
     expect(allowed).toHaveBeenCalledWith(true, undefined, undefined);
     expect(handlerCalls).toHaveBeenCalledTimes(4);
   });
-<<<<<<< HEAD
-=======
 
   it("uses connId fallback when both device and client IP are unknown", () => {
     const key = resolveControlPlaneRateLimitKey({
@@ -146,5 +144,4 @@ describe("gateway control-plane write rate limit", () => {
     });
     expect(key).toBe("unknown-device|10.0.0.10");
   });
->>>>>>> 2dcb24498 (refactor(test): dedupe gateway and web scaffolding)
 });

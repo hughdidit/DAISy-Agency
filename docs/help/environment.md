@@ -12,19 +12,11 @@ Moltbot pulls environment variables from multiple sources. The rule is **never o
 
 ## Precedence (highest → lowest)
 
-<<<<<<< HEAD
 1) **Process environment** (what the Gateway process already has from the parent shell/daemon).
 2) **`.env` in the current working directory** (dotenv default; does not override).
 3) **Global `.env`** at `~/.clawdbot/.env` (aka `$CLAWDBOT_STATE_DIR/.env`; does not override).
 4) **Config `env` block** in `~/.clawdbot/moltbot.json` (applied only if missing).
 5) **Optional login-shell import** (`env.shellEnv.enabled` or `CLAWDBOT_LOAD_SHELL_ENV=1`), applied only for missing expected keys.
-=======
-1. **Process environment** (what the Gateway process already has from the parent shell/daemon).
-2. **`.env` in the current working directory** (dotenv default; does not override).
-3. **Global `.env`** at `~/.openclaw/.env` (aka `$OPENCLAW_STATE_DIR/.env`; does not override).
-4. **Config `env` block** in `~/.openclaw/openclaw.json` (applied only if missing).
-5. **Optional login-shell import** (`env.shellEnv.enabled` or `OPENCLAW_LOAD_SHELL_ENV=1`), applied only for missing expected keys.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 If the config file is missing entirely, step 4 is skipped; shell import still runs if enabled.
 
@@ -59,14 +51,8 @@ Two equivalent ways to set inline env vars (both are non-overriding):
 ```
 
 Env var equivalents:
-<<<<<<< HEAD
 - `CLAWDBOT_LOAD_SHELL_ENV=1`
 - `CLAWDBOT_SHELL_ENV_TIMEOUT_MS=15000`
-=======
-
-- `OPENCLAW_LOAD_SHELL_ENV=1`
-- `OPENCLAW_SHELL_ENV_TIMEOUT_MS=15000`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Runtime-injected env vars
 
@@ -98,8 +84,6 @@ You can reference env vars directly in config string values using `${VAR_NAME}` 
 
 See [Configuration: Env var substitution](/gateway/configuration#env-var-substitution-in-config) for full details.
 
-<<<<<<< HEAD
-=======
 ## Secret refs vs `${ENV}` strings
 
 OpenClaw supports two env-driven patterns:
@@ -109,7 +93,6 @@ OpenClaw supports two env-driven patterns:
 
 Both resolve from process env at activation time. SecretRef details are documented in [Secrets Management](/gateway/secrets).
 
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 ## Path-related env vars
 
 | Variable               | Purpose                                                                                                                                                                          |

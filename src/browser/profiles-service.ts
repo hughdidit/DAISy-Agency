@@ -1,15 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 
 import type { BrowserProfileConfig, MoltbotConfig } from "../config/config.js";
-=======
-import type { BrowserProfileConfig, OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { BrowserRouteContext, ProfileStatus } from "./server-context.js";
 >>>>>>> ed11e93cf (chore(format))

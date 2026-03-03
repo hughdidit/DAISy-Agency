@@ -150,8 +150,6 @@ describe("web_fetch extraction fallbacks", () => {
     vi.restoreAllMocks();
   });
 
-<<<<<<< HEAD
-=======
   it("wraps fetched text with external content markers", async () => {
     installMockFetch((input: RequestInfo | URL) =>
       Promise.resolve({
@@ -262,7 +260,6 @@ describe("web_fetch extraction fallbacks", () => {
   // NOTE: Test for wrapping url/finalUrl/warning fields requires DNS mocking.
   // The sanitization of these fields is verified by external-content.test.ts tests.
 
->>>>>>> 74c49c943 (refactor(test): share web fetch e2e setup helpers)
   it("falls back to firecrawl when readability returns no content", async () => {
     installMockFetch((input: RequestInfo | URL) => {
       const url = requestUrl(input);
@@ -438,41 +435,8 @@ describe("web_fetch extraction fallbacks", () => {
       url: "https://example.com/oops",
     });
 
-<<<<<<< HEAD
     await expect(tool?.execute?.("call", { url: "https://example.com/oops" })).rejects.toThrow(
       /Web fetch failed \(500\):.*Oops/,
     );
-=======
-    expect(message).toContain("Web fetch failed (500):");
-    expect(message).toContain("<<<EXTERNAL_UNTRUSTED_CONTENT>>>");
-    expect(message).toContain("Oops");
-  });
-
-  it("wraps firecrawl error details", async () => {
-    installMockFetch((input: RequestInfo | URL) => {
-      const url = requestUrl(input);
-      if (url.includes("api.firecrawl.dev")) {
-        return Promise.resolve({
-          ok: false,
-          status: 403,
-          json: async () => ({ success: false, error: "blocked" }),
-        } as Response);
-      }
-      return Promise.reject(new Error("network down"));
-    });
-
-    const tool = createFetchTool({
-      firecrawl: { apiKey: "firecrawl-test" },
-    });
-
-    const message = await captureToolErrorMessage({
-      tool,
-      url: "https://example.com/firecrawl-error",
-    });
-
-    expect(message).toContain("Firecrawl fetch failed (403):");
-    expect(message).toContain("<<<EXTERNAL_UNTRUSTED_CONTENT>>>");
-    expect(message).toContain("blocked");
->>>>>>> 74c49c943 (refactor(test): share web fetch e2e setup helpers)
   });
 });

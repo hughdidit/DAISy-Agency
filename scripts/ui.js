@@ -84,13 +84,9 @@ function createSpawnOptions(cmd, args, envOverride) {
   return {
     cwd: uiDir,
     stdio: "inherit",
-<<<<<<< HEAD
     env: process.env,
 <<<<<<< HEAD
     shell: process.platform === "win32",
-=======
-    shell: isWindows,
->>>>>>> b60b44b42 (fix(scripts): fix spawn EINVAL error on Windows in ui.js)
   });
 =======
     env: envOverride ?? process.env,
@@ -121,7 +117,6 @@ function run(cmd, args) {
 }
 
 function runSync(cmd, args, envOverride) {
-<<<<<<< HEAD
   const isWindows = process.platform === "win32"; // Windows support
   const result = spawnSync(cmd, args, {
     cwd: uiDir,
@@ -129,9 +124,6 @@ function runSync(cmd, args, envOverride) {
     env: envOverride ?? process.env,
 <<<<<<< HEAD
     shell: process.platform === "win32",
-=======
-    shell: isWindows,
->>>>>>> b60b44b42 (fix(scripts): fix spawn EINVAL error on Windows in ui.js)
   });
 =======
   let result;

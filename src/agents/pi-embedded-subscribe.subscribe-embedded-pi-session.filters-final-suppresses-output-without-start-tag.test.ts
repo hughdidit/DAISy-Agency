@@ -37,8 +37,6 @@ describe("subscribeEmbeddedPiSession", () => {
 
     expect(onPartialReply).not.toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
   it("emits agent events on message_end even without <final> tags", () => {
     const { session, emit } = createStubSessionHarness();
 
@@ -53,7 +51,6 @@ describe("subscribeEmbeddedPiSession", () => {
     emitMessageStartAndEndForAssistantText({ emit, text: "Hello world" });
     expectSingleAgentEventText(onAgentEvent.mock.calls, "Hello world");
   });
->>>>>>> e58884925 (refactor(test): reuse pi embedded subscribe session harness)
   it("does not require <final> when enforcement is off", () => {
     const { session, emit } = createStubSessionHarness();
 

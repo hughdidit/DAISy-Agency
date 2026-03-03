@@ -5,58 +5,11 @@ import { buildSubagentSystemPrompt } from "./subagent-announce.js";
 import { buildAgentSystemPrompt, buildRuntimeLine } from "./system-prompt.js";
 
 describe("buildAgentSystemPrompt", () => {
-<<<<<<< HEAD
   it("includes owner numbers when provided", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",
       ownerNumbers: ["+123", " +456 ", ""],
     });
-=======
-  it("formats owner section for plain, hash, and missing owner lists", () => {
-    const cases = typedCases<{
-      name: string;
-      params: Parameters<typeof buildAgentSystemPrompt>[0];
-      expectAuthorizedSection: boolean;
-      contains: string[];
-      notContains: string[];
-      hashMatch?: RegExp;
-    }>([
-      {
-        name: "plain owner numbers",
-        params: {
-          workspaceDir: "/tmp/openclaw",
-          ownerNumbers: ["+123", " +456 ", ""],
-        },
-        expectAuthorizedSection: true,
-        contains: [
-          "Authorized senders: +123, +456. These senders are allowlisted; do not assume they are the owner.",
-        ],
-        notContains: [],
-      },
-      {
-        name: "hashed owner numbers",
-        params: {
-          workspaceDir: "/tmp/openclaw",
-          ownerNumbers: ["+123", "+456", ""],
-          ownerDisplay: "hash",
-        },
-        expectAuthorizedSection: true,
-        contains: ["Authorized senders:"],
-        notContains: ["+123", "+456"],
-        hashMatch: /[a-f0-9]{12}/,
-      },
-      {
-        name: "missing owners",
-        params: {
-          workspaceDir: "/tmp/openclaw",
-        },
-        expectAuthorizedSection: false,
-        contains: [],
-        notContains: ["## Authorized Senders", "Authorized senders:"],
-      },
-<<<<<<< HEAD
-    ] as const;
->>>>>>> f3d4045c0 (test: matrix owner and timezone system-prompt cases)
 =======
     ]);
 >>>>>>> 843a03753 (fix(test): repair readonly case table typing)
@@ -105,7 +58,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(tokenA).not.toBe(tokenB);
   });
 
-<<<<<<< HEAD
   it("omits owner section when numbers are missing", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",
@@ -115,8 +67,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).not.toContain("Authorized senders:");
   });
 
-=======
->>>>>>> f3d4045c0 (test: matrix owner and timezone system-prompt cases)
   it("omits extended sections in minimal prompt mode", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",
@@ -231,8 +181,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("sessions_send");
   });
 
-<<<<<<< HEAD
-=======
   it("documents ACP sessions_spawn agent targeting requirements", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/openclaw",
@@ -282,7 +230,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("- agents_list: List OpenClaw agent ids allowed for sessions_spawn");
   });
 
->>>>>>> 4fc7ecf08 (ACP: force sessions_spawn as the only harness thread creation path (#30957))
   it("preserves tool casing in the prompt", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",
@@ -325,7 +272,6 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Reminder: commit your changes in this workspace after edits.");
   });
 
-<<<<<<< HEAD
   it("includes user timezone when provided (12-hour)", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",
@@ -359,43 +305,6 @@ describe("buildAgentSystemPrompt", () => {
 
     expect(prompt).toContain("## Current Date & Time");
     expect(prompt).toContain("Time zone: America/Chicago");
-=======
-  it("shows timezone section for 12h, 24h, and timezone-only modes", () => {
-    const cases = [
-      {
-        name: "12-hour",
-        params: {
-          workspaceDir: "/tmp/openclaw",
-          userTimezone: "America/Chicago",
-          userTime: "Monday, January 5th, 2026 — 3:26 PM",
-          userTimeFormat: "12" as const,
-        },
-      },
-      {
-        name: "24-hour",
-        params: {
-          workspaceDir: "/tmp/openclaw",
-          userTimezone: "America/Chicago",
-          userTime: "Monday, January 5th, 2026 — 15:26",
-          userTimeFormat: "24" as const,
-        },
-      },
-      {
-        name: "timezone-only",
-        params: {
-          workspaceDir: "/tmp/openclaw",
-          userTimezone: "America/Chicago",
-          userTimeFormat: "24" as const,
-        },
-      },
-    ] as const;
-
-    for (const testCase of cases) {
-      const prompt = buildAgentSystemPrompt(testCase.params);
-      expect(prompt, testCase.name).toContain("## Current Date & Time");
-      expect(prompt, testCase.name).toContain("Time zone: America/Chicago");
-    }
->>>>>>> f3d4045c0 (test: matrix owner and timezone system-prompt cases)
   });
 
   it("hints to use session_status for current date/time", () => {

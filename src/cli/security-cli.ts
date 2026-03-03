@@ -35,16 +35,7 @@ export function registerSecurityCli(program: Command) {
     .addHelpText(
       "after",
       () =>
-<<<<<<< HEAD
         `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/security", "docs.molt.bot/cli/security")}\n`,
-=======
-        `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["openclaw security audit", "Run a local security audit."],
-          ["openclaw security audit --deep", "Include best-effort live Gateway probe checks."],
-          ["openclaw security audit --fix", "Apply safe remediations and file-permission fixes."],
-          ["openclaw security audit --json", "Output machine-readable JSON."],
-        ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/security", "docs.openclaw.ai/cli/security")}\n`,
->>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
     );
 
   security

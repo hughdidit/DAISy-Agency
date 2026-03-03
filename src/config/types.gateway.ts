@@ -85,22 +85,7 @@ export type GatewayControlUiConfig = {
   basePath?: string;
   /** Optional filesystem root for Control UI assets (defaults to dist/control-ui). */
   root?: string;
-<<<<<<< HEAD
   /** Allow token-only auth over insecure HTTP (default: false). */
-=======
-  /** Allowed browser origins for Control UI/WebChat websocket connections. */
-  allowedOrigins?: string[];
-  /**
-   * DANGEROUS: Keep Host-header origin fallback behavior.
-   * Supported long-term for deployments that intentionally rely on this policy.
-   */
-  dangerouslyAllowHostHeaderOriginFallback?: boolean;
-  /**
-   * Insecure-auth toggle.
-   * Control UI still requires secure context + device identity unless
-   * dangerouslyDisableDeviceAuth is enabled.
-   */
->>>>>>> 99048dbec (fix(gateway): align insecure-auth toggle messaging)
   allowInsecureAuth?: boolean;
   /** DANGEROUS: Disable device identity checks for the Control UI (default: false). */
   dangerouslyDisableDeviceAuth?: boolean;
@@ -330,15 +315,6 @@ export type GatewayConfig = {
    */
   trustedProxies?: string[];
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  /**
-   * Allow `x-real-ip` as a fallback only when `x-forwarded-for` is missing.
-   * Default: false (safer fail-closed behavior).
-   */
-  allowRealIpFallback?: boolean;
->>>>>>> be7f82500 (refactor(gateway): harden proxy client ip resolution)
   /** Tool access restrictions for HTTP /tools/invoke endpoint. */
   tools?: GatewayToolsConfig;
   /**

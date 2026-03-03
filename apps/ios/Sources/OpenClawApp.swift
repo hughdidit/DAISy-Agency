@@ -3,10 +3,7 @@ import Foundation
 import os
 import UIKit
 import BackgroundTasks
-<<<<<<< HEAD
-=======
 @preconcurrency import UserNotifications
->>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)
 
 final class OpenClawAppDelegate: NSObject, UIApplicationDelegate {
     private let logger = Logger(subsystem: "ai.openclaw.ios", category: "Push")
@@ -130,8 +127,6 @@ final class OpenClawAppDelegate: NSObject, UIApplicationDelegate {
                 "Background wake refresh finished applied=\(applied, privacy: .public)")
         }
     }
-<<<<<<< HEAD
-=======
 
     private static func isWatchPromptNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
         (userInfo[WatchPromptNotificationBridge.typeKey] as? String) == WatchPromptNotificationBridge.typeValue
@@ -469,7 +464,6 @@ extension NodeAppModel {
             transport: "ios.notification")
         await self._bridgeConsumeMirroredWatchReply(event)
     }
->>>>>>> d06d8701f (iOS: normalize watch quick actions and fix test signing)
 }
 
 @main

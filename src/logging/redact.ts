@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import { createRequire } from "node:module";
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
->>>>>>> 3077c3583 (fix(ui): unblock docker onboarding build)
 =======
 import { resolveNodeRequireFromMeta } from "./node-require.js";
 >>>>>>> b791ac216 (refactor(logging): share node createRequire resolution)
@@ -117,19 +112,10 @@ function redactText(text: string, patterns: RegExp[]): string {
 function resolveConfigRedaction(): RedactOptions {
   let cfg: MoltbotConfig["logging"] | undefined;
   try {
-<<<<<<< HEAD
     const loaded = requireConfig("../config/config.js") as {
       loadConfig?: () => MoltbotConfig;
     };
     cfg = loaded.loadConfig?.().logging;
-=======
-    const loaded = requireConfig?.("../config/config.js") as
-      | {
-          loadConfig?: () => OpenClawConfig;
-        }
-      | undefined;
-    cfg = loaded?.loadConfig?.().logging;
->>>>>>> 3077c3583 (fix(ui): unblock docker onboarding build)
   } catch {
     cfg = undefined;
   }

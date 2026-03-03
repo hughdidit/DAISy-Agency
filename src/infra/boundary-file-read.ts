@@ -1,18 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 import { assertNoPathAliasEscape, type PathAliasPolicy } from "./path-alias-guards.js";
 import { isNotFoundPathError, isPathInside } from "./path-guards.js";
 import { openVerifiedFileSync, type SafeOpenSyncFailureReason } from "./safe-open-sync.js";
-=======
-import { resolveBoundaryPath, resolveBoundaryPathSync } from "./boundary-path.js";
-import type { PathAliasPolicy } from "./path-alias-guards.js";
-import {
-  openVerifiedFileSync,
-  type SafeOpenSyncAllowedType,
-  type SafeOpenSyncFailureReason,
-} from "./safe-open-sync.js";
->>>>>>> 687f5779d (sandbox: allow directory boundary checks for mkdirp)
 
 type BoundaryReadFs = Pick<
   typeof fs,
@@ -144,13 +134,8 @@ function openBoundaryFileResolved(params: {
     resolvedPath: params.resolvedPath,
     rejectHardlinks: params.rejectHardlinks ?? true,
     maxBytes: params.maxBytes,
-<<<<<<< HEAD
     allowedTypes: params.allowedTypes,
     ioFs,
-=======
-    allowedType: params.allowedType,
-    ioFs: params.ioFs,
->>>>>>> dcd19da42 (refactor: simplify sandbox boundary open flow)
   });
   if (!opened.ok) {
     return opened;
@@ -172,13 +157,8 @@ export async function openBoundaryFile(
   let resolvedPath: string;
   let rootRealPath: string;
   try {
-<<<<<<< HEAD
     await assertNoPathAliasEscape({
       absolutePath: params.absolutePath,
-=======
-    const resolved = await resolveBoundaryPath({
-      absolutePath,
->>>>>>> dcd19da42 (refactor: simplify sandbox boundary open flow)
       rootPath: params.rootPath,
       boundaryLabel: params.boundaryLabel,
       policy: params.aliasPolicy,

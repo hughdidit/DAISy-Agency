@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { constants as fsConstants } from "node:fs";
 import type { Stats } from "node:fs";
 <<<<<<< HEAD
@@ -7,9 +6,6 @@ import type { Stats } from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import { constants as fsConstants } from "node:fs";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { Stats } from "node:fs";
 >>>>>>> ed11e93cf (chore(format))
@@ -33,14 +29,11 @@ import type { FileHandle } from "node:fs/promises";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { sameFileIdentity } from "./file-identity.js";
 import { expandHomePrefix } from "./home-dir.js";
 import { assertNoPathAliasEscape } from "./path-alias-guards.js";
 <<<<<<< HEAD
 import { isNotFoundPathError, isPathInside, isSymlinkOpenError } from "./path-guards.js";
->>>>>>> 645d96395 (feat: expand ~ (tilde) to home directory in file tools (read/write/edit) (openclaw#29779) thanks @Glucksberg)
 =======
 import {
   hasNodeErrorCode,
@@ -87,7 +80,6 @@ const OPEN_READ_FLAGS = fsConstants.O_RDONLY | (SUPPORTS_NOFOLLOW ? fsConstants.
 const ensureTrailingSep = (value: string) => (value.endsWith(path.sep) ? value : value + path.sep);
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const isWindows = process.platform === "win32";
 
 const isNodeError = (err: unknown): err is NodeJS.ErrnoException =>
@@ -98,24 +90,6 @@ const isNotFoundError = (err: unknown) =>
 
 const isSymlinkOpenError = (err: unknown) =>
   isNodeError(err) && (err.code === "ELOOP" || err.code === "EINVAL" || err.code === "ENOTSUP");
-=======
-/**
- * Compare file stats for identity verification.
- * On Windows, device IDs (dev) are unreliable and may differ between
- * handle.stat() and fs.lstat() for the same file. We skip dev comparison
- * on Windows and rely solely on inode (ino) matching.
- */
-function statsMatch(stat1: Stats, stat2: Stats): boolean {
-  if (stat1.ino !== stat2.ino) {
-    return false;
-  }
-  // On Windows, dev values are unreliable across different stat sources
-  if (process.platform !== "win32" && stat1.dev !== stat2.dev) {
-    return false;
-  }
-  return true;
-}
->>>>>>> 7455ceecf (fix(windows): skip unreliable dev comparison in fs-safe openVerifiedLocalFile)
 
 async function openVerifiedLocalFile(filePath: string): Promise<SafeOpenResult> {
 =======
@@ -135,24 +109,7 @@ async function openVerifiedLocalFile(
     rejectHardlinks?: boolean;
   },
 ): Promise<SafeOpenResult> {
-<<<<<<< HEAD
 >>>>>>> 645d96395 (feat: expand ~ (tilde) to home directory in file tools (read/write/edit) (openclaw#29779) thanks @Glucksberg)
-=======
-  // Reject directories before opening so we never surface EISDIR to callers (e.g. tool
-  // results that get sent to messaging channels). See openclaw/openclaw#31186.
-  try {
-    const preStat = await fs.lstat(filePath);
-    if (preStat.isDirectory()) {
-      throw new SafeOpenError("not-file", "not a file");
-    }
-  } catch (err) {
-    if (err instanceof SafeOpenError) {
-      throw err;
-    }
-    // ENOENT and other lstat errors: fall through and let fs.open handle.
-  }
-
->>>>>>> 6398a0ba8 (fix(infra): avoid EISDIR leak to messaging when Read targets directory (Closes #31186))
   let handle: FileHandle;
   try {
     handle = await fs.open(filePath, OPEN_READ_FLAGS);
@@ -215,29 +172,17 @@ export async function openFileWithinRoot(params: {
     throw err;
   }
   const rootWithSep = ensureTrailingSep(rootReal);
-<<<<<<< HEAD
   // Precompute case-folded prefix once for the two containment checks.
   const rootPrefix = isWindows ? rootWithSep.toLowerCase() : rootWithSep;
   const withinRoot = (p: string) => (isWindows ? p.toLowerCase() : p).startsWith(rootPrefix);
   const resolved = path.resolve(rootWithSep, params.relativePath);
   if (!withinRoot(resolved)) {
     throw new SafeOpenError("invalid-path", "path escapes root");
-=======
-  const expanded = await expandRelativePathWithHome(params.relativePath);
-  const resolved = path.resolve(rootWithSep, expanded);
-  if (!isPathInside(rootWithSep, resolved)) {
-    throw new SafeOpenError("outside-workspace", "file is outside workspace root");
->>>>>>> 645d96395 (feat: expand ~ (tilde) to home directory in file tools (read/write/edit) (openclaw#29779) thanks @Glucksberg)
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   const supportsNoFollow = !isWindows && "O_NOFOLLOW" in fsConstants;
   const flags = fsConstants.O_RDONLY | (supportsNoFollow ? (fsConstants.O_NOFOLLOW as number) : 0);
-=======
-  const supportsNoFollow = process.platform !== "win32" && "O_NOFOLLOW" in fsConstants;
-  const flags = fsConstants.O_RDONLY | (supportsNoFollow ? fsConstants.O_NOFOLLOW : 0);
->>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
 
   let handle: FileHandle;
 =======
@@ -277,7 +222,6 @@ export async function readLocalFileSafely(params: {
         `file exceeds limit of ${params.maxBytes} bytes (got ${opened.stat.size})`,
       );
     }
-<<<<<<< HEAD
 
     const realPath = await fs.realpath(resolved);
     if (!withinRoot(realPath)) {
@@ -309,13 +253,6 @@ export async function readLocalFileSafely(params: {
       throw new SafeOpenError("not-found", "file not found");
     }
     throw err;
-=======
-    const buffer = await opened.handle.readFile();
-    return { buffer, realPath: opened.realPath, stat: opened.stat };
-  } finally {
-    await opened.handle.close().catch(() => {});
-<<<<<<< HEAD
->>>>>>> bf3f8ec42 (refactor(media): unify safe local file reads)
 =======
   }
 }

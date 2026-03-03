@@ -2,15 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { captureFullEnv } from "../test-utils/env.js";
-<<<<<<< HEAD
-import { resolveSandboxContext } from "./sandbox.js";
-<<<<<<< HEAD
->>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
 =======
 =======
 import { resolveSandboxContext } from "./sandbox/context.js";
@@ -42,7 +34,6 @@ describe("sandbox skill mirroring", () => {
   });
 
   const runContext = async (workspaceAccess: "none" | "ro") => {
-<<<<<<< HEAD
     const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-state-"));
     const bundledDir = path.join(stateDir, "bundled-skills");
     await fs.mkdir(bundledDir, { recursive: true });
@@ -52,12 +43,6 @@ describe("sandbox skill mirroring", () => {
     vi.resetModules();
 
     const { resolveSandboxContext } = await import("./sandbox.js");
-=======
-    const bundledDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-bundled-skills-"));
-    await fs.mkdir(bundledDir, { recursive: true });
-
-    process.env.OPENCLAW_BUNDLED_SKILLS_DIR = bundledDir;
->>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
 
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
     await writeSkill({

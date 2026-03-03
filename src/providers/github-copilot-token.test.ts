@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 const loadJsonFile = vi.fn();
 const saveJsonFile = vi.fn();
@@ -13,12 +12,6 @@ vi.mock("../infra/json-file.js", () => ({
 vi.mock("../config/paths.js", () => ({
   resolveStateDir,
 }));
-=======
-import {
-  deriveCopilotApiBaseUrlFromToken,
-  resolveCopilotApiToken,
-} from "./github-copilot-token.js";
->>>>>>> b272158fe (perf(test): eliminate resetModules via injectable seams)
 
 describe("github-copilot token", () => {
   const loadJsonFile = vi.fn();
@@ -26,14 +19,11 @@ describe("github-copilot token", () => {
   const cachePath = "/tmp/openclaw-state/credentials/github-copilot.token.json";
 
   beforeEach(() => {
-<<<<<<< HEAD
     loadJsonFile.mockReset();
     saveJsonFile.mockReset();
 <<<<<<< HEAD
     resolveStateDir.mockReset();
     resolveStateDir.mockReturnValue("/tmp/moltbot-state");
-=======
->>>>>>> b272158fe (perf(test): eliminate resetModules via injectable seams)
 =======
     loadJsonFile.mockClear();
     saveJsonFile.mockClear();

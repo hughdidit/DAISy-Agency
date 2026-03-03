@@ -283,7 +283,6 @@ export async function downloadMSTeamsGraphMedia(params: {
         for (const att of spAttachments) {
           const name = att.name ?? "file";
 
-<<<<<<< HEAD
         try {
           // SharePoint URLs need to be accessed via Graph shares API
           const shareUrl = att.contentUrl!;
@@ -320,26 +319,6 @@ export async function downloadMSTeamsGraphMedia(params: {
               downloadedReferenceUrls.add(shareUrl);
             }
           }
-=======
-          const media = await downloadAndStoreMSTeamsRemoteMedia({
-            url: sharesUrl,
-            filePathHint: name,
-            maxBytes: params.maxBytes,
-            contentTypeHint: "application/octet-stream",
-            preserveFilenames: params.preserveFilenames,
-            fetchImpl: async (input, init) => {
-              const headers = new Headers(init?.headers);
-              headers.set("Authorization", `Bearer ${accessToken}`);
-              return await fetchFn(resolveRequestUrl(input), {
-                ...init,
-                headers,
-                redirect: "follow",
-              });
-            },
-          });
-          sharePointMedia.push(media);
-          downloadedReferenceUrls.add(shareUrl);
->>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
         } catch {
           // Ignore SharePoint download failures.
 =======

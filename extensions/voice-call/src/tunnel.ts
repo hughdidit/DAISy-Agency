@@ -240,13 +240,9 @@ export async function startTailscaleTunnel(config: {
       clearTimeout(timeout);
       if (code === 0) {
         const publicUrl = `https://${dnsName}${path}`;
-<<<<<<< HEAD
         console.log( // standalone util
           `[voice-call] Tailscale ${config.mode} active: ${publicUrl}`,
         );
-=======
-        console.log(`[voice-call] Tailscale ${config.mode} active: ${publicUrl}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
         resolve({
           publicUrl,

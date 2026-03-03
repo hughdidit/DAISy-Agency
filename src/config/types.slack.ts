@@ -126,7 +126,6 @@ export type SlackAccountConfig = {
   blockStreaming?: boolean;
   /** Merge streamed block replies before sending. */
   blockStreamingCoalesce?: BlockStreamingCoalesceConfig;
-<<<<<<< HEAD
   /**
 <<<<<<< HEAD
    * Enable Slack native text streaming (Agents & AI Apps).
@@ -139,10 +138,6 @@ export type SlackAccountConfig = {
    * Falls back to normal delivery on error or when the message is not in a thread.
    */
   streaming?: boolean;
-=======
-  /** Slack stream preview mode (replace|status_final|append). Default: replace. */
-  streamMode?: SlackStreamMode;
->>>>>>> 89ce1460e (feat(slack): add configurable stream modes)
 =======
    * Stream preview mode:
    * - "off": disable live preview streaming

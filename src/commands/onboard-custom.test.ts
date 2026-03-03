@@ -118,8 +118,6 @@ describe("promptCustomApiConfig", () => {
     expectOpenAiCompatResult({ prompter, textCalls: 5, selectCalls: 2, result });
   });
 
-<<<<<<< HEAD
-=======
   it("uses expanded max_tokens for openai verification probes", async () => {
     const prompter = createTestPrompter({
       text: ["https://example.com/v1", "test-key", "detected-model", "custom", "alias"],
@@ -149,7 +147,6 @@ describe("promptCustomApiConfig", () => {
     expect(JSON.parse(secondCall?.body ?? "{}")).toMatchObject({ max_tokens: 1 });
   });
 
->>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
   it("re-prompts base url when unknown detection fails", async () => {
     const prompter = createTestPrompter({
       text: [
@@ -265,21 +262,7 @@ describe("promptCustomApiConfig", () => {
     });
     stubFetchSequence([{ ok: true }]);
 
-<<<<<<< HEAD
     const result = await runPromptCustomApi(prompter);
-=======
-    const result = await runPromptCustomApi(prompter, {
-      secrets: {
-        providers: {
-          filemain: {
-            source: "file",
-            path: "/tmp/openclaw-missing-provider.json",
-            mode: "json",
-          },
-        },
-      },
-    });
->>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
 
     expect(prompter.note).toHaveBeenCalledWith(
       expect.stringContaining("Could not validate this encrypted file reference."),

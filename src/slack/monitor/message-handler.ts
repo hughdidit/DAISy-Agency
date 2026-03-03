@@ -8,13 +8,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ResolvedSlackAccount } from "../accounts.js";
 import type { SlackMessageEvent } from "../types.js";
 import type { SlackMonitorContext } from "./context.js";
-=======
-import { stripSlackMentionsForCommandDetection } from "./commands.js";
->>>>>>> 2aa957046 (fix(slack): detect control commands when message starts with @mention (#14142))
 =======
 import type { ResolvedSlackAccount } from "../accounts.js";
 import type { SlackMessageEvent } from "../types.js";

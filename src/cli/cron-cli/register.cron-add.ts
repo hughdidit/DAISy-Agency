@@ -1,15 +1,12 @@
 import type { Command } from "commander";
 import type { CronJob } from "../../cron/types.js";
 import { danger } from "../../globals.js";
-<<<<<<< HEAD
 import { defaultRuntime } from "../../runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { sanitizeAgentId } from "../../routing/session-key.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayRpcOpts } from "../gateway-rpc.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -21,11 +18,7 @@ import type { GatewayRpcOpts } from "../gateway-rpc.js";
 =======
 import { sanitizeAgentId } from "../../routing/session-key.js";
 import { defaultRuntime } from "../../runtime.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { GatewayRpcOpts } from "../gateway-rpc.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { addGatewayClientOptions, callGatewayFromCli } from "../gateway-rpc.js";
 import { parsePositiveIntOrUndefined } from "../program/helpers.js";
 import {
@@ -93,12 +86,7 @@ export function registerCronAddCommand(cron: Command) {
       .option("--keep-after-run", "Keep one-shot job after it succeeds", false)
       .option("--agent <id>", "Agent id for this job")
       .option("--session <target>", "Session target (main|isolated)")
-<<<<<<< HEAD
       .option("--wake <mode>", "Wake mode (now|next-heartbeat)", "next-heartbeat")
-=======
-      .option("--session-key <key>", "Session key for job routing (e.g. agent:my-agent:my-session)")
-      .option("--wake <mode>", "Wake mode (now|next-heartbeat)", "now")
->>>>>>> f69228830 (feat(cron): add --session-key option to cron add/edit CLI commands)
       .option("--at <when>", "Run once at time (ISO) or +duration (e.g. 20m)")
       .option("--every <duration>", "Run every duration (e.g. 10m, 1h)")
       .option("--cron <expr>", "Cron expression (5-field or 6-field with seconds)")

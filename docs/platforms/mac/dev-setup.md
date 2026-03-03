@@ -43,12 +43,7 @@ https://github.com/moltbot/moltbot/blob/main/apps/macos/README.md
 The macOS app expects a global `moltbot` CLI install to manage background tasks.
 
 **To install it (recommended):**
-<<<<<<< HEAD
 1.  Open the Moltbot app.
-=======
-
-1.  Open the OpenClaw app.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 2.  Go to the **General** settings tab.
 3.  Click **"Install CLI"**.
 

@@ -1,14 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { normalizeChatChannelId } from "../channels/registry.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AgentBinding } from "../config/types.agents.js";
@@ -41,38 +37,7 @@ export function listBindings(cfg: MoltbotConfig): AgentBinding[] {
   return Array.isArray(cfg.bindings) ? cfg.bindings : [];
 }
 
-<<<<<<< HEAD
 export function listBoundAccountIds(cfg: MoltbotConfig, channelId: string): string[] {
-=======
-function resolveNormalizedBindingMatch(binding: AgentBinding): {
-  agentId: string;
-  accountId: string;
-  channelId: string;
-} | null {
-  if (!binding || typeof binding !== "object") {
-    return null;
-  }
-  const match = binding.match;
-  if (!match || typeof match !== "object") {
-    return null;
-  }
-  const channelId = normalizeBindingChannelId(match.channel);
-  if (!channelId) {
-    return null;
-  }
-  const accountId = typeof match.accountId === "string" ? match.accountId.trim() : "";
-  if (!accountId || accountId === "*") {
-    return null;
-  }
-  return {
-    agentId: normalizeAgentId(binding.agentId),
-    accountId: normalizeAccountId(accountId),
-    channelId,
-  };
-}
-
-export function listBoundAccountIds(cfg: OpenClawConfig, channelId: string): string[] {
->>>>>>> 8da99247f (refactor(routing): dedupe binding match parsing)
   const normalizedChannel = normalizeBindingChannelId(channelId);
   if (!normalizedChannel) {
     return [];

@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-=======
 import { formatRawAssistantErrorForUi } from "../agents/pi-embedded-helpers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
 import { stripInboundMetadata } from "../auto-reply/reply/strip-inbound-meta.js";
->>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
 =======
 import { stripLeadingInboundMetadata } from "../auto-reply/reply/strip-inbound-meta.js";
 >>>>>>> 45fff13b1 (TUI: strip only leading inbound metadata (#22461))
@@ -317,12 +314,9 @@ export function extractTextFromMessage(
   }
   const text = extractTextBlocks(record.content, opts);
   if (text) {
-<<<<<<< HEAD
-=======
     if (record.role === "user") {
       return stripLeadingInboundMetadata(text);
     }
->>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
     return text;
   }
 

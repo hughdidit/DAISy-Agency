@@ -3,14 +3,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 
 import type { SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
-=======
-import type { SandboxBrowserConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
->>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))
 =======
 import type { SandboxBrowserConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
 import { hashTextSha256 } from "./hash.js";
@@ -86,9 +82,5 @@ export function computeSandboxBrowserConfigHash(input: SandboxBrowserHashInput):
 function computeHash(input: unknown): string {
   const payload = normalizeForHash(input);
   const raw = JSON.stringify(payload);
-<<<<<<< HEAD
   return crypto.createHash("sha1").update(raw).digest("hex");
-=======
-  return hashTextSha256(raw);
->>>>>>> d1fca442b (refactor(sandbox): centralize sha256 helpers)
 }

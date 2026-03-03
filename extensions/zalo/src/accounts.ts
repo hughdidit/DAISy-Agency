@@ -1,17 +1,6 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { ResolvedZaloAccount, ZaloAccountConfig, ZaloConfig } from "./types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -37,15 +26,7 @@ import {
 import { resolveZaloToken } from "./token.js";
 import type { ResolvedZaloAccount, ZaloAccountConfig, ZaloConfig } from "./types.js";
 
-<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
-=======
-export type { ResolvedZaloAccount };
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 =======
 function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
 >>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
@@ -56,22 +37,15 @@ function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
   return Object.keys(accounts).filter(Boolean);
 }
 
-<<<<<<< HEAD
 export function listZaloAccountIds(cfg: MoltbotConfig): string[] {
-=======
-export function listZaloAccountIds(cfg: OpenClawConfig): string[] {
->>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) {
     return [DEFAULT_ACCOUNT_ID];
   }
   return ids.toSorted((a, b) => a.localeCompare(b));
 }
-<<<<<<< HEAD
-=======
 const { listAccountIds } = createAccountListHelpers("zalo");
 export const listZaloAccountIds = listAccountIds;
->>>>>>> d24340d75 (channels: migrate extension account listing to factory)
 =======
 >>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
 

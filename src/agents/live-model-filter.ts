@@ -3,26 +3,13 @@ export type ModelRef = {
   id?: string | null;
 };
 
-<<<<<<< HEAD
 const ANTHROPIC_PREFIXES = ["claude-opus-4-5", "claude-sonnet-4-5", "claude-haiku-4-5"];
-=======
-const ANTHROPIC_PREFIXES = [
-  "claude-opus-4-6",
-  "claude-sonnet-4-6",
-  "claude-opus-4-5",
-  "claude-sonnet-4-5",
-  "claude-haiku-4-5",
-];
->>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
 const OPENAI_MODELS = ["gpt-5.2", "gpt-5.0"];
 const CODEX_MODELS = [
   "gpt-5.2",
   "gpt-5.2-codex",
-<<<<<<< HEAD
-=======
   "gpt-5.3-codex",
   "gpt-5.3-codex-spark",
->>>>>>> e3cb2564d (Agents: allow gpt-5.3-codex-spark in fallback and thinking (#14990))
   "gpt-5.1-codex",
   "gpt-5.1-codex-mini",
   "gpt-5.1-codex-max",

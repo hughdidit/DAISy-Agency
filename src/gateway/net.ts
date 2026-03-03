@@ -1,9 +1,5 @@
 import net from "node:net";
-<<<<<<< HEAD
 
-=======
-import os from "node:os";
->>>>>>> b8c8130ef (fix(gateway): use LAN IP for WebSocket/probe URLs when bind=lan (#11448))
 import { pickPrimaryTailnetIPv4, pickPrimaryTailnetIPv6 } from "../infra/tailnet.js";
 
 /**

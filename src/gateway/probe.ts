@@ -3,11 +3,8 @@ import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { SystemPresence } from "../infra/system-presence.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatErrorMessage } from "../infra/errors.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

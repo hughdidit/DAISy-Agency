@@ -4,12 +4,7 @@ read_when:
   - Onboarding a new assistant instance
   - Reviewing safety/permission implications
 ---
-<<<<<<< HEAD:docs/start/clawd.md
 # Building a personal assistant with Moltbot (Clawd-style)
-=======
-
-# Building a personal assistant with OpenClaw
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.):docs/start/openclaw.md
 
 Moltbot is a WhatsApp + Telegram + Discord + iMessage gateway for **Pi** agents. Plugins add Mattermost. This guide is the "personal assistant" setup: one dedicated WhatsApp number that behaves like your always-on agent.
 
@@ -84,11 +79,7 @@ moltbot channels login
 moltbot gateway --port 18789
 ```
 
-<<<<<<< HEAD:docs/start/clawd.md
 3) Put a minimal config in `~/.clawdbot/moltbot.json`:
-=======
-3. Put a minimal config in `~/.openclaw/openclaw.json`:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.):docs/start/openclaw.md
 
 ```json5
 {
@@ -120,13 +111,8 @@ Optional: choose a different workspace with `agents.defaults.workspace` (support
 ```json5
 {
   agent: {
-<<<<<<< HEAD:docs/start/clawd.md
     workspace: "~/clawd"
   }
-=======
-    workspace: "~/.openclaw/workspace",
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.):docs/start/openclaw.md
 }
 ```
 
@@ -142,12 +128,7 @@ If you already ship your own workspace files from a repo, you can disable bootst
 
 ## The config that turns it into “an assistant”
 
-<<<<<<< HEAD:docs/start/clawd.md
 Moltbot defaults to a good assistant setup, but you’ll usually want to tune:
-=======
-OpenClaw defaults to a good assistant setup, but you’ll usually want to tune:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.):docs/start/openclaw.md
 - persona/instructions in `SOUL.md`
 - thinking defaults (if desired)
 - heartbeats (once you trust it)
@@ -175,13 +156,8 @@ Example:
   },
   routing: {
     groupChat: {
-<<<<<<< HEAD:docs/start/clawd.md
       mentionPatterns: ["@clawd", "clawd"]
     }
-=======
-      mentionPatterns: ["@openclaw", "openclaw"],
-    },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.):docs/start/openclaw.md
   },
   session: {
     scope: "per-sender",

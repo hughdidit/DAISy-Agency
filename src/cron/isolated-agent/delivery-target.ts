@@ -2,13 +2,9 @@ import type { ChannelId } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { OutboundChannel } from "../../infra/outbound/targets.js";
@@ -72,7 +68,6 @@ export async function resolveDeliveryTarget(
     accountId?: string;
     sessionKey?: string;
   },
-<<<<<<< HEAD
 ): Promise<{
   channel: Exclude<OutboundChannel, "none">;
   to?: string;
@@ -81,9 +76,6 @@ export async function resolveDeliveryTarget(
   mode: "explicit" | "implicit";
   error?: Error;
 }> {
-=======
-): Promise<DeliveryTargetResolution> {
->>>>>>> bf373eeb4 (refactor: harden reset notice + cron delivery target flow)
   const requestedChannel = typeof jobPayload.channel === "string" ? jobPayload.channel : "last";
   const explicitTo = typeof jobPayload.to === "string" ? jobPayload.to : undefined;
 
@@ -157,8 +149,6 @@ export async function resolveDeliveryTarget(
       ? resolved.threadId
       : undefined;
 
-<<<<<<< HEAD
-=======
   if (!channel) {
     return {
       ok: false,
@@ -173,7 +163,6 @@ export async function resolveDeliveryTarget(
     };
   }
 
->>>>>>> bf373eeb4 (refactor: harden reset notice + cron delivery target flow)
   if (!toCandidate) {
     return {
       ok: false,
@@ -182,12 +171,9 @@ export async function resolveDeliveryTarget(
       accountId,
       threadId,
       mode,
-<<<<<<< HEAD
-=======
       error:
         channelResolutionError ??
         new Error(`No delivery target resolved for channel "${channel}". Set delivery.to.`),
->>>>>>> bf373eeb4 (refactor: harden reset notice + cron delivery target flow)
     };
   }
 
@@ -238,9 +224,6 @@ export async function resolveDeliveryTarget(
     accountId,
     threadId,
     mode,
-<<<<<<< HEAD
     error: docked.ok ? undefined : docked.error,
-=======
->>>>>>> bf373eeb4 (refactor: harden reset notice + cron delivery target flow)
   };
 }

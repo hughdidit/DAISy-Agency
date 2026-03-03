@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
@@ -7,9 +6,6 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-=======
-import { afterAll, describe, expect, it } from "vitest";
->>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> bfb5a4408 (test: speed up plugin optional tools suite)
@@ -25,13 +21,8 @@ type MockRegistryToolEntry = {
 const loadOpenClawPluginsMock = vi.fn();
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function makeTempDir() {
   const dir = path.join(os.tmpdir(), `moltbot-plugin-tools-${randomUUID()}`);
-=======
-function makeFixtureDir(id: string) {
-  const dir = path.join(fixtureRoot, id);
->>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
   fs.mkdirSync(dir, { recursive: true });
   return dir;
 }

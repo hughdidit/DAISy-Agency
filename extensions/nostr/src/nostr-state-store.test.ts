@@ -5,11 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { PluginRuntime } from "openclaw/plugin-sdk";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -38,12 +34,7 @@ async function withTempStateDir<T>(fn: (dir: string) => Promise<T>) {
     state: {
       resolveStateDir: (env, homedir) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
         const override = env.CLAWDBOT_STATE_DIR?.trim();
-=======
-        const override = env.OPENCLAW_STATE_DIR?.trim() || env.OPENCLAW_STATE_DIR?.trim();
-<<<<<<< HEAD
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         if (override) return override;
         return path.join(homedir(), ".clawdbot");
 =======
@@ -67,16 +58,8 @@ async function withTempStateDir<T>(fn: (dir: string) => Promise<T>) {
   try {
     return await fn(dir);
   } finally {
-<<<<<<< HEAD
     if (previous === undefined) delete process.env.CLAWDBOT_STATE_DIR;
     else process.env.CLAWDBOT_STATE_DIR = previous;
-=======
-    if (previous === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
-    } else {
-      process.env.OPENCLAW_STATE_DIR = previous;
-    }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
     await fs.rm(dir, { recursive: true, force: true });
   }
 }

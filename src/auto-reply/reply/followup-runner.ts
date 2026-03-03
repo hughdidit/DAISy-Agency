@@ -17,12 +17,8 @@ import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { FollowupRun } from "./queue.js";
-=======
-import { resolveRunAuthProfile } from "./agent-runner-utils.js";
->>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
 =======
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { resolveRunAuthProfile } from "./agent-runner-utils.js";
@@ -134,29 +130,11 @@ export function createFollowupRunner(params: {
           cfg: queued.run.config,
         });
         if (!result.ok) {
-<<<<<<< HEAD
           // Log error and fall back to dispatcher if available.
           const errorMsg = result.error ?? "unknown error";
           logVerbose(`followup queue: route-reply failed: ${errorMsg}`);
           // Fallback: try the dispatcher if routing failed.
           if (opts?.onBlockReply) {
-=======
-          const errorMsg = result.error ?? "unknown error";
-          logVerbose(`followup queue: route-reply failed: ${errorMsg}`);
-          // Fall back to the caller-provided dispatcher only when the
-          // originating channel matches the session's message provider.
-          // In that case onBlockReply was created by the same channel's
-          // handler and delivers to the correct destination.  For true
-          // cross-channel routing (origin !== provider), falling back
-          // would send to the wrong channel, so we drop the payload.
-          const provider = resolveOriginMessageProvider({
-            provider: queued.run.messageProvider,
-          });
-          const origin = resolveOriginMessageProvider({
-            originatingChannel,
-          });
-          if (opts?.onBlockReply && origin && origin === provider) {
->>>>>>> f7de41ca2 (fix(followup): fall back to dispatcher when same-channel origin routing fails (#26109))
             await opts.onBlockReply(payload);
           }
         }
@@ -250,16 +228,6 @@ export function createFollowupRunner(params: {
       }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-      const usage = runResult.meta.agentMeta?.usage;
-      const promptTokens = runResult.meta.agentMeta?.promptTokens;
-      const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
-=======
-      const usage = runResult.meta?.agentMeta?.usage;
-      const promptTokens = runResult.meta?.agentMeta?.promptTokens;
-      const modelUsed = runResult.meta?.agentMeta?.model ?? fallbackModel ?? defaultModel;
->>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
       const contextTokensUsed =
         agentCfgContextTokens ??
         lookupContextTokens(modelUsed) ??
@@ -281,12 +249,6 @@ export function createFollowupRunner(params: {
           sessionKey,
           usage,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-          lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
-=======
-          lastCallUsage: runResult.meta?.agentMeta?.lastCallUsage,
->>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
           promptTokens,
 >>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
           modelUsed,
@@ -338,25 +300,10 @@ export function createFollowupRunner(params: {
         sentMediaUrls: runResult.messagingToolSentMediaUrls ?? [],
       });
       const suppressMessagingToolReplies = shouldSuppressMessagingToolReplies({
-<<<<<<< HEAD
         messageProvider: queued.run.messageProvider,
         messagingToolSentTargets: runResult.messagingToolSentTargets,
         originatingTo: queued.originatingTo,
         accountId: queued.run.agentAccountId,
-=======
-        messageProvider: resolveOriginMessageProvider({
-          originatingChannel: queued.originatingChannel,
-          provider: queued.run.messageProvider,
-        }),
-        messagingToolSentTargets: runResult.messagingToolSentTargets,
-        originatingTo: resolveOriginMessageTo({
-          originatingTo: queued.originatingTo,
-        }),
-        accountId: resolveOriginAccountId({
-          originatingAccountId: queued.originatingAccountId,
-          accountId: queued.run.agentAccountId,
-        }),
->>>>>>> 54648a9cf (refactor: centralize followup origin routing helpers)
       });
       const finalPayloads = suppressMessagingToolReplies ? [] : mediaFilteredPayloads;
 
@@ -370,11 +317,8 @@ export function createFollowupRunner(params: {
           sessionStore,
           sessionKey,
           storePath,
-<<<<<<< HEAD
-=======
           lastCallUsage: runResult.meta?.agentMeta?.lastCallUsage,
           contextTokensUsed,
->>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
         });
         if (queued.run.verboseLevel && queued.run.verboseLevel !== "off") {
           const suffix = typeof count === "number" ? ` (count ${count})` : "";

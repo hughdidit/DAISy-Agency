@@ -106,11 +106,6 @@ vi.mock("clawdbot/plugin-sdk", async () => {
 });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { emitDiagnosticEvent } from "openclaw/plugin-sdk";
-import type { OpenClawPluginServiceContext } from "openclaw/plugin-sdk";
->>>>>>> d3a36cc3b (chore: Fix remaining extension test types, enable type checking for extension tests.)
 =======
 import type { OpenClawPluginServiceContext } from "openclaw/plugin-sdk";
 import { emitDiagnosticEvent } from "openclaw/plugin-sdk";
@@ -249,7 +244,6 @@ describe("diagnostics-otel service", () => {
       attempt: 2,
     });
 
-<<<<<<< HEAD
     expect(telemetryState.counters.get("moltbot.webhook.received")?.add).toHaveBeenCalled();
     expect(telemetryState.histograms.get("moltbot.webhook.duration_ms")?.record).toHaveBeenCalled();
     expect(telemetryState.counters.get("moltbot.message.queued")?.add).toHaveBeenCalled();
@@ -259,23 +253,6 @@ describe("diagnostics-otel service", () => {
     expect(telemetryState.counters.get("moltbot.session.stuck")?.add).toHaveBeenCalled();
     expect(telemetryState.histograms.get("moltbot.session.stuck_age_ms")?.record).toHaveBeenCalled();
     expect(telemetryState.counters.get("moltbot.run.attempt")?.add).toHaveBeenCalled();
-=======
-    expect(telemetryState.counters.get("openclaw.webhook.received")?.add).toHaveBeenCalled();
-    expect(
-      telemetryState.histograms.get("openclaw.webhook.duration_ms")?.record,
-    ).toHaveBeenCalled();
-    expect(telemetryState.counters.get("openclaw.message.queued")?.add).toHaveBeenCalled();
-    expect(telemetryState.counters.get("openclaw.message.processed")?.add).toHaveBeenCalled();
-    expect(
-      telemetryState.histograms.get("openclaw.message.duration_ms")?.record,
-    ).toHaveBeenCalled();
-    expect(telemetryState.histograms.get("openclaw.queue.wait_ms")?.record).toHaveBeenCalled();
-    expect(telemetryState.counters.get("openclaw.session.stuck")?.add).toHaveBeenCalled();
-    expect(
-      telemetryState.histograms.get("openclaw.session.stuck_age_ms")?.record,
-    ).toHaveBeenCalled();
-    expect(telemetryState.counters.get("openclaw.run.attempt")?.add).toHaveBeenCalled();
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
     const spanNames = telemetryState.tracer.startSpan.mock.calls.map((call) => call[0]);
     expect(spanNames).toContain("moltbot.webhook.processed");
@@ -333,8 +310,6 @@ describe("diagnostics-otel service", () => {
     expect(options?.url).toBe("https://collector.example.com/v1/Traces");
     await service.stop?.(ctx);
   });
-<<<<<<< HEAD
-=======
 
   test("redacts sensitive data from log messages before export", async () => {
     const emitCall = await emitAndCaptureLog({
@@ -386,5 +361,4 @@ describe("diagnostics-otel service", () => {
     );
     await service.stop?.(ctx);
   });
->>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
 });

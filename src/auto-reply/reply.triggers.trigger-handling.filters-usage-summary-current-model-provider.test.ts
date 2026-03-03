@@ -1,15 +1,8 @@
-<<<<<<< HEAD
-=======
 import { mkdir, readFile, writeFile } from "node:fs/promises";
->>>>>>> d90e9f561 (test: merge overlapping trigger-handling suites)
 import { join } from "node:path";
-<<<<<<< HEAD
 <<<<<<< HEAD
 import { readFile } from "node:fs/promises";
 import { afterEach, describe, expect, it, vi } from "vitest";
-=======
-import { describe, expect, it } from "vitest";
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 =======
 import { beforeAll, describe, expect, it } from "vitest";
 >>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
@@ -33,7 +26,6 @@ beforeAll(async () => {
 
 installTriggerHandlingE2eTestHooks();
 
-<<<<<<< HEAD
 const webMocks = vi.hoisted(() => ({
   webAuthExists: vi.fn().mockResolvedValue(true),
   getWebAuthAgeMs: vi.fn().mockReturnValue(120_000),
@@ -69,10 +61,6 @@ function makeCfg(home: string) {
     session: { store: join(home, "sessions.json") },
   };
 }
-=======
-const usageMocks = getProviderUsageMocks();
-<<<<<<< HEAD
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 =======
 const modelStatusCtx = {
   Body: "/model status",

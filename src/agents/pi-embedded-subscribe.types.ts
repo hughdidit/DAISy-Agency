@@ -1,11 +1,8 @@
 import type { AgentSession } from "@mariozechner/pi-coding-agent";
 
 import type { ReasoningLevel, VerboseLevel } from "../auto-reply/thinking.js";
-<<<<<<< HEAD
-=======
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import type { HookRunner } from "../plugins/hooks.js";
->>>>>>> 478af8170 (Return user-facing message if API reuturn 429 API rate limit reached #2202 (#10415))
 import type { BlockReplyChunking } from "./pi-embedded-block-chunker.js";
 import type { BlockReplyPayload } from "./pi-embedded-payloads.js";
 

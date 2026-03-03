@@ -1,52 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
 import { parseSystemdShow, resolveSystemdUserUnitPath } from "./systemd.js";
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-const execFileMock = vi.hoisted(() => vi.fn());
-
-vi.mock("node:child_process", () => ({
-  execFile: execFileMock,
-}));
-
-import { splitArgsPreservingQuotes } from "./arg-split.js";
-import { parseSystemdExecStart } from "./systemd-unit.js";
-import {
-  isSystemdUserServiceAvailable,
-  parseSystemdShow,
-  restartSystemdService,
-  resolveSystemdUserUnitPath,
-  stopSystemdService,
-} from "./systemd.js";
-
-describe("systemd availability", () => {
-  beforeEach(() => {
-    execFileMock.mockClear();
-  });
-
-  it("returns true when systemctl --user succeeds", async () => {
-    execFileMock.mockImplementation((_cmd, _args, _opts, cb) => {
-      cb(null, "", "");
-    });
-    await expect(isSystemdUserServiceAvailable()).resolves.toBe(true);
-  });
-
-  it("returns false when systemd user bus is unavailable", async () => {
-    execFileMock.mockImplementation((_cmd, _args, _opts, cb) => {
-      const err = new Error("Failed to connect to bus") as Error & {
-        stderr?: string;
-        code?: number;
-      };
-      err.stderr = "Failed to connect to bus";
-      err.code = 1;
-      cb(err, "", "");
-    });
-    await expect(isSystemdUserServiceAvailable()).resolves.toBe(false);
-  });
-});
->>>>>>> 6b2f40652 (perf(test): consolidate daemon test entrypoints)
 
 describe("systemd runtime parsing", () => {
   it("parses active state details", () => {
@@ -68,7 +22,6 @@ describe("systemd runtime parsing", () => {
 
 describe("resolveSystemdUserUnitPath", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("uses default service name when CLAWDBOT_PROFILE is default", () => {
     const env = { HOME: "/home/test", CLAWDBOT_PROFILE: "default" };
     expect(resolveSystemdUserUnitPath(env)).toBe(
@@ -77,9 +30,6 @@ describe("resolveSystemdUserUnitPath", () => {
   });
 
   it("uses default service name when CLAWDBOT_PROFILE is unset", () => {
-=======
-  it("uses default service name when OPENCLAW_PROFILE is unset", () => {
->>>>>>> 6c3e7896c (test: remove duplicate lowercase default profile daemon path cases)
     const env = { HOME: "/home/test" };
     expect(resolveSystemdUserUnitPath(env)).toBe(
       "/home/test/.config/systemd/user/moltbot-gateway.service",
@@ -163,7 +113,6 @@ describe("resolveSystemdUserUnitPath", () => {
     expect(resolveSystemdUserUnitPath(env)).toBe(expected);
 >>>>>>> da341bfbe (test(daemon): dedupe service path cases and bootstrap failures)
   });
-<<<<<<< HEAD
 
   it("handles case-insensitive 'Default' profile", () => {
     const env = { HOME: "/home/test", CLAWDBOT_PROFILE: "Default" };
@@ -182,10 +131,6 @@ describe("resolveSystemdUserUnitPath", () => {
 
   it("trims whitespace from CLAWDBOT_PROFILE", () => {
     const env = { HOME: "/home/test", CLAWDBOT_PROFILE: "  myprofile  " };
-=======
-  it("trims whitespace from OPENCLAW_PROFILE", () => {
-    const env = { HOME: "/home/test", OPENCLAW_PROFILE: "  myprofile  " };
->>>>>>> 84e0ee3c3 (test: remove duplicate uppercase default profile case)
     expect(resolveSystemdUserUnitPath(env)).toBe(
       "/home/test/.config/systemd/user/moltbot-gateway-myprofile.service",
     );

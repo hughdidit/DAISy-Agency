@@ -11,7 +11,6 @@ import {
 } from "./auto-reply.test-harness.js";
 import type { WebInboundMessage } from "./inbound.js";
 
-<<<<<<< HEAD
 let previousHome: string | undefined;
 let tempHome: string | undefined;
 
@@ -115,20 +114,8 @@ describe("web auto-reply", () => {
     vi.useRealTimers();
   });
 =======
-installWebAutoReplyTestHomeHooks();
-
-describe("web auto-reply", () => {
-  installWebAutoReplyUnitTestHooks({ pinDns: true });
-<<<<<<< HEAD
->>>>>>> 03ff4960b (refactor(test): share web auto-reply harness)
-=======
   type ListenerFactory = NonNullable<Parameters<typeof monitorWebChannel>[1]>;
-<<<<<<< HEAD
 >>>>>>> 262b7a157 (chore: chore: Fix types in tests 12/N.)
-=======
-  const SMALL_MEDIA_CAP_MB = 0.1;
-  const SMALL_MEDIA_CAP_BYTES = Math.floor(SMALL_MEDIA_CAP_MB * 1024 * 1024);
->>>>>>> b534dfa3e (fix(slack,web): harden thread hints and monitor tuning)
 
   async function setupSingleInboundMessage(params: {
     resolverValue: { text: string; mediaUrl: string };

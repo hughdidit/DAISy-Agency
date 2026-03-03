@@ -58,54 +58,16 @@ function normalizeQuery(value?: string | null): string {
   return value?.trim().toLowerCase() ?? "";
 }
 
-<<<<<<< HEAD
 export async function listMatrixDirectoryPeersLive(params: {
   cfg: unknown;
   query?: string | null;
   limit?: number | null;
 }): Promise<ChannelDirectoryEntry[]> {
-=======
-function resolveMatrixDirectoryLimit(limit?: number | null): number {
-  return typeof limit === "number" && limit > 0 ? limit : 20;
-}
-
-async function resolveMatrixDirectoryContext(
-  params: MatrixDirectoryLiveParams,
-): Promise<{ query: string; auth: MatrixResolvedAuth } | null> {
->>>>>>> eb4f1e765 (refactor(matrix): dedupe directory/target match helpers)
   const query = normalizeQuery(params.query);
   if (!query) {
     return null;
   }
-<<<<<<< HEAD
   const auth = await resolveMatrixAuth({ cfg: params.cfg as never });
-=======
-  const auth = await resolveMatrixAuth({ cfg: params.cfg as never, accountId: params.accountId });
-  return { query, auth };
-}
-
-function createGroupDirectoryEntry(params: {
-  id: string;
-  name: string;
-  handle?: string;
-}): ChannelDirectoryEntry {
-  return {
-    kind: "group",
-    id: params.id,
-    name: params.name,
-    handle: params.handle,
-  } satisfies ChannelDirectoryEntry;
-}
-
-export async function listMatrixDirectoryPeersLive(
-  params: MatrixDirectoryLiveParams,
-): Promise<ChannelDirectoryEntry[]> {
-  const context = await resolveMatrixDirectoryContext(params);
-  if (!context) {
-    return [];
-  }
-  const { query, auth } = context;
->>>>>>> eb4f1e765 (refactor(matrix): dedupe directory/target match helpers)
   const res = await fetchMatrixJson<MatrixUserDirectoryResponse>({
     homeserver: auth.homeserver,
     accessToken: auth.accessToken,
@@ -168,7 +130,6 @@ async function fetchMatrixRoomName(
   }
 }
 
-<<<<<<< HEAD
 export async function listMatrixDirectoryGroupsLive(params: {
   cfg: unknown;
   query?: string | null;
@@ -180,17 +141,6 @@ export async function listMatrixDirectoryGroupsLive(params: {
   }
   const auth = await resolveMatrixAuth({ cfg: params.cfg as never });
   const limit = typeof params.limit === "number" && params.limit > 0 ? params.limit : 20;
-=======
-export async function listMatrixDirectoryGroupsLive(
-  params: MatrixDirectoryLiveParams,
-): Promise<ChannelDirectoryEntry[]> {
-  const context = await resolveMatrixDirectoryContext(params);
-  if (!context) {
-    return [];
-  }
-  const { query, auth } = context;
-  const limit = resolveMatrixDirectoryLimit(params.limit);
->>>>>>> eb4f1e765 (refactor(matrix): dedupe directory/target match helpers)
 
   if (query.startsWith("#")) {
     const roomId = await resolveMatrixRoomAlias(auth.homeserver, auth.accessToken, query);

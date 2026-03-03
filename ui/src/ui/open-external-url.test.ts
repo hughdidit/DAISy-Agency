@@ -38,8 +38,6 @@ describe("resolveSafeExternalUrl", () => {
     ).toBeNull();
   });
 
-<<<<<<< HEAD
-=======
   it("rejects SVG data image URLs", () => {
     expect(
       resolveSafeExternalUrl(
@@ -64,7 +62,6 @@ describe("resolveSafeExternalUrl", () => {
     ).toBeNull();
   });
 
->>>>>>> 30cb849b1 (test(ui): reject base64 SVG data URLs)
   it("rejects data image URLs unless explicitly enabled", () => {
     expect(resolveSafeExternalUrl("data:image/png;base64,iVBORw0KGgo=", baseHref)).toBeNull();
   });

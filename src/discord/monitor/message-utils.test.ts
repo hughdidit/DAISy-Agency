@@ -92,12 +92,9 @@ describe("resolveForwardedMediaList", () => {
     expect(fetchRemoteMedia).toHaveBeenCalledWith({
       url: attachment.url,
       filePathHint: attachment.filename,
-<<<<<<< HEAD
-=======
       maxBytes: 512,
       fetchImpl: undefined,
       ssrfPolicy: expect.objectContaining({ allowRfc2544BenchmarkRange: true }),
->>>>>>> 39a45121d (fix(discord,slack): add SSRF policy for media downloads in proxy environments (#25475))
     });
     expect(saveMediaBuffer).toHaveBeenCalledTimes(1);
     expect(saveMediaBuffer).toHaveBeenCalledWith(expect.any(Buffer), "image/png", "inbound", 512);
@@ -110,8 +107,6 @@ describe("resolveForwardedMediaList", () => {
     ]);
   });
 
-<<<<<<< HEAD
-=======
   it("forwards fetchImpl to forwarded attachment downloads", async () => {
     const proxyFetch = vi.fn() as unknown as typeof fetch;
     const attachment = {
@@ -172,7 +167,6 @@ describe("resolveForwardedMediaList", () => {
     ]);
   });
 
->>>>>>> 0a67033fe (fix(discord): keep attachment metadata when media fetch is blocked)
   it("downloads forwarded stickers", async () => {
     const sticker = {
       id: "sticker-1",
@@ -201,12 +195,9 @@ describe("resolveForwardedMediaList", () => {
     expect(fetchRemoteMedia).toHaveBeenCalledWith({
       url: "https://media.discordapp.net/stickers/sticker-1.png",
       filePathHint: "wave.png",
-<<<<<<< HEAD
-=======
       maxBytes: 512,
       fetchImpl: undefined,
       ssrfPolicy: expect.objectContaining({ allowRfc2544BenchmarkRange: true }),
->>>>>>> 39a45121d (fix(discord,slack): add SSRF policy for media downloads in proxy environments (#25475))
     });
     expect(saveMediaBuffer).toHaveBeenCalledTimes(1);
     expect(saveMediaBuffer).toHaveBeenCalledWith(expect.any(Buffer), "image/png", "inbound", 512);
@@ -273,12 +264,9 @@ describe("resolveMediaList", () => {
     expect(fetchRemoteMedia).toHaveBeenCalledWith({
       url: "https://media.discordapp.net/stickers/sticker-2.png",
       filePathHint: "hello.png",
-<<<<<<< HEAD
-=======
       maxBytes: 512,
       fetchImpl: undefined,
       ssrfPolicy: expect.objectContaining({ allowRfc2544BenchmarkRange: true }),
->>>>>>> 39a45121d (fix(discord,slack): add SSRF policy for media downloads in proxy environments (#25475))
     });
     expect(saveMediaBuffer).toHaveBeenCalledTimes(1);
     expect(saveMediaBuffer).toHaveBeenCalledWith(expect.any(Buffer), "image/png", "inbound", 512);
@@ -290,8 +278,6 @@ describe("resolveMediaList", () => {
       },
     ]);
   });
-<<<<<<< HEAD
-=======
 
   it("forwards fetchImpl to sticker downloads", async () => {
     const proxyFetch = vi.fn() as unknown as typeof fetch;
@@ -372,7 +358,6 @@ describe("resolveMediaList", () => {
       },
     ]);
   });
->>>>>>> 0a67033fe (fix(discord): keep attachment metadata when media fetch is blocked)
 });
 
 describe("Discord media SSRF policy", () => {

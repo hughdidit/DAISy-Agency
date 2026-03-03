@@ -6,8 +6,6 @@ public enum OpenClawCapability: String, Codable, Sendable {
     case screen
     case voiceWake
     case location
-<<<<<<< HEAD
-=======
     case device
     case watch
     case photos
@@ -15,5 +13,4 @@ public enum OpenClawCapability: String, Codable, Sendable {
     case calendar
     case reminders
     case motion
->>>>>>> 57083e422 (iOS: add Apple Watch companion message MVP (#20054))
 }

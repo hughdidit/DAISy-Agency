@@ -1,13 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chunk.js";
 <<<<<<< HEAD
 import type { MarkdownTableMode } from "../../config/types.base.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chunk.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -22,13 +18,8 @@ import { logVerbose, shouldLogVerbose } from "../../globals.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { convertMarkdownTables } from "../../markdown/tables.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
-=======
-=======
-import { markdownToWhatsApp } from "../../markdown/whatsapp.js";
->>>>>>> e24d02308 (fix(whatsapp): convert Markdown bold/strikethrough to WhatsApp formatting (#14285))
 import { sleep } from "../../utils.js";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 import { loadWebMedia } from "../media.js";

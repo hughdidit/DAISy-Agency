@@ -1,13 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -23,22 +19,12 @@ import { stripMarkdown } from "openclaw/plugin-sdk";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveBlueBubblesAccount } from "./accounts.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   extractHandleFromChatGuid,
   normalizeBlueBubblesHandle,
   parseBlueBubblesTarget,
 } from "./targets.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
-=======
-import {
-  getCachedBlueBubblesPrivateApiStatus,
-  isBlueBubblesPrivateApiStatusEnabled,
-} from "./probe.js";
-import { warnBlueBubbles } from "./runtime.js";
->>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
 import { extractBlueBubblesMessageId, resolveBlueBubblesSendTarget } from "./send-helpers.js";
 import { extractHandleFromChatGuid, normalizeBlueBubblesHandle } from "./targets.js";
 >>>>>>> 811e0c579 (refactor(bluebubbles): share send helpers)
@@ -432,23 +418,7 @@ export async function sendMessageBlueBubbles(
     );
   }
   const effectId = resolveEffectId(opts.effectId);
-<<<<<<< HEAD
   const needsPrivateApi = Boolean(opts.replyToMessageGuid || effectId);
-=======
-  const wantsReplyThread = Boolean(opts.replyToMessageGuid?.trim());
-  const wantsEffect = Boolean(effectId);
-  const privateApiDecision = resolvePrivateApiDecision({
-    privateApiStatus,
-    wantsReplyThread,
-    wantsEffect,
-  });
-  if (privateApiDecision.throwEffectDisabledError) {
-    throw new Error(
-      "BlueBubbles send failed: reply/effect requires Private API, but it is disabled on the BlueBubbles server.",
-    );
-  }
-<<<<<<< HEAD
->>>>>>> 888b6bc94 (fix(bluebubbles): treat null privateApiStatus as disabled, not enabled)
 =======
   if (privateApiDecision.warningMessage) {
     warnBlueBubbles(privateApiDecision.warningMessage);
@@ -459,20 +429,12 @@ export async function sendMessageBlueBubbles(
     tempGuid: crypto.randomUUID(),
     message: trimmedText,
   };
-<<<<<<< HEAD
   if (needsPrivateApi) {
-=======
-  if (privateApiDecision.canUsePrivateApi) {
->>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
     payload.method = "private-api";
   }
 
   // Add reply threading support
-<<<<<<< HEAD
   if (opts.replyToMessageGuid) {
-=======
-  if (wantsReplyThread && privateApiDecision.canUsePrivateApi) {
->>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
     payload.selectedMessageGuid = opts.replyToMessageGuid;
     payload.partIndex = typeof opts.replyToPartIndex === "number" ? opts.replyToPartIndex : 0;
   }

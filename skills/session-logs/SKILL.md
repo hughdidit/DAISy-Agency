@@ -1,11 +1,7 @@
 ---
 name: session-logs
 description: Search and analyze your own session logs (older/parent conversations) using jq.
-<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"📜","requires":{"bins":["jq","rg"]}}}
-=======
-metadata: { "openclaw": { "emoji": "📜", "requires": { "bins": ["jq", "rg"] } } }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 ---
 
 # session-logs

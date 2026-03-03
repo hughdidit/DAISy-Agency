@@ -6,26 +6,15 @@ import {
   formatPairingApproveHint,
   normalizeAccountId,
   PAIRING_APPROVED_MESSAGE,
-<<<<<<< HEAD
-=======
   resolveAllowlistProviderRuntimeGroupPolicy,
 <<<<<<< HEAD
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 =======
   resolveDefaultGroupPolicy,
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CoreConfig } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -60,12 +49,7 @@ import { resolveMatrixTargets } from "./resolve-targets.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { listMatrixDirectoryGroupsLive, listMatrixDirectoryPeersLive } from "./directory-live.js";
-=======
-import type { CoreConfig } from "./types.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { CoreConfig } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -208,14 +192,9 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
           .toLowerCase(),
     }),
     collectWarnings: ({ account, cfg }) => {
-<<<<<<< HEAD
       const defaultGroupPolicy = (cfg as CoreConfig).channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-=======
-      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg as CoreConfig);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
       const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: (cfg as CoreConfig).channels?.matrix !== undefined,
         groupPolicy: account.config.groupPolicy,

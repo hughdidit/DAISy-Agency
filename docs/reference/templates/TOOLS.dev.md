@@ -7,13 +7,8 @@ read_when:
 
 # TOOLS.md - User Tool Notes (editable)
 
-<<<<<<< HEAD
 This file is for *your* notes about external tools and conventions.
 It does not define which tools exist; Moltbot provides built-in tools internally.
-=======
-This file is for _your_ notes about external tools and conventions.
-It does not define which tools exist; OpenClaw provides built-in tools internally.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Examples
 

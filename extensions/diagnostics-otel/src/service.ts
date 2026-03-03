@@ -8,17 +8,12 @@ import { BatchLogRecordProcessor, LoggerProvider } from "@opentelemetry/sdk-logs
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { ParentBasedSampler, TraceIdRatioBasedSampler } from "@opentelemetry/sdk-trace-base";
-<<<<<<< HEAD
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-=======
-import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
->>>>>>> de656e319 (fix(otel): complete diagnostics-otel OpenTelemetry v2 API migration (#12897))
 import type { DiagnosticEventPayload, OpenClawPluginService } from "openclaw/plugin-sdk";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -64,25 +59,7 @@ function resolveSampleRate(value: number | undefined): number | undefined {
   return value;
 }
 
-<<<<<<< HEAD
 export function createDiagnosticsOtelService(): MoltbotPluginService {
-=======
-function formatError(err: unknown): string {
-  if (err instanceof Error) {
-    return err.stack ?? err.message;
-  }
-  if (typeof err === "string") {
-    return err;
-  }
-  try {
-    return JSON.stringify(err);
-  } catch {
-    return String(err);
-  }
-}
-
-export function createDiagnosticsOtelService(): OpenClawPluginService {
->>>>>>> de656e319 (fix(otel): complete diagnostics-otel OpenTelemetry v2 API migration (#12897))
   let sdk: NodeSDK | null = null;
   let logProvider: LoggerProvider | null = null;
   let stopLogTransport: (() => void) | null = null;
@@ -265,16 +242,7 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
             : {},
         );
 <<<<<<< HEAD
-<<<<<<< HEAD
         const otelLogger = logProvider.getLogger("moltbot");
-=======
-        logProvider = new LoggerProvider({ resource, processors: [processor] });
-=======
-        logProvider = new LoggerProvider({
-          resource,
-          processors: [logProcessor],
-        });
->>>>>>> de656e319 (fix(otel): complete diagnostics-otel OpenTelemetry v2 API migration (#12897))
         const otelLogger = logProvider.getLogger("openclaw");
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 
@@ -310,7 +278,6 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
               .toSorted((a, b) => Number(a[0]) - Number(b[0]))
               .map(([, value]) => value);
 
-<<<<<<< HEAD
           let bindings: Record<string, unknown> | undefined;
           if (typeof numericArgs[0] === "string" && numericArgs[0].trim().startsWith("{")) {
             try {
@@ -340,27 +307,13 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
           };
 <<<<<<< HEAD
           if (meta?.name) attributes["moltbot.logger"] = meta.name;
-=======
-          if (meta?.name) {
-            attributes["openclaw.logger"] = meta.name;
-          }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
           if (meta?.parentNames?.length) {
             attributes["moltbot.logger.parents"] = meta.parentNames.join(".");
           }
           if (bindings) {
             for (const [key, value] of Object.entries(bindings)) {
-<<<<<<< HEAD
               if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
                 attributes[`moltbot.${key}`] = value;
-=======
-              if (
-                typeof value === "string" ||
-                typeof value === "number" ||
-                typeof value === "boolean"
-              ) {
-                attributes[`openclaw.${key}`] = value;
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
               } else if (value != null) {
                 attributes[`moltbot.${key}`] = safeStringify(value);
               }
@@ -480,7 +433,6 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         };
 
         const usage = evt.usage;
-<<<<<<< HEAD
         if (usage.input) tokensCounter.add(usage.input, { ...attrs, "moltbot.token": "input" });
         if (usage.output) tokensCounter.add(usage.output, { ...attrs, "moltbot.token": "output" });
         if (usage.cacheRead)
@@ -490,26 +442,6 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         if (usage.promptTokens)
           tokensCounter.add(usage.promptTokens, { ...attrs, "moltbot.token": "prompt" });
         if (usage.total) tokensCounter.add(usage.total, { ...attrs, "moltbot.token": "total" });
-=======
-        if (usage.input) {
-          tokensCounter.add(usage.input, { ...attrs, "openclaw.token": "input" });
-        }
-        if (usage.output) {
-          tokensCounter.add(usage.output, { ...attrs, "openclaw.token": "output" });
-        }
-        if (usage.cacheRead) {
-          tokensCounter.add(usage.cacheRead, { ...attrs, "openclaw.token": "cache_read" });
-        }
-        if (usage.cacheWrite) {
-          tokensCounter.add(usage.cacheWrite, { ...attrs, "openclaw.token": "cache_write" });
-        }
-        if (usage.promptTokens) {
-          tokensCounter.add(usage.promptTokens, { ...attrs, "openclaw.token": "prompt" });
-        }
-        if (usage.total) {
-          tokensCounter.add(usage.total, { ...attrs, "openclaw.token": "total" });
-        }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
 
         if (evt.costUsd) {
           costCounter.add(evt.costUsd, attrs);
@@ -572,15 +504,8 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
           return;
         }
         const spanAttrs: Record<string, string | number> = { ...attrs };
-<<<<<<< HEAD
         if (evt.chatId !== undefined) spanAttrs["moltbot.chatId"] = String(evt.chatId);
         const span = spanWithDuration("moltbot.webhook.processed", spanAttrs, evt.durationMs);
-=======
-        if (evt.chatId !== undefined) {
-          spanAttrs["openclaw.chatId"] = String(evt.chatId);
-        }
-        const span = spanWithDuration("openclaw.webhook.processed", spanAttrs, evt.durationMs);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         span.end();
       };
 
@@ -599,15 +524,8 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
           ...attrs,
           "moltbot.error": evt.error,
         };
-<<<<<<< HEAD
         if (evt.chatId !== undefined) spanAttrs["moltbot.chatId"] = String(evt.chatId);
         const span = tracer.startSpan("moltbot.webhook.error", {
-=======
-        if (evt.chatId !== undefined) {
-          spanAttrs["openclaw.chatId"] = String(evt.chatId);
-        }
-        const span = tracer.startSpan("openclaw.webhook.error", {
->>>>>>> 230ca789e (chore: Lint extensions folder.)
           attributes: spanAttrs,
         });
         span.setStatus({ code: SpanStatusCode.ERROR, message: evt.error });
@@ -655,23 +573,12 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         }
         const spanAttrs: Record<string, string | number> = { ...attrs };
 <<<<<<< HEAD
-<<<<<<< HEAD
         if (evt.sessionKey) spanAttrs["moltbot.sessionKey"] = evt.sessionKey;
         if (evt.sessionId) spanAttrs["moltbot.sessionId"] = evt.sessionId;
         if (evt.chatId !== undefined) spanAttrs["moltbot.chatId"] = String(evt.chatId);
         if (evt.messageId !== undefined) spanAttrs["moltbot.messageId"] = String(evt.messageId);
         if (evt.reason) spanAttrs["moltbot.reason"] = evt.reason;
         const span = spanWithDuration("moltbot.message.processed", spanAttrs, evt.durationMs);
-=======
-        if (evt.sessionKey) {
-          spanAttrs["openclaw.sessionKey"] = evt.sessionKey;
-        }
-        if (evt.sessionId) {
-          spanAttrs["openclaw.sessionId"] = evt.sessionId;
-        }
-=======
-        addSessionIdentityAttrs(spanAttrs, evt);
->>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
         if (evt.chatId !== undefined) {
           spanAttrs["openclaw.chatId"] = String(evt.chatId);
         }
@@ -711,15 +618,8 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
       const recordSessionState = (
         evt: Extract<DiagnosticEventPayload, { type: "session.state" }>,
       ) => {
-<<<<<<< HEAD
         const attrs: Record<string, string> = { "moltbot.state": evt.state };
         if (evt.reason) attrs["moltbot.reason"] = evt.reason;
-=======
-        const attrs: Record<string, string> = { "openclaw.state": evt.state };
-        if (evt.reason) {
-          attrs["openclaw.reason"] = evt.reason;
-        }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         sessionStateCounter.add(1, attrs);
       };
 
@@ -736,22 +636,11 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         }
         const spanAttrs: Record<string, string | number> = { ...attrs };
 <<<<<<< HEAD
-<<<<<<< HEAD
         if (evt.sessionKey) spanAttrs["moltbot.sessionKey"] = evt.sessionKey;
         if (evt.sessionId) spanAttrs["moltbot.sessionId"] = evt.sessionId;
         spanAttrs["moltbot.queueDepth"] = evt.queueDepth ?? 0;
         spanAttrs["moltbot.ageMs"] = evt.ageMs;
         const span = tracer.startSpan("moltbot.session.stuck", { attributes: spanAttrs });
-=======
-        if (evt.sessionKey) {
-          spanAttrs["openclaw.sessionKey"] = evt.sessionKey;
-        }
-        if (evt.sessionId) {
-          spanAttrs["openclaw.sessionId"] = evt.sessionId;
-        }
-=======
-        addSessionIdentityAttrs(spanAttrs, evt);
->>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
         spanAttrs["openclaw.queueDepth"] = evt.queueDepth ?? 0;
         spanAttrs["openclaw.ageMs"] = evt.ageMs;
         const span = tracer.startSpan("openclaw.session.stuck", { attributes: spanAttrs });

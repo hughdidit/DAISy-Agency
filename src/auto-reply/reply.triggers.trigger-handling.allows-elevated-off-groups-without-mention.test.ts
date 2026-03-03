@@ -10,7 +10,6 @@ import {
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 const webMocks = vi.hoisted(() => ({
@@ -52,21 +51,12 @@ function _makeCfg(home: string) {
 afterEach(() => {
   vi.restoreAllMocks();
 });
-=======
-=======
-let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
-beforeAll(async () => {
-  getReplyFromConfig = await loadGetReplyFromConfig();
-});
-
->>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
 describe("trigger handling", () => {
   it("allows elevated off in groups without mention", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const baseCfg = makeCfg(home);
       const cfg = {
 <<<<<<< HEAD
@@ -76,9 +66,6 @@ describe("trigger handling", () => {
             workspace: join(home, "clawd"),
           },
         },
-=======
-        ...baseCfg,
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         tools: {
           elevated: {
             allowFrom: { whatsapp: ["+1000"] },
@@ -120,7 +107,6 @@ describe("trigger handling", () => {
 
   it("allows elevated directive in groups when mentioned", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const baseCfg = makeCfg(home);
       const cfg = {
 <<<<<<< HEAD
@@ -130,9 +116,6 @@ describe("trigger handling", () => {
             workspace: join(home, "clawd"),
           },
         },
-=======
-        ...baseCfg,
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         tools: {
           elevated: {
             allowFrom: { whatsapp: ["+1000"] },
@@ -171,7 +154,6 @@ describe("trigger handling", () => {
       expect(store["agent:main:whatsapp:group:123@g.us"]?.elevatedLevel).toBe("on");
     });
   });
-<<<<<<< HEAD
 
   it("allows elevated directive in direct chats without mentions", async () => {
 <<<<<<< HEAD
@@ -186,9 +168,6 @@ describe("trigger handling", () => {
             workspace: join(home, "clawd"),
           },
         },
-=======
-        ...baseCfg,
->>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         tools: {
           elevated: {
             allowFrom: { whatsapp: ["+1000"] },

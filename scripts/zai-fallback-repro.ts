@@ -76,13 +76,9 @@ async function main() {
     process.exit(1);
   }
 
-<<<<<<< HEAD
   const baseDir = await fs.mkdtemp(
     path.join(os.tmpdir(), "moltbot-zai-fallback-"),
   );
-=======
-  const baseDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-zai-fallback-"));
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   const stateDir = path.join(baseDir, "state");
   const configPath = path.join(baseDir, "moltbot.json");
   await fs.mkdir(stateDir, { recursive: true });
@@ -132,7 +128,6 @@ async function main() {
     "Then use the read tool to display the file contents. Reply with just the file contents.";
   const run1 = await runCommand(
     "run1",
-<<<<<<< HEAD
     [
       "moltbot",
       "agent",
@@ -142,9 +137,6 @@ async function main() {
       "--message",
       toolPrompt,
     ],
-=======
-    ["openclaw", "agent", "--local", "--session-id", sessionId, "--message", toolPrompt],
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
     envValidAnthropic,
   );
   if (run1.code !== 0) {
@@ -162,7 +154,6 @@ async function main() {
     "What is the content of zai-fallback-tool.txt? Reply with just the contents.";
   const run2 = await runCommand(
     "run2",
-<<<<<<< HEAD
     [
       "moltbot",
       "agent",
@@ -172,9 +163,6 @@ async function main() {
       "--message",
       followupPrompt,
     ],
-=======
-    ["openclaw", "agent", "--local", "--session-id", sessionId, "--message", followupPrompt],
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
     envInvalidAnthropic,
   );
 

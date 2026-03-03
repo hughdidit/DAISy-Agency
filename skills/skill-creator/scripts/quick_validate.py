@@ -15,8 +15,6 @@ except ModuleNotFoundError:
 MAX_SKILL_NAME_LENGTH = 64
 
 
-<<<<<<< HEAD
-=======
 def _extract_frontmatter(content: str) -> Optional[str]:
     lines = content.splitlines()
     if not lines or lines[0].strip() != "---":
@@ -65,7 +63,6 @@ def _parse_simple_frontmatter(frontmatter_text: str) -> Optional[dict[str, str]]
     return parsed
 
 
->>>>>>> f18f087c3 (fix(skills): make quick_validate work without PyYAML)
 def validate_skill(skill_path):
     """Basic validation of a skill"""
     skill_path = Path(skill_path)
@@ -82,12 +79,9 @@ def validate_skill(skill_path):
     if not match:
         return False, "Invalid frontmatter format"
 <<<<<<< HEAD
-<<<<<<< HEAD
 
     frontmatter_text = match.group(1)
 
-=======
->>>>>>> 07edadfa8 (skill-creator: reject unclosed YAML frontmatter (#24289))
     try:
         frontmatter = yaml.safe_load(frontmatter_text)
         if not isinstance(frontmatter, dict):

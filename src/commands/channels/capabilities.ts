@@ -2,16 +2,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
 import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
 import type { ChannelCapabilities, ChannelPlugin } from "../../channels/plugins/types.js";
-=======
-import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
-import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
-import type { ChannelCapabilities, ChannelPlugin } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ChannelCapabilities, ChannelPlugin } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";

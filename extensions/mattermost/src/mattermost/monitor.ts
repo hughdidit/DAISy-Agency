@@ -2,12 +2,7 @@ import WebSocket from "ws";
 
 import type {
   ChannelAccountSnapshot,
-<<<<<<< HEAD
   MoltbotConfig,
-=======
-  ChatType,
-  OpenClawConfig,
->>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
   ReplyPayload,
   RuntimeEnv,
 } from "clawdbot/plugin-sdk";
@@ -26,29 +21,15 @@ import {
   resolveControlCommandGate,
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-=======
-  readStoreAllowFromForDmPolicy,
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   resolveDmGroupAccessWithLists,
 >>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
   resolveAllowlistProviderRuntimeGroupPolicy,
-<<<<<<< HEAD
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
-=======
-  resolveDefaultGroupPolicy,
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   resolveChannelMediaMaxBytes,
   warnMissingProviderGroupPolicyFallbackOnce,
   type HistoryEntry,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
->>>>>>> edbd86074 (refactor(mattermost): extract websocket monitor and reconnect policies)
 import { getMattermostRuntime } from "../runtime.js";
 import { resolveMattermostAccount } from "./accounts.js";
 import {
@@ -68,15 +49,12 @@ import {
   resolveThreadSessionKeys,
 } from "./monitor-helpers.js";
 import { resolveOncharPrefixes, stripOncharPrefix } from "./monitor-onchar.js";
-<<<<<<< HEAD
-=======
 import {
   createMattermostConnectOnce,
   type MattermostEventPayload,
   type MattermostWebSocketFactory,
 } from "./monitor-websocket.js";
 import { runWithReconnect } from "./reconnect.js";
->>>>>>> edbd86074 (refactor(mattermost): extract websocket monitor and reconnect policies)
 import { sendMessageMattermost } from "./send.js";
 
 export type MonitorMattermostOpts = {
@@ -90,10 +68,7 @@ export type MonitorMattermostOpts = {
   webSocketFactory?: MattermostWebSocketFactory;
 };
 
-<<<<<<< HEAD
 type FetchLike = typeof fetch;
-=======
->>>>>>> b044c149c (Mattermost: avoid raw fetch in monitor media download)
 type MediaKind = "image" | "audio" | "video" | "document" | "unknown";
 
 type MattermostReaction = {
@@ -239,15 +214,12 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     cfg,
     accountId: opts.accountId,
   });
-<<<<<<< HEAD
-=======
   const pairing = createScopedPairingAccess({
     core,
     channel: "mattermost",
     accountId: account.accountId,
   });
   const allowNameMatching = isDangerousNameMatchingEnabled(account.config);
->>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
   const botToken = opts.botToken?.trim() || account.botToken?.trim();
   if (!botToken) {
     throw new Error(
@@ -288,12 +260,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
   );
   const channelHistories = new Map<string, HistoryEntry[]>();
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-=======
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: cfg.channels?.mattermost !== undefined,
@@ -445,22 +411,12 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     const storeAllowFrom = normalizeAllowList(
       await core.channel.pairing.readAllowFromStore("mattermost").catch(() => []),
     );
-<<<<<<< HEAD
     const effectiveAllowFrom = Array.from(new Set([...configAllowFrom, ...storeAllowFrom]));
     const effectiveGroupAllowFrom = Array.from(
       new Set([
         ...(configGroupAllowFrom.length > 0 ? configGroupAllowFrom : configAllowFrom),
         ...storeAllowFrom,
       ]),
-=======
-    const storeAllowFrom = normalizeMattermostAllowList(
-      await readStoreAllowFromForDmPolicy({
-        provider: "mattermost",
-        accountId: account.accountId,
-        dmPolicy,
-        readStore: pairing.readStoreForDmPolicy,
-      }),
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
     );
     const allowTextCommands = core.channel.commands.shouldHandleTextCommands({
       cfg,
@@ -496,7 +452,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         ? dmPolicy === "open" || senderAllowedForCommands
         : commandGate.commandAuthorized;
 
-<<<<<<< HEAD
     if (kind === "direct") {
       if (dmPolicy === "disabled") {
         logVerboseMessage(`mattermost: drop dm (dmPolicy=disabled sender=${senderId})`);
@@ -504,16 +459,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
       }
       if (dmPolicy !== "open" && !senderAllowedForCommands) {
         if (dmPolicy === "pairing") {
-=======
-    if (accessDecision.decision !== "allow") {
-      if (kind === "direct") {
-        if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.DM_POLICY_DISABLED) {
-          logVerboseMessage(`mattermost: drop dm (dmPolicy=disabled sender=${senderId})`);
-          return;
-        }
-        if (accessDecision.decision === "pairing") {
-<<<<<<< HEAD
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
           const { code, created } = await core.channel.pairing.upsertPairingRequest({
             channel: "mattermost",
 =======
@@ -544,7 +489,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         }
         return;
       }
-<<<<<<< HEAD
     } else {
       if (groupPolicy === "disabled") {
         logVerboseMessage("mattermost: drop group message (groupPolicy=disabled)");
@@ -560,24 +504,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
           return;
         }
       }
-=======
-      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_DISABLED) {
-        logVerboseMessage("mattermost: drop group message (groupPolicy=disabled)");
-        return;
-      }
-      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_EMPTY_ALLOWLIST) {
-        logVerboseMessage("mattermost: drop group message (no group allowlist)");
-        return;
-      }
-      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_NOT_ALLOWLISTED) {
-        logVerboseMessage(`mattermost: drop group sender=${senderId} (not in groupAllowFrom)`);
-        return;
-      }
-      logVerboseMessage(
-        `mattermost: drop group message (groupPolicy=${groupPolicy} reason=${accessDecision.reason})`,
-      );
-      return;
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
     }
 
     if (kind !== "direct" && commandGate.shouldBlock) {
@@ -887,13 +813,9 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         onError: (err, info) => {
           runtime.error?.(`mattermost ${info.kind} reply failed: ${String(err)}`);
         },
-<<<<<<< HEAD
         onReplyStart: typingCallbacks.onReplyStart,
-=======
->>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
       });
 
-<<<<<<< HEAD
     await core.channel.reply.dispatchReplyFromConfig({
       ctx: ctxPayload,
       cfg,
@@ -906,26 +828,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
       },
     });
     markDispatchIdle();
-=======
-    await core.channel.reply.withReplyDispatcher({
-      dispatcher,
-      onSettled: () => {
-        markDispatchIdle();
-      },
-      run: () =>
-        core.channel.reply.dispatchReplyFromConfig({
-          ctx: ctxPayload,
-          cfg,
-          dispatcher,
-          replyOptions: {
-            ...replyOptions,
-            disableBlockStreaming:
-              typeof account.blockStreaming === "boolean" ? !account.blockStreaming : undefined,
-            onModelSelected,
-          },
-        }),
-    });
->>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
     if (historyKey) {
       clearHistoryEntriesIfEnabled({
         historyMap: channelHistories,
@@ -990,7 +892,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     const kind = channelKind(channelInfo.type);
 
     // Enforce DM/group policy and allowlist checks (same as normal messages)
-<<<<<<< HEAD
     if (kind === "direct") {
       const dmPolicy = account.config.dmPolicy ?? "pairing";
       if (dmPolicy === "disabled") {
@@ -1028,22 +929,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         const configGroupAllowFrom = normalizeAllowList(account.config.groupAllowFrom ?? []);
         const storeAllowFrom = normalizeAllowList(
           await core.channel.pairing.readAllowFromStore("mattermost").catch(() => []),
-=======
-    const dmPolicy = account.config.dmPolicy ?? "pairing";
-<<<<<<< HEAD
-    const storeAllowFrom = normalizeAllowList(
-      dmPolicy === "allowlist"
-        ? []
-        : await core.channel.pairing.readAllowFromStore("mattermost").catch(() => []),
-=======
-    const storeAllowFrom = normalizeMattermostAllowList(
-      await readStoreAllowFromForDmPolicy({
-        provider: "mattermost",
-        accountId: account.accountId,
-        dmPolicy,
-        readStore: pairing.readStoreForDmPolicy,
-      }),
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
     );
     const reactionAccess = resolveDmGroupAccessWithLists({
       isGroup: kind !== "direct",
@@ -1070,7 +955,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         logVerboseMessage(
           `mattermost: drop reaction (groupPolicy=${groupPolicy} sender=${userId} reason=${reactionAccess.reason} channel=${channelId})`,
         );
-<<<<<<< HEAD
         // Drop when allowlist is empty (same as normal message handler)
         const allowed =
           effectiveGroupAllowFrom.length > 0 &&
@@ -1083,8 +967,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
           logVerboseMessage(`mattermost: drop reaction (groupPolicy=allowlist sender=${userId})`);
           return;
         }
-=======
->>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
       }
       return;
     }
@@ -1173,7 +1055,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
 
   const wsUrl = buildMattermostWsUrl(baseUrl);
   let seq = 1;
-<<<<<<< HEAD
 
   const connectOnce = async (): Promise<void> => {
     const ws = new WebSocket(wsUrl);
@@ -1261,33 +1142,4 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
-=======
-  const connectOnce = createMattermostConnectOnce({
-    wsUrl,
-    botToken,
-    abortSignal: opts.abortSignal,
-    statusSink: opts.statusSink,
-    runtime,
-    webSocketFactory: opts.webSocketFactory,
-    nextSeq: () => seq++,
-    onPosted: async (post, payload) => {
-      await debouncer.enqueue({ post, payload });
-    },
-    onReaction: async (payload) => {
-      await handleReactionEvent(payload);
-    },
-  });
-
-  await runWithReconnect(connectOnce, {
-    abortSignal: opts.abortSignal,
-    jitterRatio: 0.2,
-    onError: (err) => {
-      runtime.error?.(`mattermost connection failed: ${String(err)}`);
-      opts.statusSink?.({ lastError: String(err), connected: false });
-    },
-    onReconnect: (delayMs) => {
-      runtime.log?.(`mattermost reconnecting in ${Math.round(delayMs / 1000)}s`);
-    },
-  });
->>>>>>> edbd86074 (refactor(mattermost): extract websocket monitor and reconnect policies)
 }

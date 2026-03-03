@@ -5,12 +5,7 @@ import fs from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -22,11 +17,7 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveDefaultAgentId } from "../../agents/agent-scope.js";
-<<<<<<< HEAD
 >>>>>>> dc5d23484 (refactor(gateway): share server-method param validation)
-=======
-import { clearBootstrapSnapshot } from "../../agents/bootstrap-cache.js";
->>>>>>> 40db3fef4 (fix(agents): cache bootstrap snapshots per session key)
 import { abortEmbeddedPiRun, waitForEmbeddedPiRunEnd } from "../../agents/pi-embedded.js";
 import { stopSubagentsForRequester } from "../../auto-reply/reply/abort.js";
 import { clearSessionQueues } from "../../auto-reply/reply/queue.js";
@@ -39,11 +30,6 @@ import {
   updateSessionStore,
 } from "../../config/sessions.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
-import { normalizeAgentId, parseAgentSessionKey } from "../../routing/session-key.js";
->>>>>>> b08146fad (TUI/Gateway: emit internal hooks for /new and /reset)
 =======
 import { unbindThreadBindingsBySessionKey } from "../../discord/monitor/thread-bindings.js";
 import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
@@ -53,11 +39,7 @@ import {
   normalizeAgentId,
   parseAgentSessionKey,
 } from "../../routing/session-key.js";
-<<<<<<< HEAD
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
-=======
-import { GATEWAY_CLIENT_IDS } from "../protocol/client-info.js";
->>>>>>> 9868d5cd8 (Gateway: allow control-ui session deletion)
 import {
   ErrorCodes,
   errorShape,
@@ -90,12 +72,7 @@ import { resolveSessionKeyFromResolveParams } from "../sessions-resolve.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
-=======
-=======
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -183,8 +160,6 @@ function migrateAndPruneSessionStoreKey(params: {
   return { target, primaryKey, entry: params.store[primaryKey] };
 }
 
-<<<<<<< HEAD
-=======
 function archiveSessionTranscriptsForSession(params: {
   sessionId: string | undefined;
   storePath: string;
@@ -267,7 +242,6 @@ async function ensureSessionRuntimeCleanup(params: {
   );
 }
 
->>>>>>> 3efb75212 (fix(gateway): abort active runs during sessions.reset (#16576))
 export const sessionsHandlers: GatewayRequestHandlers = {
   "sessions.list": ({ params, respond }) => {
     if (!assertValidParams(params, validateSessionsListParams, "sessions.list", respond)) {
@@ -369,12 +343,9 @@ export const sessionsHandlers: GatewayRequestHandlers = {
     if (!key) {
       return;
     }
-<<<<<<< HEAD
-=======
     if (rejectWebchatSessionMutation({ action: "patch", client, isWebchatConnect, respond })) {
       return;
     }
->>>>>>> 397f243de (refactor: dedupe gateway session guards and agent test fixtures)
 
     const { cfg, target, storePath } = resolveGatewaySessionTargetFromKey(key);
     const applied = await updateSessionStore(storePath, async (store) => {
@@ -431,23 +402,15 @@ export const sessionsHandlers: GatewayRequestHandlers = {
       respond(false, undefined, cleanupError);
       return;
     }
-<<<<<<< HEAD
     const storePath = target.storePath;
-=======
-    let oldSessionId: string | undefined;
-    let oldSessionFile: string | undefined;
->>>>>>> dc5d23484 (refactor(gateway): share server-method param validation)
     const next = await updateSessionStore(storePath, (store) => {
       const { primaryKey } = migrateAndPruneSessionStoreKey({ cfg, key, store });
       const entry = store[primaryKey];
-<<<<<<< HEAD
-=======
       const parsed = parseAgentSessionKey(primaryKey);
       const sessionAgentId = normalizeAgentId(parsed?.agentId ?? resolveDefaultAgentId(cfg));
       const resolvedModel = resolveSessionModelRef(cfg, entry, sessionAgentId);
       oldSessionId = entry?.sessionId;
       oldSessionFile = entry?.sessionFile;
->>>>>>> 0929c233d (TUI: sync /model status immediately)
       const now = Date.now();
       const nextEntry: SessionEntry = {
         sessionId: randomUUID(),
@@ -475,8 +438,6 @@ export const sessionsHandlers: GatewayRequestHandlers = {
       store[primaryKey] = nextEntry;
       return nextEntry;
     });
-<<<<<<< HEAD
-=======
     // Archive old transcript so it doesn't accumulate on disk (#14869).
     archiveSessionTranscriptsForSession({
       sessionId: oldSessionId,
@@ -491,7 +452,6 @@ export const sessionsHandlers: GatewayRequestHandlers = {
         reason: "session-reset",
       });
     }
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
     respond(true, { ok: true, key: target.canonicalKey, entry: next }, undefined);
   },
   "sessions.delete": async ({ params, respond }) => {
@@ -503,12 +463,9 @@ export const sessionsHandlers: GatewayRequestHandlers = {
     if (!key) {
       return;
     }
-<<<<<<< HEAD
-=======
     if (rejectWebchatSessionMutation({ action: "delete", client, isWebchatConnect, respond })) {
       return;
     }
->>>>>>> 397f243de (refactor: dedupe gateway session guards and agent test fixtures)
 
     const { cfg, target, storePath } = resolveGatewaySessionTargetFromKey(key);
     const mainKey = resolveMainSessionKey(cfg);
@@ -539,7 +496,6 @@ export const sessionsHandlers: GatewayRequestHandlers = {
       return hadEntry;
     });
 
-<<<<<<< HEAD
     const archived: string[] = [];
     if (deleteTranscript && sessionId) {
       for (const candidate of resolveSessionTranscriptCandidates(
@@ -557,25 +513,6 @@ export const sessionsHandlers: GatewayRequestHandlers = {
           // Best-effort.
         }
       }
-=======
-    const archived =
-      deleted && deleteTranscript
-        ? archiveSessionTranscriptsForSession({
-            sessionId,
-            storePath,
-            sessionFile: entry?.sessionFile,
-            agentId: target.agentId,
-            reason: "deleted",
-          })
-        : [];
-    if (deleted) {
-      const emitLifecycleHooks = p.emitLifecycleHooks !== false;
-      await emitSessionUnboundLifecycleEvent({
-        targetSessionKey: target.canonicalKey ?? key,
-        reason: "session-delete",
-        emitHooks: emitLifecycleHooks,
-      });
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
     }
 
     respond(true, { ok: true, key: target.canonicalKey, deleted, archived }, undefined);

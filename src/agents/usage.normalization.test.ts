@@ -47,8 +47,6 @@ describe("normalizeUsage", () => {
     expect(hasNonzeroUsage({ input: 1 })).toBe(true);
     expect(hasNonzeroUsage({ total: 1 })).toBe(true);
   });
-<<<<<<< HEAD
-=======
 
   it("caps derived session total tokens to the context window", () => {
     expect(
@@ -92,5 +90,4 @@ describe("normalizeUsage", () => {
       }),
     ).toBe(65_000);
   });
->>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 });

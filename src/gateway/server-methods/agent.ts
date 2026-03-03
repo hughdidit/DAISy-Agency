@@ -4,11 +4,6 @@ import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { GatewayRequestHandlerOptions, GatewayRequestHandlers } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { GatewayRequestHandlerOptions, GatewayRequestHandlers } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -39,10 +34,7 @@ import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
 } from "../../infra/outbound/agent-delivery.js";
-<<<<<<< HEAD
-=======
 import { classifySessionKeyShape, normalizeAgentId } from "../../routing/session-key.js";
->>>>>>> df95ddc77 (Fix/agent session key normalization (openclaw#15707) thanks @rodrigouroz)
 import { defaultRuntime } from "../../runtime.js";
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
@@ -54,12 +46,9 @@ import {
 } from "../../utils/message-channel.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
 import { parseMessageWithAttachments } from "../chat-attachments.js";
-<<<<<<< HEAD
-=======
 import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
 import { ADMIN_SCOPE } from "../method-scopes.js";
 import { GATEWAY_CLIENT_CAPS, hasGatewayClientCap } from "../protocol/client-info.js";
->>>>>>> 58659b931 (fix(gateway): enforce owner boundary for agent runs)
 import {
   ErrorCodes,
   errorShape,
@@ -78,124 +67,10 @@ import { formatForLog } from "../ws-log.js";
 import { resolveAssistantIdentity } from "../assistant-identity.js";
 import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
 import { waitForAgentJob } from "./agent-job.js";
-<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
 
 export const agentHandlers: GatewayRequestHandlers = {
   agent: async ({ params, respond, context }) => {
-=======
-import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
-import { normalizeRpcAttachmentsToChatAttachments } from "./attachment-normalize.js";
-import { sessionsHandlers } from "./sessions.js";
-import type { GatewayRequestHandlerOptions, GatewayRequestHandlers } from "./types.js";
-
-const RESET_COMMAND_RE = /^\/(new|reset)(?:\s+([\s\S]*))?$/i;
-
-function resolveSenderIsOwnerFromClient(client: GatewayRequestHandlerOptions["client"]): boolean {
-  const scopes = Array.isArray(client?.connect?.scopes) ? client.connect.scopes : [];
-  return scopes.includes(ADMIN_SCOPE);
-}
-
-function isGatewayErrorShape(value: unknown): value is { code: string; message: string } {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-  const candidate = value as { code?: unknown; message?: unknown };
-  return typeof candidate.code === "string" && typeof candidate.message === "string";
-}
-
-async function runSessionResetFromAgent(params: {
-  key: string;
-  reason: "new" | "reset";
-  idempotencyKey: string;
-  context: GatewayRequestHandlerOptions["context"];
-  client: GatewayRequestHandlerOptions["client"];
-  isWebchatConnect: GatewayRequestHandlerOptions["isWebchatConnect"];
-}): Promise<
-  | { ok: true; key: string; sessionId?: string }
-  | { ok: false; error: ReturnType<typeof errorShape> }
-> {
-  return await new Promise((resolve) => {
-    let settled = false;
-    const settle = (
-      result:
-        | { ok: true; key: string; sessionId?: string }
-        | { ok: false; error: ReturnType<typeof errorShape> },
-    ) => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      resolve(result);
-    };
-
-    const respond: GatewayRequestHandlerOptions["respond"] = (ok, payload, error) => {
-      if (!ok) {
-        settle({
-          ok: false,
-          error: isGatewayErrorShape(error)
-            ? error
-            : errorShape(ErrorCodes.UNAVAILABLE, String(error ?? "sessions.reset failed")),
-        });
-        return;
-      }
-      const payloadObj = payload as
-        | {
-            key?: unknown;
-            entry?: {
-              sessionId?: unknown;
-            };
-          }
-        | undefined;
-      const key = typeof payloadObj?.key === "string" ? payloadObj.key : params.key;
-      const sessionId =
-        payloadObj?.entry && typeof payloadObj.entry.sessionId === "string"
-          ? payloadObj.entry.sessionId
-          : undefined;
-      settle({ ok: true, key, sessionId });
-    };
-
-    const resetResult = sessionsHandlers["sessions.reset"]({
-      req: {
-        type: "req",
-        id: `${params.idempotencyKey}:reset`,
-        method: "sessions.reset",
-      },
-      params: {
-        key: params.key,
-        reason: params.reason,
-      },
-      context: params.context,
-      client: params.client,
-      isWebchatConnect: params.isWebchatConnect,
-      respond,
-    });
-
-    void (async () => {
-      try {
-        await resetResult;
-        if (!settled) {
-          settle({
-            ok: false,
-            error: errorShape(
-              ErrorCodes.UNAVAILABLE,
-              "sessions.reset completed without returning a response",
-            ),
-          });
-        }
-      } catch (err: unknown) {
-        settle({
-          ok: false,
-          error: errorShape(ErrorCodes.UNAVAILABLE, String(err)),
-        });
-      }
-    })();
-  });
-}
-
-export const agentHandlers: GatewayRequestHandlers = {
-  agent: async ({ params, respond, context, client, isWebchatConnect }) => {
->>>>>>> 616658d4b (fix (gateway/agent): route bare /new and /reset through sessions.reset)
     const p = params;
     if (!validateAgentParams(p)) {
       respond(
@@ -502,8 +377,6 @@ export const agentHandlers: GatewayRequestHandlers = {
     }
 
     const runId = idem;
-<<<<<<< HEAD
-=======
     const connId = typeof client?.connId === "string" ? client.connId : undefined;
     const wantsToolEvents = hasGatewayClientCap(
       client?.connect?.caps,
@@ -520,7 +393,6 @@ export const agentHandlers: GatewayRequestHandlers = {
         }
       }
     }
->>>>>>> 2b02e8a7a (feat(gateway): stream thinking events and decouple tool events from verbose level (#10568))
 
     const wantsDelivery = request.deliver === true;
     const explicitTo =
@@ -560,8 +432,6 @@ export const agentHandlers: GatewayRequestHandlers = {
       }
     }
 
-<<<<<<< HEAD
-=======
     if (wantsDelivery && resolvedChannel === INTERNAL_MESSAGE_CHANNEL) {
       respond(
         false,
@@ -585,7 +455,6 @@ export const agentHandlers: GatewayRequestHandlers = {
         ? INTERNAL_MESSAGE_CHANNEL
         : resolvedChannel);
 
->>>>>>> 6fd9ec97d (fix(gateway): preserve turn-origin messageChannel in agent runs)
     const deliver = request.deliver === true && resolvedChannel !== INTERNAL_MESSAGE_CHANNEL;
 
     const accepted = {
@@ -634,12 +503,9 @@ export const agentHandlers: GatewayRequestHandlers = {
         runId,
         lane: request.lane,
         extraSystemPrompt: request.extraSystemPrompt,
-<<<<<<< HEAD
-=======
         internalEvents: request.internalEvents,
         inputProvenance,
 <<<<<<< HEAD
->>>>>>> 4c43fccb3 (feat(agents): use structured internal completion events)
 =======
         senderIsOwner,
 >>>>>>> 58659b931 (fix(gateway): enforce owner boundary for agent runs)

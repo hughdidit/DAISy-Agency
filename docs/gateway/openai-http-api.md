@@ -22,15 +22,8 @@ Uses the Gateway auth configuration. Send a bearer token:
 - `Authorization: Bearer <token>`
 
 Notes:
-<<<<<<< HEAD
 - When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`).
 - When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `CLAWDBOT_GATEWAY_PASSWORD`).
-=======
-
-- When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`).
-- When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `OPENCLAW_GATEWAY_PASSWORD`).
-<<<<<<< HEAD
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 - If `gateway.auth.rateLimit` is configured and too many auth failures occur, the endpoint returns `429` with `Retry-After`.
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
@@ -59,12 +52,7 @@ Or target a specific Moltbot agent by header:
 - `x-moltbot-agent-id: <agentId>` (default: `main`)
 
 Advanced:
-<<<<<<< HEAD
 - `x-moltbot-session-key: <sessionKey>` to fully control session routing.
-=======
-
-- `x-openclaw-session-key: <sessionKey>` to fully control session routing.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Enabling the endpoint
 

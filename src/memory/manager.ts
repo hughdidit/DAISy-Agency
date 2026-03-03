@@ -7,12 +7,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
-=======
-import type { DatabaseSync } from "node:sqlite";
-import { type FSWatcher } from "chokidar";
->>>>>>> 4c401d336 (refactor(memory): extract manager sync and embedding ops)
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -59,7 +54,6 @@ import { searchKeyword, searchVector } from "./manager-search.js";
 import { ensureMemoryIndexSchema } from "./memory-schema.js";
 import { requireNodeSqlite } from "./sqlite.js";
 import { loadSqliteVecExtension } from "./sqlite-vec.js";
-<<<<<<< HEAD
 
 type MemorySource = "memory" | "sessions";
 
@@ -71,17 +65,6 @@ export type MemorySearchResult = {
   snippet: string;
   source: MemorySource;
 };
-=======
-import type {
-  MemoryEmbeddingProbeResult,
-  MemoryProviderStatus,
-  MemorySearchManager,
-  MemorySearchResult,
-  MemorySource,
-  MemorySyncProgressUpdate,
-} from "./types.js";
-<<<<<<< HEAD
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 =======
 =======
 =======
@@ -165,7 +148,6 @@ import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope
 import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 >>>>>>> ec4198954 (Memory: harden readFile ENOENT handling)
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -177,10 +159,6 @@ import type {
   MemorySource,
   MemorySyncProgressUpdate,
 } from "./types.js";
-=======
-import type { DatabaseSync } from "node:sqlite";
-import { type FSWatcher } from "chokidar";
->>>>>>> 14a3af212 (Format: align memory imports)
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
 import { resolveMemorySearchConfig } from "../agents/memory-search.js";
@@ -197,7 +175,6 @@ import {
 } from "./embeddings.js";
 import { isFileMissingError, statRegularFile } from "./fs-utils.js";
 import { bm25RankToScore, buildFtsQuery, mergeHybridResults } from "./hybrid.js";
-<<<<<<< HEAD
 import {
   buildFileEntry,
   chunkMarkdown,
@@ -244,14 +221,6 @@ type MemorySyncProgressState = {
 
 const META_KEY = "memory_index_meta_v1";
 =======
-import { isMemoryPath, normalizeExtraMemoryPaths } from "./internal.js";
-import { MemoryManagerEmbeddingOps } from "./manager-embedding-ops.js";
-import { searchKeyword, searchVector } from "./manager-search.js";
-<<<<<<< HEAD
-import { memoryManagerSyncOps } from "./manager-sync-ops.js";
-<<<<<<< HEAD
->>>>>>> 4c401d336 (refactor(memory): extract manager sync and embedding ops)
-=======
 import { extractKeywords } from "./query-expansion.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -260,11 +229,7 @@ import { extractKeywords } from "./query-expansion.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> bcab2469d (feat: LLM-based query expansion for FTS mode)
-=======
-=======
->>>>>>> 5115f6fdf (style: normalize imports for oxfmt 0.33)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -282,11 +247,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import { extractKeywords } from "./query-expansion.js";
->>>>>>> ddef3cadb (refactor: replace memory manager prototype mixing)
 =======
 >>>>>>> 5115f6fdf (style: normalize imports for oxfmt 0.33)
 =======
@@ -314,45 +275,24 @@ const INDEX_CACHE_PENDING = new Map<string, Promise<MemoryIndexManager>>();
 
 export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements MemorySearchManager {
   private readonly cacheKey: string;
-<<<<<<< HEAD
   private readonly cfg: MoltbotConfig;
   private readonly agentId: string;
-=======
-  protected readonly cfg: OpenClawConfig;
-  protected readonly agentId: string;
-<<<<<<< HEAD
->>>>>>> 1dc9bb8d6 (chore: Fix more type issues.)
   private readonly workspaceDir: string;
   private readonly settings: ResolvedMemorySearchConfig;
   private provider: EmbeddingProvider;
   private readonly requestedProvider: "openai" | "local" | "gemini" | "voyage" | "auto";
   private fallbackFrom?: "openai" | "local" | "gemini" | "voyage";
   private fallbackReason?: string;
-<<<<<<< HEAD
   private openAi?: OpenAiEmbeddingClient;
   private gemini?: GeminiEmbeddingClient;
   private voyage?: VoyageEmbeddingClient;
-=======
-=======
-  protected readonly workspaceDir: string;
-  protected readonly settings: ResolvedMemorySearchConfig;
-  protected provider: EmbeddingProvider | null;
-  private readonly requestedProvider: "openai" | "local" | "gemini" | "voyage" | "mistral" | "auto";
-  protected fallbackFrom?: "openai" | "local" | "gemini" | "voyage" | "mistral";
-  protected fallbackReason?: string;
->>>>>>> ddef3cadb (refactor: replace memory manager prototype mixing)
   private readonly providerUnavailableReason?: string;
   protected openAi?: OpenAiEmbeddingClient;
   protected gemini?: GeminiEmbeddingClient;
   protected voyage?: VoyageEmbeddingClient;
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 1dc9bb8d6 (chore: Fix more type issues.)
   private batch: {
-=======
-=======
-  protected mistral?: MistralEmbeddingClient;
->>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
   protected batch: {
 >>>>>>> ddef3cadb (refactor: replace memory manager prototype mixing)
     enabled: boolean;
@@ -414,7 +354,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId);
     const key = `${agentId}:${workspaceDir}:${JSON.stringify(settings)}`;
     const existing = INDEX_CACHE.get(key);
-<<<<<<< HEAD
     if (existing) return existing;
     const providerResult = await createEmbeddingProvider({
       config: cfg,
@@ -436,49 +375,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     });
     INDEX_CACHE.set(key, manager);
     return manager;
-=======
-    if (existing) {
-      return existing;
-    }
-    const pending = INDEX_CACHE_PENDING.get(key);
-    if (pending) {
-      return pending;
-    }
-    const createPromise = (async () => {
-      const providerResult = await createEmbeddingProvider({
-        config: cfg,
-        agentDir: resolveAgentDir(cfg, agentId),
-        provider: settings.provider,
-        remote: settings.remote,
-        model: settings.model,
-        fallback: settings.fallback,
-        local: settings.local,
-      });
-      const refreshed = INDEX_CACHE.get(key);
-      if (refreshed) {
-        return refreshed;
-      }
-      const manager = new MemoryIndexManager({
-        cacheKey: key,
-        cfg,
-        agentId,
-        workspaceDir,
-        settings,
-        providerResult,
-        purpose: params.purpose,
-      });
-      INDEX_CACHE.set(key, manager);
-      return manager;
-    })();
-    INDEX_CACHE_PENDING.set(key, createPromise);
-    try {
-      return await createPromise;
-    } finally {
-      if (INDEX_CACHE_PENDING.get(key) === createPromise) {
-        INDEX_CACHE_PENDING.delete(key);
-      }
-    }
->>>>>>> 186761173 (fix(memory): readonly sync recovery (openclaw#25799) thanks @rodrigouroz)
   }
 
   private constructor(params: {
@@ -564,8 +460,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
       Math.max(1, Math.floor(maxResults * hybrid.candidateMultiplier)),
     );
 
-<<<<<<< HEAD
-=======
     // FTS-only mode: no embedding provider available
     if (!this.provider) {
       if (!this.fts.enabled || !this.fts.available) {
@@ -602,7 +496,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
       return merged;
     }
 
->>>>>>> bcab2469d (feat: LLM-based query expansion for FTS mode)
     const keywordResults = hybrid.enabled
       ? await this.searchKeyword(cleaned, candidates).catch(() => [])
       : [];
@@ -731,17 +624,7 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     force?: boolean;
     progress?: (update: MemorySyncProgressUpdate) => void;
   }): Promise<void> {
-<<<<<<< HEAD
     if (this.syncing) return this.syncing;
-=======
-    if (this.closed) {
-      return;
-    }
-    if (this.syncing) {
-      return this.syncing;
-    }
-<<<<<<< HEAD
->>>>>>> be756b9a8 (Memory: fix async sync close race)
     this.syncing = this.runSync(params).finally(() => {
 =======
     this.syncing = this.runSyncWithReadonlyRecovery(params).finally(() => {
@@ -845,65 +728,9 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     if (!relPath || !isMemoryPath(relPath)) {
       throw new Error("path required");
     }
-<<<<<<< HEAD
     const absPath = path.resolve(this.workspaceDir, relPath);
     if (!absPath.startsWith(this.workspaceDir)) {
       throw new Error("path escapes workspace");
-=======
-    const absPath = path.isAbsolute(rawPath)
-      ? path.resolve(rawPath)
-      : path.resolve(this.workspaceDir, rawPath);
-    const relPath = path.relative(this.workspaceDir, absPath).replace(/\\/g, "/");
-    const inWorkspace =
-      relPath.length > 0 && !relPath.startsWith("..") && !path.isAbsolute(relPath);
-    const allowedWorkspace = inWorkspace && isMemoryPath(relPath);
-    let allowedAdditional = false;
-    if (!allowedWorkspace && this.settings.extraPaths.length > 0) {
-      const additionalPaths = normalizeExtraMemoryPaths(
-        this.workspaceDir,
-        this.settings.extraPaths,
-      );
-      for (const additionalPath of additionalPaths) {
-        try {
-          const stat = await fs.lstat(additionalPath);
-          if (stat.isSymbolicLink()) {
-            continue;
-          }
-          if (stat.isDirectory()) {
-            if (absPath === additionalPath || absPath.startsWith(`${additionalPath}${path.sep}`)) {
-              allowedAdditional = true;
-              break;
-            }
-            continue;
-          }
-          if (stat.isFile()) {
-            if (absPath === additionalPath && absPath.endsWith(".md")) {
-              allowedAdditional = true;
-              break;
-            }
-          }
-        } catch {}
-      }
-    }
-    if (!allowedWorkspace && !allowedAdditional) {
-      throw new Error("path required");
-    }
-    if (!absPath.endsWith(".md")) {
-      throw new Error("path required");
-    }
-<<<<<<< HEAD
-    let stat: Stats;
-    try {
-      stat = await fs.lstat(absPath);
-    } catch (err) {
-      if (isFileMissingError(err)) {
-        return { text: "", path: relPath };
-      }
-      throw err;
-    }
-    if (stat.isSymbolicLink() || !stat.isFile()) {
-      throw new Error("path required");
->>>>>>> f3f47886b (fix(memory): handle ENOENT gracefully in readFile instead of throwing)
 =======
     const statResult = await statRegularFile(absPath);
     if (statResult.missing) {
@@ -1020,8 +847,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
         lastError: this.batchFailureLastError,
         lastProvider: this.batchFailureLastProvider,
       },
-<<<<<<< HEAD
-=======
       custom: {
         searchMode,
         providerUnavailableReason: this.providerUnavailableReason,
@@ -1032,7 +857,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
           lastError: this.readonlyRecoveryLastError,
         },
       },
->>>>>>> 186761173 (fix(memory): readonly sync recovery (openclaw#25799) thanks @rodrigouroz)
     };
   }
 
@@ -1084,7 +908,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     INDEX_CACHE.delete(this.cacheKey);
   }
 }
-<<<<<<< HEAD
 
 <<<<<<< HEAD
   private async ensureVectorReady(dimensions?: number): Promise<boolean> {
@@ -1772,15 +1595,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     if (!fallback || fallback === "none" || fallback === this.provider.id) return false;
     if (this.fallbackFrom) return false;
     const fallbackFrom = this.provider.id as "openai" | "gemini" | "local";
-=======
-    if (!fallback || fallback === "none" || fallback === this.provider.id) {
-      return false;
-    }
-    if (this.fallbackFrom) {
-      return false;
-    }
-    const fallbackFrom = this.provider.id as "openai" | "gemini" | "local" | "voyage";
->>>>>>> 6965a2cc9 (feat(memory): native Voyage AI support (#7078))
 
     const fallbackModel =
       fallback === "gemini"
@@ -1951,7 +1765,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
       .run(META_KEY, value);
   }
 
-<<<<<<< HEAD
   private async listSessionFiles(): Promise<string[]> {
     const dir = resolveSessionTranscriptsDirForAgent(this.agentId);
     try {
@@ -2046,8 +1859,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     return Math.ceil(text.length / EMBEDDING_APPROX_CHARS_PER_TOKEN);
   }
 
-=======
->>>>>>> 7f1712c1b ((fix): enforce embedding model token limit to prevent overflow (#13455))
   private buildEmbeddingBatches(chunks: MemoryChunk[]): MemoryChunk[][] {
     const batches: MemoryChunk[][] = [];
     let current: MemoryChunk[] = [];
@@ -2542,7 +2353,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     }
   }
 
-<<<<<<< HEAD
   private async runWithConcurrency<T>(tasks: Array<() => Promise<T>>, limit: number): Promise<T[]> {
     if (tasks.length === 0) return [];
     const resolvedLimit = Math.max(1, Math.min(limit, tasks.length));
@@ -2570,8 +2380,6 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     return results;
   }
 
-=======
->>>>>>> 6965a2cc9 (feat(memory): native Voyage AI support (#7078))
   private async withBatchFailureLock<T>(fn: () => Promise<T>): Promise<T> {
     let release: () => void;
     const wait = this.batchFailureLock;

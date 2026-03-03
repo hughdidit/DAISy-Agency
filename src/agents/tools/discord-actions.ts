@@ -1,12 +1,6 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { createActionGate, readStringParam } from "./common.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import { createDiscordActionGate } from "../../discord/accounts.js";
-import { readStringParam } from "./common.js";
->>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
 import { handleDiscordGuildAction } from "./discord-actions-guild.js";
 import { handleDiscordMessagingAction } from "./discord-actions-messaging.js";
 import { handleDiscordModerationAction } from "./discord-actions-moderation.js";
@@ -62,22 +56,10 @@ const presenceActions = new Set(["setPresence"]);
 
 export async function handleDiscordAction(
   params: Record<string, unknown>,
-<<<<<<< HEAD
   cfg: MoltbotConfig,
-=======
-  cfg: OpenClawConfig,
-  options?: {
-    mediaLocalRoots?: readonly string[];
-  },
->>>>>>> 7bbd59738 (fix(media): enforce agent media roots in plugin send actions)
 ): Promise<AgentToolResult<unknown>> {
   const action = readStringParam(params, "action", { required: true });
-<<<<<<< HEAD
   const isActionEnabled = createActionGate(cfg.channels?.discord?.actions);
-=======
-  const accountId = readStringParam(params, "accountId");
-  const isActionEnabled = createDiscordActionGate({ cfg, accountId });
->>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
 
   if (messagingActions.has(action)) {
     return await handleDiscordMessagingAction(action, params, isActionEnabled, options);

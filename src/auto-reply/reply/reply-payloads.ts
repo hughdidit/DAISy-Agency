@@ -1,12 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { isMessagingToolDuplicate } from "../../agents/pi-embedded-helpers.js";
 <<<<<<< HEAD
 import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -100,11 +97,7 @@ export function applyReplyThreading(params: {
   const applyReplyToMode = createReplyToModeFilterForChannel(replyToMode, replyToChannel);
   return payloads
     .map((payload) =>
-<<<<<<< HEAD
       applyReplyTagsToPayload({ ...payload, replyToCurrent: true }, currentMessageId),
-=======
-      resolveReplyThreadingForPayload({ payload, implicitReplyToId, currentMessageId }),
->>>>>>> ef70a55b7 (refactor(reply): clarify explicit reply tags in off mode (#16189))
     )
     .filter(isRenderablePayload)
     .map(applyReplyToMode);

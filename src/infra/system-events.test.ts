@@ -3,14 +3,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";

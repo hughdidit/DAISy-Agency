@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 3d921b615 (fix(slack): apply limit parameter to emoji-list action (#13421))
 import { createSlackActions } from "./slack.actions.js";
 
 const handleSlackAction = vi.fn(async () => ({ details: { ok: true } }));

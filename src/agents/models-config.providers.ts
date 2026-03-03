@@ -15,15 +15,12 @@ import {
 } from "../providers/kilocode-shared.js";
 import { normalizeOptionalSecretInput } from "../utils/normalize-secret-input.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "./auth-profiles.js";
-<<<<<<< HEAD
-=======
 import { discoverBedrockModels } from "./bedrock-discovery.js";
 import {
   buildCloudflareAiGatewayModelDefinition,
   resolveCloudflareAiGatewayBaseUrl,
 } from "./cloudflare-ai-gateway.js";
 <<<<<<< HEAD
->>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
 =======
 import {
   buildBytePlusModelDefinition,
@@ -47,11 +44,7 @@ import {
 } from "./huggingface-models.js";
 >>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 import { resolveAwsSdkEnvVarName, resolveEnvApiKey } from "./model-auth.js";
-<<<<<<< HEAD
 import { discoverBedrockModels } from "./bedrock-discovery.js";
-=======
-import { OLLAMA_NATIVE_BASE_URL } from "./ollama-stream.js";
->>>>>>> 11702290f (feat(ollama): add native /api/chat provider for streaming + tool calling (#11853))
 import {
   buildSyntheticModelDefinition,
   SYNTHETIC_BASE_URL,
@@ -67,11 +60,7 @@ import { discoverVeniceModels, VENICE_BASE_URL } from "./venice-models.js";
 type ModelsConfig = NonNullable<MoltbotConfig["models"]>;
 export type ProviderConfig = NonNullable<ModelsConfig["providers"]>[string];
 
-<<<<<<< HEAD
 const MINIMAX_API_BASE_URL = "https://api.minimax.chat/v1";
-=======
-const MINIMAX_PORTAL_BASE_URL = "https://api.minimax.io/anthropic";
->>>>>>> f24d70ec8 (fix(providers): switch MiniMax API-key provider to anthropic-messages (#15297))
 const MINIMAX_DEFAULT_MODEL_ID = "MiniMax-M2.1";
 const MINIMAX_DEFAULT_VISION_MODEL_ID = "MiniMax-VL-01";
 const MINIMAX_DEFAULT_CONTEXT_WINDOW = 200000;
@@ -133,20 +122,7 @@ const MOONSHOT_DEFAULT_COST = {
   cacheWrite: 0,
 };
 
-<<<<<<< HEAD
 const TOGETHER_BASE_URL = "https://api.together.xyz/v1";
-=======
-const KIMI_CODING_BASE_URL = "https://api.kimi.com/coding/";
-const KIMI_CODING_DEFAULT_MODEL_ID = "k2p5";
-const KIMI_CODING_DEFAULT_CONTEXT_WINDOW = 262144;
-const KIMI_CODING_DEFAULT_MAX_TOKENS = 32768;
-const KIMI_CODING_DEFAULT_COST = {
-  input: 0,
-  output: 0,
-  cacheRead: 0,
-  cacheWrite: 0,
-};
->>>>>>> c62a6e704 (fix(models): add kimi-coding implicit provider template (openclaw#22526) thanks @lailoo)
 
 const QWEN_PORTAL_BASE_URL = "https://portal.qwen.ai/v1";
 const QWEN_PORTAL_OAUTH_PLACEHOLDER = "qwen-oauth";
@@ -173,22 +149,7 @@ const OLLAMA_DEFAULT_COST = {
 };
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const QIANFAN_BASE_URL = "https://qianfan.baidubce.com/v2";
-=======
-=======
-const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
-const OPENROUTER_DEFAULT_MODEL_ID = "auto";
-const OPENROUTER_DEFAULT_CONTEXT_WINDOW = 200000;
-const OPENROUTER_DEFAULT_MAX_TOKENS = 8192;
-const OPENROUTER_DEFAULT_COST = {
-  input: 0,
-  output: 0,
-  cacheRead: 0,
-  cacheWrite: 0,
-};
-
->>>>>>> ded9a59f7 (OpenRouter: allow any model ID instead of restricting to static catalog (#14312))
 const VLLM_BASE_URL = "http://127.0.0.1:8000/v1";
 const VLLM_DEFAULT_CONTEXT_WINDOW = 128000;
 const VLLM_DEFAULT_MAX_TOKENS = 8192;
@@ -239,34 +200,7 @@ interface OllamaTagsResponse {
   models: OllamaModel[];
 }
 
-<<<<<<< HEAD
 async function discoverOllamaModels(): Promise<ModelDefinitionConfig[]> {
-=======
-/**
- * Derive the Ollama native API base URL from a configured base URL.
- *
- * Users typically configure `baseUrl` with a `/v1` suffix (e.g.
- * `http://192.168.20.14:11434/v1`) for the OpenAI-compatible endpoint.
- * The native Ollama API lives at the root (e.g. `/api/tags`), so we
- * strip the `/v1` suffix when present.
- */
-export function resolveOllamaApiBase(configuredBaseUrl?: string): string {
-  if (!configuredBaseUrl) {
-    return OLLAMA_API_BASE_URL;
-  }
-  // Strip trailing slash, then strip /v1 suffix if present
-  const trimmed = configuredBaseUrl.replace(/\/+$/, "");
-  return trimmed.replace(/\/v1$/i, "");
-}
-
-<<<<<<< HEAD
-async function discoverOllamaModels(baseUrl?: string): Promise<ModelDefinitionConfig[]> {
-type VllmModelsResponse = {
-  data?: Array<{
-    id?: string;
-  }>;
-};
->>>>>>> e73d881c5 (Onboarding: add vLLM provider support)
 =======
 async function queryOllamaContextWindow(
   apiBase: string,
@@ -640,8 +574,6 @@ function buildMinimaxProvider(): ProviderConfig {
   };
 }
 
-<<<<<<< HEAD
-=======
 function buildMinimaxPortalProvider(): ProviderConfig {
   return {
     baseUrl: MINIMAX_PORTAL_BASE_URL,
@@ -661,7 +593,6 @@ function buildMinimaxPortalProvider(): ProviderConfig {
   };
 }
 
->>>>>>> cb0350230 (feat(minimax): update models from M2.1 to M2.5 (#14865))
 function buildMoonshotProvider(): ProviderConfig {
   return {
     baseUrl: MOONSHOT_BASE_URL,
@@ -680,29 +611,11 @@ function buildMoonshotProvider(): ProviderConfig {
   };
 }
 
-<<<<<<< HEAD
 function buildTogetherProvider(): ProviderConfig {
   return {
     baseUrl: TOGETHER_BASE_URL,
     api: "openai-completions",
     models: TOGETHER_MODEL_CATALOG.map(buildTogetherModelDefinition),
-=======
-export function buildKimiCodingProvider(): ProviderConfig {
-  return {
-    baseUrl: KIMI_CODING_BASE_URL,
-    api: "anthropic-messages",
-    models: [
-      {
-        id: KIMI_CODING_DEFAULT_MODEL_ID,
-        name: "Kimi for Coding",
-        reasoning: true,
-        input: ["text", "image"],
-        cost: KIMI_CODING_DEFAULT_COST,
-        contextWindow: KIMI_CODING_DEFAULT_CONTEXT_WINDOW,
-        maxTokens: KIMI_CODING_DEFAULT_MAX_TOKENS,
-      },
-    ],
->>>>>>> c62a6e704 (fix(models): add kimi-coding implicit provider template (openclaw#22526) thanks @lailoo)
   };
 }
 
@@ -803,13 +716,8 @@ async function buildVeniceProvider(): Promise<ProviderConfig> {
 async function buildOllamaProvider(): Promise<ProviderConfig> {
   const models = await discoverOllamaModels();
   return {
-<<<<<<< HEAD
     baseUrl: OLLAMA_BASE_URL,
     api: "openai-completions",
-=======
-    baseUrl: resolveOllamaApiBase(configuredBaseUrl),
-    api: "ollama",
->>>>>>> 11702290f (feat(ollama): add native /api/chat provider for streaming + tool calling (#11853))
     models,
   };
 }
@@ -1065,46 +973,12 @@ export async function resolveImplicitProviders(params: {
     break;
   }
 
-<<<<<<< HEAD
   // Ollama provider - only add if explicitly configured
   const ollamaKey =
     resolveEnvApiKeyVarName("ollama") ??
     resolveApiKeyFromProfiles({ provider: "ollama", store: authStore });
   if (ollamaKey) {
     providers.ollama = { ...(await buildOllamaProvider()), apiKey: ollamaKey };
-=======
-  // Ollama provider - auto-discover if running locally, or add if explicitly configured.
-  // Use the user's configured baseUrl (from explicit providers) for model
-  // discovery so that remote / non-default Ollama instances are reachable.
-  // Skip discovery when explicit models are already defined.
-  const ollamaKey =
-    resolveEnvApiKeyVarName("ollama") ??
-    resolveApiKeyFromProfiles({ provider: "ollama", store: authStore });
-  const explicitOllama = params.explicitProviders?.ollama;
-  const hasExplicitModels =
-    Array.isArray(explicitOllama?.models) && explicitOllama.models.length > 0;
-  if (hasExplicitModels && explicitOllama) {
-    providers.ollama = {
-      ...explicitOllama,
-      baseUrl: resolveOllamaApiBase(explicitOllama.baseUrl),
-      api: explicitOllama.api ?? "ollama",
-      apiKey: ollamaKey ?? explicitOllama.apiKey ?? "ollama-local",
-    };
-  } else {
-    const ollamaBaseUrl = explicitOllama?.baseUrl;
-    const hasExplicitOllamaConfig = Boolean(explicitOllama);
-    // Only suppress warnings for implicit local probing when user has not
-    // explicitly configured Ollama.
-    const ollamaProvider = await buildOllamaProvider(ollamaBaseUrl, {
-      quiet: !ollamaKey && !hasExplicitOllamaConfig,
-    });
-    if (ollamaProvider.models.length > 0 || ollamaKey || explicitOllama?.apiKey) {
-      providers.ollama = {
-        ...ollamaProvider,
-        apiKey: ollamaKey ?? explicitOllama?.apiKey ?? "ollama-local",
-      };
-    }
->>>>>>> deb9560a2 (fix(agents): skip Ollama discovery when explicit models configured (#28762))
   }
 
   // vLLM provider - OpenAI-compatible local server (opt-in via env/profile).
@@ -1222,7 +1096,6 @@ export async function resolveImplicitCopilotProvider(params: {
     }
   }
 
-<<<<<<< HEAD
   // pi-coding-agent's ModelRegistry marks a model "available" only if its
   // `AuthStorage` has auth configured for that provider (via auth.json/env/etc).
   // Our Copilot auth lives in Moltbot's auth-profiles store instead, so we also
@@ -1234,10 +1107,6 @@ export async function resolveImplicitCopilotProvider(params: {
   // Note: we deliberately do not write pi-coding-agent's `auth.json` here.
   // Moltbot uses its own auth store and exchanges tokens at runtime.
   // `models list` uses Moltbot's auth heuristics for availability.
-=======
-  // We deliberately do not write pi-coding-agent auth.json here.
-  // OpenClaw keeps auth in auth-profiles and resolves runtime availability from that store.
->>>>>>> e1301c31e (Auth profiles: never persist plaintext when refs are present)
 
   // We intentionally do NOT define custom models for Copilot in models.json.
   // pi-coding-agent treats providers with models as replacements requiring apiKey.

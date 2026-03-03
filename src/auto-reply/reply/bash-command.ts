@@ -8,17 +8,12 @@ import { killProcessTree } from "../../agents/shell-utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import { logVerbose } from "../../globals.js";
 import { clampInt } from "../../utils.js";
 import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -200,7 +195,6 @@ function buildUsageReply(): ReplyPayload {
   };
 }
 
-<<<<<<< HEAD
 function formatElevatedUnavailableMessage(params: {
   runtimeSandboxed: boolean;
   failures: Array<{ gate: string; key: string }>;
@@ -230,8 +224,6 @@ function formatElevatedUnavailableMessage(params: {
   return lines.join("\n");
 }
 
-=======
->>>>>>> e401e2584 (refactor(auto-reply): share elevated unavailable message)
 export async function handleBashChatCommand(params: {
   ctx: MsgContext;
   cfg: MoltbotConfig;

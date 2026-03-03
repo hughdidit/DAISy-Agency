@@ -1,9 +1,5 @@
 import { spawn, type SpawnOptions } from "node:child_process";
-<<<<<<< HEAD
 
-=======
-import { stripAnsi } from "openclaw/plugin-sdk";
->>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 import type { ZcaResult, ZcaRunOptions } from "./types.js";
 
 const ZCA_BINARY = "zca";

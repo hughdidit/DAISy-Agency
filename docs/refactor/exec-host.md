@@ -101,12 +101,7 @@ Ask is **independent** of allowlist; allowlist can be used with `always` or `on-
 - `/elevated off` = restore previous exec settings for the agent session.
 
 ## Approvals store (JSON)
-<<<<<<< HEAD
 Path: `~/.clawdbot/exec-approvals.json`
-=======
-
-Path: `~/.openclaw/exec-approvals.json`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Purpose:
 
@@ -168,12 +163,7 @@ Notes:
 ## UI integration (macOS app)
 
 ### IPC
-<<<<<<< HEAD
 - Unix socket at `~/.clawdbot/exec-approvals.sock` (0600).
-=======
-
-- Unix socket at `~/.openclaw/exec-approvals.sock` (0600).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Token stored in `exec-approvals.json` (0600).
 - Peer checks: same-UID only.
 - Challenge/response: nonce + HMAC(token, request-hash) to prevent replay.

@@ -90,8 +90,6 @@ describe("cron store migration", () => {
 
     await store.cleanup();
   });
-<<<<<<< HEAD
-=======
 
   it("adds anchorMs to legacy every schedules", async () => {
     const store = await makeStorePath();
@@ -125,7 +123,6 @@ describe("cron store migration", () => {
     await store.cleanup();
   });
 <<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 
   it("adds default staggerMs to legacy recurring top-of-hour cron schedules", async () => {

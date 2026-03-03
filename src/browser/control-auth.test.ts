@@ -43,8 +43,6 @@ describe("ensureBrowserControlAuth", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   describe("none mode", () => {
     it("should not auto-generate token when auth mode is none", async () => {
       const cfg: OpenClawConfig = {
@@ -58,7 +56,6 @@ describe("ensureBrowserControlAuth", () => {
     });
   });
 
->>>>>>> e0c3cc498 (test(browser): dedupe auth mode no-token assertions)
   describe("token mode", () => {
     it("should return existing token if configured", async () => {
       const cfg: OpenClawConfig = {

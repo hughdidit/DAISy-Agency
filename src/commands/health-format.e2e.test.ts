@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { stripAnsi } from "../terminal/ansi.js";
->>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 import { formatHealthCheckFailure } from "./health-format.js";
 
 describe("formatHealthCheckFailure", () => {

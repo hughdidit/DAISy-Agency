@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
 summary: "Use DeepSeek-V3.2 in OpenClaw"
-=======
-summary: "Use Qianfan's unified API to access many models in OpenClaw"
->>>>>>> fb5280e1b (optimize doc)
 read_when:
   - You want a single API key for many LLMs
   - You need Baidu Qianfan setup guidance
@@ -278,13 +274,7 @@ OpenClaw uses the OpenAI-compatible API format (`openai-completions`), which Qia
 
 ## Related Documentation
 
-<<<<<<< HEAD
 - [OpenClaw Configuration](/configuration)
 - [Model Providers](/models/providers)
 - [Agent Setup](/agents)
-=======
-- [OpenClaw Configuration](/gateway/configuration)
-- [Model Providers](/concepts/model-providers)
-- [Agent Setup](/concepts/agent)
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - [Qianfan API Documentation](https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb)

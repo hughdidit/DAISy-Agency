@@ -4,12 +4,7 @@ read_when:
   - Using the dev gateway templates
   - Updating the default dev agent identity
 ---
-<<<<<<< HEAD
 # AGENTS.md - Moltbot Workspace
-=======
-
-# AGENTS.md - OpenClaw Workspace
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 This folder is the assistant's working directory.
 

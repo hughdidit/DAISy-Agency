@@ -194,16 +194,9 @@ moltbot channels login
 ## Advanced Configuration
 
 For detailed security architecture and troubleshooting:
-<<<<<<< HEAD
 - [Security Architecture](https://github.com/moltbot/moltbot-ansible/blob/main/docs/security.md)
 - [Technical Details](https://github.com/moltbot/moltbot-ansible/blob/main/docs/architecture.md)
 - [Troubleshooting Guide](https://github.com/moltbot/moltbot-ansible/blob/main/docs/troubleshooting.md)
-=======
-
-- [Security Architecture](https://github.com/openclaw/openclaw-ansible/blob/main/docs/security.md)
-- [Technical Details](https://github.com/openclaw/openclaw-ansible/blob/main/docs/architecture.md)
-- [Troubleshooting Guide](https://github.com/openclaw/openclaw-ansible/blob/main/docs/troubleshooting.md)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Related
 

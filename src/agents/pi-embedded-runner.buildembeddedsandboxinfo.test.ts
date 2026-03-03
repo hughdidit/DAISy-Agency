@@ -1,17 +1,7 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";
-=======
-import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { SandboxContext } from "./sandbox.js";
->>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildEmbeddedSandboxInfo } from "./pi-embedded-runner.js";
@@ -29,7 +19,6 @@ import type { SandboxContext } from "./sandbox.js";
 import { buildEmbeddedSandboxInfo } from "./pi-embedded-runner.js";
 import type { SandboxContext } from "./sandbox.js";
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 vi.mock("@mariozechner/pi-ai", async () => {
   const actual = await vi.importActual<typeof import("@mariozechner/pi-ai")>("@mariozechner/pi-ai");
@@ -126,8 +115,6 @@ const _readSessionMessages = async (sessionFile: string) => {
 };
 
 =======
->>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
-=======
 function createSandboxContext(overrides?: Partial<SandboxContext>): SandboxContext {
   const base = {
     enabled: true,
@@ -169,7 +156,6 @@ describe("buildEmbeddedSandboxInfo", () => {
   });
 
   it("maps sandbox context into prompt info", () => {
-<<<<<<< HEAD
     const sandbox = {
       enabled: true,
       sessionKey: "session:test",
@@ -200,18 +186,10 @@ describe("buildEmbeddedSandboxInfo", () => {
         containerName: "moltbot-sbx-browser-test",
       },
     } satisfies SandboxContext;
-=======
-    const sandbox = createSandboxContext();
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     expect(buildEmbeddedSandboxInfo(sandbox)).toEqual({
       enabled: true,
-<<<<<<< HEAD
       workspaceDir: "/tmp/moltbot-sandbox",
-=======
-      workspaceDir: "/tmp/openclaw-sandbox",
-      containerWorkspaceDir: "/workspace",
->>>>>>> 2bf330777 (fix (sandbox/prompts): align workspace guidance with container workdir)
       workspaceAccess: "none",
       agentWorkspaceMount: undefined,
       browserBridgeUrl: "http://localhost:9222",
@@ -221,7 +199,6 @@ describe("buildEmbeddedSandboxInfo", () => {
   });
 
   it("includes elevated info when allowed", () => {
-<<<<<<< HEAD
     const sandbox = {
       enabled: true,
       sessionKey: "session:test",
@@ -245,9 +222,6 @@ describe("buildEmbeddedSandboxInfo", () => {
         allow: ["exec"],
         deny: ["browser"],
       },
-=======
-    const sandbox = createSandboxContext({
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       browserAllowHostControl: false,
       browser: undefined,
     });
@@ -260,12 +234,7 @@ describe("buildEmbeddedSandboxInfo", () => {
       }),
     ).toEqual({
       enabled: true,
-<<<<<<< HEAD
       workspaceDir: "/tmp/moltbot-sandbox",
-=======
-      workspaceDir: "/tmp/openclaw-sandbox",
-      containerWorkspaceDir: "/workspace",
->>>>>>> 2bf330777 (fix (sandbox/prompts): align workspace guidance with container workdir)
       workspaceAccess: "none",
       agentWorkspaceMount: undefined,
       hostBrowserAllowed: false,

@@ -3,15 +3,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
 import { Type } from "@sinclair/typebox";
 
-=======
-import { Type } from "@sinclair/typebox";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { Type } from "@sinclair/typebox";
 import path from "node:path";
@@ -48,15 +44,8 @@ import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 import type { AnyAgentTool } from "./common.js";
-=======
-import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8a4f9f168 (refactor(agents): share sandboxed session tool context)
 =======
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -147,19 +136,8 @@ export function createSessionsListTool(opts?: {
       const sessions = Array.isArray(list?.sessions) ? list.sessions : [];
       const storePath = typeof list?.path === "string" ? list.path : undefined;
       const a2aPolicy = createAgentToAgentPolicy(cfg);
-<<<<<<< HEAD
       const requesterAgentId = resolveAgentIdFromSessionKey(requesterInternalKey);
       const rows: SessionListRow[] = [];
-=======
-      const visibilityGuard = await createSessionVisibilityGuard({
-        action: "list",
-        requesterSessionKey: effectiveRequesterKey,
-        visibility,
-        a2aPolicy,
-      });
-      const rows: SessionListRow[] = [];
-      const historyTargets: Array<{ row: SessionListRow; resolvedKey: string }> = [];
->>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 
       for (const entry of sessions) {
         if (!entry || typeof entry !== "object") {
@@ -169,15 +147,10 @@ export function createSessionsListTool(opts?: {
         if (!key) {
           continue;
         }
-<<<<<<< HEAD
 
         const entryAgentId = resolveAgentIdFromSessionKey(key);
         const crossAgent = entryAgentId !== requesterAgentId;
         if (crossAgent && !a2aPolicy.isAllowed(requesterAgentId, entryAgentId)) {
-=======
-        const access = visibilityGuard.check(key);
-        if (!access.allowed) {
->>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
           continue;
         }
 
@@ -224,41 +197,10 @@ export function createSessionsListTool(opts?: {
         });
 
         const sessionId = typeof entry.sessionId === "string" ? entry.sessionId : undefined;
-<<<<<<< HEAD
         const transcriptPath =
           sessionId && storePath
             ? path.join(path.dirname(storePath), `${sessionId}.jsonl`)
             : undefined;
-=======
-        const sessionFileRaw = (entry as { sessionFile?: unknown }).sessionFile;
-        const sessionFile = typeof sessionFileRaw === "string" ? sessionFileRaw : undefined;
-        let transcriptPath: string | undefined;
-        if (sessionId) {
-          try {
-            const agentId = resolveAgentIdFromSessionKey(key);
-            const trimmedStorePath = storePath?.trim();
-            let effectiveStorePath: string | undefined;
-            if (trimmedStorePath && trimmedStorePath !== "(multiple)") {
-              if (trimmedStorePath.includes("{agentId}") || trimmedStorePath.startsWith("~")) {
-                effectiveStorePath = resolveStorePath(trimmedStorePath, { agentId });
-              } else if (path.isAbsolute(trimmedStorePath)) {
-                effectiveStorePath = trimmedStorePath;
-              }
-            }
-            const filePathOpts = resolveSessionFilePathOptions({
-              agentId,
-              storePath: effectiveStorePath,
-            });
-            transcriptPath = resolveSessionFilePath(
-              sessionId,
-              sessionFile ? { sessionFile } : undefined,
-              filePathOpts,
-            );
-          } catch {
-            transcriptPath = undefined;
-          }
-        }
->>>>>>> cab0abf52 (fix(sessions): resolve transcript paths with explicit agent context (#16288))
 
         const row: SessionListRow = {
           key: displayKey,

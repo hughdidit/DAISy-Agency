@@ -1,16 +1,5 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import {
-  DEFAULT_ACCOUNT_ID,
-  normalizeAccountId,
-  normalizeOptionalAccountId,
-} from "openclaw/plugin-sdk/account-id";
-import type { ResolvedZalouserAccount, ZalouserAccountConfig, ZalouserConfig } from "./types.js";
-import { runZca, parseJsonOutput } from "./zca.js";
->>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 
 import { runZca, parseJsonOutput } from "./zca.js";
 import type { ResolvedZalouserAccount, ZalouserAccountConfig, ZalouserConfig } from "./types.js";
@@ -58,14 +47,10 @@ function resolveAccountConfig(
   return accounts[accountId] as ZalouserAccountConfig | undefined;
 }
 
-<<<<<<< HEAD
 function mergeZalouserAccountConfig(
   cfg: MoltbotConfig,
   accountId: string,
 ): ZalouserAccountConfig {
-=======
-function mergeZalouserAccountConfig(cfg: OpenClawConfig, accountId: string): ZalouserAccountConfig {
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   const raw = (cfg.channels?.zalouser ?? {}) as ZalouserConfig;
   const { accounts: _ignored, defaultAccount: _ignored2, ...base } = raw;
   const account = resolveAccountConfig(cfg, accountId) ?? {};

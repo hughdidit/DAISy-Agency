@@ -22,12 +22,7 @@ Moltbot selects models in this order:
    next model.
 
 Related:
-<<<<<<< HEAD
 - `agents.defaults.models` is the allowlist/catalog of models Moltbot can use (plus aliases).
-=======
-
-- `agents.defaults.models` is the allowlist/catalog of models OpenClaw can use (plus aliases).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `agents.defaults.imageModel` is used **only when** the primary model can’t accept images.
 - Per-agent defaults can override `agents.defaults.model` via `agents.list[].model` plus bindings (see [/concepts/multi-agent](/concepts/multi-agent)).
 

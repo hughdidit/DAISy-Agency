@@ -2,28 +2,10 @@ import { lookupContextTokens } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
 import { loadConfig } from "../config/config.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { loadSessionStore, resolveStorePath, type SessionEntry } from "../config/sessions.js";
-=======
-import {
-  loadSessionStore,
-  resolveFreshSessionTotalTokens,
-  resolveStorePath,
-  type SessionEntry,
-} from "../config/sessions.js";
-<<<<<<< HEAD
-import { classifySessionKey } from "../gateway/session-utils.js";
->>>>>>> 94eb50658 (refactor(sessions): reuse session key classifier)
 import { info } from "../globals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { classifySessionKey, resolveSessionModelRef } from "../gateway/session-utils.js";
-=======
-import { loadSessionStore, resolveFreshSessionTotalTokens } from "../config/sessions.js";
-import { classifySessionKey } from "../gateway/session-utils.js";
->>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 import { info } from "../globals.js";
 import { parseAgentSessionKey } from "../routing/session-key.js";
 >>>>>>> 5c69e625f (fix(cli): display correct model for sub-agents in sessions list (#18660))
@@ -32,11 +14,7 @@ import type { RuntimeEnv } from "../runtime.js";
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
-=======
-import type { RuntimeEnv } from "../runtime.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 >>>>>>> ed11e93cf (chore(format))
@@ -68,7 +46,6 @@ import {
 type SessionRow = SessionDisplayRow & {
   agentId: string;
   kind: "direct" | "group" | "global" | "unknown";
-<<<<<<< HEAD
   updatedAt: number | null;
   ageMs: number | null;
   sessionId?: string;
@@ -88,8 +65,6 @@ type SessionRow = SessionDisplayRow & {
   providerOverride?: string;
   modelOverride?: string;
   contextTokens?: number;
-=======
->>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 };
 
 const AGENT_PAD = 10;
@@ -143,7 +118,6 @@ const formatKindCell = (kind: SessionRow["kind"], rich: boolean) => {
   return theme.muted(label);
 };
 
-<<<<<<< HEAD
 const formatAgeCell = (updatedAt: number | null | undefined, rich: boolean) => {
   const ageLabel = updatedAt ? formatTimeAgo(Date.now() - updatedAt) : "unknown";
   const padded = ageLabel.padEnd(AGE_PAD);
@@ -202,8 +176,6 @@ function toRows(store: Record<string, SessionEntry>): SessionRow[] {
     .toSorted((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
 }
 
-=======
->>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 export async function sessionsCommand(
   opts: { json?: boolean; store?: string; active?: string; agent?: string; allAgents?: boolean },
   runtime: RuntimeEnv,
@@ -275,27 +247,12 @@ export async function sessionsCommand(
           allAgents: aggregateAgents ? true : undefined,
           count: rows.length,
           activeMinutes: activeMinutes ?? null,
-<<<<<<< HEAD
           sessions: rows.map((r) => ({
             ...r,
             contextTokens:
               r.contextTokens ?? lookupContextTokens(r.model) ?? configContextTokens ?? null,
             model: r.model ?? configModel ?? null,
           })),
-=======
-          sessions: rows.map((r) => {
-            const model = resolveSessionDisplayModel(cfg, r, displayDefaults);
-            return {
-              ...r,
-              totalTokens: resolveFreshSessionTotalTokens(r) ?? null,
-              totalTokensFresh:
-                typeof r.totalTokens === "number" ? r.totalTokensFresh !== false : false,
-              contextTokens:
-                r.contextTokens ?? lookupContextTokens(model) ?? configContextTokens ?? null,
-              model,
-            };
-          }),
->>>>>>> 5c69e625f (fix(cli): display correct model for sub-agents in sessions list (#18660))
         },
         null,
         2,

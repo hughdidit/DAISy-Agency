@@ -3,13 +3,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 import type { MoltbotConfig } from "./types.js";
-=======
-import type { OpenClawConfig } from "./types.js";
-import { isPlainObject, resolveUserPath } from "../utils.js";
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 =======
 import { isPlainObject, resolveUserPath } from "../utils.js";
 import type { OpenClawConfig } from "./types.js";
@@ -90,15 +85,8 @@ function normalizeAny(key: string | undefined, value: unknown): unknown {
  * Goal: accept `~/...` consistently across config file + env overrides, while
  * keeping the surface area small and predictable.
  */
-<<<<<<< HEAD
 export function normalizeConfigPaths(cfg: MoltbotConfig): MoltbotConfig {
   if (!cfg || typeof cfg !== "object") return cfg;
-=======
-export function normalizeConfigPaths(cfg: OpenClawConfig): OpenClawConfig {
-  if (!cfg || typeof cfg !== "object") {
-    return cfg;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   normalizeAny(undefined, cfg);
   return cfg;
 }

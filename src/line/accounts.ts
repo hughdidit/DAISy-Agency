@@ -1,14 +1,5 @@
 import fs from "node:fs";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import {
-  DEFAULT_ACCOUNT_ID,
-  normalizeAccountId as normalizeSharedAccountId,
-  normalizeOptionalAccountId,
-} from "../routing/account-id.js";
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import type {
   LineConfig,
   LineAccountConfig,
@@ -181,20 +172,7 @@ export function listLineAccountIds(cfg: MoltbotConfig): string[] {
   return Array.from(ids);
 }
 
-<<<<<<< HEAD
 export function resolveDefaultLineAccountId(cfg: MoltbotConfig): string {
-=======
-export function resolveDefaultLineAccountId(cfg: OpenClawConfig): string {
-  const preferred = normalizeOptionalAccountId(
-    (cfg.channels?.line as LineConfig | undefined)?.defaultAccount,
-  );
-  if (
-    preferred &&
-    listLineAccountIds(cfg).some((accountId) => normalizeSharedAccountId(accountId) === preferred)
-  ) {
-    return preferred;
-  }
->>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
   const ids = listLineAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;

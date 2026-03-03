@@ -79,8 +79,6 @@ describe("sendMessage channel normalization", () => {
   });
 });
 
-<<<<<<< HEAD
-=======
 describe("sendMessage replyToId threading", () => {
   const setupMattermostCapture = () => {
     const capturedCtx: Record<string, unknown>[] = [];
@@ -124,7 +122,6 @@ describe("sendMessage replyToId threading", () => {
   });
 });
 
->>>>>>> de7d94d9e (perf(test): remove resetModules from config/sandbox/message suites)
 describe("sendPoll channel normalization", () => {
   it("normalizes Teams alias for polls", async () => {
     callGatewayMock.mockResolvedValueOnce({ messageId: "p1" });
@@ -157,8 +154,6 @@ describe("sendPoll channel normalization", () => {
   });
 });
 
-<<<<<<< HEAD
-=======
 describe("gateway url override hardening", () => {
   it("drops gateway url overrides in backend mode (SSRF hardening)", async () => {
     setRegistry(
@@ -229,7 +224,6 @@ describe("gateway url override hardening", () => {
   });
 });
 
->>>>>>> 7adcf5a49 (test(outbound): dedupe shared setup hooks in message e2e)
 const emptyRegistry = createTestRegistry([]);
 
 const createMSTeamsOutbound = (opts?: { includePoll?: boolean }): ChannelOutboundAdapter => ({
@@ -258,7 +252,6 @@ const createMSTeamsOutbound = (opts?: { includePoll?: boolean }): ChannelOutboun
     : {}),
 });
 
-<<<<<<< HEAD
 const createMSTeamsPlugin = (params: {
   aliases?: string[];
   outbound: ChannelOutboundAdapter;
@@ -278,30 +271,4 @@ const createMSTeamsPlugin = (params: {
     resolveAccount: () => ({}),
   },
   outbound: params.outbound,
-=======
-const createMattermostLikePlugin = (opts: {
-  onSendText: (ctx: Record<string, unknown>) => void;
-}): ChannelPlugin => ({
-  id: "mattermost",
-  meta: {
-    id: "mattermost",
-    label: "Mattermost",
-    selectionLabel: "Mattermost",
-    docsPath: "/channels/mattermost",
-    blurb: "Mattermost test stub.",
-  },
-  capabilities: { chatTypes: ["direct", "channel"] },
-  config: {
-    listAccountIds: () => ["default"],
-    resolveAccount: () => ({}),
-  },
-  outbound: {
-    deliveryMode: "direct",
-    sendText: async (ctx) => {
-      opts.onSendText(ctx as unknown as Record<string, unknown>);
-      return { channel: "mattermost", messageId: "m1" };
-    },
-    sendMedia: async () => ({ channel: "mattermost", messageId: "m2" }),
-  },
->>>>>>> 2dcb24498 (refactor(test): dedupe gateway and web scaffolding)
 });

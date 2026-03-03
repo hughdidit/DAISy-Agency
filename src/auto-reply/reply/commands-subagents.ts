@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14,12 +13,6 @@ import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
 import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
-=======
-=======
-import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
-import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
-import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
 import type { CommandHandler } from "./commands-types.js";
@@ -70,11 +63,7 @@ import {
   markSubagentRunForSteerRestart,
   replaceSubagentRunAfterSteer,
 } from "../../agents/subagent-registry.js";
-<<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
-=======
-import { spawnSubagentDirect } from "../../agents/subagent-spawn.js";
->>>>>>> 5a3a448bc (feat(commands): add /subagents spawn command)
 import {
   extractAssistantText,
   resolveInternalSessionKey,
@@ -82,17 +71,8 @@ import {
   sanitizeTextContent,
   stripToolMessages,
 } from "../../agents/tools/sessions-helpers.js";
-<<<<<<< HEAD
 import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
 import { loadSessionStore, resolveStorePath, updateSessionStore } from "../../config/sessions.js";
-=======
-import {
-  type SessionEntry,
-  loadSessionStore,
-  resolveStorePath,
-  updateSessionStore,
-} from "../../config/sessions.js";
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import { callGateway } from "../../gateway/call.js";
 =======
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
@@ -109,7 +89,6 @@ import { handleSubagentsSendAction } from "./commands-subagents/action-send.js";
 import { handleSubagentsSpawnAction } from "./commands-subagents/action-spawn.js";
 import { handleSubagentsUnfocusAction } from "./commands-subagents/action-unfocus.js";
 import {
-<<<<<<< HEAD
   formatDurationCompact,
   formatTokenUsageDisplay,
   truncateLine,
@@ -129,14 +108,8 @@ import type { CommandHandler } from "./commands-types.js";
 <<<<<<< HEAD
 import { clearSessionQueues } from "./queue.js";
 =======
-import { stopSubagentsForRequester } from "./abort.js";
-import type { CommandHandler } from "./commands-types.js";
-=======
->>>>>>> f6f5cda6c (style: format subagent command files)
-=======
 >>>>>>> d30492823 (chore(auto-reply): format subagent command files)
 import { clearSessionQueues } from "./queue.js";
-<<<<<<< HEAD
 import { formatRunLabel, formatRunStatus, sortSubagentRuns } from "./subagents-utils.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 
@@ -144,15 +117,6 @@ type SubagentTargetResolution = {
   entry?: SubagentRunRecord;
   error?: string;
 };
-=======
-import {
-  formatRunLabel,
-  formatRunStatus,
-  resolveSubagentTargetFromRuns,
-  type SubagentTargetResolution,
-  sortSubagentRuns,
-} from "./subagents-utils.js";
->>>>>>> bec94449e (refactor(subagents): share run target resolution)
 
 const COMMAND = "/subagents";
 const COMMAND_KILL = "/kill";
@@ -411,7 +375,6 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
     default:
       return handleSubagentsHelpAction();
   }
-<<<<<<< HEAD
 
   if (action === "kill") {
     const target = restTokens[0];
@@ -731,16 +694,6 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
     }
 
 <<<<<<< HEAD
-=======
-    const commandTo = typeof params.command.to === "string" ? params.command.to.trim() : "";
-    const originatingTo =
-      typeof params.ctx.OriginatingTo === "string" ? params.ctx.OriginatingTo.trim() : "";
-    const fallbackTo = typeof params.ctx.To === "string" ? params.ctx.To.trim() : "";
-    // OriginatingTo reflects the active conversation target and is safer than
-    // command.to for cross-surface command dispatch.
-    const normalizedTo = originatingTo || commandTo || fallbackTo || undefined;
-
->>>>>>> e8816c554 (Agents: fix subagent completion delivery to origin channel)
     const result = await spawnSubagentDirect(
       { task, agentId, model, thinking, cleanup: "keep" },
       {

@@ -1,9 +1,5 @@
 import Foundation
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CronJobEditor+Helpers.swift
 import MoltbotProtocol
-=======
-import OpenClawProtocol
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/CronJobEditor+Helpers.swift
 import SwiftUI
 
 extension CronJobEditor {

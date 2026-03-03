@@ -4,10 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import os from "node:os";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { messagingApi } from "@line/bot-sdk";
 =======
 >>>>>>> ed11e93cf (chore(format))

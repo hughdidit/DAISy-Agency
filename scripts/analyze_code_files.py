@@ -2,15 +2,12 @@
 """
 Lists the longest and shortest code files in the project, and counts duplicated function names across files. Useful for identifying potential refactoring targets and enforcing code size guidelines.
 Threshold can be set to warn about files longer or shorter than a certain number of lines.
-<<<<<<< HEAD
-=======
 
 CI mode (--compare-to): Only warns about files that grew past threshold compared to a base ref.
 Use --strict to exit non-zero on violations for CI gating.
 
 GitHub Actions: when GITHUB_ACTIONS=true, emits ::error annotations on flagged files
 and writes a Markdown job summary to $GITHUB_STEP_SUMMARY (if set).
->>>>>>> 1074d13e4 (Improve flagging in code analyzer)
 """
 
 import os
@@ -164,8 +161,6 @@ def find_duplicate_functions(files: List[Tuple[Path, int]], root_dir: Path) -> D
     return {name: paths for name, paths in function_locations.items() if len(paths) > 1}
 
 
-<<<<<<< HEAD
-=======
 def validate_git_ref(root_dir: Path, ref: str) -> bool:
     """Validate that a git ref exists. Exits with error if not."""
     try:
@@ -335,7 +330,6 @@ def find_threshold_regressions(
 
 
 <<<<<<< HEAD
->>>>>>> de8eb2b29 (feat(ci): also flag already-large files that grew larger)
 =======
 def _write_github_summary(
     summary_path: str,
@@ -434,8 +428,6 @@ def main():
     args = parser.parse_args()
     
     root_dir = Path(args.directory).resolve()
-<<<<<<< HEAD
-=======
     
     # CI delta mode: only show regressions
     if args.compare_to:
@@ -534,7 +526,6 @@ def main():
             print(f"   Only code files are checked ({', '.join(sorted(e for e in CODE_EXTENSIONS))}).")
             print("   Docs, tests names, and config files are not affected.")
             print("─" * 60)
->>>>>>> 1074d13e4 (Improve flagging in code analyzer)
             sys.exit(1)
         
         return

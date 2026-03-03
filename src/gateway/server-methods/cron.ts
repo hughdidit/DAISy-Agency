@@ -1,5 +1,4 @@
 import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../cron/normalize.js";
-<<<<<<< HEAD
 import { readCronRunLogEntries, resolveCronRunLogPath } from "../../cron/run-log.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7,13 +6,6 @@ import { readCronRunLogEntries, resolveCronRunLogPath } from "../../cron/run-log
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import {
-  readCronRunLogEntriesPage,
-  readCronRunLogEntriesPageAll,
-  resolveCronRunLogPath,
-} from "../../cron/run-log.js";
->>>>>>> 77c3b142a (Web UI: add full cron edit parity, all-jobs run history, and compact filters (openclaw#24155) thanks @Takhoffman)
 import type { CronJobCreate, CronJobPatch } from "../../cron/types.js";
 =======
 =======

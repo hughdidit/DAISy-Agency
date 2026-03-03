@@ -1,9 +1,6 @@
 import fs from "fs";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import crypto from "node:crypto";
-=======
->>>>>>> cdb00fe24 (fix(feishu): isolate temp download writes in mkdtemp dirs)
 import os from "os";
 import path from "path";
 import { Readable } from "stream";
@@ -15,12 +12,9 @@ import { withTempDownloadPath, type ClawdbotConfig } from "openclaw/plugin-sdk";
 >>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
-<<<<<<< HEAD
-=======
 import { getFeishuRuntime } from "./runtime.js";
 import { assertFeishuMessageApiSuccess, toFeishuSendResult } from "./send-result.js";
 <<<<<<< HEAD
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { resolveReceiveIdType, normalizeFeishuTarget } from "./targets.js";
 =======
 import { resolveFeishuSendTarget } from "./send-target.js";
@@ -129,10 +123,7 @@ export async function downloadImageFeishu(params: {
     path: { image_key: imageKey },
   });
 
-<<<<<<< HEAD
   const tmpPath = path.join(os.tmpdir(), `feishu_img_${Date.now()}_${crypto.randomUUID()}`);
-=======
->>>>>>> cdb00fe24 (fix(feishu): isolate temp download writes in mkdtemp dirs)
   const buffer = await readFeishuResponseBuffer({
     response,
     tmpDirPrefix: "openclaw-feishu-img-",
@@ -165,10 +156,7 @@ export async function downloadMessageResourceFeishu(params: {
     params: { type },
   });
 
-<<<<<<< HEAD
   const tmpPath = path.join(os.tmpdir(), `feishu_${Date.now()}_${crypto.randomUUID()}`);
-=======
->>>>>>> cdb00fe24 (fix(feishu): isolate temp download writes in mkdtemp dirs)
   const buffer = await readFeishuResponseBuffer({
     response,
     tmpDirPrefix: "openclaw-feishu-resource-",

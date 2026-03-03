@@ -177,20 +177,10 @@ describe("gateway hot reload", () => {
   let prevOpenAiApiKey: string | undefined;
 
   beforeEach(() => {
-<<<<<<< HEAD
     prevSkipChannels = process.env.CLAWDBOT_SKIP_CHANNELS;
     prevSkipGmail = process.env.CLAWDBOT_SKIP_GMAIL_WATCHER;
     process.env.CLAWDBOT_SKIP_CHANNELS = "0";
     delete process.env.CLAWDBOT_SKIP_GMAIL_WATCHER;
-=======
-    prevSkipChannels = process.env.OPENCLAW_SKIP_CHANNELS;
-    prevSkipGmail = process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
-    prevSkipProviders = process.env.OPENCLAW_SKIP_PROVIDERS;
-    prevOpenAiApiKey = process.env.OPENAI_API_KEY;
-    process.env.OPENCLAW_SKIP_CHANNELS = "0";
-    delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
-    delete process.env.OPENCLAW_SKIP_PROVIDERS;
->>>>>>> c06a962bb (test(e2e): stabilize suite)
   });
 
   afterEach(() => {

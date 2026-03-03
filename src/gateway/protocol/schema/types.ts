@@ -68,8 +68,6 @@ import type {
   CronUpdateParamsSchema,
 } from "./cron.js";
 import type {
-<<<<<<< HEAD
-=======
   DevicePairApproveParamsSchema,
   DevicePairListParamsSchema,
   DevicePairRemoveParamsSchema,
@@ -78,7 +76,6 @@ import type {
   DeviceTokenRotateParamsSchema,
 } from "./devices.js";
 import type {
->>>>>>> 1437ed76a (Gateway/CLI: add paired-device remove and clear flows (#20057))
   ExecApprovalsGetParamsSchema,
   ExecApprovalsNodeGetParamsSchema,
   ExecApprovalsNodeSetParamsSchema,

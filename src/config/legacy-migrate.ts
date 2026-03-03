@@ -1,13 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { applyLegacyMigrations } from "./legacy.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
-=======
-import type { OpenClawConfig } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "./types.js";
 import { applyLegacyMigrations } from "./legacy.js";

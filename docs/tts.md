@@ -160,15 +160,9 @@ Full schema is in [Gateway configuration](/gateway/configuration).
       auto: "always",
       maxTextLength: 4000,
       timeoutMs: 30000,
-<<<<<<< HEAD
       prefsPath: "~/.clawdbot/settings/tts.json"
     }
   }
-=======
-      prefsPath: "~/.openclaw/settings/tts.json",
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -332,12 +326,7 @@ OpenAI/ElevenLabs formats are fixed; Telegram expects Opus for voice-note UX.
 
 ## Auto-TTS behavior
 
-<<<<<<< HEAD
 When enabled, Moltbot:
-=======
-When enabled, OpenClaw:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - skips TTS if the reply already contains media or a `MEDIA:` directive.
 - skips very short replies (< 10 chars).
 - summarizes long replies when enabled using `agents.defaults.model.primary` (or `summaryModel`).

@@ -10,7 +10,6 @@ import {
   upsertPairingRequestMock,
 } from "./monitor-inbox.test-harness.js";
 
-<<<<<<< HEAD
 vi.mock("../media/store.js", () => ({
   saveMediaBuffer: vi.fn().mockResolvedValue({
     id: "mid",
@@ -87,8 +86,6 @@ import { resetLogger, setLoggerOverride } from "../logging.js";
 import { monitorWebInbox, resetWebInboundDedupe } from "./inbound.js";
 
 const ACCOUNT_ID = "default";
-=======
->>>>>>> b8b7a6e0f (refactor(test): dedupe web monitor inbox test setup)
 const nowSeconds = (offsetMs = 0) => Math.floor((Date.now() + offsetMs) / 1000);
 const DEFAULT_MESSAGES_CFG = {
   messagePrefix: undefined,
@@ -170,7 +167,6 @@ async function expectOutboundDmSkipsPairing(params: {
 }
 
 describe("web monitor inbox", () => {
-<<<<<<< HEAD
   beforeEach(() => {
     vi.clearAllMocks();
     readAllowFromStoreMock.mockResolvedValue([]);
@@ -188,9 +184,6 @@ describe("web monitor inbox", () => {
     vi.useRealTimers();
     fsSync.rmSync(authDir, { recursive: true, force: true });
   });
-=======
-  installWebMonitorInboxUnitTestHooks();
->>>>>>> b8b7a6e0f (refactor(test): dedupe web monitor inbox test setup)
 
   it("allows messages from senders in allowFrom list", async () => {
     mockLoadConfig.mockReturnValue(createAllowListConfig(["+111", "+999"]));

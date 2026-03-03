@@ -6,15 +6,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 
-=======
-=======
-import fs from "node:fs/promises";
-import os from "node:os";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 =======
@@ -50,36 +44,19 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
 import { listChannelSupportedActions, resolveChannelMessageToolHints } from "../channel-tools.js";
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
-=======
-import fs from "node:fs/promises";
-import os from "node:os";
->>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
 import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import type { ExecElevatedDefaults } from "../bash-tools.js";
-import type { EmbeddedPiCompactResult } from "./types.js";
-=======
->>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
-<<<<<<< HEAD
 >>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 =======
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -92,11 +69,7 @@ import type { EmbeddedPiCompactResult } from "./types.js";
 import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -116,21 +89,15 @@ import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getMachineDisplayName } from "../../infra/machine-name.js";
-<<<<<<< HEAD
-=======
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { type enqueueCommand, enqueueCommandInLane } from "../../process/command-queue.js";
 import { isCronSessionKey, isSubagentSessionKey } from "../../routing/session-key.js";
 import { resolveSignalReactionLevel } from "../../signal/reaction-level.js";
->>>>>>> ab71fdf82 (Plugin API: compaction/reset hooks, bootstrap file globs, memory plugin status (#13287))
 import { resolveTelegramInlineButtonsScope } from "../../telegram/inline-buttons.js";
 import { resolveTelegramReactionLevel } from "../../telegram/reaction-level.js";
 import { resolveSignalReactionLevel } from "../../signal/reaction-level.js";
@@ -154,28 +121,17 @@ import {
   validateGeminiTurns,
 } from "../pi-embedded-helpers.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   ensurePiCompactionReserveTokens,
   resolveCompactionReserveTokensFloor,
 } from "../pi-settings.js";
 import { createMoltbotCodingTools } from "../pi-tools.js";
-=======
-import { applyPiCompactionSettingsFromConfig } from "../pi-settings.js";
-=======
-import { createPreparedEmbeddedPiSettingsManager } from "../pi-project-settings.js";
->>>>>>> 611dff985 (fix(agents): harden embedded pi project settings loading)
 import { createOpenClawCodingTools } from "../pi-tools.js";
 >>>>>>> c1ac37a64 (Config: expose Pi compaction tuning values (openclaw#21568) thanks @Takhoffman)
 import { resolveSandboxContext } from "../sandbox.js";
 import { repairSessionFileIfNeeded } from "../session-file-repair.js";
 import { guardSessionManager } from "../session-tool-result-guard-wrapper.js";
-<<<<<<< HEAD
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
-=======
-import { sanitizeToolUseResultPairing } from "../session-transcript-repair.js";
-<<<<<<< HEAD
->>>>>>> 43818e158 (fix(agents): re-run tool_use pairing repair after history truncation (#13926))
 import { acquireSessionWriteLock } from "../session-write-lock.js";
 =======
 import {
@@ -191,14 +147,11 @@ import {
   resolveSkillsPromptForRun,
   type SkillSnapshot,
 } from "../skills.js";
-<<<<<<< HEAD
-=======
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
 import {
   compactWithSafetyTimeout,
   EMBEDDED_COMPACTION_TIMEOUT_MS,
 } from "./compaction-safety-timeout.js";
->>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import { buildEmbeddedExtensionPaths } from "./extensions.js";
 import {
   logToolSchemasForGoogle,
@@ -211,18 +164,8 @@ import { log } from "./logger.js";
 import { buildModelAliasLines, resolveModel } from "./model.js";
 import { buildEmbeddedSandboxInfo } from "./sandbox-info.js";
 import { prewarmSessionFile, trackSessionManagerAccess } from "./session-manager-cache.js";
-<<<<<<< HEAD
 import { buildEmbeddedSystemPrompt, createSystemPromptOverride } from "./system-prompt.js";
-=======
-import {
-  applySystemPromptOverrideToSession,
-  buildEmbeddedSystemPrompt,
-  createSystemPromptOverride,
-} from "./system-prompt.js";
-import { collectAllowedToolNames } from "./tool-name-allowlist.js";
->>>>>>> cdfe45eeb (Agents: validate persisted tool-call names)
 import { splitSdkTools } from "./tool-split.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -235,10 +178,6 @@ import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../d
 import { describeUnknownError, mapThinkingLevel, resolveExecToolDefaults } from "./utils.js";
 <<<<<<< HEAD
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
-=======
-=======
-=======
->>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 =======
 import type { EmbeddedPiCompactResult } from "./types.js";
 >>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
@@ -430,7 +369,6 @@ export async function compactEmbeddedPiSessionDirect(
 
   const provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
   const modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
-<<<<<<< HEAD
   const agentDir = params.agentDir ?? resolveMoltbotAgentDir();
   await ensureMoltbotModelsJson(params.config, agentDir);
   const { model, error, authStorage, modelRegistry } = resolveModel(
@@ -441,9 +379,6 @@ export async function compactEmbeddedPiSessionDirect(
   );
   if (!model) {
     const reason = error ?? `Unknown model: ${provider}/${modelId}`;
-=======
-  const fail = (reason: string): EmbeddedPiCompactResult => {
->>>>>>> 824901083 (refactor(pi): dedupe compaction failure)
     log.warn(
       `[compaction-diag] end runId=${runId} sessionKey=${params.sessionKey ?? params.sessionId} ` +
         `diagId=${diagId} trigger=${trigger} provider=${provider}/${modelId} ` +
@@ -655,16 +590,8 @@ export async function compactEmbeddedPiSessionDirect(
       config: params.config,
     });
     const isDefaultAgent = sessionAgentId === defaultAgentId;
-<<<<<<< HEAD
     const promptMode = isSubagentSessionKey(params.sessionKey) ? "minimal" : "full";
     const docsPath = await resolveMoltbotDocsPath({
-=======
-    const promptMode =
-      isSubagentSessionKey(params.sessionKey) || isCronSessionKey(params.sessionKey)
-        ? "minimal"
-        : "full";
-    const docsPath = await resolveOpenClawDocsPath({
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
       workspaceDir: effectiveWorkspace,
       argv1: process.argv[1],
       cwd: process.cwd(),
@@ -746,23 +673,8 @@ export async function compactEmbeddedPiSessionDirect(
         sandboxEnabled: !!sandbox?.enabled,
       });
 
-<<<<<<< HEAD
       let session: Awaited<ReturnType<typeof createAgentSession>>["session"];
       ({ session } = await createAgentSession({
-=======
-      const resourceLoader = new DefaultResourceLoader({
-        cwd: resolvedWorkspace,
-        agentDir,
-        settingsManager,
-        additionalExtensionPaths,
-        noSkills: true,
-        systemPromptOverride: systemPrompt,
-        agentsFilesOverride: () => ({ agentsFiles: [] }),
-      });
-      await resourceLoader.reload();
-
-      const { session } = await createAgentSession({
->>>>>>> cbc405c9e (Agents: update pi-coding-agent API usage)
         cwd: resolvedWorkspace,
         agentDir,
         authStorage,
@@ -774,15 +686,10 @@ export async function compactEmbeddedPiSessionDirect(
         customTools,
         sessionManager,
         settingsManager,
-<<<<<<< HEAD
         skills: [],
         contextFiles: [],
         additionalExtensionPaths,
       }));
-=======
-        resourceLoader,
-      });
->>>>>>> cbc405c9e (Agents: update pi-coding-agent API usage)
 
       try {
         const prior = await sanitizeSessionHistory({

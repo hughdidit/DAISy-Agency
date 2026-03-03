@@ -59,7 +59,6 @@ export async function persistSessionUsageUpdate(params: {
         storePath,
         sessionKey,
         update: async (entry) => {
-<<<<<<< HEAD
           const input = params.usage?.input ?? 0;
           const output = params.usage?.output ?? 0;
           const promptTokens =
@@ -70,14 +69,6 @@ export async function persistSessionUsageUpdate(params: {
 <<<<<<< HEAD
 <<<<<<< HEAD
             totalTokens: promptTokens > 0 ? promptTokens : (params.usage?.total ?? input),
-=======
-            totalTokens:
-              deriveSessionTotalTokens({
-                usage: usageForContext,
-                contextTokens: resolvedContextTokens,
-                promptTokens: params.promptTokens,
-              }) ?? input,
->>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 =======
             cacheRead: params.usage?.cacheRead ?? 0,
             cacheWrite: params.usage?.cacheWrite ?? 0,

@@ -7,10 +7,7 @@ import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { Type } from "@sinclair/typebox";
 =======
 >>>>>>> dee013426 (style: reformat dedupe-touched files)

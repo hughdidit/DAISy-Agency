@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import type { MoltbotPluginApi } from "clawdbot/plugin-sdk";
 import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
 
-=======
-import type { AnyAgentTool, OpenClawPluginApi } from "openclaw/plugin-sdk";
-import { emptyPluginConfigSchema } from "openclaw/plugin-sdk";
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { zalouserDock, zalouserPlugin } from "./src/channel.js";
 import { ZalouserToolSchema, executeZalouserTool } from "./src/tool.js";
 import { setZalouserRuntime } from "./src/runtime.js";

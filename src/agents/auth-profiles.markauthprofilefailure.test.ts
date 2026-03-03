@@ -49,7 +49,6 @@ function expectCooldownInRange(remainingMs: number, minMs: number, maxMs: number
 
 describe("markAuthProfileFailure", () => {
   it("disables billing failures for ~5 hours by default", async () => {
-<<<<<<< HEAD
     const agentDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-auth-"));
     try {
       const authPath = path.join(agentDir, "auth-profiles.json");
@@ -68,9 +67,6 @@ describe("markAuthProfileFailure", () => {
       );
 
       const store = ensureAuthProfileStore(agentDir);
-=======
-    await withAuthProfileStore(async ({ agentDir, store }) => {
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       const startedAt = Date.now();
       await markAuthProfileFailure({
         store,
@@ -86,7 +82,6 @@ describe("markAuthProfileFailure", () => {
     });
   });
   it("honors per-provider billing backoff overrides", async () => {
-<<<<<<< HEAD
     const agentDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-auth-"));
     try {
       const authPath = path.join(agentDir, "auth-profiles.json");
@@ -105,9 +100,6 @@ describe("markAuthProfileFailure", () => {
       );
 
       const store = ensureAuthProfileStore(agentDir);
-=======
-    await withAuthProfileStore(async ({ agentDir, store }) => {
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       const startedAt = Date.now();
       await markAuthProfileFailure({
         store,
@@ -130,8 +122,6 @@ describe("markAuthProfileFailure", () => {
       expectCooldownInRange(remainingMs, 0.8 * 60 * 60 * 1000, 1.2 * 60 * 60 * 1000);
     });
   });
-<<<<<<< HEAD
-=======
   it("keeps persisted cooldownUntil unchanged across mid-window retries", async () => {
     await withAuthProfileStore(async ({ agentDir, store }) => {
       await markAuthProfileFailure({
@@ -174,7 +164,6 @@ describe("markAuthProfileFailure", () => {
       expect(stats?.cooldownUntil).toBeUndefined();
     });
   });
->>>>>>> c0026274d (fix(auth): distinguish revoked API keys from transient auth errors (#25754))
   it("resets backoff counters outside the failure window", async () => {
     const agentDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-auth-"));
     try {

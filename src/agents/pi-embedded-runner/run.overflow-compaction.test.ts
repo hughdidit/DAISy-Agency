@@ -3,43 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { pickFallbackThinkingLevel } from "../pi-embedded-helpers.js";
 import { runEmbeddedPiAgent } from "./run.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { mockOverflowRetrySuccess } from "./run.overflow-compaction.fixture.js";
-=======
-import { makeAttemptResult, mockOverflowRetrySuccess } from "./run.overflow-compaction.fixture.js";
-=======
-import {
-  makeAttemptResult,
-  makeCompactionSuccess,
-  makeOverflowError,
-  mockOverflowRetrySuccess,
-  queueOverflowAttemptWithOversizedToolOutput,
-} from "./run.overflow-compaction.fixture.js";
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 import { mockedGlobalHookRunner } from "./run.overflow-compaction.mocks.shared.js";
-<<<<<<< HEAD
 >>>>>>> 542fc169d (Plugins/Hooks: avoid duplicate before_agent_start executions)
 import { runEmbeddedAttempt } from "./run/attempt.js";
 
 const mockedRunEmbeddedAttempt = vi.mocked(runEmbeddedAttempt);
 const mockedCompactDirect = vi.mocked(compactEmbeddedPiSessionDirect);
 <<<<<<< HEAD
-=======
-const mockedSessionLikelyHasOversizedToolResults = vi.mocked(sessionLikelyHasOversizedToolResults);
-const mockedTruncateOversizedToolResultsInSession = vi.mocked(
-  truncateOversizedToolResultsInSession,
-);
-=======
-import {
-  mockedCompactDirect,
-  mockedRunEmbeddedAttempt,
-  mockedSessionLikelyHasOversizedToolResults,
-  mockedTruncateOversizedToolResultsInSession,
-  overflowBaseRunParams,
-} from "./run.overflow-compaction.shared-test.js";
-<<<<<<< HEAD
-import type { EmbeddedRunAttemptResult } from "./run/types.js";
->>>>>>> f41be7159 (test(pi): share overflow-compaction test setup)
 =======
 >>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 const mockedPickFallbackThinkingLevel = vi.mocked(pickFallbackThinkingLevel);
@@ -96,8 +67,6 @@ describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
       }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("does not reset compaction attempt budget after successful tool-result truncation", async () => {
     const overflowError = queueOverflowAttemptWithOversizedToolOutput(
@@ -160,5 +129,4 @@ describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
     expect(result.meta.error?.kind).toBe("retry_limit");
     expect(result.payloads?.[0]?.isError).toBe(true);
   });
->>>>>>> b25d3652e (fix(agents): cap embedded runner retry loop)
 });

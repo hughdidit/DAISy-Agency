@@ -5,14 +5,9 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { resolveDefaultAgentId } from "../agents/agent-scope.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
@@ -42,16 +37,10 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { SessionEntry } from "../config/sessions.js";
 <<<<<<< HEAD
 import type { SessionScope } from "../config/sessions/types.js";
 import { saveSessionStore } from "../config/sessions.js";
-=======
-import { saveSessionStore } from "../config/sessions.js";
-import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
-import type { SessionScope } from "../config/sessions/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { saveSessionStore } from "../config/sessions.js";
 import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
@@ -544,12 +533,9 @@ export async function autoMigrateLegacyStateDir(params: {
   }
 
   try {
-<<<<<<< HEAD
-=======
     if (!legacyDir) {
       throw new Error("Legacy state dir not found");
     }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     fs.renameSync(legacyDir, targetDir);
   } catch (err) {
     warnings.push(`Failed to move legacy state dir (${legacyDir} → ${targetDir}): ${String(err)}`);
@@ -557,22 +543,15 @@ export async function autoMigrateLegacyStateDir(params: {
   }
 
   try {
-<<<<<<< HEAD
-=======
     if (!legacyDir) {
       throw new Error("Legacy state dir not found");
     }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     fs.symlinkSync(targetDir, legacyDir, "dir");
     changes.push(formatStateDirMigration(legacyDir, targetDir));
   } catch (err) {
     try {
       if (process.platform === "win32") {
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        if (!legacyDir) throw new Error("Legacy state dir not found", { cause: err });
->>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
 =======
         if (!legacyDir) {
           throw new Error("Legacy state dir not found", { cause: err });
@@ -586,11 +565,6 @@ export async function autoMigrateLegacyStateDir(params: {
     } catch (fallbackErr) {
       try {
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        if (!legacyDir)
-          throw new Error("Legacy state dir not found", { cause: err }, { cause: fallbackErr });
->>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
 =======
         if (!legacyDir) {
           // oxlint-disable-next-line preserve-caught-error

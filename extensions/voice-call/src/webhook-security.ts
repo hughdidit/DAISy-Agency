@@ -1,79 +1,7 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
 import type { WebhookContext } from "./types.js";
 
-=======
-import { getHeader } from "./http-headers.js";
-import type { WebhookContext } from "./types.js";
-
-const REPLAY_WINDOW_MS = 10 * 60 * 1000;
-const REPLAY_CACHE_MAX_ENTRIES = 10_000;
-const REPLAY_CACHE_PRUNE_INTERVAL = 64;
-
-type ReplayCache = {
-  seenUntil: Map<string, number>;
-  calls: number;
-};
-
-const twilioReplayCache: ReplayCache = {
-  seenUntil: new Map<string, number>(),
-  calls: 0,
-};
-
-const plivoReplayCache: ReplayCache = {
-  seenUntil: new Map<string, number>(),
-  calls: 0,
-};
-
-const telnyxReplayCache: ReplayCache = {
-  seenUntil: new Map<string, number>(),
-  calls: 0,
-};
-
-function sha256Hex(input: string): string {
-  return crypto.createHash("sha256").update(input).digest("hex");
-}
-
-function createSkippedVerificationReplayKey(provider: string, ctx: WebhookContext): string {
-  return `${provider}:skip:${sha256Hex(`${ctx.method}\n${ctx.url}\n${ctx.rawBody}`)}`;
-}
-
-function pruneReplayCache(cache: ReplayCache, now: number): void {
-  for (const [key, expiresAt] of cache.seenUntil) {
-    if (expiresAt <= now) {
-      cache.seenUntil.delete(key);
-    }
-  }
-  while (cache.seenUntil.size > REPLAY_CACHE_MAX_ENTRIES) {
-    const oldest = cache.seenUntil.keys().next().value;
-    if (!oldest) {
-      break;
-    }
-    cache.seenUntil.delete(oldest);
-  }
-}
-
-function markReplay(cache: ReplayCache, replayKey: string): boolean {
-  const now = Date.now();
-  cache.calls += 1;
-  if (cache.calls % REPLAY_CACHE_PRUNE_INTERVAL === 0) {
-    pruneReplayCache(cache, now);
-  }
-
-  const existing = cache.seenUntil.get(replayKey);
-  if (existing && existing > now) {
-    return true;
-  }
-
-  cache.seenUntil.set(replayKey, now + REPLAY_WINDOW_MS);
-  if (cache.seenUntil.size > REPLAY_CACHE_MAX_ENTRIES) {
-    pruneReplayCache(cache, now);
-  }
-  return false;
-}
-
->>>>>>> 535ef8991 (refactor(voice-call): enforce verified webhook key contract)
 /**
  * Validate Twilio webhook signature using HMAC-SHA1.
  *
@@ -209,8 +137,6 @@ export interface TwilioVerificationResult {
   verificationUrl?: string;
   /** Whether we're running behind ngrok free tier */
   isNgrokFreeTier?: boolean;
-<<<<<<< HEAD
-=======
   /** Request is cryptographically valid but was already processed recently. */
   isReplay?: boolean;
   /** Stable request identity derived from signed Twilio material. */
@@ -344,7 +270,6 @@ export function verifyTelnyxWebhook(
       reason: `Verification error: ${err instanceof Error ? err.message : String(err)}`,
     };
   }
->>>>>>> 535ef8991 (refactor(voice-call): enforce verified webhook key contract)
 }
 
 /**

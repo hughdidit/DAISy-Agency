@@ -7,10 +7,7 @@ import { PassThrough } from "node:stream";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import JSZip from "jszip";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -29,14 +26,8 @@ import { createPinnedLookup } from "../infra/net/ssrf.js";
 import { captureEnv } from "../test-utils/env.js";
 import { saveMediaSource, setMediaStoreNetworkDepsForTest } from "./store.js";
 
-<<<<<<< HEAD
 const realOs = await vi.importActual<typeof import("node:os")>("node:os");
 const HOME = path.join(realOs.tmpdir(), "moltbot-home-redirect");
-=======
-const HOME = path.join(os.tmpdir(), "openclaw-home-redirect");
-<<<<<<< HEAD
-const previousStateDir = process.env.OPENCLAW_STATE_DIR;
->>>>>>> b272158fe (perf(test): eliminate resetModules via injectable seams)
 =======
 >>>>>>> f0e373b82 (refactor(test): simplify state dir env restore)
 const mockRequest = vi.fn();

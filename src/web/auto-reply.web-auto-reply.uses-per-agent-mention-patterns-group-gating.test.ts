@@ -6,7 +6,6 @@ import {
   setLoadConfigMock,
 } from "./auto-reply.test-harness.js";
 
-<<<<<<< HEAD
 let previousHome: string | undefined;
 let tempHome: string | undefined;
 
@@ -80,9 +79,6 @@ const _makeSessionStore = async (
     cleanup,
   };
 };
-=======
-installWebAutoReplyTestHomeHooks();
->>>>>>> 95b077ad2 (refactor(test): reuse web auto-reply harness)
 
 let monitorWebChannel: typeof import("./auto-reply.js").monitorWebChannel;
 

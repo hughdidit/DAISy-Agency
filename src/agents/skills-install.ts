@@ -6,16 +6,8 @@ import { pipeline } from "node:stream/promises";
 
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveBrewExecutable } from "../infra/brew.js";
-<<<<<<< HEAD
 import { runCommandWithTimeout } from "../process/exec.js";
 import { CONFIG_DIR, ensureDir, resolveUserPath } from "../utils.js";
-=======
-import { runCommandWithTimeout, type CommandOptions } from "../process/exec.js";
-import { scanDirectoryWithSummary } from "../security/skill-scanner.js";
-import { resolveUserPath } from "../utils.js";
-import { installDownloadSpec } from "./skills-install-download.js";
-<<<<<<< HEAD
->>>>>>> c8e110e2e (refactor(skills): extract installer strategy helpers)
 =======
 import { formatInstallFailureMessage } from "./skills-install-output.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
@@ -45,7 +37,6 @@ export type SkillInstallResult = {
   code: number | null;
 };
 
-<<<<<<< HEAD
 function isNodeReadableStream(value: unknown): value is NodeJS.ReadableStream {
   return Boolean(value && typeof (value as NodeJS.ReadableStream).pipe === "function");
 }
@@ -87,57 +78,6 @@ function formatInstallFailureMessage(result: {
     return `Install failed (${code})`;
   }
   return `Install failed (${code}): ${summary}`;
-=======
-function withWarnings(result: SkillInstallResult, warnings: string[]): SkillInstallResult {
-  if (warnings.length === 0) {
-    return result;
-  }
-  return {
-    ...result,
-    warnings: warnings.slice(),
-  };
-}
-
-function formatScanFindingDetail(
-  rootDir: string,
-  finding: { message: string; file: string; line: number },
-): string {
-  const relativePath = path.relative(rootDir, finding.file);
-  const filePath =
-    relativePath && relativePath !== "." && !relativePath.startsWith("..")
-      ? relativePath
-      : path.basename(finding.file);
-  return `${finding.message} (${filePath}:${finding.line})`;
-}
-
-async function collectSkillInstallScanWarnings(entry: SkillEntry): Promise<string[]> {
-  const warnings: string[] = [];
-  const skillName = entry.skill.name;
-  const skillDir = path.resolve(entry.skill.baseDir);
-
-  try {
-    const summary = await scanDirectoryWithSummary(skillDir);
-    if (summary.critical > 0) {
-      const criticalDetails = summary.findings
-        .filter((finding) => finding.severity === "critical")
-        .map((finding) => formatScanFindingDetail(skillDir, finding))
-        .join("; ");
-      warnings.push(
-        `WARNING: Skill "${skillName}" contains dangerous code patterns: ${criticalDetails}`,
-      );
-    } else if (summary.warn > 0) {
-      warnings.push(
-        `Skill "${skillName}" has ${summary.warn} suspicious code pattern(s). Run "openclaw security audit --deep" for details.`,
-      );
-    }
-  } catch (err) {
-    warnings.push(
-      `Skill "${skillName}" code safety scan failed (${String(err)}). Installation continues; run "openclaw security audit --deep" after install.`,
-    );
-  }
-
-  return warnings;
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 }
 
 function resolveInstallId(spec: SkillInstallSpec, index: number): string {
@@ -649,7 +589,6 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
   const brewExe = hasBinary("brew") ? "brew" : resolveBrewExecutable();
   if (spec.kind === "brew" && !brewExe) {
 <<<<<<< HEAD
-<<<<<<< HEAD
     return {
       ok: false,
       message: "brew not installed",
@@ -657,23 +596,6 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
       stderr: "",
       code: null,
     };
-=======
-    const formula = spec.formula ?? "this package";
-    const hint =
-      process.platform === "linux"
-        ? `Homebrew is not installed. Install it from https://brew.sh or install "${formula}" manually using your system package manager (e.g. apt, dnf, pacman).`
-        : "Homebrew is not installed. Install it from https://brew.sh";
-    return withWarnings(
-      {
-        ok: false,
-        message: `brew not installed — ${hint}`,
-        stdout: "",
-        stderr: "",
-        code: null,
-      },
-      warnings,
-    );
->>>>>>> d19b74692 (feat(skills): add cross-platform install fallback for non-brew environments (#17687))
   }
   if (spec.kind === "uv" && !hasBinary("uv")) {
     if (brewExe) {
@@ -690,26 +612,7 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
         };
       }
     } else {
-<<<<<<< HEAD
       return {
-=======
-      return withWarnings(
-        {
-          ok: false,
-          message:
-            "uv not installed — install manually: https://docs.astral.sh/uv/getting-started/installation/",
-          stdout: "",
-          stderr: "",
-          code: null,
-        },
-        warnings,
-      );
-    }
-  }
-  if (!command.argv || command.argv.length === 0) {
-    return withWarnings(
-      {
->>>>>>> d19b74692 (feat(skills): add cross-platform install fallback for non-brew environments (#17687))
         ok: false,
         message: "uv not installed (install via brew)",
         stdout: "",
@@ -736,7 +639,6 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
     return withWarnings(uvInstallFailure, warnings);
   }
 
-<<<<<<< HEAD
   if (spec.kind === "go" && !hasBinary("go")) {
     if (brewExe) {
       const brewResult = await runCommandWithTimeout([brewExe, "install", "go"], {
@@ -894,18 +796,6 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
         stderr: "",
         code: null,
       };
-=======
-      return withWarnings(
-        {
-          ok: false,
-          message: "go not installed — install manually: https://go.dev/doc/install",
-          stdout: "",
-          stderr: "",
-          code: null,
-        },
-        warnings,
-      );
->>>>>>> d19b74692 (feat(skills): add cross-platform install fallback for non-brew environments (#17687))
     }
 =======
   const goInstallFailure = await ensureGoInstalled({ spec, brewExe, timeoutMs });
@@ -927,7 +817,6 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
     }
   }
 
-<<<<<<< HEAD
   const result = await (async () => {
     const argv = command.argv;
     if (!argv || argv.length === 0) {
@@ -952,7 +841,4 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
     stderr: result.stderr.trim(),
     code: result.code,
   };
-=======
-  return withWarnings(await executeInstallCommand({ argv, timeoutMs, env }), warnings);
->>>>>>> c8e110e2e (refactor(skills): extract installer strategy helpers)
 }

@@ -177,11 +177,7 @@ The most efficient setup uses **both**:
 
 ```bash
 # Daily morning briefing at 7am
-<<<<<<< HEAD
 moltbot cron add --name "Morning brief" --cron "0 7 * * *" --session isolated --message "..." --deliver
-=======
-openclaw cron add --name "Morning brief" --cron "0 7 * * *" --session isolated --message "..." --announce
->>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 
 # Weekly project review on Mondays at 9am
 moltbot cron add --name "Weekly review" --cron "0 9 * * 1" --session isolated --message "..." --model opus

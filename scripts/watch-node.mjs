@@ -4,17 +4,12 @@ import process from "node:process";
 import { pathToFileURL } from "node:url";
 import { runNodeWatchedPaths } from "./run-node.mjs";
 
-<<<<<<< HEAD
 const args = process.argv.slice(2);
 const env = { ...process.env };
 const cwd = process.cwd();
 <<<<<<< HEAD
 <<<<<<< HEAD
 const compiler = env.CLAWDBOT_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
-=======
-const compilerOverride = env.OPENCLAW_TS_COMPILER ?? env.CLAWDBOT_TS_COMPILER;
-const compiler = compilerOverride === "tsc" ? "tsc" : "tsgo";
->>>>>>> fd00d5688 (chore: update openclaw naming)
 const projectArgs = ["--project", "tsconfig.json"];
 =======
 const compiler = "tsdown";
@@ -104,7 +99,6 @@ export async function runWatchMain(params = {}) {
 }
 >>>>>>> 748d6821d (fix(config): add forensic config write audit and watch attribution)
 
-<<<<<<< HEAD
 const initialBuild = spawnSync("pnpm", ["exec", compiler, ...projectArgs], {
   cwd,
   env,
@@ -154,13 +148,3 @@ nodeProcess.on("exit", (code, signal) => {
   if (signal || exiting) return;
   cleanup(code ?? 1);
 });
-=======
-if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
-  void runWatchMain()
-    .then((code) => process.exit(code))
-    .catch((err) => {
-      console.error(err);
-      process.exit(1);
-    });
-}
->>>>>>> 81741c37f (fix(gateway): remove watch-mode build/start race (#18782))

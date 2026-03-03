@@ -1,15 +1,6 @@
 import path from "node:path";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { promisify } from "node:util";
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
@@ -23,16 +14,8 @@ import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveGatewayPort, resolveIsNixMode } from "../config/paths.js";
-<<<<<<< HEAD
 import { findExtraGatewayServices, renderGatewayServiceCleanupHints } from "../daemon/inspect.js";
 import { findLegacyGatewayServices, uninstallLegacyGatewayServices } from "../daemon/legacy.js";
-=======
-import {
-  findExtraGatewayServices,
-  renderGatewayServiceCleanupHints,
-  type ExtraGatewayService,
-} from "../daemon/inspect.js";
->>>>>>> 8a8faf066 (doctor: clean up legacy Linux gateway services (#21188))
 import { renderSystemNodeWarning, resolveSystemNodeInfo } from "../daemon/runtime-paths.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import {
@@ -40,7 +23,6 @@ import {
   needsNodeRuntimeMigration,
   SERVICE_AUDIT_CODES,
 } from "../daemon/service-audit.js";
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
@@ -50,17 +32,6 @@ import {
   type GatewayDaemonRuntime,
 } from "./daemon-runtime.js";
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
-=======
-import { resolveGatewayService } from "../daemon/service.js";
-import { uninstallLegacySystemdUnits } from "../daemon/systemd.js";
-import type { RuntimeEnv } from "../runtime.js";
-import { note } from "../terminal/note.js";
-import { buildGatewayInstallPlan } from "./daemon-install-helpers.js";
-import { DEFAULT_GATEWAY_DAEMON_RUNTIME, type GatewayDaemonRuntime } from "./daemon-runtime.js";
-import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
-
-const execFileAsync = promisify(execFile);
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 function detectGatewayRuntime(programArguments: string[] | undefined): GatewayDaemonRuntime {
   const first = programArguments?.[0];
@@ -92,7 +63,6 @@ function normalizeExecutablePath(value: string): string {
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export async function maybeMigrateLegacyGatewayService(
   cfg: MoltbotConfig,
   mode: "local" | "remote",
@@ -101,19 +71,6 @@ export async function maybeMigrateLegacyGatewayService(
 ) {
   const legacyServices = await findLegacyGatewayServices(process.env);
   if (legacyServices.length === 0) return;
-=======
-=======
-function resolveGatewayAuthToken(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): string | undefined {
-  const configToken = cfg.gateway?.auth?.token?.trim();
-  if (configToken) {
-    return configToken;
-  }
-  const envToken = env.OPENCLAW_GATEWAY_TOKEN ?? env.CLAWDBOT_GATEWAY_TOKEN;
-  const trimmedEnvToken = envToken?.trim();
-  return trimmedEnvToken || undefined;
-}
-
->>>>>>> 52b624cca (fix(doctor): audit env-only gateway tokens)
 function extractDetailPath(detail: string, prefix: string): string | null {
   if (!detail.startsWith(prefix)) {
     return null;
@@ -341,11 +298,7 @@ export async function maybeRepairGatewayServiceConfig(
   const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
     env: process.env,
     port,
-<<<<<<< HEAD
     token: cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
-=======
-    token: expectedGatewayToken,
->>>>>>> 52b624cca (fix(doctor): audit env-only gateway tokens)
     runtime: needsNodeRuntime && systemNodePath ? "node" : runtimeChoice,
     nodePath: systemNodePath ?? undefined,
     warn: (message, title) => note(message, title),
@@ -427,8 +380,6 @@ export async function maybeScanExtraGatewayServices(options: DoctorOptions) {
     "Other gateway-like services detected",
   );
 
-<<<<<<< HEAD
-=======
   const legacyServices = extraServices.filter((svc) => svc.legacy === true);
   if (legacyServices.length > 0) {
     const shouldRemove = await prompter.confirmSkipInNonInteractive({
@@ -464,7 +415,6 @@ export async function maybeScanExtraGatewayServices(options: DoctorOptions) {
     }
   }
 
->>>>>>> 8a8faf066 (doctor: clean up legacy Linux gateway services (#21188))
   const cleanupHints = renderGatewayServiceCleanupHints();
   if (cleanupHints.length > 0) {
     note(cleanupHints.map((hint) => `- ${hint}`).join("\n"), "Cleanup hints");

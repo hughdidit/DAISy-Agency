@@ -1,11 +1,6 @@
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { SecretRef } from "../../config/types.secrets.js";
->>>>>>> b50c4c2c4 (Gateway: add eager secrets runtime snapshot activation)
 
 export type ApiKeyCredential = {
   type: "api_key";

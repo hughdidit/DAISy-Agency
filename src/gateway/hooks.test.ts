@@ -1,22 +1,15 @@
 import type { IncomingMessage } from "node:http";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 2dcb24498 (refactor(test): dedupe gateway and web scaffolding)
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createMSTeamsTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { createIMessageTestPlugin } from "../test-utils/imessage-test-plugin.js";
 import {
   extractHookToken,
   isHookAgentAllowed,
-<<<<<<< HEAD
-=======
   normalizeHookDispatchSessionKey,
   resolveHookSessionKey,
->>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
   resolveHookTargetAgentId,
   normalizeAgentPayload,
   normalizeWakePayload,
@@ -218,8 +211,6 @@ describe("gateway hooks helpers", () => {
     expect(isHookAgentAllowed(resolved, "hooks")).toBe(true);
     expect(isHookAgentAllowed(resolved, "missing-agent")).toBe(true);
   });
-<<<<<<< HEAD
-=======
 
   test("resolveHookSessionKey disables request sessionKey by default", () => {
     const cfg = {
@@ -348,7 +339,6 @@ describe("gateway hooks helpers", () => {
       "hooks.allowedSessionKeyPrefixes must include 'hook:' when hooks.defaultSessionKey is unset",
     );
   });
->>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
 });
 
 const emptyRegistry = createTestRegistry([]);

@@ -1,14 +1,8 @@
 import AppKit
 import Foundation
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/LowCoverageHelperTests.swift
 import MoltbotProtocol
 import Testing
 @testable import Moltbot
-=======
-import OpenClawProtocol
-import Testing
-@testable import OpenClaw
->>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/LowCoverageHelperTests.swift
 
 @Suite(.serialized)
 struct LowCoverageHelperTests {

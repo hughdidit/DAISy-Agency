@@ -15,7 +15,6 @@ import {
 import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -57,8 +56,6 @@ function _assertModelSelection(
 }
 
 =======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
-=======
 async function runAuthorizedCommand(home: string, body: string) {
   return getReplyFromConfig(
     {
@@ -76,7 +73,6 @@ describe("directive behavior", () => {
 
   it("shows current elevated level as off after toggling it off", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       await getReplyFromConfig(
@@ -136,18 +132,12 @@ describe("directive behavior", () => {
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
-=======
-      await runAuthorizedCommand(home, "/elevated off");
-      const res = await runAuthorizedCommand(home, "/elevated");
-      const text = replyText(res);
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(text).toContain("Current elevated level: off");
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
   });
   it("can toggle elevated off then back on (status reflects on)", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const cfg = {
@@ -206,13 +196,6 @@ describe("directive behavior", () => {
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
-=======
-      const storePath = sessionStorePath(home);
-      await runAuthorizedCommand(home, "/elevated off");
-      await runAuthorizedCommand(home, "/elevated on");
-      const res = await runAuthorizedCommand(home, "/status");
-      const text = replyText(res);
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       const optionsLine = text?.split("\n").find((line) => line.trim().startsWith("⚙️"));
       expect(optionsLine).toBeTruthy();
       expect(optionsLine).toContain("elevated");
@@ -235,7 +218,6 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
-<<<<<<< HEAD
 <<<<<<< HEAD
         {
           agents: {
@@ -260,9 +242,6 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["+1222"] } },
           session: { store: path.join(home, "sessions.json") },
         },
-=======
-        makeRestrictedElevatedDisabledConfig(home),
->>>>>>> 165dbc232 (refactor(test): share directive elevated config)
 =======
         makeRestrictedElevatedDisabledConfig(home) as unknown as OpenClawConfig,
 >>>>>>> 7d2ef131c (chore: Fix types in tests 42/N.)

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../config/config.js";
@@ -17,17 +16,6 @@ vi.mock("./models-config.js", () => ({
 vi.mock("./agent-paths.js", () => ({
   resolveMoltbotAgentDir: () => "/tmp/moltbot",
 }));
-=======
-import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { resetLogger, setLoggerOverride } from "../logging/logger.js";
-import { __setModelCatalogImportForTest, loadModelCatalog } from "./model-catalog.js";
-import {
-  installModelCatalogTestHooks,
-  mockCatalogImportFailThenRecover,
-  type PiSdkModule,
-} from "./model-catalog.test-harness.js";
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 describe("loadModelCatalog", () => {
   installModelCatalogTestHooks();
@@ -38,15 +26,9 @@ describe("loadModelCatalog", () => {
     try {
       const getCallCount = mockCatalogImportFailThenRecover();
 
-<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const first = await loadModelCatalog({ config: cfg });
     expect(first).toEqual([]);
-=======
-      const cfg = {} as OpenClawConfig;
-      const first = await loadModelCatalog({ config: cfg });
-      expect(first).toEqual([]);
->>>>>>> 738e2c21d (chore(tests): properly check logging in tests)
 
       const second = await loadModelCatalog({ config: cfg });
       expect(second).toEqual([{ id: "gpt-4.1", name: "GPT-4.1", provider: "openai" }]);
@@ -84,19 +66,9 @@ describe("loadModelCatalog", () => {
           }) as unknown as PiSdkModule,
       );
 
-<<<<<<< HEAD
     const result = await loadModelCatalog({ config: {} as MoltbotConfig });
     expect(result).toEqual([{ id: "gpt-4.1", name: "GPT-4.1", provider: "openai" }]);
     expect(warnSpy).toHaveBeenCalledTimes(1);
-=======
-      const result = await loadModelCatalog({ config: {} as OpenClawConfig });
-      expect(result).toEqual([{ id: "gpt-4.1", name: "GPT-4.1", provider: "openai" }]);
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-    } finally {
-      setLoggerOverride(null);
-      resetLogger();
-    }
->>>>>>> 738e2c21d (chore(tests): properly check logging in tests)
   });
 
   it("adds openai-codex/gpt-5.3-codex-spark when base gpt-5.3-codex exists", async () => {

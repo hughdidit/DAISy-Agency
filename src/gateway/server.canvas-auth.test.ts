@@ -60,27 +60,6 @@ async function expectWsRejected(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-async function expectWsConnected(url: string): Promise<void> {
-  await new Promise<void>((resolve, reject) => {
-    const ws = new WebSocket(url);
-    const timer = setTimeout(() => reject(new Error("timeout")), WS_CONNECT_TIMEOUT_MS);
-    ws.once("open", () => {
-      clearTimeout(timer);
-      ws.terminate();
-      resolve();
-    });
-    ws.once("unexpected-response", (_req, res) => {
-      clearTimeout(timer);
-      reject(new Error(`unexpected response ${res.statusCode}`));
-    });
-    ws.once("error", reject);
-  });
-}
-
->>>>>>> d325c0150 (test(gateway): dedupe canvas ws connect assertions)
 function makeWsClient(params: {
   connId: string;
   clientIp: string;
@@ -108,20 +87,7 @@ function scopedCanvasPath(capability: string, path: string): string {
   return `${CANVAS_CAPABILITY_PATH_PREFIX}/${encodeURIComponent(capability)}${path}`;
 }
 
-<<<<<<< HEAD
 >>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
-=======
-const allowCanvasHostHttp: CanvasHostHandler["handleHttpRequest"] = async (req, res) => {
-  const url = new URL(req.url ?? "/", "http://localhost");
-  if (url.pathname !== CANVAS_HOST_PATH && !url.pathname.startsWith(`${CANVAS_HOST_PATH}/`)) {
-    return false;
-  }
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "text/plain; charset=utf-8");
-  res.end("ok");
-  return true;
-};
->>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
 async function withCanvasGatewayHarness(params: {
   resolvedAuth: ResolvedGatewayAuth;
   listenHost?: string;
@@ -184,11 +150,7 @@ async function withCanvasGatewayHarness(params: {
 
 describe("gateway canvas host auth", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   test("authorizes canvas/a2ui HTTP and canvas WS by matching an authenticated gateway ws client ip", async () => {
-=======
-  test("authorizes canvas HTTP/WS via node-scoped capability and rejects misuse", async () => {
->>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
     const resolvedAuth: ResolvedGatewayAuth = {
       mode: "token",
       token: "test-token",
@@ -229,7 +191,6 @@ describe("gateway canvas host auth", () => {
           const activeCanvasPath = scopedCanvasPath(activeNodeCapability, `${CANVAS_HOST_PATH}/`);
           const activeWsPath = scopedCanvasPath(activeNodeCapability, CANVAS_WS_PATH);
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         const wss = new WebSocketServer({ noServer: true });
@@ -287,10 +248,6 @@ describe("gateway canvas host auth", () => {
           await new Promise<void>((resolve, reject) => {
             const ws = new WebSocket(`ws://127.0.0.1:${listener.port}${CANVAS_WS_PATH}`, {
               headers: { "x-forwarded-for": ipA },
-=======
-            const unauthA2ui = await fetch(`http://127.0.0.1:${listener.port}${A2UI_PATH}/`, {
-              headers: { "x-forwarded-for": privateIpA },
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
             });
             expect(unauthA2ui.status).toBe(401);
 
@@ -330,7 +287,6 @@ describe("gateway canvas host auth", () => {
             }),
           );
 
-<<<<<<< HEAD
             clients.add(
               makeWsClient({
                 connId: "c-expired-node",
@@ -372,19 +328,9 @@ describe("gateway canvas host auth", () => {
             expect(publicIpStillBlocked.status).toBe(401);
             await expectWsRejected(`ws://127.0.0.1:${listener.port}${CANVAS_WS_PATH}`, {
               "x-forwarded-for": publicIp,
-=======
-            const activeNodeClient = makeWsClient({
-              connId: "c-active-node",
-              clientIp: "192.168.1.30",
-              role: "node",
-              mode: "node",
-              canvasCapability: activeNodeCapability,
-              canvasCapabilityExpiresAtMs: Date.now() + 60_000,
->>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
             });
             clients.add(activeNodeClient);
 
-<<<<<<< HEAD
             clients.add({
               socket: {} as unknown as WebSocket,
               connect: {} as never,
@@ -398,16 +344,6 @@ describe("gateway canvas host auth", () => {
               },
             );
             expect(cgnatAllowed.status).toBe(200);
-=======
-            const scopedCanvas = await fetch(`http://${host}:${listener.port}${activeCanvasPath}`);
-            expect(scopedCanvas.status).toBe(200);
-            expect(await scopedCanvas.text()).toBe("ok");
-
-            const scopedA2ui = await fetch(
-              `http://${host}:${listener.port}${scopedCanvasPath(activeNodeCapability, `${A2UI_PATH}/`)}`,
-            );
-            expect(scopedA2ui.status).toBe(200);
->>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
 =======
           const operatorCapabilityBlocked = await fetch(
             `http://${host}:${listener.port}${scopedCanvasPath(operatorOnlyCapability, `${CANVAS_HOST_PATH}/`)}`,
@@ -464,8 +400,6 @@ describe("gateway canvas host auth", () => {
     }, "openclaw-canvas-auth-test-");
   }, 60_000);
 
-<<<<<<< HEAD
-=======
   test("denies canvas auth when trusted proxy omits forwarded client headers", async () => {
     await withLoopbackTrustedProxy(async () => {
       await withCanvasGatewayHarness({
@@ -537,7 +471,6 @@ describe("gateway canvas host auth", () => {
     });
   }, 60_000);
 
->>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
   test("returns 429 for repeated failed canvas auth attempts (HTTP + WS upgrade)", async () => {
     await withLoopbackTrustedProxy(async () => {
       const rateLimiter = createAuthRateLimiter({

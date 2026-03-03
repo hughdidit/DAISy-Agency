@@ -548,8 +548,6 @@ export type CronRunLogEntry = {
   durationMs?: number;
   error?: string;
   summary?: string;
-<<<<<<< HEAD
-=======
   deliveryStatus?: CronDeliveryStatus;
   deliveryError?: string;
   delivered?: boolean;
@@ -566,7 +564,6 @@ export type CronRunLogEntry = {
   };
   sessionId?: string;
   sessionKey?: string;
->>>>>>> 77c3b142a (Web UI: add full cron edit parity, all-jobs run history, and compact filters (openclaw#24155) thanks @Takhoffman)
 };
 
 export type CronJobsListResult = {

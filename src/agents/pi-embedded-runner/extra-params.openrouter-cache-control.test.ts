@@ -38,14 +38,11 @@ describe("extra-params: OpenRouter Anthropic cache_control", () => {
         { role: "user", content: "Hello" },
       ],
     };
-<<<<<<< HEAD
     const baseStreamFn: StreamFn = (_model, _context, options) => {
       options?.onPayload?.(payload);
       return new AssistantMessageEventStream();
     };
     const agent = { streamFn: baseStreamFn };
-=======
->>>>>>> 53ed7a0f5 (test: dedupe repeated test fixtures and assertions)
 
     runOpenRouterPayload(payload, "anthropic/claude-opus-4-6");
 
@@ -67,14 +64,11 @@ describe("extra-params: OpenRouter Anthropic cache_control", () => {
         },
       ],
     };
-<<<<<<< HEAD
     const baseStreamFn: StreamFn = (_model, _context, options) => {
       options?.onPayload?.(payload);
       return new AssistantMessageEventStream();
     };
     const agent = { streamFn: baseStreamFn };
-=======
->>>>>>> 53ed7a0f5 (test: dedupe repeated test fixtures and assertions)
 
     runOpenRouterPayload(payload, "anthropic/claude-opus-4-6");
 
@@ -91,14 +85,11 @@ describe("extra-params: OpenRouter Anthropic cache_control", () => {
     const payload = {
       messages: [{ role: "system", content: "You are a helpful assistant." }],
     };
-<<<<<<< HEAD
     const baseStreamFn: StreamFn = (_model, _context, options) => {
       options?.onPayload?.(payload);
       return new AssistantMessageEventStream();
     };
     const agent = { streamFn: baseStreamFn };
-=======
->>>>>>> 53ed7a0f5 (test: dedupe repeated test fixtures and assertions)
 
     runOpenRouterPayload(payload, "google/gemini-3-pro");
 

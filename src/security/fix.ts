@@ -4,15 +4,10 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import JSON5 from "json5";
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { resolveDefaultAgentId } from "../agents/agent-scope.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
@@ -30,10 +25,7 @@ import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createConfigIO } from "../config/config.js";
-<<<<<<< HEAD
-=======
 import { collectIncludePathsRecursive } from "../config/includes-scan.js";
->>>>>>> b3882ecce (refactor(config): share include scan helper)
 import { resolveConfigPath, resolveOAuthDir, resolveStateDir } from "../config/paths.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { INCLUDE_KEY, MAX_INCLUDE_DEPTH } from "../config/includes.js";
@@ -221,15 +213,8 @@ function setGroupPolicyAllowlist(params: {
   changes: string[];
   policyFlips: Set<string>;
 }): void {
-<<<<<<< HEAD
   if (!params.cfg.channels) return;
   const section = params.cfg.channels[params.channel as keyof MoltbotConfig["channels"]] as
-=======
-  if (!params.cfg.channels) {
-    return;
-  }
-  const section = params.cfg.channels[params.channel as keyof OpenClawConfig["channels"]] as
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     | Record<string, unknown>
     | undefined;
   if (!section || typeof section !== "object") {

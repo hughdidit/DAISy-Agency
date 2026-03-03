@@ -35,10 +35,7 @@ const PREFERRED_PROVIDER_BY_AUTH_CHOICE: Partial<Record<AuthChoice, string>> = {
   "copilot-proxy": "copilot-proxy",
   "minimax-cloud": "minimax",
   "minimax-api": "minimax",
-<<<<<<< HEAD
-=======
   "minimax-api-key-cn": "minimax-cn",
->>>>>>> 1ba266a8e (refactor: split minimax-cn provider)
   "minimax-api-lightning": "minimax",
   minimax: "lmstudio",
   "opencode-zen": "opencode",
@@ -46,19 +43,9 @@ const PREFERRED_PROVIDER_BY_AUTH_CHOICE: Partial<Record<AuthChoice, string>> = {
   "litellm-api-key": "litellm",
   "qwen-portal": "qwen-portal",
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  "volcengine-api-key": "volcengine",
-  "byteplus-api-key": "byteplus",
->>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
   "minimax-portal": "minimax-portal",
   "qianfan-api-key": "qianfan",
-<<<<<<< HEAD
 >>>>>>> 30ac80b96 (Add baidu qianfan model provider)
-=======
-  "custom-api-key": "custom",
->>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 };
 
 export function resolvePreferredProviderForAuthChoice(choice: AuthChoice): string | undefined {

@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
 summary: "Optional Docker-based setup and onboarding for Moltbot"
-=======
-summary: "Optional Docker-based setup and onboarding for OpenClaw"
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 read_when:
   - You want a containerized gateway instead of local installs
   - You are validating the Docker flow
@@ -104,12 +100,7 @@ export CLAWDBOT_EXTRA_MOUNTS="$HOME/.codex:/home/node/.codex:ro,$HOME/github:/ho
 
 Notes:
 - Paths must be shared with Docker Desktop on macOS/Windows.
-<<<<<<< HEAD
 - If you edit `CLAWDBOT_EXTRA_MOUNTS`, rerun `docker-setup.sh` to regenerate the
-=======
-- Each entry must be `source:target[:options]` with no spaces, tabs, or newlines.
-- If you edit `OPENCLAW_EXTRA_MOUNTS`, rerun `docker-setup.sh` to regenerate the
->>>>>>> 7255c20dd (fix(docker): harden docker-setup mount validation)
   extra compose file.
 - `docker-compose.extra.yml` is generated. Don’t hand-edit it.
 
@@ -137,13 +128,7 @@ export CLAWDBOT_EXTRA_MOUNTS="$HOME/.codex:/home/node/.codex:ro,$HOME/github:/ho
 ```
 
 Notes:
-<<<<<<< HEAD
 - If you change `CLAWDBOT_HOME_VOLUME`, rerun `docker-setup.sh` to regenerate the
-=======
-
-- Named volumes must match `^[A-Za-z0-9][A-Za-z0-9_.-]*$`.
-- If you change `OPENCLAW_HOME_VOLUME`, rerun `docker-setup.sh` to regenerate the
->>>>>>> 7255c20dd (fix(docker): harden docker-setup mount validation)
   extra compose file.
 - The named volume persists until removed with `docker volume rm <name>`.
 
@@ -220,29 +205,7 @@ docker compose run --rm moltbot-cli channels add --channel discord --token "<tok
 
 Docs: [WhatsApp](/channels/whatsapp), [Telegram](/channels/telegram), [Discord](/channels/discord)
 
-<<<<<<< HEAD
 ### Health check
-=======
-### OpenAI Codex OAuth (headless Docker)
-
-If you pick OpenAI Codex OAuth in the wizard, it opens a browser URL and tries
-to capture a callback on `http://127.0.0.1:1455/auth/callback`. In Docker or
-headless setups that callback can show a browser error. Copy the full redirect
-URL you land on and paste it back into the wizard to finish auth.
-
-### Health checks
-
-Container probe endpoints (no auth required):
-
-```bash
-curl -fsS http://127.0.0.1:18789/healthz
-curl -fsS http://127.0.0.1:18789/readyz
-```
-
-Aliases: `/health` and `/ready`.
-
-Authenticated deep health snapshot (gateway + channels):
->>>>>>> eeb72097b (Gateway: add healthz/readyz probe endpoints for container checks (#31272))
 
 ```bash
 docker compose exec moltbot-gateway node dist/index.js health --token "$CLAWDBOT_GATEWAY_TOKEN"
@@ -330,15 +293,9 @@ log a warning with the exact `moltbot sandbox recreate ...` command.
         mode: "non-main", // off | non-main | all
         scope: "agent", // session | agent | shared (agent is default)
         workspaceAccess: "none", // none | ro | rw
-<<<<<<< HEAD
         workspaceRoot: "~/.clawdbot/sandboxes",
         docker: {
           image: "moltbot-sandbox:bookworm-slim",
-=======
-        workspaceRoot: "~/.openclaw/sandboxes",
-        docker: {
-          image: "openclaw-sandbox:bookworm-slim",
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
           workdir: "/workspace",
           readOnlyRoot: true,
           tmpfs: ["/tmp", "/var/tmp", "/run"],
@@ -356,15 +313,9 @@ log a warning with the exact `moltbot sandbox recreate ...` command.
             nproc: 256
           },
           seccompProfile: "/path/to/seccomp.json",
-<<<<<<< HEAD
           apparmorProfile: "moltbot-sandbox",
           dns: ["1.1.1.1", "8.8.8.8"],
           extraHosts: ["internal.service:10.0.0.5"]
-=======
-          apparmorProfile: "openclaw-sandbox",
-          dns: ["1.1.1.1", "8.8.8.8"],
-          extraHosts: ["internal.service:10.0.0.5"],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         },
         prune: {
           idleHours: 24, // 0 disables idle pruning
@@ -376,30 +327,11 @@ log a warning with the exact `moltbot sandbox recreate ...` command.
   tools: {
     sandbox: {
       tools: {
-<<<<<<< HEAD
         allow: ["exec", "process", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "sessions_spawn", "session_status"],
         deny: ["browser", "canvas", "nodes", "cron", "discord", "gateway"]
       }
     }
   }
-=======
-        allow: [
-          "exec",
-          "process",
-          "read",
-          "write",
-          "edit",
-          "sessions_list",
-          "sessions_history",
-          "sessions_send",
-          "sessions_spawn",
-          "session_status",
-        ],
-        deny: ["browser", "canvas", "nodes", "cron", "discord", "gateway"],
-      },
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -430,15 +362,7 @@ This builds `moltbot-sandbox-common:bookworm-slim`. To use it:
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { sandbox: { docker: { image: "moltbot-sandbox-common:bookworm-slim" } } } }
-=======
-  agents: {
-    defaults: {
-      sandbox: { docker: { image: "openclaw-sandbox-common:bookworm-slim" } },
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -480,15 +404,9 @@ Custom browser image:
 {
   agents: {
     defaults: {
-<<<<<<< HEAD
       sandbox: { browser: { image: "my-moltbot-browser" } }
     }
   }
-=======
-      sandbox: { browser: { image: "my-openclaw-browser" } },
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -512,15 +430,9 @@ docker build -t my-moltbot-sbx -f Dockerfile.sandbox .
 {
   agents: {
     defaults: {
-<<<<<<< HEAD
       sandbox: { docker: { image: "my-moltbot-sbx" } }
     }
   }
-=======
-      sandbox: { docker: { image: "my-openclaw-sbx" } },
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 

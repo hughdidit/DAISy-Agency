@@ -50,27 +50,8 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   const next = cron.nextRun(new Date(nowMs));
   return next ? next.getTime() : undefined;
-=======
-  // Use a tiny lookback (1ms) so croner doesn't skip the current second
-  // boundary. Without this, a job updated at exactly its cron time would
-  // be scheduled for the *next* matching time (e.g. 24h later for daily).
-  const next = cron.nextRun(new Date(nowMs - 1));
-=======
-  // Cron operates at second granularity, so floor nowMs to the start of the
-  // current second.  We ask croner for the next occurrence strictly *after*
-  // nowSecondMs so that a job whose schedule matches the current second is
-  // never re-scheduled into the same (already-elapsed) second.
-  //
-  // Previous code used `nowSecondMs - 1` which caused croner to return the
-  // current second as a valid next-run, leading to rapid duplicate fires when
-  // multiple jobs triggered simultaneously (see #14164).
-  const nowSecondMs = Math.floor(nowMs / 1000) * 1000;
-<<<<<<< HEAD
-  const next = cron.nextRun(new Date(nowSecondMs - 1));
->>>>>>> 07375a65d (fix(cron): recover flat params when LLM omits job wrapper (#12124))
 =======
   const next = cron.nextRun(new Date(nowSecondMs));
 >>>>>>> dd6047d99 (fix(cron): prevent duplicate fires when multiple jobs trigger simultaneously (#14256))
@@ -100,12 +81,8 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   return Number.isFinite(nextMs) && nextMs >= nowMs ? nextMs : undefined;
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
-=======
-  return Number.isFinite(nextMs) && nextMs >= nowSecondMs ? nextMs : undefined;
->>>>>>> 07375a65d (fix(cron): recover flat params when LLM omits job wrapper (#12124))
 =======
   return Number.isFinite(nextMs) && nextMs > nowSecondMs ? nextMs : undefined;
 >>>>>>> dd6047d99 (fix(cron): prevent duplicate fires when multiple jobs trigger simultaneously (#14256))
@@ -148,14 +125,10 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
     }
     return undefined;
   }
-<<<<<<< HEAD
   const retryMs = retry.getTime();
 <<<<<<< HEAD
   return Number.isFinite(retryMs) ? retryMs : undefined;
 >>>>>>> 12a947223 (fix(ci): restore main checks after bulk merges)
-=======
-  return Number.isFinite(retryMs) && retryMs > nowMs ? retryMs : undefined;
->>>>>>> b3d0e0cb4 (fix(cron): preserve overrides and harden next-run calculation)
 =======
 
   return nextMs;

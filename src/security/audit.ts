@@ -5,13 +5,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { ChannelId } from "../channels/plugins/types.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { ExecFn } from "./windows-acl.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { ExecFn } from "./windows-acl.js";
@@ -36,20 +29,10 @@ import { resolveBrowserControlAuth } from "../browser/control-auth.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 >>>>>>> 9230a2ae1 (fix(browser): require auth on control HTTP and auto-bootstrap token)
 import { listChannelPlugins } from "../channels/plugins/index.js";
-<<<<<<< HEAD
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
-=======
-import { formatCliCommand } from "../cli/command-format.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -69,15 +52,12 @@ import { formatCliCommand } from "../cli/command-format.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
 import { resolveGatewayProbeAuth } from "../gateway/probe-auth.js";
 import { probeGateway } from "../gateway/probe.js";
-<<<<<<< HEAD
-=======
 import {
   listInterpreterLikeSafeBins,
   resolveMergedSafeBinProfileFixtures,
 } from "../infra/exec-safe-bin-runtime-policy.js";
 import { normalizeTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
 import { collectChannelSecurityFindings } from "./audit-channel.js";
->>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
 import {
   collectAttackSurfaceSummaryFindings,
   collectExposureMatrixFindings,
@@ -99,15 +79,12 @@ import {
   formatPermissionRemediation,
   inspectPathPermissions,
 } from "./audit-fs.js";
-<<<<<<< HEAD
-=======
 import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ExecFn } from "./windows-acl.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -198,7 +175,6 @@ function normalizeAllowFromList(list: Array<string | number> | undefined | null)
   return list.map((v) => String(v).trim()).filter(Boolean);
 }
 
-<<<<<<< HEAD
 function classifyChannelWarningSeverity(message: string): SecurityAuditSeverity {
   const s = message.toLowerCase();
   if (
@@ -215,30 +191,6 @@ function classifyChannelWarningSeverity(message: string): SecurityAuditSeverity 
     return "info";
   }
   return "warn";
-=======
-function collectEnabledInsecureOrDangerousFlags(cfg: OpenClawConfig): string[] {
-  const enabledFlags: string[] = [];
-  if (cfg.gateway?.controlUi?.allowInsecureAuth === true) {
-    enabledFlags.push("gateway.controlUi.allowInsecureAuth=true");
-  }
-  if (cfg.gateway?.controlUi?.dangerouslyDisableDeviceAuth === true) {
-    enabledFlags.push("gateway.controlUi.dangerouslyDisableDeviceAuth=true");
-  }
-  if (cfg.hooks?.gmail?.allowUnsafeExternalContent === true) {
-    enabledFlags.push("hooks.gmail.allowUnsafeExternalContent=true");
-  }
-  if (Array.isArray(cfg.hooks?.mappings)) {
-    for (const [index, mapping] of cfg.hooks.mappings.entries()) {
-      if (mapping?.allowUnsafeExternalContent === true) {
-        enabledFlags.push(`hooks.mappings[${index}].allowUnsafeExternalContent=true`);
-      }
-    }
-  }
-  if (cfg.tools?.exec?.applyPatch?.workspaceOnly === false) {
-    enabledFlags.push("tools.exec.applyPatch.workspaceOnly=false");
-  }
-  return enabledFlags;
->>>>>>> 14b0d2b81 (refactor: harden control-ui auth flow and add insecure-flag audit summary)
 }
 
 async function collectFilesystemFindings(params: {
@@ -395,12 +347,8 @@ function collectGatewayConfigFindings(
     (auth.mode === "token" && hasToken) || (auth.mode === "password" && hasPassword);
   const hasTailscaleAuth = auth.allowTailscale && tailscaleMode === "serve";
   const hasGatewayAuth = hasSharedSecret || hasTailscaleAuth;
-<<<<<<< HEAD
 
   if (bind !== "loopback" && !hasSharedSecret) {
-=======
-  if (bind !== "loopback" && !hasSharedSecret && auth.mode !== "trusted-proxy") {
->>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
     findings.push({
       checkId: "gateway.bind_no_auth",
       severity: "critical",
@@ -467,8 +415,6 @@ function collectGatewayConfigFindings(
     });
   }
 
-<<<<<<< HEAD
-=======
   if (allowRealIpFallback) {
     const hasNonLoopbackTrustedProxy = trustedProxies.some(
       (proxy) => !isStrictLoopbackTrustedProxyEntry(proxy),
@@ -502,7 +448,6 @@ function collectGatewayConfigFindings(
     });
   }
 
->>>>>>> c283f87ab (refactor: clarify strict loopback proxy audit rules)
   if (tailscaleMode === "funnel") {
     findings.push({
       checkId: "gateway.tailscale_funnel",
@@ -526,11 +471,7 @@ function collectGatewayConfigFindings(
       severity: "warn",
       title: "Control UI insecure auth toggle enabled",
       detail:
-<<<<<<< HEAD
         "gateway.controlUi.allowInsecureAuth=true allows token-only auth over HTTP and skips device identity.",
-=======
-        "gateway.controlUi.allowInsecureAuth=true does not bypass secure context or device identity checks; only dangerouslyDisableDeviceAuth disables Control UI device identity checks.",
->>>>>>> 99048dbec (fix(gateway): align insecure-auth toggle messaging)
       remediation: "Disable it or switch to HTTPS (Tailscale Serve) or localhost.",
     });
   }
@@ -570,21 +511,6 @@ function collectGatewayConfigFindings(
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  const chatCompletionsEnabled = cfg.gateway?.http?.endpoints?.chatCompletions?.enabled === true;
-  const responsesEnabled = cfg.gateway?.http?.endpoints?.responses?.enabled === true;
-  if (chatCompletionsEnabled || responsesEnabled) {
-    const enabledEndpoints = [
-      chatCompletionsEnabled ? "/v1/chat/completions" : null,
-      responsesEnabled ? "/v1/responses" : null,
-    ].filter((value): value is string => Boolean(value));
-=======
-  if (auth.mode === "trusted-proxy") {
-    const trustedProxies = cfg.gateway?.trustedProxies ?? [];
-    const trustedProxyConfig = cfg.gateway?.auth?.trustedProxy;
-
->>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
     findings.push({
       checkId: "gateway.trusted_proxy_auth",
       severity: "critical",
@@ -658,40 +584,7 @@ function collectGatewayConfigFindings(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function collectBrowserControlFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
-=======
-=======
-// Keep this stricter than isLoopbackAddress on purpose: this check is for
-// trust boundaries, so only explicit localhost proxy hops are treated as local.
-function isStrictLoopbackTrustedProxyEntry(entry: string): boolean {
-  const candidate = entry.trim();
-  if (!candidate) {
-    return false;
-  }
-  if (!candidate.includes("/")) {
-    return candidate === "127.0.0.1" || candidate.toLowerCase() === "::1";
-  }
-
-  const [rawIp, rawPrefix] = candidate.split("/", 2);
-  if (!rawIp || !rawPrefix) {
-    return false;
-  }
-  const ipVersion = isIP(rawIp.trim());
-  const prefix = Number.parseInt(rawPrefix.trim(), 10);
-  if (!Number.isInteger(prefix)) {
-    return false;
-  }
-  if (ipVersion === 4) {
-    return rawIp.trim() === "127.0.0.1" && prefix === 32;
-  }
-  if (ipVersion === 6) {
-    return prefix === 128 && rawIp.trim().toLowerCase() === "::1";
-  }
-  return false;
-}
-
->>>>>>> c283f87ab (refactor: clarify strict loopback proxy audit rules)
 function collectBrowserControlFindings(
   cfg: OpenClawConfig,
   env: NodeJS.ProcessEnv,
@@ -1342,12 +1235,7 @@ async function collectChannelSecurityFindings(params: {
 }
 
 async function maybeProbeGateway(params: {
-<<<<<<< HEAD
   cfg: MoltbotConfig;
-=======
-  cfg: OpenClawConfig;
-  env: NodeJS.ProcessEnv;
->>>>>>> f52a0228c (test: optimize auth and audit test runtime)
   timeoutMs: number;
   probe: typeof probeGateway;
 }): Promise<SecurityAuditReport["deep"]> {
@@ -1358,7 +1246,6 @@ async function maybeProbeGateway(params: {
     typeof params.cfg.gateway?.remote?.url === "string" ? params.cfg.gateway.remote.url.trim() : "";
   const remoteUrlMissing = isRemoteMode && !remoteUrlRaw;
 
-<<<<<<< HEAD
   const resolveAuth = (mode: "local" | "remote") => {
     const authToken = params.cfg.gateway?.auth?.token;
     const authPassword = params.cfg.gateway?.auth?.password;
@@ -1383,13 +1270,6 @@ async function maybeProbeGateway(params: {
   };
 
   const auth = !isRemoteMode || remoteUrlMissing ? resolveAuth("local") : resolveAuth("remote");
-=======
-  const auth =
-    !isRemoteMode || remoteUrlMissing
-<<<<<<< HEAD
-      ? resolveGatewayProbeAuth({ cfg: params.cfg, mode: "local" })
-      : resolveGatewayProbeAuth({ cfg: params.cfg, mode: "remote" });
->>>>>>> 6c7a7d910 (refactor(gateway): dedupe probe auth resolution)
 =======
       ? resolveGatewayProbeAuth({ cfg: params.cfg, env: params.env, mode: "local" })
       : resolveGatewayProbeAuth({ cfg: params.cfg, env: params.env, mode: "remote" });
@@ -1433,15 +1313,7 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
   findings.push(...collectBrowserControlFindings(cfg, env));
   findings.push(...collectLoggingFindings(cfg));
   findings.push(...collectElevatedFindings(cfg));
-<<<<<<< HEAD
   findings.push(...collectHooksHardeningFindings(cfg));
-=======
-  findings.push(...collectHooksHardeningFindings(cfg, env));
-  findings.push(...collectGatewayHttpSessionKeyOverrideFindings(cfg));
-  findings.push(...collectSandboxDockerNoopFindings(cfg));
-  findings.push(...collectNodeDenyCommandPatternFindings(cfg));
-  findings.push(...collectMinimalProfileOverrideFindings(cfg));
->>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
   findings.push(...collectSecretsInConfigFindings(cfg));
   findings.push(...collectModelHygieneFindings(cfg));
   findings.push(...collectSmallModelRiskFindings({ cfg, env }));

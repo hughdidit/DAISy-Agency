@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9,8 +8,6 @@ import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
 import type { MsgContext } from "../../auto-reply/templating.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { MsgContext } from "../../auto-reply/templating.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -176,8 +173,6 @@ describe("signal createSignalEventHandler inbound contract", () => {
       expect.any(Object),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("does not auto-authorize DM commands in open mode without allowlists", async () => {
     const handler = createSignalEventHandler(
@@ -237,7 +232,6 @@ describe("signal createSignalEventHandler inbound contract", () => {
     expect(dispatchInboundMessageMock).not.toHaveBeenCalled();
   });
 <<<<<<< HEAD
->>>>>>> 654f63e8f (fix(signal): prevent sentTranscript sync messages from bypassing loop protection (#31093))
 =======
 
   it("drops sync envelopes when syncMessage is present but null", async () => {

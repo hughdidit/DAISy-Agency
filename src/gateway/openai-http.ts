@@ -1,17 +1,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-=======
-import type { AuthRateLimiter } from "./auth-rate-limit.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import { buildHistoryContextFromEntries, type HistoryEntry } from "../auto-reply/reply/history.js";
 =======
 >>>>>>> 7fc102674 (refactor(gateway): share agent prompt builder)
@@ -289,7 +283,6 @@ export async function handleOpenAiHttpRequest(
     try {
       const result = await agentCommand(commandInput, defaultRuntime, deps);
 
-<<<<<<< HEAD
       const payloads = (result as { payloads?: Array<{ text?: string }> } | null)?.payloads;
       const content =
         Array.isArray(payloads) && payloads.length > 0
@@ -298,9 +291,6 @@ export async function handleOpenAiHttpRequest(
               .filter(Boolean)
               .join("\n\n")
           : "No response from Moltbot.";
-=======
-      const content = resolveAgentResponseText(result);
->>>>>>> 2863661bc (refactor(gateway): share openai response text extraction)
 
       sendJson(res, 200, {
         id: runId,
@@ -389,7 +379,6 @@ export async function handleOpenAiHttpRequest(
           writeAssistantRoleChunk(res, { runId, model });
         }
 
-<<<<<<< HEAD
         const payloads = (result as { payloads?: Array<{ text?: string }> } | null)?.payloads;
         const content =
           Array.isArray(payloads) && payloads.length > 0
@@ -398,9 +387,6 @@ export async function handleOpenAiHttpRequest(
                 .filter(Boolean)
                 .join("\n\n")
             : "No response from Moltbot.";
-=======
-        const content = resolveAgentResponseText(result);
->>>>>>> 2863661bc (refactor(gateway): share openai response text extraction)
 
         sawAssistantDelta = true;
         writeAssistantContentChunk(res, {
@@ -417,7 +403,6 @@ export async function handleOpenAiHttpRequest(
       writeAssistantContentChunk(res, {
         runId,
         model,
-<<<<<<< HEAD
         choices: [
           {
             index: 0,
@@ -425,10 +410,6 @@ export async function handleOpenAiHttpRequest(
             finish_reason: "stop",
           },
         ],
-=======
-        content: "Error: internal error",
-        finishReason: "stop",
->>>>>>> 0f989d310 (fix(gateway): tighten openai-http edge handling)
       });
       emitAgentEvent({
         runId,

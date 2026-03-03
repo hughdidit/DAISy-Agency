@@ -1,9 +1,6 @@
 import { callGateway } from "../../gateway/call.js";
-<<<<<<< HEAD
-=======
 import { resolveGatewayCredentialsFromConfig, trimToUndefined } from "../../gateway/credentials.js";
 import { resolveLeastPrivilegeOperatorScopesForMethod } from "../../gateway/method-scopes.js";
->>>>>>> 08431da5d (refactor(gateway): unify credential precedence across entrypoints)
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 import { readStringParam } from "./common.js";
 
@@ -16,12 +13,6 @@ export type GatewayCallOptions = {
 };
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-type GatewayOverrideTarget = "local" | "remote";
-
->>>>>>> 08431da5d (refactor(gateway): unify credential precedence across entrypoints)
 export function readGatewayCallOptions(params: Record<string, unknown>): GatewayCallOptions {
   return {
     gatewayUrl: readStringParam(params, "gatewayUrl", { trim: false }),
@@ -122,7 +113,6 @@ function resolveGatewayOverrideToken(params: {
 
 >>>>>>> 10b060dbd (refactor(agent-tools): reuse gateway option parsing)
 export function resolveGatewayOptions(opts?: GatewayCallOptions) {
-<<<<<<< HEAD
   // Prefer an explicit override; otherwise let callGateway choose based on config.
   const url =
     typeof opts?.gatewayUrl === "string" && opts.gatewayUrl.trim()
@@ -131,15 +121,6 @@ export function resolveGatewayOptions(opts?: GatewayCallOptions) {
   const token =
     typeof opts?.gatewayToken === "string" && opts.gatewayToken.trim()
       ? opts.gatewayToken.trim()
-=======
-  const cfg = loadConfig();
-  const validatedOverride =
-    trimToUndefined(opts?.gatewayUrl) !== undefined
-      ? validateGatewayUrlOverrideForAgentTools({
-          cfg,
-          urlOverride: String(opts?.gatewayUrl),
-        })
->>>>>>> 08431da5d (refactor(gateway): unify credential precedence across entrypoints)
       : undefined;
   const explicitToken = trimToUndefined(opts?.gatewayToken);
   const token = validatedOverride

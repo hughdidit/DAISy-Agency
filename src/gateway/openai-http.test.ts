@@ -85,7 +85,6 @@ function parseSseDataLines(text: string): string[] {
 }
 
 describe("OpenAI-compatible HTTP API (e2e)", () => {
-<<<<<<< HEAD
   it("rejects when disabled (default + config)", { timeout: 120_000 }, async () => {
 <<<<<<< HEAD
     {
@@ -117,10 +116,6 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         await server.close({ reason: "test done" });
       }
     }
-=======
-=======
-  it("rejects when disabled (default + config)", { timeout: 15_000 }, async () => {
->>>>>>> e5931554b (test: tighten slow test timeouts and cleanup)
     await expectChatCompletionsDisabled(startServerWithDefaultConfig);
     await expectChatCompletionsDisabled((port) =>
       startServer(port, {
@@ -195,7 +190,6 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       }
 
       {
-<<<<<<< HEAD
         mockAgentOnce([{ text: "hello" }]);
         const res = await postChatCompletions(
           port,
@@ -217,17 +211,10 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const res = await postChatCompletions(port, {
           model: "moltbot:beta",
           messages: [{ role: "user", content: "hi" }],
-=======
-        await expectAgentSessionKeyMatch({
-          body: { model: "openclaw", messages: [{ role: "user", content: "hi" }] },
-          headers: { "x-openclaw-agent-id": "beta" },
-          matcher: /^agent:beta:/,
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
         });
       }
 
       {
-<<<<<<< HEAD
         mockAgentOnce([{ text: "hello" }]);
         const res = await postChatCompletions(
           port,
@@ -238,16 +225,6 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
           { "x-moltbot-agent-id": "alpha" },
         );
         expect(res.status).toBe(200);
-=======
-        await expectAgentSessionKeyMatch({
-          body: {
-            model: "openclaw:beta",
-            messages: [{ role: "user", content: "hi" }],
-          },
-          matcher: /^agent:beta:/,
-        });
-      }
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
       {
         await expectAgentSessionKeyMatch({

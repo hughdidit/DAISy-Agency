@@ -1,13 +1,7 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { SILENT_REPLY_TOKEN, type PluginRuntime } from "clawdbot/plugin-sdk";
-=======
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
-=======
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import os from "node:os";
 import path from "node:path";
 import { SILENT_REPLY_TOKEN, type PluginRuntime } from "openclaw/plugin-sdk";
@@ -178,8 +172,6 @@ describe("msteams messenger", () => {
       expect(ref.conversation?.id).toBe("19:abc@thread.tacv2");
     });
 
-<<<<<<< HEAD
-=======
     it("preserves parsed mentions when appending OneDrive fallback file links", async () => {
       const tmpDir = await mkdtemp(path.join(os.tmpdir(), "msteams-mention-"));
       const localFile = path.join(tmpDir, "note.txt");
@@ -236,7 +228,6 @@ describe("msteams messenger", () => {
       }
     });
 
->>>>>>> a74198557 (chore: Fix more extension test types, 2/N.)
     it("retries thread sends on throttling (429)", async () => {
       const attempts: string[] = [];
       const retryEvents: Array<{ nextAttempt: number; delayMs: number }> = [];

@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import { detectMime } from "../media/mime.js";
-=======
-import { estimateBase64DecodedBytes } from "../media/base64.js";
-import { sniffMimeFromBase64 } from "../media/sniff-mime-from-base64.js";
->>>>>>> cb29346a1 (refactor(media): share base64 mime sniff helper)
 
 export type ChatAttachment = {
   type?: string;
@@ -45,8 +40,6 @@ function isImageMime(mime?: string): boolean {
   return typeof mime === "string" && mime.startsWith("image/");
 }
 
-<<<<<<< HEAD
-=======
 function isValidBase64(value: string): boolean {
   // Minimal validation; avoid full decode allocations for large payloads.
   return value.length > 0 && value.length % 4 === 0 && /^[A-Za-z0-9+/]+={0,2}$/.test(value);
@@ -95,7 +88,6 @@ function validateAttachmentBase64OrThrow(
   return sizeBytes;
 }
 
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 /**
  * Parse attachments and extract images as structured content blocks.
  * Returns the message text and an array of image content blocks
@@ -118,7 +110,6 @@ export async function parseMessageWithAttachments(
     if (!att) {
       continue;
     }
-<<<<<<< HEAD
     const mime = att.mimeType ?? "";
     const content = att.content;
     const label = att.fileName || att.type || `attachment-${idx + 1}`;
@@ -146,14 +137,6 @@ export async function parseMessageWithAttachments(
     if (sizeBytes <= 0 || sizeBytes > maxBytes) {
       throw new Error(`attachment ${label}: exceeds size limit (${sizeBytes} > ${maxBytes} bytes)`);
     }
-=======
-    const normalized = normalizeAttachment(att, idx, {
-      stripDataUrlPrefix: true,
-      requireImageMime: false,
-    });
-    validateAttachmentBase64OrThrow(normalized, { maxBytes });
-    const { base64: b64, label, mime } = normalized;
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     const providedMime = normalizeMime(mime);
     const sniffedMime = normalizeMime(await sniffMimeFromBase64(b64));
@@ -201,7 +184,6 @@ export function buildMessageWithAttachments(
     if (!att) {
       continue;
     }
-<<<<<<< HEAD
     const mime = att.mimeType ?? "";
     const content = att.content;
     const label = att.fileName || att.type || `attachment-${idx + 1}`;
@@ -227,14 +209,6 @@ export function buildMessageWithAttachments(
     if (sizeBytes <= 0 || sizeBytes > maxBytes) {
       throw new Error(`attachment ${label}: exceeds size limit (${sizeBytes} > ${maxBytes} bytes)`);
     }
-=======
-    const normalized = normalizeAttachment(att, idx, {
-      stripDataUrlPrefix: false,
-      requireImageMime: true,
-    });
-    validateAttachmentBase64OrThrow(normalized, { maxBytes });
-    const { base64, label, mime } = normalized;
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     const safeLabel = label.replace(/\s+/g, "_");
     const dataUrl = `![${safeLabel}](data:${mime};base64,${base64})`;

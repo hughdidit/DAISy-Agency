@@ -1,15 +1,8 @@
 import AppKit
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/GeneralSettings.swift
 import MoltbotDiscovery
 import MoltbotIPC
 import MoltbotKit
 import Observation
-=======
-import Observation
-import OpenClawDiscovery
-import OpenClawIPC
-import OpenClawKit
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/GeneralSettings.swift
 import SwiftUI
 
 struct GeneralSettings: View {
@@ -310,12 +303,7 @@ struct GeneralSettings: View {
                 .disabled(self.remoteStatus == .checking || self.state.remoteUrl
                     .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/GeneralSettings.swift
             Text("Direct mode requires a ws:// or wss:// URL (Tailscale Serve uses wss://<magicdns>).")
-=======
-            Text(
-                "Direct mode requires wss:// for remote hosts. ws:// is only allowed for localhost/127.0.0.1.")
->>>>>>> ce1dbeb98 (fix(macos): clean warnings and harden gateway/talk config parsing):apps/macos/Sources/OpenClaw/GeneralSettings.swift
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.leading, self.remoteLabelWidth + 10)
@@ -558,12 +546,7 @@ extension GeneralSettings {
                 return
             }
             guard Self.isValidWsUrl(trimmedUrl) else {
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/GeneralSettings.swift
                 self.remoteStatus = .failed("Gateway URL must start with ws:// or wss://")
-=======
-                self.remoteStatus = .failed(
-                    "Gateway URL must use wss:// for remote hosts (ws:// only for localhost)")
->>>>>>> ce1dbeb98 (fix(macos): clean warnings and harden gateway/talk config parsing):apps/macos/Sources/OpenClaw/GeneralSettings.swift
                 return
             }
         } else {

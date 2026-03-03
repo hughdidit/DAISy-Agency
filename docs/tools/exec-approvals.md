@@ -20,12 +20,7 @@ resolved by the **ask fallback** (default: deny).
 ## Where it applies
 
 Exec approvals are enforced locally on the execution host:
-<<<<<<< HEAD
 - **gateway host** → `moltbot` process on the gateway machine
-=======
-
-- **gateway host** → `openclaw` process on the gateway machine
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **node host** → node runner (macOS companion app or headless node host)
 
 macOS split:
@@ -128,14 +123,6 @@ are treated as allowlisted on nodes (macOS node or headless node host). This use
 that can run in allowlist mode **without** explicit allowlist entries. Safe bins reject
 positional file args and path-like tokens, so they can only operate on the incoming stream.
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-Treat this as a narrow fast-path for stream filters, not a general trust list.
-Do **not** add interpreter or runtime binaries (for example `python3`, `node`, `ruby`, `bash`, `sh`, `zsh`) to `safeBins`.
-If a command can evaluate code, execute subcommands, or read files by design, prefer explicit allowlist entries and keep approval prompts enabled.
-Custom safe bins must define an explicit profile in `tools.exec.safeBinProfiles.<bin>`.
->>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 Validation is deterministic from argv shape only (no host filesystem existence checks), which
 prevents file-existence oracle behavior from allow/deny differences.
 File-oriented options are denied for default safe bins (for example `sort -o`, `sort --output`,
@@ -156,14 +143,9 @@ Denied flags by safe-bin profile:
 Safe bins also force argv tokens to be treated as **literal text** at execution time (no globbing
 and no `$VARS` expansion) for stdin-only segments, so patterns like `*` or `$HOME/...` cannot be
 used to smuggle file reads.
-<<<<<<< HEAD
 Safe bins must also resolve from trusted binary directories (system defaults plus the gateway
 process `PATH` at startup). This blocks request-scoped PATH hijacking attempts.
 >>>>>>> 89aad7b92 (refactor: tighten safe-bin policy model and docs parity)
-=======
-Safe bins must also resolve from trusted binary directories (system defaults plus optional
-`tools.exec.safeBinTrustedDirs`). `PATH` entries are never auto-trusted.
->>>>>>> 64b273a71 (fix(exec): harden safe-bin trust and add explicit trusted dirs)
 Shell chaining and redirections are not auto-allowed in allowlist mode.
 
 Shell chaining (`&&`, `||`, `;`) is allowed when every top-level segment satisfies the allowlist

@@ -65,8 +65,6 @@ struct RootCanvas: View {
         .onChange(of: self.appModel.gatewayStatusText) { _, _ in self.updateCanvasDebugStatus() }
         .onChange(of: self.appModel.gatewayServerName) { _, _ in self.updateCanvasDebugStatus() }
         .onChange(of: self.appModel.gatewayRemoteAddress) { _, _ in self.updateCanvasDebugStatus() }
-<<<<<<< HEAD
-=======
         .onChange(of: self.appModel.gatewayServerName) { _, newValue in
             if newValue != nil {
                 self.onboardingComplete = true
@@ -78,7 +76,6 @@ struct RootCanvas: View {
         .onChange(of: self.appModel.openChatRequestID) { _, _ in
             self.presentedSheet = .chat
         }
->>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
         .onChange(of: self.voiceWake.lastTriggeredCommand) { _, newValue in
             guard let newValue else { return }
             let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -214,7 +211,6 @@ private struct CanvasContent: View {
     }
 
     private var statusActivity: StatusPill.Activity? {
-<<<<<<< HEAD
         // Status pill owns transient activity state so it doesn't overlap the connection indicator.
         if self.appModel.isBackgrounded {
             return StatusPill.Activity(
@@ -269,13 +265,6 @@ private struct CanvasContent: View {
         }
 
         return nil
-=======
-        StatusActivityBuilder.build(
-            appModel: self.appModel,
-            voiceWakeEnabled: self.voiceWakeEnabled,
-            cameraHUDText: self.cameraHUDText,
-            cameraHUDKind: self.cameraHUDKind)
->>>>>>> 778959b3d (refactor(ios): dedupe gateway helpers)
     }
 }
 

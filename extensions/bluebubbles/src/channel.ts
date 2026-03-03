@@ -78,7 +78,6 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
   configSchema: buildChannelConfigSchema(BlueBubblesConfigSchema),
   onboarding: blueBubblesOnboardingAdapter,
   config: {
-<<<<<<< HEAD
     listAccountIds: (cfg) => listBlueBubblesAccountIds(cfg as MoltbotConfig),
     resolveAccount: (cfg, accountId) =>
       resolveBlueBubblesAccount({ cfg: cfg as MoltbotConfig, accountId }),
@@ -86,14 +85,6 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
     setAccountEnabled: ({ cfg, accountId, enabled }) =>
       setAccountEnabledInConfigSection({
         cfg: cfg as MoltbotConfig,
-=======
-    listAccountIds: (cfg) => listBlueBubblesAccountIds(cfg),
-    resolveAccount: (cfg, accountId) => resolveBlueBubblesAccount({ cfg: cfg, accountId }),
-    defaultAccountId: (cfg) => resolveDefaultBlueBubblesAccountId(cfg),
-    setAccountEnabled: ({ cfg, accountId, enabled }) =>
-      setAccountEnabledInConfigSection({
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         sectionKey: "bluebubbles",
         accountId,
         enabled,
@@ -101,11 +92,7 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
       }),
     deleteAccount: ({ cfg, accountId }) =>
       deleteAccountFromConfigSection({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         sectionKey: "bluebubbles",
         accountId,
         clearBaseFields: ["serverUrl", "password", "name", "webhookPath"],
@@ -120,16 +107,10 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
 <<<<<<< HEAD
-<<<<<<< HEAD
       (resolveBlueBubblesAccount({ cfg: cfg as MoltbotConfig, accountId }).config.allowFrom ??
         []).map(
         (entry) => String(entry),
       ),
-=======
-      (
-        resolveBlueBubblesAccount({ cfg: cfg as OpenClawConfig, accountId }).config.allowFrom ?? []
-      ).map((entry) => String(entry)),
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
       (resolveBlueBubblesAccount({ cfg: cfg, accountId }).config.allowFrom ?? []).map((entry) =>
         String(entry),
@@ -146,13 +127,9 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
   security: {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
       const resolvedAccountId = accountId ?? account.accountId ?? DEFAULT_ACCOUNT_ID;
-<<<<<<< HEAD
       const useAccountPath = Boolean(
         (cfg as MoltbotConfig).channels?.bluebubbles?.accounts?.[resolvedAccountId],
       );
-=======
-      const useAccountPath = Boolean(cfg.channels?.bluebubbles?.accounts?.[resolvedAccountId]);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       const basePath = useAccountPath
         ? `channels.bluebubbles.accounts.${resolvedAccountId}.`
         : "channels.bluebubbles.";
@@ -252,11 +229,7 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
     resolveAccountId: ({ accountId }) => normalizeAccountId(accountId),
     applyAccountName: ({ cfg, accountId, name }) =>
       applyAccountNameToChannelSection({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "bluebubbles",
         accountId,
         name,
@@ -275,11 +248,7 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
     },
     applyAccountConfig: ({ cfg, accountId, input }) => {
       const namedConfig = applyAccountNameToChannelSection({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "bluebubbles",
         accountId,
         name: input.name,
@@ -333,11 +302,7 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
     normalizeAllowEntry: (entry) => normalizeBlueBubblesHandle(entry.replace(/^bluebubbles:/i, "")),
     notifyApproval: async ({ cfg, id }) => {
       await sendMessageBlueBubbles(id, PAIRING_APPROVED_MESSAGE, {
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       });
     },
   },
@@ -361,11 +326,7 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
         ? resolveBlueBubblesMessageId(rawReplyToId, { requireKnownShortId: true })
         : "";
       const result = await sendMessageBlueBubbles(to, text, {
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         accountId: accountId ?? undefined,
         replyToMessageGuid: replyToMessageGuid || undefined,
       });
@@ -382,11 +343,7 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
       };
       const resolvedCaption = caption ?? text;
       const result = await sendBlueBubblesMedia({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         to,
         mediaUrl,
         mediaPath,
@@ -457,11 +414,7 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
       ctx.log?.info(`[${account.accountId}] starting provider (webhook=${webhookPath})`);
       return monitorBlueBubblesProvider({
         account,
-<<<<<<< HEAD
         config: ctx.cfg as MoltbotConfig,
-=======
-        config: ctx.cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         runtime: ctx.runtime,
         abortSignal: ctx.abortSignal,
         statusSink: (patch) => ctx.setStatus({ accountId: ctx.accountId, ...patch }),

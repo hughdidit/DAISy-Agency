@@ -5,23 +5,14 @@ import express from "express";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { ResolvedBrowserConfig } from "./config.js";
 <<<<<<< HEAD
 =======
-import type { BrowserRouteRegistrar } from "./routes/types.js";
-<<<<<<< HEAD
-import { safeEqualSecret } from "../security/secret-equal.js";
->>>>>>> 4711a943e (fix(browser): authenticate sandbox browser bridge server)
-=======
 import { isLoopbackHost } from "../gateway/net.js";
 import { deleteBridgeAuthForPort, setBridgeAuthForPort } from "./bridge-auth-registry.js";
-<<<<<<< HEAD
 import { isAuthorizedBrowserRequest } from "./http-auth.js";
 >>>>>>> af50b914a (refactor(browser): centralize http auth)
-=======
->>>>>>> 28014de97 (refactor(browser): share common server middleware)
 =======
 import { isLoopbackHost } from "../gateway/net.js";
 import { deleteBridgeAuthForPort, setBridgeAuthForPort } from "./bridge-auth-registry.js";
@@ -81,7 +72,6 @@ export async function startBrowserBridgeServer(params: {
   const port = params.port ?? 0;
 
   const app = express();
-<<<<<<< HEAD
   app.use(express.json({ limit: "1mb" }));
 
   const authToken = params.authToken?.trim() || undefined;
@@ -94,33 +84,6 @@ export async function startBrowserBridgeServer(params: {
       res.status(401).send("Unauthorized");
     });
   }
-=======
-  installBrowserCommonMiddleware(app);
-
-  if (params.resolveSandboxNoVncToken) {
-    app.get("/sandbox/novnc", (req, res) => {
-      const rawToken = typeof req.query?.token === "string" ? req.query.token.trim() : "";
-      if (!rawToken) {
-        res.status(400).send("Missing token");
-        return;
-      }
-      const redirectUrl = params.resolveSandboxNoVncToken?.(rawToken);
-      if (!redirectUrl) {
-        res.status(404).send("Invalid or expired token");
-        return;
-      }
-      res.setHeader("Cache-Control", "no-store");
-      res.redirect(302, redirectUrl);
-    });
-  }
-
-  const authToken = params.authToken?.trim() || undefined;
-  const authPassword = params.authPassword?.trim() || undefined;
-  if (!authToken && !authPassword) {
-    throw new Error("bridge server requires auth (authToken/authPassword missing)");
-  }
-  installBrowserAuthMiddleware(app, { token: authToken, password: authPassword });
->>>>>>> 28014de97 (refactor(browser): share common server middleware)
 
   const state: BrowserServerState = {
     server: null as unknown as Server,

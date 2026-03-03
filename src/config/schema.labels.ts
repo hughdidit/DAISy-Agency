@@ -156,8 +156,6 @@ export const FIELD_LABELS: Record<string, string> = {
   "agents.list[].tools.byProvider": "Agent Tool Policy by Provider",
   "tools.exec.applyPatch.enabled": "Enable apply_patch",
   "tools.exec.applyPatch.allowModels": "apply_patch Model Allowlist",
-<<<<<<< HEAD
-=======
   "tools.loopDetection.enabled": "Tool-loop Detection",
   "tools.loopDetection.historySize": "Tool-loop History Size",
   "tools.loopDetection.warningThreshold": "Tool-loop Warning Threshold",
@@ -168,7 +166,6 @@ export const FIELD_LABELS: Record<string, string> = {
   "tools.loopDetection.detectors.pingPong": "Tool-loop Ping-Pong Detection",
   "tools.fs.workspaceOnly": "Workspace-only FS tools",
   "tools.sessions.visibility": "Session Tools Visibility",
->>>>>>> 076df941a (feat: add configurable tool loop detection)
   "tools.exec.notifyOnExit": "Exec Notify On Exit",
   "tools.exec.notifyOnExitEmptySuccess": "Exec Notify On Empty Success",
   "tools.exec.approvalRunningNoticeMs": "Exec Approval Running Notice (ms)",
@@ -362,8 +359,6 @@ export const FIELD_LABELS: Record<string, string> = {
   "auth.profiles": "Auth Profiles",
   "auth.order": "Auth Profile Order",
   "auth.cooldowns": "Auth Cooldowns",
-<<<<<<< HEAD
-=======
   acp: "ACP",
   "acp.enabled": "ACP Enabled",
   "acp.dispatch.enabled": "ACP Dispatch Enabled",
@@ -382,7 +377,6 @@ export const FIELD_LABELS: Record<string, string> = {
   "acp.stream.tagVisibility": "ACP Stream Tag Visibility",
   "acp.runtime.ttlMinutes": "ACP Runtime TTL (minutes)",
   "acp.runtime.installCommand": "ACP Runtime Install Command",
->>>>>>> 2466a9bb1 (ACP: carry dedupe/projector updates onto configurable acpx branch)
   models: "Models",
   "models.mode": "Model Catalog Mode",
   "models.providers": "Model Providers",
@@ -717,12 +711,9 @@ export const FIELD_LABELS: Record<string, string> = {
   "channels.discord.ui.components.accentColor": "Discord Component Accent Color",
   "channels.discord.intents.presence": "Discord Presence Intent",
   "channels.discord.intents.guildMembers": "Discord Guild Members Intent",
-<<<<<<< HEAD
-=======
   "channels.discord.voice.enabled": "Discord Voice Enabled",
   "channels.discord.voice.autoJoin": "Discord Voice Auto-Join",
   "channels.discord.voice.tts": "Discord Voice Text-to-Speech",
->>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796))
   "channels.discord.pluralkit.enabled": "Discord PluralKit Enabled",
   "channels.discord.pluralkit.token": "Discord PluralKit Token",
   "channels.discord.activity": "Discord Presence Activity",

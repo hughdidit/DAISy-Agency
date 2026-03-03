@@ -76,18 +76,9 @@ If you see `sharp: Please add node-gyp to your dependencies`, either install bui
 Or:
 
 ```bash
-<<<<<<< HEAD
 pnpm add -g moltbot@latest
 ```
 
-=======
-pnpm add -g openclaw@latest
-pnpm approve-builds -g                # approve openclaw, node-llama-cpp, sharp, etc.
-```
-
-pnpm requires explicit approval for packages with build scripts. After the first install shows the "Ignored build scripts" warning, run `pnpm approve-builds -g` and select the listed packages.
-
->>>>>>> 6fb2d3d7d (feat: remove slop.)
 Then:
 
 ```bash
@@ -109,30 +100,10 @@ Tip: if you don’t have a global install yet, run repo commands via `pnpm moltb
 
 ### 4) Other install options
 
-<<<<<<< HEAD
 - Docker: [Docker](/install/docker)
 - Nix: [Nix](/install/nix)
 - Ansible: [Ansible](/install/ansible)
 - Bun (CLI only): [Bun](/install/bun)
-=======
-<CardGroup cols={2}>
-  <Card title="Docker" href="/install/docker" icon="container">
-    Containerized or headless deployments.
-  </Card>
-  <Card title="Podman" href="/install/podman" icon="container">
-    Rootless container: run `setup-podman.sh` once, then the launch script.
-  </Card>
-  <Card title="Nix" href="/install/nix" icon="snowflake">
-    Declarative install via Nix.
-  </Card>
-  <Card title="Ansible" href="/install/ansible" icon="server">
-    Automated fleet provisioning.
-  </Card>
-  <Card title="Bun" href="/install/bun" icon="zap">
-    CLI-only usage via the Bun runtime.
-  </Card>
-</CardGroup>
->>>>>>> 81b5e2766 (feat(podman): add optional Podman setup and documentation (#16273))
 
 ## After install
 
@@ -158,19 +129,7 @@ curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method npm
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
 ```
 
-<<<<<<< HEAD
 Common flags:
-=======
-If you need custom runtime paths, use:
-
-- `OPENCLAW_HOME` for home-directory based internal paths
-- `OPENCLAW_STATE_DIR` for mutable state location
-- `OPENCLAW_CONFIG_PATH` for config file location
-
-See [Environment vars](/help/environment) for precedence and full details.
-
-## Troubleshooting: `openclaw` not found
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 
 - `--install-method npm|git`
 - `--git-dir <path>` (default: `~/moltbot`)

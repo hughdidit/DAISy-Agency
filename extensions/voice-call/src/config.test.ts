@@ -129,20 +129,12 @@ describe("validateProviderConfig", () => {
 
   describe("telnyx provider", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     it("passes validation when credentials are in config", () => {
       const config = createBaseConfig("telnyx");
       config.telnyx = { apiKey: "KEY123", connectionId: "CONN456" };
-=======
-    it("passes validation when credentials come from config or environment", () => {
-      const fromConfig = createBaseConfig("telnyx");
-      fromConfig.telnyx = { apiKey: "KEY123", connectionId: "CONN456", publicKey: "public-key" };
-      expect(validateProviderConfig(fromConfig)).toMatchObject({ valid: true, errors: [] });
->>>>>>> c241bf004 (test: dedupe voice-call provider config validation cases)
 
       process.env.TELNYX_API_KEY = "KEY123";
       process.env.TELNYX_CONNECTION_ID = "CONN456";
-<<<<<<< HEAD
       let config = createBaseConfig("telnyx");
       config = resolveVoiceCallConfig(config);
 
@@ -150,11 +142,6 @@ describe("validateProviderConfig", () => {
 
       expect(result.valid).toBe(true);
       expect(result.errors).toEqual([]);
-=======
-      process.env.TELNYX_PUBLIC_KEY = "public-key";
-      const fromEnv = resolveVoiceCallConfig(createBaseConfig("telnyx"));
-      expect(validateProviderConfig(fromEnv)).toMatchObject({ valid: true, errors: [] });
->>>>>>> c241bf004 (test: dedupe voice-call provider config validation cases)
     });
 
 =======
@@ -171,8 +158,6 @@ describe("validateProviderConfig", () => {
         "plugins.entries.voice-call.config.telnyx.apiKey is required (or set TELNYX_API_KEY env)",
       );
     });
-<<<<<<< HEAD
-=======
 
     it("requires a public key unless signature verification is skipped", () => {
       const missingPublicKey = createBaseConfig("telnyx");
@@ -201,7 +186,6 @@ describe("validateProviderConfig", () => {
         errors: [],
       });
     });
->>>>>>> c241bf004 (test: dedupe voice-call provider config validation cases)
   });
 
   describe("plivo provider", () => {

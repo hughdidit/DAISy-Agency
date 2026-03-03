@@ -93,8 +93,6 @@ describe("registerMatrixMonitorEvents", () => {
     });
     expect(sendReadReceiptMatrixMock).not.toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
 
   it("caches self user id across messages", async () => {
     const { getUserId, roomMessageHandler } = createHarness();
@@ -170,5 +168,4 @@ describe("registerMatrixMonitorEvents", () => {
       "matrix: skipping duplicate listener registration for client",
     );
   });
->>>>>>> dc816b84e (refactor(matrix): unify startup + split monitor config flow)
 });

@@ -1,11 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createMoltbotTools } from "../agents/moltbot-tools.js";
-=======
-import { afterAll, beforeAll, describe, expect, it, type Mock } from "vitest";
->>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
 import { resolveSessionTranscriptPath } from "../config/sessions.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { captureEnv } from "../test-utils/env.js";
@@ -20,103 +16,20 @@ installGatewayTestHooks({ scope: "suite" });
 
 let server: Awaited<ReturnType<typeof startGatewayServer>>;
 let gatewayPort: number;
-<<<<<<< HEAD
 let prevGatewayPort: string | undefined;
 let prevGatewayToken: string | undefined;
 
 beforeAll(async () => {
   prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
   prevGatewayToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
-=======
-const gatewayToken = "test-token";
-let envSnapshot: ReturnType<typeof captureEnv>;
-
-type SessionSendTool = ReturnType<typeof createOpenClawTools>[number];
-const SESSION_SEND_E2E_TIMEOUT_MS = 10_000;
-let cachedSessionsSendTool: SessionSendTool | null = null;
-
-function getSessionsSendTool(): SessionSendTool {
-  if (cachedSessionsSendTool) {
-    return cachedSessionsSendTool;
-  }
-  const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-  if (!tool) {
-    throw new Error("missing sessions_send tool");
-  }
-  cachedSessionsSendTool = tool;
-  return cachedSessionsSendTool;
-}
-
-async function emitLifecycleAssistantReply(params: {
-  opts: unknown;
-  defaultSessionId: string;
-  includeTimestamp?: boolean;
-  resolveText: (extraSystemPrompt?: string) => string;
-}) {
-  const commandParams = params.opts as {
-    sessionId?: string;
-    runId?: string;
-    extraSystemPrompt?: string;
-  };
-  const sessionId = commandParams.sessionId ?? params.defaultSessionId;
-  const runId = commandParams.runId ?? sessionId;
-  const sessionFile = resolveSessionTranscriptPath(sessionId);
-  await fs.mkdir(path.dirname(sessionFile), { recursive: true });
-
-  const startedAt = Date.now();
-  emitAgentEvent({
-    runId,
-    stream: "lifecycle",
-    data: { phase: "start", startedAt },
-  });
-
-  const text = params.resolveText(commandParams.extraSystemPrompt);
-  const message = {
-    role: "assistant",
-    content: [{ type: "text", text }],
-    ...(params.includeTimestamp ? { timestamp: Date.now() } : {}),
-  };
-  await fs.appendFile(sessionFile, `${JSON.stringify({ message })}\n`, "utf8");
-
-  emitAgentEvent({
-    runId,
-    stream: "lifecycle",
-    data: { phase: "end", startedAt, endedAt: Date.now() },
-  });
-}
-
-beforeAll(async () => {
-  envSnapshot = captureEnv(["OPENCLAW_GATEWAY_PORT", "OPENCLAW_GATEWAY_TOKEN"]);
->>>>>>> 31980bcaf (refactor(test): dedupe gateway env restores)
   gatewayPort = await getFreePort();
-<<<<<<< HEAD
   process.env.CLAWDBOT_GATEWAY_PORT = String(gatewayPort);
   process.env.CLAWDBOT_GATEWAY_TOKEN = "test-token";
-=======
-  testState.gatewayAuth = { mode: "token", token: gatewayToken };
-  process.env.OPENCLAW_GATEWAY_PORT = String(gatewayPort);
-  process.env.OPENCLAW_GATEWAY_TOKEN = gatewayToken;
-  const { approveDevicePairing, requestDevicePairing } = await import("../infra/device-pairing.js");
-  const { loadOrCreateDeviceIdentity, publicKeyRawBase64UrlFromPem } =
-    await import("../infra/device-identity.js");
-  const identity = loadOrCreateDeviceIdentity();
-  const pending = await requestDevicePairing({
-    deviceId: identity.deviceId,
-    publicKey: publicKeyRawBase64UrlFromPem(identity.publicKeyPem),
-    clientId: "openclaw-cli",
-    clientMode: "cli",
-    role: "operator",
-    scopes: ["operator.admin", "operator.read", "operator.write", "operator.approvals"],
-    silent: false,
-  });
-  await approveDevicePairing(pending.request.requestId);
->>>>>>> 3f0ab7642 (test: stabilize remaining e2e gateway suites)
   server = await startGatewayServer(gatewayPort);
 });
 
 afterAll(async () => {
   await server.close();
-<<<<<<< HEAD
   if (prevGatewayPort === undefined) {
     delete process.env.CLAWDBOT_GATEWAY_PORT;
   } else {
@@ -127,9 +40,6 @@ afterAll(async () => {
   } else {
     process.env.CLAWDBOT_GATEWAY_TOKEN = prevGatewayToken;
   }
-=======
-  envSnapshot.restore();
->>>>>>> 31980bcaf (refactor(test): dedupe gateway env restores)
 });
 
 describe("sessions_send gateway loopback", () => {
@@ -153,15 +63,8 @@ describe("sessions_send gateway loopback", () => {
     );
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_send");
     if (!tool) throw new Error("missing sessions_send tool");
-=======
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
     const tool = getSessionsSendTool();
 >>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
@@ -186,28 +89,10 @@ describe("sessions_send gateway loopback", () => {
 });
 
 describe("sessions_send label lookup", () => {
-<<<<<<< HEAD
   it("finds session by label and sends message", { timeout: 60_000 }, async () => {
 <<<<<<< HEAD
     const spy = vi.mocked(agentCommand);
     spy.mockImplementation(async (opts) => {
-=======
-    // This is an operator feature; enable broader session tool targeting for this test.
-    const configPath = process.env.OPENCLAW_CONFIG_PATH;
-    if (!configPath) {
-      throw new Error("OPENCLAW_CONFIG_PATH missing in gateway test environment");
-    }
-    await fs.mkdir(path.dirname(configPath), { recursive: true });
-    await fs.writeFile(
-      configPath,
-      JSON.stringify({ tools: { sessions: { visibility: "all" } } }, null, 2) + "\n",
-      "utf-8",
-    );
-
-    const spy = agentCommand as unknown as Mock<(opts: unknown) => Promise<void>>;
-<<<<<<< HEAD
-    spy.mockImplementation(async (opts: unknown) => {
->>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
       const params = opts as {
         sessionId?: string;
         runId?: string;
@@ -284,15 +169,8 @@ describe("sessions_send label lookup", () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_send");
     if (!tool) throw new Error("missing sessions_send tool");
-=======
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
     const tool = getSessionsSendTool();
 >>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
@@ -315,15 +193,8 @@ describe("sessions_send label lookup", () => {
 
   it("returns error when label not found", { timeout: 60_000 }, async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_send");
     if (!tool) throw new Error("missing sessions_send tool");
-=======
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
     const tool = getSessionsSendTool();
 >>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
@@ -340,15 +211,8 @@ describe("sessions_send label lookup", () => {
 
   it("returns error when neither sessionKey nor label provided", { timeout: 60_000 }, async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_send");
     if (!tool) throw new Error("missing sessions_send tool");
-=======
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
     const tool = getSessionsSendTool();
 >>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)

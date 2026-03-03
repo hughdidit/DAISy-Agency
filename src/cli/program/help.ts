@@ -6,12 +6,7 @@ import { hasFlag, hasRootVersionAlias } from "../argv.js";
 import { formatCliBannerLine, hasEmittedCliBanner } from "../banner.js";
 import { replaceCliName, resolveCliName } from "../cli-name.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ProgramContext } from "./context.js";
-=======
-=======
-import { CLI_LOG_LEVEL_VALUES, parseCliLogLevelOption } from "../log-level-option.js";
->>>>>>> 98a03c490 (Feat/logger support log level validation0222 (#23436))
 import { getCoreCliCommandsWithSubcommands } from "./command-registry.js";
 import type { ProgramContext } from "./context.js";
 import { getSubCliCommandsWithSubcommands } from "./register.subclis.js";
@@ -27,11 +22,7 @@ const ROOT_COMMANDS_HINT =
   "Hint: commands suffixed with * have subcommands. Run <command> --help for details.";
 
 const EXAMPLES = [
-<<<<<<< HEAD
   ["moltbot channels login --verbose", "Link personal WhatsApp Web and show QR + connection logs."],
-=======
-  ["openclaw models --help", "Show detailed help for the models command."],
->>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
   [
     'moltbot message send --target +15555550123 --message "Hi" --json',
     "Send via your web session and print JSON result.",
@@ -61,16 +52,7 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     )
     .option(
       "--profile <name>",
-<<<<<<< HEAD
       "Use a named profile (isolates CLAWDBOT_STATE_DIR/CLAWDBOT_CONFIG_PATH under ~/.clawdbot-<name>)",
-=======
-      "Use a named profile (isolates OPENCLAW_STATE_DIR/OPENCLAW_CONFIG_PATH under ~/.openclaw-<name>)",
-    )
-    .option(
-      "--log-level <level>",
-      `Global log level override for file + console (${CLI_LOG_LEVEL_VALUES})`,
-      parseCliLogLevelOption,
->>>>>>> 98a03c490 (Feat/logger support log level validation0222 (#23436))
     );
 
   program.option("--no-color", "Disable ANSI colors", false);
@@ -138,15 +120,8 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
   ).join("\n");
 
   program.addHelpText("afterAll", ({ command }) => {
-<<<<<<< HEAD
     if (command !== program) return "";
     const docs = formatDocsLink("/cli", "docs.molt.bot/cli");
-=======
-    if (command !== program) {
-      return "";
-    }
-    const docs = formatDocsLink("/cli", "docs.openclaw.ai/cli");
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     return `\n${theme.heading("Examples:")}\n${fmtExamples}\n\n${theme.muted("Docs:")} ${docs}\n`;
   });
 }

@@ -35,7 +35,6 @@ export type WhatsAppAckReactionConfig = {
   group?: "always" | "mentions" | "never";
 };
 
-<<<<<<< HEAD
 export type WhatsAppConfig = {
   /** Optional per-account WhatsApp configuration (multi-account). */
   accounts?: Record<string, WhatsAppAccountConfig>;
@@ -60,10 +59,6 @@ export type WhatsAppConfig = {
    * Use `"auto"` to derive `[{identity.name}]` from the routed agent.
    */
   responsePrefix?: string;
-=======
-type WhatsAppSharedConfig = {
-<<<<<<< HEAD
->>>>>>> 328679131 (refactor(agents): dedupe config and truncation guards)
 =======
   /** Whether the WhatsApp channel is enabled. */
   enabled?: boolean;

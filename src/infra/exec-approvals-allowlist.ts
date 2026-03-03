@@ -14,10 +14,6 @@ import {
 import type { ExecAllowlistEntry } from "./exec-approvals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 =======
 import {
   SAFE_BIN_PROFILES,
@@ -27,16 +23,7 @@ import {
 >>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 import { isTrustedSafeBinPath } from "./exec-safe-bin-trust.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 4d3403b7a (chore: fix CI errors)
-=======
-import {
-  extractShellWrapperInlineCommand,
-  isDispatchWrapperExecutable,
-  isShellWrapperExecutable,
-  unwrapKnownDispatchWrapperInvocation,
-} from "./exec-wrapper-resolution.js";
->>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
 
 function isPathLikeToken(value: string): boolean {
   const trimmed = value.trim();
@@ -86,15 +73,8 @@ export function isSafeBinUsage(params: {
   argv: string[];
   resolution: CommandResolution | null;
   safeBins: Set<string>;
-<<<<<<< HEAD
   cwd?: string;
   fileExists?: (filePath: string) => boolean;
-=======
-  platform?: string | null;
-  trustedSafeBinDirs?: ReadonlySet<string>;
-  safeBinProfiles?: Readonly<Record<string, SafeBinProfile>>;
-  isTrustedSafeBinPathFn?: typeof isTrustedSafeBinPath;
->>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 }): boolean {
   if (params.safeBins.size === 0) {
     return false;
@@ -116,7 +96,6 @@ export function isSafeBinUsage(params: {
   const cwd = params.cwd ?? process.cwd();
   const exists = params.fileExists ?? defaultFileExists;
   const argv = params.argv.slice(1);
-<<<<<<< HEAD
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
     if (!token) {
@@ -143,14 +122,6 @@ export function isSafeBinUsage(params: {
     }
   }
   return true;
-=======
-  const safeBinProfiles = params.safeBinProfiles ?? SAFE_BIN_PROFILES;
-  const profile = safeBinProfiles[execName];
-  if (!profile) {
-    return false;
-  }
-  return validateSafeBinArgv(argv, profile);
->>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 }
 
 export type ExecAllowlistEvaluation = {
@@ -187,12 +158,7 @@ function evaluateSegments(
       argv: segment.argv,
       resolution: segment.resolution,
       safeBins: params.safeBins,
-<<<<<<< HEAD
       cwd: params.cwd,
-=======
-      safeBinProfiles: params.safeBinProfiles,
-      platform: params.platform,
->>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
       trustedSafeBinDirs: params.trustedSafeBinDirs,
     });
     const skillAllow =
@@ -227,7 +193,6 @@ export function evaluateExecAllowlist(params: {
     return { allowlistSatisfied: false, allowlistMatches };
   }
 
-<<<<<<< HEAD
   // If the analysis contains chains, evaluate each chain part separately
   if (params.analysis.chains) {
     for (const chainSegments of params.analysis.chains) {
@@ -259,34 +224,6 @@ export function evaluateExecAllowlist(params: {
     autoAllowSkills: params.autoAllowSkills,
   });
   return { allowlistSatisfied: result.satisfied, allowlistMatches: result.matches };
-=======
-  const hasChains = Boolean(params.analysis.chains);
-  for (const group of resolveAnalysisSegmentGroups(params.analysis)) {
-    const result = evaluateSegments(group, {
-      allowlist: params.allowlist,
-      safeBins: params.safeBins,
-      safeBinProfiles: params.safeBinProfiles,
-      cwd: params.cwd,
-      platform: params.platform,
-      trustedSafeBinDirs: params.trustedSafeBinDirs,
-      skillBins: params.skillBins,
-      autoAllowSkills: params.autoAllowSkills,
-    });
-    if (!result.satisfied) {
-      if (!hasChains) {
-        return {
-          allowlistSatisfied: false,
-          allowlistMatches: result.matches,
-          segmentSatisfiedBy: result.segmentSatisfiedBy,
-        };
-      }
-      return { allowlistSatisfied: false, allowlistMatches: [], segmentSatisfiedBy: [] };
-    }
-    allowlistMatches.push(...result.matches);
-    segmentSatisfiedBy.push(...result.segmentSatisfiedBy);
-  }
-  return { allowlistSatisfied: true, allowlistMatches, segmentSatisfiedBy };
->>>>>>> 9530c0108 (refactor(exec): split safe-bin policy modules and dedupe allowlist flow)
 }
 
 export type ExecAllowlistAnalysis = {
@@ -296,8 +233,6 @@ export type ExecAllowlistAnalysis = {
   segments: ExecCommandSegment[];
 };
 
-<<<<<<< HEAD
-=======
 function hasSegmentExecutableMatch(
   segment: ExecCommandSegment,
   predicate: (token: string) => boolean,
@@ -417,7 +352,6 @@ export function resolveAllowAlwaysPatterns(params: {
   return Array.from(patterns);
 }
 
->>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
 /**
  * Evaluates allowlist for shell commands (including &&, ||, ;) and returns analysis metadata.
  */
@@ -450,16 +384,12 @@ export function evaluateShellAllowlist(params: {
       platform: params.platform,
     });
     if (!analysis.ok) {
-<<<<<<< HEAD
       return {
         analysisOk: false,
         allowlistSatisfied: false,
         allowlistMatches: [],
         segments: [],
       };
-=======
-      return analysisFailure();
->>>>>>> e7f65b4aa (refactor(infra): dedupe exec allowlist analysis failure)
     }
     const evaluation = evaluateExecAllowlist({
       analysis,
@@ -490,16 +420,12 @@ export function evaluateShellAllowlist(params: {
       platform: params.platform,
     });
     if (!analysis.ok) {
-<<<<<<< HEAD
       return {
         analysisOk: false,
         allowlistSatisfied: false,
         allowlistMatches: [],
         segments: [],
       };
-=======
-      return analysisFailure();
->>>>>>> e7f65b4aa (refactor(infra): dedupe exec allowlist analysis failure)
     }
 
     segments.push(...analysis.segments);

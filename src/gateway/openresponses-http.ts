@@ -11,20 +11,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-=======
-import type { ClientToolDefinition } from "../agents/pi-embedded-runner/run/params.js";
-import type { ImageContent } from "../commands/agent/types.js";
-import type { GatewayHttpResponsesConfig } from "../config/types.gateway.js";
-import type { AuthRateLimiter } from "./auth-rate-limit.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import { buildHistoryContextFromEntries, type HistoryEntry } from "../auto-reply/reply/history.js";
 =======
 >>>>>>> 7fc102674 (refactor(gateway): share agent prompt builder)
@@ -57,12 +48,9 @@ import type { ClientToolDefinition } from "../agents/pi-embedded-runner/run/para
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createDefaultDeps } from "../cli/deps.js";
 import { agentCommand } from "../commands/agent.js";
-=======
->>>>>>> dee013426 (style: reformat dedupe-touched files)
 import type { ImageContent } from "../commands/agent/types.js";
 import type { GatewayHttpResponsesConfig } from "../config/types.gateway.js";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
@@ -131,8 +119,6 @@ import {
   type InputImageLimits,
   type InputImageSource,
 } from "../media/input-files.js";
-<<<<<<< HEAD
-=======
 import { defaultRuntime } from "../runtime.js";
 import { resolveAssistantStreamDeltaText } from "./agent-event-assistant-text.js";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
@@ -149,7 +135,6 @@ import {
   type Usage,
 } from "./open-responses.schema.js";
 <<<<<<< HEAD
->>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 =======
 import { buildAgentPrompt } from "./openresponses-prompt.js";
 >>>>>>> 3f03cdea5 (test: optimize redundant suites for faster runtime)
@@ -185,7 +170,6 @@ function resolveResponsesLimits(
   return {
     maxBodyBytes: config?.maxBodyBytes ?? DEFAULT_BODY_BYTES,
     files: {
-<<<<<<< HEAD
       allowUrl: files?.allowUrl ?? true,
       allowedMimes: normalizeMimeList(files?.allowedMimes, DEFAULT_INPUT_FILE_MIMES),
       maxBytes: files?.maxBytes ?? DEFAULT_INPUT_FILE_MAX_BYTES,
@@ -197,10 +181,6 @@ function resolveResponsesLimits(
         maxPixels: files?.pdf?.maxPixels ?? DEFAULT_INPUT_PDF_MAX_PIXELS,
         minTextChars: files?.pdf?.minTextChars ?? DEFAULT_INPUT_PDF_MIN_TEXT_CHARS,
       },
-=======
-      ...fileLimits,
-      urlAllowlist: normalizeHostnameAllowlist(files?.urlAllowlist),
->>>>>>> 37c97964a (refactor(media): centralize input file limit resolution)
     },
     images: {
       allowUrl: images?.allowUrl ?? true,

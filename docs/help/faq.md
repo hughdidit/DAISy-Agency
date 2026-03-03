@@ -10,11 +10,7 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
 
 - [Quick start and first-run setup](#quick-start-and-firstrun-setup)
   - [Im stuck whats the fastest way to get unstuck?](#im-stuck-whats-the-fastest-way-to-get-unstuck)
-<<<<<<< HEAD
   - [What’s the recommended way to install and set up Moltbot?](#whats-the-recommended-way-to-install-and-set-up-moltbot)
-=======
-  - [What's the recommended way to install and set up OpenClaw?](#whats-the-recommended-way-to-install-and-set-up-openclaw)
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
   - [How do I open the dashboard after onboarding?](#how-do-i-open-the-dashboard-after-onboarding)
   - [How do I authenticate the dashboard (token) on localhost vs remote?](#how-do-i-authenticate-the-dashboard-token-on-localhost-vs-remote)
   - [What runtime do I need?](#what-runtime-do-i-need)
@@ -22,7 +18,6 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [Any tips for Raspberry Pi installs?](#any-tips-for-raspberry-pi-installs)
   - [It is stuck on "wake up my friend" / onboarding will not hatch. What now?](#it-is-stuck-on-wake-up-my-friend-onboarding-will-not-hatch-what-now)
   - [Can I migrate my setup to a new machine (Mac mini) without redoing onboarding?](#can-i-migrate-my-setup-to-a-new-machine-mac-mini-without-redoing-onboarding)
-<<<<<<< HEAD
   - [Where do I see what’s new in the latest version?](#where-do-i-see-whats-new-in-the-latest-version)
   - [I can't access docs.molt.bot (SSL error). What now?](#i-cant-access-docsmoltbot-ssl-error-what-now)
   - [What’s the difference between stable and beta?](#whats-the-difference-between-stable-and-beta)
@@ -34,19 +29,6 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [The docs didn’t answer my question - how do I get a better answer?](#the-docs-didnt-answer-my-question-how-do-i-get-a-better-answer)
   - [How do I install Moltbot on Linux?](#how-do-i-install-moltbot-on-linux)
   - [How do I install Moltbot on a VPS?](#how-do-i-install-moltbot-on-a-vps)
-=======
-  - [Where do I see what is new in the latest version?](#where-do-i-see-what-is-new-in-the-latest-version)
-  - [I can't access docs.openclaw.ai (SSL error). What now?](#i-cant-access-docsopenclawai-ssl-error-what-now)
-  - [What's the difference between stable and beta?](#whats-the-difference-between-stable-and-beta)
-  - [How do I install the beta version, and what's the difference between beta and dev?](#how-do-i-install-the-beta-version-and-whats-the-difference-between-beta-and-dev)
-  - [How do I try the latest bits?](#how-do-i-try-the-latest-bits)
-  - [How long does install and onboarding usually take?](#how-long-does-install-and-onboarding-usually-take)
-  - [Installer stuck? How do I get more feedback?](#installer-stuck-how-do-i-get-more-feedback)
-  - [Windows install says git not found or openclaw not recognized](#windows-install-says-git-not-found-or-openclaw-not-recognized)
-  - [The docs didn't answer my question - how do I get a better answer?](#the-docs-didnt-answer-my-question-how-do-i-get-a-better-answer)
-  - [How do I install OpenClaw on Linux?](#how-do-i-install-openclaw-on-linux)
-  - [How do I install OpenClaw on a VPS?](#how-do-i-install-openclaw-on-a-vps)
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
   - [Where are the cloud/VPS install guides?](#where-are-the-cloudvps-install-guides)
   - [Can I ask Clawd to update itself?](#can-i-ask-clawd-to-update-itself)
   - [What does the onboarding wizard actually do?](#what-does-the-onboarding-wizard-actually-do)
@@ -75,17 +57,10 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [Should I run the Gateway on my laptop or a VPS?](#should-i-run-the-gateway-on-my-laptop-or-a-vps)
   - [How important is it to run Moltbot on a dedicated machine?](#how-important-is-it-to-run-moltbot-on-a-dedicated-machine)
   - [What are the minimum VPS requirements and recommended OS?](#what-are-the-minimum-vps-requirements-and-recommended-os)
-<<<<<<< HEAD
   - [Can I run Moltbot in a VM and what are the requirements](#can-i-run-moltbot-in-a-vm-and-what-are-the-requirements)
 - [What is Moltbot?](#what-is-moltbot)
   - [What is Moltbot, in one paragraph?](#what-is-moltbot-in-one-paragraph)
   - [What’s the value proposition?](#whats-the-value-proposition)
-=======
-  - [Can I run OpenClaw in a VM and what are the requirements](#can-i-run-openclaw-in-a-vm-and-what-are-the-requirements)
-- [What is OpenClaw?](#what-is-openclaw)
-  - [What is OpenClaw, in one paragraph?](#what-is-openclaw-in-one-paragraph)
-  - [What's the value proposition?](#whats-the-value-proposition)
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
   - [I just set it up what should I do first](#i-just-set-it-up-what-should-i-do-first)
   - [What are the top five everyday use cases for Moltbot](#what-are-the-top-five-everyday-use-cases-for-moltbot)
   - [Can Moltbot help with lead gen outreach ads and blogs for a SaaS](#can-moltbot-help-with-lead-gen-outreach-ads-and-blogs-for-a-saas)
@@ -112,13 +87,8 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [Is all data used with Moltbot saved locally?](#is-all-data-used-with-moltbot-saved-locally)
   - [Where does Moltbot store its data?](#where-does-moltbot-store-its-data)
   - [Where should AGENTS.md / SOUL.md / USER.md / MEMORY.md live?](#where-should-agentsmd-soulmd-usermd-memorymd-live)
-<<<<<<< HEAD
   - [What’s the recommended backup strategy?](#whats-the-recommended-backup-strategy)
   - [How do I completely uninstall Moltbot?](#how-do-i-completely-uninstall-moltbot)
-=======
-  - [What's the recommended backup strategy?](#whats-the-recommended-backup-strategy)
-  - [How do I completely uninstall OpenClaw?](#how-do-i-completely-uninstall-openclaw)
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
   - [Can agents work outside the workspace?](#can-agents-work-outside-the-workspace)
   - [I'm in remote mode - where is the session store?](#im-in-remote-mode-where-is-the-session-store)
 - [Config basics](#config-basics)
@@ -145,37 +115,21 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [How do I connect a Mac node to a remote Gateway (Tailscale Serve)?](#how-do-i-connect-a-mac-node-to-a-remote-gateway-tailscale-serve)
   - [Should I install on a second laptop or just add a node?](#should-i-install-on-a-second-laptop-or-just-add-a-node)
 - [Env vars and .env loading](#env-vars-and-env-loading)
-<<<<<<< HEAD
   - [How does Moltbot load environment variables?](#how-does-moltbot-load-environment-variables)
   - [“I started the Gateway via the service and my env vars disappeared.” What now?](#i-started-the-gateway-via-the-service-and-my-env-vars-disappeared-what-now)
   - [I set `COPILOT_GITHUB_TOKEN`, but models status shows “Shell env: off.” Why?](#i-set-copilotgithubtoken-but-models-status-shows-shell-env-off-why)
-=======
-  - [How does OpenClaw load environment variables?](#how-does-openclaw-load-environment-variables)
-  - ["I started the Gateway via the service and my env vars disappeared." What now?](#i-started-the-gateway-via-the-service-and-my-env-vars-disappeared-what-now)
-  - [I set `COPILOT_GITHUB_TOKEN`, but models status shows "Shell env: off." Why?](#i-set-copilotgithubtoken-but-models-status-shows-shell-env-off-why)
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 - [Sessions & multiple chats](#sessions-multiple-chats)
   - [How do I start a fresh conversation?](#how-do-i-start-a-fresh-conversation)
   - [Do sessions reset automatically if I never send `/new`?](#do-sessions-reset-automatically-if-i-never-send-new)
   - [Is there a way to make a team of Moltbots one CEO and many agents](#is-there-a-way-to-make-a-team-of-moltbots-one-ceo-and-many-agents)
   - [Why did context get truncated mid-task? How do I prevent it?](#why-did-context-get-truncated-midtask-how-do-i-prevent-it)
-<<<<<<< HEAD
   - [How do I completely reset Moltbot but keep it installed?](#how-do-i-completely-reset-moltbot-but-keep-it-installed)
   - [I’m getting “context too large” errors - how do I reset or compact?](#im-getting-context-too-large-errors-how-do-i-reset-or-compact)
   - [Why am I seeing “LLM request rejected: messages.N.content.X.tool_use.input: Field required”?](#why-am-i-seeing-llm-request-rejected-messagesncontentxtooluseinput-field-required)
-=======
-  - [How do I completely reset OpenClaw but keep it installed?](#how-do-i-completely-reset-openclaw-but-keep-it-installed)
-  - [I'm getting "context too large" errors - how do I reset or compact?](#im-getting-context-too-large-errors-how-do-i-reset-or-compact)
-  - [Why am I seeing "LLM request rejected: messages.N.content.X.tool_use.input: Field required"?](#why-am-i-seeing-llm-request-rejected-messagesncontentxtooluseinput-field-required)
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
   - [Why am I getting heartbeat messages every 30 minutes?](#why-am-i-getting-heartbeat-messages-every-30-minutes)
   - [Do I need to add a "bot account" to a WhatsApp group?](#do-i-need-to-add-a-bot-account-to-a-whatsapp-group)
   - [How do I get the JID of a WhatsApp group?](#how-do-i-get-the-jid-of-a-whatsapp-group)
-<<<<<<< HEAD
   - [Why doesn’t Moltbot reply in a group?](#why-doesnt-moltbot-reply-in-a-group)
-=======
-  - [Why doesn't OpenClaw reply in a group?](#why-doesnt-openclaw-reply-in-a-group)
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
   - [Do groups/threads share context with DMs?](#do-groupsthreads-share-context-with-dms)
   - [How many workspaces and agents can I create?](#how-many-workspaces-and-agents-can-i-create)
   - [Can I run multiple bots or chats at the same time (Slack), and how should I set that up?](#can-i-run-multiple-bots-or-chats-at-the-same-time-slack-and-how-should-i-set-that-up)
@@ -205,21 +159,12 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [OAuth vs API key: what's the difference?](#oauth-vs-api-key-whats-the-difference)
 - [Gateway: ports, "already running", and remote mode](#gateway-ports-already-running-and-remote-mode)
   - [What port does the Gateway use?](#what-port-does-the-gateway-use)
-<<<<<<< HEAD
   - [Why does `moltbot gateway status` say `Runtime: running` but `RPC probe: failed`?](#why-does-moltbot-gateway-status-say-runtime-running-but-rpc-probe-failed)
   - [Why does `moltbot gateway status` show `Config (cli)` and `Config (service)` different?](#why-does-moltbot-gateway-status-show-config-cli-and-config-service-different)
   - [What does “another gateway instance is already listening” mean?](#what-does-another-gateway-instance-is-already-listening-mean)
   - [How do I run Moltbot in remote mode (client connects to a Gateway elsewhere)?](#how-do-i-run-moltbot-in-remote-mode-client-connects-to-a-gateway-elsewhere)
   - [The Control UI says “unauthorized” (or keeps reconnecting). What now?](#the-control-ui-says-unauthorized-or-keeps-reconnecting-what-now)
   - [I set `gateway.bind: "tailnet"` but it can’t bind / nothing listens](#i-set-gatewaybind-tailnet-but-it-cant-bind-nothing-listens)
-=======
-  - [Why does `openclaw gateway status` say `Runtime: running` but `RPC probe: failed`?](#why-does-openclaw-gateway-status-say-runtime-running-but-rpc-probe-failed)
-  - [Why does `openclaw gateway status` show `Config (cli)` and `Config (service)` different?](#why-does-openclaw-gateway-status-show-config-cli-and-config-service-different)
-  - [What does "another gateway instance is already listening" mean?](#what-does-another-gateway-instance-is-already-listening-mean)
-  - [How do I run OpenClaw in remote mode (client connects to a Gateway elsewhere)?](#how-do-i-run-openclaw-in-remote-mode-client-connects-to-a-gateway-elsewhere)
-  - [The Control UI says "unauthorized" (or keeps reconnecting). What now?](#the-control-ui-says-unauthorized-or-keeps-reconnecting-what-now)
-  - [I set `gateway.bind: "tailnet"` but it can't bind / nothing listens](#i-set-gatewaybind-tailnet-but-it-cant-bind-nothing-listens)
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
   - [Can I run multiple Gateways on the same host?](#can-i-run-multiple-gateways-on-the-same-host)
   - [What does "invalid handshake" / code 1008 mean?](#what-does-invalid-handshake-code-1008-mean)
 - [Logging and debugging](#logging-and-debugging)
@@ -231,13 +176,8 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [Telegram setMyCommands fails with network errors. What should I check?](#telegram-setmycommands-fails-with-network-errors-what-should-i-check)
   - [TUI shows no output. What should I check?](#tui-shows-no-output-what-should-i-check)
   - [How do I completely stop then start the Gateway?](#how-do-i-completely-stop-then-start-the-gateway)
-<<<<<<< HEAD
   - [ELI5: `moltbot gateway restart` vs `moltbot gateway`](#eli5-moltbot-gateway-restart-vs-moltbot-gateway)
   - [What’s the fastest way to get more details when something fails?](#whats-the-fastest-way-to-get-more-details-when-something-fails)
-=======
-  - [ELI5: `openclaw gateway restart` vs `openclaw gateway`](#eli5-openclaw-gateway-restart-vs-openclaw-gateway)
-  - [What's the fastest way to get more details when something fails?](#whats-the-fastest-way-to-get-more-details-when-something-fails)
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 - [Media & attachments](#media-attachments)
   - [My skill generated an image/PDF, but nothing was sent](#my-skill-generated-an-imagepdf-but-nothing-was-sent)
 - [Security and access control](#security-and-access-control)
@@ -356,16 +296,9 @@ moltbot doctor
 ```
 
 What they do:
-<<<<<<< HEAD
 - `moltbot status`: quick snapshot of gateway/agent health + basic config.
 - `moltbot models status`: checks provider auth + model availability.
 - `moltbot doctor`: validates and repairs common config/state issues.
-=======
-
-- `openclaw status`: quick snapshot of gateway/agent health + basic config.
-- `openclaw models status`: checks provider auth + model availability.
-- `openclaw doctor`: validates and repairs common config/state issues.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Other useful CLI checks: `moltbot status --all`, `moltbot logs --follow`,
 `moltbot gateway status`, `moltbot health --verbose`.
@@ -395,11 +328,7 @@ pnpm ui:build # auto-installs UI deps on first run
 moltbot onboard
 ```
 
-<<<<<<< HEAD
 If you don’t have a global install yet, run it via `pnpm moltbot onboard`.
-=======
-If you don't have a global install yet, run it via `pnpm openclaw onboard`.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 ### How do I open the dashboard after onboarding
 
@@ -414,17 +343,9 @@ The wizard now opens your browser with a tokenized dashboard URL right after onb
 - The token is the same value as `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`) and is stored by the UI after first load.
 
 **Not on localhost:**
-<<<<<<< HEAD
 - **Tailscale Serve** (recommended): keep bind loopback, run `moltbot gateway --tailscale serve`, open `https://<magicdns>/`. If `gateway.auth.allowTailscale` is `true`, identity headers satisfy auth (no token).
 - **Tailnet bind**: run `moltbot gateway --bind tailnet --token "<token>"`, open `http://<tailscale-ip>:18789/`, paste token in dashboard settings.
 - **SSH tunnel**: `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/?token=...` from `moltbot dashboard`.
-=======
-
-<<<<<<< HEAD
-- **Tailscale Serve** (recommended): keep bind loopback, run `openclaw gateway --tailscale serve`, open `https://<magicdns>/`. If `gateway.auth.allowTailscale` is `true`, identity headers satisfy auth (no token).
-=======
-- **Tailscale Serve** (recommended): keep bind loopback, run `openclaw gateway --tailscale serve`, open `https://<magicdns>/`. If `gateway.auth.allowTailscale` is `true`, identity headers satisfy Control UI/WebSocket auth (no token, assumes trusted gateway host); HTTP APIs still require token/password.
->>>>>>> 356d61aac (fix(gateway): scope tailscale tokenless auth to websocket)
 - **Tailnet bind**: run `openclaw gateway --bind tailnet --token "<token>"`, open `http://<tailscale-ip>:18789/`, paste token in dashboard settings.
 - **SSH tunnel**: `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/?token=...` from `openclaw dashboard`.
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
@@ -492,17 +413,10 @@ Yes. Copy the **state directory** and **workspace**, then run Doctor once. This
 keeps your bot "exactly the same" (memory, session history, auth, and channel
 state) as long as you copy **both** locations:
 
-<<<<<<< HEAD
 1) Install Moltbot on the new machine.
 2) Copy `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`) from the old machine.
 3) Copy your workspace (default: `~/clawd`).
 4) Run `moltbot doctor` and restart the Gateway service.
-=======
-1. Install OpenClaw on the new machine.
-2. Copy `$OPENCLAW_STATE_DIR` (default: `~/.openclaw`) from the old machine.
-3. Copy your workspace (default: `~/.openclaw/workspace`).
-4. Run `openclaw doctor` and restart the Gateway service.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 That preserves config, auth profiles, WhatsApp creds, sessions, and memory. If you're in
 remote mode, remember the gateway host owns the session store and workspace.
@@ -517,13 +431,8 @@ Related: [Migrating](/install/migrating), [Where things live on disk](/help/faq#
 
 ### Where do I see whats new in the latest version
 
-<<<<<<< HEAD
 Check the GitHub changelog:  
 https://github.com/moltbot/moltbot/blob/main/CHANGELOG.md
-=======
-Check the GitHub changelog:
-https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 Newest entries are at the top. If the top section is marked **Unreleased**, the next dated
 section is the latest shipped version. Entries are grouped by **Highlights**, **Changes**, and
@@ -550,13 +459,8 @@ We ship builds to **beta**, test them, and once a build is solid we **promote
 that same version to `latest`**. That's why beta and stable can point at the
 **same version**.
 
-<<<<<<< HEAD
 See what changed:  
 https://github.com/moltbot/moltbot/blob/main/CHANGELOG.md
-=======
-See what changed:
-https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 ### How do I install the beta version and whats the difference between beta and dev
 
@@ -651,12 +555,7 @@ Two common Windows issues:
 - Install **Git for Windows** and make sure `git` is on your PATH.
 - Close and reopen PowerShell, then re-run the installer.
 
-<<<<<<< HEAD
 **2) moltbot is not recognized after install**
-=======
-**2) openclaw is not recognized after install**
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Your npm global bin folder is not on PATH.
 - Check the path:
   ```powershell
@@ -754,13 +653,8 @@ It also warns if your configured model is unknown or missing auth.
 
 ### Do I need a Claude or OpenAI subscription to run this
 
-<<<<<<< HEAD
 No. You can run Moltbot with **API keys** (Anthropic/OpenAI/others) or with
 **local‑only models** so your data stays on your device. Subscriptions (Claude
-=======
-No. You can run OpenClaw with **API keys** (Anthropic/OpenAI/others) or with
-**local-only models** so your data stays on your device. Subscriptions (Claude
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 Pro/Max or OpenAI Codex) are optional ways to authenticate those providers.
 
 Docs: [Anthropic](/providers/anthropic), [OpenAI](/providers/openai),
@@ -792,11 +686,7 @@ Copy the token it prints, then choose **Anthropic token (paste setup-token)** in
 
 ### Do you support Claude subscription auth (Claude Pro/Max)
 
-<<<<<<< HEAD
 Yes — via **setup-token**. Moltbot no longer reuses Claude Code CLI OAuth tokens; use a setup-token or an Anthropic API key. Generate the token anywhere and paste it on the gateway host. See [Anthropic](/providers/anthropic) and [OAuth](/concepts/oauth).
-=======
-Yes - via **setup-token**. OpenClaw no longer reuses Claude Code CLI OAuth tokens; use a setup-token or an Anthropic API key. Generate the token anywhere and paste it on the gateway host. See [Anthropic](/providers/anthropic) and [OAuth](/concepts/oauth).
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 Note: Claude subscription access is governed by Anthropic's terms. For production or multi-user workloads, API keys are usually the safer choice.
 
@@ -808,11 +698,7 @@ reset or upgrade your plan. If you use an **Anthropic API key**, check the Anthr
 for usage/billing and raise limits as needed.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 Tip: set a **fallback model** so Moltbot can keep replying while a provider is rate‑limited.
-=======
-Tip: set a **fallback model** so OpenClaw can keep replying while a provider is rate-limited.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 See [Models](/cli/models) and [OAuth](/concepts/oauth).
 =======
 If the message is specifically:
@@ -846,14 +732,8 @@ See [OAuth](/concepts/oauth), [Model providers](/concepts/model-providers), and 
 Gemini CLI uses a **plugin auth flow**, not a client id or secret in `moltbot.json`.
 
 Steps:
-<<<<<<< HEAD
 1) Enable the plugin: `moltbot plugins enable google-gemini-cli-auth`
 2) Login: `moltbot models auth login --provider google-gemini-cli --set-default`
-=======
-
-1. Enable the plugin: `openclaw plugins enable google-gemini-cli-auth`
-2. Login: `openclaw models auth login --provider google-gemini-cli --set-default`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 This stores OAuth tokens in auth profiles on the gateway host. Details: [Model providers](/concepts/model-providers).
 
@@ -867,13 +747,8 @@ Pick region-pinned endpoints. OpenRouter exposes US-hosted options for MiniMax, 
 
 ### Do I have to buy a Mac Mini to install this
 
-<<<<<<< HEAD
 No. Moltbot runs on macOS or Linux (Windows via WSL2). A Mac mini is optional - some people
 buy one as an always‑on host, but a small VPS, home server, or Raspberry Pi‑class box works too.
-=======
-No. OpenClaw runs on macOS or Linux (Windows via WSL2). A Mac mini is optional - some people
-buy one as an always-on host, but a small VPS, home server, or Raspberry Pi-class box works too.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 You only need a Mac **for macOS-only tools**. For iMessage, use [BlueBubbles](/channels/bluebubbles) (recommended) - the BlueBubbles server runs on any Mac, and the Gateway can run on Linux or elsewhere. If you want other macOS-only tools, run the Gateway on a Mac or pair a macOS node.
 
@@ -882,12 +757,8 @@ Docs: [BlueBubbles](/channels/bluebubbles), [Nodes](/nodes), [Mac remote mode](/
 ### Do I need a Mac mini for iMessage support
 
 You need **some macOS device** signed into Messages. It does **not** have to be a Mac mini -
-<<<<<<< HEAD
 any Mac works. Moltbot’s iMessage integrations run on macOS (BlueBubbles or `imsg`), while
 the Gateway can run elsewhere.
-=======
-any Mac works. **Use [BlueBubbles](/channels/bluebubbles)** (recommended) for iMessage - the BlueBubbles server runs on macOS, while the Gateway can run on Linux or elsewhere.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 Common setups:
 
@@ -926,12 +797,7 @@ without WhatsApp/Telegram.
 The onboarding wizard accepts `@username` input and resolves it to a numeric ID, but OpenClaw authorization uses numeric IDs only.
 
 Safer (no third-party bot):
-<<<<<<< HEAD
 - DM your bot, then run `moltbot logs --follow` and read `from.id`.
-=======
-
-- DM your bot, then run `openclaw logs --follow` and read `from.id`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Official Bot API:
 
@@ -962,11 +828,7 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 brew install <formula>
 ```
 
-<<<<<<< HEAD
 If you run Moltbot via systemd, ensure the service PATH includes `/home/linuxbrew/.linuxbrew/bin` (or your brew prefix) so `brew`-installed tools resolve in non‑login shells.
-=======
-If you run OpenClaw via systemd, ensure the service PATH includes `/home/linuxbrew/.linuxbrew/bin` (or your brew prefix) so `brew`-installed tools resolve in non-login shells.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 Recent builds also prepend common user bin dirs on Linux systemd services (for example `~/.local/bin`, `~/.npm-global/bin`, `~/.local/share/pnpm`, `~/.bun/bin`) and honor `PNPM_HOME`, `NPM_CONFIG_PREFIX`, `BUN_INSTALL`, `VOLTA_HOME`, `ASDF_DATA_DIR`, `NVM_DIR`, and `FNM_DIR` when set.
 
 ### Whats the difference between the hackable git install and npm install
@@ -1070,11 +932,7 @@ Moltbot is a personal AI assistant you run on your own devices. It replies on th
 
 ### Whats the value proposition
 
-<<<<<<< HEAD
 Moltbot is not “just a Claude wrapper.” It’s a **local-first control plane** that lets you run a
-=======
-OpenClaw is not "just a Claude wrapper." It's a **local-first control plane** that lets you run a
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 capable assistant on **your own hardware**, reachable from the chat apps you already use, with
 stateful sessions, memory, and tools - without handing control of your workflows to a hosted
 SaaS.
@@ -1152,11 +1010,7 @@ Use managed overrides instead of editing the repo copy. Put your changes in `~/.
 
 ### Can I load skills from a custom folder
 
-<<<<<<< HEAD
 Yes. Add extra directories via `skills.load.extraDirs` in `~/.clawdbot/moltbot.json` (lowest precedence). Default precedence remains: `<workspace>/skills` → `~/.clawdbot/skills` → bundled → `skills.load.extraDirs`. `clawdhub` installs into `./skills` by default, which Moltbot treats as `<workspace>/skills`.
-=======
-Yes. Add extra directories via `skills.load.extraDirs` in `~/.openclaw/openclaw.json` (lowest precedence). Default precedence remains: `<workspace>/skills` → `~/.openclaw/skills` → bundled → `skills.load.extraDirs`. `clawhub` installs into `./skills` by default, which OpenClaw treats as `<workspace>/skills`.
->>>>>>> fd00d5688 (chore: update openclaw naming)
 
 ### How can I use different models for different tasks
 
@@ -1181,8 +1035,6 @@ cheaper model for sub-agents via `agents.defaults.subagents.model`.
 
 Docs: [Sub-agents](/tools/subagents).
 
-<<<<<<< HEAD
-=======
 ### How do thread-bound subagent sessions work on Discord
 
 Use thread bindings. You can bind a Discord thread to a subagent or session target so follow-up messages in that thread stay on that bound session.
@@ -1203,19 +1055,13 @@ Required config:
 
 Docs: [Sub-agents](/tools/subagents), [Discord](/channels/discord), [Configuration Reference](/gateway/configuration-reference), [Slash commands](/tools/slash-commands).
 
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
 ### Cron or reminders do not fire What should I check
 
 Cron runs inside the Gateway process. If the Gateway is not running continuously,
 scheduled jobs will not run.
 
 Checklist:
-<<<<<<< HEAD
 - Confirm cron is enabled (`cron.enabled`) and `CLAWDBOT_SKIP_CRON` is not set.
-=======
-
-- Confirm cron is enabled (`cron.enabled`) and `OPENCLAW_SKIP_CRON` is not set.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Check the Gateway is running 24/7 (no sleep/restarts).
 - Verify timezone settings for the job (`--tz` vs host timezone).
 
@@ -1256,7 +1102,6 @@ Docs: [Cron jobs](/automation/cron-jobs), [Cron vs Heartbeat](/automation/cron-v
 
 **Can I run Apple macOS only skills from Linux**
 
-<<<<<<< HEAD
 Not directly. macOS skills are gated by `metadata.moltbot.os` plus required binaries, and skills only appear in the system prompt when they are eligible on the **Gateway host**. On Linux, `darwin`-only skills (like `imsg`, `apple-notes`, `apple-reminders`) will not load unless you override the gating.
 
 You have three supported patterns:
@@ -1266,17 +1111,6 @@ Run the Gateway where the macOS binaries exist, then connect from Linux in [remo
 
 **Option B - use a macOS node (no SSH).**  
 Run the Gateway on Linux, pair a macOS node (menubar app), and set **Node Run Commands** to "Always Ask" or "Always Allow" on the Mac. Moltbot can treat macOS-only skills as eligible when the required binaries exist on the node. The agent runs those skills via the `nodes` tool. If you choose "Always Ask", approving "Always Allow" in the prompt adds that command to the allowlist.
-=======
-Not directly. macOS skills are gated by `metadata.openclaw.os` plus required binaries, and skills only appear in the system prompt when they are eligible on the **Gateway host**. On Linux, `darwin`-only skills (like `apple-notes`, `apple-reminders`, `things-mac`) will not load unless you override the gating.
-
-You have three supported patterns:
-
-**Option A - run the Gateway on a Mac (simplest).**
-Run the Gateway where the macOS binaries exist, then connect from Linux in [remote mode](#how-do-i-run-openclaw-in-remote-mode-client-connects-to-a-gateway-elsewhere) or over Tailscale. The skills load normally because the Gateway host is macOS.
-
-**Option B - use a macOS node (no SSH).**
-Run the Gateway on Linux, pair a macOS node (menubar app), and set **Node Run Commands** to "Always Ask" or "Always Allow" on the Mac. OpenClaw can treat macOS-only skills as eligible when the required binaries exist on the node. The agent runs those skills via the `nodes` tool. If you choose "Always Ask", approving "Always Allow" in the prompt adds that command to the allowlist.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 **Option C - proxy macOS binaries over SSH (advanced).**
 Keep the Gateway on Linux, but make the required CLI binaries resolve to SSH wrappers that run on a Mac. Then override the skill to allow Linux so it stays eligible.
@@ -1288,26 +1122,16 @@ Keep the Gateway on Linux, but make the required CLI binaries resolve to SSH wra
    exec ssh -T user@mac-host /opt/homebrew/bin/memo "$@"
    ```
 <<<<<<< HEAD
-<<<<<<< HEAD
 2) Put the wrapper on `PATH` on the Linux host (for example `~/bin/imsg`).
 3) Override the skill metadata (workspace or `~/.clawdbot/skills`) to allow Linux:
-=======
-2. Put the wrapper on `PATH` on the Linux host (for example `~/bin/imsg`).
-=======
-2. Put the wrapper on `PATH` on the Linux host (for example `~/bin/memo`).
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 3. Override the skill metadata (workspace or `~/.openclaw/skills`) to allow Linux:
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    ```markdown
    ---
-<<<<<<< HEAD
    name: imsg
    description: iMessage/SMS CLI for listing chats, history, watch, and sending.
 <<<<<<< HEAD
    metadata: {"moltbot":{"os":["darwin","linux"],"requires":{"bins":["imsg"]}}}
-=======
-   metadata: { "openclaw": { "os": ["darwin", "linux"], "requires": { "bins": ["imsg"] } } }
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
    name: apple-notes
    description: Manage Apple Notes via the memo CLI on macOS.
@@ -1317,11 +1141,8 @@ Keep the Gateway on Linux, but make the required CLI binaries resolve to SSH wra
    ```
 4. Start a new session so the skills snapshot refreshes.
 
-<<<<<<< HEAD
 For iMessage specifically, you can also point `channels.imessage.cliPath` at an SSH wrapper (Moltbot only needs stdio). See [iMessage](/channels/imessage).
 
-=======
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 ### Do you have a Notion or HeyGen integration
 
 Not built-in today.
@@ -1346,11 +1167,7 @@ clawhub install <skill-slug>
 clawhub update --all
 ```
 
-<<<<<<< HEAD
 ClawdHub installs into `./skills` under your current directory (or falls back to your configured Moltbot workspace); Moltbot treats that as `<workspace>/skills` on the next session. For shared skills across agents, place them in `~/.clawdbot/skills/<name>/SKILL.md`. Some skills expect binaries installed via Homebrew; on Linux that means Linuxbrew (see the Homebrew Linux FAQ entry above). See [Skills](/tools/skills) and [ClawdHub](/tools/clawdhub).
-=======
-ClawHub installs into `./skills` under your current directory (or falls back to your configured OpenClaw workspace); OpenClaw treats that as `<workspace>/skills` on the next session. For shared skills across agents, place them in `~/.openclaw/skills/<name>/SKILL.md`. Some skills expect binaries installed via Homebrew; on Linux that means Linuxbrew (see the Homebrew Linux FAQ entry above). See [Skills](/tools/skills) and [ClawHub](/tools/clawhub).
->>>>>>> fd00d5688 (chore: update openclaw naming)
 
 ### How do I install the Chrome extension for browser takeover
 
@@ -1391,12 +1208,7 @@ Set `agents.defaults.sandbox.docker.binds` to `["host:path:mode"]` (e.g., `"/hom
 
 ### How does memory work
 
-<<<<<<< HEAD
 Moltbot memory is just Markdown files in the agent workspace:
-=======
-OpenClaw memory is just Markdown files in the agent workspace:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Daily notes in `memory/YYYY-MM-DD.md`
 - Curated long-term notes in `MEMORY.md` (main/private sessions only)
 
@@ -1422,21 +1234,11 @@ does **not** grant embeddings access, so **signing in with Codex (OAuth or the
 Codex CLI login)** does not help for semantic memory search. OpenAI embeddings
 still need a real API key (`OPENAI_API_KEY` or `models.providers.openai.apiKey`).
 
-<<<<<<< HEAD
 If you don’t set a provider explicitly, Moltbot auto-selects a provider when it
-=======
-If you don't set a provider explicitly, OpenClaw auto-selects a provider when it
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 can resolve an API key (auth profiles, `models.providers.*.apiKey`, or env vars).
 It prefers OpenAI if an OpenAI key resolves, otherwise Gemini if a Gemini key
-<<<<<<< HEAD
 resolves. If neither key is available, memory search stays disabled until you
 configure it. If you have a local model path configured and present, Moltbot
-=======
-resolves, then Voyage, then Mistral. If no remote key is available, memory
-search stays disabled until you configure it. If you have a local model path
-configured and present, OpenClaw
->>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
 prefers `local`.
 
 If you'd rather stay local, set `memorySearch.provider = "local"` (and optionally
@@ -1458,11 +1260,7 @@ Docs: [Memory](/concepts/memory), [Context](/concepts/context).
 
 ### Is all data used with Moltbot saved locally
 
-<<<<<<< HEAD
 No - **Moltbot’s state is local**, but **external services still see what you send them**.
-=======
-No - **OpenClaw's state is local**, but **external services still see what you send them**.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 - **Local by default:** sessions, memory files, config, and workspace live on the Gateway host
   (`~/.clawdbot` + your workspace directory).
@@ -1479,7 +1277,6 @@ Related: [Agent workspace](/concepts/agent-workspace), [Memory](/concepts/memory
 Everything lives under `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`):
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 | Path | Purpose |
 |------|---------|
 | `$CLAWDBOT_STATE_DIR/moltbot.json` | Main config (JSON5) |
@@ -1490,18 +1287,6 @@ Everything lives under `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`):
 | `$CLAWDBOT_STATE_DIR/agents/` | Per‑agent state (agentDir + sessions) |
 | `$CLAWDBOT_STATE_DIR/agents/<agentId>/sessions/` | Conversation history & state (per agent) |
 | `$CLAWDBOT_STATE_DIR/agents/<agentId>/sessions/sessions.json` | Session metadata (per agent) |
-=======
-| Path                                                            | Purpose                                                      |
-| --------------------------------------------------------------- | ------------------------------------------------------------ |
-| `$OPENCLAW_STATE_DIR/openclaw.json`                             | Main config (JSON5)                                          |
-| `$OPENCLAW_STATE_DIR/credentials/oauth.json`                    | Legacy OAuth import (copied into auth profiles on first use) |
-| `$OPENCLAW_STATE_DIR/agents/<agentId>/agent/auth-profiles.json` | Auth profiles (OAuth + API keys)                             |
-| `$OPENCLAW_STATE_DIR/agents/<agentId>/agent/auth.json`          | Runtime auth cache (managed automatically)                   |
-| `$OPENCLAW_STATE_DIR/credentials/`                              | Provider state (e.g. `whatsapp/<accountId>/creds.json`)      |
-| `$OPENCLAW_STATE_DIR/agents/`                                   | Per-agent state (agentDir + sessions)                        |
-| `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/`                | Conversation history & state (per agent)                     |
-| `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/sessions.json`   | Session metadata (per agent)                                 |
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 | Path                                                            | Purpose                                                            |
 | --------------------------------------------------------------- | ------------------------------------------------------------------ |
@@ -1516,11 +1301,7 @@ Everything lives under `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`):
 | `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/sessions.json`   | Session metadata (per agent)                                       |
 >>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 
-<<<<<<< HEAD
 Legacy single‑agent path: `~/.clawdbot/agent/*` (migrated by `moltbot doctor`).
-=======
-Legacy single-agent path: `~/.openclaw/agent/*` (migrated by `openclaw doctor`).
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 Your **workspace** (AGENTS.md, memory files, skills, etc.) is separate and configured via `agents.defaults.workspace` (default: `~/clawd`).
 
@@ -1537,11 +1318,7 @@ Default workspace is `~/clawd`, configurable via:
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { workspace: "~/clawd" } }
-=======
-  agents: { defaults: { workspace: "~/.openclaw/workspace" } },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -1560,11 +1337,7 @@ Put your **agent workspace** in a **private** git repo and back it up somewhere
 private (for example GitHub private). This captures memory + AGENTS/SOUL/USER
 files, and lets you restore the assistant's "mind" later.
 
-<<<<<<< HEAD
 Do **not** commit anything under `~/.clawdbot` (credentials, sessions, tokens).
-=======
-Do **not** commit anything under `~/.openclaw` (credentials, sessions, tokens, or encrypted secrets payloads).
->>>>>>> f413e314b (feat(secrets): replace migrate flow with audit/configure/apply)
 If you need a full restore, back up both the workspace and the state directory
 separately (see the migration question above).
 
@@ -1579,15 +1352,9 @@ See the dedicated guide: [Uninstall](/install/uninstall).
 Yes. The workspace is the **default cwd** and memory anchor, not a hard sandbox.
 Relative paths resolve inside the workspace, but absolute paths can access other
 host locations unless sandboxing is enabled. If you need isolation, use
-<<<<<<< HEAD
 [`agents.defaults.sandbox`](/gateway/sandboxing) or per‑agent sandbox settings. If you
 want a repo to be the default working directory, point that agent’s
 `workspace` to the repo root. The Moltbot repo is just source code; keep the
-=======
-[`agents.defaults.sandbox`](/gateway/sandboxing) or per-agent sandbox settings. If you
-want a repo to be the default working directory, point that agent's
-`workspace` to the repo root. The OpenClaw repo is just source code; keep the
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 workspace separate unless you intentionally want the agent to work inside it.
 
 Example (repo as default cwd):
@@ -1616,11 +1383,7 @@ Moltbot reads an optional **JSON5** config from `$CLAWDBOT_CONFIG_PATH` (default
 $CLAWDBOT_CONFIG_PATH
 ```
 
-<<<<<<< HEAD
 If the file is missing, it uses safe‑ish defaults (including a default workspace of `~/clawd`).
-=======
-If the file is missing, it uses safe-ish defaults (including a default workspace of `~/.openclaw/workspace`).
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 ### I set gatewaybind lan or tailnet and now nothing listens the UI says unauthorized
 
@@ -1767,16 +1530,9 @@ Docs: [Nodes](/nodes), [Gateway protocol](/gateway/protocol), [macOS remote mode
 ### Tailscale is connected but I get no replies What now
 
 Check the basics:
-<<<<<<< HEAD
 - Gateway is running: `moltbot gateway status`
 - Gateway health: `moltbot status`
 - Channel health: `moltbot channels status`
-=======
-
-- Gateway is running: `openclaw gateway status`
-- Gateway health: `openclaw status`
-- Channel health: `openclaw channels status`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Then verify auth and routing:
 
@@ -1866,26 +1622,14 @@ Yes. `config.apply` validates + writes the full config and restarts the Gateway 
 else is removed.
 
 Recover:
-<<<<<<< HEAD
 - Restore from backup (git or a copied `~/.clawdbot/moltbot.json`).
 - If you have no backup, re-run `moltbot doctor` and reconfigure channels/models.
-=======
-
-- Restore from backup (git or a copied `~/.openclaw/openclaw.json`).
-- If you have no backup, re-run `openclaw doctor` and reconfigure channels/models.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - If this was unexpected, file a bug and include your last known config or any backup.
 - A local coding agent can often reconstruct a working config from logs or history.
 
 Avoid it:
-<<<<<<< HEAD
 - Use `moltbot config set` for small changes.
 - Use `moltbot configure` for interactive edits.
-=======
-
-- Use `openclaw config set` for small changes.
-- Use `openclaw configure` for interactive edits.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Docs: [Config](/cli/config), [Configure](/cli/configure), [Doctor](/gateway/doctor).
 
@@ -1893,13 +1637,8 @@ Docs: [Config](/cli/config), [Configure](/cli/configure), [Doctor](/gateway/doct
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { workspace: "~/clawd" } },
   channels: { whatsapp: { allowFrom: ["+15555550123"] } }
-=======
-  agents: { defaults: { workspace: "~/.openclaw/workspace" } },
-  channels: { whatsapp: { allowFrom: ["+15555550123"] } },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -1976,13 +1715,8 @@ See [/environment](/help/environment) for full precedence and sources.
 Two common fixes:
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 1) Put the missing keys in `~/.clawdbot/.env` so they’re picked up even when the service doesn’t inherit your shell env.
 2) Enable shell import (opt‑in convenience):
-=======
-1. Put the missing keys in `~/.openclaw/.env` so they’re picked up even when the service doesn’t inherit your shell env.
-2. Enable shell import (opt‑in convenience):
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 1. Put the missing keys in `~/.openclaw/.env` so they're picked up even when the service doesn't inherit your shell env.
 2. Enable shell import (opt-in convenience):
@@ -2004,23 +1738,14 @@ This runs your login shell and imports only missing expected keys (never overrid
 
 ### I set COPILOTGITHUBTOKEN but models status shows Shell env off Why
 
-<<<<<<< HEAD
 `moltbot models status` reports whether **shell env import** is enabled. “Shell env: off”
 does **not** mean your env vars are missing - it just means Moltbot won’t load
-=======
-`openclaw models status` reports whether **shell env import** is enabled. "Shell env: off"
-does **not** mean your env vars are missing - it just means OpenClaw won't load
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 your login shell automatically.
 
 If the Gateway runs as a service (launchd/systemd), it won't inherit your shell
 environment. Fix by doing one of these:
 
-<<<<<<< HEAD
 1) Put the token in `~/.clawdbot/.env`:
-=======
-1. Put the token in `~/.openclaw/.env`:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    ```
    COPILOT_GITHUB_TOKEN=...
    ```
@@ -2164,11 +1889,7 @@ Per-agent overrides use `agents.list[].heartbeat`. Docs: [Heartbeat](/gateway/he
 
 ### Do I need to add a bot account to a WhatsApp group
 
-<<<<<<< HEAD
 No. Moltbot runs on **your own account**, so if you’re in the group, Moltbot can see it.
-=======
-No. OpenClaw runs on **your own account**, so if you're in the group, OpenClaw can see it.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 By default, group replies are blocked until you allow senders (`groupPolicy: "allowlist"`).
 
 If you want only **you** to be able to trigger group replies:
@@ -2253,11 +1974,7 @@ Docs: [Multi-Agent Routing](/concepts/multi-agent), [Slack](/channels/slack),
 
 ### What is the default model
 
-<<<<<<< HEAD
 Moltbot’s default model is whatever you set as:
-=======
-OpenClaw's default model is whatever you set as:
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 ```
 agents.defaults.model.primary
@@ -2366,13 +2083,8 @@ Use `/model status` to confirm which auth profile is active.
 
 Yes. Set one as default and switch as needed:
 
-<<<<<<< HEAD
 - **Quick switch (per session):** `/model gpt-5.2` for daily tasks, `/model gpt-5.2-codex` for coding.
 - **Default + switch:** set `agents.defaults.model.primary` to `openai-codex/gpt-5.2`, then switch to `openai-codex/gpt-5.2-codex` when coding (or the other way around).
-=======
-- **Quick switch (per session):** `/model gpt-5.2` for daily tasks, `/model gpt-5.3-codex` for coding.
-- **Default + switch:** set `agents.defaults.model.primary` to `openai/gpt-5.2`, then switch to `openai-codex/gpt-5.3-codex` when coding (or the other way around).
->>>>>>> 5958e5693 (Thinking: accept extra-high alias and sync Codex FAQ wording)
 - **Sub-agents:** route coding tasks to sub-agents with a different default model.
 
 See [Models](/concepts/models) and [Slash commands](/tools/slash-commands).
@@ -2522,13 +2234,7 @@ stored in:
 ```
 
 Fix options:
-<<<<<<< HEAD
 - Run `moltbot agents add <id>` and configure auth during the wizard.
-=======
-
-- Run `openclaw agents add <id>` and configure auth during the wizard.
-<<<<<<< HEAD
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Or copy `auth-profiles.json` from the main agent’s `agentDir` into the new agent’s `agentDir`.
 =======
 - Or copy `auth-profiles.json` from the main agent's `agentDir` into the new agent's `agentDir`.
@@ -2545,11 +2251,7 @@ Failover happens in two stages:
 1. **Auth profile rotation** within the same provider.
 2. **Model fallback** to the next model in `agents.defaults.model.fallbacks`.
 
-<<<<<<< HEAD
 Cooldowns apply to failing profiles (exponential backoff), so Moltbot can keep responding even when a provider is rate‑limited or temporarily failing.
-=======
-Cooldowns apply to failing profiles (exponential backoff), so OpenClaw can keep responding even when a provider is rate-limited or temporarily failing.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 ### What does this error mean
 
@@ -2565,19 +2267,11 @@ It means the system attempted to use the auth profile ID `anthropic:default`, bu
   - Current: `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`
   - Legacy: `~/.clawdbot/agent/*` (migrated by `moltbot doctor`)
 - **Confirm your env var is loaded by the Gateway**
-<<<<<<< HEAD
   - If you set `ANTHROPIC_API_KEY` in your shell but run the Gateway via systemd/launchd, it may not inherit it. Put it in `~/.clawdbot/.env` or enable `env.shellEnv`.
 - **Make sure you’re editing the correct agent**
   - Multi‑agent setups mean there can be multiple `auth-profiles.json` files.
 - **Sanity‑check model/auth status**
   - Use `moltbot models status` to see configured models and whether providers are authenticated.
-=======
-  - If you set `ANTHROPIC_API_KEY` in your shell but run the Gateway via systemd/launchd, it may not inherit it. Put it in `~/.openclaw/.env` or enable `env.shellEnv`.
-- **Make sure you're editing the correct agent**
-  - Multi-agent setups mean there can be multiple `auth-profiles.json` files.
-- **Sanity-check model/auth status**
-  - Use `openclaw models status` to see configured models and whether providers are authenticated.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 **Fix checklist for No credentials found for profile anthropic**
 
@@ -2598,11 +2292,7 @@ can't find it in its auth store.
 
 ### Why did it also try Google Gemini and fail
 
-<<<<<<< HEAD
 If your model config includes Google Gemini as a fallback (or you switched to a Gemini shorthand), Moltbot will try it during model fallback. If you haven’t configured Google credentials, you’ll see `No API key found for provider "google"`.
-=======
-If your model config includes Google Gemini as a fallback (or you switched to a Gemini shorthand), OpenClaw will try it during model fallback. If you haven't configured Google credentials, you'll see `No API key found for provider "google"`.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 Fix: either provide Google auth, or remove/avoid Google models in `agents.defaults.model.fallbacks` / aliases so fallback doesn't route there.
 
@@ -2627,11 +2317,7 @@ An auth profile is a named credential record (OAuth or API key) tied to a provid
 
 ### What are typical profile IDs
 
-<<<<<<< HEAD
 Moltbot uses provider‑prefixed IDs like:
-=======
-OpenClaw uses provider-prefixed IDs like:
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 - `anthropic:default` (common when no email identity exists)
 - `anthropic:<email>` for OAuth identities
@@ -2641,11 +2327,7 @@ OpenClaw uses provider-prefixed IDs like:
 
 Yes. Config supports optional metadata for profiles and an ordering per provider (`auth.order.<provider>`). This does **not** store secrets; it maps IDs to provider/mode and sets rotation order.
 
-<<<<<<< HEAD
 Moltbot may temporarily skip a profile if it’s in a short **cooldown** (rate limits/timeouts/auth failures) or a longer **disabled** state (billing/insufficient credits). To inspect this, run `moltbot models status --json` and check `auth.unusableProfiles`. Tuning: `auth.cooldowns.billingBackoffHours*`.
-=======
-OpenClaw may temporarily skip a profile if it's in a short **cooldown** (rate limits/timeouts/auth failures) or a longer **disabled** state (billing/insufficient credits). To inspect this, run `openclaw models status --json` and check `auth.unusableProfiles`. Tuning: `auth.cooldowns.billingBackoffHours*`.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 You can also set a **per-agent** order override (stored in that agent's `auth-profiles.json`) via the CLI:
 
@@ -2694,23 +2376,14 @@ Precedence:
 
 Because "running" is the **supervisor's** view (launchd/systemd/schtasks). The RPC probe is the CLI actually connecting to the gateway WebSocket and calling `status`.
 
-<<<<<<< HEAD
 Use `moltbot gateway status` and trust these lines:
-=======
-Use `openclaw gateway status` and trust these lines:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `Probe target:` (the URL the probe actually used)
 - `Listening:` (what's actually bound on the port)
 - `Last gateway error:` (common root cause when the process is alive but the port isn't listening)
 
 ### Why does moltbot gateway status show Config cli and Config service different
 
-<<<<<<< HEAD
 You’re editing one config file while the service is running another (often a `--profile` / `CLAWDBOT_STATE_DIR` mismatch).
-=======
-You're editing one config file while the service is running another (often a `--profile` / `OPENCLAW_STATE_DIR` mismatch).
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 Fix:
 
@@ -2744,12 +2417,7 @@ Set `gateway.mode: "remote"` and point to a remote WebSocket URL, optionally wit
 ```
 
 Notes:
-<<<<<<< HEAD
 - `moltbot gateway` only starts when `gateway.mode` is `local` (or you pass the override flag).
-=======
-
-- `openclaw gateway` only starts when `gateway.mode` is `local` (or you pass the override flag).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - The macOS app watches the config file and switches modes live when these values change.
 
 ### The Control UI says unauthorized or keeps reconnecting What now
@@ -2757,24 +2425,12 @@ Notes:
 Your gateway is running with auth enabled (`gateway.auth.*`), but the UI is not sending the matching token/password.
 
 Facts (from code):
-<<<<<<< HEAD
 - The Control UI stores the token in browser localStorage key `moltbot.control.settings.v1`.
 - The UI can import `?token=...` (and/or `?password=...`) once, then strips it from the URL.
 
 Fix:
 - Fastest: `moltbot dashboard` (prints + copies tokenized link, tries to open; shows SSH hint if headless).
 - If you don’t have a token yet: `moltbot doctor --generate-gateway-token`.
-=======
-
-- The Control UI stores the token in browser localStorage key `openclaw.control.settings.v1`.
-- The UI can import `?token=...` (and/or `?password=...`) once, then strips it from the URL.
-
-Fix:
-
-- Fastest: `openclaw dashboard` (prints + copies tokenized link, tries to open; shows SSH hint if headless).
-<<<<<<< HEAD
-- If you don’t have a token yet: `openclaw doctor --generate-gateway-token`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 - If you don't have a token yet: `openclaw doctor --generate-gateway-token`.
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
@@ -2800,31 +2456,17 @@ Usually no - one Gateway can run multiple messaging channels and agents. Use mul
 
 Yes, but you must isolate:
 
-<<<<<<< HEAD
 - `CLAWDBOT_CONFIG_PATH` (per‑instance config)
 - `CLAWDBOT_STATE_DIR` (per‑instance state)
-=======
-- `OPENCLAW_CONFIG_PATH` (per-instance config)
-- `OPENCLAW_STATE_DIR` (per-instance state)
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 - `agents.defaults.workspace` (workspace isolation)
 - `gateway.port` (unique ports)
 
 Quick setup (recommended):
-<<<<<<< HEAD
 - Use `moltbot --profile <name> …` per instance (auto-creates `~/.clawdbot-<name>`).
-=======
-
-- Use `openclaw --profile <name> …` per instance (auto-creates `~/.openclaw-<name>`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Set a unique `gateway.port` in each profile config (or pass `--port` for manual runs).
 - Install a per-profile service: `moltbot --profile <name> gateway install`.
 
-<<<<<<< HEAD
 Profiles also suffix service names (`bot.molt.<profile>`; legacy `com.clawdbot.*`, `moltbot-gateway-<profile>.service`, `Moltbot Gateway (<profile>)`).
-=======
-Profiles also suffix service names (`ai.openclaw.<profile>`; legacy `com.openclaw.*`, `openclaw-gateway-<profile>.service`, `OpenClaw Gateway (<profile>)`).
->>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 Full guide: [Multiple gateways](/gateway/multiple-gateways).
 
 ### What does invalid handshake code 1008 mean
@@ -2872,16 +2514,9 @@ moltbot logs --follow
 ```
 
 Service/supervisor logs (when the gateway runs via launchd/systemd):
-<<<<<<< HEAD
 - macOS: `$CLAWDBOT_STATE_DIR/logs/gateway.log` and `gateway.err.log` (default: `~/.clawdbot/logs/...`; profiles use `~/.clawdbot-<profile>/logs/...`)
 - Linux: `journalctl --user -u moltbot-gateway[-<profile>].service -n 200 --no-pager`
 - Windows: `schtasks /Query /TN "Moltbot Gateway (<profile>)" /V /FO LIST`
-=======
-
-- macOS: `$OPENCLAW_STATE_DIR/logs/gateway.log` and `gateway.err.log` (default: `~/.openclaw/logs/...`; profiles use `~/.openclaw-<profile>/logs/...`)
-- Linux: `journalctl --user -u openclaw-gateway[-<profile>].service -n 200 --no-pager`
-- Windows: `schtasks /Query /TN "OpenClaw Gateway (<profile>)" /V /FO LIST`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 See [Troubleshooting](/gateway/troubleshooting#log-locations) for more.
 
@@ -2959,17 +2594,10 @@ Docs: [Channels](/channels), [Troubleshooting](/gateway/troubleshooting), [Remot
 
 This usually means the UI lost the WebSocket connection. Check:
 
-<<<<<<< HEAD
 1) Is the Gateway running? `moltbot gateway status`
 2) Is the Gateway healthy? `moltbot status`
 3) Does the UI have the right token? `moltbot dashboard`
 4) If remote, is the tunnel/Tailscale link up?
-=======
-1. Is the Gateway running? `openclaw gateway status`
-2. Is the Gateway healthy? `openclaw status`
-3. Does the UI have the right token? `openclaw dashboard`
-4. If remote, is the tunnel/Tailscale link up?
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Then tail logs:
 
@@ -3067,15 +2695,9 @@ Treat inbound DMs as untrusted input. Defaults are designed to reduce risk:
 
 - Default behavior on DM-capable channels is **pairing**:
   - Unknown senders receive a pairing code; the bot does not process their message.
-<<<<<<< HEAD
   - Approve with: `moltbot pairing approve <channel> <code>`
   - Pending requests are capped at **3 per channel**; check `moltbot pairing list <channel>` if a code didn’t arrive.
 - Opening DMs publicly requires explicit opt‑in (`dmPolicy: "open"` and allowlist `"*"`).
-=======
-  - Approve with: `openclaw pairing approve <channel> <code>`
-  - Pending requests are capped at **3 per channel**; check `openclaw pairing list <channel>` if a code didn't arrive.
-- Opening DMs publicly requires explicit opt-in (`dmPolicy: "open"` and allowlist `"*"`).
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 Run `moltbot doctor` to surface risky DM policies.
 
@@ -3216,13 +2838,8 @@ Most commands must be sent as a **standalone** message that starts with `/`, but
 
 ### How do I send a Discord message from Telegram Crosscontext messaging denied
 
-<<<<<<< HEAD
 Moltbot blocks **cross‑provider** messaging by default. If a tool call is bound
 to Telegram, it won’t send to Discord unless you explicitly allow it.
-=======
-OpenClaw blocks **cross-provider** messaging by default. If a tool call is bound
-to Telegram, it won't send to Discord unless you explicitly allow it.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 Enable cross-provider messaging for the agent:
 
@@ -3262,11 +2879,7 @@ You can add options like `debounce:2s cap:25 drop:summarize` for followup modes.
 
 **Q: "What's the default model for Anthropic with an API key?"**
 
-<<<<<<< HEAD
 **A:** In Moltbot, credentials and model selection are separate. Setting `ANTHROPIC_API_KEY` (or storing an Anthropic API key in auth profiles) enables authentication, but the actual default model is whatever you configure in `agents.defaults.model.primary` (for example, `anthropic/claude-sonnet-4-5` or `anthropic/claude-opus-4-5`). If you see `No credentials found for profile "anthropic:default"`, it means the Gateway couldn’t find Anthropic credentials in the expected `auth-profiles.json` for the agent that’s running.
-=======
-**A:** In OpenClaw, credentials and model selection are separate. Setting `ANTHROPIC_API_KEY` (or storing an Anthropic API key in auth profiles) enables authentication, but the actual default model is whatever you configure in `agents.defaults.model.primary` (for example, `anthropic/claude-sonnet-4-5` or `anthropic/claude-opus-4-5`). If you see `No credentials found for profile "anthropic:default"`, it means the Gateway couldn't find Anthropic credentials in the expected `auth-profiles.json` for the agent that's running.
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 
 ---
 

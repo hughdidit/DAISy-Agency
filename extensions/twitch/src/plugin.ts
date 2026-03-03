@@ -5,20 +5,9 @@
  * This is the primary entry point for the Twitch channel integration.
  */
 
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { buildChannelConfigSchema } from "clawdbot/plugin-sdk";
 import { twitchMessageActions } from "./actions.js";
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { buildChannelConfigSchema } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { twitchMessageActions } from "./actions.js";
-import { removeClientManager } from "./client-manager-registry.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { TwitchConfigSchema } from "./config-schema.js";
 import { DEFAULT_ACCOUNT_ID, getAccountConfig, listAccountIds } from "./config.js";
 import { twitchOnboardingAdapter } from "./onboarding.js";
@@ -26,14 +15,10 @@ import { twitchOutbound } from "./outbound.js";
 import { probeTwitch } from "./probe.js";
 import { resolveTwitchTargets } from "./resolver.js";
 import { collectTwitchStatusIssues } from "./status.js";
-<<<<<<< HEAD
 import { removeClientManager } from "./client-manager-registry.js";
 import { resolveTwitchToken } from "./token.js";
 import { isAccountConfigured } from "./utils/twitch.js";
 =======
-import { resolveTwitchToken } from "./token.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
@@ -49,11 +34,6 @@ import type {
 } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -70,11 +50,7 @@ import { collectTwitchStatusIssues } from "./status.js";
 import { resolveTwitchToken } from "./token.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-=======
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   ChannelAccountSnapshot,
   ChannelCapabilities,
@@ -85,10 +61,7 @@ import type {
   ChannelResolveResult,
   TwitchAccountConfig,
 } from "./types.js";
-<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { isAccountConfigured } from "./utils/twitch.js";

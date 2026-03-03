@@ -1,14 +1,5 @@
 import { createSubsystemLogger } from "../logging/subsystem.js";
-<<<<<<< HEAD
 import { loadMoltbotPlugins, type PluginLoadOptions } from "./loader.js";
-=======
-import { loadOpenClawPlugins, type PluginLoadOptions } from "./loader.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { createPluginLoaderLogger } from "./logger.js";
 >>>>>>> aa8f87a3b (refactor(plugins): reuse plugin loader logger adapter)

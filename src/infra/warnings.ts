@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const warningFilterKey = Symbol.for("moltbot.warning-filter");
 
 type Warning = Error & {
@@ -39,6 +38,3 @@ export function installProcessWarningFilter(): void {
     process.stderr.write(`${warning.stack ?? warning.toString()}\n`);
   });
 }
-=======
-export { installProcessWarningFilter } from "./warning-filter.js";
->>>>>>> 311905716 (chore: centralizing warning filters)

@@ -3,11 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { GatewayRequestContext } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { GatewayRequestContext } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -279,10 +276,6 @@ describe("gateway agent handler", () => {
         defaults: {
           userTimezone: "America/New_York",
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-          timeFormat: "12",
->>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 =======
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
         },
@@ -309,13 +302,7 @@ describe("gateway agent handler", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(callArgs.message).toBe("[Wed 2026-01-28 20:30 EST] Is it the weekend?");
-=======
-    expect(callArgs.message).toMatch(
-      /^\[.*Wednesday.*January 28.*2026.*8:30 PM.*\] Is it the weekend\?$/,
-    );
->>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 =======
     expect(callArgs.message).toBe("[2026-01-28 20:30 EST] Is it the weekend?");
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)

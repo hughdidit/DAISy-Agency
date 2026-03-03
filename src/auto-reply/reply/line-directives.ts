@@ -2,11 +2,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ReplyPayload } from "../types.js";
 import type { LineChannelData } from "../../line/types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { LineChannelData } from "../../line/types.js";
 import type { ReplyPayload } from "../types.js";

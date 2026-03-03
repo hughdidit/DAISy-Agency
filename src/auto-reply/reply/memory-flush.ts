@@ -8,13 +8,8 @@ import { DEFAULT_PI_COMPACTION_RESERVE_TOKENS_FLOOR } from "../../agents/pi-sett
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
-=======
-=======
-import { parseByteSize } from "../../cli/parse-bytes.js";
->>>>>>> d729ab215 (fix(session): harden usage accounting and memory flush recovery)
 =======
 import { parseNonNegativeByteSize } from "../../config/byte-size.js";
 >>>>>>> fbd832d64 (refactor(config): share byte-size parsing for memory flush)
@@ -105,31 +100,7 @@ const normalizeNonNegativeInt = (value: unknown): number | null => {
 };
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 export function resolveMemoryFlushSettings(cfg?: MoltbotConfig): MemoryFlushSettings | null {
-=======
-const normalizeOptionalByteSize = (value: unknown): number | null => {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    const int = Math.floor(value);
-    return int >= 0 ? int : null;
-  }
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      return null;
-    }
-    try {
-      const bytes = parseByteSize(trimmed, { defaultUnit: "b" });
-      return bytes >= 0 ? bytes : null;
-    } catch {
-      return null;
-    }
-  }
-  return null;
-};
-
-=======
->>>>>>> fbd832d64 (refactor(config): share byte-size parsing for memory flush)
 export function resolveMemoryFlushSettings(cfg?: OpenClawConfig): MemoryFlushSettings | null {
 >>>>>>> d729ab215 (fix(session): harden usage accounting and memory flush recovery)
   const defaults = cfg?.agents?.defaults?.compaction?.memoryFlush;
@@ -175,39 +146,12 @@ export function resolveMemoryFlushContextWindowTokens(params: {
 }
 
 export function shouldRunMemoryFlush(params: {
-<<<<<<< HEAD
   entry?: Pick<SessionEntry, "totalTokens" | "compactionCount" | "memoryFlushCompactionCount">;
-=======
-  entry?: Pick<
-    SessionEntry,
-    "totalTokens" | "totalTokensFresh" | "compactionCount" | "memoryFlushCompactionCount"
-  >;
-  /**
-   * Optional token count override for flush gating. When provided, this value is
-   * treated as a fresh context snapshot and used instead of the cached
-   * SessionEntry.totalTokens (which may be stale/unknown).
-   */
-  tokenCount?: number;
->>>>>>> fcb685978 (fix(memoryFlush): correct context token accounting for flush gating (#5343))
   contextWindowTokens: number;
   reserveTokensFloor: number;
   softThresholdTokens: number;
 }): boolean {
-<<<<<<< HEAD
   const totalTokens = params.entry?.totalTokens;
-=======
-  if (!params.entry) {
-    return false;
-  }
-
-  const override = params.tokenCount;
-  const overrideTokens =
-    typeof override === "number" && Number.isFinite(override) && override > 0
-      ? Math.floor(override)
-      : undefined;
-
-  const totalTokens = overrideTokens ?? resolveFreshSessionTotalTokens(params.entry);
->>>>>>> fcb685978 (fix(memoryFlush): correct context token accounting for flush gating (#5343))
   if (!totalTokens || totalTokens <= 0) {
     return false;
   }

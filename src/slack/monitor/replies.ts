@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { createReplyReferencePlanner } from "../../auto-reply/reply/reply-reference.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
 import type { ChunkMode } from "../../auto-reply/chunk.js";
@@ -7,10 +6,6 @@ import type { ChunkMode } from "../../auto-reply/chunk.js";
 <<<<<<< HEAD
 import { chunkMarkdownTextWithMode } from "../../auto-reply/chunk.js";
 <<<<<<< HEAD
-=======
-import { createReplyReferencePlanner } from "../../auto-reply/reply/reply-reference.js";
-import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ChunkMode } from "../../auto-reply/chunk.js";
 >>>>>>> ed11e93cf (chore(format))

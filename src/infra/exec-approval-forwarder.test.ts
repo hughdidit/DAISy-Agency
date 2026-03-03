@@ -118,7 +118,6 @@ describe("exec approval forwarder", () => {
 
   it("forwards to explicit targets and expires", async () => {
     vi.useFakeTimers();
-<<<<<<< HEAD
     const deliver = vi.fn().mockResolvedValue([]);
     const cfg = {
       approvals: {
@@ -136,9 +135,6 @@ describe("exec approval forwarder", () => {
       nowMs: () => 1000,
       resolveSessionTarget: () => null,
     });
-=======
-    const { deliver, forwarder } = createForwarder({ cfg: TARGETS_CFG });
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 
     await expect(forwarder.handleRequested(baseRequest)).resolves.toBe(true);
     expect(deliver).toHaveBeenCalledTimes(1);

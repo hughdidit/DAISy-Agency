@@ -1,22 +1,10 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
-import * as replyModule from "../auto-reply/reply.js";
-import { whatsappOutbound } from "../channels/plugins/outbound/whatsapp.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -36,14 +24,7 @@ import {
   resolveMainSessionKey,
   resolveStorePath,
 } from "../config/sessions.js";
-<<<<<<< HEAD
 import { buildAgentPeerSessionKey } from "../routing/session-key.js";
-=======
-import { getActivePluginRegistry, setActivePluginRegistry } from "../plugins/runtime.js";
-import { buildAgentPeerSessionKey } from "../routing/session-key.js";
-import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
-<<<<<<< HEAD
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 =======
 import { typedCases } from "../test-utils/typed-cases.js";
 >>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
@@ -54,7 +35,6 @@ import {
   resolveHeartbeatPrompt,
   runHeartbeatOnce,
 } from "./heartbeat-runner.js";
-<<<<<<< HEAD
 import { resolveHeartbeatDeliveryTarget } from "./outbound/targets.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createPluginRuntime } from "../plugins/runtime/index.js";
@@ -63,12 +43,6 @@ import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
 import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
-=======
-import {
-  resolveHeartbeatDeliveryTarget,
-  resolveHeartbeatSenderContext,
-} from "./outbound/targets.js";
->>>>>>> a42e3cb78 (feat(heartbeat): add accountId config option for multi-agent routing (#8702))
 
 // Avoid pulling optional runtime deps during isolated runs.
 vi.mock("jiti", () => ({ createJiti: () => () => ({}) }));
@@ -249,7 +223,6 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     updatedAt: Date.now(),
   };
 
-<<<<<<< HEAD
   it("respects target none", () => {
     const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "none" } } },
@@ -316,10 +289,6 @@ describe("resolveHeartbeatDeliveryTarget", () => {
 <<<<<<< HEAD
   it("applies allowFrom fallback for WhatsApp targets", () => {
     const cfg: MoltbotConfig = {
-=======
-  it("rejects WhatsApp target not in allowFrom (no silent fallback)", () => {
-    const cfg: OpenClawConfig = {
->>>>>>> 39ee708df (fix(outbound): return error instead of silently redirecting to allowList[0] (#13578))
       agents: { defaults: { heartbeat: { target: "whatsapp", to: "+1999" } } },
       channels: { whatsapp: { allowFrom: ["+1555", "+1666"] } },
     };
@@ -337,7 +306,6 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
-<<<<<<< HEAD
   it("keeps WhatsApp group targets even with allowFrom set", () => {
     const cfg: MoltbotConfig = {
       channels: { whatsapp: { allowFrom: ["+1555"] } },
@@ -356,8 +324,6 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
-=======
->>>>>>> 9b351fcbd (test: remove duplicate whatsapp group heartbeat target case)
   it("normalizes prefixed WhatsApp group targets for heartbeat delivery", () => {
     const cfg: MoltbotConfig = {
       channels: { whatsapp: { allowFrom: ["+1555"] } },
@@ -377,13 +343,8 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("keeps explicit telegram targets", () => {
     const cfg: MoltbotConfig = {
-=======
-  it("keeps explicit telegram targets", () => {
-    const cfg: OpenClawConfig = {
->>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } },
     };
     expect(resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry })).toEqual({
@@ -537,9 +498,6 @@ describe("resolveHeartbeatDeliveryTarget", () => {
 >>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
   });
 
-<<<<<<< HEAD
-=======
->>>>>>> 7a6928712 (test: remove redundant explicit telegram heartbeat target case)
 =======
   it("parses threadId from :topic: suffix in heartbeat to", () => {
     const cfg: OpenClawConfig = {
@@ -555,24 +513,11 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     expect(result.threadId).toBe(42);
   });
 
-<<<<<<< HEAD
   it("heartbeat to without :topic: has no threadId", () => {
     const cfg: OpenClawConfig = {
       agents: {
         defaults: {
           heartbeat: { target: "telegram", to: "-100111" },
-=======
-  it("handles explicit heartbeat accountId allow/deny", () => {
-    const cases = [
-      {
-        accountId: "work",
-        expected: {
-          channel: "telegram",
-          to: "-100123",
-          accountId: "work",
-          lastChannel: undefined,
-          lastAccountId: undefined,
->>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
         },
       },
     };
@@ -581,21 +526,12 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     expect(result.threadId).toBeUndefined();
   });
 
-<<<<<<< HEAD
 >>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
   it("uses explicit heartbeat accountId when provided", () => {
     const cfg: OpenClawConfig = {
       agents: {
         defaults: {
           heartbeat: { target: "telegram", to: "123", accountId: "work" },
-=======
-    for (const testCase of cases) {
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            heartbeat: { target: "telegram", to: "-100123", accountId: testCase.accountId },
-          },
->>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
         },
       },
       channels: { telegram: { accounts: { work: { botToken: "token" } } } },
@@ -628,13 +564,8 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("prefers per-agent heartbeat overrides when provided", () => {
-<<<<<<< HEAD
     const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } },
-=======
-    const cfg: OpenClawConfig = {
-      agents: { defaults: { heartbeat: { target: "telegram", to: "-100123" } } },
->>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
     };
     const heartbeat = { target: "whatsapp", to: "120363401234567890@g.us" } as const;
     expect(
@@ -738,11 +669,7 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("uses the last non-empty payload for delivery", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-    const tmpDir = await createCaseDir("hb-last-payload");
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -793,11 +720,7 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("uses per-agent heartbeat overrides and session keys", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-    const tmpDir = await createCaseDir("hb-agent-overrides");
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -850,15 +773,8 @@ describe("runHeartbeatOnce", () => {
         expect.objectContaining({
           Body: expect.stringMatching(/Ops check[\s\S]*Current time: /),
           SessionKey: sessionKey,
-<<<<<<< HEAD
           From: "+1555",
           To: "+1555",
-=======
-          From: "120363401234567890@g.us",
-          To: "120363401234567890@g.us",
-          OriginatingChannel: "whatsapp",
-          OriginatingTo: "120363401234567890@g.us",
->>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
           Provider: "heartbeat",
         }),
         expect.objectContaining({ isHeartbeat: true, suppressToolErrorWarnings: false }),
@@ -945,13 +861,9 @@ describe("runHeartbeatOnce", () => {
     }
   });
 
-<<<<<<< HEAD
   it("runs heartbeats in the explicit session key when configured", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-    const tmpDir = await createCaseDir("hb-explicit-session");
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -1082,11 +994,7 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("suppresses duplicate heartbeat payloads within 24h", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-    const tmpDir = await createCaseDir("hb-dup-suppress");
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -1132,13 +1040,9 @@ describe("runHeartbeatOnce", () => {
     }
   });
 
-<<<<<<< HEAD
   it("can include reasoning payloads when enabled", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-    const tmpDir = await createCaseDir("hb-reasoning");
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -1194,7 +1098,6 @@ describe("runHeartbeatOnce", () => {
         };
         const sessionKey = resolveMainSessionKey(cfg);
 
-<<<<<<< HEAD
       await fs.writeFile(
         storePath,
         JSON.stringify({
@@ -1244,9 +1147,6 @@ describe("runHeartbeatOnce", () => {
   it("delivers reasoning even when the main heartbeat reply is HEARTBEAT_OK", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-    const tmpDir = await createCaseDir("hb-reasoning-heartbeat-ok");
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -1267,12 +1167,8 @@ describe("runHeartbeatOnce", () => {
               updatedAt: Date.now(),
               lastChannel: "whatsapp",
               lastProvider: "whatsapp",
-<<<<<<< HEAD
               lastTo: "+1555",
 >>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
-=======
-              lastTo: "120363401234567890@g.us",
->>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
             },
           }),
         );
@@ -1304,11 +1200,7 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("loads the default agent session from templated stores", async () => {
-<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-    const tmpDir = await createCaseDir("openclaw-hb");
->>>>>>> f52805a78 (test: reuse heartbeat suite fixtures across cases)
     const storeTemplate = path.join(tmpDir, "agents", "{agentId}", "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -1360,21 +1252,9 @@ describe("runHeartbeatOnce", () => {
     }
   });
 
-<<<<<<< HEAD
   it("skips heartbeat when HEARTBEAT.md is effectively empty (saves API calls)", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-=======
-  type HeartbeatFileState = "empty" | "actionable" | "missing" | "read-error";
-
-  async function runHeartbeatFileScenario(params: {
-    fileState: HeartbeatFileState;
-    reason?: "interval" | "wake";
-    queueCronEvent?: boolean;
-    replyText?: string;
-  }) {
->>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
     const tmpDir = await createCaseDir("openclaw-hb");
 >>>>>>> f52805a78 (test: reuse heartbeat suite fixtures across cases)
     const storePath = path.join(tmpDir, "sessions.json");
@@ -1387,7 +1267,6 @@ describe("runHeartbeatOnce", () => {
         "# HEARTBEAT.md\n\n## Tasks\n\n",
         "utf-8",
       );
-<<<<<<< HEAD
 
       const cfg: MoltbotConfig = {
         agents: {
@@ -1515,9 +1394,6 @@ describe("runHeartbeatOnce", () => {
   it("runs heartbeat when HEARTBEAT.md has actionable content", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-    const tmpDir = await createCaseDir("openclaw-hb");
->>>>>>> f52805a78 (test: reuse heartbeat suite fixtures across cases)
     const storePath = path.join(tmpDir, "sessions.json");
     const workspaceDir = path.join(tmpDir, "workspace");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
@@ -1533,7 +1409,6 @@ describe("runHeartbeatOnce", () => {
         "# HEARTBEAT.md\n\n- Check server logs\n- Review pending PRs\n",
         "utf-8",
       );
-<<<<<<< HEAD
 
       const cfg: MoltbotConfig = {
         agents: {
@@ -1593,10 +1468,6 @@ describe("runHeartbeatOnce", () => {
   it("runs heartbeat when HEARTBEAT.md does not exist (lets LLM decide)", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
-=======
-=======
-  it("runs heartbeat when HEARTBEAT.md does not exist", async () => {
->>>>>>> cf4ffff3e (fix(heartbeat): run when HEARTBEAT.md is missing)
     const tmpDir = await createCaseDir("openclaw-hb");
 >>>>>>> f52805a78 (test: reuse heartbeat suite fixtures across cases)
     const storePath = path.join(tmpDir, "sessions.json");
@@ -1651,30 +1522,7 @@ describe("runHeartbeatOnce", () => {
         },
       });
 
-<<<<<<< HEAD
       // Should run (not skip) - let LLM decide since file doesn't exist
-=======
-      // Missing HEARTBEAT.md should still run so prompt/system instructions can drive work.
-      expect(res.status).toBe("ran");
-      expect(replySpy).toHaveBeenCalled();
-      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-    } finally {
-      replySpy.mockRestore();
-    }
-  });
-
-  it("runs heartbeat when HEARTBEAT.md read fails with a non-ENOENT error", async () => {
-    const tmpDir = await createCaseDir("openclaw-hb");
-    const storePath = path.join(tmpDir, "sessions.json");
-    const workspaceDir = path.join(tmpDir, "workspace");
-    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
-    try {
-      await fs.mkdir(workspaceDir, { recursive: true });
-      // Simulate a read failure path (readFile on a directory returns EISDIR).
-=======
-    } else if (params.fileState === "read-error") {
-      // readFile on a directory triggers EISDIR.
->>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
       await fs.mkdir(path.join(workspaceDir, "HEARTBEAT.md"), { recursive: true });
     }
 
@@ -1698,7 +1546,6 @@ describe("runHeartbeatOnce", () => {
           lastChannel: "whatsapp",
           lastTo: "120363401234567890@g.us",
         },
-<<<<<<< HEAD
 <<<<<<< HEAD
         channels: { whatsapp: { allowFrom: ["*"] } },
         session: { store: storePath },
@@ -1745,13 +1592,6 @@ describe("runHeartbeatOnce", () => {
       expect(replySpy).toHaveBeenCalled();
     } finally {
       replySpy.mockRestore();
-=======
-        null,
-        2,
-      ),
-=======
-      }),
->>>>>>> 9882bfe18 (perf(test): compact remaining heartbeat fixture writes)
     );
     if (params.queueCronEvent) {
       enqueueSystemEvent("Cron: QMD maintenance completed", {

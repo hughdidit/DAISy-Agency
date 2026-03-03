@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import type { ChannelGroupContext, GroupToolPolicyConfig } from "clawdbot/plugin-sdk";
 
-=======
-import type { ChannelGroupContext, GroupToolPolicyConfig } from "openclaw/plugin-sdk";
-import { resolveMatrixAccountConfig } from "./matrix/accounts.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveMatrixRoomConfig } from "./matrix/monitor/rooms.js";
 import type { CoreConfig } from "./types.js";
 
@@ -24,14 +19,8 @@ function resolveMatrixRoomConfigForGroup(params: ChannelGroupContext) {
   const groupChannel = params.groupChannel?.trim() ?? "";
   const aliases = groupChannel ? [groupChannel] : [];
   const cfg = params.cfg as CoreConfig;
-<<<<<<< HEAD
   const resolved = resolveMatrixRoomConfig({
     rooms: cfg.channels?.matrix?.groups ?? cfg.channels?.matrix?.rooms,
-=======
-  const matrixConfig = resolveMatrixAccountConfig({ cfg, accountId: params.accountId });
-  return resolveMatrixRoomConfig({
-    rooms: matrixConfig.groups ?? matrixConfig.rooms,
->>>>>>> 0653e8d2e (refactor(matrix): dedupe group config resolution)
     roomId,
     aliases,
     name: groupChannel || undefined,
@@ -57,7 +46,6 @@ export function resolveMatrixGroupRequireMention(params: ChannelGroupContext): b
 export function resolveMatrixGroupToolPolicy(
   params: ChannelGroupContext,
 ): GroupToolPolicyConfig | undefined {
-<<<<<<< HEAD
   const rawGroupId = params.groupId?.trim() ?? "";
   let roomId = rawGroupId;
   const lower = roomId.toLowerCase();
@@ -79,8 +67,5 @@ export function resolveMatrixGroupToolPolicy(
     aliases,
     name: groupChannel || undefined,
   }).config;
-=======
-  const resolved = resolveMatrixRoomConfigForGroup(params);
->>>>>>> 0653e8d2e (refactor(matrix): dedupe group config resolution)
   return resolved?.tools;
 }

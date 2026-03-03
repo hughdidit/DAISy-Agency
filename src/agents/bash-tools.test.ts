@@ -513,7 +513,6 @@ describe("exec notifyOnExit", () => {
     const sessionId = await startBackgroundCommand(tool, echoAfterDelay("notify"));
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(result.details.status).toBe("running");
     const sessionId = (result.details as { sessionId: string }).sessionId;
 
@@ -523,13 +522,6 @@ describe("exec notifyOnExit", () => {
     while (!finished && Date.now() < deadline) {
       await sleep(20);
       finished = getFinishedSession(sessionId);
-=======
-    let hasEvent = peekSystemEvents("agent:main:main").some((event) => event.includes(prefix));
-=======
-    const prefix = sessionId.slice(0, 8);
-    let finished = getFinishedSession(sessionId);
-    let hasEvent = hasNotifyEventForPrefix(prefix);
->>>>>>> a8a4fa5b8 (test: de-duplicate attachment and bash tool tests)
     await expect
       .poll(
         () => {
@@ -544,12 +536,8 @@ describe("exec notifyOnExit", () => {
       finished = getFinishedSession(sessionId);
     }
     if (!hasEvent) {
-<<<<<<< HEAD
       hasEvent = peekSystemEvents("agent:main:main").some((event) => event.includes(prefix));
 >>>>>>> fae5ba637 (perf(test): replace bash-tools polling loops)
-=======
-      hasEvent = hasNotifyEventForPrefix(prefix);
->>>>>>> a8a4fa5b8 (test: de-duplicate attachment and bash tool tests)
     }
 =======
     const { finished, hasEvent } = await waitForNotifyEvent(sessionId);
@@ -590,7 +578,6 @@ describe("exec PATH handling", () => {
     }
   });
 });
-<<<<<<< HEAD
 
 describe("buildDockerExecArgs", () => {
   it("prepends custom PATH after login shell sourcing to preserve both custom and system tools", () => {
@@ -682,5 +669,3 @@ describe("buildDockerExecArgs", () => {
     expect(args).toContain("-t");
   });
 });
-=======
->>>>>>> 17a65a6f4 (test: split pure docker exec arg checks from bash e2e suite)

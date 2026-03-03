@@ -3,19 +3,9 @@ import os from "node:os";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import { loadCostUsageSummary, loadSessionCostSummary } from "./session-cost-usage.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { withEnvAsync } from "../test-utils/env.js";
-import {
-  discoverAllSessions,
-  loadCostUsageSummary,
-  loadSessionCostSummary,
-} from "./session-cost-usage.js";
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 
 describe("session cost usage", () => {
   const withStateDir = async <T>(stateDir: string, fn: () => Promise<T>): Promise<T> =>
@@ -105,35 +95,19 @@ describe("session cost usage", () => {
           },
         },
       },
-<<<<<<< HEAD
     } as MoltbotConfig;
-=======
-    } as unknown as OpenClawConfig;
->>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
 
-<<<<<<< HEAD
     const originalState = process.env.CLAWDBOT_STATE_DIR;
     process.env.CLAWDBOT_STATE_DIR = root;
     try {
-=======
-    await withStateDir(root, async () => {
->>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
       const summary = await loadCostUsageSummary({ days: 30, config });
       expect(summary.daily.length).toBe(1);
       expect(summary.totals.totalTokens).toBe(50);
       expect(summary.totals.totalCost).toBeCloseTo(0.03003, 5);
-<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (originalState === undefined) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = originalState;
-=======
-      if (originalState === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = originalState;
-      }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
 =======
     });
@@ -260,8 +234,6 @@ describe("session cost usage", () => {
       expect(sessions[0]?.sessionId).toBe("sess-late");
     });
   });
-<<<<<<< HEAD
-=======
 
   it("resolves non-main absolute sessionFile using explicit agentId for cost summary", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cost-agent-"));
@@ -432,5 +404,4 @@ describe("session cost usage", () => {
     expect(lastPoint?.cumulativeTokens).toBe(165);
     expect(lastPoint?.cumulativeCost).toBeCloseTo(0.055, 8);
   });
->>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
 });

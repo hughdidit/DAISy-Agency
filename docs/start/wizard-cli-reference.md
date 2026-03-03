@@ -207,8 +207,6 @@ Credential and profile paths:
 - OAuth credentials: `~/.openclaw/credentials/oauth.json`
 - Auth profiles (API keys + OAuth): `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
 
-<<<<<<< HEAD
-=======
 API key storage mode:
 
 - Default onboarding behavior persists API keys as plaintext values in auth profiles.
@@ -227,7 +225,6 @@ API key storage mode:
   - In that custom-provider case, `--custom-api-key` requires `CUSTOM_API_KEY` to be set; otherwise onboarding fails fast.
 - Existing plaintext setups continue to work unchanged.
 
->>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
 <Note>
 Headless and server tip: complete OAuth on a machine with a browser, then copy
 `~/.openclaw/credentials/oauth.json` (or `$OPENCLAW_STATE_DIR/credentials/oauth.json`)

@@ -22,12 +22,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MSTeamsMonitorLogger } from "./monitor-types.js";
 <<<<<<< HEAD
 import type { MSTeamsTurnContext } from "./sdk-types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -140,10 +137,7 @@ export function createMSTeamsReplyDispatcher(params: {
           hint,
         });
       },
-<<<<<<< HEAD
       onReplyStart: typingCallbacks.onReplyStart,
-=======
->>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
     });
 
   return {

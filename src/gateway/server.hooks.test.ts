@@ -197,8 +197,6 @@ describe("gateway server hooks", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   test("rejects request sessionKey unless hooks.allowRequestSessionKey is enabled", async () => {
     testState.hooksConfig = { enabled: true, token: "hook-secret" };
     await withGatewayServer(async ({ port }) => {
@@ -305,7 +303,6 @@ describe("gateway server hooks", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> 1b455b6d9 (refactor(test): dedupe gateway hooks server setup)
 =======
   test("normalizes duplicate target-agent prefixes before isolated dispatch", async () => {
     testState.hooksConfig = {
@@ -461,8 +458,6 @@ describe("gateway server hooks", () => {
       expect(peekSystemEvents(resolveMainKey()).length).toBe(0);
     });
   });
-<<<<<<< HEAD
-=======
 
   test("throttles repeated hook auth failures and resets after success", async () => {
     testState.hooksConfig = { enabled: true, token: "hook-secret" };
@@ -514,5 +509,4 @@ describe("gateway server hooks", () => {
       expect(failAfterSuccess.status).toBe(401);
     });
   });
->>>>>>> 1b455b6d9 (refactor(test): dedupe gateway hooks server setup)
 });

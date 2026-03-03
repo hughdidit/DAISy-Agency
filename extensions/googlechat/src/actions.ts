@@ -53,21 +53,11 @@ function resolveAppUserNames(account: { config: { botUser?: string | null } }) {
 
 export const googlechatMessageActions: ChannelMessageActionAdapter = {
   listActions: ({ cfg }) => {
-<<<<<<< HEAD
     const accounts = listEnabledAccounts(cfg as MoltbotConfig);
     if (accounts.length === 0) return [];
     const actions = new Set<ChannelMessageActionName>([]);
     actions.add("send");
     if (isReactionsEnabled(accounts, cfg as MoltbotConfig)) {
-=======
-    const accounts = listEnabledAccounts(cfg);
-    if (accounts.length === 0) {
-      return [];
-    }
-    const actions = new Set<ChannelMessageActionName>([]);
-    actions.add("send");
-    if (isReactionsEnabled(accounts, cfg)) {
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       actions.add("react");
       actions.add("reactions");
     }
@@ -78,11 +68,7 @@ export const googlechatMessageActions: ChannelMessageActionAdapter = {
   },
   handleAction: async ({ action, params, cfg, accountId }) => {
     const account = resolveGoogleChatAccount({
-<<<<<<< HEAD
       cfg: cfg as MoltbotConfig,
-=======
-      cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       accountId,
     });
     if (account.credentialSource === "none") {

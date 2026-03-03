@@ -6,13 +6,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { Api, Model } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
-=======
-=======
-import type { Api, Model } from "@mariozechner/pi-ai";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -72,44 +67,17 @@ async function expectBedrockAuthSource(params: {
 describe("getApiKeyForModel", () => {
   it("migrates legacy oauth.json into auth-profiles.json", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
     const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
     const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-oauth-"));
-=======
-    const envSnapshot = captureEnv([
-      "OPENCLAW_STATE_DIR",
-      "OPENCLAW_AGENT_DIR",
-      "PI_CODING_AGENT_DIR",
-    ]);
-=======
->>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-oauth-"));
 >>>>>>> e9c8540e2 (refactor(test): simplify model auth env restore)
 
     try {
-<<<<<<< HEAD
       process.env.CLAWDBOT_STATE_DIR = tempDir;
       process.env.CLAWDBOT_AGENT_DIR = path.join(tempDir, "agent");
       process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
-=======
-      const agentDir = path.join(tempDir, "agent");
-      await withEnvAsync(
-        {
-          OPENCLAW_STATE_DIR: tempDir,
-          OPENCLAW_AGENT_DIR: agentDir,
-          PI_CODING_AGENT_DIR: agentDir,
-        },
-        async () => {
-          const oauthDir = path.join(tempDir, "credentials");
-          await fs.mkdir(oauthDir, { recursive: true, mode: 0o700 });
-          await fs.writeFile(
-            path.join(oauthDir, "oauth.json"),
-            `${JSON.stringify({ "openai-codex": oauthFixture }, null, 2)}\n`,
-            "utf8",
-          );
->>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
 
           const model = {
             id: "codex-mini-latest",
@@ -117,7 +85,6 @@ describe("getApiKeyForModel", () => {
             api: "openai-codex-responses",
           } as Model<Api>;
 
-<<<<<<< HEAD
       const model = {
         id: "codex-mini-latest",
         provider: "openai-codex",
@@ -143,27 +110,6 @@ describe("getApiKeyForModel", () => {
         agentDir: process.env.CLAWDBOT_AGENT_DIR,
       });
       expect(apiKey.apiKey).toBe(oauthFixture.access);
-=======
-          const store = ensureAuthProfileStore(process.env.OPENCLAW_AGENT_DIR, {
-            allowKeychainPrompt: false,
-          });
-          const apiKey = await getApiKeyForModel({
-            model,
-            cfg: {
-              auth: {
-                profiles: {
-                  "openai-codex:default": {
-                    provider: "openai-codex",
-                    mode: "oauth",
-                  },
-                },
-              },
-            },
-            store,
-            agentDir: process.env.OPENCLAW_AGENT_DIR,
-          });
-          expect(apiKey.apiKey).toBe(oauthFixture.access);
->>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
 
           const authProfiles = await fs.readFile(
             path.join(tempDir, "agent", "auth-profiles.json"),
@@ -182,7 +128,6 @@ describe("getApiKeyForModel", () => {
       );
     } finally {
 <<<<<<< HEAD
-<<<<<<< HEAD
       if (previousStateDir === undefined) {
         delete process.env.CLAWDBOT_STATE_DIR;
       } else {
@@ -199,9 +144,6 @@ describe("getApiKeyForModel", () => {
         process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
       }
 =======
-      envSnapshot.restore();
->>>>>>> e9c8540e2 (refactor(test): simplify model auth env restore)
-=======
 >>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
       await fs.rm(tempDir, { recursive: true, force: true });
     }
@@ -209,26 +151,15 @@ describe("getApiKeyForModel", () => {
 
   it("suggests openai-codex when only Codex OAuth is configured", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
     const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
     const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
     const previousOpenAiKey = process.env.OPENAI_API_KEY;
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-=======
-    const envSnapshot = captureEnv([
-      "OPENAI_API_KEY",
-      "OPENCLAW_STATE_DIR",
-      "OPENCLAW_AGENT_DIR",
-      "PI_CODING_AGENT_DIR",
-    ]);
-=======
->>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
 >>>>>>> e9c8540e2 (refactor(test): simplify model auth env restore)
 
     try {
-<<<<<<< HEAD
       delete process.env.OPENAI_API_KEY;
       process.env.CLAWDBOT_STATE_DIR = tempDir;
       process.env.CLAWDBOT_AGENT_DIR = path.join(tempDir, "agent");
@@ -249,34 +180,6 @@ describe("getApiKeyForModel", () => {
                 type: "oauth",
                 provider: "openai-codex",
                 ...oauthFixture,
-=======
-      const agentDir = path.join(tempDir, "agent");
-      await withEnvAsync(
-        {
-          OPENAI_API_KEY: undefined,
-          OPENCLAW_STATE_DIR: tempDir,
-          OPENCLAW_AGENT_DIR: agentDir,
-          PI_CODING_AGENT_DIR: agentDir,
-        },
-        async () => {
-          const authProfilesPath = path.join(tempDir, "agent", "auth-profiles.json");
-          await fs.mkdir(path.dirname(authProfilesPath), {
-            recursive: true,
-            mode: 0o700,
-          });
-          await fs.writeFile(
-            authProfilesPath,
-            `${JSON.stringify(
-              {
-                version: 1,
-                profiles: {
-                  "openai-codex:default": {
-                    type: "oauth",
-                    provider: "openai-codex",
-                    ...oauthFixture,
-                  },
-                },
->>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
               },
               null,
               2,
@@ -284,7 +187,6 @@ describe("getApiKeyForModel", () => {
             "utf8",
           );
 
-<<<<<<< HEAD
       let error: unknown = null;
       try {
         await resolveApiKeyForProvider({ provider: "openai" });
@@ -314,9 +216,6 @@ describe("getApiKeyForModel", () => {
       } else {
         process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
       }
-=======
-      envSnapshot.restore();
->>>>>>> e9c8540e2 (refactor(test): simplify model auth env restore)
 =======
           let error: unknown = null;
           try {
@@ -383,8 +282,6 @@ describe("getApiKeyForModel", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("resolves Qianfan API key from env", async () => {
     await withEnvAsync({ QIANFAN_API_KEY: "qianfan-test-key" }, async () => {
       const resolved = await resolveApiKeyForProvider({
@@ -396,7 +293,6 @@ describe("getApiKeyForModel", () => {
     });
   });
 
->>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
   it("resolves Vercel AI Gateway API key from env", async () => {
     await withEnvAsync({ AI_GATEWAY_API_KEY: "gateway-test-key" }, async () => {
       const resolved = await resolveApiKeyForProvider({

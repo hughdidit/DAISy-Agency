@@ -3,18 +3,8 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { chunkMarkdown, listMemoryFiles, normalizeExtraMemoryPaths } from "./internal.js";
-=======
-import {
-  buildFileEntry,
-  chunkMarkdown,
-  listMemoryFiles,
-  normalizeExtraMemoryPaths,
-  remapChunkLines,
-} from "./internal.js";
->>>>>>> 5542a4362 (Memory: share ENOENT helpers)
 
 function setupTempDirLifecycle(prefix: string): () => string {
   let tmpDir = "";

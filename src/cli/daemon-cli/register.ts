@@ -1,7 +1,6 @@
 import type { Command } from "commander";
 import { formatDocsLink } from "../../terminal/links.js";
 import { theme } from "../../terminal/theme.js";
-<<<<<<< HEAD
 import { createDefaultDeps } from "../deps.js";
 import {
   runDaemonInstall,
@@ -11,9 +10,6 @@ import {
   runDaemonStop,
   runDaemonUninstall,
 } from "./runners.js";
-=======
-import { addGatewayServiceCommands } from "./register-service-commands.js";
->>>>>>> 7a63b046d (refactor(cli): share gateway service subcommands)
 
 export function registerDaemonCli(program: Command) {
   const daemon = program
@@ -25,7 +21,6 @@ export function registerDaemonCli(program: Command) {
         `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.molt.bot/cli/gateway")}\n`,
     );
 
-<<<<<<< HEAD
   daemon
     .command("status")
     .description("Show service install status + probe the Gateway")
@@ -91,9 +86,4 @@ export function registerDaemonCli(program: Command) {
 
   // Build default deps (parity with other commands).
   void createDefaultDeps();
-=======
-  addGatewayServiceCommands(daemon, {
-    statusDescription: "Show service install status + probe the Gateway",
-  });
->>>>>>> 7a63b046d (refactor(cli): share gateway service subcommands)
 }

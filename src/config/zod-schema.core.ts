@@ -2,12 +2,6 @@ import { z } from "zod";
 
 import { isSafeExecutableValue } from "../infra/exec-safety.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { isValidFileSecretRefId } from "../secrets/ref-contract.js";
-<<<<<<< HEAD
->>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
 =======
 import { MODEL_APIS } from "./types.models.js";
 >>>>>>> 344f54b84 (refactor(config): dedupe model api definitions)
@@ -16,7 +10,6 @@ import { sensitive } from "./zod-schema.sensitive.js";
 >>>>>>> 747b11c83 (refactor(config): share allow/deny channel policy schema)
 
 const ENV_SECRET_REF_ID_PATTERN = /^[A-Z][A-Z0-9_]{0,127}$/;
-<<<<<<< HEAD
 const FILE_SECRET_REF_SEGMENT_PATTERN = /^(?:[^~]|~0|~1)*$/;
 
 function isValidFileSecretRefId(value: string): boolean {
@@ -27,19 +20,6 @@ function isValidFileSecretRefId(value: string): boolean {
     .slice(1)
     .split("/")
     .every((segment) => FILE_SECRET_REF_SEGMENT_PATTERN.test(segment));
-=======
-const SECRET_PROVIDER_ALIAS_PATTERN = /^[a-z][a-z0-9_-]{0,63}$/;
-const EXEC_SECRET_REF_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$/;
-const WINDOWS_ABS_PATH_PATTERN = /^[A-Za-z]:[\\/]/;
-const WINDOWS_UNC_PATH_PATTERN = /^\\\\[^\\]+\\[^\\]+/;
-
-function isAbsolutePath(value: string): boolean {
-  return (
-    path.isAbsolute(value) ||
-    WINDOWS_ABS_PATH_PATTERN.test(value) ||
-    WINDOWS_UNC_PATH_PATTERN.test(value)
-  );
->>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
 }
 
 const EnvSecretRefSchema = z
@@ -83,16 +63,11 @@ const SecretsFileSourceSchema = z
   .object({
     type: z.literal("sops"),
     path: z.string().min(1),
-<<<<<<< HEAD
-=======
     mode: z.union([z.literal("singleValue"), z.literal("json")]).optional(),
->>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
     timeoutMs: z.number().int().positive().max(120000).optional(),
   })
   .strict();
 
-<<<<<<< HEAD
-=======
 const SecretsExecProviderSchema = z
   .object({
     source: z.literal("exec"),
@@ -136,38 +111,12 @@ export const SecretProviderSchema = z.discriminatedUnion("source", [
   SecretsExecProviderSchema,
 ]);
 
->>>>>>> f46b9c996 (feat(secrets): allow opt-in symlink exec command paths)
 export const SecretsConfigSchema = z
   .object({
     sources: z
       .object({
-<<<<<<< HEAD
         env: SecretsEnvSourceSchema.optional(),
         file: SecretsFileSourceSchema.optional(),
-=======
-        // Keep this as a record so users can define multiple providers per source.
-      })
-      .catchall(SecretProviderSchema)
-      .optional(),
-    defaults: z
-      .object({
-        env: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
-        file: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
-        exec: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
-      })
-      .strict()
-      .optional(),
-    resolution: z
-      .object({
-        maxProviderConcurrency: z.number().int().positive().max(16).optional(),
-        maxRefsPerProvider: z.number().int().positive().max(4096).optional(),
-        maxBatchBytes: z
-          .number()
-          .int()
-          .positive()
-          .max(5 * 1024 * 1024)
-          .optional(),
->>>>>>> d879c7c64 (fix(secrets): harden apply and audit plan handling)
       })
       .strict()
       .optional(),
@@ -222,11 +171,7 @@ export const ModelDefinitionSchema = z
 export const ModelProviderSchema = z
   .object({
     baseUrl: z.string().min(1),
-<<<<<<< HEAD
     apiKey: z.string().optional(),
-=======
-    apiKey: SecretInputSchema.optional().register(sensitive),
->>>>>>> c3a4251a6 (Config: add secret ref schema and redaction foundations)
     auth: z
       .union([z.literal("api-key"), z.literal("aws-sdk"), z.literal("oauth"), z.literal("token")])
       .optional(),
@@ -472,8 +417,6 @@ export const CliBackendSchema = z
     imageArg: z.string().optional(),
     imageMode: z.union([z.literal("repeat"), z.literal("list")]).optional(),
     serialize: z.boolean().optional(),
-<<<<<<< HEAD
-=======
     reliability: z
       .object({
         watchdog: z
@@ -486,7 +429,6 @@ export const CliBackendSchema = z
       })
       .strict()
       .optional(),
->>>>>>> 6a19654c4 (refactor(core): dedupe browser route signatures and cli watchdog schema)
   })
   .strict();
 

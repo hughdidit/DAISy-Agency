@@ -1,19 +1,12 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { TextContent } from "@mariozechner/pi-ai";
-=======
->>>>>>> 328679131 (refactor(agents): dedupe config and truncation guards)
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 >>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
 import type {
   PluginHookBeforeMessageWriteEvent,
   PluginHookBeforeMessageWriteResult,
 } from "../plugins/types.js";
-<<<<<<< HEAD
 import type { TextContent } from "@mariozechner/pi-ai";
 >>>>>>> 15fe87e6b (feat: add before_message_write plugin hook)
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
@@ -21,42 +14,13 @@ import type { SessionManager } from "@mariozechner/pi-coding-agent";
 
 import { makeMissingToolResult } from "./session-transcript-repair.js";
 import { emitSessionTranscriptUpdate } from "../sessions/transcript-events.js";
-=======
-=======
->>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
 import { emitSessionTranscriptUpdate } from "../sessions/transcript-events.js";
-<<<<<<< HEAD
-=======
 import {
   HARD_MAX_TOOL_RESULT_CHARS,
   truncateToolResultMessage,
 } from "./pi-embedded-runner/tool-result-truncation.js";
->>>>>>> 328679131 (refactor(agents): dedupe config and truncation guards)
 import { makeMissingToolResult, sanitizeToolCallInputs } from "./session-transcript-repair.js";
-<<<<<<< HEAD
 >>>>>>> 0da6de662 (Agent: repair malformed tool calls and session files)
-=======
-import { extractToolCallsFromAssistant, extractToolResultId } from "./tool-call-id.js";
-
-const GUARD_TRUNCATION_SUFFIX =
-  "\n\n⚠️ [Content truncated during persistence — original exceeded size limit. " +
-  "Use offset/limit parameters or request specific sections for large content.]";
-
-/**
- * Truncate oversized text content blocks in a tool result message.
- * Returns the original message if under the limit, or a new message with
- * truncated text blocks otherwise.
- */
-function capToolResultSize(msg: AgentMessage): AgentMessage {
-  if ((msg as { role?: string }).role !== "toolResult") {
-    return msg;
-  }
-  return truncateToolResultMessage(msg, HARD_MAX_TOOL_RESULT_CHARS, {
-    suffix: GUARD_TRUNCATION_SUFFIX,
-    minKeepChars: 2_000,
-  });
-}
->>>>>>> 21dfac972 (refactor(agents): share tool call id extraction)
 
 function trimNonEmptyString(value: unknown): string | undefined {
   if (typeof value !== "string") {
@@ -167,13 +131,8 @@ export function installSessionToolResultGuard(
     if (allowSyntheticToolResults) {
       for (const [id, name] of pending.entries()) {
         const synthetic = makeMissingToolResult({ toolCallId: id, toolName: name });
-<<<<<<< HEAD
         originalAppend(
           persistToolResult(synthetic, {
-=======
-        const flushed = applyBeforeWriteHook(
-          persistToolResult(persistMessage(synthetic), {
->>>>>>> 15fe87e6b (feat: add before_message_write plugin hook)
             toolCallId: id,
             toolName: name,
             isSynthetic: true,
@@ -211,13 +170,8 @@ export function installSessionToolResultGuard(
         pending.delete(id);
       }
 <<<<<<< HEAD
-<<<<<<< HEAD
       return originalAppend(
         persistToolResult(nextMessage, {
-=======
-=======
-      const normalizedToolResult = normalizePersistedToolResultName(nextMessage, toolName);
->>>>>>> ee03ade0d (fix(agents): harden tool-name normalization and transcript repair)
       // Apply hard size cap before persistence to prevent oversized tool results
       // from consuming the entire context window on subsequent LLM calls.
       const capped = capToolResultSize(persistMessage(normalizedToolResult));
@@ -251,15 +205,7 @@ export function installSessionToolResultGuard(
       }
     }
 
-<<<<<<< HEAD
     const result = originalAppend(nextMessage as never);
-=======
-    const finalMessage = applyBeforeWriteHook(persistMessage(nextMessage));
-    if (!finalMessage) {
-      return undefined;
-    }
-    const result = originalAppend(finalMessage as never);
->>>>>>> 15fe87e6b (feat: add before_message_write plugin hook)
 
     const sessionFile = (
       sessionManager as { getSessionFile?: () => string | null }

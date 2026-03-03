@@ -3,11 +3,8 @@
 package bot.molt.android
 
 import android.content.Context
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/SecurePrefs.kt
-=======
 import android.content.SharedPreferences
 import android.util.Log
->>>>>>> 4b188dcf9 (fix(android): persist gateway auth state across onboarding):apps/android/app/src/main/java/ai/openclaw/android/SecurePrefs.kt
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
@@ -37,7 +34,6 @@ class SecurePrefs(context: Context) {
     MasterKey.Builder(appContext)
       .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
       .build()
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/SecurePrefs.kt
 
   private val prefs =
     EncryptedSharedPreferences.create(
@@ -47,10 +43,6 @@ class SecurePrefs(context: Context) {
       EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
       EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
     )
-=======
-  }
-  private val securePrefs: SharedPreferences by lazy { createSecurePrefs(appContext, securePrefsName) }
->>>>>>> b49c2cbdd (perf(android): tighten startup path and add perf tooling):apps/android/app/src/main/java/ai/openclaw/android/SecurePrefs.kt
 
   private val _instanceId = MutableStateFlow(loadOrCreateInstanceId())
   val instanceId: StateFlow<String> = _instanceId
@@ -74,7 +66,6 @@ class SecurePrefs(context: Context) {
   val preventSleep: StateFlow<Boolean> = _preventSleep
 
   private val _manualEnabled =
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/SecurePrefs.kt
     MutableStateFlow(readBoolWithMigration("gateway.manual.enabled", "bridge.manual.enabled", false))
   val manualEnabled: StateFlow<Boolean> = _manualEnabled
 
@@ -88,21 +79,6 @@ class SecurePrefs(context: Context) {
 
   private val _manualTls =
     MutableStateFlow(readBoolWithMigration("gateway.manual.tls", null, true))
-=======
-    MutableStateFlow(plainPrefs.getBoolean("gateway.manual.enabled", false))
-  val manualEnabled: StateFlow<Boolean> = _manualEnabled
-
-  private val _manualHost =
-    MutableStateFlow(plainPrefs.getString("gateway.manual.host", "") ?: "")
-  val manualHost: StateFlow<String> = _manualHost
-
-  private val _manualPort =
-    MutableStateFlow(plainPrefs.getInt("gateway.manual.port", 18789))
-  val manualPort: StateFlow<Int> = _manualPort
-
-  private val _manualTls =
-    MutableStateFlow(plainPrefs.getBoolean("gateway.manual.tls", true))
->>>>>>> b49c2cbdd (perf(android): tighten startup path and add perf tooling):apps/android/app/src/main/java/ai/openclaw/android/SecurePrefs.kt
   val manualTls: StateFlow<Boolean> = _manualTls
 
   private val _gatewayToken = MutableStateFlow("")
@@ -114,15 +90,11 @@ class SecurePrefs(context: Context) {
 
   private val _lastDiscoveredStableId =
     MutableStateFlow(
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/SecurePrefs.kt
       readStringWithMigration(
         "gateway.lastDiscoveredStableID",
         "bridge.lastDiscoveredStableId",
         "",
       ),
-=======
-      plainPrefs.getString("gateway.lastDiscoveredStableID", "") ?: "",
->>>>>>> b49c2cbdd (perf(android): tighten startup path and add perf tooling):apps/android/app/src/main/java/ai/openclaw/android/SecurePrefs.kt
     )
   val lastDiscoveredStableId: StateFlow<String> = _lastDiscoveredStableId
 
@@ -139,14 +111,9 @@ class SecurePrefs(context: Context) {
   private val _talkEnabled = MutableStateFlow(plainPrefs.getBoolean("talk.enabled", false))
   val talkEnabled: StateFlow<Boolean> = _talkEnabled
 
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/SecurePrefs.kt
   init {
     logGatewayToken("init.gateway.manual.token", _gatewayToken.value)
   }
-=======
-  private val _speakerEnabled = MutableStateFlow(plainPrefs.getBoolean("voice.speakerEnabled", true))
-  val speakerEnabled: StateFlow<Boolean> = _speakerEnabled
->>>>>>> 72e135083 (feat(android-voice): add speaker toggle in voice tab):apps/android/app/src/main/java/ai/openclaw/android/SecurePrefs.kt
 
   fun setLastDiscoveredStableId(value: String) {
     val trimmed = value.trim()
@@ -223,7 +190,6 @@ class SecurePrefs(context: Context) {
   }
 
   fun loadGatewayToken(): String? {
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/SecurePrefs.kt
     val manual = _gatewayToken.value.trim()
     if (manual.isNotEmpty()) {
       logGatewayToken("loadGatewayToken.manual", manual)
@@ -235,11 +201,6 @@ class SecurePrefs(context: Context) {
     if (!stored.isNullOrEmpty()) return stored
     val legacy = prefs.getString("bridge.token.${_instanceId.value}", null)?.trim()
     return legacy?.takeIf { it.isNotEmpty() }
-=======
-    val resolved = stored?.takeIf { it.isNotEmpty() }
-    logGatewayToken("loadGatewayToken.legacy", resolved.orEmpty())
-    return resolved
->>>>>>> 4b188dcf9 (fix(android): persist gateway auth state across onboarding):apps/android/app/src/main/java/ai/openclaw/android/SecurePrefs.kt
 =======
     val manual =
       _gatewayToken.value.trim().ifEmpty {
@@ -292,8 +253,6 @@ class SecurePrefs(context: Context) {
     securePrefs.edit { remove(key) }
   }
 
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/SecurePrefs.kt
-=======
   private fun createSecurePrefs(context: Context, name: String): SharedPreferences {
     return EncryptedSharedPreferences.create(
       context,
@@ -304,7 +263,6 @@ class SecurePrefs(context: Context) {
     )
   }
 
->>>>>>> b49c2cbdd (perf(android): tighten startup path and add perf tooling):apps/android/app/src/main/java/ai/openclaw/android/SecurePrefs.kt
   private fun loadOrCreateInstanceId(): String {
     val existing = plainPrefs.getString("node.instanceId", null)?.trim()
     if (!existing.isNullOrBlank()) return existing
@@ -393,7 +351,6 @@ class SecurePrefs(context: Context) {
       defaultWakeWords
     }
   }
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/SecurePrefs.kt
 
   private fun readBoolWithMigration(newKey: String, oldKey: String?, defaultValue: Boolean): Boolean {
     if (prefs.contains(newKey)) {
@@ -430,6 +387,4 @@ class SecurePrefs(context: Context) {
     }
     return defaultValue
   }
-=======
->>>>>>> b49c2cbdd (perf(android): tighten startup path and add perf tooling):apps/android/app/src/main/java/ai/openclaw/android/SecurePrefs.kt
 }

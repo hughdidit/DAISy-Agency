@@ -1,9 +1,6 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { vi } from "vitest";
 
-=======
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 =======
 import fs from "node:fs/promises";
 import path from "node:path";

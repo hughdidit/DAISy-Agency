@@ -25,12 +25,7 @@ moltbot gateway --force
 # dev loop (auto-reload on TS changes):
 pnpm gateway:watch
 ```
-<<<<<<< HEAD
 - Config hot reload watches `~/.clawdbot/moltbot.json` (or `CLAWDBOT_CONFIG_PATH`).
-=======
-
-- Config hot reload watches `~/.openclaw/openclaw.json` (or `OPENCLAW_CONFIG_PATH`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   - Default mode: `gateway.reload.mode="hybrid"` (hot-apply safe changes, restart on critical).
   - Hot reload uses in-process restart via **SIGUSR1** when needed.
   - Disable with `gateway.reload.mode="off"`.
@@ -65,7 +60,6 @@ Usually unnecessary: one Gateway can serve multiple messaging channels and agent
 Supported if you isolate state + config and use unique ports. Full guide: [Multiple gateways](/gateway/multiple-gateways).
 
 Service names are profile-aware:
-<<<<<<< HEAD
 - macOS: `bot.molt.<profile>` (legacy `com.clawdbot.*` may still exist)
 - Linux: `moltbot-gateway-<profile>.service`
 - Windows: `Moltbot Gateway (<profile>)`
@@ -74,18 +68,6 @@ Install metadata is embedded in the service config:
 - `CLAWDBOT_SERVICE_MARKER=moltbot`
 - `CLAWDBOT_SERVICE_KIND=gateway`
 - `CLAWDBOT_SERVICE_VERSION=<version>`
-=======
-
-- macOS: `bot.molt.<profile>` (legacy `com.openclaw.*` may still exist)
-- Linux: `openclaw-gateway-<profile>.service`
-- Windows: `OpenClaw Gateway (<profile>)`
-
-Install metadata is embedded in the service config:
-
-- `OPENCLAW_SERVICE_MARKER=openclaw`
-- `OPENCLAW_SERVICE_KIND=gateway`
-- `OPENCLAW_SERVICE_VERSION=<version>`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Rescue-Bot Pattern: keep a second Gateway isolated with its own profile, state dir, workspace, and base port spacing. Full guide: [Rescue-bot guide](/gateway/multiple-gateways#rescue-bot-guide).
 
@@ -102,27 +84,15 @@ moltbot --dev health
 ```
 
 Defaults (can be overridden via env/flags/config):
-<<<<<<< HEAD
 - `CLAWDBOT_STATE_DIR=~/.clawdbot-dev`
 - `CLAWDBOT_CONFIG_PATH=~/.clawdbot-dev/moltbot.json`
 - `CLAWDBOT_GATEWAY_PORT=19001` (Gateway WS + HTTP)
-=======
-
-- `OPENCLAW_STATE_DIR=~/.openclaw-dev`
-- `OPENCLAW_CONFIG_PATH=~/.openclaw-dev/openclaw.json`
-- `OPENCLAW_GATEWAY_PORT=19001` (Gateway WS + HTTP)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - browser control service port = `19003` (derived: `gateway.port+2`, loopback only)
 - `canvasHost.port=19005` (derived: `gateway.port+4`)
 - `agents.defaults.workspace` default becomes `~/clawd-dev` when you run `setup`/`onboard` under `--dev`.
 
 Derived ports (rules of thumb):
-<<<<<<< HEAD
 - Base port = `gateway.port` (or `CLAWDBOT_GATEWAY_PORT` / `--port`)
-=======
-
-- Base port = `gateway.port` (or `OPENCLAW_GATEWAY_PORT` / `--port`)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - browser control service port = base + 2 (loopback only)
 - `canvasHost.port = base + 4` (or `CLAWDBOT_CANVAS_HOST_PORT` / config override)
 - Browser profile CDP ports auto-allocate from `browser.controlPort + 9 .. + 108` (persisted per profile).
@@ -161,12 +131,7 @@ CLAWDBOT_CONFIG_PATH=~/.clawdbot/b.json CLAWDBOT_STATE_DIR=~/.clawdbot-b moltbot
 - `agent` responses are two-stage: first `res` ack `{runId,status:"accepted"}`, then a final `res` `{runId,status:"ok"|"error",summary}` after the run finishes; streamed output arrives as `event:"agent"`.
 
 ## Methods (initial set)
-<<<<<<< HEAD
 - `health` — full health snapshot (same shape as `moltbot health --json`).
-=======
-
-- `health` — full health snapshot (same shape as `openclaw health --json`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `status` — short summary.
 - `system-presence` — current presence list.
 - `system-event` — post a presence/system note (structured).
@@ -264,7 +229,6 @@ Notes:
 - `gateway install` is a no-op when already installed; use `moltbot gateway install --force` to reinstall (profile/env/path changes).
 
 Bundled mac app:
-<<<<<<< HEAD
 - Moltbot.app can bundle a Node-based gateway relay and install a per-user LaunchAgent labeled
   `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.clawdbot.*` labels still unload cleanly).
 - To stop it cleanly, use `moltbot gateway stop` (or `launchctl bootout gui/$UID/bot.molt.gateway`).
@@ -274,19 +238,6 @@ Bundled mac app:
 
 ## Supervision (systemd user unit)
 Moltbot installs a **systemd user service** by default on Linux/WSL2. We
-=======
-
-- OpenClaw.app can bundle a Node-based gateway relay and install a per-user LaunchAgent labeled
-  `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.openclaw.*` labels still unload cleanly).
-- To stop it cleanly, use `openclaw gateway stop` (or `launchctl bootout gui/$UID/bot.molt.gateway`).
-- To restart, use `openclaw gateway restart` (or `launchctl kickstart -k gui/$UID/bot.molt.gateway`).
-  - `launchctl` only works if the LaunchAgent is installed; otherwise use `openclaw gateway install` first.
-  - Replace the label with `bot.molt.<profile>` when running a named profile.
-
-## Supervision (systemd user unit)
-
-OpenClaw installs a **systemd user service** by default on Linux/WSL2. We
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 recommend user services for single-user machines (simpler env, per-user config).
 Use a **system service** for multi-user or always-on servers (no lingering
 required, shared supervision).
@@ -294,12 +245,7 @@ required, shared supervision).
 `moltbot gateway install` writes the user unit. `moltbot doctor` audits the
 unit and can update it to match the current recommended defaults.
 
-<<<<<<< HEAD
 Create `~/.config/systemd/user/moltbot-gateway[-<profile>].service`:
-=======
-Create `~/.config/systemd/user/openclaw-gateway[-<profile>].service`:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ```
 [Unit]
 Description=Moltbot Gateway (profile: <profile>, v<version>)
@@ -358,7 +304,6 @@ Windows installs should use **WSL2** and follow the Linux systemd section above.
 - Graceful shutdown: emit `shutdown` event before closing; clients must handle close + reconnect.
 
 ## CLI helpers
-<<<<<<< HEAD
 - `moltbot gateway health|status` — request health/status over the Gateway WS.
 - `moltbot message send --target <num> --message "hi" [--media ...]` — send via Gateway (idempotent for WhatsApp).
 - `moltbot agent --message "hi" --to <num>` — run an agent turn (waits for final by default).
@@ -368,17 +313,4 @@ Windows installs should use **WSL2** and follow the Linux systemd section above.
 
 ## Migration guidance
 - Retire uses of `moltbot gateway` and the legacy TCP control port.
-=======
-
-- `openclaw gateway health|status` — request health/status over the Gateway WS.
-- `openclaw message send --target <num> --message "hi" [--media ...]` — send via Gateway (idempotent for WhatsApp).
-- `openclaw agent --message "hi" --to <num>` — run an agent turn (waits for final by default).
-- `openclaw gateway call <method> --params '{"k":"v"}'` — raw method invoker for debugging.
-- `openclaw gateway stop|restart` — stop/restart the supervised gateway service (launchd/systemd).
-- Gateway helper subcommands assume a running gateway on `--url`; they no longer auto-spawn one.
-
-## Migration guidance
-
-- Retire uses of `openclaw gateway` and the legacy TCP control port.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Update clients to speak the WS protocol with mandatory connect and structured presence.

@@ -1,26 +1,16 @@
 import fs from "node:fs/promises";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 import { loadSessionStore } from "../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
-import { getReplyFromConfig } from "./reply.js";
-=======
->>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
-=======
 =======
 >>>>>>> cba8037d9 (test: prune redundant trigger handling integration coverage)
 import { loadSessionStore, resolveSessionKey } from "../config/sessions.js";
-<<<<<<< HEAD
 >>>>>>> 89a469502 (test: consolidate shard tests for faster trigger/directive suites)
-=======
-import { registerGroupIntroPromptCases } from "./reply.triggers.group-intro-prompts.cases.js";
-import { registerTriggerHandlingUsageSummaryCases } from "./reply.triggers.trigger-handling.filters-usage-summary-current-model-provider.cases.js";
->>>>>>> c88915b72 (test: consolidate trigger handling suites)
 import {
   expectInlineCommandHandledAndStripped,
   getAbortEmbeddedPiRunMock,
@@ -36,13 +26,8 @@ import {
 } from "./reply.triggers.trigger-handling.test-harness.js";
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 import { enqueueFollowupRun, getFollowupQueueDepth, type FollowupRun } from "./reply/queue.js";
-<<<<<<< HEAD
 import { getReplyFromConfig } from "./reply.js";
-=======
-import { HEARTBEAT_TOKEN } from "./tokens.js";
->>>>>>> 89a469502 (test: consolidate shard tests for faster trigger/directive suites)
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
@@ -85,24 +70,6 @@ function makeCfg(home: string) {
 afterEach(() => {
   vi.restoreAllMocks();
 });
-=======
-=======
-let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
-let previousFastTestEnv: string | undefined;
-beforeAll(async () => {
-  previousFastTestEnv = process.env.OPENCLAW_TEST_FAST;
-  process.env.OPENCLAW_TEST_FAST = "1";
-  ({ getReplyFromConfig } = await import("./reply.js"));
-});
-afterAll(() => {
-  if (previousFastTestEnv === undefined) {
-    delete process.env.OPENCLAW_TEST_FAST;
-    return;
-  }
-  process.env.OPENCLAW_TEST_FAST = previousFastTestEnv;
-});
-
->>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
@@ -553,7 +520,6 @@ describe("trigger handling", () => {
         home,
         command: "/status",
       });
-<<<<<<< HEAD
 
       await getReplyFromConfig(
         {
@@ -588,17 +554,6 @@ describe("trigger handling", () => {
             workspace: join(home, "clawd"),
           },
           list: [{ id: "coding", model: "minimax/MiniMax-M2.1" }],
-=======
-      const cfg = makeCfg(home) as unknown as OpenClawConfig;
-      cfg.agents = {
-        ...cfg.agents,
-        list: [{ id: "coding", model: "minimax/MiniMax-M2.1" }],
-      };
-      cfg.channels = {
-        ...cfg.channels,
-        telegram: {
-          allowFrom: ["*"],
->>>>>>> 829236afa (test: reuse trigger harness defaults in custom configs)
         },
       };
 

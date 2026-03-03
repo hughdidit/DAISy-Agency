@@ -2,11 +2,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 import { resolveGatewayService } from "./service.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -29,11 +26,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 18cc48dfd (chore: Fix types in tests 20/N.)
 import { resolveMemorySearchConfig } from "./memory-search.js";
 
 const asConfig = (cfg: OpenClawConfig): OpenClawConfig => cfg;

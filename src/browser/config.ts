@@ -4,12 +4,7 @@ import {
   deriveDefaultBrowserControlPort,
   DEFAULT_BROWSER_CONTROL_PORT,
 } from "../config/port-defaults.js";
-<<<<<<< HEAD
 import { resolveGatewayPort } from "../config/paths.js";
-=======
-import { isLoopbackHost } from "../gateway/net.js";
-<<<<<<< HEAD
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 =======
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
 >>>>>>> 6195660b1 (fix(browser): unify SSRF guard path for navigation)
@@ -54,19 +49,9 @@ export type ResolvedBrowserProfile = {
 
 function normalizeHexColor(raw: string | undefined) {
   const value = (raw ?? "").trim();
-<<<<<<< HEAD
   if (!value) return DEFAULT_CLAWD_BROWSER_COLOR;
   const normalized = value.startsWith("#") ? value : `#${value}`;
   if (!/^#[0-9a-fA-F]{6}$/.test(normalized)) return DEFAULT_CLAWD_BROWSER_COLOR;
-=======
-  if (!value) {
-    return DEFAULT_OPENCLAW_BROWSER_COLOR;
-  }
-  const normalized = value.startsWith("#") ? value : `#${value}`;
-  if (!/^#[0-9a-fA-F]{6}$/.test(normalized)) {
-    return DEFAULT_OPENCLAW_BROWSER_COLOR;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return normalized.toUpperCase();
 }
 
@@ -169,15 +154,8 @@ function ensureDefaultChromeExtensionProfile(
     return result;
   }
   // Avoid adding the built-in profile if the derived relay port is already used by another profile
-<<<<<<< HEAD
   // (legacy single-profile configs may use controlPort+1 for clawd CDP).
   if (getUsedPorts(result).has(relayPort)) return result;
-=======
-  // (legacy single-profile configs may use controlPort+1 for openclaw/openclaw CDP).
-  if (getUsedPorts(result).has(relayPort)) {
-    return result;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   result.chrome = {
     driver: "extension",
     cdpUrl: `http://127.0.0.1:${relayPort}`,

@@ -8,24 +8,13 @@ import {
   recordPendingHistoryEntryIfEnabled,
   resolveControlCommandGate,
   resolveDefaultGroupPolicy,
-<<<<<<< HEAD
-=======
   isDangerousNameMatchingEnabled,
   readStoreAllowFromForDmPolicy,
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   resolveMentionGating,
   formatAllowlistMatchMeta,
   type HistoryEntry,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { StoredConversationReference } from "../conversation-store.js";
 import type { MSTeamsMessageHandlerDeps } from "../monitor-handler.js";
@@ -64,15 +53,12 @@ import {
 } from "../policy.js";
 import { extractMSTeamsPollVote } from "../polls.js";
 import { createMSTeamsReplyDispatcher } from "../reply-dispatcher.js";
-<<<<<<< HEAD
-=======
 import { getMSTeamsRuntime } from "../runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MSTeamsTurnContext } from "../sdk-types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -179,19 +165,9 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
 
     const senderName = from.name ?? from.id;
     const senderId = from.aadObjectId ?? from.id;
-<<<<<<< HEAD
     const storedAllowFrom = await core.channel.pairing
       .readAllowFromStore("msteams")
       .catch(() => []);
-=======
-    const dmPolicy = msteamsCfg?.dmPolicy ?? "pairing";
-    const storedAllowFrom = await readStoreAllowFromForDmPolicy({
-      provider: "msteams",
-      accountId: pairing.accountId,
-      dmPolicy,
-      readStore: pairing.readStoreForDmPolicy,
-    });
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
     const useAccessGroups = cfg.commands?.useAccessGroups !== false;
 
     // Check DM policy for direct messages.
@@ -262,8 +238,6 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
       conversationId,
       channelName,
     });
-<<<<<<< HEAD
-=======
     const senderGroupPolicy =
       groupPolicy === "disabled"
         ? "disabled"
@@ -318,7 +292,6 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
       });
       return;
     }
->>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
 
     if (!isDirectMessage && msteamsCfg) {
       if (groupPolicy === "disabled") {
@@ -647,7 +620,6 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
 
     log.info("dispatching to agent", { sessionKey: route.sessionKey });
     try {
-<<<<<<< HEAD
       const { queuedFinal, counts } = await core.channel.reply.dispatchReplyFromConfig({
         ctx: ctxPayload,
         cfg,
@@ -656,22 +628,6 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
       });
 
       markDispatchIdle();
-=======
-      const { queuedFinal, counts } = await core.channel.reply.withReplyDispatcher({
-        dispatcher,
-        onSettled: () => {
-          markDispatchIdle();
-        },
-        run: () =>
-          core.channel.reply.dispatchReplyFromConfig({
-            ctx: ctxPayload,
-            cfg,
-            dispatcher,
-            replyOptions,
-          }),
-      });
-
->>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
       log.info("dispatch complete", { queuedFinal, counts });
 
       if (!queuedFinal) {

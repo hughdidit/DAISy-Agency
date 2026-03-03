@@ -1,9 +1,6 @@
 import { spawn } from "node:child_process";
-<<<<<<< HEAD
-=======
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { sanitizeEnvVars } from "./sanitize-env-vars.js";
->>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 
 import { defaultRuntime } from "../../runtime.js";
 import { formatCliCommand } from "../../cli/command-format.js";
@@ -43,11 +40,6 @@ export function execDocker(args: string[], opts?: { allowFailure?: boolean }) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -64,11 +56,6 @@ import { resolveSandboxAgentId, resolveSandboxScopeKey, slugifySessionKey } from
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -93,29 +80,7 @@ export async function execDocker(args: string[], opts?: ExecDockerOptions) {
   };
 }
 
-<<<<<<< HEAD
 >>>>>>> 31c6a12cf (fix(agents): restore missing runtime helpers and sandbox types)
-=======
-export async function readDockerContainerLabel(
-  containerName: string,
-  label: string,
-): Promise<string | null> {
-  const result = await execDocker(
-    ["inspect", "-f", `{{ index .Config.Labels "${label}" }}`, containerName],
-    { allowFailure: true },
-  );
-  if (result.code !== 0) {
-    return null;
-  }
-  const raw = result.stdout.trim();
-  if (!raw || raw === "<no value>") {
-    return null;
-  }
-  return raw;
-}
-
-<<<<<<< HEAD
->>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))
 =======
 export async function readDockerContainerEnvVar(
   containerName: string,
@@ -239,8 +204,6 @@ export function buildSandboxCreateArgs(params: {
   allowReservedContainerTargets?: boolean;
   allowContainerNamespaceJoin?: boolean;
 }) {
-<<<<<<< HEAD
-=======
   // Runtime security validation: blocks dangerous bind mounts, network modes, and profiles.
   validateSandboxSecurity({
     ...params.cfg,
@@ -256,7 +219,6 @@ export function buildSandboxCreateArgs(params: {
       params.cfg.dangerouslyAllowContainerNamespaceJoin === true,
   });
 
->>>>>>> c070be1bc (fix(sandbox): harden fs bridge path checks and bind mount policy)
   const createdAtMs = params.createdAtMs ?? Date.now();
   const args = ["create", "--name", params.name];
   args.push("--label", "moltbot.sandbox=1");
@@ -282,15 +244,9 @@ export function buildSandboxCreateArgs(params: {
   if (params.cfg.user) {
     args.push("--user", params.cfg.user);
   }
-<<<<<<< HEAD
   for (const [key, value] of Object.entries(params.cfg.env ?? {})) {
 <<<<<<< HEAD
     if (!key.trim()) continue;
-=======
-    if (!key.trim()) {
-      continue;
-    }
->>>>>>> 901d4cb31 (revert: accidental merge of OC-09 sandbox env sanitization change)
     args.push("--env", key + "=" + value);
 =======
   const envSanitization = sanitizeEnvVars(params.cfg.env ?? {});
@@ -407,7 +363,6 @@ async function createSandboxContainer(params: {
 
 async function readContainerConfigHash(containerName: string): Promise<string | null> {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const result = await execDocker(
     ["inspect", "-f", '{{ index .Config.Labels "moltbot.configHash" }}', containerName],
     { allowFailure: true },
@@ -416,23 +371,6 @@ async function readContainerConfigHash(containerName: string): Promise<string | 
   const raw = result.stdout.trim();
   if (!raw || raw === "<no value>") return null;
   return raw;
-=======
-  const readLabel = async (label: string) => {
-    const result = await execDocker(
-      ["inspect", "-f", `{{ index .Config.Labels "${label}" }}`, containerName],
-      { allowFailure: true },
-    );
-    if (result.code !== 0) {
-      return null;
-    }
-    const raw = result.stdout.trim();
-    if (!raw || raw === "<no value>") {
-      return null;
-    }
-    return raw;
-  };
-  return await readLabel("openclaw.configHash");
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
   return await readDockerContainerLabel(containerName, "openclaw.configHash");
 >>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))

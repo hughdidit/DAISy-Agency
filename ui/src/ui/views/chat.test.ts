@@ -1,13 +1,8 @@
 import { render } from "lit";
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { SessionsListResult } from "../types";
 import { renderChat, type ChatProps } from "./chat";
-=======
-import type { SessionsListResult } from "../types.ts";
-import { renderChat, type ChatProps } from "./chat.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 function createSessions(): SessionsListResult {
   return {
@@ -57,27 +52,6 @@ function createProps(overrides: Partial<ChatProps> = {}): ChatProps {
 
 describe("chat view", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  it("renders compacting indicator as a badge", () => {
-    const container = document.createElement("div");
-    render(
-      renderChat(
-        createProps({
-=======
-  it("renders/hides compaction and fallback indicators across recency states", () => {
-    const cases: Array<{
-      name: string;
-      nowMs?: number;
-      props: Partial<ChatProps>;
-      selector: string;
-      missing?: boolean;
-      expectedText?: string;
-    }> = [
-      {
-        name: "active compaction",
-        props: {
->>>>>>> 7731f28a2 (test(ui): matrix chat indicator rendering cases)
           compactionStatus: {
             active: true,
             startedAt: 1_000,

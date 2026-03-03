@@ -31,8 +31,6 @@ openclaw onboard --non-interactive \
 
 Add `--json` for a machine-readable summary.
 
-<<<<<<< HEAD
-=======
 Use `--secret-input-mode ref` to store env-backed refs in auth profiles instead of plaintext values.
 Interactive selection between env refs and configured provider refs (`file` or `exec`) is available in the onboarding wizard flow.
 
@@ -49,7 +47,6 @@ openclaw onboard --non-interactive \
   --accept-risk
 ```
 
->>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
 ## Provider-specific examples
 
 <AccordionGroup>

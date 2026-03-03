@@ -3,15 +3,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { extractText } from "../chat/message-extract";
 import type { GatewayBrowserClient } from "../gateway";
 import { generateUUID } from "../uuid";
 import type { ChatAttachment } from "../ui-types";
-=======
-=======
-import { extractText } from "../chat/message-extract.ts";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -116,8 +111,6 @@ function normalizeAssistantMessage(
   return candidate;
 }
 
-<<<<<<< HEAD
-=======
 function normalizeAbortedAssistantMessage(message: unknown): Record<string, unknown> | null {
   return normalizeAssistantMessage(message, {
     roleRequirement: "required",
@@ -133,27 +126,15 @@ function normalizeFinalAssistantMessage(message: unknown): Record<string, unknow
   });
 }
 
->>>>>>> 382785c6c (refactor(webchat): extract shared chat state helpers)
 export async function sendChatMessage(
   state: ChatState,
   message: string,
   attachments?: ChatAttachment[],
-<<<<<<< HEAD
 ): Promise<boolean> {
   if (!state.client || !state.connected) return false;
   const msg = message.trim();
   const hasAttachments = attachments && attachments.length > 0;
   if (!msg && !hasAttachments) return false;
-=======
-): Promise<string | null> {
-  if (!state.client || !state.connected) {
-    return null;
-  }
-  const msg = message.trim();
-  const hasAttachments = attachments && attachments.length > 0;
-<<<<<<< HEAD
-  if (!msg && !hasAttachments) {return null;}
->>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
 =======
   if (!msg && !hasAttachments) {
     return null;
@@ -265,19 +246,12 @@ export function handleChatEvent(state: ChatState, payload?: ChatEventPayload) {
   }
 
   // Final from another run (e.g. sub-agent announce): refresh history to show new message.
-<<<<<<< HEAD
   // See https://github.com/moltbot/moltbot/issues/1909
   if (
     payload.runId &&
     state.chatRunId &&
     payload.runId !== state.chatRunId
   ) {
-=======
-  // See https://github.com/openclaw/openclaw/issues/1909
-  if (payload.runId && state.chatRunId && payload.runId !== state.chatRunId) {
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     if (payload.state === "final") return "final";
 =======
     if (payload.state === "final") {return "final";}

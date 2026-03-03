@@ -41,7 +41,6 @@ export function collectWhatsAppStatusIssues(
         typeof account.reconnectAttempts === "number" ? account.reconnectAttempts : null;
       const lastError = asString(account.lastError);
 
-<<<<<<< HEAD
     if (!linked) {
       issues.push({
         channel: "whatsapp",
@@ -64,28 +63,4 @@ export function collectWhatsAppStatusIssues(
     }
   }
   return issues;
-=======
-      if (!linked) {
-        issues.push({
-          channel: "whatsapp",
-          accountId,
-          kind: "auth",
-          message: "Not linked (no WhatsApp Web session).",
-          fix: `Run: ${formatCliCommand("openclaw channels login")} (scan QR on the gateway host).`,
-        });
-        return;
-      }
-
-      if (running && !connected) {
-        issues.push({
-          channel: "whatsapp",
-          accountId,
-          kind: "runtime",
-          message: `Linked but disconnected${reconnectAttempts != null ? ` (reconnectAttempts=${reconnectAttempts})` : ""}${lastError ? `: ${lastError}` : "."}`,
-          fix: `Run: ${formatCliCommand("openclaw doctor")} (or restart the gateway). If it persists, relink via channels login and check logs.`,
-        });
-      }
-    },
-  });
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 }

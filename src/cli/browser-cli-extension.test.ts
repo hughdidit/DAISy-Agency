@@ -1,30 +1,18 @@
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
-=======
-import { describe, expect, it } from "vitest";
-import { installChromeExtension } from "./browser-cli-extension";
->>>>>>> 0621d0e9e (fix(cli): resolve bundled chrome extension path)
 
 describe("browser extension install", () => {
-<<<<<<< HEAD
   it("installs into the state dir (never node_modules)", async () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-ext-"));
     const { installChromeExtension } = await import("./browser-cli-extension.js");
-=======
-  it("installs bundled chrome extension into a state dir", async () => {
-<<<<<<< HEAD
-    const tmp = path.join(process.cwd(), ".tmp-test-openclaw-state", String(Date.now()));
->>>>>>> 0621d0e9e (fix(cli): resolve bundled chrome extension path)
 =======
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-ext-state-"));
 >>>>>>> 1008c28f5 (test(cli): use unique temp dir for extension install)
 
     try {
-<<<<<<< HEAD
       const result = await installChromeExtension({ stateDir: tmp });
 
 <<<<<<< HEAD
@@ -32,23 +20,6 @@ describe("browser extension install", () => {
     expect(fs.existsSync(path.join(result.path, "manifest.json"))).toBe(true);
 <<<<<<< HEAD
     expect(result.path.includes("node_modules")).toBe(false);
-=======
-      const { installChromeExtension } = await import("./browser-cli-extension.js");
-      // Keep this test hermetic + fast: use a tiny fixture instead of copying the
-      // full repo assets tree.
-      const sourceDir = path.join(tmp, "source-ext");
-      writeManifest(sourceDir);
-      fs.writeFileSync(path.join(sourceDir, "test.txt"), "ok");
-      const result = await installChromeExtension({ stateDir: tmp, sourceDir });
-
-      expect(result.path).toBe(path.join(tmp, "browser", "chrome-extension"));
-      expect(fs.existsSync(path.join(result.path, "manifest.json"))).toBe(true);
-      expect(fs.existsSync(path.join(result.path, "test.txt"))).toBe(true);
-      expect(result.path.includes("node_modules")).toBe(false);
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true });
-    }
->>>>>>> 9a01d2bba (perf(test): use tiny fixture for browser extension install test)
   });
 
   it("copies extension path to clipboard", async () => {
@@ -229,14 +200,10 @@ describe("browser extension install (fs-mocked)", () => {
 
   it("copies extension path to clipboard", async () => {
     const tmp = abs("/tmp/openclaw-ext-path");
-<<<<<<< HEAD
     process.env.OPENCLAW_STATE_DIR = tmp;
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 
     try {
-=======
-    await withEnvAsync({ OPENCLAW_STATE_DIR: tmp }, async () => {
->>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
       copyToClipboard.mockResolvedValue(true);
 
       const dir = path.join(tmp, "browser", "chrome-extension");
@@ -252,18 +219,10 @@ describe("browser extension install (fs-mocked)", () => {
 
       await program.parseAsync(["browser", "extension", "path"], { from: "user" });
       expect(copyToClipboard).toHaveBeenCalledWith(dir);
-<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (prev === undefined) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = prev;
-=======
-      if (prev === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = prev;
-      }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
 =======
 >>>>>>> 0621d0e9e (fix(cli): resolve bundled chrome extension path)

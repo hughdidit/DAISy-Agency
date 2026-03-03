@@ -3,15 +3,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import type { CliDeps } from "../cli/deps.js";
 import { agentCommand } from "../commands/agent.js";
-=======
-import { resolveSessionAgentId } from "../agents/agent-scope.js";
-=======
->>>>>>> a1628d89e (refactor: unify outbound session context wiring)
 import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -41,12 +36,9 @@ import { normalizeChannelId } from "../channels/plugins/index.js";
 import type { CliDeps } from "../cli/deps.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveMainSessionKeyFromConfig } from "../config/sessions.js";
-<<<<<<< HEAD
-=======
 import { parseSessionThreadInfo } from "../config/sessions/delivery-info.js";
 import { deliverOutboundPayloads } from "../infra/outbound/deliver.js";
 <<<<<<< HEAD
->>>>>>> 0dc004fd2 (refactor(sessions): share session thread/topic parsing)
 =======
 import { buildOutboundSessionContext } from "../infra/outbound/session-context.js";
 >>>>>>> a1628d89e (refactor: unify outbound session context wiring)
@@ -135,7 +127,6 @@ export async function scheduleRestartSentinelWake(params: { deps: CliDeps }) {
   });
 
   try {
-<<<<<<< HEAD
     await agentCommand(
       {
         message,
@@ -150,19 +141,6 @@ export async function scheduleRestartSentinelWake(params: { deps: CliDeps }) {
       defaultRuntime,
       params.deps,
     );
-=======
-    await deliverOutboundPayloads({
-      cfg,
-      channel,
-      to: resolved.to,
-      accountId: origin?.accountId,
-      replyToId,
-      threadId: resolvedThreadId,
-      payloads: [{ text: message }],
-      session: outboundSession,
-      bestEffort: true,
-    });
->>>>>>> e2e10b3da (fix(slack): map threadId to replyToId for restart sentinel notifications (#24885))
   } catch (err) {
     enqueueSystemEvent(`${summary}\n${String(err)}`, { sessionKey });
   }

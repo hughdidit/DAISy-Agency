@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6,28 +5,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RuntimeEnv } from "../runtime.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
-=======
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import { discordPlugin } from "../../extensions/discord/src/channel.js";
 import { imessagePlugin } from "../../extensions/imessage/src/channel.js";
 import { signalPlugin } from "../../extensions/signal/src/channel.js";
 import { slackPlugin } from "../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
-<<<<<<< HEAD
-=======
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 =======
 =======
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 861718e4d (test: group remaining suite cleanups)
 import { setDefaultChannelPluginRegistryForTests } from "./channel-test-helpers.js";
-<<<<<<< HEAD
 >>>>>>> def3a3ced (refactor(test): reduce auth and channel setup duplication)
-=======
-import { configMocks, offsetMocks } from "./channels.mock-harness.js";
->>>>>>> 71983716f (test: share channels command mock harness)
 import { baseConfigSnapshot, createTestRuntime } from "./test-runtime-config-helpers.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
@@ -50,7 +40,6 @@ import {
   formatGatewayChannelsStatusLines,
 } from "./channels.js";
 
-<<<<<<< HEAD
 const runtime: RuntimeEnv = {
   log: vi.fn(),
   error: vi.fn(),
@@ -67,10 +56,6 @@ const baseSnapshot = {
   issues: [],
   legacyIssues: [],
 };
-=======
-const runtime = createTestRuntime();
-<<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 let clackPrompterModule: typeof import("../wizard/clack-prompter.js");
 >>>>>>> 861718e4d (test: group remaining suite cleanups)

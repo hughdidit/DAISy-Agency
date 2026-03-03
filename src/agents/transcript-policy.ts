@@ -2,13 +2,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { isAntigravityClaude, isGoogleModelApi } from "./pi-embedded-helpers/google.js";
 import { normalizeProviderId } from "./model-selection.js";
-=======
-import { normalizeProviderId } from "./model-selection.js";
-import { isAntigravityClaude, isGoogleModelApi } from "./pi-embedded-helpers/google.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ToolCallIdMode } from "./tool-call-id.js";
 =======
 import type { ToolCallIdMode } from "./tool-call-id.js";
@@ -121,20 +116,11 @@ export function resolveTranscriptPolicy(params: {
   const isOpenRouterGemini =
     (provider === "openrouter" || provider === "opencode" || provider === "kilocode") &&
     modelId.toLowerCase().includes("gemini");
-<<<<<<< HEAD
   const isAntigravityClaudeModel = isAntigravityClaude({
     api: params.modelApi,
     provider,
     modelId,
   });
-=======
-  const isCopilotClaude = provider === "github-copilot" && modelId.toLowerCase().includes("claude");
-
-  // GitHub Copilot's Claude endpoints can reject persisted `thinking` blocks with
-  // non-binary/non-base64 signatures (e.g. thinkingSignature: "reasoning_text").
-  // Drop these blocks at send-time to keep sessions usable.
-  const dropThinkingBlocks = isCopilotClaude;
->>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
 
   const needsNonImageSanitize = isGoogle || isAnthropic || isMistral || isOpenRouterGemini;
 
@@ -144,27 +130,16 @@ export function resolveTranscriptPolicy(params: {
     : sanitizeToolCallIds
       ? "strict"
       : undefined;
-<<<<<<< HEAD
   const repairToolUseResultPairing = isGoogle || isAnthropic;
 <<<<<<< HEAD
   const sanitizeThoughtSignatures = isOpenRouterGemini
     ? { allowBase64Only: true, includeCamelCase: true }
     : undefined;
   const normalizeAntigravityThinkingBlocks = isAntigravityClaudeModel;
-=======
-=======
-  // All providers need orphaned tool_result repair after history truncation.
-  // OpenAI rejects function_call_output items whose call_id has no matching
-  // function_call in the conversation, so the repair must run universally.
-  const repairToolUseResultPairing = true;
->>>>>>> 252079f00 (fix(agents): repair orphaned tool results for OpenAI after history truncation)
   const sanitizeThoughtSignatures =
     isOpenRouterGemini || isGoogle ? { allowBase64Only: true, includeCamelCase: true } : undefined;
-<<<<<<< HEAD
   const sanitizeThinkingSignatures = isAntigravityClaudeModel;
 >>>>>>> 9176571ec (fix(gemini): sanitize thoughtSignatures for native Google provider)
-=======
->>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
 
   return {
     sanitizeMode: isOpenAi ? "images-only" : needsNonImageSanitize ? "full" : "images-only",
@@ -173,12 +148,7 @@ export function resolveTranscriptPolicy(params: {
     repairToolUseResultPairing,
     preserveSignatures: false,
     sanitizeThoughtSignatures: isOpenAi ? undefined : sanitizeThoughtSignatures,
-<<<<<<< HEAD
     normalizeAntigravityThinkingBlocks,
-=======
-    sanitizeThinkingSignatures: false,
-    dropThinkingBlocks,
->>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
     applyGoogleTurnOrdering: !isOpenAi && isGoogle,
     validateGeminiTurns: !isOpenAi && isGoogle,
     validateAnthropicTurns: !isOpenAi && (isAnthropic || isStrictOpenAiCompatible),

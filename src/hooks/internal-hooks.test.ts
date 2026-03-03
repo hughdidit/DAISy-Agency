@@ -190,8 +190,6 @@ describe("hooks", () => {
     }
   });
 
-<<<<<<< HEAD
-=======
   describe("isGatewayStartupEvent", () => {
     const cases: Array<{
       name: string;
@@ -219,7 +217,6 @@ describe("hooks", () => {
     }
   });
 
->>>>>>> 389630fc6 (test: table-drive internal hook type-guard cases)
   describe("isMessageReceivedEvent", () => {
     const cases: Array<{
       name: string;
@@ -249,7 +246,6 @@ describe("hooks", () => {
       },
     ];
 
-<<<<<<< HEAD
     it("returns false for non-message events", () => {
       const event = createInternalHookEvent("command", "new", "test-session");
       expect(isMessageReceivedEvent(event)).toBe(false);
@@ -273,13 +269,6 @@ describe("hooks", () => {
       });
       expect(isMessageReceivedEvent(event)).toBe(false);
     });
-=======
-    for (const testCase of cases) {
-      it(testCase.name, () => {
-        expect(isMessageReceivedEvent(testCase.event)).toBe(testCase.expected);
-      });
-    }
->>>>>>> 389630fc6 (test: table-drive internal hook type-guard cases)
   });
 
   describe("isMessageSentEvent", () => {
@@ -322,7 +311,6 @@ describe("hooks", () => {
       },
     ];
 
-<<<<<<< HEAD
     it("returns true when success is false (error case)", () => {
       const context: MessageSentHookContext = {
         to: "+1234567890",
@@ -349,14 +337,6 @@ describe("hooks", () => {
       const event = createInternalHookEvent("message", "received", "test-session", context);
       expect(isMessageSentEvent(event)).toBe(false);
     });
-=======
-    for (const testCase of cases) {
-      it(testCase.name, () => {
-        expect(isMessageSentEvent(testCase.event)).toBe(testCase.expected);
-      });
-    }
-  });
->>>>>>> 389630fc6 (test: table-drive internal hook type-guard cases)
 
     it("returns false when context is missing required fields", () => {
       const event = createInternalHookEvent("message", "sent", "test-session", {

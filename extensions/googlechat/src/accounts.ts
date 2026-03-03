@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
->>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 =======
 import {
   DEFAULT_ACCOUNT_ID,
@@ -33,59 +27,33 @@ const ENV_SERVICE_ACCOUNT_FILE = "GOOGLE_CHAT_SERVICE_ACCOUNT_FILE";
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = (cfg.channels?.["googlechat"] as GoogleChatConfig | undefined)?.accounts;
   if (!accounts || typeof accounts !== "object") return [];
-=======
-=======
->>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
 function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
   const accounts = cfg.channels?.["googlechat"]?.accounts;
   if (!accounts || typeof accounts !== "object") {
     return [];
   }
-<<<<<<< HEAD
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
   return Object.keys(accounts).filter(Boolean);
 }
 
 export function listGoogleChatAccountIds(cfg: MoltbotConfig): string[] {
-=======
-  return Object.keys(accounts).filter(Boolean);
-}
-
-export function listGoogleChatAccountIds(cfg: OpenClawConfig): string[] {
->>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) {
     return [DEFAULT_ACCOUNT_ID];
   }
   return ids.toSorted((a, b) => a.localeCompare(b));
 }
-<<<<<<< HEAD
-=======
 const { listAccountIds } = createAccountListHelpers("googlechat");
 export const listGoogleChatAccountIds = listAccountIds;
->>>>>>> d24340d75 (channels: migrate extension account listing to factory)
 =======
 >>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
 
-<<<<<<< HEAD
 export function resolveDefaultGoogleChatAccountId(cfg: MoltbotConfig): string {
   const channel = cfg.channels?.["googlechat"] as GoogleChatConfig | undefined;
   if (channel?.defaultAccount?.trim()) return channel.defaultAccount.trim();
-=======
-export function resolveDefaultGoogleChatAccountId(cfg: OpenClawConfig): string {
-  const channel = cfg.channels?.["googlechat"];
-  const preferred = normalizeOptionalAccountId(channel?.defaultAccount);
-  if (
-    preferred &&
-    listGoogleChatAccountIds(cfg).some((accountId) => normalizeAccountId(accountId) === preferred)
-  ) {
-    return preferred;
-  }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
   const ids = listGoogleChatAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;

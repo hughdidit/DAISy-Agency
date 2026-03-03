@@ -9,7 +9,6 @@ import type { OpenClawConfig } from "./types.js";
 
 describe("config env vars", () => {
   it("applies env vars from env block when missing", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
@@ -30,16 +29,10 @@ describe("config env vars", () => {
         loadConfig();
         expect(process.env.OPENROUTER_API_KEY).toBe("config-key");
       });
-=======
-    await withEnvOverride({ OPENROUTER_API_KEY: undefined }, async () => {
-      applyConfigEnvVars({ env: { vars: { OPENROUTER_API_KEY: "config-key" } } } as OpenClawConfig);
-      expect(process.env.OPENROUTER_API_KEY).toBe("config-key");
->>>>>>> 57f40a5da (perf(test): speed up config tests)
     });
   });
 
   it("does not override existing env vars", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
@@ -60,16 +53,10 @@ describe("config env vars", () => {
         loadConfig();
         expect(process.env.OPENROUTER_API_KEY).toBe("existing-key");
       });
-=======
-    await withEnvOverride({ OPENROUTER_API_KEY: "existing-key" }, async () => {
-      applyConfigEnvVars({ env: { vars: { OPENROUTER_API_KEY: "config-key" } } } as OpenClawConfig);
-      expect(process.env.OPENROUTER_API_KEY).toBe("existing-key");
->>>>>>> 57f40a5da (perf(test): speed up config tests)
     });
   });
 
   it("applies env vars from env.vars when missing", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
@@ -90,11 +77,6 @@ describe("config env vars", () => {
         loadConfig();
         expect(process.env.GROQ_API_KEY).toBe("gsk-config");
       });
-=======
-    await withEnvOverride({ GROQ_API_KEY: undefined }, async () => {
-      applyConfigEnvVars({ env: { vars: { GROQ_API_KEY: "gsk-config" } } } as OpenClawConfig);
-      expect(process.env.GROQ_API_KEY).toBe("gsk-config");
->>>>>>> 57f40a5da (perf(test): speed up config tests)
     });
   });
 

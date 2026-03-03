@@ -1,23 +1,12 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-<<<<<<< HEAD
 
 import type { AssistantIdentity } from "../assistant-identity";
 import { toSanitizedMarkdownHtml } from "../markdown";
 import type { MessageGroup } from "../types/chat-types";
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown";
 import { isToolResultMessage, normalizeRoleForGrouping } from "./message-normalizer";
-=======
-import type { AssistantIdentity } from "../assistant-identity.ts";
-import { toSanitizedMarkdownHtml } from "../markdown.ts";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { openExternalUrlSafe } from "../open-external-url.ts";
->>>>>>> e5836283a (ui: centralize safe external URL opening)
 import { detectTextDirection } from "../text-direction.ts";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -25,8 +14,6 @@ import { detectTextDirection } from "../text-direction.ts";
 <<<<<<< HEAD
 import type { MessageGroup } from "../types/chat-types.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { MessageGroup } from "../types/chat-types.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -43,25 +30,15 @@ import type { MessageGroup } from "../types/chat-types.ts";
 >>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
-import { resolveSafeImageOpenUrl } from "./image-open.ts";
->>>>>>> ebb568089 (ui(chat): allowlist image open URLs)
 =======
 >>>>>>> e5836283a (ui: centralize safe external URL opening)
 import {
   extractTextCached,
   extractThinkingCached,
   formatReasoningMarkdown,
-<<<<<<< HEAD
 } from "./message-extract";
 import { extractToolCards, renderToolCardSidebar } from "./tool-cards";
-=======
-} from "./message-extract.ts";
-import { isToolResultMessage, normalizeRoleForGrouping } from "./message-normalizer.ts";
-import { extractToolCards, renderToolCardSidebar } from "./tool-cards.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 type ImageBlock = {
   url: string;
@@ -327,23 +304,9 @@ function renderGroupedMessage(
       }
       ${
 <<<<<<< HEAD
-<<<<<<< HEAD
         markdown
           ? html`<div class="chat-text">${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`
           : nothing
-=======
-        jsonResult
-          ? html`<details class="chat-json-collapse">
-              <summary class="chat-json-summary">
-                <span class="chat-json-badge">JSON</span>
-                <span class="chat-json-label">${jsonSummaryLabel(jsonResult.parsed)}</span>
-              </summary>
-              <pre class="chat-json-content"><code>${jsonResult.pretty}</code></pre>
-            </details>`
-          : markdown
-            ? html`<div class="chat-text" dir="${detectTextDirection(markdown)}">${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`
-            : nothing
->>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
 =======
         markdown
           ? html`<div class="chat-text" dir="${detectTextDirection(markdown)}">${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`

@@ -4,12 +4,7 @@ read_when:
   - You want to use GitHub Copilot as a model provider
   - You need the `moltbot models auth login-github-copilot` flow
 ---
-<<<<<<< HEAD
 # Github Copilot
-=======
-
-# GitHub Copilot
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## What is GitHub Copilot?
 

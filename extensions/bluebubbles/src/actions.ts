@@ -9,24 +9,17 @@ import {
   readStringParam,
   type ChannelMessageActionAdapter,
   type ChannelMessageActionName,
-<<<<<<< HEAD
   type ChannelToolSend,
 <<<<<<< HEAD
   type MoltbotConfig,
 } from "clawdbot/plugin-sdk";
-=======
-=======
->>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 } from "openclaw/plugin-sdk";
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { BlueBubblesSendTarget } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -101,17 +94,9 @@ const SUPPORTED_ACTIONS = new Set<ChannelMessageActionName>(BLUEBUBBLES_ACTION_N
 
 export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
   listActions: ({ cfg }) => {
-<<<<<<< HEAD
     const account = resolveBlueBubblesAccount({ cfg: cfg as MoltbotConfig });
     if (!account.enabled || !account.configured) return [];
     const gate = createActionGate((cfg as MoltbotConfig).channels?.bluebubbles?.actions);
-=======
-    const account = resolveBlueBubblesAccount({ cfg: cfg });
-    if (!account.enabled || !account.configured) {
-      return [];
-    }
-    const gate = createActionGate(cfg.channels?.bluebubbles?.actions);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
     const actions = new Set<ChannelMessageActionName>();
     const macOS26 = isMacOS26OrHigher(account.accountId);
     for (const action of BLUEBUBBLES_ACTION_NAMES) {
@@ -132,20 +117,12 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
   extractToolSend: ({ args }) => extractToolSend(args, "sendMessage"),
   handleAction: async ({ action, params, cfg, accountId, toolContext }) => {
     const account = resolveBlueBubblesAccount({
-<<<<<<< HEAD
       cfg: cfg as MoltbotConfig,
-=======
-      cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       accountId: accountId ?? undefined,
     });
     const baseUrl = account.config.serverUrl?.trim();
     const password = account.config.password?.trim();
-<<<<<<< HEAD
     const opts = { cfg: cfg as MoltbotConfig, accountId: accountId ?? undefined };
-=======
-    const opts = { cfg: cfg, accountId: accountId ?? undefined };
->>>>>>> 230ca789e (chore: Lint extensions folder.)
 
     // Helper to resolve chatGuid from various params or session context
     const resolveChatGuid = async (): Promise<string> => {

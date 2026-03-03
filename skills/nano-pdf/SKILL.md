@@ -2,28 +2,7 @@
 name: nano-pdf
 description: Edit PDFs with natural-language instructions using the nano-pdf CLI.
 homepage: https://pypi.org/project/nano-pdf/
-<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"📄","requires":{"bins":["nano-pdf"]},"install":[{"id":"uv","kind":"uv","package":"nano-pdf","bins":["nano-pdf"],"label":"Install nano-pdf (uv)"}]}}
-=======
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "📄",
-        "requires": { "bins": ["nano-pdf"] },
-        "install":
-          [
-            {
-              "id": "uv",
-              "kind": "uv",
-              "package": "nano-pdf",
-              "bins": ["nano-pdf"],
-              "label": "Install nano-pdf (uv)",
-            },
-          ],
-      },
-  }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 ---
 
 # nano-pdf

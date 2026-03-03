@@ -1,25 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-<<<<<<< HEAD
 import JSON5 from "json5";
-=======
-// Sync collectors
-export {
-  collectAttackSurfaceSummaryFindings,
-  collectExposureMatrixFindings,
-  collectGatewayHttpSessionKeyOverrideFindings,
-  collectHooksHardeningFindings,
-  collectMinimalProfileOverrideFindings,
-  collectModelHygieneFindings,
-  collectNodeDenyCommandPatternFindings,
-  collectSandboxDockerNoopFindings,
-  collectSecretsInConfigFindings,
-  collectSmallModelRiskFindings,
-  collectSyncedFolderFindings,
-  type SecurityAuditFinding,
-} from "./audit-extra.sync.js";
->>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
 
 import type { MoltbotConfig, ConfigFileSnapshot } from "../config/config.js";
 import { createConfigIO } from "../config/config.js";
@@ -1082,8 +1064,6 @@ export async function readConfigSnapshotForAudit(params: {
     configPath: params.configPath,
   }).readConfigFileSnapshot();
 }
-<<<<<<< HEAD
-=======
 
 function isPathInside(basePath: string, candidatePath: string): boolean {
   const base = path.resolve(basePath);
@@ -1320,4 +1300,3 @@ export async function collectInstalledSkillsCodeSafetyFindings(params: {
 
   return findings;
 }
->>>>>>> bccdc95a9 (Cap sessions_history payloads to prevent context overflow (#10000))

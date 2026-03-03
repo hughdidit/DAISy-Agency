@@ -4,10 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
@@ -17,10 +14,7 @@ import type {
   GatewaySessionsDefaults,
   SessionsListResult,
 } from "./session-utils.types.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -28,28 +22,15 @@ import type {
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { lookupContextTokens } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
-<<<<<<< HEAD
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { type MoltbotConfig, loadConfig } from "../config/config.js";
-=======
-import {
-  inferUniqueProviderFromConfiguredModels,
-  parseModelRef,
-  resolveConfiguredModelRef,
-  resolveDefaultModelForAgent,
-} from "../agents/model-selection.js";
-import { type OpenClawConfig, loadConfig } from "../config/config.js";
->>>>>>> 5c69e625f (fix(cli): display correct model for sub-agents in sessions list (#18660))
 import { resolveStateDir } from "../config/paths.js";
 import {
   buildGroupDisplayName,
   canonicalizeMainSessionAlias,
   loadSessionStore,
-<<<<<<< HEAD
-=======
   resolveAgentMainSessionKey,
   resolveFreshSessionTotalTokens,
->>>>>>> 4225206f0 (fix(gateway): normalize session key casing to prevent ghost sessions (#12846))
   resolveMainSessionKey,
   resolveStorePath,
   type SessionEntry,
@@ -64,7 +45,6 @@ import {
 import { normalizeSessionDeliveryFields } from "../utils/delivery-context.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   readFirstUserMessageFromTranscript,
   readLastMessagePreviewFromTranscript,
@@ -75,12 +55,6 @@ import type {
   GatewaySessionsDefaults,
   SessionsListResult,
 } from "./session-utils.types.js";
-=======
-import { readSessionTitleFieldsFromTranscript } from "./session-utils.fs.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 586176730 (perf(gateway): optimize sessions/ws/routing)
 =======
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -93,11 +67,7 @@ import type {
   SessionsListResult,
 } from "./session-utils.types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import { readSessionTitleFieldsFromTranscript } from "./session-utils.fs.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -127,7 +97,6 @@ export type {
 } from "./session-utils.types.js";
 
 const DERIVED_TITLE_MAX_LEN = 60;
-<<<<<<< HEAD
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
 const AVATAR_DATA_RE = /^data:/i;
@@ -163,20 +132,6 @@ function isWorkspaceRelativePath(value: string): boolean {
     return false;
   }
   return true;
-=======
-
-function tryResolveExistingPath(value: string): string | null {
-  try {
-    return fs.realpathSync(value);
-  } catch {
-    return null;
-  }
-}
-
-<<<<<<< HEAD
-function areSameFileIdentity(preOpen: fs.Stats, opened: fs.Stats): boolean {
-  return preOpen.dev === opened.dev && preOpen.ino === opened.ino;
->>>>>>> 3d0337504 (fix(gateway): block avatar symlink escapes)
 }
 
 =======
@@ -200,16 +155,10 @@ function resolveIdentityAvatarUrl(
     return undefined;
   }
   const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId);
-<<<<<<< HEAD
   const workspaceRoot = path.resolve(workspaceDir);
   const resolved = path.resolve(workspaceRoot, trimmed);
   const relative = path.relative(workspaceRoot, resolved);
   if (relative.startsWith("..") || path.isAbsolute(relative)) {
-=======
-  const workspaceRoot = tryResolveExistingPath(workspaceDir) ?? path.resolve(workspaceDir);
-  const resolvedCandidate = path.resolve(workspaceRoot, trimmed);
-  if (!isPathWithinRoot(workspaceRoot, resolvedCandidate)) {
->>>>>>> 3d0337504 (fix(gateway): block avatar symlink escapes)
     return undefined;
   }
   try {
@@ -596,16 +545,7 @@ export function canonicalizeSpawnedByForAgent(
   return canonicalizeMainSessionAlias({ cfg, agentId: resolvedAgent, sessionKey: result });
 }
 
-<<<<<<< HEAD
 export function resolveGatewaySessionStoreTarget(params: { cfg: MoltbotConfig; key: string }): {
-=======
-export function resolveGatewaySessionStoreTarget(params: {
-  cfg: OpenClawConfig;
-  key: string;
-  scanLegacyKeys?: boolean;
-  store?: Record<string, SessionEntry>;
-}): {
->>>>>>> 4225206f0 (fix(gateway): normalize session key casing to prevent ghost sessions (#12846))
   agentId: string;
   storePath: string;
   canonicalKey: string;
@@ -748,7 +688,6 @@ export function getSessionDefaults(cfg: MoltbotConfig): GatewaySessionsDefaults 
 }
 
 export function resolveSessionModelRef(
-<<<<<<< HEAD
   cfg: MoltbotConfig,
   entry?: SessionEntry,
 ): { provider: string; model: string } {
@@ -757,24 +696,6 @@ export function resolveSessionModelRef(
     defaultProvider: DEFAULT_PROVIDER,
     defaultModel: DEFAULT_MODEL,
   });
-=======
-  cfg: OpenClawConfig,
-  entry?:
-    | SessionEntry
-    | Pick<SessionEntry, "model" | "modelProvider" | "modelOverride" | "providerOverride">,
-  agentId?: string,
-): { provider: string; model: string } {
-  const resolved = agentId
-    ? resolveDefaultModelForAgent({ cfg, agentId })
-    : resolveConfiguredModelRef({
-        cfg,
-        defaultProvider: DEFAULT_PROVIDER,
-        defaultModel: DEFAULT_MODEL,
-      });
-
-  // Prefer the last runtime model recorded on the session entry.
-  // This is the actual model used by the latest run and must win over defaults.
->>>>>>> 5c69e625f (fix(cli): display correct model for sub-agents in sessions list (#18660))
   let provider = resolved.provider;
   let model = resolved.model;
   const runtimeModel = entry?.model?.trim();
@@ -929,14 +850,11 @@ export function listSessionsFromStore(params: {
         entry?.label ??
         originLabel;
       const deliveryFields = normalizeSessionDeliveryFields(entry);
-<<<<<<< HEAD
-=======
       const parsedAgent = parseAgentSessionKey(key);
       const sessionAgentId = normalizeAgentId(parsedAgent?.agentId ?? resolveDefaultAgentId(cfg));
       const resolvedModel = resolveSessionModelIdentityRef(cfg, entry, sessionAgentId);
       const modelProvider = resolvedModel.provider;
       const model = resolvedModel.model ?? DEFAULT_MODEL;
->>>>>>> 177386ed7 (fix(tui): resolve wrong provider prefix when session has model without modelProvider (#25874))
       return {
         key,
         entry,

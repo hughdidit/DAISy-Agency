@@ -44,24 +44,12 @@ if [[ -z "$CMD_PATH" && -x "$HOME/.npm-global/bin/$PACKAGE_NAME" ]]; then
   CLI_NAME="$PACKAGE_NAME"
   CMD_PATH="$HOME/.npm-global/bin/$PACKAGE_NAME"
 fi
-<<<<<<< HEAD
 if [[ -z "$CMD_PATH" && -x "$HOME/.npm-global/bin/$ALT_PACKAGE_NAME" ]]; then
   CLI_NAME="$ALT_PACKAGE_NAME"
   CMD_PATH="$HOME/.npm-global/bin/$ALT_PACKAGE_NAME"
 fi
 if [[ -z "$CMD_PATH" ]]; then
   echo "Neither $PACKAGE_NAME nor $ALT_PACKAGE_NAME is on PATH" >&2
-=======
-ENTRY_PATH=""
-if [[ -z "$CMD_PATH" ]]; then
-  NPM_ROOT="$(npm root -g 2>/dev/null || true)"
-  if [[ -n "$NPM_ROOT" && -f "$NPM_ROOT/$PACKAGE_NAME/dist/entry.js" ]]; then
-    ENTRY_PATH="$NPM_ROOT/$PACKAGE_NAME/dist/entry.js"
-  fi
-fi
-if [[ -z "$CMD_PATH" && -z "$ENTRY_PATH" ]]; then
-  echo "$PACKAGE_NAME is not on PATH" >&2
->>>>>>> 48ddb1cc8 (fix(ci): stabilize install smoke in docker)
   exit 1
 fi
 if [[ -z "$EXPECTED_VERSION" && "$CLI_NAME" != "$PACKAGE_NAME" ]]; then

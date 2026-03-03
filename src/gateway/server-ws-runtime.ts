@@ -3,16 +3,9 @@ import type { createSubsystemLogger } from "../logging/subsystem.js";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 import type { ResolvedGatewayAuth } from "./auth.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { attachGatewayWsConnectionHandler } from "./server/ws-connection.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "./server-methods/types.js";
-=======
-import type { GatewayRequestContext, GatewayRequestHandlers } from "./server-methods/types.js";
-<<<<<<< HEAD
-import type { GatewayWsClient } from "./server/ws-types.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { attachGatewayWsConnectionHandler } from "./server/ws-connection.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -23,11 +16,7 @@ import type { GatewayWsClient } from "./server/ws-types.js";
 =======
 import type { GatewayRequestContext, GatewayRequestHandlers } from "./server-methods/types.js";
 import { attachGatewayWsConnectionHandler } from "./server/ws-connection.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { GatewayWsClient } from "./server/ws-types.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export function attachGatewayWsHandlers(params: {
   wss: WebSocketServer;

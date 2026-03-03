@@ -85,15 +85,12 @@ export class FeishuStreamingSession {
   async start(
     receiveId: string,
     receiveIdType: "open_id" | "user_id" | "union_id" | "email" | "chat_id" = "chat_id",
-<<<<<<< HEAD
-=======
     options?: {
       replyToMessageId?: string;
       replyInThread?: boolean;
       rootId?: string;
       header?: StreamingCardHeader;
     },
->>>>>>> 8a2273e21 (feat(feishu): support optional header in streaming cards (openclaw#22826))
   ): Promise<void> {
     if (this.state) {
       return;

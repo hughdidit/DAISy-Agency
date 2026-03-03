@@ -11,15 +11,8 @@ import type { NodeSession } from "../node-registry.js";
 import { ErrorCodes, errorShape } from "../protocol/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { safeParseJson } from "./nodes.helpers.js";
 import type { GatewayRequestHandlers } from "./types.js";
-=======
-import { respondUnavailableOnNodeInvokeError, safeParseJson } from "./nodes.helpers.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 73a97ee25 (refactor(gateway): share node invoke error handling)
 =======
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

@@ -1,8 +1,6 @@
 import { lookup as dnsLookup } from "node:dns/promises";
 import { lookup as dnsLookupCb, type LookupAddress } from "node:dns";
 import { Agent, type Dispatcher } from "undici";
-<<<<<<< HEAD
-=======
 import {
   extractEmbeddedIpv4FromIpv6,
   isBlockedSpecialUseIpv4Address,
@@ -14,7 +12,6 @@ import {
   parseCanonicalIpAddress,
   parseLooseIpAddress,
 } from "../../shared/net/ip.js";
->>>>>>> 61b3246a7 (fix(ssrf): unify ipv6 special-use blocking)
 import { normalizeHostname } from "./hostname.js";
 
 type LookupCallback = (
@@ -35,51 +32,12 @@ type LookupFn = typeof dnsLookup;
 const PRIVATE_IPV6_PREFIXES = ["fe80:", "fec0:", "fc", "fd"];
 const BLOCKED_HOSTNAMES = new Set(["localhost", "metadata.google.internal"]);
 
-<<<<<<< HEAD
 function normalizeHostname(hostname: string): string {
   const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
   if (normalized.startsWith("[") && normalized.endsWith("]")) {
     return normalized.slice(1, -1);
   }
   return normalized;
-=======
-function normalizeHostnameSet(values?: string[]): Set<string> {
-  if (!values || values.length === 0) {
-    return new Set<string>();
-  }
-  return new Set(values.map((value) => normalizeHostname(value)).filter(Boolean));
-}
-
-function normalizeHostnameAllowlist(values?: string[]): string[] {
-  if (!values || values.length === 0) {
-    return [];
-  }
-  return Array.from(
-    new Set(
-      values
-        .map((value) => normalizeHostname(value))
-        .filter((value) => value !== "*" && value !== "*." && value.length > 0),
-    ),
-  );
-}
-
-function isHostnameAllowedByPattern(hostname: string, pattern: string): boolean {
-  if (pattern.startsWith("*.")) {
-    const suffix = pattern.slice(2);
-    if (!suffix || hostname === suffix) {
-      return false;
-    }
-    return hostname.endsWith(`.${suffix}`);
-  }
-  return hostname === pattern;
-}
-
-function matchesHostnameAllowlist(hostname: string, allowlist: string[]): boolean {
-  if (allowlist.length === 0) {
-    return true;
-  }
-  return allowlist.some((pattern) => isHostnameAllowedByPattern(hostname, pattern));
->>>>>>> 4aaafe532 (refactor(net): share hostname normalization)
 }
 
 function parseIpv4(address: string): number[] | null {
@@ -109,7 +67,6 @@ function parseIpv4FromMappedIpv6(mapped: string): number[] | null {
   if (parts.length !== 2) {
     return null;
   }
-<<<<<<< HEAD
   const high = Number.parseInt(parts[0], 16);
   const low = Number.parseInt(parts[1], 16);
   if (
@@ -124,108 +81,6 @@ function parseIpv4FromMappedIpv6(mapped: string): number[] | null {
   }
   const value = (high << 16) + low;
   return [(value >>> 24) & 0xff, (value >>> 16) & 0xff, (value >>> 8) & 0xff, value & 0xff];
-=======
-
-  const headParts =
-    doubleColonParts[0]?.length > 0 ? doubleColonParts[0].split(":").filter(Boolean) : [];
-  const tailParts =
-    doubleColonParts.length === 2 && doubleColonParts[1]?.length > 0
-      ? doubleColonParts[1].split(":").filter(Boolean)
-      : [];
-
-  const missingParts = 8 - headParts.length - tailParts.length;
-  if (missingParts < 0) {
-    return null;
-  }
-
-  const fullParts =
-    doubleColonParts.length === 1
-      ? input.split(":")
-      : [...headParts, ...Array.from({ length: missingParts }, () => "0"), ...tailParts];
-
-  if (fullParts.length !== 8) {
-    return null;
-  }
-
-  const hextets: number[] = [];
-  for (const part of fullParts) {
-    if (!part) {
-      return null;
-    }
-    const value = Number.parseInt(part, 16);
-    if (Number.isNaN(value) || value < 0 || value > 0xffff) {
-      return null;
-    }
-    hextets.push(value);
-  }
-  return hextets;
-}
-
-function decodeIpv4FromHextets(high: number, low: number): number[] {
-  return [(high >>> 8) & 0xff, high & 0xff, (low >>> 8) & 0xff, low & 0xff];
-}
-
-type EmbeddedIpv4Rule = {
-  matches: (hextets: number[]) => boolean;
-  extract: (hextets: number[]) => [high: number, low: number];
-};
-
-const EMBEDDED_IPV4_RULES: EmbeddedIpv4Rule[] = [
-  {
-    // IPv4-mapped: ::ffff:a.b.c.d and IPv4-compatible ::a.b.c.d.
-    matches: (hextets) =>
-      hextets[0] === 0 &&
-      hextets[1] === 0 &&
-      hextets[2] === 0 &&
-      hextets[3] === 0 &&
-      hextets[4] === 0 &&
-      (hextets[5] === 0xffff || hextets[5] === 0),
-    extract: (hextets) => [hextets[6], hextets[7]],
-  },
-  {
-    // NAT64 well-known prefix: 64:ff9b::/96.
-    matches: (hextets) =>
-      hextets[0] === 0x0064 &&
-      hextets[1] === 0xff9b &&
-      hextets[2] === 0 &&
-      hextets[3] === 0 &&
-      hextets[4] === 0 &&
-      hextets[5] === 0,
-    extract: (hextets) => [hextets[6], hextets[7]],
-  },
-  {
-    // NAT64 local-use prefix: 64:ff9b:1::/48.
-    matches: (hextets) =>
-      hextets[0] === 0x0064 &&
-      hextets[1] === 0xff9b &&
-      hextets[2] === 0x0001 &&
-      hextets[3] === 0 &&
-      hextets[4] === 0 &&
-      hextets[5] === 0,
-    extract: (hextets) => [hextets[6], hextets[7]],
-  },
-  {
-    // 6to4 prefix: 2002::/16 where hextets[1..2] carry IPv4.
-    matches: (hextets) => hextets[0] === 0x2002,
-    extract: (hextets) => [hextets[1], hextets[2]],
-  },
-  {
-    // Teredo prefix: 2001:0000::/32 with client IPv4 obfuscated via XOR 0xffff.
-    matches: (hextets) => hextets[0] === 0x2001 && hextets[1] === 0x0000,
-    extract: (hextets) => [hextets[6] ^ 0xffff, hextets[7] ^ 0xffff],
-  },
-];
-
-function extractIpv4FromEmbeddedIpv6(hextets: number[]): number[] | null {
-  for (const rule of EMBEDDED_IPV4_RULES) {
-    if (!rule.matches(hextets)) {
-      continue;
-    }
-    const [high, low] = rule.extract(hextets);
-    return decodeIpv4FromHextets(high, low);
-  }
-  return null;
->>>>>>> e8154c12e (refactor(net): table-drive embedded IPv6 decoding and SSRF tests)
 }
 
 type Ipv4Cidr = {
@@ -298,73 +153,18 @@ export function isPrivateIpAddress(address: string): boolean {
     if (ipv4) {
       return isPrivateIpv4(ipv4);
     }
-<<<<<<< HEAD
   }
 
   if (normalized.includes(":")) {
     if (normalized === "::" || normalized === "::1") {
-=======
-    if (isBlockedSpecialUseIpv6Address(strictIp)) {
->>>>>>> 61b3246a7 (fix(ssrf): unify ipv6 special-use blocking)
       return true;
     }
-<<<<<<< HEAD
     return PRIVATE_IPV6_PREFIXES.some((prefix) => normalized.startsWith(prefix));
   }
 
   const ipv4 = parseIpv4(normalized);
   if (!ipv4) {
     return false;
-=======
-
-    const isUnspecified =
-      hextets[0] === 0 &&
-      hextets[1] === 0 &&
-      hextets[2] === 0 &&
-      hextets[3] === 0 &&
-      hextets[4] === 0 &&
-      hextets[5] === 0 &&
-      hextets[6] === 0 &&
-      hextets[7] === 0;
-    const isLoopback =
-      hextets[0] === 0 &&
-      hextets[1] === 0 &&
-      hextets[2] === 0 &&
-      hextets[3] === 0 &&
-      hextets[4] === 0 &&
-      hextets[5] === 0 &&
-      hextets[6] === 0 &&
-      hextets[7] === 1;
-    if (isUnspecified || isLoopback) {
-      return true;
-    }
-
-    const embeddedIpv4 = extractIpv4FromEmbeddedIpv6(hextets);
-    if (embeddedIpv4) {
-      return isBlockedIpv4SpecialUse(embeddedIpv4);
-    }
-
-    // IPv6 private/internal ranges
-    // - link-local: fe80::/10
-    // - site-local (deprecated, but internal): fec0::/10
-    // - unique local: fc00::/7
-    const first = hextets[0];
-    if ((first & 0xffc0) === 0xfe80) {
-      return true;
-    }
-    if ((first & 0xffc0) === 0xfec0) {
-      return true;
-    }
-    if ((first & 0xfe00) === 0xfc00) {
-      return true;
-    }
-    return false;
-  }
-
-  const ipv4 = parseIpv4(normalized);
-  if (ipv4) {
-    return isBlockedIpv4SpecialUse(ipv4);
->>>>>>> 71bd15bb4 (fix(ssrf): block special-use ipv4 ranges)
   }
   return isPrivateIpv4(ipv4);
 }
@@ -384,8 +184,6 @@ export function isBlockedHostname(hostname: string): boolean {
   );
 }
 
-<<<<<<< HEAD
-=======
 export function isBlockedHostnameOrIp(hostname: string): boolean {
   const normalized = normalizeHostname(hostname);
   if (!normalized) {
@@ -412,7 +210,6 @@ function assertAllowedResolvedAddressesOrThrow(results: readonly LookupAddress[]
   }
 }
 
->>>>>>> 44dfbd23d (fix(ssrf): centralize host/ip block checks)
 export function createPinnedLookup(params: {
   hostname: string;
   addresses: string[];
@@ -476,29 +273,7 @@ export type PinnedHostname = {
   lookup: typeof dnsLookupCb;
 };
 
-<<<<<<< HEAD
 export async function resolvePinnedHostname(
-=======
-function dedupeAndPreferIpv4(results: readonly LookupAddress[]): string[] {
-  const seen = new Set<string>();
-  const ipv4: string[] = [];
-  const otherFamilies: string[] = [];
-  for (const entry of results) {
-    if (seen.has(entry.address)) {
-      continue;
-    }
-    seen.add(entry.address);
-    if (entry.family === 4) {
-      ipv4.push(entry.address);
-      continue;
-    }
-    otherFamilies.push(entry.address);
-  }
-  return [...ipv4, ...otherFamilies];
-}
-
-export async function resolvePinnedHostnameWithPolicy(
->>>>>>> d18ae2256 (refactor: unify channel plugin resolution, family ordering, and changelog entry tooling)
   hostname: string,
   lookupFn: LookupFn = dnsLookup,
 ): Promise<PinnedHostname> {
@@ -507,7 +282,6 @@ export async function resolvePinnedHostnameWithPolicy(
     throw new Error("Invalid hostname");
   }
 
-<<<<<<< HEAD
   if (isBlockedHostname(normalized)) {
     throw new SsrFBlockedError(`Blocked hostname: ${hostname}`);
   }
@@ -515,10 +289,6 @@ export async function resolvePinnedHostnameWithPolicy(
 <<<<<<< HEAD
   if (isPrivateIpAddress(normalized)) {
     throw new SsrFBlockedError("Blocked: private/internal IP address");
-=======
-  if (!allowPrivateNetwork && !isExplicitAllowed && isBlockedHostnameOrIp(normalized)) {
-    throw new SsrFBlockedError("Blocked hostname or private/internal/special-use IP address");
->>>>>>> 71bd15bb4 (fix(ssrf): block special-use ipv4 ranges)
 =======
   const allowPrivateNetwork = Boolean(params.policy?.allowPrivateNetwork);
   const allowedHostnames = normalizeHostnameSet(params.policy?.allowedHostnames);
@@ -542,17 +312,9 @@ export async function resolvePinnedHostnameWithPolicy(
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   for (const entry of results) {
     if (isPrivateIpAddress(entry.address)) {
       throw new SsrFBlockedError("Blocked: resolves to private/internal IP address");
-=======
-  if (!allowPrivateNetwork && !isExplicitAllowed) {
-    for (const entry of results) {
-      if (isPrivateIpAddress(entry.address)) {
-        throw new SsrFBlockedError("Blocked: resolves to private/internal/special-use IP address");
-      }
->>>>>>> 71bd15bb4 (fix(ssrf): block special-use ipv4 ranges)
     }
 =======
   if (!skipPrivateNetworkChecks) {
@@ -561,13 +323,7 @@ export async function resolvePinnedHostnameWithPolicy(
 >>>>>>> 44dfbd23d (fix(ssrf): centralize host/ip block checks)
   }
 
-<<<<<<< HEAD
   const addresses = Array.from(new Set(results.map((entry) => entry.address)));
-=======
-  // Prefer addresses returned as IPv4 by DNS family metadata before other
-  // families so Happy Eyeballs and pinned round-robin both attempt IPv4 first.
-  const addresses = dedupeAndPreferIpv4(results);
->>>>>>> d18ae2256 (refactor: unify channel plugin resolution, family ordering, and changelog entry tooling)
   if (addresses.length === 0) {
     throw new Error(`Unable to resolve hostname: ${hostname}`);
   }

@@ -163,13 +163,9 @@ describe("gateway server agent", () => {
   test("agent marks implicit delivery when lastTo is stale", async () => {
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+436769770569"];
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
-=======
-    await setTestSessionStore({
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       entries: {
         main: {
           sessionId: "sess-main-stale",
@@ -198,13 +194,9 @@ describe("gateway server agent", () => {
 
   test("agent forwards sessionKey to agentCommand", async () => {
     setRegistry(defaultRegistry);
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
-=======
-    await setTestSessionStore({
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       entries: {
         "agent:main:subagent:abc": {
           sessionId: "sess-sub",
@@ -258,14 +250,10 @@ describe("gateway server agent", () => {
 
   test("agent derives sessionKey from agentId", async () => {
     setRegistry(defaultRegistry);
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     testState.agentsConfig = { list: [{ id: "ops" }] };
     await writeSessionStore({
-=======
-    await setTestSessionStore({
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       agentId: "ops",
       entries: {
         main: {
@@ -332,7 +320,6 @@ describe("gateway server agent", () => {
   });
 
   test("agent forwards accountId to agentCommand", async () => {
-<<<<<<< HEAD
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -346,18 +333,6 @@ describe("gateway server agent", () => {
           lastTo: "+1555",
           lastAccountId: "default",
         },
-=======
-    const call = await runMainAgentDeliveryWithSession({
-      entry: {
-        sessionId: "sess-main-account",
-        lastChannel: "whatsapp",
-        lastTo: "+1555",
-        lastAccountId: "default",
-      },
-      request: {
-        accountId: "kev",
-        idempotencyKey: "idem-agent-account",
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       },
     });
 
@@ -369,7 +344,6 @@ describe("gateway server agent", () => {
   });
 
   test("agent avoids lastAccountId when explicit to is provided", async () => {
-<<<<<<< HEAD
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -383,18 +357,6 @@ describe("gateway server agent", () => {
           lastTo: "+1555",
           lastAccountId: "legacy",
         },
-=======
-    const call = await runMainAgentDeliveryWithSession({
-      entry: {
-        sessionId: "sess-main-explicit",
-        lastChannel: "whatsapp",
-        lastTo: "+1555",
-        lastAccountId: "legacy",
-      },
-      request: {
-        to: "+1666",
-        idempotencyKey: "idem-agent-explicit",
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       },
     });
 
@@ -404,7 +366,6 @@ describe("gateway server agent", () => {
   });
 
   test("agent keeps explicit accountId when explicit to is provided", async () => {
-<<<<<<< HEAD
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -418,19 +379,6 @@ describe("gateway server agent", () => {
           lastTo: "+1555",
           lastAccountId: "legacy",
         },
-=======
-    const call = await runMainAgentDeliveryWithSession({
-      entry: {
-        sessionId: "sess-main-explicit-account",
-        lastChannel: "whatsapp",
-        lastTo: "+1555",
-        lastAccountId: "legacy",
-      },
-      request: {
-        to: "+1666",
-        accountId: "primary",
-        idempotencyKey: "idem-agent-explicit-account",
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       },
     });
 
@@ -440,7 +388,6 @@ describe("gateway server agent", () => {
   });
 
   test("agent falls back to lastAccountId for implicit delivery", async () => {
-<<<<<<< HEAD
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -454,17 +401,6 @@ describe("gateway server agent", () => {
           lastTo: "+1555",
           lastAccountId: "kev",
         },
-=======
-    const call = await runMainAgentDeliveryWithSession({
-      entry: {
-        sessionId: "sess-main-implicit",
-        lastChannel: "whatsapp",
-        lastTo: "+1555",
-        lastAccountId: "kev",
-      },
-      request: {
-        idempotencyKey: "idem-agent-implicit-account",
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       },
     });
 
@@ -475,13 +411,9 @@ describe("gateway server agent", () => {
 
   test("agent forwards image attachments as images[]", async () => {
     setRegistry(defaultRegistry);
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
-=======
-    await setTestSessionStore({
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       entries: {
         main: {
           sessionId: "sess-main-images",
@@ -518,7 +450,6 @@ describe("gateway server agent", () => {
   });
 
   test("agent falls back to whatsapp when delivery requested and no last channel exists", async () => {
-<<<<<<< HEAD
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -529,14 +460,6 @@ describe("gateway server agent", () => {
           sessionId: "sess-main-missing-provider",
           updatedAt: Date.now(),
         },
-=======
-    const call = await runMainAgentDeliveryWithSession({
-      entry: {
-        sessionId: "sess-main-missing-provider",
-      },
-      request: {
-        idempotencyKey: "idem-agent-missing-provider",
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       },
     });
     expectChannels(call, "whatsapp");
@@ -545,7 +468,6 @@ describe("gateway server agent", () => {
     expect(call.sessionId).toBe("sess-main-missing-provider");
   });
 
-<<<<<<< HEAD
   test("agent routes main last-channel whatsapp", async () => {
     setRegistry(defaultRegistry);
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -662,35 +584,6 @@ describe("gateway server agent", () => {
       sessionKey: "main",
       channel: "last",
       deliver: true,
-=======
-  test.each([
-    {
-      name: "whatsapp",
-      sessionId: "sess-main-whatsapp",
-      lastChannel: "whatsapp",
-      lastTo: "+1555",
-      idempotencyKey: "idem-agent-last-whatsapp",
-    },
-    {
-      name: "telegram",
-      sessionId: "sess-main",
-      lastChannel: "telegram",
-      lastTo: "123",
-      idempotencyKey: "idem-agent-last",
-    },
-    {
-      name: "discord",
-      sessionId: "sess-discord",
-      lastChannel: "discord",
-      lastTo: "channel:discord-123",
-      idempotencyKey: "idem-agent-last-discord",
-    },
-    {
-      name: "slack",
-      sessionId: "sess-slack",
-      lastChannel: "slack",
-      lastTo: "channel:slack-123",
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       idempotencyKey: "idem-agent-last-slack",
     },
     {
@@ -702,13 +595,9 @@ describe("gateway server agent", () => {
     },
   ])("agent routes main last-channel $name", async (tc) => {
     setRegistry(defaultRegistry);
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
-=======
-    await setTestSessionStore({
->>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       entries: {
         main: {
           sessionId: tc.sessionId,

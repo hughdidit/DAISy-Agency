@@ -113,13 +113,8 @@ Mapping options (summary):
 - `hooks.allowedAgentIds` restricts explicit `agentId` routing. Omit it (or include `*`) to allow any agent. Set `[]` to deny explicit `agentId` routing.
 - `allowUnsafeExternalContent: true` disables the external content safety wrapper for that hook
   (dangerous; only for trusted internal sources).
-<<<<<<< HEAD
 - `moltbot webhooks gmail setup` writes `hooks.gmail` config for `moltbot webhooks gmail run`.
 See [Gmail Pub/Sub](/automation/gmail-pubsub) for the full Gmail watch flow.
-=======
-- `openclaw webhooks gmail setup` writes `hooks.gmail` config for `openclaw webhooks gmail run`.
-  See [Gmail Pub/Sub](/automation/gmail-pubsub) for the full Gmail watch flow.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Responses
 
@@ -169,12 +164,8 @@ curl -X POST http://127.0.0.1:18789/hooks/gmail \
 
 - Keep hook endpoints behind loopback, tailnet, or trusted reverse proxy.
 - Use a dedicated hook token; do not reuse gateway auth tokens.
-<<<<<<< HEAD
 - Hook token comparison uses constant-time HMAC digest comparison to prevent
   timing side-channel attacks.
-=======
-- If you use multi-agent routing, set `hooks.allowedAgentIds` to limit explicit `agentId` selection.
->>>>>>> ca629296c (feat(hooks): add agentId support to webhook mappings (#13672))
 - Avoid including sensitive raw payloads in webhook logs.
 - Hook payloads are treated as untrusted and wrapped with safety boundaries by default.
   If you must disable this for a specific hook, set `allowUnsafeExternalContent: true`

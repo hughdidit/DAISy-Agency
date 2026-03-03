@@ -340,23 +340,6 @@ function cleanSchemaForGeminiWithDefs(
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  // Cloud Code Assist API also rejects anyOf/oneOf in nested schemas.
-  // If simplifyUnionVariants couldn't reduce the union above, flatten it
-  // here as a fallback: pick the first variant's type or use a permissive
-  // schema so the tool declaration is accepted.
-  const flattenedAnyOf = flattenUnionFallback(cleaned, cleaned.anyOf);
-  if (flattenedAnyOf) {
-    return flattenedAnyOf;
-  }
-
-  const flattenedOneOf = flattenUnionFallback(cleaned, cleaned.oneOf);
-  if (flattenedOneOf) {
-    return flattenedOneOf;
-  }
-
->>>>>>> 4088c0b89 (refactor(core): dedupe schema and command parsing helpers)
 =======
 >>>>>>> a1538ea63 (Revert "fix: flatten remaining anyOf/oneOf in Gemini schema cleaning")
   return cleaned;

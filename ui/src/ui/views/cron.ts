@@ -5,27 +5,16 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { formatMs } from "../format";
-=======
-import type { ChannelUiMetaEntry, CronJob, CronRunLogEntry, CronStatus } from "../types.ts";
-import type { CronFormState } from "../ui-types.ts";
-<<<<<<< HEAD
-import { formatMs } from "../format.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   formatCronPayload,
   formatCronSchedule,
   formatCronState,
   formatNextRun,
-<<<<<<< HEAD
 } from "../presenter";
 import type { ChannelUiMetaEntry, CronJob, CronRunLogEntry, CronStatus } from "../types";
 import type { CronFormState } from "../ui-types";
-=======
-} from "../presenter.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import { formatRelativeTimestamp, formatMs } from "../format.ts";
 import { pathForTab } from "../navigation.ts";
@@ -318,7 +307,6 @@ function fieldLabelForKey(
     return deliveryMode === "webhook" ? "Webhook URL" : "To";
   }
   const labels: Record<CronFieldKey, string> = {
-<<<<<<< HEAD
     name: "Name",
     scheduleAt: "Run at",
     everyAmount: "Every",
@@ -329,20 +317,6 @@ function fieldLabelForKey(
     payloadThinking: "Thinking",
     timeoutSeconds: "Timeout (seconds)",
     deliveryTo: "To",
-=======
-    name: t("cron.form.fieldName"),
-    scheduleAt: t("cron.form.runAt"),
-    everyAmount: t("cron.form.every"),
-    cronExpr: t("cron.form.expression"),
-    staggerAmount: t("cron.form.staggerWindow"),
-    payloadText: t("cron.form.assistantTaskPrompt"),
-    payloadModel: t("cron.form.model"),
-    payloadThinking: t("cron.form.thinking"),
-    timeoutSeconds: t("cron.form.timeoutSeconds"),
-    deliveryTo: t("cron.form.to"),
-    failureAlertAfter: "Failure alert after",
-    failureAlertCooldownSeconds: "Failure alert cooldown",
->>>>>>> 4637b90c0 (feat(cron): configurable failure alerts for repeated job errors (openclaw#24789) thanks @0xbrak)
   };
   return labels[key];
 }
@@ -412,8 +386,6 @@ export function renderCron(props: CronProps) {
   const isAgentTurn = props.form.payloadKind === "agentTurn";
   const isCronSchedule = props.form.scheduleKind === "cron";
   const channelOptions = buildChannelOptions(props);
-<<<<<<< HEAD
-=======
   const selectedJob =
     props.runsJobId == null ? undefined : props.jobs.find((job) => job.id === props.runsJobId);
   const selectedRunTitle =
@@ -434,7 +406,6 @@ export function renderCron(props: CronProps) {
   const selectedDeliveryMode =
     props.form.deliveryMode === "announce" && !supportsAnnounce ? "none" : props.form.deliveryMode;
 <<<<<<< HEAD
->>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 =======
   const blockingFields = collectBlockingFields(props.fieldErrors, props.form, selectedDeliveryMode);
   const blockedByValidation = !props.busy && blockingFields.length > 0;
@@ -471,7 +442,6 @@ export function renderCron(props: CronProps) {
       </div>
     </section>
 
-<<<<<<< HEAD
       <div class="card">
         <div class="card-title">New Job</div>
         <div class="card-sub">Create a scheduled wakeup or agent run.</div>
@@ -577,173 +547,6 @@ export function renderCron(props: CronProps) {
             @input=${(e: Event) =>
               props.onFormChange({
                 payloadText: (e.target as HTMLTextAreaElement).value,
-=======
-    <section class="cron-workspace">
-      <div class="cron-workspace-main">
-        <section class="card">
-          <div class="row" style="justify-content: space-between; align-items: flex-start; gap: 12px;">
-            <div>
-              <div class="card-title">Jobs</div>
-              <div class="card-sub">All scheduled jobs stored in the gateway.</div>
-            </div>
-            <div class="muted">${props.jobs.length} shown of ${props.jobsTotal}</div>
-          </div>
-          <div class="filters" style="margin-top: 12px;">
-            <label class="field cron-filter-search">
-              <span>Search jobs</span>
-              <input
-                .value=${props.jobsQuery}
-                placeholder="Name, description, or agent"
-                @input=${(e: Event) =>
-                  props.onJobsFiltersChange({
-                    cronJobsQuery: (e.target as HTMLInputElement).value,
-                  })}
-              />
-            </label>
-            <label class="field">
-              <span>Enabled</span>
-              <select
-                .value=${props.jobsEnabledFilter}
-                @change=${(e: Event) =>
-                  props.onJobsFiltersChange({
-                    cronJobsEnabledFilter: (e.target as HTMLSelectElement)
-                      .value as CronJobsEnabledFilter,
-                  })}
-              >
-                <option value="all">All</option>
-                <option value="enabled">Enabled</option>
-                <option value="disabled">Disabled</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Sort</span>
-              <select
-                .value=${props.jobsSortBy}
-                @change=${(e: Event) =>
-                  props.onJobsFiltersChange({
-                    cronJobsSortBy: (e.target as HTMLSelectElement).value as CronJobsSortBy,
-                  })}
-              >
-                <option value="nextRunAtMs">Next run</option>
-                <option value="updatedAtMs">Recently updated</option>
-                <option value="name">Name</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Direction</span>
-              <select
-                .value=${props.jobsSortDir}
-                @change=${(e: Event) =>
-                  props.onJobsFiltersChange({
-                    cronJobsSortDir: (e.target as HTMLSelectElement).value as CronSortDir,
-                  })}
-              >
-                <option value="asc">Ascending</option>
-                <option value="desc">Descending</option>
-              </select>
-            </label>
-          </div>
-          ${
-            props.jobs.length === 0
-              ? html`
-                  <div class="muted" style="margin-top: 12px">No matching jobs.</div>
-                `
-              : html`
-                  <div class="list" style="margin-top: 12px;">
-                    ${props.jobs.map((job) => renderJob(job, props))}
-                  </div>
-                `
-          }
-          ${
-            props.jobsHasMore
-              ? html`
-                  <div class="row" style="margin-top: 12px">
-                    <button
-                      class="btn"
-                      ?disabled=${props.loading || props.jobsLoadingMore}
-                      @click=${props.onLoadMoreJobs}
-                    >
-                      ${props.jobsLoadingMore ? "Loading..." : "Load more jobs"}
-                    </button>
-                  </div>
-                `
-              : nothing
-          }
-        </section>
-
-        <section class="card">
-          <div class="row" style="justify-content: space-between; align-items: flex-start; gap: 12px;">
-            <div>
-              <div class="card-title">Run history</div>
-              <div class="card-sub">
-                ${
-                  props.runsScope === "all"
-                    ? "Latest runs across all jobs."
-                    : `Latest runs for ${selectedRunTitle}.`
-                }
-              </div>
-            </div>
-            <div class="muted">${runs.length} shown of ${props.runsTotal}</div>
-          </div>
-          <div class="cron-run-filters">
-            <div class="cron-run-filters__row cron-run-filters__row--primary">
-              <label class="field">
-                <span>Scope</span>
-                <select
-                  .value=${props.runsScope}
-                  @change=${(e: Event) =>
-                    props.onRunsFiltersChange({
-                      cronRunsScope: (e.target as HTMLSelectElement).value as CronRunScope,
-                    })}
-                >
-                  <option value="all">All jobs</option>
-                  <option value="job" ?disabled=${props.runsJobId == null}>Selected job</option>
-                </select>
-              </label>
-              <label class="field cron-run-filter-search">
-                <span>Search runs</span>
-                <input
-                  .value=${props.runsQuery}
-                  placeholder="Summary, error, or job"
-                  @input=${(e: Event) =>
-                    props.onRunsFiltersChange({
-                      cronRunsQuery: (e.target as HTMLInputElement).value,
-                    })}
-                />
-              </label>
-              <label class="field">
-                <span>Sort</span>
-                <select
-                  .value=${props.runsSortDir}
-                  @change=${(e: Event) =>
-                    props.onRunsFiltersChange({
-                      cronRunsSortDir: (e.target as HTMLSelectElement).value as CronSortDir,
-                    })}
-                >
-                  <option value="desc">Newest first</option>
-                  <option value="asc">Oldest first</option>
-                </select>
-              </label>
-            </div>
-            <div class="cron-run-filters__row cron-run-filters__row--secondary">
-              ${renderRunFilterDropdown({
-                id: "status",
-                title: "Status",
-                summary: statusSummary,
-                options: RUN_STATUS_OPTIONS,
-                selected: props.runsStatuses,
-                onToggle: (value, checked) => {
-                  const next = toggleSelection(
-                    props.runsStatuses,
-                    value as CronRunsStatusValue,
-                    checked,
-                  );
-                  void props.onRunsFiltersChange({ cronRunsStatuses: next });
-                },
-                onClear: () => {
-                  void props.onRunsFiltersChange({ cronRunsStatuses: [] });
-                },
->>>>>>> 77c3b142a (Web UI: add full cron edit parity, all-jobs run history, and compact filters (openclaw#24155) thanks @Takhoffman)
               })}
               ${renderRunFilterDropdown({
                 id: "delivery",
@@ -1414,7 +1217,6 @@ export function renderCron(props: CronProps) {
       </section>
     </section>
 
-<<<<<<< HEAD
     <section class="card" style="margin-top: 18px;">
       <div class="card-title">Jobs</div>
       <div class="card-sub">All scheduled jobs stored in the gateway.</div>
@@ -1448,11 +1250,6 @@ export function renderCron(props: CronProps) {
 <<<<<<< HEAD
               <div class="list" style="margin-top: 12px;">
                 ${props.runs.map((entry) => renderRun(entry))}
-=======
-              <div class="list list-scroll" style="margin-top: 12px;">
-=======
-              <div class="list" style="margin-top: 12px;">
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                 ${orderedRuns.map((entry) => renderRun(entry, props.basePath))}
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
               </div>
@@ -1571,46 +1368,16 @@ function renderFieldError(message?: string, id?: string) {
 
 function renderJob(job: CronJob, props: CronProps) {
   const isSelected = props.runsJobId === job.id;
-<<<<<<< HEAD
   const itemClass = `list-item list-item-clickable${isSelected ? " list-item-selected" : ""}`;
-=======
-  const itemClass = `list-item list-item-clickable cron-job${isSelected ? " list-item-selected" : ""}`;
-  const selectAnd = (action: () => void) => {
-    props.onLoadRuns(job.id);
-    action();
-  };
->>>>>>> 77c3b142a (Web UI: add full cron edit parity, all-jobs run history, and compact filters (openclaw#24155) thanks @Takhoffman)
   return html`
     <div class=${itemClass} @click=${() => props.onLoadRuns(job.id)}>
       <div class="list-main">
         <div class="list-title">${job.name}</div>
         <div class="list-sub">${formatCronSchedule(job)}</div>
-<<<<<<< HEAD
         <div class="muted">${formatCronPayload(job)}</div>
         ${job.agentId ? html`<div class="muted">Agent: ${job.agentId}</div>` : nothing}
         <div class="chip-row" style="margin-top: 6px;">
           <span class="chip">${job.enabled ? "enabled" : "disabled"}</span>
-=======
-        ${renderJobPayload(job)}
-        ${job.agentId ? html`<div class="muted cron-job-agent">Agent: ${job.agentId}</div>` : nothing}
-      </div>
-      <div class="list-meta">
-        ${renderJobState(job)}
-      </div>
-      <div class="cron-job-footer">
-        <div class="chip-row cron-job-chips">
-          <span class=${`chip ${job.enabled ? "chip-ok" : "chip-danger"}`}>
-            ${job.enabled ? "enabled" : "disabled"}
-          </span>
-<<<<<<< HEAD
-          ${
-            job.notify
-              ? html`
-                  <span class="chip">notify</span>
-                `
-              : nothing
-          }
->>>>>>> 115cfb443 (gateway: add cron finished-run webhook (#14535))
 =======
 >>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
           <span class="chip">${job.sessionTarget}</span>
@@ -1686,97 +1453,7 @@ function renderJob(job: CronJob, props: CronProps) {
   `;
 }
 
-<<<<<<< HEAD
 function renderRun(entry: CronRunLogEntry) {
-=======
-function renderJobPayload(job: CronJob) {
-  if (job.payload.kind === "systemEvent") {
-    return html`<div class="cron-job-detail">
-      <span class="cron-job-detail-label">System</span>
-      <span class="muted cron-job-detail-value">${job.payload.text}</span>
-    </div>`;
-  }
-
-  const delivery = job.delivery;
-  const deliveryTarget =
-    delivery?.mode === "webhook"
-      ? delivery.to
-        ? ` (${delivery.to})`
-        : ""
-      : delivery?.channel || delivery?.to
-        ? ` (${delivery.channel ?? "last"}${delivery.to ? ` -> ${delivery.to}` : ""})`
-        : "";
-
-  return html`
-    <div class="cron-job-detail">
-      <span class="cron-job-detail-label">Prompt</span>
-      <span class="muted cron-job-detail-value">${job.payload.message}</span>
-    </div>
-    ${
-      delivery
-        ? html`<div class="cron-job-detail">
-            <span class="cron-job-detail-label">Delivery</span>
-            <span class="muted cron-job-detail-value">${delivery.mode}${deliveryTarget}</span>
-          </div>`
-        : nothing
-    }
-  `;
-}
-
-function formatStateRelative(ms?: number) {
-  if (typeof ms !== "number" || !Number.isFinite(ms)) {
-    return "n/a";
-  }
-  return formatRelativeTimestamp(ms);
-}
-
-function formatRunNextLabel(nextRunAtMs: number, nowMs = Date.now()) {
-  const rel = formatRelativeTimestamp(nextRunAtMs);
-  return nextRunAtMs > nowMs ? `Next ${rel}` : `Due ${rel}`;
-}
-
-function renderJobState(job: CronJob) {
-  const status = job.state?.lastStatus ?? "n/a";
-  const statusClass =
-    status === "ok"
-      ? "cron-job-status-ok"
-      : status === "error"
-        ? "cron-job-status-error"
-        : status === "skipped"
-          ? "cron-job-status-skipped"
-          : "cron-job-status-na";
-  const nextRunAtMs = job.state?.nextRunAtMs;
-  const lastRunAtMs = job.state?.lastRunAtMs;
-
-  return html`
-    <div class="cron-job-state">
-      <div class="cron-job-state-row">
-        <span class="cron-job-state-key">Status</span>
-        <span class=${`cron-job-status-pill ${statusClass}`}>${status}</span>
-      </div>
-      <div class="cron-job-state-row">
-        <span class="cron-job-state-key">Next</span>
-        <span class="cron-job-state-value" title=${formatMs(nextRunAtMs)}>
-          ${formatStateRelative(nextRunAtMs)}
-        </span>
-      </div>
-      <div class="cron-job-state-row">
-        <span class="cron-job-state-key">Last</span>
-        <span class="cron-job-state-value" title=${formatMs(lastRunAtMs)}>
-          ${formatStateRelative(lastRunAtMs)}
-        </span>
-      </div>
-    </div>
-  `;
-}
-
-function renderRun(entry: CronRunLogEntry, basePath: string) {
-  const chatUrl =
-    typeof entry.sessionKey === "string" && entry.sessionKey.trim().length > 0
-      ? `${pathForTab("chat", basePath)}?session=${encodeURIComponent(entry.sessionKey)}`
-      : null;
-<<<<<<< HEAD
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 =======
   const status = entry.status ?? "unknown";
   const delivery = entry.deliveryStatus ?? "not-requested";
@@ -1807,8 +1484,6 @@ function renderRun(entry: CronRunLogEntry, basePath: string) {
         <div>${formatMs(entry.ts)}</div>
         ${typeof entry.runAtMs === "number" ? html`<div class="muted">Run at ${formatMs(entry.runAtMs)}</div>` : nothing}
         <div class="muted">${entry.durationMs ?? 0}ms</div>
-<<<<<<< HEAD
-=======
         ${
           typeof entry.nextRunAtMs === "number"
             ? html`<div class="muted">${formatRunNextLabel(entry.nextRunAtMs)}</div>`
@@ -1819,7 +1494,6 @@ function renderRun(entry: CronRunLogEntry, basePath: string) {
             ? html`<div><a class="session-link" href=${chatUrl}>Open run chat</a></div>`
             : nothing
         }
->>>>>>> 77c3b142a (Web UI: add full cron edit parity, all-jobs run history, and compact filters (openclaw#24155) thanks @Takhoffman)
         ${entry.error ? html`<div class="muted">${entry.error}</div>` : nothing}
         ${entry.deliveryError ? html`<div class="muted">${entry.deliveryError}</div>` : nothing}
       </div>

@@ -1,7 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -18,11 +17,6 @@ vi.mock("../agents/pi-embedded.js", () => ({
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import { expectInboundContextContract } from "../../test/helpers/inbound-contract.js";
 import { resetLogger, setLoggerOverride } from "../logging.js";
-=======
-import { describe, expect, it, vi } from "vitest";
-import { expectInboundContextContract } from "../../test/helpers/inbound-contract.js";
-import { setLoggerOverride } from "../logging.js";
->>>>>>> 5faba6a48 (refactor(test): reuse web auto-reply harness in more tests)
 import { monitorWebChannel, SILENT_REPLY_TOKEN } from "./auto-reply.js";
 =======
 import { beforeAll, describe, expect, it, vi } from "vitest";
@@ -37,7 +31,6 @@ import {
   setLoadConfigMock,
 } from "./auto-reply.test-harness.js";
 
-<<<<<<< HEAD
 let previousHome: string | undefined;
 let tempHome: string | undefined;
 
@@ -111,9 +104,6 @@ const makeSessionStore = async (
     cleanup,
   };
 };
-=======
-installWebAutoReplyTestHomeHooks();
->>>>>>> 5faba6a48 (refactor(test): reuse web auto-reply harness in more tests)
 
 let monitorWebChannel: typeof import("./auto-reply.js").monitorWebChannel;
 let SILENT_REPLY_TOKEN: typeof import("./auto-reply.js").SILENT_REPLY_TOKEN;

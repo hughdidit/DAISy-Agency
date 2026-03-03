@@ -13,35 +13,22 @@ use the long‑lived token created by `claude setup-token`.
 
 See [/concepts/oauth](/concepts/oauth) for the full OAuth flow and storage
 layout.
-<<<<<<< HEAD
-=======
 For SecretRef-based auth (`env`/`file`/`exec` providers), see [Secrets Management](/gateway/secrets).
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 
 ## Recommended Anthropic setup (API key)
 
 If you’re using Anthropic directly, use an API key.
 
-<<<<<<< HEAD
 1) Create an API key in the Anthropic Console.
 2) Put it on the **gateway host** (the machine running `moltbot gateway`).
-=======
-1. Create an API key in the Anthropic Console.
-2. Put it on the **gateway host** (the machine running `openclaw gateway`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```bash
 export ANTHROPIC_API_KEY="..."
 moltbot models status
 ```
 
-<<<<<<< HEAD
 3) If the Gateway runs under systemd/launchd, prefer putting the key in
 `~/.clawdbot/.env` so the daemon can read it:
-=======
-3. If the Gateway runs under systemd/launchd, prefer putting the key in
-   `~/.openclaw/.env` so the daemon can read it:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```bash
 cat >> ~/.clawdbot/.env <<'EOF'
@@ -98,14 +85,11 @@ moltbot models auth paste-token --provider anthropic
 moltbot models auth paste-token --provider openrouter
 ```
 
-<<<<<<< HEAD
-=======
 Auth profile refs are also supported for static credentials:
 
 - `api_key` credentials can use `keyRef: { source, provider, id }`
 - `token` credentials can use `tokenRef: { source, provider, id }`
 
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 Automation-friendly check (exit `1` when expired/missing, `2` when expiring):
 
 ```bash

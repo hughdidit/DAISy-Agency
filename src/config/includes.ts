@@ -14,12 +14,6 @@ import fs from "node:fs";
 import path from "node:path";
 import JSON5 from "json5";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { openVerifiedFileSync } from "../infra/safe-open-sync.js";
-=======
-import { canUseBoundaryFileOpen, openBoundaryFileSync } from "../infra/boundary-file-read.js";
->>>>>>> 242188b7b (refactor: unify boundary-safe reads for bootstrap and includes)
 import { isPathInside } from "../security/scan-paths.js";
 >>>>>>> 9925ac6a2 (fix(config): harden include file loading path checks)
 import { isPlainObject } from "../utils.js";
@@ -251,8 +245,6 @@ class IncludeProcessor {
   }
 }
 
-<<<<<<< HEAD
-=======
 function safeRealpath(target: string): string {
   try {
     return fs.realpathSync(target);
@@ -298,7 +290,6 @@ export function readConfigIncludeFileWithGuards(params: IncludeFileReadParams): 
   }
 }
 
->>>>>>> 9925ac6a2 (fix(config): harden include file loading path checks)
 // ============================================================================
 // Public API
 // ============================================================================

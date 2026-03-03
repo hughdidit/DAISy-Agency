@@ -1,13 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -17,11 +13,8 @@ import { detectBinary } from "../../../commands/onboard-helpers.js";
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { OpenClawConfig } from "../../../config/config.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { DmPolicy } from "../../../config/types.js";
-=======
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 import {
   listIMessageAccountIds,
   resolveDefaultIMessageAccountId,
@@ -34,16 +27,10 @@ import { formatDocsLink } from "../../../terminal/links.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 <<<<<<< HEAD
 import { addWildcardAllowFrom, promptAccountId } from "./helpers.js";
-=======
-=======
-import type { WizardPrompter } from "../../../wizard/prompts.js";
-import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -163,22 +150,11 @@ async function promptIMessageAllowFrom(params: {
   cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
-<<<<<<< HEAD
 }): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
       : resolveDefaultIMessageAccountId(params.cfg);
-=======
-}): Promise<OpenClawConfig> {
-  return promptParsedAllowFromForScopedChannel({
-    cfg: params.cfg,
-    channel: "imessage",
-    accountId: params.accountId,
-    defaultAccountId: resolveDefaultIMessageAccountId(params.cfg),
-<<<<<<< HEAD
-  });
->>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   const resolved = resolveIMessageAccount({ cfg: params.cfg, accountId });
   const existing = resolved.config.allowFrom ?? [];
   await params.prompter.note(

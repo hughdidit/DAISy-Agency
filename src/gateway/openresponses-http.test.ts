@@ -503,8 +503,6 @@ describe("OpenResponses HTTP API (e2e)", () => {
       // shared server
     }
   });
-<<<<<<< HEAD
-=======
 
   it("blocks unsafe URL-based file/image inputs", async () => {
     const port = enabledPort;
@@ -696,5 +694,4 @@ describe("OpenResponses HTTP API (e2e)", () => {
       await capServer.close({ reason: "responses url cap hardening test done" });
     }
   });
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 });

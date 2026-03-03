@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { buildSandboxCreateArgs, type SandboxDockerConfig } from "./sandbox.js";
-=======
-import { buildSandboxCreateArgs } from "./sandbox/docker.js";
-import type { SandboxDockerConfig } from "./sandbox/types.js";
->>>>>>> 467666adc (test(sandbox): use focused modules in lightweight suites)
 
 describe("buildSandboxCreateArgs", () => {
   function createSandboxConfig(
@@ -163,52 +158,7 @@ describe("buildSandboxCreateArgs", () => {
       }
     }
     expect(vFlags).toContain("/home/user/source:/source:rw");
-<<<<<<< HEAD
     expect(vFlags).toContain("/var/run/docker.sock:/var/run/docker.sock");
-=======
-    expect(vFlags).toContain("/var/data/myapp:/data:ro");
-  });
-
-  it.each([
-    {
-      name: "dangerous Docker socket bind mounts",
-      containerName: "openclaw-sbx-dangerous",
-      cfg: createSandboxConfig({}, ["/var/run/docker.sock:/var/run/docker.sock"]),
-      expected: /blocked path/,
-    },
-    {
-      name: "dangerous parent bind mounts",
-      containerName: "openclaw-sbx-dangerous-parent",
-      cfg: createSandboxConfig({}, ["/run:/run"]),
-      expected: /blocked path/,
-    },
-    {
-      name: "network host mode",
-      containerName: "openclaw-sbx-host",
-      cfg: createSandboxConfig({ network: "host" }),
-      expected: /network mode "host" is blocked/,
-    },
-    {
-      name: "network container namespace join",
-      containerName: "openclaw-sbx-container-network",
-      cfg: createSandboxConfig({ network: "container:peer" }),
-      expected: /network mode "container:peer" is blocked by default/,
-    },
-    {
-      name: "seccomp unconfined",
-      containerName: "openclaw-sbx-seccomp",
-      cfg: createSandboxConfig({ seccompProfile: "unconfined" }),
-      expected: /seccomp profile "unconfined" is blocked/,
-    },
-    {
-      name: "apparmor unconfined",
-      containerName: "openclaw-sbx-apparmor",
-      cfg: createSandboxConfig({ apparmorProfile: "unconfined" }),
-      expected: /apparmor profile "unconfined" is blocked/,
-    },
-  ])("throws on $name", ({ containerName, cfg, expected }) => {
-    expectBuildToThrow(containerName, cfg, expected);
->>>>>>> 012654c7c (test(sandbox): table-drive dangerous docker config rejection cases)
   });
 
   it("omits -v flags when binds is empty or undefined", () => {

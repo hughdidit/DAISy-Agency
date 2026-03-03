@@ -11,13 +11,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -38,15 +32,8 @@ import { shortenHomePath } from "../../utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { resolveSelectedAndActiveModel } from "../model-runtime.js";
->>>>>>> c2876b69f (feat(auto-reply): add model fallback lifecycle visibility in status, verbose logs, and WebUI (#20704))
 import type { ReplyPayload } from "../types.js";
-<<<<<<< HEAD
 =======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ReplyPayload } from "../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -70,12 +57,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { InlineDirectives } from "./directive-handling.parse.js";
 <<<<<<< HEAD
 import { resolveModelsCommandReply } from "./commands-models.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

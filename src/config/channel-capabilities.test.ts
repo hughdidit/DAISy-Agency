@@ -7,11 +7,7 @@ import { resolveChannelCapabilities } from "./channel-capabilities.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./config.js";
-=======
-import type { OpenClawConfig } from "./config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

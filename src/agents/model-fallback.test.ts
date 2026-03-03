@@ -12,7 +12,6 @@ import { isAnthropicBillingError } from "./live-auth-keys.js";
 import { runWithImageModelFallback, runWithModelFallback } from "./model-fallback.js";
 import { makeModelFallbackCfg } from "./test-helpers/model-fallback-config-fixture.js";
 
-<<<<<<< HEAD
 function makeCfg(overrides: Partial<MoltbotConfig> = {}): MoltbotConfig {
   return {
     agents: {
@@ -26,9 +25,6 @@ function makeCfg(overrides: Partial<MoltbotConfig> = {}): MoltbotConfig {
     ...overrides,
   } as MoltbotConfig;
 }
-=======
-const makeCfg = makeModelFallbackCfg;
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
 function makeFallbacksOnlyCfg(): OpenClawConfig {
   return {
@@ -474,10 +470,7 @@ describe("runWithModelFallback", () => {
 
   it("skips providers when all profiles are in cooldown", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-=======
->>>>>>> 23f215019 (test: dedupe auth fallback tests and add auth util unit coverage)
     const provider = `cooldown-test-${crypto.randomUUID()}`;
     const profileId = `${provider}:default`;
 
@@ -545,10 +538,7 @@ describe("runWithModelFallback", () => {
   });
 
   it("does not skip when any profile is available", async () => {
-<<<<<<< HEAD
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-=======
->>>>>>> 23f215019 (test: dedupe auth fallback tests and add auth util unit coverage)
     const provider = `cooldown-mixed-${crypto.randomUUID()}`;
     const profileA = `${provider}:a`;
     const profileB = `${provider}:b`;
@@ -625,7 +615,6 @@ describe("runWithModelFallback", () => {
   });
 
   it("uses fallbacksOverride instead of agents.defaults.model.fallbacks", async () => {
-<<<<<<< HEAD
     const cfg = {
       agents: {
         defaults: {
@@ -635,9 +624,6 @@ describe("runWithModelFallback", () => {
         },
       },
     } as MoltbotConfig;
-=======
-    const cfg = makeFallbacksOnlyCfg();
->>>>>>> 23f215019 (test: dedupe auth fallback tests and add auth util unit coverage)
 
     const calls: Array<{ provider: string; model: string }> = [];
 
@@ -666,7 +652,6 @@ describe("runWithModelFallback", () => {
   });
 
   it("treats an empty fallbacksOverride as disabling global fallbacks", async () => {
-<<<<<<< HEAD
     const cfg = {
       agents: {
         defaults: {
@@ -676,9 +661,6 @@ describe("runWithModelFallback", () => {
         },
       },
     } as MoltbotConfig;
-=======
-    const cfg = makeFallbacksOnlyCfg();
->>>>>>> 23f215019 (test: dedupe auth fallback tests and add auth util unit coverage)
 
     const calls: Array<{ provider: string; model: string }> = [];
 

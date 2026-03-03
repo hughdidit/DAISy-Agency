@@ -1,20 +1,12 @@
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
 
-=======
-import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
-<<<<<<< HEAD
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 =======
 import { getDiagnosticSessionState } from "../logging/diagnostic-session-state.js";
 import { killProcessTree } from "../process/kill-tree.js";
 import { getProcessSupervisor } from "../process/supervisor/index.js";
-<<<<<<< HEAD
 import { recordCommandPoll, resetCommandPollCount } from "./command-poll-backoff.js";
 >>>>>>> 23f5cc80a (Agents: wire command poll backoff into process poll)
-=======
->>>>>>> 8947d2dea (Agents: format process poll backoff files)
 import {
   deleteSession,
   drainSession,
@@ -25,7 +17,6 @@ import {
   markExited,
   setJobTtlMs,
 } from "./bash-process-registry.js";
-<<<<<<< HEAD
 import {
   deriveSessionName,
   killSession,
@@ -33,10 +24,6 @@ import {
   sliceLogLines,
   truncateMiddle,
 } from "./bash-tools.shared.js";
-=======
-import { deriveSessionName, pad, sliceLogLines, truncateMiddle } from "./bash-tools.shared.js";
-import { recordCommandPoll, resetCommandPollCount } from "./command-poll-backoff.js";
->>>>>>> 8947d2dea (Agents: format process poll backoff files)
 import { encodeKeySequence, encodePaste } from "./pty-keys.js";
 
 export type ProcessToolDefaults = {
@@ -545,22 +532,8 @@ export function createProcessTool(
           if (!scopedSession.backgrounded) {
             return failText(`Session ${params.sessionId} is not backgrounded.`);
           }
-<<<<<<< HEAD
           killSession(scopedSession);
           markExited(scopedSession, null, "SIGKILL", "failed");
-=======
-          const canceled = cancelManagedSession(scopedSession.id);
-          if (!canceled) {
-            const terminated = terminateSessionFallback(scopedSession);
-            if (!terminated) {
-              return failText(
-                `Unable to terminate session ${params.sessionId}: no active supervisor run or process id.`,
-              );
-            }
-            markExited(scopedSession, null, "SIGKILL", "failed");
-          }
-          resetPollRetrySuggestion(params.sessionId);
->>>>>>> 23f5cc80a (Agents: wire command poll backoff into process poll)
           return {
             content: [{ type: "text", text: `Killed session ${params.sessionId}.` }],
             details: {
@@ -592,27 +565,8 @@ export function createProcessTool(
 
         case "remove": {
           if (scopedSession) {
-<<<<<<< HEAD
             killSession(scopedSession);
             markExited(scopedSession, null, "SIGKILL", "failed");
-=======
-            const canceled = cancelManagedSession(scopedSession.id);
-            if (canceled) {
-              // Keep remove semantics deterministic: drop from process registry now.
-              scopedSession.backgrounded = false;
-              deleteSession(params.sessionId);
-            } else {
-              const terminated = terminateSessionFallback(scopedSession);
-              if (!terminated) {
-                return failText(
-                  `Unable to remove session ${params.sessionId}: no active supervisor run or process id.`,
-                );
-              }
-              markExited(scopedSession, null, "SIGKILL", "failed");
-              deleteSession(params.sessionId);
-            }
-            resetPollRetrySuggestion(params.sessionId);
->>>>>>> 23f5cc80a (Agents: wire command poll backoff into process poll)
             return {
               content: [{ type: "text", text: `Removed session ${params.sessionId}.` }],
               details: {

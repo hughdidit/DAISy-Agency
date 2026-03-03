@@ -1,9 +1,5 @@
 import Foundation
-<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/CanvasIPCTests.swift
 import MoltbotIPC
-=======
-import OpenClawIPC
->>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/CanvasIPCTests.swift
 import Testing
 
 @Suite struct CanvasIPCTests {

@@ -3,11 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { ClawdbotConfig } from "../config/config.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeDiscordMessagingTarget } from "../channels/plugins/normalize/discord.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

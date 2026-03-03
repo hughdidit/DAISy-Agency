@@ -3,18 +3,11 @@ import util from "node:util";
 import type { MoltbotConfig } from "../config/types.js";
 import { isVerbose } from "../globals.js";
 import { stripAnsi } from "../terminal/ansi.js";
-<<<<<<< HEAD
-=======
 import { readLoggingConfig } from "./config.js";
 import { resolveEnvLogLevelOverride } from "./env-log-level.js";
->>>>>>> 98a03c490 (Feat/logger support log level validation0222 (#23436))
 import { type LogLevel, normalizeLogLevel } from "./levels.js";
 import { getLogger, type LoggerSettings } from "./logger.js";
-<<<<<<< HEAD
 import { readLoggingConfig } from "./config.js";
-=======
-import { resolveNodeRequireFromMeta } from "./node-require.js";
->>>>>>> b791ac216 (refactor(logging): share node createRequire resolution)
 import { loggingState } from "./state.js";
 import { formatLocalIsoWithOffset } from "./timestamps.js";
 
@@ -74,16 +67,12 @@ function resolveConsoleSettings(): ConsoleSettings {
     } else {
       loggingState.resolvingConsoleSettings = true;
       try {
-<<<<<<< HEAD
         const loaded = requireConfig("../config/config.js") as {
           loadConfig?: () => MoltbotConfig;
         };
         cfg = loaded.loadConfig?.().logging;
       } catch {
         cfg = undefined;
-=======
-        cfg = loadConfigFallback();
->>>>>>> b272158fe (perf(test): eliminate resetModules via injectable seams)
       } finally {
         loggingState.resolvingConsoleSettings = false;
       }
@@ -176,11 +165,7 @@ function formatConsoleTimestamp(style: ConsoleStyle): string {
   if (style === "pretty") {
     return now.slice(11, 19);
   }
-<<<<<<< HEAD
   return now;
-=======
-  return formatLocalIsoWithOffset(now);
->>>>>>> d9d5b53b4 (refactor(logging): share local iso timestamp format)
 }
 
 function hasTimestampPrefix(value: string): boolean {

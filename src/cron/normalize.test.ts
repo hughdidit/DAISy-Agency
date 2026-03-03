@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { normalizeCronJobCreate } from "./normalize.js";
-=======
-import { normalizeCronJobCreate, normalizeCronJobPatch } from "./normalize.js";
-<<<<<<< HEAD
->>>>>>> 89dccc79a (cron: infer payload kind for model-only update patches (openclaw#15664) thanks @rodrigouroz)
 =======
 import { DEFAULT_TOP_OF_HOUR_STAGGER_MS } from "./stagger.js";
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
@@ -374,8 +369,6 @@ describe("normalizeCronJobCreate", () => {
     expect(delivery.mode).toBe("announce");
     expect((normalized as { isolation?: unknown }).isolation).toBeUndefined();
   });
-<<<<<<< HEAD
-=======
 
   it("infers payload kind/session target and name for message-only jobs", () => {
     const normalized = normalizeCronJobCreate({
@@ -446,7 +439,6 @@ describe("normalizeCronJobCreate", () => {
     expect(delivery.mode).toBeUndefined();
     expect(delivery.to).toBe("123");
   });
->>>>>>> 75001a049 (fix cron announce routing and timeout handling)
 });
 
 describe("normalizeCronJobPatch", () => {

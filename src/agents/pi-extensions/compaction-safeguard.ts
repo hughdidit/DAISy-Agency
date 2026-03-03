@@ -1,15 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ExtensionAPI, FileOperations } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-=======
-import fs from "node:fs";
-import path from "node:path";
->>>>>>> ed11e93cf (chore(format))
 =======
 import fs from "node:fs";
 import path from "node:path";
@@ -29,11 +23,7 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ExtensionAPI, FileOperations } from "@mariozechner/pi-coding-agent";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { extractSections } from "../../auto-reply/reply/post-compaction-context.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import { createSubsystemLogger } from "../../logging/subsystem.js";
->>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 import {
   BASE_CHUNK_RATIO,
   MIN_CHUNK_RATIO,
@@ -45,11 +35,7 @@ import {
   resolveContextWindowTokens,
   summarizeInStages,
 } from "../compaction.js";
-<<<<<<< HEAD
 import { extractSections } from "../../auto-reply/reply/post-compaction-context.js";
-=======
-import { collectTextContentBlocks } from "../content-blocks.js";
->>>>>>> 85ebdf88b (refactor(agents): share text block extraction helper)
 import { getCompactionSafeguardRuntime } from "./compaction-safeguard-runtime.js";
 
 const log = createSubsystemLogger("compaction-safeguard");
@@ -287,12 +273,7 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
     }
 
     try {
-<<<<<<< HEAD
       const contextWindowTokens = resolveContextWindowTokens(model);
-=======
-      const modelContextWindow = resolveContextWindowTokens(model);
-      const contextWindowTokens = runtime?.contextWindowTokens ?? modelContextWindow;
->>>>>>> 01380f49f (fix(compaction): pass model through runtime for safeguard summaries (#17864))
       const turnPrefixMessages = preparation.turnPrefixMessages ?? [];
       let messagesToSummarize = preparation.messagesToSummarize;
 

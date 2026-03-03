@@ -1,10 +1,6 @@
 import { spawn } from "node:child_process";
 import net from "node:net";
-<<<<<<< HEAD
 
-=======
-import { isErrno } from "./errors.js";
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { ensurePortAvailable } from "./ports.js";
 
 export type SshParsedTarget = {
@@ -42,31 +38,11 @@ export function parseSshTarget(raw: string): SshParsedTarget | null {
     const host = hostPart.slice(0, colonIdx).trim();
     const portRaw = hostPart.slice(colonIdx + 1).trim();
     const port = Number.parseInt(portRaw, 10);
-<<<<<<< HEAD
     if (!host || !Number.isFinite(port) || port <= 0) return null;
     return { user: userPart, host, port };
   }
 
   if (!hostPart) return null;
-=======
-    if (!host || !Number.isFinite(port) || port <= 0) {
-      return null;
-    }
-    // Security: Reject hostnames starting with '-' to prevent argument injection
-    if (host.startsWith("-")) {
-      return null;
-    }
-    return { user: userPart, host, port };
-  }
-
-  if (!hostPart) {
-    return null;
-  }
-  // Security: Reject hostnames starting with '-' to prevent argument injection
-  if (hostPart.startsWith("-")) {
-    return null;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return { user: userPart, host: hostPart, port: 22 };
 }
 

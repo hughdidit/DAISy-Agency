@@ -1,12 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-=======
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 =======
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -47,14 +44,11 @@ const deliverDiscordReply = deliveryMocks.deliverDiscordReply;
 const createDiscordDraftStream = deliveryMocks.createDiscordDraftStream;
 type DispatchInboundParams = {
   dispatcher: {
-<<<<<<< HEAD
-=======
     sendBlockReply: (payload: {
       text?: string;
       isReasoning?: boolean;
     }) => boolean | Promise<boolean>;
 <<<<<<< HEAD
->>>>>>> e7a5f9f4d (fix(channels,sandbox): land hard breakage cluster from reviewed PR bases)
     sendFinalReply: (payload: { text?: string }) => boolean | Promise<boolean>;
 =======
     sendFinalReply: (payload: {
@@ -120,30 +114,12 @@ vi.mock("../../auto-reply/reply/reply-dispatcher.js", () => ({
   ),
 }));
 
-<<<<<<< HEAD
 import { processDiscordMessage } from "./message-handler.process.js";
-=======
-vi.mock("../../channels/session.js", () => ({
-  recordInboundSession,
-}));
 
-vi.mock("../../config/sessions.js", () => ({
-  readSessionUpdatedAt,
-  resolveStorePath,
-}));
-
-const { processDiscordMessage } = await import("./message-handler.process.js");
->>>>>>> 0a188ee49 (test(ci): stabilize update and discord process tests)
-
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 async function createBaseContext(overrides: Record<string, unknown> = {}) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-discord-"));
-=======
-async function createBaseContext(overrides: Record<string, unknown> = {}) {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-discord-"));
->>>>>>> 7c240a2b5 (feat(discord): faster reaction status state machine (watchdog + debounce) (#18248))
   const storePath = path.join(dir, "sessions.json");
   return {
     cfg: { messages: { ackReaction: "👀" }, session: { store: storePath } },
@@ -203,10 +179,7 @@ async function createBaseContext(overrides: Record<string, unknown> = {}) {
       sessionKey: "agent:main:discord:guild:g1",
       mainSessionKey: "agent:main:main",
     },
-<<<<<<< HEAD
-=======
     sender: { label: "user" },
->>>>>>> 7c240a2b5 (feat(discord): faster reaction status state machine (watchdog + debounce) (#18248))
     ...overrides,
   };
 }
@@ -214,9 +187,6 @@ async function createBaseContext(overrides: Record<string, unknown> = {}) {
 const createBaseContext = createBaseDiscordMessageContext;
 >>>>>>> 05bfb7f9f (refactor(test): reuse discord message handler base context harness)
 
-<<<<<<< HEAD
-=======
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 =======
 >>>>>>> 7c240a2b5 (feat(discord): faster reaction status state machine (watchdog + debounce) (#18248))
 beforeEach(() => {
@@ -539,8 +509,6 @@ describe("processDiscordMessage draft streaming", () => {
     expect(deliverDiscordReply).toHaveBeenCalledTimes(1);
   });
 
-<<<<<<< HEAD
-=======
   it("suppresses reasoning payload delivery to Discord", async () => {
     dispatchInboundMessage.mockImplementationOnce(async (params?: DispatchInboundParams) => {
       await params?.dispatcher.sendBlockReply({ text: "thinking...", isReasoning: true });
@@ -575,7 +543,6 @@ describe("processDiscordMessage draft streaming", () => {
     expect(editMessageDiscord).not.toHaveBeenCalled();
   });
 
->>>>>>> 58309fd8d (refactor(matrix,tests): extract helpers and inject send-queue timing)
   it("delivers non-reasoning block payloads to Discord", async () => {
     dispatchInboundMessage.mockImplementationOnce(async (params?: DispatchInboundParams) => {
       await params?.dispatcher.sendBlockReply({ text: "hello from block stream" });

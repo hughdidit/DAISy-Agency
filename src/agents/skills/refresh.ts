@@ -3,11 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import chokidar, { type FSWatcher } from "chokidar";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import chokidar, { type FSWatcher } from "chokidar";
 >>>>>>> ed11e93cf (chore(format))
@@ -18,15 +13,10 @@ import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import chokidar, { type FSWatcher } from "chokidar";
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import chokidar, { type FSWatcher } from "chokidar";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import chokidar, { type FSWatcher } from "chokidar";
 >>>>>>> d0cb8c19b (chore: wtf.)

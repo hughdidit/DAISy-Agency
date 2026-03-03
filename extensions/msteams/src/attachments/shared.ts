@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-=======
 import {
   buildHostnameAllowlistPolicyFromSuffixAllowlist,
   isHttpsUrlAllowedByHostnameSuffixAllowlist,
   normalizeHostnameSuffixAllowlist,
 } from "openclaw/plugin-sdk";
 import type { SsrFPolicy } from "openclaw/plugin-sdk";
->>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)
 import type { MSTeamsAttachmentLike } from "./types.js";
 
 type InlineImageCandidate =
@@ -254,26 +251,18 @@ export function resolveAllowedHosts(input?: string[]): string[] {
   return normalizeHostnameSuffixAllowlist(input, DEFAULT_MEDIA_HOST_ALLOWLIST);
 }
 
-<<<<<<< HEAD
 function isHostAllowed(host: string, allowlist: string[]): boolean {
   if (allowlist.includes("*")) {
     return true;
   }
   const normalized = host.toLowerCase();
   return allowlist.some((entry) => normalized === entry || normalized.endsWith(`.${entry}`));
-=======
-export function resolveAuthAllowedHosts(input?: string[]): string[] {
-  return normalizeHostnameSuffixAllowlist(input, DEFAULT_MEDIA_AUTH_HOST_ALLOWLIST);
->>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)
 }
 
 export function isUrlAllowed(url: string, allowlist: string[]): boolean {
   return isHttpsUrlAllowedByHostnameSuffixAllowlist(url, allowlist);
 }
-<<<<<<< HEAD
-=======
 
 export function resolveMediaSsrfPolicy(allowHosts: string[]): SsrFPolicy | undefined {
   return buildHostnameAllowlistPolicyFromSuffixAllowlist(allowHosts);
 }
->>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)

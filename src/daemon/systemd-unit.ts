@@ -42,13 +42,7 @@ export function buildSystemdUnit({
   environment,
 }: GatewayServiceRenderArgs): string {
   const execStart = programArguments.map(systemdEscapeArg).join(" ");
-<<<<<<< HEAD
   const descriptionLine = `Description=${description?.trim() || "Moltbot Gateway"}`;
-=======
-  const descriptionValue = description?.trim() || "OpenClaw Gateway";
-  assertNoSystemdLineBreaks(descriptionValue, "Systemd Description");
-  const descriptionLine = `Description=${descriptionValue}`;
->>>>>>> 61f646c41 (Daemon: harden systemd unit env rendering)
   const workingDirLine = workingDirectory
     ? `WorkingDirectory=${systemdEscapeArg(workingDirectory)}`
     : null;

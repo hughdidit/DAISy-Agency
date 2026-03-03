@@ -18,28 +18,12 @@ export type SystemRunCommandValidation =
       details?: Record<string, unknown>;
     };
 
-<<<<<<< HEAD
 function basenameLower(token: string): string {
   const win = path.win32.basename(token);
   const posix = path.posix.basename(token);
   const base = win.length < posix.length ? win : posix;
   return base.trim().toLowerCase();
 }
-=======
-export type ResolvedSystemRunCommand =
-  | {
-      ok: true;
-      argv: string[];
-      rawCommand: string | null;
-      shellCommand: string | null;
-      cmdText: string;
-    }
-  | {
-      ok: false;
-      message: string;
-      details?: Record<string, unknown>;
-    };
->>>>>>> a96d89f34 (refactor: unify exec wrapper resolution and parity fixtures)
 
 export function formatExecCommand(argv: string[]): string {
   return argv
@@ -58,7 +42,6 @@ export function formatExecCommand(argv: string[]): string {
 }
 
 export function extractShellCommandFromArgv(argv: string[]): string | null {
-<<<<<<< HEAD
   const token0 = argv[0]?.trim();
   if (!token0) {
     return null;
@@ -93,9 +76,6 @@ export function extractShellCommandFromArgv(argv: string[]): string | null {
   }
 
   return null;
-=======
-  return extractShellWrapperCommand(argv).command;
->>>>>>> a96d89f34 (refactor: unify exec wrapper resolution and parity fixtures)
 }
 
 const POSIX_OR_POWERSHELL_INLINE_WRAPPER_NAMES = new Set([
@@ -178,13 +158,8 @@ export function validateSystemRunCommandConsistency(params: {
       ? params.rawCommand.trim()
       : null;
 <<<<<<< HEAD
-<<<<<<< HEAD
   const shellCommand = extractShellCommandFromArgv(params.argv);
   const inferred = shellCommand ? shellCommand.trim() : formatExecCommand(params.argv);
-=======
-  const shellCommand = extractShellWrapperCommand(params.argv).command;
-  const inferred = shellCommand !== null ? shellCommand.trim() : formatExecCommand(params.argv);
->>>>>>> a96d89f34 (refactor: unify exec wrapper resolution and parity fixtures)
 =======
   const shellWrapperResolution = extractShellWrapperCommand(params.argv);
   const shellCommand = shellWrapperResolution.command;
@@ -213,21 +188,9 @@ export function validateSystemRunCommandConsistency(params: {
   return {
     ok: true,
     // Only treat this as a shell command when argv is a recognized shell wrapper.
-<<<<<<< HEAD
     // For direct argv execution, rawCommand is purely display/approval text and
     // must match the formatted argv.
     shellCommand: shellCommand ? (raw ?? shellCommand) : null,
     cmdText: raw ?? shellCommand ?? inferred,
-=======
-    // For direct argv execution and shell wrappers with env prelude modifiers,
-    // rawCommand is purely display/approval text and must match the formatted argv.
-    shellCommand:
-      shellCommand !== null
-        ? envManipulationBeforeShellWrapper
-          ? shellCommand
-          : (raw ?? shellCommand)
-        : null,
-    cmdText: raw ?? inferred,
->>>>>>> bd8b9af9a (fix(exec): bind env-prefixed shell wrappers to full approval text)
   };
 }

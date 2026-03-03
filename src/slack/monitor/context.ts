@@ -5,16 +5,7 @@ import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig, SlackReactionNotificationMode } from "../../config/config.js";
-=======
-import type { OpenClawConfig, SlackReactionNotificationMode } from "../../config/config.js";
-import type { DmPolicy, GroupPolicy } from "../../config/types.js";
-import type { RuntimeEnv } from "../../runtime.js";
-import type { SlackMessageEvent } from "../types.js";
-import type { SlackChannelConfigEntries } from "./channel-config.js";
-import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
->>>>>>> 260a51446 (refactor(slack): share channel config entry type)
 =======
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 import type { OpenClawConfig, SlackReactionNotificationMode } from "../../config/config.js";
@@ -53,14 +44,11 @@ import { getChildLogger } from "../../logging.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 import type { SlackMessageEvent } from "../types.js";
 <<<<<<< HEAD
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

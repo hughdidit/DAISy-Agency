@@ -4,12 +4,7 @@ read_when:
   - Adding or modifying skills
   - Changing skill gating or load rules
 ---
-<<<<<<< HEAD
 # Skills (Moltbot)
-=======
-
-# Skills (OpenClaw)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Moltbot uses **[AgentSkills](https://agentskills.io)-compatible** skill folders to teach the agent how to use tools. Each skill is a directory containing a `SKILL.md` with YAML frontmatter and instructions. Moltbot loads **bundled skills** plus optional local overrides, and filters them at load time based on environment, config, and binary presence.
 
@@ -17,15 +12,9 @@ Moltbot uses **[AgentSkills](https://agentskills.io)-compatible** skill folders 
 
 Skills are loaded from **three** places:
 
-<<<<<<< HEAD
 1) **Bundled skills**: shipped with the install (npm package or Moltbot.app)
 2) **Managed/local skills**: `~/.clawdbot/skills`
 3) **Workspace skills**: `<workspace>/skills`
-=======
-1. **Bundled skills**: shipped with the install (npm package or OpenClaw.app)
-2. **Managed/local skills**: `~/.openclaw/skills`
-3. **Workspace skills**: `<workspace>/skills`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 If a skill name conflicts, precedence is:
 
@@ -52,26 +41,15 @@ applies: workspace wins, then managed/local, then bundled.
 Plugins can ship their own skills by listing `skills` directories in
 `moltbot.plugin.json` (paths relative to the plugin root). Plugin skills load
 when the plugin is enabled and participate in the normal skill precedence rules.
-<<<<<<< HEAD
 You can gate them via `metadata.moltbot.requires.config` on the plugin’s config
 entry. See [Plugins](/plugin) for discovery/config and [Tools](/tools) for the
-=======
-You can gate them via `metadata.openclaw.requires.config` on the plugin’s config
-entry. See [Plugins](/tools/plugin) for discovery/config and [Tools](/tools) for the
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 tool surface those skills teach.
 
 ## ClawHub (install + sync)
 
-<<<<<<< HEAD
 ClawdHub is the public skills registry for Moltbot. Browse at
 https://clawdhub.com. Use it to discover, install, update, and back up skills.
 Full guide: [ClawdHub](/tools/clawdhub).
-=======
-ClawHub is the public skills registry for OpenClaw. Browse at
-https://clawhub.com. Use it to discover, install, update, and back up skills.
-Full guide: [ClawHub](/tools/clawhub).
->>>>>>> fd00d5688 (chore: update openclaw naming)
 
 Common flows:
 
@@ -82,13 +60,8 @@ Common flows:
 - Sync (scan + publish updates):
   - `clawhub sync --all`
 
-<<<<<<< HEAD
 By default, `clawdhub` installs into `./skills` under your current working
 directory (or falls back to the configured Moltbot workspace). Moltbot picks
-=======
-By default, `clawhub` installs into `./skills` under your current working
-directory (or falls back to the configured OpenClaw workspace). OpenClaw picks
->>>>>>> fd00d5688 (chore: update openclaw naming)
 that up as `<workspace>/skills` on the next session.
 
 ## Security notes
@@ -135,27 +108,11 @@ Moltbot **filters skills at load time** using `metadata` (single-line JSON):
 ---
 name: nano-banana-pro
 description: Generate or edit images via Gemini 3 Pro Image
-<<<<<<< HEAD
 metadata: {"moltbot":{"requires":{"bins":["uv"],"env":["GEMINI_API_KEY"],"config":["browser.enabled"]},"primaryEnv":"GEMINI_API_KEY"}}
 ---
 ```
 
 Fields under `metadata.moltbot`:
-=======
-metadata:
-  {
-    "openclaw":
-      {
-        "requires": { "bins": ["uv"], "env": ["GEMINI_API_KEY"], "config": ["browser.enabled"] },
-        "primaryEnv": "GEMINI_API_KEY",
-      },
-  }
----
-```
-
-Fields under `metadata.openclaw`:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `always: true` — always include the skill (skip other gates).
 - `emoji` — optional emoji used by the macOS Skills UI.
 - `homepage` — optional URL shown as “Website” in the macOS Skills UI.
@@ -183,28 +140,7 @@ Installer example:
 ---
 name: gemini
 description: Use Gemini CLI for coding assistance and Google search lookups.
-<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"♊️","requires":{"bins":["gemini"]},"install":[{"id":"brew","kind":"brew","formula":"gemini-cli","bins":["gemini"],"label":"Install Gemini CLI (brew)"}]}}
-=======
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "♊️",
-        "requires": { "bins": ["gemini"] },
-        "install":
-          [
-            {
-              "id": "brew",
-              "kind": "brew",
-              "formula": "gemini-cli",
-              "bins": ["gemini"],
-              "label": "Install Gemini CLI (brew)",
-            },
-          ],
-      },
-  }
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ---
 ```
 
@@ -217,11 +153,7 @@ Notes:
   This only affects **skill installs**; the Gateway runtime should still be Node
   (Bun is not recommended for WhatsApp/Telegram).
 - Go installs: if `go` is missing and `brew` is available, the gateway installs Go via Homebrew first and sets `GOBIN` to Homebrew’s `bin` when possible.
-<<<<<<< HEAD
  - Download installs: `url` (required), `archive` (`tar.gz` | `tar.bz2` | `zip`), `extract` (default: auto when archive detected), `stripComponents`, `targetDir` (default: `~/.clawdbot/tools/<skillKey>`).
-=======
-- Download installs: `url` (required), `archive` (`tar.gz` | `tar.bz2` | `zip`), `extract` (default: auto when archive detected), `stripComponents`, `targetDir` (default: `~/.openclaw/tools/<skillKey>`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 If no `metadata.moltbot` is present, the skill is always eligible (unless
 disabled in config or blocked by `skills.allowBundled` for bundled skills).
@@ -236,11 +168,7 @@ Bundled/managed skills can be toggled and supplied with env values:
     entries: {
       "nano-banana-pro": {
         enabled: true,
-<<<<<<< HEAD
         apiKey: "GEMINI_KEY_HERE",
-=======
-        apiKey: { source: "env", provider: "default", id: "GEMINI_API_KEY" }, // or plaintext string
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
         env: {
           GEMINI_API_KEY: "GEMINI_KEY_HERE",
         },
@@ -265,28 +193,16 @@ Rules:
 
 - `enabled: false` disables the skill even if it’s bundled/installed.
 - `env`: injected **only if** the variable isn’t already set in the process.
-<<<<<<< HEAD
 - `apiKey`: convenience for skills that declare `metadata.moltbot.primaryEnv`.
-=======
-- `apiKey`: convenience for skills that declare `metadata.openclaw.primaryEnv`.
-  Supports plaintext string or SecretRef object (`{ source, provider, id }`).
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 - `config`: optional bag for custom per-skill fields; custom keys must live here.
 - `allowBundled`: optional allowlist for **bundled** skills only. If set, only
   bundled skills in the list are eligible (managed/workspace skills unaffected).
 
 ## Environment injection (per agent run)
 
-<<<<<<< HEAD
 When an agent run starts, Moltbot:
 1) Reads skill metadata.
 2) Applies any `skills.entries.<key>.env` or `skills.entries.<key>.apiKey` to
-=======
-When an agent run starts, OpenClaw:
-
-1. Reads skill metadata.
-2. Applies any `skills.entries.<key>.env` or `skills.entries.<key>.apiKey` to
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    `process.env`.
 3. Builds the system prompt with **eligible** skills.
 4. Restores the original environment after the run ends.

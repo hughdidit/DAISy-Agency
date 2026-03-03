@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import { afterEach, describe, expect, it, vi } from "vitest";
-import type { ChannelPlugin } from "../../channels/plugins/types.js";
->>>>>>> c8a536e30 (fix(agents): scope message tool schema by channel (#18215))
 import type { MessageActionRunResult } from "../../infra/outbound/message-action-runner.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
@@ -334,8 +329,6 @@ describe("message tool description", () => {
     expect(tool.description).not.toContain("Other configured channels");
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("message tool reasoning tag sanitization", () => {
   it("strips <think> tags from text field before sending", async () => {
@@ -420,4 +413,3 @@ describe("message tool sandbox passthrough", () => {
     expect(call?.sandboxRoot).toBeUndefined();
   });
 });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)

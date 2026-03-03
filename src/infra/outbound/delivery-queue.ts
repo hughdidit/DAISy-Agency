@@ -298,12 +298,7 @@ export async function recoverPendingDeliveries(opts: {
 
   let recovered = 0;
   let failed = 0;
-<<<<<<< HEAD
   let skipped = 0;
-=======
-  let skippedMaxRetries = 0;
-  let deferredBackoff = 0;
->>>>>>> 10c7ae1ec (refactor(outbound): split recovery counters and normalize legacy retry entries)
 
   for (const entry of pending) {
     const now = Date.now();
@@ -325,7 +320,6 @@ export async function recoverPendingDeliveries(opts: {
       continue;
     }
 
-<<<<<<< HEAD
     const backoff = computeBackoffMs(entry.retryCount + 1);
     if (backoff > 0) {
       if (now + backoff >= deadline) {
@@ -337,15 +331,6 @@ export async function recoverPendingDeliveries(opts: {
       }
       opts.log.info(`Waiting ${backoff}ms before retrying delivery ${entry.id}`);
       await delayFn(backoff);
-=======
-    const retryEligibility = isEntryEligibleForRecoveryRetry(entry, now);
-    if (!retryEligibility.eligible) {
-      deferredBackoff += 1;
-      opts.log.info(
-        `Delivery ${entry.id} not ready for retry yet — backoff ${retryEligibility.remainingBackoffMs}ms remaining`,
-      );
-      continue;
->>>>>>> 10c7ae1ec (refactor(outbound): split recovery counters and normalize legacy retry entries)
     }
 
     try {
@@ -389,11 +374,7 @@ export async function recoverPendingDeliveries(opts: {
   }
 
   opts.log.info(
-<<<<<<< HEAD
     `Delivery recovery complete: ${recovered} recovered, ${failed} failed, ${skipped} skipped (max retries)`,
-=======
-    `Delivery recovery complete: ${recovered} recovered, ${failed} failed, ${skippedMaxRetries} skipped (max retries), ${deferredBackoff} deferred (backoff)`,
->>>>>>> 10c7ae1ec (refactor(outbound): split recovery counters and normalize legacy retry entries)
   );
   return { recovered, failed, skippedMaxRetries, deferredBackoff };
 }

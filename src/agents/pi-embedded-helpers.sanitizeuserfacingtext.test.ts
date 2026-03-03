@@ -33,7 +33,6 @@ describe("sanitizeUserFacingText", () => {
     );
   });
 
-<<<<<<< HEAD
   it("sanitizes direct context-overflow errors", () => {
     expect(
       sanitizeUserFacingText(
@@ -49,22 +48,6 @@ describe("sanitizeUserFacingText", () => {
   it("does not swallow assistant text that quotes the canonical context-overflow string", () => {
     const text =
       "Changelog note: we fixed false positives for `Context overflow: prompt too large for the model. Try again with less input or a larger-context model.` in 2026.2.9";
-=======
-  it.each([
-    "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
-    "Request size exceeds model context window",
-  ])("sanitizes direct context-overflow error: %s", (text) => {
-    expect(sanitizeUserFacingText(text, { errorContext: true })).toContain(
-      "Context overflow: prompt too large for the model.",
-    );
-  });
-
-  it.each([
-    "Changelog note: we fixed false positives for `Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.` in 2026.2.9",
-    "nah it failed, hit a context overflow. the prompt was too large for the model. want me to retry it with a different approach?",
-    "Problem: When a subagent reads a very large file, it can exceed the model context window. Auto-compaction cannot help in that case.",
-  ])("does not rewrite regular context-overflow mentions: %s", (text) => {
->>>>>>> 861718e4d (test: group remaining suite cleanups)
     expect(sanitizeUserFacingText(text)).toBe(text);
   });
 
@@ -106,29 +89,9 @@ describe("sanitizeUserFacingText", () => {
     expect(sanitizeUserFacingText(input)).toBe(expected);
   });
 
-<<<<<<< HEAD
   it("does not collapse distinct paragraphs", () => {
     const text = "Hello there!\n\nDifferent line.";
     expect(sanitizeUserFacingText(text)).toBe(text);
-=======
-  it.each([
-    { input: "\n\nHello there!", expected: "Hello there!" },
-    { input: "\nHello there!", expected: "Hello there!" },
-    { input: "\n\n\nMultiple newlines", expected: "Multiple newlines" },
-    { input: "\n \nHello", expected: "Hello" },
-    { input: "  \n\nHello", expected: "Hello" },
-  ])("strips leading empty lines: %j", ({ input, expected }) => {
-    expect(sanitizeUserFacingText(input)).toBe(expected);
-  });
-
-  it("preserves trailing whitespace and internal newlines", () => {
-    expect(sanitizeUserFacingText("Hello\n\nWorld\n")).toBe("Hello\n\nWorld\n");
-    expect(sanitizeUserFacingText("Line 1\nLine 2")).toBe("Line 1\nLine 2");
-  });
-
-  it.each(["\n\n", "  \n  "])("returns empty for whitespace-only input: %j", (input) => {
-    expect(sanitizeUserFacingText(input)).toBe("");
->>>>>>> 861718e4d (test: group remaining suite cleanups)
   });
 });
 

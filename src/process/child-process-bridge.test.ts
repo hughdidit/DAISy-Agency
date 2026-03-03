@@ -7,15 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { attachChildProcessBridge } from "./child-process-bridge.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function waitForLine(stream: NodeJS.ReadableStream, timeoutMs = 2000): Promise<string> {
-=======
-const CHILD_READY_TIMEOUT_MS = 2_000;
-const CHILD_EXIT_TIMEOUT_MS = 3_000;
-=======
-const CHILD_READY_TIMEOUT_MS = 10_000;
-const CHILD_EXIT_TIMEOUT_MS = 10_000;
->>>>>>> bf52273a5 (test: harden flaky timeout-sensitive tests)
 
 function waitForLine(
   stream: NodeJS.ReadableStream,
@@ -106,22 +98,11 @@ describe("attachChildProcessBridge", () => {
     addedSigterm("SIGTERM");
 
     await new Promise<void>((resolve, reject) => {
-<<<<<<< HEAD
       const timeout = setTimeout(() => reject(new Error("timeout waiting for child exit")), 2_000);
-=======
-      const timeout = setTimeout(
-        () => reject(new Error("timeout waiting for child exit")),
-        CHILD_EXIT_TIMEOUT_MS,
-      );
->>>>>>> 81a85c19f (test(gateway): tighten e2e timeouts and dedupe invoke checks)
       child.once("exit", () => {
         clearTimeout(timeout);
         resolve();
       });
     });
-<<<<<<< HEAD
   }, 5_000);
-=======
-  }, 8_000);
->>>>>>> 81a85c19f (test(gateway): tighten e2e timeouts and dedupe invoke checks)
 });

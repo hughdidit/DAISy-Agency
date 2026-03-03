@@ -3,13 +3,8 @@ import path from "node:path";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { RuntimeEnv } from "../runtime.js";
-=======
-=======
-import { makeTempWorkspace } from "../test-helpers/workspace.js";
->>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
 import { baseConfigSnapshot, createTestRuntime } from "./test-runtime-config-helpers.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
@@ -26,7 +21,6 @@ vi.mock("../config/config.js", async (importOriginal) => ({
 
 import { agentsSetIdentityCommand } from "./agents.js";
 
-<<<<<<< HEAD
 const runtime: RuntimeEnv = {
   log: vi.fn(),
   error: vi.fn(),
@@ -43,10 +37,6 @@ const baseSnapshot = {
   issues: [],
   legacyIssues: [],
 };
-=======
-const runtime = createTestRuntime();
-<<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 type ConfigWritePayload = {
   agents?: { list?: Array<{ id: string; identity?: Record<string, string> }> };
@@ -89,7 +79,6 @@ describe("agents set-identity command", () => {
   });
 
   it("sets identity from workspace IDENTITY.md", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-identity-"));
     const workspace = path.join(root, "work");
     await fs.mkdir(workspace, { recursive: true });
@@ -104,16 +93,6 @@ describe("agents set-identity command", () => {
       ].join("\n"),
       "utf-8",
     );
-=======
-    const { root, workspace } = await createIdentityWorkspace();
-    await writeIdentityFile(workspace, [
-      "- Name: OpenClaw",
-      "- Creature: helpful sloth",
-      "- Emoji: :)",
-      "- Avatar: avatars/openclaw.png",
-      "",
-    ]);
->>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
 
     configMocks.readConfigFileSnapshot.mockResolvedValue({
       ...baseConfigSnapshot,
@@ -130,17 +109,12 @@ describe("agents set-identity command", () => {
     await agentsSetIdentityCommand({ workspace }, runtime);
 
     expect(configMocks.writeConfigFile).toHaveBeenCalledTimes(1);
-<<<<<<< HEAD
     const written = configMocks.writeConfigFile.mock.calls[0]?.[0] as {
       agents?: { list?: Array<{ id: string; identity?: Record<string, string> }> };
     };
     const main = written.agents?.list?.find((entry) => entry.id === "main");
     expect(main?.identity).toEqual({
       name: "Clawd",
-=======
-    expect(getWrittenMainIdentity()).toEqual({
-      name: "OpenClaw",
->>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
       theme: "helpful sloth",
       emoji: ":)",
       avatar: "avatars/clawd.png",
@@ -148,15 +122,10 @@ describe("agents set-identity command", () => {
   });
 
   it("errors when multiple agents match the same workspace", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-identity-"));
     const workspace = path.join(root, "shared");
     await fs.mkdir(workspace, { recursive: true });
     await fs.writeFile(path.join(workspace, "IDENTITY.md"), "- Name: Echo\n", "utf-8");
-=======
-    const { workspace } = await createIdentityWorkspace("shared");
-    await writeIdentityFile(workspace, ["- Name: Echo"]);
->>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
 
     configMocks.readConfigFileSnapshot.mockResolvedValue({
       ...baseConfigSnapshot,
@@ -178,7 +147,6 @@ describe("agents set-identity command", () => {
   });
 
   it("overrides identity file values with explicit flags", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-identity-"));
     const workspace = path.join(root, "work");
     await fs.mkdir(workspace, { recursive: true });
@@ -193,16 +161,6 @@ describe("agents set-identity command", () => {
       ].join("\n"),
       "utf-8",
     );
-=======
-    const { workspace } = await createIdentityWorkspace();
-    await writeIdentityFile(workspace, [
-      "- Name: OpenClaw",
-      "- Theme: space lobster",
-      "- Emoji: :)",
-      "- Avatar: avatars/openclaw.png",
-      "",
-    ]);
->>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
 
     configMocks.readConfigFileSnapshot.mockResolvedValue({
       ...baseConfigSnapshot,
@@ -229,7 +187,6 @@ describe("agents set-identity command", () => {
   });
 
   it("reads identity from an explicit IDENTITY.md path", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-identity-"));
     const workspace = path.join(root, "work");
     const identityPath = path.join(workspace, "IDENTITY.md");
@@ -245,16 +202,6 @@ describe("agents set-identity command", () => {
       ].join("\n"),
       "utf-8",
     );
-=======
-    const { workspace } = await createIdentityWorkspace();
-    const identityPath = await writeIdentityFile(workspace, [
-      "- **Name:** C-3PO",
-      "- **Creature:** Flustered Protocol Droid",
-      "- **Emoji:** 🤖",
-      "- **Avatar:** avatars/c3po.png",
-      "",
-    ]);
->>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
 
     configMocks.readConfigFileSnapshot.mockResolvedValue({
       ...baseConfigSnapshot,
@@ -272,7 +219,6 @@ describe("agents set-identity command", () => {
   });
 
   it("accepts avatar-only identity from IDENTITY.md", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-identity-"));
     const workspace = path.join(root, "work");
     await fs.mkdir(workspace, { recursive: true });
@@ -281,10 +227,6 @@ describe("agents set-identity command", () => {
       "- Avatar: avatars/only.png\n",
       "utf-8",
     );
-=======
-    const { workspace } = await createIdentityWorkspace();
-    await writeIdentityFile(workspace, ["- Avatar: avatars/only.png"]);
->>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
 
     await runIdentityCommandFromWorkspace(workspace);
 
@@ -310,13 +252,9 @@ describe("agents set-identity command", () => {
   });
 
   it("errors when identity data is missing", async () => {
-<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-identity-"));
     const workspace = path.join(root, "work");
     await fs.mkdir(workspace, { recursive: true });
-=======
-    const { workspace } = await createIdentityWorkspace();
->>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
 
     await runIdentityCommandFromWorkspace(workspace);
 

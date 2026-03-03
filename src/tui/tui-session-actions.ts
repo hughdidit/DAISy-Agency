@@ -1,24 +1,13 @@
 import type { TUI } from "@mariozechner/pi-tui";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { stripInboundMetadata } from "../auto-reply/reply/strip-inbound-meta.js";
->>>>>>> a4e7e952e (fix(ui): strip injected inbound metadata from user messages in history (#22142))
 =======
 >>>>>>> 45fff13b1 (TUI: strip only leading inbound metadata (#22461))
 import type { SessionsPatchResult } from "../gateway/protocol/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import type { ChatLog } from "./components/chat-log.js";
-import type { GatewayAgentsList, GatewayChatClient } from "./gateway-chat.js";
-import type { TuiOptions, TuiStateAccess } from "./tui-types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -52,8 +41,6 @@ type SessionActionContext = {
   updateFooter: () => void;
   updateAutocompleteProvider: () => void;
   setActivityStatus: (text: string) => void;
-<<<<<<< HEAD
-=======
   clearLocalRunIds?: () => void;
 };
 
@@ -66,7 +53,6 @@ type SessionInfoDefaults = {
 type SessionInfoEntry = SessionInfo & {
   modelOverride?: string;
   providerOverride?: string;
->>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
 };
 
 export function createSessionActions(context: SessionActionContext) {

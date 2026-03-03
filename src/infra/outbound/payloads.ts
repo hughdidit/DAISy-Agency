@@ -44,12 +44,9 @@ export function normalizeReplyPayloadsForDelivery(
   payloads: readonly ReplyPayload[],
 ): ReplyPayload[] {
   return payloads.flatMap((payload) => {
-<<<<<<< HEAD
-=======
     if (shouldSuppressReasoningPayload(payload)) {
       return [];
     }
->>>>>>> 5c6b2cbc8 (refactor: extract iMessage echo cache and unify suppression guards)
     const parsed = parseReplyDirectives(payload.text ?? "");
     const explicitMediaUrls = payload.mediaUrls ?? parsed.mediaUrls;
     const explicitMediaUrl = payload.mediaUrl ?? parsed.mediaUrl;

@@ -2,11 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { GatewayRequestHandlers } from "./types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -26,18 +21,7 @@ import {
   verifyNodeToken,
 } from "../../infra/node-pairing.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { listDevicePairing } from "../../infra/device-pairing.js";
-=======
-=======
-import {
-  loadApnsRegistration,
-  resolveApnsAuthConfigFromEnv,
-  sendApnsAlert,
-  sendApnsBackgroundWake,
-} from "../../infra/push-apns.js";
-<<<<<<< HEAD
->>>>>>> e67da1538 (iOS/Gateway: wake disconnected iOS nodes via APNs before invoke (#20332))
 =======
 import {
   buildCanvasScopedHostUrl,
@@ -46,12 +30,8 @@ import {
 } from "../canvas-capability.js";
 >>>>>>> 54eaf1732 (feat(gateway): add node canvas capability refresh flow)
 import { isNodeCommandAllowed, resolveNodeCommandAllowlist } from "../node-command-policy.js";
-<<<<<<< HEAD
 import { sanitizeSystemRunParamsForForwarding } from "../node-invoke-system-run-approval.js";
 >>>>>>> 318379cdb (fix(gateway): bind system.run approvals to exec approvals)
-=======
-import { sanitizeNodeInvokeParamsForForwarding } from "../node-invoke-sanitize.js";
->>>>>>> 0af76f5f0 (refactor(gateway): centralize node.invoke param sanitization)
 import {
   ErrorCodes,
   errorShape,
@@ -78,11 +58,8 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { loadConfig } from "../../config/config.js";
 import { isNodeCommandAllowed, resolveNodeCommandAllowlist } from "../node-command-policy.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayRequestHandlers } from "./types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

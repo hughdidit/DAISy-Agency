@@ -10,7 +10,6 @@ import {
 } from "./auto-reply.test-harness.js";
 import type { WebInboundMessage } from "./inbound.js";
 
-<<<<<<< HEAD
 let previousHome: string | undefined;
 let tempHome: string | undefined;
 
@@ -84,9 +83,6 @@ const makeSessionStore = async (
     cleanup,
   };
 };
-=======
-installWebAutoReplyTestHomeHooks();
->>>>>>> 5faba6a48 (refactor(test): reuse web auto-reply harness in more tests)
 
 function createRuntime() {
   return {
@@ -334,19 +330,10 @@ describe("web auto-reply", () => {
 
       await vi.advanceTimersByTimeAsync(200);
       await Promise.resolve();
-<<<<<<< HEAD
 
       await vi.advanceTimersByTimeAsync(1);
       await Promise.resolve();
       expect(listenerFactory).toHaveBeenCalledTimes(2);
-=======
-      await vi.waitFor(
-        () => {
-          expect(listenerFactory).toHaveBeenCalledTimes(2);
-        },
-        { timeout: 250, interval: 2 },
-      );
->>>>>>> b534dfa3e (fix(slack,web): harden thread hints and monitor tuning)
 
       controller.abort();
       closeResolvers[1]?.({ status: 499, isLoggedOut: false });
@@ -413,7 +400,6 @@ describe("web auto-reply", () => {
           }),
         );
 
-<<<<<<< HEAD
       expect(resolver).toHaveBeenCalledTimes(2);
       const firstArgs = resolver.mock.calls[0][0];
       const secondArgs = resolver.mock.calls[1][0];
@@ -429,23 +415,6 @@ describe("web auto-reply", () => {
         new RegExp(`\\[WhatsApp \\+1 (\\+\\d+[smhd] )?${secondPattern}\\] \\[moltbot\\] second`),
       );
       expect(secondArgs.Body).not.toContain("first");
-=======
-        expect(resolver).toHaveBeenCalledTimes(2);
-        const firstArgs = resolver.mock.calls[0][0];
-        const secondArgs = resolver.mock.calls[1][0];
-        const firstTimestamp = formatEnvelopeTimestamp(new Date("2025-01-01T00:00:00Z"));
-        const secondTimestamp = formatEnvelopeTimestamp(new Date("2025-01-01T01:00:00Z"));
-        const firstPattern = escapeRegExp(firstTimestamp);
-        const secondPattern = escapeRegExp(secondTimestamp);
-        expect(firstArgs.Body).toMatch(
-          new RegExp(`\\[WhatsApp \\+1 (\\+\\d+[smhd] )?${firstPattern}\\] \\[openclaw\\] first`),
-        );
-        expect(firstArgs.Body).not.toContain("second");
-        expect(secondArgs.Body).toMatch(
-          new RegExp(`\\[WhatsApp \\+1 (\\+\\d+[smhd] )?${secondPattern}\\] \\[openclaw\\] second`),
-        );
-        expect(secondArgs.Body).not.toContain("first");
->>>>>>> d98289349 (refactor(test): use env helper for web auto-reply timezone test)
 
         // Max listeners bumped to avoid warnings in multi-instance test runs
         expect(process.getMaxListeners?.()).toBeGreaterThanOrEqual(50);

@@ -9,15 +9,9 @@ import { extractArchive, resolveArchiveKind, resolvePackedRootDir } from "./arch
 let fixtureRoot = "";
 let fixtureCount = 0;
 
-<<<<<<< HEAD
 async function makeTempDir() {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-archive-"));
   tempDirs.push(dir);
-=======
-async function makeTempDir(prefix = "case") {
-  const dir = path.join(fixtureRoot, `${prefix}-${fixtureCount++}`);
-  await fs.mkdir(dir, { recursive: true });
->>>>>>> 221fe499d (perf(test): speed up archive suite)
   return dir;
 }
 
@@ -109,8 +103,6 @@ describe("archive utils", () => {
     },
   );
 
-<<<<<<< HEAD
-=======
   it("rejects zip path traversal (zip slip)", async () => {
     await withArchiveCase("zip", async ({ archivePath, extractDir }) => {
       const zip = new JSZip();
@@ -149,7 +141,6 @@ describe("archive utils", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> d35a8b48f (test(infra): dedupe archive case setup and cover packed-root multi-dir failure)
   it("extracts tar archives", async () => {
     await withArchiveCase("tar", async ({ workDir, archivePath, extractDir }) => {
       const packageDir = path.join(workDir, "package");
@@ -163,11 +154,8 @@ describe("archive utils", () => {
       expect(content).toBe("yo");
     });
   });
-<<<<<<< HEAD
-=======
 
 =======
->>>>>>> 204f379f6 (test(archive): share zip/tar fixture generation)
   it("rejects tar path traversal (zip slip)", async () => {
     await withArchiveCase("tar", async ({ workDir, archivePath, extractDir }) => {
       const insideDir = path.join(workDir, "inside");
@@ -229,7 +217,6 @@ describe("archive utils", () => {
     await expect(resolvePackedRootDir(extractDir)).rejects.toThrow(/unexpected archive layout/i);
   });
 
-<<<<<<< HEAD
   it("rejects tar archives that exceed extracted size budget", async () => {
     await withArchiveCase("tar", async ({ workDir, archivePath, extractDir }) => {
       const packageDir = path.join(workDir, "package");
@@ -246,10 +233,6 @@ describe("archive utils", () => {
   });
 <<<<<<< HEAD
 >>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
-=======
-
-=======
->>>>>>> 204f379f6 (test(archive): share zip/tar fixture generation)
   it("rejects tar entries with absolute extraction paths", async () => {
     await withArchiveCase("tar", async ({ workDir, archivePath, extractDir }) => {
       const inputDir = path.join(workDir, "input");

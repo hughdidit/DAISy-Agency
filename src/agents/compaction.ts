@@ -2,23 +2,11 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
 import { estimateTokens, generateSummary } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-=======
-import type { AgentCompactionIdentifierPolicy } from "../config/types.agent-defaults.js";
->>>>>>> 0fe6cf06b (Compaction: preserve opaque identifiers in summaries (openclaw#25553) thanks @rodrigouroz)
 import { retryAsync } from "../infra/retry.js";
-<<<<<<< HEAD
 >>>>>>> 068b9c974 (feat: wrap compaction generateSummary in retryAsync)
-=======
-import { createSubsystemLogger } from "../logging/subsystem.js";
->>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 import { DEFAULT_CONTEXT_TOKENS } from "./defaults.js";
-<<<<<<< HEAD
-=======
 import { repairToolUseResultPairing, stripToolResultDetails } from "./session-transcript-repair.js";
->>>>>>> a4bf61952 (refactor(agents): share toolResult details stripping)
 
 const log = createSubsystemLogger("compaction");
 
@@ -140,13 +128,8 @@ export function chunkMessagesByMaxTokens(
   let currentTokens = 0;
 
   for (const message of messages) {
-<<<<<<< HEAD
     const messageTokens = estimateTokens(message);
     if (currentChunk.length > 0 && currentTokens + messageTokens > maxTokens) {
-=======
-    const messageTokens = estimateCompactionMessageTokens(message);
-    if (currentChunk.length > 0 && currentTokens + messageTokens > effectiveMax) {
->>>>>>> 50c5f7590 (Compaction: sanitize token split accounting (#24058))
       chunks.push(currentChunk);
       currentChunk = [];
       currentTokens = 0;

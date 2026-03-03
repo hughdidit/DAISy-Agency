@@ -8,17 +8,11 @@ import { repeat } from "lit/directives/repeat.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { SessionsListResult } from "../types";
 import type { ChatAttachment, ChatQueueItem } from "../ui-types";
 import type { ChatItem, MessageGroup } from "../types/chat-types";
 import { icons } from "../icons";
 import { normalizeMessage, normalizeRoleForGrouping } from "../chat/message-normalizer";
-=======
-import type { SessionsListResult } from "../types.ts";
-import type { ChatItem, MessageGroup } from "../types/chat-types.ts";
-import type { ChatAttachment, ChatQueueItem } from "../ui-types.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -44,25 +38,9 @@ import {
   renderMessageGroup,
   renderReadingIndicatorGroup,
   renderStreamingGroup,
-<<<<<<< HEAD
 } from "../chat/grouped-render";
 import { renderMarkdownSidebar } from "./markdown-sidebar";
 import "../components/resizable-divider";
-=======
-} from "../chat/grouped-render.ts";
-import { normalizeMessage, normalizeRoleForGrouping } from "../chat/message-normalizer.ts";
-import { icons } from "../icons.ts";
-<<<<<<< HEAD
-=======
-import { detectTextDirection } from "../text-direction.ts";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { SessionsListResult } from "../types.ts";
-import type { ChatItem, MessageGroup } from "../types/chat-types.ts";
-import type { ChatAttachment, ChatQueueItem } from "../ui-types.ts";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -380,7 +358,6 @@ export function renderChat(props: ChatProps) {
     </div>
   `;
 
-<<<<<<< HEAD
   const handleKeyDown = (e: KeyboardEvent) => {
     // Slash menu navigation
     if (slashMenuOpen && slashMenuItems.length > 0) {
@@ -467,8 +444,6 @@ export function renderChat(props: ChatProps) {
     props.onDraftChange(target.value);
   };
 
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
   return html`
     <section class="card chat">
       ${props.disabledReason ? html`<div class="callout">${props.disabledReason}</div>` : nothing}
@@ -560,22 +535,15 @@ export function renderChat(props: ChatProps) {
           : nothing
       }
 
-<<<<<<< HEAD
-=======
       ${renderFallbackIndicator(props.fallbackStatus)}
       ${renderCompactionIndicator(props.compactionStatus)}
 
->>>>>>> c2876b69f (feat(auto-reply): add model fallback lifecycle visibility in status, verbose logs, and WebUI (#20704))
       ${
         props.showNewMessages
           ? html`
             <button
 <<<<<<< HEAD
-<<<<<<< HEAD
               class="chat-new-messages"
-=======
-              class="agent-chat__scroll-pill"
->>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
 =======
               class="btn chat-new-messages"
 >>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
@@ -591,16 +559,12 @@ export function renderChat(props: ChatProps) {
       <div class="chat-compose">
         ${renderAttachmentPreview(props)}
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
         <div class="chat-compose__row">
           <label class="field chat-compose__field">
             <span>Message</span>
             <textarea
               ${ref((el) => el && adjustTextareaHeight(el as HTMLTextAreaElement))}
               .value=${props.draft}
-<<<<<<< HEAD
               ?disabled=${!props.connected}
               @keydown=${(e: KeyboardEvent) => {
                 if (e.key !== "Enter") {
@@ -630,31 +594,6 @@ export function renderChat(props: ChatProps) {
             ></textarea>
           </label>
           <div class="chat-compose__actions">
-=======
-
-        <input
-          type="file"
-          accept="image/*,.pdf,.txt,.md,.json,.csv"
-          multiple
-          class="agent-chat__file-input"
-          @change=${(e: Event) => handleFileSelect(e, props)}
-        />
-
-        <textarea
-          ${ref((el) => el && adjustTextareaHeight(el as HTMLTextAreaElement))}
-          .value=${props.draft}
-          dir=${detectTextDirection(props.draft)}
-          ?disabled=${!props.connected}
-          @keydown=${handleKeyDown}
-          @input=${handleInput}
-          @paste=${(e: ClipboardEvent) => handlePaste(e, props)}
-          placeholder=${placeholder}
-          rows="1"
-        ></textarea>
-
-        <div class="agent-chat__toolbar">
-          <div class="agent-chat__toolbar-left">
->>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
             <button
               class="agent-chat__input-btn"
               @click=${() => {
@@ -707,7 +646,6 @@ export function renderChat(props: ChatProps) {
             >
               ${isBusy ? "Queue" : "Send"}<kbd class="btn-kbd">↵</kbd>
             </button>
-<<<<<<< HEAD
             <button class="btn-ghost" @click=${() => exportMarkdown(props)} title="Export" ?disabled=${props.messages.length === 0}>
               ${icons.download}
             </button>
@@ -735,8 +673,6 @@ export function renderChat(props: ChatProps) {
                   </button>
                 `
             }
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
           </div>
         </div>
       </div>

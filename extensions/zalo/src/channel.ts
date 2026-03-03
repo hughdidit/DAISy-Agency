@@ -64,13 +64,8 @@ export const zaloDock: ChannelDock = {
   outbound: { textChunkLimit: 2000 },
   config: {
     resolveAllowFrom: ({ cfg, accountId }) =>
-<<<<<<< HEAD
       (resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId }).config.allowFrom ?? []).map(
         (entry) => String(entry),
-=======
-      (resolveZaloAccount({ cfg: cfg, accountId }).config.allowFrom ?? []).map((entry) =>
-        String(entry),
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       ),
     formatAllowFrom: ({ allowFrom }) =>
       formatAllowFromLowercase({ allowFrom, stripPrefixRe: /^(zalo|zl):/i }),
@@ -100,16 +95,9 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
   configSchema: buildChannelConfigSchema(ZaloConfigSchema),
   config: {
 <<<<<<< HEAD
-<<<<<<< HEAD
     listAccountIds: (cfg) => listZaloAccountIds(cfg as MoltbotConfig),
     resolveAccount: (cfg, accountId) => resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId }),
     defaultAccountId: (cfg) => resolveDefaultZaloAccountId(cfg as MoltbotConfig),
-=======
-    listAccountIds: (cfg) => listZaloAccountIds(cfg as OpenClawConfig),
-    resolveAccount: (cfg, accountId) =>
-      resolveZaloAccount({ cfg: cfg as OpenClawConfig, accountId }),
-    defaultAccountId: (cfg) => resolveDefaultZaloAccountId(cfg as OpenClawConfig),
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     setAccountEnabled: ({ cfg, accountId, enabled }) =>
       setAccountEnabledInConfigSection({
         cfg: cfg as MoltbotConfig,
@@ -128,11 +116,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       }),
     deleteAccount: ({ cfg, accountId }) =>
       deleteAccountFromConfigSection({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         sectionKey: "zalo",
         accountId,
         clearBaseFields: ["botToken", "tokenFile", "name"],
@@ -146,13 +130,8 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       tokenSource: account.tokenSource,
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
-<<<<<<< HEAD
       (resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId }).config.allowFrom ?? []).map(
         (entry) => String(entry),
-=======
-      (resolveZaloAccount({ cfg: cfg, accountId }).config.allowFrom ?? []).map((entry) =>
-        String(entry),
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       ),
     formatAllowFrom: ({ allowFrom }) =>
       formatAllowFromLowercase({ allowFrom, stripPrefixRe: /^(zalo|zl):/i }),
@@ -161,13 +140,9 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
       const resolvedAccountId = accountId ?? account.accountId ?? DEFAULT_ACCOUNT_ID;
 <<<<<<< HEAD
-<<<<<<< HEAD
       const useAccountPath = Boolean(
         (cfg as MoltbotConfig).channels?.zalo?.accounts?.[resolvedAccountId],
       );
-=======
-      const useAccountPath = Boolean(cfg.channels?.zalo?.accounts?.[resolvedAccountId]);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       const basePath = useAccountPath
         ? `channels.zalo.accounts.${resolvedAccountId}.`
         : "channels.zalo.";
@@ -211,11 +186,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
   directory: {
     self: async () => null,
     listPeers: async ({ cfg, accountId, query, limit }) => {
-<<<<<<< HEAD
       const account = resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId });
-=======
-      const account = resolveZaloAccount({ cfg: cfg, accountId });
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       const q = query?.trim().toLowerCase() || "";
       const peers = Array.from(
         new Set(
@@ -236,11 +207,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     resolveAccountId: ({ accountId }) => normalizeAccountId(accountId),
     applyAccountName: ({ cfg, accountId, name }) =>
       applyAccountNameToChannelSection({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "zalo",
         accountId,
         name,
@@ -256,11 +223,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     },
     applyAccountConfig: ({ cfg, accountId, input }) => {
       const namedConfig = applyAccountNameToChannelSection({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "zalo",
         accountId,
         name: input.name,
@@ -319,15 +282,8 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     idLabel: "zaloUserId",
     normalizeAllowEntry: (entry) => entry.replace(/^(zalo|zl):/i, ""),
     notifyApproval: async ({ cfg, id }) => {
-<<<<<<< HEAD
       const account = resolveZaloAccount({ cfg: cfg as MoltbotConfig });
       if (!account.token) throw new Error("Zalo token not configured");
-=======
-      const account = resolveZaloAccount({ cfg: cfg });
-      if (!account.token) {
-        throw new Error("Zalo token not configured");
-      }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       await sendMessageZalo(id, PAIRING_APPROVED_MESSAGE, { token: account.token });
     },
   },
@@ -339,11 +295,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     sendText: async ({ to, text, accountId, cfg }) => {
       const result = await sendMessageZalo(to, text, {
         accountId: accountId ?? undefined,
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       });
       return {
         channel: "zalo",
@@ -356,11 +308,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       const result = await sendMessageZalo(to, text, {
         accountId: accountId ?? undefined,
         mediaUrl,
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       });
       return {
         channel: "zalo",
@@ -425,11 +373,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       return monitorZaloProvider({
         token,
         account,
-<<<<<<< HEAD
         config: ctx.cfg as MoltbotConfig,
-=======
-        config: ctx.cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         runtime: ctx.runtime,
         abortSignal: ctx.abortSignal,
         useWebhook: Boolean(account.config.webhookUrl),

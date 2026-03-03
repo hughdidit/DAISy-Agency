@@ -257,8 +257,6 @@ describe("isContextOverflowError", () => {
     }
   });
 
-<<<<<<< HEAD
-=======
   it("matches exceed/context/max_tokens overflow variants", () => {
     const samples = [
       "input length and max_tokens exceed context limit (i.e 156321 + 48384 > 200000)",
@@ -285,7 +283,6 @@ describe("isContextOverflowError", () => {
     }
   });
 
->>>>>>> 544809b6f (Add Chinese context overflow patterns to isContextOverflowError (#22855))
   it("ignores normal conversation text mentioning context overflow", () => {
     // These are legitimate conversation snippets, not error messages
     expect(isContextOverflowError("Let's investigate the context overflow bug")).toBe(false);
@@ -500,8 +497,6 @@ describe("classifyFailoverReason", () => {
       "rate_limit",
     );
   });
-<<<<<<< HEAD
-=======
   it("classifies provider high-demand / service-unavailable messages as rate_limit", () => {
     expect(
       classifyFailoverReason(
@@ -528,5 +523,4 @@ describe("classifyFailoverReason", () => {
       ),
     ).toBe("timeout");
   });
->>>>>>> 35fe33aa9 (Agents: classify Anthropic api_error internal server failures for fallback)
 });

@@ -34,14 +34,11 @@ export type CallManagerRuntimeState = {
   activeCalls: Map<CallId, CallRecord>;
   providerCallIdMap: Map<string, CallId>;
   processedEventIds: Set<string>;
-<<<<<<< HEAD
-=======
   /** Provider call IDs we already sent a reject hangup for; avoids duplicate hangup calls. */
   rejectedProviderCallIds: Set<string>;
 };
 
 export type CallManagerRuntimeDeps = {
->>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   provider: VoiceCallProvider | null;
   config: VoiceCallConfig;
   storePath: string;

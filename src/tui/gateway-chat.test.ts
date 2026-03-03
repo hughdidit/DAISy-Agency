@@ -7,7 +7,6 @@ import {
 } from "../gateway/gateway-connection.test-mocks.js";
 import { captureEnv, withEnv } from "../test-utils/env.js";
 
-<<<<<<< HEAD
 const loadConfig = vi.fn();
 const resolveGatewayPort = vi.fn();
 const pickPrimaryTailnetIPv4 = vi.fn();
@@ -30,8 +29,6 @@ vi.mock("../gateway/net.js", () => ({
   pickPrimaryLanIPv4,
 }));
 
-=======
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 const { resolveGatewayConnection } = await import("./gateway-chat.js");
 
 describe("resolveGatewayConnection", () => {

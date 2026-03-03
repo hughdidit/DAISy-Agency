@@ -10,7 +10,6 @@ export type AuthChoiceOption = {
   label: string;
   hint?: string;
 };
-<<<<<<< HEAD
 
 export type AuthChoiceGroupId =
   | "openai"
@@ -34,20 +33,10 @@ export type AuthChoiceGroupId =
 <<<<<<< HEAD
 <<<<<<< HEAD
   | "qianfan";
-=======
-=======
-=======
-  | "together"
->>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
   | "qianfan"
-<<<<<<< HEAD
 >>>>>>> 7a9deb240 (Resolve conflicts)
   | "xai";
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
-=======
-  | "xai"
-  | "custom";
->>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 
 =======
 >>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
@@ -91,13 +80,8 @@ const AUTH_CHOICE_GROUP_DEFS: {
   {
     value: "minimax",
     label: "MiniMax",
-<<<<<<< HEAD
     hint: "M2.1 (recommended)",
     choices: ["minimax-api", "minimax-api-lightning"],
-=======
-    hint: "M2.5 (recommended)",
-    choices: ["minimax-portal", "minimax-api", "minimax-api-lightning"],
->>>>>>> cb0350230 (feat(minimax): update models from M2.1 to M2.5 (#14865))
   },
   {
     value: "moonshot",
@@ -226,17 +210,10 @@ const AUTH_CHOICE_GROUP_DEFS: {
     choices: ["cloudflare-ai-gateway-api-key"],
   },
   {
-<<<<<<< HEAD
     value: "qianfan",
     label: "Qianfan",
     hint: "API key",
     choices: ["qianfan-api-key"],
-=======
-    value: "custom",
-    label: "Custom Provider",
-    hint: "Any OpenAI or Anthropic compatible endpoint",
-    choices: ["custom-api-key"],
->>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
   },
 ];
 
@@ -371,7 +348,6 @@ export function buildAuthChoiceOptions(params: {
   includeSkip: boolean;
 }): AuthChoiceOption[] {
   void params.store;
-<<<<<<< HEAD
   const options: AuthChoiceOption[] = [];
 
   options.push({
@@ -477,13 +453,6 @@ export function buildAuthChoiceOptions(params: {
     label: "Xiaomi API key",
   });
 <<<<<<< HEAD
-=======
-  options.push({
-    value: "minimax-portal",
-    label: "MiniMax OAuth",
-    hint: "Oauth plugin for MiniMax",
-  });
->>>>>>> 511b2c91e (feat: mr)
   options.push({ value: "qwen-portal", label: "Qwen OAuth" });
   options.push({
     value: "copilot-proxy",
@@ -504,16 +473,10 @@ export function buildAuthChoiceOptions(params: {
     hint: "Faster, higher output cost",
   });
 <<<<<<< HEAD
-<<<<<<< HEAD
   options.push({
     value: "qianfan-api-key",
     label: "Qianfan API key",
   });
-=======
-  options.push({ value: "custom-api-key", label: "Custom API Endpoint" });
-=======
-  options.push({ value: "custom-api-key", label: "Custom Provider" });
->>>>>>> 2914cb1d4 (Onboard: rename Custom API Endpoint to Custom Provider)
 =======
   const options: AuthChoiceOption[] = [...BASE_AUTH_CHOICE_OPTIONS];
 >>>>>>> eab9dc538 (refactor(onboard): unify auth-choice catalog for CLI help)

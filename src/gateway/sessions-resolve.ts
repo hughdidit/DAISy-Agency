@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { loadSessionStore } from "../config/sessions.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { loadSessionStore, updateSessionStore } from "../config/sessions.js";
->>>>>>> 4225206f0 (fix(gateway): normalize session key casing to prevent ghost sessions (#12846))
 import { parseSessionLabel } from "../sessions/session-label.js";
 import {
   ErrorCodes,
@@ -21,13 +16,8 @@ import {
 
 export type SessionsResolveResult = { ok: true; key: string } | { ok: false; error: ErrorShape };
 
-<<<<<<< HEAD
 export function resolveSessionKeyFromResolveParams(params: {
   cfg: MoltbotConfig;
-=======
-export async function resolveSessionKeyFromResolveParams(params: {
-  cfg: OpenClawConfig;
->>>>>>> 4225206f0 (fix(gateway): normalize session key casing to prevent ghost sessions (#12846))
   p: SessionsResolveParams;
 }): Promise<SessionsResolveResult> {
   const { cfg, p } = params;

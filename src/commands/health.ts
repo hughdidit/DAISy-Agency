@@ -7,11 +7,7 @@ import { withProgress } from "../cli/progress.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -567,12 +563,7 @@ export async function healthCommand(
   if (opts.json) {
     runtime.log(JSON.stringify(summary, null, 2));
   } else {
-<<<<<<< HEAD
     const debugEnabled = isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_HEALTH);
-=======
-    const debugEnabled = isTruthyEnvValue(process.env.OPENCLAW_DEBUG_HEALTH);
-    const rich = isRich();
->>>>>>> 1b03eb71a (refactor(health): share channel line styling)
     if (opts.verbose) {
       const details = buildGatewayConnectionDetails({ config: cfg });
       runtime.log(info("Gateway connection:"));

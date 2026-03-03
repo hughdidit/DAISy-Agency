@@ -2,14 +2,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import { describe, expect, it } from "vitest";
-import { validateConfigObjectWithPlugins } from "./config.js";
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
 import { withTempHome } from "./test-helpers.js";
 =======
 import { afterAll, describe, expect, it } from "vitest";
@@ -61,14 +56,11 @@ describe("config plugin validation", () => {
   });
 
   it("rejects missing plugin load paths", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       process.env.CLAWDBOT_STATE_DIR = path.join(home, ".clawdbot");
       vi.resetModules();
       const { validateConfigObjectWithPlugins } = await import("./config.js");
-=======
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
       const missingPath = path.join(home, "missing-plugin");
       const res = validateInHome(home, {
         agents: { list: [{ id: "pi" }] },
@@ -100,7 +92,6 @@ describe("config plugin validation", () => {
     }
   });
 
-<<<<<<< HEAD
   it("rejects missing plugin ids in entries", async () => {
 <<<<<<< HEAD
     await withTempHome(async (home) => {
@@ -109,9 +100,6 @@ describe("config plugin validation", () => {
       vi.resetModules();
       const { validateConfigObjectWithPlugins } = await import("./config.js");
       const res = validateConfigObjectWithPlugins({
-=======
-      const res = validateInHome(home, {
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
         agents: { list: [{ id: "pi" }] },
         plugins: { enabled: false, entries: { "missing-plugin": { enabled: true } } },
       });
@@ -143,16 +131,12 @@ describe("config plugin validation", () => {
   });
 
   it("rejects missing plugin ids in allow/deny/slots", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       process.env.CLAWDBOT_STATE_DIR = path.join(home, ".clawdbot");
       vi.resetModules();
       const { validateConfigObjectWithPlugins } = await import("./config.js");
       const res = validateConfigObjectWithPlugins({
-=======
-      const res = validateInHome(home, {
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
         agents: { list: [{ id: "pi" }] },
         plugins: {
           enabled: false,
@@ -238,12 +222,9 @@ describe("config plugin validation", () => {
   });
 
   it("surfaces plugin config diagnostics", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       process.env.CLAWDBOT_STATE_DIR = path.join(home, ".clawdbot");
-=======
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
       const pluginDir = path.join(home, "bad-plugin");
       await writePluginFixture({
         dir: pluginDir,
@@ -292,16 +273,12 @@ describe("config plugin validation", () => {
   });
 
   it("accepts known plugin ids", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       process.env.CLAWDBOT_STATE_DIR = path.join(home, ".clawdbot");
       vi.resetModules();
       const { validateConfigObjectWithPlugins } = await import("./config.js");
       const res = validateConfigObjectWithPlugins({
-=======
-      const res = validateInHome(home, {
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
         agents: { list: [{ id: "pi" }] },
         plugins: { enabled: false, entries: { discord: { enabled: true } } },
       });
@@ -317,12 +294,9 @@ describe("config plugin validation", () => {
   });
 
   it("accepts plugin heartbeat targets", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       process.env.CLAWDBOT_STATE_DIR = path.join(home, ".clawdbot");
-=======
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
       const pluginDir = path.join(home, "bluebubbles-plugin");
       await writePluginFixture({
         dir: pluginDir,
@@ -355,16 +329,12 @@ describe("config plugin validation", () => {
   });
 
   it("rejects unknown heartbeat targets", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       process.env.CLAWDBOT_STATE_DIR = path.join(home, ".clawdbot");
       vi.resetModules();
       const { validateConfigObjectWithPlugins } = await import("./config.js");
       const res = validateConfigObjectWithPlugins({
-=======
-      const res = validateInHome(home, {
->>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
         agents: { defaults: { heartbeat: { target: "not-a-channel" } }, list: [{ id: "pi" }] },
       });
       expect(res.ok).toBe(false);

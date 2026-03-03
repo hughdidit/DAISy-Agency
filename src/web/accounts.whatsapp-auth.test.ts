@@ -2,11 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { captureEnv } from "../test-utils/env.js";
->>>>>>> e075a33ca (refactor(test): simplify oauth/profile env restore)
 import { hasAnyWhatsAppAuth, listWhatsAppAuthDirs } from "./accounts.js";
 
 describe("hasAnyWhatsAppAuth", () => {
@@ -19,7 +15,6 @@ describe("hasAnyWhatsAppAuth", () => {
   };
 
   beforeEach(() => {
-<<<<<<< HEAD
     previousOauthDir = process.env.CLAWDBOT_OAUTH_DIR;
     tempOauthDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-oauth-"));
     process.env.CLAWDBOT_OAUTH_DIR = tempOauthDir;
@@ -31,15 +26,6 @@ describe("hasAnyWhatsAppAuth", () => {
     } else {
       process.env.CLAWDBOT_OAUTH_DIR = previousOauthDir;
     }
-=======
-    envSnapshot = captureEnv(["OPENCLAW_OAUTH_DIR"]);
-    tempOauthDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-oauth-"));
-    process.env.OPENCLAW_OAUTH_DIR = tempOauthDir;
-  });
-
-  afterEach(() => {
-    envSnapshot.restore();
->>>>>>> e075a33ca (refactor(test): simplify oauth/profile env restore)
     if (tempOauthDir) {
       fs.rmSync(tempOauthDir, { recursive: true, force: true });
       tempOauthDir = undefined;

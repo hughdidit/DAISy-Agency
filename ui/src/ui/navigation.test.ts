@@ -27,7 +27,6 @@ describe("iconForTab", () => {
   });
 
   it("returns stable icons for known tabs", () => {
-<<<<<<< HEAD
     expect(iconForTab("chat")).toBe("💬");
     expect(iconForTab("overview")).toBe("📊");
     expect(iconForTab("channels")).toBe("🔗");
@@ -39,24 +38,6 @@ describe("iconForTab", () => {
     expect(iconForTab("config")).toBe("⚙️");
     expect(iconForTab("debug")).toBe("🐞");
     expect(iconForTab("logs")).toBe("🧾");
-=======
-    const cases = [
-      { tab: "chat", icon: "messageSquare" },
-      { tab: "overview", icon: "barChart" },
-      { tab: "channels", icon: "link" },
-      { tab: "instances", icon: "radio" },
-      { tab: "sessions", icon: "fileText" },
-      { tab: "cron", icon: "loader" },
-      { tab: "skills", icon: "zap" },
-      { tab: "nodes", icon: "monitor" },
-      { tab: "config", icon: "settings" },
-      { tab: "debug", icon: "bug" },
-      { tab: "logs", icon: "scrollText" },
-    ] as const;
-    for (const testCase of cases) {
-      expect(iconForTab(testCase.tab), testCase.tab).toBe(testCase.icon);
-    }
->>>>>>> 1baac3e31 (test(ui): consolidate navigation/scroll/format matrices)
   });
 
   it("returns a fallback icon for unknown tab", () => {
@@ -102,7 +83,6 @@ describe("subtitleForTab", () => {
 });
 
 describe("normalizeBasePath", () => {
-<<<<<<< HEAD
   it("returns empty string for falsy input", () => {
     expect(normalizeBasePath("")).toBe("");
   });
@@ -121,19 +101,6 @@ describe("normalizeBasePath", () => {
 
   it("handles nested paths", () => {
     expect(normalizeBasePath("/apps/moltbot")).toBe("/apps/moltbot");
-=======
-  it("normalizes base-path variants", () => {
-    const cases = [
-      { input: "", expected: "" },
-      { input: "ui", expected: "/ui" },
-      { input: "/ui/", expected: "/ui" },
-      { input: "/", expected: "" },
-      { input: "/apps/openclaw", expected: "/apps/openclaw" },
-    ] as const;
-    for (const testCase of cases) {
-      expect(normalizeBasePath(testCase.input), testCase.input).toBe(testCase.expected);
-    }
->>>>>>> 1baac3e31 (test(ui): consolidate navigation/scroll/format matrices)
   });
 });
 
@@ -152,7 +119,6 @@ describe("normalizePath", () => {
 });
 
 describe("pathForTab", () => {
-<<<<<<< HEAD
   it("returns correct path without base", () => {
     expect(pathForTab("chat")).toBe("/chat");
     expect(pathForTab("overview")).toBe("/overview");
@@ -161,26 +127,10 @@ describe("pathForTab", () => {
   it("prepends base path", () => {
     expect(pathForTab("chat", "/ui")).toBe("/ui/chat");
     expect(pathForTab("sessions", "/apps/moltbot")).toBe("/apps/moltbot/sessions");
-=======
-  it("builds tab paths with optional bases", () => {
-    const cases = [
-      { tab: "chat", base: undefined, expected: "/chat" },
-      { tab: "overview", base: undefined, expected: "/overview" },
-      { tab: "chat", base: "/ui", expected: "/ui/chat" },
-      { tab: "sessions", base: "/apps/openclaw", expected: "/apps/openclaw/sessions" },
-    ] as const;
-    for (const testCase of cases) {
-      expect(
-        pathForTab(testCase.tab, testCase.base),
-        `${testCase.tab}:${testCase.base ?? "root"}`,
-      ).toBe(testCase.expected);
-    }
->>>>>>> 1baac3e31 (test(ui): consolidate navigation/scroll/format matrices)
   });
 });
 
 describe("tabFromPath", () => {
-<<<<<<< HEAD
   it("returns tab for valid path", () => {
     expect(tabFromPath("/chat")).toBe("chat");
     expect(tabFromPath("/overview")).toBe("overview");
@@ -203,31 +153,10 @@ describe("tabFromPath", () => {
   it("is case-insensitive", () => {
     expect(tabFromPath("/CHAT")).toBe("chat");
     expect(tabFromPath("/Overview")).toBe("overview");
-=======
-  it("resolves tabs from path variants", () => {
-    const cases = [
-      { path: "/chat", base: undefined, expected: "chat" },
-      { path: "/overview", base: undefined, expected: "overview" },
-      { path: "/sessions", base: undefined, expected: "sessions" },
-      { path: "/", base: undefined, expected: "chat" },
-      { path: "/ui/chat", base: "/ui", expected: "chat" },
-      { path: "/apps/openclaw/sessions", base: "/apps/openclaw", expected: "sessions" },
-      { path: "/unknown", base: undefined, expected: null },
-      { path: "/CHAT", base: undefined, expected: "chat" },
-      { path: "/Overview", base: undefined, expected: "overview" },
-    ] as const;
-    for (const testCase of cases) {
-      expect(
-        tabFromPath(testCase.path, testCase.base),
-        `${testCase.path}:${testCase.base ?? "root"}`,
-      ).toBe(testCase.expected);
-    }
->>>>>>> 1baac3e31 (test(ui): consolidate navigation/scroll/format matrices)
   });
 });
 
 describe("inferBasePathFromPathname", () => {
-<<<<<<< HEAD
   it("returns empty string for root", () => {
     expect(inferBasePathFromPathname("/")).toBe("");
   });
@@ -245,21 +174,6 @@ describe("inferBasePathFromPathname", () => {
   it("handles index.html suffix", () => {
     expect(inferBasePathFromPathname("/index.html")).toBe("");
     expect(inferBasePathFromPathname("/ui/index.html")).toBe("/ui");
-=======
-  it("infers base-path variants from pathname", () => {
-    const cases = [
-      { path: "/", expected: "" },
-      { path: "/chat", expected: "" },
-      { path: "/overview", expected: "" },
-      { path: "/ui/chat", expected: "/ui" },
-      { path: "/apps/openclaw/sessions", expected: "/apps/openclaw" },
-      { path: "/index.html", expected: "" },
-      { path: "/ui/index.html", expected: "/ui" },
-    ] as const;
-    for (const testCase of cases) {
-      expect(inferBasePathFromPathname(testCase.path), testCase.path).toBe(testCase.expected);
-    }
->>>>>>> 1baac3e31 (test(ui): consolidate navigation/scroll/format matrices)
   });
 });
 

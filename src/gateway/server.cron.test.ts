@@ -118,7 +118,6 @@ describe("gateway server cron", () => {
     vi.useRealTimers();
   });
 
-<<<<<<< HEAD
   test("handles cron CRUD, normalization, and patch semantics", { timeout: 120_000 }, async () => {
 <<<<<<< HEAD
     const prevSkipCron = process.env.CLAWDBOT_SKIP_CRON;
@@ -129,10 +128,6 @@ describe("gateway server cron", () => {
     testState.cronEnabled = false;
     await fs.mkdir(path.dirname(testState.cronStorePath), { recursive: true });
     await fs.writeFile(testState.cronStorePath, JSON.stringify({ version: 1, jobs: [] }));
-=======
-=======
-  test("handles cron CRUD, normalization, and patch semantics", { timeout: 20_000 }, async () => {
->>>>>>> e5931554b (test: tighten slow test timeouts and cleanup)
     const { prevSkipCron, dir } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-",
       sessionConfig: { mainKey: "primary" },
@@ -284,8 +279,6 @@ describe("gateway server cron", () => {
       expect(merged?.delivery?.channel).toBe("telegram");
       expect(merged?.delivery?.to).toBe("19098680");
 
-<<<<<<< HEAD
-=======
       const modelOnlyPatchRes = await rpcReq(ws, "cron.update", {
         id: mergeJobId,
         patch: {
@@ -334,7 +327,6 @@ describe("gateway server cron", () => {
       expect(legacyDeliveryPatched?.delivery?.to).toBe("+15550001111");
       expect(legacyDeliveryPatched?.delivery?.bestEffort).toBe(true);
 
->>>>>>> 89dccc79a (cron: infer payload kind for model-only update patches (openclaw#15664) thanks @rodrigouroz)
       const rejectRes = await rpcReq(ws, "cron.add", {
         name: "patch reject",
         enabled: true,
@@ -399,7 +391,6 @@ describe("gateway server cron", () => {
       const disabled = disableUpdateRes.payload as { enabled?: unknown } | undefined;
       expect(disabled?.enabled).toBe(false);
     } finally {
-<<<<<<< HEAD
       ws.close();
       await server.close();
       await rmTempDir(dir);
@@ -411,20 +402,10 @@ describe("gateway server cron", () => {
       } else {
         process.env.CLAWDBOT_SKIP_CRON = prevSkipCron;
       }
-=======
-      await cleanupCronTestRun({
-        ws,
-        server,
-        dir,
-        prevSkipCron,
-        clearSessionConfig: true,
-      });
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
     }
   });
 
   test("writes cron run history and auto-runs due jobs", async () => {
-<<<<<<< HEAD
     const prevSkipCron = process.env.CLAWDBOT_SKIP_CRON;
     process.env.CLAWDBOT_SKIP_CRON = "0";
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-cron-log-"));
@@ -432,11 +413,6 @@ describe("gateway server cron", () => {
     testState.cronEnabled = undefined;
     await fs.mkdir(path.dirname(testState.cronStorePath), { recursive: true });
     await fs.writeFile(testState.cronStorePath, JSON.stringify({ version: 1, jobs: [] }));
-=======
-    const { prevSkipCron, dir } = await setupCronTestRun({
-      tempPrefix: "openclaw-gw-cron-log-",
-    });
->>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
 
     const { server, ws } = await startServerWithClient();
     await connectOk(ws);
@@ -537,7 +513,6 @@ describe("gateway server cron", () => {
       const runs = autoEntries?.entries ?? [];
       expect(runs.at(-1)?.jobId).toBe(autoJobId);
     } finally {
-<<<<<<< HEAD
       ws.close();
       await server.close();
       await rmTempDir(dir);
@@ -548,9 +523,6 @@ describe("gateway server cron", () => {
       } else {
         process.env.CLAWDBOT_SKIP_CRON = prevSkipCron;
       }
-=======
-      await cleanupCronTestRun({ ws, server, dir, prevSkipCron });
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
     }
   }, 45_000);
 

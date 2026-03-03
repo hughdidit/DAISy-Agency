@@ -3,12 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { ReplyPayload } from "../auto-reply/types.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { SignalReactionNotificationMode } from "../config/types.js";
->>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 import { chunkTextWithMode, resolveChunkMode, resolveTextChunkLimit } from "../auto-reply/chunk.js";
 import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "../auto-reply/reply/history.js";
 import type { ReplyPayload } from "../auto-reply/types.js";
@@ -39,25 +33,17 @@ import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "../auto-reply/re
 import type { ReplyPayload } from "../auto-reply/types.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
-<<<<<<< HEAD
-=======
 import {
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "../config/runtime-group-policy.js";
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import type { SignalReactionNotificationMode } from "../config/types.js";
 import type { BackoffPolicy } from "../infra/backoff.js";
 import { waitForTransportReady } from "../infra/transport-ready.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { saveMediaBuffer } from "../media/store.js";
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
-=======
-import { createNonExitingRuntime, type RuntimeEnv } from "../runtime.js";
-<<<<<<< HEAD
->>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 =======
 import { normalizeStringEntries } from "../shared/string-normalization.js";
 >>>>>>> 4e62bdf78 (refactor(signal): reuse shared reaction types)
@@ -399,14 +385,9 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
         ? accountInfo.config.allowFrom
         : []),
   );
-<<<<<<< HEAD
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = accountInfo.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-=======
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: cfg.channels?.signal !== undefined,
@@ -432,15 +413,10 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
     Math.max(1_000, opts.startupTimeoutMs ?? accountInfo.config.startupTimeoutMs ?? 30_000),
   );
   const readReceiptsViaDaemon = Boolean(autoStart && sendReadReceipts);
-<<<<<<< HEAD
   let daemonExitError: Error | undefined;
   const daemonAbortController = new AbortController();
   const mergedAbort = mergeAbortSignals(opts.abortSignal, daemonAbortController.signal);
   let daemonHandle: ReturnType<typeof spawnSignalDaemon> | null = null;
-=======
-  const daemonLifecycle = createSignalDaemonLifecycle({ abortSignal: opts.abortSignal });
-  let daemonHandle: SignalDaemonHandle | null = null;
->>>>>>> 5a0032de3 (refactor(signal): extract daemon lifecycle and typed exit handling)
 
   if (autoStart) {
     const cliPath = opts.cliPath ?? accountInfo.config.cliPath ?? "signal-cli";
@@ -457,7 +433,6 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
       sendReadReceipts,
       runtime,
     });
-<<<<<<< HEAD
     void daemonHandle.exited.then((exit) => {
       daemonExitError = new Error(
         `signal daemon exited (code=${String(exit.code ?? "null")} signal=${String(exit.signal ?? "null")})`,
@@ -470,13 +445,6 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
 
   const onAbort = () => {
     daemonHandle?.stop();
-=======
-    daemonLifecycle.attach(daemonHandle);
-  }
-
-  const onAbort = () => {
-    daemonLifecycle.stop();
->>>>>>> 5a0032de3 (refactor(signal): extract daemon lifecycle and typed exit handling)
   };
   opts.abortSignal?.addEventListener("abort", onAbort, { once: true });
 
@@ -550,10 +518,6 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
   } finally {
     daemonLifecycle.dispose();
     opts.abortSignal?.removeEventListener("abort", onAbort);
-<<<<<<< HEAD
     daemonHandle?.stop();
-=======
-    daemonLifecycle.stop();
->>>>>>> 5a0032de3 (refactor(signal): extract daemon lifecycle and typed exit handling)
   }
 }

@@ -11,7 +11,6 @@ export default defineConfig({
     ...baseTest,
     maxWorkers: 1,
     include: ["src/**/*.live.test.ts"],
-<<<<<<< HEAD
     setupFiles: ["test/setup.ts"],
     exclude: [
       "dist/**",
@@ -20,8 +19,5 @@ export default defineConfig({
       "**/vendor/**",
       "dist/Moltbot.app/**",
     ],
-=======
-    exclude,
->>>>>>> eb3e9c649 (chore: fix vitest standalone configs and update package description (#11865))
   },
 });

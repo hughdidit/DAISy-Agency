@@ -2,11 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { getChannelPlugin } from "../../channels/plugins/index.js";
-import type { ChannelResolveKind, ChannelResolveResult } from "../../channels/plugins/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ChannelResolveKind, ChannelResolveResult } from "../../channels/plugins/types.js";
 import type { RuntimeEnv } from "../../runtime.js";

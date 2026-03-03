@@ -93,7 +93,6 @@ function parseFirstJsonRuntimeLine<T>() {
 }
 
 describe("daemon-cli coverage", () => {
-<<<<<<< HEAD
   const originalEnv = {
     CLAWDBOT_STATE_DIR: process.env.CLAWDBOT_STATE_DIR,
     CLAWDBOT_CONFIG_PATH: process.env.CLAWDBOT_CONFIG_PATH,
@@ -106,26 +105,10 @@ describe("daemon-cli coverage", () => {
     process.env.CLAWDBOT_CONFIG_PATH = "/tmp/moltbot-cli-state/moltbot.json";
     delete process.env.CLAWDBOT_GATEWAY_PORT;
     delete process.env.CLAWDBOT_PROFILE;
-=======
-  let envSnapshot: ReturnType<typeof captureEnv>;
-
-  beforeEach(() => {
-    envSnapshot = captureEnv([
-      "OPENCLAW_STATE_DIR",
-      "OPENCLAW_CONFIG_PATH",
-      "OPENCLAW_GATEWAY_PORT",
-      "OPENCLAW_PROFILE",
-    ]);
-    process.env.OPENCLAW_STATE_DIR = "/tmp/openclaw-cli-state";
-    process.env.OPENCLAW_CONFIG_PATH = "/tmp/openclaw-cli-state/openclaw.json";
-    delete process.env.OPENCLAW_GATEWAY_PORT;
-    delete process.env.OPENCLAW_PROFILE;
->>>>>>> e5aa04d43 (refactor(test): snapshot daemon cli env in coverage e2e)
     serviceReadCommand.mockResolvedValue(null);
   });
 
   afterEach(() => {
-<<<<<<< HEAD
 <<<<<<< HEAD
     if (originalEnv.CLAWDBOT_STATE_DIR !== undefined)
       process.env.CLAWDBOT_STATE_DIR = originalEnv.CLAWDBOT_STATE_DIR;
@@ -142,31 +125,6 @@ describe("daemon-cli coverage", () => {
     if (originalEnv.CLAWDBOT_PROFILE !== undefined)
       process.env.CLAWDBOT_PROFILE = originalEnv.CLAWDBOT_PROFILE;
     else delete process.env.CLAWDBOT_PROFILE;
-=======
-    if (originalEnv.OPENCLAW_STATE_DIR !== undefined) {
-      process.env.OPENCLAW_STATE_DIR = originalEnv.OPENCLAW_STATE_DIR;
-    } else {
-      delete process.env.OPENCLAW_STATE_DIR;
-    }
-
-    if (originalEnv.OPENCLAW_CONFIG_PATH !== undefined) {
-      process.env.OPENCLAW_CONFIG_PATH = originalEnv.OPENCLAW_CONFIG_PATH;
-    } else {
-      delete process.env.OPENCLAW_CONFIG_PATH;
-    }
-
-    if (originalEnv.OPENCLAW_GATEWAY_PORT !== undefined) {
-      process.env.OPENCLAW_GATEWAY_PORT = originalEnv.OPENCLAW_GATEWAY_PORT;
-    } else {
-      delete process.env.OPENCLAW_GATEWAY_PORT;
-    }
-
-    if (originalEnv.OPENCLAW_PROFILE !== undefined) {
-      process.env.OPENCLAW_PROFILE = originalEnv.OPENCLAW_PROFILE;
-    } else {
-      delete process.env.OPENCLAW_PROFILE;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
     envSnapshot.restore();
 >>>>>>> e5aa04d43 (refactor(test): snapshot daemon cli env in coverage e2e)

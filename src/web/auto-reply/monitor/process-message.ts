@@ -14,14 +14,10 @@ import { dispatchReplyWithBufferedBlockDispatcher } from "../../../auto-reply/re
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { getReplyFromConfig } from "../../../auto-reply/reply.js";
 import type { ReplyPayload } from "../../../auto-reply/types.js";
 import { shouldComputeCommandAuthorized } from "../../../auto-reply/command-detection.js";
 import { finalizeInboundContext } from "../../../auto-reply/reply/inbound-context.js";
-=======
-import type { ReplyPayload } from "../../../auto-reply/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -33,14 +29,8 @@ import type { ReplyPayload } from "../../../auto-reply/types.js";
 import type { ReplyPayload } from "../../../auto-reply/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { toLocationContext } from "../../../channels/location.js";
-<<<<<<< HEAD
 import { createReplyPrefixContext } from "../../../channels/reply-prefix.js";
 import type { loadConfig } from "../../../config/config.js";
-=======
-import { createReplyPrefixOptions } from "../../../channels/reply-prefix.js";
-import type { loadConfig } from "../../../config/config.js";
-import { resolveMarkdownTableMode } from "../../../config/markdown-tables.js";
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import {
   readSessionUpdatedAt,
   recordSessionMetaFromInbound,
@@ -51,12 +41,8 @@ import { logVerbose, shouldLogVerbose } from "../../../globals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { getChildLogger } from "../../../logging.js";
 <<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { getChildLogger } from "../../../logging.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -121,7 +107,6 @@ async function resolveWhatsAppCommandAuthorized(params: {
     params.cfg.channels?.whatsapp?.groupAllowFrom ??
     (configuredAllowFrom.length > 0 ? configuredAllowFrom : undefined);
 
-<<<<<<< HEAD
   if (isGroup) {
     if (!configuredGroupAllowFrom || configuredGroupAllowFrom.length === 0) {
       return false;
@@ -138,13 +123,6 @@ async function resolveWhatsAppCommandAuthorized(params: {
     process.env,
     params.msg.accountId,
   ).catch(() => []);
-=======
-  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-    provider: "whatsapp",
-    dmPolicy,
-    readStore: (provider) => readChannelAllowFromStore(provider, process.env, params.msg.accountId),
-  });
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const combinedAllowFrom = Array.from(
     new Set([...(configuredAllowFrom ?? []), ...storeAllowFrom]),
   );

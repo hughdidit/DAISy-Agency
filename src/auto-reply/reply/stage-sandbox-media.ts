@@ -8,14 +8,8 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { assertSandboxPath } from "../../agents/sandbox-paths.js";
-import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { MsgContext, TemplateContext } from "../templating.js";

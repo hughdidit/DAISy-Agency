@@ -91,15 +91,9 @@ For the full compaction lifecycle, see
 ## Vector memory search
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 Moltbot can build a small vector index over `MEMORY.md` and `memory/*.md` (plus
 any extra directories or files you opt in) so semantic queries can find related
 notes even when wording differs.
-=======
-Moltbot can build a small vector index over `MEMORY.md` and `memory/*.md` so
-=======
-OpenClaw can build a small vector index over `MEMORY.md` and `memory/*.md` so
->>>>>>> f72214725 (chore: restore OpenClaw branding)
 semantic queries can find related notes even when wording differs.
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 
@@ -154,7 +148,6 @@ out to QMD for retrieval. Key points:
 **How the sidecar runs**
 
 - The gateway writes a self-contained QMD home under
-<<<<<<< HEAD
   `~/.clawdbot/agents/<agentId>/qmd/` (config + cache + sqlite DB).
 - Collections are rewritten from `memory.qmd.paths` (plus default workspace
   memory files) into `index.yml`, then `qmd update` + `qmd embed` run on boot and
@@ -163,26 +156,6 @@ out to QMD for retrieval. Key points:
   OpenClaw automatically falls back to the builtin SQLite manager so memory tools
   keep working.
 <<<<<<< HEAD
-=======
-=======
-  `~/.openclaw/agents/<agentId>/qmd/` (config + cache + sqlite DB).
-- Collections are created via `qmd collection add` from `memory.qmd.paths`
-  (plus default workspace memory files), then `qmd update` + `qmd embed` run
-  on boot and on a configurable interval (`memory.qmd.update.interval`,
-  default 5 m).
-- The gateway now initializes the QMD manager on startup, so periodic update
-  timers are armed even before the first `memory_search` call.
-- Boot refresh now runs in the background by default so chat startup is not
-  blocked; set `memory.qmd.update.waitForBootSync = true` to keep the previous
-  blocking behavior.
-- Searches run via `memory.qmd.searchMode` (default `qmd search --json`; also
-  supports `vsearch` and `query`). If the selected mode rejects flags on your
-  QMD build, OpenClaw retries with `qmd query`. If QMD fails or the binary is
-  missing, OpenClaw automatically falls back to the builtin SQLite manager so
-  memory tools keep working.
-- OpenClaw does not expose QMD embed batch-size tuning today; batch behavior is
-  controlled by QMD itself.
->>>>>>> ce715c4c5 (Memory: harden QMD startup, timeouts, and fallback recovery)
 - **First search may be slow**: QMD may download local GGUF models (reranker/query
   expansion) on the first `qmd query` run.
   - OpenClaw sets `XDG_CONFIG_HOME`/`XDG_CACHE_HOME` automatically when it runs QMD.
@@ -195,7 +168,6 @@ out to QMD for retrieval. Key points:
 
     ```bash
     # Pick the same state dir OpenClaw uses
-<<<<<<< HEAD
     STATE_DIR="${OPENCLAW_STATE_DIR:-${CLAWDBOT_STATE_DIR:-$HOME/.openclaw}}"
     if [ -d "$HOME/.clawdbot" ] && [ ! -d "$HOME/.openclaw" ] \
       && [ -z "${OPENCLAW_STATE_DIR:-}" ] && [ -z "${CLAWDBOT_STATE_DIR:-}" ]; then
@@ -205,9 +177,6 @@ out to QMD for retrieval. Key points:
       && [ -z "${OPENCLAW_STATE_DIR:-}" ] && [ -z "${CLAWDBOT_STATE_DIR:-}" ]; then
       STATE_DIR="$HOME/.moltbot"
     fi
-=======
-    STATE_DIR="${OPENCLAW_STATE_DIR:-$HOME/.openclaw}"
->>>>>>> 3b56a6252 (chore!: remove moltbot legacy state/config support)
 
     export XDG_CONFIG_HOME="$STATE_DIR/agents/main/qmd/xdg-config"
     export XDG_CACHE_HOME="$STATE_DIR/agents/main/qmd/xdg-cache"
@@ -421,31 +390,16 @@ Local mode:
 
 ### What gets indexed (and when)
 
-<<<<<<< HEAD
 - File type: Markdown only (`MEMORY.md`, `memory/**/*.md`, plus any `.md` files under `memorySearch.extraPaths`).
 - Index storage: per-agent SQLite at `~/.clawdbot/memory/<agentId>.sqlite` (configurable via `agents.defaults.memorySearch.store.path`, supports `{agentId}` token).
 - Freshness: watcher on `MEMORY.md`, `memory/`, and `memorySearch.extraPaths` marks the index dirty (debounce 1.5s). Sync is scheduled on session start, on search, or on an interval and runs asynchronously. Session transcripts use delta thresholds to trigger background sync.
-=======
-- File type: Markdown only (`MEMORY.md`, `memory/**/*.md`).
-- Index storage: per-agent SQLite at `~/.clawdbot/memory/<agentId>.sqlite` (configurable via `agents.defaults.memorySearch.store.path`, supports `{agentId}` token).
-- Freshness: watcher on `MEMORY.md` + `memory/` marks the index dirty (debounce 1.5s). Sync is scheduled on session start, on search, or on an interval and runs asynchronously. Session transcripts use delta thresholds to trigger background sync.
-<<<<<<< HEAD
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 - Reindex triggers: the index stores the embedding **provider/model + endpoint fingerprint + chunking params**. If any of those change, Moltbot automatically resets and reindexes the entire store.
 
 ### Hybrid search (BM25 + vector)
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 When enabled, Moltbot combines:
 <<<<<<< HEAD
-=======
-=======
-- Reindex triggers: the index stores the embedding **provider/model + endpoint fingerprint + chunking params**. If any of those change, OpenClaw automatically resets and reindexes the entire store.
-
-### Hybrid search (BM25 + vector)
-
->>>>>>> f72214725 (chore: restore OpenClaw branding)
 When enabled, OpenClaw combines:
 
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)

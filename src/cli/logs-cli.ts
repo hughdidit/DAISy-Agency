@@ -73,10 +73,7 @@ export function formatLogTimestamp(
   if (Number.isNaN(parsed.getTime())) {
     return value;
   }
-<<<<<<< HEAD
-=======
 
->>>>>>> d9d5b53b4 (refactor(logging): share local iso timestamp format)
   let timeString: string;
   if (localTime) {
     const tzoffset = parsed.getTimezoneOffset() * 60000; // offset in milliseconds

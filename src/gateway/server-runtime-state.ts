@@ -16,10 +16,6 @@ import type { HooksConfigResolved } from "./hooks.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { DedupeEntry } from "./server-shared.js";
@@ -28,9 +24,6 @@ import type { GatewayWsClient } from "./server/ws-types.js";
 import { CANVAS_HOST_PATH } from "../canvas-host/a2ui.js";
 import { type CanvasHostHandler, createCanvasHostHandler } from "../canvas-host/server.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -43,11 +36,7 @@ import { resolveGatewayListenHosts } from "./net.js";
 =======
 import { isLoopbackHost, resolveGatewayListenHosts } from "./net.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> a288f3066 (fix(gateway): warn on non-loopback bind at startup (land #25397, thanks @let5sne))
-=======
-import { isProtectedPluginRoutePath } from "./security-path.js";
->>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 =======
 >>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
 import {
@@ -66,11 +55,7 @@ import { attachGatewayUpgradeHandler, createGatewayHttpServer } from "./server-h
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> c1cc28a4e (refactor(gateway): share broadcast function types)
-=======
-import type { DedupeEntry } from "./server-shared.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -83,7 +68,6 @@ import type { DedupeEntry } from "./server-shared.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createGatewayHooksRequestHandler } from "./server/hooks.js";
 import { listenGatewayHttpServer } from "./server/http-listen.js";
-<<<<<<< HEAD
 import { resolveGatewayListenHosts } from "./net.js";
 import { createGatewayPluginRequestHandler } from "./server/plugins-http.js";
 <<<<<<< HEAD
@@ -99,13 +83,6 @@ import { attachGatewayUpgradeHandler, createGatewayHttpServer } from "./server-h
 import type { DedupeEntry } from "./server-shared.js";
 import type { PluginRegistry } from "../plugins/registry.js";
 import type { GatewayTlsRuntime } from "./server/tls.js";
-=======
-=======
-import {
-  createGatewayPluginRequestHandler,
-  shouldEnforceGatewayAuthForPluginPath,
-} from "./server/plugins-http.js";
->>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 import type { GatewayTlsRuntime } from "./server/tls.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -154,7 +131,6 @@ export async function createGatewayRuntimeState(params: {
   httpBindHosts: string[];
   wss: WebSocketServer;
   clients: Set<GatewayWsClient>;
-<<<<<<< HEAD
   broadcast: (
     event: string,
     payload: unknown,
@@ -163,10 +139,6 @@ export async function createGatewayRuntimeState(params: {
       stateVersion?: { presence?: number; health?: number };
     },
   ) => void;
-=======
-  broadcast: GatewayBroadcastFn;
-  broadcastToConnIds: GatewayBroadcastToConnIdsFn;
->>>>>>> c1cc28a4e (refactor(gateway): share broadcast function types)
   agentRunSeq: Map<string, number>;
   dedupe: Map<string, DedupeEntry>;
   chatRunState: ReturnType<typeof createChatRunState>;
@@ -274,24 +246,11 @@ export async function createGatewayRuntimeState(params: {
     maxPayload: MAX_PAYLOAD_BYTES,
   });
   for (const server of httpServers) {
-<<<<<<< HEAD
     attachGatewayUpgradeHandler({ httpServer: server, wss, canvasHost });
   }
 
   const clients = new Set<GatewayWsClient>();
   const { broadcast } = createGatewayBroadcaster({ clients });
-=======
-    attachGatewayUpgradeHandler({
-      httpServer: server,
-      wss,
-      canvasHost,
-      clients,
-      resolvedAuth: params.resolvedAuth,
-      rateLimiter: params.rateLimiter,
-    });
-  }
-
->>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
   const agentRunSeq = new Map<string, number>();
   const dedupe = new Map<string, DedupeEntry>();
   const chatRunState = createChatRunState();

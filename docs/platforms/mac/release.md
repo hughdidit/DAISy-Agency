@@ -26,25 +26,16 @@ This app now ships Sparkle auto-updates. Release builds must be Developer ID–s
 Notes:
 
 - `APP_BUILD` maps to `CFBundleVersion`/`sparkle:version`; keep it numeric + monotonic (no `-beta`), or Sparkle compares it as equal.
-<<<<<<< HEAD
-=======
 - If `APP_BUILD` is omitted, `scripts/package-mac-app.sh` derives a Sparkle-safe default from `APP_VERSION` (`YYYYMMDDNN`: stable defaults to `90`, prereleases use a suffix-derived lane) and uses the higher of that value and git commit count.
 - You can still override `APP_BUILD` explicitly when release engineering needs a specific monotonic value.
->>>>>>> 08fd57941 (macos: make derived Sparkle build unique for same-day releases)
 - Defaults to the current architecture (`$(uname -m)`). For release/universal builds, set `BUILD_ARCHS="arm64 x86_64"` (or `BUILD_ARCHS=all`).
 - Use `scripts/package-mac-dist.sh` for release artifacts (zip + DMG + notarization). Use `scripts/package-mac-app.sh` for local/dev packaging.
 
 ```bash
 # From repo root; set release IDs so Sparkle feed is enabled.
 # APP_BUILD must be numeric + monotonic for Sparkle compare.
-<<<<<<< HEAD
 BUNDLE_ID=bot.molt.mac \
 APP_VERSION=2026.1.27-beta.1 \
-=======
-BUNDLE_ID=ai.openclaw.mac \
-<<<<<<< HEAD
-APP_VERSION=2026.2.25 \
->>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 APP_BUILD="$(git rev-list --count HEAD)" \
 =======
 APP_VERSION=2026.2.27 \
@@ -63,16 +54,9 @@ scripts/create-dmg.sh dist/Moltbot.app dist/Moltbot-2026.1.27-beta.1.dmg
 # First, create a keychain profile once:
 #   xcrun notarytool store-credentials "moltbot-notary" \
 #     --apple-id "<apple-id>" --team-id "<team-id>" --password "<app-specific-password>"
-<<<<<<< HEAD
 NOTARIZE=1 NOTARYTOOL_PROFILE=moltbot-notary \
 BUNDLE_ID=bot.molt.mac \
 APP_VERSION=2026.1.27-beta.1 \
-=======
-NOTARIZE=1 NOTARYTOOL_PROFILE=openclaw-notary \
-BUNDLE_ID=ai.openclaw.mac \
-<<<<<<< HEAD
-APP_VERSION=2026.2.25 \
->>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 APP_BUILD="$(git rev-list --count HEAD)" \
 =======
 APP_VERSION=2026.2.27 \
@@ -92,23 +76,12 @@ Use the release note generator so Sparkle renders formatted HTML notes:
 ```bash
 SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh dist/Moltbot-2026.1.27-beta.1.zip https://raw.githubusercontent.com/moltbot/moltbot/main/appcast.xml
 ```
-<<<<<<< HEAD
 Generates HTML release notes from `CHANGELOG.md` (via [`scripts/changelog-to-html.sh`](https://github.com/moltbot/moltbot/blob/main/scripts/changelog-to-html.sh)) and embeds them in the appcast entry.
 Commit the updated `appcast.xml` alongside the release assets (zip + dSYM) when publishing.
 
 ## Publish & verify
 - Upload `Moltbot-2026.1.27-beta.1.zip` (and `Moltbot-2026.1.27-beta.1.dSYM.zip`) to the GitHub release for tag `v2026.1.27-beta.1`.
 - Ensure the raw appcast URL matches the baked feed: `https://raw.githubusercontent.com/moltbot/moltbot/main/appcast.xml`.
-=======
-
-Generates HTML release notes from `CHANGELOG.md` (via [`scripts/changelog-to-html.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/changelog-to-html.sh)) and embeds them in the appcast entry.
-Commit the updated `appcast.xml` alongside the release assets (zip + dSYM) when publishing.
-
-## Publish & verify
-
-- Upload `OpenClaw-2026.1.27-beta.1.zip` (and `OpenClaw-2026.1.27-beta.1.dSYM.zip`) to the GitHub release for tag `v2026.1.27-beta.1`.
-- Ensure the raw appcast URL matches the baked feed: `https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Sanity checks:
   - `curl -I https://raw.githubusercontent.com/moltbot/moltbot/main/appcast.xml` returns 200.
   - `curl -I <enclosure url>` returns 200 after assets upload.

@@ -153,8 +153,6 @@ export type CommandsConfig = {
   restart?: boolean;
   /** Enforce access-group allowlists/policies for commands (default: true). */
   useAccessGroups?: boolean;
-<<<<<<< HEAD
-=======
   /** Explicit owner allowlist for owner-only tools/commands (channel-native IDs). */
   ownerAllowFrom?: Array<string | number>;
   /** How owner IDs are rendered in system prompts. */
@@ -168,7 +166,6 @@ export type CommandsConfig = {
    * Example: { "*": ["user1"], discord: ["user:123"] }
    */
   allowFrom?: CommandAllowFrom;
->>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
 };
 
 export type ProviderCommandsConfig = {

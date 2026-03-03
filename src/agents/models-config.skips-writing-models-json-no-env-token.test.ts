@@ -1,17 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-=======
-import { describe, expect, it } from "vitest";
->>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
 import {
   CUSTOM_PROXY_MODELS_CONFIG,
@@ -24,7 +16,6 @@ import {
 import { ensureOpenClawModelsJson } from "./models-config.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
-<<<<<<< HEAD
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-models-" });
 }
@@ -52,9 +43,6 @@ const MODELS_CONFIG: MoltbotConfig = {
     },
   },
 };
-=======
-installModelsConfigTestHooks();
->>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 
 type ProviderConfig = {
   baseUrl?: string;
@@ -100,23 +88,13 @@ describe("models-config", () => {
       await withTempEnv([...MODELS_CONFIG_IMPLICIT_ENV_VARS, "KIMI_API_KEY"], async () => {
         unsetEnv([...MODELS_CONFIG_IMPLICIT_ENV_VARS, "KIMI_API_KEY"]);
 
-<<<<<<< HEAD
       try {
 <<<<<<< HEAD
         vi.resetModules();
         const { ensureMoltbotModelsJson } = await import("./models-config.js");
 
-=======
->>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
         const agentDir = path.join(home, "agent-empty");
-<<<<<<< HEAD
         const result = await ensureMoltbotModelsJson(
-=======
-        // Avoid merging in the user's real main auth store via OPENCLAW_AGENT_DIR.
-=======
-        const agentDir = path.join(home, "agent-empty");
-        // ensureAuthProfileStore merges the main auth store into non-main dirs; point main at our temp dir.
->>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
         process.env.OPENCLAW_AGENT_DIR = agentDir;
         process.env.PI_CODING_AGENT_DIR = agentDir;
 
@@ -137,13 +115,9 @@ describe("models-config", () => {
   it("writes models.json for configured providers", async () => {
     await withTempHome(async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       vi.resetModules();
       const { ensureMoltbotModelsJson } = await import("./models-config.js");
       const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
-=======
-      await ensureOpenClawModelsJson(CUSTOM_PROXY_MODELS_CONFIG);
->>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 
       await ensureMoltbotModelsJson(MODELS_CONFIG);
 =======
@@ -162,7 +136,6 @@ describe("models-config", () => {
 
   it("adds minimax provider when MINIMAX_API_KEY is set", async () => {
     await withTempHome(async () => {
-<<<<<<< HEAD
       const prevKey = process.env.MINIMAX_API_KEY;
       process.env.MINIMAX_API_KEY = "sk-minimax-test";
       try {
@@ -171,9 +144,6 @@ describe("models-config", () => {
         const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
         await ensureMoltbotModelsJson({});
-=======
-        await ensureOpenClawModelsJson({});
->>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
         const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
         const raw = await fs.readFile(modelPath, "utf8");
@@ -214,7 +184,6 @@ describe("models-config", () => {
 
   it("adds synthetic provider when SYNTHETIC_API_KEY is set", async () => {
     await withTempHome(async () => {
-<<<<<<< HEAD
       const prevKey = process.env.SYNTHETIC_API_KEY;
       process.env.SYNTHETIC_API_KEY = "sk-synthetic-test";
       try {
@@ -223,9 +192,6 @@ describe("models-config", () => {
         const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
         await ensureMoltbotModelsJson({});
-=======
-        await ensureOpenClawModelsJson({});
->>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
         const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
         const raw = await fs.readFile(modelPath, "utf8");

@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import type { BrowserRouteContext } from "../server-context.js";
-=======
-import type { BrowserRouteContext, ProfileContext } from "../server-context.js";
-import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
->>>>>>> 06d2752a0 (refactor(browser): dedupe tab route profile and error handling)
 import { getProfileContext, jsonError, toNumber, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 

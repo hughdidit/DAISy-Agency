@@ -3,8 +3,6 @@ import { withProgress } from "../cli/progress.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { loadConfig, readConfigFileSnapshot, resolveGatewayPort } from "../config/config.js";
 import { readLastGatewayErrorLine } from "../daemon/diagnostics.js";
-<<<<<<< HEAD
-=======
 import { resolveNodeService } from "../daemon/node-service.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -12,7 +10,6 @@ import { resolveNodeService } from "../daemon/node-service.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayService } from "../daemon/service.js";
 =======
 >>>>>>> dee013426 (style: reformat dedupe-touched files)
@@ -41,7 +38,6 @@ import { resolveOsSummary } from "../infra/os-summary.js";
 import { inspectPortUsage } from "../infra/ports.js";
 import { readRestartSentinel } from "../infra/restart-sentinel.js";
 import { readTailscaleStatusJson } from "../infra/tailscale.js";
-<<<<<<< HEAD
 import { checkUpdateStatus, compareSemverStrings } from "../infra/update-check.js";
 import {
   formatUpdateChannelLabel,
@@ -50,13 +46,6 @@ import {
 } from "../infra/update-channels.js";
 <<<<<<< HEAD
 import { getRemoteSkillEligibility } from "../infra/skills-remote.js";
-=======
-import {
-  checkUpdateStatus,
-  compareSemverStrings,
-  formatGitInstallLabel,
-} from "../infra/update-check.js";
->>>>>>> 887ca6086 (refactor(status): share git install label formatting)
 =======
 import { normalizeUpdateChannel, resolveUpdateChannelDisplay } from "../infra/update-channels.js";
 import { checkUpdateStatus, formatGitInstallLabel } from "../infra/update-check.js";
@@ -151,7 +140,6 @@ export async function statusAllCommand(
     const remoteUrlMissing = isRemoteMode && !remoteUrlRaw;
     const gatewayMode = isRemoteMode ? "remote" : "local";
 
-<<<<<<< HEAD
     const resolveProbeAuth = (mode: "local" | "remote") => {
       const authToken = cfg.gateway?.auth?.token;
       const authPassword = cfg.gateway?.auth?.password;
@@ -177,10 +165,6 @@ export async function statusAllCommand(
 
     const localFallbackAuth = resolveProbeAuth("local");
     const remoteAuth = resolveProbeAuth("remote");
-=======
-    const localFallbackAuth = resolveGatewayProbeAuth({ cfg, mode: "local" });
-    const remoteAuth = resolveGatewayProbeAuth({ cfg, mode: "remote" });
->>>>>>> 6c7a7d910 (refactor(gateway): dedupe probe auth resolution)
     const probeAuth = isRemoteMode && !remoteUrlMissing ? remoteAuth : localFallbackAuth;
 
     const gatewayProbe = await probeGateway({

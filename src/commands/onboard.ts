@@ -2,12 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { RuntimeEnv } from "../runtime.js";
-import type { OnboardOptions } from "./onboard-types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -32,10 +26,7 @@ import { runNonInteractiveOnboarding } from "./onboard-non-interactive.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { OnboardOptions } from "./onboard-types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

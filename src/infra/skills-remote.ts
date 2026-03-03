@@ -4,15 +4,9 @@ import type { SkillEligibilityContext, SkillEntry } from "../agents/skills.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { loadWorkspaceSkillEntries } from "../agents/skills.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { NodeRegistry } from "../gateway/node-registry.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { NodeRegistry } from "../gateway/node-registry.js";
@@ -198,16 +192,7 @@ export function recordRemoteNodeBins(nodeId: string, bins: string[]) {
   upsertNode({ nodeId, bins });
 }
 
-<<<<<<< HEAD
 function listWorkspaceDirs(cfg: MoltbotConfig): string[] {
-=======
-export function removeRemoteNodeInfo(nodeId: string) {
-  remoteNodes.delete(nodeId);
-}
-
-<<<<<<< HEAD
-function listWorkspaceDirs(cfg: OpenClawConfig): string[] {
->>>>>>> dabfcbe94 (Skills: clean up remote node cache on disconnect)
   const dirs = new Set<string>();
   const list = cfg.agents?.list;
   if (Array.isArray(list)) {
@@ -385,15 +370,8 @@ export function getRemoteSkillEligibility(): SkillEligibilityContext["remote"] |
   };
 }
 
-<<<<<<< HEAD
 export async function refreshRemoteBinsForConnectedNodes(cfg: MoltbotConfig) {
   if (!remoteRegistry) return;
-=======
-export async function refreshRemoteBinsForConnectedNodes(cfg: OpenClawConfig) {
-  if (!remoteRegistry) {
-    return;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const connected = remoteRegistry.listConnected();
   for (const node of connected) {
     await refreshRemoteNodeBins({

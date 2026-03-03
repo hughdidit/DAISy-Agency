@@ -14,7 +14,6 @@ import {
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 const webMocks = vi.hoisted(() => ({
@@ -56,20 +55,11 @@ function _makeCfg(home: string) {
 afterEach(() => {
   vi.restoreAllMocks();
 });
-=======
-=======
-let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
-beforeAll(async () => {
-  getReplyFromConfig = await loadGetReplyFromConfig();
-});
-
->>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
 describe("trigger handling", () => {
   it("allows approved sender to toggle elevated mode", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       const cfg = {
@@ -102,10 +92,6 @@ describe("trigger handling", () => {
           CommandAuthorized: true,
         },
         {},
-=======
-      const cfg = makeWhatsAppElevatedCfg(home);
-      const { text, store } = await runDirectElevatedToggleAndLoadStore({
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
         cfg,
         getReplyFromConfig,
       });
@@ -118,7 +104,6 @@ describe("trigger handling", () => {
   });
   it("rejects elevated toggles when disabled", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const cfg = {
         agents: {
           defaults: {
@@ -139,9 +124,6 @@ describe("trigger handling", () => {
         },
         session: { store: join(home, "sessions.json") },
       };
-=======
-      const cfg = makeWhatsAppElevatedCfg(home, { elevatedEnabled: false });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
       const res = await getReplyFromConfig(
         {
@@ -224,7 +206,6 @@ describe("trigger handling", () => {
           agentMeta: { sessionId: "s", provider: "p", model: "m" },
         },
       });
-<<<<<<< HEAD
       const cfg = {
         agents: {
           defaults: {
@@ -245,9 +226,6 @@ describe("trigger handling", () => {
         },
         session: { store: join(home, "sessions.json") },
       };
-=======
-      const cfg = makeWhatsAppElevatedCfg(home, { requireMentionInGroups: false });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
       const res = await getReplyFromConfig(
         {

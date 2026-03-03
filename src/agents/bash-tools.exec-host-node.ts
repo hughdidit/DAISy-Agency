@@ -13,12 +13,7 @@ import {
 } from "../infra/exec-approvals.js";
 import { buildNodeShellCommand } from "../infra/node-shell.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { requestExecApprovalDecisionForHost } from "./bash-tools.exec-approval-request.js";
-=======
-=======
-import { parsePreparedSystemRunPayload } from "../infra/system-run-approval-context.js";
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import { logInfo } from "../logger.js";
 import {
   registerExecApprovalRequestForHost,
@@ -217,31 +212,14 @@ export async function executeNodeHostCommand(
       // Register first so the returned approval ID is actionable immediately.
       const registration = await registerExecApprovalRequestForHost({
         approvalId,
-<<<<<<< HEAD
         command: params.command,
         workdir: params.workdir,
-=======
-        command: prepared.cmdText,
-        commandArgv: prepared.plan.argv,
-        systemRunPlan: prepared.plan,
-        env: nodeEnv,
-        workdir: runCwd,
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
         host: "node",
         nodeId,
         security: hostSecurity,
         ask: hostAsk,
-<<<<<<< HEAD
         agentId: params.agentId,
         sessionKey: params.sessionKey,
-=======
-        agentId: runAgentId,
-        sessionKey: runSessionKey,
-        turnSourceChannel: params.turnSourceChannel,
-        turnSourceTo: params.turnSourceTo,
-        turnSourceAccountId: params.turnSourceAccountId,
-        turnSourceThreadId: params.turnSourceThreadId,
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
       });
       expiresAtMs = registration.expiresAtMs;
       preResolvedDecision = registration.finalDecision;

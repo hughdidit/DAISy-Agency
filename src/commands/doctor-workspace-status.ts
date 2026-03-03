@@ -4,13 +4,8 @@ import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { loadMoltbotPlugins } from "../plugins/loader.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

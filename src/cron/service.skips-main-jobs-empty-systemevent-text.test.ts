@@ -1,19 +1,13 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-=======
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CronJob } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -32,7 +26,6 @@ import {
 } from "./service.test-harness.js";
 import type { CronJob } from "./types.js";
 
-<<<<<<< HEAD
 const noopLogger = {
   debug: vi.fn(),
   info: vi.fn(),
@@ -50,46 +43,6 @@ async function makeStorePath() {
   };
 }
 
-=======
-const noopLogger = createNoopLogger();
-const { makeStorePath } = createCronStoreHarness();
-
-async function waitForFirstJob(
-  cron: CronService,
-  predicate: (job: CronJob | undefined) => boolean,
-) {
-  let latest: CronJob | undefined;
-  for (let i = 0; i < 30; i++) {
-    const jobs = await cron.list({ includeDisabled: true });
-    latest = jobs[0];
-    if (predicate(latest)) {
-      return latest;
-    }
-    await vi.runOnlyPendingTimersAsync();
-  }
-  return latest;
-}
-
-async function withCronService(
-  cronEnabled: boolean,
-  run: (params: {
-    cron: CronService;
-    enqueueSystemEvent: ReturnType<typeof vi.fn>;
-    requestHeartbeatNow: ReturnType<typeof vi.fn>;
-  }) => Promise<void>,
-) {
-  await withCronServiceForTest(
-    {
-      makeStorePath,
-      logger: noopLogger,
-      cronEnabled,
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" as const })),
-    },
-    run,
-  );
-}
-
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 describe("CronService", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -126,7 +79,6 @@ describe("CronService", () => {
       expect(job?.state.lastStatus).toBe("skipped");
       expect(job?.state.lastError).toMatch(/non-empty/i);
     });
-<<<<<<< HEAD
 
     await cron.start();
     const atMs = Date.parse("2025-12-13T00:00:01.000Z");
@@ -151,8 +103,6 @@ describe("CronService", () => {
 
     cron.stop();
     await store.cleanup();
-=======
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 
   it("does not schedule timers when cron is disabled", async () => {

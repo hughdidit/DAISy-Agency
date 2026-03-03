@@ -1,16 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 import { createMoltbotCodingTools } from "./pi-tools.js";
-=======
-import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { createOpenClawCodingTools } from "./pi-tools.js";
-<<<<<<< HEAD
->>>>>>> 141f551a4 (fix(exec-approvals): coerce bare string allowlist entries (#9903) (thanks @mcaxtr))
 
 vi.mock("../plugins/tools.js", () => ({
   getPluginToolMeta: () => undefined,
@@ -44,17 +37,12 @@ async function withTempDir<T>(prefix: string, fn: (dir: string) => Promise<T>) {
   }
 }
 
-<<<<<<< HEAD
 function getTextContent(result?: { content?: Array<{ type: string; text?: string }> }) {
   const textBlock = result?.content?.find((block) => block.type === "text");
   return textBlock?.text ?? "";
 }
 
 describe.sequential("workspace path resolution", () => {
-=======
-describe("workspace path resolution", () => {
-<<<<<<< HEAD
->>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
   it("reads relative paths against workspaceDir even after cwd changes", async () => {
     await withTempDir("moltbot-ws-", async (workspaceDir) => {
       await withTempDir("moltbot-cwd-", async (otherDir) => {
@@ -181,13 +169,8 @@ describe("workspace path resolution", () => {
   });
 
   it("defaults exec cwd to workspaceDir when workdir is omitted", async () => {
-<<<<<<< HEAD
     await withTempDir("moltbot-ws-", async (workspaceDir) => {
       const tools = createMoltbotCodingTools({ workspaceDir });
-=======
-    await withTempDir("openclaw-ws-", async (workspaceDir) => {
-      const tools = createOpenClawCodingTools({ workspaceDir, exec: { host: "gateway" } });
->>>>>>> 141f551a4 (fix(exec-approvals): coerce bare string allowlist entries (#9903) (thanks @mcaxtr))
       const execTool = tools.find((tool) => tool.name === "exec");
       expect(execTool).toBeDefined();
 
@@ -208,15 +191,9 @@ describe("workspace path resolution", () => {
   });
 
   it("lets exec workdir override the workspace default", async () => {
-<<<<<<< HEAD
     await withTempDir("moltbot-ws-", async (workspaceDir) => {
       await withTempDir("moltbot-override-", async (overrideDir) => {
         const tools = createMoltbotCodingTools({ workspaceDir });
-=======
-    await withTempDir("openclaw-ws-", async (workspaceDir) => {
-      await withTempDir("openclaw-override-", async (overrideDir) => {
-        const tools = createOpenClawCodingTools({ workspaceDir, exec: { host: "gateway" } });
->>>>>>> 141f551a4 (fix(exec-approvals): coerce bare string allowlist entries (#9903) (thanks @mcaxtr))
         const execTool = tools.find((tool) => tool.name === "exec");
         expect(execTool).toBeDefined();
 
@@ -254,27 +231,15 @@ describe("workspace path resolution", () => {
 
 describe.sequential("sandboxed workspace paths", () => {
   it("uses sandbox workspace for relative read/write/edit", async () => {
-<<<<<<< HEAD
     await withTempDir("moltbot-sandbox-", async (sandboxDir) => {
       await withTempDir("moltbot-workspace-", async (workspaceDir) => {
         const sandbox = {
           enabled: true,
           sessionKey: "sandbox:test",
-=======
-    await withTempDir("openclaw-sandbox-", async (sandboxDir) => {
-      await withTempDir("openclaw-workspace-", async (workspaceDir) => {
-        const sandbox = createPiToolsSandboxContext({
->>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
           workspaceDir: sandboxDir,
           agentWorkspaceDir: workspaceDir,
-<<<<<<< HEAD
           workspaceAccess: "rw",
           containerName: "moltbot-sbx-test",
-=======
-          workspaceAccess: "rw" as const,
-<<<<<<< HEAD
-          containerName: "openclaw-sbx-test",
->>>>>>> 688f86bf2 (chore: Fix types in tests 43/N.)
           containerWorkdir: "/workspace",
           docker: {
             image: "moltbot-sandbox:bookworm-slim",
@@ -297,7 +262,6 @@ describe.sequential("sandboxed workspace paths", () => {
         await fs.writeFile(path.join(sandboxDir, testFile), "sandbox read", "utf8");
         await fs.writeFile(path.join(workspaceDir, testFile), "workspace read", "utf8");
 
-<<<<<<< HEAD
         const tools = createMoltbotCodingTools({ workspaceDir, sandbox });
         const readTool = tools.find((tool) => tool.name === "read");
         const writeTool = tools.find((tool) => tool.name === "write");
@@ -306,10 +270,6 @@ describe.sequential("sandboxed workspace paths", () => {
         expect(readTool).toBeDefined();
         expect(writeTool).toBeDefined();
         expect(editTool).toBeDefined();
-=======
-        const tools = createOpenClawCodingTools({ workspaceDir, sandbox });
-        const { readTool, writeTool, editTool } = expectReadWriteEditTools(tools);
->>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 
         const result = await readTool?.execute("sbx-read", { path: testFile });
         expect(getTextContent(result)).toContain("sandbox read");

@@ -61,17 +61,9 @@ export function createTypingController(params: {
       typingTtlTimer = undefined;
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (typingTimer) {
       clearInterval(typingTimer);
       typingTimer = undefined;
-=======
-=======
-    if (dispatchIdleTimer) {
-      clearTimeout(dispatchIdleTimer);
-      dispatchIdleTimer = undefined;
-    }
->>>>>>> 79176cc4e (fix(typing): force cleanup when dispatch idle is never received)
     typingLoop.stop();
     // Notify the channel to stop its typing indicator (e.g., on NO_REPLY).
     // This fires only once (sealed prevents re-entry).

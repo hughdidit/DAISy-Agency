@@ -9,7 +9,6 @@ function resolveSignalSender(deps: OutboundSendDeps | undefined) {
   return deps?.sendSignal ?? sendMessageSignal;
 }
 
-<<<<<<< HEAD
 export const signalOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",
   chunker: chunkText,
@@ -35,20 +34,3 @@ export const signalOutbound: ChannelOutboundAdapter = {
     return { channel: "signal", ...result };
   },
 };
-=======
-export const signalOutbound = createDirectTextMediaOutbound({
-  channel: "signal",
-  resolveSender: resolveSignalSender,
-  resolveMaxBytes: createScopedChannelMediaMaxBytesResolver("signal"),
-  buildTextOptions: ({ maxBytes, accountId }) => ({
-    maxBytes,
-    accountId: accountId ?? undefined,
-  }),
-  buildMediaOptions: ({ mediaUrl, maxBytes, accountId, mediaLocalRoots }) => ({
-    mediaUrl,
-    maxBytes,
-    accountId: accountId ?? undefined,
-    mediaLocalRoots,
-  }),
-});
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)

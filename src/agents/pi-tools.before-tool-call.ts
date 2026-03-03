@@ -15,8 +15,6 @@ export type HookContext = {
 type HookOutcome = { blocked: true; reason: string } | { blocked: false; params: unknown };
 
 const log = createSubsystemLogger("agents/tools");
-<<<<<<< HEAD
-=======
 const BEFORE_TOOL_CALL_WRAPPED = Symbol("beforeToolCallWrapped");
 const adjustedParamsByToolCallId = new Map<string, unknown>();
 const MAX_TRACKED_ADJUSTED_PARAMS = 1024;
@@ -72,7 +70,6 @@ async function recordLoopOutcome(args: {
     log.warn(`tool loop outcome tracking failed: tool=${args.toolName} error=${String(err)}`);
   }
 }
->>>>>>> e5eb5b3e4 (feat: add stuck loop detection and exponential backoff infrastructure for agent polling (#17118))
 
 export async function runBeforeToolCallHook(args: {
   toolName: string;
@@ -80,8 +77,6 @@ export async function runBeforeToolCallHook(args: {
   toolCallId?: string;
   ctx?: HookContext;
 }): Promise<HookOutcome> {
-<<<<<<< HEAD
-=======
   const toolName = normalizeToolName(args.toolName || "tool");
   const params = args.params;
 
@@ -137,7 +132,6 @@ export async function runBeforeToolCallHook(args: {
     recordToolCall(sessionState, toolName, params, args.toolCallId, args.ctx.loopDetection);
   }
 
->>>>>>> e5eb5b3e4 (feat: add stuck loop detection and exponential backoff infrastructure for agent polling (#17118))
   const hookRunner = getGlobalHookRunner();
   if (!hookRunner?.hasHooks("before_tool_call")) {
     return { blocked: false, params: args.params };
@@ -201,40 +195,7 @@ export function wrapToolWithBeforeToolCallHook(
       if (outcome.blocked) {
         throw new Error(outcome.reason);
       }
-<<<<<<< HEAD
       return await execute(toolCallId, outcome.params, signal, onUpdate);
-=======
-      if (toolCallId) {
-        adjustedParamsByToolCallId.set(toolCallId, outcome.params);
-        if (adjustedParamsByToolCallId.size > MAX_TRACKED_ADJUSTED_PARAMS) {
-          const oldest = adjustedParamsByToolCallId.keys().next().value;
-          if (oldest) {
-            adjustedParamsByToolCallId.delete(oldest);
-          }
-        }
-      }
-      const normalizedToolName = normalizeToolName(toolName || "tool");
-      try {
-        const result = await execute(toolCallId, outcome.params, signal, onUpdate);
-        await recordLoopOutcome({
-          ctx,
-          toolName: normalizedToolName,
-          toolParams: outcome.params,
-          toolCallId,
-          result,
-        });
-        return result;
-      } catch (err) {
-        await recordLoopOutcome({
-          ctx,
-          toolName: normalizedToolName,
-          toolParams: outcome.params,
-          toolCallId,
-          error: err,
-        });
-        throw err;
-      }
->>>>>>> e5eb5b3e4 (feat: add stuck loop detection and exponential backoff infrastructure for agent polling (#17118))
     },
   };
 }

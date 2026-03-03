@@ -8,7 +8,6 @@ import {
   setLoadConfigMock,
 } from "./auto-reply.test-harness.js";
 
-<<<<<<< HEAD
 let previousHome: string | undefined;
 let tempHome: string | undefined;
 
@@ -82,9 +81,6 @@ const _makeSessionStore = async (
     cleanup,
   };
 };
-=======
-installWebAutoReplyTestHomeHooks();
->>>>>>> 01ec81dae (refactor(test): migrate web auto-reply tests to harness)
 
 describe("web auto-reply", () => {
   installWebAutoReplyUnitTestHooks();

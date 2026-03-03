@@ -4,13 +4,7 @@ read_when:
   - Explaining how streaming or chunking works on channels
   - Changing block streaming or channel chunking behavior
 <<<<<<< HEAD
-<<<<<<< HEAD
   - Debugging duplicate/early block replies or draft streaming
-=======
-  - Debugging duplicate/early block replies or Telegram preview streaming
-=======
-  - Debugging duplicate/early block replies or channel preview streaming
->>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 title: "Streaming and Chunking"
 >>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
 ---
@@ -18,13 +12,7 @@ title: "Streaming and Chunking"
 # Streaming + chunking
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 Moltbot has two separate “streaming” layers:
-=======
-OpenClaw has two separate “streaming” layers:
-=======
-OpenClaw has two separate streaming layers:
->>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Block streaming (channels):** emit completed **blocks** as the assistant writes. These are normal channel messages (not token deltas).
@@ -125,7 +113,6 @@ Config location reminder: the `blockStreaming*` defaults live under
 
 Canonical key: `channels.<channel>.streaming`
 
-<<<<<<< HEAD
 - Uses Bot API `sendMessage` (first update) + `editMessageText` (subsequent updates).
 <<<<<<< HEAD
 - `channels.telegram.streamMode: "partial" | "block" | "off"`.
@@ -139,14 +126,6 @@ Canonical key: `channels.<channel>.streaming`
 - `/reasoning stream` writes reasoning into the draft bubble (Telegram only).
 
 When draft streaming is active, Moltbot disables block streaming for that reply to avoid double-streaming.
-=======
-  - `partial`: preview updates with latest stream text.
-  - `block`: preview updates in chunked blocks (same chunker rules).
-  - `off`: no preview streaming.
-- Preview chunk config (only for `streamMode: "block"`): `channels.telegram.draftChunk` (defaults: `minChars: 200`, `maxChars: 800`).
-=======
-- `channels.telegram.streaming: true | false` (default: `true`).
->>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
 - Preview streaming is separate from block streaming.
 - When Telegram block streaming is explicitly enabled, preview streaming is skipped to avoid double-streaming.
 - Text-only finals are applied by editing the preview message in place.

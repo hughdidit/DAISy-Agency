@@ -1,9 +1,5 @@
 import { RateLimitError } from "@buape/carbon";
-<<<<<<< HEAD
 
-=======
-import { createSubsystemLogger } from "../logging/subsystem.js";
->>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 import { formatErrorMessage } from "./errors.js";
 import { type RetryConfig, resolveRetryConfig, retryAsync } from "./retry.js";
 

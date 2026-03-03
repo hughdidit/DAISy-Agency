@@ -1,15 +1,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { Command } from "commander";
 import { randomIdempotencyKey } from "../../gateway/call.js";
-=======
-import type { NodesRpcOpts } from "./types.js";
->>>>>>> d4bdcda32 (refactor(nodes-cli): share node.invoke param builder)
 =======
 import type { Command } from "commander";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -39,16 +35,9 @@ import { buildA2UITextJsonl, validateA2UIJsonl } from "./a2ui-jsonl.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 import type { NodesRpcOpts } from "./types.js";
 import { shortenHomePath } from "../../utils.js";
-=======
-import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> d4bdcda32 (refactor(nodes-cli): share node.invoke param builder)
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

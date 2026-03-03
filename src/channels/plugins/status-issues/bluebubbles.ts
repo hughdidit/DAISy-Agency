@@ -69,7 +69,6 @@ export function collectBlueBubblesStatusIssues(
         return;
       }
 
-<<<<<<< HEAD
     // Check for unconfigured accounts
     if (!configured) {
       issues.push({
@@ -81,23 +80,6 @@ export function collectBlueBubblesStatusIssues(
       });
       continue;
     }
-=======
-      // Check for probe failures
-      if (probe && probe.ok === false) {
-        const errorDetail = probe.error
-          ? `: ${probe.error}`
-          : probe.status
-            ? ` (HTTP ${probe.status})`
-            : "";
-        issues.push({
-          channel: "bluebubbles",
-          accountId,
-          kind: "runtime",
-          message: `BlueBubbles server unreachable${errorDetail}`,
-          fix: "Check that the BlueBubbles server is running and accessible. Verify serverUrl and password in your config.",
-        });
-      }
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 
       // Check for runtime errors
       if (running && lastError) {

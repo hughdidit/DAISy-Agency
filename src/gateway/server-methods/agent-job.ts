@@ -123,16 +123,11 @@ function ensureAgentRunListener() {
     }
     const snapshot = createSnapshotFromLifecycleEvent({
       runId: evt.runId,
-<<<<<<< HEAD
       status: phase === "error" ? "error" : "ok",
       startedAt,
       endedAt,
       error,
       ts: Date.now(),
-=======
-      phase,
-      data: evt.data,
->>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
     });
     agentRunStarts.delete(evt.runId);
     if (phase === "error") {
@@ -231,7 +226,6 @@ export async function waitForAgentJob(params: {
       }
       const snapshot = createSnapshotFromLifecycleEvent({
         runId: evt.runId,
-<<<<<<< HEAD
         status: phase === "error" ? "error" : "ok",
         startedAt,
         endedAt,
@@ -242,21 +236,6 @@ export async function waitForAgentJob(params: {
       finish(snapshot);
     });
     const timer = setTimeout(() => finish(null), Math.max(1, timeoutMs));
-=======
-        phase,
-        data: evt.data,
-      });
-      if (phase === "error") {
-        scheduleErrorFinish(snapshot);
-        return;
-      }
-      recordAgentRunSnapshot(snapshot);
-      finish(snapshot);
-    });
-
-    const timerDelayMs = Math.max(1, Math.min(Math.floor(timeoutMs), 2_147_483_647));
-    const timer = setTimeout(() => finish(null), timerDelayMs);
->>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
   });
 }
 

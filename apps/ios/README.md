@@ -1,73 +1,14 @@
-<<<<<<< HEAD
 # Clawdbot (iOS)
 
 Internal-only SwiftUI app scaffold.
-=======
-# OpenClaw iOS (Super Alpha)
-
-NO TEST FLIGHT AVAILABLE AT THIS POINT
-
-This iPhone app is super-alpha and internal-use only. It connects to an OpenClaw Gateway as a `role: node`.
-
-## Distribution Status
-
-NO TEST FLIGHT AVAILABLE AT THIS POINT
-
-- Current distribution: local/manual deploy from source via Xcode.
-- App Store flow is not part of the current internal development path.
-
-## Super-Alpha Disclaimer
-
-- Breaking changes are expected.
-- UI and onboarding flows can change without migration guarantees.
-- Foreground use is the only reliable mode right now.
-- Treat this build as sensitive while permissions and background behavior are still being hardened.
-
-## Exact Xcode Manual Deploy Flow
-
-1. Prereqs:
-   - Xcode 16+
-   - `pnpm`
-   - `xcodegen`
-   - Apple Development signing set up in Xcode
-2. From repo root:
->>>>>>> e67da1538 (iOS/Gateway: wake disconnected iOS nodes via APNs before invoke (#20332))
 
 ## Lint/format (required)
 ```bash
-<<<<<<< HEAD
 brew install swiftformat swiftlint
 ```
 
 <<<<<<< HEAD
 ## Generate the Xcode project
-=======
-`pnpm ios:open` now runs `scripts/ios-configure-signing.sh` before `xcodegen`:
-=======
-pnpm install
-./scripts/ios-configure-signing.sh
-cd apps/ios
-xcodegen generate
-open OpenClaw.xcodeproj
-```
-
-3. In Xcode:
-   - Scheme: `OpenClaw`
-   - Destination: connected iPhone (recommended for real behavior)
-   - Build configuration: `Debug`
-   - Run (`Product` -> `Run`)
-4. If signing fails on a personal team:
-   - Use unique local bundle IDs via `apps/ios/LocalSigning.xcconfig`.
-   - Start from `apps/ios/LocalSigning.xcconfig.example`.
-
-Shortcut command (same flow + open project):
-
-```bash
-pnpm ios:open
-```
-
-## APNs Expectations For Local/Manual Builds
->>>>>>> e67da1538 (iOS/Gateway: wake disconnected iOS nodes via APNs before invoke (#20332))
 
 - The app calls `registerForRemoteNotifications()` at launch.
 - `apps/ios/Sources/OpenClaw.entitlements` sets `aps-environment` to `development`.
@@ -129,7 +70,6 @@ Pass criteria:
 
 Automatic wake/reconnect hardening:
 
-<<<<<<< HEAD
 >>>>>>> 98962ed81 (feat(ios): auto-select local signing team (#18421))
 ```bash
 cd apps/ios
@@ -149,32 +89,3 @@ fastlane lanes
 ```
 
 See `apps/ios/fastlane/SETUP.md` for App Store Connect auth + upload lanes.
-=======
-- improve wake/resume behavior across scene transitions
-- reduce dead-socket states after background -> foreground
-- tighten node/operator session reconnect coordination
-- reduce manual recovery steps after transient network failures
-
-## Debugging Checklist
-
-1. Confirm build/signing baseline:
-   - regenerate project (`xcodegen generate`)
-   - verify selected team + bundle IDs
-2. In app `Settings -> Gateway`:
-   - confirm status text, server, and remote address
-   - verify whether status shows pairing/auth gating
-3. If pairing is required:
-   - run `/pair approve` from Telegram, then reconnect
-4. If discovery is flaky:
-   - enable `Discovery Debug Logs`
-   - inspect `Settings -> Gateway -> Discovery Logs`
-5. If network path is unclear:
-   - switch to manual host/port + TLS in Gateway Advanced settings
-6. In Xcode console, filter for subsystem/category signals:
-   - `ai.openclaw.ios`
-   - `GatewayDiag`
-   - `APNs registration failed`
-7. Validate background expectations:
-   - repro in foreground first
-   - then test background transitions and confirm reconnect on return
->>>>>>> e67da1538 (iOS/Gateway: wake disconnected iOS nodes via APNs before invoke (#20332))

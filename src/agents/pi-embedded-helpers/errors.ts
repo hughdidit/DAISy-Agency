@@ -1,15 +1,6 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -29,13 +20,7 @@ import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
 import { stableStringify } from "../stable-stringify.js";
 import type { FailoverReason } from "./types.js";
 
-<<<<<<< HEAD
 export function formatBillingErrorMessage(provider?: string): string {
-=======
-const log = createSubsystemLogger("errors");
-
-export function formatBillingErrorMessage(provider?: string, model?: string): string {
->>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
   const providerName = provider?.trim();
   if (providerName) {
     return `⚠️ ${providerName} returned a billing error — your API key has run out of credits or has an insufficient balance. Check your ${providerName} billing dashboard and top up or switch to a different API key.`;
@@ -82,8 +67,6 @@ export function isContextOverflowError(errorMessage?: string): boolean {
     return false;
   }
   const lower = errorMessage.toLowerCase();
-<<<<<<< HEAD
-=======
 
   // Groq uses 413 for TPM (tokens per minute) limits, which is a rate limit, not context overflow.
   if (hasRateLimitTpmHint(errorMessage)) {
@@ -94,7 +77,6 @@ export function isContextOverflowError(errorMessage?: string): boolean {
     return false;
   }
 
->>>>>>> 4f340b881 (fix(agents): avoid classifying reasoning-required errors as context overflow (#24593))
   const hasRequestSizeExceeds = lower.includes("request size exceeds");
   const hasContextWindow =
     lower.includes("context window") ||
@@ -109,12 +91,9 @@ export function isContextOverflowError(errorMessage?: string): boolean {
     lower.includes("exceeds model context window") ||
     lower.includes("model token limit") ||
     (hasRequestSizeExceeds && hasContextWindow) ||
-<<<<<<< HEAD
-=======
     lower.includes("context overflow:") ||
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> e4651d6af (Memory/QMD: reuse default model cache and skip ENOENT warnings (#12114))
     lower.includes("context overflow") ||
 =======
 >>>>>>> f0924d3c4 (refactor: consolidate PNG encoder and safeParseJson utilities (#12457))
@@ -145,8 +124,6 @@ export function isLikelyContextOverflowError(errorMessage?: string): boolean {
   if (!errorMessage) {
     return false;
   }
-<<<<<<< HEAD
-=======
 
   // Groq uses 413 for TPM (tokens per minute) limits, which is a rate limit, not context overflow.
   if (hasRateLimitTpmHint(errorMessage)) {
@@ -157,7 +134,6 @@ export function isLikelyContextOverflowError(errorMessage?: string): boolean {
     return false;
   }
 
->>>>>>> 4f340b881 (fix(agents): avoid classifying reasoning-required errors as context overflow (#24593))
   if (CONTEXT_WINDOW_TOO_SMALL_RE.test(errorMessage)) {
     return false;
   }
@@ -519,11 +495,7 @@ export function formatRawAssistantErrorForUi(raw?: string): string {
 
 export function formatAssistantErrorText(
   msg: AssistantMessage,
-<<<<<<< HEAD
   opts?: { cfg?: MoltbotConfig; sessionKey?: string },
-=======
-  opts?: { cfg?: OpenClawConfig; sessionKey?: string; provider?: string },
->>>>>>> bdd0c1232 (fix(providers): include provider name in billing error messages (#14697))
 ): string | undefined {
   // Also format errors if errorMessage is present, even if stopReason isn't "error"
   const raw = (msg.errorMessage ?? "").trim();
@@ -659,21 +631,7 @@ export function sanitizeUserFacingText(text: string, opts?: { errorContext?: boo
     }
   }
 
-<<<<<<< HEAD
   return collapseConsecutiveDuplicateBlocks(stripped);
-=======
-  // Preserve legacy behavior for explicit billing-head text outside known
-  // error contexts (e.g., "billing: please upgrade your plan"), while
-  // keeping conversational billing mentions untouched.
-  if (shouldRewriteBillingText(trimmed)) {
-    return BILLING_ERROR_USER_MESSAGE;
-  }
-
-  // Strip leading blank lines (including whitespace-only lines) without clobbering indentation on
-  // the first content line (e.g. markdown/code blocks).
-  const withoutLeadingEmptyLines = stripped.replace(/^(?:[ \t]*\r?\n)+/, "");
-  return collapseConsecutiveDuplicateBlocks(withoutLeadingEmptyLines);
->>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 }
 
 export function isRateLimitAssistantError(msg: AssistantMessage | undefined): boolean {
@@ -695,8 +653,6 @@ const ERROR_PATTERNS = {
     "quota exceeded",
     "resource_exhausted",
     "usage limit",
-<<<<<<< HEAD
-=======
     /\btpm\b/i,
     "tokens per minute",
   ],
@@ -705,7 +661,6 @@ const ERROR_PATTERNS = {
     "overloaded",
     "service unavailable",
     "high demand",
->>>>>>> 250f9e15f (fix(agents): land #31007 from @HOYALIM)
   ],
   overloaded: [/overloaded_error|"type"\s*:\s*"overloaded_error"/i, "overloaded"],
   timeout: [

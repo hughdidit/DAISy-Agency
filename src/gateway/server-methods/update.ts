@@ -4,13 +4,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../../infra/moltbot-root.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
-=======
-import type { GatewayRequestHandlers } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -32,13 +27,9 @@ import {
   type RestartSentinelPayload,
   writeRestartSentinel,
 } from "../../infra/restart-sentinel.js";
-<<<<<<< HEAD
-=======
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 import { normalizeUpdateChannel } from "../../infra/update-channels.js";
->>>>>>> bbe9cb302 (fix(update): honor update.channel for update.run)
 import { runGatewayUpdate } from "../../infra/update-runner.js";
-<<<<<<< HEAD
 import {
   ErrorCodes,
   errorShape,
@@ -46,12 +37,6 @@ import {
   validateUpdateRunParams,
 } from "../protocol/index.js";
 import type { GatewayRequestHandlers } from "./types.js";
-=======
-import { validateUpdateRunParams } from "../protocol/index.js";
-import { parseRestartRequestParams } from "./restart-request.js";
-import type { GatewayRequestHandlers } from "./types.js";
-import { assertValidParams } from "./validation.js";
->>>>>>> b743e652c (refactor(gateway): reuse shared validators + baseHash)
 
 export const updateHandlers: GatewayRequestHandlers = {
   "update.run": async ({ params, respond }) => {

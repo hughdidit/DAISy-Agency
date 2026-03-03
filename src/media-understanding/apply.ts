@@ -6,16 +6,10 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
-=======
-import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
-import type { MsgContext } from "../auto-reply/templating.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -35,13 +29,7 @@ import type {
 } from "./types.js";
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> dee013426 (style: reformat dedupe-touched files)
-=======
-import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
-import type { MsgContext } from "../auto-reply/templating.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> c70597dae (chore: Fix formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -148,7 +136,6 @@ function xmlEscapeAttr(value: string): string {
 
 function resolveFileLimits(cfg: MoltbotConfig) {
   const files = cfg.gateway?.http?.endpoints?.responses?.files;
-<<<<<<< HEAD
   return {
     allowUrl: files?.allowUrl ?? true,
     allowedMimes: normalizeMimeList(files?.allowedMimes, DEFAULT_INPUT_FILE_MIMES),
@@ -161,12 +148,6 @@ function resolveFileLimits(cfg: MoltbotConfig) {
       maxPixels: files?.pdf?.maxPixels ?? DEFAULT_INPUT_PDF_MAX_PIXELS,
       minTextChars: files?.pdf?.minTextChars ?? DEFAULT_INPUT_PDF_MIN_TEXT_CHARS,
     },
-=======
-  const allowedMimesConfigured = Boolean(files?.allowedMimes?.length);
-  return {
-    ...resolveInputFileLimits(files),
-    allowedMimesConfigured,
->>>>>>> 37c97964a (refactor(media): centralize input file limit resolution)
   };
 }
 
@@ -277,8 +258,6 @@ function resolveTextMimeFromName(name?: string): string | undefined {
   return TEXT_EXT_MIME.get(ext);
 }
 
-<<<<<<< HEAD
-=======
 function isBinaryMediaMime(mime?: string): boolean {
   if (!mime) {
     return false;
@@ -310,7 +289,6 @@ function isBinaryMediaMime(mime?: string): boolean {
   return false;
 }
 
->>>>>>> 86a156db2 (fix (media-understanding): treat binary application mimes as non-text)
 async function extractFileBlocks(params: {
   attachments: ReturnType<typeof normalizeMediaAttachments>;
   cache: ReturnType<typeof createMediaAttachmentCache>;
@@ -353,18 +331,10 @@ async function extractFileBlocks(params: {
     const forcedTextMimeResolved = forcedTextMime ?? resolveTextMimeFromName(nameHint ?? "");
     const utf16Charset = resolveUtf16Charset(bufferResult?.buffer);
     const textSample = decodeTextSample(bufferResult?.buffer);
-<<<<<<< HEAD
     const textLike = Boolean(utf16Charset) || looksLikeUtf8Text(bufferResult?.buffer);
     if (!forcedTextMimeResolved && kind === "audio" && !textLike) {
       continue;
     }
-=======
-    // Do not coerce real PDFs into text/plain via printable-byte heuristics.
-    // PDFs have a dedicated extraction path in extractFileContentFromSource.
-    const allowTextHeuristic = normalizedRawMime !== "application/pdf";
-    const textLike =
-      allowTextHeuristic && (Boolean(utf16Charset) || looksLikeUtf8Text(bufferResult?.buffer));
->>>>>>> 6d11b4699 (Media: preserve PDF MIME classification in file extraction)
     const guessedDelimited = textLike ? guessDelimitedMime(textSample) : undefined;
     const textHint =
       forcedTextMimeResolved ?? guessedDelimited ?? (textLike ? "text/plain" : undefined);

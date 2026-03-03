@@ -5,11 +5,7 @@ import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import { parseAbsoluteTimeMs } from "../parse.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { computeNextRunAtMs } from "../schedule.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -49,13 +45,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { CronServiceState } from "./state.js";
-import { parseAbsoluteTimeMs } from "../parse.js";
-import { computeNextRunAtMs } from "../schedule.js";
-<<<<<<< HEAD
->>>>>>> 3f82daefd (feat(cron): enhance delivery modes and job configuration)
 =======
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -77,10 +66,7 @@ import {
   resolveCronStaggerMs,
   resolveDefaultCronStaggerMs,
 } from "../stagger.js";
-<<<<<<< HEAD
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeHttpWebhookUrl } from "../webhook-url.js";
@@ -96,8 +82,6 @@ import type { CronServiceState } from "./state.js";
 
 const STUCK_RUN_MS = 2 * 60 * 60 * 1000;
 
-<<<<<<< HEAD
-=======
 function resolveStableCronOffsetMs(jobId: string, staggerMs: number) {
   if (staggerMs <= 1) {
     return 0;
@@ -145,7 +129,6 @@ function resolveEveryAnchorMs(params: {
   return Math.max(0, Math.floor(params.fallbackAnchorMs));
 }
 
->>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 export function assertSupportedJobSpec(job: Pick<CronJob, "sessionTarget" | "payload">) {
   if (job.sessionTarget === "main" && job.payload.kind !== "systemEvent") {
     throw new Error('main cron jobs require payload.kind="systemEvent"');
@@ -226,8 +209,6 @@ export function computeJobNextRunAtMs(job: CronJob, nowMs: number): number | und
   if (!job.enabled) {
     return undefined;
   }
-<<<<<<< HEAD
-=======
   if (job.schedule.kind === "every") {
     const everyMs = Math.max(1, Math.floor(job.schedule.everyMs));
     const lastRunAtMs = job.state.lastRunAtMs;
@@ -243,7 +224,6 @@ export function computeJobNextRunAtMs(job: CronJob, nowMs: number): number | und
     });
     return computeNextRunAtMs({ ...job.schedule, everyMs, anchorMs }, nowMs);
   }
->>>>>>> 9cf445e37 (fix(cron): restore interval cadence after restart)
   if (job.schedule.kind === "at") {
     // Handle both canonical `at` (string) and legacy `atMs` (number) fields.
     // The store migration should convert atMs→at, but be defensive in case
@@ -257,19 +237,7 @@ export function computeJobNextRunAtMs(job: CronJob, nowMs: number): number | und
           : typeof schedule.at === "string"
             ? parseAbsoluteTimeMs(schedule.at)
             : null;
-<<<<<<< HEAD
     return atMs !== null ? atMs : undefined;
-=======
-    // One-shot jobs stay due until they successfully finish, but if the
-    // schedule was updated to a time after the last run, re-arm the job.
-    if (job.state.lastStatus === "ok" && job.state.lastRunAtMs) {
-      if (atMs !== null && Number.isFinite(atMs) && atMs > job.state.lastRunAtMs) {
-        return atMs;
-      }
-      return undefined;
-    }
-    return atMs !== null && Number.isFinite(atMs) ? atMs : undefined;
->>>>>>> 08c35eb13 (fix(cron): re-arm one-shot at-jobs when rescheduled after completion (openclaw#28915) thanks @Glucksberg)
   }
   const next = computeStaggeredCronNextRunAtMs(job, nowMs);
   if (next === undefined && job.schedule.kind === "cron") {
@@ -279,94 +247,7 @@ export function computeJobNextRunAtMs(job: CronJob, nowMs: number): number | und
   return next;
 }
 
-<<<<<<< HEAD
 export function recomputeNextRuns(state: CronServiceState) {
-=======
-/** Maximum consecutive schedule errors before auto-disabling a job. */
-const MAX_SCHEDULE_ERRORS = 3;
-
-function recordScheduleComputeError(params: {
-  state: CronServiceState;
-  job: CronJob;
-  err: unknown;
-}): boolean {
-  const { state, job, err } = params;
-  const errorCount = (job.state.scheduleErrorCount ?? 0) + 1;
-  const errText = String(err);
-
-  job.state.scheduleErrorCount = errorCount;
-  job.state.nextRunAtMs = undefined;
-  job.state.lastError = `schedule error: ${errText}`;
-
-  if (errorCount >= MAX_SCHEDULE_ERRORS) {
-    job.enabled = false;
-    state.deps.log.error(
-      { jobId: job.id, name: job.name, errorCount, err: errText },
-      "cron: auto-disabled job after repeated schedule errors",
-    );
-
-    // Notify the user so the auto-disable is not silent (#28861).
-    const notifyText = `⚠️ Cron job "${job.name}" has been auto-disabled after ${errorCount} consecutive schedule errors. Last error: ${errText}`;
-    state.deps.enqueueSystemEvent(notifyText, {
-      agentId: job.agentId,
-      sessionKey: job.sessionKey,
-      contextKey: `cron:${job.id}:auto-disabled`,
-    });
-    state.deps.requestHeartbeatNow({
-      reason: `cron:${job.id}:auto-disabled`,
-      agentId: job.agentId,
-      sessionKey: job.sessionKey,
-    });
-  } else {
-    state.deps.log.warn(
-      { jobId: job.id, name: job.name, errorCount, err: errText },
-      "cron: failed to compute next run for job (skipping)",
-    );
-  }
-
-  return true;
-}
-
-function normalizeJobTickState(params: { state: CronServiceState; job: CronJob; nowMs: number }): {
-  changed: boolean;
-  skip: boolean;
-} {
-  const { state, job, nowMs } = params;
-  let changed = false;
-
-  if (!job.state) {
-    job.state = {};
-    changed = true;
-  }
-
-  if (!job.enabled) {
-    if (job.state.nextRunAtMs !== undefined) {
-      job.state.nextRunAtMs = undefined;
-      changed = true;
-    }
-    if (job.state.runningAtMs !== undefined) {
-      job.state.runningAtMs = undefined;
-      changed = true;
-    }
-    return { changed, skip: true };
-  }
-
-  const runningAt = job.state.runningAtMs;
-  if (typeof runningAt === "number" && nowMs - runningAt > STUCK_RUN_MS) {
-    state.deps.log.warn(
-      { jobId: job.id, runningAtMs: runningAt },
-      "cron: clearing stuck running marker",
-    );
-    job.state.runningAtMs = undefined;
-    changed = true;
-  }
-
-  return { changed, skip: false };
-}
-
-<<<<<<< HEAD
-export function recomputeNextRuns(state: CronServiceState): boolean {
->>>>>>> 04f695e56 (fix(cron): isolate schedule errors to prevent one bad job from breaking all jobs (#14385))
 =======
 function walkSchedulableJobs(
   state: CronServiceState,
@@ -378,7 +259,6 @@ function walkSchedulableJobs(
   }
   const now = state.deps.nowMs();
   for (const job of state.store.jobs) {
-<<<<<<< HEAD
     if (!job.state) {
       job.state = {};
     }
@@ -395,19 +275,6 @@ function walkSchedulableJobs(
       );
       job.state.runningAtMs = undefined;
 <<<<<<< HEAD
-=======
-      changed = true;
-    }
-=======
-    const tick = normalizeJobTickState({ state, job, nowMs: now });
-    if (tick.changed) {
-      changed = true;
-    }
-    if (tick.skip) {
-      continue;
-    }
-<<<<<<< HEAD
->>>>>>> 6b400eca5 (refactor(cron): share job tick state normalization)
 =======
     if (fn({ job, nowMs: now })) {
       changed = true;
@@ -452,16 +319,9 @@ export function recomputeNextRuns(state: CronServiceState): boolean {
       }
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     }
-<<<<<<< HEAD
     job.state.nextRunAtMs = computeJobNextRunAtMs(job, now);
   }
 <<<<<<< HEAD
-=======
-  return changed;
-=======
-    return changed;
-  });
->>>>>>> 2679089e9 (refactor(cron): dedupe next-run recompute loop)
 }
 
 /**
@@ -482,14 +342,9 @@ export function recomputeNextRunsForMaintenance(state: CronServiceState): boolea
         changed = true;
       }
     }
-<<<<<<< HEAD
   }
   return changed;
 >>>>>>> 6b400eca5 (refactor(cron): share job tick state normalization)
-=======
-    return changed;
-  });
->>>>>>> 2679089e9 (refactor(cron): dedupe next-run recompute loop)
 }
 
 export function nextWakeAtMs(state: CronServiceState) {
@@ -507,8 +362,6 @@ export function nextWakeAtMs(state: CronServiceState) {
 export function createJob(state: CronServiceState, input: CronJobCreate): CronJob {
   const now = state.deps.nowMs();
   const id = crypto.randomUUID();
-<<<<<<< HEAD
-=======
   const schedule =
     input.schedule.kind === "every"
       ? {
@@ -530,7 +383,6 @@ export function createJob(state: CronServiceState, input: CronJobCreate): CronJo
               : input.schedule;
           })()
         : input.schedule;
->>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
   const deleteAfterRun =
     typeof input.deleteAfterRun === "boolean"
       ? input.deleteAfterRun
@@ -825,15 +677,12 @@ function mergeCronFailureAlert(
 }
 
 export function isJobDue(job: CronJob, nowMs: number, opts: { forced: boolean }) {
-<<<<<<< HEAD
-=======
   if (!job.state) {
     job.state = {};
   }
   if (typeof job.state.runningAtMs === "number") {
     return false;
   }
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   if (opts.forced) {
     return true;
   }

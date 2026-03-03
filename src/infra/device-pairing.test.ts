@@ -11,8 +11,6 @@ import {
   rotateDeviceToken,
 } from "./device-pairing.js";
 
-<<<<<<< HEAD
-=======
 async function setupPairedOperatorDevice(baseDir: string, scopes: string[]) {
   const request = await requestDevicePairing(
     {
@@ -52,10 +50,7 @@ function requireToken(token: string | undefined): string {
   return token;
 }
 
->>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
 describe("device pairing tokens", () => {
-<<<<<<< HEAD
-=======
   test("reuses existing pending requests for the same device", async () => {
     const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
     const first = await requestDevicePairing(
@@ -120,7 +115,6 @@ describe("device pairing tokens", () => {
     expect(Buffer.from(token, "base64url")).toHaveLength(32);
   });
 
->>>>>>> 7a89049d1 (refactor: dedupe pending pairing request flow and add reuse tests)
   test("preserves existing token scopes when rotating without scopes", async () => {
     const baseDir = await mkdtemp(join(tmpdir(), "moltbot-device-pairing-"));
     const request = await requestDevicePairing(
@@ -153,50 +147,6 @@ describe("device pairing tokens", () => {
     expect(paired?.tokens?.operator?.scopes).toEqual(["operator.read"]);
   });
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-
-  test("preserves existing token scopes when approving a repair without requested scopes", async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
-    await setupPairedOperatorDevice(baseDir, ["operator.admin"]);
-
-    const repair = await requestDevicePairing(
-      {
-        deviceId: "device-1",
-        publicKey: "public-key-1",
-        role: "operator",
-      },
-      baseDir,
-    );
-    await approveDevicePairing(repair.request.requestId, baseDir);
-
-    const paired = await getPairedDevice("device-1", baseDir);
-    expect(paired?.scopes).toEqual(["operator.admin"]);
-    expect(paired?.approvedScopes).toEqual(["operator.admin"]);
-    expect(paired?.tokens?.operator?.scopes).toEqual(["operator.admin"]);
-  });
-
-  test("rejects scope escalation when rotating a token and leaves state unchanged", async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
-    await setupPairedOperatorDevice(baseDir, ["operator.read"]);
-    const before = await getPairedDevice("device-1", baseDir);
-
-    const rotated = await rotateDeviceToken({
-      deviceId: "device-1",
-      role: "operator",
-      scopes: ["operator.admin"],
-      baseDir,
-    });
-    expect(rotated).toBeNull();
-
-    const after = await getPairedDevice("device-1", baseDir);
-    expect(after?.tokens?.operator?.token).toEqual(before?.tokens?.operator?.token);
-    expect(after?.tokens?.operator?.scopes).toEqual(["operator.read"]);
-    expect(after?.scopes).toEqual(["operator.read"]);
-    expect(after?.approvedScopes).toEqual(["operator.read"]);
-  });
->>>>>>> 483c464b6 (Gateway: preserve token scopes on scope-less repair approvals)
 
   test("verifies token and rejects mismatches", async () => {
     const { baseDir, token } = await setupOperatorToken(["operator.read"]);
@@ -259,17 +209,5 @@ describe("device pairing tokens", () => {
 
     await expect(removePairedDevice("device-1", baseDir)).resolves.toBeNull();
   });
-<<<<<<< HEAD
 >>>>>>> 1437ed76a (Gateway/CLI: add paired-device remove and clear flows (#20057))
-=======
-
-  test("clears paired device state by device id", async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
-    await setupPairedOperatorDevice(baseDir, ["operator.read"]);
-
-    await expect(clearDevicePairing("device-1", baseDir)).resolves.toBe(true);
-    await expect(getPairedDevice("device-1", baseDir)).resolves.toBeNull();
-    await expect(clearDevicePairing("device-1", baseDir)).resolves.toBe(false);
-  });
->>>>>>> 5dd304d1c (fix(gateway): clear pairing state on device token mismatch (#22071))
 });

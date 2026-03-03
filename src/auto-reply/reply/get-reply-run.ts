@@ -3,13 +3,6 @@ import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { resolveSessionAuthProfileOverride } from "../../agents/auth-profiles/session-override.js";
-import type { ExecToolDefaults } from "../../agents/bash-tools.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ExecToolDefaults } from "../../agents/bash-tools.js";
 =======
@@ -23,12 +16,7 @@ import type { InlineDirectives } from "./directive-handling.js";
 import type { createModelSelectionState } from "./model-selection.js";
 import type { TypingController } from "./typing.js";
 import { resolveSessionAuthProfileOverride } from "../../agents/auth-profiles/session-override.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import { resolveSessionAuthProfileOverride } from "../../agents/auth-profiles/session-override.js";
-import type { ExecToolDefaults } from "../../agents/bash-tools.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -50,13 +38,9 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveSessionAuthProfileOverride } from "../../agents/auth-profiles/session-override.js";
 import type { ExecToolDefaults } from "../../agents/bash-tools.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -100,14 +84,6 @@ import { applySessionHints } from "./body.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { buildGroupIntro } from "./groups.js";
-=======
-=======
-import type { buildCommandContext } from "./commands.js";
-import type { InlineDirectives } from "./directive-handling.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -128,32 +104,18 @@ import { resolveOriginMessageProvider } from "./origin-routing.js";
 import { resolveQueueSettings } from "./queue.js";
 >>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
 import { routeReply } from "./route-reply.js";
-<<<<<<< HEAD
 import type { buildCommandContext } from "./commands.js";
 import type { InlineDirectives } from "./directive-handling.js";
 import { buildGroupIntro } from "./groups.js";
 import type { createModelSelectionState } from "./model-selection.js";
 import { resolveQueueSettings } from "./queue.js";
-=======
-import { BARE_SESSION_RESET_PROMPT } from "./session-reset-prompt.js";
->>>>>>> 616658d4b (fix (gateway/agent): route bare /new and /reset through sessions.reset)
 import { ensureSkillSnapshot, prependSystemEvents } from "./session-updates.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { resolveTypingMode } from "./typing-mode.js";
-import { resolveRunTypingPolicy } from "./typing-policy.js";
->>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
 import type { TypingController } from "./typing.js";
 import { resolveTypingMode } from "./typing-mode.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { TypingController } from "./typing.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { TypingController } from "./typing.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -349,15 +311,12 @@ export async function runPreparedReply(
   const isGroupChat = sessionCtx.ChatType === "group";
   const wasMentioned = ctx.WasMentioned === true;
   const isHeartbeat = opts?.isHeartbeat === true;
-<<<<<<< HEAD
-=======
   const { typingPolicy, suppressTyping } = resolveRunTypingPolicy({
     requestedPolicy: opts?.typingPolicy,
     suppressTyping: opts?.suppressTyping === true,
     isHeartbeat,
     originatingChannel: ctx.OriginatingChannel,
   });
->>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
   const typingMode = resolveTypingMode({
     configured: sessionCfg?.typingMode ?? agentCfg?.typingMode,
     isGroupChat,
@@ -452,20 +411,14 @@ export async function runPreparedReply(
     isNewSession,
     prefixedBodyBase,
   });
-<<<<<<< HEAD
   const threadStarterBody = ctx.ThreadStarterBody?.trim();
   const threadStarterNote =
     isNewSession && threadStarterBody
       ? `[Thread starter - for context]\n${threadStarterBody}`
       : undefined;
 =======
-  prefixedBodyBase = appendUntrustedContext(prefixedBodyBase, sessionCtx.UntrustedContext);
-<<<<<<< HEAD
->>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
-=======
   const threadStarterBody = ctx.ThreadStarterBody?.trim();
   const threadHistoryBody = ctx.ThreadHistoryBody?.trim();
-<<<<<<< HEAD
   const threadContextNote =
     isNewSession && threadHistoryBody
       ? `[Thread history - for context]\n${threadHistoryBody}`
@@ -473,13 +426,6 @@ export async function runPreparedReply(
         ? `[Thread starter - for context]\n${threadStarterBody}`
         : undefined;
 >>>>>>> b93ad2cd4 (fix(slack): populate thread session with existing thread history (#7610))
-=======
-  const threadContextNote = threadHistoryBody
-    ? `[Thread history - for context]\n${threadHistoryBody}`
-    : threadStarterBody
-      ? `[Thread starter - for context]\n${threadStarterBody}`
-      : undefined;
->>>>>>> 5e73f3344 (fix(slack): keep thread session fork/history context after first turn (#23843))
   const skillResult = await ensureSkillSnapshot({
     sessionEntry,
     sessionStore,
@@ -606,14 +552,7 @@ export async function runPreparedReply(
       agentDir,
       sessionId: sessionIdFinal,
       sessionKey,
-<<<<<<< HEAD
       messageProvider: sessionCtx.Provider?.trim().toLowerCase() || undefined,
-=======
-      messageProvider: resolveOriginMessageProvider({
-        originatingChannel: sessionCtx.OriginatingChannel,
-        provider: sessionCtx.Provider,
-      }),
->>>>>>> 54648a9cf (refactor: centralize followup origin routing helpers)
       agentAccountId: sessionCtx.AccountId,
       groupId: resolveGroupSessionKey(sessionCtx)?.id ?? undefined,
       groupChannel: sessionCtx.GroupChannel?.trim() ?? sessionCtx.GroupSubject?.trim(),

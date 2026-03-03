@@ -38,13 +38,8 @@ describe("diagnostic session state pruning", () => {
 
   it("caps tracked session states to a bounded max", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     for (let i = 0; i < 2105; i += 1) {
       logSessionStateChange({ sessionId: `session-${i}`, state: "idle" });
-=======
-    for (let i = 0; i < 2001; i += 1) {
-      getDiagnosticSessionState({ sessionId: `session-${i}` });
->>>>>>> 0dec23450 (perf(logging): split diagnostic session state module)
 =======
     const now = Date.now();
     for (let i = 0; i < 2001; i += 1) {

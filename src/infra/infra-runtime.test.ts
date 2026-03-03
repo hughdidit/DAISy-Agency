@@ -121,8 +121,6 @@ describe("infra runtime", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   describe("pre-restart deferral check", () => {
     setupRestartSignalSuite();
 
@@ -217,7 +215,6 @@ describe("infra runtime", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
   describe("getShellPathFromLoginShell", () => {
     afterEach(() => resetShellPathCacheForTests());
 

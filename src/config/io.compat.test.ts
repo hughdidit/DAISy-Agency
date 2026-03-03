@@ -27,7 +27,6 @@ async function writeConfig(
   return configPath;
 }
 
-<<<<<<< HEAD
 describe("config io compat (new + legacy folders)", () => {
   it("prefers ~/.moltbot/moltbot.json when both configs exist", async () => {
     await withTempHome(async (home) => {
@@ -39,28 +38,12 @@ describe("config io compat (new + legacy folders)", () => {
         homedir: () => home,
       });
       expect(io.configPath).toBe(newConfigPath);
-=======
-function createIoForHome(home: string, env: NodeJS.ProcessEnv = {} as NodeJS.ProcessEnv) {
-  return createConfigIO({
-    env,
-    homedir: () => home,
-  });
-}
-
-describe("config io paths", () => {
-  it("uses ~/.openclaw/openclaw.json when config exists", async () => {
-    await withTempHome(async (home) => {
-      const configPath = await writeConfig(home, ".openclaw", 19001);
-      const io = createIoForHome(home);
-      expect(io.configPath).toBe(configPath);
->>>>>>> 1794f42ac (test(config): dedupe io fixture wiring and cover legacy config-path override)
       expect(io.loadConfig().gateway?.port).toBe(19001);
     });
   });
 
   it("falls back to ~/.clawdbot/moltbot.json when only legacy exists", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const legacyConfigPath = await writeConfig(home, ".clawdbot", 20001);
 
       const io = createConfigIO({
@@ -70,30 +53,11 @@ describe("config io paths", () => {
 
       expect(io.configPath).toBe(legacyConfigPath);
       expect(io.loadConfig().gateway?.port).toBe(20001);
-=======
-      const io = createIoForHome(home);
-      expect(io.configPath).toBe(path.join(home, ".openclaw", "openclaw.json"));
->>>>>>> 1794f42ac (test(config): dedupe io fixture wiring and cover legacy config-path override)
     });
   });
 
-<<<<<<< HEAD
   it("falls back to ~/.clawdbot/clawdbot.json when only legacy filename exists", async () => {
-=======
-  it("uses OPENCLAW_HOME for default config path", async () => {
     await withTempHome(async (home) => {
-      const io = createConfigIO({
-        env: { OPENCLAW_HOME: path.join(home, "svc-home") } as NodeJS.ProcessEnv,
-        homedir: () => path.join(home, "ignored-home"),
-      });
-      expect(io.configPath).toBe(path.join(home, "svc-home", ".openclaw", "openclaw.json"));
-    });
-  });
-
-  it("honors explicit OPENCLAW_CONFIG_PATH override", async () => {
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
-    await withTempHome(async (home) => {
-<<<<<<< HEAD
       const legacyConfigPath = await writeConfig(home, ".clawdbot", 20002, "clawdbot.json");
 
       const io = createConfigIO({
@@ -133,11 +97,6 @@ describe("config io paths", () => {
 
       expect(io.configPath).not.toBe(newConfigPath);
       expect(io.configPath).toBe(legacyConfigPath);
-=======
-      const customPath = await writeConfig(home, ".openclaw", 20002, "custom.json");
-      const io = createIoForHome(home, { OPENCLAW_CONFIG_PATH: customPath } as NodeJS.ProcessEnv);
-      expect(io.configPath).toBe(customPath);
->>>>>>> 1794f42ac (test(config): dedupe io fixture wiring and cover legacy config-path override)
       expect(io.loadConfig().gateway?.port).toBe(20002);
     });
   });

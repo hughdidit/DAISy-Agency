@@ -1,12 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
-=======
-import { describe, expect, it, vi } from "vitest";
->>>>>>> 9e147f00b (fix(doctor): resolve telegram allowFrom usernames)
 import { withTempHome } from "../../test/helpers/temp-home.js";
 import * as noteModule from "../terminal/note.js";
 import { loadAndMaybeMigrateDoctorConfig } from "./doctor-config-flow.js";
@@ -63,7 +59,6 @@ type RepairedDiscordPolicy = {
 
 describe("doctor config flow", () => {
   it("preserves invalid config for doctor repairs", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
@@ -79,15 +74,6 @@ describe("doctor config flow", () => {
         ),
         "utf-8",
       );
-=======
-    const result = await runDoctorConfigWithInput({
-      config: {
-        gateway: { auth: { mode: "token", token: 123 } },
-        agents: { list: [{ id: "pi" }] },
-      },
-      run: loadAndMaybeMigrateDoctorConfig,
-    });
->>>>>>> ffeeb835a (refactor(test): extract shared doctor migration test setup)
 
     expect((result.cfg as Record<string, unknown>).gateway).toEqual({
       auth: { mode: "token", token: 123 },
@@ -151,7 +137,6 @@ describe("doctor config flow", () => {
   });
 
   it("drops unknown keys on repair", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
@@ -168,17 +153,6 @@ describe("doctor config flow", () => {
         ),
         "utf-8",
       );
-=======
-    const result = await runDoctorConfigWithInput({
-      repair: true,
-      config: {
-        bridge: { bind: "auto" },
-        gateway: { auth: { mode: "token", token: "ok", extra: true } },
-        agents: { list: [{ id: "pi" }] },
-      },
-      run: loadAndMaybeMigrateDoctorConfig,
-    });
->>>>>>> ffeeb835a (refactor(test): extract shared doctor migration test setup)
 
     const cfg = result.cfg as Record<string, unknown>;
     expect(cfg.bridge).toBeUndefined();
@@ -282,13 +256,8 @@ describe("doctor config flow", () => {
           };
         };
       };
-<<<<<<< HEAD
       expect(cfg.channels.telegram.allowFrom).toEqual(["111"]);
       expect(cfg.channels.telegram.groupAllowFrom).toEqual(["222"]);
-=======
-      expect(cfg.channels.telegram.allowFrom).toBeUndefined();
-      expect(cfg.channels.telegram.groupAllowFrom).toBeUndefined();
->>>>>>> 1ffc31983 (Doctor: keep allowFrom account-scoped in multi-account configs)
       expect(cfg.channels.telegram.groups["-100123"].allowFrom).toEqual(["333"]);
       expect(cfg.channels.telegram.groups["-100123"].topics["99"].allowFrom).toEqual(["444"]);
       expect(cfg.channels.telegram.accounts.alerts.allowFrom).toEqual(["444"]);
@@ -368,11 +337,7 @@ describe("doctor config flow", () => {
         };
       };
 
-<<<<<<< HEAD
       expect(cfg.channels.discord.allowFrom).toEqual(["123"]);
-=======
-      expect(cfg.channels.discord.allowFrom).toBeUndefined();
->>>>>>> 1ffc31983 (Doctor: keep allowFrom account-scoped in multi-account configs)
       expect(cfg.channels.discord.dm.allowFrom).toEqual(["456"]);
       expect(cfg.channels.discord.dm.groupChannels).toEqual(["789"]);
       expect(cfg.channels.discord.execApprovals.approvers).toEqual(["321"]);
@@ -395,8 +360,6 @@ describe("doctor config flow", () => {
       ]);
     });
   });
-<<<<<<< HEAD
-=======
 
   it("does not restore top-level allowFrom when config is intentionally default-account scoped", async () => {
     const result = await runDoctorConfigWithInput({
@@ -667,5 +630,4 @@ describe("doctor config flow", () => {
 
     expectGoogleChatDmAllowFromRepaired(result.cfg);
   });
->>>>>>> f7e75d2c5 (fix(doctor): repair googlechat open dm wildcard auto-fix)
 });

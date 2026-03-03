@@ -1,10 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 import { promisify } from "node:util";
 
-=======
->>>>>>> 2004ce919 (refactor(daemon): share schtasks exec helper)
 import {
   GATEWAY_SERVICE_KIND,
   GATEWAY_SERVICE_MARKER,
@@ -28,12 +25,8 @@ export type FindExtraGatewayServicesOptions = {
   deep?: boolean;
 };
 
-<<<<<<< HEAD
 const EXTRA_MARKERS = ["moltbot"];
 const execFileAsync = promisify(execFile);
-=======
-const EXTRA_MARKERS = ["openclaw", "clawdbot", "moltbot"] as const;
->>>>>>> 2004ce919 (refactor(daemon): share schtasks exec helper)
 
 export function renderGatewayServiceCleanupHints(
   env: Record<string, string | undefined> = process.env as Record<string, string | undefined>,
@@ -70,16 +63,7 @@ function resolveHomeDir(env: Record<string, string | undefined>): string {
 
 function containsMarker(content: string): boolean {
   const lower = content.toLowerCase();
-<<<<<<< HEAD
   return EXTRA_MARKERS.some((marker) => lower.includes(marker));
-=======
-  for (const marker of EXTRA_MARKERS) {
-    if (lower.includes(marker)) {
-      return marker;
-    }
-  }
-  return null;
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 function hasGatewayServiceMarker(content: string): boolean {
@@ -92,7 +76,6 @@ function hasGatewayServiceMarker(content: string): boolean {
   );
 }
 
-<<<<<<< HEAD
 function isMoltbotGatewayLaunchdService(label: string, contents: string): boolean {
   if (hasGatewayServiceMarker(contents)) return true;
   const lowerContents = contents.toLowerCase();
@@ -103,26 +86,6 @@ function isMoltbotGatewayLaunchdService(label: string, contents: string): boolea
 function isMoltbotGatewaySystemdService(name: string, contents: string): boolean {
   if (hasGatewayServiceMarker(contents)) return true;
   if (!name.startsWith("moltbot-gateway")) return false;
-=======
-function isOpenClawGatewayLaunchdService(label: string, contents: string): boolean {
-  if (hasGatewayServiceMarker(contents)) {
-    return true;
-  }
-  const lowerContents = contents.toLowerCase();
-  if (!lowerContents.includes("gateway")) {
-    return false;
-  }
-  return label.startsWith("ai.openclaw.");
-}
-
-function isOpenClawGatewaySystemdService(name: string, contents: string): boolean {
-  if (hasGatewayServiceMarker(contents)) {
-    return true;
-  }
-  if (!name.startsWith("openclaw-gateway")) {
-    return false;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return contents.toLowerCase().includes("gateway");
 }
 
@@ -200,55 +163,10 @@ async function collectServiceFiles(params: {
     if (contents === null) {
       continue;
     }
-<<<<<<< HEAD
     if (!containsMarker(contents)) continue;
-=======
-    out.push({ entry, name, fullPath, contents });
-  }
-  return out;
-}
-
-async function scanLaunchdDir(params: {
-  dir: string;
-  scope: "user" | "system";
-}): Promise<ExtraGatewayService[]> {
-  const results: ExtraGatewayService[] = [];
-  const candidates = await collectServiceFiles({
-    dir: params.dir,
-    extension: ".plist",
-    isIgnoredName: isIgnoredLaunchdLabel,
-  });
-
-  for (const { name: labelFromName, fullPath, contents } of candidates) {
-    const marker = detectMarker(contents);
->>>>>>> 06b0a60be (refactor(daemon): share runtime and service probe helpers)
     const label = tryExtractPlistLabel(contents) ?? labelFromName;
-<<<<<<< HEAD
     if (isIgnoredLaunchdLabel(label)) continue;
     if (isMoltbotGatewayLaunchdService(label, contents)) continue;
-=======
-    if (!marker) {
-      const legacyLabel = isLegacyLabel(labelFromName) || isLegacyLabel(label);
-      if (!legacyLabel) {
-        continue;
-      }
-      results.push({
-        platform: "darwin",
-        label,
-        detail: `plist: ${fullPath}`,
-        scope: params.scope,
-        marker: isLegacyLabel(label) ? "clawdbot" : "moltbot",
-        legacy: true,
-      });
-      continue;
-    }
-    if (isIgnoredLaunchdLabel(label)) {
-      continue;
-    }
-    if (marker === "openclaw" && isOpenClawGatewayLaunchdService(label, contents)) {
-      continue;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     results.push({
       platform: "darwin",
       label,
@@ -271,7 +189,6 @@ async function scanSystemdDir(params: {
     isIgnoredName: isIgnoredSystemdName,
   });
 
-<<<<<<< HEAD
   for (const entry of entries) {
     if (!entry.endsWith(".service")) {
       continue;
@@ -288,10 +205,6 @@ async function scanSystemdDir(params: {
 <<<<<<< HEAD
     if (!containsMarker(contents)) continue;
     if (isMoltbotGatewaySystemdService(name, contents)) continue;
-=======
-=======
-  for (const { entry, name, fullPath, contents } of candidates) {
->>>>>>> 06b0a60be (refactor(daemon): share runtime and service probe helpers)
     const marker = detectMarker(contents);
     if (!marker) {
       continue;
@@ -445,7 +358,6 @@ export async function findExtraGatewayServices(
     const tasks = parseSchtasksList(res.stdout);
     for (const task of tasks) {
       const name = task.name.trim();
-<<<<<<< HEAD
       if (!name) continue;
       if (isMoltbotGatewayTaskName(name)) continue;
       if (LEGACY_GATEWAY_WINDOWS_TASK_NAMES.includes(name)) continue;
@@ -455,26 +367,6 @@ export async function findExtraGatewayServices(
         (marker) => lowerName.includes(marker) || lowerCommand.includes(marker),
       );
       if (!matches) continue;
-=======
-      if (!name) {
-        continue;
-      }
-      if (isOpenClawGatewayTaskName(name)) {
-        continue;
-      }
-      const lowerName = name.toLowerCase();
-      const lowerCommand = task.taskToRun?.toLowerCase() ?? "";
-      let marker: Marker | null = null;
-      for (const candidate of EXTRA_MARKERS) {
-        if (lowerName.includes(candidate) || lowerCommand.includes(candidate)) {
-          marker = candidate;
-          break;
-        }
-      }
-      if (!marker) {
-        continue;
-      }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       push({
         platform: "win32",
         label: name,

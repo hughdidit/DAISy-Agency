@@ -5,7 +5,6 @@ import { repeat } from "lit/directives/repeat.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { AppViewState } from "./app-view-state";
 <<<<<<< HEAD
@@ -18,17 +17,6 @@ import type { SessionsListResult } from "./types";
 import type { ThemeMode } from "./theme";
 import type { ThemeTransitionContext } from "./theme-transition";
 =======
-import type { ThemeMode } from "./theme";
-import type { ThemeTransitionContext } from "./theme-transition";
-import type { SessionsListResult } from "./types";
-import { OpenClawApp } from "./app";
-import { refreshChat } from "./app-chat";
-import { syncUrlWithSessionKey } from "./app-settings";
-import { ChatState, loadChatHistory } from "./controllers/chat";
-import { icons } from "./icons";
-import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation";
->>>>>>> 27677dd8b (chore: Fix all TypeScript errors in `ui`.)
-=======
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -38,9 +26,6 @@ import type { ThemeTransitionContext } from "./theme-transition.ts";
 import type { ThemeMode } from "./theme.ts";
 import type { SessionsListResult } from "./types.ts";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -63,11 +48,7 @@ import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
-import { t } from "../i18n/index.ts";
->>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
 =======
 >>>>>>> e0c45eab4 (style: apply oxfmt formatting)
 =======
@@ -314,7 +295,6 @@ function resolveMainSessionKey(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function resolveSessionDisplayName(key: string, row?: SessionsListResult["sessions"][number]) {
   const label = row?.label?.trim();
   if (label) {
@@ -324,84 +304,6 @@ function resolveSessionDisplayName(key: string, row?: SessionsListResult["sessio
   if (displayName) {
     return displayName;
   }
-=======
-=======
-/* ── Channel display labels ────────────────────────────── */
-const CHANNEL_LABELS: Record<string, string> = {
-  bluebubbles: "iMessage",
-  telegram: "Telegram",
-  discord: "Discord",
-  signal: "Signal",
-  slack: "Slack",
-  whatsapp: "WhatsApp",
-  matrix: "Matrix",
-  email: "Email",
-  sms: "SMS",
-};
-
-const KNOWN_CHANNEL_KEYS = Object.keys(CHANNEL_LABELS);
-
-/** Parsed type / context extracted from a session key. */
-export type SessionKeyInfo = {
-  /** Prefix for typed sessions (Subagent:/Cron:). Empty for others. */
-  prefix: string;
-  /** Human-readable fallback when no label / displayName is available. */
-  fallbackName: string;
-};
-
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-/**
- * Parse a session key to extract type information and a human-readable
- * fallback display name.  Exported for testing.
- */
-export function parseSessionKey(key: string): SessionKeyInfo {
-  // ── Main session ─────────────────────────────────
-  if (key === "main" || key === "agent:main:main") {
-    return { prefix: "", fallbackName: "Main Session" };
-  }
-
-  // ── Subagent ─────────────────────────────────────
-  if (key.includes(":subagent:")) {
-    return { prefix: "Subagent:", fallbackName: "Subagent:" };
-  }
-
-  // ── Cron job ─────────────────────────────────────
-  if (key.includes(":cron:")) {
-    return { prefix: "Cron:", fallbackName: "Cron Job:" };
-  }
-
-  // ── Direct chat  (agent:<x>:<channel>:direct:<id>) ──
-  const directMatch = key.match(/^agent:[^:]+:([^:]+):direct:(.+)$/);
-  if (directMatch) {
-    const channel = directMatch[1];
-    const identifier = directMatch[2];
-    const channelLabel = CHANNEL_LABELS[channel] ?? capitalize(channel);
-    return { prefix: "", fallbackName: `${channelLabel} · ${identifier}` };
-  }
-
-  // ── Group chat  (agent:<x>:<channel>:group:<id>) ────
-  const groupMatch = key.match(/^agent:[^:]+:([^:]+):group:(.+)$/);
-  if (groupMatch) {
-    const channel = groupMatch[1];
-    const channelLabel = CHANNEL_LABELS[channel] ?? capitalize(channel);
-    return { prefix: "", fallbackName: `${channelLabel} Group` };
-  }
-
-  // ── Channel-prefixed legacy keys (e.g. "bluebubbles:g-…") ──
-  for (const ch of KNOWN_CHANNEL_KEYS) {
-    if (key === ch || key.startsWith(`${ch}:`)) {
-      return { prefix: "", fallbackName: `${CHANNEL_LABELS[ch]} Session` };
-    }
-  }
-
-  // ── Unknown — return key as-is ───────────────────
-  return { prefix: "", fallbackName: key };
-}
-
->>>>>>> a948212ca (fix(ui): show session labels in selector and standardize session key prefixes)
 export function resolveSessionDisplayName(
   key: string,
   row?: SessionsListResult["sessions"][number],
@@ -421,15 +323,8 @@ export function resolveSessionDisplayName(
   if (label && label !== key) {
     return applyTypedPrefix(label);
   }
-<<<<<<< HEAD
 >>>>>>> 137b7d9aa (fix(ui): prioritize displayName over label in webchat session picker (#13108))
   return key;
-=======
-  if (displayName && displayName !== key) {
-    return applyTypedPrefix(displayName);
-  }
-  return fallbackName;
->>>>>>> a948212ca (fix(ui): show session labels in selector and standardize session key prefixes)
 }
 
 function resolveSessionOptions(
@@ -477,7 +372,6 @@ function resolveSessionOptions(
   return options;
 }
 
-<<<<<<< HEAD
 type ThemeOption = { id: ThemeMode; label: string; iconKey: keyof typeof icons };
 const THEME_OPTIONS: ThemeOption[] = [
   { id: "dark", label: "Dark", iconKey: "monitor" },
@@ -486,9 +380,6 @@ const THEME_OPTIONS: ThemeOption[] = [
   { id: "fieldmanual", label: "Field", iconKey: "terminal" },
   { id: "clawdash", label: "Chrome", iconKey: "settings" },
 ];
-=======
-const THEME_ORDER: ThemeMode[] = ["system", "light", "dark"];
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 
 export function renderThemeToggle(state: AppViewState) {
   const index = Math.max(0, THEME_ORDER.indexOf(state.theme));

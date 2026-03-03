@@ -1,12 +1,7 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 export function normalizeLegacyConfigValues(cfg: MoltbotConfig): {
   config: MoltbotConfig;
-=======
-=======
-import { shouldMoveSingleAccountChannelKey } from "../channels/plugins/setup-helpers.js";
->>>>>>> dfa0b5b4f (Channels: move single-account config into accounts.default (#27334))
 import type { OpenClawConfig } from "../config/config.js";
 import {
   resolveDiscordPreviewStreamMode,

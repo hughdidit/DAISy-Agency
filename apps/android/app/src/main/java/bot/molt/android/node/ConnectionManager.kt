@@ -21,66 +21,8 @@ class ConnectionManager(
   private val hasRecordAudioPermission: () -> Boolean,
   private val manualTls: () -> Boolean,
 ) {
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/node/ConnectionManager.kt
   fun buildInvokeCommands(): List<String> =
     InvokeCommandRegistry.advertisedCommands(
-=======
-  companion object {
-    internal fun resolveTlsParamsForEndpoint(
-      endpoint: GatewayEndpoint,
-      storedFingerprint: String?,
-      manualTlsEnabled: Boolean,
-    ): GatewayTlsParams? {
-      val stableId = endpoint.stableId
-      val stored = storedFingerprint?.trim().takeIf { !it.isNullOrEmpty() }
-      val isManual = stableId.startsWith("manual|")
-
-      if (isManual) {
-        if (!manualTlsEnabled) return null
-        if (!stored.isNullOrBlank()) {
-          return GatewayTlsParams(
-            required = true,
-            expectedFingerprint = stored,
-            allowTOFU = false,
-            stableId = stableId,
-          )
-        }
-        return GatewayTlsParams(
-          required = true,
-          expectedFingerprint = null,
-          allowTOFU = false,
-          stableId = stableId,
-        )
-      }
-
-      // Prefer stored pins. Never let discovery-provided TXT override a stored fingerprint.
-      if (!stored.isNullOrBlank()) {
-        return GatewayTlsParams(
-          required = true,
-          expectedFingerprint = stored,
-          allowTOFU = false,
-          stableId = stableId,
-        )
-      }
-
-      val hinted = endpoint.tlsEnabled || !endpoint.tlsFingerprintSha256.isNullOrBlank()
-      if (hinted) {
-        // TXT is unauthenticated. Do not treat the advertised fingerprint as authoritative.
-        return GatewayTlsParams(
-          required = true,
-          expectedFingerprint = null,
-          allowTOFU = false,
-          stableId = stableId,
-        )
-      }
-
-      return null
-    }
-  }
-
-  private fun runtimeFlags(): NodeRuntimeFlags =
-    NodeRuntimeFlags(
->>>>>>> 3f06693e7 (refactor(android): share node capability and command manifest):apps/android/app/src/main/java/ai/openclaw/android/node/ConnectionManager.kt
       cameraEnabled = cameraEnabled(),
       locationEnabled = locationMode() != LocationMode.Off,
       smsAvailable = smsAvailable(),

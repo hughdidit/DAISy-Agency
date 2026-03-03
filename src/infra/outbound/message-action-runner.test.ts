@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9,8 +8,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -32,15 +29,12 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import { slackPlugin } from "../../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
-<<<<<<< HEAD
-=======
 import { jsonResult } from "../../agents/tools/common.js";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createOutboundTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
 import { createIMessageTestPlugin } from "../../test-utils/imessage-test-plugin.js";
->>>>>>> eb4215d57 (perf(test): speed up Vitest bootstrap)
 import { loadWebMedia } from "../../web/media.js";
 import { runMessageAction } from "./message-action-runner.js";
 import { jsonResult } from "../../agents/tools/common.js";
@@ -507,8 +501,6 @@ describe("runMessageAction sendAttachment hydration", () => {
     vi.clearAllMocks();
   });
 
-<<<<<<< HEAD
-=======
   async function restoreRealMediaLoader() {
     const actual = await vi.importActual<typeof import("../../web/media.js")>("../../web/media.js");
     vi.mocked(loadWebMedia).mockImplementation(actual.loadWebMedia);
@@ -548,7 +540,6 @@ describe("runMessageAction sendAttachment hydration", () => {
     }
   }
 
->>>>>>> 316fad13a (refactor(outbound): unify attachment hydration flow)
   it("hydrates buffer and filename from media for sendAttachment", async () => {
     const cfg = {
       channels: {
@@ -591,8 +582,6 @@ describe("runMessageAction sendAttachment hydration", () => {
       true,
     );
   });
-<<<<<<< HEAD
-=======
 
   it("rewrites sandboxed media paths for sendAttachment", async () => {
     const cfg = {
@@ -645,7 +634,6 @@ describe("runMessageAction sendAttachment hydration", () => {
       tempPrefix: "msg-group-icon-",
     });
   });
->>>>>>> 316fad13a (refactor(outbound): unify attachment hydration flow)
 });
 
 describe("runMessageAction sandboxed media validation", () => {
@@ -732,7 +720,6 @@ describe("runMessageAction sandboxed media validation", () => {
     });
   });
 <<<<<<< HEAD
-<<<<<<< HEAD
 
   it("rejects data URLs in media params", async () => {
     await expect(
@@ -749,9 +736,6 @@ describe("runMessageAction sandboxed media validation", () => {
   });
 <<<<<<< HEAD
 >>>>>>> a6fd76efe (Message: clarify media schema + fix MEDIA newline)
-=======
-=======
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 =======
 
   it("allows media paths under os.tmpdir()", async () => {
@@ -775,27 +759,7 @@ describe("runMessageAction sandboxed media validation", () => {
       if (result.kind !== "send") {
         throw new Error("expected send result");
       }
-<<<<<<< HEAD
       expect(result.sendResult?.mediaUrl).toBe(tmpFile);
-=======
-      // runMessageAction normalizes media paths through platform resolution.
-      expect(result.sendResult?.mediaUrl).toBe(path.resolve(tmpFile));
-      const hostTmpOutsideOpenClaw = path.join(os.tmpdir(), "outside-openclaw", "test-media.png");
-      await expect(
-        runMessageAction({
-          cfg: slackConfig,
-          action: "send",
-          params: {
-            channel: "slack",
-            target: "#C12345678",
-            media: hostTmpOutsideOpenClaw,
-            message: "",
-          },
-          sandboxRoot: sandboxDir,
-          dryRun: true,
-        }),
-      ).rejects.toThrow(/sandbox/i);
->>>>>>> 2157c490a (test: normalize tmp media path assertion for windows)
     } finally {
       await fs.rm(sandboxDir, { recursive: true, force: true });
     }

@@ -1,9 +1,5 @@
 import type { WebClient } from "@slack/web-api";
-<<<<<<< HEAD
 
-=======
-import { isRecord } from "../utils.js";
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { createSlackWebClient } from "./client.js";
 
 export type SlackScopesResult = {

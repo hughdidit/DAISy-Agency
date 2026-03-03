@@ -14,19 +14,11 @@ Native Linux companion apps are planned. Contributions are welcome if you want t
 
 ## Beginner quick path (VPS)
 
-<<<<<<< HEAD
 1) Install Node 22+  
 2) `npm i -g moltbot@latest`  
 3) `moltbot onboard --install-daemon`  
 4) From your laptop: `ssh -N -L 18789:127.0.0.1:18789 <user>@<host>`  
 5) Open `http://127.0.0.1:18789/` and paste your token
-=======
-1. Install Node 22+
-2. `npm i -g openclaw@latest`
-3. `openclaw onboard --install-daemon`
-4. From your laptop: `ssh -N -L 18789:127.0.0.1:18789 <user>@<host>`
-5. Open `http://127.0.0.1:18789/` and paste your token
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Step-by-step VPS guide: [exe.dev](/platforms/exe-dev)
 
@@ -70,12 +62,7 @@ moltbot doctor
 ```
 
 ## System control (systemd user unit)
-<<<<<<< HEAD
 Moltbot installs a systemd **user** service by default. Use a **system**
-=======
-
-OpenClaw installs a systemd **user** service by default. Use a **system**
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 service for shared or always-on servers. The full unit example and guidance
 live in the [Gateway runbook](/gateway).
 

@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
 import { handleSlackAction } from "./slack-actions.js";
 
 const deleteSlackMessage = vi.fn(async (..._args: unknown[]) => ({}));
@@ -46,7 +41,6 @@ vi.mock("../../slack/actions.js", () => ({
 }));
 
 describe("handleSlackAction", () => {
-<<<<<<< HEAD
   it("adds reactions", async () => {
     const cfg = { channels: { slack: { botToken: "tok" } } } as MoltbotConfig;
     await handleSlackAction(
@@ -55,15 +49,6 @@ describe("handleSlackAction", () => {
         channelId: "C1",
         messageId: "123.456",
         emoji: "✅",
-=======
-  function slackConfig(overrides?: Record<string, unknown>): OpenClawConfig {
-    return {
-      channels: {
-        slack: {
-          botToken: "tok",
-          ...overrides,
-        },
->>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
       },
     } as OpenClawConfig;
   }
@@ -124,15 +109,8 @@ describe("handleSlackAction", () => {
     vi.clearAllMocks();
   });
 
-<<<<<<< HEAD
   it("strips channel: prefix for channelId params", async () => {
     const cfg = { channels: { slack: { botToken: "tok" } } } as MoltbotConfig;
-=======
-  it.each([
-    { name: "raw channel id", channelId: "C1" },
-    { name: "channel: prefixed id", channelId: "channel:C1" },
-  ])("adds reactions for $name", async ({ channelId }) => {
->>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     await handleSlackAction(
       {
         action: "react",
@@ -146,10 +124,7 @@ describe("handleSlackAction", () => {
   });
 
   it("removes reactions on empty emoji", async () => {
-<<<<<<< HEAD
     const cfg = { channels: { slack: { botToken: "tok" } } } as MoltbotConfig;
-=======
->>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     await handleSlackAction(
       {
         action: "react",
@@ -163,10 +138,7 @@ describe("handleSlackAction", () => {
   });
 
   it("removes reactions when remove flag set", async () => {
-<<<<<<< HEAD
     const cfg = { channels: { slack: { botToken: "tok" } } } as MoltbotConfig;
-=======
->>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     await handleSlackAction(
       {
         action: "react",
@@ -181,10 +153,7 @@ describe("handleSlackAction", () => {
   });
 
   it("rejects removes without emoji", async () => {
-<<<<<<< HEAD
     const cfg = { channels: { slack: { botToken: "tok" } } } as MoltbotConfig;
-=======
->>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     await expect(
       handleSlackAction(
         {
@@ -200,12 +169,9 @@ describe("handleSlackAction", () => {
   });
 
   it("respects reaction gating", async () => {
-<<<<<<< HEAD
     const cfg = {
       channels: { slack: { botToken: "tok", actions: { reactions: false } } },
     } as MoltbotConfig;
-=======
->>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     await expect(
       handleSlackAction(
         {
@@ -220,10 +186,7 @@ describe("handleSlackAction", () => {
   });
 
   it("passes threadTs to sendSlackMessage for thread replies", async () => {
-<<<<<<< HEAD
     const cfg = { channels: { slack: { botToken: "tok" } } } as MoltbotConfig;
-=======
->>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     await handleSlackAction(
       {
         action: "sendMessage",
@@ -427,14 +390,10 @@ describe("handleSlackAction", () => {
   });
 
   it("replyToMode=first threads first message then stops", async () => {
-<<<<<<< HEAD
     const cfg = { channels: { slack: { botToken: "tok" } } } as MoltbotConfig;
     sendSlackMessage.mockClear();
     const hasRepliedRef = { value: false };
     const context = createReplyToFirstContext(hasRepliedRef);
-=======
-    const { cfg, context, hasRepliedRef } = createReplyToFirstScenario();
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     // First message should be threaded
     await handleSlackAction(
@@ -449,14 +408,10 @@ describe("handleSlackAction", () => {
   });
 
   it("replyToMode=first marks hasRepliedRef even when threadTs is explicit", async () => {
-<<<<<<< HEAD
     const cfg = { channels: { slack: { botToken: "tok" } } } as MoltbotConfig;
     sendSlackMessage.mockClear();
     const hasRepliedRef = { value: false };
     const context = createReplyToFirstContext(hasRepliedRef);
-=======
-    const { cfg, context, hasRepliedRef } = createReplyToFirstScenario();
->>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     await handleSlackAction(
       {
@@ -636,48 +591,33 @@ describe("handleSlackAction", () => {
   it("uses user token for reads when available", async () => {
     const cfg = {
       channels: { slack: { botToken: "xoxb-1", userToken: "xoxp-1" } },
-<<<<<<< HEAD
     } as MoltbotConfig;
     readSlackMessages.mockClear();
     readSlackMessages.mockResolvedValueOnce({ messages: [], hasMore: false });
     await handleSlackAction({ action: "readMessages", channelId: "C1" }, cfg);
     const opts = readSlackMessages.mock.calls[0]?.[1] as { token?: string } | undefined;
     expect(opts?.token).toBe("xoxp-1");
-=======
-    } as OpenClawConfig;
-    expect(await resolveReadToken(cfg)).toBe("xoxp-1");
->>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
   });
 
   it("falls back to bot token for reads when user token missing", async () => {
     const cfg = {
       channels: { slack: { botToken: "xoxb-1" } },
-<<<<<<< HEAD
     } as MoltbotConfig;
     readSlackMessages.mockClear();
     readSlackMessages.mockResolvedValueOnce({ messages: [], hasMore: false });
     await handleSlackAction({ action: "readMessages", channelId: "C1" }, cfg);
     const opts = readSlackMessages.mock.calls[0]?.[1] as { token?: string } | undefined;
     expect(opts?.token).toBeUndefined();
-=======
-    } as OpenClawConfig;
-    expect(await resolveReadToken(cfg)).toBeUndefined();
->>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
   });
 
   it("uses bot token for writes when userTokenReadOnly is true", async () => {
     const cfg = {
       channels: { slack: { botToken: "xoxb-1", userToken: "xoxp-1" } },
-<<<<<<< HEAD
     } as MoltbotConfig;
     sendSlackMessage.mockClear();
     await handleSlackAction({ action: "sendMessage", to: "channel:C1", content: "Hello" }, cfg);
     const opts = sendSlackMessage.mock.calls[0]?.[2] as { token?: string } | undefined;
     expect(opts?.token).toBeUndefined();
-=======
-    } as OpenClawConfig;
-    expect(await resolveSendToken(cfg)).toBeUndefined();
->>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
   });
 
   it("allows user token writes when bot token is missing", async () => {
@@ -685,16 +625,11 @@ describe("handleSlackAction", () => {
       channels: {
         slack: { userToken: "xoxp-1", userTokenReadOnly: false },
       },
-<<<<<<< HEAD
     } as MoltbotConfig;
     sendSlackMessage.mockClear();
     await handleSlackAction({ action: "sendMessage", to: "channel:C1", content: "Hello" }, cfg);
     const opts = sendSlackMessage.mock.calls[0]?.[2] as { token?: string } | undefined;
     expect(opts?.token).toBe("xoxp-1");
-=======
-    } as OpenClawConfig;
-    expect(await resolveSendToken(cfg)).toBe("xoxp-1");
->>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
   });
 
   it("returns all emojis when no limit is provided", async () => {

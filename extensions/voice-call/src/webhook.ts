@@ -18,12 +18,6 @@ import type { NormalizedEvent, WebhookContext } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { MediaStreamHandler } from "./media-stream.js";
-import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
->>>>>>> ffe1ba68b (revert(voice-call): undo cached greeting note)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -50,11 +44,7 @@ export class VoiceCallWebhookServer {
   private provider: VoiceCallProvider;
   private coreConfig: CoreConfig | null;
 <<<<<<< HEAD
-<<<<<<< HEAD
   private readonly logger: Logger;
-=======
-  private staleCallReaperInterval: ReturnType<typeof setInterval> | null = null;
->>>>>>> 390c503b5 (feat(voice-call): add configurable stale call reaper)
 =======
   private stopStaleCallReaper: (() => void) | null = null;
 >>>>>>> 535ef8991 (refactor(voice-call): enforce verified webhook key contract)
@@ -95,13 +85,9 @@ export class VoiceCallWebhookServer {
     const apiKey = this.config.streaming?.openaiApiKey || process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
-<<<<<<< HEAD
       this.logger.warn(
         "[voice-call] Streaming enabled but no OpenAI API key found",
       );
-=======
-      console.warn("[voice-call] Streaming enabled but no OpenAI API key found");
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       return;
     }
 
@@ -115,13 +101,9 @@ export class VoiceCallWebhookServer {
     const streamConfig: MediaStreamConfig = {
       sttProvider,
       onTranscript: (providerCallId, transcript) => {
-<<<<<<< HEAD
         this.logger.info(
           `[voice-call] Transcript for ${providerCallId}: ${transcript}`,
         );
-=======
-        console.log(`[voice-call] Transcript for ${providerCallId}: ${transcript}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
         // Clear TTS queue on barge-in (user started speaking, interrupt current playback)
         if (this.provider.name === "twilio") {
@@ -131,13 +113,9 @@ export class VoiceCallWebhookServer {
         // Look up our internal call ID from the provider call ID
         const call = this.manager.getCallByProviderCallId(providerCallId);
         if (!call) {
-<<<<<<< HEAD
           this.logger.warn(
             `[voice-call] No active call found for provider ID: ${providerCallId}`,
           );
-=======
-          console.warn(`[voice-call] No active call found for provider ID: ${providerCallId}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
           return;
         }
 
@@ -176,67 +154,22 @@ export class VoiceCallWebhookServer {
         this.logger.debug(`[voice-call] Partial for ${callId}: ${partial}`);
       },
       onConnect: (callId, streamSid) => {
-<<<<<<< HEAD
         this.logger.info(
           `[voice-call] Media stream connected: ${callId} -> ${streamSid}`,
         );
-=======
-        console.log(`[voice-call] Media stream connected: ${callId} -> ${streamSid}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         // Register stream with provider for TTS routing
         if (this.provider.name === "twilio") {
           (this.provider as TwilioProvider).registerCallStream(callId, streamSid);
         }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 759c7fc18 (revert(voice-call): remove cached inbound greeting)
         // Speak initial message if one was provided when call was initiated
         // Use setTimeout to allow stream setup to complete
         setTimeout(() => {
           this.manager.speakInitialMessage(callId).catch((err) => {
-<<<<<<< HEAD
             this.logger.warn(`[voice-call] Failed to speak initial message: ${err}`);
           });
         }, 500);
-=======
-        // Try instant cached greeting for inbound calls (pre-generated at startup)
-        const cachedAudio =
-          this.provider.name === "twilio"
-            ? (this.provider as TwilioProvider).getCachedGreetingAudio()
-            : null;
-        const call = this.manager.getCallByProviderCallId(callId);
-        if (cachedAudio && call?.metadata?.initialMessage && call.direction === "inbound") {
-          console.log(`[voice-call] Playing cached greeting (${cachedAudio.length} bytes)`);
-          delete call.metadata.initialMessage; // prevent re-speaking via fallback
-          const handler = this.mediaStreamHandler!;
-          const CHUNK_SIZE = 160;
-          const CHUNK_DELAY_MS = 20;
-          void (async () => {
-            const { chunkAudio } = await import("./telephony-audio.js");
-            await handler.queueTts(streamSid, async (signal) => {
-              for (const chunk of chunkAudio(cachedAudio, CHUNK_SIZE)) {
-                if (signal.aborted) break;
-                handler.sendAudio(streamSid, chunk);
-                await new Promise((r) => setTimeout(r, CHUNK_DELAY_MS));
-              }
-              if (!signal.aborted) {
-                handler.sendMark(streamSid, `greeting-${Date.now()}`);
-              }
-            });
-          })().catch((err) =>
-            console.warn("[voice-call] Cached greeting playback failed:", err),
-          );
-        } else {
-          // Fallback: original path with reduced delay
-          setTimeout(() => {
-            this.manager.speakInitialMessage(callId).catch((err) => {
-              console.warn(`[voice-call] Failed to speak initial message:`, err);
-            });
-          }, 100);
-        }
->>>>>>> 2c6db5755 (feat(voice-call): pre-cache inbound greeting for instant playback)
 =======
             console.warn(`[voice-call] Failed to speak initial message:`, err);
           });
@@ -244,18 +177,7 @@ export class VoiceCallWebhookServer {
 >>>>>>> 759c7fc18 (revert(voice-call): remove cached inbound greeting)
       },
       onDisconnect: (callId) => {
-<<<<<<< HEAD
         this.logger.info(`[voice-call] Media stream disconnected: ${callId}`);
-=======
-        console.log(`[voice-call] Media stream disconnected: ${callId}`);
-        // Auto-end call when media stream disconnects to prevent stuck calls.
-        // Without this, calls can remain active indefinitely after the stream closes.
-        const disconnectedCall = this.manager.getCallByProviderCallId(callId);
-        if (disconnectedCall) {
-          console.log(`[voice-call] Auto-ending call ${disconnectedCall.callId} on stream disconnect`);
-          void this.manager.endCall(disconnectedCall.callId).catch(() => {});
-        }
->>>>>>> 3eec5e54b (fix(voice-call): auto-end call when media stream disconnects)
         if (this.provider.name === "twilio") {
           (this.provider as TwilioProvider).unregisterCallStream(callId);
         }
@@ -302,13 +224,9 @@ export class VoiceCallWebhookServer {
         const url = `http://${bind}:${port}${webhookPath}`;
         this.logger.info(`[voice-call] Webhook server listening on ${url}`);
         if (this.mediaStreamHandler) {
-<<<<<<< HEAD
           this.logger.info(
             `[voice-call] Media stream WebSocket on ws://${bind}:${port}${streamPath}`,
           );
-=======
-          console.log(`[voice-call] Media stream WebSocket on ws://${bind}:${port}${streamPath}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         }
         resolve(url);
 
@@ -322,7 +240,6 @@ export class VoiceCallWebhookServer {
   }
 
   /**
-<<<<<<< HEAD
    * Start a periodic reaper that ends calls older than the configured threshold.
    * Catches calls stuck in unexpected states (e.g., notify-mode calls that never
    * receive a terminal webhook from the provider).
@@ -351,8 +268,6 @@ export class VoiceCallWebhookServer {
   }
 
   /**
-=======
->>>>>>> 535ef8991 (refactor(voice-call): enforce verified webhook key contract)
    * Stop the webhook server.
    */
   async stop(): Promise<void> {
@@ -412,13 +327,9 @@ export class VoiceCallWebhookServer {
     // Verify signature
     const verification = this.provider.verifyWebhook(ctx);
     if (!verification.ok) {
-<<<<<<< HEAD
       this.logger.warn(
         `[voice-call] Webhook verification failed: ${verification.reason}`,
       );
-=======
-      console.warn(`[voice-call] Webhook verification failed: ${verification.reason}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       res.statusCode = 401;
       res.end("Unauthorized");
       return;
@@ -438,13 +349,9 @@ export class VoiceCallWebhookServer {
       try {
         await this.manager.processEvent(event);
       } catch (err) {
-<<<<<<< HEAD
         this.logger.error(
           `[voice-call] Error processing event ${event.type}: ${err}`,
         );
-=======
-        console.error(`[voice-call] Error processing event ${event.type}:`, err);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       }
     }
 
@@ -476,7 +383,6 @@ export class VoiceCallWebhookServer {
    * Handle auto-response for inbound calls using the agent system.
    * Supports tool calling for richer voice interactions.
    */
-<<<<<<< HEAD
   private async handleInboundResponse(
     callId: string,
     userMessage: string,
@@ -484,10 +390,6 @@ export class VoiceCallWebhookServer {
     this.logger.info(
       `[voice-call] Auto-responding to inbound call ${callId}: "${userMessage}"`,
     );
-=======
-  private async handleInboundResponse(callId: string, userMessage: string): Promise<void> {
-    console.log(`[voice-call] Auto-responding to inbound call ${callId}: "${userMessage}"`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
     // Get call context for conversation history
     const call = this.manager.getCall(callId);
@@ -514,7 +416,6 @@ export class VoiceCallWebhookServer {
       });
 
       if (result.error) {
-<<<<<<< HEAD
         this.logger.error(
           `[voice-call] Response generation error: ${result.error}`,
         );
@@ -523,9 +424,6 @@ export class VoiceCallWebhookServer {
         } catch {
           // Best-effort cleanup
         }
-=======
-        console.error(`[voice-call] Response generation error: ${result.error}`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         return;
       }
 

@@ -1,11 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { parseConfigValue } from "./config-value.js";
-=======
-import { parseSetUnsetCommandAction } from "./commands-setunset.js";
-import { parseSlashCommandOrNull } from "./commands-slash-parse.js";
->>>>>>> 818419b4c (refactor(auto-reply): share set/unset command action parsing)
 =======
 import { parseSlashCommandWithSetUnset } from "./commands-setunset.js";
 >>>>>>> f46bcbe16 (refactor(auto-reply): share slash set/unset command parsing)
@@ -20,7 +15,6 @@ export type ConfigCommand =
   | { action: "error"; message: string };
 
 export function parseConfigCommand(raw: string): ConfigCommand | null {
-<<<<<<< HEAD
 <<<<<<< HEAD
   const trimmed = raw.trim();
   if (!trimmed.toLowerCase().startsWith("/config")) {
@@ -38,14 +32,6 @@ export function parseConfigCommand(raw: string): ConfigCommand | null {
   }
   const action = match[1].toLowerCase();
   const args = (match[2] ?? "").trim();
-=======
-  const { action, args } = parsed;
-  const setUnset = parseSetUnsetCommandAction<ConfigCommand>({
-=======
-  return parseSlashCommandWithSetUnset<ConfigCommand>({
-=======
-  return parseStandardSetUnsetSlashCommand<ConfigCommand>({
->>>>>>> 6eb0964fa (refactor(auto-reply): share standard set/unset slash parsing)
     raw,
 >>>>>>> f46bcbe16 (refactor(auto-reply): share slash set/unset command parsing)
     slash: "/config",
@@ -58,7 +44,6 @@ export function parseConfigCommand(raw: string): ConfigCommand | null {
       return undefined;
     },
   });
-<<<<<<< HEAD
   if (setUnset) {
     return setUnset;
   }
@@ -104,8 +89,6 @@ export function parseConfigCommand(raw: string): ConfigCommand | null {
       }
       return { action: "set", path, value: parsed.value };
     }
-=======
->>>>>>> 818419b4c (refactor(auto-reply): share set/unset command action parsing)
     default:
       return {
         action: "error",

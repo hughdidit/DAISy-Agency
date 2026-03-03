@@ -504,7 +504,6 @@ describe("markAuthProfileFailure — cooldown is never reset to an earlier deadl
   // When all providers are at saturation backoff (60 min) and retries fire every 30 min,
   // each retry was resetting cooldownUntil to now+60m, preventing recovery.
 
-<<<<<<< HEAD
   it("does not shorten an existing cooldown when a retry fires mid-window", async () => {
     const now = 1_000_000;
     // Profile already has 50 min remaining on its cooldown
@@ -517,13 +516,6 @@ describe("markAuthProfileFailure — cooldown is never reset to an earlier deadl
       },
     });
 
-=======
-  async function markFailureAt(params: {
-    store: ReturnType<typeof makeStore>;
-    now: number;
-    reason: "rate_limit" | "billing" | "auth_permanent";
-  }): Promise<void> {
->>>>>>> c0026274d (fix(auth): distinguish revoked API keys from transient auth errors (#25754))
     vi.useFakeTimers();
     vi.setSystemTime(now);
     try {
@@ -582,99 +574,13 @@ describe("markAuthProfileFailure — cooldown is never reset to an earlier deadl
         errorCount: 5,
         failureCounts: { billing: 5 },
         lastFailureAt: now - 60_000,
-<<<<<<< HEAD
       },
-=======
-      }),
-      readUntil: (stats: WindowStats | undefined) => stats?.disabledUntil,
-    },
-    {
-      label: "disabledUntil(auth_permanent)",
-      reason: "auth_permanent" as const,
-      buildUsageStats: (now: number): WindowStats => ({
-        disabledUntil: now + 20 * 60 * 60 * 1000,
-        disabledReason: "auth_permanent",
-        errorCount: 5,
-        failureCounts: { auth_permanent: 5 },
-        lastFailureAt: now - 60_000,
-      }),
-      readUntil: (stats: WindowStats | undefined) => stats?.disabledUntil,
-    },
-  ];
-
-  for (const testCase of activeWindowCases) {
-    it(`keeps active ${testCase.label} unchanged on retry`, async () => {
-      const now = 1_000_000;
-      const existingStats = testCase.buildUsageStats(now);
-      const existingUntil = testCase.readUntil(existingStats);
-      const store = makeStore({ "anthropic:default": existingStats });
-
-      await markFailureAt({
-        store,
-        now,
-        reason: testCase.reason,
-      });
-
-      const stats = store.usageStats?.["anthropic:default"];
-      expect(testCase.readUntil(stats)).toBe(existingUntil);
->>>>>>> c0026274d (fix(auth): distinguish revoked API keys from transient auth errors (#25754))
     });
 
-<<<<<<< HEAD
     vi.useFakeTimers();
     vi.setSystemTime(now);
     try {
       await markAuthProfileFailure({
-=======
-  const expiredWindowCases = [
-    {
-      label: "cooldownUntil",
-      reason: "rate_limit" as const,
-      buildUsageStats: (now: number): WindowStats => ({
-        cooldownUntil: now - 60_000,
-        errorCount: 3,
-        lastFailureAt: now - 60_000,
-      }),
-      expectedUntil: (now: number) => now + 60 * 60 * 1000,
-      readUntil: (stats: WindowStats | undefined) => stats?.cooldownUntil,
-    },
-    {
-      label: "disabledUntil",
-      reason: "billing" as const,
-      buildUsageStats: (now: number): WindowStats => ({
-        disabledUntil: now - 60_000,
-        disabledReason: "billing",
-        errorCount: 5,
-        failureCounts: { billing: 2 },
-        lastFailureAt: now - 60_000,
-      }),
-      expectedUntil: (now: number) => now + 20 * 60 * 60 * 1000,
-      readUntil: (stats: WindowStats | undefined) => stats?.disabledUntil,
-    },
-    {
-      label: "disabledUntil(auth_permanent)",
-      reason: "auth_permanent" as const,
-      buildUsageStats: (now: number): WindowStats => ({
-        disabledUntil: now - 60_000,
-        disabledReason: "auth_permanent",
-        errorCount: 5,
-        failureCounts: { auth_permanent: 2 },
-        lastFailureAt: now - 60_000,
-      }),
-      expectedUntil: (now: number) => now + 20 * 60 * 60 * 1000,
-      readUntil: (stats: WindowStats | undefined) => stats?.disabledUntil,
-    },
-  ];
-
-  for (const testCase of expiredWindowCases) {
-    it(`recomputes ${testCase.label} after the previous window expires`, async () => {
-      const now = 1_000_000;
-      const store = makeStore({
-        "anthropic:default": testCase.buildUsageStats(now),
-      });
-
-      await markFailureAt({
->>>>>>> c0026274d (fix(auth): distinguish revoked API keys from transient auth errors (#25754))
         store,
         profileId: "anthropic:default",
         reason: "billing",

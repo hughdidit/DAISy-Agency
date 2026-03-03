@@ -1,14 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-=======
 import { formatZonedTimestamp } from "../../infra/format-time/format-datetime.js";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { formatZonedTimestamp } from "../../auto-reply/envelope.js";
-=======
->>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 =======
 import { formatZonedTimestamp } from "../../auto-reply/envelope.js";
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
@@ -17,11 +11,7 @@ describe("injectTimestamp", () => {
   beforeEach(() => {
     vi.useFakeTimers();
 <<<<<<< HEAD
-<<<<<<< HEAD
     // Wednesday, January 28, 2026 at 8:30 PM EST (01:30 UTC Jan 29)
-=======
-    // Wednesday, January 28, 2026 at 8:30 PM EST
->>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 =======
     // Wednesday, January 28, 2026 at 8:30 PM EST (01:30 UTC Jan 29)
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
@@ -33,7 +23,6 @@ describe("injectTimestamp", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("prepends a compact timestamp matching formatZonedTimestamp", () => {
     const result = injectTimestamp("Is it the weekend?", {
       timezone: "America/New_York",
@@ -43,9 +32,6 @@ describe("injectTimestamp", () => {
 <<<<<<< HEAD
     expect(result).toMatch(/^\[Wed 2026-01-28 20:30 EST\] Is it the weekend\?$/);
 <<<<<<< HEAD
-=======
-    expect(result).toMatch(/^\[Current Date: Wed 2026-01-28 20:30 EST\] Is it the weekend\?$/);
->>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
 =======
     expect(result).toMatch(/^\[Wed 2026-01-28 20:30 EST\] Is it the weekend\?$/);
 >>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
@@ -74,13 +60,7 @@ describe("injectTimestamp", () => {
 
     // 8:30 PM EST = 7:30 PM CST = 19:30
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(result).toMatch(/^\[Wed 2026-01-28 19:30 CST\]/);
-=======
-  it("prepends a formatted timestamp to a plain message", () => {
-=======
-  it("prepends a compact timestamp matching formatZonedTimestamp", () => {
->>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
     const result = injectTimestamp("Is it the weekend?", {
       timezone: "America/New_York",
     });
@@ -111,15 +91,9 @@ describe("injectTimestamp", () => {
   it("uses the configured timezone", () => {
     const result = injectTimestamp("hello", { timezone: "America/Chicago" });
 
-<<<<<<< HEAD
     // 8:30 PM EST = 7:30 PM CST
     expect(result).toContain("7:30 PM");
 >>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
-=======
-    // 8:30 PM EST = 7:30 PM CST = 19:30
-<<<<<<< HEAD
-    expect(result).toMatch(/^\[2026-01-28 19:30 CST\]/);
->>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
 =======
     expect(result).toMatch(/^\[Wed 2026-01-28 19:30 CST\]/);
 >>>>>>> a6c68e869 (feat: add 3-letter DOW prefix to injected timestamps)
@@ -139,12 +113,7 @@ describe("injectTimestamp", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(result).toMatch(/^\[Thu 2026-01-29 01:30/);
-=======
-    expect(result).toContain("January 29"); // UTC date, not EST
-    expect(result).toContain("1:30 AM");
->>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 =======
     expect(result).toMatch(/^\[2026-01-29 01:30/);
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
@@ -172,16 +141,10 @@ describe("injectTimestamp", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("does NOT double-stamp messages already injected by us", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
     const alreadyStamped = "[Wed 2026-01-28 20:30 EST] hello there";
-=======
-  it("does NOT double-stamp messages already injected by us", () => {
-<<<<<<< HEAD
-    const alreadyStamped = "[2026-01-28 20:30 EST] hello there";
->>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
 =======
     const alreadyStamped = "[Wed 2026-01-28 20:30 EST] hello there";
 >>>>>>> a6c68e869 (feat: add 3-letter DOW prefix to injected timestamps)
@@ -196,9 +159,6 @@ describe("injectTimestamp", () => {
     expect(result).toBe(alreadyStamped);
   });
 
-<<<<<<< HEAD
-=======
->>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 =======
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
   it("does NOT double-stamp messages with cron-injected timestamps", () => {
@@ -213,16 +173,12 @@ describe("injectTimestamp", () => {
     vi.setSystemTime(new Date("2026-02-01T05:00:00.000Z")); // midnight EST
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     const result = injectTimestamp("hello", { timezone: "America/New_York" });
 
 <<<<<<< HEAD
 <<<<<<< HEAD
     expect(result).toMatch(/^\[Sun 2026-02-01 00:00 EST\]/);
 <<<<<<< HEAD
-=======
-    expect(result).toMatch(/^\[Current Date: Sun 2026-02-01 00:00 EST\]/);
->>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
 =======
     expect(result).toMatch(/^\[Sun 2026-02-01 00:00 EST\]/);
 >>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
@@ -257,16 +213,7 @@ describe("injectTimestamp", () => {
     });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(result).toMatch(/^\[Fri 2025-07-04 12:00 EDT\]/);
-=======
-    const result = injectTimestamp("hello", {
-      timezone: "America/New_York",
-      timeFormat: "12",
-    });
-=======
-    const result = injectTimestamp("hello", { timezone: "America/New_York" });
->>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
 
     expect(result).toMatch(/^\[2026-02-01 00:00 EST\]/);
 =======
@@ -302,13 +249,9 @@ describe("injectTimestamp", () => {
     });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(result).toContain("July 4");
     expect(result).toContain("2025");
 >>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
-=======
-    expect(result).toMatch(/^\[2025-07-04 12:00 EDT\]/);
->>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
 =======
     expect(result).toMatch(/^\[Fri 2025-07-04 12:00 EDT\]/);
 >>>>>>> a6c68e869 (feat: add 3-letter DOW prefix to injected timestamps)
@@ -323,11 +266,7 @@ describe("injectTimestamp", () => {
 
 describe("timestampOptsFromConfig", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("extracts timezone from config", () => {
-=======
-  it("extracts timezone and timeFormat from config", () => {
->>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 =======
   it("extracts timezone from config", () => {
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
@@ -336,10 +275,6 @@ describe("timestampOptsFromConfig", () => {
         defaults: {
           userTimezone: "America/Chicago",
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-          timeFormat: "24",
->>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 =======
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
         },
@@ -349,10 +284,6 @@ describe("timestampOptsFromConfig", () => {
 
     expect(opts.timezone).toBe("America/Chicago");
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    expect(opts.timeFormat).toBe("24");
->>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 =======
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
   });
@@ -363,10 +294,6 @@ describe("timestampOptsFromConfig", () => {
 
     expect(opts.timezone).toBeDefined(); // resolveUserTimezone provides a default
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    expect(opts.timeFormat).toBeUndefined();
->>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 =======
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
   });

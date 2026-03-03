@@ -3,10 +3,7 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> ed11e93cf (chore(format))

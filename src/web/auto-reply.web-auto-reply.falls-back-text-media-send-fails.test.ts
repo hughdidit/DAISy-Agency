@@ -6,7 +6,6 @@ import {
   installWebAutoReplyUnitTestHooks,
 } from "./auto-reply.test-harness.js";
 
-<<<<<<< HEAD
 let previousHome: string | undefined;
 let tempHome: string | undefined;
 
@@ -109,12 +108,6 @@ describe("web auto-reply", () => {
     setLoggerOverride(null);
     vi.useRealTimers();
   });
-=======
-installWebAutoReplyTestHomeHooks();
-
-describe("web auto-reply", () => {
-  installWebAutoReplyUnitTestHooks({ pinDns: true });
->>>>>>> 03ff4960b (refactor(test): share web auto-reply harness)
 
   it("falls back to text when media send fails", async () => {
     const sendMedia = vi.fn().mockRejectedValue(new Error("boom"));

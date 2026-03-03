@@ -1,11 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { Bot } from "grammy";
 
-=======
-import type { RuntimeEnv } from "../../runtime.js";
->>>>>>> 43c97d18a (chore: Fix types in tests 17/N.)
 import { deliverReplies } from "./delivery.js";
 
 const loadWebMedia = vi.fn();
@@ -170,8 +166,6 @@ describe("deliverReplies", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it("passes mediaLocalRoots to media loading", async () => {
     const runtime = createRuntime();
     const sendPhoto = vi.fn().mockResolvedValue({
@@ -195,7 +189,6 @@ describe("deliverReplies", () => {
     });
   });
 
->>>>>>> a177f7b9f (refactor(tests): dedupe slack telegram and web monitor setup)
   it("includes link_preview_options when linkPreview is false", async () => {
     const runtime = createRuntime();
     const sendMessage = vi.fn().mockResolvedValue({
@@ -221,13 +214,6 @@ describe("deliverReplies", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  it("does not include message_thread_id for DMs (threads don't exist in private chats)", async () => {
-=======
-  it("includes message_thread_id for DM topics", async () => {
-<<<<<<< HEAD
->>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
     const runtime = createRuntime();
     const sendMessage = vi.fn().mockResolvedValue({
       message_id: 4,
@@ -254,86 +240,7 @@ describe("deliverReplies", () => {
     );
   });
 
-<<<<<<< HEAD
 >>>>>>> a177f7b9f (refactor(tests): dedupe slack telegram and web monitor setup)
-=======
-  it("retries DM topic sends without message_thread_id when thread is missing", async () => {
-    const runtime = createRuntime();
-    const sendMessage = vi
-      .fn()
-      .mockRejectedValueOnce(createThreadNotFoundError("sendMessage"))
-      .mockResolvedValueOnce({
-        message_id: 7,
-        chat: { id: "123" },
-      });
-    const bot = createBot({ sendMessage });
-
-    await deliverWith({
-      replies: [{ text: "hello" }],
-      runtime,
-      bot,
-      thread: { id: 42, scope: "dm" },
-    });
-
-    expect(sendMessage).toHaveBeenCalledTimes(2);
-    expect(sendMessage.mock.calls[0]?.[2]).toEqual(
-      expect.objectContaining({
-        message_thread_id: 42,
-      }),
-    );
-    expect(sendMessage.mock.calls[1]?.[2]).not.toHaveProperty("message_thread_id");
-    expect(runtime.error).not.toHaveBeenCalled();
-  });
-
-  it("does not retry forum sends without message_thread_id", async () => {
-    const runtime = createRuntime();
-    const sendMessage = vi.fn().mockRejectedValue(createThreadNotFoundError("sendMessage"));
-    const bot = createBot({ sendMessage });
-
-    await expect(
-      deliverWith({
-        replies: [{ text: "hello" }],
-        runtime,
-        bot,
-        thread: { id: 42, scope: "forum" },
-      }),
-    ).rejects.toThrow("message thread not found");
-
-    expect(sendMessage).toHaveBeenCalledTimes(1);
-    expect(runtime.error).toHaveBeenCalledTimes(1);
-  });
-
-  it("retries media sends without message_thread_id for DM topics", async () => {
-    const runtime = createRuntime();
-    const sendPhoto = vi
-      .fn()
-      .mockRejectedValueOnce(createThreadNotFoundError("sendPhoto"))
-      .mockResolvedValueOnce({
-        message_id: 8,
-        chat: { id: "123" },
-      });
-    const bot = createBot({ sendPhoto });
-
-    mockMediaLoad("photo.jpg", "image/jpeg", "image");
-
-    await deliverWith({
-      replies: [{ mediaUrl: "https://example.com/photo.jpg", text: "caption" }],
-      runtime,
-      bot,
-      thread: { id: 42, scope: "dm" },
-    });
-
-    expect(sendPhoto).toHaveBeenCalledTimes(2);
-    expect(sendPhoto.mock.calls[0]?.[2]).toEqual(
-      expect.objectContaining({
-        message_thread_id: 42,
-      }),
-    );
-    expect(sendPhoto.mock.calls[1]?.[2]).not.toHaveProperty("message_thread_id");
-    expect(runtime.error).not.toHaveBeenCalled();
-  });
-
->>>>>>> e6e3a7b49 (fix(telegram): retry DM thread sends without message_thread_id [AI-assisted])
   it("does not include link_preview_options when linkPreview is true", async () => {
     const { runtime, sendMessage, bot } = createSendMessageHarness();
 

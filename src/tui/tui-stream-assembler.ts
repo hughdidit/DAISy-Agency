@@ -122,11 +122,7 @@ export class TuiStreamAssembler {
     state: RunStreamState,
     message: unknown,
     showThinking: boolean,
-<<<<<<< HEAD
     opts?: { protectBoundaryDrops?: boolean },
-=======
-    opts?: { boundaryDropMode?: BoundaryDropMode },
->>>>>>> 675764e86 (refactor(tui): simplify stream boundary-drop modes)
   ) {
     const thinkingText = extractThinkingFromMessage(message);
     const contentText = extractContentFromMessage(message);
@@ -137,7 +133,6 @@ export class TuiStreamAssembler {
     }
     if (contentText) {
       const nextContentBlocks = textBlocks.length > 0 ? textBlocks : [contentText];
-<<<<<<< HEAD
       const shouldPreserveBoundaryDroppedText =
         opts?.protectBoundaryDrops === true &&
         (state.sawNonTextContentBlocks || sawNonTextContentBlocks) &&
@@ -145,16 +140,6 @@ export class TuiStreamAssembler {
           streamedTextBlocks: state.contentBlocks,
           finalTextBlocks: nextContentBlocks,
         });
-=======
-      const boundaryDropMode = opts?.boundaryDropMode ?? "off";
-      const shouldKeepStreamedBoundaryText = shouldPreserveBoundaryDroppedText({
-        boundaryDropMode,
-        streamedSawNonTextContentBlocks: state.sawNonTextContentBlocks,
-        incomingSawNonTextContentBlocks: sawNonTextContentBlocks,
-        streamedTextBlocks: state.contentBlocks,
-        nextContentBlocks,
-      });
->>>>>>> 675764e86 (refactor(tui): simplify stream boundary-drop modes)
 
       if (!shouldKeepStreamedBoundaryText) {
         state.contentText = contentText;
@@ -193,13 +178,7 @@ export class TuiStreamAssembler {
     const streamedDisplayText = state.displayText;
     const streamedTextBlocks = [...state.contentBlocks];
     const streamedSawNonTextContentBlocks = state.sawNonTextContentBlocks;
-<<<<<<< HEAD
     this.updateRunState(state, message, showThinking, { protectBoundaryDrops: true });
-=======
-    this.updateRunState(state, message, showThinking, {
-      boundaryDropMode: "streamed-only",
-    });
->>>>>>> 675764e86 (refactor(tui): simplify stream boundary-drop modes)
     const finalComposed = state.displayText;
     const shouldKeepStreamedText =
       streamedSawNonTextContentBlocks &&

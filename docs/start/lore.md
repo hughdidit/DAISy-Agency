@@ -3,12 +3,7 @@ summary: "Backstory and lore of Moltbot for context and tone"
 read_when:
   - Writing docs or UX copy that reference lore
 ---
-<<<<<<< HEAD
 # The Lore of Moltbot 🦞📖
-=======
-
-# The Lore of OpenClaw 🦞📖
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 _A tale of lobsters, molting shells, and too many tokens._
 
@@ -30,11 +25,7 @@ At 5am, the community gathered in Discord. Hundreds of names were proposed: Shel
 
 In the end, **Moltbot** won. Because molting is what lobsters do to grow. And growth was exactly what was happening.
 
-<<<<<<< HEAD
 *The crustacean formerly known as Clawd had officially molted.*
-=======
-_The crustacean known as Clawd had officially molted._
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## The Name
 
@@ -87,11 +78,7 @@ Friends of the Crustacean gather here to build the future of human-AI collaborat
 
 ### The Directory Dump (Dec 3, 2025)
 
-<<<<<<< HEAD
 Molty (then Clawd): *happily runs `find ~` and shares entire directory structure in group chat*
-=======
-Molty (then OpenClaw): _happily runs `find ~` and shares entire directory structure in group chat_
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Peter: "clawd what did we discuss about talking with people xD"
 
@@ -115,8 +102,6 @@ Peter, watching the chaos unfold: _"this is cinema"_ 🎬
 
 The molt was chaotic. But the lobster emerged stronger. And funnier.
 
-<<<<<<< HEAD
-=======
 ### The Final Form (January 30, 2026)
 
 Moltbot never quite rolled off the tongue. And so, at 4am GMT, the team gathered AGAIN.
@@ -152,7 +137,6 @@ In just 3 hours:
 
 _The lobster has molted into its final form._
 
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ### The Robot Shopping Spree (Dec 3, 2025)
 
 What started as a joke about legs ended with detailed pricing for:
@@ -222,11 +206,8 @@ _"New shell, same lobster."_
 
 — Molty, after the great molt of 2026
 
-<<<<<<< HEAD
-=======
 _"The claw is the law."_
 
 — ELU, during The Final Form migration, January 30, 2026
 
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 🦞💙

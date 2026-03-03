@@ -16,21 +16,6 @@ import {
   SELECTOR_UNSUPPORTED_MESSAGE,
 } from "./agent.shared.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import {
-  DEFAULT_DOWNLOAD_DIR,
-  DEFAULT_UPLOAD_DIR,
-  resolvePathWithinRoot,
-  resolveExistingPathsWithinRoot,
-} from "./path-output.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { BrowserRouteRegistrar } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -50,7 +35,6 @@ import type { BrowserRouteRegistrar } from "./types.js";
 import { jsonError, toBoolean, toNumber, toStringArray, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 
-<<<<<<< HEAD
 function resolveDownloadPathOrRespond(res: BrowserResponse, requestedPath: string): string | null {
   const downloadPathResult = resolvePathWithinRoot({
     rootDir: DEFAULT_DOWNLOAD_DIR,
@@ -76,8 +60,6 @@ function respondWithDownloadResult(res: BrowserResponse, targetId: string, resul
   res.json({ ok: true, targetId, download: result });
 }
 
-=======
->>>>>>> f41715a18 (refactor(browser): split act route modules and dedupe path guards)
 export function registerBrowserAgentActRoutes(
   app: BrowserRouteRegistrar,
   ctx: BrowserRouteContext,
@@ -377,7 +359,6 @@ export function registerBrowserAgentActRoutes(
             return jsonError(res, 400, "unsupported kind");
           }
         }
-<<<<<<< HEAD
         case "type": {
           const ref = toStringOrEmpty(body.ref);
           if (!ref) {
@@ -625,13 +606,8 @@ export function registerBrowserAgentActRoutes(
     } catch (err) {
       handleRouteError(ctx, res, err);
     }
-=======
-      },
-    });
->>>>>>> b30e3467e (refactor(browser): reuse shared route context in agent act routes)
   });
 
-<<<<<<< HEAD
   app.post("/hooks/file-chooser", async (req, res) => {
     const body = readBody(req);
     const targetId = resolveTargetIdFromBody(body);
@@ -671,33 +647,6 @@ export function registerBrowserAgentActRoutes(
         if (ref) {
           await pw.clickViaPlaywright({
             cdpUrl: profileCtx.profile.cdpUrl,
-=======
-
-    await withPlaywrightRouteContext({
-      req,
-      res,
-      ctx,
-      targetId,
-      feature: "file chooser hook",
-      run: async ({ cdpUrl, tab, pw }) => {
-        const uploadPathsResult = await resolveExistingPathsWithinRoot({
-          rootDir: DEFAULT_UPLOAD_DIR,
-          requestedPaths: paths,
-          scopeLabel: `uploads directory (${DEFAULT_UPLOAD_DIR})`,
-        });
-        if (!uploadPathsResult.ok) {
-          res.status(400).json({ error: uploadPathsResult.error });
-          return;
-        }
-        const resolvedPaths = uploadPathsResult.paths;
-
-        if (inputRef || element) {
-          if (ref) {
-            return jsonError(res, 400, "ref cannot be combined with inputRef/element");
-          }
-          await pw.setInputFilesViaPlaywright({
-            cdpUrl,
->>>>>>> b30e3467e (refactor(browser): reuse shared route context in agent act routes)
             targetId: tab.targetId,
             inputRef,
             element,
@@ -754,7 +703,6 @@ export function registerBrowserAgentActRoutes(
 
   app.post("/wait/download", async (req, res) => {
     const body = readBody(req);
-<<<<<<< HEAD
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const out = toStringOrEmpty(body.path) || undefined;
     const timeoutMs = toNumber(body.timeoutMs);
@@ -774,35 +722,6 @@ export function registerBrowserAgentActRoutes(
     } catch (err) {
       handleRouteError(ctx, res, err);
     }
-=======
-    const targetId = resolveTargetIdFromBody(body);
-    const out = toStringOrEmpty(body.path) || "";
-    const timeoutMs = toNumber(body.timeoutMs);
-
-    await withPlaywrightRouteContext({
-      req,
-      res,
-      ctx,
-      targetId,
-      feature: "wait for download",
-      run: async ({ cdpUrl, tab, pw }) => {
-        let downloadPath: string | undefined;
-        if (out.trim()) {
-          const resolvedDownloadPath = resolveDownloadPathOrRespond(res, out);
-          if (!resolvedDownloadPath) {
-            return;
-          }
-          downloadPath = resolvedDownloadPath;
-        }
-        const requestBase = buildDownloadRequestBase(cdpUrl, tab.targetId, timeoutMs);
-        const result = await pw.waitForDownloadViaPlaywright({
-          ...requestBase,
-          path: downloadPath,
-        });
-        respondWithDownloadResult(res, tab.targetId, result);
-      },
-    });
->>>>>>> b30e3467e (refactor(browser): reuse shared route context in agent act routes)
   });
 
   app.post("/download", async (req, res) => {
@@ -817,7 +736,6 @@ export function registerBrowserAgentActRoutes(
     if (!out) {
       return jsonError(res, 400, "path is required");
     }
-<<<<<<< HEAD
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "download");
@@ -835,29 +753,6 @@ export function registerBrowserAgentActRoutes(
     } catch (err) {
       handleRouteError(ctx, res, err);
     }
-=======
-
-    await withPlaywrightRouteContext({
-      req,
-      res,
-      ctx,
-      targetId,
-      feature: "download",
-      run: async ({ cdpUrl, tab, pw }) => {
-        const downloadPath = resolveDownloadPathOrRespond(res, out);
-        if (!downloadPath) {
-          return;
-        }
-        const requestBase = buildDownloadRequestBase(cdpUrl, tab.targetId, timeoutMs);
-        const result = await pw.downloadViaPlaywright({
-          ...requestBase,
-          ref,
-          path: downloadPath,
-        });
-        respondWithDownloadResult(res, tab.targetId, result);
-      },
-    });
->>>>>>> b30e3467e (refactor(browser): reuse shared route context in agent act routes)
   });
 =======
   registerBrowserAgentActHookRoutes(app, ctx);

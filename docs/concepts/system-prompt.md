@@ -60,17 +60,8 @@ Bootstrap files are trimmed and appended under **Project Context** so the model 
 - `BOOTSTRAP.md` (only on brand-new workspaces)
 
 Large files are truncated with a marker. The max per-file size is controlled by
-<<<<<<< HEAD
 `agents.defaults.bootstrapMaxChars` (default: 20000). Missing files inject a
 short missing-file marker.
-=======
-`agents.defaults.bootstrapMaxChars` (default: 20000). Total injected bootstrap
-content across files is capped by `agents.defaults.bootstrapTotalMaxChars`
-(default: 150000). Missing files inject a short missing-file marker.
-
-Sub-agent sessions only inject `AGENTS.md` and `TOOLS.md` (other bootstrap files
-are filtered out to keep the sub-agent context small).
->>>>>>> 8a6701664 (Agents: raise bootstrap total cap and warn on /context truncation (#18229))
 
 Internal hooks can intercept this step via `agent:bootstrap` to mutate or replace
 the injected bootstrap files (for example swapping `SOUL.md` for an alternate persona).
@@ -118,12 +109,6 @@ This keeps the base prompt small while still enabling targeted skill usage.
 When available, the system prompt includes a **Documentation** section that points to the
 local Moltbot docs directory (either `docs/` in the repo workspace or the bundled npm
 package docs) and also notes the public mirror, source repo, community Discord, and
-<<<<<<< HEAD
 ClawdHub (https://clawdhub.com) for skills discovery. The prompt instructs the model to consult local docs first
 for Moltbot behavior, commands, configuration, or architecture, and to run
 `moltbot status` itself when possible (asking the user only when it lacks access).
-=======
-ClawHub (https://clawhub.com) for skills discovery. The prompt instructs the model to consult local docs first
-for OpenClaw behavior, commands, configuration, or architecture, and to run
-`openclaw status` itself when possible (asking the user only when it lacks access).
->>>>>>> fd00d5688 (chore: update openclaw naming)

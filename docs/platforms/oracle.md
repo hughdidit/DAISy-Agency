@@ -177,11 +177,7 @@ No SSH tunnel needed. Tailscale provides:
 
 With the VCN locked down (only UDP 41641 open) and the Gateway bound to loopback, you get strong defense-in-depth: public traffic is blocked at the network edge, and admin access happens over your tailnet.
 
-<<<<<<< HEAD
 This setup often removes the *need* for extra host-based firewall rules purely to stop Internet-wide SSH brute force — but you should still keep the OS updated, run `moltbot security audit`, and verify you aren’t accidentally listening on public interfaces.
-=======
-This setup often removes the _need_ for extra host-based firewall rules purely to stop Internet-wide SSH brute force — but you should still keep the OS updated, run `openclaw security audit`, and verify you aren’t accidentally listening on public interfaces.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### What's Already Protected
 
@@ -285,14 +281,8 @@ Most npm packages work fine. For binaries, look for `linux-arm64` or `aarch64` r
 ## Persistence
 
 All state lives in:
-<<<<<<< HEAD
 - `~/.clawdbot/` — config, credentials, session data
 - `~/clawd/` — workspace (SOUL.md, memory, artifacts)
-=======
-
-- `~/.openclaw/` — config, credentials, session data
-- `~/.openclaw/workspace/` — workspace (SOUL.md, memory, artifacts)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Back up periodically:
 

@@ -35,21 +35,9 @@ Notes:
 - If multiple nodes are available, set `exec.node` or `tools.exec.node` to select one.
 - On non-Windows hosts, exec uses `SHELL` when set; if `SHELL` is `fish`, it prefers `bash` (or `sh`)
   from `PATH` to avoid fish-incompatible scripts, then falls back to `SHELL` if neither exists.
-<<<<<<< HEAD
 - Important: sandboxing is **off by default**. If sandboxing is off, `host=sandbox` runs directly on
   the gateway host (no container) and **does not require approvals**. To require approvals, run with
   `host=gateway` and configure exec approvals (or enable sandboxing).
-=======
-- Host execution (`gateway`/`node`) rejects `env.PATH` and loader overrides (`LD_*`/`DYLD_*`) to
-  prevent binary hijacking or injected code.
-- OpenClaw sets `OPENCLAW_SHELL=exec` in the spawned command environment (including PTY and sandbox execution) so shell/profile rules can detect exec-tool context.
-- Important: sandboxing is **off by default**. If sandboxing is off and `host=sandbox` is explicitly
-  configured/requested, exec now fails closed instead of silently running on the gateway host.
-  Enable sandboxing or use `host=gateway` with approvals.
-- Script preflight checks (for common Python/Node shell-syntax mistakes) only inspect files inside the
-  effective `workdir` boundary. If a script path resolves outside `workdir`, preflight is skipped for
-  that file.
->>>>>>> c76a47cce (Exec: fail closed when sandbox host is unavailable)
 
 ## Config
 
@@ -59,15 +47,8 @@ Notes:
 - `tools.exec.security` (default: `deny` for sandbox, `allowlist` for gateway + node when unset)
 - `tools.exec.ask` (default: `on-miss`)
 - `tools.exec.node` (default: unset)
-<<<<<<< HEAD
 - `tools.exec.pathPrepend`: list of directories to prepend to `PATH` for exec runs.
 - `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries.
-=======
-- `tools.exec.pathPrepend`: list of directories to prepend to `PATH` for exec runs (gateway + sandbox only).
-- `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries. For behavior details, see [Safe bins](/tools/exec-approvals#safe-bins-stdin-only).
-- `tools.exec.safeBinTrustedDirs`: additional explicit directories trusted for `safeBins` path checks. `PATH` entries are never auto-trusted.
-- `tools.exec.safeBinProfiles`: optional custom argv policy per safe bin (`minPositional`, `maxPositional`, `allowedValueFlags`, `deniedFlags`).
->>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 
 Example:
 

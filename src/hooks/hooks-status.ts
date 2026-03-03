@@ -1,43 +1,15 @@
 import path from "node:path";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
-import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import {
-  buildConfigChecks,
-  resolveMissingAnyBins,
-  resolveMissingBins,
-  resolveMissingEnv,
-  resolveMissingOs,
-} from "../shared/requirements.js";
->>>>>>> bc0160d0f (refactor(shared): dedupe requirements evaluation)
 =======
 import { evaluateRequirements } from "../shared/requirements.js";
 >>>>>>> 4f61a3f52 (refactor(shared): centralize requirements evaluation)
 =======
 =======
 import { resolveEmojiAndHomepage } from "../shared/entry-metadata.js";
-<<<<<<< HEAD
 >>>>>>> b838429e2 (refactor(status): share emoji/homepage resolver)
 import { evaluateRequirementsFromMetadata } from "../shared/requirements.js";
 >>>>>>> 270779b2c (refactor(shared): derive requirements from metadata)
-=======
-import { evaluateRequirementsFromMetadataWithRemote } from "../shared/requirements.js";
->>>>>>> 34b6c743f (refactor(shared): share requirements eval for remote context)
 =======
 import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 >>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
@@ -71,11 +43,8 @@ import { hasBinary, isConfigPathTruthy, resolveHookConfig } from "./config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -86,15 +55,11 @@ import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadWorkspaceHookEntries } from "./workspace.js";
 
-<<<<<<< HEAD
 export type HookStatusConfigCheck = {
   path: string;
   value: unknown;
   satisfied: boolean;
 };
-=======
-export type HookStatusConfigCheck = RequirementConfigCheck;
->>>>>>> 6f2f88d3a (refactor(status): reuse Requirements types)
 
 export type HookInstallOption = {
   id: string;
@@ -180,7 +145,6 @@ function buildHookStatus(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   const {
     required,
     missing,
@@ -196,19 +160,6 @@ function buildHookStatus(
     resolveConfigValue: (pathStr) => resolveConfigPath(config, pathStr),
     isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
   });
-=======
-  const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
-    evaluateEntryMetadataRequirements({
-      always,
-      metadata: entry.metadata,
-      frontmatter: entry.frontmatter,
-      hasLocalBin: hasBinary,
-      localPlatform: process.platform,
-      remote: eligibility?.remote,
-      isEnvSatisfied: (envName) => Boolean(process.env[envName] || hookConfig?.env?.[envName]),
-      isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
-    });
->>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
 =======
   const requirementStatus = evaluateEntryMetadataRequirementsForCurrentPlatform({
     always,

@@ -57,15 +57,9 @@ metadata:
     expect(typeof result.metadata).toBe("string");
 
     // Verify the metadata is valid JSON
-<<<<<<< HEAD
     const parsed = JSON.parse(result.metadata as string);
     expect(parsed.moltbot.emoji).toBe("💾");
     expect(parsed.moltbot.events).toEqual(["command:new"]);
-=======
-    const parsed = JSON.parse(result.metadata);
-    expect(parsed.openclaw.emoji).toBe("💾");
-    expect(parsed.openclaw.events).toEqual(["command:new"]);
->>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
   });
 
   it("parses multi-line metadata with complex nested structure", () => {
@@ -88,19 +82,11 @@ metadata:
     expect(result.name).toBe("command-logger");
     expect(result.metadata).toBeDefined();
 
-<<<<<<< HEAD
     const parsed = JSON.parse(result.metadata as string);
     expect(parsed.moltbot.emoji).toBe("📝");
     expect(parsed.moltbot.events).toEqual(["command"]);
     expect(parsed.moltbot.requires.config).toEqual(["workspace.dir"]);
     expect(parsed.moltbot.install[0].kind).toBe("bundled");
-=======
-    const parsed = JSON.parse(result.metadata);
-    expect(parsed.openclaw.emoji).toBe("📝");
-    expect(parsed.openclaw.events).toEqual(["command"]);
-    expect(parsed.openclaw.requires.config).toEqual(["workspace.dir"]);
-    expect(parsed.openclaw.install[0].kind).toBe("bundled");
->>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
   });
 
   it("handles single-line metadata (inline JSON)", () => {
@@ -246,14 +232,9 @@ describe("resolveMoltbotMetadata", () => {
     // This is the actual format used in the bundled hooks
     const content = `---
 name: session-memory
-<<<<<<< HEAD
 description: "Save session context to memory when /new command is issued"
 <<<<<<< HEAD
 homepage: https://docs.molt.bot/hooks#session-memory
-=======
-=======
-description: "Save session context to memory when /new or /reset command is issued"
->>>>>>> d583399c9 (Hooks: persist session memory on /reset)
 homepage: https://docs.openclaw.ai/automation/hooks#session-memory
 >>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 metadata:
@@ -275,21 +256,12 @@ metadata:
     expect(frontmatter.name).toBe("session-memory");
     expect(frontmatter.metadata).toBeDefined();
 
-<<<<<<< HEAD
     const moltbot = resolveMoltbotMetadata(frontmatter);
     expect(moltbot).toBeDefined();
     expect(moltbot?.emoji).toBe("💾");
     expect(moltbot?.events).toEqual(["command:new"]);
     expect(moltbot?.requires?.config).toEqual(["workspace.dir"]);
     expect(moltbot?.install?.[0].kind).toBe("bundled");
-=======
-    const openclaw = resolveOpenClawMetadata(frontmatter);
-    expect(openclaw).toBeDefined();
-    expect(openclaw?.emoji).toBe("💾");
-    expect(openclaw?.events).toEqual(["command:new", "command:reset"]);
-    expect(openclaw?.requires?.config).toEqual(["workspace.dir"]);
-    expect(openclaw?.install?.[0].kind).toBe("bundled");
->>>>>>> d583399c9 (Hooks: persist session memory on /reset)
   });
 
   it("parses YAML metadata map", () => {

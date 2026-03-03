@@ -1,19 +1,8 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
 
 import { clampText } from "../format";
 import type { SkillStatusEntry, SkillStatusReport } from "../types";
 import type { SkillMessageMap } from "../controllers/skills";
-=======
-import type { SkillMessageMap } from "../controllers/skills.ts";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { clampText } from "../format.ts";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 type SkillGroup = {
   id: string;
@@ -74,15 +63,7 @@ import { clampText } from "../format.ts";
 import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { groupSkills } from "./skills-grouping.ts";
-<<<<<<< HEAD
 >>>>>>> fef86e475 (refactor: dedupe shared helpers across ui/gateway/extensions)
-=======
-import {
-  computeSkillMissing,
-  computeSkillReasons,
-  renderSkillStatusChips,
-} from "./skills-shared.ts";
->>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 
 export type SkillsProps = {
   loading: boolean;

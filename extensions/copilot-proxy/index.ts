@@ -1,13 +1,4 @@
-<<<<<<< HEAD
 import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
-=======
-import {
-  emptyPluginConfigSchema,
-  type OpenClawPluginApi,
-  type ProviderAuthContext,
-  type ProviderAuthResult,
-} from "openclaw/plugin-sdk";
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 
 const DEFAULT_BASE_URL = "http://localhost:3000/v1";
 const DEFAULT_API_KEY = "n/a";

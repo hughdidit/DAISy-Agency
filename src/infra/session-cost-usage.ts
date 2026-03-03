@@ -10,11 +10,6 @@ import type { NormalizedUsage, UsageLike } from "../agents/usage.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import { normalizeUsage } from "../agents/usage.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
 =======
@@ -64,14 +59,10 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> c256503ea (refactor(infra): extract session cost usage types)
 import { normalizeUsage } from "../agents/usage.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions/types.js";
-=======
-import { normalizeUsage } from "../agents/usage.js";
->>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
 =======
 import { normalizeUsage } from "../agents/usage.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -86,9 +77,6 @@ import { countToolResults, extractToolCallNames } from "../utils/transcript-tool
 import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
 =======
@@ -309,13 +297,8 @@ async function* readJsonlRecords(filePath: string): AsyncGenerator<Record<string
 
 async function scanTranscriptFile(params: {
   filePath: string;
-<<<<<<< HEAD
   config?: MoltbotConfig;
   onEntry: (entry: ParsedUsageEntry) => void;
-=======
-  config?: OpenClawConfig;
-  onEntry: (entry: ParsedTranscriptEntry) => void;
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 }): Promise<void> {
   for await (const parsed of readJsonlRecords(params.filePath)) {
     const entry = parseTranscriptEntry(parsed);
@@ -361,15 +344,8 @@ async function scanUsageFile(params: {
 }
 
 export async function loadCostUsageSummary(params?: {
-<<<<<<< HEAD
   days?: number;
   config?: MoltbotConfig;
-=======
-  startMs?: number;
-  endMs?: number;
-  days?: number; // Deprecated, for backwards compatibility
-  config?: OpenClawConfig;
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
   agentId?: string;
 }): Promise<CostUsageSummary> {
   const now = new Date();
@@ -541,13 +517,7 @@ export async function loadSessionCostSummary(params: {
   sessionId?: string;
   sessionEntry?: SessionEntry;
   sessionFile?: string;
-<<<<<<< HEAD
   config?: MoltbotConfig;
-=======
-  config?: OpenClawConfig;
-  startMs?: number;
-  endMs?: number;
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 }): Promise<SessionCostSummary | null> {
   const sessionFile =
     params.sessionFile ??

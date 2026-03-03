@@ -21,12 +21,7 @@ export function buildDirectoryCacheKey(key: DirectoryCacheKey): string {
 
 export class DirectoryCache<T> {
   private readonly cache = new Map<string, CacheEntry<T>>();
-<<<<<<< HEAD
   private lastConfigRef: MoltbotConfig | null = null;
-=======
-  private lastConfigRef: OpenClawConfig | null = null;
-  private readonly maxSize: number;
->>>>>>> 48fef2786 (Outbound: bound directory cache memory growth)
 
   constructor(
     private readonly ttlMs: number,

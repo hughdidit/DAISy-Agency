@@ -2,20 +2,13 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { randomUUID } from "node:crypto";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { Component, TUI } from "@mariozechner/pi-tui";
 import {
   formatThinkingLevels,
   normalizeUsageDisplay,
   resolveResponseUsageMode,
 } from "../auto-reply/thinking.js";
-<<<<<<< HEAD
-=======
 import type { SessionsPatchResult } from "../gateway/protocol/index.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatRelativeTimestamp } from "../infra/format-time/format-relative.ts";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { helpText, parseCommand } from "./commands.js";
@@ -39,13 +32,7 @@ import {
 import type { SessionsPatchResult } from "../gateway/protocol/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
-=======
-import { formatRelativeTimestamp } from "../infra/format-time/format-relative.ts";
-import { normalizeAgentId } from "../routing/session-key.js";
-import { helpText, parseCommand } from "./commands.js";
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -84,13 +71,10 @@ type CommandHandlerContext = {
   abortActive: () => Promise<void>;
   setActivityStatus: (text: string) => void;
   formatSessionKey: (key: string) => string;
-<<<<<<< HEAD
-=======
   applySessionInfoFromPatch: (result: SessionsPatchResult) => void;
   noteLocalRunId: (runId: string) => void;
   forgetLocalRunId?: (runId: string) => void;
   requestExit: () => void;
->>>>>>> b4cdffc7a (TUI: make Ctrl+C exit behavior reliably responsive)
 };
 
 export function createCommandHandlers(context: CommandHandlerContext) {
@@ -110,13 +94,10 @@ export function createCommandHandlers(context: CommandHandlerContext) {
     abortActive,
     setActivityStatus,
     formatSessionKey,
-<<<<<<< HEAD
-=======
     applySessionInfoFromPatch,
     noteLocalRunId,
     forgetLocalRunId,
     requestExit,
->>>>>>> b4cdffc7a (TUI: make Ctrl+C exit behavior reliably responsive)
   } = context;
 
   const setAgent = async (id: string) => {
@@ -161,7 +142,6 @@ export function createCommandHandlers(context: CommandHandlerContext) {
         description: model.name && model.name !== model.id ? model.name : "",
       }));
       const selector = createSearchableSelectList(items, 9);
-<<<<<<< HEAD
       selector.onSelect = (item) => {
         void (async () => {
           try {
@@ -184,21 +164,6 @@ export function createCommandHandlers(context: CommandHandlerContext) {
       };
       openOverlay(selector);
       tui.requestRender();
-=======
-      openSelector(selector, async (value) => {
-        try {
-          const result = await client.patchSession({
-            key: state.currentSessionKey,
-            model: value,
-          });
-          chatLog.addSystem(`model set to ${value}`);
-          applySessionInfoFromPatch(result);
-          await refreshSessionInfo();
-        } catch (err) {
-          chatLog.addSystem(`model set failed: ${String(err)}`);
-        }
-      });
->>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
     } catch (err) {
       chatLog.addSystem(`model list failed: ${String(err)}`);
       tui.requestRender();
@@ -534,12 +499,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
       chatLog.addUser(text);
       tui.requestRender();
       setActivityStatus("sending");
-<<<<<<< HEAD
       const { runId } = await client.sendChat({
-=======
-      tui.requestRender();
-      await client.sendChat({
->>>>>>> 68cb4fc8a (TUI: render sending and waiting indicators immediately)
         sessionKey: state.currentSessionKey,
         message: text,
         thinking: opts.thinking,

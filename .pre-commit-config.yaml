@@ -69,8 +69,6 @@ repos:
         args: [--persona=regular, --min-severity=medium, --min-confidence=medium]
         exclude: "^(vendor/|Swabble/)"
 
-<<<<<<< HEAD
-=======
   # Python checks for skills scripts
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.1
@@ -89,7 +87,6 @@ repos:
         pass_filenames: false
         files: "^skills/.*\\.py$"
 
->>>>>>> 5a0eb695f (chore: format pre-commit config for CI)
   # Project checks (same commands as CI)
   - repo: local
     hooks:

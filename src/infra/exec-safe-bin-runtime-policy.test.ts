@@ -1,11 +1,4 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
-=======
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { describe, expect, it, vi } from "vitest";
->>>>>>> 4355e0826 (refactor: harden safe-bin trusted dir diagnostics)
 import {
   isInterpreterLikeSafeBin,
   listInterpreterLikeSafeBins,

@@ -27,8 +27,6 @@ cron is the mechanism.
 - Webhook posting is per job via `delivery.mode = "webhook"` + `delivery.to = "<url>"`.
 - Legacy fallback remains for stored jobs with `notify: true` when `cron.webhook` is set, migrate those jobs to webhook delivery mode.
 
-<<<<<<< HEAD
-=======
 ## Quick start (actionable)
 
 Create a one-shot reminder, verify it exists, and run it immediately:
@@ -72,7 +70,6 @@ The Gateway loads the file into memory and writes it back on changes, so manual 
 are only safe when the Gateway is stopped. Prefer `openclaw cron add/edit` or the cron
 tool call API for changes.
 
->>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 ## Beginner-friendly overview
 
 Think of a cron job as: **when** to run + **what** to do.
@@ -152,21 +149,10 @@ Key behaviors:
 
 - Prompt is prefixed with `[cron:<jobId> <job name>]` for traceability.
 - Each run starts a **fresh session id** (no prior conversation carry-over).
-<<<<<<< HEAD
 - Default behavior: if `delivery` is omitted, isolated jobs announce a summary immediately (`delivery.mode = "announce"`).
 - `delivery.mode` (isolated-only) chooses what happens:
   - `announce`: subagent-style summary delivered immediately to a chat.
   - `none`: internal only (no delivery).
-=======
-- Default behavior: if `delivery` is omitted, isolated jobs announce a summary (`delivery.mode = "announce"`).
-- `delivery.mode` chooses what happens:
-  - `announce`: deliver a summary to the target channel and post a brief summary to the main session.
-  - `webhook`: POST the finished event payload to `delivery.to`.
-  - `none`: internal only (no delivery, no main-session summary).
-- `wakeMode` controls when the main-session summary posts:
-  - `now`: immediate heartbeat.
-  - `next-heartbeat`: waits for the next scheduled heartbeat.
->>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 
 Use isolated jobs for noisy, frequent, or "background chores" that shouldn't spam
 your main chat history.
@@ -196,8 +182,6 @@ to target the chat instead.
 
 If `delivery` is omitted for isolated jobs, OpenClaw defaults to `announce`.
 
-<<<<<<< HEAD
-=======
 #### Announce delivery flow
 
 When `delivery.mode = "announce"`, cron delivers directly via the outbound channel adapters.
@@ -227,7 +211,6 @@ Behavior details:
 - If `cron.webhookToken` is set, auth header is `Authorization: Bearer <cron.webhookToken>`.
 - Deprecated fallback: stored legacy jobs with `notify: true` still post to `cron.webhook` (if configured), with a warning so you can migrate to `delivery.mode = "webhook"`.
 
->>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 ### Model and thinking overrides
 
 Isolated jobs (`agentTurn`) can override the model and thinking level:
@@ -249,11 +232,7 @@ Resolution priority:
 
 Isolated jobs can deliver output to a channel via the top-level `delivery` config:
 
-<<<<<<< HEAD
 - `delivery.mode`: `announce` (subagent-style summary) or `none`.
-=======
-- `delivery.mode`: `announce` (channel delivery), `webhook` (HTTP POST), or `none`.
->>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 - `delivery.channel`: `whatsapp` / `telegram` / `discord` / `slack` / `mattermost` (plugin) / `signal` / `imessage` / `last`.
 - `delivery.to`: channel-specific recipient target.
 
@@ -281,8 +260,6 @@ Prefixed targets like `telegram:...` / `telegram:group:...` are also accepted:
 
 - `telegram:group:-1001234567890:topic:123`
 
-<<<<<<< HEAD
-=======
 ## JSON schema for tool calls
 
 Use these shapes when calling Gateway `cron.*` tools directly (agent tool calls or RPC).
@@ -362,17 +339,9 @@ Notes:
 { "jobId": "job-123" }
 ```
 
->>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 ## Storage & history
-<<<<<<< HEAD
 - Job store: `~/.clawdbot/cron/jobs.json` (Gateway-managed JSON).
 - Run history: `~/.clawdbot/cron/runs/<jobId>.jsonl` (JSONL, auto-pruned).
-=======
-
-- Job store: `~/.openclaw/cron/jobs.json` (Gateway-managed JSON).
-<<<<<<< HEAD
-- Run history: `~/.openclaw/cron/runs/<jobId>.jsonl` (JSONL, auto-pruned).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
 - Run history: `~/.openclaw/cron/runs/<jobId>.jsonl` (JSONL, auto-pruned by size and line count).
 - Isolated cron run sessions in `sessions.json` are pruned by `cron.sessionRetention` (default `24h`; set `false` to disable).
@@ -417,28 +386,9 @@ Configure `cron.retry` to override these defaults (see [Configuration](/automati
 {
   cron: {
     enabled: true, // default true
-<<<<<<< HEAD
     store: "~/.clawdbot/cron/jobs.json",
     maxConcurrentRuns: 1 // default 1
   }
-=======
-    store: "~/.openclaw/cron/jobs.json",
-    maxConcurrentRuns: 1, // default 1
-    // Optional: override retry policy for one-shot jobs
-    retry: {
-      maxAttempts: 3,
-      backoffMs: [60000, 120000, 300000],
-      retryOn: ["rate_limit", "network", "server_error"],
-    },
-    webhook: "https://example.invalid/legacy", // deprecated fallback for stored notify:true jobs
-    webhookToken: "replace-with-dedicated-webhook-token", // optional bearer token for webhook mode
-    sessionRetention: "24h", // duration string or false
-    runLog: {
-      maxBytes: "2mb", // default 2_000_000 bytes
-      keepLines: 2000, // default 2000
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -608,14 +558,8 @@ moltbot cron add \
 ```
 
 Isolated job with model and thinking override:
-<<<<<<< HEAD
 ```bash
 moltbot cron add \
-=======
-
-````bash
-openclaw cron add \
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   --name "Deep analysis" \
   --cron "0 6 * * 1" \
   --tz "America/Los_Angeles" \
@@ -633,7 +577,6 @@ Agent selection (multi-agent setups):
 moltbot cron add --name "Ops sweep" --cron "0 6 * * *" --session isolated --message "Check ops queue" --agent ops
 
 # Switch or clear the agent on an existing job
-<<<<<<< HEAD
 moltbot cron edit <jobId> --agent ops
 moltbot cron edit <jobId> --clear-agent
 ```
@@ -643,18 +586,6 @@ Manual run (debug):
 ```bash
 moltbot cron run <jobId> --force
 ```
-=======
-openclaw cron edit <jobId> --agent ops
-openclaw cron edit <jobId> --clear-agent
-````
-
-````
-
-Manual run (debug):
-```bash
-openclaw cron run <jobId> --force
-````
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Edit an existing job (patch fields):
 
@@ -687,21 +618,12 @@ moltbot system event --mode now --text "Next heartbeat: check battery."
 
 - `cron.list`, `cron.status`, `cron.add`, `cron.update`, `cron.remove`
 - `cron.run` (force or due), `cron.runs`
-<<<<<<< HEAD
 For immediate system events without a job, use [`moltbot system event`](/cli/system).
-=======
-  For immediate system events without a job, use [`openclaw system event`](/cli/system).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Troubleshooting
 
 ### “Nothing runs”
-<<<<<<< HEAD
 - Check cron is enabled: `cron.enabled` and `CLAWDBOT_SKIP_CRON`.
-=======
-
-- Check cron is enabled: `cron.enabled` and `OPENCLAW_SKIP_CRON`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Check the Gateway is running continuously (cron runs inside the Gateway process).
 - For `cron` schedules: confirm timezone (`--tz`) vs the host timezone.
 

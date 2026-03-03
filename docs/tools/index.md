@@ -261,12 +261,7 @@ Core parameters:
 - `count` (1–10; default from `tools.web.search.maxResults`)
 
 Notes:
-<<<<<<< HEAD
 - Requires a Brave API key (recommended: `moltbot configure --section web`, or set `BRAVE_API_KEY`).
-=======
-
-- Requires a Brave API key (recommended: `openclaw configure --section web`, or set `BRAVE_API_KEY`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Enable via `tools.web.search.enabled`.
 - Responses are cached (default 15 min).
 - See [Web tools](/tools/web) for setup.
@@ -291,12 +286,7 @@ Notes:
 - See [Firecrawl](/tools/firecrawl) for the optional anti-bot fallback.
 
 ### `browser`
-<<<<<<< HEAD
 Control the dedicated clawd browser.
-=======
-
-Control the dedicated OpenClaw-managed browser.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Core actions:
 
@@ -360,14 +350,8 @@ Core actions:
 - `pending`, `approve`, `reject` (pairing)
 - `notify` (macOS `system.notify`)
 - `run` (macOS `system.run`)
-<<<<<<< HEAD
 - `camera_snap`, `camera_clip`, `screen_record`
 - `location_get`
-=======
-- `camera_list`, `camera_snap`, `camera_clip`, `screen_record`
-- `location_get`, `notifications_list`, `notifications_action`
-- `device_status`, `device_info`, `device_permissions`, `device_health`
->>>>>>> 29f5da5b2 (feat(nodes): expose device diagnostics and notification actions)
 
 Notes:
 
@@ -455,12 +439,7 @@ Notes:
 Restart or apply updates to the running Gateway process (in-place).
 
 Core actions:
-<<<<<<< HEAD
 - `restart` (authorizes + sends `SIGUSR1` for in-process restart; `moltbot gateway` restart in-place)
-=======
-
-- `restart` (authorizes + sends `SIGUSR1` for in-process restart; `openclaw gateway` restart in-place)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `config.get` / `config.schema`
 - `config.apply` (validate + write config + restart + wake)
 - `config.patch` (merge partial update + restart + wake)
@@ -480,11 +459,7 @@ Core parameters:
 - `sessions_list`: `kinds?`, `limit?`, `activeMinutes?`, `messageLimit?` (0 = none)
 - `sessions_history`: `sessionKey` (or `sessionId`), `limit?`, `includeTools?`
 - `sessions_send`: `sessionKey` (or `sessionId`), `message`, `timeoutSeconds?` (0 = fire-and-forget)
-<<<<<<< HEAD
 - `sessions_spawn`: `task`, `label?`, `agentId?`, `model?`, `runTimeoutSeconds?`, `cleanup?`
-=======
-- `sessions_spawn`: `task`, `label?`, `runtime?`, `agentId?`, `model?`, `thinking?`, `cwd?`, `runTimeoutSeconds?`, `thread?`, `mode?`, `cleanup?`, `sandbox?`
->>>>>>> bfeadb80b (feat(agents): add sessions_spawn sandbox require mode)
 - `session_status`: `sessionKey?` (default current; accepts `sessionId`), `model?` (`default` clears override)
 
 Notes:

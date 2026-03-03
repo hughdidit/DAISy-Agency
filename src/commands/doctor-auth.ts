@@ -12,19 +12,9 @@ import {
   resolveProfileUnusableUntilForDisplay,
 } from "../agents/auth-profiles.js";
 import { updateAuthProfileStoreWithLock } from "../agents/auth-profiles/store.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { note } from "../terminal/note.js";
 import { formatCliCommand } from "../cli/command-format.js";
-=======
-import { formatCliCommand } from "../cli/command-format.js";
-import type { OpenClawConfig } from "../config/config.js";
-import { note } from "../terminal/note.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { DoctorPrompter } from "./doctor-prompter.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

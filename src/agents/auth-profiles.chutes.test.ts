@@ -13,14 +13,10 @@ import { CHUTES_TOKEN_ENDPOINT } from "./chutes-oauth.js";
 
 describe("auth-profiles (chutes)", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
   const previousChutesClientId = process.env.CHUTES_CLIENT_ID;
-=======
-  let envSnapshot: ReturnType<typeof captureEnv> | undefined;
->>>>>>> f809ff5e5 (refactor(test): reuse env snapshot helper)
 =======
 >>>>>>> 2d7d00ef8 (refactor(test): streamline env setup in auth and gateway e2e)
   let tempDir: string | null = null;
@@ -33,7 +29,6 @@ describe("auth-profiles (chutes)", () => {
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (previousStateDir === undefined) delete process.env.CLAWDBOT_STATE_DIR;
     else process.env.CLAWDBOT_STATE_DIR = previousStateDir;
     if (previousAgentDir === undefined) delete process.env.CLAWDBOT_AGENT_DIR;
@@ -42,28 +37,6 @@ describe("auth-profiles (chutes)", () => {
     else process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
     if (previousChutesClientId === undefined) delete process.env.CHUTES_CLIENT_ID;
     else process.env.CHUTES_CLIENT_ID = previousChutesClientId;
-=======
-    if (previousStateDir === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
-    } else {
-      process.env.OPENCLAW_STATE_DIR = previousStateDir;
-    }
-    if (previousAgentDir === undefined) {
-      delete process.env.OPENCLAW_AGENT_DIR;
-    } else {
-      process.env.OPENCLAW_AGENT_DIR = previousAgentDir;
-    }
-    if (previousPiAgentDir === undefined) {
-      delete process.env.PI_CODING_AGENT_DIR;
-    } else {
-      process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
-    }
-    if (previousChutesClientId === undefined) {
-      delete process.env.CHUTES_CLIENT_ID;
-    } else {
-      process.env.CHUTES_CLIENT_ID = previousChutesClientId;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   });
 
   it("refreshes expired Chutes OAuth credentials", async () => {
@@ -80,7 +53,6 @@ describe("auth-profiles (chutes)", () => {
 
   it("refreshes expired Chutes OAuth credentials", async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-chutes-"));
-<<<<<<< HEAD
     process.env.OPENCLAW_STATE_DIR = tempDir;
     process.env.OPENCLAW_AGENT_DIR = path.join(tempDir, "agents", "main", "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
@@ -100,15 +72,6 @@ describe("auth-profiles (chutes)", () => {
           expires: Date.now() - 60_000,
           clientId: "cid_test",
         },
-=======
-    const agentDir = path.join(tempDir, "agents", "main", "agent");
-    await withEnvAsync(
-      {
-        OPENCLAW_STATE_DIR: tempDir,
-        OPENCLAW_AGENT_DIR: agentDir,
-        PI_CODING_AGENT_DIR: agentDir,
-        CHUTES_CLIENT_ID: undefined,
->>>>>>> 2d7d00ef8 (refactor(test): streamline env setup in auth and gateway e2e)
       },
       async () => {
         const authProfilePath = path.join(agentDir, "auth-profiles.json");

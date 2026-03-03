@@ -5,7 +5,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -18,10 +17,6 @@ import {
   type Model,
 } from "@mariozechner/pi-ai";
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
-=======
-import { type Api, type Context, complete, type Model } from "@mariozechner/pi-ai";
-import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
->>>>>>> 9c4cbaab7 (chore: Enable eslint/no-unused-vars.)
 import { Type } from "@sinclair/typebox";
 
 import type { MoltbotConfig } from "../../config/config.js";
@@ -52,12 +47,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
-import type { AnyAgentTool } from "./common.js";
->>>>>>> 391796a3f (fix(agents): restore multi-image image tool schema contract)
 =======
 >>>>>>> 9c5f08244 (chore: Format files.)
 =======
@@ -80,20 +70,9 @@ import { minimaxUnderstandImage } from "../minimax-vlm.js";
 import { getApiKeyForModel, requireApiKey, resolveEnvApiKey } from "../model-auth.js";
 import { runWithImageModelFallback } from "../model-fallback.js";
 import { resolveConfiguredModelRef } from "../model-selection.js";
-<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "../models-config.js";
 import { assertSandboxPath } from "../sandbox-paths.js";
 import type { AnyAgentTool } from "./common.js";
-=======
-import { ensureOpenClawModelsJson } from "../models-config.js";
-import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
-<<<<<<< HEAD
-=======
-import {
-  resolveSandboxedBridgeMediaPath,
-  type SandboxedBridgeMediaPathConfig,
-} from "../sandbox-media-paths.js";
->>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
 import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
 import type { ToolFsPolicy } from "../tool-fs-policy.js";
 import { normalizeWorkspaceDir } from "../workspace-dir.js";
@@ -103,11 +82,7 @@ import { normalizeWorkspaceDir } from "../workspace-dir.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
-=======
-import type { AnyAgentTool } from "./common.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 391796a3f (fix(agents): restore multi-image image tool schema contract)
 =======
@@ -132,12 +107,9 @@ import {
 } from "./image-tool.helpers.js";
 
 const DEFAULT_PROMPT = "Describe the image.";
-<<<<<<< HEAD
-=======
 const ANTHROPIC_IMAGE_PRIMARY = "anthropic/claude-opus-4-6";
 const ANTHROPIC_IMAGE_FALLBACK = "anthropic/claude-opus-4-5";
 const DEFAULT_MAX_IMAGES = 20;
->>>>>>> ff4f59ec9 (feat(image-tool): support multiple images in a single tool call (#17512))
 
 export const __testing = {
   decodeDataUrl,
@@ -300,7 +272,6 @@ function buildImageContext(
   };
 }
 
-<<<<<<< HEAD
 async function resolveSandboxedImagePath(params: {
   sandboxRoot: string;
   imagePath: string;
@@ -331,12 +302,6 @@ async function resolveSandboxedImagePath(params: {
     return { resolved: out.resolved, rewrittenFrom: filePath };
   }
 }
-=======
-type ImageSandboxConfig = {
-  root: string;
-  bridge: SandboxFsBridge;
-};
->>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
 
 async function runImagePrompt(params: {
   cfg?: MoltbotConfig;
@@ -429,13 +394,7 @@ async function runImagePrompt(params: {
 export function createImageTool(options?: {
   config?: MoltbotConfig;
   agentDir?: string;
-<<<<<<< HEAD
   sandboxRoot?: string;
-=======
-  workspaceDir?: string;
-  sandbox?: ImageSandboxConfig;
-<<<<<<< HEAD
->>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
 =======
   fsPolicy?: ToolFsPolicy;
 >>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
@@ -546,7 +505,6 @@ export function createImageTool(options?: {
       const maxBytes = pickMaxBytes(options?.config, maxBytesMb);
 
 <<<<<<< HEAD
-<<<<<<< HEAD
       const sandboxRoot = options?.sandboxRoot?.trim();
       const isUrl = isHttpUrl;
       if (sandboxRoot && isUrl) {
@@ -580,19 +538,6 @@ export function createImageTool(options?: {
         ? decodeDataUrl(resolvedImage)
 <<<<<<< HEAD
         : await loadWebMedia(resolvedPath ?? resolvedImage, maxBytes);
-=======
-        : sandboxConfig
-          ? await loadWebMedia(resolvedPath ?? resolvedImage, {
-              maxBytes,
-              sandboxValidated: true,
-              readFile: (filePath) =>
-                sandboxConfig.bridge.readFile({ filePath, cwd: sandboxConfig.root }),
-            })
-          : await loadWebMedia(resolvedPath ?? resolvedImage, {
-              maxBytes,
-              localRoots,
-            });
->>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
       if (media.kind !== "image") {
         throw new Error(`Unsupported media type: ${media.kind}`);
 =======

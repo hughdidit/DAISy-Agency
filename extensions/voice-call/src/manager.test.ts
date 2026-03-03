@@ -6,15 +6,9 @@ import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { VoiceCallConfigSchema } from "./config.js";
 import { CallManager } from "./manager.js";
-=======
-import { VoiceCallConfigSchema } from "./config.js";
-import { CallManager } from "./manager.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { VoiceCallConfigSchema } from "./config.js";
 import { CallManager } from "./manager.js";
@@ -42,10 +36,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { VoiceCallProvider } from "./providers/base.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { VoiceCallConfigSchema } from "./config.js";
 import { CallManager } from "./manager.js";
@@ -62,12 +53,9 @@ import { CallManager } from "./manager.js";
 class FakeProvider implements VoiceCallProvider {
   readonly name = "plivo" as const;
   readonly playTtsCalls: PlayTtsInput[] = [];
-<<<<<<< HEAD
-=======
   readonly hangupCalls: HangupCallInput[] = [];
   readonly startListeningCalls: StartListeningInput[] = [];
   readonly stopListeningCalls: StopListeningInput[] = [];
->>>>>>> 0c87dbdcf (voice-call: harden closed-loop turn loop and transcript routing (#19140))
 
   verifyWebhook(_ctx: WebhookContext): WebhookVerificationResult {
     return { ok: true };
@@ -127,7 +115,6 @@ function markCallAnswered(manager: CallManager, callId: string, eventId: string)
 
 describe("CallManager", () => {
   it("upgrades providerCallId mapping when provider ID changes", async () => {
-<<<<<<< HEAD
     const config = VoiceCallConfigSchema.parse({
       enabled: true,
       provider: "plivo",
@@ -137,9 +124,6 @@ describe("CallManager", () => {
     const storePath = path.join(os.tmpdir(), `moltbot-voice-call-test-${Date.now()}`);
     const manager = new CallManager(config, storePath);
     manager.initialize(new FakeProvider(), "https://example.com/voice/webhook");
-=======
-    const { manager } = createManagerHarness();
->>>>>>> 081ab9c99 (fix(voice-call): tighten manager outbound behavior)
 
     const { callId, success, error } = await manager.initiateCall("+15550000001");
     expect(success).toBe(true);
@@ -164,7 +148,6 @@ describe("CallManager", () => {
   });
 
   it("speaks initial message on answered for notify mode (non-Twilio)", async () => {
-<<<<<<< HEAD
     const config = VoiceCallConfigSchema.parse({
       enabled: true,
       provider: "plivo",
@@ -175,9 +158,6 @@ describe("CallManager", () => {
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");
-=======
-    const { manager, provider } = createManagerHarness();
->>>>>>> 081ab9c99 (fix(voice-call): tighten manager outbound behavior)
 
     const { callId, success } = await manager.initiateCall("+15550000002", undefined, {
       message: "Hello there",
@@ -198,8 +178,6 @@ describe("CallManager", () => {
     expect(provider.playTtsCalls).toHaveLength(1);
     expect(provider.playTtsCalls[0]?.text).toBe("Hello there");
   });
-<<<<<<< HEAD
-=======
 
   it("rejects inbound calls with missing caller ID when allowlist enabled", () => {
     const { manager, provider } = createManagerHarness({
@@ -476,5 +454,4 @@ describe("CallManager", () => {
     expect(provider.startListeningCalls).toHaveLength(5);
     expect(provider.stopListeningCalls).toHaveLength(5);
   });
->>>>>>> 0c87dbdcf (voice-call: harden closed-loop turn loop and transcript routing (#19140))
 });

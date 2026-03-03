@@ -23,15 +23,9 @@ import crypto from "node:crypto";
 import { resolveBrowserConfig } from "../../browser/config.js";
 import { DEFAULT_AI_SNAPSHOT_MAX_CHARS } from "../../browser/constants.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { loadConfig } from "../../config/config.js";
 import { saveMediaBuffer } from "../../media/store.js";
 import { listNodes, resolveNodeIdFromList, type NodeListNode } from "./nodes-utils.js";
-=======
-import { DEFAULT_UPLOAD_DIR, resolvePathsWithinRoot } from "../../browser/paths.js";
-=======
-import { DEFAULT_UPLOAD_DIR, resolveExistingPathsWithinRoot } from "../../browser/paths.js";
->>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
 import { applyBrowserProxyPaths, persistBrowserProxyFiles } from "../../browser/proxy-files.js";
 import { loadConfig } from "../../config/config.js";
 import { wrapExternalContent } from "../../security/external-content.js";
@@ -39,15 +33,12 @@ import { wrapExternalContent } from "../../security/external-content.js";
 import { BrowserToolSchema } from "./browser-tool.schema.js";
 import { type AnyAgentTool, imageResultFromFile, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
-<<<<<<< HEAD
-=======
 import {
   listNodes,
   resolveNodeIdFromList,
   selectDefaultNodeFromList,
   type NodeListNode,
 } from "./nodes-utils.js";
->>>>>>> a1346a519 (refactor(nodes): share default selection and tighten node.list fallback)
 
 function formatTabsToolResult(tabs: unknown[]) {
   const wrapped = wrapBrowserExternalJson({
@@ -391,15 +382,7 @@ export function createBrowserTool(opts?: {
               profile,
             });
             const tabs = (result as { tabs?: unknown[] }).tabs ?? [];
-<<<<<<< HEAD
             return jsonResult({ tabs });
-=======
-            return formatTabsToolResult(tabs);
-          }
-          {
-            const tabs = await browserTabs(baseUrl, { profile });
-            return formatTabsToolResult(tabs);
->>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
           }
           return jsonResult({ tabs: await browserTabs(baseUrl, { profile }) });
         case "open": {
@@ -642,8 +625,6 @@ export function createBrowserTool(opts?: {
           if (paths.length === 0) {
             throw new Error("paths required");
           }
-<<<<<<< HEAD
-=======
           const uploadPathsResult = await resolveExistingPathsWithinRoot({
             rootDir: DEFAULT_UPLOAD_DIR,
             requestedPaths: paths,
@@ -653,7 +634,6 @@ export function createBrowserTool(opts?: {
             throw new Error(uploadPathsResult.error);
           }
           const normalizedPaths = uploadPathsResult.paths;
->>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
           const ref = readStringParam(params, "ref");
           const inputRef = readStringParam(params, "inputRef");
           const element = readStringParam(params, "element");
@@ -745,12 +725,7 @@ export function createBrowserTool(opts?: {
                 : await browserTabs(baseUrl, { profile }).catch(() => []);
               if (!tabs.length) {
                 throw new Error(
-<<<<<<< HEAD
                   "No Chrome tabs are attached via the Moltbot Browser Relay extension. Click the toolbar icon on the tab you want to control (badge ON), then retry.",
-=======
-                  "No Chrome tabs are attached via the OpenClaw Browser Relay extension. Click the toolbar icon on the tab you want to control (badge ON), then retry.",
-                  { cause: err },
->>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
                 );
               }
               throw new Error(

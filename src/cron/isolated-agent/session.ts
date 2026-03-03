@@ -1,12 +1,8 @@
 import crypto from "node:crypto";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { loadSessionStore, resolveStorePath, type SessionEntry } from "../../config/sessions.js";
-=======
-=======
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import type { OpenClawConfig } from "../../config/config.js";
 import {
   evaluateSessionFreshness,
@@ -15,10 +11,7 @@ import {
   resolveStorePath,
   type SessionEntry,
 } from "../../config/sessions.js";
-<<<<<<< HEAD
 >>>>>>> 57c8f6239 (fix(cron): reuse existing sessionId for webhook/cron sessions)
-=======
->>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 
 export function resolveCronSession(params: {
   cfg: MoltbotConfig;
@@ -77,7 +70,6 @@ export function resolveCronSession(params: {
     sessionId,
     updatedAt: params.nowMs,
     systemSent,
-<<<<<<< HEAD
     // Preserve user preferences from existing entry
     thinkingLevel: entry?.thinkingLevel,
     verboseLevel: entry?.verboseLevel,
@@ -88,8 +80,6 @@ export function resolveCronSession(params: {
     lastTo: entry?.lastTo,
     lastAccountId: entry?.lastAccountId,
     skillsSnapshot: entry?.skillsSnapshot,
-=======
->>>>>>> 690ec492d (refactor: remove redundant field assignments in resolveCronSession)
   };
   return { storePath, store, sessionEntry, systemSent, isNewSession };
 }

@@ -53,16 +53,9 @@ function ensureExecutable(targetPath) {
   }
 }
 
-<<<<<<< HEAD
 function hasGit(repoRoot) {
 <<<<<<< HEAD
   const result = spawnSync("git", ["--version"], { cwd: repoRoot, stdio: "ignore" });
-=======
-  const result = spawnSync("git", ["--version"], {
-    cwd: repoRoot,
-    stdio: "ignore",
-  });
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   return result.status === 0;
 }
 
@@ -290,28 +283,14 @@ function applyPatchFile({ patchPath, targetDir }) {
 
 function trySetupCompletion(repoRoot) {
   // Skip in CI or if explicitly disabled
-<<<<<<< HEAD
   if (process.env.CI || process.env.OPENCLAW_SKIP_COMPLETION_SETUP) return;
 <<<<<<< HEAD
   
-=======
-=======
-  if (process.env.CI || process.env.OPENCLAW_SKIP_COMPLETION_SETUP) {
-    return;
-  }
->>>>>>> 1838ab019 (chore: Enable linting in `scripts`.)
 
 >>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   const binPath = path.join(repoRoot, "openclaw.mjs");
-<<<<<<< HEAD
   if (!fs.existsSync(binPath)) return;
   
-=======
-  if (!fs.existsSync(binPath)) {
-    return;
-  }
-
->>>>>>> 1838ab019 (chore: Enable linting in `scripts`.)
   // In development, dist might not exist yet during postinstall
   const distEntry = path.join(repoRoot, "dist", "index.js");
   if (!fs.existsSync(distEntry)) {
@@ -323,11 +302,7 @@ function trySetupCompletion(repoRoot) {
     // though distinct from this script.
     spawnSync(process.execPath, [binPath, "completion", "--install", "--yes", "--write-state"], {
       cwd: repoRoot,
-<<<<<<< HEAD
       stdio: "inherit", 
-=======
-      stdio: "inherit",
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
       env: { ...process.env, OPENCLAW_SKIP_POSTINSTALL: "1" },
     });
   } catch {
@@ -339,11 +314,7 @@ function main() {
   const repoRoot = getRepoRoot();
   process.chdir(repoRoot);
 
-<<<<<<< HEAD
   ensureExecutable(path.join(repoRoot, "dist", "entry.js"));
-=======
-  ensureExecutable(path.join(repoRoot, "dist", "/entry.js"));
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   setupGitHooks({ repoRoot });
   trySetupCompletion(repoRoot);
 
@@ -374,10 +345,7 @@ function main() {
 
 try {
   const skip =
-<<<<<<< HEAD
-=======
     process.env.OPENCLAW_SKIP_POSTINSTALL === "1" ||
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
     process.env.CLAWDBOT_SKIP_POSTINSTALL === "1" ||
     process.env.VITEST === "true" ||
     process.env.NODE_ENV === "test";

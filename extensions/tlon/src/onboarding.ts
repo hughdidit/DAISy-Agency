@@ -5,18 +5,8 @@ import {
   normalizeAccountId,
   type ChannelOnboardingAdapter,
   type WizardPrompter,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { buildTlonAccountFields } from "./account-fields.js";
-<<<<<<< HEAD
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 =======
 import type { TlonResolvedAccount } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -75,7 +65,6 @@ function applyAccountConfig(params: {
         ...cfg.channels,
         tlon: {
           ...base,
-<<<<<<< HEAD
           enabled: true,
           ...(input.name ? { name: input.name } : {}),
           ...(input.ship ? { ship: input.ship } : {}),
@@ -86,9 +75,6 @@ function applyAccountConfig(params: {
           ...(typeof input.autoDiscoverChannels === "boolean"
             ? { autoDiscoverChannels: input.autoDiscoverChannels }
             : {}),
-=======
-          ...nextValues,
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
         },
       },
     };
@@ -107,7 +93,6 @@ function applyAccountConfig(params: {
             ...(base as { accounts?: Record<string, Record<string, unknown>> }).accounts?.[
               accountId
             ],
-<<<<<<< HEAD
             enabled: true,
             ...(input.name ? { name: input.name } : {}),
             ...(input.ship ? { ship: input.ship } : {}),
@@ -118,9 +103,6 @@ function applyAccountConfig(params: {
             ...(typeof input.autoDiscoverChannels === "boolean"
               ? { autoDiscoverChannels: input.autoDiscoverChannels }
               : {}),
-=======
-            ...nextValues,
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
           },
         },
       },

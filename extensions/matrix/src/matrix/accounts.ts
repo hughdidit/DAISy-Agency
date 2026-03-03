@@ -1,9 +1,5 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
-=======
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
->>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 =======
 import {
   DEFAULT_ACCOUNT_ID,
@@ -15,8 +11,6 @@ import type { CoreConfig, MatrixConfig } from "../types.js";
 import { resolveMatrixConfig } from "./client.js";
 import { credentialsMatchConfig, loadMatrixCredentials } from "./credentials.js";
 
-<<<<<<< HEAD
-=======
 /** Merge account config with top-level defaults, preserving nested objects. */
 function mergeAccountConfig(base: MatrixConfig, account: MatrixConfig): MatrixConfig {
   const merged = { ...base, ...account };
@@ -34,7 +28,6 @@ function mergeAccountConfig(base: MatrixConfig, account: MatrixConfig): MatrixCo
   return merged;
 }
 
->>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 export type ResolvedMatrixAccount = {
   accountId: string;
   enabled: boolean;

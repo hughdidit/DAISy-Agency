@@ -8,11 +8,7 @@ import { WebSocket } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { ChannelOutboundAdapter } from "../channels/plugins/types.js";
->>>>>>> 27deda222 (fix(test): drop unused gateway e2e PluginRegistry imports)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getChannelPlugin } from "../channels/plugins/index.js";
@@ -172,7 +168,6 @@ const expectedSortedCatalog = (): ModelCatalogRpcEntry[] => [
 describe("gateway server models + voicewake", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   const setTempHome = (homeDir: string) => {
     const prevHome = process.env.HOME;
     const prevStateDir = process.env.CLAWDBOT_STATE_DIR;
@@ -218,8 +213,6 @@ describe("gateway server models + voicewake", () => {
     };
   };
 
-=======
->>>>>>> c529bafdc (refactor(test): reuse temp-home helper in voicewake e2e)
 =======
 =======
   const listModels = async () => rpcReq<{ models: ModelCatalogRpcEntry[] }>(ws, "models.list");
@@ -275,19 +268,12 @@ describe("gateway server models + voicewake", () => {
     { timeout: 20_000 },
     async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-home-"));
       const restoreHome = setTempHome(homeDir);
 
       const initial = await rpcReq<{ triggers: string[] }>(ws, "voicewake.get");
       expect(initial.ok).toBe(true);
       expect(initial.payload?.triggers).toEqual(["clawd", "claude", "computer"]);
-=======
-      const tempHome = await createTempHomeEnv("openclaw-home-");
-      try {
-=======
-      await withTempHome(async (homeDir) => {
->>>>>>> b43aadc34 (refactor(test): dedupe temp-home setup in voicewake suite)
         const initial = await rpcReq<{ triggers: string[] }>(ws, "voicewake.get");
         expect(initial.ok).toBe(true);
         expect(initial.payload?.triggers).toEqual(["openclaw", "claude", "computer"]);
@@ -315,7 +301,6 @@ describe("gateway server models + voicewake", () => {
         expect(after.ok).toBe(true);
         expect(after.payload?.triggers).toEqual(["hi", "there"]);
 
-<<<<<<< HEAD
       const after = await rpcReq<{ triggers: string[] }>(ws, "voicewake.get");
       expect(after.ok).toBe(true);
       expect(after.payload?.triggers).toEqual(["hi", "there"]);
@@ -328,17 +313,6 @@ describe("gateway server models + voicewake", () => {
 
       restoreHome();
 =======
-        const onDisk = JSON.parse(
-          await fs.readFile(path.join(homeDir, ".openclaw", "settings", "voicewake.json"), "utf8"),
-        ) as { triggers?: unknown; updatedAtMs?: unknown };
-        expect(onDisk.triggers).toEqual(["hi", "there"]);
-        expect(typeof onDisk.updatedAtMs).toBe("number");
-<<<<<<< HEAD
-      } finally {
-        await tempHome.restore();
-      }
->>>>>>> c529bafdc (refactor(test): reuse temp-home helper in voicewake e2e)
-=======
       });
 >>>>>>> b43aadc34 (refactor(test): dedupe temp-home setup in voicewake suite)
     },
@@ -346,15 +320,8 @@ describe("gateway server models + voicewake", () => {
 
   test("pushes voicewake.changed to nodes on connect and on updates", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-home-"));
     const restoreHome = setTempHome(homeDir);
-=======
-    const tempHome = await createTempHomeEnv("openclaw-home-");
-    try {
-=======
-    await withTempHome(async () => {
->>>>>>> b43aadc34 (refactor(test): dedupe temp-home setup in voicewake suite)
       const nodeWs = new WebSocket(`ws://127.0.0.1:${port}`);
       trackConnectChallengeNonce(nodeWs);
       await new Promise<void>((resolve) => nodeWs.once("open", resolve));
@@ -381,7 +348,6 @@ describe("gateway server models + voicewake", () => {
         "computer",
       ]);
 
-<<<<<<< HEAD
     const first = (await firstEventP) as { event?: string; payload?: unknown };
     expect(first.event).toBe("voicewake.changed");
     expect((first.payload as { triggers?: unknown } | undefined)?.triggers).toEqual([
@@ -408,29 +374,6 @@ describe("gateway server models + voicewake", () => {
 
     nodeWs.close();
     restoreHome();
-=======
-      const broadcastP = onceMessage(
-        nodeWs,
-        (o) => o.type === "event" && o.event === "voicewake.changed",
-      );
-      const setRes = await rpcReq<{ triggers: string[] }>(ws, "voicewake.set", {
-        triggers: ["openclaw", "computer"],
-      });
-      expect(setRes.ok).toBe(true);
-
-      const broadcast = (await broadcastP) as { event?: string; payload?: unknown };
-      expect(broadcast.event).toBe("voicewake.changed");
-      expect((broadcast.payload as { triggers?: unknown } | undefined)?.triggers).toEqual([
-        "openclaw",
-        "computer",
-      ]);
-
-      nodeWs.close();
-<<<<<<< HEAD
-    } finally {
-      await tempHome.restore();
-    }
->>>>>>> c529bafdc (refactor(test): reuse temp-home helper in voicewake e2e)
 =======
     });
 >>>>>>> b43aadc34 (refactor(test): dedupe temp-home setup in voicewake suite)
@@ -527,7 +470,6 @@ describe("gateway server models + voicewake", () => {
 describe("gateway server misc", () => {
   test("hello-ok advertises the gateway port for canvas host", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
     const prevCanvasPort = process.env.CLAWDBOT_CANVAS_HOST_PORT;
     process.env.CLAWDBOT_GATEWAY_TOKEN = "secret";
@@ -553,13 +495,6 @@ describe("gateway server misc", () => {
       delete process.env.CLAWDBOT_CANVAS_HOST_PORT;
     } else {
       process.env.CLAWDBOT_CANVAS_HOST_PORT = prevCanvasPort;
-=======
-    const envSnapshot = captureEnv(["OPENCLAW_CANVAS_HOST_PORT", "OPENCLAW_GATEWAY_TOKEN"]);
-    try {
-      process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
-=======
-    await withEnvAsync({ OPENCLAW_GATEWAY_TOKEN: "secret" }, async () => {
->>>>>>> 2d7d00ef8 (refactor(test): streamline env setup in auth and gateway e2e)
       testTailnetIPv4.value = "100.64.0.1";
       testState.gatewayBind = "lan";
       const canvasPort = await getFreePort();
@@ -573,15 +508,11 @@ describe("gateway server misc", () => {
         });
         expect(canvasHostUrl).toBe(`http://100.64.0.1:${canvasPort}`);
       });
-<<<<<<< HEAD
       expect(canvasHostUrl).toBe(`http://100.64.0.1:${canvasPort}`);
     } finally {
       envSnapshot.restore();
 >>>>>>> 35ab521e0 (refactor(test): simplify voicewake env cleanup)
     }
-=======
-    });
->>>>>>> 2d7d00ef8 (refactor(test): streamline env setup in auth and gateway e2e)
   });
 
   test("send dedupes by idempotencyKey", { timeout: 15_000 }, async () => {
@@ -621,15 +552,8 @@ describe("gateway server misc", () => {
   });
 
   test("auto-enables configured channel plugins on startup", async () => {
-<<<<<<< HEAD
     const configPath = process.env.CLAWDBOT_CONFIG_PATH;
     if (!configPath) throw new Error("Missing CLAWDBOT_CONFIG_PATH");
-=======
-    const configPath = process.env.OPENCLAW_CONFIG_PATH;
-    if (!configPath) {
-      throw new Error("Missing OPENCLAW_CONFIG_PATH");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     await fs.mkdir(path.dirname(configPath), { recursive: true });
     await fs.writeFile(
       configPath,

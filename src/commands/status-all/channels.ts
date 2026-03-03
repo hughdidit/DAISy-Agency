@@ -4,7 +4,6 @@ import fs from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import type {
@@ -15,10 +14,6 @@ import type {
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { formatAge } from "./format.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   buildChannelAccountSnapshot,
   formatChannelAllowFrom,
@@ -166,7 +161,6 @@ const resolveAccountConfigured = async (
   return configured !== false;
 };
 
-<<<<<<< HEAD
 const buildAccountSnapshot = (params: {
   plugin: ChannelPlugin;
   account: unknown;
@@ -200,8 +194,6 @@ const formatAllowFrom = (params: {
   return params.allowFrom.map((entry) => String(entry).trim()).filter(Boolean);
 };
 
-=======
->>>>>>> 64df78744 (refactor(channels): share account summary helpers)
 const buildAccountNotes = (params: {
   plugin: ChannelPlugin;
   cfg: MoltbotConfig;

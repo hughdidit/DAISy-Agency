@@ -7,7 +7,6 @@ import {
 } from "./bot.create-telegram-bot.test-harness.js";
 import { createTelegramBot } from "./bot.js";
 
-<<<<<<< HEAD
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/moltbot-telegram-${Math.random().toString(16).slice(2)}.json`,
 }));
@@ -138,9 +137,6 @@ const getOnHandler = (event: string) => {
   }
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
-=======
-const loadConfig = getLoadConfigMock();
->>>>>>> 60898821f (refactor(test): share telegram create bot harness)
 
 describe("createTelegramBot", () => {
   // groupPolicy tests
@@ -250,64 +246,7 @@ describe("createTelegramBot", () => {
         text: "hello",
         date: 1736380800,
       },
-<<<<<<< HEAD
       me: { username: "moltbot_bot" },
-=======
-      me: { username: "openclaw_bot" },
-      getFile: async () => ({ download: async () => new Uint8Array() }),
-    });
-
-    expect(replySpy).toHaveBeenCalledTimes(1);
-  });
-  it("matches direct message allowFrom against sender user id when chat id differs", async () => {
-    onSpy.mockReset();
-    replySpy.mockReset();
-    loadConfig.mockReturnValue({
-      channels: {
-        telegram: {
-          allowFrom: ["123456789"],
-        },
-      },
-    });
-
-    createTelegramBot({ token: "tok" });
-    const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
-
-    await handler({
-      message: {
-        chat: { id: 777777777, type: "private" },
-        from: { id: 123456789, username: "testuser" },
-        text: "hello",
-        date: 1736380800,
-      },
-      me: { username: "openclaw_bot" },
-      getFile: async () => ({ download: async () => new Uint8Array() }),
-    });
-
-    expect(replySpy).toHaveBeenCalledTimes(1);
-  });
-  it("falls back to direct message chat id when sender user id is missing", async () => {
-    onSpy.mockReset();
-    replySpy.mockReset();
-    loadConfig.mockReturnValue({
-      channels: {
-        telegram: {
-          allowFrom: ["123456789"],
-        },
-      },
-    });
-
-    createTelegramBot({ token: "tok" });
-    const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
-
-    await handler({
-      message: {
-        chat: { id: 123456789, type: "private" },
-        text: "hello",
-        date: 1736380800,
-      },
-      me: { username: "openclaw_bot" },
->>>>>>> 60898821f (refactor(test): share telegram create bot harness)
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 

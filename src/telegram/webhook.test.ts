@@ -292,8 +292,6 @@ describe("startTelegramWebhook", () => {
     expect(handlerSpy).toHaveBeenCalled();
     abort.abort();
   });
-<<<<<<< HEAD
-=======
 
   it("rejects startup when webhook secret is missing", async () => {
     await expect(
@@ -674,5 +672,4 @@ describe("startTelegramWebhook", () => {
     expect(deleteWebhookSpy).toHaveBeenCalledTimes(1);
     expect(deleteWebhookSpy).toHaveBeenCalledWith({ drop_pending_updates: false });
   });
->>>>>>> ee594e2fd (fix(telegram): webhook hang - tests and fix (openclaw#26933) thanks @huntharo)
 });

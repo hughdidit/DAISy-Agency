@@ -1,16 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { DEFAULT_BOOTSTRAP_MAX_CHARS, resolveBootstrapMaxChars } from "./pi-embedded-helpers.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import {
-  DEFAULT_BOOTSTRAP_MAX_CHARS,
-  DEFAULT_BOOTSTRAP_TOTAL_MAX_CHARS,
-  resolveBootstrapMaxChars,
-  resolveBootstrapTotalMaxChars,
-} from "./pi-embedded-helpers.js";
->>>>>>> dec685970 (agents: reduce prompt token bloat from exec and context (#16539))
 import { DEFAULT_AGENTS_FILENAME } from "./workspace.js";
 
 const _makeFile = (overrides: Partial<WorkspaceBootstrapFile>): WorkspaceBootstrapFile => ({

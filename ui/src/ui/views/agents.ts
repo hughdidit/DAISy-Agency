@@ -21,17 +21,7 @@ import {
   buildAgentContext,
   buildModelOptions,
   normalizeAgentLabel,
-<<<<<<< HEAD
   resolveAgentAvatarUrl,
-=======
-  normalizeModelValue,
-  parseFallbackList,
-  resolveAgentConfig,
-  resolveAgentEmoji,
-  resolveModelFallbacks,
-  resolveModelLabel,
-  resolveModelPrimary,
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 } from "./agents-utils.ts";
 
 export type AgentsPanel = "overview" | "files" | "tools" | "skills" | "channels" | "cron";
@@ -138,23 +128,18 @@ export function renderAgents(props: AgentsProps) {
                 `
               : agents.map((agent) => {
                   const badge = agentBadgeText(agent.id, defaultId);
-<<<<<<< HEAD
                   const avatarUrl = resolveAgentAvatarUrl(
                     agent,
                     props.agentIdentityById[agent.id] ?? null,
                   );
                   const hue = agentAvatarHue(agent.id);
                   const logoUrl = agentLogoUrl(props.basePath);
-=======
-                  const emoji = resolveAgentEmoji(agent, props.agentIdentityById[agent.id] ?? null);
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                   return html`
                     <button
                       type="button"
                       class="agent-row ${selectedId === agent.id ? "active" : ""}"
                       @click=${() => props.onSelectAgent(agent.id)}
                     >
-<<<<<<< HEAD
                       <div class="agent-avatar" style="--agent-hue: ${hue}">
                         ${
                           avatarUrl
@@ -162,9 +147,6 @@ export function renderAgents(props: AgentsProps) {
                             : html`<img src=${logoUrl} alt="" class="agent-avatar__img agent-avatar__logo" />`
                         }
                       </div>
-=======
-                      <div class="agent-avatar">${emoji || normalizeAgentLabel(agent).slice(0, 1)}</div>
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                       <div class="agent-info">
                         <div class="agent-title">${normalizeAgentLabel(agent)}</div>
                         <div class="agent-sub mono">${agent.id}</div>
@@ -190,11 +172,8 @@ export function renderAgents(props: AgentsProps) {
                   selectedAgent,
                   defaultId,
                   props.agentIdentityById[selectedAgent.id] ?? null,
-<<<<<<< HEAD
                   props.onSetDefault,
                   props.basePath,
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                 )}
                 ${renderAgentTabs(props.activePanel, (panel) => props.onSelectPanel(panel))}
                 ${
@@ -202,22 +181,11 @@ export function renderAgents(props: AgentsProps) {
                     ? renderAgentOverview({
                         agent: selectedAgent,
                         defaultId,
-<<<<<<< HEAD
                         configForm: props.config.form,
                         agentFilesList: props.agentFiles.list,
                         configLoading: props.config.loading,
                         configSaving: props.config.saving,
                         configDirty: props.config.dirty,
-=======
-                        configForm: props.configForm,
-                        agentFilesList: props.agentFilesList,
-                        agentIdentity: props.agentIdentityById[selectedAgent.id] ?? null,
-                        agentIdentityError: props.agentIdentityError,
-                        agentIdentityLoading: props.agentIdentityLoading,
-                        configLoading: props.configLoading,
-                        configSaving: props.configSaving,
-                        configDirty: props.configDirty,
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                         onConfigReload: props.onConfigReload,
                         onConfigSave: props.onConfigSave,
                         onModelChange: props.onModelChange,
@@ -334,16 +302,12 @@ function renderAgentHeader(
   agent: AgentsListResult["agents"][number],
   defaultId: string | null,
   agentIdentity: AgentIdentityResult | null,
-<<<<<<< HEAD
   onSetDefault: (agentId: string) => void,
   basePath: string,
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 ) {
   const badge = agentBadgeText(agent.id, defaultId);
   const displayName = normalizeAgentLabel(agent);
   const subtitle = agent.identity?.theme?.trim() || "Agent workspace and routing.";
-<<<<<<< HEAD
   const avatarUrl = resolveAgentAvatarUrl(agent, agentIdentity);
   const hue = agentAvatarHue(agent.id);
   const isDefault = Boolean(defaultId && agent.id === defaultId);
@@ -364,13 +328,6 @@ function renderAgentHeader(
               : html`<img src=${logoUrl} alt="" class="agent-avatar__img agent-avatar__logo" />`
           }
         </div>
-=======
-  const emoji = resolveAgentEmoji(agent, agentIdentity);
-  return html`
-    <section class="card agent-header">
-      <div class="agent-header-main">
-        <div class="agent-avatar agent-avatar--lg">${emoji || displayName.slice(0, 1)}</div>
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
         <div>
           <div class="card-title">${displayName}</div>
           <div class="card-sub">${subtitle}</div>
@@ -410,9 +367,6 @@ function renderAgentTabs(active: AgentsPanel, onSelect: (panel: AgentsPanel) => 
   `;
 }
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 
 function renderAgentOverview(params: {
   agent: AgentsListResult["agents"][number];
@@ -515,11 +469,7 @@ function renderAgentOverview(params: {
         <div class="label">Model Selection</div>
         <div class="row" style="gap: 12px; flex-wrap: wrap;">
           <label class="field" style="min-width: 260px; flex: 1;">
-<<<<<<< HEAD
             <span>Primary model</span>
-=======
-            <span>Primary model${isDefault ? " (default)" : ""}</span>
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
             <select
               .value=${effectivePrimary ?? ""}
               ?disabled=${!configForm || configLoading || configSaving}
@@ -527,13 +477,9 @@ function renderAgentOverview(params: {
                 onModelChange(agent.id, (e.target as HTMLSelectElement).value || null)}
             >
 <<<<<<< HEAD
-<<<<<<< HEAD
               <option value="">
                 ${defaultPrimary ? `Inherit default (${defaultPrimary})` : "Inherit default"}
               </option>
-=======
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
               ${
                 isDefault
                   ? nothing
@@ -543,10 +489,7 @@ function renderAgentOverview(params: {
                       </option>
                     `
               }
-<<<<<<< HEAD
 >>>>>>> 6c445889b (refactor(ui): split agents view into focused panel modules)
-=======
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
               ${buildModelOptions(configForm, effectivePrimary ?? undefined)}
             </select>
           </label>
@@ -580,8 +523,5 @@ function renderAgentOverview(params: {
     </section>
   `;
 }
-<<<<<<< HEAD
-=======
->>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
 =======
 >>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)

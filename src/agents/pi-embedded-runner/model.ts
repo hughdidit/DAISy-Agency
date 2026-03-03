@@ -39,7 +39,6 @@ export function buildInlineProviderModels(
   });
 }
 
-<<<<<<< HEAD
 export function buildModelAliasLines(cfg?: MoltbotConfig) {
   const models = cfg?.agents?.defaults?.models ?? {};
   const entries: Array<{ alias: string; model: string }> = [];
@@ -59,8 +58,6 @@ export function buildModelAliasLines(cfg?: MoltbotConfig) {
     .map((entry) => `- ${entry.alias}: ${entry.model}`);
 }
 
-=======
->>>>>>> cb2f978ed (refactor(agents): share model alias line builder)
 export function resolveModel(
   provider: string,
   modelId: string,

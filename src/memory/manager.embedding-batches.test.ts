@@ -3,20 +3,12 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 =======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
-=======
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 >>>>>>> 9860d6fcc (perf(test): reuse managers in embedding batches suite)
-=======
-import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
->>>>>>> a7b655519 (refactor(test): share memory embedding mocks)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 =======
 import { describe, expect, it, vi } from "vitest";
@@ -51,7 +43,6 @@ const fx = installEmbeddingManagerFixture({
 const { embedBatch } = fx;
 
 describe("memory embedding batches", () => {
-<<<<<<< HEAD
   let fixtureRoot: string;
   let workspaceDir: string;
   let memoryDir: string;
@@ -75,9 +66,6 @@ describe("memory embedding batches", () => {
     embedQuery.mockClear();
 <<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
-=======
-    workspaceDir = path.join(fixtureRoot, `case-${++caseId}`);
->>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
     indexPath = path.join(workspaceDir, "index.sqlite");
     await fs.mkdir(path.join(workspaceDir, "memory"), { recursive: true });
   });

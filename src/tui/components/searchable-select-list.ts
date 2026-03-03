@@ -268,7 +268,6 @@ export class SearchableSelectList implements Component {
     const prefixWidth = prefix.length;
     const displayValue = this.getItemLabel(item);
 
-<<<<<<< HEAD
     if (item.description && width > 40) {
 <<<<<<< HEAD
       const maxValueWidth = Math.min(30, width - prefixWidth - 4);
@@ -285,21 +284,6 @@ export class SearchableSelectList implements Component {
           : this.highlightMatch(this.theme.description(truncatedDesc), query);
         const line = `${prefix}${valueText}${spacing}${descText}`;
         return isSelected ? this.theme.selectedText(line) : line;
-=======
-      const minDescriptionWidth = 12;
-      const spacingWidth = 2;
-      const availableWidth = Math.max(1, width - prefixWidth - 2);
-
-      if (availableWidth > minDescriptionWidth + spacingWidth + 1) {
-        const maxValueWidth = availableWidth - minDescriptionWidth - spacingWidth;
-        const truncatedValue = truncateToWidth(displayValue, maxValueWidth, "");
-=======
-    const description = item.description;
-    if (description) {
-      const descriptionLayout = this.getDescriptionLayout(width, prefixWidth);
-      if (descriptionLayout) {
-        const truncatedValue = truncateToWidth(displayValue, descriptionLayout.maxValueWidth, "");
->>>>>>> 4133f4bd3 (refactor(tui): clarify searchable select list width layout (#16378))
         const valueText = this.highlightMatch(truncatedValue, query);
 
         const usedByValue = visibleWidth(valueText);

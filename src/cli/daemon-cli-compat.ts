@@ -75,7 +75,6 @@ export function resolveLegacyDaemonCliAccessors(
   const runDaemonStatus = aliases.get("runDaemonStatus");
   const runDaemonStop = aliases.get("runDaemonStop");
   const runDaemonUninstall = aliases.get("runDaemonUninstall");
-<<<<<<< HEAD
   if (
     !runDaemonInstall ||
     !runDaemonRestart ||
@@ -90,16 +89,6 @@ export function resolveLegacyDaemonCliAccessors(
   return {
     registerDaemonCli: `${registerContainerAlias}.registerDaemonCli`,
     runDaemonInstall,
-=======
-  if (!(registerContainerAlias || registerDirectAlias) || !runDaemonRestart) {
-    return null;
-  }
-
-  const accessors: LegacyDaemonCliAccessors = {
-    registerDaemonCli: registerContainerAlias
-      ? `${registerContainerAlias}.registerDaemonCli`
-      : registerDirectAlias!,
->>>>>>> 277b2de49 (fix (cli): harden daemon compat shim for minimal bundle exports)
     runDaemonRestart,
   };
   if (runDaemonInstall) {

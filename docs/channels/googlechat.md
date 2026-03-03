@@ -23,13 +23,8 @@ Status: ready for DMs + spaces via Google Chat API webhooks (HTTP only).
    - Go to the **Keys** tab.
    - Click **Add Key** > **Create new key**.
    - Select **JSON** and press **Create**.
-<<<<<<< HEAD
 4) Store the downloaded JSON file on your gateway host (e.g., `~/.clawdbot/googlechat-service-account.json`).
 5) Create a Google Chat app in the [Google Cloud Console Chat Configuration](https://console.cloud.google.com/apis/api/chat.googleapis.com/hangouts-chat):
-=======
-4. Store the downloaded JSON file on your gateway host (e.g., `~/.openclaw/googlechat-service-account.json`).
-5. Create a Google Chat app in the [Google Cloud Console Chat Configuration](https://console.cloud.google.com/apis/api/chat.googleapis.com/hangouts-chat):
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Fill in the **Application info**:
      - **App name**: (e.g. `Moltbot`)
      - **Avatar URL**: (e.g. `https://molt.bot/logo.png`)
@@ -38,11 +33,7 @@ Status: ready for DMs + spaces via Google Chat API webhooks (HTTP only).
    - Under **Functionality**, check **Join spaces and group conversations**.
    - Under **Connection settings**, select **HTTP endpoint URL**.
    - Under **Triggers**, select **Use a common HTTP endpoint URL for all triggers** and set it to your gateway's public URL followed by `/googlechat`.
-<<<<<<< HEAD
      - *Tip: Run `moltbot status` to find your gateway's public URL.*
-=======
-     - _Tip: Run `openclaw status` to find your gateway's public URL._
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Under **Visibility**, check **Make this Chat app available to specific people and groups in &lt;Your Domain&gt;**.
    - Enter your email address (e.g. `user@example.com`) in the text box.
    - Click **Save** at the bottom.
@@ -51,11 +42,7 @@ Status: ready for DMs + spaces via Google Chat API webhooks (HTTP only).
    - Look for the **App status** section (usually near the top or bottom after saving).
    - Change the status to **Live - available to users**.
    - Click **Save** again.
-<<<<<<< HEAD
 7) Configure Moltbot with the service account path + webhook audience:
-=======
-7. Configure OpenClaw with the service account path + webhook audience:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Env: `GOOGLE_CHAT_SERVICE_ACCOUNT_FILE=/path/to/service-account.json`
    - Or config: `channels.googlechat.serviceAccountFile: "/path/to/service-account.json"`.
 8. Set the webhook audience type + value (matches your Chat app config).
@@ -74,12 +61,7 @@ Once the gateway is running and your email is added to the visibility list:
 6. Send "Hello" to trigger the assistant!
 
 ## Public URL (Webhook-only)
-<<<<<<< HEAD
 Google Chat webhooks require a public HTTPS endpoint. For security, **only expose the `/googlechat` path** to the internet. Keep the Moltbot dashboard and other sensitive endpoints on your private network.
-=======
-
-Google Chat webhooks require a public HTTPS endpoint. For security, **only expose the `/googlechat` path** to the internet. Keep the OpenClaw dashboard and other sensitive endpoints on your private network.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### Option A: Tailscale Funnel (Recommended)
 
@@ -141,12 +123,7 @@ your-domain.com {
     reverse_proxy /googlechat* localhost:18789
 }
 ```
-<<<<<<< HEAD
 With this config, any request to `your-domain.com/` will be ignored or returned as 404, while `your-domain.com/googlechat` is safely routed to Moltbot.
-=======
-
-With this config, any request to `your-domain.com/` will be ignored or returned as 404, while `your-domain.com/googlechat` is safely routed to OpenClaw.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### Option C: Cloudflare Tunnel
 
@@ -183,10 +160,7 @@ Use these identifiers for delivery and allowlists:
     googlechat: {
       enabled: true,
       serviceAccountFile: "/path/to/service-account.json",
-<<<<<<< HEAD
-=======
       // or serviceAccountRef: { source: "file", provider: "filemain", id: "/channels/googlechat/serviceAccount" }
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
       audienceType: "app-url",
       audience: "https://gateway.example.com/googlechat",
       webhookPath: "/googlechat",
@@ -261,12 +235,7 @@ moltbot channels status
 ```
 
 ### Other issues
-<<<<<<< HEAD
 - Check `moltbot channels status --probe` for auth errors or missing audience config.
-=======
-
-- Check `openclaw channels status --probe` for auth errors or missing audience config.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - If no messages arrive, confirm the Chat app's webhook URL + event subscriptions.
 - If mention gating blocks replies, set `botUser` to the app's user resource name and verify `requireMention`.
 - Use `moltbot logs --follow` while sending a test message to see if requests reach the gateway.

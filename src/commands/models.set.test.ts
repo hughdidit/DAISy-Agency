@@ -58,7 +58,6 @@ describe("models set + fallbacks", () => {
   });
 
   it("normalizes z.ai provider in models set", async () => {
-<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
@@ -71,11 +70,6 @@ describe("models set + fallbacks", () => {
     });
 
     const runtime = { log: vi.fn(), error: vi.fn(), exit: vi.fn() };
-=======
-    mockConfigSnapshot({});
-    const runtime = makeRuntime();
-<<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     const { modelsSetCommand } = await import("./models/set.js");
 =======
 >>>>>>> 861718e4d (test: group remaining suite cleanups)
@@ -86,7 +80,6 @@ describe("models set + fallbacks", () => {
   });
 
   it("normalizes z-ai provider in models fallbacks add", async () => {
-<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
@@ -99,11 +92,6 @@ describe("models set + fallbacks", () => {
     });
 
     const runtime = { log: vi.fn(), error: vi.fn(), exit: vi.fn() };
-=======
-    mockConfigSnapshot({ agents: { defaults: { model: { fallbacks: [] } } } });
-    const runtime = makeRuntime();
-<<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     const { modelsFallbacksAddCommand } = await import("./models/fallbacks.js");
 =======
 >>>>>>> 861718e4d (test: group remaining suite cleanups)
@@ -140,7 +128,6 @@ describe("models set + fallbacks", () => {
   });
 
   it("normalizes provider casing in models set", async () => {
-<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
@@ -153,11 +140,6 @@ describe("models set + fallbacks", () => {
     });
 
     const runtime = { log: vi.fn(), error: vi.fn(), exit: vi.fn() };
-=======
-    mockConfigSnapshot({});
-    const runtime = makeRuntime();
-<<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     const { modelsSetCommand } = await import("./models/set.js");
 =======
 >>>>>>> 861718e4d (test: group remaining suite cleanups)

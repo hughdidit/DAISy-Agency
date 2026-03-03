@@ -2,16 +2,8 @@ import fs from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { Command } from "commander";
-=======
-import path from "node:path";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 748d6821d (fix(config): add forensic config write audit and watch attribution)
 =======
 import type { Command } from "commander";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -251,28 +243,18 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
     if (token) process.env.CLAWDBOT_GATEWAY_TOKEN = token;
   }
   const authModeRaw = toOptionString(opts.auth);
-<<<<<<< HEAD
   const authMode: GatewayAuthMode | null =
     authModeRaw === "token" || authModeRaw === "password" ? authModeRaw : null;
   if (authModeRaw && !authMode) {
     defaultRuntime.error('Invalid --auth (use "token" or "password")');
-=======
-  const authMode = parseEnumOption(authModeRaw, GATEWAY_AUTH_MODES);
-  if (authModeRaw && !authMode) {
-    defaultRuntime.error(`Invalid --auth (use ${formatModeErrorList(GATEWAY_AUTH_MODES)})`);
->>>>>>> d92fc8555 (refactor(cli): dedupe gateway run mode parsing)
     defaultRuntime.exit(1);
     return;
   }
   const tailscaleRaw = toOptionString(opts.tailscale);
-<<<<<<< HEAD
   const tailscaleMode =
     tailscaleRaw === "off" || tailscaleRaw === "serve" || tailscaleRaw === "funnel"
       ? tailscaleRaw
       : null;
-=======
-  const tailscaleMode = parseEnumOption(tailscaleRaw, GATEWAY_TAILSCALE_MODES);
->>>>>>> d92fc8555 (refactor(cli): dedupe gateway run mode parsing)
   if (tailscaleRaw && !tailscaleMode) {
     defaultRuntime.error(
       `Invalid --tailscale (use ${formatModeErrorList(GATEWAY_TAILSCALE_MODES)})`,

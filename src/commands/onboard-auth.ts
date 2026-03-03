@@ -6,14 +6,6 @@ export { VENICE_DEFAULT_MODEL_ID, VENICE_DEFAULT_MODEL_REF } from "../agents/ven
 export {
   applyAuthProfileConfig,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  applyCloudflareAiGatewayConfig,
-  applyCloudflareAiGatewayProviderConfig,
-  applyHuggingfaceConfig,
-  applyHuggingfaceProviderConfig,
-<<<<<<< HEAD
->>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 =======
   applyKilocodeConfig,
   applyKilocodeProviderConfig,
@@ -74,11 +66,6 @@ export {
   setOpenaiApiKey,
   setAnthropicApiKey,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  setCloudflareAiGatewayConfig,
-  setByteplusApiKey,
->>>>>>> 59e5f12bf (Onboard: move volcengine/byteplus auth from .env to profiles)
   setQianfanApiKey,
 =======
   setCloudflareAiGatewayConfig,
@@ -111,11 +98,7 @@ export {
   XAI_DEFAULT_MODEL_REF,
 } from "./onboard-auth.credentials.js";
 export {
-<<<<<<< HEAD
   buildQianfanModelDefinition,
-=======
-  buildKilocodeModelDefinition,
->>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
   buildMinimaxApiModelDefinition,
   buildMinimaxModelDefinition,
   buildMistralModelDefinition,
@@ -123,10 +106,6 @@ export {
   buildZaiModelDefinition,
   DEFAULT_MINIMAX_BASE_URL,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  KILOCODE_DEFAULT_MODEL_ID,
->>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
   MOONSHOT_CN_BASE_URL,
 =======
   QIANFAN_BASE_URL,

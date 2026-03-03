@@ -9,13 +9,6 @@ import type { ThinkLevel } from "../../auto-reply/thinking.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
-import type { RunEmbeddedPiAgentParams } from "./run/params.js";
-import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
-=======
->>>>>>> 9c5f08244 (chore: Format files.)
 =======
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
 import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
@@ -27,13 +20,7 @@ import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
-<<<<<<< HEAD
 >>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
-=======
-=======
-import { resolveAgentModelFallbackValues } from "../../config/model-input.js";
-=======
->>>>>>> 9beec48e9 (refactor(agents): centralize model fallback resolution)
 import { generateSecureToken } from "../../infra/secure-random.js";
 >>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
@@ -52,13 +39,7 @@ import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { resolveUserPath } from "../../utils.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
-<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../agent-paths.js";
-=======
-import { resolveOpenClawAgentDir } from "../agent-paths.js";
-<<<<<<< HEAD
-import { resolveAgentModelFallbacksOverride } from "../agent-scope.js";
->>>>>>> d2597d5ec (fix(agents): harden model fallback failover paths)
 =======
 import { hasConfiguredModelFallbacks } from "../agent-scope.js";
 >>>>>>> 9beec48e9 (refactor(agents): centralize model fallback resolution)
@@ -102,13 +83,8 @@ import {
   pickFallbackThinkingLevel,
   type FailoverReason,
 } from "../pi-embedded-helpers.js";
-<<<<<<< HEAD
 import { normalizeUsage, type UsageLike } from "../usage.js";
 
-=======
-import { derivePromptTokens, normalizeUsage, type UsageLike } from "../usage.js";
-import { redactRunIdentifier, resolveRunWorkspaceDir } from "../workspace-run.js";
->>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { resolveGlobalLane, resolveSessionLane } from "./lanes.js";
 import { log } from "./logger.js";
@@ -116,8 +92,6 @@ import { resolveModel } from "./model.js";
 import { runEmbeddedAttempt } from "./run/attempt.js";
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
 import { buildEmbeddedRunPayloads } from "./run/payloads.js";
-<<<<<<< HEAD
-=======
 import {
   truncateOversizedToolResultsInSession,
   sessionLikelyHasOversizedToolResults,
@@ -128,7 +102,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
 =======
 >>>>>>> 0c1c34c95 (refactor(plugins): split before-agent hooks by model and prompt phases)
@@ -163,8 +136,6 @@ function scrubAnthropicRefusalMagic(prompt: string): string {
   );
 }
 
-<<<<<<< HEAD
-=======
 type UsageAccumulator = {
   input: number;
   output: number;
@@ -263,7 +234,6 @@ const toNormalizedUsage = (usage: UsageAccumulator) => {
   };
 };
 
->>>>>>> 9bd2ccb01 (feat: add pre-prompt context size diagnostic logging (openclaw#8930) thanks @Glucksberg)
 export async function runEmbeddedPiAgent(
   params: RunEmbeddedPiAgentParams,
 ): Promise<EmbeddedPiRunResult> {
@@ -289,34 +259,12 @@ export async function runEmbeddedPiAgent(
       const resolvedWorkspace = resolveUserPath(params.workspaceDir);
       const prevCwd = process.cwd();
 
-<<<<<<< HEAD
       const provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
       const modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
       const agentDir = params.agentDir ?? resolveMoltbotAgentDir();
-=======
-      let provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
-      let modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
-      const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
       const fallbackConfigured =
-<<<<<<< HEAD
         (params.config?.agents?.defaults?.model?.fallbacks?.length ?? 0) > 0;
       await ensureMoltbotModelsJson(params.config, agentDir);
-=======
-        resolveAgentModelFallbackValues(params.config?.agents?.defaults?.model).length > 0;
-=======
-      const agentFallbacksOverride =
-        params.config && params.agentId
-          ? resolveAgentModelFallbacksOverride(params.config, params.agentId)
-          : undefined;
-      const fallbackConfigured =
-        (
-          agentFallbacksOverride ??
-          resolveAgentModelFallbackValues(params.config?.agents?.defaults?.model)
-        ).length > 0;
->>>>>>> d2597d5ec (fix(agents): harden model fallback failover paths)
 =======
       const fallbackConfigured = hasConfiguredModelFallbacks({
         cfg: params.config,
@@ -597,28 +545,11 @@ export async function runEmbeddedPiAgent(
         }
       }
 
-<<<<<<< HEAD
       let overflowCompactionAttempted = false;
-=======
-      const MAX_OVERFLOW_COMPACTION_ATTEMPTS = 3;
-      const MAX_RUN_LOOP_ITERATIONS = resolveMaxRunRetryIterations(profileCandidates.length);
-      let overflowCompactionAttempts = 0;
-      let toolResultTruncationAttempted = false;
-      const usageAccumulator = createUsageAccumulator();
-      let lastRunPromptUsage: ReturnType<typeof normalizeUsage> | undefined;
-      let autoCompactionCount = 0;
-<<<<<<< HEAD
->>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 =======
       let runLoopIterations = 0;
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> b25d3652e (fix(agents): cap embedded runner retry loop)
-=======
-      const maybeMarkAuthProfileFailure = async (params: {
-=======
-      const maybeMarkAuthProfileFailure = async (failure: {
->>>>>>> 6268ed57e (fix(agents): stop param shadowing in auth failure marker)
         profileId?: string;
         reason?: Parameters<typeof markAuthProfileFailure>[0]["reason"] | null;
         config?: RunEmbeddedPiAgentParams["config"];
@@ -705,11 +636,8 @@ export async function runEmbeddedPiAgent(
             model,
             authStorage,
             modelRegistry,
-<<<<<<< HEAD
-=======
             agentId: workspaceResolution.agentId,
             legacyBeforeAgentStartResult,
->>>>>>> 542fc169d (Plugins/Hooks: avoid duplicate before_agent_start executions)
             thinkLevel,
             verboseLevel: params.verboseLevel,
             reasoningLevel: params.reasoningLevel,
@@ -737,26 +665,9 @@ export async function runEmbeddedPiAgent(
             enforceFinalTag: params.enforceFinalTag,
           });
 
-<<<<<<< HEAD
           const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant } = attempt;
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-          mergeUsageIntoAccumulator(
-            usageAccumulator,
-            attempt.attemptUsage ?? normalizeUsage(lastAssistant?.usage as UsageLike),
-          );
-=======
-=======
-          const {
-            aborted,
-            promptError,
-            timedOut,
-            timedOutDuringCompaction,
-            sessionIdUsed,
-            lastAssistant,
-          } = attempt;
->>>>>>> e6f67d5f3 (fix(agent): prevent session lock deadlock on timeout during compaction (#9855))
           const lastAssistantUsage = normalizeUsage(lastAssistant?.usage as UsageLike);
           const attemptUsage = attempt.attemptUsage ?? lastAssistantUsage;
           mergeUsageIntoAccumulator(usageAccumulator, attemptUsage);
@@ -764,13 +675,8 @@ export async function runEmbeddedPiAgent(
           // reflects current context usage, not accumulated tool-loop usage.
           lastRunPromptUsage = lastAssistantUsage ?? attemptUsage;
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
           autoCompactionCount += Math.max(0, attempt.compactionCount ?? 0);
-=======
-=======
-          const lastTurnTotal = lastAssistantUsage?.total ?? attemptUsage?.total;
->>>>>>> a62ff19a6 (fix(agent): isolate last-turn total in token usage reporting (#17016))
           const attemptCompactionCount = Math.max(0, attempt.compactionCount ?? 0);
           autoCompactionCount += attemptCompactionCount;
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
@@ -1224,32 +1130,15 @@ export async function runEmbeddedPiAgent(
             }
           }
 
-<<<<<<< HEAD
           const usage = normalizeUsage(lastAssistant?.usage as UsageLike);
-=======
-          const usage = toNormalizedUsage(usageAccumulator);
-          if (usage && lastTurnTotal && lastTurnTotal > 0) {
-            usage.total = lastTurnTotal;
-          }
-          // Extract the last individual API call's usage for context-window
-          // utilization display. The accumulated `usage` sums input tokens
-          // across all calls (tool-use loops, compaction retries), which
-          // overstates the actual context size. `lastCallUsage` reflects only
-          // the final call, giving an accurate snapshot of current context.
-          const lastCallUsage = normalizeUsage(lastAssistant?.usage as UsageLike);
-          const promptTokens = derivePromptTokens(lastRunPromptUsage);
->>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
           const agentMeta: EmbeddedPiAgentMeta = {
             sessionId: sessionIdUsed,
             provider: lastAssistant?.provider ?? provider,
             model: lastAssistant?.model ?? model.id,
             usage,
-<<<<<<< HEAD
-=======
             lastCallUsage: lastCallUsage ?? undefined,
             promptTokens,
             compactionCount: autoCompactionCount > 0 ? autoCompactionCount : undefined,
->>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
           };
 
           const payloads = buildEmbeddedRunPayloads({

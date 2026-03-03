@@ -2,19 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-=======
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 =======
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 >>>>>>> aa6d8b27a (perf(test): merge queue integration coverage and shrink media fixture)
@@ -116,30 +107,7 @@ async function runTelegramReply(params: {
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 <<<<<<< HEAD
-<<<<<<< HEAD
   return withTempHomeBase(fn, { prefix: "moltbot-stream-" });
-=======
-  const home = path.join(fixtureRoot, `case-${++caseId}`);
-  await fs.mkdir(path.join(home, ".openclaw", "agents", "main", "sessions"), { recursive: true });
-  const envSnapshot = snapshotHomeEnv();
-  process.env.HOME = home;
-  process.env.USERPROFILE = home;
-  process.env.OPENCLAW_STATE_DIR = path.join(home, ".openclaw");
-
-  if (process.platform === "win32") {
-    const match = home.match(/^([A-Za-z]:)(.*)$/);
-    if (match) {
-      process.env.HOMEDRIVE = match[1];
-      process.env.HOMEPATH = match[2] || "\\";
-    }
-  }
-
-  try {
-    return await fn(home);
-  } finally {
-    restoreHomeEnv(envSnapshot);
-  }
->>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 =======
   return withTempHomeHarness("openclaw-stream-", async (home) => {
     await fs.mkdir(path.join(home, ".openclaw", "agents", "main", "sessions"), { recursive: true });
@@ -162,7 +130,6 @@ describe("block streaming", () => {
     ]);
   });
 
-<<<<<<< HEAD
 <<<<<<< HEAD
   it("waits for block replies before returning final payloads", async () => {
     await withTempHome(async (home) => {
@@ -228,9 +195,6 @@ describe("block streaming", () => {
 
   it("preserves block reply ordering when typing start is slow", async () => {
 =======
-  it("waits for block replies and preserves ordering when typing start is slow", async () => {
->>>>>>> e794ef047 (perf(test): reduce hot-suite setup and duplicate test work)
-=======
   it("handles ordering, timeout fallback, and telegram streamMode block", async () => {
 >>>>>>> 23e8f3a20 (perf(test): merge block-streaming scenarios into single fixture run)
     await withTempHome(async (home) => {
@@ -261,7 +225,6 @@ describe("block streaming", () => {
       };
       piEmbeddedMock.runEmbeddedPiAgent.mockImplementation(impl);
 
-<<<<<<< HEAD
       const replyPromise = getReplyFromConfig(
         {
           Body: "ping",
@@ -286,15 +249,6 @@ describe("block streaming", () => {
           session: { store: path.join(home, "sessions.json") },
         },
       );
-=======
-      const replyPromise = runTelegramReply({
-        home,
-        messageSid: "msg-123",
-        onReplyStart,
-        onBlockReply,
-        disableBlockStreaming: false,
-      });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
       await onReplyStartCalled;
       releaseTyping?.();
@@ -303,7 +257,6 @@ describe("block streaming", () => {
       expect(res).toBeUndefined();
       expect(seen).toEqual(["first\n\nsecond"]);
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -352,8 +305,6 @@ describe("block streaming", () => {
     });
   });
 
-=======
->>>>>>> 5caf829d2 (perf(test): trim duplicate gateway and auto-reply test overhead)
   it("falls back to final payloads when block reply send times out", async () => {
 =======
   it("falls back to final payloads and respects telegram streamMode block", async () => {
@@ -419,7 +370,6 @@ describe("block streaming", () => {
 =======
 >>>>>>> 9762e4813 (perf(test): speed up block streaming tests)
       const onBlockReplyStreamMode = vi.fn().mockResolvedValue(undefined);
-<<<<<<< HEAD
       piEmbeddedMock.runEmbeddedPiAgent.mockImplementation(async () => ({
         payloads: [{ text: "final" }],
         meta: {
@@ -449,10 +399,6 @@ describe("block streaming", () => {
           channels: { telegram: { allowFrom: ["*"], streamMode: "block" } },
           session: { store: path.join(home, "sessions.json") },
         },
-=======
-      piEmbeddedMock.runEmbeddedPiAgent.mockImplementation(async () =>
-        createEmbeddedReply("final"),
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       );
 
       const resStreamMode = await runTelegramReply({
@@ -467,8 +413,6 @@ describe("block streaming", () => {
       expect(onBlockReplyStreamMode).not.toHaveBeenCalled();
     });
   });
-<<<<<<< HEAD
-=======
 
   it("trims leading whitespace in block-streamed replies", async () => {
     await withTempHome(async (home) => {
@@ -523,5 +467,4 @@ describe("block streaming", () => {
       });
     });
   });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 });

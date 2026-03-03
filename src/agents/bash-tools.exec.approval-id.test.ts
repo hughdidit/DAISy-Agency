@@ -82,10 +82,6 @@ describe("exec approvals", () => {
     vi.mocked(callGatewayTool).mockImplementation(async (method, _opts, params) => {
       if (method === "exec.approval.request") {
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        // Approval request now carries the decision directly.
->>>>>>> 7d1be585d (test: fix exec approval and pty fallback e2e flows)
 =======
         return { status: "accepted", id: (params as { id?: string })?.id };
       }
@@ -148,12 +144,8 @@ describe("exec approvals", () => {
   });
 
   it("skips approval when node allowlist is satisfied", async () => {
-<<<<<<< HEAD
     const { callGatewayTool } = await import("./tools/gateway.js");
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-test-bin-"));
-=======
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-bin-"));
->>>>>>> 861718e4d (test: group remaining suite cleanups)
     const binDir = path.join(tempDir, "bin");
     await fs.mkdir(binDir, { recursive: true });
     const exeName = process.platform === "win32" ? "tool.cmd" : "tool";
@@ -254,8 +246,6 @@ describe("exec approvals", () => {
     expect(calls).toContain("exec.approval.request");
     expect(calls).toContain("exec.approval.waitDecision");
   });
-<<<<<<< HEAD
-=======
 
   it("denies node obfuscated command when approval request times out", async () => {
     vi.mocked(detectCommandObfuscation).mockReturnValue({
@@ -344,5 +334,4 @@ describe("exec approvals", () => {
       })
       .toBe(false);
   });
->>>>>>> 6f0dd6179 (fix(exec): restore two-phase approval registration flow)
 });

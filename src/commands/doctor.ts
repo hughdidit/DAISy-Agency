@@ -4,12 +4,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 0aa28c71c (fix(doctor): move forced exit to top-level command)
 import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
@@ -48,11 +45,7 @@ import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 0aa28c71c (fix(doctor): move forced exit to top-level command)
 =======
@@ -76,18 +69,7 @@ import { logConfigUpdated } from "../config/logging.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
-<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
-=======
-import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../runtime.js";
 =======
 >>>>>>> 0aa28c71c (fix(doctor): move forced exit to top-level command)
@@ -122,14 +104,9 @@ import { maybeRepairGatewayDaemon } from "./doctor-gateway-daemon-flow.js";
 import { checkGatewayHealth, probeGatewayMemoryStatus } from "./doctor-gateway-health.js";
 import {
 <<<<<<< HEAD
-<<<<<<< HEAD
   maybeMigrateLegacyGatewayService,
   maybeRepairGatewayServiceConfig,
   maybeScanExtraGatewayServices,
-=======
-    maybeRepairGatewayServiceConfig,
-    maybeScanExtraGatewayServices,
->>>>>>> 254041717 (Add  to exit process when doctor has finished)
 =======
   maybeRepairGatewayServiceConfig,
   maybeScanExtraGatewayServices,
@@ -138,23 +115,13 @@ import {
 import { noteSourceInstallIssues } from "./doctor-install.js";
 import {
 <<<<<<< HEAD
-<<<<<<< HEAD
   noteMacLaunchAgentOverrides,
   noteMacLaunchctlGatewayEnvOverrides,
-=======
-    noteMacLaunchAgentOverrides,
-    noteMacLaunchctlGatewayEnvOverrides,
-    noteDeprecatedLegacyEnvVars,
->>>>>>> 254041717 (Add  to exit process when doctor has finished)
 =======
   noteMacLaunchAgentOverrides,
   noteMacLaunchctlGatewayEnvOverrides,
   noteDeprecatedLegacyEnvVars,
-<<<<<<< HEAD
 >>>>>>> 78c34bcf3 (Add runtime quiting functionality to doctor.ts)
-=======
-  noteStartupOptimizationHints,
->>>>>>> 38da2d076 (CLI: add root --help fast path and lazy channel option resolution (#30975))
 } from "./doctor-platform-notes.js";
 import { createDoctorPrompter, type DoctorOptions } from "./doctor-prompter.js";
 import { maybeRepairSandboxImages, noteSandboxScopeWarnings } from "./doctor-sandbox.js";
@@ -174,14 +141,8 @@ import { ensureSystemdUserLingerInteractive } from "./systemd-linger.js";
 const intro = (message: string) => clackIntro(stylePromptTitle(message) ?? message);
 const outro = (message: string) => clackOutro(stylePromptTitle(message) ?? message);
 
-<<<<<<< HEAD
 function resolveMode(cfg: MoltbotConfig): "local" | "remote" {
   return cfg.gateway?.mode === "remote" ? "remote" : "local";
-=======
-function resolveMode(cfg: OpenClawConfig): "local" | "remote" {
-<<<<<<< HEAD
-    return cfg.gateway?.mode === "remote" ? "remote" : "local";
->>>>>>> 254041717 (Add  to exit process when doctor has finished)
 =======
   return cfg.gateway?.mode === "remote" ? "remote" : "local";
 >>>>>>> 78c34bcf3 (Add runtime quiting functionality to doctor.ts)
@@ -191,7 +152,6 @@ export async function doctorCommand(
   runtime: RuntimeEnv = defaultRuntime,
   options: DoctorOptions = {},
 ) {
-<<<<<<< HEAD
 <<<<<<< HEAD
   const prompter = createDoctorPrompter({ runtime, options });
   printWizardHeader(runtime);
@@ -251,19 +211,8 @@ export async function doctorCommand(
     const auth = resolveGatewayAuth({
       authConfig: cfg.gateway?.auth,
       tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
-=======
-    const prompter = createDoctorPrompter({ runtime, options });
-    printWizardHeader(runtime);
-    intro("OpenClaw doctor");
-
-    const root = await resolveOpenClawPackageRoot({
-        moduleUrl: import.meta.url,
-        argv1: process.argv[1],
-        cwd: process.cwd(),
->>>>>>> 254041717 (Add  to exit process when doctor has finished)
     });
 
-<<<<<<< HEAD
   const legacyState = await detectLegacyStateMigrations({ cfg });
   if (legacyState.preview.length > 0) {
     note(legacyState.preview.join("\n"), "Legacy state detected");
@@ -352,9 +301,6 @@ export async function doctorCommand(
     }
     if (loaded) {
       await ensureSystemdUserLingerInteractive({
-=======
-    const updateResult = await maybeOfferUpdateBeforeDoctor({
->>>>>>> 254041717 (Add  to exit process when doctor has finished)
         runtime,
         options,
         root,
@@ -411,13 +357,7 @@ export async function doctorCommand(
   }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   noteWorkspaceStatus(cfg);
-=======
-    await maybeRepairUiProtocolFreshness(runtime, prompter);
-    noteSourceInstallIssues(root);
-    noteDeprecatedLegacyEnvVars();
->>>>>>> 254041717 (Add  to exit process when doctor has finished)
 
     const configResult = await loadAndMaybeMigrateDoctorConfig({
         options,
@@ -438,12 +378,8 @@ export async function doctorCommand(
     const auth = resolveGatewayAuth({
       authConfig: cfg.gateway?.auth,
 <<<<<<< HEAD
-<<<<<<< HEAD
       tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
 >>>>>>> 78c34bcf3 (Add runtime quiting functionality to doctor.ts)
-=======
-      tailscaleMode,
->>>>>>> 9aa8db5c8 (fix(doctor,configure): skip gateway auth for loopback-only setups)
 =======
       tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
 >>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
@@ -480,12 +416,9 @@ export async function doctorCommand(
       }
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
   } else {
     runtime.log(`Run "${formatCliCommand("moltbot doctor --fix")}" to apply changes.`);
   }
-=======
->>>>>>> 254041717 (Add  to exit process when doctor has finished)
 =======
   }
 >>>>>>> 78c34bcf3 (Add runtime quiting functionality to doctor.ts)

@@ -411,8 +411,6 @@ describe("createAcpReplyProjector", () => {
     expect(deliveries[1]?.text).toContain("Tool Call");
   });
 
-<<<<<<< HEAD
-=======
   it("keeps terminal tool updates even when rendered summaries are truncated", async () => {
     const deliveries: Array<{ kind: string; text?: string }> = [];
     const projector = createAcpReplyProjector({
@@ -460,7 +458,6 @@ describe("createAcpReplyProjector", () => {
     expect(deliveries[1]?.kind).toBe("tool");
   });
 
->>>>>>> 829240171 (ACP: rename stream char limits to output/sessionUpdate)
   it("renders fallback tool labels without leaking call ids as primary label", async () => {
     const deliveries: Array<{ kind: string; text?: string }> = [];
     const projector = createAcpReplyProjector({

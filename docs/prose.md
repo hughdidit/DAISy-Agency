@@ -118,13 +118,8 @@ Direct URLs are fetched as-is. This uses the `web_fetch` tool (or `exec` for POS
 
 OpenProse programs map to Moltbot primitives:
 
-<<<<<<< HEAD
 | OpenProse concept | Moltbot tool |
 | --- | --- |
-=======
-| OpenProse concept         | OpenClaw tool    |
-| ------------------------- | ---------------- |
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 | Spawn session / Task tool | `sessions_spawn` |
 | File read/write           | `read` / `write` |
 | Web fetch                 | `web_fetch`      |

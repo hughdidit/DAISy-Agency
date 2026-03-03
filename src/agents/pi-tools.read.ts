@@ -7,17 +7,9 @@ import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/p
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { detectMime } from "../media/mime.js";
-<<<<<<< HEAD
 import type { AnyAgentTool } from "./pi-tools.types.js";
-=======
-import { sniffMimeFromBase64 } from "../media/sniff-mime-from-base64.js";
-<<<<<<< HEAD
->>>>>>> cb29346a1 (refactor(media): share base64 mime sniff helper)
 =======
 import type { AnyAgentTool } from "./pi-tools.types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -40,10 +32,7 @@ import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import { detectMime } from "../media/mime.js";
 import { sniffMimeFromBase64 } from "../media/sniff-mime-from-base64.js";
-<<<<<<< HEAD
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import { detectMime } from "../media/mime.js";
 import { sniffMimeFromBase64 } from "../media/sniff-mime-from-base64.js";
@@ -595,12 +584,7 @@ export function wrapToolParamNormalization(
   };
 }
 
-<<<<<<< HEAD
 function wrapSandboxPathGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
-=======
-export function wrapToolWorkspaceRootGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
-<<<<<<< HEAD
->>>>>>> 726ff36fd (Sandbox: honor bind mounts in file tools)
 =======
   return wrapToolWorkspaceRootGuardWithOptions(tool, root);
 }
@@ -675,7 +659,6 @@ export function wrapToolWorkspaceRootGuardWithOptions(
   };
 }
 
-<<<<<<< HEAD
 export function createSandboxedReadTool(root: string) {
   const base = createReadTool(root) as unknown as AnyAgentTool;
   return wrapSandboxPathGuard(createMoltbotReadTool(base), root);
@@ -689,59 +672,10 @@ export function createSandboxedWriteTool(root: string) {
 export function createSandboxedEditTool(root: string) {
   const base = createEditTool(root) as unknown as AnyAgentTool;
   return wrapSandboxPathGuard(wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit), root);
-=======
-type SandboxToolParams = {
-  root: string;
-  bridge: SandboxFsBridge;
-  modelContextWindowTokens?: number;
-  imageSanitization?: ImageSanitizationLimits;
-};
-
-export function createSandboxedReadTool(params: SandboxToolParams) {
-  const base = createReadTool(params.root, {
-    operations: createSandboxReadOperations(params),
-  }) as unknown as AnyAgentTool;
-  return createOpenClawReadTool(base, {
-    modelContextWindowTokens: params.modelContextWindowTokens,
-    imageSanitization: params.imageSanitization,
-  });
 }
 
-export function createSandboxedWriteTool(params: SandboxToolParams) {
-  const base = createWriteTool(params.root, {
-    operations: createSandboxWriteOperations(params),
-  }) as unknown as AnyAgentTool;
-  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.write);
-}
-
-export function createSandboxedEditTool(params: SandboxToolParams) {
-  const base = createEditTool(params.root, {
-    operations: createSandboxEditOperations(params),
-  }) as unknown as AnyAgentTool;
-  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit);
->>>>>>> 726ff36fd (Sandbox: honor bind mounts in file tools)
-}
-
-<<<<<<< HEAD
 <<<<<<< HEAD
 export function createMoltbotReadTool(base: AnyAgentTool): AnyAgentTool {
-=======
-=======
-export function createHostWorkspaceWriteTool(root: string, options?: { workspaceOnly?: boolean }) {
-  const base = createWriteTool(root, {
-    operations: createHostWriteOperations(root, options),
-  }) as unknown as AnyAgentTool;
-  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.write);
-}
-
-export function createHostWorkspaceEditTool(root: string, options?: { workspaceOnly?: boolean }) {
-  const base = createEditTool(root, {
-    operations: createHostEditOperations(root, options),
-  }) as unknown as AnyAgentTool;
-  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit);
-}
-
->>>>>>> 172583972 (fix(tools): honor tools.fs.workspaceOnly=false for host write/edit (#28822))
 export function createOpenClawReadTool(
   base: AnyAgentTool,
   options?: OpenClawReadToolOptions,
@@ -774,8 +708,6 @@ export function createOpenClawReadTool(
     },
   };
 }
-<<<<<<< HEAD
-=======
 
 function createSandboxReadOperations(params: SandboxToolParams) {
   return {
@@ -892,7 +824,6 @@ function createHostEditOperations(root: string, options?: { workspaceOnly?: bool
 =======
       const relative = toRelativeWorkspacePath(root, absolutePath);
       const safeRead = await readFileWithinRoot({
->>>>>>> c0bf42f2a (refactor: centralize delivery/path/media/version lifecycle)
         rootDir: root,
         relativePath: relative,
       });
@@ -933,14 +864,11 @@ function createHostEditOperations(root: string, options?: { workspaceOnly?: bool
         if (error instanceof SafeOpenError && error.code === "not-found") {
           throw createFsAccessError("ENOENT", absolutePath);
         }
-<<<<<<< HEAD
-=======
         if (error instanceof SafeOpenError && error.code === "outside-workspace") {
           // Don't throw here – see the comment above about the upstream
           // library swallowing access errors as "File not found".
           return;
         }
->>>>>>> da80e22d8 (fix(tools): land #31015 from @haosenwang1018)
         throw error;
       }
     },

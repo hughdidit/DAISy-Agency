@@ -34,11 +34,8 @@ export type SpawnSubagentParams = {
   thread?: boolean;
   mode?: SpawnSubagentMode;
   cleanup?: "delete" | "keep";
-<<<<<<< HEAD
-=======
   sandbox?: SpawnSubagentSandboxMode;
   expectsCompletionMessage?: boolean;
->>>>>>> bfeadb80b (feat(agents): add sessions_spawn sandbox require mode)
 };
 
 export type SpawnSubagentContext = {
@@ -272,8 +269,6 @@ export async function spawnSubagentDirect(
     }
   }
   const childSessionKey = `agent:${targetAgentId}:subagent:${crypto.randomUUID()}`;
-<<<<<<< HEAD
-=======
   const requesterRuntime = resolveSandboxRuntimeStatus({
     cfg,
     sessionKey: requesterInternalKey,
@@ -296,7 +291,6 @@ export async function spawnSubagentDirect(
         'sessions_spawn sandbox="require" needs a sandboxed target runtime. Pick a sandboxed agentId or use sandbox="inherit".',
     };
   }
->>>>>>> bfeadb80b (feat(agents): add sessions_spawn sandbox require mode)
   const childDepth = callerDepth + 1;
   const spawnedByKey = requesterInternalKey;
   const targetAgentConfig = resolveAgentConfig(cfg, targetAgentId);
@@ -523,11 +517,8 @@ export async function spawnSubagentDirect(
     label: label || undefined,
     model: resolvedModel,
     runTimeoutSeconds,
-<<<<<<< HEAD
-=======
     expectsCompletionMessage,
     spawnMode,
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   });
 
   if (hookRunner?.hasHooks("subagent_spawned")) {

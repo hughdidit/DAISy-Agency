@@ -1,5 +1,4 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 import type { Api, AssistantMessage, ImageContent, Model } from "@mariozechner/pi-ai";
 import type { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
@@ -51,30 +50,12 @@ export type EmbeddedRunAttemptParams = {
   clientTools?: ClientToolDefinition[];
   /** Disable built-in tools for this run (LLM-only mode). */
   disableTools?: boolean;
-=======
-import type { Api, AssistantMessage, Model } from "@mariozechner/pi-ai";
-import type { ThinkLevel } from "../../../auto-reply/thinking.js";
-import type { SessionSystemPromptReport } from "../../../config/sessions/types.js";
-import type { PluginHookBeforeAgentStartResult } from "../../../plugins/types.js";
-import type { MessagingToolSend } from "../../pi-embedded-messaging.js";
-import type { AuthStorage, ModelRegistry } from "../../pi-model-discovery.js";
-import type { NormalizedUsage } from "../../usage.js";
-import type { RunEmbeddedPiAgentParams } from "./params.js";
-
-type EmbeddedRunAttemptBase = Omit<
-  RunEmbeddedPiAgentParams,
-  "provider" | "model" | "authProfileId" | "authProfileIdSource" | "thinkLevel" | "lane" | "enqueue"
->;
-
-export type EmbeddedRunAttemptParams = EmbeddedRunAttemptBase & {
->>>>>>> 0dbe087ef (refactor(pi-embedded-runner): dedupe attempt params)
   provider: string;
   modelId: string;
   model: Model<Api>;
   authStorage: AuthStorage;
   modelRegistry: ModelRegistry;
   thinkLevel: ThinkLevel;
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -112,8 +93,6 @@ export type EmbeddedRunAttemptParams = EmbeddedRunAttemptBase & {
   streamParams?: AgentStreamParams;
   ownerNumbers?: string[];
   enforceFinalTag?: boolean;
-=======
->>>>>>> 0dbe087ef (refactor(pi-embedded-runner): dedupe attempt params)
 =======
   /** Pre-computed hook result from run.ts to avoid double-firing before_agent_start. */
   earlyHookResult?: PluginHookBeforeAgentStartResult;

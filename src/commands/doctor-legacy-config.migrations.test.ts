@@ -2,12 +2,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
-=======
-import { normalizeCompatibilityConfigValues } from "./doctor-legacy-config.js";
->>>>>>> 1ffc31983 (Doctor: keep allowFrom account-scoped in multi-account configs)
 
 describe("normalizeCompatibilityConfigValues", () => {
   let previousOauthDir: string | undefined;
@@ -229,8 +225,6 @@ describe("normalizeCompatibilityConfigValues", () => {
       "Moved channels.slack.streaming (boolean) → channels.slack.nativeStreaming (false).",
     ]);
   });
-<<<<<<< HEAD
-=======
 
   it("moves missing default account from single-account top-level config when named accounts already exist", () => {
     const res = normalizeCompatibilityConfigValues({
@@ -304,5 +298,4 @@ describe("normalizeCompatibilityConfigValues", () => {
       "Moved browser.ssrfPolicy.allowPrivateNetwork → browser.ssrfPolicy.dangerouslyAllowPrivateNetwork (true).",
     );
   });
->>>>>>> dfa0b5b4f (Channels: move single-account config into accounts.default (#27334))
 });

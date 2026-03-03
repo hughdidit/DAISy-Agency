@@ -14,9 +14,6 @@ import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../config/config.js";
@@ -27,10 +24,6 @@ import {
   resolveSandboxToolPolicyForAgent,
 } from "../agents/sandbox.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -655,8 +648,6 @@ export function collectSandboxDockerNoopFindings(cfg: OpenClawConfig): SecurityA
   return findings;
 }
 
-<<<<<<< HEAD
-=======
 export function collectSandboxDangerousConfigFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const agents = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
@@ -805,7 +796,6 @@ export function collectSandboxDangerousConfigFindings(cfg: OpenClawConfig): Secu
   return findings;
 }
 
->>>>>>> c070be1bc (fix(sandbox): harden fs bridge path checks and bind mount policy)
 export function collectNodeDenyCommandPatternFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const denyListRaw = cfg.gateway?.nodes?.denyCommands;

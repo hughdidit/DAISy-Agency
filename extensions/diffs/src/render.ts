@@ -184,12 +184,7 @@ function renderStaticDiffCard(prerenderedHTML: string): string {
 function buildHtmlDocument(params: {
   title: string;
   bodyHtml: string;
-<<<<<<< HEAD
   theme: DiffRenderOptions["theme"];
-=======
-  theme: DiffRenderOptions["presentation"]["theme"];
-  runtimeMode: "viewer" | "image";
->>>>>>> 0abf47cfd (plugin(diffs): optimize rendering for image/view modes)
 }): string {
   return `<!doctype html>
 <html lang="en"${params.runtimeMode === "image" ? ' data-openclaw-diffs-ready="true"' : ""}>
@@ -386,20 +381,8 @@ export async function renderDiffDocument(
   return {
     html: buildHtmlDocument({
       title,
-<<<<<<< HEAD
       bodyHtml: rendered.bodyHtml,
       theme: options.theme,
-=======
-      bodyHtml: rendered.viewerBodyHtml,
-      theme: options.presentation.theme,
-      runtimeMode: "viewer",
-    }),
-    imageHtml: buildHtmlDocument({
-      title,
-      bodyHtml: rendered.imageBodyHtml,
-      theme: options.presentation.theme,
-      runtimeMode: "image",
->>>>>>> 0abf47cfd (plugin(diffs): optimize rendering for image/view modes)
     }),
     title,
     fileCount: rendered.fileCount,

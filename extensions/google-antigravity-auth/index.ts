@@ -1,16 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { createServer } from "node:http";
-<<<<<<< HEAD
 import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
-=======
-import {
-  buildOauthProviderAuthResult,
-  emptyPluginConfigSchema,
-  isWSL2Sync,
-  type OpenClawPluginApi,
-  type ProviderAuthContext,
-} from "openclaw/plugin-sdk";
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 
 // OAuth constants - decoded from pi-ai's base64 encoded values to stay in sync
 const decode = (s: string) => Buffer.from(s, "base64").toString();

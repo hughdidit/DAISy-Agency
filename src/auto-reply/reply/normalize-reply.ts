@@ -2,12 +2,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { stripHeartbeatToken } from "../heartbeat.js";
 import { HEARTBEAT_TOKEN, isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 import type { ReplyPayload } from "../types.js";
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 import { sanitizeUserFacingText } from "../../agents/pi-embedded-helpers.js";
 =======
 =======
@@ -79,18 +76,8 @@ export function normalizeReplyPayload(
   const shouldStripHeartbeat = opts.stripHeartbeat ?? true;
   if (shouldStripHeartbeat && text?.includes(HEARTBEAT_TOKEN)) {
     const stripped = stripHeartbeatToken(text, { mode: "message" });
-<<<<<<< HEAD
     if (stripped.didStrip) opts.onHeartbeatStrip?.();
     if (stripped.shouldSkip && !hasMedia && !hasChannelData) return null;
-=======
-    if (stripped.didStrip) {
-      opts.onHeartbeatStrip?.();
-    }
-    if (stripped.shouldSkip && !hasMedia && !hasChannelData) {
-      opts.onSkip?.("heartbeat");
-      return null;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     text = stripped.text;
   }
 

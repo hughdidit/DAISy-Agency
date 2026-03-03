@@ -83,11 +83,7 @@ Think of the suites as “increasing realism” (and increasing flakiness/cost):
   - Costs money / uses rate limits
   - Prefer running narrowed subsets instead of “everything”
   - Live runs will source `~/.profile` to pick up missing API keys
-<<<<<<< HEAD
   - Anthropic key rotation: set `CLAWDBOT_LIVE_ANTHROPIC_KEYS="sk-...,sk-..."` (or `CLAWDBOT_LIVE_ANTHROPIC_KEY=sk-...`) or multiple `ANTHROPIC_API_KEY*` vars; tests will retry on rate limits
-=======
-- API key rotation (provider-specific): set `*_API_KEYS` with comma/semicolon format or `*_API_KEY_1`, `*_API_KEY_2` (for example `OPENAI_API_KEYS`, `ANTHROPIC_API_KEYS`, `GEMINI_API_KEYS`) or per-live override via `OPENCLAW_LIVE_*_KEY`; tests retry on rate limit responses.
->>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
 
 ## Which suite should I run?
 
@@ -214,13 +210,8 @@ CLAWDBOT_LIVE_SETUP_TOKEN=1 CLAWDBOT_LIVE_SETUP_TOKEN_PROFILE=anthropic:setup-to
 Example:
 
 ```bash
-<<<<<<< HEAD
 CLAWDBOT_LIVE_CLI_BACKEND=1 \
   CLAWDBOT_LIVE_CLI_BACKEND_MODEL="claude-cli/claude-sonnet-4-5" \
-=======
-OPENCLAW_LIVE_CLI_BACKEND=1 \
-  OPENCLAW_LIVE_CLI_BACKEND_MODEL="claude-cli/claude-sonnet-4-6" \
->>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
   pnpm test:live src/gateway/gateway-cli-backend.live.test.ts
 ```
 
@@ -238,13 +229,8 @@ Narrow, explicit allowlists are fastest and least flaky:
   - `CLAWDBOT_LIVE_GATEWAY_MODELS="openai/gpt-5.2,anthropic/claude-opus-4-5,google/gemini-3-flash-preview,zai/glm-4.7,minimax/minimax-m2.1" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
 
 - Google focus (Gemini API key + Antigravity):
-<<<<<<< HEAD
   - Gemini (API key): `CLAWDBOT_LIVE_GATEWAY_MODELS="google/gemini-3-flash-preview" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
   - Antigravity (OAuth): `CLAWDBOT_LIVE_GATEWAY_MODELS="google-antigravity/claude-opus-4-5-thinking,google-antigravity/gemini-3-pro-high" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
-=======
-  - Gemini (API key): `OPENCLAW_LIVE_GATEWAY_MODELS="google/gemini-3-flash-preview" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
-  - Antigravity (OAuth): `OPENCLAW_LIVE_GATEWAY_MODELS="google-antigravity/claude-opus-4-6-thinking,google-antigravity/gemini-3-pro-high" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
->>>>>>> 48b0fd8d8 (feat(antigravity): update default model to Claude Opus 4.6 (#10720))
 
 Notes:
 
@@ -272,11 +258,7 @@ This is the “common models” run we expect to keep working:
 - MiniMax: `minimax/minimax-m2.1`
 
 Run gateway smoke with tools + image:
-<<<<<<< HEAD
 `CLAWDBOT_LIVE_GATEWAY_MODELS="openai/gpt-5.2,openai-codex/gpt-5.2,anthropic/claude-opus-4-5,google/gemini-3-pro-preview,google/gemini-3-flash-preview,google-antigravity/claude-opus-4-5-thinking,google-antigravity/gemini-3-flash,zai/glm-4.7,minimax/minimax-m2.1" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
-=======
-`OPENCLAW_LIVE_GATEWAY_MODELS="openai/gpt-5.2,openai-codex/gpt-5.3-codex,anthropic/claude-opus-4-6,google/gemini-3-pro-preview,google/gemini-3-flash-preview,google-antigravity/claude-opus-4-6-thinking,google-antigravity/gemini-3-flash,zai/glm-4.7,minimax/minimax-m2.1" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
->>>>>>> 48b0fd8d8 (feat(antigravity): update default model to Claude Opus 4.6 (#10720))
 
 ### Baseline: tool calling (Read + optional Exec)
 
@@ -302,12 +284,7 @@ Include at least one image-capable model in `CLAWDBOT_LIVE_GATEWAY_MODELS` (Clau
 ### Aggregators / alternate gateways
 
 If you have keys enabled, we also support testing via:
-<<<<<<< HEAD
 - OpenRouter: `openrouter/...` (hundreds of models; use `moltbot models scan` to find tool+image capable candidates)
-=======
-
-- OpenRouter: `openrouter/...` (hundreds of models; use `openclaw models scan` to find tool+image capable candidates)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - OpenCode Zen: `opencode/...` (auth via `OPENCODE_API_KEY` / `OPENCODE_ZEN_API_KEY`)
 
 More providers you can include in the live matrix (if you have creds/config):

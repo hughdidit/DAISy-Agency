@@ -35,12 +35,7 @@ moltbot browser --browser-profile clawd snapshot
 ## Profiles
 
 Profiles are named browser routing configs. In practice:
-<<<<<<< HEAD
 - `clawd`: launches/attaches to a dedicated Moltbot-managed Chrome instance (isolated user data dir).
-=======
-
-- `openclaw`: launches/attaches to a dedicated OpenClaw-managed Chrome instance (isolated user data dir).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `chrome`: controls your existing Chrome tab(s) via the Chrome extension relay.
 
 ```bash

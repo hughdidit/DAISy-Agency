@@ -95,8 +95,6 @@ export const AgentParamsSchema = Type.Object(
     bestEffortDeliver: Type.Optional(Type.Boolean()),
     lane: Type.Optional(Type.String()),
     extraSystemPrompt: Type.Optional(Type.String()),
-<<<<<<< HEAD
-=======
     internalEvents: Type.Optional(Type.Array(AgentInternalEventSchema)),
     inputProvenance: Type.Optional(
       Type.Object(
@@ -109,7 +107,6 @@ export const AgentParamsSchema = Type.Object(
         { additionalProperties: false },
       ),
     ),
->>>>>>> 4c43fccb3 (feat(agents): use structured internal completion events)
     idempotencyKey: NonEmptyString,
     label: Type.Optional(SessionLabelString),
     spawnedBy: Type.Optional(Type.String()),

@@ -195,8 +195,6 @@ describe("gateway-status command", () => {
     expect(targets.some((t) => t.kind === "sshTunnel")).toBe(true);
   });
 
-<<<<<<< HEAD
-=======
   it("skips invalid ssh-auto discovery targets", async () => {
     const { runtime } = createRuntimeCapture();
     await withEnvAsync({ USER: "steipete" }, async () => {
@@ -225,7 +223,6 @@ describe("gateway-status command", () => {
     });
   });
 
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   it("infers SSH target from gateway.remote.url and ssh config", async () => {
     const { runtime } = createRuntimeCapture();
     await withEnvAsync({ USER: "steipete" }, async () => {

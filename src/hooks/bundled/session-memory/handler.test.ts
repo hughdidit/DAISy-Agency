@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
@@ -8,24 +7,6 @@ import handler from "./handler.js";
 import { createHookEvent } from "../../hooks.js";
 import type { ClawdbotConfig } from "../../../config/config.js";
 import { makeTempWorkspace, writeWorkspaceFile } from "../../../test-helpers/workspace.js";
-=======
-import { beforeAll, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../../config/config.js";
-import { makeTempWorkspace, writeWorkspaceFile } from "../../../test-helpers/workspace.js";
-import type { HookHandler } from "../../hooks.js";
-import { createHookEvent } from "../../hooks.js";
-
-// Avoid calling the embedded Pi agent (global command lane); keep this unit test deterministic.
-vi.mock("../../llm-slug-generator.js", () => ({
-  generateSlugViaLLM: vi.fn().mockResolvedValue("simple-math"),
-}));
-
-let handler: HookHandler;
-
-beforeAll(async () => {
-  ({ default: handler } = await import("./handler.js"));
-});
->>>>>>> 4ba9809f1 (test(hooks): stabilize session-memory hook tests)
 
 /**
  * Create a mock session JSONL file with various entry types
@@ -200,13 +181,10 @@ describe("session-memory hook", () => {
   });
 
   it("creates memory file with session content on /new command", async () => {
-<<<<<<< HEAD
     const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
-=======
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
     // Create a mock session file with user/assistant messages
     const sessionContent = createMockSessionContent([
       { role: "user", content: "Hello there" },
@@ -214,7 +192,6 @@ describe("session-memory hook", () => {
       { role: "user", content: "What is 2+2?" },
       { role: "assistant", content: "2+2 equals 4" },
     ]);
-<<<<<<< HEAD
     const sessionFile = await writeWorkspaceFile({
       dir: sessionsDir,
       name: "test-session.jsonl",
@@ -238,9 +215,6 @@ describe("session-memory hook", () => {
     // Memory file should be created
     const memoryDir = path.join(tempDir, "memory");
     const files = await fs.readdir(memoryDir);
-=======
-    const { files, memoryContent } = await runNewWithPreviousSession({ sessionContent });
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
     expect(files.length).toBe(1);
 
     // Read the memory file and verify content
@@ -266,13 +240,10 @@ describe("session-memory hook", () => {
   });
 
   it("filters out non-message entries (tool calls, system)", async () => {
-<<<<<<< HEAD
     const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
-=======
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
     // Create session with mixed entry types
     const sessionContent = createMockSessionContent([
       { role: "user", content: "Hello" },
@@ -281,7 +252,6 @@ describe("session-memory hook", () => {
       { type: "tool_result", result: "found it" },
       { role: "user", content: "Thanks" },
     ]);
-<<<<<<< HEAD
     const sessionFile = await writeWorkspaceFile({
       dir: sessionsDir,
       name: "test-session.jsonl",
@@ -305,9 +275,6 @@ describe("session-memory hook", () => {
     const memoryDir = path.join(tempDir, "memory");
     const files = await fs.readdir(memoryDir);
     const memoryContent = await fs.readFile(path.join(memoryDir, files[0]), "utf-8");
-=======
-    const { memoryContent } = await runNewWithPreviousSession({ sessionContent });
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
 
     // Only user/assistant messages should be present
     expect(memoryContent).toContain("user: Hello");
@@ -319,48 +286,17 @@ describe("session-memory hook", () => {
     expect(memoryContent).not.toContain("search");
   });
 
-<<<<<<< HEAD
   it("filters out command messages starting with /", async () => {
     const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
-=======
-  it("filters out inter-session user messages", async () => {
-    const sessionContent = [
-      JSON.stringify({
-        type: "message",
-        message: {
-          role: "user",
-          content: "Forwarded internal instruction",
-          provenance: { kind: "inter_session", sourceTool: "sessions_send" },
-        },
-      }),
-      JSON.stringify({
-        type: "message",
-        message: { role: "assistant", content: "Acknowledged" },
-      }),
-      JSON.stringify({
-        type: "message",
-        message: { role: "user", content: "External follow-up" },
-      }),
-    ].join("\n");
-    const { memoryContent } = await runNewWithPreviousSession({ sessionContent });
-
-    expect(memoryContent).not.toContain("Forwarded internal instruction");
-    expect(memoryContent).toContain("assistant: Acknowledged");
-    expect(memoryContent).toContain("user: External follow-up");
-  });
-
-  it("filters out command messages starting with /", async () => {
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
     const sessionContent = createMockSessionContent([
       { role: "user", content: "/help" },
       { role: "assistant", content: "Here is help info" },
       { role: "user", content: "Normal message" },
       { role: "user", content: "/new" },
     ]);
-<<<<<<< HEAD
     const sessionFile = await writeWorkspaceFile({
       dir: sessionsDir,
       name: "test-session.jsonl",
@@ -384,9 +320,6 @@ describe("session-memory hook", () => {
     const memoryDir = path.join(tempDir, "memory");
     const files = await fs.readdir(memoryDir);
     const memoryContent = await fs.readFile(path.join(memoryDir, files[0]), "utf-8");
-=======
-    const { memoryContent } = await runNewWithPreviousSession({ sessionContent });
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
 
     // Command messages should be filtered out
     expect(memoryContent).not.toContain("/help");
@@ -397,20 +330,16 @@ describe("session-memory hook", () => {
   });
 
   it("respects custom messages config (limits to N messages)", async () => {
-<<<<<<< HEAD
     const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
-=======
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
     // Create 10 messages
     const entries = [];
     for (let i = 1; i <= 10; i++) {
       entries.push({ role: "user", content: `Message ${i}` });
     }
     const sessionContent = createMockSessionContent(entries);
-<<<<<<< HEAD
     const sessionFile = await writeWorkspaceFile({
       dir: sessionsDir,
       name: "test-session.jsonl",
@@ -424,18 +353,6 @@ describe("session-memory hook", () => {
         internal: {
           entries: {
             "session-memory": { enabled: true, messages: 3 },
-=======
-    const { memoryContent } = await runNewWithPreviousSession({
-      sessionContent,
-<<<<<<< HEAD
-      cfg: (tempDir) => ({
-        agents: { defaults: { workspace: tempDir } },
-        hooks: {
-          internal: {
-            entries: {
-              "session-memory": { enabled: true, messages: 3 },
-            },
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
           },
         },
       }),
@@ -453,13 +370,10 @@ describe("session-memory hook", () => {
   });
 
   it("filters messages before slicing (fix for #2681)", async () => {
-<<<<<<< HEAD
     const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
-=======
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
     // Create session with many tool entries interspersed with messages
     // This tests that we filter FIRST, then slice - not the other way around
     const entries = [
@@ -475,7 +389,6 @@ describe("session-memory hook", () => {
       { role: "assistant", content: "Fourth message" },
     ];
     const sessionContent = createMockSessionContent(entries);
-<<<<<<< HEAD
     const sessionFile = await writeWorkspaceFile({
       dir: sessionsDir,
       name: "test-session.jsonl",
@@ -490,18 +403,6 @@ describe("session-memory hook", () => {
         internal: {
           entries: {
             "session-memory": { enabled: true, messages: 3 },
-=======
-    const { memoryContent } = await runNewWithPreviousSession({
-      sessionContent,
-<<<<<<< HEAD
-      cfg: (tempDir) => ({
-        agents: { defaults: { workspace: tempDir } },
-        hooks: {
-          internal: {
-            entries: {
-              "session-memory": { enabled: true, messages: 3 },
-            },
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
           },
         },
       }),
@@ -672,7 +573,6 @@ describe("session-memory hook", () => {
   });
 
   it("handles empty session files gracefully", async () => {
-<<<<<<< HEAD
     const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
@@ -695,27 +595,21 @@ describe("session-memory hook", () => {
       },
     });
 
-=======
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
     // Should not throw
     const { files } = await runNewWithPreviousSession({ sessionContent: "" });
     expect(files.length).toBe(1);
   });
 
   it("handles session files with fewer messages than requested", async () => {
-<<<<<<< HEAD
     const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
-=======
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
     // Only 2 messages but requesting 15 (default)
     const sessionContent = createMockSessionContent([
       { role: "user", content: "Only message 1" },
       { role: "assistant", content: "Only message 2" },
     ]);
-<<<<<<< HEAD
     const sessionFile = await writeWorkspaceFile({
       dir: sessionsDir,
       name: "test-session.jsonl",
@@ -739,9 +633,6 @@ describe("session-memory hook", () => {
     const memoryDir = path.join(tempDir, "memory");
     const files = await fs.readdir(memoryDir);
     const memoryContent = await fs.readFile(path.join(memoryDir, files[0]), "utf-8");
-=======
-    const { memoryContent } = await runNewWithPreviousSession({ sessionContent });
->>>>>>> beffb6fe4 (refactor(test): dedupe session-memory hook setup)
 
     // Both messages should be included
     expect(memoryContent).toContain("user: Only message 1");

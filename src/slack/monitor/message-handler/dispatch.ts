@@ -3,12 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { ReplyPayload } from "../../../auto-reply/types.js";
-import type { SlackStreamSession } from "../../streaming.js";
-import type { PreparedSlackMessage } from "./types.js";
->>>>>>> 6945fbf10 (feat(slack): add native text streaming support)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -29,11 +23,7 @@ import { resolveHumanDelayConfig } from "../../../agents/identity.js";
 import { dispatchInboundMessage } from "../../../auto-reply/dispatch.js";
 import { clearHistoryEntriesIfEnabled } from "../../../auto-reply/reply/history.js";
 import { createReplyDispatcherWithTyping } from "../../../auto-reply/reply/reply-dispatcher.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { ReplyPayload } from "../../../auto-reply/types.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { removeAckReactionAfterReply } from "../../../channels/ack-reactions.js";
 import { logAckFailure, logTypingFailure } from "../../../channels/logging.js";
 import { createReplyPrefixOptions } from "../../../channels/reply-prefix.js";
@@ -43,13 +33,7 @@ import { resolveStorePath, updateLastRoute } from "../../../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../../../globals.js";
 import { resolveAgentOutboundIdentity } from "../../../infra/outbound/identity.js";
 import { removeSlackReaction } from "../../actions.js";
-<<<<<<< HEAD
 import { appendSlackStream, startSlackStream, stopSlackStream } from "../../streaming.js";
-=======
-import { createSlackDraftStream } from "../../draft-stream.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> bec974aba (feat(slack): stream partial replies via draft message updates)
 =======
 =======
 import { recordSlackThreadParticipation } from "../../sent-thread-cache.js";
@@ -60,17 +44,11 @@ import {
   resolveSlackStreamingConfig,
 } from "../../stream-mode.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 89ce1460e (feat(slack): add configurable stream modes)
 import { resolveSlackThreadTargets } from "../../threading.js";
 
 import { createSlackReplyDeliveryPlan, deliverReplies } from "../replies.js";
 import type { PreparedSlackMessage } from "./types.js";
-=======
-import { appendSlackStream, startSlackStream, stopSlackStream } from "../../streaming.js";
-import { resolveSlackThreadTargets } from "../../threading.js";
-import { createSlackReplyDeliveryPlan, deliverReplies, resolveSlackThreadTs } from "../replies.js";
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 import type { SlackStreamSession } from "../../streaming.js";
 import { appendSlackStream, startSlackStream, stopSlackStream } from "../../streaming.js";
@@ -79,52 +57,7 @@ import { createSlackReplyDeliveryPlan, deliverReplies, resolveSlackThreadTs } fr
 import type { PreparedSlackMessage } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
-<<<<<<< HEAD
 import type { PreparedSlackMessage } from "./types.js";
-=======
-/**
- * Check whether a reply payload contains media (images, files, etc.)
- * that cannot be delivered through the streaming API.
- */
-function hasMedia(payload: ReplyPayload): boolean {
-  return Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
-}
-
-<<<<<<< HEAD
-/**
- * Determine if Slack native text streaming should be used for this message.
- *
- * Streaming requires:
- * 1. The `streaming` config option enabled on the account
- * 2. A thread timestamp (streaming only works within threads)
- */
-=======
-export function isSlackStreamingEnabled(params: {
-  mode: "off" | "partial" | "block" | "progress";
-  nativeStreaming: boolean;
-}): boolean {
-  if (params.mode !== "partial") {
-    return false;
-  }
-  return params.nativeStreaming;
-}
-
-export function resolveSlackStreamingThreadHint(params: {
-  replyToMode: "off" | "first" | "all";
-  incomingThreadTs: string | undefined;
-  messageTs: string | undefined;
-  isThreadReply?: boolean;
-}): string | undefined {
-  return resolveSlackThreadTs({
-    replyToMode: params.replyToMode,
-    incomingThreadTs: params.incomingThreadTs,
-    messageTs: params.messageTs,
-    hasReplied: false,
-    isThreadReply: params.isThreadReply,
-  });
-}
-
->>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 function shouldUseStreaming(params: {
   streamingEnabled: boolean;
   threadTs: string | undefined;
@@ -242,31 +175,12 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   // -----------------------------------------------------------------------
   // Slack native text streaming state
   // -----------------------------------------------------------------------
   const streamingEnabled = account.config.streaming === true;
   const replyThreadTs = replyPlan.nextThreadTs();
 
-=======
-  const slackStreaming = resolveSlackStreamingConfig({
-    streaming: account.config.streaming,
-    streamMode: account.config.streamMode,
-    nativeStreaming: account.config.nativeStreaming,
-  });
-  const previewStreamingEnabled = slackStreaming.mode !== "off";
-  const streamingEnabled = isSlackStreamingEnabled({
-    mode: slackStreaming.mode,
-    nativeStreaming: slackStreaming.nativeStreaming,
-  });
-  const streamThreadHint = resolveSlackStreamingThreadHint({
-    replyToMode: prepared.replyToMode,
-    incomingThreadTs,
-    messageTs,
-    isThreadReply,
-  });
->>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
   const useStreaming = shouldUseStreaming({
     streamingEnabled,
     threadTs: replyThreadTs ?? incomingThreadTs ?? statusThreadTs,
@@ -276,41 +190,16 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
   let streamFailed = false;
   let usedReplyThreadTs: string | undefined;
 
-<<<<<<< HEAD
   /**
    * Deliver a payload via Slack native text streaming when possible.
    * Falls back to normal delivery for media payloads, errors, or if the
    * streaming API call itself fails.
    */
-=======
-  const deliverNormally = async (payload: ReplyPayload, forcedThreadTs?: string): Promise<void> => {
-    const replyThreadTs = forcedThreadTs ?? replyPlan.nextThreadTs();
-    await deliverReplies({
-      replies: [payload],
-      target: prepared.replyTarget,
-      token: ctx.botToken,
-      accountId: account.accountId,
-      runtime,
-      textLimit: ctx.textLimit,
-      replyThreadTs,
-      replyToMode: prepared.replyToMode,
-      ...(slackIdentity ? { identity: slackIdentity } : {}),
-    });
-    // Record the thread ts only after confirmed delivery success.
-    if (replyThreadTs) {
-      usedReplyThreadTs ??= replyThreadTs;
-    }
-    replyPlan.markSent();
-  };
-
->>>>>>> 71c2c59c6 (fix(slack): enforce replyToMode for auto-thread_ts and inline reply tags (#23839))
   const deliverWithStreaming = async (payload: ReplyPayload): Promise<void> => {
     const effectiveThreadTs = replyPlan.nextThreadTs();
 
     // Fall back to normal delivery for media, errors, or if streaming already failed
     if (streamFailed || hasMedia(payload) || !payload.text?.trim()) {
-<<<<<<< HEAD
-=======
 =======
       await deliverNormally(payload, streamSession?.threadTs);
       return;
@@ -357,7 +246,6 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     }
   };
 
->>>>>>> bbcb3ac6e (fix(slack): pass recipient_team_id to streaming API calls (#20988))
   const { dispatcher, replyOptions, markDispatchIdle } = createReplyDispatcherWithTyping({
     ...prefixOptions,
     humanDelay: resolveHumanDelayConfig(cfg, route.agentId),
@@ -412,7 +300,6 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
         hasStreamedMessage = false;
       }
 
-<<<<<<< HEAD
       const replyThreadTs = replyPlan.nextThreadTs();
 >>>>>>> bec974aba (feat(slack): stream partial replies via draft message updates)
       await deliverReplies({
@@ -508,19 +395,13 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
         });
         replyPlan.markSent();
       }
-=======
-      await deliverNormally(payload);
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
     },
     onError: (err, info) => {
       runtime.error?.(danger(`slack ${info.kind} reply failed: ${String(err)}`));
       typingCallbacks.onIdle?.();
     },
-<<<<<<< HEAD
     onReplyStart: typingCallbacks.onReplyStart,
     onIdle: typingCallbacks.onIdle,
-=======
->>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
   });
 
   const draftStream = createSlackDraftStream({
@@ -600,7 +481,6 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
       ...replyOptions,
       skillFilter: prepared.channelConfig?.skills,
       hasRepliedRef,
-<<<<<<< HEAD
       disableBlockStreaming:
         // When native streaming is active, keep block streaming enabled so we
         // get incremental block callbacks that we route through the stream.
@@ -609,15 +489,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
           : typeof account.config.blockStreaming === "boolean"
             ? !account.config.blockStreaming
             : undefined,
-=======
-      disableBlockStreaming: useStreaming
-        ? true
-        : typeof account.config.blockStreaming === "boolean"
-          ? !account.config.blockStreaming
-          : undefined,
->>>>>>> bbcb3ac6e (fix(slack): pass recipient_team_id to streaming API calls (#20988))
       onModelSelected,
-<<<<<<< HEAD
       onPartialReply: async (payload) => {
         updateDraftFromPartial(payload.text);
       },
@@ -639,42 +511,6 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
           statusUpdateCount = 0;
         }
       },
-=======
-      onPartialReply: useStreaming
-        ? undefined
-        : !previewStreamingEnabled
-          ? undefined
-          : async (payload) => {
-              updateDraftFromPartial(payload.text);
-            },
-<<<<<<< HEAD
-      onAssistantMessageStart: useStreaming
-        ? undefined
-        : !previewStreamingEnabled
-          ? undefined
-          : async () => {
-              if (hasStreamedMessage) {
-                draftStream.forceNewMessage();
-                hasStreamedMessage = false;
-                appendRenderedText = "";
-                appendSourceText = "";
-                statusUpdateCount = 0;
-              }
-            },
-      onReasoningEnd: useStreaming
-        ? undefined
-        : !previewStreamingEnabled
-          ? undefined
-          : async () => {
-              if (hasStreamedMessage) {
-                draftStream.forceNewMessage();
-                hasStreamedMessage = false;
-                appendRenderedText = "";
-                appendSourceText = "";
-                statusUpdateCount = 0;
-              }
-            },
->>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 =======
       onAssistantMessageStart: onDraftBoundary,
       onReasoningEnd: onDraftBoundary,

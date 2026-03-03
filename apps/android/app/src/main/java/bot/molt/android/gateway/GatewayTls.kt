@@ -5,11 +5,8 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/gateway/GatewayTls.kt
-=======
 import java.util.Locale
 import javax.net.ssl.HttpsURLConnection
->>>>>>> 31a16157f (fix(android): make lint pass):apps/android/app/src/main/java/ai/openclaw/android/gateway/GatewayTls.kt
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
@@ -71,8 +68,6 @@ fun buildGatewayTlsConfig(
   )
 }
 
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/gateway/GatewayTls.kt
-=======
 suspend fun probeGatewayTlsFingerprint(
   host: String,
   port: Int,
@@ -127,7 +122,6 @@ suspend fun probeGatewayTlsFingerprint(
   }
 }
 
->>>>>>> 31a16157f (fix(android): make lint pass):apps/android/app/src/main/java/ai/openclaw/android/gateway/GatewayTls.kt
 private fun defaultTrustManager(): X509TrustManager {
   val factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
   factory.init(null as java.security.KeyStore?)

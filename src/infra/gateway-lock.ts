@@ -1,10 +1,6 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
-<<<<<<< HEAD
 import fsSync from "node:fs";
-=======
-import net from "node:net";
->>>>>>> e6383a2c1 (fix(gateway): probe port liveness for stale lock recovery)
 import path from "node:path";
 
 import { resolveConfigPath, resolveGatewayLockDir, resolveStateDir } from "../config/paths.js";

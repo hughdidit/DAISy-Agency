@@ -31,7 +31,6 @@ vi.mock("../web/session.js", () => ({
 
 import { getReplyFromConfig } from "./reply.js";
 
-<<<<<<< HEAD
 type HomeEnvSnapshot = {
   HOME: string | undefined;
   USERPROFILE: string | undefined;
@@ -81,30 +80,6 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
       prefix: "moltbot-rawbody-",
     },
   );
-=======
-  const home = path.join(fixtureRoot, `case-${++caseId}`);
-  await fs.mkdir(path.join(home, ".openclaw", "agents", "main", "sessions"), { recursive: true });
-  const envSnapshot = snapshotHomeEnv();
-  process.env.HOME = home;
-  process.env.USERPROFILE = home;
-  process.env.OPENCLAW_STATE_DIR = path.join(home, ".openclaw");
-  process.env.OPENCLAW_AGENT_DIR = path.join(home, ".openclaw", "agent");
-  process.env.PI_CODING_AGENT_DIR = path.join(home, ".openclaw", "agent");
-
-  if (process.platform === "win32") {
-    const match = home.match(/^([A-Za-z]:)(.*)$/);
-    if (match) {
-      process.env.HOMEDRIVE = match[1];
-      process.env.HOMEPATH = match[2] || "\\";
-    }
-  }
-
-  try {
-    return await fn(home);
-  } finally {
-    restoreHomeEnv(envSnapshot);
-  }
->>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 }
 =======
 const { withTempHome } = createTempHomeHarness({ prefix: "openclaw-rawbody-" });
@@ -126,7 +101,6 @@ describe("RawBody directive parsing", () => {
 
   it("handles directives and history in the prompt", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
 <<<<<<< HEAD
       const assertCommandReply = async (input: {
         message: ReplyMessage;
@@ -157,9 +131,6 @@ describe("RawBody directive parsing", () => {
               model: "anthropic/claude-opus-4-5",
 <<<<<<< HEAD
               workspace: path.join(home, "clawd"),
-=======
-              workspace: path.join(home, "openclaw-1"),
->>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
             },
           },
           channels: { whatsapp: { allowFrom: ["*"] } },
@@ -168,7 +139,6 @@ describe("RawBody directive parsing", () => {
         expectedIncludes: ["Thinking level set to high."],
       });
 
-<<<<<<< HEAD
       await assertCommandReply({
         message: {
 <<<<<<< HEAD
@@ -185,9 +155,6 @@ describe("RawBody directive parsing", () => {
               model: "anthropic/claude-opus-4-5",
 <<<<<<< HEAD
               workspace: path.join(home, "clawd"),
-=======
-              workspace: path.join(home, "openclaw-2"),
->>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
               models: {
                 "anthropic/claude-opus-4-5": {},
               },
@@ -215,11 +182,7 @@ describe("RawBody directive parsing", () => {
             defaults: {
               model: "anthropic/claude-opus-4-5",
 <<<<<<< HEAD
-<<<<<<< HEAD
               workspace: path.join(home, "clawd"),
-=======
-              workspace: path.join(home, "openclaw-3"),
->>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 =======
               workspace: path.join(home, "openclaw-2"),
 >>>>>>> e794ef047 (perf(test): reduce hot-suite setup and duplicate test work)
@@ -230,7 +193,6 @@ describe("RawBody directive parsing", () => {
         },
         expectedIncludes: ["Verbose logging enabled."],
       });
-<<<<<<< HEAD
 <<<<<<< HEAD
 
       await assertCommandReply({
@@ -253,9 +215,6 @@ describe("RawBody directive parsing", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
               workspace: path.join(home, "clawd"),
-=======
-              workspace: path.join(home, "openclaw-4"),
->>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 =======
               workspace: path.join(home, "openclaw-3"),
 >>>>>>> e794ef047 (perf(test): reduce hot-suite setup and duplicate test work)
@@ -303,7 +262,6 @@ describe("RawBody directive parsing", () => {
       };
 
 <<<<<<< HEAD
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         groupMessageCtx,
         {},
@@ -318,9 +276,6 @@ describe("RawBody directive parsing", () => {
           session: { store: path.join(home, "sessions.json") },
         },
       );
-=======
-      const res = await getReplyFromConfig(groupMessageCtx, {}, makeReplyConfig(home));
->>>>>>> cf26c409c (refactor(test): share auto-reply temp home harness)
 =======
       const res = await getReplyFromConfig(
         groupMessageCtx,

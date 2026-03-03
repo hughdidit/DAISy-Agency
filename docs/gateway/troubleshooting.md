@@ -16,7 +16,6 @@ Provider-specific shortcuts: [/channels/troubleshooting](/channels/troubleshooti
 
 Quick triage commands (in order):
 
-<<<<<<< HEAD
 | Command | What it tells you | When to use it |
 |---|---|---|
 | `moltbot status` | Local summary: OS + update, gateway reachability/mode, service, agents/sessions, provider config state | First check, quick overview |
@@ -26,17 +25,6 @@ Quick triage commands (in order):
 | `moltbot channels status --probe` | Asks the running gateway for channel status (and optionally probes) | When gateway is reachable but channels misbehave |
 | `moltbot gateway status` | Supervisor state (launchd/systemd/schtasks), runtime PID/exit, last gateway error | When the service “looks loaded” but nothing runs |
 | `moltbot logs --follow` | Live logs (best signal for runtime issues) | When you need the actual failure reason |
-=======
-| Command                            | What it tells you                                                                                      | When to use it                                    |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
-| `openclaw status`                  | Local summary: OS + update, gateway reachability/mode, service, agents/sessions, provider config state | First check, quick overview                       |
-| `openclaw status --all`            | Full local diagnosis (read-only, pasteable, safe-ish) incl. log tail                                   | When you need to share a debug report             |
-| `openclaw status --deep`           | Runs gateway health checks (incl. provider probes; requires reachable gateway)                         | When “configured” doesn’t mean “working”          |
-| `openclaw gateway probe`           | Gateway discovery + reachability (local + remote targets)                                              | When you suspect you’re probing the wrong gateway |
-| `openclaw channels status --probe` | Asks the running gateway for channel status (and optionally probes)                                    | When gateway is reachable but channels misbehave  |
-| `openclaw gateway status`          | Supervisor state (launchd/systemd/schtasks), runtime PID/exit, last gateway error                      | When the service “looks loaded” but nothing runs  |
-| `openclaw logs --follow`           | Live logs (best signal for runtime issues)                                                             | When you need the actual failure reason           |
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 **Sharing output:** prefer `moltbot status --all` (it redacts tokens). If you paste `moltbot status`, consider setting `CLAWDBOT_SHOW_SECRETS=0` first (token previews).
 
@@ -70,42 +58,7 @@ This means the stored Anthropic OAuth token expired and the refresh failed.
 If you’re on a Claude subscription (no API key), the most reliable fix is to
 switch to a **Claude Code setup-token** and paste it on the **gateway host**.
 
-<<<<<<< HEAD
 **Recommended (setup-token):**
-=======
-## Anthropic 429 extra usage required for long context
-
-Use this when logs/errors include:
-`HTTP 429: rate_limit_error: Extra usage is required for long context requests`.
-
-```bash
-openclaw logs --follow
-openclaw models status
-openclaw config get agents.defaults.models
-```
-
-Look for:
-
-- Selected Anthropic Opus/Sonnet model has `params.context1m: true`.
-- Current Anthropic credential is not eligible for long-context usage.
-- Requests fail only on long sessions/model runs that need the 1M beta path.
-
-Fix options:
-
-1. Disable `context1m` for that model to fall back to the normal context window.
-2. Use an Anthropic API key with billing, or enable Anthropic Extra Usage on the subscription account.
-3. Configure fallback models so runs continue when Anthropic long-context requests are rejected.
-
-Related:
-
-- [/providers/anthropic](/providers/anthropic)
-- [/reference/token-use](/reference/token-use)
-- [/help/faq#why-am-i-seeing-http-429-ratelimiterror-from-anthropic](/help/faq#why-am-i-seeing-http-429-ratelimiterror-from-anthropic)
-
-## No replies
-
-If channels are up but nothing answers, check routing and policy before reconnecting anything.
->>>>>>> 063c4f00e (docs: clarify Anthropic context1m long-context requirements)
 
 ```bash
 # Run on the gateway host (paste the setup-token)
@@ -113,31 +66,7 @@ moltbot models auth setup-token --provider anthropic
 moltbot models status
 ```
 
-<<<<<<< HEAD
 If you generated the token elsewhere:
-=======
-Look for:
-
-- Pairing pending for DM senders.
-- Group mention gating (`requireMention`, `mentionPatterns`).
-- Channel/group allowlist mismatches.
-
-Common signatures:
-
-- `drop guild message (mention required` → group message ignored until mention.
-- `pairing request` → sender needs approval.
-- `blocked` / `allowlist` → sender/channel was filtered by policy.
-
-Related:
-
-- [/channels/troubleshooting](/channels/troubleshooting)
-- [/channels/pairing](/channels/pairing)
-- [/channels/groups](/channels/groups)
-
-## Dashboard control ui connectivity
-
-When dashboard/control UI will not connect, validate URL, auth mode, and secure context assumptions.
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 
 ```bash
 moltbot models auth paste-token --provider anthropic
@@ -152,7 +81,6 @@ If you open the dashboard over plain HTTP (e.g. `http://<lan-ip>:18789/` or
 `http://<tailscale-ip>:18789/`), the browser runs in a **non-secure context** and
 blocks WebCrypto, so device identity can’t be generated.
 
-<<<<<<< HEAD
 **Fix:**
 
 - Prefer HTTPS via [Tailscale Serve](/gateway/tailscale).
@@ -160,31 +88,6 @@ blocks WebCrypto, so device identity can’t be generated.
 - If you must stay on HTTP, enable `gateway.controlUi.allowInsecureAuth: true` and
   use a gateway token (token-only; no device identity/pairing). See
   [Control UI](/web/control-ui#insecure-http).
-=======
-- `device identity required` → non-secure context or missing device auth.
-- `device nonce required` / `device nonce mismatch` → client is not completing the
-  challenge-based device auth flow (`connect.challenge` + `device.nonce`).
-- `device signature invalid` / `device signature expired` → client signed the wrong
-  payload (or stale timestamp) for the current handshake.
-- `unauthorized` / reconnect loop → token/password mismatch.
-- `gateway connect failed:` → wrong host/port/url target.
-
-Device auth v2 migration check:
-
-```bash
-openclaw --version
-openclaw doctor
-openclaw gateway status
-```
-
-If logs show nonce/signature errors, update the connecting client and verify it:
-
-1. waits for `connect.challenge`
-2. signs the challenge-bound payload
-3. sends `connect.params.device.nonce` with the same challenge nonce
-
-Related:
->>>>>>> cb9374a2a (Gateway: improve device-auth v2 migration diagnostics (#28305))
 
 ### CI Secrets Scan Failed
 
@@ -206,20 +109,11 @@ moltbot doctor
 Doctor/service will show runtime state (PID/last exit) and log hints.
 
 **Logs:**
-<<<<<<< HEAD
 - Preferred: `moltbot logs --follow`
 - File logs (always): `/tmp/moltbot/moltbot-YYYY-MM-DD.log` (or your configured `logging.file`)
 - macOS LaunchAgent (if installed): `$CLAWDBOT_STATE_DIR/logs/gateway.log` and `gateway.err.log`
 - Linux systemd (if installed): `journalctl --user -u moltbot-gateway[-<profile>].service -n 200 --no-pager`
 - Windows: `schtasks /Query /TN "Moltbot Gateway (<profile>)" /V /FO LIST`
-=======
-
-- Preferred: `openclaw logs --follow`
-- File logs (always): `/tmp/openclaw/openclaw-YYYY-MM-DD.log` (or your configured `logging.file`)
-- macOS LaunchAgent (if installed): `$OPENCLAW_STATE_DIR/logs/gateway.log` and `gateway.err.log`
-- Linux systemd (if installed): `journalctl --user -u openclaw-gateway[-<profile>].service -n 200 --no-pager`
-- Windows: `schtasks /Query /TN "OpenClaw Gateway (<profile>)" /V /FO LIST`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 **Enable more logging:**
 
@@ -308,37 +202,20 @@ the Gateway likely refused to bind.
 - Always trust `Probe target:` + `Config (service):` as the “what did we actually try?” lines.
 
 **Check:**
-<<<<<<< HEAD
 - `gateway.mode` must be `local` for `moltbot gateway` and the service.
 - If you set `gateway.mode=remote`, the **CLI defaults** to a remote URL. The service can still be running locally, but your CLI may be probing the wrong place. Use `moltbot gateway status` to see the service’s resolved port + probe target (or pass `--url`).
 - `moltbot gateway status` and `moltbot doctor` surface the **last gateway error** from logs when the service looks running but the port is closed.
-=======
-
-- `gateway.mode` must be `local` for `openclaw gateway` and the service.
-- If you set `gateway.mode=remote`, the **CLI defaults** to a remote URL. The service can still be running locally, but your CLI may be probing the wrong place. Use `openclaw gateway status` to see the service’s resolved port + probe target (or pass `--url`).
-- `openclaw gateway status` and `openclaw doctor` surface the **last gateway error** from logs when the service looks running but the port is closed.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Non-loopback binds (`lan`/`tailnet`/`custom`, or `auto` when loopback is unavailable) require auth:
   `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`).
 - `gateway.remote.token` is for remote CLI calls only; it does **not** enable local auth.
 - `gateway.token` is ignored; use `gateway.auth.token`.
 
-<<<<<<< HEAD
 **If `moltbot gateway status` shows a config mismatch**
-=======
-**If `openclaw gateway status` shows a config mismatch**
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `Config (cli): ...` and `Config (service): ...` should normally match.
 - If they don’t, you’re almost certainly editing one config while the service is running another.
 - Fix: rerun `moltbot gateway install --force` from the same `--profile` / `CLAWDBOT_STATE_DIR` you want the service to use.
 
-<<<<<<< HEAD
 **If `moltbot gateway status` reports service config issues**
-=======
-**If `openclaw gateway status` reports service config issues**
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - The supervisor config (launchd/systemd/schtasks) is missing current defaults.
 - Fix: run `moltbot doctor` to update it (or `moltbot gateway install --force` for a full rewrite).
 
@@ -347,12 +224,7 @@ the Gateway likely refused to bind.
 - You set `gateway.bind` to a non-loopback mode (`lan`/`tailnet`/`custom`, or `auto` when loopback is unavailable) but didn’t configure auth.
 - Fix: set `gateway.auth.mode` + `gateway.auth.token` (or export `CLAWDBOT_GATEWAY_TOKEN`) and restart the service.
 
-<<<<<<< HEAD
 **If `moltbot gateway status` says `bind=tailnet` but no tailnet interface was found**
-=======
-**If `openclaw gateway status` says `bind=tailnet` but no tailnet interface was found**
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - The gateway tried to bind to a Tailscale IP (100.64.0.0/10) but none were detected on the host.
 - Fix: bring up Tailscale on that machine (or change `gateway.bind` to `loopback`/`lan`).
 
@@ -434,31 +306,7 @@ moltbot status
 
 Look for `AllowFrom: ...` in the output.
 
-<<<<<<< HEAD
 **Check 2:** For group chats, is mention required?
-=======
-- Cron enabled and next wake present.
-- Job run history status (`ok`, `skipped`, `error`).
-- Heartbeat skip reasons (`quiet-hours`, `requests-in-flight`, `alerts-disabled`).
-
-Common signatures:
-
-- `cron: scheduler disabled; jobs will not run automatically` → cron disabled.
-- `cron: timer tick failed` → scheduler tick failed; check file/log/runtime errors.
-- `heartbeat skipped` with `reason=quiet-hours` → outside active hours window.
-- `heartbeat: unknown accountId` → invalid account id for heartbeat delivery target.
-- `heartbeat skipped` with `reason=dm-blocked` → heartbeat target resolved to a DM-style destination while `agents.defaults.heartbeat.directPolicy` (or per-agent override) is set to `block`.
-
-Related:
-
-- [/automation/troubleshooting](/automation/troubleshooting)
-- [/automation/cron-jobs](/automation/cron-jobs)
-- [/gateway/heartbeat](/gateway/heartbeat)
-
-## Node paired tool fails
-
-If a node is paired but tools fail, isolate foreground, permission, and approval state.
->>>>>>> a805d6b43 (fix(heartbeat): block dm targets and internalize blocked prompts)
 
 ```bash
 # The message must match mentionPatterns or explicit mentions; defaults live in channel groups/guilds.
@@ -500,14 +348,8 @@ moltbot logs --follow | grep "pairing request"
 Known issue: When you send an image with ONLY a mention (no other text), WhatsApp sometimes doesn't include the mention metadata.
 
 **Workaround:** Add some text with the mention:
-<<<<<<< HEAD
 - ❌ `@clawd` + image
 - ✅ `@clawd check this` + image
-=======
-
-- ❌ `@openclaw` + image
-- ✅ `@openclaw check this` + image
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### Session Not Resuming
 
@@ -622,16 +464,9 @@ moltbot doctor --fix
 ```
 
 Notes:
-<<<<<<< HEAD
 - `moltbot doctor` reports every invalid entry.
 - `moltbot doctor --fix` applies migrations/repairs and rewrites the config.
 - Diagnostic commands like `moltbot logs`, `moltbot health`, `moltbot status`, `moltbot gateway status`, and `moltbot gateway probe` still run even if the config is invalid.
-=======
-
-- `openclaw doctor` reports every invalid entry.
-- `openclaw doctor --fix` applies migrations/repairs and rewrites the config.
-- Diagnostic commands like `openclaw logs`, `openclaw health`, `openclaw status`, `openclaw gateway status`, and `openclaw gateway probe` still run even if the config is invalid.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### “All models failed” — what should I check first?
 
@@ -668,17 +503,10 @@ moltbot channels login
 
 ### Build errors on `main` — what’s the standard fix path?
 
-<<<<<<< HEAD
 1) `git pull origin main && pnpm install`
 2) `moltbot doctor`
 3) Check GitHub issues or Discord
 4) Temporary workaround: check out an older commit
-=======
-1. `git pull origin main && pnpm install`
-2. `openclaw doctor`
-3. Check GitHub issues or Discord
-4. Temporary workaround: check out an older commit
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### npm install fails (allow-build-scripts / missing tar or yargs). What now?
 
@@ -754,13 +582,8 @@ Fix checklist:
 2. Use **numeric channel IDs** in `channels.discord.guilds.<guildId>.channels`.
 3. Put `requireMention: false` **under** `channels.discord.guilds` (global or per‑channel).
    Top‑level `channels.discord.requireMention` is not a supported key.
-<<<<<<< HEAD
 4) Ensure the bot has **Message Content Intent** and channel permissions.
 5) Run `moltbot channels status --probe` for audit hints.
-=======
-4. Ensure the bot has **Message Content Intent** and channel permissions.
-5. Run `openclaw channels status --probe` for audit hints.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Docs: [Discord](/channels/discord), [Channels troubleshooting](/channels/troubleshooting).
 
@@ -772,12 +595,7 @@ schemas in current `main`, but the fix is not in the last release yet (as of
 January 13, 2026).
 
 Fix checklist:
-<<<<<<< HEAD
 1) **Update Moltbot**:
-=======
-
-1. **Update OpenClaw**:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - If you can run from source, pull `main` and restart the gateway.
    - Otherwise, wait for the next release that includes the schema scrubber.
 2. Avoid unsupported keywords like `anyOf/oneOf/allOf`, `patternProperties`,
@@ -830,12 +648,7 @@ kill -9 <PID> # last resort
 ```
 
 **Fix 3: Check the CLI install**
-<<<<<<< HEAD
 Ensure the global `moltbot` CLI is installed and matches the app version:
-=======
-Ensure the global `openclaw` CLI is installed and matches the app version:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ```bash
 moltbot --version
 npm install -g moltbot@<version>
@@ -856,7 +669,6 @@ moltbot channels login --verbose
 
 ## Log Locations
 
-<<<<<<< HEAD
 | Log | Location |
 |-----|----------|
 | Gateway file logs (structured) | `/tmp/moltbot/moltbot-YYYY-MM-DD.log` (or `logging.file`) |
@@ -864,15 +676,6 @@ moltbot channels login --verbose
 | Session files | `$CLAWDBOT_STATE_DIR/agents/<agentId>/sessions/` |
 | Media cache | `$CLAWDBOT_STATE_DIR/media/` |
 | Credentials | `$CLAWDBOT_STATE_DIR/credentials/` |
-=======
-| Log                               | Location                                                                                                                                                                                                                                                                                                                    |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Gateway file logs (structured)    | `/tmp/openclaw/openclaw-YYYY-MM-DD.log` (or `logging.file`)                                                                                                                                                                                                                                                                 |
-| Gateway service logs (supervisor) | macOS: `$OPENCLAW_STATE_DIR/logs/gateway.log` + `gateway.err.log` (default: `~/.openclaw/logs/...`; profiles use `~/.openclaw-<profile>/logs/...`)<br />Linux: `journalctl --user -u openclaw-gateway[-<profile>].service -n 200 --no-pager`<br />Windows: `schtasks /Query /TN "OpenClaw Gateway (<profile>)" /V /FO LIST` |
-| Session files                     | `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/`                                                                                                                                                                                                                                                                            |
-| Media cache                       | `$OPENCLAW_STATE_DIR/media/`                                                                                                                                                                                                                                                                                                |
-| Credentials                       | `$OPENCLAW_STATE_DIR/credentials/`                                                                                                                                                                                                                                                                                          |
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Health Check
 

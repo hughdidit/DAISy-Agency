@@ -1,15 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 =======
 =======
 import { useFastShortTimeouts } from "../../test/helpers/fast-short-timeouts.js";
@@ -158,7 +152,6 @@ describe("memory indexing with OpenAI batches", () => {
       texts.map((_text, index) => [index + 1, 0, 0]),
     );
 <<<<<<< HEAD
-<<<<<<< HEAD
     const realSetTimeout = setTimeout;
     setTimeoutSpy = vi.spyOn(global, "setTimeout").mockImplementation(((
       handler: TimerHandler,
@@ -173,9 +166,6 @@ describe("memory indexing with OpenAI batches", () => {
     }) as typeof setTimeout);
 <<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-batch-"));
-=======
-=======
->>>>>>> 63711330e (perf(test): dedupe browser/telegram coverage and trim batch retry cost)
     workspaceDir = path.join(fixtureRoot, `case-${++caseId}`);
 >>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
     indexPath = path.join(workspaceDir, "index.sqlite");

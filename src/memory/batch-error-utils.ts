@@ -7,8 +7,6 @@ type BatchOutputErrorLike = {
   };
 };
 
-<<<<<<< HEAD
-=======
 function getResponseErrorMessage(line: BatchOutputErrorLike | undefined): string | undefined {
   const body = line?.response?.body;
   if (typeof body === "string") {
@@ -20,7 +18,6 @@ function getResponseErrorMessage(line: BatchOutputErrorLike | undefined): string
   return typeof body.error?.message === "string" ? body.error.message : undefined;
 }
 
->>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
 export function extractBatchErrorMessage(lines: BatchOutputErrorLike[]): string | undefined {
   const first = lines.find((line) => line.error?.message || line.response?.body?.error);
   return (

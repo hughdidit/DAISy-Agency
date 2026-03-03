@@ -49,11 +49,8 @@ const {
   __testing,
   autoBindSpawnedDiscordSubagent,
   createThreadBindingManager,
-<<<<<<< HEAD:src/discord/monitor/thread-bindings.ttl.test.ts
-=======
   reconcileAcpThreadBindingsOnStartup,
   resolveThreadBindingInactivityExpiresAt,
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz)):src/discord/monitor/thread-bindings.lifecycle.test.ts
   resolveThreadBindingIntroText,
   resolveThreadBindingMaxAgeExpiresAt,
   setThreadBindingIdleTimeoutBySessionKey,
@@ -107,21 +104,7 @@ describe("thread binding lifecycle", () => {
     expect(intro).toContain("max age 48h");
   });
 
-<<<<<<< HEAD:src/discord/monitor/thread-bindings.ttl.test.ts
   it("auto-unfocuses expired bindings and sends a ttl-expired message", async () => {
-=======
-  it("includes cwd near the top of intro text", () => {
-    const intro = resolveThreadBindingIntroText({
-      agentId: "codex",
-      idleTimeoutMs: 24 * 60 * 60 * 1000,
-      sessionCwd: "/home/bob/clawd",
-      sessionDetails: ["session ids: pending (available after the first reply)"],
-    });
-    expect(intro).toContain("\ncwd: /home/bob/clawd\nsession ids: pending");
-  });
-
-  it("auto-unfocuses idle-expired bindings and sends inactivity message", async () => {
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz)):src/discord/monitor/thread-bindings.lifecycle.test.ts
     vi.useFakeTimers();
     try {
       const manager = createThreadBindingManager({
@@ -750,8 +733,6 @@ describe("thread binding lifecycle", () => {
     expect(b.getByThreadId("thread-1")?.targetSessionKey).toBe("agent:main:subagent:b");
   });
 
-<<<<<<< HEAD:src/discord/monitor/thread-bindings.ttl.test.ts
-=======
   it("removes stale ACP bindings during startup reconciliation", async () => {
     const manager = createThreadBindingManager({
       accountId: "default",
@@ -965,7 +946,6 @@ describe("thread binding lifecycle", () => {
     }
   });
 
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz)):src/discord/monitor/thread-bindings.lifecycle.test.ts
   it("persists unbinds even when no manager is active", () => {
     const previousStateDir = process.env.OPENCLAW_STATE_DIR;
     const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-thread-bindings-"));

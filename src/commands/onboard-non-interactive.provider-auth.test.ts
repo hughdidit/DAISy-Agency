@@ -177,14 +177,6 @@ async function expectApiKeyProfile(params: {
 
 describe("onboard (non-interactive): provider auth", () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  beforeAll(async () => {
-    ({ ensureAuthProfileStore, upsertAuthProfile } = await import("../agents/auth-profiles.js"));
-  });
-
->>>>>>> 861718e4d (test: group remaining suite cleanups)
   it("stores MiniMax API key and uses global baseUrl by default", async () => {
     await withOnboardEnv("openclaw-onboard-minimax-", async (env) => {
       const cfg = await runOnboardingAndReadConfig(env, {

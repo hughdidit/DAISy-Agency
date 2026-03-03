@@ -61,24 +61,9 @@ export type {
 export type { ChannelConfigSchema, ChannelPlugin } from "../channels/plugins/types.plugin.js";
 export type {
 <<<<<<< HEAD
-<<<<<<< HEAD
   MoltbotPluginApi,
   MoltbotPluginService,
   MoltbotPluginServiceContext,
-=======
-=======
-  ThreadBindingManager,
-  ThreadBindingRecord,
-  ThreadBindingTargetKind,
-} from "../discord/monitor/thread-bindings.js";
-export {
-  autoBindSpawnedDiscordSubagent,
-  listThreadBindingsBySessionKey,
-  unbindThreadBindingsBySessionKey,
-} from "../discord/monitor/thread-bindings.js";
-export type {
-<<<<<<< HEAD
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 =======
   AcpRuntimeCapabilities,
   AcpRuntimeControl,
@@ -121,38 +106,12 @@ export type { PluginRuntime, RuntimeLogger } from "../plugins/runtime/types.js";
 export { normalizePluginHttpPath } from "../plugins/http-path.js";
 export { registerPluginHttpRoute } from "../plugins/http-registry.js";
 export { emptyPluginConfigSchema } from "../plugins/config-schema.js";
-<<<<<<< HEAD
 export type { MoltbotConfig } from "../config/config.js";
-=======
-export type { OpenClawConfig } from "../config/config.js";
-/** @deprecated Use OpenClawConfig instead */
-export type { OpenClawConfig as ClawdbotConfig } from "../config/config.js";
-<<<<<<< HEAD
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 =======
 
 export type { FileLockHandle, FileLockOptions } from "./file-lock.js";
 export { acquireFileLock, withFileLock } from "./file-lock.js";
-<<<<<<< HEAD
 >>>>>>> 52bfe5060 (refactor: share file lock via plugin-sdk)
-=======
-export { normalizeWebhookPath, resolveWebhookPath } from "./webhook-path.js";
-export {
-  registerWebhookTarget,
-  rejectNonPostWebhookRequest,
-  resolveWebhookTargets,
-} from "./webhook-targets.js";
-export type { AgentMediaPayload } from "./agent-media-payload.js";
-export { buildAgentMediaPayload } from "./agent-media-payload.js";
-export {
-  buildBaseAccountStatusSnapshot,
-  buildBaseChannelStatusSummary,
-  buildTokenChannelStatusSummary,
-  collectStatusIssuesFromLastError,
-  createDefaultChannelRuntimeState,
-} from "./status-helpers.js";
-export { buildOauthProviderAuthResult } from "./provider-auth-result.js";
->>>>>>> 80eb91d9e (refactor(plugin-sdk): add shared helper utilities)
 export type { ChannelDock } from "../channels/dock.js";
 export { getChatChannelMeta } from "../channels/registry.js";
 export type {
@@ -176,12 +135,6 @@ export type {
 } from "../config/types.js";
 export {
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  GROUP_POLICY_BLOCKED_LABEL,
-  resetMissingProviderGroupPolicyFallbackWarningsForTesting,
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   resolveOpenProviderRuntimeGroupPolicy,
@@ -257,8 +210,6 @@ export type { MediaPayload, MediaPayloadInput } from "../channels/plugins/media-
 export { createLoggerBackedRuntime } from "./runtime.js";
 export { chunkTextForOutbound } from "./text-chunking.js";
 export { readJsonFileWithFallback, writeJsonFileAtomically } from "./json-store.js";
-<<<<<<< HEAD
-=======
 export { buildRandomTempFilePath, withTempDownloadPath } from "./temp-path.js";
 <<<<<<< HEAD
 =======
@@ -279,7 +230,6 @@ export type {
   WindowsSpawnResolution,
 } from "./windows-spawn.js";
 export { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
->>>>>>> 12c125702 (fix(acpx): share windows wrapper resolver and add strict hardening mode)
 export {
   runPluginCommandWithTimeout,
   type PluginCommandRunOptions,
@@ -315,8 +265,6 @@ export type {
   PersistentDedupeOptions,
 } from "./persistent-dedupe.js";
 export { formatErrorMessage } from "../infra/errors.js";
-<<<<<<< HEAD
-=======
 export {
   formatUtcTimestamp,
   formatZonedTimestamp,
@@ -344,7 +292,6 @@ export {
 export { fetchWithBearerAuthScopeFallback } from "./fetch-auth.js";
 export type { ScopeTokenProvider } from "./fetch-auth.js";
 export { rawDataToString } from "../infra/ws.js";
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 export { isWSLSync, isWSL2Sync, isWSLEnv } from "../infra/wsl.js";
 export { isTruthyEnvValue } from "../infra/env.js";
 export { resolveToolsBySender } from "../config/group-policy.js";
@@ -630,8 +577,6 @@ export {
 } from "../line/markdown-to-line.js";
 export type { ProcessedLineMessage } from "../line/markdown-to-line.js";
 
-<<<<<<< HEAD
-=======
 // Channel: Linq
 export {
   listLinqAccountIds,
@@ -641,6 +586,5 @@ export {
 } from "../linq/accounts.js";
 export type { LinqProbe } from "../linq/types.js";
 
->>>>>>> b91e43714 (feat(linq): add interactive onboarding adapter)
 // Media utilities
 export { loadWebMedia, type WebMediaResult } from "../web/media.js";

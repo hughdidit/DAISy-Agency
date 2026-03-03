@@ -3,13 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
-=======
-import type { ButtonInteraction, ComponentData } from "@buape/carbon";
-import { Routes } from "discord-api-types/v10";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ButtonInteraction, ComponentData } from "@buape/carbon";
 import { Routes } from "discord-api-types/v10";
@@ -32,13 +26,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
 <<<<<<< HEAD
 >>>>>>> 9203a2fdb (Discord: CV2! (#16364))
-=======
-import { clearSessionStoreCacheForTest } from "../../config/sessions.js";
->>>>>>> 65f8b46c1 (fix(ci): stabilize media and session store tests)
 =======
 import { clearSessionStoreCacheForTest } from "../../config/sessions.js";
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
@@ -65,115 +55,7 @@ import {
   type ExecApprovalRequest,
   DiscordExecApprovalHandler,
 } from "./exec-approvals.js";
-<<<<<<< HEAD
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
-=======
-
-const STORE_PATH = path.join(os.tmpdir(), "openclaw-exec-approvals-test.json");
-
-const writeStore = (store: Record<string, unknown>) => {
-  fs.writeFileSync(STORE_PATH, `${JSON.stringify(store, null, 2)}\n`, "utf8");
-  // CI runners can have coarse mtime resolution; avoid returning stale cached stores.
-  clearSessionStoreCacheForTest();
-};
-
-beforeEach(() => {
-  writeStore({});
-});
-
-// ─── Mocks ────────────────────────────────────────────────────────────────────
-
-const mockRestPost = vi.hoisted(() => vi.fn());
-const mockRestPatch = vi.hoisted(() => vi.fn());
-const mockRestDelete = vi.hoisted(() => vi.fn());
-
-vi.mock("../send.shared.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../send.shared.js")>();
-  return {
-    ...actual,
-    createDiscordClient: () => ({
-      rest: {
-        post: mockRestPost,
-        patch: mockRestPatch,
-        delete: mockRestDelete,
-      },
-      request: (_fn: () => Promise<unknown>, _label: string) => _fn(),
-    }),
-  };
-});
-
-vi.mock("../../gateway/client.js", () => ({
-  GatewayClient: class {
-    private params: Record<string, unknown>;
-    constructor(params: Record<string, unknown>) {
-      this.params = params;
-    }
-    start() {}
-    stop() {}
-    async request() {
-      return { ok: true };
-    }
-  },
-}));
-
-vi.mock("../../logger.js", () => ({
-  logDebug: vi.fn(),
-  logError: vi.fn(),
-}));
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function createHandler(config: DiscordExecApprovalConfig, accountId = "default") {
-  return new DiscordExecApprovalHandler({
-    token: "test-token",
-    accountId,
-    config,
-    cfg: { session: { store: STORE_PATH } },
-  });
-}
-
-type ExecApprovalHandlerInternals = {
-  pending: Map<
-    string,
-    { discordMessageId: string; discordChannelId: string; timeoutId: NodeJS.Timeout }
-  >;
-  requestCache: Map<string, ExecApprovalRequest>;
-  handleApprovalRequested: (request: ExecApprovalRequest) => Promise<void>;
-  handleApprovalTimeout: (approvalId: string, source?: "channel" | "dm") => Promise<void>;
-};
-
-function getHandlerInternals(handler: DiscordExecApprovalHandler): ExecApprovalHandlerInternals {
-  return handler as unknown as ExecApprovalHandlerInternals;
-}
-
-function clearPendingTimeouts(handler: DiscordExecApprovalHandler) {
-  const internals = getHandlerInternals(handler);
-  for (const pending of internals.pending.values()) {
-    clearTimeout(pending.timeoutId);
-  }
-  internals.pending.clear();
-}
-
-function createRequest(
-  overrides: Partial<ExecApprovalRequest["request"]> = {},
-): ExecApprovalRequest {
-  return {
-    id: "test-id",
-    request: {
-      command: "echo hello",
-      cwd: "/home/user",
-      host: "gateway",
-      agentId: "test-agent",
-      sessionKey: "agent:test-agent:discord:channel:999888777",
-      ...overrides,
-    },
-    createdAtMs: Date.now(),
-    expiresAtMs: Date.now() + 60000,
-  };
-}
-
-// ─── buildExecApprovalCustomId ────────────────────────────────────────────────
->>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 
 describe("buildExecApprovalCustomId", () => {
   it("encodes approval id and action", () => {
@@ -251,8 +133,6 @@ describe("roundtrip encoding", () => {
   });
 });
 
-<<<<<<< HEAD
-=======
 // ─── extractDiscordChannelId ──────────────────────────────────────────────────
 
 describe("extractDiscordChannelId", () => {
@@ -305,7 +185,6 @@ describe("extractDiscordChannelId", () => {
 
 // ─── DiscordExecApprovalHandler.shouldHandle ──────────────────────────────────
 
->>>>>>> 58254b3b5 (test: dedupe channel and transport adapters)
 describe("DiscordExecApprovalHandler.shouldHandle", () => {
   function createHandler(config: DiscordExecApprovalConfig) {
     return new DiscordExecApprovalHandler({
@@ -437,8 +316,6 @@ describe("DiscordExecApprovalHandler.shouldHandle", () => {
     ).toBe(false);
   });
 });
-<<<<<<< HEAD
-=======
 
 // ─── DiscordExecApprovalHandler.getApprovers ──────────────────────────────────
 
@@ -763,4 +640,3 @@ describe("DiscordExecApprovalHandler delivery routing", () => {
     clearPendingTimeouts(handler);
   });
 });
->>>>>>> 9203a2fdb (Discord: CV2! (#16364))

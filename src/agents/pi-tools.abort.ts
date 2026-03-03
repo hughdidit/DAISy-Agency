@@ -2,10 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { bindAbortRelay } from "../utils/fetch-timeout.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { AnyAgentTool } from "./pi-tools.types.js";
@@ -55,13 +51,8 @@ function combineAbortSignals(a?: AbortSignal, b?: AbortSignal): AbortSignal | un
   if (b?.aborted) {
     return b;
   }
-<<<<<<< HEAD
   if (typeof AbortSignal.any === "function") {
     return AbortSignal.any([a as AbortSignal, b as AbortSignal]);
-=======
-  if (typeof AbortSignal.any === "function" && isAbortSignal(a) && isAbortSignal(b)) {
-    return AbortSignal.any([a, b]);
->>>>>>> 88e29c728 (refactor: use structural typing instead of instanceof for AbortSignal check)
   }
   const controller = new AbortController();
   const onAbort = controller.abort.bind(controller);

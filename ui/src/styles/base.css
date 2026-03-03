@@ -35,7 +35,6 @@
   --input: #27272a;
   --ring: #ff5c5c;
 
-<<<<<<< HEAD
 /* ─── Theme: dark (Home) — Deep-sea Operations Console ─── */
 
 :root,
@@ -380,13 +379,6 @@
   --accent-hover: var(--kn-claw-bright);
   --accent-muted: var(--vscode-accent);
   --accent-subtle: var(--vscode-accent-alpha);
-=======
-  /* Accent - Punchy signature red */
-  --accent: #ff5c5c;
-  --accent-hover: #ff7070;
-  --accent-muted: #ff5c5c;
-  --accent-subtle: rgba(255, 92, 92, 0.15);
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
   --accent-foreground: #fafafa;
   --accent-glow: rgba(255, 92, 92, 0.25);
   --primary: #ff5c5c;
@@ -633,7 +625,6 @@ select {
   background: var(--border-strong);
 }
 
-<<<<<<< HEAD
 /* ════════════════════════════════════════════════════════
    Theme-Specific Decorative Effects
    ════════════════════════════════════════════════════════ */
@@ -785,9 +776,6 @@ select {
    Animations
    ════════════════════════════════════════════════════════ */
 
-=======
-/* Animations - Polished with spring feel */
->>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 @keyframes rise {
   from {
     opacity: 0;

@@ -7,14 +7,9 @@ import { describe, expect, it } from "vitest";
 import { copyA2uiAssets } from "../../scripts/canvas-a2ui-copy.js";
 
 describe("canvas a2ui copy", () => {
-<<<<<<< HEAD
   it("throws a helpful error when assets are missing", async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-a2ui-"));
 
-=======
-  async function withA2uiFixture(run: (dir: string) => Promise<void>) {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-a2ui-"));
->>>>>>> 6051dc10f (test(scripts): dedupe a2ui temp fixture and cover skip-missing env path)
     try {
       await run(dir);
     } finally {
@@ -49,17 +44,11 @@ describe("canvas a2ui copy", () => {
   });
 
   it("copies bundled assets to dist", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-a2ui-"));
     const srcDir = path.join(dir, "src");
     const outDir = path.join(dir, "dist");
 
     try {
-=======
-    await withA2uiFixture(async (dir) => {
-      const srcDir = path.join(dir, "src");
-      const outDir = path.join(dir, "dist");
->>>>>>> 6051dc10f (test(scripts): dedupe a2ui temp fixture and cover skip-missing env path)
       await fs.mkdir(srcDir, { recursive: true });
       await fs.writeFile(path.join(srcDir, "index.html"), "<html></html>", "utf8");
       await fs.writeFile(path.join(srcDir, "a2ui.bundle.js"), "console.log(1);", "utf8");

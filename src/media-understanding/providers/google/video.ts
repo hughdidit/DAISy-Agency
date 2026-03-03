@@ -1,10 +1,6 @@
 import type { VideoDescriptionRequest, VideoDescriptionResult } from "../../types.js";
-<<<<<<< HEAD
 import { normalizeGoogleModelId } from "../../../agents/models-config.providers.js";
 import { fetchWithTimeout, normalizeBaseUrl, readErrorResponse } from "../shared.js";
-=======
-import { generateGeminiInlineDataText } from "./inline-data.js";
->>>>>>> cdc31903c (refactor(media-understanding): share gemini inline-data helper)
 
 export const DEFAULT_GOOGLE_VIDEO_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 const DEFAULT_GOOGLE_VIDEO_MODEL = "gemini-3-flash-preview";
@@ -13,7 +9,6 @@ const DEFAULT_GOOGLE_VIDEO_PROMPT = "Describe the video.";
 export async function describeGeminiVideo(
   params: VideoDescriptionRequest,
 ): Promise<VideoDescriptionResult> {
-<<<<<<< HEAD
   const fetchFn = params.fetchFn ?? fetch;
   const baseUrl = normalizeBaseUrl(params.baseUrl, DEFAULT_GOOGLE_VIDEO_BASE_URL);
   const model = resolveModel(params.model);
@@ -74,16 +69,5 @@ export async function describeGeminiVideo(
   if (!text) {
     throw new Error("Video description response missing text");
   }
-=======
-  const { text, model } = await generateGeminiInlineDataText({
-    ...params,
-    defaultBaseUrl: DEFAULT_GOOGLE_VIDEO_BASE_URL,
-    defaultModel: DEFAULT_GOOGLE_VIDEO_MODEL,
-    defaultPrompt: DEFAULT_GOOGLE_VIDEO_PROMPT,
-    defaultMime: "video/mp4",
-    httpErrorLabel: "Video description failed",
-    missingTextError: "Video description response missing text",
-  });
->>>>>>> cdc31903c (refactor(media-understanding): share gemini inline-data helper)
   return { text, model };
 }

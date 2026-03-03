@@ -111,7 +111,6 @@ describe("deliverWebReply", () => {
 
   it("sends image media with caption and then remaining text", async () => {
     const msg = makeMsg();
-<<<<<<< HEAD
     (
       loadWebMedia as unknown as { mockResolvedValueOnce: (v: unknown) => void }
     ).mockResolvedValueOnce({
@@ -119,10 +118,6 @@ describe("deliverWebReply", () => {
       contentType: "image/jpeg",
       kind: "image",
     });
-=======
-    const mediaLocalRoots = ["/tmp/workspace-work"];
-    mockLoadedImageMedia();
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 
     await deliverWebReply({
       replyResult: { text: "aaaaaa", mediaUrl: "http://example.com/img.jpg" },

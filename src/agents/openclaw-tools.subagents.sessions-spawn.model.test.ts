@@ -1,6 +1,5 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const callGatewayMock = vi.fn();
@@ -26,16 +25,6 @@ vi.mock("../config/config.js", async (importOriginal) => {
 
 import "./test-helpers/fast-core-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
-=======
-import { beforeEach, describe, expect, it } from "vitest";
-import { createOpenClawTools } from "./openclaw-tools.js";
-import "./test-helpers/fast-core-tools.js";
-import {
-  callGatewayMock,
-  resetConfigOverride,
-  setConfigOverride,
-} from "./openclaw-tools.subagents.sessions-spawn.mocks.js";
->>>>>>> 615f6e1e4 (refactor(test): share sessions_spawn e2e mocks)
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {
@@ -60,48 +49,9 @@ type GatewayCall = { method?: string; params?: unknown };
 type SessionsSpawnConfigOverride = Parameters<typeof setSessionsSpawnConfigOverride>[0];
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-applies-model-child-session.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
 >>>>>>> e720e022e (test: stabilize sessions_spawn e2e mocks)
-=======
-=======
-type CreateOpenClawTools = (typeof import("./openclaw-tools.js"))["createOpenClawTools"];
-type CreateOpenClawToolsOpts = Parameters<CreateOpenClawTools>[0];
-=======
-function mockLongRunningSpawnFlow(params: {
-  calls: GatewayCall[];
-  acceptedAtBase: number;
-  patch?: (request: GatewayCall) => Promise<unknown>;
-}) {
-  let agentCallCount = 0;
-  callGatewayMock.mockImplementation(async (opts: unknown) => {
-    const request = opts as GatewayCall;
-    params.calls.push(request);
-    if (request.method === "sessions.patch") {
-      if (params.patch) {
-        return await params.patch(request);
-      }
-      return { ok: true };
-    }
-    if (request.method === "agent") {
-      agentCallCount += 1;
-      return {
-        runId: `run-${agentCallCount}`,
-        status: "accepted",
-        acceptedAt: params.acceptedAtBase + agentCallCount,
-      };
-    }
-    if (request.method === "agent.wait") {
-      return { status: "timeout" };
-    }
-    if (request.method === "sessions.delete") {
-      return { ok: true };
-    }
-    return {};
-  });
-}
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 function mockPatchAndSingleAgentRun(params: { calls: GatewayCall[]; runId: string }) {
   callGatewayMock.mockImplementation(async (opts: unknown) => {
@@ -117,45 +67,7 @@ function mockPatchAndSingleAgentRun(params: { calls: GatewayCall[]; runId: strin
   });
 }
 
-<<<<<<< HEAD
 >>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
-=======
-async function expectSpawnUsesConfiguredModel(params: {
-  config?: SessionsSpawnConfigOverride;
-  runId: string;
-  callId: string;
-  expectedModel: string;
-}) {
-  if (params.config) {
-    setSessionsSpawnConfigOverride(params.config);
-  } else {
-    resetSessionsSpawnConfigOverride();
-  }
-  const calls: GatewayCall[] = [];
-  mockPatchAndSingleAgentRun({ calls, runId: params.runId });
-
-  const tool = await getSessionsSpawnTool({
-    agentSessionKey: "agent:research:main",
-    agentChannel: "discord",
-  });
-
-  const result = await tool.execute(params.callId, {
-    task: "do thing",
-  });
-  expect(result.details).toMatchObject({
-    status: "accepted",
-    modelApplied: true,
-  });
-
-  const patchCall = calls.find(
-    (call) => call.method === "sessions.patch" && (call.params as { model?: string })?.model,
-  );
-  expect(patchCall?.params).toMatchObject({
-    model: params.expectedModel,
-  });
-}
-
->>>>>>> 42025915d (test(agents): dedupe sessions_spawn model preference assertions)
 describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.model.e2e.test.ts
   beforeEach(() => {
@@ -168,11 +80,7 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
     const calls: GatewayCall[] = [];
     mockLongRunningSpawnFlow({ calls, acceptedAtBase: 3000 });
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({
-=======
-    const tool = await getSessionsSpawnTool({
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     });
@@ -215,11 +123,7 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({
-=======
-    const tool = await getSessionsSpawnTool({
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     });
@@ -247,11 +151,7 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({
-=======
-    const tool = await getSessionsSpawnTool({
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     });
@@ -269,7 +169,6 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
   });
 
   it("sessions_spawn applies default subagent model from defaults config", async () => {
-<<<<<<< HEAD
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
     setSessionsSpawnConfigOverride({
@@ -281,9 +180,6 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
 
 <<<<<<< HEAD
     const tool = createMoltbotTools({
-=======
-    const tool = await getSessionsSpawnTool({
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "agent:main:main",
       agentChannel: "discord",
     });

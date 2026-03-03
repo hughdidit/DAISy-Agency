@@ -8,12 +8,7 @@ read_when:
 # Node + tsx "\_\_name is not a function" crash
 
 ## Summary
-<<<<<<< HEAD
 Running Moltbot via Node with `tsx` fails at startup with:
-=======
-
-Running OpenClaw via Node with `tsx` fails at startup with:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```
 [moltbot] Failed to start CLI: TypeError: __name is not a function

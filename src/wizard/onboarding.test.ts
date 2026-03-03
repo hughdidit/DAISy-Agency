@@ -1,20 +1,8 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { RuntimeEnv } from "../runtime.js";
-import type { WizardPrompter } from "./prompts.js";
->>>>>>> 5c5af2b14 (perf(wizard): lazy-load onboarding deps)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
@@ -342,19 +330,12 @@ describe("runOnboardingWizard", () => {
     runTui.mockClear();
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-onboard-"));
     await fs.writeFile(path.join(workspaceDir, DEFAULT_BOOTSTRAP_FILENAME), "{}");
 
     const select: WizardPrompter["select"] = vi.fn(async (opts) => {
       if (opts.message === "How do you want to hatch your bot?") {
         return "tui";
-=======
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-onboard-"));
-    try {
-      if (params.writeBootstrapFile) {
-        await fs.writeFile(path.join(workspaceDir, DEFAULT_BOOTSTRAP_FILENAME), "{}");
->>>>>>> 9be114738 (refactor(test): dedupe onboarding tui hatch setup)
       }
 
       const select: WizardPrompter["select"] = vi.fn(async (opts) => {
@@ -437,7 +418,6 @@ describe("runOnboardingWizard", () => {
   });
 
   it("offers TUI hatch even without BOOTSTRAP.md", async () => {
-<<<<<<< HEAD
     runTui.mockClear();
 
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-onboard-"));
@@ -492,9 +472,6 @@ describe("runOnboardingWizard", () => {
     );
 
     await fs.rm(workspaceDir, { recursive: true, force: true });
-=======
-    await runTuiHatchTest({ writeBootstrapFile: false, expectedMessage: undefined });
->>>>>>> 9be114738 (refactor(test): dedupe onboarding tui hatch setup)
   });
 
   it("shows the web search hint at the end of onboarding", async () => {

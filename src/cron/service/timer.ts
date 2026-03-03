@@ -6,18 +6,9 @@ import type { HeartbeatRunResult } from "../../infra/heartbeat-wake.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { CronJob } from "../types.js";
 <<<<<<< HEAD
 import { computeJobNextRunAtMs, nextWakeAtMs, resolveJobPayloadTextForMain } from "./jobs.js";
-=======
-import type { CronEvent, CronServiceState } from "./state.js";
-=======
-import { DEFAULT_AGENT_ID } from "../../routing/session-key.js";
-import { resolveCronDeliveryPlan } from "../delivery.js";
-import { sweepCronRunSessions } from "../session-reaper.js";
-import type { CronJob } from "../types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CronJob, CronRunOutcome, CronRunStatus, CronRunTelemetry } from "../types.js";
 import type { CronEvent, CronServiceState } from "./state.js";
@@ -29,16 +20,8 @@ import { sweepCronRunSessions } from "../session-reaper.js";
 import { DEFAULT_AGENT_ID } from "../../routing/session-key.js";
 import { resolveCronDeliveryPlan } from "../delivery.js";
 import { sweepCronRunSessions } from "../session-reaper.js";
-<<<<<<< HEAD
 import type { CronJob, CronRunOutcome, CronRunStatus, CronRunTelemetry } from "../types.js";
 >>>>>>> c70597dae (chore: Fix formatting.)
-=======
-import type { CronJob, CronRunOutcome, CronRunStatus, CronRunTelemetry } from "../types.js";
-import type { CronEvent, CronServiceState } from "./state.js";
-import { DEFAULT_AGENT_ID } from "../../routing/session-key.js";
-import { resolveCronDeliveryPlan } from "../delivery.js";
-import { sweepCronRunSessions } from "../session-reaper.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 import { DEFAULT_AGENT_ID } from "../../routing/session-key.js";
 import { resolveCronDeliveryPlan } from "../delivery.js";
@@ -71,11 +54,7 @@ import type {
 import {
   computeJobNextRunAtMs,
   nextWakeAtMs,
-<<<<<<< HEAD
   recomputeNextRuns,
-=======
-  recomputeNextRunsForMaintenance,
->>>>>>> fec4be8de (fix(cron): prevent daily jobs from skipping days (48h jump) #17852 (#17903))
   resolveJobPayloadTextForMain,
 } from "./jobs.js";
 >>>>>>> 313e2f2e8 (fix(cron): prevent recomputeNextRuns from skipping due jobs in onTimer (#9823))
@@ -369,11 +348,7 @@ export function applyJobResult(
   }
 
   const shouldDelete =
-<<<<<<< HEAD
     job.schedule.kind === "at" && result.status === "ok" && job.deleteAfterRun === true;
-=======
-    job.schedule.kind === "at" && job.deleteAfterRun === true && result.status === "ok";
->>>>>>> d31caa81e (fix(runtime): guard cleanup and preserve skipped cron jobs)
 
   if (!shouldDelete) {
     if (job.schedule.kind === "at") {
@@ -506,34 +481,11 @@ export function armTimer(state: CronServiceState) {
     );
     return;
   }
-<<<<<<< HEAD
   const delay = Math.max(nextAt - state.deps.nowMs(), 0);
   // Avoid TimeoutOverflowWarning when a job is far in the future.
   const clampedDelay = Math.min(delay, MAX_TIMEOUT_MS);
   state.timer = setTimeout(() => {
     void onTimer(state).catch((err) => {
-=======
-  const now = state.deps.nowMs();
-  const delay = Math.max(nextAt - now, 0);
-  // Floor: when the next wake time is in the past (delay === 0), enforce a
-  // minimum delay to prevent a tight setTimeout(0) loop.  This can happen
-  // when a job has a stuck runningAtMs marker and a past-due nextRunAtMs:
-  // findDueJobs skips the job (blocked by runningAtMs), while
-  // recomputeNextRunsForMaintenance intentionally does not advance the
-  // past-due nextRunAtMs (per #13992).  The finally block in onTimer then
-  // re-invokes armTimer with delay === 0, creating an infinite hot-loop
-  // that saturates the event loop and fills the log file to its size cap.
-  const flooredDelay = delay === 0 ? MIN_REFIRE_GAP_MS : delay;
-  // Wake at least once a minute to avoid schedule drift and recover quickly
-  // when the process was paused or wall-clock time jumps.
-<<<<<<< HEAD
-  const clampedDelay = Math.min(delay, MAX_TIMER_DELAY_MS);
-<<<<<<< HEAD
-  state.timer = setTimeout(async () => {
-    try {
-      await onTimer(state);
-    } catch (err) {
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 =======
 =======
   const clampedDelay = Math.min(flooredDelay, MAX_TIMER_DELAY_MS);
@@ -547,14 +499,7 @@ export function armTimer(state: CronServiceState) {
       state.deps.log.error({ err: String(err) }, "cron: timer tick failed");
     });
   }, clampedDelay);
-<<<<<<< HEAD
   state.timer.unref?.();
-=======
-  state.deps.log.debug(
-    { nextAt, delayMs: clampedDelay, clamped: delay > MAX_TIMER_DELAY_MS },
-    "cron: timer armed",
-  );
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 }
 
 function armRunningRecheckTimer(state: CronServiceState) {
@@ -597,8 +542,6 @@ export async function onTimer(state: CronServiceState) {
       recomputeNextRuns(state);
       await persist(state);
     });
-<<<<<<< HEAD
-=======
 
     const runDueJob = async (params: {
       id: string;
@@ -668,7 +611,6 @@ export async function onTimer(state: CronServiceState) {
         await persist(state);
       });
     }
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   } finally {
     state.running = false;
     // Always re-arm so transient errors (e.g. ENOSPC) don't kill the scheduler.
@@ -676,8 +618,6 @@ export async function onTimer(state: CronServiceState) {
   }
 }
 
-<<<<<<< HEAD
-=======
 function findDueJobs(state: CronServiceState): CronJob[] {
   if (!state.store) {
     return [];
@@ -824,7 +764,6 @@ export async function runMissedJobs(
   });
 }
 
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 export async function runDueJobs(state: CronServiceState) {
   if (!state.store) {
     return;
@@ -837,12 +776,6 @@ export async function runDueJobs(state: CronServiceState) {
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-async function executeJobCore(
-=======
-export async function executeJobCore(
->>>>>>> 5db1ee4ec (fix(cron): keep manual runs non-blocking)
   state: CronServiceState,
   job: CronJob,
   abortSignal?: AbortSignal,
@@ -1046,7 +979,6 @@ export async function executeJob(
   job.state.lastError = undefined;
   emit(state, { jobId: job.id, action: "started", runAtMs: startedAt });
 
-<<<<<<< HEAD
   let deleted = false;
 
   const finish = async (status: "ok" | "error" | "skipped", err?: string, summary?: string) => {
@@ -1089,16 +1021,6 @@ export async function executeJob(
       emit(state, { jobId: job.id, action: "removed" });
     }
 =======
-  let coreResult: {
-<<<<<<< HEAD
-    status: "ok" | "error" | "skipped";
-    error?: string;
-    summary?: string;
-    sessionId?: string;
-    sessionKey?: string;
-<<<<<<< HEAD
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
-=======
     model?: string;
     provider?: string;
     usage?: {
@@ -1117,7 +1039,6 @@ export async function executeJob(
     CronRunTelemetry;
 >>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
   try {
-<<<<<<< HEAD
     if (job.sessionTarget === "main") {
       const text = resolveJobPayloadTextForMain(job);
       if (!text) {
@@ -1207,27 +1128,6 @@ export async function executeJob(
       // Keep nextRunAtMs in sync in case the schedule advanced during a long run.
       job.state.nextRunAtMs = computeJobNextRunAtMs(job, state.deps.nowMs());
     }
-=======
-    coreResult = await executeJobCore(state, job);
-  } catch (err) {
-    coreResult = { status: "error", error: String(err) };
-  }
-
-  const endedAt = state.deps.nowMs();
-  const shouldDelete = applyJobResult(state, job, {
-    status: coreResult.status,
-    error: coreResult.error,
-    delivered: coreResult.delivered,
-    startedAt,
-    endedAt,
-  });
-
-  emitJobFinished(state, job, coreResult, startedAt);
-
-  if (shouldDelete && state.store) {
-    state.store.jobs = state.store.jobs.filter((j) => j.id !== job.id);
-    emit(state, { jobId: job.id, action: "removed" });
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   }
 }
 

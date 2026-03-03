@@ -84,20 +84,12 @@ const hasExplicitMemorySlot = (plugins?: MoltbotConfig["plugins"]) =>
 const hasExplicitMemoryEntry = (plugins?: MoltbotConfig["plugins"]) =>
   Boolean(plugins?.entries && Object.prototype.hasOwnProperty.call(plugins.entries, "memory-core"));
 
-<<<<<<< HEAD
 const hasExplicitPluginConfig = (plugins?: MoltbotConfig["plugins"]) => {
   if (!plugins) return false;
   if (typeof plugins.enabled === "boolean") return true;
   if (Array.isArray(plugins.allow) && plugins.allow.length > 0) return true;
   if (Array.isArray(plugins.deny) && plugins.deny.length > 0) return true;
   if (plugins.load?.paths && Array.isArray(plugins.load.paths) && plugins.load.paths.length > 0)
-=======
-const hasExplicitPluginConfig = (plugins?: OpenClawConfig["plugins"]) => {
-  if (!plugins) {
-    return false;
-  }
-  if (typeof plugins.enabled === "boolean") {
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     return true;
   }
   if (Array.isArray(plugins.allow) && plugins.allow.length > 0) {
@@ -121,15 +113,8 @@ const hasExplicitPluginConfig = (plugins?: OpenClawConfig["plugins"]) => {
 export function applyTestPluginDefaults(
   cfg: MoltbotConfig,
   env: NodeJS.ProcessEnv = process.env,
-<<<<<<< HEAD
 ): MoltbotConfig {
   if (!env.VITEST) return cfg;
-=======
-): OpenClawConfig {
-  if (!env.VITEST) {
-    return cfg;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const plugins = cfg.plugins;
   const explicitConfig = hasExplicitPluginConfig(plugins);
   if (explicitConfig) {

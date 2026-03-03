@@ -3,14 +3,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
-=======
-import { formatCliCommand } from "../cli/command-format.js";
-import { promptAuthChoiceGrouped } from "../commands/auth-choice-prompt.js";
->>>>>>> 981de0518 (Onboarding: drop completion prompt)
 import {
   applyAuthChoice,
   resolvePreferredProviderForAuthChoice,
@@ -66,13 +61,10 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 5c5af2b14 (perf(wizard): lazy-load onboarding deps)
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
 import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
@@ -98,7 +90,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { logConfigUpdated } from "../config/logging.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
@@ -106,10 +97,6 @@ import { resolveUserPath } from "../utils.js";
 import { finalizeOnboardingWizard } from "./onboarding.finalize.js";
 import { configureGatewayForOnboarding } from "./onboarding.gateway-config.js";
 import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
-=======
-import { defaultRuntime } from "../runtime.js";
-import { resolveUserPath } from "../utils.js";
->>>>>>> 5c5af2b14 (perf(wizard): lazy-load onboarding deps)
 =======
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
@@ -187,14 +174,8 @@ export async function runOnboardingWizard(
   runtime: RuntimeEnv = defaultRuntime,
   prompter: WizardPrompter,
 ) {
-<<<<<<< HEAD
   printWizardHeader(runtime);
   await prompter.intro("Moltbot onboarding");
-=======
-  const onboardHelpers = await import("../commands/onboard-helpers.js");
-  onboardHelpers.printWizardHeader(runtime);
-  await prompter.intro("OpenClaw onboarding");
->>>>>>> 5c5af2b14 (perf(wizard): lazy-load onboarding deps)
   await requireRiskAcknowledgement({ opts, prompter });
 
   const snapshot = await readConfigFileSnapshot();
@@ -460,7 +441,6 @@ export async function runOnboardingWizard(
   const workspaceDir = resolveUserPath(workspaceInput.trim() || onboardHelpers.DEFAULT_WORKSPACE);
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   let nextConfig: MoltbotConfig = {
     ...baseConfig,
     agents: {
@@ -475,10 +455,6 @@ export async function runOnboardingWizard(
       mode: "local",
     },
   };
-=======
-=======
-  const { applyOnboardingLocalWorkspaceConfig } = await import("../commands/onboard-config.js");
->>>>>>> 5c5af2b14 (perf(wizard): lazy-load onboarding deps)
   let nextConfig: OpenClawConfig = applyOnboardingLocalWorkspaceConfig(baseConfig, workspaceDir);
 >>>>>>> af34c8faf (refactor(onboard): share local workspace+gateway config)
 

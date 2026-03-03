@@ -1,18 +1,8 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
 =======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as ssrf from "../../../infra/net/ssrf.js";
-<<<<<<< HEAD
->>>>>>> 991ed3ab5 (Tests: stub SSRF DNS pinning (#6619) (thanks @joshp123))
-=======
 import { withFetchPreconnect } from "../../../test-utils/fetch-mock.js";
-<<<<<<< HEAD
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
-=======
-import { createRequestCaptureJsonFetch } from "../audio.test-helpers.js";
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 import { describeGeminiVideo } from "./video.js";
 
 const TEST_NET_IP = "203.0.113.10";
@@ -28,12 +18,7 @@ function stubPinnedHostname(hostname: string) {
 }
 
 describe("describeGeminiVideo", () => {
-<<<<<<< HEAD
   let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> | undefined;
-=======
-  let resolvePinnedHostnameWithPolicySpy: ReturnType<typeof vi.spyOn>;
-  let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn>;
->>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 
   beforeEach(() => {
     // Stub both entry points so fetch-guard never does live DNS (CI can use either path).

@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { classifySignalCliLogLine } from "./daemon.js";
->>>>>>> a508c3473 (perf(test): fold signal daemon log parsing into probe suite)
 import { probeSignal } from "./probe.js";
 
 const signalCheckMock = vi.fn();

@@ -5,27 +5,15 @@ import type { WebClient as SlackWebClient } from "@slack/web-api";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import type { FetchLike } from "../../media/fetch.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import type { SlackFile } from "../types.js";
-=======
-import type { SlackAttachment, SlackFile } from "../types.js";
->>>>>>> b57d29d83 (fix(slack): extract text and media from forwarded message attachments)
 import { normalizeHostname } from "../../infra/net/hostname.js";
 >>>>>>> 4aaafe532 (refactor(net): share hostname normalization)
 import { fetchRemoteMedia } from "../../media/fetch.js";
 import { saveMediaBuffer } from "../../media/store.js";
-<<<<<<< HEAD
 import type { SlackFile } from "../types.js";
-=======
-=======
-import { normalizeHostname } from "../../infra/net/hostname.js";
-=======
->>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
 import type { FetchLike } from "../../media/fetch.js";
 import type { SlackAttachment, SlackFile } from "../types.js";
 =======
@@ -53,11 +41,8 @@ import { saveMediaBuffer } from "../../media/store.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { SlackAttachment, SlackFile } from "../types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
 =======
 import type { SlackAttachment, SlackFile } from "../types.js";
 >>>>>>> 01ea80887 (chore: Format files.)
@@ -193,15 +178,6 @@ function resolveSlackMediaMimetype(
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-function looksLikeHtmlBuffer(buffer: Buffer): boolean {
-  const head = buffer.subarray(0, 512).toString("utf-8").replace(/^\s+/, "").toLowerCase();
-  return head.startsWith("<!doctype html") || head.startsWith("<html");
-}
-
->>>>>>> e0571399a (fix(slack): reject HTML responses when downloading media (#4665))
 export type SlackMediaResult = {
   path: string;
   contentType?: string;
@@ -274,7 +250,6 @@ export async function resolveSlackMedia(params: {
   placeholder: string;
 } | null> {
   const files = params.files ?? [];
-<<<<<<< HEAD
   for (const file of files) {
     const url = file.url_private_download ?? file.url_private;
     if (!url) {
@@ -314,70 +289,6 @@ export async function resolveSlackMedia(params: {
     }
   }
   return null;
-=======
-  const limitedFiles =
-    files.length > MAX_SLACK_MEDIA_FILES ? files.slice(0, MAX_SLACK_MEDIA_FILES) : files;
-
-  const resolved = await mapLimit<SlackFile, SlackMediaResult | null>(
-    limitedFiles,
-    MAX_SLACK_MEDIA_CONCURRENCY,
-    async (file) => {
-      const url = file.url_private_download ?? file.url_private;
-      if (!url) {
-        return null;
-      }
-      try {
-        // Note: fetchRemoteMedia calls fetchImpl(url) with the URL string today and
-        // handles size limits internally. Provide a fetcher that uses auth once, then lets
-        // the redirect chain continue without credentials.
-        const fetchImpl = createSlackMediaFetch(params.token);
-        const fetched = await fetchRemoteMedia({
-          url,
-          fetchImpl,
-          filePathHint: file.name,
-          maxBytes: params.maxBytes,
-          ssrfPolicy: SLACK_MEDIA_SSRF_POLICY,
-        });
-        if (fetched.buffer.byteLength > params.maxBytes) {
-          return null;
-        }
-
-        // Guard against auth/login HTML pages returned instead of binary media.
-        // Allow user-provided HTML files through.
-        const fileMime = file.mimetype?.toLowerCase();
-        const fileName = file.name?.toLowerCase() ?? "";
-        const isExpectedHtml =
-          fileMime === "text/html" || fileName.endsWith(".html") || fileName.endsWith(".htm");
-        if (!isExpectedHtml) {
-          const detectedMime = fetched.contentType?.split(";")[0]?.trim().toLowerCase();
-          if (detectedMime === "text/html" || looksLikeHtmlBuffer(fetched.buffer)) {
-            return null;
-          }
-        }
-
-        const effectiveMime = resolveSlackMediaMimetype(file, fetched.contentType);
-        const saved = await saveMediaBuffer(
-          fetched.buffer,
-          effectiveMime,
-          "inbound",
-          params.maxBytes,
-        );
-        const label = fetched.fileName ?? file.name;
-        const contentType = effectiveMime ?? saved.contentType;
-        return {
-          path: saved.path,
-          ...(contentType ? { contentType } : {}),
-          placeholder: label ? `[Slack file: ${label}]` : "[Slack file]",
-        };
-      } catch {
-        return null;
-      }
-    },
-  );
-
-  const results = resolved.filter((entry): entry is SlackMediaResult => Boolean(entry));
-  return results.length > 0 ? results : null;
->>>>>>> 4b1cadaec (refactor(media): normalize inbound media type defaults (#16228))
 }
 
 /** Extracts text and media from forwarded-message attachments. Returns null when empty. */

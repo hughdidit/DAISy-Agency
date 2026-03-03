@@ -5,13 +5,9 @@ import type { ChannelId, ChannelThreadingToolContext } from "../../channels/plug
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { normalizeAnyChannelId, normalizeChannelId } from "../../channels/registry.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { isReasoningTagProvider } from "../../utils/provider-utils.js";
 import { estimateUsageCost, formatTokenCount, formatUsd } from "../../utils/usage-format.js";
 =======
@@ -223,14 +219,7 @@ export function buildEmbeddedContextFromTemplate(params: {
     sessionId: params.run.sessionId,
     sessionKey: params.run.sessionKey,
     agentId: params.run.agentId,
-<<<<<<< HEAD
     messageProvider: params.sessionCtx.Provider?.trim().toLowerCase() || undefined,
-=======
-    messageProvider: resolveOriginMessageProvider({
-      originatingChannel: params.sessionCtx.OriginatingChannel,
-      provider: params.sessionCtx.Provider,
-    }),
->>>>>>> 54648a9cf (refactor: centralize followup origin routing helpers)
     agentAccountId: params.sessionCtx.AccountId,
     messageTo: resolveOriginMessageTo({
       originatingTo: params.sessionCtx.OriginatingTo,

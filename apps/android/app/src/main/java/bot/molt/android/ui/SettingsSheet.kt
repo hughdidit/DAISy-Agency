@@ -36,12 +36,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
-=======
 import androidx.compose.material3.ButtonDefaults
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
 import androidx.compose.material3.AlertDialog
->>>>>>> 02e3fbef7 (style(android): align settings screen with RN visual system):apps/android/app/src/main/java/ai/openclaw/android/ui/SettingsSheet.kt
 =======
 >>>>>>> baf98a87f (refactor(android-settings): remove gateway controls duplicated in connect):apps/android/app/src/main/java/ai/openclaw/android/ui/SettingsSheet.kt
 import androidx.compose.material3.HorizontalDivider
@@ -70,29 +67,19 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
 import bot.molt.android.BuildConfig
 import bot.molt.android.LocationMode
 import bot.molt.android.MainViewModel
 import bot.molt.android.NodeForegroundService
 import bot.molt.android.VoiceWakeMode
 import bot.molt.android.WakeWords
-=======
-=======
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
->>>>>>> b12216af9 (fix(android): refresh settings permissions on resume):apps/android/app/src/main/java/ai/openclaw/android/ui/SettingsSheet.kt
 import ai.openclaw.android.BuildConfig
 import ai.openclaw.android.LocationMode
 import ai.openclaw.android.MainViewModel
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
 import ai.openclaw.android.VoiceWakeMode
 import ai.openclaw.android.WakeWords
 >>>>>>> baf98a87f (refactor(android-settings): remove gateway controls duplicated in connect):apps/android/app/src/main/java/ai/openclaw/android/ui/SettingsSheet.kt
-=======
->>>>>>> 73677f270 (refactor(android): remove legacy voice wake controls from settings):apps/android/app/src/main/java/ai/openclaw/android/ui/SettingsSheet.kt
 =======
 import ai.openclaw.android.node.DeviceNotificationListenerService
 >>>>>>> cd61edb0f (fix(android): add missing capability setup surfaces):apps/android/app/src/main/java/ai/openclaw/android/ui/SettingsSheet.kt
@@ -108,14 +95,11 @@ fun SettingsSheet(viewModel: MainViewModel) {
   val locationPreciseEnabled by viewModel.locationPreciseEnabled.collectAsState()
   val preventSleep by viewModel.preventSleep.collectAsState()
   val canvasDebugStatusEnabled by viewModel.canvasDebugStatusEnabled.collectAsState()
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
   val statusText by viewModel.statusText.collectAsState()
   val serverName by viewModel.serverName.collectAsState()
   val remoteAddress by viewModel.remoteAddress.collectAsState()
   val gateways by viewModel.gateways.collectAsState()
   val discoveryStatusText by viewModel.discoveryStatusText.collectAsState()
-=======
->>>>>>> baf98a87f (refactor(android-settings): remove gateway controls duplicated in connect):apps/android/app/src/main/java/ai/openclaw/android/ui/SettingsSheet.kt
 
   val listState = rememberLazyListState()
   val deviceModel =
@@ -467,7 +451,6 @@ fun SettingsSheet(viewModel: MainViewModel) {
               if (micPermissionGranted) {
                 "Granted. Use the Voice tab mic button to capture transcript."
               } else {
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
                 viewModel.setVoiceWakeMode(VoiceWakeMode.Off)
               }
             },
@@ -482,12 +465,6 @@ fun SettingsSheet(viewModel: MainViewModel) {
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
             headlineContent = { Text("Foreground Only") },
             supportingContent = { Text("Listens only while Moltbot is open.") },
-=======
-            modifier = settingsRowModifier(),
-            colors = listItemColors,
-            headlineContent = { Text("Foreground Only", style = mobileHeadline) },
-            supportingContent = { Text("Listens only while OpenClaw is open.", style = mobileCallout) },
->>>>>>> 02e3fbef7 (style(android): align settings screen with RN visual system):apps/android/app/src/main/java/ai/openclaw/android/ui/SettingsSheet.kt
             trailingContent = {
               RadioButton(
                 selected = voiceWakeMode == VoiceWakeMode.Foreground,
@@ -862,7 +839,6 @@ fun SettingsSheet(viewModel: MainViewModel) {
       item { HorizontalDivider(color = mobileBorder) }
 
     // Location
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
     item { Text("Location", style = MaterialTheme.typography.titleSmall) }
     item {
       Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
@@ -895,13 +871,6 @@ fun SettingsSheet(viewModel: MainViewModel) {
               onClick = { requestLocationPermissions(LocationMode.Always) },
             )
           },
-=======
-      item {
-        Text(
-          "LOCATION",
-          style = mobileCaption1.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.sp),
-          color = mobileAccent,
->>>>>>> 02e3fbef7 (style(android): align settings screen with RN visual system):apps/android/app/src/main/java/ai/openclaw/android/ui/SettingsSheet.kt
         )
       }
       item {
@@ -980,15 +949,8 @@ fun SettingsSheet(viewModel: MainViewModel) {
       }
     item {
       ListItem(
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/SettingsSheet.kt
         headlineContent = { Text("Prevent Sleep") },
         supportingContent = { Text("Keeps the screen awake while Moltbot is open.") },
-=======
-        modifier = settingsRowModifier(),
-        colors = listItemColors,
-        headlineContent = { Text("Prevent Sleep", style = mobileHeadline) },
-        supportingContent = { Text("Keeps the screen awake while OpenClaw is open.", style = mobileCallout) },
->>>>>>> 02e3fbef7 (style(android): align settings screen with RN visual system):apps/android/app/src/main/java/ai/openclaw/android/ui/SettingsSheet.kt
         trailingContent = { Switch(checked = preventSleep, onCheckedChange = viewModel::setPreventSleep) },
       )
     }

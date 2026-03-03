@@ -6,13 +6,7 @@ import type { Bot } from "grammy";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
-import type { StickerMetadata, TelegramContext } from "./bot/types.js";
->>>>>>> 21f8c3db1 (Telegram: remove last @ts-nocheck from bot-handlers.ts (#9206))
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -25,10 +19,7 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 import type { StickerMetadata, TelegramContext } from "./bot/types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 966e5560f (revert(telegram): undo accidental merge of PR #18564)
-=======
->>>>>>> 9c5f08244 (chore: Format files.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -60,11 +51,6 @@ import { buildMentionRegexes, matchesMentionWithExplicit } from "../auto-reply/r
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { MsgContext } from "../auto-reply/templating.js";
-=======
->>>>>>> 966e5560f (revert(telegram): undo accidental merge of PR #18564)
 =======
 import type { MsgContext } from "../auto-reply/templating.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
@@ -97,10 +83,7 @@ import { readSessionUpdatedAt, resolveStorePath } from "../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 =======
 >>>>>>> 966e5560f (revert(telegram): undo accidental merge of PR #18564)
@@ -134,10 +117,7 @@ import { resolveMentionGatingWithBypass } from "../channels/mention-gating.js";
 import { resolveControlCommandGate } from "../channels/command-gating.js";
 import { logInboundDrop } from "../channels/logging.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
-<<<<<<< HEAD
-=======
 import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
->>>>>>> 9514201fb (fix(telegram): block unauthorized DM media downloads)
 import {
   buildGroupLabel,
   buildSenderLabel,
@@ -163,13 +143,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { StickerMetadata, TelegramContext } from "./bot/types.js";
-import { enforceTelegramDmAccess } from "./dm-access.js";
-import { evaluateTelegramGroupBaseAccess } from "./group-access.js";
-import { resolveTelegramGroupPromptSettings } from "./group-config-helpers.js";
->>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 import {
   firstDefined,
   isSenderAllowed,
@@ -307,20 +280,7 @@ export const buildTelegramMessageContext = async ({
     isForum,
     messageThreadId,
   });
-<<<<<<< HEAD
   const { groupConfig, topicConfig } = resolveTelegramGroupConfig(chatId, resolvedThreadId);
-=======
-  const resolvedThreadId = threadSpec.scope === "forum" ? threadSpec.id : undefined;
-  const replyThreadId = threadSpec.id;
-  const dmThreadId = threadSpec.scope === "dm" ? threadSpec.id : undefined;
-  const threadIdForConfig = resolvedThreadId ?? dmThreadId;
-  const { groupConfig, topicConfig } = resolveTelegramGroupConfig(chatId, threadIdForConfig);
-  // Use direct config dmPolicy override if available for DMs
-  const effectiveDmPolicy =
-    !isGroup && groupConfig && "dmPolicy" in groupConfig
-      ? (groupConfig.dmPolicy ?? dmPolicy)
-      : dmPolicy;
->>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
   const peerId = isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId);
   const parentPeer = buildTelegramParentPeer({ isGroup, resolvedThreadId, chatId });
   // Fresh config for bindings lookup; other routing inputs are payload-derived.
@@ -335,38 +295,20 @@ export const buildTelegramMessageContext = async ({
     parentPeer,
   });
   const baseSessionKey = route.sessionKey;
-<<<<<<< HEAD
   // DMs: use raw messageThreadId for thread sessions (not resolvedThreadId which is for forums)
   const dmThreadId = !isGroup ? messageThreadId : undefined;
-=======
-  // DMs: use thread suffix for session isolation (works regardless of dmScope)
->>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
   const threadKeys =
     dmThreadId != null
       ? resolveThreadSessionKeys({ baseSessionKey, threadId: `${chatId}:${dmThreadId}` })
       : null;
   const sessionKey = threadKeys?.sessionKey ?? baseSessionKey;
   const mentionRegexes = buildMentionRegexes(cfg, route.agentId);
-<<<<<<< HEAD
   const effectiveDmAllow = normalizeAllowFromWithStore({ allowFrom, storeAllowFrom });
   const groupAllowOverride = firstDefined(topicConfig?.allowFrom, groupConfig?.allowFrom);
   const effectiveGroupAllow = normalizeAllowFromWithStore({
     allowFrom: groupAllowOverride ?? groupAllowFrom,
     storeAllowFrom,
   });
-=======
-  // Calculate groupAllowOverride first - it's needed for both DM and group allowlist checks
-  const groupAllowOverride = firstDefined(topicConfig?.allowFrom, groupConfig?.allowFrom);
-  // For DMs, prefer per-DM/topic allowFrom (groupAllowOverride) over account-level allowFrom
-  const dmAllowFrom = groupAllowOverride ?? allowFrom;
-  const effectiveDmAllow = normalizeDmAllowFromWithStore({
-    allowFrom: dmAllowFrom,
-    storeAllowFrom,
-    dmPolicy: effectiveDmPolicy,
-  });
-  // Group sender checks are explicit and must not inherit DM pairing-store entries.
-  const effectiveGroupAllow = normalizeAllowFrom(groupAllowOverride ?? groupAllowFrom);
->>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
   const hasGroupAllowOverride = typeof groupAllowOverride !== "undefined";
   const senderId = msg.from?.id ? String(msg.from.id) : "";
   const senderUsername = msg.from?.username ?? "";
@@ -400,8 +342,6 @@ export const buildTelegramMessageContext = async ({
     return null;
   }
 
-<<<<<<< HEAD
-=======
   // Compute requireMention early for preflight transcription gating
   const activationOverride = resolveGroupActivation({
     chatId,
@@ -424,20 +364,10 @@ export const buildTelegramMessageContext = async ({
     return null;
   }
 
->>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
   const sendTyping = async () => {
     await withTelegramApiErrorLogging({
       operation: "sendChatAction",
-<<<<<<< HEAD
       fn: () => bot.api.sendChatAction(chatId, "typing", buildTypingThreadParams(resolvedThreadId)),
-=======
-      fn: () =>
-        sendChatActionHandler.sendChatAction(
-          chatId,
-          "typing",
-          buildTypingThreadParams(replyThreadId),
-        ),
->>>>>>> b096ad267 (fix(telegram): add sendChatAction 401 backoff guard (land #27415, thanks @widingmarcus-cyber))
     });
   };
 
@@ -446,22 +376,13 @@ export const buildTelegramMessageContext = async ({
       await withTelegramApiErrorLogging({
         operation: "sendChatAction",
         fn: () =>
-<<<<<<< HEAD
           bot.api.sendChatAction(chatId, "record_voice", buildTypingThreadParams(resolvedThreadId)),
-=======
-          sendChatActionHandler.sendChatAction(
-            chatId,
-            "record_voice",
-            buildTypingThreadParams(replyThreadId),
-          ),
->>>>>>> b096ad267 (fix(telegram): add sendChatAction 401 backoff guard (land #27415, thanks @widingmarcus-cyber))
       });
     } catch (err) {
       logVerbose(`telegram record_voice cue failed for chat ${chatId}: ${String(err)}`);
     }
   };
 
-<<<<<<< HEAD
   // DM access control (secure defaults): "pairing" (default) / "allowlist" / "open" / "disabled"
   if (!isGroup) {
     if (dmPolicy === "disabled") {
@@ -498,10 +419,6 @@ export const buildTelegramMessageContext = async ({
               channel: "telegram",
 <<<<<<< HEAD
               id: String(candidate),
-=======
-              id: telegramUserId,
-              accountId: account.accountId,
->>>>>>> 6957354d4 (fix (telegram/whatsapp): use account-scoped pairing allowlists)
               meta: {
                 username: from?.username,
                 firstName: from?.first_name,
@@ -525,7 +442,6 @@ export const buildTelegramMessageContext = async ({
                 fn: () =>
                   bot.api.sendMessage(
                     chatId,
-<<<<<<< HEAD
                     [
                       "Moltbot: access not configured.",
                       "",
@@ -536,9 +452,6 @@ export const buildTelegramMessageContext = async ({
                       "Ask the bot owner to approve with:",
 <<<<<<< HEAD
                       formatCliCommand("moltbot pairing approve telegram <code>"),
-=======
-                      formatCliCommand(`openclaw pairing approve telegram ${code}`),
->>>>>>> 74273d62d (fix(pairing): show actual code in approval command instead of placeholder (#13723))
                     ].join("\n"),
 =======
                     buildPairingReply({
@@ -633,58 +546,14 @@ export const buildTelegramMessageContext = async ({
   }
 
   let bodyText = rawBody;
-<<<<<<< HEAD
   if (!bodyText && allMedia.length > 0) {
     bodyText = `<media:image>${allMedia.length > 1 ? ` (${allMedia.length} images)` : ""}`;
   }
-=======
-  const hasAudio = allMedia.some((media) => media.contentType?.startsWith("audio/"));
-
-  // Preflight audio transcription for mention detection in groups
-  // This allows voice notes to be checked for mentions before being dropped
-  let preflightTranscript: string | undefined;
-  const needsPreflightTranscription =
-    isGroup && requireMention && hasAudio && !hasUserText && mentionRegexes.length > 0;
-
-  if (needsPreflightTranscription) {
-    try {
-      const { transcribeFirstAudio } = await import("../media-understanding/audio-preflight.js");
-      // Build a minimal context for transcription
-      const tempCtx: MsgContext = {
-        MediaPaths: allMedia.length > 0 ? allMedia.map((m) => m.path) : undefined,
-        MediaTypes:
-          allMedia.length > 0
-            ? (allMedia.map((m) => m.contentType).filter(Boolean) as string[])
-            : undefined,
-      };
-      preflightTranscript = await transcribeFirstAudio({
-        ctx: tempCtx,
-        cfg,
-        agentDir: undefined,
-      });
-    } catch (err) {
-      logVerbose(`telegram: audio preflight transcription failed: ${String(err)}`);
-    }
-  }
-
-  // Build bodyText - if there's audio with transcript, use transcript; otherwise use placeholder
-  if (!bodyText && allMedia.length > 0) {
-    if (hasAudio) {
-      bodyText = preflightTranscript || "<media:audio>";
-    } else {
-      bodyText = `<media:image>${allMedia.length > 1 ? ` (${allMedia.length} images)` : ""}`;
-    }
-  }
-
->>>>>>> b65b3c6ff (fix(telegram): include voice transcript in body text instead of raw audio (#16789))
   const hasAnyMention = (msg.entities ?? msg.caption_entities ?? []).some(
     (ent) => ent.type === "mention",
   );
   const explicitlyMentioned = botUsername ? hasBotMention(msg, botUsername) : false;
-<<<<<<< HEAD
-=======
 
->>>>>>> b65b3c6ff (fix(telegram): include voice transcript in body text instead of raw audio (#16789))
   const computedWasMentioned = matchesMentionWithExplicit({
     text: msg.text ?? msg.caption ?? "",
     mentionRegexes,

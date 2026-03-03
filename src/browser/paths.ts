@@ -85,8 +85,6 @@ export function resolvePathWithinRoot(params: {
   return { ok: true, path: resolved };
 }
 
-<<<<<<< HEAD
-=======
 export async function resolveWritablePathWithinRoot(params: {
   rootDir: string;
   requestedPath: string;
@@ -127,7 +125,6 @@ export async function resolveWritablePathWithinRoot(params: {
   return lexical;
 }
 
->>>>>>> f41715a18 (refactor(browser): split act route modules and dedupe path guards)
 export function resolvePathsWithinRoot(params: {
   rootDir: string;
   requestedPaths: string[];

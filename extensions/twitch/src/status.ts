@@ -4,8 +4,6 @@
  * Detects and reports configuration issues for Twitch accounts.
  */
 
-<<<<<<< HEAD
-=======
 import type { ChannelStatusIssue } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -13,7 +11,6 @@ import type { ChannelStatusIssue } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ChannelAccountSnapshot } from "./types.js";
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======

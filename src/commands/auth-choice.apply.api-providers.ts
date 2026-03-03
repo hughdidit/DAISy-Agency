@@ -1,5 +1,4 @@
 import { ensureAuthProfileStore, resolveAuthProfileOrder } from "../agents/auth-profiles.js";
-<<<<<<< HEAD
 import { resolveEnvApiKey } from "../agents/model-auth.js";
 import {
   formatApiKeyPreview,
@@ -10,10 +9,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
-=======
-=======
-import { createAuthChoiceAgentModelNoter } from "./auth-choice.apply-helpers.js";
->>>>>>> 0048af4e2 (refactor(commands): dedupe auth-choice model notes)
 import { applyAuthChoiceHuggingface } from "./auth-choice.apply.huggingface.js";
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { applyAuthChoiceOpenRouter } from "./auth-choice.apply.openrouter.js";
@@ -44,13 +39,6 @@ import type { ApiKeyStorageOptions } from "./onboard-auth.credentials.js";
 import {
   applyAuthProfileConfig,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  applyCloudflareAiGatewayConfig,
-  applyCloudflareAiGatewayProviderConfig,
-  applyKilocodeConfig,
-  applyKilocodeProviderConfig,
->>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
   applyQianfanConfig,
   applyQianfanProviderConfig,
 =======
@@ -81,11 +69,6 @@ import {
   applyZaiConfig,
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  applyZaiProviderConfig,
->>>>>>> 540996f10 (feat(provider): Z.AI endpoints + model catalog (#13456) (thanks @tomsun28) (#13456))
   CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,
   KILOCODE_DEFAULT_MODEL_REF,
   LITELLM_DEFAULT_MODEL_REF,
@@ -102,11 +85,7 @@ import {
   VENICE_DEFAULT_MODEL_REF,
   VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF,
   XIAOMI_DEFAULT_MODEL_REF,
-<<<<<<< HEAD
   setQianfanApiKey,
-=======
-  setCloudflareAiGatewayConfig,
->>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   setGeminiApiKey,
   setKilocodeApiKey,
   setLitellmApiKey,
@@ -452,7 +431,6 @@ export async function applyAuthChoiceApiProviders(
   }
 
   if (authChoice === "openrouter-api-key") {
-<<<<<<< HEAD
     const store = ensureAuthProfileStore(params.agentDir, {
       allowKeychainPrompt: false,
     });
@@ -528,9 +506,6 @@ export async function applyAuthChoiceApiProviders(
       agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
     }
     return { config: nextConfig, agentModelOverride };
-=======
-    return applyAuthChoiceOpenRouter(params);
->>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
   }
 
   if (authChoice === "litellm-api-key") {
@@ -545,7 +520,6 @@ export async function applyAuthChoiceApiProviders(
     }
 
     if (!hasCredential) {
-<<<<<<< HEAD
       await params.prompter.note(
         "LiteLLM provides a unified API to 100+ LLM providers.\nGet your API key from your LiteLLM proxy or https://litellm.ai\nDefault proxy runs on http://localhost:4000",
         "LiteLLM",
@@ -569,27 +543,6 @@ export async function applyAuthChoiceApiProviders(
         await setLitellmApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
         hasCredential = true;
       }
-=======
-      await ensureApiKeyFromOptionEnvOrPrompt({
-        token: params.opts?.token,
-        tokenProvider: normalizedTokenProvider,
-        secretInputMode: requestedSecretInputMode,
-        config: nextConfig,
-        expectedProviders: ["litellm"],
-        provider: "litellm",
-        envLabel: "LITELLM_API_KEY",
-        promptMessage: "Enter LiteLLM API key",
-        normalize: normalizeApiKeyInput,
-        validate: validateApiKeyInput,
-        prompter: params.prompter,
-        setCredential: async (apiKey, mode) =>
-          setLitellmApiKey(apiKey, params.agentDir, { secretInputMode: mode }),
-        noteMessage:
-          "LiteLLM provides a unified API to 100+ LLM providers.\nGet your API key from your LiteLLM proxy or https://litellm.ai\nDefault proxy runs on http://localhost:4000",
-        noteTitle: "LiteLLM",
-      });
-      hasCredential = true;
->>>>>>> fc60f4923 (refactor(auth-choice): unify api-key resolution flows)
     }
 
     if (hasCredential) {
@@ -608,7 +561,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
-<<<<<<< HEAD
   if (authChoice === "ai-gateway-api-key") {
     let hasCredential = false;
 
@@ -643,29 +595,6 @@ export async function applyAuthChoiceApiProviders(
       profileId: "vercel-ai-gateway:default",
       provider: "vercel-ai-gateway",
       mode: "api_key",
-=======
-  const simpleApiKeyProviderFlow = SIMPLE_API_KEY_PROVIDER_FLOWS[authChoice];
-  if (simpleApiKeyProviderFlow) {
-    return await applyApiKeyProviderWithDefaultModel({
-      provider: simpleApiKeyProviderFlow.provider,
-      profileId: simpleApiKeyProviderFlow.profileId,
-      expectedProviders: simpleApiKeyProviderFlow.expectedProviders,
-      envLabel: simpleApiKeyProviderFlow.envLabel,
-      promptMessage: simpleApiKeyProviderFlow.promptMessage,
-      setCredential: async (apiKey, mode) =>
-        simpleApiKeyProviderFlow.setCredential(apiKey, params.agentDir, {
-          secretInputMode: mode ?? requestedSecretInputMode,
-        }),
-      defaultModel: simpleApiKeyProviderFlow.defaultModel,
-      applyDefaultConfig: simpleApiKeyProviderFlow.applyDefaultConfig,
-      applyProviderConfig: simpleApiKeyProviderFlow.applyProviderConfig,
-      noteDefault: simpleApiKeyProviderFlow.noteDefault,
-      noteMessage: simpleApiKeyProviderFlow.noteMessage,
-      noteTitle: simpleApiKeyProviderFlow.noteTitle,
-      tokenProvider: simpleApiKeyProviderFlow.tokenProvider,
-      normalize: simpleApiKeyProviderFlow.normalize,
-      validate: simpleApiKeyProviderFlow.validate,
->>>>>>> fc60f4923 (refactor(auth-choice): unify api-key resolution flows)
     });
   }
 
@@ -710,7 +639,6 @@ export async function applyAuthChoiceApiProviders(
         }),
     });
 
-<<<<<<< HEAD
     if (!resolvedApiKey && optsApiKey) {
       await ensureAccountGateway();
       await setCloudflareAiGatewayConfig(accountId, gatewayId, optsApiKey, params.agentDir, {
@@ -795,20 +723,14 @@ export async function applyAuthChoiceApiProviders(
       await setMoonshotApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
     }
 =======
-    await ensureMoonshotApiKeyCredential("Enter Moonshot API key");
->>>>>>> adee04824 (refactor(commands): dedupe moonshot api key prompt)
-=======
       resolvedApiKey = normalizeApiKeyInput(String(key ?? ""));
       await setCloudflareAiGatewayConfig(accountId, gatewayId, resolvedApiKey, params.agentDir, {
         secretInputMode: requestedSecretInputMode,
       });
     }
-<<<<<<< HEAD
 
     await setCloudflareAiGatewayConfig(accountId, gatewayId, resolvedApiKey, params.agentDir);
 >>>>>>> fc60f4923 (refactor(auth-choice): unify api-key resolution flows)
-=======
->>>>>>> 04aa856fc (Onboard: require explicit mode for env secret refs)
 =======
 >>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
     nextConfig = applyAuthProfileConfig(nextConfig, {
@@ -816,7 +738,6 @@ export async function applyAuthChoiceApiProviders(
       provider: "cloudflare-ai-gateway",
       mode: "api_key",
     });
-<<<<<<< HEAD
     {
       const applied = await applyDefaultModelChoice({
         config: nextConfig,
@@ -860,9 +781,6 @@ export async function applyAuthChoiceApiProviders(
       });
       await setMoonshotApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
     }
-=======
-    await ensureMoonshotApiKeyCredential("Enter Moonshot API key (.cn)");
->>>>>>> adee04824 (refactor(commands): dedupe moonshot api key prompt)
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "moonshot:default",
       provider: "moonshot",
@@ -970,7 +888,6 @@ export async function applyAuthChoiceApiProviders(
   }
 
   if (authChoice === "gemini-api-key") {
-<<<<<<< HEAD
     let hasCredential = false;
 
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "google") {
@@ -996,23 +913,6 @@ export async function applyAuthChoiceApiProviders(
       });
       await setGeminiApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
     }
-=======
-    await ensureApiKeyFromOptionEnvOrPrompt({
-      token: params.opts?.token,
-      provider: "google",
-      tokenProvider: normalizedTokenProvider,
-      secretInputMode: requestedSecretInputMode,
-      config: nextConfig,
-      expectedProviders: ["google"],
-      envLabel: "GEMINI_API_KEY",
-      promptMessage: "Enter Gemini API key",
-      normalize: normalizeApiKeyInput,
-      validate: validateApiKeyInput,
-      prompter: params.prompter,
-      setCredential: async (apiKey, mode) =>
-        setGeminiApiKey(apiKey, params.agentDir, { secretInputMode: mode }),
-    });
->>>>>>> fc60f4923 (refactor(auth-choice): unify api-key resolution flows)
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "google:default",
       provider: "google",
@@ -1043,7 +943,6 @@ export async function applyAuthChoiceApiProviders(
   ) {
     let endpoint = ZAI_AUTH_CHOICE_ENDPOINT[authChoice];
 
-<<<<<<< HEAD
     // Input API key
     let hasCredential = false;
     let apiKey = "";
@@ -1074,23 +973,6 @@ export async function applyAuthChoiceApiProviders(
       apiKey = normalizeApiKeyInput(String(key));
       await setZaiApiKey(apiKey, params.agentDir);
     }
-=======
-    const apiKey = await ensureApiKeyFromOptionEnvOrPrompt({
-      token: params.opts?.token,
-      provider: "zai",
-      tokenProvider: normalizedTokenProvider,
-      secretInputMode: requestedSecretInputMode,
-      config: nextConfig,
-      expectedProviders: ["zai"],
-      envLabel: "ZAI_API_KEY",
-      promptMessage: "Enter Z.AI API key",
-      normalize: normalizeApiKeyInput,
-      validate: validateApiKeyInput,
-      prompter: params.prompter,
-      setCredential: async (apiKey, mode) =>
-        setZaiApiKey(apiKey, params.agentDir, { secretInputMode: mode }),
-    });
->>>>>>> fc60f4923 (refactor(auth-choice): unify api-key resolution flows)
 
     // zai-api-key: auto-detect endpoint + choose a working default model.
     let modelIdOverride: string | undefined;
@@ -1155,7 +1037,6 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
-<<<<<<< HEAD
   if (authChoice === "xiaomi-api-key") {
     let hasCredential = false;
 
@@ -1410,13 +1291,10 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
-=======
->>>>>>> fc60f4923 (refactor(auth-choice): unify api-key resolution flows)
   if (authChoice === "huggingface-api-key") {
     return applyAuthChoiceHuggingface({ ...params, authChoice });
   }
 
-<<<<<<< HEAD
   if (authChoice === "qianfan-api-key") {
     let hasCredential = false;
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "qianfan") {
@@ -1473,7 +1351,5 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
-=======
->>>>>>> fc60f4923 (refactor(auth-choice): unify api-key resolution flows)
   return null;
 }

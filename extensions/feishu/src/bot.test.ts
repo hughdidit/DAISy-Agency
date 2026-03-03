@@ -213,8 +213,6 @@ describe("handleFeishuMessage command authorization", () => {
     expect(mockDispatchReplyFromConfig).toHaveBeenCalledTimes(1);
   });
 
-<<<<<<< HEAD
-=======
   it("skips sender-name lookup when resolveSenderNames is false", async () => {
     const cfg: ClawdbotConfig = {
       channels: {
@@ -291,7 +289,6 @@ describe("handleFeishuMessage command authorization", () => {
     );
   });
 
->>>>>>> 4ad49de89 (feat(feishu): add parent/root inbound context for quote support (openclaw#18529))
   it("creates pairing request and drops unauthorized DMs in pairing mode", async () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(false);
     mockReadAllowFromStore.mockResolvedValue([]);
@@ -390,8 +387,6 @@ describe("handleFeishuMessage command authorization", () => {
       }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("falls back to top-level allowFrom for group command authorization", async () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(true);
@@ -1078,5 +1073,4 @@ describe("toMessageResourceType", () => {
     expect(toMessageResourceType("file")).toBe("file");
     expect(toMessageResourceType("sticker")).toBe("file");
   });
->>>>>>> b0a8909a7 (fix(feishu): fix group policy enforcement gaps (#25439))
 });

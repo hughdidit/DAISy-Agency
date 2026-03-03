@@ -1,12 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { toAgentModelListLike } from "../config/model-input.js";
-import type { ModelProviderConfig } from "../config/types.models.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 1ba266a8e (refactor: split minimax-cn provider)
 =======
 import { applyOnboardAuthAgentModelsAndProviders } from "./onboard-auth.config-shared.js";
 >>>>>>> ab6f080d8 (refactor(commands): share provider config merge wrapper)
@@ -122,67 +114,9 @@ export function applyMinimaxHostedConfig(
 
 // MiniMax Anthropic-compatible API (platform.minimax.io/anthropic)
 export function applyMinimaxApiProviderConfig(
-<<<<<<< HEAD
   cfg: MoltbotConfig,
   modelId: string = "MiniMax-M2.1",
 ): MoltbotConfig {
-=======
-  cfg: OpenClawConfig,
-  modelId: string = "MiniMax-M2.5",
-): OpenClawConfig {
-  return applyMinimaxApiProviderConfigWithBaseUrl(cfg, {
-    providerId: "minimax",
-    modelId,
-    baseUrl: MINIMAX_API_BASE_URL,
-  });
-}
-
-export function applyMinimaxApiConfig(
-  cfg: OpenClawConfig,
-  modelId: string = "MiniMax-M2.5",
-): OpenClawConfig {
-  return applyMinimaxApiConfigWithBaseUrl(cfg, {
-    providerId: "minimax",
-    modelId,
-    baseUrl: MINIMAX_API_BASE_URL,
-  });
-}
-
-// MiniMax China API (api.minimaxi.com)
-export function applyMinimaxApiProviderConfigCn(
-  cfg: OpenClawConfig,
-  modelId: string = "MiniMax-M2.5",
-): OpenClawConfig {
-  return applyMinimaxApiProviderConfigWithBaseUrl(cfg, {
-    providerId: "minimax-cn",
-    modelId,
-    baseUrl: MINIMAX_CN_API_BASE_URL,
-  });
-}
-
-export function applyMinimaxApiConfigCn(
-  cfg: OpenClawConfig,
-  modelId: string = "MiniMax-M2.5",
-): OpenClawConfig {
-  return applyMinimaxApiConfigWithBaseUrl(cfg, {
-    providerId: "minimax-cn",
-    modelId,
-    baseUrl: MINIMAX_CN_API_BASE_URL,
-  });
-}
-
-type MinimaxApiProviderConfigParams = {
-  providerId: string;
-  modelId: string;
-  baseUrl: string;
-};
-
-function applyMinimaxApiProviderConfigWithBaseUrl(
-  cfg: OpenClawConfig,
-  params: MinimaxApiProviderConfigParams,
-): OpenClawConfig {
-<<<<<<< HEAD
->>>>>>> 9bb099736 (feat: add minimax-api-key-cn option for China API endpoint)
   const providers = { ...cfg.models?.providers };
   const existingProvider = providers.minimax;
   const existingModels = Array.isArray(existingProvider?.models) ? existingProvider.models : [];
@@ -230,23 +164,13 @@ function applyMinimaxApiProviderConfigWithBaseUrl(
   };
 }
 
-<<<<<<< HEAD
 export function applyMinimaxApiConfig(
   cfg: MoltbotConfig,
   modelId: string = "MiniMax-M2.1",
 ): MoltbotConfig {
   const next = applyMinimaxApiProviderConfig(cfg, modelId);
 =======
-function applyMinimaxApiConfigWithBaseUrl(
-  cfg: OpenClawConfig,
-  params: MinimaxApiProviderConfigParams,
-): OpenClawConfig {
-<<<<<<< HEAD
-  const next = applyMinimaxApiProviderConfigWithBaseUrl(cfg, modelId, baseUrl);
->>>>>>> 9bb099736 (feat: add minimax-api-key-cn option for China API endpoint)
-=======
   const next = applyMinimaxApiProviderConfigWithBaseUrl(cfg, params);
-<<<<<<< HEAD
 >>>>>>> 1ba266a8e (refactor: split minimax-cn provider)
   return {
     ...next,
@@ -266,7 +190,4 @@ function applyMinimaxApiConfigWithBaseUrl(
       },
     },
   };
-=======
-  return applyAgentDefaultModelPrimary(next, `${params.providerId}/${params.modelId}`);
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 }

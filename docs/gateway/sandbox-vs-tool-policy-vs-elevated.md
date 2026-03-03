@@ -15,11 +15,7 @@ Moltbot has three related (but different) controls:
 
 ## Quick debug
 
-<<<<<<< HEAD
 Use the inspector to see what Moltbot is *actually* doing:
-=======
-Use the inspector to see what OpenClaw is _actually_ doing:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```bash
 moltbot sandbox explain

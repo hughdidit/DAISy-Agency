@@ -3,7 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveIsNixMode } from "../../config/paths.js";
 import { resolveGatewayService } from "../../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../../daemon/systemd.js";
@@ -11,10 +10,6 @@ import { renderSystemdUnavailableHints } from "../../daemon/systemd-hints.js";
 import { isWSL } from "../../infra/wsl.js";
 import { defaultRuntime } from "../../runtime.js";
 import { buildDaemonServiceSnapshot, createNullWriter, emitDaemonActionJson } from "./response.js";
-=======
-import type { DaemonLifecycleOptions } from "./types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { DaemonLifecycleOptions } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -32,39 +27,10 @@ import {
   runServiceStop,
   runServiceUninstall,
 } from "./lifecycle-core.js";
-<<<<<<< HEAD
 >>>>>>> 1b9c1c648 (refactor(daemon): share service lifecycle runner)
 import { renderGatewayServiceStartHints } from "./shared.js";
 import type { DaemonLifecycleOptions } from "./types.js";
 
-=======
-import {
-  DEFAULT_RESTART_HEALTH_ATTEMPTS,
-  DEFAULT_RESTART_HEALTH_DELAY_MS,
-  renderRestartDiagnostics,
-  terminateStaleGatewayPids,
-  waitForGatewayHealthyRestart,
-} from "./restart-health.js";
-import { parsePortFromArgs, renderGatewayServiceStartHints } from "./shared.js";
-import type { DaemonLifecycleOptions } from "./types.js";
-
-const POST_RESTART_HEALTH_ATTEMPTS = DEFAULT_RESTART_HEALTH_ATTEMPTS;
-const POST_RESTART_HEALTH_DELAY_MS = DEFAULT_RESTART_HEALTH_DELAY_MS;
-
-async function resolveGatewayRestartPort() {
-  const service = resolveGatewayService();
-  const command = await service.readCommand(process.env).catch(() => null);
-  const serviceEnv = command?.environment ?? undefined;
-  const mergedEnv = {
-    ...(process.env as Record<string, string | undefined>),
-    ...(serviceEnv ?? undefined),
-  } as NodeJS.ProcessEnv;
-
-  const portFromArgs = parsePortFromArgs(command?.programArguments);
-  return portFromArgs ?? resolveGatewayPort(loadConfig(), mergedEnv);
-}
-
->>>>>>> 80f430c2b (fix(daemon): extend restart health timeout and improve restart errors)
 export async function runDaemonUninstall(opts: DaemonLifecycleOptions = {}) {
   return await runServiceUninstall({
     serviceNoun: "Gateway",
@@ -98,8 +64,6 @@ export async function runDaemonStop(opts: DaemonLifecycleOptions = {}) {
  * Throws/exits on check or restart failures.
  */
 export async function runDaemonRestart(opts: DaemonLifecycleOptions = {}): Promise<boolean> {
-<<<<<<< HEAD
-=======
   const json = Boolean(opts.json);
   const service = resolveGatewayService();
   const restartPort = await resolveGatewayRestartPort().catch(() =>
@@ -108,15 +72,12 @@ export async function runDaemonRestart(opts: DaemonLifecycleOptions = {}): Promi
   const restartWaitMs = POST_RESTART_HEALTH_ATTEMPTS * POST_RESTART_HEALTH_DELAY_MS;
   const restartWaitSeconds = Math.round(restartWaitMs / 1000);
 
->>>>>>> 80f430c2b (fix(daemon): extend restart health timeout and improve restart errors)
   return await runServiceRestart({
     serviceNoun: "Gateway",
     service: resolveGatewayService(),
     renderStartHints: renderGatewayServiceStartHints,
     opts,
     checkTokenDrift: true,
-<<<<<<< HEAD
-=======
     postRestartCheck: async ({ warnings, fail, stdout }) => {
       let health = await waitForGatewayHealthyRestart({
         service,
@@ -174,6 +135,5 @@ export async function runDaemonRestart(opts: DaemonLifecycleOptions = {}): Promi
         formatCliCommand("openclaw doctor"),
       ]);
     },
->>>>>>> 80f430c2b (fix(daemon): extend restart health timeout and improve restart errors)
   });
 }

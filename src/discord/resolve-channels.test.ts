@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
->>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import { resolveDiscordChannelAllowlist } from "./resolve-channels.js";
 import { jsonResponse, urlToString } from "./test-http-helpers.js";
 

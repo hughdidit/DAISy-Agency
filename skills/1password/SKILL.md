@@ -2,28 +2,7 @@
 name: 1password
 description: Set up and use 1Password CLI (op). Use when installing the CLI, enabling desktop app integration, signing in (single or multi-account), or reading/injecting/running secrets via op.
 homepage: https://developer.1password.com/docs/cli/get-started/
-<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"🔐","requires":{"bins":["op"]},"install":[{"id":"brew","kind":"brew","formula":"1password-cli","bins":["op"],"label":"Install 1Password CLI (brew)"}]}}
-=======
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🔐",
-        "requires": { "bins": ["op"] },
-        "install":
-          [
-            {
-              "id": "brew",
-              "kind": "brew",
-              "formula": "1password-cli",
-              "bins": ["op"],
-              "label": "Install 1Password CLI (brew)",
-            },
-          ],
-      },
-  }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 ---
 
 # 1Password CLI
@@ -52,11 +31,7 @@ The shell tool uses a fresh TTY per command. To avoid re-prompts and failures, a
 Example (see `tmux` skill for socket conventions, do not reuse old session names):
 
 ```bash
-<<<<<<< HEAD
 SOCKET_DIR="${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/moltbot-tmux-sockets}"
-=======
-SOCKET_DIR="${OPENCLAW_TMUX_SOCKET_DIR:-${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/openclaw-tmux-sockets}}"
->>>>>>> fd00d5688 (chore: update openclaw naming)
 mkdir -p "$SOCKET_DIR"
 SOCKET="$SOCKET_DIR/moltbot-op.sock"
 SESSION="op-auth-$(date +%Y%m%d-%H%M%S)"

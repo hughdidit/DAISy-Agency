@@ -17,7 +17,6 @@ import {
 import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -59,8 +58,6 @@ function _assertModelSelection(
 }
 
 =======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
-=======
 const COMMAND_MESSAGE_BASE = {
   From: "+1222",
   To: "+1222",
@@ -95,15 +92,7 @@ async function runElevatedCommand(home: string, body: string) {
   );
 }
 
-<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-=======
-async function runQueueDirective(home: string, body: string) {
-  return runCommand(home, body);
-}
-
-<<<<<<< HEAD
->>>>>>> 706c9ec72 (test: consolidate directive behavior suites)
 =======
 function makeWorkElevatedAllowlistConfig(home: string) {
   const base = makeWhatsAppDirectiveConfig(
@@ -179,7 +168,6 @@ describe("directive behavior", () => {
   it("reports current directive defaults when no arguments are provided", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         { Body: "/verbose", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
@@ -196,9 +184,6 @@ describe("directive behavior", () => {
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
-=======
-      const text = await runCommand(home, "/verbose", { defaults: { verboseDefault: "on" } });
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(text).toContain("Current verbose level: on");
       expect(text).toContain("Options: on, full, off.");
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
@@ -206,7 +191,6 @@ describe("directive behavior", () => {
   });
   it("shows current reasoning level when /reasoning has no argument", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         { Body: "/reasoning", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
@@ -222,9 +206,6 @@ describe("directive behavior", () => {
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
-=======
-      const text = await runCommand(home, "/reasoning");
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(text).toContain("Current reasoning level: off");
       expect(text).toContain("Options: on, off, stream.");
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
@@ -232,7 +213,6 @@ describe("directive behavior", () => {
   });
   it("shows current elevated level when /elevated has no argument", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         {
           Body: "/elevated",
@@ -262,10 +242,6 @@ describe("directive behavior", () => {
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
-=======
-      const res = await runElevatedCommand(home, "/elevated");
-      const text = replyText(res);
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(text).toContain("Current elevated level: on");
       expect(text).toContain("Options: on, off, ask, full.");
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
@@ -273,7 +249,6 @@ describe("directive behavior", () => {
   });
   it("shows current exec defaults when /exec has no argument", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const res = await getReplyFromConfig(
         {
           Body: "/exec",
@@ -289,25 +264,6 @@ describe("directive behavior", () => {
               workspace: path.join(home, "clawd"),
             },
           },
-=======
-      const text = await runCommand(home, "/exec", {
-=======
-      const verboseText = await runCommand(home, "/verbose", {
-        defaults: { verboseDefault: "on" },
-      });
-      expect(verboseText).toContain("Current verbose level: on");
-      expect(verboseText).toContain("Options: on, full, off.");
-
-      const reasoningText = await runCommand(home, "/reasoning");
-      expect(reasoningText).toContain("Current reasoning level: off");
-      expect(reasoningText).toContain("Options: on, off, stream.");
-
-      const elevatedText = replyText(await runElevatedCommand(home, "/elevated"));
-      expect(elevatedText).toContain("Current elevated level: on");
-      expect(elevatedText).toContain("Options: on, off, ask, full.");
-
-      const execText = await runCommand(home, "/exec", {
->>>>>>> 31ca7fb27 (test: consolidate directive behavior test scenarios)
         extra: {
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
           tools: {
@@ -331,7 +287,6 @@ describe("directive behavior", () => {
   });
   it("persists elevated toggles across /status and /elevated", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -363,14 +318,6 @@ describe("directive behavior", () => {
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
-=======
-      const storePath = sessionStorePath(home);
-<<<<<<< HEAD
-      const res = await runElevatedCommand(home, "/elevated off\n/status");
-      const text = replyText(res);
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(text).toContain("Elevated mode disabled.");
       const optionsLine = text?.split("\n").find((line) => line.trim().startsWith("⚙️"));
       expect(optionsLine).toBeTruthy();
@@ -559,7 +506,6 @@ describe("directive behavior", () => {
           SenderE164: "+1222",
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -576,9 +522,6 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["+1222"] } },
           session: { store: storePath },
         },
-=======
-        makeElevatedDirectiveConfig(home),
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       );
 
       const store = loadSessionStore(storePath);

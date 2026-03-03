@@ -3,10 +3,7 @@ import type { AgentEvent, AgentMessage } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -34,33 +31,7 @@ import {
   formatReasoningMessage,
   promoteThinkingTagsToBlocks,
 } from "./pi-embedded-utils.js";
-<<<<<<< HEAD
 import { createInlineCodeState } from "../markdown/code-spans.js";
-=======
-
-const stripTrailingDirective = (text: string): string => {
-  const openIndex = text.lastIndexOf("[[");
-  if (openIndex < 0) {
-    if (text.endsWith("[")) {
-      return text.slice(0, -1);
-    }
-    return text;
-  }
-  const closeIndex = text.indexOf("]]", openIndex + 2);
-  if (closeIndex >= 0) {
-    return text;
-  }
-  return text.slice(0, openIndex);
-};
-
-function emitReasoningEnd(ctx: EmbeddedPiSubscribeContext) {
-  if (!ctx.state.reasoningStreamOpen) {
-    return;
-  }
-  ctx.state.reasoningStreamOpen = false;
-  void ctx.params.onReasoningEnd?.();
-}
->>>>>>> 9a6b26d42 (fix(ui): strip inbound metadata blocks and guard reply-tag streaming (clean rewrite) (#22346))
 
 export function resolveSilentReplyFallbackText(params: {
   text: string;
@@ -171,7 +142,6 @@ export function handleMessageUpdate(
       inlineCode: createInlineCodeState(),
     })
     .trim();
-<<<<<<< HEAD
   if (next && next !== ctx.state.lastStreamedAssistant) {
     const previousText = ctx.state.lastStreamedAssistant ?? "";
     const { text: cleanedText, mediaUrls } = parseReplyDirectives(next);
@@ -179,38 +149,6 @@ export function handleMessageUpdate(
     if (cleanedText.startsWith(previousCleanedText)) {
       const deltaText = cleanedText.slice(previousCleanedText.length);
       ctx.state.lastStreamedAssistant = next;
-=======
-  if (next) {
-    const wasThinking = ctx.state.partialBlockState.thinking;
-    const visibleDelta = chunk ? ctx.stripBlockTags(chunk, ctx.state.partialBlockState) : "";
-    // Detect when thinking block ends (</think> tag processed)
-    if (wasThinking && !ctx.state.partialBlockState.thinking) {
-      void ctx.params.onReasoningEnd?.();
-    }
-    const parsedDelta = visibleDelta ? ctx.consumePartialReplyDirectives(visibleDelta) : null;
-    const parsedFull = parseReplyDirectives(stripTrailingDirective(next));
-    const cleanedText = parsedFull.text;
-    const mediaUrls = parsedDelta?.mediaUrls;
-    const hasMedia = Boolean(mediaUrls && mediaUrls.length > 0);
-    const hasAudio = Boolean(parsedDelta?.audioAsVoice);
-    const previousCleaned = ctx.state.lastStreamedAssistantCleaned ?? "";
-
-    let shouldEmit = false;
-    let deltaText = "";
-    if (!cleanedText && !hasMedia && !hasAudio) {
-      shouldEmit = false;
-    } else if (previousCleaned && !cleanedText.startsWith(previousCleaned)) {
-      shouldEmit = false;
-    } else {
-      deltaText = cleanedText.slice(previousCleaned.length);
-      shouldEmit = Boolean(deltaText || hasMedia || hasAudio);
-    }
-
-    ctx.state.lastStreamedAssistant = next;
-    ctx.state.lastStreamedAssistantCleaned = cleanedText;
-
-    if (shouldEmit) {
->>>>>>> dddb1bc94 (fix(telegram): fix streaming with extended thinking models overwriting previous messages/ also happens to Execution error (#17973))
       emitAgentEvent({
         runId: ctx.params.runId,
         stream: "assistant",
@@ -257,12 +195,6 @@ export function handleMessageEnd(
 
   const assistantMessage = msg;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  ctx.state.lastAssistant = assistantMessage;
-=======
-  ctx.noteLastAssistant(assistantMessage);
->>>>>>> d714ac779 (refactor(agents): dedupe transient error copy (#16324))
   ctx.recordAssistantUsage((assistantMessage as { usage?: unknown }).usage);
 >>>>>>> 478af8170 (Return user-facing message if API reuturn 429 API rate limit reached #2202 (#10415))
   promoteThinkingTagsToBlocks(assistantMessage);

@@ -1,12 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { Server } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import fs from "node:fs/promises";
 >>>>>>> ed11e93cf (chore(format))

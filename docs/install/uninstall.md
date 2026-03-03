@@ -8,12 +8,7 @@ read_when:
 # Uninstall
 
 Two paths:
-<<<<<<< HEAD
 - **Easy path** if `moltbot` is still installed.
-=======
-
-- **Easy path** if `openclaw` is still installed.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Manual service removal** if the CLI is gone but the service is still running.
 
 ## Easy path (CLI still installed)
@@ -74,12 +69,7 @@ rm -rf /Applications/Moltbot.app
 ```
 
 Notes:
-<<<<<<< HEAD
 - If you used profiles (`--profile` / `CLAWDBOT_PROFILE`), repeat step 3 for each state dir (defaults are `~/.clawdbot-<profile>`).
-=======
-
-- If you used profiles (`--profile` / `OPENCLAW_PROFILE`), repeat step 3 for each state dir (defaults are `~/.openclaw-<profile>`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - In remote mode, the state dir lives on the **gateway host**, so run steps 1-4 there too.
 
 ## Manual service removal (CLI not installed)
@@ -88,22 +78,14 @@ Use this if the gateway service keeps running but `moltbot` is missing.
 
 ### macOS (launchd)
 
-<<<<<<< HEAD
 Default label is `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.clawdbot.*` may still exist):
-=======
-Default label is `ai.openclaw.gateway` (or `ai.openclaw.<profile>`; legacy `com.openclaw.*` may still exist):
->>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 
 ```bash
 launchctl bootout gui/$UID/ai.openclaw.gateway
 rm -f ~/Library/LaunchAgents/ai.openclaw.gateway.plist
 ```
 
-<<<<<<< HEAD
 If you used a profile, replace the label and plist name with `bot.molt.<profile>`. Remove any legacy `com.clawdbot.*` plists if present.
-=======
-If you used a profile, replace the label and plist name with `ai.openclaw.<profile>`. Remove any legacy `com.openclaw.*` plists if present.
->>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 
 ### Linux (systemd user unit)
 

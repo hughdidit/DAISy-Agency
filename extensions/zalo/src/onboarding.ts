@@ -193,22 +193,12 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   policyKey: "channels.zalo.dmPolicy",
   allowFromKey: "channels.zalo.allowFrom",
   getCurrent: (cfg) => (cfg.channels?.zalo?.dmPolicy ?? "pairing") as "pairing",
-<<<<<<< HEAD
   setPolicy: (cfg, policy) => setZaloDmPolicy(cfg as MoltbotConfig, policy),
-=======
-  setPolicy: (cfg, policy) => setZaloDmPolicy(cfg, policy),
->>>>>>> 230ca789e (chore: Lint extensions folder.)
   promptAllowFrom: async ({ cfg, prompter, accountId }) => {
     const id =
       accountId && normalizeAccountId(accountId)
-<<<<<<< HEAD
         ? normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID
         : resolveDefaultZaloAccountId(cfg as MoltbotConfig);
-=======
-        ? (normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID)
-<<<<<<< HEAD
-        : resolveDefaultZaloAccountId(cfg as OpenClawConfig);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     return promptZaloAllowFrom({
       cfg: cfg as MoltbotConfig,
 =======
@@ -226,13 +216,8 @@ export const zaloOnboardingAdapter: ChannelOnboardingAdapter = {
   channel,
   dmPolicy,
   getStatus: async ({ cfg }) => {
-<<<<<<< HEAD
     const configured = listZaloAccountIds(cfg as MoltbotConfig).some((accountId) =>
       Boolean(resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId }).token),
-=======
-    const configured = listZaloAccountIds(cfg).some((accountId) =>
-      Boolean(resolveZaloAccount({ cfg: cfg, accountId }).token),
->>>>>>> 230ca789e (chore: Lint extensions folder.)
     );
     return {
       channel,
@@ -251,25 +236,15 @@ export const zaloOnboardingAdapter: ChannelOnboardingAdapter = {
   }) => {
     const zaloOverride = accountOverrides.zalo?.trim();
 <<<<<<< HEAD
-<<<<<<< HEAD
     const defaultZaloAccountId = resolveDefaultZaloAccountId(cfg as MoltbotConfig);
     let zaloAccountId = zaloOverride
       ? normalizeAccountId(zaloOverride)
       : defaultZaloAccountId;
-=======
-    const defaultZaloAccountId = resolveDefaultZaloAccountId(cfg as OpenClawConfig);
-=======
-    const defaultZaloAccountId = resolveDefaultZaloAccountId(cfg);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
     let zaloAccountId = zaloOverride ? normalizeAccountId(zaloOverride) : defaultZaloAccountId;
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     if (shouldPromptAccountIds && !zaloOverride) {
       zaloAccountId = await promptAccountId({
-<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
-=======
-        cfg: cfg,
->>>>>>> 230ca789e (chore: Lint extensions folder.)
         prompter,
         label: "Zalo",
         currentId: zaloAccountId,
@@ -278,11 +253,7 @@ export const zaloOnboardingAdapter: ChannelOnboardingAdapter = {
       });
     }
 
-<<<<<<< HEAD
     let next = cfg as MoltbotConfig;
-=======
-    let next = cfg;
->>>>>>> 230ca789e (chore: Lint extensions folder.)
     const resolvedAccount = resolveZaloAccount({ cfg: next, accountId: zaloAccountId });
     const accountConfigured = Boolean(resolvedAccount.token);
     const allowEnv = zaloAccountId === DEFAULT_ACCOUNT_ID;

@@ -2,13 +2,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { IconName } from "./icons.js";
 import { t } from "../i18n/index.js";
-=======
-import { t } from "../i18n/index.ts";
-import type { IconName } from "./icons.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { IconName } from "./icons.js";
 import { t } from "../i18n/index.ts";
@@ -186,7 +181,6 @@ export function titleForTab(tab: Tab) {
 }
 
 export function subtitleForTab(tab: Tab) {
-<<<<<<< HEAD
   switch (tab) {
     case "agents":
       return "Manage agent workspaces, tools, and identities.";
@@ -217,7 +211,4 @@ export function subtitleForTab(tab: Tab) {
     default:
       return "";
   }
-=======
-  return t(`subtitles.${tab}`);
->>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
 }

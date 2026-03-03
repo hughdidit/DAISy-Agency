@@ -5,13 +5,8 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { resolveSessionTranscriptPath } from "../config/sessions.js";
-=======
-=======
-import type { SessionPreviewItem } from "./session-utils.types.js";
->>>>>>> 826e62a3b (fix(sessions): purge deleted transcript archives)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -29,11 +24,8 @@ import {
 } from "../config/sessions.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
-<<<<<<< HEAD
-=======
 import { hasInterSessionUserProvenance } from "../sessions/input-provenance.js";
 import { stripInlineDirectiveTagsForDisplay } from "../utils/directive-tags.js";
->>>>>>> f9108120c (fix(gateway): strip inline directive tags from displayed text)
 import { extractToolCallNames, hasToolCall } from "../utils/transcript-tools.js";
 import { stripEnvelope } from "./chat-sanitize.js";
 import type { SessionPreviewItem } from "./session-utils.types.js";
@@ -150,65 +142,23 @@ export function resolveSessionTranscriptCandidates(
     candidates.push(sessionFile);
   }
   if (storePath) {
-<<<<<<< HEAD
     const dir = path.dirname(storePath);
     candidates.push(path.join(dir, `${sessionId}.jsonl`));
-=======
-    const sessionsDir = path.dirname(storePath);
-    if (sessionFile) {
-      pushCandidate(() =>
-        resolveSessionFilePath(sessionId, { sessionFile }, { sessionsDir, agentId }),
-      );
-    }
-    pushCandidate(() => resolveSessionTranscriptPathInDir(sessionId, sessionsDir));
-  } else if (sessionFile) {
-    if (agentId) {
-      pushCandidate(() => resolveSessionFilePath(sessionId, { sessionFile }, { agentId }));
-    } else {
-      const trimmed = sessionFile.trim();
-      if (trimmed) {
-        candidates.push(path.resolve(trimmed));
-      }
-    }
->>>>>>> cab0abf52 (fix(sessions): resolve transcript paths with explicit agent context (#16288))
   }
   if (agentId) {
     candidates.push(resolveSessionTranscriptPath(sessionId, agentId));
   }
-<<<<<<< HEAD
   candidates.push(path.join(os.homedir(), ".clawdbot", "sessions", `${sessionId}.jsonl`));
-=======
-  const home = resolveRequiredHomeDir(process.env, os.homedir);
-  candidates.push(path.join(home, ".openclaw", "sessions", `${sessionId}.jsonl`));
->>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
   return candidates;
 }
 
-<<<<<<< HEAD
 export function archiveFileOnDisk(filePath: string, reason: string): string {
   const ts = new Date().toISOString().replaceAll(":", "-");
-=======
-export type ArchiveFileReason = SessionArchiveReason;
-
-function canonicalizePathForComparison(filePath: string): string {
-  const resolved = path.resolve(filePath);
-  try {
-    return fs.realpathSync(resolved);
-  } catch {
-    return resolved;
-  }
-}
-
-export function archiveFileOnDisk(filePath: string, reason: ArchiveFileReason): string {
-  const ts = formatSessionArchiveTimestamp();
->>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
   const archived = `${filePath}.${reason}.${ts}`;
   fs.renameSync(filePath, archived);
   return archived;
 }
 
-<<<<<<< HEAD
-=======
 /**
  * Archives all transcript files for a given session.
  * Best-effort: silently skips files that don't exist or fail to rename.
@@ -294,7 +244,6 @@ export async function cleanupArchivedSessionTranscripts(opts: {
   return { removed, scanned };
 }
 
->>>>>>> 826e62a3b (fix(sessions): purge deleted transcript archives)
 function jsonUtf8Bytes(value: unknown): number {
   try {
     return Buffer.byteLength(JSON.stringify(value), "utf8");
@@ -474,7 +423,6 @@ function withOpenTranscriptFd<T>(filePath: string, read: (fd: number) => T | nul
   let fd: number | null = null;
   try {
     fd = fs.openSync(filePath, "r");
-<<<<<<< HEAD
     const chunk = readTranscriptHeadChunk(fd);
     if (!chunk) {
       return null;
@@ -500,9 +448,6 @@ function withOpenTranscriptFd<T>(filePath: string, read: (fd: number) => T | nul
         // skip malformed lines
       }
     }
-=======
-    return extractFirstUserMessageFromTranscriptChunk(chunk, opts);
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 =======
     return read(fd);
 >>>>>>> 079bf25fe (refactor(gateway): share transcript path/fd helpers)

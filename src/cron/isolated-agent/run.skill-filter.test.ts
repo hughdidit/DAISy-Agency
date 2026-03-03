@@ -365,8 +365,6 @@ describe("runCronIsolatedAgentTurn — skill filter", () => {
     expect(result.status).toBe("ok");
     expect(buildWorkspaceSkillSnapshotMock).not.toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
 
   describe("model fallbacks", () => {
     const defaultFallbacks = [
@@ -409,7 +407,6 @@ describe("runCronIsolatedAgentTurn — skill filter", () => {
     });
   });
 <<<<<<< HEAD
->>>>>>> 262472ba2 (test: remove duplicated scenario scaffolding across runtime tests)
 =======
 
   describe("CLI session handoff (issue #29774)", () => {

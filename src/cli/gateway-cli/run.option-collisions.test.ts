@@ -152,8 +152,6 @@ describe("gateway run option collisions", () => {
       }),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("starts gateway when token mode has no configured token (startup bootstrap path)", async () => {
     await runGatewayCli(["gateway", "run", "--allow-unconfigured"]);
@@ -166,7 +164,6 @@ describe("gateway run option collisions", () => {
     );
   });
 <<<<<<< HEAD
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 =======
 
   it("accepts --auth none override", async () => {

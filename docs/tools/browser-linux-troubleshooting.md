@@ -7,12 +7,7 @@ read_when: "Browser control fails on Linux, especially with snap Chromium"
 
 ## Problem: "Failed to start Chrome CDP on port 18800"
 
-<<<<<<< HEAD
 Moltbot's browser control server fails to launch Chrome/Brave/Edge/Chromium with the error:
-=======
-OpenClaw's browser control server fails to launch Chrome/Brave/Edge/Chromium with the error:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ```
 {"error":"Error: Failed to start Chrome CDP on port 18800 for profile \"daisy\"."}
 ```
@@ -130,14 +125,8 @@ You’re using the `chrome` profile (extension relay). It expects the Moltbot
 browser extension to be attached to a live tab.
 
 Fix options:
-<<<<<<< HEAD
 1. **Use the managed browser:** `moltbot browser start --browser-profile daisy`
   (or set `browser.defaultProfile: "daisy"`).
-=======
-
-1. **Use the managed browser:** `openclaw browser start --browser-profile openclaw`
-   (or set `browser.defaultProfile: "openclaw"`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 2. **Use the extension relay:** install the extension, open a tab, and click the
    Moltbot extension icon to attach it.
 

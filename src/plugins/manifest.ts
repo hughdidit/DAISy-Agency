@@ -5,12 +5,6 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { PluginConfigUiHint, PluginKind } from "./types.js";
-import { MANIFEST_KEY } from "../compat/legacy-names.js";
-import { isRecord } from "../utils.js";
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 =======
 import { MANIFEST_KEY } from "../compat/legacy-names.js";
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
@@ -197,15 +191,7 @@ export type PackageManifest = {
 
 export function getPackageManifestMetadata(
   manifest: PackageManifest | undefined,
-<<<<<<< HEAD
 ): MoltbotPackageManifest | undefined {
   if (!manifest) return undefined;
   return manifest.moltbot ?? manifest[LEGACY_MANIFEST_KEY];
-=======
-): OpenClawPackageManifest | undefined {
-  if (!manifest) {
-    return undefined;
-  }
-  return manifest[MANIFEST_KEY];
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }

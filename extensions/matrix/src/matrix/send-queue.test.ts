@@ -86,8 +86,6 @@ describe("enqueueSend", () => {
     await vi.advanceTimersByTimeAsync(DEFAULT_SEND_GAP_MS);
     await expect(second).resolves.toBe("ok");
   });
-<<<<<<< HEAD
-=======
 
   it("continues queued work when the head task fails", async () => {
     const gate = deferred<void>();
@@ -147,5 +145,4 @@ describe("enqueueSend", () => {
     expect(delayFn).toHaveBeenNthCalledWith(1, 7);
     expect(delayFn).toHaveBeenNthCalledWith(2, 7);
   });
->>>>>>> 58309fd8d (refactor(matrix,tests): extract helpers and inject send-queue timing)
 });

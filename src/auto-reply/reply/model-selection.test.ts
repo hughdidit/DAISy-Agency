@@ -19,7 +19,6 @@ const makeEntry = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-<<<<<<< HEAD:src/auto-reply/reply/model-selection.inherit-parent.test.ts
 async function resolveState(params: {
   cfg: MoltbotConfig;
   sessionEntry: ReturnType<typeof makeEntry>;
@@ -42,8 +41,6 @@ async function resolveState(params: {
   });
 }
 
-=======
->>>>>>> 51709c63f (perf(test): consolidate model selection suites):src/auto-reply/reply/model-selection.test.ts
 describe("createModelSelectionState parent inheritance", () => {
   const defaultProvider = "openai";
   const defaultModel = "gpt-4o-mini";

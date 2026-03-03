@@ -1,6 +1,5 @@
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
@@ -34,13 +33,6 @@ describe("ensureMoltbotCliOnPath", () => {
 <<<<<<< HEAD
         if (originalFlag === undefined) delete process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
         else process.env.CLAWDBOT_PATH_BOOTSTRAPPED = originalFlag;
-=======
-        if (originalFlag === undefined) {
-          delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
-        } else {
-          process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
-        }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       }
 =======
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -109,7 +101,6 @@ describe("ensureOpenClawCliOnPath", () => {
     vi.clearAllMocks();
   });
 
-<<<<<<< HEAD
   it("prepends the bundled app bin dir when a sibling openclaw exists", async () => {
     const tmp = await makeTmpDir();
     const appBinDir = path.join(tmp, "AppBin");
@@ -136,13 +127,6 @@ describe("ensureOpenClawCliOnPath", () => {
       process.env.PATH = originalPath;
       if (originalFlag === undefined) {
         delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
-=======
-  afterEach(() => {
-    for (const k of envKeys) {
-      const value = envSnapshot[k];
-      if (value === undefined) {
-        delete process.env[k];
->>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
       } else {
         process.env[k] = value;
       }
@@ -172,7 +156,6 @@ describe("ensureOpenClawCliOnPath", () => {
   });
 
   it("is idempotent", () => {
-<<<<<<< HEAD
     const originalPath = process.env.PATH;
     const originalFlag = process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
     process.env.PATH = "/bin";
@@ -190,23 +173,12 @@ describe("ensureOpenClawCliOnPath", () => {
 <<<<<<< HEAD
       if (originalFlag === undefined) delete process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
       else process.env.CLAWDBOT_PATH_BOOTSTRAPPED = originalFlag;
-=======
-      if (originalFlag === undefined) {
-        delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
-      } else {
-        process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
-      }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 
   it("prepends mise shims when available", async () => {
 <<<<<<< HEAD
-<<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-path-"));
-=======
-    const tmp = path.join(fixtureRoot, `case-${fixtureCount++}`);
->>>>>>> 6bc5987d6 (perf(test): speed up path env suite)
 =======
     const tmp = await makeTmpDir();
 >>>>>>> b229a3de0 (perf(test): reduce mkdir churn in path env suite)
@@ -215,13 +187,8 @@ describe("ensureOpenClawCliOnPath", () => {
     const originalMiseDataDir = process.env.MISE_DATA_DIR;
     try {
       const appBinDir = path.join(tmp, "AppBin");
-<<<<<<< HEAD
       await fs.mkdir(appBinDir, { recursive: true });
       const appCli = path.join(appBinDir, "moltbot");
-=======
-      await fs.mkdir(appBinDir);
-      const appCli = path.join(appBinDir, "openclaw");
->>>>>>> b229a3de0 (perf(test): reduce mkdir churn in path env suite)
       await fs.writeFile(appCli, "#!/bin/sh\necho ok\n", "utf-8");
       await fs.chmod(appCli, 0o755);
 
@@ -255,24 +222,10 @@ describe("ensureOpenClawCliOnPath", () => {
       expect(shimsIndex).toBeGreaterThan(localIndex);
     } finally {
       process.env.PATH = originalPath;
-<<<<<<< HEAD
       if (originalFlag === undefined) delete process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
       else process.env.CLAWDBOT_PATH_BOOTSTRAPPED = originalFlag;
       if (originalMiseDataDir === undefined) delete process.env.MISE_DATA_DIR;
       else process.env.MISE_DATA_DIR = originalMiseDataDir;
-=======
-      if (originalFlag === undefined) {
-        delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
-      } else {
-        process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
-      }
-      if (originalMiseDataDir === undefined) {
-        delete process.env.MISE_DATA_DIR;
-      } else {
-        process.env.MISE_DATA_DIR = originalMiseDataDir;
-      }
-<<<<<<< HEAD
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       await fs.rm(tmp, { recursive: true, force: true });
 =======
     }
@@ -350,7 +303,6 @@ describe("ensureOpenClawCliOnPath", () => {
     process.env.PATH = "/usr/bin";
     delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
 
-<<<<<<< HEAD
       ensureOpenClawCliOnPath({
         execPath: appCli,
         cwd: tmp,
@@ -378,9 +330,6 @@ describe("ensureOpenClawCliOnPath", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-path-"));
-=======
-    const tmp = path.join(fixtureRoot, `case-${fixtureCount++}`);
->>>>>>> 6bc5987d6 (perf(test): speed up path env suite)
 =======
     const tmp = await makeTmpDir();
 >>>>>>> b229a3de0 (perf(test): reduce mkdir churn in path env suite)
@@ -421,7 +370,6 @@ describe("ensureOpenClawCliOnPath", () => {
     setDir(linuxbrewBin);
     setDir(linuxbrewSbin);
 
-<<<<<<< HEAD
       process.env.PATH = "/usr/bin";
       delete process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
       delete process.env.HOMEBREW_PREFIX;
@@ -450,29 +398,6 @@ describe("ensureOpenClawCliOnPath", () => {
       else process.env.HOMEBREW_BREW_FILE = originalHomebrewBrewFile;
       if (originalXdgBinHome === undefined) delete process.env.XDG_BIN_HOME;
       else process.env.XDG_BIN_HOME = originalXdgBinHome;
-=======
-      if (originalFlag === undefined) {
-        delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
-      } else {
-        process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
-      }
-      if (originalHomebrewPrefix === undefined) {
-        delete process.env.HOMEBREW_PREFIX;
-      } else {
-        process.env.HOMEBREW_PREFIX = originalHomebrewPrefix;
-      }
-      if (originalHomebrewBrewFile === undefined) {
-        delete process.env.HOMEBREW_BREW_FILE;
-      } else {
-        process.env.HOMEBREW_BREW_FILE = originalHomebrewBrewFile;
-      }
-      if (originalXdgBinHome === undefined) {
-        delete process.env.XDG_BIN_HOME;
-      } else {
-        process.env.XDG_BIN_HOME = originalXdgBinHome;
-      }
-<<<<<<< HEAD
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       await fs.rm(tmp, { recursive: true, force: true });
 =======
 >>>>>>> 6bc5987d6 (perf(test): speed up path env suite)

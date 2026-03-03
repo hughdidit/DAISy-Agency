@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
-=======
-import type { OpenClawConfig } from "../../../config/config.js";
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 import { DEFAULT_ACCOUNT_ID } from "../../../routing/session-key.js";
 import {
   listSlackAccountIds,
@@ -33,15 +29,9 @@ const channel = "slack" as const;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 function setSlackDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.slack?.dm?.allowFrom) : undefined;
-=======
-function setSlackDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
-  const existingAllowFrom = cfg.channels?.slack?.allowFrom ?? cfg.channels?.slack?.dm?.allowFrom;
-  const allowFrom = dmPolicy === "open" ? addWildcardAllowFrom(existingAllowFrom) : undefined;
->>>>>>> 47b6cde8c (refactor(config): add dmPolicy aliases for Slack/Discord)
 =======
 function patchSlackConfigWithDm(
   cfg: OpenClawConfig,
@@ -164,35 +154,11 @@ async function noteSlackTokenHelp(prompter: WizardPrompter, botName: string): Pr
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 function setSlackGroupPolicy(
   cfg: MoltbotConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
 ): MoltbotConfig {
-=======
-=======
-async function promptSlackTokens(prompter: WizardPrompter): Promise<{
-  botToken: string;
-  appToken: string;
-}> {
-  const botToken = String(
-    await prompter.text({
-      message: "Enter Slack bot token (xoxb-...)",
-      validate: (value) => (value?.trim() ? undefined : "Required"),
-    }),
-  ).trim();
-  const appToken = String(
-    await prompter.text({
-      message: "Enter Slack app token (xapp-...)",
-      validate: (value) => (value?.trim() ? undefined : "Required"),
-    }),
-  ).trim();
-  return { botToken, appToken };
-}
-
-<<<<<<< HEAD
->>>>>>> c1bf99406 (refactor(slack): dedupe onboarding token prompts)
 function patchSlackConfigForAccount(
   cfg: OpenClawConfig,
   accountId: string,
@@ -248,7 +214,6 @@ function setSlackChannelAllowlist(
   channelKeys: string[],
 ): MoltbotConfig {
   const channels = Object.fromEntries(channelKeys.map((key) => [key, { allow: true }]));
-<<<<<<< HEAD
   return patchSlackConfigForAccount(cfg, accountId, { channels });
 }
 
@@ -276,10 +241,6 @@ function parseSlackAllowFromInput(raw: string): string[] {
     .map((entry) => entry.trim())
     .filter(Boolean);
 =======
-function setSlackAllowFrom(cfg: OpenClawConfig, allowFrom: string[]): OpenClawConfig {
-  return patchSlackConfigWithDm(cfg, { allowFrom });
->>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
-=======
   return patchChannelConfigForAccount({
     cfg,
     channel: "slack",
@@ -293,19 +254,11 @@ async function promptSlackAllowFrom(params: {
   cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
-<<<<<<< HEAD
 }): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
       : resolveDefaultSlackAccountId(params.cfg);
-=======
-}): Promise<OpenClawConfig> {
-  const accountId = resolveOnboardingAccountId({
-    accountId: params.accountId,
-    defaultAccountId: resolveDefaultSlackAccountId(params.cfg),
-  });
->>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   const resolved = resolveSlackAccount({ cfg: params.cfg, accountId });
   const token = resolved.userToken ?? resolved.botToken ?? "";
   const existing =

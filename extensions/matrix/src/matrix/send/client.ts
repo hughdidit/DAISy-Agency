@@ -1,20 +1,9 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-=======
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { getMatrixRuntime } from "../../runtime.js";
-<<<<<<< HEAD
 import { getActiveMatrixClient } from "../active-client.js";
 import {
   createMatrixClient,
@@ -23,11 +12,6 @@ import {
   resolveSharedMatrixClient,
 } from "../client.js";
 import type { CoreConfig } from "../types.js";
-=======
-=======
-import { getMatrixRuntime } from "../../runtime.js";
-import type { CoreConfig } from "../../types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CoreConfig } from "../../types.js";
 import { getMatrixRuntime } from "../../runtime.js";
@@ -74,22 +58,14 @@ export async function resolveMatrixClient(opts: {
     return { client: opts.client, stopOnDone: false };
   }
   const active = getActiveMatrixClient();
-<<<<<<< HEAD
   if (active) return { client: active, stopOnDone: false };
   const shouldShareClient = Boolean(process.env.CLAWDBOT_GATEWAY_PORT);
-=======
-  if (active) {
-    return { client: active, stopOnDone: false };
-  }
-  const shouldShareClient = Boolean(process.env.OPENCLAW_GATEWAY_PORT);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
   if (shouldShareClient) {
     const client = await resolveSharedMatrixClient({
       timeoutMs: opts.timeoutMs,
     });
     return { client, stopOnDone: false };
   }
-<<<<<<< HEAD
   const auth = await resolveMatrixAuth();
   const client = await createMatrixClient({
     homeserver: auth.homeserver,
@@ -97,13 +73,6 @@ export async function resolveMatrixClient(opts: {
     accessToken: auth.accessToken,
     encryption: auth.encryption,
     localTimeoutMs: opts.timeoutMs,
-=======
-  const auth = await resolveMatrixAuth({ accountId });
-  const client = await createPreparedMatrixClient({
-    auth,
-    timeoutMs: opts.timeoutMs,
-    accountId,
->>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
   });
   return { client, stopOnDone: true };
 }

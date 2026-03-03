@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { resolveSkillInvocationPolicy } from "./frontmatter.js";
-=======
-import { resolveOpenClawMetadata, resolveSkillInvocationPolicy } from "./frontmatter.js";
->>>>>>> 461422257 (fix(skills): validate installer metadata specs)
 
 describe("resolveSkillInvocationPolicy", () => {
   it("defaults to enabled behaviors", () => {

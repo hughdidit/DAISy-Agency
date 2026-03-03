@@ -4,16 +4,8 @@ import type { MoltbotConfig } from "../../config/config.js";
 import type { ExecToolDefaults } from "../bash-tools.js";
 
 export function mapThinkingLevel(level?: ThinkLevel): ThinkingLevel {
-<<<<<<< HEAD
   // pi-agent-core supports "xhigh"; Moltbot enables it for specific models.
   if (!level) return "off";
-=======
-  // pi-agent-core supports "xhigh"; OpenClaw enables it for specific models.
-  if (!level) {
-    return "off";
-  }
-<<<<<<< HEAD
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
   // "adaptive" maps to "medium" at the pi-agent-core layer.  The Pi SDK
   // provider then translates this to `thinking.type: "adaptive"` with

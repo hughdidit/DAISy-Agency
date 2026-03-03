@@ -2,11 +2,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { DEFAULT_GROUP_HISTORY_LIMIT } from "../../auto-reply/reply/history.js";
 import { getReplyFromConfig } from "../../auto-reply/reply.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { WebChannelStatus, WebInboundMsg, WebMonitorTuning } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))

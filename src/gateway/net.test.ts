@@ -1,13 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
 import { resolveGatewayListenHosts } from "./net.js";
-=======
-import os from "node:os";
-import { afterEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-import { pickPrimaryLanIPv4, resolveGatewayListenHosts } from "./net.js";
->>>>>>> b8c8130ef (fix(gateway): use LAN IP for WebSocket/probe URLs when bind=lan (#11448))
 =======
 import {
   isPrivateOrLoopbackAddress,

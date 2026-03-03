@@ -4,7 +4,6 @@ import {
   type CommandResolution,
 } from "./exec-command-resolution.js";
 
-<<<<<<< HEAD
 export const DEFAULT_SAFE_BINS = ["jq", "grep", "cut", "sort", "uniq", "head", "tail", "tr", "wc"];
 
 export type CommandResolution = {
@@ -222,18 +221,6 @@ export function matchAllowlist(
   }
   return null;
 }
-=======
-export {
-  DEFAULT_SAFE_BINS,
-  matchAllowlist,
-  parseExecArgvToken,
-  resolveAllowlistCandidatePath,
-  resolveCommandResolution,
-  resolveCommandResolutionFromArgv,
-  type CommandResolution,
-  type ExecArgvToken,
-} from "./exec-command-resolution.js";
->>>>>>> 862975507 (refactor(exec): split command resolution and trusted-dir normalization)
 
 export type ExecCommandSegment = {
   raw: string;
@@ -705,129 +692,7 @@ export function splitCommandChain(command: string): string[] | null {
   if (invalidChain || !pushedFinal) {
     return null;
   }
-<<<<<<< HEAD
   return parts.length > 0 ? parts : null;
-=======
-  parts.push({ part: trimmed, opToNext: null });
-  if (invalidChain || parts.length === 0) {
-    return null;
-  }
-  return parts;
-}
-
-function shellEscapeSingleArg(value: string): string {
-  // Shell-safe across sh/bash/zsh: single-quote everything, escape embedded single quotes.
-  // Example: foo'bar -> 'foo'"'"'bar'
-  const singleQuoteEscape = `'"'"'`;
-  return `'${value.replace(/'/g, singleQuoteEscape)}'`;
-}
-
-type ShellSegmentRenderResult = { ok: true; rendered: string } | { ok: false; reason: string };
-
-function rebuildShellCommandFromSource(params: {
-  command: string;
-  platform?: string | null;
-  renderSegment: (rawSegment: string, segmentIndex: number) => ShellSegmentRenderResult;
-}): { ok: boolean; command?: string; reason?: string; segmentCount?: number } {
-  const platform = params.platform ?? null;
-  if (isWindowsPlatform(platform)) {
-    return { ok: false, reason: "unsupported platform" };
-  }
-  const source = params.command.trim();
-  if (!source) {
-    return { ok: false, reason: "empty command" };
-  }
-
-  const chain = splitCommandChainWithOperators(source);
-  const chainParts: ShellChainPart[] = chain ?? [{ part: source, opToNext: null }];
-  let segmentCount = 0;
-  let out = "";
-
-  for (const part of chainParts) {
-    const pipelineSplit = splitShellPipeline(part.part);
-    if (!pipelineSplit.ok) {
-      return { ok: false, reason: pipelineSplit.reason ?? "unable to parse pipeline" };
-    }
-    const renderedSegments: string[] = [];
-    for (const segmentRaw of pipelineSplit.segments) {
-      const rendered = params.renderSegment(segmentRaw, segmentCount);
-      if (!rendered.ok) {
-        return { ok: false, reason: rendered.reason };
-      }
-      renderedSegments.push(rendered.rendered);
-      segmentCount += 1;
-    }
-    out += renderedSegments.join(" | ");
-    if (part.opToNext) {
-      out += ` ${part.opToNext} `;
-    }
-  }
-
-  return { ok: true, command: out, segmentCount };
-}
-
-/**
- * Builds a shell command string that preserves pipes/chaining, but forces *arguments* to be
- * literal (no globbing, no env-var expansion) by single-quoting every argv token.
- *
- * Used to make "safe bins" actually stdin-only even though execution happens via `shell -c`.
- */
-export function buildSafeShellCommand(params: { command: string; platform?: string | null }): {
-  ok: boolean;
-  command?: string;
-  reason?: string;
-} {
-  const rebuilt = rebuildShellCommandFromSource({
-    command: params.command,
-    platform: params.platform,
-    renderSegment: (segmentRaw) => {
-      const argv = splitShellArgs(segmentRaw);
-      if (!argv || argv.length === 0) {
-        return { ok: false, reason: "unable to parse shell segment" };
-      }
-      return { ok: true, rendered: argv.map((token) => shellEscapeSingleArg(token)).join(" ") };
-    },
-  });
-  if (!rebuilt.ok) {
-    return { ok: false, reason: rebuilt.reason };
-  }
-  return { ok: true, command: rebuilt.command };
-}
-
-function renderQuotedArgv(argv: string[]): string {
-  return argv.map((token) => shellEscapeSingleArg(token)).join(" ");
-}
-
-<<<<<<< HEAD
-function renderSafeBinSegmentArgv(segment: ExecCommandSegment): string {
-  if (segment.argv.length === 0) {
-    return "";
-=======
-export function resolvePlannedSegmentArgv(segment: ExecCommandSegment): string[] | null {
-  if (segment.resolution?.policyBlocked === true) {
-    return null;
-  }
-  const baseArgv =
-    segment.resolution?.effectiveArgv && segment.resolution.effectiveArgv.length > 0
-      ? segment.resolution.effectiveArgv
-      : segment.argv;
-  if (baseArgv.length === 0) {
-    return null;
-  }
-  const argv = [...baseArgv];
-  const resolvedExecutable =
-    segment.resolution?.resolvedRealPath?.trim() ?? segment.resolution?.resolvedPath?.trim() ?? "";
-  if (resolvedExecutable) {
-    argv[0] = resolvedExecutable;
-  }
-  return argv;
-}
-
-function renderSafeBinSegmentArgv(segment: ExecCommandSegment): string | null {
-  const argv = resolvePlannedSegmentArgv(segment);
-  if (!argv || argv.length === 0) {
-    return null;
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   }
   const resolvedExecutable = segment.resolution?.resolvedPath?.trim();
   const argv = resolvedExecutable ? [resolvedExecutable, ...segment.argv.slice(1)] : segment.argv;

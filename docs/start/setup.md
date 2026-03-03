@@ -10,12 +10,7 @@ read_when:
 Last updated: 2026-01-01
 
 ## TL;DR
-<<<<<<< HEAD
 - **Tailoring lives outside the repo:** `~/clawd` (workspace) + `~/.clawdbot/moltbot.json` (config).
-=======
-
-- **Tailoring lives outside the repo:** `~/.openclaw/workspace` (workspace) + `~/.openclaw/openclaw.json` (config).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Stable workflow:** install the macOS app; let it run the bundled Gateway.
 - **Bleeding edge workflow:** run the Gateway yourself via `pnpm gateway:watch`, then let the macOS app attach in Local mode.
 
@@ -48,17 +43,10 @@ If you don’t have a global install yet, run it via `pnpm moltbot setup`.
 
 ## Stable workflow (macOS app first)
 
-<<<<<<< HEAD
 1) Install + launch **Moltbot.app** (menu bar).
 2) Complete the onboarding/permissions checklist (TCC prompts).
 3) Ensure Gateway is **Local** and running (the app manages it).
 4) Link surfaces (example: WhatsApp):
-=======
-1. Install + launch **OpenClaw.app** (menu bar).
-2. Complete the onboarding/permissions checklist (TCC prompts).
-3. Ensure Gateway is **Local** and running (the app manages it).
-4. Link surfaces (example: WhatsApp):
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```bash
 moltbot channels login
@@ -71,12 +59,7 @@ moltbot health
 ```
 
 If onboarding is not available in your build:
-<<<<<<< HEAD
 - Run `moltbot setup`, then `moltbot channels login`, then start the Gateway manually (`moltbot gateway`).
-=======
-
-- Run `openclaw setup`, then `openclaw channels login`, then start the Gateway manually (`openclaw gateway`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Bleeding edge workflow (Gateway in a terminal)
 
@@ -132,25 +115,14 @@ Use this when debugging auth or deciding what to back up:
 - **Discord bot token**: config/env (token file not yet supported)
 - **Slack tokens**: config/env (`channels.slack.*`)
 <<<<<<< HEAD
-<<<<<<< HEAD
 - **Pairing allowlists**: `~/.clawdbot/credentials/<channel>-allowFrom.json`
 - **Model auth profiles**: `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`
 - **Legacy OAuth import**: `~/.clawdbot/credentials/oauth.json`
 More detail: [Security](/gateway/security#credential-storage-map).
-=======
-- **Pairing allowlists**: `~/.openclaw/credentials/<channel>-allowFrom.json`
-=======
-- **Pairing allowlists**:
-  - `~/.openclaw/credentials/<channel>-allowFrom.json` (default account)
-  - `~/.openclaw/credentials/<channel>-<accountId>-allowFrom.json` (non-default accounts)
->>>>>>> 91a3f0a3f (pairing: enforce strict account-scoped state)
 - **Model auth profiles**: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
-<<<<<<< HEAD
-=======
 - **File-backed secrets payload (optional)**: `~/.openclaw/secrets.json`
 <<<<<<< HEAD
 - **Secrets migration backups (optional)**: `~/.openclaw/backups/secrets-migrate/<backupId>/`
->>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 =======
 >>>>>>> f413e314b (feat(secrets): replace migrate flow with audit/configure/apply)
 - **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`

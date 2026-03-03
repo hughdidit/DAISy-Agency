@@ -105,7 +105,6 @@ describe("session_status tool", () => {
       },
     });
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -113,9 +112,6 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
-=======
-    const tool = getSessionStatusTool();
->>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     const result = await tool.execute("call1", {});
     const details = result.details as { ok?: boolean; statusText?: string };
@@ -130,7 +126,6 @@ describe("session_status tool", () => {
       main: { sessionId: "s1", updatedAt: 10 },
     });
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -138,9 +133,6 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
-=======
-    const tool = getSessionStatusTool();
->>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     await expect(tool.execute("call2", { sessionKey: "nope" })).rejects.toThrow(
       "Unknown sessionId",
@@ -157,7 +149,6 @@ describe("session_status tool", () => {
       },
     });
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -165,9 +156,6 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
-=======
-    const tool = getSessionStatusTool();
->>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     const result = await tool.execute("call3", { sessionKey: sessionId });
     const details = result.details as { ok?: boolean; sessionKey?: string };
@@ -183,7 +171,6 @@ describe("session_status tool", () => {
       },
     });
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -191,9 +178,6 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
-=======
-    const tool = getSessionStatusTool();
->>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     const result = await tool.execute("call4", { sessionKey: "temp:slug-generator" });
     const details = result.details as { ok?: boolean; sessionKey?: string };
@@ -209,7 +193,6 @@ describe("session_status tool", () => {
       },
     });
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "agent:main:main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -217,9 +200,6 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
-=======
-    const tool = getSessionStatusTool("agent:main:main");
->>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     await expect(tool.execute("call5", { sessionKey: "agent:other:main" })).rejects.toThrow(
       "Agent-to-agent status is disabled",
@@ -255,7 +235,6 @@ describe("session_status tool", () => {
       },
     );
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "agent:support:main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -263,9 +242,6 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
-=======
-    const tool = getSessionStatusTool("agent:support:main");
->>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     const result = await tool.execute("call6", { sessionKey: "main" });
     const details = result.details as { ok?: boolean; sessionKey?: string };
@@ -284,7 +260,6 @@ describe("session_status tool", () => {
       },
     });
 
-<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -292,9 +267,6 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
-=======
-    const tool = getSessionStatusTool();
->>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     await tool.execute("call3", { model: "default" });
     expect(updateSessionStoreMock).toHaveBeenCalled();

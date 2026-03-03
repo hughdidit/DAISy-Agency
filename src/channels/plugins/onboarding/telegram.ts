@@ -2,12 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
-=======
-import { formatCliCommand } from "../../../cli/command-format.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { formatCliCommand } from "../../../cli/command-format.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -17,11 +12,8 @@ import { formatCliCommand } from "../../../cli/command-format.js";
 import { formatCliCommand } from "../../../cli/command-format.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { OpenClawConfig } from "../../../config/config.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { DmPolicy } from "../../../config/types.js";
-=======
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 import { DEFAULT_ACCOUNT_ID } from "../../../routing/session-key.js";
 import {
   listTelegramAccountIds,
@@ -34,18 +26,12 @@ import { formatDocsLink } from "../../../terminal/links.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { formatCliCommand } from "../../../cli/command-format.js";
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import { fetchTelegramChatId } from "../../telegram/api.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 <<<<<<< HEAD
 import { addWildcardAllowFrom, promptAccountId } from "./helpers.js";
-=======
-=======
-import type { WizardPrompter } from "../../../wizard/prompts.js";
-import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -76,7 +62,6 @@ import {
 
 const channel = "telegram" as const;
 
-<<<<<<< HEAD
 function setTelegramDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.telegram?.allowFrom) : undefined;
@@ -93,8 +78,6 @@ function setTelegramDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   };
 }
 
-=======
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 async function noteTelegramTokenHelp(prompter: WizardPrompter): Promise<void> {
   await prompter.note(
     [
@@ -191,19 +174,11 @@ async function promptTelegramAllowFromForAccount(params: {
   cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
-<<<<<<< HEAD
 }): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
       : resolveDefaultTelegramAccountId(params.cfg);
-=======
-}): Promise<OpenClawConfig> {
-  const accountId = resolveOnboardingAccountId({
-    accountId: params.accountId,
-    defaultAccountId: resolveDefaultTelegramAccountId(params.cfg),
-  });
->>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   return promptTelegramAllowFrom({
     cfg: params.cfg,
     prompter: params.prompter,

@@ -36,12 +36,7 @@ read_when:
 - Markdown parse errors are not retried; they fall back to plain text.
 
 ## Configuration
-<<<<<<< HEAD
 Set retry policy per provider in `~/.clawdbot/moltbot.json`:
-=======
-
-Set retry policy per provider in `~/.openclaw/openclaw.json`:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```json5
 {

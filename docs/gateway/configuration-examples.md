@@ -16,13 +16,8 @@ Examples below are aligned with the current config schema. For the exhaustive re
 
 ```json5
 {
-<<<<<<< HEAD
   agent: { workspace: "~/clawd" },
   channels: { whatsapp: { allowFrom: ["+15555550123"] } }
-=======
-  agent: { workspace: "~/.openclaw/workspace" },
-  channels: { whatsapp: { allowFrom: ["+15555550123"] } },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -38,13 +33,8 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
     emoji: "🦞",
   },
   agent: {
-<<<<<<< HEAD
     workspace: "~/clawd",
     model: { primary: "anthropic/claude-sonnet-4-5" }
-=======
-    workspace: "~/.openclaw/workspace",
-    model: { primary: "anthropic/claude-sonnet-4-5" },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   channels: {
     whatsapp: {
@@ -115,13 +105,8 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
   // Routing + queue
   routing: {
     groupChat: {
-<<<<<<< HEAD
       mentionPatterns: ["@clawd", "moltbot"],
       historyLimit: 50
-=======
-      mentionPatterns: ["@openclaw", "openclaw"],
-      historyLimit: 50,
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     },
     queue: {
       mode: "collect",
@@ -173,20 +158,7 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       discord: { mode: "idle", idleMinutes: 10080 },
     },
     resetTriggers: ["/new", "/reset"],
-<<<<<<< HEAD
     store: "~/.clawdbot/agents/default/sessions/sessions.json",
-=======
-    store: "~/.openclaw/agents/default/sessions/sessions.json",
-    maintenance: {
-      mode: "warn",
-      pruneAfter: "30d",
-      maxEntries: 500,
-      rotateBytes: "10mb",
-      resetArchiveRetention: "30d", // duration or false
-      maxDiskBytes: "500mb", // optional
-      highWaterBytes: "400mb", // optional (defaults to 80% of maxDiskBytes)
-    },
->>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
     typingIntervalSeconds: 5,
     sendPolicy: {
       default: "allow",
@@ -369,14 +341,8 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
   // Cron jobs
   cron: {
     enabled: true,
-<<<<<<< HEAD
     store: "~/.clawdbot/cron/cron.json",
     maxConcurrentRuns: 2
-=======
-    store: "~/.openclaw/cron/cron.json",
-    maxConcurrentRuns: 2,
-<<<<<<< HEAD
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
     sessionRetention: "24h",
     runLog: {
@@ -564,13 +530,8 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
     theme: "professional assistant",
   },
   agent: {
-<<<<<<< HEAD
     workspace: "~/work-clawd",
     elevated: { enabled: false }
-=======
-    workspace: "~/work-openclaw",
-    elevated: { enabled: false },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   channels: {
     slack: {
@@ -590,13 +551,8 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
 ```json5
 {
   agent: {
-<<<<<<< HEAD
     workspace: "~/clawd",
     model: { primary: "lmstudio/minimax-m2.1-gs32" }
-=======
-    workspace: "~/.openclaw/workspace",
-    model: { primary: "lmstudio/minimax-m2.1-gs32" },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   models: {
     mode: "merge",

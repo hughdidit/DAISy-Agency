@@ -1,12 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
@@ -25,7 +17,6 @@ import {
   TAILSCALE_MISSING_BIN_NOTE_LINES,
 } from "../gateway/gateway-config-prompts.shared.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { findTailscaleBinary } from "../infra/tailscale.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -33,9 +24,6 @@ import { findTailscaleBinary } from "../infra/tailscale.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-import { findTailscaleBinary, getTailnetHostname } from "../infra/tailscale.js";
->>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 =======
 import { findTailscaleBinary } from "../infra/tailscale.js";
 >>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
@@ -59,16 +47,7 @@ import { validateIPv4AddressInput } from "../shared/net/ipv4.js";
 import { note } from "../terminal/note.js";
 import { buildGatewayAuthConfig } from "./configure.gateway-auth.js";
 import { confirm, select, text } from "./configure.shared.js";
-<<<<<<< HEAD
 import { guardCancel, randomToken } from "./onboard-helpers.js";
-=======
-import {
-  guardCancel,
-  normalizeGatewayTokenInput,
-  randomToken,
-  validateGatewayPasswordInput,
-} from "./onboard-helpers.js";
->>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))
 
 type GatewayAuthChoice = "token" | "password" | "trusted-proxy";
 
@@ -174,14 +153,10 @@ export async function promptGatewayConfig(
 
   let tailscaleResetOnExit = false;
   if (tailscaleMode !== "off") {
-<<<<<<< HEAD
     note(
       ["Docs:", "https://docs.molt.bot/gateway/tailscale", "https://docs.molt.bot/web"].join("\n"),
       "Tailscale",
     );
-=======
-    note(TAILSCALE_DOCS_LINES.join("\n"), "Tailscale");
->>>>>>> 01ca3da8e (refactor(gateway): share tailscale prompt constants)
     tailscaleResetOnExit = Boolean(
       guardCancel(
         await confirm({

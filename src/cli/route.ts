@@ -3,15 +3,10 @@ import { ensurePluginRegistryLoaded } from "./plugin-registry.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { emitCliBanner } from "./banner.js";
 import { VERSION } from "../version.js";
-<<<<<<< HEAD
 import { getCommandPath, hasHelpOrVersion } from "./argv.js";
 <<<<<<< HEAD
 import { ensureConfigReady } from "./program/config-guard.js";
 import { findRoutedCommand } from "./program/command-registry.js";
-=======
-=======
-import { getCommandPath, hasFlag, hasHelpOrVersion } from "./argv.js";
->>>>>>> 9e4a366ee (fix(cli): keep json preflight stdout machine-readable)
 import { emitCliBanner } from "./banner.js";
 import { ensurePluginRegistryLoaded } from "./plugin-registry.js";
 import { ensureConfigReady } from "./program/config-guard.js";
@@ -38,17 +33,8 @@ async function prepareRoutedCommand(params: {
 }
 
 export async function tryRouteCli(argv: string[]): Promise<boolean> {
-<<<<<<< HEAD
   if (isTruthyEnvValue(process.env.CLAWDBOT_DISABLE_ROUTE_FIRST)) return false;
   if (hasHelpOrVersion(argv)) return false;
-=======
-  if (isTruthyEnvValue(process.env.OPENCLAW_DISABLE_ROUTE_FIRST)) {
-    return false;
-  }
-  if (hasHelpOrVersion(argv)) {
-    return false;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   const path = getCommandPath(argv, 2);
   if (!path[0]) {

@@ -6,11 +6,8 @@ import type {
   TimedFileInfo,
   VideoFileInfo,
 } from "@vector-im/matrix-bot-sdk";
-<<<<<<< HEAD
 import { parseBuffer, type IFileInfo } from "music-metadata";
 
-=======
->>>>>>> 93dd51bce (perf(matrix): lazy-load music-metadata parsing)
 import { getMatrixRuntime } from "../../runtime.js";
 import {
   type MatrixMediaContent,

@@ -11,14 +11,11 @@ export type CronRunLogEntry = {
   status?: CronRunStatus;
   error?: string;
   summary?: string;
-<<<<<<< HEAD
-=======
   delivered?: boolean;
   deliveryStatus?: CronDeliveryStatus;
   deliveryError?: string;
   sessionId?: string;
   sessionKey?: string;
->>>>>>> 09d5f508b (fix(cron): persist delivered flag in job state to surface delivery failures (openclaw#19174) thanks @simonemacario)
   runAtMs?: number;
   durationMs?: number;
   nextRunAtMs?: number;
@@ -258,15 +255,7 @@ function parseAllRunLogEntries(raw: string, opts?: { jobId?: string }): CronRunL
         continue;
       }
 <<<<<<< HEAD
-<<<<<<< HEAD
       parsed.push(obj as CronRunLogEntry);
-=======
-=======
-      const usage =
-        obj.usage && typeof obj.usage === "object"
-          ? (obj.usage as Record<string, unknown>)
-          : undefined;
->>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
       const entry: CronRunLogEntry = {
         ts: obj.ts,
         jobId: obj.jobId,

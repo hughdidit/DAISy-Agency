@@ -118,8 +118,6 @@ describe("handleToolExecutionEnd media emission", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("does NOT emit local media for untrusted tools", async () => {
     const onToolResult = vi.fn();
     const ctx = createMockContext({ shouldEmitToolOutput: false, onToolResult });
@@ -140,7 +138,6 @@ describe("handleToolExecutionEnd media emission", () => {
     });
   });
 
->>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
   it("does NOT emit media when verbose is full (emitToolOutput handles it)", async () => {
     const onToolResult = vi.fn();
     const ctx = createMockContext({ shouldEmitToolOutput: true, onToolResult });

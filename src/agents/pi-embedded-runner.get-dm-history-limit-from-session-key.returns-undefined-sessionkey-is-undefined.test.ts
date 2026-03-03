@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
@@ -99,12 +98,6 @@ const _readSessionMessages = async (sessionFile: string) => {
     .map((entry) => entry.message as { role?: string; content?: unknown });
 };
 
-=======
-import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { getDmHistoryLimitFromSessionKey } from "./pi-embedded-runner.js";
-
->>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
 describe("getDmHistoryLimitFromSessionKey", () => {
   it("returns undefined when sessionKey is undefined", () => {
     expect(getDmHistoryLimitFromSessionKey(undefined, {})).toBeUndefined();
@@ -156,22 +149,8 @@ describe("getDmHistoryLimitFromSessionKey", () => {
         slack: { historyLimit: 10, dmHistoryLimit: 15 },
         discord: { historyLimit: 8 },
       },
-<<<<<<< HEAD
     } as MoltbotConfig;
     expect(getDmHistoryLimitFromSessionKey("agent:beta:slack:channel:c1", config)).toBeUndefined();
-=======
-    } as OpenClawConfig;
-    expect(getDmHistoryLimitFromSessionKey("agent:beta:slack:channel:c1", config)).toBe(10);
-    expect(getDmHistoryLimitFromSessionKey("discord:channel:123456", config)).toBe(8);
-  });
-  it("returns undefined for non-dm/channel/group session kinds", () => {
-    const config = {
-      channels: {
-        telegram: { dmHistoryLimit: 15, historyLimit: 10 },
-      },
-    } as OpenClawConfig;
-    // "slash" is not dm, channel, or group
->>>>>>> 5378583da (fix(discord): Apply historyLimit to channel/group sessions to prevent compaction bypass (openclaw#11356) thanks @shadril238)
     expect(getDmHistoryLimitFromSessionKey("telegram:slash:123", config)).toBeUndefined();
   });
   it("returns undefined for unknown provider", () => {

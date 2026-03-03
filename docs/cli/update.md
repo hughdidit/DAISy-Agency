@@ -14,7 +14,6 @@ If you installed via **npm/pnpm** (global install, no git metadata), updates hap
 ## Usage
 
 ```bash
-<<<<<<< HEAD
 moltbot update
 moltbot update status
 moltbot update wizard
@@ -24,18 +23,6 @@ moltbot update --tag beta
 moltbot update --no-restart
 moltbot update --json
 moltbot --update
-=======
-openclaw update
-openclaw update status
-openclaw update wizard
-openclaw update --channel beta
-openclaw update --channel dev
-openclaw update --tag beta
-openclaw update --dry-run
-openclaw update --no-restart
-openclaw update --json
-openclaw --update
->>>>>>> f442a3539 (feat(update): add core auto-updater and dry-run preview)
 ```
 
 ## Options

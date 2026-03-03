@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import { createEditorSubmitHandler } from "./tui.js";
@@ -19,10 +18,6 @@ function createSubmitHarness() {
   });
   return { editor, handleCommand, sendMessage, handleBangLine, handler };
 }
-=======
-import { describe, expect, it } from "vitest";
-import { createSubmitHarness } from "./tui-submit-test-helpers.js";
->>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
 
 describe("createEditorSubmitHandler", () => {
   it("adds submitted messages to editor history", () => {

@@ -4,13 +4,8 @@ import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -27,8 +22,6 @@ import {
   resolveAuthProfileDisplayLabel,
   resolveAuthProfileOrder,
 } from "../../agents/auth-profiles.js";
-<<<<<<< HEAD
-=======
 import { describeFailoverError } from "../../agents/failover-error.js";
 import { getCustomProviderApiKey, resolveEnvApiKey } from "../../agents/model-auth.js";
 import { loadModelCatalog } from "../../agents/model-catalog.js";
@@ -37,7 +30,6 @@ import {
   normalizeProviderId,
   parseModelRef,
 } from "../../agents/model-selection.js";
->>>>>>> 9f0fc74d1 (refactor(model): share normalized provider map lookups)
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 import { describeFailoverError } from "../../agents/failover-error.js";
 import { loadModelCatalog } from "../../agents/model-catalog.js";
@@ -49,11 +41,7 @@ import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

@@ -129,8 +129,6 @@ export type SessionConfig = {
     /** Max ping-pong turns between requester/target (0–5). Default: 5. */
     maxPingPongTurns?: number;
   };
-<<<<<<< HEAD
-=======
   /** Shared defaults for thread-bound session routing across channels/providers. */
   threadBindings?: SessionThreadBindingsConfig;
   /** Automatic session store maintenance (pruning, capping, file rotation). */
@@ -151,7 +149,6 @@ export type SessionMaintenanceConfig = {
   /** Rotate sessions.json when it exceeds this size (e.g. "10mb"). Default: 10mb. */
   rotateBytes?: number | string;
 <<<<<<< HEAD
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 =======
   /**
    * Retention for archived reset transcripts (`*.reset.<timestamp>`).

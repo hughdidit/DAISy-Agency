@@ -1,21 +1,7 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-<<<<<<< HEAD
 
 import type { RuntimeEnv } from "clawdbot/plugin-sdk";
 
-=======
-import {
-  createLoggerBackedRuntime,
-  type RuntimeEnv,
-  isRequestBodyLimitError,
-  readRequestBodyWithLimit,
-  requestBodyErrorToText,
-} from "openclaw/plugin-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -25,9 +11,6 @@ import { handleNextcloudTalkInbound } from "./inbound.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
 import { extractNextcloudTalkHeaders, verifyNextcloudTalkSignature } from "./signature.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -208,7 +191,6 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
     }
 
     try {
-<<<<<<< HEAD
       const body = await readBody(req);
 
       const headers = extractNextcloudTalkHeaders(
@@ -219,18 +201,6 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
         res.end(JSON.stringify({ error: "Missing signature headers" }));
         return;
       }
-=======
-      const headers = validateWebhookHeaders({
-        req,
-        res,
-        isBackendAllowed,
-      });
-      if (!headers) {
-        return;
-      }
-
-      const body = await readBody(req, maxBodyBytes);
->>>>>>> 5325ed90b (refactor(nextcloud-talk): extract webhook pipeline and shared test harness)
 
       const hasValidSignature = verifyWebhookSignature({
         headers,
@@ -254,7 +224,6 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
         return;
       }
 
-<<<<<<< HEAD
       if (payload.type !== "Create") {
         res.writeHead(200);
         res.end();
@@ -262,16 +231,6 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
       }
 
       const message = payloadToInboundMessage(payload);
-=======
-      const message = decoded.message;
-      if (shouldProcessMessage) {
-        const shouldProcess = await shouldProcessMessage(message);
-        if (!shouldProcess) {
-          writeJsonResponse(res, 200);
-          return;
-        }
-      }
->>>>>>> 5325ed90b (refactor(nextcloud-talk): extract webhook pipeline and shared test harness)
 
       writeJsonResponse(res, 200);
 
@@ -281,8 +240,6 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
         onError?.(err instanceof Error ? err : new Error(formatError(err)));
       }
     } catch (err) {
-<<<<<<< HEAD
-=======
       if (isRequestBodyLimitError(err, "PAYLOAD_TOO_LARGE")) {
         writeWebhookError(res, 413, WEBHOOK_ERRORS.payloadTooLarge);
         return;
@@ -291,7 +248,6 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
         writeWebhookError(res, 408, requestBodyErrorToText("REQUEST_BODY_TIMEOUT"));
         return;
       }
->>>>>>> 5325ed90b (refactor(nextcloud-talk): extract webhook pipeline and shared test harness)
       const error = err instanceof Error ? err : new Error(formatError(err));
       onError?.(error);
       writeWebhookError(res, 500, WEBHOOK_ERRORS.internalServerError);

@@ -28,7 +28,6 @@ async function withHeartbeatFixture(
     seedSession: (sessionKey: string, input: SeedSessionInput) => Promise<void>;
   }) => Promise<unknown>,
 ): Promise<unknown> {
-<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-model-"));
   const storePath = path.join(tmpDir, "sessions.json");
 
@@ -55,22 +54,6 @@ async function withHeartbeatFixture(
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true });
   }
-=======
-  return withTempHeartbeatSandbox(
-    async ({ tmpDir, storePath }) => {
-      const seedSession = async (sessionKey: string, input: SeedSessionInput) => {
-        await seedSessionStore(storePath, sessionKey, {
-          updatedAt: input.updatedAt,
-          lastChannel: input.lastChannel,
-          lastProvider: input.lastChannel,
-          lastTo: input.lastTo,
-        });
-      };
-      return run({ tmpDir, storePath, seedSession });
-    },
-    { prefix: "openclaw-hb-model-" },
-  );
->>>>>>> c0995103a (test(heartbeat): reuse shared temp sandbox in model override suite)
 }
 
 beforeEach(() => {

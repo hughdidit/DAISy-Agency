@@ -3,10 +3,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../config/config.js";
@@ -15,10 +11,7 @@ import type { ReplyPayload } from "../types.js";
 import type { HandleDirectiveOnlyParams } from "./directive-handling.params.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel } from "./directives.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 48fd9d7dc (refactor(auto-reply): share directive handling params)
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -38,11 +31,7 @@ import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -68,11 +57,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { InlineDirectives } from "./directive-handling.parse.js";
-=======
-import type { HandleDirectiveOnlyParams } from "./directive-handling.params.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -95,11 +80,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
-=======
-import type { ElevatedLevel, ReasoningLevel, ThinkLevel } from "./directives.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -140,7 +121,6 @@ function resolveExecDefaults(params: {
   };
 }
 
-<<<<<<< HEAD
 export async function handleDirectiveOnly(params: {
   cfg: MoltbotConfig;
   directives: InlineDirectives;
@@ -170,11 +150,6 @@ export async function handleDirectiveOnly(params: {
   currentElevatedLevel?: ElevatedLevel;
   surface?: string;
 }): Promise<ReplyPayload | undefined> {
-=======
-export async function handleDirectiveOnly(
-  params: HandleDirectiveOnlyParams,
-): Promise<ReplyPayload | undefined> {
->>>>>>> 48fd9d7dc (refactor(auto-reply): share directive handling params)
   const {
     directives,
     sessionEntry,

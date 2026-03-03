@@ -1,10 +1,6 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-=======
-import { describe, expect, it } from "vitest";
->>>>>>> b4e406b6c (refactor(test): share iMessage monitor test harness)
 import { monitorIMessageProvider } from "./monitor.js";
 =======
 import { beforeAll, describe, expect, it } from "vitest";
@@ -52,7 +48,6 @@ type TestConfig = {
   [k: string]: unknown;
 };
 
-<<<<<<< HEAD
 vi.mock("../auto-reply/reply.js", () => ({
   getReplyFromConfig: (...args: unknown[]) => replyMock(...args),
 }));
@@ -133,13 +128,6 @@ beforeEach(() => {
 });
 
 =======
-function getConfig(): TestConfig {
-  return getConfigMock() as unknown as TestConfig;
-}
-
-<<<<<<< HEAD
->>>>>>> b4e406b6c (refactor(test): share iMessage monitor test harness)
-=======
 function notifyMessage(message: unknown) {
   getNotificationHandler()?.({
     method: "message",
@@ -167,14 +155,11 @@ async function closeMonitor() {
   throw new Error("imessage test harness: closeResolve not set");
 }
 
-<<<<<<< HEAD
 function startMonitor() {
   return monitorIMessageProvider();
 }
 
 >>>>>>> 63aa155ad (refactor(imessage): extract RPC notification parsing)
-=======
->>>>>>> 2b5ad475a (test(imessage): stabilize monitor tests with harness import)
 describe("monitorIMessageProvider", () => {
   it("handles default config gating, formatting, and reply context", async () => {
     const run = startMonitor();
@@ -379,7 +364,6 @@ describe("monitorIMessageProvider", () => {
     const run = startMonitor();
     await waitForSubscribe();
 
-<<<<<<< HEAD
     getNotificationHandler()?.({
       method: "message",
       params: {
@@ -392,15 +376,6 @@ describe("monitorIMessageProvider", () => {
           is_group: true,
         },
       },
-=======
-    notifyMessage({
-      id: 13,
-      chat_id: 123,
-      sender: "+15550001111",
-      is_from_me: false,
-      text: "@openclaw hello",
-      is_group: true,
->>>>>>> a0b9ce31b (perf(test): streamline imessage monitor suites)
     });
 
     await flush();
@@ -523,7 +498,6 @@ describe("monitorIMessageProvider", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("delivers group replies when mentioned", async () => {
     replyMock.mockResolvedValueOnce({ text: "yo" });
     const run = startMonitor();
@@ -563,8 +537,6 @@ describe("monitorIMessageProvider", () => {
     );
   });
 
-=======
->>>>>>> a0b9ce31b (perf(test): streamline imessage monitor suites)
   it("honors group allowlist when groupPolicy is allowlist", async () => {
 =======
   it("honors group allowlist and ignores pairing-store senders in groups", async () => {
@@ -589,7 +561,6 @@ describe("monitorIMessageProvider", () => {
     await waitForSubscribe();
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     getNotificationHandler()?.({
       method: "message",
       params: {
@@ -602,11 +573,6 @@ describe("monitorIMessageProvider", () => {
           is_group: true,
         },
       },
-=======
-=======
-    replyMock.mockClear();
-    sendMock.mockClear();
->>>>>>> fa8aa8438 (perf(test): streamline imessage monitor tests)
     notifyMessage({
       id: 3,
       chat_id: 202,
@@ -671,7 +637,6 @@ describe("monitorIMessageProvider", () => {
     const run = startMonitor();
     await waitForSubscribe();
 
-<<<<<<< HEAD
     getNotificationHandler()?.({
       method: "message",
       params: {
@@ -684,15 +649,6 @@ describe("monitorIMessageProvider", () => {
           is_group: true,
         },
       },
-=======
-    notifyMessage({
-      id: 10,
-      chat_id: 303,
-      sender: "+15550003333",
-      is_from_me: false,
-      text: "@openclaw hi",
-      is_group: true,
->>>>>>> a0b9ce31b (perf(test): streamline imessage monitor suites)
     });
 
     await flush();
@@ -702,15 +658,8 @@ describe("monitorIMessageProvider", () => {
     expect(replyMock).not.toHaveBeenCalled();
   });
 <<<<<<< HEAD
-<<<<<<< HEAD
 
   it("prefixes group message bodies with sender", async () => {
-=======
-
-<<<<<<< HEAD
-  it("updates last route with sender handle for direct messages", async () => {
-    replyMock.mockResolvedValueOnce({ text: "ok" });
->>>>>>> 024119459 (perf(test): consolidate imessage monitor tests)
     const run = startMonitor();
     await waitForSubscribe();
 
@@ -718,7 +667,6 @@ describe("monitorIMessageProvider", () => {
       method: "message",
       params: {
         message: {
-<<<<<<< HEAD
           id: 11,
           chat_id: 99,
           chat_name: "Test Group",
@@ -759,14 +707,6 @@ describe("monitorIMessageProvider", () => {
           reply_to_id: 9001,
           reply_to_text: "original message",
           reply_to_sender: "+15559998888",
-=======
-          id: 4,
-          chat_id: 7,
-          sender: "+15550004444",
-          is_from_me: false,
-          text: "hey",
-          is_group: false,
->>>>>>> 024119459 (perf(test): consolidate imessage monitor tests)
         },
       },
     });
@@ -775,7 +715,6 @@ describe("monitorIMessageProvider", () => {
     await closeMonitor();
     await run;
 
-<<<<<<< HEAD
     expect(replyMock).toHaveBeenCalled();
     const ctx = replyMock.mock.calls[0]?.[0] as {
       Body?: string;
@@ -789,8 +728,6 @@ describe("monitorIMessageProvider", () => {
     expect(String(ctx.Body ?? "")).toContain("[Replying to +15559998888 id:9001]");
     expect(String(ctx.Body ?? "")).toContain("original message");
   });
-=======
->>>>>>> a0b9ce31b (perf(test): streamline imessage monitor suites)
 =======
     expect(updateLastRouteMock).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -4,25 +4,15 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { MANIFEST_KEY } from "../compat/legacy-names.js";
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 import { resolveBundledHooksDir } from "./bundled-dir.js";
 import { shouldIncludeHook } from "./config.js";
 import {
   parseFrontmatter,
-<<<<<<< HEAD
   resolveMoltbotMetadata,
-=======
-  resolveOpenClawMetadata,
->>>>>>> 90ef2d6bd (chore: Update formatting.)
   resolveHookInvocationPolicy,
 } from "./frontmatter.js";
 =======
@@ -54,11 +44,8 @@ import type {
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { MANIFEST_KEY } from "../compat/legacy-names.js";
 import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-=======
 =======
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
->>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { isPathInsideWithRealpath } from "../security/scan-paths.js";
 >>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
@@ -81,14 +68,9 @@ import type {
 
 type HookPackageManifest = {
   name?: string;
-<<<<<<< HEAD
   moltbot?: { hooks?: string[] };
   [LEGACY_MANIFEST_KEY]?: { hooks?: string[] };
 };
-=======
-} & Partial<Record<typeof MANIFEST_KEY, { hooks?: string[] }>>;
-const log = createSubsystemLogger("hooks/workspace");
->>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 
 function filterHookEntries(
   entries: HookEntry[],
@@ -116,15 +98,8 @@ function readHookPackageManifest(dir: string): HookPackageManifest | null {
 }
 
 function resolvePackageHooks(manifest: HookPackageManifest): string[] {
-<<<<<<< HEAD
   const raw = manifest.moltbot?.hooks ?? manifest[LEGACY_MANIFEST_KEY]?.hooks;
   if (!Array.isArray(raw)) return [];
-=======
-  const raw = manifest[MANIFEST_KEY]?.hooks;
-  if (!Array.isArray(raw)) {
-    return [];
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return raw.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean);
 }
 
@@ -214,17 +189,7 @@ function loadHooksFromDir(params: { dir: string; source: HookSource; pluginId?: 
 
     if (packageHooks.length > 0) {
       for (const hookPath of packageHooks) {
-<<<<<<< HEAD
         const resolvedHookDir = path.resolve(hookDir, hookPath);
-=======
-        const resolvedHookDir = resolveContainedDir(hookDir, hookPath);
-        if (!resolvedHookDir) {
-          log.warn(
-            `Ignoring out-of-package hook path "${hookPath}" in ${hookDir} (must be within package directory)`,
-          );
-          continue;
-        }
->>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
         const hook = loadHookFromDir({
           hookDir: resolvedHookDir,
           source,

@@ -20,13 +20,10 @@ import {
   resolveChannelGroupRequireMention,
 } from "../../config/group-policy.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
-<<<<<<< HEAD
-=======
 import {
   DM_GROUP_ACCESS_REASON,
   resolveDmGroupAccessWithLists,
 } from "../../security/dm-policy-shared.js";
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
 import { truncateUtf16Safe } from "../../utils.js";
 import {
   formatIMessageChatTarget,
@@ -153,7 +150,6 @@ export function resolveIMessageInboundDecision(params: {
     .map((v) => String(v).trim())
     .filter(Boolean);
 
-<<<<<<< HEAD
   if (isGroup) {
     if (params.groupPolicy === "disabled") {
       params.logVerbose?.("Blocked iMessage group message (groupPolicy: disabled)");
@@ -161,21 +157,11 @@ export function resolveIMessageInboundDecision(params: {
     }
     if (params.groupPolicy === "allowlist") {
       if (effectiveGroupAllowFrom.length === 0) {
-=======
-  if (accessDecision.decision !== "allow") {
-    if (isGroup) {
-      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_DISABLED) {
-        params.logVerbose?.("Blocked iMessage group message (groupPolicy: disabled)");
-        return { kind: "drop", reason: "groupPolicy disabled" };
-      }
-      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_EMPTY_ALLOWLIST) {
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
         params.logVerbose?.(
           "Blocked iMessage group message (groupPolicy: allowlist, no groupAllowFrom)",
         );
         return { kind: "drop", reason: "groupPolicy allowlist (empty groupAllowFrom)" };
       }
-<<<<<<< HEAD
       const allowed = isAllowedIMessageSender({
         allowFrom: effectiveGroupAllowFrom,
         sender,
@@ -184,23 +170,15 @@ export function resolveIMessageInboundDecision(params: {
         chatIdentifier,
       });
       if (!allowed) {
-=======
-      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_NOT_ALLOWLISTED) {
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
         params.logVerbose?.(`Blocked iMessage sender ${sender} (not in groupAllowFrom)`);
         return { kind: "drop", reason: "not in groupAllowFrom" };
       }
     }
-<<<<<<< HEAD
     if (groupListPolicy.allowlistEnabled && !groupListPolicy.allowed) {
       params.logVerbose?.(
         `imessage: skipping group message (${groupId ?? "unknown"}) not in allowlist`,
       );
       return { kind: "drop", reason: "group id not in allowlist" };
-=======
-    if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.DM_POLICY_DISABLED) {
-      return { kind: "drop", reason: "dmPolicy disabled" };
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
     }
   }
 

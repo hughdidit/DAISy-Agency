@@ -71,7 +71,6 @@ export async function applyAuthChoiceAnthropic(
     }
 
     let nextConfig = params.config;
-<<<<<<< HEAD
     let hasCredential = false;
     const envKey = process.env.ANTHROPIC_API_KEY?.trim();
 
@@ -103,11 +102,6 @@ export async function applyAuthChoiceAnthropic(
       });
 <<<<<<< HEAD
       await setAnthropicApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
-=======
-      await setAnthropicApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir, {
-        secretInputMode: requestedSecretInputMode,
-      });
->>>>>>> 04aa856fc (Onboard: require explicit mode for env secret refs)
     }
 =======
     await ensureApiKeyFromOptionEnvOrPrompt({

@@ -39,13 +39,8 @@ function resetRuntime() {
 }
 
 function mockSnapshot(token = "abc") {
-<<<<<<< HEAD
   mocks.readConfigFileSnapshot.mockResolvedValue({
     path: "/tmp/moltbot.json",
-=======
-  readConfigFileSnapshotMock.mockResolvedValue({
-    path: "/tmp/openclaw.json",
->>>>>>> 5b185da36 (refactor(test): remove remaining command test duplication)
     exists: true,
     raw: "{}",
     parsed: {},
@@ -88,13 +83,8 @@ describe("dashboardCommand", () => {
       basePath: undefined,
     });
 <<<<<<< HEAD
-<<<<<<< HEAD
     expect(mocks.copyToClipboard).toHaveBeenCalledWith("http://127.0.0.1:18789/?token=abc123");
     expect(mocks.openUrl).toHaveBeenCalledWith("http://127.0.0.1:18789/?token=abc123");
-=======
-    expect(mocks.copyToClipboard).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");
-    expect(mocks.openUrl).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
 =======
     expect(copyToClipboardMock).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");
     expect(openUrlMock).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");

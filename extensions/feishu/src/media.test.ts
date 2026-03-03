@@ -27,19 +27,7 @@ vi.mock("./targets.js", () => ({
   resolveReceiveIdType: resolveReceiveIdTypeMock,
 }));
 
-<<<<<<< HEAD
 import { sendMediaFeishu } from "./media.js";
-=======
-vi.mock("./runtime.js", () => ({
-  getFeishuRuntime: () => ({
-    media: {
-      loadWebMedia: loadWebMediaMock,
-    },
-  }),
-}));
-
-import { downloadImageFeishu, downloadMessageResourceFeishu, sendMediaFeishu } from "./media.js";
->>>>>>> c82109915 (Feishu: harden temp media download paths)
 
 function expectPathIsolatedToTmpRoot(pathValue: string, key: string): void {
   expect(pathValue).not.toContain(key);
@@ -98,8 +86,6 @@ describe("sendMediaFeishu msg_type routing", () => {
       code: 0,
       data: { message_id: "reply_1" },
     });
-<<<<<<< HEAD
-=======
 
     loadWebMediaMock.mockResolvedValue({
       buffer: Buffer.from("remote-audio"),
@@ -110,7 +96,6 @@ describe("sendMediaFeishu msg_type routing", () => {
 
     imageGetMock.mockResolvedValue(Buffer.from("image-bytes"));
     messageResourceGetMock.mockResolvedValue(Buffer.from("resource-bytes"));
->>>>>>> c82109915 (Feishu: harden temp media download paths)
   });
 
   it("uses msg_type=media for mp4", async () => {
@@ -194,8 +179,6 @@ describe("sendMediaFeishu msg_type routing", () => {
 
     expect(messageCreateMock).not.toHaveBeenCalled();
   });
-<<<<<<< HEAD
-=======
 
   it("fails closed when media URL fetch is blocked", async () => {
     loadWebMediaMock.mockRejectedValueOnce(
@@ -244,7 +227,6 @@ describe("sendMediaFeishu msg_type routing", () => {
     expect(rel === ".." || rel.startsWith(`..${path.sep}`)).toBe(false);
 =======
     expectPathIsolatedToTmpRoot(capturedPath as string, imageKey);
->>>>>>> 5574eb6b3 (fix(feishu): harden onboarding and webhook validation)
   });
 
   it("does not include fileKey path segments in temp file path", async () => {
@@ -267,7 +249,6 @@ describe("sendMediaFeishu msg_type routing", () => {
 
     expect(result.buffer).toEqual(Buffer.from("resource-data"));
     expect(capturedPath).toBeDefined();
-<<<<<<< HEAD
     expect(capturedPath).not.toContain(maliciousFileKey);
     expect(capturedPath).not.toContain("..");
 
@@ -275,9 +256,6 @@ describe("sendMediaFeishu msg_type routing", () => {
     const resolved = path.resolve(capturedPath as string);
     const rel = path.relative(tmpRoot, resolved);
     expect(rel === ".." || rel.startsWith(`..${path.sep}`)).toBe(false);
-=======
-    expectPathIsolatedToTmpRoot(capturedPath as string, fileKey);
->>>>>>> 5574eb6b3 (fix(feishu): harden onboarding and webhook validation)
   });
 >>>>>>> c82109915 (Feishu: harden temp media download paths)
 });

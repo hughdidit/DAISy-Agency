@@ -67,7 +67,6 @@ fi
 mkdir -p "${CLAWDBOT_CONFIG_DIR:-$HOME/.clawdbot}"
 mkdir -p "${CLAWDBOT_WORKSPACE_DIR:-$HOME/clawd}"
 
-<<<<<<< HEAD
 export CLAWDBOT_CONFIG_DIR="${CLAWDBOT_CONFIG_DIR:-$HOME/.clawdbot}"
 export CLAWDBOT_WORKSPACE_DIR="${CLAWDBOT_WORKSPACE_DIR:-$HOME/clawd}"
 export CLAWDBOT_GATEWAY_PORT="${CLAWDBOT_GATEWAY_PORT:-18789}"
@@ -75,25 +74,6 @@ export CLAWDBOT_BRIDGE_PORT="${CLAWDBOT_BRIDGE_PORT:-18790}"
 export CLAWDBOT_GATEWAY_BIND="${CLAWDBOT_GATEWAY_BIND:-lan}"
 export CLAWDBOT_IMAGE="$IMAGE_NAME"
 export CLAWDBOT_DOCKER_APT_PACKAGES="${CLAWDBOT_DOCKER_APT_PACKAGES:-}"
-=======
-validate_mount_path_value "OPENCLAW_CONFIG_DIR" "$OPENCLAW_CONFIG_DIR"
-validate_mount_path_value "OPENCLAW_WORKSPACE_DIR" "$OPENCLAW_WORKSPACE_DIR"
-if [[ -n "$HOME_VOLUME_NAME" ]]; then
-  if [[ "$HOME_VOLUME_NAME" == *"/"* ]]; then
-    validate_mount_path_value "OPENCLAW_HOME_VOLUME" "$HOME_VOLUME_NAME"
-  else
-    validate_named_volume "$HOME_VOLUME_NAME"
-  fi
-fi
-if contains_disallowed_chars "$EXTRA_MOUNTS"; then
-  fail "OPENCLAW_EXTRA_MOUNTS cannot contain control characters."
-fi
-
-mkdir -p "$OPENCLAW_CONFIG_DIR"
-mkdir -p "$OPENCLAW_WORKSPACE_DIR"
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 7255c20dd (fix(docker): harden docker-setup mount validation)
 =======
 # Seed device-identity parent eagerly for Docker Desktop/Windows bind mounts
 # that reject creating new subdirectories from inside the container.
@@ -138,21 +118,9 @@ services:
 YAML
 
   if [[ -n "$home_volume" ]]; then
-<<<<<<< HEAD
     printf '      - %s:/home/node\n' "$home_volume" >>"$EXTRA_COMPOSE_FILE"
     printf '      - %s:/home/node/.clawdbot\n' "$CLAWDBOT_CONFIG_DIR" >>"$EXTRA_COMPOSE_FILE"
     printf '      - %s:/home/node/clawd\n' "$CLAWDBOT_WORKSPACE_DIR" >>"$EXTRA_COMPOSE_FILE"
-=======
-    gateway_home_mount="${home_volume}:/home/node"
-    gateway_config_mount="${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw"
-    gateway_workspace_mount="${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace"
-    validate_mount_spec "$gateway_home_mount"
-    validate_mount_spec "$gateway_config_mount"
-    validate_mount_spec "$gateway_workspace_mount"
-    printf '      - %s\n' "$gateway_home_mount" >>"$EXTRA_COMPOSE_FILE"
-    printf '      - %s\n' "$gateway_config_mount" >>"$EXTRA_COMPOSE_FILE"
-    printf '      - %s\n' "$gateway_workspace_mount" >>"$EXTRA_COMPOSE_FILE"
->>>>>>> 7255c20dd (fix(docker): harden docker-setup mount validation)
   fi
 
   for mount in "$@"; do
@@ -166,15 +134,9 @@ YAML
 YAML
 
   if [[ -n "$home_volume" ]]; then
-<<<<<<< HEAD
     printf '      - %s:/home/node\n' "$home_volume" >>"$EXTRA_COMPOSE_FILE"
     printf '      - %s:/home/node/.clawdbot\n' "$CLAWDBOT_CONFIG_DIR" >>"$EXTRA_COMPOSE_FILE"
     printf '      - %s:/home/node/clawd\n' "$CLAWDBOT_WORKSPACE_DIR" >>"$EXTRA_COMPOSE_FILE"
-=======
-    printf '      - %s\n' "$gateway_home_mount" >>"$EXTRA_COMPOSE_FILE"
-    printf '      - %s\n' "$gateway_config_mount" >>"$EXTRA_COMPOSE_FILE"
-    printf '      - %s\n' "$gateway_workspace_mount" >>"$EXTRA_COMPOSE_FILE"
->>>>>>> 7255c20dd (fix(docker): harden docker-setup mount validation)
   fi
 
   for mount in "$@"; do
@@ -271,18 +233,12 @@ upsert_env "$ENV_FILE" \
   CLAWDBOT_DOCKER_APT_PACKAGES
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 echo "==> Building Docker image: $IMAGE_NAME"
 docker build \
   --build-arg "CLAWDBOT_DOCKER_APT_PACKAGES=${CLAWDBOT_DOCKER_APT_PACKAGES}" \
   -t "$IMAGE_NAME" \
   -f "$ROOT_DIR/Dockerfile" \
   "$ROOT_DIR"
-=======
-if [ "$IMAGE_NAME" == "openclaw:local" ]; then
-=======
-if [[ "$IMAGE_NAME" == "openclaw:local" ]]; then
->>>>>>> c7f88e85b (feature/OPENCLAW_IMAGE)
   echo "==> Building Docker image: $IMAGE_NAME"
   docker build \
     --build-arg "OPENCLAW_DOCKER_APT_PACKAGES=${OPENCLAW_DOCKER_APT_PACKAGES}" \
@@ -296,7 +252,6 @@ else
     exit 1
   fi
 fi
-<<<<<<< HEAD
     --build-arg "OPENCLAW_DOCKER_APT_PACKAGES=${OPENCLAW_DOCKER_APT_PACKAGES}" \
     -t "$IMAGE_NAME" \
     -f "$ROOT_DIR/Dockerfile" \
@@ -306,8 +261,6 @@ else
   docker pull "$IMAGE_NAME"
 fi
 >>>>>>> 15240bdbf (feature/OPENCLAW_IMAGE)
-=======
->>>>>>> a898acbd5 (feature/OPENCLAW_IMAGE)
 
 # Ensure bind-mounted data directories are writable by the container's `node`
 # user (uid 1000). Host-created dirs inherit the host user's uid which may

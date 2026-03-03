@@ -1,18 +1,12 @@
-<<<<<<< HEAD
 import { format } from "node:util";
 
 <<<<<<< HEAD
-=======
->>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import {
   createLoggerBackedRuntime,
   GROUP_POLICY_BLOCKED_LABEL,
   mergeAllowlist,
-<<<<<<< HEAD
-=======
   resolveAllowlistProviderRuntimeGroupPolicy,
 <<<<<<< HEAD
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 =======
   resolveDefaultGroupPolicy,
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
@@ -26,13 +20,8 @@ import { mergeAllowlist, summarizeMapping, type RuntimeEnv } from "openclaw/plug
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 import type { CoreConfig, ReplyToMode } from "../../types.js";
-=======
-=======
-import type { CoreConfig, ReplyToMode } from "../../types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -282,7 +271,6 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
     logger.debug?.(message);
   };
 
-<<<<<<< HEAD
   const normalizeUserEntry = (raw: string) =>
     raw
       .replace(/^matrix:/i, "")
@@ -298,63 +286,6 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
 
   const allowlistOnly = cfg.channels?.matrix?.allowlistOnly === true;
   let allowFrom = cfg.channels?.matrix?.dm?.allowFrom ?? [];
-=======
-  const resolveUserAllowlist = async (
-    label: string,
-    list?: Array<string | number>,
-  ): Promise<string[]> => {
-    let allowList = list ?? [];
-    if (allowList.length === 0) {
-      return allowList.map(String);
-    }
-    const entries = allowList
-      .map((entry) => normalizeUserEntry(String(entry)))
-      .filter((entry) => entry && entry !== "*");
-    if (entries.length === 0) {
-      return allowList.map(String);
-    }
-    const mapping: string[] = [];
-    const unresolved: string[] = [];
-    const additions: string[] = [];
-    const pending: string[] = [];
-    for (const entry of entries) {
-      if (isMatrixUserId(entry)) {
-        additions.push(normalizeMatrixUserId(entry));
-        continue;
-      }
-      pending.push(entry);
-    }
-    if (pending.length > 0) {
-      const resolved = await resolveMatrixTargets({
-        cfg,
-        inputs: pending,
-        kind: "user",
-        runtime,
-      });
-      for (const entry of resolved) {
-        if (entry.resolved && entry.id) {
-          const normalizedId = normalizeMatrixUserId(entry.id);
-          additions.push(normalizedId);
-          mapping.push(`${entry.input}→${normalizedId}`);
-        } else {
-          unresolved.push(entry.input);
-        }
-      }
-    }
-    allowList = mergeAllowlist({ existing: allowList, additions });
-    summarizeMapping(label, mapping, unresolved, runtime);
-    if (unresolved.length > 0) {
-      runtime.log?.(
-        `${label} entries must be full Matrix IDs (example: @user:server). Unresolved entries are ignored.`,
-      );
-    }
-    return allowList.map(String);
-  };
-
-  const allowlistOnly = cfg.channels?.matrix?.allowlistOnly === true;
-  let allowFrom: string[] = (cfg.channels?.matrix?.dm?.allowFrom ?? []).map(String);
-  let groupAllowFrom: string[] = (cfg.channels?.matrix?.groupAllowFrom ?? []).map(String);
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
   let roomsConfig = cfg.channels?.matrix?.groups ?? cfg.channels?.matrix?.rooms;
 
   if (allowFrom.length > 0) {
@@ -406,11 +337,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
         continue;
       }
       const cleaned = normalizeRoomEntry(trimmed);
-<<<<<<< HEAD
       if (cleaned.startsWith("!") && cleaned.includes(":")) {
-=======
-      if (cleaned.startsWith("!") || (cleaned.startsWith("#") && cleaned.includes(":"))) {
->>>>>>> f66f563c1 (fix(matrix): fix multiple Conduit compatibility issues preventing message delivery)
         if (!nextRooms[cleaned]) {
           nextRooms[cleaned] = roomsConfig[entry];
         }
@@ -489,14 +416,9 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
   setActiveMatrixClient(client);
 
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(cfg);
-<<<<<<< HEAD
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicyRaw = cfg.channels?.matrix?.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-=======
-=======
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy: groupPolicyRaw, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: cfg.channels?.matrix !== undefined,
@@ -522,16 +444,8 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
   const mediaMaxMb = opts.mediaMaxMb ?? cfg.channels?.matrix?.mediaMaxMb ?? DEFAULT_MEDIA_MAX_MB;
   const mediaMaxBytes = Math.max(1, mediaMaxMb) * 1024 * 1024;
   const startupMs = Date.now();
-<<<<<<< HEAD
   const startupGraceMs = 5000; // 5s grace for slow homeservers (e.g. Conduit filter M_NOT_FOUND retry)
   const directTracker = createDirectRoomTracker(client, { log: logVerboseMessage });
-=======
-  const startupGraceMs = DEFAULT_STARTUP_GRACE_MS;
-  const directTracker = createDirectRoomTracker(client, {
-    log: logVerboseMessage,
-    includeMemberCountInLogs: core.logging.shouldLogVerbose(),
-  });
->>>>>>> dc816b84e (refactor(matrix): unify startup + split monitor config flow)
   registerMatrixAutoJoin({ client, cfg, runtime });
   const warnedEncryptedRooms = new Set<string>();
   const warnedCryptoMissingRooms = new Set<string>();

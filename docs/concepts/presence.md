@@ -8,12 +8,7 @@ read_when:
 
 # Presence
 
-<<<<<<< HEAD
 Moltbot “presence” is a lightweight, best‑effort view of:
-=======
-OpenClaw “presence” is a lightweight, best‑effort view of:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - the **Gateway** itself, and
 - **clients connected to the Gateway** (mac app, WebChat, CLI, etc.)
 

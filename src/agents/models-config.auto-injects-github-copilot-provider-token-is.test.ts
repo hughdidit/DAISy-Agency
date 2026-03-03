@@ -1,18 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-=======
-import { describe, expect, it, vi } from "vitest";
-=======
-import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
->>>>>>> 0900ec38a (test(agents): dedupe copilot models-config token setup)
 import { captureEnv } from "../test-utils/env.js";
 =======
 import { withEnvAsync } from "../test-utils/env.js";
@@ -27,7 +19,6 @@ import {
 import { ensureOpenClawModelsJson } from "./models-config.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
-<<<<<<< HEAD
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-models-" });
 }
@@ -55,14 +46,10 @@ const _MODELS_CONFIG: MoltbotConfig = {
     },
   },
 };
-=======
-installModelsConfigTestHooks({ restoreFetch: true });
->>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 
 describe("models-config", () => {
   it("auto-injects github-copilot provider when token is present", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const envSnapshot = captureEnv(["COPILOT_GITHUB_TOKEN"]);
       process.env.COPILOT_GITHUB_TOKEN = "gh-token";
       const fetchMock = vi.fn().mockResolvedValue({
@@ -91,8 +78,6 @@ describe("models-config", () => {
 
         const { ensureMoltbotModelsJson } = await import("./models-config.js");
 
-=======
->>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 =======
       await withCopilotGithubToken("gh-token", async () => {
 >>>>>>> 0900ec38a (test(agents): dedupe copilot models-config token setup)
@@ -123,7 +108,6 @@ describe("models-config", () => {
 
           await ensureOpenClawModelsJson({ models: { providers: {} } });
 
-<<<<<<< HEAD
       try {
 <<<<<<< HEAD
         vi.resetModules();
@@ -143,9 +127,6 @@ describe("models-config", () => {
         const { ensureMoltbotModelsJson } = await import("./models-config.js");
 
         await ensureMoltbotModelsJson({ models: { providers: {} } });
-=======
-        await ensureOpenClawModelsJson({ models: { providers: {} } });
->>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
         const [, opts] = fetchMock.mock.calls[0] as [string, { headers?: Record<string, string> }];
         expect(opts?.headers?.Authorization).toBe("Bearer copilot-token");

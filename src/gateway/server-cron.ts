@@ -2,16 +2,7 @@ import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { CliDeps } from "../cli/deps.js";
 import { createOutboundSendDeps } from "../cli/outbound-send-deps.js";
 import { loadConfig } from "../config/config.js";
-<<<<<<< HEAD
 import { resolveAgentMainSessionKey } from "../config/sessions.js";
-=======
-import {
-  canonicalizeMainSessionAlias,
-  resolveAgentIdFromSessionKey,
-  resolveAgentMainSessionKey,
-} from "../config/sessions.js";
-import { resolveStorePath } from "../config/sessions/paths.js";
->>>>>>> f988abf20 (Cron: route reminders by session namespace)
 import { runCronIsolatedAgentTurn } from "../cron/isolated-agent.js";
 import { resolveDeliveryTarget } from "../cron/isolated-agent/delivery-target.js";
 import {
@@ -101,40 +92,6 @@ export function buildGatewayCronService(params: {
   };
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  const resolveCronSessionKey = (params: {
-    runtimeConfig: ReturnType<typeof loadConfig>;
-    agentId: string;
-    requestedSessionKey?: string | null;
-  }) => {
-    const requested = params.requestedSessionKey?.trim();
-    if (!requested) {
-      return resolveAgentMainSessionKey({
-        cfg: params.runtimeConfig,
-        agentId: params.agentId,
-      });
-    }
-    const canonical = canonicalizeMainSessionAlias({
-      cfg: params.runtimeConfig,
-      agentId: params.agentId,
-      sessionKey: requested,
-    });
-    if (canonical !== "global") {
-      const sessionAgentId = resolveAgentIdFromSessionKey(canonical);
-      if (normalizeAgentId(sessionAgentId) !== normalizeAgentId(params.agentId)) {
-        return resolveAgentMainSessionKey({
-          cfg: params.runtimeConfig,
-          agentId: params.agentId,
-        });
-      }
-    }
-    return canonical;
-  };
-
-<<<<<<< HEAD
->>>>>>> f988abf20 (Cron: route reminders by session namespace)
 =======
   const resolveCronWakeTarget = (opts?: { agentId?: string; sessionKey?: string | null }) => {
     const runtimeConfig = loadConfig();
@@ -340,7 +297,6 @@ export function buildGatewayCronService(params: {
           storePath,
           jobId: evt.jobId,
         });
-<<<<<<< HEAD
         void appendCronRunLog(logPath, {
           ts: Date.now(),
           jobId: evt.jobId,
@@ -349,13 +305,6 @@ export function buildGatewayCronService(params: {
           error: evt.error,
           summary: evt.summary,
 <<<<<<< HEAD
-=======
-          delivered: evt.delivered,
-          deliveryStatus: evt.deliveryStatus,
-          deliveryError: evt.deliveryError,
-          sessionId: evt.sessionId,
-          sessionKey: evt.sessionKey,
->>>>>>> 09d5f508b (fix(cron): persist delivered flag in job state to surface delivery failures (openclaw#19174) thanks @simonemacario)
           runAtMs: evt.runAtMs,
           durationMs: evt.durationMs,
           nextRunAtMs: evt.nextRunAtMs,

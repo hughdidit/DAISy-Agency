@@ -1,6 +1,5 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const callGatewayMock = vi.fn();
@@ -26,15 +25,6 @@ vi.mock("../config/config.js", async (importOriginal) => {
 
 import "./test-helpers/fast-core-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
-=======
-import { beforeEach, describe, expect, it } from "vitest";
-import "./test-helpers/fast-core-tools.js";
-import {
-  callGatewayMock,
-  resetConfigOverride,
-  setConfigOverride,
-} from "./openclaw-tools.subagents.sessions-spawn.mocks.js";
->>>>>>> 615f6e1e4 (refactor(test): share sessions_spawn e2e mocks)
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {
@@ -56,26 +46,9 @@ import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 const callGatewayMock = getCallGatewayMock();
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-allows-cross-agent-spawning-configured.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
 >>>>>>> e720e022e (test: stabilize sessions_spawn e2e mocks)
-=======
-=======
-type CreateOpenClawTools = (typeof import("./openclaw-tools.js"))["createOpenClawTools"];
-type CreateOpenClawToolsOpts = Parameters<CreateOpenClawTools>[0];
-
-async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
-  // Dynamic import: ensure harness mocks are installed before tool modules load.
-  const { createOpenClawTools } = await import("./openclaw-tools.js");
-  const tool = createOpenClawTools(opts).find((candidate) => candidate.name === "sessions_spawn");
-  if (!tool) {
-    throw new Error("missing sessions_spawn tool");
-  }
-  return tool;
-}
-
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
 describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.allowlist.e2e.test.ts
 =======
@@ -199,7 +172,6 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
   });
 
   it("sessions_spawn allows cross-agent spawning when configured", async () => {
-<<<<<<< HEAD
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
     setSessionsSpawnConfigOverride({
@@ -235,9 +207,6 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
 
 <<<<<<< HEAD
     const tool = createMoltbotTools({
-=======
-    const tool = await getSessionsSpawnTool({
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     });
@@ -255,7 +224,6 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
   });
 
   it("sessions_spawn allows any agent when allowlist is *", async () => {
-<<<<<<< HEAD
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
     setSessionsSpawnConfigOverride({
@@ -291,9 +259,6 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
 
 <<<<<<< HEAD
     const tool = createMoltbotTools({
-=======
-    const tool = await getSessionsSpawnTool({
->>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     });
@@ -318,8 +283,6 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
       acceptedAt: 5200,
     });
   });
-<<<<<<< HEAD
-=======
 
   it("forbids sandboxed cross-agent spawns that would unsandbox the child", async () => {
     setSessionsSpawnConfigOverride({
@@ -389,5 +352,4 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
     expect(details.error).toContain('sandbox="require"');
     expect(callGatewayMock).not.toHaveBeenCalled();
   });
->>>>>>> bfeadb80b (feat(agents): add sessions_spawn sandbox require mode)
 });

@@ -4,7 +4,6 @@ import type { HumanDelayConfig } from "../../config/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { normalizeReplyPayload } from "./normalize-reply.js";
 import type { ResponsePrefixContext } from "./response-prefix-template.js";
@@ -12,31 +11,18 @@ import type { TypingController } from "./typing.js";
 <<<<<<< HEAD
 =======
 import { sleep } from "../../utils.js";
-import { normalizeReplyPayload, type NormalizeReplySkipReason } from "./normalize-reply.js";
->>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
-=======
-import { sleep } from "../../utils.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { ResponsePrefixContext } from "./response-prefix-template.js";
 import type { TypingController } from "./typing.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 import { sleep } from "../../utils.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { registerDispatcher } from "./dispatcher-registry.js";
 import { normalizeReplyPayload, type NormalizeReplySkipReason } from "./normalize-reply.js";
-<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
-import type { ResponsePrefixContext } from "./response-prefix-template.js";
-import type { TypingController } from "./typing.js";
->>>>>>> d0cb8c19b (chore: wtf.)
-=======
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { ResponsePrefixContext } from "./response-prefix-template.js";
 import type { TypingController } from "./typing.js";
@@ -46,12 +32,7 @@ import { sleep } from "../../utils.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { registerDispatcher } from "./dispatcher-registry.js";
 import { normalizeReplyPayload, type NormalizeReplySkipReason } from "./normalize-reply.js";
-<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
-=======
-import type { ResponsePrefixContext } from "./response-prefix-template.js";
-import type { TypingController } from "./typing.js";
->>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type ReplyDispatchKind = "tool" | "block" | "final";
 
@@ -150,21 +131,8 @@ export function createReplyDispatcher(options: ReplyDispatcherOptions): ReplyDis
   };
 
   const enqueue = (kind: ReplyDispatchKind, payload: ReplyPayload) => {
-<<<<<<< HEAD
     const normalized = normalizeReplyPayloadInternal(payload, options);
     if (!normalized) return false;
-=======
-    const normalized = normalizeReplyPayloadInternal(payload, {
-      responsePrefix: options.responsePrefix,
-      responsePrefixContext: options.responsePrefixContext,
-      responsePrefixContextProvider: options.responsePrefixContextProvider,
-      onHeartbeatStrip: options.onHeartbeatStrip,
-      onSkip: (reason) => options.onSkip?.(payload, { kind, reason }),
-    });
-    if (!normalized) {
-      return false;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     queuedCounts[kind] += 1;
     pending += 1;
 
@@ -209,14 +177,7 @@ export function createReplyDispatcher(options: ReplyDispatcherOptions): ReplyDis
 export function createReplyDispatcherWithTyping(
   options: ReplyDispatcherWithTypingOptions,
 ): ReplyDispatcherWithTypingResult {
-<<<<<<< HEAD
   const { onReplyStart, onIdle, ...dispatcherOptions } = options;
-=======
-  const { typingCallbacks, onReplyStart, onIdle, onCleanup, ...dispatcherOptions } = options;
-  const resolvedOnReplyStart = onReplyStart ?? typingCallbacks?.onReplyStart;
-  const resolvedOnIdle = onIdle ?? typingCallbacks?.onIdle;
-  const resolvedOnCleanup = onCleanup ?? typingCallbacks?.onCleanup;
->>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
   let typingController: TypingController | undefined;
   const dispatcher = createReplyDispatcher({
     ...dispatcherOptions,
@@ -229,12 +190,7 @@ export function createReplyDispatcherWithTyping(
   return {
     dispatcher,
     replyOptions: {
-<<<<<<< HEAD
       onReplyStart,
-=======
-      onReplyStart: resolvedOnReplyStart,
-      onTypingCleanup: resolvedOnCleanup,
->>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
       onTypingController: (typing) => {
         typingController = typing;
       },

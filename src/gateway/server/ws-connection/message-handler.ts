@@ -3,25 +3,16 @@ import type { IncomingMessage } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import os from "node:os";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
 import type { WebSocket } from "ws";
-=======
-=======
-import type { WebSocket } from "ws";
-import os from "node:os";
->>>>>>> ed11e93cf (chore(format))
 import type { createSubsystemLogger } from "../../../logging/subsystem.js";
 import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
 import type { GatewayWsClient } from "../ws-types.js";
-<<<<<<< HEAD
-=======
 import type { WebSocket } from "ws";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -68,13 +59,7 @@ import type { createSubsystemLogger } from "../../../logging/subsystem.js";
 import { roleScopesAllow } from "../../../shared/operator-scope-compat.js";
 import { isGatewayCliClient, isWebchatClient } from "../../../utils/message-channel.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { ResolvedGatewayAuth } from "../../auth.js";
-=======
-=======
-import { resolveRuntimeServiceVersion } from "../../../version.js";
-<<<<<<< HEAD
->>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))
 import {
   AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN,
   AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET,
@@ -85,12 +70,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
-=======
-import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -105,16 +85,7 @@ import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
 import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
 >>>>>>> d900d5efb (style: normalize ws message handler import ordering)
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
-<<<<<<< HEAD
 import { loadConfig } from "../../../config/config.js";
-=======
-=======
-import {
-  authorizeHttpGatewayConnect,
-  authorizeWsControlUiGatewayConnect,
-  isLocalDirectRequest,
-} from "../../auth.js";
->>>>>>> 36a0df423 (refactor(gateway): make ws and http auth surfaces explicit)
 =======
 import { AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN, type AuthRateLimiter } from "../../auth-rate-limit.js";
 import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
@@ -126,20 +97,10 @@ import {
   mintCanvasCapabilityToken,
 } from "../../canvas-capability.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
 import { buildDeviceAuthPayload } from "../../device-auth.js";
 import { isLoopbackAddress, isTrustedProxyAddress, resolveClientIp } from "../../net.js";
 import { resolveHostName } from "../../net.js";
-=======
-import { buildDeviceAuthPayload, buildDeviceAuthPayloadV3 } from "../../device-auth.js";
-=======
-import {
-  buildDeviceAuthPayload,
-  buildDeviceAuthPayloadV3,
-  normalizeDeviceMetadataForAuth,
-} from "../../device-auth.js";
->>>>>>> 081b1aa1e (refactor(gateway): unify v3 auth payload builders and vectors)
 import {
   isLocalishHost,
   isLoopbackAddress,
@@ -148,8 +109,6 @@ import {
 } from "../../net.js";
 >>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)
 import { resolveNodeCommandAllowlist } from "../../node-command-policy.js";
-<<<<<<< HEAD
-=======
 import { checkBrowserOrigin } from "../../origin-check.js";
 import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
 import {
@@ -157,7 +116,6 @@ import {
   resolveDeviceAuthConnectErrorDetailCode,
   resolveAuthConnectErrorDetailCode,
 } from "../../protocol/connect-error-details.js";
->>>>>>> cb9374a2a (Gateway: improve device-auth v2 migration diagnostics (#28305))
 import {
   type ConnectParams,
   ErrorCodes,
@@ -168,11 +126,7 @@ import {
   validateConnectParams,
   validateRequestFrame,
 } from "../../protocol/index.js";
-<<<<<<< HEAD
 import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
-=======
-import { parseGatewayRole } from "../../role-policy.js";
->>>>>>> 51149fcaf (refactor(gateway): extract connect and role policy logic)
 import { MAX_BUFFERED_BYTES, MAX_PAYLOAD_BYTES, TICK_INTERVAL_MS } from "../../server-constants.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
 import { handleGatewayRequest } from "../../server-methods.js";
@@ -195,16 +149,8 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { GatewayWsClient } from "../ws-types.js";
 <<<<<<< HEAD
-=======
-import {
-  formatGatewayAuthFailureMessage,
-  resolveHostName,
-  type AuthProvidedKind,
-} from "./auth-messages.js";
->>>>>>> a79c2de95 (refactor(gateway): extract ws auth message helpers)
 =======
 =======
 import type { GatewayWsClient } from "../ws-types.js";
@@ -226,17 +172,7 @@ import type { GatewayWsClient } from "../ws-types.js";
 import { resolveConnectAuthState } from "./auth-context.js";
 >>>>>>> 66529c7aa (refactor(gateway): unify auth credential resolution)
 import { formatGatewayAuthFailureMessage, type AuthProvidedKind } from "./auth-messages.js";
-<<<<<<< HEAD
 >>>>>>> 1843bcf1d (refactor(gateway): share host header parsing)
-=======
-import {
-  evaluateMissingDeviceIdentity,
-  isTrustedProxyControlUiOperatorAuth,
-  resolveControlUiAuthPolicy,
-  shouldSkipControlUiPairing,
-} from "./connect-policy.js";
-<<<<<<< HEAD
->>>>>>> 51149fcaf (refactor(gateway): extract connect and role policy logic)
 =======
 import { isUnauthorizedRoleError, UnauthorizedFloodGuard } from "./unauthorized-flood-guard.js";
 >>>>>>> 7fb69b7cd (Gateway: stop repeated unauthorized WS request floods per connection (#24294))
@@ -291,7 +227,6 @@ function shouldAllowSilentLocalPairing(params: {
   );
 }
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -372,8 +307,6 @@ function formatGatewayAuthFailureMessage(params: {
   return "unauthorized";
 }
 
-=======
->>>>>>> a79c2de95 (refactor(gateway): extract ws auth message helpers)
 =======
 type ControlUiAuthPolicy = {
   allowInsecureAuthConfigured: boolean;
@@ -744,7 +677,6 @@ export function attachGatewayWsMessageHandler(params: {
           close(1008, "invalid role");
           return;
         }
-<<<<<<< HEAD
         const requestedScopes = Array.isArray(connectParams.scopes) ? connectParams.scopes : [];
         const scopes =
           requestedScopes.length > 0
@@ -752,15 +684,9 @@ export function attachGatewayWsMessageHandler(params: {
             : role === "operator"
               ? ["operator.read"]
               : [];
-=======
-        // Default-deny: scopes must be explicit. Empty/missing scopes means no permissions.
-        const scopes = Array.isArray(connectParams.scopes) ? connectParams.scopes : [];
->>>>>>> cfd112952 (fix(gateway): default-deny missing connect scopes)
         connectParams.role = role;
         connectParams.scopes = scopes;
 
-<<<<<<< HEAD
-=======
         const isControlUi = connectParams.client.id === GATEWAY_CLIENT_IDS.CONTROL_UI;
         const isWebchat = isWebchatConnect(connectParams);
         if (enforceOriginCheckForAnyClient || isControlUi || isWebchat) {
@@ -785,14 +711,12 @@ export function attachGatewayWsMessageHandler(params: {
           }
         }
 
->>>>>>> adac9cb67 (refactor: dedupe gateway and scheduler test scaffolding)
         const deviceRaw = connectParams.device;
         let devicePublicKey: string | null = null;
         let deviceAuthPayloadVersion: "v2" | "v3" | null = null;
         const hasTokenAuth = Boolean(connectParams.auth?.token);
         const hasPasswordAuth = Boolean(connectParams.auth?.password);
         const hasSharedAuth = hasTokenAuth || hasPasswordAuth;
-<<<<<<< HEAD
         const isControlUi = connectParams.client.id === GATEWAY_CLIENT_IDS.CONTROL_UI;
         const allowInsecureControlUi =
           isControlUi && configSnapshot.gateway?.controlUi?.allowInsecureAuth === true;
@@ -800,10 +724,6 @@ export function attachGatewayWsMessageHandler(params: {
           isControlUi && configSnapshot.gateway?.controlUi?.dangerouslyDisableDeviceAuth === true;
 <<<<<<< HEAD
         const allowControlUiBypass = allowInsecureControlUi || disableControlUiDeviceAuth;
-=======
-        // `allowInsecureAuth` must not bypass secure-context/device-auth requirements.
-        const allowControlUiBypass = disableControlUiDeviceAuth;
->>>>>>> 99048dbec (fix(gateway): align insecure-auth toggle messaging)
         const device = disableControlUiDeviceAuth ? null : deviceRaw;
 
         const hasDeviceTokenCandidate = Boolean(connectParams.auth?.token && device);
@@ -874,7 +794,6 @@ export function attachGatewayWsMessageHandler(params: {
           sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, authMessage);
           close(1008, truncateCloseReason(authMessage));
         };
-<<<<<<< HEAD
         if (!device) {
           const canSkipDevice = sharedAuthOk;
 
@@ -882,43 +801,6 @@ export function attachGatewayWsMessageHandler(params: {
 <<<<<<< HEAD
             const errorMessage = "control ui requires HTTPS or localhost (secure context)";
             markHandshakeFailure("control-ui-insecure-auth");
-=======
-=======
-        const clearUnboundScopes = () => {
-          if (scopes.length > 0 && !controlUiAuthPolicy.allowBypass) {
-            scopes = [];
-            connectParams.scopes = scopes;
-          }
-        };
-        const handleMissingDeviceIdentity = (): boolean => {
-          if (!device) {
-            clearUnboundScopes();
-          }
-          const trustedProxyAuthOk = isTrustedProxyControlUiOperatorAuth({
-            isControlUi,
-            role,
-            authMode: resolvedAuth.mode,
-            authOk,
-            authMethod,
-          });
-          const decision = evaluateMissingDeviceIdentity({
-            hasDeviceIdentity: Boolean(device),
-            role,
-            isControlUi,
-            controlUiAuthPolicy,
-            trustedProxyAuthOk,
-            sharedAuthOk,
-            authOk,
-            hasSharedAuth,
-            isLocalClient,
-          });
-          if (decision.kind === "allow") {
-            return true;
-          }
-
-<<<<<<< HEAD
-          if (isControlUi && !controlUiAuthPolicy.allowBypass) {
->>>>>>> 14b0d2b81 (refactor: harden control-ui auth flow and add insecure-flag audit summary)
 =======
           if (decision.kind === "reject-control-ui-insecure-auth") {
 >>>>>>> 51149fcaf (refactor(gateway): extract connect and role policy logic)
@@ -958,16 +840,7 @@ export function attachGatewayWsMessageHandler(params: {
               type: "res",
               id: frame.id,
               ok: false,
-<<<<<<< HEAD
               error: errorShape(ErrorCodes.INVALID_REQUEST, message),
-=======
-              error: errorShape(ErrorCodes.INVALID_REQUEST, message, {
-                details: {
-                  code: resolveDeviceAuthConnectErrorDetailCode(reason),
-                  reason,
-                },
-              }),
->>>>>>> cb9374a2a (Gateway: improve device-auth v2 migration diagnostics (#28305))
             });
             close(1008, message);
           };
@@ -1015,7 +888,6 @@ export function attachGatewayWsMessageHandler(params: {
           }
         }
 
-<<<<<<< HEAD
         if (!authOk && device && deviceTokenCandidate) {
           if (rateLimiter) {
             const deviceRateCheck = rateLimiter.check(clientIp, AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN);
@@ -1049,26 +921,6 @@ export function attachGatewayWsMessageHandler(params: {
             }
           }
         }
-=======
-        ({ authResult, authOk, authMethod } = await resolveConnectAuthDecision({
-          state: {
-            authResult,
-            authOk,
-            authMethod,
-            sharedAuthOk,
-            sharedAuthProvided: hasSharedAuth,
-            deviceTokenCandidate,
-            deviceTokenCandidateSource,
-          },
-          hasDeviceIdentity: Boolean(device),
-          deviceId: device?.id,
-          role,
-          scopes,
-          rateLimiter: authRateLimiter,
-          clientIp: browserRateLimitClientIp,
-          verifyDeviceToken,
-        }));
->>>>>>> c736f11a1 (fix(gateway): harden browser websocket auth chain)
         if (!authOk) {
           rejectUnauthorized(authResult);
           return;
@@ -1087,7 +939,6 @@ export function attachGatewayWsMessageHandler(params: {
           trustedProxyAuthOk,
         );
         if (device && devicePublicKey && !skipPairing) {
-<<<<<<< HEAD
           const requirePairing = async (reason: string, _paired?: { deviceId: string }) => {
             const pairing = await requestDevicePairing({
               deviceId: device.id,
@@ -1100,69 +951,6 @@ export function attachGatewayWsMessageHandler(params: {
               scopes,
               remoteIp: reportedClientIp,
               silent: isLocalClient,
-=======
-          const formatAuditList = (items: string[] | undefined): string => {
-            if (!items || items.length === 0) {
-              return "<none>";
-            }
-            const out = new Set<string>();
-            for (const item of items) {
-              const trimmed = item.trim();
-              if (trimmed) {
-                out.add(trimmed);
-              }
-            }
-            if (out.size === 0) {
-              return "<none>";
-            }
-            return [...out].toSorted().join(",");
-          };
-          const logUpgradeAudit = (
-            reason: "role-upgrade" | "scope-upgrade",
-            currentRoles: string[] | undefined,
-            currentScopes: string[] | undefined,
-          ) => {
-            logGateway.warn(
-              `security audit: device access upgrade requested reason=${reason} device=${device.id} ip=${reportedClientIp ?? "unknown-ip"} auth=${authMethod} roleFrom=${formatAuditList(currentRoles)} roleTo=${role} scopesFrom=${formatAuditList(currentScopes)} scopesTo=${formatAuditList(scopes)} client=${connectParams.client.id} conn=${connId}`,
-            );
-          };
-          const clientPairingMetadata = {
-            displayName: connectParams.client.displayName,
-            platform: connectParams.client.platform,
-            deviceFamily: connectParams.client.deviceFamily,
-            clientId: connectParams.client.id,
-            clientMode: connectParams.client.mode,
-            role,
-            scopes,
-            remoteIp: reportedClientIp,
-          };
-          const clientAccessMetadata = {
-            displayName: connectParams.client.displayName,
-            clientId: connectParams.client.id,
-            clientMode: connectParams.client.mode,
-            role,
-            scopes,
-            remoteIp: reportedClientIp,
-          };
-          const requirePairing = async (
-            reason: "not-paired" | "role-upgrade" | "scope-upgrade" | "metadata-upgrade",
-          ) => {
-            const allowSilentLocalPairing = shouldAllowSilentLocalPairing({
-              isLocalClient,
-              hasBrowserOriginHeader,
-              isControlUi,
-              isWebchat,
-              reason,
-            });
-            const pairing = await requestDevicePairing({
-              deviceId: device.id,
-              publicKey: devicePublicKey,
-<<<<<<< HEAD
-              ...clientAccessMetadata,
-<<<<<<< HEAD
-<<<<<<< HEAD
-              silent: isLocalClient && reason === "not-paired",
->>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 =======
               silent: isLocalClient && (reason === "not-paired" || reason === "scope-upgrade"),
 >>>>>>> 9165bd7f3 (fix(gateway): auto-approve loopback scope upgrades)
@@ -1225,7 +1013,6 @@ export function attachGatewayWsMessageHandler(params: {
           } else {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
             const allowedRoles = new Set(
               Array.isArray(paired.roles) ? paired.roles : paired.role ? [paired.role] : [],
             );
@@ -1253,11 +1040,6 @@ export function attachGatewayWsMessageHandler(params: {
                 const missingScope = scopes.find((scope) => !allowedScopes.has(scope));
                 if (missingScope) {
                   const ok = await requirePairing("scope-upgrade", paired);
-=======
-            const hasLegacyPairedMetadata =
-              paired.roles === undefined && paired.scopes === undefined;
-=======
->>>>>>> fa4e4efd9 (fix(gateway): restore localhost Control UI pairing when allowInsecureAuth is set (#22996))
 =======
             const claimedPlatform = connectParams.client.platform;
             const pairedPlatform = paired.platform;
@@ -1418,12 +1200,7 @@ export function attachGatewayWsMessageHandler(params: {
           type: "hello-ok",
           protocol: PROTOCOL_VERSION,
           server: {
-<<<<<<< HEAD
             version: process.env.CLAWDBOT_VERSION ?? process.env.npm_package_version ?? "dev",
-=======
-            version: resolveRuntimeServiceVersion(process.env, "dev"),
-<<<<<<< HEAD
->>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))
             commit: process.env.GIT_COMMIT,
             host: os.hostname(),
 =======

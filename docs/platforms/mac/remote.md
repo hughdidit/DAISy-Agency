@@ -3,17 +3,10 @@ summary: "macOS app flow for controlling a remote Moltbot gateway over SSH"
 read_when:
   - Setting up or debugging remote mac control
 ---
-<<<<<<< HEAD
 # Remote Moltbot (macOS ⇄ remote host)
 
 
 This flow lets the macOS app act as a full remote control for a Moltbot gateway running on another host (desktop/server). It’s the app’s **Remote over SSH** (remote run) feature. All features—health checks, Voice Wake forwarding, and Web Chat—reuse the same remote SSH configuration from *Settings → General*.
-=======
-
-# Remote OpenClaw (macOS ⇄ remote host)
-
-This flow lets the macOS app act as a full remote control for a OpenClaw gateway running on another host (desktop/server). It’s the app’s **Remote over SSH** (remote run) feature. All features—health checks, Voice Wake forwarding, and Web Chat—reuse the same remote SSH configuration from _Settings → General_.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Modes
 
@@ -29,7 +22,6 @@ Remote mode supports two transports:
 - **Direct (ws/wss)**: Connects straight to the gateway URL. The gateway sees the real client IP.
 
 ## Prereqs on the remote host
-<<<<<<< HEAD
 1) Install Node + pnpm and build/install the Moltbot CLI (`pnpm install && pnpm build && pnpm link --global`).
 2) Ensure `moltbot` is on PATH for non-interactive shells (symlink into `/usr/local/bin` or `/opt/homebrew/bin` if needed).
 3) Open SSH with key auth. We recommend **Tailscale** IPs for stable reachability off-LAN.
@@ -37,32 +29,15 @@ Remote mode supports two transports:
 ## macOS app setup
 1) Open *Settings → General*.
 2) Under **Moltbot runs**, pick **Remote over SSH** and set:
-=======
-
-1. Install Node + pnpm and build/install the OpenClaw CLI (`pnpm install && pnpm build && pnpm link --global`).
-2. Ensure `openclaw` is on PATH for non-interactive shells (symlink into `/usr/local/bin` or `/opt/homebrew/bin` if needed).
-3. Open SSH with key auth. We recommend **Tailscale** IPs for stable reachability off-LAN.
-
-## macOS app setup
-
-1. Open _Settings → General_.
-2. Under **OpenClaw runs**, pick **Remote over SSH** and set:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - **Transport**: **SSH tunnel** or **Direct (ws/wss)**.
    - **SSH target**: `user@host` (optional `:port`).
      - If the gateway is on the same LAN and advertises Bonjour, pick it from the discovered list to auto-fill this field.
    - **Gateway URL** (Direct only): `wss://gateway.example.ts.net` (or `ws://...` for local/LAN).
    - **Identity file** (advanced): path to your key.
    - **Project root** (advanced): remote checkout path used for commands.
-<<<<<<< HEAD
    - **CLI path** (advanced): optional path to a runnable `moltbot` entrypoint/binary (auto-filled when advertised).
 3) Hit **Test remote**. Success indicates the remote `moltbot status --json` runs correctly. Failures usually mean PATH/CLI issues; exit 127 means the CLI isn’t found remotely.
 4) Health checks and Web Chat will now run through this SSH tunnel automatically.
-=======
-   - **CLI path** (advanced): optional path to a runnable `openclaw` entrypoint/binary (auto-filled when advertised).
-3. Hit **Test remote**. Success indicates the remote `openclaw status --json` runs correctly. Failures usually mean PATH/CLI issues; exit 127 means the CLI isn’t found remotely.
-4. Health checks and Web Chat will now run through this SSH tunnel automatically.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Web Chat
 
@@ -82,34 +57,18 @@ Remote mode supports two transports:
 - See [Security](/gateway/security) and [Tailscale](/gateway/tailscale).
 
 ## WhatsApp login flow (remote)
-<<<<<<< HEAD
 - Run `moltbot channels login --verbose` **on the remote host**. Scan the QR with WhatsApp on your phone.
 - Re-run login on that host if auth expires. Health check will surface link problems.
 
 ## Troubleshooting
 - **exit 127 / not found**: `moltbot` isn’t on PATH for non-login shells. Add it to `/etc/paths`, your shell rc, or symlink into `/usr/local/bin`/`/opt/homebrew/bin`.
 - **Health probe failed**: check SSH reachability, PATH, and that Baileys is logged in (`moltbot status --json`).
-=======
-
-- Run `openclaw channels login --verbose` **on the remote host**. Scan the QR with WhatsApp on your phone.
-- Re-run login on that host if auth expires. Health check will surface link problems.
-
-## Troubleshooting
-
-- **exit 127 / not found**: `openclaw` isn’t on PATH for non-login shells. Add it to `/etc/paths`, your shell rc, or symlink into `/usr/local/bin`/`/opt/homebrew/bin`.
-- **Health probe failed**: check SSH reachability, PATH, and that Baileys is logged in (`openclaw status --json`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Web Chat stuck**: confirm the gateway is running on the remote host and the forwarded port matches the gateway WS port; the UI requires a healthy WS connection.
 - **Node IP shows 127.0.0.1**: expected with the SSH tunnel. Switch **Transport** to **Direct (ws/wss)** if you want the gateway to see the real client IP.
 - **Voice Wake**: trigger phrases are forwarded automatically in remote mode; no separate forwarder is needed.
 
 ## Notification sounds
-<<<<<<< HEAD
 Pick sounds per notification from scripts with `moltbot` and `node.invoke`, e.g.:
-=======
-
-Pick sounds per notification from scripts with `openclaw` and `node.invoke`, e.g.:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```bash
 moltbot nodes notify --node <id> --title "Ping" --body "Remote gateway ready" --sound Glass

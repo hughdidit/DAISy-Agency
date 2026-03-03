@@ -1,12 +1,8 @@
-<<<<<<< HEAD:src/slack/monitor/slash.policy.test.ts
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
-=======
-import { describe, expect, it, vi } from "vitest";
->>>>>>> 6ec76af3a (refactor(test): share slack slash mocks)
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 723e314e2 (fix(ci): avoid vitest TDZ in shared mocks)
@@ -618,15 +614,9 @@ describe("Slack native command argument menus", () => {
     const element = actions?.elements?.[0];
     expect(element?.type).toBe("external_select");
     expect(element?.action_id).toBe("openclaw_cmdarg");
-<<<<<<< HEAD
     expect(payload.blocks?.find((block) => block.type === "actions")?.block_id).toContain(
       "openclaw_cmdarg_ext:",
     );
-=======
-    expect(blockId).toContain("openclaw_cmdarg_ext:");
-    const token = (blockId ?? "").slice("openclaw_cmdarg_ext:".length);
-    expect(token).toMatch(/^[A-Za-z0-9_-]{24}$/);
->>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
   });
 
   it("serves filtered options for external_select menus", async () => {
@@ -651,8 +641,6 @@ describe("Slack native command argument menus", () => {
     expect(optionTexts.some((text) => text.includes("Period 12"))).toBe(true);
   });
 
-<<<<<<< HEAD
-=======
   it("rejects external_select option requests without user identity", async () => {
     const { blockId } = await runCommandAndResolveActionsBlock(reportExternalHandler);
     expect(blockId).toContain("openclaw_cmdarg_ext:");
@@ -670,7 +658,6 @@ describe("Slack native command argument menus", () => {
     expect(ackOptions).toHaveBeenCalledWith({ options: [] });
   });
 
->>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
   it("rejects menu clicks from other users", async () => {
     const respond = await runArgMenuAction(argMenuHandler, {
       action: {
@@ -987,7 +974,6 @@ describe("slack slash commands access groups", () => {
   });
 });
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 function createPolicyHarness() {
   const commands = new Map<unknown, (args: unknown) => Promise<void>>();
@@ -1016,17 +1002,6 @@ function createPolicyHarness() {
     useAccessGroups: overrides?.useAccessGroups ?? true,
     channelsConfig: overrides?.channelsConfig,
     slashCommand: { enabled: true, name: "clawd", ephemeral: true, sessionPrefix: "slack:slash" },
-=======
-    groupPolicy: "open",
-    useAccessGroups: true,
-    channelsConfig: undefined,
-    slashCommand: {
-      enabled: true,
-      name: "openclaw",
-      ephemeral: true,
-      sessionPrefix: "slack:slash",
-    },
->>>>>>> b3d3f3636 (test: speed up slack slash monitor tests)
     textLimit: 4000,
     app,
     isChannelAllowed: () => true,

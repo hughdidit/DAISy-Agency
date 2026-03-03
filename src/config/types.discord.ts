@@ -38,13 +38,7 @@ export type DiscordGuildChannelConfig = {
   /** If false, disable the bot for this channel. */
   enabled?: boolean;
   /** Optional allowlist for channel senders (ids or names). */
-<<<<<<< HEAD
   users?: Array<string | number>;
-=======
-  users?: string[];
-  /** Optional allowlist for channel senders by role ID. */
-  roles?: string[];
->>>>>>> 1b7301051 (Config: require Discord ID strings (#18220))
   /** Optional system prompt snippet for this channel. */
   systemPrompt?: string;
   /** If false, omit thread starter context for this channel (default: true). */
@@ -61,14 +55,7 @@ export type DiscordGuildEntry = {
   toolsBySender?: GroupToolPolicyBySenderConfig;
   /** Reaction notification mode (off|own|all|allowlist). Default: own. */
   reactionNotifications?: DiscordReactionNotificationMode;
-<<<<<<< HEAD
   users?: Array<string | number>;
-=======
-  /** Optional allowlist for guild senders (ids or names). */
-  users?: string[];
-  /** Optional allowlist for guild senders by role ID. */
-  roles?: string[];
->>>>>>> 1b7301051 (Config: require Discord ID strings (#18220))
   channels?: Record<string, DiscordGuildChannelConfig>;
 };
 
@@ -237,23 +224,15 @@ export type DiscordAccountConfig = {
   heartbeat?: ChannelHeartbeatVisibilityConfig;
   /** Exec approval forwarding configuration. */
   execApprovals?: DiscordExecApprovalConfig;
-<<<<<<< HEAD
-=======
   /** Agent-controlled interactive components (buttons, select menus). */
   agentComponents?: DiscordAgentComponentsConfig;
   /** Discord UI customization (components, modals, etc.). */
   ui?: DiscordUiConfig;
 <<<<<<< HEAD
->>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 =======
   /** Slash command configuration. */
   slashCommand?: DiscordSlashCommandConfig;
-<<<<<<< HEAD
 >>>>>>> 122bdfa4e (feat(discord): add configurable ephemeral option for slash commands)
-=======
-  /** Thread binding lifecycle settings (focus/subagent thread sessions). */
-  threadBindings?: DiscordThreadBindingsConfig;
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   /** Privileged Gateway Intents (must also be enabled in Discord Developer Portal). */
   intents?: DiscordIntentsConfig;
   /** PluralKit identity resolution for proxied messages. */

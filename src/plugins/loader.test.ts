@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { afterEach, describe, expect, it } from "vitest";
 
 import { loadMoltbotPlugins } from "./loader.js";
@@ -15,15 +14,6 @@ const EMPTY_PLUGIN_SCHEMA = { type: "object", additionalProperties: false, prope
 
 function makeTempDir() {
   const dir = path.join(os.tmpdir(), `moltbot-plugin-${randomUUID()}`);
-=======
-import { afterAll, afterEach, describe, expect, it } from "vitest";
-import { withEnv } from "../test-utils/env.js";
-<<<<<<< HEAD
-import { loadOpenClawPlugins } from "./loader.js";
-=======
-import { getGlobalHookRunner, resetGlobalHookRunner } from "./hook-runner-global.js";
-import { __testing, loadOpenClawPlugins } from "./loader.js";
->>>>>>> c0bf42f2a (refactor: centralize delivery/path/media/version lifecycle)
 
 type TempPlugin = { dir: string; file: string; id: string };
 
@@ -159,19 +149,7 @@ afterEach(() => {
   }
 });
 
-<<<<<<< HEAD
 describe("loadMoltbotPlugins", () => {
-=======
-afterAll(() => {
-  try {
-    fs.rmSync(fixtureRoot, { recursive: true, force: true });
-  } catch {
-    // ignore cleanup failures
-  }
-});
-
-describe("loadOpenClawPlugins", () => {
->>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
   it("disables bundled plugins by default", () => {
     const bundledDir = makeTempDir();
     writePlugin({
@@ -211,7 +189,6 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("loads bundled telegram plugin when enabled", () => {
-<<<<<<< HEAD
     const bundledDir = makeTempDir();
     writePlugin({
       id: "telegram",
@@ -239,9 +216,6 @@ describe("loadOpenClawPlugins", () => {
       filename: "telegram.js",
     });
     process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;
-=======
-    setupBundledTelegramPlugin();
->>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
 
     const registry = loadMoltbotPlugins({
       cache: false,
@@ -303,7 +277,6 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("enables bundled memory plugin when selected by slot", () => {
-<<<<<<< HEAD
     const bundledDir = makeTempDir();
     writePlugin({
       id: "memory-core",
@@ -323,16 +296,12 @@ describe("loadOpenClawPlugins", () => {
         },
       },
     });
-=======
-    const registry = loadBundledMemoryPluginRegistry();
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     const memory = registry.plugins.find((entry) => entry.id === "memory-core");
     expect(memory?.status).toBe("loaded");
   });
 
   it("preserves package.json metadata for bundled memory plugins", () => {
-<<<<<<< HEAD
     const bundledDir = makeTempDir();
     const pluginDir = path.join(bundledDir, "memory-core");
     fs.mkdirSync(pluginDir, { recursive: true });
@@ -345,9 +314,6 @@ describe("loadOpenClawPlugins", () => {
         description: "Memory plugin package",
 <<<<<<< HEAD
         moltbot: { extensions: ["./index.ts"] },
-=======
-        openclaw: { extensions: ["./index.js"] },
->>>>>>> c25026f2b (perf(plugins): lazy-create jiti loader)
       }),
       "utf-8",
     );
@@ -714,8 +680,6 @@ describe("loadOpenClawPlugins", () => {
     expect(overridden?.origin).toBe("bundled");
   });
 
-<<<<<<< HEAD
-=======
   it("prefers bundled plugin over auto-discovered global duplicate ids", () => {
     const bundledDir = makeTempDir();
     writePlugin({
@@ -758,7 +722,6 @@ describe("loadOpenClawPlugins", () => {
     });
   });
 
->>>>>>> 577becf1a (fix(plugins): prioritize bundled duplicates in auto-discovery)
   it("warns when plugins.allow is empty and non-bundled plugins are discoverable", () => {
     process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
@@ -822,8 +785,6 @@ describe("loadOpenClawPlugins", () => {
       ).toBe(true);
     });
   });
-<<<<<<< HEAD
-=======
 
   it("rejects plugin entry files that escape plugin root via symlink", () => {
     process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
@@ -954,5 +915,4 @@ describe("loadOpenClawPlugins", () => {
     );
     expect(resolved).toBe(srcFile);
   });
->>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
 });

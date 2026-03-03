@@ -1,21 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-=======
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { OpenClawConfig } from "../../config/config.js";
-import type { MsgContext } from "../templating.js";
->>>>>>> f8925b758 (perf(test): consolidate reply commands suites)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -43,12 +31,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -183,7 +166,6 @@ afterAll(async () => {
   await fs.rm(testWorkspaceDir, { recursive: true, force: true });
 });
 
-<<<<<<< HEAD
 function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Partial<MsgContext>) {
   const ctx = {
     Body: commandBody,
@@ -220,14 +202,9 @@ function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Par
     contextTokens: 0,
     isGroup: false,
   };
-=======
-function buildParams(commandBody: string, cfg: OpenClawConfig, ctxOverrides?: Partial<MsgContext>) {
-  return buildCommandTestParams(commandBody, cfg, ctxOverrides, { workspaceDir: testWorkspaceDir });
->>>>>>> 8b2a5672b (refactor(test): reuse command test harness)
 }
 
 describe("handleCommands gating", () => {
-<<<<<<< HEAD
   it("blocks /bash when disabled or not elevated-allowlisted", async () => {
     resetBashChatCommandForTests();
 <<<<<<< HEAD
@@ -257,12 +234,6 @@ describe("handleCommands gating", () => {
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("elevated is not available");
-=======
-    const cases = [
-=======
-=======
-  it("blocks gated commands when disabled or not elevated-allowlisted", async () => {
->>>>>>> d625f888a (test(core): dedupe command gating and trim announce reset overhead)
     const cases = typedCases<{
       name: string;
       commandBody: string;
@@ -378,7 +349,6 @@ describe("handleCommands gating", () => {
     }
 >>>>>>> 0e39371dc (test: dedupe command gating coverage tables)
   });
-<<<<<<< HEAD
 
   it("blocks /config and /debug when disabled", async () => {
     const cfg = {
@@ -401,20 +371,6 @@ describe("handleCommands gating", () => {
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("/debug is disabled");
-=======
-    } as OpenClawConfig;
-    const cases = [
-      { commandBody: "/config show", expectedText: "/config is disabled" },
-      { commandBody: "/debug show", expectedText: "/debug is disabled" },
-    ] as const;
-    for (const testCase of cases) {
-      const params = buildParams(testCase.commandBody, cfg);
-      const result = await handleCommands(params);
-      expect(result.shouldContinue).toBe(false);
-      expect(result.reply?.text).toContain(testCase.expectedText);
-    }
-<<<<<<< HEAD
->>>>>>> 52ddb6ae1 (test: streamline auto-reply and tts suites)
 =======
   });
 
@@ -723,7 +679,6 @@ describe("handleCommands bash alias", () => {
     const cfg = {
       commands: { bash: true, text: true },
       whatsapp: { allowFrom: ["*"] },
-<<<<<<< HEAD
     } as MoltbotConfig;
     const params = buildParams("!poll", cfg);
     const result = await handleCommands(params);
@@ -741,16 +696,6 @@ describe("handleCommands bash alias", () => {
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("No active bash job");
-=======
-    } as OpenClawConfig;
-    for (const aliasCommand of ["!poll", "!stop"]) {
-      resetBashChatCommandForTests();
-      const params = buildParams(aliasCommand, cfg);
-      const result = await handleCommands(params);
-      expect(result.shouldContinue).toBe(false);
-      expect(result.reply?.text).toContain("No active bash job");
-    }
->>>>>>> 52ddb6ae1 (test: streamline auto-reply and tts suites)
   });
 });
 
@@ -943,7 +888,6 @@ describe("/models command", () => {
     expect(buttons?.length).toBeGreaterThan(0);
   });
 
-<<<<<<< HEAD
   it("lists provider models with pagination hints", async () => {
     // Use discord surface for text-based output tests
     const params = buildPolicyParams("/models anthropic", cfg, { Surface: "discord" });
@@ -982,58 +926,6 @@ describe("/models command", () => {
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Unknown provider");
     expect(result.reply?.text).toContain("Available providers");
-=======
-  it("handles provider model pagination, all mode, and unknown providers", async () => {
-    const cases = [
-      {
-        name: "lists provider models with pagination hints",
-        command: "/models anthropic",
-        includes: [
-          "Models (anthropic",
-          "page 1/",
-          "anthropic/claude-opus-4-5",
-          "Switch: /model <provider/model>",
-          "All: /models anthropic all",
-        ],
-        excludes: [],
-      },
-      {
-        name: "ignores page argument when all flag is present",
-        command: "/models anthropic 3 all",
-        includes: ["Models (anthropic", "page 1/1", "anthropic/claude-opus-4-5"],
-        excludes: ["Page out of range"],
-      },
-      {
-        name: "errors on out-of-range pages",
-        command: "/models anthropic 4",
-        includes: ["Page out of range", "valid: 1-"],
-        excludes: [],
-      },
-      {
-        name: "handles unknown providers",
-        command: "/models not-a-provider",
-        includes: ["Unknown provider", "Available providers"],
-        excludes: [],
-      },
-    ] as const;
-
-    for (const testCase of cases) {
-      // Use discord surface for deterministic text-based output assertions.
-      const result = await handleCommands(
-        buildPolicyParams(testCase.command, cfg, {
-          Provider: "discord",
-          Surface: "discord",
-        }),
-      );
-      expect(result.shouldContinue, testCase.name).toBe(false);
-      for (const expected of testCase.includes) {
-        expect(result.reply?.text, `${testCase.name}: ${expected}`).toContain(expected);
-      }
-      for (const blocked of testCase.excludes ?? []) {
-        expect(result.reply?.text, `${testCase.name}: !${blocked}`).not.toContain(blocked);
-      }
-    }
->>>>>>> 52ddb6ae1 (test: streamline auto-reply and tts suites)
   });
 
   it("lists configured models outside the curated catalog", async () => {
@@ -1162,7 +1054,6 @@ describe("handleCommands context", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-<<<<<<< HEAD
     } as MoltbotConfig;
     const params = buildParams("/context", cfg);
     const result = await handleCommands(params);
@@ -1193,31 +1084,6 @@ describe("handleCommands context", () => {
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Context breakdown (detailed)");
     expect(result.reply?.text).toContain("Top tools (schema size):");
-=======
-    } as OpenClawConfig;
-    const cases = [
-      {
-        commandBody: "/context",
-        expectedText: ["/context list", "Inline shortcut"],
-      },
-      {
-        commandBody: "/context list",
-        expectedText: ["Injected workspace files:", "AGENTS.md"],
-      },
-      {
-        commandBody: "/context detail",
-        expectedText: ["Context breakdown (detailed)", "Top tools (schema size):"],
-      },
-    ] as const;
-    for (const testCase of cases) {
-      const params = buildParams(testCase.commandBody, cfg);
-      const result = await handleCommands(params);
-      expect(result.shouldContinue).toBe(false);
-      for (const expectedText of testCase.expectedText) {
-        expect(result.reply?.text).toContain(expectedText);
-      }
-    }
->>>>>>> 52ddb6ae1 (test: streamline auto-reply and tts suites)
   });
 });
 
@@ -1420,7 +1286,6 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-<<<<<<< HEAD
     } as MoltbotConfig;
     const params = buildParams("/subagents foo", cfg);
     const result = await handleCommands(params);
@@ -1439,22 +1304,8 @@ describe("handleCommands subagents", () => {
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("/subagents info");
-=======
-    } as OpenClawConfig;
-    const cases = [
-      { commandBody: "/subagents foo", expectedText: "/subagents" },
-      { commandBody: "/subagents info", expectedText: "/subagents info" },
-    ] as const;
-    for (const testCase of cases) {
-      const params = buildParams(testCase.commandBody, cfg);
-      const result = await handleCommands(params);
-      expect(result.shouldContinue).toBe(false);
-      expect(result.reply?.text).toContain(testCase.expectedText);
-    }
->>>>>>> 52ddb6ae1 (test: streamline auto-reply and tts suites)
   });
 
-<<<<<<< HEAD
   it("includes subagent count in /status when active", async () => {
     addSubagentRunForTests({
       runId: "run-1",
@@ -1513,8 +1364,6 @@ describe("handleCommands subagents", () => {
     expect(result.reply?.text).toContain("· 1 done");
   });
 
-=======
->>>>>>> 48c0acc26 (test(commands): dedupe subagent status assertions)
   it("returns info for a subagent", async () => {
     const now = Date.now();
     addSubagentRunForTests({

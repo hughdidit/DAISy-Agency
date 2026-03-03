@@ -31,26 +31,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/chat/ChatSheetContent.kt
 import bot.molt.android.MainViewModel
 import bot.molt.android.chat.OutgoingAttachment
-=======
-import androidx.compose.ui.unit.sp
-import ai.openclaw.android.MainViewModel
-import ai.openclaw.android.chat.ChatSessionEntry
-import ai.openclaw.android.chat.OutgoingAttachment
-import ai.openclaw.android.ui.mobileAccent
-import ai.openclaw.android.ui.mobileBorder
-import ai.openclaw.android.ui.mobileBorderStrong
-import ai.openclaw.android.ui.mobileCallout
-import ai.openclaw.android.ui.mobileCaption1
-import ai.openclaw.android.ui.mobileCaption2
-import ai.openclaw.android.ui.mobileDanger
-import ai.openclaw.android.ui.mobileSuccess
-import ai.openclaw.android.ui.mobileSuccessSoft
-import ai.openclaw.android.ui.mobileText
-<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/chat/ChatSheetContent.kt
->>>>>>> b658000bf (style(android-chat): refine thread shell and empty states):apps/android/app/src/main/java/ai/openclaw/android/ui/chat/ChatSheetContent.kt
 =======
 import ai.openclaw.android.ui.mobileTextSecondary
 import ai.openclaw.android.ui.mobileWarning

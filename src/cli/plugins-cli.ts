@@ -5,13 +5,9 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { Command } from "commander";
 <<<<<<< HEAD
 
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { PluginRecord } from "../plugins/registry.js";
@@ -33,11 +29,7 @@ import type { Command } from "commander";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { loadConfig, writeConfigFile } from "../config/config.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { resolveStateDir } from "../config/paths.js";
->>>>>>> 57d0f65e7 (CLI: add plugins uninstall command (#5985) (openclaw#6141) thanks @JustasMonkev)
 import { resolveArchiveKind } from "../infra/archive.js";
 import { findBundledPluginByNpmSpec } from "../plugins/bundled-sources.js";
 import { enablePluginInConfig } from "../plugins/enable.js";
@@ -46,11 +38,7 @@ import { recordPluginInstall } from "../plugins/installs.js";
 import { clearPluginManifestRegistryCache } from "../plugins/manifest-registry.js";
 import type { PluginRecord } from "../plugins/registry.js";
 import { applyExclusiveSlotSelection } from "../plugins/slots.js";
-<<<<<<< HEAD
 import type { PluginRecord } from "../plugins/registry.js";
-=======
-import { resolvePluginSourceRoots, formatPluginSourceForTable } from "../plugins/source-display.js";
->>>>>>> 3e63b2a4f (fix(cli): improve plugins list source display)
 import { buildPluginStatusReport } from "../plugins/status.js";
 import { resolveUninstallDirectoryTarget, uninstallPlugin } from "../plugins/uninstall.js";
 import { updateNpmInstalledPlugins } from "../plugins/update.js";
@@ -170,11 +158,7 @@ function isPackageNotFoundInstallError(message: string): boolean {
 export function registerPluginsCli(program: Command) {
   const plugins = program
     .command("plugins")
-<<<<<<< HEAD
     .description("Manage Moltbot plugins/extensions")
-=======
-    .description("Manage OpenClaw plugins and extensions")
->>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
     .addHelpText(
       "after",
       () =>
@@ -363,7 +347,6 @@ export function registerPluginsCli(program: Command) {
     .argument("<id>", "Plugin id")
     .action(async (id: string) => {
       const cfg = loadConfig();
-<<<<<<< HEAD
       let next: MoltbotConfig = {
         ...cfg,
         plugins: {
@@ -377,10 +360,6 @@ export function registerPluginsCli(program: Command) {
           },
         },
       };
-=======
-      const enableResult = enablePluginInConfig(cfg, id);
-      let next: OpenClawConfig = enableResult.config;
->>>>>>> 8920e281c (Plugins: allowlist plugins when enabling from CLI)
       const slotResult = applySlotSelectionForPlugin(next, id);
       next = slotResult.config;
       await writeConfigFile(next);
@@ -561,7 +540,6 @@ export function registerPluginsCli(program: Command) {
             process.exit(1);
           }
 
-<<<<<<< HEAD
           let next: MoltbotConfig = {
             ...cfg,
             plugins: {
@@ -575,16 +553,6 @@ export function registerPluginsCli(program: Command) {
                 [probe.pluginId]: {
                   ...(cfg.plugins?.entries?.[probe.pluginId] as object | undefined),
                   enabled: true,
-=======
-          let next: OpenClawConfig = enablePluginInConfig(
-            {
-              ...cfg,
-              plugins: {
-                ...cfg.plugins,
-                load: {
-                  ...cfg.plugins?.load,
-                  paths: merged,
->>>>>>> 29bec2bfe (refactor(cli): dedupe plugin install config wiring)
                 },
               },
             },
@@ -619,7 +587,6 @@ export function registerPluginsCli(program: Command) {
         clearPluginManifestRegistryCache();
 
 <<<<<<< HEAD
-<<<<<<< HEAD
         let next: MoltbotConfig = {
           ...cfg,
           plugins: {
@@ -633,9 +600,6 @@ export function registerPluginsCli(program: Command) {
             },
           },
         };
-=======
-        let next = enablePluginInConfig(cfg, result.pluginId);
->>>>>>> 29bec2bfe (refactor(cli): dedupe plugin install config wiring)
 =======
         let next = enablePluginInConfig(cfg, result.pluginId).config;
 >>>>>>> 8920e281c (Plugins: allowlist plugins when enabling from CLI)
@@ -734,7 +698,6 @@ export function registerPluginsCli(program: Command) {
       clearPluginManifestRegistryCache();
 
 <<<<<<< HEAD
-<<<<<<< HEAD
       let next: MoltbotConfig = {
         ...cfg,
         plugins: {
@@ -749,11 +712,7 @@ export function registerPluginsCli(program: Command) {
         },
       };
 =======
-      let next = enablePluginInConfig(cfg, result.pluginId);
->>>>>>> 29bec2bfe (refactor(cli): dedupe plugin install config wiring)
-=======
       let next = enablePluginInConfig(cfg, result.pluginId).config;
-<<<<<<< HEAD
 <<<<<<< HEAD
       const resolvedSpec = result.npmResolution?.resolvedSpec;
       const recordSpec = opts.pin && resolvedSpec ? resolvedSpec : raw;
@@ -772,26 +731,6 @@ export function registerPluginsCli(program: Command) {
         spec: raw,
         installPath: result.targetDir,
         version: result.version,
-=======
-      const pinInfo = resolvePinnedNpmSpec({
-        rawSpec: raw,
-        pin: Boolean(opts.pin),
-        resolvedSpec: result.npmResolution?.resolvedSpec,
-      });
-      logPinnedNpmSpecMessages(
-        pinInfo,
-        (message) => defaultRuntime.log(message),
-        (message) => defaultRuntime.log(theme.warn(message)),
-      );
-      next = recordPluginInstall(next, {
-        pluginId: result.pluginId,
-        ...buildNpmInstallRecordFields({
-          spec: pinInfo.recordSpec,
-          installPath: result.targetDir,
-          version: result.version,
-          resolution: result.npmResolution,
-        }),
->>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
 =======
       const installRecord = resolvePinnedNpmInstallRecordForCli(
         raw,

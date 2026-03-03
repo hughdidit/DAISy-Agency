@@ -39,8 +39,6 @@ export async function resolveArchiveSourcePath(archivePath: string): Promise<
   return { ok: true, path: resolved };
 }
 
-<<<<<<< HEAD
-=======
 function toOptionalString(value: unknown): string | undefined {
   if (typeof value !== "string") {
     return undefined;
@@ -168,7 +166,6 @@ async function findPackedArchiveInDir(cwd: string): Promise<string | undefined> 
   return sortedByMtime[0]?.name;
 }
 
->>>>>>> 7aa233790 (Fix npm-spec plugin installs when npm pack output is empty (#21039))
 export async function packNpmSpecToArchive(params: {
   spec: string;
   timeoutMs: number;
@@ -202,40 +199,14 @@ export async function packNpmSpecToArchive(params: {
     return { ok: false, error: `npm pack failed: ${raw}` };
   }
 
-<<<<<<< HEAD
   const packed = (res.stdout || "")
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
     .pop();
-=======
-  const parsedJson = parseNpmPackJsonOutput(res.stdout || "");
-
-  let packed = parsedJson?.filename ?? parsePackedArchiveFromStdout(res.stdout || "");
-  if (!packed) {
-    packed = await findPackedArchiveInDir(params.cwd);
-  }
->>>>>>> 7aa233790 (Fix npm-spec plugin installs when npm pack output is empty (#21039))
   if (!packed) {
     return { ok: false, error: "npm pack produced no archive" };
   }
 
-<<<<<<< HEAD
   return { ok: true, archivePath: path.join(params.cwd, packed) };
-=======
-  let archivePath = path.isAbsolute(packed) ? packed : path.join(params.cwd, packed);
-  if (!(await fileExists(archivePath))) {
-    const fallbackPacked = await findPackedArchiveInDir(params.cwd);
-    if (!fallbackPacked) {
-      return { ok: false, error: "npm pack produced no archive" };
-    }
-    archivePath = path.join(params.cwd, fallbackPacked);
-  }
-
-  return {
-    ok: true,
-    archivePath,
-    metadata: parsedJson?.metadata ?? {},
-  };
->>>>>>> 7aa233790 (Fix npm-spec plugin installs when npm pack output is empty (#21039))
 }

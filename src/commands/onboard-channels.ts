@@ -7,7 +7,6 @@ import {
   formatChannelSelectionLine,
   listChatChannels,
 } from "../channels/registry.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { isChannelConfigured } from "../config/plugin-auto-enable.js";
 import type { DmPolicy } from "../config/types.js";
@@ -19,22 +18,6 @@ import { formatCliCommand } from "../cli/command-format.js";
 import { enablePluginInConfig } from "../plugins/enable.js";
 import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
 import type { ChannelChoice } from "./onboard-types.js";
-=======
-import { formatCliCommand } from "../cli/command-format.js";
-import type { OpenClawConfig } from "../config/config.js";
-import { isChannelConfigured } from "../config/plugin-auto-enable.js";
-import type { DmPolicy } from "../config/types.js";
-import { enablePluginInConfig } from "../plugins/enable.js";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
-import type { RuntimeEnv } from "../runtime.js";
-import { formatDocsLink } from "../terminal/links.js";
-import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
-import type { ChannelChoice } from "./onboard-types.js";
-import {
-  ensureOnboardingPluginInstalled,
-  reloadOnboardingPluginRegistry,
-} from "./onboarding/plugin-install.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   getChannelOnboardingAdapter,
   listChannelOnboardingAdapters,
@@ -43,13 +26,10 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   ensureOnboardingPluginInstalled,
   reloadOnboardingPluginRegistry,
 } from "./onboarding/plugin-install.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -62,9 +42,6 @@ import type {
   SetupChannelsOptions,
 } from "./onboarding/types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -234,15 +211,8 @@ async function noteChannelPrimer(
       "DM security: default is pairing; unknown DMs get a pairing code.",
       `Approve with: ${formatCliCommand("moltbot pairing approve <channel> <code>")}`,
       'Public DMs require dmPolicy="open" + allowFrom=["*"].',
-<<<<<<< HEAD
       'Multi-user DMs: set session.dmScope="per-channel-peer" (or "per-account-channel-peer" for multi-account channels) to isolate sessions.',
       `Docs: ${formatDocsLink("/start/pairing", "start/pairing")}`,
-=======
-      "Multi-user DMs: run: " +
-        formatCliCommand('openclaw config set session.dmScope "per-channel-peer"') +
-        ' (or "per-account-channel-peer" for multi-account channels) to isolate sessions.',
-      `Docs: ${formatDocsLink("/channels/pairing", "channels/pairing")}`,
->>>>>>> 72446f419 (docs: align CLI docs and help surface)
       "",
       ...channelLines,
     ].join("\n"),
@@ -295,15 +265,8 @@ async function maybeConfigureDmPolicies(params: {
         `Approve: ${formatCliCommand(`moltbot pairing approve ${policy.channel} <code>`)}`,
         `Allowlist DMs: ${policy.policyKey}="allowlist" + ${policy.allowFromKey} entries.`,
         `Public DMs: ${policy.policyKey}="open" + ${policy.allowFromKey} includes "*".`,
-<<<<<<< HEAD
         'Multi-user DMs: set session.dmScope="per-channel-peer" (or "per-account-channel-peer" for multi-account channels) to isolate sessions.',
         `Docs: ${formatDocsLink("/start/pairing", "start/pairing")}`,
-=======
-        "Multi-user DMs: run: " +
-          formatCliCommand('openclaw config set session.dmScope "per-channel-peer"') +
-          ' (or "per-account-channel-peer" for multi-account channels) to isolate sessions.',
-        `Docs: ${formatDocsLink("/channels/pairing", "channels/pairing")}`,
->>>>>>> 72446f419 (docs: align CLI docs and help surface)
       ].join("\n"),
       `${policy.label} DM access`,
     );

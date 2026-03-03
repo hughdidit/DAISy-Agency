@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
->>>>>>> 4df4435c4 (test: reset /approve mock per test (#1) (thanks @mitsuhiko))
 import type { MsgContext } from "../templating.js";
 import { buildCommandContext, handleCommands } from "./commands.js";
 import { parseInlineDirectives } from "./directive-handling.js";
@@ -21,7 +15,6 @@ vi.mock("../../gateway/call.js", () => ({
   callGateway: vi.fn(),
 }));
 
-<<<<<<< HEAD
 function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Partial<MsgContext>) {
   const ctx = {
     Body: commandBody,
@@ -60,8 +53,6 @@ function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Par
   };
 }
 
-=======
->>>>>>> 8f535285d (refactor(test): share command handler params)
 describe("/approve command", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -71,13 +62,8 @@ describe("/approve command", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-<<<<<<< HEAD
     } as MoltbotConfig;
     const params = buildParams("/approve", cfg);
-=======
-    } as OpenClawConfig;
-    const params = buildCommandTestParams("/approve", cfg);
->>>>>>> 8f535285d (refactor(test): share command handler params)
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Usage: /approve");
@@ -87,13 +73,8 @@ describe("/approve command", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-<<<<<<< HEAD
     } as MoltbotConfig;
     const params = buildParams("/approve abc allow-once", cfg, { SenderId: "123" });
-=======
-    } as OpenClawConfig;
-    const params = buildCommandTestParams("/approve abc allow-once", cfg, { SenderId: "123" });
->>>>>>> 8f535285d (refactor(test): share command handler params)
 
     const mockCallGateway = vi.mocked(callGateway);
     mockCallGateway.mockResolvedValueOnce({ ok: true });

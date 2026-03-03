@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { migrateSlackChannelConfig } from "./channel-migration.js";
-=======
-import { migrateSlackChannelConfig, migrateSlackChannelsInPlace } from "./channel-migration.js";
->>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 
 function createSlackGlobalChannelConfig(channels: Record<string, Record<string, unknown>>) {
   return {

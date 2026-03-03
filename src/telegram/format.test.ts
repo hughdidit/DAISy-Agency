@@ -69,8 +69,6 @@ describe("markdownToTelegramHtml", () => {
     const res = markdownToTelegramHtml("**bold [link](https://example.com) text**");
     expect(res).toBe('<b>bold <a href="https://example.com">link</a> text</b>');
   });
-<<<<<<< HEAD
-=======
 
   it("properly nests bold wrapping a link with trailing text", () => {
     const res = markdownToTelegramHtml("**[link](https://example.com) rest**");
@@ -98,7 +96,6 @@ describe("markdownToTelegramHtml", () => {
     expect(res).toBe("<tg-spoiler><b>secret</b> text</tg-spoiler>");
   });
 <<<<<<< HEAD
->>>>>>> e02d144af (feat(telegram): add spoiler tag support (#11543))
 =======
 
   it("does not treat single pipe as spoiler", () => {

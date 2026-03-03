@@ -37,17 +37,10 @@ Details: [Plugins](/tools/plugin)
 
 ## Setup
 
-<<<<<<< HEAD
 1) Install the Matrix plugin:
    - From npm: `moltbot plugins install @moltbot/matrix`
    - From a local checkout: `moltbot plugins install ./extensions/matrix`
 2) Create a Matrix account on a homeserver:
-=======
-1. Install the Matrix plugin:
-   - From npm: `openclaw plugins install @openclaw/matrix`
-   - From a local checkout: `openclaw plugins install ./extensions/matrix`
-2. Create a Matrix account on a homeserver:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Browse hosting options at [https://matrix.org/ecosystem/hosting/](https://matrix.org/ecosystem/hosting/)
    - Or host it yourself.
 3. Get an access token for the bot account:

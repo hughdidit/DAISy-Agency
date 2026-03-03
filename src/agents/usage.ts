@@ -117,8 +117,6 @@ export function derivePromptTokens(usage?: {
   const sum = input + cacheRead + cacheWrite;
   return sum > 0 ? sum : undefined;
 }
-<<<<<<< HEAD
-=======
 
 export function deriveSessionTotalTokens(params: {
   usage?: {
@@ -164,6 +162,5 @@ export function deriveSessionTotalTokens(params: {
   // Keep this value unclamped; display layers are responsible for capping
   // percentages for terminal output.
   return promptTokens;
->>>>>>> fcb685978 (fix(memoryFlush): correct context token accounting for flush gating (#5343))
 }
 >>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)

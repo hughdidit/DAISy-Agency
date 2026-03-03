@@ -6,13 +6,9 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 
-=======
-import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AcpServerOptions } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -37,17 +33,12 @@ import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-cha
 import { AcpGatewayAgent } from "./translator.js";
 import type { AcpServerOptions } from "./types.js";
 
-<<<<<<< HEAD
 export function serveAcpGateway(opts: AcpServerOptions = {}): void {
-=======
-export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void> {
->>>>>>> 7499e0f61 (fix(acp): wait for gateway connection before processing ACP messages)
   const cfg = loadConfig();
   const connection = buildGatewayConnectionDetails({
     config: cfg,
     url: opts.gatewayUrl,
   });
-<<<<<<< HEAD
 
   const isRemoteMode = cfg.gateway?.mode === "remote";
   const remote = isRemoteMode ? cfg.gateway?.remote : undefined;
@@ -63,16 +54,6 @@ export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void
     (isRemoteMode ? remote?.password?.trim() : undefined) ??
     process.env.CLAWDBOT_GATEWAY_PASSWORD ??
     auth.password;
-=======
-  const creds = resolveGatewayCredentialsFromConfig({
-    cfg,
-    env: process.env,
-    explicitAuth: {
-      token: opts.gatewayToken,
-      password: opts.gatewayPassword,
-    },
-  });
->>>>>>> 66529c7aa (refactor(gateway): unify auth credential resolution)
 
   let agent: AcpGatewayAgent | null = null;
   const gateway = new GatewayClient({
@@ -94,8 +75,6 @@ export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void
     },
   });
 
-<<<<<<< HEAD
-=======
   const shutdown = () => {
     if (stopped) {
       return;
@@ -125,7 +104,6 @@ export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void
   // Wait for gateway connection before creating AgentSideConnection
   await helloReceived;
 
->>>>>>> 7499e0f61 (fix(acp): wait for gateway connection before processing ACP messages)
   const input = Writable.toWeb(process.stdout);
   const output = Readable.toWeb(process.stdin) as unknown as ReadableStream<Uint8Array>;
   const stream = ndJsonStream(input, output);
@@ -136,11 +114,7 @@ export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void
     return agent;
   }, stream);
 
-<<<<<<< HEAD
   gateway.start();
-=======
-  return closed;
->>>>>>> 7499e0f61 (fix(acp): wait for gateway connection before processing ACP messages)
 }
 
 function parseArgs(args: string[]): AcpServerOptions {

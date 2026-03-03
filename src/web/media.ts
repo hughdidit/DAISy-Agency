@@ -9,12 +9,7 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { SsrFPolicy } from "../infra/net/ssrf.js";
-import { STATE_DIR } from "../config/paths.js";
->>>>>>> 6863b9dbe (Media: include state workspace/sandbox in local path allowlist)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
@@ -59,67 +54,13 @@ export type WebMediaResult = {
 type WebMediaOptions = {
   maxBytes?: number;
   optimizeImages?: boolean;
-<<<<<<< HEAD
-=======
   ssrfPolicy?: SsrFPolicy;
 <<<<<<< HEAD
   /** Allowed root directories for local path reads. "any" skips the check (caller already validated). */
   localRoots?: string[] | "any";
->>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
 };
 
-<<<<<<< HEAD
 export function getDefaultLocalRoots(): string[] {
-=======
-  /** Allowed root directories for local path reads. "any" is deprecated; prefer sandboxValidated + readFile. */
-  localRoots?: readonly string[] | "any";
-  /** Caller already validated the local path (sandbox/other guards); requires readFile override. */
-  sandboxValidated?: boolean;
-  readFile?: (filePath: string) => Promise<Buffer>;
-};
-
-function resolveWebMediaOptions(params: {
-  maxBytesOrOptions?: number | WebMediaOptions;
-  options?: { ssrfPolicy?: SsrFPolicy; localRoots?: readonly string[] | "any" };
-  optimizeImages: boolean;
-}): WebMediaOptions {
-  if (typeof params.maxBytesOrOptions === "number" || params.maxBytesOrOptions === undefined) {
-    return {
-      maxBytes: params.maxBytesOrOptions,
-      optimizeImages: params.optimizeImages,
-      ssrfPolicy: params.options?.ssrfPolicy,
-      localRoots: params.options?.localRoots,
-    };
-  }
-  return {
-    ...params.maxBytesOrOptions,
-    optimizeImages: params.optimizeImages
-      ? (params.maxBytesOrOptions.optimizeImages ?? true)
-      : false,
-  };
-}
-
-export type LocalMediaAccessErrorCode =
-  | "path-not-allowed"
-  | "invalid-root"
-  | "invalid-file-url"
-  | "unsafe-bypass"
-  | "not-found"
-  | "invalid-path"
-  | "not-file";
-
-export class LocalMediaAccessError extends Error {
-  code: LocalMediaAccessErrorCode;
-
-  constructor(code: LocalMediaAccessErrorCode, message: string, options?: ErrorOptions) {
-    super(message, options);
-    this.code = code;
-    this.name = "LocalMediaAccessError";
-  }
-}
-
-export function getDefaultLocalRoots(): readonly string[] {
->>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
   return [
     os.tmpdir(),
     path.join(STATE_DIR, "media"),
@@ -286,11 +227,7 @@ async function loadWebMediaInternal(
   options: WebMediaOptions = {},
 ): Promise<WebMediaResult> {
 <<<<<<< HEAD
-<<<<<<< HEAD
   const { maxBytes, optimizeImages = true } = options;
-=======
-  const { maxBytes, optimizeImages = true, ssrfPolicy, localRoots } = options;
->>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
 =======
   const {
     maxBytes,
@@ -405,39 +342,7 @@ async function loadWebMediaInternal(
   }
 
   // Local path
-<<<<<<< HEAD
   const data = await fs.readFile(mediaUrl);
-=======
-  let data: Buffer;
-  if (readFileOverride) {
-    data = await readFileOverride(mediaUrl);
-  } else {
-    try {
-      data = (await readLocalFileSafely({ filePath: mediaUrl })).buffer;
-    } catch (err) {
-      if (err instanceof SafeOpenError) {
-        if (err.code === "not-found") {
-          throw new LocalMediaAccessError("not-found", `Local media file not found: ${mediaUrl}`, {
-            cause: err,
-          });
-        }
-        if (err.code === "not-file") {
-          throw new LocalMediaAccessError(
-            "not-file",
-            `Local media path is not a file: ${mediaUrl}`,
-            { cause: err },
-          );
-        }
-        throw new LocalMediaAccessError(
-          "invalid-path",
-          `Local media path is not safe to read: ${mediaUrl}`,
-          { cause: err },
-        );
-      }
-      throw err;
-    }
-  }
->>>>>>> bf3f8ec42 (refactor(media): unify safe local file reads)
   const mime = await detectMime({ buffer: data, filePath: mediaUrl });
   const kind = mediaKindFromMime(mime);
   let fileName = path.basename(mediaUrl) || undefined;
@@ -455,23 +360,11 @@ async function loadWebMediaInternal(
   });
 }
 
-<<<<<<< HEAD
 export async function loadWebMedia(mediaUrl: string, maxBytes?: number): Promise<WebMediaResult> {
   return await loadWebMediaInternal(mediaUrl, {
     maxBytes,
     optimizeImages: true,
-=======
-export async function loadWebMedia(
-  mediaUrl: string,
-<<<<<<< HEAD
-  maxBytes?: number,
-  options?: { ssrfPolicy?: SsrFPolicy; localRoots?: string[] | "any" },
-=======
-  maxBytesOrOptions?: number | WebMediaOptions,
-  options?: { ssrfPolicy?: SsrFPolicy; localRoots?: readonly string[] | "any" },
->>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
 ): Promise<WebMediaResult> {
-<<<<<<< HEAD
   return await loadWebMediaInternal(mediaUrl, {
     maxBytes,
     optimizeImages: true,
@@ -479,36 +372,21 @@ export async function loadWebMedia(
     localRoots: options?.localRoots,
 >>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
   });
-=======
-  return await loadWebMediaInternal(
-    mediaUrl,
-    resolveWebMediaOptions({ maxBytesOrOptions, options, optimizeImages: true }),
-  );
->>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
 }
 
 export async function loadWebMediaRaw(
   mediaUrl: string,
-<<<<<<< HEAD
   maxBytes?: number,
 <<<<<<< HEAD
-=======
-  options?: { ssrfPolicy?: SsrFPolicy; localRoots?: string[] | "any" },
->>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
 =======
   maxBytesOrOptions?: number | WebMediaOptions,
   options?: { ssrfPolicy?: SsrFPolicy; localRoots?: readonly string[] | "any" },
 >>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
 ): Promise<WebMediaResult> {
-<<<<<<< HEAD
   return await loadWebMediaInternal(mediaUrl, {
     maxBytes,
     optimizeImages: false,
 <<<<<<< HEAD
-=======
-    ssrfPolicy: options?.ssrfPolicy,
-    localRoots: options?.localRoots,
->>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
   });
 =======
   return await loadWebMediaInternal(

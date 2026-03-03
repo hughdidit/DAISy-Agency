@@ -4,15 +4,9 @@ import { confirm as clackConfirm, select as clackSelect, text as clackText } fro
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { upsertAuthProfile } from "../../agents/auth-profiles.js";
 import { normalizeProviderId } from "../../agents/model-selection.js";
-=======
-import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
-import type { ProviderAuthResult, ProviderPlugin } from "../../plugins/types.js";
-import type { RuntimeEnv } from "../../runtime.js";
->>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -34,33 +28,23 @@ import {
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
 } from "../../agents/agent-scope.js";
-<<<<<<< HEAD
-=======
 import { upsertAuthProfile } from "../../agents/auth-profiles.js";
 import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
 import { normalizeProviderId } from "../../agents/model-selection.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
-<<<<<<< HEAD
 <<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 import { readConfigFileSnapshot, type MoltbotConfig } from "../../config/config.js";
 =======
-import { readConfigFileSnapshot } from "../../config/config.js";
->>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
-=======
 >>>>>>> 8369913c7 (refactor(models): reuse validated config snapshot loader)
 import { logConfigUpdated } from "../../config/logging.js";
-<<<<<<< HEAD
-=======
 import { resolvePluginProviders } from "../../plugins/providers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ProviderAuthResult, ProviderPlugin } from "../../plugins/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../../runtime.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -80,12 +64,7 @@ import { isRemoteEnvironment } from "../oauth-env.js";
 import { openUrl } from "../onboard-helpers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { createVpsAwareOAuthHandlers } from "../oauth-flow.js";
-=======
-import { OPENAI_CODEX_DEFAULT_MODEL } from "../openai-codex-model-default.js";
-import { loginOpenAICodexOAuth } from "../openai-codex-oauth.js";
->>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))
 =======
 >>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
 =======
@@ -95,7 +74,6 @@ import {
   pickAuthMethod,
   resolveProviderMatch,
 } from "../provider-auth-helpers.js";
-<<<<<<< HEAD
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import { updateConfig } from "./shared.js";
 import { resolvePluginProviders } from "../../plugins/providers.js";
@@ -107,9 +85,6 @@ import type {
 } from "../../plugins/types.js";
 import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
 import { validateAnthropicSetupToken } from "../auth-token.js";
-=======
-import { loadValidConfigOrThrow, updateConfig } from "./shared.js";
->>>>>>> 8369913c7 (refactor(models): reuse validated config snapshot loader)
 
 const confirm = (params: Parameters<typeof clackConfirm>[0]) =>
   clackConfirm({
@@ -344,7 +319,6 @@ export function resolveRequestedLoginProviderOrThrow(
   );
 }
 
-<<<<<<< HEAD
 function pickAuthMethod(provider: ProviderPlugin, rawMethod?: string): ProviderAuthMethod | null {
   const raw = rawMethod?.trim();
   if (!raw) {
@@ -402,8 +376,6 @@ function applyDefaultModel(cfg: MoltbotConfig, model: string): MoltbotConfig {
   };
 }
 
-=======
->>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 function credentialMode(credential: AuthProfileCredential): "api_key" | "oauth" | "token" {
   if (credential.type === "api_key") {
     return "api_key";

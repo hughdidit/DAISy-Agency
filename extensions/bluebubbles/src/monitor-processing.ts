@@ -6,11 +6,8 @@ import {
   logAckFailure,
   logInboundDrop,
   logTypingFailure,
-<<<<<<< HEAD
-=======
   readStoreAllowFromForDmPolicy,
   recordPendingHistoryEntryIfEnabled,
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   resolveAckReaction,
   resolveDmGroupAccessWithLists,
   resolveControlCommandGate,
@@ -40,10 +37,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
@@ -53,9 +46,6 @@ import type {
 } from "./monitor-shared.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -73,8 +63,6 @@ import { formatBlueBubblesChatTarget, isAllowedBlueBubblesSender } from "./targe
 
 const DEFAULT_TEXT_LIMIT = 4000;
 const invalidAckReactions = new Set<string>();
-<<<<<<< HEAD
-=======
 const REPLY_DIRECTIVE_TAG_RE = /\[\[\s*(?:reply_to_current|reply_to\s*:\s*[^\]\n]+)\s*\]\]/gi;
 const PENDING_OUTBOUND_MESSAGE_ID_TTL_MS = 2 * 60 * 1000;
 
@@ -205,7 +193,6 @@ function consumePendingOutboundMessageId(params: {
 
   return null;
 }
->>>>>>> e1015a519 (fix(bluebubbles): recover outbound message IDs and include sender metadata)
 
 export function logVerbose(
   core: BlueBubblesCoreRuntime,
@@ -280,10 +267,6 @@ export async function processMessage(
   const { account, config, runtime, core, statusSink } = target;
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  const privateApiEnabled = getCachedBlueBubblesPrivateApiStatus(account.accountId) === true;
->>>>>>> 888b6bc94 (fix(bluebubbles): treat null privateApiStatus as disabled, not enabled)
 =======
 =======
   const pairing = createScopedPairingAccess({
@@ -374,7 +357,6 @@ export async function processMessage(
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const groupPolicy = account.config.groupPolicy ?? "allowlist";
-<<<<<<< HEAD
   const storeAllowFrom = await core.channel.pairing
     .readAllowFromStore("bluebubbles")
     .catch(() => []);
@@ -391,15 +373,6 @@ export async function processMessage(
   });
   const groupName = message.chatName?.trim() || undefined;
   const accessDecision = resolveDmGroupAccessDecision({
-=======
-=======
-  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-    provider: "bluebubbles",
-    accountId: account.accountId,
-    dmPolicy,
-    readStore: pairing.readStoreForDmPolicy,
-  });
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const accessDecision = resolveDmGroupAccessWithLists({
 >>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
     isGroup,
@@ -858,120 +831,7 @@ export async function processMessage(
     return true;
   };
 
-<<<<<<< HEAD
   const ctxPayload = {
-=======
-  // History: in-memory rolling map with bounded API backfill retries
-  const historyLimit = isGroup
-    ? (account.config.historyLimit ?? 0)
-    : (account.config.dmHistoryLimit ?? 0);
-
-  const historyIdentifier =
-    chatGuid ||
-    chatIdentifier ||
-    (chatId ? String(chatId) : null) ||
-    (isGroup ? null : message.senderId) ||
-    "";
-  const historyKey = historyIdentifier
-    ? buildAccountScopedHistoryKey(account.accountId, historyIdentifier)
-    : "";
-
-  // Record the current message into rolling history
-  if (historyKey && historyLimit > 0) {
-    const nowMs = Date.now();
-    const senderLabel = message.fromMe ? "me" : message.senderName || message.senderId;
-    const normalizedHistoryBody = truncateHistoryBody(text, MAX_STORED_HISTORY_ENTRY_CHARS);
-    const currentEntries = recordPendingHistoryEntryIfEnabled({
-      historyMap: chatHistories,
-      limit: historyLimit,
-      historyKey,
-      entry: normalizedHistoryBody
-        ? {
-            sender: senderLabel,
-            body: normalizedHistoryBody,
-            timestamp: message.timestamp ?? nowMs,
-            messageId: message.messageId ?? undefined,
-          }
-        : null,
-    });
-    pruneHistoryBackfillState();
-
-    const backfillAttempt = planHistoryBackfillAttempt(historyKey, nowMs);
-    if (backfillAttempt) {
-      try {
-        const backfillResult = await fetchBlueBubblesHistory(historyIdentifier, historyLimit, {
-          cfg: config,
-          accountId: account.accountId,
-        });
-        if (backfillResult.resolved) {
-          markHistoryBackfillResolved(historyKey);
-        }
-        if (backfillResult.entries.length > 0) {
-          const apiEntries: HistoryEntry[] = [];
-          for (const entry of backfillResult.entries) {
-            const body = truncateHistoryBody(entry.body, MAX_STORED_HISTORY_ENTRY_CHARS);
-            if (!body) {
-              continue;
-            }
-            apiEntries.push({
-              sender: entry.sender,
-              body,
-              timestamp: entry.timestamp,
-              messageId: entry.messageId,
-            });
-          }
-          const merged = mergeHistoryEntries({
-            apiEntries,
-            currentEntries:
-              currentEntries.length > 0 ? currentEntries : (chatHistories.get(historyKey) ?? []),
-            limit: historyLimit,
-          });
-          if (chatHistories.has(historyKey)) {
-            chatHistories.delete(historyKey);
-          }
-          chatHistories.set(historyKey, merged);
-          evictOldHistoryKeys(chatHistories);
-          logVerbose(
-            core,
-            runtime,
-            `backfilled ${backfillResult.entries.length} history messages for ${isGroup ? "group" : "DM"}: ${historyIdentifier}`,
-          );
-        } else if (!backfillResult.resolved) {
-          const remainingAttempts = HISTORY_BACKFILL_MAX_ATTEMPTS - backfillAttempt.attempts;
-          const nextBackoffMs = Math.max(backfillAttempt.nextAttemptAt - nowMs, 0);
-          logVerbose(
-            core,
-            runtime,
-            `history backfill unresolved for ${historyIdentifier}; retries left=${Math.max(remainingAttempts, 0)} next_in_ms=${nextBackoffMs}`,
-          );
-        }
-      } catch (err) {
-        const remainingAttempts = HISTORY_BACKFILL_MAX_ATTEMPTS - backfillAttempt.attempts;
-        const nextBackoffMs = Math.max(backfillAttempt.nextAttemptAt - nowMs, 0);
-        logVerbose(
-          core,
-          runtime,
-          `history backfill failed for ${historyIdentifier}: ${String(err)} (retries left=${Math.max(remainingAttempts, 0)} next_in_ms=${nextBackoffMs})`,
-        );
-      }
-    }
-  }
-
-  // Build inbound history from the in-memory map
-  let inboundHistory: Array<{ sender: string; body: string; timestamp?: number }> | undefined;
-  if (historyKey && historyLimit > 0) {
-    const entries = chatHistories.get(historyKey);
-    if (entries && entries.length > 0) {
-      inboundHistory = buildInboundHistorySnapshot({
-        entries,
-        limit: historyLimit,
-      });
-    }
-  }
-  const commandBody = messageText.trim();
-
-  const ctxPayload = core.channel.reply.finalizeInboundContext({
->>>>>>> 8e48520d7 (fix(channels): align command-body parsing sources)
     Body: body,
     BodyForAgent: body,
     RawBody: rawBody,
@@ -1263,7 +1123,6 @@ export async function processReaction(
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const groupPolicy = account.config.groupPolicy ?? "allowlist";
-<<<<<<< HEAD
   const storeAllowFrom = await core.channel.pairing
     .readAllowFromStore("bluebubbles")
     .catch(() => []);
@@ -1274,15 +1133,6 @@ export async function processReaction(
     storeAllowFrom,
   });
   const accessDecision = resolveDmGroupAccessDecision({
-=======
-=======
-  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
-    provider: "bluebubbles",
-    accountId: account.accountId,
-    dmPolicy,
-    readStore: pairing.readStoreForDmPolicy,
-  });
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const accessDecision = resolveDmGroupAccessWithLists({
 >>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
     isGroup: reaction.isGroup,

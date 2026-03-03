@@ -253,20 +253,11 @@ restart delay). When it finds a mismatch, it recommends an update and can
 rewrite the service file/task to the current defaults.
 
 Notes:
-<<<<<<< HEAD
 - `moltbot doctor` prompts before rewriting supervisor config.
 - `moltbot doctor --yes` accepts the default repair prompts.
 - `moltbot doctor --repair` applies recommended fixes without prompts.
 - `moltbot doctor --repair --force` overwrites custom supervisor configs.
 - You can always force a full rewrite via `moltbot gateway install --force`.
-=======
-
-- `openclaw doctor` prompts before rewriting supervisor config.
-- `openclaw doctor --yes` accepts the default repair prompts.
-- `openclaw doctor --repair` applies recommended fixes without prompts.
-- `openclaw doctor --repair --force` overwrites custom supervisor configs.
-- You can always force a full rewrite via `openclaw gateway install --force`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### 16) Gateway runtime + port diagnostics
 

@@ -1,11 +1,5 @@
 import type { Bot } from "grammy";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { createDraftStreamLoop } from "../channels/draft-stream-loop.js";
-=======
-import { createFinalizableDraftLifecycle } from "../channels/draft-stream-controls.js";
->>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 import { buildTelegramThreadParams, type TelegramThreadSpec } from "./bot/helpers.js";
 >>>>>>> 345115917 (refactor(channels): share draft stream loop across slack and telegram)
 
@@ -26,12 +20,7 @@ export function createTelegramDraftStream(params: {
   api: Bot["api"];
   chatId: number;
   maxChars?: number;
-<<<<<<< HEAD
   messageThreadId?: number;
-=======
-  thread?: TelegramThreadSpec | null;
-  replyToMessageId?: number;
->>>>>>> 244ed9db3 (fix(telegram): draft stream preview not threaded when replyToMode is on (#17880) (#17928))
   throttleMs?: number;
   /** Minimum chars before sending first message (debounce for push notifications) */
   minInitialChars?: number;
@@ -45,29 +34,16 @@ export function createTelegramDraftStream(params: {
   const throttleMs = Math.max(250, params.throttleMs ?? DEFAULT_THROTTLE_MS);
   const minInitialChars = params.minInitialChars;
   const chatId = params.chatId;
-<<<<<<< HEAD
   const threadParams =
     typeof params.messageThreadId === "number"
       ? { message_thread_id: Math.trunc(params.messageThreadId) }
       : undefined;
-=======
-  const threadParams = buildTelegramThreadParams(params.thread);
-  const replyParams =
-    params.replyToMessageId != null
-      ? { ...threadParams, reply_to_message_id: params.replyToMessageId }
-      : threadParams;
->>>>>>> 244ed9db3 (fix(telegram): draft stream preview not threaded when replyToMode is on (#17880) (#17928))
 
   const streamState = { stopped: false, final: false };
   let streamMessageId: number | undefined;
   let lastSentText = "";
-<<<<<<< HEAD
   let stopped = false;
   let isFinal = false;
-=======
-  let lastSentParseMode: "HTML" | undefined;
-  let generation = 0;
->>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 
   const sendOrEditStreamMessage = async (text: string): Promise<boolean> => {
     // Allow final flush even if stopped (e.g., after clear()).
@@ -92,13 +68,8 @@ export function createTelegramDraftStream(params: {
     }
 
     // Debounce first preview send for better push notification quality.
-<<<<<<< HEAD
     if (typeof streamMessageId !== "number" && minInitialChars != null && !isFinal) {
       if (trimmed.length < minInitialChars) {
-=======
-    if (typeof streamMessageId !== "number" && minInitialChars != null && !streamState.final) {
-      if (renderedText.length < minInitialChars) {
->>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
         return false;
       }
     }
@@ -127,7 +98,6 @@ export function createTelegramDraftStream(params: {
     }
   };
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 <<<<<<< HEAD
   const flush = async () => {
@@ -145,29 +115,6 @@ export function createTelegramDraftStream(params: {
     if (!text.trim()) {
       if (pendingText) {
         schedule();
-=======
-    while (!stopped) {
-      if (inFlightPromise) {
-        await inFlightPromise;
-        continue;
-      }
-      const text = pendingText;
-      const trimmed = text.trim();
-      if (!trimmed) {
-        pendingText = "";
-        return;
-      }
-      pendingText = "";
-      const current = sendOrEditStreamMessage(text).finally(() => {
-        if (inFlightPromise === current) {
-          inFlightPromise = undefined;
-        }
-      });
-      inFlightPromise = current;
-      await current;
-      if (!pendingText) {
-        return;
->>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
       }
     }
   };
@@ -177,18 +124,11 @@ export function createTelegramDraftStream(params: {
       clearTimeout(timer);
       timer = undefined;
     }
-<<<<<<< HEAD
     inFlight = true;
     try {
       await sendDraft(text);
     } finally {
       inFlight = false;
-=======
-    pendingText = "";
-    stopped = true;
-    if (inFlightPromise) {
-      await inFlightPromise;
->>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
     }
 =======
 =======
@@ -201,7 +141,6 @@ export function createTelegramDraftStream(params: {
     throttleMs,
     state: streamState,
     sendOrEditStreamMessage,
-<<<<<<< HEAD
   });
 
   const update = (text: string) => {
@@ -228,16 +167,6 @@ export function createTelegramDraftStream(params: {
     }
     try {
       await params.api.deleteMessage(chatId, messageId);
-=======
-    readMessageId: () => streamMessageId,
-    clearMessageId: () => {
-      streamMessageId = undefined;
-    },
-    isValidMessageId: (value): value is number =>
-      typeof value === "number" && Number.isFinite(value),
-    deleteMessage: (messageId) => params.api.deleteMessage(chatId, messageId),
-    onDeleteSuccess: (messageId) => {
->>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
       params.log?.(`telegram stream preview deleted (chat=${chatId}, message=${messageId})`);
     },
     warn: params.warn,

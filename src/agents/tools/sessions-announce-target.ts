@@ -1,13 +1,10 @@
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { callGateway } from "../../gateway/call.js";
-<<<<<<< HEAD
-=======
 import { SessionListRow } from "./sessions-helpers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AnnounceTarget } from "./sessions-send-helpers.js";
 =======
 >>>>>>> ed11e93cf (chore(format))

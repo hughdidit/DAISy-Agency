@@ -7,54 +7,32 @@ import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
 
 =======
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-=======
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
->>>>>>> 2ba918ac7 (perf(test): remove gateway lock sleep waits)
-=======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import { resolveConfigPath, resolveGatewayLockDir, resolveStateDir } from "../config/paths.js";
-<<<<<<< HEAD
 >>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 import { acquireGatewayLock, GatewayLockError } from "./gateway-lock.js";
 import { resolveConfigPath, resolveGatewayLockDir, resolveStateDir } from "../config/paths.js";
-=======
-import { acquireGatewayLock, GatewayLockError, type GatewayLockOptions } from "./gateway-lock.js";
->>>>>>> f9e21d572 (test(infra): dedupe gateway-lock setup and cover guard paths)
 
 let fixtureRoot = "";
 let fixtureCount = 0;
 
 async function makeEnv() {
-<<<<<<< HEAD
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gateway-lock-"));
   const configPath = path.join(dir, "moltbot.json");
-=======
-  const dir = path.join(fixtureRoot, `case-${fixtureCount++}`);
-  await fs.mkdir(dir, { recursive: true });
-  const configPath = path.join(dir, "openclaw.json");
->>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
   await fs.writeFile(configPath, "{}", "utf8");
   await fs.mkdir(resolveGatewayLockDir(), { recursive: true });
   return {
-<<<<<<< HEAD
     env: {
       ...process.env,
       CLAWDBOT_STATE_DIR: dir,
       CLAWDBOT_CONFIG_PATH: configPath,
     },
     cleanup: async () => {},
-=======
-    ...process.env,
-    OPENCLAW_STATE_DIR: dir,
-    OPENCLAW_CONFIG_PATH: configPath,
->>>>>>> f9e21d572 (test(infra): dedupe gateway-lock setup and cover guard paths)
   };
 }
 
@@ -246,8 +224,6 @@ describe("gateway lock", () => {
     spy.mockRestore();
   });
 
-<<<<<<< HEAD
-=======
   it("keeps lock when fs.stat fails until payload is stale", async () => {
     vi.useRealTimers();
     const env = await makeEnv();
@@ -269,7 +245,6 @@ describe("gateway lock", () => {
   });
 
 <<<<<<< HEAD
->>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
 =======
   it("treats lock as stale when owner pid is alive but configured port is free", async () => {
     vi.useRealTimers();

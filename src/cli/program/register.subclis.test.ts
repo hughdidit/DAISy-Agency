@@ -38,16 +38,8 @@ describe("registerSubCliCommands", () => {
   };
 
   beforeEach(() => {
-<<<<<<< HEAD
     process.env = { ...originalEnv };
     delete process.env.CLAWDBOT_DISABLE_LAZY_SUBCOMMANDS;
-=======
-    if (originalDisableLazySubcommands === undefined) {
-      delete process.env.OPENCLAW_DISABLE_LAZY_SUBCOMMANDS;
-    } else {
-      process.env.OPENCLAW_DISABLE_LAZY_SUBCOMMANDS = originalDisableLazySubcommands;
-    }
->>>>>>> 992fc9cf4 (test: trim cli program test bootstrap overhead)
     registerAcpCli.mockClear();
     acpAction.mockClear();
     registerNodesCli.mockClear();
@@ -64,13 +56,9 @@ describe("registerSubCliCommands", () => {
   });
 
   it("registers only the primary placeholder and dispatches", async () => {
-<<<<<<< HEAD
     process.argv = ["node", "moltbot", "acp"];
     const program = new Command();
     registerSubCliCommands(program, process.argv);
-=======
-    const program = createRegisteredProgram(["node", "openclaw", "acp"]);
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 
     expect(program.commands.map((cmd) => cmd.name())).toEqual(["acp"]);
 
@@ -81,13 +69,9 @@ describe("registerSubCliCommands", () => {
   });
 
   it("registers placeholders for all subcommands when no primary", () => {
-<<<<<<< HEAD
     process.argv = ["node", "moltbot"];
     const program = new Command();
     registerSubCliCommands(program, process.argv);
-=======
-    const program = createRegisteredProgram(["node", "openclaw"]);
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 
     const names = program.commands.map((cmd) => cmd.name());
     expect(names).toContain("acp");
@@ -97,14 +81,10 @@ describe("registerSubCliCommands", () => {
   });
 
   it("re-parses argv for lazy subcommands", async () => {
-<<<<<<< HEAD
     process.argv = ["node", "moltbot", "nodes", "list"];
     const program = new Command();
     program.name("moltbot");
     registerSubCliCommands(program, process.argv);
-=======
-    const program = createRegisteredProgram(["node", "openclaw", "nodes", "list"], "openclaw");
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 
     expect(program.commands.map((cmd) => cmd.name())).toEqual(["nodes"]);
 
@@ -115,25 +95,17 @@ describe("registerSubCliCommands", () => {
   });
 
   it("replaces placeholder when registering a subcommand by name", async () => {
-<<<<<<< HEAD
     process.argv = ["node", "moltbot", "acp", "--help"];
     const program = new Command();
     program.name("moltbot");
     registerSubCliCommands(program, process.argv);
-=======
-    const program = createRegisteredProgram(["node", "openclaw", "acp", "--help"], "openclaw");
->>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 
     await registerSubCliByName(program, "acp");
 
     const names = program.commands.map((cmd) => cmd.name());
     expect(names.filter((name) => name === "acp")).toHaveLength(1);
 
-<<<<<<< HEAD
     await program.parseAsync(["node", "moltbot", "acp"], { from: "user" });
-=======
-    await program.parseAsync(["acp"], { from: "user" });
->>>>>>> 992fc9cf4 (test: trim cli program test bootstrap overhead)
     expect(registerAcpCli).toHaveBeenCalledTimes(1);
     expect(acpAction).toHaveBeenCalledTimes(1);
   });

@@ -1,15 +1,5 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveAgentConfig } from "../agent-scope.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { resolveAgentConfig } from "../agent-scope.js";
-import { compileGlobPatterns, matchesAnyGlobPattern } from "../glob-pattern.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { expandToolGroups } from "../tool-policy.js";
 import { DEFAULT_TOOL_ALLOW, DEFAULT_TOOL_DENY } from "./constants.js";
 =======
@@ -21,10 +11,7 @@ import { resolveAgentConfig } from "../agent-scope.js";
 import { compileGlobPatterns, matchesAnyGlobPattern } from "../glob-pattern.js";
 import { expandToolGroups } from "../tool-policy.js";
 import { DEFAULT_TOOL_ALLOW, DEFAULT_TOOL_DENY } from "./constants.js";
-<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
@@ -37,10 +24,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveAgentConfig } from "../agent-scope.js";
@@ -48,10 +31,7 @@ import { compileGlobPatterns, matchesAnyGlobPattern } from "../glob-pattern.js";
 import { expandToolGroups } from "../tool-policy.js";
 import { DEFAULT_TOOL_ALLOW, DEFAULT_TOOL_DENY } from "./constants.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 60a7625f2 (refactor(agents): share glob matcher)
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

@@ -163,12 +163,7 @@ describe("buildInlineKeyboard", () => {
       },
     ];
     for (const testCase of cases) {
-<<<<<<< HEAD
       expect(buildInlineKeyboard(testCase.input), testCase.name).toEqual(testCase.expected);
-=======
-      const input = testCase.input?.map((row) => row.map((button) => ({ ...button })));
-      expect(buildInlineKeyboard(input), testCase.name).toEqual(testCase.expected);
->>>>>>> 4414af977 (test: guard inline keyboard fixture against undefined input)
     }
   });
 });
@@ -667,11 +662,7 @@ describe("sendMessageTelegram", () => {
       });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
       await sendMessageTelegram(chatId, testCase.text, {
-=======
-      const opts: Parameters<typeof sendMessageTelegram>[2] = {
->>>>>>> 828f4e18e (test: finish readonly fixture compatibility for CI check)
 =======
       const sendOptions: NonNullable<Parameters<typeof sendMessageTelegram>[2]> = {
 >>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
@@ -680,22 +671,8 @@ describe("sendMessageTelegram", () => {
         mediaUrl: "https://example.com/video.mp4",
         asVideoNote: true,
 <<<<<<< HEAD
-<<<<<<< HEAD
         ...testCase.options,
       });
-=======
-        ...("replyToMessageId" in testCase.options
-          ? { replyToMessageId: testCase.options.replyToMessageId }
-          : {}),
-        ...("buttons" in testCase.options
-          ? {
-              buttons: testCase.options.buttons.map((row) => row.map((button) => ({ ...button }))),
-            }
-          : {}),
-      };
-
-      await sendMessageTelegram(chatId, testCase.text, opts);
->>>>>>> 828f4e18e (test: finish readonly fixture compatibility for CI check)
 =======
       };
       if (
@@ -886,19 +863,11 @@ describe("sendMessageTelegram", () => {
         token: "tok",
         api,
         mediaUrl: testCase.mediaUrl,
-<<<<<<< HEAD
         ...(testCase.asVoice ? { asVoice: true } : {}),
         ...(testCase.messageThreadId !== undefined
           ? { messageThreadId: testCase.messageThreadId }
           : {}),
         ...(testCase.replyToMessageId !== undefined
-=======
-        ...("asVoice" in testCase && testCase.asVoice ? { asVoice: true } : {}),
-        ...("messageThreadId" in testCase && testCase.messageThreadId !== undefined
-          ? { messageThreadId: testCase.messageThreadId }
-          : {}),
-        ...("replyToMessageId" in testCase && testCase.replyToMessageId !== undefined
->>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
           ? { replyToMessageId: testCase.replyToMessageId }
           : {}),
       });
@@ -937,7 +906,6 @@ describe("sendMessageTelegram", () => {
       },
     ] as const;
 
-<<<<<<< HEAD
     await sendMessageTelegram(chatId, "hello forum", {
       token: "tok",
       api,
@@ -951,75 +919,11 @@ describe("sendMessageTelegram", () => {
   });
 
 <<<<<<< HEAD
-=======
-  it("suppresses message_thread_id for private chat sends (#17242)", async () => {
-    // Private chats have positive numeric IDs; they never support forum topics.
-    const chatId = "123456789";
-    const sendMessage = vi.fn().mockResolvedValue({
-      message_id: 56,
-      chat: { id: chatId },
-    });
-    const api = { sendMessage } as unknown as {
-      sendMessage: typeof sendMessage;
-    };
-
-    await sendMessageTelegram(chatId, "hello private", {
-      token: "tok",
-      api,
-      messageThreadId: 271,
-    });
-
-    // message_thread_id must NOT appear in private chats -- Telegram rejects it
-    // with "400: Bad Request: message thread not found".
-    expect(sendMessage).toHaveBeenCalledWith(chatId, "hello private", {
-      parse_mode: "HTML",
-    });
-  });
-
-  it("keeps message_thread_id for group chat sends (#17242)", async () => {
-    // Group/supergroup chats have negative IDs.
-    const chatId = "-1001234567890";
-    const sendMessage = vi.fn().mockResolvedValue({
-      message_id: 57,
-      chat: { id: chatId },
-    });
-    const api = { sendMessage } as unknown as {
-      sendMessage: typeof sendMessage;
-    };
-
-    await sendMessageTelegram(chatId, "hello group", {
-      token: "tok",
-      api,
-      messageThreadId: 271,
-    });
-
-    expect(sendMessage).toHaveBeenCalledWith(chatId, "hello group", {
-      parse_mode: "HTML",
-      message_thread_id: 271,
-    });
-  });
-
-  it("retries without message_thread_id when Telegram reports missing thread", async () => {
-    const chatId = "-100123";
-    const threadErr = new Error("400: Bad Request: message thread not found");
-    const sendMessage = vi
-      .fn()
-      .mockRejectedValueOnce(threadErr)
-      .mockResolvedValueOnce({
-        message_id: 58,
-        chat: { id: chatId },
-=======
-    for (const testCase of cases) {
-      const sendMessage = vi.fn().mockResolvedValue({
-        message_id: testCase.messageId,
-        chat: { id: testCase.chatId },
->>>>>>> 58254b3b5 (test: dedupe channel and transport adapters)
       });
       const api = { sendMessage } as unknown as {
         sendMessage: typeof sendMessage;
       };
 
-<<<<<<< HEAD
     const res = await sendMessageTelegram(chatId, "hello forum", {
       token: "tok",
       api,
@@ -1054,116 +958,6 @@ describe("sendMessageTelegram", () => {
   });
 
 >>>>>>> b4a90bb74 (fix(telegram): suppress message_thread_id for private chat sends (#17242))
-=======
-      await sendMessageTelegram(testCase.chatId, testCase.text, {
-        token: "tok",
-        api,
-        messageThreadId: 271,
-      });
-
-      expect(sendMessage, testCase.name).toHaveBeenCalledWith(testCase.chatId, testCase.text, {
-        parse_mode: "HTML",
-        message_thread_id: 271,
-      });
-    }
-  });
-
-  it("retries sends without message_thread_id on thread-not-found", async () => {
-    const cases = [
-      { name: "forum", chatId: "-100123", text: "hello forum", messageId: 58 },
-      { name: "private", chatId: "123456789", text: "hello private", messageId: 59 },
-    ] as const;
-    const threadErr = new Error("400: Bad Request: message thread not found");
-
-    for (const testCase of cases) {
-      const sendMessage = vi
-        .fn()
-        .mockRejectedValueOnce(threadErr)
-        .mockResolvedValueOnce({
-          message_id: testCase.messageId,
-          chat: { id: testCase.chatId },
-        });
-      const api = { sendMessage } as unknown as {
-        sendMessage: typeof sendMessage;
-      };
-
-      const res = await sendMessageTelegram(testCase.chatId, testCase.text, {
-        token: "tok",
-        api,
-        messageThreadId: 271,
-      });
-
-      expect(sendMessage, testCase.name).toHaveBeenNthCalledWith(
-        1,
-        testCase.chatId,
-        testCase.text,
-        {
-          parse_mode: "HTML",
-          message_thread_id: 271,
-        },
-      );
-      expect(sendMessage, testCase.name).toHaveBeenNthCalledWith(
-        2,
-        testCase.chatId,
-        testCase.text,
-        {
-          parse_mode: "HTML",
-        },
-      );
-      expect(res.messageId, testCase.name).toBe(String(testCase.messageId));
-    }
-  });
-
-  it("does not retry on non-retriable thread/chat errors", async () => {
-    const cases: Array<{
-      chatId: string;
-      text: string;
-      error: Error;
-      opts?: { messageThreadId?: number };
-      expectedError: RegExp | string;
-      expectedCallArgs: [string, string, { parse_mode: "HTML"; message_thread_id?: number }];
-    }> = [
-      {
-        chatId: "123",
-        text: "hello forum",
-        error: new Error("400: Bad Request: message thread not found"),
-        expectedError: "message thread not found",
-        expectedCallArgs: ["123", "hello forum", { parse_mode: "HTML" }],
-      },
-      {
-        chatId: "123456789",
-        text: "hello private",
-        error: new Error("400: Bad Request: chat not found"),
-        opts: { messageThreadId: 271 },
-        expectedError: /chat not found/i,
-        expectedCallArgs: [
-          "123456789",
-          "hello private",
-          { parse_mode: "HTML", message_thread_id: 271 },
-        ],
-      },
-    ];
-
-    for (const testCase of cases) {
-      const sendMessage = vi.fn().mockRejectedValueOnce(testCase.error);
-      const api = { sendMessage } as unknown as {
-        sendMessage: typeof sendMessage;
-      };
-
-      await expect(
-        sendMessageTelegram(testCase.chatId, testCase.text, {
-          token: "tok",
-          api,
-          ...testCase.opts,
-        }),
-      ).rejects.toThrow(testCase.expectedError);
-
-      expect(sendMessage).toHaveBeenCalledTimes(1);
-      expect(sendMessage).toHaveBeenCalledWith(...testCase.expectedCallArgs);
-    }
-  });
-
->>>>>>> 58254b3b5 (test: dedupe channel and transport adapters)
   it("sets disable_notification when silent is true", async () => {
     const chatId = "123";
     const sendMessage = vi.fn().mockResolvedValue({
@@ -1207,7 +1001,6 @@ describe("sendMessageTelegram", () => {
     });
   });
 
-<<<<<<< HEAD
   it("includes reply_to_message_id for threaded replies", async () => {
     const chatId = "123";
     const sendMessage = vi.fn().mockResolvedValue({
@@ -1253,9 +1046,6 @@ describe("sendMessageTelegram", () => {
       message_thread_id: 271,
       reply_to_message_id: 500,
     });
-=======
-=======
->>>>>>> 58254b3b5 (test: dedupe channel and transport adapters)
   it("retries media sends without message_thread_id when thread is missing", async () => {
     const chatId = "-100123";
     const threadErr = new Error("400: Bad Request: message thread not found");
@@ -1385,7 +1175,6 @@ describe("sendStickerTelegram", () => {
     }
   });
 
-<<<<<<< HEAD
   it("includes message_thread_id for forum topic messages", async () => {
     const chatId = "-1001234567890";
     const fileId = "CAACAgIAAxkBAAI...sticker_file_id";
@@ -1393,43 +1182,19 @@ describe("sendStickerTelegram", () => {
       message_id: 101,
       chat: { id: chatId },
     });
-=======
-  it("retries sticker sends without message_thread_id when thread is missing", async () => {
-    const chatId = "-100123";
-    const threadErr = new Error("400: Bad Request: message thread not found");
-    const sendSticker = vi
-      .fn()
-      .mockRejectedValueOnce(threadErr)
-      .mockResolvedValueOnce({
-        message_id: 109,
-        chat: { id: chatId },
-      });
->>>>>>> 67aa7eefe (test: remove redundant sticker thread id assertion)
     const api = { sendSticker } as unknown as {
       sendSticker: typeof sendSticker;
     };
 
-<<<<<<< HEAD
     await sendStickerTelegram(chatId, fileId, {
-=======
-    const res = await sendStickerTelegram(chatId, "fileId123", {
->>>>>>> 67aa7eefe (test: remove redundant sticker thread id assertion)
       token: "tok",
       api,
       messageThreadId: 271,
     });
 
-<<<<<<< HEAD
     expect(sendSticker).toHaveBeenCalledWith(chatId, fileId, {
       message_thread_id: 271,
     });
-=======
-    expect(sendSticker).toHaveBeenNthCalledWith(1, chatId, "fileId123", {
-      message_thread_id: 271,
-    });
-    expect(sendSticker).toHaveBeenNthCalledWith(2, chatId, "fileId123", undefined);
-    expect(res.messageId).toBe("109");
->>>>>>> 67aa7eefe (test: remove redundant sticker thread id assertion)
   });
 });
 
@@ -1569,17 +1334,11 @@ describe("editMessageTelegram", () => {
       buttons: testCase.buttons ? testCase.buttons.map((row) => [...row]) : testCase.buttons,
     });
 
-<<<<<<< HEAD
       await editMessageTelegram("123", 1, input.text, {
         token: "tok",
         cfg: {},
         buttons: input.buttons,
       });
-=======
-    expect(botCtorSpy, testCase.name).toHaveBeenCalledTimes(1);
-    expect(botCtorSpy.mock.calls[0]?.[0], testCase.name).toBe("tok");
-    expect(botApi.editMessageText, testCase.name).toHaveBeenCalledTimes(testCase.expectedCalls);
->>>>>>> c42a7aff3 (test(telegram): trim setup resets and table-drive edit fallback cases)
 
     const firstParams = (botApi.editMessageText.mock.calls[0] ?? [])[3] as Record<string, unknown>;
     expect(firstParams, testCase.name).toEqual(expect.objectContaining({ parse_mode: "HTML" }));
@@ -1597,26 +1356,18 @@ describe("editMessageTelegram", () => {
         string,
         unknown
       >;
-<<<<<<< HEAD
       expect(firstParams, testCase.name).toEqual(expect.objectContaining({ parse_mode: "HTML" }));
       if (testCase.firstExpectNoReplyMarkup) {
         expect(firstParams, testCase.name).not.toHaveProperty("reply_markup");
       }
 <<<<<<< HEAD
       if (testCase.firstExpectReplyMarkup) {
-=======
-      if ("firstExpectReplyMarkup" in testCase && testCase.firstExpectReplyMarkup) {
->>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
         expect(firstParams, testCase.name).toEqual(
           expect.objectContaining({ reply_markup: testCase.firstExpectReplyMarkup }),
         );
       }
 
-<<<<<<< HEAD
       if (testCase.secondExpectReplyMarkup) {
-=======
-      if ("secondExpectReplyMarkup" in testCase && testCase.secondExpectReplyMarkup) {
->>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
         const secondParams = (botApi.editMessageText.mock.calls[1] ?? [])[3] as Record<
           string,
           unknown
@@ -1734,7 +1485,6 @@ describe("sendPollTelegram", () => {
 });
 
 describe("createForumTopicTelegram", () => {
-<<<<<<< HEAD
   it("uses base chat id when target includes topic suffix", async () => {
     const createForumTopic = vi.fn().mockResolvedValue({
       message_thread_id: 272,
@@ -1743,42 +1493,6 @@ describe("createForumTopicTelegram", () => {
     const api = { createForumTopic } as unknown as {
       createForumTopic: typeof createForumTopic;
     };
-=======
-  const cases = [
-    {
-      name: "uses base chat id when target includes topic suffix",
-      target: "telegram:group:-1001234567890:topic:271",
-      title: "x",
-      response: { message_thread_id: 272, name: "Build Updates" },
-      expectedCall: ["-1001234567890", "x", undefined] as const,
-      expectedResult: {
-        topicId: 272,
-        name: "Build Updates",
-        chatId: "-1001234567890",
-      },
-    },
-    {
-      name: "forwards optional icon fields",
-      target: "-1001234567890",
-      title: "Roadmap",
-      response: { message_thread_id: 300, name: "Roadmap" },
-      options: {
-        iconColor: 0x6fb9f0,
-        iconCustomEmojiId: "  1234567890  ",
-      },
-      expectedCall: [
-        "-1001234567890",
-        "Roadmap",
-        { icon_color: 0x6fb9f0, icon_custom_emoji_id: "1234567890" },
-      ] as const,
-      expectedResult: {
-        topicId: 300,
-        name: "Roadmap",
-        chatId: "-1001234567890",
-      },
-    },
-  ] as const;
->>>>>>> d5cc35773 (test(telegram): table-drive sticker and forum-topic cases)
 
   for (const testCase of cases) {
     it(testCase.name, async () => {
@@ -1794,7 +1508,6 @@ describe("createForumTopicTelegram", () => {
       expect(createForumTopic).toHaveBeenCalledWith(...testCase.expectedCall);
       expect(result).toEqual(testCase.expectedResult);
     });
-<<<<<<< HEAD
     const api = { createForumTopic } as unknown as {
       createForumTopic: typeof createForumTopic;
     };
@@ -1811,7 +1524,4 @@ describe("createForumTopicTelegram", () => {
       icon_custom_emoji_id: "1234567890",
     });
   });
-=======
-  }
->>>>>>> d5cc35773 (test(telegram): table-drive sticker and forum-topic cases)
 });

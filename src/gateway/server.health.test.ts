@@ -3,7 +3,6 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { emitHeartbeatEvent } from "../infra/heartbeat-events.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
-<<<<<<< HEAD
 import {
   connectOk,
   getFreePort,
@@ -13,10 +12,6 @@ import {
   startServerWithClient,
 } from "./test-helpers.js";
 import { buildDeviceAuthPayload } from "./device-auth.js";
-=======
-import { startGatewayServerHarness, type GatewayServerHarness } from "./server.e2e-ws-harness.js";
-import { installGatewayTestHooks, onceMessage } from "./test-helpers.js";
->>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
 
 installGatewayTestHooks({ scope: "suite" });
 const HEALTH_E2E_TIMEOUT_MS = 20_000;
@@ -38,7 +33,6 @@ type GatewayFrame = {
 };
 
 beforeAll(async () => {
-<<<<<<< HEAD
   previousToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
   delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   port = await getFreePort();
@@ -50,13 +44,6 @@ afterAll(async () => {
 <<<<<<< HEAD
   if (previousToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   else process.env.CLAWDBOT_GATEWAY_TOKEN = previousToken;
-=======
-  if (previousToken === undefined) {
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
-  } else {
-    process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
   harness = await startGatewayServerHarness();
 });
@@ -255,12 +242,9 @@ describe("gateway server health/presence", () => {
   );
 
   test("presence includes client fingerprint", async () => {
-<<<<<<< HEAD
     const identityPath = path.join(os.tmpdir(), `moltbot-device-${randomUUID()}.json`);
     const identity = loadOrCreateDeviceIdentity(identityPath);
     const token = process.env.OPENCLAW_GATEWAY_TOKEN?.trim() || undefined;
-=======
->>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
     const role = "operator";
     const scopes: string[] = ["operator.admin"];
     const { ws } = await harness.openClient({

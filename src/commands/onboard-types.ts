@@ -44,18 +44,8 @@ export type AuthChoice =
   | "copilot-proxy"
   | "qwen-portal"
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  | "xai-api-key"
-  | "mistral-api-key"
-  | "volcengine-api-key"
-  | "byteplus-api-key"
->>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
   | "qianfan-api-key"
-<<<<<<< HEAD
-=======
   | "xai-api-key"
->>>>>>> db31c0ccc (feat: add xAI Grok provider support)
 =======
   | "custom-api-key"
 >>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
@@ -141,17 +131,8 @@ export type OnboardOptions = {
   huggingfaceApiKey?: string;
   opencodeZenApiKey?: string;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  xaiApiKey?: string;
-  volcengineApiKey?: string;
-  byteplusApiKey?: string;
->>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
   qianfanApiKey?: string;
-<<<<<<< HEAD
-=======
   xaiApiKey?: string;
->>>>>>> db31c0ccc (feat: add xAI Grok provider support)
 =======
   customBaseUrl?: string;
   customApiKey?: string;

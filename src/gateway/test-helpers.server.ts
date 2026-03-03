@@ -9,10 +9,7 @@ import { WebSocket } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { GatewayServerOptions } from "./server.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -37,20 +34,13 @@ import { DEFAULT_AGENT_ID, toAgentStoreSessionKey } from "../routing/session-key
 import { captureEnv } from "../test-utils/env.js";
 import { getDeterministicFreePortBlock } from "../test-utils/ports.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
-<<<<<<< HEAD
 
-=======
-import { buildDeviceAuthPayloadV3 } from "./device-auth.js";
->>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)
 import { PROTOCOL_VERSION } from "./protocol/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { buildDeviceAuthPayload } from "./device-auth.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayServerOptions } from "./server.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -84,7 +74,6 @@ async function getServerModule() {
   return await serverModulePromise;
 }
 
-<<<<<<< HEAD
 let previousHome: string | undefined;
 let previousUserProfile: string | undefined;
 let previousStateDir: string | undefined;
@@ -93,13 +82,6 @@ let previousSkipBrowserControl: string | undefined;
 let previousSkipGmailWatcher: string | undefined;
 let previousSkipCanvasHost: string | undefined;
 <<<<<<< HEAD
-=======
-let previousBundledPluginsDir: string | undefined;
-let previousSkipChannels: string | undefined;
-let previousSkipProviders: string | undefined;
-let previousSkipCron: string | undefined;
-let previousMinimalGateway: string | undefined;
->>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
 =======
 const GATEWAY_TEST_ENV_KEYS = [
   "HOME",
@@ -150,7 +132,6 @@ export async function writeSessionStore(params: {
 }
 
 async function setupGatewayTestHome() {
-<<<<<<< HEAD
   previousHome = process.env.HOME;
   previousUserProfile = process.env.USERPROFILE;
 <<<<<<< HEAD
@@ -160,20 +141,6 @@ async function setupGatewayTestHome() {
   previousSkipGmailWatcher = process.env.CLAWDBOT_SKIP_GMAIL_WATCHER;
   previousSkipCanvasHost = process.env.CLAWDBOT_SKIP_CANVAS_HOST;
   tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gateway-home-"));
-=======
-  previousStateDir = process.env.OPENCLAW_STATE_DIR;
-  previousConfigPath = process.env.OPENCLAW_CONFIG_PATH;
-  previousSkipBrowserControl = process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER;
-  previousSkipGmailWatcher = process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
-  previousSkipCanvasHost = process.env.OPENCLAW_SKIP_CANVAS_HOST;
-  previousBundledPluginsDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
-  previousSkipChannels = process.env.OPENCLAW_SKIP_CHANNELS;
-  previousSkipProviders = process.env.OPENCLAW_SKIP_PROVIDERS;
-  previousSkipCron = process.env.OPENCLAW_SKIP_CRON;
-  previousMinimalGateway = process.env.OPENCLAW_TEST_MINIMAL_GATEWAY;
-=======
-  gatewayEnvSnapshot = captureEnv([...GATEWAY_TEST_ENV_KEYS]);
->>>>>>> 577e5cc74 (refactor(test): dedupe gateway env setup and add env util coverage)
   tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gateway-home-"));
 >>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
   process.env.HOME = tempHome;
@@ -183,22 +150,9 @@ async function setupGatewayTestHome() {
 }
 
 function applyGatewaySkipEnv() {
-<<<<<<< HEAD
   process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = "1";
   process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = "1";
   process.env.CLAWDBOT_SKIP_CANVAS_HOST = "1";
-=======
-  process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = "1";
-  process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
-  process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
-  process.env.OPENCLAW_SKIP_CHANNELS = "1";
-  process.env.OPENCLAW_SKIP_PROVIDERS = "1";
-  process.env.OPENCLAW_SKIP_CRON = "1";
-  process.env.OPENCLAW_TEST_MINIMAL_GATEWAY = "1";
-  process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = tempHome
-    ? path.join(tempHome, "openclaw-test-no-bundled-extensions")
-    : "openclaw-test-no-bundled-extensions";
->>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
 }
 
 async function resetGatewayTestState(options: { uniqueConfigRoot: boolean }) {
@@ -209,19 +163,9 @@ async function resetGatewayTestState(options: { uniqueConfigRoot: boolean }) {
     throw new Error("resetGatewayTestState called before temp home was initialized");
   }
   applyGatewaySkipEnv();
-<<<<<<< HEAD
   tempConfigRoot = options.uniqueConfigRoot
     ? await fs.mkdtemp(path.join(tempHome, "moltbot-test-"))
     : path.join(tempHome, ".clawdbot-test");
-=======
-  if (options.uniqueConfigRoot) {
-    tempConfigRoot = await fs.mkdtemp(path.join(tempHome, "openclaw-test-"));
-  } else {
-    tempConfigRoot = path.join(tempHome, ".openclaw-test");
-    await fs.rm(tempConfigRoot, { recursive: true, force: true });
-    await fs.mkdir(tempConfigRoot, { recursive: true });
-  }
->>>>>>> 1eccfa893 (perf(test): trim duplicate e2e suites and harden signal hooks)
   setTestConfigRoot(tempConfigRoot);
   sessionStoreSaveDelayMs.value = 0;
   testTailnetIPv4.value = undefined;
@@ -265,7 +209,6 @@ async function cleanupGatewayTestHome(options: { restoreEnv: boolean }) {
   resetLogger();
   if (options.restoreEnv) {
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (previousHome === undefined) delete process.env.HOME;
     else process.env.HOME = previousHome;
     if (previousUserProfile === undefined) delete process.env.USERPROFILE;
@@ -281,44 +224,6 @@ async function cleanupGatewayTestHome(options: { restoreEnv: boolean }) {
     else process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = previousSkipGmailWatcher;
     if (previousSkipCanvasHost === undefined) delete process.env.CLAWDBOT_SKIP_CANVAS_HOST;
     else process.env.CLAWDBOT_SKIP_CANVAS_HOST = previousSkipCanvasHost;
-=======
-    if (previousHome === undefined) {
-      delete process.env.HOME;
-    } else {
-      process.env.HOME = previousHome;
-    }
-    if (previousUserProfile === undefined) {
-      delete process.env.USERPROFILE;
-    } else {
-      process.env.USERPROFILE = previousUserProfile;
-    }
-    if (previousStateDir === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
-    } else {
-      process.env.OPENCLAW_STATE_DIR = previousStateDir;
-    }
-    if (previousConfigPath === undefined) {
-      delete process.env.OPENCLAW_CONFIG_PATH;
-    } else {
-      process.env.OPENCLAW_CONFIG_PATH = previousConfigPath;
-    }
-    if (previousSkipBrowserControl === undefined) {
-      delete process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER;
-    } else {
-      process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = previousSkipBrowserControl;
-    }
-    if (previousSkipGmailWatcher === undefined) {
-      delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
-    } else {
-      process.env.OPENCLAW_SKIP_GMAIL_WATCHER = previousSkipGmailWatcher;
-    }
-    if (previousSkipCanvasHost === undefined) {
-      delete process.env.OPENCLAW_SKIP_CANVAS_HOST;
-    } else {
-      process.env.OPENCLAW_SKIP_CANVAS_HOST = previousSkipCanvasHost;
-    }
-<<<<<<< HEAD
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
     if (previousBundledPluginsDir === undefined) {
       delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
@@ -482,15 +387,8 @@ export function onceMessage<T extends GatewayTestMessage = GatewayTestMessage>(
 }
 
 export async function startGatewayServer(port: number, opts?: GatewayServerOptions) {
-<<<<<<< HEAD
   const mod = await serverModulePromise;
   return await mod.startGatewayServer(port, opts);
-=======
-  const mod = await getServerModule();
-  const resolvedOpts =
-    opts?.controlUiEnabled === undefined ? { ...opts, controlUiEnabled: false } : opts;
-  return await mod.startGatewayServer(port, resolvedOpts);
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 }
 
 async function startGatewayServerWithRetries(params: {
@@ -536,12 +434,7 @@ export async function startServerWithClient(
 ) {
   const { wsHeaders, ...gatewayOpts } = opts ?? {};
   let port = await getFreePort();
-<<<<<<< HEAD
   const prev = process.env.CLAWDBOT_GATEWAY_TOKEN;
-=======
-  const envSnapshot = captureEnv(["OPENCLAW_GATEWAY_TOKEN"]);
-  const prev = process.env.OPENCLAW_GATEWAY_TOKEN;
->>>>>>> 31980bcaf (refactor(test): dedupe gateway env restores)
   if (typeof token === "string") {
     testState.gatewayAuth = { mode: "token", token };
   }
@@ -560,41 +453,8 @@ export async function startServerWithClient(
   port = started.port;
   const server = started.server;
 
-<<<<<<< HEAD
   const ws = new WebSocket(`ws://127.0.0.1:${port}`);
   await new Promise<void>((resolve) => ws.once("open", resolve));
-=======
-  const ws = new WebSocket(
-    `ws://127.0.0.1:${port}`,
-    wsHeaders ? { headers: wsHeaders } : undefined,
-  );
-  trackConnectChallengeNonce(ws);
-  await new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error("timeout waiting for ws open")), 10_000);
-    const cleanup = () => {
-      clearTimeout(timer);
-      ws.off("open", onOpen);
-      ws.off("error", onError);
-      ws.off("close", onClose);
-    };
-    const onOpen = () => {
-      cleanup();
-      resolve();
-    };
-    const onError = (err: unknown) => {
-      cleanup();
-      reject(err instanceof Error ? err : new Error(String(err)));
-    };
-    const onClose = (code: number, reason: Buffer) => {
-      cleanup();
-      reject(new Error(`closed ${code}: ${reason.toString()}`));
-    };
-    ws.once("open", onOpen);
-    ws.once("error", onError);
-    ws.once("close", onClose);
-  });
-<<<<<<< HEAD
->>>>>>> cfd112952 (fix(gateway): default-deny missing connect scopes)
   return { server, ws, port, prevToken: prev };
 =======
   return { server, ws, port, prevToken: prev, envSnapshot };

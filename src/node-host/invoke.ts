@@ -35,12 +35,6 @@ import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
 import { validateSystemRunCommandConsistency } from "../infra/system-run-command.js";
 import { runBrowserProxyCommand } from "./invoke-browser.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { handleSystemRunInvoke } from "./invoke-system-run.js";
-=======
-import { buildSystemRunApprovalPlan, handleSystemRunInvoke } from "./invoke-system-run.js";
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import type {
   ExecEventPayload,
   RunResult,
@@ -58,7 +52,6 @@ const execHostFallbackAllowed =
   process.env.OPENCLAW_NODE_EXEC_FALLBACK?.trim().toLowerCase() !== "0";
 const preferMacAppExecHost = process.platform === "darwin" && execHostEnforced;
 
-<<<<<<< HEAD
 const blockedEnvKeys = new Set([
   "NODE_OPTIONS",
   "PYTHONHOME",
@@ -84,8 +77,6 @@ type SystemRunParams = {
   runId?: string | null;
 };
 
-=======
->>>>>>> b25fd03b8 (refactor(node-host): share invoke type definitions)
 type SystemWhichParams = {
   bins: string[];
 };
@@ -505,8 +496,6 @@ export async function handleInvoke(
     return;
   }
 
-<<<<<<< HEAD
-=======
   if (command === "system.run.prepare") {
     try {
       const params = decodeParams<{
@@ -531,7 +520,6 @@ export async function handleInvoke(
     return;
   }
 
->>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   if (command !== "system.run") {
     await sendErrorResult(client, frame, "UNAVAILABLE", "command not supported");
     return;
@@ -689,7 +677,6 @@ export async function handleInvoke(
     } else {
       const result: ExecHostRunResult = response.payload;
       await sendExecFinishedEvent({ client, sessionKey, runId, cmdText, result });
-<<<<<<< HEAD
       await sendInvokeResult(client, frame, {
         ok: true,
         payloadJSON: JSON.stringify(result),
@@ -853,10 +840,6 @@ export async function handleInvoke(
       stderr: result.stderr,
       error: result.error ?? null,
     }),
-=======
-    },
-    preferMacAppExecHost,
->>>>>>> e4d67137d (fix(node): default mac headless system.run to local host)
   });
 }
 

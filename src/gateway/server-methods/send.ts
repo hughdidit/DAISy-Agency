@@ -2,11 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -15,31 +10,18 @@ import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import { loadConfig } from "../../config/config.js";
 import { createOutboundSendDeps } from "../../cli/deps.js";
-=======
-import { normalizeChannelId } from "../../channels/plugins/index.js";
-import { createOutboundSendDeps } from "../../cli/deps.js";
-import { loadConfig } from "../../config/config.js";
-import { resolveOutboundChannelPlugin } from "../../infra/outbound/channel-resolution.js";
-import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
->>>>>>> 4258a3307 (refactor(agents): unify subagent announce delivery pipeline)
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { normalizeReplyPayloadsForDelivery } from "../../infra/outbound/payloads.js";
 import {
   ensureOutboundSessionEntry,
   resolveOutboundSessionRoute,
 } from "../../infra/outbound/outbound-session.js";
-<<<<<<< HEAD
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-=======
-import { normalizeReplyPayloadsForDelivery } from "../../infra/outbound/payloads.js";
-import { buildOutboundSessionContext } from "../../infra/outbound/session-context.js";
->>>>>>> a1628d89e (refactor: unify outbound session context wiring)
 import { resolveOutboundTarget } from "../../infra/outbound/targets.js";
 import { normalizePollInput } from "../../polls.js";
 import {
@@ -160,7 +142,6 @@ export const sendHandlers: GatewayRequestHandlers = {
       return;
     }
     const to = request.to.trim();
-<<<<<<< HEAD
     const message = request.message.trim();
     const mediaUrls = Array.isArray(request.mediaUrls) ? request.mediaUrls : undefined;
     const channelInput = typeof request.channel === "string" ? request.channel : undefined;
@@ -186,36 +167,6 @@ export const sendHandlers: GatewayRequestHandlers = {
       return;
     }
     const channel = normalizedChannel ?? DEFAULT_CHAT_CHANNEL;
-=======
-    const message = typeof request.message === "string" ? request.message.trim() : "";
-    const mediaUrl =
-      typeof request.mediaUrl === "string" && request.mediaUrl.trim().length > 0
-        ? request.mediaUrl.trim()
-        : undefined;
-    const mediaUrls = Array.isArray(request.mediaUrls)
-      ? request.mediaUrls
-          .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
-          .filter((entry) => entry.length > 0)
-      : undefined;
-    if (!message && !mediaUrl && (mediaUrls?.length ?? 0) === 0) {
-      respond(
-        false,
-        undefined,
-        errorShape(ErrorCodes.INVALID_REQUEST, "invalid send params: text or media is required"),
-      );
-      return;
-    }
-    const resolvedChannel = await resolveRequestedChannel({
-      requestChannel: request.channel,
-      unsupportedMessage: (input) => `unsupported channel: ${input}`,
-      rejectWebchatAsInternalOnly: true,
-    });
-    if ("error" in resolvedChannel) {
-      respond(false, undefined, resolvedChannel.error);
-      return;
-    }
-    const { cfg, channel } = resolvedChannel;
->>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
     const accountId =
       typeof request.accountId === "string" && request.accountId.trim().length
         ? request.accountId.trim()
@@ -306,13 +257,7 @@ export const sendHandlers: GatewayRequestHandlers = {
           channel: outboundChannel,
           to: resolved.to,
           accountId,
-<<<<<<< HEAD
           payloads: [{ text: message, mediaUrl: request.mediaUrl, mediaUrls }],
-=======
-          payloads: [{ text: message, mediaUrl, mediaUrls }],
-<<<<<<< HEAD
-          agentId: effectiveAgentId,
->>>>>>> 2011edc9e (fix(gateway): preserve agentId through gateway send path)
 =======
           session: outboundSession,
 >>>>>>> a1628d89e (refactor: unify outbound session context wiring)
@@ -430,11 +375,7 @@ export const sendHandlers: GatewayRequestHandlers = {
       respond(false, undefined, resolvedChannel.error);
       return;
     }
-<<<<<<< HEAD
     const channel = normalizedChannel ?? DEFAULT_CHAT_CHANNEL;
-=======
-    const { cfg, channel } = resolvedChannel;
->>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
     if (typeof request.durationSeconds === "number" && channel !== "telegram") {
       respond(
         false,

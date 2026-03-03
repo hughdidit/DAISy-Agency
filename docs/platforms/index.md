@@ -47,11 +47,5 @@ Use one of these (all supported):
 - Repair/migrate: `moltbot doctor` (offers to install or fix the service)
 
 The service target depends on OS:
-<<<<<<< HEAD
 - macOS: LaunchAgent (`bot.molt.gateway` or `bot.molt.<profile>`; legacy `com.clawdbot.*`)
 - Linux/WSL2: systemd user service (`moltbot-gateway[-<profile>].service`)
-=======
-
-- macOS: LaunchAgent (`ai.openclaw.gateway` or `ai.openclaw.<profile>`; legacy `com.openclaw.*`)
-- Linux/WSL2: systemd user service (`openclaw-gateway[-<profile>].service`)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)

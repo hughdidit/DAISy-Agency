@@ -1,7 +1,6 @@
 import com.android.build.api.variant.impl.VariantOutputImpl
 
 plugins {
-<<<<<<< HEAD
   id("com.android.application")
   id("org.jetbrains.kotlin.plugin.compose")
   id("org.jetbrains.kotlin.plugin.serialization")
@@ -15,9 +14,6 @@ android {
     getByName("main") {
 <<<<<<< HEAD
       assets.srcDir(file("../../shared/MoltbotKit/Sources/MoltbotKit/Resources"))
-=======
-      assets.directories.add("../../shared/OpenClawKit/Sources/OpenClawKit/Resources")
->>>>>>> 1edd9f8bf (build(android): migrate to AGP 9 new DSL kotlin setup)
 =======
     id("com.android.application")
     id("org.jlleitschuh.gradle.ktlint")
@@ -36,7 +32,6 @@ android {
 >>>>>>> 9c2f7e2a9 (style(android): format gradle kotlin scripts)
     }
 
-<<<<<<< HEAD
   defaultConfig {
     applicationId = "bot.molt.android"
     minSdk = 31
@@ -44,14 +39,6 @@ android {
 <<<<<<< HEAD
     versionCode = 202601260
     versionName = "2026.1.27-beta.1"
-=======
-    versionCode = 202602130
-    versionName = "2026.2.13"
-    ndk {
-      // Support all major ABIs — native libs are tiny (~47 KB per ABI)
-      abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-    }
->>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541))
   }
 =======
     defaultConfig {
@@ -124,17 +111,10 @@ androidComponents {
                 val versionName = output.versionName.orNull ?: "0"
                 val buildType = variant.buildType
 
-<<<<<<< HEAD
         val outputFileName = "moltbot-${versionName}-${buildType}.apk"
         output.outputFileName = outputFileName
       }
   }
-=======
-                val outputFileName = "openclaw-$versionName-$buildType.apk"
-                output.outputFileName = outputFileName
-            }
-    }
->>>>>>> 9c2f7e2a9 (style(android): format gradle kotlin scripts)
 }
 kotlin {
     compilerOptions {
@@ -143,32 +123,16 @@ kotlin {
     }
 }
 
-<<<<<<< HEAD
 dependencies {
   val composeBom = platform("androidx.compose:compose-bom:2025.12.00")
   implementation(composeBom)
   androidTestImplementation(composeBom)
-=======
-ktlint {
-    android.set(true)
-    ignoreFailures.set(false)
-    filter {
-        exclude("**/build/**")
-    }
-}
-
-dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2026.02.00")
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
->>>>>>> 9c2f7e2a9 (style(android): format gradle kotlin scripts)
 
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
     implementation("androidx.activity:activity-compose:1.12.2")
     implementation("androidx.webkit:webkit:1.15.0")
 
-<<<<<<< HEAD
   implementation("androidx.compose.ui:ui")
   implementation("androidx.compose.ui:ui-tooling-preview")
   implementation("androidx.compose.material3:material3")
@@ -176,28 +140,14 @@ dependencies {
   // R8 will tree-shake unused icons when minify is enabled on release builds.
   implementation("androidx.compose.material:material-icons-extended")
   implementation("androidx.navigation:navigation-compose:2.9.6")
-=======
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    // material-icons-extended pulled in full icon set (~20 MB DEX). Only ~18 icons used.
-    // R8 will tree-shake unused icons when minify is enabled on release builds.
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.navigation:navigation-compose:2.9.7")
->>>>>>> 9c2f7e2a9 (style(android): format gradle kotlin scripts)
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     // Material Components (XML theme + resources)
     implementation("com.google.android.material:material:1.13.0")
 
-<<<<<<< HEAD
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-=======
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
->>>>>>> 9c2f7e2a9 (style(android): format gradle kotlin scripts)
 
     implementation("androidx.security:security-crypto:1.1.0")
     implementation("androidx.exifinterface:exifinterface:1.4.2")
@@ -220,19 +170,12 @@ dependencies {
     // Unicast DNS-SD (Wide-Area Bonjour) for tailnet discovery domains.
     implementation("dnsjava:dnsjava:3.6.4")
 
-<<<<<<< HEAD
   testImplementation("junit:junit:4.13.2")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 <<<<<<< HEAD
   testImplementation("io.kotest:kotest-runner-junit5-jvm:6.0.7")
   testImplementation("io.kotest:kotest-assertions-core-jvm:6.0.7")
   testImplementation("org.robolectric:robolectric:4.16")
-=======
-  testImplementation("io.kotest:kotest-runner-junit5-jvm:6.1.3")
-  testImplementation("io.kotest:kotest-assertions-core-jvm:6.1.3")
-  testImplementation("com.squareup.okhttp3:mockwebserver:5.3.2")
-  testImplementation("org.robolectric:robolectric:4.16.1")
->>>>>>> bee0c564c (test(android): add GatewaySession invoke roundtrip test)
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:6.0.2")
 =======
     testImplementation("junit:junit:4.13.2")

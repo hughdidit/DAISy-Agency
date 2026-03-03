@@ -1,10 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import { generateUUID } from "./uuid";
-=======
-import { generateUUID } from "./uuid.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 describe("generateUUID", () => {
   it("uses crypto.randomUUID when available", () => {

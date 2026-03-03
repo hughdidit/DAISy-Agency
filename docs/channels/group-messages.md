@@ -21,12 +21,7 @@ Note: `agents.list[].groupChat.mentionPatterns` is now used by Telegram/Discord/
 - Group system prompt: on the first turn of a group session (and whenever `/activation` changes the mode) we inject a short blurb into the system prompt like `You are replying inside the WhatsApp group "<subject>". Group members: Alice (+44...), Bob (+43...), … Activation: trigger-only … Address the specific sender noted in the message context.` If metadata isn’t available we still tell the agent it’s a group chat.
 
 ## Config example (WhatsApp)
-<<<<<<< HEAD
 Add a `groupChat` block to `~/.clawdbot/moltbot.json` so display-name pings work even when WhatsApp strips the visual `@` in the text body:
-=======
-
-Add a `groupChat` block to `~/.openclaw/openclaw.json` so display-name pings work even when WhatsApp strips the visual `@` in the text body:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```json5
 {
@@ -43,7 +38,6 @@ Add a `groupChat` block to `~/.openclaw/openclaw.json` so display-name pings wor
         id: "main",
         groupChat: {
           historyLimit: 50,
-<<<<<<< HEAD
           mentionPatterns: [
             "@?moltbot",
             "\\+?15555550123"
@@ -52,23 +46,11 @@ Add a `groupChat` block to `~/.openclaw/openclaw.json` so display-name pings wor
       }
     ]
   }
-=======
-          mentionPatterns: ["@?openclaw", "\\+?15555550123"],
-        },
-      },
-    ],
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
 Notes:
-<<<<<<< HEAD
 - The regexes are case-insensitive; they cover a display-name ping like `@moltbot` and the raw number with or without `+`/spaces.
-=======
-
-- The regexes are case-insensitive; they cover a display-name ping like `@openclaw` and the raw number with or without `+`/spaces.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - WhatsApp still sends canonical mentions via `mentionedJids` when someone taps the contact, so the number fallback is rarely needed but is a useful safety net.
 
 ### Activation command (owner-only)
@@ -81,18 +63,10 @@ Use the group chat command:
 Only the owner number (from `channels.whatsapp.allowFrom`, or the bot’s own E.164 when unset) can change this. Send `/status` as a standalone message in the group to see the current activation mode.
 
 ## How to use
-<<<<<<< HEAD
 1) Add your WhatsApp account (the one running Moltbot) to the group.
 2) Say `@moltbot …` (or include the number). Only allowlisted senders can trigger it unless you set `groupPolicy: "open"`.
 3) The agent prompt will include recent group context plus the trailing `[from: …]` marker so it can address the right person.
 4) Session-level directives (`/verbose on`, `/think high`, `/new` or `/reset`, `/compact`) apply only to that group’s session; send them as standalone messages so they register. Your personal DM session remains independent.
-=======
-
-1. Add your WhatsApp account (the one running OpenClaw) to the group.
-2. Say `@openclaw …` (or include the number). Only allowlisted senders can trigger it unless you set `groupPolicy: "open"`.
-3. The agent prompt will include recent group context plus the trailing `[from: …]` marker so it can address the right person.
-4. Session-level directives (`/verbose on`, `/think high`, `/new` or `/reset`, `/compact`) apply only to that group’s session; send them as standalone messages so they register. Your personal DM session remains independent.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Testing / verification
 

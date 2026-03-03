@@ -16,23 +16,13 @@ The macOS app surfaces Moltbot skills via the gateway; it does not parse skills 
 - Requirements are derived from `metadata.moltbot.requires` in each `SKILL.md`.
 
 ## Install actions
-<<<<<<< HEAD
 - `metadata.moltbot.install` defines install options (brew/node/go/uv).
-=======
-
-- `metadata.openclaw.install` defines install options (brew/node/go/uv).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - The app calls `skills.install` to run installers on the gateway host.
 - The gateway surfaces only one preferred installer when multiple are provided
   (brew when available, otherwise node manager from `skills.install`, default npm).
 
 ## Env/API keys
-<<<<<<< HEAD
 - The app stores keys in `~/.clawdbot/moltbot.json` under `skills.entries.<skillKey>`.
-=======
-
-- The app stores keys in `~/.openclaw/openclaw.json` under `skills.entries.<skillKey>`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `skills.update` patches `enabled`, `apiKey`, and `env`.
 
 ## Remote mode

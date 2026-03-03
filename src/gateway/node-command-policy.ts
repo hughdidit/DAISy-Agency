@@ -1,14 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import {
-  NODE_BROWSER_PROXY_COMMAND,
-  NODE_SYSTEM_NOTIFY_COMMAND,
-  NODE_SYSTEM_RUN_COMMANDS,
-} from "../infra/node-commands.js";
-<<<<<<< HEAD
->>>>>>> d06632ba4 (refactor(gateway): share node command catalog)
 =======
 import { normalizeDeviceMetadataForPolicy } from "./device-metadata-normalization.js";
 >>>>>>> 9005e8bc0 (refactor(gateway): unify metadata canonicalization + platform rules)
@@ -55,16 +45,7 @@ const SMS_DANGEROUS_COMMANDS = ["sms.send"];
 // iOS nodes don't implement system.run/which, but they do support notifications.
 const IOS_SYSTEM_COMMANDS = [NODE_SYSTEM_NOTIFY_COMMAND];
 
-<<<<<<< HEAD
 const SYSTEM_COMMANDS = ["system.run", "system.which", "system.notify", "browser.proxy"];
-=======
-const SYSTEM_COMMANDS = [
-  ...NODE_SYSTEM_RUN_COMMANDS,
-  NODE_SYSTEM_NOTIFY_COMMAND,
-  NODE_BROWSER_PROXY_COMMAND,
-];
-<<<<<<< HEAD
->>>>>>> d06632ba4 (refactor(gateway): share node command catalog)
 =======
 const UNKNOWN_PLATFORM_COMMANDS = [
   ...CANVAS_COMMANDS,

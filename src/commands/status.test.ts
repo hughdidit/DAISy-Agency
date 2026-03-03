@@ -5,7 +5,6 @@ import { captureEnv } from "../test-utils/env.js";
 let envSnapshot: ReturnType<typeof captureEnv>;
 
 beforeAll(() => {
-<<<<<<< HEAD
   previousProfile = process.env.CLAWDBOT_PROFILE;
   process.env.CLAWDBOT_PROFILE = "isolated";
 });
@@ -16,14 +15,6 @@ afterAll(() => {
   } else {
     process.env.CLAWDBOT_PROFILE = previousProfile;
   }
-=======
-  envSnapshot = captureEnv(["OPENCLAW_PROFILE"]);
-  process.env.OPENCLAW_PROFILE = "isolated";
-});
-
-afterAll(() => {
-  envSnapshot.restore();
->>>>>>> e075a33ca (refactor(test): simplify oauth/profile env restore)
 });
 
 function createDefaultSessionStoreEntry() {
@@ -240,23 +231,11 @@ vi.mock("../gateway/call.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../gateway/call.js")>();
   return { ...actual, callGateway: mocks.callGateway };
 });
-<<<<<<< HEAD
 vi.mock("../gateway/session-utils.js", () => ({
   listAgentsForGateway: mocks.listAgentsForGateway,
 }));
 vi.mock("../infra/moltbot-root.js", () => ({
   resolveMoltbotPackageRoot: vi.fn().mockResolvedValue("/tmp/moltbot"),
-=======
-vi.mock("../gateway/session-utils.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../gateway/session-utils.js")>();
-  return {
-    ...actual,
-    listAgentsForGateway: mocks.listAgentsForGateway,
-  };
-});
-vi.mock("../infra/openclaw-root.js", () => ({
-  resolveOpenClawPackageRoot: vi.fn().mockResolvedValue("/tmp/openclaw"),
->>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
 }));
 vi.mock("../infra/os-summary.js", () => ({
   resolveOsSummary: () => ({
@@ -352,12 +331,9 @@ describe("statusCommand", () => {
     expect(payload.sessions.defaults.model).toBeTruthy();
     expect(payload.sessions.defaults.contextTokens).toBeGreaterThan(0);
     expect(payload.sessions.recent[0].percentUsed).toBe(50);
-<<<<<<< HEAD
-=======
     expect(payload.sessions.recent[0].cacheRead).toBe(2_000);
     expect(payload.sessions.recent[0].cacheWrite).toBe(1_000);
     expect(payload.sessions.recent[0].totalTokensFresh).toBe(true);
->>>>>>> f1e1cc4ee (feat: surface cached token counts in /status output (openclaw#21248) thanks @vishaltandale00)
     expect(payload.sessions.recent[0].remainingTokens).toBe(5000);
     expect(payload.sessions.recent[0].flags).toContain("verbose:on");
     expect(payload.securityAudit.summary.critical).toBe(1);
@@ -366,8 +342,6 @@ describe("statusCommand", () => {
     expect(payload.nodeService.label).toBe("LaunchAgent");
   });
 
-<<<<<<< HEAD
-=======
   it("surfaces unknown usage when totalTokens is missing", async () => {
     await withUnknownUsageStore(async () => {
       runtimeLogMock.mockClear();
@@ -389,11 +363,9 @@ describe("statusCommand", () => {
     });
   });
 
->>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
   it("prints formatted lines otherwise", async () => {
     runtimeLogMock.mockClear();
     await statusCommand({}, runtime as never);
-<<<<<<< HEAD
     const logs = (runtime.log as vi.Mock).mock.calls.map((c) => String(c[0]));
     expect(logs.some((l) => l.includes("Moltbot status"))).toBe(true);
     expect(logs.some((l) => l.includes("Overview"))).toBe(true);
@@ -419,35 +391,6 @@ describe("statusCommand", () => {
           l.includes("moltbot --profile isolated status --all") ||
           l.includes("moltbot status --all") ||
           l.includes("moltbot --profile isolated status --all"),
-=======
-    const logs = runtimeLogMock.mock.calls.map((c: unknown[]) => String(c[0]));
-    expect(logs.some((l: string) => l.includes("OpenClaw status"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("Overview"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("Security audit"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("Summary:"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("CRITICAL"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("Dashboard"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("macos 14.0 (arm64)"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("Memory"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("Channels"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("WhatsApp"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("bootstrap files"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("Sessions"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("+1000"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("50%"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("40% cached"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("LaunchAgent"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("FAQ:"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("Troubleshooting:"))).toBe(true);
-    expect(logs.some((l: string) => l.includes("Next steps:"))).toBe(true);
-    expect(
-      logs.some(
-        (l: string) =>
-          l.includes("openclaw status --all") ||
-          l.includes("openclaw --profile isolated status --all") ||
-          l.includes("openclaw status --all") ||
-          l.includes("openclaw --profile isolated status --all"),
->>>>>>> 003d6c45d (chore: Fix types in tests 6/N.)
       ),
     ).toBe(true);
   });
@@ -472,16 +415,8 @@ describe("statusCommand", () => {
       const logs = runtimeLogMock.mock.calls.map((c: unknown[]) => String(c[0]));
       expect(logs.some((l: string) => l.includes("auth token"))).toBe(true);
     } finally {
-<<<<<<< HEAD
       if (prevToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
       else process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
-=======
-      if (prevToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
-      }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 
@@ -605,7 +540,6 @@ describe("statusCommand", () => {
         };
       }
       return {
-<<<<<<< HEAD
         "+1000": {
           updatedAt: Date.now() - 60_000,
           verboseLevel: "on",
@@ -617,9 +551,6 @@ describe("statusCommand", () => {
           sessionId: "abc123",
           systemSent: true,
         },
-=======
-        "+1000": createDefaultSessionStoreEntry(),
->>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
       };
     });
 

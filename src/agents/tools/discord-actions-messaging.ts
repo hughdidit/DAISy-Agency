@@ -28,11 +28,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { DiscordSendComponents, DiscordSendEmbeds } from "../../discord/send.shared.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -310,29 +305,9 @@ export async function handleDiscordMessagingAction(
       }
 
       // Handle voice message sending
-<<<<<<< HEAD
       if (asVoice && mediaUrl) {
         // Voice messages require a local file path or downloadable URL
         // They cannot include text content (Discord limitation)
-=======
-      if (asVoice) {
-        if (!mediaUrl) {
-          throw new Error(
-            "Voice messages require a media file reference (mediaUrl, path, or filePath).",
-          );
-        }
-        if (content && content.trim()) {
-          throw new Error(
-            "Voice messages cannot include text content (Discord limitation). Remove the content parameter.",
-          );
-        }
-<<<<<<< HEAD
-        if (mediaUrl.startsWith("http://") || mediaUrl.startsWith("https://")) {
-          throw new Error(
-            "Voice messages require a local file path, not a URL. Download the file first.",
-          );
-        }
->>>>>>> 1c9c01ff4 (Discord: refine voice message handling)
 =======
         assertMediaNotDataUrl(mediaUrl);
 >>>>>>> 725741486 (fix(discord): harden voice message media loading)

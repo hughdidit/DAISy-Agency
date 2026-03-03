@@ -1,12 +1,7 @@
-<<<<<<< HEAD
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-=======
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import { resolveSessionAgentId } from "../../agents/agent-scope.js";
->>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 import {
   readNumberParam,
   readStringArrayParam,
@@ -22,9 +17,6 @@ import { dispatchChannelMessageAction } from "../../channels/plugins/message-act
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -39,21 +31,12 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import { extensionForMime } from "../../media/mime.js";
-import { parseSlackTarget } from "../../slack/targets.js";
-// parseTelegramTarget no longer used (telegram auto-threading uses string matching)
->>>>>>> 6ac5dd2c0 (test: cover telegram topic threadId auto-injection and subagent origin threading)
 =======
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -77,11 +60,6 @@ import {
   type GatewayClientName,
 } from "../../utils/message-channel.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { loadWebMedia } from "../../web/media.js";
-=======
->>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 import { throwIfAborted } from "./abort.js";
 >>>>>>> 79c246666 (refactor: consolidate throwIfAborted + fix isCompactionFailureError (#12463))
 import {
@@ -95,14 +73,9 @@ import { applyTargetToParams } from "./channel-target.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
-=======
-=======
-import type { OutboundSendDeps } from "./deliver.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -134,11 +107,7 @@ import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
-=======
-import type { MessagePollResult, MessageSendResult } from "./message.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -162,13 +131,9 @@ import {
 import { executePollAction, executeSendAction } from "./outbound-send-service.js";
 import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
 import { resolveChannelTarget, type ResolvedMessagingTarget } from "./target-resolver.js";
-<<<<<<< HEAD
 import { loadWebMedia } from "../../web/media.js";
 import { extensionForMime } from "../../media/mime.js";
 import { parseSlackTarget } from "../../slack/targets.js";
-=======
-import { extractToolPayload } from "./tool-payload.js";
->>>>>>> 6ec1f10df (refactor(outbound): share tool payload extraction)
 
 export type MessageActionRunnerGateway = {
   url?: string;
@@ -330,7 +295,6 @@ async function maybeApplyCrossContextMarker(params: {
   });
 }
 
-<<<<<<< HEAD
 function readBooleanParam(params: Record<string, unknown>, key: string): boolean | undefined {
   const raw = params[key];
   if (typeof raw === "boolean") {
@@ -374,33 +338,6 @@ function resolveSlackAutoThreadId(params: {
 }
 
 <<<<<<< HEAD
-=======
-/**
- * Auto-inject Telegram forum topic thread ID when the message tool targets
- * the same chat the session originated from.  Mirrors the Slack auto-threading
- * pattern so media, buttons, and other tool-sent messages land in the correct
- * topic instead of the General Topic.
- */
-function resolveTelegramAutoThreadId(params: {
-  to: string;
-  toolContext?: ChannelThreadingToolContext;
-}): string | undefined {
-  const context = params.toolContext;
-  if (!context?.currentThreadTs || !context.currentChannelId) {
-    return undefined;
-  }
-  // Only apply when the target matches the originating chat.
-  // Note: Telegram topic routing is carried via threadId/message_thread_id;
-  // `currentChannelId` (and most agent targets) are typically the base chat id.
-  const normalizedTo = params.to.trim().toLowerCase();
-  const normalizedChannel = context.currentChannelId.trim().toLowerCase();
-  if (normalizedTo !== normalizedChannel) {
-    return undefined;
-  }
-  return context.currentThreadTs;
-}
-
->>>>>>> 6ac5dd2c0 (test: cover telegram topic threadId auto-injection and subagent origin threading)
 function resolveAttachmentMaxBytes(params: {
   cfg: MoltbotConfig;
   channel: ChannelId;
@@ -830,11 +767,8 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
     readStringParam(params, "path", { trim: false }) ??
     readStringParam(params, "filePath", { trim: false });
   const hasCard = params.card != null && typeof params.card === "object";
-<<<<<<< HEAD
-=======
   const hasComponents = params.components != null && typeof params.components === "object";
   const caption = readStringParam(params, "caption", { allowEmpty: true }) ?? "";
->>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
   let message =
     readStringParam(params, "message", {
       required: !mediaHint && !hasCard && !hasComponents,
@@ -883,8 +817,6 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
   });
 
   const mediaUrl = readStringParam(params, "media", { trim: false });
-<<<<<<< HEAD
-=======
   if (channel === "whatsapp") {
     message = message.replace(/^(?:[ \t]*\r?\n)+/, "");
     if (!message.trim()) {
@@ -895,27 +827,17 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
     throw new Error("send requires text or media");
   }
   params.message = message;
->>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
   const gifPlayback = readBooleanParam(params, "gifPlayback") ?? false;
   const bestEffort = readBooleanParam(params, "bestEffort");
   const silent = readBooleanParam(params, "silent");
 
   const replyToId = readStringParam(params, "replyTo");
-<<<<<<< HEAD
   const threadId = readStringParam(params, "threadId");
   // Slack auto-threading can inject threadTs without explicit params; mirror to that session key.
   const slackAutoThreadId =
     channel === "slack" && !replyToId && !threadId
       ? resolveSlackAutoThreadId({ to, toolContext: input.toolContext })
       : undefined;
-=======
-  const resolvedThreadId = resolveAndApplyOutboundThreadId(params, {
-    channel,
-    to,
-    toolContext: input.toolContext,
-    allowSlackAutoThread: channel === "slack" && !replyToId,
-  });
->>>>>>> 4b9cb46c6 (refactor(outbound): dedupe poll threading + tighten duration semantics)
   const outboundRoute =
     agentId && !dryRun
       ? await resolveOutboundSessionRoute({
@@ -1195,8 +1117,6 @@ export async function runMessageAction(
     params.accountId = accountId;
   }
   const dryRun = Boolean(input.dryRun ?? readBooleanParam(params, "dryRun"));
-<<<<<<< HEAD
-=======
   const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, resolvedAgentId);
   const mediaPolicy = resolveAttachmentMediaPolicy({
     sandboxRoot: input.sandboxRoot,
@@ -1208,7 +1128,6 @@ export async function runMessageAction(
 <<<<<<< HEAD
     sandboxRoot: mediaPolicy.mode === "sandbox" ? mediaPolicy.sandboxRoot : undefined,
   });
->>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
 
   await hydrateSendAttachmentParams({
     cfg,
@@ -1217,10 +1136,7 @@ export async function runMessageAction(
     args: params,
     action,
     dryRun,
-<<<<<<< HEAD
 =======
-=======
->>>>>>> 316fad13a (refactor(outbound): unify attachment hydration flow)
     mediaPolicy,
 >>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
   });
@@ -1232,10 +1148,7 @@ export async function runMessageAction(
     args: params,
     action,
     dryRun,
-<<<<<<< HEAD
-=======
     mediaPolicy,
->>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
   });
 
   const resolvedTarget = await resolveActionTarget({

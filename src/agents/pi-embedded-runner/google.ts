@@ -4,7 +4,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { EventEmitter } from "node:events";
 <<<<<<< HEAD
 
@@ -12,11 +11,6 @@ import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
 import type { TSchema } from "@sinclair/typebox";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 
-=======
-import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
-import type { SessionManager } from "@mariozechner/pi-coding-agent";
-import type { TSchema } from "@sinclair/typebox";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
@@ -69,35 +63,16 @@ import {
 } from "../../sessions/input-provenance.js";
 import { resolveImageSanitizationLimits } from "../image-sanitization.js";
 import {
-<<<<<<< HEAD
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
-=======
-  downgradeOpenAIFunctionCallReasoningPairs,
->>>>>>> 92199ac12 (fix(agents): unblock gpt-5.3-codex API-key routing and replay (#31083))
   downgradeOpenAIReasoningBlocks,
   isCompactionFailureError,
   isGoogleModelApi,
   sanitizeGoogleTurnOrdering,
   sanitizeSessionMessagesImages,
 } from "../pi-embedded-helpers.js";
-<<<<<<< HEAD
 import { sanitizeToolUseResultPairing } from "../session-transcript-repair.js";
-=======
-import { cleanToolSchemaForGemini } from "../pi-tools.schema.js";
-import {
-  sanitizeToolCallInputs,
-  stripToolResultDetails,
-  sanitizeToolUseResultPairing,
-} from "../session-transcript-repair.js";
-import type { TranscriptPolicy } from "../transcript-policy.js";
-import { resolveTranscriptPolicy } from "../transcript-policy.js";
->>>>>>> 0da6de662 (Agent: repair malformed tool calls and session files)
 import { log } from "./logger.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { dropThinkingBlocks, isAssistantMessageWithContent } from "./thinking.js";
->>>>>>> 2081b3a3c (refactor(channels): dedupe hook and monitor execution paths)
 =======
 import { dropThinkingBlocks } from "./thinking.js";
 >>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
@@ -129,7 +104,6 @@ const GOOGLE_SCHEMA_UNSUPPORTED_KEYWORDS = new Set([
   "minProperties",
   "maxProperties",
 ]);
-<<<<<<< HEAD
 const ANTIGRAVITY_SIGNATURE_RE = /^[A-Za-z0-9+/]+={0,2}$/;
 
 function isValidAntigravitySignature(value: unknown): value is string {
@@ -203,12 +177,6 @@ export function sanitizeAntigravityThinkingBlocks(messages: AgentMessage[]): Age
 }
 
 <<<<<<< HEAD
-=======
-=======
-
-const INTER_SESSION_PREFIX_BASE = "[Inter-session message]";
-
->>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
 function buildInterSessionPrefix(message: AgentMessage): string {
   const provenance = normalizeInputProvenance((message as { provenance?: unknown }).provenance);
   if (!provenance) {
@@ -391,17 +359,10 @@ export function sanitizeToolsForGoogle<
   tools: AgentTool<TSchemaType, TResult>[];
   provider: string;
 }): AgentTool<TSchemaType, TResult>[] {
-<<<<<<< HEAD
   // google-antigravity serves Anthropic models (e.g. claude-opus-4-6-thinking),
   // NOT Gemini. Applying Gemini schema cleaning strips JSON Schema keywords
   // (minimum, maximum, format, etc.) that Anthropic's API requires for
   // draft 2020-12 compliance. Only clean for actual Gemini providers.
-=======
-  // Cloud Code Assist uses the OpenAPI 3.03 `parameters` field for both Gemini
-  // AND Claude models.  This field does not support JSON Schema keywords such as
-  // patternProperties, additionalProperties, $ref, etc.  We must clean schemas
-  // for every provider that routes through this path.
->>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
   if (params.provider !== "google-gemini-cli") {
     return params.tools;
   }
@@ -583,7 +544,6 @@ export async function sanitizeSessionHistory(params: {
       provider: params.provider,
       modelId: params.modelId,
     });
-<<<<<<< HEAD
   const sanitizedImages = await sanitizeSessionMessagesImages(params.messages, "session:history", {
     sanitizeMode: policy.sanitizeMode,
     sanitizeToolCallIds: policy.sanitizeToolCallIds,
@@ -591,47 +551,20 @@ export async function sanitizeSessionHistory(params: {
     preserveSignatures: policy.preserveSignatures,
     sanitizeThoughtSignatures: policy.sanitizeThoughtSignatures,
   });
-=======
-  const withInterSessionMarkers = annotateInterSessionUserMessages(params.messages);
-  const sanitizedImages = await sanitizeSessionMessagesImages(
-    withInterSessionMarkers,
-    "session:history",
-    {
-      sanitizeMode: policy.sanitizeMode,
-      sanitizeToolCallIds: policy.sanitizeToolCallIds,
-      toolCallIdMode: policy.toolCallIdMode,
-      preserveSignatures: policy.preserveSignatures,
-      sanitizeThoughtSignatures: policy.sanitizeThoughtSignatures,
-      ...resolveImageSanitizationLimits(params.config),
-    },
-  );
->>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
   const sanitizedThinking = policy.normalizeAntigravityThinkingBlocks
     ? sanitizeAntigravityThinkingBlocks(sanitizedImages)
     : sanitizedImages;
 <<<<<<< HEAD
-<<<<<<< HEAD
   const sanitizedToolCalls = sanitizeToolCallInputs(sanitizedThinking);
-=======
-  const sanitizedThinking = policy.sanitizeThinkingSignatures
-    ? sanitizeAntigravityThinkingBlocks(droppedThinking)
-    : droppedThinking;
-  const sanitizedToolCalls = sanitizeToolCallInputs(sanitizedThinking, {
-=======
-  const sanitizedToolCalls = sanitizeToolCallInputs(droppedThinking, {
->>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
     allowedToolNames: params.allowedToolNames,
   });
 >>>>>>> cdfe45eeb (Agents: validate persisted tool-call names)
   const repairedTools = policy.repairToolUseResultPairing
     ? sanitizeToolUseResultPairing(sanitizedToolCalls)
     : sanitizedToolCalls;
-<<<<<<< HEAD
-=======
   const sanitizedToolResults = stripToolResultDetails(repairedTools);
   const sanitizedCompactionUsage =
     stripStaleAssistantUsageBeforeLatestCompaction(sanitizedToolResults);
->>>>>>> 6bf5e76be (Agents: drop stale pre-compaction usage snapshots)
 
   const isOpenAIResponsesApi =
     params.modelApi === "openai-responses" || params.modelApi === "openai-codex-responses";
@@ -645,18 +578,10 @@ export async function sanitizeSessionHistory(params: {
         modelId: params.modelId,
       })
     : false;
-<<<<<<< HEAD
   const sanitizedOpenAI =
     isOpenAIResponsesApi && modelChanged
       ? downgradeOpenAIReasoningBlocks(repairedTools)
       : repairedTools;
-=======
-  const sanitizedOpenAI = isOpenAIResponsesApi
-    ? downgradeOpenAIFunctionCallReasoningPairs(
-        downgradeOpenAIReasoningBlocks(sanitizedCompactionUsage),
-      )
-    : sanitizedCompactionUsage;
->>>>>>> 6bf5e76be (Agents: drop stale pre-compaction usage snapshots)
 
   if (hasSnapshot && (!priorSnapshot || modelChanged)) {
     appendModelSnapshot(params.sessionManager, {

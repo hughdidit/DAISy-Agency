@@ -2,12 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { formatCliCommand } from "../cli/command-format.js";
-import { collectConfigEnvVars } from "../config/env-vars.js";
-import type { OpenClawConfig } from "../config/types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { OpenClawConfig } from "../config/types.js";
 import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
@@ -39,12 +33,9 @@ import { buildServiceEnvironment } from "../daemon/service-env.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import { collectConfigEnvVars } from "../config/env-vars.js";
 import type { MoltbotConfig } from "../config/types.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import {
   emitNodeRuntimeWarning,

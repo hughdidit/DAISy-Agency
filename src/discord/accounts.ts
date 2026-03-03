@@ -5,12 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { DiscordAccountConfig } from "../config/types.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
@@ -57,7 +52,6 @@ export type ResolvedDiscordAccount = {
   config: DiscordAccountConfig;
 };
 
-<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = cfg.channels?.discord?.accounts;
   if (!accounts || typeof accounts !== "object") {
@@ -81,11 +75,6 @@ export function resolveDefaultDiscordAccountId(cfg: MoltbotConfig): string {
   }
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
-=======
-const { listAccountIds, resolveDefaultAccountId } = createAccountListHelpers("discord");
-export const listDiscordAccountIds = listAccountIds;
-export const resolveDefaultDiscordAccountId = resolveDefaultAccountId;
->>>>>>> 59384001a (channels: migrate core channel account listing to factory)
 
 function resolveAccountConfig(
   cfg: MoltbotConfig,

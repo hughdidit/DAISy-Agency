@@ -5,10 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DisconnectReason } from "@whiskeysockets/baileys";
 =======
 >>>>>>> ed11e93cf (chore(format))

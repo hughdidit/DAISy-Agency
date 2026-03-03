@@ -1,9 +1,6 @@
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
-<<<<<<< HEAD
 import { normalizeChannelId } from "../channels/plugins/index.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { NativeCommandsSetting } from "./types.js";
 
 function resolveAutoDefault(providerId?: ChannelId): boolean {

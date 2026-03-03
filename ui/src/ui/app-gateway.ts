@@ -4,7 +4,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { loadChatHistory } from "./controllers/chat";
 import { loadDevices } from "./controllers/devices";
 import { loadNodes } from "./controllers/nodes";
@@ -19,16 +18,6 @@ import { handleAgentEvent, resetToolStream, type AgentEventPayload } from "./app
 import { CHAT_SESSIONS_ACTIVE_MINUTES, flushChatQueueForEvent } from "./app-chat";
 import { applySettings, loadCron, refreshActiveTab, setLastActiveSessionKey } from "./app-settings";
 import { handleChatEvent, type ChatEventPayload } from "./controllers/chat";
-=======
-import type { EventLogEntry } from "./app-events.ts";
-import type { OpenClawApp } from "./app.ts";
-import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
-import type { GatewayEventFrame, GatewayHelloOk } from "./gateway.ts";
-import type { Tab } from "./navigation.ts";
-import type { UiSettings } from "./storage.ts";
-import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } from "./types.ts";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { CHAT_SESSIONS_ACTIVE_MINUTES, flushChatQueueForEvent } from "./app-chat.ts";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -69,12 +58,7 @@ import {
 } from "./app-settings.ts";
 import { handleAgentEvent, resetToolStream, type AgentEventPayload } from "./app-tool-stream.ts";
 import type { OpenClawApp } from "./app.ts";
-<<<<<<< HEAD
 import { loadAgents } from "./controllers/agents.ts";
-=======
-import { shouldReloadHistoryForFinalEvent } from "./chat-event-reload.ts";
-import { loadAgents, loadToolsCatalog } from "./controllers/agents.ts";
->>>>>>> 9e1a13bf4 (Gateway/UI: data-driven agents tools catalog with provenance (openclaw#24199) thanks @Takhoffman)
 import { loadAssistantIdentity } from "./controllers/assistant-identity.ts";
 import { loadChatHistory } from "./controllers/chat.ts";
 import { handleChatEvent, type ChatEventPayload } from "./controllers/chat.ts";
@@ -83,11 +67,7 @@ import { loadDevices } from "./controllers/devices.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
-import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -103,32 +83,16 @@ import {
   parseExecApprovalRequested,
   parseExecApprovalResolved,
   removeExecApproval,
-<<<<<<< HEAD
 } from "./controllers/exec-approval";
 import type { MoltbotApp } from "./app";
 import type { ExecApprovalRequest } from "./controllers/exec-approval";
 import { loadAssistantIdentity } from "./controllers/assistant-identity";
 import { loadSessions } from "./controllers/sessions";
 =======
-} from "./controllers/exec-approval.ts";
-import { loadNodes } from "./controllers/nodes.ts";
-import { loadSessions } from "./controllers/sessions.ts";
-import type { GatewayEventFrame, GatewayHelloOk } from "./gateway.ts";
-import { GatewayBrowserClient } from "./gateway.ts";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
 import type { Tab } from "./navigation.ts";
 import type { UiSettings } from "./storage.ts";
-<<<<<<< HEAD
 import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } from "./types.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { Tab } from "./navigation.ts";
 import type { UiSettings } from "./storage.ts";
@@ -270,18 +234,10 @@ export function connectGateway(host: GatewayHost) {
       (host as unknown as { chatStream: string | null }).chatStream = null;
       (host as unknown as { chatStreamStartedAt: number | null }).chatStreamStartedAt = null;
       resetToolStream(host as unknown as Parameters<typeof resetToolStream>[0]);
-<<<<<<< HEAD
       void loadAssistantIdentity(host as unknown as MoltbotApp);
       void loadAgents(host as unknown as MoltbotApp);
       void loadNodes(host as unknown as MoltbotApp, { quiet: true });
       void loadDevices(host as unknown as MoltbotApp, { quiet: true });
-=======
-      void loadAssistantIdentity(host as unknown as OpenClawApp);
-      void loadAgents(host as unknown as OpenClawApp);
-      void loadToolsCatalog(host as unknown as OpenClawApp);
-      void loadNodes(host as unknown as OpenClawApp, { quiet: true });
-      void loadDevices(host as unknown as OpenClawApp, { quiet: true });
->>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
       void refreshActiveTab(host as unknown as Parameters<typeof refreshActiveTab>[0]);
     },
     onClose: ({ code, reason }) => {
@@ -382,7 +338,6 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
   }
 
   if (evt.event === "chat") {
-<<<<<<< HEAD
     const payload = evt.payload as ChatEventPayload | undefined;
     if (payload?.sessionKey) {
       setLastActiveSessionKey(
@@ -399,29 +354,13 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
       );
       if (host.refreshSessionsAfterChat) {
         host.refreshSessionsAfterChat = false;
-=======
-      void flushChatQueueForEvent(host as unknown as Parameters<typeof flushChatQueueForEvent>[0]);
-      const runId = payload?.runId;
-      if (runId && host.refreshSessionsAfterChat.has(runId)) {
-        host.refreshSessionsAfterChat.delete(runId);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         if (state === "final") {
-<<<<<<< HEAD
           void loadSessions(host as unknown as MoltbotApp, { activeMinutes: 0 });
-=======
-          void loadSessions(host as unknown as OpenClawApp, {
-            activeMinutes: CHAT_SESSIONS_ACTIVE_MINUTES,
-          });
->>>>>>> 57c34a324 (UI: introduce active minutes constant for chat sessions and enhance session display names)
         }
       }
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (state === "final") void loadChatHistory(host as unknown as MoltbotApp);
-=======
-    if (state === "final") {void loadChatHistory(host as unknown as OpenClawApp);}
->>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
 =======
     if (state === "final") {
       void loadChatHistory(host as unknown as OpenClawApp);

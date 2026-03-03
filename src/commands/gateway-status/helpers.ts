@@ -1,13 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { resolveGatewayPort } from "../../config/config.js";
 <<<<<<< HEAD
 import type { MoltbotConfig, ConfigFileSnapshot } from "../../config/types.js";
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { resolveGatewayPort } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

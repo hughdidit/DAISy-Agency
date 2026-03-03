@@ -12,12 +12,7 @@ import { findExtraGatewayServices } from "../../daemon/inspect.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { findLegacyGatewayServices } from "../../daemon/legacy.js";
-=======
-import type { ServiceConfigAudit } from "../../daemon/service-audit.js";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { ServiceConfigAudit } from "../../daemon/service-audit.js";
 >>>>>>> d0cb8c19b (chore: wtf.)

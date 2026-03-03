@@ -19,11 +19,8 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 <<<<<<< HEAD
-<<<<<<< HEAD
 	<key>CFBundleShortVersionString</key>
 	<string>2026.1.27-beta.1</string>
-=======
->>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
 =======
 	<key>CFBundleShortVersionString</key>
 	<string>2026.2.18</string>
@@ -59,22 +56,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Moltbot uses your location when you allow location sharing.</string>
 	<key>NSMicrophoneUsageDescription</key>
-<<<<<<< HEAD
 	<string>Moltbot needs microphone access for voice wake.</string>
-=======
-	<string>OpenClaw needs microphone access for voice wake.</string>
-<<<<<<< HEAD
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>OpenClaw can read recent photos when requested via the gateway.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>OpenClaw can access your contacts when requested via the gateway.</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>OpenClaw can read and add calendar events when requested via the gateway.</string>
-	<key>NSRemindersUsageDescription</key>
-	<string>OpenClaw can read and add reminders when requested via the gateway.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>OpenClaw can read motion activity and pedometer data when requested via the gateway.</string>
->>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
 =======
 >>>>>>> ff6114599 (iOS: update onboarding and gateway UI)
 	<key>NSSpeechRecognitionUsageDescription</key>

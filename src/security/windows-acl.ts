@@ -38,8 +38,6 @@ const TRUSTED_BASE = new Set([
 const WORLD_SUFFIXES = ["\\users", "\\authenticated users"];
 const TRUSTED_SUFFIXES = ["\\administrators", "\\system"];
 
-<<<<<<< HEAD
-=======
 const SID_RE = /^s-\d+-\d+(-\d+)+$/i;
 const TRUSTED_SIDS = new Set([
   "s-1-5-18",
@@ -53,7 +51,6 @@ const STATUS_PREFIXES = [
   "no mapping between account names",
 ];
 
->>>>>>> bd4f67054 (refactor: simplify windows ACL parsing and expand coverage)
 const normalize = (value: string) => value.trim().toLowerCase();
 
 export function resolveWindowsUserPrincipal(env?: NodeJS.ProcessEnv): string | null {
@@ -76,13 +73,10 @@ function buildTrustedPrincipals(env?: NodeJS.ProcessEnv): Set<string> {
       trusted.add(normalize(userOnly));
     }
   }
-<<<<<<< HEAD
-=======
   const userSid = normalize(env?.USERSID ?? "");
   if (userSid && SID_RE.test(userSid)) {
     trusted.add(userSid);
   }
->>>>>>> bd4f67054 (refactor: simplify windows ACL parsing and expand coverage)
   return trusted;
 }
 
@@ -91,20 +85,8 @@ function classifyPrincipal(
   trustedPrincipals: Set<string>,
 ): "trusted" | "world" | "group" {
   const normalized = normalize(principal);
-<<<<<<< HEAD
   const trusted = buildTrustedPrincipals(env);
   if (trusted.has(normalized) || TRUSTED_SUFFIXES.some((s) => normalized.endsWith(s))) {
-=======
-
-  if (SID_RE.test(normalized)) {
-    return TRUSTED_SIDS.has(normalized) || trustedPrincipals.has(normalized) ? "trusted" : "group";
-  }
-
-  if (
-    trustedPrincipals.has(normalized) ||
-    TRUSTED_SUFFIXES.some((suffix) => normalized.endsWith(suffix))
-  ) {
->>>>>>> bd4f67054 (refactor: simplify windows ACL parsing and expand coverage)
     return "trusted";
   }
   if (
@@ -206,7 +188,6 @@ export function parseIcaclsOutput(output: string, targetPath: string): WindowsAc
     if (!parsed) {
       continue;
     }
-<<<<<<< HEAD
 
     const idx = entry.indexOf(":");
     if (idx === -1) {
@@ -229,9 +210,6 @@ export function parseIcaclsOutput(output: string, targetPath: string): WindowsAc
     }
     const { canRead, canWrite } = rightsFromTokens(rights);
     entries.push({ principal, rights, rawRights, canRead, canWrite });
-=======
-    entries.push(parsed);
->>>>>>> bd4f67054 (refactor: simplify windows ACL parsing and expand coverage)
   }
 
   return entries;

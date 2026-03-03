@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { loadWebMedia, resolveChannelMediaMaxBytes } from "clawdbot/plugin-sdk";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { loadOutboundMediaFromUrl } from "openclaw/plugin-sdk";
->>>>>>> c0bf42f2a (refactor: centralize delivery/path/media/version lifecycle)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import {
   classifyMSTeamsSendError,

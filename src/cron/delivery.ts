@@ -45,21 +45,11 @@ export function resolveCronDeliveryPlan(job: CronJob): CronDeliveryPlan {
   const mode =
     rawMode === "announce"
       ? "announce"
-<<<<<<< HEAD
       : rawMode === "none"
         ? "none"
         : rawMode === "deliver"
           ? "announce"
           : undefined;
-=======
-      : normalizedMode === "webhook"
-        ? "webhook"
-        : normalizedMode === "none"
-          ? "none"
-          : normalizedMode === "deliver"
-            ? "announce"
-            : undefined;
->>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 
   const payloadChannel = normalizeChannel(payload?.channel);
   const payloadTo = normalizeTo(payload?.to);

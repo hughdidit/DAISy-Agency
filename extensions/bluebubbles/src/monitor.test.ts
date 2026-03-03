@@ -2,11 +2,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { EventEmitter } from "node:events";
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { EventEmitter } from "node:events";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -177,32 +172,8 @@ function createMockRuntime(): PluginRuntime {
           vi.fn() as unknown as PluginRuntime["channel"]["reply"]["resolveHumanDelayConfig"],
         dispatchReplyFromConfig:
           vi.fn() as unknown as PluginRuntime["channel"]["reply"]["dispatchReplyFromConfig"],
-<<<<<<< HEAD
         finalizeInboundContext:
           vi.fn() as unknown as PluginRuntime["channel"]["reply"]["finalizeInboundContext"],
-=======
-        withReplyDispatcher: vi.fn(
-          async ({
-            dispatcher,
-            run,
-            onSettled,
-          }: Parameters<PluginRuntime["channel"]["reply"]["withReplyDispatcher"]>[0]) => {
-            try {
-              return await run();
-            } finally {
-              dispatcher.markComplete();
-              try {
-                await dispatcher.waitForIdle();
-              } finally {
-                await onSettled?.();
-              }
-            }
-          },
-        ) as unknown as PluginRuntime["channel"]["reply"]["withReplyDispatcher"],
-        finalizeInboundContext: vi.fn(
-          (ctx: Record<string, unknown>) => ctx,
-        ) as unknown as PluginRuntime["channel"]["reply"]["finalizeInboundContext"],
->>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
         formatAgentEnvelope:
           mockFormatAgentEnvelope as unknown as PluginRuntime["channel"]["reply"]["formatAgentEnvelope"],
         formatInboundEnvelope:
@@ -303,13 +274,7 @@ function createMockRuntime(): PluginRuntime {
       })) as unknown as PluginRuntime["logging"]["getChildLogger"],
     },
     state: {
-<<<<<<< HEAD
       resolveStateDir: vi.fn(() => "/tmp/moltbot") as unknown as PluginRuntime["state"]["resolveStateDir"],
-=======
-      resolveStateDir: vi.fn(
-        () => "/tmp/openclaw",
-      ) as unknown as PluginRuntime["state"]["resolveStateDir"],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     },
   };
 }
@@ -1300,8 +1265,6 @@ describe("BlueBubbles webhook monitor", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   describe("group sender identity in envelope", () => {
     it("includes sender in envelope body and group label as from for group messages", async () => {
       const account = createMockAccount({ groupPolicy: "open" });
@@ -1441,7 +1404,6 @@ describe("BlueBubbles webhook monitor", () => {
     });
   });
 
->>>>>>> 889f221ed (chore: Fix type errors in `extensions/bluebubbles` tests.)
   describe("inbound debouncing", () => {
     it("coalesces text-only then attachment webhook events by messageId", async () => {
       vi.useFakeTimers();

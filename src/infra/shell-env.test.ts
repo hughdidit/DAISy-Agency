@@ -154,8 +154,6 @@ describe("shell env fallback", () => {
     expect(exec).toHaveBeenCalledOnce();
   });
 
-<<<<<<< HEAD
-=======
   it("falls back to /bin/sh when SHELL is non-absolute", () => {
     const { res, exec } = runShellEnvFallbackForShell("zsh");
 
@@ -194,7 +192,6 @@ describe("shell env fallback", () => {
         ? "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
         : "/usr/bin/zsh-trusted";
     withEtcShells(["/bin/sh", trustedShell], () => {
->>>>>>> 5ac70b36a (test: make shell-env trust-path test platform-safe (#24991) (thanks @stakeswky))
       const { res, exec } = runShellEnvFallbackForShell(trustedShell);
       const expectedShell = process.platform === "win32" ? "/bin/sh" : trustedShell;
 
@@ -206,50 +203,7 @@ describe("shell env fallback", () => {
     }
   });
 
-<<<<<<< HEAD
 >>>>>>> 6fe4bbc24 (test(infra): dedupe shell env fallback test setup)
-=======
-  it("sanitizes startup-related env vars before shell fallback exec", () => {
-    const env = makeUnsafeStartupEnv();
-    let receivedEnv: NodeJS.ProcessEnv | undefined;
-    const exec = vi.fn((_shell: string, _args: string[], options: { env: NodeJS.ProcessEnv }) => {
-      receivedEnv = options.env;
-      return Buffer.from("OPENAI_API_KEY=from-shell\0");
-    });
-
-    const res = loadShellEnvFallback({
-      enabled: true,
-      env,
-      expectedKeys: ["OPENAI_API_KEY"],
-      exec: exec as unknown as Parameters<typeof loadShellEnvFallback>[0]["exec"],
-    });
-
-    expect(res.ok).toBe(true);
-    expect(exec).toHaveBeenCalledTimes(1);
-    expectSanitizedStartupEnv(receivedEnv);
-  });
-
-  it("sanitizes startup-related env vars before login-shell PATH probe", () => {
-    resetShellPathCacheForTests();
-    const env = makeUnsafeStartupEnv();
-    let receivedEnv: NodeJS.ProcessEnv | undefined;
-    const exec = vi.fn((_shell: string, _args: string[], options: { env: NodeJS.ProcessEnv }) => {
-      receivedEnv = options.env;
-      return Buffer.from("PATH=/usr/local/bin:/usr/bin\0HOME=/tmp\0");
-    });
-
-    const result = getShellPathFromLoginShell({
-      env,
-      exec: exec as unknown as Parameters<typeof getShellPathFromLoginShell>[0]["exec"],
-      platform: "linux",
-    });
-
-    expect(result).toBe("/usr/local/bin:/usr/bin");
-    expect(exec).toHaveBeenCalledTimes(1);
-    expectSanitizedStartupEnv(receivedEnv);
-  });
-
->>>>>>> 328679131 (refactor(agents): dedupe config and truncation guards)
   it("returns null without invoking shell on win32", () => {
     resetShellPathCacheForTests();
     const exec = vi.fn(() => Buffer.from("PATH=/usr/local/bin:/usr/bin\0HOME=/tmp\0"));

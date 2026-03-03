@@ -1,11 +1,7 @@
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { getChannelPlugin, normalizeChannelId } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AgentBinding } from "../config/types.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAgentId } from "../routing/session-key.js";
 import type { ChannelChoice } from "./onboard-types.js";
@@ -160,77 +156,7 @@ export function applyAgentBindings(
   };
 }
 
-<<<<<<< HEAD
 function resolveDefaultAccountId(cfg: MoltbotConfig, provider: ChannelId): string {
-=======
-export function removeAgentBindings(
-  cfg: OpenClawConfig,
-  bindings: AgentBinding[],
-): {
-  config: OpenClawConfig;
-  removed: AgentBinding[];
-  missing: AgentBinding[];
-  conflicts: Array<{ binding: AgentBinding; existingAgentId: string }>;
-} {
-  const existing = cfg.bindings ?? [];
-  const removeIndexes = new Set<number>();
-  const removed: AgentBinding[] = [];
-  const missing: AgentBinding[] = [];
-  const conflicts: Array<{ binding: AgentBinding; existingAgentId: string }> = [];
-
-  for (const binding of bindings) {
-    const desiredAgentId = normalizeAgentId(binding.agentId);
-    const key = bindingMatchKey(binding.match);
-    let matchedIndex = -1;
-    let conflictingAgentId: string | null = null;
-    for (let i = 0; i < existing.length; i += 1) {
-      if (removeIndexes.has(i)) {
-        continue;
-      }
-      const current = existing[i];
-      if (!current || bindingMatchKey(current.match) !== key) {
-        continue;
-      }
-      const currentAgentId = normalizeAgentId(current.agentId);
-      if (currentAgentId === desiredAgentId) {
-        matchedIndex = i;
-        break;
-      }
-      conflictingAgentId = currentAgentId;
-    }
-    if (matchedIndex >= 0) {
-      const matched = existing[matchedIndex];
-      if (matched) {
-        removeIndexes.add(matchedIndex);
-        removed.push(matched);
-      }
-      continue;
-    }
-    if (conflictingAgentId) {
-      conflicts.push({ binding, existingAgentId: conflictingAgentId });
-      continue;
-    }
-    missing.push(binding);
-  }
-
-  if (removeIndexes.size === 0) {
-    return { config: cfg, removed, missing, conflicts };
-  }
-
-  const nextBindings = existing.filter((_, index) => !removeIndexes.has(index));
-  return {
-    config: {
-      ...cfg,
-      bindings: nextBindings.length > 0 ? nextBindings : undefined,
-    },
-    removed,
-    missing,
-    conflicts,
-  };
-}
-
-function resolveDefaultAccountId(cfg: OpenClawConfig, provider: ChannelId): string {
->>>>>>> 96c770252 (Agents: add account-scoped bind and routing commands (#27195))
   const plugin = getChannelPlugin(provider);
   if (!plugin) {
     return DEFAULT_ACCOUNT_ID;

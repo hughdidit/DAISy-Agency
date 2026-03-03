@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import { buildTelegramMessageContext } from "./bot-message-context.js";
@@ -10,12 +9,6 @@ describe("buildTelegramMessageContext dm thread sessions", () => {
     messages: { groupChat: { mentionPatterns: [] } },
   } as never;
 
-=======
-import { describe, expect, it } from "vitest";
-import { buildTelegramMessageContextForTest } from "./bot-message-context.test-harness.js";
-
-describe("buildTelegramMessageContext dm thread sessions", () => {
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
   const buildContext = async (message: Record<string, unknown>) =>
     await buildTelegramMessageContextForTest({
       message,
@@ -52,15 +45,12 @@ describe("buildTelegramMessageContext dm thread sessions", () => {
 });
 
 describe("buildTelegramMessageContext group sessions without forum", () => {
-<<<<<<< HEAD
   const baseConfig = {
     agents: { defaults: { model: "anthropic/claude-opus-4-5", workspace: "/tmp/clawd" } },
     channels: { telegram: {} },
     messages: { groupChat: { mentionPatterns: [] } },
   } as never;
 
-=======
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
   const buildContext = async (message: Record<string, unknown>) =>
     await buildTelegramMessageContextForTest({
       message,

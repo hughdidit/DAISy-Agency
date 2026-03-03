@@ -19,7 +19,6 @@ import {
 import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -61,8 +60,6 @@ function assertModelSelection(
 }
 
 =======
->>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
-=======
 function makeModelDefinition(id: string, name: string): ModelDefinitionConfig {
   return {
     id,
@@ -75,21 +72,7 @@ function makeModelDefinition(id: string, name: string): ModelDefinitionConfig {
   };
 }
 
-<<<<<<< HEAD
 >>>>>>> 7d2ef131c (chore: Fix types in tests 42/N.)
-=======
-function makeModelSwitchConfig(home: string) {
-  return makeWhatsAppDirectiveConfig(home, {
-    model: { primary: "openai/gpt-4.1-mini" },
-    models: {
-      "openai/gpt-4.1-mini": {},
-      "anthropic/claude-opus-4-5": { alias: "Opus" },
-    },
-  });
-}
-
-<<<<<<< HEAD
->>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
 =======
 function makeMoonshotConfig(home: string, storePath: string) {
   return {
@@ -294,13 +277,8 @@ describe("directive behavior", () => {
   });
   it("stores auth profile overrides on /model directive", async () => {
     await withTempHome(async (home) => {
-<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
       const authDir = path.join(home, ".clawdbot", "agents", "main", "agent");
-=======
-      const storePath = sessionStorePath(home);
-      const authDir = path.join(home, ".openclaw", "agents", "main", "agent");
->>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       await fs.mkdir(authDir, { recursive: true, mode: 0o700 });
       await fs.writeFile(
         path.join(authDir, "auth-profiles.json"),
@@ -323,7 +301,6 @@ describe("directive behavior", () => {
       const res = await getReplyFromConfig(
         { Body: "/model Opus@anthropic:work", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -337,9 +314,6 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
-=======
-        makeModelSwitchConfig(home),
->>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
       const text = replyText(res);
@@ -356,7 +330,6 @@ describe("directive behavior", () => {
       await getReplyFromConfig(
         { Body: "/model Opus", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -370,9 +343,6 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
-=======
-        makeModelSwitchConfig(home),
->>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
       let events = drainSystemEvents(MAIN_SESSION_KEY);
@@ -389,7 +359,6 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -401,13 +370,6 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["*"] } },
           session: { store: storePath },
         },
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: { primary: "openai/gpt-4.1-mini" } },
-          { tools: { elevated: { allowFrom: { whatsapp: ["*"] } } } },
-        ),
->>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
       events = drainSystemEvents(MAIN_SESSION_KEY);
@@ -424,7 +386,6 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
-<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -435,9 +396,6 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["*"] } },
           session: { store: storePath },
         },
-=======
-        makeWhatsAppDirectiveConfig(home, { model: { primary: "openai/gpt-4.1-mini" } }),
->>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
       events = drainSystemEvents(MAIN_SESSION_KEY);

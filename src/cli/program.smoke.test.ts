@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 const messageCommand = vi.fn();
 const statusCommand = vi.fn();
@@ -43,11 +42,6 @@ vi.mock("../commands/configure.js", () => ({
 vi.mock("../commands/setup.js", () => ({ setupCommand }));
 vi.mock("../commands/onboard.js", () => ({ onboardCommand }));
 <<<<<<< HEAD
-=======
-vi.mock("../commands/doctor-config-flow.js", () => ({
-  loadAndMaybeMigrateDoctorConfig,
-}));
->>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
 vi.mock("../runtime.js", () => ({ defaultRuntime: runtime }));
 vi.mock("./channel-auth.js", () => ({ runChannelLogin, runChannelLogout }));
 vi.mock("../tui/tui.js", () => ({ runTui }));

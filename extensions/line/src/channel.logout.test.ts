@@ -1,13 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type {
-  OpenClawConfig,
-  PluginRuntime,
-  ResolvedLineAccount,
-  RuntimeEnv,
-} from "openclaw/plugin-sdk";
->>>>>>> d3a36cc3b (chore: Fix remaining extension test types, enable type checking for extension tests.)
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig, PluginRuntime } from "clawdbot/plugin-sdk";
 =======
@@ -27,7 +18,6 @@ type LineRuntimeMocks = {
 
 function createRuntime(): { runtime: PluginRuntime; mocks: LineRuntimeMocks } {
   const writeConfigFile = vi.fn(async () => {});
-<<<<<<< HEAD
   const resolveLineAccount = vi.fn(({ cfg, accountId }: { cfg: MoltbotConfig; accountId?: string }) => {
     const lineConfig = (cfg.channels?.line ?? {}) as {
       tokenFile?: string;
@@ -46,29 +36,6 @@ function createRuntime(): { runtime: PluginRuntime; mocks: LineRuntimeMocks } {
       Boolean((entry as any).channelSecret) || Boolean((entry as any).secretFile);
     return { tokenSource: hasToken && hasSecret ? "config" : "none" };
   });
-=======
-  const resolveLineAccount = vi.fn(
-    ({ cfg, accountId }: { cfg: OpenClawConfig; accountId?: string }) => {
-      const lineConfig = (cfg.channels?.line ?? {}) as {
-        tokenFile?: string;
-        secretFile?: string;
-        channelAccessToken?: string;
-        channelSecret?: string;
-        accounts?: Record<string, Record<string, unknown>>;
-      };
-      const entry =
-        accountId && accountId !== DEFAULT_ACCOUNT_ID
-          ? (lineConfig.accounts?.[accountId] ?? {})
-          : lineConfig;
-      const hasToken =
-        // oxlint-disable-next-line typescript/no-explicit-any
-        Boolean((entry as any).channelAccessToken) || Boolean((entry as any).tokenFile);
-      // oxlint-disable-next-line typescript/no-explicit-any
-      const hasSecret = Boolean((entry as any).channelSecret) || Boolean((entry as any).secretFile);
-      return { tokenSource: hasToken && hasSecret ? "config" : "none" };
-    },
-  );
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   const runtime = {
     config: { writeConfigFile },
@@ -112,14 +79,10 @@ describe("linePlugin gateway.logoutAccount", () => {
   });
 
   it("clears tokenFile/secretFile on default account logout", async () => {
-<<<<<<< HEAD
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
 
     const cfg: MoltbotConfig = {
-=======
-    const cfg: OpenClawConfig = {
->>>>>>> 0a421d740 (test(line): improve logout scenario coverage)
       channels: {
         line: {
           tokenFile: "/tmp/token",
@@ -138,14 +101,10 @@ describe("linePlugin gateway.logoutAccount", () => {
   });
 
   it("clears tokenFile/secretFile on account logout", async () => {
-<<<<<<< HEAD
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
 
     const cfg: MoltbotConfig = {
-=======
-    const cfg: OpenClawConfig = {
->>>>>>> 0a421d740 (test(line): improve logout scenario coverage)
       channels: {
         line: {
           accounts: {

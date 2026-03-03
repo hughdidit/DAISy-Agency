@@ -5,26 +5,9 @@ describe("config secret refs schema", () => {
   it("accepts top-level secrets sources and model apiKey refs", () => {
     const result = validateConfigObjectRaw({
       secrets: {
-<<<<<<< HEAD
         sources: {
           env: { type: "env" },
           file: { type: "sops", path: "~/.openclaw/secrets.enc.json", timeoutMs: 10_000 },
-=======
-        providers: {
-          default: { source: "env" },
-          filemain: {
-            source: "file",
-            path: "~/.openclaw/secrets.json",
-            mode: "json",
-            timeoutMs: 10_000,
-          },
-          vault: {
-            source: "exec",
-            command: "/usr/local/bin/openclaw-secret-resolver",
-            args: ["resolve"],
-            allowSymlinkCommand: true,
-          },
->>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
         },
       },
       models: {

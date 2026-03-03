@@ -1,42 +1,15 @@
 import path from "node:path";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import {
-  buildConfigChecks,
-  resolveMissingAnyBins,
-  resolveMissingBins,
-  resolveMissingEnv,
-  resolveMissingOs,
-} from "../shared/requirements.js";
->>>>>>> bc0160d0f (refactor(shared): dedupe requirements evaluation)
 =======
 import { evaluateRequirements } from "../shared/requirements.js";
 >>>>>>> 4f61a3f52 (refactor(shared): centralize requirements evaluation)
 =======
 =======
 import { resolveEmojiAndHomepage } from "../shared/entry-metadata.js";
-<<<<<<< HEAD
 >>>>>>> b838429e2 (refactor(status): share emoji/homepage resolver)
 import { evaluateRequirementsFromMetadata } from "../shared/requirements.js";
 >>>>>>> 270779b2c (refactor(shared): derive requirements from metadata)
-=======
-import { evaluateRequirementsFromMetadataWithRemote } from "../shared/requirements.js";
->>>>>>> 34b6c743f (refactor(shared): share requirements eval for remote context)
 =======
 =======
 =======
@@ -86,15 +59,11 @@ import {
 } from "./skills.js";
 import { resolveBundledSkillsContext } from "./skills/bundled-context.js";
 
-<<<<<<< HEAD
 export type SkillStatusConfigCheck = {
   path: string;
   value: unknown;
   satisfied: boolean;
 };
-=======
-export type SkillStatusConfigCheck = RequirementConfigCheck;
->>>>>>> 6f2f88d3a (refactor(status): reuse Requirements types)
 
 export type SkillInstallOption = {
   id: string;
@@ -262,7 +231,6 @@ function buildSkillStatus(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   const {
     required,
     missing,
@@ -283,24 +251,6 @@ function buildSkillStatus(
     resolveConfigValue: (pathStr) => resolveConfigPath(config, pathStr),
     isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
   });
-=======
-  const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
-    evaluateEntryMetadataRequirements({
-      always,
-      metadata: entry.metadata,
-      frontmatter: entry.frontmatter,
-      hasLocalBin: hasBinary,
-      localPlatform: process.platform,
-      remote: eligibility?.remote,
-      isEnvSatisfied: (envName) =>
-        Boolean(
-          process.env[envName] ||
-          skillConfig?.env?.[envName] ||
-          (skillConfig?.apiKey && entry.metadata?.primaryEnv === envName),
-        ),
-      isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
-    });
->>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
 =======
   const requirementStatus = evaluateEntryMetadataRequirementsForCurrentPlatform({
     always,

@@ -1,7 +1,4 @@
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CronJobEditor.swift
 import MoltbotProtocol
-=======
->>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/CronJobEditor.swift
 import Observation
 import OpenClawProtocol
 import SwiftUI
@@ -20,11 +17,7 @@ struct CronJobEditor: View {
             + "Use an isolated session for agent turns so your main chat stays clean."
     static let sessionTargetNote =
         "Main jobs post a system event into the current main session. "
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/CronJobEditor.swift
             + "Isolated jobs run clawd in a dedicated session and can deliver results (WhatsApp/Telegram/Discord/etc)."
-=======
-            + "Isolated jobs run OpenClaw in a dedicated session and can announce results to a channel."
->>>>>>> 3f82daefd (feat(cron): enhance delivery modes and job configuration):apps/macos/Sources/OpenClaw/CronJobEditor.swift
     static let scheduleKindNote =
         "“At” runs once, “Every” repeats with a duration, “Cron” uses a 5-field Unix expression."
     static let isolatedPayloadNote =

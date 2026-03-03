@@ -8,12 +8,7 @@ read_when:
 # Logging (macOS)
 
 ## Rolling diagnostics file log (Debug pane)
-<<<<<<< HEAD
 Moltbot routes macOS app logs through swift-log (unified logging by default) and can write a local, rotating file log to disk when you need a durable capture.
-=======
-
-OpenClaw routes macOS app logs through swift-log (unified logging by default) and can write a local, rotating file log to disk when you need a durable capture.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 - Verbosity: **Debug pane → Logs → App logging → Verbosity**
 - Enable: **Debug pane → Logs → App logging → “Write rolling diagnostics log (JSONL)”**
@@ -30,13 +25,7 @@ Notes:
 Unified logging redacts most payloads unless a subsystem opts into `privacy -off`. Per Peter's write-up on macOS [logging privacy shenanigans](https://steipete.me/posts/2025/logging-privacy-shenanigans) (2025) this is controlled by a plist in `/Library/Preferences/Logging/Subsystems/` keyed by the subsystem name. Only new log entries pick up the flag, so enable it before reproducing an issue.
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 ## Enable for Moltbot (`bot.molt`)
-=======
-## Enable for OpenClaw (`bot.molt`)
-=======
-## Enable for OpenClaw (`ai.openclaw`)
->>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Write the plist to a temp file first, then install it atomically as root:

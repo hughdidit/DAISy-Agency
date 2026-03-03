@@ -7,7 +7,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
@@ -35,10 +34,6 @@ vi.mock("./embeddings.js", () => {
     }),
   };
 });
-=======
-import type { MemoryIndexManager } from "./index.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -48,11 +43,8 @@ import type { MemoryIndexManager } from "./index.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 7b31e8fc5 (chore: Fix types in tests 36/N.)
 import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
-=======
->>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { MemoryIndexManager } from "./index.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
@@ -69,15 +61,7 @@ describe("memory manager sync failures", () => {
 
   beforeEach(async () => {
     vi.useFakeTimers();
-<<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
-=======
-    resetEmbeddingMocks();
-    embedBatch.mockImplementation(async () => {
-      throw new Error("openai embeddings failed: 400 bad request");
-    });
-    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-"));
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     indexPath = path.join(workspaceDir, "index.sqlite");
     await fs.mkdir(path.join(workspaceDir, "memory"));
     await fs.writeFile(path.join(workspaceDir, "MEMORY.md"), "Hello");

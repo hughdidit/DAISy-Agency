@@ -88,8 +88,6 @@ describe("applyPatch", () => {
       expect(contents).toBe("line1\nline2\n");
     });
   });
-<<<<<<< HEAD
-=======
 
   it("rejects path traversal outside cwd by default", async () => {
     await withTempDir(async (dir) => {
@@ -257,5 +255,4 @@ describe("applyPatch", () => {
       }
     });
   });
->>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
 });

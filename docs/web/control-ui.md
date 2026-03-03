@@ -89,13 +89,8 @@ Open:
 
 - `https://<magicdns>/` (or your configured `gateway.controlUi.basePath`)
 
-<<<<<<< HEAD
 By default, Serve requests can authenticate via Tailscale identity headers
 (`tailscale-user-login`) when `gateway.auth.allowTailscale` is `true`. Moltbot
-=======
-By default, Control UI/WebSocket Serve requests can authenticate via Tailscale identity headers
-(`tailscale-user-login`) when `gateway.auth.allowTailscale` is `true`. OpenClaw
->>>>>>> 356d61aac (fix(gateway): scope tailscale tokenless auth to websocket)
 verifies the identity by resolving the `x-forwarded-for` address with
 `tailscale whois` and matching it to the header, and only accepts these when the
 request hits loopback with Tailscale’s `x-forwarded-*` headers. Set
@@ -202,8 +197,6 @@ Notes:
 - `gatewayUrl` is stored in localStorage after load and removed from the URL.
 - `token` is stored in localStorage; `password` is kept in memory only.
 - Use `wss://` when the Gateway is behind TLS (Tailscale Serve, HTTPS proxy, etc.).
-<<<<<<< HEAD
-=======
 - `gatewayUrl` is only accepted in a top-level window (not embedded) to prevent clickjacking.
 - Non-loopback Control UI deployments must set `gateway.controlUi.allowedOrigins`
   explicitly (full origins). This includes remote dev setups.
@@ -221,6 +214,5 @@ Example:
   },
 }
 ```
->>>>>>> 223d7dc23 (feat(gateway)!: require explicit non-loopback control-ui origins)
 
 Remote access setup details: [Remote access](/gateway/remote).

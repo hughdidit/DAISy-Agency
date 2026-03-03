@@ -4,13 +4,8 @@ import { complete } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
-=======
-=======
-import type { ImageDescriptionRequest, ImageDescriptionResult } from "../types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======

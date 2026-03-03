@@ -4,7 +4,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { createActionGate, readNumberParam, readStringParam } from "../../agents/tools/common.js";
 import { handleSlackAction, type SlackActionContext } from "../../agents/tools/slack-actions.js";
 import { listEnabledSlackAccounts } from "../../slack/accounts.js";
@@ -15,12 +14,6 @@ import type {
   ChannelMessageActionName,
   ChannelToolSend,
 } from "./types.js";
-=======
-import type { ChannelMessageActionAdapter, ChannelMessageActionContext } from "./types.js";
-import { readNumberParam, readStringParam } from "../../agents/tools/common.js";
-=======
-import type { ChannelMessageActionAdapter } from "./types.js";
->>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -41,11 +34,7 @@ import { resolveSlackChannelId } from "../../slack/targets.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> f835eb32f (refactor(slack): share message action helpers)
-=======
-import type { ChannelMessageActionAdapter } from "./types.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

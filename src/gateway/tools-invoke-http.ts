@@ -4,13 +4,8 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 import { createMoltbotTools } from "../agents/moltbot-tools.js";
-=======
-import type { AuthRateLimiter } from "./auth-rate-limit.js";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -29,7 +24,6 @@ import {
   resolveSubagentToolPolicy,
 } from "../agents/pi-tools.policy.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   buildPluginToolGroups,
   collectExplicitAllowlist,
@@ -38,15 +32,6 @@ import {
   resolveToolProfilePolicy,
   stripPluginOnlyAllowlist,
 } from "../agents/tool-policy.js";
-=======
-import { applyToolPolicyPipeline } from "../agents/tool-policy-pipeline.js";
-=======
-import {
-  applyToolPolicyPipeline,
-  buildDefaultToolPolicyPipelineSteps,
-} from "../agents/tool-policy-pipeline.js";
-<<<<<<< HEAD
->>>>>>> 268c14f02 (refactor(tools): centralize default policy steps)
 import { collectExplicitAllowlist, resolveToolProfilePolicy } from "../agents/tool-policy.js";
 =======
 import {
@@ -68,12 +53,7 @@ import { normalizeMessageChannel } from "../utils/message-channel.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { AuthRateLimiter } from "./auth-rate-limit.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -243,17 +223,8 @@ export async function handleToolsInvokeHttpRequest(
     !rawSessionKey || rawSessionKey === "main" ? resolveMainSessionKey(cfg) : rawSessionKey;
 
   // Resolve message channel/account hints (optional headers) for policy inheritance.
-<<<<<<< HEAD
   const messageChannel = normalizeMessageChannel(getHeader(req, "x-moltbot-message-channel") ?? "");
   const accountId = getHeader(req, "x-moltbot-account-id")?.trim() || undefined;
-=======
-  const messageChannel = normalizeMessageChannel(
-    getHeader(req, "x-openclaw-message-channel") ?? "",
-  );
-  const accountId = getHeader(req, "x-openclaw-account-id")?.trim() || undefined;
-  const agentTo = getHeader(req, "x-openclaw-message-to")?.trim() || undefined;
-  const agentThreadId = getHeader(req, "x-openclaw-thread-id")?.trim() || undefined;
->>>>>>> 8796c78b3 (Gateway: propagate message target and thread headers into tools invoke context)
 
   const {
     agentId,
@@ -327,22 +298,7 @@ export async function handleToolsInvokeHttpRequest(
     ],
   });
 
-<<<<<<< HEAD
   const tool = subagentFiltered.find((t) => t.name === toolName);
-=======
-  // Gateway HTTP-specific deny list — applies to ALL sessions via HTTP.
-  const gatewayToolsCfg = cfg.gateway?.tools;
-  const defaultGatewayDeny: string[] = DEFAULT_GATEWAY_HTTP_TOOL_DENY.filter(
-    (name) => !gatewayToolsCfg?.allow?.includes(name),
-  );
-  const gatewayDenyNames = defaultGatewayDeny.concat(
-    Array.isArray(gatewayToolsCfg?.deny) ? gatewayToolsCfg.deny : [],
-  );
-  const gatewayDenySet = new Set(gatewayDenyNames);
-  const gatewayFiltered = subagentFiltered.filter((t) => !gatewayDenySet.has(t.name));
-
-  const tool = gatewayFiltered.find((t) => t.name === toolName);
->>>>>>> a2b45e1c1 (fix(gateway): relax http tool deny typing)
   if (!tool) {
     sendJson(res, 404, {
       ok: false,

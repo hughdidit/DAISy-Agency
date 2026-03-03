@@ -1,12 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { IncomingMessage } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { randomUUID } from "node:crypto";
 >>>>>>> ed11e93cf (chore(format))
@@ -46,17 +43,8 @@ export function getBearerToken(req: IncomingMessage): string | undefined {
 
 export function resolveAgentIdFromHeader(req: IncomingMessage): string | undefined {
   const raw =
-<<<<<<< HEAD
     getHeader(req, "x-moltbot-agent-id")?.trim() || getHeader(req, "x-moltbot-agent")?.trim() || "";
   if (!raw) return undefined;
-=======
-    getHeader(req, "x-openclaw-agent-id")?.trim() ||
-    getHeader(req, "x-openclaw-agent")?.trim() ||
-    "";
-  if (!raw) {
-    return undefined;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return normalizeAgentId(raw);
 }
 
@@ -95,15 +83,8 @@ export function resolveSessionKey(params: {
   user?: string | undefined;
   prefix: string;
 }): string {
-<<<<<<< HEAD
   const explicit = getHeader(params.req, "x-moltbot-session-key")?.trim();
   if (explicit) return explicit;
-=======
-  const explicit = getHeader(params.req, "x-openclaw-session-key")?.trim();
-  if (explicit) {
-    return explicit;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   const user = params.user?.trim();
   const mainKey = user ? `${params.prefix}-user:${user}` : `${params.prefix}:${randomUUID()}`;

@@ -1,16 +1,11 @@
 import { loadConfig } from "../config/config.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import { mediaKindFromMime } from "../media/constants.js";
-<<<<<<< HEAD
 import { saveMediaBuffer } from "../media/store.js";
 import { loadWebMedia } from "../web/media.js";
 <<<<<<< HEAD
 import { convertMarkdownTables } from "../markdown/tables.js";
 import { resolveIMessageAccount } from "./accounts.js";
-=======
-=======
-import { resolveOutboundAttachmentFromUrl } from "../media/outbound-attachment.js";
->>>>>>> 7d0c0bfc7 (refactor(media): share outbound attachment resolver)
 import { resolveIMessageAccount, type ResolvedIMessageAccount } from "./accounts.js";
 >>>>>>> b272158fe (perf(test): eliminate resetModules via injectable seams)
 import { createIMessageRpcClient, type IMessageRpcClient } from "./client.js";

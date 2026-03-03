@@ -2,15 +2,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/types.js";
 import type { SkillCommandSpec } from "../agents/skills.js";
 import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.data.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
-=======
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
@@ -20,12 +16,7 @@ import type { OpenClawConfig } from "../config/types.js";
 import { escapeRegExp } from "../utils.js";
 import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.data.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
-import type { SkillCommandSpec } from "../agents/skills.js";
-import type { OpenClawConfig } from "../config/types.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -51,10 +42,6 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
@@ -62,10 +49,7 @@ import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { escapeRegExp } from "../utils.js";
 import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.data.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -152,23 +136,10 @@ export function listChatCommands(params?: {
   return [...commands, ...buildSkillCommandDefinitions(params.skillCommands)];
 }
 
-<<<<<<< HEAD
 export function isCommandEnabled(cfg: MoltbotConfig, commandKey: string): boolean {
   if (commandKey === "config") return cfg.commands?.config === true;
   if (commandKey === "debug") return cfg.commands?.debug === true;
   if (commandKey === "bash") return cfg.commands?.bash === true;
-=======
-export function isCommandEnabled(cfg: OpenClawConfig, commandKey: string): boolean {
-  if (commandKey === "config") {
-    return cfg.commands?.config === true;
-  }
-  if (commandKey === "debug") {
-    return cfg.commands?.debug === true;
-  }
-  if (commandKey === "bash") {
-    return cfg.commands?.bash === true;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return true;
 }
 

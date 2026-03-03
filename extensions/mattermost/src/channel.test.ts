@@ -2,12 +2,8 @@ import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
-=======
-import { describe, expect, it, vi } from "vitest";
->>>>>>> 2a2372cd6 (feat(mattermost): add emoji reactions support)
 =======
 import { beforeEach, describe, expect, it } from "vitest";
 >>>>>>> 95d52b06d (refactor(mattermost): dedupe reaction flow and test fixtures)

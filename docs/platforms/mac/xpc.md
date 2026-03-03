@@ -3,12 +3,7 @@ summary: "macOS IPC architecture for Moltbot app, gateway node transport, and Pe
 read_when:
   - Editing IPC contracts or menu bar app IPC
 ---
-<<<<<<< HEAD
 # Moltbot macOS IPC architecture
-=======
-
-# OpenClaw macOS IPC architecture
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 **Current model:** a local Unix socket connects the **node host service** to the **macOS app** for exec approvals + `system.run`. A `moltbot-mac` debug CLI exists for discovery/connect checks; agent actions still flow through the Gateway WebSocket and `node.invoke`. UI automation uses PeekabooBridge.
 

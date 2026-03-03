@@ -6,10 +6,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -21,10 +18,7 @@ import type { RuntimeEnv } from "../runtime.js";
 import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
 import type { WizardPrompter } from "./prompts.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 0d1eceb9c (Revert "Onboarding: fix webchat URL loopback and canonical session")
-=======
->>>>>>> 01ea80887 (chore: Format files.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -35,11 +29,6 @@ import type { WizardPrompter } from "./prompts.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { resolveCliName } from "../cli/cli-name.js";
-=======
->>>>>>> 394d60c1f (fix(onboarding): auto-install shell completion in QuickStart)
 import { formatCliCommand } from "../cli/command-format.js";
 import {
   buildGatewayInstallPlan,
@@ -51,14 +40,6 @@ import {
   GATEWAY_DAEMON_RUNTIME_OPTIONS,
 } from "../commands/daemon-runtime.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import {
-  checkShellCompletionStatus,
-  ensureCompletionCacheExists,
-} from "../commands/doctor-completion.js";
-=======
->>>>>>> 394d60c1f (fix(onboarding): auto-install shell completion in QuickStart)
 import { formatHealthCheckFailure } from "../commands/health-format.js";
 >>>>>>> 3e1419273 (onboard: use shared completion helpers for shell completion setup)
 import { healthCommand } from "../commands/health.js";
@@ -77,7 +58,6 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OnboardOptions } from "../commands/onboard-types.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -86,15 +66,6 @@ import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
-=======
-=======
-import type { OnboardOptions } from "../commands/onboard-types.js";
-import type { OpenClawConfig } from "../config/config.js";
-import { resolveGatewayService } from "../daemon/service.js";
-import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
-import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
-import type { RuntimeEnv } from "../runtime.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { resolveGatewayService } from "../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
@@ -141,20 +112,12 @@ import { resolveUserPath } from "../utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import {
   buildGatewayInstallPlan,
   gatewayInstallErrorHint,
 } from "../commands/daemon-install-helpers.js";
 import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
 import type { WizardPrompter } from "./prompts.js";
-=======
-import { setupOnboardingShellCompletion } from "./onboarding.completion.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 394d60c1f (fix(onboarding): auto-install shell completion in QuickStart)
 =======
 import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
 import type { WizardPrompter } from "./prompts.js";
@@ -400,18 +363,11 @@ export async function finalizeOnboardingWizard(
   });
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   const tokenParam =
     settings.authMode === "token" && settings.gatewayToken
       ? `?token=${encodeURIComponent(settings.gatewayToken)}`
       : "";
   const authedUrl = `${links.httpUrl}${tokenParam}`;
-=======
-  const authedUrl =
-    settings.authMode === "token" && settings.gatewayToken
-      ? `${links.httpUrl}#token=${encodeURIComponent(settings.gatewayToken)}`
-      : links.httpUrl;
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
 =======
   const localBrowserLinks = resolveLocalBrowserControlUiLinks({
     bind: settings.bind,
@@ -456,15 +412,9 @@ export async function finalizeOnboardingWizard(
   await prompter.note(
     [
 <<<<<<< HEAD
-<<<<<<< HEAD
       `Web UI: ${links.httpUrl}`,
 <<<<<<< HEAD
       tokenParam ? `Web UI (with token): ${authedUrl}` : undefined,
-=======
-      settings.authMode === "token" && settings.gatewayToken
-        ? `Web UI (with token): ${authedUrl}`
-        : undefined,
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
 =======
       `Web UI: ${localBrowserLinks.httpUrl}`,
       settings.authMode === "token" && settings.gatewayToken
@@ -509,18 +459,9 @@ export async function finalizeOnboardingWizard(
     await prompter.note(
       [
         "Gateway token: shared auth for the Gateway + Control UI.",
-<<<<<<< HEAD
         "Stored in: ~/.clawdbot/moltbot.json (gateway.auth.token) or CLAWDBOT_GATEWAY_TOKEN.",
         "Web UI stores a copy in this browser's localStorage (moltbot.control.settings.v1).",
         `Get the tokenized link anytime: ${formatCliCommand("moltbot dashboard --no-open")}`,
-=======
-        "Stored in: ~/.openclaw/openclaw.json (gateway.auth.token) or OPENCLAW_GATEWAY_TOKEN.",
-        `View token: ${formatCliCommand("openclaw config get gateway.auth.token")}`,
-        `Generate token: ${formatCliCommand("openclaw doctor --generate-gateway-token")}`,
-        "Web UI stores a copy in this browser's localStorage (openclaw.control.settings.v1).",
-        `Open the dashboard anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
-        "If prompted: paste the token into Control UI settings (or use the tokenized dashboard URL).",
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
       ].join("\n"),
       "Token",
     );
@@ -536,11 +477,7 @@ export async function finalizeOnboardingWizard(
     });
 
     if (hatchChoice === "tui") {
-<<<<<<< HEAD
       restoreTerminalState("pre-onboarding tui");
-=======
-      restoreTerminalState("pre-onboarding tui", { resumeStdinIfPaused: true });
->>>>>>> 994bcbf67 (refactor: clarify restoreTerminalState stdin resume option)
       await runTui({
         url: links.wsUrl,
         token: settings.authMode === "token" ? settings.gatewayToken : undefined,
@@ -549,7 +486,6 @@ export async function finalizeOnboardingWizard(
         deliver: false,
         message: hasBootstrap ? "Wake up, my friend!" : undefined,
       });
-<<<<<<< HEAD
       if (settings.authMode === "token" && settings.gatewayToken) {
         seededInBackground = await openUrlInBackground(authedUrl);
       }
@@ -561,9 +497,6 @@ export async function finalizeOnboardingWizard(
           "Web UI",
         );
       }
-=======
-      launchedTui = true;
->>>>>>> 58d5b39c9 (Onboarding: keep TUI flow exclusive)
     } else if (hatchChoice === "web") {
       const browserSupport = await detectBrowserOpenSupport();
       if (browserSupport.ok) {
@@ -572,22 +505,14 @@ export async function finalizeOnboardingWizard(
           controlUiOpenHint = formatControlUiSshHint({
             port: settings.port,
             basePath: controlUiBasePath,
-<<<<<<< HEAD
             token: settings.gatewayToken,
-=======
-            token: settings.authMode === "token" ? settings.gatewayToken : undefined,
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
           });
         }
       } else {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
           basePath: controlUiBasePath,
-<<<<<<< HEAD
           token: settings.gatewayToken,
-=======
-          token: settings.authMode === "token" ? settings.gatewayToken : undefined,
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
         });
       }
       await prompter.note(

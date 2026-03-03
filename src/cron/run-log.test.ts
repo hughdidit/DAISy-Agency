@@ -3,20 +3,8 @@ import os from "node:os";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { appendCronRunLog, readCronRunLogEntries, resolveCronRunLogPath } from "./run-log.js";
-=======
-import {
-  appendCronRunLog,
-  DEFAULT_CRON_RUN_LOG_KEEP_LINES,
-  DEFAULT_CRON_RUN_LOG_MAX_BYTES,
-  getPendingCronRunLogWriteCountForTests,
-  readCronRunLogEntries,
-  resolveCronRunLogPruneOptions,
-  resolveCronRunLogPath,
-} from "./run-log.js";
->>>>>>> 9bc265f37 (Cron: clean run-log write queue entries (#23968))
 
 describe("cron run log", () => {
   it("resolves prune options from config with defaults", () => {
@@ -73,13 +61,8 @@ describe("cron run log", () => {
   });
 
   it("appends JSONL and prunes by line count", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-cron-log-"));
     const logPath = path.join(dir, "runs", "job-1.jsonl");
-=======
-    await withRunLogDir("openclaw-cron-log-", async (dir) => {
-      const logPath = path.join(dir, "runs", "job-1.jsonl");
->>>>>>> d015dc921 (test(cron): dedupe run-log temp fixtures and cover invalid line filtering)
 
       for (let i = 0; i < 10; i++) {
         await appendCronRunLog(
@@ -107,15 +90,9 @@ describe("cron run log", () => {
   });
 
   it("reads newest entries and filters by jobId", async () => {
-<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-cron-log-read-"));
     const logPathA = path.join(dir, "runs", "a.jsonl");
     const logPathB = path.join(dir, "runs", "b.jsonl");
-=======
-    await withRunLogDir("openclaw-cron-log-read-", async (dir) => {
-      const logPathA = path.join(dir, "runs", "a.jsonl");
-      const logPathB = path.join(dir, "runs", "b.jsonl");
->>>>>>> d015dc921 (test(cron): dedupe run-log temp fixtures and cover invalid line filtering)
 
       await appendCronRunLog(logPathA, {
         ts: 1,
@@ -197,7 +174,6 @@ describe("cron run log", () => {
       expect(entries[0]?.deliveryStatus).toBe("not-delivered");
       expect(entries[0]?.deliveryError).toBe("announce failed");
     });
-<<<<<<< HEAD
     await appendCronRunLog(logPathA, {
       ts: 3,
       jobId: "a",
@@ -230,8 +206,6 @@ describe("cron run log", () => {
     expect(wrongFilter).toEqual([]);
 
     await fs.rm(dir, { recursive: true, force: true });
-=======
->>>>>>> d015dc921 (test(cron): dedupe run-log temp fixtures and cover invalid line filtering)
   });
 
   it("reads telemetry fields", async () => {

@@ -4,10 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { IdentityConfig } from "../config/types.js";
 import type { RuntimeEnv } from "../runtime.js";

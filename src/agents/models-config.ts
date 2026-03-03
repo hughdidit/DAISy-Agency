@@ -1,14 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { type MoltbotConfig, loadConfig } from "../config/config.js";
 import { resolveMoltbotAgentDir } from "./agent-paths.js";
-=======
-import { type OpenClawConfig, loadConfig } from "../config/config.js";
-import { isRecord } from "../utils.js";
-import { resolveOpenClawAgentDir } from "./agent-paths.js";
->>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import {
   normalizeProviders,
   type ProviderConfig,

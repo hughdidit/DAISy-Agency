@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { withEnv } from "../test-utils/env.js";
->>>>>>> 194ebd9e3 (refactor(test): dedupe env setup in envelope and config tests)
 import {
   formatAgentEnvelope,
   formatInboundEnvelope,

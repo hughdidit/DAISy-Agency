@@ -8,11 +8,7 @@ import {
   type User,
 } from "@buape/carbon";
 <<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-import type { DmPolicy, GroupPolicy } from "../../config/types.base.js";
->>>>>>> ee8dd4050 (Discord/Telegram: emit edit system events (#22310))
 =======
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import { danger } from "../../globals.js";
@@ -21,13 +17,10 @@ import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { setPresence } from "./presence-cache.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
-<<<<<<< HEAD
-=======
 import {
   readStoreAllowFromForDmPolicy,
   resolveDmGroupAccessWithLists,
 } from "../../security/dm-policy-shared.js";
->>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
 import {
   normalizeDiscordSlug,
   resolveDiscordChannelConfigWithFallback,
@@ -35,19 +28,8 @@ import {
   shouldEmitDiscordReactionNotification,
 } from "./allow-list.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { formatDiscordReactionEmoji, formatDiscordUserTag } from "./format.js";
 import { resolveDiscordChannelInfo } from "./message-utils.js";
-=======
-import {
-  formatDiscordReactionEmoji,
-  formatDiscordUserTag,
-  resolveDiscordSystemLocation,
-} from "./format.js";
-import { resolveDiscordChannelInfo, resolveDiscordMessageChannelId } from "./message-utils.js";
-import { setPresence } from "./presence-cache.js";
-import { resolveDiscordThreadChannel, resolveDiscordThreadParentInfo } from "./threading.js";
->>>>>>> ee8dd4050 (Discord/Telegram: emit edit system events (#22310))
 =======
 import { formatDiscordReactionEmoji, formatDiscordUserTag } from "./format.js";
 import { resolveDiscordChannelInfo } from "./message-utils.js";
@@ -149,19 +131,10 @@ export class DiscordMessageListener extends MessageCreateListener {
   async handle(data: DiscordMessageEvent, client: Client) {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     const startedAt = Date.now();
     const task = Promise.resolve(this.handler(data, client));
     void task
       .catch((err) => {
-=======
-    await runDiscordListenerWithSlowLog({
-      logger: this.logger,
-      listener: this.constructor.name,
-      event: this.type,
-      run: () => this.handler(data, client),
-      onError: (err) => {
->>>>>>> 150c048b0 (refactor: unify discord listener slow-log flow and test helpers)
         const logger = this.logger ?? discordEventQueueLog;
         logger.error(danger(`discord handler failed: ${String(err)}`));
       },
@@ -368,7 +341,6 @@ async function handleDiscordReactionEvent(params: {
     if (!user || user.bot) {
       return;
     }
-<<<<<<< HEAD
     if (!data.guild_id) {
       return;
     }
@@ -378,22 +350,6 @@ async function handleDiscordReactionEvent(params: {
       guildEntries,
     });
     if (guildEntries && Object.keys(guildEntries).length > 0 && !guildInfo) {
-=======
-
-    // Early exit: skip bot's own reactions before expensive network calls
-    if (botUserId && user.id === botUserId) {
-      return;
-    }
-
-    const isGuildMessage = Boolean(data.guild_id);
-    const guildInfo = isGuildMessage
-      ? resolveDiscordGuildEntry({
-          guild: data.guild ?? undefined,
-          guildEntries,
-        })
-      : null;
-    if (isGuildMessage && guildEntries && Object.keys(guildEntries).length > 0 && !guildInfo) {
->>>>>>> 7c240a2b5 (feat(discord): faster reaction status state machine (watchdog + debounce) (#18248))
       return;
     }
 
@@ -408,8 +364,6 @@ async function handleDiscordReactionEvent(params: {
       channelType === ChannelType.PublicThread ||
       channelType === ChannelType.PrivateThread ||
       channelType === ChannelType.AnnouncementThread;
-<<<<<<< HEAD
-=======
     const ingressAccess = await authorizeDiscordReactionIngress({
       user,
       isDirectMessage,
@@ -431,7 +385,6 @@ async function handleDiscordReactionEvent(params: {
       logVerbose(`discord reaction blocked sender=${user.id} (reason=${ingressAccess.reason})`);
       return;
     }
->>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
     let parentId = "parentId" in channel ? (channel.parentId ?? undefined) : undefined;
     let parentName: string | undefined;
     let parentSlug = "";
@@ -580,29 +533,7 @@ async function handleDiscordReactionEvent(params: {
       await loadThreadParentInfo();
 
       const channelConfig = resolveThreadChannelConfig();
-<<<<<<< HEAD
       if (channelConfig?.allowed === false) {
-=======
-      const threadAccess = await authorizeDiscordReactionIngress({
-        user,
-        isDirectMessage,
-        isGroupDm,
-        isGuildMessage,
-        channelId: data.channel_id,
-        channelName,
-        channelSlug,
-        dmEnabled: params.dmEnabled,
-        groupDmEnabled: params.groupDmEnabled,
-        groupDmChannels: params.groupDmChannels,
-        dmPolicy: params.dmPolicy,
-        allowFrom: params.allowFrom,
-        groupPolicy: params.groupPolicy,
-        allowNameMatching: params.allowNameMatching,
-        guildInfo,
-        channelConfig,
-      });
-      if (!threadAccess.allowed) {
->>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
         return;
       }
 
@@ -626,33 +557,8 @@ async function handleDiscordReactionEvent(params: {
       parentSlug,
       scope: "channel",
     });
-<<<<<<< HEAD
     if (channelConfig?.allowed === false) {
       return;
-=======
-    if (isGuildMessage) {
-      const channelAccess = await authorizeDiscordReactionIngress({
-        user,
-        isDirectMessage,
-        isGroupDm,
-        isGuildMessage,
-        channelId: data.channel_id,
-        channelName,
-        channelSlug,
-        dmEnabled: params.dmEnabled,
-        groupDmEnabled: params.groupDmEnabled,
-        groupDmChannels: params.groupDmChannels,
-        dmPolicy: params.dmPolicy,
-        allowFrom: params.allowFrom,
-        groupPolicy: params.groupPolicy,
-        allowNameMatching: params.allowNameMatching,
-        guildInfo,
-        channelConfig,
-      });
-      if (!channelAccess.allowed) {
-        return;
-      }
->>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
     }
 
     const reactionMode = guildInfo?.reactionNotifications ?? "own";
@@ -684,7 +590,6 @@ async function handleDiscordReactionEvent(params: {
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     const emojiLabel = formatDiscordReactionEmoji(data.emoji);
     const actorLabel = formatDiscordUserTag(user);
     const guildSlug =
@@ -694,18 +599,9 @@ async function handleDiscordReactionEvent(params: {
       : channelName
         ? `#${normalizeDiscordSlug(channelName)}`
         : `#${data.channel_id}`;
-=======
-    const { baseText } = resolveReactionBase();
->>>>>>> 7c240a2b5 (feat(discord): faster reaction status state machine (watchdog + debounce) (#18248))
     const authorLabel = message?.author ? formatDiscordUserTag(message.author) : undefined;
     const text = authorLabel ? `${baseText} from ${authorLabel}` : baseText;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    const memberRoleIds = Array.isArray(data.rawMember?.roles)
-      ? data.rawMember.roles.map((roleId: string) => String(roleId))
-      : [];
->>>>>>> c68263418 (fix(discord): role-based allowlist never matches (Carbon Role objects stringify to mentions) (#16369))
     const route = resolveAgentRoute({
       cfg: params.cfg,
       channel: "discord",

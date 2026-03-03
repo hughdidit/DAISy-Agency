@@ -1,11 +1,8 @@
 import os from "node:os";
 import type { OpenClawConfig } from "../config/types.js";
-<<<<<<< HEAD
-=======
 import { resolveGatewayBindUrl } from "../shared/gateway-bind-url.js";
 import { isCarrierGradeNatIpv4Address, isRfc1918Ipv4Address } from "../shared/net/ip.js";
 import { resolveTailnetHostWithRunner } from "../shared/tailscale-status.js";
->>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 
 const DEFAULT_GATEWAY_PORT = 18789;
 

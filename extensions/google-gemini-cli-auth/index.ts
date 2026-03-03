@@ -1,14 +1,5 @@
-<<<<<<< HEAD
 import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
 
-=======
-import {
-  buildOauthProviderAuthResult,
-  emptyPluginConfigSchema,
-  type OpenClawPluginApi,
-  type ProviderAuthContext,
-} from "openclaw/plugin-sdk";
->>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { loginGeminiCliOAuth } from "./oauth.js";
 
 const PROVIDER_ID = "google-gemini-cli";

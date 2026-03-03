@@ -1,19 +1,8 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
 import type { ChannelId, ChannelThreadingToolContext } from "../../channels/plugins/types.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
-<<<<<<< HEAD
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -34,12 +23,6 @@ import type { MessagePollResult, MessageSendResult } from "./message.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
-import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
-import { throwIfAborted } from "./abort.js";
->>>>>>> 79c246666 (refactor: consolidate throwIfAborted + fix isCompactionFailureError (#12463))
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======

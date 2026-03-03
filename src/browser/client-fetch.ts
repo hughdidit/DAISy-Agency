@@ -64,8 +64,6 @@ function withLoopbackBrowserAuthImpl(
     // ignore config/auth lookup failures and continue without auth headers
   }
 
-<<<<<<< HEAD
-=======
   // Sandbox bridge servers can run with per-process ephemeral auth on dynamic ports.
   // Fall back to the in-memory registry if config auth is not available.
   try {
@@ -86,7 +84,6 @@ function withLoopbackBrowserAuthImpl(
     // ignore
   }
 
->>>>>>> 493f6f458 (perf(test): speed up browser test suites)
   return { ...init, headers };
 }
 
@@ -115,17 +112,10 @@ function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number):
     msgLower.includes("aborterror");
   if (looksLikeTimeout) {
     return new Error(
-<<<<<<< HEAD
       `Can't reach the clawd browser control service (timed out after ${timeoutMs}ms). ${hint}`,
     );
   }
   return new Error(`Can't reach the clawd browser control service. ${hint} (${msg})`);
-=======
-      `Can't reach the OpenClaw browser control service (timed out after ${timeoutMs}ms). ${hint}`,
-    );
-  }
-  return new Error(`Can't reach the OpenClaw browser control service. ${hint} (${msg})`);
->>>>>>> d2ff28dda (Make openclaw consistent in this file (#8533))
 }
 
 async function fetchHttpJson<T>(

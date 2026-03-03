@@ -6,13 +6,7 @@
  */
 
 import type { WorkspaceBootstrapFile } from "../agents/workspace.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { CliDeps } from "../cli/deps.js";
-import type { OpenClawConfig } from "../config/config.js";
-import { createSubsystemLogger } from "../logging/subsystem.js";
->>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 
 export type InternalHookEventType = "command" | "session" | "agent" | "gateway" | "message";
 

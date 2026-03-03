@@ -261,7 +261,6 @@ describe("legacy config detection", () => {
     expect((res.config as { agent?: unknown } | undefined)?.agent).toBeUndefined();
   });
   it("flags legacy config in snapshot", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configPath = path.join(home, ".clawdbot", "moltbot.json");
       await fs.mkdir(path.dirname(configPath), { recursive: true });
@@ -283,10 +282,6 @@ describe("legacy config detection", () => {
       };
       expect(parsed.routing?.allowFrom).toEqual(["+15555550123"]);
       expect(parsed.channels).toBeUndefined();
-=======
-    await withSnapshotForConfig({ routing: { allowFrom: ["+15555550123"] } }, async (ctx) => {
-      expectRoutingAllowFromLegacySnapshot(ctx, ["+15555550123"]);
->>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
     });
   });
   it("flags top-level memorySearch as legacy in snapshot", async () => {
@@ -341,7 +336,6 @@ describe("legacy config detection", () => {
       expect(parsed.auth?.profiles?.["anthropic:claude-cli"]?.mode).toBe("token");
     });
   });
-<<<<<<< HEAD
   it("flags legacy provider sections in snapshot", async () => {
     await withTempHome(async (home) => {
       const configPath = path.join(home, ".clawdbot", "moltbot.json");
@@ -388,15 +382,9 @@ describe("legacy config detection", () => {
       };
       expect(parsed.channels).toBeUndefined();
       expect(parsed.routing?.allowFrom).toEqual(["+1666"]);
-=======
-  it("flags routing.allowFrom in snapshot", async () => {
-    await withSnapshotForConfig({ routing: { allowFrom: ["+1666"] } }, async (ctx) => {
-      expectRoutingAllowFromLegacySnapshot(ctx, ["+1666"]);
->>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
     });
   });
   it("rejects bindings[].match.provider on load", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configPath = path.join(home, ".clawdbot", "moltbot.json");
       await fs.mkdir(path.dirname(configPath), { recursive: true });
@@ -450,31 +438,9 @@ describe("legacy config detection", () => {
         bindings?: Array<{ match?: { accountID?: string } }>;
       };
       expect(parsed.bindings?.[0]?.match?.accountID).toBe("work");
-=======
-    await expectLoadRejectionPreservesField({
-      config: {
-        bindings: [{ agentId: "main", match: { provider: "slack" } }],
-      },
-      readValue: (parsed) =>
-        (parsed as { bindings?: Array<{ match?: { provider?: string } }> }).bindings?.[0]?.match
-          ?.provider,
-      expectedValue: "slack",
-    });
-  });
-  it("rejects bindings[].match.accountID on load", async () => {
-    await expectLoadRejectionPreservesField({
-      config: {
-        bindings: [{ agentId: "main", match: { channel: "telegram", accountID: "work" } }],
-      },
-      readValue: (parsed) =>
-        (parsed as { bindings?: Array<{ match?: { accountID?: string } }> }).bindings?.[0]?.match
-          ?.accountID,
-      expectedValue: "work",
->>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     });
   });
   it("rejects session.sendPolicy.rules[].match.provider on load", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configPath = path.join(home, ".clawdbot", "moltbot.json");
       await fs.mkdir(path.dirname(configPath), { recursive: true });
@@ -487,13 +453,6 @@ describe("legacy config detection", () => {
                 rules: [{ action: "deny", match: { provider: "telegram" } }],
               },
             },
-=======
-    await withSnapshotForConfig(
-      {
-        session: {
-          sendPolicy: {
-            rules: [{ action: "deny", match: { provider: "telegram" } }],
->>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
           },
         },
       },
@@ -508,7 +467,6 @@ describe("legacy config detection", () => {
     );
   });
   it("rejects messages.queue.byProvider on load", async () => {
-<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configPath = path.join(home, ".clawdbot", "moltbot.json");
       await fs.mkdir(path.dirname(configPath), { recursive: true });
@@ -517,13 +475,6 @@ describe("legacy config detection", () => {
         JSON.stringify({ messages: { queue: { byProvider: { whatsapp: "queue" } } } }, null, 2),
         "utf-8",
       );
-=======
-    await withSnapshotForConfig(
-      { messages: { queue: { byProvider: { whatsapp: "queue" } } } },
-      async (ctx) => {
-        expect(ctx.snapshot.valid).toBe(false);
-        expect(ctx.snapshot.issues.length).toBeGreaterThan(0);
->>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
 
         const parsed = ctx.parsed as {
           messages?: {

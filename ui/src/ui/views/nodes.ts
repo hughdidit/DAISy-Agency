@@ -11,19 +11,7 @@ import type {
   DeviceTokenSummary,
   PairedDevice,
   PendingDevice,
-<<<<<<< HEAD
 } from "../controllers/devices";
-=======
-} from "../controllers/devices.ts";
-<<<<<<< HEAD
-import type {
-  ExecApprovalsAllowlistEntry,
-  ExecApprovalsFile,
-  ExecApprovalsSnapshot,
-} from "../controllers/exec-approvals.ts";
-<<<<<<< HEAD
-import { clampText, formatAgo, formatList } from "../format.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import { clampText, formatRelativeTimestamp, formatList } from "../format.ts";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))

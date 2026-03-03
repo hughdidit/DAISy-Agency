@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 import type { SessionEntry } from "../../config/sessions.js";
 import * as sessions from "../../config/sessions.js";
@@ -120,16 +119,6 @@ function createMinimalRun(params?: {
       }),
   };
 }
-=======
-import { describe, expect, it } from "vitest";
-import * as sessions from "../../config/sessions.js";
-import {
-  createMinimalRun,
-  getRunEmbeddedPiAgentMock,
-  installRunReplyAgentTypingHeartbeatTestHooks,
-} from "./agent-runner.heartbeat-typing.test-harness.js";
-const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
->>>>>>> 0e824a178 (refactor(test): share runReplyAgent typing heartbeat harness)
 
 describe("runReplyAgent typing (heartbeat)", () => {
   installRunReplyAgentTypingHeartbeatTestHooks();

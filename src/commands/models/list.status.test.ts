@@ -30,13 +30,7 @@ const mocks = vi.hoisted(() => {
 
   return {
     store,
-<<<<<<< HEAD
     resolveMoltbotAgentDir: vi.fn().mockReturnValue("/tmp/moltbot-agent"),
-=======
-    resolveAgentDir: vi.fn().mockReturnValue("/tmp/openclaw-agent"),
-<<<<<<< HEAD
-    resolveDefaultAgentId: vi.fn().mockReturnValue("main"),
->>>>>>> dd4715a2c (CLI: add --agent flag to models status)
 =======
     resolveAgentExplicitModelPrimary: vi.fn().mockReturnValue(undefined),
     resolveAgentEffectiveModelPrimary: vi.fn().mockReturnValue(undefined),
@@ -85,15 +79,8 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-<<<<<<< HEAD
 vi.mock("../../agents/agent-paths.js", () => ({
   resolveMoltbotAgentDir: mocks.resolveMoltbotAgentDir,
-=======
-vi.mock("../../agents/agent-scope.js", () => ({
-  resolveAgentDir: mocks.resolveAgentDir,
-<<<<<<< HEAD
-  resolveDefaultAgentId: mocks.resolveDefaultAgentId,
->>>>>>> dd4715a2c (CLI: add --agent flag to models status)
 =======
   resolveAgentExplicitModelPrimary: mocks.resolveAgentExplicitModelPrimary,
   resolveAgentEffectiveModelPrimary: mocks.resolveAgentEffectiveModelPrimary,
@@ -249,7 +236,6 @@ describe("modelsStatusCommand auth overview", () => {
   });
 
 <<<<<<< HEAD
-<<<<<<< HEAD
   it("resolves agent dir from --agent flag", async () => {
     mocks.resolveAgentDir.mockReturnValue("/tmp/openclaw-agent-custom");
     const localRuntime = {
@@ -267,38 +253,6 @@ describe("modelsStatusCommand auth overview", () => {
     }
   });
 
-=======
-=======
-  it("does not emit raw short api-key values in JSON labels", async () => {
-    const localRuntime = createRuntime();
-    const shortSecret = "abc123";
-    const originalProfiles = { ...mocks.store.profiles };
-    mocks.store.profiles = {
-      ...mocks.store.profiles,
-      "openai:default": {
-        type: "api_key",
-        provider: "openai",
-        key: shortSecret,
-      },
-    };
-
-    try {
-      await modelsStatusCommand({ json: true }, localRuntime as never);
-      const payload = JSON.parse(String((localRuntime.log as Mock).mock.calls[0]?.[0]));
-      const providers = payload.auth.providers as Array<{
-        provider: string;
-        profiles: { labels: string[] };
-      }>;
-      const openai = providers.find((p) => p.provider === "openai");
-      const labels = openai?.profiles.labels ?? [];
-      expect(labels.join(" ")).toContain("...");
-      expect(labels.join(" ")).not.toContain(shortSecret);
-    } finally {
-      mocks.store.profiles = originalProfiles;
-    }
-  });
-
->>>>>>> 0e69660c4 (feat(secrets): finalize external secrets runtime and migration hardening)
   it("uses agent overrides and reports sources", async () => {
     const localRuntime = createRuntime();
     await withAgentScopeOverrides(

@@ -15,17 +15,8 @@ type SubCliEntry = {
 };
 
 const shouldRegisterPrimaryOnly = (argv: string[]) => {
-<<<<<<< HEAD
   if (isTruthyEnvValue(process.env.CLAWDBOT_DISABLE_LAZY_SUBCOMMANDS)) return false;
   if (hasHelpOrVersion(argv)) return false;
-=======
-  if (isTruthyEnvValue(process.env.OPENCLAW_DISABLE_LAZY_SUBCOMMANDS)) {
-    return false;
-  }
-  if (hasHelpOrVersion(argv)) {
-    return false;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return true;
 };
 

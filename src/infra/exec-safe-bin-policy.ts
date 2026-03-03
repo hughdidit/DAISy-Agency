@@ -12,7 +12,6 @@ export {
   type SafeBinProfileFixtures,
 } from "./exec-safe-bin-policy-profiles.js";
 
-<<<<<<< HEAD
 function isPathLikeToken(value: string): boolean {
   const trimmed = value.trim();
   if (!trimmed) {
@@ -436,6 +435,3 @@ export function validateSafeBinArgv(args: string[], profile: SafeBinProfile): bo
 
   return validatePositionalCount(positional, profile);
 }
-=======
-export { validateSafeBinArgv } from "./exec-safe-bin-policy-validator.js";
->>>>>>> 9530c0108 (refactor(exec): split safe-bin policy modules and dedupe allowlist flow)

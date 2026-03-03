@@ -16,14 +16,11 @@ type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
 export type GatewayClient = {
   connect: ConnectParams;
-<<<<<<< HEAD
-=======
   connId?: string;
   clientIp?: string;
   canvasHostUrl?: string;
   canvasCapability?: string;
   canvasCapabilityExpiresAtMs?: number;
->>>>>>> 54eaf1732 (feat(gateway): add node canvas capability refresh flow)
 };
 
 export type RespondFn = (
@@ -45,7 +42,6 @@ export type GatewayRequestContext = {
   logGateway: SubsystemLogger;
   incrementPresenceVersion: () => number;
   getHealthVersion: () => number;
-<<<<<<< HEAD
   broadcast: (
     event: string,
     payload: unknown,
@@ -54,10 +50,6 @@ export type GatewayRequestContext = {
       stateVersion?: { presence?: number; health?: number };
     },
   ) => void;
-=======
-  broadcast: GatewayBroadcastFn;
-  broadcastToConnIds: GatewayBroadcastToConnIdsFn;
->>>>>>> c1cc28a4e (refactor(gateway): share broadcast function types)
   nodeSendToSession: (sessionKey: string, event: string, payload: unknown) => void;
   nodeSendToAllSubscribed: (event: string, payload: unknown) => void;
   nodeSubscribe: (nodeId: string, sessionKey: string) => void;

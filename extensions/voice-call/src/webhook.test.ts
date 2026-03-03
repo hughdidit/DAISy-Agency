@@ -98,8 +98,6 @@ describe("VoiceCallWebhookServer stale call reaper", () => {
     }
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("VoiceCallWebhookServer replay handling", () => {
   it("acknowledges replayed webhook requests and skips event side effects", async () => {
@@ -233,4 +231,3 @@ describe("VoiceCallWebhookServer replay handling", () => {
     }
   });
 });
->>>>>>> 192df12d6 (test(voice-call): cover verification key and header helpers)

@@ -28,7 +28,6 @@ describe("resolveTelegramForumThreadId", () => {
 });
 
 describe("buildTelegramThreadParams", () => {
-<<<<<<< HEAD
   it("omits General topic thread id for message sends", () => {
     expect(buildTelegramThreadParams(1)).toBeUndefined();
   });
@@ -36,38 +35,6 @@ describe("buildTelegramThreadParams", () => {
   it("includes non-General topic thread ids", () => {
 <<<<<<< HEAD
     expect(buildTelegramThreadParams(99)).toEqual({ message_thread_id: 99 });
-=======
-    expect(buildTelegramThreadParams({ id: 99, scope: "forum" })).toEqual({
-      message_thread_id: 99,
-    });
-  });
-
-  it("includes thread id for dm topics", () => {
-    expect(buildTelegramThreadParams({ id: 1, scope: "dm" })).toEqual({
-      message_thread_id: 1,
-    });
-    expect(buildTelegramThreadParams({ id: 2, scope: "dm" })).toEqual({
-      message_thread_id: 2,
-    });
-  });
-
-  it("normalizes dm thread ids and skips non-positive values", () => {
-    expect(buildTelegramThreadParams({ id: 0, scope: "dm" })).toBeUndefined();
-    expect(buildTelegramThreadParams({ id: -1, scope: "dm" })).toBeUndefined();
-    expect(buildTelegramThreadParams({ id: 1.9, scope: "dm" })).toEqual({
-      message_thread_id: 1,
-    });
-  });
-
-  it("handles thread id 0 for non-dm scopes", () => {
-    // id=0 should be included for forum and none scopes (not falsy)
-    expect(buildTelegramThreadParams({ id: 0, scope: "forum" })).toEqual({
-      message_thread_id: 0,
-    });
-    expect(buildTelegramThreadParams({ id: 0, scope: "none" })).toEqual({
-      message_thread_id: 0,
-    });
->>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
 =======
   it.each([
     { input: { id: 1, scope: "forum" as const }, expected: undefined },
@@ -84,13 +51,10 @@ describe("buildTelegramThreadParams", () => {
     expect(buildTelegramThreadParams(input)).toEqual(expected);
 >>>>>>> 03241498f (test: table-drive telegram thread param cases)
   });
-<<<<<<< HEAD
 
   it("normalizes thread ids to integers", () => {
     expect(buildTelegramThreadParams(42.9)).toEqual({ message_thread_id: 42 });
   });
-=======
->>>>>>> b704bad8f (test: merge telegram thread id normalization assertions)
 });
 
 describe("buildTypingThreadParams", () => {
@@ -148,7 +112,6 @@ describe("normalizeForwardedContext", () => {
     expect(ctx?.date).toBe(456);
   });
 <<<<<<< HEAD
-<<<<<<< HEAD
 
   it("handles legacy forwards with signatures", () => {
     const ctx = normalizeForwardedContext({
@@ -183,8 +146,6 @@ describe("normalizeForwardedContext", () => {
     expect(ctx?.fromType).toBe("legacy_hidden_user");
     expect(ctx?.date).toBe(111);
   });
-=======
->>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
 =======
 
   it("handles forward_origin channel with author_signature and message_id", () => {

@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-=======
 import { resolveMatrixRoomId, sendMessageMatrix } from "../send.js";
 import { resolveActionClient } from "./client.js";
 import { resolveMatrixActionLimit } from "./limits.js";
 import { summarizeMatrixRawEvent } from "./summary.js";
->>>>>>> f5c370219 (refactor(matrix): dedupe action limit and pin/reaction helpers)
 import {
   EventType,
   MsgType,

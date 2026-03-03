@@ -82,18 +82,13 @@ apps/ios/*.mobileprovision
 IDENTITY.md
 USER.md
 .tgz
-<<<<<<< HEAD
 .githooks/
 error.log
 *.bak
-=======
-.idea
->>>>>>> 540996f10 (feat(provider): Z.AI endpoints + model catalog (#13456) (thanks @tomsun28) (#13456))
 
 # local tooling
 .serena/
 
-<<<<<<< HEAD
 # Claude Code local (personal / machine-specific) settings
 .claude/settings.local.json
 .claude/*.local.*
@@ -110,38 +105,13 @@ secrets/
 AGENTS.md
 AGENTS.md.bak.md
 =======
-# Agent credentials and memory (NEVER COMMIT)
-/memory/
-.agent/*.json
-!.agent/workflows/
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> d6c088910 (chore: add agent credentials to gitignore (#9874))
-=======
 local/
-<<<<<<< HEAD
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
-=======
-=======
-.agents/
-.agents
-=======
->>>>>>> 72e937a59 (fix(gitignore): add mise configuration files and correct .agents entries)
 /local/
 >>>>>>> e2c5f8fda (chore: ignore .agents directory (#21877))
 package-lock.json
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 89fa93ed7 (feat: support freshness parameter for Perplexity web_search provider (#15343))
-=======
-=======
-.claude/settings.local.json
-.agents/
-.agents
-.agent/
-<<<<<<< HEAD
->>>>>>> 72e937a59 (fix(gitignore): add mise configuration files and correct .agents entries)
 =======
 skills-lock.json
 >>>>>>> 271a14905 (chore: add skills-lock.json to gitignore)
@@ -149,25 +119,10 @@ skills-lock.json
 # Local iOS signing overrides
 apps/ios/LocalSigning.xcconfig
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
-=======
-=======
-
-# Xcode build directories (xcodebuild output)
-apps/ios/build/
-apps/shared/OpenClawKit/build/
-Swabble/build/
-
->>>>>>> 73f526f02 (fix(ios): support Xcode 16+ team detection and fix ntohl build error)
 # Generated protocol schema (produced via pnpm protocol:gen)
 dist/protocol.schema.json
-<<<<<<< HEAD
 >>>>>>> 3317b49d3 (feat(memory): allow QMD searches via mcporter keep-alive (openclaw#19617) thanks @vignesh07)
-=======
-.ant-colony/
-<<<<<<< HEAD
->>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
 =======
 
 # Eclipse

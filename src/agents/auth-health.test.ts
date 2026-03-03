@@ -1,14 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import { buildAuthHealthSummary, DEFAULT_OAUTH_WARN_MS } from "./auth-health.js";
-=======
-import {
-  buildAuthHealthSummary,
-  DEFAULT_OAUTH_WARN_MS,
-  formatRemainingShort,
-} from "./auth-health.js";
->>>>>>> 989c9dbd3 (refactor(auth): share remaining-time formatter)
 
 describe("buildAuthHealthSummary", () => {
   const now = 1_700_000_000_000;
@@ -66,36 +58,7 @@ describe("buildAuthHealthSummary", () => {
     expect(statuses["anthropic:api"]).toBe("static");
 
     const provider = summary.providers.find((entry) => entry.provider === "anthropic");
-<<<<<<< HEAD
     expect(provider?.status).toBe("expired");
-=======
-    expect(provider?.status).toBe("ok");
-  });
-
-  it("reports expired for OAuth without a refresh token", () => {
-    vi.spyOn(Date, "now").mockReturnValue(now);
-    const store = {
-      version: 1,
-      profiles: {
-        "google:no-refresh": {
-          type: "oauth" as const,
-          provider: "google-antigravity",
-          access: "access",
-          refresh: "",
-          expires: now - 10_000,
-        },
-      },
-    };
-
-    const summary = buildAuthHealthSummary({
-      store,
-      warnAfterMs: DEFAULT_OAUTH_WARN_MS,
-    });
-
-    const statuses = profileStatuses(summary);
-
-    expect(statuses["google:no-refresh"]).toBe("expired");
->>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
   });
 });
 

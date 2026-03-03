@@ -3,14 +3,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import JSON5 from "json5";
 
 import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
 import { parseFrontmatterBlock } from "../markdown/frontmatter.js";
 import { parseBooleanValue } from "../utils/boolean.js";
-=======
->>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
 import type {
   MoltbotHookMetadata,
 =======
@@ -28,10 +25,6 @@ import type {
 } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -55,11 +48,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
-=======
-=======
->>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
@@ -70,10 +59,7 @@ import type {
   ParsedHookFrontmatter,
 } from "./types.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -114,7 +100,6 @@ function parseInstallSpec(input: unknown): HookInstallSpec | undefined {
   return spec;
 }
 
-<<<<<<< HEAD
 function getFrontmatterValue(frontmatter: ParsedHookFrontmatter, key: string): string | undefined {
   const raw = frontmatter[key];
   return typeof raw === "string" ? raw : undefined;
@@ -137,10 +122,6 @@ export function resolveMoltbotMetadata(
     const parsed = JSON5.parse(raw) as { moltbot?: unknown } & Partial<
       Record<typeof LEGACY_MANIFEST_KEY, unknown>
     >;
-=======
-    const parsed = JSON5.parse(raw);
-<<<<<<< HEAD
->>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
     if (!parsed || typeof parsed !== "object") return undefined;
     const metadataRaw = parsed.moltbot ?? parsed[LEGACY_MANIFEST_KEY];
     if (!metadataRaw || typeof metadataRaw !== "object") return undefined;

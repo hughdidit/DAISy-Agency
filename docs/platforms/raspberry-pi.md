@@ -191,8 +191,6 @@ lsblk
 
 See [Pi USB boot guide](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#usb-mass-storage-boot) for setup.
 
-<<<<<<< HEAD
-=======
 ### Speed up CLI startup (module compile cache)
 
 On lower-power Pi hosts, enable Node's module compile cache so repeated CLI runs are faster:
@@ -244,7 +242,6 @@ random-I/O bottlenecks during cold starts.
 How `Restart=` policies help automated recovery:
 [systemd can automate service recovery](https://www.redhat.com/en/blog/systemd-automate-recovery).
 
->>>>>>> 38da2d076 (CLI: add root --help fast path and lazy channel option resolution (#30975))
 ### Reduce Memory Usage
 
 ```bash

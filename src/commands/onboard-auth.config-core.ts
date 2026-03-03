@@ -4,13 +4,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { OpenClawConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { ModelApi } from "../config/types.models.js";
->>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -20,19 +13,11 @@ import type { ModelApi } from "../config/types.models.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
-<<<<<<< HEAD
   buildCloudflareAiGatewayModelDefinition,
   resolveCloudflareAiGatewayBaseUrl,
 } from "../agents/cloudflare-ai-gateway.js";
 >>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
 import { buildXiaomiProvider, XIAOMI_DEFAULT_MODEL_ID } from "../agents/models-config.providers.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { ModelApi } from "../config/types.models.js";
-=======
-=======
-import {
->>>>>>> 90ef2d6bd (chore: Update formatting.)
   buildHuggingfaceModelDefinition,
   HUGGINGFACE_BASE_URL,
   HUGGINGFACE_MODEL_CATALOG,
@@ -41,11 +26,6 @@ import {
 import {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-  buildKilocodeProvider,
->>>>>>> 5239b55c0 (Config: expand Kilo catalog and persist selected Kilo models (#24921))
   buildKimiCodingProvider,
 >>>>>>> c62a6e704 (fix(models): add kimi-coding implicit provider template (openclaw#22526) thanks @lailoo)
   buildQianfanProvider,
@@ -85,13 +65,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { ModelApi } from "../config/types.models.js";
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -141,19 +115,9 @@ import {
   buildZaiModelDefinition,
   buildMoonshotModelDefinition,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  buildXaiModelDefinition,
-  MISTRAL_BASE_URL,
-  MISTRAL_DEFAULT_MODEL_ID,
->>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
   QIANFAN_BASE_URL,
   QIANFAN_DEFAULT_MODEL_REF,
-<<<<<<< HEAD
   QIANFAN_DEFAULT_MODEL_ID,
-=======
-  buildXaiModelDefinition,
->>>>>>> db31c0ccc (feat: add xAI Grok provider support)
 =======
   KIMI_CODING_MODEL_ID,
 >>>>>>> c62a6e704 (fix(models): add kimi-coding implicit provider template (openclaw#22526) thanks @lailoo)
@@ -168,17 +132,7 @@ import {
   XAI_DEFAULT_MODEL_ID,
 } from "./onboard-auth.models.js";
 
-<<<<<<< HEAD
 export function applyZaiConfig(cfg: MoltbotConfig): MoltbotConfig {
-=======
-export function applyZaiProviderConfig(
-  cfg: OpenClawConfig,
-  params?: { endpoint?: string; modelId?: string },
-): OpenClawConfig {
-  const modelId = params?.modelId?.trim() || ZAI_DEFAULT_MODEL_ID;
-  const modelRef = `zai/${modelId}`;
-
->>>>>>> 540996f10 (feat(provider): Z.AI endpoints + model catalog (#13456) (thanks @tomsun28) (#13456))
   const models = { ...cfg.agents?.defaults?.models };
   models[modelRef] = {
     ...models[modelRef],
@@ -257,7 +211,6 @@ export function applyOpenrouterProviderConfig(cfg: MoltbotConfig): MoltbotConfig
   };
 }
 
-<<<<<<< HEAD
 export function applyVercelAiGatewayProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF] = {
@@ -279,76 +232,6 @@ export function applyVercelAiGatewayProviderConfig(cfg: MoltbotConfig): MoltbotC
 
 <<<<<<< HEAD
 export function applyVercelAiGatewayConfig(cfg: MoltbotConfig): MoltbotConfig {
-=======
-export function applyCloudflareAiGatewayProviderConfig(
-  cfg: OpenClawConfig,
-  params?: { accountId?: string; gatewayId?: string },
-): OpenClawConfig {
-  const models = { ...cfg.agents?.defaults?.models };
-  models[CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF] = {
-    ...models[CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF],
-    alias: models[CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF]?.alias ?? "Cloudflare AI Gateway",
-  };
-
-  const providers = { ...cfg.models?.providers };
-  const existingProvider = providers["cloudflare-ai-gateway"];
-  const existingModels = Array.isArray(existingProvider?.models) ? existingProvider.models : [];
-  const defaultModel = buildCloudflareAiGatewayModelDefinition();
-  const hasDefaultModel = existingModels.some((model) => model.id === defaultModel.id);
-  const mergedModels = hasDefaultModel ? existingModels : [...existingModels, defaultModel];
-  const baseUrl =
-    params?.accountId && params?.gatewayId
-      ? resolveCloudflareAiGatewayBaseUrl({
-          accountId: params.accountId,
-          gatewayId: params.gatewayId,
-        })
-      : existingProvider?.baseUrl;
-
-  if (!baseUrl) {
-    return {
-      ...cfg,
-      agents: {
-        ...cfg.agents,
-        defaults: {
-          ...cfg.agents?.defaults,
-          models,
-        },
-      },
-    };
-  }
-
-  const { apiKey: existingApiKey, ...existingProviderRest } = (existingProvider ?? {}) as Record<
-    string,
-    unknown
-  > as { apiKey?: string };
-  const resolvedApiKey = typeof existingApiKey === "string" ? existingApiKey : undefined;
-  const normalizedApiKey = resolvedApiKey?.trim();
-  providers["cloudflare-ai-gateway"] = {
-    ...existingProviderRest,
-    baseUrl,
-    api: "anthropic-messages",
-    ...(normalizedApiKey ? { apiKey: normalizedApiKey } : {}),
-    models: mergedModels.length > 0 ? mergedModels : [defaultModel],
-  };
-
-  return {
-    ...cfg,
-    agents: {
-      ...cfg.agents,
-      defaults: {
-        ...cfg.agents?.defaults,
-        models,
-      },
-    },
-    models: {
-      mode: cfg.models?.mode ?? "merge",
-      providers,
-    },
-  };
-}
-
-export function applyVercelAiGatewayConfig(cfg: OpenClawConfig): OpenClawConfig {
->>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   const next = applyVercelAiGatewayProviderConfig(cfg);
   const existingModel = next.agents?.defaults?.model;
   return {
@@ -370,36 +253,7 @@ export function applyVercelAiGatewayConfig(cfg: OpenClawConfig): OpenClawConfig 
   };
 }
 
-<<<<<<< HEAD
 export function applyOpenrouterConfig(cfg: MoltbotConfig): MoltbotConfig {
-=======
-export function applyCloudflareAiGatewayConfig(
-  cfg: OpenClawConfig,
-  params?: { accountId?: string; gatewayId?: string },
-): OpenClawConfig {
-  const next = applyCloudflareAiGatewayProviderConfig(cfg, params);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
-}
-
-=======
->>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 export function applyOpenrouterConfig(cfg: OpenClawConfig): OpenClawConfig {
 >>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   const next = applyOpenrouterProviderConfig(cfg);
@@ -408,110 +262,7 @@ export function applyOpenrouterConfig(cfg: OpenClawConfig): OpenClawConfig {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 export function applyMoonshotProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
-=======
-=======
-export const LITELLM_BASE_URL = "http://localhost:4000";
-export const LITELLM_DEFAULT_MODEL_ID = "claude-opus-4-6";
-const LITELLM_DEFAULT_CONTEXT_WINDOW = 128_000;
-const LITELLM_DEFAULT_MAX_TOKENS = 8_192;
-const LITELLM_DEFAULT_COST = {
-  input: 0,
-  output: 0,
-  cacheRead: 0,
-  cacheWrite: 0,
-};
-
-function buildLitellmModelDefinition(): {
-  id: string;
-  name: string;
-  reasoning: boolean;
-  input: Array<"text" | "image">;
-  cost: { input: number; output: number; cacheRead: number; cacheWrite: number };
-  contextWindow: number;
-  maxTokens: number;
-} {
-  return {
-    id: LITELLM_DEFAULT_MODEL_ID,
-    name: "Claude Opus 4.6",
-    reasoning: true,
-    input: ["text", "image"],
-    // LiteLLM routes to many upstreams; keep neutral placeholders.
-    cost: LITELLM_DEFAULT_COST,
-    contextWindow: LITELLM_DEFAULT_CONTEXT_WINDOW,
-    maxTokens: LITELLM_DEFAULT_MAX_TOKENS,
-  };
-}
-
-export function applyLitellmProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
-  const models = { ...cfg.agents?.defaults?.models };
-  models[LITELLM_DEFAULT_MODEL_REF] = {
-    ...models[LITELLM_DEFAULT_MODEL_REF],
-    alias: models[LITELLM_DEFAULT_MODEL_REF]?.alias ?? "LiteLLM",
-  };
-
-  const providers = { ...cfg.models?.providers };
-  const existingProvider = providers.litellm;
-  const existingModels = Array.isArray(existingProvider?.models) ? existingProvider.models : [];
-  const defaultModel = buildLitellmModelDefinition();
-  const hasDefaultModel = existingModels.some((model) => model.id === LITELLM_DEFAULT_MODEL_ID);
-  const mergedModels = hasDefaultModel ? existingModels : [...existingModels, defaultModel];
-  const { apiKey: existingApiKey, ...existingProviderRest } = (existingProvider ?? {}) as Record<
-    string,
-    unknown
-  > as { apiKey?: string };
-  const resolvedBaseUrl =
-    typeof existingProvider?.baseUrl === "string" ? existingProvider.baseUrl.trim() : "";
-  const resolvedApiKey = typeof existingApiKey === "string" ? existingApiKey : undefined;
-  const normalizedApiKey = resolvedApiKey?.trim();
-  providers.litellm = {
-    ...existingProviderRest,
-    baseUrl: resolvedBaseUrl || LITELLM_BASE_URL,
-    api: "openai-completions",
-    ...(normalizedApiKey ? { apiKey: normalizedApiKey } : {}),
-    models: mergedModels.length > 0 ? mergedModels : [defaultModel],
-  };
-
-  return {
-    ...cfg,
-    agents: {
-      ...cfg.agents,
-      defaults: {
-        ...cfg.agents?.defaults,
-        models,
-      },
-    },
-    models: {
-      mode: cfg.models?.mode ?? "merge",
-      providers,
-    },
-  };
-}
-
-export function applyLitellmConfig(cfg: OpenClawConfig): OpenClawConfig {
-  const next = applyLitellmProviderConfig(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: LITELLM_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
-}
-
->>>>>>> a36b9be24 (Feat/litellm provider (#12823))
 =======
 >>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 export function applyMoonshotProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
@@ -546,34 +297,7 @@ export function applyMoonshotConfig(cfg: MoltbotConfig): MoltbotConfig {
   return applyAgentDefaultModelPrimary(next, MOONSHOT_DEFAULT_MODEL_REF);
 }
 
-<<<<<<< HEAD
 export function applyKimiCodeProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
-=======
-export function applyMoonshotConfigCn(cfg: OpenClawConfig): OpenClawConfig {
-<<<<<<< HEAD
-  const next = applyMoonshotProviderConfigWithBaseUrl(cfg, MOONSHOT_CN_BASE_URL);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: MOONSHOT_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
-=======
-  const next = applyMoonshotProviderConfigCn(cfg);
-  return applyAgentDefaultModelPrimary(next, MOONSHOT_DEFAULT_MODEL_REF);
->>>>>>> 621756193 (refactor(commands): dedupe provider config + default model helpers)
 }
 
 export function applyKimiCodeProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
@@ -841,12 +565,7 @@ export function applyAuthProfileConfig(
     email?: string;
     preferProfileFirst?: boolean;
   },
-<<<<<<< HEAD
 ): MoltbotConfig {
-=======
-): OpenClawConfig {
-  const normalizedProvider = params.provider.toLowerCase();
->>>>>>> e6484cb65 (refactor: harden kilocode auth ordering and dedupe provider wiring)
   const profiles = {
     ...cfg.auth?.profiles,
     [params.profileId]: {

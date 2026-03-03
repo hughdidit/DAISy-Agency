@@ -8,11 +8,7 @@ import {
 } from "../../infra/restart.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { defaultRuntime } from "../../runtime.js";
-=======
-import { getActiveTaskCount, waitForActiveTasks } from "../../process/command-queue.js";
->>>>>>> acb9cbb89 (fix(gateway): drain active turns before restart to prevent message loss (#13931))
 =======
 import {
   getActiveTaskCount,
@@ -24,11 +20,8 @@ import { createRestartIterationHook } from "../../process/restart-recovery.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { defaultRuntime } from "../../runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-=======
->>>>>>> ed11e93cf (chore(format))
 =======
 import type { defaultRuntime } from "../../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -47,11 +40,7 @@ export async function runGatewayLoop(params: {
   runtime: typeof defaultRuntime;
   lockPort?: number;
 }) {
-<<<<<<< HEAD
   const lock = await acquireGatewayLock();
-=======
-  let lock = await acquireGatewayLock({ port: params.lockPort });
->>>>>>> e6383a2c1 (fix(gateway): probe port liveness for stale lock recovery)
   let server: Awaited<ReturnType<typeof startGatewayServer>> | null = null;
   let shuttingDown = false;
   let restartResolver: (() => void) | null = null;
@@ -165,7 +154,6 @@ export async function runGatewayLoop(params: {
         clearTimeout(forceExitTimer);
         server = null;
         if (isRestart) {
-<<<<<<< HEAD
           const respawn = restartGatewayProcessWithFreshPid();
           if (respawn.mode === "spawned" || respawn.mode === "supervised") {
             const modeLabel =
@@ -189,11 +177,6 @@ export async function runGatewayLoop(params: {
         } else {
           cleanupSignals();
           params.runtime.exit(0);
-=======
-          await handleRestartAfterServerClose();
-        } else {
-          await handleStopAfterServerClose();
->>>>>>> edaa5ef7a (refactor(gateway): simplify restart flow and expand lock tests)
         }
       }
     })();
@@ -235,11 +218,7 @@ export async function runGatewayLoop(params: {
       });
     }
   } finally {
-<<<<<<< HEAD
     await lock?.release();
-=======
-    await releaseLockIfHeld();
->>>>>>> edaa5ef7a (refactor(gateway): simplify restart flow and expand lock tests)
     cleanupSignals();
   }
 }

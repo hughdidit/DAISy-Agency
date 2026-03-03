@@ -346,12 +346,7 @@ enum ExecApprovalsStore {
 
     static func ensureFile() -> ExecApprovalsFile {
 <<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovals.swift
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovals.swift
         var file = self.loadFile()
-=======
-=======
-        self.ensureSecureStateDirectory()
->>>>>>> 912ddba81 (fix(macos): harden exec approvals socket path and permissions):apps/macos/Sources/OpenClaw/ExecApprovals.swift
         let url = self.fileURL()
         let existed = FileManager().fileExists(atPath: url.path)
         let loaded = self.loadFile()
@@ -445,22 +440,9 @@ enum ExecApprovalsStore {
         }
     }
 
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovals.swift
     static func addAllowlistEntry(agentId: String?, pattern: String) {
         let trimmed = pattern.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-=======
-    @discardableResult
-    static func addAllowlistEntry(agentId: String?, pattern: String) -> ExecAllowlistPatternValidationReason? {
-        let normalizedPattern: String
-        switch ExecApprovalHelpers.validateAllowlistPattern(pattern) {
-        case let .valid(validPattern):
-            normalizedPattern = validPattern
-        case let .invalid(reason):
-            return reason
-        }
-
->>>>>>> 2028ca442 (fix(macos): unify exec allowlist validation pipeline):apps/macos/Sources/OpenClaw/ExecApprovals.swift
         self.updateFile { file in
             let key = self.agentKey(agentId)
             var agents = file.agents ?? [:]
@@ -509,7 +491,6 @@ enum ExecApprovalsStore {
             let key = self.agentKey(agentId)
             var agents = file.agents ?? [:]
             var entry = agents[key] ?? ExecApprovalsAgent()
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovals.swift
             let cleaned = allowlist
                 .map { item in
                     ExecAllowlistEntry(
@@ -520,11 +501,6 @@ enum ExecApprovalsStore {
                         lastResolvedPath: item.lastResolvedPath)
                 }
                 .filter { !$0.pattern.isEmpty }
-=======
-            let normalized = self.normalizeAllowlistEntries(allowlist, dropInvalid: true)
-            rejected = normalized.rejected
-            let cleaned = normalized.entries
->>>>>>> 2028ca442 (fix(macos): unify exec allowlist validation pipeline):apps/macos/Sources/OpenClaw/ExecApprovals.swift
             entry.allowlist = cleaned
             agents[key] = entry
             file.agents = agents
@@ -615,98 +591,8 @@ enum ExecApprovalsStore {
     }
 
     private static func normalizedPattern(_ pattern: String?) -> String? {
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovals.swift
         let trimmed = pattern?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return trimmed.isEmpty ? nil : trimmed.lowercased()
-=======
-        switch ExecApprovalHelpers.validateAllowlistPattern(pattern) {
-        case let .valid(normalized):
-            return normalized.lowercased()
-        case .invalid(.empty):
-            return nil
-        case .invalid:
-            let trimmed = pattern?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            return trimmed.isEmpty ? nil : trimmed.lowercased()
-        }
-    }
-
-    private static func migrateLegacyPattern(_ entry: ExecAllowlistEntry) -> ExecAllowlistEntry {
-        let trimmedPattern = entry.pattern.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedResolved = entry.lastResolvedPath?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let normalizedResolved = trimmedResolved.isEmpty ? nil : trimmedResolved
-
-        switch ExecApprovalHelpers.validateAllowlistPattern(trimmedPattern) {
-        case let .valid(pattern):
-            return ExecAllowlistEntry(
-                id: entry.id,
-                pattern: pattern,
-                lastUsedAt: entry.lastUsedAt,
-                lastUsedCommand: entry.lastUsedCommand,
-                lastResolvedPath: normalizedResolved)
-        case .invalid:
-            switch ExecApprovalHelpers.validateAllowlistPattern(trimmedResolved) {
-            case let .valid(migratedPattern):
-                return ExecAllowlistEntry(
-                    id: entry.id,
-                    pattern: migratedPattern,
-                    lastUsedAt: entry.lastUsedAt,
-                    lastUsedCommand: entry.lastUsedCommand,
-                    lastResolvedPath: normalizedResolved)
-            case .invalid:
-                return ExecAllowlistEntry(
-                    id: entry.id,
-                    pattern: trimmedPattern,
-                    lastUsedAt: entry.lastUsedAt,
-                    lastUsedCommand: entry.lastUsedCommand,
-                    lastResolvedPath: normalizedResolved)
-            }
-        }
-    }
-
-    private static func normalizeAllowlistEntries(
-        _ entries: [ExecAllowlistEntry],
-        dropInvalid: Bool) -> (entries: [ExecAllowlistEntry], rejected: [ExecAllowlistRejectedEntry])
-    {
-        var normalized: [ExecAllowlistEntry] = []
-        normalized.reserveCapacity(entries.count)
-        var rejected: [ExecAllowlistRejectedEntry] = []
-
-        for entry in entries {
-            let migrated = self.migrateLegacyPattern(entry)
-            let trimmedPattern = migrated.pattern.trimmingCharacters(in: .whitespacesAndNewlines)
-            let trimmedResolvedPath = migrated.lastResolvedPath?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let normalizedResolvedPath = trimmedResolvedPath.isEmpty ? nil : trimmedResolvedPath
-
-            switch ExecApprovalHelpers.validateAllowlistPattern(trimmedPattern) {
-            case let .valid(pattern):
-                normalized.append(
-                    ExecAllowlistEntry(
-                        id: migrated.id,
-                        pattern: pattern,
-                        lastUsedAt: migrated.lastUsedAt,
-                        lastUsedCommand: migrated.lastUsedCommand,
-                        lastResolvedPath: normalizedResolvedPath))
-            case let .invalid(reason):
-                if dropInvalid {
-                    rejected.append(
-                        ExecAllowlistRejectedEntry(
-                            id: migrated.id,
-                            pattern: trimmedPattern,
-                            reason: reason))
-                } else if reason != .empty {
-                    normalized.append(
-                        ExecAllowlistEntry(
-                            id: migrated.id,
-                            pattern: trimmedPattern,
-                            lastUsedAt: migrated.lastUsedAt,
-                            lastUsedCommand: migrated.lastUsedCommand,
-                            lastResolvedPath: normalizedResolvedPath))
-                }
-            }
-        }
-
-        return (normalized, rejected)
->>>>>>> 2028ca442 (fix(macos): unify exec allowlist validation pipeline):apps/macos/Sources/OpenClaw/ExecApprovals.swift
     }
 
     private static func mergeAgents(

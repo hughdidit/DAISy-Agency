@@ -1,12 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AuthProfileFailureReason, AuthProfileStore, ProfileUsageStats } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -147,8 +139,6 @@ export function resolveProfilesUnavailableReason(params: {
 }
 
 /**
-<<<<<<< HEAD
-=======
  * Return the soonest `unusableUntil` timestamp (ms epoch) among the given
  * profiles, or `null` when no profile has a recorded cooldown. Note: the
  * returned timestamp may be in the past if the cooldown has already expired.
@@ -246,7 +236,6 @@ export function clearExpiredCooldowns(store: AuthProfileStore, now?: number): bo
 }
 
 /**
->>>>>>> 03cadc4b7 (fix(auth): auto-expire stale auth profile cooldowns and reset error count)
  * Mark a profile as successfully used. Resets error count and updates lastUsed.
  * Uses store lock to avoid overwriting concurrent usage updates.
  */
@@ -412,7 +401,6 @@ function computeNextProfileUsageStats(params: {
       baseMs: params.cfgResolved.billingBackoffMs,
       maxMs: params.cfgResolved.billingMaxMs,
     });
-<<<<<<< HEAD
     const newDisabledUntil = params.now + backoffMs;
     // Only advance disabledUntil — never shorten an existing window.
     // A retry that fires while the profile is already disabled must not reset
@@ -421,16 +409,6 @@ function computeNextProfileUsageStats(params: {
       updatedStats.disabledUntil = newDisabledUntil;
     }
     updatedStats.disabledReason = "billing";
-=======
-    // Keep active disable windows immutable so retries within the window cannot
-    // extend recovery time indefinitely.
-    updatedStats.disabledUntil = keepActiveWindowOrRecompute({
-      existingUntil: params.existing.disabledUntil,
-      now: params.now,
-      recomputedUntil: params.now + backoffMs,
-    });
-    updatedStats.disabledReason = params.reason;
->>>>>>> c0026274d (fix(auth): distinguish revoked API keys from transient auth errors (#25754))
   } else {
     const backoffMs = calculateAuthProfileCooldownMs(nextErrorCount);
     const newCooldownUntil = params.now + backoffMs;

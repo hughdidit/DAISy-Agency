@@ -147,13 +147,9 @@ export class MediaStreamHandler {
     const callSid = message.start?.callSid || "";
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     this.logger.info(
       `[MediaStream] Stream started: ${streamSid} (call: ${callSid})`,
     );
-=======
-    console.log(`[MediaStream] Stream started: ${streamSid} (call: ${callSid})`);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 =======
     // Prefer token from start message customParameters (set via TwiML <Parameter>),
     // falling back to query string token. Twilio strips query params from WebSocket
@@ -206,13 +202,9 @@ export class MediaStreamHandler {
 
     // Connect to OpenAI STT (non-blocking, log errors but don't fail the call)
     sttSession.connect().catch((err) => {
-<<<<<<< HEAD
       this.logger.warn(
         `[MediaStream] STT connection failed (TTS still works): ${err.message}`,
       );
-=======
-      console.warn(`[MediaStream] STT connection failed (TTS still works):`, err.message);
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     });
 
     return session;

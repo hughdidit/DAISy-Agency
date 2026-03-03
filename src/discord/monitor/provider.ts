@@ -4,12 +4,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { inspect } from "node:util";
 import { Client } from "@buape/carbon";
-=======
-import { Client, ReadyListener, type BaseMessageInteractiveComponent } from "@buape/carbon";
->>>>>>> 5d8c6ef91 (feat(discord): add configurable presence (activity/status/type))
 import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
 =======
@@ -39,7 +35,6 @@ import {
 } from "@buape/carbon";
 import { GatewayCloseCodes, type GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
-<<<<<<< HEAD
 import { ProxyAgent, fetch as undiciFetch } from "undici";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -51,8 +46,6 @@ import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> 644251295 (perf: reduce hotspot test startup and timeout costs)
-=======
->>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -73,20 +66,8 @@ import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { listNativeCommandSpecsForConfig } from "../../auto-reply/commands-registry.js";
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
-<<<<<<< HEAD
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import { mergeAllowlist, summarizeMapping } from "../../channels/allowlists/resolve-utils.js";
-=======
-import {
-<<<<<<< HEAD
-  addAllowlistUserEntriesFromConfigEntry,
-  buildAllowlistResolutionSummary,
-  mergeAllowlist,
-  resolveAllowlistIdAdditions,
-  patchAllowlistUsersInConfigEntries,
-  summarizeMapping,
-} from "../../channels/allowlists/resolve-utils.js";
->>>>>>> f41f6d324 (refactor(channels): share allowlist user resolve helpers)
 import {
 =======
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
@@ -98,11 +79,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig, ReplyToMode } from "../../config/config.js";
-=======
-import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -114,27 +91,12 @@ import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadConfig } from "../../config/config.js";
-<<<<<<< HEAD
 import type { GroupPolicy } from "../../config/types.base.js";
-=======
-import {
-  GROUP_POLICY_BLOCKED_LABEL,
-  resolveOpenProviderRuntimeGroupPolicy,
-  resolveDefaultGroupPolicy,
-  warnMissingProviderGroupPolicyFallbackOnce,
-} from "../../config/runtime-group-policy.js";
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
-<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
-=======
-import { createNonExitingRuntime, type RuntimeEnv } from "../../runtime.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 =======
 import { wrapFetchWithAbortSignal } from "../../infra/fetch.js";
 >>>>>>> e997545d4 (fix(discord): apply proxy to app-id and allowlist REST lookups)
@@ -144,33 +106,14 @@ import { resolveDiscordAccount } from "../accounts.js";
 import { fetchDiscordApplicationId } from "../probe.js";
 import { normalizeDiscordToken } from "../token.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import {
-  createAgentComponentButton,
-  createAgentSelectMenu,
-  createDiscordComponentButton,
-  createDiscordComponentChannelSelect,
-  createDiscordComponentMentionableSelect,
-  createDiscordComponentModal,
-  createDiscordComponentRoleSelect,
-  createDiscordComponentStringSelect,
-  createDiscordComponentUserSelect,
-} from "./agent-components.js";
-<<<<<<< HEAD
->>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
 =======
 import { resolveDiscordSlashCommandConfig } from "./commands.js";
 >>>>>>> 122bdfa4e (feat(discord): add configurable ephemeral option for slash commands)
 import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
 import { attachEarlyGatewayErrorGuard } from "./gateway-error-guard.js";
 import { createDiscordGatewayPlugin } from "./gateway-plugin.js";
-<<<<<<< HEAD
 import { registerGateway, unregisterGateway } from "./gateway-registry.js";
 >>>>>>> 5af322f71 (feat(discord): add set-presence action for bot activity and status)
-=======
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import {
   DiscordMessageListener,
   DiscordPresenceListener,
@@ -184,13 +127,7 @@ import {
   createDiscordCommandArgFallbackButton,
   createDiscordNativeCommand,
 } from "./native-command.js";
-<<<<<<< HEAD
 import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
-=======
-import { resolveDiscordPresenceUpdate } from "./presence.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 6acea69b2 (Discord: refine presence config defaults (#10855) (thanks @h0tp-ftw))
 =======
 import { resolveDiscordRestFetch } from "./rest-fetch.js";
 >>>>>>> 797ea7ed2 (perf(test): cut slow monitor/subagent test overhead)
@@ -199,13 +136,9 @@ import { resolveDiscordAllowlistConfig } from "./provider.allowlist.js";
 import { runDiscordGatewayLifecycle } from "./provider.lifecycle.js";
 import { resolveDiscordRestFetch } from "./rest-fetch.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { createNoopThreadBindingManager, createThreadBindingManager } from "./thread-bindings.js";
 <<<<<<< HEAD
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
-=======
-import { formatThreadBindingTtlLabel } from "./thread-bindings.messages.js";
->>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 =======
 =======
 import type { DiscordMonitorStatusSink } from "./status.js";
@@ -232,47 +165,6 @@ export type MonitorDiscordOpts = {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-function createDiscordGatewayPlugin(params: {
-  discordConfig: DiscordAccountConfig;
-  runtime: RuntimeEnv;
-}): GatewayPlugin {
-  const intents = resolveDiscordGatewayIntents(params.discordConfig?.intents);
-  const proxy = params.discordConfig?.proxy?.trim();
-  const options = {
-    reconnect: { maxAttempts: 50 },
-    intents,
-    autoInteractions: true,
-  };
-
-  if (!proxy) {
-    return new GatewayPlugin(options);
-  }
-
-  try {
-    const agent = new HttpsProxyAgent<string>(proxy);
-
-    params.runtime.log?.("discord: gateway proxy enabled");
-
-    class ProxyGatewayPlugin extends GatewayPlugin {
-      constructor() {
-        super(options);
-      }
-
-      createWebSocket(url: string) {
-        return new WebSocket(url, { agent });
-      }
-    }
-
-    return new ProxyGatewayPlugin();
-  } catch (err) {
-    params.runtime.error?.(danger(`discord: invalid gateway proxy: ${String(err)}`));
-    return new GatewayPlugin(options);
-  }
-}
-
->>>>>>> e55431bf8 (fix(discord): restore gateway reconnect maxAttempts to 50)
 =======
 >>>>>>> 644251295 (perf: reduce hotspot test startup and timeout costs)
 function summarizeAllowList(list?: Array<string | number>) {
@@ -297,16 +189,9 @@ function summarizeGuilds(entries?: Record<string, unknown>) {
   return `${sample.join(", ")}${suffix}`;
 }
 
-<<<<<<< HEAD
 const DEFAULT_THREAD_BINDING_TTL_HOURS = 24;
 
 function normalizeThreadBindingTtlHours(raw: unknown): number | undefined {
-=======
-const DEFAULT_THREAD_BINDING_IDLE_HOURS = 24;
-const DEFAULT_THREAD_BINDING_MAX_AGE_HOURS = 0;
-
-function normalizeThreadBindingHours(raw: unknown): number | undefined {
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
   if (typeof raw !== "number" || !Number.isFinite(raw)) {
     return undefined;
   }
@@ -316,7 +201,6 @@ function normalizeThreadBindingHours(raw: unknown): number | undefined {
   return raw;
 }
 
-<<<<<<< HEAD
 function resolveThreadBindingSessionTtlMs(params: {
   channelTtlHoursRaw: unknown;
   sessionTtlHoursRaw: unknown;
@@ -326,28 +210,6 @@ function resolveThreadBindingSessionTtlMs(params: {
     normalizeThreadBindingTtlHours(params.sessionTtlHoursRaw) ??
     DEFAULT_THREAD_BINDING_TTL_HOURS;
   return Math.floor(ttlHours * 60 * 60 * 1000);
-=======
-function resolveThreadBindingIdleTimeoutMs(params: {
-  channelIdleHoursRaw: unknown;
-  sessionIdleHoursRaw: unknown;
-}): number {
-  const idleHours =
-    normalizeThreadBindingHours(params.channelIdleHoursRaw) ??
-    normalizeThreadBindingHours(params.sessionIdleHoursRaw) ??
-    DEFAULT_THREAD_BINDING_IDLE_HOURS;
-  return Math.floor(idleHours * 60 * 60 * 1000);
-}
-
-function resolveThreadBindingMaxAgeMs(params: {
-  channelMaxAgeHoursRaw: unknown;
-  sessionMaxAgeHoursRaw: unknown;
-}): number {
-  const maxAgeHours =
-    normalizeThreadBindingHours(params.channelMaxAgeHoursRaw) ??
-    normalizeThreadBindingHours(params.sessionMaxAgeHoursRaw) ??
-    DEFAULT_THREAD_BINDING_MAX_AGE_HOURS;
-  return Math.floor(maxAgeHours * 60 * 60 * 1000);
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
 }
 
 function normalizeThreadBindingsEnabled(raw: unknown): boolean | undefined {
@@ -368,13 +230,8 @@ function resolveThreadBindingsEnabled(params: {
   );
 }
 
-<<<<<<< HEAD
 function formatThreadBindingSessionTtlLabel(ttlMs: number): string {
   const label = formatThreadBindingTtlLabel(ttlMs);
-=======
-function formatThreadBindingDurationForConfigLabel(durationMs: number): string {
-  const label = formatThreadBindingDurationLabel(durationMs);
->>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
   return label === "disabled" ? "off" : label;
 }
 
@@ -398,7 +255,6 @@ function dedupeSkillCommandsForDiscord(
   return deduped;
 }
 
-<<<<<<< HEAD
 function resolveDiscordRuntimeGroupPolicy(params: {
   providerConfigPresent: boolean;
   groupPolicy?: GroupPolicy;
@@ -418,8 +274,6 @@ function resolveDiscordRuntimeGroupPolicy(params: {
   return { groupPolicy, providerMissingFallbackApplied };
 }
 
-=======
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 async function deployDiscordCommands(params: {
   client: Client;
   runtime: RuntimeEnv;
@@ -499,24 +353,16 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   const discordRootThreadBindings = cfg.channels?.discord?.threadBindings;
   const discordAccountThreadBindings =
     cfg.channels?.discord?.accounts?.[account.accountId]?.threadBindings;
-<<<<<<< HEAD
   const discordRestFetch = resolveDiscordRestFetch(discordCfg.proxy, runtime);
   const dmConfig = discordCfg.dm;
   let guildEntries = discordCfg.guilds;
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-=======
-  const discordRestFetch = resolveDiscordRestFetch(rawDiscordCfg.proxy, runtime);
-  const dmConfig = rawDiscordCfg.dm;
-  let guildEntries = rawDiscordCfg.guilds;
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
->>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const providerConfigPresent = cfg.channels?.discord !== undefined;
   const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
     providerConfigPresent,
     groupPolicy: discordCfg.groupPolicy,
     defaultGroupPolicy,
   });
-<<<<<<< HEAD
   if (providerMissingFallbackApplied) {
     runtime.log?.(
       warn(
@@ -524,17 +370,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       ),
     );
   }
-=======
-  const discordCfg =
-    rawDiscordCfg.groupPolicy === groupPolicy ? rawDiscordCfg : { ...rawDiscordCfg, groupPolicy };
-  warnMissingProviderGroupPolicyFallbackOnce({
-    providerMissingFallbackApplied,
-    providerKey: "discord",
-    accountId: account.accountId,
-    blockedLabel: GROUP_POLICY_BLOCKED_LABEL.guild,
-    log: (message) => runtime.log?.(warn(message)),
-  });
->>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   let allowFrom = discordCfg.allowFrom ?? dmConfig?.allowFrom;
   const mediaMaxBytes = (opts.mediaMaxMb ?? discordCfg.mediaMaxMb ?? 8) * 1024 * 1024;
   const textLimit = resolveTextChunkLimit(cfg, "discord", account.accountId, {
@@ -580,12 +415,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   const useAccessGroups = cfg.commands?.useAccessGroups !== false;
   const slashCommand = resolveDiscordSlashCommandConfig(discordCfg.slashCommand);
   const sessionPrefix = "discord:slash";
-<<<<<<< HEAD
   const ephemeralDefault = true;
-=======
-  const ephemeralDefault = slashCommand.ephemeral;
-  const voiceEnabled = discordCfg.voice?.enabled !== false;
->>>>>>> 122bdfa4e (feat(discord): add configurable ephemeral option for slash commands)
 
   const allowlistResolved = await resolveDiscordAllowlistConfig({
     token,
@@ -633,13 +463,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       ),
     );
   }
-<<<<<<< HEAD
   const commands = commandSpecs.map((spec) =>
-=======
-  const voiceManagerRef: { current: DiscordVoiceManager | null } = { current: null };
-<<<<<<< HEAD
-  const commands: BaseCommand[] = commandSpecs.map((spec) =>
->>>>>>> ab27d7b05 (Discord: fix voice command typing)
     createDiscordNativeCommand({
       command: spec,
       cfg,
@@ -740,7 +564,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
         allowFrom,
         dmPolicy,
         runtime,
-<<<<<<< HEAD
       })
     : null;
 
@@ -759,68 +582,10 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   }
 
 <<<<<<< HEAD
-=======
-  if (agentComponentsEnabled) {
-    const componentContext = {
-      cfg,
-      discordConfig: discordCfg,
-      accountId: account.accountId,
-      guildEntries,
-      allowFrom,
-      dmPolicy,
-      runtime,
-      token,
-    };
-    components.push(createAgentComponentButton(componentContext));
-    components.push(createAgentSelectMenu(componentContext));
-    components.push(createDiscordComponentButton(componentContext));
-    components.push(createDiscordComponentStringSelect(componentContext));
-    components.push(createDiscordComponentUserSelect(componentContext));
-    components.push(createDiscordComponentRoleSelect(componentContext));
-    components.push(createDiscordComponentMentionableSelect(componentContext));
-    components.push(createDiscordComponentChannelSelect(componentContext));
-    modals.push(createDiscordComponentModal(componentContext));
-  }
-
-  class DiscordStatusReadyListener extends ReadyListener {
-    async handle(_data: unknown, client: Client) {
-      const gateway = client.getPlugin<GatewayPlugin>("gateway");
-      if (!gateway) {
-        return;
-      }
-
-      const presence = resolveDiscordPresenceUpdate(discordCfg);
-      if (!presence) {
-        return;
-      }
-
-      gateway.updatePresence(presence);
-=======
-        token,
-      };
-      components.push(createAgentComponentButton(componentContext));
-      components.push(createAgentSelectMenu(componentContext));
-      components.push(createDiscordComponentButton(componentContext));
-      components.push(createDiscordComponentStringSelect(componentContext));
-      components.push(createDiscordComponentUserSelect(componentContext));
-      components.push(createDiscordComponentRoleSelect(componentContext));
-      components.push(createDiscordComponentMentionableSelect(componentContext));
-      components.push(createDiscordComponentChannelSelect(componentContext));
-      modals.push(createDiscordComponentModal(componentContext));
->>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 >>>>>>> 5d8c6ef91 (feat(discord): add configurable presence (activity/status/type))
-=======
-  const clientPlugins: Plugin[] = [
-    createDiscordGatewayPlugin({ discordConfig: discordCfg, runtime }),
-  ];
-  if (voiceEnabled) {
-    clientPlugins.push(new VoicePlugin());
-  }
->>>>>>> ab27d7b05 (Discord: fix voice command typing)
   const client = new Client(
     {
       baseUrl: "http://localhost",
@@ -1167,7 +932,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     });
   } finally {
 <<<<<<< HEAD
-<<<<<<< HEAD
     unregisterGateway(account.accountId);
     stopGatewayLogging();
     if (helloTimeoutId) {
@@ -1177,10 +941,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     abortSignal?.removeEventListener("abort", onAbort);
     if (execApprovalsHandler) {
       await execApprovalsHandler.stop();
-=======
-=======
-    releaseEarlyGatewayErrorGuard();
->>>>>>> 7af6849c2 (Discord: handle early gateway startup errors)
     if (!lifecycleStarted) {
       threadBindings.stop();
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))

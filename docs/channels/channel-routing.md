@@ -85,13 +85,9 @@ Example:
 ```json5
 {
   agents: {
-<<<<<<< HEAD
     list: [
       { id: "support", name: "Support", workspace: "~/clawd-support" }
     ]
-=======
-    list: [{ id: "support", name: "Support", workspace: "~/.openclaw/workspace-support" }],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   bindings: [
     { match: { channel: "slack", teamId: "T123" }, agentId: "support" },

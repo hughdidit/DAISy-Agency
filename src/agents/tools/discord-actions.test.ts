@@ -1,12 +1,7 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
 import type { DiscordActionConfig } from "../../config/config.js";
-=======
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> 0afd5d38c (test(actions): table-drive discord reaction and permission cases)
 import type { DiscordActionConfig, OpenClawConfig } from "../../config/config.js";
 >>>>>>> 4640999e7 (test: add per-account action gating tests for Discord and Telegram handlers)
 import { handleDiscordGuildAction } from "./discord-actions-guild.js";

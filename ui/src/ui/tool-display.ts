@@ -3,13 +3,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 import rawConfig from "./tool-display.json";
 import type { IconName } from "./icons";
-=======
-import type { IconName } from "./icons.ts";
-=======
->>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { IconName } from "./icons.ts";
 >>>>>>> ed11e93cf (chore(format))
