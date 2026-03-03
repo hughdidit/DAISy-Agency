@@ -71,10 +71,13 @@ export class MongoMemoryDB {
     ];
 
     const docs = await col.aggregate<MemorySearchDocument>(pipeline).toArray();
-    return docs.map((doc) => ({
-      entry: documentToEntry(doc),
-      score: doc.score,
-    }));
+    return docs.map((doc) => {
+      const { score, ...document } = doc;
+      return {
+        entry: documentToEntry(document),
+        score,
+      };
+    });
   }
 
   async get(id: string): Promise<MemoryEntry | null> {
@@ -111,7 +114,7 @@ function omitId({ id: _id, ...rest }: MemoryEntry): Omit<MemoryEntry, "id"> {
   return rest;
 }
 
-function documentToEntry(doc: MemoryDocument | MemorySearchDocument): MemoryEntry {
+function documentToEntry(doc: MemoryDocument): MemoryEntry {
   const { _id, ...rest } = doc;
   return { id: _id, ...rest };
 }
