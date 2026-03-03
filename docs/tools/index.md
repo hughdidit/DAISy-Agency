@@ -1,19 +1,19 @@
 ---
-summary: "Agent tool surface for Moltbot (browser, canvas, nodes, message, cron) replacing legacy `moltbot-*` skills"
+summary: "Agent tool surface for OpenClaw (browser, canvas, nodes, message, cron) replacing legacy `openclaw-*` skills"
 read_when:
   - Adding or modifying agent tools
-  - Retiring or changing `moltbot-*` skills
+  - Retiring or changing `openclaw-*` skills
 ---
 
-# Tools (Moltbot)
+# Tools (OpenClaw)
 
-Moltbot exposes **first-class agent tools** for browser, canvas, nodes, and cron.
-These replace the old `moltbot-*` skills: the tools are typed, no shelling,
+OpenClaw exposes **first-class agent tools** for browser, canvas, nodes, and cron.
+These replace the old `openclaw-*` skills: the tools are typed, no shelling,
 and the agent should rely on them directly.
 
 ## Disabling tools
 
-You can globally allow/deny tools via `tools.allow` / `tools.deny` in `moltbot.json`
+You can globally allow/deny tools via `tools.allow` / `tools.deny` in `openclaw.json`
 (deny wins). This prevents disallowed tools from being sent to model providers.
 
 ```json5
@@ -26,7 +26,7 @@ Notes:
 
 - Matching is case-insensitive.
 - `*` wildcards are supported (`"*"` means all tools).
-- If `tools.allow` only references unknown or unloaded plugin tool names, Moltbot logs a warning and ignores the allowlist so core tools stay available.
+- If `tools.allow` only references unknown or unloaded plugin tool names, OpenClaw logs a warning and ignores the allowlist so core tools stay available.
 
 ## Tool profiles (base allowlist)
 
@@ -150,7 +150,7 @@ Available groups:
 - `group:automation`: `cron`, `gateway`
 - `group:messaging`: `message`
 - `group:nodes`: `nodes`
-- `group:moltbot`: all built-in Moltbot tools (excludes provider plugins)
+- `group:openclaw`: all built-in OpenClaw tools (excludes provider plugins)
 
 Example (allow only file tools + browser):
 
@@ -205,7 +205,7 @@ Notes:
 - If `process` is disallowed, `exec` runs synchronously and ignores `yieldMs`/`background`.
 - `elevated` is gated by `tools.elevated` plus any `agents.list[].tools.elevated` override (both must allow) and is an alias for `host=gateway` + `security=full`.
 - `elevated` only changes behavior when the agent is sandboxed (otherwise it’s a no-op).
-- `host=node` can target a macOS companion app or a headless node host (`moltbot node run`).
+- `host=node` can target a macOS companion app or a headless node host (`openclaw node run`).
 - gateway/node approvals and allowlists: [Exec approvals](/tools/exec-approvals).
 
 ### `process`
@@ -261,7 +261,7 @@ Core parameters:
 - `count` (1–10; default from `tools.web.search.maxResults`)
 
 Notes:
-- Requires a Brave API key (recommended: `moltbot configure --section web`, or set `BRAVE_API_KEY`).
+- Requires a Brave API key (recommended: `openclaw configure --section web`, or set `BRAVE_API_KEY`).
 - Enable via `tools.web.search.enabled`.
 - Responses are cached (default 15 min).
 - See [Web tools](/tools/web) for setup.
@@ -338,7 +338,7 @@ Notes:
 - Uses gateway `node.invoke` under the hood.
 - If no `node` is provided, the tool picks a default (single connected node or local mac node).
 - A2UI is v0.8 only (no `createSurface`); the CLI rejects v0.9 JSONL with line errors.
-- Quick smoke: `moltbot nodes canvas a2ui push --node <id> --text "Hello from A2UI"`.
+- Quick smoke: `openclaw nodes canvas a2ui push --node <id> --text "Hello from A2UI"`.
 
 ### `nodes`
 
@@ -439,7 +439,7 @@ Notes:
 Restart or apply updates to the running Gateway process (in-place).
 
 Core actions:
-- `restart` (authorizes + sends `SIGUSR1` for in-process restart; `moltbot gateway` restart in-place)
+- `restart` (authorizes + sends `SIGUSR1` for in-process restart; `openclaw gateway` restart in-place)
 - `config.get` / `config.schema`
 - `config.apply` (validate + write config + restart + wake)
 - `config.patch` (merge partial update + restart + wake)

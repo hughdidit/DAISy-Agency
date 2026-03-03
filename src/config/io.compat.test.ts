@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { createConfigIO } from "./io.js";
 
 async function withTempHome(run: (home: string) => Promise<void>): Promise<void> {
-  const home = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-config-"));
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-config-"));
   try {
     await run(home);
   } finally {
@@ -16,9 +16,9 @@ async function withTempHome(run: (home: string) => Promise<void>): Promise<void>
 
 async function writeConfig(
   home: string,
-  dirname: ".moltbot" | ".clawdbot",
+  dirname: ".openclaw" | ".openclaw",
   port: number,
-  filename: "moltbot.json" | "clawdbot.json" = "moltbot.json",
+  filename: "openclaw.json" | "openclaw.json" = "openclaw.json",
 ) {
   const dir = path.join(home, dirname);
   await fs.mkdir(dir, { recursive: true });
@@ -28,10 +28,10 @@ async function writeConfig(
 }
 
 describe("config io compat (new + legacy folders)", () => {
-  it("prefers ~/.moltbot/moltbot.json when both configs exist", async () => {
+  it("prefers ~/.moltai/openclawbot.json when both configs exist", async () => {
     await withTempHome(async (home) => {
-      const newConfigPath = await writeConfig(home, ".moltbot", 19001);
-      await writeConfig(home, ".clawdbot", 18789);
+      const newConfigPath = await writeConfig(home, ".openclaw", 19001);
+      await writeConfig(home, ".openclaw", 18789);
 
       const io = createConfigIO({
         env: {} as NodeJS.ProcessEnv,
@@ -42,9 +42,9 @@ describe("config io compat (new + legacy folders)", () => {
     });
   });
 
-  it("falls back to ~/.clawdbot/moltbot.json when only legacy exists", async () => {
+  it("falls back to ~/.clawdai/openclawbot.json when only legacy exists", async () => {
     await withTempHome(async (home) => {
-      const legacyConfigPath = await writeConfig(home, ".clawdbot", 20001);
+      const legacyConfigPath = await writeConfig(home, ".openclaw", 20001);
 
       const io = createConfigIO({
         env: {} as NodeJS.ProcessEnv,
@@ -56,9 +56,9 @@ describe("config io compat (new + legacy folders)", () => {
     });
   });
 
-  it("falls back to ~/.clawdbot/clawdbot.json when only legacy filename exists", async () => {
+  it("falls back to ~/.openclaw/openclaw.json when only legacy filename exists", async () => {
     await withTempHome(async (home) => {
-      const legacyConfigPath = await writeConfig(home, ".clawdbot", 20002, "clawdbot.json");
+      const legacyConfigPath = await writeConfig(home, ".openclaw", 20002, "openclaw.json");
 
       const io = createConfigIO({
         env: {} as NodeJS.ProcessEnv,
@@ -70,10 +70,10 @@ describe("config io compat (new + legacy folders)", () => {
     });
   });
 
-  it("prefers moltbot.json over legacy filename in the same dir", async () => {
+  it("prefers openclaw.json over legacy filename in the same dir", async () => {
     await withTempHome(async (home) => {
-      const preferred = await writeConfig(home, ".clawdbot", 20003, "moltbot.json");
-      await writeConfig(home, ".clawdbot", 20004, "clawdbot.json");
+      const preferred = await writeConfig(home, ".openclaw", 20003, "openclaw.json");
+      await writeConfig(home, ".openclaw", 20004, "openclaw.json");
 
       const io = createConfigIO({
         env: {} as NodeJS.ProcessEnv,
@@ -87,11 +87,11 @@ describe("config io compat (new + legacy folders)", () => {
 
   it("honors explicit legacy config path env override", async () => {
     await withTempHome(async (home) => {
-      const newConfigPath = await writeConfig(home, ".moltbot", 19002);
-      const legacyConfigPath = await writeConfig(home, ".clawdbot", 20002);
+      const newConfigPath = await writeConfig(home, ".openclaw", 19002);
+      const legacyConfigPath = await writeConfig(home, ".openclaw", 20002);
 
       const io = createConfigIO({
-        env: { CLAWDBOT_CONFIG_PATH: legacyConfigPath } as NodeJS.ProcessEnv,
+        env: { OPENCLAW_CONFIG_PATH: legacyConfigPath } as NodeJS.ProcessEnv,
         homedir: () => home,
       });
 
@@ -101,10 +101,10 @@ describe("config io compat (new + legacy folders)", () => {
     });
   });
 
-  it("honors legacy CLAWDBOT_CONFIG_PATH override", async () => {
+  it("honors legacy OPENCLAW_CONFIG_PATH override", async () => {
     await withTempHome(async (home) => {
       const customPath = await writeConfig(home, ".openclaw", 20003, "legacy-custom.json");
-      const io = createIoForHome(home, { CLAWDBOT_CONFIG_PATH: customPath } as NodeJS.ProcessEnv);
+      const io = createIoForHome(home, { OPENCLAW_CONFIG_PATH: customPath } as NodeJS.ProcessEnv);
       expect(io.configPath).toBe(customPath);
       expect(io.loadConfig().gateway?.port).toBe(20003);
     });

@@ -24,10 +24,10 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 import "./test-helpers/fast-core-tools.js";
-import { createMoltbotTools } from "./moltbot-tools.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
-describe("moltbot-tools: subagents", () => {
+describe("openclaw-tools: subagents", () => {
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
 =======
@@ -80,7 +80,7 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
     const calls: GatewayCall[] = [];
     mockLongRunningSpawnFlow({ calls, acceptedAtBase: 3000 });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     });
@@ -123,7 +123,7 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     });
@@ -151,7 +151,7 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     });
@@ -179,7 +179,7 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
     mockPatchAndSingleAgentRun({ calls, runId: "run-default-model" });
 
 <<<<<<< HEAD
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "agent:main:main",
       agentChannel: "discord",
     });

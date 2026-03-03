@@ -1,6 +1,6 @@
 import util from "node:util";
 
-import type { MoltbotConfig } from "../config/types.js";
+import type { OpenClawConfig } from "../config/types.js";
 import { isVerbose } from "../globals.js";
 import { stripAnsi } from "../terminal/ansi.js";
 import { readLoggingConfig } from "./config.js";
@@ -59,7 +59,7 @@ function normalizeConsoleStyle(style?: string): ConsoleStyle {
 }
 
 function resolveConsoleSettings(): ConsoleSettings {
-  let cfg: MoltbotConfig["logging"] | undefined =
+  let cfg: OpenClawConfig["logging"] | undefined =
     (loggingState.overrideSettings as LoggerSettings | null) ?? readLoggingConfig();
   if (!cfg) {
     if (loggingState.resolvingConsoleSettings) {
@@ -68,7 +68,7 @@ function resolveConsoleSettings(): ConsoleSettings {
       loggingState.resolvingConsoleSettings = true;
       try {
         const loaded = requireConfig("../config/config.js") as {
-          loadConfig?: () => MoltbotConfig;
+          loadConfig?: () => OpenClawConfig;
         };
         cfg = loaded.loadConfig?.().logging;
       } catch {

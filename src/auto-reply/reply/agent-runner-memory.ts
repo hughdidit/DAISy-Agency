@@ -11,7 +11,7 @@ import { resolveSandboxConfigForAgent, resolveSandboxRuntimeStatus } from "../..
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -296,7 +296,7 @@ export async function readPromptTokensFromSessionLog(
 }
 
 export async function runMemoryFlushIfNeeded(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   followupRun: FollowupRun;
   promptForEstimate?: string;
   sessionCtx: TemplateContext;

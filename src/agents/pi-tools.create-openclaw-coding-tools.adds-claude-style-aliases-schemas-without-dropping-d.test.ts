@@ -3,19 +3,19 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
-import { createMoltbotCodingTools } from "./pi-tools.js";
+import { createOpenClawCodingTools } from "./pi-tools.js";
 =======
 import { createPiToolsSandboxContext } from "./test-helpers/pi-tools-sandbox-context.js";
 >>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
 
-const defaultTools = createMoltbotCodingTools();
+const defaultTools = createOpenClawCodingTools();
 
-describe("createMoltbotCodingTools", () => {
+describe("createOpenClawCodingTools", () => {
   it("keeps read tool image metadata intact", async () => {
     const readTool = defaultTools.find((tool) => tool.name === "read");
     expect(readTool).toBeDefined();
 
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-read-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-read-"));
     try {
       const imagePath = path.join(tmpDir, "sample.png");
       await fs.writeFile(imagePath, tinyPngBuffer);
@@ -39,17 +39,17 @@ describe("createMoltbotCodingTools", () => {
   });
   it("returns text content without image blocks for text files", async () => {
 <<<<<<< HEAD
-    const tools = createMoltbotCodingTools();
+    const tools = createOpenClawCodingTools();
     const readTool = tools.find((tool) => tool.name === "read");
     expect(readTool).toBeDefined();
 
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-read-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-read-"));
     try {
 =======
 
 >>>>>>> 96515a572 (test: merge duplicate read-tool content coverage cases)
       const textPath = path.join(tmpDir, "sample.txt");
-      const contents = "Hello from moltbot read tool.";
+      const contents = "Hello from openclaw read tool.";
       await fs.writeFile(textPath, contents, "utf8");
 
       const textResult = await readTool?.execute("tool-2", {
@@ -71,14 +71,14 @@ describe("createMoltbotCodingTools", () => {
     const sandbox = {
       enabled: true,
       sessionKey: "sandbox:test",
-      workspaceDir: path.join(os.tmpdir(), "moltbot-sandbox"),
-      agentWorkspaceDir: path.join(os.tmpdir(), "moltbot-workspace"),
+      workspaceDir: path.join(os.tmpdir(), "openclaw-sandbox"),
+      agentWorkspaceDir: path.join(os.tmpdir(), "openclaw-workspace"),
       workspaceAccess: "none",
-      containerName: "moltbot-sbx-test",
+      containerName: "openclaw-sbx-test",
       containerWorkdir: "/workspace",
       docker: {
-        image: "moltbot-sandbox:bookworm-slim",
-        containerPrefix: "moltbot-sbx-",
+        image: "openclaw-sandbox:bookworm-slim",
+        containerPrefix: "openclaw-sbx-",
         workdir: "/workspace",
         readOnlyRoot: true,
         tmpfs: [],
@@ -96,7 +96,7 @@ describe("createMoltbotCodingTools", () => {
       },
       browserAllowHostControl: false,
     };
-    const tools = createMoltbotCodingTools({ sandbox });
+    const tools = createOpenClawCodingTools({ sandbox });
     expect(tools.some((tool) => tool.name === "exec")).toBe(true);
     expect(tools.some((tool) => tool.name === "read")).toBe(false);
     expect(tools.some((tool) => tool.name === "browser")).toBe(false);
@@ -105,14 +105,14 @@ describe("createMoltbotCodingTools", () => {
     const sandbox = {
       enabled: true,
       sessionKey: "sandbox:test",
-      workspaceDir: path.join(os.tmpdir(), "moltbot-sandbox"),
-      agentWorkspaceDir: path.join(os.tmpdir(), "moltbot-workspace"),
+      workspaceDir: path.join(os.tmpdir(), "openclaw-sandbox"),
+      agentWorkspaceDir: path.join(os.tmpdir(), "openclaw-workspace"),
       workspaceAccess: "ro",
-      containerName: "moltbot-sbx-test",
+      containerName: "openclaw-sbx-test",
       containerWorkdir: "/workspace",
       docker: {
-        image: "moltbot-sandbox:bookworm-slim",
-        containerPrefix: "moltbot-sbx-",
+        image: "openclaw-sandbox:bookworm-slim",
+        containerPrefix: "openclaw-sbx-",
         workdir: "/workspace",
         readOnlyRoot: true,
         tmpfs: [],
@@ -130,13 +130,13 @@ describe("createMoltbotCodingTools", () => {
       },
       browserAllowHostControl: false,
     };
-    const tools = createMoltbotCodingTools({ sandbox });
+    const tools = createOpenClawCodingTools({ sandbox });
     expect(tools.some((tool) => tool.name === "read")).toBe(true);
     expect(tools.some((tool) => tool.name === "write")).toBe(false);
     expect(tools.some((tool) => tool.name === "edit")).toBe(false);
   });
   it("filters tools by agent tool policy even without sandbox", () => {
-    const tools = createMoltbotCodingTools({
+    const tools = createOpenClawCodingTools({
       config: { tools: { deny: ["browser"] } },
     });
     expect(tools.some((tool) => tool.name === "exec")).toBe(true);

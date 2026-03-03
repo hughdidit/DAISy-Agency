@@ -7,7 +7,7 @@ import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -27,7 +27,7 @@ import type { WizardPrompter } from "../wizard/prompts.js";
 import { OPENAI_CODEX_DEFAULT_MODEL } from "./openai-codex-model-default.js";
 
 export async function warnIfModelConfigLooksOff(
-  config: MoltbotConfig,
+  config: OpenClawConfig,
   prompter: WizardPrompter,
   options?: { agentId?: string; agentDir?: string },
 ) {

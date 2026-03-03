@@ -120,7 +120,7 @@ const MemorySchema = z
   .optional();
 
 <<<<<<< HEAD
-export const MoltbotSchema = z
+export const OpenClawSchema = z
 =======
 const HttpUrlSchema = z
   .string()

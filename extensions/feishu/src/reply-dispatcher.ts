@@ -2,7 +2,7 @@ import {
   createReplyPrefixContext,
   createTypingCallbacks,
   logTypingFailure,
-  type ClawdbotConfig,
+  type OpenClawConfig,
   type RuntimeEnv,
   type ReplyPayload,
 } from "openclaw/plugin-sdk";
@@ -35,7 +35,7 @@ function shouldUseCard(text: string): boolean {
 const TYPING_INDICATOR_MAX_AGE_MS = 2 * 60_000;
 
 export type CreateFeishuReplyDispatcherParams = {
-  cfg: ClawdbotConfig;
+  cfg: OpenClawConfig;
   agentId: string;
   runtime: RuntimeEnv;
   chatId: string;

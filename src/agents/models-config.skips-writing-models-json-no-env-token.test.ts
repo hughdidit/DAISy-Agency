@@ -3,7 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
 import {
   CUSTOM_PROXY_MODELS_CONFIG,
@@ -17,10 +17,10 @@ import { ensureOpenClawModelsJson } from "./models-config.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "moltbot-models-" });
+  return withTempHomeBase(fn, { prefix: "openclaw-models-" });
 }
 
-const MODELS_CONFIG: MoltbotConfig = {
+const MODELS_CONFIG: OpenClawConfig = {
   models: {
     providers: {
       "custom-proxy": {
@@ -91,10 +91,10 @@ describe("models-config", () => {
       try {
 <<<<<<< HEAD
         vi.resetModules();
-        const { ensureMoltbotModelsJson } = await import("./models-config.js");
+        const { ensureOpenClawModelsJson } = await import("./models-config.js");
 
         const agentDir = path.join(home, "agent-empty");
-        const result = await ensureMoltbotModelsJson(
+        const result = await ensureOpenClawModelsJson(
         process.env.OPENCLAW_AGENT_DIR = agentDir;
         process.env.PI_CODING_AGENT_DIR = agentDir;
 
@@ -116,15 +116,15 @@ describe("models-config", () => {
     await withTempHome(async () => {
 <<<<<<< HEAD
       vi.resetModules();
-      const { ensureMoltbotModelsJson } = await import("./models-config.js");
-      const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
+      const { ensureOpenClawModelsJson } = await import("./models-config.js");
+      const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
 
-      await ensureMoltbotModelsJson(MODELS_CONFIG);
+      await ensureOpenClawModelsJson(MODELS_CONFIG);
 =======
       await ensureOpenClawModelsJson(MODELS_CONFIG);
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
-      const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
+      const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
       const raw = await fs.readFile(modelPath, "utf8");
       const parsed = JSON.parse(raw) as {
         providers: Record<string, { baseUrl?: string }>;
@@ -140,12 +140,12 @@ describe("models-config", () => {
       process.env.MINIMAX_API_KEY = "sk-minimax-test";
       try {
 <<<<<<< HEAD
-        const { ensureMoltbotModelsJson } = await import("./models-config.js");
-        const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
+        const { ensureOpenClawModelsJson } = await import("./models-config.js");
+        const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
 
-        await ensureMoltbotModelsJson({});
+        await ensureOpenClawModelsJson({});
 
-        const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
+        const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
         const raw = await fs.readFile(modelPath, "utf8");
         const parsed = JSON.parse(raw) as {
           providers: Record<
@@ -188,12 +188,12 @@ describe("models-config", () => {
       process.env.SYNTHETIC_API_KEY = "sk-synthetic-test";
       try {
 <<<<<<< HEAD
-        const { ensureMoltbotModelsJson } = await import("./models-config.js");
-        const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
+        const { ensureOpenClawModelsJson } = await import("./models-config.js");
+        const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
 
-        await ensureMoltbotModelsJson({});
+        await ensureOpenClawModelsJson({});
 
-        const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
+        const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
         const raw = await fs.readFile(modelPath, "utf8");
         const parsed = JSON.parse(raw) as {
           providers: Record<

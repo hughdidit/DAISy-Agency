@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
 <<<<<<< HEAD
 =======
@@ -83,7 +83,7 @@ function applyContextModeFilter(params: {
 
 export async function resolveBootstrapFilesForRun(params: {
   workspaceDir: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;
@@ -117,7 +117,7 @@ export async function resolveBootstrapFilesForRun(params: {
 
 export async function resolveBootstrapContextForRun(params: {
   workspaceDir: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;

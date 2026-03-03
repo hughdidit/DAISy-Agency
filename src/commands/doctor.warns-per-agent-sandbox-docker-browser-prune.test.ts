@@ -27,7 +27,7 @@ beforeEach(() => {
 
   readConfigFileSnapshot.mockReset();
   writeConfigFile.mockReset().mockResolvedValue(undefined);
-  resolveMoltbotPackageRoot.mockReset().mockResolvedValue(null);
+  resolveOpenClawPackageRoot.mockReset().mockResolvedValue(null);
   runGatewayUpdate.mockReset().mockResolvedValue({
     status: "skipped",
     mode: "unknown",
@@ -35,7 +35,7 @@ beforeEach(() => {
     durationMs: 0,
   });
   legacyReadConfigFileSnapshot.mockReset().mockResolvedValue({
-    path: "/tmp/moltbot.json",
+    path: "/tmp/openclaw.json",
     exists: false,
     raw: null,
     parsed: {},
@@ -76,11 +76,11 @@ beforeEach(() => {
 
   originalIsTTY = process.stdin.isTTY;
   setStdinTty(true);
-  originalStateDir = process.env.CLAWDBOT_STATE_DIR;
-  originalUpdateInProgress = process.env.CLAWDBOT_UPDATE_IN_PROGRESS;
-  process.env.CLAWDBOT_UPDATE_IN_PROGRESS = "1";
-  tempStateDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-doctor-state-"));
-  process.env.CLAWDBOT_STATE_DIR = tempStateDir;
+  originalStateDir = process.env.OPENCLAW_STATE_DIR;
+  originalUpdateInProgress = process.env.OPENCLAW_UPDATE_IN_PROGRESS;
+  process.env.OPENCLAW_UPDATE_IN_PROGRESS = "1";
+  tempStateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-doctor-state-"));
+  process.env.OPENCLAW_STATE_DIR = tempStateDir;
   fs.mkdirSync(path.join(tempStateDir, "agents", "main", "sessions"), {
     recursive: true,
   });
@@ -90,14 +90,14 @@ beforeEach(() => {
 afterEach(() => {
   setStdinTty(originalIsTTY);
   if (originalStateDir === undefined) {
-    delete process.env.CLAWDBOT_STATE_DIR;
+    delete process.env.OPENCLAW_STATE_DIR;
   } else {
-    process.env.CLAWDBOT_STATE_DIR = originalStateDir;
+    process.env.OPENCLAW_STATE_DIR = originalStateDir;
   }
   if (originalUpdateInProgress === undefined) {
-    delete process.env.CLAWDBOT_UPDATE_IN_PROGRESS;
+    delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
   } else {
-    process.env.CLAWDBOT_UPDATE_IN_PROGRESS = originalUpdateInProgress;
+    process.env.OPENCLAW_UPDATE_IN_PROGRESS = originalUpdateInProgress;
   }
   if (tempStateDir) {
     fs.rmSync(tempStateDir, { recursive: true, force: true });
@@ -110,7 +110,7 @@ const confirm = vi.fn().mockResolvedValue(true);
 const select = vi.fn().mockResolvedValue("node");
 const note = vi.fn();
 const writeConfigFile = vi.fn().mockResolvedValue(undefined);
-const resolveMoltbotPackageRoot = vi.fn().mockResolvedValue(null);
+const resolveOpenClawPackageRoot = vi.fn().mockResolvedValue(null);
 const runGatewayUpdate = vi.fn().mockResolvedValue({
   status: "skipped",
   mode: "unknown",
@@ -134,7 +134,7 @@ const runCommandWithTimeout = vi.fn().mockResolvedValue({
 const ensureAuthProfileStore = vi.fn().mockReturnValue({ version: 1, profiles: {} });
 
 const legacyReadConfigFileSnapshot = vi.fn().mockResolvedValue({
-  path: "/tmp/moltbot.json",
+  path: "/tmp/openclaw.json",
   exists: false,
   raw: null,
   parsed: {},
@@ -174,14 +174,14 @@ vi.mock("../agents/skills-status.js", () => ({
 }));
 
 vi.mock("../plugins/loader.js", () => ({
-  loadMoltbotPlugins: () => ({ plugins: [], diagnostics: [] }),
+  loadOpenClawPlugins: () => ({ plugins: [], diagnostics: [] }),
 }));
 
 vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    CONFIG_PATH: "/tmp/moltbot.json",
+    CONFIG_PATH: "/tmp/openclaw.json",
     createConfigIO,
     readConfigFileSnapshot,
     writeConfigFile,
@@ -216,8 +216,8 @@ vi.mock("../process/exec.js", () => ({
   runCommandWithTimeout,
 }));
 
-vi.mock("../infra/moltbot-root.js", () => ({
-  resolveMoltbotPackageRoot,
+vi.mock("../infra/openclaw-root.js", () => ({
+  resolveOpenClawPackageRoot,
 }));
 
 vi.mock("../infra/update-runner.js", () => ({
@@ -329,7 +329,7 @@ vi.mock("./doctor-state-migrations.js", () => ({
 describe("doctor command", () => {
   it("warns when per-agent sandbox docker/browser/prune overrides are ignored under shared scope", async () => {
     readConfigFileSnapshot.mockResolvedValue({
-      path: "/tmp/moltbot.json",
+      path: "/tmp/openclaw.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -398,7 +398,7 @@ describe("doctor command", () => {
 
   it("warns when extra workspace directories exist", async () => {
     readConfigFileSnapshot.mockResolvedValue({
-      path: "/tmp/moltbot.json",
+      path: "/tmp/openclaw.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -411,10 +411,10 @@ describe("doctor command", () => {
     note.mockClear();
     const homedirSpy = vi.spyOn(os, "homedir").mockReturnValue("/Users/steipete");
     const realExists = fs.existsSync;
-    const legacyPath = path.join("/Users/steipete", "moltbot");
+    const legacyPath = path.join("/Users/steipete", "openclaw");
     const legacyAgentsPath = path.join(legacyPath, "AGENTS.md");
     const existsSpy = vi.spyOn(fs, "existsSync").mockImplementation((value) => {
-      if (value === "/Users/steipete/moltbot" || value === legacyPath || value === legacyAgentsPath)
+      if (value === "/Users/steipete/openclaw" || value === legacyPath || value === legacyAgentsPath)
         return true;
       }
       return realExists(value as never);
@@ -425,7 +425,7 @@ describe("doctor command", () => {
     expect(
       note.mock.calls.some(
         ([message, title]) =>
-          title === "Extra workspace" && typeof message === "string" && message.includes("moltbot"),
+          title === "Extra workspace" && typeof message === "string" && message.includes("openclaw"),
       ),
     ).toBe(true);
 

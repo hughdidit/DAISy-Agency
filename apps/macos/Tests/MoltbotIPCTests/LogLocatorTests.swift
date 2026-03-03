@@ -1,17 +1,17 @@
 import Darwin
 import Foundation
 import Testing
-@testable import Moltbot
+@testable import OpenClaw
 
 @Suite struct LogLocatorTests {
     @Test func launchdGatewayLogPathEnsuresTmpDirExists() {
         let fm = FileManager()
         let baseDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        let logDir = baseDir.appendingPathComponent("moltbot-tests-\(UUID().uuidString)")
+        let logDir = baseDir.appendingPathComponent("openclaw-tests-\(UUID().uuidString)")
 
-        setenv("CLAWDBOT_LOG_DIR", logDir.path, 1)
+        setenv("OPENCLAW_LOG_DIR", logDir.path, 1)
         defer {
-            unsetenv("CLAWDBOT_LOG_DIR")
+            unsetenv("OPENCLAW_LOG_DIR")
             try? fm.removeItem(at: logDir)
         }
 

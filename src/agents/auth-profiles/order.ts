@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { normalizeProviderId } from "../model-selection.js";
 <<<<<<< HEAD
 import { listProfilesForProvider } from "./profiles.js";
@@ -45,7 +45,7 @@ import {
 >>>>>>> 28d49b8d4 (refactor(auth-profiles): reuse cooldown timestamp resolver)
 
 export function resolveAuthProfileOrder(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   store: AuthProfileStore;
   provider: string;
   preferredProfile?: string;

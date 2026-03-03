@@ -661,7 +661,7 @@ export function wrapToolWorkspaceRootGuardWithOptions(
 
 export function createSandboxedReadTool(root: string) {
   const base = createReadTool(root) as unknown as AnyAgentTool;
-  return wrapSandboxPathGuard(createMoltbotReadTool(base), root);
+  return wrapSandboxPathGuard(createOpenClawReadTool(base), root);
 }
 
 export function createSandboxedWriteTool(root: string) {
@@ -675,7 +675,7 @@ export function createSandboxedEditTool(root: string) {
 }
 
 <<<<<<< HEAD
-export function createMoltbotReadTool(base: AnyAgentTool): AnyAgentTool {
+export function createOpenClawReadTool(base: AnyAgentTool): AnyAgentTool {
 export function createOpenClawReadTool(
   base: AnyAgentTool,
   options?: OpenClawReadToolOptions,

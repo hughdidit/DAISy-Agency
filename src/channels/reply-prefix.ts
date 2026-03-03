@@ -1,5 +1,5 @@
 import { resolveEffectiveMessagesConfig, resolveIdentityName } from "../agents/identity.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { GetReplyOptions } from "../auto-reply/types.js";
 import {
   extractShortModelName,
@@ -23,7 +23,7 @@ export type ReplyPrefixOptions = Pick<
 >;
 
 export function createReplyPrefixContext(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId: string;
   channel?: string;
   accountId?: string;

@@ -1,7 +1,7 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
 import type { ChannelId, ChannelThreadingToolContext } from "../../channels/plugins/types.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
 =======
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
@@ -52,7 +52,7 @@ export type OutboundGatewayContext = {
 };
 
 export type OutboundSendContext = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   params: Record<string, unknown>;
   /** Active agent id for per-agent outbound media root scoping. */

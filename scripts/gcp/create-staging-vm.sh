@@ -16,7 +16,7 @@
 # Configuration via environment variables:
 #   GCP_PROJECT_ID          - GCP project (REQUIRED - no default)
 #   GCP_ZONE                - Zone for staging VM (default: us-west1-b)
-#   PROD_BOOT_DISK          - Production boot disk to clone (default: clawdbot-gw-1)
+#   PROD_BOOT_DISK          - Production boot disk to clone (default: openclaw-gw-1)
 #   STAGING_INSTANCE        - Staging VM name (default: daisy-staging-1)
 #   STAGING_ZONE            - Zone for staging VM (default: same as GCP_ZONE)
 #   STAGING_MACHINE_TYPE    - Machine type (default: n2-standard-8)
@@ -44,7 +44,7 @@ PROJECT_ID="$GCP_PROJECT_ID"
 
 # GCP zone and production disk
 PROD_ZONE="${GCP_ZONE:-us-west1-b}"
-PROD_BOOT_DISK="${PROD_BOOT_DISK:-clawdbot-gw-1}"
+PROD_BOOT_DISK="${PROD_BOOT_DISK:-openclaw-gw-1}"
 
 # Staging configuration
 STAGING_INSTANCE="${STAGING_INSTANCE:-daisy-staging-1}"
@@ -134,8 +134,8 @@ fi
 
 # Require explicit PROD_BOOT_DISK confirmation (don't blindly use default)
 # User must either set a different value OR confirm the default explicitly
-if [[ "${PROD_BOOT_DISK}" == "clawdbot-gw-1" && -z "${PROD_BOOT_DISK_CONFIRMED:-}" ]]; then
-  echo "ERROR: PROD_BOOT_DISK defaults to 'clawdbot-gw-1'. Please confirm this is correct."
+if [[ "${PROD_BOOT_DISK}" == "openclaw-gw-1" && -z "${PROD_BOOT_DISK_CONFIRMED:-}" ]]; then
+  echo "ERROR: PROD_BOOT_DISK defaults to 'openclaw-gw-1'. Please confirm this is correct."
   echo ""
   echo "Either set a different value:"
   echo "  export PROD_BOOT_DISK=your-prod-boot-disk"
@@ -147,7 +147,7 @@ if [[ "${PROD_BOOT_DISK}" == "clawdbot-gw-1" && -z "${PROD_BOOT_DISK_CONFIRMED:-
 fi
 
 # Staging instance name must differ from common production patterns
-PROD_PATTERNS="prod|production|daisy-1$|clawdbot-gw"
+PROD_PATTERNS="prod|production|daisy-1$|openclaw-gw"
 if echo "$STAGING_INSTANCE" | grep -qiE "$PROD_PATTERNS"; then
   echo "ERROR: STAGING_INSTANCE '$STAGING_INSTANCE' looks like a production name."
   echo "Choose a name that clearly indicates staging (e.g., 'daisy-staging-1')."

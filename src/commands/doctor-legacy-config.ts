@@ -1,7 +1,7 @@
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
-export function normalizeLegacyConfigValues(cfg: MoltbotConfig): {
-  config: MoltbotConfig;
+import type { OpenClawConfig } from "../config/config.js";
+export function normalizeLegacyConfigValues(cfg: OpenClawConfig): {
+  config: OpenClawConfig;
 import type { OpenClawConfig } from "../config/config.js";
 import {
   resolveDiscordPreviewStreamMode,
@@ -17,7 +17,7 @@ export function normalizeCompatibilityConfigValues(cfg: OpenClawConfig): {
   changes: string[];
 } {
   const changes: string[] = [];
-  let next: MoltbotConfig = cfg;
+  let next: OpenClawConfig = cfg;
 
   const isRecord = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === "object" && !Array.isArray(value);

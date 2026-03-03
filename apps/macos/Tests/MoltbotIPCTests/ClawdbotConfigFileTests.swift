@@ -1,18 +1,18 @@
 import Foundation
 import Testing
-@testable import Moltbot
+@testable import OpenClaw
 
 @Suite(.serialized)
-struct MoltbotConfigFileTests {
+struct OpenClawConfigFileTests {
     @Test
     func configPathRespectsEnvOverride() async {
         let override = FileManager().temporaryDirectory
-            .appendingPathComponent("moltbot-config-\(UUID().uuidString)")
-            .appendingPathComponent("moltbot.json")
+            .appendingPathComponent("openclaw-config-\(UUID().uuidString)")
+            .appendingPathComponent("openclaw.json")
             .path
 
-        await TestIsolation.withEnvValues(["CLAWDBOT_CONFIG_PATH": override]) {
-            #expect(MoltbotConfigFile.url().path == override)
+        await TestIsolation.withEnvValues(["OPENCLAW_CONFIG_PATH": override]) {
+            #expect(OpenClawConfigFile.url().path == override)
         }
     }
 
@@ -20,22 +20,22 @@ struct MoltbotConfigFileTests {
     @Test
     func remoteGatewayPortParsesAndMatchesHost() async {
         let override = FileManager().temporaryDirectory
-            .appendingPathComponent("moltbot-config-\(UUID().uuidString)")
-            .appendingPathComponent("moltbot.json")
+            .appendingPathComponent("openclaw-config-\(UUID().uuidString)")
+            .appendingPathComponent("openclaw.json")
             .path
 
-        await TestIsolation.withEnvValues(["CLAWDBOT_CONFIG_PATH": override]) {
-            MoltbotConfigFile.saveDict([
+        await TestIsolation.withEnvValues(["OPENCLAW_CONFIG_PATH": override]) {
+            OpenClawConfigFile.saveDict([
                 "gateway": [
                     "remote": [
                         "url": "ws://gateway.ts.net:19999",
                     ],
                 ],
             ])
-            #expect(MoltbotConfigFile.remoteGatewayPort() == 19999)
-            #expect(MoltbotConfigFile.remoteGatewayPort(matchingHost: "gateway.ts.net") == 19999)
-            #expect(MoltbotConfigFile.remoteGatewayPort(matchingHost: "gateway") == 19999)
-            #expect(MoltbotConfigFile.remoteGatewayPort(matchingHost: "other.ts.net") == nil)
+            #expect(OpenClawConfigFile.remoteGatewayPort() == 19999)
+            #expect(OpenClawConfigFile.remoteGatewayPort(matchingHost: "gateway.ts.net") == 19999)
+            #expect(OpenClawConfigFile.remoteGatewayPort(matchingHost: "gateway") == 19999)
+            #expect(OpenClawConfigFile.remoteGatewayPort(matchingHost: "other.ts.net") == nil)
         }
     }
 
@@ -43,20 +43,20 @@ struct MoltbotConfigFileTests {
     @Test
     func setRemoteGatewayUrlPreservesScheme() async {
         let override = FileManager().temporaryDirectory
-            .appendingPathComponent("moltbot-config-\(UUID().uuidString)")
-            .appendingPathComponent("moltbot.json")
+            .appendingPathComponent("openclaw-config-\(UUID().uuidString)")
+            .appendingPathComponent("openclaw.json")
             .path
 
-        await TestIsolation.withEnvValues(["CLAWDBOT_CONFIG_PATH": override]) {
-            MoltbotConfigFile.saveDict([
+        await TestIsolation.withEnvValues(["OPENCLAW_CONFIG_PATH": override]) {
+            OpenClawConfigFile.saveDict([
                 "gateway": [
                     "remote": [
                         "url": "wss://old-host:111",
                     ],
                 ],
             ])
-            MoltbotConfigFile.setRemoteGatewayUrl(host: "new-host", port: 2222)
-            let root = MoltbotConfigFile.loadDict()
+            OpenClawConfigFile.setRemoteGatewayUrl(host: "new-host", port: 2222)
+            let root = OpenClawConfigFile.loadDict()
             let url = ((root["gateway"] as? [String: Any])?["remote"] as? [String: Any])?["url"] as? String
             #expect(url == "wss://new-host:2222")
         }
@@ -65,15 +65,15 @@ struct MoltbotConfigFileTests {
     @Test
     func stateDirOverrideSetsConfigPath() async {
         let dir = FileManager().temporaryDirectory
-            .appendingPathComponent("moltbot-state-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("openclaw-state-\(UUID().uuidString)", isDirectory: true)
             .path
 
         await TestIsolation.withEnvValues([
-            "CLAWDBOT_CONFIG_PATH": nil,
-            "CLAWDBOT_STATE_DIR": dir,
+            "OPENCLAW_CONFIG_PATH": nil,
+            "OPENCLAW_STATE_DIR": dir,
         ]) {
-            #expect(MoltbotConfigFile.stateDirURL().path == dir)
-            #expect(MoltbotConfigFile.url().path == "\(dir)/moltbot.json")
+            #expect(OpenClawConfigFile.stateDirURL().path == dir)
+            #expect(OpenClawConfigFile.url().path == "\(dir)/openclaw.json")
         }
     }
 }

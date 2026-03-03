@@ -1,7 +1,7 @@
 import { loadLogs } from "./controllers/logs";
 import { loadNodes } from "./controllers/nodes";
 import { loadDebug } from "./controllers/debug";
-import type { MoltbotApp } from "./app";
+import type { OpenClawApp } from "./app";
 
 type PollingHost = {
   nodesPollInterval: number | null;
@@ -15,7 +15,7 @@ export function startNodesPolling(host: PollingHost) {
     return;
   }
   host.nodesPollInterval = window.setInterval(
-    () => void loadNodes(host as unknown as MoltbotApp, { quiet: true }),
+    () => void loadNodes(host as unknown as OpenClawApp, { quiet: true }),
     5000,
   );
 }
@@ -35,7 +35,7 @@ export function startLogsPolling(host: PollingHost) {
   host.logsPollInterval = window.setInterval(() => {
 <<<<<<< HEAD
     if (host.tab !== "logs") return;
-    void loadLogs(host as unknown as MoltbotApp, { quiet: true });
+    void loadLogs(host as unknown as OpenClawApp, { quiet: true });
     void loadLogs(host as unknown as OpenClawApp, { quiet: true });
 >>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
   }, 2000);
@@ -56,7 +56,7 @@ export function startDebugPolling(host: PollingHost) {
   host.debugPollInterval = window.setInterval(() => {
 <<<<<<< HEAD
     if (host.tab !== "debug") return;
-    void loadDebug(host as unknown as MoltbotApp);
+    void loadDebug(host as unknown as OpenClawApp);
     void loadDebug(host as unknown as OpenClawApp);
 >>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
   }, 3000);

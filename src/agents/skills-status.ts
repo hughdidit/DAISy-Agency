@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import { evaluateRequirements } from "../shared/requirements.js";
 >>>>>>> 4f61a3f52 (refactor(shared): centralize requirements evaluation)
@@ -206,7 +206,7 @@ function normalizeInstallOptions(
 
 function buildSkillStatus(
   entry: SkillEntry,
-  config?: MoltbotConfig,
+  config?: OpenClawConfig,
   prefs?: SkillsInstallPreferences,
   eligibility?: SkillEligibilityContext,
   bundledNames?: Set<string>,
@@ -302,7 +302,7 @@ function buildSkillStatus(
 export function buildWorkspaceSkillStatus(
   workspaceDir: string,
   opts?: {
-    config?: MoltbotConfig;
+    config?: OpenClawConfig;
     managedSkillsDir?: string;
     entries?: SkillEntry[];
     eligibility?: SkillEligibilityContext;

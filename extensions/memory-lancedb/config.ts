@@ -22,7 +22,7 @@ export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
 const DEFAULT_MODEL = "text-embedding-3-small";
 <<<<<<< HEAD
 <<<<<<< HEAD
-const DEFAULT_DB_PATH = join(homedir(), ".clawdbot", "memory", "lancedb");
+const DEFAULT_DB_PATH = join(homedir(), ".openclaw", "memory", "lancedb");
 =======
 export const DEFAULT_CAPTURE_MAX_CHARS = 500;
 >>>>>>> 8cb0373bc (Memory-lancedb: configurable capture limit (#16624) (thanks @ciberponk))
@@ -165,7 +165,7 @@ export const memoryConfigSchema = {
     },
     dbPath: {
       label: "Database Path",
-      placeholder: "~/.clawdbot/memory/lancedb",
+      placeholder: "~/.openclaw/memory/lancedb",
       advanced: true,
     },
     autoCapture: {

@@ -7,7 +7,7 @@ import path from "node:path";
 <<<<<<< HEAD
 
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
@@ -139,7 +139,7 @@ function findOtherStateDirs(stateDir: string): string[] {
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
       if (entry.name.startsWith(".")) continue;
-      const candidate = path.resolve(root, entry.name, ".clawdbot");
+      const candidate = path.resolve(root, entry.name, ".openclaw");
       if (candidate === resolvedState) continue;
       if (existsDir(candidate)) found.push(candidate);
     }
@@ -212,7 +212,7 @@ function shouldRequireOAuthDir(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): boo
 
 >>>>>>> a690b6239 (Doctor: ignore slash sessions in transcript integrity check)
 export async function noteStateIntegrity(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   prompter: DoctorPrompterLike,
   configPath?: string,
 ) {
@@ -221,7 +221,7 @@ export async function noteStateIntegrity(
   const env = process.env;
   const homedir = () => resolveRequiredHomeDir(env, os.homedir);
   const stateDir = resolveStateDir(env, homedir);
-  const defaultStateDir = path.join(homedir(), ".clawdbot");
+  const defaultStateDir = path.join(homedir(), ".openclaw");
   const oauthDir = resolveOAuthDir(env, stateDir);
   const agentId = resolveDefaultAgentId(cfg);
   const sessionsDir = resolveSessionTranscriptsDirForAgent(agentId, env, homedir);
@@ -552,7 +552,7 @@ export function noteWorkspaceBackupTip(workspaceDir: string) {
   note(
     [
       "- Tip: back up the workspace in a private git repo (GitHub or GitLab).",
-      "- Keep ~/.clawdbot out of git; it contains credentials and session history.",
+      "- Keep ~/.openclaw out of git; it contains credentials and session history.",
       "- Details: /concepts/agent-workspace#git-backup-recommended",
     ].join("\n"),
     "Workspace",

@@ -5,8 +5,8 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
-import { ensureMoltbotModelsJson } from "./models-config.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { ensureOpenClawModelsJson } from "./models-config.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 47514e35a (test: dedupe pi embedded runner setup and orphan case)
 
@@ -108,7 +108,7 @@ let runCounter = 0;
 beforeAll(async () => {
   vi.useRealTimers();
   ({ runEmbeddedPiAgent } = await import("./pi-embedded-runner.js"));
-  tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-embedded-agent-"));
+  tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-embedded-agent-"));
   agentDir = path.join(tempRoot, "agent");
   workspaceDir = path.join(tempRoot, "workspace");
   await fs.mkdir(agentDir, { recursive: true });
@@ -143,9 +143,9 @@ const makeOpenAiConfig = (modelIds: string[]) =>
         },
       },
     },
-  }) satisfies MoltbotConfig;
+  }) satisfies OpenClawConfig;
 
-const ensureModels = (cfg: MoltbotConfig) => ensureMoltbotModelsJson(cfg, agentDir) as unknown;
+const ensureModels = (cfg: OpenClawConfig) => ensureOpenClawModelsJson(cfg, agentDir) as unknown;
 
 const nextSessionFile = () => {
   sessionCounter += 1;
@@ -254,7 +254,7 @@ describe("runEmbeddedPiAgent", () => {
           },
         },
       },
-    } satisfies MoltbotConfig;
+    } satisfies OpenClawConfig;
 
     await expect(
       runEmbeddedPiAgent({

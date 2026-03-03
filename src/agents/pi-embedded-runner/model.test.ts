@@ -11,7 +11,7 @@ vi.mock("@mariozechner/pi-coding-agent", () => ({
   },
 }));
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> e63dcc320 (refactor(test): share pi embedded model fixtures)
 =======
@@ -175,7 +175,7 @@ describe("resolveModel", () => {
           },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const result = resolveModel("custom", "missing-model", "/tmp/agent", cfg);
 

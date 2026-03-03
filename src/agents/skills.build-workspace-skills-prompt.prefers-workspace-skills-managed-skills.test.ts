@@ -18,7 +18,7 @@ afterAll(async () => {
 describe("buildWorkspaceSkillsPrompt", () => {
   it("prefers workspace skills over managed skills", async () => {
 <<<<<<< HEAD
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-"));
 =======
     const workspaceDir = await fixtureSuite.createCaseDir("workspace");
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
@@ -61,7 +61,7 @@ describe("buildWorkspaceSkillsPrompt", () => {
   });
   it("gates by bins, config, and always", async () => {
 <<<<<<< HEAD
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-"));
 =======
     const workspaceDir = await fixtureSuite.createCaseDir("workspace");
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
@@ -71,31 +71,31 @@ describe("buildWorkspaceSkillsPrompt", () => {
       dir: path.join(skillsDir, "bin-skill"),
       name: "bin-skill",
       description: "Needs a bin",
-      metadata: '{"moltbot":{"requires":{"bins":["fakebin"]}}}',
+      metadata: '{"openclaw":{"requires":{"bins":["fakebin"]}}}',
     });
     await writeSkill({
       dir: path.join(skillsDir, "anybin-skill"),
       name: "anybin-skill",
       description: "Needs any bin",
-      metadata: '{"moltbot":{"requires":{"anyBins":["missingbin","fakebin"]}}}',
+      metadata: '{"openclaw":{"requires":{"anyBins":["missingbin","fakebin"]}}}',
     });
     await writeSkill({
       dir: path.join(skillsDir, "config-skill"),
       name: "config-skill",
       description: "Needs config",
-      metadata: '{"moltbot":{"requires":{"config":["browser.enabled"]}}}',
+      metadata: '{"openclaw":{"requires":{"config":["browser.enabled"]}}}',
     });
     await writeSkill({
       dir: path.join(skillsDir, "always-skill"),
       name: "always-skill",
       description: "Always on",
-      metadata: '{"moltbot":{"always":true,"requires":{"env":["MISSING"]}}}',
+      metadata: '{"openclaw":{"always":true,"requires":{"env":["MISSING"]}}}',
     });
     await writeSkill({
       dir: path.join(skillsDir, "env-skill"),
       name: "env-skill",
       description: "Needs env",
-      metadata: '{"moltbot":{"requires":{"env":["ENV_KEY"]},"primaryEnv":"ENV_KEY"}}',
+      metadata: '{"openclaw":{"requires":{"env":["ENV_KEY"]},"primaryEnv":"ENV_KEY"}}',
     });
 
     const managedSkillsDir = path.join(workspaceDir, ".managed");
@@ -143,7 +143,7 @@ describe("buildWorkspaceSkillsPrompt", () => {
   });
   it("uses skillKey for config lookups", async () => {
 <<<<<<< HEAD
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-"));
 =======
     const workspaceDir = await fixtureSuite.createCaseDir("workspace");
 >>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
@@ -152,7 +152,7 @@ describe("buildWorkspaceSkillsPrompt", () => {
       dir: skillDir,
       name: "alias-skill",
       description: "Uses skillKey",
-      metadata: '{"moltbot":{"skillKey":"alias"}}',
+      metadata: '{"openclaw":{"skillKey":"alias"}}',
     });
 
     const prompt = withEnv({ HOME: workspaceDir, PATH: "" }, () =>

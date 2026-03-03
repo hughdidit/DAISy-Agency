@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveTelegramAccount } from "./accounts.js";
 
 export type TelegramReactionLevel = ReactionLevel;
@@ -8,7 +8,7 @@ export type ResolvedReactionLevel = BaseResolvedReactionLevel;
  * Resolve the effective reaction level and its implications.
  */
 export function resolveTelegramReactionLevel(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string;
 }): ResolvedReactionLevel {
   const account = resolveTelegramAccount({

@@ -5,7 +5,7 @@
  * resolves agent routes, and handles replies.
  */
 
-import type { ReplyPayload, MoltbotConfig } from "clawdbot/plugin-sdk";
+import type { ReplyPayload, OpenClawConfig } from "openclaw/plugin-sdk";
 import type { TwitchAccountConfig, TwitchChatMessage } from "./types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -46,7 +46,7 @@ export type TwitchRuntimeEnv = {
 export type TwitchMonitorOptions = {
   account: TwitchAccountConfig;
   accountId: string;
-  config: unknown; // MoltbotConfig
+  config: unknown; // OpenClawConfig
   runtime: TwitchRuntimeEnv;
   abortSignal: AbortSignal;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
@@ -71,7 +71,7 @@ async function processTwitchMessage(params: {
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
 }): Promise<void> {
   const { message, account, accountId, config, runtime, core, statusSink } = params;
-  const cfg = config as MoltbotConfig;
+  const cfg = config as OpenClawConfig;
 
   const route = core.channel.routing.resolveAgentRoute({
     cfg,

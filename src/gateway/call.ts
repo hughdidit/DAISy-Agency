@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   loadConfig,
   resolveConfigPath,
@@ -32,7 +32,7 @@ export type CallGatewayOptions = {
   token?: string;
   password?: string;
   tlsFingerprint?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   method: string;
   params?: unknown;
   expectFinal?: boolean;
@@ -61,7 +61,7 @@ export type GatewayConnectionDetails = {
 };
 
 export function buildGatewayConnectionDetails(
-  options: { config?: MoltbotConfig; url?: string; configPath?: string } = {},
+  options: { config?: OpenClawConfig; url?: string; configPath?: string } = {},
 ): GatewayConnectionDetails {
   const config = options.config ?? loadConfig();
   const configPath =
@@ -182,7 +182,7 @@ export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promis
       ? typeof remote?.token === "string" && remote.token.trim().length > 0
         ? remote.token.trim()
         : undefined
-      : process.env.CLAWDBOT_GATEWAY_TOKEN?.trim() ||
+      : process.env.OPENCLAW_GATEWAY_TOKEN?.trim() ||
         (typeof authToken === "string" && authToken.trim().length > 0
           ? authToken.trim()
           : undefined));
@@ -190,7 +190,7 @@ export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promis
     (typeof opts.password === "string" && opts.password.trim().length > 0
       ? opts.password.trim()
       : undefined) ||
-    process.env.CLAWDBOT_GATEWAY_PASSWORD?.trim() ||
+    process.env.OPENCLAW_GATEWAY_PASSWORD?.trim() ||
     (isRemoteMode
       ? typeof remote?.password === "string" && remote.password.trim().length > 0
         ? remote.password.trim()

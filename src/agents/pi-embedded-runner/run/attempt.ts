@@ -126,10 +126,10 @@ import { isSubagentSessionKey } from "../../../routing/session-key.js";
 import { resolveUserPath } from "../../../utils.js";
 import { createCacheTrace } from "../../cache-trace.js";
 import { createAnthropicPayloadLogger } from "../../anthropic-payload-log.js";
-import { resolveMoltbotAgentDir } from "../../agent-paths.js";
+import { resolveOpenClawAgentDir } from "../../agent-paths.js";
 import { resolveSessionAgentIds } from "../../agent-scope.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../../bootstrap-files.js";
-import { resolveMoltbotDocsPath } from "../../docs-path.js";
+import { resolveOpenClawDocsPath } from "../../docs-path.js";
 =======
 import { resolveImageSanitizationLimits } from "../../image-sanitization.js";
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
@@ -152,7 +152,7 @@ import {
   resolveCompactionReserveTokensFloor,
 } from "../../pi-settings.js";
 <<<<<<< HEAD
-import { createMoltbotCodingTools } from "../../pi-tools.js";
+import { createOpenClawCodingTools } from "../../pi-tools.js";
 =======
 import { createPreparedEmbeddedPiSettingsManager } from "../../pi-project-settings.js";
 >>>>>>> 611dff985 (fix(agents): harden embedded pi project settings loading)
@@ -661,7 +661,7 @@ export async function runEmbeddedAttempt(
       ? ["Reminder: commit your changes in this workspace after edits."]
       : undefined;
 
-    const agentDir = params.agentDir ?? resolveMoltbotAgentDir();
+    const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
 
     const { defaultAgentId, sessionAgentId } = resolveSessionAgentIds({
       sessionKey: params.sessionKey,
@@ -676,7 +676,7 @@ export async function runEmbeddedAttempt(
     const modelHasVision = params.model.input?.includes("image") ?? false;
     const toolsRaw = params.disableTools
       ? []
-      : createMoltbotCodingTools({
+      : createOpenClawCodingTools({
           exec: {
             ...params.execOverrides,
             elevated: params.bashElevated,
@@ -810,7 +810,7 @@ export async function runEmbeddedAttempt(
     const isDefaultAgent = sessionAgentId === defaultAgentId;
 <<<<<<< HEAD
     const promptMode = isSubagentSessionKey(params.sessionKey) ? "minimal" : "full";
-    const docsPath = await resolveMoltbotDocsPath({
+    const docsPath = await resolveOpenClawDocsPath({
     const docsPath = await resolveOpenClawDocsPath({
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
       workspaceDir: effectiveWorkspace,

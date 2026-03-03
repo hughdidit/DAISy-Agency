@@ -4,7 +4,7 @@
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
@@ -22,7 +22,7 @@ import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
 
 export function resolveReplyToMode(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   channel?: OriginatingChannelType,
   accountId?: string | null,
   chatType?: string | null,

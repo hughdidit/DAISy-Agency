@@ -6,7 +6,7 @@
 import { resolveSessionAgentIds } from "../../agents/agent-scope.js";
 <<<<<<< HEAD
 import { resolveBootstrapMaxChars } from "../../agents/pi-embedded-helpers.js";
-import { createMoltbotCodingTools } from "../../agents/pi-tools.js";
+import { createOpenClawCodingTools } from "../../agents/pi-tools.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -124,7 +124,7 @@ async function resolveContextReport(
   });
   const tools = (() => {
     try {
-      return createMoltbotCodingTools({
+      return createOpenClawCodingTools({
         config: params.cfg,
         workspaceDir,
         sessionKey: params.sessionKey,

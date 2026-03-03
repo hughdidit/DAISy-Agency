@@ -1,4 +1,4 @@
-import type { ClawdbotConfig } from "openclaw/plugin-sdk";
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const probeFeishuMock = vi.hoisted(() => vi.fn());
@@ -14,7 +14,7 @@ vi.mock("./client.js", () => ({
 
 import { monitorFeishuProvider, stopFeishuMonitor } from "./monitor.js";
 
-function buildMultiAccountWebsocketConfig(accountIds: string[]): ClawdbotConfig {
+function buildMultiAccountWebsocketConfig(accountIds: string[]): OpenClawConfig {
   return {
     channels: {
       feishu: {
@@ -32,7 +32,7 @@ function buildMultiAccountWebsocketConfig(accountIds: string[]): ClawdbotConfig 
         ),
       },
     },
-  } as ClawdbotConfig;
+  } as OpenClawConfig;
 }
 
 afterEach(() => {

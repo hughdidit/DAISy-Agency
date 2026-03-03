@@ -1,5 +1,5 @@
-import type { ChannelOnboardingAdapter, MoltbotConfig, WizardPrompter } from "clawdbot/plugin-sdk";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
+import type { ChannelOnboardingAdapter, OpenClawConfig, WizardPrompter } from "openclaw/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk";
 
 import {
   listMattermostAccountIds,
@@ -169,7 +169,7 @@ export const mattermostOnboardingAdapter: ChannelOnboardingAdapter = {
 
     return { cfg: next, accountId };
   },
-  disable: (cfg: MoltbotConfig) => ({
+  disable: (cfg: OpenClawConfig) => ({
     ...cfg,
     channels: {
       ...cfg.channels,

@@ -8,7 +8,7 @@ import path from "node:path";
 
 import { Logger as TsLogger } from "tslog";
 
-import type { MoltbotConfig } from "../config/types.js";
+import type { OpenClawConfig } from "../config/types.js";
 import type { ConsoleStyle } from "./console.js";
 <<<<<<< HEAD
 =======
@@ -38,10 +38,10 @@ import { loggingState } from "./state.js";
 
 // Pin to /tmp so mac Debug UI and docs match; os.tmpdir() can be a per-user
 // randomized path on macOS which made the “Open log” button a no-op.
-export const DEFAULT_LOG_DIR = "/tmp/moltbot";
-export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "moltbot.log"); // legacy single-file path
+export const DEFAULT_LOG_DIR = "/tmp/openclaw";
+export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "openclaw.log"); // legacy single-file path
 
-const LOG_PREFIX = "moltbot";
+const LOG_PREFIX = "openclaw";
 const LOG_SUFFIX = ".log";
 const MAX_LOG_AGE_MS = 24 * 60 * 60 * 1000; // 24h
 const DEFAULT_MAX_LOG_FILE_BYTES = 500 * 1024 * 1024; // 500 MB
@@ -83,12 +83,12 @@ function attachExternalTransport(logger: TsLogger<LogObj>, transport: LogTranspo
 }
 
 function resolveSettings(): ResolvedSettings {
-  let cfg: MoltbotConfig["logging"] | undefined =
+  let cfg: OpenClawConfig["logging"] | undefined =
     (loggingState.overrideSettings as LoggerSettings | null) ?? readLoggingConfig();
   if (!cfg) {
     try {
       const loaded = requireConfig("../config/config.js") as {
-        loadConfig?: () => MoltbotConfig;
+        loadConfig?: () => OpenClawConfig;
       };
       cfg = loaded.loadConfig?.().logging;
     } catch {
@@ -132,7 +132,7 @@ function buildLogger(settings: ResolvedSettings): TsLogger<LogObj> {
   let currentFileBytes = getCurrentLogFileBytes(settings.file);
   let warnedAboutSizeCap = false;
   const logger = new TsLogger<LogObj>({
-    name: "moltbot",
+    name: "openclaw",
     minLevel: levelToMinLevel(settings.level),
     type: "hidden", // no ansi formatting
   });

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { startHeartbeatRunner } from "./heartbeat-runner.js";
 import { requestHeartbeatNow, resetHeartbeatWakeStateForTests } from "./heartbeat-wake.js";
 
@@ -28,7 +28,7 @@ describe("startHeartbeatRunner", () => {
     const runner = startHeartbeatRunner({
       cfg: {
         agents: { defaults: { heartbeat: { every: "30m" } } },
-      } as MoltbotConfig,
+      } as OpenClawConfig,
       runOnce: runSpy,
     });
 
@@ -47,7 +47,7 @@ describe("startHeartbeatRunner", () => {
           { id: "ops", heartbeat: { every: "15m" } },
         ],
       },
-    } as MoltbotConfig);
+    } as OpenClawConfig);
 
     await vi.advanceTimersByTimeAsync(10 * 60_000 + 1_000);
 

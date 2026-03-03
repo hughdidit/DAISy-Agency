@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 <<<<<<< HEAD
 =======
@@ -103,7 +103,7 @@ describe("runCapability auto audio entries", () => {
 <<<<<<< HEAD
     const originalPath = process.env.PATH;
     process.env.PATH = "/usr/bin:/bin";
-    const tmpPath = path.join(os.tmpdir(), `moltbot-auto-audio-${Date.now()}.wav`);
+    const tmpPath = path.join(os.tmpdir(), `openclaw-auto-audio-${Date.now()}.wav`);
     await fs.writeFile(tmpPath, Buffer.from("RIFF"));
     const ctx: MsgContext = { MediaPath: tmpPath, MediaType: "audio/wav" };
     const media = normalizeMediaAttachments(ctx);
@@ -130,7 +130,7 @@ describe("runCapability auto audio entries", () => {
           },
         },
       },
-    } as unknown as MoltbotConfig;
+    } as unknown as OpenClawConfig;
 
     try {
       let seenModel: string | undefined;
@@ -171,7 +171,7 @@ describe("runCapability auto audio entries", () => {
 <<<<<<< HEAD
     const originalPath = process.env.PATH;
     process.env.PATH = "/usr/bin:/bin";
-    const tmpPath = path.join(os.tmpdir(), `moltbot-auto-audio-${Date.now()}.wav`);
+    const tmpPath = path.join(os.tmpdir(), `openclaw-auto-audio-${Date.now()}.wav`);
     await fs.writeFile(tmpPath, Buffer.from("RIFF"));
     const ctx: MsgContext = { MediaPath: tmpPath, MediaType: "audio/wav" };
     const media = normalizeMediaAttachments(ctx);
@@ -201,7 +201,7 @@ describe("runCapability auto audio entries", () => {
           },
         },
       },
-    } as unknown as MoltbotConfig;
+    } as unknown as OpenClawConfig;
       const providerRegistry = createOpenAiAudioProvider(async () => ({
 =======
     const result = await runAutoAudioCase({

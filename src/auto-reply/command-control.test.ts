@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { MsgContext } from "./templating.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -59,7 +59,7 @@ describe("resolveCommandAuthorization", () => {
   }) {
     const cfg = {
       channels: { whatsapp: { allowFrom: ["+123"] } },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const ctx = {
       Provider: "whatsapp",
@@ -82,7 +82,7 @@ describe("resolveCommandAuthorization", () => {
   it("falls back from whitespace SenderId to SenderE164", () => {
     const cfg = {
       channels: { whatsapp: { allowFrom: ["+123"] } },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const ctx = {
       Provider: "whatsapp",
@@ -105,7 +105,7 @@ describe("resolveCommandAuthorization", () => {
   it("falls back to From when SenderId and SenderE164 are whitespace", () => {
     const cfg = {
       channels: { whatsapp: { allowFrom: ["+999"] } },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const ctx = {
       Provider: "whatsapp",
@@ -128,7 +128,7 @@ describe("resolveCommandAuthorization", () => {
   it("falls back from un-normalizable SenderId to SenderE164", () => {
     const cfg = {
       channels: { whatsapp: { allowFrom: ["+123"] } },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const ctx = {
       Provider: "whatsapp",
@@ -151,7 +151,7 @@ describe("resolveCommandAuthorization", () => {
   it("prefers SenderE164 when SenderId does not match allowFrom", () => {
     const cfg = {
       channels: { whatsapp: { allowFrom: ["+41796666864"] } },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const ctx = {
       Provider: "whatsapp",
@@ -610,12 +610,12 @@ describe("control command parsing", () => {
   it("ignores telegram commands addressed to other bots", () => {
     expect(
       hasControlCommand("/help@otherbot", undefined, {
-        botUsername: "moltbot",
+        botUsername: "openclaw",
       }),
     ).toBe(false);
     expect(
-      hasControlCommand("/help@moltbot", undefined, {
-        botUsername: "moltbot",
+      hasControlCommand("/help@openclaw", undefined, {
+        botUsername: "openclaw",
       }),
     ).toBe(true);
   });

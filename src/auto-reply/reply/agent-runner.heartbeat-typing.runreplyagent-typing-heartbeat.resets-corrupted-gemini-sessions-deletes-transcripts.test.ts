@@ -124,9 +124,9 @@ describe("runReplyAgent typing (heartbeat)", () => {
   installRunReplyAgentTypingHeartbeatTestHooks();
 
   it("resets corrupted Gemini sessions and deletes transcripts", async () => {
-    const prevStateDir = process.env.CLAWDBOT_STATE_DIR;
-    const stateDir = await fs.mkdtemp(path.join(tmpdir(), "moltbot-session-reset-"));
-    process.env.CLAWDBOT_STATE_DIR = stateDir;
+    const prevStateDir = process.env.OPENCLAW_STATE_DIR;
+    const stateDir = await fs.mkdtemp(path.join(tmpdir(), "openclaw-session-reset-"));
+    process.env.OPENCLAW_STATE_DIR = stateDir;
     try {
       const sessionId = "session-corrupt";
       const storePath = path.join(stateDir, "sessions", "sessions.json");
@@ -164,16 +164,16 @@ describe("runReplyAgent typing (heartbeat)", () => {
       expect(persisted.main).toBeUndefined();
     } finally {
       if (prevStateDir) {
-        process.env.CLAWDBOT_STATE_DIR = prevStateDir;
+        process.env.OPENCLAW_STATE_DIR = prevStateDir;
       } else {
-        delete process.env.CLAWDBOT_STATE_DIR;
+        delete process.env.OPENCLAW_STATE_DIR;
       }
     }
   });
   it("keeps sessions intact on other errors", async () => {
-    const prevStateDir = process.env.CLAWDBOT_STATE_DIR;
-    const stateDir = await fs.mkdtemp(path.join(tmpdir(), "moltbot-session-noreset-"));
-    process.env.CLAWDBOT_STATE_DIR = stateDir;
+    const prevStateDir = process.env.OPENCLAW_STATE_DIR;
+    const stateDir = await fs.mkdtemp(path.join(tmpdir(), "openclaw-session-noreset-"));
+    process.env.OPENCLAW_STATE_DIR = stateDir;
     try {
       const sessionId = "session-ok";
       const storePath = path.join(stateDir, "sessions", "sessions.json");
@@ -209,9 +209,9 @@ describe("runReplyAgent typing (heartbeat)", () => {
       expect(persisted.main).toBeDefined();
     } finally {
       if (prevStateDir) {
-        process.env.CLAWDBOT_STATE_DIR = prevStateDir;
+        process.env.OPENCLAW_STATE_DIR = prevStateDir;
       } else {
-        delete process.env.CLAWDBOT_STATE_DIR;
+        delete process.env.OPENCLAW_STATE_DIR;
       }
     }
   });

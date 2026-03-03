@@ -5,7 +5,7 @@
  * These commands are processed before built-in commands and before agent invocation.
  */
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -17,12 +17,12 @@ import { logVerbose } from "../globals.js";
 import { logVerbose } from "../globals.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
-  MoltbotPluginCommandDefinition,
+  OpenClawPluginCommandDefinition,
   PluginCommandContext,
   PluginCommandResult,
 } from "./types.js";
 
-type RegisteredPluginCommand = MoltbotPluginCommandDefinition & {
+type RegisteredPluginCommand = OpenClawPluginCommandDefinition & {
   pluginId: string;
 };
 
@@ -116,7 +116,7 @@ export type CommandRegistrationResult = {
  */
 export function registerPluginCommand(
   pluginId: string,
-  command: MoltbotPluginCommandDefinition,
+  command: OpenClawPluginCommandDefinition,
 ): CommandRegistrationResult {
   // Prevent registration while commands are being processed
   if (registryLocked) {
@@ -244,7 +244,7 @@ export async function executePluginCommand(params: {
   channelId?: PluginCommandContext["channelId"];
   isAuthorizedSender: boolean;
   commandBody: string;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
 }): Promise<PluginCommandResult> {
   const { command, args, senderId, channel, isAuthorizedSender, commandBody, config } = params;
 

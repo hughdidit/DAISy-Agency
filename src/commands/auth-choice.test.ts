@@ -79,8 +79,8 @@ vi.mock("../plugins/providers.js", () => ({
 const authProfilePathFor = (agentDir: string) => path.join(agentDir, "auth-profiles.json");
 const requireAgentDir = () => {
 <<<<<<< HEAD
-  const agentDir = process.env.CLAWDBOT_AGENT_DIR;
-  if (!agentDir) throw new Error("CLAWDBOT_AGENT_DIR not set");
+  const agentDir = process.env.OPENCLAW_AGENT_DIR;
+  if (!agentDir) throw new Error("OPENCLAW_AGENT_DIR not set");
   return agentDir;
 };
 =======
@@ -105,8 +105,8 @@ type StoredAuthProfile = {
 
 describe("applyAuthChoice", () => {
 <<<<<<< HEAD
-  const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
-  const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
+  const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+  const previousAgentDir = process.env.OPENCLAW_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
   const previousOpenrouterKey = process.env.OPENROUTER_API_KEY;
   const previousHfToken = process.env.HF_TOKEN;
@@ -201,14 +201,14 @@ describe("applyAuthChoice", () => {
     }
 <<<<<<< HEAD
     if (previousStateDir === undefined) {
-      delete process.env.CLAWDBOT_STATE_DIR;
+      delete process.env.OPENCLAW_STATE_DIR;
     } else {
-      process.env.CLAWDBOT_STATE_DIR = previousStateDir;
+      process.env.OPENCLAW_STATE_DIR = previousStateDir;
     }
     if (previousAgentDir === undefined) {
-      delete process.env.CLAWDBOT_AGENT_DIR;
+      delete process.env.OPENCLAW_AGENT_DIR;
     } else {
-      process.env.CLAWDBOT_AGENT_DIR = previousAgentDir;
+      process.env.OPENCLAW_AGENT_DIR = previousAgentDir;
     }
     if (previousPiAgentDir === undefined) {
       delete process.env.PI_CODING_AGENT_DIR;
@@ -316,10 +316,10 @@ describe("applyAuthChoice", () => {
 
   it("prompts and writes MiniMax API key when selecting minimax-api", async () => {
 <<<<<<< HEAD
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
-    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
 =======
   it("prompts and writes provider API key for common providers", async () => {
     const scenarios: Array<{
@@ -394,10 +394,10 @@ describe("applyAuthChoice", () => {
 
 <<<<<<< HEAD
   it("prompts and writes Synthetic API key when selecting synthetic-api-key", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
-    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
 
     const text = vi.fn().mockResolvedValue("sk-synthetic-test");
     const { prompter, runtime } = createApiKeyPromptHarness({ text });
@@ -1070,10 +1070,10 @@ describe("applyAuthChoice", () => {
   });
 
   it("sets default model when selecting github-copilot", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
-    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
 
     const prompter = createPrompter({});
     const runtime = createExitThrowingRuntime();
@@ -1110,10 +1110,10 @@ describe("applyAuthChoice", () => {
 
   it("does not override the default model when selecting opencode-zen without setDefaultModel", async () => {
 <<<<<<< HEAD
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
-    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
 
     const text = vi.fn().mockResolvedValue("sk-opencode-zen-test");
     const { prompter, runtime } = createApiKeyPromptHarness({ text });
@@ -1143,10 +1143,10 @@ describe("applyAuthChoice", () => {
   });
 
   it("uses existing OPENROUTER_API_KEY when selecting openrouter-api-key", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
-    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
   it("does not persist literal 'undefined' when API key prompts return undefined", async () => {
     const scenarios = [
       {
@@ -1290,10 +1290,10 @@ describe("applyAuthChoice", () => {
 
   it("uses existing AI_GATEWAY_API_KEY when selecting ai-gateway-api-key", async () => {
 <<<<<<< HEAD
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
-    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
     process.env.AI_GATEWAY_API_KEY = "gateway-test-key";
 
     const text = vi.fn();
@@ -1507,10 +1507,10 @@ describe("applyAuthChoice", () => {
   });
 
   it("writes Chutes OAuth credentials when selecting chutes (remote/manual)", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
-    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
     process.env.SSH_TTY = "1";
     process.env.CHUTES_CLIENT_ID = "cid_test";
 
@@ -1581,10 +1581,10 @@ describe("applyAuthChoice", () => {
 
   it("writes Qwen credentials when selecting qwen-portal", async () => {
 <<<<<<< HEAD
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
-    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
-    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
 
     resolvePluginProviders.mockReturnValue([
 =======

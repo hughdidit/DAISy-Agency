@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 
 describe("browser extension install", () => {
   it("installs into the state dir (never node_modules)", async () => {
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-ext-"));
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-ext-"));
     const { installChromeExtension } = await import("./browser-cli-extension.js");
 =======
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-ext-state-"));
@@ -23,9 +23,9 @@ describe("browser extension install", () => {
   });
 
   it("copies extension path to clipboard", async () => {
-    const prev = process.env.CLAWDBOT_STATE_DIR;
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-ext-path-"));
-    process.env.CLAWDBOT_STATE_DIR = tmp;
+    const prev = process.env.OPENCLAW_STATE_DIR;
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-ext-path-"));
+    process.env.OPENCLAW_STATE_DIR = tmp;
 =======
 =======
 import { Command } from "commander";
@@ -221,8 +221,8 @@ describe("browser extension install (fs-mocked)", () => {
       expect(copyToClipboard).toHaveBeenCalledWith(dir);
     } finally {
 <<<<<<< HEAD
-      if (prev === undefined) delete process.env.CLAWDBOT_STATE_DIR;
-      else process.env.CLAWDBOT_STATE_DIR = prev;
+      if (prev === undefined) delete process.env.OPENCLAW_STATE_DIR;
+      else process.env.OPENCLAW_STATE_DIR = prev;
     }
 =======
 >>>>>>> 0621d0e9e (fix(cli): resolve bundled chrome extension path)

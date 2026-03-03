@@ -1,5 +1,5 @@
 import Foundation
-import MoltbotProtocol
+import OpenClawProtocol
 
 struct SkillsStatusReport: Codable {
     let workspaceDir: String

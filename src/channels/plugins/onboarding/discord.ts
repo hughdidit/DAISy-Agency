@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../../../config/config.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -56,7 +56,7 @@ import {
 const channel = "discord" as const;
 
 <<<<<<< HEAD
-function setDiscordDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
+function setDiscordDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.discord?.dm?.allowFrom) : undefined;
 =======
@@ -100,10 +100,10 @@ async function noteDiscordTokenHelp(prompter: WizardPrompter): Promise<void> {
 
 <<<<<<< HEAD
 function setDiscordGroupPolicy(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
-): MoltbotConfig {
+): OpenClawConfig {
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -148,13 +148,13 @@ function setDiscordGroupPolicy(
 =======
 >>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 function setDiscordGuildChannelAllowlist(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
   entries: Array<{
     guildKey: string;
     channelKey?: string;
   }>,
-): MoltbotConfig {
+): OpenClawConfig {
   const baseGuilds =
     accountId === DEFAULT_ACCOUNT_ID
       ? (cfg.channels?.discord?.guilds ?? {})
@@ -174,7 +174,7 @@ function setDiscordGuildChannelAllowlist(
   return patchDiscordConfigForAccount(cfg, accountId, { guilds });
 }
 
-function setDiscordAllowFrom(cfg: MoltbotConfig, allowFrom: string[]): MoltbotConfig {
+function setDiscordAllowFrom(cfg: OpenClawConfig, allowFrom: string[]): OpenClawConfig {
   return {
     ...cfg,
     channels: {
@@ -192,10 +192,10 @@ function setDiscordAllowFrom(cfg: MoltbotConfig, allowFrom: string[]): MoltbotCo
 }
 
 async function promptDiscordAllowFrom(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<MoltbotConfig> {
+}): Promise<OpenClawConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)

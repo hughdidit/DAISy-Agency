@@ -73,7 +73,7 @@ describe("runReplyAgent memory flush", () => {
   it("uses configured prompts for memory flush runs", async () => {
     const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
     runEmbeddedPiAgentMock.mockReset();
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-flush-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-flush-"));
     const storePath = path.join(tmp, "sessions.json");
     const sessionKey = "main";
     const sessionEntry = {
@@ -151,7 +151,7 @@ describe("runReplyAgent memory flush", () => {
   it("skips memory flush after a prior flush in the same compaction cycle", async () => {
     const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
     runEmbeddedPiAgentMock.mockReset();
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-flush-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-flush-"));
     const storePath = path.join(tmp, "sessions.json");
     const sessionKey = "main";
     const sessionEntry = {

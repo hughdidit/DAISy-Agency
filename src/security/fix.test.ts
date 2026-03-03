@@ -78,12 +78,12 @@ describe("security fix", () => {
   });
 
   it("tightens groupPolicy + filesystem perms", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-fix-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-security-fix-"));
     const stateDir = path.join(tmp, "state");
     await fs.mkdir(stateDir, { recursive: true });
     await fs.chmod(stateDir, 0o755);
 
-    const configPath = path.join(stateDir, "moltbot.json");
+    const configPath = path.join(stateDir, "openclaw.json");
     await fs.writeFile(
       configPath,
       `${JSON.stringify(
@@ -115,8 +115,8 @@ describe("security fix", () => {
     const env = {
       ...process.env,
 <<<<<<< HEAD
-      CLAWDBOT_STATE_DIR: stateDir,
-      CLAWDBOT_CONFIG_PATH: "",
+      OPENCLAW_STATE_DIR: stateDir,
+      OPENCLAW_CONFIG_PATH: "",
     };
 =======
     const configPath = path.join(stateDir, "openclaw.json");
@@ -168,11 +168,11 @@ describe("security fix", () => {
   });
 
   it("applies allowlist per-account and seeds WhatsApp groupAllowFrom from store", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-fix-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-security-fix-"));
     const stateDir = path.join(tmp, "state");
     await fs.mkdir(stateDir, { recursive: true });
 
-    const configPath = path.join(stateDir, "moltbot.json");
+    const configPath = path.join(stateDir, "openclaw.json");
     await fs.writeFile(
       configPath,
       `${JSON.stringify(
@@ -202,8 +202,8 @@ describe("security fix", () => {
     const env = {
       ...process.env,
 <<<<<<< HEAD
-      CLAWDBOT_STATE_DIR: stateDir,
-      CLAWDBOT_CONFIG_PATH: "",
+      OPENCLAW_STATE_DIR: stateDir,
+      OPENCLAW_CONFIG_PATH: "",
     };
 
     const res = await fixSecurityFootguns({ env, stateDir, configPath });
@@ -228,11 +228,11 @@ describe("security fix", () => {
   });
 
   it("does not seed WhatsApp groupAllowFrom if allowFrom is set", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-fix-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-security-fix-"));
     const stateDir = path.join(tmp, "state");
     await fs.mkdir(stateDir, { recursive: true });
 
-    const configPath = path.join(stateDir, "moltbot.json");
+    const configPath = path.join(stateDir, "openclaw.json");
     await fs.writeFile(
       configPath,
       `${JSON.stringify(
@@ -258,8 +258,8 @@ describe("security fix", () => {
     const env = {
       ...process.env,
 <<<<<<< HEAD
-      CLAWDBOT_STATE_DIR: stateDir,
-      CLAWDBOT_CONFIG_PATH: "",
+      OPENCLAW_STATE_DIR: stateDir,
+      OPENCLAW_CONFIG_PATH: "",
     };
 
     const res = await fixSecurityFootguns({ env, stateDir, configPath });
@@ -280,20 +280,20 @@ describe("security fix", () => {
   });
 
   it("returns ok=false for invalid config but still tightens perms", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-fix-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-security-fix-"));
     const stateDir = path.join(tmp, "state");
     await fs.mkdir(stateDir, { recursive: true });
     await fs.chmod(stateDir, 0o755);
 
-    const configPath = path.join(stateDir, "moltbot.json");
+    const configPath = path.join(stateDir, "openclaw.json");
     await fs.writeFile(configPath, "{ this is not json }\n", "utf-8");
     await fs.chmod(configPath, 0o644);
 
     const env = {
       ...process.env,
 <<<<<<< HEAD
-      CLAWDBOT_STATE_DIR: stateDir,
-      CLAWDBOT_CONFIG_PATH: "",
+      OPENCLAW_STATE_DIR: stateDir,
+      OPENCLAW_CONFIG_PATH: "",
     };
 =======
     const env = createFixEnv(stateDir, configPath);
@@ -310,7 +310,7 @@ describe("security fix", () => {
   });
 
   it("tightens perms for credentials + agent auth/sessions + include files", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-fix-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-security-fix-"));
     const stateDir = path.join(tmp, "state");
     await fs.mkdir(stateDir, { recursive: true });
 
@@ -320,7 +320,7 @@ describe("security fix", () => {
     await fs.writeFile(includePath, "{ logging: { redactSensitive: 'off' } }\n", "utf-8");
     await fs.chmod(includePath, 0o644);
 
-    const configPath = path.join(stateDir, "moltbot.json");
+    const configPath = path.join(stateDir, "openclaw.json");
     await fs.writeFile(
       configPath,
       `{ "$include": "./includes/extra.json5", channels: { whatsapp: { groupPolicy: "open" } } }\n`,
@@ -352,8 +352,8 @@ describe("security fix", () => {
 
     const env = {
       ...process.env,
-      CLAWDBOT_STATE_DIR: stateDir,
-      CLAWDBOT_CONFIG_PATH: "",
+      OPENCLAW_STATE_DIR: stateDir,
+      OPENCLAW_CONFIG_PATH: "",
     };
 
     const res = await fixSecurityFootguns({ env, stateDir, configPath });

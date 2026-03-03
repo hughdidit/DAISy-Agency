@@ -67,17 +67,17 @@ async function expectBedrockAuthSource(params: {
 describe("getApiKeyForModel", () => {
   it("migrates legacy oauth.json into auth-profiles.json", async () => {
 <<<<<<< HEAD
-    const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
-    const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
+    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousAgentDir = process.env.OPENCLAW_AGENT_DIR;
     const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-oauth-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-oauth-"));
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-oauth-"));
 >>>>>>> e9c8540e2 (refactor(test): simplify model auth env restore)
 
     try {
-      process.env.CLAWDBOT_STATE_DIR = tempDir;
-      process.env.CLAWDBOT_AGENT_DIR = path.join(tempDir, "agent");
-      process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+      process.env.OPENCLAW_STATE_DIR = tempDir;
+      process.env.OPENCLAW_AGENT_DIR = path.join(tempDir, "agent");
+      process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
 
           const model = {
             id: "codex-mini-latest",
@@ -91,7 +91,7 @@ describe("getApiKeyForModel", () => {
         api: "openai-codex-responses",
       } as Model<Api>;
 
-      const store = ensureAuthProfileStore(process.env.CLAWDBOT_AGENT_DIR, {
+      const store = ensureAuthProfileStore(process.env.OPENCLAW_AGENT_DIR, {
         allowKeychainPrompt: false,
       });
       const apiKey = await getApiKeyForModel({
@@ -107,7 +107,7 @@ describe("getApiKeyForModel", () => {
           },
         },
         store,
-        agentDir: process.env.CLAWDBOT_AGENT_DIR,
+        agentDir: process.env.OPENCLAW_AGENT_DIR,
       });
       expect(apiKey.apiKey).toBe(oauthFixture.access);
 
@@ -129,14 +129,14 @@ describe("getApiKeyForModel", () => {
     } finally {
 <<<<<<< HEAD
       if (previousStateDir === undefined) {
-        delete process.env.CLAWDBOT_STATE_DIR;
+        delete process.env.OPENCLAW_STATE_DIR;
       } else {
-        process.env.CLAWDBOT_STATE_DIR = previousStateDir;
+        process.env.OPENCLAW_STATE_DIR = previousStateDir;
       }
       if (previousAgentDir === undefined) {
-        delete process.env.CLAWDBOT_AGENT_DIR;
+        delete process.env.OPENCLAW_AGENT_DIR;
       } else {
-        process.env.CLAWDBOT_AGENT_DIR = previousAgentDir;
+        process.env.OPENCLAW_AGENT_DIR = previousAgentDir;
       }
       if (previousPiAgentDir === undefined) {
         delete process.env.PI_CODING_AGENT_DIR;
@@ -151,19 +151,19 @@ describe("getApiKeyForModel", () => {
 
   it("suggests openai-codex when only Codex OAuth is configured", async () => {
 <<<<<<< HEAD
-    const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
-    const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
+    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousAgentDir = process.env.OPENCLAW_AGENT_DIR;
     const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
     const previousOpenAiKey = process.env.OPENAI_API_KEY;
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
 >>>>>>> e9c8540e2 (refactor(test): simplify model auth env restore)
 
     try {
       delete process.env.OPENAI_API_KEY;
-      process.env.CLAWDBOT_STATE_DIR = tempDir;
-      process.env.CLAWDBOT_AGENT_DIR = path.join(tempDir, "agent");
-      process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+      process.env.OPENCLAW_STATE_DIR = tempDir;
+      process.env.OPENCLAW_AGENT_DIR = path.join(tempDir, "agent");
+      process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
 
       const authProfilesPath = path.join(tempDir, "agent", "auth-profiles.json");
       await fs.mkdir(path.dirname(authProfilesPath), {
@@ -202,14 +202,14 @@ describe("getApiKeyForModel", () => {
         process.env.OPENAI_API_KEY = previousOpenAiKey;
       }
       if (previousStateDir === undefined) {
-        delete process.env.CLAWDBOT_STATE_DIR;
+        delete process.env.OPENCLAW_STATE_DIR;
       } else {
-        process.env.CLAWDBOT_STATE_DIR = previousStateDir;
+        process.env.OPENCLAW_STATE_DIR = previousStateDir;
       }
       if (previousAgentDir === undefined) {
-        delete process.env.CLAWDBOT_AGENT_DIR;
+        delete process.env.OPENCLAW_AGENT_DIR;
       } else {
-        process.env.CLAWDBOT_AGENT_DIR = previousAgentDir;
+        process.env.OPENCLAW_AGENT_DIR = previousAgentDir;
       }
       if (previousPiAgentDir === undefined) {
         delete process.env.PI_CODING_AGENT_DIR;

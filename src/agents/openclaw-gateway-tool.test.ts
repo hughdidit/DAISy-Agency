@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 import { withEnvAsync } from "../test-utils/env.js";
 >>>>>>> 8fd8988ff (refactor(test): reuse env helper in gateway tool e2e)
 import "./test-helpers/fast-core-tools.js";
-import { createMoltbotTools } from "./moltbot-tools.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
 
 vi.mock("./tools/gateway.js", () => ({
   callGatewayTool: vi.fn(async (method: string) => {
@@ -63,14 +63,14 @@ describe("gateway tool", () => {
     vi.useFakeTimers();
     const kill = vi.spyOn(process, "kill").mockImplementation(() => true);
 <<<<<<< HEAD
-    const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
-    const previousProfile = process.env.CLAWDBOT_PROFILE;
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-test-"));
-    process.env.CLAWDBOT_STATE_DIR = stateDir;
-    process.env.CLAWDBOT_PROFILE = "isolated";
+    const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    const previousProfile = process.env.OPENCLAW_PROFILE;
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
+    process.env.OPENCLAW_STATE_DIR = stateDir;
+    process.env.OPENCLAW_PROFILE = "isolated";
 
     try {
-      const tool = createMoltbotTools({
+      const tool = createOpenClawTools({
         config: { commands: { restart: true } },
       }).find((candidate) => candidate.name === "gateway");
       expect(tool).toBeDefined();
@@ -111,21 +111,21 @@ describe("gateway tool", () => {
       };
       expect(parsed.payload?.kind).toBe("restart");
       expect(parsed.payload?.doctorHint).toBe(
-        "Run: moltbot --profile isolated doctor --non-interactive",
+        "Run: openclaw --profile isolated doctor --non-interactive",
       );
     } finally {
       kill.mockRestore();
       vi.useRealTimers();
 <<<<<<< HEAD
       if (previousStateDir === undefined) {
-        delete process.env.CLAWDBOT_STATE_DIR;
+        delete process.env.OPENCLAW_STATE_DIR;
       } else {
-        process.env.CLAWDBOT_STATE_DIR = previousStateDir;
+        process.env.OPENCLAW_STATE_DIR = previousStateDir;
       }
       if (previousProfile === undefined) {
-        delete process.env.CLAWDBOT_PROFILE;
+        delete process.env.OPENCLAW_PROFILE;
       } else {
-        process.env.CLAWDBOT_PROFILE = previousProfile;
+        process.env.OPENCLAW_PROFILE = previousProfile;
       }
       await fs.rm(stateDir, { recursive: true, force: true });
 >>>>>>> 94e84e6f7 (refactor(test): clean up gateway tool env restore)
@@ -134,7 +134,7 @@ describe("gateway tool", () => {
 
   it("passes config.apply through gateway call", async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "agent:main:whatsapp:dm:+15555550123",
     }).find((candidate) => candidate.name === "gateway");
     expect(tool).toBeDefined();
@@ -158,7 +158,7 @@ describe("gateway tool", () => {
 
   it("passes config.patch through gateway call", async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "agent:main:whatsapp:dm:+15555550123",
     }).find((candidate) => candidate.name === "gateway");
     expect(tool).toBeDefined();
@@ -182,7 +182,7 @@ describe("gateway tool", () => {
 
   it("passes update.run through gateway call", async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "agent:main:whatsapp:dm:+15555550123",
     }).find((candidate) => candidate.name === "gateway");
     expect(tool).toBeDefined();

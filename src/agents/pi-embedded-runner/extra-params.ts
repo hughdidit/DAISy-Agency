@@ -2,7 +2,7 @@ import type { StreamFn } from "@mariozechner/pi-agent-core";
 import type { SimpleStreamOptions } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { log } from "./logger.js";
 
 const OPENROUTER_APP_HEADERS: Record<string, string> = {
@@ -23,7 +23,7 @@ const OPENAI_RESPONSES_PROVIDERS = new Set(["openai"]);
  * @internal Exported for testing only
  */
 export function resolveExtraParams(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   provider: string;
   modelId: string;
   agentId?: string;
@@ -696,7 +696,7 @@ function createZaiToolStreamWrapper(
  */
 export function applyExtraParamsToAgent(
   agent: { streamFn?: StreamFn },
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   provider: string,
   modelId: string,
   extraParamsOverride?: Record<string, unknown>,

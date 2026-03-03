@@ -16,7 +16,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -65,7 +65,7 @@ import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
 export async function persistInlineDirectives(params: {
   directives: InlineDirectives;
   effectiveModelDirective?: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir?: string;
   sessionEntry?: SessionEntry;
   sessionStore?: Record<string, SessionEntry>;
@@ -81,7 +81,7 @@ export async function persistInlineDirectives(params: {
   model: string;
   initialModelLabel: string;
   formatModelSwitchEvent: (label: string, alias?: string) => string;
-  agentCfg: NonNullable<MoltbotConfig["agents"]>["defaults"] | undefined;
+  agentCfg: NonNullable<OpenClawConfig["agents"]>["defaults"] | undefined;
 }): Promise<{ provider: string; model: string; contextTokens: number }> {
   const {
     directives,
@@ -261,7 +261,7 @@ export async function persistInlineDirectives(params: {
   };
 }
 
-export function resolveDefaultModel(params: { cfg: MoltbotConfig; agentId?: string }): {
+export function resolveDefaultModel(params: { cfg: OpenClawConfig; agentId?: string }): {
   defaultProvider: string;
   defaultModel: string;
   aliasIndex: ModelAliasIndex;

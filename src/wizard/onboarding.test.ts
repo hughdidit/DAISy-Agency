@@ -254,7 +254,7 @@ describe("runOnboardingWizard", () => {
 
   it("exits when config is invalid", async () => {
     readConfigFileSnapshot.mockResolvedValueOnce({
-      path: "/tmp/.clawdbot/moltbot.json",
+      path: "/tmp/.clawdai/openclawbot.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -330,7 +330,7 @@ describe("runOnboardingWizard", () => {
     runTui.mockClear();
 
 <<<<<<< HEAD
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-onboard-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-onboard-"));
     await fs.writeFile(path.join(workspaceDir, DEFAULT_BOOTSTRAP_FILENAME), "{}");
 
     const select: WizardPrompter["select"] = vi.fn(async (opts) => {
@@ -420,7 +420,7 @@ describe("runOnboardingWizard", () => {
   it("offers TUI hatch even without BOOTSTRAP.md", async () => {
     runTui.mockClear();
 
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-onboard-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-onboard-"));
 
     const select: WizardPrompter["select"] = vi.fn(async (opts) => {
       if (opts.message === "How do you want to hatch your bot?") {

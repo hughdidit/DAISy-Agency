@@ -34,11 +34,11 @@ afterEach(() => {
 
 describe("resolveGatewayDevMode", () => {
   it("detects dev mode for src ts entrypoints", () => {
-    expect(resolveGatewayDevMode(["node", "/Users/me/moltbot/src/cli/index.ts"])).toBe(true);
-    expect(resolveGatewayDevMode(["node", "C:\\Users\\me\\moltbot\\src\\cli\\index.ts"])).toBe(
+    expect(resolveGatewayDevMode(["node", "/Users/me/openclaw/src/cli/index.ts"])).toBe(true);
+    expect(resolveGatewayDevMode(["node", "C:\\Users\\me\\openclaw\\src\\cli\\index.ts"])).toBe(
       true,
     );
-    expect(resolveGatewayDevMode(["node", "/Users/me/moltbot/dist/cli/index.js"])).toBe(false);
+    expect(resolveGatewayDevMode(["node", "/Users/me/openclaw/dist/cli/index.js"])).toBe(false);
   });
 });
 
@@ -85,7 +85,7 @@ describe("buildGatewayInstallPlan", () => {
       supported: true,
     });
     mocks.renderSystemNodeWarning.mockReturnValue(undefined);
-    mocks.buildServiceEnvironment.mockReturnValue({ CLAWDBOT_PORT: "3000" });
+    mocks.buildServiceEnvironment.mockReturnValue({ OPENCLAW_PORT: "3000" });
 
     const plan = await buildGatewayInstallPlan({
       env: {},
@@ -96,7 +96,7 @@ describe("buildGatewayInstallPlan", () => {
 
     expect(plan.programArguments).toEqual(["node", "gateway"]);
     expect(plan.workingDirectory).toBe("/Users/me");
-    expect(plan.environment).toEqual({ CLAWDBOT_PORT: "3000" });
+    expect(plan.environment).toEqual({ OPENCLAW_PORT: "3000" });
     expect(mocks.resolvePreferredNodePath).not.toHaveBeenCalled();
   });
 
@@ -133,7 +133,7 @@ describe("buildGatewayInstallPlan", () => {
       supported: true,
     });
     mocks.buildServiceEnvironment.mockReturnValue({
-      CLAWDBOT_PORT: "3000",
+      OPENCLAW_PORT: "3000",
       HOME: "/Users/me",
     });
 
@@ -155,7 +155,7 @@ describe("buildGatewayInstallPlan", () => {
     expect(plan.environment.GOOGLE_API_KEY).toBe("test-key");
     expect(plan.environment.CUSTOM_VAR).toBe("custom-value");
     // Service environment vars should take precedence
-    expect(plan.environment.CLAWDBOT_PORT).toBe("3000");
+    expect(plan.environment.OPENCLAW_PORT).toBe("3000");
     expect(plan.environment.HOME).toBe("/Users/me");
   });
 
@@ -170,7 +170,7 @@ describe("buildGatewayInstallPlan", () => {
       version: "22.0.0",
       supported: true,
     });
-    mocks.buildServiceEnvironment.mockReturnValue({ CLAWDBOT_PORT: "3000" });
+    mocks.buildServiceEnvironment.mockReturnValue({ OPENCLAW_PORT: "3000" });
 
     const plan = await buildGatewayInstallPlan({
       env: {},
@@ -224,7 +224,7 @@ describe("buildGatewayInstallPlan", () => {
     });
     mocks.buildServiceEnvironment.mockReturnValue({
       HOME: "/Users/service",
-      CLAWDBOT_PORT: "3000",
+      OPENCLAW_PORT: "3000",
     });
 
     const plan = await buildGatewayInstallPlan({
@@ -235,14 +235,14 @@ describe("buildGatewayInstallPlan", () => {
         env: {
           HOME: "/Users/config",
           vars: {
-            CLAWDBOT_PORT: "9999",
+            OPENCLAW_PORT: "9999",
           },
         },
       },
     });
 
     expect(plan.environment.HOME).toBe("/Users/service");
-    expect(plan.environment.CLAWDBOT_PORT).toBe("3000");
+    expect(plan.environment.OPENCLAW_PORT).toBe("3000");
   });
 });
 
@@ -250,7 +250,7 @@ describe("gatewayInstallErrorHint", () => {
   it("returns platform-specific hints", () => {
     expect(gatewayInstallErrorHint("win32")).toContain("Run as administrator");
     expect(gatewayInstallErrorHint("linux")).toMatch(
-      /(?:moltbot|moltbot)( --profile isolated)? gateway install/,
+      /(?:openclaw|openclaw)( --profile isolated)? gateway install/,
     );
   });
 });

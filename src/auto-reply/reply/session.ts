@@ -8,7 +8,7 @@ import path from "node:path";
 
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { TtsAutoMode } from "../../config/types.tts.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -321,7 +321,7 @@ function forkSessionFromParent(params: {
 
 export async function initSessionState(params: {
   ctx: MsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   commandAuthorized: boolean;
 }): Promise<SessionInitResult> {
   const { ctx, cfg, commandAuthorized } = params;

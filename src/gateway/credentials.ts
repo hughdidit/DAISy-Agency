@@ -43,7 +43,7 @@ function readGatewayTokenEnv(
   if (!includeLegacyEnv) {
     return undefined;
   }
-  return trimToUndefined(env.CLAWDBOT_GATEWAY_TOKEN);
+  return trimToUndefined(env.OPENCLAW_GATEWAY_TOKEN);
 }
 
 function readGatewayPasswordEnv(
@@ -57,7 +57,7 @@ function readGatewayPasswordEnv(
   if (!includeLegacyEnv) {
     return undefined;
   }
-  return trimToUndefined(env.CLAWDBOT_GATEWAY_PASSWORD);
+  return trimToUndefined(env.OPENCLAW_GATEWAY_PASSWORD);
 }
 
 export function resolveGatewayCredentialsFromValues(params: {

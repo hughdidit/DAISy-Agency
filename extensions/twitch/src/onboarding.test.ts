@@ -12,7 +12,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { WizardPrompter } from "clawdbot/plugin-sdk";
+import type { WizardPrompter } from "openclaw/plugin-sdk";
 import type { TwitchAccountConfig } from "./types.js";
 
 vi.mock("openclaw/plugin-sdk", () => ({

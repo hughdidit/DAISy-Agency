@@ -1,4 +1,4 @@
-import MoltbotProtocol
+import OpenClawProtocol
 import Observation
 import OpenClawProtocol
 import SwiftUI

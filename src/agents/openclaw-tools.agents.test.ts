@@ -17,7 +17,7 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 import "./test-helpers/fast-core-tools.js";
-import { createMoltbotTools } from "./moltbot-tools.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
 
 describe("agents_list", () => {
   type AgentConfig = NonNullable<NonNullable<typeof configOverride.agents>["list"]>[number];
@@ -59,7 +59,7 @@ describe("agents_list", () => {
   });
 
   it("defaults to the requester agent only", async () => {
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
     }).find((candidate) => candidate.name === "agents_list");
     if (!tool) {
@@ -90,7 +90,7 @@ describe("agents_list", () => {
       },
     };
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
     }).find((candidate) => candidate.name === "agents_list");
     if (!tool) {
@@ -117,7 +117,7 @@ describe("agents_list", () => {
       },
     };
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
     }).find((candidate) => candidate.name === "agents_list");
     if (!tool) {
@@ -153,7 +153,7 @@ describe("agents_list", () => {
       },
     };
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
     }).find((candidate) => candidate.name === "agents_list");
     if (!tool) {

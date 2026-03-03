@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { applySessionsPatchToStore } from "./sessions-patch.js";
 
@@ -90,7 +90,7 @@ describe("gateway sessions patch", () => {
   test("persists elevatedLevel=off (does not clear)", async () => {
     const store: Record<string, SessionEntry> = {};
     const res = await applySessionsPatchToStore({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       store,
       storeKey: "agent:main:main",
       patch: { key: "agent:main:main", elevatedLevel: "off" },
@@ -105,7 +105,7 @@ describe("gateway sessions patch", () => {
   test("persists elevatedLevel=on", async () => {
     const store: Record<string, SessionEntry> = {};
     const res = await applySessionsPatchToStore({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       store,
       storeKey: "agent:main:main",
       patch: { key: "agent:main:main", elevatedLevel: "on" },
@@ -122,7 +122,7 @@ describe("gateway sessions patch", () => {
       "agent:main:main": { elevatedLevel: "off" } as SessionEntry,
     };
     const res = await applySessionsPatchToStore({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       store,
       storeKey: "agent:main:main",
       patch: { key: "agent:main:main", elevatedLevel: null },
@@ -137,7 +137,7 @@ describe("gateway sessions patch", () => {
   test("rejects invalid elevatedLevel values", async () => {
     const store: Record<string, SessionEntry> = {};
     const res = await applySessionsPatchToStore({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       store,
       storeKey: "agent:main:main",
       patch: { key: "agent:main:main", elevatedLevel: "maybe" },
@@ -162,7 +162,7 @@ describe("gateway sessions patch", () => {
       } as SessionEntry,
     };
     const res = await applySessionsPatchToStore({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       store,
       storeKey: "agent:main:main",
       patch: { key: "agent:main:main", model: "openai/gpt-5.2" },

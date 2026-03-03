@@ -154,8 +154,8 @@ export function renderOverview(props: OverviewProps) {
           This gateway requires auth. Add a token or password, then click Connect.
 <<<<<<< HEAD
           <div style="margin-top: 6px;">
-            <span class="mono">moltbot dashboard --no-open</span> → tokenized URL<br />
-            <span class="mono">moltbot doctor --generate-gateway-token</span> → set token
+            <span class="mono">openclaw dashboard --no-open</span> → tokenized URL<br />
+            <span class="mono">openclaw doctor --generate-gateway-token</span> → set token
           <div style="margin-top: 6px">
             <span class="mono">openclaw dashboard --no-open</span> → tokenized URL<br />
             <span class="mono">openclaw doctor --generate-gateway-token</span> → set token
@@ -178,7 +178,7 @@ export function renderOverview(props: OverviewProps) {
       <div class="muted" style="margin-top: 8px">
         Auth failed. Re-copy a tokenized URL with
 <<<<<<< HEAD
-        <span class="mono">moltbot dashboard --no-open</span>, or update the token,
+        <span class="mono">openclaw dashboard --no-open</span>, or update the token,
         then click Connect.
         <div style="margin-top: 6px;">
         <div style="margin-top: 6px">
@@ -262,7 +262,7 @@ export function renderOverview(props: OverviewProps) {
                 const v = (e.target as HTMLInputElement).value;
                 props.onSettingsChange({ ...props.settings, token: v });
               }}
-              placeholder="CLAWDBOT_GATEWAY_TOKEN"
+              placeholder="OPENCLAW_GATEWAY_TOKEN"
             />
           </label>
           <label class="field">

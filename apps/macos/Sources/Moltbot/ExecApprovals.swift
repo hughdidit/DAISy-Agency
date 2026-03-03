@@ -220,7 +220,7 @@ struct ExecApprovalsResolvedDefaults {
 }
 
 enum ExecApprovalsStore {
-    private static let logger = Logger(subsystem: "bot.molt", category: "exec-approvals")
+    private static let logger = Logger(subsystem: "ai.openclaw", category: "exec-approvals")
     private static let defaultAgentId = "main"
     private static let defaultSecurity: ExecSecurity = .deny
     private static let defaultAsk: ExecAsk = .onMiss
@@ -229,11 +229,11 @@ enum ExecApprovalsStore {
     private static let secureStateDirPermissions = 0o700
 
     static func fileURL() -> URL {
-        MoltbotPaths.stateDirURL.appendingPathComponent("exec-approvals.json")
+        OpenClawPaths.stateDirURL.appendingPathComponent("exec-approvals.json")
     }
 
     static func socketPath() -> String {
-        MoltbotPaths.stateDirURL.appendingPathComponent("exec-approvals.sock").path
+        OpenClawPaths.stateDirURL.appendingPathComponent("exec-approvals.sock").path
     }
 
     static func normalizeIncoming(_ file: ExecApprovalsFile) -> ExecApprovalsFile {
@@ -345,7 +345,7 @@ enum ExecApprovalsStore {
     }
 
     static func ensureFile() -> ExecApprovalsFile {
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovals.swift
+<<<<<<< HEAD:apps/macos/Sources/OpenClaw/ExecApprovals.swift
         var file = self.loadFile()
         let url = self.fileURL()
         let existed = FileManager().fileExists(atPath: url.path)

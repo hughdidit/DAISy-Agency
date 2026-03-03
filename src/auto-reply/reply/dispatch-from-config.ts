@@ -3,7 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -83,7 +83,7 @@ const isInboundAudioContext = (ctx: FinalizedMsgContext): boolean => {
 
 const resolveSessionTtsAuto = (
   ctx: FinalizedMsgContext,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): string | undefined => {
   const targetSessionKey =
     ctx.CommandSource === "native" ? ctx.CommandTargetSessionKey?.trim() : undefined;
@@ -109,7 +109,7 @@ export type DispatchFromConfigResult = {
 
 export async function dispatchReplyFromConfig(params: {
   ctx: FinalizedMsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   dispatcher: ReplyDispatcher;
   replyOptions?: Omit<GetReplyOptions, "onToolResult" | "onBlockReply">;
   replyResolver?: typeof getReplyFromConfig;

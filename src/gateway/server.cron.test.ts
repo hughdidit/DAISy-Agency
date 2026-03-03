@@ -120,9 +120,9 @@ describe("gateway server cron", () => {
 
   test("handles cron CRUD, normalization, and patch semantics", { timeout: 120_000 }, async () => {
 <<<<<<< HEAD
-    const prevSkipCron = process.env.CLAWDBOT_SKIP_CRON;
-    process.env.CLAWDBOT_SKIP_CRON = "0";
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-cron-"));
+    const prevSkipCron = process.env.OPENCLAW_SKIP_CRON;
+    process.env.OPENCLAW_SKIP_CRON = "0";
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-cron-"));
     testState.cronStorePath = path.join(dir, "cron", "jobs.json");
     testState.sessionConfig = { mainKey: "primary" };
     testState.cronEnabled = false;
@@ -398,17 +398,17 @@ describe("gateway server cron", () => {
       testState.sessionConfig = undefined;
       testState.cronEnabled = undefined;
       if (prevSkipCron === undefined) {
-        delete process.env.CLAWDBOT_SKIP_CRON;
+        delete process.env.OPENCLAW_SKIP_CRON;
       } else {
-        process.env.CLAWDBOT_SKIP_CRON = prevSkipCron;
+        process.env.OPENCLAW_SKIP_CRON = prevSkipCron;
       }
     }
   });
 
   test("writes cron run history and auto-runs due jobs", async () => {
-    const prevSkipCron = process.env.CLAWDBOT_SKIP_CRON;
-    process.env.CLAWDBOT_SKIP_CRON = "0";
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-cron-log-"));
+    const prevSkipCron = process.env.OPENCLAW_SKIP_CRON;
+    process.env.OPENCLAW_SKIP_CRON = "0";
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-cron-log-"));
     testState.cronStorePath = path.join(dir, "cron", "jobs.json");
     testState.cronEnabled = undefined;
     await fs.mkdir(path.dirname(testState.cronStorePath), { recursive: true });
@@ -519,9 +519,9 @@ describe("gateway server cron", () => {
       testState.cronStorePath = undefined;
       testState.cronEnabled = undefined;
       if (prevSkipCron === undefined) {
-        delete process.env.CLAWDBOT_SKIP_CRON;
+        delete process.env.OPENCLAW_SKIP_CRON;
       } else {
-        process.env.CLAWDBOT_SKIP_CRON = prevSkipCron;
+        process.env.OPENCLAW_SKIP_CRON = prevSkipCron;
       }
     }
   }, 45_000);

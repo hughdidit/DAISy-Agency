@@ -2,7 +2,7 @@ import AppKit
 import CryptoKit
 import Darwin
 import Foundation
-import MoltbotKit
+import OpenClawKit
 import OSLog
 
 struct ExecApprovalPromptRequest: Codable, Sendable {
@@ -388,7 +388,7 @@ private enum ExecHostExecutor {
                 reason: "invalid")
         }
 
-<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
+<<<<<<< HEAD:apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
         let context = await self.buildContext(request: request, command: command)
         }
 
@@ -721,7 +721,7 @@ enum ExecApprovalsSocketPathGuard {
 }
 
 private final class ExecApprovalsSocketServer: @unchecked Sendable {
-    private let logger = Logger(subsystem: "bot.molt", category: "exec-approvals.socket")
+    private let logger = Logger(subsystem: "ai.openclaw", category: "exec-approvals.socket")
     private let socketPath: String
     private let token: String
     private let onPrompt: @Sendable (ExecApprovalPromptRequest) async -> ExecApprovalDecision

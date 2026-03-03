@@ -7,7 +7,7 @@ import { resolveChannelCapabilities } from "./channel-capabilities.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "./config.js";
+import type { OpenClawConfig } from "./config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -46,7 +46,7 @@ describe("resolveChannelCapabilities", () => {
           },
         },
       },
-    } satisfies Partial<MoltbotConfig>;
+    } satisfies Partial<OpenClawConfig>;
 
     expect(
       resolveChannelCapabilities({
@@ -67,7 +67,7 @@ describe("resolveChannelCapabilities", () => {
           },
         },
       },
-    } satisfies Partial<MoltbotConfig>;
+    } satisfies Partial<OpenClawConfig>;
 
     expect(
       resolveChannelCapabilities({
@@ -87,7 +87,7 @@ describe("resolveChannelCapabilities", () => {
           },
         },
       },
-    } satisfies Partial<MoltbotConfig>;
+    } satisfies Partial<OpenClawConfig>;
 
     expect(
       resolveChannelCapabilities({
@@ -110,7 +110,7 @@ describe("resolveChannelCapabilities", () => {
     );
     const cfg = {
       channels: { msteams: { capabilities: [" polls ", ""] } },
-    } satisfies Partial<MoltbotConfig>;
+    } satisfies Partial<OpenClawConfig>;
 
     expect(
       resolveChannelCapabilities({

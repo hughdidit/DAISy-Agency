@@ -10,7 +10,7 @@ const env = { ...process.env };
 const cwd = process.cwd();
 <<<<<<< HEAD
 <<<<<<< HEAD
-const compiler = env.CLAWDBOT_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
+const compiler = env.OPENCLAW_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
 const projectArgs = ["--project", "tsconfig.json"];
 
 const distRoot = path.join(cwd, "dist");
@@ -156,7 +156,7 @@ const hasSourceMtimeChanged = (stampMtime, deps) => {
 const shouldBuild = () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
-  if (env.CLAWDBOT_FORCE_BUILD === "1") return true;
+  if (env.OPENCLAW_FORCE_BUILD === "1") return true;
 =======
   if (env.OPENCLAW_FORCE_BUILD === "1") {
     return true;
@@ -205,12 +205,12 @@ const shouldBuild = () => {
 const logRunner = (message) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
-  if (env.CLAWDBOT_RUNNER_LOG === "0") return;
-  process.stderr.write(`[moltbot] ${message}\n`);
+  if (env.OPENCLAW_RUNNER_LOG === "0") return;
+  process.stderr.write(`[openclaw] ${message}\n`);
 };
 
 const runNode = () => {
-  const nodeProcess = spawn(process.execPath, ["moltbot.mjs", ...args], {
+  const nodeProcess = spawn(process.execPath, ["openclaw.mjs", ...args], {
   process.stderr.write(`[openclaw] ${message}\n`);
 };
 

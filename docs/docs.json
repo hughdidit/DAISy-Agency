@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "name": "Moltbot",
+  "name": "OpenClaw",
   "theme": "mint",
   "icons": {
     "library": "lucide"
@@ -44,11 +44,11 @@
     },
     {
       "name": "GitHub",
-      "url": "https://github.com/moltbot/moltbot"
+      "url": "https://github.com/moltai/openclawbot"
     },
     {
       "name": "Releases",
-      "url": "https://github.com/moltbot/moltbot/releases"
+      "url": "https://github.com/moltai/openclawbot/releases"
     }
   ],
   "redirects": [

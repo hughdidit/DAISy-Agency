@@ -65,7 +65,7 @@ describe("memory embedding batches", () => {
     embedBatch.mockClear();
     embedQuery.mockClear();
 <<<<<<< HEAD
-    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
+    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-"));
     indexPath = path.join(workspaceDir, "index.sqlite");
     await fs.mkdir(path.join(workspaceDir, "memory"), { recursive: true });
   });

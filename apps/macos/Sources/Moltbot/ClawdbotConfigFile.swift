@@ -1,19 +1,19 @@
 import Foundation
-import MoltbotProtocol
+import OpenClawProtocol
 
-enum MoltbotConfigFile {
-    private static let logger = Logger(subsystem: "bot.molt", category: "config")
+enum OpenClawConfigFile {
+    private static let logger = Logger(subsystem: "ai.openclaw", category: "config")
 
     static func url() -> URL {
-        MoltbotPaths.configURL
+        OpenClawPaths.configURL
     }
 
     static func stateDirURL() -> URL {
-        MoltbotPaths.stateDirURL
+        OpenClawPaths.stateDirURL
     }
 
     static func defaultWorkspaceURL() -> URL {
-        MoltbotPaths.workspaceURL
+        OpenClawPaths.workspaceURL
     }
 
     static func loadDict() -> [String: Any] {

@@ -6,7 +6,7 @@ import { VERSION } from "../version.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import { MoltbotSchema } from "./zod-schema.js";
+import { OpenClawSchema } from "./zod-schema.js";
 =======
 import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 =======
@@ -41,7 +41,7 @@ export type ConfigUiHints = Record<string, ConfigUiHint>;
 export type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 >>>>>>> fa427f63b (refactor(config): restore schema.ts to use schema.hints)
 
-export type ConfigSchema = ReturnType<typeof MoltbotSchema.toJSONSchema>;
+export type ConfigSchema = ReturnType<typeof OpenClawSchema.toJSONSchema>;
 
 type JsonSchemaNode = Record<string, unknown>;
 
@@ -479,7 +479,7 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 const FIELD_HELP: Record<string, string> = {
-  "meta.lastTouchedVersion": "Auto-set when Moltbot writes the config.",
+  "meta.lastTouchedVersion": "Auto-set when OpenClaw writes the config.",
   "meta.lastTouchedAt": "ISO timestamp of the last config write (auto-set).",
   "update.channel": 'Update channel for git + npm installs ("stable", "beta", or "dev").',
   "update.checkOnStart": "Check for npm updates when the gateway starts (default: true).",
@@ -502,7 +502,7 @@ const FIELD_HELP: Record<string, string> = {
   "gateway.auth.password": "Required for Tailscale funnel.",
   "gateway.controlUi.basePath":
 <<<<<<< HEAD
-    "Optional URL prefix where the Control UI is served (e.g. /moltbot).",
+    "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
 =======
     "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
   "gateway.controlUi.root":
@@ -533,7 +533,7 @@ const FIELD_HELP: Record<string, string> = {
   "diagnostics.cacheTrace.enabled":
     "Log cache trace snapshots for embedded agent runs (default: false).",
   "diagnostics.cacheTrace.filePath":
-    "JSONL output path for cache trace logs (default: $CLAWDBOT_STATE_DIR/logs/cache-trace.jsonl).",
+    "JSONL output path for cache trace logs (default: $OPENCLAW_STATE_DIR/logs/cache-trace.jsonl).",
   "diagnostics.cacheTrace.includeMessages":
     "Include full message payloads in trace output (default: true).",
   "diagnostics.cacheTrace.includePrompt": "Include prompt text in trace output (default: true).",
@@ -654,7 +654,7 @@ const FIELD_HELP: Record<string, string> = {
   "agents.defaults.memorySearch.fallback":
     'Fallback provider when embeddings fail ("openai", "gemini", "local", or "none").',
   "agents.defaults.memorySearch.store.path":
-    "SQLite index path (default: ~/.clawdbot/memory/{agentId}.sqlite).",
+    "SQLite index path (default: ~/.openclaw/memory/{agentId}.sqlite).",
   "agents.defaults.memorySearch.store.vector.enabled":
     "Enable sqlite-vec extension for vector search (default: true).",
   "agents.defaults.memorySearch.store.vector.extensionPath":
@@ -728,12 +728,12 @@ const FIELD_HELP: Record<string, string> = {
   "plugins.entries.*.enabled": "Overrides plugin enable/disable for this entry (restart required).",
   "plugins.entries.*.config": "Plugin-defined config payload (schema is provided by the plugin).",
   "plugins.installs":
-    "CLI-managed install metadata (used by `moltbot plugins update` to locate install sources).",
+    "CLI-managed install metadata (used by `openclaw plugins update` to locate install sources).",
   "plugins.installs.*.source": 'Install source ("npm", "archive", or "path").',
   "plugins.installs.*.spec": "Original npm spec used for install (if source is npm).",
   "plugins.installs.*.sourcePath": "Original archive/path used for install (if any).",
   "plugins.installs.*.installPath":
-    "Resolved install directory (usually ~/.clawdbot/extensions/<id>).",
+    "Resolved install directory (usually ~/.openclaw/extensions/<id>).",
   "plugins.installs.*.version": "Version recorded at install time (if available).",
   "plugins.installs.*.installedAt": "ISO timestamp of last install/update.",
   "agents.list.*.identity.avatar":
@@ -860,7 +860,7 @@ const FIELD_PLACEHOLDERS: Record<string, string> = {
   "gateway.remote.tlsFingerprint": "sha256:ab12cd34…",
   "gateway.remote.sshTarget": "user@host",
 <<<<<<< HEAD
-  "gateway.controlUi.basePath": "/moltbot",
+  "gateway.controlUi.basePath": "/openclaw",
   "channels.mattermost.baseUrl": "https://chat.example.com",
   "agents.list[].identity.avatar": "avatars/clawd.png",
 =======
@@ -1176,11 +1176,11 @@ function stripChannelSchema(schema: ConfigSchema): ConfigSchema {
 
 function buildBaseConfigSchema(): ConfigSchemaResponse {
   if (cachedBase) return cachedBase;
-  const schema = MoltbotSchema.toJSONSchema({
+  const schema = OpenClawSchema.toJSONSchema({
     target: "draft-07",
     unrepresentable: "any",
   });
-  schema.title = "MoltbotConfig";
+  schema.title = "OpenClawConfig";
   const hints = applySensitiveHints(buildBaseHints());
   const next = {
     schema: stripChannelSchema(schema),

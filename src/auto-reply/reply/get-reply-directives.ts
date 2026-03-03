@@ -3,7 +3,7 @@ import type { ModelAliasIndex } from "../../agents/model-selection.js";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
 import type { SkillCommandSpec } from "../../agents/skills.js";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import { listChatCommands, shouldHandleTextCommands } from "../commands-registry.js";
 import { listSkillCommandsForWorkspace } from "../skill-commands.js";
@@ -22,7 +22,7 @@ import { formatElevatedUnavailableMessage, resolveElevatedPermissions } from "./
 import { stripInlineStatus } from "./reply-inline.js";
 import type { TypingController } from "./typing.js";
 
-type AgentDefaults = NonNullable<MoltbotConfig["agents"]>["defaults"];
+type AgentDefaults = NonNullable<OpenClawConfig["agents"]>["defaults"];
 type ExecOverrides = Pick<ExecToolDefaults, "host" | "security" | "ask" | "node">;
 
 export type ReplyDirectiveContinuation = {
@@ -86,7 +86,7 @@ export type ReplyDirectiveResult =
 
 export async function resolveReplyDirectives(params: {
   ctx: MsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId: string;
   agentDir: string;
   workspaceDir: string;

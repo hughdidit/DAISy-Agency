@@ -38,7 +38,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { isSubagentSessionKey } from "../routing/session-key.js";
 =======
@@ -97,7 +97,7 @@ function normalizeExecAsk(raw: string): "off" | "on-miss" | "always" | undefined
 }
 
 export async function applySessionsPatchToStore(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   store: Record<string, SessionEntry>;
   storeKey: string;
   patch: SessionsPatchParams;

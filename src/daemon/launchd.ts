@@ -67,9 +67,9 @@ import type {
 >>>>>>> 70900feaa (refactor(daemon): share service arg types across backends)
 
 function resolveLaunchAgentLabel(args?: { env?: Record<string, string | undefined> }): string {
-  const envLabel = args?.env?.CLAWDBOT_LAUNCHD_LABEL?.trim();
+  const envLabel = args?.env?.OPENCLAW_LAUNCHD_LABEL?.trim();
   if (envLabel) return envLabel;
-  return resolveGatewayLaunchAgentLabel(args?.env?.CLAWDBOT_PROFILE);
+  return resolveGatewayLaunchAgentLabel(args?.env?.OPENCLAW_PROFILE);
 }
 
 function resolveLaunchAgentPlistPathForLabel(
@@ -92,7 +92,7 @@ export function resolveGatewayLogPaths(env: GatewayServiceEnv): {
 } {
   const stateDir = resolveGatewayStateDir(env);
   const logDir = path.join(stateDir, "logs");
-  const prefix = env.CLAWDBOT_LOG_PREFIX?.trim() || "gateway";
+  const prefix = env.OPENCLAW_LOG_PREFIX?.trim() || "gateway";
   return {
     logDir,
     stdoutPath: path.join(logDir, `${prefix}.log`),
@@ -294,7 +294,7 @@ export type LegacyLaunchAgent = {
 export async function findLegacyLaunchAgents(env: GatewayServiceEnv): Promise<LegacyLaunchAgent[]> {
   const domain = resolveGuiDomain();
   const results: LegacyLaunchAgent[] = [];
-  for (const label of resolveLegacyGatewayLaunchAgentLabels(env.CLAWDBOT_PROFILE)) {
+  for (const label of resolveLegacyGatewayLaunchAgentLabels(env.OPENCLAW_PROFILE)) {
     const plistPath = resolveLaunchAgentPlistPathForLabel(env, label);
     const res = await execLaunchctl(["print", `${domain}/${label}`]);
     const loaded = res.code === 0;
@@ -449,7 +449,7 @@ export async function installLaunchAgent({
 
   const domain = resolveGuiDomain();
   const label = resolveLaunchAgentLabel({ env });
-  for (const legacyLabel of resolveLegacyGatewayLaunchAgentLabels(env.CLAWDBOT_PROFILE)) {
+  for (const legacyLabel of resolveLegacyGatewayLaunchAgentLabels(env.OPENCLAW_PROFILE)) {
     const legacyPlistPath = resolveLaunchAgentPlistPathForLabel(env, legacyLabel);
     await execLaunchctl(["bootout", domain, legacyPlistPath]);
     await execLaunchctl(["unload", legacyPlistPath]);
@@ -466,8 +466,8 @@ export async function installLaunchAgent({
   const serviceDescription =
     description ??
     formatGatewayServiceDescription({
-      profile: env.CLAWDBOT_PROFILE,
-      version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
+      profile: env.OPENCLAW_PROFILE,
+      version: environment?.OPENCLAW_SERVICE_VERSION ?? env.OPENCLAW_SERVICE_VERSION,
     });
   const plist = buildLaunchAgentPlist({
     label,

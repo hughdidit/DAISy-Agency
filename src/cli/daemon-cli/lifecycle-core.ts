@@ -273,7 +273,7 @@ export async function runServiceRestart(params: {
     const configToken =
       cfg.gateway?.auth?.token ||
       process.env.OPENCLAW_GATEWAY_TOKEN ||
-      process.env.CLAWDBOT_GATEWAY_TOKEN;
+      process.env.OPENCLAW_GATEWAY_TOKEN;
     const driftIssue = checkTokenDrift({ serviceToken, configToken });
     if (driftIssue && !json) {
       defaultRuntime.log(`\n⚠️  ${driftIssue.message}`);

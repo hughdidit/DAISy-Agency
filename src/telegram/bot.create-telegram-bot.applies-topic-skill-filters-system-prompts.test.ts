@@ -11,7 +11,7 @@ import {
 import { createTelegramBot } from "./bot.js";
 
 const { sessionStorePath } = vi.hoisted(() => ({
-  sessionStorePath: `/tmp/moltbot-telegram-${Math.random().toString(16).slice(2)}.json`,
+  sessionStorePath: `/tmp/openclaw-telegram-${Math.random().toString(16).slice(2)}.json`,
 }));
 
 const { loadWebMedia } = vi.hoisted(() => ({
@@ -186,7 +186,7 @@ describe("createTelegramBot", () => {
         message_id: 42,
         message_thread_id: 99,
       },
-      me: { username: "moltbot_bot" },
+      me: { username: "openclaw_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -229,7 +229,7 @@ describe("createTelegramBot", () => {
         message_id: 42,
         message_thread_id: 99,
       },
-      me: { username: "moltbot_bot" },
+      me: { username: "openclaw_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
@@ -336,7 +336,7 @@ describe("createTelegramBot", () => {
         date: 1736380800,
         message_id: 42,
       },
-      me: { username: "moltbot_bot" },
+      me: { username: "openclaw_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     };
 

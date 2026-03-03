@@ -51,7 +51,7 @@ export function registerBrowserCli(program: Command) {
     .action(() => {
       browser.outputHelp();
       defaultRuntime.error(
-        danger(`Missing subcommand. Try: "${formatCliCommand("moltbot browser status")}"`),
+        danger(`Missing subcommand. Try: "${formatCliCommand("openclaw browser status")}"`),
       );
       defaultRuntime.exit(1);
     });

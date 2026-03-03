@@ -13,7 +13,7 @@ import {
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 
 =======
 import type { CoreConfig } from "./types.js";

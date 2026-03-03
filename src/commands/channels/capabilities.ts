@@ -32,7 +32,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 import { fetchChannelPermissionsDiscord } from "../../discord/send.js";
 import { parseDiscordTarget } from "../../discord/targets.js";
 import { danger } from "../../globals.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { defaultRuntime, type RuntimeEnv } from "../../runtime.js";
 import { fetchSlackScopes, type SlackScopesResult } from "../../slack/scopes.js";
 import { theme } from "../../terminal/theme.js";
@@ -365,7 +365,7 @@ async function buildDiscordPermissions(params: {
 
 async function resolveChannelReports(params: {
   plugin: ChannelPlugin;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   timeoutMs: number;
   accountOverride?: string;
   target?: string;

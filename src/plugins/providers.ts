@@ -1,5 +1,5 @@
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { loadMoltbotPlugins, type PluginLoadOptions } from "./loader.js";
+import { loadOpenClawPlugins, type PluginLoadOptions } from "./loader.js";
 =======
 import { createPluginLoaderLogger } from "./logger.js";
 >>>>>>> aa8f87a3b (refactor(plugins): reuse plugin loader logger adapter)
@@ -21,7 +21,7 @@ export function resolvePluginProviders(params: {
   config?: PluginLoadOptions["config"];
   workspaceDir?: string;
 }): ProviderPlugin[] {
-  const registry = loadMoltbotPlugins({
+  const registry = loadOpenClawPlugins({
     config: params.config,
     workspaceDir: params.workspaceDir,
     logger: createPluginLoaderLogger(log),

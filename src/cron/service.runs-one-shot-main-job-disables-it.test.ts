@@ -44,7 +44,7 @@ afterAll(async () => {
 
 async function makeStorePath() {
 <<<<<<< HEAD
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-cron-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-"));
   return {
     storePath: path.join(dir, "cron", "jobs.json"),
     cleanup: async () => {},

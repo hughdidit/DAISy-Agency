@@ -6,7 +6,7 @@ import type { ChannelId } from "../channels/plugins/types.js";
 import { normalizeAnyChannelId } from "../channels/registry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { MsgContext } from "./templating.js";
 =======
 =======
@@ -42,7 +42,7 @@ export type CommandAuthorization = {
   to?: string;
 };
 
-function resolveProviderFromContext(ctx: MsgContext, cfg: MoltbotConfig): ChannelId | undefined {
+function resolveProviderFromContext(ctx: MsgContext, cfg: OpenClawConfig): ChannelId | undefined {
   const direct =
     normalizeAnyChannelId(explicitMessageChannel ?? undefined) ??
     normalizeAnyChannelId(ctx.Provider) ??
@@ -89,7 +89,7 @@ function resolveProviderFromContext(ctx: MsgContext, cfg: MoltbotConfig): Channe
 
 function formatAllowFromList(params: {
   dock?: ChannelDock;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
   allowFrom: Array<string | number>;
 }): string[] {
@@ -105,7 +105,7 @@ function formatAllowFromList(params: {
 
 function normalizeAllowFromEntry(params: {
   dock?: ChannelDock;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
   value: string;
 }): string[] {
@@ -230,7 +230,7 @@ function shouldUseFromAsSenderFallback(params: {
 function resolveSenderCandidates(params: {
   dock?: ChannelDock;
   providerId?: ChannelId;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
   senderId?: string | null;
   senderE164?: string | null;
@@ -274,7 +274,7 @@ function resolveSenderCandidates(params: {
 
 export function resolveCommandAuthorization(params: {
   ctx: MsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   commandAuthorized: boolean;
 }): CommandAuthorization {
   const { ctx, cfg, commandAuthorized } = params;

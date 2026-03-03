@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
@@ -52,10 +52,10 @@ import { guardCancel, randomToken } from "./onboard-helpers.js";
 type GatewayAuthChoice = "token" | "password" | "trusted-proxy";
 
 export async function promptGatewayConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   runtime: RuntimeEnv,
 ): Promise<{
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   port: number;
   token?: string;
 }> {

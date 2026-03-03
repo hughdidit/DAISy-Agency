@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { WorkspaceBootstrapFile } from "./workspace.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -17,7 +17,7 @@ import type { WorkspaceBootstrapFile } from "./workspace.js";
 export async function applyBootstrapHookOverrides(params: {
   files: WorkspaceBootstrapFile[];
   workspaceDir: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;

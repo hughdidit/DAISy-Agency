@@ -8,7 +8,7 @@ import { type ChannelId, getChannelPlugin, listChannelPlugins } from "../channel
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -98,7 +98,7 @@ function cloneDefaultRuntime(channelId: ChannelId, accountId: string): ChannelAc
 }
 
 type ChannelManagerOptions = {
-  loadConfig: () => MoltbotConfig;
+  loadConfig: () => OpenClawConfig;
   channelLogs: Record<ChannelId, SubsystemLogger>;
   channelRuntimeEnvs: Record<ChannelId, RuntimeEnv>;
 };

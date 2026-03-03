@@ -346,7 +346,7 @@ function main() {
 try {
   const skip =
     process.env.OPENCLAW_SKIP_POSTINSTALL === "1" ||
-    process.env.CLAWDBOT_SKIP_POSTINSTALL === "1" ||
+    process.env.OPENCLAW_SKIP_POSTINSTALL === "1" ||
     process.env.VITEST === "true" ||
     process.env.NODE_ENV === "test";
 

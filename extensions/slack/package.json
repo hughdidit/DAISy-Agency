@@ -1,9 +1,9 @@
 {
-  "name": "@moltbot/slack",
+  "name": "@openclaw/slack",
   "version": "2026.1.27-beta.1",
   "type": "module",
-  "description": "Moltbot Slack channel plugin",
-  "moltbot": {
+  "description": "OpenClaw Slack channel plugin",
+  "openclaw": {
 =======
   "version": "2026.2.23",
 >>>>>>> 8d9d01447 (chore: align plugin versions and harden outbound cross-provider test)

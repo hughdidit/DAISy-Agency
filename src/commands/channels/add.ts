@@ -7,7 +7,7 @@ import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/ag
 import { listChannelPluginCatalogEntries } from "../../channels/plugins/catalog.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import type { ChannelId } from "../../channels/plugins/types.js";
-import { writeConfigFile, type MoltbotConfig } from "../../config/config.js";
+import { writeConfigFile, type OpenClawConfig } from "../../config/config.js";
 =======
 =======
 import type { ChannelId, ChannelSetupInput } from "../../channels/plugins/types.js";
@@ -63,7 +63,7 @@ function parseList(value: string | undefined): string[] | undefined {
   return parsed.length > 0 ? parsed : undefined;
 }
 
-function resolveCatalogChannelEntry(raw: string, cfg: MoltbotConfig | null) {
+function resolveCatalogChannelEntry(raw: string, cfg: OpenClawConfig | null) {
   const trimmed = raw.trim().toLowerCase();
   if (!trimmed) {
     return undefined;

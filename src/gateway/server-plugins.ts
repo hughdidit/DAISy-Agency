@@ -3,7 +3,7 @@ import type { loadConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import { loadMoltbotPlugins } from "../plugins/loader.js";
+import { loadOpenClawPlugins } from "../plugins/loader.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { GatewayRequestHandler } from "./server-methods/types.js";
@@ -30,7 +30,7 @@ export function loadGatewayPlugins(params: {
   coreGatewayHandlers: Record<string, GatewayRequestHandler>;
   baseMethods: string[];
 }) {
-  const pluginRegistry = loadMoltbotPlugins({
+  const pluginRegistry = loadOpenClawPlugins({
     config: params.cfg,
     workspaceDir: params.workspaceDir,
     logger: {

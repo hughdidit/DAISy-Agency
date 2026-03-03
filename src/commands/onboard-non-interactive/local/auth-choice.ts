@@ -5,7 +5,7 @@ import { parseDurationMs } from "../../../cli/parse-duration.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../../config/config.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 import { upsertSharedEnvVar } from "../../../infra/env-file.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../../runtime.js";
@@ -97,12 +97,12 @@ type ResolvedNonInteractiveApiKey = NonNullable<
 >;
 
 export async function applyNonInteractiveAuthChoice(params: {
-  nextConfig: MoltbotConfig;
+  nextConfig: OpenClawConfig;
   authChoice: AuthChoice;
   opts: OnboardOptions;
   runtime: RuntimeEnv;
-  baseConfig: MoltbotConfig;
-}): Promise<MoltbotConfig | null> {
+  baseConfig: OpenClawConfig;
+}): Promise<OpenClawConfig | null> {
   const { authChoice, opts, runtime, baseConfig } = params;
   let nextConfig = params.nextConfig;
   const requestedSecretInputMode = normalizeSecretInputModeInput(opts.secretInputMode);

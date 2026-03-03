@@ -61,7 +61,7 @@ import type {
 <<<<<<< HEAD
 >>>>>>> c256503ea (refactor(infra): extract session cost usage types)
 import { normalizeUsage } from "../agents/usage.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions/types.js";
 =======
 import { normalizeUsage } from "../agents/usage.js";
@@ -297,7 +297,7 @@ async function* readJsonlRecords(filePath: string): AsyncGenerator<Record<string
 
 async function scanTranscriptFile(params: {
   filePath: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   onEntry: (entry: ParsedUsageEntry) => void;
 }): Promise<void> {
   for await (const parsed of readJsonlRecords(params.filePath)) {
@@ -345,7 +345,7 @@ async function scanUsageFile(params: {
 
 export async function loadCostUsageSummary(params?: {
   days?: number;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentId?: string;
 }): Promise<CostUsageSummary> {
   const now = new Date();
@@ -517,7 +517,7 @@ export async function loadSessionCostSummary(params: {
   sessionId?: string;
   sessionEntry?: SessionEntry;
   sessionFile?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
 }): Promise<SessionCostSummary | null> {
   const sessionFile =
     params.sessionFile ??

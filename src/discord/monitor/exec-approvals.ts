@@ -10,7 +10,7 @@ import {
   type TopLevelComponents,
 } from "@buape/carbon";
 import { ButtonStyle, Routes } from "discord-api-types/v10";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { GatewayClient } from "../../gateway/client.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 =======
@@ -323,7 +323,7 @@ export type DiscordExecApprovalHandlerOpts = {
   accountId: string;
   config: DiscordExecApprovalConfig;
   gatewayUrl?: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   runtime?: RuntimeEnv;
   onResolve?: (id: string, decision: ExecApprovalDecision) => Promise<void>;
 };

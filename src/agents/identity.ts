@@ -1,16 +1,16 @@
-import type { MoltbotConfig, HumanDelayConfig, IdentityConfig } from "../config/config.js";
+import type { OpenClawConfig, HumanDelayConfig, IdentityConfig } from "../config/config.js";
 import { resolveAgentConfig } from "./agent-scope.js";
 
 const DEFAULT_ACK_REACTION = "👀";
 
 export function resolveAgentIdentity(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
 ): IdentityConfig | undefined {
   return resolveAgentConfig(cfg, agentId)?.identity;
 }
 
-export function resolveAckReaction(cfg: MoltbotConfig, agentId: string): string {
+export function resolveAckReaction(cfg: OpenClawConfig, agentId: string): string {
   const configured = cfg.messages?.ackReaction;
   if (configured !== undefined) {
     return configured.trim();
@@ -21,7 +21,7 @@ export function resolveAckReaction(cfg: MoltbotConfig, agentId: string): string 
   return emoji || DEFAULT_ACK_REACTION;
 }
 
-export function resolveIdentityNamePrefix(cfg: MoltbotConfig, agentId: string): string | undefined {
+export function resolveIdentityNamePrefix(cfg: OpenClawConfig, agentId: string): string | undefined {
   const name = resolveAgentIdentity(cfg, agentId)?.name?.trim();
   if (!name) {
     return undefined;
@@ -30,12 +30,12 @@ export function resolveIdentityNamePrefix(cfg: MoltbotConfig, agentId: string): 
 }
 
 /** Returns just the identity name (without brackets) for template context. */
-export function resolveIdentityName(cfg: MoltbotConfig, agentId: string): string | undefined {
+export function resolveIdentityName(cfg: OpenClawConfig, agentId: string): string | undefined {
   return resolveAgentIdentity(cfg, agentId)?.name?.trim() || undefined;
 }
 
 export function resolveMessagePrefix(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
   opts?: { configured?: string; hasAllowFrom?: boolean; fallback?: string },
 ): string {
@@ -49,10 +49,10 @@ export function resolveMessagePrefix(
     return "";
   }
 
-  return resolveIdentityNamePrefix(cfg, agentId) ?? opts?.fallback ?? "[moltbot]";
+  return resolveIdentityNamePrefix(cfg, agentId) ?? opts?.fallback ?? "[openclaw]";
 }
 
-export function resolveResponsePrefix(cfg: MoltbotConfig, agentId: string): string | undefined {
+export function resolveResponsePrefix(cfg: OpenClawConfig, agentId: string): string | undefined {
   const configured = cfg.messages?.responsePrefix;
   if (configured !== undefined) {
     if (configured === "auto") {
@@ -64,7 +64,7 @@ export function resolveResponsePrefix(cfg: MoltbotConfig, agentId: string): stri
 }
 
 export function resolveEffectiveMessagesConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
   opts?: {
     hasAllowFrom?: boolean;
@@ -86,7 +86,7 @@ export function resolveEffectiveMessagesConfig(
 }
 
 export function resolveHumanDelayConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
 ): HumanDelayConfig | undefined {
   const defaults = cfg.agents?.defaults?.humanDelay;

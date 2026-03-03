@@ -8,7 +8,7 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -157,7 +157,7 @@ const WebSearchSchema = Type.Object({
   ),
 });
 
-type WebSearchConfig = NonNullable<MoltbotConfig["tools"]>["web"] extends infer Web
+type WebSearchConfig = NonNullable<OpenClawConfig["tools"]>["web"] extends infer Web
   ? Web extends { search?: infer Search }
     ? Search
     : undefined
@@ -260,7 +260,7 @@ type PerplexitySearchResponse = {
 type PerplexityBaseUrlHint = "direct" | "openrouter";
 
 <<<<<<< HEAD
-function resolveSearchConfig(cfg?: MoltbotConfig): WebSearchConfig {
+function resolveSearchConfig(cfg?: OpenClawConfig): WebSearchConfig {
   }
   // Fallback: deprecated output_text field
   const text = typeof data.output_text === "string" ? data.output_text : undefined;
@@ -365,7 +365,7 @@ function missingSearchKeyPayload(provider: (typeof SEARCH_PROVIDERS)[number]) {
   }
   return {
     error: "missing_brave_api_key",
-    message: `web_search needs a Brave Search API key. Run \`${formatCliCommand("moltbot configure --section web")}\` to store it, or set BRAVE_API_KEY in the Gateway environment.`,
+    message: `web_search needs a Brave Search API key. Run \`${formatCliCommand("openclaw configure --section web")}\` to store it, or set BRAVE_API_KEY in the Gateway environment.`,
     docs: "https://docs.molt.bot/tools/web",
   };
 }
@@ -925,7 +925,7 @@ async function runPerplexitySearch(params: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${params.apiKey}`,
       "HTTP-Referer": "https://molt.bot",
-      "X-Title": "Moltbot Web Search",
+      "X-Title": "OpenClaw Web Search",
     },
     body: JSON.stringify(body),
     signal: withTimeout(undefined, params.timeoutSeconds * 1000),
@@ -1339,7 +1339,7 @@ async function runWebSearch(params: {
 }
 
 export function createWebSearchTool(options?: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sandboxed?: boolean;
 }): AnyAgentTool | null {
   const search = resolveSearchConfig(options?.config);

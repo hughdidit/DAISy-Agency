@@ -33,8 +33,8 @@ type GatewayFrame = {
 };
 
 beforeAll(async () => {
-  previousToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
-  delete process.env.CLAWDBOT_GATEWAY_TOKEN;
+  previousToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+  delete process.env.OPENCLAW_GATEWAY_TOKEN;
   port = await getFreePort();
   server = await startGatewayServer(port);
 });
@@ -42,8 +42,8 @@ beforeAll(async () => {
 afterAll(async () => {
   await server.close();
 <<<<<<< HEAD
-  if (previousToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
-  else process.env.CLAWDBOT_GATEWAY_TOKEN = previousToken;
+  if (previousToken === undefined) delete process.env.OPENCLAW_GATEWAY_TOKEN;
+  else process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
 =======
   harness = await startGatewayServerHarness();
 });
@@ -242,7 +242,7 @@ describe("gateway server health/presence", () => {
   );
 
   test("presence includes client fingerprint", async () => {
-    const identityPath = path.join(os.tmpdir(), `moltbot-device-${randomUUID()}.json`);
+    const identityPath = path.join(os.tmpdir(), `openclaw-device-${randomUUID()}.json`);
     const identity = loadOrCreateDeviceIdentity(identityPath);
     const token = process.env.OPENCLAW_GATEWAY_TOKEN?.trim() || undefined;
     const role = "operator";

@@ -20,8 +20,8 @@ import type { OpenClawPluginToolContext } from "./types.js";
 import { normalizeToolName } from "../agents/tool-policy.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { loadMoltbotPlugins } from "./loader.js";
-import type { MoltbotPluginToolContext } from "./types.js";
+import { loadOpenClawPlugins } from "./loader.js";
+import type { OpenClawPluginToolContext } from "./types.js";
 =======
 =======
 import { createPluginLoaderLogger } from "./logger.js";
@@ -76,12 +76,12 @@ function isOptionalToolAllowed(params: {
 }
 
 export function resolvePluginTools(params: {
-  context: MoltbotPluginToolContext;
+  context: OpenClawPluginToolContext;
   existingToolNames?: Set<string>;
   toolAllowlist?: string[];
   suppressNameConflicts?: boolean;
 }): AnyAgentTool[] {
-  const registry = loadMoltbotPlugins({
+  const registry = loadOpenClawPlugins({
     config: params.context.config,
     workspaceDir: params.context.workspaceDir,
     logger: createPluginLoaderLogger(log),

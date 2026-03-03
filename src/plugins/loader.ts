@@ -8,7 +8,7 @@ import { createJiti } from "jiti";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import { createJiti } from "jiti";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -26,7 +26,7 @@ import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveUserPath } from "../utils.js";
-import { discoverMoltbotPlugins } from "./discovery.js";
+import { discoverOpenClawPlugins } from "./discovery.js";
 import { loadPluginManifestRegistry } from "./manifest-registry.js";
 import {
   applyTestPluginDefaults,
@@ -46,8 +46,8 @@ import { validateJsonSchemaValue } from "./schema-validator.js";
 <<<<<<< HEAD
 import type {
 <<<<<<< HEAD
-  MoltbotPluginDefinition,
-  MoltbotPluginModule,
+  OpenClawPluginDefinition,
+  OpenClawPluginModule,
   PluginDiagnostic,
   PluginLogger,
 } from "./types.js";
@@ -69,7 +69,7 @@ import type {
 export type PluginLoadResult = PluginRegistry;
 
 export type PluginLoadOptions = {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   workspaceDir?: string;
   logger?: PluginLogger;
   coreGatewayHandlers?: Record<string, GatewayRequestHandler>;
@@ -150,8 +150,8 @@ function validatePluginConfig(params: {
 }
 
 function resolvePluginModuleExport(moduleExport: unknown): {
-  definition?: MoltbotPluginDefinition;
-  register?: MoltbotPluginDefinition["register"];
+  definition?: OpenClawPluginDefinition;
+  register?: OpenClawPluginDefinition["register"];
 } {
   const resolved =
     moduleExport &&
@@ -161,11 +161,11 @@ function resolvePluginModuleExport(moduleExport: unknown): {
       : moduleExport;
   if (typeof resolved === "function") {
     return {
-      register: resolved as MoltbotPluginDefinition["register"],
+      register: resolved as OpenClawPluginDefinition["register"],
     };
   }
   if (resolved && typeof resolved === "object") {
-    const def = resolved as MoltbotPluginDefinition;
+    const def = resolved as OpenClawPluginDefinition;
     const register = def.register ?? def.activate;
     return { definition: def, register };
   }
@@ -253,7 +253,7 @@ function pushDiagnostics(diagnostics: PluginDiagnostic[], append: PluginDiagnost
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-export function loadMoltbotPlugins(options: PluginLoadOptions = {}): PluginRegistry {
+export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegistry {
   const cfg = applyTestPluginDefaults(options.config ?? {});
 }
 
@@ -422,7 +422,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
     coreGatewayHandlers: options.coreGatewayHandlers as Record<string, GatewayRequestHandler>,
   });
 
-  const discovery = discoverMoltbotPlugins({
+  const discovery = discoverOpenClawPlugins({
     workspaceDir: options.workspaceDir,
     extraPaths: normalized.loadPaths,
   });
@@ -458,8 +458,8 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       ? {
           alias: {
 <<<<<<< HEAD
-            "clawdbot/plugin-sdk": pluginSdkAlias,
-            "moltbot/plugin-sdk": pluginSdkAlias,
+            "openclaw/plugin-sdk": pluginSdkAlias,
+            "openclaw/plugin-sdk": pluginSdkAlias,
           },
         }
       : {}),
@@ -571,10 +571,10 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       continue;
     }
 
-    let mod: MoltbotPluginModule | null = null;
+    let mod: OpenClawPluginModule | null = null;
     try {
 <<<<<<< HEAD
-      mod = jiti(candidate.source) as MoltbotPluginModule;
+      mod = jiti(candidate.source) as OpenClawPluginModule;
 =======
     const pluginRoot = safeRealpathOrResolve(candidate.rootDir);
     const opened = openBoundaryFileSync({

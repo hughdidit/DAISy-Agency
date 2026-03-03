@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { RuntimeEnv } from "clawdbot/plugin-sdk";
+import type { RuntimeEnv } from "openclaw/plugin-sdk";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

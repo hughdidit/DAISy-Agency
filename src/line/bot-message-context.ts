@@ -6,7 +6,7 @@ import { formatLocationText, toLocationContext } from "../channels/location.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -36,7 +36,7 @@ interface MediaRef {
 interface BuildLineMessageContextParams {
   event: MessageEvent;
   allMedia: MediaRef[];
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   account: ResolvedLineAccount;
 }
 
@@ -420,7 +420,7 @@ export async function buildLineMessageContext(params: BuildLineMessageContextPar
 
 export async function buildLinePostbackContext(params: {
   event: PostbackEvent;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   account: ResolvedLineAccount;
 }) {
   const { event, cfg, account } = params;

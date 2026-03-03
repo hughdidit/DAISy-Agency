@@ -9,10 +9,10 @@ import Security
 final class PeekabooBridgeHostCoordinator {
     static let shared = PeekabooBridgeHostCoordinator()
 
-    private let logger = Logger(subsystem: "bot.molt", category: "PeekabooBridge")
+    private let logger = Logger(subsystem: "ai.openclaw", category: "PeekabooBridge")
 
     private var host: PeekabooBridgeHost?
-    private var services: MoltbotPeekabooBridgeServices?
+    private var services: OpenClawPeekabooBridgeServices?
 
     func setEnabled(_ enabled: Bool) async {
         if enabled {
@@ -39,7 +39,7 @@ final class PeekabooBridgeHostCoordinator {
         }
         let allowlistedBundles: Set<String> = []
 
-        let services = MoltbotPeekabooBridgeServices()
+        let services = OpenClawPeekabooBridgeServices()
         let server = PeekabooBridgeServer(
             services: services,
             hostKind: .gui,
@@ -47,7 +47,7 @@ final class PeekabooBridgeHostCoordinator {
             allowlistedBundles: allowlistedBundles)
 
         let host = PeekabooBridgeHost(
-            socketPath: PeekabooBridgeConstants.clawdbotSocketPath,
+            socketPath: PeekabooBridgeConstants.openclawSocketPath,
             server: server,
             allowedTeamIDs: allowlistedTeamIDs,
             requestTimeoutSec: 10)
@@ -57,7 +57,7 @@ final class PeekabooBridgeHostCoordinator {
 
         await host.start()
         self.logger
-            .info("PeekabooBridge host started at \(PeekabooBridgeConstants.clawdbotSocketPath, privacy: .public)")
+            .info("PeekabooBridge host started at \(PeekabooBridgeConstants.openclawSocketPath, privacy: .public)")
     }
 
     private static func currentTeamID() -> String? {
@@ -90,7 +90,7 @@ final class PeekabooBridgeHostCoordinator {
 }
 
 @MainActor
-private final class MoltbotPeekabooBridgeServices: PeekabooBridgeServiceProviding {
+private final class OpenClawPeekabooBridgeServices: PeekabooBridgeServiceProviding {
     let permissions: PermissionsService
     let screenCapture: any ScreenCaptureServiceProtocol
     let automation: any UIAutomationServiceProtocol
@@ -102,7 +102,7 @@ private final class MoltbotPeekabooBridgeServices: PeekabooBridgeServiceProvidin
     let snapshots: any SnapshotManagerProtocol
 
     init() {
-        let logging = LoggingService(subsystem: "bot.molt.peekaboo")
+        let logging = LoggingService(subsystem: "ai.openclaw.peekaboo")
         let feedbackClient: any AutomationFeedbackClient = NoopAutomationFeedbackClient()
 
         let snapshots = InMemorySnapshotManager(options: .init(

@@ -7,7 +7,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type { MessageEvent, PostbackEvent } from "@line/bot-sdk";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { ResolvedLineAccount } from "./types.js";
 import { buildLineMessageContext, buildLinePostbackContext } from "./bot-message-context.js";
 =======
@@ -41,7 +41,7 @@ import type { ResolvedLineAccount } from "./types.js";
 describe("buildLineMessageContext", () => {
   let tmpDir: string;
   let storePath: string;
-  let cfg: MoltbotConfig;
+  let cfg: OpenClawConfig;
   const account: ResolvedLineAccount = {
     accountId: "default",
     enabled: true,
@@ -84,7 +84,7 @@ describe("buildLineMessageContext", () => {
     }) as PostbackEvent;
 
   beforeEach(async () => {
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-line-context-"));
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-line-context-"));
     storePath = path.join(tmpDir, "sessions.json");
     cfg = { session: { store: storePath } };
   });

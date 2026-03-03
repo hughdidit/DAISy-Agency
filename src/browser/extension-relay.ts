@@ -230,7 +230,7 @@ const serversByPort = new Map<number, ChromeExtensionRelayServer>();
 
 function resolveGatewayAuthToken(): string | null {
   const envToken =
-    process.env.OPENCLAW_GATEWAY_TOKEN?.trim() || process.env.CLAWDBOT_GATEWAY_TOKEN?.trim();
+    process.env.OPENCLAW_GATEWAY_TOKEN?.trim() || process.env.OPENCLAW_GATEWAY_TOKEN?.trim();
   if (envToken) {
     return envToken;
   }
@@ -451,9 +451,9 @@ export async function ensureChromeExtensionRelayServer(opts: {
       case "Browser.getVersion":
         return {
           protocolVersion: "1.3",
-          product: "Chrome/Moltbot-Extension-Relay",
+          product: "Chrome/OpenClaw-Extension-Relay",
           revision: "0",
-          userAgent: "Moltbot-Extension-Relay",
+          userAgent: "OpenClaw-Extension-Relay",
           jsVersion: "V8",
         };
       case "Browser.setDownloadBehavior":
@@ -579,7 +579,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
       (req.method === "GET" || req.method === "PUT")
     ) {
       const payload: Record<string, unknown> = {
-        Browser: "Moltbot/extension-relay",
+        Browser: "OpenClaw/extension-relay",
         "Protocol-Version": "1.3",
       };
       // Only advertise the WS URL if a real extension is connected.

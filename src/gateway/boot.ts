@@ -8,7 +8,7 @@ import path from "node:path";
 
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import type { CliDeps } from "../cli/deps.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
 <<<<<<< HEAD
 import { agentCommand } from "../commands/agent.js";
@@ -167,7 +167,7 @@ async function restoreMainSessionMapping(
 }
 
 export async function runBootOnce(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   deps: CliDeps;
   workspaceDir: string;
 }): Promise<BootRunResult> {

@@ -42,7 +42,7 @@ export function buildSystemdUnit({
   environment,
 }: GatewayServiceRenderArgs): string {
   const execStart = programArguments.map(systemdEscapeArg).join(" ");
-  const descriptionLine = `Description=${description?.trim() || "Moltbot Gateway"}`;
+  const descriptionLine = `Description=${description?.trim() || "OpenClaw Gateway"}`;
   const workingDirLine = workingDirectory
     ? `WorkingDirectory=${systemdEscapeArg(workingDirectory)}`
     : null;

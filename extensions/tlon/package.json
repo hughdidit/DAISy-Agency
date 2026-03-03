@@ -1,9 +1,9 @@
 {
-  "name": "@moltbot/tlon",
+  "name": "@openclaw/tlon",
   "version": "2026.1.27-beta.1",
   "type": "module",
-  "description": "Moltbot Tlon/Urbit channel plugin",
-  "moltbot": {
+  "description": "OpenClaw Tlon/Urbit channel plugin",
+  "openclaw": {
 =======
   "version": "2026.2.22",
 >>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
@@ -32,7 +32,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@moltbot/tlon",
+      "npmSpec": "@openclaw/tlon",
       "localPath": "extensions/tlon",
       "defaultChoice": "npm"
     }

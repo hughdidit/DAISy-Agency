@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SandboxContext, SandboxWorkspaceInfo } from "./types.js";
@@ -86,7 +86,7 @@ async function ensureSandboxWorkspaceLayout(params: {
 
 <<<<<<< HEAD
 export async function resolveSandboxContext(params: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   workspaceDir?: string;
 }): Promise<SandboxContext | null> {
@@ -186,7 +186,7 @@ export async function resolveSandboxContext(params: {
 }
 
 export async function ensureSandboxWorkspaceForSession(params: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   workspaceDir?: string;
 }): Promise<SandboxWorkspaceInfo | null> {

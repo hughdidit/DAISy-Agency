@@ -3,7 +3,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { DEFAULT_COPILOT_API_BASE_URL } from "../providers/github-copilot-token.js";
 import { withEnvAsync } from "../test-utils/env.js";
 import {
@@ -16,10 +16,10 @@ import { ensureOpenClawModelsJson } from "./models-config.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "moltbot-models-" });
+  return withTempHomeBase(fn, { prefix: "openclaw-models-" });
 }
 
-const _MODELS_CONFIG: MoltbotConfig = {
+const _MODELS_CONFIG: OpenClawConfig = {
   models: {
     providers: {
       "custom-proxy": {
@@ -72,12 +72,12 @@ describe("models-config", () => {
           resolveCopilotApiToken: vi.fn().mockRejectedValue(new Error("boom")),
         }));
 
-        const { ensureMoltbotModelsJson } = await import("./models-config.js");
-        const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
+        const { ensureOpenClawModelsJson } = await import("./models-config.js");
+        const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
 
-        await ensureMoltbotModelsJson({ models: { providers: {} } });
+        await ensureOpenClawModelsJson({ models: { providers: {} } });
 
-        const agentDir = resolveMoltbotAgentDir();
+        const agentDir = resolveOpenClawAgentDir();
         await ensureOpenClawModelsJson({ models: { providers: {} } });
 
         const agentDir = path.join(process.env.HOME ?? "", ".openclaw", "agents", "main", "agent");
@@ -128,9 +128,9 @@ describe("models-config", () => {
           }),
         }));
 
-        const { ensureMoltbotModelsJson } = await import("./models-config.js");
+        const { ensureOpenClawModelsJson } = await import("./models-config.js");
 
-        await ensureMoltbotModelsJson({ models: { providers: {} } }, agentDir);
+        await ensureOpenClawModelsJson({ models: { providers: {} } }, agentDir);
 
         expect(await readCopilotBaseUrl(agentDir)).toBe("https://api.copilot.example");
       });

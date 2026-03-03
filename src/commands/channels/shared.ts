@@ -5,7 +5,7 @@ import { type ChannelId, getChannelPlugin } from "../../channels/plugins/index.j
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
-import { type MoltbotConfig, readConfigFileSnapshot } from "../../config/config.js";
+import { type OpenClawConfig, readConfigFileSnapshot } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -33,7 +33,7 @@ export type ChatChannel = ChannelId;
 
 export async function requireValidConfig(
   runtime: RuntimeEnv = defaultRuntime,
-): Promise<MoltbotConfig | null> {
+): Promise<OpenClawConfig | null> {
   const snapshot = await readConfigFileSnapshot();
   if (snapshot.exists && !snapshot.valid) {
     const issues =
@@ -41,7 +41,7 @@ export async function requireValidConfig(
         ? snapshot.issues.map((issue) => `- ${issue.path}: ${issue.message}`).join("\n")
         : "Unknown validation issue.";
     runtime.error(`Config invalid:\n${issues}`);
-    runtime.error(`Fix the config or run ${formatCliCommand("moltbot doctor")}.`);
+    runtime.error(`Fix the config or run ${formatCliCommand("openclaw doctor")}.`);
     runtime.exit(1);
     return null;
   }

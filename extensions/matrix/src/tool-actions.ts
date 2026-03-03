@@ -35,7 +35,7 @@ import {
   readNumberParam,
   readReactionParams,
   readStringParam,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======

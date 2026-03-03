@@ -8,7 +8,7 @@ import {
   readStoreAllowFromForDmPolicy,
   resolveControlCommandGate,
 <<<<<<< HEAD
-  type MoltbotConfig,
+  type OpenClawConfig,
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
@@ -16,7 +16,7 @@ import {
   type OpenClawConfig,
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   type RuntimeEnv,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 <<<<<<< HEAD
@@ -170,7 +170,7 @@ export async function handleNextcloudTalkInbound(params: {
   const effectiveGroupAllowFrom = [...baseGroupAllowFrom, ...storeAllowList].filter(Boolean);
 
   const allowTextCommands = core.channel.commands.shouldHandleTextCommands({
-    cfg: config as MoltbotConfig,
+    cfg: config as OpenClawConfig,
     surface: CHANNEL_ID,
   });
   const useAccessGroups =
@@ -182,7 +182,7 @@ export async function handleNextcloudTalkInbound(params: {
   }).allowed;
   const hasControlCommand = core.channel.text.hasControlCommand(
     rawBody,
-    config as MoltbotConfig,
+    config as OpenClawConfig,
   );
   const commandGate = resolveControlCommandGate({
     useAccessGroups,
@@ -263,7 +263,7 @@ export async function handleNextcloudTalkInbound(params: {
   }
 
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(
-    config as MoltbotConfig,
+    config as OpenClawConfig,
   );
   const wasMentioned = mentionRegexes.length
     ? core.channel.mentions.matchesMentionPatterns(rawBody, mentionRegexes)
@@ -288,7 +288,7 @@ export async function handleNextcloudTalkInbound(params: {
   }
 
   const route = core.channel.routing.resolveAgentRoute({
-    cfg: config as MoltbotConfig,
+    cfg: config as OpenClawConfig,
     channel: CHANNEL_ID,
     accountId: account.accountId,
     peer: {
@@ -303,7 +303,7 @@ export async function handleNextcloudTalkInbound(params: {
   });
 <<<<<<< HEAD
   const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(
-    config as MoltbotConfig,
+    config as OpenClawConfig,
   );
   const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(config as OpenClawConfig);
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
@@ -373,7 +373,7 @@ export async function handleNextcloudTalkInbound(params: {
 
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
-    cfg: config as MoltbotConfig,
+    cfg: config as OpenClawConfig,
     dispatcherOptions: {
       ...prefixOptions,
       deliver: deliverReply,

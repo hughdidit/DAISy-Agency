@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolvePluginTools } from "../plugins/tools.js";
 =======
 >>>>>>> 25126d75c (Revert "Agents: improve Windows scaffold helpers for venture studio"):src/agents/openclaw-tools.ts
@@ -52,8 +52,8 @@ import { createSessionsSendTool } from "./tools/sessions-send-tool.js";
 import { createSessionsSpawnTool } from "./tools/sessions-spawn-tool.js";
 import { createSubagentsTool } from "./tools/subagents-tool.js";
 import { createTtsTool } from "./tools/tts-tool.js";
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
+<<<<<<< HEAD:src/agents/openclaw-tools.ts
+<<<<<<< HEAD:src/agents/openclaw-tools.ts
 =======
 import { createVentureStudioTool } from "./tools/venture-studio-tool.js";
 >>>>>>> b6d934c2c (Agents: improve Windows scaffold helpers for venture studio):src/agents/openclaw-tools.ts
@@ -62,7 +62,7 @@ import { createVentureStudioTool } from "./tools/venture-studio-tool.js";
 import { createWebFetchTool, createWebSearchTool } from "./tools/web-tools.js";
 import { createTtsTool } from "./tools/tts-tool.js";
 
-export function createMoltbotTools(options?: {
+export function createOpenClawTools(options?: {
   sandboxBrowserBridgeUrl?: string;
   allowHostBrowserControl?: boolean;
   agentSessionKey?: string;
@@ -84,7 +84,7 @@ export function createMoltbotTools(options?: {
   fsPolicy?: ToolFsPolicy;
   workspaceDir?: string;
   sandboxed?: boolean;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   pluginToolAllowlist?: string[];
   /** Current channel ID for auto-threading (Slack). */
   currentChannelId?: string;
@@ -110,7 +110,7 @@ export function createMoltbotTools(options?: {
     ? createImageTool({
         config: options?.config,
         agentDir: options.agentDir,
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
+<<<<<<< HEAD:src/agents/openclaw-tools.ts
         sandboxRoot: options?.sandboxRoot,
         sandbox:
           options?.sandboxRoot && options?.sandboxFsBridge
@@ -156,8 +156,8 @@ export function createMoltbotTools(options?: {
     createCronTool({
       agentSessionKey: options?.agentSessionKey,
     }),
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
-<<<<<<< HEAD:src/agents/moltbot-tools.ts
+<<<<<<< HEAD:src/agents/openclaw-tools.ts
+<<<<<<< HEAD:src/agents/openclaw-tools.ts
     createMessageTool({
       agentAccountId: options?.agentAccountId,
       agentSessionKey: options?.agentSessionKey,

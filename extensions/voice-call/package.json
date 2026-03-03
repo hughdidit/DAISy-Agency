@@ -1,8 +1,8 @@
 {
-  "name": "@moltbot/voice-call",
+  "name": "@openclaw/voice-call",
   "version": "2026.1.27-beta.1",
   "type": "module",
-  "description": "Moltbot voice-call plugin",
+  "description": "OpenClaw voice-call plugin",
 =======
   "version": "2026.2.23",
 >>>>>>> 8d9d01447 (chore: align plugin versions and harden outbound cross-provider test)
@@ -14,7 +14,7 @@
     "ws": "^8.19.0",
     "zod": "^4.3.6"
   },
-  "moltbot": {
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ]

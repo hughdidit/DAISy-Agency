@@ -1,7 +1,7 @@
 import { getOAuthApiKey, type OAuthCredentials } from "@mariozechner/pi-ai";
 import lockfile from "proper-lockfile";
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import { resolveSecretRefString, type SecretRefResolveCache } from "../../secrets/resolve.js";
 >>>>>>> 6a251d8d7 (Auth profiles: resolve keyRef/tokenRef outside gateway)
@@ -206,7 +206,7 @@ async function refreshOAuthTokenWithLock(params: {
 }
 
 async function tryResolveOAuthProfile(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   store: AuthProfileStore;
   profileId: string;
   agentDir?: string;
@@ -251,7 +251,7 @@ async function tryResolveOAuthProfile(params: {
 
 <<<<<<< HEAD
 export async function resolveApiKeyForProfile(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   store: AuthProfileStore;
   profileId: string;
   agentDir?: string;

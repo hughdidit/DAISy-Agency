@@ -1,4 +1,4 @@
-import MoltbotKit
+import OpenClawKit
 import Foundation
 import Observation
 import OSLog
@@ -10,28 +10,28 @@ import AppKit
 import UIKit
 #endif
 
-private let chatUILogger = Logger(subsystem: "bot.molt", category: "MoltbotChatUI")
+private let chatUILogger = Logger(subsystem: "ai.openclaw", category: "OpenClawChatUI")
 
 @MainActor
 @Observable
-public final class MoltbotChatViewModel {
-    public private(set) var messages: [MoltbotChatMessage] = []
+public final class OpenClawChatViewModel {
+    public private(set) var messages: [OpenClawChatMessage] = []
     public var input: String = ""
     public var thinkingLevel: String = "off"
     public private(set) var isLoading = false
     public private(set) var isSending = false
     public private(set) var isAborting = false
     public var errorText: String?
-    public var attachments: [MoltbotPendingAttachment] = []
+    public var attachments: [OpenClawPendingAttachment] = []
     public private(set) var healthOK: Bool = false
     public private(set) var pendingRunCount: Int = 0
 
     public private(set) var sessionKey: String
     public private(set) var sessionId: String?
     public private(set) var streamingAssistantText: String?
-    public private(set) var pendingToolCalls: [MoltbotChatPendingToolCall] = []
-    public private(set) var sessions: [MoltbotChatSessionEntry] = []
-    private let transport: any MoltbotChatTransport
+    public private(set) var pendingToolCalls: [OpenClawChatPendingToolCall] = []
+    public private(set) var sessions: [OpenClawChatSessionEntry] = []
+    private let transport: any OpenClawChatTransport
 
     @ObservationIgnored
     private nonisolated(unsafe) var eventTask: Task<Void, Never>?
@@ -43,7 +43,7 @@ public final class MoltbotChatViewModel {
     private nonisolated(unsafe) var pendingRunTimeoutTasks: [String: Task<Void, Never>] = [:]
     private let pendingRunTimeoutMs: UInt64 = 120_000
 
-    private var pendingToolCallsById: [String: MoltbotChatPendingToolCall] = [:] {
+    private var pendingToolCallsById: [String: OpenClawChatPendingToolCall] = [:] {
         didSet {
             self.pendingToolCalls = self.pendingToolCallsById.values
                 .sorted { ($0.startedAt ?? 0) < ($1.startedAt ?? 0) }
@@ -52,7 +52,7 @@ public final class MoltbotChatViewModel {
 
     private var lastHealthPollAt: Date?
 
-    public init(sessionKey: String, transport: any MoltbotChatTransport) {
+    public init(sessionKey: String, transport: any OpenClawChatTransport) {
         self.sessionKey = sessionKey
         self.transport = transport
 
@@ -99,12 +99,12 @@ public final class MoltbotChatViewModel {
         Task { await self.performSwitchSession(to: sessionKey) }
     }
 
-    public var sessionChoices: [MoltbotChatSessionEntry] {
+    public var sessionChoices: [OpenClawChatSessionEntry] {
         let now = Date().timeIntervalSince1970 * 1000
         let cutoff = now - (24 * 60 * 60 * 1000)
         let sorted = self.sessions.sorted { ($0.updatedAt ?? 0) > ($1.updatedAt ?? 0) }
         var seen = Set<String>()
-        var recent: [MoltbotChatSessionEntry] = []
+        var recent: [OpenClawChatSessionEntry] = []
         for entry in sorted {
             guard !seen.contains(entry.key) else { continue }
             seen.insert(entry.key)
@@ -112,7 +112,7 @@ public final class MoltbotChatViewModel {
             recent.append(entry)
         }
 
-        var result: [MoltbotChatSessionEntry] = []
+        var result: [OpenClawChatSessionEntry] = []
         var included = Set<String>()
 
         // Always show the main session first, even if it hasn't been updated recently.
@@ -150,7 +150,7 @@ public final class MoltbotChatViewModel {
         Task { await self.addImageAttachment(url: nil, data: data, fileName: fileName, mimeType: mimeType) }
     }
 
-    public func removeAttachment(_ id: MoltbotPendingAttachment.ID) {
+    public func removeAttachment(_ id: OpenClawPendingAttachment.ID) {
         self.attachments.removeAll { $0.id == id }
     }
 
@@ -192,15 +192,15 @@ public final class MoltbotChatViewModel {
         }
     }
 
-    private static func decodeMessages(_ raw: [AnyCodable]) -> [MoltbotChatMessage] {
+    private static func decodeMessages(_ raw: [AnyCodable]) -> [OpenClawChatMessage] {
         let decoded = raw.compactMap { item in
-            (try? ChatPayloadDecoding.decode(item, as: MoltbotChatMessage.self))
+            (try? ChatPayloadDecoding.decode(item, as: OpenClawChatMessage.self))
         }
         return Self.dedupeMessages(decoded)
     }
 
-    private static func dedupeMessages(_ messages: [MoltbotChatMessage]) -> [MoltbotChatMessage] {
-        var result: [MoltbotChatMessage] = []
+    private static func dedupeMessages(_ messages: [OpenClawChatMessage]) -> [OpenClawChatMessage] {
+        var result: [OpenClawChatMessage] = []
         result.reserveCapacity(messages.count)
         var seen = Set<String>()
 
@@ -217,7 +217,7 @@ public final class MoltbotChatViewModel {
         return result
     }
 
-    private static func dedupeKey(for message: MoltbotChatMessage) -> String? {
+    private static func dedupeKey(for message: OpenClawChatMessage) -> String? {
         guard let timestamp = message.timestamp else { return nil }
         let text = message.content.compactMap(\.text).joined(separator: "\n")
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -245,8 +245,8 @@ public final class MoltbotChatViewModel {
         self.streamingAssistantText = nil
 
         // Optimistically append user message to UI.
-        var userContent: [MoltbotChatMessageContent] = [
-            MoltbotChatMessageContent(
+        var userContent: [OpenClawChatMessageContent] = [
+            OpenClawChatMessageContent(
                 type: "text",
                 text: messageText,
                 thinking: nil,
@@ -258,8 +258,8 @@ public final class MoltbotChatViewModel {
                 name: nil,
                 arguments: nil),
         ]
-        let encodedAttachments = self.attachments.map { att -> MoltbotChatAttachmentPayload in
-            MoltbotChatAttachmentPayload(
+        let encodedAttachments = self.attachments.map { att -> OpenClawChatAttachmentPayload in
+            OpenClawChatAttachmentPayload(
                 type: att.type,
                 mimeType: att.mimeType,
                 fileName: att.fileName,
@@ -267,7 +267,7 @@ public final class MoltbotChatViewModel {
         }
         for att in encodedAttachments {
             userContent.append(
-                MoltbotChatMessageContent(
+                OpenClawChatMessageContent(
                     type: att.type,
                     text: nil,
                     thinking: nil,
@@ -280,7 +280,7 @@ public final class MoltbotChatViewModel {
                     arguments: nil))
         }
         self.messages.append(
-            MoltbotChatMessage(
+            OpenClawChatMessage(
                 id: UUID(),
                 role: "user",
                 content: userContent,
@@ -344,8 +344,8 @@ public final class MoltbotChatViewModel {
         await self.bootstrap()
     }
 
-    private func placeholderSession(key: String) -> MoltbotChatSessionEntry {
-        MoltbotChatSessionEntry(
+    private func placeholderSession(key: String) -> OpenClawChatSessionEntry {
+        OpenClawChatSessionEntry(
             key: key,
             kind: nil,
             displayName: nil,
@@ -366,7 +366,7 @@ public final class MoltbotChatViewModel {
             contextTokens: nil)
     }
 
-    private func handleTransportEvent(_ evt: MoltbotChatTransportEvent) {
+    private func handleTransportEvent(_ evt: OpenClawChatTransportEvent) {
         switch evt {
         case let .health(ok):
             self.healthOK = ok
@@ -382,7 +382,7 @@ public final class MoltbotChatViewModel {
         }
     }
 
-    private func handleChatEvent(_ chat: MoltbotChatEventPayload) {
+    private func handleChatEvent(_ chat: OpenClawChatEventPayload) {
         if let sessionKey = chat.sessionKey, sessionKey != self.sessionKey {
             return
         }
@@ -419,7 +419,7 @@ public final class MoltbotChatViewModel {
         }
     }
 
-    private func handleAgentEvent(_ evt: MoltbotAgentEventPayload) {
+    private func handleAgentEvent(_ evt: OpenClawAgentEventPayload) {
         if let sessionId, evt.runId != sessionId {
             return
         }
@@ -435,7 +435,7 @@ public final class MoltbotChatViewModel {
             guard let toolCallId = evt.data["toolCallId"]?.value as? String else { return }
             if phase == "start" {
                 let args = evt.data["args"]
-                self.pendingToolCallsById[toolCallId] = MoltbotChatPendingToolCall(
+                self.pendingToolCallsById[toolCallId] = OpenClawChatPendingToolCall(
                     toolCallId: toolCallId,
                     name: name,
                     args: args,
@@ -546,7 +546,7 @@ public final class MoltbotChatViewModel {
 
         let preview = Self.previewImage(data: data)
         self.attachments.append(
-            MoltbotPendingAttachment(
+            OpenClawPendingAttachment(
                 url: url,
                 data: data,
                 fileName: fileName,
@@ -554,7 +554,7 @@ public final class MoltbotChatViewModel {
                 preview: preview))
     }
 
-    private static func previewImage(data: Data) -> MoltbotPlatformImage? {
+    private static func previewImage(data: Data) -> OpenClawPlatformImage? {
         #if canImport(AppKit)
         NSImage(data: data)
         #elseif canImport(UIKit)

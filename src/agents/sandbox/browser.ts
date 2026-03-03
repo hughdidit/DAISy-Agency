@@ -227,7 +227,7 @@ export async function ensureSandboxBrowser(params: {
       name: containerName,
       cfg: browserDockerCfg,
       scopeKey: params.scopeKey,
-      labels: { "moltbot.sandboxBrowser": "1" },
+      labels: { "openclaw.sandboxBrowser": "1" },
 =======
       includeBinds: false,
 >>>>>>> 6f895eb83 (fix(sandbox): honor explicit bind mounts over workspace defaults)
@@ -253,11 +253,11 @@ export async function ensureSandboxBrowser(params: {
     if (noVncEnabled) {
       args.push("-p", `127.0.0.1::${params.cfg.browser.noVncPort}`);
     }
-    args.push("-e", `CLAWDBOT_BROWSER_HEADLESS=${params.cfg.browser.headless ? "1" : "0"}`);
-    args.push("-e", `CLAWDBOT_BROWSER_ENABLE_NOVNC=${params.cfg.browser.enableNoVnc ? "1" : "0"}`);
-    args.push("-e", `CLAWDBOT_BROWSER_CDP_PORT=${params.cfg.browser.cdpPort}`);
-    args.push("-e", `CLAWDBOT_BROWSER_VNC_PORT=${params.cfg.browser.vncPort}`);
-    args.push("-e", `CLAWDBOT_BROWSER_NOVNC_PORT=${params.cfg.browser.noVncPort}`);
+    args.push("-e", `OPENCLAW_BROWSER_HEADLESS=${params.cfg.browser.headless ? "1" : "0"}`);
+    args.push("-e", `OPENCLAW_BROWSER_ENABLE_NOVNC=${params.cfg.browser.enableNoVnc ? "1" : "0"}`);
+    args.push("-e", `OPENCLAW_BROWSER_CDP_PORT=${params.cfg.browser.cdpPort}`);
+    args.push("-e", `OPENCLAW_BROWSER_VNC_PORT=${params.cfg.browser.vncPort}`);
+    args.push("-e", `OPENCLAW_BROWSER_NOVNC_PORT=${params.cfg.browser.noVncPort}`);
     args.push(params.cfg.browser.image);
     await execDocker(args);
     await execDocker(["start", containerName]);

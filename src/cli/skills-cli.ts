@@ -94,7 +94,7 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
 
   if (skills.length === 0) {
     const message = opts.eligible
-      ? `No eligible skills found. Run \`${formatCliCommand("moltbot skills list")}\` to see all skills.`
+      ? `No eligible skills found. Run \`${formatCliCommand("openclaw skills list")}\` to see all skills.`
       : "No skills found.";
     return appendClawHubHint(message, opts.json);
   }
@@ -153,7 +153,7 @@ export function formatSkillInfo(
     }
 <<<<<<< HEAD
     return appendClawdHubHint(
-      `Skill "${skillName}" not found. Run \`${formatCliCommand("moltbot skills list")}\` to see available skills.`,
+      `Skill "${skillName}" not found. Run \`${formatCliCommand("openclaw skills list")}\` to see available skills.`,
       opts.json,
     );
   }

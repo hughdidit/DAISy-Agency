@@ -3,7 +3,7 @@ import { resolveContextTokensForModel } from "../../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
 import { isCliProvider } from "../../agents/model-selection.js";
 import { hasNonzeroUsage } from "../../agents/usage.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -28,7 +28,7 @@ type RunResult = Awaited<
 >;
 
 export async function updateSessionStoreAfterAgentRun(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   contextTokensOverride?: number;
   sessionId: string;
   sessionKey: string;

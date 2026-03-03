@@ -4,7 +4,7 @@ import type { ChannelId } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 import { normalizeAccountId } from "../routing/session-key.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "./config.js";
+import type { OpenClawConfig } from "./config.js";
 =======
 import { normalizeAccountId } from "../routing/session-key.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -126,7 +126,7 @@ export function resolveToolsBySender(
 }
 
 function resolveChannelGroups(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   channel: GroupPolicyChannel,
   accountId?: string | null,
 ): ChannelGroups | undefined {
@@ -178,7 +178,7 @@ function resolveChannelGroupPolicyMode(
 }
 
 export function resolveChannelGroupPolicy(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: GroupPolicyChannel;
   groupId?: string | null;
   accountId?: string | null;
@@ -218,7 +218,7 @@ export function resolveChannelGroupPolicy(params: {
 }
 
 export function resolveChannelGroupRequireMention(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: GroupPolicyChannel;
   groupId?: string | null;
   accountId?: string | null;
@@ -248,7 +248,7 @@ export function resolveChannelGroupRequireMention(params: {
 
 export function resolveChannelGroupToolsPolicy(
   params: {
-    cfg: MoltbotConfig;
+    cfg: OpenClawConfig;
     channel: GroupPolicyChannel;
     groupId?: string | null;
     accountId?: string | null;

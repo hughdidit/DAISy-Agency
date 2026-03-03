@@ -9,7 +9,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { resolveSessionFilePath } from "../../config/sessions.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -39,7 +39,7 @@ import { incrementCompactionCount } from "./session-updates.js";
 function extractCompactInstructions(params: {
   rawBody?: string;
   ctx: import("../templating.js").MsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId?: string;
   isGroup: boolean;
 }): string | undefined {

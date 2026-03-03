@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import type { Api, Model } from "@mariozechner/pi-ai";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { Api, Model } from "@mariozechner/pi-ai";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 =======
@@ -45,7 +45,7 @@ function resolvePiExtensionPath(id: string): string {
 }
 
 function resolveContextWindowTokens(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   provider: string;
   modelId: string;
   model: Model<Api> | undefined;
@@ -60,7 +60,7 @@ function resolveContextWindowTokens(params: {
 }
 
 function buildContextPruningExtension(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   sessionManager: SessionManager;
   provider: string;
   modelId: string;
@@ -91,12 +91,12 @@ function buildContextPruningExtension(params: {
   };
 }
 
-function resolveCompactionMode(cfg?: MoltbotConfig): "default" | "safeguard" {
+function resolveCompactionMode(cfg?: OpenClawConfig): "default" | "safeguard" {
   return cfg?.agents?.defaults?.compaction?.mode === "safeguard" ? "safeguard" : "default";
 }
 
 export function buildEmbeddedExtensionPaths(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   sessionManager: SessionManager;
   provider: string;
   modelId: string;

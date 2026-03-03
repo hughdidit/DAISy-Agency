@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
@@ -64,7 +64,7 @@ function normalizeExecutablePath(value: string): string {
 
 <<<<<<< HEAD
 export async function maybeMigrateLegacyGatewayService(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   mode: "local" | "remote",
   runtime: RuntimeEnv,
   prompter: DoctorPrompter,
@@ -86,7 +86,7 @@ function extractDetailPath(detail: string, prefix: string): string | null {
   );
 
   const migrate = await prompter.confirmSkipInNonInteractive({
-    message: "Migrate legacy gateway services to Moltbot now?",
+    message: "Migrate legacy gateway services to OpenClaw now?",
     initialValue: true,
   });
   if (!migrate) return;
@@ -114,12 +114,12 @@ function extractDetailPath(detail: string, prefix: string): string | null {
   const service = resolveGatewayService();
   const loaded = await service.isLoaded({ env: process.env });
   if (loaded) {
-    note(`Moltbot ${service.label} already ${service.loadedText}.`, "Gateway");
+    note(`OpenClaw ${service.label} already ${service.loadedText}.`, "Gateway");
     return;
   }
 
   const install = await prompter.confirmSkipInNonInteractive({
-    message: "Install Moltbot gateway service now?",
+    message: "Install OpenClaw gateway service now?",
     initialValue: true,
   });
   if (!install) return;
@@ -136,7 +136,7 @@ function extractDetailPath(detail: string, prefix: string): string | null {
   const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
     env: process.env,
     port,
-    token: cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
+    token: cfg.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN,
     runtime: daemonRuntime,
     warn: (message, title) => note(message, title),
     config: cfg,
@@ -245,7 +245,7 @@ async function cleanupLegacyLinuxUserServices(
 }
 
 export async function maybeRepairGatewayServiceConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   mode: "local" | "remote",
   runtime: RuntimeEnv,
   prompter: DoctorPrompter,
@@ -298,7 +298,7 @@ export async function maybeRepairGatewayServiceConfig(
   const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
     env: process.env,
     port,
-    token: cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
+    token: cfg.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN,
     runtime: needsNodeRuntime && systemNodePath ? "node" : runtimeChoice,
     nodePath: systemNodePath ?? undefined,
     warn: (message, title) => note(message, title),
@@ -383,7 +383,7 @@ export async function maybeScanExtraGatewayServices(options: DoctorOptions) {
   const legacyServices = extraServices.filter((svc) => svc.legacy === true);
   if (legacyServices.length > 0) {
     const shouldRemove = await prompter.confirmSkipInNonInteractive({
-      message: "Remove legacy gateway services (clawdbot/moltbot) now?",
+      message: "Remove legacy gateway services (clawdai/openclawbot) now?",
       initialValue: true,
     });
     if (shouldRemove) {

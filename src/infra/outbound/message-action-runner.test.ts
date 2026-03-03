@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
 =======
@@ -55,7 +55,7 @@ const slackConfig = {
       appToken: "xapp-test",
     },
   },
-} as MoltbotConfig;
+} as OpenClawConfig;
 
 const whatsappConfig = {
   channels: {
@@ -63,7 +63,7 @@ const whatsappConfig = {
       allowFrom: ["*"],
     },
   },
-} as MoltbotConfig;
+} as OpenClawConfig;
 
 async function withSandbox(test: (sandboxDir: string) => Promise<void>) {
   const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "msg-sandbox-"));
@@ -360,7 +360,7 @@ describe("runMessageAction context isolation", () => {
           token: "tg-test",
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const result = await runDrySend({
       cfg: multiConfig,
@@ -398,7 +398,7 @@ describe("runMessageAction context isolation", () => {
           },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     await expect(
       runDrySend({
@@ -549,7 +549,7 @@ describe("runMessageAction sendAttachment hydration", () => {
           password: "test-password",
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const result = await runMessageAction({
       cfg,
@@ -1037,7 +1037,7 @@ describe("runMessageAction accountId defaults", () => {
 
   it("propagates defaultAccountId into params", async () => {
     await runMessageAction({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       action: "send",
       params: {
         channel: "discord",

@@ -1,7 +1,7 @@
 import type { OpenClawConfig, RuntimeEnv } from "openclaw/plugin-sdk";
 import { describe, expect, it } from "vitest";
 
-import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 
 import { msteamsPlugin } from "./channel.js";
 
@@ -30,7 +30,7 @@ describe("msteams directory", () => {
           },
         },
       },
-    } as unknown as MoltbotConfig;
+    } as unknown as OpenClawConfig;
 
     expect(msteamsPlugin.directory).toBeTruthy();
     expect(msteamsPlugin.directory?.listPeers).toBeTruthy();

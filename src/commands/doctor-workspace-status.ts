@@ -4,8 +4,8 @@ import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
-import { loadMoltbotPlugins } from "../plugins/loader.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { loadOpenClawPlugins } from "../plugins/loader.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -19,7 +19,7 @@ import { loadOpenClawPlugins } from "../plugins/loader.js";
 import { note } from "../terminal/note.js";
 import { detectLegacyWorkspaceDirs, formatLegacyWorkspaceWarning } from "./doctor-workspace.js";
 
-export function noteWorkspaceStatus(cfg: MoltbotConfig) {
+export function noteWorkspaceStatus(cfg: OpenClawConfig) {
   const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
   const legacyWorkspace = detectLegacyWorkspaceDirs({ workspaceDir });
   if (legacyWorkspace.legacyDirs.length > 0) {
@@ -39,7 +39,7 @@ export function noteWorkspaceStatus(cfg: MoltbotConfig) {
     "Skills status",
   );
 
-  const pluginRegistry = loadMoltbotPlugins({
+  const pluginRegistry = loadOpenClawPlugins({
     config: cfg,
     workspaceDir,
     logger: {

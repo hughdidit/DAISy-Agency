@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
@@ -178,7 +178,7 @@ export function resolveSandboxPruneConfig(params: {
   };
 }
 
-export function resolveSandboxConfigForAgent(cfg?: MoltbotConfig, agentId?: string): SandboxConfig {
+export function resolveSandboxConfigForAgent(cfg?: OpenClawConfig, agentId?: string): SandboxConfig {
   const agent = cfg?.agents?.defaults?.sandbox;
 
   // Agent-specific sandbox config overrides global

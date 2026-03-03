@@ -5,7 +5,7 @@ final class CanvasFileWatcher: @unchecked Sendable {
 
     init(url: URL, onChange: @escaping () -> Void) {
         self.url = url
-        self.queue = DispatchQueue(label: "bot.molt.canvaswatcher")
+        self.queue = DispatchQueue(label: "ai.openclaw.canvaswatcher")
         self.onChange = onChange
     }
 

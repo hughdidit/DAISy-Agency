@@ -30,7 +30,7 @@ import {
   type ChannelMessageActionAdapter,
   type ChannelPlugin,
   type ResolvedSignalAccount,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 
 import { getSignalRuntime } from "./runtime.js";
 

@@ -83,7 +83,7 @@ import { readSessionUpdatedAt, resolveStorePath } from "../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 =======
 >>>>>>> 966e5560f (revert(telegram): undo accidental merge of PR #18564)
@@ -214,7 +214,7 @@ export type BuildTelegramMessageContextParams = {
   storeAllowFrom: string[];
   options?: TelegramMessageContextOptions;
   bot: Bot;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   account: { accountId: string };
   historyLimit: number;
   groupHistories: Map<string, HistoryEntry[]>;
@@ -231,7 +231,7 @@ export type BuildTelegramMessageContextParams = {
 };
 
 async function resolveStickerVisionSupport(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId?: string;
 }): Promise<boolean> {
   try {
@@ -443,7 +443,7 @@ export const buildTelegramMessageContext = async ({
                   bot.api.sendMessage(
                     chatId,
                     [
-                      "Moltbot: access not configured.",
+                      "OpenClaw: access not configured.",
                       "",
                       `Your Telegram user id: ${telegramUserId}`,
                       "",
@@ -451,7 +451,7 @@ export const buildTelegramMessageContext = async ({
                       "",
                       "Ask the bot owner to approve with:",
 <<<<<<< HEAD
-                      formatCliCommand("moltbot pairing approve telegram <code>"),
+                      formatCliCommand("openclaw pairing approve telegram <code>"),
                     ].join("\n"),
 =======
                     buildPairingReply({

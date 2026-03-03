@@ -56,7 +56,7 @@ describe("browser chrome profile decoration", () => {
   });
 
   it("writes expected name + signed ARGB seed to Chrome prefs", async () => {
-    const userDataDir = await fsp.mkdtemp(path.join(os.tmpdir(), "moltbot-chrome-test-"));
+    const userDataDir = await fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-chrome-test-"));
     try {
       decorateClawdProfile(userDataDir, { color: DEFAULT_CLAWD_BROWSER_COLOR });
 
@@ -91,7 +91,7 @@ describe("browser chrome profile decoration", () => {
   });
 
   it("best-effort writes name when color is invalid", async () => {
-    const userDataDir = await fsp.mkdtemp(path.join(os.tmpdir(), "moltbot-chrome-test-"));
+    const userDataDir = await fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-chrome-test-"));
     try {
       decorateClawdProfile(userDataDir, { color: "lobster-orange" });
       const localState = await readJson(path.join(userDataDir, "Local State"));
@@ -107,7 +107,7 @@ describe("browser chrome profile decoration", () => {
   });
 
   it("recovers from missing/invalid preference files", async () => {
-    const userDataDir = await fsp.mkdtemp(path.join(os.tmpdir(), "moltbot-chrome-test-"));
+    const userDataDir = await fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-chrome-test-"));
     try {
       await fsp.mkdir(path.join(userDataDir, "Default"), { recursive: true });
       await fsp.writeFile(path.join(userDataDir, "Local State"), "{", "utf-8"); // invalid JSON
@@ -127,7 +127,7 @@ describe("browser chrome profile decoration", () => {
   });
 
   it("writes clean exit prefs to avoid restore prompts", async () => {
-    const userDataDir = await fsp.mkdtemp(path.join(os.tmpdir(), "moltbot-chrome-test-"));
+    const userDataDir = await fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-chrome-test-"));
     try {
       ensureProfileCleanExit(userDataDir);
       const prefs = await readJson(path.join(userDataDir, "Default", "Preferences"));
@@ -139,7 +139,7 @@ describe("browser chrome profile decoration", () => {
   });
 
   it("is idempotent when rerun on an existing profile", async () => {
-    const userDataDir = await fsp.mkdtemp(path.join(os.tmpdir(), "moltbot-chrome-test-"));
+    const userDataDir = await fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-chrome-test-"));
     try {
       decorateClawdProfile(userDataDir, { color: DEFAULT_CLAWD_BROWSER_COLOR });
       decorateClawdProfile(userDataDir, { color: DEFAULT_CLAWD_BROWSER_COLOR });

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { ClawdbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { normalizeDiscordMessagingTarget } from "../channels/plugins/normalize/discord.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -90,7 +90,7 @@ describe("resolveDiscordChannelId", () => {
 });
 
 describe("resolveDiscordTarget", () => {
-  const cfg = { channels: { discord: {} } } as ClawdbotConfig;
+  const cfg = { channels: { discord: {} } } as OpenClawConfig;
   const listPeers = vi.mocked(listDiscordDirectoryPeersLive);
 
   beforeEach(() => {

@@ -24,10 +24,10 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 import "./test-helpers/fast-core-tools.js";
-import { createMoltbotTools } from "./moltbot-tools.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
-describe("moltbot-tools: subagents", () => {
+describe("openclaw-tools: subagents", () => {
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
 =======
@@ -206,7 +206,7 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
     });
 
 <<<<<<< HEAD
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     });
@@ -258,7 +258,7 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
     });
 
 <<<<<<< HEAD
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     });

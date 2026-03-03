@@ -9,7 +9,7 @@ const env = { ...process.env };
 const cwd = process.cwd();
 <<<<<<< HEAD
 <<<<<<< HEAD
-const compiler = env.CLAWDBOT_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
+const compiler = env.OPENCLAW_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
 const projectArgs = ["--project", "tsconfig.json"];
 =======
 const compiler = "tsdown";
@@ -120,7 +120,7 @@ const compilerProcess = spawn("pnpm", ["exec", compiler, ...watchArgs], {
   stdio: "inherit",
 });
 
-const nodeProcess = spawn(process.execPath, ["--watch", "moltbot.mjs", ...args], {
+const nodeProcess = spawn(process.execPath, ["--watch", "openclaw.mjs", ...args], {
   cwd,
   env,
   stdio: "inherit",

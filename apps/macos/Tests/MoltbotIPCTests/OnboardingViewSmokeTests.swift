@@ -1,7 +1,7 @@
-import MoltbotDiscovery
+import OpenClawDiscovery
 import SwiftUI
 import Testing
-@testable import Moltbot
+@testable import OpenClaw
 
 @Suite(.serialized)
 @MainActor

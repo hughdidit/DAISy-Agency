@@ -1,11 +1,11 @@
-# Contributing to Moltbot
+# Contributing to OpenClaw
 
 Welcome to the lobster tank! 🦞
 
 ## Quick Links
-- **GitHub:** https://github.com/moltbot/moltbot
+- **GitHub:** https://github.com/moltai/openclawbot
 - **Discord:** https://discord.gg/qkhbAGHRBT
-- **X/Twitter:** [@steipete](https://x.com/steipete) / [@moltbot](https://x.com/moltbot)
+- **X/Twitter:** [@steipete](https://x.com/steipete) / [@openclaw](https://x.com/openclaw)
 
 ## Contributors
 
@@ -21,11 +21,11 @@ Welcome to the lobster tank! 🦞
 ## How to Contribute
 
 1. **Bugs & small fixes** → Open a PR!
-2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/moltbot/moltbot/discussions) or ask in Discord first
+2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/moltai/openclawbot/discussions) or ask in Discord first
 3. **Questions** → Discord #setup-help
 
 ## Before You PR
-- Test locally with your Moltbot instance
+- Test locally with your OpenClaw instance
 - Run linter: `npm run lint`
 =======
 - Run tests: `pnpm build && pnpm check && pnpm test`
@@ -71,4 +71,4 @@ We are currently prioritizing:
 - **Skills**: For skill contributions, head to [ClawHub](https://clawhub.ai/) — the community hub for OpenClaw skills.
 - **Performance**: Optimizing token usage and compaction logic.
 
-Check the [GitHub Issues](https://github.com/moltbot/moltbot/issues) for "good first issue" labels!
+Check the [GitHub Issues](https://github.com/moltai/openclawbot/issues) for "good first issue" labels!

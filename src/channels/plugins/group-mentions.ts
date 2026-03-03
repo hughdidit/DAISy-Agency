@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
@@ -42,7 +42,7 @@ import { resolveSlackAccount } from "../../slack/accounts.js";
 import type { ChannelGroupContext } from "./types.js";
 
 type GroupMentionParams = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   groupId?: string | null;
   groupChannel?: string | null;
   groupSpace?: string | null;
@@ -78,7 +78,7 @@ function parseTelegramGroupId(value?: string | null) {
 }
 
 function resolveTelegramRequireMention(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   chatId?: string;
   topicId?: string;
 }): boolean | undefined {

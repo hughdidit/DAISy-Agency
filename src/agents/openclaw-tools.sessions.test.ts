@@ -27,8 +27,8 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 import "./test-helpers/fast-core-tools.js";
-<<<<<<< HEAD:src/agents/clawdbot-tools.sessions.test.ts
-import { createMoltbotTools } from "./moltbot-tools.js";
+<<<<<<< HEAD:src/agents/openclaw-tools.sessions.test.ts
+import { createOpenClawTools } from "./openclaw-tools.js";
 import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:):src/agents/openclaw-tools.sessions.test.ts
 
@@ -53,7 +53,7 @@ describe("sessions tools", () => {
   });
 
   it("uses number (not integer) in tool schemas for Gemini compatibility", () => {
-    const tools = createMoltbotTools();
+    const tools = createOpenClawTools();
     const byName = (name: string) => {
       const tool = tools.find((candidate) => candidate.name === name);
       expect(tool).toBeDefined();
@@ -144,7 +144,7 @@ describe("sessions tools", () => {
       return {};
     });
 
-    const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_list");
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_list");
     expect(tool).toBeDefined();
     if (!tool) {
       throw new Error("missing sessions_list tool");
@@ -226,7 +226,7 @@ describe("sessions tools", () => {
       return {};
     });
 
-    const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_history");
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_history");
     expect(tool).toBeDefined();
     if (!tool) {
       throw new Error("missing sessions_history tool");
@@ -386,7 +386,7 @@ describe("sessions tools", () => {
       return {};
     });
 
-    const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_history");
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_history");
     expect(tool).toBeDefined();
     if (!tool) {
       throw new Error("missing sessions_history tool");
@@ -414,7 +414,7 @@ describe("sessions tools", () => {
       return {};
     });
 
-    const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_history");
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_history");
     expect(tool).toBeDefined();
     if (!tool) {
       throw new Error("missing sessions_history tool");
@@ -487,7 +487,7 @@ describe("sessions tools", () => {
       return {};
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: requesterKey,
       agentChannel: "discord",
     }).find((candidate) => candidate.name === "sessions_send");
@@ -591,7 +591,7 @@ describe("sessions tools", () => {
       return {};
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
       agentChannel: "discord",
     }).find((candidate) => candidate.name === "sessions_send");
@@ -682,7 +682,7 @@ describe("sessions tools", () => {
       return {};
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: requesterKey,
       agentChannel: "discord",
     }).find((candidate) => candidate.name === "sessions_send");

@@ -34,7 +34,7 @@ import {
 <<<<<<< HEAD
 
 <<<<<<< HEAD
-import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
+import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
 import { spawn, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import { homedir } from "node:os";
@@ -454,8 +454,8 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
   const verbose = Boolean(opts.verbose);
   const log = verbose ? (msg: string) => console.error(`[acp-client] ${msg}`) : () => {};
 
-  ensureMoltbotCliOnPath({ cwd });
-  const serverCommand = opts.serverCommand ?? "moltbot";
+  ensureOpenClawCliOnPath({ cwd });
+  const serverCommand = opts.serverCommand ?? "openclaw";
   const serverArgs = buildServerArgs(opts);
 
   log(`spawning: ${serverCommand} ${serverArgs.join(" ")}`);
@@ -502,7 +502,7 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
       fs: { readTextFile: true, writeTextFile: true },
       terminal: true,
     },
-    clientInfo: { name: "moltbot-acp-client", version: "1.0.0" },
+    clientInfo: { name: "openclaw-acp-client", version: "1.0.0" },
   });
 
   log("creating session");
@@ -526,7 +526,7 @@ export async function runAcpClientInteractive(opts: AcpClientOptions = {}): Prom
     output: process.stdout,
   });
 
-  console.log("Moltbot ACP client");
+  console.log("OpenClaw ACP client");
   console.log(`Session: ${sessionId}`);
   console.log('Type a prompt, or "exit" to quit.\n');
 

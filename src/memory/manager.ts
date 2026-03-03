@@ -17,7 +17,7 @@ import chokidar, { type FSWatcher } from "chokidar";
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
 import { resolveMemorySearchConfig } from "../agents/memory-search.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveSessionTranscriptsDirForAgent } from "../config/sessions/paths.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { onSessionTranscriptUpdate } from "../sessions/transcript-events.js";
@@ -275,7 +275,7 @@ const INDEX_CACHE_PENDING = new Map<string, Promise<MemoryIndexManager>>();
 
 export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements MemorySearchManager {
   private readonly cacheKey: string;
-  private readonly cfg: MoltbotConfig;
+  private readonly cfg: OpenClawConfig;
   private readonly agentId: string;
   private readonly workspaceDir: string;
   private readonly settings: ResolvedMemorySearchConfig;
@@ -344,7 +344,7 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
   private readonlyRecoveryLastError?: string;
 
   static async get(params: {
-    cfg: MoltbotConfig;
+    cfg: OpenClawConfig;
     agentId: string;
     purpose?: "default" | "status";
   }): Promise<MemoryIndexManager | null> {
@@ -379,7 +379,7 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
 
   private constructor(params: {
     cacheKey: string;
-    cfg: MoltbotConfig;
+    cfg: OpenClawConfig;
     agentId: string;
     workspaceDir: string;
     settings: ResolvedMemorySearchConfig;

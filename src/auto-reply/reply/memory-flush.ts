@@ -8,7 +8,7 @@ import { DEFAULT_PI_COMPACTION_RESERVE_TOKENS_FLOOR } from "../../agents/pi-sett
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 =======
 import { parseNonNegativeByteSize } from "../../config/byte-size.js";
@@ -100,7 +100,7 @@ const normalizeNonNegativeInt = (value: unknown): number | null => {
 };
 
 <<<<<<< HEAD
-export function resolveMemoryFlushSettings(cfg?: MoltbotConfig): MemoryFlushSettings | null {
+export function resolveMemoryFlushSettings(cfg?: OpenClawConfig): MemoryFlushSettings | null {
 export function resolveMemoryFlushSettings(cfg?: OpenClawConfig): MemoryFlushSettings | null {
 >>>>>>> d729ab215 (fix(session): harden usage accounting and memory flush recovery)
   const defaults = cfg?.agents?.defaults?.compaction?.memoryFlush;

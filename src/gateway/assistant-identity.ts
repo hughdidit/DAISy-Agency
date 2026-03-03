@@ -5,7 +5,7 @@ import { loadAgentIdentity } from "../commands/agents.config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -108,7 +108,7 @@ function normalizeEmojiValue(value: string | undefined): string | undefined {
 }
 
 export function resolveAssistantIdentity(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId?: string | null;
   workspaceDir?: string | null;
 }): AssistantIdentity {

@@ -2,7 +2,7 @@
 # Enables localhost detection for auto-approved device pairing.
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.host.yml up -d
 services:
-  moltbot-gateway:
+  openclaw-gateway:
     network_mode: host
     # With host networking the gateway listens directly on the host port;
     # bridge port auto-derives as gateway_port + 1.
@@ -12,8 +12,8 @@ services:
         "dist/index.js",
         "gateway",
         "--bind",
-        "${CLAWDBOT_GATEWAY_BIND:-loopback}",
+        "${OPENCLAW_GATEWAY_BIND:-loopback}",
         "--port",
-        "${CLAWDBOT_GATEWAY_PORT}",
+        "${OPENCLAW_GATEWAY_PORT}",
         "--allow-unconfigured"
       ]

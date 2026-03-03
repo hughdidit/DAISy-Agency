@@ -17,7 +17,7 @@ import type {
   ChannelOutboundAdapter,
   ChannelPlugin,
 } from "../src/channels/plugins/types.js";
-import type { MoltbotConfig } from "../src/config/config.js";
+import type { OpenClawConfig } from "../src/config/config.js";
 import type { OutboundSendDeps } from "../src/infra/outbound/deliver.js";
 import { withIsolatedTestHome } from "./test-env.js";
 
@@ -97,7 +97,7 @@ const createStubPlugin = (params: {
   },
   capabilities: { chatTypes: ["direct", "group"] },
   config: {
-    listAccountIds: (cfg: MoltbotConfig) => {
+    listAccountIds: (cfg: OpenClawConfig) => {
       const channels = cfg.channels as Record<string, unknown> | undefined;
       const entry = channels?.[params.id];
       if (!entry || typeof entry !== "object") {
@@ -107,7 +107,7 @@ const createStubPlugin = (params: {
       const ids = accounts ? Object.keys(accounts).filter(Boolean) : [];
       return ids.length > 0 ? ids : ["default"];
     },
-    resolveAccount: (cfg: MoltbotConfig, accountId: string) => {
+    resolveAccount: (cfg: OpenClawConfig, accountId: string) => {
       const channels = cfg.channels as Record<string, unknown> | undefined;
       const entry = channels?.[params.id];
       if (!entry || typeof entry !== "object") {
@@ -117,7 +117,7 @@ const createStubPlugin = (params: {
       const match = accountId ? accounts?.[accountId] : undefined;
       return (match && typeof match === "object") || typeof match === "string" ? match : entry;
     },
-    isConfigured: async (_account, cfg: MoltbotConfig) => {
+    isConfigured: async (_account, cfg: OpenClawConfig) => {
       const channels = cfg.channels as Record<string, unknown> | undefined;
       return Boolean(channels?.[params.id]);
     },

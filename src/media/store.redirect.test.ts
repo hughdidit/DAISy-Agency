@@ -27,7 +27,7 @@ import { captureEnv } from "../test-utils/env.js";
 import { saveMediaSource, setMediaStoreNetworkDepsForTest } from "./store.js";
 
 const realOs = await vi.importActual<typeof import("node:os")>("node:os");
-const HOME = path.join(realOs.tmpdir(), "moltbot-home-redirect");
+const HOME = path.join(realOs.tmpdir(), "openclaw-home-redirect");
 =======
 >>>>>>> f0e373b82 (refactor(test): simplify state dir env restore)
 const mockRequest = vi.fn();

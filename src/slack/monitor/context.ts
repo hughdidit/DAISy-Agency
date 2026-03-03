@@ -5,7 +5,7 @@ import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig, SlackReactionNotificationMode } from "../../config/config.js";
+import type { OpenClawConfig, SlackReactionNotificationMode } from "../../config/config.js";
 =======
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 import type { OpenClawConfig, SlackReactionNotificationMode } from "../../config/config.js";
@@ -107,7 +107,7 @@ export function normalizeSlackChannelType(
 }
 
 export type SlackMonitorContext = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId: string;
   botToken: string;
   app: App;
@@ -169,7 +169,7 @@ export type SlackMonitorContext = {
 };
 
 export function createSlackMonitorContext(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId: string;
   botToken: string;
   app: App;

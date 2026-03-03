@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import type { BrowserProfileConfig, MoltbotConfig } from "../config/config.js";
+import type { BrowserProfileConfig, OpenClawConfig } from "../config/config.js";
 =======
 import type { BrowserRouteContext, ProfileStatus } from "./server-context.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -103,7 +103,7 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
       };
     }
 
-    const nextConfig: MoltbotConfig = {
+    const nextConfig: OpenClawConfig = {
       ...cfg,
       browser: {
         ...cfg.browser,
@@ -174,7 +174,7 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
     }
 
     const { [name]: _removed, ...remainingProfiles } = profiles;
-    const nextConfig: MoltbotConfig = {
+    const nextConfig: OpenClawConfig = {
       ...cfg,
       browser: {
         ...cfg.browser,

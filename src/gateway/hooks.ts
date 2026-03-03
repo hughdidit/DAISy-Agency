@@ -7,7 +7,7 @@ import { randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { IncomingMessage } from "node:http";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -47,7 +47,7 @@ export type HookAgentPolicyResolved = {
   allowedAgentIds?: Set<string>;
 };
 
-export function resolveHooksConfig(cfg: MoltbotConfig): HooksConfigResolved | null {
+export function resolveHooksConfig(cfg: OpenClawConfig): HooksConfigResolved | null {
   if (cfg.hooks?.enabled !== true) return null;
   const token = cfg.hooks?.token?.trim();
   if (!token) {
@@ -95,7 +95,7 @@ export function extractHookToken(req: IncomingMessage, url: URL): HookTokenResul
     }
   }
   const headerToken =
-    typeof req.headers["x-moltbot-token"] === "string" ? req.headers["x-moltbot-token"].trim() : "";
+    typeof req.headers["x-openclaw-token"] === "string" ? req.headers["x-openclaw-token"].trim() : "";
   if (headerToken) return { token: headerToken, fromQuery: false };
   const queryToken = url.searchParams.get("token");
   if (queryToken) {

@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import "./test-helpers/fast-core-tools.js";
-import { createMoltbotTools } from "./moltbot-tools.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
-describe("moltbot-tools: subagents", () => {
+describe("openclaw-tools: subagents", () => {
 =======
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
@@ -125,7 +125,7 @@ describe("openclaw-tools: subagents", () => {
       return {};
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     }).find((candidate) => candidate.name === "sessions_spawn");
@@ -189,7 +189,7 @@ describe("openclaw-tools: subagents", () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     }).find((candidate) => candidate.name === "sessions_spawn");

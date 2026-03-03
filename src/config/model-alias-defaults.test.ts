@@ -5,7 +5,7 @@ import { applyModelDefaults } from "./defaults.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "./types.js";
+import type { OpenClawConfig } from "./types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -53,7 +53,7 @@ describe("applyModelDefaults", () => {
           },
         },
       },
-    } satisfies MoltbotConfig;
+    } satisfies OpenClawConfig;
     const next = applyModelDefaults(cfg);
 
     expect(next.agents?.defaults?.models?.["anthropic/claude-opus-4-5"]?.alias).toBe("opus");
@@ -69,7 +69,7 @@ describe("applyModelDefaults", () => {
           },
         },
       },
-    } satisfies MoltbotConfig;
+    } satisfies OpenClawConfig;
 
     const next = applyModelDefaults(cfg);
 
@@ -86,7 +86,7 @@ describe("applyModelDefaults", () => {
           },
         },
       },
-    } satisfies MoltbotConfig;
+    } satisfies OpenClawConfig;
 
     const next = applyModelDefaults(cfg);
 
@@ -118,7 +118,7 @@ describe("applyModelDefaults", () => {
           },
         },
       },
-    } satisfies MoltbotConfig;
+    } satisfies OpenClawConfig;
 
     const next = applyModelDefaults(cfg);
     const model = next.models?.providers?.myproxy?.models?.[0];

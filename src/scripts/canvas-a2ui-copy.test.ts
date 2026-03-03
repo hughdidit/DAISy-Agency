@@ -8,7 +8,7 @@ import { copyA2uiAssets } from "../../scripts/canvas-a2ui-copy.js";
 
 describe("canvas a2ui copy", () => {
   it("throws a helpful error when assets are missing", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-a2ui-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-a2ui-"));
 
     try {
       await run(dir);
@@ -44,7 +44,7 @@ describe("canvas a2ui copy", () => {
   });
 
   it("copies bundled assets to dist", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-a2ui-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-a2ui-"));
     const srcDir = path.join(dir, "src");
     const outDir = path.join(dir, "dist");
 

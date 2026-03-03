@@ -69,10 +69,10 @@ const isWindowsCi = isCI && isWindows;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-const shardOverride = Number.parseInt(process.env.CLAWDBOT_TEST_SHARDS ?? "", 10);
+const shardOverride = Number.parseInt(process.env.OPENCLAW_TEST_SHARDS ?? "", 10);
 const shardCount = isWindowsCi ? (Number.isFinite(shardOverride) && shardOverride > 1 ? shardOverride : 2) : 1;
 const windowsCiArgs = isWindowsCi ? ["--no-file-parallelism", "--dangerouslyIgnoreUnhandledErrors"] : [];
-const overrideWorkers = Number.parseInt(process.env.CLAWDBOT_TEST_WORKERS ?? "", 10);
+const overrideWorkers = Number.parseInt(process.env.OPENCLAW_TEST_WORKERS ?? "", 10);
 const resolvedOverride = Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
 const nodeMajor = Number.parseInt(process.versions.node.split(".")[0] ?? "", 10);
 const supportsVmForks = Number.isFinite(nodeMajor) ? nodeMajor < 24 : true;

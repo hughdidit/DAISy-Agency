@@ -1,5 +1,5 @@
-import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk";
 =======
 import { createAccountListHelpers } from "openclaw/plugin-sdk";
 import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
@@ -26,7 +26,7 @@ export type ResolvedBlueBubblesAccount = {
 };
 
 <<<<<<< HEAD
-function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
+function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
   const accounts = cfg.channels?.bluebubbles?.accounts;
   if (!accounts || typeof accounts !== "object") {
     return [];
@@ -34,7 +34,7 @@ function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   return Object.keys(accounts).filter(Boolean);
 }
 
-export function listBlueBubblesAccountIds(cfg: MoltbotConfig): string[] {
+export function listBlueBubblesAccountIds(cfg: OpenClawConfig): string[] {
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) {
     return [DEFAULT_ACCOUNT_ID];
@@ -42,7 +42,7 @@ export function listBlueBubblesAccountIds(cfg: MoltbotConfig): string[] {
   return ids.toSorted((a, b) => a.localeCompare(b));
 }
 
-export function resolveDefaultBlueBubblesAccountId(cfg: MoltbotConfig): string {
+export function resolveDefaultBlueBubblesAccountId(cfg: OpenClawConfig): string {
 =======
   const preferred = normalizeOptionalAccountId(cfg.channels?.bluebubbles?.defaultAccount);
   if (
@@ -65,7 +65,7 @@ export const resolveDefaultBlueBubblesAccountId = resolveDefaultAccountId;
 >>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
 
 function resolveAccountConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
 ): BlueBubblesAccountConfig | undefined {
   const accounts = cfg.channels?.bluebubbles?.accounts;
@@ -76,7 +76,7 @@ function resolveAccountConfig(
 }
 
 function mergeBlueBubblesAccountConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
 ): BlueBubblesAccountConfig {
   const base = (cfg.channels?.bluebubbles ?? {}) as BlueBubblesAccountConfig & {
@@ -90,7 +90,7 @@ function mergeBlueBubblesAccountConfig(
 }
 
 export function resolveBlueBubblesAccount(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
 }): ResolvedBlueBubblesAccount {
   const accountId = normalizeAccountId(params.accountId);
@@ -111,7 +111,7 @@ export function resolveBlueBubblesAccount(params: {
   };
 }
 
-export function listEnabledBlueBubblesAccounts(cfg: MoltbotConfig): ResolvedBlueBubblesAccount[] {
+export function listEnabledBlueBubblesAccounts(cfg: OpenClawConfig): ResolvedBlueBubblesAccount[] {
   return listBlueBubblesAccountIds(cfg)
     .map((accountId) => resolveBlueBubblesAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

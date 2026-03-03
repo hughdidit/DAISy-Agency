@@ -12,7 +12,7 @@ title: "Streaming and Chunking"
 # Streaming + chunking
 
 <<<<<<< HEAD
-Moltbot has two separate “streaming” layers:
+OpenClaw has two separate “streaming” layers:
 
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Block streaming (channels):** emit completed **blocks** as the assistant writes. These are normal channel messages (not token deltas).
@@ -71,7 +71,7 @@ Block chunking is implemented by `EmbeddedBlockChunker`:
 
 ## Coalescing (merge streamed blocks)
 
-When block streaming is enabled, Moltbot can **merge consecutive block chunks**
+When block streaming is enabled, OpenClaw can **merge consecutive block chunks**
 before sending them out. This reduces “single-line spam” while still providing
 progressive output.
 
@@ -125,7 +125,7 @@ Canonical key: `channels.<channel>.streaming`
 - Final reply is still a normal message.
 - `/reasoning stream` writes reasoning into the draft bubble (Telegram only).
 
-When draft streaming is active, Moltbot disables block streaming for that reply to avoid double-streaming.
+When draft streaming is active, OpenClaw disables block streaming for that reply to avoid double-streaming.
 - Preview streaming is separate from block streaming.
 - When Telegram block streaming is explicitly enabled, preview streaming is skipped to avoid double-streaming.
 - Text-only finals are applied by editing the preview message in place.

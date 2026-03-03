@@ -22,7 +22,7 @@ const loadOpenClawPluginsMock = vi.fn();
 
 <<<<<<< HEAD
 function makeTempDir() {
-  const dir = path.join(os.tmpdir(), `moltbot-plugin-tools-${randomUUID()}`);
+  const dir = path.join(os.tmpdir(), `openclaw-plugin-tools-${randomUUID()}`);
   fs.mkdirSync(dir, { recursive: true });
   return dir;
 }
@@ -32,7 +32,7 @@ function writePlugin(params: { id: string; body: string }): TempPlugin {
   const file = path.join(dir, `${params.id}.js`);
   fs.writeFileSync(file, params.body, "utf-8");
   fs.writeFileSync(
-    path.join(dir, "moltbot.plugin.json"),
+    path.join(dir, "openclaw.plugin.json"),
     JSON.stringify(
       {
         id: params.id,

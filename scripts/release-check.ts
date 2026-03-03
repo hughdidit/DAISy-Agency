@@ -16,7 +16,7 @@ const requiredPaths = [
   "dist/hooks/gmail.js",
   "dist/whatsapp/normalize.js",
 ];
-const forbiddenPrefixes = ["dist/Moltbot.app/"];
+const forbiddenPrefixes = ["dist/OpenClaw.app/"];
   "dist/plugin-sdk/index.js",
   "dist/plugin-sdk/index.d.ts",
   "dist/build-info.json",

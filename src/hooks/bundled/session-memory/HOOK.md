@@ -7,12 +7,12 @@ homepage: https://docs.openclaw.ai/automation/hooks#session-memory
 >>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 metadata:
   {
-    "moltbot":
+    "openclaw":
       {
         "emoji": "💾",
         "events": ["command:new", "command:reset"],
         "requires": { "config": ["workspace.dir"] },
-        "install": [{ "id": "bundled", "kind": "bundled", "label": "Bundled with Moltbot" }],
+        "install": [{ "id": "bundled", "kind": "bundled", "label": "Bundled with OpenClaw" }],
       },
   }
 ---
@@ -94,7 +94,7 @@ The hook automatically:
 To disable this hook:
 
 ```bash
-moltbot hooks disable session-memory
+openclaw hooks disable session-memory
 ```
 
 Or remove it from your config:

@@ -1,6 +1,6 @@
 import { createRequire } from "node:module";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import { resolveNodeRequireFromMeta } from "./node-require.js";
 >>>>>>> b791ac216 (refactor(logging): share node createRequire resolution)
@@ -110,10 +110,10 @@ function redactText(text: string, patterns: RegExp[]): string {
 }
 
 function resolveConfigRedaction(): RedactOptions {
-  let cfg: MoltbotConfig["logging"] | undefined;
+  let cfg: OpenClawConfig["logging"] | undefined;
   try {
     const loaded = requireConfig("../config/config.js") as {
-      loadConfig?: () => MoltbotConfig;
+      loadConfig?: () => OpenClawConfig;
     };
     cfg = loaded.loadConfig?.().logging;
   } catch {

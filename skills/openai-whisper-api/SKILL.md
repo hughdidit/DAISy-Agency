@@ -2,7 +2,7 @@
 name: openai-whisper-api
 description: Transcribe audio via OpenAI Audio Transcriptions API (Whisper).
 homepage: https://platform.openai.com/docs/guides/speech-to-text
-metadata: {"moltbot":{"emoji":"☁️","requires":{"bins":["curl"],"env":["OPENAI_API_KEY"]},"primaryEnv":"OPENAI_API_KEY"}}
+metadata: {"openclaw":{"emoji":"☁️","requires":{"bins":["curl"],"env":["OPENAI_API_KEY"]},"primaryEnv":"OPENAI_API_KEY"}}
 ---
 
 # OpenAI Whisper API (curl)
@@ -31,7 +31,7 @@ Defaults:
 
 ## API key
 
-Set `OPENAI_API_KEY`, or configure it in `~/.clawdbot/moltbot.json`:
+Set `OPENAI_API_KEY`, or configure it in `~/.clawdai/openclawbot.json`:
 
 ```json5
 {

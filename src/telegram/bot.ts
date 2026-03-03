@@ -66,7 +66,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig, ReplyToMode } from "../config/config.js";
+import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -131,7 +131,7 @@ export type TelegramBotOptions = {
   mediaMaxMb?: number;
   replyToMode?: ReplyToMode;
   proxyFetch?: typeof fetch;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   updateOffset?: {
     lastUpdateId?: number | null;
     onUpdateId?: (updateId: number) => void | Promise<void>;

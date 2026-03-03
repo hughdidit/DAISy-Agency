@@ -1,6 +1,6 @@
 import Foundation
 
-enum MoltbotEnv {
+enum OpenClawEnv {
     static func path(_ key: String) -> String? {
         // Normalize env overrides once so UI + file IO stay consistent.
         guard let raw = getenv(key) else { return nil }
@@ -13,23 +13,23 @@ enum MoltbotEnv {
     }
 }
 
-enum MoltbotPaths {
-    private static let configPathEnv = "CLAWDBOT_CONFIG_PATH"
-    private static let stateDirEnv = "CLAWDBOT_STATE_DIR"
+enum OpenClawPaths {
+    private static let configPathEnv = "OPENCLAW_CONFIG_PATH"
+    private static let stateDirEnv = "OPENCLAW_STATE_DIR"
 
     static var stateDirURL: URL {
-        if let override = MoltbotEnv.path(self.stateDirEnv) {
+        if let override = OpenClawEnv.path(self.stateDirEnv) {
             return URL(fileURLWithPath: override, isDirectory: true)
         }
         return FileManager().homeDirectoryForCurrentUser
-            .appendingPathComponent(".clawdbot", isDirectory: true)
+            .appendingPathComponent(".openclaw", isDirectory: true)
     }
 
     static var configURL: URL {
-        if let override = MoltbotEnv.path(self.configPathEnv) {
+        if let override = OpenClawEnv.path(self.configPathEnv) {
             return URL(fileURLWithPath: override)
         }
-        return self.stateDirURL.appendingPathComponent("moltbot.json")
+        return self.stateDirURL.appendingPathComponent("openclaw.json")
     }
 
     static var workspaceURL: URL {

@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -21,7 +21,7 @@ import { resolveZaloToken } from "./token.js";
 export type ZaloSendOptions = {
   token?: string;
   accountId?: string;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   mediaUrl?: string;
   caption?: string;
   verbose?: boolean;

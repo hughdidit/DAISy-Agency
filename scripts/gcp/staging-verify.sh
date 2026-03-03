@@ -16,9 +16,9 @@ set -euo pipefail
 # =============================================================================
 
 STATE_MOUNT="${STATE_MOUNT:-/var/lib/daisy}"
-CLAWDBOT_HOME="${CLAWDBOT_HOME:-/var/lib/clawdbot/home}"
-CONFIG_DIR="${CONFIG_DIR:-$CLAWDBOT_HOME/.clawdbot}"
-WORKSPACE_DIR="${WORKSPACE_DIR:-$CLAWDBOT_HOME/clawd}"
+OPENCLAW_HOME="${OPENCLAW_HOME:-/var/lib/openclaw/home}"
+CONFIG_DIR="${CONFIG_DIR:-$OPENCLAW_HOME/.openclaw}"
+WORKSPACE_DIR="${WORKSPACE_DIR:-$OPENCLAW_HOME/clawd}"
 # DEPLOY_DIR is where docker-compose.yml and .env live (separate from state)
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 # Hostname pattern to verify (default: must contain "staging")
@@ -176,10 +176,10 @@ if [[ -f "$DEPLOY_DIR/.env" ]]; then
   check_pass ".env file exists at $DEPLOY_DIR/.env"
 
   # Check for key variables (without revealing values)
-  if grep -q "CLAWDBOT_GATEWAY_TOKEN" "$DEPLOY_DIR/.env"; then
-    check_pass "CLAWDBOT_GATEWAY_TOKEN is configured"
+  if grep -q "OPENCLAW_GATEWAY_TOKEN" "$DEPLOY_DIR/.env"; then
+    check_pass "OPENCLAW_GATEWAY_TOKEN is configured"
   else
-    check_warn "CLAWDBOT_GATEWAY_TOKEN not found in .env"
+    check_warn "OPENCLAW_GATEWAY_TOKEN not found in .env"
   fi
 else
   check_warn ".env file not found - staging secrets not yet configured"
@@ -195,10 +195,10 @@ if command -v docker &>/dev/null; then
   if docker ps &>/dev/null; then
     check_pass "Docker daemon is running"
 
-    if docker ps | grep -q moltbot-gateway; then
-      check_pass "Moltbot gateway container is running"
+    if docker ps | grep -q openclaw-gateway; then
+      check_pass "OpenClaw gateway container is running"
     else
-      check_warn "Moltbot gateway container is not running (expected before first deploy)"
+      check_warn "OpenClaw gateway container is not running (expected before first deploy)"
     fi
   else
     check_fail "Docker daemon is not running or not accessible"
@@ -211,8 +211,8 @@ fi
 # Check 10: Health check (if container running)
 # -----------------------------------------------------------------------------
 echo "Checking gateway health..."
-if docker ps 2>/dev/null | grep -q moltbot-gateway; then
-  if docker exec moltbot-gateway pnpm clawdbot health &>/dev/null; then
+if docker ps 2>/dev/null | grep -q openclaw-gateway; then
+  if docker exec openclaw-gateway pnpm openclaw health &>/dev/null; then
     check_pass "Gateway health check passed"
   else
     check_fail "Gateway health check failed"

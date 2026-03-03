@@ -1,6 +1,6 @@
 import path from "node:path";
 import { loginWeb } from "../../../channel-web.js";
-import type { MoltbotConfig } from "../../../config/config.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -57,15 +57,15 @@ import {
 
 const channel = "whatsapp" as const;
 
-function setWhatsAppDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy): MoltbotConfig {
+function setWhatsAppDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy): OpenClawConfig {
   return mergeWhatsAppConfig(cfg, { dmPolicy });
 }
 
-function setWhatsAppAllowFrom(cfg: MoltbotConfig, allowFrom?: string[]): MoltbotConfig {
+function setWhatsAppAllowFrom(cfg: OpenClawConfig, allowFrom?: string[]): OpenClawConfig {
   return mergeWhatsAppConfig(cfg, { allowFrom }, { unsetOnUndefined: ["allowFrom"] });
 }
 
-function setWhatsAppSelfChatMode(cfg: MoltbotConfig, selfChatMode: boolean): MoltbotConfig {
+function setWhatsAppSelfChatMode(cfg: OpenClawConfig, selfChatMode: boolean): OpenClawConfig {
   return mergeWhatsAppConfig(cfg, { selfChatMode });
 }
 
@@ -78,7 +78,7 @@ async function pathExists(filePath: string): Promise<boolean> {
   }
 }
 
-async function detectWhatsAppLinked(cfg: MoltbotConfig, accountId: string): Promise<boolean> {
+async function detectWhatsAppLinked(cfg: OpenClawConfig, accountId: string): Promise<boolean> {
   const { authDir } = resolveWhatsAppAuthDir({ cfg, accountId });
   const credsPath = path.join(authDir, "creds.json");
   return await pathExists(credsPath);
@@ -164,11 +164,11 @@ function parseWhatsAppAllowFromEntries(raw: string): { entries: string[]; invali
 }
 
 async function promptWhatsAppAllowFrom(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   _runtime: RuntimeEnv,
   prompter: WizardPrompter,
   options?: { forceAllowlist?: boolean },
-): Promise<MoltbotConfig> {
+): Promise<OpenClawConfig> {
   const existingPolicy = cfg.channels?.whatsapp?.dmPolicy ?? "pairing";
   const existingAllowFrom = cfg.channels?.whatsapp?.allowFrom ?? [];
   const existingLabel = existingAllowFrom.length > 0 ? existingAllowFrom.join(", ") : "unset";
@@ -176,7 +176,7 @@ async function promptWhatsAppAllowFrom(
   if (options?.forceAllowlist) {
 <<<<<<< HEAD
     await prompter.note(
-      "We need the sender/owner number so Moltbot can allowlist you.",
+      "We need the sender/owner number so OpenClaw can allowlist you.",
       "WhatsApp number",
     );
     const entry = await prompter.text({
@@ -223,14 +223,14 @@ async function promptWhatsAppAllowFrom(
     message: "WhatsApp phone setup",
     options: [
       { value: "personal", label: "This is my personal phone number" },
-      { value: "separate", label: "Separate phone just for Moltbot" },
+      { value: "separate", label: "Separate phone just for OpenClaw" },
     ],
   });
 
   if (phoneMode === "personal") {
 <<<<<<< HEAD
     await prompter.note(
-      "We need the sender/owner number so Moltbot can allowlist you.",
+      "We need the sender/owner number so OpenClaw can allowlist you.",
       "WhatsApp number",
     );
     const entry = await prompter.text({
@@ -429,7 +429,7 @@ export const whatsappOnboardingAdapter: ChannelOnboardingAdapter = {
       }
     } else if (!linked) {
       await prompter.note(
-        `Run \`${formatCliCommand("moltbot channels login")}\` later to link WhatsApp.`,
+        `Run \`${formatCliCommand("openclaw channels login")}\` later to link WhatsApp.`,
         "WhatsApp",
       );
     }

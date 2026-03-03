@@ -2,7 +2,7 @@ import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { loadMoltbotPlugins } from "./loader.js";
+import { loadOpenClawPlugins } from "./loader.js";
 =======
 import { createPluginLoaderLogger } from "./logger.js";
 >>>>>>> aa8f87a3b (refactor(plugins): reuse plugin loader logger adapter)
@@ -34,7 +34,7 @@ export function buildPluginStatusReport(params?: {
     : (resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config)) ??
       resolveDefaultAgentWorkspaceDir());
 
-  const registry = loadMoltbotPlugins({
+  const registry = loadOpenClawPlugins({
     config,
     workspaceDir,
     logger: createPluginLoaderLogger(log),

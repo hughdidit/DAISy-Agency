@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 import type { MemoryCitationsMode } from "../../config/types.memory.js";
 <<<<<<< HEAD

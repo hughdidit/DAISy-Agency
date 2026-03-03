@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   autoMigrateLegacyStateDir,
   autoMigrateLegacyState,
@@ -17,7 +17,7 @@ import {
 let tempRoot: string | null = null;
 
 async function makeTempRoot() {
-  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "moltbot-doctor-"));
+  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "openclaw-doctor-"));
   tempRoot = root;
   return root;
 }
@@ -91,7 +91,7 @@ const DIR_LINK_TYPE = process.platform === "win32" ? "junction" : "dir";
 function getStateDirMigrationPaths(root: string) {
   return {
     targetDir: path.join(root, ".openclaw"),
-    legacyDir: path.join(root, ".clawdbot"),
+    legacyDir: path.join(root, ".openclaw"),
   };
 }
 
@@ -134,7 +134,7 @@ function expectTargetAlreadyExistsWarning(result: StateDirMigrationResult, targe
 describe("doctor legacy state migrations", () => {
   it("migrates legacy sessions into agents/<id>/sessions", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = {};
+    const cfg: OpenClawConfig = {};
     const legacySessionsDir = path.join(root, "sessions");
     fs.mkdirSync(legacySessionsDir, { recursive: true });
 
@@ -148,7 +148,7 @@ describe("doctor legacy state migrations", () => {
 
     const detected = await detectLegacyStateMigrations({
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     const result = await runLegacyStateMigrations({
       detected,
@@ -176,7 +176,7 @@ describe("doctor legacy state migrations", () => {
 
   it("migrates legacy agent dir with conflict fallback", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = {};
+    const cfg: OpenClawConfig = {};
 
     const legacyAgentDir = path.join(root, "agent");
     fs.mkdirSync(legacyAgentDir, { recursive: true });
@@ -189,7 +189,7 @@ describe("doctor legacy state migrations", () => {
 
     const detected = await detectLegacyStateMigrations({
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     await runLegacyStateMigrations({ detected, now: () => 123 });
 
@@ -200,7 +200,7 @@ describe("doctor legacy state migrations", () => {
 
   it("auto-migrates legacy agent dir on startup", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = {};
+    const cfg: OpenClawConfig = {};
 
     const legacyAgentDir = path.join(root, "agent");
     fs.mkdirSync(legacyAgentDir, { recursive: true });
@@ -210,7 +210,7 @@ describe("doctor legacy state migrations", () => {
 
     const result = await autoMigrateLegacyState({
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
       log,
     });
 
@@ -222,7 +222,7 @@ describe("doctor legacy state migrations", () => {
 
   it("auto-migrates legacy sessions on startup", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = {};
+    const cfg: OpenClawConfig = {};
 
     const legacySessionsDir = path.join(root, "sessions");
     fs.mkdirSync(legacySessionsDir, { recursive: true });
@@ -233,7 +233,7 @@ describe("doctor legacy state migrations", () => {
     const { result, log } = await runAutoMigrateLegacyStateWithLog({
       root,
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
       log,
       now: () => 123,
     });
@@ -249,7 +249,7 @@ describe("doctor legacy state migrations", () => {
 
   it("migrates legacy WhatsApp auth files without touching oauth.json", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = {};
+    const cfg: OpenClawConfig = {};
 
     const oauthDir = path.join(root, "credentials");
     fs.mkdirSync(oauthDir, { recursive: true });
@@ -259,7 +259,7 @@ describe("doctor legacy state migrations", () => {
 
     const detected = await detectLegacyStateMigrations({
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     await runLegacyStateMigrations({ detected, now: () => 123 });
 
@@ -308,10 +308,10 @@ describe("doctor legacy state migrations", () => {
 
   it("no-ops when nothing detected", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = {};
+    const cfg: OpenClawConfig = {};
     const detected = await detectLegacyStateMigrations({
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     const result = await runLegacyStateMigrations({ detected });
     expect(result.changes).toEqual([]);
@@ -319,7 +319,7 @@ describe("doctor legacy state migrations", () => {
 
   it("routes legacy state to the default agent entry", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       agents: { list: [{ id: "alpha", default: true }] },
     };
     writeLegacySessionsFixture({
@@ -331,7 +331,7 @@ describe("doctor legacy state migrations", () => {
 
     const detected = await detectLegacyStateMigrations({
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     await runLegacyStateMigrations({ detected, now: () => 123 });
 
@@ -347,7 +347,7 @@ describe("doctor legacy state migrations", () => {
 
   it("honors session.mainKey when seeding the direct-chat bucket", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = { session: { mainKey: "work" } };
+    const cfg: OpenClawConfig = { session: { mainKey: "work" } };
     const legacySessionsDir = path.join(root, "sessions");
     fs.mkdirSync(legacySessionsDir, { recursive: true });
     writeJson5(path.join(legacySessionsDir, "sessions.json"), {
@@ -357,7 +357,7 @@ describe("doctor legacy state migrations", () => {
 
     const detected = await detectLegacyStateMigrations({
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     await runLegacyStateMigrations({ detected, now: () => 123 });
 
@@ -374,7 +374,7 @@ describe("doctor legacy state migrations", () => {
 
   it("canonicalizes legacy main keys inside the target sessions store", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = {};
+    const cfg: OpenClawConfig = {};
     const targetDir = path.join(root, "agents", "main", "sessions");
     writeJson5(path.join(targetDir, "sessions.json"), {
       main: { sessionId: "legacy", updatedAt: 10 },
@@ -384,7 +384,7 @@ describe("doctor legacy state migrations", () => {
     const store = await runAndReadSessionsStore({
       root,
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     expect(store["main"]).toBeUndefined();
     expect(store["agent:main:main"]?.sessionId).toBe("fresh");
@@ -392,7 +392,7 @@ describe("doctor legacy state migrations", () => {
 
   it("prefers the newest entry when collapsing main aliases", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = { session: { mainKey: "work" } };
+    const cfg: OpenClawConfig = { session: { mainKey: "work" } };
     const targetDir = path.join(root, "agents", "main", "sessions");
     writeJson5(path.join(targetDir, "sessions.json"), {
       "agent:main:main": { sessionId: "legacy", updatedAt: 50 },
@@ -402,7 +402,7 @@ describe("doctor legacy state migrations", () => {
     const store = await runAndReadSessionsStore({
       root,
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     expect(store["agent:main:work"]?.sessionId).toBe("legacy");
     expect(store["agent:main:main"]).toBeUndefined();
@@ -410,7 +410,7 @@ describe("doctor legacy state migrations", () => {
 
   it("lowercases agent session keys during canonicalization", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = {};
+    const cfg: OpenClawConfig = {};
     const targetDir = path.join(root, "agents", "main", "sessions");
     writeJson5(path.join(targetDir, "sessions.json"), {
       "agent:main:slack:channel:C123": { sessionId: "legacy", updatedAt: 10 },
@@ -419,7 +419,7 @@ describe("doctor legacy state migrations", () => {
     const store = await runAndReadSessionsStore({
       root,
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     expect(store["agent:main:slack:channel:c123"]?.sessionId).toBe("legacy");
     expect(store["agent:main:slack:channel:C123"]).toBeUndefined();
@@ -427,7 +427,7 @@ describe("doctor legacy state migrations", () => {
 
   it("auto-migrates when only target sessions contain legacy keys", async () => {
     const root = await makeTempRoot();
-    const cfg: MoltbotConfig = {};
+    const cfg: OpenClawConfig = {};
     const targetDir = path.join(root, "agents", "main", "sessions");
     writeJson5(path.join(targetDir, "sessions.json"), {
       main: { sessionId: "legacy", updatedAt: 10 },
@@ -437,7 +437,7 @@ describe("doctor legacy state migrations", () => {
 
     const result = await autoMigrateLegacyState({
       cfg,
-      env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: root } as NodeJS.ProcessEnv,
       log,
     });
 
@@ -450,9 +450,9 @@ describe("doctor legacy state migrations", () => {
     expect(store["agent:main:main"]?.sessionId).toBe("legacy");
   });
 
-  it("auto-migrates legacy state dir to ~/.moltbot", async () => {
+  it("auto-migrates legacy state dir to ~/.openclaw", async () => {
     const root = await makeTempRoot();
-    const legacyDir = path.join(root, ".clawdbot");
+    const legacyDir = path.join(root, ".openclaw");
     fs.mkdirSync(legacyDir, { recursive: true });
     fs.writeFileSync(path.join(legacyDir, "foo.txt"), "legacy", "utf-8");
 
@@ -461,7 +461,7 @@ describe("doctor legacy state migrations", () => {
       homedir: () => root,
     });
 
-    const targetDir = path.join(root, ".moltbot");
+    const targetDir = path.join(root, ".openclaw");
     expect(fs.existsSync(path.join(targetDir, "foo.txt"))).toBe(true);
     const legacyStat = fs.lstatSync(legacyDir);
     expect(legacyStat.isSymbolicLink()).toBe(true);
@@ -471,8 +471,8 @@ describe("doctor legacy state migrations", () => {
 
   it("skips state dir migration when target exists", async () => {
     const root = await makeTempRoot();
-    const legacyDir = path.join(root, ".clawdbot");
-    const targetDir = path.join(root, ".moltbot");
+    const legacyDir = path.join(root, ".openclaw");
+    const targetDir = path.join(root, ".openclaw");
     fs.mkdirSync(legacyDir, { recursive: true });
     fs.mkdirSync(targetDir, { recursive: true });
 
@@ -487,11 +487,11 @@ describe("doctor legacy state migrations", () => {
 
   it("skips state dir migration when env override is set", async () => {
     const root = await makeTempRoot();
-    const legacyDir = path.join(root, ".clawdbot");
+    const legacyDir = path.join(root, ".openclaw");
     fs.mkdirSync(legacyDir, { recursive: true });
 
     const result = await autoMigrateLegacyStateDir({
-      env: { MOLTBOT_STATE_DIR: "/custom/state" } as NodeJS.ProcessEnv,
+      env: { OPENCLAW_STATE_DIR: "/custom/state" } as NodeJS.ProcessEnv,
       homedir: () => root,
     });
 

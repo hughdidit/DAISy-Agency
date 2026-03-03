@@ -25,9 +25,9 @@ afterAll(async () => {
 async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>) {
 <<<<<<< HEAD
 <<<<<<< HEAD
-  const previous = process.env.CLAWDBOT_STATE_DIR;
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-pairing-"));
-  process.env.CLAWDBOT_STATE_DIR = dir;
+  const previous = process.env.OPENCLAW_STATE_DIR;
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-pairing-"));
+  process.env.OPENCLAW_STATE_DIR = dir;
   const dir = path.join(fixtureRoot, `case-${caseId++}`);
   await fs.mkdir(dir, { recursive: true });
   process.env.OPENCLAW_STATE_DIR = dir;
@@ -36,8 +36,8 @@ async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>) {
     return await fn(dir);
   } finally {
 <<<<<<< HEAD
-    if (previous === undefined) delete process.env.CLAWDBOT_STATE_DIR;
-    else process.env.CLAWDBOT_STATE_DIR = previous;
+    if (previous === undefined) delete process.env.OPENCLAW_STATE_DIR;
+    else process.env.OPENCLAW_STATE_DIR = previous;
     await fs.rm(dir, { recursive: true, force: true });
 =======
 >>>>>>> ced4ac490 (perf(test): speed up pairing-store suite)

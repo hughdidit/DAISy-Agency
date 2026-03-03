@@ -14,7 +14,7 @@ import { ensureSandboxWorkspaceForSession } from "../agents/sandbox.js";
 import { stageSandboxMedia } from "./reply/stage-sandbox-media.js";
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(async (home) => await fn(home), { prefix: "moltbot-triggers-" });
+  return withTempHomeBase(async (home) => await fn(home), { prefix: "openclaw-triggers-" });
 }
 
 afterEach(() => {
@@ -26,7 +26,7 @@ describe("stageSandboxMedia", () => {
   it("stages inbound media into the sandbox workspace", async () => {
 <<<<<<< HEAD
     await withTempHome(async (home) => {
-      const inboundDir = join(home, ".clawdbot", "media", "inbound");
+      const inboundDir = join(home, ".openclaw", "media", "inbound");
       await fs.mkdir(inboundDir, { recursive: true });
       const mediaPath = join(inboundDir, "photo.jpg");
       await fs.writeFile(mediaPath, "test");

@@ -1,9 +1,9 @@
 {
-  "name": "@moltbot/bluebubbles",
+  "name": "@openclaw/bluebubbles",
   "version": "2026.1.27-beta.1",
   "type": "module",
-  "description": "Moltbot BlueBubbles channel plugin",
-  "moltbot": {
+  "description": "OpenClaw BlueBubbles channel plugin",
+  "openclaw": {
 =======
   "version": "2026.2.23",
 >>>>>>> 8d9d01447 (chore: align plugin versions and harden outbound cross-provider test)
@@ -32,7 +32,7 @@
       "order": 75
     },
     "install": {
-      "npmSpec": "@moltbot/bluebubbles",
+      "npmSpec": "@openclaw/bluebubbles",
       "localPath": "extensions/bluebubbles",
       "defaultChoice": "npm"
     }

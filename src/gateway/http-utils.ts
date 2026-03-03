@@ -43,7 +43,7 @@ export function getBearerToken(req: IncomingMessage): string | undefined {
 
 export function resolveAgentIdFromHeader(req: IncomingMessage): string | undefined {
   const raw =
-    getHeader(req, "x-moltbot-agent-id")?.trim() || getHeader(req, "x-moltbot-agent")?.trim() || "";
+    getHeader(req, "x-openclaw-agent-id")?.trim() || getHeader(req, "x-openclaw-agent")?.trim() || "";
   if (!raw) return undefined;
   return normalizeAgentId(raw);
 }
@@ -55,7 +55,7 @@ export function resolveAgentIdFromModel(model: string | undefined): string | und
   }
 
   const m =
-    raw.match(/^moltbot[:/](?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i) ??
+    raw.match(/^openclaw[:/](?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i) ??
     raw.match(/^agent:(?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i);
   const agentId = m?.groups?.agentId;
   if (!agentId) {
@@ -83,7 +83,7 @@ export function resolveSessionKey(params: {
   user?: string | undefined;
   prefix: string;
 }): string {
-  const explicit = getHeader(params.req, "x-moltbot-session-key")?.trim();
+  const explicit = getHeader(params.req, "x-openclaw-session-key")?.trim();
   if (explicit) return explicit;
 
   const user = params.user?.trim();

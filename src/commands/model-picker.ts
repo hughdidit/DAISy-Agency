@@ -37,7 +37,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -67,7 +67,7 @@ const PROVIDER_FILTER_THRESHOLD = 30;
 const HIDDEN_ROUTER_MODELS = new Set(["openrouter/auto"]);
 
 type PromptDefaultModelParams = {
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   prompter: WizardPrompter;
   allowKeep?: boolean;
   includeManual?: boolean;
@@ -83,7 +83,7 @@ type PromptModelAllowlistResult = { models?: string[] };
 
 function hasAuthForProvider(
   provider: string,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   store: ReturnType<typeof ensureAuthProfileStore>,
 ) {
   if (listProfilesForProvider(store, provider).length > 0) {
@@ -98,7 +98,7 @@ function hasAuthForProvider(
   return false;
 }
 
-function resolveConfiguredModelRaw(cfg: MoltbotConfig): string {
+function resolveConfiguredModelRaw(cfg: OpenClawConfig): string {
   const raw = cfg.agents?.defaults?.model as { primary?: string } | string | undefined;
   if (typeof raw === "string") {
     return raw.trim();
@@ -109,7 +109,7 @@ function resolveConfiguredModelRaw(cfg: MoltbotConfig): string {
 >>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 }
 
-function resolveConfiguredModelKeys(cfg: MoltbotConfig): string[] {
+function resolveConfiguredModelKeys(cfg: OpenClawConfig): string[] {
   const models = cfg.agents?.defaults?.models ?? {};
   return Object.keys(models)
     .map((key) => String(key ?? "").trim())
@@ -385,7 +385,7 @@ export async function promptDefaultModel(
 }
 
 export async function promptModelAllowlist(params: {
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   prompter: WizardPrompter;
   message?: string;
   agentDir?: string;
@@ -487,7 +487,7 @@ export async function promptModelAllowlist(params: {
   return { models: [] };
 }
 
-export function applyPrimaryModel(cfg: MoltbotConfig, model: string): MoltbotConfig {
+export function applyPrimaryModel(cfg: OpenClawConfig, model: string): OpenClawConfig {
   const defaults = cfg.agents?.defaults;
   const existingModel = defaults?.model;
   const existingModels = defaults?.models;
@@ -514,7 +514,7 @@ export function applyPrimaryModel(cfg: MoltbotConfig, model: string): MoltbotCon
   };
 }
 
-export function applyModelAllowlist(cfg: MoltbotConfig, models: string[]): MoltbotConfig {
+export function applyModelAllowlist(cfg: OpenClawConfig, models: string[]): OpenClawConfig {
   const defaults = cfg.agents?.defaults;
   const normalized = normalizeModelKeys(models);
   if (normalized.length === 0) {
@@ -550,9 +550,9 @@ export function applyModelAllowlist(cfg: MoltbotConfig, models: string[]): Moltb
 }
 
 export function applyModelFallbacksFromSelection(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   selection: string[],
-): MoltbotConfig {
+): OpenClawConfig {
   const normalized = normalizeModelKeys(selection);
   if (normalized.length <= 1) {
     return cfg;

@@ -30,7 +30,7 @@ const mocks = vi.hoisted(() => {
 
   return {
     store,
-    resolveMoltbotAgentDir: vi.fn().mockReturnValue("/tmp/moltbot-agent"),
+    resolveOpenClawAgentDir: vi.fn().mockReturnValue("/tmp/openclaw-agent"),
 =======
     resolveAgentExplicitModelPrimary: vi.fn().mockReturnValue(undefined),
     resolveAgentEffectiveModelPrimary: vi.fn().mockReturnValue(undefined),
@@ -46,7 +46,7 @@ const mocks = vi.hoisted(() => {
     resolveAuthProfileDisplayLabel: vi.fn(({ profileId }: { profileId: string }) => profileId),
     resolveAuthStorePathForDisplay: vi
       .fn()
-      .mockReturnValue("/tmp/moltbot-agent/auth-profiles.json"),
+      .mockReturnValue("/tmp/openclaw-agent/auth-profiles.json"),
     resolveEnvApiKey: vi.fn((provider: string) => {
       if (provider === "openai") {
         return {
@@ -80,7 +80,7 @@ const mocks = vi.hoisted(() => {
 });
 
 vi.mock("../../agents/agent-paths.js", () => ({
-  resolveMoltbotAgentDir: mocks.resolveMoltbotAgentDir,
+  resolveOpenClawAgentDir: mocks.resolveOpenClawAgentDir,
 =======
   resolveAgentExplicitModelPrimary: mocks.resolveAgentExplicitModelPrimary,
   resolveAgentEffectiveModelPrimary: mocks.resolveAgentEffectiveModelPrimary,
@@ -206,7 +206,7 @@ describe("modelsStatusCommand auth overview", () => {
     const payload = JSON.parse(String((runtime.log as Mock).mock.calls[0]?.[0]));
 
     expect(payload.defaultModel).toBe("anthropic/claude-opus-4-5");
-    expect(payload.auth.storePath).toBe("/tmp/moltbot-agent/auth-profiles.json");
+    expect(payload.auth.storePath).toBe("/tmp/openclaw-agent/auth-profiles.json");
     expect(payload.auth.shellEnvFallback.enabled).toBe(true);
     expect(payload.auth.shellEnvFallback.appliedKeys).toContain("OPENAI_API_KEY");
     expect(payload.auth.missingProvidersInUse).toEqual([]);

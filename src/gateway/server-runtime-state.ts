@@ -100,7 +100,7 @@ import type { GatewayWsClient } from "./server/ws-types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export async function createGatewayRuntimeState(params: {
-  cfg: import("../config/config.js").MoltbotConfig;
+  cfg: import("../config/config.js").OpenClawConfig;
   bindHost: string;
   port: number;
   controlUiEnabled: boolean;

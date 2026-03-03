@@ -52,7 +52,7 @@ describe("readFirstUserMessageFromTranscript", () => {
 
 <<<<<<< HEAD
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-session-fs-test-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-session-fs-test-"));
     storePath = path.join(tmpDir, "sessions.json");
   });
 
@@ -204,7 +204,7 @@ describe("readLastMessagePreviewFromTranscript", () => {
 
 <<<<<<< HEAD
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-session-fs-test-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-session-fs-test-"));
     storePath = path.join(tmpDir, "sessions.json");
   });
 
@@ -563,7 +563,7 @@ describe("readSessionPreviewItemsFromTranscript", () => {
 
 <<<<<<< HEAD
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-session-preview-test-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-session-preview-test-"));
     storePath = path.join(tmpDir, "sessions.json");
 =======
   registerTempSessionStore("openclaw-session-preview-test-", (nextTmpDir, nextStorePath) => {

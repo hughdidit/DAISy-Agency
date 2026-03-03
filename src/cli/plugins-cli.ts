@@ -29,7 +29,7 @@ import type { Command } from "commander";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { loadConfig, writeConfigFile } from "../config/config.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveArchiveKind } from "../infra/archive.js";
 import { findBundledPluginByNpmSpec } from "../plugins/bundled-sources.js";
 import { enablePluginInConfig } from "../plugins/enable.js";
@@ -112,9 +112,9 @@ function formatPluginLine(plugin: PluginRecord, verbose = false): string {
 }
 
 function applySlotSelectionForPlugin(
-  config: MoltbotConfig,
+  config: OpenClawConfig,
   pluginId: string,
-): { config: MoltbotConfig; warnings: string[] } {
+): { config: OpenClawConfig; warnings: string[] } {
   const report = buildPluginStatusReport({ config });
   const plugin = report.plugins.find((entry) => entry.id === pluginId);
   if (!plugin) {
@@ -158,7 +158,7 @@ function isPackageNotFoundInstallError(message: string): boolean {
 export function registerPluginsCli(program: Command) {
   const plugins = program
     .command("plugins")
-    .description("Manage Moltbot plugins/extensions")
+    .description("Manage OpenClaw plugins/extensions")
     .addHelpText(
       "after",
       () =>
@@ -347,7 +347,7 @@ export function registerPluginsCli(program: Command) {
     .argument("<id>", "Plugin id")
     .action(async (id: string) => {
       const cfg = loadConfig();
-      let next: MoltbotConfig = {
+      let next: OpenClawConfig = {
         ...cfg,
         plugins: {
           ...cfg.plugins,
@@ -540,7 +540,7 @@ export function registerPluginsCli(program: Command) {
             process.exit(1);
           }
 
-          let next: MoltbotConfig = {
+          let next: OpenClawConfig = {
             ...cfg,
             plugins: {
               ...cfg.plugins,
@@ -587,7 +587,7 @@ export function registerPluginsCli(program: Command) {
         clearPluginManifestRegistryCache();
 
 <<<<<<< HEAD
-        let next: MoltbotConfig = {
+        let next: OpenClawConfig = {
           ...cfg,
           plugins: {
             ...cfg.plugins,
@@ -698,7 +698,7 @@ export function registerPluginsCli(program: Command) {
       clearPluginManifestRegistryCache();
 
 <<<<<<< HEAD
-      let next: MoltbotConfig = {
+      let next: OpenClawConfig = {
         ...cfg,
         plugins: {
           ...cfg.plugins,

@@ -4,7 +4,7 @@ import fs from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { listAgentIds, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
@@ -55,7 +55,7 @@ export function listReservedChatSlashCommandNames(extraNames: string[] = []): Se
 
 export function listSkillCommandsForWorkspace(params: {
   workspaceDir: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   skillFilter?: string[];
 }): SkillCommandSpec[] {
   return buildWorkspaceSkillCommandSpecs(params.workspaceDir, {
@@ -67,7 +67,7 @@ export function listSkillCommandsForWorkspace(params: {
 }
 
 export function listSkillCommandsForAgents(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentIds?: string[];
 }): SkillCommandSpec[] {
   const used = listReservedChatSlashCommandNames();

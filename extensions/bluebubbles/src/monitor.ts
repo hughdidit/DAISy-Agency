@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 =======
 import { timingSafeEqual } from "node:crypto";
 >>>>>>> ed11e93cf (chore(format))
@@ -20,7 +20,7 @@ import {
   logTypingFailure,
   resolveAckReaction,
   resolveControlCommandGate,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 import { markBlueBubblesChatRead, sendBlueBubblesTyping } from "./chat.js";
 import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
 import { downloadBlueBubblesAttachment } from "./attachments.js";
@@ -43,7 +43,7 @@ export type BlueBubblesRuntimeEnv = {
 
 export type BlueBubblesMonitorOptions = {
   account: ResolvedBlueBubblesAccount;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   runtime: BlueBubblesRuntimeEnv;
   abortSignal: AbortSignal;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
@@ -283,7 +283,7 @@ function logGroupAllowlistHint(params: {
 
 type WebhookTarget = {
   account: ResolvedBlueBubblesAccount;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   runtime: BlueBubblesRuntimeEnv;
   core: BlueBubblesCoreRuntime;
   path: string;
@@ -406,7 +406,7 @@ type BlueBubblesDebouncer = {
 const targetDebouncers = new Map<WebhookTarget, BlueBubblesDebouncer>();
 
 function resolveBlueBubblesDebounceMs(
-  config: MoltbotConfig,
+  config: OpenClawConfig,
   core: BlueBubblesCoreRuntime,
 ): number {
   const inbound = config.messages?.inbound;
@@ -578,7 +578,7 @@ function maskSecret(value: string): string {
 }
 
 function resolveBlueBubblesAckReaction(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId: string;
   core: BlueBubblesCoreRuntime;
   runtime: BlueBubblesRuntimeEnv;

@@ -53,7 +53,7 @@ import {
 import { resolveUserTimezone } from "../../agents/date-time.js";
 import { formatZonedTimestamp } from "../../auto-reply/envelope.js";
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
-import type { MoltbotConfig } from "../../config/types.js";
+import type { OpenClawConfig } from "../../config/types.js";
 
 /**
  * Cron jobs inject "Current time: ..." into their messages.
@@ -101,7 +101,7 @@ export interface TimestampInjectionOptions {
  * the agent handler, so there's no double-stamping risk.
 >>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
  *
- * @see https://github.com/moltbot/moltbot/issues/3658
+ * @see https://github.com/moltai/openclawbot/issues/3658
  */
 export function injectTimestamp(message: string, opts?: TimestampInjectionOptions): string {
   if (!message.trim()) {

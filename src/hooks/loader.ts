@@ -11,7 +11,7 @@ import { pathToFileURL } from "node:url";
 <<<<<<< HEAD
 import path from "node:path";
 import { registerInternalHook } from "./internal-hooks.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { InternalHookHandler } from "./internal-hooks.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
 =======
@@ -64,7 +64,7 @@ const log = createSubsystemLogger("hooks:loader");
  * 1. Directory-based discovery (bundled, managed, workspace)
  * 2. Legacy config handlers (backwards compatibility)
  *
- * @param cfg - Moltbot configuration
+ * @param cfg - OpenClaw configuration
  * @param workspaceDir - Workspace directory for hook discovery
  * @returns Number of handlers successfully loaded
  *
@@ -76,7 +76,7 @@ const log = createSubsystemLogger("hooks:loader");
  * console.log(`Loaded ${count} hook handlers`);
  * ```
  */
-export async function loadInternalHooks(cfg: MoltbotConfig, workspaceDir: string): Promise<number> {
+export async function loadInternalHooks(cfg: OpenClawConfig, workspaceDir: string): Promise<number> {
   // Check if hooks are enabled
   if (!cfg.hooks?.internal?.enabled) {
     return 0;

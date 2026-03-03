@@ -7,7 +7,7 @@ import {
   type ChannelOnboardingAdapter,
   type ChannelOnboardingDmPolicy,
   type WizardPrompter,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -357,7 +357,7 @@ export const matrixOnboardingAdapter: ChannelOnboardingAdapter = {
     const deviceName = String(
       await prompter.text({
         message: "Matrix device name (optional)",
-        initialValue: existing.deviceName ?? "Moltbot Gateway",
+        initialValue: existing.deviceName ?? "OpenClaw Gateway",
       }),
     ).trim();
 

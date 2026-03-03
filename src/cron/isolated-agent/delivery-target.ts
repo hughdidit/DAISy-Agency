@@ -4,7 +4,7 @@ import type { ChannelId } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { OutboundChannel } from "../../infra/outbound/targets.js";
@@ -60,7 +60,7 @@ export type DeliveryTargetResolution =
     };
 
 export async function resolveDeliveryTarget(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
   jobPayload: {
     channel?: "last" | ChannelId;

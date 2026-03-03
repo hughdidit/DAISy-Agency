@@ -5,7 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 import { resolveAgentWorkspaceDir } from "../../agents/agent-scope.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import { resolveAgentWorkspaceDir } from "../../agents/agent-scope.js";
@@ -34,7 +34,7 @@ async function fileExists(p: string): Promise<boolean> {
   }
 }
 
-export async function getAgentLocalStatuses(cfg: MoltbotConfig) {
+export async function getAgentLocalStatuses(cfg: OpenClawConfig) {
   const agentList = listAgentsForGateway(cfg);
   const now = Date.now();
 

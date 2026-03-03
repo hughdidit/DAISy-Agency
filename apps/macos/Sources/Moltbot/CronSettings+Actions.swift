@@ -1,5 +1,5 @@
 import Foundation
-import MoltbotProtocol
+import OpenClawProtocol
 
 extension CronSettings {
     func save(payload: [String: AnyCodable]) async {

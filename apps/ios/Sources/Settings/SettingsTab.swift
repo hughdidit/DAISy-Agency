@@ -1,4 +1,4 @@
-import MoltbotKit
+import OpenClawKit
 import Network
 import Observation
 import SwiftUI
@@ -30,7 +30,7 @@ struct SettingsTab: View {
     @AppStorage("talk.button.enabled") private var talkButtonEnabled: Bool = true
     @AppStorage("talk.background.enabled") private var talkBackgroundEnabled: Bool = false
     @AppStorage("camera.enabled") private var cameraEnabled: Bool = true
-    @AppStorage("location.enabledMode") private var locationEnabledModeRaw: String = MoltbotLocationMode.off.rawValue
+    @AppStorage("location.enabledMode") private var locationEnabledModeRaw: String = OpenClawLocationMode.off.rawValue
     @AppStorage("location.preciseEnabled") private var locationPreciseEnabled: Bool = true
     @AppStorage("screen.preventSleep") private var preventSleep: Bool = true
     @AppStorage("gateway.preferredStableID") private var preferredGatewayStableID: String = ""
@@ -44,7 +44,7 @@ struct SettingsTab: View {
     @State private var connectStatus = ConnectStatusStore()
     @State private var connectingGatewayID: String?
     @State private var localIPAddress: String?
-    @State private var lastLocationModeRaw: String = MoltbotLocationMode.off.rawValue
+    @State private var lastLocationModeRaw: String = OpenClawLocationMode.off.rawValue
     @State private var gatewayToken: String = ""
     @State private var gatewayPassword: String = ""
 
@@ -204,9 +204,9 @@ struct SettingsTab: View {
 
                 Section("Location") {
                     Picker("Location Access", selection: self.$locationEnabledModeRaw) {
-                        Text("Off").tag(MoltbotLocationMode.off.rawValue)
-                        Text("While Using").tag(MoltbotLocationMode.whileUsing.rawValue)
-                        Text("Always").tag(MoltbotLocationMode.always.rawValue)
+                        Text("Off").tag(OpenClawLocationMode.off.rawValue)
+                        Text("While Using").tag(OpenClawLocationMode.whileUsing.rawValue)
+                        Text("Always").tag(OpenClawLocationMode.always.rawValue)
 =======
                         LabeledContent("Device", value: DeviceInfoHelper.deviceFamily())
                         LabeledContent("Platform", value: DeviceInfoHelper.platformStringForDisplay())
@@ -225,7 +225,7 @@ struct SettingsTab: View {
 
                 Section("Screen") {
                     Toggle("Prevent Sleep", isOn: self.$preventSleep)
-                    Text("Keeps the screen awake while Moltbot is open.")
+                    Text("Keeps the screen awake while OpenClaw is open.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -306,7 +306,7 @@ struct SettingsTab: View {
             .onChange(of: self.locationEnabledModeRaw) { _, newValue in
                 let previous = self.lastLocationModeRaw
                 self.lastLocationModeRaw = newValue
-                guard let mode = MoltbotLocationMode(rawValue: newValue) else { return }
+                guard let mode = OpenClawLocationMode(rawValue: newValue) else { return }
                 Task {
                     let granted = await self.appModel.requestLocationPermissions(mode: mode)
                     if !granted {
@@ -386,8 +386,8 @@ struct SettingsTab: View {
     }
 
 <<<<<<< HEAD
-    private var locationMode: MoltbotLocationMode {
-        MoltbotLocationMode(rawValue: self.locationEnabledModeRaw) ?? .off
+    private var locationMode: OpenClawLocationMode {
+        OpenClawLocationMode(rawValue: self.locationEnabledModeRaw) ?? .off
     }
 
     private func appVersion() -> String {

@@ -141,7 +141,7 @@ describe("loadWorkspaceBootstrapFiles", () => {
   };
 
   it("includes MEMORY.md when present", async () => {
-    const tempDir = await makeTempWorkspace("moltbot-workspace-");
+    const tempDir = await makeTempWorkspace("openclaw-workspace-");
     await writeWorkspaceFile({ dir: tempDir, name: "MEMORY.md", content: "memory" });
 
     const files = await loadWorkspaceBootstrapFiles(tempDir);
@@ -149,7 +149,7 @@ describe("loadWorkspaceBootstrapFiles", () => {
   });
 
   it("includes memory.md when MEMORY.md is absent", async () => {
-    const tempDir = await makeTempWorkspace("moltbot-workspace-");
+    const tempDir = await makeTempWorkspace("openclaw-workspace-");
     await writeWorkspaceFile({ dir: tempDir, name: "memory.md", content: "alt" });
 
     const files = await loadWorkspaceBootstrapFiles(tempDir);
@@ -157,7 +157,7 @@ describe("loadWorkspaceBootstrapFiles", () => {
   });
 
   it("omits memory entries when no memory files exist", async () => {
-    const tempDir = await makeTempWorkspace("moltbot-workspace-");
+    const tempDir = await makeTempWorkspace("openclaw-workspace-");
 
     const files = await loadWorkspaceBootstrapFiles(tempDir);
     expect(getMemoryEntries(files)).toHaveLength(0);

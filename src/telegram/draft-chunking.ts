@@ -4,7 +4,7 @@ import { getChannelDock } from "../channels/dock.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -21,7 +21,7 @@ const DEFAULT_TELEGRAM_DRAFT_STREAM_MIN = 200;
 const DEFAULT_TELEGRAM_DRAFT_STREAM_MAX = 800;
 
 export function resolveTelegramDraftStreamingChunking(
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   accountId?: string | null,
 ): {
   minChars: number;

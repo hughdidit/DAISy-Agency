@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { PluginRuntime } from "clawdbot/plugin-sdk";
+import type { PluginRuntime } from "openclaw/plugin-sdk";
 import type { StoredConversationReference } from "./conversation-store.js";
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 =======
@@ -30,7 +30,7 @@ const runtimeStub = {
   state: {
     resolveStateDir: (env: NodeJS.ProcessEnv = process.env, homedir?: () => string) => {
 <<<<<<< HEAD
-      const override = env.CLAWDBOT_STATE_DIR?.trim();
+      const override = env.OPENCLAW_STATE_DIR?.trim();
       if (override) return override;
 =======
       if (override) {
@@ -38,7 +38,7 @@ const runtimeStub = {
       }
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
       const resolvedHome = homedir ? homedir() : os.homedir();
-      return path.join(resolvedHome, ".clawdbot");
+      return path.join(resolvedHome, ".openclaw");
     },
   },
 } as unknown as PluginRuntime;
@@ -52,11 +52,11 @@ describe("msteams conversation store (fs)", () => {
   });
 
   it("filters and prunes expired entries (but keeps legacy ones)", async () => {
-    const stateDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "moltbot-msteams-store-"));
+    const stateDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "openclaw-msteams-store-"));
 
     const env: NodeJS.ProcessEnv = {
       ...process.env,
-      CLAWDBOT_STATE_DIR: stateDir,
+      OPENCLAW_STATE_DIR: stateDir,
     };
 
     const store = createMSTeamsConversationStoreFs({ env, ttlMs: 1_000 });

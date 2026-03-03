@@ -4,7 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import { resolveMoltbotPackageRoot } from "../../infra/moltbot-root.js";
+import { resolveOpenClawPackageRoot } from "../../infra/openclaw-root.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 =======
 import type { GatewayRequestHandlers } from "./types.js";
@@ -56,7 +56,7 @@ export const updateHandlers: GatewayRequestHandlers = {
       const config = loadConfig();
       const configChannel = normalizeUpdateChannel(config.update?.channel);
       const root =
-        (await resolveMoltbotPackageRoot({
+        (await resolveOpenClawPackageRoot({
           moduleUrl: import.meta.url,
           argv1: process.argv[1],
           cwd: process.cwd(),

@@ -209,7 +209,7 @@ final class ShareViewController: UIViewController {
                 url: url,
                 token: config.token,
                 password: config.password,
-                connectOptions: makeOptions("moltbot-ios"),
+                connectOptions: makeOptions("openclaw-ios"),
                 sessionBox: nil,
                 onConnected: {},
                 onDisconnected: { _ in },

@@ -16,8 +16,8 @@ let server: Awaited<ReturnType<typeof startGatewayServer>>;
 let port = 0;
 
 beforeAll(async () => {
-  previousToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
-  delete process.env.CLAWDBOT_GATEWAY_TOKEN;
+  previousToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+  delete process.env.OPENCLAW_GATEWAY_TOKEN;
   port = await getFreePort();
   server = await startGatewayServer(port, { controlUiEnabled: true });
 });
@@ -25,8 +25,8 @@ beforeAll(async () => {
 afterAll(async () => {
   await server.close();
 <<<<<<< HEAD
-  if (previousToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
-  else process.env.CLAWDBOT_GATEWAY_TOKEN = previousToken;
+  if (previousToken === undefined) delete process.env.OPENCLAW_GATEWAY_TOKEN;
+  else process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
 =======
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 });
@@ -78,7 +78,7 @@ describe("gateway config.apply", () => {
       expect(res.ok).toBe(true);
 
       // Verify sentinel file was created (restart was scheduled)
-      const sentinelPath = path.join(os.homedir(), ".clawdbot", "restart-sentinel.json");
+      const sentinelPath = path.join(os.homedir(), ".openclaw", "restart-sentinel.json");
 
       // Wait for file to be written
       await new Promise((resolve) => setTimeout(resolve, 100));

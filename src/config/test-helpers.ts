@@ -8,7 +8,7 @@ import path from "node:path";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 
 export async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "moltbot-config-" });
+  return withTempHomeBase(fn, { prefix: "openclaw-config-" });
 }
 
 export async function writeOpenClawConfig(home: string, config: unknown): Promise<string> {

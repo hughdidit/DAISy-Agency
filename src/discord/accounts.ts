@@ -5,7 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { DiscordAccountConfig } from "../config/types.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
@@ -52,7 +52,7 @@ export type ResolvedDiscordAccount = {
   config: DiscordAccountConfig;
 };
 
-function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
+function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
   const accounts = cfg.channels?.discord?.accounts;
   if (!accounts || typeof accounts !== "object") {
     return [];
@@ -60,7 +60,7 @@ function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   return Object.keys(accounts).filter(Boolean);
 }
 
-export function listDiscordAccountIds(cfg: MoltbotConfig): string[] {
+export function listDiscordAccountIds(cfg: OpenClawConfig): string[] {
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) {
     return [DEFAULT_ACCOUNT_ID];
@@ -68,7 +68,7 @@ export function listDiscordAccountIds(cfg: MoltbotConfig): string[] {
   return ids.toSorted((a, b) => a.localeCompare(b));
 }
 
-export function resolveDefaultDiscordAccountId(cfg: MoltbotConfig): string {
+export function resolveDefaultDiscordAccountId(cfg: OpenClawConfig): string {
   const ids = listDiscordAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;
@@ -77,7 +77,7 @@ export function resolveDefaultDiscordAccountId(cfg: MoltbotConfig): string {
 }
 
 function resolveAccountConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
 ): DiscordAccountConfig | undefined {
   const accounts = cfg.channels?.discord?.accounts;
@@ -87,7 +87,7 @@ function resolveAccountConfig(
   return accounts[accountId] as DiscordAccountConfig | undefined;
 }
 
-function mergeDiscordAccountConfig(cfg: MoltbotConfig, accountId: string): DiscordAccountConfig {
+function mergeDiscordAccountConfig(cfg: OpenClawConfig, accountId: string): DiscordAccountConfig {
   const { accounts: _ignored, ...base } = (cfg.channels?.discord ?? {}) as DiscordAccountConfig & {
     accounts?: unknown;
   };
@@ -107,7 +107,7 @@ export function createDiscordActionGate(params: {
 }
 
 export function resolveDiscordAccount(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
 }): ResolvedDiscordAccount {
   const accountId = normalizeAccountId(params.accountId);
@@ -126,7 +126,7 @@ export function resolveDiscordAccount(params: {
   };
 }
 
-export function listEnabledDiscordAccounts(cfg: MoltbotConfig): ResolvedDiscordAccount[] {
+export function listEnabledDiscordAccounts(cfg: OpenClawConfig): ResolvedDiscordAccount[] {
   return listDiscordAccountIds(cfg)
     .map((accountId) => resolveDiscordAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

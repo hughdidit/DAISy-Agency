@@ -7,9 +7,9 @@ import { LEGACY_CANVAS_HANDLER_NAME } from "../compat/legacy-names.js";
 import { detectMime } from "../media/mime.js";
 import { resolveFileWithinRoot } from "./file-resolver.js";
 
-export const A2UI_PATH = "/__moltbot__/a2ui";
-export const CANVAS_HOST_PATH = "/__moltbot__/canvas";
-export const CANVAS_WS_PATH = "/__moltbot/ws";
+export const A2UI_PATH = "/__openclaw__/a2ui";
+export const CANVAS_HOST_PATH = "/__openclaw__/canvas";
+export const CANVAS_WS_PATH = "/__openclaw/ws";
 
 let cachedA2uiRootReal: string | null | undefined;
 let resolvingA2uiRoot: Promise<string | null> | null = null;
@@ -130,7 +130,7 @@ export function injectCanvasLiveReload(html: string): string {
   // Works on:
   // - iOS: window.webkit.messageHandlers.(current|legacy)CanvasA2UIAction.postMessage(...)
   // - Android: window.(current|legacy)CanvasA2UIAction.postMessage(...)
-  const handlerNames = ["moltbotCanvasA2UIAction", "${legacyHandlerName}"];
+  const handlerNames = ["openclawCanvasA2UIAction", "${legacyHandlerName}"];
   function postToNode(payload) {
     try {
       const raw = typeof payload === "string" ? payload : JSON.stringify(payload);
@@ -157,13 +157,13 @@ export function injectCanvasLiveReload(html: string): string {
     const action = { ...userAction, id };
     return postToNode({ userAction: action });
   }
-  globalThis.Moltbot = globalThis.Moltbot ?? {};
-  globalThis.Moltbot.postMessage = postToNode;
-  globalThis.Moltbot.sendUserAction = sendUserAction;
-  globalThis.moltbotPostMessage = postToNode;
-  globalThis.moltbotSendUserAction = sendUserAction;
-  globalThis.clawdbotPostMessage = postToNode;
-  globalThis.clawdbotSendUserAction = sendUserAction;
+  globalThis.OpenClaw = globalThis.OpenClaw ?? {};
+  globalThis.OpenClaw.postMessage = postToNode;
+  globalThis.OpenClaw.sendUserAction = sendUserAction;
+  globalThis.openclawPostMessage = postToNode;
+  globalThis.openclawSendUserAction = sendUserAction;
+  globalThis.openclawPostMessage = postToNode;
+  globalThis.openclawSendUserAction = sendUserAction;
 
   try {
     const cap = new URLSearchParams(location.search).get("oc_cap");

@@ -7,7 +7,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 =======
@@ -134,7 +134,7 @@ function xmlEscapeAttr(value: string): string {
   return value.replace(/[<>&"']/g, (char) => XML_ESCAPE_MAP[char] ?? char);
 }
 
-function resolveFileLimits(cfg: MoltbotConfig) {
+function resolveFileLimits(cfg: OpenClawConfig) {
   const files = cfg.gateway?.http?.endpoints?.responses?.files;
   return {
     allowUrl: files?.allowUrl ?? true,
@@ -410,7 +410,7 @@ async function extractFileBlocks(params: {
 
 export async function applyMediaUnderstanding(params: {
   ctx: MsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir?: string;
   providers?: Record<string, MediaUnderstandingProvider>;
   activeModel?: ActiveMediaModel;

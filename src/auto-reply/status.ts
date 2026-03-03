@@ -48,7 +48,7 @@ import { derivePromptTokens, normalizeUsage, type UsageLike } from "../agents/us
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -118,7 +118,7 @@ import type { MediaUnderstandingDecision } from "../media-understanding/types.js
 =======
 >>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
 
-type AgentConfig = Partial<NonNullable<NonNullable<MoltbotConfig["agents"]>["defaults"]>>;
+type AgentConfig = Partial<NonNullable<NonNullable<OpenClawConfig["agents"]>["defaults"]>>;
 =======
 import type { CommandCategory } from "./commands-registry.types.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./thinking.js";
@@ -153,7 +153,7 @@ type QueueStatus = {
 };
 
 type StatusArgs = {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agent: AgentConfig;
   sessionEntry?: SessionEntry;
   sessionKey?: string;
@@ -278,7 +278,7 @@ const readUsageFromSessionLog = (
       model?: string;
     }
   | undefined => {
-  // Transcripts are stored at the session file path (fallback: ~/.clawdbot/sessions/<SessionId>.jsonl)
+  // Transcripts are stored at the session file path (fallback: ~/.openclaw/sessions/<SessionId>.jsonl)
   if (!sessionId) return undefined;
   const logPath = resolveSessionFilePath(sessionId, sessionEntry);
 =======
@@ -442,7 +442,7 @@ const formatMediaUnderstandingLine = (decisions?: ReadonlyArray<MediaUnderstandi
 };
 
 const formatVoiceModeLine = (
-  config?: MoltbotConfig,
+  config?: OpenClawConfig,
   sessionEntry?: SessionEntry,
 ): string | null => {
   if (!config) {
@@ -493,7 +493,7 @@ export function buildStatusMessage(args: StatusArgs): string {
       agents: {
         defaults: args.agent ?? {},
       },
-    } as MoltbotConfig,
+    } as OpenClawConfig,
     defaultProvider: DEFAULT_PROVIDER,
     defaultModel: DEFAULT_MODEL,
   });
@@ -710,7 +710,7 @@ export function buildStatusMessage(args: StatusArgs): string {
       } (${fallbackState.reason ?? "selected model unavailable"})`
     : null;
   const commit = resolveCommitHash();
-  const versionLine = `🦞 Moltbot ${VERSION}${commit ? ` (${commit})` : ""}`;
+  const versionLine = `🦞 OpenClaw ${VERSION}${commit ? ` (${commit})` : ""}`;
   const usagePair = formatUsagePair(inputTokens, outputTokens);
   const cacheLine = formatCacheLine(inputTokens, cacheRead, cacheWrite);
   const costLine = costLabel ? `💵 Cost: ${costLabel}` : null;
@@ -775,7 +775,7 @@ function groupCommandsByCategory(
   return grouped;
 }
 
-export function buildHelpMessage(cfg?: MoltbotConfig): string {
+export function buildHelpMessage(cfg?: OpenClawConfig): string {
   const lines = ["ℹ️ Help", ""];
 
   lines.push("Session");
@@ -896,7 +896,7 @@ function formatCommandList(items: CommandsListItem[]): string {
 }
 
 export function buildCommandsMessage(
-  cfg?: MoltbotConfig,
+  cfg?: OpenClawConfig,
   skillCommands?: SkillCommandSpec[],
   options?: CommandsMessageOptions,
 ): string {
@@ -905,7 +905,7 @@ export function buildCommandsMessage(
 }
 
 export function buildCommandsMessagePaginated(
-  cfg?: MoltbotConfig,
+  cfg?: OpenClawConfig,
   skillCommands?: SkillCommandSpec[],
   options?: CommandsMessageOptions,
 ): CommandsMessageResult {

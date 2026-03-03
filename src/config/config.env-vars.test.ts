@@ -10,10 +10,10 @@ import type { OpenClawConfig } from "./types.js";
 describe("config env vars", () => {
   it("applies env vars from env block when missing", async () => {
     await withTempHome(async (home) => {
-      const configDir = path.join(home, ".clawdbot");
+      const configDir = path.join(home, ".openclaw");
       await fs.mkdir(configDir, { recursive: true });
       await fs.writeFile(
-        path.join(configDir, "moltbot.json"),
+        path.join(configDir, "openclaw.json"),
         JSON.stringify(
           {
             env: { vars: { OPENROUTER_API_KEY: "config-key" } },
@@ -34,10 +34,10 @@ describe("config env vars", () => {
 
   it("does not override existing env vars", async () => {
     await withTempHome(async (home) => {
-      const configDir = path.join(home, ".clawdbot");
+      const configDir = path.join(home, ".openclaw");
       await fs.mkdir(configDir, { recursive: true });
       await fs.writeFile(
-        path.join(configDir, "moltbot.json"),
+        path.join(configDir, "openclaw.json"),
         JSON.stringify(
           {
             env: { vars: { OPENROUTER_API_KEY: "config-key" } },
@@ -58,10 +58,10 @@ describe("config env vars", () => {
 
   it("applies env vars from env.vars when missing", async () => {
     await withTempHome(async (home) => {
-      const configDir = path.join(home, ".clawdbot");
+      const configDir = path.join(home, ".openclaw");
       await fs.mkdir(configDir, { recursive: true });
       await fs.writeFile(
-        path.join(configDir, "moltbot.json"),
+        path.join(configDir, "openclaw.json"),
         JSON.stringify(
           {
             env: { vars: { GROQ_API_KEY: "gsk-config" } },

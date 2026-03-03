@@ -4,9 +4,9 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_FILE="$ROOT_DIR/docker-compose.yml"
 EXTRA_COMPOSE_FILE="$ROOT_DIR/docker-compose.extra.yml"
-IMAGE_NAME="${CLAWDBOT_IMAGE:-moltbot:local}"
-EXTRA_MOUNTS="${CLAWDBOT_EXTRA_MOUNTS:-}"
-HOME_VOLUME_NAME="${CLAWDBOT_HOME_VOLUME:-}"
+IMAGE_NAME="${OPENCLAW_IMAGE:-openclaw:local}"
+EXTRA_MOUNTS="${OPENCLAW_EXTRA_MOUNTS:-}"
+HOME_VOLUME_NAME="${OPENCLAW_HOME_VOLUME:-}"
 
 fail() {
   echo "ERROR: $*" >&2
@@ -64,16 +64,16 @@ if ! docker compose version >/dev/null 2>&1; then
   exit 1
 fi
 
-mkdir -p "${CLAWDBOT_CONFIG_DIR:-$HOME/.clawdbot}"
-mkdir -p "${CLAWDBOT_WORKSPACE_DIR:-$HOME/clawd}"
+mkdir -p "${OPENCLAW_CONFIG_DIR:-$HOME/.openclaw}"
+mkdir -p "${OPENCLAW_WORKSPACE_DIR:-$HOME/clawd}"
 
-export CLAWDBOT_CONFIG_DIR="${CLAWDBOT_CONFIG_DIR:-$HOME/.clawdbot}"
-export CLAWDBOT_WORKSPACE_DIR="${CLAWDBOT_WORKSPACE_DIR:-$HOME/clawd}"
-export CLAWDBOT_GATEWAY_PORT="${CLAWDBOT_GATEWAY_PORT:-18789}"
-export CLAWDBOT_BRIDGE_PORT="${CLAWDBOT_BRIDGE_PORT:-18790}"
-export CLAWDBOT_GATEWAY_BIND="${CLAWDBOT_GATEWAY_BIND:-lan}"
-export CLAWDBOT_IMAGE="$IMAGE_NAME"
-export CLAWDBOT_DOCKER_APT_PACKAGES="${CLAWDBOT_DOCKER_APT_PACKAGES:-}"
+export OPENCLAW_CONFIG_DIR="${OPENCLAW_CONFIG_DIR:-$HOME/.openclaw}"
+export OPENCLAW_WORKSPACE_DIR="${OPENCLAW_WORKSPACE_DIR:-$HOME/clawd}"
+export OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-18789}"
+export OPENCLAW_BRIDGE_PORT="${OPENCLAW_BRIDGE_PORT:-18790}"
+export OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-lan}"
+export OPENCLAW_IMAGE="$IMAGE_NAME"
+export OPENCLAW_DOCKER_APT_PACKAGES="${OPENCLAW_DOCKER_APT_PACKAGES:-}"
 =======
 # Seed device-identity parent eagerly for Docker Desktop/Windows bind mounts
 # that reject creating new subdirectories from inside the container.
@@ -87,18 +87,18 @@ mkdir -p "$OPENCLAW_CONFIG_DIR/agents/main/agent"
 mkdir -p "$OPENCLAW_CONFIG_DIR/agents/main/sessions"
 >>>>>>> a262a3ea0 (fix(docker): ensure agent directory permissions in docker-setup.sh (#28841))
 
-if [[ -z "${CLAWDBOT_GATEWAY_TOKEN:-}" ]]; then
+if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
   if command -v openssl >/dev/null 2>&1; then
-    CLAWDBOT_GATEWAY_TOKEN="$(openssl rand -hex 32)"
+    OPENCLAW_GATEWAY_TOKEN="$(openssl rand -hex 32)"
   else
-    CLAWDBOT_GATEWAY_TOKEN="$(python3 - <<'PY'
+    OPENCLAW_GATEWAY_TOKEN="$(python3 - <<'PY'
 import secrets
 print(secrets.token_hex(32))
 PY
 )"
   fi
 fi
-export CLAWDBOT_GATEWAY_TOKEN
+export OPENCLAW_GATEWAY_TOKEN
 
 COMPOSE_FILES=("$COMPOSE_FILE")
 COMPOSE_ARGS=()
@@ -113,14 +113,14 @@ write_extra_compose() {
 
   cat >"$EXTRA_COMPOSE_FILE" <<'YAML'
 services:
-  moltbot-gateway:
+  openclaw-gateway:
     volumes:
 YAML
 
   if [[ -n "$home_volume" ]]; then
     printf '      - %s:/home/node\n' "$home_volume" >>"$EXTRA_COMPOSE_FILE"
-    printf '      - %s:/home/node/.clawdbot\n' "$CLAWDBOT_CONFIG_DIR" >>"$EXTRA_COMPOSE_FILE"
-    printf '      - %s:/home/node/clawd\n' "$CLAWDBOT_WORKSPACE_DIR" >>"$EXTRA_COMPOSE_FILE"
+    printf '      - %s:/home/node/.openclaw\n' "$OPENCLAW_CONFIG_DIR" >>"$EXTRA_COMPOSE_FILE"
+    printf '      - %s:/home/node/clawd\n' "$OPENCLAW_WORKSPACE_DIR" >>"$EXTRA_COMPOSE_FILE"
   fi
 
   for mount in "$@"; do
@@ -129,14 +129,14 @@ YAML
   done
 
   cat >>"$EXTRA_COMPOSE_FILE" <<'YAML'
-  moltbot-cli:
+  openclaw-cli:
     volumes:
 YAML
 
   if [[ -n "$home_volume" ]]; then
     printf '      - %s:/home/node\n' "$home_volume" >>"$EXTRA_COMPOSE_FILE"
-    printf '      - %s:/home/node/.clawdbot\n' "$CLAWDBOT_CONFIG_DIR" >>"$EXTRA_COMPOSE_FILE"
-    printf '      - %s:/home/node/clawd\n' "$CLAWDBOT_WORKSPACE_DIR" >>"$EXTRA_COMPOSE_FILE"
+    printf '      - %s:/home/node/.openclaw\n' "$OPENCLAW_CONFIG_DIR" >>"$EXTRA_COMPOSE_FILE"
+    printf '      - %s:/home/node/clawd\n' "$OPENCLAW_WORKSPACE_DIR" >>"$EXTRA_COMPOSE_FILE"
   fi
 
   for mount in "$@"; do
@@ -221,21 +221,21 @@ upsert_env() {
 }
 
 upsert_env "$ENV_FILE" \
-  CLAWDBOT_CONFIG_DIR \
-  CLAWDBOT_WORKSPACE_DIR \
-  CLAWDBOT_GATEWAY_PORT \
-  CLAWDBOT_BRIDGE_PORT \
-  CLAWDBOT_GATEWAY_BIND \
-  CLAWDBOT_GATEWAY_TOKEN \
-  CLAWDBOT_IMAGE \
-  CLAWDBOT_EXTRA_MOUNTS \
-  CLAWDBOT_HOME_VOLUME \
-  CLAWDBOT_DOCKER_APT_PACKAGES
+  OPENCLAW_CONFIG_DIR \
+  OPENCLAW_WORKSPACE_DIR \
+  OPENCLAW_GATEWAY_PORT \
+  OPENCLAW_BRIDGE_PORT \
+  OPENCLAW_GATEWAY_BIND \
+  OPENCLAW_GATEWAY_TOKEN \
+  OPENCLAW_IMAGE \
+  OPENCLAW_EXTRA_MOUNTS \
+  OPENCLAW_HOME_VOLUME \
+  OPENCLAW_DOCKER_APT_PACKAGES
 
 <<<<<<< HEAD
 echo "==> Building Docker image: $IMAGE_NAME"
 docker build \
-  --build-arg "CLAWDBOT_DOCKER_APT_PACKAGES=${CLAWDBOT_DOCKER_APT_PACKAGES}" \
+  --build-arg "OPENCLAW_DOCKER_APT_PACKAGES=${OPENCLAW_DOCKER_APT_PACKAGES}" \
   -t "$IMAGE_NAME" \
   -f "$ROOT_DIR/Dockerfile" \
   "$ROOT_DIR"
@@ -283,33 +283,33 @@ echo "==> Onboarding (interactive)"
 echo "When prompted:"
 echo "  - Gateway bind: lan"
 echo "  - Gateway auth: token"
-echo "  - Gateway token: $CLAWDBOT_GATEWAY_TOKEN"
+echo "  - Gateway token: $OPENCLAW_GATEWAY_TOKEN"
 echo "  - Tailscale exposure: Off"
 echo "  - Install Gateway daemon: No"
 echo ""
-docker compose "${COMPOSE_ARGS[@]}" run --rm moltbot-cli onboard --no-install-daemon
+docker compose "${COMPOSE_ARGS[@]}" run --rm openclaw-cli onboard --no-install-daemon
 
 echo ""
 echo "==> Provider setup (optional)"
 echo "WhatsApp (QR):"
-echo "  ${COMPOSE_HINT} run --rm moltbot-cli providers login"
+echo "  ${COMPOSE_HINT} run --rm openclaw-cli providers login"
 echo "Telegram (bot token):"
-echo "  ${COMPOSE_HINT} run --rm moltbot-cli providers add --provider telegram --token <token>"
+echo "  ${COMPOSE_HINT} run --rm openclaw-cli providers add --provider telegram --token <token>"
 echo "Discord (bot token):"
-echo "  ${COMPOSE_HINT} run --rm moltbot-cli providers add --provider discord --token <token>"
+echo "  ${COMPOSE_HINT} run --rm openclaw-cli providers add --provider discord --token <token>"
 echo "Docs: https://docs.molt.bot/providers"
 
 echo ""
 echo "==> Starting gateway"
-docker compose "${COMPOSE_ARGS[@]}" up -d moltbot-gateway
+docker compose "${COMPOSE_ARGS[@]}" up -d openclaw-gateway
 
 echo ""
 echo "Gateway running with host port mapping."
 echo "Access from tailnet devices via the host's tailnet IP."
-echo "Config: $CLAWDBOT_CONFIG_DIR"
-echo "Workspace: $CLAWDBOT_WORKSPACE_DIR"
-echo "Token: $CLAWDBOT_GATEWAY_TOKEN"
+echo "Config: $OPENCLAW_CONFIG_DIR"
+echo "Workspace: $OPENCLAW_WORKSPACE_DIR"
+echo "Token: $OPENCLAW_GATEWAY_TOKEN"
 echo ""
 echo "Commands:"
-echo "  ${COMPOSE_HINT} logs -f moltbot-gateway"
-echo "  ${COMPOSE_HINT} exec moltbot-gateway node dist/index.js health --token \"$CLAWDBOT_GATEWAY_TOKEN\""
+echo "  ${COMPOSE_HINT} logs -f openclaw-gateway"
+echo "  ${COMPOSE_HINT} exec openclaw-gateway node dist/index.js health --token \"$OPENCLAW_GATEWAY_TOKEN\""

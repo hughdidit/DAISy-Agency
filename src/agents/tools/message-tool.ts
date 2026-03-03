@@ -43,7 +43,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { BLUEBUBBLES_GROUP_ACTIONS } from "../../channels/plugins/bluebubbles-actions.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -507,7 +507,7 @@ const MessageToolSchema = buildMessageToolSchemaFromActions(AllMessageActions, {
 type MessageToolOptions = {
   agentAccountId?: string;
   agentSessionKey?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   currentChannelId?: string;
   currentChannelProvider?: string;
   currentThreadTs?: string;
@@ -518,7 +518,7 @@ type MessageToolOptions = {
   requireExplicitTarget?: boolean;
 };
 
-function buildMessageToolSchema(cfg: MoltbotConfig) {
+function buildMessageToolSchema(cfg: OpenClawConfig) {
   const actions = listChannelMessageActions(cfg);
   const includeButtons = supportsChannelMessageButtons(cfg);
   const includeCards = supportsChannelMessageCards(cfg);
@@ -565,7 +565,7 @@ function filterActionsForContext(params: {
 }
 
 function buildMessageToolDescription(options?: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   currentChannel?: string;
   currentChannelId?: string;
 }): string {

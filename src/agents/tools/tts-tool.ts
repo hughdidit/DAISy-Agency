@@ -10,7 +10,7 @@ import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../../config/config.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -49,7 +49,7 @@ const TtsToolSchema = Type.Object({
 });
 
 export function createTtsTool(opts?: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentChannel?: GatewayMessageChannel;
 }): AnyAgentTool {
   return {

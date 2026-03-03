@@ -11,7 +11,7 @@ import {
   resolveEnvApiKey,
 } from "../../agents/model-auth.js";
 import { normalizeProviderId } from "../../agents/model-selection.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -32,7 +32,7 @@ export type ModelAuthDetailMode = "compact" | "verbose";
 
 export const resolveAuthLabel = async (
   provider: string,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   modelsPath: string,
   agentDir?: string,
   mode: ModelAuthDetailMode = "compact",
@@ -201,7 +201,7 @@ export const formatAuthLabel = (auth: { label: string; source: string }) => {
 export const resolveProfileOverride = (params: {
   rawProfile?: string;
   provider: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir?: string;
 }): { profileId?: string; error?: string } => {
   const raw = params.rawProfile?.trim();

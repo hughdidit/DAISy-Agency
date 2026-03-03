@@ -24,8 +24,8 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 import "./test-helpers/fast-core-tools.js";
-<<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-announces-agent-wait-lifecycle-events.test.ts
-import { createMoltbotTools } from "./moltbot-tools.js";
+<<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-announces-agent-wait-lifecycle-events.test.ts
+import { createOpenClawTools } from "./openclaw-tools.js";
 =======
 import { beforeEach, describe, expect, it } from "vitest";
 >>>>>>> 5f4dda6c7 (fix(test): remove unused vitest imports)
@@ -38,7 +38,7 @@ import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:):src/agents/openclaw-tools.subagents.sessions-spawn-announces-agent-wait-lifecycle-events.test.ts
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
-describe("moltbot-tools: subagents", () => {
+describe("openclaw-tools: subagents", () => {
 =======
 import "./test-helpers/fast-core-tools.js";
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
@@ -150,7 +150,7 @@ describe("openclaw-tools: subagents", () => {
       return {};
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     }).find((candidate) => candidate.name === "sessions_spawn");

@@ -6,7 +6,7 @@ import type { WebhookRequestBody } from "@line/bot-sdk";
 <<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { LineChannelData, ResolvedLineAccount } from "./types.js";
@@ -118,7 +118,7 @@ export interface MonitorLineProviderOptions {
   channelAccessToken: string;
   channelSecret: string;
   accountId?: string;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   runtime: RuntimeEnv;
   abortSignal?: AbortSignal;
   webhookUrl?: string;

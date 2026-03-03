@@ -54,14 +54,14 @@ enum AppLogLevel: String, CaseIterable, Identifiable {
     }
 }
 
-enum MoltbotLogging {
+enum OpenClawLogging {
     private static let labelSeparator = "::"
 
     private static let didBootstrap: Void = {
         LoggingSystem.bootstrap { label in
             let (subsystem, category) = Self.parseLabel(label)
-            let osHandler = MoltbotOSLogHandler(subsystem: subsystem, category: category)
-            let fileHandler = MoltbotFileLogHandler(label: label)
+            let osHandler = OpenClawOSLogHandler(subsystem: subsystem, category: category)
+            let fileHandler = OpenClawFileLogHandler(label: label)
             return MultiplexLogHandler([osHandler, fileHandler])
         }
     }()
@@ -76,7 +76,7 @@ enum MoltbotLogging {
 
     static func parseLabel(_ label: String) -> (String, String) {
         guard let range = label.range(of: labelSeparator) else {
-            return ("bot.molt", label)
+            return ("ai.openclaw", label)
         }
         let subsystem = String(label[..<range.lowerBound])
         let category = String(label[range.upperBound...])
@@ -86,8 +86,8 @@ enum MoltbotLogging {
 
 extension Logging.Logger {
     init(subsystem: String, category: String) {
-        MoltbotLogging.bootstrapIfNeeded()
-        let label = MoltbotLogging.makeLabel(subsystem: subsystem, category: category)
+        OpenClawLogging.bootstrapIfNeeded()
+        let label = OpenClawLogging.makeLabel(subsystem: subsystem, category: category)
         self.init(label: label)
     }
 }
@@ -98,7 +98,7 @@ extension Logger.Message.StringInterpolation {
     }
 }
 
-struct MoltbotOSLogHandler: LogHandler {
+struct OpenClawOSLogHandler: LogHandler {
     private let osLogger: os.Logger
     var metadata: Logger.Metadata = [:]
 
@@ -176,7 +176,7 @@ struct MoltbotOSLogHandler: LogHandler {
     }
 }
 
-struct MoltbotFileLogHandler: LogHandler {
+struct OpenClawFileLogHandler: LogHandler {
     let label: String
     var metadata: Logger.Metadata = [:]
 
@@ -200,7 +200,7 @@ struct MoltbotFileLogHandler: LogHandler {
         line: UInt)
     {
         guard AppLogSettings.fileLoggingEnabled() else { return }
-        let (subsystem, category) = MoltbotLogging.parseLabel(self.label)
+        let (subsystem, category) = OpenClawLogging.parseLabel(self.label)
         var fields: [String: String] = [
             "subsystem": subsystem,
             "category": category,

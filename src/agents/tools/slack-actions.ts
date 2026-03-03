@@ -1,7 +1,7 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> c9684a267 (Slack: support Block Kit blocks in sendMessage actions)
 import { resolveSlackAccount } from "../../slack/accounts.js";
@@ -106,7 +106,7 @@ function readSlackBlocksParam(params: Record<string, unknown>) {
 
 export async function handleSlackAction(
   params: Record<string, unknown>,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   context?: SlackActionContext,
 ): Promise<AgentToolResult<unknown>> {
   const resolveChannelId = () =>

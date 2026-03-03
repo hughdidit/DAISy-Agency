@@ -8,7 +8,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { ConfiguredEntry } from "./list.types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -28,7 +28,7 @@ import type { ConfiguredEntry } from "./list.types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, modelKey } from "./shared.js";
 
-export function resolveConfiguredEntries(cfg: MoltbotConfig) {
+export function resolveConfiguredEntries(cfg: OpenClawConfig) {
   const resolvedDefault = resolveConfiguredModelRef({
     cfg,
     defaultProvider: DEFAULT_PROVIDER,

@@ -78,7 +78,7 @@ describe("memory index", () => {
 <<<<<<< HEAD
     failEmbeddings = false;
 <<<<<<< HEAD
-    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
+    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-"));
     workspaceDir = path.join(fixtureRoot, `case-${fixtureCount++}`);
     await fs.mkdir(workspaceDir, { recursive: true });
 >>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)

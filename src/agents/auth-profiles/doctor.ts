@@ -3,7 +3,7 @@
 <<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { AuthProfileStore } from "./types.js";
@@ -28,7 +28,7 @@ import { suggestOAuthProfileIdForLegacyDefault } from "./repair.js";
 import type { AuthProfileStore } from "./types.js";
 
 export function formatAuthDoctorHint(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   store: AuthProfileStore;
   provider: string;
   profileId?: string;
@@ -64,6 +64,6 @@ export function formatAuthDoctorHint(params: {
     }`,
     `- auth store oauth profiles: ${storeOauthProfiles || "(none)"}`,
     `- suggested profile: ${suggested}`,
-    `Fix: run "${formatCliCommand("moltbot doctor --yes")}"`,
+    `Fix: run "${formatCliCommand("openclaw doctor --yes")}"`,
   ].join("\n");
 }

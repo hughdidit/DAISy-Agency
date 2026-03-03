@@ -6,7 +6,7 @@ import path from "node:path";
 <<<<<<< HEAD
 
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -25,7 +25,7 @@ export type RemovalResult = {
   skipped?: boolean;
 };
 
-export function collectWorkspaceDirs(cfg: MoltbotConfig | undefined): string[] {
+export function collectWorkspaceDirs(cfg: OpenClawConfig | undefined): string[] {
   const dirs = new Set<string>();
   const defaults = cfg?.agents?.defaults;
   if (typeof defaults?.workspace === "string" && defaults.workspace.trim()) {

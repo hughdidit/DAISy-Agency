@@ -81,7 +81,7 @@ export type TalkConfig = {
 export type GatewayControlUiConfig = {
   /** If false, the Gateway will not serve the Control UI (default /). */
   enabled?: boolean;
-  /** Optional base path prefix for the Control UI (e.g. "/moltbot"). */
+  /** Optional base path prefix for the Control UI (e.g. "/openclaw"). */
   basePath?: string;
   /** Optional filesystem root for Control UI assets (defaults to dist/control-ui). */
   root?: string;
@@ -95,7 +95,7 @@ export type GatewayAuthMode = "token" | "password" | "trusted-proxy";
 
 /**
  * Configuration for trusted reverse proxy authentication.
- * Used when Clawdbot runs behind an identity-aware proxy (Pomerium, Caddy + OAuth, etc.)
+ * Used when OpenClaw runs behind an identity-aware proxy (Pomerium, Caddy + OAuth, etc.)
  * that handles authentication and passes user identity via headers.
  */
 export type GatewayTrustedProxyConfig = {

@@ -157,7 +157,7 @@ extension ConfigSettings {
             .font(.title3.weight(.semibold))
         Text(self.isNixMode
             ? "This tab is read-only in Nix mode. Edit config via Nix and rebuild."
-            : "Edit ~/.clawdbot/moltbot.json using the schema-driven form.")
+            : "Edit ~/.clawdai/openclawbot.json using the schema-driven form.")
             .font(.callout)
             .foregroundStyle(.secondary)
     }

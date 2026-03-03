@@ -2,7 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import { normalizeChatType } from "../channels/chat-type.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -64,7 +64,7 @@ function deriveChatTypeFromKey(key?: string): SessionChatType | undefined {
 }
 
 export function resolveSendPolicy(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   entry?: SessionEntry;
   sessionKey?: string;
   channel?: string;

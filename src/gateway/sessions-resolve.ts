@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { loadSessionStore } from "../config/sessions.js";
 import { parseSessionLabel } from "../sessions/session-label.js";
 import {
@@ -17,7 +17,7 @@ import {
 export type SessionsResolveResult = { ok: true; key: string } | { ok: false; error: ErrorShape };
 
 export function resolveSessionKeyFromResolveParams(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   p: SessionsResolveParams;
 }): Promise<SessionsResolveResult> {
   const { cfg, p } = params;

@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveSignalAccount } from "./accounts.js";
 
 export type SignalReactionLevel = ReactionLevel;
@@ -14,7 +14,7 @@ export type ResolvedSignalReactionLevel = ResolvedReactionLevel;
  * - "extensive": Agent can react liberally
  */
 export function resolveSignalReactionLevel(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string;
 }): ResolvedSignalReactionLevel {
   const account = resolveSignalAccount({

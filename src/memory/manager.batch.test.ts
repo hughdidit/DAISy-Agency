@@ -165,7 +165,7 @@ describe("memory indexing with OpenAI batches", () => {
       return realSetTimeout(handler, delay, ...args);
     }) as typeof setTimeout);
 <<<<<<< HEAD
-    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-batch-"));
+    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-batch-"));
     workspaceDir = path.join(fixtureRoot, `case-${++caseId}`);
 >>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
     indexPath = path.join(workspaceDir, "index.sqlite");

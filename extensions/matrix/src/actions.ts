@@ -6,7 +6,7 @@ import {
   type ChannelMessageActionContext,
   type ChannelMessageActionName,
   type ChannelToolSend,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 =======
 import type { CoreConfig } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))

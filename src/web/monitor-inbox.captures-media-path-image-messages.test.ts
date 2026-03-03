@@ -20,7 +20,7 @@ describe("web monitor inbox", () => {
       created: true,
     });
     resetWebInboundDedupe();
-    authDir = fsSync.mkdtempSync(path.join(os.tmpdir(), "moltbot-auth-"));
+    authDir = fsSync.mkdtempSync(path.join(os.tmpdir(), "openclaw-auth-"));
   });
 
   afterEach(() => {
@@ -126,7 +126,7 @@ describe("web monitor inbox", () => {
   });
 
   it("logs inbound bodies to file", async () => {
-    const logPath = path.join(os.tmpdir(), `moltbot-log-test-${crypto.randomUUID()}.log`);
+    const logPath = path.join(os.tmpdir(), `openclaw-log-test-${crypto.randomUUID()}.log`);
     setLoggerOverride({ level: "trace", file: logPath });
 
     const onMessage = vi.fn();

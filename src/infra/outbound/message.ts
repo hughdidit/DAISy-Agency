@@ -6,7 +6,7 @@ import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/ind
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ChannelId } from "../../channels/plugins/types.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -76,7 +76,7 @@ type MessageSendParams = {
   dryRun?: boolean;
   bestEffort?: boolean;
   deps?: OutboundSendDeps;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   gateway?: MessageGatewayOptions;
   idempotencyKey?: string;
   mirror?: {
@@ -112,7 +112,7 @@ type MessagePollParams = {
   silent?: boolean;
   isAnonymous?: boolean;
   dryRun?: boolean;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   gateway?: MessageGatewayOptions;
   idempotencyKey?: string;
 };

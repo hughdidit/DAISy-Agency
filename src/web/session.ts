@@ -104,7 +104,7 @@ export async function createWaSocket(
     version,
     logger,
     printQRInTerminal: false,
-    browser: ["moltbot", "cli", VERSION],
+    browser: ["openclaw", "cli", VERSION],
     syncFullHistory: false,
     markOnlineOnConnect: false,
   });
@@ -127,7 +127,7 @@ export async function createWaSocket(
           if (status === DisconnectReason.loggedOut) {
             console.error(
               danger(
-                `WhatsApp session logged out. Run: ${formatCliCommand("moltbot channels login")}`,
+                `WhatsApp session logged out. Run: ${formatCliCommand("openclaw channels login")}`,
               ),
             );
           }

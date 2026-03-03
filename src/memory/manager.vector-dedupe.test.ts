@@ -44,7 +44,7 @@ describe("memory vector dedupe", () => {
   }
 
   beforeEach(async () => {
-    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
+    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-"));
     indexPath = path.join(workspaceDir, "index.sqlite");
     await seedMemoryWorkspace(workspaceDir);
   });

@@ -31,7 +31,7 @@ import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -93,7 +93,7 @@ import type { ElevatedLevel, ReasoningLevel, ThinkLevel } from "./directives.js"
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 function resolveExecDefaults(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   sessionEntry?: SessionEntry;
   agentId?: string;
 }): { host: ExecHost; security: ExecSecurity; ask: ExecAsk; node?: string } {
@@ -122,7 +122,7 @@ function resolveExecDefaults(params: {
 }
 
 export async function handleDirectiveOnly(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   directives: InlineDirectives;
   sessionEntry: SessionEntry;
   sessionStore: Record<string, SessionEntry>;

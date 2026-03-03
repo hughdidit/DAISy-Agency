@@ -13,7 +13,7 @@ import { getChannelPlugin, listChannelPlugins } from "./index.js";
 import type { ChannelMessageActionContext, ChannelMessageActionName } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { getChannelPlugin, listChannelPlugins } from "./index.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
@@ -23,7 +23,7 @@ import type { ChannelMessageActionContext, ChannelMessageActionName } from "./ty
 import { getChannelPlugin, listChannelPlugins } from "./index.js";
 import type { ChannelMessageActionContext, ChannelMessageActionName } from "./types.js";
 
-export function listChannelMessageActions(cfg: MoltbotConfig): ChannelMessageActionName[] {
+export function listChannelMessageActions(cfg: OpenClawConfig): ChannelMessageActionName[] {
   const actions = new Set<ChannelMessageActionName>(["send", "broadcast"]);
   for (const plugin of listChannelPlugins()) {
     const list = plugin.actions?.listActions?.({ cfg });
@@ -37,7 +37,7 @@ export function listChannelMessageActions(cfg: MoltbotConfig): ChannelMessageAct
   return Array.from(actions);
 }
 
-export function supportsChannelMessageButtons(cfg: MoltbotConfig): boolean {
+export function supportsChannelMessageButtons(cfg: OpenClawConfig): boolean {
   for (const plugin of listChannelPlugins()) {
     if (plugin.actions?.supportsButtons?.({ cfg })) {
       return true;
@@ -46,7 +46,7 @@ export function supportsChannelMessageButtons(cfg: MoltbotConfig): boolean {
   return false;
 }
 
-export function supportsChannelMessageCards(cfg: MoltbotConfig): boolean {
+export function supportsChannelMessageCards(cfg: OpenClawConfig): boolean {
   for (const plugin of listChannelPlugins()) {
     if (plugin.actions?.supportsCards?.({ cfg })) {
       return true;

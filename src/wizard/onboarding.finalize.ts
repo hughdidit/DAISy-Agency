@@ -60,7 +60,7 @@ import {
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OnboardOptions } from "../commands/onboard-types.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
@@ -147,8 +147,8 @@ import type { WizardPrompter } from "./prompts.js";
 type FinalizeOnboardingOptions = {
   flow: WizardFlow;
   opts: OnboardOptions;
-  baseConfig: MoltbotConfig;
-  nextConfig: MoltbotConfig;
+  baseConfig: OpenClawConfig;
+  nextConfig: OpenClawConfig;
   workspaceDir: string;
   settings: GatewayWizardSettings;
   prompter: WizardPrompter;
@@ -459,9 +459,9 @@ export async function finalizeOnboardingWizard(
     await prompter.note(
       [
         "Gateway token: shared auth for the Gateway + Control UI.",
-        "Stored in: ~/.clawdbot/moltbot.json (gateway.auth.token) or CLAWDBOT_GATEWAY_TOKEN.",
-        "Web UI stores a copy in this browser's localStorage (moltbot.control.settings.v1).",
-        `Get the tokenized link anytime: ${formatCliCommand("moltbot dashboard --no-open")}`,
+        "Stored in: ~/.clawdai/openclawbot.json (gateway.auth.token) or OPENCLAW_GATEWAY_TOKEN.",
+        "Web UI stores a copy in this browser's localStorage (openclaw.control.settings.v1).",
+        `Get the tokenized link anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
       ].join("\n"),
       "Token",
     );
@@ -492,7 +492,7 @@ export async function finalizeOnboardingWizard(
       if (seededInBackground) {
         await prompter.note(
           `Web UI seeded in the background. Open later with: ${formatCliCommand(
-            "moltbot dashboard --no-open",
+            "openclaw dashboard --no-open",
           )}`,
           "Web UI",
         );
@@ -519,8 +519,8 @@ export async function finalizeOnboardingWizard(
         [
           `Dashboard link (with token): ${authedUrl}`,
           controlUiOpened
-            ? "Opened in your browser. Keep that tab to control Moltbot."
-            : "Copy/paste this URL in a browser on this machine to control Moltbot.",
+            ? "Opened in your browser. Keep that tab to control OpenClaw."
+            : "Copy/paste this URL in a browser on this machine to control OpenClaw.",
           controlUiOpenHint,
         ]
           .filter(Boolean)
@@ -529,7 +529,7 @@ export async function finalizeOnboardingWizard(
       );
     } else {
       await prompter.note(
-        `When you're ready: ${formatCliCommand("moltbot dashboard --no-open")}`,
+        `When you're ready: ${formatCliCommand("openclaw dashboard --no-open")}`,
         "Later",
       );
     }
@@ -579,8 +579,8 @@ export async function finalizeOnboardingWizard(
       [
         `Dashboard link (with token): ${authedUrl}`,
         controlUiOpened
-          ? "Opened in your browser. Keep that tab to control Moltbot."
-          : "Copy/paste this URL in a browser on this machine to control Moltbot.",
+          ? "Opened in your browser. Keep that tab to control OpenClaw."
+          : "Copy/paste this URL in a browser on this machine to control OpenClaw.",
         controlUiOpenHint,
       ]
         .filter(Boolean)
@@ -605,10 +605,10 @@ export async function finalizeOnboardingWizard(
       : [
           "If you want your agent to be able to search the web, you’ll need an API key.",
           "",
-          "Moltbot uses Brave Search for the `web_search` tool. Without a Brave Search API key, web search won’t work.",
+          "OpenClaw uses Brave Search for the `web_search` tool. Without a Brave Search API key, web search won’t work.",
           "",
           "Set it up interactively:",
-          `- Run: ${formatCliCommand("moltbot configure --section web")}`,
+          `- Run: ${formatCliCommand("openclaw configure --section web")}`,
           "- Enable web_search and paste your Brave Search API key",
           "",
           "Alternative: set BRAVE_API_KEY in the Gateway environment (no config changes).",
@@ -624,10 +624,10 @@ export async function finalizeOnboardingWizard(
 
   await prompter.outro(
     controlUiOpened
-      ? "Onboarding complete. Dashboard opened with your token; keep that tab to control Moltbot."
+      ? "Onboarding complete. Dashboard opened with your token; keep that tab to control OpenClaw."
       : seededInBackground
         ? "Onboarding complete. Web UI seeded in the background; open it anytime with the tokenized link above."
-        : "Onboarding complete. Use the tokenized dashboard link above to control Moltbot.",
+        : "Onboarding complete. Use the tokenized dashboard link above to control OpenClaw.",
   );
 
   return { launchedTui };

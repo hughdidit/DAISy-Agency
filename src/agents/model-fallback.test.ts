@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { AuthProfileStore } from "./auth-profiles.js";
 import { saveAuthProfileStore } from "./auth-profiles.js";
 import { AUTH_STORE_VERSION } from "./auth-profiles/constants.js";
@@ -12,7 +12,7 @@ import { isAnthropicBillingError } from "./live-auth-keys.js";
 import { runWithImageModelFallback, runWithModelFallback } from "./model-fallback.js";
 import { makeModelFallbackCfg } from "./test-helpers/model-fallback-config-fixture.js";
 
-function makeCfg(overrides: Partial<MoltbotConfig> = {}): MoltbotConfig {
+function makeCfg(overrides: Partial<OpenClawConfig> = {}): OpenClawConfig {
   return {
     agents: {
       defaults: {
@@ -23,7 +23,7 @@ function makeCfg(overrides: Partial<MoltbotConfig> = {}): MoltbotConfig {
       },
     },
     ...overrides,
-  } as MoltbotConfig;
+  } as OpenClawConfig;
 }
 
 function makeFallbacksOnlyCfg(): OpenClawConfig {
@@ -470,7 +470,7 @@ describe("runWithModelFallback", () => {
 
   it("skips providers when all profiles are in cooldown", async () => {
 <<<<<<< HEAD
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
     const provider = `cooldown-test-${crypto.randomUUID()}`;
     const profileId = `${provider}:default`;
 
@@ -538,7 +538,7 @@ describe("runWithModelFallback", () => {
   });
 
   it("does not skip when any profile is available", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
     const provider = `cooldown-mixed-${crypto.randomUUID()}`;
     const profileA = `${provider}:a`;
     const profileB = `${provider}:b`;
@@ -623,7 +623,7 @@ describe("runWithModelFallback", () => {
           },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const calls: Array<{ provider: string; model: string }> = [];
 
@@ -660,7 +660,7 @@ describe("runWithModelFallback", () => {
           },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const calls: Array<{ provider: string; model: string }> = [];
 

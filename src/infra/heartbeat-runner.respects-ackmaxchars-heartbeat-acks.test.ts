@@ -4,7 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as replyModule from "../auto-reply/reply.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import * as replyModule from "../auto-reply/reply.js";
 =======
@@ -185,11 +185,11 @@ describe("runHeartbeatOnce ack handling", () => {
   }
 
   it("respects ackMaxChars for heartbeat acks", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -237,11 +237,11 @@ describe("runHeartbeatOnce ack handling", () => {
   });
 
   it("sends HEARTBEAT_OK when visibility.showOk is true", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -324,11 +324,11 @@ describe("runHeartbeatOnce ack handling", () => {
   });
 
   it("skips heartbeat LLM calls when visibility disables all output", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -380,11 +380,11 @@ describe("runHeartbeatOnce ack handling", () => {
   });
 
   it("skips delivery for markup-wrapped HEARTBEAT_OK", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -429,14 +429,14 @@ describe("runHeartbeatOnce ack handling", () => {
   });
 
   it("does not regress updatedAt when restoring heartbeat sessions", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
       const originalUpdatedAt = 1000;
       const bumpedUpdatedAt = 2000;
 <<<<<<< HEAD
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -488,11 +488,11 @@ describe("runHeartbeatOnce ack handling", () => {
   });
 
   it("skips WhatsApp delivery when not linked or running", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -538,13 +538,13 @@ describe("runHeartbeatOnce ack handling", () => {
 
   it("passes through accountId for telegram heartbeats", async () => {
 <<<<<<< HEAD
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     const prevTelegramToken = process.env.TELEGRAM_BOT_TOKEN;
     process.env.TELEGRAM_BOT_TOKEN = "";
     try {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
     await withTempTelegramHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
       const cfg: OpenClawConfig = {
 >>>>>>> 9c5404d95 (refactor(test): dedupe telegram heartbeat test setup)
@@ -645,13 +645,13 @@ describe("runHeartbeatOnce ack handling", () => {
 
   it("does not pre-resolve telegram accountId (allows config-only account tokens)", async () => {
 <<<<<<< HEAD
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     const prevTelegramToken = process.env.TELEGRAM_BOT_TOKEN;
     process.env.TELEGRAM_BOT_TOKEN = "";
     try {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,

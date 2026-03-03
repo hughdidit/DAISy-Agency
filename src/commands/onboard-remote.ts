@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { GatewayBonjourBeacon } from "../infra/bonjour-discovery.js";
 import { discoverGatewayBeacons } from "../infra/bonjour-discovery.js";
 import { resolveWideAreaDiscoveryDomain } from "../infra/widearea-dns.js";
@@ -53,9 +53,9 @@ function validateGatewayWebSocketUrl(value: string): string | undefined {
 }
 
 export async function promptRemoteGatewayConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   prompter: WizardPrompter,
-): Promise<MoltbotConfig> {
+): Promise<OpenClawConfig> {
   let selectedBeacon: GatewayBonjourBeacon | null = null;
   let suggestedUrl = cfg.gateway?.remote?.url ?? DEFAULT_GATEWAY_URL;
 

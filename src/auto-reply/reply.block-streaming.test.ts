@@ -107,7 +107,7 @@ async function runTelegramReply(params: {
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 <<<<<<< HEAD
-  return withTempHomeBase(fn, { prefix: "moltbot-stream-" });
+  return withTempHomeBase(fn, { prefix: "openclaw-stream-" });
 =======
   return withTempHomeHarness("openclaw-stream-", async (home) => {
     await fs.mkdir(path.join(home, ".openclaw", "agents", "main", "sessions"), { recursive: true });

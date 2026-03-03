@@ -1,7 +1,7 @@
 import AVFAudio
 <<<<<<< HEAD
-import MoltbotKit
-import MoltbotProtocol
+import OpenClawKit
+import OpenClawProtocol
 import OpenClawKit
 import OpenClawProtocol
 >>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)

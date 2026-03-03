@@ -3,7 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { ClawdbotConfig, RuntimeEnv, HistoryEntry } from "openclaw/plugin-sdk";
+import type { OpenClawConfig, RuntimeEnv, HistoryEntry } from "openclaw/plugin-sdk";
 import * as Lark from "@larksuiteoapi/node-sdk";
 import * as http from "http";
 import type { ResolvedFeishuAccount } from "./types.js";
@@ -19,7 +19,7 @@ import * as Lark from "@larksuiteoapi/node-sdk";
 import * as http from "http";
 import * as Lark from "@larksuiteoapi/node-sdk";
 import {
-  type ClawdbotConfig,
+  type OpenClawConfig,
   type RuntimeEnv,
   type HistoryEntry,
   installRequestBodyLimitGuard,
@@ -42,7 +42,7 @@ import { createFeishuWSClient, createEventDispatcher } from "./client.js";
 import { probeFeishu } from "./probe.js";
 import type { ResolvedFeishuAccount } from "./types.js";
 =======
-import type { ClawdbotConfig, RuntimeEnv } from "openclaw/plugin-sdk";
+import type { OpenClawConfig, RuntimeEnv } from "openclaw/plugin-sdk";
 import { listEnabledFeishuAccounts, resolveFeishuAccount } from "./accounts.js";
 import {
   monitorSingleAccount,
@@ -59,7 +59,7 @@ import {
 >>>>>>> f46bd2e0c (refactor(feishu): split monitor startup and transport concerns)
 
 export type MonitorFeishuOpts = {
-  config?: ClawdbotConfig;
+  config?: OpenClawConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   accountId?: string;
@@ -87,7 +87,7 @@ async function fetchBotOpenId(account: ResolvedFeishuAccount): Promise<string | 
 function registerEventHandlers(
   eventDispatcher: Lark.EventDispatcher,
   context: {
-    cfg: ClawdbotConfig;
+    cfg: OpenClawConfig;
     accountId: string;
     runtime?: RuntimeEnv;
     chatHistories: Map<string, HistoryEntry[]>;
@@ -145,7 +145,7 @@ function registerEventHandlers(
 }
 
 type MonitorAccountParams = {
-  cfg: ClawdbotConfig;
+  cfg: OpenClawConfig;
   account: ResolvedFeishuAccount;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;

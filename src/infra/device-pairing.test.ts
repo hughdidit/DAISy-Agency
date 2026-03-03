@@ -116,7 +116,7 @@ describe("device pairing tokens", () => {
   });
 
   test("preserves existing token scopes when rotating without scopes", async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), "moltbot-device-pairing-"));
+    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
     const request = await requestDevicePairing(
       {
         deviceId: "device-1",

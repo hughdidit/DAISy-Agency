@@ -65,7 +65,7 @@ describe("runServiceRestart token drift", () => {
     service.restart.mockResolvedValue(undefined);
     vi.unstubAllEnvs();
     vi.stubEnv("OPENCLAW_GATEWAY_TOKEN", "");
-    vi.stubEnv("CLAWDBOT_GATEWAY_TOKEN", "");
+    vi.stubEnv("OPENCLAW_GATEWAY_TOKEN", "");
   });
 
   it("emits drift warning when enabled", async () => {

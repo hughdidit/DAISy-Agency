@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -25,7 +25,7 @@ export type GatewayMemoryProbe = {
 
 export async function checkGatewayHealth(params: {
   runtime: RuntimeEnv;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   timeoutMs?: number;
 }) {
   const gatewayDetails = buildGatewayConnectionDetails({ config: params.cfg });

@@ -145,8 +145,8 @@ describe("buildAgentSystemPrompt", () => {
       workspaceDir: "/tmp/clawd",
     });
 
-    expect(prompt).toContain("## Moltbot CLI Quick Reference");
-    expect(prompt).toContain("moltbot gateway restart");
+    expect(prompt).toContain("## OpenClaw CLI Quick Reference");
+    expect(prompt).toContain("openclaw gateway restart");
     expect(prompt).toContain("Do not invent commands");
   });
 
@@ -244,9 +244,9 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain(
       "- If exactly one skill clearly applies: read its SKILL.md at <location> with `Read`, then follow it.",
     );
-    expect(prompt).toContain("Moltbot docs: /tmp/clawd/docs");
+    expect(prompt).toContain("OpenClaw docs: /tmp/clawd/docs");
     expect(prompt).toContain(
-      "For Moltbot behavior, commands, config, or architecture: consult local docs first.",
+      "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
     );
   });
 
@@ -257,9 +257,9 @@ describe("buildAgentSystemPrompt", () => {
     });
 
     expect(prompt).toContain("## Documentation");
-    expect(prompt).toContain("Moltbot docs: /tmp/clawd/docs");
+    expect(prompt).toContain("OpenClaw docs: /tmp/clawd/docs");
     expect(prompt).toContain(
-      "For Moltbot behavior, commands, config, or architecture: consult local docs first.",
+      "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
     );
   });
 
@@ -319,10 +319,10 @@ describe("buildAgentSystemPrompt", () => {
 
   // The system prompt intentionally does NOT include the current date/time.
   // Only the timezone is included, to keep the prompt stable for caching.
-  // See: https://github.com/moltbot/moltbot/commit/66eec295b894bce8333886cfbca3b960c57c4946
+  // See: https://github.com/moltai/openclawbot/commit/66eec295b894bce8333886cfbca3b960c57c4946
   // Agents should use session_status or message timestamps to determine the date/time.
-  // Related: https://github.com/moltbot/moltbot/issues/1897
-  //          https://github.com/moltbot/moltbot/issues/3658
+  // Related: https://github.com/moltai/openclawbot/issues/1897
+  //          https://github.com/moltai/openclawbot/issues/3658
   it("does NOT include a date or time in the system prompt (cache stability)", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",
@@ -334,7 +334,7 @@ describe("buildAgentSystemPrompt", () => {
     // The prompt should contain the timezone but NOT the formatted date/time string.
     // This is intentional for prompt cache stability — the date/time was removed in
     // commit 66eec295b. If you're here because you want to add it back, please see
-    // https://github.com/moltbot/moltbot/issues/3658 for the preferred approach:
+    // https://github.com/moltai/openclawbot/issues/3658 for the preferred approach:
     // gateway-level timestamp injection into messages, not the system prompt.
     expect(prompt).toContain("Time zone: America/Chicago");
     expect(prompt).not.toContain("Monday, January 5th, 2026");
@@ -362,7 +362,7 @@ describe("buildAgentSystemPrompt", () => {
       toolNames: ["gateway", "exec"],
     });
 
-    expect(prompt).toContain("## Moltbot Self-Update");
+    expect(prompt).toContain("## OpenClaw Self-Update");
     expect(prompt).toContain("config.apply");
     expect(prompt).toContain("update.run");
   });

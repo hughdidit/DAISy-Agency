@@ -14,6 +14,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "MoltbotNodeAndroid"
+rootProject.name = "OpenClawNodeAndroid"
 include(":app")
 include(":benchmark")

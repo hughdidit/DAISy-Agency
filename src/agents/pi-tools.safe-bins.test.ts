@@ -2,12 +2,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { ExecApprovalsResolved } from "../infra/exec-approvals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import { createMoltbotCodingTools } from "./pi-tools.js";
+import { createOpenClawCodingTools } from "./pi-tools.js";
 import { captureEnv } from "../test-utils/env.js";
 =======
 import { captureEnv, withEnvAsync } from "../test-utils/env.js";
@@ -79,7 +79,7 @@ vi.mock("../infra/exec-approvals.js", async (importOriginal) => {
 });
 
 <<<<<<< HEAD
-describe("createMoltbotCodingTools safeBins", () => {
+describe("createOpenClawCodingTools safeBins", () => {
 type ExecToolResult = {
   content: Array<{ type: string; text?: string }>;
   details?: { status?: string };
@@ -166,8 +166,8 @@ describe("createOpenClawCodingTools safeBins", () => {
         });
         const text = result.content.find((content) => content.type === "text")?.text ?? "";
 
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-safe-bins-"));
-    const cfg: MoltbotConfig = {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-safe-bins-"));
+    const cfg: OpenClawConfig = {
       tools: {
         exec: {
           host: "gateway",
@@ -178,7 +178,7 @@ describe("createOpenClawCodingTools safeBins", () => {
       },
     };
 
-    const tools = createMoltbotCodingTools({
+    const tools = createOpenClawCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: tmpDir,

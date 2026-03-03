@@ -5,7 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 
 import { type Api, getEnvApiKey, type Model } from "@mariozechner/pi-ai";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { type Api, getEnvApiKey, type Model } from "@mariozechner/pi-ai";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -45,7 +45,7 @@ const AWS_SECRET_KEY_ENV = "AWS_SECRET_ACCESS_KEY";
 const AWS_PROFILE_ENV = "AWS_PROFILE";
 
 function resolveProviderConfig(
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   provider: string,
 ): ModelProviderConfig | undefined {
   const providers = cfg?.models?.providers ?? {};
@@ -67,7 +67,7 @@ function resolveProviderConfig(
 }
 
 export function getCustomProviderApiKey(
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   provider: string,
 ): string | undefined {
   const entry = resolveProviderConfig(cfg, provider);
@@ -75,7 +75,7 @@ export function getCustomProviderApiKey(
 }
 
 function resolveProviderAuthOverride(
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   provider: string,
 ): ModelProviderAuthMode | undefined {
   const entry = resolveProviderConfig(cfg, provider);
@@ -153,7 +153,7 @@ export type ResolvedProviderAuth = {
 
 export async function resolveApiKeyForProvider(params: {
   provider: string;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   profileId?: string;
   preferredProfile?: string;
   store?: AuthProfileStore;
@@ -246,7 +246,7 @@ export async function resolveApiKeyForProvider(params: {
     [
       `No API key found for provider "${provider}".`,
       `Auth store: ${authStorePath} (agentDir: ${resolvedAgentDir}).`,
-      `Configure auth for this agent (${formatCliCommand("moltbot agents add <id>")}) or copy auth-profiles.json from the main agentDir.`,
+      `Configure auth for this agent (${formatCliCommand("openclaw agents add <id>")}) or copy auth-profiles.json from the main agentDir.`,
     ].join(" "),
   );
 }
@@ -354,7 +354,7 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
 
 export function resolveModelAuthMode(
   provider?: string,
-  cfg?: MoltbotConfig,
+  cfg?: OpenClawConfig,
   store?: AuthProfileStore,
 ): ModelAuthMode | undefined {
   const resolved = provider?.trim();
@@ -410,7 +410,7 @@ export function resolveModelAuthMode(
 
 export async function getApiKeyForModel(params: {
   model: Model<Api>;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   profileId?: string;
   preferredProfile?: string;
   store?: AuthProfileStore;

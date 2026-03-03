@@ -52,7 +52,7 @@ function initSelfPresence() {
   const host = os.hostname();
   const ip = resolvePrimaryIPv4() ?? undefined;
 <<<<<<< HEAD
-  const version = process.env.CLAWDBOT_VERSION ?? process.env.npm_package_version ?? "unknown";
+  const version = process.env.OPENCLAW_VERSION ?? process.env.npm_package_version ?? "unknown";
 =======
   const version = resolveRuntimeServiceVersion(process.env, "unknown");
 >>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))

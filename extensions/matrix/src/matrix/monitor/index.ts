@@ -13,7 +13,7 @@ import {
   summarizeMapping,
   warnMissingProviderGroupPolicyFallbackOnce,
   type RuntimeEnv,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 =======
 import { mergeAllowlist, summarizeMapping, type RuntimeEnv } from "openclaw/plugin-sdk";
 <<<<<<< HEAD

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { createExecApprovalForwarder } from "./exec-approval-forwarder.js";
 
 const baseRequest = {
@@ -94,7 +94,7 @@ describe("exec approval forwarder", () => {
     vi.useFakeTimers();
     const cfg = {
       approvals: { exec: { enabled: true, mode: "session" } },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const { deliver, forwarder } = createForwarder({
       cfg,
@@ -127,7 +127,7 @@ describe("exec approval forwarder", () => {
           targets: [{ channel: "telegram", to: "123" }],
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const forwarder = createExecApprovalForwarder({
       getConfig: () => cfg,

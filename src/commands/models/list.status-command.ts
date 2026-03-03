@@ -4,7 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
+import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
 =======
 =======
 import type { RuntimeEnv } from "../../runtime.js";
@@ -124,7 +124,7 @@ export async function modelsStatusCommand(
   );
   const allowed = Object.keys(cfg.agents?.defaults?.models ?? {});
 
-  const agentDir = resolveMoltbotAgentDir();
+  const agentDir = resolveOpenClawAgentDir();
   const store = ensureAuthProfileStore();
   const modelsPath = path.join(agentDir, "models.json");
 
@@ -536,8 +536,8 @@ export async function modelsStatusCommand(
     for (const provider of missingProvidersInUse) {
       const hint =
         provider === "anthropic"
-          ? `Run \`claude setup-token\`, then \`${formatCliCommand("moltbot models auth setup-token")}\` or \`${formatCliCommand("moltbot configure")}\`.`
-          : `Run \`${formatCliCommand("moltbot configure")}\` or set an API key env var.`;
+          ? `Run \`claude setup-token\`, then \`${formatCliCommand("openclaw models auth setup-token")}\` or \`${formatCliCommand("openclaw configure")}\`.`
+          : `Run \`${formatCliCommand("openclaw configure")}\` or set an API key env var.`;
       runtime.log(`- ${theme.heading(provider)} ${hint}`);
     }
   }

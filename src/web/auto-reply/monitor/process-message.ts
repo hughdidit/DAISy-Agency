@@ -312,7 +312,7 @@ export async function processMessage(params: {
   const responsePrefix =
     prefixOptions.responsePrefix ??
     (configuredResponsePrefix === undefined && isSelfChat
-      ? (resolveIdentityNamePrefix(params.cfg, params.route.agentId) ?? "[moltbot]")
+      ? (resolveIdentityNamePrefix(params.cfg, params.route.agentId) ?? "[openclaw]")
       : undefined);
 
   const inboundHistory =

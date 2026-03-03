@@ -3,7 +3,7 @@
 <<<<<<< HEAD
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../../config/config.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 =======
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -48,7 +48,7 @@ import { addWildcardAllowFrom, mergeAllowFromEntries, promptAccountId } from "./
 
 const channel = "imessage" as const;
 
-function setIMessageDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
+function setIMessageDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.imessage?.allowFrom) : undefined;
   return {
@@ -65,10 +65,10 @@ function setIMessageDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
 }
 
 function setIMessageAllowFrom(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
   allowFrom: string[],
-): MoltbotConfig {
+): OpenClawConfig {
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -147,10 +147,10 @@ export function parseIMessageAllowFromEntries(raw: string): { entries: string[];
 }
 
 async function promptIMessageAllowFrom(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<MoltbotConfig> {
+}): Promise<OpenClawConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
@@ -267,7 +267,7 @@ export const imessageOnboardingAdapter: ChannelOnboardingAdapter = {
     await prompter.note(
       [
         "This is still a work in progress.",
-        "Ensure Moltbot has Full Disk Access to Messages DB.",
+        "Ensure OpenClaw has Full Disk Access to Messages DB.",
         "Grant Automation permission for Messages when prompted.",
         "List chats with: imsg chats --limit 20",
         `Docs: ${formatDocsLink("/imessage", "imessage")}`,

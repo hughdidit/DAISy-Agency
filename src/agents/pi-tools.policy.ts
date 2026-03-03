@@ -2,7 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { getChannelDock } from "../channels/dock.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -104,7 +104,7 @@ const SUBAGENT_TOOL_DENY_ALWAYS = [
   "sessions_send",
 ];
 
-export function resolveSubagentToolPolicy(cfg?: MoltbotConfig): SandboxToolPolicy {
+export function resolveSubagentToolPolicy(cfg?: OpenClawConfig): SandboxToolPolicy {
   const configured = cfg?.tools?.subagents?.tools;
   const maxSpawnDepth =
     cfg?.agents?.defaults?.subagents?.maxSpawnDepth ?? DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH;
@@ -218,7 +218,7 @@ function resolveProviderToolPolicy(params: {
 }
 
 export function resolveEffectiveToolPolicy(params: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   agentId?: string;
   modelProvider?: string;
@@ -270,7 +270,7 @@ export function resolveEffectiveToolPolicy(params: {
 }
 
 export function resolveGroupToolPolicy(params: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   spawnedBy?: string | null;
   messageProvider?: string;

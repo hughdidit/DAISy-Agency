@@ -9,10 +9,10 @@ RUN corepack enable
 WORKDIR /app
 RUN chown node:node /app
 
-ARG CLAWDBOT_DOCKER_APT_PACKAGES=""
-RUN if [ -n "$CLAWDBOT_DOCKER_APT_PACKAGES" ]; then \
+ARG OPENCLAW_DOCKER_APT_PACKAGES=""
+RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       apt-get update && \
-      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $CLAWDBOT_DOCKER_APT_PACKAGES && \
+      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $OPENCLAW_DOCKER_APT_PACKAGES && \
       apt-get clean && \
       rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
     fi
@@ -49,7 +49,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 <<<<<<< HEAD
-RUN CLAWDBOT_A2UI_SKIP_MISSING=1 pnpm build
+RUN OPENCLAW_A2UI_SKIP_MISSING=1 pnpm build
 =======
 USER node
 COPY --chown=node:node . .
@@ -62,7 +62,7 @@ RUN pnpm build
 =======
 >>>>>>> 22b2a77b3 (Revert "fix(docker): ensure memory-lancedb deps installed in Docker image")
 # Force pnpm for UI build (Bun may fail on ARM/Synology architectures)
-ENV CLAWDBOT_PREFER_PNPM=1
+ENV OPENCLAW_PREFER_PNPM=1
 RUN pnpm ui:install
 RUN pnpm ui:build
 

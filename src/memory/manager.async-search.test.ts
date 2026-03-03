@@ -53,7 +53,7 @@ describe("memory search async sync", () => {
 
   beforeEach(async () => {
 <<<<<<< HEAD
-    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-async-"));
+    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-async-"));
     embedBatch.mockImplementation(async (input: string[]) => input.map(() => [0.2, 0.2, 0.2]));
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-async-"));
 >>>>>>> be756b9a8 (Memory: fix async sync close race)

@@ -1,5 +1,5 @@
-import MoltbotKit
-import MoltbotProtocol
+import OpenClawKit
+import OpenClawProtocol
 
-typealias ProtoAnyCodable = MoltbotProtocol.AnyCodable
-typealias KitAnyCodable = MoltbotKit.AnyCodable
+typealias ProtoAnyCodable = OpenClawProtocol.AnyCodable
+typealias KitAnyCodable = OpenClawKit.AnyCodable

@@ -1,5 +1,5 @@
 import type { WebhookRequestBody } from "@line/bot-sdk";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../config/config.js";
@@ -39,7 +39,7 @@ export interface LineBotOptions {
   channelSecret: string;
   accountId?: string;
   runtime?: RuntimeEnv;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   mediaMaxMb?: number;
   onMessage?: (ctx: LineInboundContext) => Promise<void>;
 }

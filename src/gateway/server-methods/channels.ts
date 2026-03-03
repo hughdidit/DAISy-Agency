@@ -27,7 +27,7 @@ import { buildChannelAccountSnapshot } from "../../channels/plugins/status.js";
 <<<<<<< HEAD
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -64,7 +64,7 @@ type ChannelLogoutPayload = {
 export async function logoutChannelAccount(params: {
   channelId: ChannelId;
   accountId?: string | null;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   context: GatewayRequestContext;
   plugin: ChannelPlugin;
 }): Promise<ChannelLogoutPayload> {

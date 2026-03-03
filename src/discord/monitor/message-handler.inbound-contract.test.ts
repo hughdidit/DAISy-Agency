@@ -48,7 +48,7 @@ describe("discord processDiscordMessage inbound contract", () => {
     capturedCtx = undefined;
 <<<<<<< HEAD
 
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-discord-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-discord-"));
     const storePath = path.join(dir, "sessions.json");
 
     await processDiscordMessage({

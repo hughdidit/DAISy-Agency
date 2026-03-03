@@ -7,7 +7,7 @@ import crypto from "node:crypto";
 import { resolveUserTimezone } from "../../agents/date-time.js";
 import { buildWorkspaceSkillSnapshot } from "../../agents/skills.js";
 import { ensureSkillsWatcher, getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import { resolveUserTimezone } from "../../agents/date-time.js";
@@ -43,7 +43,7 @@ import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { drainSystemEventEntries } from "../../infra/system-events.js";
 
 export async function prependSystemEvents(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   sessionKey: string;
   isMainSession: boolean;
   isNewSession: boolean;
@@ -82,7 +82,7 @@ export async function prependSystemEvents(params: {
     }
   };
 
-  const resolveSystemEventTimezone = (cfg: MoltbotConfig) => {
+  const resolveSystemEventTimezone = (cfg: OpenClawConfig) => {
     const raw = cfg.agents?.defaults?.envelopeTimezone?.trim();
     if (!raw) {
       return { mode: "local" as const };
@@ -143,7 +143,7 @@ export async function prependSystemEvents(params: {
     return `${yyyy}-${mm}-${dd} ${hh}:${min}:${sec}${tz ? ` ${tz}` : ""}`;
   };
 
-  const formatSystemEventTimestamp = (ts: number, cfg: MoltbotConfig) => {
+  const formatSystemEventTimestamp = (ts: number, cfg: OpenClawConfig) => {
     const date = new Date(ts);
     if (Number.isNaN(date.getTime())) {
       return "unknown-time";
@@ -196,7 +196,7 @@ export async function ensureSkillSnapshot(params: {
   sessionId?: string;
   isFirstTurnInSession: boolean;
   workspaceDir: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   /** If provided, only load skills with these names (for per-channel skill filtering) */
   skillFilter?: string[];
 }): Promise<{

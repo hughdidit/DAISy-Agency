@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { MsgContext } from "../templating.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { ReplyDispatcher } from "./reply-dispatcher.js";
@@ -218,7 +218,7 @@ describe("dispatchReplyFromConfig", () => {
   it("does not route when Provider matches OriginatingChannel (even if Surface is missing)", async () => {
     setNoAbort();
     mocks.routeReply.mockClear();
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -230,7 +230,7 @@ describe("dispatchReplyFromConfig", () => {
     const replyResolver = async (
       _ctx: MsgContext,
       _opts: GetReplyOptions | undefined,
-      _cfg: MoltbotConfig,
+      _cfg: OpenClawConfig,
     ) => ({ text: "hi" }) satisfies ReplyPayload;
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
 
@@ -241,7 +241,7 @@ describe("dispatchReplyFromConfig", () => {
   it("routes when OriginatingChannel differs from Provider", async () => {
     setNoAbort();
     mocks.routeReply.mockClear();
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -254,7 +254,7 @@ describe("dispatchReplyFromConfig", () => {
     const replyResolver = async (
       _ctx: MsgContext,
       _opts: GetReplyOptions | undefined,
-      _cfg: MoltbotConfig,
+      _cfg: OpenClawConfig,
     ) => ({ text: "hi" }) satisfies ReplyPayload;
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
 
@@ -308,7 +308,7 @@ describe("dispatchReplyFromConfig", () => {
   it("provides onToolResult in DM sessions", async () => {
     setNoAbort();
     mocks.routeReply.mockClear();
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -318,7 +318,7 @@ describe("dispatchReplyFromConfig", () => {
     const replyResolver = async (
       _ctx: MsgContext,
       opts: GetReplyOptions | undefined,
-      _cfg: ClawdbotConfig,
+      _cfg: OpenClawConfig,
     ) => {
       expect(opts?.onToolResult).toBeDefined();
       expect(typeof opts?.onToolResult).toBe("function");
@@ -334,7 +334,7 @@ describe("dispatchReplyFromConfig", () => {
       handled: false,
       aborted: false,
     });
-    const cfg = {} as ClawdbotConfig;
+    const cfg = {} as OpenClawConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -344,7 +344,7 @@ describe("dispatchReplyFromConfig", () => {
     const replyResolver = async (
       _ctx: MsgContext,
       opts: GetReplyOptions | undefined,
-      _cfg: MoltbotConfig,
+      _cfg: OpenClawConfig,
     ) => {
       expect(opts?.onToolResult).toBeDefined();
       await opts?.onToolResult?.({ text: "🔧 exec: ls" });
@@ -369,7 +369,7 @@ describe("dispatchReplyFromConfig", () => {
       handled: false,
       aborted: false,
     });
-    const cfg = {} as ClawdbotConfig;
+    const cfg = {} as OpenClawConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -379,7 +379,7 @@ describe("dispatchReplyFromConfig", () => {
     const replyResolver = async (
       _ctx: MsgContext,
       opts: GetReplyOptions | undefined,
-      _cfg: ClawdbotConfig,
+      _cfg: OpenClawConfig,
     ) => {
       // Simulate tool result emission
       await opts?.onToolResult?.({ text: "🔧 exec: ls" });
@@ -430,7 +430,7 @@ describe("dispatchReplyFromConfig", () => {
       handled: true,
       aborted: true,
     });
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -452,7 +452,7 @@ describe("dispatchReplyFromConfig", () => {
       aborted: true,
       stoppedSubagents: 2,
     });
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -1281,7 +1281,7 @@ describe("dispatchReplyFromConfig", () => {
       handled: false,
       aborted: false,
     });
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const ctx = buildTestCtx({
       Provider: "whatsapp",
       OriginatingChannel: "whatsapp",
@@ -1302,7 +1302,7 @@ describe("dispatchReplyFromConfig", () => {
   it("emits message_received hook with originating channel metadata", async () => {
     setNoAbort();
     hookMocks.runner.hasHooks.mockReturnValue(true);
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -1409,7 +1409,7 @@ describe("dispatchReplyFromConfig", () => {
       handled: false,
       aborted: false,
     });
-    const cfg = { diagnostics: { enabled: true } } as MoltbotConfig;
+    const cfg = { diagnostics: { enabled: true } } as OpenClawConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -1442,7 +1442,7 @@ describe("dispatchReplyFromConfig", () => {
       handled: false,
       aborted: false,
     });
-    const cfg = { diagnostics: { enabled: true } } as MoltbotConfig;
+    const cfg = { diagnostics: { enabled: true } } as OpenClawConfig;
     const ctx = buildTestCtx({
       Provider: "whatsapp",
       OriginatingChannel: "whatsapp",

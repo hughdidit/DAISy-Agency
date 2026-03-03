@@ -7,7 +7,7 @@ import { withTempHome } from "./test-helpers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "./types.js";
+import type { OpenClawConfig } from "./types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -24,10 +24,10 @@ describe("config backup rotation", () => {
     await withTempHome(async () => {
       const { resolveConfigPath, writeConfigFile } = await import("./config.js");
       const configPath = resolveConfigPath();
-      const buildConfig = (version: number): MoltbotConfig =>
+      const buildConfig = (version: number): OpenClawConfig =>
         ({
           agents: { list: [{ id: `v${version}` }] },
-        }) as MoltbotConfig;
+        }) as OpenClawConfig;
 
       const writeVersion = async (version: number) => {
         const json = JSON.stringify(buildConfig(version), null, 2).trimEnd().concat("\n");

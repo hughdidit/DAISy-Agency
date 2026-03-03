@@ -34,7 +34,7 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
       vi.mocked(abortEmbeddedPiRun).mockClear();
       return await fn(home);
     },
-    { prefix: "moltbot-triggers-" },
+    { prefix: "openclaw-triggers-" },
   );
 }
 

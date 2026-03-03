@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 =======
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -73,7 +73,7 @@ const slackConfig = {
       appToken: "xapp-test",
     },
   },
-} as MoltbotConfig;
+} as OpenClawConfig;
 
 const telegramConfig = {
   channels: {

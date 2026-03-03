@@ -35,7 +35,7 @@ import { buildServiceEnvironment } from "../daemon/service-env.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import { collectConfigEnvVars } from "../config/env-vars.js";
-import type { MoltbotConfig } from "../config/types.js";
+import type { OpenClawConfig } from "../config/types.js";
 =======
 import {
   emitNodeRuntimeWarning,
@@ -75,7 +75,7 @@ export async function buildGatewayInstallPlan(params: {
   nodePath?: string;
   warn?: DaemonInstallWarnFn;
   /** Full config to extract env vars from (env vars + inline env keys). */
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
 }): Promise<GatewayInstallPlan> {
   const devMode = params.devMode ?? resolveGatewayDevMode();
   const nodePath =
@@ -103,7 +103,7 @@ export async function buildGatewayInstallPlan(params: {
     token: params.token,
     launchdLabel:
       process.platform === "darwin"
-        ? resolveGatewayLaunchAgentLabel(params.env.CLAWDBOT_PROFILE)
+        ? resolveGatewayLaunchAgentLabel(params.env.OPENCLAW_PROFILE)
         : undefined,
   });
 
@@ -120,5 +120,5 @@ export async function buildGatewayInstallPlan(params: {
 export function gatewayInstallErrorHint(platform = process.platform): string {
   return platform === "win32"
     ? "Tip: rerun from an elevated PowerShell (Start → type PowerShell → right-click → Run as administrator) or skip service install."
-    : `Tip: rerun \`${formatCliCommand("moltbot gateway install")}\` after fixing the error.`;
+    : `Tip: rerun \`${formatCliCommand("openclaw gateway install")}\` after fixing the error.`;
 }

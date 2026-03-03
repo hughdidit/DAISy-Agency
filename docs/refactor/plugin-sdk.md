@@ -32,13 +32,13 @@ Contents (examples):
 - Docs link helper: `formatDocsLink`.
 
 Delivery:
-- Publish as `@clawdbot/plugin-sdk` (or export from core under `clawdbot/plugin-sdk`).
+- Publish as `@openclaw/plugin-sdk` (or export from core under `openclaw/plugin-sdk`).
 - Semver with explicit stability guarantees.
 
 ### 2) Plugin Runtime (execution surface, injected)
 
 Scope: everything that touches core runtime behavior.
-Accessed via `MoltbotPluginApi.runtime` so plugins never import `src/**`.
+Accessed via `OpenClawPluginApi.runtime` so plugins never import `src/**`.
 
 Proposed surface (minimal but complete):
 
@@ -47,8 +47,8 @@ export type PluginRuntime = {
   channel: {
     text: {
       chunkMarkdownText(text: string, limit: number): string[];
-      resolveTextChunkLimit(cfg: MoltbotConfig, channel: string, accountId?: string): number;
-      hasControlCommand(text: string, cfg: MoltbotConfig): boolean;
+      resolveTextChunkLimit(cfg: OpenClawConfig, channel: string, accountId?: string): number;
+      hasControlCommand(text: string, cfg: OpenClawConfig): boolean;
     };
     reply: {
       dispatchReplyWithBufferedBlockDispatcher(params: {
@@ -92,18 +92,18 @@ export type PluginRuntime = {
       ): Promise<{ path: string; contentType?: string }>;
     };
     mentions: {
-      buildMentionRegexes(cfg: MoltbotConfig, agentId?: string): RegExp[];
+      buildMentionRegexes(cfg: OpenClawConfig, agentId?: string): RegExp[];
       matchesMentionPatterns(text: string, regexes: RegExp[]): boolean;
     };
     groups: {
-      resolveGroupPolicy(cfg: MoltbotConfig, channel: string, accountId: string, groupId: string): {
+      resolveGroupPolicy(cfg: OpenClawConfig, channel: string, accountId: string, groupId: string): {
         allowlistEnabled: boolean;
         allowed: boolean;
         groupConfig?: unknown;
         defaultConfig?: unknown;
       };
       resolveRequireMention(
-        cfg: MoltbotConfig,
+        cfg: OpenClawConfig,
         channel: string,
         accountId: string,
         groupId: string,
@@ -118,7 +118,7 @@ export type PluginRuntime = {
         onFlush: (entries: T[]) => Promise<void>;
         onError?: (err: unknown) => void;
       }): { push: (v: T) => void; flush: () => Promise<void> };
-      resolveInboundDebounceMs(cfg: MoltbotConfig, channel: string): number;
+      resolveInboundDebounceMs(cfg: OpenClawConfig, channel: string): number;
     };
     commands: {
       resolveCommandAuthorizedFromAuthorizers(params: {
@@ -132,7 +132,7 @@ export type PluginRuntime = {
     getChildLogger(name: string): PluginLogger;
   };
   state: {
-    resolveStateDir(cfg: MoltbotConfig): string;
+    resolveStateDir(cfg: OpenClawConfig): string;
   };
 };
 ```
@@ -146,8 +146,8 @@ Notes:
 ## Migration plan (phased, safe)
 
 ### Phase 0: scaffolding
-- Introduce `@clawdbot/plugin-sdk`.
-- Add `api.runtime` to `MoltbotPluginApi` with the surface above.
+- Introduce `@openclaw/plugin-sdk`.
+- Add `api.runtime` to `OpenClawPluginApi` with the surface above.
 - Maintain existing imports during a transition window (deprecation warnings).
 
 ### Phase 1: bridge cleanup (low risk)
@@ -181,7 +181,7 @@ Notes:
 
 - SDK: semver, published, documented changes.
 - Runtime: versioned per core release. Add `api.runtime.version`.
-- Plugins declare a required runtime range (e.g., `moltbotRuntime: ">=2026.2.0"`).
+- Plugins declare a required runtime range (e.g., `openclawRuntime: ">=2026.2.0"`).
 
 ## Testing strategy
 

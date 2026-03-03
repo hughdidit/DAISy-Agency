@@ -4,7 +4,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { captureEnv } from "../test-utils/env.js";
 =======
 import { withEnvAsync } from "../test-utils/env.js";
@@ -20,10 +20,10 @@ import { ensureOpenClawModelsJson } from "./models-config.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "moltbot-models-" });
+  return withTempHomeBase(fn, { prefix: "openclaw-models-" });
 }
 
-const _MODELS_CONFIG: MoltbotConfig = {
+const _MODELS_CONFIG: OpenClawConfig = {
   models: {
     providers: {
       "custom-proxy": {
@@ -76,13 +76,13 @@ describe("models-config", () => {
           }),
         }));
 
-        const { ensureMoltbotModelsJson } = await import("./models-config.js");
+        const { ensureOpenClawModelsJson } = await import("./models-config.js");
 
 =======
       await withCopilotGithubToken("gh-token", async () => {
 >>>>>>> 0900ec38a (test(agents): dedupe copilot models-config token setup)
         const agentDir = path.join(home, "agent-default-base-url");
-        await ensureMoltbotModelsJson({ models: { providers: {} } }, agentDir);
+        await ensureOpenClawModelsJson({ models: { providers: {} } }, agentDir);
 
         const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
         const parsed = JSON.parse(raw) as {
@@ -124,9 +124,9 @@ describe("models-config", () => {
           resolveCopilotApiToken,
         }));
 
-        const { ensureMoltbotModelsJson } = await import("./models-config.js");
+        const { ensureOpenClawModelsJson } = await import("./models-config.js");
 
-        await ensureMoltbotModelsJson({ models: { providers: {} } });
+        await ensureOpenClawModelsJson({ models: { providers: {} } });
 
         const [, opts] = fetchMock.mock.calls[0] as [string, { headers?: Record<string, string> }];
         expect(opts?.headers?.Authorization).toBe("Bearer copilot-token");

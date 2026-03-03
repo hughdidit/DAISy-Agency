@@ -10,7 +10,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 =======
@@ -275,7 +275,7 @@ describe("applyMediaUnderstanding", () => {
   it("sets Transcript and replaces Body when audio transcription succeeds", async () => {
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const audioPath = path.join(dir, "note.ogg");
     await fs.writeFile(audioPath, Buffer.from([0, 255, 0, 1, 2, 3, 4, 5, 6, 7, 8]));
 
@@ -284,7 +284,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: audioPath,
       MediaType: "audio/ogg",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: {
@@ -316,7 +316,7 @@ describe("applyMediaUnderstanding", () => {
 
   it("keeps caption for command parsing when audio has user text", async () => {
     const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const audioPath = path.join(dir, "note.ogg");
     await fs.writeFile(audioPath, Buffer.from([0, 255, 0, 1, 2, 3, 4, 5, 6, 7, 8]));
 
@@ -325,7 +325,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: audioPath,
       MediaType: "audio/ogg",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: {
@@ -359,7 +359,7 @@ describe("applyMediaUnderstanding", () => {
       MediaType: "audio/ogg",
       ChatType: "direct",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: {
@@ -394,7 +394,7 @@ describe("applyMediaUnderstanding", () => {
   it("skips audio transcription when attachment exceeds maxBytes", async () => {
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const audioPath = path.join(dir, "large.wav");
     await fs.writeFile(audioPath, Buffer.from([0, 255, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
 
@@ -410,7 +410,7 @@ describe("applyMediaUnderstanding", () => {
     });
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const transcribeAudio = vi.fn(async () => ({ text: "should-not-run" }));
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: {
@@ -436,7 +436,7 @@ describe("applyMediaUnderstanding", () => {
   it("falls back to CLI model when provider fails", async () => {
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const audioPath = path.join(dir, "note.ogg");
     await fs.writeFile(audioPath, Buffer.from([0, 255, 0, 1, 2, 3, 4, 5, 6, 7, 8]));
 
@@ -445,7 +445,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: audioPath,
       MediaType: "audio/ogg",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
     const ctx = await createAudioCtx();
     const cfg: OpenClawConfig = {
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
@@ -587,7 +587,7 @@ describe("applyMediaUnderstanding", () => {
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const imagePath = path.join(dir, "photo.jpg");
     await fs.writeFile(imagePath, "image-bytes");
 =======
@@ -604,7 +604,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: imagePath,
       MediaType: "image/jpeg",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           image: {
@@ -644,7 +644,7 @@ describe("applyMediaUnderstanding", () => {
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const imagePath = path.join(dir, "shared.jpg");
     await fs.writeFile(imagePath, "image-bytes");
 =======
@@ -661,7 +661,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: imagePath,
       MediaType: "image/jpeg",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           models: [
@@ -695,7 +695,7 @@ describe("applyMediaUnderstanding", () => {
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const audioPath = path.join(dir, "fallback.ogg");
     await fs.writeFile(audioPath, Buffer.from([0, 255, 0, 1, 2, 3, 4, 5, 6]));
 =======
@@ -712,7 +712,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: audioPath,
       MediaType: "audio/ogg",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: {
@@ -742,7 +742,7 @@ describe("applyMediaUnderstanding", () => {
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
 =======
 =======
 >>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
@@ -759,7 +759,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPaths: [audioPathA, audioPathB],
       MediaTypes: ["audio/ogg", "audio/ogg"],
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: {
@@ -793,7 +793,7 @@ describe("applyMediaUnderstanding", () => {
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
 =======
 =======
 >>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
@@ -811,7 +811,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPaths: [imagePath, audioPath, videoPath],
       MediaTypes: ["image/jpeg", "audio/ogg", "video/mp4"],
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           image: { enabled: true, models: [{ provider: "openai", model: "gpt-5.2" }] },
@@ -858,7 +858,7 @@ describe("applyMediaUnderstanding", () => {
 
   it("treats text-like audio attachments as CSV (comma wins over tabs)", async () => {
     const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const csvPath = path.join(dir, "data.mp3");
     const csvText = '"a","b"\t"c"\n"1","2"\t"3"';
     const csvBuffer = Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(csvText, "utf16le")]);
@@ -876,7 +876,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: csvPath,
       MediaType: "audio/mpeg",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: { enabled: false },
@@ -897,7 +897,7 @@ describe("applyMediaUnderstanding", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const tsvPath = path.join(dir, "report.mp3");
     const tsvText = "a\tb\tc\n1\t2\t3";
     await fs.writeFile(tsvPath, tsvText);
@@ -907,7 +907,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: tsvPath,
       MediaType: "audio/mpeg",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: { enabled: false },
@@ -980,7 +980,7 @@ describe("applyMediaUnderstanding", () => {
     "escapes XML special characters in filenames to prevent injection",
     async () => {
       const { applyMediaUnderstanding } = await loadApply();
-      const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+      const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
       // Create file with XML special characters in the name (what filesystem allows)
       // Note: The sanitizeFilename in store.ts would strip most dangerous chars,
       // but we test that even if some slip through, they get escaped in output
@@ -992,7 +992,7 @@ describe("applyMediaUnderstanding", () => {
         MediaPath: filePath,
         MediaType: "text/plain",
       };
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         tools: {
           media: {
             audio: { enabled: false },
@@ -1015,7 +1015,7 @@ describe("applyMediaUnderstanding", () => {
 
   it("normalizes MIME types to prevent attribute injection", async () => {
     const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const filePath = path.join(dir, "data.txt");
     await fs.writeFile(filePath, "test content");
   it("respects configured allowedMimes for text-like attachments", async () => {
@@ -1089,7 +1089,7 @@ describe("applyMediaUnderstanding", () => {
       // Attempt to inject via MIME type with quotes - normalization should strip this
       MediaType: 'text/plain" onclick="alert(1)',
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: { enabled: false },
@@ -1113,7 +1113,7 @@ describe("applyMediaUnderstanding", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
 =======
     const dir = await createMediaTempDir();
 >>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
@@ -1130,7 +1130,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: filePath,
       MediaType: "text/plain",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: { enabled: false },
@@ -1151,7 +1151,7 @@ describe("applyMediaUnderstanding", () => {
 
   it("handles files with non-ASCII Unicode filenames", async () => {
     const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
     const filePath = path.join(dir, "文档.txt");
     await fs.writeFile(filePath, "中文内容");
 
@@ -1160,7 +1160,7 @@ describe("applyMediaUnderstanding", () => {
       MediaPath: filePath,
       MediaType: "text/plain",
     };
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       tools: {
         media: {
           audio: { enabled: false },

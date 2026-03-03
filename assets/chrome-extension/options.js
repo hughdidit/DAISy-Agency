@@ -71,7 +71,7 @@ async function checkRelayReachable(port, token) {
     setStatus(
       'error',
 <<<<<<< HEAD
-      `Relay not reachable at ${url}. Start Moltbot’s browser relay on this machine, then click the toolbar button again.`,
+      `Relay not reachable at ${url}. Start OpenClaw’s browser relay on this machine, then click the toolbar button again.`,
     )
 =======
   } catch (err) {

@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { resolveBlueBubblesAccount } from "./accounts.js";
 <<<<<<< HEAD
-import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { postMultipartFormData } from "./multipart.js";
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 >>>>>>> 719280d73 (refactor(bluebubbles): share multipart helpers)
@@ -12,7 +12,7 @@ export type BlueBubblesChatOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
 };
 
 function resolveAccount(params: BlueBubblesChatOpts) {

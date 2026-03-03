@@ -9,7 +9,7 @@ import { resolveEnvApiKey } from "../../agents/model-auth.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -38,7 +38,7 @@ function parseEnvVarNameFromSourceLabel(source: string | undefined): string | un
 
 async function resolveApiKeyFromProfiles(params: {
   provider: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir?: string;
 }): Promise<string | null> {
   const store = ensureAuthProfileStore(params.agentDir);
@@ -67,7 +67,7 @@ async function resolveApiKeyFromProfiles(params: {
 
 export async function resolveNonInteractiveApiKey(params: {
   provider: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   flagValue?: string;
   flagName: string;
   envVar: string;

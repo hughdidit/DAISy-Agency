@@ -2,9 +2,9 @@ import type { Request, Response } from "express";
 import {
   mergeAllowlist,
   summarizeMapping,
-  type MoltbotConfig,
+  type OpenClawConfig,
   type RuntimeEnv,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
@@ -42,7 +42,7 @@ import { resolveMSTeamsCredentials } from "./token.js";
 import { getMSTeamsRuntime } from "./runtime.js";
 
 export type MonitorMSTeamsOpts = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   conversationStore?: MSTeamsConversationStore;

@@ -1,11 +1,11 @@
 import Foundation
 
 enum GatewaySettingsStore {
-    private static let gatewayService = "bot.molt.gateway"
-    private static let legacyGatewayService = "com.clawdbot.gateway"
-    private static let legacyBridgeService = "com.clawdbot.bridge"
-    private static let nodeService = "bot.molt.node"
-    private static let legacyNodeService = "com.clawdbot.node"
+    private static let gatewayService = "ai.openclaw.gateway"
+    private static let legacyGatewayService = "com.openclaw.gateway"
+    private static let legacyBridgeService = "com.openclaw.bridge"
+    private static let nodeService = "ai.openclaw.node"
+    private static let legacyNodeService = "com.openclaw.node"
 
     private static let instanceIdDefaultsKey = "node.instanceId"
     private static let preferredGatewayStableIDDefaultsKey = "gateway.preferredStableID"

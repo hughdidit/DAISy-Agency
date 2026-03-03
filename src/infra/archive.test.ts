@@ -10,7 +10,7 @@ let fixtureRoot = "";
 let fixtureCount = 0;
 
 async function makeTempDir() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-archive-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-archive-"));
   tempDirs.push(dir);
   return dir;
 }

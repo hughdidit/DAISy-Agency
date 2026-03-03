@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 =======
 import { createEmptyPluginRegistry } from "../plugins/registry.js";
@@ -113,7 +113,7 @@ describe("setupChannels", () => {
 
     const runtime = createExitThrowingRuntime();
 
-    await setupChannels({} as MoltbotConfig, runtime, prompter, {
+    await setupChannels({} as OpenClawConfig, runtime, prompter, {
       skipConfirm: true,
       quickstartDefaults: true,
       forceAllowFromChannels: ["whatsapp"],
@@ -181,7 +181,7 @@ describe("setupChannels", () => {
             botToken: "token",
           },
         },
-      } as MoltbotConfig,
+      } as OpenClawConfig,
       runtime,
       prompter,
       {
@@ -234,7 +234,7 @@ describe("setupChannels", () => {
             enabled: false,
           },
         },
-      } as MoltbotConfig,
+      } as OpenClawConfig,
       runtime,
       prompter,
       {

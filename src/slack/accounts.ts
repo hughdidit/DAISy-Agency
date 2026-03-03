@@ -2,7 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { SlackAccountConfig } from "../config/types.js";
 import { normalizeChatType } from "../channels/chat-type.js";
 import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
@@ -53,7 +53,7 @@ export type ResolvedSlackAccount = {
   channels?: SlackAccountConfig["channels"];
 };
 
-function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
+function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
   const accounts = cfg.channels?.slack?.accounts;
   if (!accounts || typeof accounts !== "object") {
     return [];
@@ -61,7 +61,7 @@ function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   return Object.keys(accounts).filter(Boolean);
 }
 
-export function listSlackAccountIds(cfg: MoltbotConfig): string[] {
+export function listSlackAccountIds(cfg: OpenClawConfig): string[] {
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) {
     return [DEFAULT_ACCOUNT_ID];
@@ -69,7 +69,7 @@ export function listSlackAccountIds(cfg: MoltbotConfig): string[] {
   return ids.toSorted((a, b) => a.localeCompare(b));
 }
 
-export function resolveDefaultSlackAccountId(cfg: MoltbotConfig): string {
+export function resolveDefaultSlackAccountId(cfg: OpenClawConfig): string {
   const ids = listSlackAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;
@@ -78,7 +78,7 @@ export function resolveDefaultSlackAccountId(cfg: MoltbotConfig): string {
 }
 
 function resolveAccountConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
 ): SlackAccountConfig | undefined {
   const accounts = cfg.channels?.slack?.accounts;
@@ -88,7 +88,7 @@ function resolveAccountConfig(
   return accounts[accountId] as SlackAccountConfig | undefined;
 }
 
-function mergeSlackAccountConfig(cfg: MoltbotConfig, accountId: string): SlackAccountConfig {
+function mergeSlackAccountConfig(cfg: OpenClawConfig, accountId: string): SlackAccountConfig {
   const { accounts: _ignored, ...base } = (cfg.channels?.slack ?? {}) as SlackAccountConfig & {
     accounts?: unknown;
   };
@@ -97,7 +97,7 @@ function mergeSlackAccountConfig(cfg: MoltbotConfig, accountId: string): SlackAc
 }
 
 export function resolveSlackAccount(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
 }): ResolvedSlackAccount {
   const accountId = normalizeAccountId(params.accountId);
@@ -144,7 +144,7 @@ export function resolveSlackAccount(params: {
   };
 }
 
-export function listEnabledSlackAccounts(cfg: MoltbotConfig): ResolvedSlackAccount[] {
+export function listEnabledSlackAccounts(cfg: OpenClawConfig): ResolvedSlackAccount[] {
   return listSlackAccountIds(cfg)
     .map((accountId) => resolveSlackAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

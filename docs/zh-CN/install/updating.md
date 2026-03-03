@@ -34,7 +34,7 @@ curl -fsSL https://openclaw.ai/install.sh | bash
   ```
   安装程序**仅**在仓库干净时才会执行 `git pull --rebase`。
 - 对于**全局安装**，脚本底层使用 `npm install -g openclaw@latest`。
-- 旧版说明：`clawdbot` 仍可作为兼容性垫片使用。
+- 旧版说明：`openclaw` 仍可作为兼容性垫片使用。
 
 ## 更新之前
 
@@ -172,7 +172,7 @@ openclaw logs --follow
 
 如果你使用受管理服务：
 
-- macOS launchd（应用捆绑的 LaunchAgent）：`launchctl kickstart -k gui/$UID/bot.molt.gateway`（使用 `bot.molt.<profile>`；旧版 `com.openclaw.*` 仍然有效）
+- macOS launchd（应用捆绑的 LaunchAgent）：`launchctl kickstart -k gui/$UID/ai.openclaw.gateway`（使用 `ai.openclaw.<profile>`；旧版 `com.openclaw.*` 仍然有效）
 - Linux systemd 用户服务：`systemctl --user restart openclaw-gateway[-<profile>].service`
 - Windows（WSL2）：`systemctl --user restart openclaw-gateway[-<profile>].service`
   - `launchctl`/`systemctl` 仅在服务已安装时有效；否则运行 `openclaw gateway install`。

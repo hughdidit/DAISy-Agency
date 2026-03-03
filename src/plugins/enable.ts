@@ -1,16 +1,16 @@
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { ensurePluginAllowlisted } from "../config/plugins-allowlist.js";
 >>>>>>> 519517915 (refactor: centralize plugin allowlist mutation)
 
 export type PluginEnableResult = {
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   enabled: boolean;
   reason?: string;
 };
 
-function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig {
+function ensureAllowlisted(cfg: OpenClawConfig, pluginId: string): OpenClawConfig {
   const allow = cfg.plugins?.allow;
   if (!Array.isArray(allow) || allow.includes(pluginId)) {
     return cfg;
@@ -24,7 +24,7 @@ function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig 
   };
 }
 
-export function enablePluginInConfig(cfg: MoltbotConfig, pluginId: string): PluginEnableResult {
+export function enablePluginInConfig(cfg: OpenClawConfig, pluginId: string): PluginEnableResult {
 =======
   const builtInChannelId = normalizeChatChannelId(pluginId);
   const resolvedId = builtInChannelId ?? pluginId;
@@ -63,7 +63,7 @@ export function enablePluginInConfig(cfg: MoltbotConfig, pluginId: string): Plug
       enabled: true,
     },
   };
-  let next: MoltbotConfig = {
+  let next: OpenClawConfig = {
     ...cfg,
     plugins: {
       ...cfg.plugins,

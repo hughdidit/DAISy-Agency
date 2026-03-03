@@ -2,7 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { resolveGatewayPort, writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
 import type { RuntimeEnv } from "../../runtime.js";
@@ -72,7 +72,7 @@ import { resolveNonInteractiveWorkspaceDir } from "./local/workspace.js";
 export async function runNonInteractiveOnboardingLocal(params: {
   opts: OnboardOptions;
   runtime: RuntimeEnv;
-  baseConfig: MoltbotConfig;
+  baseConfig: OpenClawConfig;
 }) {
   const { opts, runtime, baseConfig } = params;
   const mode = "local" as const;
@@ -83,7 +83,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
     defaultWorkspaceDir: DEFAULT_WORKSPACE,
   });
 
-  let nextConfig: MoltbotConfig = {
+  let nextConfig: OpenClawConfig = {
     ...baseConfig,
     agents: {
       ...baseConfig.agents,
@@ -180,7 +180,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
 
   if (!opts.json) {
     runtime.log(
-      `Tip: run \`${formatCliCommand("moltbot configure --section web")}\` to store your Brave API key for web_search. Docs: https://docs.molt.bot/tools/web`,
+      `Tip: run \`${formatCliCommand("openclaw configure --section web")}\` to store your Brave API key for web_search. Docs: https://docs.molt.bot/tools/web`,
     );
   }
 }

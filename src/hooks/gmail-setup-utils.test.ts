@@ -27,7 +27,7 @@ describe("resolvePythonExecutablePath", () => {
     "resolves a working python path and caches the result",
     async () => {
 <<<<<<< HEAD
-      const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-python-"));
+      const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-python-"));
       const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-python-"));
 >>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
       const originalPath = process.env.PATH;

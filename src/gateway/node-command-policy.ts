@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import { normalizeDeviceMetadataForPolicy } from "./device-metadata-normalization.js";
 >>>>>>> 9005e8bc0 (refactor(gateway): unify metadata canonicalization + platform rules)
@@ -166,7 +166,7 @@ function normalizePlatformId(platform?: string, deviceFamily?: string): Platform
 }
 
 export function resolveNodeCommandAllowlist(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   node?: Pick<NodeSession, "platform" | "deviceFamily">,
 ): Set<string> {
   const platformId = normalizePlatformId(node?.platform, node?.deviceFamily);

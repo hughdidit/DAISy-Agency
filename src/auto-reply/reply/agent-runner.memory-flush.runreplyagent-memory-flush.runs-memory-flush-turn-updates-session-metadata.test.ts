@@ -73,7 +73,7 @@ describe("runReplyAgent memory flush", () => {
   it("runs a memory flush turn and updates session metadata", async () => {
     const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
     runEmbeddedPiAgentMock.mockReset();
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-flush-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-flush-"));
     const storePath = path.join(tmp, "sessions.json");
     const sessionKey = "main";
     const sessionEntry = {
@@ -136,7 +136,7 @@ describe("runReplyAgent memory flush", () => {
   it("skips memory flush when disabled in config", async () => {
     const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
     runEmbeddedPiAgentMock.mockReset();
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-flush-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-flush-"));
     const storePath = path.join(tmp, "sessions.json");
     const sessionKey = "main";
     const sessionEntry = {

@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import { applyOnboardAuthAgentModelsAndProviders } from "./onboard-auth.config-shared.js";
 >>>>>>> ab6f080d8 (refactor(commands): share provider config merge wrapper)
@@ -22,7 +22,7 @@ import {
   MINIMAX_LM_STUDIO_COST,
 } from "./onboard-auth.models.js";
 
-export function applyMinimaxProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
+export function applyMinimaxProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models["anthropic/claude-opus-4-5"] = {
     ...models["anthropic/claude-opus-4-5"],
@@ -56,9 +56,9 @@ export function applyMinimaxProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
 }
 
 export function applyMinimaxHostedProviderConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   params?: { baseUrl?: string },
-): MoltbotConfig {
+): OpenClawConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[MINIMAX_HOSTED_MODEL_REF] = {
     ...models[MINIMAX_HOSTED_MODEL_REF],
@@ -87,15 +87,15 @@ export function applyMinimaxHostedProviderConfig(
   return applyOnboardAuthAgentModelsAndProviders(cfg, { agentModels: models, providers });
 }
 
-export function applyMinimaxConfig(cfg: MoltbotConfig): MoltbotConfig {
+export function applyMinimaxConfig(cfg: OpenClawConfig): OpenClawConfig {
   const next = applyMinimaxProviderConfig(cfg);
   return applyAgentDefaultModelPrimary(next, "lmstudio/minimax-m2.1-gs32");
 }
 
 export function applyMinimaxHostedConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   params?: { baseUrl?: string },
-): MoltbotConfig {
+): OpenClawConfig {
   const next = applyMinimaxHostedProviderConfig(cfg, params);
   return {
     ...next,
@@ -114,9 +114,9 @@ export function applyMinimaxHostedConfig(
 
 // MiniMax Anthropic-compatible API (platform.minimax.io/anthropic)
 export function applyMinimaxApiProviderConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   modelId: string = "MiniMax-M2.1",
-): MoltbotConfig {
+): OpenClawConfig {
   const providers = { ...cfg.models?.providers };
   const existingProvider = providers.minimax;
   const existingModels = Array.isArray(existingProvider?.models) ? existingProvider.models : [];
@@ -165,9 +165,9 @@ export function applyMinimaxApiProviderConfig(
 }
 
 export function applyMinimaxApiConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   modelId: string = "MiniMax-M2.1",
-): MoltbotConfig {
+): OpenClawConfig {
   const next = applyMinimaxApiProviderConfig(cfg, modelId);
 =======
   const next = applyMinimaxApiProviderConfigWithBaseUrl(cfg, params);

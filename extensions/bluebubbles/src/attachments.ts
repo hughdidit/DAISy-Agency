@@ -5,7 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { resolveBlueBubblesAccount } from "./accounts.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -48,7 +48,7 @@ export type BlueBubblesAttachmentOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
 };
 
 const DEFAULT_ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024;

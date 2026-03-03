@@ -11,7 +11,7 @@ import { getCustomProviderApiKey, resolveEnvApiKey } from "../../agents/model-au
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -44,7 +44,7 @@ function formatProfileSecretLabel(params: {
 
 export function resolveProviderAuthOverview(params: {
   provider: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   store: AuthProfileStore;
   modelsPath: string;
 }): ProviderAuthOverview {

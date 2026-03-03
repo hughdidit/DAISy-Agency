@@ -39,8 +39,8 @@ import { findLegacyConfigIssues } from "./legacy.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig, ConfigValidationIssue } from "./types.js";
-import { MoltbotSchema } from "./zod-schema.js";
+import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
+import { OpenClawSchema } from "./zod-schema.js";
 =======
 import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -72,7 +72,7 @@ function isWorkspaceAvatarPath(value: string, workspaceDir: string): boolean {
   return !path.isAbsolute(relative);
 }
 
-function validateIdentityAvatar(config: MoltbotConfig): ConfigValidationIssue[] {
+function validateIdentityAvatar(config: OpenClawConfig): ConfigValidationIssue[] {
   const agents = config.agents?.list;
   if (!Array.isArray(agents) || agents.length === 0) {
     return [];
@@ -155,7 +155,7 @@ function validateGatewayTailscaleBind(config: OpenClawConfig): ConfigValidationI
  */
 export function validateConfigObjectRaw(
   raw: unknown,
-): { ok: true; config: MoltbotConfig } | { ok: false; issues: ConfigValidationIssue[] } {
+): { ok: true; config: OpenClawConfig } | { ok: false; issues: ConfigValidationIssue[] } {
   const legacyIssues = findLegacyConfigIssues(raw);
   if (legacyIssues.length > 0) {
     return {
@@ -166,7 +166,7 @@ export function validateConfigObjectRaw(
       })),
     };
   }
-  const validated = MoltbotSchema.safeParse(raw);
+  const validated = OpenClawSchema.safeParse(raw);
   if (!validated.success) {
     return {
       ok: false,
@@ -176,7 +176,7 @@ export function validateConfigObjectRaw(
       })),
     };
   }
-  const duplicates = findDuplicateAgentDirs(validated.data as MoltbotConfig);
+  const duplicates = findDuplicateAgentDirs(validated.data as OpenClawConfig);
   if (duplicates.length > 0) {
     return {
       ok: false,
@@ -188,7 +188,7 @@ export function validateConfigObjectRaw(
       ],
     };
   }
-  const avatarIssues = validateIdentityAvatar(validated.data as MoltbotConfig);
+  const avatarIssues = validateIdentityAvatar(validated.data as OpenClawConfig);
   if (avatarIssues.length > 0) {
     return { ok: false, issues: avatarIssues };
   }
@@ -199,7 +199,7 @@ export function validateConfigObjectRaw(
   return {
     ok: true,
     config: applyModelDefaults(
-      applyAgentDefaults(applySessionDefaults(validated.data as MoltbotConfig)),
+      applyAgentDefaults(applySessionDefaults(validated.data as OpenClawConfig)),
     ),
   };
 }
@@ -207,7 +207,7 @@ export function validateConfigObjectRaw(
 export function validateConfigObjectWithPlugins(raw: unknown):
   | {
       ok: true;
-      config: MoltbotConfig;
+      config: OpenClawConfig;
       warnings: ConfigValidationIssue[];
     }
   | {

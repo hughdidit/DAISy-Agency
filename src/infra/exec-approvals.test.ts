@@ -37,7 +37,7 @@ function makePathEnv(binDir: string): NodeJS.ProcessEnv {
 }
 
 function makeTempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-exec-approvals-"));
+  return fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-exec-approvals-"));
 }
 
 function createSafeBinJqCase(params: { command: string; seedFileName?: string }) {
@@ -1009,7 +1009,7 @@ describe("exec approvals wildcard agent", () => {
 
     try {
 <<<<<<< HEAD
-      const approvalsPath = path.join(dir, ".clawdbot", "exec-approvals.json");
+      const approvalsPath = path.join(dir, ".openclaw", "exec-approvals.json");
       fs.mkdirSync(path.dirname(approvalsPath), { recursive: true });
       fs.writeFileSync(
         approvalsPath,

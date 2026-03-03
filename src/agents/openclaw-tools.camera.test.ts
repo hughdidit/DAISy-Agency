@@ -11,7 +11,7 @@ vi.mock("../media/image-ops.js", () => ({
 }));
 
 import "./test-helpers/fast-core-tools.js";
-import { createMoltbotTools } from "./moltbot-tools.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
 
 const NODE_ID = "mac-1";
 const BASE_RUN_INPUT = { action: "run", node: NODE_ID, command: ["echo", "hi"] } as const;
@@ -96,8 +96,8 @@ describe("nodes camera_snap", () => {
       return unexpectedGatewayMethod(method);
     });
 
-<<<<<<< HEAD:src/agents/clawdbot-tools.camera.test.ts
-    const tool = createMoltbotTools().find((candidate) => candidate.name === "nodes");
+<<<<<<< HEAD:src/agents/openclaw-tools.camera.test.ts
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "nodes");
     if (!tool) throw new Error("missing nodes tool");
 
     const result = await tool.execute("call1", {
@@ -136,8 +136,8 @@ describe("nodes camera_snap", () => {
       return unexpectedGatewayMethod(method);
     });
 
-<<<<<<< HEAD:src/agents/clawdbot-tools.camera.test.ts
-    const tool = createMoltbotTools().find((candidate) => candidate.name === "nodes");
+<<<<<<< HEAD:src/agents/openclaw-tools.camera.test.ts
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "nodes");
     if (!tool) throw new Error("missing nodes tool");
 
     await tool.execute("call1", {
@@ -403,8 +403,8 @@ describe("nodes run", () => {
       return unexpectedGatewayMethod(method);
     });
 
-<<<<<<< HEAD:src/agents/clawdbot-tools.camera.test.ts
-    const tool = createMoltbotTools().find((candidate) => candidate.name === "nodes");
+<<<<<<< HEAD:src/agents/openclaw-tools.camera.test.ts
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "nodes");
     if (!tool) throw new Error("missing nodes tool");
 
     await tool.execute("call1", {

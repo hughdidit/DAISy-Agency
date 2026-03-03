@@ -33,7 +33,7 @@ const makeConfig = (overrides: Record<string, unknown>) =>
       },
     },
   },
-  session: { store: "/tmp/moltbot-sessions.json" },
+  session: { store: "/tmp/openclaw-sessions.json" },
 } as const;
 
 function createGroupMessage(overrides: Record<string, unknown> = {}) {

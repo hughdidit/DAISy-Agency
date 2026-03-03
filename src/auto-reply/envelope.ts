@@ -6,7 +6,7 @@ import { resolveSenderLabel, type SenderLabelParams } from "../channels/sender-l
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -67,7 +67,7 @@ type ResolvedEnvelopeTimezone =
   | { mode: "local" }
   | { mode: "iana"; timeZone: string };
 
-export function resolveEnvelopeFormatOptions(cfg?: MoltbotConfig): EnvelopeFormatOptions {
+export function resolveEnvelopeFormatOptions(cfg?: OpenClawConfig): EnvelopeFormatOptions {
   const defaults = cfg?.agents?.defaults;
   return {
     timezone: defaults?.envelopeTimezone,

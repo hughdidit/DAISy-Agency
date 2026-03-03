@@ -1,6 +1,6 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 
-import type { RuntimeEnv } from "clawdbot/plugin-sdk";
+import type { RuntimeEnv } from "openclaw/plugin-sdk";
 
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)

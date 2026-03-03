@@ -124,7 +124,7 @@ describe("control UI assets helpers (fs-mocked)", () => {
   it("resolves repo root from src argv1", async () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-ui-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
     try {
       await fs.mkdir(path.join(tmp, "ui"), { recursive: true });
       await fs.writeFile(path.join(tmp, "ui", "vite.config.ts"), "export {};\n");
@@ -148,7 +148,7 @@ describe("control UI assets helpers (fs-mocked)", () => {
 <<<<<<< HEAD
   it("resolves repo root from dist argv1", async () => {
 <<<<<<< HEAD
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-ui-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
     try {
       await fs.mkdir(path.join(tmp, "ui"), { recursive: true });
       await fs.writeFile(path.join(tmp, "ui", "vite.config.ts"), "export {};\n");

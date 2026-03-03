@@ -47,7 +47,7 @@ describe("memory manager atomic reindex", () => {
     resetEmbeddingMocks();
     shouldFail = false;
 <<<<<<< HEAD
-    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
+    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-"));
     workspaceDir = path.join(fixtureRoot, `case-${caseId++}`);
     await fs.mkdir(workspaceDir, { recursive: true });
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)

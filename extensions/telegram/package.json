@@ -1,9 +1,9 @@
 {
-  "name": "@moltbot/telegram",
+  "name": "@openclaw/telegram",
   "version": "2026.1.27-beta.1",
   "type": "module",
-  "description": "Moltbot Telegram channel plugin",
-  "moltbot": {
+  "description": "OpenClaw Telegram channel plugin",
+  "openclaw": {
 =======
   "version": "2026.2.23",
 >>>>>>> 8d9d01447 (chore: align plugin versions and harden outbound cross-provider test)

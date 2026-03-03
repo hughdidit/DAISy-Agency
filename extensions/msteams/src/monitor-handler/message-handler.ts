@@ -13,7 +13,7 @@ import {
   resolveMentionGating,
   formatAllowlistMatchMeta,
   type HistoryEntry,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 
 =======
 import type { StoredConversationReference } from "../conversation-store.js";

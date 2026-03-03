@@ -22,7 +22,7 @@ import { SessionManager } from "@mariozechner/pi-coding-agent";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { describe, expect, it, afterEach } from "vitest";
 
-import { loadMoltbotPlugins } from "../plugins/loader.js";
+import { loadOpenClawPlugins } from "../plugins/loader.js";
 import { resetGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { guardSessionManager } from "./session-tool-result-guard-wrapper.js";
 
@@ -34,7 +34,7 @@ function writeTempPlugin(params: { dir: string; id: string; body: string }): str
   const file = path.join(pluginDir, `${params.id}.mjs`);
   fs.writeFileSync(file, params.body, "utf-8");
   fs.writeFileSync(
-    path.join(pluginDir, "moltbot.plugin.json"),
+    path.join(pluginDir, "openclaw.plugin.json"),
     JSON.stringify(
       {
         id: params.id,
@@ -92,8 +92,8 @@ describe("tool_result_persist hook", () => {
   });
 
   it("composes transforms in priority order and allows stripping toolResult.details", () => {
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-toolpersist-"));
-    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-toolpersist-"));
+    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
 
     const pluginA = writeTempPlugin({
       dir: tmp,
@@ -119,7 +119,7 @@ describe("tool_result_persist hook", () => {
 } };`,
     });
 
-    loadMoltbotPlugins({
+    loadOpenClawPlugins({
       cache: false,
       workspaceDir: tmp,
       config: {

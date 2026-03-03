@@ -11,7 +11,7 @@ describe.sequential("acquireSessionWriteLock", () => {
   let acquiredLocks: Array<{ release: () => Promise<void> }>;
 
   beforeEach(async () => {
-    testRoot = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-lock-"));
+    testRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-"));
     acquiredLocks = [];
   });
 
@@ -120,7 +120,7 @@ describe("acquireSessionWriteLock", () => {
   it("removes held locks on termination signals", async () => {
     const signals = ["SIGINT", "SIGTERM", "SIGQUIT", "SIGABRT"] as const;
     for (const signal of signals) {
-      const signalRoot = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-lock-cleanup-"));
+      const signalRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-cleanup-"));
       try {
         const sessionFile = path.join(signalRoot, "sessions.json");
         const lockPath = `${sessionFile}.lock`;

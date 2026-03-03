@@ -1,8 +1,8 @@
 import type { ChildProcess } from "node:child_process";
 <<<<<<< HEAD
 
-import type { MoltbotConfig, MarkdownTableMode, RuntimeEnv } from "clawdbot/plugin-sdk";
-import { mergeAllowlist, summarizeMapping } from "clawdbot/plugin-sdk";
+import type { OpenClawConfig, MarkdownTableMode, RuntimeEnv } from "openclaw/plugin-sdk";
+import { mergeAllowlist, summarizeMapping } from "openclaw/plugin-sdk";
 import { sendMessageZalouser } from "./send.js";
 =======
 =======
@@ -59,7 +59,7 @@ import { parseJsonOutput, runZca, runZcaStreaming } from "./zca.js";
 
 export type ZalouserMonitorOptions = {
   account: ResolvedZalouserAccount;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   runtime: RuntimeEnv;
   abortSignal: AbortSignal;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
@@ -207,7 +207,7 @@ function startZcaListener(
 async function processMessage(
   message: ZcaMessage,
   account: ResolvedZalouserAccount,
-  config: MoltbotConfig,
+  config: OpenClawConfig,
   core: ZalouserCoreRuntime,
   runtime: RuntimeEnv,
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void,
@@ -448,7 +448,7 @@ async function deliverZalouserReply(params: {
   isGroup: boolean;
   runtime: RuntimeEnv;
   core: ZalouserCoreRuntime;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   accountId?: string;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
   tableMode?: MarkdownTableMode;

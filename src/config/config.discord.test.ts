@@ -15,10 +15,10 @@ describe("config discord", () => {
 
   it("loads discord guild map + dm group settings", async () => {
     await withTempHome(async (home) => {
-      const configDir = path.join(home, ".clawdbot");
+      const configDir = path.join(home, ".openclaw");
       await fs.mkdir(configDir, { recursive: true });
       await fs.writeFile(
-        path.join(configDir, "moltbot.json"),
+        path.join(configDir, "openclaw.json"),
         JSON.stringify(
           {
             channels: {

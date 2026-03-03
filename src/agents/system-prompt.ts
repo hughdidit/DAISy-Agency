@@ -246,16 +246,16 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
     "## Documentation",
     `OpenClaw docs: ${docsPath}`,
     "Mirror: https://docs.molt.bot",
-    "Source: https://github.com/moltbot/moltbot",
+    "Source: https://github.com/moltai/openclawbot",
     "Community: https://discord.com/invite/clawd",
 <<<<<<< HEAD
     "Find new skills: https://clawdhub.com",
     "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
-    "When diagnosing issues, run `moltbot status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
+    "When diagnosing issues, run `openclaw status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
 =======
     "Find new skills: https://clawdhub.com",
-    "For Moltbot behavior, commands, config, or architecture: consult local docs first.",
-    "When diagnosing issues, run `moltbot status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
+    "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
+    "When diagnosing issues, run `openclaw status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
     "",
   ];
@@ -530,22 +530,22 @@ export function buildAgentSystemPrompt(params: {
     "",
 <<<<<<< HEAD
 <<<<<<< HEAD
-    "## Moltbot CLI Quick Reference",
-    "Moltbot is controlled via subcommands. Do not invent commands.",
+    "## OpenClaw CLI Quick Reference",
+    "OpenClaw is controlled via subcommands. Do not invent commands.",
 =======
-    "## Moltbot CLI Quick Reference",
-    "Moltbot is controlled via subcommands. Do not invent commands.",
+    "## OpenClaw CLI Quick Reference",
+    "OpenClaw is controlled via subcommands. Do not invent commands.",
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 =======
     "## OpenClaw CLI Quick Reference",
     "OpenClaw is controlled via subcommands. Do not invent commands.",
 >>>>>>> f72214725 (chore: restore OpenClaw branding)
     "To manage the Gateway daemon service (start/stop/restart):",
-    "- moltbot gateway status",
-    "- moltbot gateway start",
-    "- moltbot gateway stop",
-    "- moltbot gateway restart",
-    "If unsure, ask the user to run `moltbot help` (or `moltbot gateway --help`) and paste the output.",
+    "- openclaw gateway status",
+    "- openclaw gateway start",
+    "- openclaw gateway stop",
+    "- openclaw gateway restart",
+    "If unsure, ask the user to run `openclaw help` (or `openclaw gateway --help`) and paste the output.",
     "",
     ...skillsSection,
     ...memorySection,

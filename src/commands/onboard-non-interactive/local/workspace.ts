@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../../../config/config.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 import { resolveUserPath } from "../../../utils.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -16,7 +16,7 @@ import type { OnboardOptions } from "../../onboard-types.js";
 
 export function resolveNonInteractiveWorkspaceDir(params: {
   opts: OnboardOptions;
-  baseConfig: MoltbotConfig;
+  baseConfig: OpenClawConfig;
   defaultWorkspaceDir: string;
 }) {
   const raw = (

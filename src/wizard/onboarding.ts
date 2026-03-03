@@ -35,7 +35,7 @@ import type {
   ResetScope,
 } from "../commands/onboard-types.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 =======
 import { formatCliCommand } from "../cli/command-format.js";
@@ -138,11 +138,11 @@ async function requireRiskAcknowledgement(params: {
     [
       "Security warning — please read.",
       "",
-      "Moltbot is a hobby project and still in beta. Expect sharp edges.",
+      "OpenClaw is a hobby project and still in beta. Expect sharp edges.",
       "This bot can read files and run actions if tools are enabled.",
       "A bad prompt can trick it into doing unsafe things.",
       "",
-      "If you’re not comfortable with basic security and access control, don’t run Moltbot.",
+      "If you’re not comfortable with basic security and access control, don’t run OpenClaw.",
       "Ask someone experienced to help before enabling tools or exposing it to the internet.",
       "",
       "Recommended baseline:",
@@ -152,8 +152,8 @@ async function requireRiskAcknowledgement(params: {
       "- Use the strongest available model for any bot with tools or untrusted inboxes.",
       "",
       "Run regularly:",
-      "moltbot security audit --deep",
-      "moltbot security audit --fix",
+      "openclaw security audit --deep",
+      "openclaw security audit --fix",
       "",
       "Must read: https://docs.molt.bot/gateway/security",
     ].join("\n"),
@@ -175,11 +175,11 @@ export async function runOnboardingWizard(
   prompter: WizardPrompter,
 ) {
   printWizardHeader(runtime);
-  await prompter.intro("Moltbot onboarding");
+  await prompter.intro("OpenClaw onboarding");
   await requireRiskAcknowledgement({ opts, prompter });
 
   const snapshot = await readConfigFileSnapshot();
-  let baseConfig: MoltbotConfig = snapshot.valid ? snapshot.config : {};
+  let baseConfig: OpenClawConfig = snapshot.valid ? snapshot.config : {};
 
   if (snapshot.exists && !snapshot.valid) {
     await prompter.note(onboardHelpers.summarizeExistingConfig(baseConfig), "Invalid config");
@@ -194,13 +194,13 @@ export async function runOnboardingWizard(
       );
     }
     await prompter.outro(
-      `Config invalid. Run \`${formatCliCommand("moltbot doctor")}\` to repair it, then re-run onboarding.`,
+      `Config invalid. Run \`${formatCliCommand("openclaw doctor")}\` to repair it, then re-run onboarding.`,
     );
     runtime.exit(1);
     return;
   }
 
-  const quickstartHint = `Configure details later via ${formatCliCommand("moltbot configure")}.`;
+  const quickstartHint = `Configure details later via ${formatCliCommand("openclaw configure")}.`;
   const manualHint = "Configure port, network, Tailscale, and auth options.";
   const explicitFlowRaw = opts.flow?.trim();
   const normalizedExplicitFlow = explicitFlowRaw === "manual" ? "advanced" : explicitFlowRaw;
@@ -381,8 +381,8 @@ export async function runOnboardingWizard(
   const localUrl = `ws://127.0.0.1:${localPort}`;
   const localProbe = await onboardHelpers.probeGatewayReachable({
     url: localUrl,
-    token: baseConfig.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
-    password: baseConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD,
+    token: baseConfig.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN,
+    password: baseConfig.gateway?.auth?.password ?? process.env.OPENCLAW_GATEWAY_PASSWORD,
   });
   const remoteUrl = baseConfig.gateway?.remote?.url?.trim() ?? "";
   const remoteProbe = remoteUrl
@@ -441,7 +441,7 @@ export async function runOnboardingWizard(
   const workspaceDir = resolveUserPath(workspaceInput.trim() || onboardHelpers.DEFAULT_WORKSPACE);
 
 <<<<<<< HEAD
-  let nextConfig: MoltbotConfig = {
+  let nextConfig: OpenClawConfig = {
     ...baseConfig,
     agents: {
       ...baseConfig.agents,

@@ -72,7 +72,7 @@ import { parseDurationMs } from "../../cli/parse-duration.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> dee013426 (style: reformat dedupe-touched files)
 =======
@@ -221,7 +221,7 @@ const NodesToolSchema = Type.Object({
 
 export function createNodesTool(options?: {
   agentSessionKey?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
 }): AnyAgentTool {
   const sessionKey = options?.agentSessionKey?.trim() || undefined;
   const agentId = resolveSessionAgentId({

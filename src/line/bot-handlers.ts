@@ -7,7 +7,7 @@ import type {
   LeaveEvent,
   PostbackEvent,
 } from "@line/bot-sdk";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 import type { LineGroupConfig, ResolvedLineAccount } from "./types.js";
@@ -66,7 +66,7 @@ interface MediaRef {
 }
 
 export interface LineHandlerContext {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   account: ResolvedLineAccount;
   runtime: RuntimeEnv;
   mediaMaxBytes: number;

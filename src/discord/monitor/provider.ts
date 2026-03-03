@@ -79,7 +79,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig, ReplyToMode } from "../../config/config.js";
+import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -154,7 +154,7 @@ import { formatThreadBindingDurationLabel } from "./thread-bindings.messages.js"
 export type MonitorDiscordOpts = {
   token?: string;
   accountId?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   mediaMaxMb?: number;

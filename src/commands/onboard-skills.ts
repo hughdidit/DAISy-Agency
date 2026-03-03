@@ -6,7 +6,7 @@ import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 =======
@@ -59,10 +59,10 @@ function formatSkillHint(skill: {
 }
 
 function upsertSkillEntry(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   skillKey: string,
   patch: { apiKey?: string },
-): MoltbotConfig {
+): OpenClawConfig {
   const entries = { ...cfg.skills?.entries };
   const existing = (entries[skillKey] as { apiKey?: string } | undefined) ?? {};
   entries[skillKey] = { ...existing, ...patch };
@@ -76,11 +76,11 @@ function upsertSkillEntry(
 }
 
 export async function setupSkills(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   workspaceDir: string,
   runtime: RuntimeEnv,
   prompter: WizardPrompter,
-): Promise<MoltbotConfig> {
+): Promise<OpenClawConfig> {
   const report = buildWorkspaceSkillStatus(workspaceDir, { config: cfg });
   const eligible = report.skills.filter((s) => s.eligible);
   const missing = report.skills.filter((s) => !s.eligible && !s.disabled && !s.blockedByAllowlist);
@@ -136,7 +136,7 @@ export async function setupSkills(
     options: resolveNodeManagerOptions(),
   })) as "npm" | "pnpm" | "bun";
 
-  let next: MoltbotConfig = {
+  let next: OpenClawConfig = {
     ...cfg,
     skills: {
       ...cfg.skills,
@@ -196,7 +196,7 @@ export async function setupSkills(
           runtime.log(result.stdout.trim());
         }
         runtime.log(
-          `Tip: run \`${formatCliCommand("moltbot doctor")}\` to review skills + requirements.`,
+          `Tip: run \`${formatCliCommand("openclaw doctor")}\` to review skills + requirements.`,
         );
         runtime.log("Docs: https://docs.molt.bot/skills");
       }

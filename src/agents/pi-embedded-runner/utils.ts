@@ -1,10 +1,10 @@
 import type { ThinkingLevel } from "@mariozechner/pi-agent-core";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { ExecToolDefaults } from "../bash-tools.js";
 
 export function mapThinkingLevel(level?: ThinkLevel): ThinkingLevel {
-  // pi-agent-core supports "xhigh"; Moltbot enables it for specific models.
+  // pi-agent-core supports "xhigh"; OpenClaw enables it for specific models.
   if (!level) return "off";
 =======
   // "adaptive" maps to "medium" at the pi-agent-core layer.  The Pi SDK
@@ -18,7 +18,7 @@ export function mapThinkingLevel(level?: ThinkLevel): ThinkingLevel {
   return level;
 }
 
-export function resolveExecToolDefaults(config?: MoltbotConfig): ExecToolDefaults | undefined {
+export function resolveExecToolDefaults(config?: OpenClawConfig): ExecToolDefaults | undefined {
   const tools = config?.tools;
   if (!tools?.exec) {
     return undefined;

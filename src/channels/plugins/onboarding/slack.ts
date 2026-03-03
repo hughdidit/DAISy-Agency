@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../../../config/config.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
 import { DEFAULT_ACCOUNT_ID } from "../../../routing/session-key.js";
 import {
@@ -29,7 +29,7 @@ const channel = "slack" as const;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-function setSlackDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
+function setSlackDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.slack?.dm?.allowFrom) : undefined;
 =======
@@ -66,11 +66,11 @@ function setSlackDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
 =======
 >>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 function buildSlackManifest(botName: string) {
-  const safeName = botName.trim() || "Moltbot";
+  const safeName = botName.trim() || "OpenClaw";
   const manifest = {
     display_information: {
       name: safeName,
-      description: `${safeName} connector for Moltbot`,
+      description: `${safeName} connector for OpenClaw`,
     },
     features: {
       bot_user: {
@@ -84,7 +84,7 @@ function buildSlackManifest(botName: string) {
       slash_commands: [
         {
           command: "/clawd",
-          description: "Send a message to Moltbot",
+          description: "Send a message to OpenClaw",
           should_escape: false,
         },
       ],
@@ -155,10 +155,10 @@ async function noteSlackTokenHelp(prompter: WizardPrompter, botName: string): Pr
 
 <<<<<<< HEAD
 function setSlackGroupPolicy(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
-): MoltbotConfig {
+): OpenClawConfig {
 function patchSlackConfigForAccount(
   cfg: OpenClawConfig,
   accountId: string,
@@ -209,16 +209,16 @@ function setSlackGroupPolicy(
 =======
 >>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 function setSlackChannelAllowlist(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
   channelKeys: string[],
-): MoltbotConfig {
+): OpenClawConfig {
   const channels = Object.fromEntries(channelKeys.map((key) => [key, { allow: true }]));
   return patchSlackConfigForAccount(cfg, accountId, { channels });
 }
 
 <<<<<<< HEAD
-function setSlackAllowFrom(cfg: MoltbotConfig, allowFrom: string[]): MoltbotConfig {
+function setSlackAllowFrom(cfg: OpenClawConfig, allowFrom: string[]): OpenClawConfig {
   return {
     ...cfg,
     channels: {
@@ -251,10 +251,10 @@ function parseSlackAllowFromInput(raw: string): string[] {
 }
 
 async function promptSlackAllowFrom(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<MoltbotConfig> {
+}): Promise<OpenClawConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
@@ -362,7 +362,7 @@ export const slackOnboardingAdapter: ChannelOnboardingAdapter = {
     const slackBotName = String(
       await prompter.text({
         message: "Slack bot display name (used for manifest)",
-        initialValue: "Moltbot",
+        initialValue: "OpenClaw",
       }),
     ).trim();
     if (!accountConfigured) {

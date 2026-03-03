@@ -5,7 +5,7 @@ const writeConfigFile = vi.fn().mockResolvedValue(undefined);
 const loadConfig = vi.fn().mockReturnValue({});
 
 vi.mock("../config/config.js", () => ({
-  CONFIG_PATH: "/tmp/moltbot.json",
+  CONFIG_PATH: "/tmp/openclaw.json",
   readConfigFileSnapshot,
   writeConfigFile,
   loadConfig,
@@ -59,7 +59,7 @@ describe("models set + fallbacks", () => {
 
   it("normalizes z.ai provider in models set", async () => {
     readConfigFileSnapshot.mockResolvedValue({
-      path: "/tmp/moltbot.json",
+      path: "/tmp/openclaw.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -81,7 +81,7 @@ describe("models set + fallbacks", () => {
 
   it("normalizes z-ai provider in models fallbacks add", async () => {
     readConfigFileSnapshot.mockResolvedValue({
-      path: "/tmp/moltbot.json",
+      path: "/tmp/openclaw.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -129,7 +129,7 @@ describe("models set + fallbacks", () => {
 
   it("normalizes provider casing in models set", async () => {
     readConfigFileSnapshot.mockResolvedValue({
-      path: "/tmp/moltbot.json",
+      path: "/tmp/openclaw.json",
       exists: true,
       raw: "{}",
       parsed: {},

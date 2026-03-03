@@ -18,7 +18,7 @@
 
 ### Changes
 <<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
+- Version alignment with core OpenClaw release numbers.
 
 =======
 >>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
@@ -39,5 +39,5 @@
 ### Improvements
 
 - Added proper configuration schema with Zod validation
-- Added plugin descriptor (moltbot.plugin.json)
+- Added plugin descriptor (openclaw.plugin.json)
 - Added comprehensive README and documentation

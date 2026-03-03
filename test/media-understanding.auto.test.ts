@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { MoltbotConfig } from "../src/config/config.js";
+import type { OpenClawConfig } from "../src/config/config.js";
 import type { MsgContext } from "../src/auto-reply/templating.js";
 
 const makeTempDir = async (prefix: string) => {
@@ -19,7 +19,7 @@ const writeExecutable = async (dir: string, name: string, content: string) => {
 };
 
 const makeTempMedia = async (ext: string) => {
-  const dir = await makeTempDir("moltbot-media-e2e-");
+  const dir = await makeTempDir("openclaw-media-e2e-");
   const filePath = path.join(dir, `sample${ext}`);
   await fs.writeFile(filePath, "audio");
   return { dir, filePath };
@@ -95,8 +95,8 @@ describe("media understanding auto-detect (e2e)", () => {
 <<<<<<< HEAD
     const snapshot = envSnapshot();
     try {
-      const binDir = await makeTempDir("moltbot-bin-sherpa-");
-      const modelDir = await makeTempDir("moltbot-sherpa-model-");
+      const binDir = await makeTempDir("openclaw-bin-sherpa-");
+      const modelDir = await makeTempDir("openclaw-sherpa-model-");
       tempPaths.push(binDir, modelDir);
     await withEnvSnapshot(async () => {
       const binDir = await createTrackedTempDir(tempPaths, "openclaw-bin-sherpa-");
@@ -124,7 +124,7 @@ describe("media understanding auto-detect (e2e)", () => {
         MediaPath: filePath,
         MediaType: "audio/wav",
       };
-      const cfg: MoltbotConfig = { tools: { media: { audio: {} } } };
+      const cfg: OpenClawConfig = { tools: { media: { audio: {} } } };
 
       await applyMediaUnderstanding({ ctx, cfg });
 
@@ -136,8 +136,8 @@ describe("media understanding auto-detect (e2e)", () => {
 <<<<<<< HEAD
     const snapshot = envSnapshot();
     try {
-      const binDir = await makeTempDir("moltbot-bin-whispercpp-");
-      const modelDir = await makeTempDir("moltbot-whispercpp-model-");
+      const binDir = await makeTempDir("openclaw-bin-whispercpp-");
+      const modelDir = await makeTempDir("openclaw-whispercpp-model-");
       tempPaths.push(binDir, modelDir);
     await withEnvSnapshot(async () => {
       const binDir = await createTrackedTempDir(tempPaths, "openclaw-bin-whispercpp-");
@@ -170,7 +170,7 @@ describe("media understanding auto-detect (e2e)", () => {
         MediaPath: filePath,
         MediaType: "audio/wav",
       };
-      const cfg: MoltbotConfig = { tools: { media: { audio: {} } } };
+      const cfg: OpenClawConfig = { tools: { media: { audio: {} } } };
 
       await applyMediaUnderstanding({ ctx, cfg });
 
@@ -182,7 +182,7 @@ describe("media understanding auto-detect (e2e)", () => {
 <<<<<<< HEAD
     const snapshot = envSnapshot();
     try {
-      const binDir = await makeTempDir("moltbot-bin-gemini-");
+      const binDir = await makeTempDir("openclaw-bin-gemini-");
       tempPaths.push(binDir);
     await withEnvSnapshot(async () => {
       const binDir = await createTrackedTempDir(tempPaths, "openclaw-bin-gemini-");
@@ -203,7 +203,7 @@ describe("media understanding auto-detect (e2e)", () => {
         MediaPath: filePath,
         MediaType: "image/png",
       };
-      const cfg: MoltbotConfig = { tools: { media: { image: {} } } };
+      const cfg: OpenClawConfig = { tools: { media: { image: {} } } };
 
       await applyMediaUnderstanding({ ctx, cfg });
 

@@ -8,7 +8,7 @@ import { normalizeAnyChannelId } from "../channels/registry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -47,7 +47,7 @@ type SandboxExplainOptions = {
 const SANDBOX_DOCS_URL = "https://docs.molt.bot/sandbox";
 
 function normalizeExplainSessionKey(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId: string;
   session?: string;
 }): string {
@@ -71,7 +71,7 @@ function normalizeExplainSessionKey(params: {
 }
 
 function inferProviderFromSessionKey(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   sessionKey: string;
 }): string | undefined {
   const parsed = parseAgentSessionKey(params.sessionKey);
@@ -101,7 +101,7 @@ function inferProviderFromSessionKey(params: {
 }
 
 function resolveActiveChannel(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId: string;
   sessionKey: string;
 }): string | undefined {

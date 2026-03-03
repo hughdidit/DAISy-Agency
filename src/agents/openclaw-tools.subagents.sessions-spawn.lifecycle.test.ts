@@ -3,8 +3,8 @@ import { emitAgentEvent } from "../infra/agent-events.js";
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.e2e.test.ts
 <<<<<<< HEAD
 import "./test-helpers/fast-core-tools.js";
-<<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
-import { createMoltbotTools } from "./moltbot-tools.js";
+<<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
+import { createOpenClawTools } from "./openclaw-tools.js";
 =======
 =======
 import { sleep } from "../utils.js";
@@ -20,7 +20,7 @@ import {
 >>>>>>> 615f6e1e4 (refactor(test): share sessions_spawn e2e mocks)
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
-describe("moltbot-tools: subagents", () => {
+describe("openclaw-tools: subagents", () => {
 =======
 >>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
 =======
@@ -292,7 +292,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       },
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     });
@@ -304,7 +304,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
     });
 
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.e2e.test.ts
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     }).find((candidate) => candidate.name === "sessions_spawn");
@@ -355,7 +355,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
     });
 
 <<<<<<< HEAD
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     });
@@ -523,7 +523,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
   it("sessions_spawn announces with requester accountId", async () => {
     const ctx = setupSessionsSpawnGatewayMock({});
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
       agentAccountId: "kev",

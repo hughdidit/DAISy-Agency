@@ -194,7 +194,7 @@ describe("resolveGatewayCredentialsFromConfig", () => {
     expect(resolved.token).toBeUndefined();
   });
 
-  it("can disable legacy CLAWDBOT env fallback", () => {
+  it("can disable legacy OPENCLAW env fallback", () => {
     const resolved = resolveGatewayCredentialsFromConfig({
       cfg: cfg({
         gateway: {
@@ -202,8 +202,8 @@ describe("resolveGatewayCredentialsFromConfig", () => {
         },
       }),
       env: {
-        CLAWDBOT_GATEWAY_TOKEN: "legacy-token",
-        CLAWDBOT_GATEWAY_PASSWORD: "legacy-password",
+        OPENCLAW_GATEWAY_TOKEN: "legacy-token",
+        OPENCLAW_GATEWAY_PASSWORD: "legacy-password",
       } as NodeJS.ProcessEnv,
       includeLegacyEnv: false,
     });

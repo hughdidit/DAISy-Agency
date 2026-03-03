@@ -3,7 +3,7 @@ import { type RunOptions, run } from "@grammyjs/runner";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -55,7 +55,7 @@ import { startTelegramWebhook } from "./webhook.js";
 export type MonitorTelegramOpts = {
   token?: string;
   accountId?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   useWebhook?: boolean;
@@ -66,7 +66,7 @@ export type MonitorTelegramOpts = {
   webhookUrl?: string;
 };
 
-export function createTelegramRunnerOptions(cfg: MoltbotConfig): RunOptions<unknown> {
+export function createTelegramRunnerOptions(cfg: OpenClawConfig): RunOptions<unknown> {
   return {
     sink: {
       concurrency: resolveAgentMaxConcurrent(cfg),

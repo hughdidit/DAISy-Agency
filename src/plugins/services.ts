@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { PluginRegistry } from "./registry.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -43,7 +43,7 @@ export type PluginServicesHandle = {
 
 export async function startPluginServices(params: {
   registry: PluginRegistry;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   workspaceDir?: string;
 }): Promise<PluginServicesHandle> {
   const running: Array<{

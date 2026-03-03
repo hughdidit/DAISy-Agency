@@ -5,7 +5,7 @@ import { formatThinkingLevels, listThinkingLevelLabels } from "../auto-reply/thi
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/types.js";
+import type { OpenClawConfig } from "../config/types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -29,7 +29,7 @@ export type ParsedCommand = {
 };
 
 export type SlashCommandOptions = {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   provider?: string;
   model?: string;
 };

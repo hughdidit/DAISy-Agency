@@ -5,7 +5,7 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
-import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
+import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
 import type { AuthProfileStore } from "../../agents/auth-profiles.js";
 <<<<<<< HEAD
 =======
@@ -37,8 +37,8 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { ModelRow } from "./list.types.js";
 =======
 import {
@@ -111,7 +111,7 @@ import { isLocalBaseUrl, modelKey } from "./shared.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 
 <<<<<<< HEAD
-const hasAuthForProvider = (provider: string, cfg: MoltbotConfig, authStore: AuthProfileStore) => {
+const hasAuthForProvider = (provider: string, cfg: OpenClawConfig, authStore: AuthProfileStore) => {
   if (listProfilesForProvider(authStore, provider).length > 0) return true;
   if (provider === "amazon-bedrock" && resolveAwsSdkEnvVarName()) return true;
   if (resolveEnvApiKey(provider)) return true;
@@ -133,9 +133,9 @@ const hasAuthForProvider = (provider: string, cfg: MoltbotConfig, authStore: Aut
 };
 
 <<<<<<< HEAD
-export async function loadModelRegistry(cfg: MoltbotConfig) {
-  await ensureMoltbotModelsJson(cfg);
-  const agentDir = resolveMoltbotAgentDir();
+export async function loadModelRegistry(cfg: OpenClawConfig) {
+  await ensureOpenClawModelsJson(cfg);
+  const agentDir = resolveOpenClawAgentDir();
 =======
 function createAvailabilityUnavailableError(message: string): Error {
   const err = new Error(message);
@@ -226,7 +226,7 @@ export function toModelRow(params: {
   tags: string[];
   aliases?: string[];
   availableKeys?: Set<string>;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   authStore?: AuthProfileStore;
 }): ModelRow {
   const { model, key, tags, aliases = [], availableKeys, cfg, authStore } = params;

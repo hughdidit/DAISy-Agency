@@ -46,7 +46,7 @@ Supported keys:
 - `seed`, `normalize`, `lang`, `output_format`, `latency_tier`
 - `once`
 
-## Config (`~/.clawdbot/moltbot.json`)
+## Config (`~/.clawdai/openclawbot.json`)
 ```json5
 {
   talk: {

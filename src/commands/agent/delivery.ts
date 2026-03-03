@@ -6,7 +6,7 @@
 import { AGENT_LANE_NESTED } from "../../agents/lanes.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
@@ -107,7 +107,7 @@ function logNestedOutput(runtime: RuntimeEnv, opts: AgentCommandOpts, output: st
 }
 
 export async function deliverAgentCommandResult(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   deps: CliDeps;
   runtime: RuntimeEnv;
   opts: AgentCommandOpts;

@@ -23,10 +23,10 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 import "./test-helpers/fast-core-tools.js";
-import { createMoltbotTools } from "./moltbot-tools.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
-describe("moltbot-tools: subagents", () => {
+describe("openclaw-tools: subagents", () => {
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createOpenClawTools } from "./openclaw-tools.js";
@@ -114,7 +114,7 @@ describe("openclaw-tools: subagents", () => {
       return {};
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "agent:research:main",
       agentChannel: "discord",
     }).find((candidate) => candidate.name === "sessions_spawn");
@@ -165,7 +165,7 @@ describe("openclaw-tools: subagents", () => {
       return {};
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     }).find((candidate) => candidate.name === "sessions_spawn");
@@ -202,7 +202,7 @@ describe("openclaw-tools: subagents", () => {
       return {};
     });
 
-    const tool = createMoltbotTools({
+    const tool = createOpenClawTools({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     }).find((candidate) => candidate.name === "sessions_spawn");

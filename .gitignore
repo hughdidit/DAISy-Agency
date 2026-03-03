@@ -31,16 +31,16 @@ apps/android/.cxx/
 # Bun build artifacts
 *.bun-build
 apps/macos/.build/
-apps/shared/MoltbotKit/.build/
+apps/shared/OpenClawKit/.build/
 apps/shared/OpenClawKit/.build/
 apps/shared/OpenClawKit/Package.resolved
 **/ModuleCache/
 bin/
-bin/clawdbot-mac
+bin/openclaw-mac
 bin/docs-list
 apps/macos/.build-local/
 apps/macos/.swiftpm/
-apps/shared/MoltbotKit/.swiftpm/
+apps/shared/OpenClawKit/.swiftpm/
 apps/shared/OpenClawKit/.swiftpm/
 Core/
 apps/ios/*.xcodeproj/
@@ -49,8 +49,8 @@ apps/ios/.swiftpm/
 apps/ios/.derivedData/
 apps/ios/.local-signing.xcconfig
 vendor/
-apps/ios/Clawdbot.xcodeproj/
-apps/ios/Clawdbot.xcodeproj/**
+apps/ios/OpenClaw.xcodeproj/
+apps/ios/OpenClaw.xcodeproj/**
 apps/macos/.build/**
 **/*.bun-build
 apps/ios/*.xcfilelist
@@ -100,7 +100,7 @@ error.log
 *.pem
 *.key
 secrets/
-.clawdbot/
+.openclaw/
 .var/
 AGENTS.md
 AGENTS.md.bak.md

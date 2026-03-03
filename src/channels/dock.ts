@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
@@ -97,11 +97,11 @@ export type ChannelDock = {
   elevated?: ChannelElevatedAdapter;
   config?: {
     resolveAllowFrom?: (params: {
-      cfg: MoltbotConfig;
+      cfg: OpenClawConfig;
       accountId?: string | null;
     }) => Array<string | number> | undefined;
     formatAllowFrom?: (params: {
-      cfg: MoltbotConfig;
+      cfg: OpenClawConfig;
       accountId?: string | null;
       allowFrom: Array<string | number>;
     }) => string[];

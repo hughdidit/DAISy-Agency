@@ -7,7 +7,7 @@ import { formatToolAggregate } from "../../../auto-reply/tool-meta.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../../config/config.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -103,7 +103,7 @@ export function buildEmbeddedRunPayloads(params: {
   toolMetas: ToolMetaEntry[];
   lastAssistant: AssistantMessage | undefined;
   lastToolError?: { toolName: string; meta?: string; error?: string };
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey: string;
   provider?: string;
   verboseLevel?: VerboseLevel;

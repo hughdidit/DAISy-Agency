@@ -1,4 +1,4 @@
-import MoltbotDiscovery
+import OpenClawDiscovery
 import SwiftUI
 
 struct GatewayDiscoveryInlineList: View {
@@ -134,6 +134,6 @@ struct GatewayDiscoveryMenu: View {
         } label: {
             Image(systemName: "dot.radiowaves.left.and.right")
         }
-        .help("Discover Moltbot gateways on your LAN")
+        .help("Discover OpenClaw gateways on your LAN")
     }
 }

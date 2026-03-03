@@ -9,8 +9,8 @@ import fs from "node:fs/promises";
 import Ajv from "ajv";
 import { Type } from "@sinclair/typebox";
 
-// NOTE: This extension is intended to be bundled with Moltbot.
-// When running from source (tests/dev), Moltbot internals live under src/.
+// NOTE: This extension is intended to be bundled with OpenClaw.
+// When running from source (tests/dev), OpenClaw internals live under src/.
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -30,7 +30,7 @@ import Ajv from "ajv";
 // When running from a built install, internals live under dist/ (no src/ tree).
 // So we resolve internal imports dynamically with src-first, dist-fallback.
 
-import type { MoltbotPluginApi } from "../../../src/plugins/types.js";
+import type { OpenClawPluginApi } from "../../../src/plugins/types.js";
 
 type RunEmbeddedPiAgentFn = (params: Record<string, unknown>) => Promise<unknown>;
 
@@ -89,7 +89,7 @@ type PluginCfg = {
   timeoutMs?: number;
 };
 
-export function createLlmTaskTool(api: MoltbotPluginApi) {
+export function createLlmTaskTool(api: OpenClawPluginApi) {
   return {
     name: "llm-task",
     label: "LLM Task",
@@ -203,7 +203,7 @@ export function createLlmTaskTool(api: MoltbotPluginApi) {
 
       let tmpDir: string | null = null;
       try {
-        tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-llm-task-"));
+        tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-llm-task-"));
         const sessionId = `llm-task-${Date.now()}`;
         const sessionFile = path.join(tmpDir, "session.json");
 

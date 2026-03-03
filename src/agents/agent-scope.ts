@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
@@ -22,7 +22,7 @@ function stripNullBytes(s: string): string {
 
 export { resolveAgentIdFromSessionKey };
 
-type AgentEntry = NonNullable<NonNullable<MoltbotConfig["agents"]>["list"]>[number];
+type AgentEntry = NonNullable<NonNullable<OpenClawConfig["agents"]>["list"]>[number];
 
 type ResolvedAgentConfig = {
   name?: string;
@@ -42,7 +42,7 @@ type ResolvedAgentConfig = {
 
 let defaultAgentWarned = false;
 
-function listAgents(cfg: MoltbotConfig): AgentEntry[] {
+function listAgents(cfg: OpenClawConfig): AgentEntry[] {
   const list = cfg.agents?.list;
   if (!Array.isArray(list)) {
     return [];
@@ -50,7 +50,7 @@ function listAgents(cfg: MoltbotConfig): AgentEntry[] {
   return list.filter((entry): entry is AgentEntry => Boolean(entry && typeof entry === "object"));
 }
 
-export function listAgentIds(cfg: MoltbotConfig): string[] {
+export function listAgentIds(cfg: OpenClawConfig): string[] {
   const agents = listAgents(cfg);
   if (agents.length === 0) {
     return [DEFAULT_AGENT_ID];
@@ -68,7 +68,7 @@ export function listAgentIds(cfg: MoltbotConfig): string[] {
   return ids.length > 0 ? ids : [DEFAULT_AGENT_ID];
 }
 
-export function resolveDefaultAgentId(cfg: MoltbotConfig): string {
+export function resolveDefaultAgentId(cfg: OpenClawConfig): string {
   const agents = listAgents(cfg);
   if (agents.length === 0) {
     return DEFAULT_AGENT_ID;
@@ -82,7 +82,7 @@ export function resolveDefaultAgentId(cfg: MoltbotConfig): string {
   return normalizeAgentId(chosen || DEFAULT_AGENT_ID);
 }
 
-export function resolveSessionAgentIds(params: { sessionKey?: string; config?: MoltbotConfig }): {
+export function resolveSessionAgentIds(params: { sessionKey?: string; config?: OpenClawConfig }): {
   defaultAgentId: string;
   sessionAgentId: string;
 } {
@@ -100,18 +100,18 @@ export function resolveSessionAgentIds(params: { sessionKey?: string; config?: M
 
 export function resolveSessionAgentId(params: {
   sessionKey?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
 }): string {
   return resolveSessionAgentIds(params).sessionAgentId;
 }
 
-function resolveAgentEntry(cfg: MoltbotConfig, agentId: string): AgentEntry | undefined {
+function resolveAgentEntry(cfg: OpenClawConfig, agentId: string): AgentEntry | undefined {
   const id = normalizeAgentId(agentId);
   return listAgentEntries(cfg).find((entry) => normalizeAgentId(entry.id) === id);
 }
 
 export function resolveAgentConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
 ): ResolvedAgentConfig | undefined {
   const id = normalizeAgentId(agentId);
@@ -139,7 +139,7 @@ export function resolveAgentConfig(
   };
 }
 
-export function resolveAgentModelPrimary(cfg: MoltbotConfig, agentId: string): string | undefined {
+export function resolveAgentModelPrimary(cfg: OpenClawConfig, agentId: string): string | undefined {
   const raw = resolveAgentConfig(cfg, agentId)?.model;
   if (!raw) {
 =======
@@ -184,7 +184,7 @@ export function resolveAgentModelPrimary(cfg: OpenClawConfig, agentId: string): 
 }
 
 export function resolveAgentModelFallbacksOverride(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
 ): string[] | undefined {
   const raw = resolveAgentConfig(cfg, agentId)?.model;
@@ -199,7 +199,7 @@ export function resolveAgentModelFallbacksOverride(
 }
 
 <<<<<<< HEAD
-export function resolveAgentWorkspaceDir(cfg: MoltbotConfig, agentId: string) {
+export function resolveAgentWorkspaceDir(cfg: OpenClawConfig, agentId: string) {
 export function resolveEffectiveModelFallbacks(params: {
   cfg: OpenClawConfig;
   agentId: string;
@@ -234,7 +234,7 @@ export function resolveAgentWorkspaceDir(cfg: OpenClawConfig, agentId: string) {
 >>>>>>> 19c43eade (fix(memory): strip null bytes from workspace paths causing ENOTDIR (#24876))
 }
 
-export function resolveAgentDir(cfg: MoltbotConfig, agentId: string) {
+export function resolveAgentDir(cfg: OpenClawConfig, agentId: string) {
   const id = normalizeAgentId(agentId);
   const configured = resolveAgentConfig(cfg, id)?.agentDir?.trim();
   if (configured) {

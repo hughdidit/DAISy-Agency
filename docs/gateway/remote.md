@@ -35,7 +35,7 @@ This is ideal when your laptop sleeps often but you want the agent always-on.
 
 The laptop does **not** run the agent. It connects remotely:
 
-- Use the macOS app’s **Remote over SSH** mode (Settings → General → “Moltbot runs”).
+- Use the macOS app’s **Remote over SSH** mode (Settings → General → “OpenClaw runs”).
 - The app opens and manages the tunnel, so WebChat + health checks “just work.”
 
 Runbook: [macOS remote access](/platforms/mac/remote).
@@ -74,10 +74,10 @@ ssh -N -L 18789:127.0.0.1:18789 user@host
 ```
 
 With the tunnel up:
-- `moltbot health` and `moltbot status --deep` now reach the remote gateway via `ws://127.0.0.1:18789`.
-- `moltbot gateway {status,health,send,agent,call}` can also target the forwarded URL via `--url` when needed.
+- `openclaw health` and `openclaw status --deep` now reach the remote gateway via `ws://127.0.0.1:18789`.
+- `openclaw gateway {status,health,send,agent,call}` can also target the forwarded URL via `--url` when needed.
 
-Note: replace `18789` with your configured `gateway.port` (or `--port`/`CLAWDBOT_GATEWAY_PORT`).
+Note: replace `18789` with your configured `gateway.port` (or `--port`/`OPENCLAW_GATEWAY_PORT`).
 
 ## CLI remote defaults
 
@@ -109,7 +109,7 @@ Gateway call/probe credential resolution now follows one shared contract:
   - token: `gateway.remote.token` -> `OPENCLAW_GATEWAY_TOKEN` -> `gateway.auth.token`
   - password: `OPENCLAW_GATEWAY_PASSWORD` -> `gateway.remote.password` -> `gateway.auth.password`
 - Remote probe/status token checks are strict by default: they use `gateway.remote.token` only (no local token fallback) when targeting remote mode.
-- Legacy `CLAWDBOT_GATEWAY_*` env vars are only used by compatibility call paths; probe/status/auth resolution uses `OPENCLAW_GATEWAY_*` only.
+- Legacy `OPENCLAW_GATEWAY_*` env vars are only used by compatibility call paths; probe/status/auth resolution uses `OPENCLAW_GATEWAY_*` only.
 
 ## Chat UI over SSH
 

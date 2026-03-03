@@ -23,7 +23,7 @@ export default defineConfig({
       "apps/macos/**",
       "apps/macos/.build/**",
       "**/vendor/**",
-      "dist/Moltbot.app/**",
+      "dist/OpenClaw.app/**",
     ],
     exclude,
 >>>>>>> eb3e9c649 (chore: fix vitest standalone configs and update package description (#11865))

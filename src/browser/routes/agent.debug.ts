@@ -168,7 +168,7 @@ export function registerBrowserAgentDebugRoutes(
       }
       const id = crypto.randomUUID();
 <<<<<<< HEAD
-      const dir = "/tmp/moltbot";
+      const dir = "/tmp/openclaw";
       await fs.mkdir(dir, { recursive: true });
       const tracePath = out.trim() || path.join(dir, `browser-trace-${id}.zip`);
       await pw.traceStopViaPlaywright({

@@ -2554,7 +2554,7 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         agentid: AnyCodable?,
         resolvedpath: AnyCodable?,
         sessionkey: AnyCodable?,
-<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
+<<<<<<< HEAD:apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         timeoutms: Int?
     ) {
         timeoutms: Int?,

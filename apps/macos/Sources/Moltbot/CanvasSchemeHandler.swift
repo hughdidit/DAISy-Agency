@@ -1,9 +1,9 @@
 import Foundation
-import MoltbotKit
+import OpenClawKit
 import OSLog
 import WebKit
 
-private let canvasLogger = Logger(subsystem: "bot.molt", category: "Canvas")
+private let canvasLogger = Logger(subsystem: "ai.openclaw", category: "Canvas")
 
 final class CanvasSchemeHandler: NSObject, WKURLSchemeHandler {
     private let root: URL
@@ -222,7 +222,7 @@ final class CanvasSchemeHandler: NSObject, WKURLSchemeHandler {
         let name = fileURL.deletingPathExtension().lastPathComponent
         guard !name.isEmpty, !ext.isEmpty else { return nil }
 
-        let bundle = MoltbotKitResources.bundle
+        let bundle = OpenClawKitResources.bundle
         let resourceURL =
             bundle.url(forResource: name, withExtension: ext, subdirectory: subdirectory)
             ?? bundle.url(forResource: name, withExtension: ext)

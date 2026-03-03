@@ -53,7 +53,7 @@ import {
   readChannelAllowFromStore,
   removeChannelAllowFromStoreEntry,
 } from "../../pairing/pairing-store.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { ChannelId } from "../../channels/plugins/types.js";
 import type { CommandHandler } from "./commands-types.js";
 =======
@@ -188,7 +188,7 @@ function parseAllowlistCommand(raw: string): AllowlistCommand | null {
 }
 
 function normalizeAllowFrom(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channelId: ChannelId;
   accountId?: string | null;
   values: Array<string | number>;
@@ -349,7 +349,7 @@ function mapResolvedAllowlistNames(entries: ResolvedAllowlistName[]): Map<string
 }
 
 async function resolveSlackNames(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
   entries: string[];
 }) {
@@ -363,7 +363,7 @@ async function resolveSlackNames(params: {
 }
 
 async function resolveDiscordNames(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
   entries: string[];
 }) {

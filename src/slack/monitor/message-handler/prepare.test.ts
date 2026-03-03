@@ -8,7 +8,7 @@ import type { App } from "@slack/bolt";
 <<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
-import type { MoltbotConfig } from "../../../config/config.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 =======
 import type { App } from "@slack/bolt";
 >>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
@@ -195,7 +195,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
     const slackCtx = createSlackMonitorContext({
       cfg: {
         channels: { slack: { enabled: true } },
-      } as MoltbotConfig,
+      } as OpenClawConfig,
   function createThreadSlackCtx(params: { cfg: OpenClawConfig; replies: unknown }) {
     return createInboundSlackCtx({
       cfg: params.cfg,
@@ -343,7 +343,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
     const slackCtx = createInboundSlackCtx({
       cfg: {
         channels: { slack: { enabled: true, replyToMode: "all" } },
-      } as MoltbotConfig,
+      } as OpenClawConfig,
       accountId: "default",
       botToken: "token",
       app: { client: {} } as App,

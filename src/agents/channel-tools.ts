@@ -26,7 +26,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import { getChannelDock } from "../channels/dock.js";
@@ -54,7 +54,7 @@ import { defaultRuntime } from "../runtime.js";
  * Returns an empty array if channel is not found or has no actions configured.
  */
 export function listChannelSupportedActions(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   channel?: string;
 }): ChannelMessageActionName[] {
   if (!params.channel) {
@@ -62,7 +62,7 @@ export function listChannelSupportedActions(params: {
   }
   const plugin = getChannelPlugin(params.channel as Parameters<typeof getChannelPlugin>[0]);
   if (!plugin?.actions?.listActions) return [];
-  const cfg = params.cfg ?? ({} as MoltbotConfig);
+  const cfg = params.cfg ?? ({} as OpenClawConfig);
   return runPluginListActions(plugin, cfg);
 }
 
@@ -70,12 +70,12 @@ export function listChannelSupportedActions(params: {
  * Get the list of all supported message actions across all configured channels.
  */
 export function listAllChannelSupportedActions(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
 }): ChannelMessageActionName[] {
   const actions = new Set<ChannelMessageActionName>();
   for (const plugin of listChannelPlugins()) {
     if (!plugin.actions?.listActions) continue;
-    const cfg = params.cfg ?? ({} as MoltbotConfig);
+    const cfg = params.cfg ?? ({} as OpenClawConfig);
     const channelActions = runPluginListActions(plugin, cfg);
     for (const action of channelActions) {
       actions.add(action);
@@ -84,7 +84,7 @@ export function listAllChannelSupportedActions(params: {
   return Array.from(actions);
 }
 
-export function listChannelAgentTools(params: { cfg?: MoltbotConfig }): ChannelAgentTool[] {
+export function listChannelAgentTools(params: { cfg?: OpenClawConfig }): ChannelAgentTool[] {
   // Channel docking: aggregate channel-owned tools (login, etc.).
   const tools: ChannelAgentTool[] = [];
   for (const plugin of listChannelPlugins()) {
@@ -101,7 +101,7 @@ export function listChannelAgentTools(params: { cfg?: MoltbotConfig }): ChannelA
 }
 
 export function resolveChannelMessageToolHints(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   channel?: string | null;
   accountId?: string | null;
 }): string[] {
@@ -112,7 +112,7 @@ export function resolveChannelMessageToolHints(params: {
   const dock = getChannelDock(channelId);
   const resolve = dock?.agentPrompt?.messageToolHints;
   if (!resolve) return [];
-  const cfg = params.cfg ?? ({} as MoltbotConfig);
+  const cfg = params.cfg ?? ({} as OpenClawConfig);
   return (resolve({ cfg, accountId: params.accountId }) ?? [])
     .map((entry) => entry.trim())
     .filter(Boolean);
@@ -122,7 +122,7 @@ const loggedListActionErrors = new Set<string>();
 
 function runPluginListActions(
   plugin: ChannelPlugin,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): ChannelMessageActionName[] {
   if (!plugin.actions?.listActions) {
     return [];

@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import handler from "./handler.js";
 import { createHookEvent } from "../../hooks.js";
-import type { ClawdbotConfig } from "../../../config/config.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 import { makeTempWorkspace, writeWorkspaceFile } from "../../../test-helpers/workspace.js";
 
 /**
@@ -153,7 +153,7 @@ function expectMemoryConversation(params: {
 
 describe("session-memory hook", () => {
   it("skips non-command events", async () => {
-    const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
+    const tempDir = await makeTempWorkspace("openclaw-session-memory-");
 
     const event = createHookEvent("agent", "bootstrap", "agent:main:main", {
       workspaceDir: tempDir,
@@ -167,7 +167,7 @@ describe("session-memory hook", () => {
   });
 
   it("skips commands other than new", async () => {
-    const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
+    const tempDir = await makeTempWorkspace("openclaw-session-memory-");
 
     const event = createHookEvent("command", "help", "agent:main:main", {
       workspaceDir: tempDir,
@@ -181,7 +181,7 @@ describe("session-memory hook", () => {
   });
 
   it("creates memory file with session content on /new command", async () => {
-    const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
+    const tempDir = await makeTempWorkspace("openclaw-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
@@ -198,7 +198,7 @@ describe("session-memory hook", () => {
       content: sessionContent,
     });
 
-    const cfg: ClawdbotConfig = {
+    const cfg: OpenClawConfig = {
       agents: { defaults: { workspace: tempDir } },
     };
 
@@ -240,7 +240,7 @@ describe("session-memory hook", () => {
   });
 
   it("filters out non-message entries (tool calls, system)", async () => {
-    const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
+    const tempDir = await makeTempWorkspace("openclaw-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
@@ -258,7 +258,7 @@ describe("session-memory hook", () => {
       content: sessionContent,
     });
 
-    const cfg: ClawdbotConfig = {
+    const cfg: OpenClawConfig = {
       agents: { defaults: { workspace: tempDir } },
     };
 
@@ -287,7 +287,7 @@ describe("session-memory hook", () => {
   });
 
   it("filters out command messages starting with /", async () => {
-    const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
+    const tempDir = await makeTempWorkspace("openclaw-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
@@ -303,7 +303,7 @@ describe("session-memory hook", () => {
       content: sessionContent,
     });
 
-    const cfg: ClawdbotConfig = {
+    const cfg: OpenClawConfig = {
       agents: { defaults: { workspace: tempDir } },
     };
 
@@ -330,7 +330,7 @@ describe("session-memory hook", () => {
   });
 
   it("respects custom messages config (limits to N messages)", async () => {
-    const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
+    const tempDir = await makeTempWorkspace("openclaw-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
@@ -347,7 +347,7 @@ describe("session-memory hook", () => {
     });
 
     // Configure to only include last 3 messages
-    const cfg: ClawdbotConfig = {
+    const cfg: OpenClawConfig = {
       agents: { defaults: { workspace: tempDir } },
       hooks: {
         internal: {
@@ -370,7 +370,7 @@ describe("session-memory hook", () => {
   });
 
   it("filters messages before slicing (fix for #2681)", async () => {
-    const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
+    const tempDir = await makeTempWorkspace("openclaw-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
@@ -397,7 +397,7 @@ describe("session-memory hook", () => {
 
     // Request 3 messages - if we sliced first, we'd only get 1-2 messages
     // because the last 3 lines include tool entries
-    const cfg: ClawdbotConfig = {
+    const cfg: OpenClawConfig = {
       agents: { defaults: { workspace: tempDir } },
       hooks: {
         internal: {
@@ -573,7 +573,7 @@ describe("session-memory hook", () => {
   });
 
   it("handles empty session files gracefully", async () => {
-    const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
+    const tempDir = await makeTempWorkspace("openclaw-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
@@ -583,7 +583,7 @@ describe("session-memory hook", () => {
       content: "",
     });
 
-    const cfg: ClawdbotConfig = {
+    const cfg: OpenClawConfig = {
       agents: { defaults: { workspace: tempDir } },
     };
 
@@ -601,7 +601,7 @@ describe("session-memory hook", () => {
   });
 
   it("handles session files with fewer messages than requested", async () => {
-    const tempDir = await makeTempWorkspace("clawdbot-session-memory-");
+    const tempDir = await makeTempWorkspace("openclaw-session-memory-");
     const sessionsDir = path.join(tempDir, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
@@ -616,7 +616,7 @@ describe("session-memory hook", () => {
       content: sessionContent,
     });
 
-    const cfg: ClawdbotConfig = {
+    const cfg: OpenClawConfig = {
       agents: { defaults: { workspace: tempDir } },
     };
 

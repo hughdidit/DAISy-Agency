@@ -71,7 +71,7 @@ import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-de
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.js";
 =======
@@ -310,7 +310,7 @@ export type RunCronAgentTurnResult = {
 >>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
 
 export async function runCronIsolatedAgentTurn(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   deps: CliDeps;
   job: CronJob;
   message: string;
@@ -359,7 +359,7 @@ export async function runCronIsolatedAgentTurn(params: {
   } else if (overrideModel) {
     agentCfg.model = { ...existingModel, ...overrideModel };
   }
-  const cfgWithAgentDefaults: MoltbotConfig = {
+  const cfgWithAgentDefaults: OpenClawConfig = {
     ...params.cfg,
     agents: Object.assign({}, params.cfg.agents, { defaults: agentCfg }),
   };

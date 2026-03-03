@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -119,7 +119,7 @@ async function runLinkEntries(params: {
 }
 
 export async function runLinkUnderstanding(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   ctx: MsgContext;
   message?: string;
 }): Promise<LinkUnderstandingResult> {

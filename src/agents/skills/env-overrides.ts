@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { SkillEntry, SkillSnapshot } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
@@ -21,7 +21,7 @@ import { resolveSkillKey } from "./frontmatter.js";
 import type { SkillEntry, SkillSnapshot } from "./types.js";
 
 <<<<<<< HEAD
-export function applySkillEnvOverrides(params: { skills: SkillEntry[]; config?: MoltbotConfig }) {
+export function applySkillEnvOverrides(params: { skills: SkillEntry[]; config?: OpenClawConfig }) {
   const { skills, config } = params;
   const updates: Array<{ key: string; prev: string | undefined }> = [];
 type EnvUpdate = { key: string; prev: string | undefined };
@@ -183,7 +183,7 @@ export function applySkillEnvOverrides(params: { skills: SkillEntry[]; config?: 
 
 export function applySkillEnvOverridesFromSnapshot(params: {
   snapshot?: SkillSnapshot;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
 }) {
   const { snapshot, config } = params;
   if (!snapshot) {

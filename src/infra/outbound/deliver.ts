@@ -50,7 +50,7 @@ import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
@@ -202,7 +202,7 @@ type ChannelHandler = {
 
 // Channel docking: outbound delivery delegates to plugin.outbound adapters.
 async function createChannelHandler(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -238,7 +238,7 @@ async function createChannelHandler(params: {
 
 function createPluginHandler(params: {
   outbound?: ChannelOutboundAdapter;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -317,7 +317,7 @@ function createPluginHandler(params: {
 <<<<<<< HEAD
 export async function deliverOutboundPayloads(params: {
 <<<<<<< HEAD
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
 const isAbortError = (err: unknown): boolean => err instanceof Error && err.name === "AbortError";
 
 type DeliverOutboundPayloadsCoreParams = {
