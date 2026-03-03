@@ -50,21 +50,6 @@ export class MongoMemoryDB {
   }
 
   async search(vector: number[], limit = 5, minScore = 0.5): Promise<MemorySearchResult[]> {
-    if (!["1", "true"].includes(process.env.MEMORY_ALLOW_IN_MEMORY_SEARCH ?? "")) {
-      throw new Error(
-        "In-memory vector search is disabled. " +
-          "This O(N·D) full-scan path is not suitable for production use. " +
-          "Set MEMORY_ALLOW_IN_MEMORY_SEARCH=1 to enable (development/testing only).",
-      );
-    }
-
-    const ranked = [...this.storeById.values()]
-      .map((entry) => ({ entry, score: cosineSimilarity(vector, entry.vector) }))
-      .filter((result) => result.score >= minScore)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, limit);
-
-    return ranked;
     const col = await this.getCollection();
     const pipeline = [
       {
