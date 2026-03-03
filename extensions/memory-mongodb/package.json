@@ -5,7 +5,9 @@
   "description": "Moltbot MongoDB Atlas-backed long-term memory plugin with vector search",
   "dependencies": {
     "@sinclair/typebox": "0.34.47",
-    "voyageai": "^0.0.7"
+    "mongodb": "^6.12.0",
+    "voyageai": "^0.0.7",
+    "zod": "^4.3.6"
   },
   "moltbot": {
     "extensions": [
