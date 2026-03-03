@@ -485,7 +485,7 @@ const memoryPlugin = {
       id: "memory-mongodb",
       start: () => {
         api.logger.info(
-          `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, model: ${cfg.embedding.model})`,
+          `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, model: ${cfg.voyage.embeddingModel})`,
         );
       },
       stop: async () => {
