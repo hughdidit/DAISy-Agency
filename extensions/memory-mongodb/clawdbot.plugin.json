@@ -3,15 +3,15 @@
   "kind": "memory",
   "uiHints": {
     "embedding.apiKey": {
-      "label": "OpenAI API Key",
+      "label": "Voyage AI API Key",
       "sensitive": true,
-      "placeholder": "sk-proj-...",
-      "help": "API key for OpenAI embeddings (or use ${OPENAI_API_KEY})"
+      "placeholder": "pa-...",
+      "help": "API key for Voyage AI embeddings (or use ${VOYAGE_API_KEY})"
     },
     "embedding.model": {
       "label": "Embedding Model",
-      "placeholder": "text-embedding-3-small",
-      "help": "OpenAI embedding model to use"
+      "placeholder": "voyage-3",
+      "help": "Voyage AI embedding model to use"
     },
     "connectionUri": {
       "label": "MongoDB Connection URI",
@@ -62,8 +62,15 @@
           "model": {
             "type": "string",
             "enum": [
-              "text-embedding-3-small",
-              "text-embedding-3-large"
+              "voyage-3",
+              "voyage-3-large",
+              "voyage-3-lite",
+              "voyage-3.5",
+              "voyage-3.5-lite",
+              "voyage-code-3",
+              "voyage-finance-2",
+              "voyage-law-2",
+              "voyage-multilingual-2"
             ]
           }
         },
