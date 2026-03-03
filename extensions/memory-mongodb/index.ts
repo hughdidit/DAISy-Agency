@@ -3,7 +3,7 @@
  *
  * Long-term memory with vector search for AI conversations.
  * Uses MongoDB Atlas for storage, Atlas Vector Search for retrieval,
- * and OpenAI for embeddings.
+ * and VoyageAI for embeddings.
  * Provides seamless auto-recall and auto-capture via lifecycle hooks.
  */
 
@@ -27,7 +27,7 @@ import {
 } from "./mongodb-provider.js";
 
 // ============================================================================
-// OpenAI Embeddings
+// VoyageAI Embeddings
 // ============================================================================
 
 class Embeddings {
