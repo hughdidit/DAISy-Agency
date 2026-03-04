@@ -5,6 +5,7 @@ This guide documents the process for creating and configuring a staging VM that 
 ## Overview
 
 The staging VM is created by:
+
 1. Cloning the production boot disk via snapshot
 2. Attaching a fresh state disk for isolated storage
 3. Running a scrub script to remove production secrets/state
@@ -73,26 +74,27 @@ export STAGING_INSTANCE="my-staging-vm"
 ./scripts/gcp/create-staging-vm.sh
 ```
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `GCP_PROJECT_ID` | **(required)** | GCP project ID |
-| `GCP_ZONE` | `us-west1-b` | Zone for staging VM |
-| `PROD_BOOT_DISK` | `clawdbot-gw-1` | Production boot disk to clone |
-| `STAGING_INSTANCE` | `daisy-staging-1` | Staging VM name |
-| `STAGING_MACHINE_TYPE` | `n2-standard-8` | Machine type |
-| `STAGING_STATE_DISK_SIZE` | `200GB` | State disk size |
+| Variable                  | Default           | Description                   |
+| ------------------------- | ----------------- | ----------------------------- |
+| `GCP_PROJECT_ID`          | **(required)**    | GCP project ID                |
+| `GCP_ZONE`                | `us-west1-b`      | Zone for staging VM           |
+| `PROD_BOOT_DISK`          | `clawdbot-gw-1`   | Production boot disk to clone |
+| `STAGING_INSTANCE`        | `daisy-staging-1` | Staging VM name               |
+| `STAGING_MACHINE_TYPE`    | `n2-standard-8`   | Machine type                  |
+| `STAGING_STATE_DISK_SIZE` | `200GB`           | State disk size               |
 
 ### Service Account (Least Privilege)
 
 The staging service account (`${STAGING_INSTANCE}-sa`) is created with minimal permissions:
 
-| IAM Role | Purpose |
-|----------|---------|
-| `roles/logging.logWriter` | Write application logs to Cloud Logging |
-| `roles/monitoring.metricWriter` | Write metrics to Cloud Monitoring |
+| IAM Role                        | Purpose                                   |
+| ------------------------------- | ----------------------------------------- |
+| `roles/logging.logWriter`       | Write application logs to Cloud Logging   |
+| `roles/monitoring.metricWriter` | Write metrics to Cloud Monitoring         |
 | `roles/artifactregistry.reader` | Pull Docker images from Artifact Registry |
 
 **VM OAuth Scopes** (further restricts what the SA can do from the VM):
+
 - `logging-write` - Write logs only
 - `monitoring-write` - Write metrics only
 - `storage-ro` - Read-only storage (for pulling container images)
@@ -112,6 +114,7 @@ The broad `cloud-platform` scope is intentionally avoided.
 ```
 
 This script will:
+
 - Create a staging service account
 - Snapshot the production boot disk
 - Create staging boot and state disks
@@ -142,6 +145,7 @@ sudo bash /tmp/staging-scrub.sh
 ```
 
 The scrub script will:
+
 - Stop all services
 - Format and mount the state disk
 - Set up bind mounts for config and workspace
@@ -173,6 +177,7 @@ This provisions the VM, pulls the image, and starts the containers in one step.
 `CLAUDE_WEB_SESSION_KEY` and `CLAUDE_WEB_COOKIE` enable the **usage monitoring** feature, which displays your Claude rate limits and quota in the dashboard. These are optional fallback credentials used when the primary API token lacks the `user:profile` scope.
 
 To extract (if needed):
+
 1. Open [claude.ai](https://claude.ai) in your browser
 2. DevTools → Application → Cookies → copy `sessionKey` value
 
@@ -236,6 +241,7 @@ bash /tmp/staging-verify.sh
 ```
 
 Expected output:
+
 ```
 === Staging VM Verification ===
 
@@ -259,13 +265,13 @@ RESULT: PASSED with warnings
 
 Resources are named based on `STAGING_INSTANCE` (default: `daisy-staging-1`):
 
-| Resource | Naming Pattern | Notes |
-|----------|----------------|-------|
-| VM Instance | `${STAGING_INSTANCE}` | No external IP |
-| Boot Disk | `${STAGING_INSTANCE}-boot` | Cloned from production |
-| State Disk | `${STAGING_INSTANCE}-state` | 200GB, fresh |
-| Service Account | `${STAGING_INSTANCE}-sa@PROJECT.iam...` | Minimal permissions |
-| Snapshot | `${STAGING_INSTANCE}-snapshot-YYYYMMDD-HHMMSS` | Can be deleted after VM creation |
+| Resource        | Naming Pattern                                 | Notes                            |
+| --------------- | ---------------------------------------------- | -------------------------------- |
+| VM Instance     | `${STAGING_INSTANCE}`                          | No external IP                   |
+| Boot Disk       | `${STAGING_INSTANCE}-boot`                     | Cloned from production           |
+| State Disk      | `${STAGING_INSTANCE}-state`                    | 200GB, fresh                     |
+| Service Account | `${STAGING_INSTANCE}-sa@PROJECT.iam...`        | Minimal permissions              |
+| Snapshot        | `${STAGING_INSTANCE}-snapshot-YYYYMMDD-HHMMSS` | Can be deleted after VM creation |
 
 ## Rollback / Cleanup
 
@@ -299,15 +305,15 @@ gcloud iam service-accounts delete \
 
 ## Differences from Production
 
-| Aspect | Production | Staging |
-|--------|------------|---------|
-| Instance name | Production instance | `daisy-staging-1` |
-| Hostname | Production hostname | `daisy-staging-1` |
-| State storage | Production data disk | `daisy-staging-1-state` (fresh) |
-| Discord bot | Production bot | Staging bot (different token) |
-| Discord allowlist | Production channels | Staging-only channels |
-| External IP | None (IAP-only) | None (IAP-only) |
-| Service account | Default compute SA | `${STAGING_INSTANCE}-sa` |
+| Aspect            | Production           | Staging                         |
+| ----------------- | -------------------- | ------------------------------- |
+| Instance name     | Production instance  | `daisy-staging-1`               |
+| Hostname          | Production hostname  | `daisy-staging-1`               |
+| State storage     | Production data disk | `daisy-staging-1-state` (fresh) |
+| Discord bot       | Production bot       | Staging bot (different token)   |
+| Discord allowlist | Production channels  | Staging-only channels           |
+| External IP       | None (IAP-only)      | None (IAP-only)                 |
+| Service account   | Default compute SA   | `${STAGING_INSTANCE}-sa`        |
 
 ## GitHub Actions Integration
 
@@ -317,15 +323,15 @@ Deploy to staging via GitHub Actions using **Workload Identity Federation (WIF)*
 
 Configure the `staging` environment with these variables (replace with your values):
 
-| Variable | Example | Description |
-|----------|---------|-------------|
-| `GCP_PROJECT_ID` | `your-project-id` | GCP project ID |
-| `GCP_ZONE` | `us-west1-b` | Compute zone |
-| `GCE_INSTANCE_NAME` | `daisy-staging-1` | Staging VM instance name |
-| `GCP_WORKLOAD_IDENTITY_PROVIDER` | `projects/PROJECT_NUM/locations/global/workloadIdentityPools/github/providers/github` | WIF provider path |
-| `GCP_SERVICE_ACCOUNT` | `daisy-staging-sa@PROJECT_ID.iam.gserviceaccount.com` | Staging service account |
-| `DEPLOY_DIR` | `/opt/DAISy` | Directory containing docker-compose.yml |
-| `HOSTNAME_PATTERN` | `daisy-1` | Production hostname pattern for .env validation (optional) |
+| Variable                         | Example                                                                               | Description                                                |
+| -------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `GCP_PROJECT_ID`                 | `your-project-id`                                                                     | GCP project ID                                             |
+| `GCP_ZONE`                       | `us-west1-b`                                                                          | Compute zone                                               |
+| `GCE_INSTANCE_NAME`              | `daisy-staging-1`                                                                     | Staging VM instance name                                   |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | `projects/PROJECT_NUM/locations/global/workloadIdentityPools/github/providers/github` | WIF provider path                                          |
+| `GCP_SERVICE_ACCOUNT`            | `daisy-staging-sa@PROJECT_ID.iam.gserviceaccount.com`                                 | Staging service account                                    |
+| `DEPLOY_DIR`                     | `/opt/DAISy`                                                                          | Directory containing docker-compose.yml                    |
+| `HOSTNAME_PATTERN`               | `daisy-1`                                                                             | Production hostname pattern for .env validation (optional) |
 
 ### Workflow Authentication
 
@@ -385,11 +391,13 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
 ### IAP SSH fails
 
 1. **Check firewall rule exists** (most common issue):
+
    ```bash
    gcloud compute firewall-rules list --filter="name=allow-iap-ssh"
    ```
 
    If missing, create it:
+
    ```bash
    gcloud compute firewall-rules create allow-iap-ssh \
      --direction=INGRESS --priority=1000 --network=default \
@@ -398,12 +406,14 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
    ```
 
 2. **Verify VM has the `iap-ssh` tag**:
+
    ```bash
    gcloud compute instances describe $STAGING_INSTANCE --zone=$GCP_ZONE \
      --format="get(tags.items)"
    ```
 
 3. **Verify IAP tunnel IAM access**:
+
    ```bash
    gcloud projects get-iam-policy $GCP_PROJECT_ID \
      --filter="bindings.role:roles/iap.tunnelResourceAccessor"
@@ -419,11 +429,13 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
 ### State disk not mounted after reboot
 
 1. Check fstab:
+
    ```bash
    cat /etc/fstab | grep daisy
    ```
 
 2. Mount manually:
+
    ```bash
    sudo mount -a
    ```
@@ -437,12 +449,14 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
 ### Container fails to start
 
 1. Check Docker logs:
+
    ```bash
    cd /opt/DAISy
    docker compose logs
    ```
 
 2. Verify .env file:
+
    ```bash
    cat /opt/DAISy/.env
    ```

@@ -11,7 +11,6 @@ import { Type } from "@sinclair/typebox";
 import OpenAI from "openai";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { stringEnum } from "openclaw/plugin-sdk";
-
 import {
   MEMORY_CATEGORIES,
   DEFAULT_CAPTURE_TRIGGERS,
@@ -19,12 +18,7 @@ import {
   memoryConfigSchema,
   vectorDimsForModel,
 } from "./config.js";
-
-import {
-  MongoMemoryDB,
-  buildVectorIndexDefinition,
-  type MemoryEntry,
-} from "./mongodb-provider.js";
+import { MongoMemoryDB, buildVectorIndexDefinition, type MemoryEntry } from "./mongodb-provider.js";
 
 // ============================================================================
 // OpenAI Embeddings
@@ -78,8 +72,7 @@ function detectCategory(text: string): MemoryCategory {
   const lower = text.toLowerCase();
   if (/prefer|like|love|hate|want/i.test(lower)) return "preference";
   if (/decided|will use/i.test(lower)) return "decision";
-  if (/\+\d{10,}|@[\w.-]+\.\w+|is called/i.test(lower))
-    return "entity";
+  if (/\+\d{10,}|@[\w.-]+\.\w+|is called/i.test(lower)) return "entity";
   if (/is|are|has|have/i.test(lower)) return "fact";
   return "other";
 }
@@ -162,9 +155,7 @@ const memoryPlugin = {
           }));
 
           return {
-            content: [
-              { type: "text", text: `Found ${results.length} memories:\n\n${text}` },
-            ],
+            content: [{ type: "text", text: `Found ${results.length} memories:\n\n${text}` }],
             details: { count: results.length, memories: sanitizedResults },
           };
         },
@@ -180,9 +171,7 @@ const memoryPlugin = {
           "Save important information in long-term memory. Use for preferences, facts, decisions.",
         parameters: Type.Object({
           text: Type.String({ description: "Information to remember" }),
-          importance: Type.Optional(
-            Type.Number({ description: "Importance 0-1 (default: 0.7)" }),
-          ),
+          importance: Type.Optional(Type.Number({ description: "Importance 0-1 (default: 0.7)" })),
           category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
         }),
         async execute(_toolCallId, params) {
@@ -203,9 +192,16 @@ const memoryPlugin = {
           if (existing.length > 0) {
             return {
               content: [
-                { type: "text", text: `Similar memory already exists: "${existing[0].entry.text}"` },
+                {
+                  type: "text",
+                  text: `Similar memory already exists: "${existing[0].entry.text}"`,
+                },
               ],
-              details: { action: "duplicate", existingId: existing[0].entry.id, existingText: existing[0].entry.text },
+              details: {
+                action: "duplicate",
+                existingId: existing[0].entry.id,
+                existingText: existing[0].entry.text,
+              },
             };
           }
 
@@ -265,9 +261,7 @@ const memoryPlugin = {
             if (results.length === 1 && results[0].score > 0.9) {
               await db.delete(results[0].entry.id);
               return {
-                content: [
-                  { type: "text", text: `Forgotten: "${results[0].entry.text}"` },
-                ],
+                content: [{ type: "text", text: `Forgotten: "${results[0].entry.text}"` }],
                 details: { action: "deleted", id: results[0].entry.id },
               };
             }
@@ -310,9 +304,7 @@ const memoryPlugin = {
 
     api.registerCli(
       ({ program }) => {
-        const memory = program
-          .command("ltm")
-          .description("MongoDB Atlas memory plugin commands");
+        const memory = program.command("ltm").description("MongoDB Atlas memory plugin commands");
 
         memory
           .command("list")
@@ -371,9 +363,7 @@ const memoryPlugin = {
             .map((r) => `- [${r.entry.category}] ${r.entry.text}`)
             .join("\n");
 
-          api.logger.info?.(
-            `memory-mongodb: injecting ${results.length} memories into context`,
-          );
+          api.logger.info?.(`memory-mongodb: injecting ${results.length} memories into context`);
 
           return {
             prependContext: `<relevant-memories>\nThe following memories may be relevant to this conversation:\n${memoryContext}\n</relevant-memories>`,
@@ -429,9 +419,7 @@ const memoryPlugin = {
           }
 
           // Filter for capturable content
-          const toCapture = texts.filter(
-            (text) => text && shouldCapture(text, triggers),
-          );
+          const toCapture = texts.filter((text) => text && shouldCapture(text, triggers));
           if (toCapture.length === 0) return;
 
           // Store each capturable piece (limit to 3 per conversation)

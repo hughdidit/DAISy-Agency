@@ -35,7 +35,6 @@ jobs:
         contains(github.event.comment.body, 'review')
       )
     runs-on: ubuntu-latest
-
     steps:
       - name: Guard - trusted actor only
         if: >

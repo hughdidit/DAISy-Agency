@@ -826,7 +826,8 @@ export const usageHandlers: GatewayRequestHandlers = {
         const d = new Date(ms);
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       }
-      const offsetMs = interpretation.mode === "specific" ? interpretation.utcOffsetMinutes * 60_000 : 0;
+      const offsetMs =
+        interpretation.mode === "specific" ? interpretation.utcOffsetMinutes * 60_000 : 0;
       const d = new Date(ms + offsetMs);
       return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
     };

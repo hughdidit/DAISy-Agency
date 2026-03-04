@@ -37,11 +37,7 @@ const EMBEDDING_DIMENSIONS: Record<string, number> = {
   "text-embedding-3-large": 3072,
 };
 
-function assertAllowedKeys(
-  value: Record<string, unknown>,
-  allowed: string[],
-  label: string,
-) {
+function assertAllowedKeys(value: Record<string, unknown>, allowed: string[], label: string) {
   const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
   if (unknown.length === 0) return;
   throw new Error(`${label} has unknown keys: ${unknown.join(", ")}`);
@@ -215,14 +211,9 @@ export const memoryConfigSchema = {
         apiKey: resolveEnvVars(embedding.apiKey),
       },
       connectionUri: resolvedUri,
-      databaseName:
-        typeof cfg.databaseName === "string"
-          ? cfg.databaseName
-          : DEFAULT_DATABASE_NAME,
+      databaseName: typeof cfg.databaseName === "string" ? cfg.databaseName : DEFAULT_DATABASE_NAME,
       collectionName:
-        typeof cfg.collectionName === "string"
-          ? cfg.collectionName
-          : DEFAULT_COLLECTION_NAME,
+        typeof cfg.collectionName === "string" ? cfg.collectionName : DEFAULT_COLLECTION_NAME,
       vectorSearchIndexName:
         typeof cfg.vectorSearchIndexName === "string"
           ? cfg.vectorSearchIndexName

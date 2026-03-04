@@ -36,7 +36,12 @@ describe("mongodb provider", () => {
 
   test("store persists records via MongoDB collection", async () => {
     const { MongoMemoryDB } = await import("./mongodb-provider.js");
-    const provider = new MongoMemoryDB("mongodb://localhost:27017", "memdb", "memories", "vector_idx");
+    const provider = new MongoMemoryDB(
+      "mongodb://localhost:27017",
+      "memdb",
+      "memories",
+      "vector_idx",
+    );
 
     const record = await provider.store({
       text: "remember this",
@@ -70,7 +75,12 @@ describe("mongodb provider", () => {
         score: 0.88,
       },
     ]);
-    const provider = new MongoMemoryDB("mongodb://localhost:27017", "memdb", "memories", "vector_idx");
+    const provider = new MongoMemoryDB(
+      "mongodb://localhost:27017",
+      "memdb",
+      "memories",
+      "vector_idx",
+    );
 
     const results = await provider.search([0.9, 0.1], 4, 0.2);
 
@@ -99,7 +109,12 @@ describe("mongodb provider", () => {
 
   test("get/delete validate UUID format", async () => {
     const { MongoMemoryDB } = await import("./mongodb-provider.js");
-    const provider = new MongoMemoryDB("mongodb://localhost:27017", "memdb", "memories", "vector_idx");
+    const provider = new MongoMemoryDB(
+      "mongodb://localhost:27017",
+      "memdb",
+      "memories",
+      "vector_idx",
+    );
 
     await expect(provider.get("not-a-uuid")).rejects.toThrow("Invalid memory ID format");
     await expect(provider.delete("not-a-uuid")).rejects.toThrow("Invalid memory ID format");

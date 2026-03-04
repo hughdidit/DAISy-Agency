@@ -4,9 +4,9 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 
 ## When to Use
 
-| Plugin | Use case |
-|--------|----------|
-| `memory-lancedb` | Local development, single-machine setups, no cloud dependency |
+| Plugin               | Use case                                                                      |
+| -------------------- | ----------------------------------------------------------------------------- |
+| `memory-lancedb`     | Local development, single-machine setups, no cloud dependency                 |
 | **`memory-mongodb`** | Multi-instance deployments, shared memory across devices, cloud-native setups |
 
 ## Configuration
@@ -32,23 +32,24 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 
 ### Config Fields
 
-| Field | Required | Default | Description |
-|-------|----------|---------|-------------|
-| `embedding.apiKey` | Yes | — | OpenAI API key (use `${OPENAI_API_KEY}` env var) |
-| `embedding.model` | No | `text-embedding-3-small` | OpenAI embedding model (`text-embedding-3-small` or `text-embedding-3-large`) |
-| `connectionUri` | Yes | — | MongoDB Atlas connection string (use `${MONGODB_URI}` env var) |
-| `databaseName` | No | `daisy_memory` | MongoDB database name |
-| `collectionName` | No | `memories` | MongoDB collection name |
-| `vectorSearchIndexName` | No | `vector_index` | Atlas Vector Search index name |
-| `captureTriggers` | No | *(see below)* | Array of regex patterns (case-insensitive) that trigger auto-capture |
-| `autoCapture` | No | `true` | Automatically capture important information from conversations |
-| `autoRecall` | No | `true` | Automatically inject relevant memories into context |
+| Field                   | Required | Default                  | Description                                                                   |
+| ----------------------- | -------- | ------------------------ | ----------------------------------------------------------------------------- |
+| `embedding.apiKey`      | Yes      | —                        | OpenAI API key (use `${OPENAI_API_KEY}` env var)                              |
+| `embedding.model`       | No       | `text-embedding-3-small` | OpenAI embedding model (`text-embedding-3-small` or `text-embedding-3-large`) |
+| `connectionUri`         | Yes      | —                        | MongoDB Atlas connection string (use `${MONGODB_URI}` env var)                |
+| `databaseName`          | No       | `daisy_memory`           | MongoDB database name                                                         |
+| `collectionName`        | No       | `memories`               | MongoDB collection name                                                       |
+| `vectorSearchIndexName` | No       | `vector_index`           | Atlas Vector Search index name                                                |
+| `captureTriggers`       | No       | _(see below)_            | Array of regex patterns (case-insensitive) that trigger auto-capture          |
+| `autoCapture`           | No       | `true`                   | Automatically capture important information from conversations                |
+| `autoRecall`            | No       | `true`                   | Automatically inject relevant memories into context                           |
 
 ### Capture Triggers
 
 The `captureTriggers` field controls which messages are auto-captured. Each entry is a regex pattern string (case-insensitive). A message is captured if it matches **any** trigger.
 
 Default triggers:
+
 ```json
 [
   "remember",
@@ -66,12 +67,7 @@ To customize, provide your own array — it **replaces** the defaults entirely:
 
 ```json
 {
-  "captureTriggers": [
-    "remember",
-    "prefer",
-    "project\\s+deadline",
-    "budget|cost|price"
-  ]
+  "captureTriggers": ["remember", "prefer", "project\\s+deadline", "budget|cost|price"]
 }
 ```
 

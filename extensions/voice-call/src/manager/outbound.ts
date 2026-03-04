@@ -263,7 +263,9 @@ export async function speakInitialMessage(
 
   if (mode === "notify") {
     const delaySec = ctx.config.outbound.notifyHangupDelaySec;
-    ctx.logger.info(`[voice-call] Notify mode: auto-hangup in ${delaySec}s for call ${call.callId}`);
+    ctx.logger.info(
+      `[voice-call] Notify mode: auto-hangup in ${delaySec}s for call ${call.callId}`,
+    );
     setTimeout(async () => {
       const currentCall = ctx.activeCalls.get(call.callId);
       if (currentCall && !TerminalStates.has(currentCall.state)) {

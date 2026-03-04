@@ -15,5 +15,5 @@ services:
         "${CLAWDBOT_GATEWAY_BIND:-loopback}",
         "--port",
         "${CLAWDBOT_GATEWAY_PORT}",
-        "--allow-unconfigured"
+        "--allow-unconfigured",
       ]

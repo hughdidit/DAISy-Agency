@@ -1,5 +1,5 @@
-import { MongoClient, type Collection, type Db, type Document } from "mongodb";
 import { randomUUID } from "node:crypto";
+import { MongoClient, type Collection, type Db, type Document } from "mongodb";
 import type { MemoryCategory } from "./config.js";
 
 // ============================================================================
@@ -67,16 +67,13 @@ export class MongoMemoryDB {
       this.db = null;
       this.collection = null;
       this.initPromise = null;
-      const message =
-        err instanceof Error ? err.message : String(err);
+      const message = err instanceof Error ? err.message : String(err);
       const sanitized = sanitizeErrorMessage(message, this.connectionUri);
       throw new Error(`MongoDB connection failed: ${sanitized}`);
     }
   }
 
-  async store(
-    entry: Omit<MemoryEntry, "id" | "createdAt">,
-  ): Promise<MemoryEntry> {
+  async store(entry: Omit<MemoryEntry, "id" | "createdAt">): Promise<MemoryEntry> {
     await this.ensureInitialized();
 
     const id = randomUUID();
@@ -96,11 +93,7 @@ export class MongoMemoryDB {
     return { ...entry, id, createdAt };
   }
 
-  async search(
-    vector: number[],
-    limit = 5,
-    minScore = 0.5,
-  ): Promise<MemorySearchResult[]> {
+  async search(vector: number[], limit = 5, minScore = 0.5): Promise<MemorySearchResult[]> {
     await this.ensureInitialized();
 
     const pipeline = [
@@ -187,8 +180,7 @@ export class MongoMemoryDB {
 // Helpers
 // ============================================================================
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function validateUUID(id: string): void {
   if (!UUID_REGEX.test(id)) {
@@ -245,10 +237,7 @@ function sanitizeErrorMessage(message: string, uri: string): string {
  * Build the Atlas Vector Search index definition JSON.
  * Users must create this index manually in the Atlas UI or via the Atlas CLI.
  */
-export function buildVectorIndexDefinition(
-  indexName: string,
-  numDimensions: number,
-): object {
+export function buildVectorIndexDefinition(indexName: string, numDimensions: number): object {
   return {
     name: indexName,
     type: "vectorSearch",

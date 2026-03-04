@@ -257,7 +257,10 @@ export async function cleanupArchivedSessionTranscripts(opts: {
       if (!stat?.isFile()) {
         continue;
       }
-      const ok = await fs.promises.rm(fullPath).then(() => true, () => false);
+      const ok = await fs.promises.rm(fullPath).then(
+        () => true,
+        () => false,
+      );
       if (ok) removed += 1;
     }
   }
