@@ -114,8 +114,6 @@ error.log
 secrets/
 .clawdbot/
 .var/
-AGENTS.md
-AGENTS.md.bak.md
 skills-lock.json
 
 # Local iOS signing overrides
