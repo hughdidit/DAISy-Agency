@@ -132,10 +132,19 @@ describe("exec approvals", () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
     const calls: string[] = [];
 
-    vi.mocked(callGatewayTool).mockImplementation(async (method) => {
+    vi.mocked(callGatewayTool).mockImplementation(async (method, _opts, params) => {
       calls.push(method);
       if (method === "exec.approval.request") {
+        return { status: "accepted", id: (params as { id?: string })?.id };
+      }
+      if (method === "exec.approval.waitDecision") {
         return { decision: "deny" };
+      }
+      if (method === "node.invoke") {
+        const invoke = params as { command?: string };
+        if (invoke.command === "system.run.prepare") {
+          return buildPreparedSystemRunPayload(params);
+        }
       }
       return { ok: true };
     });
