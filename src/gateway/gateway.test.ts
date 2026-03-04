@@ -80,6 +80,7 @@ describe("gateway e2e", () => {
         configPath,
         token,
         clientDisplayName: "vitest-mock-openai",
+        scopes: ["operator.admin", "operator.write"],
       });
 
       try {
@@ -170,6 +171,7 @@ describe("gateway e2e", () => {
         url: `ws://127.0.0.1:${port}`,
         token: wizardToken,
         clientDisplayName: "vitest-wizard",
+        scopes: ["operator.admin", "operator.read"],
       });
 
       try {
