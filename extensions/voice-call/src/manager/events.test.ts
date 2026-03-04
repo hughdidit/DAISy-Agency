@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { VoiceCallConfigSchema } from "../config.js";
 import type { VoiceCallProvider } from "../providers/base.js";
 import type { HangupCallInput, NormalizedEvent } from "../types.js";
-import type { CallManagerContext } from "./context.js";
+import { defaultLogger, type CallManagerContext } from "./context.js";
 import { processEvent } from "./events.js";
 
 function createContext(overrides: Partial<CallManagerContext> = {}): CallManagerContext {
@@ -27,6 +27,7 @@ function createContext(overrides: Partial<CallManagerContext> = {}): CallManager
     activeTurnCalls: new Set(),
     transcriptWaiters: new Map(),
     maxDurationTimers: new Map(),
+    logger: defaultLogger,
     ...overrides,
   };
 }

@@ -29,9 +29,9 @@ IAP TCP forwarding tunnels SSH over HTTPS and enforces IAM authorization before 
 References:
 
 - Connect to Linux VMs using IAP (`gcloud compute ssh --tunnel-through-iap`):
-  https://docs.cloud.google.com/compute/docs/connect/ssh-using-iap
+  <https://docs.cloud.google.com/compute/docs/connect/ssh-using-iap>
 - Using IAP TCP forwarding:
-  https://docs.cloud.google.com/iap/docs/using-tcp-forwarding
+  <https://docs.cloud.google.com/iap/docs/using-tcp-forwarding>
 
 ---
 
@@ -56,9 +56,9 @@ Create two environments in GitHub repo settings:
 Reference:
 
 - GitHub Environments & deployment protection rules:
-  https://docs.github.com/actions/deployment/targeting-different-environments/using-environments-for-deployment
+  <https://docs.github.com/actions/deployment/targeting-different-environments/using-environments-for-deployment>
 - Secrets and environment approvals:
-  https://docs.github.com/en/actions/concepts/security/secrets
+  <https://docs.github.com/en/actions/concepts/security/secrets>
 
 ---
 
@@ -118,9 +118,9 @@ To extract web session credentials (if needed):
 References:
 
 - google-github-actions/auth (WIF setup and examples):
-  https://github.com/google-github-actions/auth
+  <https://github.com/google-github-actions/auth>
 - Keyless auth overview (GCP blog):
-  https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions
+  <https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions>
 
 ---
 
@@ -238,7 +238,7 @@ Because deploy uses `release-metadata`, rollback is deterministic.
 
 - Ensure IAP TCP forwarding is enabled and IAM grants include IAP tunnel access.
 - Reference IAP TCP forwarding docs:
-  https://docs.cloud.google.com/iap/docs/using-tcp-forwarding
+  <https://docs.cloud.google.com/iap/docs/using-tcp-forwarding>
 
 ### Permission/approval confusion
 

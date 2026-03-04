@@ -420,6 +420,7 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
    ```
 
 4. Grant IAM access if missing:
+
    ```bash
    gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
      --member="user:YOUR_EMAIL" \
@@ -441,6 +442,7 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
    ```
 
 3. Check disk:
+
    ```bash
    lsblk
    sudo blkid /dev/sdb
@@ -462,6 +464,7 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
    ```
 
 3. Verify image pull:
+
    ```bash
    docker compose pull
    ```

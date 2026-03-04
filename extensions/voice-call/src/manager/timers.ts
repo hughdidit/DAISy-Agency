@@ -4,11 +4,11 @@ import { persistCallRecord } from "./store.js";
 
 type TimerContext = Pick<
   CallManagerContext,
-  "activeCalls" | "maxDurationTimers" | "config" | "storePath" | "transcriptWaiters"
+  "activeCalls" | "maxDurationTimers" | "config" | "storePath" | "transcriptWaiters" | "logger"
 >;
 type MaxDurationTimerContext = Pick<
   TimerContext,
-  "activeCalls" | "maxDurationTimers" | "config" | "storePath"
+  "activeCalls" | "maxDurationTimers" | "config" | "storePath" | "logger"
 >;
 type TranscriptWaiterContext = Pick<TimerContext, "transcriptWaiters">;
 
