@@ -9,3 +9,7 @@ paths:
       - "shellcheck reported issue.+"
       # Ignore intentional if: false for disabled jobs
       - 'constant expression "false" in condition'
+  .github/workflows/deploy.yml:
+    ignore:
+      # Environment-scoped secrets/vars (staging) are invisible to actionlint
+      - 'property ".+" is not defined in object type'
