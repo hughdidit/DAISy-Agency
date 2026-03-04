@@ -261,7 +261,9 @@ export async function cleanupArchivedSessionTranscripts(opts: {
         () => true,
         () => false,
       );
-      if (ok) removed += 1;
+      if (ok) {
+        removed += 1;
+      }
     }
   }
 
