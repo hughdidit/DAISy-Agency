@@ -41,7 +41,7 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 const COST_USAGE_CACHE_TTL_MS = 30_000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-type DateRange = { startMs: number; endMs: number };
+type DateRange = { startMs: number; endMs: number; interpretation: DateInterpretation };
 type DateInterpretation =
   | { mode: "utc" | "gateway" }
   | { mode: "specific"; utcOffsetMinutes: number };
@@ -226,19 +226,19 @@ const parseDateRange = (params: {
 
   if (startMs !== undefined && endMs !== undefined) {
     // endMs should be end of day
-    return { startMs, endMs: endMs + DAY_MS - 1 };
+    return { startMs, endMs: endMs + DAY_MS - 1, interpretation };
   }
 
   const days = parseDays(params.days);
   if (days !== undefined) {
     const clampedDays = Math.max(1, days);
     const start = todayStartMs - (clampedDays - 1) * DAY_MS;
-    return { startMs: start, endMs: todayEndMs };
+    return { startMs: start, endMs: todayEndMs, interpretation };
   }
 
   // Default to last 30 days
   const defaultStartMs = todayStartMs - 29 * DAY_MS;
-  return { startMs: defaultStartMs, endMs: todayEndMs };
+  return { startMs: defaultStartMs, endMs: todayEndMs, interpretation };
 };
 
 type DiscoveredSessionWithAgent = DiscoveredSession & { agentId: string };
@@ -427,7 +427,7 @@ export const usageHandlers: GatewayRequestHandlers = {
 
     const p = params;
     const config = loadConfig();
-    const { startMs, endMs } = parseDateRange({
+    const { startMs, endMs, interpretation } = parseDateRange({
       startDate: p.startDate,
       endDate: p.endDate,
       mode: p.mode,
@@ -820,9 +820,14 @@ export const usageHandlers: GatewayRequestHandlers = {
       });
     }
 
-    // Format dates back to YYYY-MM-DD strings
+    // Format dates back to YYYY-MM-DD strings, respecting the requested offset.
     const formatDateStr = (ms: number) => {
-      const d = new Date(ms);
+      if (interpretation.mode === "gateway") {
+        const d = new Date(ms);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      }
+      const offsetMs = interpretation.mode === "specific" ? interpretation.utcOffsetMinutes * 60_000 : 0;
+      const d = new Date(ms + offsetMs);
       return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
     };
 

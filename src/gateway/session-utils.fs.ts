@@ -257,8 +257,8 @@ export async function cleanupArchivedSessionTranscripts(opts: {
       if (!stat?.isFile()) {
         continue;
       }
-      await fs.promises.rm(fullPath).catch(() => undefined);
-      removed += 1;
+      const ok = await fs.promises.rm(fullPath).then(() => true, () => false);
+      if (ok) removed += 1;
     }
   }
 
