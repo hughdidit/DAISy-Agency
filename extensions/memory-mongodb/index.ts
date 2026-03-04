@@ -25,6 +25,7 @@ import {
   buildVectorIndexDefinition,
   type MemoryEntry,
 } from "./mongodb-provider.js";
+import { MongoMcpClient } from "./src/services/mcp-client.js";
 
 // ============================================================================
 // Voyage AI Embeddings
@@ -109,12 +110,10 @@ const memoryPlugin = {
 
   register(api: MoltbotPluginApi) {
     const cfg = memoryConfigSchema.parse(api.pluginConfig);
-    if (cfg.mcp.transport !== "stdio") {
-      throw new Error("memory-mongodb currently supports mcp.transport=\"stdio\" only");
-    }
     const vectorDim = vectorDimsForModel(cfg.voyage.embeddingModel);
+    const mcpClient = new MongoMcpClient(cfg.mcp, api.logger);
     const db = new MongoMemoryDB(
-      cfg.mcp.stdio.env.MDB_MCP_CONNECTION_STRING,
+      mcpClient,
       cfg.database.name,
       cfg.database.collection,
       cfg.database.indexName,
@@ -483,9 +482,10 @@ const memoryPlugin = {
 
     api.registerService({
       id: "memory-mongodb",
-      start: () => {
+      start: async () => {
+        await db.start();
         api.logger.info(
-          `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, model: ${cfg.voyage.embeddingModel})`,
+          `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, model: ${cfg.voyage.embeddingModel}, transport: ${cfg.mcp.transport})`,
         );
       },
       stop: async () => {

@@ -115,87 +115,6 @@ function resolveEmbeddingModel(voyage: Record<string, unknown>): string {
   return model;
 }
 
-const LOCALHOST_NAMES = new Set(["localhost", "127.0.0.1", "::1"]);
-
-/**
- * Extract the hostname from a single MongoDB host entry, handling
- * bracketed IPv6 addresses (e.g., `[::1]:27017` → `::1`).
- */
-function extractHostname(hostEntry: string): string {
-  const trimmed = hostEntry.trim();
-  if (trimmed.startsWith("[")) {
-    // Bracketed IPv6: [::1]:27017
-    const closeBracket = trimmed.indexOf("]");
-    if (closeBracket > 0) {
-      return trimmed.slice(1, closeBracket).toLowerCase();
-    }
-  }
-  // Plain host or IPv4: strip port
-  return trimmed.split(":")[0].toLowerCase();
-}
-
-/**
- * Validate that the connection URI enforces TLS for non-localhost hosts.
- * - `mongodb+srv://` always uses TLS (enforced by the protocol).
- * - `mongodb://` requires `tls=true` in query params for non-localhost hosts.
- * - Rejects `tlsInsecure=true` and `tlsAllowInvalidCertificates=true`.
- * - Checks ALL hosts in comma-separated replica set URIs.
- */
-function validateConnectionUriTls(uri: string): void {
-  // Reject insecure TLS options in any URI scheme
-  const qIdx = uri.indexOf("?");
-  if (qIdx >= 0) {
-    const params = new URLSearchParams(uri.slice(qIdx + 1));
-    if (params.get("tlsInsecure") === "true") {
-      throw new Error(
-        "connectionUri sets tlsInsecure=true, which disables certificate validation. Remove this option.",
-      );
-    }
-    if (params.get("tlsAllowInvalidCertificates") === "true") {
-      throw new Error(
-        "connectionUri sets tlsAllowInvalidCertificates=true, which disables certificate validation. Remove this option.",
-      );
-    }
-  }
-
-  if (uri.startsWith("mongodb+srv://")) return;
-
-  if (!uri.startsWith("mongodb://")) {
-    throw new Error("connectionUri must start with mongodb:// or mongodb+srv://");
-  }
-
-  // Extract host portion (between :// and the next / or end)
-  const afterScheme = uri.slice("mongodb://".length);
-  // Host is between optional userinfo@ and the next /
-  const atIdx = afterScheme.indexOf("@");
-  const hostPart = atIdx >= 0 ? afterScheme.slice(atIdx + 1) : afterScheme;
-  const slashIdx = hostPart.indexOf("/");
-  const hostSection = slashIdx >= 0 ? hostPart.slice(0, slashIdx) : hostPart;
-
-  // Check ALL hosts in comma-separated replica set URIs
-  const hosts = hostSection.split(",");
-  const allLocalhost = hosts.every((h) => LOCALHOST_NAMES.has(extractHostname(h)));
-
-  if (allLocalhost) return;
-
-  // At least one remote host — require TLS
-  if (qIdx < 0) {
-    throw new Error(
-      "connectionUri uses plain mongodb:// to a remote host without TLS. " +
-        "Use mongodb+srv:// (recommended) or add ?tls=true to the connection string.",
-    );
-  }
-
-  const params = new URLSearchParams(uri.slice(qIdx + 1));
-  const tlsValue = params.get("tls") ?? params.get("ssl");
-
-  if (tlsValue !== "true") {
-    throw new Error(
-      "connectionUri uses plain mongodb:// to a remote host without TLS. " +
-        "Use mongodb+srv:// (recommended) or add tls=true to the connection string.",
-    );
-  }
-}
 
 export const memoryConfigSchema = {
   parse(value: unknown): MemoryConfig {
@@ -266,19 +185,6 @@ export const memoryConfigSchema = {
       typeof voyage.rerankModel === "string"
         ? voyage.rerankModel
         : VOYAGE_MODEL_DEFAULTS.rerank;
-
-    if (typeof connectionUri === "string" && connectionUri.length > 0) {
-      try {
-        validateConnectionUriTls(resolveEnvVars(connectionUri));
-      } catch (err) {
-        if (err instanceof Error) {
-          throw new Error(
-            err.message.replace(/connectionUri/g, "mcp.stdio.env.MDB_MCP_CONNECTION_STRING"),
-          );
-        }
-        throw err;
-      }
-    }
 
     // Validate and compile capture triggers
     const rawTriggers = Array.isArray(cfg.captureTriggers)

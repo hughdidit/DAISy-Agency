@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { MongoClient, type Collection } from "mongodb";
 import type { MemoryCategory } from "./config.js";
+import { MongoMcpClient, type AggregateArgs } from "./src/services/mcp-client.js";
 
 export type MemoryEntry = {
   id: string;
@@ -20,39 +20,32 @@ type MemoryDocument = Omit<MemoryEntry, "id"> & { _id: string };
 type MemorySearchDocument = MemoryDocument & { score: number };
 
 export class MongoMemoryDB {
-  private client: MongoClient;
-  private collection: Collection<MemoryDocument> | null = null;
-
   constructor(
-    private readonly connectionUri: string,
+    private readonly mcpClient: MongoMcpClient,
     private readonly databaseName: string,
     private readonly collectionName: string,
     private readonly vectorSearchIndexName: string,
-  ) {
-    this.client = new MongoClient(connectionUri);
-  }
+  ) {}
 
-  private async getCollection(): Promise<Collection<MemoryDocument>> {
-    if (!this.collection) {
-      await this.client.connect();
-      this.collection = this.client
-        .db(this.databaseName)
-        .collection<MemoryDocument>(this.collectionName);
-    }
-    return this.collection;
+  async start(): Promise<void> {
+    await this.mcpClient.start();
   }
 
   async store(entry: Omit<MemoryEntry, "id" | "createdAt">): Promise<MemoryEntry> {
     const record: MemoryEntry = { ...entry, id: randomUUID(), createdAt: Date.now() };
-    const col = await this.getCollection();
     const doc: MemoryDocument = { _id: record.id, ...omitId(record) };
-    await col.insertOne(doc);
+
+    await this.mcpClient.insertMany({
+      database: this.databaseName,
+      collection: this.collectionName,
+      documents: [doc],
+    });
+
     return record;
   }
 
   async search(vector: number[], limit = 5, minScore = 0.5): Promise<MemorySearchResult[]> {
-    const col = await this.getCollection();
-    const pipeline = [
+    const pipeline: AggregateArgs["pipeline"] = [
       {
         $vectorSearch: {
           index: this.vectorSearchIndexName,
@@ -70,7 +63,12 @@ export class MongoMemoryDB {
       },
     ];
 
-    const docs = await col.aggregate<MemorySearchDocument>(pipeline).toArray();
+    const docs = await this.mcpClient.aggregate<MemorySearchDocument>({
+      database: this.databaseName,
+      collection: this.collectionName,
+      pipeline,
+    });
+
     return docs.map((doc) => {
       const { score, ...document } = doc;
       return {
@@ -82,31 +80,51 @@ export class MongoMemoryDB {
 
   async get(id: string): Promise<MemoryEntry | null> {
     validateUUID(id);
-    const col = await this.getCollection();
-    const doc = await col.findOne({ _id: id });
-    return doc ? documentToEntry(doc) : null;
+
+    const docs = await this.mcpClient.find<MemoryDocument>({
+      database: this.databaseName,
+      collection: this.collectionName,
+      filter: { _id: id },
+      limit: 1,
+    });
+
+    return docs[0] ? documentToEntry(docs[0]) : null;
   }
 
   async delete(id: string): Promise<boolean> {
     validateUUID(id);
-    const col = await this.getCollection();
-    const result = await col.deleteOne({ _id: id });
+
+    const result = await this.mcpClient.deleteOne({
+      database: this.databaseName,
+      collection: this.collectionName,
+      filter: { _id: id },
+    });
+
     return result.deletedCount === 1;
   }
 
   async clear(): Promise<void> {
-    const col = await this.getCollection();
-    await col.deleteMany({});
+    await this.mcpClient.deleteMany({
+      database: this.databaseName,
+      collection: this.collectionName,
+      filter: {},
+    });
   }
 
   async count(): Promise<number> {
-    const col = await this.getCollection();
-    return col.countDocuments();
+    const docs = await this.mcpClient.aggregate<{ total: number }>(
+      {
+        database: this.databaseName,
+        collection: this.collectionName,
+        pipeline: [{ $count: "total" }],
+      },
+    );
+
+    return docs[0]?.total ?? 0;
   }
 
   async close(): Promise<void> {
-    this.collection = null;
-    await this.client.close();
+    await this.mcpClient.stop();
   }
 }
 

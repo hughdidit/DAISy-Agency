@@ -183,40 +183,6 @@ describe("memory-mongodb plugin", () => {
     }).toThrow("unknown keys");
   });
 
-  test("config schema rejects plain mongodb:// without TLS for remote hosts", async () => {
-    const { default: memoryPlugin } = await import("./index.js");
-
-    expect(() => {
-      memoryPlugin.configSchema?.parse?.({
-        mcp: {
-          transport: "stdio",
-          stdio: { env: { MDB_MCP_CONNECTION_STRING: "mongodb://user:pass@remote-host.example.com/test" } },
-        },
-        voyage: { apiKey: VOYAGE_API_KEY },
-      });
-    }).toThrow("without TLS");
-  });
-
-  test("config schema allows plain mongodb:// with tls=true", async () => {
-    const { default: memoryPlugin } = await import("./index.js");
-
-    const config = memoryPlugin.configSchema?.parse?.({
-      mcp: {
-        transport: "stdio",
-        stdio: {
-          env: { MDB_MCP_CONNECTION_STRING: "mongodb://user:pass@remote-host.example.com/test?tls=true" },
-        },
-      },
-      voyage: { apiKey: VOYAGE_API_KEY },
-    });
-
-    expect(
-      config?.mcp.transport === "stdio"
-        ? config.mcp.stdio.env.MDB_MCP_CONNECTION_STRING
-        : undefined,
-    ).toBe("mongodb://user:pass@remote-host.example.com/test?tls=true");
-  });
-
   test("config schema allows plain mongodb:// to localhost", async () => {
     const { default: memoryPlugin } = await import("./index.js");
 

@@ -72,6 +72,10 @@ moltbot agent --message "Ship checklist" --thinking high
 
 Upgrading? [Updating guide](https://docs.molt.bot/install/updating) (and run `moltbot doctor`).
 
+## Development news
+
+- `extensions/memory-mongodb` now uses a MongoDB MCP client service (stdio or SSE) for memory read/write operations instead of direct MongoDB driver access, with reconnect-aware lifecycle handling and MCP-safe error wrapping.
+
 ## Development channels
 
 - **stable**: tagged releases (`vYYYY.M.D` or `vYYYY.M.D-<patch>`), npm dist-tag `latest`.
