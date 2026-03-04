@@ -3,7 +3,8 @@ name: Docker Release
 on:
   push:
     branches:
-      - main
+      - daisy/main
+      - daisy/dev
     tags:
       - "v*"
     paths-ignore:
@@ -52,8 +53,12 @@ jobs:
         run: |
           set -euo pipefail
           tags=()
-          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/main" ]]; then
             tags+=("${IMAGE}:main-amd64")
+          fi
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/dev" ]]; then
+            SHORTSHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
+            tags+=("${IMAGE}:dev-${SHORTSHA}-amd64")
           fi
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             version="${GITHUB_REF#refs/tags/v}"
@@ -75,8 +80,11 @@ jobs:
         run: |
           set -euo pipefail
           version="${GITHUB_SHA}"
-          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/main" ]]; then
             version="main"
+          fi
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/dev" ]]; then
+            version="dev-$(echo "${GITHUB_SHA}" | cut -c1-7)"
           fi
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             version="${GITHUB_REF#refs/tags/v}"
@@ -133,8 +141,12 @@ jobs:
         run: |
           set -euo pipefail
           tags=()
-          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/main" ]]; then
             tags+=("${IMAGE}:main-arm64")
+          fi
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/dev" ]]; then
+            SHORTSHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
+            tags+=("${IMAGE}:dev-${SHORTSHA}-arm64")
           fi
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             version="${GITHUB_REF#refs/tags/v}"
@@ -156,8 +168,11 @@ jobs:
         run: |
           set -euo pipefail
           version="${GITHUB_SHA}"
-          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/main" ]]; then
             version="main"
+          fi
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/dev" ]]; then
+            version="dev-$(echo "${GITHUB_SHA}" | cut -c1-7)"
           fi
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             version="${GITHUB_REF#refs/tags/v}"
@@ -210,8 +225,12 @@ jobs:
         run: |
           set -euo pipefail
           tags=()
-          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/main" ]]; then
             tags+=("${IMAGE}:main")
+          fi
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/dev" ]]; then
+            SHORTSHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
+            tags+=("${IMAGE}:dev-${SHORTSHA}")
           fi
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             version="${GITHUB_REF#refs/tags/v}"

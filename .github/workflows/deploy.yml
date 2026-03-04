@@ -1,0 +1,219 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options: [staging, production]
+      release_run_id:
+        description: "Docker release workflow run ID (source of release-metadata)"
+        required: true
+      image_ref:
+        description: "Optional override: full image ref (tag or digest)"
+        required: false
+      dry_run:
+        description: "If true, do not perform real deployment"
+        required: true
+        default: true
+        type: boolean
+      provision:
+        description: "If true, provision VM with docker-compose.yml before deploy"
+        required: false
+        default: false
+        type: boolean
+
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      release_run_id:
+        required: true
+        type: string
+      image_ref:
+        required: false
+        type: string
+      dry_run:
+        required: true
+        type: boolean
+      provision:
+        required: false
+        type: boolean
+    secrets:
+      GHCR_USERNAME:
+        description: GitHub username for GHCR
+        required: true
+      GHCR_TOKEN:
+        description: PAT with read:packages scope
+        required: true
+      CLAWDBOT_GATEWAY_TOKEN:
+        description: Gateway authentication token
+        required: true
+      CLAUDE_AI_SESSION_KEY:
+        description: Claude AI session key
+        required: true
+      DISCORD_BOT_TOKEN:
+        description: Discord bot token
+        required: true
+      ANTHROPIC_API_KEY:
+        description: Anthropic API key for Claude model access
+        required: true
+      CLAUDE_WEB_SESSION_KEY:
+        description: Claude web session key (optional, for usage monitoring)
+        required: false
+      CLAUDE_WEB_COOKIE:
+        description: Claude web cookie (optional, for usage monitoring)
+        required: false
+
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout (scripts only)
+        uses: actions/checkout@v4
+
+      - name: Download release metadata from docker-release run
+        if: ${{ !inputs.image_ref }}
+        uses: actions/download-artifact@v4
+        with:
+          name: release-metadata
+          path: dist/release
+          run-id: ${{ inputs.release_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Help - release metadata download failed
+        if: ${{ failure() && !inputs.image_ref }}
+        run: |
+          echo "ERROR: Failed to download artifact 'release-metadata' for run-id='${{ inputs.release_run_id }}'." >&2
+          echo "Use the Run ID from the Docker release workflow run that uploaded 'release-metadata'." >&2
+          exit 2
+
+      - name: Show release metadata
+        if: ${{ !inputs.image_ref }}
+        run: |
+          ls -la dist/release
+          cat dist/release/release-metadata.json
+
+      - name: Validate required config
+        env:
+          # Infrastructure (secrets, with vars fallback for migration)
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT || vars.GCP_SERVICE_ACCOUNT }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
+          # Variables (non-sensitive config — short values that would cause log masking issues as secrets)
+          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
+          CLAWDBOT_BRIDGE_PORT: ${{ vars.CLAWDBOT_BRIDGE_PORT }}
+          CLAWDBOT_GATEWAY_BIND: ${{ vars.CLAWDBOT_GATEWAY_BIND || 'loopback' }}
+          # Secrets (credentials)
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          CLAWDBOT_GATEWAY_TOKEN: ${{ secrets.CLAWDBOT_GATEWAY_TOKEN }}
+          CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
+          CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
+        run: |
+          : "${GCP_WORKLOAD_IDENTITY_PROVIDER:?GCP_WORKLOAD_IDENTITY_PROVIDER is required}"
+          : "${GCP_SERVICE_ACCOUNT:?GCP_SERVICE_ACCOUNT is required}"
+          : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required}"
+          : "${GCP_ZONE:?GCP_ZONE is required}"
+          : "${GCE_INSTANCE_NAME:?GCE_INSTANCE_NAME is required}"
+          : "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required}"
+          : "${CLAWDBOT_BRIDGE_PORT:?CLAWDBOT_BRIDGE_PORT is required}"
+          : "${GHCR_USERNAME:?GHCR_USERNAME is required}"
+          : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
+          : "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required}"
+          : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required}"
+          : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required}"
+          : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}"
+          # CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
+
+      - name: Authenticate to Google Cloud (WIF)
+        uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f  # v2.1.7
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT || vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Install Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a  # v2.1.2
+
+      - name: Resolve deploy image ref
+        id: resolve
+        env:
+          IMAGE_REF_OVERRIDE: ${{ inputs.image_ref }}
+        run: |
+          if [[ -n "${IMAGE_REF_OVERRIDE}" ]]; then
+            echo "resolved_ref=${IMAGE_REF_OVERRIDE}" >> "$GITHUB_OUTPUT"
+            echo "Resolved ref (override): ${IMAGE_REF_OVERRIDE}"
+          else
+            chmod +x scripts/read-release-metadata.sh
+            chmod +x scripts/deploy.sh
+            RESOLVED="$(scripts/deploy.sh --resolve-only dist/release/release-metadata.json)"
+            echo "resolved_ref=${RESOLVED}" >> "$GITHUB_OUTPUT"
+            echo "Resolved ref: ${RESOLVED}"
+          fi
+
+      - name: Deploy
+        env:
+          DEPLOY_ENV: ${{ inputs.environment }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          IMAGE_REF_OVERRIDE: ${{ inputs.image_ref }}
+          # Infrastructure (secrets, with vars fallback for migration)
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
+          DEPLOY_DIR: ${{ secrets.DEPLOY_DIR || vars.DEPLOY_DIR }}
+          # Variables (non-sensitive config — short values that would cause log masking issues as secrets)
+          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
+          CLAWDBOT_BRIDGE_PORT: ${{ vars.CLAWDBOT_BRIDGE_PORT }}
+          CLAWDBOT_GATEWAY_BIND: ${{ vars.CLAWDBOT_GATEWAY_BIND || 'loopback' }}
+          # Secrets (credentials)
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          CLAWDBOT_GATEWAY_TOKEN: ${{ secrets.CLAWDBOT_GATEWAY_TOKEN }}
+          CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
+          CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
+        run: |
+          PROVISION_FLAG=""
+          if [[ "${{ inputs.provision }}" == "true" ]]; then
+            PROVISION_FLAG="--provision"
+          fi
+          scripts/deploy.sh ${PROVISION_FLAG} dist/release/release-metadata.json
+
+      - name: Deploy summary
+        if: ${{ inputs.dry_run != true }}
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
+          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
+        run: |
+          : "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required}"
+          PORT="${CLAWDBOT_GATEWAY_PORT}"
+          echo ""
+          echo "=== Deploy complete ==="
+          echo "Dashboard: http://localhost:${PORT}/ui/overview?token=<CLAWDBOT_GATEWAY_TOKEN>"
+          echo ""
+          echo "IAP tunnel:"
+          echo "  gcloud compute ssh ${GCE_INSTANCE_NAME} --project ${GCP_PROJECT_ID} --zone ${GCP_ZONE} --tunnel-through-iap -- -L ${PORT}:localhost:${PORT}"

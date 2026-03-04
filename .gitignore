@@ -14,6 +14,8 @@ __pycache__/
 .worktrees/
 .DS_Store
 **/.DS_Store
+Thumbs.db
+**/Thumbs.db
 ui/src/ui/__screenshots__/
 ui/playwright-report/
 ui/test-results/
@@ -79,6 +81,8 @@ apps/ios/*.mobileprovision
 
 # Local untracked files
 .local/
+.vscode/
+.githooks/
 docs/.local/
 IDENTITY.md
 USER.md
@@ -95,9 +99,23 @@ USER.md
 /local/
 package-lock.json
 .claude/settings.local.json
+.claude/*.local.*
 .agents/
 .agents
 .agent/
+error.log
+*.bak
+
+# DAISy-specific sensitive files
+*client_secret*.json
+*credentials*.json
+*.pem
+*.key
+secrets/
+.clawdbot/
+.var/
+AGENTS.md
+AGENTS.md.bak.md
 skills-lock.json
 
 # Local iOS signing overrides

@@ -2,8 +2,19 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - daisy/main
+      - daisy/dev
   pull_request:
+    branches:
+      - daisy/main
+      - daisy/dev
+  workflow_dispatch:
+    inputs:
+      run_ios:
+        description: Run iOS tests
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -578,7 +589,7 @@ jobs:
           exit 1
 
   ios:
-    if: false # ignore iOS in CI for now
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run_ios) }}
     runs-on: macos-latest
     steps:
       - name: Checkout

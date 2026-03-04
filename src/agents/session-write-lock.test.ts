@@ -21,7 +21,7 @@ async function expectLockRemovedOnlyAfterFinalRelease(params: {
   await expect(fs.access(params.lockPath)).rejects.toThrow();
 }
 
-describe("acquireSessionWriteLock", () => {
+describe.sequential("acquireSessionWriteLock", () => {
   it("reuses locks across symlinked session paths", async () => {
     if (process.platform === "win32") {
       expect(true).toBe(true);
