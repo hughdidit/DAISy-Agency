@@ -17,7 +17,8 @@ const collection = vi.fn(() => ({
   countDocuments,
   aggregate,
 }));
-const db = vi.fn(() => ({ collection }));
+const command = vi.fn().mockResolvedValue({ ok: 1 });
+const db = vi.fn(() => ({ collection, command }));
 
 const MongoClient = vi.fn(function MongoClientMock(this: unknown) {
   return { connect, close, db };
@@ -97,9 +98,6 @@ describe("mongodb provider", () => {
       },
       {
         $addFields: { score: { $meta: "vectorSearchScore" } },
-      },
-      {
-        $match: { score: { $gte: 0.2 } },
       },
     ]);
     expect(results).toHaveLength(1);
