@@ -1,0 +1,152 @@
+{
+  "id": "memory-mongodb",
+  "kind": "memory",
+  "uiHints": {
+    "mcp.transport": {
+      "label": "MCP Transport",
+      "placeholder": "stdio",
+      "help": "Choose stdio for local MCP server or sse for remote endpoint"
+    },
+    "mcp.stdio.command": {
+      "label": "MCP Command",
+      "placeholder": "npx",
+      "help": "Executable used to launch MongoDB MCP server"
+    },
+    "mcp.stdio.args": {
+      "label": "MCP Command Args",
+      "placeholder": "[\"-y\",\"mongodb-mcp-server\"]",
+      "advanced": true
+    },
+    "mcp.stdio.env.MDB_MCP_CONNECTION_STRING": {
+      "label": "MongoDB Connection String",
+      "sensitive": true,
+      "placeholder": "${MONGODB_URI}",
+      "help": "Use MDB_MCP_CONNECTION_STRING to pass Atlas URI to MCP (supports ${MONGODB_URI})"
+    },
+    "mcp.url": {
+      "label": "MCP SSE URL",
+      "placeholder": "https://example.com/sse",
+      "help": "Required when mcp.transport is sse"
+    },
+    "voyage.apiKey": {
+      "label": "Voyage AI API Key",
+      "sensitive": true,
+      "placeholder": "pa-...",
+      "help": "API key for Voyage AI embeddings (or use ${VOYAGE_API_KEY})"
+    },
+    "voyage.embeddingModel": {
+      "label": "Embedding Model",
+      "placeholder": "voyage-3.5",
+      "help": "Voyage AI embedding model to use"
+    },
+    "voyage.rerankModel": {
+      "label": "Rerank Model",
+      "placeholder": "rerank-2",
+      "advanced": true,
+      "help": "Optional Voyage rerank model for future ranking workflows"
+    },
+    "database.name": {
+      "label": "Database Name",
+      "placeholder": "daisy_memory",
+      "advanced": true
+    },
+    "database.collection": {
+      "label": "Collection Name",
+      "placeholder": "memories",
+      "advanced": true
+    },
+    "database.indexName": {
+      "label": "Vector Search Index Name",
+      "placeholder": "vector_index",
+      "advanced": true
+    },
+    "captureTriggers": {
+      "label": "Capture Triggers",
+      "advanced": true,
+      "help": "Array of regex patterns (case-insensitive) that trigger auto-capture"
+    },
+    "autoCapture": {
+      "label": "Auto-Capture",
+      "help": "Automatically capture important information from conversations"
+    },
+    "autoRecall": {
+      "label": "Auto-Recall",
+      "help": "Automatically inject relevant memories into context"
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "mcp": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "transport": {
+            "type": "string",
+            "enum": ["stdio", "sse"]
+          },
+          "stdio": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command": { "type": "string" },
+              "args": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "env": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              }
+            }
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": ["transport"]
+      },
+      "voyage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "apiKey": { "type": "string" },
+          "embeddingModel": {
+            "type": "string",
+            "enum": [
+              "voyage-3",
+              "voyage-3-large",
+              "voyage-3-lite",
+              "voyage-3.5",
+              "voyage-3.5-lite",
+              "voyage-code-3",
+              "voyage-finance-2",
+              "voyage-law-2",
+              "voyage-multilingual-2"
+            ]
+          },
+          "rerankModel": { "type": "string" }
+        },
+        "required": ["apiKey"]
+      },
+      "database": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "collection": { "type": "string" },
+          "indexName": { "type": "string" }
+        }
+      },
+      "captureTriggers": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Regex patterns (case-insensitive) that trigger auto-capture"
+      },
+      "autoCapture": { "type": "boolean" },
+      "autoRecall": { "type": "boolean" }
+    },
+    "required": ["mcp", "voyage"]
+  }
+}

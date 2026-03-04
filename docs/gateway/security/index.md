@@ -308,6 +308,19 @@ schema:
 - `agents.list[<index>].sandbox.docker.dangerouslyAllowExternalBindSources`
 - `agents.list[<index>].sandbox.docker.dangerouslyAllowContainerNamespaceJoin`
 
+## HTTP Security Headers
+
+All HTTP responses from the gateway include:
+
+- `X-Content-Type-Options: nosniff` — prevents browsers from MIME-sniffing responses
+  away from the declared Content-Type.
+- `X-Frame-Options: DENY` — prevents the gateway UI from being embedded in iframes,
+  mitigating clickjacking attacks.
+
+HSTS and CSP are omitted for now: the gateway typically serves on localhost or behind
+IAP, where HSTS would break local development, and CSP requires careful tuning of the
+injected inline script in the Control UI.
+
 ## Reverse Proxy Configuration
 
 If you run the Gateway behind a reverse proxy (nginx, Caddy, Traefik, etc.), you should configure `gateway.trustedProxies` for proper client IP detection.

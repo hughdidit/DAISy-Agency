@@ -1,4 +1,5 @@
 import Foundation
+import MoltbotProtocol
 import Observation
 import OpenClawProtocol
 
