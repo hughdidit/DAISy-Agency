@@ -25,6 +25,7 @@ type EventContext = Pick<
   | "transcriptWaiters"
   | "maxDurationTimers"
   | "onCallAnswered"
+  | "logger"
 >;
 
 function shouldAcceptInbound(config: EventContext["config"], from: string | undefined): boolean {
