@@ -1,15 +1,16 @@
 {
-  "name": "@moltbot/memory-mongodb",
-  "version": "2026.1.27-beta.1",
+  "name": "@openclaw/memory-mongodb",
+  "version": "2026.3.1",
   "type": "module",
-  "description": "Moltbot MongoDB Atlas-backed long-term memory plugin with vector search",
+  "description": "OpenClaw MongoDB Atlas-backed long-term memory plugin with vector search",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.5",
     "@sinclair/typebox": "0.34.47",
+    "openclaw": "workspace:*",
     "voyageai": "^0.0.7",
     "zod": "^4.3.6"
   },
-  "moltbot": {
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ]
