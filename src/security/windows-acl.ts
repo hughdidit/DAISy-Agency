@@ -55,6 +55,19 @@ const STATUS_PREFIXES = [
   "no mapping between account names",
 ];
 
+const SID_RE = /^s-\d+-\d+(-\d+)+$/i;
+const TRUSTED_SIDS = new Set([
+  "s-1-5-18",
+  "s-1-5-32-544",
+  "s-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464",
+]);
+const STATUS_PREFIXES = [
+  "successfully processed",
+  "processed",
+  "failed processing",
+  "no mapping between account names",
+];
+
 const normalize = (value: string) => value.trim().toLowerCase();
 
 export function resolveWindowsUserPrincipal(env?: NodeJS.ProcessEnv): string | null {

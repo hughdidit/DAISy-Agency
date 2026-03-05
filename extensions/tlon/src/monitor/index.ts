@@ -919,8 +919,8 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
           "2. Key decisions or conclusions\n" +
           "3. Action items if any\n" +
           "4. Notable participants";
-      } catch (error: any) {
-        const errorMsg = `Sorry, I encountered an error while fetching the channel history: ${error?.message ?? String(error)}`;
+      } catch (error) {
+        const errorMsg = `Sorry, I encountered an error while fetching the channel history: ${formatError(error)}`;
         if (isGroup && groupChannel) {
           const parsed = parseChannelNest(groupChannel);
           if (parsed) {
@@ -1037,6 +1037,7 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
 
     const ctxPayload = core.channel.reply.finalizeInboundContext({
       Body: body,
+      BodyForAgent: messageText,
       RawBody: messageText,
       CommandBody: commandBody,
       From: isGroup ? `tlon:group:${groupChannel}` : `tlon:${senderShip}`,
@@ -1073,7 +1074,7 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
       ctx: ctxPayload,
       cfg,
       dispatcherOptions: {
-        responsePrefix,
+        ...prefixOptions,
         humanDelay,
         deliver: async (payload: ReplyPayload) => {
           let replyText = payload.text;
@@ -1130,6 +1131,9 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
             `[tlon] ${info.kind} reply failed after ${dispatchDuration}ms: ${String(err)}`,
           );
         },
+      },
+      replyOptions: {
+        onModelSelected,
       },
     });
   };
@@ -1918,8 +1922,8 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
   } finally {
     try {
       await api?.close();
-    } catch (error: any) {
-      runtime.error?.(`[tlon] Cleanup error: ${error?.message ?? String(error)}`);
+    } catch (error) {
+      runtime.error?.(`[tlon] Cleanup error: ${formatError(error)}`);
     }
   }
 }

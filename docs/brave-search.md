@@ -23,6 +23,7 @@ OpenClaw uses Brave Search as the default provider for `web_search`.
   tools: {
     web: {
       search: {
+        enabled: true,
         provider: "brave",
         apiKey: "BRAVE_API_KEY_HERE",
         maxResults: 5,

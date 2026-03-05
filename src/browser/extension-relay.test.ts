@@ -752,6 +752,8 @@ describe("chrome extension relay server", () => {
         },
       }),
     );
+    expect(versionRes.status).toBe(200);
+  });
 
     await waitForListMatch(
       async () =>
@@ -800,9 +802,8 @@ describe("chrome extension relay server", () => {
             },
             waitingForDebugger: false,
           },
-        },
-      }),
-    );
+        }),
+      );
 
     await waitForListMatch(
       async () =>

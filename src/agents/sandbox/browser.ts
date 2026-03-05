@@ -246,6 +246,11 @@ export async function ensureSandboxBrowser(params: {
         args.push("-v", bind);
       }
     }
+    if (browserDockerCfg.binds?.length) {
+      for (const bind of browserDockerCfg.binds) {
+        args.push("-v", bind);
+      }
+    }
     args.push("-p", `127.0.0.1::${params.cfg.browser.cdpPort}`);
     if (noVncEnabled) {
       args.push("-p", `127.0.0.1::${params.cfg.browser.noVncPort}`);

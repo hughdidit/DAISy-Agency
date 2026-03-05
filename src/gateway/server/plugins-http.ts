@@ -26,6 +26,36 @@ export type PluginHttpRequestHandler = (
   pathContext?: PluginRoutePathContext,
 ) => Promise<boolean>;
 
+type PluginHttpRouteEntry = NonNullable<PluginRegistry["httpRoutes"]>[number];
+
+export function findRegisteredPluginHttpRoute(
+  registry: PluginRegistry,
+  pathname: string,
+): PluginHttpRouteEntry | undefined {
+  const canonicalPath = canonicalizePathVariant(pathname);
+  const routes = registry.httpRoutes ?? [];
+  return routes.find((entry) => canonicalizePathVariant(entry.path) === canonicalPath);
+}
+
+// Only checks specific routes registered via registerHttpRoute, not wildcard handlers
+// registered via registerHttpHandler. Wildcard handlers (e.g., webhooks) implement
+// their own signature-based auth and are handled separately in the auth enforcement logic.
+export function isRegisteredPluginHttpRoutePath(
+  registry: PluginRegistry,
+  pathname: string,
+): boolean {
+  return findRegisteredPluginHttpRoute(registry, pathname) !== undefined;
+}
+
+export function shouldEnforceGatewayAuthForPluginPath(
+  registry: PluginRegistry,
+  pathname: string,
+): boolean {
+  return (
+    isProtectedPluginRoutePath(pathname) || isRegisteredPluginHttpRoutePath(registry, pathname)
+  );
+}
+
 export function createGatewayPluginRequestHandler(params: {
   registry: PluginRegistry;
   log: SubsystemLogger;

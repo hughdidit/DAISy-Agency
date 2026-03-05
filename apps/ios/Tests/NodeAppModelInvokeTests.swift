@@ -68,6 +68,70 @@ private final class MockWatchMessagingService: @preconcurrency WatchMessagingSer
     }
 }
 
+private func makeAgentDeepLinkURL(
+    message: String,
+    deliver: Bool = false,
+    to: String? = nil,
+    channel: String? = nil,
+    key: String? = nil) -> URL
+{
+    var components = URLComponents()
+    components.scheme = "openclaw"
+    components.host = "agent"
+    var queryItems: [URLQueryItem] = [URLQueryItem(name: "message", value: message)]
+    if deliver {
+        queryItems.append(URLQueryItem(name: "deliver", value: "1"))
+    }
+    if let to {
+        queryItems.append(URLQueryItem(name: "to", value: to))
+    }
+    if let channel {
+        queryItems.append(URLQueryItem(name: "channel", value: channel))
+    }
+    if let key {
+        queryItems.append(URLQueryItem(name: "key", value: key))
+    }
+    components.queryItems = queryItems
+    return components.url!
+}
+
+@MainActor
+private final class MockWatchMessagingService: @preconcurrency WatchMessagingServicing, @unchecked Sendable {
+    var currentStatus = WatchMessagingStatus(
+        supported: true,
+        paired: true,
+        appInstalled: true,
+        reachable: true,
+        activationState: "activated")
+    var nextSendResult = WatchNotificationSendResult(
+        deliveredImmediately: true,
+        queuedForDelivery: false,
+        transport: "sendMessage")
+    var sendError: Error?
+    var lastSent: (id: String, params: OpenClawWatchNotifyParams)?
+    private var replyHandler: (@Sendable (WatchQuickReplyEvent) -> Void)?
+
+    func status() async -> WatchMessagingStatus {
+        self.currentStatus
+    }
+
+    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)?) {
+        self.replyHandler = handler
+    }
+
+    func sendNotification(id: String, params: OpenClawWatchNotifyParams) async throws -> WatchNotificationSendResult {
+        self.lastSent = (id: id, params: params)
+        if let sendError = self.sendError {
+            throw sendError
+        }
+        return self.nextSendResult
+    }
+
+    func emitReply(_ event: WatchQuickReplyEvent) {
+        self.replyHandler?(event)
+    }
+}
+
 @Suite(.serialized) struct NodeAppModelInvokeTests {
     @Test @MainActor func decodeParamsFailsWithoutJSON() {
         #expect(throws: Error.self) {

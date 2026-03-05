@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { configureClient } from "@tloncorp/api";
 import type {
+  ChannelAccountSnapshot,
   ChannelOutboundAdapter,
   ChannelPlugin,
   ChannelSetupInput,
@@ -164,7 +165,7 @@ const tlonOutbound: ChannelOutboundAdapter = {
         error: new Error(`Invalid Tlon target. Use ${formatTargetHint()}`),
       };
     }
-    if (parsed.kind === "dm") {
+    if (parsed.kind === "direct") {
       return { ok: true, to: parsed.ship };
     }
     return { ok: true, to: parsed.nest };
@@ -190,7 +191,7 @@ const tlonOutbound: ChannelOutboundAdapter = {
 
     try {
       const fromShip = normalizeShip(account.ship);
-      if (parsed.kind === "dm") {
+      if (parsed.kind === "direct") {
         return await sendDm({
           api,
           fromShip,
@@ -208,11 +209,7 @@ const tlonOutbound: ChannelOutboundAdapter = {
         replyToId: replyId,
       });
     } finally {
-      try {
-        await api.delete();
-      } catch {
-        // ignore cleanup errors
-      }
+      await api.close();
     }
   },
   sendMedia: async ({ cfg, to, text, mediaUrl, accountId, replyToId, threadId }) => {

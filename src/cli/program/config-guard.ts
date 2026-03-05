@@ -38,6 +38,15 @@ async function getConfigSnapshot() {
   return configSnapshotPromise;
 }
 
+async function getConfigSnapshot() {
+  // Tests often mutate config fixtures; caching can make those flaky.
+  if (process.env.VITEST === "true") {
+    return readConfigFileSnapshot();
+  }
+  configSnapshotPromise ??= readConfigFileSnapshot();
+  return configSnapshotPromise;
+}
+
 export async function ensureConfigReady(params: {
   runtime: RuntimeEnv;
   commandPath?: string[];

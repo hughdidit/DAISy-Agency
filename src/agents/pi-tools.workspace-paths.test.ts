@@ -190,7 +190,7 @@ describe("workspace path resolution", () => {
   });
 });
 
-describe("sandboxed workspace paths", () => {
+describe.sequential("sandboxed workspace paths", () => {
   it("uses sandbox workspace for relative read/write/edit", async () => {
     await withTempDir("openclaw-sandbox-", async (sandboxDir) => {
       await withTempDir("openclaw-workspace-", async (workspaceDir) => {

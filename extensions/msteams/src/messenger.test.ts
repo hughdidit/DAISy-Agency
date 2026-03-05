@@ -72,6 +72,28 @@ const createRecordedSendActivity = (
   };
 };
 
+const createNoopAdapter = (): MSTeamsAdapter => ({
+  continueConversation: async () => {},
+  process: async () => {},
+});
+
+const createRecordedSendActivity = (
+  sink: string[],
+  failFirstWithStatusCode?: number,
+): ((activity: unknown) => Promise<{ id: string }>) => {
+  let attempts = 0;
+  return async (activity: unknown) => {
+    const { text } = activity as { text?: string };
+    const content = text ?? "";
+    sink.push(content);
+    attempts += 1;
+    if (failFirstWithStatusCode !== undefined && attempts === 1) {
+      throw Object.assign(new Error("send failed"), { statusCode: failFirstWithStatusCode });
+    }
+    return { id: `id:${content}` };
+  };
+};
+
 describe("msteams messenger", () => {
   beforeEach(() => {
     setMSTeamsRuntime(runtimeStub);

@@ -392,6 +392,25 @@ export function handleControlUiHttpRequest(
     return true;
   }
 
+  const rootReal = (() => {
+    try {
+      return fs.realpathSync(root);
+    } catch (error) {
+      if (isExpectedSafePathError(error)) {
+        return null;
+      }
+      throw error;
+    }
+  })();
+  if (!rootReal) {
+    res.statusCode = 503;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end(
+      "Control UI assets not found. Build them with `pnpm ui:build` (auto-installs UI deps), or run `pnpm ui:dev` during development.",
+    );
+    return true;
+  }
+
   const uiPath =
     basePath && pathname.startsWith(`${basePath}/`) ? pathname.slice(basePath.length) : pathname;
   const rel = (() => {

@@ -658,6 +658,134 @@ export function attachGatewayWsMessageHandler(params: {
         if (!handleMissingDeviceIdentity()) {
           return;
         }
+
+        const deviceRaw = connectParams.device;
+        let devicePublicKey: string | null = null;
+        let deviceAuthPayloadVersion: "v2" | "v3" | null = null;
+        const hasTokenAuth = Boolean(connectParams.auth?.token);
+        const hasPasswordAuth = Boolean(connectParams.auth?.password);
+        const hasSharedAuth = hasTokenAuth || hasPasswordAuth;
+        const controlUiAuthPolicy = resolveControlUiAuthPolicy({
+          isControlUi,
+          controlUiConfig: configSnapshot.gateway?.controlUi,
+          deviceRaw,
+        });
+        const device = controlUiAuthPolicy.device;
+
+        let {
+          authResult,
+          authOk,
+          authMethod,
+          sharedAuthOk,
+          deviceTokenCandidate,
+          deviceTokenCandidateSource,
+        } = await resolveConnectAuthState({
+          resolvedAuth,
+          connectAuth: connectParams.auth,
+          hasDeviceIdentity: Boolean(device),
+          req: upgradeReq,
+          trustedProxies,
+          allowRealIpFallback,
+          rateLimiter: authRateLimiter,
+          clientIp: browserRateLimitClientIp,
+        });
+        const rejectUnauthorized = (failedAuth: GatewayAuthResult) => {
+          markHandshakeFailure("unauthorized", {
+            authMode: resolvedAuth.mode,
+            authProvided: connectParams.auth?.password
+              ? "password"
+              : connectParams.auth?.token
+                ? "token"
+                : connectParams.auth?.deviceToken
+                  ? "device-token"
+                  : "none",
+            authReason: failedAuth.reason,
+            allowTailscale: resolvedAuth.allowTailscale,
+          });
+          logWsControl.warn(
+            `unauthorized conn=${connId} remote=${remoteAddr ?? "?"} client=${clientLabel} ${connectParams.client.mode} v${connectParams.client.version} reason=${failedAuth.reason ?? "unknown"}`,
+          );
+          const authProvided: AuthProvidedKind = connectParams.auth?.password
+            ? "password"
+            : connectParams.auth?.token
+              ? "token"
+              : connectParams.auth?.deviceToken
+                ? "device-token"
+                : "none";
+          const authMessage = formatGatewayAuthFailureMessage({
+            authMode: resolvedAuth.mode,
+            authProvided,
+            reason: failedAuth.reason,
+            client: connectParams.client,
+          });
+          sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, authMessage, {
+            details: {
+              code: resolveAuthConnectErrorDetailCode(failedAuth.reason),
+              authReason: failedAuth.reason,
+            },
+          });
+          close(1008, truncateCloseReason(authMessage));
+        };
+        const clearUnboundScopes = () => {
+          if (scopes.length > 0 && !controlUiAuthPolicy.allowBypass && !sharedAuthOk) {
+            scopes = [];
+            connectParams.scopes = scopes;
+          }
+        };
+        const handleMissingDeviceIdentity = (): boolean => {
+          if (!device) {
+            clearUnboundScopes();
+          }
+          const trustedProxyAuthOk = isTrustedProxyControlUiOperatorAuth({
+            isControlUi,
+            role,
+            authMode: resolvedAuth.mode,
+            authOk,
+            authMethod,
+          });
+          const decision = evaluateMissingDeviceIdentity({
+            hasDeviceIdentity: Boolean(device),
+            role,
+            isControlUi,
+            controlUiAuthPolicy,
+            trustedProxyAuthOk,
+            sharedAuthOk,
+            authOk,
+            hasSharedAuth,
+            isLocalClient,
+          });
+          if (decision.kind === "allow") {
+            return true;
+          }
+
+          if (decision.kind === "reject-control-ui-insecure-auth") {
+            const errorMessage =
+              "control ui requires device identity (use HTTPS or localhost secure context)";
+            markHandshakeFailure("control-ui-insecure-auth", {
+              insecureAuthConfigured: controlUiAuthPolicy.allowInsecureAuthConfigured,
+            });
+            sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, errorMessage, {
+              details: { code: ConnectErrorDetailCodes.CONTROL_UI_DEVICE_IDENTITY_REQUIRED },
+            });
+            close(1008, errorMessage);
+            return false;
+          }
+
+          if (decision.kind === "reject-unauthorized") {
+            rejectUnauthorized(authResult);
+            return false;
+          }
+
+          markHandshakeFailure("device-required");
+          sendHandshakeErrorResponse(ErrorCodes.NOT_PAIRED, "device identity required", {
+            details: { code: ConnectErrorDetailCodes.DEVICE_IDENTITY_REQUIRED },
+          });
+          close(1008, "device identity required");
+          return false;
+        };
+        if (!handleMissingDeviceIdentity()) {
+          return;
+        }
         if (device) {
           const rejectDeviceAuthInvalid = (reason: string, message: string) => {
             setHandshakeState("failed");

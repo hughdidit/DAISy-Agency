@@ -79,6 +79,13 @@ export type PluginNpmIntegrityDriftParams = {
   resolution: NpmSpecResolution;
 };
 
+export type PluginNpmIntegrityDriftParams = {
+  spec: string;
+  expectedIntegrity: string;
+  actualIntegrity: string;
+  resolution: NpmSpecResolution;
+};
+
 const defaultLogger: PluginInstallLogger = {};
 function safeFileName(input: string): string {
   return safeDirName(input);

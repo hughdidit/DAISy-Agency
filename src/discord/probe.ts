@@ -209,6 +209,10 @@ export async function fetchDiscordApplicationId(
   const normalized = normalizeDiscordToken(token, "channels.discord.token");
   if (!normalized) {
     return undefined;
+  } catch {
+    // Transport / timeout error — fall back to extracting the application
+    // ID directly from the token to keep the bot starting.
+    return parseApplicationIdFromToken(token);
   }
   try {
     const res = await fetchDiscordApplicationMeResponse(token, timeoutMs, fetcher);

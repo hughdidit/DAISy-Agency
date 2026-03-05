@@ -60,6 +60,7 @@ describe("resolveTelegramDirectPeerId", () => {
       "123456789",
     );
   });
+});
 
   it("falls back to chat id when sender id is missing", () => {
     expect(resolveTelegramDirectPeerId({ chatId: 777777777, senderId: undefined })).toBe(

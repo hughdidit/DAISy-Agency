@@ -230,6 +230,26 @@ export type TelegramDirectConfig = {
   systemPrompt?: string;
 };
 
+export type TelegramDirectConfig = {
+  /** Per-DM override for DM message policy (open|disabled|allowlist). */
+  dmPolicy?: DmPolicy;
+  /** Optional tool policy overrides for this DM. */
+  tools?: GroupToolPolicyConfig;
+  toolsBySender?: GroupToolPolicyBySenderConfig;
+  /** If specified, only load these skills for this DM (when no topic). Omit = all skills; empty = no skills. */
+  skills?: string[];
+  /** Per-topic configuration for DM topics (key is message_thread_id as string) */
+  topics?: Record<string, TelegramTopicConfig>;
+  /** If false, disable the bot for this DM (and its topics). */
+  enabled?: boolean;
+  /** If true, require messages to be from a topic when topics are enabled. */
+  requireTopic?: boolean;
+  /** Optional allowlist for DM senders (numeric Telegram user IDs). */
+  allowFrom?: Array<string | number>;
+  /** Optional system prompt snippet for this DM. */
+  systemPrompt?: string;
+};
+
 export type TelegramConfig = {
   /** Optional per-account Telegram configuration (multi-account). */
   accounts?: Record<string, TelegramAccountConfig>;

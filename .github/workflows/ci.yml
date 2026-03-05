@@ -534,7 +534,7 @@ jobs:
           exit 1
 
   ios:
-    if: false # ignore iOS in CI for now
+    if: false # DAISy does not ship an iOS app; skip to save CI minutes
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -646,8 +646,8 @@ jobs:
           )"
           echo "Using iOS Simulator id: $DEST_ID"
           xcodebuild test \
-            -project apps/ios/Clawdis.xcodeproj \
-            -scheme Clawdis \
+            -project apps/ios/OpenClaw.xcodeproj \
+            -scheme OpenClaw \
             -destination "platform=iOS Simulator,id=$DEST_ID" \
             -resultBundlePath "$RESULT_BUNDLE_PATH" \
             -enableCodeCoverage YES
@@ -668,7 +668,7 @@ jobs:
           import subprocess
           import sys
 
-          target_name = "Clawdis.app"
+          target_name = "OpenClaw.app"
           minimum = 0.43
 
           report = json.loads(

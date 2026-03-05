@@ -490,4 +490,110 @@ describe("monitorTelegramProvider (grammY)", () => {
     );
     expect(runSpy).not.toHaveBeenCalled();
   });
+
+  it("force-restarts polling when unhandled network rejection stalls runner", async () => {
+    const abort = new AbortController();
+    let running = true;
+    let releaseTask: (() => void) | undefined;
+    const stop = vi.fn(async () => {
+      running = false;
+      releaseTask?.();
+    });
+
+    runSpy
+      .mockImplementationOnce(() =>
+        makeRunnerStub({
+          task: () =>
+            new Promise<void>((resolve) => {
+              releaseTask = resolve;
+            }),
+          stop,
+          isRunning: () => running,
+        }),
+      )
+      .mockImplementationOnce(() =>
+        makeRunnerStub({
+          task: async () => {
+            abort.abort();
+          },
+        }),
+      );
+
+    const monitor = monitorTelegramProvider({ token: "tok", abortSignal: abort.signal });
+    await vi.waitFor(() => expect(runSpy).toHaveBeenCalledTimes(1));
+
+    expect(emitUnhandledRejection(new TypeError("fetch failed"))).toBe(true);
+    await monitor;
+
+    expect(stop.mock.calls.length).toBeGreaterThanOrEqual(1);
+    expect(computeBackoff).toHaveBeenCalled();
+    expect(sleepWithAbort).toHaveBeenCalled();
+    expect(runSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("passes configured webhookHost to webhook listener", async () => {
+    await monitorTelegramProvider({
+      token: "tok",
+      useWebhook: true,
+      webhookUrl: "https://example.test/telegram",
+      webhookSecret: "secret",
+      config: {
+        agents: { defaults: { maxConcurrent: 2 } },
+        channels: {
+          telegram: {
+            webhookHost: "0.0.0.0",
+          },
+        },
+      },
+    });
+
+    expect(startTelegramWebhookSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        host: "0.0.0.0",
+      }),
+    );
+    expect(runSpy).not.toHaveBeenCalled();
+  });
+
+  it("webhook mode waits for abort signal before returning", async () => {
+    const abort = new AbortController();
+    const settled = vi.fn();
+    const monitor = monitorTelegramProvider({
+      token: "tok",
+      useWebhook: true,
+      webhookUrl: "https://example.test/telegram",
+      webhookSecret: "secret",
+      abortSignal: abort.signal,
+    }).then(settled);
+
+    await Promise.resolve();
+    expect(settled).not.toHaveBeenCalled();
+
+    abort.abort();
+    await monitor;
+    expect(settled).toHaveBeenCalledTimes(1);
+  });
+
+  it("falls back to configured webhookSecret when not passed explicitly", async () => {
+    await monitorTelegramProvider({
+      token: "tok",
+      useWebhook: true,
+      webhookUrl: "https://example.test/telegram",
+      config: {
+        agents: { defaults: { maxConcurrent: 2 } },
+        channels: {
+          telegram: {
+            webhookSecret: "secret-from-config",
+          },
+        },
+      },
+    });
+
+    expect(startTelegramWebhookSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        secret: "secret-from-config",
+      }),
+    );
+    expect(runSpy).not.toHaveBeenCalled();
+  });
 });

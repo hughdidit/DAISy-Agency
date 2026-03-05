@@ -97,6 +97,11 @@ type StartChannelOptions = {
   preserveManualStop?: boolean;
 };
 
+type StartChannelOptions = {
+  preserveRestartAttempts?: boolean;
+  preserveManualStop?: boolean;
+};
+
 export type ChannelManager = {
   getRuntimeSnapshot: () => ChannelRuntimeSnapshot;
   startChannels: () => Promise<void>;

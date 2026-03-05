@@ -223,6 +223,66 @@ describe("cron cli", () => {
       "  low  ",
     ]);
 
+    const runtimeModule = await import("../runtime.js");
+    const runtime = runtimeModule.defaultRuntime as { exit: (code: number) => void };
+    const originalExit = runtime.exit;
+    const exitSpy = vi.fn();
+    runtime.exit = exitSpy;
+    try {
+      const program = buildProgram();
+      await program.parseAsync(["cron", "run", "job-1"], { from: "user" });
+      expect(exitSpy).toHaveBeenCalledWith(0);
+    } finally {
+      runtime.exit = originalExit;
+    }
+  });
+
+  it("exits 1 for cron run when job does not execute", async () => {
+    resetGatewayMock();
+    callGatewayFromCli.mockImplementation(
+      async (method: string, _opts: unknown, params?: unknown) => {
+        if (method === "cron.status") {
+          return { enabled: true };
+        }
+        if (method === "cron.run") {
+          return { ok: true, params, ran: false };
+        }
+        return { ok: true, params };
+      },
+    );
+
+    const runtimeModule = await import("../runtime.js");
+    const runtime = runtimeModule.defaultRuntime as { exit: (code: number) => void };
+    const originalExit = runtime.exit;
+    const exitSpy = vi.fn();
+    runtime.exit = exitSpy;
+    try {
+      const program = buildProgram();
+      await program.parseAsync(["cron", "run", "job-1"], { from: "user" });
+      expect(exitSpy).toHaveBeenCalledWith(1);
+    } finally {
+      runtime.exit = originalExit;
+    }
+  });
+
+  it("trims model and thinking on cron add", { timeout: CRON_CLI_TEST_TIMEOUT_MS }, async () => {
+    await runCronCommand([
+      "cron",
+      "add",
+      "--name",
+      "Daily",
+      "--cron",
+      "* * * * *",
+      "--session",
+      "isolated",
+      "--message",
+      "hello",
+      "--model",
+      "  opus  ",
+      "--thinking",
+      "  low  ",
+    ]);
+
     const addCall = callGatewayFromCli.mock.calls.find((call) => call[0] === "cron.add");
     const params = addCall?.[2] as {
       payload?: { model?: string; thinking?: string };

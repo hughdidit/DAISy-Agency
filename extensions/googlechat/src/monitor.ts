@@ -141,6 +141,11 @@ async function processMessageWithPipeline(params: {
   mediaMaxMb: number;
 }): Promise<void> {
   const { event, account, config, runtime, core, statusSink, mediaMaxMb } = params;
+  const pairing = createScopedPairingAccess({
+    core,
+    channel: "googlechat",
+    accountId: account.accountId,
+  });
   const space = event.space;
   const message = event.message;
   if (!space || !message) {
@@ -157,6 +162,7 @@ async function processMessageWithPipeline(params: {
   const senderId = sender?.name ?? "";
   const senderName = sender?.displayName ?? "";
   const senderEmail = sender?.email ?? undefined;
+  const allowNameMatching = isDangerousNameMatchingEnabled(account.config);
 
   const allowBots = account.config.allowBots === true;
   if (!allowBots) {

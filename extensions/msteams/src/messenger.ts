@@ -518,6 +518,14 @@ export async function sendMSTeamsMessages(params: {
       }
     }
     return messageIds;
+  };
+
+  if (params.replyStyle === "thread") {
+    const ctx = params.context;
+    if (!ctx) {
+      throw new Error("Missing context for replyStyle=thread");
+    }
+    return await sendMessagesInContext(ctx);
   }
 
   return await sendProactively(messages, 0);

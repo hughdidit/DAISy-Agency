@@ -152,7 +152,7 @@ export async function generateVoiceResponse(
 
     return { text };
   } catch (err) {
-    console.error(`[voice-call] Response generation failed:`, err);
+    console.error(`[voice-call] Response generation failed: ${err}`); // standalone util
     return { text: null, error: String(err) };
   }
 }

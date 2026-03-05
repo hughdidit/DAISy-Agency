@@ -134,6 +134,56 @@ final class LocationService: NSObject, CLLocationManagerDelegate, LocationServic
         self.manager.stopMonitoringSignificantLocationChanges()
     }
 
+    func startLocationUpdates(
+        desiredAccuracy: OpenClawLocationAccuracy,
+        significantChangesOnly: Bool) -> AsyncStream<CLLocation>
+    {
+        self.stopLocationUpdates()
+
+        self.manager.desiredAccuracy = Self.accuracyValue(desiredAccuracy)
+        self.manager.pausesLocationUpdatesAutomatically = true
+        self.manager.allowsBackgroundLocationUpdates = true
+
+        self.isStreaming = true
+        if significantChangesOnly {
+            self.manager.startMonitoringSignificantLocationChanges()
+        } else {
+            self.manager.startUpdatingLocation()
+        }
+
+        return AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
+            self.updatesContinuation = continuation
+            continuation.onTermination = { @Sendable _ in
+                Task { @MainActor in
+                    self.stopLocationUpdates()
+                }
+            }
+        }
+    }
+
+    func stopLocationUpdates() {
+        guard self.isStreaming else { return }
+        self.isStreaming = false
+        self.manager.stopUpdatingLocation()
+        self.manager.stopMonitoringSignificantLocationChanges()
+        self.updatesContinuation?.finish()
+        self.updatesContinuation = nil
+    }
+
+    func startMonitoringSignificantLocationChanges(onUpdate: @escaping @Sendable (CLLocation) -> Void) {
+        self.significantLocationCallback = onUpdate
+        guard !self.isMonitoringSignificantChanges else { return }
+        self.isMonitoringSignificantChanges = true
+        self.manager.startMonitoringSignificantLocationChanges()
+    }
+
+    func stopMonitoringSignificantLocationChanges() {
+        guard self.isMonitoringSignificantChanges else { return }
+        self.isMonitoringSignificantChanges = false
+        self.significantLocationCallback = nil
+        self.manager.stopMonitoringSignificantLocationChanges()
+    }
+
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         Task { @MainActor in

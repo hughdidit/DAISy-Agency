@@ -128,12 +128,11 @@ describe("handleTelegramAction", () => {
       },
       reactionConfig("minimal"),
     );
-    expect(reactMessageTelegram).toHaveBeenCalledWith(
-      "123",
-      456,
-      "✅",
-      expect.objectContaining({ token: "tok", remove: false }),
-    );
+    expect(result.details).toMatchObject({
+      ok: false,
+      reason: "missing_message_id",
+    });
+    expect(reactMessageTelegram).not.toHaveBeenCalled();
   });
 
   it("soft-fails when messageId is missing", async () => {

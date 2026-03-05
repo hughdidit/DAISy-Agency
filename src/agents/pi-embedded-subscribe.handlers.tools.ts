@@ -196,6 +196,9 @@ export async function handleToolExecutionStart(
   // Track start time and args for after_tool_call hook
   toolStartData.set(buildToolStartKey(runId, toolCallId), { startTime: Date.now(), args });
 
+  // Track start time and args for after_tool_call hook
+  toolStartData.set(toolCallId, { startTime: Date.now(), args });
+
   if (toolName === "read") {
     const record = args && typeof args === "object" ? (args as Record<string, unknown>) : {};
     const filePathValue =
