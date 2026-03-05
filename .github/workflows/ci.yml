@@ -592,7 +592,7 @@ jobs:
           exit 1
 
   ios:
-    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run_ios) }}
+    if: false # DAISy does not ship an iOS app; skip to save CI minutes
     runs-on: macos-latest
     steps:
       - name: Checkout
