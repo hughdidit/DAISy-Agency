@@ -7,7 +7,7 @@ const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 const isWindows = process.platform === "win32";
 const localWorkers = Math.max(4, Math.min(16, os.cpus().length));
-const ciWorkers = isWindows ? 1 : 3;
+const ciWorkers = isWindows ? 2 : 3;
 
 export default defineConfig({
   resolve: {
@@ -24,8 +24,7 @@ export default defineConfig({
     ],
   },
   test: {
-    fileParallelism: false,
-    testTimeout: isWindows ? 180_000 : 120_000,
+    testTimeout: 120_000,
     hookTimeout: isWindows ? 180_000 : 120_000,
     // Many suites rely on `vi.stubEnv(...)` and expect it to be scoped to the test.
     // This is especially important under `pool=vmForks` where env leaks cross-file.
