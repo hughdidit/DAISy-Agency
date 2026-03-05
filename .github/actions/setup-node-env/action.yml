@@ -18,7 +18,7 @@ inputs:
   frozen-lockfile:
     description: Whether to use --frozen-lockfile for install.
     required: false
-    default: "true"
+    default: "false"
 runs:
   using: composite
   steps:
