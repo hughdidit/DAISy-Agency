@@ -269,7 +269,7 @@ export class GatewayClient {
           }
         : undefined;
     const signedAtMs = Date.now();
-    const scopes = this.opts.scopes ?? ["operator.admin"];
+    const scopes = this.opts.scopes ?? ["operator.read"];
     const platform = this.opts.platform ?? process.platform;
     const device = (() => {
       if (!this.opts.deviceIdentity) {

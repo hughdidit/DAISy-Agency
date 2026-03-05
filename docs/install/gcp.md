@@ -325,12 +325,12 @@ RUN curl -L https://github.com/steipete/wacli/releases/latest/download/wacli_Lin
 # Add more binaries below using the same pattern
 
 WORKDIR /app
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY package.json pnpm-workspace.yaml .npmrc ./
 COPY ui/package.json ./ui/package.json
 COPY scripts ./scripts
 
 RUN corepack enable
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 COPY . .
 RUN pnpm build
@@ -351,7 +351,7 @@ docker compose build
 docker compose up -d openclaw-gateway
 ```
 
-If build fails with `Killed` / `exit code 137` during `pnpm install --frozen-lockfile`, the VM is out of memory. Use `e2-small` minimum, or `e2-medium` for more reliable first builds.
+If build fails with `Killed` / `exit code 137` during `pnpm install`, the VM is out of memory. Use `e2-small` minimum, or `e2-medium` for more reliable first builds.
 
 When binding to LAN (`OPENCLAW_GATEWAY_BIND=lan`), configure a trusted browser origin before continuing:
 

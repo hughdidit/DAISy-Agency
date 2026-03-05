@@ -2,8 +2,13 @@ name: Install Smoke
 
 on:
   push:
-    branches: [main]
+    branches:
+      - daisy/main
+      - daisy/dev
   pull_request:
+    branches:
+      - daisy/main
+      - daisy/dev
   workflow_dispatch:
 
 concurrency:
@@ -47,7 +52,7 @@ jobs:
           use-sticky-disk: "true"
 
       - name: Install pnpm deps (minimal)
-        run: pnpm install --ignore-scripts --frozen-lockfile
+        run: pnpm install --ignore-scripts
 
       - name: Set up Docker Builder
         uses: useblacksmith/setup-docker-builder@v1

@@ -246,12 +246,12 @@ RUN curl -L https://github.com/steipete/wacli/releases/latest/download/wacli_Lin
 # Add more binaries below using the same pattern
 
 WORKDIR /app
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY package.json pnpm-workspace.yaml .npmrc ./
 COPY ui/package.json ./ui/package.json
 COPY scripts ./scripts
 
 RUN corepack enable
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 COPY . .
 RUN pnpm build

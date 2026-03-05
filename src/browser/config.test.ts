@@ -12,15 +12,15 @@ describe("browser config", () => {
     expect(resolved.cdpHost).toBe("127.0.0.1");
     expect(resolved.cdpProtocol).toBe("http");
     const profile = resolveProfile(resolved, resolved.defaultProfile);
-    expect(profile?.name).toBe("openclaw");
-    expect(profile?.driver).toBe("openclaw");
-    expect(profile?.cdpPort).toBe(18800);
-    expect(profile?.cdpUrl).toBe("http://127.0.0.1:18800");
+    expect(profile?.name).toBe("chrome");
+    expect(profile?.driver).toBe("extension");
+    expect(profile?.cdpPort).toBe(18792);
+    expect(profile?.cdpUrl).toBe("http://127.0.0.1:18792");
 
-    const openclaw = resolveProfile(resolved, "openclaw");
-    expect(openclaw?.driver).toBe("openclaw");
-    expect(openclaw?.cdpPort).toBe(18800);
-    expect(openclaw?.cdpUrl).toBe("http://127.0.0.1:18800");
+    const daisy = resolveProfile(resolved, "daisy");
+    expect(daisy?.driver).toBe("openclaw");
+    expect(daisy?.cdpPort).toBe(18800);
+    expect(daisy?.cdpUrl).toBe("http://127.0.0.1:18800");
     const chrome = resolveProfile(resolved, "chrome");
     expect(chrome?.driver).toBe("extension");
     expect(chrome?.cdpPort).toBe(18792);
@@ -38,7 +38,7 @@ describe("browser config", () => {
       expect(chrome?.cdpPort).toBe(19004);
       expect(chrome?.cdpUrl).toBe("http://127.0.0.1:19004");
 
-      const openclaw = resolveProfile(resolved, "openclaw");
+      const openclaw = resolveProfile(resolved, "daisy");
       expect(openclaw?.cdpPort).toBe(19012);
       expect(openclaw?.cdpUrl).toBe("http://127.0.0.1:19012");
     });
@@ -53,7 +53,7 @@ describe("browser config", () => {
       expect(chrome?.cdpPort).toBe(19014);
       expect(chrome?.cdpUrl).toBe("http://127.0.0.1:19014");
 
-      const openclaw = resolveProfile(resolved, "openclaw");
+      const openclaw = resolveProfile(resolved, "daisy");
       expect(openclaw?.cdpPort).toBe(19022);
       expect(openclaw?.cdpUrl).toBe("http://127.0.0.1:19022");
     });
@@ -102,7 +102,7 @@ describe("browser config", () => {
     const resolved = resolveBrowserConfig({
       cdpUrl: "http://example.com:9222",
     });
-    const profile = resolveProfile(resolved, "openclaw");
+    const profile = resolveProfile(resolved, "daisy");
     expect(profile?.cdpIsLoopback).toBe(false);
   });
 
@@ -110,7 +110,7 @@ describe("browser config", () => {
     const resolved = resolveBrowserConfig({
       cdpUrl: "http://example.com:9222",
     });
-    const profile = resolveProfile(resolved, "openclaw");
+    const profile = resolveProfile(resolved, "daisy");
     expect(profile?.cdpPort).toBe(9222);
     expect(profile?.cdpUrl).toBe("http://example.com:9222");
     expect(profile?.cdpIsLoopback).toBe(false);
@@ -172,11 +172,11 @@ describe("browser config", () => {
   it("does not add the built-in chrome extension profile if the derived relay port is already used", () => {
     const resolved = resolveBrowserConfig({
       profiles: {
-        openclaw: { cdpPort: 18792, color: "#FF4500" },
+        daisy: { cdpPort: 18792, color: "#FF4500" },
       },
     });
     expect(resolveProfile(resolved, "chrome")).toBe(null);
-    expect(resolved.defaultProfile).toBe("openclaw");
+    expect(resolved.defaultProfile).toBe("daisy");
   });
 
   it("defaults extraArgs to empty array when not provided", () => {
@@ -244,34 +244,34 @@ describe("browser config", () => {
   });
 
   describe("default profile preference", () => {
-    it("defaults to openclaw profile when defaultProfile is not configured", () => {
+    it("defaults to chrome profile when defaultProfile is not configured", () => {
       const resolved = resolveBrowserConfig({
         headless: false,
         noSandbox: false,
       });
-      expect(resolved.defaultProfile).toBe("openclaw");
+      expect(resolved.defaultProfile).toBe("chrome");
     });
 
-    it("keeps openclaw default when headless=true", () => {
+    it("keeps chrome default when headless=true", () => {
       const resolved = resolveBrowserConfig({
         headless: true,
       });
-      expect(resolved.defaultProfile).toBe("openclaw");
+      expect(resolved.defaultProfile).toBe("chrome");
     });
 
-    it("keeps openclaw default when noSandbox=true", () => {
+    it("keeps chrome default when noSandbox=true", () => {
       const resolved = resolveBrowserConfig({
         noSandbox: true,
       });
-      expect(resolved.defaultProfile).toBe("openclaw");
+      expect(resolved.defaultProfile).toBe("chrome");
     });
 
-    it("keeps openclaw default when both headless and noSandbox are true", () => {
+    it("keeps chrome default when both headless and noSandbox are true", () => {
       const resolved = resolveBrowserConfig({
         headless: true,
         noSandbox: true,
       });
-      expect(resolved.defaultProfile).toBe("openclaw");
+      expect(resolved.defaultProfile).toBe("chrome");
     });
 
     it("explicit defaultProfile config overrides defaults in headless mode", () => {
