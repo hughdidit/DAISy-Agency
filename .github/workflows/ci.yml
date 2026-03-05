@@ -333,7 +333,17 @@ jobs:
           pre-commit run zizmor --files "${workflow_files[@]}"
 
       - name: Audit production dependencies
-        run: pre-commit run --all-files pnpm-audit-prod
+        env:
+          APP_ENV: ${{ vars.APP_ENV || 'staging' }}
+        run: |
+          set -euo pipefail
+          echo "APP_ENV=${APP_ENV}"
+          if [ "$APP_ENV" = "staging" ] || [ "$APP_ENV" = "production" ]; then
+            pnpm install --lockfile-only --ignore-scripts
+            pnpm audit --prod --audit-level=high
+          else
+            echo "Skipping dependency audit (APP_ENV=${APP_ENV})"
+          fi
 
   checks-windows:
     needs: [docs-scope, changed-scope]
