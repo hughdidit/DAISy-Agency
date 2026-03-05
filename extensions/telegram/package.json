@@ -1,9 +1,10 @@
 {
-  "name": "@moltbot/telegram",
-  "version": "2026.1.27-beta.1",
+  "name": "@openclaw/telegram",
+  "version": "2026.3.1",
+  "private": true,
+  "description": "OpenClaw Telegram channel plugin",
   "type": "module",
-  "description": "Moltbot Telegram channel plugin",
-  "moltbot": {
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ]

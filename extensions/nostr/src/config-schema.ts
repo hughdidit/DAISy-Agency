@@ -1,4 +1,4 @@
-import { MarkdownConfigSchema, buildChannelConfigSchema } from "clawdbot/plugin-sdk";
+import { MarkdownConfigSchema, buildChannelConfigSchema } from "openclaw/plugin-sdk";
 import { z } from "zod";
 
 const allowFromEntry = z.union([z.string(), z.number()]);
@@ -18,7 +18,7 @@ const safeUrlSchema = z
         return false;
       }
     },
-    { message: "URL must use https:// protocol" }
+    { message: "URL must use https:// protocol" },
   );
 
 /**
@@ -59,6 +59,9 @@ export type NostrProfile = z.infer<typeof NostrProfileSchema>;
 export const NostrConfigSchema = z.object({
   /** Account name (optional display name) */
   name: z.string().optional(),
+
+  /** Optional default account id for routing/account selection. */
+  defaultAccount: z.string().optional(),
 
   /** Whether this channel is enabled */
   enabled: z.boolean().optional(),

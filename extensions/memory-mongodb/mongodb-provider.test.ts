@@ -17,7 +17,8 @@ const collection = vi.fn(() => ({
   countDocuments,
   aggregate,
 }));
-const db = vi.fn(() => ({ collection }));
+const command = vi.fn().mockResolvedValue({ ok: 1 });
+const db = vi.fn(() => ({ collection, command }));
 
 const MongoClient = vi.fn(function MongoClientMock(this: unknown) {
   return { connect, close, db };
@@ -36,7 +37,12 @@ describe("mongodb provider", () => {
 
   test("store persists records via MongoDB collection", async () => {
     const { MongoMemoryDB } = await import("./mongodb-provider.js");
-    const provider = new MongoMemoryDB("mongodb://localhost:27017", "memdb", "memories", "vector_idx");
+    const provider = new MongoMemoryDB(
+      "mongodb://localhost:27017",
+      "memdb",
+      "memories",
+      "vector_idx",
+    );
 
     const record = await provider.store({
       text: "remember this",
@@ -70,7 +76,12 @@ describe("mongodb provider", () => {
         score: 0.88,
       },
     ]);
-    const provider = new MongoMemoryDB("mongodb://localhost:27017", "memdb", "memories", "vector_idx");
+    const provider = new MongoMemoryDB(
+      "mongodb://localhost:27017",
+      "memdb",
+      "memories",
+      "vector_idx",
+    );
 
     const results = await provider.search([0.9, 0.1], 4, 0.2);
 
@@ -88,9 +99,6 @@ describe("mongodb provider", () => {
       {
         $addFields: { score: { $meta: "vectorSearchScore" } },
       },
-      {
-        $match: { score: { $gte: 0.2 } },
-      },
     ]);
     expect(results).toHaveLength(1);
     expect(results[0].entry.id).toBe("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
@@ -99,7 +107,12 @@ describe("mongodb provider", () => {
 
   test("get/delete validate UUID format", async () => {
     const { MongoMemoryDB } = await import("./mongodb-provider.js");
-    const provider = new MongoMemoryDB("mongodb://localhost:27017", "memdb", "memories", "vector_idx");
+    const provider = new MongoMemoryDB(
+      "mongodb://localhost:27017",
+      "memdb",
+      "memories",
+      "vector_idx",
+    );
 
     await expect(provider.get("not-a-uuid")).rejects.toThrow("Invalid memory ID format");
     await expect(provider.delete("not-a-uuid")).rejects.toThrow("Invalid memory ID format");

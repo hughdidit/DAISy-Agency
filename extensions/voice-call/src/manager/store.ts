@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
-
 import { CallRecordSchema, TerminalStates, type CallId, type CallRecord } from "../types.js";
 
 export function persistCallRecord(storePath: string, call: CallRecord): void {
@@ -18,6 +17,7 @@ export function loadActiveCallsFromStore(storePath: string): {
   activeCalls: Map<CallId, CallRecord>;
   providerCallIdMap: Map<string, CallId>;
   processedEventIds: Set<string>;
+  rejectedProviderCallIds: Set<string>;
 } {
   const logPath = path.join(storePath, "calls.jsonl");
   if (!fs.existsSync(logPath)) {
@@ -25,6 +25,7 @@ export function loadActiveCallsFromStore(storePath: string): {
       activeCalls: new Map(),
       providerCallIdMap: new Map(),
       processedEventIds: new Set(),
+      rejectedProviderCallIds: new Set(),
     };
   }
 
@@ -33,7 +34,9 @@ export function loadActiveCallsFromStore(storePath: string): {
 
   const callMap = new Map<CallId, CallRecord>();
   for (const line of lines) {
-    if (!line.trim()) continue;
+    if (!line.trim()) {
+      continue;
+    }
     try {
       const call = CallRecordSchema.parse(JSON.parse(line));
       callMap.set(call.callId, call);
@@ -45,9 +48,12 @@ export function loadActiveCallsFromStore(storePath: string): {
   const activeCalls = new Map<CallId, CallRecord>();
   const providerCallIdMap = new Map<string, CallId>();
   const processedEventIds = new Set<string>();
+  const rejectedProviderCallIds = new Set<string>();
 
   for (const [callId, call] of callMap) {
-    if (TerminalStates.has(call.state)) continue;
+    if (TerminalStates.has(call.state)) {
+      continue;
+    }
     activeCalls.set(callId, call);
     if (call.providerCallId) {
       providerCallIdMap.set(call.providerCallId, callId);
@@ -57,7 +63,7 @@ export function loadActiveCallsFromStore(storePath: string): {
     }
   }
 
-  return { activeCalls, providerCallIdMap, processedEventIds };
+  return { activeCalls, providerCallIdMap, processedEventIds, rejectedProviderCallIds };
 }
 
 export async function getCallHistoryFromStore(

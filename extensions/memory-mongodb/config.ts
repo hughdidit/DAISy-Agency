@@ -1,27 +1,13 @@
 export type MemoryConfig = {
-  mcp:
-    | {
-        transport: "stdio";
-        stdio: {
-          command: string;
-          args: string[];
-          env: { MDB_MCP_CONNECTION_STRING: string } & Record<string, string>;
-        };
-      }
-    | {
-        transport: "sse";
-        url: string;
-      };
-  voyage: {
+  embedding: {
+    provider: "openai";
+    model?: string;
     apiKey: string;
-    embeddingModel: string;
-    rerankModel: string;
   };
-  database: {
-    name: string;
-    collection: string;
-    indexName: string;
-  };
+  connectionUri: string;
+  databaseName: string;
+  collectionName: string;
+  vectorSearchIndexName: string;
   captureTriggers: string[];
   autoCapture?: boolean;
   autoRecall?: boolean;
@@ -30,11 +16,7 @@ export type MemoryConfig = {
 export const MEMORY_CATEGORIES = ["preference", "fact", "decision", "entity", "other"] as const;
 export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
 
-const DEFAULT_TRANSPORT = "stdio" as const;
-const DEFAULT_STDIO_COMMAND = "npx";
-const DEFAULT_STDIO_ARGS = ["-y", "mongodb-mcp-server"];
-const DEFAULT_EMBEDDING_MODEL = "voyage-3.5";
-const DEFAULT_RERANK_MODEL = "rerank-2";
+const DEFAULT_MODEL = "text-embedding-3-small";
 const DEFAULT_DATABASE_NAME = "daisy_memory";
 const DEFAULT_COLLECTION_NAME = "memories";
 const DEFAULT_VECTOR_SEARCH_INDEX_NAME = "vector_index";
@@ -50,35 +32,19 @@ export const DEFAULT_CAPTURE_TRIGGERS = [
   "always|never|important",
 ];
 
-const VOYAGE_MODEL_DEFAULTS = {
-  embedding: DEFAULT_EMBEDDING_MODEL,
-  rerank: DEFAULT_RERANK_MODEL,
-} as const;
-
-const VOYAGE_EMBEDDING_DIMENSIONS: Record<string, number> = {
-  "voyage-3": 1024,
-  "voyage-3-large": 1024,
-  "voyage-3-lite": 512,
-  "voyage-3.5": 1024,
-  "voyage-3.5-lite": 512,
-  "voyage-code-3": 1024,
-  "voyage-finance-2": 1024,
-  "voyage-law-2": 1024,
-  "voyage-multilingual-2": 1024,
+const EMBEDDING_DIMENSIONS: Record<string, number> = {
+  "text-embedding-3-small": 1536,
+  "text-embedding-3-large": 3072,
 };
 
-function assertAllowedKeys(
-  value: Record<string, unknown>,
-  allowed: string[],
-  label: string,
-) {
+function assertAllowedKeys(value: Record<string, unknown>, allowed: string[], label: string) {
   const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
   if (unknown.length === 0) return;
   throw new Error(`${label} has unknown keys: ${unknown.join(", ")}`);
 }
 
 export function vectorDimsForModel(model: string): number {
-  const dims = VOYAGE_EMBEDDING_DIMENSIONS[model];
+  const dims = EMBEDDING_DIMENSIONS[model];
   if (!dims) {
     throw new Error(`Unsupported embedding model: ${model}`);
   }
@@ -95,22 +61,8 @@ function resolveEnvVars(value: string): string {
   });
 }
 
-function resolveStringRecordEnvVars(value: Record<string, unknown>): Record<string, string> {
-  const resolved: Record<string, string> = {};
-  for (const [key, raw] of Object.entries(value)) {
-    if (typeof raw !== "string") {
-      throw new Error("mcp.stdio.env values must be strings");
-    }
-    resolved[key] = resolveEnvVars(raw);
-  }
-  return resolved;
-}
-
-function resolveEmbeddingModel(voyage: Record<string, unknown>): string {
-  const model =
-    typeof voyage.embeddingModel === "string"
-      ? voyage.embeddingModel
-      : VOYAGE_MODEL_DEFAULTS.embedding;
+function resolveEmbeddingModel(embedding: Record<string, unknown>): string {
+  const model = typeof embedding.model === "string" ? embedding.model : DEFAULT_MODEL;
   vectorDimsForModel(model);
   return model;
 }
@@ -206,9 +158,11 @@ export const memoryConfigSchema = {
     assertAllowedKeys(
       cfg,
       [
-        "mcp",
-        "voyage",
-        "database",
+        "embedding",
+        "connectionUri",
+        "databaseName",
+        "collectionName",
+        "vectorSearchIndexName",
         "captureTriggers",
         "autoCapture",
         "autoRecall",
@@ -216,69 +170,20 @@ export const memoryConfigSchema = {
       "memory config",
     );
 
-    const mcp = cfg.mcp as Record<string, unknown> | undefined;
-    if (!mcp || typeof mcp !== "object") {
-      throw new Error("mcp is required");
+    const embedding = cfg.embedding as Record<string, unknown> | undefined;
+    if (!embedding || typeof embedding.apiKey !== "string") {
+      throw new Error("embedding.apiKey is required");
     }
-    assertAllowedKeys(mcp, ["transport", "stdio", "url"], "mcp config");
-    const transport = (mcp.transport ?? DEFAULT_TRANSPORT) as string;
-    if (transport !== "stdio" && transport !== "sse") {
-      throw new Error("mcp.transport must be \"stdio\" or \"sse\"");
-    }
+    assertAllowedKeys(embedding, ["apiKey", "model"], "embedding config");
 
-    let rawStdio: Record<string, unknown> = {};
-    if (mcp.stdio !== undefined) {
-      if (typeof mcp.stdio !== "object" || mcp.stdio === null || Array.isArray(mcp.stdio)) {
-        throw new Error("mcp.stdio must be an object");
-      }
-      rawStdio = mcp.stdio as Record<string, unknown>;
-      assertAllowedKeys(rawStdio, ["command", "args", "env"], "mcp.stdio config");
+    if (typeof cfg.connectionUri !== "string" || cfg.connectionUri.length === 0) {
+      throw new Error("connectionUri is required");
     }
 
-    if (transport === "sse") {
-      if (typeof mcp.url !== "string" || mcp.url.length === 0) {
-        throw new Error("mcp.url is required when mcp.transport is \"sse\"");
-      }
-    }
+    const model = resolveEmbeddingModel(embedding);
+    const resolvedUri = resolveEnvVars(cfg.connectionUri);
 
-    const voyage = cfg.voyage as Record<string, unknown> | undefined;
-    if (!voyage || typeof voyage.apiKey !== "string") {
-      throw new Error("voyage.apiKey is required");
-    }
-    assertAllowedKeys(voyage, ["apiKey", "embeddingModel", "rerankModel"], "voyage config");
-
-    const database = cfg.database as Record<string, unknown> | undefined;
-    if (database && typeof database !== "object") {
-      throw new Error("database must be an object");
-    }
-
-    const rawStdioEnv = rawStdio.env as Record<string, unknown> | undefined;
-    const connectionUri = rawStdioEnv?.MDB_MCP_CONNECTION_STRING;
-
-    if (transport === "stdio" && (typeof connectionUri !== "string" || connectionUri.length === 0)) {
-      throw new Error(
-        "mcp.stdio.env.MDB_MCP_CONNECTION_STRING is required when mcp.transport is \"stdio\"",
-      );
-    }
-
-    const embeddingModel = resolveEmbeddingModel(voyage);
-    const rerankModel =
-      typeof voyage.rerankModel === "string"
-        ? voyage.rerankModel
-        : VOYAGE_MODEL_DEFAULTS.rerank;
-
-    if (typeof connectionUri === "string" && connectionUri.length > 0) {
-      try {
-        validateConnectionUriTls(resolveEnvVars(connectionUri));
-      } catch (err) {
-        if (err instanceof Error) {
-          throw new Error(
-            err.message.replace(/connectionUri/g, "mcp.stdio.env.MDB_MCP_CONNECTION_STRING"),
-          );
-        }
-        throw err;
-      }
-    }
+    validateConnectionUriTls(resolvedUri);
 
     // Validate and compile capture triggers
     const rawTriggers = Array.isArray(cfg.captureTriggers)
@@ -299,115 +204,54 @@ export const memoryConfigSchema = {
       captureTriggers.push(t);
     }
 
-    const resolvedMcpEnv = rawStdioEnv
-      ? resolveStringRecordEnvVars(rawStdioEnv)
-      : undefined;
-
     return {
-      mcp:
-        transport === "stdio"
-          ? {
-              transport: "stdio" as const,
-              stdio: {
-                command:
-                  typeof rawStdio.command === "string" && rawStdio.command.length > 0
-                    ? rawStdio.command
-                    : DEFAULT_STDIO_COMMAND,
-                args: Array.isArray(rawStdio.args)
-                  ? rawStdio.args.map((arg) => {
-                      if (typeof arg !== "string") {
-                        throw new Error("mcp.stdio.args must be an array of strings");
-                      }
-                      return arg;
-                    })
-                  : DEFAULT_STDIO_ARGS,
-                env: resolvedMcpEnv as { MDB_MCP_CONNECTION_STRING: string } & Record<
-                  string,
-                  string
-                >,
-              },
-            }
-          : {
-              transport: "sse" as const,
-              url: resolveEnvVars(String(mcp.url)),
-            },
-      voyage: {
-        apiKey: resolveEnvVars(voyage.apiKey),
-        embeddingModel,
-        rerankModel,
+      embedding: {
+        provider: "openai",
+        model,
+        apiKey: resolveEnvVars(embedding.apiKey),
       },
-      database: {
-        name:
-          typeof database?.name === "string" ? database.name : DEFAULT_DATABASE_NAME,
-        collection:
-          typeof database?.collection === "string"
-            ? database.collection
-            : DEFAULT_COLLECTION_NAME,
-        indexName:
-          typeof database?.indexName === "string"
-            ? database.indexName
-            : DEFAULT_VECTOR_SEARCH_INDEX_NAME,
-      },
+      connectionUri: resolvedUri,
+      databaseName: typeof cfg.databaseName === "string" ? cfg.databaseName : DEFAULT_DATABASE_NAME,
+      collectionName:
+        typeof cfg.collectionName === "string" ? cfg.collectionName : DEFAULT_COLLECTION_NAME,
+      vectorSearchIndexName:
+        typeof cfg.vectorSearchIndexName === "string"
+          ? cfg.vectorSearchIndexName
+          : DEFAULT_VECTOR_SEARCH_INDEX_NAME,
       captureTriggers,
       autoCapture: cfg.autoCapture !== false,
       autoRecall: cfg.autoRecall !== false,
     };
   },
   uiHints: {
-    "mcp.transport": {
-      label: "MCP Transport",
-      placeholder: DEFAULT_TRANSPORT,
-      help: "Choose stdio for local MCP server or sse for remote endpoint",
+    "embedding.apiKey": {
+      label: "OpenAI API Key",
+      sensitive: true,
+      placeholder: "sk-proj-...",
+      help: "API key for OpenAI embeddings (or use ${OPENAI_API_KEY})",
     },
-    "mcp.stdio.command": {
-      label: "MCP Command",
-      placeholder: DEFAULT_STDIO_COMMAND,
-      help: "Executable used to launch MongoDB MCP server",
+    "embedding.model": {
+      label: "Embedding Model",
+      placeholder: DEFAULT_MODEL,
+      help: "OpenAI embedding model to use",
     },
-    "mcp.stdio.args": {
-      label: "MCP Command Args",
-      placeholder: JSON.stringify(DEFAULT_STDIO_ARGS),
-      advanced: true,
-    },
-    "mcp.stdio.env.MDB_MCP_CONNECTION_STRING": {
-      label: "MongoDB Connection String",
+    connectionUri: {
+      label: "MongoDB Connection URI",
       sensitive: true,
       placeholder: "${MONGODB_URI}",
-      help: "Use MDB_MCP_CONNECTION_STRING to pass Atlas URI to MCP (supports ${MONGODB_URI})",
+      help: "MongoDB Atlas connection string (use ${MONGODB_URI} env var)",
     },
-    "mcp.url": {
-      label: "MCP SSE URL",
-      placeholder: "https://example.com/sse",
-      help: "Required when mcp.transport is sse",
-    },
-    "voyage.apiKey": {
-      label: "Voyage AI API Key",
-      sensitive: true,
-      placeholder: "pa-...",
-      help: "API key for Voyage AI embeddings (or use ${VOYAGE_API_KEY})",
-    },
-    "voyage.embeddingModel": {
-      label: "Embedding Model",
-      placeholder: DEFAULT_EMBEDDING_MODEL,
-      help: "Voyage AI embedding model to use",
-    },
-    "voyage.rerankModel": {
-      label: "Rerank Model",
-      placeholder: DEFAULT_RERANK_MODEL,
-      advanced: true,
-      help: "Optional Voyage rerank model for future ranking workflows",
-    },
-    "database.name": {
+    databaseName: {
       label: "Database Name",
       placeholder: DEFAULT_DATABASE_NAME,
       advanced: true,
     },
-    "database.collection": {
+    collectionName: {
       label: "Collection Name",
       placeholder: DEFAULT_COLLECTION_NAME,
       advanced: true,
     },
-    "database.indexName": {
+    vectorSearchIndexName: {
       label: "Vector Search Index Name",
       placeholder: DEFAULT_VECTOR_SEARCH_INDEX_NAME,
       advanced: true,

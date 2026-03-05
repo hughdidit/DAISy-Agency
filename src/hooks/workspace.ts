@@ -1,14 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
-
-import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
-import type { MoltbotConfig } from "../config/config.js";
+import { MANIFEST_KEY } from "../compat/legacy-names.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { isPathInsideWithRealpath } from "../security/scan-paths.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 import { resolveBundledHooksDir } from "./bundled-dir.js";
 import { shouldIncludeHook } from "./config.js";
 import {
   parseFrontmatter,
-  resolveMoltbotMetadata,
+  resolveOpenClawMetadata,
   resolveHookInvocationPolicy,
 } from "./frontmatter.js";
 import type {
@@ -22,13 +24,12 @@ import type {
 
 type HookPackageManifest = {
   name?: string;
-  moltbot?: { hooks?: string[] };
-  [LEGACY_MANIFEST_KEY]?: { hooks?: string[] };
-};
+} & Partial<Record<typeof MANIFEST_KEY, { hooks?: string[] }>>;
+const log = createSubsystemLogger("hooks/workspace");
 
 function filterHookEntries(
   entries: HookEntry[],
-  config?: MoltbotConfig,
+  config?: OpenClawConfig,
   eligibility?: HookEligibilityContext,
 ): HookEntry[] {
   return entries.filter((entry) => shouldIncludeHook({ entry, config, eligibility }));
@@ -36,9 +37,15 @@ function filterHookEntries(
 
 function readHookPackageManifest(dir: string): HookPackageManifest | null {
   const manifestPath = path.join(dir, "package.json");
-  if (!fs.existsSync(manifestPath)) return null;
+  const raw = readBoundaryFileUtf8({
+    absolutePath: manifestPath,
+    rootPath: dir,
+    boundaryLabel: "hook package directory",
+  });
+  if (raw === null) {
+    return null;
+  }
   try {
-    const raw = fs.readFileSync(manifestPath, "utf-8");
     return JSON.parse(raw) as HookPackageManifest;
   } catch {
     return null;
@@ -46,9 +53,24 @@ function readHookPackageManifest(dir: string): HookPackageManifest | null {
 }
 
 function resolvePackageHooks(manifest: HookPackageManifest): string[] {
-  const raw = manifest.moltbot?.hooks ?? manifest[LEGACY_MANIFEST_KEY]?.hooks;
-  if (!Array.isArray(raw)) return [];
+  const raw = manifest[MANIFEST_KEY]?.hooks;
+  if (!Array.isArray(raw)) {
+    return [];
+  }
   return raw.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean);
+}
+
+function resolveContainedDir(baseDir: string, targetDir: string): string | null {
+  const base = path.resolve(baseDir);
+  const resolved = path.resolve(baseDir, targetDir);
+  if (
+    !isPathInsideWithRealpath(base, resolved, {
+      requireRealpath: true,
+    })
+  ) {
+    return null;
+  }
+  return resolved;
 }
 
 function loadHookFromDir(params: {
@@ -58,10 +80,15 @@ function loadHookFromDir(params: {
   nameHint?: string;
 }): Hook | null {
   const hookMdPath = path.join(params.hookDir, "HOOK.md");
-  if (!fs.existsSync(hookMdPath)) return null;
-
+  const content = readBoundaryFileUtf8({
+    absolutePath: hookMdPath,
+    rootPath: params.hookDir,
+    boundaryLabel: "hook directory",
+  });
+  if (content === null) {
+    return null;
+  }
   try {
-    const content = fs.readFileSync(hookMdPath, "utf-8");
     const frontmatter = parseFrontmatter(content);
 
     const name = frontmatter.name || params.nameHint || path.basename(params.hookDir);
@@ -71,28 +98,34 @@ function loadHookFromDir(params: {
     let handlerPath: string | undefined;
     for (const candidate of handlerCandidates) {
       const candidatePath = path.join(params.hookDir, candidate);
-      if (fs.existsSync(candidatePath)) {
-        handlerPath = candidatePath;
+      const safeCandidatePath = resolveBoundaryFilePath({
+        absolutePath: candidatePath,
+        rootPath: params.hookDir,
+        boundaryLabel: "hook directory",
+      });
+      if (safeCandidatePath) {
+        handlerPath = safeCandidatePath;
         break;
       }
     }
 
     if (!handlerPath) {
-      console.warn(`[hooks] Hook "${name}" has HOOK.md but no handler file in ${params.hookDir}`);
+      log.warn(`Hook "${name}" has HOOK.md but no handler file in ${params.hookDir}`);
       return null;
     }
 
     return {
       name,
       description,
-      source: params.source as Hook["source"],
+      source: params.source,
       pluginId: params.pluginId,
       filePath: hookMdPath,
       baseDir: params.hookDir,
       handlerPath,
     };
   } catch (err) {
-    console.warn(`[hooks] Failed to load hook from ${params.hookDir}:`, err);
+    const message = err instanceof Error ? (err.stack ?? err.message) : String(err);
+    log.warn(`Failed to load hook from ${params.hookDir}: ${message}`);
     return null;
   }
 }
@@ -103,16 +136,22 @@ function loadHookFromDir(params: {
 function loadHooksFromDir(params: { dir: string; source: HookSource; pluginId?: string }): Hook[] {
   const { dir, source, pluginId } = params;
 
-  if (!fs.existsSync(dir)) return [];
+  if (!fs.existsSync(dir)) {
+    return [];
+  }
 
   const stat = fs.statSync(dir);
-  if (!stat.isDirectory()) return [];
+  if (!stat.isDirectory()) {
+    return [];
+  }
 
   const hooks: Hook[] = [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
 
   for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
+    if (!entry.isDirectory()) {
+      continue;
+    }
 
     const hookDir = path.join(dir, entry.name);
     const manifest = readHookPackageManifest(hookDir);
@@ -120,14 +159,22 @@ function loadHooksFromDir(params: { dir: string; source: HookSource; pluginId?: 
 
     if (packageHooks.length > 0) {
       for (const hookPath of packageHooks) {
-        const resolvedHookDir = path.resolve(hookDir, hookPath);
+        const resolvedHookDir = resolveContainedDir(hookDir, hookPath);
+        if (!resolvedHookDir) {
+          log.warn(
+            `Ignoring out-of-package hook path "${hookPath}" in ${hookDir} (must be within package directory)`,
+          );
+          continue;
+        }
         const hook = loadHookFromDir({
           hookDir: resolvedHookDir,
           source,
           pluginId,
           nameHint: path.basename(resolvedHookDir),
         });
-        if (hook) hooks.push(hook);
+        if (hook) {
+          hooks.push(hook);
+        }
       }
       continue;
     }
@@ -138,7 +185,9 @@ function loadHooksFromDir(params: { dir: string; source: HookSource; pluginId?: 
       pluginId,
       nameHint: entry.name,
     });
-    if (hook) hooks.push(hook);
+    if (hook) {
+      hooks.push(hook);
+    }
   }
 
   return hooks;
@@ -156,11 +205,13 @@ export function loadHookEntriesFromDir(params: {
   });
   return hooks.map((hook) => {
     let frontmatter: ParsedHookFrontmatter = {};
-    try {
-      const raw = fs.readFileSync(hook.filePath, "utf-8");
+    const raw = readBoundaryFileUtf8({
+      absolutePath: hook.filePath,
+      rootPath: hook.baseDir,
+      boundaryLabel: "hook directory",
+    });
+    if (raw !== null) {
       frontmatter = parseFrontmatter(raw);
-    } catch {
-      // ignore malformed hooks
     }
     const entry: HookEntry = {
       hook: {
@@ -169,7 +220,7 @@ export function loadHookEntriesFromDir(params: {
         pluginId: params.pluginId,
       },
       frontmatter,
-      metadata: resolveMoltbotMetadata(frontmatter),
+      metadata: resolveOpenClawMetadata(frontmatter),
       invocation: resolveHookInvocationPolicy(frontmatter),
     };
     return entry;
@@ -179,7 +230,7 @@ export function loadHookEntriesFromDir(params: {
 function loadHookEntries(
   workspaceDir: string,
   opts?: {
-    config?: MoltbotConfig;
+    config?: OpenClawConfig;
     managedHooksDir?: string;
     bundledHooksDir?: string;
   },
@@ -195,44 +246,54 @@ function loadHookEntries(
   const bundledHooks = bundledHooksDir
     ? loadHooksFromDir({
         dir: bundledHooksDir,
-        source: "moltbot-bundled",
+        source: "openclaw-bundled",
       })
     : [];
   const extraHooks = extraDirs.flatMap((dir) => {
     const resolved = resolveUserPath(dir);
     return loadHooksFromDir({
       dir: resolved,
-      source: "moltbot-workspace", // Extra dirs treated as workspace
+      source: "openclaw-workspace", // Extra dirs treated as workspace
     });
   });
   const managedHooks = loadHooksFromDir({
     dir: managedHooksDir,
-    source: "moltbot-managed",
+    source: "openclaw-managed",
   });
   const workspaceHooks = loadHooksFromDir({
     dir: workspaceHooksDir,
-    source: "moltbot-workspace",
+    source: "openclaw-workspace",
   });
 
   const merged = new Map<string, Hook>();
   // Precedence: extra < bundled < managed < workspace (workspace wins)
-  for (const hook of extraHooks) merged.set(hook.name, hook);
-  for (const hook of bundledHooks) merged.set(hook.name, hook);
-  for (const hook of managedHooks) merged.set(hook.name, hook);
-  for (const hook of workspaceHooks) merged.set(hook.name, hook);
+  for (const hook of extraHooks) {
+    merged.set(hook.name, hook);
+  }
+  for (const hook of bundledHooks) {
+    merged.set(hook.name, hook);
+  }
+  for (const hook of managedHooks) {
+    merged.set(hook.name, hook);
+  }
+  for (const hook of workspaceHooks) {
+    merged.set(hook.name, hook);
+  }
 
   return Array.from(merged.values()).map((hook) => {
     let frontmatter: ParsedHookFrontmatter = {};
-    try {
-      const raw = fs.readFileSync(hook.filePath, "utf-8");
+    const raw = readBoundaryFileUtf8({
+      absolutePath: hook.filePath,
+      rootPath: hook.baseDir,
+      boundaryLabel: "hook directory",
+    });
+    if (raw !== null) {
       frontmatter = parseFrontmatter(raw);
-    } catch {
-      // ignore malformed hooks
     }
     return {
       hook,
       frontmatter,
-      metadata: resolveMoltbotMetadata(frontmatter),
+      metadata: resolveOpenClawMetadata(frontmatter),
       invocation: resolveHookInvocationPolicy(frontmatter),
     };
   });
@@ -241,7 +302,7 @@ function loadHookEntries(
 export function buildWorkspaceHookSnapshot(
   workspaceDir: string,
   opts?: {
-    config?: MoltbotConfig;
+    config?: OpenClawConfig;
     managedHooksDir?: string;
     bundledHooksDir?: string;
     entries?: HookEntry[];
@@ -265,10 +326,50 @@ export function buildWorkspaceHookSnapshot(
 export function loadWorkspaceHookEntries(
   workspaceDir: string,
   opts?: {
-    config?: MoltbotConfig;
+    config?: OpenClawConfig;
     managedHooksDir?: string;
     bundledHooksDir?: string;
   },
 ): HookEntry[] {
   return loadHookEntries(workspaceDir, opts);
+}
+
+function readBoundaryFileUtf8(params: {
+  absolutePath: string;
+  rootPath: string;
+  boundaryLabel: string;
+}): string | null {
+  const opened = openBoundaryFileSync({
+    absolutePath: params.absolutePath,
+    rootPath: params.rootPath,
+    boundaryLabel: params.boundaryLabel,
+  });
+  if (!opened.ok) {
+    return null;
+  }
+  try {
+    return fs.readFileSync(opened.fd, "utf-8");
+  } catch {
+    return null;
+  } finally {
+    fs.closeSync(opened.fd);
+  }
+}
+
+function resolveBoundaryFilePath(params: {
+  absolutePath: string;
+  rootPath: string;
+  boundaryLabel: string;
+}): string | null {
+  const opened = openBoundaryFileSync({
+    absolutePath: params.absolutePath,
+    rootPath: params.rootPath,
+    boundaryLabel: params.boundaryLabel,
+  });
+  if (!opened.ok) {
+    return null;
+  }
+  const safePath = opened.path;
+  fs.closeSync(opened.fd);
+  return safePath;
 }

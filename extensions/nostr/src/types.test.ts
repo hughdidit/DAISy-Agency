@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  listNostrAccountIds,
-  resolveDefaultNostrAccountId,
-  resolveNostrAccount,
-} from "./types.js";
+import { listNostrAccountIds, resolveDefaultNostrAccountId, resolveNostrAccount } from "./types.js";
 
 const TEST_PRIVATE_KEY = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
@@ -26,6 +22,15 @@ describe("listNostrAccountIds", () => {
     };
     expect(listNostrAccountIds(cfg)).toEqual(["default"]);
   });
+
+  it("returns configured defaultAccount when privateKey is configured", () => {
+    const cfg = {
+      channels: {
+        nostr: { privateKey: TEST_PRIVATE_KEY, defaultAccount: "work" },
+      },
+    };
+    expect(listNostrAccountIds(cfg)).toEqual(["work"]);
+  });
 });
 
 describe("resolveDefaultNostrAccountId", () => {
@@ -41,6 +46,15 @@ describe("resolveDefaultNostrAccountId", () => {
   it("returns default when not configured", () => {
     const cfg = { channels: {} };
     expect(resolveDefaultNostrAccountId(cfg)).toBe("default");
+  });
+
+  it("prefers configured defaultAccount when present", () => {
+    const cfg = {
+      channels: {
+        nostr: { privateKey: TEST_PRIVATE_KEY, defaultAccount: "work" },
+      },
+    };
+    expect(resolveDefaultNostrAccountId(cfg)).toBe("work");
   });
 });
 

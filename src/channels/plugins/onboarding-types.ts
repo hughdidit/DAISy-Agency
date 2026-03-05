@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { DmPolicy } from "../../config/types.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { WizardPrompter } from "../../wizard/prompts.js";
@@ -23,11 +23,11 @@ export type SetupChannelsOptions = {
 };
 
 export type PromptAccountIdParams = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   prompter: WizardPrompter;
   label: string;
   currentId?: string;
-  listAccountIds: (cfg: MoltbotConfig) => string[];
+  listAccountIds: (cfg: OpenClawConfig) => string[];
   defaultAccountId: string;
 };
 
@@ -42,13 +42,13 @@ export type ChannelOnboardingStatus = {
 };
 
 export type ChannelOnboardingStatusContext = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   options?: SetupChannelsOptions;
   accountOverrides: Partial<Record<ChannelId, string>>;
 };
 
 export type ChannelOnboardingConfigureContext = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   runtime: RuntimeEnv;
   prompter: WizardPrompter;
   options?: SetupChannelsOptions;
@@ -58,8 +58,15 @@ export type ChannelOnboardingConfigureContext = {
 };
 
 export type ChannelOnboardingResult = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string;
+};
+
+export type ChannelOnboardingConfiguredResult = ChannelOnboardingResult | "skip";
+
+export type ChannelOnboardingInteractiveContext = ChannelOnboardingConfigureContext & {
+  configured: boolean;
+  label: string;
 };
 
 export type ChannelOnboardingDmPolicy = {
@@ -67,20 +74,26 @@ export type ChannelOnboardingDmPolicy = {
   channel: ChannelId;
   policyKey: string;
   allowFromKey: string;
-  getCurrent: (cfg: MoltbotConfig) => DmPolicy;
-  setPolicy: (cfg: MoltbotConfig, policy: DmPolicy) => MoltbotConfig;
+  getCurrent: (cfg: OpenClawConfig) => DmPolicy;
+  setPolicy: (cfg: OpenClawConfig, policy: DmPolicy) => OpenClawConfig;
   promptAllowFrom?: (params: {
-    cfg: MoltbotConfig;
+    cfg: OpenClawConfig;
     prompter: WizardPrompter;
     accountId?: string;
-  }) => Promise<MoltbotConfig>;
+  }) => Promise<OpenClawConfig>;
 };
 
 export type ChannelOnboardingAdapter = {
   channel: ChannelId;
   getStatus: (ctx: ChannelOnboardingStatusContext) => Promise<ChannelOnboardingStatus>;
   configure: (ctx: ChannelOnboardingConfigureContext) => Promise<ChannelOnboardingResult>;
+  configureInteractive?: (
+    ctx: ChannelOnboardingInteractiveContext,
+  ) => Promise<ChannelOnboardingConfiguredResult>;
+  configureWhenConfigured?: (
+    ctx: ChannelOnboardingInteractiveContext,
+  ) => Promise<ChannelOnboardingConfiguredResult>;
   dmPolicy?: ChannelOnboardingDmPolicy;
   onAccountRecorded?: (accountId: string, options?: SetupChannelsOptions) => void;
-  disable?: (cfg: MoltbotConfig) => MoltbotConfig;
+  disable?: (cfg: OpenClawConfig) => OpenClawConfig;
 };

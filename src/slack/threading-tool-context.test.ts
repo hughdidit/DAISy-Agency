@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
-
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { buildSlackThreadingToolContext } from "./threading-tool-context.js";
 
-const emptyCfg = {} as MoltbotConfig;
+const emptyCfg = {} as OpenClawConfig;
 
 describe("buildSlackThreadingToolContext", () => {
   it("uses top-level replyToMode by default", () => {
@@ -11,7 +10,7 @@ describe("buildSlackThreadingToolContext", () => {
       channels: {
         slack: { replyToMode: "first" },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -28,7 +27,7 @@ describe("buildSlackThreadingToolContext", () => {
           replyToModeByChatType: { direct: "all" },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -45,7 +44,7 @@ describe("buildSlackThreadingToolContext", () => {
           replyToModeByChatType: { direct: "all" },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -61,7 +60,7 @@ describe("buildSlackThreadingToolContext", () => {
           replyToMode: "first",
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -78,7 +77,7 @@ describe("buildSlackThreadingToolContext", () => {
           dm: { replyToMode: "all" },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -87,18 +86,62 @@ describe("buildSlackThreadingToolContext", () => {
     expect(result.replyToMode).toBe("all");
   });
 
-  it("uses all mode when ThreadLabel is present", () => {
+  it("uses all mode when MessageThreadId is present", () => {
     const cfg = {
       channels: {
-        slack: { replyToMode: "off" },
+        slack: {
+          replyToMode: "all",
+          replyToModeByChatType: { direct: "off" },
+        },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
-      context: { ChatType: "channel", ThreadLabel: "some-thread" },
+      context: {
+        ChatType: "direct",
+        ThreadLabel: "thread-label",
+        MessageThreadId: "1771999998.834199",
+      },
     });
     expect(result.replyToMode).toBe("all");
+  });
+
+  it("does not force all mode from ThreadLabel alone", () => {
+    const cfg = {
+      channels: {
+        slack: {
+          replyToMode: "all",
+          replyToModeByChatType: { direct: "off" },
+        },
+      },
+    } as OpenClawConfig;
+    const result = buildSlackThreadingToolContext({
+      cfg,
+      accountId: null,
+      context: {
+        ChatType: "direct",
+        ThreadLabel: "label-without-real-thread",
+      },
+    });
+    expect(result.replyToMode).toBe("off");
+  });
+
+  it("keeps configured channel behavior when not in a thread", () => {
+    const cfg = {
+      channels: {
+        slack: {
+          replyToMode: "off",
+          replyToModeByChatType: { channel: "first" },
+        },
+      },
+    } as OpenClawConfig;
+    const result = buildSlackThreadingToolContext({
+      cfg,
+      accountId: null,
+      context: { ChatType: "channel", ThreadLabel: "label-only" },
+    });
+    expect(result.replyToMode).toBe("first");
   });
 
   it("defaults to off when no replyToMode is configured", () => {

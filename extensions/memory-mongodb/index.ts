@@ -3,15 +3,14 @@
  *
  * Long-term memory with vector search for AI conversations.
  * Uses MongoDB Atlas for storage, Atlas Vector Search for retrieval,
- * and VoyageAI for embeddings.
+ * and OpenAI for embeddings.
  * Provides seamless auto-recall and auto-capture via lifecycle hooks.
  */
 
 import { Type } from "@sinclair/typebox";
-import VoyageAI from "voyageai";
-import type { MoltbotPluginApi } from "clawdbot/plugin-sdk";
-import { stringEnum } from "clawdbot/plugin-sdk";
-
+import OpenAI from "openai";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+import { stringEnum } from "openclaw/plugin-sdk";
 import {
   MEMORY_CATEGORIES,
   DEFAULT_CAPTURE_TRIGGERS,
@@ -19,45 +18,28 @@ import {
   memoryConfigSchema,
   vectorDimsForModel,
 } from "./config.js";
-
-import {
-  MongoMemoryDB,
-  buildVectorIndexDefinition,
-  type MemoryEntry,
-} from "./mongodb-provider.js";
+import { MongoMemoryDB, buildVectorIndexDefinition, type MemoryEntry } from "./mongodb-provider.js";
 
 // ============================================================================
-// Voyage AI Embeddings
+// OpenAI Embeddings
 // ============================================================================
 
 class Embeddings {
-  private client: VoyageAI;
+  private client: OpenAI;
 
   constructor(
     apiKey: string,
     private model: string,
   ) {
-    this.client = new VoyageAI({ apiKey });
+    this.client = new OpenAI({ apiKey });
   }
 
   async embed(text: string): Promise<number[]> {
-    const response = await this.client.embed({
+    const response = await this.client.embeddings.create({
       model: this.model,
       input: text,
     });
-    const embedding = response.data?.[0]?.embedding;
-    if (!embedding) {
-      throw new Error(`VoyageAI did not return an embedding for model "${this.model}".`);
-    }
-
-    const expectedDims = vectorDimsForModel(this.model);
-    if (typeof expectedDims === "number" && expectedDims > 0 && embedding.length !== expectedDims) {
-      throw new Error(
-        `VoyageAI embedding dimension mismatch for model "${this.model}": expected ${expectedDims}, got ${embedding.length}.`,
-      );
-    }
-
-    return embedding;
+    return response.data[0].embedding;
   }
 }
 
@@ -90,8 +72,7 @@ function detectCategory(text: string): MemoryCategory {
   const lower = text.toLowerCase();
   if (/prefer|like|love|hate|want/i.test(lower)) return "preference";
   if (/decided|will use/i.test(lower)) return "decision";
-  if (/\+\d{10,}|@[\w.-]+\.\w+|is called/i.test(lower))
-    return "entity";
+  if (/\+\d{10,}|@[\w.-]+\.\w+|is called/i.test(lower)) return "entity";
   if (/is|are|has|have/i.test(lower)) return "fact";
   return "other";
 }
@@ -107,28 +88,25 @@ const memoryPlugin = {
   kind: "memory" as const,
   configSchema: memoryConfigSchema,
 
-  register(api: MoltbotPluginApi) {
+  register(api: OpenClawPluginApi) {
     const cfg = memoryConfigSchema.parse(api.pluginConfig);
-    if (cfg.mcp.transport !== "stdio") {
-      throw new Error("memory-mongodb currently supports mcp.transport=\"stdio\" only");
-    }
-    const vectorDim = vectorDimsForModel(cfg.voyage.embeddingModel);
+    const vectorDim = vectorDimsForModel(cfg.embedding.model ?? "text-embedding-3-small");
     const db = new MongoMemoryDB(
-      cfg.mcp.stdio.env.MDB_MCP_CONNECTION_STRING,
-      cfg.database.name,
-      cfg.database.collection,
-      cfg.database.indexName,
+      cfg.connectionUri,
+      cfg.databaseName,
+      cfg.collectionName,
+      cfg.vectorSearchIndexName,
     );
-    const embeddings = new Embeddings(cfg.voyage.apiKey, cfg.voyage.embeddingModel);
+    const embeddings = new Embeddings(cfg.embedding.apiKey, cfg.embedding.model!);
     const triggers = compileTriggers(cfg.captureTriggers);
 
     // Log safe startup info (never log the connection URI)
     api.logger.info(
-      `memory-mongodb: plugin registered (db: ${cfg.database.name}/${cfg.database.collection}, lazy init)`,
+      `memory-mongodb: plugin registered (db: ${cfg.databaseName}/${cfg.collectionName}, lazy init)`,
     );
 
     // Log the Atlas Vector Search index definition at startup
-    const indexDef = buildVectorIndexDefinition(cfg.database.indexName, vectorDim);
+    const indexDef = buildVectorIndexDefinition(cfg.vectorSearchIndexName, vectorDim);
     api.logger.info(
       `memory-mongodb: ensure Atlas Vector Search index exists:\n${JSON.stringify(indexDef, null, 2)}`,
     );
@@ -177,9 +155,7 @@ const memoryPlugin = {
           }));
 
           return {
-            content: [
-              { type: "text", text: `Found ${results.length} memories:\n\n${text}` },
-            ],
+            content: [{ type: "text", text: `Found ${results.length} memories:\n\n${text}` }],
             details: { count: results.length, memories: sanitizedResults },
           };
         },
@@ -195,9 +171,7 @@ const memoryPlugin = {
           "Save important information in long-term memory. Use for preferences, facts, decisions.",
         parameters: Type.Object({
           text: Type.String({ description: "Information to remember" }),
-          importance: Type.Optional(
-            Type.Number({ description: "Importance 0-1 (default: 0.7)" }),
-          ),
+          importance: Type.Optional(Type.Number({ description: "Importance 0-1 (default: 0.7)" })),
           category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
         }),
         async execute(_toolCallId, params) {
@@ -218,9 +192,16 @@ const memoryPlugin = {
           if (existing.length > 0) {
             return {
               content: [
-                { type: "text", text: `Similar memory already exists: "${existing[0].entry.text}"` },
+                {
+                  type: "text",
+                  text: `Similar memory already exists: "${existing[0].entry.text}"`,
+                },
               ],
-              details: { action: "duplicate", existingId: existing[0].entry.id, existingText: existing[0].entry.text },
+              details: {
+                action: "duplicate",
+                existingId: existing[0].entry.id,
+                existingText: existing[0].entry.text,
+              },
             };
           }
 
@@ -280,9 +261,7 @@ const memoryPlugin = {
             if (results.length === 1 && results[0].score > 0.9) {
               await db.delete(results[0].entry.id);
               return {
-                content: [
-                  { type: "text", text: `Forgotten: "${results[0].entry.text}"` },
-                ],
+                content: [{ type: "text", text: `Forgotten: "${results[0].entry.text}"` }],
                 details: { action: "deleted", id: results[0].entry.id },
               };
             }
@@ -325,9 +304,7 @@ const memoryPlugin = {
 
     api.registerCli(
       ({ program }) => {
-        const memory = program
-          .command("ltm")
-          .description("MongoDB Atlas memory plugin commands");
+        const memory = program.command("ltm").description("MongoDB Atlas memory plugin commands");
 
         memory
           .command("list")
@@ -386,9 +363,7 @@ const memoryPlugin = {
             .map((r) => `- [${r.entry.category}] ${r.entry.text}`)
             .join("\n");
 
-          api.logger.info?.(
-            `memory-mongodb: injecting ${results.length} memories into context`,
-          );
+          api.logger.info?.(`memory-mongodb: injecting ${results.length} memories into context`);
 
           return {
             prependContext: `<relevant-memories>\nThe following memories may be relevant to this conversation:\n${memoryContext}\n</relevant-memories>`,
@@ -444,9 +419,7 @@ const memoryPlugin = {
           }
 
           // Filter for capturable content
-          const toCapture = texts.filter(
-            (text) => text && shouldCapture(text, triggers),
-          );
+          const toCapture = texts.filter((text) => text && shouldCapture(text, triggers));
           if (toCapture.length === 0) return;
 
           // Store each capturable piece (limit to 3 per conversation)
@@ -485,7 +458,7 @@ const memoryPlugin = {
       id: "memory-mongodb",
       start: () => {
         api.logger.info(
-          `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, model: ${cfg.voyage.embeddingModel})`,
+          `memory-mongodb: initialized (db: ${cfg.databaseName}/${cfg.collectionName}, model: ${cfg.embedding.model})`,
         );
       },
       stop: async () => {

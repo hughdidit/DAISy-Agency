@@ -5,16 +5,21 @@ export type DiscordGatewayHandle = {
   disconnect?: () => void;
 };
 
-export function getDiscordGatewayEmitter(gateway?: unknown): EventEmitter | undefined {
-  return (gateway as { emitter?: EventEmitter } | undefined)?.emitter;
-}
-
-export async function waitForDiscordGatewayStop(params: {
+export type WaitForDiscordGatewayStopParams = {
   gateway?: DiscordGatewayHandle;
   abortSignal?: AbortSignal;
   onGatewayError?: (err: unknown) => void;
   shouldStopOnError?: (err: unknown) => boolean;
-}): Promise<void> {
+  registerForceStop?: (forceStop: (err: unknown) => void) => void;
+};
+
+export function getDiscordGatewayEmitter(gateway?: unknown): EventEmitter | undefined {
+  return (gateway as { emitter?: EventEmitter } | undefined)?.emitter;
+}
+
+export async function waitForDiscordGatewayStop(
+  params: WaitForDiscordGatewayStopParams,
+): Promise<void> {
   const { gateway, abortSignal, onGatewayError, shouldStopOnError } = params;
   const emitter = gateway?.emitter;
   return await new Promise<void>((resolve, reject) => {
@@ -24,7 +29,9 @@ export async function waitForDiscordGatewayStop(params: {
       emitter?.removeListener("error", onGatewayErrorEvent);
     };
     const finishResolve = () => {
-      if (settled) return;
+      if (settled) {
+        return;
+      }
       settled = true;
       cleanup();
       try {
@@ -34,7 +41,9 @@ export async function waitForDiscordGatewayStop(params: {
       }
     };
     const finishReject = (err: unknown) => {
-      if (settled) return;
+      if (settled) {
+        return;
+      }
       settled = true;
       cleanup();
       try {
@@ -53,6 +62,9 @@ export async function waitForDiscordGatewayStop(params: {
         finishReject(err);
       }
     };
+    const onForceStop = (err: unknown) => {
+      finishReject(err);
+    };
 
     if (abortSignal?.aborted) {
       onAbort();
@@ -61,5 +73,6 @@ export async function waitForDiscordGatewayStop(params: {
 
     abortSignal?.addEventListener("abort", onAbort, { once: true });
     emitter?.on("error", onGatewayErrorEvent);
+    params.registerForceStop?.(onForceStop);
   });
 }

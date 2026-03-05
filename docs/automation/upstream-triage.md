@@ -6,15 +6,16 @@ Automated scanning and classification of upstream (`moltbot/moltbot`) commits th
 
 The triage system uses three refs:
 
-| Ref | Role |
-|-----|------|
-| `upstream/main` | Upstream source of truth (`moltbot/moltbot`) |
-| `origin/main` | Mirror of upstream on the fork — tracks what we've synced so far |
-| `daisy/dev` | Fork integration branch — PR target for cherry-pick branches |
+| Ref             | Role                                                             |
+| --------------- | ---------------------------------------------------------------- |
+| `upstream/main` | Upstream source of truth (`moltbot/moltbot`)                     |
+| `origin/main`   | Mirror of upstream on the fork — tracks what we've synced so far |
+| `daisy/dev`     | Fork integration branch — PR target for cherry-pick branches     |
 
 **Scan range:** `origin/main..upstream/main` — only commits not yet synced.
 
 **Apply mode flow:**
+
 1. Scan `origin/main..upstream/main` for all unsynced commits (oldest-first)
 2. Classify each commit by category and risk
 3. Create cherry-pick branches from `origin/main` (one per category)
@@ -57,24 +58,24 @@ scripts/upstream-triage.sh [OPTIONS]
 
 Commits are classified using a first-match-wins priority:
 
-| Priority | Category | Trigger | Auto cherry-pick? |
-|----------|----------|---------|-------------------|
-| 1 | **deps/security** | Lockfiles, `dependabot.yml`, `patches/`; or message matches `security\|cve\|bump\|dependabot\|vulnerability` | Yes |
-| 2 | **ci** | `.github/workflows/**`; or message matches `^ci:` | Yes |
-| 3 | **bugfix** | Message matches `^fix:\|bug\|crash\|regression` | Yes |
-| 4 | **docs** | Only `docs/**` or `*.md` changed (no `src/`/`packages/`/`scripts/`) | Yes |
-| 5 | **refactor/feature** | Everything else | Yes — review carefully |
+| Priority | Category             | Trigger                                                                                                      | Auto cherry-pick?      |
+| -------- | -------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| 1        | **deps/security**    | Lockfiles, `dependabot.yml`, `patches/`; or message matches `security\|cve\|bump\|dependabot\|vulnerability` | Yes                    |
+| 2        | **ci**               | `.github/workflows/**`; or message matches `^ci:`                                                            | Yes                    |
+| 3        | **bugfix**           | Message matches `^fix:\|bug\|crash\|regression`                                                              | Yes                    |
+| 4        | **docs**             | Only `docs/**` or `*.md` changed (no `src/`/`packages/`/`scripts/`)                                          | Yes                    |
+| 5        | **refactor/feature** | Everything else                                                                                              | Yes — review carefully |
 
 ## Risk scoring (1–5)
 
-| Condition | Score impact |
-|-----------|-------------|
-| Base score | +1 |
-| >10 files changed | +1 |
-| >50 files changed | +2 (replaces above) |
-| Touches deploy/docker-compose/auth/secrets paths | +1 |
-| Message contains `revert` or `breaking` | +1 |
-| Message contains `refactor` | +1 |
+| Condition                                        | Score impact        |
+| ------------------------------------------------ | ------------------- |
+| Base score                                       | +1                  |
+| >10 files changed                                | +1                  |
+| >50 files changed                                | +2 (replaces above) |
+| Touches deploy/docker-compose/auth/secrets paths | +1                  |
+| Message contains `revert` or `breaking`          | +1                  |
+| Message contains `refactor`                      | +1                  |
 
 Score is capped at 5.
 
@@ -109,6 +110,7 @@ Creates throwaway branches per category, all rooted at `origin/main`:
 - `cherry/refactor-feature-YYYY-MM-DD-HHMM`
 
 Behavior:
+
 - Branch names include date+time (HHMM) for uniqueness; a serial suffix (`_2`, `_3`, ...) is appended on rare same-minute collisions
 - Each run creates new branches — prior runs' branches and PRs are left untouched
 - Cherry-picks oldest-first (chronological order)
@@ -126,6 +128,7 @@ Fork divergence (differences between `daisy/dev` and upstream) is handled natura
 Requires `--apply`. Creates one PR per topic branch via `gh pr create --base daisy/dev`.
 
 Each PR includes:
+
 - Commit list with risk scores
 - Category-specific "what to beware of" guidance
 - Review checklist (manual verification required before merge)
@@ -145,11 +148,11 @@ Report-only: generates the triage report, uploads it as an artifact, and creates
 
 Supports all flags via inputs:
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `apply` | boolean | false | Create cherry-pick branches |
-| `open_pr` | boolean | false | Open PRs (requires apply) |
-| `ai_triage` | boolean | false | AI classification |
+| Input       | Type    | Default | Description                 |
+| ----------- | ------- | ------- | --------------------------- |
+| `apply`     | boolean | false   | Create cherry-pick branches |
+| `open_pr`   | boolean | false   | Open PRs (requires apply)   |
+| `ai_triage` | boolean | false   | AI classification           |
 
 ### Triggering manually
 
@@ -166,15 +169,15 @@ gh workflow run upstream-triage.yml -f ai_triage=true
 
 ### Required secrets
 
-| Secret | When needed |
-|--------|-------------|
-| `UPSYNC_PAT` | Apply mode — fine-grained PAT with Contents + Workflows permissions. Required because cherry-pick branches may contain upstream workflow file changes that `GITHUB_TOKEN` cannot push. |
-| `ANTHROPIC_API_KEY` | Only when `ai_triage` is true |
+| Secret              | When needed                                                                                                                                                                            |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `UPSYNC_PAT`        | Apply mode — fine-grained PAT with Contents + Workflows permissions. Required because cherry-pick branches may contain upstream workflow file changes that `GITHUB_TOKEN` cannot push. |
+| `ANTHROPIC_API_KEY` | Only when `ai_triage` is true                                                                                                                                                          |
 
 ## Output files
 
-| File | Description |
-|------|-------------|
+| File                                          | Description                                      |
+| --------------------------------------------- | ------------------------------------------------ |
 | `docs/upstream-candidates/YYYY-MM-DD-HHMM.md` | Triage report (report mode only; unique per run) |
 
 Reports are derived artifacts and are not committed by default.
@@ -190,6 +193,7 @@ Reports are derived artifacts and are not committed by default.
 ## Troubleshooting
 
 **"Remote 'upstream' not configured"**
+
 ```bash
 git remote add upstream https://github.com/moltbot/moltbot.git
 git remote set-url --push upstream DISABLE

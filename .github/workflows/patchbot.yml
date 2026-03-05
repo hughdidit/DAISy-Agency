@@ -6,10 +6,8 @@ on:
     branches: [daisy/dev]
   pull_request_review:
     types: [submitted]
-    branches: [daisy/dev]
   check_suite:
     types: [completed]
-    branches: [daisy/dev]
   workflow_run:
     workflows: ["Deploy staging on release"]
     types: [completed]

@@ -1,5 +1,4 @@
 import type { RequestClient } from "@buape/carbon";
-
 import type { RetryConfig } from "../infra/retry.js";
 
 export class DiscordSendError extends Error {
@@ -10,7 +9,9 @@ export class DiscordSendError extends Error {
   constructor(message: string, opts?: Partial<DiscordSendError>) {
     super(message);
     this.name = "DiscordSendError";
-    if (opts) Object.assign(this, opts);
+    if (opts) {
+      Object.assign(this, opts);
+    }
   }
 
   override toString() {
@@ -70,6 +71,11 @@ export type DiscordThreadCreate = {
   messageId?: string;
   name: string;
   autoArchiveMinutes?: number;
+  content?: string;
+  /** Discord thread type (default: PublicThread for standalone threads). */
+  type?: number;
+  /** Tag IDs to apply when creating a forum/media thread (Discord `applied_tags`). */
+  appliedTags?: string[];
 };
 
 export type DiscordThreadList = {
@@ -130,6 +136,14 @@ export type DiscordChannelCreate = {
   nsfw?: boolean;
 };
 
+export type DiscordForumTag = {
+  id?: string;
+  name: string;
+  moderated?: boolean;
+  emoji_id?: string | null;
+  emoji_name?: string | null;
+};
+
 export type DiscordChannelEdit = {
   channelId: string;
   name?: string;
@@ -138,6 +152,10 @@ export type DiscordChannelEdit = {
   parentId?: string | null;
   nsfw?: boolean;
   rateLimitPerUser?: number;
+  archived?: boolean;
+  locked?: boolean;
+  autoArchiveDuration?: number;
+  availableTags?: DiscordForumTag[];
 };
 
 export type DiscordChannelMove = {

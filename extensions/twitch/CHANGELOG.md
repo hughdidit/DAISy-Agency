@@ -1,9 +1,34 @@
 # Changelog
 
-## 2026.1.27-beta.1
+## 2026.3.1
 
 ### Changes
-- Version alignment with core Moltbot release numbers.
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.2.26
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.2.25
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.2.24
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.2.22
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
 
 ## 2026.1.23
 
@@ -22,5 +47,5 @@
 ### Improvements
 
 - Added proper configuration schema with Zod validation
-- Added plugin descriptor (moltbot.plugin.json)
+- Added plugin descriptor (openclaw.plugin.json)
 - Added comprehensive README and documentation

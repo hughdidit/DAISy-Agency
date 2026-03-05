@@ -9,8 +9,6 @@
  */
 
 import WebSocket from "ws";
-import type { Logger } from "../manager/context.js";
-import { defaultLogger, sanitizeLogValue } from "../manager/context.js";
 
 /**
  * Configuration for OpenAI Realtime STT.
@@ -57,9 +55,8 @@ export class OpenAIRealtimeSTTProvider {
   private model: string;
   private silenceDurationMs: number;
   private vadThreshold: number;
-  private readonly logger: Logger;
 
-  constructor(config: RealtimeSTTConfig, logger?: Logger) {
+  constructor(config: RealtimeSTTConfig) {
     if (!config.apiKey) {
       throw new Error("OpenAI API key required for Realtime STT");
     }
@@ -67,7 +64,6 @@ export class OpenAIRealtimeSTTProvider {
     this.model = config.model || "gpt-4o-transcribe";
     this.silenceDurationMs = config.silenceDurationMs || 800;
     this.vadThreshold = config.vadThreshold || 0.5;
-    this.logger = logger ?? defaultLogger;
   }
 
   /**
@@ -79,7 +75,6 @@ export class OpenAIRealtimeSTTProvider {
       this.model,
       this.silenceDurationMs,
       this.vadThreshold,
-      this.logger,
     );
   }
 }
@@ -100,17 +95,12 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
   private onPartialCallback: ((partial: string) => void) | null = null;
   private onSpeechStartCallback: (() => void) | null = null;
 
-  private readonly logger: Logger;
-
   constructor(
     private readonly apiKey: string,
     private readonly model: string,
     private readonly silenceDurationMs: number,
     private readonly vadThreshold: number,
-    logger?: Logger,
-  ) {
-    this.logger = logger ?? defaultLogger;
-  }
+  ) {}
 
   async connect(): Promise<void> {
     this.closed = false;
@@ -130,7 +120,7 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
       });
 
       this.ws.on("open", () => {
-        this.logger.info("[RealtimeSTT] WebSocket connected");
+        console.log("[RealtimeSTT] WebSocket connected");
         this.connected = true;
         this.reconnectAttempts = 0;
 
@@ -159,17 +149,19 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
           const event = JSON.parse(data.toString());
           this.handleEvent(event);
         } catch (e) {
-          this.logger.error(`[RealtimeSTT] Failed to parse event: ${e}`);
+          console.error("[RealtimeSTT] Failed to parse event:", e);
         }
       });
 
       this.ws.on("error", (error) => {
-        this.logger.error(`[RealtimeSTT] WebSocket error: ${error}`);
-        if (!this.connected) reject(error);
+        console.error("[RealtimeSTT] WebSocket error:", error);
+        if (!this.connected) {
+          reject(error);
+        }
       });
 
       this.ws.on("close", (code, reason) => {
-        this.logger.info(
+        console.log(
           `[RealtimeSTT] WebSocket closed (code: ${code}, reason: ${reason?.toString() || "none"})`,
         );
         this.connected = false;
@@ -193,20 +185,16 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
       return;
     }
 
-    if (
-      this.reconnectAttempts >= OpenAIRealtimeSTTSession.MAX_RECONNECT_ATTEMPTS
-    ) {
-      this.logger.error(
+    if (this.reconnectAttempts >= OpenAIRealtimeSTTSession.MAX_RECONNECT_ATTEMPTS) {
+      console.error(
         `[RealtimeSTT] Max reconnect attempts (${OpenAIRealtimeSTTSession.MAX_RECONNECT_ATTEMPTS}) reached`,
       );
       return;
     }
 
     this.reconnectAttempts++;
-    const delay =
-      OpenAIRealtimeSTTSession.RECONNECT_DELAY_MS *
-      2 ** (this.reconnectAttempts - 1);
-    this.logger.info(
+    const delay = OpenAIRealtimeSTTSession.RECONNECT_DELAY_MS * 2 ** (this.reconnectAttempts - 1);
+    console.log(
       `[RealtimeSTT] Reconnecting ${this.reconnectAttempts}/${OpenAIRealtimeSTTSession.MAX_RECONNECT_ATTEMPTS} in ${delay}ms...`,
     );
 
@@ -218,9 +206,9 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
 
     try {
       await this.doConnect();
-      this.logger.info("[RealtimeSTT] Reconnected successfully");
+      console.log("[RealtimeSTT] Reconnected successfully");
     } catch (error) {
-      this.logger.error(`[RealtimeSTT] Reconnect failed: ${error}`);
+      console.error("[RealtimeSTT] Reconnect failed:", error);
     }
   }
 
@@ -235,7 +223,7 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
       case "transcription_session.updated":
       case "input_audio_buffer.speech_stopped":
       case "input_audio_buffer.committed":
-        this.logger.debug(`[RealtimeSTT] ${sanitizeLogValue(event.type)}`);
+        console.log(`[RealtimeSTT] ${event.type}`);
         break;
 
       case "conversation.item.input_audio_transcription.delta":
@@ -247,20 +235,20 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
 
       case "conversation.item.input_audio_transcription.completed":
         if (event.transcript) {
-          this.logger.info(`[RealtimeSTT] Transcript: ${sanitizeLogValue(event.transcript)}`);
+          console.log(`[RealtimeSTT] Transcript: ${event.transcript}`);
           this.onTranscriptCallback?.(event.transcript);
         }
         this.pendingTranscript = "";
         break;
 
       case "input_audio_buffer.speech_started":
-        this.logger.debug("[RealtimeSTT] Speech started");
+        console.log("[RealtimeSTT] Speech started");
         this.pendingTranscript = "";
         this.onSpeechStartCallback?.();
         break;
 
       case "error":
-        this.logger.error(`[RealtimeSTT] Error: ${sanitizeLogValue(String(event.error))}`);
+        console.error("[RealtimeSTT] Error:", event.error);
         break;
     }
   }
@@ -272,7 +260,9 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
   }
 
   sendAudio(muLawData: Buffer): void {
-    if (!this.connected) return;
+    if (!this.connected) {
+      return;
+    }
     this.sendEvent({
       type: "input_audio_buffer.append",
       audio: muLawData.toString("base64"),

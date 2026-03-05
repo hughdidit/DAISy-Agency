@@ -1,17 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-INSTALL_URL="${CLAWDBOT_INSTALL_URL:-https://molt.bot/install.sh}"
-DEFAULT_PACKAGE="moltbot"
-if [[ -z "${CLAWDBOT_INSTALL_PACKAGE:-}" && "$INSTALL_URL" == *"clawd.bot"* ]]; then
-  DEFAULT_PACKAGE="clawdbot"
-fi
-PACKAGE_NAME="${CLAWDBOT_INSTALL_PACKAGE:-$DEFAULT_PACKAGE}"
-if [[ "$PACKAGE_NAME" == "moltbot" ]]; then
-  ALT_PACKAGE_NAME="clawdbot"
-else
-  ALT_PACKAGE_NAME="moltbot"
-fi
+INSTALL_URL="${OPENCLAW_INSTALL_URL:-https://openclaw.bot/install.sh}"
+DEFAULT_PACKAGE="openclaw"
+PACKAGE_NAME="${OPENCLAW_INSTALL_PACKAGE:-$DEFAULT_PACKAGE}"
 
 echo "==> Pre-flight: ensure git absent"
 if command -v git >/dev/null; then
@@ -28,7 +20,7 @@ export PATH="$HOME/.npm-global/bin:$PATH"
 echo "==> Verify git installed"
 command -v git >/dev/null
 
-EXPECTED_VERSION="${CLAWDBOT_INSTALL_EXPECT_VERSION:-}"
+EXPECTED_VERSION="${OPENCLAW_INSTALL_EXPECT_VERSION:-}"
 if [[ -n "$EXPECTED_VERSION" ]]; then
   LATEST_VERSION="$EXPECTED_VERSION"
 else
@@ -36,27 +28,27 @@ else
 fi
 CLI_NAME="$PACKAGE_NAME"
 CMD_PATH="$(command -v "$CLI_NAME" || true)"
-if [[ -z "$CMD_PATH" ]]; then
-  CLI_NAME="$ALT_PACKAGE_NAME"
-  CMD_PATH="$(command -v "$CLI_NAME" || true)"
-fi
 if [[ -z "$CMD_PATH" && -x "$HOME/.npm-global/bin/$PACKAGE_NAME" ]]; then
   CLI_NAME="$PACKAGE_NAME"
   CMD_PATH="$HOME/.npm-global/bin/$PACKAGE_NAME"
 fi
-if [[ -z "$CMD_PATH" && -x "$HOME/.npm-global/bin/$ALT_PACKAGE_NAME" ]]; then
-  CLI_NAME="$ALT_PACKAGE_NAME"
-  CMD_PATH="$HOME/.npm-global/bin/$ALT_PACKAGE_NAME"
-fi
+ENTRY_PATH=""
 if [[ -z "$CMD_PATH" ]]; then
-  echo "Neither $PACKAGE_NAME nor $ALT_PACKAGE_NAME is on PATH" >&2
+  NPM_ROOT="$(npm root -g 2>/dev/null || true)"
+  if [[ -n "$NPM_ROOT" && -f "$NPM_ROOT/$PACKAGE_NAME/dist/entry.js" ]]; then
+    ENTRY_PATH="$NPM_ROOT/$PACKAGE_NAME/dist/entry.js"
+  fi
+fi
+if [[ -z "$CMD_PATH" && -z "$ENTRY_PATH" ]]; then
+  echo "$PACKAGE_NAME is not on PATH" >&2
   exit 1
 fi
-if [[ -z "$EXPECTED_VERSION" && "$CLI_NAME" != "$PACKAGE_NAME" ]]; then
-  LATEST_VERSION="$(npm view "$CLI_NAME" version)"
-fi
 echo "==> Verify CLI installed: $CLI_NAME"
-INSTALLED_VERSION="$("$CMD_PATH" --version 2>/dev/null | head -n 1 | tr -d '\r')"
+if [[ -n "$CMD_PATH" ]]; then
+  INSTALLED_VERSION="$("$CMD_PATH" --version 2>/dev/null | head -n 1 | tr -d '\r')"
+else
+  INSTALLED_VERSION="$(node "$ENTRY_PATH" --version 2>/dev/null | head -n 1 | tr -d '\r')"
+fi
 
 echo "cli=$CLI_NAME installed=$INSTALLED_VERSION expected=$LATEST_VERSION"
 if [[ "$INSTALLED_VERSION" != "$LATEST_VERSION" ]]; then
@@ -65,6 +57,10 @@ if [[ "$INSTALLED_VERSION" != "$LATEST_VERSION" ]]; then
 fi
 
 echo "==> Sanity: CLI runs"
-"$CMD_PATH" --help >/dev/null
+if [[ -n "$CMD_PATH" ]]; then
+  "$CMD_PATH" --help >/dev/null
+else
+  node "$ENTRY_PATH" --help >/dev/null
+fi
 
 echo "OK"

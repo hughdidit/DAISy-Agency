@@ -4,9 +4,9 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 
 ## When to Use
 
-| Plugin | Use case |
-|--------|----------|
-| `memory-lancedb` | Local development, single-machine setups, no cloud dependency |
+| Plugin               | Use case                                                                      |
+| -------------------- | ----------------------------------------------------------------------------- |
+| `memory-lancedb`     | Local development, single-machine setups, no cloud dependency                 |
 | **`memory-mongodb`** | Multi-instance deployments, shared memory across devices, cloud-native setups |
 
 ## Configuration
@@ -15,26 +15,14 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 {
   "plugins": {
     "memory-mongodb": {
-      "mcp": {
-        "transport": "stdio",
-        "stdio": {
-          "command": "npx",
-          "args": ["-y", "mongodb-mcp-server"],
-          "env": {
-            "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}"
-          }
-        }
+      "embedding": {
+        "apiKey": "${OPENAI_API_KEY}",
+        "model": "text-embedding-3-small"
       },
-      "voyage": {
-        "apiKey": "${VOYAGE_API_KEY}",
-        "embeddingModel": "voyage-3.5",
-        "rerankModel": "rerank-2"
-      },
-      "database": {
-        "name": "daisy_memory",
-        "collection": "memories",
-        "indexName": "vector_index"
-      },
+      "connectionUri": "${MONGODB_URI}",
+      "databaseName": "daisy_memory",
+      "collectionName": "memories",
+      "vectorSearchIndexName": "vector_index",
       "autoCapture": true,
       "autoRecall": true
     }
@@ -44,32 +32,24 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 
 ### Config Fields
 
-| Field | Required | Default | Description |
-|-------|----------|---------|-------------|
-| `mcp.transport` | Yes | `stdio` | MCP transport (`stdio` or `sse`) |
-| `mcp.stdio.command` | No | `npx` | Executable used for stdio transport |
-| `mcp.stdio.args` | No | `["-y", "mongodb-mcp-server"]` | Arguments used for stdio transport |
-| `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes* | — | Atlas connection string for stdio mode (supports `${MONGODB_URI}` placeholders) |
-| `mcp.url` | Yes** | — | Remote SSE endpoint URL (required when `mcp.transport = sse`) |
-| `voyage.apiKey` | Yes | — | Voyage API key (supports `${VOYAGE_API_KEY}` placeholder) |
-| `voyage.embeddingModel` | No | `voyage-3.5` | Voyage embedding model |
-| `voyage.rerankModel` | No | `rerank-2` | Voyage rerank model |
-| `database.name` | No | `daisy_memory` | MongoDB database name |
-| `database.collection` | No | `memories` | MongoDB collection name |
-| `database.indexName` | No | `vector_index` | Atlas Vector Search index name |
-| `captureTriggers` | No | *(see below)* | Array of regex patterns (case-insensitive) that trigger auto-capture |
-| `autoCapture` | No | `true` | Automatically capture important information from conversations |
-| `autoRecall` | No | `true` | Automatically inject relevant memories into context |
-
-\* required when `mcp.transport` is `stdio`.
-
-\** required when `mcp.transport` is `sse`.
+| Field                   | Required | Default                  | Description                                                                   |
+| ----------------------- | -------- | ------------------------ | ----------------------------------------------------------------------------- |
+| `embedding.apiKey`      | Yes      | —                        | OpenAI API key (use `${OPENAI_API_KEY}` env var)                              |
+| `embedding.model`       | No       | `text-embedding-3-small` | OpenAI embedding model (`text-embedding-3-small` or `text-embedding-3-large`) |
+| `connectionUri`         | Yes      | —                        | MongoDB Atlas connection string (use `${MONGODB_URI}` env var)                |
+| `databaseName`          | No       | `daisy_memory`           | MongoDB database name                                                         |
+| `collectionName`        | No       | `memories`               | MongoDB collection name                                                       |
+| `vectorSearchIndexName` | No       | `vector_index`           | Atlas Vector Search index name                                                |
+| `captureTriggers`       | No       | _(see below)_            | Array of regex patterns (case-insensitive) that trigger auto-capture          |
+| `autoCapture`           | No       | `true`                   | Automatically capture important information from conversations                |
+| `autoRecall`            | No       | `true`                   | Automatically inject relevant memories into context                           |
 
 ### Capture Triggers
 
 The `captureTriggers` field controls which messages are auto-captured. Each entry is a regex pattern string (case-insensitive). A message is captured if it matches **any** trigger.
 
 Default triggers:
+
 ```json
 [
   "remember",
@@ -87,12 +67,7 @@ To customize, provide your own array — it **replaces** the defaults entirely:
 
 ```json
 {
-  "captureTriggers": [
-    "remember",
-    "prefer",
-    "project\\s+deadline",
-    "budget|cost|price"
-  ]
+  "captureTriggers": ["remember", "prefer", "project\\s+deadline", "budget|cost|price"]
 }
 ```
 
@@ -119,7 +94,7 @@ In your collection, go to **Search Indexes** → **Create Search Index** → **J
       {
         "type": "vector",
         "path": "vector",
-        "numDimensions": 1024,
+        "numDimensions": 1536,
         "similarity": "cosine"
       },
       {
@@ -139,7 +114,7 @@ In your collection, go to **Search Indexes** → **Create Search Index** → **J
 }
 ```
 
-> If using `voyage-3.5` or `voyage-3`, keep `numDimensions` at `1024`.
+> If using `text-embedding-3-large`, change `numDimensions` to `3072`.
 
 The plugin logs this definition at startup for reference.
 
@@ -159,7 +134,7 @@ export MONGODB_URI="mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/?
 
 ### 5. Configure the plugin
 
-Add the configuration block shown above to your Moltbot config, referencing `${MONGODB_URI}` and `${VOYAGE_API_KEY}`.
+Add the configuration block shown above to your Moltbot config, referencing `${MONGODB_URI}` and `${OPENAI_API_KEY}`.
 
 ## Tools
 
@@ -199,9 +174,9 @@ memory_forget({ query: "dark mode" })
 ## CLI
 
 ```sh
-moltbot ltm list        # Show total memory count
-moltbot ltm search <q>  # Search memories (--limit N)
-moltbot ltm stats       # Show memory statistics
+openclaw ltm list        # Show total memory count
+openclaw ltm search <q>  # Search memories (--limit N)
+openclaw ltm stats       # Show memory statistics
 ```
 
 ## Auto-Recall

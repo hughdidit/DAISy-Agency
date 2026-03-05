@@ -21,12 +21,8 @@ corepack prepare "pnpm@${PNPM_VERSION}" --activate
 echo "Node: $(node -v)"
 echo "pnpm: $(pnpm -v)"
 
-# Install deps (prefer reproducible installs if lockfile exists)
-if [ -f pnpm-lock.yaml ]; then
-  pnpm install --frozen-lockfile
-else
-  pnpm install
-fi
+# Install deps
+pnpm install
 
 # Prebuild A2UI bundle (prevents canvas-host 503 in tests)
 pnpm canvas:a2ui:bundle
