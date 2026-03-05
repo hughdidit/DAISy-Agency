@@ -16,7 +16,7 @@ inputs:
     required: false
     default: "true"
   use-sticky-disk:
-    description: Use Blacksmith sticky disks for pnpm store caching.
+    description: Use sticky disks for pnpm store caching (requires Blacksmith runners; disabled for GitHub-hosted).
     required: false
     default: "false"
   install-deps:
@@ -26,7 +26,7 @@ inputs:
   frozen-lockfile:
     description: Whether to use --frozen-lockfile for install.
     required: false
-    default: "true"
+    default: "false"
 runs:
   using: composite
   steps:
