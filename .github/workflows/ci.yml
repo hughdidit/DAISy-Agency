@@ -704,8 +704,8 @@ jobs:
           )"
           echo "Using iOS Simulator id: $DEST_ID"
           xcodebuild test \
-            -project apps/ios/Clawdis.xcodeproj \
-            -scheme Clawdis \
+            -project apps/ios/OpenClaw.xcodeproj \
+            -scheme OpenClaw \
             -destination "platform=iOS Simulator,id=$DEST_ID" \
             -resultBundlePath "$RESULT_BUNDLE_PATH" \
             -enableCodeCoverage YES
@@ -726,7 +726,7 @@ jobs:
           import subprocess
           import sys
 
-          target_name = "Clawdis.app"
+          target_name = "OpenClaw.app"
           minimum = 0.43
 
           report = json.loads(
