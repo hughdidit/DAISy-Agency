@@ -209,35 +209,6 @@ describe("update-startup", () => {
   ])("logs latest update hint for $name", async ({ channel }) => {
     const { log, parsed } = await runUpdateCheckAndReadState(channel);
 
-    const statePath = path.join(tempDir, "update-check.json");
-    const parsed = JSON.parse(await fs.readFile(statePath, "utf-8")) as {
-      lastNotifiedVersion?: string;
-      lastNotifiedTag?: string;
-      lastAvailableVersion?: string;
-      lastAvailableTag?: string;
-    };
-    return { log, parsed };
-  }
-
-  function createAutoUpdateSuccessMock() {
-    return vi.fn().mockResolvedValue({
-      ok: true,
-      code: 0,
-    });
-  }
-
-  it.each([
-    {
-      name: "stable channel",
-      channel: "stable" as const,
-    },
-    {
-      name: "beta channel with older beta tag",
-      channel: "beta" as const,
-    },
-  ])("logs latest update hint for $name", async ({ channel }) => {
-    const { log, parsed } = await runUpdateCheckAndReadState(channel);
-
     expect(log.info).toHaveBeenCalledWith(
       expect.stringContaining("update available (latest): v2.0.0"),
     );

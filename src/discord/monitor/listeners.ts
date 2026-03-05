@@ -188,37 +188,6 @@ export class DiscordReactionRemoveListener extends MessageReactionRemoveListener
       event: this.type,
     });
   }
-  if (
-    params.isGroupDm &&
-    !resolveGroupDmAllow({
-      channels: params.groupDmChannels,
-      channelId: params.channelId,
-      channelName: params.channelName,
-      channelSlug: params.channelSlug,
-    })
-  ) {
-    return { allowed: false, reason: "group-dm-not-allowlisted" };
-  }
-  if (!params.isGuildMessage) {
-    return { allowed: true };
-  }
-  const channelAllowlistConfigured =
-    Boolean(params.guildInfo?.channels) && Object.keys(params.guildInfo?.channels ?? {}).length > 0;
-  const channelAllowed = params.channelConfig?.allowed !== false;
-  if (
-    !isDiscordGroupAllowedByPolicy({
-      groupPolicy: params.groupPolicy,
-      guildAllowlisted: Boolean(params.guildInfo),
-      channelAllowlistConfigured,
-      channelAllowed,
-    })
-  ) {
-    return { allowed: false, reason: "guild-policy" };
-  }
-  if (params.channelConfig?.allowed === false) {
-    return { allowed: false, reason: "guild-channel-denied" };
-  }
-  return { allowed: true };
 }
 
 async function runDiscordReactionHandler(params: {
