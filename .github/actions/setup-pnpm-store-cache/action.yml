@@ -50,13 +50,6 @@ runs:
       shell: bash
       run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
-    - name: Mount pnpm store sticky disk
-      if: inputs.use-sticky-disk == 'true'
-      uses: useblacksmith/stickydisk@v1
-      with:
-        key: ${{ github.repository }}-pnpm-store-${{ runner.os }}-${{ inputs.cache-key-suffix }}
-        path: ${{ steps.pnpm-store.outputs.path }}
-
     - name: Restore pnpm store cache (exact key only)
       if: inputs.use-actions-cache == 'true' && inputs.use-sticky-disk != 'true' && inputs.use-restore-keys != 'true'
       uses: actions/cache@v4
