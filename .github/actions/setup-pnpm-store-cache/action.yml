@@ -55,13 +55,13 @@ runs:
       uses: actions/cache@v4
       with:
         path: ${{ steps.pnpm-store.outputs.path }}
-        key: ${{ runner.os }}-pnpm-store-${{ inputs.cache-key-suffix }}-${{ hashFiles('pnpm-lock.yaml') }}
+        key: ${{ runner.os }}-pnpm-store-${{ inputs.cache-key-suffix }}-${{ hashFiles('**/package.json', 'pnpm-workspace.yaml', 'patches/**') }}
 
     - name: Restore pnpm store cache (with fallback keys)
       if: inputs.use-actions-cache == 'true' && inputs.use-sticky-disk != 'true' && inputs.use-restore-keys == 'true'
       uses: actions/cache@v4
       with:
         path: ${{ steps.pnpm-store.outputs.path }}
-        key: ${{ runner.os }}-pnpm-store-${{ inputs.cache-key-suffix }}-${{ hashFiles('pnpm-lock.yaml') }}
+        key: ${{ runner.os }}-pnpm-store-${{ inputs.cache-key-suffix }}-${{ hashFiles('**/package.json', 'pnpm-workspace.yaml', 'patches/**') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-${{ inputs.cache-key-suffix }}-

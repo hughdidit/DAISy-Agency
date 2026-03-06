@@ -1,10 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - daisy/main
-      - daisy/dev
   pull_request:
     branches:
       - daisy/main
