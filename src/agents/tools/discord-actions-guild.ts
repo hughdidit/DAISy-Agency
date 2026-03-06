@@ -60,35 +60,6 @@ async function runRoleMutation(params: {
   await params.mutate({ guildId, userId, roleId });
 }
 
-type DiscordRoleMutation = (params: {
-  guildId: string;
-  userId: string;
-  roleId: string;
-}) => Promise<unknown>;
-type DiscordRoleMutationWithAccount = (
-  params: {
-    guildId: string;
-    userId: string;
-    roleId: string;
-  },
-  options: { accountId: string },
-) => Promise<unknown>;
-
-async function runRoleMutation(params: {
-  accountId?: string;
-  values: Record<string, unknown>;
-  mutate: DiscordRoleMutation & DiscordRoleMutationWithAccount;
-}) {
-  const guildId = readStringParam(params.values, "guildId", { required: true });
-  const userId = readStringParam(params.values, "userId", { required: true });
-  const roleId = readStringParam(params.values, "roleId", { required: true });
-  if (params.accountId) {
-    await params.mutate({ guildId, userId, roleId }, { accountId: params.accountId });
-    return;
-  }
-  await params.mutate({ guildId, userId, roleId });
-}
-
 export async function handleDiscordGuildAction(
   action: string,
   params: Record<string, unknown>,
