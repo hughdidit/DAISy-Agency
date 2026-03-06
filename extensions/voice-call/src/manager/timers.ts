@@ -4,11 +4,11 @@ import { persistCallRecord } from "./store.js";
 
 type TimerContext = Pick<
   CallManagerContext,
-  "activeCalls" | "maxDurationTimers" | "config" | "storePath" | "transcriptWaiters"
+  "activeCalls" | "maxDurationTimers" | "config" | "storePath" | "transcriptWaiters" | "logger"
 >;
 type MaxDurationTimerContext = Pick<
   TimerContext,
-  "activeCalls" | "maxDurationTimers" | "config" | "storePath"
+  "activeCalls" | "maxDurationTimers" | "config" | "storePath" | "logger"
 >;
 type TranscriptWaiterContext = Pick<TimerContext, "transcriptWaiters">;
 
@@ -31,7 +31,7 @@ export function startMaxDurationTimer(params: {
   clearMaxDurationTimer(params.ctx, params.callId);
 
   const maxDurationMs = params.ctx.config.maxDurationSeconds * 1000;
-  console.log(
+  params.ctx.logger.info(
     `[voice-call] Starting max duration timer (${params.ctx.config.maxDurationSeconds}s) for call ${params.callId}`,
   );
 
@@ -39,7 +39,7 @@ export function startMaxDurationTimer(params: {
     params.ctx.maxDurationTimers.delete(params.callId);
     const call = params.ctx.activeCalls.get(params.callId);
     if (call && !TerminalStates.has(call.state)) {
-      console.log(
+      params.ctx.logger.info(
         `[voice-call] Max duration reached (${params.ctx.config.maxDurationSeconds}s), ending call ${params.callId}`,
       );
       call.endReason = "timeout";

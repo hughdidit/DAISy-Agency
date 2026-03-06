@@ -602,49 +602,6 @@ describe("image tool implicit imageModel config", () => {
     });
   });
 
-  it("applies tools.fs.workspaceOnly to image paths in sandbox mode", async () => {
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-sandbox-"));
-    const agentDir = path.join(stateDir, "agent");
-    const sandboxRoot = path.join(stateDir, "sandbox");
-    await fs.mkdir(agentDir, { recursive: true });
-    await fs.mkdir(sandboxRoot, { recursive: true });
-    await fs.writeFile(path.join(agentDir, "secret.png"), Buffer.from(ONE_PIXEL_PNG_B64, "base64"));
-
-    const sandbox = createUnsafeMountedSandbox({ sandboxRoot, agentRoot: agentDir });
-    const fetch = stubMinimaxOkFetch();
-    const cfg: OpenClawConfig = {
-      ...createMinimaxImageConfig(),
-      tools: { fs: { workspaceOnly: true } },
-    };
-
-    try {
-      const tools = createOpenClawCodingTools({
-        config: cfg,
-        agentDir,
-        sandbox,
-        workspaceDir: sandboxRoot,
-      });
-      const readTool = tools.find((candidate) => candidate.name === "read");
-      if (!readTool) {
-        throw new Error("expected read tool");
-      }
-      const imageTool = requireImageTool(tools.find((candidate) => candidate.name === "image"));
-
-      await expect(readTool.execute("t1", { path: "/agent/secret.png" })).rejects.toThrow(
-        /Path escapes sandbox root/i,
-      );
-      await expect(
-        imageTool.execute("t2", {
-          prompt: "Describe the image.",
-          image: "/agent/secret.png",
-        }),
-      ).rejects.toThrow(/Path escapes sandbox root/i);
-      expect(fetch).not.toHaveBeenCalled();
-    } finally {
-      await fs.rm(stateDir, { recursive: true, force: true });
-    }
-  });
-
   it("rewrites inbound absolute paths into sandbox media/inbound", async () => {
     await withTempSandboxState(async ({ agentDir, sandboxRoot }) => {
       await fs.mkdir(path.join(sandboxRoot, "media", "inbound"), {

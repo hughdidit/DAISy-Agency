@@ -21,13 +21,6 @@ async function withCameraTempDir<T>(run: (dir: string) => Promise<T>): Promise<T
 }
 
 describe("nodes camera helpers", () => {
-  function stubFetchResponse(response: Response) {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => response),
-    );
-  }
-
   it("parses camera.snap payload", () => {
     expect(
       parseCameraSnapPayload({

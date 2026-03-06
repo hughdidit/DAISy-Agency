@@ -1174,11 +1174,6 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
         execDockerRawFn: context.execDockerRawFn,
       })),
     );
-    findings.push(
-      ...(await collectSandboxBrowserHashLabelFindings({
-        execDockerRawFn: opts.execDockerRawFn,
-      })),
-    );
     findings.push(...(await collectPluginsTrustFindings({ cfg, stateDir })));
     if (context.deep) {
       findings.push(

@@ -93,44 +93,6 @@ function extractErrorCodeWithCause(err: unknown): string | undefined {
   return extractErrorCode(getErrorCause(err));
 }
 
-function collectErrorCandidates(err: unknown): unknown[] {
-  const queue: unknown[] = [err];
-  const seen = new Set<unknown>();
-  const candidates: unknown[] = [];
-
-  while (queue.length > 0) {
-    const current = queue.shift();
-    if (current == null || seen.has(current)) {
-      continue;
-    }
-    seen.add(current);
-    candidates.push(current);
-
-    if (!current || typeof current !== "object") {
-      continue;
-    }
-
-    const maybeNested: Array<unknown> = [
-      (current as { cause?: unknown }).cause,
-      (current as { reason?: unknown }).reason,
-      (current as { original?: unknown }).original,
-      (current as { error?: unknown }).error,
-      (current as { data?: unknown }).data,
-    ];
-    const errors = (current as { errors?: unknown }).errors;
-    if (Array.isArray(errors)) {
-      maybeNested.push(...errors);
-    }
-    for (const nested of maybeNested) {
-      if (nested != null && !seen.has(nested)) {
-        queue.push(nested);
-      }
-    }
-  }
-
-  return candidates;
-}
-
 /**
  * Checks if an error is an AbortError.
  * These are typically intentional cancellations (e.g., during shutdown) and shouldn't crash.

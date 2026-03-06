@@ -8,7 +8,6 @@ import {
   resolveGatewayCredentialsWithSecretInputs,
 } from "../gateway/call.js";
 import { GatewayClient } from "../gateway/client.js";
-import { resolveGatewayCredentialsFromConfig } from "../gateway/credentials.js";
 import { isMainModule } from "../infra/is-main.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { readSecretFromFile } from "./secret-file.js";

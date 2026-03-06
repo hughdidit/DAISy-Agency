@@ -1,9 +1,9 @@
 import crypto from "node:crypto";
 import type { PlivoConfig, WebhookSecurityConfig } from "../config.js";
 import { getHeader } from "../http-headers.js";
+import type { Logger } from "../manager/context.js";
+import { defaultLogger } from "../manager/context.js";
 import type {
-  GetCallStatusInput,
-  GetCallStatusResult,
   HangupCallInput,
   InitiateCallInput,
   InitiateCallResult,
@@ -66,7 +66,9 @@ export class PlivoProvider implements VoiceCallProvider {
   private pendingSpeakByCallId = new Map<string, PendingSpeak>();
   private pendingListenByCallId = new Map<string, PendingListen>();
 
-  constructor(config: PlivoConfig, options: PlivoProviderOptions = {}) {
+  private readonly logger: Logger;
+
+  constructor(config: PlivoConfig, options: PlivoProviderOptions = {}, logger?: Logger) {
     if (!config.authId) {
       throw new Error("Plivo Auth ID is required");
     }
@@ -79,6 +81,7 @@ export class PlivoProvider implements VoiceCallProvider {
     this.baseUrl = `https://api.plivo.com/v1/Account/${this.authId}`;
     this.apiHost = new URL(this.baseUrl).hostname;
     this.options = options;
+    this.logger = logger ?? defaultLogger;
   }
 
   private async apiRequest<T = unknown>(params: {
@@ -114,7 +117,7 @@ export class PlivoProvider implements VoiceCallProvider {
     });
 
     if (!result.ok) {
-      console.warn(`[plivo] Webhook verification failed: ${result.reason}`);
+      this.logger.warn(`[plivo] Webhook verification failed: ${result.reason}`);
     }
 
     return {
@@ -441,41 +444,6 @@ export class PlivoProvider implements VoiceCallProvider {
 
   async stopListening(_input: StopListeningInput): Promise<void> {
     // GetInput ends automatically when speech ends.
-  }
-
-  async getCallStatus(input: GetCallStatusInput): Promise<GetCallStatusResult> {
-    const terminalStatuses = new Set([
-      "completed",
-      "busy",
-      "failed",
-      "timeout",
-      "no-answer",
-      "cancel",
-      "machine",
-      "hangup",
-    ]);
-    try {
-      const data = await guardedJsonApiRequest<{ call_status?: string }>({
-        url: `${this.baseUrl}/Call/${input.providerCallId}/`,
-        method: "GET",
-        headers: {
-          Authorization: `Basic ${Buffer.from(`${this.authId}:${this.authToken}`).toString("base64")}`,
-        },
-        allowNotFound: true,
-        allowedHostnames: [this.apiHost],
-        auditContext: "plivo-get-call-status",
-        errorPrefix: "Plivo get call status error",
-      });
-
-      if (!data) {
-        return { status: "not-found", isTerminal: true };
-      }
-
-      const status = data.call_status ?? "unknown";
-      return { status, isTerminal: terminalStatuses.has(status) };
-    } catch {
-      return { status: "error", isTerminal: false, isUnknown: true };
-    }
   }
 
   private static normalizeNumber(numberOrSip: string): string {

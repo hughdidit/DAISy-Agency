@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import { writeJsonAtomic } from "../../infra/json-files.js";
 import { acquireSessionWriteLock } from "../session-write-lock.js";
