@@ -10,11 +10,6 @@ title: "Brave Search"
 
 OpenClaw uses Brave Search as the default provider for `web_search`.
 
-## Enable web search
-
-Set `tools.web.search.enabled` to `true` and provide a Brave key either in config
-or via `BRAVE_API_KEY` in the Gateway environment.
-
 ## Get an API key
 
 1. Create a Brave Search API account at [https://brave.com/search/api/](https://brave.com/search/api/)

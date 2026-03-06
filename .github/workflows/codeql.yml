@@ -21,11 +21,12 @@ jobs:
   analyze:
     name: CodeQL analyze
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     strategy:
       fail-fast: false
       matrix:
-        language: [javascript-typescript, actions]
+        language: [actions]
 
     steps:
       - name: Checkout

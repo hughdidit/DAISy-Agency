@@ -10,6 +10,7 @@ import {
   resolveSessionTranscriptPathInDir,
 } from "../config/sessions.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
+import { jsonUtf8Bytes } from "../infra/json-utf8-bytes.js";
 import { hasInterSessionUserProvenance } from "../sessions/input-provenance.js";
 import { stripInlineDirectiveTagsForDisplay } from "../utils/directive-tags.js";
 import { extractToolCallNames, hasToolCall } from "../utils/transcript-tools.js";
@@ -257,25 +258,12 @@ export async function cleanupArchivedSessionTranscripts(opts: {
       if (!stat?.isFile()) {
         continue;
       }
-      const ok = await fs.promises.rm(fullPath).then(
-        () => true,
-        () => false,
-      );
-      if (ok) {
-        removed += 1;
-      }
+      await fs.promises.rm(fullPath).catch(() => undefined);
+      removed += 1;
     }
   }
 
   return { removed, scanned };
-}
-
-function jsonUtf8Bytes(value: unknown): number {
-  try {
-    return Buffer.byteLength(JSON.stringify(value), "utf8");
-  } catch {
-    return Buffer.byteLength(String(value), "utf8");
-  }
 }
 
 export function capArrayByJsonBytes<T>(

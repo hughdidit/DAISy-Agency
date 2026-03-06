@@ -9,6 +9,18 @@ inputs:
     description: Suffix appended to the cache key.
     required: false
     default: "node22"
+  use-sticky-disk:
+    description: Use sticky disks for pnpm store (requires Blacksmith runners; disabled for GitHub-hosted).
+    required: false
+    default: "false"
+  use-restore-keys:
+    description: Whether to use restore-keys fallback for actions/cache.
+    required: false
+    default: "true"
+  use-actions-cache:
+    description: Whether to restore/save pnpm store with actions/cache.
+    required: false
+    default: "true"
 runs:
   using: composite
   steps:
@@ -38,10 +50,18 @@ runs:
       shell: bash
       run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
-    - name: Restore pnpm store cache
+    - name: Restore pnpm store cache (exact key only)
+      if: inputs.use-actions-cache == 'true' && inputs.use-sticky-disk != 'true' && inputs.use-restore-keys != 'true'
       uses: actions/cache@v4
       with:
         path: ${{ steps.pnpm-store.outputs.path }}
-        key: ${{ runner.os }}-pnpm-store-${{ inputs.cache-key-suffix }}-${{ hashFiles('pnpm-lock.yaml') }}
+        key: ${{ runner.os }}-pnpm-store-${{ inputs.cache-key-suffix }}-${{ hashFiles('**/package.json', 'pnpm-workspace.yaml', 'patches/**') }}
+
+    - name: Restore pnpm store cache (with fallback keys)
+      if: inputs.use-actions-cache == 'true' && inputs.use-sticky-disk != 'true' && inputs.use-restore-keys == 'true'
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-store.outputs.path }}
+        key: ${{ runner.os }}-pnpm-store-${{ inputs.cache-key-suffix }}-${{ hashFiles('**/package.json', 'pnpm-workspace.yaml', 'patches/**') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-${{ inputs.cache-key-suffix }}-

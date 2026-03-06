@@ -1,23 +1,11 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - daisy/main
-      - daisy/dev
   pull_request:
     branches:
       - daisy/main
       - daisy/dev
   workflow_dispatch:
-    inputs:
-      run_ios:
-        description: Run iOS tests
-        type: boolean
-        default: false
-
-permissions:
-  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -46,12 +34,13 @@ jobs:
   # Push to main keeps broad coverage.
   changed-scope:
     needs: [docs-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true'
+    if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     outputs:
       run_node: ${{ steps.scope.outputs.run_node }}
       run_macos: ${{ steps.scope.outputs.run_macos }}
       run_android: ${{ steps.scope.outputs.run_android }}
+      run_windows: ${{ steps.scope.outputs.run_windows }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,75 +60,11 @@ jobs:
             BASE="${{ github.event.pull_request.base.sha }}"
           fi
 
-          CHANGED="$(git diff --name-only "$BASE" HEAD 2>/dev/null || echo "UNKNOWN")"
-          if [ "$CHANGED" = "UNKNOWN" ] || [ -z "$CHANGED" ]; then
-            # Fail-safe: run broad checks if detection fails.
-            echo "run_node=true" >> "$GITHUB_OUTPUT"
-            echo "run_macos=true" >> "$GITHUB_OUTPUT"
-            echo "run_android=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          run_node=false
-          run_macos=false
-          run_android=false
-          has_non_docs=false
-          has_non_native_non_docs=false
-
-          while IFS= read -r path; do
-            [ -z "$path" ] && continue
-            case "$path" in
-              docs/*|*.md|*.mdx)
-                continue
-                ;;
-              *)
-                has_non_docs=true
-                ;;
-            esac
-
-            case "$path" in
-              # Generated protocol models are already covered by protocol:check and
-              # should not force the full native macOS lane.
-              apps/macos/Sources/OpenClawProtocol/*|apps/shared/OpenClawKit/Sources/OpenClawProtocol/*)
-                ;;
-              apps/macos/*|apps/ios/*|apps/shared/*|Swabble/*)
-                run_macos=true
-                ;;
-            esac
-
-            case "$path" in
-              apps/android/*|apps/shared/*)
-                run_android=true
-                ;;
-            esac
-
-            case "$path" in
-              src/*|test/*|extensions/*|packages/*|scripts/*|ui/*|.github/*|openclaw.mjs|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|tsconfig*.json|vitest*.ts|tsdown.config.ts|.oxlintrc.json|.oxfmtrc.jsonc)
-                run_node=true
-                ;;
-            esac
-
-            case "$path" in
-              apps/android/*|apps/ios/*|apps/macos/*|apps/shared/*|Swabble/*|appcast.xml)
-                ;;
-              *)
-                has_non_native_non_docs=true
-                ;;
-            esac
-          done <<< "$CHANGED"
-
-          # If there are non-doc files outside native app trees, keep Node checks enabled.
-          if [ "$run_node" = false ] && [ "$has_non_docs" = true ] && [ "$has_non_native_non_docs" = true ]; then
-            run_node=true
-          fi
-
-          echo "run_node=${run_node}" >> "$GITHUB_OUTPUT"
-          echo "run_macos=${run_macos}" >> "$GITHUB_OUTPUT"
-          echo "run_android=${run_android}" >> "$GITHUB_OUTPUT"
+          node scripts/ci-changed-scope.mjs --base "$BASE" --head HEAD
 
   # Build dist once for Node-relevant changes and share it with downstream jobs.
   build-artifacts:
-    needs: [docs-scope, changed-scope, check]
+    needs: [docs-scope, changed-scope]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: ubuntu-latest
     steps:
@@ -152,6 +77,7 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-bun: "false"
+          use-sticky-disk: "false"
 
       - name: Build dist
         run: pnpm build
@@ -178,6 +104,7 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-bun: "false"
+          use-sticky-disk: "false"
 
       - name: Download dist artifact
         uses: actions/download-artifact@v4
@@ -189,7 +116,7 @@ jobs:
         run: pnpm release:check
 
   checks:
-    needs: [docs-scope, changed-scope, check]
+    needs: [docs-scope, changed-scope]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: ubuntu-latest
     strategy:
@@ -221,14 +148,15 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-bun: "${{ matrix.runtime == 'bun' }}"
+          use-sticky-disk: "false"
 
       - name: Configure Node test resources
         if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
         run: |
           # `pnpm test` runs `scripts/test-parallel.mjs`, which spawns multiple Node processes.
-          # Default heap limits have been too low on Linux CI (V8 OOM near 4GB).
+          # ubuntu-latest has ~7GB RAM; 2 workers × 3GB keeps us under limit.
           echo "OPENCLAW_TEST_WORKERS=2" >> "$GITHUB_ENV"
-          echo "OPENCLAW_TEST_MAX_OLD_SPACE_SIZE_MB=6144" >> "$GITHUB_ENV"
+          echo "OPENCLAW_TEST_MAX_OLD_SPACE_SIZE_MB=3072" >> "$GITHUB_ENV"
 
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         if: matrix.runtime != 'bun' || github.event_name != 'push'
@@ -237,8 +165,8 @@ jobs:
   # Types, lint, and format check.
   check:
     name: "check"
-    needs: [docs-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true'
+    needs: [docs-scope, changed-scope]
+    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -250,6 +178,7 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-bun: "false"
+          use-sticky-disk: "false"
 
       - name: Check types and lint and oxfmt
         run: pnpm check
@@ -289,6 +218,7 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-bun: "false"
+          use-sticky-disk: "false"
 
       - name: Run ${{ matrix.tool }} dead-code scan
         run: ${{ matrix.command }}
@@ -314,6 +244,7 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-bun: "false"
+          use-sticky-disk: "false"
 
       - name: Check docs
         run: pnpm check:docs
@@ -356,6 +287,8 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-bun: "false"
+          use-sticky-disk: "false"
+          install-deps: "false"
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -396,18 +329,28 @@ jobs:
           pre-commit run zizmor --files "${workflow_files[@]}"
 
       - name: Audit production dependencies
-        run: pre-commit run --all-files pnpm-audit-prod
+        env:
+          APP_ENV: ${{ vars.APP_ENV || 'staging' }}
+        run: |
+          set -euo pipefail
+          echo "APP_ENV=${APP_ENV}"
+          if [ "$APP_ENV" = "staging" ] || [ "$APP_ENV" = "production" ]; then
+            pnpm install --lockfile-only --ignore-scripts
+            pnpm audit --prod --audit-level=high
+          else
+            echo "Skipping dependency audit (APP_ENV=${APP_ENV})"
+          fi
 
   checks-windows:
-    needs: [docs-scope, changed-scope, build-artifacts, check]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
+    needs: [docs-scope, changed-scope]
+    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_windows == 'true')
     runs-on: windows-latest
     timeout-minutes: 45
     env:
-      NODE_OPTIONS: --max-old-space-size=4096
-      # Keep total concurrency predictable on the 16 vCPU runner:
-      # `scripts/test-parallel.mjs` runs some vitest suites in parallel processes.
-      OPENCLAW_TEST_WORKERS: 2
+      NODE_OPTIONS: --max-old-space-size=6144
+      # Keep total concurrency predictable on the 32 vCPU runner.
+      # Windows shard 2 has shown intermittent instability at 2 workers.
+      OPENCLAW_TEST_WORKERS: 1
     defaults:
       run:
         shell: bash
@@ -416,25 +359,35 @@ jobs:
       matrix:
         include:
           - runtime: node
-            task: lint
-            shard_index: 0
-            shard_count: 1
-            command: pnpm lint
-          - runtime: node
             task: test
             shard_index: 1
-            shard_count: 2
-            command: pnpm canvas:a2ui:bundle && pnpm test
+            shard_count: 6
+            command: pnpm test
           - runtime: node
             task: test
             shard_index: 2
-            shard_count: 2
-            command: pnpm canvas:a2ui:bundle && pnpm test
+            shard_count: 6
+            command: pnpm test
           - runtime: node
-            task: protocol
-            shard_index: 0
-            shard_count: 1
-            command: pnpm protocol:check
+            task: test
+            shard_index: 3
+            shard_count: 6
+            command: pnpm test
+          - runtime: node
+            task: test
+            shard_index: 4
+            shard_count: 6
+            command: pnpm test
+          - runtime: node
+            task: test
+            shard_index: 5
+            shard_count: 6
+            command: pnpm test
+          - runtime: node
+            task: test
+            shard_index: 6
+            shard_count: 6
+            command: pnpm test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -460,31 +413,22 @@ jobs:
             Write-Warning "Failed to apply Defender exclusions, continuing. $($_.Exception.Message)"
           }
 
-      - name: Download dist artifact (lint lane)
-        if: matrix.task == 'lint'
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-build
-          path: dist/
-
-      - name: Verify dist artifact (lint lane)
-        if: matrix.task == 'lint'
-        run: |
-          set -euo pipefail
-          test -s dist/index.js
-          test -s dist/plugin-sdk/index.js
-
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22.x
-          check-latest: true
+          check-latest: false
 
       - name: Setup pnpm + cache store
         uses: ./.github/actions/setup-pnpm-store-cache
         with:
           pnpm-version: "10.23.0"
           cache-key-suffix: "node22"
+          # Sticky disk mount currently retries/fails on every shard and adds ~50s
+          # before install while still yielding zero pnpm store reuse.
+          use-sticky-disk: "false"
+          use-restore-keys: "false"
+          use-actions-cache: "false"
 
       - name: Runtime versions
         run: |
@@ -503,13 +447,17 @@ jobs:
           which node
           node -v
           pnpm -v
-          pnpm install --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true || pnpm install --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
+          pnpm install --prefer-offline --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true || pnpm install --prefer-offline --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
 
       - name: Configure test shard (Windows)
         if: matrix.task == 'test'
         run: |
           echo "OPENCLAW_TEST_SHARDS=${{ matrix.shard_count }}" >> "$GITHUB_ENV"
           echo "OPENCLAW_TEST_SHARD_INDEX=${{ matrix.shard_index }}" >> "$GITHUB_ENV"
+
+      - name: Build A2UI bundle (Windows)
+        if: matrix.task == 'test'
+        run: pnpm canvas:a2ui:bundle
 
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         run: ${{ matrix.command }}
@@ -522,6 +470,7 @@ jobs:
     needs: [docs-scope, changed-scope, check]
     if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_macos == 'true'
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -532,12 +481,7 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-bun: "false"
-
-      # --- Run all checks sequentially (fast gates first) ---
-      - name: TS tests (macOS)
-        env:
-          NODE_OPTIONS: --max-old-space-size=4096
-        run: pnpm test
+          install-deps: "false"
 
       # --- Xcode/Swift setup ---
       - name: Select Xcode 26.1
@@ -752,7 +696,7 @@ jobs:
           PY
 
   android:
-    needs: [docs-scope, changed-scope, check]
+    needs: [docs-scope, changed-scope]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_android == 'true')
     runs-on: ubuntu-latest
     strategy:

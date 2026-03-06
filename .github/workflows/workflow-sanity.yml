@@ -1,18 +1,14 @@
 name: Workflow Sanity
 
 on:
-  push:
-    branches:
-      - daisy/main
-      - daisy/dev
   pull_request:
     branches:
       - daisy/main
       - daisy/dev
-  workflow_dispatch:
-
-permissions:
-  contents: read
+  push:
+    branches:
+      - daisy/main
+      - daisy/dev
 
 concurrency:
   group: workflow-sanity-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

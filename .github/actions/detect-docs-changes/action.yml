@@ -18,17 +18,13 @@ runs:
     - name: Detect docs-only changes
       id: check
       shell: bash
-      env:
-        EVENT_NAME: ${{ github.event_name }}
-        EVENT_BEFORE: ${{ github.event.before }}
-        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
       run: |
-        if [ "$EVENT_NAME" = "push" ]; then
-          BASE="$EVENT_BEFORE"
+        if [ "${{ github.event_name }}" = "push" ]; then
+          BASE="${{ github.event.before }}"
         else
           # Use the exact base SHA from the event payload — stable regardless
           # of base branch movement (avoids origin/<ref> drift).
-          BASE="$PR_BASE_SHA"
+          BASE="${{ github.event.pull_request.base.sha }}"
         fi
 
         # Fail-safe: if we can't diff, assume non-docs (run everything)

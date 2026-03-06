@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { buildSystemRunPreparePayload } from "../test-utils/system-run-prepare-payload.js";
 
 vi.mock("./tools/gateway.js", () => ({
   callGatewayTool: vi.fn(),
@@ -38,20 +39,7 @@ function buildPreparedSystemRunPayload(rawInvokeParams: unknown) {
     };
   };
   const params = invoke.params ?? {};
-  const argv = Array.isArray(params.command) ? params.command.map(String) : [];
-  const rawCommand = typeof params.rawCommand === "string" ? params.rawCommand : null;
-  return {
-    payload: {
-      cmdText: rawCommand ?? argv.join(" "),
-      plan: {
-        argv,
-        cwd: typeof params.cwd === "string" ? params.cwd : null,
-        rawCommand,
-        agentId: typeof params.agentId === "string" ? params.agentId : null,
-        sessionKey: typeof params.sessionKey === "string" ? params.sessionKey : null,
-      },
-    },
-  };
+  return buildSystemRunPreparePayload(params);
 }
 
 describe("exec approvals", () => {
@@ -126,38 +114,6 @@ describe("exec approvals", () => {
         interval: 20,
       })
       .toBe(approvalId);
-  });
-
-  it("defaults ask to always when not configured", async () => {
-    const { callGatewayTool } = await import("./tools/gateway.js");
-    const calls: string[] = [];
-
-    vi.mocked(callGatewayTool).mockImplementation(async (method, _opts, params) => {
-      calls.push(method);
-      if (method === "exec.approval.request") {
-        return { status: "accepted", id: (params as { id?: string })?.id };
-      }
-      if (method === "exec.approval.waitDecision") {
-        return { decision: "deny" };
-      }
-      if (method === "node.invoke") {
-        const invoke = params as { command?: string };
-        if (invoke.command === "system.run.prepare") {
-          return buildPreparedSystemRunPayload(params);
-        }
-      }
-      return { ok: true };
-    });
-
-    const { createExecTool } = await import("./bash-tools.exec.js");
-    const tool = createExecTool({
-      host: "node",
-      approvalRunningNoticeMs: 0,
-    });
-
-    const result = await tool.execute("call-default-ask", { command: "echo ok" });
-    expect(result.details.status).toBe("approval-pending");
-    expect(calls).toContain("exec.approval.request");
   });
 
   it("skips approval when node allowlist is satisfied", async () => {

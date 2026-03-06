@@ -9,7 +9,6 @@ paths:
       - "shellcheck reported issue.+"
       # Ignore intentional if: false for disabled jobs
       - 'constant expression "false" in condition'
-  .github/workflows/deploy.yml:
-    ignore:
-      # Environment-scoped secrets/vars (staging) are invisible to actionlint
-      - 'property ".+" is not defined in object type'
+      # GCP deploy secrets are scoped to GitHub environments (staging/production);
+      # actionlint cannot introspect environment-level secrets.
+      - 'property ".+" is not defined in object type \{.+\}'
