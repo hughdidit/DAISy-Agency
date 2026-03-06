@@ -279,7 +279,9 @@ jobs:
           clean_tags=()
           for tag in "${tags[@]}"; do
             [ -z "$tag" ] && continue
-            clean_tags+=("\"${tag}\"")
+            # Strip registry/image prefix — keep only the tag portion
+            tag_only="${tag##*:}"
+            clean_tags+=("\"${tag_only}\"")
           done
           tags_json=$(IFS=,; echo "[${clean_tags[*]}]")
           mkdir -p dist/release
