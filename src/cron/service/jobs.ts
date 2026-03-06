@@ -98,60 +98,6 @@ function resolveEveryAnchorMs(params: {
   return 0;
 }
 
-function resolveStableCronOffsetMs(jobId: string, staggerMs: number) {
-  if (staggerMs <= 1) {
-    return 0;
-  }
-  const digest = crypto.createHash("sha256").update(jobId).digest();
-  return digest.readUInt32BE(0) % staggerMs;
-}
-
-function computeStaggeredCronNextRunAtMs(job: CronJob, nowMs: number) {
-  if (job.schedule.kind !== "cron") {
-    return computeNextRunAtMs(job.schedule, nowMs);
-  }
-
-  const staggerMs = resolveCronStaggerMs(job.schedule);
-  const offsetMs = resolveStableCronOffsetMs(job.id, staggerMs);
-  if (offsetMs <= 0) {
-    return computeNextRunAtMs(job.schedule, nowMs);
-  }
-
-  // Shift the schedule cursor backwards by the per-job offset so we can still
-  // target the current schedule window if its staggered slot has not passed yet.
-  let cursorMs = Math.max(0, nowMs - offsetMs);
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    const baseNext = computeNextRunAtMs(job.schedule, cursorMs);
-    if (baseNext === undefined) {
-      return undefined;
-    }
-    const shifted = baseNext + offsetMs;
-    if (shifted > nowMs) {
-      return shifted;
-    }
-    cursorMs = Math.max(cursorMs + 1, baseNext + 1_000);
-  }
-  return undefined;
-}
-
-function isFiniteTimestamp(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
-}
-
-function resolveEveryAnchorMs(params: {
-  schedule: { everyMs: number; anchorMs?: number };
-  fallbackAnchorMs: number;
-}) {
-  const raw = params.schedule.anchorMs;
-  if (isFiniteTimestamp(raw)) {
-    return Math.max(0, Math.floor(raw));
-  }
-  if (isFiniteTimestamp(params.fallbackAnchorMs)) {
-    return Math.max(0, Math.floor(params.fallbackAnchorMs));
-  }
-  return 0;
-}
-
 export function assertSupportedJobSpec(job: Pick<CronJob, "sessionTarget" | "payload">) {
   if (job.sessionTarget === "main" && job.payload.kind !== "systemEvent") {
     throw new Error('main cron jobs require payload.kind="systemEvent"');

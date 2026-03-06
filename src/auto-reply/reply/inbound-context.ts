@@ -34,21 +34,6 @@ function countMediaEntries(ctx: MsgContext): number {
   return Math.max(pathCount, urlCount, single);
 }
 
-function normalizeMediaType(value: unknown): string | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : undefined;
-}
-
-function countMediaEntries(ctx: MsgContext): number {
-  const pathCount = Array.isArray(ctx.MediaPaths) ? ctx.MediaPaths.length : 0;
-  const urlCount = Array.isArray(ctx.MediaUrls) ? ctx.MediaUrls.length : 0;
-  const single = ctx.MediaPath || ctx.MediaUrl ? 1 : 0;
-  return Math.max(pathCount, urlCount, single);
-}
-
 export function finalizeInboundContext<T extends Record<string, unknown>>(
   ctx: T,
   opts: FinalizeInboundContextOptions = {},
