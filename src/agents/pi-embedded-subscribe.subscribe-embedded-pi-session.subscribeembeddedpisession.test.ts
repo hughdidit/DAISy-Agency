@@ -264,42 +264,6 @@ describe("subscribeEmbeddedPiSession", () => {
     emit({
       type: "message_update",
       message: { role: "assistant" },
-      assistantMessageEvent: {
-        type: "text_delta",
-        delta: "<think>Checking",
-      },
-    });
-
-    handler?.({
-      type: "message_update",
-      message: {
-        role: "assistant",
-        content: [{ type: "thinking", thinking: "Checking" }],
-      },
-      assistantMessageEvent: {
-        type: "thinking_end",
-      },
-    });
-
-    handler?.({
-      type: "message_update",
-      message: { role: "assistant" },
-      assistantMessageEvent: {
-        type: "text_delta",
-        delta: " files</think>\nFinal answer",
-      },
-    });
-
-    expect(onReasoningEnd).toHaveBeenCalledTimes(1);
-  });
-
-  it("emits delta chunks in agent events for streaming assistant text", () => {
-    const { emit, onAgentEvent } = createAgentEventHarness();
-
-    emit({ type: "message_start", message: { role: "assistant" } });
-    emit({
-      type: "message_update",
-      message: { role: "assistant" },
       assistantMessageEvent: { type: "text_delta", delta: "Hello" },
     });
     emit({

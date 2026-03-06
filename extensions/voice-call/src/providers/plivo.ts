@@ -66,9 +66,7 @@ export class PlivoProvider implements VoiceCallProvider {
   private pendingSpeakByCallId = new Map<string, PendingSpeak>();
   private pendingListenByCallId = new Map<string, PendingListen>();
 
-  private readonly logger: Logger;
-
-  constructor(config: PlivoConfig, options: PlivoProviderOptions = {}, logger?: Logger) {
+  constructor(config: PlivoConfig, options: PlivoProviderOptions = {}) {
     if (!config.authId) {
       throw new Error("Plivo Auth ID is required");
     }
@@ -81,7 +79,6 @@ export class PlivoProvider implements VoiceCallProvider {
     this.baseUrl = `https://api.plivo.com/v1/Account/${this.authId}`;
     this.apiHost = new URL(this.baseUrl).hostname;
     this.options = options;
-    this.logger = logger ?? defaultLogger;
   }
 
   private async apiRequest<T = unknown>(params: {
@@ -117,7 +114,7 @@ export class PlivoProvider implements VoiceCallProvider {
     });
 
     if (!result.ok) {
-      this.logger.warn(`[plivo] Webhook verification failed: ${result.reason}`);
+      console.warn(`[plivo] Webhook verification failed: ${result.reason}`);
     }
 
     return {

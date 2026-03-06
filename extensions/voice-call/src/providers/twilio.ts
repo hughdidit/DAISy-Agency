@@ -190,19 +190,6 @@ export class TwilioProvider implements VoiceCallProvider {
     return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(token));
   }
 
-  isValidStreamToken(callSid: string, token?: string): boolean {
-    const expected = this.streamAuthTokens.get(callSid);
-    if (!expected || !token) {
-      return false;
-    }
-    if (expected.length !== token.length) {
-      const dummy = Buffer.from(expected);
-      crypto.timingSafeEqual(dummy, dummy);
-      return false;
-    }
-    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(token));
-  }
-
   /**
    * Clear TTS queue for a call (barge-in).
    * Used when user starts speaking to interrupt current TTS playback.

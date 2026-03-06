@@ -64,7 +64,6 @@ export class CallManager {
     }
   >();
   private maxDurationTimers = new Map<CallId, NodeJS.Timeout>();
-  private logger: Logger = defaultLogger;
 
   constructor(config: VoiceCallConfig, storePath?: string) {
     this.config = config;

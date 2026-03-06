@@ -11,35 +11,6 @@ import {
 export type ZalouserSendOptions = ZaloSendOptions;
 export type ZalouserSendResult = ZaloSendResult;
 
-function resolveProfile(options: ZalouserSendOptions): string {
-  return options.profile || process.env.ZCA_PROFILE || "default";
-}
-
-function appendCaptionAndGroupFlags(args: string[], options: ZalouserSendOptions): void {
-  if (options.caption) {
-    args.push("-m", options.caption.slice(0, 2000));
-  }
-  if (options.isGroup) {
-    args.push("-g");
-  }
-}
-
-async function runSendCommand(
-  args: string[],
-  profile: string,
-  fallbackError: string,
-): Promise<ZalouserSendResult> {
-  try {
-    const result = await runZca(args, { profile });
-    if (result.ok) {
-      return { ok: true, messageId: extractMessageId(result.stdout) };
-    }
-    return { ok: false, error: result.stderr || fallbackError };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
-  }
-}
-
 export async function sendMessageZalouser(
   threadId: string,
   text: string,

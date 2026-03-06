@@ -4,7 +4,10 @@ import path from "node:path";
 import { afterEach, beforeEach, vi } from "vitest";
 import type { MockFn } from "../test-utils/vitest-mock-fn.js";
 
-vi.doUnmock("./doctor-state-integrity.js");
+let originalIsTTY: boolean | undefined;
+let originalStateDir: string | undefined;
+let originalUpdateInProgress: string | undefined;
+let tempStateDir: string | undefined;
 
 function setStdinTty(value: boolean | undefined) {
   try {

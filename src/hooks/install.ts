@@ -438,7 +438,6 @@ export async function installHooksFromNpmSpec(params: {
       expectedHookPackId,
     }),
   });
-  return finalizeNpmSpecArchiveInstall(flowResult);
 }
 
 export async function installHooksFromPath(
