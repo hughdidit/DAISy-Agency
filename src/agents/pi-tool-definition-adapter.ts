@@ -187,27 +187,6 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
             tool: normalizedName,
             error: described.message,
           });
-
-          // Call after_tool_call hook for errors too
-          const hookRunner = getGlobalHookRunner();
-          if (hookRunner?.hasHooks("after_tool_call")) {
-            try {
-              await hookRunner.runAfterToolCall(
-                {
-                  toolName: normalizedName,
-                  params: isPlainObject(params) ? params : {},
-                  error: described.message,
-                },
-                { toolName: normalizedName },
-              );
-            } catch (hookErr) {
-              logDebug(
-                `after_tool_call hook failed: tool=${normalizedName} error=${String(hookErr)}`,
-              );
-            }
-          }
-
-          return errorResult;
         }
       },
     } satisfies ToolDefinition;

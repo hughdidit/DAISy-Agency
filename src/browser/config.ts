@@ -264,6 +264,16 @@ export function resolveBrowserConfig(
   );
   const cdpProtocol = cdpInfo.parsed.protocol === "https:" ? "https" : "http";
 
+  // Remap legacy profile names (clawd, moltbot, openclaw) to DAISy's default "daisy".
+  const legacyProfileNames = new Set(["clawd", "moltbot", "openclaw"]);
+  const normalizedConfiguredDefaultProfile =
+    defaultProfileFromConfig &&
+    legacyProfileNames.has(defaultProfileFromConfig.toLowerCase()) &&
+    !profiles[defaultProfileFromConfig] &&
+    profiles[DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME]
+      ? DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME
+      : defaultProfileFromConfig;
+
   const defaultProfile =
     normalizedConfiguredDefaultProfile ??
     (profiles[DEFAULT_BROWSER_DEFAULT_PROFILE_NAME]

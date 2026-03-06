@@ -201,35 +201,6 @@ export async function dispatchReplyFromConfig(params: {
     );
   }
 
-  // Bridge to internal hooks (HOOK.md discovery system) - refs #8807
-  if (sessionKey) {
-    void triggerInternalHook(
-      createInternalHookEvent("message", "received", sessionKey, {
-        from: ctx.From ?? "",
-        content,
-        timestamp,
-        channelId,
-        accountId: ctx.AccountId,
-        conversationId,
-        messageId: messageIdForHook,
-        metadata: {
-          to: ctx.To,
-          provider: ctx.Provider,
-          surface: ctx.Surface,
-          threadId: ctx.MessageThreadId,
-          senderId: ctx.SenderId,
-          senderName: ctx.SenderName,
-          senderUsername: ctx.SenderUsername,
-          senderE164: ctx.SenderE164,
-          guildId: ctx.GroupSpace,
-          channelName: ctx.GroupChannel,
-        },
-      }),
-    ).catch((err) => {
-      logVerbose(`dispatch-from-config: message_received internal hook failed: ${String(err)}`);
-    });
-  }
-
   // Check if we should route replies to originating channel instead of dispatcher.
   // Only route when the originating channel is DIFFERENT from the current surface.
   // This handles cross-provider routing (e.g., message from Telegram being processed

@@ -131,19 +131,3 @@ export async function deleteTelegramUpdateOffset(params: {
     throw err;
   }
 }
-
-export async function deleteTelegramUpdateOffset(params: {
-  accountId?: string;
-  env?: NodeJS.ProcessEnv;
-}): Promise<void> {
-  const filePath = resolveTelegramUpdateOffsetPath(params.accountId, params.env);
-  try {
-    await fs.unlink(filePath);
-  } catch (err) {
-    const code = (err as { code?: string }).code;
-    if (code === "ENOENT") {
-      return;
-    }
-    throw err;
-  }
-}
