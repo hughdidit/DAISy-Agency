@@ -127,7 +127,7 @@ References:
 ## Workflows overview
 
 - Dry run exits successfully after printing the resolved image reference.
-- Real deploy connects via IAP, sets `CLAWDBOT_IMAGE` to the resolved ref, runs `docker compose pull`, then `docker compose up -d --remove-orphans`.
+- Real deploy connects via IAP, sets `OPENCLAW_IMAGE` to the resolved ref, runs `docker compose pull`, then `docker compose up -d --remove-orphans`.
 - The deploy fails if Docker is missing or `docker-compose.yml` is not found under `DEPLOY_DIR`.
 
 ### Docker release
@@ -206,7 +206,7 @@ On a real deploy (dry_run=false), the deploy routine:
 2. Authenticates to GHCR:
    - `docker login ghcr.io -u $GHCR_USERNAME --password-stdin`
 3. Sets the image ref (digest preferred) via environment variable:
-   - `export CLAWDBOT_IMAGE=<image@digest>`
+   - `export OPENCLAW_IMAGE=<image@digest>`
 4. Applies:
    - `docker compose pull`
    - `docker compose up -d --remove-orphans`

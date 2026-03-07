@@ -72,6 +72,12 @@ if [[ "${DRY_RUN:-true}" == "true" ]]; then
   exit 0
 fi
 
+# Legacy fallback: accept CLAWDBOT_* if OPENCLAW_* not set (migration period)
+OPENCLAW_GATEWAY_TOKEN="${OPENCLAW_GATEWAY_TOKEN:-${CLAWDBOT_GATEWAY_TOKEN:-}}"
+OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-${CLAWDBOT_GATEWAY_PORT:-}}"
+OPENCLAW_BRIDGE_PORT="${OPENCLAW_BRIDGE_PORT:-${CLAWDBOT_BRIDGE_PORT:-}}"
+OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-${CLAWDBOT_GATEWAY_BIND:-loopback}}"
+
 # Validate required environment variables for IAP deploy
 : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required for real deploy}"
 : "${GCP_ZONE:?GCP_ZONE is required for real deploy}"
@@ -89,7 +95,6 @@ CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
 CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
-OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-loopback}"
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required for real deploy}"
 : "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required for real deploy}"
 
