@@ -98,7 +98,7 @@ These secrets are passed to docker compose on the target VM.
 
 **Required:**
 
-- `CLAWDBOT_GATEWAY_TOKEN` - Authentication token for the gateway API. Generate with `openssl rand -hex 32`. Secures communication between clients and the gateway.
+- `OPENCLAW_GATEWAY_TOKEN` - Authentication token for the gateway API. Generate with `openssl rand -hex 32`. Secures communication between clients and the gateway.
 - `CLAUDE_AI_SESSION_KEY` - Anthropic API session key. Obtain from [Anthropic Console](https://console.anthropic.com/settings/keys) or your existing Claude API setup.
 
 **Optional (usage monitoring only):**

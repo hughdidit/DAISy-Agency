@@ -159,7 +159,7 @@ The scrub script will:
 The easiest way to set up the deployment directory and start services is via the GitHub Actions workflow:
 
 1. **Add app secrets** to the `staging` environment in GitHub:
-   - `CLAWDBOT_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
+   - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
    - `CLAUDE_AI_SESSION_KEY` - From [Anthropic Console](https://console.anthropic.com/settings/keys)
    - `CLAUDE_WEB_SESSION_KEY` - Optional, for usage monitoring (see below)
    - `CLAUDE_WEB_COOKIE` - Optional, for usage monitoring (see below)
@@ -203,7 +203,7 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 
 #### Staging Secrets Checklist
 
-- [ ] `CLAWDBOT_GATEWAY_TOKEN` - Generate new random token
+- [ ] `OPENCLAW_GATEWAY_TOKEN` - Generate new random token
 - [ ] `CLAUDE_AI_SESSION_KEY` - Anthropic API key
 - [ ] Discord bot token - **Use staging bot, NOT production**
 - [ ] Discord allowlist - **Staging-only channels/users**
