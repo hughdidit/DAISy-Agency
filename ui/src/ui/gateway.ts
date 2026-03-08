@@ -91,6 +91,22 @@ export type GatewayBrowserClientOptions = {
 // 4008 = application-defined code (browser rejects 1008 "Policy Violation")
 const CONNECT_FAILED_CLOSE_CODE = 4008;
 
+const AUTH_FAILURE_CODES = new Set([
+  "AUTH_TOKEN_MISSING",
+  "AUTH_TOKEN_MISMATCH",
+  "AUTH_TOKEN_NOT_CONFIGURED",
+  "AUTH_PASSWORD_MISSING",
+  "AUTH_PASSWORD_MISMATCH",
+  "AUTH_PASSWORD_NOT_CONFIGURED",
+  "AUTH_RATE_LIMITED",
+]);
+
+function isAuthFailure(error: GatewayErrorInfo | undefined): boolean {
+  if (!error) return false;
+  const code = readConnectErrorDetailCode(error.details);
+  return code !== null && AUTH_FAILURE_CODES.has(code);
+}
+
 export class GatewayBrowserClient {
   private ws: WebSocket | null = null;
   private pending = new Map<string, Pending>();
@@ -135,7 +151,9 @@ export class GatewayBrowserClient {
       this.ws = null;
       this.flushPending(new Error(`gateway closed (${ev.code}): ${reason}`));
       this.opts.onClose?.({ code: ev.code, reason, error: connectError });
-      this.scheduleReconnect();
+      if (!isAuthFailure(connectError)) {
+        this.scheduleReconnect();
+      }
     });
     this.ws.addEventListener("error", () => {
       // ignored; close handler will fire
