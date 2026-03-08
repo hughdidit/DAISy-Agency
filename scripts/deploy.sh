@@ -146,9 +146,18 @@ GHCR_USERNAME="$3"
 OPENCLAW_GATEWAY_PORT="$4"
 OPENCLAW_BRIDGE_PORT="$5"
 OPENCLAW_GATEWAY_BIND="${6:-loopback}"
+OPENCLAW_CONFIG_FILE="${7:-openclaw.json}"
 
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required}"
 : "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required}"
+
+# Validate OPENCLAW_CONFIG_FILE to prevent path traversal
+case "${OPENCLAW_CONFIG_FILE}" in
+  *"/"*|*".."*)
+    echo "ERROR: OPENCLAW_CONFIG_FILE must be a simple filename (got: ${OPENCLAW_CONFIG_FILE})" >&2
+    exit 1
+    ;;
+esac
 
 # Read secrets from stdin (one per line, passed by outer script)
 read -r GHCR_TOKEN
@@ -179,6 +188,14 @@ fi
 
 cd "${DEPLOY_DIR}"
 
+# Verify config file exists before docker compose tries to mount it
+OPENCLAW_CONFIG_PATH="config/${OPENCLAW_CONFIG_FILE}"
+if [[ ! -f "${OPENCLAW_CONFIG_PATH}" ]]; then
+  echo "ERROR: Config file not found at ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}" >&2
+  echo "Set OPENCLAW_CONFIG_FILE to the correct filename, or create the file." >&2
+  exit 6
+fi
+
 # Authenticate to GHCR (use sudo for docker access)
 if ! sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
   echo "ERROR: Failed to authenticate to GHCR. Check credentials and network." >&2
@@ -199,6 +216,7 @@ export OPENCLAW_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
 export OPENCLAW_GATEWAY_BIND
 export OPENCLAW_GATEWAY_PORT
 export OPENCLAW_BRIDGE_PORT
+export OPENCLAW_CONFIG_FILE
 
 # Compose file flags: use host networking overlay on Linux VMs
 COMPOSE_FILES="-f docker-compose.yml"
@@ -227,6 +245,7 @@ printf -v GHCR_USERNAME_ESCAPED '%q' "${GHCR_USERNAME}"
 printf -v GATEWAY_PORT_ESCAPED '%q' "${OPENCLAW_GATEWAY_PORT}"
 printf -v BRIDGE_PORT_ESCAPED '%q' "${OPENCLAW_BRIDGE_PORT}"
 printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
+printf -v CONFIG_FILE_ESCAPED '%q' "${OPENCLAW_CONFIG_FILE:-openclaw.json}"
 
 # Pass all secrets via stdin (one per line)
 {
@@ -242,4 +261,4 @@ printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
   --quiet \
-  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED}"
+  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED}"
