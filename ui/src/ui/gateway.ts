@@ -92,7 +92,9 @@ export type GatewayBrowserClientOptions = {
 const CONNECT_FAILED_CLOSE_CODE = 4008;
 
 function isAuthFailure(error: GatewayErrorInfo | undefined): boolean {
-  if (!error) return false;
+  if (!error) {
+    return false;
+  }
   const code = readConnectErrorDetailCode(error.details);
   return typeof code === "string" && code.startsWith("AUTH_");
 }
