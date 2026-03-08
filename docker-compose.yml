@@ -15,6 +15,7 @@ services:
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
+      - ${OPENCLAW_CONFIG_DIR}/${OPENCLAW_CONFIG_FILE:-openclaw.json}:/home/node/.openclaw/${OPENCLAW_CONFIG_FILE:-openclaw.json}:ro
     ports:
       - "${OPENCLAW_GATEWAY_PORT:-18789}:${OPENCLAW_GATEWAY_PORT:-18789}"
       - "${OPENCLAW_BRIDGE_PORT:-18790}:${OPENCLAW_BRIDGE_PORT:-18790}"
@@ -66,6 +67,7 @@ services:
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
+      - ${OPENCLAW_CONFIG_DIR}/${OPENCLAW_CONFIG_FILE:-openclaw.json}:/home/node/.openclaw/${OPENCLAW_CONFIG_FILE:-openclaw.json}:ro
     stdin_open: true
     tty: true
     init: true

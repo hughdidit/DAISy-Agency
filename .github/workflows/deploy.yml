@@ -185,6 +185,7 @@ jobs:
           OPENCLAW_GATEWAY_PORT: ${{ vars.OPENCLAW_GATEWAY_PORT }}
           OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
           OPENCLAW_GATEWAY_BIND: ${{ vars.OPENCLAW_GATEWAY_BIND || 'loopback' }}
+          OPENCLAW_CONFIG_FILE: ${{ vars.OPENCLAW_CONFIG_FILE || 'openclaw.json' }}
           # Secrets (credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
