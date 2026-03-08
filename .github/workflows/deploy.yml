@@ -121,6 +121,7 @@ jobs:
           OPENCLAW_GATEWAY_PORT: ${{ vars.OPENCLAW_GATEWAY_PORT }}
           OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
           OPENCLAW_GATEWAY_BIND: ${{ vars.OPENCLAW_GATEWAY_BIND || 'loopback' }}
+          OPENCLAW_CONFIG_FILE: ${{ vars.OPENCLAW_CONFIG_FILE || 'openclaw.json' }}
           # Secrets (credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
@@ -145,6 +146,10 @@ jobs:
           : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required}"
           : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}"
           # CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
+          # Validate OPENCLAW_CONFIG_FILE is a simple filename (no path separators)
+          case "${OPENCLAW_CONFIG_FILE}" in
+            *"/"*|*".."*) echo "ERROR: OPENCLAW_CONFIG_FILE must be a simple filename (got: ${OPENCLAW_CONFIG_FILE})" >&2; exit 1 ;;
+          esac
 
       - name: Authenticate to Google Cloud (WIF)
         uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f # v2.1.7

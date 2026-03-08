@@ -151,6 +151,14 @@ OPENCLAW_CONFIG_FILE="${7:-openclaw.json}"
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required}"
 : "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required}"
 
+# Validate OPENCLAW_CONFIG_FILE to prevent path traversal
+case "${OPENCLAW_CONFIG_FILE}" in
+  *"/"*|*".."*)
+    echo "ERROR: OPENCLAW_CONFIG_FILE must be a simple filename (got: ${OPENCLAW_CONFIG_FILE})" >&2
+    exit 1
+    ;;
+esac
+
 # Read secrets from stdin (one per line, passed by outer script)
 read -r GHCR_TOKEN
 read -r OPENCLAW_GATEWAY_TOKEN
@@ -179,6 +187,14 @@ if [[ ! -f "${DEPLOY_DIR}/docker-compose.yml" ]]; then
 fi
 
 cd "${DEPLOY_DIR}"
+
+# Verify config file exists before docker compose tries to mount it
+OPENCLAW_CONFIG_PATH="config/${OPENCLAW_CONFIG_FILE}"
+if [[ ! -f "${OPENCLAW_CONFIG_PATH}" ]]; then
+  echo "ERROR: Config file not found at ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}" >&2
+  echo "Set OPENCLAW_CONFIG_FILE to the correct filename, or create the file." >&2
+  exit 6
+fi
 
 # Authenticate to GHCR (use sudo for docker access)
 if ! sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
