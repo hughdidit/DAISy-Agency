@@ -89,6 +89,7 @@ IDENTITY.md
 USER.md
 .tgz
 .idea
+.codex/
 
 # local tooling
 .serena/
