@@ -172,14 +172,41 @@ describe("group mentions (discord)", () => {
   });
 });
 
-describe("group mentions (discord) — channel ID with slug-keyed config", () => {
-  it("resolves slug-keyed channel config via groupChannelName when groupChannel is an ID", () => {
+describe("group mentions (discord) — channel ID config keys", () => {
+  it("resolves channel config by channel ID (not slug)", () => {
     const discordCfg = {
       channels: {
         discord: {
           token: "discord-test",
           guilds: {
             guild1: {
+              channels: {
+                "999888777": { requireMention: false },
+              },
+            },
+          },
+        },
+      },
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any;
+
+    expect(
+      resolveDiscordGroupRequireMention({
+        cfg: discordCfg,
+        groupSpace: "guild1",
+        groupChannel: "999888777",
+      }),
+    ).toBe(false);
+  });
+
+  it("does not match slug-keyed config when groupChannel is an ID", () => {
+    const discordCfg = {
+      channels: {
+        discord: {
+          token: "discord-test",
+          guilds: {
+            guild1: {
+              requireMention: true,
               channels: {
                 general: { requireMention: false },
               },
@@ -190,15 +217,14 @@ describe("group mentions (discord) — channel ID with slug-keyed config", () =>
       // oxlint-disable-next-line typescript/no-explicit-any
     } as any;
 
-    // groupChannel is now a numeric ID, but config uses slug key "general"
+    // slug key "general" should NOT match channel ID — falls back to guild default
     expect(
       resolveDiscordGroupRequireMention({
         cfg: discordCfg,
         groupSpace: "guild1",
         groupChannel: "999888777",
-        groupChannelName: "#general",
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 });
 

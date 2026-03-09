@@ -422,7 +422,7 @@ describe("resolveGroupRequireMention", () => {
             "145": {
               requireMention: false,
               channels: {
-                general: { allow: true },
+                "123456789": { allow: true },
               },
             },
           },
