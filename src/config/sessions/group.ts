@@ -24,12 +24,14 @@ export function buildGroupDisplayName(params: {
   provider?: string;
   subject?: string;
   groupChannel?: string;
+  groupChannelName?: string;
   space?: string;
   id?: string;
   key: string;
 }) {
   const providerKey = (params.provider?.trim().toLowerCase() || "group").trim();
-  const groupChannel = params.groupChannel?.trim();
+  const displayChannel = params.groupChannelName?.trim() || params.groupChannel?.trim();
+  const groupChannel = displayChannel;
   const space = params.space?.trim();
   const subject = params.subject?.trim();
   const detail =

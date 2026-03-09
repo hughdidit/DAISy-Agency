@@ -154,6 +154,7 @@ export type SessionEntry = {
   groupId?: string;
   subject?: string;
   groupChannel?: string;
+  groupChannelName?: string;
   space?: string;
   origin?: SessionOrigin;
   deliveryContext?: DeliveryContext;

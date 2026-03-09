@@ -110,6 +110,7 @@ export function buildInboundUserContextPrefix(ctx: TemplateContext): string {
     timestamp: timestampStr,
     group_subject: safeTrim(ctx.GroupSubject),
     group_channel: safeTrim(ctx.GroupChannel),
+    group_channel_name: safeTrim(ctx.GroupChannelName) ?? safeTrim(ctx.GroupChannel),
     group_space: safeTrim(ctx.GroupSpace),
     thread_label: safeTrim(ctx.ThreadLabel),
     topic_id: ctx.MessageThreadId != null ? String(ctx.MessageThreadId) : undefined,

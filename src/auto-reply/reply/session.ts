@@ -302,6 +302,7 @@ export async function initSessionState(params: {
     groupId: baseEntry?.groupId,
     subject: baseEntry?.subject,
     groupChannel: baseEntry?.groupChannel,
+    groupChannelName: baseEntry?.groupChannelName,
     space: baseEntry?.space,
     deliveryContext: deliveryFields.deliveryContext,
     // Track originating channel for subagent announce routing.

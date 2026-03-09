@@ -432,7 +432,8 @@ describe("resolveGroupRequireMention", () => {
     const ctx: TemplateContext = {
       Provider: "discord",
       From: "discord:group:123",
-      GroupChannel: "#general",
+      GroupChannel: "123456789",
+      GroupChannelName: "#general",
       GroupSpace: "145",
     };
     const groupResolution: GroupKeyResolution = {

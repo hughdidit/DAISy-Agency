@@ -37,6 +37,7 @@ export function resolveConversationLabel(ctx: MsgContext): string | undefined {
   }
 
   const base =
+    ctx.GroupChannelName?.trim() ||
     ctx.GroupChannel?.trim() ||
     ctx.GroupSubject?.trim() ||
     ctx.GroupSpace?.trim() ||

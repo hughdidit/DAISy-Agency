@@ -102,6 +102,7 @@ function resolveDiscordChannelEntry<TEntry>(
   const channelSlug = normalizeDiscordSlug(groupChannel);
   return (
     (params.groupId ? channelEntries[params.groupId] : undefined) ??
+    (groupChannel ? channelEntries[groupChannel] : undefined) ??
     (channelSlug
       ? (channelEntries[channelSlug] ?? channelEntries[`#${channelSlug}`])
       : undefined) ??
