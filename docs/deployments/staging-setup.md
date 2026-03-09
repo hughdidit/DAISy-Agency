@@ -211,7 +211,68 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 - [ ] GHCR credentials - For pulling staging images
 - [ ] Cloudflare tunnel - **Disabled or staging-only tunnel**
 
-### 5. Start Services (Manual only)
+### 5. Configure the Application
+
+The config file (`moltbot.json` or `openclaw.json`) lives on the VM at `/opt/DAISy/config/` and is **not managed by the deploy pipeline**. It must be edited manually via SSH.
+
+The config file is bind-mounted read-only into the container and locked with `chattr +i` on the VM filesystem. This prevents the LLM from modifying its own Discord allowlist or other security-sensitive settings via prompt injection.
+
+#### Initial setup (new VM)
+
+```bash
+# SSH into the VM
+gcloud compute ssh ${STAGING_INSTANCE:-daisy-staging-1} \
+  --zone=${GCP_ZONE:-us-west1-b} \
+  --tunnel-through-iap
+
+# Create the config file (JSON5 format)
+sudo tee /opt/DAISy/config/moltbot.json << 'CONF'
+{
+  channels: {
+    discord: {
+      enabled: true,
+      guilds: {
+        "YOUR_GUILD_ID": {
+          slug: "staging-server",
+          users: ["YOUR_USER_ID"],
+          channels: {
+            "YOUR_CHANNEL_ID": { allow: true },
+          },
+        },
+      },
+      dmPolicy: "pairing",
+    },
+  },
+}
+CONF
+
+# Set ownership and lock
+sudo chown 1000:1000 /opt/DAISy/config/moltbot.json
+sudo chattr +i /opt/DAISy/config/moltbot.json
+```
+
+Then set `OPENCLAW_CONFIG_FILE=moltbot.json` in the GitHub staging environment variables.
+
+#### Editing the config
+
+```bash
+# 1. Remove the immutable flag
+sudo chattr -i /opt/DAISy/config/moltbot.json
+
+# 2. Edit (nano, vim, etc.)
+sudo nano /opt/DAISy/config/moltbot.json
+
+# 3. Re-lock
+sudo chattr +i /opt/DAISy/config/moltbot.json
+
+# 4. Restart containers (or rely on hot-reload for most settings)
+cd /opt/DAISy
+sudo docker-compose -f docker-compose.yml -f docker-compose.host.yml restart
+```
+
+See [Gateway Configuration](/gateway/configuration#daisy-deployment-config-management) for the full config format reference and Discord allowlist structure.
+
+### 6. Start Services (Manual only)
 
 Skip this if you used the workflow provisioning (step 4).
 
@@ -225,7 +286,7 @@ sudo docker compose pull
 sudo docker compose up -d
 ```
 
-### 6. Verify Setup
+### 7. Verify Setup
 
 Copy and run the verification script:
 
