@@ -93,13 +93,18 @@ function resolveDiscordGuildEntry(guilds: DiscordConfig["guilds"], groupSpace?: 
 
 function resolveDiscordChannelEntry<TEntry>(
   channelEntries: Record<string, TEntry> | undefined,
-  params: { groupId?: string | null; groupChannel?: string | null },
+  params: {
+    groupId?: string | null;
+    groupChannel?: string | null;
+    groupChannelName?: string | null;
+  },
 ): TEntry | undefined {
   if (!channelEntries || Object.keys(channelEntries).length === 0) {
     return undefined;
   }
   const groupChannel = params.groupChannel;
-  const channelSlug = normalizeDiscordSlug(groupChannel);
+  const nameSlug = normalizeDiscordSlug(params.groupChannelName);
+  const channelSlug = nameSlug || normalizeDiscordSlug(groupChannel);
   return (
     (params.groupId ? channelEntries[params.groupId] : undefined) ??
     (groupChannel ? channelEntries[groupChannel] : undefined) ??

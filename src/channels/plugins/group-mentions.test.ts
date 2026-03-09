@@ -172,6 +172,36 @@ describe("group mentions (discord)", () => {
   });
 });
 
+describe("group mentions (discord) — channel ID with slug-keyed config", () => {
+  it("resolves slug-keyed channel config via groupChannelName when groupChannel is an ID", () => {
+    const discordCfg = {
+      channels: {
+        discord: {
+          token: "discord-test",
+          guilds: {
+            guild1: {
+              channels: {
+                general: { requireMention: false },
+              },
+            },
+          },
+        },
+      },
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any;
+
+    // groupChannel is now a numeric ID, but config uses slug key "general"
+    expect(
+      resolveDiscordGroupRequireMention({
+        cfg: discordCfg,
+        groupSpace: "guild1",
+        groupChannel: "999888777",
+        groupChannelName: "#general",
+      }),
+    ).toBe(false);
+  });
+});
+
 describe("group mentions (bluebubbles)", () => {
   it("uses generic channel group policy helpers", () => {
     const blueBubblesCfg = {
