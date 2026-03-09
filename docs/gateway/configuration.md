@@ -537,6 +537,90 @@ Supported credential paths are listed in [SecretRef Credential Surface](/referen
 
 See [Environment](/help/environment) for full precedence and sources.
 
+## DAISy deployment config management
+
+In DAISy deployments, the config file is **manually managed** on the VM and protected from modification by the container. This prevents prompt injection attacks where the LLM could modify its own allowlists.
+
+### Security model
+
+- The config file is bind-mounted into the container as **read-only** (`:ro` in `docker-compose.yml`)
+- `OPENCLAW_CONFIG_PATH` is set explicitly so the app cannot bypass the mount by using an alternate filename
+- On the VM, the config file is locked with `chattr +i` (immutable attribute) to prevent modification even by root
+- The deploy script does **not** overwrite the config file — it only updates `docker-compose.yml` and the container image
+
+### What lives where
+
+| Setting | Source | How to change |
+| --- | --- | --- |
+| Gateway token | GitHub secret `OPENCLAW_GATEWAY_TOKEN` | Update in GitHub environment settings |
+| API keys (Anthropic, Discord) | GitHub secrets | Update in GitHub environment settings |
+| Gateway/bridge ports | GitHub env vars `OPENCLAW_GATEWAY_PORT`, `OPENCLAW_BRIDGE_PORT` | Update in GitHub environment settings |
+| Gateway bind address | GitHub env var `OPENCLAW_GATEWAY_BIND` | Update in GitHub environment settings |
+| Discord allowlist (guilds, channels, users) | Config file on VM | SSH in and edit manually (see below) |
+| DM policy, group policy | Config file on VM | SSH in and edit manually |
+| Agent config, models, sessions | Config file on VM | SSH in and edit manually |
+| Config filename | GitHub env var `OPENCLAW_CONFIG_FILE` | Update in GitHub environment settings |
+
+### Editing the config file on the VM
+
+```bash
+# 1. SSH into the VM via IAP
+gcloud compute ssh <INSTANCE_NAME> \
+  --project <PROJECT_ID> \
+  --zone <ZONE> \
+  --tunnel-through-iap
+
+# 2. Remove the immutable flag
+sudo chattr -i /opt/DAISy/config/<CONFIG_FILE>
+
+# 3. Edit the file (JSON5 format — comments and trailing commas are OK)
+sudo nano /opt/DAISy/config/<CONFIG_FILE>
+
+# 4. Re-lock the file
+sudo chattr +i /opt/DAISy/config/<CONFIG_FILE>
+
+# 5. Restart the container to pick up changes
+#    (hot-reload may also work for most settings — see "Config hot reload" above)
+cd /opt/DAISy
+sudo docker-compose -f docker-compose.yml -f docker-compose.host.yml restart
+```
+
+### Discord allowlist format
+
+The Discord allowlist is configured under `channels.discord.guilds` in the config file. Each guild is keyed by its snowflake ID:
+
+```json5
+{
+  channels: {
+    discord: {
+      enabled: true,
+      // Guild-level allowlist
+      guilds: {
+        "GUILD_ID": {
+          slug: "my-server",          // optional human-readable name
+          users: ["USER_ID_1", "USER_ID_2"],  // allowed user IDs
+          channels: {
+            "CHANNEL_ID": {
+              allow: true,
+              // optional per-channel overrides:
+              requireMention: true,
+              users: ["USER_ID_1"],   // channel-level user allowlist
+              roles: ["ROLE_ID"],     // channel-level role allowlist
+              systemPrompt: "Be concise.",
+            },
+          },
+        },
+      },
+      // DM policy
+      dmPolicy: "pairing",           // pairing | allowlist | open | disabled
+      allowFrom: ["USER_ID"],        // for allowlist/open mode
+    },
+  },
+}
+```
+
+All IDs (guild, channel, user, role) must be **strings**, not numbers. Copy them from Discord Developer Mode (right-click → Copy ID).
+
 ## Full reference
 
 For the complete field-by-field reference, see **[Configuration Reference](/gateway/configuration-reference)**.
