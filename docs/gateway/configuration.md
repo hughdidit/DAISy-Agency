@@ -550,16 +550,16 @@ In DAISy deployments, the config file is **manually managed** on the VM and prot
 
 ### What lives where
 
-| Setting | Source | How to change |
-| --- | --- | --- |
-| Gateway token | GitHub secret `OPENCLAW_GATEWAY_TOKEN` | Update in GitHub environment settings |
-| API keys (Anthropic, Discord) | GitHub secrets | Update in GitHub environment settings |
-| Gateway/bridge ports | GitHub env vars `OPENCLAW_GATEWAY_PORT`, `OPENCLAW_BRIDGE_PORT` | Update in GitHub environment settings |
-| Gateway bind address | GitHub env var `OPENCLAW_GATEWAY_BIND` | Update in GitHub environment settings |
-| Discord allowlist (guilds, channels, users) | Config file on VM | SSH in and edit manually (see below) |
-| DM policy, group policy | Config file on VM | SSH in and edit manually |
-| Agent config, models, sessions | Config file on VM | SSH in and edit manually |
-| Config filename | GitHub env var `OPENCLAW_CONFIG_FILE` | Update in GitHub environment settings |
+| Setting                                     | Source                                                          | How to change                         |
+| ------------------------------------------- | --------------------------------------------------------------- | ------------------------------------- |
+| Gateway token                               | GitHub secret `OPENCLAW_GATEWAY_TOKEN`                          | Update in GitHub environment settings |
+| API keys (Anthropic, Discord)               | GitHub secrets                                                  | Update in GitHub environment settings |
+| Gateway/bridge ports                        | GitHub env vars `OPENCLAW_GATEWAY_PORT`, `OPENCLAW_BRIDGE_PORT` | Update in GitHub environment settings |
+| Gateway bind address                        | GitHub env var `OPENCLAW_GATEWAY_BIND`                          | Update in GitHub environment settings |
+| Discord allowlist (guilds, channels, users) | Config file on VM                                               | SSH in and edit manually (see below)  |
+| DM policy, group policy                     | Config file on VM                                               | SSH in and edit manually              |
+| Agent config, models, sessions              | Config file on VM                                               | SSH in and edit manually              |
+| Config filename                             | GitHub env var `OPENCLAW_CONFIG_FILE`                           | Update in GitHub environment settings |
 
 ### Editing the config file on the VM
 
@@ -596,24 +596,24 @@ The Discord allowlist is configured under `channels.discord.guilds` in the confi
       enabled: true,
       // Guild-level allowlist
       guilds: {
-        "GUILD_ID": {
-          slug: "my-server",          // optional human-readable name
-          users: ["USER_ID_1", "USER_ID_2"],  // allowed user IDs
+        GUILD_ID: {
+          slug: "my-server", // optional human-readable name
+          users: ["USER_ID_1", "USER_ID_2"], // allowed user IDs
           channels: {
-            "CHANNEL_ID": {
+            CHANNEL_ID: {
               allow: true,
               // optional per-channel overrides:
               requireMention: true,
-              users: ["USER_ID_1"],   // channel-level user allowlist
-              roles: ["ROLE_ID"],     // channel-level role allowlist
+              users: ["USER_ID_1"], // channel-level user allowlist
+              roles: ["ROLE_ID"], // channel-level role allowlist
               systemPrompt: "Be concise.",
             },
           },
         },
       },
       // DM policy
-      dmPolicy: "pairing",           // pairing | allowlist | open | disabled
-      allowFrom: ["USER_ID"],        // for allowlist/open mode
+      dmPolicy: "pairing", // pairing | allowlist | open | disabled
+      allowFrom: ["USER_ID"], // for allowlist/open mode
     },
   },
 }
