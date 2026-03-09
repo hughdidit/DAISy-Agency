@@ -839,11 +839,12 @@ async function dispatchDiscordComponentEvent(params: {
   const senderName = interactionCtx.user.globalName ?? interactionCtx.user.username;
   const senderUsername = interactionCtx.user.username;
   const senderTag = formatDiscordUserTag(interactionCtx.user);
-  const groupChannel =
+  const groupChannel = !interactionCtx.isDirectMessage ? interactionCtx.channelId : undefined;
+  const groupChannelName =
     !interactionCtx.isDirectMessage && channelCtx.channelSlug
       ? `#${channelCtx.channelSlug}`
       : undefined;
-  const groupSubject = interactionCtx.isDirectMessage ? undefined : groupChannel;
+  const groupSubject = interactionCtx.isDirectMessage ? undefined : groupChannelName;
   const channelConfig = resolveDiscordChannelConfigWithFallback({
     guildInfo,
     channelId: interactionCtx.channelId,
@@ -917,6 +918,7 @@ async function dispatchDiscordComponentEvent(params: {
     SenderTag: senderTag,
     GroupSubject: groupSubject,
     GroupChannel: groupChannel,
+    GroupChannelName: groupChannelName,
     GroupSystemPrompt: interactionCtx.isDirectMessage ? undefined : groupSystemPrompt,
     GroupSpace: guildInfo?.id ?? guildInfo?.slug ?? interactionCtx.rawGuildId ?? undefined,
     OwnerAllowFrom: ownerAllowFrom,

@@ -173,6 +173,29 @@ describe("buildInboundUserContextPrefix", () => {
     expect(text).toContain('"conversation_label": "ops-room"');
   });
 
+  it("includes group_channel_name from GroupChannelName when set", () => {
+    const text = buildInboundUserContextPrefix({
+      ChatType: "channel",
+      GroupChannel: "123456789",
+      GroupChannelName: "#general",
+    } as TemplateContext);
+
+    const conversationInfo = parseConversationInfoPayload(text);
+    expect(conversationInfo["group_channel"]).toBe("123456789");
+    expect(conversationInfo["group_channel_name"]).toBe("#general");
+  });
+
+  it("falls back group_channel_name to GroupChannel when GroupChannelName is absent", () => {
+    const text = buildInboundUserContextPrefix({
+      ChatType: "channel",
+      GroupChannel: "ops-room",
+    } as TemplateContext);
+
+    const conversationInfo = parseConversationInfoPayload(text);
+    expect(conversationInfo["group_channel"]).toBe("ops-room");
+    expect(conversationInfo["group_channel_name"]).toBe("ops-room");
+  });
+
   it("includes sender identifier in conversation info", () => {
     const text = buildInboundUserContextPrefix({
       ChatType: "group",

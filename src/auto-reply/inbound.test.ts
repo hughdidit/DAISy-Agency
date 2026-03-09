@@ -422,7 +422,7 @@ describe("resolveGroupRequireMention", () => {
             "145": {
               requireMention: false,
               channels: {
-                general: { allow: true },
+                "123456789": { allow: true },
               },
             },
           },
@@ -432,7 +432,8 @@ describe("resolveGroupRequireMention", () => {
     const ctx: TemplateContext = {
       Provider: "discord",
       From: "discord:group:123",
-      GroupChannel: "#general",
+      GroupChannel: "123456789",
+      GroupChannelName: "#general",
       GroupSpace: "145",
     };
     const groupResolution: GroupKeyResolution = {

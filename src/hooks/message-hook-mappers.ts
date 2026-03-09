@@ -105,7 +105,7 @@ export function deriveInboundMessageHookContext(
     originatingChannel: ctx.OriginatingChannel,
     originatingTo: ctx.OriginatingTo,
     guildId: ctx.GroupSpace,
-    channelName: ctx.GroupChannel,
+    channelName: ctx.GroupChannelName ?? ctx.GroupChannel,
     isGroup,
     groupId: isGroup ? conversationId : undefined,
   };

@@ -158,8 +158,10 @@ export type ChannelLogSink = {
 export type ChannelGroupContext = {
   cfg: OpenClawConfig;
   groupId?: string | null;
-  /** Human label for channel-like group conversations (e.g. #general). */
+  /** Canonical channel identifier (channel ID for Discord, slug for other providers). */
   groupChannel?: string | null;
+  /** Human-readable display name (#general). Display only. */
+  groupChannelName?: string | null;
   groupSpace?: string | null;
   accountId?: string | null;
   senderId?: string | null;

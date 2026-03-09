@@ -108,6 +108,7 @@ export function deriveGroupSessionPatch(params: {
   const subject = params.ctx.GroupSubject?.trim();
   const space = params.ctx.GroupSpace?.trim();
   const explicitChannel = params.ctx.GroupChannel?.trim();
+  const explicitChannelName = params.ctx.GroupChannelName?.trim();
   const normalizedChannel = normalizeChannelId(channel);
   const isChannelProvider = Boolean(
     normalizedChannel &&
@@ -131,6 +132,10 @@ export function deriveGroupSessionPatch(params: {
   if (nextGroupChannel) {
     patch.groupChannel = nextGroupChannel;
   }
+  const nextGroupChannelName = explicitChannelName || undefined;
+  if (nextGroupChannelName) {
+    patch.groupChannelName = nextGroupChannelName;
+  }
   if (space) {
     patch.space = space;
   }
@@ -139,6 +144,7 @@ export function deriveGroupSessionPatch(params: {
     provider: channel,
     subject: nextSubject ?? params.existing?.subject,
     groupChannel: nextGroupChannel ?? params.existing?.groupChannel,
+    groupChannelName: nextGroupChannelName ?? params.existing?.groupChannelName,
     space: space ?? params.existing?.space,
     id: resolution.id,
     key: params.sessionKey,

@@ -110,8 +110,10 @@ export type MsgContext = {
   /** Human label for envelope headers (conversation label, not sender). */
   ConversationLabel?: string;
   GroupSubject?: string;
-  /** Human label for channel-like group conversations (e.g. #general, #support). */
+  /** Canonical channel identifier (channel ID for Discord, slug for other providers). */
   GroupChannel?: string;
+  /** Human-readable display name (#general). Display only — do not use for targeting. */
+  GroupChannelName?: string;
   GroupSpace?: string;
   GroupMembers?: string;
   GroupSystemPrompt?: string;

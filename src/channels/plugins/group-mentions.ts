@@ -98,14 +98,9 @@ function resolveDiscordChannelEntry<TEntry>(
   if (!channelEntries || Object.keys(channelEntries).length === 0) {
     return undefined;
   }
-  const groupChannel = params.groupChannel;
-  const channelSlug = normalizeDiscordSlug(groupChannel);
   return (
     (params.groupId ? channelEntries[params.groupId] : undefined) ??
-    (channelSlug
-      ? (channelEntries[channelSlug] ?? channelEntries[`#${channelSlug}`])
-      : undefined) ??
-    (groupChannel ? channelEntries[normalizeDiscordSlug(groupChannel)] : undefined)
+    (params.groupChannel ? channelEntries[params.groupChannel] : undefined)
   );
 }
 
