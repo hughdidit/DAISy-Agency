@@ -14,6 +14,10 @@ type JsonObject = Record<string, unknown>;
 const isObject = (value: unknown): value is JsonObject =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
+const stringEnv = Object.fromEntries(
+  Object.entries(process.env).filter(([, value]): value is string => typeof value === "string"),
+);
+
 export class McpClientService {
   private client: Client;
   private connectPromise: Promise<void> | null = null;
@@ -107,7 +111,7 @@ export class McpClientService {
             command: this.config.stdio.command,
             args: this.config.stdio.args,
             env: {
-              ...process.env,
+              ...stringEnv,
               ...this.config.stdio.env,
             },
           });
