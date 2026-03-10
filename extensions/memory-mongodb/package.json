@@ -1,12 +1,12 @@
 {
   "name": "@openclaw/memory-mongodb",
   "version": "2026.1.27-beta.1",
-  "description": "Moltbot MongoDB Atlas-backed long-term memory plugin with vector search",
+  "description": "DAISy MongoDB MCP + Voyage-backed long-term memory plugin",
   "type": "module",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.4",
     "@sinclair/typebox": "0.34.47",
-    "mongodb": "^6.12.0",
-    "openai": "^6.16.0"
+    "voyageai": "^0.0.7"
   },
   "openclaw": {
     "extensions": [

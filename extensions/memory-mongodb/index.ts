@@ -1,119 +1,144 @@
 /**
- * Moltbot Memory (MongoDB Atlas) Plugin
+ * DAISy Memory (MongoDB via MCP) Plugin
  *
  * Long-term memory with vector search for AI conversations.
- * Uses MongoDB Atlas for storage, Atlas Vector Search for retrieval,
- * and OpenAI for embeddings.
- * Provides seamless auto-recall and auto-capture via lifecycle hooks.
+ * Uses MongoDB MCP server for data operations and Voyage AI for embeddings/reranking.
  */
 
 import { Type } from "@sinclair/typebox";
-import OpenAI from "openai";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { stringEnum } from "openclaw/plugin-sdk";
 import {
   MEMORY_CATEGORIES,
-  DEFAULT_CAPTURE_TRIGGERS,
   type MemoryCategory,
   memoryConfigSchema,
   vectorDimsForModel,
 } from "./config.js";
-import { MongoMemoryDB, buildVectorIndexDefinition, type MemoryEntry } from "./mongodb-provider.js";
+import { McpClientService } from "./mcp-client-service.js";
+import {
+  buildVectorIndexDefinition,
+  type MemoryEntry,
+  type MemoryType,
+  MongoMemoryDB,
+} from "./mongodb-provider.js";
+import { VoyageService } from "./voyage-service.js";
 
-// ============================================================================
-// OpenAI Embeddings
-// ============================================================================
-
-class Embeddings {
-  private client: OpenAI;
-
-  constructor(
-    apiKey: string,
-    private model: string,
-  ) {
-    this.client = new OpenAI({ apiKey });
-  }
-
-  async embed(text: string): Promise<number[]> {
-    const response = await this.client.embeddings.create({
-      model: this.model,
-      input: text,
-    });
-    return response.data[0].embedding;
-  }
-}
-
-// ============================================================================
-// Rule-based capture filter
-// ============================================================================
-
-/**
- * Compile an array of trigger pattern strings into RegExp objects.
- */
 function compileTriggers(patterns: string[]): RegExp[] {
-  return patterns.map((p) => new RegExp(p, "i"));
+  return patterns.map((pattern) => new RegExp(pattern, "i"));
 }
 
 function shouldCapture(text: string, triggers: RegExp[]): boolean {
-  if (text.length < 10 || text.length > 500) return false;
-  // Skip injected context from memory recall
-  if (text.includes("<relevant-memories>")) return false;
-  // Skip system-generated content
-  if (text.startsWith("<") && text.includes("</")) return false;
-  // Skip agent summary responses (contain markdown formatting)
-  if (text.includes("**") && text.includes("\n-")) return false;
-  // Skip emoji-heavy responses (likely agent output)
+  if (text.length < 10 || text.length > 500) {
+    return false;
+  }
+  if (text.includes("<relevant-memories>")) {
+    return false;
+  }
+  if (text.startsWith("<") && text.includes("</")) {
+    return false;
+  }
+  if (text.includes("**") && text.includes("\n-")) {
+    return false;
+  }
   const emojiCount = (text.match(/[\u{1F300}-\u{1F9FF}]/gu) || []).length;
-  if (emojiCount > 3) return false;
-  return triggers.some((r) => r.test(text));
+  if (emojiCount > 3) {
+    return false;
+  }
+
+  return triggers.some((trigger) => trigger.test(text));
 }
 
 function detectCategory(text: string): MemoryCategory {
   const lower = text.toLowerCase();
-  if (/prefer|like|love|hate|want/i.test(lower)) return "preference";
-  if (/decided|will use/i.test(lower)) return "decision";
-  if (/\+\d{10,}|@[\w.-]+\.\w+|is called/i.test(lower)) return "entity";
-  if (/is|are|has|have/i.test(lower)) return "fact";
+  if (/prefer|like|love|hate|want/i.test(lower)) {
+    return "preference";
+  }
+  if (/decided|will use|plan to/i.test(lower)) {
+    return "decision";
+  }
+  if (/\+\d{10,}|@[\w.-]+\.\w+|is called|my name is/i.test(lower)) {
+    return "entity";
+  }
+  if (/is|are|has|have|works with/i.test(lower)) {
+    return "fact";
+  }
   return "other";
 }
 
-// ============================================================================
-// Plugin Definition
-// ============================================================================
+function detectMemoryType(category: MemoryCategory, text: string): MemoryType {
+  const lower = text.toLowerCase();
+  if (/(current|this session|for now)/i.test(lower)) {
+    return "working";
+  }
+  if (/(cache|temporary|ttl)/i.test(lower)) {
+    return "cache";
+  }
+  if (category === "decision") {
+    return "procedural";
+  }
+  if (category === "fact") {
+    return "semantic";
+  }
+  if (category === "entity") {
+    return "associative";
+  }
+  return "episodic";
+}
+
+function detectSubCategory(text: string): string | undefined {
+  if (/email|@/i.test(text)) {
+    return "contact";
+  }
+  if (/phone|\+\d{10,}/i.test(text)) {
+    return "contact";
+  }
+  if (/prefer|like|love|hate/i.test(text)) {
+    return "preference";
+  }
+  if (/decided|will use|plan/i.test(text)) {
+    return "decision";
+  }
+  return undefined;
+}
 
 const memoryPlugin = {
   id: "memory-mongodb",
-  name: "Memory (MongoDB Atlas)",
-  description: "MongoDB Atlas-backed long-term memory with auto-recall/capture",
+  name: "Memory (MongoDB MCP + Voyage)",
+  description: "MongoDB MCP + Voyage-backed long-term memory with auto-recall/capture",
   kind: "memory" as const,
   configSchema: memoryConfigSchema,
 
   register(api: OpenClawPluginApi) {
     const cfg = memoryConfigSchema.parse(api.pluginConfig);
-    const vectorDim = vectorDimsForModel(cfg.embedding.model ?? "text-embedding-3-small");
-    const db = new MongoMemoryDB(
-      cfg.connectionUri,
-      cfg.databaseName,
-      cfg.collectionName,
-      cfg.vectorSearchIndexName,
+    const vectorDim = vectorDimsForModel(cfg.voyage.embeddingModel);
+
+    const mcpService = new McpClientService(cfg.mcp, api.logger);
+    const voyageService = new VoyageService(
+      cfg.voyage.apiKey,
+      cfg.voyage.embeddingModel,
+      cfg.voyage.rerankModel,
     );
-    const embeddings = new Embeddings(cfg.embedding.apiKey, cfg.embedding.model!);
+
+    const db = new MongoMemoryDB(
+      mcpService,
+      voyageService,
+      cfg.database.name,
+      cfg.database.collection,
+      cfg.database.indexName,
+      cfg.retrieval,
+      api.logger,
+    );
+
     const triggers = compileTriggers(cfg.captureTriggers);
 
-    // Log safe startup info (never log the connection URI)
     api.logger.info(
-      `memory-mongodb: plugin registered (db: ${cfg.databaseName}/${cfg.collectionName}, lazy init)`,
+      `memory-mongodb: plugin registered (db: ${cfg.database.name}/${cfg.database.collection}, transport: ${cfg.mcp.transport})`,
     );
 
-    // Log the Atlas Vector Search index definition at startup
-    const indexDef = buildVectorIndexDefinition(cfg.vectorSearchIndexName, vectorDim);
+    const indexDef = buildVectorIndexDefinition(cfg.database.indexName, vectorDim);
     api.logger.info(
       `memory-mongodb: ensure Atlas Vector Search index exists:\n${JSON.stringify(indexDef, null, 2)}`,
     );
-
-    // ========================================================================
-    // Tools
-    // ========================================================================
 
     api.registerTool(
       {
@@ -128,8 +153,7 @@ const memoryPlugin = {
         async execute(_toolCallId, params) {
           const { query, limit = 5 } = params as { query: string; limit?: number };
 
-          const vector = await embeddings.embed(query);
-          const results = await db.search(vector, limit, 0.1);
+          const results = await db.searchByQuery(query, limit, cfg.retrieval.minScore);
 
           if (results.length === 0) {
             return {
@@ -140,18 +164,21 @@ const memoryPlugin = {
 
           const text = results
             .map(
-              (r, i) =>
-                `${i + 1}. [${r.entry.category}] ${r.entry.text} (${(r.score * 100).toFixed(0)}%)`,
+              (result, index) =>
+                `${index + 1}. [${result.entry.category}] ${result.entry.text} (${(result.score * 100).toFixed(0)}%)`,
             )
             .join("\n");
 
-          // Strip vector data for serialization
-          const sanitizedResults = results.map((r) => ({
-            id: r.entry.id,
-            text: r.entry.text,
-            category: r.entry.category,
-            importance: r.entry.importance,
-            score: r.score,
+          const sanitizedResults = results.map((result) => ({
+            id: result.entry.id,
+            text: result.entry.text,
+            category: result.entry.category,
+            subCategory: result.entry.subCategory,
+            type: result.entry.type,
+            importance: result.entry.importance,
+            score: result.score,
+            vectorScore: result.vectorScore,
+            rerankScore: result.rerankScore,
           }));
 
           return {
@@ -178,17 +205,16 @@ const memoryPlugin = {
           const {
             text,
             importance = 0.7,
-            category = "other",
+            category,
           } = params as {
             text: string;
             importance?: number;
             category?: MemoryEntry["category"];
           };
 
-          const vector = await embeddings.embed(text);
+          const inferredCategory = category ?? detectCategory(text);
+          const existing = await db.searchByQuery(text, 1, 0.95, { rerank: false });
 
-          // Check for duplicates
-          const existing = await db.search(vector, 1, 0.95);
           if (existing.length > 0) {
             return {
               content: [
@@ -207,14 +233,23 @@ const memoryPlugin = {
 
           const entry = await db.store({
             text,
-            vector,
             importance,
-            category,
+            category: inferredCategory,
+            subCategory: detectSubCategory(text),
+            type: detectMemoryType(inferredCategory, text),
+            metadata: {
+              source: "memory_store",
+            },
           });
 
           return {
             content: [{ type: "text", text: `Stored: "${text.slice(0, 100)}..."` }],
-            details: { action: "created", id: entry.id },
+            details: {
+              action: "created",
+              id: entry.id,
+              category: inferredCategory,
+              type: entry.type,
+            },
           };
         },
       },
@@ -248,8 +283,7 @@ const memoryPlugin = {
           }
 
           if (query) {
-            const vector = await embeddings.embed(query);
-            const results = await db.search(vector, 5, 0.7);
+            const results = await db.searchByQuery(query, 5, 0.7);
 
             if (results.length === 0) {
               return {
@@ -267,15 +301,18 @@ const memoryPlugin = {
             }
 
             const list = results
-              .map((r) => `- [${r.entry.id.slice(0, 8)}] ${r.entry.text.slice(0, 60)}...`)
+              .map(
+                (result) =>
+                  `- [${result.entry.id.slice(0, 8)}] ${result.entry.text.slice(0, 60)}...`,
+              )
               .join("\n");
 
-            // Strip vector data for serialization
-            const sanitizedCandidates = results.map((r) => ({
-              id: r.entry.id,
-              text: r.entry.text,
-              category: r.entry.category,
-              score: r.score,
+            const sanitizedCandidates = results.map((result) => ({
+              id: result.entry.id,
+              text: result.entry.text,
+              category: result.entry.category,
+              type: result.entry.type,
+              score: result.score,
             }));
 
             return {
@@ -298,13 +335,9 @@ const memoryPlugin = {
       { name: "memory_forget" },
     );
 
-    // ========================================================================
-    // CLI Commands
-    // ========================================================================
-
     api.registerCli(
       ({ program }) => {
-        const memory = program.command("ltm").description("MongoDB Atlas memory plugin commands");
+        const memory = program.command("ltm").description("MongoDB MCP memory plugin commands");
 
         memory
           .command("list")
@@ -320,15 +353,14 @@ const memoryPlugin = {
           .argument("<query>", "Search query")
           .option("--limit <n>", "Max results", "5")
           .action(async (query, opts) => {
-            const vector = await embeddings.embed(query);
-            const results = await db.search(vector, parseInt(opts.limit), 0.3);
-            // Strip vectors for output
-            const output = results.map((r) => ({
-              id: r.entry.id,
-              text: r.entry.text,
-              category: r.entry.category,
-              importance: r.entry.importance,
-              score: r.score,
+            const results = await db.searchByQuery(query, Number.parseInt(opts.limit, 10), 0.3);
+            const output = results.map((result) => ({
+              id: result.entry.id,
+              text: result.entry.text,
+              category: result.entry.category,
+              type: result.entry.type,
+              importance: result.entry.importance,
+              score: result.score,
             }));
             console.log(JSON.stringify(output, null, 2));
           });
@@ -344,23 +376,20 @@ const memoryPlugin = {
       { commands: ["ltm"] },
     );
 
-    // ========================================================================
-    // Lifecycle Hooks
-    // ========================================================================
-
-    // Auto-recall: inject relevant memories before agent starts
     if (cfg.autoRecall) {
       api.on("before_agent_start", async (event) => {
-        if (!event.prompt || event.prompt.length < 5) return;
+        if (!event.prompt || event.prompt.length < 5) {
+          return;
+        }
 
         try {
-          const vector = await embeddings.embed(event.prompt);
-          const results = await db.search(vector, 3, 0.3);
-
-          if (results.length === 0) return;
+          const results = await db.searchByQuery(event.prompt, 3, 0.3);
+          if (results.length === 0) {
+            return;
+          }
 
           const memoryContext = results
-            .map((r) => `- [${r.entry.category}] ${r.entry.text}`)
+            .map((result) => `- [${result.entry.category}] ${result.entry.text}`)
             .join("\n");
 
           api.logger.info?.(`memory-mongodb: injecting ${results.length} memories into context`);
@@ -368,13 +397,12 @@ const memoryPlugin = {
           return {
             prependContext: `<relevant-memories>\nThe following memories may be relevant to this conversation:\n${memoryContext}\n</relevant-memories>`,
           };
-        } catch (err) {
-          api.logger.warn(`memory-mongodb: recall failed: ${String(err)}`);
+        } catch (error) {
+          api.logger.warn(`memory-mongodb: recall failed: ${String(error)}`);
         }
       });
     }
 
-    // Auto-capture: analyze and store important information after agent ends
     if (cfg.autoCapture) {
       api.on("agent_end", async (event) => {
         if (!event.success || !event.messages || event.messages.length === 0) {
@@ -382,26 +410,24 @@ const memoryPlugin = {
         }
 
         try {
-          // Extract text content from messages (handling unknown[] type)
           const texts: string[] = [];
-          for (const msg of event.messages) {
-            // Type guard for message object
-            if (!msg || typeof msg !== "object") continue;
-            const msgObj = msg as Record<string, unknown>;
 
-            // Only process user and assistant messages
-            const role = msgObj.role;
-            if (role !== "user" && role !== "assistant") continue;
+          for (const message of event.messages) {
+            if (!message || typeof message !== "object") {
+              continue;
+            }
+            const messageRecord = message as Record<string, unknown>;
+            const role = messageRecord.role;
+            if (role !== "user" && role !== "assistant") {
+              continue;
+            }
 
-            const content = msgObj.content;
-
-            // Handle string content directly
+            const content = messageRecord.content;
             if (typeof content === "string") {
               texts.push(content);
               continue;
             }
 
-            // Handle array content (content blocks)
             if (Array.isArray(content)) {
               for (const block of content) {
                 if (
@@ -418,58 +444,57 @@ const memoryPlugin = {
             }
           }
 
-          // Filter for capturable content
-          const toCapture = texts.filter((text) => text && shouldCapture(text, triggers));
-          if (toCapture.length === 0) return;
+          const toCapture = texts.filter((text) => shouldCapture(text, triggers));
+          if (toCapture.length === 0) {
+            return;
+          }
 
-          // Store each capturable piece (limit to 3 per conversation)
           let stored = 0;
+
           for (const text of toCapture.slice(0, 3)) {
             const category = detectCategory(text);
-            const vector = await embeddings.embed(text);
-
-            // Check for duplicates (high similarity threshold)
-            const existing = await db.search(vector, 1, 0.95);
-            if (existing.length > 0) continue;
+            const existing = await db.searchByQuery(text, 1, 0.95, { rerank: false });
+            if (existing.length > 0) {
+              continue;
+            }
 
             await db.store({
               text,
-              vector,
               importance: 0.7,
               category,
+              subCategory: detectSubCategory(text),
+              type: detectMemoryType(category, text),
+              metadata: {
+                source: "auto_capture",
+              },
             });
-            stored++;
+
+            stored += 1;
           }
 
           if (stored > 0) {
             api.logger.info(`memory-mongodb: auto-captured ${stored} memories`);
           }
-        } catch (err) {
-          api.logger.warn(`memory-mongodb: capture failed: ${String(err)}`);
+        } catch (error) {
+          api.logger.warn(`memory-mongodb: capture failed: ${String(error)}`);
         }
       });
     }
-
-    // ========================================================================
-    // Service
-    // ========================================================================
 
     api.registerService({
       id: "memory-mongodb",
       start: () => {
         api.logger.info(
-          `memory-mongodb: initialized (db: ${cfg.databaseName}/${cfg.collectionName}, model: ${cfg.embedding.model})`,
+          `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, embeddingModel: ${cfg.voyage.embeddingModel}, rerankModel: ${cfg.voyage.rerankModel})`,
         );
       },
       stop: async () => {
         await db.close();
-        api.logger.info("memory-mongodb: stopped (connection closed)");
+        api.logger.info("memory-mongodb: stopped");
       },
     });
   },
 };
 
 export default memoryPlugin;
-
-// Re-export for tests
-export { shouldCapture, detectCategory, compileTriggers };
+export { compileTriggers, detectCategory, shouldCapture };

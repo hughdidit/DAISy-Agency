@@ -1,10 +1,15 @@
 import { randomUUID } from "node:crypto";
-import { MongoClient, type Collection, type Db, type Document } from "mongodb";
 import type { MemoryCategory } from "./config.js";
+import type { McpClientService } from "./mcp-client-service.js";
+import type { VoyageService } from "./voyage-service.js";
 
-// ============================================================================
-// Types
-// ============================================================================
+export type MemoryType =
+  | "working"
+  | "cache"
+  | "episodic"
+  | "semantic"
+  | "procedural"
+  | "associative";
 
 export type MemoryEntry = {
   id: string;
@@ -12,12 +17,33 @@ export type MemoryEntry = {
   vector: number[];
   importance: number;
   category: MemoryCategory;
+  subCategory?: string;
+  type: MemoryType;
+  metadata?: Record<string, unknown>;
+  tags?: string[];
   createdAt: number;
+  updatedAt: number;
 };
 
 export type MemorySearchResult = {
   entry: MemoryEntry;
   score: number;
+  vectorScore: number;
+  rerankScore?: number;
+};
+
+export type RetrievalOptions = {
+  minScore: number;
+  vectorLimit: number;
+  numCandidatesMultiplier: number;
+  rerankEnabled: boolean;
+  rerankLimit: number;
+};
+
+type Logger = {
+  info?: (message: string) => void;
+  warn?: (message: string) => void;
+  error?: (message: string) => void;
 };
 
 type MemoryDocument = {
@@ -25,76 +51,114 @@ type MemoryDocument = {
   text: string;
   vector: number[];
   importance: number;
-  category: string;
+  category: MemoryCategory;
+  subCategory?: string;
+  type: MemoryType;
+  metadata?: Record<string, unknown>;
+  tags?: string[];
   createdAt: number;
+  updatedAt: number;
+  score?: number;
 };
 
-// ============================================================================
-// MongoMemoryDB
-// ============================================================================
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export class MongoMemoryDB {
-  private client: MongoClient | null = null;
-  private db: Db | null = null;
-  private collection: Collection<MemoryDocument> | null = null;
-  private initPromise: Promise<void> | null = null;
-
   constructor(
-    private readonly connectionUri: string,
+    private readonly mcp: McpClientService,
+    private readonly voyage: VoyageService,
     private readonly databaseName: string,
     private readonly collectionName: string,
     private readonly vectorSearchIndexName: string,
+    private readonly retrieval: RetrievalOptions,
+    private readonly logger?: Logger,
   ) {}
 
-  private async ensureInitialized(): Promise<void> {
-    if (this.collection) return;
-    if (this.initPromise) return this.initPromise;
+  async store(
+    entry: Omit<MemoryEntry, "id" | "createdAt" | "updatedAt" | "vector">,
+  ): Promise<MemoryEntry> {
+    const vector = await this.voyage.embed(entry.text);
 
-    this.initPromise = this.doInitialize();
-    return this.initPromise;
+    const now = Date.now();
+    const record: MemoryEntry = {
+      ...entry,
+      id: randomUUID(),
+      vector,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const document = this.entryToDocument(record);
+    await this.mcp.insertMany(this.databaseName, this.collectionName, [document]);
+
+    return record;
   }
 
-  private async doInitialize(): Promise<void> {
+  async searchByQuery(
+    query: string,
+    limit = 5,
+    minScore = this.retrieval.minScore,
+    options?: { rerank?: boolean },
+  ): Promise<MemorySearchResult[]> {
+    const vector = await this.voyage.embed(query);
+    const vectorResults = await this.searchByVector(vector, limit, minScore);
+
+    if (vectorResults.length === 0 || options?.rerank === false || !this.retrieval.rerankEnabled) {
+      return vectorResults;
+    }
+
+    const rerankCandidates = vectorResults.slice(0, Math.min(this.retrieval.rerankLimit, limit));
+
     try {
-      this.client = new MongoClient(this.connectionUri);
-      await this.client.connect();
-      await this.client.db("admin").command({ ping: 1 });
-      this.db = this.client.db(this.databaseName);
-      this.collection = this.db.collection<MemoryDocument>(this.collectionName);
-    } catch (err) {
-      // Strip connection URI from error messages to avoid leaking credentials
-      this.client = null;
-      this.db = null;
-      this.collection = null;
-      this.initPromise = null;
-      const message = err instanceof Error ? err.message : String(err);
-      const sanitized = sanitizeErrorMessage(message, this.connectionUri);
-      throw new Error(`MongoDB connection failed: ${sanitized}`);
+      const reranked = await this.voyage.rerank(
+        query,
+        rerankCandidates.map((candidate) => candidate.entry.text),
+        rerankCandidates.length,
+      );
+
+      if (reranked.length === 0) {
+        return vectorResults;
+      }
+
+      const mapped: MemorySearchResult[] = [];
+      for (const row of reranked) {
+        const candidate = rerankCandidates[row.index];
+        if (!candidate) {
+          continue;
+        }
+
+        mapped.push({
+          ...candidate,
+          score: row.score,
+          rerankScore: row.score,
+        });
+      }
+
+      if (mapped.length === 0) {
+        return vectorResults;
+      }
+
+      const rerankedIds = new Set(mapped.map((item) => item.entry.id));
+      const remaining = vectorResults.filter((item) => !rerankedIds.has(item.entry.id));
+      return [...mapped, ...remaining].slice(0, limit);
+    } catch (error) {
+      this.logger?.warn?.(
+        `memory-mongodb: rerank failed, using vector scores only: ${String(error)}`,
+      );
+      return vectorResults;
     }
   }
 
-  async store(entry: Omit<MemoryEntry, "id" | "createdAt">): Promise<MemoryEntry> {
-    await this.ensureInitialized();
-
-    const id = randomUUID();
-    const createdAt = Date.now();
-
-    const doc: MemoryDocument = {
-      _id: id,
-      text: entry.text,
-      vector: entry.vector,
-      importance: entry.importance,
-      category: entry.category,
-      createdAt,
-    };
-
-    await this.collection!.insertOne(doc as Document & MemoryDocument);
-
-    return { ...entry, id, createdAt };
-  }
-
-  async search(vector: number[], limit = 5, minScore = 0.5): Promise<MemorySearchResult[]> {
-    await this.ensureInitialized();
+  async searchByVector(
+    vector: number[],
+    limit = 5,
+    minScore = this.retrieval.minScore,
+  ): Promise<MemorySearchResult[]> {
+    const boundedLimit = Math.max(1, Math.min(limit, this.retrieval.vectorLimit));
+    const numCandidates = Math.max(
+      boundedLimit,
+      boundedLimit * Math.max(1, this.retrieval.numCandidatesMultiplier),
+    );
 
     const pipeline = [
       {
@@ -102,141 +166,145 @@ export class MongoMemoryDB {
           index: this.vectorSearchIndexName,
           path: "vector",
           queryVector: vector,
-          numCandidates: limit * 10,
-          limit,
+          numCandidates,
+          limit: boundedLimit,
         },
       },
       {
-        $addFields: {
+        $project: {
+          _id: 1,
+          text: 1,
+          vector: 1,
+          importance: 1,
+          category: 1,
+          subCategory: 1,
+          type: 1,
+          metadata: 1,
+          tags: 1,
+          createdAt: 1,
+          updatedAt: 1,
           score: { $meta: "vectorSearchScore" },
         },
       },
     ];
 
-    const results = await this.collection!.aggregate(pipeline).toArray();
+    const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, pipeline);
+    const results: MemorySearchResult[] = [];
 
-    return results
-      .filter((doc) => (doc.score as number) >= minScore)
-      .map((doc) => ({
-        entry: {
-          id: doc._id as string,
-          text: doc.text as string,
-          vector: doc.vector as number[],
-          importance: doc.importance as number,
-          category: doc.category as MemoryCategory,
-          createdAt: doc.createdAt as number,
-        },
-        score: doc.score as number,
-      }));
-  }
+    for (const document of documents) {
+      const parsed = this.documentToEntry(document);
+      if (!parsed) {
+        this.logger?.warn?.(
+          "memory-mongodb: skipped malformed memory document from aggregate response",
+        );
+        continue;
+      }
 
-  async get(id: string): Promise<MemoryEntry | null> {
-    await this.ensureInitialized();
-    validateUUID(id);
+      if (parsed.score < minScore) {
+        continue;
+      }
 
-    const doc = await this.collection!.findOne({ _id: id } as Document);
-    if (!doc) return null;
+      results.push({
+        entry: parsed.entry,
+        score: parsed.score,
+        vectorScore: parsed.score,
+      });
+    }
 
-    return {
-      id: doc._id as string,
-      text: doc.text as string,
-      vector: doc.vector as number[],
-      importance: doc.importance as number,
-      category: doc.category as MemoryCategory,
-      createdAt: doc.createdAt as number,
-    };
+    return results.slice(0, boundedLimit);
   }
 
   async delete(id: string): Promise<boolean> {
-    await this.ensureInitialized();
-    validateUUID(id);
-
-    const result = await this.collection!.deleteOne({ _id: id } as Document);
-    return result.deletedCount > 0;
-  }
-
-  async clear(): Promise<void> {
-    await this.ensureInitialized();
-    await this.collection!.deleteMany({});
+    if (!UUID_REGEX.test(id)) {
+      throw new Error(`Invalid memory ID format: ${id}`);
+    }
+    return this.mcp.deleteOne(this.databaseName, this.collectionName, { _id: id });
   }
 
   async count(): Promise<number> {
-    await this.ensureInitialized();
-    return this.collection!.countDocuments();
+    return this.mcp.countDocuments(this.databaseName, this.collectionName);
   }
 
   async close(): Promise<void> {
-    if (this.client) {
-      await this.client.close();
-      this.client = null;
-      this.db = null;
-      this.collection = null;
-      this.initPromise = null;
+    await this.mcp.close();
+  }
+
+  private entryToDocument(entry: MemoryEntry): MemoryDocument {
+    return {
+      _id: entry.id,
+      text: entry.text,
+      vector: entry.vector,
+      importance: entry.importance,
+      category: entry.category,
+      subCategory: entry.subCategory,
+      type: entry.type,
+      metadata: entry.metadata,
+      tags: entry.tags,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+    };
+  }
+
+  private documentToEntry(
+    raw: Record<string, unknown>,
+  ): { entry: MemoryEntry; score: number } | null {
+    if (typeof raw._id !== "string") {
+      return null;
     }
-  }
-}
-
-// ============================================================================
-// Helpers
-// ============================================================================
-
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function validateUUID(id: string): void {
-  if (!UUID_REGEX.test(id)) {
-    throw new Error(`Invalid memory ID format: ${id}`);
-  }
-}
-
-/**
- * Strip the connection URI and credential fragments from error messages
- * to prevent credential leakage. Handles exact URI matches, URI variants
- * (with/without query params), and userinfo patterns the driver may log.
- */
-function sanitizeErrorMessage(message: string, uri: string): string {
-  if (!uri) return message;
-  let sanitized = message;
-
-  // Replace the full URI
-  sanitized = sanitized.replaceAll(uri, "[redacted]");
-
-  // Replace URI without query params (driver may log a variant)
-  const qIdx = uri.indexOf("?");
-  if (qIdx > 0) {
-    sanitized = sanitized.replaceAll(uri.slice(0, qIdx), "[redacted]");
-  }
-
-  // Extract and scrub userinfo (user:pass) if present
-  try {
-    const schemeEnd = uri.indexOf("://");
-    if (schemeEnd > 0) {
-      const afterScheme = uri.slice(schemeEnd + 3);
-      const atIdx = afterScheme.indexOf("@");
-      if (atIdx > 0) {
-        const userinfo = afterScheme.slice(0, atIdx);
-        sanitized = sanitized.replaceAll(userinfo, "[credentials]");
-        // Also scrub URL-decoded variants
-        try {
-          const decoded = decodeURIComponent(userinfo);
-          if (decoded !== userinfo) {
-            sanitized = sanitized.replaceAll(decoded, "[credentials]");
-          }
-        } catch {
-          // Ignore decode errors
-        }
-      }
+    if (typeof raw.text !== "string") {
+      return null;
     }
-  } catch {
-    // Ignore parse errors — best-effort sanitization
-  }
+    if (!Array.isArray(raw.vector) || !raw.vector.every((value) => typeof value === "number")) {
+      return null;
+    }
 
-  return sanitized;
+    const score = typeof raw.score === "number" ? raw.score : 0;
+
+    const entry: MemoryEntry = {
+      id: raw._id,
+      text: raw.text,
+      vector: raw.vector,
+      importance: typeof raw.importance === "number" ? raw.importance : 0.7,
+      category: isMemoryCategory(raw.category) ? raw.category : "other",
+      subCategory: typeof raw.subCategory === "string" ? raw.subCategory : undefined,
+      type: isMemoryType(raw.type) ? raw.type : "semantic",
+      metadata: isObject(raw.metadata) ? raw.metadata : undefined,
+      tags: Array.isArray(raw.tags)
+        ? raw.tags.filter((tag): tag is string => typeof tag === "string")
+        : undefined,
+      createdAt: typeof raw.createdAt === "number" ? raw.createdAt : Date.now(),
+      updatedAt: typeof raw.updatedAt === "number" ? raw.updatedAt : Date.now(),
+    };
+
+    return { entry, score };
+  }
 }
 
-/**
- * Build the Atlas Vector Search index definition JSON.
- * Users must create this index manually in the Atlas UI or via the Atlas CLI.
- */
+function isMemoryCategory(value: unknown): value is MemoryCategory {
+  return (
+    value === "preference" ||
+    value === "fact" ||
+    value === "decision" ||
+    value === "entity" ||
+    value === "other"
+  );
+}
+
+function isMemoryType(value: unknown): value is MemoryType {
+  return (
+    value === "working" ||
+    value === "cache" ||
+    value === "episodic" ||
+    value === "semantic" ||
+    value === "procedural" ||
+    value === "associative"
+  );
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
 export function buildVectorIndexDefinition(indexName: string, numDimensions: number): object {
   return {
     name: indexName,

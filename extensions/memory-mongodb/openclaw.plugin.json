@@ -2,36 +2,86 @@
   "id": "memory-mongodb",
   "kind": "memory",
   "uiHints": {
-    "embedding.apiKey": {
-      "label": "OpenAI API Key",
-      "sensitive": true,
-      "placeholder": "sk-proj-...",
-      "help": "API key for OpenAI embeddings (or use ${OPENAI_API_KEY})"
+    "mcp.transport": {
+      "label": "MCP Transport",
+      "placeholder": "stdio",
+      "help": "Choose stdio for local MCP server or sse for remote endpoint"
     },
-    "embedding.model": {
-      "label": "Embedding Model",
-      "placeholder": "text-embedding-3-small",
-      "help": "OpenAI embedding model to use"
+    "mcp.stdio.command": {
+      "label": "MCP Command",
+      "placeholder": "npx",
+      "help": "Executable used to launch MongoDB MCP server"
     },
-    "connectionUri": {
-      "label": "MongoDB Connection URI",
+    "mcp.stdio.args": {
+      "label": "MCP Command Args",
+      "placeholder": "[\"-y\",\"mongodb-mcp-server@<PINNED_VERSION>\"]",
+      "advanced": true
+    },
+    "mcp.stdio.env.MDB_MCP_CONNECTION_STRING": {
+      "label": "MongoDB Connection String",
       "sensitive": true,
       "placeholder": "${MONGODB_URI}",
-      "help": "MongoDB Atlas connection string (use ${MONGODB_URI} env var)"
+      "help": "Use MDB_MCP_CONNECTION_STRING to pass Atlas URI to MCP"
     },
-    "databaseName": {
+    "mcp.url": {
+      "label": "MCP SSE URL",
+      "placeholder": "https://example.com/sse",
+      "help": "Required when mcp.transport is sse"
+    },
+    "voyage.apiKey": {
+      "label": "Voyage API Key",
+      "sensitive": true,
+      "placeholder": "pa-...",
+      "help": "API key for Voyage embeddings/rerank"
+    },
+    "voyage.embeddingModel": {
+      "label": "Embedding Model",
+      "placeholder": "voyage-3-large",
+      "help": "Voyage embedding model to use"
+    },
+    "voyage.rerankModel": {
+      "label": "Rerank Model",
+      "placeholder": "rerank-2",
+      "advanced": true,
+      "help": "Voyage rerank model"
+    },
+    "database.name": {
       "label": "Database Name",
       "placeholder": "daisy_memory",
       "advanced": true
     },
-    "collectionName": {
+    "database.collection": {
       "label": "Collection Name",
       "placeholder": "memories",
       "advanced": true
     },
-    "vectorSearchIndexName": {
+    "database.indexName": {
       "label": "Vector Search Index Name",
       "placeholder": "vector_index",
+      "advanced": true
+    },
+    "retrieval.minScore": {
+      "label": "Minimum Score",
+      "placeholder": "0.1",
+      "advanced": true
+    },
+    "retrieval.vectorLimit": {
+      "label": "Vector Limit",
+      "placeholder": "8",
+      "advanced": true
+    },
+    "retrieval.numCandidatesMultiplier": {
+      "label": "Candidates Multiplier",
+      "placeholder": "10",
+      "advanced": true
+    },
+    "retrieval.rerankEnabled": {
+      "label": "Enable Rerank",
+      "advanced": true
+    },
+    "retrieval.rerankLimit": {
+      "label": "Rerank Limit",
+      "placeholder": "8",
       "advanced": true
     },
     "captureTriggers": {
@@ -52,46 +102,86 @@
     "type": "object",
     "additionalProperties": false,
     "properties": {
-      "embedding": {
+      "mcp": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "apiKey": {
-            "type": "string"
-          },
-          "model": {
+          "transport": {
             "type": "string",
-            "enum": ["text-embedding-3-small", "text-embedding-3-large"]
+            "enum": ["stdio", "sse"]
+          },
+          "stdio": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command": { "type": "string" },
+              "args": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "env": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              }
+            }
+          },
+          "url": {
+            "type": "string"
           }
+        },
+        "required": []
+      },
+      "voyage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "apiKey": { "type": "string" },
+          "embeddingModel": {
+            "type": "string",
+            "enum": [
+              "voyage-3",
+              "voyage-3-large",
+              "voyage-3-lite",
+              "voyage-3.5",
+              "voyage-3.5-lite",
+              "voyage-code-3",
+              "voyage-finance-2",
+              "voyage-law-2",
+              "voyage-multilingual-2"
+            ]
+          },
+          "rerankModel": { "type": "string" }
         },
         "required": ["apiKey"]
       },
-      "connectionUri": {
-        "type": "string"
+      "database": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "collection": { "type": "string" },
+          "indexName": { "type": "string" }
+        }
       },
-      "databaseName": {
-        "type": "string"
-      },
-      "collectionName": {
-        "type": "string"
-      },
-      "vectorSearchIndexName": {
-        "type": "string"
+      "retrieval": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "minScore": { "type": "number" },
+          "vectorLimit": { "type": "number" },
+          "numCandidatesMultiplier": { "type": "number" },
+          "rerankEnabled": { "type": "boolean" },
+          "rerankLimit": { "type": "number" }
+        }
       },
       "captureTriggers": {
         "type": "array",
-        "items": {
-          "type": "string"
-        },
+        "items": { "type": "string" },
         "description": "Regex patterns (case-insensitive) that trigger auto-capture"
       },
-      "autoCapture": {
-        "type": "boolean"
-      },
-      "autoRecall": {
-        "type": "boolean"
-      }
+      "autoCapture": { "type": "boolean" },
+      "autoRecall": { "type": "boolean" }
     },
-    "required": ["embedding", "connectionUri"]
+    "required": ["mcp", "voyage"]
   }
 }
