@@ -37,12 +37,12 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
       --zone "${GCP_ZONE}" \
       --tunnel-through-iap \
       --quiet \
-      --command "sudo docker inspect --format '{{.State.Running}}' \$(sudo docker ps -qf 'name=${container}' | head -1) 2>/dev/null || echo false"
+      --command "sudo docker ps --filter 'name=^${container}\$' --format '{{.State}}' | head -1"
   )" || fail "Failed to check container ${container} on ${GCE_INSTANCE_NAME}"
 
   running_state="$(echo "${running_state}" | tr -d '[:space:]')"
-  if [[ "${running_state}" != "true" ]]; then
-    log "DEBUG: Container '${container}' not found or not running. Listing all containers..."
+  if [[ "${running_state}" != "running" ]]; then
+    log "DEBUG: Container '${container}' state='${running_state}'. Listing all containers..."
     gcloud compute ssh "${GCE_INSTANCE_NAME}" \
       --project "${GCP_PROJECT_ID}" \
       --zone "${GCP_ZONE}" \
