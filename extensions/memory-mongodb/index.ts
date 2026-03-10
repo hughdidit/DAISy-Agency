@@ -202,7 +202,11 @@ const memoryPlugin = {
           category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
         }),
         async execute(_toolCallId, params) {
-          const { text, importance = 0.7, category } = params as {
+          const {
+            text,
+            importance = 0.7,
+            category,
+          } = params as {
             text: string;
             importance?: number;
             category?: MemoryEntry["category"];
@@ -240,7 +244,12 @@ const memoryPlugin = {
 
           return {
             content: [{ type: "text", text: `Stored: "${text.slice(0, 100)}..."` }],
-            details: { action: "created", id: entry.id, category: inferredCategory, type: entry.type },
+            details: {
+              action: "created",
+              id: entry.id,
+              category: inferredCategory,
+              type: entry.type,
+            },
           };
         },
       },
@@ -292,7 +301,10 @@ const memoryPlugin = {
             }
 
             const list = results
-              .map((result) => `- [${result.entry.id.slice(0, 8)}] ${result.entry.text.slice(0, 60)}...`)
+              .map(
+                (result) =>
+                  `- [${result.entry.id.slice(0, 8)}] ${result.entry.text.slice(0, 60)}...`,
+              )
               .join("\n");
 
             const sanitizedCandidates = results.map((result) => ({

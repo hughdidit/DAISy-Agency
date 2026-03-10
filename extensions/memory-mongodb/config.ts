@@ -289,7 +289,10 @@ export const memoryConfigSchema = {
     const rawStdioEnv = rawStdio.env as Record<string, unknown> | undefined;
     const connectionUri = rawStdioEnv?.MDB_MCP_CONNECTION_STRING;
 
-    if (transport === "stdio" && (typeof connectionUri !== "string" || connectionUri.length === 0)) {
+    if (
+      transport === "stdio" &&
+      (typeof connectionUri !== "string" || connectionUri.length === 0)
+    ) {
       throw new Error(
         'mcp.stdio.env.MDB_MCP_CONNECTION_STRING is required when mcp.transport is "stdio"',
       );

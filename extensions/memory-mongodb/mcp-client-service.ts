@@ -39,7 +39,11 @@ export class McpClientService {
     return insertedCount ?? documents.length;
   }
 
-  async aggregate(database: string, collection: string, pipeline: unknown[]): Promise<JsonObject[]> {
+  async aggregate(
+    database: string,
+    collection: string,
+    pipeline: unknown[],
+  ): Promise<JsonObject[]> {
     const response = await this.callMongoTool("aggregate", {
       database,
       collection,

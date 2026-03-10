@@ -3,7 +3,13 @@ import type { MemoryCategory } from "./config.js";
 import type { McpClientService } from "./mcp-client-service.js";
 import type { VoyageService } from "./voyage-service.js";
 
-export type MemoryType = "working" | "cache" | "episodic" | "semantic" | "procedural" | "associative";
+export type MemoryType =
+  | "working"
+  | "cache"
+  | "episodic"
+  | "semantic"
+  | "procedural"
+  | "associative";
 
 export type MemoryEntry = {
   id: string;
@@ -68,7 +74,9 @@ export class MongoMemoryDB {
     private readonly logger?: Logger,
   ) {}
 
-  async store(entry: Omit<MemoryEntry, "id" | "createdAt" | "updatedAt" | "vector">): Promise<MemoryEntry> {
+  async store(
+    entry: Omit<MemoryEntry, "id" | "createdAt" | "updatedAt" | "vector">,
+  ): Promise<MemoryEntry> {
     const vector = await this.voyage.embed(entry.text);
 
     const now = Date.now();
@@ -130,15 +138,23 @@ export class MongoMemoryDB {
         return vectorResults;
       }
 
-      const remaining = vectorResults.filter((item) => !mapped.some((rerankedItem) => rerankedItem.entry.id === item.entry.id));
+      const remaining = vectorResults.filter(
+        (item) => !mapped.some((rerankedItem) => rerankedItem.entry.id === item.entry.id),
+      );
       return [...mapped, ...remaining].slice(0, limit);
     } catch (error) {
-      this.logger?.warn?.(`memory-mongodb: rerank failed, using vector scores only: ${String(error)}`);
+      this.logger?.warn?.(
+        `memory-mongodb: rerank failed, using vector scores only: ${String(error)}`,
+      );
       return vectorResults;
     }
   }
 
-  async searchByVector(vector: number[], limit = 5, minScore = this.retrieval.minScore): Promise<MemorySearchResult[]> {
+  async searchByVector(
+    vector: number[],
+    limit = 5,
+    minScore = this.retrieval.minScore,
+  ): Promise<MemorySearchResult[]> {
     const boundedLimit = Math.max(1, Math.min(limit, this.retrieval.vectorLimit));
     const numCandidates = Math.max(
       boundedLimit,
@@ -179,7 +195,9 @@ export class MongoMemoryDB {
     for (const document of documents) {
       const parsed = this.documentToEntry(document);
       if (!parsed) {
-        this.logger?.warn?.("memory-mongodb: skipped malformed memory document from aggregate response");
+        this.logger?.warn?.(
+          "memory-mongodb: skipped malformed memory document from aggregate response",
+        );
         continue;
       }
 
@@ -228,7 +246,9 @@ export class MongoMemoryDB {
     };
   }
 
-  private documentToEntry(raw: Record<string, unknown>): { entry: MemoryEntry; score: number } | null {
+  private documentToEntry(
+    raw: Record<string, unknown>,
+  ): { entry: MemoryEntry; score: number } | null {
     if (typeof raw._id !== "string") {
       return null;
     }
@@ -250,7 +270,9 @@ export class MongoMemoryDB {
       subCategory: typeof raw.subCategory === "string" ? raw.subCategory : undefined,
       type: isMemoryType(raw.type) ? raw.type : "semantic",
       metadata: isObject(raw.metadata) ? raw.metadata : undefined,
-      tags: Array.isArray(raw.tags) ? raw.tags.filter((tag): tag is string => typeof tag === "string") : undefined,
+      tags: Array.isArray(raw.tags)
+        ? raw.tags.filter((tag): tag is string => typeof tag === "string")
+        : undefined,
       createdAt: typeof raw.createdAt === "number" ? raw.createdAt : Date.now(),
       updatedAt: typeof raw.updatedAt === "number" ? raw.updatedAt : Date.now(),
     };
@@ -260,7 +282,13 @@ export class MongoMemoryDB {
 }
 
 function isMemoryCategory(value: unknown): value is MemoryCategory {
-  return value === "preference" || value === "fact" || value === "decision" || value === "entity" || value === "other";
+  return (
+    value === "preference" ||
+    value === "fact" ||
+    value === "decision" ||
+    value === "entity" ||
+    value === "other"
+  );
 }
 
 function isMemoryType(value: unknown): value is MemoryType {
