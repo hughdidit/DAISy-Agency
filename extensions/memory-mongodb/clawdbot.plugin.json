@@ -21,7 +21,7 @@
       "label": "MongoDB Connection String",
       "sensitive": true,
       "placeholder": "${MONGODB_URI}",
-      "help": "Use MDB_MCP_CONNECTION_STRING to pass Atlas URI to MCP (supports ${MONGODB_URI})"
+      "help": "Use MDB_MCP_CONNECTION_STRING to pass Atlas URI to MCP"
     },
     "mcp.url": {
       "label": "MCP SSE URL",
@@ -29,21 +29,21 @@
       "help": "Required when mcp.transport is sse"
     },
     "voyage.apiKey": {
-      "label": "Voyage AI API Key",
+      "label": "Voyage API Key",
       "sensitive": true,
       "placeholder": "pa-...",
-      "help": "API key for Voyage AI embeddings (or use ${VOYAGE_API_KEY})"
+      "help": "API key for Voyage embeddings/rerank"
     },
     "voyage.embeddingModel": {
       "label": "Embedding Model",
-      "placeholder": "voyage-3.5",
-      "help": "Voyage AI embedding model to use"
+      "placeholder": "voyage-3-large",
+      "help": "Voyage embedding model to use"
     },
     "voyage.rerankModel": {
       "label": "Rerank Model",
       "placeholder": "rerank-2",
       "advanced": true,
-      "help": "Optional Voyage rerank model for future ranking workflows"
+      "help": "Voyage rerank model"
     },
     "database.name": {
       "label": "Database Name",
@@ -58,6 +58,30 @@
     "database.indexName": {
       "label": "Vector Search Index Name",
       "placeholder": "vector_index",
+      "advanced": true
+    },
+    "retrieval.minScore": {
+      "label": "Minimum Score",
+      "placeholder": "0.1",
+      "advanced": true
+    },
+    "retrieval.vectorLimit": {
+      "label": "Vector Limit",
+      "placeholder": "8",
+      "advanced": true
+    },
+    "retrieval.numCandidatesMultiplier": {
+      "label": "Candidates Multiplier",
+      "placeholder": "10",
+      "advanced": true
+    },
+    "retrieval.rerankEnabled": {
+      "label": "Enable Rerank",
+      "advanced": true
+    },
+    "retrieval.rerankLimit": {
+      "label": "Rerank Limit",
+      "placeholder": "8",
       "advanced": true
     },
     "captureTriggers": {
@@ -137,6 +161,17 @@
           "name": { "type": "string" },
           "collection": { "type": "string" },
           "indexName": { "type": "string" }
+        }
+      },
+      "retrieval": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "minScore": { "type": "number" },
+          "vectorLimit": { "type": "number" },
+          "numCandidatesMultiplier": { "type": "number" },
+          "rerankEnabled": { "type": "boolean" },
+          "rerankLimit": { "type": "number" }
         }
       },
       "captureTriggers": {

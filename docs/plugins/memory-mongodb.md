@@ -1,13 +1,32 @@
-# Memory Plugin - MongoDB Atlas
+# Memory Plugin - MongoDB MCP + Voyage
 
-Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector Search for semantic retrieval.
+Persistent long-term memory for DAISy using MongoDB Atlas through the official MongoDB MCP server and Voyage AI for embeddings and reranking.
 
-## When to Use
+## Architecture Summary
 
-| Plugin               | Use case                                                                      |
-| -------------------- | ----------------------------------------------------------------------------- |
-| `memory-lancedb`     | Local development, single-machine setups, no cloud dependency                 |
-| **`memory-mongodb`** | Multi-instance deployments, shared memory across devices, cloud-native setups |
+### Components
+
+- `memory-mongodb` plugin: registers memory tools, CLI commands, and lifecycle hooks.
+- `McpClientService`: MCP client wrapper for MongoDB tool calls (`connect`, `insert-many`, `aggregate`, `delete-one`).
+- `VoyageService`: embeddings (`voyage-3-large` default) and reranking (`rerank-2` default).
+- `MongoMemoryDB`: memory store/search manager built on MCP + Voyage services.
+
+### Data Flow
+
+Store path:
+
+1. Input text is categorized (`category`, `type`, optional `subCategory`).
+2. Voyage embedding is generated.
+3. Memory document is built with vector and metadata.
+4. Document is written via MCP `insert-many`.
+
+Recall path:
+
+1. Query text is embedded with Voyage.
+2. MCP `aggregate` runs `$vectorSearch` against `vector` using configured index.
+3. Results are projected and validated as memory candidates.
+4. Optional Voyage rerank reorders bounded candidates.
+5. Top memories are returned to tools/hooks for context construction.
 
 ## Configuration
 
@@ -15,14 +34,33 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 {
   "plugins": {
     "memory-mongodb": {
-      "embedding": {
-        "apiKey": "${OPENAI_API_KEY}",
-        "model": "text-embedding-3-small"
+      "mcp": {
+        "transport": "stdio",
+        "stdio": {
+          "command": "npx",
+          "args": ["-y", "mongodb-mcp-server"],
+          "env": {
+            "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}"
+          }
+        }
       },
-      "connectionUri": "${MONGODB_URI}",
-      "databaseName": "daisy_memory",
-      "collectionName": "memories",
-      "vectorSearchIndexName": "vector_index",
+      "voyage": {
+        "apiKey": "${VOYAGE_API_KEY}",
+        "embeddingModel": "voyage-3-large",
+        "rerankModel": "rerank-2"
+      },
+      "database": {
+        "name": "daisy_memory",
+        "collection": "memories",
+        "indexName": "vector_index"
+      },
+      "retrieval": {
+        "minScore": 0.1,
+        "vectorLimit": 8,
+        "numCandidatesMultiplier": 10,
+        "rerankEnabled": true,
+        "rerankLimit": 8
+      },
       "autoCapture": true,
       "autoRecall": true
     }
@@ -32,58 +70,35 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 
 ### Config Fields
 
-| Field                   | Required | Default                  | Description                                                                   |
-| ----------------------- | -------- | ------------------------ | ----------------------------------------------------------------------------- |
-| `embedding.apiKey`      | Yes      | —                        | OpenAI API key (use `${OPENAI_API_KEY}` env var)                              |
-| `embedding.model`       | No       | `text-embedding-3-small` | OpenAI embedding model (`text-embedding-3-small` or `text-embedding-3-large`) |
-| `connectionUri`         | Yes      | —                        | MongoDB Atlas connection string (use `${MONGODB_URI}` env var)                |
-| `databaseName`          | No       | `daisy_memory`           | MongoDB database name                                                         |
-| `collectionName`        | No       | `memories`               | MongoDB collection name                                                       |
-| `vectorSearchIndexName` | No       | `vector_index`           | Atlas Vector Search index name                                                |
-| `captureTriggers`       | No       | _(see below)_            | Array of regex patterns (case-insensitive) that trigger auto-capture          |
-| `autoCapture`           | No       | `true`                   | Automatically capture important information from conversations                |
-| `autoRecall`            | No       | `true`                   | Automatically inject relevant memories into context                           |
-
-### Capture Triggers
-
-The `captureTriggers` field controls which messages are auto-captured. Each entry is a regex pattern string (case-insensitive). A message is captured if it matches **any** trigger.
-
-Default triggers:
-
-```json
-[
-  "remember",
-  "prefer",
-  "decided|will use",
-  "\\+\\d{10,}",
-  "[\\w.-]+@[\\w.-]+\\.\\w+",
-  "my\\s+\\w+\\s+is|is\\s+my",
-  "i (like|prefer|hate|love|want|need)",
-  "always|never|important"
-]
-```
-
-To customize, provide your own array — it **replaces** the defaults entirely:
-
-```json
-{
-  "captureTriggers": ["remember", "prefer", "project\\s+deadline", "budget|cost|price"]
-}
-```
+| Field | Required | Default | Description |
+| --- | --- | --- | --- |
+| `mcp.transport` | No | `stdio` | `stdio` for managed local MCP process, `sse` for remote endpoint |
+| `mcp.stdio.command` | No | `npx` | Command used to launch MongoDB MCP server |
+| `mcp.stdio.args` | No | `[-y, mongodb-mcp-server]` | Arguments for MCP server command |
+| `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes (stdio) | - | MongoDB Atlas URI passed to MCP server |
+| `mcp.url` | Yes (sse) | - | Remote MCP SSE URL |
+| `voyage.apiKey` | Yes | - | Voyage API key |
+| `voyage.embeddingModel` | No | `voyage-3-large` | Voyage embedding model |
+| `voyage.rerankModel` | No | `rerank-2` | Voyage rerank model |
+| `database.name` | No | `daisy_memory` | MongoDB database name |
+| `database.collection` | No | `memories` | MongoDB collection name |
+| `database.indexName` | No | `vector_index` | Atlas vector index name |
+| `retrieval.minScore` | No | `0.1` | Minimum vector similarity score |
+| `retrieval.vectorLimit` | No | `8` | Max candidates returned from vector search |
+| `retrieval.numCandidatesMultiplier` | No | `10` | `numCandidates = vectorLimit * multiplier` |
+| `retrieval.rerankEnabled` | No | `true` | Enable Voyage rerank stage |
+| `retrieval.rerankLimit` | No | `8` | Max candidates sent to reranker |
+| `captureTriggers` | No | built-in defaults | Regex patterns that trigger auto-capture |
+| `autoCapture` | No | `true` | Auto-store significant memories from conversation |
+| `autoRecall` | No | `true` | Auto-inject relevant memories before agent execution |
 
 ## Atlas Setup
 
-### 1. Create a cluster
+1. Create Atlas cluster and collection (`daisy_memory.memories` by default).
+2. Create Atlas Vector Search index in the collection.
+3. Set `numDimensions` to the embedding model dimension.
 
-Create a free or dedicated cluster at [cloud.mongodb.com](https://cloud.mongodb.com). Any tier (M0 free tier and above) supports Atlas Vector Search.
-
-### 2. Create database and collection
-
-In the Atlas UI, create a database (e.g., `daisy_memory`) with a collection (e.g., `memories`).
-
-### 3. Create the Vector Search index
-
-In your collection, go to **Search Indexes** → **Create Search Index** → **JSON Editor** and paste:
+Default index for `voyage-3-large` (`1024` dimensions):
 
 ```json
 {
@@ -94,7 +109,7 @@ In your collection, go to **Search Indexes** → **Create Search Index** → **J
       {
         "type": "vector",
         "path": "vector",
-        "numDimensions": 1536,
+        "numDimensions": 1024,
         "similarity": "cosine"
       },
       {
@@ -114,90 +129,55 @@ In your collection, go to **Search Indexes** → **Create Search Index** → **J
 }
 ```
 
-> If using `text-embedding-3-large`, change `numDimensions` to `3072`.
+## Memory Document Shape
 
-The plugin logs this definition at startup for reference.
+Each stored memory includes:
 
-### 4. Get the connection string
-
-Go to **Database** → **Connect** → **Drivers** and copy the connection string. It will look like:
-
-```
-mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
-```
-
-Store it as an environment variable:
-
-```sh
-export MONGODB_URI="mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority"
-```
-
-### 5. Configure the plugin
-
-Add the configuration block shown above to your Moltbot config, referencing `${MONGODB_URI}` and `${OPENAI_API_KEY}`.
+- `_id` (UUID)
+- `text`
+- `vector`
+- `category`
+- `subCategory` (optional)
+- `type` (`working`, `cache`, `episodic`, `semantic`, `procedural`, `associative`)
+- `importance`
+- `metadata` (optional)
+- `tags` (optional)
+- `createdAt`, `updatedAt`
 
 ## Tools
 
-The plugin registers three tools, identical in interface to `memory-lancedb`:
-
-### `memory_recall`
-
-Search through long-term memories by semantic similarity.
-
-```
-memory_recall({ query: "user's color preference", limit: 5 })
-```
-
-### `memory_store`
-
-Save information to long-term memory.
-
-```
-memory_store({
-  text: "User prefers dark mode",
-  importance: 0.8,
-  category: "preference"
-})
-```
-
-Categories: `preference`, `fact`, `decision`, `entity`, `other`
-
-### `memory_forget`
-
-Delete a specific memory by ID, or search for candidates to delete.
-
-```
-memory_forget({ memoryId: "abc12345-..." })
-memory_forget({ query: "dark mode" })
-```
+- `memory_recall({ query, limit })`
+- `memory_store({ text, importance, category })`
+- `memory_forget({ memoryId })` or `memory_forget({ query })`
 
 ## CLI
 
-```sh
-openclaw ltm list        # Show total memory count
-openclaw ltm search <q>  # Search memories (--limit N)
-openclaw ltm stats       # Show memory statistics
+```bash
+openclaw ltm list
+openclaw ltm search "dark mode" --limit 5
+openclaw ltm stats
 ```
 
-## Auto-Recall
+## Migration Notes
 
-When `autoRecall` is enabled, the plugin hooks into `before_agent_start` to:
+From legacy direct-driver config:
 
-1. Embed the user's prompt
-2. Search for the top 3 relevant memories (score >= 0.3)
-3. Inject them as `<relevant-memories>` context prepended to the conversation
+- Remove `embedding` and `connectionUri` fields.
+- Add `mcp` and `voyage` sections.
+- Move DB names under `database`.
+- Optional retrieval tuning now under `retrieval`.
 
-## Auto-Capture
+## Verification Checklist
 
-When `autoCapture` is enabled, the plugin hooks into `agent_end` to:
-
-1. Extract text from user and assistant messages
-2. Filter through trigger patterns (preferences, contact info, decisions, remember requests)
-3. Check for near-duplicates (0.95 similarity threshold)
-4. Store up to 3 new memories per conversation turn
-
-Content that looks like system output, injected context, or agent summaries is automatically filtered out.
+- MCP startup/connect works for selected transport.
+- Store path writes documents through MCP `insert-many`.
+- Recall path runs `$vectorSearch` through MCP `aggregate`.
+- Rerank path uses Voyage and falls back to vector ordering if rerank fails.
+- Auto-capture and auto-recall hooks remain functional.
 
 ## Security
 
-See [Security: MongoDB Atlas Memory](/security/memory-mongodb) for details on credential handling, TLS enforcement, query safety, and data protection.
+- Secrets must be environment-backed (`${MONGODB_URI}`, `${VOYAGE_API_KEY}`).
+- Remote `mongodb://` URIs require TLS (`tls=true`) unless localhost.
+- Insecure TLS options (`tlsInsecure`, `tlsAllowInvalidCertificates`) are rejected.
+- Connection strings are sanitized from surfaced MCP errors.
