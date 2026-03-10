@@ -8,6 +8,7 @@ verify_installed_cli() {
   local entry_path=""
   local npm_root=""
   local installed_version=""
+  local version_output=""
 
   cmd_path="$(command -v "$cli_name" || true)"
   if [[ -z "$cmd_path" && -x "$HOME/.npm-global/bin/$package_name" ]]; then
@@ -27,14 +28,19 @@ verify_installed_cli() {
   fi
 
   if [[ -n "$cmd_path" ]]; then
-    installed_version="$("$cmd_path" --version 2>/dev/null | head -n 1 | tr -d '\r')"
+    version_output="$("$cmd_path" --version 2>/dev/null | head -n 1 | tr -d '\r')"
   else
-    installed_version="$(node "$entry_path" --version 2>/dev/null | head -n 1 | tr -d '\r')"
+    version_output="$(node "$entry_path" --version 2>/dev/null | head -n 1 | tr -d '\r')"
   fi
 
-  echo "cli=$cli_name installed=$installed_version expected=$expected_version"
+  installed_version="$version_output"
+  if [[ "$version_output" =~ ([0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z]+)*) ]]; then
+    installed_version="${BASH_REMATCH[1]}"
+  fi
+
+  echo "cli=$cli_name installed=$version_output parsed=$installed_version expected=$expected_version"
   if [[ "$installed_version" != "$expected_version" ]]; then
-    echo "ERROR: expected ${cli_name}@${expected_version}, got ${cli_name}@${installed_version}" >&2
+    echo "ERROR: expected ${cli_name}@${expected_version}, got ${cli_name}@${version_output}" >&2
     return 1
   fi
 
