@@ -21,6 +21,19 @@ fi
 
 checks_run=0
 
+# Helper: run a command on the GCE instance via IAP SSH and return only the last
+# line of stdout. This filters out SSH keygen noise that gcloud emits on first
+# connection (key fingerprints, randomart) which would otherwise contaminate
+# captured output and leak key material into CI logs.
+gce_ssh_lastline() {
+  gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+    --project "${GCP_PROJECT_ID}" \
+    --zone "${GCP_ZONE}" \
+    --tunnel-through-iap \
+    --quiet \
+    --command "$1" | tail -1
+}
+
 if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required for GCE verify}"
   : "${GCP_ZONE:?GCP_ZONE is required for GCE verify}"
@@ -32,12 +45,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   checks_run=$((checks_run + 1))
   log "Checking container ${container} on ${GCE_INSTANCE_NAME}..."
   running_state="$(
-    gcloud compute ssh "${GCE_INSTANCE_NAME}" \
-      --project "${GCP_PROJECT_ID}" \
-      --zone "${GCP_ZONE}" \
-      --tunnel-through-iap \
-      --quiet \
-      --command "sudo docker ps --filter 'name=^${container}\$' --format '{{.State}}' | head -1"
+    gce_ssh_lastline "sudo docker ps --filter 'name=^${container}\$' --format '{{.State}}'"
   )" || fail "Failed to check container ${container} on ${GCE_INSTANCE_NAME}"
 
   running_state="$(echo "${running_state}" | tr -d '[:space:]')"
@@ -57,12 +65,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   checks_run=$((checks_run + 1))
   log "Running openclaw health via docker exec (timeout: ${health_timeout}s)..."
   health_output="$(
-    gcloud compute ssh "${GCE_INSTANCE_NAME}" \
-      --project "${GCP_PROJECT_ID}" \
-      --zone "${GCP_ZONE}" \
-      --tunnel-through-iap \
-      --quiet \
-      --command "sudo docker exec \$(sudo docker ps -qf 'name=${container}' | head -1) node dist/index.js health --json --timeout ${health_timeout}000 2>/dev/null"
+    gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && sudo docker exec \"\$cid\" node dist/index.js health --json --timeout ${health_timeout}000 2>/dev/null"
   )" || fail "openclaw health check failed on ${GCE_INSTANCE_NAME}"
 
   health_ok="$(echo "${health_output}" | jq -r 'if .ok then "true" else "false" end' 2>/dev/null || echo "false")"
@@ -77,12 +80,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking deployed image matches DEPLOYED_REF (${DEPLOYED_REF})..."
     image_ref="$(
-      gcloud compute ssh "${GCE_INSTANCE_NAME}" \
-        --project "${GCP_PROJECT_ID}" \
-        --zone "${GCP_ZONE}" \
-        --tunnel-through-iap \
-        --quiet \
-        --command "sudo docker inspect --format '{{.Config.Image}}' \$(sudo docker ps -qf 'name=${container}' | head -1) 2>/dev/null"
+      gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && sudo docker inspect --format '{{.Config.Image}}' \"\$cid\" 2>/dev/null"
     )" || fail "Failed to inspect image on ${GCE_INSTANCE_NAME}"
 
     image_ref="$(echo "${image_ref}" | tr -d '[:space:]')"
