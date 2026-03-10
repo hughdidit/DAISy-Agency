@@ -103,7 +103,7 @@ function detectSubCategory(text: string): string | undefined {
 
 const memoryPlugin = {
   id: "memory-mongodb",
-  name: "Memory (MongoDB Atlas)",
+  name: "Memory (MongoDB MCP + Voyage)",
   description: "MongoDB MCP + Voyage-backed long-term memory with auto-recall/capture",
   kind: "memory" as const,
   configSchema: memoryConfigSchema,

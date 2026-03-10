@@ -38,7 +38,7 @@ Recall path:
         "transport": "stdio",
         "stdio": {
           "command": "npx",
-          "args": ["-y", "mongodb-mcp-server"],
+          "args": ["-y", "mongodb-mcp-server@<PINNED_VERSION>"],
           "env": {
             "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}"
           }
@@ -70,27 +70,27 @@ Recall path:
 
 ### Config Fields
 
-| Field                                     | Required    | Default                    | Description                                                      |
-| ----------------------------------------- | ----------- | -------------------------- | ---------------------------------------------------------------- |
-| `mcp.transport`                           | No          | `stdio`                    | `stdio` for managed local MCP process, `sse` for remote endpoint |
-| `mcp.stdio.command`                       | No          | `npx`                      | Command used to launch MongoDB MCP server                        |
-| `mcp.stdio.args`                          | No          | `[-y, mongodb-mcp-server]` | Arguments for MCP server command                                 |
-| `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes (stdio) | -                          | MongoDB Atlas URI passed to MCP server                           |
-| `mcp.url`                                 | Yes (sse)   | -                          | Remote MCP SSE URL                                               |
-| `voyage.apiKey`                           | Yes         | -                          | Voyage API key                                                   |
-| `voyage.embeddingModel`                   | No          | `voyage-3-large`           | Voyage embedding model                                           |
-| `voyage.rerankModel`                      | No          | `rerank-2`                 | Voyage rerank model                                              |
-| `database.name`                           | No          | `daisy_memory`             | MongoDB database name                                            |
-| `database.collection`                     | No          | `memories`                 | MongoDB collection name                                          |
-| `database.indexName`                      | No          | `vector_index`             | Atlas vector index name                                          |
-| `retrieval.minScore`                      | No          | `0.1`                      | Minimum vector similarity score                                  |
-| `retrieval.vectorLimit`                   | No          | `8`                        | Max candidates returned from vector search                       |
-| `retrieval.numCandidatesMultiplier`       | No          | `10`                       | `numCandidates = vectorLimit * multiplier`                       |
-| `retrieval.rerankEnabled`                 | No          | `true`                     | Enable Voyage rerank stage                                       |
-| `retrieval.rerankLimit`                   | No          | `8`                        | Max candidates sent to reranker                                  |
-| `captureTriggers`                         | No          | built-in defaults          | Regex patterns that trigger auto-capture                         |
-| `autoCapture`                             | No          | `true`                     | Auto-store significant memories from conversation                |
-| `autoRecall`                              | No          | `true`                     | Auto-inject relevant memories before agent execution             |
+| Field                                     | Required    | Default                                     | Description                                                      |
+| ----------------------------------------- | ----------- | ------------------------------------------- | ---------------------------------------------------------------- |
+| `mcp.transport`                           | No          | `stdio`                                     | `stdio` for managed local MCP process, `sse` for remote endpoint |
+| `mcp.stdio.command`                       | No          | `npx`                                       | Command used to launch MongoDB MCP server                        |
+| `mcp.stdio.args`                          | No          | `[-y, mongodb-mcp-server@<PINNED_VERSION>]` | Arguments for MCP server command                                 |
+| `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes (stdio) | -                                           | MongoDB Atlas URI passed to MCP server                           |
+| `mcp.url`                                 | Yes (sse)   | -                                           | Remote MCP SSE URL                                               |
+| `voyage.apiKey`                           | Yes         | -                                           | Voyage API key                                                   |
+| `voyage.embeddingModel`                   | No          | `voyage-3-large`                            | Voyage embedding model                                           |
+| `voyage.rerankModel`                      | No          | `rerank-2`                                  | Voyage rerank model                                              |
+| `database.name`                           | No          | `daisy_memory`                              | MongoDB database name                                            |
+| `database.collection`                     | No          | `memories`                                  | MongoDB collection name                                          |
+| `database.indexName`                      | No          | `vector_index`                              | Atlas vector index name                                          |
+| `retrieval.minScore`                      | No          | `0.1`                                       | Minimum vector similarity score                                  |
+| `retrieval.vectorLimit`                   | No          | `8`                                         | Max candidates returned from vector search                       |
+| `retrieval.numCandidatesMultiplier`       | No          | `10`                                        | `numCandidates = vectorLimit * multiplier`                       |
+| `retrieval.rerankEnabled`                 | No          | `true`                                      | Enable Voyage rerank stage                                       |
+| `retrieval.rerankLimit`                   | No          | `8`                                         | Max candidates sent to reranker                                  |
+| `captureTriggers`                         | No          | built-in defaults                           | Regex patterns that trigger auto-capture                         |
+| `autoCapture`                             | No          | `true`                                      | Auto-store significant memories from conversation                |
+| `autoRecall`                              | No          | `true`                                      | Auto-inject relevant memories before agent execution             |
 
 ## Atlas Setup
 
@@ -178,6 +178,7 @@ From legacy direct-driver config:
 ## Security
 
 - Secrets must be environment-backed (`${MONGODB_URI}`, `${VOYAGE_API_KEY}`).
+- For `stdio`, prefer pinned MCP server versions (for example `mongodb-mcp-server@x.y.z`) or managed binaries over unpinned runtime downloads.
 - Remote `mongodb://` URIs require TLS (`tls=true`) unless localhost.
 - Insecure TLS options (`tlsInsecure`, `tlsAllowInvalidCertificates`) are rejected.
 - Connection strings are sanitized from surfaced MCP errors.

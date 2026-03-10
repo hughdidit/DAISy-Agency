@@ -37,6 +37,7 @@ describe("mcp client service", () => {
   });
 
   test("uses stdio transport and parses structured content", async () => {
+    process.env.MCP_TEST_INHERITED_ENV = "inherited";
     const { McpClientService } = await import("./mcp-client-service.js");
 
     const service = new McpClientService({
@@ -55,6 +56,16 @@ describe("mcp client service", () => {
     expect(inserted).toBe(1);
     expect(connect).toHaveBeenCalledTimes(1);
     expect(StdioClientTransport).toHaveBeenCalledTimes(1);
+    const stdioArgs = StdioClientTransport.mock.calls[0]?.[0] as {
+      env: Record<string, string | undefined>;
+    };
+    expect(stdioArgs.env.MDB_MCP_CONNECTION_STRING).toBe(
+      "mongodb+srv://user:pass@cluster.example.com/test",
+    );
+    expect(stdioArgs.env.MCP_TEST_INHERITED_ENV).toBe("inherited");
+
+    delete process.env.MCP_TEST_INHERITED_ENV;
+
     expect(callTool).toHaveBeenCalledWith({
       name: "insert-many",
       arguments: {

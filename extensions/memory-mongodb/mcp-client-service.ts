@@ -106,7 +106,10 @@ export class McpClientService {
           const transport = new StdioClientTransport({
             command: this.config.stdio.command,
             args: this.config.stdio.args,
-            env: this.config.stdio.env,
+            env: {
+              ...process.env,
+              ...this.config.stdio.env,
+            },
           });
           await this.client.connect(transport);
           await this.tryConnectTool(this.config.stdio.env.MDB_MCP_CONNECTION_STRING);

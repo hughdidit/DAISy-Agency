@@ -6,8 +6,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.4",
     "@sinclair/typebox": "0.34.47",
-    "voyageai": "^0.0.7",
-    "zod": "^4.3.6"
+    "voyageai": "^0.0.7"
   },
   "openclaw": {
     "extensions": [

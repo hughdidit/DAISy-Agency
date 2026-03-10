@@ -22,7 +22,7 @@ describe("memory-mongodb plugin", () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     expect(memoryPlugin.id).toBe("memory-mongodb");
-    expect(memoryPlugin.name).toBe("Memory (MongoDB Atlas)");
+    expect(memoryPlugin.name).toBe("Memory (MongoDB MCP + Voyage)");
     expect(memoryPlugin.kind).toBe("memory");
     expect(memoryPlugin.configSchema).toBeDefined();
     expect(memoryPlugin.register).toBeInstanceOf(Function);

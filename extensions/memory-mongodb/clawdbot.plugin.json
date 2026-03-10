@@ -14,7 +14,7 @@
     },
     "mcp.stdio.args": {
       "label": "MCP Command Args",
-      "placeholder": "[\"-y\",\"mongodb-mcp-server\"]",
+      "placeholder": "[\"-y\",\"mongodb-mcp-server@<PINNED_VERSION>\"]",
       "advanced": true
     },
     "mcp.stdio.env.MDB_MCP_CONNECTION_STRING": {
@@ -129,7 +129,7 @@
             "type": "string"
           }
         },
-        "required": ["transport"]
+        "required": []
       },
       "voyage": {
         "type": "object",
