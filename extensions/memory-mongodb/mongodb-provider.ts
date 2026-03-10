@@ -120,27 +120,26 @@ export class MongoMemoryDB {
         return vectorResults;
       }
 
-      const mapped = reranked
-        .map((row) => {
-          const candidate = rerankCandidates[row.index];
-          if (!candidate) {
-            return null;
-          }
-          return {
-            ...candidate,
-            score: row.score,
-            rerankScore: row.score,
-          };
-        })
-        .filter((row): row is MemorySearchResult => row !== null);
+      const mapped: MemorySearchResult[] = [];
+      for (const row of reranked) {
+        const candidate = rerankCandidates[row.index];
+        if (!candidate) {
+          continue;
+        }
+
+        mapped.push({
+          ...candidate,
+          score: row.score,
+          rerankScore: row.score,
+        });
+      }
 
       if (mapped.length === 0) {
         return vectorResults;
       }
 
-      const remaining = vectorResults.filter(
-        (item) => !mapped.some((rerankedItem) => rerankedItem.entry.id === item.entry.id),
-      );
+      const rerankedIds = new Set(mapped.map((item) => item.entry.id));
+      const remaining = vectorResults.filter((item) => !rerankedIds.has(item.entry.id));
       return [...mapped, ...remaining].slice(0, limit);
     } catch (error) {
       this.logger?.warn?.(

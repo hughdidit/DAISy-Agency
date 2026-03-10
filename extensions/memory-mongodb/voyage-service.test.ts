@@ -3,16 +3,12 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 const embed = vi.fn();
 const rerank = vi.fn();
 
-vi.mock(
-  "voyageai",
-  () => ({
-    default: vi.fn().mockImplementation(() => ({
-      embed,
-      rerank,
-    })),
-  }),
-  { virtual: true },
-);
+vi.mock("voyageai", () => ({
+  default: vi.fn().mockImplementation(() => ({
+    embed,
+    rerank,
+  })),
+}));
 
 describe("voyage service", () => {
   beforeEach(() => {

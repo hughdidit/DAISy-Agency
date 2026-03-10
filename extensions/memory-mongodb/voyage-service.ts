@@ -5,15 +5,38 @@ type RerankResult = {
   score: number;
 };
 
+type EmbedResponse = {
+  data?: Array<{
+    embedding?: number[];
+  }>;
+};
+
+type RerankResponse = {
+  data?: unknown[];
+};
+
+type VoyageClient = {
+  embed: (request: { model: string; input: string }) => Promise<EmbedResponse>;
+  rerank: (request: {
+    model: string;
+    query: string;
+    documents: string[];
+    topK: number;
+  }) => Promise<RerankResponse>;
+};
+
+type VoyageConstructor = new (options: { apiKey: string }) => VoyageClient;
+
 export class VoyageService {
-  private client: VoyageAI;
+  private client: VoyageClient;
 
   constructor(
     apiKey: string,
     private readonly embeddingModel: string,
     private readonly rerankModel: string,
   ) {
-    this.client = new VoyageAI({ apiKey });
+    const VoyageClientCtor = VoyageAI as unknown as VoyageConstructor;
+    this.client = new VoyageClientCtor({ apiKey });
   }
 
   async embed(text: string): Promise<number[]> {
@@ -42,9 +65,9 @@ export class VoyageService {
       topK,
     });
 
-    const rows = Array.isArray(response.data) ? response.data : [];
+    const rows: unknown[] = Array.isArray(response.data) ? response.data : [];
     return rows
-      .map((row) => {
+      .map((row: unknown) => {
         const index = this.readIndex(row);
         const score = this.readScore(row);
         if (index === null || score === null) {

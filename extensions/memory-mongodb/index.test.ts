@@ -1,29 +1,21 @@
 import { describe, expect, test, vi } from "vitest";
 
-vi.mock(
-  "./mcp-client-service.js",
-  () => ({
-    McpClientService: vi.fn().mockImplementation(() => ({
-      insertMany: vi.fn(),
-      aggregate: vi.fn().mockResolvedValue([]),
-      deleteOne: vi.fn().mockResolvedValue(true),
-      countDocuments: vi.fn().mockResolvedValue(0),
-      close: vi.fn().mockResolvedValue(undefined),
-    })),
-  }),
-  { virtual: true },
-);
+vi.mock("./mcp-client-service.js", () => ({
+  McpClientService: vi.fn().mockImplementation(() => ({
+    insertMany: vi.fn(),
+    aggregate: vi.fn().mockResolvedValue([]),
+    deleteOne: vi.fn().mockResolvedValue(true),
+    countDocuments: vi.fn().mockResolvedValue(0),
+    close: vi.fn().mockResolvedValue(undefined),
+  })),
+}));
 
-vi.mock(
-  "./voyage-service.js",
-  () => ({
-    VoyageService: vi.fn().mockImplementation(() => ({
-      embed: vi.fn().mockResolvedValue([0.1, 0.2]),
-      rerank: vi.fn().mockResolvedValue([]),
-    })),
-  }),
-  { virtual: true },
-);
+vi.mock("./voyage-service.js", () => ({
+  VoyageService: vi.fn().mockImplementation(() => ({
+    embed: vi.fn().mockResolvedValue([0.1, 0.2]),
+    rerank: vi.fn().mockResolvedValue([]),
+  })),
+}));
 
 describe("memory-mongodb plugin", () => {
   test("plugin metadata is correct", async () => {

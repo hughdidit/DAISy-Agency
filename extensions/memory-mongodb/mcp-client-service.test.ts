@@ -6,39 +6,27 @@ const close = vi.fn();
 const StdioClientTransport = vi.fn();
 const SSEClientTransport = vi.fn();
 
-vi.mock(
-  "@modelcontextprotocol/sdk/client/index.js",
-  () => ({
-    Client: vi.fn().mockImplementation(() => ({
-      connect,
-      callTool,
-      close,
-    })),
-  }),
-  { virtual: true },
-);
+vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
+  Client: vi.fn().mockImplementation(() => ({
+    connect,
+    callTool,
+    close,
+  })),
+}));
 
-vi.mock(
-  "@modelcontextprotocol/sdk/client/stdio.js",
-  () => ({
-    StdioClientTransport: vi.fn().mockImplementation((args) => {
-      StdioClientTransport(args);
-      return { kind: "stdio", args };
-    }),
+vi.mock("@modelcontextprotocol/sdk/client/stdio.js", () => ({
+  StdioClientTransport: vi.fn().mockImplementation((args) => {
+    StdioClientTransport(args);
+    return { kind: "stdio", args };
   }),
-  { virtual: true },
-);
+}));
 
-vi.mock(
-  "@modelcontextprotocol/sdk/client/sse.js",
-  () => ({
-    SSEClientTransport: vi.fn().mockImplementation((url) => {
-      SSEClientTransport(url);
-      return { kind: "sse", url };
-    }),
+vi.mock("@modelcontextprotocol/sdk/client/sse.js", () => ({
+  SSEClientTransport: vi.fn().mockImplementation((url) => {
+    SSEClientTransport(url);
+    return { kind: "sse", url };
   }),
-  { virtual: true },
-);
+}));
 
 describe("mcp client service", () => {
   beforeEach(() => {
