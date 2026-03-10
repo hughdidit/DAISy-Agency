@@ -42,6 +42,13 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
 
   running_state="$(echo "${running_state}" | tr -d '[:space:]')"
   if [[ "${running_state}" != "true" ]]; then
+    log "DEBUG: Container '${container}' not found or not running. Listing all containers..."
+    gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+      --project "${GCP_PROJECT_ID}" \
+      --zone "${GCP_ZONE}" \
+      --tunnel-through-iap \
+      --quiet \
+      --command "sudo docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'" || true
     fail "Container ${container} is not running on ${GCE_INSTANCE_NAME}"
   fi
   log "Container ${container} is running."
