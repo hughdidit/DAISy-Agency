@@ -14,9 +14,17 @@ type JsonObject = Record<string, unknown>;
 const isObject = (value: unknown): value is JsonObject =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
-const stringEnv = Object.fromEntries(
-  Object.entries(process.env).filter(([, value]): value is string => typeof value === "string"),
-);
+function toStringEnv(source: NodeJS.ProcessEnv): Record<string, string> {
+  const env: Record<string, string> = {};
+  for (const [key, value] of Object.entries(source)) {
+    if (typeof value === "string") {
+      env[key] = value;
+    }
+  }
+  return env;
+}
+
+const stringEnv = toStringEnv(process.env);
 
 export class McpClientService {
   private client: Client;
