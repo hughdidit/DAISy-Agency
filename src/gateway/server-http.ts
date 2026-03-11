@@ -605,6 +605,13 @@ export function createGatewayHttpServer(opts: {
         }),
       );
 
+      // Probe endpoints (/healthz, /readyz) must run before the Control UI SPA
+      // catch-all, which serves index.html for any unrecognised path.
+      requestStages.push({
+        name: "gateway-probes",
+        run: () => handleGatewayProbeRequest(req, res, requestPath),
+      });
+
       if (controlUiEnabled) {
         requestStages.push({
           name: "control-ui-avatar",
@@ -624,11 +631,6 @@ export function createGatewayHttpServer(opts: {
             }),
         });
       }
-
-      requestStages.push({
-        name: "gateway-probes",
-        run: () => handleGatewayProbeRequest(req, res, requestPath),
-      });
 
       if (await runGatewayHttpRequestStages(requestStages)) {
         return;
