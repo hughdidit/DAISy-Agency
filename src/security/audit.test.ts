@@ -2707,6 +2707,7 @@ description: test skill
 
     const cfg: OpenClawConfig = {
       plugins: { allow: ["some-plugin"] },
+      agents: { defaults: { sandbox: { mode: "off" } } },
     };
     const res = await runSecurityAudit({
       config: cfg,

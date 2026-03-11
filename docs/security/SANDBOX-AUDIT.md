@@ -20,7 +20,7 @@ workspaceAccess: ... ?? "rw"                            // was "none"
 
 With the old defaults, all agent tool execution (exec, read, write, edit, process) ran directly on the host — not in any container. The Docker containers in `docker-compose.yml` house the Gateway process itself, but agent tool execution happened on the same host unless sandbox mode was explicitly enabled. **The new defaults sandbox all sessions by default.** Deployments can override back to `"off"` via `agents.defaults.sandbox.mode` in `openclaw.json`.
 
-### What "full read/write" actually means in practice:
+### What "full read/write" actually means in practice
 
 | Capability         | Default (sandbox off)                       | With sandbox enabled                    |
 | ------------------ | ------------------------------------------- | --------------------------------------- |
