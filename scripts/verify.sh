@@ -63,6 +63,11 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
 
   # Check 2: openclaw health --json returns ok: true
   checks_run=$((checks_run + 1))
+  log "Diagnosing health check environment..."
+  gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && echo PORT=\$(sudo docker exec \"\$cid\" printenv OPENCLAW_GATEWAY_PORT 2>/dev/null || echo unset)" || true
+  gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && echo HEALTH=\$(sudo docker inspect --format '{{.State.Health.Status}}' \"\$cid\" 2>/dev/null)" || true
+  gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && sudo docker exec \"\$cid\" node dist/index.js health --json --timeout 10000 2>&1 | tail -3" || true
+
   log "Running openclaw health via docker exec (timeout: ${health_timeout}s)..."
   health_output="$(
     gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && sudo docker exec \"\$cid\" node dist/index.js health --json --timeout ${health_timeout}000 2>/dev/null"
