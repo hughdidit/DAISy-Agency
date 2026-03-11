@@ -2932,6 +2932,7 @@ description: test skill
     const cfg: OpenClawConfig = {
       channels: { whatsapp: { groupPolicy: "open" } },
       tools: { elevated: { enabled: false } },
+      agents: { defaults: { sandbox: { mode: "off" } } },
     };
 
     const res = await audit(cfg);

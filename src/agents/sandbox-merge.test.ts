@@ -8,7 +8,7 @@ import {
 
 describe("sandbox config merges", () => {
   it("resolves sandbox scope deterministically", () => {
-    expect(resolveSandboxScope({})).toBe("agent");
+    expect(resolveSandboxScope({})).toBe("session");
     expect(resolveSandboxScope({ perSession: true })).toBe("session");
     expect(resolveSandboxScope({ perSession: false })).toBe("shared");
     expect(resolveSandboxScope({ perSession: true, scope: "agent" })).toBe("agent");

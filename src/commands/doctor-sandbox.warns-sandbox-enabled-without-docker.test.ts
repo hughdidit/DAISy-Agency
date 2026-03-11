@@ -15,6 +15,9 @@ vi.mock("../agents/sandbox.js", () => ({
   DEFAULT_SANDBOX_BROWSER_IMAGE: "browser-image",
   DEFAULT_SANDBOX_COMMON_IMAGE: "common-image",
   DEFAULT_SANDBOX_IMAGE: "default-image",
+  resolveSandboxConfigForAgent: vi.fn((cfg?: { agents?: { defaults?: { sandbox?: { mode?: string } } } }) => ({
+    mode: cfg?.agents?.defaults?.sandbox?.mode ?? "all",
+  })),
   resolveSandboxScope: vi.fn(() => "shared"),
 }));
 

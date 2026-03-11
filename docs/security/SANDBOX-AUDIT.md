@@ -6,30 +6,33 @@ DAISy is a fork of OpenClaw deployed on a GCP VM, containerized via Docker. The 
 
 ---
 
-## Finding: Current Default Configuration is Wide Open
+## Finding: Previous Default Configuration Was Wide Open
 
-**The sandbox mode defaults to `"off"`.**
+**The sandbox mode previously defaulted to `"off"`.** As of this audit, the code defaults have been hardened:
 
 In `src/agents/sandbox/config.ts:191`:
+
 ```
-mode: agentSandbox?.mode ?? agent?.mode ?? "off"
+mode: agentSandbox?.mode ?? agent?.mode ?? "all"       // was "off"
+scope: ... ?? "session"                                 // was "agent"
+workspaceAccess: ... ?? "rw"                            // was "none"
 ```
 
-This means **by default, all agent tool execution (exec, read, write, edit, process) runs directly on the host** — not in any container. The Docker containers in `docker-compose.yml` house the Gateway process itself, but agent tool execution happens on the same host unless sandbox mode is explicitly enabled.
+With the old defaults, all agent tool execution (exec, read, write, edit, process) ran directly on the host — not in any container. The Docker containers in `docker-compose.yml` house the Gateway process itself, but agent tool execution happened on the same host unless sandbox mode was explicitly enabled. **The new defaults sandbox all sessions by default.** Deployments can override back to `"off"` via `agents.defaults.sandbox.mode` in `openclaw.json`.
 
 ### What "full read/write" actually means in practice:
 
-| Capability | Default (sandbox off) | With sandbox enabled |
-|---|---|---|
-| File read | **Unrestricted host filesystem** | Sandboxed workspace only |
-| File write | **Unrestricted host filesystem** | Sandboxed workspace only |
-| Command execution | **Runs on host** (exec-approvals only gate) | Runs in Docker container |
-| Network access | **Full host network** | No network (default) |
-| Process spawning | **Unrestricted** | Limited by container PID limits |
-| Docker socket | **Accessible if host has it** | Blocked by bind validation |
-| System directories | **Accessible** | `/etc`, `/proc`, `/sys`, `/dev` blocked |
+| Capability         | Default (sandbox off)                       | With sandbox enabled                    |
+| ------------------ | ------------------------------------------- | --------------------------------------- |
+| File read          | **Unrestricted host filesystem**            | Sandboxed workspace only                |
+| File write         | **Unrestricted host filesystem**            | Sandboxed workspace only                |
+| Command execution  | **Runs on host** (exec-approvals only gate) | Runs in Docker container                |
+| Network access     | **Full host network**                       | No network (default)                    |
+| Process spawning   | **Unrestricted**                            | Limited by container PID limits         |
+| Docker socket      | **Accessible if host has it**               | Blocked by bind validation              |
+| System directories | **Accessible**                              | `/etc`, `/proc`, `/sys`, `/dev` blocked |
 
-**Verdict: Yes, DAISy agents currently have full read/write access to everything the Gateway process can reach. This is not a container — it's direct host execution.**
+**Verdict: With sandbox mode `"off"`, agents have full read/write access to everything the Gateway process can reach. The new default (`"all"`) sandboxes all sessions. The table above shows the risk when sandbox is explicitly disabled.**
 
 ---
 
@@ -49,15 +52,15 @@ With the default `sandbox.mode: "off"`, there is no isolation boundary. The "con
 
 If sandbox mode is enabled (`"non-main"` or `"all"`), the Docker isolation is good but not perfect:
 
-| Vector | Risk | Notes |
-|---|---|---|
-| **Elevated exec escape hatch** | High | `tools.elevated` explicitly runs on host, bypassing sandbox |
-| **Bind mount misconfiguration** | Medium | Custom binds with `:rw` pierce sandbox filesystem |
-| **`dangerouslyAllow*` overrides** | Medium | Three config flags explicitly disable security checks |
-| **Docker socket exposure** | Critical | If `/var/run/docker.sock` is mounted (blocked by default but overridable) |
-| **Kernel exploits** | Low | Container shares host kernel; CVEs like Leaky Vessels (2024) |
-| **Symlink/TOCTOU races** | Low | Validated via `resolveSandboxHostPathViaExistingAncestor` but edge cases exist |
-| **Network escape (if bridge)** | Medium | Default is `"none"` but if changed to `"bridge"`, full egress |
+| Vector                            | Risk     | Notes                                                                          |
+| --------------------------------- | -------- | ------------------------------------------------------------------------------ |
+| **Elevated exec escape hatch**    | High     | `tools.elevated` explicitly runs on host, bypassing sandbox                    |
+| **Bind mount misconfiguration**   | Medium   | Custom binds with `:rw` pierce sandbox filesystem                              |
+| **`dangerouslyAllow*` overrides** | Medium   | Three config flags explicitly disable security checks                          |
+| **Docker socket exposure**        | Critical | If `/var/run/docker.sock` is mounted (blocked by default but overridable)      |
+| **Kernel exploits**               | Low      | Container shares host kernel; CVEs like Leaky Vessels (2024)                   |
+| **Symlink/TOCTOU races**          | Low      | Validated via `resolveSandboxHostPathViaExistingAncestor` but edge cases exist |
+| **Network escape (if bridge)**    | Medium   | Default is `"none"` but if changed to `"bridge"`, full egress                  |
 
 ### 3. Prompt Injection as the Primary Threat
 
@@ -79,17 +82,17 @@ The threat model explicitly states: **"The model/agent is not a trusted principa
   "agents": {
     "defaults": {
       "sandbox": {
-        "mode": "all",           // Sandbox ALL sessions, not just non-main
-        "scope": "session",      // One container per session (best isolation)
+        "mode": "all", // Sandbox ALL sessions, not just non-main
+        "scope": "session", // One container per session (best isolation)
         "workspaceAccess": "rw", // Agents can still read/write workspace files
         "docker": {
-          "network": "none",     // No network (already default)
-          "readOnlyRoot": true,  // Already default
-          "capDrop": ["ALL"]     // Already default
-        }
-      }
-    }
-  }
+          "network": "none", // No network (already default)
+          "readOnlyRoot": true, // Already default
+          "capDrop": ["ALL"], // Already default
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -99,14 +102,14 @@ The threat model explicitly states: **"The model/agent is not a trusted principa
 
 **Functionality impact:** None. The `docker.network: "none"` setting only affects the sandbox container where `exec` runs. High-level tools route through the gateway or separate containers:
 
-| Tool | Execution Location | Affected by sandbox `network: "none"`? |
-|---|---|---|
-| `exec` (bash/shell) | Sandbox container | **Yes** — `curl`, `wget`, etc. blocked |
-| `read`/`write`/`edit` | Sandbox (via fs-bridge) | No — filesystem bridge handles I/O |
-| `web_fetch` | **Gateway host** | **No** — full internet access preserved |
-| `web_search` | **Gateway host** | **No** — full internet access preserved |
-| `browser` | **Separate browser container** (own network) | **No** — has its own Docker network |
-| `message` | **Gateway host** | **No** — routes through gateway |
+| Tool                  | Execution Location                           | Affected by sandbox `network: "none"`?  |
+| --------------------- | -------------------------------------------- | --------------------------------------- |
+| `exec` (bash/shell)   | Sandbox container                            | **Yes** — `curl`, `wget`, etc. blocked  |
+| `read`/`write`/`edit` | Sandbox (via fs-bridge)                      | No — filesystem bridge handles I/O      |
+| `web_fetch`           | **Gateway host**                             | **No** — full internet access preserved |
+| `web_search`          | **Gateway host**                             | **No** — full internet access preserved |
+| `browser`             | **Separate browser container** (own network) | **No** — has its own Docker network     |
+| `message`             | **Gateway host**                             | **No** — routes through gateway         |
 
 **This is the key insight: sandbox network isolation blocks rogue `curl`/`nc` data exfiltration from exec, but does NOT limit the agent's high-level capabilities (browsing, fetching, messaging).** This is by design — the sandbox isolates code execution, while network-dependent tools are routed through the gateway where they can be logged and policy-controlled.
 
@@ -116,11 +119,11 @@ The threat model explicitly states: **"The model/agent is not a trusted principa
 {
   "tools": {
     "exec": {
-      "security": "allowlist",   // Only allowlisted commands
-      "ask": "on-miss",          // Prompt for unknown commands
-      "askFallback": "deny"      // Deny if no UI available to ask
-    }
-  }
+      "security": "allowlist", // Only allowlisted commands
+      "ask": "on-miss", // Prompt for unknown commands
+      "askFallback": "deny", // Deny if no UI available to ask
+    },
+  },
 }
 ```
 
@@ -132,14 +135,14 @@ This ensures even inside the sandbox, only known-safe commands run without appro
 {
   "tools": {
     "fs": {
-      "workspaceOnly": true     // read/write/edit confined to workspace
+      "workspaceOnly": true, // read/write/edit confined to workspace
     },
     "exec": {
       "applyPatch": {
-        "workspaceOnly": true   // apply_patch confined to workspace
-      }
-    }
-  }
+        "workspaceOnly": true, // apply_patch confined to workspace
+      },
+    },
+  },
 }
 ```
 
@@ -149,13 +152,14 @@ This ensures even inside the sandbox, only known-safe commands run without appro
 {
   "tools": {
     "elevated": {
-      "enabled": false           // No "run on host" escape
-    }
-  }
+      "enabled": false, // No "run on host" escape
+    },
+  },
 }
 ```
 
 And ensure NO `dangerouslyAllow*` flags are set:
+
 - `dangerouslyAllowReservedContainerTargets`: false
 - `dangerouslyAllowExternalBindSources`: false
 - `dangerouslyAllowContainerNamespaceJoin`: false
@@ -172,13 +176,13 @@ Since `web_fetch`, `browser`, and `message` tools route through the gateway (not
         "id": "build-agent",
         "sandbox": {
           "docker": {
-            "network": "bridge",    // Allow network for this agent only
-            "dns": ["1.1.1.1"]      // Explicit DNS, not host resolver
-          }
-        }
-      }
-    ]
-  }
+            "network": "bridge", // Allow network for this agent only
+            "dns": ["1.1.1.1"], // Explicit DNS, not host resolver
+          },
+        },
+      },
+    ],
+  },
 }
 ```
 
@@ -194,18 +198,18 @@ For most agents, keep `network: "none"` (the default). This blocks data exfiltra
         "id": "chat-agent",
         "tools": {
           "profile": "messaging",
-          "deny": ["group:runtime", "group:fs", "sessions_spawn"]
-        }
+          "deny": ["group:runtime", "group:fs", "sessions_spawn"],
+        },
       },
       {
         "id": "coding-agent",
         "tools": {
           "profile": "coding",
-          "deny": ["group:automation"]
-        }
-      }
-    ]
-  }
+          "deny": ["group:automation"],
+        },
+      },
+    ],
+  },
 }
 ```
 
@@ -220,11 +224,11 @@ Agents only get the tools they actually need.
       {
         "id": "main",
         "subagents": {
-          "allowAgents": ["coding-agent"]  // Narrow delegation
-        }
-      }
-    ]
-  }
+          "allowAgents": ["coding-agent"], // Narrow delegation
+        },
+      },
+    ],
+  },
 }
 ```
 
@@ -234,26 +238,26 @@ Use `sandbox: "require"` on `sessions_spawn` calls to prevent spawning unsandbox
 
 ## Summary: Risk vs. Mitigation Matrix
 
-| Risk | Current State | After Least-Privilege | Residual Risk |
-|---|---|---|---|
-| Host filesystem access | **Full** | Workspace only | Low |
-| Arbitrary command execution | **Host-level** | Sandboxed + allowlisted | Low |
-| Cloud metadata theft | **Possible** | No network in sandbox | None |
-| Docker socket access | **Possible** | Blocked by validation | None |
-| Agent-to-agent lateral movement | **Possible** | Session-scoped containers | Low |
-| Data exfiltration via exec (`curl`) | **Possible** | No network in sandbox | None |
-| Data exfiltration via `web_fetch` | **Possible** | Still possible (gateway-routed) | Medium — needs URL allowlisting (Tier 8) |
-| Prompt injection → RCE | **Critical** | Sandbox + approvals | Medium (defense in depth) |
+| Risk                                | Current State  | After Least-Privilege           | Residual Risk                            |
+| ----------------------------------- | -------------- | ------------------------------- | ---------------------------------------- |
+| Host filesystem access              | **Full**       | Workspace only                  | Low                                      |
+| Arbitrary command execution         | **Host-level** | Sandboxed + allowlisted         | Low                                      |
+| Cloud metadata theft                | **Possible**   | No network in sandbox           | None                                     |
+| Docker socket access                | **Possible**   | Blocked by validation           | None                                     |
+| Agent-to-agent lateral movement     | **Possible**   | Session-scoped containers       | Low                                      |
+| Data exfiltration via exec (`curl`) | **Possible**   | No network in sandbox           | None                                     |
+| Data exfiltration via `web_fetch`   | **Possible**   | Still possible (gateway-routed) | Medium — needs URL allowlisting (Tier 8) |
+| Prompt injection → RCE              | **Critical**   | Sandbox + approvals             | Medium (defense in depth)                |
 
-## Key Files to Modify
+## Key Files Modified
 
-### Code defaults (in this repo)
+### Code defaults (in this repo) — DONE
 
-| File | Line | Change |
-|------|------|--------|
-| `src/agents/sandbox/config.ts` | 191 | Default mode `"off"` → `"all"` |
-| `src/agents/sandbox/config.ts` | 193 | Default workspaceAccess `"none"` → `"rw"` |
-| `src/agents/sandbox/config.ts` | 73 | Default scope `"agent"` → `"session"` |
+| File                           | Line | Change                                    |
+| ------------------------------ | ---- | ----------------------------------------- |
+| `src/agents/sandbox/config.ts` | 191  | Default mode `"off"` → `"all"`            |
+| `src/agents/sandbox/config.ts` | 193  | Default workspaceAccess `"none"` → `"rw"` |
+| `src/agents/sandbox/config.ts` | 73   | Default scope `"agent"` → `"session"`     |
 
 ### Runtime config (on the GCP VM)
 
@@ -333,6 +337,7 @@ The sandbox containers use the image `openclaw-sandbox:bookworm-slim`. If this
 image is not built on the VM, sandbox mode will fail at container creation.
 
 Check if it exists:
+
 ```bash
 sudo docker images openclaw-sandbox:bookworm-slim
 ```
@@ -348,6 +353,6 @@ sandbox mode. Alternatively, set `agents.defaults.sandbox.mode: "off"` in
 1. After config changes, run `openclaw sandbox explain` to verify effective sandbox mode
 2. Run `openclaw security audit --deep` to check for remaining issues
 3. Test agent functionality with sandbox enabled to confirm no regressions
-4. Verify `exec` tool runs inside container: agent runs `whoami` → should return `sandbox`, not `node` or `root`
+4. Verify `exec` tool runs inside container: agent runs `id -u` and confirms the UID matches the configured sandbox Docker user (often a numeric uid:gid), not a privileged host user like `root`
 5. Verify network isolation: agent runs `curl 169.254.169.254` → should fail (no network)
 6. Verify filesystem isolation: agent tries `cat /etc/passwd` → should see container's `/etc/passwd`, not host's
