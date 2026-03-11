@@ -43,14 +43,6 @@ jobs:
       - name: Install Google Cloud SDK
         uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a # v2.1.2
 
-      - name: Pre-generate SSH key for gcloud
-        run: |
-          # Generate the SSH key that gcloud compute ssh would auto-create,
-          # but suppress output to prevent key material leaking into CI logs.
-          if [[ ! -f ~/.ssh/google_compute_engine ]]; then
-            ssh-keygen -t rsa -b 3072 -f ~/.ssh/google_compute_engine -N "" -q
-          fi
-
       - name: Run verification
         run: |
           chmod +x scripts/verify.sh

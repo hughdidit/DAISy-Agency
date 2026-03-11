@@ -605,11 +605,6 @@ export function createGatewayHttpServer(opts: {
         }),
       );
 
-      requestStages.push({
-        name: "gateway-probes",
-        run: () => handleGatewayProbeRequest(req, res, requestPath),
-      });
-
       if (controlUiEnabled) {
         requestStages.push({
           name: "control-ui-avatar",
@@ -629,6 +624,11 @@ export function createGatewayHttpServer(opts: {
             }),
         });
       }
+
+      requestStages.push({
+        name: "gateway-probes",
+        run: () => handleGatewayProbeRequest(req, res, requestPath),
+      });
 
       if (await runGatewayHttpRequestStages(requestStages)) {
         return;
