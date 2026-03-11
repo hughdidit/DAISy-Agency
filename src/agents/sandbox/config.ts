@@ -70,7 +70,7 @@ export function resolveSandboxScope(params: {
   if (typeof params.perSession === "boolean") {
     return params.perSession ? "session" : "shared";
   }
-  return "agent";
+  return "session";
 }
 
 export function resolveSandboxDockerConfig(params: {
@@ -188,9 +188,9 @@ export function resolveSandboxConfigForAgent(
   const toolPolicy = resolveSandboxToolPolicyForAgent(cfg, agentId);
 
   return {
-    mode: agentSandbox?.mode ?? agent?.mode ?? "off",
+    mode: agentSandbox?.mode ?? agent?.mode ?? "all",
     scope,
-    workspaceAccess: agentSandbox?.workspaceAccess ?? agent?.workspaceAccess ?? "none",
+    workspaceAccess: agentSandbox?.workspaceAccess ?? agent?.workspaceAccess ?? "rw",
     workspaceRoot:
       agentSandbox?.workspaceRoot ?? agent?.workspaceRoot ?? DEFAULT_SANDBOX_WORKSPACE_ROOT,
     docker: resolveSandboxDockerConfig({
