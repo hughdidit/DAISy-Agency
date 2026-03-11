@@ -225,7 +225,7 @@ export async function maybeRepairSandboxImages(
     prompter,
   );
 
-  if (sandbox.browser?.enabled) {
+  if (resolvedSandbox.browser?.enabled) {
     await handleMissingSandboxImage(
       {
         kind: "browser",
