@@ -21,19 +21,6 @@ fi
 
 checks_run=0
 
-# Helper: run a command on the GCE instance via IAP SSH and return only the last
-# line of stdout. This filters out SSH keygen noise that gcloud emits on first
-# connection (key fingerprints, randomart) which would otherwise contaminate
-# captured output and leak key material into CI logs.
-gce_ssh_lastline() {
-  gcloud compute ssh "${GCE_INSTANCE_NAME}" \
-    --project "${GCP_PROJECT_ID}" \
-    --zone "${GCP_ZONE}" \
-    --tunnel-through-iap \
-    --quiet \
-    --command "$1" | tail -1
-}
-
 if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required for GCE verify}"
   : "${GCP_ZONE:?GCP_ZONE is required for GCE verify}"
@@ -45,35 +32,30 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   checks_run=$((checks_run + 1))
   log "Checking container ${container} on ${GCE_INSTANCE_NAME}..."
   running_state="$(
-    gce_ssh_lastline "sudo docker ps --filter 'name=^${container}\$' --format '{{.State}}'"
-  )" || fail "Failed to check container ${container} on ${GCE_INSTANCE_NAME}"
-
-  running_state="$(echo "${running_state}" | tr -d '[:space:]')"
-  if [[ "${running_state}" != "running" ]]; then
-    log "DEBUG: Container '${container}' state='${running_state}'. Listing all containers..."
     gcloud compute ssh "${GCE_INSTANCE_NAME}" \
       --project "${GCP_PROJECT_ID}" \
       --zone "${GCP_ZONE}" \
       --tunnel-through-iap \
       --quiet \
-      --command "sudo docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'" || true
+      --command "sudo docker inspect --format '{{.State.Running}}' \$(sudo docker ps -qf 'name=${container}' | head -1) 2>/dev/null || echo false"
+  )" || fail "Failed to check container ${container} on ${GCE_INSTANCE_NAME}"
+
+  running_state="$(echo "${running_state}" | tr -d '[:space:]')"
+  if [[ "${running_state}" != "true" ]]; then
     fail "Container ${container} is not running on ${GCE_INSTANCE_NAME}"
   fi
   log "Container ${container} is running."
-
-  # Diagnostics: token resolution and gateway reachability
-  log "--- Health check diagnostics ---"
-  gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && echo TOKEN_SET=\$(sudo docker exec \"\$cid\" sh -c 'test -n \"\$OPENCLAW_GATEWAY_TOKEN\" && echo yes || echo no')" || true
-  gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && echo PORT=\$(sudo docker exec \"\$cid\" printenv OPENCLAW_GATEWAY_PORT)" || true
-  gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && echo CURL=\$(sudo docker exec \"\$cid\" node -e \"fetch('http://127.0.0.1:'+process.env.OPENCLAW_GATEWAY_PORT+'/healthz').then(r=>r.json()).then(j=>JSON.stringify(j)).then(console.log).catch(e=>console.log('FAIL:'+e.message))\" 2>/dev/null)" || true
-  gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && sudo docker exec \"\$cid\" node dist/index.js health --json --timeout 10000 2>&1 | tail -5" || true
-  log "--- End diagnostics ---"
 
   # Check 2: openclaw health --json returns ok: true
   checks_run=$((checks_run + 1))
   log "Running openclaw health via docker exec (timeout: ${health_timeout}s)..."
   health_output="$(
-    gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && sudo docker exec \"\$cid\" node dist/index.js health --json --timeout ${health_timeout}000 2>/dev/null"
+    gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+      --project "${GCP_PROJECT_ID}" \
+      --zone "${GCP_ZONE}" \
+      --tunnel-through-iap \
+      --quiet \
+      --command "sudo docker exec \$(sudo docker ps -qf 'name=${container}' | head -1) node dist/index.js health --json --timeout ${health_timeout}000 2>/dev/null"
   )" || fail "openclaw health check failed on ${GCE_INSTANCE_NAME}"
 
   health_ok="$(echo "${health_output}" | jq -r 'if .ok then "true" else "false" end' 2>/dev/null || echo "false")"
@@ -88,7 +70,12 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking deployed image matches DEPLOYED_REF (${DEPLOYED_REF})..."
     image_ref="$(
-      gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${container}\$' | head -1) && sudo docker inspect --format '{{.Config.Image}}' \"\$cid\" 2>/dev/null"
+      gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+        --project "${GCP_PROJECT_ID}" \
+        --zone "${GCP_ZONE}" \
+        --tunnel-through-iap \
+        --quiet \
+        --command "sudo docker inspect --format '{{.Config.Image}}' \$(sudo docker ps -qf 'name=${container}' | head -1) 2>/dev/null"
     )" || fail "Failed to inspect image on ${GCE_INSTANCE_NAME}"
 
     image_ref="$(echo "${image_ref}" | tr -d '[:space:]')"
