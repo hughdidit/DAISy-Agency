@@ -1,0 +1,17 @@
+# Deploy overlay: sandbox support for Docker-in-Docker container management.
+# Mounts the host Docker socket so the gateway can create sandbox containers.
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.sandbox.yml up -d
+#
+# Prerequisites:
+#   1. Main image built with OPENCLAW_INSTALL_DOCKER_CLI=1
+#   2. Sandbox image available locally (openclaw-sandbox:bookworm-slim)
+#   3. Docker socket accessible at /var/run/docker.sock on the host
+services:
+  openclaw-gateway:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # The 'docker' group GID on the host must match what the container uses
+    # to access the socket. On most Linux systems this is GID 999 or 998.
+    # Override with: DOCKER_GID=<host-docker-gid> in your environment.
+    group_add:
+      - "${DOCKER_GID:-999}"
