@@ -422,10 +422,11 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
       // retry indefinitely against a non-existent server.
       const probe = await signalCheck(baseUrl, 5_000);
       if (!probe.ok) {
-        throw new Error(
+        runtime.error?.(
           `Signal server unreachable at ${baseUrl}: ${probe.error ?? "unknown error"}. ` +
             "Ensure signal-cli REST API is running or disable the Signal channel.",
         );
+        return;
       }
     }
 
