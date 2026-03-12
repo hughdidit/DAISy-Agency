@@ -5,8 +5,6 @@ const baseRetrieval = {
   minScore: 0.1,
   vectorLimit: 8,
   numCandidatesMultiplier: 10,
-  rerankEnabled: true,
-  rerankLimit: 8,
 };
 
 describe("mongodb provider via MCP", () => {
@@ -20,14 +18,13 @@ describe("mongodb provider via MCP", () => {
       close: vi.fn(),
     };
 
-    const voyage = {
+    const embeddings = {
       embed: vi.fn().mockResolvedValue([0.1, 0.2]),
-      rerank: vi.fn(),
     };
 
     const provider = new MongoMemoryDB(
       mcp as any,
-      voyage as any,
+      embeddings as any,
       "memdb",
       "memories",
       "vector_idx",
@@ -36,12 +33,13 @@ describe("mongodb provider via MCP", () => {
 
     const record = await provider.store({
       text: "remember this",
+      parts: [{ text: "remember this" }],
       importance: 0.7,
       category: "fact",
       type: "semantic",
     });
 
-    expect(voyage.embed).toHaveBeenCalledWith("remember this");
+    expect(embeddings.embed).toHaveBeenCalledWith([{ text: "remember this" }]);
     expect(insertMany).toHaveBeenCalledTimes(1);
     expect(insertMany).toHaveBeenCalledWith("memdb", "memories", [
       expect.objectContaining({
@@ -53,6 +51,45 @@ describe("mongodb provider via MCP", () => {
         type: "semantic",
       }),
     ]);
+  });
+
+  test("store derives fallback text for media-only entries", async () => {
+    const mcp = {
+      insertMany: vi.fn().mockResolvedValue(1),
+      aggregate: vi.fn(),
+      deleteOne: vi.fn(),
+      countDocuments: vi.fn(),
+      close: vi.fn(),
+    };
+
+    const embeddings = {
+      embed: vi.fn().mockResolvedValue([0.1, 0.2]),
+    };
+
+    const provider = new MongoMemoryDB(
+      mcp as any,
+      embeddings as any,
+      "memdb",
+      "memories",
+      "vector_idx",
+      baseRetrieval,
+    );
+
+    const record = await provider.store({
+      parts: [
+        {
+          inlineData: {
+            mimeType: "application/pdf",
+            data: "ZmFrZS1wZGY=",
+          },
+        },
+      ],
+      importance: 0.5,
+      category: "other",
+      type: "episodic",
+    });
+
+    expect(record.text).toBe("[attachment:application/pdf]");
   });
 
   test("searchByVector uses $vectorSearch aggregation pipeline", async () => {
@@ -78,14 +115,9 @@ describe("mongodb provider via MCP", () => {
       close: vi.fn(),
     };
 
-    const voyage = {
-      embed: vi.fn(),
-      rerank: vi.fn(),
-    };
-
     const provider = new MongoMemoryDB(
       mcp as any,
-      voyage as any,
+      { embed: vi.fn() } as any,
       "memdb",
       "memories",
       "vector_idx",
@@ -127,6 +159,33 @@ describe("mongodb provider via MCP", () => {
     expect(results[0].score).toBe(0.88);
   });
 
+  test("searchByQuery embeds text query as multimodal text part", async () => {
+    const mcp = {
+      insertMany: vi.fn(),
+      aggregate: vi.fn().mockResolvedValue([]),
+      deleteOne: vi.fn(),
+      countDocuments: vi.fn(),
+      close: vi.fn(),
+    };
+
+    const embeddings = {
+      embed: vi.fn().mockResolvedValue([0.5, 0.5]),
+    };
+
+    const provider = new MongoMemoryDB(
+      mcp as any,
+      embeddings as any,
+      "memdb",
+      "memories",
+      "vector_idx",
+      baseRetrieval,
+    );
+
+    await provider.searchByQuery("query text", 5, 0.1);
+
+    expect(embeddings.embed).toHaveBeenCalledWith([{ text: "query text" }]);
+  });
+
   test("searchByVector skips malformed memory documents", async () => {
     const mcp = {
       insertMany: vi.fn(),
@@ -150,7 +209,7 @@ describe("mongodb provider via MCP", () => {
 
     const provider = new MongoMemoryDB(
       mcp as any,
-      { embed: vi.fn(), rerank: vi.fn() } as any,
+      { embed: vi.fn() } as any,
       "memdb",
       "memories",
       "vector_idx",
@@ -160,93 +219,6 @@ describe("mongodb provider via MCP", () => {
     const results = await provider.searchByVector([0.2, 0.3], 5, 0.1);
     expect(results).toHaveLength(1);
     expect(results[0].entry.text).toBe("valid");
-  });
-
-  test("searchByQuery falls back when rerank fails", async () => {
-    const mcp = {
-      insertMany: vi.fn(),
-      aggregate: vi.fn().mockResolvedValue([
-        {
-          _id: "c1111111-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-          text: "alpha",
-          vector: [0.1],
-          category: "fact",
-          type: "semantic",
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          score: 0.8,
-        },
-        {
-          _id: "c2222222-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-          text: "beta",
-          vector: [0.1],
-          category: "fact",
-          type: "semantic",
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          score: 0.7,
-        },
-      ]),
-      deleteOne: vi.fn(),
-      countDocuments: vi.fn(),
-      close: vi.fn(),
-    };
-
-    const voyage = {
-      embed: vi.fn().mockResolvedValue([0.1]),
-      rerank: vi.fn().mockRejectedValue(new Error("rerank down")),
-    };
-
-    const provider = new MongoMemoryDB(
-      mcp as any,
-      voyage as any,
-      "memdb",
-      "memories",
-      "vector_idx",
-      baseRetrieval,
-    );
-
-    const results = await provider.searchByQuery("query", 2, 0.1);
-    expect(results.map((r) => r.entry.text)).toEqual(["alpha", "beta"]);
-  });
-
-  test("searchByQuery skips rerank when disabled", async () => {
-    const mcp = {
-      insertMany: vi.fn(),
-      aggregate: vi.fn().mockResolvedValue([
-        {
-          _id: "d1111111-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-          text: "alpha",
-          vector: [0.1],
-          category: "fact",
-          type: "semantic",
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          score: 0.8,
-        },
-      ]),
-      deleteOne: vi.fn(),
-      countDocuments: vi.fn(),
-      close: vi.fn(),
-    };
-
-    const voyage = {
-      embed: vi.fn().mockResolvedValue([0.1]),
-      rerank: vi.fn(),
-    };
-
-    const provider = new MongoMemoryDB(
-      mcp as any,
-      voyage as any,
-      "memdb",
-      "memories",
-      "vector_idx",
-      { ...baseRetrieval, rerankEnabled: false },
-    );
-
-    const results = await provider.searchByQuery("query", 5, 0.1);
-    expect(results).toHaveLength(1);
-    expect(voyage.rerank).not.toHaveBeenCalled();
   });
 
   test("searchByVector returns fewer results than requested when MCP returns fewer", async () => {
@@ -271,7 +243,7 @@ describe("mongodb provider via MCP", () => {
 
     const provider = new MongoMemoryDB(
       mcp as any,
-      { embed: vi.fn(), rerank: vi.fn() } as any,
+      { embed: vi.fn() } as any,
       "memdb",
       "memories",
       "vector_idx",
@@ -293,7 +265,7 @@ describe("mongodb provider via MCP", () => {
 
     const provider = new MongoMemoryDB(
       mcp as any,
-      { embed: vi.fn(), rerank: vi.fn() } as any,
+      { embed: vi.fn() } as any,
       "memdb",
       "memories",
       "vector_idx",

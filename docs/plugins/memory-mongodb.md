@@ -1,6 +1,6 @@
-# Memory Plugin - MongoDB MCP + Voyage
+# Memory Plugin - MongoDB MCP + Gemini
 
-Persistent long-term memory for DAISy using MongoDB Atlas through the official MongoDB MCP server and Voyage AI for embeddings and reranking.
+Persistent long-term memory for DAISy using MongoDB Atlas through the official MongoDB MCP server and Gemini Embedding 2 for multimodal embeddings.
 
 ## Architecture Summary
 
@@ -8,25 +8,28 @@ Persistent long-term memory for DAISy using MongoDB Atlas through the official M
 
 - `memory-mongodb` plugin: registers memory tools, CLI commands, and lifecycle hooks.
 - `McpClientService`: MCP client wrapper for MongoDB tool calls (`connect`, `insert-many`, `aggregate`, `delete-one`).
-- `VoyageService`: embeddings (`voyage-3-large` default) and reranking (`rerank-2` default).
-- `MongoMemoryDB`: memory store/search manager built on MCP + Voyage services.
+- `PayloadChunker`: validates multimodal parts, enforces supported MIME types, shards oversized payloads into Gemini-safe request chunks.
+- `GeminiService`: native `fetch`-based embedding client using `gemini-embedding-2-preview` with output dimensionality fixed to `1536` and manual L2 normalization.
+- `MongoMemoryDB`: memory store/search manager built on MCP + Gemini services.
 
 ### Data Flow
 
 Store path:
 
-1. Input text is categorized (`category`, `type`, optional `subCategory`).
-2. Voyage embedding is generated.
-3. Memory document is built with vector and metadata.
-4. Document is written via MCP `insert-many`.
+1. Input memory is provided as multimodal `parts` (`text` and/or `inlineData` base64 media).
+2. PayloadChunker validates and chunks the parts:
+   - max 6 image/PDF parts per API request
+   - large text parts split at ~28,000 chars per part
+3. Gemini embedding vectors are generated per chunk and L2-normalized.
+4. If multiple chunks are required, vectors are mean-pooled and normalized again.
+5. Memory document is written via MCP `insert-many`.
 
 Recall path:
 
-1. Query text is embedded with Voyage.
+1. Query text is embedded via Gemini.
 2. MCP `aggregate` runs `$vectorSearch` against `vector` using configured index.
 3. Results are projected and validated as memory candidates.
-4. Optional Voyage rerank reorders bounded candidates.
-5. Top memories are returned to tools/hooks for context construction.
+4. Top memories are returned to tools/hooks for context construction.
 
 ## Configuration
 
@@ -44,10 +47,9 @@ Recall path:
           }
         }
       },
-      "voyage": {
-        "apiKey": "${VOYAGE_API_KEY}",
-        "embeddingModel": "voyage-3-large",
-        "rerankModel": "rerank-2"
+      "gemini": {
+        "apiKey": "${GEMINI_API_KEY}",
+        "embeddingModel": "gemini-embedding-2-preview"
       },
       "database": {
         "name": "daisy_memory",
@@ -57,9 +59,7 @@ Recall path:
       "retrieval": {
         "minScore": 0.1,
         "vectorLimit": 8,
-        "numCandidatesMultiplier": 10,
-        "rerankEnabled": true,
-        "rerankLimit": 8
+        "numCandidatesMultiplier": 10
       },
       "autoCapture": true,
       "autoRecall": true
@@ -77,17 +77,14 @@ Recall path:
 | `mcp.stdio.args`                          | No          | `[-y, mongodb-mcp-server@<PINNED_VERSION>]` | Arguments for MCP server command                                 |
 | `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes (stdio) | -                                           | MongoDB Atlas URI passed to MCP server                           |
 | `mcp.url`                                 | Yes (sse)   | -                                           | Remote MCP SSE URL                                               |
-| `voyage.apiKey`                           | Yes         | -                                           | Voyage API key                                                   |
-| `voyage.embeddingModel`                   | No          | `voyage-3-large`                            | Voyage embedding model                                           |
-| `voyage.rerankModel`                      | No          | `rerank-2`                                  | Voyage rerank model                                              |
+| `gemini.apiKey`                           | Yes         | -                                           | Gemini API key                                                   |
+| `gemini.embeddingModel`                   | No          | `gemini-embedding-2-preview`                | Gemini embedding model                                           |
 | `database.name`                           | No          | `daisy_memory`                              | MongoDB database name                                            |
 | `database.collection`                     | No          | `memories`                                  | MongoDB collection name                                          |
 | `database.indexName`                      | No          | `vector_index`                              | Atlas vector index name                                          |
 | `retrieval.minScore`                      | No          | `0.1`                                       | Minimum vector similarity score                                  |
 | `retrieval.vectorLimit`                   | No          | `8`                                         | Max candidates returned from vector search                       |
 | `retrieval.numCandidatesMultiplier`       | No          | `10`                                        | `numCandidates = vectorLimit * multiplier`                       |
-| `retrieval.rerankEnabled`                 | No          | `true`                                      | Enable Voyage rerank stage                                       |
-| `retrieval.rerankLimit`                   | No          | `8`                                         | Max candidates sent to reranker                                  |
 | `captureTriggers`                         | No          | built-in defaults                           | Regex patterns that trigger auto-capture                         |
 | `autoCapture`                             | No          | `true`                                      | Auto-store significant memories from conversation                |
 | `autoRecall`                              | No          | `true`                                      | Auto-inject relevant memories before agent execution             |
@@ -96,9 +93,9 @@ Recall path:
 
 1. Create Atlas cluster and collection (`daisy_memory.memories` by default).
 2. Create Atlas Vector Search index in the collection.
-3. Set `numDimensions` to the embedding model dimension.
+3. Set `numDimensions` to `1536` for Gemini Embedding 2 output.
 
-Default index for `voyage-3-large` (`1024` dimensions):
+Default index (`1536` dimensions):
 
 ```json
 {
@@ -109,7 +106,7 @@ Default index for `voyage-3-large` (`1024` dimensions):
       {
         "type": "vector",
         "path": "vector",
-        "numDimensions": 1024,
+        "numDimensions": 1536,
         "similarity": "cosine"
       },
       {
@@ -134,8 +131,8 @@ Default index for `voyage-3-large` (`1024` dimensions):
 Each stored memory includes:
 
 - `_id` (UUID)
-- `text`
-- `vector`
+- `text` (explicit text or fallback summary generated from parts)
+- `vector` (1536-dim L2-normalized embedding)
 - `category`
 - `subCategory` (optional)
 - `type` (`working`, `cache`, `episodic`, `semantic`, `procedural`, `associative`)
@@ -148,6 +145,7 @@ Each stored memory includes:
 
 - `memory_recall({ query, limit })`
 - `memory_store({ text, importance, category })`
+- `memory_store({ parts, text?, importance, category })` for multimodal embedding
 - `memory_forget({ memoryId })` or `memory_forget({ query })`
 
 ## CLI
@@ -160,25 +158,27 @@ openclaw ltm stats
 
 ## Migration Notes
 
-From legacy direct-driver config:
+From prior Voyage-backed config:
 
-- Remove `embedding` and `connectionUri` fields.
-- Add `mcp` and `voyage` sections.
-- Move DB names under `database`.
-- Optional retrieval tuning now under `retrieval`.
+- Remove `voyage` section.
+- Add `gemini` section.
+- Remove retrieval rerank fields (`retrieval.rerankEnabled`, `retrieval.rerankLimit`).
+- Keep MCP and database configuration shape unchanged.
 
 ## Verification Checklist
 
 - MCP startup/connect works for selected transport.
 - Store path writes documents through MCP `insert-many`.
 - Recall path runs `$vectorSearch` through MCP `aggregate`.
-- Rerank path uses Voyage and falls back to vector ordering if rerank fails.
+- Multimodal chunking enforces Gemini media limits and text splitting.
+- Multi-request embeddings aggregate via mean pooling with final normalization.
 - Auto-capture and auto-recall hooks remain functional.
 
 ## Security
 
-- Secrets must be environment-backed (`${MONGODB_URI}`, `${VOYAGE_API_KEY}`).
+- Secrets must be environment-backed (`${MONGODB_URI}`, `${GEMINI_API_KEY}`).
 - For `stdio`, prefer pinned MCP server versions (for example `mongodb-mcp-server@x.y.z`) or managed binaries over unpinned runtime downloads.
 - Remote `mongodb://` URIs require TLS (`tls=true`) unless localhost.
 - Insecure TLS options (`tlsInsecure`, `tlsAllowInvalidCertificates`) are rejected.
 - Connection strings are sanitized from surfaced MCP errors.
+- Unsupported media MIME types are rejected before network calls.

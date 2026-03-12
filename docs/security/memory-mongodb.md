@@ -7,8 +7,8 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 ### Secret fields
 
 - `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` contains MongoDB credentials and is marked `sensitive` in plugin manifests.
-- `voyage.apiKey` is marked `sensitive` in plugin manifests.
-- Prefer env var references (`${MONGODB_URI}`, `${VOYAGE_API_KEY}`) over inline secrets.
+- `gemini.apiKey` is marked `sensitive` in plugin manifests.
+- Prefer env var references (`${MONGODB_URI}`, `${GEMINI_API_KEY}`) over inline secrets.
 
 ### Error sanitization
 
@@ -36,6 +36,27 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 - Vector embeddings are not returned in tool output payloads.
 - Malformed aggregate documents are skipped and not forwarded to context.
 
+## Multimodal Payload Guardrails
+
+- Allowed inline MIME types are explicitly whitelisted:
+  - `image/png`, `image/jpeg`, `image/jpg`
+  - `video/mp4`, `video/quicktime`
+  - `audio/mpeg`, `audio/mp3`, `audio/wav`
+  - `application/pdf`
+- Unsupported MIME types are rejected before any API call.
+- Image/PDF parts are chunked to a maximum of 6 per Gemini embedding request.
+- Very large text parts are split at ~28,000 chars per part to avoid oversize payloads.
+- Single-item payloads that exceed Gemini API limits are surfaced as API errors; binary-level splitting is intentionally out of scope.
+
+## Embedding and Retrieval Safety
+
+- Embeddings request `outputDimensionality: 1536` and enforce dimensionality checks at runtime.
+- Returned vectors are manually L2-normalized for cosine similarity consistency.
+- Multi-request embeddings are normalized, mean-pooled, and normalized again before storage.
+- Vector retrieval uses bounded candidate selection:
+  - `vectorLimit`
+  - `numCandidatesMultiplier`
+
 ## Auto-Capture Guardrails
 
 `shouldCapture()` rejects:
@@ -48,19 +69,11 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 
 Capture triggers are admin-configurable regex patterns and validated at parse time.
 
-## Retrieval and Rerank Safety
-
-- Vector retrieval uses bounded candidate selection:
-  - `vectorLimit`
-  - `numCandidatesMultiplier`
-- Reranking is bounded by `rerankLimit`.
-- If reranking fails, retrieval falls back to vector-score ordering without failing the request.
-
 ## Network Posture
 
 Outbound-only connections:
 
 - MongoDB Atlas/self-hosted MongoDB through MongoDB MCP server
-- Voyage API for embeddings and rerank
+- Gemini API for embeddings
 
 No inbound network port is required by this extension.
