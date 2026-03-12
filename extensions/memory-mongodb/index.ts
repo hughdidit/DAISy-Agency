@@ -103,15 +103,34 @@ function detectSubCategory(text: string): string | undefined {
 }
 
 const multimodalPartSchema = Type.Union([
-  Type.Object({
-    text: Type.String({ description: "Text part" }),
-  }),
-  Type.Object({
-    inlineData: Type.Object({
-      mimeType: Type.String({ description: "MIME type (image/png, image/jpeg, video/mp4, etc.)" }),
-      data: Type.String({ description: "Base64 encoded payload" }),
-    }),
-  }),
+  Type.Object(
+    {
+      text: Type.String({ description: "Text part" }),
+      inlineData: Type.Optional(Type.Never()),
+    },
+    {
+      additionalProperties: false,
+    },
+  ),
+  Type.Object(
+    {
+      inlineData: Type.Object(
+        {
+          mimeType: Type.String({
+            description: "MIME type (image/png, image/jpeg, video/mp4, etc.)",
+          }),
+          data: Type.String({ description: "Base64 encoded payload" }),
+        },
+        {
+          additionalProperties: false,
+        },
+      ),
+      text: Type.Optional(Type.Never()),
+    },
+    {
+      additionalProperties: false,
+    },
+  ),
 ]);
 
 const memoryPlugin = {
@@ -228,11 +247,14 @@ const memoryPlugin = {
             category?: MemoryEntry["category"];
           };
 
+          const normalizedText = typeof text === "string" ? text.trim() : "";
           const normalizedParts =
             Array.isArray(parts) && parts.length > 0
-              ? parts
-              : typeof text === "string" && text.trim().length > 0
-                ? [{ text }]
+              ? normalizedText.length > 0
+                ? [{ text: normalizedText }, ...parts]
+                : parts
+              : normalizedText.length > 0
+                ? [{ text: normalizedText }]
                 : [];
 
           if (normalizedParts.length === 0) {
@@ -243,8 +265,8 @@ const memoryPlugin = {
           }
 
           const fallbackText =
-            typeof text === "string" && text.trim().length > 0
-              ? text.trim()
+            normalizedText.length > 0
+              ? normalizedText
               : multimodalPartsToFallbackText(normalizedParts, 2_000);
 
           const inferredCategory = category ?? detectCategory(fallbackText);

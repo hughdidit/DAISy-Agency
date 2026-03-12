@@ -27,6 +27,28 @@ describe("gemini service", () => {
     expect(result[2]).toBeCloseTo(0, 6);
   });
 
+  test("sends bearer auth when api key is JSON OAuth credentials", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          embedding: {
+            values: [1, 0, 0],
+          },
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      ),
+    );
+
+    const service = new GeminiService('{"token":"oauth-token"}', "gemini-embedding-2-preview", 3);
+    await service.embed([{ text: "hello" }]);
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const headers = requestInit.headers as Record<string, string>;
+
+    expect(headers.Authorization).toBe("Bearer oauth-token");
+    expect(headers["x-goog-api-key"]).toBeUndefined();
+  });
+
   test("mean-pools chunked responses and normalizes final vector", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")

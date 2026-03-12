@@ -16,6 +16,11 @@ type GeminiEmbedResponse = {
   }>;
 };
 
+type JsonAuthCredential = {
+  token?: unknown;
+  access_token?: unknown;
+};
+
 function isFiniteNumberArray(value: unknown): value is number[] {
   return (
     Array.isArray(value) && value.every((item) => typeof item === "number" && Number.isFinite(item))
@@ -89,6 +94,35 @@ function toGeminiApiPart(part: MultimodalPart): Record<string, unknown> {
   };
 }
 
+function parseAuthTokenJson(rawApiKey: string): string | null {
+  try {
+    const parsed = JSON.parse(rawApiKey) as JsonAuthCredential;
+    const tokenValue =
+      typeof parsed.token === "string"
+        ? parsed.token.trim()
+        : typeof parsed.access_token === "string"
+          ? parsed.access_token.trim()
+          : "";
+
+    return tokenValue.length > 0 ? tokenValue : null;
+  } catch {
+    return null;
+  }
+}
+
+function buildGeminiAuthHeaders(rawApiKey: string): Record<string, string> {
+  const oauthToken = parseAuthTokenJson(rawApiKey);
+  if (oauthToken) {
+    return {
+      Authorization: `Bearer ${oauthToken}`,
+    };
+  }
+
+  return {
+    "x-goog-api-key": rawApiKey,
+  };
+}
+
 async function safeReadErrorBody(response: Response): Promise<string> {
   try {
     const text = await response.text();
@@ -99,14 +133,18 @@ async function safeReadErrorBody(response: Response): Promise<string> {
 }
 
 export class GeminiService {
+  private readonly authHeaders: Record<string, string>;
+
   constructor(
-    private readonly apiKey: string,
+    apiKey: string,
     private readonly embeddingModel = DEFAULT_EMBEDDING_MODEL,
     private readonly outputDimensionality = DEFAULT_OUTPUT_DIMENSIONALITY,
   ) {
     if (!apiKey || apiKey.trim().length === 0) {
       throw new Error("Gemini API key is required");
     }
+
+    this.authHeaders = buildGeminiAuthHeaders(apiKey.trim());
   }
 
   async embed(parts: MultimodalPart[]): Promise<number[]> {
@@ -131,7 +169,7 @@ export class GeminiService {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-goog-api-key": this.apiKey,
+        ...this.authHeaders,
       },
       body: JSON.stringify({
         content: {

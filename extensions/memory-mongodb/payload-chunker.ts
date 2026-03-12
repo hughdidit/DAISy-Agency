@@ -101,7 +101,9 @@ function normalizePart(rawPart: unknown, index: number): MultimodalPart {
   const data = rawPart.inlineData.data;
 
   if (!allowedMimeTypes.has(mimeType)) {
-    throw new Error(`Unsupported mimeType: ${mimeType}`);
+    throw new Error(
+      `Unsupported mimeType at index ${index}: ${mimeType}. Allowed types: ${Array.from(allowedMimeTypes).join(", ")}`,
+    );
   }
 
   if (typeof data !== "string" || data.length === 0) {
