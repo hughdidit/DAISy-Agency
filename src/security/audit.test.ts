@@ -942,7 +942,9 @@ description: test skill
       {
         name: "small model with web and browser enabled",
         cfg: {
-          agents: { defaults: { model: { primary: "ollama/mistral-8b" } } },
+          agents: {
+            defaults: { model: { primary: "ollama/mistral-8b" }, sandbox: { mode: "off" } },
+          },
           tools: { web: { search: { enabled: true }, fetch: { enabled: true } } },
           browser: { enabled: true },
         },
@@ -2707,6 +2709,7 @@ description: test skill
 
     const cfg: OpenClawConfig = {
       plugins: { allow: ["some-plugin"] },
+      agents: { defaults: { sandbox: { mode: "off" } } },
     };
     const res = await runSecurityAudit({
       config: cfg,
@@ -2932,6 +2935,7 @@ description: test skill
     const cfg: OpenClawConfig = {
       channels: { whatsapp: { groupPolicy: "open" } },
       tools: { elevated: { enabled: false } },
+      agents: { defaults: { sandbox: { mode: "off" } } },
     };
 
     const res = await audit(cfg);

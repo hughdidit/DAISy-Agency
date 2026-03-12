@@ -119,6 +119,7 @@ jobs:
     needs: [docs-scope, changed-scope]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -154,9 +155,13 @@ jobs:
         if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
         run: |
           # `pnpm test` runs `scripts/test-parallel.mjs`, which spawns multiple Node processes.
-          # ubuntu-latest has ~7GB RAM; 2 workers × 3GB keeps us under limit.
-          echo "OPENCLAW_TEST_WORKERS=2" >> "$GITHUB_ENV"
-          echo "OPENCLAW_TEST_MAX_OLD_SPACE_SIZE_MB=3072" >> "$GITHUB_ENV"
+          # ubuntu-latest has ~7GB RAM; single worker avoids OOM (test suite needs ~3.5GB).
+          echo "OPENCLAW_TEST_WORKERS=1" >> "$GITHUB_ENV"
+          echo "OPENCLAW_TEST_MAX_OLD_SPACE_SIZE_MB=5120" >> "$GITHUB_ENV"
+          # Disable vmForks: with 1 worker, vmForks spawns 2 parallel vitest processes
+          # (unit-fast + unit-isolated) whose combined heap (~10GB) exceeds runner RAM.
+          # Regular forks collapses to a single vitest process, halving memory usage.
+          echo "OPENCLAW_TEST_VM_FORKS=0" >> "$GITHUB_ENV"
 
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         if: matrix.runtime != 'bun' || github.event_name != 'push'

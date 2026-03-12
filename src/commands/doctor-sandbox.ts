@@ -4,6 +4,7 @@ import {
   DEFAULT_SANDBOX_BROWSER_IMAGE,
   DEFAULT_SANDBOX_COMMON_IMAGE,
   DEFAULT_SANDBOX_IMAGE,
+  resolveSandboxConfigForAgent,
   resolveSandboxScope,
 } from "../agents/sandbox.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -180,9 +181,9 @@ export async function maybeRepairSandboxImages(
   runtime: RuntimeEnv,
   prompter: DoctorPrompter,
 ): Promise<OpenClawConfig> {
-  const sandbox = cfg.agents?.defaults?.sandbox;
-  const mode = sandbox?.mode ?? "off";
-  if (!sandbox || mode === "off") {
+  const resolvedSandbox = resolveSandboxConfigForAgent(cfg);
+  const mode = resolvedSandbox.mode;
+  if (mode === "off") {
     return cfg;
   }
 
@@ -224,7 +225,7 @@ export async function maybeRepairSandboxImages(
     prompter,
   );
 
-  if (sandbox.browser?.enabled) {
+  if (resolvedSandbox.browser?.enabled) {
     await handleMissingSandboxImage(
       {
         kind: "browser",
