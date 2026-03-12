@@ -28,7 +28,6 @@ export type SupportedMimeType =
 
 export type MultimodalTextPart = {
   text: string;
-  inlineData?: never;
 };
 
 export type MultimodalInlineDataPart = {
@@ -36,13 +35,20 @@ export type MultimodalInlineDataPart = {
     mimeType: SupportedMimeType;
     data: string;
   };
-  text?: never;
 };
 
 export type MultimodalPart = MultimodalTextPart | MultimodalInlineDataPart;
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function isTextPart(part: MultimodalPart): part is MultimodalTextPart {
+  return typeof (part as { text?: unknown }).text === "string";
+}
+
+function isInlineDataPart(part: MultimodalPart): part is MultimodalInlineDataPart {
+  return isObject((part as { inlineData?: unknown }).inlineData);
 }
 
 function isImageOrPdfMimeType(mimeType: string): boolean {
@@ -121,7 +127,7 @@ export class PayloadChunker {
     for (let i = 0; i < parts.length; i += 1) {
       const normalized = normalizePart(parts[i], i);
 
-      if ("text" in normalized) {
+      if (isTextPart(normalized)) {
         for (const piece of splitTextByLimit(normalized.text)) {
           expandedParts.push({ text: piece });
         }
@@ -136,7 +142,7 @@ export class PayloadChunker {
 
     for (const part of expandedParts) {
       const nextImageOrPdfCount =
-        "inlineData" in part && isImageOrPdfMimeType(part.inlineData.mimeType)
+        isInlineDataPart(part) && isImageOrPdfMimeType(part.inlineData.mimeType)
           ? imageOrPdfCount + 1
           : imageOrPdfCount;
 
@@ -151,7 +157,7 @@ export class PayloadChunker {
 
       current.push(part);
 
-      if ("inlineData" in part && isImageOrPdfMimeType(part.inlineData.mimeType)) {
+      if (isInlineDataPart(part) && isImageOrPdfMimeType(part.inlineData.mimeType)) {
         imageOrPdfCount += 1;
       }
     }
@@ -174,7 +180,7 @@ export function multimodalPartsToFallbackText(parts: MultimodalPart[], maxChars 
   for (let i = 0; i < parts.length; i += 1) {
     const normalized = normalizePart(parts[i], i);
 
-    if ("text" in normalized) {
+    if (isTextPart(normalized)) {
       segments.push(normalized.text.trim());
     } else {
       segments.push(`[attachment:${normalized.inlineData.mimeType}]`);
