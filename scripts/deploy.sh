@@ -236,9 +236,15 @@ fi
 
 # Pull sandbox image from GHCR and re-tag to the local name expected by the app.
 # The app references "openclaw-sandbox:bookworm-slim" (no registry prefix).
-# Extract base image name (strip tag or digest suffix).
-SANDBOX_BASE="${DEPLOY_REF%%:*}"
-SANDBOX_BASE="${SANDBOX_BASE%%@*}"
+# Extract base image name: strip digest first, then strip tag only from the
+# last path segment (avoids treating a registry port like ghcr.io:443 as a tag).
+IMAGE_NO_DIGEST="${DEPLOY_REF%%@*}"
+IMAGE_LAST_SEGMENT="${IMAGE_NO_DIGEST##*/}"
+if [[ "${IMAGE_LAST_SEGMENT}" == *:* ]]; then
+  SANDBOX_BASE="${IMAGE_NO_DIGEST%:*}"
+else
+  SANDBOX_BASE="${IMAGE_NO_DIGEST}"
+fi
 SANDBOX_GHCR_IMAGE="${SANDBOX_BASE}-sandbox:bookworm-slim"
 echo "Pulling sandbox image: ${SANDBOX_GHCR_IMAGE}"
 if sudo docker pull "${SANDBOX_GHCR_IMAGE}"; then
