@@ -28,22 +28,16 @@
       "placeholder": "https://example.com/sse",
       "help": "Required when mcp.transport is sse"
     },
-    "voyage.apiKey": {
-      "label": "Voyage API Key",
+    "gemini.apiKey": {
+      "label": "Gemini API Key",
       "sensitive": true,
-      "placeholder": "pa-...",
-      "help": "API key for Voyage embeddings/rerank"
+      "placeholder": "AIza...",
+      "help": "API key for Gemini embeddings"
     },
-    "voyage.embeddingModel": {
+    "gemini.embeddingModel": {
       "label": "Embedding Model",
-      "placeholder": "voyage-3-large",
-      "help": "Voyage embedding model to use"
-    },
-    "voyage.rerankModel": {
-      "label": "Rerank Model",
-      "placeholder": "rerank-2",
-      "advanced": true,
-      "help": "Voyage rerank model"
+      "placeholder": "gemini-embedding-2-preview",
+      "help": "Gemini embedding model to use"
     },
     "database.name": {
       "label": "Database Name",
@@ -73,15 +67,6 @@
     "retrieval.numCandidatesMultiplier": {
       "label": "Candidates Multiplier",
       "placeholder": "10",
-      "advanced": true
-    },
-    "retrieval.rerankEnabled": {
-      "label": "Enable Rerank",
-      "advanced": true
-    },
-    "retrieval.rerankLimit": {
-      "label": "Rerank Limit",
-      "placeholder": "8",
       "advanced": true
     },
     "captureTriggers": {
@@ -131,26 +116,15 @@
         },
         "required": []
       },
-      "voyage": {
+      "gemini": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "apiKey": { "type": "string" },
           "embeddingModel": {
             "type": "string",
-            "enum": [
-              "voyage-3",
-              "voyage-3-large",
-              "voyage-3-lite",
-              "voyage-3.5",
-              "voyage-3.5-lite",
-              "voyage-code-3",
-              "voyage-finance-2",
-              "voyage-law-2",
-              "voyage-multilingual-2"
-            ]
-          },
-          "rerankModel": { "type": "string" }
+            "enum": ["gemini-embedding-2-preview"]
+          }
         },
         "required": ["apiKey"]
       },
@@ -169,9 +143,7 @@
         "properties": {
           "minScore": { "type": "number" },
           "vectorLimit": { "type": "number" },
-          "numCandidatesMultiplier": { "type": "number" },
-          "rerankEnabled": { "type": "boolean" },
-          "rerankLimit": { "type": "number" }
+          "numCandidatesMultiplier": { "type": "number" }
         }
       },
       "captureTriggers": {
@@ -182,6 +154,6 @@
       "autoCapture": { "type": "boolean" },
       "autoRecall": { "type": "boolean" }
     },
-    "required": ["mcp", "voyage"]
+    "required": ["mcp", "gemini"]
   }
 }
