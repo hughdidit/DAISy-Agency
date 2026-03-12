@@ -416,6 +416,17 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
       if (daemonExitError) {
         throw daemonExitError;
       }
+    } else {
+      // External Signal server mode: verify the server is reachable before
+      // entering the SSE loop.  Without this check the reconnect loop would
+      // retry indefinitely against a non-existent server.
+      const probe = await signalCheck(baseUrl, 5_000);
+      if (!probe.ok) {
+        throw new Error(
+          `Signal server unreachable at ${baseUrl}: ${probe.error ?? "unknown error"}. ` +
+            "Ensure signal-cli REST API is running or disable the Signal channel.",
+        );
+      }
     }
 
     const handleEvent = createSignalEventHandler({
