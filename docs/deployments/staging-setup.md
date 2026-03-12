@@ -161,6 +161,8 @@ The easiest way to set up the deployment directory and start services is via the
 1. **Add app secrets** to the `staging` environment in GitHub:
    - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
    - `CLAUDE_AI_SESSION_KEY` - From [Anthropic Console](https://console.anthropic.com/settings/keys)
+   - `MONGODB_URI` - MongoDB connection string used by memory extension config (`${MONGODB_URI}`)
+   - `GEMINI_API_KEY` - Gemini API key used by memory embeddings config (`${GEMINI_API_KEY}`)
    - `CLAUDE_WEB_SESSION_KEY` - Optional, for usage monitoring (see below)
    - `CLAUDE_WEB_COOKIE` - Optional, for usage monitoring (see below)
 
@@ -205,6 +207,8 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 
 - [ ] `OPENCLAW_GATEWAY_TOKEN` - Generate new random token
 - [ ] `CLAUDE_AI_SESSION_KEY` - Anthropic API key
+- [ ] `MONGODB_URI` - Staging MongoDB URI (or dedicated database on shared cluster)
+- [ ] `GEMINI_API_KEY` - Gemini API key for staging memory embeddings
 - [ ] Discord bot token - **Use staging bot, NOT production**
 - [ ] Discord allowlist - **Staging-only channels/users**
 - [ ] API keys - Use staging keys or shared keys with tracking
@@ -393,6 +397,8 @@ Configure the `staging` environment with these variables (replace with your valu
 | `GCP_SERVICE_ACCOUNT`            | `daisy-staging-sa@PROJECT_ID.iam.gserviceaccount.com`                                 | Staging service account                                    |
 | `DEPLOY_DIR`                     | `/opt/DAISy`                                                                          | Directory containing docker-compose.yml                    |
 | `HOSTNAME_PATTERN`               | `daisy-1`                                                                             | Production hostname pattern for .env validation (optional) |
+
+Also configure these **staging environment secrets** for deploys: `OPENCLAW_GATEWAY_TOKEN`, `CLAUDE_AI_SESSION_KEY`, `DISCORD_BOT_TOKEN`, `ANTHROPIC_API_KEY`, `MONGODB_URI`, and `GEMINI_API_KEY`.
 
 ### Workflow Authentication
 
