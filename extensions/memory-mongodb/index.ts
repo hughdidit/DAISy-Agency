@@ -2,7 +2,7 @@
  * DAISy Memory (MongoDB via MCP) Plugin
  *
  * Long-term memory with vector search for AI conversations.
- * Uses MongoDB MCP server for data operations and Voyage AI for embeddings/reranking.
+ * Uses MongoDB MCP server for data operations and Gemini embeddings.
  */
 
 import { Type } from "@sinclair/typebox";
@@ -14,6 +14,7 @@ import {
   memoryConfigSchema,
   vectorDimsForModel,
 } from "./config.js";
+import { GeminiService } from "./gemini-service.js";
 import { McpClientService } from "./mcp-client-service.js";
 import {
   buildVectorIndexDefinition,
@@ -21,7 +22,7 @@ import {
   type MemoryType,
   MongoMemoryDB,
 } from "./mongodb-provider.js";
-import { VoyageService } from "./voyage-service.js";
+import { multimodalPartsToFallbackText, type MultimodalPart } from "./payload-chunker.js";
 
 function compileTriggers(patterns: string[]): RegExp[] {
   return patterns.map((pattern) => new RegExp(pattern, "i"));
@@ -101,27 +102,35 @@ function detectSubCategory(text: string): string | undefined {
   return undefined;
 }
 
+const multimodalPartSchema = Type.Union([
+  Type.Object({
+    text: Type.String({ description: "Text part" }),
+  }),
+  Type.Object({
+    inlineData: Type.Object({
+      mimeType: Type.String({ description: "MIME type (image/png, image/jpeg, video/mp4, etc.)" }),
+      data: Type.String({ description: "Base64 encoded payload" }),
+    }),
+  }),
+]);
+
 const memoryPlugin = {
   id: "memory-mongodb",
-  name: "Memory (MongoDB MCP + Voyage)",
-  description: "MongoDB MCP + Voyage-backed long-term memory with auto-recall/capture",
+  name: "Memory (MongoDB MCP + Gemini)",
+  description: "MongoDB MCP + Gemini-backed long-term memory with auto-recall/capture",
   kind: "memory" as const,
   configSchema: memoryConfigSchema,
 
   register(api: OpenClawPluginApi) {
     const cfg = memoryConfigSchema.parse(api.pluginConfig);
-    const vectorDim = vectorDimsForModel(cfg.voyage.embeddingModel);
+    const vectorDim = vectorDimsForModel(cfg.gemini.embeddingModel);
 
     const mcpService = new McpClientService(cfg.mcp, api.logger);
-    const voyageService = new VoyageService(
-      cfg.voyage.apiKey,
-      cfg.voyage.embeddingModel,
-      cfg.voyage.rerankModel,
-    );
+    const geminiService = new GeminiService(cfg.gemini.apiKey, cfg.gemini.embeddingModel);
 
     const db = new MongoMemoryDB(
       mcpService,
-      voyageService,
+      geminiService,
       cfg.database.name,
       cfg.database.collection,
       cfg.database.indexName,
@@ -178,7 +187,6 @@ const memoryPlugin = {
             importance: result.entry.importance,
             score: result.score,
             vectorScore: result.vectorScore,
-            rerankScore: result.rerankScore,
           }));
 
           return {
@@ -195,25 +203,51 @@ const memoryPlugin = {
         name: "memory_store",
         label: "Memory Store",
         description:
-          "Save important information in long-term memory. Use for preferences, facts, decisions.",
+          "Save important information in long-term memory. Supports plain text or Gemini-compatible multimodal parts.",
         parameters: Type.Object({
-          text: Type.String({ description: "Information to remember" }),
+          text: Type.Optional(Type.String({ description: "Information to remember" })),
+          parts: Type.Optional(
+            Type.Array(multimodalPartSchema, {
+              description: "Optional multimodal parts for embedding (text and/or inline base64 media)",
+            }),
+          ),
           importance: Type.Optional(Type.Number({ description: "Importance 0-1 (default: 0.7)" })),
           category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
         }),
         async execute(_toolCallId, params) {
           const {
             text,
+            parts,
             importance = 0.7,
             category,
           } = params as {
-            text: string;
+            text?: string;
+            parts?: MultimodalPart[];
             importance?: number;
             category?: MemoryEntry["category"];
           };
 
-          const inferredCategory = category ?? detectCategory(text);
-          const existing = await db.searchByQuery(text, 1, 0.95, { rerank: false });
+          const normalizedParts =
+            Array.isArray(parts) && parts.length > 0
+              ? parts
+              : typeof text === "string" && text.trim().length > 0
+                ? [{ text }]
+                : [];
+
+          if (normalizedParts.length === 0) {
+            return {
+              content: [{ type: "text", text: "Provide text or parts to store memory." }],
+              details: { error: "missing_param" },
+            };
+          }
+
+          const fallbackText =
+            typeof text === "string" && text.trim().length > 0
+              ? text.trim()
+              : multimodalPartsToFallbackText(normalizedParts, 2_000);
+
+          const inferredCategory = category ?? detectCategory(fallbackText);
+          const existing = await db.searchByQuery(fallbackText, 1, 0.95);
 
           if (existing.length > 0) {
             return {
@@ -232,18 +266,19 @@ const memoryPlugin = {
           }
 
           const entry = await db.store({
-            text,
+            text: fallbackText,
+            parts: normalizedParts,
             importance,
             category: inferredCategory,
-            subCategory: detectSubCategory(text),
-            type: detectMemoryType(inferredCategory, text),
+            subCategory: detectSubCategory(fallbackText),
+            type: detectMemoryType(inferredCategory, fallbackText),
             metadata: {
               source: "memory_store",
             },
           });
 
           return {
-            content: [{ type: "text", text: `Stored: "${text.slice(0, 100)}..."` }],
+            content: [{ type: "text", text: `Stored: "${fallbackText.slice(0, 100)}..."` }],
             details: {
               action: "created",
               id: entry.id,
@@ -453,13 +488,14 @@ const memoryPlugin = {
 
           for (const text of toCapture.slice(0, 3)) {
             const category = detectCategory(text);
-            const existing = await db.searchByQuery(text, 1, 0.95, { rerank: false });
+            const existing = await db.searchByQuery(text, 1, 0.95);
             if (existing.length > 0) {
               continue;
             }
 
             await db.store({
               text,
+              parts: [{ text }],
               importance: 0.7,
               category,
               subCategory: detectSubCategory(text),
@@ -485,7 +521,7 @@ const memoryPlugin = {
       id: "memory-mongodb",
       start: () => {
         api.logger.info(
-          `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, embeddingModel: ${cfg.voyage.embeddingModel}, rerankModel: ${cfg.voyage.rerankModel})`,
+          `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, embeddingModel: ${cfg.gemini.embeddingModel})`,
         );
       },
       stop: async () => {

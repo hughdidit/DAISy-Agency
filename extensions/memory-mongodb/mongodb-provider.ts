@@ -1,7 +1,10 @@
 import { randomUUID } from "node:crypto";
 import type { MemoryCategory } from "./config.js";
 import type { McpClientService } from "./mcp-client-service.js";
-import type { VoyageService } from "./voyage-service.js";
+import {
+  multimodalPartsToFallbackText,
+  type MultimodalPart,
+} from "./payload-chunker.js";
 
 export type MemoryType =
   | "working"
@@ -25,25 +28,31 @@ export type MemoryEntry = {
   updatedAt: number;
 };
 
+export type StoreMemoryInput = Omit<MemoryEntry, "id" | "createdAt" | "updatedAt" | "vector" | "text"> & {
+  parts: MultimodalPart[];
+  text?: string;
+};
+
 export type MemorySearchResult = {
   entry: MemoryEntry;
   score: number;
   vectorScore: number;
-  rerankScore?: number;
 };
 
 export type RetrievalOptions = {
   minScore: number;
   vectorLimit: number;
   numCandidatesMultiplier: number;
-  rerankEnabled: boolean;
-  rerankLimit: number;
 };
 
 type Logger = {
   info?: (message: string) => void;
   warn?: (message: string) => void;
   error?: (message: string) => void;
+};
+
+type EmbeddingProvider = {
+  embed: (parts: MultimodalPart[]) => Promise<number[]>;
 };
 
 type MemoryDocument = {
@@ -66,7 +75,7 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 export class MongoMemoryDB {
   constructor(
     private readonly mcp: McpClientService,
-    private readonly voyage: VoyageService,
+    private readonly embeddings: EmbeddingProvider,
     private readonly databaseName: string,
     private readonly collectionName: string,
     private readonly vectorSearchIndexName: string,
@@ -74,14 +83,14 @@ export class MongoMemoryDB {
     private readonly logger?: Logger,
   ) {}
 
-  async store(
-    entry: Omit<MemoryEntry, "id" | "createdAt" | "updatedAt" | "vector">,
-  ): Promise<MemoryEntry> {
-    const vector = await this.voyage.embed(entry.text);
+  async store(entry: StoreMemoryInput): Promise<MemoryEntry> {
+    const { parts, text, ...rest } = entry;
+    const vector = await this.embeddings.embed(parts);
 
     const now = Date.now();
     const record: MemoryEntry = {
-      ...entry,
+      ...rest,
+      text: text?.trim() || multimodalPartsToFallbackText(parts),
       id: randomUUID(),
       vector,
       createdAt: now,
@@ -98,55 +107,9 @@ export class MongoMemoryDB {
     query: string,
     limit = 5,
     minScore = this.retrieval.minScore,
-    options?: { rerank?: boolean },
   ): Promise<MemorySearchResult[]> {
-    const vector = await this.voyage.embed(query);
-    const vectorResults = await this.searchByVector(vector, limit, minScore);
-
-    if (vectorResults.length === 0 || options?.rerank === false || !this.retrieval.rerankEnabled) {
-      return vectorResults;
-    }
-
-    const rerankCandidates = vectorResults.slice(0, Math.min(this.retrieval.rerankLimit, limit));
-
-    try {
-      const reranked = await this.voyage.rerank(
-        query,
-        rerankCandidates.map((candidate) => candidate.entry.text),
-        rerankCandidates.length,
-      );
-
-      if (reranked.length === 0) {
-        return vectorResults;
-      }
-
-      const mapped: MemorySearchResult[] = [];
-      for (const row of reranked) {
-        const candidate = rerankCandidates[row.index];
-        if (!candidate) {
-          continue;
-        }
-
-        mapped.push({
-          ...candidate,
-          score: row.score,
-          rerankScore: row.score,
-        });
-      }
-
-      if (mapped.length === 0) {
-        return vectorResults;
-      }
-
-      const rerankedIds = new Set(mapped.map((item) => item.entry.id));
-      const remaining = vectorResults.filter((item) => !rerankedIds.has(item.entry.id));
-      return [...mapped, ...remaining].slice(0, limit);
-    } catch (error) {
-      this.logger?.warn?.(
-        `memory-mongodb: rerank failed, using vector scores only: ${String(error)}`,
-      );
-      return vectorResults;
-    }
+    const vector = await this.embeddings.embed([{ text: query }]);
+    return this.searchByVector(vector, limit, minScore);
   }
 
   async searchByVector(

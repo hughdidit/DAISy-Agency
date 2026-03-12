@@ -10,10 +10,9 @@ vi.mock("./mcp-client-service.js", () => ({
   })),
 }));
 
-vi.mock("./voyage-service.js", () => ({
-  VoyageService: vi.fn().mockImplementation(() => ({
+vi.mock("./gemini-service.js", () => ({
+  GeminiService: vi.fn().mockImplementation(() => ({
     embed: vi.fn().mockResolvedValue([0.1, 0.2]),
-    rerank: vi.fn().mockResolvedValue([]),
   })),
 }));
 
@@ -22,7 +21,7 @@ describe("memory-mongodb plugin", () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     expect(memoryPlugin.id).toBe("memory-mongodb");
-    expect(memoryPlugin.name).toBe("Memory (MongoDB MCP + Voyage)");
+    expect(memoryPlugin.name).toBe("Memory (MongoDB MCP + Gemini)");
     expect(memoryPlugin.kind).toBe("memory");
     expect(memoryPlugin.configSchema).toBeDefined();
     expect(memoryPlugin.register).toBeInstanceOf(Function);
@@ -42,10 +41,9 @@ describe("memory-mongodb plugin", () => {
           },
         },
       },
-      voyage: {
+      gemini: {
         apiKey: "test-key",
-        embeddingModel: "voyage-3-large",
-        rerankModel: "rerank-2",
+        embeddingModel: "gemini-embedding-2-preview",
       },
       database: {
         name: "my_memory",
@@ -56,14 +54,12 @@ describe("memory-mongodb plugin", () => {
         minScore: 0.2,
         vectorLimit: 6,
         numCandidatesMultiplier: 12,
-        rerankEnabled: true,
-        rerankLimit: 5,
       },
       autoCapture: true,
       autoRecall: true,
     });
 
-    expect(config.voyage.apiKey).toBe("test-key");
+    expect(config.gemini.apiKey).toBe("test-key");
     expect(config.database.name).toBe("my_memory");
     expect(config.database.collection).toBe("my_memories");
     expect(config.database.indexName).toBe("my_index");
@@ -83,17 +79,15 @@ describe("memory-mongodb plugin", () => {
           },
         },
       },
-      voyage: { apiKey: "test-key" },
+      gemini: { apiKey: "test-key" },
     });
 
-    expect(config.voyage.embeddingModel).toBe("voyage-3-large");
-    expect(config.voyage.rerankModel).toBe("rerank-2");
+    expect(config.gemini.embeddingModel).toBe("gemini-embedding-2-preview");
     expect(config.database.name).toBe("daisy_memory");
     expect(config.database.collection).toBe("memories");
     expect(config.database.indexName).toBe("vector_index");
     expect(config.retrieval.minScore).toBe(0.1);
     expect(config.retrieval.vectorLimit).toBe(8);
-    expect(config.retrieval.rerankEnabled).toBe(true);
     expect(config.autoCapture).toBe(true);
     expect(config.autoRecall).toBe(true);
   });
@@ -101,7 +95,7 @@ describe("memory-mongodb plugin", () => {
   test("config schema resolves env vars", async () => {
     const { default: memoryPlugin } = await import("./index.js");
 
-    process.env.TEST_VOYAGE_API_KEY = "voyage-key-123";
+    process.env.TEST_GEMINI_API_KEY = "gemini-key-123";
     process.env.TEST_MONGODB_URI = "mongodb+srv://user:pass@cluster.example.com/test";
 
     const config = memoryPlugin.configSchema.parse({
@@ -113,10 +107,10 @@ describe("memory-mongodb plugin", () => {
           },
         },
       },
-      voyage: { apiKey: "${TEST_VOYAGE_API_KEY}" },
+      gemini: { apiKey: "${TEST_GEMINI_API_KEY}" },
     });
 
-    expect(config.voyage.apiKey).toBe("voyage-key-123");
+    expect(config.gemini.apiKey).toBe("gemini-key-123");
     expect(config.mcp.transport).toBe("stdio");
     if (config.mcp.transport === "stdio") {
       expect(config.mcp.stdio.env.MDB_MCP_CONNECTION_STRING).toBe(
@@ -124,11 +118,11 @@ describe("memory-mongodb plugin", () => {
       );
     }
 
-    delete process.env.TEST_VOYAGE_API_KEY;
+    delete process.env.TEST_GEMINI_API_KEY;
     delete process.env.TEST_MONGODB_URI;
   });
 
-  test("config schema rejects missing voyage api key", async () => {
+  test("config schema rejects missing gemini api key", async () => {
     const { default: memoryPlugin } = await import("./index.js");
 
     expect(() => {
@@ -141,9 +135,9 @@ describe("memory-mongodb plugin", () => {
             },
           },
         },
-        voyage: {},
+        gemini: {},
       });
-    }).toThrow("voyage.apiKey is required");
+    }).toThrow("gemini.apiKey is required");
   });
 
   test("config schema rejects missing stdio connection string", async () => {
@@ -157,7 +151,7 @@ describe("memory-mongodb plugin", () => {
             env: {},
           },
         },
-        voyage: { apiKey: "test-key" },
+        gemini: { apiKey: "test-key" },
       });
     }).toThrow("MDB_MCP_CONNECTION_STRING");
   });
@@ -175,7 +169,7 @@ describe("memory-mongodb plugin", () => {
             },
           },
         },
-        voyage: { apiKey: "test-key" },
+        gemini: { apiKey: "test-key" },
       });
     }).toThrow("without TLS");
   });
@@ -192,7 +186,7 @@ describe("memory-mongodb plugin", () => {
           },
         },
       },
-      voyage: { apiKey: "test-key" },
+      gemini: { apiKey: "test-key" },
     });
 
     expect(config.mcp.transport).toBe("stdio");
@@ -211,7 +205,7 @@ describe("memory-mongodb plugin", () => {
             },
           },
         },
-        voyage: { apiKey: "test-key" },
+        gemini: { apiKey: "test-key" },
         unknownField: true,
       });
     }).toThrow("unknown keys");
@@ -244,7 +238,7 @@ describe("memory-mongodb plugin", () => {
             },
           },
         },
-        voyage: { apiKey: "test-key" },
+        gemini: { apiKey: "test-key" },
         captureTriggers: ["(invalid["],
       });
     }).toThrow("Invalid captureTrigger regex");

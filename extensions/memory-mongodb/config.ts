@@ -12,10 +12,9 @@ export type MemoryConfig = {
         transport: "sse";
         url: string;
       };
-  voyage: {
+  gemini: {
     apiKey: string;
     embeddingModel: string;
-    rerankModel: string;
   };
   database: {
     name: string;
@@ -26,8 +25,6 @@ export type MemoryConfig = {
     minScore: number;
     vectorLimit: number;
     numCandidatesMultiplier: number;
-    rerankEnabled: boolean;
-    rerankLimit: number;
   };
   captureTriggers: string[];
   autoCapture?: boolean;
@@ -40,16 +37,13 @@ export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
 const DEFAULT_TRANSPORT = "stdio" as const;
 const DEFAULT_STDIO_COMMAND = "npx";
 const DEFAULT_STDIO_ARGS = ["-y", "mongodb-mcp-server"];
-const DEFAULT_EMBEDDING_MODEL = "voyage-3-large";
-const DEFAULT_RERANK_MODEL = "rerank-2";
+const DEFAULT_GEMINI_EMBEDDING_MODEL = "gemini-embedding-2-preview";
 const DEFAULT_DATABASE_NAME = "daisy_memory";
 const DEFAULT_COLLECTION_NAME = "memories";
 const DEFAULT_VECTOR_SEARCH_INDEX_NAME = "vector_index";
 const DEFAULT_MIN_SCORE = 0.1;
 const DEFAULT_VECTOR_LIMIT = 8;
 const DEFAULT_NUM_CANDIDATES_MULTIPLIER = 10;
-const DEFAULT_RERANK_ENABLED = true;
-const DEFAULT_RERANK_LIMIT = 8;
 
 export const DEFAULT_CAPTURE_TRIGGERS = [
   "remember",
@@ -62,16 +56,8 @@ export const DEFAULT_CAPTURE_TRIGGERS = [
   "always|never|important",
 ];
 
-const VOYAGE_EMBEDDING_DIMENSIONS: Record<string, number> = {
-  "voyage-3": 1024,
-  "voyage-3-large": 1024,
-  "voyage-3-lite": 512,
-  "voyage-3.5": 1024,
-  "voyage-3.5-lite": 512,
-  "voyage-code-3": 1024,
-  "voyage-finance-2": 1024,
-  "voyage-law-2": 1024,
-  "voyage-multilingual-2": 1024,
+const GEMINI_EMBEDDING_DIMENSIONS: Record<string, number> = {
+  "gemini-embedding-2-preview": 1536,
 };
 
 function assertAllowedKeys(value: Record<string, unknown>, allowed: string[], label: string) {
@@ -123,7 +109,7 @@ function parseScore(value: unknown, label: string, defaultValue: number): number
 }
 
 export function vectorDimsForModel(model: string): number {
-  const dims = VOYAGE_EMBEDDING_DIMENSIONS[model];
+  const dims = GEMINI_EMBEDDING_DIMENSIONS[model];
   if (!dims) {
     throw new Error(`Unsupported embedding model: ${model}`);
   }
@@ -223,7 +209,7 @@ export const memoryConfigSchema = {
     const cfg = value as Record<string, unknown>;
     assertAllowedKeys(
       cfg,
-      ["mcp", "voyage", "database", "retrieval", "captureTriggers", "autoCapture", "autoRecall"],
+      ["mcp", "gemini", "database", "retrieval", "captureTriggers", "autoCapture", "autoRecall"],
       "memory config",
     );
 
@@ -253,18 +239,17 @@ export const memoryConfigSchema = {
       }
     }
 
-    const voyage = cfg.voyage as Record<string, unknown> | undefined;
-    if (!voyage || typeof voyage.apiKey !== "string") {
-      throw new Error("voyage.apiKey is required");
+    const gemini = cfg.gemini as Record<string, unknown> | undefined;
+    if (!gemini || typeof gemini.apiKey !== "string") {
+      throw new Error("gemini.apiKey is required");
     }
-    assertAllowedKeys(voyage, ["apiKey", "embeddingModel", "rerankModel"], "voyage config");
+    assertAllowedKeys(gemini, ["apiKey", "embeddingModel"], "gemini config");
 
     const embeddingModel =
-      typeof voyage.embeddingModel === "string" ? voyage.embeddingModel : DEFAULT_EMBEDDING_MODEL;
+      typeof gemini.embeddingModel === "string"
+        ? gemini.embeddingModel
+        : DEFAULT_GEMINI_EMBEDDING_MODEL;
     vectorDimsForModel(embeddingModel);
-
-    const rerankModel =
-      typeof voyage.rerankModel === "string" ? voyage.rerankModel : DEFAULT_RERANK_MODEL;
 
     const database = cfg.database as Record<string, unknown> | undefined;
     if (database && typeof database !== "object") {
@@ -281,7 +266,7 @@ export const memoryConfigSchema = {
     if (retrieval) {
       assertAllowedKeys(
         retrieval,
-        ["minScore", "vectorLimit", "numCandidatesMultiplier", "rerankEnabled", "rerankLimit"],
+        ["minScore", "vectorLimit", "numCandidatesMultiplier"],
         "retrieval config",
       );
     }
@@ -341,10 +326,9 @@ export const memoryConfigSchema = {
               transport: "sse",
               url: resolveEnvVars(String(mcp.url)),
             },
-      voyage: {
-        apiKey: resolveEnvVars(voyage.apiKey),
+      gemini: {
+        apiKey: resolveEnvVars(gemini.apiKey),
         embeddingModel,
-        rerankModel,
       },
       database: {
         name: typeof database?.name === "string" ? database.name : DEFAULT_DATABASE_NAME,
@@ -366,15 +350,6 @@ export const memoryConfigSchema = {
           retrieval?.numCandidatesMultiplier,
           "retrieval.numCandidatesMultiplier",
           DEFAULT_NUM_CANDIDATES_MULTIPLIER,
-        ),
-        rerankEnabled:
-          typeof retrieval?.rerankEnabled === "boolean"
-            ? retrieval.rerankEnabled
-            : DEFAULT_RERANK_ENABLED,
-        rerankLimit: parsePositiveInt(
-          retrieval?.rerankLimit,
-          "retrieval.rerankLimit",
-          DEFAULT_RERANK_LIMIT,
         ),
       },
       captureTriggers: parseCaptureTriggers(cfg.captureTriggers),
@@ -409,22 +384,16 @@ export const memoryConfigSchema = {
       placeholder: "https://example.com/sse",
       help: "Required when mcp.transport is sse",
     },
-    "voyage.apiKey": {
-      label: "Voyage API Key",
+    "gemini.apiKey": {
+      label: "Gemini API Key",
       sensitive: true,
-      placeholder: "pa-...",
-      help: "Voyage API key (or use ${VOYAGE_API_KEY})",
+      placeholder: "AIza...",
+      help: "Gemini API key (or use ${GEMINI_API_KEY})",
     },
-    "voyage.embeddingModel": {
+    "gemini.embeddingModel": {
       label: "Embedding Model",
-      placeholder: DEFAULT_EMBEDDING_MODEL,
-      help: "Voyage embedding model",
-    },
-    "voyage.rerankModel": {
-      label: "Rerank Model",
-      placeholder: DEFAULT_RERANK_MODEL,
-      advanced: true,
-      help: "Voyage rerank model",
+      placeholder: DEFAULT_GEMINI_EMBEDDING_MODEL,
+      help: "Gemini embedding model",
     },
     "database.name": {
       label: "Database Name",
@@ -458,17 +427,6 @@ export const memoryConfigSchema = {
       placeholder: String(DEFAULT_NUM_CANDIDATES_MULTIPLIER),
       advanced: true,
       help: "numCandidates = vectorLimit * multiplier",
-    },
-    "retrieval.rerankEnabled": {
-      label: "Enable Rerank",
-      advanced: true,
-      help: "Use Voyage rerank to reorder vector candidates",
-    },
-    "retrieval.rerankLimit": {
-      label: "Rerank Limit",
-      placeholder: String(DEFAULT_RERANK_LIMIT),
-      advanced: true,
-      help: "Maximum candidates sent to reranker",
     },
     captureTriggers: {
       label: "Capture Triggers",
