@@ -13,6 +13,7 @@
     "assets/",
     "CLAUDE.md",
     "docker-compose.yml",
+    "monitoring/",
     "dist/",
     "docs/_layouts/",
     "node_modules/",
