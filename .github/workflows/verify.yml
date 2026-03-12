@@ -43,6 +43,15 @@ jobs:
       - name: Install Google Cloud SDK
         uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a # v2.1.2
 
+      - name: Install NumPy for IAP tunnel performance
+        run: |
+          PYTHON_BIN="$(gcloud info --format='value(basic.python_location)')"
+          if [ -z "$PYTHON_BIN" ]; then
+            echo "ERROR: Failed to determine gcloud Python interpreter (basic.python_location is empty)" >&2
+            exit 1
+          fi
+          "$PYTHON_BIN" -m pip install numpy
+
       - name: Pre-generate SSH key for gcloud
         run: |
           # Generate the SSH key that gcloud compute ssh would auto-create,
