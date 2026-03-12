@@ -123,6 +123,7 @@ if [[ "${PROVISION}" == "true" ]]; then
   # Base64 encode compose files to pass as argument (stdin not forwarded by gcloud ssh --command)
   COMPOSE_B64="$(base64 -w0 docker-compose.yml)"
   COMPOSE_HOST_B64="$(base64 -w0 docker-compose.host.yml)"
+  COMPOSE_SANDBOX_B64="$(base64 -w0 docker-compose.sandbox.yml)"
 
   # Provision VM: install docker-compose, create directory structure, copy compose files
   # --quiet suppresses interactive prompts (SSH key generation) that would consume stdin
@@ -131,7 +132,7 @@ if [[ "${PROVISION}" == "true" ]]; then
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if ! command -v docker-compose >/dev/null 2>&1; then echo \"Installing docker-compose...\"; sudo curl -fsSL \"https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; echo \"${COMPOSE_HOST_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.host.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo chown 1000:1000 \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo find \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\" -mindepth 1 -exec chown 1000:1000 {} + 2>/dev/null || true; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker-compose version'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if ! command -v docker-compose >/dev/null 2>&1; then echo \"Installing docker-compose...\"; sudo curl -fsSL \"https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; echo \"${COMPOSE_HOST_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.host.yml\"; echo \"${COMPOSE_SANDBOX_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.sandbox.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo chown 1000:1000 \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo find \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\" -mindepth 1 -exec chown 1000:1000 {} + 2>/dev/null || true; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker-compose version'"
   echo "Provisioning complete."
 fi
 
@@ -222,6 +223,35 @@ export OPENCLAW_CONFIG_FILE
 COMPOSE_FILES="-f docker-compose.yml"
 if [[ -f docker-compose.host.yml ]]; then
   COMPOSE_FILES="${COMPOSE_FILES} -f docker-compose.host.yml"
+fi
+if [[ -f docker-compose.sandbox.yml ]]; then
+  COMPOSE_FILES="${COMPOSE_FILES} -f docker-compose.sandbox.yml"
+  # Detect host Docker socket GID for sandbox compose overlay.
+  if [[ -S /var/run/docker.sock ]]; then
+    DOCKER_GID="$(stat -c '%g' /var/run/docker.sock)"
+    export DOCKER_GID
+    echo "Docker socket GID: ${DOCKER_GID}"
+  fi
+fi
+
+# Pull sandbox image from GHCR and re-tag to the local name expected by the app.
+# The app references "openclaw-sandbox:bookworm-slim" (no registry prefix).
+# Extract base image name: strip digest first, then strip tag only from the
+# last path segment (avoids treating a registry port like ghcr.io:443 as a tag).
+IMAGE_NO_DIGEST="${DEPLOY_REF%%@*}"
+IMAGE_LAST_SEGMENT="${IMAGE_NO_DIGEST##*/}"
+if [[ "${IMAGE_LAST_SEGMENT}" == *:* ]]; then
+  SANDBOX_BASE="${IMAGE_NO_DIGEST%:*}"
+else
+  SANDBOX_BASE="${IMAGE_NO_DIGEST}"
+fi
+SANDBOX_GHCR_IMAGE="${SANDBOX_BASE}-sandbox:bookworm-slim"
+echo "Pulling sandbox image: ${SANDBOX_GHCR_IMAGE}"
+if sudo docker pull "${SANDBOX_GHCR_IMAGE}"; then
+  sudo docker tag "${SANDBOX_GHCR_IMAGE}" "openclaw-sandbox:bookworm-slim"
+  echo "Sandbox image ready: openclaw-sandbox:bookworm-slim"
+else
+  echo "WARNING: Failed to pull sandbox image. Sandbox may not function." >&2
 fi
 
 # Pull and deploy (use sudo -E to preserve environment variables)

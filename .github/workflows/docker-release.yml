@@ -104,6 +104,7 @@ jobs:
         with:
           context: .
           platforms: linux/amd64
+          build-args: OPENCLAW_INSTALL_DOCKER_CLI=1
           tags: ${{ steps.tags.outputs.value }}
           labels: ${{ steps.labels.outputs.value }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cache:amd64
@@ -197,10 +198,71 @@ jobs:
         with:
           context: .
           platforms: linux/arm64
+          build-args: OPENCLAW_INSTALL_DOCKER_CLI=1
           tags: ${{ steps.tags.outputs.value }}
           labels: ${{ steps.labels.outputs.value }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cache:arm64
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cache:arm64,mode=max
+          provenance: false
+          push: true
+
+  # Build sandbox image (amd64 only — VM target is always amd64)
+  build-sandbox:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve sandbox image tags
+        id: tags
+        shell: bash
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-sandbox
+        run: |
+          set -euo pipefail
+          tags=()
+          # The sandbox image is tagged as bookworm-slim (matches DEFAULT_SANDBOX_IMAGE)
+          # plus a branch-specific tag for traceability.
+          tags+=("${IMAGE}:bookworm-slim")
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/main" ]]; then
+            tags+=("${IMAGE}:main")
+          fi
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/dev" ]]; then
+            SHORTSHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
+            tags+=("${IMAGE}:dev-${SHORTSHA}")
+          fi
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            version="${GITHUB_REF#refs/tags/v}"
+            tags+=("${IMAGE}:${version}")
+          fi
+          {
+            echo "value<<EOF"
+            printf "%s\n" "${tags[@]}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and push sandbox image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.sandbox
+          platforms: linux/amd64
+          tags: ${{ steps.tags.outputs.value }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-sandbox-cache:amd64
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-sandbox-cache:amd64,mode=max
           provenance: false
           push: true
 
