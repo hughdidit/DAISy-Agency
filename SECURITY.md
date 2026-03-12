@@ -200,6 +200,31 @@ Security boundary notes:
   - SDK temp helpers: `src/plugin-sdk/temp-path.ts`
   - messaging/channel tmp guardrail: `scripts/check-no-random-messaging-tmp.mjs`
 
+## Host-Level Monitoring (DAISy Deployment)
+
+The DAISy deployment includes a host-level monitoring stack that runs **outside** Docker containers on the GCP VM, providing independent observability into agent runtime behavior.
+
+### What It Monitors
+
+- **Syscall-level security** (Falco/eBPF): container escapes, privilege escalation, unexpected processes, Docker socket access
+- **Container resources** (Prometheus/cAdvisor): CPU, memory, network, disk per container; detects resource exhaustion and exfiltration spikes
+- **Process allowlisting** (daisy-watchdog): only approved binaries may run inside containers; violations trigger alerts
+- **Network connections** (conntrack): tracks all outbound connections from containers for SSRF and data exfiltration detection
+- **File integrity** (AIDE): detects unauthorized modifications to deployment configs, container images, and host binaries
+- **Tool invocation auditing** (daisy-watchdog): records every agent tool call with rate limiting (50 tools/min/agent)
+
+### Anti-Tampering
+
+If an agent escapes its container (landing as uid 1000 on the host), the monitoring stack resists manipulation:
+
+- Monitoring runs as a separate user (uid 2000) with `chattr +i` on configs
+- Logs replicate to GCP Cloud Logging in real-time (write-only SA role, cannot be deleted from the VM)
+- Dead man's switch: external GCP Cloud Function fires independent alerts if the VM stops responding
+- All monitoring services use `Restart=always` — killing them triggers immediate restart
+- AppArmor and seccomp profiles block container processes from accessing monitoring paths and eBPF syscalls
+
+See [`monitoring/README.md`](monitoring/README.md) for architecture, deployment, and configuration details.
+
 ## Operational Guidance
 
 For threat model + hardening guidance (including `openclaw security audit --deep` and `--fix`), see:

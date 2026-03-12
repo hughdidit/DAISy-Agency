@@ -1,0 +1,32 @@
+# Grafana Datasource Provisioning for DAISy-Agency
+# Auto-configures Prometheus + Loki on startup
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://daisy-prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: "15s"
+      httpMethod: POST
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://daisy-loki:3100
+    editable: false
+    jsonData:
+      maxLines: 1000
+      timeout: 60
+
+  - name: Alertmanager
+    type: alertmanager
+    access: proxy
+    url: http://daisy-alertmanager:9093
+    editable: false
+    jsonData:
+      implementation: prometheus

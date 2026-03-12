@@ -1,0 +1,144 @@
+# DAISy Watchdog Process Allowlist
+# Processes permitted to run inside agent containers
+# Any process NOT in this list triggers a warning alert
+#
+# IMPORTANT: This file is protected by chattr +i on the VM
+# To modify: sudo chattr -i <file>, edit, sudo chattr +i <file>
+
+# Expected processes in openclaw-gateway / openclaw-cli containers
+allowed_processes:
+  # Node.js runtime (main application)
+  - node
+  - npm
+  - npx
+  - pnpm
+
+  # Python (agent tools)
+  - python3
+  - python
+  - pip3
+
+  # Shells (used by exec-tools)
+  - bash
+  - sh
+  - dash
+
+  # Git operations
+  - git
+  - git-remote-https
+
+  # File search tools (used by agent grep/glob)
+  - rg
+  - ripgrep
+  - grep
+  - find
+  - fd
+
+  # Standard UNIX utilities (used in pipelines)
+  - cat
+  - ls
+  - head
+  - tail
+  - sort
+  - uniq
+  - wc
+  - cut
+  - tr
+  - tee
+  - xargs
+  - env
+  - timeout
+  - mkdir
+  - rm
+  - cp
+  - mv
+  - chmod
+  - touch
+  - dirname
+  - basename
+  - realpath
+  - readlink
+  - test
+  - true
+  - false
+  - echo
+  - printf
+
+  # Text processing
+  - sed
+  - awk
+  - gawk
+  - jq
+
+  # Network tools (used by web-fetch)
+  - curl
+  - wget
+
+  # Container init
+  - tini
+  - docker-init
+
+  # Chromium (sandbox-browser container only)
+  - chromium
+  - chromium-browser
+  - chrome
+  - google-chrome
+
+# Parent processes that are allowed to spawn children
+allowed_parents:
+  - node
+  - bash
+  - sh
+  - tini
+  - docker-init
+  - python3
+  - chromium
+
+# Processes that trigger CRITICAL alerts regardless of context
+# (should never appear in agent containers)
+always_block:
+  - nsenter
+  - unshare
+  - chroot
+  - pivot_root
+  - mount
+  - umount
+  - insmod
+  - modprobe
+  - rmmod
+  - iptables
+  - ip6tables
+  - nftables
+  - tcpdump
+  - wireshark
+  - tshark
+  - nmap
+  - masscan
+  - netcat
+  - ncat
+  - socat
+  - ssh
+  - sshd
+  - telnet
+  - ftp
+  - scp
+  - rsync
+  - dd
+  - gdb
+  - strace
+  - ltrace
+  - perf
+  - systemctl
+  - service
+  - crontab
+  - at
+  - atd
+  - anacron
+  - useradd
+  - usermod
+  - passwd
+  - chpasswd
+  - adduser
+  - deluser
+  - groupadd
+  - groupmod

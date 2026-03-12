@@ -73,3 +73,6 @@ jobs:
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
           VERIFY_GCE_CONTAINER: ${{ secrets.VERIFY_GCE_CONTAINER || vars.VERIFY_GCE_CONTAINER }}
           VERIFY_HEALTH_TIMEOUT: ${{ vars.VERIFY_HEALTH_TIMEOUT }}
+          # Monitoring stack verification (set VERIFY_MONITORING=true in GitHub environment variables)
+          VERIFY_MONITORING: ${{ vars.VERIFY_MONITORING }}
+          VERIFY_MONITORING_TIMEOUT: ${{ vars.VERIFY_MONITORING_TIMEOUT }}

@@ -1,0 +1,199 @@
+# Prometheus Alert Rules for DAISy-Agency
+# Organized by category: watchdog, resources, containers, security, application
+
+groups:
+  # ─────────────────────────────────────────────────────────
+  # Dead Man's Switch — fires continuously so Alertmanager
+  # can detect when Prometheus stops working
+  # ─────────────────────────────────────────────────────────
+  - name: watchdog
+    rules:
+      - alert: Watchdog
+        expr: vector(1)
+        labels:
+          severity: none
+        annotations:
+          summary: "Dead man's switch - Prometheus is alive"
+          description: >
+            This alert fires continuously. If Alertmanager stops receiving
+            this alert, it means Prometheus is down. Configure Alertmanager
+            to alert on the ABSENCE of this alert.
+
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus target {{ $labels.job }} is down"
+          description: "Target {{ $labels.instance }} in job {{ $labels.job }} has been down for >2m."
+
+  # ─────────────────────────────────────────────────────────
+  # Host Resource Alerts
+  # ─────────────────────────────────────────────────────────
+  - name: host-resources
+    rules:
+      - alert: HostHighCpuUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host CPU usage >85% for 5 minutes"
+          description: "CPU usage is {{ $value | printf \"%.1f\" }}%"
+
+      - alert: HostHighMemoryUsage
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host memory usage >90%"
+          description: "Memory usage is {{ $value | printf \"%.1f\" }}%"
+
+      - alert: HostDiskSpaceCritical
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Host root disk >85% full"
+          description: "Disk usage on / is {{ $value | printf \"%.1f\" }}%"
+
+      - alert: HostDataDiskSpaceCritical
+        expr: (1 - node_filesystem_avail_bytes{mountpoint=~"/var/lib/daisy|/data"} / node_filesystem_size_bytes{mountpoint=~"/var/lib/daisy|/data"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Data disk >85% full"
+          description: "Disk usage on data volume is {{ $value | printf \"%.1f\" }}%"
+
+      - alert: HostHighNetworkTraffic
+        expr: rate(node_network_transmit_bytes_total{device!~"lo|veth.*|docker.*|br-.*"}[5m]) > 10485760
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host network TX >10MB/s sustained"
+          description: "Network transmit rate: {{ $value | humanize1024 }}B/s — potential data exfiltration"
+
+  # ─────────────────────────────────────────────────────────
+  # Container Resource Alerts
+  # ─────────────────────────────────────────────────────────
+  - name: container-resources
+    rules:
+      - alert: ContainerHighCpu
+        expr: rate(container_cpu_usage_seconds_total{name=~"openclaw.*|sandbox.*"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} CPU >80%"
+          description: "Container {{ $labels.name }} CPU usage: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: ContainerHighMemory
+        expr: >
+          container_memory_usage_bytes{name=~"openclaw.*|sandbox.*"}
+          / container_spec_memory_limit_bytes{name=~"openclaw.*|sandbox.*"} * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} memory >90% of limit"
+          description: "Memory usage: {{ $value | printf \"%.1f\" }}% of limit"
+
+      - alert: ContainerOomKilled
+        expr: increase(container_oom_events_total{name=~"openclaw.*|sandbox.*"}[5m]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.name }} OOM killed"
+          description: "Container was killed by OOM killer"
+
+      - alert: ContainerRestartLoop
+        expr: increase(container_start_time_seconds{name=~"openclaw.*|sandbox.*"}[15m]) > 3
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.name }} restarting repeatedly"
+          description: "Container has restarted {{ $value }} times in 15 minutes"
+
+      - alert: UnexpectedContainerCount
+        expr: count(container_start_time_seconds{name=~"openclaw.*|sandbox.*"}) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unexpected number of containers running"
+          description: "{{ $value }} containers matching openclaw/sandbox pattern — expected ≤10"
+
+      # ─── Network Exfiltration Detection ───
+      - alert: ContainerNetworkTxSpike
+        expr: >
+          rate(container_network_transmit_bytes_total{name=~"openclaw.*|sandbox.*"}[5m])
+          > 3 * avg_over_time(rate(container_network_transmit_bytes_total{name=~"openclaw.*|sandbox.*"}[5m])[1h:5m])
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} network TX 3x above baseline"
+          description: "Current TX rate: {{ $value | humanize1024 }}B/s — possible data exfiltration"
+
+  # ─────────────────────────────────────────────────────────
+  # Application Health Alerts
+  # ─────────────────────────────────────────────────────────
+  - name: application-health
+    rules:
+      - alert: OpenClawGatewayDown
+        expr: up{job="openclaw-gateway"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "OpenClaw gateway is unreachable"
+          description: "The gateway at localhost:__OPENCLAW_GATEWAY_PORT__ has been unreachable for >2 minutes"
+
+      - alert: OpenClawGatewayUnhealthy
+        expr: >
+          probe_success{job="openclaw-gateway"} == 0
+          or absent(up{job="openclaw-gateway"})
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "OpenClaw gateway health check failing"
+          description: "Gateway health endpoint not returning success for >5 minutes"
+
+  # ─────────────────────────────────────────────────────────
+  # Monitoring Stack Self-Health
+  # ─────────────────────────────────────────────────────────
+  - name: monitoring-health
+    rules:
+      - alert: LokiDown
+        expr: up{job="loki"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Loki is unreachable"
+          description: "Log aggregation system has been down for >2 minutes"
+
+      - alert: AlertmanagerDown
+        expr: up{job="alertmanager"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Alertmanager is unreachable"
+          description: "Alert routing system has been down for >2 minutes. Alerts may not be delivered."
+
+      - alert: PrometheusStorageAlmostFull
+        expr: >
+          (prometheus_tsdb_storage_blocks_bytes / (10 * 1024 * 1024 * 1024)) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus storage >80% of 10GB limit"
+          description: "Storage usage: {{ $value | printf \"%.1f\" }}%"

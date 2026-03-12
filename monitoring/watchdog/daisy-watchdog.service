@@ -1,0 +1,70 @@
+# systemd service unit for DAISy Watchdog
+# Monitors container processes, audits tool invocations, detects anomalies
+#
+# Install:
+#   sudo cp daisy-watchdog.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now daisy-watchdog
+
+[Unit]
+Description=DAISy Agent Watchdog - Process Monitor and Audit Trail
+Documentation=https://github.com/your-org/DAISy-Agency/tree/main/monitoring
+After=docker.service
+Requires=docker.service
+# Ensure watchdog starts after monitoring stack
+After=daisy-monitoring.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/DAISy/monitoring/watchdog/daisy-watchdog.py
+
+# Run as dedicated monitoring user (anti-tampering)
+User=daisy-monitor
+Group=daisy-monitor
+
+# Environment
+EnvironmentFile=-/opt/DAISy/monitoring/.env
+Environment=WATCHDOG_CONFIG_DIR=/opt/DAISy/monitoring/watchdog
+Environment=WATCHDOG_LOG_DIR=/var/log/daisy-watchdog
+Environment=OPENCLAW_LOG_DIR=/tmp/openclaw
+
+# Restart policy (self-healing)
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+# Security hardening
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+MemoryDenyWriteExecute=true
+
+# Allow read access to required paths
+ReadOnlyPaths=/opt/DAISy/monitoring
+ReadOnlyPaths=/tmp/openclaw
+ReadOnlyPaths=/var/lib/docker/containers
+
+# Allow write access only to log directory
+ReadWritePaths=/var/log/daisy-watchdog
+
+# Allow docker CLI execution (for docker top, docker ps, docker events)
+SupplementaryGroups=docker
+
+# Resource limits (prevent watchdog itself from consuming too much)
+MemoryMax=256M
+CPUQuota=25%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=daisy-watchdog
+
+[Install]
+WantedBy=multi-user.target

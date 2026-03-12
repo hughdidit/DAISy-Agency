@@ -1,0 +1,115 @@
+{
+  "_comment": "DAISy Agent Container Seccomp Profile - blocks dangerous syscalls including bpf() to prevent Falco tampering",
+  "defaultAction": "SCMP_ACT_ALLOW",
+  "architectures": [
+    "SCMP_ARCH_X86_64",
+    "SCMP_ARCH_X86",
+    "SCMP_ARCH_AARCH64"
+  ],
+  "syscalls": [
+    {
+      "_comment": "Block bpf() - prevents loading eBPF programs that could disable Falco",
+      "names": ["bpf"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block kernel module loading - prevents loading malicious kernel modules",
+      "names": ["init_module", "finit_module", "delete_module"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block namespace manipulation - prevents container escape",
+      "names": ["unshare", "setns"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block mount operations - prevents filesystem escape",
+      "names": ["mount", "umount", "umount2", "pivot_root"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block ptrace - prevents process injection and debugging",
+      "names": ["ptrace", "process_vm_readv", "process_vm_writev"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block raw I/O - prevents direct hardware/memory access",
+      "names": ["iopl", "ioperm"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block kexec - prevents kernel replacement",
+      "names": ["kexec_load", "kexec_file_load"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block syslog access - prevents reading kernel messages",
+      "names": ["syslog"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block reboot - prevents system disruption",
+      "names": ["reboot"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block personality - prevents changing execution domain",
+      "names": ["personality"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1,
+      "args": [
+        {
+          "index": 0,
+          "value": 0,
+          "valueTwo": 0,
+          "op": "SCMP_CMP_NE"
+        }
+      ]
+    },
+    {
+      "_comment": "Block acct - prevents process accounting manipulation",
+      "names": ["acct"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block userfaultfd - prevents page fault exploitation",
+      "names": ["userfaultfd"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block keyctl - prevents kernel keyring access (credential theft)",
+      "names": ["keyctl", "add_key", "request_key"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block perf_event_open - prevents performance monitoring misuse",
+      "names": ["perf_event_open"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block swapon/swapoff - prevents swap manipulation",
+      "names": ["swapon", "swapoff"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    },
+    {
+      "_comment": "Block clock_settime - prevents time manipulation (can confuse log ordering)",
+      "names": ["clock_settime", "settimeofday", "adjtimex", "clock_adjtime"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    }
+  ]
+}

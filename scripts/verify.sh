@@ -149,6 +149,118 @@ if [[ -n "${VERIFY_SSH_HOST:-}" ]]; then
   fi
 fi
 
+# ─── Monitoring stack verification ───
+# Runs when VERIFY_MONITORING=true and GCE_INSTANCE_NAME is set
+if [[ "${VERIFY_MONITORING:-false}" == "true" && -n "${GCE_INSTANCE_NAME:-}" ]]; then
+  log ""
+  log "=== Monitoring Stack Verification ==="
+
+  monitoring_timeout="${VERIFY_MONITORING_TIMEOUT:-60}"
+
+  # Check 1: Monitoring Docker containers are running
+  checks_run=$((checks_run + 1))
+  log "Checking monitoring Docker containers..."
+  monitoring_containers_ok=true
+  for svc in daisy-prometheus daisy-loki daisy-grafana daisy-alertmanager daisy-cadvisor daisy-node-exporter daisy-promtail; do
+    svc_status="$(
+      gce_ssh_lastline "sudo docker inspect --format='{{.State.Status}}' ${svc} 2>/dev/null || echo 'not found'"
+    )" || true
+    svc_status="$(echo "${svc_status}" | tr -d '[:space:]')"
+    if [[ "${svc_status}" == "running" ]]; then
+      log "  ✓ ${svc}: running"
+    else
+      log "  ✗ ${svc}: ${svc_status:-not found}"
+      monitoring_containers_ok=false
+    fi
+  done
+  if [[ "${monitoring_containers_ok}" != "true" ]]; then
+    fail "One or more monitoring containers are not running"
+  fi
+  log "Monitoring containers check passed."
+
+  # Check 2: Host monitoring services are active
+  checks_run=$((checks_run + 1))
+  log "Checking host monitoring services..."
+  host_services_ok=true
+  for svc in falco daisy-watchdog; do
+    svc_active="$(
+      gce_ssh_lastline "systemctl is-active ${svc} 2>/dev/null || echo inactive"
+    )" || true
+    svc_active="$(echo "${svc_active}" | tr -d '[:space:]')"
+    if [[ "${svc_active}" == "active" ]]; then
+      log "  ✓ ${svc}: active"
+    else
+      log "  ✗ ${svc}: ${svc_active}"
+      host_services_ok=false
+    fi
+  done
+  if [[ "${host_services_ok}" != "true" ]]; then
+    fail "One or more host monitoring services are not active"
+  fi
+  log "Host monitoring services check passed."
+
+  # Check 3: Monitoring endpoints are healthy
+  checks_run=$((checks_run + 1))
+  log "Checking monitoring endpoints (timeout: ${monitoring_timeout}s)..."
+  endpoints_ok=true
+  elapsed=0
+  while [[ "${elapsed}" -lt "${monitoring_timeout}" ]]; do
+    endpoints_ok=true
+    for endpoint_check in "Prometheus:http://127.0.0.1:9090/-/healthy" "Loki:http://127.0.0.1:3100/ready" "Grafana:http://127.0.0.1:3000/api/health" "Alertmanager:http://127.0.0.1:9093/-/healthy"; do
+      ep_name="${endpoint_check%%:*}"
+      ep_url="${endpoint_check#*:}"
+      ep_status="$(
+        gce_ssh_lastline "curl -sf ${ep_url} > /dev/null 2>&1 && echo 'healthy' || echo 'unreachable'"
+      )" || true
+      ep_status="$(echo "${ep_status}" | tr -d '[:space:]')"
+      if [[ "${ep_status}" != "healthy" ]]; then
+        endpoints_ok=false
+      fi
+    done
+    if [[ "${endpoints_ok}" == "true" ]]; then
+      break
+    fi
+    log "  Waiting for monitoring endpoints... (${elapsed}s elapsed)"
+    sleep 5
+    elapsed=$((elapsed + 5))
+  done
+
+  # Report final state of each endpoint
+  for endpoint_check in "Prometheus:http://127.0.0.1:9090/-/healthy" "Loki:http://127.0.0.1:3100/ready" "Grafana:http://127.0.0.1:3000/api/health" "Alertmanager:http://127.0.0.1:9093/-/healthy"; do
+    ep_name="${endpoint_check%%:*}"
+    ep_url="${endpoint_check#*:}"
+    ep_status="$(
+      gce_ssh_lastline "curl -sf ${ep_url} > /dev/null 2>&1 && echo 'healthy' || echo 'unreachable'"
+    )" || true
+    ep_status="$(echo "${ep_status}" | tr -d '[:space:]')"
+    if [[ "${ep_status}" == "healthy" ]]; then
+      log "  ✓ ${ep_name}: healthy"
+    else
+      log "  ✗ ${ep_name}: unreachable"
+    fi
+  done
+
+  if [[ "${endpoints_ok}" != "true" ]]; then
+    fail "One or more monitoring endpoints are not healthy"
+  fi
+  log "Monitoring endpoints check passed."
+
+  # Check 4: Prometheus Watchdog alert is firing (dead man's switch)
+  checks_run=$((checks_run + 1))
+  log "Checking Prometheus Watchdog alert (dead man's switch)..."
+  watchdog_firing="$(
+    gce_ssh_lastline "curl -sf 'http://127.0.0.1:9090/api/v1/alerts' 2>/dev/null | python3 -c \"import sys,json; alerts=json.load(sys.stdin).get('data',{}).get('alerts',[]); print('firing' if any(a.get('labels',{}).get('alertname')=='Watchdog' and a.get('state')=='firing' for a in alerts) else 'not_firing')\" 2>/dev/null || echo 'error'"
+  )" || true
+  watchdog_firing="$(echo "${watchdog_firing}" | tr -d '[:space:]')"
+  if [[ "${watchdog_firing}" == "firing" ]]; then
+    log "  ✓ Watchdog alert: firing (dead man's switch active)"
+  else
+    log "  ⚠ Watchdog alert: ${watchdog_firing} (may need time to fire after startup)"
+  fi
+
+  log "Monitoring stack verification completed."
+fi
+
 if [[ "${checks_run}" -eq 0 ]]; then
   log "WARNING: No verification checks configured. Set GCE_INSTANCE_NAME or VERIFY_SSH_HOST."
   log "Skipping verification (no-op)."

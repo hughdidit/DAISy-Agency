@@ -1,0 +1,149 @@
+# Alertmanager Configuration for DAISy-Agency
+# Routes alerts to Slack, ntfy.sh, and PagerDuty based on severity
+#
+# Environment variables (set in .env or systemd override):
+#   SLACK_WEBHOOK_URL     - Slack incoming webhook for #daisy-alerts
+#   NTFY_TOPIC            - ntfy.sh topic name (matches existing auth-monitor)
+#   PAGERDUTY_SERVICE_KEY - PagerDuty Events API v2 routing key
+
+global:
+  resolve_timeout: 5m
+  slack_api_url: "${SLACK_WEBHOOK_URL}"
+
+# Inhibition rules - suppress lower severity when higher fires
+inhibit_rules:
+  # If gateway is down, suppress individual metric alerts
+  - source_matchers:
+      - alertname = "OpenClawGatewayDown"
+    target_matchers:
+      - component = "gateway"
+    equal: ["instance"]
+
+  # If host disk critical, suppress container disk warnings
+  - source_matchers:
+      - alertname = "HostDiskSpaceCritical"
+    target_matchers:
+      - severity = "warning"
+    equal: ["instance"]
+
+route:
+  # Default: group by alertname, wait before sending
+  group_by: ["alertname", "severity"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: "default-warning"
+
+  routes:
+    # ─── Critical: immediate escalation ───
+    - matchers:
+        - severity = "critical"
+      receiver: "critical-escalation"
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 30m
+      continue: false
+
+    # ─── Falco security events: always critical path ───
+    - matchers:
+        - source = "falco"
+      receiver: "critical-escalation"
+      group_wait: 0s
+      group_interval: 1m
+      repeat_interval: 15m
+      continue: false
+
+    # ─── Warnings: Slack + ntfy ───
+    - matchers:
+        - severity = "warning"
+      receiver: "default-warning"
+      group_wait: 30s
+      repeat_interval: 2h
+
+    # ─── Info: Slack only ───
+    - matchers:
+        - severity = "info"
+      receiver: "info-slack"
+      group_wait: 1m
+      repeat_interval: 12h
+
+    # ─── Watchdog (dead man's switch) ───
+    - matchers:
+        - alertname = "Watchdog"
+      receiver: "watchdog-sink"
+      group_wait: 0s
+      repeat_interval: 1m
+
+receivers:
+  # ─── Critical: Slack + ntfy + PagerDuty ───
+  - name: "critical-escalation"
+    slack_configs:
+      - channel: "#daisy-alerts-critical"
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
+        title: '🚨 [{{ .Status | toUpper }}] {{ .GroupLabels.alertname }}'
+        text: >-
+          {{ range .Alerts }}
+          *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          Source: {{ .Labels.alertname }} severity={{ .Labels.severity }} job={{ .Labels.job }}
+          {{ end }}
+        actions:
+          - type: button
+            text: "View in Grafana"
+            url: "http://localhost:3000/alerting/list"
+
+    webhook_configs:
+      # ntfy.sh push notification (matches existing auth-monitor pattern)
+      - url: "https://ntfy.sh/${NTFY_TOPIC}"
+        send_resolved: true
+        http_config:
+          headers:
+            Title: '🚨 DAISy CRITICAL: {{ .GroupLabels.alertname }}'
+            Priority: "urgent"
+            Tags: "rotating_light,warning"
+
+    pagerduty_configs:
+      - routing_key: "${PAGERDUTY_SERVICE_KEY}"
+        severity: critical
+        description: '{{ .GroupLabels.alertname }}: {{ (index .Alerts 0).Annotations.summary }}'
+
+  # ─── Warning: Slack + ntfy ───
+  - name: "default-warning"
+    slack_configs:
+      - channel: "#daisy-alerts"
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}warning{{ else }}good{{ end }}'
+        title: '⚠️ [{{ .Status | toUpper }}] {{ .GroupLabels.alertname }}'
+        text: >-
+          {{ range .Alerts }}
+          {{ .Annotations.summary }}: {{ .Annotations.description }}
+          {{ end }}
+
+    webhook_configs:
+      - url: "https://ntfy.sh/${NTFY_TOPIC}"
+        send_resolved: true
+        http_config:
+          headers:
+            Title: '⚠️ DAISy Warning: {{ .GroupLabels.alertname }}'
+            Priority: "high"
+            Tags: "warning"
+
+  # ─── Info: Slack only ───
+  - name: "info-slack"
+    slack_configs:
+      - channel: "#daisy-alerts"
+        send_resolved: false
+        color: "#36a64f"
+        title: 'ℹ️ {{ .GroupLabels.alertname }}'
+        text: >-
+          {{ range .Alerts }}
+          {{ .Annotations.summary }}
+          {{ end }}
+
+  # ─── Watchdog: receives the dead man's switch ───
+  # External systems (Cloud Function) check if this receiver is getting alerts
+  - name: "watchdog-sink"
+    webhook_configs:
+      - url: "${HEARTBEAT_WEBHOOK_URL:-http://localhost:9099/heartbeat}"
+        send_resolved: false

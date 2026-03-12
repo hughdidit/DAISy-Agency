@@ -1,0 +1,412 @@
+# DAISy-Agency Custom Falco Rules
+# Detects agent-specific threats: container escape, credential exfiltration,
+# unauthorized process execution, sandbox violations, monitoring tampering
+#
+# Priority levels: EMERGENCY, ALERT, CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG
+# These rules supplement the default Falco ruleset with DAISy-specific detections
+
+# ═══════════════════════════════════════════════════════════
+# Macros — reusable conditions
+# ═══════════════════════════════════════════════════════════
+
+- macro: daisy_container
+  condition: >
+    container.name startswith "openclaw" or
+    container.name startswith "sandbox" or
+    container.image.repository contains "openclaw"
+
+- macro: daisy_monitoring_container
+  condition: >
+    container.name startswith "daisy-" and
+    (container.name contains "prometheus" or
+     container.name contains "loki" or
+     container.name contains "grafana" or
+     container.name contains "alertmanager" or
+     container.name contains "cadvisor" or
+     container.name contains "node-exporter" or
+     container.name contains "promtail")
+
+- macro: expected_agent_processes
+  condition: >
+    proc.name in (node, python3, python, bash, sh, git, rg, ripgrep,
+                  curl, wget, cat, ls, head, tail, grep, find, mkdir,
+                  rm, cp, mv, chmod, touch, tee, sort, uniq, wc,
+                  jq, sed, awk, tr, cut, xargs, env, timeout)
+
+- macro: monitoring_paths
+  condition: >
+    fd.name startswith "/opt/DAISy/monitoring/" or
+    fd.name startswith "/var/log/falco/" or
+    fd.name startswith "/var/log/daisy-watchdog/" or
+    fd.name startswith "/etc/falco/"
+
+- macro: sensitive_credential_files
+  condition: >
+    fd.name startswith "/home/node/.openclaw/" or
+    fd.name contains ".env" or
+    fd.name contains "credentials" or
+    fd.name contains "secret" or
+    fd.name contains "token" or
+    fd.name contains ".ssh/"
+
+# Lists for allowlisting
+- list: safe_outbound_ports
+  items: [80, 443, 8080, 8443, 53]
+
+- list: suspicious_domains_patterns
+  items: [pastebin, transfer.sh, ngrok, requestbin, webhook.site, pipedream, beeceptor]
+
+- list: metadata_endpoints
+  items: ["169.254.169.254", "metadata.google.internal"]
+
+
+# ═══════════════════════════════════════════════════════════
+# CRITICAL — Container Escape Attempts
+# ═══════════════════════════════════════════════════════════
+
+- rule: DAISy Agent Container Escape Attempt
+  desc: >
+    Detects attempts to escape the container via namespace manipulation,
+    mount operations, or accessing host-level resources.
+  condition: >
+    daisy_container and
+    (proc.name in (nsenter, unshare, chroot, pivot_root, mount, umount) or
+     (evt.type = setns) or
+     (proc.name = "bash" and proc.args contains "nsenter"))
+  output: >
+    CONTAINER ESCAPE ATTEMPT in DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name
+     pid=%proc.pid parent=%proc.pname evt=%evt.type)
+  priority: CRITICAL
+  tags: [container, escape, daisy]
+
+- rule: DAISy Docker Socket Access
+  desc: Detects container processes accessing the Docker socket (escape vector)
+  condition: >
+    daisy_container and
+    (fd.name = "/var/run/docker.sock" or
+     fd.name = "/run/docker.sock" or
+     fd.name startswith "/var/run/docker")
+  output: >
+    DOCKER SOCKET ACCESS from DAISy container
+    (container=%container.name command=%proc.cmdline fd=%fd.name
+     user=%user.name pid=%proc.pid)
+  priority: CRITICAL
+  tags: [container, escape, docker_socket, daisy]
+
+
+# ═══════════════════════════════════════════════════════════
+# CRITICAL — Privilege Escalation
+# ═══════════════════════════════════════════════════════════
+
+- rule: DAISy Agent Privilege Escalation
+  desc: Detects privilege escalation attempts inside agent containers
+  condition: >
+    daisy_container and
+    (proc.name in (sudo, su, pkexec, doas) or
+     (evt.type in (setuid, setgid, setreuid, setregid) and user.uid != 1000) or
+     proc.name = "chmod" and proc.args contains "+s")
+  output: >
+    PRIVILEGE ESCALATION in DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name
+     uid=%user.uid pid=%proc.pid)
+  priority: CRITICAL
+  tags: [container, privilege_escalation, daisy]
+
+- rule: DAISy Agent Running as Root
+  desc: Agent process should always run as node user (uid 1000)
+  condition: >
+    daisy_container and
+    not daisy_monitoring_container and
+    spawned_process and
+    user.uid = 0 and
+    proc.name != "tini"
+  output: >
+    PROCESS RUNNING AS ROOT in DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name
+     uid=%user.uid pid=%proc.pid parent=%proc.pname)
+  priority: CRITICAL
+  tags: [container, privilege_escalation, daisy]
+
+
+# ═══════════════════════════════════════════════════════════
+# ALERT — Suspicious Process Execution
+# ═══════════════════════════════════════════════════════════
+
+- rule: DAISy Unexpected Process in Container
+  desc: A process not in the expected allowlist was spawned in an agent container
+  condition: >
+    daisy_container and
+    spawned_process and
+    not expected_agent_processes and
+    not proc.name startswith "npm" and
+    not proc.name startswith "pnpm" and
+    not proc.pname = "tini"
+  output: >
+    UNEXPECTED PROCESS in DAISy container
+    (container=%container.name process=%proc.name command=%proc.cmdline
+     user=%user.name pid=%proc.pid parent=%proc.pname ppid=%proc.ppid)
+  priority: WARNING
+  tags: [container, unexpected_process, daisy]
+
+- rule: DAISy Shell Spawned in Container
+  desc: Interactive shell spawned in container (potential debug/escape)
+  condition: >
+    daisy_container and
+    spawned_process and
+    proc.name in (bash, sh, dash, zsh, fish) and
+    proc.tty != 0 and
+    proc.pname != "node"
+  output: >
+    INTERACTIVE SHELL in DAISy container
+    (container=%container.name shell=%proc.name command=%proc.cmdline
+     user=%user.name pid=%proc.pid parent=%proc.pname tty=%proc.tty)
+  priority: WARNING
+  tags: [container, shell, daisy]
+
+- rule: DAISy Compiler or Package Manager in Container
+  desc: Compilation tools or package managers used in container (supply chain risk)
+  condition: >
+    daisy_container and
+    spawned_process and
+    proc.name in (gcc, g++, make, cc, ld, as, apt, apt-get, yum, dnf,
+                  pip, pip3, npm, yarn, cargo, go, rustc, javac)
+  output: >
+    BUILD TOOL in DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name
+     pid=%proc.pid parent=%proc.pname)
+  priority: WARNING
+  tags: [container, build_tool, supply_chain, daisy]
+
+
+# ═══════════════════════════════════════════════════════════
+# ALERT — Credential / Secret Exfiltration
+# ═══════════════════════════════════════════════════════════
+
+- rule: DAISy Credential File Access
+  desc: Agent process reading credential or secret files
+  condition: >
+    daisy_container and
+    open_read and
+    sensitive_credential_files and
+    proc.name != "node"
+  output: >
+    CREDENTIAL FILE ACCESS in DAISy container
+    (container=%container.name file=%fd.name command=%proc.cmdline
+     user=%user.name pid=%proc.pid)
+  priority: WARNING
+  tags: [container, credential_access, daisy]
+
+- rule: DAISy Sensitive Environment Variable Read
+  desc: Process reading /proc/*/environ (can leak secrets)
+  condition: >
+    daisy_container and
+    open_read and
+    fd.name contains "/proc/" and
+    fd.name endswith "/environ"
+  output: >
+    PROC ENVIRON READ in DAISy container
+    (container=%container.name file=%fd.name command=%proc.cmdline
+     user=%user.name pid=%proc.pid)
+  priority: WARNING
+  tags: [container, credential_access, proc_environ, daisy]
+
+- rule: DAISy Host Sensitive File Read
+  desc: Container reading host sensitive files
+  condition: >
+    daisy_container and
+    open_read and
+    (fd.name = "/etc/shadow" or
+     fd.name = "/etc/passwd" or
+     fd.name startswith "/root/" or
+     fd.name startswith "/home/" and not fd.name startswith "/home/node/")
+  output: >
+    HOST SENSITIVE FILE READ from DAISy container
+    (container=%container.name file=%fd.name command=%proc.cmdline
+     user=%user.name pid=%proc.pid)
+  priority: CRITICAL
+  tags: [container, host_access, daisy]
+
+
+# ═══════════════════════════════════════════════════════════
+# WARNING — Network Anomalies
+# ═══════════════════════════════════════════════════════════
+
+- rule: DAISy Cloud Metadata Access
+  desc: Container connecting to cloud metadata endpoint (SSRF indicator)
+  condition: >
+    daisy_container and
+    evt.type in (connect, sendto) and
+    fd.sip in (metadata_endpoints)
+  output: >
+    CLOUD METADATA ACCESS from DAISy container (SSRF?)
+    (container=%container.name command=%proc.cmdline dest=%fd.sip:%fd.sport
+     user=%user.name pid=%proc.pid)
+  priority: CRITICAL
+  tags: [container, network, ssrf, metadata, daisy]
+
+- rule: DAISy Unexpected Network Listener
+  desc: Container process listening on unexpected port
+  condition: >
+    daisy_container and
+    evt.type = listen and
+    not fd.sport in (__OPENCLAW_GATEWAY_PORT__, __OPENCLAW_BRIDGE_PORT__, 9222, 9229) and
+    proc.name != "node"
+  output: >
+    UNEXPECTED LISTENER in DAISy container
+    (container=%container.name command=%proc.cmdline port=%fd.sport
+     proto=%fd.l4proto user=%user.name pid=%proc.pid)
+  priority: WARNING
+  tags: [container, network, listener, daisy]
+
+- rule: DAISy Reverse Shell Indicator
+  desc: Detects patterns consistent with reverse shell establishment
+  condition: >
+    daisy_container and
+    spawned_process and
+    ((proc.name = "bash" and proc.args contains "/dev/tcp") or
+     (proc.name in (nc, ncat, netcat, socat) and proc.args contains "-e") or
+     (proc.name = "python" and proc.args contains "socket") or
+     (proc.name = "perl" and proc.args contains "socket"))
+  output: >
+    REVERSE SHELL INDICATOR in DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name
+     pid=%proc.pid parent=%proc.pname)
+  priority: CRITICAL
+  tags: [container, network, reverse_shell, daisy]
+
+
+# ═══════════════════════════════════════════════════════════
+# WARNING — Filesystem Violations
+# ═══════════════════════════════════════════════════════════
+
+- rule: DAISy Write to System Directories
+  desc: Agent writing to system directories inside container
+  condition: >
+    daisy_container and
+    (evt.type in (open, openat) and evt.arg.flags contains O_WRONLY) and
+    (fd.name startswith "/etc/" or
+     fd.name startswith "/usr/bin/" or
+     fd.name startswith "/usr/sbin/" or
+     fd.name startswith "/bin/" or
+     fd.name startswith "/sbin/" or
+     fd.name startswith "/lib/")
+  output: >
+    WRITE TO SYSTEM DIR in DAISy container
+    (container=%container.name file=%fd.name command=%proc.cmdline
+     user=%user.name pid=%proc.pid)
+  priority: WARNING
+  tags: [container, filesystem, system_write, daisy]
+
+- rule: DAISy Write Outside Workspace
+  desc: Agent writing files outside the designated workspace directory
+  condition: >
+    daisy_container and
+    not daisy_monitoring_container and
+    (evt.type in (open, openat) and evt.arg.flags contains O_WRONLY) and
+    not fd.name startswith "/home/node/.openclaw/workspace/" and
+    not fd.name startswith "/tmp/" and
+    not fd.name startswith "/home/node/.openclaw/state/" and
+    not fd.name startswith "/dev/null" and
+    proc.name != "node"
+  output: >
+    WRITE OUTSIDE WORKSPACE in DAISy container
+    (container=%container.name file=%fd.name command=%proc.cmdline
+     user=%user.name pid=%proc.pid)
+  priority: WARNING
+  tags: [container, filesystem, workspace_escape, daisy]
+
+
+# ═══════════════════════════════════════════════════════════
+# CRITICAL — Monitoring Tampering Detection
+# ═══════════════════════════════════════════════════════════
+
+- rule: DAISy Monitoring Config Tampering
+  desc: Any process attempting to modify monitoring configuration files
+  condition: >
+    (evt.type in (open, openat) and evt.arg.flags contains O_WRONLY) and
+    monitoring_paths
+  output: >
+    MONITORING TAMPERING ATTEMPT
+    (file=%fd.name command=%proc.cmdline user=%user.name uid=%user.uid
+     pid=%proc.pid process=%proc.name container=%container.name)
+  priority: CRITICAL
+  tags: [tampering, monitoring, daisy]
+
+- rule: DAISy Monitoring Service Kill
+  desc: Attempt to send signal to monitoring processes
+  condition: >
+    evt.type = kill and
+    (proc.name in (kill, pkill, killall) or syscall.type = kill) and
+    (evt.arg.pid.name in (prometheus, grafana, loki, promtail, falco,
+                          alertmanager, node_exporter, cadvisor) or
+     proc.args contains "daisy-prometheus" or
+     proc.args contains "daisy-loki" or
+     proc.args contains "daisy-grafana" or
+     proc.args contains "falco")
+  output: >
+    MONITORING SERVICE KILL ATTEMPT
+    (command=%proc.cmdline target_signal=%evt.arg.sig user=%user.name
+     uid=%user.uid pid=%proc.pid container=%container.name)
+  priority: CRITICAL
+  tags: [tampering, monitoring, service_kill, daisy]
+
+- rule: DAISy Monitoring Systemd Manipulation
+  desc: Attempt to stop or disable monitoring systemd units
+  condition: >
+    spawned_process and
+    proc.name = "systemctl" and
+    (proc.args contains "stop" or proc.args contains "disable" or
+     proc.args contains "mask") and
+    (proc.args contains "falco" or
+     proc.args contains "daisy-watchdog" or
+     proc.args contains "auditd" or
+     proc.args contains "aide")
+  output: >
+    MONITORING SYSTEMD MANIPULATION
+    (command=%proc.cmdline user=%user.name uid=%user.uid pid=%proc.pid)
+  priority: CRITICAL
+  tags: [tampering, monitoring, systemd, daisy]
+
+
+# ═══════════════════════════════════════════════════════════
+# WARNING — Kernel / eBPF Tampering
+# ═══════════════════════════════════════════════════════════
+
+- rule: DAISy BPF Syscall from Container
+  desc: Container attempting to load eBPF programs (could disable Falco)
+  condition: >
+    daisy_container and
+    evt.type = bpf
+  output: >
+    BPF SYSCALL from DAISy container (Falco tamper risk)
+    (container=%container.name command=%proc.cmdline user=%user.name
+     pid=%proc.pid)
+  priority: CRITICAL
+  tags: [container, kernel, bpf, tampering, daisy]
+
+- rule: DAISy Kernel Module Load Attempt
+  desc: Attempt to load kernel module from container
+  condition: >
+    daisy_container and
+    (evt.type in (init_module, finit_module) or
+     proc.name in (insmod, modprobe, rmmod))
+  output: >
+    KERNEL MODULE LOAD from DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name
+     pid=%proc.pid)
+  priority: CRITICAL
+  tags: [container, kernel, module, daisy]
+
+- rule: DAISy Ptrace Debugging Attempt
+  desc: Process tracing another process (injection/debugging)
+  condition: >
+    daisy_container and
+    evt.type = ptrace and
+    evt.arg.request in (PTRACE_ATTACH, PTRACE_SEIZE, PTRACE_POKEDATA, PTRACE_POKETEXT)
+  output: >
+    PTRACE ATTACH in DAISy container
+    (container=%container.name command=%proc.cmdline target_pid=%evt.arg.pid
+     user=%user.name pid=%proc.pid)
+  priority: CRITICAL
+  tags: [container, debugging, ptrace, daisy]

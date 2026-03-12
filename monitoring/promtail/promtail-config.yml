@@ -1,0 +1,227 @@
+# Promtail Configuration for DAISy-Agency
+# Collects logs from: containers, OpenClaw app, Falco, auditd, syslog, watchdog
+# Ships to Loki locally + GCP Cloud Logging via google_cloud_logging client
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions/positions.yaml
+
+clients:
+  - url: http://daisy-loki:3100/loki/api/v1/push
+    tenant_id: daisy
+    batchwait: 1s
+    batchsize: 1048576  # 1MB
+    timeout: 10s
+
+scrape_configs:
+  # ─────────────────────────────────────────────────────────
+  # Docker container logs (stdout/stderr)
+  # ─────────────────────────────────────────────────────────
+  - job_name: docker-containers
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*.log
+    pipeline_stages:
+      # Parse Docker JSON log format
+      - docker: {}
+      # Extract container name from path
+      - regex:
+          source: filename
+          expression: '/var/lib/docker/containers/(?P<container_id>[a-f0-9]+)/'
+      - labels:
+          container_id:
+      # Try to parse as JSON (OpenClaw structured logs)
+      # NOTE: Only extract safe fields as labels. Do NOT extract command,
+      # args, sessionKey, or any field that could contain secrets —
+      # labels are indexed and visible in Grafana label selectors.
+      - json:
+          expressions:
+            level: level
+            msg: msg
+            agent_id: agentId
+            tool: tool
+          source: output
+      - labels:
+          level:
+          agent_id:
+          tool:
+      # Redact secrets from container stdout/stderr before indexing in Loki
+      - replace:
+          expression: '(sk-ant-[a-zA-Z0-9_-]{10,}|ghp_[a-zA-Z0-9]{30,}|xoxb-[a-zA-Z0-9-]{30,}|sk-[a-zA-Z0-9]{20,}|Bearer\s+[a-zA-Z0-9._-]{20,}|eyJ[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}|AKIA[A-Z0-9]{16})'
+          replace: '[REDACTED]'
+      - replace:
+          expression: '((?:password|secret|token|api[_-]?key|session[_-]?key|webhook[_-]?url)\s*[=:]\s*)\S+'
+          replace: '${1}[REDACTED]'
+      # Tag security-relevant events
+      - match:
+          selector: '{job="docker"}'
+          stages:
+            - regex:
+                source: output
+                expression: '(?i)(rm\s+-rf|curl.*pastebin|wget.*transfer\.sh|docker\.sock|nsenter|unshare|chroot)'
+            - metrics:
+                suspicious_command_total:
+                  type: Counter
+                  description: "Suspicious commands detected in container logs"
+                  source: output
+                  config:
+                    action: inc
+
+  # ─────────────────────────────────────────────────────────
+  # OpenClaw application logs (JSON lines)
+  # ─────────────────────────────────────────────────────────
+  - job_name: openclaw-app
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: openclaw
+          component: gateway
+          __path__: /tmp/openclaw/openclaw-*.log
+    pipeline_stages:
+      # NOTE: Do NOT extract sessionKey, command, args, or any field
+      # that could contain secrets. Only safe metadata fields are extracted.
+      - json:
+          expressions:
+            level: level
+            msg: msg
+            agent_id: agentId
+            tool_name: tool
+            duration_ms: durationMs
+      - labels:
+          level:
+          agent_id:
+          tool_name:
+      # Redact secrets from log body before storing in Loki
+      - replace:
+          expression: '(sk-ant-[a-zA-Z0-9_-]{10,}|ghp_[a-zA-Z0-9]{30,}|xoxb-[a-zA-Z0-9-]{30,}|sk-[a-zA-Z0-9]{20,}|Bearer\s+[a-zA-Z0-9._-]{20,}|eyJ[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}|AKIA[A-Z0-9]{16})'
+          replace: '[REDACTED]'
+      - replace:
+          expression: '((?:password|secret|token|api[_-]?key|session[_-]?key|webhook[_-]?url)\s*[=:]\s*)\S+'
+          replace: '${1}[REDACTED]'
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+  # ─────────────────────────────────────────────────────────
+  # Falco security events
+  # ─────────────────────────────────────────────────────────
+  - job_name: falco
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: falco
+          source: falco
+          __path__: /var/log/falco/events.json
+    pipeline_stages:
+      - json:
+          expressions:
+            priority: priority
+            rule: rule
+            output: output
+            hostname: hostname
+      - labels:
+          priority:
+          rule:
+      # All Falco events get security label
+      - static_labels:
+          category: security
+      # Redact secrets from Falco output (proc.cmdline may contain inline secrets)
+      # Falco logs full command lines which could include API keys, tokens, passwords
+      - replace:
+          expression: '(sk-ant-[a-zA-Z0-9_-]{10,}|ghp_[a-zA-Z0-9]{30,}|xoxb-[a-zA-Z0-9-]{30,}|sk-[a-zA-Z0-9]{20,}|Bearer\s+[a-zA-Z0-9._-]{20,}|eyJ[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}|AKIA[A-Z0-9]{16})'
+          replace: '[REDACTED]'
+      - replace:
+          expression: '((?:password|secret|token|api[_-]?key|session[_-]?key|webhook[_-]?url)\s*[=:]\s*)\S+'
+          replace: '${1}[REDACTED]'
+
+  # ─────────────────────────────────────────────────────────
+  # Linux audit log (auditd)
+  # ─────────────────────────────────────────────────────────
+  - job_name: auditd
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: auditd
+          source: auditd
+          __path__: /var/log/audit/audit.log
+    pipeline_stages:
+      - regex:
+          expression: 'type=(?P<audit_type>\w+).*?success=(?P<success>\w+)'
+      - labels:
+          audit_type:
+          success:
+
+  # ─────────────────────────────────────────────────────────
+  # System syslog
+  # ─────────────────────────────────────────────────────────
+  - job_name: syslog
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: syslog
+          source: syslog
+          __path__: /var/log/syslog
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\w+\s+\d+\s+\d+:\d+:\d+)\s+(?P<hostname>\S+)\s+(?P<process>\S+?)(\[(?P<pid>\d+)\])?:'
+      - labels:
+          process:
+
+  # ─────────────────────────────────────────────────────────
+  # DAISy Watchdog audit trail
+  # ─────────────────────────────────────────────────────────
+  - job_name: watchdog
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: watchdog
+          source: watchdog
+          __path__: /var/log/daisy-watchdog/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            event_type: event_type
+            agent_id: agent_id
+            tool: tool
+            severity: severity
+            container: container
+      - labels:
+          event_type:
+          severity:
+          agent_id:
+          tool:
+
+  # ─────────────────────────────────────────────────────────
+  # Network connection tracking logs
+  # ─────────────────────────────────────────────────────────
+  - job_name: network
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: network
+          source: conntrack
+          __path__: /var/log/daisy-watchdog/network.log
+    pipeline_stages:
+      - json:
+          expressions:
+            direction: direction
+            proto: proto
+            src: src
+            dst: dst
+            dport: dport
+            container: container
+      - labels:
+          direction:
+          proto:

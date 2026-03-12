@@ -1,0 +1,145 @@
+# AppArmor Profile for DAISy Agent Containers
+# Prevents container processes (even after escape) from accessing
+# monitoring infrastructure, host credentials, and sensitive paths
+#
+# Install:
+#   sudo cp openclaw-container /etc/apparmor.d/openclaw-container
+#   sudo apparmor_parser -r /etc/apparmor.d/openclaw-container
+#
+# Apply to container: docker run --security-opt apparmor=openclaw-container ...
+# Or in docker-compose:
+#   security_opt:
+#     - apparmor=openclaw-container
+
+#include <tunables/global>
+
+profile openclaw-container flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+
+  # ═══════════════════════════════════════════════════════════
+  # DENY: Monitoring infrastructure (anti-tampering)
+  # ═══════════════════════════════════════════════════════════
+
+  # Block ALL access to monitoring configs and logs
+  deny /opt/DAISy/monitoring/** rwlkx,
+  deny /var/log/falco/** rwlkx,
+  deny /var/log/daisy-watchdog/** rwlkx,
+  deny /var/log/aide/** rwlkx,
+  deny /etc/falco/** rwlkx,
+
+  # Block access to monitoring service binaries
+  deny /usr/bin/falco x,
+  deny /usr/bin/aide x,
+  deny /usr/bin/prometheus x,
+
+  # Block access to alertmanager credentials
+  deny /opt/DAISy/monitoring/alertmanager/** r,
+
+  # ═══════════════════════════════════════════════════════════
+  # DENY: Host system sensitive paths
+  # ═══════════════════════════════════════════════════════════
+
+  # Block host credential files
+  deny /etc/shadow r,
+  deny /etc/gshadow r,
+  deny /etc/sudoers r,
+  deny /etc/sudoers.d/** r,
+
+  # Block SSH keys
+  deny /root/.ssh/** rwlkx,
+  deny /home/*/.ssh/** rwlkx,
+
+  # Block Docker socket (escape vector)
+  deny /var/run/docker.sock rwlkx,
+  deny /run/docker.sock rwlkx,
+  deny /var/run/docker/** rwlkx,
+
+  # Block systemd control (can't stop services)
+  deny /run/systemd/** w,
+  deny /run/dbus/** w,
+
+  # Block kernel interfaces
+  deny /proc/sysrq-trigger w,
+  deny /proc/sys/** w,
+  deny /sys/** w,
+  deny /dev/mem rwlkx,
+  deny /dev/kmem rwlkx,
+
+  # Block cron (persistence prevention)
+  deny /etc/cron.* rwlkx,
+  deny /var/spool/cron/** rwlkx,
+  deny /etc/crontab rwlkx,
+
+  # ═══════════════════════════════════════════════════════════
+  # ALLOW: Normal agent operation
+  # ═══════════════════════════════════════════════════════════
+
+  # Workspace directory (read/write)
+  /home/node/.openclaw/workspace/** rwlk,
+
+  # Temp directory
+  /tmp/** rwlk,
+
+  # OpenClaw state
+  /home/node/.openclaw/** rwlk,
+
+  # Standard binaries
+  /usr/bin/** rix,
+  /usr/local/bin/** rix,
+  /bin/** rix,
+  /usr/lib/** mr,
+  /lib/** mr,
+
+  # Node.js
+  /usr/bin/node rix,
+  /usr/local/bin/node rix,
+
+  # Python
+  /usr/bin/python3 rix,
+  /usr/bin/python rix,
+
+  # Git
+  /usr/bin/git rix,
+  /usr/lib/git-core/** rix,
+
+  # Network access (needed for API calls)
+  network inet stream,
+  network inet dgram,
+  network inet6 stream,
+  network inet6 dgram,
+
+  # DNS resolution
+  /etc/resolv.conf r,
+  /etc/hosts r,
+  /etc/nsswitch.conf r,
+
+  # Process info (limited)
+  /proc/*/status r,
+  /proc/*/stat r,
+  /proc/*/fd/ r,
+  deny /proc/*/environ r,  # Block reading other process environments
+
+  # Device access (minimal)
+  /dev/null rw,
+  /dev/zero r,
+  /dev/urandom r,
+  /dev/random r,
+  /dev/tty rw,
+  /dev/pts/* rw,
+
+  # Capabilities denied
+  deny capability sys_admin,
+  deny capability sys_module,
+  deny capability sys_rawio,
+  deny capability sys_ptrace,
+  deny capability sys_boot,
+  deny capability net_admin,
+  deny capability dac_override,
+  deny capability setuid,
+  deny capability setgid,
+
+  # Signals (limited)
+  signal (send) peer=openclaw-container,
+  deny signal (send) peer=unconfined,
+}

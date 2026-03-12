@@ -24,6 +24,11 @@ on:
         required: false
         default: false
         type: boolean
+      deploy_monitoring:
+        description: "If true, deploy monitoring/diagnostics stack after app deploy"
+        required: false
+        default: false
+        type: boolean
 
   workflow_call:
     inputs:
@@ -40,6 +45,9 @@ on:
         required: true
         type: boolean
       provision:
+        required: false
+        type: boolean
+      deploy_monitoring:
         required: false
         type: boolean
     secrets:
@@ -216,6 +224,27 @@ jobs:
           fi
           scripts/deploy.sh ${PROVISION_FLAG} dist/release/release-metadata.json
 
+      - name: Pre-generate SSH key for gcloud (monitoring deploy)
+        if: ${{ inputs.deploy_monitoring == true && inputs.dry_run != true }}
+        run: |
+          # Generate the SSH key that gcloud compute ssh would auto-create,
+          # but suppress output to prevent key material leaking into CI logs.
+          if [[ ! -f ~/.ssh/google_compute_engine ]]; then
+            ssh-keygen -t rsa -b 3072 -f ~/.ssh/google_compute_engine -N "" -q
+          fi
+
+      - name: Deploy monitoring stack
+        if: ${{ inputs.deploy_monitoring == true && inputs.dry_run != true }}
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
+          OPENCLAW_GATEWAY_PORT: ${{ vars.OPENCLAW_GATEWAY_PORT }}
+          OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
+        run: |
+          chmod +x monitoring/deploy-monitoring.sh
+          monitoring/deploy-monitoring.sh "${{ inputs.environment }}"
+
       - name: Deploy summary
         if: ${{ inputs.dry_run != true }}
         env:
@@ -232,3 +261,9 @@ jobs:
           echo ""
           echo "IAP tunnel:"
           echo "  gcloud compute ssh ${GCE_INSTANCE_NAME} --project ${GCP_PROJECT_ID} --zone ${GCP_ZONE} --tunnel-through-iap -- -L ${PORT}:localhost:${PORT}"
+          if [[ "${{ inputs.deploy_monitoring }}" == "true" ]]; then
+            echo ""
+            echo "Monitoring:"
+            echo "  Grafana: gcloud compute ssh ${GCE_INSTANCE_NAME} --project ${GCP_PROJECT_ID} --zone ${GCP_ZONE} --tunnel-through-iap -- -L 3000:127.0.0.1:3000"
+            echo "  Then open http://localhost:3000"
+          fi

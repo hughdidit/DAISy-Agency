@@ -25,6 +25,7 @@ jobs:
       environment: staging
       release_run_id: ${{ github.event.workflow_run.id }}
       dry_run: ${{ vars.STAGING_DEPLOY_DRY_RUN == 'true' }}
+      deploy_monitoring: ${{ vars.DEPLOY_MONITORING == 'true' }}
     secrets: inherit
 
   verify_staging:

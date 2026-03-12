@@ -14,6 +14,11 @@ on:
         required: true
         default: true
         type: boolean
+      deploy_monitoring:
+        description: "If true, deploy monitoring/diagnostics stack after app deploy"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   id-token: write
@@ -32,4 +37,13 @@ jobs:
       release_run_id: ${{ inputs.release_run_id }}
       image_ref: ${{ inputs.image_ref }}
       dry_run: ${{ inputs.dry_run }}
+      deploy_monitoring: ${{ inputs.deploy_monitoring }}
+    secrets: inherit
+
+  verify_prod:
+    needs: deploy_prod
+    if: ${{ inputs.dry_run != true }}
+    uses: ./.github/workflows/verify.yml
+    with:
+      environment: production
     secrets: inherit

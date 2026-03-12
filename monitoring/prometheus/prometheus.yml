@@ -1,0 +1,85 @@
+# Prometheus Configuration for DAISy-Agency Monitoring
+# Scrapes metrics from cAdvisor (containers), node-exporter (host),
+# and the OpenClaw gateway (application)
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+  external_labels:
+    cluster: "daisy"
+    environment: "${DEPLOY_ENV:-staging}"
+
+# Alert rules
+rule_files:
+  - "alerts.yml"
+
+# Alertmanager integration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - "127.0.0.1:9093"
+
+scrape_configs:
+  # ─── Prometheus self-monitoring ───
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["127.0.0.1:9090"]
+        labels:
+          component: "prometheus"
+
+  # ─── Host metrics (node-exporter) ───
+  - job_name: "node-exporter"
+    static_configs:
+      - targets: ["127.0.0.1:9100"]
+        labels:
+          component: "host"
+    metric_relabel_configs:
+      # Drop high-cardinality metrics we don't need
+      - source_labels: [__name__]
+        regex: "node_scrape_collector_duration_seconds"
+        action: drop
+
+  # ─── Container metrics (cAdvisor) ───
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["127.0.0.1:8080"]
+        labels:
+          component: "containers"
+    metric_relabel_configs:
+      # Keep only container metrics we care about
+      - source_labels: [__name__]
+        regex: "container_(cpu|memory|network|fs|tasks|oom)_.*"
+        action: keep
+      # Add container name label from Docker
+      - source_labels: [container_label_com_docker_compose_service]
+        target_label: service_name
+
+  # ─── OpenClaw Gateway application metrics ───
+  # (Only if diagnostics-otel plugin exports Prometheus metrics)
+  # NOTE: __OPENCLAW_GATEWAY_PORT__ is templated by deploy-monitoring.sh
+  - job_name: "openclaw-gateway"
+    scrape_interval: 30s
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["127.0.0.1:__OPENCLAW_GATEWAY_PORT__"]
+        labels:
+          component: "gateway"
+          service: "openclaw"
+    # Don't fail if the endpoint isn't available
+    honor_labels: true
+
+  # ─── Alertmanager self-monitoring ───
+  - job_name: "alertmanager"
+    static_configs:
+      - targets: ["127.0.0.1:9093"]
+        labels:
+          component: "alertmanager"
+
+  # ─── Loki self-monitoring ───
+  - job_name: "loki"
+    static_configs:
+      - targets: ["127.0.0.1:3100"]
+        labels:
+          component: "loki"

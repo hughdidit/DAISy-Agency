@@ -1,0 +1,70 @@
+# Falco Configuration for DAISy-Agency
+# Runtime security monitoring via eBPF syscall interception
+# Runs as host systemd service, NOT inside a container
+#
+# Install: curl -fsSL https://falco.org/repo/falcosecurity-packages.asc | sudo gpg --dearmor -o /usr/share/keyrings/falco-archive-keyring.gpg
+#          echo "deb [signed-by=/usr/share/keyrings/falco-archive-keyring.gpg] https://download.falco.org/packages/deb stable main" | sudo tee /etc/apt/sources.list.d/falcosecurity.list
+#          sudo apt-get update && sudo apt-get install -y falco
+#
+# Run: sudo systemctl enable --now falco
+
+# Use modern eBPF driver (no kernel module needed)
+engine:
+  kind: modern_ebpf
+  modern_ebpf:
+    buf_size_preset: 4  # Medium buffer
+
+# JSON output for structured log ingestion
+json_output: true
+json_include_output_property: true
+json_include_tags_property: true
+
+# Log to file for Promtail pickup
+file_output:
+  enabled: true
+  filename: /var/log/falco/events.json
+  keep_alive: true
+
+# Also log to syslog as backup
+syslog_output:
+  enabled: true
+
+# Stdout for debugging
+stdout_output:
+  enabled: false
+
+# HTTP output for direct Alertmanager webhook (optional)
+http_output:
+  enabled: false
+  url: "http://127.0.0.1:9093/api/v1/alerts"
+
+# gRPC server for falcosidekick or custom integrations
+grpc:
+  enabled: false
+
+# Performance tuning for n2-standard-8
+outputs_queue:
+  capacity: 1024
+
+# Watch for config changes
+watch_config_files: true
+
+# Load custom DAISy rules
+rules_files:
+  - /etc/falco/falco_rules.yaml           # Default Falco rules
+  - /etc/falco/falco_rules.local.yaml     # Local overrides
+  - /opt/DAISy/monitoring/falco/rules/daisy-agent-rules.yaml  # DAISy custom rules
+
+# Reduce noise from known-safe behaviors
+append_output:
+  - rule: "*"
+    extra_fields:
+      - daisy_env: "${DEPLOY_ENV:-staging}"
+
+# Priority filter: only output warning and above
+priority: warning
+
+# Buffer and rate limiting
+outputs:
+  rate: 100
+  max_burst: 200
