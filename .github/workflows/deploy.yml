@@ -160,6 +160,9 @@ jobs:
       - name: Install Google Cloud SDK
         uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a # v2.1.2
 
+      - name: Install NumPy for IAP tunnel performance
+        run: $(gcloud info --format="value(basic.python_location)") -m pip install numpy
+
       - name: Resolve deploy image ref
         id: resolve
         env:
