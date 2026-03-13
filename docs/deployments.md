@@ -100,10 +100,6 @@ These secrets are passed to docker compose on the target VM.
 
 - `OPENCLAW_GATEWAY_TOKEN` - Authentication token for the gateway API. Generate with `openssl rand -hex 32`. Secures communication between clients and the gateway.
 - `CLAUDE_AI_SESSION_KEY` - Anthropic API session key. Obtain from [Anthropic Console](https://console.anthropic.com/settings/keys) or your existing Claude API setup.
-- `DISCORD_BOT_TOKEN` - Discord bot token used by DAISy channel integrations.
-- `ANTHROPIC_API_KEY` - Anthropic API key used by configured Claude model providers.
-- `MONGODB_URI` - MongoDB Atlas (or compatible) connection URI consumed by `${MONGODB_URI}` config references in `openclaw.json`.
-- `GEMINI_API_KEY` - Google Gemini API key consumed by `${GEMINI_API_KEY}` config references in `openclaw.json` for embeddings.
 
 **Optional (usage monitoring only):**
 

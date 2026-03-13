@@ -61,12 +61,6 @@ on:
       ANTHROPIC_API_KEY:
         description: Anthropic API key for Claude model access
         required: true
-      MONGODB_URI:
-        description: MongoDB connection URI for memory storage
-        required: true
-      GEMINI_API_KEY:
-        description: Gemini API key for embedding requests
-        required: true
       CLAUDE_WEB_SESSION_KEY:
         description: Claude web session key (optional, for usage monitoring)
         required: false
@@ -135,8 +129,6 @@ jobs:
           CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
         run: |
@@ -153,8 +145,6 @@ jobs:
           : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required}"
           : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required}"
           : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}"
-          : "${MONGODB_URI:?MONGODB_URI is required}"
-          : "${GEMINI_API_KEY:?GEMINI_API_KEY is required}"
           # CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
           # Validate OPENCLAW_CONFIG_FILE is a simple filename (no path separators)
           case "${OPENCLAW_CONFIG_FILE}" in
@@ -217,8 +207,6 @@ jobs:
           CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
         run: |
