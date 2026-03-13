@@ -90,8 +90,9 @@ OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-${CLAWDBOT_GATEWAY_BIND:-loopbac
 : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required for real deploy}"
 : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required for real deploy}"
 : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required for real deploy}"
-: "${MONGODB_URI:?MONGODB_URI is required for real deploy}"
-: "${GEMINI_API_KEY:?GEMINI_API_KEY is required for real deploy}"
+# MONGODB_URI and GEMINI_API_KEY are optional (memory-mongodb plugin only)
+MONGODB_URI="${MONGODB_URI:-}"
+GEMINI_API_KEY="${GEMINI_API_KEY:-}"
 # CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
 CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
 CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
@@ -168,8 +169,8 @@ read -r OPENCLAW_GATEWAY_TOKEN
 read -r CLAUDE_AI_SESSION_KEY
 read -r DISCORD_BOT_TOKEN
 read -r ANTHROPIC_API_KEY
-read -r MONGODB_URI
-read -r GEMINI_API_KEY
+read -r MONGODB_URI || MONGODB_URI=""
+read -r GEMINI_API_KEY || GEMINI_API_KEY=""
 read -r CLAUDE_WEB_SESSION_KEY || CLAUDE_WEB_SESSION_KEY=""
 read -r CLAUDE_WEB_COOKIE || CLAUDE_WEB_COOKIE=""
 
