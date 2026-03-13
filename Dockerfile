@@ -93,9 +93,11 @@ RUN if [ -n "$OPENCLAW_INSTALL_DOCKER_CLI" ]; then \
 USER node
 COPY --chown=node:node . .
 # pnpm uses symlinks for per-workspace node_modules. The COPY above replaces
-# workspace member directories, destroying those symlinks. Re-run install to
-# recreate them from the already-populated .pnpm store (no downloads needed).
-RUN pnpm install --prefer-offline
+# workspace member directories, destroying those symlinks. Re-run install
+# scoped to the workspaces whose package.json was pre-copied so we only
+# recreate known symlinks from the already-populated .pnpm store.
+RUN pnpm install --prefer-offline \
+      --filter openclaw --filter @openclaw/ui --filter @openclaw/memory-mongodb
 # Normalize copied plugin/agent paths so plugin safety checks do not reject
 # world-writable directories inherited from source file modes.
 RUN for dir in /app/extensions /app/.agent /app/.agents; do \
