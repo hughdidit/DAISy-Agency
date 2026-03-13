@@ -47,15 +47,15 @@ for a clean deployment.
   "agents": {
     "defaults": {
       "memorySearch": {
-        "enabled": false
-      }
-    }
+        "enabled": false,
+      },
+    },
   },
   "plugins": {
     // Select memory-mongodb as the exclusive memory plugin.
     // This disables the default memory-core plugin.
     "slots": {
-      "memory": "memory-mongodb"
+      "memory": "memory-mongodb",
     },
     "entries": {
       "memory-mongodb": {
@@ -67,40 +67,40 @@ for a clean deployment.
               "command": "npx",
               "args": ["-y", "mongodb-mcp-server@<PINNED_VERSION>"],
               "env": {
-                "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}"
-              }
-            }
+                "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}",
+              },
+            },
           },
           "gemini": {
             "apiKey": "${GEMINI_API_KEY}",
-            "embeddingModel": "gemini-embedding-2-preview"
+            "embeddingModel": "gemini-embedding-2-preview",
           },
           "database": {
             "name": "daisy_memory",
             "collection": "memories",
-            "indexName": "vector_index"
+            "indexName": "vector_index",
           },
           "retrieval": {
             "minScore": 0.1,
             "vectorLimit": 8,
-            "numCandidatesMultiplier": 10
+            "numCandidatesMultiplier": 10,
           },
           "autoCapture": true,
-          "autoRecall": true
-        }
-      }
-    }
-  }
+          "autoRecall": true,
+        },
+      },
+    },
+  },
 }
 ```
 
 ### Why three settings are needed
 
-| Setting | What it controls | What happens if omitted |
-| --- | --- | --- |
-| `plugins.slots.memory: "memory-mongodb"` | Which plugin occupies the exclusive memory slot | Default `memory-core` plugin registers `memory_search`/`memory_get` tools instead |
-| `plugins.entries.memory-mongodb.enabled: true` | Whether the plugin is loaded | Plugin is not loaded; memory slot falls back to `memory-core` |
-| `agents.defaults.memorySearch.enabled: false` | Whether the built-in `MemoryIndexManager` runs | Built-in system tries to index `MEMORY.md` and `memory/` from the workspace directory, producing sandbox/ENOENT errors in containerized deployments |
+| Setting                                        | What it controls                                | What happens if omitted                                                                                                                             |
+| ---------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `plugins.slots.memory: "memory-mongodb"`       | Which plugin occupies the exclusive memory slot | Default `memory-core` plugin registers `memory_search`/`memory_get` tools instead                                                                   |
+| `plugins.entries.memory-mongodb.enabled: true` | Whether the plugin is loaded                    | Plugin is not loaded; memory slot falls back to `memory-core`                                                                                       |
+| `agents.defaults.memorySearch.enabled: false`  | Whether the built-in `MemoryIndexManager` runs  | Built-in system tries to index `MEMORY.md` and `memory/` from the workspace directory, producing sandbox/ENOENT errors in containerized deployments |
 
 > **Note:** The `memory-lancedb` extension has the same requirement — any
 > third-party memory plugin that replaces the built-in system must also set
