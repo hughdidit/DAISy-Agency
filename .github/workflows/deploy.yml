@@ -62,11 +62,11 @@ on:
         description: Anthropic API key for Claude model access
         required: true
       MONGODB_URI:
-        description: MongoDB connection URI for memory storage
-        required: true
+        description: MongoDB connection URI for memory storage (optional, memory plugin only)
+        required: false
       GEMINI_API_KEY:
-        description: Gemini API key for embedding requests
-        required: true
+        description: Gemini API key for embedding requests (optional, memory plugin only)
+        required: false
       CLAUDE_WEB_SESSION_KEY:
         description: Claude web session key (optional, for usage monitoring)
         required: false
@@ -153,9 +153,7 @@ jobs:
           : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required}"
           : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required}"
           : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}"
-          : "${MONGODB_URI:?MONGODB_URI is required}"
-          : "${GEMINI_API_KEY:?GEMINI_API_KEY is required}"
-          # CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
+          # MONGODB_URI, GEMINI_API_KEY, CLAUDE_WEB_SESSION_KEY, CLAUDE_WEB_COOKIE are optional
           # Validate OPENCLAW_CONFIG_FILE is a simple filename (no path separators)
           case "${OPENCLAW_CONFIG_FILE}" in
             *"/"*|*".."*) echo "ERROR: OPENCLAW_CONFIG_FILE must be a simple filename (got: ${OPENCLAW_CONFIG_FILE})" >&2; exit 1 ;;
