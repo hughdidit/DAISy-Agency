@@ -146,7 +146,7 @@ fi
 # ── 11. Install AIDE cron entry ──────────────────────────────────
 AIDE_CRON="*/15 * * * * /usr/bin/aide --check --config ${MONITORING_DIR}/aide/aide.conf 2>&1 | logger -t aide-check"
 if ! crontab -l 2>/dev/null | grep -qF "aide --check"; then
-  (crontab -l 2>/dev/null; echo "${AIDE_CRON}") | crontab -
+  { crontab -l 2>/dev/null || true; echo "${AIDE_CRON}"; } | crontab -
   echo "Installed AIDE cron entry (every 15 minutes)."
 else
   echo "AIDE cron entry already exists."
