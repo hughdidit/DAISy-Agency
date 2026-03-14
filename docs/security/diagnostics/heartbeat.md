@@ -68,6 +68,12 @@ Checks if heartbeats are current. Alerts via Discord if the last heartbeat is ol
 
 Returns current status without triggering alerts.
 
+**Response:**
+
+```json
+{ "status": "healthy", "last_heartbeat": "2026-03-14T10:05:12+00:00", "elapsed_seconds": 142.3 }
+```
+
 ## Deployment
 
 ### 1. Create GCS Bucket
