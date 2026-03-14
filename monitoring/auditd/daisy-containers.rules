@@ -1,0 +1,67 @@
+# auditd rules for DAISy-Agency container monitoring
+# Tracks sensitive syscalls, file access, and security-relevant events.
+#
+# Install: apt-get install -y auditd
+# Deploy: cp daisy-containers.rules /etc/audit/rules.d/
+# Reload: augenrules --load
+#
+# Logs go to /var/log/audit/audit.log → ingested by Promtail → Loki
+
+# ── Docker Socket Access ────────────────────────────────────────────
+# Watch all access to the Docker socket
+-w /var/run/docker.sock -p rwxa -k docker_socket
+
+# ── Application Configuration Changes ───────────────────────────────
+# Watch compose files for unauthorized modifications
+-w /opt/DAISy/docker-compose.yml -p wa -k compose_change
+-w /opt/DAISy/docker-compose.host.yml -p wa -k compose_change
+-w /opt/DAISy/docker-compose.sandbox.yml -p wa -k compose_change
+-w /opt/DAISy/.env -p wa -k env_change
+
+# ── Monitoring Configuration Changes ────────────────────────────────
+# Zero-trust: monitor the monitoring configs themselves
+-w /opt/DAISy/monitoring/ -p wa -k monitoring_change
+
+# ── Sensitive Syscalls from Container Processes ──────────────────────
+# Track execve from non-root users (uid >= 1000 = container processes)
+-a always,exit -F arch=b64 -S execve -F uid>=1000 -F uid!=65534 -k container_exec
+
+# Track ptrace (process injection/debugging)
+-a always,exit -F arch=b64 -S ptrace -k ptrace_attempt
+
+# Track mount/umount (filesystem manipulation)
+-a always,exit -F arch=b64 -S mount -S umount2 -k mount_ops
+
+# Track kernel module loading
+-a always,exit -F arch=b64 -S init_module -S finit_module -S delete_module -k module_load
+
+# Track privilege changes
+-a always,exit -F arch=b64 -S setuid -S setgid -S setreuid -S setregid -k priv_change
+
+# Track namespace operations (container escape vectors)
+-a always,exit -F arch=b64 -S unshare -S setns -k namespace_ops
+
+# ── Credential File Access ──────────────────────────────────────────
+# Watch access to sensitive credential files
+-w /etc/shadow -p r -k shadow_read
+-w /etc/gshadow -p r -k shadow_read
+-w /etc/sudoers -p wa -k sudoers_change
+-w /etc/sudoers.d/ -p wa -k sudoers_change
+
+# ── SSH Configuration ───────────────────────────────────────────────
+-w /etc/ssh/sshd_config -p wa -k sshd_config_change
+-w /etc/ssh/ssh_config -p wa -k ssh_config_change
+
+# ── User/Group Changes ──────────────────────────────────────────────
+-w /etc/passwd -p wa -k user_change
+-w /etc/group -p wa -k group_change
+
+# ── Cron Changes ────────────────────────────────────────────────────
+-w /etc/crontab -p wa -k cron_change
+-w /etc/cron.d/ -p wa -k cron_change
+-w /var/spool/cron/ -p wa -k cron_change
+
+# ── Process Signaling of Monitoring Services ─────────────────────────
+# Track attempts to kill/signal monitoring processes
+-a always,exit -F arch=b64 -S kill -S tkill -S tgkill -F a1=9 -k process_kill
+-a always,exit -F arch=b64 -S kill -S tkill -S tgkill -F a1=15 -k process_term
