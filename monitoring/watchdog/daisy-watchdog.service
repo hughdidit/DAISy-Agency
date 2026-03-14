@@ -15,6 +15,10 @@ StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=daisy-watchdog
 
+# Log directory — systemd creates /var/log/daisy-watchdog before exec
+LogsDirectory=daisy-watchdog
+LogsDirectoryMode=0750
+
 # Security hardening
 NoNewPrivileges=true
 ProtectSystem=strict

@@ -30,6 +30,7 @@ LOG_DIR = Path("/var/log/daisy-watchdog")
 LOG_FILE = LOG_DIR / "audit.jsonl"
 ALLOWLIST_PATH = Path("/opt/DAISy/monitoring/watchdog/process-allowlist.yml")
 CONTAINER_NAME_PREFIX = "openclaw"
+DOCKER_EVENTS_RETRY_DELAY = 10  # seconds before retrying docker events
 
 # ── Logging ────────────────────────────────────────────────────────────
 
@@ -39,7 +40,7 @@ def emit(event_type: str, **fields):
     record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "service": "daisy-watchdog",
-        "event": event_type,
+        "event_type": event_type,
         **fields,
     }
     line = json.dumps(record, default=str)
@@ -80,13 +81,36 @@ def load_allowlist() -> set:
     return allowed
 
 
+# ── Container Discovery ───────────────────────────────────────────────
+
+
+def get_daisy_container_ids() -> set:
+    """
+    Get container IDs for DAISy containers using docker inspect.
+    Returns a set of container ID prefixes (12 chars).
+    """
+    try:
+        result = subprocess.run(
+            ["docker", "ps", "--filter", f"name={CONTAINER_NAME_PREFIX}",
+             "--format", "{{.ID}}"],
+            capture_output=True, text=True, timeout=10,
+        )
+        if result.returncode == 0:
+            return {cid.strip()[:12] for cid in result.stdout.splitlines()
+                    if cid.strip()}
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+    return set()
+
+
 # ── Container Process Scanning ─────────────────────────────────────────
 
 
-def get_container_pids() -> dict:
+def get_container_pids(daisy_ids: set) -> dict:
     """
-    Get PIDs running inside containers by reading /proc/<pid>/cgroup.
-    Returns {pid: container_id} for container processes.
+    Get PIDs running inside DAISy containers by reading /proc/<pid>/cgroup.
+    Only returns PIDs belonging to containers in daisy_ids.
+    Returns {pid: container_id}.
     """
     container_pids = {}
     proc = Path("/proc")
@@ -101,8 +125,10 @@ def get_container_pids() -> dict:
                 if "docker" in line or "containerd" in line:
                     # Extract container ID from cgroup path
                     parts = line.split("/")
-                    container_id = parts[-1][:12] if parts else "unknown"
-                    container_pids[pid] = container_id
+                    container_id = parts[-1][:12] if parts else ""
+                    # Only include PIDs from DAISy containers
+                    if container_id and container_id in daisy_ids:
+                        container_pids[pid] = container_id
                     break
         except (OSError, PermissionError):
             continue
@@ -110,10 +136,10 @@ def get_container_pids() -> dict:
 
 
 def get_process_info(pid: int) -> dict | None:
-    """Read process name and cmdline from /proc."""
+    """Read process name, exe path, and cmdline from /proc."""
     try:
         proc_dir = Path(f"/proc/{pid}")
-        # Get executable name
+        # Get executable path and name
         try:
             exe = os.readlink(proc_dir / "exe")
             name = os.path.basename(exe)
@@ -153,9 +179,10 @@ def get_process_info(pid: int) -> dict | None:
         return None
 
 
-def scan_processes(allowlist: set, known_pids: set) -> set:
-    """Scan container processes and check against allowlist."""
-    container_pids = get_container_pids()
+def scan_processes(allowlist: set, known_pids: set,
+                   daisy_ids: set) -> set:
+    """Scan DAISy container processes and check against allowlist."""
+    container_pids = get_container_pids(daisy_ids)
     current_pids = set(container_pids.keys())
 
     # Check new processes
@@ -165,6 +192,7 @@ def scan_processes(allowlist: set, known_pids: set) -> set:
         if info is None:
             continue
 
+        # Check both process name and full exe path against allowlist
         if info["name"] not in allowlist:
             emit(
                 "process_violation",
@@ -184,51 +212,60 @@ def scan_processes(allowlist: set, known_pids: set) -> set:
 
 
 def watch_docker_events():
-    """Watch Docker container lifecycle events."""
-    try:
-        proc = subprocess.Popen(
-            [
-                "docker", "events",
-                "--filter", "type=container",
-                "--format", "{{json .}}",
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        for line in proc.stdout:
-            try:
-                event = json.loads(line.strip())
-                action = event.get("Action", "")
-                actor = event.get("Actor", {})
-                attrs = actor.get("Attributes", {})
-                container_name = attrs.get("name", "unknown")
+    """Watch Docker container lifecycle events with auto-retry."""
+    while True:
+        try:
+            proc = subprocess.Popen(
+                [
+                    "docker", "events",
+                    "--filter", "type=container",
+                    "--filter", f"name={CONTAINER_NAME_PREFIX}",
+                    "--format", "{{json .}}",
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+            emit("docker_events_connected")
+            for line in proc.stdout:
+                try:
+                    event = json.loads(line.strip())
+                    action = event.get("Action", "")
+                    actor = event.get("Actor", {})
+                    attrs = actor.get("Attributes", {})
+                    container_name = attrs.get("name", "unknown")
 
-                # Only track events for DAISy containers
-                if CONTAINER_NAME_PREFIX not in container_name:
+                    if action in (
+                        "start", "stop", "die", "kill", "oom", "restart"
+                    ):
+                        emit(
+                            "container_lifecycle",
+                            action=action,
+                            container=container_name,
+                            image=attrs.get("image", "unknown"),
+                            exit_code=attrs.get("exitCode", ""),
+                        )
+
+                        if action == "oom":
+                            emit(
+                                "container_oom",
+                                severity="critical",
+                                container=container_name,
+                            )
+                except json.JSONDecodeError:
                     continue
 
-                if action in ("start", "stop", "die", "kill", "oom", "restart"):
-                    emit(
-                        "container_lifecycle",
-                        action=action,
-                        container=container_name,
-                        image=attrs.get("image", "unknown"),
-                        exit_code=attrs.get("exitCode", ""),
-                    )
+            # docker events exited — log and retry
+            exit_code = proc.wait()
+            emit("docker_events_disconnected",
+                 severity="warning",
+                 exit_code=exit_code)
+        except FileNotFoundError:
+            emit("docker_events_error", error="docker binary not found")
+        except OSError as e:
+            emit("docker_events_error", error=str(e))
 
-                    if action == "oom":
-                        emit(
-                            "container_oom",
-                            severity="critical",
-                            container=container_name,
-                        )
-            except json.JSONDecodeError:
-                continue
-    except FileNotFoundError:
-        emit("docker_events_error", error="docker binary not found")
-    except OSError as e:
-        emit("docker_events_error", error=str(e))
+        time.sleep(DOCKER_EVENTS_RETRY_DELAY)
 
 
 # ── Heartbeat (Dead Man's Switch) ──────────────────────────────────────
@@ -270,9 +307,19 @@ def main():
 
     # Main process scanning loop
     known_pids: set = set()
+    container_refresh_counter = 0
+    daisy_ids: set = set()
     while True:
         try:
-            known_pids = scan_processes(allowlist, known_pids)
+            # Refresh container IDs every 6 cycles (60s)
+            if container_refresh_counter % 6 == 0:
+                daisy_ids = get_daisy_container_ids()
+            container_refresh_counter += 1
+
+            if daisy_ids:
+                known_pids = scan_processes(allowlist, known_pids, daisy_ids)
+            else:
+                known_pids = set()
         except Exception as e:
             emit("scan_error", error=str(e))
         time.sleep(SCAN_INTERVAL)
