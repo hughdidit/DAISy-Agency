@@ -7,6 +7,7 @@ set -euo pipefail
 
 RESOLVE_ONLY="false"
 PROVISION="false"
+WITH_MONITORING="false"
 
 while [[ "${1:-}" == --* ]]; do
   case "${1}" in
@@ -16,6 +17,10 @@ while [[ "${1:-}" == --* ]]; do
       ;;
     --provision)
       PROVISION="true"
+      shift
+      ;;
+    --with-monitoring)
+      WITH_MONITORING="true"
       shift
       ;;
     *)
@@ -137,6 +142,49 @@ if [[ "${PROVISION}" == "true" ]]; then
     --quiet \
     --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if ! command -v docker-compose >/dev/null 2>&1; then echo \"Installing docker-compose...\"; sudo curl -fsSL \"https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; echo \"${COMPOSE_HOST_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.host.yml\"; echo \"${COMPOSE_SANDBOX_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.sandbox.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo chown 1000:1000 \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo find \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\" -mindepth 1 -exec chown 1000:1000 {} + 2>/dev/null || true; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker-compose version'"
   echo "Provisioning complete."
+fi
+
+# Deploy monitoring stack if requested
+if [[ "${WITH_MONITORING}" == "true" ]]; then
+  echo "Deploying monitoring stack..."
+  printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
+  MONITORING_SRC="monitoring"
+
+  if [[ ! -d "${MONITORING_SRC}" ]]; then
+    echo "ERROR: monitoring/ directory not found in working directory." >&2
+    exit 1
+  fi
+
+  # Base64-encode monitoring configs for transfer (tar to preserve directory structure)
+  MONITORING_TARBALL_B64="$(tar -cf - -C . monitoring/ | base64 -w0)"
+
+  # Transfer and extract monitoring configs on the VM.
+  # Clear immutable bits first (set by setup-permissions.sh) so tar can overwrite.
+  # Ensure DEPLOY_DIR exists even without --provision.
+  gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+    --project "${GCP_PROJECT_ID}" \
+    --zone "${GCP_ZONE}" \
+    --tunnel-through-iap \
+    --quiet \
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; if [[ -d \"\${DEPLOY_DIR}/monitoring\" ]]; then sudo find \"\${DEPLOY_DIR}/monitoring\" -type f -exec chattr -i {} + 2>/dev/null || true; fi; echo \"${MONITORING_TARBALL_B64}\" | base64 -d | sudo tar -xf - -C \"\${DEPLOY_DIR}\"; sudo chmod +x \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" \"\${DEPLOY_DIR}/monitoring/network/conntrack-logger.sh\" \"\${DEPLOY_DIR}/monitoring/watchdog/daisy-watchdog.py\"; echo \"Monitoring configs deployed to \${DEPLOY_DIR}/monitoring/\"; ls -la \"\${DEPLOY_DIR}/monitoring/\"'"
+
+  # Run setup-permissions.sh (creates user, installs packages on first run, sets perms + chattr)
+  gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+    --project "${GCP_PROJECT_ID}" \
+    --zone "${GCP_ZONE}" \
+    --tunnel-through-iap \
+    --quiet \
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if [[ ! -f \"\${DEPLOY_DIR}/monitoring/.setup-complete\" ]]; then sudo \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" && sudo touch \"\${DEPLOY_DIR}/monitoring/.setup-complete\"; else echo \"Subsequent deploy (skip package install)\"; sudo \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" --skip-packages; fi'"
+
+  # Start/restart monitoring compose stack using docker-compose (standalone binary)
+  gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+    --project "${GCP_PROJECT_ID}" \
+    --zone "${GCP_ZONE}" \
+    --tunnel-through-iap \
+    --quiet \
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; cd \"\${DEPLOY_DIR}\"; if [[ -f monitoring/.env.monitoring ]]; then sudo docker-compose --env-file monitoring/.env.monitoring -f monitoring/docker-compose.monitoring.yml pull && sudo docker-compose --env-file monitoring/.env.monitoring -f monitoring/docker-compose.monitoring.yml up -d --remove-orphans; else echo \"WARNING: monitoring/.env.monitoring not found. Create it from .env.monitoring.example before starting monitoring.\"; fi; sudo systemctl restart daisy-watchdog || echo \"WARNING: daisy-watchdog restart failed\"; sudo systemctl restart daisy-conntrack-logger || echo \"WARNING: daisy-conntrack-logger restart failed\"'"
+
+  echo "Monitoring deployment complete."
 fi
 
 # Build the remote script as a variable (avoids heredoc/pipe conflict)

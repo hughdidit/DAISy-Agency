@@ -1,0 +1,4 @@
+# Cloud Functions framework (required by GCP runtime)
+functions-framework==3.*
+# Google auth for GCS heartbeat state persistence
+google-auth==2.*

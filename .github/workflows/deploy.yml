@@ -24,6 +24,11 @@ on:
         required: false
         default: false
         type: boolean
+      with_monitoring:
+        description: "If true, deploy monitoring stack alongside the app"
+        required: false
+        default: false
+        type: boolean
 
   workflow_call:
     inputs:
@@ -40,6 +45,9 @@ on:
         required: true
         type: boolean
       provision:
+        required: false
+        type: boolean
+      with_monitoring:
         required: false
         type: boolean
     secrets:
@@ -224,7 +232,11 @@ jobs:
           if [[ "${{ inputs.provision }}" == "true" ]]; then
             PROVISION_FLAG="--provision"
           fi
-          scripts/deploy.sh ${PROVISION_FLAG} dist/release/release-metadata.json
+          MONITORING_FLAG=""
+          if [[ "${{ inputs.with_monitoring }}" == "true" ]]; then
+            MONITORING_FLAG="--with-monitoring"
+          fi
+          scripts/deploy.sh ${PROVISION_FLAG} ${MONITORING_FLAG} dist/release/release-metadata.json
 
       - name: Deploy summary
         if: ${{ inputs.dry_run != true }}
