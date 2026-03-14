@@ -12,7 +12,7 @@ groups:
           severity: warning
         annotations:
           summary: "Host CPU usage above 80%"
-          description: "CPU usage has been above 80% for 5 minutes. Current: {{ $value | printf \"%.1f\" }}%."
+          description: 'CPU usage has been above 80% for 5 minutes. Current: {{ $value | printf "%.1f" }}%.'
 
       - alert: HighMemoryUsage
         expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.90
@@ -21,7 +21,7 @@ groups:
           severity: critical
         annotations:
           summary: "Host memory usage above 90%"
-          description: "Memory usage is {{ $value | printf \"%.1f\" }}%. Risk of OOM kills."
+          description: 'Memory usage is {{ $value | printf "%.1f" }}%. Risk of OOM kills.'
 
       - alert: DiskSpaceLow
         expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.85
@@ -30,7 +30,7 @@ groups:
           severity: warning
         annotations:
           summary: "Disk usage above 85% on /"
-          description: "Root filesystem is {{ $value | printf \"%.1f\" }}% full."
+          description: 'Root filesystem is {{ $value | printf "%.1f" }}% full.'
 
       - alert: DiskSpaceCritical
         expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.95
@@ -39,7 +39,7 @@ groups:
           severity: critical
         annotations:
           summary: "Disk usage above 95% on /"
-          description: "Root filesystem is {{ $value | printf \"%.1f\" }}% full. Immediate action required."
+          description: 'Root filesystem is {{ $value | printf "%.1f" }}% full. Immediate action required.'
 
       - alert: DiskStateVolumeLow
         expr: (1 - node_filesystem_avail_bytes{mountpoint="/var/lib/daisy"} / node_filesystem_size_bytes{mountpoint="/var/lib/daisy"}) > 0.85
@@ -48,7 +48,7 @@ groups:
           severity: warning
         annotations:
           summary: "State volume /var/lib/daisy above 85%"
-          description: "State disk is {{ $value | printf \"%.1f\" }}% full."
+          description: 'State disk is {{ $value | printf "%.1f" }}% full.'
 
       - alert: NetworkTxSpike
         expr: rate(node_network_transmit_bytes_total{device!="lo"}[5m]) > 50000000
@@ -69,7 +69,7 @@ groups:
           severity: warning
         annotations:
           summary: "Container {{ $labels.name }} CPU usage high"
-          description: "Container CPU rate: {{ $value | printf \"%.2f\" }} cores for 5 minutes."
+          description: 'Container CPU rate: {{ $value | printf "%.2f" }} cores for 5 minutes.'
 
       - alert: ContainerHighMemory
         expr: container_memory_usage_bytes{name=~".*openclaw.*"} / container_spec_memory_limit_bytes{name=~".*openclaw.*"} > 0.90
@@ -78,7 +78,7 @@ groups:
           severity: warning
         annotations:
           summary: "Container {{ $labels.name }} memory above 90%"
-          description: "Memory usage: {{ $value | printf \"%.1f\" }}% of limit."
+          description: 'Memory usage: {{ $value | printf "%.1f" }}% of limit.'
 
       - alert: ContainerRestartLoop
         expr: increase(container_start_time_seconds{name=~".*openclaw.*"}[15m]) > 3
@@ -118,7 +118,7 @@ groups:
           severity: warning
         annotations:
           summary: "Webhook error rate above 10%"
-          description: "{{ $value | printf \"%.1f\" }}% of webhooks are failing."
+          description: '{{ $value | printf "%.1f" }}% of webhooks are failing.'
 
       - alert: SessionStuck
         expr: increase(openclaw_session_stuck_total[5m]) > 0

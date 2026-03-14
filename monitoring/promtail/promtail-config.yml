@@ -33,16 +33,16 @@ scrape_configs:
           subsystem:
       # Redact secrets — zero-trust: never log credentials
       - replace:
-          expression: '(sk-ant-[a-zA-Z0-9_-]{20,})'
+          expression: "(sk-ant-[a-zA-Z0-9_-]{20,})"
           replace: "[REDACTED_ANTHROPIC_KEY]"
       - replace:
-          expression: '(ghp_[a-zA-Z0-9]{36,})'
+          expression: "(ghp_[a-zA-Z0-9]{36,})"
           replace: "[REDACTED_GITHUB_TOKEN]"
       - replace:
           expression: '(Bearer\s+[a-zA-Z0-9._\-]{20,})'
           replace: "[REDACTED_BEARER_TOKEN]"
       - replace:
-          expression: '(sk-[a-zA-Z0-9]{20,})'
+          expression: "(sk-[a-zA-Z0-9]{20,})"
           replace: "[REDACTED_API_KEY]"
       - replace:
           expression: '(xoxb-[a-zA-Z0-9\-]+)'
@@ -74,15 +74,15 @@ scrape_configs:
       # Extract container name from path
       - regex:
           source: filename
-          expression: '/var/lib/docker/containers/(?P<container_id>[a-f0-9]{12})[a-f0-9]*/'
+          expression: "/var/lib/docker/containers/(?P<container_id>[a-f0-9]{12})[a-f0-9]*/"
       - labels:
           container_id:
       # Redact secrets in container logs
       - replace:
-          expression: '(sk-ant-[a-zA-Z0-9_-]{20,})'
+          expression: "(sk-ant-[a-zA-Z0-9_-]{20,})"
           replace: "[REDACTED_ANTHROPIC_KEY]"
       - replace:
-          expression: '(ghp_[a-zA-Z0-9]{36,})'
+          expression: "(ghp_[a-zA-Z0-9]{36,})"
           replace: "[REDACTED_GITHUB_TOKEN]"
       - replace:
           expression: '(Bearer\s+[a-zA-Z0-9._\-]{20,})'
