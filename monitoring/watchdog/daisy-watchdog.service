@@ -1,0 +1,33 @@
+[Unit]
+Description=DAISy-Agency Watchdog Service
+Documentation=https://github.com/hughdidit/DAISy-Agency
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=daisy-monitor
+Group=docker
+ExecStart=/usr/bin/python3 /opt/DAISy/monitoring/watchdog/daisy-watchdog.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=daisy-watchdog
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/daisy-watchdog
+ReadOnlyPaths=/proc /opt/DAISy/monitoring
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+RestrictRealtime=true
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target
