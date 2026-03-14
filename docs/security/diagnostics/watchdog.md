@@ -4,15 +4,15 @@ The `daisy-watchdog` is a Python 3 daemon (stdlib only, no pip dependencies) tha
 
 ## Configuration
 
-| Setting | Value |
-|---------|-------|
-| Binary | `monitoring/watchdog/daisy-watchdog.py` |
-| Systemd unit | `monitoring/watchdog/daisy-watchdog.service` |
-| Allowlist | `monitoring/watchdog/process-allowlist.yml` |
-| Log file | `/var/log/daisy-watchdog/audit.jsonl` |
-| Scan interval | 10 seconds |
-| Heartbeat interval | 300 seconds (5 minutes) |
-| Container filter | Containers with name prefix `openclaw` |
+| Setting            | Value                                        |
+| ------------------ | -------------------------------------------- |
+| Binary             | `monitoring/watchdog/daisy-watchdog.py`      |
+| Systemd unit       | `monitoring/watchdog/daisy-watchdog.service` |
+| Allowlist          | `monitoring/watchdog/process-allowlist.yml`  |
+| Log file           | `/var/log/daisy-watchdog/audit.jsonl`        |
+| Scan interval      | 10 seconds                                   |
+| Heartbeat interval | 300 seconds (5 minutes)                      |
+| Container filter   | Containers with name prefix `openclaw`       |
 
 ## How It Works
 
@@ -32,16 +32,16 @@ The watchdog only monitors DAISy containers, not all containers on the host. It 
 
 All events are written as JSONL to `/var/log/daisy-watchdog/audit.jsonl`:
 
-| Event Type | When | Fields |
-|------------|------|--------|
-| `watchdog_start` | Service starts | version |
-| `allowlist_loaded` | Allowlist parsed | count (number of allowed executables) |
-| `process_violation` | Unauthorized process found | severity, pid, process, exe, cmdline, uid, container_id |
-| `container_lifecycle` | Container start/stop/die | action, container, image, exit_code |
-| `container_oom` | Container OOM killed | severity, container |
-| `docker_events_connected` | Docker event stream connected | — |
-| `docker_events_disconnected` | Docker event stream lost | error |
-| `heartbeat` | Periodic health check | status ("alive") |
+| Event Type                   | When                          | Fields                                                  |
+| ---------------------------- | ----------------------------- | ------------------------------------------------------- |
+| `watchdog_start`             | Service starts                | version                                                 |
+| `allowlist_loaded`           | Allowlist parsed              | count (number of allowed executables)                   |
+| `process_violation`          | Unauthorized process found    | severity, pid, process, exe, cmdline, uid, container_id |
+| `container_lifecycle`        | Container start/stop/die      | action, container, image, exit_code                     |
+| `container_oom`              | Container OOM killed          | severity, container                                     |
+| `docker_events_connected`    | Docker event stream connected | —                                                       |
+| `docker_events_disconnected` | Docker event stream lost      | error                                                   |
+| `heartbeat`                  | Periodic health check         | status ("alive")                                        |
 
 ## Allowlist
 

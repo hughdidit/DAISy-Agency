@@ -27,13 +27,13 @@ This performs three steps on the VM via IAP tunnel:
 
 ### Deploy Workflow Inputs
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `environment` | choice | — | `staging` or `production` |
-| `release_run_id` | string | — | Docker Release workflow run ID |
-| `dry_run` | boolean | `true` | If true, validate only (no actual deploy) |
-| `provision` | boolean | `false` | If true, copy compose files and create directories |
-| `with_monitoring` | boolean | `false` | If true, deploy monitoring stack |
+| Input             | Type    | Default | Description                                        |
+| ----------------- | ------- | ------- | -------------------------------------------------- |
+| `environment`     | choice  | —       | `staging` or `production`                          |
+| `release_run_id`  | string  | —       | Docker Release workflow run ID                     |
+| `dry_run`         | boolean | `true`  | If true, validate only (no actual deploy)          |
+| `provision`       | boolean | `false` | If true, copy compose files and create directories |
+| `with_monitoring` | boolean | `false` | If true, deploy monitoring stack                   |
 
 ### Typical CI/CD Flow
 
@@ -87,6 +87,7 @@ gcloud compute ssh <INSTANCE> --project <PROJECT> --zone <ZONE> \
 ```
 
 This script:
+
 - Creates the `daisy-monitor` user (uid 2000) and group
 - Installs packages: `aide`, `auditd`, `conntrack`, `apparmor-utils`
 - Creates log directories with correct ownership
@@ -152,16 +153,16 @@ curl -s http://localhost:3000/api/health
 
 All monitoring secrets are stored in `monitoring/.env.monitoring` on the VM. This file must be **root-owned with 600 permissions** and must never be committed to git.
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `GRAFANA_ADMIN_PASSWORD` | Yes | Grafana admin password |
-| `DISCORD_ALERTS_WEBHOOK_URL` | Yes | Discord webhook (append `/slack`) |
-| `ALERT_EMAIL_TO` | Yes | Alert recipient email |
-| `ALERT_SMTP_HOST` | Yes | SMTP server hostname |
-| `ALERT_SMTP_PORT` | Yes | SMTP port (587 for TLS) |
-| `ALERT_SMTP_FROM` | Yes | Sender email address |
-| `ALERT_SMTP_USERNAME` | Yes | SMTP authentication username |
-| `ALERT_SMTP_PASSWORD` | Yes | SMTP authentication password |
+| Variable                     | Required | Description                       |
+| ---------------------------- | -------- | --------------------------------- |
+| `GRAFANA_ADMIN_PASSWORD`     | Yes      | Grafana admin password            |
+| `DISCORD_ALERTS_WEBHOOK_URL` | Yes      | Discord webhook (append `/slack`) |
+| `ALERT_EMAIL_TO`             | Yes      | Alert recipient email             |
+| `ALERT_SMTP_HOST`            | Yes      | SMTP server hostname              |
+| `ALERT_SMTP_PORT`            | Yes      | SMTP port (587 for TLS)           |
+| `ALERT_SMTP_FROM`            | Yes      | Sender email address              |
+| `ALERT_SMTP_USERNAME`        | Yes      | SMTP authentication username      |
+| `ALERT_SMTP_PASSWORD`        | Yes      | SMTP authentication password      |
 
 ## Anti-Tampering
 
@@ -204,18 +205,18 @@ All monitoring files are owned by `root:daisy-monitor` with `750` (directories) 
 
 ## Ports Reference
 
-| Port | Service |
-|------|---------|
-| 3000 | Grafana |
-| 3100 | Loki (HTTP) |
-| 4318 | OTel Collector (OTLP HTTP) |
-| 8080 | cAdvisor |
+| Port | Service                              |
+| ---- | ------------------------------------ |
+| 3000 | Grafana                              |
+| 3100 | Loki (HTTP)                          |
+| 4318 | OTel Collector (OTLP HTTP)           |
+| 8080 | cAdvisor                             |
 | 8889 | OTel Collector (Prometheus exporter) |
-| 9080 | Promtail |
-| 9090 | Prometheus |
-| 9093 | Alertmanager |
-| 9096 | Loki (gRPC) |
-| 9100 | node-exporter |
+| 9080 | Promtail                             |
+| 9090 | Prometheus                           |
+| 9093 | Alertmanager                         |
+| 9096 | Loki (gRPC)                          |
+| 9100 | node-exporter                        |
 
 All ports are on localhost only (host networking mode). Access via IAP tunnel:
 

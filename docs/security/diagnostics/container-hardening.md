@@ -21,15 +21,15 @@ services:
       - /tmp:size=512M,noexec
 ```
 
-| Control | Effect |
-|---------|--------|
-| `cap_drop: ALL` | Removes all Linux capabilities |
-| `cap_add: NET_BIND_SERVICE` | Only allows binding to privileged ports |
-| `no-new-privileges` | Prevents gaining privileges via SUID/SGID binaries |
-| `seccomp` | Blocks dangerous syscalls at the kernel level |
-| `apparmor` | Mandatory access control denying access to monitoring paths |
-| `read_only: true` | Root filesystem is read-only |
-| `tmpfs /tmp` | Writable `/tmp` is memory-backed with 512 MB limit, noexec |
+| Control                     | Effect                                                      |
+| --------------------------- | ----------------------------------------------------------- |
+| `cap_drop: ALL`             | Removes all Linux capabilities                              |
+| `cap_add: NET_BIND_SERVICE` | Only allows binding to privileged ports                     |
+| `no-new-privileges`         | Prevents gaining privileges via SUID/SGID binaries          |
+| `seccomp`                   | Blocks dangerous syscalls at the kernel level               |
+| `apparmor`                  | Mandatory access control denying access to monitoring paths |
+| `read_only: true`           | Root filesystem is read-only                                |
+| `tmpfs /tmp`                | Writable `/tmp` is memory-backed with 512 MB limit, noexec  |
 
 ## Seccomp Profile
 
@@ -41,22 +41,22 @@ The seccomp profile uses a default-deny approach: only explicitly listed syscall
 
 These syscalls are explicitly blocked with `SCMP_ACT_ERRNO`:
 
-| Category | Syscalls | Risk |
-|----------|----------|------|
-| eBPF | `bpf` | Kernel exploitation, tracing bypass |
-| Kernel loading | `kexec_load`, `kexec_file_load` | Kernel replacement |
-| Fault handling | `userfaultfd` | Container escape vector |
-| Profiling | `perf_event_open` | Side-channel attacks |
-| Process tracing | `ptrace` | Debugger attachment, memory reading |
-| Mounting | `mount`, `umount`, `umount2`, `pivot_root` | Filesystem escape |
-| Namespaces | `unshare`, `setns` | Namespace manipulation |
-| Kernel modules | `init_module`, `finit_module`, `delete_module`, `create_module` | Kernel rootkits |
-| System control | `reboot`, `swapon`, `swapoff`, `sethostname`, `setdomainname` | Host disruption |
-| Key management | `add_key`, `request_key`, `keyctl` | Keyring manipulation |
-| Cross-process | `process_vm_readv`, `process_vm_writev`, `kcmp` | Memory access across processes |
-| Personality | `personality` | Security boundary bypass |
-| Accounting | `acct` | Process accounting manipulation |
-| Handle bypass | `open_by_handle_at` | File handle-based container escape |
+| Category        | Syscalls                                                        | Risk                                |
+| --------------- | --------------------------------------------------------------- | ----------------------------------- |
+| eBPF            | `bpf`                                                           | Kernel exploitation, tracing bypass |
+| Kernel loading  | `kexec_load`, `kexec_file_load`                                 | Kernel replacement                  |
+| Fault handling  | `userfaultfd`                                                   | Container escape vector             |
+| Profiling       | `perf_event_open`                                               | Side-channel attacks                |
+| Process tracing | `ptrace`                                                        | Debugger attachment, memory reading |
+| Mounting        | `mount`, `umount`, `umount2`, `pivot_root`                      | Filesystem escape                   |
+| Namespaces      | `unshare`, `setns`                                              | Namespace manipulation              |
+| Kernel modules  | `init_module`, `finit_module`, `delete_module`, `create_module` | Kernel rootkits                     |
+| System control  | `reboot`, `swapon`, `swapoff`, `sethostname`, `setdomainname`   | Host disruption                     |
+| Key management  | `add_key`, `request_key`, `keyctl`                              | Keyring manipulation                |
+| Cross-process   | `process_vm_readv`, `process_vm_writev`, `kcmp`                 | Memory access across processes      |
+| Personality     | `personality`                                                   | Security boundary bypass            |
+| Accounting      | `acct`                                                          | Process accounting manipulation     |
+| Handle bypass   | `open_by_handle_at`                                             | File handle-based container escape  |
 
 ### Clone Restrictions
 
@@ -81,30 +81,30 @@ A mandatory access control (MAC) profile that enforces filesystem and capability
 
 **Denied paths (read + write + link + lock + execute):**
 
-| Path | Reason |
-|------|--------|
-| `/opt/DAISy/monitoring/**` | Monitoring configs and scripts |
-| `/var/log/falco/**` | Falco security event logs |
-| `/var/log/daisy-watchdog/**` | Watchdog audit trail |
-| `/var/log/audit/**` | Kernel audit logs |
-| `/var/lib/aide/**` | AIDE integrity database |
-| `/etc/apparmor.d/**` | AppArmor profile directory |
-| `/etc/audit/**` | Audit configuration |
-| `/etc/shadow` | Password hashes |
-| `/etc/gshadow` | Group password hashes |
-| `/etc/sudoers`, `/etc/sudoers.d/**` | Privilege escalation configs |
+| Path                                | Reason                         |
+| ----------------------------------- | ------------------------------ |
+| `/opt/DAISy/monitoring/**`          | Monitoring configs and scripts |
+| `/var/log/falco/**`                 | Falco security event logs      |
+| `/var/log/daisy-watchdog/**`        | Watchdog audit trail           |
+| `/var/log/audit/**`                 | Kernel audit logs              |
+| `/var/lib/aide/**`                  | AIDE integrity database        |
+| `/etc/apparmor.d/**`                | AppArmor profile directory     |
+| `/etc/audit/**`                     | Audit configuration            |
+| `/etc/shadow`                       | Password hashes                |
+| `/etc/gshadow`                      | Group password hashes          |
+| `/etc/sudoers`, `/etc/sudoers.d/**` | Privilege escalation configs   |
 
 **Denied capabilities:**
 
-| Capability | Risk |
-|------------|------|
-| `sys_admin` | Broad system administration (mount, namespace, etc.) |
-| `sys_module` | Loading kernel modules |
-| `sys_rawio` | Direct hardware I/O |
-| `sys_ptrace` | Process debugging/tracing |
-| `sys_boot` | Rebooting the system |
-| `mac_admin` | Modifying MAC policies |
-| `mac_override` | Overriding MAC policies |
+| Capability     | Risk                                                 |
+| -------------- | ---------------------------------------------------- |
+| `sys_admin`    | Broad system administration (mount, namespace, etc.) |
+| `sys_module`   | Loading kernel modules                               |
+| `sys_rawio`    | Direct hardware I/O                                  |
+| `sys_ptrace`   | Process debugging/tracing                            |
+| `sys_boot`     | Rebooting the system                                 |
+| `mac_admin`    | Modifying MAC policies                               |
+| `mac_override` | Overriding MAC policies                              |
 
 **Denied operations:** `mount`, `umount`, `pivot_root`
 

@@ -39,24 +39,24 @@ Host-level monitoring, security detection, and anti-tampering for DAISy-Agency. 
 
 ## Components
 
-| Component | Type | Purpose | Doc |
-|-----------|------|---------|-----|
-| Prometheus | Docker | Metrics storage and alerting | [observability.md](observability.md) |
-| Grafana | Docker | Dashboards and visualization | [observability.md](observability.md) |
-| Loki + Promtail | Docker | Log aggregation and shipping | [observability.md](observability.md) |
-| OTel Collector | Docker | OTLP bridge for app telemetry | [observability.md](observability.md) |
-| Alertmanager | Docker | Alert routing (Discord + Email) | [alerting.md](alerting.md) |
-| node-exporter | Docker | Host CPU/memory/disk metrics | [observability.md](observability.md) |
-| cAdvisor | Docker | Per-container resource metrics | [observability.md](observability.md) |
-| Falco | Systemd | Kernel-level syscall monitoring | [security-detection.md](security-detection.md) |
-| AIDE | Cron | File integrity monitoring | [security-detection.md](security-detection.md) |
-| auditd | Systemd | Kernel audit rules | [security-detection.md](security-detection.md) |
-| daisy-watchdog | Systemd | Process allowlist enforcement | [watchdog.md](watchdog.md) |
-| conntrack-logger | Systemd | Network connection logging | [network-monitoring.md](network-monitoring.md) |
-| Seccomp profile | Docker | Syscall filtering | [container-hardening.md](container-hardening.md) |
-| AppArmor profile | Docker | MAC filesystem/capability policy | [container-hardening.md](container-hardening.md) |
-| Heartbeat Function | GCP | Dead man's switch | [heartbeat.md](heartbeat.md) |
-| setup-permissions.sh | Script | First-run provisioning | [deployment.md](deployment.md) |
+| Component            | Type    | Purpose                          | Doc                                              |
+| -------------------- | ------- | -------------------------------- | ------------------------------------------------ |
+| Prometheus           | Docker  | Metrics storage and alerting     | [observability.md](observability.md)             |
+| Grafana              | Docker  | Dashboards and visualization     | [observability.md](observability.md)             |
+| Loki + Promtail      | Docker  | Log aggregation and shipping     | [observability.md](observability.md)             |
+| OTel Collector       | Docker  | OTLP bridge for app telemetry    | [observability.md](observability.md)             |
+| Alertmanager         | Docker  | Alert routing (Discord + Email)  | [alerting.md](alerting.md)                       |
+| node-exporter        | Docker  | Host CPU/memory/disk metrics     | [observability.md](observability.md)             |
+| cAdvisor             | Docker  | Per-container resource metrics   | [observability.md](observability.md)             |
+| Falco                | Systemd | Kernel-level syscall monitoring  | [security-detection.md](security-detection.md)   |
+| AIDE                 | Cron    | File integrity monitoring        | [security-detection.md](security-detection.md)   |
+| auditd               | Systemd | Kernel audit rules               | [security-detection.md](security-detection.md)   |
+| daisy-watchdog       | Systemd | Process allowlist enforcement    | [watchdog.md](watchdog.md)                       |
+| conntrack-logger     | Systemd | Network connection logging       | [network-monitoring.md](network-monitoring.md)   |
+| Seccomp profile      | Docker  | Syscall filtering                | [container-hardening.md](container-hardening.md) |
+| AppArmor profile     | Docker  | MAC filesystem/capability policy | [container-hardening.md](container-hardening.md) |
+| Heartbeat Function   | GCP     | Dead man's switch                | [heartbeat.md](heartbeat.md)                     |
+| setup-permissions.sh | Script  | First-run provisioning           | [deployment.md](deployment.md)                   |
 
 ## Security Principles
 

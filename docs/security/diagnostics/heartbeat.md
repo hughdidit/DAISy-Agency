@@ -21,14 +21,14 @@ Cloud Scheduler                                    │
 
 ## Configuration
 
-| Setting | Value |
-|---------|-------|
-| Function | `monitoring/heartbeat/cloud-function/main.py` |
-| Runtime | Python 3.12 |
-| State storage | GCS bucket (configured via `HEARTBEAT_GCS_BUCKET`) |
+| Setting           | Value                                                     |
+| ----------------- | --------------------------------------------------------- |
+| Function          | `monitoring/heartbeat/cloud-function/main.py`             |
+| Runtime           | Python 3.12                                               |
+| State storage     | GCS bucket (configured via `HEARTBEAT_GCS_BUCKET`)        |
 | Timeout threshold | 10 minutes (configurable via `HEARTBEAT_TIMEOUT_MINUTES`) |
-| Authentication | IAM-enforced (`--no-allow-unauthenticated`) |
-| Alert channel | Discord webhook |
+| Authentication    | IAM-enforced (`--no-allow-unauthenticated`)               |
+| Alert channel     | Discord webhook                                           |
 
 ## API
 
@@ -39,8 +39,9 @@ All endpoints require IAM authentication (OIDC token).
 Records a heartbeat timestamp in GCS.
 
 **Response:**
+
 ```json
-{"status": "ok", "recorded": "2026-03-14T10:05:12+00:00"}
+{ "status": "ok", "recorded": "2026-03-14T10:05:12+00:00" }
 ```
 
 ### POST `{"action": "check"}`
@@ -48,13 +49,19 @@ Records a heartbeat timestamp in GCS.
 Checks if heartbeats are current. Alerts via Discord if the last heartbeat is older than the threshold.
 
 **Response (healthy):**
+
 ```json
-{"status": "healthy", "last_heartbeat": "2026-03-14T10:05:12+00:00", "elapsed_seconds": 142.3}
+{ "status": "healthy", "last_heartbeat": "2026-03-14T10:05:12+00:00", "elapsed_seconds": 142.3 }
 ```
 
 **Response (alert):**
+
 ```json
-{"status": "alert", "message": "Heartbeat missing for 12.5 minutes", "last_heartbeat": "2026-03-14T09:50:00+00:00"}
+{
+  "status": "alert",
+  "message": "Heartbeat missing for 12.5 minutes",
+  "last_heartbeat": "2026-03-14T09:50:00+00:00"
+}
 ```
 
 ### GET
