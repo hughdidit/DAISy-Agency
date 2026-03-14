@@ -1,0 +1,72 @@
+# AppArmor profile for DAISy-Agency containers
+# Prevents containers from accessing monitoring infrastructure.
+#
+# Install:
+#   sudo cp openclaw-container /etc/apparmor.d/openclaw-container
+#   sudo apparmor_parser -r /etc/apparmor.d/openclaw-container
+#
+# Use in docker-compose.host.yml:
+#   security_opt:
+#     - apparmor:openclaw-container
+#
+# Zero-trust: even if a container escapes its namespace, it cannot
+# tamper with the monitoring stack that would detect the breach.
+
+#include <tunables/global>
+
+profile openclaw-container flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # ── Network ──────────────────────────────────────────────────────
+  # Allow all networking (containers need outbound HTTP, WebSocket, etc.)
+  network,
+
+  # ── File Access ──────────────────────────────────────────────────
+  # Allow general filesystem access (Node.js app needs /tmp, workspace, etc.)
+  /** rw,
+
+  # ── Deny Monitoring Paths ────────────────────────────────────────
+  # Containers must NEVER read, write, or execute monitoring configs/logs.
+  # These denials override the general /** rw rule above.
+  deny /opt/DAISy/monitoring/** rwklx,
+  deny /var/log/falco/** rwklx,
+  deny /var/log/daisy-watchdog/** rwklx,
+  deny /var/log/audit/** rwklx,
+  deny /var/lib/aide/** rwklx,
+  deny /etc/apparmor.d/** rwklx,
+  deny /etc/audit/** rwklx,
+
+  # ── Deny Dangerous Capabilities ─────────────────────────────────
+  # Prevent privilege escalation even if capabilities are somehow granted
+  deny capability sys_admin,
+  deny capability sys_module,
+  deny capability sys_rawio,
+  deny capability sys_ptrace,
+  deny capability sys_boot,
+  deny capability mac_admin,
+  deny capability mac_override,
+
+  # ── Deny Mount Operations ───────────────────────────────────────
+  deny mount,
+  deny umount,
+  deny pivot_root,
+
+  # ── Allow Executing Binaries ────────────────────────────────────
+  # The container runs Node.js, Python, bash, git, etc.
+  /usr/bin/** ix,
+  /usr/local/bin/** ix,
+  /bin/** ix,
+  /sbin/** ix,
+  /usr/sbin/** ix,
+
+  # ── Allow /proc and /sys Access ─────────────────────────────────
+  # Node.js reads /proc/self/* for diagnostics
+  @{PROC}/** r,
+  /sys/** r,
+
+  # ── Deny Sensitive Host Files ───────────────────────────────────
+  deny /etc/shadow r,
+  deny /etc/gshadow r,
+  deny /etc/sudoers r,
+  deny /etc/sudoers.d/** r,
+}

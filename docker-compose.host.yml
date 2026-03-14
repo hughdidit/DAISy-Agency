@@ -12,7 +12,7 @@ services:
       - NET_BIND_SERVICE
     security_opt:
       - no-new-privileges:true
-      # seccomp profile added in Phase 4 (monitoring/seccomp/daisy-seccomp.json)
+      - seccomp:/opt/DAISy/monitoring/seccomp/daisy-seccomp.json
     read_only: true
     tmpfs:
       - /tmp:size=512M,noexec

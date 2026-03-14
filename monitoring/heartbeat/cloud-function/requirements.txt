@@ -1,0 +1,5 @@
+# No external dependencies — uses only Python stdlib
+# (urllib.request, json, os, time, datetime)
+#
+# This file is required by Cloud Functions even if empty.
+functions-framework==3.*
