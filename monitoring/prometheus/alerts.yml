@@ -1,0 +1,159 @@
+# Prometheus alert rules for DAISy-Agency
+# Severity levels: critical (immediate), warning (15 min), info (best effort)
+
+groups:
+  # ── Host Resource Alerts ───────────────────────────────────────────
+  - name: host_resources
+    rules:
+      - alert: HighCpuUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host CPU usage above 80%"
+          description: "CPU usage has been above 80% for 5 minutes. Current: {{ $value | printf \"%.1f\" }}%."
+
+      - alert: HighMemoryUsage
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Host memory usage above 90%"
+          description: "Memory usage is {{ $value | printf \"%.1f\" }}%. Risk of OOM kills."
+
+      - alert: DiskSpaceLow
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk usage above 85% on /"
+          description: "Root filesystem is {{ $value | printf \"%.1f\" }}% full."
+
+      - alert: DiskSpaceCritical
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk usage above 95% on /"
+          description: "Root filesystem is {{ $value | printf \"%.1f\" }}% full. Immediate action required."
+
+      - alert: DiskStateVolumeLow
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/var/lib/daisy"} / node_filesystem_size_bytes{mountpoint="/var/lib/daisy"}) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "State volume /var/lib/daisy above 85%"
+          description: "State disk is {{ $value | printf \"%.1f\" }}% full."
+
+      - alert: NetworkTxSpike
+        expr: rate(node_network_transmit_bytes_total{device!="lo"}[5m]) > 50000000
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Network TX spike detected (>50MB/s)"
+          description: "Outbound traffic on {{ $labels.device }}: {{ $value | humanize1024 }}B/s. Possible data exfiltration."
+
+  # ── Container Alerts ───────────────────────────────────────────────
+  - name: container_resources
+    rules:
+      - alert: ContainerHighCpu
+        expr: rate(container_cpu_usage_seconds_total{name=~".*openclaw.*"}[5m]) > 0.80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} CPU usage high"
+          description: "Container CPU rate: {{ $value | printf \"%.2f\" }} cores for 5 minutes."
+
+      - alert: ContainerHighMemory
+        expr: container_memory_usage_bytes{name=~".*openclaw.*"} / container_spec_memory_limit_bytes{name=~".*openclaw.*"} > 0.90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} memory above 90%"
+          description: "Memory usage: {{ $value | printf \"%.1f\" }}% of limit."
+
+      - alert: ContainerRestartLoop
+        expr: increase(container_start_time_seconds{name=~".*openclaw.*"}[15m]) > 3
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.name }} restarting repeatedly"
+          description: "{{ $value }} restarts in the last 15 minutes."
+
+      - alert: ContainerOomKilled
+        expr: increase(container_oom_events_total{name=~".*openclaw.*"}[5m]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.name }} OOM killed"
+          description: "OOM kill detected. Review memory limits and application behavior."
+
+      - alert: UnexpectedContainerCount
+        expr: count(container_start_time_seconds{name=~".*openclaw.*"}) > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unexpected number of openclaw containers"
+          description: "{{ $value }} containers running. Expected <= 5."
+
+  # ── Application Alerts (from OTel Collector) ───────────────────────
+  - name: application
+    rules:
+      - alert: HighWebhookErrorRate
+        expr: >
+          rate(openclaw_webhook_error_total[5m])
+          / (rate(openclaw_webhook_received_total[5m]) > 0)
+          > 0.10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Webhook error rate above 10%"
+          description: "{{ $value | printf \"%.1f\" }}% of webhooks are failing."
+
+      - alert: SessionStuck
+        expr: increase(openclaw_session_stuck_total[5m]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Stuck session detected"
+          description: "{{ $value }} sessions stuck in the last 5 minutes."
+
+      - alert: ToolLoopDetected
+        expr: increase(openclaw_tool_loop_total{level="critical"}[5m]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Agent tool loop detected (critical)"
+          description: "An agent is in a critical tool invocation loop."
+
+  # ── Monitoring Self-Health ─────────────────────────────────────────
+  - name: monitoring_health
+    rules:
+      - alert: TargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Scrape target {{ $labels.job }} is down"
+          description: "Prometheus cannot reach {{ $labels.instance }} for job {{ $labels.job }}."
+
+      # Dead man's switch — this alert fires continuously.
+      # If Alertmanager stops receiving it, external monitoring detects silence.
+      - alert: Watchdog
+        expr: vector(1)
+        labels:
+          severity: none
+        annotations:
+          summary: "Dead man's switch — monitoring is alive"
+          description: "This alert fires continuously. If it stops, monitoring is down."

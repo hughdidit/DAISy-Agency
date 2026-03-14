@@ -1,0 +1,97 @@
+# Alertmanager configuration for DAISy-Agency
+# Routes alerts to Discord webhook and email.
+# Credentials are sourced from environment variables — never hardcode secrets.
+
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: "${ALERT_SMTP_HOST}:${ALERT_SMTP_PORT}"
+  smtp_from: "${ALERT_SMTP_FROM}"
+  smtp_auth_username: "${ALERT_SMTP_USERNAME}"
+  smtp_auth_password: "${ALERT_SMTP_PASSWORD}"
+  smtp_require_tls: true
+
+# Inhibition: critical suppresses warning for the same alert
+inhibit_rules:
+  - source_matchers:
+      - severity = critical
+    target_matchers:
+      - severity = warning
+    equal: [alertname]
+
+route:
+  receiver: discord-email
+  group_by: [alertname, severity]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 12h
+
+  routes:
+    # Critical: immediate — Discord + email, short repeat
+    - matchers:
+        - severity = critical
+      receiver: discord-email
+      repeat_interval: 4h
+      continue: false
+
+    # Warning: 15 min — Discord + email
+    - matchers:
+        - severity = warning
+      receiver: discord-email
+      repeat_interval: 12h
+      continue: false
+
+    # Info: best effort — Discord only
+    - matchers:
+        - severity = info
+      receiver: discord-only
+      repeat_interval: 24h
+      continue: false
+
+    # Dead man's switch — routed to a no-op or external watchdog
+    - matchers:
+        - alertname = Watchdog
+      receiver: deadmans-switch
+      repeat_interval: 1m
+      continue: false
+
+receivers:
+  # Discord webhook — compatible JSON payload
+  # Note: Discord expects { "content": "text" } or embeds format.
+  # Alertmanager sends via webhook_configs with a Discord-compatible template.
+  - name: discord-email
+    webhook_configs:
+      - url: "${DISCORD_ALERTS_WEBHOOK_URL}"
+        send_resolved: true
+        http_config:
+          tls_config:
+            insecure_skip_verify: false
+    email_configs:
+      - to: "${ALERT_EMAIL_TO}"
+        send_resolved: true
+        headers:
+          Subject: >-
+            [{{ .Status | toUpper }}] DAISy Alert: {{ .CommonLabels.alertname }}
+        html: |
+          <h2>{{ .Status | toUpper }}: {{ .CommonLabels.alertname }}</h2>
+          <p><b>Severity:</b> {{ .CommonLabels.severity }}</p>
+          {{ range .Alerts }}
+          <p><b>Summary:</b> {{ .Annotations.summary }}</p>
+          <p>{{ .Annotations.description }}</p>
+          <p><b>Started:</b> {{ .StartsAt }}</p>
+          {{ if .EndsAt }}<p><b>Resolved:</b> {{ .EndsAt }}</p>{{ end }}
+          <hr>
+          {{ end }}
+
+  - name: discord-only
+    webhook_configs:
+      - url: "${DISCORD_ALERTS_WEBHOOK_URL}"
+        send_resolved: true
+        http_config:
+          tls_config:
+            insecure_skip_verify: false
+
+  # Dead man's switch receiver — can be wired to an external heartbeat endpoint
+  - name: deadmans-switch
+    webhook_configs: []
+
+templates: []

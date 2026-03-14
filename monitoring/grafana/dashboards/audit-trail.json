@@ -1,0 +1,84 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Audit Events Timeline",
+      "type": "logs",
+      "gridPos": { "h": 14, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{job=\"watchdog\"} |= `$search`",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "none"
+      }
+    },
+    {
+      "title": "Events by Type (24h)",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 14 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (event_type) (count_over_time({job=\"watchdog\"} [24h]))",
+          "legendFormat": "{{ event_type }}"
+        }
+      ]
+    },
+    {
+      "title": "Events by Container (24h)",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 14 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (container) (count_over_time({job=\"watchdog\"} [24h]))",
+          "legendFormat": "{{ container }}"
+        }
+      ]
+    },
+    {
+      "title": "Events by Severity (24h)",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 14 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (severity) (count_over_time({job=\"watchdog\"} [24h]))",
+          "legendFormat": "{{ severity }}"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["daisy", "audit"],
+  "templating": {
+    "list": [
+      {
+        "name": "search",
+        "type": "textbox",
+        "label": "Search",
+        "current": { "value": "" },
+        "options": []
+      }
+    ]
+  },
+  "time": { "from": "now-24h", "to": "now" },
+  "title": "Audit Trail",
+  "uid": "daisy-audit-trail"
+}
