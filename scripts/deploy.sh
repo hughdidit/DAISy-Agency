@@ -208,7 +208,7 @@ ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; cd \"\${DEPLOY_DIR}\"; if [[ -f monitoring/.env.monitoring ]]; then sudo docker-compose --env-file monitoring/.env.monitoring -f monitoring/docker-compose.monitoring.yml pull && sudo docker-compose --env-file monitoring/.env.monitoring -f monitoring/docker-compose.monitoring.yml up -d --remove-orphans; else echo \"WARNING: monitoring/.env.monitoring not found. Create it from .env.monitoring.example before starting monitoring.\"; fi; sudo systemctl restart daisy-watchdog || echo \"WARNING: daisy-watchdog restart failed\"; sudo systemctl restart daisy-conntrack-logger || echo \"WARNING: daisy-conntrack-logger restart failed\"'"
+    --command "sudo bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; cd \"\${DEPLOY_DIR}\"; if [[ -f monitoring/.env.monitoring ]]; then docker-compose --env-file monitoring/.env.monitoring -f monitoring/docker-compose.monitoring.yml pull && docker-compose --env-file monitoring/.env.monitoring -f monitoring/docker-compose.monitoring.yml up -d --remove-orphans; else echo \"WARNING: monitoring/.env.monitoring not found. Create it from .env.monitoring.example before starting monitoring.\"; fi; systemctl restart daisy-watchdog || echo \"WARNING: daisy-watchdog restart failed\"; systemctl restart daisy-conntrack-logger || echo \"WARNING: daisy-conntrack-logger restart failed\"'"
 
   echo "Monitoring deployment complete."
 fi
