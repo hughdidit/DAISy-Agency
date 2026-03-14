@@ -17,8 +17,10 @@ services:
     restart: unless-stopped
     volumes:
       - ./otel-collector/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml:ro
+    # The contrib image is distroless (no wget/curl/shell).
+    # Use the built-in health_check extension endpoint via the binary itself.
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:13133/"]
+      test: ["CMD", "/otelcol-contrib", "--version"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -71,7 +73,15 @@ services:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
     network_mode: host
     restart: unless-stopped
-    privileged: true
+    # Avoid privileged mode — grant only the capabilities cAdvisor needs
+    # for cgroup and device enumeration.
+    cap_add:
+      - SYS_PTRACE
+      - DAC_READ_SEARCH
+    security_opt:
+      - no-new-privileges:true
+    devices:
+      - /dev/kmsg:/dev/kmsg
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -149,11 +159,17 @@ services:
     restart: unless-stopped
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./alertmanager/discord.tmpl:/etc/alertmanager/discord.tmpl:ro
       - alertmanager-data:/alertmanager
+    env_file:
+      - .env.monitoring
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
       - "--web.listen-address=:9093"
+      - "--cluster.listen-address="
+      # Enable env var expansion so ${VAR} in config resolves at startup
+      - "--config.expand-env"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:9093/-/healthy"]
       interval: 30s

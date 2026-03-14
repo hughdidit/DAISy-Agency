@@ -15,7 +15,7 @@ groups:
           description: 'CPU usage has been above 80% for 5 minutes. Current: {{ $value | printf "%.1f" }}%.'
 
       - alert: HighMemoryUsage
-        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.90
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 90
         for: 5m
         labels:
           severity: critical
@@ -24,7 +24,7 @@ groups:
           description: 'Memory usage is {{ $value | printf "%.1f" }}%. Risk of OOM kills.'
 
       - alert: DiskSpaceLow
-        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.85
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 > 85
         for: 5m
         labels:
           severity: warning
@@ -33,7 +33,7 @@ groups:
           description: 'Root filesystem is {{ $value | printf "%.1f" }}% full.'
 
       - alert: DiskSpaceCritical
-        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.95
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 > 95
         for: 2m
         labels:
           severity: critical
@@ -42,7 +42,7 @@ groups:
           description: 'Root filesystem is {{ $value | printf "%.1f" }}% full. Immediate action required.'
 
       - alert: DiskStateVolumeLow
-        expr: (1 - node_filesystem_avail_bytes{mountpoint="/var/lib/daisy"} / node_filesystem_size_bytes{mountpoint="/var/lib/daisy"}) > 0.85
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/var/lib/daisy"} / node_filesystem_size_bytes{mountpoint="/var/lib/daisy"}) * 100 > 85
         for: 5m
         labels:
           severity: warning
@@ -72,7 +72,11 @@ groups:
           description: 'Container CPU rate: {{ $value | printf "%.2f" }} cores for 5 minutes.'
 
       - alert: ContainerHighMemory
-        expr: container_memory_usage_bytes{name=~".*openclaw.*"} / container_spec_memory_limit_bytes{name=~".*openclaw.*"} > 0.90
+        # Guard against divide-by-zero when no memory limit is set
+        expr: >
+          (container_memory_usage_bytes{name=~".*openclaw.*"}
+          / (container_spec_memory_limit_bytes{name=~".*openclaw.*"} > 0))
+          * 100 > 90
         for: 5m
         labels:
           severity: warning
@@ -81,7 +85,8 @@ groups:
           description: 'Memory usage: {{ $value | printf "%.1f" }}% of limit.'
 
       - alert: ContainerRestartLoop
-        expr: increase(container_start_time_seconds{name=~".*openclaw.*"}[15m]) > 3
+        # Use changes() to count actual resets of the start_time gauge
+        expr: changes(container_start_time_seconds{name=~".*openclaw.*"}[15m]) > 3
         labels:
           severity: critical
         annotations:
@@ -109,10 +114,12 @@ groups:
   - name: application
     rules:
       - alert: HighWebhookErrorRate
+        # Only fire when there is actual webhook traffic
         expr: >
-          rate(openclaw_webhook_error_total[5m])
-          / (rate(openclaw_webhook_received_total[5m]) > 0)
+          (rate(openclaw_webhook_error_total[5m])
+          / clamp_min(rate(openclaw_webhook_received_total[5m]), 0.001))
           > 0.10
+          and rate(openclaw_webhook_received_total[5m]) > 0
         for: 5m
         labels:
           severity: warning

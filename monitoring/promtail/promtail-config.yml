@@ -77,7 +77,7 @@ scrape_configs:
           expression: "/var/lib/docker/containers/(?P<container_id>[a-f0-9]{12})[a-f0-9]*/"
       - labels:
           container_id:
-      # Redact secrets in container logs
+      # Redact secrets in container logs — must match openclaw job patterns
       - replace:
           expression: "(sk-ant-[a-zA-Z0-9_-]{20,})"
           replace: "[REDACTED_ANTHROPIC_KEY]"
@@ -88,8 +88,20 @@ scrape_configs:
           expression: '(Bearer\s+[a-zA-Z0-9._\-]{20,})'
           replace: "[REDACTED_BEARER_TOKEN]"
       - replace:
+          expression: "(sk-[a-zA-Z0-9]{20,})"
+          replace: "[REDACTED_API_KEY]"
+      - replace:
+          expression: '(xoxb-[a-zA-Z0-9\-]+)'
+          replace: "[REDACTED_SLACK_TOKEN]"
+      - replace:
+          expression: '("password"\s*:\s*"[^"]*")'
+          replace: '"password":"[REDACTED]"'
+      - replace:
           expression: '(mongodb(\+srv)?://[^\s"]+)'
           replace: "[REDACTED_MONGODB_URI]"
+      - replace:
+          expression: '(AIza[a-zA-Z0-9_\-]{35})'
+          replace: "[REDACTED_GOOGLE_KEY]"
 
   # ── Falco security events ──────────────────────────────────────────
   - job_name: falco

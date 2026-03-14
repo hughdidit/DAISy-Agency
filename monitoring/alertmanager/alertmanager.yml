@@ -1,14 +1,19 @@
 # Alertmanager configuration for DAISy-Agency
 # Routes alerts to Discord webhook and email.
-# Credentials are sourced from environment variables — never hardcode secrets.
+#
+# Env vars are expanded at startup via --config.expand-env flag.
+# Credentials come from .env.monitoring (never hardcoded).
 
 global:
   resolve_timeout: 5m
-  smtp_smarthost: "${ALERT_SMTP_HOST}:${ALERT_SMTP_PORT}"
-  smtp_from: "${ALERT_SMTP_FROM}"
-  smtp_auth_username: "${ALERT_SMTP_USERNAME}"
-  smtp_auth_password: "${ALERT_SMTP_PASSWORD}"
+  smtp_smarthost: "$ALERT_SMTP_HOST:$ALERT_SMTP_PORT"
+  smtp_from: "$ALERT_SMTP_FROM"
+  smtp_auth_username: "$ALERT_SMTP_USERNAME"
+  smtp_auth_password: "$ALERT_SMTP_PASSWORD"
   smtp_require_tls: true
+
+templates:
+  - /etc/alertmanager/discord.tmpl
 
 # Inhibition: critical suppresses warning for the same alert
 inhibit_rules:
@@ -55,18 +60,18 @@ route:
       continue: false
 
 receivers:
-  # Discord webhook — compatible JSON payload
-  # Note: Discord expects { "content": "text" } or embeds format.
-  # Alertmanager sends via webhook_configs with a Discord-compatible template.
+  # Discord webhook with Discord-compatible JSON payload.
+  # The webhook URL must end with /slack for Discord's Slack-compatible endpoint,
+  # which accepts Alertmanager's default payload format without an adapter.
+  # Example: https://discord.com/api/webhooks/ID/TOKEN/slack
   - name: discord-email
-    webhook_configs:
-      - url: "${DISCORD_ALERTS_WEBHOOK_URL}"
+    slack_configs:
+      - api_url: "$DISCORD_ALERTS_WEBHOOK_URL"
         send_resolved: true
-        http_config:
-          tls_config:
-            insecure_skip_verify: false
+        title: "{{ .CommonLabels.alertname }}"
+        text: '{{ template "discord.message" . }}'
     email_configs:
-      - to: "${ALERT_EMAIL_TO}"
+      - to: "$ALERT_EMAIL_TO"
         send_resolved: true
         headers:
           Subject: >-
@@ -78,20 +83,17 @@ receivers:
           <p><b>Summary:</b> {{ .Annotations.summary }}</p>
           <p>{{ .Annotations.description }}</p>
           <p><b>Started:</b> {{ .StartsAt }}</p>
-          {{ if .EndsAt }}<p><b>Resolved:</b> {{ .EndsAt }}</p>{{ end }}
+          {{ if eq .Status "resolved" }}<p><b>Resolved:</b> {{ .EndsAt }}</p>{{ end }}
           <hr>
           {{ end }}
 
   - name: discord-only
-    webhook_configs:
-      - url: "${DISCORD_ALERTS_WEBHOOK_URL}"
+    slack_configs:
+      - api_url: "$DISCORD_ALERTS_WEBHOOK_URL"
         send_resolved: true
-        http_config:
-          tls_config:
-            insecure_skip_verify: false
+        title: "{{ .CommonLabels.alertname }}"
+        text: '{{ template "discord.message" . }}'
 
   # Dead man's switch receiver — can be wired to an external heartbeat endpoint
   - name: deadmans-switch
     webhook_configs: []
-
-templates: []
