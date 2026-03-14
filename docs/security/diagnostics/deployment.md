@@ -190,6 +190,7 @@ All monitoring files are owned by `root:daisy-monitor` with `750` (directories) 
 1. Make changes to files under `monitoring/` in the repository
 2. Create a PR, pass CI, merge to `daisy/dev`
 3. Trigger deploy with `with_monitoring=true`:
+
    ```bash
    gh workflow run deploy.yml \
      -f environment=staging \
@@ -197,6 +198,7 @@ All monitoring files are owned by `root:daisy-monitor` with `750` (directories) 
      -f dry_run=false \
      -f with_monitoring=true
    ```
+
 4. The deploy script will:
    - Clear `chattr +i` on existing configs
    - Extract the new configs
