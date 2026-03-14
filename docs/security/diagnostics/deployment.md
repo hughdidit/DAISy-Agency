@@ -62,7 +62,23 @@ gcloud compute scp --recurse monitoring/ \
   --project <PROJECT> --zone <ZONE> --tunnel-through-iap
 ```
 
-### 2. Run Setup Script
+### 2. Install Falco
+
+Falco runs as a systemd service on the host (not in Docker) for unrestricted eBPF kernel access.
+
+```bash
+gcloud compute ssh <INSTANCE> --project <PROJECT> --zone <ZONE> \
+  --tunnel-through-iap -- 'bash -s' <<'EOF'
+# Add Falco repository
+curl -fsSL https://falco.org/repo/falcosecurity-packages.asc | sudo gpg --dearmor -o /usr/share/keyrings/falco-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/falco-archive-keyring.gpg] https://download.falco.org/packages/deb stable main" | sudo tee /etc/apt/sources.list.d/falcosecurity.list
+sudo apt-get update
+sudo apt-get install -y falco
+# Falco config is deployed in the next step via setup-permissions.sh
+EOF
+```
+
+### 3. Run Setup Script
 
 ```bash
 gcloud compute ssh <INSTANCE> --project <PROJECT> --zone <ZONE> \
@@ -77,11 +93,12 @@ This script:
 - Clears and re-applies `chattr +i` on critical config files
 - Installs auditd rules to `/etc/audit/rules.d/`
 - Installs and loads the AppArmor profile
+- Copies Falco config and rules to `/etc/falco/`
 - Initializes the AIDE database (first run only)
 - Installs the AIDE cron job (every 15 minutes)
 - Installs systemd units for watchdog and conntrack-logger
 
-### 3. Create Environment File
+### 4. Create Environment File
 
 ```bash
 # On the VM
@@ -92,7 +109,7 @@ sudo chown root:root /opt/DAISy/monitoring/.env.monitoring
 sudo chmod 600 /opt/DAISy/monitoring/.env.monitoring
 ```
 
-### 4. Start Docker Monitoring Stack
+### 5. Start Docker Monitoring Stack
 
 ```bash
 cd /opt/DAISy
@@ -102,14 +119,14 @@ sudo docker-compose \
   up -d
 ```
 
-### 5. Start Host Services
+### 6. Start Host Services
 
 ```bash
 sudo systemctl start daisy-watchdog
 sudo systemctl start daisy-conntrack-logger
 ```
 
-### 6. Verify
+### 7. Verify
 
 ```bash
 # Docker services

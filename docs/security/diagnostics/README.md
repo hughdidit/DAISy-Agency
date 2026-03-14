@@ -26,7 +26,6 @@ Host-level monitoring, security detection, and anti-tampering for DAISy-Agency. 
 │  │  Host Services       │    │  Falco (eBPF syscall monitor)  ││
 │  │  daisy-watchdog      │    │  AIDE (file integrity)         ││
 │  │  conntrack-logger    │    │  auditd (kernel audit)         ││
-│  │  auditd              │    │                                 ││
 │  └──────────────────────┘    └─────────────────────────────────┘│
 └──────────────────────────────────────────────────────────────────┘
          │
@@ -78,7 +77,8 @@ gh workflow run deploy.yml \
   -f environment=staging \
   -f release_run_id=<DOCKER_RELEASE_RUN_ID> \
   -f dry_run=false \
-  -f with_monitoring=true
+  -f with_monitoring=true \
+  --ref daisy/dev
 
 # Or manually on the VM
 sudo monitoring/setup-permissions.sh

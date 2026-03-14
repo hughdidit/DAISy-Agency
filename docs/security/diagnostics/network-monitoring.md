@@ -13,7 +13,7 @@ Logs all new outbound TCP/UDP connections as JSONL using the kernel's connection
 
 ### How It Works
 
-The script runs `conntrack -E -e NEW` to stream new connection events from the kernel's netfilter connection tracking table. Each new TCP or UDP connection is parsed and logged as a JSONL record.
+The script runs `conntrack -E -e NEW` to stream new connection events from the kernel's netfilter connection tracking table, piped through a single long-running `awk` process that parses and formats each event as a JSONL record. This avoids per-line process forking.
 
 **Logged fields:**
 

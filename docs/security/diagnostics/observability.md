@@ -128,7 +128,7 @@ Dashboard and visualization platform.
 
 | Setting | Value |
 |---------|-------|
-| Image | `grafana/grafana-oss:10.4.2` |
+| Image | `grafana/grafana-oss:10.4.2` (pin to match `docker-compose.monitoring.yml`) |
 | Port | 3000 |
 | Admin password | Set via `GRAFANA_ADMIN_PASSWORD` env var |
 | Config | `monitoring/grafana/grafana.ini` |
@@ -162,3 +162,4 @@ gcloud compute ssh <INSTANCE> --project <PROJECT> --zone <ZONE> \
 | `loki-data` | Loki | Log chunks and index |
 | `grafana-data` | Grafana | Dashboard state, user prefs |
 | `alertmanager-data` | Alertmanager | Notification state (silences, etc.) |
+| `promtail-positions` | Promtail | Log read positions (tracks where Promtail left off) |

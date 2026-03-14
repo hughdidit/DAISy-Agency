@@ -108,7 +108,7 @@ A mandatory access control (MAC) profile that enforces filesystem and capability
 
 **Denied operations:** `mount`, `umount`, `pivot_root`
 
-**Allowed:** General filesystem access within the container's mount namespace (`/** rw`), network operations, binary execution from standard paths, and `/proc` + `/sys` reads for diagnostics.
+**Allowed:** General filesystem access within the container's mount namespace (`/** rw`), network operations, binary execution from standard paths, and `/proc` + `/sys` reads for diagnostics. Note that the `read_only: true` Docker setting is the primary write protection — the `/** rw` AppArmor rule allows reads and writes within what the container can already access, while the explicit deny rules above take precedence for sensitive paths.
 
 ### Installing the AppArmor Profile
 

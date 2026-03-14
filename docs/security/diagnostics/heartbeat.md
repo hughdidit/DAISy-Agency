@@ -109,8 +109,10 @@ The watchdog's `heartbeat_loop()` already emits heartbeat events locally. To sen
 
 ```bash
 # Example cron entry (every 5 minutes)
-*/5 * * * * TOKEN=$(curl -s -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=FUNCTION_URL") && curl -s -X POST FUNCTION_URL -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"action":"heartbeat"}'
+*/5 * * * * TOKEN=$(curl -sf -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=FUNCTION_URL") && [ -n "$TOKEN" ] && curl -sf -X POST FUNCTION_URL -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"action":"heartbeat"}' || logger -t daisy-heartbeat "heartbeat failed"
 ```
+
+The `-f` flag on curl makes it fail with a non-zero exit code on HTTP errors. The `[ -n "$TOKEN" ]` guard prevents sending an unauthenticated request if the metadata token fetch fails. Failures are logged to syslog via `logger`.
 
 ## State Persistence
 

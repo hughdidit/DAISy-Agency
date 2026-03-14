@@ -45,7 +45,7 @@ sudo tail -f /var/log/falco/events.json | jq .
 # Open Security Events dashboard → Falco panel
 
 # Via Loki (CLI)
-# Filter: {job="falco"} | json | priority = "Critical"
+# Filter: {job="falco"} | json | priority = `Critical`
 ```
 
 ## AIDE (File Integrity Monitoring)

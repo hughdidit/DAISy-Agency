@@ -36,9 +36,9 @@ All events are written as JSONL to `/var/log/daisy-watchdog/audit.jsonl`:
 |------------|------|--------|
 | `watchdog_start` | Service starts | version |
 | `allowlist_loaded` | Allowlist parsed | count (number of allowed executables) |
-| `process_violation` | Unauthorized process found | pid, exe, cmdline, container_id |
-| `container_lifecycle` | Container start/stop/die | action, container_name, container_id, image |
-| `container_oom` | Container OOM killed | container_name, container_id |
+| `process_violation` | Unauthorized process found | severity, pid, process, exe, cmdline, uid, container_id |
+| `container_lifecycle` | Container start/stop/die | action, container, image, exit_code |
+| `container_oom` | Container OOM killed | severity, container |
 | `docker_events_connected` | Docker event stream connected | — |
 | `docker_events_disconnected` | Docker event stream lost | error |
 | `heartbeat` | Periodic health check | status ("alive") |
