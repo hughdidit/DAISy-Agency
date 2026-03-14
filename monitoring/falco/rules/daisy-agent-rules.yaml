@@ -1,0 +1,289 @@
+# Custom Falco rules for DAISy-Agency
+# Detects container escapes, privilege escalation, suspicious syscalls,
+# and agent-specific threats.
+#
+# Zero-trust: assume containment can be broken at any time.
+# All rules target openclaw containers (name contains "openclaw" or "sandbox").
+
+# ── Macros ───────────────────────────────────────────────────────────
+
+- macro: daisy_container
+  condition: >
+    container.name contains "openclaw" or
+    container.name contains "sandbox" or
+    container.name contains "daisy"
+
+- macro: monitoring_paths
+  condition: >
+    fd.name startswith /opt/DAISy/monitoring/ or
+    fd.name startswith /var/log/falco/ or
+    fd.name startswith /var/log/daisy-watchdog/
+
+# ── Lists ────────────────────────────────────────────────────────────
+
+- list: daisy_allowed_processes
+  items:
+    - node
+    - python3
+    - bash
+    - sh
+    - git
+    - rg
+    - curl
+    - pnpm
+    - npm
+    - npx
+
+- list: sensitive_files
+  items:
+    - /etc/shadow
+    - /etc/gshadow
+    - /etc/sudoers
+
+- list: escape_tools
+  items:
+    - nsenter
+    - unshare
+    - chroot
+
+- list: crypto_mining_processes
+  items:
+    - xmrig
+    - minerd
+    - minergate
+    - cpuminer
+    - ethminer
+    - cgminer
+    - bfgminer
+    - nbminer
+
+# ── Rules ────────────────────────────────────────────────────────────
+
+# Shell spawned in container by non-approved parent
+- rule: DAISy Shell Spawned in Container
+  desc: >
+    Detect interactive shell spawned inside a DAISy container.
+    The app runs as node; shell spawning is suspicious.
+  condition: >
+    spawned_process and daisy_container and
+    proc.name in (bash, sh, dash, zsh, csh, fish) and
+    not proc.pname in (node, bash, sh, pnpm, npm, npx, git)
+  output: >
+    Shell spawned in DAISy container
+    (container=%container.name command=%proc.cmdline
+    parent=%proc.pname user=%user.name pid=%proc.pid)
+  priority: WARNING
+  tags: [container, shell, daisy]
+
+# Sensitive file read from container
+- rule: DAISy Sensitive File Read
+  desc: Detect reads of sensitive host files from within a DAISy container.
+  condition: >
+    open_read and daisy_container and
+    (fd.name in (sensitive_files) or
+     fd.name startswith /proc/1/environ or
+     fd.name startswith /proc/self/environ)
+  output: >
+    Sensitive file read from DAISy container
+    (container=%container.name file=%fd.name command=%proc.cmdline
+    user=%user.name)
+  priority: CRITICAL
+  tags: [container, filesystem, daisy]
+
+# Docker socket access from container
+- rule: DAISy Docker Socket Access
+  desc: >
+    Detect access to Docker socket from within a container.
+    The sandbox overlay mounts the socket into openclaw-gateway for sandbox mode.
+  condition: >
+    (open_read or open_write) and daisy_container and
+    fd.name = /var/run/docker.sock and
+    not container.name contains "sandbox" and
+    not container.name contains "openclaw"
+  output: >
+    Docker socket accessed from non-sandbox DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name)
+  priority: CRITICAL
+  tags: [container, docker, daisy]
+
+# Container namespace escape attempts
+- rule: DAISy Container Escape Attempt
+  desc: Detect tools used to escape container namespaces.
+  condition: >
+    spawned_process and daisy_container and
+    proc.name in (escape_tools)
+  output: >
+    Container escape tool executed in DAISy container
+    (container=%container.name command=%proc.cmdline tool=%proc.name
+    user=%user.name pid=%proc.pid)
+  priority: CRITICAL
+  tags: [container, escape, daisy]
+
+# Privilege escalation via setuid/setgid
+- rule: DAISy Privilege Escalation Attempt
+  desc: >
+    Detect setuid/setgid bit changes inside containers via chmod syscall.
+    Inspects mode bits directly rather than cmdline to avoid bypass via octal modes.
+  condition: >
+    (evt.type in (chmod, fchmod, fchmodat)) and daisy_container and
+    (evt.arg.mode contains S_ISUID or evt.arg.mode contains S_ISGID)
+  output: >
+    Privilege escalation attempt via setuid/setgid bit in DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name
+    file=%evt.arg.filename)
+  priority: CRITICAL
+  tags: [container, privilege, daisy]
+
+# Ptrace usage (process injection/debugging)
+- rule: DAISy Ptrace Detected
+  desc: Detect ptrace syscall from DAISy containers (process injection indicator).
+  condition: >
+    evt.type = ptrace and daisy_container
+  output: >
+    Ptrace detected in DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name
+    target_pid=%evt.arg.pid)
+  priority: CRITICAL
+  tags: [container, ptrace, daisy]
+
+# Write to system directories inside container
+- rule: DAISy System Directory Write
+  desc: Detect writes to system directories inside DAISy containers.
+  condition: >
+    open_write and daisy_container and
+    (fd.name startswith /etc/ or
+     fd.name startswith /usr/bin/ or
+     fd.name startswith /usr/sbin/ or
+     fd.name startswith /sbin/ or
+     fd.name startswith /bin/) and
+    not fd.name startswith /etc/resolv.conf and
+    not fd.name startswith /etc/hostname and
+    not fd.name startswith /etc/hosts
+  output: >
+    Write to system directory from DAISy container
+    (container=%container.name file=%fd.name command=%proc.cmdline
+    user=%user.name)
+  priority: WARNING
+  tags: [container, filesystem, daisy]
+
+# Outbound connection to cloud metadata service (SSRF)
+- rule: DAISy Metadata Service Access
+  desc: >
+    Detect connections to cloud metadata service (169.254.169.254).
+    This is a strong SSRF indicator.
+  condition: >
+    outbound and daisy_container and
+    fd.sip = "169.254.169.254"
+  output: >
+    SSRF: DAISy container connecting to cloud metadata service
+    (container=%container.name command=%proc.cmdline
+    dest=%fd.sip:%fd.sport user=%user.name)
+  priority: CRITICAL
+  tags: [container, network, ssrf, daisy]
+
+# Monitoring config tampering (host-level, not just containers)
+- rule: DAISy Monitoring Config Tampered
+  desc: Detect any modification to monitoring configuration files.
+  condition: >
+    open_write and monitoring_paths and
+    not proc.name = falco
+  output: >
+    Monitoring config modification attempt
+    (file=%fd.name command=%proc.cmdline user=%user.name
+    uid=%user.uid container=%container.name)
+  priority: CRITICAL
+  tags: [host, tampering, daisy]
+
+# Unexpected network listener in container
+- rule: DAISy Unexpected Listener
+  desc: Detect new network listeners inside DAISy containers beyond expected ports.
+  condition: >
+    evt.type = listen and daisy_container and
+    fd.sport != 18789 and fd.sport != 18790 and
+    fd.sport != 0
+  output: >
+    Unexpected network listener in DAISy container
+    (container=%container.name port=%fd.sport command=%proc.cmdline
+    user=%user.name)
+  priority: WARNING
+  tags: [container, network, daisy]
+
+# Kernel module load attempts
+- rule: DAISy Kernel Module Load
+  desc: Detect attempts to load kernel modules from containers.
+  condition: >
+    (evt.type = init_module or evt.type = finit_module) and
+    daisy_container
+  output: >
+    Kernel module load attempt from DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name)
+  priority: CRITICAL
+  tags: [container, kernel, daisy]
+
+# Crypto mining detection
+- rule: DAISy Crypto Mining Detected
+  desc: Detect known cryptocurrency mining processes.
+  condition: >
+    spawned_process and daisy_container and
+    proc.name in (crypto_mining_processes)
+  output: >
+    Crypto mining process detected in DAISy container
+    (container=%container.name process=%proc.name command=%proc.cmdline
+    user=%user.name pid=%proc.pid)
+  priority: CRITICAL
+  tags: [container, crypto, daisy]
+
+# Large outbound data transfer (potential exfiltration)
+- rule: DAISy Large Outbound Transfer
+  desc: >
+    Detect unusually large outbound data writes from containers
+    (potential data exfiltration).
+  condition: >
+    outbound and daisy_container and
+    evt.type = sendto and
+    evt.arg.res > 10485760
+  output: >
+    Large outbound transfer from DAISy container
+    (container=%container.name size=%evt.arg.res dest=%fd.sip:%fd.sport
+    command=%proc.cmdline user=%user.name)
+  priority: WARNING
+  tags: [container, network, exfiltration, daisy]
+
+# Credential pattern in process arguments (zero-trust: detect leaked secrets)
+- rule: DAISy Credential in Process Args
+  desc: >
+    Detect API keys or tokens appearing in process command lines.
+    Zero-trust: credentials should never be in argv.
+  condition: >
+    spawned_process and daisy_container and
+    (proc.cmdline contains "sk-ant-" or
+     proc.cmdline contains "ghp_" or
+     proc.cmdline contains "Bearer " or
+     proc.cmdline contains "ANTHROPIC_API_KEY=" or
+     proc.cmdline contains "DISCORD_BOT_TOKEN=")
+  output: >
+    Credential detected in process arguments (REDACTED)
+    (container=%container.name process=%proc.name user=%user.name
+    pid=%proc.pid parent=%proc.pname)
+  priority: CRITICAL
+  tags: [container, credentials, daisy]
+
+# Process not in allowlist
+- rule: DAISy Unexpected Process
+  desc: Detect processes not in the approved allowlist running in containers.
+  condition: >
+    spawned_process and daisy_container and
+    not proc.name in (daisy_allowed_processes) and
+    not proc.name in (ls, cat, grep, find, head, tail, wc, sort, uniq,
+                       tr, cut, sed, awk, xargs, env, printenv, id,
+                       whoami, hostname, uname, date, sleep, true,
+                       mkdir, rm, cp, mv, ln, touch, tee, dirname,
+                       basename, realpath, readlink, stat, file, which,
+                       test, expr) and
+    not proc.pname = node
+  output: >
+    Unexpected process in DAISy container
+    (container=%container.name process=%proc.name command=%proc.cmdline
+    parent=%proc.pname user=%user.name pid=%proc.pid)
+  priority: NOTICE
+  tags: [container, process, daisy]

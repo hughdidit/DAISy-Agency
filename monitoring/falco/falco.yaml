@@ -1,0 +1,60 @@
+# Falco configuration for DAISy-Agency
+# Runs as a systemd service on the host (not Docker) with eBPF driver.
+# Outputs JSON events to /var/log/falco/events.json for Promtail ingestion.
+#
+# Install: apt-get install -y falco (+ linux-headers-$(uname -r) for eBPF)
+# Service: systemctl enable --now falco
+
+# Use modern eBPF driver (no kernel module needed on kernel >= 5.8)
+engine:
+  kind: modern_ebpf
+  modern_ebpf:
+    buf_size_preset: 4
+
+# JSON output for structured log ingestion by Promtail → Loki
+json_output: true
+json_include_output_property: true
+json_include_tags_property: true
+
+# File output — ingested by Promtail
+file_output:
+  enabled: true
+  keep_alive: true
+  filename: /var/log/falco/events.json
+
+# Stdout for systemd journal capture
+stdout_output:
+  enabled: true
+
+# Syslog disabled — we use file + Promtail instead
+syslog_output:
+  enabled: false
+
+# HTTP output disabled — alerts go via Prometheus Alertmanager
+http_output:
+  enabled: false
+
+# Log level
+log_level: info
+
+# Buffered outputs for performance
+buffered_outputs: true
+output_timeout: 2000
+
+# Rules files — default Falco rules + custom DAISy rules
+rules_file:
+  - /etc/falco/falco_rules.yaml
+  - /etc/falco/falco_rules.local.yaml
+  - /opt/DAISy/monitoring/falco/rules/daisy-agent-rules.yaml
+
+# Watch config for hot reload
+watch_config_files: true
+
+# Metrics
+metrics:
+  enabled: true
+  interval: 15m
+  output_rule: true
+
+# Priority threshold — log everything at or above notice
+priority: notice
