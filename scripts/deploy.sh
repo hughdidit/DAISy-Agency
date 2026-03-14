@@ -168,6 +168,30 @@ if [[ "${WITH_MONITORING}" == "true" ]]; then
     --quiet \
     --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; if [[ -d \"\${DEPLOY_DIR}/monitoring\" ]]; then sudo find \"\${DEPLOY_DIR}/monitoring\" -type f -exec chattr -i {} + 2>/dev/null || true; fi; echo \"${MONITORING_TARBALL_B64}\" | base64 -d | sudo tar -xf - -C \"\${DEPLOY_DIR}\"; sudo chmod +x \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" \"\${DEPLOY_DIR}/monitoring/network/conntrack-logger.sh\" \"\${DEPLOY_DIR}/monitoring/watchdog/daisy-watchdog.py\"; echo \"Monitoring configs deployed to \${DEPLOY_DIR}/monitoring/\"; ls -la \"\${DEPLOY_DIR}/monitoring/\"'"
 
+  # Generate .env.monitoring from environment variables (populated by GitHub Secrets)
+  if [[ -n "${GRAFANA_ADMIN_PASSWORD:-}" ]]; then
+    ENV_CONTENT="GRAFANA_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+DISCORD_ALERTS_WEBHOOK_URL=${DISCORD_ALERTS_WEBHOOK_URL:-}
+ALERT_EMAIL_TO=${ALERT_EMAIL_TO:-}
+ALERT_SMTP_HOST=${ALERT_SMTP_HOST:-}
+ALERT_SMTP_PORT=${ALERT_SMTP_PORT:-587}
+ALERT_SMTP_FROM=${ALERT_SMTP_FROM:-}
+ALERT_SMTP_USERNAME=${ALERT_SMTP_USERNAME:-}
+ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
+
+    ENV_B64="$(printf '%s' "${ENV_CONTENT}" | base64 -w0)"
+
+    gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+      --project "${GCP_PROJECT_ID}" \
+      --zone "${GCP_ZONE}" \
+      --tunnel-through-iap \
+      --quiet \
+      --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; echo \"${ENV_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/monitoring/.env.monitoring\" > /dev/null; sudo chown root:root \"\${DEPLOY_DIR}/monitoring/.env.monitoring\"; sudo chmod 600 \"\${DEPLOY_DIR}/monitoring/.env.monitoring\"; echo \".env.monitoring written (root:root 600)\"'"
+  else
+    echo "NOTE: GRAFANA_ADMIN_PASSWORD not set — skipping .env.monitoring generation."
+    echo "      If .env.monitoring already exists on the VM, it will be reused."
+  fi
+
   # Run setup-permissions.sh (creates user, installs packages on first run, sets perms + chattr)
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \

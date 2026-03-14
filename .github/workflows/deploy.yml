@@ -27,7 +27,7 @@ on:
       with_monitoring:
         description: "If true, deploy monitoring stack alongside the app"
         required: false
-        default: false
+        default: true
         type: boolean
 
   workflow_call:
@@ -80,6 +80,30 @@ on:
         required: false
       CLAUDE_WEB_COOKIE:
         description: Claude web cookie (optional, for usage monitoring)
+        required: false
+      GRAFANA_ADMIN_PASSWORD:
+        description: Grafana admin password
+        required: false
+      DISCORD_ALERTS_WEBHOOK_URL:
+        description: Discord webhook URL for alerts (append /slack)
+        required: false
+      ALERT_EMAIL_TO:
+        description: Alert recipient email
+        required: false
+      ALERT_SMTP_HOST:
+        description: SMTP server hostname
+        required: false
+      ALERT_SMTP_PORT:
+        description: SMTP port (587 for TLS)
+        required: false
+      ALERT_SMTP_FROM:
+        description: Sender email address
+        required: false
+      ALERT_SMTP_USERNAME:
+        description: SMTP authentication username
+        required: false
+      ALERT_SMTP_PASSWORD:
+        description: SMTP authentication password
         required: false
 
 permissions:
@@ -227,6 +251,15 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
+          # Monitoring secrets
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          DISCORD_ALERTS_WEBHOOK_URL: ${{ secrets.DISCORD_ALERTS_WEBHOOK_URL }}
+          ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
+          ALERT_SMTP_HOST: ${{ secrets.ALERT_SMTP_HOST }}
+          ALERT_SMTP_PORT: ${{ secrets.ALERT_SMTP_PORT }}
+          ALERT_SMTP_FROM: ${{ secrets.ALERT_SMTP_FROM }}
+          ALERT_SMTP_USERNAME: ${{ secrets.ALERT_SMTP_USERNAME }}
+          ALERT_SMTP_PASSWORD: ${{ secrets.ALERT_SMTP_PASSWORD }}
         run: |
           PROVISION_FLAG=""
           if [[ "${{ inputs.provision }}" == "true" ]]; then
