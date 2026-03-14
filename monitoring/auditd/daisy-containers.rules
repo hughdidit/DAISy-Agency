@@ -22,8 +22,9 @@
 # Zero-trust: monitor the monitoring configs themselves
 -w /opt/DAISy/monitoring/ -p wa -k monitoring_change
 
-# ── Sensitive Syscalls from Container Processes ──────────────────────
-# Track execve from non-root users (uid >= 1000 = container processes)
+# ── Sensitive Syscalls from Non-Root Users ────────────────────────────
+# Track execve from non-root users (uid >= 1000 covers container processes
+# like node uid 1000, plus any other unprivileged users on the host)
 -a always,exit -F arch=b64 -S execve -F uid>=1000 -F uid!=65534 -k container_exec
 
 # Track ptrace (process injection/debugging)
@@ -63,5 +64,9 @@
 
 # ── Process Signaling of Monitoring Services ─────────────────────────
 # Track attempts to kill/signal monitoring processes
--a always,exit -F arch=b64 -S kill -S tkill -S tgkill -F a1=9 -k process_kill
--a always,exit -F arch=b64 -S kill -S tkill -S tgkill -F a1=15 -k process_term
+# kill(pid, sig) and tkill(tid, sig): signal is arg1 (a1)
+-a always,exit -F arch=b64 -S kill -S tkill -F a1=9 -k process_kill
+-a always,exit -F arch=b64 -S kill -S tkill -F a1=15 -k process_term
+# tgkill(tgid, tid, sig): signal is arg2 (a2)
+-a always,exit -F arch=b64 -S tgkill -F a2=9 -k process_kill
+-a always,exit -F arch=b64 -S tgkill -F a2=15 -k process_term

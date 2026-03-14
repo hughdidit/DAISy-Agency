@@ -94,11 +94,12 @@
 - rule: DAISy Docker Socket Access
   desc: >
     Detect access to Docker socket from within a container.
-    Only the sandbox container with explicit mount should access it.
+    The sandbox overlay mounts the socket into openclaw-gateway for sandbox mode.
   condition: >
     (open_read or open_write) and daisy_container and
     fd.name = /var/run/docker.sock and
-    not container.name contains "sandbox"
+    not container.name contains "sandbox" and
+    not container.name contains "openclaw"
   output: >
     Docker socket accessed from non-sandbox DAISy container
     (container=%container.name command=%proc.cmdline user=%user.name)
@@ -120,14 +121,16 @@
 
 # Privilege escalation via setuid/setgid
 - rule: DAISy Privilege Escalation Attempt
-  desc: Detect setuid/setgid bit changes inside containers.
+  desc: >
+    Detect setuid/setgid bit changes inside containers via chmod syscall.
+    Inspects mode bits directly rather than cmdline to avoid bypass via octal modes.
   condition: >
-    spawned_process and daisy_container and
-    (proc.name = chmod or proc.name = chown) and
-    proc.cmdline contains "+s"
+    (evt.type in (chmod, fchmod, fchmodat)) and daisy_container and
+    (evt.arg.mode contains S_ISUID or evt.arg.mode contains S_ISGID)
   output: >
-    Privilege escalation attempt in DAISy container
-    (container=%container.name command=%proc.cmdline user=%user.name)
+    Privilege escalation attempt via setuid/setgid bit in DAISy container
+    (container=%container.name command=%proc.cmdline user=%user.name
+    file=%evt.arg.filename)
   priority: CRITICAL
   tags: [container, privilege, daisy]
 
@@ -183,8 +186,7 @@
   desc: Detect any modification to monitoring configuration files.
   condition: >
     open_write and monitoring_paths and
-    not proc.name = falco and
-    not user.name = root
+    not proc.name = falco
   output: >
     Monitoring config modification attempt
     (file=%fd.name command=%proc.cmdline user=%user.name
@@ -196,7 +198,7 @@
 - rule: DAISy Unexpected Listener
   desc: Detect new network listeners inside DAISy containers beyond expected ports.
   condition: >
-    evt.type in (listen, accept) and daisy_container and
+    evt.type = listen and daisy_container and
     fd.sport != 18789 and fd.sport != 18790 and
     fd.sport != 0
   output: >
