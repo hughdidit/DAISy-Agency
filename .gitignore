@@ -107,6 +107,9 @@ package-lock.json
 error.log
 *.bak
 
+# Monitoring secrets (NEVER COMMIT)
+monitoring/.env.monitoring
+
 # DAISy-specific sensitive files
 *client_secret*.json
 *credentials*.json

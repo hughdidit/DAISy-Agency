@@ -1,0 +1,49 @@
+# Prometheus configuration for DAISy-Agency monitoring
+# All targets are on localhost (host networking mode)
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - "localhost:9093"
+
+scrape_configs:
+  # ── Self-monitoring ────────────────────────────────────────────────
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # ── Host metrics (node-exporter) ───────────────────────────────────
+  - job_name: "node-exporter"
+    static_configs:
+      - targets: ["localhost:9100"]
+
+  # ── Container metrics (cAdvisor) ───────────────────────────────────
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["localhost:8080"]
+
+  # ── Application metrics (OTel Collector Prometheus exporter) ───────
+  # Metrics from the diagnostics-otel extension via the OTel Collector bridge.
+  # Metric names are prefixed with "openclaw_" (e.g., openclaw_tokens_total).
+  - job_name: "openclaw-otel"
+    static_configs:
+      - targets: ["localhost:8889"]
+
+  # ── Alertmanager ───────────────────────────────────────────────────
+  - job_name: "alertmanager"
+    static_configs:
+      - targets: ["localhost:9093"]
+
+  # ── Loki ───────────────────────────────────────────────────────────
+  - job_name: "loki"
+    static_configs:
+      - targets: ["localhost:3100"]

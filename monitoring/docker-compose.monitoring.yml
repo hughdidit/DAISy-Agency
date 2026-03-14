@@ -1,0 +1,185 @@
+# DAISy-Agency Host-Level Monitoring Stack
+# Deployed to /opt/DAISy/monitoring/ on the GCP VM
+# Usage: docker compose -f docker-compose.monitoring.yml up -d
+#
+# All services use host networking to match the application's host networking
+# overlay (docker-compose.host.yml). This simplifies scraping — everything
+# communicates via localhost.
+
+services:
+  # ── OTel Collector ─────────────────────────────────────────────────
+  # Bridges the diagnostics-otel extension (OTLP push) to Prometheus (pull).
+  # The app pushes metrics to localhost:4318; the collector exposes them
+  # at localhost:8889 for Prometheus to scrape.
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.98.0
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./otel-collector/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml:ro
+    # The contrib image is distroless (no wget/curl/shell).
+    # Use the built-in health_check extension endpoint via the binary itself.
+    healthcheck:
+      test: ["CMD", "/otelcol-contrib", "--version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ── Prometheus ─────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.retention.size=10GB"
+      - "--web.listen-address=:9090"
+      - "--web.enable-lifecycle"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ── Node Exporter ──────────────────────────────────────────────────
+  # Host-level metrics: CPU, memory, disk, network.
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--web.listen-address=:9100"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+
+  # ── cAdvisor ───────────────────────────────────────────────────────
+  # Per-container metrics: CPU, memory, network, disk I/O.
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    network_mode: host
+    restart: unless-stopped
+    # Avoid privileged mode — grant only the capabilities cAdvisor needs
+    # for cgroup and device enumeration.
+    cap_add:
+      - SYS_PTRACE
+      - DAC_READ_SEARCH
+    security_opt:
+      - no-new-privileges:true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    command:
+      - "--port=8080"
+      - "--docker_only=true"
+      - "--housekeeping_interval=15s"
+
+  # ── Loki ───────────────────────────────────────────────────────────
+  # Log aggregation — single-tenant, filesystem storage.
+  loki:
+    image: grafana/loki:2.9.6
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ── Promtail ───────────────────────────────────────────────────────
+  # Log shipper — ingests from app logs, Docker logs, security logs.
+  promtail:
+    image: grafana/promtail:2.9.6
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /tmp/openclaw:/var/log/openclaw:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log:/var/log:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - promtail-positions:/tmp/promtail
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+
+  # ── Grafana ────────────────────────────────────────────────────────
+  # Dashboards — accessible via IAP tunnel port-forward to :3000.
+  grafana:
+    image: grafana/grafana-oss:10.4.2
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD required}
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+    volumes:
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    depends_on:
+      - prometheus
+      - loki
+
+  # ── Alertmanager ───────────────────────────────────────────────────
+  # Alert routing — Discord webhook + email delivery.
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./alertmanager/discord.tmpl:/etc/alertmanager/discord.tmpl:ro
+      - alertmanager-data:/alertmanager
+    env_file:
+      - .env.monitoring
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+      - "--web.listen-address=:9093"
+      - "--cluster.listen-address="
+      # Enable env var expansion so ${VAR} in config resolves at startup
+      - "--config.expand-env"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  prometheus-data:
+  loki-data:
+  grafana-data:
+  alertmanager-data:
+  promtail-positions:

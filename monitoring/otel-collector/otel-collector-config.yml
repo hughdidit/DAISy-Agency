@@ -1,0 +1,63 @@
+# OpenTelemetry Collector configuration
+# Bridges the diagnostics-otel extension (OTLP/HTTP push on :4318)
+# to Prometheus (pull scrape on :8889).
+#
+# The app's diagnostics-otel extension emits metrics via OTLP/HTTP protobuf:
+#   openclaw.tokens, openclaw.cost.usd, openclaw.run.duration_ms,
+#   openclaw.webhook.*, openclaw.message.*, openclaw.queue.*,
+#   openclaw.session.*, openclaw.run.attempt, openclaw.context.tokens
+#
+# Configure the app with: OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: "0.0.0.0:4318"
+
+processors:
+  batch:
+    send_batch_size: 1024
+    timeout: 5s
+
+  # Redact sensitive attributes before export.
+  # Zero-trust: assume any attribute could contain credentials.
+  attributes/redact:
+    actions:
+      - key: "http.request.header.authorization"
+        action: delete
+      - key: "http.request.header.cookie"
+        action: delete
+      - key: "api_key"
+        action: delete
+      - key: "token"
+        action: delete
+
+exporters:
+  # Expose metrics for Prometheus scraping
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: "openclaw"
+    send_timestamps: true
+    resource_to_telemetry_conversion:
+      enabled: true
+
+extensions:
+  health_check:
+    endpoint: "0.0.0.0:13133"
+
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [attributes/redact, batch]
+      exporters: [prometheus]
+    traces:
+      receivers: [otlp]
+      processors: [attributes/redact, batch]
+      exporters: []
+    logs:
+      receivers: [otlp]
+      processors: [attributes/redact, batch]
+      exporters: []

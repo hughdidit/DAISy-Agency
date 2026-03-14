@@ -1,0 +1,11 @@
+{{ define "discord.message" -}}
+{{ range .Alerts }}
+**[{{ .Status | toUpper }}] {{ .Labels.alertname }}**
+Severity: `{{ .Labels.severity }}`
+{{ .Annotations.summary }}
+{{ .Annotations.description }}
+Started: {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+{{ if eq .Status "resolved" }}Resolved: {{ .EndsAt.Format "2006-01-02 15:04:05 UTC" }}{{ end }}
+---
+{{ end }}
+{{- end }}
