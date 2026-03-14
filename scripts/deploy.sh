@@ -158,29 +158,31 @@ if [[ "${WITH_MONITORING}" == "true" ]]; then
   # Base64-encode monitoring configs for transfer (tar to preserve directory structure)
   MONITORING_TARBALL_B64="$(tar -cf - -C . monitoring/ | base64 -w0)"
 
-  # Transfer and extract monitoring configs on the VM
+  # Transfer and extract monitoring configs on the VM.
+  # Clear immutable bits first (set by setup-permissions.sh) so tar can overwrite.
+  # Ensure DEPLOY_DIR exists even without --provision.
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; echo \"${MONITORING_TARBALL_B64}\" | base64 -d | sudo tar -xf - -C \"\${DEPLOY_DIR}\"; sudo chmod +x \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" \"\${DEPLOY_DIR}/monitoring/network/conntrack-logger.sh\" \"\${DEPLOY_DIR}/monitoring/watchdog/daisy-watchdog.py\" 2>/dev/null || true; echo \"Monitoring configs deployed to \${DEPLOY_DIR}/monitoring/\"; ls -la \"\${DEPLOY_DIR}/monitoring/\"'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; if [[ -d \"\${DEPLOY_DIR}/monitoring\" ]]; then sudo find \"\${DEPLOY_DIR}/monitoring\" -type f -exec chattr -i {} + 2>/dev/null || true; fi; echo \"${MONITORING_TARBALL_B64}\" | base64 -d | sudo tar -xf - -C \"\${DEPLOY_DIR}\"; sudo chmod +x \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" \"\${DEPLOY_DIR}/monitoring/network/conntrack-logger.sh\" \"\${DEPLOY_DIR}/monitoring/watchdog/daisy-watchdog.py\"; echo \"Monitoring configs deployed to \${DEPLOY_DIR}/monitoring/\"; ls -la \"\${DEPLOY_DIR}/monitoring/\"'"
 
-  # Run setup-permissions.sh on first deploy (creates user, installs packages, etc.)
+  # Run setup-permissions.sh (creates user, installs packages on first run, sets perms + chattr)
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if [[ ! -f \"\${DEPLOY_DIR}/monitoring/.setup-complete\" ]]; then sudo \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" && sudo touch \"\${DEPLOY_DIR}/monitoring/.setup-complete\"; else echo \"Setup already complete (skip setup-permissions.sh)\"; sudo \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" --skip-packages; fi'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if [[ ! -f \"\${DEPLOY_DIR}/monitoring/.setup-complete\" ]]; then sudo \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" && sudo touch \"\${DEPLOY_DIR}/monitoring/.setup-complete\"; else echo \"Subsequent deploy (skip package install)\"; sudo \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" --skip-packages; fi'"
 
-  # Start/restart monitoring compose stack
+  # Start/restart monitoring compose stack using docker-compose (standalone binary)
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; cd \"\${DEPLOY_DIR}\"; if [[ -f monitoring/.env.monitoring ]]; then sudo docker compose --env-file monitoring/.env.monitoring -f monitoring/docker-compose.monitoring.yml pull && sudo docker compose --env-file monitoring/.env.monitoring -f monitoring/docker-compose.monitoring.yml up -d --remove-orphans; else echo \"WARNING: monitoring/.env.monitoring not found. Create it from .env.monitoring.example before starting monitoring.\"; fi; sudo systemctl restart daisy-watchdog 2>/dev/null || true; sudo systemctl restart daisy-conntrack-logger 2>/dev/null || true'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; cd \"\${DEPLOY_DIR}\"; if [[ -f monitoring/.env.monitoring ]]; then sudo docker-compose --env-file monitoring/.env.monitoring -f monitoring/docker-compose.monitoring.yml pull && sudo docker-compose --env-file monitoring/.env.monitoring -f monitoring/docker-compose.monitoring.yml up -d --remove-orphans; else echo \"WARNING: monitoring/.env.monitoring not found. Create it from .env.monitoring.example before starting monitoring.\"; fi; sudo systemctl restart daisy-watchdog || echo \"WARNING: daisy-watchdog restart failed\"; sudo systemctl restart daisy-conntrack-logger || echo \"WARNING: daisy-conntrack-logger restart failed\"'"
 
   echo "Monitoring deployment complete."
 fi

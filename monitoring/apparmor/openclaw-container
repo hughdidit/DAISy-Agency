@@ -65,8 +65,8 @@ profile openclaw-container flags=(attach_disconnected,mediate_deleted) {
   /sys/** r,
 
   # ── Deny Sensitive Host Files ───────────────────────────────────
-  deny /etc/shadow r,
-  deny /etc/gshadow r,
-  deny /etc/sudoers r,
-  deny /etc/sudoers.d/** r,
+  deny /etc/shadow rwklx,
+  deny /etc/gshadow rwklx,
+  deny /etc/sudoers rwklx,
+  deny /etc/sudoers.d/** rwklx,
 }

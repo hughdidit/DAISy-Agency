@@ -357,8 +357,17 @@
       ]
     },
     {
+      "_comment": "Allow clone3 but block CLONE_NEWUSER (0x10000000) for namespace creation",
       "names": ["clone3"],
-      "action": "SCMP_ACT_ALLOW"
+      "action": "SCMP_ACT_ALLOW",
+      "args": [
+        {
+          "index": 2,
+          "value": 268435456,
+          "op": "SCMP_CMP_MASKED_EQ",
+          "valueTwo": 0
+        }
+      ]
     },
     {
       "_comment": "Block dangerous syscalls — container escape and kernel exploitation vectors",
