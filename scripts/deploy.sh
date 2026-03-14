@@ -161,12 +161,13 @@ if [[ "${WITH_MONITORING}" == "true" ]]; then
   # Transfer and extract monitoring configs on the VM.
   # Clear immutable bits first (set by setup-permissions.sh) so tar can overwrite.
   # Ensure DEPLOY_DIR exists even without --provision.
-  gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+  # Pipe tarball via stdin to avoid "Argument list too long" with large payloads.
+  printf '%s\n' "${MONITORING_TARBALL_B64}" | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; if [[ -d \"\${DEPLOY_DIR}/monitoring\" ]]; then sudo find \"\${DEPLOY_DIR}/monitoring\" -type f -exec chattr -i {} + 2>/dev/null || true; fi; echo \"${MONITORING_TARBALL_B64}\" | base64 -d | sudo tar -xf - -C \"\${DEPLOY_DIR}\"; sudo chmod +x \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" \"\${DEPLOY_DIR}/monitoring/network/conntrack-logger.sh\" \"\${DEPLOY_DIR}/monitoring/watchdog/daisy-watchdog.py\"; echo \"Monitoring configs deployed to \${DEPLOY_DIR}/monitoring/\"; ls -la \"\${DEPLOY_DIR}/monitoring/\"'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; if [[ -d \"\${DEPLOY_DIR}/monitoring\" ]]; then sudo find \"\${DEPLOY_DIR}/monitoring\" -type f -exec chattr -i {} + 2>/dev/null || true; fi; read -r TARBALL_B64; printf %s \"\${TARBALL_B64}\" | base64 -d | sudo tar -xf - -C \"\${DEPLOY_DIR}\"; sudo chmod +x \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" \"\${DEPLOY_DIR}/monitoring/network/conntrack-logger.sh\" \"\${DEPLOY_DIR}/monitoring/watchdog/daisy-watchdog.py\"; echo \"Monitoring configs deployed to \${DEPLOY_DIR}/monitoring/\"; ls -la \"\${DEPLOY_DIR}/monitoring/\"'"
 
   # Generate .env.monitoring from environment variables (populated by GitHub Secrets)
   if [[ -n "${GRAFANA_ADMIN_PASSWORD:-}" ]]; then
