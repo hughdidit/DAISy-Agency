@@ -33,15 +33,14 @@ This performs three steps on the VM via IAP tunnel:
 | `release_run_id`  | string  | —       | Docker Release workflow run ID                     |
 | `dry_run`         | boolean | `true`  | If true, validate only (no actual deploy)          |
 | `provision`       | boolean | `false` | If true, copy compose files and create directories |
-| `with_monitoring` | boolean | `false` | If true, deploy monitoring stack                   |
+| `with_monitoring` | boolean | `true`  | If true, deploy monitoring stack                   |
 
 ### Typical CI/CD Flow
 
 ```
 PR merged to daisy/dev
     → Docker Release (builds + pushes images)
-    → Deploy staging on release (auto, dry-run by default)
-    → Manual: Deploy with with_monitoring=true
+    → Deploy staging on release (auto, with monitoring)
     → Verify
 ```
 
@@ -101,6 +100,8 @@ This script:
 
 ### 4. Create Environment File
 
+> **Note:** CI/CD deploys generate this file automatically from GitHub Secrets. This step is only needed for manual deployment.
+
 ```bash
 # On the VM
 sudo cp /opt/DAISy/monitoring/.env.monitoring.example /opt/DAISy/monitoring/.env.monitoring
@@ -153,16 +154,37 @@ curl -s http://localhost:3000/api/health
 
 All monitoring secrets are stored in `monitoring/.env.monitoring` on the VM. This file must be **root-owned with 600 permissions** and must never be committed to git.
 
+### Automatic Generation from GitHub Secrets
+
+When deploying via CI/CD, `.env.monitoring` is automatically generated from GitHub Secrets. The deploy script writes the file to the VM with `root:root 600` permissions.
+
+To configure, add these secrets in **Settings > Secrets and variables > Actions**:
+
+| Secret                       | Required | Example                                      |
+| ---------------------------- | -------- | -------------------------------------------- |
+| `GRAFANA_ADMIN_PASSWORD`     | Yes      | (strong password)                            |
+| `DISCORD_ALERTS_WEBHOOK_URL` | No       | `https://discord.com/api/webhooks/.../slack` |
+| `ALERT_EMAIL_TO`             | No       | `alerts@example.com`                         |
+| `ALERT_SMTP_HOST`            | No       | `smtp.gmail.com`                             |
+| `ALERT_SMTP_PORT`            | No       | `587`                                        |
+| `ALERT_SMTP_FROM`            | No       | `daisy-alerts@example.com`                   |
+| `ALERT_SMTP_USERNAME`        | No       | SMTP username                                |
+| `ALERT_SMTP_PASSWORD`        | No       | SMTP password                                |
+
+If `GRAFANA_ADMIN_PASSWORD` is not set, the deploy script skips `.env.monitoring` generation and reuses any existing file on the VM.
+
+### VM Environment Variables
+
 | Variable                     | Required | Description                       |
 | ---------------------------- | -------- | --------------------------------- |
 | `GRAFANA_ADMIN_PASSWORD`     | Yes      | Grafana admin password            |
-| `DISCORD_ALERTS_WEBHOOK_URL` | Yes      | Discord webhook (append `/slack`) |
-| `ALERT_EMAIL_TO`             | Yes      | Alert recipient email             |
-| `ALERT_SMTP_HOST`            | Yes      | SMTP server hostname              |
-| `ALERT_SMTP_PORT`            | Yes      | SMTP port (587 for TLS)           |
-| `ALERT_SMTP_FROM`            | Yes      | Sender email address              |
-| `ALERT_SMTP_USERNAME`        | Yes      | SMTP authentication username      |
-| `ALERT_SMTP_PASSWORD`        | Yes      | SMTP authentication password      |
+| `DISCORD_ALERTS_WEBHOOK_URL` | No       | Discord webhook (append `/slack`) |
+| `ALERT_EMAIL_TO`             | No       | Alert recipient email             |
+| `ALERT_SMTP_HOST`            | No       | SMTP server hostname              |
+| `ALERT_SMTP_PORT`            | No       | SMTP port (587 for TLS)           |
+| `ALERT_SMTP_FROM`            | No       | Sender email address              |
+| `ALERT_SMTP_USERNAME`        | No       | SMTP authentication username      |
+| `ALERT_SMTP_PASSWORD`        | No       | SMTP authentication password      |
 
 ## Anti-Tampering
 
@@ -189,14 +211,13 @@ All monitoring files are owned by `root:daisy-monitor` with `750` (directories) 
 
 1. Make changes to files under `monitoring/` in the repository
 2. Create a PR, pass CI, merge to `daisy/dev`
-3. Trigger deploy with `with_monitoring=true`:
+3. Trigger deploy (monitoring is included by default):
 
    ```bash
    gh workflow run deploy.yml \
      -f environment=staging \
      -f release_run_id=<RUN_ID> \
      -f dry_run=false \
-     -f with_monitoring=true \
      --ref daisy/dev
    ```
 
