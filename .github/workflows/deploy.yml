@@ -50,6 +50,7 @@ on:
       with_monitoring:
         required: false
         type: boolean
+        default: true
     secrets:
       GHCR_USERNAME:
         description: GitHub username for GHCR

@@ -181,12 +181,13 @@ ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
 
     ENV_B64="$(printf '%s' "${ENV_CONTENT}" | base64 -w0)"
 
-    gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+    # Pass ENV_B64 via stdin to avoid exposing secrets in process arguments
+    printf '%s\n' "${ENV_B64}" | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
       --project "${GCP_PROJECT_ID}" \
       --zone "${GCP_ZONE}" \
       --tunnel-through-iap \
       --quiet \
-      --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; echo \"${ENV_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/monitoring/.env.monitoring\" > /dev/null; sudo chown root:root \"\${DEPLOY_DIR}/monitoring/.env.monitoring\"; sudo chmod 600 \"\${DEPLOY_DIR}/monitoring/.env.monitoring\"; echo \".env.monitoring written (root:root 600)\"'"
+      --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; read -r ENV_B64; printf %s \"\${ENV_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/monitoring/.env.monitoring\" > /dev/null; sudo chown root:root \"\${DEPLOY_DIR}/monitoring/.env.monitoring\"; sudo chmod 600 \"\${DEPLOY_DIR}/monitoring/.env.monitoring\"; echo \".env.monitoring written (root:root 600)\"'"
   else
     echo "NOTE: GRAFANA_ADMIN_PASSWORD not set — skipping .env.monitoring generation."
     echo "      If .env.monitoring already exists on the VM, it will be reused."

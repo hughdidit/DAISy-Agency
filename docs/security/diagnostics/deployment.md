@@ -178,13 +178,13 @@ If `GRAFANA_ADMIN_PASSWORD` is not set, the deploy script skips `.env.monitoring
 | Variable                     | Required | Description                       |
 | ---------------------------- | -------- | --------------------------------- |
 | `GRAFANA_ADMIN_PASSWORD`     | Yes      | Grafana admin password            |
-| `DISCORD_ALERTS_WEBHOOK_URL` | Yes      | Discord webhook (append `/slack`) |
-| `ALERT_EMAIL_TO`             | Yes      | Alert recipient email             |
-| `ALERT_SMTP_HOST`            | Yes      | SMTP server hostname              |
-| `ALERT_SMTP_PORT`            | Yes      | SMTP port (587 for TLS)           |
-| `ALERT_SMTP_FROM`            | Yes      | Sender email address              |
-| `ALERT_SMTP_USERNAME`        | Yes      | SMTP authentication username      |
-| `ALERT_SMTP_PASSWORD`        | Yes      | SMTP authentication password      |
+| `DISCORD_ALERTS_WEBHOOK_URL` | No       | Discord webhook (append `/slack`) |
+| `ALERT_EMAIL_TO`             | No       | Alert recipient email             |
+| `ALERT_SMTP_HOST`            | No       | SMTP server hostname              |
+| `ALERT_SMTP_PORT`            | No       | SMTP port (587 for TLS)           |
+| `ALERT_SMTP_FROM`            | No       | Sender email address              |
+| `ALERT_SMTP_USERNAME`        | No       | SMTP authentication username      |
+| `ALERT_SMTP_PASSWORD`        | No       | SMTP authentication password      |
 
 ## Anti-Tampering
 
