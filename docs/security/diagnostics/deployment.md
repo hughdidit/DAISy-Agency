@@ -196,7 +196,8 @@ All monitoring files are owned by `root:daisy-monitor` with `750` (directories) 
      -f environment=staging \
      -f release_run_id=<RUN_ID> \
      -f dry_run=false \
-     -f with_monitoring=true
+     -f with_monitoring=true \
+     --ref daisy/dev
    ```
 
 4. The deploy script will:

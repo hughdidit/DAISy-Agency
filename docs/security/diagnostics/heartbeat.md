@@ -92,10 +92,14 @@ gcloud functions deploy daisy-heartbeat-check \
 ```bash
 # For the VM's service account (sends heartbeats)
 gcloud functions add-invoker-policy-binding daisy-heartbeat-check \
+  --region <REGION> \
+  --project <PROJECT> \
   --member="serviceAccount:daisy-watchdog@PROJECT.iam.gserviceaccount.com"
 
 # For Cloud Scheduler (runs checks)
 gcloud functions add-invoker-policy-binding daisy-heartbeat-check \
+  --region <REGION> \
+  --project <PROJECT> \
   --member="serviceAccount:scheduler@PROJECT.iam.gserviceaccount.com"
 ```
 
