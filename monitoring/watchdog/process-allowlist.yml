@@ -1,0 +1,65 @@
+# Process allowlist for DAISy-Agency containers
+# Processes not in this list will be flagged by the watchdog service.
+#
+# The watchdog checks /proc/<pid>/exe for each container process.
+# Keep this list minimal — only processes the agent legitimately spawns.
+
+allowed_processes:
+  # Application runtime
+  - node
+  - python3
+
+  # Shell (used by tool invocations)
+  - bash
+  - sh
+
+  # Developer tools the agent may invoke
+  - git
+  - rg
+  - curl
+
+  # Package managers (used during agent setup)
+  - pnpm
+  - npm
+  - npx
+
+  # Common utilities spawned by shell scripts
+  - cat
+  - grep
+  - find
+  - ls
+  - head
+  - tail
+  - wc
+  - sort
+  - uniq
+  - tr
+  - cut
+  - sed
+  - awk
+  - xargs
+  - env
+  - printenv
+  - id
+  - whoami
+  - hostname
+  - uname
+  - date
+  - sleep
+  - true
+  - mkdir
+  - rm
+  - cp
+  - mv
+  - ln
+  - touch
+  - tee
+  - dirname
+  - basename
+  - realpath
+  - readlink
+  - stat
+  - file
+  - which
+  - test
+  - expr
