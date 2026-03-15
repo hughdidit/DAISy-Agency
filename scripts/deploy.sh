@@ -407,7 +407,7 @@ if [[ -f docker-compose.sandbox.yml ]]; then
   COMPOSE_FILES="${COMPOSE_FILES} -f docker-compose.sandbox.yml"
   # Detect host Docker socket GID for sandbox compose overlay.
   if [[ -S /var/run/docker.sock ]]; then
-    DOCKER_GID="$(stat -c '%g' /var/run/docker.sock)"
+    DOCKER_GID="$(stat -c "%g" /var/run/docker.sock)"
     export DOCKER_GID
     echo "Docker socket GID: ${DOCKER_GID}"
   fi
@@ -419,7 +419,7 @@ if ! [[ "${MIN_FREE_SPACE_MB}" =~ ^[0-9]+$ ]]; then
   echo "ERROR: MIN_FREE_SPACE_MB must be numeric (got: ${MIN_FREE_SPACE_MB})" >&2
   exit 1
 fi
-DOCKER_ROOT_DIR="$(sudo docker info --format '{{.DockerRootDir}}' 2>/dev/null || true)"
+DOCKER_ROOT_DIR="$(sudo docker info --format "{{.DockerRootDir}}" 2>/dev/null || true)"
 if [[ -z "${DOCKER_ROOT_DIR}" ]]; then
   DOCKER_ROOT_DIR="/var/lib/docker"
 fi
@@ -427,7 +427,7 @@ if [[ ! -d "${DOCKER_ROOT_DIR}" ]]; then
   DOCKER_ROOT_DIR="/"
 fi
 get_free_space_mb() {
-  df -Pm "${DOCKER_ROOT_DIR}" | awk 'NR==2 {print $4}'
+  df -Pm "${DOCKER_ROOT_DIR}" | awk "NR==2 {print \$4}"
 }
 free_space_mb="$(get_free_space_mb)"
 if ! [[ "${free_space_mb}" =~ ^[0-9]+$ ]]; then
@@ -437,9 +437,9 @@ fi
 echo "Free space on ${DOCKER_ROOT_DIR} before image pulls: ${free_space_mb} MB (required minimum: ${MIN_FREE_SPACE_MB} MB)"
 if (( free_space_mb < MIN_FREE_SPACE_MB )); then
   echo "Low disk space detected. Running Docker prune (containers, images, build cache)..."
-  sudo docker container prune -f || echo "WARNING: 'docker container prune -f' failed. Continuing..." >&2
-  sudo docker image prune -af || echo "WARNING: 'docker image prune -af' failed. Continuing..." >&2
-  sudo docker builder prune -af || echo "WARNING: 'docker builder prune -af' failed. Continuing..." >&2
+  sudo docker container prune -f || echo "WARNING: \"docker container prune -f\" failed. Continuing..." >&2
+  sudo docker image prune -af || echo "WARNING: \"docker image prune -af\" failed. Continuing..." >&2
+  sudo docker builder prune -af || echo "WARNING: \"docker builder prune -af\" failed. Continuing..." >&2
 
   free_space_mb="$(get_free_space_mb)"
   if ! [[ "${free_space_mb}" =~ ^[0-9]+$ ]]; then
