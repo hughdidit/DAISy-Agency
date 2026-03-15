@@ -20,6 +20,7 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY:-}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
+      BRAVE_API_KEY: ${BRAVE_API_KEY:-}
       OPENCLAW_CONFIG_PATH: /home/node/.openclaw/${OPENCLAW_CONFIG_FILE:-openclaw.json}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
@@ -75,6 +76,7 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY:-}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
+      BRAVE_API_KEY: ${BRAVE_API_KEY:-}
       OPENCLAW_CONFIG_PATH: /home/node/.openclaw/${OPENCLAW_CONFIG_FILE:-openclaw.json}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
