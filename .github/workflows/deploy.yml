@@ -210,7 +210,7 @@ jobs:
           else
             chmod +x scripts/read-release-metadata.sh
             chmod +x scripts/deploy.sh
-            RESOLVED="$(scripts/deploy.sh --resolve-only dist/release/release-metadata.json)"
+            RESOLVED="$(bash scripts/deploy.sh --resolve-only dist/release/release-metadata.json)"
             echo "resolved_ref=${RESOLVED}" >> "$GITHUB_OUTPUT"
             echo "Resolved ref: ${RESOLVED}"
           fi
@@ -261,7 +261,7 @@ jobs:
           if [[ "${{ inputs.with_monitoring }}" == "true" ]]; then
             MONITORING_FLAG="--with-monitoring"
           fi
-          scripts/deploy.sh ${PROVISION_FLAG} ${MONITORING_FLAG} dist/release/release-metadata.json
+          bash scripts/deploy.sh ${PROVISION_FLAG} ${MONITORING_FLAG} dist/release/release-metadata.json
 
       - name: Deploy summary
         if: ${{ inputs.dry_run != true }}
