@@ -82,6 +82,9 @@ on:
       CLAUDE_WEB_COOKIE:
         description: Claude web cookie (optional, for usage monitoring)
         required: false
+      BRAVE_API_KEY:
+        description: Brave Web Search API key (optional, for web-search tool)
+        required: false
       GRAFANA_ADMIN_PASSWORD:
         description: Grafana admin password
         required: false
@@ -157,6 +160,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
         run: |
           : "${GCP_WORKLOAD_IDENTITY_PROVIDER:?GCP_WORKLOAD_IDENTITY_PROVIDER is required}"
           : "${GCP_SERVICE_ACCOUNT:?GCP_SERVICE_ACCOUNT is required}"
@@ -237,6 +241,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           # Monitoring secrets (credentials)
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
           ALERT_SMTP_USERNAME: ${{ secrets.ALERT_SMTP_USERNAME }}
