@@ -419,7 +419,7 @@ if ! [[ "${MIN_FREE_SPACE_MB}" =~ ^[0-9]+$ ]]; then
   echo "ERROR: MIN_FREE_SPACE_MB must be numeric (got: ${MIN_FREE_SPACE_MB})" >&2
   exit 1
 fi
-DOCKER_ROOT_DIR="$(sudo docker info --format '{{.DockerRootDir}}' 2>/dev/null || true)"
+DOCKER_ROOT_DIR="$(sudo docker info --format "{{.DockerRootDir}}" 2>/dev/null || true)"
 if [[ -z "${DOCKER_ROOT_DIR}" ]]; then
   DOCKER_ROOT_DIR="/var/lib/docker"
 fi
@@ -427,7 +427,7 @@ if [[ ! -d "${DOCKER_ROOT_DIR}" ]]; then
   DOCKER_ROOT_DIR="/"
 fi
 get_free_space_mb() {
-  df -Pm "${DOCKER_ROOT_DIR}" | awk 'NR==2 {print $4}'
+  df -Pm "${DOCKER_ROOT_DIR}" | awk "NR==2 {print \$4}"
 }
 free_space_mb="$(get_free_space_mb)"
 if ! [[ "${free_space_mb}" =~ ^[0-9]+$ ]]; then
