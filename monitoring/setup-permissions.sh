@@ -102,6 +102,7 @@ CONTAINER_CONFIG_DIRS=(
   "${MONITORING_DIR}/loki"
   "${MONITORING_DIR}/prometheus"
   "${MONITORING_DIR}/alertmanager"
+  "${MONITORING_DIR}/promtail"
 )
 for dir in "${CONTAINER_CONFIG_DIRS[@]}"; do
   if [[ -d "$dir" ]]; then
