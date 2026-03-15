@@ -204,14 +204,15 @@ ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
     --quiet \
     --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if [[ ! -f \"\${DEPLOY_DIR}/monitoring/.setup-complete\" ]]; then echo \"First-run: provisioning host...\"; sudo \"\${DEPLOY_DIR}/monitoring/provision-host.sh\" && sudo touch \"\${DEPLOY_DIR}/monitoring/.setup-complete\"; else echo \"Host already provisioned (skipping provision-host.sh).\"; fi'"
 
-  # Per-deploy permissions: log dirs, promtail bind mount, file ownership, chattr
-  # These run on EVERY deploy to ensure correct state after config updates.
+  # Per-deploy: permissions, log dirs, bind mount, auditd/AppArmor refresh, chattr.
+  # These run on EVERY deploy to keep host-level configs in sync with new commits.
+  # Uses set +e so individual failures don't abort the entire monitoring deploy.
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "sudo bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; MONITORING_DIR=\"\${DEPLOY_DIR}/monitoring\"; LOG_BASE=/var/log
+    --command "sudo bash -c 'DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; MONITORING_DIR=\"\${DEPLOY_DIR}/monitoring\"; LOG_BASE=/var/log; PERMS_ERRORS=0
 echo \"Applying per-deploy permissions...\"
 
 # -- Log directories + promtail bind mount --
@@ -220,13 +221,14 @@ mkdir -p /tmp/openclaw \"\${LOG_BASE}/openclaw\"
 chown 1000:1000 /tmp/openclaw
 chmod 750 /tmp/openclaw
 if ! mountpoint -q \"\${LOG_BASE}/openclaw\"; then
-  mount --bind /tmp/openclaw \"\${LOG_BASE}/openclaw\"
-  echo \"  Bind-mounted /tmp/openclaw -> \${LOG_BASE}/openclaw\"
+  mount --bind /tmp/openclaw \"\${LOG_BASE}/openclaw\" && \
+    echo \"  Bind-mounted /tmp/openclaw -> \${LOG_BASE}/openclaw\" || \
+    echo \"WARNING: Failed to create bind mount\"
 fi
-chown root:daisy-monitor \"\${LOG_BASE}/falco\" 2>/dev/null || true
-chmod 750 \"\${LOG_BASE}/falco\" 2>/dev/null || true
-chown daisy-monitor:daisy-monitor \"\${LOG_BASE}/daisy-watchdog\" 2>/dev/null || true
-chmod 750 \"\${LOG_BASE}/daisy-watchdog\" 2>/dev/null || true
+chown root:daisy-monitor \"\${LOG_BASE}/falco\" || echo \"WARNING: chown falco failed\"
+chmod 750 \"\${LOG_BASE}/falco\" || echo \"WARNING: chmod falco failed\"
+chown daisy-monitor:daisy-monitor \"\${LOG_BASE}/daisy-watchdog\" || echo \"WARNING: chown watchdog failed\"
+chmod 750 \"\${LOG_BASE}/daisy-watchdog\" || echo \"WARNING: chmod watchdog failed\"
 
 # -- Clear immutable bits before updating configs --
 IMMUTABLE_FILES=(
@@ -244,19 +246,19 @@ for f in \"\${IMMUTABLE_FILES[@]}\"; do
 done
 
 # -- Set monitoring config ownership --
-chown -R root:daisy-monitor \"\${MONITORING_DIR}\" 2>/dev/null || true
+chown -R root:daisy-monitor \"\${MONITORING_DIR}\"
 chmod 750 \"\${MONITORING_DIR}\"
-find \"\${MONITORING_DIR}\" -type d -exec chmod 750 {} + 2>/dev/null || true
-find \"\${MONITORING_DIR}\" -type f -exec chmod 640 {} + 2>/dev/null || true
-find \"\${MONITORING_DIR}\" -name \"*.sh\" -exec chmod 750 {} + 2>/dev/null || true
-find \"\${MONITORING_DIR}\" -name \"*.py\" -exec chmod 750 {} + 2>/dev/null || true
+find \"\${MONITORING_DIR}\" -type d -exec chmod 750 {} +
+find \"\${MONITORING_DIR}\" -type f -exec chmod 640 {} +
+find \"\${MONITORING_DIR}\" -name \"*.sh\" -exec chmod 750 {} +
+find \"\${MONITORING_DIR}\" -name \"*.py\" -exec chmod 750 {} +
 
 # -- Allow container UIDs to read mounted config files --
 for dir in grafana loki prometheus alertmanager promtail; do
   d=\"\${MONITORING_DIR}/\${dir}\"
   if [[ -d \"\$d\" ]]; then
-    find \"\$d\" -type d -exec chmod 755 {} + 2>/dev/null || true
-    find \"\$d\" -type f -exec chmod 644 {} + 2>/dev/null || true
+    find \"\$d\" -type d -exec chmod 755 {} +
+    find \"\$d\" -type f -exec chmod 644 {} +
   fi
 done
 echo \"  Container config dirs set to world-readable.\"
@@ -267,9 +269,30 @@ if [[ -f \"\${MONITORING_DIR}/.env.monitoring\" ]]; then
   chmod 600 \"\${MONITORING_DIR}/.env.monitoring\"
 fi
 
+# -- Refresh auditd rules (keeps host in sync with new commits) --
+if [[ -f \"\${MONITORING_DIR}/auditd/daisy-containers.rules\" ]]; then
+  cp \"\${MONITORING_DIR}/auditd/daisy-containers.rules\" /etc/audit/rules.d/ && \
+    echo \"  Refreshed auditd rules.\" || echo \"WARNING: Failed to copy auditd rules.\"
+  command -v augenrules >/dev/null 2>&1 && augenrules --load 2>/dev/null || true
+fi
+
+# -- Refresh AppArmor profile (keeps host in sync with new commits) --
+if [[ -f \"\${MONITORING_DIR}/apparmor/openclaw-container\" ]]; then
+  cp \"\${MONITORING_DIR}/apparmor/openclaw-container\" /etc/apparmor.d/ && \
+    echo \"  Refreshed AppArmor profile.\" || echo \"WARNING: Failed to copy AppArmor profile.\"
+  command -v apparmor_parser >/dev/null 2>&1 && apparmor_parser -r /etc/apparmor.d/openclaw-container 2>/dev/null || true
+fi
+
+# -- Refresh systemd units (keeps host in sync with new commits) --
+if [[ -f \"\${MONITORING_DIR}/watchdog/daisy-watchdog.service\" ]]; then
+  cp \"\${MONITORING_DIR}/watchdog/daisy-watchdog.service\" /etc/systemd/system/ && \
+    echo \"  Refreshed daisy-watchdog.service.\" || echo \"WARNING: Failed to copy watchdog unit.\"
+fi
+systemctl daemon-reload 2>/dev/null || true
+
 # -- Reapply immutable attributes on critical configs --
 for f in \"\${IMMUTABLE_FILES[@]}\"; do
-  [[ -f \"\$f\" ]] && chattr +i \"\$f\" 2>/dev/null && echo \"  +i \$f\" || true
+  [[ -f \"\$f\" ]] && { chattr +i \"\$f\" 2>/dev/null && echo \"  +i \$f\" || echo \"  WARN: chattr not supported for \$f\"; }
 done
 
 echo \"Per-deploy permissions applied.\"'"
