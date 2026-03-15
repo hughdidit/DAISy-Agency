@@ -20,6 +20,7 @@
         "access",
         "adjtimex",
         "alarm",
+        "arch_prctl",
         "bind",
         "brk",
         "capget",
