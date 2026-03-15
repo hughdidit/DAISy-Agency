@@ -320,6 +320,7 @@ OPENCLAW_GATEWAY_PORT="$4"
 OPENCLAW_BRIDGE_PORT="$5"
 OPENCLAW_GATEWAY_BIND="${6:-loopback}"
 OPENCLAW_CONFIG_FILE="${7:-openclaw.json}"
+MIN_FREE_SPACE_MB="${8:-4096}"
 
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required}"
 : "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required}"
@@ -412,6 +413,46 @@ if [[ -f docker-compose.sandbox.yml ]]; then
   fi
 fi
 
+# Ensure the host has enough free disk space before pulling images.
+# Check the filesystem that backs Docker storage, not DEPLOY_DIR.
+if ! [[ "${MIN_FREE_SPACE_MB}" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: MIN_FREE_SPACE_MB must be numeric (got: ${MIN_FREE_SPACE_MB})" >&2
+  exit 1
+fi
+DOCKER_ROOT_DIR="$(sudo docker info --format '{{.DockerRootDir}}' 2>/dev/null || true)"
+if [[ -z "${DOCKER_ROOT_DIR}" ]]; then
+  DOCKER_ROOT_DIR="/var/lib/docker"
+fi
+if [[ ! -d "${DOCKER_ROOT_DIR}" ]]; then
+  DOCKER_ROOT_DIR="/"
+fi
+get_free_space_mb() {
+  df -Pm "${DOCKER_ROOT_DIR}" | awk 'NR==2 {print $4}'
+}
+free_space_mb="$(get_free_space_mb)"
+if ! [[ "${free_space_mb}" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: Failed to determine free space for ${DOCKER_ROOT_DIR} (got: ${free_space_mb})" >&2
+  exit 1
+fi
+echo "Free space on ${DOCKER_ROOT_DIR} before image pulls: ${free_space_mb} MB (required minimum: ${MIN_FREE_SPACE_MB} MB)"
+if (( free_space_mb < MIN_FREE_SPACE_MB )); then
+  echo "Low disk space detected. Running Docker prune (containers, images, build cache)..."
+  sudo docker container prune -f || echo "WARNING: 'docker container prune -f' failed. Continuing..." >&2
+  sudo docker image prune -af || echo "WARNING: 'docker image prune -af' failed. Continuing..." >&2
+  sudo docker builder prune -af || echo "WARNING: 'docker builder prune -af' failed. Continuing..." >&2
+
+  free_space_mb="$(get_free_space_mb)"
+  if ! [[ "${free_space_mb}" =~ ^[0-9]+$ ]]; then
+    echo "ERROR: Failed to determine free space for ${DOCKER_ROOT_DIR} after prune (got: ${free_space_mb})" >&2
+    exit 1
+  fi
+  echo "Free space after prune on ${DOCKER_ROOT_DIR}: ${free_space_mb} MB"
+  if (( free_space_mb < MIN_FREE_SPACE_MB )); then
+    echo "ERROR: Insufficient disk space after prune (${free_space_mb} MB < ${MIN_FREE_SPACE_MB} MB)." >&2
+    exit 1
+  fi
+fi
+
 # Pull sandbox image from GHCR and re-tag to the local name expected by the app.
 # The app references "openclaw-sandbox:bookworm-slim" (no registry prefix).
 # Extract base image name: strip digest first, then strip tag only from the
@@ -432,9 +473,18 @@ else
   echo "WARNING: Failed to pull sandbox image. Sandbox may not function." >&2
 fi
 
-# Pull and deploy (use sudo -E to preserve environment variables)
+# Pull app images while existing containers remain running.
+# This reduces downtime if pull fails.
 sudo -E docker-compose ${COMPOSE_FILES} pull
-sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans
+
+# Stop/remove app containers so a crash-looping gateway cannot block startup.
+# This avoids "container is restarting" races when openclaw-cli joins gateway network namespace.
+sudo -E docker-compose ${COMPOSE_FILES} stop openclaw-gateway openclaw-cli || true
+sudo -E docker-compose ${COMPOSE_FILES} rm -f openclaw-gateway openclaw-cli || true
+
+# Start fresh containers so updated host security profiles (seccomp/AppArmor)
+# are applied even when the image reference is unchanged.
+sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans --force-recreate
 
 # Clear secrets from environment
 unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY
@@ -454,6 +504,7 @@ printf -v GATEWAY_PORT_ESCAPED '%q' "${OPENCLAW_GATEWAY_PORT}"
 printf -v BRIDGE_PORT_ESCAPED '%q' "${OPENCLAW_BRIDGE_PORT}"
 printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
 printf -v CONFIG_FILE_ESCAPED '%q' "${OPENCLAW_CONFIG_FILE:-openclaw.json}"
+printf -v MIN_FREE_SPACE_MB_ESCAPED '%q' "${MIN_FREE_SPACE_MB:-4096}"
 
 # Pass all secrets via stdin (one per line)
 {
@@ -472,4 +523,4 @@ printf -v CONFIG_FILE_ESCAPED '%q' "${OPENCLAW_CONFIG_FILE:-openclaw.json}"
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
   --quiet \
-  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED}"
+  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
