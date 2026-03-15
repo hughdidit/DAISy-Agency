@@ -432,9 +432,42 @@ else
   echo "WARNING: Failed to pull sandbox image. Sandbox may not function." >&2
 fi
 
-# Pull and deploy (use sudo -E to preserve environment variables)
+# Ensure the host has enough free disk space before pulling images.
+# If space is low, prune Docker artifacts and fail fast if still insufficient.
+MIN_FREE_SPACE_MB="${MIN_FREE_SPACE_MB:-4096}"
+if ! [[ "${MIN_FREE_SPACE_MB}" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: MIN_FREE_SPACE_MB must be numeric (got: ${MIN_FREE_SPACE_MB})" >&2
+  exit 1
+fi
+get_free_space_mb() {
+  df -Pm "${DEPLOY_DIR}" | awk 'NR==2 {print $4}'
+}
+free_space_mb="$(get_free_space_mb)"
+echo "Free space before deploy pull: ${free_space_mb} MB (required minimum: ${MIN_FREE_SPACE_MB} MB)"
+if (( free_space_mb < MIN_FREE_SPACE_MB )); then
+  echo "Low disk space detected. Running Docker prune (containers, images, build cache)..."
+  sudo docker container prune -f || true
+  sudo docker image prune -af || true
+  sudo docker builder prune -af || true
+
+  free_space_mb="$(get_free_space_mb)"
+  echo "Free space after prune: ${free_space_mb} MB"
+  if (( free_space_mb < MIN_FREE_SPACE_MB )); then
+    echo "ERROR: Insufficient disk space after prune (${free_space_mb} MB < ${MIN_FREE_SPACE_MB} MB)." >&2
+    exit 1
+  fi
+fi
+
+# Stop/remove app containers first so a crash-looping gateway does not block deploy.
+# This avoids "container is restarting" races when openclaw-cli joins gateway network namespace.
+sudo -E docker-compose ${COMPOSE_FILES} stop openclaw-gateway openclaw-cli || true
+sudo -E docker-compose ${COMPOSE_FILES} rm -f openclaw-gateway openclaw-cli || true
+
+# Pull and deploy (use sudo -E to preserve environment variables).
+# Force recreation so updated host security profiles (seccomp/AppArmor)
+# are applied even when the image reference is unchanged.
 sudo -E docker-compose ${COMPOSE_FILES} pull
-sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans
+sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans --force-recreate
 
 # Clear secrets from environment
 unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY
