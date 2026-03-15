@@ -93,6 +93,24 @@ find "${MONITORING_DIR}" -type f -exec chmod 640 {} +
 find "${MONITORING_DIR}" -name "*.sh" -exec chmod 750 {} +
 find "${MONITORING_DIR}" -name "*.py" -exec chmod 750 {} +
 
+# ── 5b. Allow container UIDs to read mounted config files ─────────
+# Docker containers run as non-root UIDs (grafana=472, loki=10001) and
+# mount config files from the host. These files don't contain secrets
+# (credentials come via env vars), so world-readable is safe.
+CONTAINER_CONFIG_DIRS=(
+  "${MONITORING_DIR}/grafana"
+  "${MONITORING_DIR}/loki"
+  "${MONITORING_DIR}/prometheus"
+  "${MONITORING_DIR}/alertmanager"
+)
+for dir in "${CONTAINER_CONFIG_DIRS[@]}"; do
+  if [[ -d "$dir" ]]; then
+    find "$dir" -type d -exec chmod 755 {} +
+    find "$dir" -type f -exec chmod 644 {} +
+  fi
+done
+echo "Set container config dirs to world-readable."
+
 # ── 6. Protect .env.monitoring ────────────────────────────────────
 if [[ -f "${MONITORING_DIR}/.env.monitoring" ]]; then
   chown root:root "${MONITORING_DIR}/.env.monitoring"
