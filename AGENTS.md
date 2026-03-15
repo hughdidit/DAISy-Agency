@@ -26,6 +26,7 @@ Fork of OpenClaw. Branded as **DAISy**.
    - Make the requested fix, defer with justification, or reject with reasoning.
    - Leave a reply comment detailing your action, then resolve the conversation.
 3. After all conversations are resolved, do one more CI pass — fix any new failures until green.
+3.5. Request human review before proceeding. 
 4. Squash-merge the PR with a comment briefly summarising the corrections made during review.
 5. Checkout `daisy/dev` and pull to get the merged result.
 6. Trigger a dry-run deploy to staging (`dry_run: true`). Fix any errors and re-run until it succeeds.
