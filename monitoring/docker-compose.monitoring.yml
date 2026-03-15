@@ -118,7 +118,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
-      - /tmp/openclaw:/var/log/openclaw:ro
+      # App logs are accessed via /var/log/openclaw symlink (created by setup-permissions.sh)
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log:/var/log:ro
       - /etc/machine-id:/etc/machine-id:ro

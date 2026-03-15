@@ -53,6 +53,10 @@ fi
 echo "Creating log directories..."
 mkdir -p "${LOG_BASE}/falco"
 mkdir -p "${LOG_BASE}/daisy-watchdog"
+# Symlink so promtail can read app logs via the existing /var/log bind mount
+# without Docker needing to create /var/log/openclaw inside the read-only rootfs.
+mkdir -p /tmp/openclaw
+ln -sfn /tmp/openclaw "${LOG_BASE}/openclaw"
 
 chown root:daisy-monitor "${LOG_BASE}/falco"
 chmod 750 "${LOG_BASE}/falco"
