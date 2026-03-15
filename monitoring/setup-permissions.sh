@@ -53,6 +53,15 @@ fi
 echo "Creating log directories..."
 mkdir -p "${LOG_BASE}/falco"
 mkdir -p "${LOG_BASE}/daisy-watchdog"
+# Bind-mount app logs into /var/log so promtail can read them via its
+# /var/log:/var/log:ro mount without Docker creating /var/log/openclaw
+# inside the read-only container rootfs.
+mkdir -p /tmp/openclaw "${LOG_BASE}/openclaw"
+chown 1000:1000 /tmp/openclaw
+chmod 750 /tmp/openclaw
+if ! mountpoint -q "${LOG_BASE}/openclaw"; then
+  mount --bind /tmp/openclaw "${LOG_BASE}/openclaw"
+fi
 
 chown root:daisy-monitor "${LOG_BASE}/falco"
 chmod 750 "${LOG_BASE}/falco"
