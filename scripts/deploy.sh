@@ -169,7 +169,7 @@ if [[ "${WITH_MONITORING}" == "true" ]]; then
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; if [[ -d \"\${DEPLOY_DIR}/monitoring\" ]]; then sudo find \"\${DEPLOY_DIR}/monitoring\" -type f -exec chattr -i {} + 2>/dev/null || true; fi; read -r TARBALL_B64; printf %s \"\${TARBALL_B64}\" | base64 -d | sudo tar -xf - -C \"\${DEPLOY_DIR}\"; sudo chmod +x \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" \"\${DEPLOY_DIR}/monitoring/network/conntrack-logger.sh\" \"\${DEPLOY_DIR}/monitoring/watchdog/daisy-watchdog.py\"; echo \"Monitoring configs deployed to \${DEPLOY_DIR}/monitoring/\"; ls -la \"\${DEPLOY_DIR}/monitoring/\"'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; if [[ -d \"\${DEPLOY_DIR}/monitoring\" ]]; then sudo find \"\${DEPLOY_DIR}/monitoring\" -type f -exec chattr -i {} + 2>/dev/null || true; fi; read -r TARBALL_B64; printf %s \"\${TARBALL_B64}\" | base64 -d | sudo tar -xf - -C \"\${DEPLOY_DIR}\"; sudo chmod +x \"\${DEPLOY_DIR}/monitoring/provision-host.sh\" \"\${DEPLOY_DIR}/monitoring/network/conntrack-logger.sh\" \"\${DEPLOY_DIR}/monitoring/watchdog/daisy-watchdog.py\"; echo \"Monitoring configs deployed to \${DEPLOY_DIR}/monitoring/\"; ls -la \"\${DEPLOY_DIR}/monitoring/\"'"
 
   # Generate .env.monitoring from environment variables (populated by GitHub Secrets)
   if [[ -n "${GRAFANA_ADMIN_PASSWORD:-}" ]]; then
@@ -196,13 +196,83 @@ ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
     echo "      If .env.monitoring already exists on the VM, it will be reused."
   fi
 
-  # Run setup-permissions.sh (creates user, installs packages on first run, sets perms + chattr)
+  # One-time host provisioning (user, packages, auditd, apparmor, AIDE, systemd units)
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if [[ ! -f \"\${DEPLOY_DIR}/monitoring/.setup-complete\" ]]; then sudo \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" && sudo touch \"\${DEPLOY_DIR}/monitoring/.setup-complete\"; else echo \"Subsequent deploy (skip package install)\"; sudo \"\${DEPLOY_DIR}/monitoring/setup-permissions.sh\" --skip-packages; fi'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if [[ ! -f \"\${DEPLOY_DIR}/monitoring/.setup-complete\" ]]; then echo \"First-run: provisioning host...\"; sudo \"\${DEPLOY_DIR}/monitoring/provision-host.sh\" && sudo touch \"\${DEPLOY_DIR}/monitoring/.setup-complete\"; else echo \"Host already provisioned (skipping provision-host.sh).\"; fi'"
+
+  # Per-deploy permissions: log dirs, promtail bind mount, file ownership, chattr
+  # These run on EVERY deploy to ensure correct state after config updates.
+  gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+    --project "${GCP_PROJECT_ID}" \
+    --zone "${GCP_ZONE}" \
+    --tunnel-through-iap \
+    --quiet \
+    --command "sudo bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; MONITORING_DIR=\"\${DEPLOY_DIR}/monitoring\"; LOG_BASE=/var/log
+echo \"Applying per-deploy permissions...\"
+
+# -- Log directories + promtail bind mount --
+mkdir -p \"\${LOG_BASE}/falco\" \"\${LOG_BASE}/daisy-watchdog\"
+mkdir -p /tmp/openclaw \"\${LOG_BASE}/openclaw\"
+chown 1000:1000 /tmp/openclaw
+chmod 750 /tmp/openclaw
+if ! mountpoint -q \"\${LOG_BASE}/openclaw\"; then
+  mount --bind /tmp/openclaw \"\${LOG_BASE}/openclaw\"
+  echo \"  Bind-mounted /tmp/openclaw -> \${LOG_BASE}/openclaw\"
+fi
+chown root:daisy-monitor \"\${LOG_BASE}/falco\" 2>/dev/null || true
+chmod 750 \"\${LOG_BASE}/falco\" 2>/dev/null || true
+chown daisy-monitor:daisy-monitor \"\${LOG_BASE}/daisy-watchdog\" 2>/dev/null || true
+chmod 750 \"\${LOG_BASE}/daisy-watchdog\" 2>/dev/null || true
+
+# -- Clear immutable bits before updating configs --
+IMMUTABLE_FILES=(
+  \"\${MONITORING_DIR}/prometheus/prometheus.yml\"
+  \"\${MONITORING_DIR}/prometheus/alerts.yml\"
+  \"\${MONITORING_DIR}/alertmanager/alertmanager.yml\"
+  \"\${MONITORING_DIR}/falco/falco.yaml\"
+  \"\${MONITORING_DIR}/falco/rules/daisy-agent-rules.yaml\"
+  \"\${MONITORING_DIR}/aide/aide.conf\"
+  \"\${MONITORING_DIR}/auditd/daisy-containers.rules\"
+  \"\${MONITORING_DIR}/seccomp/daisy-seccomp.json\"
+)
+for f in \"\${IMMUTABLE_FILES[@]}\"; do
+  [[ -f \"\$f\" ]] && chattr -i \"\$f\" 2>/dev/null || true
+done
+
+# -- Set monitoring config ownership --
+chown -R root:daisy-monitor \"\${MONITORING_DIR}\" 2>/dev/null || true
+chmod 750 \"\${MONITORING_DIR}\"
+find \"\${MONITORING_DIR}\" -type d -exec chmod 750 {} + 2>/dev/null || true
+find \"\${MONITORING_DIR}\" -type f -exec chmod 640 {} + 2>/dev/null || true
+find \"\${MONITORING_DIR}\" -name \"*.sh\" -exec chmod 750 {} + 2>/dev/null || true
+find \"\${MONITORING_DIR}\" -name \"*.py\" -exec chmod 750 {} + 2>/dev/null || true
+
+# -- Allow container UIDs to read mounted config files --
+for dir in grafana loki prometheus alertmanager promtail; do
+  d=\"\${MONITORING_DIR}/\${dir}\"
+  if [[ -d \"\$d\" ]]; then
+    find \"\$d\" -type d -exec chmod 755 {} + 2>/dev/null || true
+    find \"\$d\" -type f -exec chmod 644 {} + 2>/dev/null || true
+  fi
+done
+echo \"  Container config dirs set to world-readable.\"
+
+# -- Protect .env.monitoring --
+if [[ -f \"\${MONITORING_DIR}/.env.monitoring\" ]]; then
+  chown root:root \"\${MONITORING_DIR}/.env.monitoring\"
+  chmod 600 \"\${MONITORING_DIR}/.env.monitoring\"
+fi
+
+# -- Reapply immutable attributes on critical configs --
+for f in \"\${IMMUTABLE_FILES[@]}\"; do
+  [[ -f \"\$f\" ]] && chattr +i \"\$f\" 2>/dev/null && echo \"  +i \$f\" || true
+done
+
+echo \"Per-deploy permissions applied.\"'"
 
   # Start/restart monitoring compose stack using docker-compose (standalone binary)
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
