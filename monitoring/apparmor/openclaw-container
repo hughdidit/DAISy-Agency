@@ -24,6 +24,9 @@ profile openclaw-container flags=(attach_disconnected,mediate_deleted) {
   # ── File Access ──────────────────────────────────────────────────
   # Allow general filesystem access (Node.js app needs /tmp, workspace, etc.)
   /** rw,
+  # Native Node.js addons (.node) are loaded via dlopen() and require executable
+  # memory mapping permission only for native addon files.
+  /app/**/*.node mr,
 
   # ── Deny Monitoring Paths ────────────────────────────────────────
   # Containers must NEVER read, write, or execute monitoring configs/logs.
