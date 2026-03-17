@@ -147,7 +147,7 @@ jobs:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
           GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
-          # Variables (non-sensitive config — short values that would cause log masking issues as secrets)
+          # Variables (non-sensitive config - short values that would cause log masking issues as secrets)
           OPENCLAW_GATEWAY_PORT: ${{ vars.OPENCLAW_GATEWAY_PORT }}
           OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
           OPENCLAW_GATEWAY_BIND: ${{ vars.OPENCLAW_GATEWAY_BIND || 'loopback' }}
@@ -229,7 +229,7 @@ jobs:
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
           GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
           DEPLOY_DIR: ${{ secrets.DEPLOY_DIR || vars.DEPLOY_DIR }}
-          # Variables (non-sensitive config — short values that would cause log masking issues as secrets)
+          # Variables (non-sensitive config - short values that would cause log masking issues as secrets)
           OPENCLAW_GATEWAY_PORT: ${{ vars.OPENCLAW_GATEWAY_PORT }}
           OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
           OPENCLAW_GATEWAY_BIND: ${{ vars.OPENCLAW_GATEWAY_BIND || 'loopback' }}
