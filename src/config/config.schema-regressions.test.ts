@@ -174,8 +174,15 @@ describe("config schema regressions", () => {
             readability: true,
             firecrawl: {
               enabled: true,
+              apiKey: {
+                source: "env",
+                provider: "default",
+                id: "FIRECRAWL_API_KEY",
+              },
+              baseUrl: "https://api.firecrawl.dev",
               onlyMainContent: true,
               maxAgeMs: 300000,
+              timeoutSeconds: 20,
             },
           },
         },
