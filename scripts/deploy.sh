@@ -103,6 +103,8 @@ CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
 CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
 # BRAVE_API_KEY is optional (web-search tool)
 BRAVE_API_KEY="${BRAVE_API_KEY:-}"
+# FIRECRAWL_API_KEY is optional in production and required in staging.
+FIRECRAWL_API_KEY="${FIRECRAWL_API_KEY:-}"
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required for real deploy}"
@@ -321,6 +323,7 @@ OPENCLAW_BRIDGE_PORT="$5"
 OPENCLAW_GATEWAY_BIND="${6:-loopback}"
 OPENCLAW_CONFIG_FILE="${7:-openclaw.json}"
 MIN_FREE_SPACE_MB="${8:-4096}"
+DEPLOY_ENV="${9:-}"
 
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required}"
 : "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required}"
@@ -344,6 +347,7 @@ read -r GEMINI_API_KEY || GEMINI_API_KEY=""
 read -r CLAUDE_WEB_SESSION_KEY || CLAUDE_WEB_SESSION_KEY=""
 read -r CLAUDE_WEB_COOKIE || CLAUDE_WEB_COOKIE=""
 read -r BRAVE_API_KEY || BRAVE_API_KEY=""
+read -r FIRECRAWL_API_KEY || FIRECRAWL_API_KEY=""
 
 echo "Deploy ref: ${DEPLOY_REF}"
 
@@ -371,6 +375,114 @@ if [[ ! -f "${OPENCLAW_CONFIG_PATH}" ]]; then
   echo "ERROR: Config file not found at ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}" >&2
   echo "Set OPENCLAW_CONFIG_FILE to the correct filename, or create the file." >&2
   exit 6
+fi
+if [[ -L "${OPENCLAW_CONFIG_PATH}" ]]; then
+  echo "ERROR: Config file must be a regular file." >&2
+  exit 6
+fi
+
+CONFIG_DIR_REALPATH="$(readlink -f "config" 2>/dev/null || true)"
+OPENCLAW_CONFIG_REALPATH="$(readlink -f "${OPENCLAW_CONFIG_PATH}" 2>/dev/null || true)"
+if [[ -z "${CONFIG_DIR_REALPATH}" || -z "${OPENCLAW_CONFIG_REALPATH}" ]]; then
+  echo "ERROR: Failed to resolve config paths." >&2
+  exit 6
+fi
+case "${OPENCLAW_CONFIG_REALPATH}" in
+  "${CONFIG_DIR_REALPATH}"/*) ;;
+  *)
+    echo "ERROR: Resolved config path escapes config directory." >&2
+    exit 6
+    ;;
+esac
+
+patch_firecrawl_placeholder() {
+  local config_path="$1"
+  local config_owner config_group config_mode
+  local immutable_set="false"
+  local tmp_file=""
+  local awk_status=0
+
+  config_owner="$(stat -c "%u" "${config_path}")"
+  config_group="$(stat -c "%g" "${config_path}")"
+  config_mode="$(stat -c "%a" "${config_path}")"
+
+  if sudo lsattr -d "${config_path}" 2>/dev/null | awk "{print \$1}" | grep -q "i"; then
+    immutable_set="true"
+    sudo chattr -i "${config_path}" 2>/dev/null || true
+  fi
+
+  tmp_file="$(mktemp "${CONFIG_DIR_REALPATH}/.openclaw-config.XXXXXX")"
+  chmod 600 "${tmp_file}"
+
+  if FIRECRAWL_KEY_FOR_PATCH="${FIRECRAWL_API_KEY}" awk -f - "${config_path}" > "${tmp_file}" <<\AWK
+BEGIN {
+  key = ENVIRON["FIRECRAWL_KEY_FOR_PATCH"]
+  if (key == "") {
+    exit 11
+  }
+  gsub(/\\/, "\\\\", key)
+  gsub(/&/, "\\&", key)
+  replaced = 0
+}
+{
+  count = gsub(/FIRECRAWL_API_KEY_HERE/, key)
+  replaced += count
+  count = gsub(/FIRECRAWL_API_KEY/, key)
+  replaced += count
+  print
+}
+END {
+  if (replaced == 0) {
+    exit 12
+  }
+}
+AWK
+  then
+    :
+  else
+    awk_status=$?
+    rm -f "${tmp_file}" || true
+    if [[ "${immutable_set}" == "true" ]]; then
+      sudo chattr +i "${config_path}" 2>/dev/null || true
+    fi
+    if [[ "${awk_status}" -eq 12 ]]; then
+      echo "ERROR: Firecrawl placeholder not found in config." >&2
+    elif [[ "${awk_status}" -eq 11 ]]; then
+      echo "ERROR: missing Firecrawl secret." >&2
+    else
+      echo "ERROR: Firecrawl placeholder mutation failed." >&2
+    fi
+    return 6
+  fi
+
+  if ! sudo mv "${tmp_file}" "${config_path}"; then
+    rm -f "${tmp_file}" || true
+    if [[ "${immutable_set}" == "true" ]]; then
+      sudo chattr +i "${config_path}" 2>/dev/null || true
+    fi
+    echo "ERROR: Firecrawl placeholder mutation failed." >&2
+    return 6
+  fi
+
+  if ! sudo chown "${config_owner}:${config_group}" "${config_path}" || ! sudo chmod "${config_mode}" "${config_path}"; then
+    if [[ "${immutable_set}" == "true" ]]; then
+      sudo chattr +i "${config_path}" 2>/dev/null || true
+    fi
+    echo "ERROR: Firecrawl placeholder mutation failed." >&2
+    return 6
+  fi
+
+  if [[ "${immutable_set}" == "true" ]]; then
+    sudo chattr +i "${config_path}" 2>/dev/null || true
+  fi
+}
+
+if [[ "${DEPLOY_ENV}" == "staging" ]]; then
+  if [[ -z "${FIRECRAWL_API_KEY}" ]]; then
+    echo "ERROR: missing Firecrawl secret." >&2
+    exit 6
+  fi
+  patch_firecrawl_placeholder "${OPENCLAW_CONFIG_REALPATH}" || exit 6
 fi
 
 # Authenticate to GHCR (use sudo for docker access)
@@ -487,7 +599,7 @@ sudo -E docker-compose ${COMPOSE_FILES} rm -f openclaw-gateway openclaw-cli || t
 sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans --force-recreate
 
 # Clear secrets from environment
-unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY
+unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY FIRECRAWL_API_KEY
 
 echo "Deployment complete."
 '
@@ -505,6 +617,7 @@ printf -v BRIDGE_PORT_ESCAPED '%q' "${OPENCLAW_BRIDGE_PORT}"
 printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
 printf -v CONFIG_FILE_ESCAPED '%q' "${OPENCLAW_CONFIG_FILE:-openclaw.json}"
 printf -v MIN_FREE_SPACE_MB_ESCAPED '%q' "${MIN_FREE_SPACE_MB:-4096}"
+printf -v DEPLOY_ENV_ESCAPED '%q' "${DEPLOY_ENV:-}"
 
 # Pass all secrets via stdin (one per line)
 {
@@ -518,9 +631,10 @@ printf -v MIN_FREE_SPACE_MB_ESCAPED '%q' "${MIN_FREE_SPACE_MB:-4096}"
   printf '%s\n' "${CLAUDE_WEB_SESSION_KEY}"
   printf '%s\n' "${CLAUDE_WEB_COOKIE}"
   printf '%s\n' "${BRAVE_API_KEY}"
+  printf '%s\n' "${FIRECRAWL_API_KEY}"
 } | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
   --project "${GCP_PROJECT_ID}" \
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
   --quiet \
-  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
+  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED} ${DEPLOY_ENV_ESCAPED}"
