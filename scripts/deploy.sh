@@ -77,6 +77,14 @@ if [[ "${DRY_RUN:-true}" == "true" ]]; then
   exit 0
 fi
 
+case "${DEPLOY_ENV:-}" in
+  staging|production) ;;
+  *)
+    echo "ERROR: DEPLOY_ENV must be staging or production for real deploy." >&2
+    exit 1
+    ;;
+esac
+
 # Legacy fallback: accept CLAWDBOT_* if OPENCLAW_* not set (migration period)
 OPENCLAW_GATEWAY_TOKEN="${OPENCLAW_GATEWAY_TOKEN:-${CLAWDBOT_GATEWAY_TOKEN:-}}"
 OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-${CLAWDBOT_GATEWAY_PORT:-}}"
@@ -324,6 +332,13 @@ OPENCLAW_GATEWAY_BIND="${6:-loopback}"
 OPENCLAW_CONFIG_FILE="${7:-openclaw.json}"
 MIN_FREE_SPACE_MB="${8:-4096}"
 DEPLOY_ENV="${9:-}"
+case "${DEPLOY_ENV}" in
+  staging|production) ;;
+  *)
+    echo "ERROR: DEPLOY_ENV must be staging or production." >&2
+    exit 6
+    ;;
+esac
 
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required}"
 : "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required}"
