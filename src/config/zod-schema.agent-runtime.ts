@@ -315,10 +315,23 @@ export const ToolsWebFetchSchema = z
     enabled: z.boolean().optional(),
     maxChars: z.number().int().positive().optional(),
     maxCharsCap: z.number().int().positive().optional(),
+    maxResponseBytes: z.number().int().positive().optional(),
     timeoutSeconds: z.number().int().positive().optional(),
     cacheTtlMinutes: z.number().nonnegative().optional(),
     maxRedirects: z.number().int().nonnegative().optional(),
     userAgent: z.string().optional(),
+    readability: z.boolean().optional(),
+    firecrawl: z
+      .object({
+        enabled: z.boolean().optional(),
+        apiKey: SecretInputSchema.optional().register(sensitive),
+        baseUrl: z.string().optional(),
+        onlyMainContent: z.boolean().optional(),
+        maxAgeMs: z.number().int().nonnegative().optional(),
+        timeoutSeconds: z.number().int().positive().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict()
   .optional();

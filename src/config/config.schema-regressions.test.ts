@@ -165,6 +165,32 @@ describe("config schema regressions", () => {
     }
   });
 
+  it("accepts tools.web.fetch firecrawl/readability compatibility keys", () => {
+    const res = validateConfigObject({
+      tools: {
+        web: {
+          fetch: {
+            maxResponseBytes: 262144,
+            readability: true,
+            firecrawl: {
+              enabled: true,
+              apiKey: {
+                source: "env",
+                provider: "default",
+                id: "FIRECRAWL_API_KEY",
+              },
+              baseUrl: "https://api.firecrawl.dev",
+              onlyMainContent: true,
+              maxAgeMs: 300000,
+              timeoutSeconds: 20,
+            },
+          },
+        },
+      },
+    });
+
+    expect(res.ok).toBe(true);
+  });
   it("accepts browser.extraArgs for proxy and custom flags", () => {
     const res = validateConfigObject({
       browser: {
