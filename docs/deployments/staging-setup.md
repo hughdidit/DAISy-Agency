@@ -205,6 +205,7 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 
 - [ ] `OPENCLAW_GATEWAY_TOKEN` - Generate new random token
 - [ ] `CLAUDE_AI_SESSION_KEY` - Anthropic API key
+- [ ] `FIRECRAWL_API_KEY` - Required for staging deploy placeholder injection in `openclaw.json`
 - [ ] Discord bot token - **Use staging bot, NOT production**
 - [ ] Discord allowlist - **Staging-only channels/users**
 - [ ] API keys - Use staging keys or shared keys with tracking
@@ -213,9 +214,9 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 
 ### 5. Configure the Application
 
-The config file (`moltbot.json` or `openclaw.json`) lives on the VM at `/opt/DAISy/config/` and is **not managed by the deploy pipeline**. It must be edited manually via SSH.
+The config file (`moltbot.json` or `openclaw.json`) lives on the VM at `/opt/DAISy/config/` and is mostly manual. During **staging** deploys, the pipeline performs a controlled replacement of Firecrawl placeholder token(s) in the selected config file using `FIRECRAWL_API_KEY` from GitHub Secrets.
 
-The config file is bind-mounted read-only into the container and locked with `chattr +i` on the VM filesystem. This prevents the LLM from modifying its own Discord allowlist or other security-sensitive settings via prompt injection.
+The config file is bind-mounted read-only into the container and locked with `chattr +i` on the VM filesystem. The deploy pipeline temporarily clears immutability for that single mutation and then restores `chattr +i` immediately after.
 
 #### Initial setup (new VM)
 

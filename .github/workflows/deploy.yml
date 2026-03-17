@@ -85,6 +85,9 @@ on:
       BRAVE_API_KEY:
         description: Brave Web Search API key (optional, for web-search tool)
         required: false
+      FIRECRAWL_API_KEY:
+        description: Firecrawl API key (required for staging placeholder injection)
+        required: false
       GRAFANA_ADMIN_PASSWORD:
         description: Grafana admin password
         required: false
@@ -136,6 +139,14 @@ jobs:
           ls -la dist/release
           cat dist/release/release-metadata.json
 
+      - name: Mask sensitive deploy values
+        env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+        run: |
+          if [[ -n "${FIRECRAWL_API_KEY:-}" ]]; then
+            echo "::add-mask::${FIRECRAWL_API_KEY}"
+          fi
+
       - name: Validate required config
         env:
           # Infrastructure (secrets, with vars fallback for migration)
@@ -161,6 +172,7 @@ jobs:
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
         run: |
           : "${GCP_WORKLOAD_IDENTITY_PROVIDER:?GCP_WORKLOAD_IDENTITY_PROVIDER is required}"
           : "${GCP_SERVICE_ACCOUNT:?GCP_SERVICE_ACCOUNT is required}"
@@ -175,6 +187,9 @@ jobs:
           : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required}"
           : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required}"
           : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}"
+          if [[ "${{ inputs.environment }}" == "staging" ]]; then
+            : "${FIRECRAWL_API_KEY:?FIRECRAWL_API_KEY is required for staging deploy}"
+          fi
           # CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
           # Validate OPENCLAW_CONFIG_FILE is a simple filename (no path separators)
           case "${OPENCLAW_CONFIG_FILE}" in
@@ -242,6 +257,7 @@ jobs:
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           # Monitoring secrets (credentials)
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
           ALERT_SMTP_USERNAME: ${{ secrets.ALERT_SMTP_USERNAME }}
