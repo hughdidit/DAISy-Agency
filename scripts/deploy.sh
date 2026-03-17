@@ -371,6 +371,14 @@ cd "${DEPLOY_DIR}"
 
 # Verify config file exists before docker compose tries to mount it
 OPENCLAW_CONFIG_PATH="config/${OPENCLAW_CONFIG_FILE}"
+if [[ ! -d "config" ]]; then
+  echo "ERROR: config directory not found at ${DEPLOY_DIR}/config" >&2
+  exit 6
+fi
+if [[ -L "config" ]]; then
+  echo "ERROR: config directory must not be a symlink." >&2
+  exit 6
+fi
 if [[ ! -f "${OPENCLAW_CONFIG_PATH}" ]]; then
   echo "ERROR: Config file not found at ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}" >&2
   echo "Set OPENCLAW_CONFIG_FILE to the correct filename, or create the file." >&2
@@ -399,20 +407,85 @@ patch_firecrawl_placeholder() {
   local config_path="$1"
   local config_owner config_group config_mode
   local immutable_set="false"
+  local immutable_removed="false"
   local tmp_file=""
   local awk_status=0
+  local has_placeholder="false"
+  local has_key="false"
 
   config_owner="$(stat -c "%u" "${config_path}")"
   config_group="$(stat -c "%g" "${config_path}")"
   config_mode="$(stat -c "%a" "${config_path}")"
 
-  if sudo lsattr -d "${config_path}" 2>/dev/null | awk "{print \$1}" | grep -q "i"; then
-    immutable_set="true"
-    sudo chattr -i "${config_path}" 2>/dev/null || true
+  cleanup_firecrawl_patch() {
+    local cleanup_status=$?
+    if [[ -n "${tmp_file}" && -f "${tmp_file}" ]]; then
+      rm -f "${tmp_file}" || true
+    fi
+    if [[ "${immutable_removed}" == "true" ]]; then
+      if ! sudo chattr +i "${config_path}" 2>/dev/null; then
+        echo "WARN: Failed to restore immutable bit on ${config_path}." >&2
+      fi
+    fi
+    trap - RETURN
+    return "${cleanup_status}"
+  }
+  trap cleanup_firecrawl_patch RETURN
+
+  if grep -q "FIRECRAWL_API_KEY_HERE" "${config_path}"; then
+    has_placeholder="true"
+  fi
+  if FIRECRAWL_KEY_FOR_CHECK="${FIRECRAWL_API_KEY}" awk -f - "${config_path}" <<\AWK
+BEGIN {
+  key = ENVIRON["FIRECRAWL_KEY_FOR_CHECK"]
+  if (key == "") {
+    exit 1
+  }
+  found = 0
+}
+{
+  if (index($0, key) > 0) {
+    found = 1
+    exit 0
+  }
+}
+END {
+  if (found == 1) {
+    exit 0
+  }
+  exit 1
+}
+AWK
+  then
+    has_key="true"
   fi
 
-  tmp_file="$(mktemp "${CONFIG_DIR_REALPATH}/.openclaw-config.XXXXXX")"
-  chmod 600 "${tmp_file}"
+  if [[ "${has_placeholder}" != "true" ]]; then
+    if [[ "${has_key}" == "true" ]]; then
+      echo "Firecrawl placeholder already applied in config; skipping mutation."
+      return 0
+    fi
+    echo "ERROR: Firecrawl placeholder not found in config." >&2
+    return 6
+  fi
+
+  if sudo lsattr -d "${config_path}" 2>/dev/null | awk "{print \$1}" | grep -q "i"; then
+    immutable_set="true"
+    if ! sudo chattr -i "${config_path}" 2>/dev/null; then
+      echo "ERROR: Failed to clear immutable bit on config file." >&2
+      return 6
+    fi
+    immutable_removed="true"
+  fi
+
+  if ! tmp_file="$(mktemp "${CONFIG_DIR_REALPATH}/.openclaw-config.XXXXXX")"; then
+    echo "ERROR: Firecrawl placeholder mutation failed." >&2
+    return 6
+  fi
+  if ! chmod 600 "${tmp_file}"; then
+    echo "ERROR: Firecrawl placeholder mutation failed." >&2
+    return 6
+  fi
 
   if FIRECRAWL_KEY_FOR_PATCH="${FIRECRAWL_API_KEY}" awk -f - "${config_path}" > "${tmp_file}" <<\AWK
 BEGIN {
@@ -427,8 +500,6 @@ BEGIN {
 {
   count = gsub(/FIRECRAWL_API_KEY_HERE/, key)
   replaced += count
-  count = gsub(/FIRECRAWL_API_KEY/, key)
-  replaced += count
   print
 }
 END {
@@ -441,10 +512,6 @@ AWK
     :
   else
     awk_status=$?
-    rm -f "${tmp_file}" || true
-    if [[ "${immutable_set}" == "true" ]]; then
-      sudo chattr +i "${config_path}" 2>/dev/null || true
-    fi
     if [[ "${awk_status}" -eq 12 ]]; then
       echo "ERROR: Firecrawl placeholder not found in config." >&2
     elif [[ "${awk_status}" -eq 11 ]]; then
@@ -456,24 +523,18 @@ AWK
   fi
 
   if ! sudo mv "${tmp_file}" "${config_path}"; then
-    rm -f "${tmp_file}" || true
-    if [[ "${immutable_set}" == "true" ]]; then
-      sudo chattr +i "${config_path}" 2>/dev/null || true
-    fi
     echo "ERROR: Firecrawl placeholder mutation failed." >&2
     return 6
   fi
+  tmp_file=""
 
   if ! sudo chown "${config_owner}:${config_group}" "${config_path}" || ! sudo chmod "${config_mode}" "${config_path}"; then
-    if [[ "${immutable_set}" == "true" ]]; then
-      sudo chattr +i "${config_path}" 2>/dev/null || true
-    fi
     echo "ERROR: Firecrawl placeholder mutation failed." >&2
     return 6
   fi
 
   if [[ "${immutable_set}" == "true" ]]; then
-    sudo chattr +i "${config_path}" 2>/dev/null || true
+    echo "Firecrawl placeholder updated and immutable bit restore scheduled."
   fi
 }
 
