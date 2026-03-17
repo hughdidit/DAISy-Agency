@@ -163,6 +163,7 @@ The easiest way to set up the deployment directory and start services is via the
    - `CLAUDE_AI_SESSION_KEY` - From [Anthropic Console](https://console.anthropic.com/settings/keys)
    - `CLAUDE_WEB_SESSION_KEY` - Optional, for usage monitoring (see below)
    - `CLAUDE_WEB_COOKIE` - Optional, for usage monitoring (see below)
+   - `FIRECRAWL_API_KEY` - Optional, for firecrawl-enabled environments
 
 2. **Run the Deploy workflow** with:
    - `environment`: `staging`
@@ -208,6 +209,7 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 - [ ] Discord bot token - **Use staging bot, NOT production**
 - [ ] Discord allowlist - **Staging-only channels/users**
 - [ ] API keys - Use staging keys or shared keys with tracking
+- [ ] `FIRECRAWL_API_KEY` - Optional; set only for firecrawl-enabled environments
 - [ ] GHCR credentials - For pulling staging images
 - [ ] Cloudflare tunnel - **Disabled or staging-only tunnel**
 
