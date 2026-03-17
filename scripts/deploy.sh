@@ -425,6 +425,7 @@ patch_firecrawl_placeholder() {
   local immutable_removed="false"
   local tmp_file=""
   local awk_status=0
+  local backup_file=""
 
   config_owner="$(stat -c "%u" "${config_path}")"
   config_group="$(stat -c "%g" "${config_path}")"
@@ -439,6 +440,9 @@ patch_firecrawl_placeholder() {
     local cleanup_status=$?
     if [[ -n "${tmp_file}" && -f "${tmp_file}" ]]; then
       rm -f "${tmp_file}" || true
+    fi
+    if [[ -n "${backup_file}" && -f "${backup_file}" ]]; then
+      rm -f "${backup_file}" || true
     fi
     if [[ "${immutable_removed}" == "true" ]]; then
       if ! sudo chattr +i "${config_path}" 2>/dev/null; then
@@ -575,6 +579,19 @@ AWK
     return 6
   fi
 
+  if ! backup_file="$(mktemp "${CONFIG_DIR_REALPATH}/.openclaw-config.backup.XXXXXX")"; then
+    echo "ERROR: Firecrawl key mutation failed." >&2
+    return 6
+  fi
+  if ! chmod 600 "${backup_file}"; then
+    echo "ERROR: Firecrawl key mutation failed." >&2
+    return 6
+  fi
+  if ! sudo cp -p "${config_path}" "${backup_file}"; then
+    echo "ERROR: Firecrawl key mutation failed." >&2
+    return 6
+  fi
+
   if ! sudo mv "${tmp_file}" "${config_path}"; then
     echo "ERROR: Firecrawl key mutation failed." >&2
     return 6
@@ -631,6 +648,10 @@ END {
 AWK
   then
     echo "ERROR: Firecrawl key verification failed after mutation." >&2
+    if ! sudo mv "${backup_file}" "${config_path}"; then
+      echo "ERROR: Failed to restore config backup after verification failure." >&2
+    fi
+    backup_file=""
     return 6
   fi
 
@@ -638,6 +659,9 @@ AWK
     echo "ERROR: Firecrawl key mutation failed." >&2
     return 6
   fi
+
+  rm -f "${backup_file}" || true
+  backup_file=""
 
   if [[ "${immutable_set}" == "true" ]]; then
     echo "Firecrawl config key updated and immutable bit restore scheduled."
