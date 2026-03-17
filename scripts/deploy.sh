@@ -405,7 +405,7 @@ esac
 
 patch_firecrawl_placeholder() {
   local config_path="$1"
-  local config_owner config_group config_mode
+  local config_owner config_group config_mode config_links
   local immutable_set="false"
   local immutable_removed="false"
   local tmp_file=""
@@ -416,6 +416,11 @@ patch_firecrawl_placeholder() {
   config_owner="$(stat -c "%u" "${config_path}")"
   config_group="$(stat -c "%g" "${config_path}")"
   config_mode="$(stat -c "%a" "${config_path}")"
+  config_links="$(stat -c "%h" "${config_path}")"
+  if [[ "${config_links}" -ne 1 ]]; then
+    echo "ERROR: Config file must not have additional hard links." >&2
+    return 6
+  fi
 
   cleanup_firecrawl_patch() {
     local cleanup_status=$?
@@ -539,8 +544,12 @@ AWK
 }
 
 if [[ "${DEPLOY_ENV}" == "staging" ]]; then
-  if [[ -z "${FIRECRAWL_API_KEY}" ]]; then
+  if [[ -z "${FIRECRAWL_API_KEY//[[:space:]]/}" ]]; then
     echo "ERROR: missing Firecrawl secret." >&2
+    exit 6
+  fi
+  if [[ "${FIRECRAWL_API_KEY}" == "FIRECRAWL_API_KEY_HERE" ]]; then
+    echo "ERROR: FIRECRAWL_API_KEY is still set to the placeholder token." >&2
     exit 6
   fi
   patch_firecrawl_placeholder "${OPENCLAW_CONFIG_REALPATH}" || exit 6
