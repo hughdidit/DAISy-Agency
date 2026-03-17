@@ -425,8 +425,6 @@ patch_firecrawl_placeholder() {
   local immutable_removed="false"
   local tmp_file=""
   local awk_status=0
-  local has_placeholder="false"
-  local has_key="false"
 
   config_owner="$(stat -c "%u" "${config_path}")"
   config_group="$(stat -c "%g" "${config_path}")"
@@ -452,43 +450,6 @@ patch_firecrawl_placeholder() {
   }
   trap cleanup_firecrawl_patch RETURN
 
-  if grep -q "FIRECRAWL_API_KEY_HERE" "${config_path}"; then
-    has_placeholder="true"
-  fi
-  if FIRECRAWL_KEY_FOR_CHECK="${FIRECRAWL_API_KEY}" awk -f - "${config_path}" <<\AWK
-BEGIN {
-  key = ENVIRON["FIRECRAWL_KEY_FOR_CHECK"]
-  if (key == "") {
-    exit 1
-  }
-  found = 0
-}
-{
-  if (index($0, key) > 0) {
-    found = 1
-    exit 0
-  }
-}
-END {
-  if (found == 1) {
-    exit 0
-  }
-  exit 1
-}
-AWK
-  then
-    has_key="true"
-  fi
-
-  if [[ "${has_placeholder}" != "true" ]]; then
-    if [[ "${has_key}" == "true" ]]; then
-      echo "Firecrawl placeholder already applied in config; skipping mutation."
-      return 0
-    fi
-    echo "ERROR: Firecrawl placeholder not found in config." >&2
-    return 6
-  fi
-
   if sudo lsattr -d "${config_path}" 2>/dev/null | awk "{print \$1}" | grep -q "i"; then
     immutable_set="true"
     if ! sudo chattr -i "${config_path}" 2>/dev/null; then
@@ -499,32 +460,102 @@ AWK
   fi
 
   if ! tmp_file="$(mktemp "${CONFIG_DIR_REALPATH}/.openclaw-config.XXXXXX")"; then
-    echo "ERROR: Firecrawl placeholder mutation failed." >&2
+    echo "ERROR: Firecrawl key mutation failed." >&2
     return 6
   fi
   if ! chmod 600 "${tmp_file}"; then
-    echo "ERROR: Firecrawl placeholder mutation failed." >&2
+    echo "ERROR: Firecrawl key mutation failed." >&2
     return 6
   fi
 
   if FIRECRAWL_KEY_FOR_PATCH="${FIRECRAWL_API_KEY}" awk -f - "${config_path}" > "${tmp_file}" <<\AWK
+function count_char(str, ch,    i, n) {
+  n = 0
+  for (i = 1; i <= length(str); i++) {
+    if (substr(str, i, 1) == ch) {
+      n++
+    }
+  }
+  return n
+}
 BEGIN {
   key = ENVIRON["FIRECRAWL_KEY_FOR_PATCH"]
   if (key == "") {
     exit 11
   }
-  gsub(/\\/, "\\\\", key)
-  gsub(/&/, "\\&", key)
-  replaced = 0
+  json_key = key
+  gsub(/\\/, "\\\\", json_key)
+  gsub(/"/, "\\\"", json_key)
+  in_firecrawl = 0
+  firecrawl_depth = 0
+  firecrawl_found = 0
+  api_found = 0
+  changed = 0
 }
 {
-  count = gsub(/FIRECRAWL_API_KEY_HERE/, key)
-  replaced += count
-  print
+  line = $0
+
+  if (!in_firecrawl) {
+    if (line ~ /^[[:space:]]*["\047]?firecrawl["\047]?[[:space:]]*:[[:space:]]*{/) {
+      in_firecrawl = 1
+      firecrawl_found = 1
+      firecrawl_depth = count_char(line, "{") - count_char(line, "}")
+      match(line, /^[[:space:]]*/)
+      firecrawl_indent = substr(line, RSTART, RLENGTH)
+      if (firecrawl_depth <= 0) {
+        if (line ~ /{[[:space:]]*}/) {
+          sub(/{[[:space:]]*}/, "{ apiKey: \"" json_key "\" }", line)
+          api_found = 1
+          changed = 1
+        }
+        in_firecrawl = 0
+      }
+    }
+    print line
+    next
+  }
+
+  if (line ~ /^[[:space:]]*["\047]?apiKey["\047]?[[:space:]]*:/) {
+    match(line, /^[[:space:]]*/)
+    api_indent = substr(line, RSTART, RLENGTH)
+    has_comma = (line ~ /,[[:space:]]*(\/\/.*)?$/)
+    comment = ""
+    if (match(line, /\/\/.*$/)) {
+      comment = substr(line, RSTART)
+    }
+    replacement = api_indent "apiKey: \"" json_key "\""
+    if (has_comma) {
+      replacement = replacement ","
+    }
+    if (comment != "") {
+      replacement = replacement " " comment
+    }
+    print replacement
+    line = replacement
+    api_found = 1
+    changed = 1
+  } else {
+    line_open = count_char(line, "{")
+    line_close = count_char(line, "}")
+    if ((firecrawl_depth + line_open - line_close) <= 0 && api_found == 0) {
+      print firecrawl_indent "  apiKey: \"" json_key "\","
+      api_found = 1
+      changed = 1
+    }
+    print line
+  }
+
+  firecrawl_depth += count_char(line, "{") - count_char(line, "}")
+  if (firecrawl_depth <= 0) {
+    in_firecrawl = 0
+  }
 }
 END {
-  if (replaced == 0) {
+  if (firecrawl_found == 0) {
     exit 12
+  }
+  if (api_found == 0 || changed == 0) {
+    exit 13
   }
 }
 AWK
@@ -533,28 +564,83 @@ AWK
   else
     awk_status=$?
     if [[ "${awk_status}" -eq 12 ]]; then
-      echo "ERROR: Firecrawl placeholder not found in config." >&2
+      echo "ERROR: Firecrawl config block not found." >&2
     elif [[ "${awk_status}" -eq 11 ]]; then
       echo "ERROR: missing Firecrawl secret." >&2
+    elif [[ "${awk_status}" -eq 13 ]]; then
+      echo "ERROR: Firecrawl key mutation did not apply." >&2
     else
-      echo "ERROR: Firecrawl placeholder mutation failed." >&2
+      echo "ERROR: Firecrawl key mutation failed." >&2
     fi
     return 6
   fi
 
   if ! sudo mv "${tmp_file}" "${config_path}"; then
-    echo "ERROR: Firecrawl placeholder mutation failed." >&2
+    echo "ERROR: Firecrawl key mutation failed." >&2
     return 6
   fi
   tmp_file=""
 
+  if ! FIRECRAWL_KEY_FOR_VERIFY="${FIRECRAWL_API_KEY}" awk -f - "${config_path}" <<\AWK
+function count_char(str, ch,    i, n) {
+  n = 0
+  for (i = 1; i <= length(str); i++) {
+    if (substr(str, i, 1) == ch) {
+      n++
+    }
+  }
+  return n
+}
+BEGIN {
+  key = ENVIRON["FIRECRAWL_KEY_FOR_VERIFY"]
+  if (key == "") {
+    exit 1
+  }
+  in_firecrawl = 0
+  firecrawl_depth = 0
+  found = 0
+}
+{
+  line = $0
+
+  if (!in_firecrawl) {
+    if (line ~ /^[[:space:]]*["\047]?firecrawl["\047]?[[:space:]]*:[[:space:]]*{/) {
+      in_firecrawl = 1
+      firecrawl_depth = count_char(line, "{") - count_char(line, "}")
+    } else {
+      next
+    }
+  }
+
+  if (line ~ /^[[:space:]]*["\047]?apiKey["\047]?[[:space:]]*:/ && index(line, key) > 0) {
+    found = 1
+    exit 0
+  }
+
+  firecrawl_depth += count_char(line, "{") - count_char(line, "}")
+  if (firecrawl_depth <= 0) {
+    in_firecrawl = 0
+  }
+}
+END {
+  if (found == 1) {
+    exit 0
+  }
+  exit 1
+}
+AWK
+  then
+    echo "ERROR: Firecrawl key verification failed after mutation." >&2
+    return 6
+  fi
+
   if ! sudo chown "${config_owner}:${config_group}" "${config_path}" || ! sudo chmod "${config_mode}" "${config_path}"; then
-    echo "ERROR: Firecrawl placeholder mutation failed." >&2
+    echo "ERROR: Firecrawl key mutation failed." >&2
     return 6
   fi
 
   if [[ "${immutable_set}" == "true" ]]; then
-    echo "Firecrawl placeholder updated and immutable bit restore scheduled."
+    echo "Firecrawl config key updated and immutable bit restore scheduled."
   fi
 }
 
