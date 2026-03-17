@@ -8,7 +8,8 @@ Fork of OpenClaw. Branded as **DAISy**.
 - Never use WSL git on /mnt/g/ paths (causes NTFS corruption)
 - Never build, install, or run the bot locally — all dev/build/test happens on the GCP VM, containerized
 - Never commit directly to `daisy/dev` — always use a feature branch and PR
-- Always create feature branches from `daisy/dev` — fetch and checkout `daisy/dev` first, then `git checkout -b feature-branch daisy/dev` to avoid pulling in commits from other branches
+- Always create feature branches from `daisy/dev` — fetch and checkout `daisy/dev` first, then `git checkout -b feature-branch daisy/dev` to avoid pulling in commits from other branches. Do your development on the feature branch, not on `daisy/dev`.
+- Commit all changes to the feature branch, push to origin, and submit a PR for merging back to `daisy/dev`. Following "Closing a PR (merge checklist)" to finish.
 
 ## Branch Model
 
@@ -26,7 +27,7 @@ Fork of OpenClaw. Branded as **DAISy**.
    - Make the requested fix, defer with justification, or reject with reasoning.
    - Leave a reply comment detailing your action, then resolve the conversation.
 3. After all conversations are resolved, do one more CI pass — fix any new failures until green.
-   3.5. Request human review before proceeding.
+   3.5. Get human approval before proceeding.
 4. Squash-merge the PR with a comment briefly summarising the corrections made during review.
 5. Checkout `daisy/dev` and pull to get the merged result.
 6. Trigger a dry-run deploy to staging (`dry_run: true`). Fix any errors and re-run until it succeeds.
