@@ -77,14 +77,6 @@ if [[ "${DRY_RUN:-true}" == "true" ]]; then
   exit 0
 fi
 
-case "${DEPLOY_ENV:-}" in
-  staging|production) ;;
-  *)
-    echo "ERROR: DEPLOY_ENV must be staging or production for real deploy." >&2
-    exit 1
-    ;;
-esac
-
 # Legacy fallback: accept CLAWDBOT_* if OPENCLAW_* not set (migration period)
 OPENCLAW_GATEWAY_TOKEN="${OPENCLAW_GATEWAY_TOKEN:-${CLAWDBOT_GATEWAY_TOKEN:-}}"
 OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-${CLAWDBOT_GATEWAY_PORT:-}}"
@@ -111,8 +103,6 @@ CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
 CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
 # BRAVE_API_KEY is optional (web-search tool)
 BRAVE_API_KEY="${BRAVE_API_KEY:-}"
-# FIRECRAWL_API_KEY is optional in production and required in staging.
-FIRECRAWL_API_KEY="${FIRECRAWL_API_KEY:-}"
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required for real deploy}"
@@ -331,14 +321,6 @@ OPENCLAW_BRIDGE_PORT="$5"
 OPENCLAW_GATEWAY_BIND="${6:-loopback}"
 OPENCLAW_CONFIG_FILE="${7:-openclaw.json}"
 MIN_FREE_SPACE_MB="${8:-4096}"
-DEPLOY_ENV="${9:-}"
-case "${DEPLOY_ENV}" in
-  staging|production) ;;
-  *)
-    echo "ERROR: DEPLOY_ENV must be staging or production." >&2
-    exit 6
-    ;;
-esac
 
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required}"
 : "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required}"
@@ -362,7 +344,6 @@ read -r GEMINI_API_KEY || GEMINI_API_KEY=""
 read -r CLAUDE_WEB_SESSION_KEY || CLAUDE_WEB_SESSION_KEY=""
 read -r CLAUDE_WEB_COOKIE || CLAUDE_WEB_COOKIE=""
 read -r BRAVE_API_KEY || BRAVE_API_KEY=""
-read -r FIRECRAWL_API_KEY || FIRECRAWL_API_KEY=""
 
 echo "Deploy ref: ${DEPLOY_REF}"
 
@@ -386,298 +367,10 @@ cd "${DEPLOY_DIR}"
 
 # Verify config file exists before docker compose tries to mount it
 OPENCLAW_CONFIG_PATH="config/${OPENCLAW_CONFIG_FILE}"
-if [[ ! -d "config" ]]; then
-  echo "ERROR: config directory not found at ${DEPLOY_DIR}/config" >&2
-  exit 6
-fi
-if [[ -L "config" ]]; then
-  echo "ERROR: config directory must not be a symlink." >&2
-  exit 6
-fi
 if [[ ! -f "${OPENCLAW_CONFIG_PATH}" ]]; then
   echo "ERROR: Config file not found at ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}" >&2
   echo "Set OPENCLAW_CONFIG_FILE to the correct filename, or create the file." >&2
   exit 6
-fi
-if [[ -L "${OPENCLAW_CONFIG_PATH}" ]]; then
-  echo "ERROR: Config file must be a regular file." >&2
-  exit 6
-fi
-
-CONFIG_DIR_REALPATH="$(readlink -f "config" 2>/dev/null || true)"
-OPENCLAW_CONFIG_REALPATH="$(readlink -f "${OPENCLAW_CONFIG_PATH}" 2>/dev/null || true)"
-if [[ -z "${CONFIG_DIR_REALPATH}" || -z "${OPENCLAW_CONFIG_REALPATH}" ]]; then
-  echo "ERROR: Failed to resolve config paths." >&2
-  exit 6
-fi
-case "${OPENCLAW_CONFIG_REALPATH}" in
-  "${CONFIG_DIR_REALPATH}"/*) ;;
-  *)
-    echo "ERROR: Resolved config path escapes config directory." >&2
-    exit 6
-    ;;
-esac
-
-patch_firecrawl_placeholder() {
-  local config_path="$1"
-  local config_owner config_group config_mode config_links
-  local immutable_set="false"
-  local immutable_removed="false"
-  local tmp_file=""
-  local awk_status=0
-  local backup_file=""
-
-  config_owner="$(stat -c "%u" "${config_path}")"
-  config_group="$(stat -c "%g" "${config_path}")"
-  config_mode="$(stat -c "%a" "${config_path}")"
-  config_links="$(stat -c "%h" "${config_path}")"
-  if [[ "${config_links}" -ne 1 ]]; then
-    echo "ERROR: Config file must not have additional hard links." >&2
-    return 6
-  fi
-
-  cleanup_firecrawl_patch() {
-    local cleanup_status=$?
-    if [[ -n "${tmp_file}" && -f "${tmp_file}" ]]; then
-      rm -f "${tmp_file}" || true
-    fi
-    if [[ -n "${backup_file}" && -f "${backup_file}" ]]; then
-      rm -f "${backup_file}" || true
-    fi
-    if [[ "${immutable_removed}" == "true" ]]; then
-      if ! sudo chattr +i "${config_path}" 2>/dev/null; then
-        echo "WARN: Failed to restore immutable bit on ${config_path}." >&2
-      fi
-    fi
-    trap - RETURN
-    return "${cleanup_status}"
-  }
-  trap cleanup_firecrawl_patch RETURN
-
-  if sudo lsattr -d "${config_path}" 2>/dev/null | awk "{print \$1}" | grep -q "i"; then
-    immutable_set="true"
-    if ! sudo chattr -i "${config_path}" 2>/dev/null; then
-      echo "ERROR: Failed to clear immutable bit on config file." >&2
-      return 6
-    fi
-    immutable_removed="true"
-  fi
-
-  if ! tmp_file="$(mktemp "${CONFIG_DIR_REALPATH}/.openclaw-config.XXXXXX")"; then
-    echo "ERROR: Firecrawl key mutation failed." >&2
-    return 6
-  fi
-  if ! chmod 600 "${tmp_file}"; then
-    echo "ERROR: Firecrawl key mutation failed." >&2
-    return 6
-  fi
-
-  if FIRECRAWL_KEY_FOR_PATCH="${FIRECRAWL_API_KEY}" awk -f - "${config_path}" > "${tmp_file}" <<\AWK
-function count_char(str, ch,    i, n) {
-  n = 0
-  for (i = 1; i <= length(str); i++) {
-    if (substr(str, i, 1) == ch) {
-      n++
-    }
-  }
-  return n
-}
-BEGIN {
-  key = ENVIRON["FIRECRAWL_KEY_FOR_PATCH"]
-  if (key == "") {
-    exit 11
-  }
-  json_key = key
-  gsub(/\\/, "\\\\", json_key)
-  gsub(/"/, "\\\"", json_key)
-  in_firecrawl = 0
-  firecrawl_depth = 0
-  firecrawl_found = 0
-  api_found = 0
-  changed = 0
-}
-{
-  line = $0
-
-  if (!in_firecrawl) {
-    if (line ~ /^[[:space:]]*["\047]?firecrawl["\047]?[[:space:]]*:[[:space:]]*{/) {
-      in_firecrawl = 1
-      firecrawl_found = 1
-      firecrawl_depth = count_char(line, "{") - count_char(line, "}")
-      match(line, /^[[:space:]]*/)
-      firecrawl_indent = substr(line, RSTART, RLENGTH)
-      if (firecrawl_depth <= 0) {
-        if (line ~ /{[[:space:]]*}/) {
-          sub(/{[[:space:]]*}/, "{ apiKey: \"" json_key "\" }", line)
-          api_found = 1
-          changed = 1
-        }
-        in_firecrawl = 0
-      }
-    }
-    print line
-    next
-  }
-
-  if (line ~ /^[[:space:]]*["\047]?apiKey["\047]?[[:space:]]*:/) {
-    match(line, /^[[:space:]]*/)
-    api_indent = substr(line, RSTART, RLENGTH)
-    has_comma = (line ~ /,[[:space:]]*(\/\/.*)?$/)
-    comment = ""
-    if (match(line, /\/\/.*$/)) {
-      comment = substr(line, RSTART)
-    }
-    replacement = api_indent "apiKey: \"" json_key "\""
-    if (has_comma) {
-      replacement = replacement ","
-    }
-    if (comment != "") {
-      replacement = replacement " " comment
-    }
-    print replacement
-    line = replacement
-    api_found = 1
-    changed = 1
-  } else {
-    line_open = count_char(line, "{")
-    line_close = count_char(line, "}")
-    if ((firecrawl_depth + line_open - line_close) <= 0 && api_found == 0) {
-      print firecrawl_indent "  apiKey: \"" json_key "\","
-      api_found = 1
-      changed = 1
-    }
-    print line
-  }
-
-  firecrawl_depth += count_char(line, "{") - count_char(line, "}")
-  if (firecrawl_depth <= 0) {
-    in_firecrawl = 0
-  }
-}
-END {
-  if (firecrawl_found == 0) {
-    exit 12
-  }
-  if (api_found == 0 || changed == 0) {
-    exit 13
-  }
-}
-AWK
-  then
-    :
-  else
-    awk_status=$?
-    if [[ "${awk_status}" -eq 12 ]]; then
-      echo "ERROR: Firecrawl config block not found." >&2
-    elif [[ "${awk_status}" -eq 11 ]]; then
-      echo "ERROR: missing Firecrawl secret." >&2
-    elif [[ "${awk_status}" -eq 13 ]]; then
-      echo "ERROR: Firecrawl key mutation did not apply." >&2
-    else
-      echo "ERROR: Firecrawl key mutation failed." >&2
-    fi
-    return 6
-  fi
-
-  if ! backup_file="$(mktemp "${CONFIG_DIR_REALPATH}/.openclaw-config.backup.XXXXXX")"; then
-    echo "ERROR: Firecrawl key mutation failed." >&2
-    return 6
-  fi
-  if ! chmod 600 "${backup_file}"; then
-    echo "ERROR: Firecrawl key mutation failed." >&2
-    return 6
-  fi
-  if ! sudo cp -p "${config_path}" "${backup_file}"; then
-    echo "ERROR: Firecrawl key mutation failed." >&2
-    return 6
-  fi
-
-  if ! sudo mv "${tmp_file}" "${config_path}"; then
-    echo "ERROR: Firecrawl key mutation failed." >&2
-    return 6
-  fi
-  tmp_file=""
-
-  if ! FIRECRAWL_KEY_FOR_VERIFY="${FIRECRAWL_API_KEY}" awk -f - "${config_path}" <<\AWK
-function count_char(str, ch,    i, n) {
-  n = 0
-  for (i = 1; i <= length(str); i++) {
-    if (substr(str, i, 1) == ch) {
-      n++
-    }
-  }
-  return n
-}
-BEGIN {
-  key = ENVIRON["FIRECRAWL_KEY_FOR_VERIFY"]
-  if (key == "") {
-    exit 1
-  }
-  in_firecrawl = 0
-  firecrawl_depth = 0
-  found = 0
-}
-{
-  line = $0
-
-  if (!in_firecrawl) {
-    if (line ~ /^[[:space:]]*["\047]?firecrawl["\047]?[[:space:]]*:[[:space:]]*{/) {
-      in_firecrawl = 1
-      firecrawl_depth = count_char(line, "{") - count_char(line, "}")
-    } else {
-      next
-    }
-  }
-
-  if (line ~ /^[[:space:]]*["\047]?apiKey["\047]?[[:space:]]*:/ && index(line, key) > 0) {
-    found = 1
-    exit 0
-  }
-
-  firecrawl_depth += count_char(line, "{") - count_char(line, "}")
-  if (firecrawl_depth <= 0) {
-    in_firecrawl = 0
-  }
-}
-END {
-  if (found == 1) {
-    exit 0
-  }
-  exit 1
-}
-AWK
-  then
-    echo "ERROR: Firecrawl key verification failed after mutation." >&2
-    if ! sudo mv "${backup_file}" "${config_path}"; then
-      echo "ERROR: Failed to restore config backup after verification failure." >&2
-    fi
-    backup_file=""
-    return 6
-  fi
-
-  if ! sudo chown "${config_owner}:${config_group}" "${config_path}" || ! sudo chmod "${config_mode}" "${config_path}"; then
-    echo "ERROR: Firecrawl key mutation failed." >&2
-    return 6
-  fi
-
-  rm -f "${backup_file}" || true
-  backup_file=""
-
-  if [[ "${immutable_set}" == "true" ]]; then
-    echo "Firecrawl config key updated and immutable bit restore scheduled."
-  fi
-}
-
-if [[ "${DEPLOY_ENV}" == "staging" ]]; then
-  if [[ -z "${FIRECRAWL_API_KEY//[[:space:]]/}" ]]; then
-    echo "ERROR: missing Firecrawl secret." >&2
-    exit 6
-  fi
-  if [[ "${FIRECRAWL_API_KEY}" == "FIRECRAWL_API_KEY_HERE" ]]; then
-    echo "ERROR: FIRECRAWL_API_KEY is still set to the placeholder token." >&2
-    exit 6
-  fi
-  patch_firecrawl_placeholder "${OPENCLAW_CONFIG_REALPATH}" || exit 6
 fi
 
 # Authenticate to GHCR (use sudo for docker access)
@@ -794,7 +487,7 @@ sudo -E docker-compose ${COMPOSE_FILES} rm -f openclaw-gateway openclaw-cli || t
 sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans --force-recreate
 
 # Clear secrets from environment
-unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY FIRECRAWL_API_KEY
+unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY
 
 echo "Deployment complete."
 '
@@ -812,7 +505,6 @@ printf -v BRIDGE_PORT_ESCAPED '%q' "${OPENCLAW_BRIDGE_PORT}"
 printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
 printf -v CONFIG_FILE_ESCAPED '%q' "${OPENCLAW_CONFIG_FILE:-openclaw.json}"
 printf -v MIN_FREE_SPACE_MB_ESCAPED '%q' "${MIN_FREE_SPACE_MB:-4096}"
-printf -v DEPLOY_ENV_ESCAPED '%q' "${DEPLOY_ENV:-}"
 
 # Pass all secrets via stdin (one per line)
 {
@@ -826,10 +518,9 @@ printf -v DEPLOY_ENV_ESCAPED '%q' "${DEPLOY_ENV:-}"
   printf '%s\n' "${CLAUDE_WEB_SESSION_KEY}"
   printf '%s\n' "${CLAUDE_WEB_COOKIE}"
   printf '%s\n' "${BRAVE_API_KEY}"
-  printf '%s\n' "${FIRECRAWL_API_KEY}"
 } | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
   --project "${GCP_PROJECT_ID}" \
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
   --quiet \
-  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED} ${DEPLOY_ENV_ESCAPED}"
+  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
