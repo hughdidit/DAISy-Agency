@@ -33,16 +33,6 @@ export async function runReadOnlyCommand(params: {
   const startedAt = Date.now();
 
   try {
-    const binary: DiscoveryResult = await discoverBinary({
-      configuredPath: params.deps.config.binaryPath,
-      runVersion: async (binaryPath) =>
-        executeCommand({
-          config: params.deps.config,
-          binaryPath,
-          argv: ["--version"],
-        }),
-    });
-
     const auth = resolveAuth(params.deps.config);
     const policy = evaluatePolicy({
       tool: params.tool,
@@ -80,6 +70,16 @@ export async function runReadOnlyCommand(params: {
         },
       };
     }
+
+    const binary: DiscoveryResult = await discoverBinary({
+      configuredPath: params.deps.config.binaryPath,
+      runVersion: async (binaryPath) =>
+        executeCommand({
+          config: params.deps.config,
+          binaryPath,
+          argv: ["--version"],
+        }),
+    });
 
     const argv = params.buildArgv(auth);
     const execution = await executeCommand({
@@ -146,7 +146,6 @@ export async function runReadOnlyCommand(params: {
     return mapped;
   }
 }
-
 export function createRuntimeDeps(config: GwsToolkitConfig, audit: AuditLogger): RuntimeDeps {
   return { config, audit };
 }

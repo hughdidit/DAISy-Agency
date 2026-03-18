@@ -54,7 +54,25 @@ export async function discoverBinary(params: {
     return hit.result;
   }
 
-  const versionResult = await params.runVersion(binaryPath);
+  let versionResult: ExecutionResult;
+  try {
+    versionResult = await params.runVersion(binaryPath);
+  } catch (error) {
+    if (error instanceof PluginError) {
+      if (error.code === "EXEC_TIMEOUT") {
+        throw error;
+      }
+      if (error.code === "EXEC_ERROR") {
+        const message = error.message;
+        if (/enoent|not recognized|not found|eacces|permission denied/i.test(message)) {
+          throw new PluginError("BINARY_NOT_FOUND", "gws binary not found", {
+            binaryPath,
+          });
+        }
+      }
+    }
+    throw error;
+  }
   if (versionResult.timedOut) {
     throw new PluginError("EXEC_TIMEOUT", "gws --version timed out");
   }
