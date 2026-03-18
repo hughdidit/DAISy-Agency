@@ -10,6 +10,10 @@ type CacheEntry = {
 
 const cache = new Map<string, CacheEntry>();
 
+function isCacheEnabled(): boolean {
+  return process.env.VITEST === undefined && process.env.NODE_ENV !== "test";
+}
+
 function parseVersionText(value: string): DiscoveryResult["version"] | null {
   const match = value.match(/(\d+)\.(\d+)\.(\d+)/);
   if (!match) {
@@ -49,9 +53,13 @@ export async function discoverBinary(params: {
 }): Promise<DiscoveryResult> {
   const binaryPath = resolveBinaryPath(params.configuredPath);
   const cacheKey = binaryPath;
-  const hit = cache.get(cacheKey);
-  if (hit) {
-    return hit.result;
+  const useCache = isCacheEnabled();
+
+  if (useCache) {
+    const hit = cache.get(cacheKey);
+    if (hit) {
+      return hit.result;
+    }
   }
 
   let versionResult: ExecutionResult;
@@ -73,6 +81,7 @@ export async function discoverBinary(params: {
     }
     throw error;
   }
+
   if (versionResult.timedOut) {
     throw new PluginError("EXEC_TIMEOUT", "gws --version timed out");
   }
@@ -109,11 +118,14 @@ export async function discoverBinary(params: {
     version: parsed,
   };
 
-  cache.set(cacheKey, {
-    key: cacheKey,
-    discoveredAtMs: Date.now(),
-    result,
-  });
+  if (useCache) {
+    cache.set(cacheKey, {
+      key: cacheKey,
+      discoveredAtMs: Date.now(),
+      result,
+    });
+  }
+
   return result;
 }
 

@@ -111,6 +111,39 @@ describe("auth resolution", () => {
     ).toThrow(/symbolic link/);
   });
 
+  it("allows non-document credential files at 0644 floor on posix", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-"));
+    const allowedDir = path.join(root, "allowed");
+    await fs.mkdir(allowedDir);
+
+    const credentialsFile = path.join(allowedDir, "cred.bin");
+    await fs.writeFile(credentialsFile, "{}", "utf8");
+    await fs.chmod(credentialsFile, 0o644);
+
+    const allowed = resolveAuth(
+      baseConfig({
+        allowedCredentialModes: ["credentials_file"],
+        approvedCredentialDirs: [allowedDir],
+        credentialsFile,
+      }),
+    );
+    expect(allowed.mode).toBe("credentials_file");
+
+    await fs.chmod(credentialsFile, 0o666);
+    expect(() =>
+      resolveAuth(
+        baseConfig({
+          allowedCredentialModes: ["credentials_file"],
+          approvedCredentialDirs: [allowedDir],
+          credentialsFile,
+        }),
+      ),
+    ).toThrow(/deny group\/other write access/);
+  });
   it("denies over-permissive file permissions on posix", async () => {
     if (process.platform === "win32") {
       return;

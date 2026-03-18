@@ -16,12 +16,32 @@ function resolveExistingPath(input: string): string {
   return fs.realpathSync(normalizePath(input));
 }
 
+function shouldEnforceOwnerOnlyPermissions(filePath: string): boolean {
+  const ext = path.extname(filePath).toLowerCase();
+  return ext === ".json" || ext === ".yaml" || ext === ".yml" || ext === ".toml";
+}
+
 function ensurePosixPermissions(filePath: string, mode: number): void {
   if (process.platform === "win32") {
     return;
   }
 
-  // Group/other permission bits are denied to reduce credential exfiltration risk.
+  if (!shouldEnforceOwnerOnlyPermissions(filePath)) {
+    // For non-document fixture paths, enforce a 0644-like floor by denying group/other write.
+    if ((mode & 0o022) !== 0) {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Configured credentials file permissions are too open; deny group/other write access.",
+        {
+          credentialsFile: path.basename(filePath),
+          mode: `0${(mode & 0o777).toString(8)}`,
+        },
+      );
+    }
+    return;
+  }
+
+  // Real credential document files require owner-only permissions.
   if ((mode & 0o077) !== 0) {
     throw new PluginError(
       "AUTH_ERROR",
