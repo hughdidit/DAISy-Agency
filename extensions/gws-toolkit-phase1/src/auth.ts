@@ -69,7 +69,10 @@ function ensureCredentialFileAllowed(config: GwsToolkitConfig): string {
 
   const resolvedApproved = approved.map((dirPath) => {
     if (!fs.existsSync(dirPath)) {
-      throw new PluginError("AUTH_ERROR", "approvedCredentialDirs contains a path that does not exist");
+      throw new PluginError(
+        "AUTH_ERROR",
+        "approvedCredentialDirs contains a path that does not exist",
+      );
     }
 
     const dirStat = fs.statSync(dirPath);

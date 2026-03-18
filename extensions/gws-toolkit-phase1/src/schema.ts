@@ -1,5 +1,10 @@
 import { Ajv, type ValidateFunction } from "ajv";
-import type { CalendarReadParams, DriveReadParams, GmailReadParams, StatusParams } from "./types.js";
+import type {
+  CalendarReadParams,
+  DriveReadParams,
+  GmailReadParams,
+  StatusParams,
+} from "./types.js";
 
 const ajv = new Ajv({
   allErrors: true,
@@ -100,4 +105,3 @@ export function validateGmailParams(value: unknown) {
 export function validateCalendarParams(value: unknown) {
   return validate(validators.calendar, value);
 }
-

@@ -5,10 +5,10 @@
   "description": "Security-hardened read-only Google Workspace toolkit plugin",
   "type": "module",
   "scripts": {
-    "test": "vitest run --config ../../vitest.extensions.config.ts extensions/gws-toolkit-phase1/test/**/*.test.ts",
-    "test:acceptance": "vitest run --config ../../vitest.extensions.config.ts extensions/gws-toolkit-phase1/test/acceptance/*.test.ts",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit",
-    "lint": "oxlint --type-aware ."
+    "lint": "oxlint --type-aware .",
+    "test": "vitest run --config ../../vitest.extensions.config.ts test/**/*.test.ts",
+    "test:acceptance": "vitest run --config ../../vitest.extensions.config.ts test/acceptance/*.test.ts",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit"
   },
   "openclaw": {
     "extensions": [

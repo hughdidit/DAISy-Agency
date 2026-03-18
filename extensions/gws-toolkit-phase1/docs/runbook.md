@@ -46,11 +46,11 @@ Add plugin config in that file under `plugins.entries.gws-toolkit-phase1.config`
           defaultScopesProfile: "minimal",
           tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
           approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
-          credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json"
-        }
-      }
-    }
-  }
+          credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -61,14 +61,9 @@ Restrict agent-visible tools so only approved read-only GWS tools are exposed:
 ```json5
 {
   tools: {
-    allow: [
-      "gws_status",
-      "gws_drive_read",
-      "gws_gmail_read",
-      "gws_calendar_read"
-    ],
-    deny: ["gws_raw", "gws_write"]
-  }
+    allow: ["gws_status", "gws_drive_read", "gws_gmail_read", "gws_calendar_read"],
+    deny: ["gws_raw", "gws_write"],
+  },
 }
 ```
 

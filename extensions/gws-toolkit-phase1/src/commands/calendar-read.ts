@@ -48,5 +48,3 @@ export async function executeCalendarRead(params: {
     },
   });
 }
-
-

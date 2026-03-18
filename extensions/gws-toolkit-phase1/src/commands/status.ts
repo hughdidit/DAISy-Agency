@@ -1,6 +1,6 @@
+import type { AuditLogger } from "../audit.js";
 import { getAuthSourceStatus } from "../auth.js";
 import { discoverBinary } from "../binary.js";
-import type { AuditLogger } from "../audit.js";
 import { toStructuredError } from "../errors.js";
 import { executeCommand } from "../executor.js";
 import { evaluatePolicy } from "../policy.js";

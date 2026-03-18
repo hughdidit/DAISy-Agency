@@ -15,8 +15,14 @@ describe("integration: read-only success", () => {
       pluginConfig: defaultPluginConfig(),
     });
 
-    const drive = await executeTool(harness, "gws_drive_read", { action: "list_files", pageSize: 3 });
-    const gmail = await executeTool(harness, "gws_gmail_read", { action: "list_messages", maxResults: 2 });
+    const drive = await executeTool(harness, "gws_drive_read", {
+      action: "list_files",
+      pageSize: 3,
+    });
+    const gmail = await executeTool(harness, "gws_gmail_read", {
+      action: "list_messages",
+      maxResults: 2,
+    });
     const calendar = await executeTool(harness, "gws_calendar_read", {
       action: "list_events",
       pageSize: 1,

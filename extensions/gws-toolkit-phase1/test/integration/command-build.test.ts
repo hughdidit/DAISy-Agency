@@ -11,15 +11,16 @@ describe("integration: command build", () => {
     const gmail = buildGmailReadCommand({ action: "list_messages", maxResults: 5 }, []).argv;
     const calendar = buildCalendarReadCommand({ action: "list_events", pageSize: 7 }, []).argv;
 
-    expect(drive).toEqual(["drive", "--auth", "list-files", "--format", "json", "--page-size", "10"]);
-    expect(gmail).toEqual(["gmail", "list-messages", "--format", "json", "--max-results", "5"]);
-    expect(calendar).toEqual([
-      "calendar",
-      "list-events",
+    expect(drive).toEqual([
+      "drive",
+      "--auth",
+      "list-files",
       "--format",
       "json",
       "--page-size",
-      "7",
+      "10",
     ]);
+    expect(gmail).toEqual(["gmail", "list-messages", "--format", "json", "--max-results", "5"]);
+    expect(calendar).toEqual(["calendar", "list-events", "--format", "json", "--page-size", "7"]);
   });
 });

@@ -122,7 +122,9 @@ export type StructuredError = {
   };
 };
 
-export type StructuredEnvelope<T = Record<string, unknown>> = StructuredSuccess<T> | StructuredError;
+export type StructuredEnvelope<T = Record<string, unknown>> =
+  | StructuredSuccess<T>
+  | StructuredError;
 
 export type AuditEvent = {
   timestamp: string;
@@ -189,4 +191,3 @@ export const SENSITIVE_KEY_PATTERNS = [
   /secret/i,
   /access[_-]?key/i,
 ];
-

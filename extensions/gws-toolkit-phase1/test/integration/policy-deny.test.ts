@@ -8,7 +8,9 @@ describe("integration: policy deny", () => {
     const disabledHarness = createHarness({
       pluginConfig: defaultPluginConfig({ enabledServices: ["drive"] }),
     });
-    const disabled = await executeTool(disabledHarness, "gws_gmail_read", { action: "list_messages" });
+    const disabled = await executeTool(disabledHarness, "gws_gmail_read", {
+      action: "list_messages",
+    });
     expect(disabled.ok).toBe(false);
     expect(disabled.error).toMatchObject({ code: "DENY_POLICY" });
 

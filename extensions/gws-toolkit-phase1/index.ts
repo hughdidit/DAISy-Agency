@@ -1,11 +1,11 @@
 import { Type } from "@sinclair/typebox";
 import { createAuditLogger } from "./src/audit.js";
-import { resolveConfig } from "./src/config.js";
 import { executeCalendarRead } from "./src/commands/calendar-read.js";
 import { executeDriveRead } from "./src/commands/drive-read.js";
 import { executeGmailRead } from "./src/commands/gmail-read.js";
 import { createRuntimeDeps } from "./src/commands/helpers.js";
 import { executeStatus } from "./src/commands/status.js";
+import { resolveConfig } from "./src/config.js";
 import { createRedactingLogger } from "./src/logger.js";
 import type { GwsToolkitConfig, InvocationContext, StructuredEnvelope } from "./src/types.js";
 
@@ -20,7 +20,11 @@ type PluginApi = {
   pluginConfig?: Record<string, unknown>;
   registerTool: (tool: Record<string, unknown>) => void;
   registerCli: (
-    registrar: (ctx: { program: any; config: Record<string, unknown>; logger: PluginApi["logger"] }) => void,
+    registrar: (ctx: {
+      program: any;
+      config: Record<string, unknown>;
+      logger: PluginApi["logger"];
+    }) => void,
     opts?: { commands?: string[] },
   ) => void;
 };
@@ -226,14 +230,17 @@ const plugin = {
     api.registerCli(
       ({ program }) => {
         const gws = program.command("gws").description("GWS Toolkit Phase 1 diagnostics");
-        gws.command("doctor").description("Run toolkit health checks").action(async () => {
-          const payload = await executeStatus({
-            ctx: createContext(),
-            audit,
-            configResolution,
+        gws
+          .command("doctor")
+          .description("Run toolkit health checks")
+          .action(async () => {
+            const payload = await executeStatus({
+              ctx: createContext(),
+              audit,
+              configResolution,
+            });
+            console.log(JSON.stringify(payload, null, 2));
           });
-          console.log(JSON.stringify(payload, null, 2));
-        });
 
         gws
           .command("auth-status")

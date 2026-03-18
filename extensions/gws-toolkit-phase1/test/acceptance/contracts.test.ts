@@ -1,6 +1,11 @@
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { createHarness, defaultPluginConfig, executeTool, withTempFile } from "../fixtures/harness.js";
+import {
+  createHarness,
+  defaultPluginConfig,
+  executeTool,
+  withTempFile,
+} from "../fixtures/harness.js";
 
 const envSnapshot = { ...process.env };
 

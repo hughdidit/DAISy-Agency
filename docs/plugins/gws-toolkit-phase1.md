@@ -68,11 +68,11 @@ Enable in your config file under `plugins.entries.gws-toolkit-phase1`:
           defaultScopesProfile: "minimal",
           tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
           approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
-          credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json"
-        }
-      }
-    }
-  }
+          credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
+        },
+      },
+    },
+  },
 }
 ```
 

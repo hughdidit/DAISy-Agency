@@ -143,7 +143,9 @@ export async function withTempFile(content: string): Promise<string> {
   return file;
 }
 
-export function defaultPluginConfig(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+export function defaultPluginConfig(
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
   return {
     enabledServices: ["drive", "gmail", "calendar"],
     binaryPath: fixtureBinaryPath,

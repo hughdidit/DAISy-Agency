@@ -140,7 +140,8 @@ export function resolveConfig(
     };
   }
 
-  const activeScopes = defaultScopesProfile === "custom" ? customScopes : [...MINIMAL_SCOPE_PROFILE];
+  const activeScopes =
+    defaultScopesProfile === "custom" ? customScopes : [...MINIMAL_SCOPE_PROFILE];
   const writeScope = containsWriteScope(activeScopes);
   if (writeScope) {
     return {
@@ -156,7 +157,10 @@ export function resolveConfig(
 
   const config: GwsToolkitConfig = {
     enabledServices: enabledServices.length > 0 ? enabledServices : ["drive", "gmail", "calendar"],
-    binaryPath: typeof raw.binaryPath === "string" && raw.binaryPath.trim() ? raw.binaryPath.trim() : undefined,
+    binaryPath:
+      typeof raw.binaryPath === "string" && raw.binaryPath.trim()
+        ? raw.binaryPath.trim()
+        : undefined,
     approvedCredentialDirs: normalizeStringArray(raw.approvedCredentialDirs),
     credentialsFile:
       typeof raw.credentialsFile === "string" && raw.credentialsFile.trim()
