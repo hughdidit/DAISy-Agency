@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "lint": "oxlint --type-aware .",
-    "test": "vitest run --root ../.. --config vitest.extensions.config.ts extensions/gws-toolkit-phase1/test",
-    "test:acceptance": "vitest run --root ../.. --config vitest.extensions.config.ts extensions/gws-toolkit-phase1/test/acceptance",
+    "test": "cd ../.. && vitest run --config vitest.extensions.config.ts extensions/gws-toolkit-phase1/test",
+    "test:acceptance": "cd ../.. && vitest run --config vitest.extensions.config.ts extensions/gws-toolkit-phase1/test/acceptance",
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
   },
   "openclaw": {
