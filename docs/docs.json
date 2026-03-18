@@ -1040,6 +1040,7 @@
                 "group": "Extensions",
                 "pages": [
                   "plugins/community",
+                  "plugins/gws-toolkit-phase1",
                   "plugins/voice-call",
                   "plugins/zalouser",
                   "plugins/manifest",

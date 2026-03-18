@@ -88,6 +88,12 @@ on:
       FIRECRAWL_API_KEY:
         description: Firecrawl API key (optional, for firecrawl-enabled environments)
         required: false
+      GOOGLE_WORKSPACE_CLI_TOKEN:
+        description: Google Workspace CLI bearer token (optional, for gws-toolkit-phase1 token auth mode)
+        required: false
+      GWS_CREDENTIALS:
+        description: Google Workspace CLI exported credentials JSON (optional, for gws-toolkit-phase1 credentials_file mode)
+        required: false
       GRAFANA_ADMIN_PASSWORD:
         description: Grafana admin password
         required: false
@@ -165,6 +171,8 @@ jobs:
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          GOOGLE_WORKSPACE_CLI_TOKEN: ${{ secrets.GOOGLE_WORKSPACE_CLI_TOKEN }}
+          GWS_CREDENTIALS: ${{ secrets.GWS_CREDENTIALS }}
         run: |
           : "${GCP_WORKLOAD_IDENTITY_PROVIDER:?GCP_WORKLOAD_IDENTITY_PROVIDER is required}"
           : "${GCP_SERVICE_ACCOUNT:?GCP_SERVICE_ACCOUNT is required}"
@@ -247,6 +255,8 @@ jobs:
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          GOOGLE_WORKSPACE_CLI_TOKEN: ${{ secrets.GOOGLE_WORKSPACE_CLI_TOKEN }}
+          GWS_CREDENTIALS: ${{ secrets.GWS_CREDENTIALS }}
           # Monitoring secrets (credentials)
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
           ALERT_SMTP_USERNAME: ${{ secrets.ALERT_SMTP_USERNAME }}

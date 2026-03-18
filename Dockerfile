@@ -18,6 +18,8 @@ RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:${PATH}"
 
 RUN corepack enable
+# Install gws CLI for bundled gws-toolkit-phase1 read-only tools.
+RUN npm install -g --omit=dev @googleworkspace/cli && gws --version
 
 WORKDIR /app
 RUN chown node:node /app

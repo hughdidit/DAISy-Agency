@@ -22,6 +22,7 @@ services:
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
       BRAVE_API_KEY: ${BRAVE_API_KEY:-}
       FIRECRAWL_API_KEY: ${FIRECRAWL_API_KEY:-}
+      GOOGLE_WORKSPACE_CLI_TOKEN: ${GOOGLE_WORKSPACE_CLI_TOKEN:-}
       OPENCLAW_CONFIG_PATH: /home/node/.openclaw/${OPENCLAW_CONFIG_FILE:-openclaw.json}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
@@ -79,6 +80,7 @@ services:
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
       BRAVE_API_KEY: ${BRAVE_API_KEY:-}
       FIRECRAWL_API_KEY: ${FIRECRAWL_API_KEY:-}
+      GOOGLE_WORKSPACE_CLI_TOKEN: ${GOOGLE_WORKSPACE_CLI_TOKEN:-}
       OPENCLAW_CONFIG_PATH: /home/node/.openclaw/${OPENCLAW_CONFIG_FILE:-openclaw.json}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw

@@ -1,0 +1,110 @@
+{
+  "id": "gws-toolkit-phase1",
+  "name": "GWS Toolkit (Phase 1)",
+  "description": "Security-hardened read-only Google Workspace integration via gws CLI.",
+  "skills": ["./skills"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enabledServices": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["drive", "gmail", "calendar"]
+        },
+        "default": ["drive", "gmail", "calendar"]
+      },
+      "binaryPath": {
+        "type": "string"
+      },
+      "approvedCredentialDirs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": []
+      },
+      "credentialsFile": {
+        "type": "string"
+      },
+      "tokenEnvVar": {
+        "type": "string",
+        "default": "GOOGLE_WORKSPACE_CLI_TOKEN"
+      },
+      "timeoutMs": {
+        "type": "number",
+        "minimum": 1000,
+        "default": 15000
+      },
+      "maxStdoutBytes": {
+        "type": "number",
+        "minimum": 1024,
+        "default": 1048576
+      },
+      "maxStderrBytes": {
+        "type": "number",
+        "minimum": 1024,
+        "default": 262144
+      },
+      "safeMode": {
+        "type": "boolean",
+        "default": true
+      },
+      "allowedCredentialModes": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["oauth", "credentials_file", "token"]
+        },
+        "default": ["oauth", "credentials_file", "token"]
+      },
+      "defaultScopesProfile": {
+        "type": "string",
+        "enum": ["minimal", "custom"],
+        "default": "minimal"
+      },
+      "customScopes": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "uiHints": {
+    "enabledServices": {
+      "label": "Enabled Services",
+      "help": "Read-only Workspace service families available in Phase 1."
+    },
+    "binaryPath": {
+      "label": "gws Binary Path",
+      "help": "Optional explicit path to gws binary. If omitted, PATH lookup is used."
+    },
+    "approvedCredentialDirs": {
+      "label": "Approved Credential Dirs",
+      "help": "Credentials file path must remain inside one of these directories."
+    },
+    "credentialsFile": {
+      "label": "Credentials File Path",
+      "help": "Operator-managed credentials file path reference only.",
+      "sensitive": true
+    },
+    "tokenEnvVar": {
+      "label": "Token Environment Variable",
+      "help": "Environment variable name for pre-obtained access token."
+    },
+    "safeMode": {
+      "label": "Safe Mode",
+      "help": "Phase 1 security baseline; keeps deny-by-default controls active."
+    },
+    "defaultScopesProfile": {
+      "label": "Scopes Profile",
+      "help": "Use minimal by default; custom scopes are validated as read-only only."
+    },
+    "customScopes": {
+      "label": "Custom Scopes",
+      "help": "Optional read-only custom scopes when defaultScopesProfile is custom."
+    }
+  }
+}
