@@ -51,9 +51,23 @@ function captureToText(capture: BufferedCapture): string {
 }
 
 function buildChildEnv(overrides?: Record<string, string>): NodeJS.ProcessEnv {
-  const baseKeys = process.platform === "win32"
-    ? ["SYSTEMROOT", "ComSpec", "PATHEXT", "PATH", "TEMP", "TMP", "USERPROFILE", "HOME", "APPDATA", "LOCALAPPDATA", "ProgramData", "WINDIR"]
-    : ["PATH", "HOME", "LANG", "LC_ALL", "LC_CTYPE", "TMPDIR", "TEMP", "TMP", "TERM"];
+  const baseKeys =
+    process.platform === "win32"
+      ? [
+          "SYSTEMROOT",
+          "ComSpec",
+          "PATHEXT",
+          "PATH",
+          "TEMP",
+          "TMP",
+          "USERPROFILE",
+          "HOME",
+          "APPDATA",
+          "LOCALAPPDATA",
+          "ProgramData",
+          "WINDIR",
+        ]
+      : ["PATH", "HOME", "LANG", "LC_ALL", "LC_CTYPE", "TMPDIR", "TEMP", "TMP", "TERM"];
 
   const env: NodeJS.ProcessEnv = {};
   for (const key of baseKeys) {
@@ -65,6 +79,12 @@ function buildChildEnv(overrides?: Record<string, string>): NodeJS.ProcessEnv {
 
   if (overrides) {
     for (const [key, value] of Object.entries(overrides)) {
+      env[key] = value;
+    }
+  }
+
+  for (const [key, value] of Object.entries(process.env)) {
+    if (value !== undefined && key.startsWith("MOCK_GWS_")) {
       env[key] = value;
     }
   }
