@@ -30,9 +30,9 @@ Fork of OpenClaw. Branded as **DAISy**.
    3.5. Get human approval before proceeding.
 4. Squash-merge the PR with a comment briefly summarising the corrections made during review.
 5. Checkout `daisy/dev` and pull to get the merged result.
-6. Trigger a dry-run deploy to staging (`dry_run: true`). Fix any errors and re-run until it succeeds.
-7. When dry-run succeeds, perform a real deploy to staging (`dry_run: false`) and run the `verify.yml` workflow to confirm deployment.
-8. Print a short summary report to the terminal.
+6. Trigger a dry-run deploy to staging (`dry_run: true`). Fix any errors and iterate until deploy succeeds.
+7. When dry-run succeeds, perform a real deploy to staging (`dry_run: false`) and run the `verify.yml` workflow to confirm deployment. Fix any errors and iterate until deploy succeeds.
+8. Print a "Synopsis" report with details of the development run and results to the terminal.
 
 ## Upstream Upgrades
 
