@@ -105,6 +105,10 @@ CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
 BRAVE_API_KEY="${BRAVE_API_KEY:-}"
 # FIRECRAWL_API_KEY is optional (firecrawl tool)
 FIRECRAWL_API_KEY="${FIRECRAWL_API_KEY:-}"
+# GOOGLE_WORKSPACE_CLI_TOKEN is optional (gws-toolkit-phase1 token auth mode)
+GOOGLE_WORKSPACE_CLI_TOKEN="${GOOGLE_WORKSPACE_CLI_TOKEN:-}"
+# GWS_CREDENTIALS is optional (gws-toolkit-phase1 credentials_file mode, JSON payload)
+GWS_CREDENTIALS="${GWS_CREDENTIALS:-}"
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required for real deploy}"
@@ -194,7 +198,7 @@ ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
       --quiet \
       --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; read -r ENV_B64; printf %s \"\${ENV_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/monitoring/.env.monitoring\" > /dev/null; sudo chown root:root \"\${DEPLOY_DIR}/monitoring/.env.monitoring\"; sudo chmod 600 \"\${DEPLOY_DIR}/monitoring/.env.monitoring\"; echo \".env.monitoring written (root:root 600)\"'"
   else
-    echo "NOTE: GRAFANA_ADMIN_PASSWORD not set — skipping .env.monitoring generation."
+    echo "NOTE: GRAFANA_ADMIN_PASSWORD not set â€” skipping .env.monitoring generation."
     echo "      If .env.monitoring already exists on the VM, it will be reused."
   fi
 
@@ -347,6 +351,8 @@ read -r CLAUDE_WEB_SESSION_KEY || CLAUDE_WEB_SESSION_KEY=""
 read -r CLAUDE_WEB_COOKIE || CLAUDE_WEB_COOKIE=""
 read -r BRAVE_API_KEY || BRAVE_API_KEY=""
 read -r FIRECRAWL_API_KEY || FIRECRAWL_API_KEY=""
+read -r GOOGLE_WORKSPACE_CLI_TOKEN || GOOGLE_WORKSPACE_CLI_TOKEN=""
+read -r GWS_CREDENTIALS_B64 || GWS_CREDENTIALS_B64=""
 
 echo "Deploy ref: ${DEPLOY_REF}"
 
@@ -376,6 +382,18 @@ if [[ ! -f "${OPENCLAW_CONFIG_PATH}" ]]; then
   exit 6
 fi
 
+# Materialize optional gws credentials for credentials_file auth mode.
+if [[ -n "${GWS_CREDENTIALS_B64}" ]]; then
+  GWS_CREDENTIALS_TMP="$(mktemp)"
+  printf '%s' "${GWS_CREDENTIALS_B64}" | base64 -d > "${GWS_CREDENTIALS_TMP}"
+  sudo install -d -m 700 -o 1000 -g 1000 "${DEPLOY_DIR}/config/secrets/gws"
+  sudo install -m 600 -o 1000 -g 1000 "${GWS_CREDENTIALS_TMP}" "${DEPLOY_DIR}/config/secrets/gws/credentials.json"
+  rm -f "${GWS_CREDENTIALS_TMP}"
+else
+  sudo rm -f "${DEPLOY_DIR}/config/secrets/gws/credentials.json"
+fi
+unset GWS_CREDENTIALS_B64
+
 # Authenticate to GHCR (use sudo for docker access)
 if ! sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
   echo "ERROR: Failed to authenticate to GHCR. Check credentials and network." >&2
@@ -395,6 +413,7 @@ export CLAUDE_WEB_SESSION_KEY
 export CLAUDE_WEB_COOKIE
 export BRAVE_API_KEY
 export FIRECRAWL_API_KEY
+export GOOGLE_WORKSPACE_CLI_TOKEN
 export OPENCLAW_CONFIG_DIR="${DEPLOY_DIR}/config"
 export OPENCLAW_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
 export OPENCLAW_GATEWAY_BIND
@@ -491,7 +510,7 @@ sudo -E docker-compose ${COMPOSE_FILES} rm -f openclaw-gateway openclaw-cli || t
 sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans --force-recreate
 
 # Clear secrets from environment
-unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY FIRECRAWL_API_KEY
+unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY FIRECRAWL_API_KEY GOOGLE_WORKSPACE_CLI_TOKEN GWS_CREDENTIALS_B64
 
 echo "Deployment complete."
 '
@@ -510,6 +529,13 @@ printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
 printf -v CONFIG_FILE_ESCAPED '%q' "${OPENCLAW_CONFIG_FILE:-openclaw.json}"
 printf -v MIN_FREE_SPACE_MB_ESCAPED '%q' "${MIN_FREE_SPACE_MB:-4096}"
 
+# Base64-wrap multiline credentials payload so stdin remains one-value-per-line.
+GWS_CREDENTIALS_B64=""
+if [[ -n "${GWS_CREDENTIALS}" ]]; then
+  GWS_CREDENTIALS_B64="$(printf '%s' "${GWS_CREDENTIALS}" | base64 | tr -d '\n')"
+fi
+unset GWS_CREDENTIALS
+
 # Pass all secrets via stdin (one per line)
 {
   printf '%s\n' "${GHCR_TOKEN}"
@@ -523,6 +549,8 @@ printf -v MIN_FREE_SPACE_MB_ESCAPED '%q' "${MIN_FREE_SPACE_MB:-4096}"
   printf '%s\n' "${CLAUDE_WEB_COOKIE}"
   printf '%s\n' "${BRAVE_API_KEY}"
   printf '%s\n' "${FIRECRAWL_API_KEY}"
+  printf '%s\n' "${GOOGLE_WORKSPACE_CLI_TOKEN}"
+  printf '%s\n' "${GWS_CREDENTIALS_B64}"
 } | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
   --project "${GCP_PROJECT_ID}" \
   --zone "${GCP_ZONE}" \
