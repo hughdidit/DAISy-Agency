@@ -170,14 +170,22 @@ export const MIN_SUPPORTED_GWS_VERSION = {
 } as const;
 
 export const ALLOWED_WRITE_SCOPE_MARKERS = [
+  "https://mail.google.com/",
   "https://www.googleapis.com/auth/drive",
   "https://www.googleapis.com/auth/drive.file",
   "https://www.googleapis.com/auth/drive.appdata",
+  "https://www.googleapis.com/auth/drive.scripts",
   "https://www.googleapis.com/auth/gmail.modify",
   "https://www.googleapis.com/auth/gmail.compose",
   "https://www.googleapis.com/auth/gmail.send",
   "https://www.googleapis.com/auth/gmail.insert",
+  "https://www.googleapis.com/auth/gmail.labels",
+  "https://www.googleapis.com/auth/gmail.settings.basic",
+  "https://www.googleapis.com/auth/gmail.settings.sharing",
   "https://www.googleapis.com/auth/calendar",
+  "https://www.googleapis.com/auth/calendar.acls",
+  "https://www.googleapis.com/auth/calendar.calendarlist",
+  "https://www.googleapis.com/auth/calendar.calendars",
   "https://www.googleapis.com/auth/calendar.events",
   "https://www.googleapis.com/auth/calendar.events.owned",
   "https://www.googleapis.com/auth/documents",
