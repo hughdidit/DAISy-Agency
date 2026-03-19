@@ -7,20 +7,7 @@ const READ_ACTIONS: Record<ServiceFamily, Set<string>> = {
   calendar: new Set(["list_events", "get_event"]),
 };
 
-const WRITE_HINTS = [
-  "create",
-  "update",
-  "delete",
-  "write",
-  "send",
-  "draft",
-  "trash",
-  "archive",
-  "modify",
-  "move",
-  "upload",
-  "raw",
-];
+const WRITE_HINTS = ["create", "update", "delete", "write", "send", "modify", "move", "upload"];
 
 const WRITE_HINT_PATTERN = new RegExp(`\\b(${WRITE_HINTS.join("|")})\\b`, "i");
 
