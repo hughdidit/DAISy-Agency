@@ -88,6 +88,12 @@ on:
       FIRECRAWL_API_KEY:
         description: Firecrawl API key (optional, for firecrawl-enabled environments)
         required: false
+      TRELLO_API_KEY:
+        description: Trello API key (optional, for Trello integration)
+        required: false
+      TRELLO_TOKEN:
+        description: Trello token (optional, for Trello integration)
+        required: false
       GOOGLE_WORKSPACE_CLI_TOKEN:
         description: Google Workspace CLI bearer token (optional, for gws-toolkit-phase1 token auth mode)
         required: false
@@ -171,6 +177,8 @@ jobs:
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
           GOOGLE_WORKSPACE_CLI_TOKEN: ${{ secrets.GOOGLE_WORKSPACE_CLI_TOKEN }}
           GWS_CREDENTIALS: ${{ secrets.GWS_CREDENTIALS }}
         run: |
@@ -255,6 +263,8 @@ jobs:
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
           GOOGLE_WORKSPACE_CLI_TOKEN: ${{ secrets.GOOGLE_WORKSPACE_CLI_TOKEN }}
           GWS_CREDENTIALS: ${{ secrets.GWS_CREDENTIALS }}
           # Monitoring secrets (credentials)
