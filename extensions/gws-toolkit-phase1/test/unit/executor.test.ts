@@ -22,7 +22,6 @@ const envSnapshot = { ...process.env };
 
 afterEach(() => {
   process.env = { ...envSnapshot };
-  delete process.env.MOCK_GWS_MODE;
 });
 
 describe("executor", () => {

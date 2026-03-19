@@ -21,18 +21,20 @@ describe("audit", () => {
     });
 
     const audit = createAuditLogger(logger);
+    const secret = "Bearer super-secret-token";
     const allowEvent = audit.emit({
       ctx: { agentId: "agent", sessionId: "session" },
       toolName: "gws_status",
       action: "status",
       targetService: "status",
       decision: "allow",
+      denyReason: secret,
       latencyMs: 12,
       resultCode: "OK",
     });
 
     expect(allowEvent.decision).toBe("allow");
     expect(allowEvent.readOnly).toBe(true);
-    expect(logs.join("\n")).not.toContain("authorization");
+    expect(logs.join("\n")).not.toContain(secret);
   });
 });

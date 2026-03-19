@@ -1,5 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { createHarness, defaultPluginConfig, executeTool } from "../fixtures/harness.js";
+
+const envSnapshot = { ...process.env };
+
+afterEach(() => {
+  process.env = { ...envSnapshot };
+});
 
 describe("integration: policy deny", () => {
   it("denies disabled service and write-like request shape", async () => {

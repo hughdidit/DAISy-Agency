@@ -19,7 +19,7 @@ ENV PATH="/root/.bun/bin:${PATH}"
 
 RUN corepack enable
 # Install gws CLI for bundled gws-toolkit-phase1 read-only tools.
-RUN npm install -g --omit=dev @googleworkspace/cli && gws --version
+RUN npm install -g --omit=dev @googleworkspace/cli@0.17.0 && gws --version
 
 WORKDIR /app
 RUN chown node:node /app
@@ -62,7 +62,7 @@ RUN if [ -n "$OPENCLAW_INSTALL_BROWSER" ]; then \
 
 # Optionally install Docker CLI for sandbox container management.
 # Build with: docker build --build-arg OPENCLAW_INSTALL_DOCKER_CLI=1 ...
-# Adds ~50MB. Only the CLI is installed — no Docker daemon.
+# Adds ~50MB. Only the CLI is installed -- no Docker daemon.
 # Required for agents.defaults.sandbox to function in Docker deployments.
 ARG OPENCLAW_INSTALL_DOCKER_CLI=""
 ARG OPENCLAW_DOCKER_GPG_FINGERPRINT="9DC858229FC7DD38854AE2D88D81803C0EBFCD88"

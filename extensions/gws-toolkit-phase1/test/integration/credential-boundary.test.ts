@@ -6,29 +6,43 @@ import { createHarness, defaultPluginConfig, executeTool } from "../fixtures/har
 
 describe("integration: credential boundary", () => {
   it("allows and denies based on approved credential directory policy", async () => {
-    const credentialsFile = path.resolve("extensions/gws-toolkit-phase1/test/fixtures/mock-gws.js");
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-cred-boundary-"));
+    try {
+      const allowedDir = path.join(root, "allowed");
+      const deniedDir = path.join(root, "denied");
+      await fs.mkdir(allowedDir);
+      await fs.mkdir(deniedDir);
 
-    const allowedHarness = createHarness({
-      pluginConfig: defaultPluginConfig({
-        allowedCredentialModes: ["credentials_file"],
-        credentialsFile,
-        approvedCredentialDirs: [path.resolve("extensions/gws-toolkit-phase1/test/fixtures")],
-      }),
-    });
-    const allowed = await executeTool(allowedHarness, "gws_drive_read", { action: "list_files" });
-    expect(allowed.ok).toBe(true);
+      const credentialsFile = path.join(allowedDir, "credentials.json");
+      await fs.writeFile(credentialsFile, "{}", "utf8");
+      if (process.platform !== "win32") {
+        await fs.chmod(credentialsFile, 0o600);
+      }
 
-    const deniedHarness = createHarness({
-      pluginConfig: defaultPluginConfig({
-        allowedCredentialModes: ["credentials_file"],
-        credentialsFile,
-        approvedCredentialDirs: [path.resolve("extensions/gws-toolkit-phase1/test/integration")],
-      }),
-    });
-    const denied = await executeTool(deniedHarness, "gws_drive_read", { action: "list_files" });
-    expect(denied.ok).toBe(false);
-    expect(denied.error).toMatchObject({ code: "AUTH_ERROR" });
-    expect(JSON.stringify(denied)).not.toContain(credentialsFile);
+      const allowedHarness = createHarness({
+        pluginConfig: defaultPluginConfig({
+          allowedCredentialModes: ["credentials_file"],
+          credentialsFile,
+          approvedCredentialDirs: [allowedDir],
+        }),
+      });
+      const allowed = await executeTool(allowedHarness, "gws_drive_read", { action: "list_files" });
+      expect(allowed.ok).toBe(true);
+
+      const deniedHarness = createHarness({
+        pluginConfig: defaultPluginConfig({
+          allowedCredentialModes: ["credentials_file"],
+          credentialsFile,
+          approvedCredentialDirs: [deniedDir],
+        }),
+      });
+      const denied = await executeTool(deniedHarness, "gws_drive_read", { action: "list_files" });
+      expect(denied.ok).toBe(false);
+      expect(denied.error).toMatchObject({ code: "AUTH_ERROR" });
+      expect(JSON.stringify(denied)).not.toContain(credentialsFile);
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
   });
 
   it("denies over-permissive credential file permissions", async () => {
@@ -37,25 +51,29 @@ describe("integration: credential boundary", () => {
     }
 
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-perm-it-"));
-    const allowedDir = path.join(root, "allowed");
-    await fs.mkdir(allowedDir);
+    try {
+      const allowedDir = path.join(root, "allowed");
+      await fs.mkdir(allowedDir);
 
-    const credentialsFile = path.join(allowedDir, "credentials.json");
-    await fs.writeFile(credentialsFile, "{}", "utf8");
-    await fs.chmod(credentialsFile, 0o644);
+      const credentialsFile = path.join(allowedDir, "credentials.json");
+      await fs.writeFile(credentialsFile, "{}", "utf8");
+      await fs.chmod(credentialsFile, 0o644);
 
-    const harness = createHarness({
-      pluginConfig: defaultPluginConfig({
-        allowedCredentialModes: ["credentials_file"],
-        credentialsFile,
-        approvedCredentialDirs: [allowedDir],
-      }),
-    });
+      const harness = createHarness({
+        pluginConfig: defaultPluginConfig({
+          allowedCredentialModes: ["credentials_file"],
+          credentialsFile,
+          approvedCredentialDirs: [allowedDir],
+        }),
+      });
 
-    const denied = await executeTool(harness, "gws_drive_read", { action: "list_files" });
-    expect(denied.ok).toBe(false);
-    expect(denied.error).toMatchObject({ code: "AUTH_ERROR" });
-    expect(String(denied.error.message)).toContain("permissions are too open");
-    expect(JSON.stringify(denied)).not.toContain(credentialsFile);
+      const denied = await executeTool(harness, "gws_drive_read", { action: "list_files" });
+      expect(denied.ok).toBe(false);
+      expect(denied.error).toMatchObject({ code: "AUTH_ERROR" });
+      expect(String(denied.error.message)).toContain("permissions are too open");
+      expect(JSON.stringify(denied)).not.toContain(credentialsFile);
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
   });
 });
