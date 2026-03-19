@@ -94,6 +94,12 @@ on:
       GWS_CREDENTIALS:
         description: Google Workspace CLI exported credentials JSON (optional, for gws-toolkit-phase1 credentials_file mode)
         required: false
+      TRELLO_API_KEY:
+        description: Trello API key (optional, for Trello integration)
+        required: false
+      TRELLO_TOKEN:
+        description: Trello token (optional, for Trello integration)
+        required: false
       GRAFANA_ADMIN_PASSWORD:
         description: Grafana admin password
         required: false
