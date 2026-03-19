@@ -30,12 +30,15 @@ export function createAuditLogger(logger: RedactingLogger): AuditLogger {
         targetService: input.targetService,
         readOnly: true,
         decision: input.decision,
-        denyReason: input.denyReason,
         credentialMode: input.credentialMode,
         latencyMs: input.latencyMs,
         exitCode: input.exitCode,
         resultCode: input.resultCode,
       };
+
+      if (input.decision === "deny" && input.denyReason) {
+        event.denyReason = input.denyReason;
+      }
 
       logger.info("gws-toolkit-phase1 audit event", redactForOutput(event));
       return event;
