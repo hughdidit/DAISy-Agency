@@ -2,11 +2,7 @@ import { buildCalendarReadCommand } from "../command-builder.js";
 import { PluginError } from "../errors.js";
 import { validateCalendarParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
-import {
-  buildValidationDeniedEnvelope,
-  runReadOnlyCommand,
-  type RuntimeDeps,
-} from "./helpers.js";
+import { buildValidationDeniedEnvelope, runReadOnlyCommand, type RuntimeDeps } from "./helpers.js";
 
 export async function executeCalendarRead(params: {
   ctx: InvocationContext;

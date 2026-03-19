@@ -5,6 +5,7 @@ import { toStructuredError } from "../errors.js";
 import { executeCommand } from "../executor.js";
 import { normalizeExecution } from "../normalize.js";
 import { evaluatePolicy } from "../policy.js";
+import type { ValidationIssue } from "../schema.js";
 import type {
   AuthResolution,
   DiscoveryResult,
@@ -15,7 +16,6 @@ import type {
   StructuredSuccess,
   ToolName,
 } from "../types.js";
-import type { ValidationIssue } from "../schema.js";
 
 export type RuntimeDeps = {
   config: GwsToolkitConfig;
