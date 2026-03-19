@@ -3,17 +3,73 @@ import {
   applyWindowsSpawnProgramPolicy,
   materializeWindowsSpawnProgram,
   resolveWindowsSpawnProgramCandidate,
-} from "../../../src/plugin-sdk/windows-spawn.js";
+} from "openclaw/plugin-sdk";
 import { PluginError } from "./errors.js";
 import type { ExecutionResult, GwsToolkitConfig } from "./types.js";
 
-function capText(input: string, maxBytes: number): { text: string; truncated: boolean } {
-  const bytes = Buffer.byteLength(input, "utf8");
-  if (bytes <= maxBytes) {
-    return { text: input, truncated: false };
+type BufferedCapture = {
+  chunks: Buffer[];
+  bytes: number;
+  truncated: boolean;
+};
+
+function createCapture(): BufferedCapture {
+  return {
+    chunks: [],
+    bytes: 0,
+    truncated: false,
+  };
+}
+
+function appendChunk(capture: BufferedCapture, chunk: Buffer, maxBytes: number): void {
+  if (chunk.length === 0) {
+    return;
   }
-  const buffer = Buffer.from(input, "utf8").subarray(0, maxBytes);
-  return { text: buffer.toString("utf8"), truncated: true };
+
+  const remaining = maxBytes - capture.bytes;
+  if (remaining <= 0) {
+    capture.truncated = true;
+    return;
+  }
+
+  if (chunk.length <= remaining) {
+    capture.chunks.push(chunk);
+    capture.bytes += chunk.length;
+    return;
+  }
+
+  capture.chunks.push(chunk.subarray(0, remaining));
+  capture.bytes += remaining;
+  capture.truncated = true;
+}
+
+function captureToText(capture: BufferedCapture): string {
+  if (capture.chunks.length === 0) {
+    return "";
+  }
+  return Buffer.concat(capture.chunks, capture.bytes).toString("utf8");
+}
+
+function buildChildEnv(overrides?: Record<string, string>): NodeJS.ProcessEnv {
+  const baseKeys = process.platform === "win32"
+    ? ["SYSTEMROOT", "ComSpec", "PATHEXT", "PATH", "TEMP", "TMP", "USERPROFILE", "HOME", "APPDATA", "LOCALAPPDATA", "ProgramData", "WINDIR"]
+    : ["PATH", "HOME", "LANG", "LC_ALL", "LC_CTYPE", "TMPDIR", "TEMP", "TMP", "TERM"];
+
+  const env: NodeJS.ProcessEnv = {};
+  for (const key of baseKeys) {
+    const value = process.env[key];
+    if (value !== undefined) {
+      env[key] = value;
+    }
+  }
+
+  if (overrides) {
+    for (const [key, value] of Object.entries(overrides)) {
+      env[key] = value;
+    }
+  }
+
+  return env;
 }
 
 function resolveInvocation(binaryPath: string, argv: string[]) {
@@ -44,17 +100,12 @@ export async function executeCommand(params: {
     const child = spawn(invocation.command, invocation.argv, {
       shell: invocation.shell,
       windowsHide: invocation.windowsHide,
-      env: {
-        ...process.env,
-        ...(params.env ?? {}),
-      },
+      env: buildChildEnv(params.env),
       stdio: ["ignore", "pipe", "pipe"],
     });
 
-    let stdout = "";
-    let stderr = "";
-    let stdoutTruncated = false;
-    let stderrTruncated = false;
+    const stdoutCapture = createCapture();
+    const stderrCapture = createCapture();
     let timedOut = false;
     let settled = false;
 
@@ -76,25 +127,14 @@ export async function executeCommand(params: {
       reject(err);
     };
 
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
-
-    child.stdout.on("data", (chunk: string) => {
-      const next = stdout + chunk;
-      const capped = capText(next, params.config.maxStdoutBytes);
-      stdout = capped.text;
-      if (capped.truncated) {
-        stdoutTruncated = true;
-      }
+    child.stdout.on("data", (chunk: Buffer | string) => {
+      const data = typeof chunk === "string" ? Buffer.from(chunk, "utf8") : chunk;
+      appendChunk(stdoutCapture, data, params.config.maxStdoutBytes);
     });
 
-    child.stderr.on("data", (chunk: string) => {
-      const next = stderr + chunk;
-      const capped = capText(next, params.config.maxStderrBytes);
-      stderr = capped.text;
-      if (capped.truncated) {
-        stderrTruncated = true;
-      }
+    child.stderr.on("data", (chunk: Buffer | string) => {
+      const data = typeof chunk === "string" ? Buffer.from(chunk, "utf8") : chunk;
+      appendChunk(stderrCapture, data, params.config.maxStderrBytes);
     });
 
     const timeout = setTimeout(() => {
@@ -112,13 +152,13 @@ export async function executeCommand(params: {
 
     child.once("close", (code, signal) => {
       settle({
-        stdout,
-        stderr,
+        stdout: captureToText(stdoutCapture),
+        stderr: captureToText(stderrCapture),
         exitCode: code,
         signal,
         timedOut,
-        stdoutTruncated,
-        stderrTruncated,
+        stdoutTruncated: stdoutCapture.truncated,
+        stderrTruncated: stderrCapture.truncated,
         durationMs: Date.now() - startedAt,
       });
     });

@@ -28,4 +28,23 @@ describe("binary discovery", () => {
       }),
     ).rejects.toMatchObject({ code: "BINARY_NOT_FOUND" });
   });
+
+  it("maps executable failures to EXEC_ERROR when binary exists", async () => {
+    clearBinaryCacheForTests();
+    await expect(
+      discoverBinary({
+        configuredPath: "gws",
+        runVersion: async () => ({
+          stdout: "",
+          stderr: "permission denied",
+          exitCode: 126,
+          signal: null,
+          timedOut: false,
+          stdoutTruncated: false,
+          stderrTruncated: false,
+          durationMs: 1,
+        }),
+      }),
+    ).rejects.toMatchObject({ code: "EXEC_ERROR" });
+  });
 });

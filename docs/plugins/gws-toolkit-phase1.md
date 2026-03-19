@@ -111,7 +111,7 @@ True in-process multi-agent credential routing is deferred to Phase 2.
 DAISy deploy supports both:
 
 - `GOOGLE_WORKSPACE_CLI_TOKEN` (token mode)
-- `GWS_CREDENTIALS` (credentials JSON payload for `credentials_file` mode; materialized during deploy to `config/secrets/gws/credentials.json`)
+- `GWS_CREDENTIALS` (credentials JSON payload as raw JSON text for `credentials_file` mode; materialized during deploy to `config/secrets/gws/credentials.json`)
 
 ## Policy and audit docs
 

@@ -4,6 +4,7 @@ import { discoverBinary } from "../binary.js";
 import { toStructuredError } from "../errors.js";
 import { executeCommand } from "../executor.js";
 import { evaluatePolicy } from "../policy.js";
+import { validateStatusParams } from "../schema.js";
 import type {
   ConfigPosture,
   GwsToolkitConfig,
@@ -16,22 +17,77 @@ type ConfigResolution =
   | { ok: true; config: GwsToolkitConfig; posture: ConfigPosture }
   | { ok: false; posture: ConfigPosture; message: string; fallbackConfig: GwsToolkitConfig };
 
+export function buildConfigResolutionDeniedEnvelope(params: {
+  tool: "gws_status" | "gws_drive_read" | "gws_gmail_read" | "gws_calendar_read";
+  service: "status" | "drive" | "gmail" | "calendar";
+  action: string;
+  configResolution: ConfigResolution;
+  ctx: InvocationContext;
+  audit: AuditLogger;
+}): StructuredEnvelope {
+  const latencyMs = 0;
+  const message = params.configResolution.ok
+    ? "unexpected config resolution state"
+    : params.configResolution.message;
+  const posture = params.configResolution.posture;
+
+  params.audit.emit({
+    ctx: params.ctx,
+    toolName: params.tool,
+    action: params.action,
+    targetService: params.service,
+    decision: "deny",
+    denyReason: message,
+    latencyMs,
+    resultCode: "CONFIG_ERROR",
+  });
+
+  return {
+    ok: false,
+    error: {
+      code: "CONFIG_ERROR",
+      message,
+      details: {
+        posture,
+      },
+    },
+    meta: {
+      tool: params.tool,
+      action: params.action,
+      service: params.service,
+      latencyMs,
+    },
+  };
+}
+
 export async function executeStatus(params: {
   ctx: InvocationContext;
   audit: AuditLogger;
   configResolution: ConfigResolution;
+  rawParams?: unknown;
 }): Promise<StructuredEnvelope> {
   const startedAt = Date.now();
 
-  if (!params.configResolution.ok) {
+  const validated = validateStatusParams(params.rawParams ?? {});
+  if (!validated.ok) {
     const latencyMs = Date.now() - startedAt;
-    const denial: StructuredEnvelope = {
+    params.audit.emit({
+      ctx: params.ctx,
+      toolName: "gws_status",
+      action: "status",
+      targetService: "status",
+      decision: "deny",
+      denyReason: "Invalid gws_status params",
+      latencyMs,
+      resultCode: "VALIDATION_ERROR",
+    });
+    return {
       ok: false,
       error: {
-        code: "CONFIG_ERROR",
-        message: params.configResolution.message,
+        code: "VALIDATION_ERROR",
+        message: "Invalid gws_status params",
         details: {
-          posture: params.configResolution.posture,
+          issues: validated.errors,
         },
       },
       meta: {
@@ -41,19 +97,17 @@ export async function executeStatus(params: {
         latencyMs,
       },
     };
+  }
 
-    params.audit.emit({
-      ctx: params.ctx,
-      toolName: "gws_status",
+  if (!params.configResolution.ok) {
+    return buildConfigResolutionDeniedEnvelope({
+      tool: "gws_status",
+      service: "status",
       action: "status",
-      targetService: "status",
-      decision: "deny",
-      denyReason: denial.error.message,
-      latencyMs,
-      resultCode: "CONFIG_ERROR",
+      configResolution: params.configResolution,
+      ctx: params.ctx,
+      audit: params.audit,
     });
-
-    return denial;
   }
 
   const activeConfig = params.configResolution.config;
@@ -63,7 +117,7 @@ export async function executeStatus(params: {
       tool: "gws_status",
       service: "status",
       action: "status",
-      payload: {},
+      payload: validated.value,
       config: activeConfig,
     });
 
@@ -106,6 +160,8 @@ export async function executeStatus(params: {
 
     const authStatus = getAuthSourceStatus(activeConfig);
     const latencyMs = Date.now() - startedAt;
+    const includeVersion = validated.value.includeVersion !== false;
+    const includeAuthStatus = validated.value.includeAuthStatus !== false;
 
     const result: StructuredSuccess<Record<string, unknown>> = {
       ok: true,
@@ -113,9 +169,9 @@ export async function executeStatus(params: {
         binary: {
           found: true,
           binaryPath: discovery.binaryPath,
-          version: discovery.versionText,
+          ...(includeVersion ? { version: discovery.versionText } : {}),
         },
-        auth: authStatus,
+        ...(includeAuthStatus ? { auth: authStatus } : {}),
         config: {
           posture: params.configResolution.posture,
           enabledServices: activeConfig.enabledServices,

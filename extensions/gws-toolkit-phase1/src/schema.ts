@@ -1,4 +1,4 @@
-import { Ajv, type ValidateFunction } from "ajv";
+import Ajv, { type ValidateFunction } from "ajv";
 import type {
   CalendarReadParams,
   DriveReadParams,
@@ -31,6 +31,28 @@ const driveSchema = {
     fileId: { type: "string", minLength: 1 },
     mimeType: { type: "string", minLength: 1 },
   },
+  allOf: [
+    {
+      if: {
+        properties: {
+          action: { const: "get_file_metadata" },
+        },
+      },
+      then: {
+        required: ["fileId"],
+      },
+    },
+    {
+      if: {
+        properties: {
+          action: { const: "export_file" },
+        },
+      },
+      then: {
+        required: ["fileId", "mimeType"],
+      },
+    },
+  ],
 };
 
 const gmailSchema = {
@@ -43,6 +65,18 @@ const gmailSchema = {
     maxResults: { type: "integer", minimum: 1, maximum: 500 },
     messageId: { type: "string", minLength: 1 },
   },
+  allOf: [
+    {
+      if: {
+        properties: {
+          action: { const: "get_message_metadata" },
+        },
+      },
+      then: {
+        required: ["messageId"],
+      },
+    },
+  ],
 };
 
 const calendarSchema = {
@@ -57,6 +91,18 @@ const calendarSchema = {
     timeMin: { type: "string", minLength: 1 },
     timeMax: { type: "string", minLength: 1 },
   },
+  allOf: [
+    {
+      if: {
+        properties: {
+          action: { const: "get_event" },
+        },
+      },
+      then: {
+        required: ["eventId"],
+      },
+    },
+  ],
 };
 
 const validators = {

@@ -4,7 +4,7 @@ import { executeCalendarRead } from "./src/commands/calendar-read.js";
 import { executeDriveRead } from "./src/commands/drive-read.js";
 import { executeGmailRead } from "./src/commands/gmail-read.js";
 import { createRuntimeDeps } from "./src/commands/helpers.js";
-import { executeStatus } from "./src/commands/status.js";
+import { buildConfigResolutionDeniedEnvelope, executeStatus } from "./src/commands/status.js";
 import { resolveConfig } from "./src/config.js";
 import { createRedactingLogger } from "./src/logger.js";
 import type { GwsToolkitConfig, InvocationContext, StructuredEnvelope } from "./src/types.js";
@@ -96,11 +96,12 @@ const plugin = {
         },
         { additionalProperties: false },
       ),
-      async execute(_id: string, _params: Record<string, unknown>) {
+      async execute(_id: string, params: Record<string, unknown>) {
         const envelope = await executeStatus({
           ctx: createContext(),
           audit,
           configResolution,
+          rawParams: params,
         });
         return toToolResult(envelope);
       },
@@ -123,20 +124,16 @@ const plugin = {
       ),
       async execute(_id: string, params: Record<string, unknown>) {
         if (!resolvedConfig.ok) {
-          return toToolResult({
-            ok: false,
-            error: {
-              code: "CONFIG_ERROR",
-              message: resolvedConfig.error.error.message,
-              details: { posture: resolvedConfig.posture },
-            },
-            meta: {
+          return toToolResult(
+            buildConfigResolutionDeniedEnvelope({
               tool: "gws_drive_read",
-              action: "unknown",
               service: "drive",
-              latencyMs: 0,
-            },
-          });
+              action: typeof params.action === "string" ? params.action : "unknown",
+              configResolution,
+              ctx: createContext(),
+              audit,
+            }),
+          );
         }
         const envelope = await executeDriveRead({
           ctx: createContext(),
@@ -162,20 +159,16 @@ const plugin = {
       ),
       async execute(_id: string, params: Record<string, unknown>) {
         if (!resolvedConfig.ok) {
-          return toToolResult({
-            ok: false,
-            error: {
-              code: "CONFIG_ERROR",
-              message: resolvedConfig.error.error.message,
-              details: { posture: resolvedConfig.posture },
-            },
-            meta: {
+          return toToolResult(
+            buildConfigResolutionDeniedEnvelope({
               tool: "gws_gmail_read",
-              action: "unknown",
               service: "gmail",
-              latencyMs: 0,
-            },
-          });
+              action: typeof params.action === "string" ? params.action : "unknown",
+              configResolution,
+              ctx: createContext(),
+              audit,
+            }),
+          );
         }
         const envelope = await executeGmailRead({
           ctx: createContext(),
@@ -203,20 +196,16 @@ const plugin = {
       ),
       async execute(_id: string, params: Record<string, unknown>) {
         if (!resolvedConfig.ok) {
-          return toToolResult({
-            ok: false,
-            error: {
-              code: "CONFIG_ERROR",
-              message: resolvedConfig.error.error.message,
-              details: { posture: resolvedConfig.posture },
-            },
-            meta: {
+          return toToolResult(
+            buildConfigResolutionDeniedEnvelope({
               tool: "gws_calendar_read",
-              action: "unknown",
               service: "calendar",
-              latencyMs: 0,
-            },
-          });
+              action: typeof params.action === "string" ? params.action : "unknown",
+              configResolution,
+              ctx: createContext(),
+              audit,
+            }),
+          );
         }
         const envelope = await executeCalendarRead({
           ctx: createContext(),
@@ -250,6 +239,7 @@ const plugin = {
               ctx: createContext(),
               audit,
               configResolution,
+              rawParams: { includeVersion: false, includeAuthStatus: true },
             });
             console.log(JSON.stringify(payload, null, 2));
           });

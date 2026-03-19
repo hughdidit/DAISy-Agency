@@ -13,7 +13,7 @@ Set `binaryPath` in plugin config if `gws` is not on `PATH`.
 
 - Google Drive API (`drive.googleapis.com`)
 - Gmail API (`gmail.googleapis.com`)
-- Google Calendar API (`calendar-json.googleapis.com`)
+- Google Calendar API (`calendar.googleapis.com`)
 
 ## 3) Configure OpenClaw Through `OPENCLAW_CONFIG_FILE`
 
@@ -81,7 +81,7 @@ For token mode, inject:
 
 For `credentials_file` mode, inject:
 
-- `GWS_CREDENTIALS` (GitHub Secret containing exported credentials JSON)
+- `GWS_CREDENTIALS` (GitHub Secret containing exported credentials JSON as raw JSON text)
 
 In DAISy deploy flow, `scripts/deploy.sh` can materialize `GWS_CREDENTIALS` into:
 

@@ -24,4 +24,23 @@ describe("integration: policy deny", () => {
     expect(writeLike.ok).toBe(false);
     expect(writeLike.error).toMatchObject({ code: "DENY_POLICY" });
   });
+
+  it("emits audit event for validation denials", async () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
+
+    const harness = createHarness({
+      pluginConfig: defaultPluginConfig(),
+    });
+
+    const malformed = await executeTool(harness, "gws_gmail_read", {
+      action: "list_messages",
+      unknownParam: true,
+    });
+    expect(malformed.ok).toBe(false);
+    expect(malformed.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const joinedLogs = harness.logs.join("\n");
+    expect(joinedLogs).toContain('"resultCode":"VALIDATION_ERROR"');
+    expect(joinedLogs).toContain('"decision":"deny"');
+  });
 });

@@ -7,9 +7,21 @@ function normalizePath(input: string): string {
   return path.resolve(input);
 }
 
+function normalizeComparablePath(input: string): string {
+  const resolved = normalizePath(input);
+  const stripped = resolved.replace(/[\\/]+$/, "");
+  return process.platform === "win32" ? stripped.toLowerCase() : stripped;
+}
+
 function isPathInside(parent: string, child: string): boolean {
-  const rel = path.relative(parent, child);
-  return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
+  const normalizedParent = normalizeComparablePath(parent);
+  const normalizedChild = normalizeComparablePath(child);
+  if (normalizedChild === normalizedParent) {
+    return true;
+  }
+
+  const separator = process.platform === "win32" ? "\\" : "/";
+  return normalizedChild.startsWith(`${normalizedParent}${separator}`);
 }
 
 function resolveExistingPath(input: string): string {

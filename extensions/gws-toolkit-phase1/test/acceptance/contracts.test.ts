@@ -17,7 +17,7 @@ afterEach(() => {
 describe("gws-toolkit-phase1 acceptance contracts", () => {
   it("returns structured status success", async () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token-for-tests";
-    process.env.OPENCLAW_CONFIG_FILE = "C:/runtime/openclaw.config.json";
+    process.env.OPENCLAW_CONFIG_FILE = path.resolve("openclaw.config.json");
 
     const harness = createHarness({
       pluginConfig: defaultPluginConfig(),

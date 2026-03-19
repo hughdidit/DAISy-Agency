@@ -198,7 +198,7 @@ ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
       --quiet \
       --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; read -r ENV_B64; printf %s \"\${ENV_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/monitoring/.env.monitoring\" > /dev/null; sudo chown root:root \"\${DEPLOY_DIR}/monitoring/.env.monitoring\"; sudo chmod 600 \"\${DEPLOY_DIR}/monitoring/.env.monitoring\"; echo \".env.monitoring written (root:root 600)\"'"
   else
-    echo "NOTE: GRAFANA_ADMIN_PASSWORD not set — skipping .env.monitoring generation."
+    echo "NOTE: GRAFANA_ADMIN_PASSWORD not set â€” skipping .env.monitoring generation."
     echo "      If .env.monitoring already exists on the VM, it will be reused."
   fi
 
@@ -386,9 +386,11 @@ fi
 if [[ -n "${GWS_CREDENTIALS_B64}" ]]; then
   GWS_CREDENTIALS_TMP="$(mktemp)"
   printf '%s' "${GWS_CREDENTIALS_B64}" | base64 -d > "${GWS_CREDENTIALS_TMP}"
-  sudo install -d -m 750 -o 1000 -g 1000 "${DEPLOY_DIR}/config/secrets/gws"
+  sudo install -d -m 700 -o 1000 -g 1000 "${DEPLOY_DIR}/config/secrets/gws"
   sudo install -m 600 -o 1000 -g 1000 "${GWS_CREDENTIALS_TMP}" "${DEPLOY_DIR}/config/secrets/gws/credentials.json"
   rm -f "${GWS_CREDENTIALS_TMP}"
+else
+  sudo rm -f "${DEPLOY_DIR}/config/secrets/gws/credentials.json"
 fi
 unset GWS_CREDENTIALS_B64
 

@@ -15,11 +15,52 @@ import type {
   StructuredSuccess,
   ToolName,
 } from "../types.js";
+import type { ValidationIssue } from "../schema.js";
 
 export type RuntimeDeps = {
   config: GwsToolkitConfig;
   audit: AuditLogger;
 };
+
+export function buildValidationDeniedEnvelope(params: {
+  deps: RuntimeDeps;
+  ctx: InvocationContext;
+  tool: ToolName;
+  service: ServiceFamily;
+  message: string;
+  issues: ValidationIssue[];
+}): StructuredEnvelope {
+  const startedAt = Date.now();
+  const latencyMs = Date.now() - startedAt;
+
+  params.deps.audit.emit({
+    ctx: params.ctx,
+    toolName: params.tool,
+    action: "unknown",
+    targetService: params.service,
+    decision: "deny",
+    denyReason: params.message,
+    latencyMs,
+    resultCode: "VALIDATION_ERROR",
+  });
+
+  return {
+    ok: false,
+    error: {
+      code: "VALIDATION_ERROR",
+      message: params.message,
+      details: {
+        issues: params.issues,
+      },
+    },
+    meta: {
+      tool: params.tool,
+      action: "unknown",
+      service: params.service,
+      latencyMs,
+    },
+  };
+}
 
 export async function runReadOnlyCommand(params: {
   deps: RuntimeDeps;
@@ -146,6 +187,7 @@ export async function runReadOnlyCommand(params: {
     return mapped;
   }
 }
+
 export function createRuntimeDeps(config: GwsToolkitConfig, audit: AuditLogger): RuntimeDeps {
   return { config, audit };
 }

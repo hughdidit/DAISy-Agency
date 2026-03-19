@@ -2,7 +2,11 @@ import { buildDriveReadCommand } from "../command-builder.js";
 import { PluginError } from "../errors.js";
 import { validateDriveParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
-import { runReadOnlyCommand, type RuntimeDeps } from "./helpers.js";
+import {
+  buildValidationDeniedEnvelope,
+  runReadOnlyCommand,
+  type RuntimeDeps,
+} from "./helpers.js";
 
 export async function executeDriveRead(params: {
   ctx: InvocationContext;
@@ -11,22 +15,14 @@ export async function executeDriveRead(params: {
 }): Promise<StructuredEnvelope> {
   const validated = validateDriveParams(params.rawParams);
   if (!validated.ok) {
-    return {
-      ok: false,
-      error: {
-        code: "VALIDATION_ERROR",
-        message: "Invalid gws_drive_read params",
-        details: {
-          issues: validated.errors,
-        },
-      },
-      meta: {
-        tool: "gws_drive_read",
-        action: "unknown",
-        service: "drive",
-        latencyMs: 0,
-      },
-    };
+    return buildValidationDeniedEnvelope({
+      deps: params.deps,
+      ctx: params.ctx,
+      tool: "gws_drive_read",
+      service: "drive",
+      message: "Invalid gws_drive_read params",
+      issues: validated.errors,
+    });
   }
 
   const action = validated.value.action;

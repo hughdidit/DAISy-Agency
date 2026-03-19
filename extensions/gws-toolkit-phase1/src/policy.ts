@@ -22,18 +22,35 @@ const WRITE_HINTS = [
   "raw",
 ];
 
+const WRITE_HINT_PATTERN = new RegExp(`\\b(${WRITE_HINTS.join("|")})\\b`, "i");
+
+const WRITE_KEY_EXACT = new Set([
+  "raw",
+  "rawcommand",
+  "raw_command",
+  "allowwrite",
+  "allow_write",
+  "write",
+  "operation",
+  "method",
+  "mode",
+]);
+
 function hasWriteHint(value: unknown): boolean {
   if (typeof value === "string") {
-    const lowered = value.toLowerCase();
-    return WRITE_HINTS.some((hint) => lowered.includes(hint));
+    return WRITE_HINT_PATTERN.test(value);
   }
   if (Array.isArray(value)) {
     return value.some((entry) => hasWriteHint(entry));
   }
   if (value && typeof value === "object") {
-    return Object.entries(value as Record<string, unknown>).some(
-      ([key, entry]) => hasWriteHint(key) || hasWriteHint(entry),
-    );
+    return Object.entries(value as Record<string, unknown>).some(([key, entry]) => {
+      const normalizedKey = key.trim().toLowerCase();
+      if (WRITE_KEY_EXACT.has(normalizedKey)) {
+        return hasWriteHint(entry) || normalizedKey.includes("raw");
+      }
+      return hasWriteHint(entry);
+    });
   }
   return false;
 }

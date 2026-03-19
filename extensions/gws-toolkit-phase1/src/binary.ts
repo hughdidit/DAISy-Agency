@@ -1,6 +1,6 @@
 import { PluginError } from "./errors.js";
-import type { DiscoveryResult, ExecutionResult } from "./types.js";
 import { MIN_SUPPORTED_GWS_VERSION } from "./types.js";
+import type { DiscoveryResult, ExecutionResult } from "./types.js";
 
 type CacheEntry = {
   key: string;
@@ -9,6 +9,8 @@ type CacheEntry = {
 };
 
 const cache = new Map<string, CacheEntry>();
+
+const NOT_FOUND_PATTERN = /enoent|not\s+recognized|not\s+found/i;
 
 function isCacheEnabled(): boolean {
   return process.env.VITEST === undefined && process.env.NODE_ENV !== "test";
@@ -72,7 +74,7 @@ export async function discoverBinary(params: {
       }
       if (error.code === "EXEC_ERROR") {
         const message = error.message;
-        if (/enoent|not recognized|not found|eacces|permission denied/i.test(message)) {
+        if (NOT_FOUND_PATTERN.test(message)) {
           throw new PluginError("BINARY_NOT_FOUND", "gws binary not found", {
             binaryPath,
           });
@@ -89,13 +91,15 @@ export async function discoverBinary(params: {
     const stderr = versionResult.stderr.trim();
     const stdout = versionResult.stdout.trim();
     const message = stderr || stdout || "binary failed";
-    if (/not recognized|not found|enoent/i.test(message)) {
+    if (NOT_FOUND_PATTERN.test(message)) {
       throw new PluginError("BINARY_NOT_FOUND", "gws binary not found", {
         binaryPath,
       });
     }
-    throw new PluginError("BINARY_NOT_FOUND", `Unable to execute gws binary: ${message}`, {
+    throw new PluginError("EXEC_ERROR", "gws --version command failed", {
       binaryPath,
+      exitCode: versionResult.exitCode,
+      message: message.slice(0, 240),
     });
   }
 

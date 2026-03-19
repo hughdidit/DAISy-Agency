@@ -32,4 +32,20 @@ describe("integration: OPENCLAW_CONFIG_FILE posture", () => {
     expect(missing.ok).toBe(false);
     expect(missing.error).toMatchObject({ code: "CONFIG_ERROR" });
   });
+
+  it("honors gws_status include flags", async () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
+    const harness = createHarness({
+      pluginConfig: defaultPluginConfig(),
+    });
+
+    const status = await executeTool(harness, "gws_status", {
+      includeVersion: false,
+      includeAuthStatus: false,
+    });
+
+    expect(status.ok).toBe(true);
+    expect(status.data.binary).not.toHaveProperty("version");
+    expect(status.data).not.toHaveProperty("auth");
+  });
 });

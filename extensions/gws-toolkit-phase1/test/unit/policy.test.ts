@@ -47,4 +47,15 @@ describe("policy", () => {
     });
     expect(decision.allowed).toBe(false);
   });
+
+  it("avoids substring false positives on safe values", () => {
+    const decision = evaluatePolicy({
+      tool: "gws_gmail_read",
+      service: "gmail",
+      action: "list_messages",
+      payload: { query: "from:sender@example.com subject:planning" },
+      config,
+    });
+    expect(decision.allowed).toBe(true);
+  });
 });

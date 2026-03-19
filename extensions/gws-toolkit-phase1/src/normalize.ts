@@ -9,7 +9,7 @@ export type NormalizedExecution = {
   stderrTruncated: boolean;
 };
 
-function parseJsonLoose(input: string): unknown {
+function parseJson(input: string): unknown {
   const trimmed = input.trim();
   if (!trimmed) {
     throw new PluginError("NON_JSON_OUTPUT", "gws returned empty stdout");
@@ -22,13 +22,20 @@ function parseJsonLoose(input: string): unknown {
       try {
         return JSON.parse(suffix[1]);
       } catch {
-        // continue to throw below
+        // fall through to throw below
       }
     }
   }
-  throw new PluginError("NON_JSON_OUTPUT", "gws returned non-JSON stdout", {
-    sample: trimmed.slice(0, 160),
-  });
+
+  throw new PluginError("NON_JSON_OUTPUT", "gws returned non-JSON stdout");
+}
+
+function parseJsonBestEffort(input: string): unknown | undefined {
+  try {
+    return parseJson(input);
+  } catch {
+    return undefined;
+  }
 }
 
 export function normalizeExecution(result: ExecutionResult): NormalizedExecution {
@@ -38,15 +45,16 @@ export function normalizeExecution(result: ExecutionResult): NormalizedExecution
     });
   }
 
-  const parsed = parseJsonLoose(result.stdout);
-
   if (result.exitCode !== 0) {
+    const parsed = parseJsonBestEffort(result.stdout);
     throw new PluginError("CLI_ERROR", "gws command returned non-zero exit code", {
       exitCode: result.exitCode,
       stderr: result.stderr.slice(0, 240),
       payload: parsed,
     });
   }
+
+  const parsed = parseJson(result.stdout);
 
   return {
     payload: parsed,

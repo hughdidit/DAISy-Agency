@@ -2,7 +2,11 @@ import { buildGmailReadCommand } from "../command-builder.js";
 import { PluginError } from "../errors.js";
 import { validateGmailParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
-import { runReadOnlyCommand, type RuntimeDeps } from "./helpers.js";
+import {
+  buildValidationDeniedEnvelope,
+  runReadOnlyCommand,
+  type RuntimeDeps,
+} from "./helpers.js";
 
 export async function executeGmailRead(params: {
   ctx: InvocationContext;
@@ -11,22 +15,14 @@ export async function executeGmailRead(params: {
 }): Promise<StructuredEnvelope> {
   const validated = validateGmailParams(params.rawParams);
   if (!validated.ok) {
-    return {
-      ok: false,
-      error: {
-        code: "VALIDATION_ERROR",
-        message: "Invalid gws_gmail_read params",
-        details: {
-          issues: validated.errors,
-        },
-      },
-      meta: {
-        tool: "gws_gmail_read",
-        action: "unknown",
-        service: "gmail",
-        latencyMs: 0,
-      },
-    };
+    return buildValidationDeniedEnvelope({
+      deps: params.deps,
+      ctx: params.ctx,
+      tool: "gws_gmail_read",
+      service: "gmail",
+      message: "Invalid gws_gmail_read params",
+      issues: validated.errors,
+    });
   }
 
   const action = validated.value.action;

@@ -2,7 +2,11 @@ import { buildCalendarReadCommand } from "../command-builder.js";
 import { PluginError } from "../errors.js";
 import { validateCalendarParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
-import { runReadOnlyCommand, type RuntimeDeps } from "./helpers.js";
+import {
+  buildValidationDeniedEnvelope,
+  runReadOnlyCommand,
+  type RuntimeDeps,
+} from "./helpers.js";
 
 export async function executeCalendarRead(params: {
   ctx: InvocationContext;
@@ -11,22 +15,14 @@ export async function executeCalendarRead(params: {
 }): Promise<StructuredEnvelope> {
   const validated = validateCalendarParams(params.rawParams);
   if (!validated.ok) {
-    return {
-      ok: false,
-      error: {
-        code: "VALIDATION_ERROR",
-        message: "Invalid gws_calendar_read params",
-        details: {
-          issues: validated.errors,
-        },
-      },
-      meta: {
-        tool: "gws_calendar_read",
-        action: "unknown",
-        service: "calendar",
-        latencyMs: 0,
-      },
-    };
+    return buildValidationDeniedEnvelope({
+      deps: params.deps,
+      ctx: params.ctx,
+      tool: "gws_calendar_read",
+      service: "calendar",
+      message: "Invalid gws_calendar_read params",
+      issues: validated.errors,
+    });
   }
 
   const action = validated.value.action;
