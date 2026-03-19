@@ -418,8 +418,16 @@ export CLAUDE_WEB_SESSION_KEY
 export CLAUDE_WEB_COOKIE
 export BRAVE_API_KEY
 export FIRECRAWL_API_KEY
-export TRELLO_API_KEY
-export TRELLO_TOKEN
+if [[ -n "${TRELLO_API_KEY}" ]]; then
+  export TRELLO_API_KEY
+else
+  unset TRELLO_API_KEY
+fi
+if [[ -n "${TRELLO_TOKEN}" ]]; then
+  export TRELLO_TOKEN
+else
+  unset TRELLO_TOKEN
+fi
 export GOOGLE_WORKSPACE_CLI_TOKEN
 export OPENCLAW_CONFIG_DIR="${DEPLOY_DIR}/config"
 export OPENCLAW_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
