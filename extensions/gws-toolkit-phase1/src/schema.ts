@@ -1,4 +1,4 @@
-import Ajv, { type ValidateFunction } from "ajv";
+import { Ajv, type ValidateFunction } from "ajv";
 import type {
   CalendarReadParams,
   DriveReadParams,
