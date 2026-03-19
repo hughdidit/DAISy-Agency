@@ -106,12 +106,12 @@ These secrets are passed to docker compose on the target VM.
 - `CLAUDE_WEB_SESSION_KEY` - Claude.ai web session key for usage statistics fallback
 - `CLAUDE_WEB_COOKIE` - Claude.ai cookie header for usage statistics fallback
 
+The optional web session secrets enable the **usage monitoring** feature to fetch rate limit and quota information from Claude.ai. This is a fallback for when the primary OAuth token lacks the `user:profile` scope. If you don't need usage statistics displayed in the dashboard, these can be omitted or set to placeholder values.
+
 **Optional (integrations):**
 
 - `TRELLO_API_KEY` - Trello API key for Trello integration runtime auth
 - `TRELLO_TOKEN` - Trello token for Trello integration runtime auth
-
-The optional web session secrets enable the **usage monitoring** feature to fetch rate limit and quota information from Claude.ai. This is a fallback for when the primary OAuth token lacks the `user:profile` scope. If you don't need usage statistics displayed in the dashboard, these can be omitted or set to placeholder values.
 
 To extract web session credentials (if needed):
 
