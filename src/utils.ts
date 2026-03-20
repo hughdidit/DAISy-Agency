@@ -313,7 +313,10 @@ export function resolveConfigDir(
   if (override) {
     return resolveUserPath(override, env, homedir);
   }
-  const explicitConfigDir = resolveExplicitConfigDir(env, () => resolveRequiredHomeDir(env, homedir));
+  const explicitConfigDir = resolveExplicitConfigDir(
+    env,
+    () => resolveRequiredHomeDir(env, homedir),
+  );
   if (explicitConfigDir) {
     return explicitConfigDir;
   }
@@ -400,3 +403,4 @@ export function formatTerminalLink(
 
 // Configuration root; can be overridden via OPENCLAW_STATE_DIR.
 export const CONFIG_DIR = resolveConfigDir();
+
