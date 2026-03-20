@@ -1380,6 +1380,42 @@ describe("runReplyAgent typing (heartbeat)", () => {
     });
   });
 
+  it("sanitizes sandbox docker crashes before replying", async () => {
+    await withTempStateDir(async (stateDir) => {
+      const sessionId = "session-sandbox-failure";
+      const storePath = path.join(stateDir, "sessions", "sessions.json");
+      const sessionEntry = { sessionId, updatedAt: Date.now() };
+      const sessionStore = { main: sessionEntry };
+
+      await fs.mkdir(path.dirname(storePath), { recursive: true });
+      await fs.writeFile(storePath, JSON.stringify(sessionStore), "utf-8");
+
+      state.runEmbeddedPiAgentMock.mockImplementationOnce(async () => {
+        throw new Error(
+          "Failed to inspect sandbox image: runtime/cgo: pthread_create failed: Operation not permitted\n" +
+            "SIGABRT: abort\n" +
+            "goroutine 1 gp=0xc000002540 m=0 mp=0x56522ed81000 [running]:",
+        );
+      });
+
+      const { run } = createMinimalRun({
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        storePath,
+      });
+      const res = await run();
+
+      expect(res).toMatchObject({
+        text:
+          "⚠️ Agent failed before reply: Sandbox startup failed: Docker CLI could not inspect the sandbox image in the gateway runtime. Fix Docker CLI/socket access or disable sandbox mode (`agents.defaults.sandbox.mode=off`).\nLogs: openclaw logs --follow",
+      });
+      expect(res.text).not.toContain("pthread_create failed");
+      expect(res.text).not.toContain("SIGABRT");
+      expect(sessionStore.main).toBeDefined();
+    });
+  });
+
   it("still replies even if session reset fails to persist", async () => {
     await withTempStateDir(async (stateDir) => {
       const saveSpy = vi

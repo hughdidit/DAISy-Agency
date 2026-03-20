@@ -33,6 +33,19 @@ describe("sanitizeUserFacingText", () => {
     );
   });
 
+  it("sanitizes sandbox image inspect crashes", () => {
+    const raw =
+      "Failed to inspect sandbox image: runtime/cgo: pthread_create failed: Operation not permitted\n" +
+      "SIGABRT: abort\n" +
+      "goroutine 1 gp=0xc000002540 m=0 mp=0x56522ed81000 [running]:";
+
+    expect(sanitizeUserFacingText(raw, { errorContext: true })).toBe(
+      "Sandbox startup failed: Docker CLI could not inspect the sandbox image in the gateway " +
+        "runtime. Fix Docker CLI/socket access or disable sandbox mode " +
+        "(`agents.defaults.sandbox.mode=off`).",
+    );
+  });
+
   it.each([
     "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
     "Request size exceeds model context window",

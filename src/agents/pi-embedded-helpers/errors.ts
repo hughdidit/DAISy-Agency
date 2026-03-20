@@ -581,6 +581,14 @@ export function sanitizeUserFacingText(text: string, opts?: { errorContext?: boo
   // Only apply error-pattern rewrites when the caller knows this text is an error payload.
   // Otherwise we risk swallowing legitimate assistant text that merely *mentions* these errors.
   if (errorContext) {
+    if (/^Failed to inspect sandbox image:/i.test(trimmed)) {
+      return (
+        "Sandbox startup failed: Docker CLI could not inspect the sandbox image in the gateway " +
+        "runtime. Fix Docker CLI/socket access or disable sandbox mode " +
+        "(`agents.defaults.sandbox.mode=off`)."
+      );
+    }
+
     if (/incorrect role information|roles must alternate/i.test(trimmed)) {
       return (
         "Message ordering conflict - please try again. " +
