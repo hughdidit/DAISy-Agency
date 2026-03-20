@@ -23,6 +23,18 @@ const NEW_STATE_DIRNAME = ".openclaw";
 const MANAGED_STATE_DIR_PREFIX = ".openclaw-";
 const CONFIG_FILENAME = "openclaw.json";
 const LEGACY_CONFIG_FILENAMES = ["clawdbot.json", "moldbot.json", "moltbot.json"] as const;
+const STATE_ACTIVITY_MARKERS = [
+  "agents",
+  "credentials",
+  "discord",
+  "extensions",
+  "identity",
+  "logs",
+  "node.json",
+  "restart-sentinel.json",
+  "subagents",
+  "update-check.json",
+] as const;
 
 function resolveDefaultHomeDir(): string {
   return resolveRequiredHomeDir(process.env, os.homedir);
@@ -39,6 +51,21 @@ function legacyStateDirs(homedir: () => string = resolveDefaultHomeDir): string[
 
 function newStateDir(homedir: () => string = resolveDefaultHomeDir): string {
   return path.join(homedir(), NEW_STATE_DIRNAME);
+}
+
+function legacyStateDirHasManagedContent(dir: string): boolean {
+  const candidates = [
+    path.join(dir, CONFIG_FILENAME),
+    ...LEGACY_CONFIG_FILENAMES.map((name) => path.join(dir, name)),
+    ...STATE_ACTIVITY_MARKERS.map((name) => path.join(dir, name)),
+  ];
+  return candidates.some((candidate) => {
+    try {
+      return fs.existsSync(candidate);
+    } catch {
+      return false;
+    }
+  });
 }
 
 export function resolveLegacyStateDir(homedir: () => string = resolveDefaultHomeDir): string {
@@ -82,7 +109,7 @@ export function resolveStateDir(
   }
   const existingLegacy = legacyDirs.find((dir) => {
     try {
-      return fs.existsSync(dir);
+      return fs.existsSync(dir) && legacyStateDirHasManagedContent(dir);
     } catch {
       return false;
     }

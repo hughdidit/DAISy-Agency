@@ -85,7 +85,7 @@ describe("state + config path candidates", () => {
         OPENCLAW_CONFIG_PATH: path.join(root, "config", "openclaw.json"),
       } as NodeJS.ProcessEnv;
 
-      expect(resolveStateDir(env, () => root)).toBe(path.join(root, ".clawdbot"));
+      expect(resolveStateDir(env, () => root)).toBe(path.join(root, ".openclaw"));
     });
   });
 
@@ -138,10 +138,20 @@ describe("state + config path candidates", () => {
     });
   });
 
-  it("falls back to existing legacy state dir when ~/.openclaw is missing", async () => {
+  it("ignores empty legacy state dirs when ~/.openclaw is missing", async () => {
+    await withTempRoot("openclaw-state-empty-legacy-", async (root) => {
+      const legacyDir = path.join(root, ".clawdbot");
+      await fs.mkdir(legacyDir, { recursive: true });
+      const resolved = resolveStateDir({} as NodeJS.ProcessEnv, () => root);
+      expect(resolved).toBe(path.join(root, ".openclaw"));
+    });
+  });
+
+  it("falls back to legacy state dir when it contains managed state", async () => {
     await withTempRoot("openclaw-state-legacy-", async (root) => {
       const legacyDir = path.join(root, ".clawdbot");
       await fs.mkdir(legacyDir, { recursive: true });
+      await fs.writeFile(path.join(legacyDir, "openclaw.json"), "{}", "utf-8");
       const resolved = resolveStateDir({} as NodeJS.ProcessEnv, () => root);
       expect(resolved).toBe(legacyDir);
     });
