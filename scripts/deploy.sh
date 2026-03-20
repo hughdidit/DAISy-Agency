@@ -229,13 +229,15 @@ if cat > /etc/sysctl.d/60-daisy-userns.conf <<'\''SYSCTL'\''
 kernel.unprivileged_userns_clone = 0
 SYSCTL
 then
-  if sysctl --system >/dev/null 2>&1 || sysctl -p /etc/sysctl.d/60-daisy-userns.conf >/dev/null 2>&1; then
+  if sysctl -p /etc/sysctl.d/60-daisy-userns.conf >/dev/null; then
     echo \"  Refreshed user namespace sysctl.\"
   else
-    echo \"WARNING: Failed to apply user namespace sysctl.\"
+    echo \"ERROR: Failed to apply user namespace sysctl.\" >&2
+    exit 1
   fi
 else
-  echo \"WARNING: Failed to write user namespace sysctl config.\"
+  echo \"ERROR: Failed to write user namespace sysctl config.\" >&2
+  exit 1
 fi
 
 # -- Log directories + promtail bind mount --
@@ -588,3 +590,4 @@ unset GWS_CREDENTIALS
   --tunnel-through-iap \
   --quiet \
   --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
+

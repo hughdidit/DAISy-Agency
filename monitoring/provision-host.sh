@@ -62,7 +62,7 @@ if cat > /etc/sysctl.d/60-daisy-userns.conf <<'SYSCTL'
 kernel.unprivileged_userns_clone = 0
 SYSCTL
 then
-  if sysctl --system >/dev/null 2>&1 || sysctl -p /etc/sysctl.d/60-daisy-userns.conf >/dev/null 2>&1; then
+  if sysctl -p /etc/sysctl.d/60-daisy-userns.conf >/dev/null; then
     echo "Disabled unprivileged user namespaces."
   else
     echo "ERROR: Failed to apply user namespace sysctl."
@@ -189,3 +189,4 @@ else
   echo "=== Host Provisioning Complete ==="
 fi
 echo ""
+
