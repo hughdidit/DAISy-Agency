@@ -24,16 +24,28 @@ const MANAGED_STATE_DIR_PREFIX = ".openclaw-";
 const CONFIG_FILENAME = "openclaw.json";
 const LEGACY_CONFIG_FILENAMES = ["clawdbot.json", "moldbot.json", "moltbot.json"] as const;
 const STATE_ACTIVITY_MARKERS = [
+  "agent",
   "agents",
+  "browser",
+  "canvas",
   "credentials",
+  "devices",
   "discord",
   "extensions",
   "identity",
   "logs",
+  "media",
   "node.json",
+  "nodes",
+  "push",
   "restart-sentinel.json",
+  "sessions",
+  "settings",
   "subagents",
+  "telegram",
   "update-check.json",
+  "workspace",
+  "workspace-main",
 ] as const;
 
 function resolveDefaultHomeDir(): string {

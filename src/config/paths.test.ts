@@ -157,6 +157,15 @@ describe("state + config path candidates", () => {
     });
   });
 
+  it("falls back to legacy state dir when it contains managed sessions state", async () => {
+    await withTempRoot("openclaw-state-legacy-sessions-", async (root) => {
+      const legacyDir = path.join(root, ".clawdbot");
+      await fs.mkdir(path.join(legacyDir, "sessions"), { recursive: true });
+      const resolved = resolveStateDir({} as NodeJS.ProcessEnv, () => root);
+      expect(resolved).toBe(legacyDir);
+    });
+  });
+
   it("CONFIG_PATH prefers existing config when present", async () => {
     await withTempRoot("openclaw-config-", async (root) => {
       const legacyDir = path.join(root, ".openclaw");
