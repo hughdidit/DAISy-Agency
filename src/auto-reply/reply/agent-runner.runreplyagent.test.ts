@@ -1406,6 +1406,10 @@ describe("runReplyAgent typing (heartbeat)", () => {
       });
       const res = await run();
 
+      if (!res || Array.isArray(res) || typeof res.text !== "string") {
+        throw new Error("expected single text reply payload");
+      }
+
       expect(res).toMatchObject({
         text: "⚠️ Agent failed before reply: Sandbox startup failed: Docker CLI could not inspect the sandbox image in the gateway runtime. Fix Docker CLI/socket access or disable sandbox mode (`agents.defaults.sandbox.mode=off`).\nLogs: openclaw logs --follow",
       });
