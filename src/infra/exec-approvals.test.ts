@@ -158,6 +158,31 @@ describe("mergeExecApprovalsSocketDefaults", () => {
     expect(merged.socket?.path).toBeTruthy();
     expect(merged.socket?.token).toBe("b");
   });
+
+  it("canonicalizes legacy default current socket paths into the active default", () => {
+    const dir = makeTempDir();
+    const prevOpenClawHome = process.env.OPENCLAW_HOME;
+    try {
+      process.env.OPENCLAW_HOME = dir;
+      const normalized = normalizeExecApprovals({ version: 1, agents: {} });
+      const current = {
+        version: 1 as const,
+        agents: {},
+        socket: { path: path.join(dir, ".clawdbot", "exec-approvals.sock"), token: "b" },
+      };
+      const merged = mergeExecApprovalsSocketDefaults({ normalized, current });
+      expect(path.normalize(merged.socket?.path ?? "")).toBe(
+        path.normalize(path.join(dir, ".openclaw", "exec-approvals.sock")),
+      );
+      expect(merged.socket?.token).toBe("b");
+    } finally {
+      if (prevOpenClawHome === undefined) {
+        delete process.env.OPENCLAW_HOME;
+      } else {
+        process.env.OPENCLAW_HOME = prevOpenClawHome;
+      }
+    }
+  });
 });
 
 describe("resolve exec approvals defaults", () => {
@@ -172,6 +197,29 @@ describe("resolve exec approvals defaults", () => {
       expect(path.normalize(resolveExecApprovalsSocketPath())).toBe(
         path.normalize(path.join(dir, ".openclaw", "exec-approvals.sock")),
       );
+    } finally {
+      if (prevOpenClawHome === undefined) {
+        delete process.env.OPENCLAW_HOME;
+      } else {
+        process.env.OPENCLAW_HOME = prevOpenClawHome;
+      }
+    }
+  });
+
+  it("normalizes legacy default socket paths into the current socket path", () => {
+    const dir = makeTempDir();
+    const prevOpenClawHome = process.env.OPENCLAW_HOME;
+    try {
+      process.env.OPENCLAW_HOME = dir;
+      const normalized = normalizeExecApprovals({
+        version: 1,
+        agents: {},
+        socket: { path: path.join(dir, ".clawdbot", "exec-approvals.sock"), token: "legacy" },
+      });
+      expect(path.normalize(normalized.socket?.path ?? "")).toBe(
+        path.normalize(path.join(dir, ".openclaw", "exec-approvals.sock")),
+      );
+      expect(normalized.socket?.token).toBe("legacy");
     } finally {
       if (prevOpenClawHome === undefined) {
         delete process.env.OPENCLAW_HOME;

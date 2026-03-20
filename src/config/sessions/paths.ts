@@ -131,6 +131,7 @@ function extractAgentIdFromAbsoluteSessionPath(candidateAbsPath: string): string
 function resolveStructuralSessionFallbackPath(
   candidateAbsPath: string,
   expectedAgentId: string,
+  baseSessionsDir: string,
 ): string | undefined {
   const parsed = resolveAgentSessionsPathParts(candidateAbsPath);
   if (!parsed) {
@@ -154,10 +155,13 @@ function resolveStructuralSessionFallbackPath(
     return undefined;
   }
   const fileName = relativeSegments[0];
-  if (!fileName || fileName === "." || fileName === "..") {
+  if (!fileName || fileName === "." || fileName === ".." || fileName.includes(path.sep)) {
     return undefined;
   }
-  return path.normalize(path.resolve(candidateAbsPath));
+  const targetSessionsDir =
+    resolveSiblingAgentSessionsDir(baseSessionsDir, expectedAgentId) ??
+    resolveAgentSessionsDir(expectedAgentId);
+  return path.resolve(targetSessionsDir, fileName);
 }
 
 function safeRealpathSync(filePath: string): string | undefined {
@@ -216,10 +220,12 @@ function resolvePathWithinSessionsDir(
         return resolvedFromPath;
       }
       // Cross-root compatibility for older absolute paths:
-      // keep only canonical .../agents/<agentId>/sessions/<file> shapes.
+      // map only canonical .../agents/<agentId>/sessions/<file> shapes
+      // back into the active state root so stale absolute paths do not survive.
       const structuralFallback = resolveStructuralSessionFallbackPath(
         realTrimmed,
         extractedAgentId,
+        realBase,
       );
       if (structuralFallback) {
         return structuralFallback;
