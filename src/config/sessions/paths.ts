@@ -169,7 +169,7 @@ function resolveStructuralSessionFallbackPath(
     return undefined;
   }
   const fileName = relativeSegments[0];
-  if (!fileName || fileName === "." || fileName === ".." || fileName.includes(path.sep)) {
+  if (!fileName || fileName === "." || fileName === "..") {
     return undefined;
   }
   const normalizedCurrentAgentId = currentAgentId?.trim()
