@@ -54,7 +54,26 @@ else
   ERRORS=$((ERRORS + 1))
 fi
 
-# ── 3. Initialize AIDE database ─────────────────────────────────
+# ── 3. Disable unprivileged user namespaces on the host ────────
+# This keeps clone3 available for normal thread creation while preventing
+# unprivileged user namespace creation on the VM itself.
+echo "Configuring user namespace policy..."
+if cat > /etc/sysctl.d/60-daisy-userns.conf <<'SYSCTL'
+kernel.unprivileged_userns_clone = 0
+SYSCTL
+then
+  if sysctl --system >/dev/null 2>&1 || sysctl -p /etc/sysctl.d/60-daisy-userns.conf >/dev/null 2>&1; then
+    echo "Disabled unprivileged user namespaces."
+  else
+    echo "ERROR: Failed to apply user namespace sysctl."
+    ERRORS=$((ERRORS + 1))
+  fi
+else
+  echo "ERROR: Failed to write user namespace sysctl config."
+  ERRORS=$((ERRORS + 1))
+fi
+
+# ── 4. Initialize AIDE database ─────────────────────────────────
 # Safe: only creates if aide.db doesn't already exist, never overwrites.
 echo "Initializing AIDE database..."
 if command -v aide >/dev/null 2>&1; then
@@ -77,7 +96,7 @@ else
   echo "WARNING: aide not found — skipping AIDE init."
 fi
 
-# ── 4. Install AIDE cron entry ──────────────────────────────────
+# ── 5. Install AIDE cron entry ──────────────────────────────────
 # Safe: only adds if not already present (checked via grep).
 AIDE_CRON="*/15 * * * * /usr/bin/aide --check --config ${MONITORING_DIR}/aide/aide.conf 2>&1 | logger -t aide-check"
 if ! crontab -l 2>/dev/null | grep -qF "aide --check"; then
@@ -87,7 +106,7 @@ else
   echo "AIDE cron entry already exists."
 fi
 
-# ── 5. Install systemd units ────────────────────────────────────
+# ── 6. Install systemd units ────────────────────────────────────
 echo "Installing systemd units..."
 
 # Watchdog service
@@ -134,7 +153,7 @@ else
   ERRORS=$((ERRORS + 1))
 fi
 
-# ── 6. Install persistent bind mount for promtail log access ────
+# ── 7. Install persistent bind mount for promtail log access ────
 # Ensures /var/log/openclaw survives reboots without needing a deploy.
 MOUNT_UNIT="var-log-openclaw.mount"
 cat > "/etc/systemd/system/${MOUNT_UNIT}" <<MOUNT

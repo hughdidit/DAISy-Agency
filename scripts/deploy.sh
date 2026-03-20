@@ -224,6 +224,20 @@ ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
     --command "sudo bash -c 'DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; MONITORING_DIR=\"\${DEPLOY_DIR}/monitoring\"; LOG_BASE=/var/log; PERMS_ERRORS=0
 echo \"Applying per-deploy permissions...\"
 
+# -- Refresh host user namespace policy (keeps host in sync with new commits) --
+if cat > /etc/sysctl.d/60-daisy-userns.conf <<'\''SYSCTL'\''
+kernel.unprivileged_userns_clone = 0
+SYSCTL
+then
+  if sysctl --system >/dev/null 2>&1 || sysctl -p /etc/sysctl.d/60-daisy-userns.conf >/dev/null 2>&1; then
+    echo \"  Refreshed user namespace sysctl.\"
+  else
+    echo \"WARNING: Failed to apply user namespace sysctl.\"
+  fi
+else
+  echo \"WARNING: Failed to write user namespace sysctl config.\"
+fi
+
 # -- Log directories + promtail bind mount --
 mkdir -p \"\${LOG_BASE}/falco\" \"\${LOG_BASE}/daisy-watchdog\"
 mkdir -p /tmp/openclaw \"\${LOG_BASE}/openclaw\"
