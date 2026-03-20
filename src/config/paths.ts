@@ -20,6 +20,7 @@ export const isNixMode = resolveIsNixMode();
 // Support historical (and occasionally misspelled) legacy state dirs.
 const LEGACY_STATE_DIRNAMES = [".clawdbot", ".moldbot", ".moltbot"] as const;
 const NEW_STATE_DIRNAME = ".openclaw";
+const MANAGED_STATE_DIR_PREFIX = ".openclaw-";
 const CONFIG_FILENAME = "openclaw.json";
 const LEGACY_CONFIG_FILENAMES = ["clawdbot.json", "moldbot.json", "moltbot.json"] as const;
 
@@ -66,6 +67,10 @@ export function resolveStateDir(
   if (override) {
     return resolveUserPath(override, env, effectiveHomedir);
   }
+  const explicitConfigDir = resolveExplicitConfigDir(env, effectiveHomedir);
+  if (explicitConfigDir) {
+    return explicitConfigDir;
+  }
   const newDir = newStateDir(effectiveHomedir);
   if (env.OPENCLAW_TEST_FAST === "1") {
     return newDir;
@@ -106,6 +111,27 @@ function resolveUserPath(
     return path.resolve(expanded);
   }
   return path.resolve(trimmed);
+}
+
+function isManagedStateDirCandidate(dir: string): boolean {
+  const base = path.basename(dir);
+  return (
+    base === NEW_STATE_DIRNAME ||
+    base.startsWith(MANAGED_STATE_DIR_PREFIX) ||
+    LEGACY_STATE_DIRNAMES.includes(base as (typeof LEGACY_STATE_DIRNAMES)[number])
+  );
+}
+
+export function resolveExplicitConfigDir(
+  env: NodeJS.ProcessEnv = process.env,
+  homedir: () => string = envHomedir(env),
+): string | undefined {
+  const explicitConfigPath = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
+  if (!explicitConfigPath) {
+    return undefined;
+  }
+  const dir = path.dirname(resolveUserPath(explicitConfigPath, env, homedir));
+  return isManagedStateDirCandidate(dir) ? dir : undefined;
 }
 
 export const STATE_DIR = resolveStateDir();

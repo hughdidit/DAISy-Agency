@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { resolveOAuthDir } from "./config/paths.js";
+import { resolveExplicitConfigDir, resolveOAuthDir } from "./config/paths.js";
 import { logVerbose, shouldLogVerbose } from "./globals.js";
 import {
   expandHomePrefix,
@@ -282,7 +282,11 @@ export function truncateUtf16Safe(input: string, maxLen: number): string {
   return sliceUtf16Safe(input, 0, limit);
 }
 
-export function resolveUserPath(input: string): string {
+export function resolveUserPath(
+  input: string,
+  env: NodeJS.ProcessEnv = process.env,
+  homedir: () => string = os.homedir,
+): string {
   if (!input) {
     return "";
   }
@@ -292,9 +296,9 @@ export function resolveUserPath(input: string): string {
   }
   if (trimmed.startsWith("~")) {
     const expanded = expandHomePrefix(trimmed, {
-      home: resolveRequiredHomeDir(process.env, os.homedir),
-      env: process.env,
-      homedir: os.homedir,
+      home: resolveRequiredHomeDir(env, homedir),
+      env,
+      homedir,
     });
     return path.resolve(expanded);
   }
@@ -307,7 +311,13 @@ export function resolveConfigDir(
 ): string {
   const override = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
   if (override) {
-    return resolveUserPath(override);
+    return resolveUserPath(override, env, homedir);
+  }
+  const explicitConfigDir = resolveExplicitConfigDir(env, () =>
+    resolveRequiredHomeDir(env, homedir),
+  );
+  if (explicitConfigDir) {
+    return explicitConfigDir;
   }
   const newDir = path.join(resolveRequiredHomeDir(env, homedir), ".openclaw");
   try {
