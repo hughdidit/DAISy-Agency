@@ -119,6 +119,11 @@ const DEFAULT_ASK_FALLBACK: ExecSecurity = "deny";
 const DEFAULT_AUTO_ALLOW_SKILLS = false;
 const DEFAULT_SOCKET = "~/.openclaw/exec-approvals.sock";
 const DEFAULT_FILE = "~/.openclaw/exec-approvals.json";
+const LEGACY_DEFAULT_SOCKETS = [
+  "~/.clawdbot/exec-approvals.sock",
+  "~/.moldbot/exec-approvals.sock",
+  "~/.moltbot/exec-approvals.sock",
+] as const;
 
 function hashExecApprovalsRaw(raw: string | null): string {
   return crypto
@@ -133,6 +138,22 @@ export function resolveExecApprovalsPath(): string {
 
 export function resolveExecApprovalsSocketPath(): string {
   return expandHomePrefix(DEFAULT_SOCKET);
+}
+
+function normalizeExecApprovalsSocketPathValue(socketPath?: string): string | undefined {
+  const trimmed = socketPath?.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  const resolved = path.resolve(expandHomePrefix(trimmed));
+  const isLegacyDefault = LEGACY_DEFAULT_SOCKETS.some((candidate) => {
+    const resolvedLegacy = path.resolve(expandHomePrefix(candidate));
+    if (process.platform === "win32") {
+      return resolvedLegacy.toLowerCase() === resolved.toLowerCase();
+    }
+    return resolvedLegacy === resolved;
+  });
+  return isLegacyDefault ? resolveExecApprovalsSocketPath() : trimmed;
 }
 
 function normalizeAllowlistPattern(value: string | undefined): string | null {
@@ -224,7 +245,7 @@ function ensureAllowlistIds(
 }
 
 export function normalizeExecApprovals(file: ExecApprovalsFile): ExecApprovalsFile {
-  const socketPath = file.socket?.path?.trim();
+  const socketPath = normalizeExecApprovalsSocketPathValue(file.socket?.path);
   const token = file.socket?.token?.trim();
   const agents = { ...file.agents };
   const legacyDefault = agents.default;
@@ -261,10 +282,12 @@ export function mergeExecApprovalsSocketDefaults(params: {
   normalized: ExecApprovalsFile;
   current?: ExecApprovalsFile;
 }): ExecApprovalsFile {
-  const currentSocketPath = params.current?.socket?.path?.trim();
+  const currentSocketPath = normalizeExecApprovalsSocketPathValue(params.current?.socket?.path);
   const currentToken = params.current?.socket?.token?.trim();
   const socketPath =
-    params.normalized.socket?.path?.trim() ?? currentSocketPath ?? resolveExecApprovalsSocketPath();
+    normalizeExecApprovalsSocketPathValue(params.normalized.socket?.path) ??
+    currentSocketPath ??
+    resolveExecApprovalsSocketPath();
   const token = params.normalized.socket?.token?.trim() ?? currentToken ?? "";
   return {
     ...params.normalized,

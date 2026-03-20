@@ -70,6 +70,30 @@ describe("session path safety", () => {
     expect(resolved).toBe(path.resolve(sessionsDir, "sess-1.jsonl"));
   });
 
+  it("canonicalizes legacy cross-root session paths into the active sessions dir", () => {
+    const sessionsDir = "/tmp/openclaw/agents/main/sessions";
+
+    const resolved = resolveSessionFilePath(
+      "sess-1",
+      { sessionFile: "/tmp/legacy/agents/main/sessions/sess-1-topic-456.jsonl" },
+      { sessionsDir, agentId: "main" },
+    );
+
+    expect(resolved).toBe(path.resolve(sessionsDir, "sess-1-topic-456.jsonl"));
+  });
+
+  it("canonicalizes legacy cross-root session paths into a custom sessions dir", () => {
+    const sessionsDir = "/tmp/custom-store/main-sessions";
+
+    const resolved = resolveSessionFilePath(
+      "sess-1",
+      { sessionFile: "/tmp/legacy/agents/main/sessions/sess-1-topic-456.jsonl" },
+      { sessionsDir, agentId: "main" },
+    );
+
+    expect(resolved).toBe(path.resolve(sessionsDir, "sess-1-topic-456.jsonl"));
+  });
+
   it("ignores multi-store sentinel paths when deriving session file options", () => {
     expect(resolveSessionFilePathOptions({ agentId: "worker", storePath: "(multiple)" })).toEqual({
       agentId: "worker",
@@ -380,5 +404,43 @@ describe("resolveAndPersistSessionFile", () => {
     expect(result.sessionEntry.sessionId).toBe(sessionId);
     const saved = loadSessionStore(fixture.storePath(), { skipCache: true });
     expect(saved[sessionKey]?.sessionFile).toBe(fallbackSessionFile);
+  });
+
+  it("rewrites persisted legacy absolute sessionFile paths into the active sessions dir", async () => {
+    const sessionId = "legacy-session-id";
+    const sessionKey = "agent:main:discord:channel:123";
+    const legacySessionFile = "/tmp/legacy/agents/main/sessions/legacy-session-id.jsonl";
+    fs.writeFileSync(
+      fixture.storePath(),
+      JSON.stringify(
+        {
+          [sessionKey]: {
+            sessionId,
+            updatedAt: Date.now(),
+            sessionFile: legacySessionFile,
+          },
+        },
+        null,
+        2,
+      ),
+      "utf-8",
+    );
+    const sessionStore = loadSessionStore(fixture.storePath(), { skipCache: true });
+
+    const result = await resolveAndPersistSessionFile({
+      sessionId,
+      sessionKey,
+      sessionStore,
+      storePath: fixture.storePath(),
+      sessionEntry: sessionStore[sessionKey],
+      agentId: "main",
+      sessionsDir: fixture.sessionsDir(),
+    });
+
+    const expectedSessionFile = path.join(fixture.sessionsDir(), `${sessionId}.jsonl`);
+    expect(result.sessionFile).toBe(expectedSessionFile);
+
+    const saved = loadSessionStore(fixture.storePath(), { skipCache: true });
+    expect(saved[sessionKey]?.sessionFile).toBe(expectedSessionFile);
   });
 });

@@ -118,6 +118,19 @@ function resolveAgentSessionsPathParts(
   return { parts, sessionsIndex };
 }
 
+function extractAgentIdFromSessionsDir(sessionsDir: string): string | undefined {
+  const resolvedBase = path.resolve(sessionsDir);
+  if (path.basename(resolvedBase) !== "sessions") {
+    return undefined;
+  }
+  const agentDir = path.dirname(resolvedBase);
+  const agentsDir = path.dirname(agentDir);
+  if (path.basename(agentsDir) !== "agents") {
+    return undefined;
+  }
+  return path.basename(agentDir) || undefined;
+}
+
 function extractAgentIdFromAbsoluteSessionPath(candidateAbsPath: string): string | undefined {
   const parsed = resolveAgentSessionsPathParts(candidateAbsPath);
   if (!parsed) {
@@ -131,6 +144,11 @@ function extractAgentIdFromAbsoluteSessionPath(candidateAbsPath: string): string
 function resolveStructuralSessionFallbackPath(
   candidateAbsPath: string,
   expectedAgentId: string,
+  baseSessionsDir: string,
+  opts?: {
+    currentAgentId?: string;
+    allowBaseSessionsDirFallback?: boolean;
+  },
 ): string | undefined {
   const parsed = resolveAgentSessionsPathParts(candidateAbsPath);
   if (!parsed) {
@@ -157,6 +175,19 @@ function resolveStructuralSessionFallbackPath(
   if (!fileName || fileName === "." || fileName === "..") {
     return undefined;
   }
+  const normalizedCurrentAgentId = opts?.currentAgentId?.trim()
+    ? normalizeAgentId(opts.currentAgentId)
+    : undefined;
+  if (!opts?.allowBaseSessionsDirFallback) {
+    return path.normalize(path.resolve(candidateAbsPath));
+  }
+  if (normalizedCurrentAgentId === normalizedAgentId) {
+    return path.resolve(path.resolve(baseSessionsDir), fileName);
+  }
+  const baseAgentId = extractAgentIdFromSessionsDir(baseSessionsDir);
+  if (baseAgentId && normalizeAgentId(baseAgentId) === normalizedAgentId) {
+    return path.resolve(path.resolve(baseSessionsDir), fileName);
+  }
   return path.normalize(path.resolve(candidateAbsPath));
 }
 
@@ -171,7 +202,7 @@ function safeRealpathSync(filePath: string): string | undefined {
 function resolvePathWithinSessionsDir(
   sessionsDir: string,
   candidate: string,
-  opts?: { agentId?: string },
+  opts?: { agentId?: string; allowBaseSessionsDirFallback?: boolean },
 ): string {
   const trimmed = candidate.trim();
   if (!trimmed) {
@@ -216,10 +247,16 @@ function resolvePathWithinSessionsDir(
         return resolvedFromPath;
       }
       // Cross-root compatibility for older absolute paths:
-      // keep only canonical .../agents/<agentId>/sessions/<file> shapes.
+      // anchor same-agent canonical legacy paths to the active sessions dir,
+      // but preserve cross-agent absolute paths across state-dir moves.
       const structuralFallback = resolveStructuralSessionFallbackPath(
         realTrimmed,
         extractedAgentId,
+        realBase,
+        {
+          currentAgentId: explicitAgentId,
+          allowBaseSessionsDirFallback: Boolean(opts?.allowBaseSessionsDirFallback),
+        },
       );
       if (structuralFallback) {
         return structuralFallback;
@@ -268,7 +305,10 @@ export function resolveSessionFilePath(
   const candidate = entry?.sessionFile?.trim();
   if (candidate) {
     try {
-      return resolvePathWithinSessionsDir(sessionsDir, candidate, { agentId: opts?.agentId });
+      return resolvePathWithinSessionsDir(sessionsDir, candidate, {
+        agentId: opts?.agentId,
+        allowBaseSessionsDirFallback: Boolean(opts?.agentId?.trim() || opts?.sessionsDir?.trim()),
+      });
     } catch {
       // Keep handlers alive when persisted metadata is stale/corrupt.
     }
