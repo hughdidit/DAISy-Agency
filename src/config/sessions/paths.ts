@@ -145,7 +145,10 @@ function resolveStructuralSessionFallbackPath(
   candidateAbsPath: string,
   expectedAgentId: string,
   baseSessionsDir: string,
-  currentAgentId?: string,
+  opts?: {
+    currentAgentId?: string;
+    allowBaseSessionsDirFallback?: boolean;
+  },
 ): string | undefined {
   const parsed = resolveAgentSessionsPathParts(candidateAbsPath);
   if (!parsed) {
@@ -172,9 +175,12 @@ function resolveStructuralSessionFallbackPath(
   if (!fileName || fileName === "." || fileName === "..") {
     return undefined;
   }
-  const normalizedCurrentAgentId = currentAgentId?.trim()
-    ? normalizeAgentId(currentAgentId)
+  const normalizedCurrentAgentId = opts?.currentAgentId?.trim()
+    ? normalizeAgentId(opts.currentAgentId)
     : undefined;
+  if (!opts?.allowBaseSessionsDirFallback) {
+    return path.normalize(path.resolve(candidateAbsPath));
+  }
   if (normalizedCurrentAgentId === normalizedAgentId) {
     return path.resolve(path.resolve(baseSessionsDir), fileName);
   }
@@ -196,7 +202,7 @@ function safeRealpathSync(filePath: string): string | undefined {
 function resolvePathWithinSessionsDir(
   sessionsDir: string,
   candidate: string,
-  opts?: { agentId?: string },
+  opts?: { agentId?: string; allowBaseSessionsDirFallback?: boolean },
 ): string {
   const trimmed = candidate.trim();
   if (!trimmed) {
@@ -247,7 +253,10 @@ function resolvePathWithinSessionsDir(
         realTrimmed,
         extractedAgentId,
         realBase,
-        explicitAgentId,
+        {
+          currentAgentId: explicitAgentId,
+          allowBaseSessionsDirFallback: Boolean(opts?.allowBaseSessionsDirFallback),
+        },
       );
       if (structuralFallback) {
         return structuralFallback;
@@ -296,7 +305,10 @@ export function resolveSessionFilePath(
   const candidate = entry?.sessionFile?.trim();
   if (candidate) {
     try {
-      return resolvePathWithinSessionsDir(sessionsDir, candidate, { agentId: opts?.agentId });
+      return resolvePathWithinSessionsDir(sessionsDir, candidate, {
+        agentId: opts?.agentId,
+        allowBaseSessionsDirFallback: Boolean(opts?.agentId?.trim() || opts?.sessionsDir?.trim()),
+      });
     } catch {
       // Keep handlers alive when persisted metadata is stale/corrupt.
     }
