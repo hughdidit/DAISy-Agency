@@ -1407,8 +1407,7 @@ describe("runReplyAgent typing (heartbeat)", () => {
       const res = await run();
 
       expect(res).toMatchObject({
-        text:
-          "⚠️ Agent failed before reply: Sandbox startup failed: Docker CLI could not inspect the sandbox image in the gateway runtime. Fix Docker CLI/socket access or disable sandbox mode (`agents.defaults.sandbox.mode=off`).\nLogs: openclaw logs --follow",
+        text: "⚠️ Agent failed before reply: Sandbox startup failed: Docker CLI could not inspect the sandbox image in the gateway runtime. Fix Docker CLI/socket access or disable sandbox mode (`agents.defaults.sandbox.mode=off`).\nLogs: openclaw logs --follow",
       });
       expect(res.text).not.toContain("pthread_create failed");
       expect(res.text).not.toContain("SIGABRT");
