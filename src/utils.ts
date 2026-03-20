@@ -309,6 +309,17 @@ export function resolveConfigDir(
   if (override) {
     return resolveUserPath(override);
   }
+  const explicitConfigPath = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
+  if (explicitConfigPath) {
+    const expanded = explicitConfigPath.startsWith("~")
+      ? expandHomePrefix(explicitConfigPath, {
+          home: resolveRequiredHomeDir(env, homedir),
+          env,
+          homedir,
+        })
+      : explicitConfigPath;
+    return path.dirname(path.resolve(expanded));
+  }
   const newDir = path.join(resolveRequiredHomeDir(env, homedir), ".openclaw");
   try {
     const hasNew = fs.existsSync(newDir);

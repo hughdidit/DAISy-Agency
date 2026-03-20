@@ -66,6 +66,10 @@ export function resolveStateDir(
   if (override) {
     return resolveUserPath(override, env, effectiveHomedir);
   }
+  const explicitConfigDir = resolveExplicitConfigDir(env, effectiveHomedir);
+  if (explicitConfigDir) {
+    return explicitConfigDir;
+  }
   const newDir = newStateDir(effectiveHomedir);
   if (env.OPENCLAW_TEST_FAST === "1") {
     return newDir;
@@ -106,6 +110,17 @@ function resolveUserPath(
     return path.resolve(expanded);
   }
   return path.resolve(trimmed);
+}
+
+function resolveExplicitConfigDir(
+  env: NodeJS.ProcessEnv = process.env,
+  homedir: () => string = envHomedir(env),
+): string | undefined {
+  const explicitConfigPath = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
+  if (!explicitConfigPath) {
+    return undefined;
+  }
+  return path.dirname(resolveUserPath(explicitConfigPath, env, homedir));
 }
 
 export const STATE_DIR = resolveStateDir();

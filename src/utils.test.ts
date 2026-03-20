@@ -149,6 +149,21 @@ describe("resolveConfigDir", () => {
       await fs.promises.rm(root, { recursive: true, force: true });
     }
   });
+
+  it("derives config dir from OPENCLAW_CONFIG_PATH when state override is unset", async () => {
+    const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "openclaw-config-dir-"));
+    try {
+      const explicitDir = path.join(root, ".openclaw");
+      await fs.promises.mkdir(path.join(root, ".clawdbot"), { recursive: true });
+      const env = {
+        OPENCLAW_CONFIG_PATH: path.join(explicitDir, "openclaw.json"),
+      } as NodeJS.ProcessEnv;
+
+      expect(resolveConfigDir(env, () => root)).toBe(explicitDir);
+    } finally {
+      await fs.promises.rm(root, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("resolveHomeDir", () => {
