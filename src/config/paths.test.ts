@@ -78,6 +78,17 @@ describe("state + config path candidates", () => {
     });
   });
 
+  it("does not anchor state dir to explicit config paths outside managed state roots", async () => {
+    await withTempRoot("openclaw-config-external-", async (root) => {
+      await fs.mkdir(path.join(root, ".clawdbot"), { recursive: true });
+      const env = {
+        OPENCLAW_CONFIG_PATH: path.join(root, "config", "openclaw.json"),
+      } as NodeJS.ProcessEnv;
+
+      expect(resolveStateDir(env, () => root)).toBe(path.join(root, ".clawdbot"));
+    });
+  });
+
   it("uses OPENCLAW_HOME for default state/config locations", () => {
     const env = {
       OPENCLAW_HOME: "/srv/openclaw-home",

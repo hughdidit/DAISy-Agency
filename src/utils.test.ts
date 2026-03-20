@@ -164,6 +164,20 @@ describe("resolveConfigDir", () => {
       await fs.promises.rm(root, { recursive: true, force: true });
     }
   });
+
+  it("does not anchor config dir to explicit config paths outside managed state roots", async () => {
+    const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "openclaw-config-dir-"));
+    try {
+      await fs.promises.mkdir(path.join(root, ".clawdbot"), { recursive: true });
+      const env = {
+        OPENCLAW_CONFIG_PATH: path.join(root, "config", "openclaw.json"),
+      } as NodeJS.ProcessEnv;
+
+      expect(resolveConfigDir(env, () => root)).toBe(path.join(root, ".openclaw"));
+    } finally {
+      await fs.promises.rm(root, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("resolveHomeDir", () => {
