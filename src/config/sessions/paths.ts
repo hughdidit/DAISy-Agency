@@ -118,6 +118,19 @@ function resolveAgentSessionsPathParts(
   return { parts, sessionsIndex };
 }
 
+function extractAgentIdFromSessionsDir(sessionsDir: string): string | undefined {
+  const resolvedBase = path.resolve(sessionsDir);
+  if (path.basename(resolvedBase) !== "sessions") {
+    return undefined;
+  }
+  const agentDir = path.dirname(resolvedBase);
+  const agentsDir = path.dirname(agentDir);
+  if (path.basename(agentsDir) !== "agents") {
+    return undefined;
+  }
+  return path.basename(agentDir) || undefined;
+}
+
 function extractAgentIdFromAbsoluteSessionPath(candidateAbsPath: string): string | undefined {
   const parsed = resolveAgentSessionsPathParts(candidateAbsPath);
   if (!parsed) {
@@ -132,6 +145,7 @@ function resolveStructuralSessionFallbackPath(
   candidateAbsPath: string,
   expectedAgentId: string,
   baseSessionsDir: string,
+  currentAgentId?: string,
 ): string | undefined {
   const parsed = resolveAgentSessionsPathParts(candidateAbsPath);
   if (!parsed) {
@@ -158,10 +172,17 @@ function resolveStructuralSessionFallbackPath(
   if (!fileName || fileName === "." || fileName === ".." || fileName.includes(path.sep)) {
     return undefined;
   }
-  const targetSessionsDir =
-    resolveSiblingAgentSessionsDir(baseSessionsDir, expectedAgentId) ??
-    resolveAgentSessionsDir(expectedAgentId);
-  return path.resolve(targetSessionsDir, fileName);
+  const normalizedCurrentAgentId = currentAgentId?.trim()
+    ? normalizeAgentId(currentAgentId)
+    : undefined;
+  if (normalizedCurrentAgentId === normalizedAgentId) {
+    return path.resolve(path.resolve(baseSessionsDir), fileName);
+  }
+  const baseAgentId = extractAgentIdFromSessionsDir(baseSessionsDir);
+  if (baseAgentId && normalizeAgentId(baseAgentId) === normalizedAgentId) {
+    return path.resolve(path.resolve(baseSessionsDir), fileName);
+  }
+  return path.normalize(path.resolve(candidateAbsPath));
 }
 
 function safeRealpathSync(filePath: string): string | undefined {
@@ -220,12 +241,13 @@ function resolvePathWithinSessionsDir(
         return resolvedFromPath;
       }
       // Cross-root compatibility for older absolute paths:
-      // map only canonical .../agents/<agentId>/sessions/<file> shapes
-      // back into the active state root so stale absolute paths do not survive.
+      // anchor same-agent canonical legacy paths to the active sessions dir,
+      // but preserve cross-agent absolute paths across state-dir moves.
       const structuralFallback = resolveStructuralSessionFallbackPath(
         realTrimmed,
         extractedAgentId,
         realBase,
+        explicitAgentId,
       );
       if (structuralFallback) {
         return structuralFallback;

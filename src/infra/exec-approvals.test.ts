@@ -164,17 +164,19 @@ describe("mergeExecApprovalsSocketDefaults", () => {
     const prevOpenClawHome = process.env.OPENCLAW_HOME;
     try {
       process.env.OPENCLAW_HOME = dir;
-      const normalized = normalizeExecApprovals({ version: 1, agents: {} });
-      const current = {
-        version: 1 as const,
-        agents: {},
-        socket: { path: path.join(dir, ".clawdbot", "exec-approvals.sock"), token: "b" },
-      };
-      const merged = mergeExecApprovalsSocketDefaults({ normalized, current });
-      expect(path.normalize(merged.socket?.path ?? "")).toBe(
-        path.normalize(path.join(dir, ".openclaw", "exec-approvals.sock")),
-      );
-      expect(merged.socket?.token).toBe("b");
+      for (const legacyDir of [".clawdbot", ".moldbot", ".moltbot"]) {
+        const normalized = normalizeExecApprovals({ version: 1, agents: {} });
+        const current = {
+          version: 1 as const,
+          agents: {},
+          socket: { path: path.join(dir, legacyDir, "exec-approvals.sock"), token: "b" },
+        };
+        const merged = mergeExecApprovalsSocketDefaults({ normalized, current });
+        expect(path.normalize(merged.socket?.path ?? "")).toBe(
+          path.normalize(path.join(dir, ".openclaw", "exec-approvals.sock")),
+        );
+        expect(merged.socket?.token).toBe("b");
+      }
     } finally {
       if (prevOpenClawHome === undefined) {
         delete process.env.OPENCLAW_HOME;
@@ -211,15 +213,17 @@ describe("resolve exec approvals defaults", () => {
     const prevOpenClawHome = process.env.OPENCLAW_HOME;
     try {
       process.env.OPENCLAW_HOME = dir;
-      const normalized = normalizeExecApprovals({
-        version: 1,
-        agents: {},
-        socket: { path: path.join(dir, ".clawdbot", "exec-approvals.sock"), token: "legacy" },
-      });
-      expect(path.normalize(normalized.socket?.path ?? "")).toBe(
-        path.normalize(path.join(dir, ".openclaw", "exec-approvals.sock")),
-      );
-      expect(normalized.socket?.token).toBe("legacy");
+      for (const legacyDir of [".clawdbot", ".moldbot", ".moltbot"]) {
+        const normalized = normalizeExecApprovals({
+          version: 1,
+          agents: {},
+          socket: { path: path.join(dir, legacyDir, "exec-approvals.sock"), token: "legacy" },
+        });
+        expect(path.normalize(normalized.socket?.path ?? "")).toBe(
+          path.normalize(path.join(dir, ".openclaw", "exec-approvals.sock")),
+        );
+        expect(normalized.socket?.token).toBe("legacy");
+      }
     } finally {
       if (prevOpenClawHome === undefined) {
         delete process.env.OPENCLAW_HOME;

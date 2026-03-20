@@ -146,9 +146,13 @@ function normalizeExecApprovalsSocketPathValue(socketPath?: string): string | un
     return undefined;
   }
   const resolved = path.resolve(expandHomePrefix(trimmed));
-  const isLegacyDefault = LEGACY_DEFAULT_SOCKETS.some(
-    (candidate) => path.resolve(expandHomePrefix(candidate)) === resolved,
-  );
+  const isLegacyDefault = LEGACY_DEFAULT_SOCKETS.some((candidate) => {
+    const resolvedLegacy = path.resolve(expandHomePrefix(candidate));
+    if (process.platform === "win32") {
+      return resolvedLegacy.toLowerCase() === resolved.toLowerCase();
+    }
+    return resolvedLegacy === resolved;
+  });
   return isLegacyDefault ? resolveExecApprovalsSocketPath() : trimmed;
 }
 
