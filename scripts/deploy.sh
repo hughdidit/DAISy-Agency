@@ -224,6 +224,22 @@ ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
     --command "sudo bash -c 'DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; MONITORING_DIR=\"\${DEPLOY_DIR}/monitoring\"; LOG_BASE=/var/log; PERMS_ERRORS=0
 echo \"Applying per-deploy permissions...\"
 
+# -- Refresh host user namespace policy (keeps host in sync with new commits) --
+if cat > /etc/sysctl.d/60-daisy-userns.conf <<'\''SYSCTL'\''
+kernel.unprivileged_userns_clone = 0
+SYSCTL
+then
+  if sysctl -p /etc/sysctl.d/60-daisy-userns.conf >/dev/null; then
+    echo \"  Refreshed user namespace sysctl.\"
+  else
+    echo \"ERROR: Failed to apply user namespace sysctl.\" >&2
+    exit 1
+  fi
+else
+  echo \"ERROR: Failed to write user namespace sysctl config.\" >&2
+  exit 1
+fi
+
 # -- Log directories + promtail bind mount --
 mkdir -p \"\${LOG_BASE}/falco\" \"\${LOG_BASE}/daisy-watchdog\"
 mkdir -p /tmp/openclaw \"\${LOG_BASE}/openclaw\"
@@ -574,3 +590,4 @@ unset GWS_CREDENTIALS
   --tunnel-through-iap \
   --quiet \
   --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
+

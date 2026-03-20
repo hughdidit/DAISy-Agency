@@ -358,17 +358,9 @@
       ]
     },
     {
-      "_comment": "Allow clone3 but block CLONE_NEWUSER (0x10000000) for namespace creation",
+      "_comment": "Allow clone3 for modern runtimes. Namespace creation is constrained separately by disabling unprivileged user namespaces on the host and by the remaining container hardening.",
       "names": ["clone3"],
-      "action": "SCMP_ACT_ALLOW",
-      "args": [
-        {
-          "index": 2,
-          "value": 268435456,
-          "op": "SCMP_CMP_MASKED_EQ",
-          "valueTwo": 0
-        }
-      ]
+      "action": "SCMP_ACT_ALLOW"
     },
     {
       "_comment": "Block dangerous syscalls — container escape and kernel exploitation vectors",
