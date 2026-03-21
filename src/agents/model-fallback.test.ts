@@ -388,6 +388,16 @@ describe("runWithModelFallback", () => {
     });
   });
 
+  it("falls back on specified API usage limit errors", async () => {
+    await expectFallsBackToHaiku({
+      provider: "openai",
+      model: "gpt-4.1-mini",
+      firstError: new Error(
+        "LLM request rejected: You have reached your specified API usage limits. You will regain access on 2026-04-01 at 00:00 UTC.",
+      ),
+    });
+  });
+
   it("falls back to configured primary for override credential validation errors", async () => {
     const cfg = makeCfg();
     const run = createOverrideFailureRun({

@@ -700,10 +700,10 @@ describe("runReplyAgent typing (heartbeat)", () => {
     });
   });
 
-  it("announces model fallback only when verbose mode is enabled", async () => {
+  it("announces model fallback on the first fallback reply even when verbose mode is off", async () => {
     const cases = [
       { name: "verbose on", verbose: "on" as const, expectNotice: true },
-      { name: "verbose off", verbose: "off" as const, expectNotice: false },
+      { name: "verbose off", verbose: "off" as const, expectNotice: true },
     ] as const;
     for (const testCase of cases) {
       const sessionEntry: SessionEntry = {
@@ -760,6 +760,111 @@ describe("runReplyAgent typing (heartbeat)", () => {
         phases.filter((phase) => phase === "fallback"),
         testCase.name,
       ).toHaveLength(1);
+    }
+  });
+
+  it("retries with the next fallback model when the embedded runner resolves a retryable usage-limit error payload", async () => {
+    const exactQuotaError =
+      "LLM request rejected: You have reached your specified API usage limits. You will regain access on 2026-04-01 at 00:00 UTC.";
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+    };
+    const sessionStore = { main: sessionEntry };
+
+    state.runEmbeddedPiAgentMock
+      .mockResolvedValueOnce({
+        payloads: [{ text: exactQuotaError, isError: true }],
+        meta: {},
+      })
+      .mockResolvedValueOnce({
+        payloads: [{ text: "fallback final" }],
+        meta: {},
+      });
+
+    const fallbackSpy = vi
+      .spyOn(modelFallbackModule, "runWithModelFallback")
+      .mockImplementationOnce(
+        async ({
+          provider,
+          model,
+          run,
+          onError,
+        }: {
+          provider: string;
+          model: string;
+          run: (provider: string, model: string) => Promise<unknown>;
+          onError?: (params: {
+            provider: string;
+            model: string;
+            error: unknown;
+            attempt: number;
+            total: number;
+          }) => Promise<void> | void;
+        }) => {
+          try {
+            const result = await run(provider, model);
+            return { result, provider, model, attempts: [] };
+          } catch (error) {
+            await onError?.({
+              provider,
+              model,
+              error,
+              attempt: 1,
+              total: 2,
+            });
+            const fallbackProvider = "anthropic";
+            const fallbackModel = "claude-haiku-3-5";
+            return {
+              result: await run(fallbackProvider, fallbackModel),
+              provider: fallbackProvider,
+              model: fallbackModel,
+              attempts: [
+                {
+                  provider,
+                  model,
+                  error: exactQuotaError,
+                  reason: "rate_limit",
+                },
+              ],
+            };
+          }
+        },
+      );
+
+    try {
+      const { run } = createMinimalRun({
+        resolvedVerboseLevel: "off",
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        runOverrides: {
+          provider: "openai",
+          model: "gpt-5",
+        },
+      });
+
+      const res = await run();
+      const payload = Array.isArray(res)
+        ? (res[0] as { text?: string })
+        : (res as { text?: string });
+
+      expect(payload.text).toContain("Model Fallback:");
+      expect(payload.text).toContain("anthropic/claude-haiku-3-5");
+      expect(payload.text).toContain("fallback final");
+      expect(payload.text).not.toContain("Agent failed before reply");
+      expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(2);
+      expect(state.runEmbeddedPiAgentMock.mock.calls[0]?.[0]).toMatchObject({
+        provider: "openai",
+        model: "gpt-5",
+      });
+      expect(state.runEmbeddedPiAgentMock.mock.calls[1]?.[0]).toMatchObject({
+        provider: "anthropic",
+        model: "claude-haiku-3-5",
+      });
+      expect(sessionEntry.fallbackNoticeReason).toBe("rate limit");
+    } finally {
+      fallbackSpy.mockRestore();
     }
   });
 
@@ -1036,7 +1141,7 @@ describe("runReplyAgent typing (heartbeat)", () => {
 
       const firstText = Array.isArray(first) ? first[0]?.text : first?.text;
       const secondText = Array.isArray(second) ? second[0]?.text : second?.text;
-      expect(firstText).not.toContain("Model Fallback:");
+      expect(firstText).toContain("Model Fallback:");
       expect(secondText).not.toContain("Model Fallback cleared:");
       expect(phases.filter((phase) => phase === "fallback")).toHaveLength(1);
       expect(phases.filter((phase) => phase === "fallback_cleared")).toHaveLength(1);

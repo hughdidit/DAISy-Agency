@@ -700,10 +700,10 @@ describe("runReplyAgent typing (heartbeat)", () => {
     });
   });
 
-  it("announces model fallback only when verbose mode is enabled", async () => {
+  it("announces model fallback on the first fallback reply even when verbose mode is off", async () => {
     const cases = [
       { name: "verbose on", verbose: "on" as const, expectNotice: true },
-      { name: "verbose off", verbose: "off" as const, expectNotice: false },
+      { name: "verbose off", verbose: "off" as const, expectNotice: true },
     ] as const;
     for (const testCase of cases) {
       const sessionEntry: SessionEntry = {
@@ -1036,7 +1036,7 @@ describe("runReplyAgent typing (heartbeat)", () => {
 
       const firstText = Array.isArray(first) ? first[0]?.text : first?.text;
       const secondText = Array.isArray(second) ? second[0]?.text : second?.text;
-      expect(firstText).not.toContain("Model Fallback:");
+      expect(firstText).toContain("Model Fallback:");
       expect(secondText).not.toContain("Model Fallback cleared:");
       expect(phases.filter((phase) => phase === "fallback")).toHaveLength(1);
       expect(phases.filter((phase) => phase === "fallback_cleared")).toHaveLength(1);

@@ -591,12 +591,13 @@ export async function runReplyAgent(params: {
       }
     }
 
-    // If verbose is enabled, prepend operational run notices.
+    // Prepend operational run notices. Some remain verbose-only, while
+    // fallback transitions are always surfaced once when the model changes.
     let finalPayloads = guardedReplyPayloads;
-    const verboseNotices: ReplyPayload[] = [];
+    const prefixedNotices: ReplyPayload[] = [];
 
     if (verboseEnabled && activeIsNewSession) {
-      verboseNotices.push({ text: `🧭 New session: ${followupRun.run.sessionId}` });
+      prefixedNotices.push({ text: `🧭 New session: ${followupRun.run.sessionId}` });
     }
 
     if (fallbackTransition.fallbackTransitioned) {
@@ -615,17 +616,15 @@ export async function runReplyAgent(params: {
           attempts: fallbackAttempts,
         },
       });
-      if (verboseEnabled) {
-        const fallbackNotice = buildFallbackNotice({
-          selectedProvider,
-          selectedModel,
-          activeProvider: providerUsed,
-          activeModel: modelUsed,
-          attempts: fallbackAttempts,
-        });
-        if (fallbackNotice) {
-          verboseNotices.push({ text: fallbackNotice });
-        }
+      const fallbackNotice = buildFallbackNotice({
+        selectedProvider,
+        selectedModel,
+        activeProvider: providerUsed,
+        activeModel: modelUsed,
+        attempts: fallbackAttempts,
+      });
+      if (fallbackNotice) {
+        prefixedNotices.push({ text: fallbackNotice });
       }
     }
     if (fallbackTransition.fallbackCleared) {
@@ -643,7 +642,7 @@ export async function runReplyAgent(params: {
         },
       });
       if (verboseEnabled) {
-        verboseNotices.push({
+        prefixedNotices.push({
           text: buildFallbackClearedNotice({
             selectedProvider,
             selectedModel,
@@ -679,11 +678,11 @@ export async function runReplyAgent(params: {
 
       if (verboseEnabled) {
         const suffix = typeof count === "number" ? ` (count ${count})` : "";
-        verboseNotices.push({ text: `🧹 Auto-compaction complete${suffix}.` });
+        prefixedNotices.push({ text: `🧹 Auto-compaction complete${suffix}.` });
       }
     }
-    if (verboseNotices.length > 0) {
-      finalPayloads = [...verboseNotices, ...finalPayloads];
+    if (prefixedNotices.length > 0) {
+      finalPayloads = [...prefixedNotices, ...finalPayloads];
     }
     if (responseUsageLine) {
       finalPayloads = appendUsageLine(finalPayloads, responseUsageLine);
