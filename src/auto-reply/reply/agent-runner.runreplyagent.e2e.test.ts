@@ -700,10 +700,10 @@ describe("runReplyAgent typing (heartbeat)", () => {
     });
   });
 
-  it("announces model fallback only when verbose mode is enabled", async () => {
+  it("announces model fallback on the first fallback reply even when verbose mode is off", async () => {
     const cases = [
       { name: "verbose on", verbose: "on" as const, expectNotice: true },
-      { name: "verbose off", verbose: "off" as const, expectNotice: false },
+      { name: "verbose off", verbose: "off" as const, expectNotice: true },
     ] as const;
     for (const testCase of cases) {
       const sessionEntry: SessionEntry = {
@@ -760,6 +760,74 @@ describe("runReplyAgent typing (heartbeat)", () => {
         phases.filter((phase) => phase === "fallback"),
         testCase.name,
       ).toHaveLength(1);
+    }
+  });
+
+  it("keeps the first fallback notice pending across empty turns", async () => {
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+    };
+    const sessionStore = { main: sessionEntry };
+    let callCount = 0;
+
+    state.runEmbeddedPiAgentMock.mockImplementation(async () => {
+      callCount += 1;
+      if (callCount === 1) {
+        return {
+          payloads: [],
+          meta: {},
+        };
+      }
+      return {
+        payloads: [{ text: "final" }],
+        meta: {},
+      };
+    });
+    const fallbackSpy = vi
+      .spyOn(modelFallbackModule, "runWithModelFallback")
+      .mockImplementation(
+        async ({ run }: { run: (provider: string, model: string) => Promise<unknown> }) => ({
+          result: await run("deepinfra", "moonshotai/Kimi-K2.5"),
+          provider: "deepinfra",
+          model: "moonshotai/Kimi-K2.5",
+          attempts: [
+            {
+              provider: "openai",
+              model: "gpt-5",
+              error: "Provider openai is in cooldown (all profiles unavailable)",
+              reason: "rate_limit",
+            },
+          ],
+        }),
+      );
+    try {
+      const { run } = createMinimalRun({
+        resolvedVerboseLevel: "off",
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        runOverrides: {
+          provider: "openai",
+          model: "gpt-5",
+        },
+      });
+      const first = await run();
+
+      expect(first).toBeUndefined();
+      expect(sessionEntry.fallbackNoticeReason).toBeUndefined();
+
+      const second = await run();
+      const secondText = (Array.isArray(second) ? second : [second])
+        .map((payload) => payload?.text ?? "")
+        .join("\n");
+
+      expect(secondText).toContain("Model Fallback:");
+      expect(secondText).toContain("deepinfra/moonshotai/Kimi-K2.5");
+      expect(sessionEntry.fallbackNoticeReason).toBe("rate limit");
+      expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(2);
+    } finally {
+      fallbackSpy.mockRestore();
     }
   });
 
@@ -1036,7 +1104,7 @@ describe("runReplyAgent typing (heartbeat)", () => {
 
       const firstText = Array.isArray(first) ? first[0]?.text : first?.text;
       const secondText = Array.isArray(second) ? second[0]?.text : second?.text;
-      expect(firstText).not.toContain("Model Fallback:");
+      expect(firstText).toContain("Model Fallback:");
       expect(secondText).not.toContain("Model Fallback cleared:");
       expect(phases.filter((phase) => phase === "fallback")).toHaveLength(1);
       expect(phases.filter((phase) => phase === "fallback_cleared")).toHaveLength(1);

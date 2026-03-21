@@ -39,6 +39,10 @@ const state = vi.hoisted(() => ({
 let modelFallbackModule: typeof import("../../agents/model-fallback.js");
 let onAgentEvent: typeof import("../../infra/agent-events.js").onAgentEvent;
 
+type RunWithModelFallbackParams = Parameters<
+  (typeof import("../../agents/model-fallback.js"))["runWithModelFallback"]
+>[0];
+
 let runReplyAgentPromise:
   | Promise<(typeof import("./agent-runner.js"))["runReplyAgent"]>
   | undefined;
@@ -51,18 +55,10 @@ async function getRunReplyAgent() {
 }
 
 vi.mock("../../agents/model-fallback.js", () => ({
-  runWithModelFallback: async ({
-    provider,
-    model,
-    run,
-  }: {
-    provider: string;
-    model: string;
-    run: (provider: string, model: string) => Promise<unknown>;
-  }) => ({
-    result: await run(provider, model),
-    provider,
-    model,
+  runWithModelFallback: async (params: RunWithModelFallbackParams) => ({
+    result: await params.run(params.provider, params.model),
+    provider: params.provider,
+    model: params.model,
     attempts: [],
   }),
 }));
@@ -700,10 +696,10 @@ describe("runReplyAgent typing (heartbeat)", () => {
     });
   });
 
-  it("announces model fallback only when verbose mode is enabled", async () => {
+  it("announces model fallback on the first fallback reply even when verbose mode is off", async () => {
     const cases = [
       { name: "verbose on", verbose: "on" as const, expectNotice: true },
-      { name: "verbose off", verbose: "off" as const, expectNotice: false },
+      { name: "verbose off", verbose: "off" as const, expectNotice: true },
     ] as const;
     for (const testCase of cases) {
       const sessionEntry: SessionEntry = {
@@ -716,7 +712,7 @@ describe("runReplyAgent typing (heartbeat)", () => {
         meta: {},
       });
       vi.spyOn(modelFallbackModule, "runWithModelFallback").mockImplementationOnce(
-        async ({ run }: { run: (provider: string, model: string) => Promise<unknown> }) => ({
+        async ({ run }: Pick<RunWithModelFallbackParams, "run">) => ({
           result: await run("deepinfra", "moonshotai/Kimi-K2.5"),
           provider: "deepinfra",
           model: "moonshotai/Kimi-K2.5",
@@ -763,6 +759,406 @@ describe("runReplyAgent typing (heartbeat)", () => {
     }
   });
 
+  it("retries with the next fallback model when the embedded runner resolves a retryable usage-limit error payload", async () => {
+    const exactQuotaError =
+      "LLM request rejected: You have reached your specified API usage limits. You will regain access on 2026-04-01 at 00:00 UTC.";
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+    };
+    const sessionStore = { main: sessionEntry };
+
+    state.runEmbeddedPiAgentMock
+      .mockResolvedValueOnce({
+        payloads: [{ text: exactQuotaError, isError: true }],
+        meta: {},
+      })
+      .mockResolvedValueOnce({
+        payloads: [{ text: "fallback final" }],
+        meta: {},
+      });
+
+    const fallbackSpy = vi
+      .spyOn(modelFallbackModule, "runWithModelFallback")
+      .mockImplementationOnce(async (params: RunWithModelFallbackParams) => {
+        const { provider, model, run, onError } = params;
+        try {
+          const result = await run(provider, model);
+          return { result, provider, model, attempts: [] };
+        } catch (error) {
+          await onError?.({
+            provider,
+            model,
+            error,
+            attempt: 1,
+            total: 2,
+          });
+          const fallbackProvider = "anthropic";
+          const fallbackModel = "claude-haiku-3-5";
+          return {
+            result: await run(fallbackProvider, fallbackModel),
+            provider: fallbackProvider,
+            model: fallbackModel,
+            attempts: [
+              {
+                provider,
+                model,
+                error: exactQuotaError,
+                reason: "rate_limit",
+              },
+            ],
+          };
+        }
+      });
+
+    try {
+      const { run } = createMinimalRun({
+        resolvedVerboseLevel: "off",
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        runOverrides: {
+          provider: "openai",
+          model: "gpt-5",
+        },
+      });
+
+      const res = await run();
+      const payloads = Array.isArray(res) ? res : [res];
+      const combinedText = payloads.map((payload) => payload?.text ?? "").join("\n");
+      const noticeText = payloads[0]?.text ?? "";
+      const finalText = payloads[payloads.length - 1]?.text ?? "";
+
+      expect(noticeText).toContain("Model Fallback:");
+      expect(noticeText).toContain("anthropic/claude-haiku-3-5");
+      expect(finalText).toContain("fallback final");
+      expect(combinedText).not.toContain("Agent failed before reply");
+      expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(2);
+      expect(state.runEmbeddedPiAgentMock.mock.calls[0]?.[0]).toMatchObject({
+        provider: "openai",
+        model: "gpt-5",
+      });
+      expect(state.runEmbeddedPiAgentMock.mock.calls[1]?.[0]).toMatchObject({
+        provider: "anthropic",
+        model: "claude-haiku-3-5",
+      });
+      expect(sessionEntry.fallbackNoticeReason).toBe("rate limit");
+    } finally {
+      fallbackSpy.mockRestore();
+    }
+  });
+
+  it("does not retry fallback after the embedded attempt already emitted output", async () => {
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+    };
+    const sessionStore = { main: sessionEntry };
+    const exactQuotaError =
+      "LLM request rejected: You have reached your specified API usage limits. You will regain access on 2026-04-01 at 00:00 UTC.";
+    const onPartialReply = vi.fn();
+
+    state.runEmbeddedPiAgentMock.mockImplementationOnce(async (params: AgentRunParams) => {
+      await params.onPartialReply?.({ text: "partial output" });
+      return {
+        payloads: [{ text: exactQuotaError, isError: true }],
+        meta: {},
+      };
+    });
+
+    const fallbackSpy = vi
+      .spyOn(modelFallbackModule, "runWithModelFallback")
+      .mockImplementation(async (params: RunWithModelFallbackParams) => {
+        const { provider, model, run, onError } = params;
+        try {
+          const result = await run(provider, model);
+          return { result, provider, model, attempts: [] };
+        } catch (error) {
+          await onError?.({
+            provider,
+            model,
+            error,
+            attempt: 1,
+            total: 2,
+          });
+          return {
+            result: await run("anthropic", "claude-haiku-3-5"),
+            provider: "anthropic",
+            model: "claude-haiku-3-5",
+            attempts: [
+              {
+                provider,
+                model,
+                error: String(error),
+                reason: "rate_limit",
+              },
+            ],
+          };
+        }
+      });
+
+    try {
+      const { run } = createMinimalRun({
+        opts: { onPartialReply },
+        resolvedVerboseLevel: "off",
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        runOverrides: {
+          provider: "openai",
+          model: "gpt-5",
+        },
+      });
+
+      const res = await run();
+      const combinedText = (Array.isArray(res) ? res : [res])
+        .map((payload) => payload?.text ?? "")
+        .join("\n");
+
+      expect(onPartialReply).toHaveBeenCalledWith({
+        text: "partial output",
+        mediaUrls: undefined,
+      });
+      expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(1);
+      expect(combinedText).not.toContain("Model Fallback:");
+      expect(combinedText).toContain("specified API usage limits");
+    } finally {
+      fallbackSpy.mockRestore();
+    }
+  });
+
+  it("does not retry fallback for tool warning payloads", async () => {
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+    };
+    const sessionStore = { main: sessionEntry };
+    const toolWarning = "⚠️ search_web failed: 429 too many requests";
+
+    state.runEmbeddedPiAgentMock
+      .mockResolvedValueOnce({
+        payloads: [{ text: toolWarning, isError: true }],
+        meta: {},
+      })
+      .mockResolvedValueOnce({
+        payloads: [{ text: "fallback final" }],
+        meta: {},
+      });
+
+    const fallbackSpy = vi
+      .spyOn(modelFallbackModule, "runWithModelFallback")
+      .mockImplementationOnce(async (params: RunWithModelFallbackParams) => {
+        const { provider, model, run, onError } = params;
+        try {
+          const result = await run(provider, model);
+          return { result, provider, model, attempts: [] };
+        } catch (error) {
+          await onError?.({
+            provider,
+            model,
+            error,
+            attempt: 1,
+            total: 2,
+          });
+          return {
+            result: await run("anthropic", "claude-haiku-3-5"),
+            provider: "anthropic",
+            model: "claude-haiku-3-5",
+            attempts: [
+              {
+                provider,
+                model,
+                error: String(error),
+                reason: "rate_limit",
+              },
+            ],
+          };
+        }
+      });
+
+    try {
+      const { run } = createMinimalRun({
+        resolvedVerboseLevel: "off",
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        runOverrides: {
+          provider: "openai",
+          model: "gpt-5",
+        },
+      });
+
+      const res = await run();
+      const combinedText = (Array.isArray(res) ? res : [res])
+        .map((payload) => payload?.text ?? "")
+        .join("\n");
+
+      expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(1);
+      expect(combinedText).toContain(toolWarning);
+      expect(combinedText).not.toContain("Model Fallback:");
+      expect(sessionEntry.fallbackNoticeReason).toBeUndefined();
+    } finally {
+      fallbackSpy.mockRestore();
+    }
+  });
+
+  it("emits the fallback notice even when the fallback reply was block-streamed directly", async () => {
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+    };
+    const sessionStore = { main: sessionEntry };
+    const exactQuotaError =
+      "LLM request rejected: You have reached your specified API usage limits. You will regain access on 2026-04-01 at 00:00 UTC.";
+    const onBlockReply = vi.fn();
+    let callCount = 0;
+
+    state.runEmbeddedPiAgentMock.mockImplementation(async (params: AgentRunParams) => {
+      callCount += 1;
+      if (callCount === 1) {
+        return {
+          payloads: [{ text: exactQuotaError, isError: true }],
+          meta: {},
+        };
+      }
+
+      await params.onBlockReply?.({ text: "fallback final", mediaUrls: [] });
+      return {
+        payloads: [{ text: "fallback final" }],
+        meta: {},
+      };
+    });
+
+    const fallbackSpy = vi
+      .spyOn(modelFallbackModule, "runWithModelFallback")
+      .mockImplementationOnce(async (params: RunWithModelFallbackParams) => {
+        const { provider, model, run, onError } = params;
+        try {
+          const result = await run(provider, model);
+          return { result, provider, model, attempts: [] };
+        } catch (error) {
+          await onError?.({
+            provider,
+            model,
+            error,
+            attempt: 1,
+            total: 2,
+          });
+          const fallbackProvider = "anthropic";
+          const fallbackModel = "claude-haiku-3-5";
+          return {
+            result: await run(fallbackProvider, fallbackModel),
+            provider: fallbackProvider,
+            model: fallbackModel,
+            attempts: [
+              {
+                provider,
+                model,
+                error: exactQuotaError,
+                reason: "rate_limit",
+              },
+            ],
+          };
+        }
+      });
+
+    try {
+      const { run } = createMinimalRun({
+        opts: { onBlockReply },
+        blockStreamingEnabled: true,
+        resolvedVerboseLevel: "off",
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        runOverrides: {
+          provider: "openai",
+          model: "gpt-5",
+        },
+      });
+
+      const res = await run();
+      const text = Array.isArray(res)
+        ? res.map((payload) => payload?.text ?? "").join("\n")
+        : (res?.text ?? "");
+
+      expect(onBlockReply).toHaveBeenCalledWith(
+        expect.objectContaining({ text: "fallback final" }),
+        expect.any(Object),
+      );
+      expect(text).toContain("Model Fallback:");
+      expect(text).toContain("anthropic/claude-haiku-3-5");
+      expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(2);
+    } finally {
+      fallbackSpy.mockRestore();
+    }
+  });
+
+  it("keeps the first fallback notice pending across empty turns", async () => {
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+    };
+    const sessionStore = { main: sessionEntry };
+    let callCount = 0;
+
+    state.runEmbeddedPiAgentMock.mockImplementation(async () => {
+      callCount += 1;
+      if (callCount === 1) {
+        return {
+          payloads: [],
+          meta: {},
+        };
+      }
+      return {
+        payloads: [{ text: "final" }],
+        meta: {},
+      };
+    });
+    const fallbackSpy = vi
+      .spyOn(modelFallbackModule, "runWithModelFallback")
+      .mockImplementation(async ({ run }: Pick<RunWithModelFallbackParams, "run">) => ({
+        result: await run("deepinfra", "moonshotai/Kimi-K2.5"),
+        provider: "deepinfra",
+        model: "moonshotai/Kimi-K2.5",
+        attempts: [
+          {
+            provider: "openai",
+            model: "gpt-5",
+            error: "Provider openai is in cooldown (all profiles unavailable)",
+            reason: "rate_limit",
+          },
+        ],
+      }));
+    try {
+      const { run } = createMinimalRun({
+        resolvedVerboseLevel: "off",
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        runOverrides: {
+          provider: "openai",
+          model: "gpt-5",
+        },
+      });
+      const first = await run();
+
+      expect(first).toBeUndefined();
+      expect(sessionEntry.fallbackNoticeReason).toBeUndefined();
+
+      const second = await run();
+      const secondText = (Array.isArray(second) ? second : [second])
+        .map((payload) => payload?.text ?? "")
+        .join("\n");
+
+      expect(secondText).toContain("Model Fallback:");
+      expect(secondText).toContain("deepinfra/moonshotai/Kimi-K2.5");
+      expect(sessionEntry.fallbackNoticeReason).toBe("rate limit");
+      expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(2);
+    } finally {
+      fallbackSpy.mockRestore();
+    }
+  });
+
   it("announces model fallback only once per active fallback state", async () => {
     const sessionEntry: SessionEntry = {
       sessionId: "session",
@@ -776,21 +1172,19 @@ describe("runReplyAgent typing (heartbeat)", () => {
     });
     const fallbackSpy = vi
       .spyOn(modelFallbackModule, "runWithModelFallback")
-      .mockImplementation(
-        async ({ run }: { run: (provider: string, model: string) => Promise<unknown> }) => ({
-          result: await run("deepinfra", "moonshotai/Kimi-K2.5"),
-          provider: "deepinfra",
-          model: "moonshotai/Kimi-K2.5",
-          attempts: [
-            {
-              provider: "fireworks",
-              model: "fireworks/minimax-m2p5",
-              error: "Provider fireworks is in cooldown (all profiles unavailable)",
-              reason: "rate_limit",
-            },
-          ],
-        }),
-      );
+      .mockImplementation(async ({ run }: Pick<RunWithModelFallbackParams, "run">) => ({
+        result: await run("deepinfra", "moonshotai/Kimi-K2.5"),
+        provider: "deepinfra",
+        model: "moonshotai/Kimi-K2.5",
+        attempts: [
+          {
+            provider: "fireworks",
+            model: "fireworks/minimax-m2p5",
+            error: "Provider fireworks is in cooldown (all profiles unavailable)",
+            reason: "rate_limit",
+          },
+        ],
+      }));
     try {
       const { run } = createMinimalRun({
         resolvedVerboseLevel: "on",
@@ -1036,7 +1430,7 @@ describe("runReplyAgent typing (heartbeat)", () => {
 
       const firstText = Array.isArray(first) ? first[0]?.text : first?.text;
       const secondText = Array.isArray(second) ? second[0]?.text : second?.text;
-      expect(firstText).not.toContain("Model Fallback:");
+      expect(firstText).toContain("Model Fallback:");
       expect(secondText).not.toContain("Model Fallback cleared:");
       expect(phases.filter((phase) => phase === "fallback")).toHaveLength(1);
       expect(phases.filter((phase) => phase === "fallback_cleared")).toHaveLength(1);
@@ -1077,21 +1471,19 @@ describe("runReplyAgent typing (heartbeat)", () => {
       });
       const fallbackSpy = vi
         .spyOn(modelFallbackModule, "runWithModelFallback")
-        .mockImplementation(
-          async ({ run }: { run: (provider: string, model: string) => Promise<unknown> }) => ({
-            result: await run("deepinfra", "moonshotai/Kimi-K2.5"),
-            provider: "deepinfra",
-            model: "moonshotai/Kimi-K2.5",
-            attempts: [
-              {
-                provider: "anthropic",
-                model: "claude",
-                error: "Provider anthropic is in cooldown (all profiles unavailable)",
-                reason: testCase.reportedReason,
-              },
-            ],
-          }),
-        );
+        .mockImplementation(async ({ run }: Pick<RunWithModelFallbackParams, "run">) => ({
+          result: await run("deepinfra", "moonshotai/Kimi-K2.5"),
+          provider: "deepinfra",
+          model: "moonshotai/Kimi-K2.5",
+          attempts: [
+            {
+              provider: "anthropic",
+              model: "claude",
+              error: "Provider anthropic is in cooldown (all profiles unavailable)",
+              reason: testCase.reportedReason,
+            },
+          ],
+        }));
       try {
         const { run } = createMinimalRun({
           resolvedVerboseLevel: "on",

@@ -520,6 +520,11 @@ describe("classifyFailoverReason", () => {
     expect(classifyFailoverReason("You have hit your ChatGPT usage limit (plus plan)")).toBe(
       "rate_limit",
     );
+    expect(
+      classifyFailoverReason(
+        "LLM request rejected: You have reached your specified API usage limits. You will regain access on 2026-04-01 at 00:00 UTC.",
+      ),
+    ).toBe("rate_limit");
   });
   it("classifies provider high-demand / service-unavailable messages as rate_limit", () => {
     expect(

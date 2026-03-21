@@ -423,7 +423,10 @@ export async function runReplyAgent(params: {
       attempts: fallbackAttempts,
       state: fallbackStateEntry,
     });
-    if (fallbackTransition.stateChanged) {
+    const persistFallbackTransitionState = async () => {
+      if (!fallbackTransition.stateChanged) {
+        return;
+      }
       if (fallbackStateEntry) {
         fallbackStateEntry.fallbackNoticeSelectedModel = fallbackTransition.nextState.selectedModel;
         fallbackStateEntry.fallbackNoticeActiveModel = fallbackTransition.nextState.activeModel;
@@ -445,7 +448,7 @@ export async function runReplyAgent(params: {
           }),
         });
       }
-    }
+    };
     const cliSessionId = isCliProvider(providerUsed, cfg)
       ? runResult.meta?.agentMeta?.sessionId?.trim()
       : undefined;
@@ -475,6 +478,8 @@ export async function runReplyAgent(params: {
       return finalizeWithFollowup(undefined, queueKey, runFollowupTurn);
     }
 
+    await persistFallbackTransitionState();
+
     const payloadResult = buildReplyPayloads({
       payloads: payloadArray,
       isHeartbeat,
@@ -499,7 +504,70 @@ export async function runReplyAgent(params: {
     const { replyPayloads } = payloadResult;
     didLogHeartbeatStrip = payloadResult.didLogHeartbeatStrip;
 
+    const prefixedNotices: ReplyPayload[] = [];
+    if (verboseEnabled && activeIsNewSession) {
+      prefixedNotices.push({ text: `🧭 New session: ${followupRun.run.sessionId}` });
+    }
+    if (fallbackTransition.fallbackTransitioned) {
+      emitAgentEvent({
+        runId,
+        sessionKey,
+        stream: "lifecycle",
+        data: {
+          phase: "fallback",
+          selectedProvider,
+          selectedModel,
+          activeProvider: providerUsed,
+          activeModel: modelUsed,
+          reasonSummary: fallbackTransition.reasonSummary,
+          attemptSummaries: fallbackTransition.attemptSummaries,
+          attempts: fallbackAttempts,
+        },
+      });
+      const fallbackNotice = buildFallbackNotice({
+        selectedProvider,
+        selectedModel,
+        activeProvider: providerUsed,
+        activeModel: modelUsed,
+        attempts: fallbackAttempts,
+      });
+      if (fallbackNotice) {
+        prefixedNotices.push({ text: fallbackNotice });
+      }
+    }
+    if (fallbackTransition.fallbackCleared) {
+      emitAgentEvent({
+        runId,
+        sessionKey,
+        stream: "lifecycle",
+        data: {
+          phase: "fallback_cleared",
+          selectedProvider,
+          selectedModel,
+          activeProvider: providerUsed,
+          activeModel: modelUsed,
+          previousActiveModel: fallbackTransition.previousState.activeModel,
+        },
+      });
+      if (verboseEnabled) {
+        prefixedNotices.push({
+          text: buildFallbackClearedNotice({
+            selectedProvider,
+            selectedModel,
+            previousActiveModel: fallbackTransition.previousState.activeModel,
+          }),
+        });
+      }
+    }
+
     if (replyPayloads.length === 0) {
+      if (prefixedNotices.length > 0) {
+        return finalizeWithFollowup(
+          prefixedNotices.length === 1 ? prefixedNotices[0] : prefixedNotices,
+          queueKey,
+          runFollowupTurn,
+        );
+      }
       return finalizeWithFollowup(undefined, queueKey, runFollowupTurn);
     }
 
@@ -591,67 +659,9 @@ export async function runReplyAgent(params: {
       }
     }
 
-    // If verbose is enabled, prepend operational run notices.
+    // Prepend operational run notices. Some remain verbose-only, while
+    // fallback transitions are always surfaced once when the model changes.
     let finalPayloads = guardedReplyPayloads;
-    const verboseNotices: ReplyPayload[] = [];
-
-    if (verboseEnabled && activeIsNewSession) {
-      verboseNotices.push({ text: `🧭 New session: ${followupRun.run.sessionId}` });
-    }
-
-    if (fallbackTransition.fallbackTransitioned) {
-      emitAgentEvent({
-        runId,
-        sessionKey,
-        stream: "lifecycle",
-        data: {
-          phase: "fallback",
-          selectedProvider,
-          selectedModel,
-          activeProvider: providerUsed,
-          activeModel: modelUsed,
-          reasonSummary: fallbackTransition.reasonSummary,
-          attemptSummaries: fallbackTransition.attemptSummaries,
-          attempts: fallbackAttempts,
-        },
-      });
-      if (verboseEnabled) {
-        const fallbackNotice = buildFallbackNotice({
-          selectedProvider,
-          selectedModel,
-          activeProvider: providerUsed,
-          activeModel: modelUsed,
-          attempts: fallbackAttempts,
-        });
-        if (fallbackNotice) {
-          verboseNotices.push({ text: fallbackNotice });
-        }
-      }
-    }
-    if (fallbackTransition.fallbackCleared) {
-      emitAgentEvent({
-        runId,
-        sessionKey,
-        stream: "lifecycle",
-        data: {
-          phase: "fallback_cleared",
-          selectedProvider,
-          selectedModel,
-          activeProvider: providerUsed,
-          activeModel: modelUsed,
-          previousActiveModel: fallbackTransition.previousState.activeModel,
-        },
-      });
-      if (verboseEnabled) {
-        verboseNotices.push({
-          text: buildFallbackClearedNotice({
-            selectedProvider,
-            selectedModel,
-            previousActiveModel: fallbackTransition.previousState.activeModel,
-          }),
-        });
-      }
-    }
 
     if (autoCompactionCompleted) {
       const count = await incrementRunCompactionCount({
@@ -679,11 +689,11 @@ export async function runReplyAgent(params: {
 
       if (verboseEnabled) {
         const suffix = typeof count === "number" ? ` (count ${count})` : "";
-        verboseNotices.push({ text: `🧹 Auto-compaction complete${suffix}.` });
+        prefixedNotices.push({ text: `🧹 Auto-compaction complete${suffix}.` });
       }
     }
-    if (verboseNotices.length > 0) {
-      finalPayloads = [...verboseNotices, ...finalPayloads];
+    if (prefixedNotices.length > 0) {
+      finalPayloads = [...prefixedNotices, ...finalPayloads];
     }
     if (responseUsageLine) {
       finalPayloads = appendUsageLine(finalPayloads, responseUsageLine);
