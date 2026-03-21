@@ -81,7 +81,12 @@ function resolveEmbeddedFailoverFromResult(params: {
   result: Awaited<ReturnType<typeof runEmbeddedPiAgent>>;
   provider: string;
   model: string;
+  hasSideEffects: boolean;
 }) {
+  if (params.hasSideEffects) {
+    return null;
+  }
+
   const metaError = params.result.meta?.error;
   if (metaError?.kind && NON_FAILOVER_META_ERROR_KINDS.has(metaError.kind)) {
     return null;
@@ -357,6 +362,7 @@ export async function runAgentTurnWithFallback(params: {
             authProfile,
           });
           return (async () => {
+            let embeddedAttemptHadSideEffects = false;
             const result = await runEmbeddedPiAgent({
               ...embeddedContext,
               trigger: params.isHeartbeat ? "heartbeat" : "user",
@@ -386,7 +392,13 @@ export async function runAgentTurnWithFallback(params: {
               blockReplyBreak: params.resolvedBlockStreamingBreak,
               blockReplyChunking: params.blockReplyChunking,
               onPartialReply: async (payload) => {
+                if ((payload.mediaUrls?.length ?? 0) > 0) {
+                  embeddedAttemptHadSideEffects = true;
+                }
                 const textForTyping = await handlePartialForTyping(payload);
+                if (textForTyping !== undefined) {
+                  embeddedAttemptHadSideEffects = true;
+                }
                 if (!params.opts?.onPartialReply || textForTyping === undefined) {
                   return;
                 }
@@ -402,6 +414,7 @@ export async function runAgentTurnWithFallback(params: {
               onReasoningStream:
                 params.typingSignals.shouldStartOnReasoning || params.opts?.onReasoningStream
                   ? async (payload) => {
+                      embeddedAttemptHadSideEffects = true;
                       await params.typingSignals.signalReasoningDelta();
                       await params.opts?.onReasoningStream?.({
                         text: payload.text,
@@ -420,6 +433,7 @@ export async function runAgentTurnWithFallback(params: {
                 // Trigger typing when tools start executing.
                 // Must await to ensure typing indicator starts before tool summaries are emitted.
                 if (evt.stream === "tool") {
+                  embeddedAttemptHadSideEffects = true;
                   const phase = typeof evt.data.phase === "string" ? evt.data.phase : "";
                   const name = typeof evt.data.name === "string" ? evt.data.name : undefined;
                   if (phase === "start" || phase === "update") {
@@ -440,7 +454,10 @@ export async function runAgentTurnWithFallback(params: {
               // via opts.onBlockReply when the pipeline isn't available.
               onBlockReply: params.opts?.onBlockReply
                 ? createBlockReplyDeliveryHandler({
-                    onBlockReply: params.opts.onBlockReply,
+                    onBlockReply: async (payload, context) => {
+                      embeddedAttemptHadSideEffects = true;
+                      await params.opts?.onBlockReply?.(payload, context);
+                    },
                     currentMessageId:
                       params.sessionCtx.MessageSidFull ?? params.sessionCtx.MessageSid,
                     normalizeStreamingText,
@@ -473,6 +490,7 @@ export async function runAgentTurnWithFallback(params: {
                           if (skip) {
                             return;
                           }
+                          embeddedAttemptHadSideEffects = true;
                           await params.typingSignals.signalTextDelta(text);
                           await onToolResult({
                             text,
@@ -495,6 +513,7 @@ export async function runAgentTurnWithFallback(params: {
               result,
               provider,
               model,
+              hasSideEffects: embeddedAttemptHadSideEffects,
             });
             if (resolvedFailoverError) {
               throw resolvedFailoverError;

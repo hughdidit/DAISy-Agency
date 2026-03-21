@@ -845,14 +845,15 @@ describe("runReplyAgent typing (heartbeat)", () => {
       });
 
       const res = await run();
-      const payload = Array.isArray(res)
-        ? (res[0] as { text?: string })
-        : (res as { text?: string });
+      const payloads = Array.isArray(res) ? res : [res];
+      const combinedText = payloads.map((payload) => payload?.text ?? "").join("\n");
+      const noticeText = payloads[0]?.text ?? "";
+      const finalText = payloads[payloads.length - 1]?.text ?? "";
 
-      expect(payload.text).toContain("Model Fallback:");
-      expect(payload.text).toContain("anthropic/claude-haiku-3-5");
-      expect(payload.text).toContain("fallback final");
-      expect(payload.text).not.toContain("Agent failed before reply");
+      expect(noticeText).toContain("Model Fallback:");
+      expect(noticeText).toContain("anthropic/claude-haiku-3-5");
+      expect(finalText).toContain("fallback final");
+      expect(combinedText).not.toContain("Agent failed before reply");
       expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(2);
       expect(state.runEmbeddedPiAgentMock.mock.calls[0]?.[0]).toMatchObject({
         provider: "openai",
@@ -863,6 +864,210 @@ describe("runReplyAgent typing (heartbeat)", () => {
         model: "claude-haiku-3-5",
       });
       expect(sessionEntry.fallbackNoticeReason).toBe("rate limit");
+    } finally {
+      fallbackSpy.mockRestore();
+    }
+  });
+
+  it("does not retry fallback after the embedded attempt already emitted output", async () => {
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+    };
+    const sessionStore = { main: sessionEntry };
+    const exactQuotaError =
+      "LLM request rejected: You have reached your specified API usage limits. You will regain access on 2026-04-01 at 00:00 UTC.";
+    const onPartialReply = vi.fn();
+
+    state.runEmbeddedPiAgentMock.mockImplementationOnce(async (params: AgentRunParams) => {
+      await params.onPartialReply?.({ text: "partial output" });
+      return {
+        payloads: [{ text: exactQuotaError, isError: true }],
+        meta: {},
+      };
+    });
+
+    const fallbackSpy = vi
+      .spyOn(modelFallbackModule, "runWithModelFallback")
+      .mockImplementation(
+        async ({
+          provider,
+          model,
+          run,
+          onError,
+        }: {
+          provider: string;
+          model: string;
+          run: (provider: string, model: string) => Promise<unknown>;
+          onError?: (params: {
+            provider: string;
+            model: string;
+            error: unknown;
+            attempt: number;
+            total: number;
+          }) => Promise<void> | void;
+        }) => {
+          try {
+            const result = await run(provider, model);
+            return { result, provider, model, attempts: [] };
+          } catch (error) {
+            await onError?.({
+              provider,
+              model,
+              error,
+              attempt: 1,
+              total: 2,
+            });
+            return {
+              result: await run("anthropic", "claude-haiku-3-5"),
+              provider: "anthropic",
+              model: "claude-haiku-3-5",
+              attempts: [
+                {
+                  provider,
+                  model,
+                  error: String(error),
+                  reason: "rate_limit",
+                },
+              ],
+            };
+          }
+        },
+      );
+
+    try {
+      const { run } = createMinimalRun({
+        opts: { onPartialReply },
+        resolvedVerboseLevel: "off",
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        runOverrides: {
+          provider: "openai",
+          model: "gpt-5",
+        },
+      });
+
+      const res = await run();
+      const combinedText = (Array.isArray(res) ? res : [res])
+        .map((payload) => payload?.text ?? "")
+        .join("\n");
+
+      expect(onPartialReply).toHaveBeenCalledWith({
+        text: "partial output",
+        mediaUrls: undefined,
+      });
+      expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(1);
+      expect(combinedText).not.toContain("Model Fallback:");
+      expect(combinedText).toContain("specified API usage limits");
+    } finally {
+      fallbackSpy.mockRestore();
+    }
+  });
+
+  it("emits the fallback notice even when the fallback reply was block-streamed directly", async () => {
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+    };
+    const sessionStore = { main: sessionEntry };
+    const exactQuotaError =
+      "LLM request rejected: You have reached your specified API usage limits. You will regain access on 2026-04-01 at 00:00 UTC.";
+    const onBlockReply = vi.fn();
+    let callCount = 0;
+
+    state.runEmbeddedPiAgentMock.mockImplementation(async (params: AgentRunParams) => {
+      callCount += 1;
+      if (callCount === 1) {
+        return {
+          payloads: [{ text: exactQuotaError, isError: true }],
+          meta: {},
+        };
+      }
+
+      await params.onBlockReply?.({ text: "fallback final", mediaUrls: [] });
+      return {
+        payloads: [{ text: "fallback final" }],
+        meta: {},
+      };
+    });
+
+    const fallbackSpy = vi
+      .spyOn(modelFallbackModule, "runWithModelFallback")
+      .mockImplementationOnce(
+        async ({
+          provider,
+          model,
+          run,
+          onError,
+        }: {
+          provider: string;
+          model: string;
+          run: (provider: string, model: string) => Promise<unknown>;
+          onError?: (params: {
+            provider: string;
+            model: string;
+            error: unknown;
+            attempt: number;
+            total: number;
+          }) => Promise<void> | void;
+        }) => {
+          try {
+            const result = await run(provider, model);
+            return { result, provider, model, attempts: [] };
+          } catch (error) {
+            await onError?.({
+              provider,
+              model,
+              error,
+              attempt: 1,
+              total: 2,
+            });
+            const fallbackProvider = "anthropic";
+            const fallbackModel = "claude-haiku-3-5";
+            return {
+              result: await run(fallbackProvider, fallbackModel),
+              provider: fallbackProvider,
+              model: fallbackModel,
+              attempts: [
+                {
+                  provider,
+                  model,
+                  error: exactQuotaError,
+                  reason: "rate_limit",
+                },
+              ],
+            };
+          }
+        },
+      );
+
+    try {
+      const { run } = createMinimalRun({
+        opts: { onBlockReply },
+        blockStreamingEnabled: true,
+        resolvedVerboseLevel: "off",
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        runOverrides: {
+          provider: "openai",
+          model: "gpt-5",
+        },
+      });
+
+      const res = await run();
+      const text = Array.isArray(res)
+        ? res.map((payload) => payload?.text ?? "").join("\n")
+        : (res?.text ?? "");
+
+      expect(onBlockReply).toHaveBeenCalledWith(
+        expect.objectContaining({ text: "fallback final" }),
+        expect.any(Object),
+      );
+      expect(text).toContain("Model Fallback:");
+      expect(text).toContain("anthropic/claude-haiku-3-5");
+      expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(2);
     } finally {
       fallbackSpy.mockRestore();
     }
