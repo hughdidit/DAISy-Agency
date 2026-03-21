@@ -70,12 +70,26 @@ export type AgentRunLoopResult =
     }
   | { kind: "final"; payload: ReplyPayload };
 
-const NON_FAILOVER_META_ERROR_KINDS = new Set([
-  "compaction_failure",
-  "context_overflow",
-  "image_size",
-  "role_ordering",
-]);
+const META_ERROR_KINDS = {
+  COMPACTION_FAILURE: "compaction_failure",
+  CONTEXT_OVERFLOW: "context_overflow",
+  IMAGE_SIZE: "image_size",
+  ROLE_ORDERING: "role_ordering",
+} as const;
+
+type MetaErrorKind = (typeof META_ERROR_KINDS)[keyof typeof META_ERROR_KINDS];
+
+const NON_FAILOVER_META_ERROR_KINDS = new Set<MetaErrorKind>(Object.values(META_ERROR_KINDS));
+const TOOL_WARNING_PAYLOAD_PATTERN = /^⚠️ .+ failed(?:: .+)?$/s;
+
+function isToolWarningPayload(payload: ReplyPayload) {
+  if (!payload.isError || typeof payload.text !== "string") {
+    return false;
+  }
+  // Tool warning payloads are flagged as errors by the embedded runner so they surface
+  // to users, but they are not model failures and must not trigger fallback retries.
+  return TOOL_WARNING_PAYLOAD_PATTERN.test(payload.text.trim());
+}
 
 function resolveEmbeddedFailoverFromResult(params: {
   result: Awaited<ReturnType<typeof runEmbeddedPiAgent>>;
@@ -106,7 +120,12 @@ function resolveEmbeddedFailoverFromResult(params: {
     candidateMessages.push(metaError.message);
   }
   for (const payload of payloads) {
-    if (!payload.isError || typeof payload.text !== "string" || !payload.text.trim()) {
+    if (
+      !payload.isError ||
+      typeof payload.text !== "string" ||
+      !payload.text.trim() ||
+      isToolWarningPayload(payload)
+    ) {
       continue;
     }
     candidateMessages.push(payload.text);
