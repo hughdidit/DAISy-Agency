@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import { runCliAgent } from "../../agents/cli-runner.js";
-import { coerceToFailoverError, describeFailoverError } from "../../agents/failover-error.js";
 import { getCliSessionId } from "../../agents/cli-session.js";
+import { coerceToFailoverError, describeFailoverError } from "../../agents/failover-error.js";
 import { runWithModelFallback } from "../../agents/model-fallback.js";
 import { isCliProvider } from "../../agents/model-selection.js";
 import {
@@ -90,8 +90,7 @@ function resolveEmbeddedFailoverFromResult(params: {
   const payloads = Array.isArray(params.result.payloads) ? params.result.payloads : [];
   const hasSuccessfulPayload = payloads.some(
     (payload) =>
-      !payload.isError &&
-      (Boolean(payload.text?.trim()) || (payload.mediaUrls?.length ?? 0) > 0),
+      !payload.isError && (Boolean(payload.text?.trim()) || (payload.mediaUrls?.length ?? 0) > 0),
   );
   if (hasSuccessfulPayload) {
     return null;
