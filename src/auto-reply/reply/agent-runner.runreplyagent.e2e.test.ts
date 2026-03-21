@@ -763,6 +763,74 @@ describe("runReplyAgent typing (heartbeat)", () => {
     }
   });
 
+  it("keeps the first fallback notice pending across empty turns", async () => {
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+    };
+    const sessionStore = { main: sessionEntry };
+    let callCount = 0;
+
+    state.runEmbeddedPiAgentMock.mockImplementation(async () => {
+      callCount += 1;
+      if (callCount === 1) {
+        return {
+          payloads: [],
+          meta: {},
+        };
+      }
+      return {
+        payloads: [{ text: "final" }],
+        meta: {},
+      };
+    });
+    const fallbackSpy = vi
+      .spyOn(modelFallbackModule, "runWithModelFallback")
+      .mockImplementation(
+        async ({ run }: { run: (provider: string, model: string) => Promise<unknown> }) => ({
+          result: await run("deepinfra", "moonshotai/Kimi-K2.5"),
+          provider: "deepinfra",
+          model: "moonshotai/Kimi-K2.5",
+          attempts: [
+            {
+              provider: "openai",
+              model: "gpt-5",
+              error: "Provider openai is in cooldown (all profiles unavailable)",
+              reason: "rate_limit",
+            },
+          ],
+        }),
+      );
+    try {
+      const { run } = createMinimalRun({
+        resolvedVerboseLevel: "off",
+        sessionEntry,
+        sessionStore,
+        sessionKey: "main",
+        runOverrides: {
+          provider: "openai",
+          model: "gpt-5",
+        },
+      });
+      const first = await run();
+
+      expect(first).toBeUndefined();
+      expect(sessionEntry.fallbackNoticeReason).toBeUndefined();
+
+      const second = await run();
+      const secondText = (Array.isArray(second) ? second : [second])
+        .map((payload) => payload?.text ?? "")
+        .join("\n");
+
+      expect(secondText).toContain("Model Fallback:");
+      expect(secondText).toContain("deepinfra/moonshotai/Kimi-K2.5");
+      expect(sessionEntry.fallbackNoticeReason).toBe("rate limit");
+      expect(state.runEmbeddedPiAgentMock).toHaveBeenCalledTimes(2);
+    } finally {
+      fallbackSpy.mockRestore();
+    }
+  });
+
   it("announces model fallback only once per active fallback state", async () => {
     const sessionEntry: SessionEntry = {
       sessionId: "session",

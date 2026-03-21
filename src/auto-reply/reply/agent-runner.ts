@@ -423,7 +423,10 @@ export async function runReplyAgent(params: {
       attempts: fallbackAttempts,
       state: fallbackStateEntry,
     });
-    if (fallbackTransition.stateChanged) {
+    const persistFallbackTransitionState = async () => {
+      if (!fallbackTransition.stateChanged) {
+        return;
+      }
       if (fallbackStateEntry) {
         fallbackStateEntry.fallbackNoticeSelectedModel = fallbackTransition.nextState.selectedModel;
         fallbackStateEntry.fallbackNoticeActiveModel = fallbackTransition.nextState.activeModel;
@@ -445,7 +448,7 @@ export async function runReplyAgent(params: {
           }),
         });
       }
-    }
+    };
     const cliSessionId = isCliProvider(providerUsed, cfg)
       ? runResult.meta?.agentMeta?.sessionId?.trim()
       : undefined;
@@ -474,6 +477,8 @@ export async function runReplyAgent(params: {
     if (payloadArray.length === 0) {
       return finalizeWithFollowup(undefined, queueKey, runFollowupTurn);
     }
+
+    await persistFallbackTransitionState();
 
     const payloadResult = buildReplyPayloads({
       payloads: payloadArray,
