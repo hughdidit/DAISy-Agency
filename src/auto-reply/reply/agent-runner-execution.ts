@@ -12,6 +12,7 @@ import {
   isTransientHttpError,
   sanitizeUserFacingText,
 } from "../../agents/pi-embedded-helpers.js";
+import type { EmbeddedPiRunMeta } from "../../agents/pi-embedded-runner/types.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 import {
   resolveGroupSessionKey,
@@ -77,9 +78,11 @@ const META_ERROR_KINDS = {
   ROLE_ORDERING: "role_ordering",
 } as const;
 
-type MetaErrorKind = (typeof META_ERROR_KINDS)[keyof typeof META_ERROR_KINDS];
+type EmbeddedMetaErrorKind = NonNullable<EmbeddedPiRunMeta["error"]>["kind"];
 
-const NON_FAILOVER_META_ERROR_KINDS = new Set<MetaErrorKind>(Object.values(META_ERROR_KINDS));
+const NON_FAILOVER_META_ERROR_KINDS = new Set<EmbeddedMetaErrorKind>(
+  Object.values(META_ERROR_KINDS),
+);
 const TOOL_WARNING_PAYLOAD_PATTERN = /^⚠️ .+ failed(?:: .+)?$/s;
 
 function isToolWarningPayload(payload: ReplyPayload) {
