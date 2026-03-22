@@ -95,6 +95,8 @@ OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-${CLAWDBOT_GATEWAY_BIND:-loopbac
 : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required for real deploy}"
 : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required for real deploy}"
 : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required for real deploy}"
+# OPENAI_API_KEY is optional (OpenAI-backed model/tool access)
+OPENAI_API_KEY="${OPENAI_API_KEY:-}"
 # MONGODB_URI and GEMINI_API_KEY are optional (memory-mongodb plugin only)
 MONGODB_URI="${MONGODB_URI:-}"
 GEMINI_API_KEY="${GEMINI_API_KEY:-}"
@@ -154,6 +156,26 @@ if [[ "${PROVISION}" == "true" ]]; then
     --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if ! command -v docker-compose >/dev/null 2>&1; then echo \"Installing docker-compose...\"; sudo curl -fsSL \"https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; echo \"${COMPOSE_HOST_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.host.yml\"; echo \"${COMPOSE_SANDBOX_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.sandbox.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo chown 1000:1000 \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo find \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\" -mindepth 1 -exec chown 1000:1000 {} + 2>/dev/null || true; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker-compose version'"
   echo "Provisioning complete."
 fi
+
+printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
+
+# Keep deploy manifests in sync on every real deploy so compose env changes
+# reach existing VMs even when the workflow does not request --provision.
+echo "Syncing deploy compose files on VM..."
+COMPOSE_B64="$(base64 -w0 docker-compose.yml)"
+COMPOSE_HOST_B64="$(base64 -w0 docker-compose.host.yml)"
+COMPOSE_SANDBOX_B64="$(base64 -w0 docker-compose.sandbox.yml)"
+{
+  printf '%s\n' "${COMPOSE_B64}"
+  printf '%s\n' "${COMPOSE_HOST_B64}"
+  printf '%s\n' "${COMPOSE_SANDBOX_B64}"
+} | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+  --project "${GCP_PROJECT_ID}" \
+  --zone "${GCP_ZONE}" \
+  --tunnel-through-iap \
+  --quiet \
+  --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; read -r COMPOSE_B64; read -r COMPOSE_HOST_B64; read -r COMPOSE_SANDBOX_B64; printf %s \"\${COMPOSE_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/docker-compose.yml\" > /dev/null; printf %s \"\${COMPOSE_HOST_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/docker-compose.host.yml\" > /dev/null; printf %s \"\${COMPOSE_SANDBOX_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/docker-compose.sandbox.yml\" > /dev/null; echo \"Deploy manifests updated in \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"'"
+echo "Deploy compose files synced."
 
 # Deploy monitoring stack if requested
 if [[ "${WITH_MONITORING}" == "true" ]]; then
@@ -364,6 +386,7 @@ read -r OPENCLAW_GATEWAY_TOKEN
 read -r CLAUDE_AI_SESSION_KEY
 read -r DISCORD_BOT_TOKEN
 read -r ANTHROPIC_API_KEY
+read -r OPENAI_API_KEY || OPENAI_API_KEY=""
 read -r MONGODB_URI || MONGODB_URI=""
 read -r GEMINI_API_KEY || GEMINI_API_KEY=""
 read -r CLAUDE_WEB_SESSION_KEY || CLAUDE_WEB_SESSION_KEY=""
@@ -428,6 +451,7 @@ export OPENCLAW_GATEWAY_TOKEN
 export CLAUDE_AI_SESSION_KEY
 export DISCORD_BOT_TOKEN
 export ANTHROPIC_API_KEY
+export OPENAI_API_KEY
 export MONGODB_URI
 export GEMINI_API_KEY
 export CLAUDE_WEB_SESSION_KEY
@@ -541,7 +565,7 @@ sudo -E docker-compose ${COMPOSE_FILES} rm -f openclaw-gateway openclaw-cli || t
 sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans --force-recreate
 
 # Clear secrets from environment
-unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY FIRECRAWL_API_KEY TRELLO_API_KEY TRELLO_TOKEN GOOGLE_WORKSPACE_CLI_TOKEN GWS_CREDENTIALS_B64
+unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY OPENAI_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY FIRECRAWL_API_KEY TRELLO_API_KEY TRELLO_TOKEN GOOGLE_WORKSPACE_CLI_TOKEN GWS_CREDENTIALS_B64
 
 echo "Deployment complete."
 '
@@ -574,6 +598,7 @@ unset GWS_CREDENTIALS
   printf '%s\n' "${CLAUDE_AI_SESSION_KEY}"
   printf '%s\n' "${DISCORD_BOT_TOKEN}"
   printf '%s\n' "${ANTHROPIC_API_KEY}"
+  printf '%s\n' "${OPENAI_API_KEY}"
   printf '%s\n' "${MONGODB_URI}"
   printf '%s\n' "${GEMINI_API_KEY}"
   printf '%s\n' "${CLAUDE_WEB_SESSION_KEY}"
