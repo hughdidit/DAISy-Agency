@@ -157,6 +157,26 @@ if [[ "${PROVISION}" == "true" ]]; then
   echo "Provisioning complete."
 fi
 
+printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
+
+# Keep deploy manifests in sync on every real deploy so compose env changes
+# reach existing VMs even when the workflow does not request --provision.
+echo "Syncing deploy compose files on VM..."
+COMPOSE_B64="$(base64 -w0 docker-compose.yml)"
+COMPOSE_HOST_B64="$(base64 -w0 docker-compose.host.yml)"
+COMPOSE_SANDBOX_B64="$(base64 -w0 docker-compose.sandbox.yml)"
+{
+  printf '%s\n' "${COMPOSE_B64}"
+  printf '%s\n' "${COMPOSE_HOST_B64}"
+  printf '%s\n' "${COMPOSE_SANDBOX_B64}"
+} | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+  --project "${GCP_PROJECT_ID}" \
+  --zone "${GCP_ZONE}" \
+  --tunnel-through-iap \
+  --quiet \
+  --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; read -r COMPOSE_B64; read -r COMPOSE_HOST_B64; read -r COMPOSE_SANDBOX_B64; printf %s \"\${COMPOSE_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/docker-compose.yml\" > /dev/null; printf %s \"\${COMPOSE_HOST_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/docker-compose.host.yml\" > /dev/null; printf %s \"\${COMPOSE_SANDBOX_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/docker-compose.sandbox.yml\" > /dev/null; echo \"Deploy manifests updated in \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"'"
+echo "Deploy compose files synced."
+
 # Deploy monitoring stack if requested
 if [[ "${WITH_MONITORING}" == "true" ]]; then
   echo "Deploying monitoring stack..."
