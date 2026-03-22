@@ -35,7 +35,7 @@ describe("memory-mongodb plugin", () => {
         transport: "stdio",
         stdio: {
           command: "npx",
-          args: ["-y", "mongodb-mcp-server"],
+          args: ["-y", "mongodb-mcp-server@1.2.0"],
           env: {
             MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
           },
@@ -69,6 +69,7 @@ describe("memory-mongodb plugin", () => {
 
   test("config schema applies defaults", async () => {
     const { default: memoryPlugin } = await import("./index.js");
+    const { resolveBundledMongoMcpServerEntrypoint } = await import("./config.js");
 
     const config = memoryPlugin.configSchema.parse({
       mcp: {
@@ -90,6 +91,10 @@ describe("memory-mongodb plugin", () => {
     expect(config.retrieval.vectorLimit).toBe(8);
     expect(config.autoCapture).toBe(true);
     expect(config.autoRecall).toBe(true);
+    if (config.mcp.transport === "stdio") {
+      expect(config.mcp.stdio.command).toBe(process.execPath);
+      expect(config.mcp.stdio.args).toEqual([resolveBundledMongoMcpServerEntrypoint()]);
+    }
   });
 
   test("config schema resolves env vars", async () => {

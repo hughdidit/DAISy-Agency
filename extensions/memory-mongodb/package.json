@@ -5,7 +5,8 @@
   "type": "module",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.4",
-    "@sinclair/typebox": "0.34.47"
+    "@sinclair/typebox": "0.34.47",
+    "mongodb-mcp-server": "1.2.0"
   },
   "openclaw": {
     "extensions": [

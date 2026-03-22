@@ -25,13 +25,21 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 
 ### MCP transport
 
-- `stdio` transport launches a local MCP process (`mongodb-mcp-server`) with explicit command/args/env.
+- `stdio` transport launches a local MongoDB MCP process using a bundled pinned server dependency by default.
+- Explicit `mcp.stdio.command` / `mcp.stdio.args` overrides remain available for operators who need a custom launcher.
 - `sse` transport requires explicit URL configuration.
 - No inbound listener is started by this extension.
+
+### Least-privilege execution
+
+- The MCP child process receives an allowlisted environment instead of the full inherited gateway environment.
+- Sensitive MongoDB credentials remain env-backed and are not passed via command-line arguments.
+- Operators should use MongoDB credentials or Atlas service accounts scoped to the minimum required database permissions for the configured memory collection.
 
 ## Query and Data Safety
 
 - Database operations are executed through MongoDB MCP tools (`insert-many`, `aggregate`, `delete-one`).
+- The plugin does not use a direct MongoDB driver path for runtime reads or writes.
 - `memory_forget` enforces UUID validation before delete operations.
 - Vector embeddings are not returned in tool output payloads.
 - Malformed aggregate documents are skipped and not forwarded to context.

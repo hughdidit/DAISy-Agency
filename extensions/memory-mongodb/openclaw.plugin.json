@@ -9,13 +9,14 @@
     },
     "mcp.stdio.command": {
       "label": "MCP Command",
-      "placeholder": "npx",
-      "help": "Executable used to launch MongoDB MCP server"
+      "placeholder": "bundled default",
+      "help": "Optional override. Leave unset to launch the bundled MongoDB MCP server"
     },
     "mcp.stdio.args": {
       "label": "MCP Command Args",
-      "placeholder": "[\"-y\",\"mongodb-mcp-server@<PINNED_VERSION>\"]",
-      "advanced": true
+      "placeholder": "[\"<bundled mongodb-mcp-server entrypoint>\"]",
+      "advanced": true,
+      "help": "Optional override. Leave unset to use the bundled MongoDB MCP server entrypoint"
     },
     "mcp.stdio.env.MDB_MCP_CONNECTION_STRING": {
       "label": "MongoDB Connection String",

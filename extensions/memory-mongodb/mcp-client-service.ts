@@ -14,17 +14,39 @@ type JsonObject = Record<string, unknown>;
 const isObject = (value: unknown): value is JsonObject =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
-function toStringEnv(source: NodeJS.ProcessEnv): Record<string, string> {
+const STDIO_ENV_ALLOWLIST = [
+  "APPDATA",
+  "COMSPEC",
+  "ComSpec",
+  "HOME",
+  "LOCALAPPDATA",
+  "PATH",
+  "PATHEXT",
+  "SYSTEMROOT",
+  "SystemRoot",
+  "TEMP",
+  "TMP",
+  "TMPDIR",
+  "USERPROFILE",
+] as const;
+
+function toStringEnv(source: NodeJS.ProcessEnv, keys?: readonly string[]): Record<string, string> {
   const env: Record<string, string> = {};
-  for (const [key, value] of Object.entries(source)) {
-    if (typeof value === "string") {
+  const entries = keys ? keys.map((key) => [key, source[key]] as const) : Object.entries(source);
+  for (const [key, value] of entries) {
+    if (typeof value === "string" && value.length > 0) {
       env[key] = value;
     }
   }
   return env;
 }
 
-const stringEnv = toStringEnv(process.env);
+function buildStdioEnv(overrides: Record<string, string>): Record<string, string> {
+  return {
+    ...toStringEnv(process.env, STDIO_ENV_ALLOWLIST),
+    ...overrides,
+  };
+}
 
 export class McpClientService {
   private client: Client;
@@ -118,10 +140,7 @@ export class McpClientService {
           const transport = new StdioClientTransport({
             command: this.config.stdio.command,
             args: this.config.stdio.args,
-            env: {
-              ...stringEnv,
-              ...this.config.stdio.env,
-            },
+            env: buildStdioEnv(this.config.stdio.env),
           });
           await this.client.connect(transport);
           await this.tryConnectTool(this.config.stdio.env.MDB_MCP_CONNECTION_STRING);
@@ -132,7 +151,7 @@ export class McpClientService {
         await this.client.connect(transport);
       } catch (error) {
         this.connectPromise = null;
-        throw new Error(`MongoDB MCP connection failed: ${this.sanitizeError(error)}`);
+        throw new Error(`MongoDB MCP connection failed: ${this.formatConnectionError(error)}`);
       }
     })();
 
@@ -222,6 +241,47 @@ export class McpClientService {
     }
 
     return null;
+  }
+
+  private formatConnectionError(error: unknown): string {
+    if (this.config.transport === "stdio") {
+      const startupFailure = this.describeStdioStartupFailure(error);
+      if (startupFailure) {
+        return startupFailure;
+      }
+    }
+
+    return this.sanitizeError(error);
+  }
+
+  private describeStdioStartupFailure(error: unknown): string | null {
+    const message = error instanceof Error ? error.message : String(error);
+    const errno = this.extractErrnoCode(error, message);
+
+    if (errno === "EACCES") {
+      return (
+        "unable to execute the configured MongoDB MCP stdio command (EACCES). " +
+        "Check mcp.stdio.command and mcp.stdio.args permissions, or leave them unset to use the bundled MongoDB MCP server."
+      );
+    }
+
+    if (errno === "ENOENT") {
+      return (
+        "unable to locate the configured MongoDB MCP stdio command (ENOENT). " +
+        "Check mcp.stdio.command and mcp.stdio.args, or leave them unset to use the bundled MongoDB MCP server."
+      );
+    }
+
+    return null;
+  }
+
+  private extractErrnoCode(error: unknown, message: string): string | null {
+    if (isObject(error) && typeof error.code === "string") {
+      return error.code;
+    }
+
+    const match = message.match(/\b(EACCES|ENOENT)\b/);
+    return match?.[1] ?? null;
   }
 
   private sanitizeError(error: unknown): string {

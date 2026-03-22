@@ -12,6 +12,8 @@ Persistent long-term memory for DAISy using MongoDB Atlas through the official M
 - `GeminiService`: native `fetch`-based embedding client using `gemini-embedding-2-preview` with output dimensionality fixed to `1536` and manual L2 normalization.
 - `MongoMemoryDB`: memory store/search manager built on MCP + Gemini services.
 
+MongoDB access for this plugin is MCP-only. The plugin does not use a direct MongoDB driver path for runtime reads or writes.
+
 ### Data Flow
 
 Store path:
@@ -64,8 +66,6 @@ for a clean deployment.
           "mcp": {
             "transport": "stdio",
             "stdio": {
-              "command": "npx",
-              "args": ["-y", "mongodb-mcp-server@<PINNED_VERSION>"],
               "env": {
                 "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}",
               },
@@ -108,14 +108,14 @@ for a clean deployment.
 
 ### Config Fields
 
-| Field                                     | Required    | Default                                     | Description                                                      |
-| ----------------------------------------- | ----------- | ------------------------------------------- | ---------------------------------------------------------------- |
-| `mcp.transport`                           | No          | `stdio`                                     | `stdio` for managed local MCP process, `sse` for remote endpoint |
-| `mcp.stdio.command`                       | No          | `npx`                                       | Command used to launch MongoDB MCP server                        |
-| `mcp.stdio.args`                          | No          | `[-y, mongodb-mcp-server@<PINNED_VERSION>]` | Arguments for MCP server command                                 |
-| `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes (stdio) | -                                           | MongoDB Atlas URI passed to MCP server                           |
-| `mcp.url`                                 | Yes (sse)   | -                                           | Remote MCP SSE URL                                               |
-| `gemini.apiKey`                           | Yes         | -                                           | Gemini API key                                                   |
+| Field                                     | Required    | Default                     | Description                                                      |
+| ----------------------------------------- | ----------- | --------------------------- | ---------------------------------------------------------------- |
+| `mcp.transport`                           | No          | `stdio`                     | `stdio` for managed local MCP process, `sse` for remote endpoint |
+| `mcp.stdio.command`                       | No          | bundled Node launcher       | Optional override for MongoDB MCP server command                 |
+| `mcp.stdio.args`                          | No          | resolved bundled entrypoint | Optional override for MongoDB MCP server args                    |
+| `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes (stdio) | -                           | MongoDB Atlas URI passed to MCP server                           |
+| `mcp.url`                                 | Yes (sse)   | -                           | Remote MCP SSE URL                                               |
+| `gemini.apiKey`                           | Yes         | -                           | Gemini API key                                                   |
 | `gemini.embeddingModel`                   | No          | `gemini-embedding-2-preview`                | Gemini embedding model                                           |
 | `database.name`                           | No          | `daisy_memory`                              | MongoDB database name                                            |
 | `database.collection`                     | No          | `memories`                                  | MongoDB collection name                                          |
@@ -203,6 +203,27 @@ From prior Voyage-backed config:
 - Remove retrieval rerank fields (`retrieval.rerankEnabled`, `retrieval.rerankLimit`).
 - Keep MCP and database configuration shape unchanged.
 
+## Custom Launcher Override
+
+Leave `mcp.stdio.command` and `mcp.stdio.args` unset to use the bundled pinned MongoDB MCP server dependency (`mongodb-mcp-server@1.2.0`).
+
+If you need a custom launcher, you can still override both fields explicitly:
+
+```jsonc
+{
+  "mcp": {
+    "transport": "stdio",
+    "stdio": {
+      "command": "npx",
+      "args": ["-y", "mongodb-mcp-server@1.2.0"],
+      "env": {
+        "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}"
+      }
+    }
+  }
+}
+```
+
 ## Verification Checklist
 
 - MCP startup/connect works for selected transport.
@@ -215,7 +236,8 @@ From prior Voyage-backed config:
 ## Security
 
 - Secrets must be environment-backed (`${MONGODB_URI}`, `${GEMINI_API_KEY}`).
-- For `stdio`, prefer pinned MCP server versions (for example `mongodb-mcp-server@x.y.z`) or managed binaries over unpinned runtime downloads.
+- By default, `stdio` launches the bundled pinned MCP server dependency (`mongodb-mcp-server@1.2.0`) rather than relying on `npx` or runtime downloads.
+- MongoDB access remains MCP-only; this plugin does not include a direct MongoDB client path.
 - Remote `mongodb://` URIs require TLS (`tls=true`) unless localhost.
 - Insecure TLS options (`tlsInsecure`, `tlsAllowInvalidCertificates`) are rejected.
 - Connection strings are sanitized from surfaced MCP errors.
