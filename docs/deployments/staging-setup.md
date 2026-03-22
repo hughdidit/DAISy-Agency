@@ -161,6 +161,7 @@ The easiest way to set up the deployment directory and start services is via the
 1. **Add app secrets** to the `staging` environment in GitHub:
    - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
    - `CLAUDE_AI_SESSION_KEY` - From [Anthropic Console](https://console.anthropic.com/settings/keys)
+   - `OPENAI_API_KEY` - Optional, for OpenAI-backed models, tools, and embeddings
    - `CLAUDE_WEB_SESSION_KEY` - Optional, for usage monitoring (see below)
    - `CLAUDE_WEB_COOKIE` - Optional, for usage monitoring (see below)
    - `FIRECRAWL_API_KEY` - Optional, for firecrawl-enabled environments
@@ -206,6 +207,7 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 
 - [ ] `OPENCLAW_GATEWAY_TOKEN` - Generate new random token
 - [ ] `CLAUDE_AI_SESSION_KEY` - Anthropic API key
+- [ ] `OPENAI_API_KEY` - Optional; set when staging should use OpenAI-backed features
 - [ ] Discord bot token - **Use staging bot, NOT production**
 - [ ] Discord allowlist - **Staging-only channels/users**
 - [ ] API keys - Use staging keys or shared keys with tracking

@@ -70,6 +70,9 @@ on:
       ANTHROPIC_API_KEY:
         description: Anthropic API key for Claude model access
         required: true
+      OPENAI_API_KEY:
+        description: OpenAI API key for OpenAI-backed model and tool access
+        required: false
       MONGODB_URI:
         description: MongoDB connection URI (optional, memory plugin only)
         required: false
@@ -171,6 +174,7 @@ jobs:
           CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
@@ -257,6 +261,7 @@ jobs:
           CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
