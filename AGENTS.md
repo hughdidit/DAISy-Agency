@@ -4,6 +4,7 @@ Fork of OpenClaw. Branded as **DAISy**.
 
 ## Critical Rules
 
+- Enforce Zero Trust and Least Privilege policies in planning and code.
 - Use Git for Windows for all git operations: `"/mnt/c/Program Files/Git/bin/git.exe" <command>`
 - Never use WSL git on /mnt/g/ paths (causes NTFS corruption)
 - Never build, install, or run the bot locally — all dev/build/test happens on the GCP VM, containerized
