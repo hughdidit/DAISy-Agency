@@ -1,11 +1,3 @@
-# Default owner
-
-* @hughdidit
-
-# Top-level test tree
-
-/test/ @hughdidit
-
 # Package- or extension-local test trees
 
 **/test/ @hughdidit

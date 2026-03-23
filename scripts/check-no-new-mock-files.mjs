@@ -23,11 +23,6 @@ function parseArgs(argv) {
     }
   }
 
-  if (!args.base || !args.head) {
-    console.error("Usage: node scripts/check-no-new-mock-files.mjs --base <ref> --head <ref>");
-    process.exit(2);
-  }
-
   return args;
 }
 
@@ -56,7 +51,7 @@ function isMockPath(filePath) {
     return false;
   }
 
-  if (/(^|\/)mocks?\//i.test(normalizedPath)) {
+  if (/(^|\/)(?:__mocks__|mocks?)(\/|$)/i.test(normalizedPath)) {
     return true;
   }
 

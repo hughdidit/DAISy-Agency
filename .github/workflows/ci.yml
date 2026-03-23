@@ -5,6 +5,13 @@ on:
     branches:
       - daisy/main
       - daisy/dev
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - labeled
+      - unlabeled
   workflow_dispatch:
 
 concurrency:
@@ -142,9 +149,11 @@ jobs:
           fi
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE="${{ github.event.pull_request.base.sha }}"
+            git fetch --no-tags --depth=1 origin "${{ github.event.pull_request.base.ref }}"
+            BASE="$(git merge-base HEAD "origin/${{ github.event.pull_request.base.ref }}")"
           else
-            BASE="HEAD"
+            git fetch --no-tags --depth=1 origin daisy/dev
+            BASE="$(git merge-base HEAD origin/daisy/dev)"
           fi
 
           node scripts/check-no-new-mock-files.mjs --base "$BASE" --head HEAD
