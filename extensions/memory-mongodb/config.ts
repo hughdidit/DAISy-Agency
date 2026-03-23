@@ -424,7 +424,6 @@ export const memoryConfigSchema = {
       );
     }
 
-
     let parsedMcp: MemoryConfig["mcp"];
     if (transport === "stdio") {
       if (
