@@ -75,8 +75,14 @@ export function resolveBundledMongoMcpServerEntrypoint(): string {
     const packageRoot = path.resolve(path.dirname(packageMainPath), "..", "..");
     const packageJsonPath = path.join(packageRoot, "package.json");
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
+      version?: string;
       bin?: string | Record<string, string>;
     };
+    if (packageJson.version !== BUNDLED_MCP_SERVER_VERSION) {
+      throw new Error(
+        `unexpected mongodb-mcp-server version: expected ${BUNDLED_MCP_SERVER_VERSION}, got ${packageJson.version ?? "unknown"}`,
+      );
+    }
     const rawBin =
       typeof packageJson.bin === "string"
         ? packageJson.bin
