@@ -26,6 +26,8 @@ const STDIO_ENV_ALLOWLIST = [
   "PATHEXT",
   "Path",
   "Pathext",
+  "SSL_CERT_DIR",
+  "SSL_CERT_FILE",
   "SYSTEMROOT",
   "SystemRoot",
   "TEMP",
@@ -47,6 +49,7 @@ function toStringEnv(source: NodeJS.ProcessEnv, keys?: readonly string[]): Recor
 
 function buildStdioEnv(overrides: Record<string, string>): Record<string, string> {
   return {
+    // Launch the MCP child with a minimal trusted environment.
     ...toStringEnv(process.env, STDIO_ENV_ALLOWLIST),
     ...overrides,
   };

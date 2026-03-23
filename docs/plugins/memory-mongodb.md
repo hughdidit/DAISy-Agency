@@ -39,6 +39,10 @@ The plugin must be enabled, slotted as the active memory provider, and the
 built-in memory search system must be disabled. All three settings are required
 for a clean deployment.
 
+For `stdio` deployments, the MongoDB MCP child runs behind a least-privilege
+launcher boundary: only approved child env keys are accepted, and custom
+launchers are treated as privileged escape hatches instead of normal config.
+
 ```jsonc
 {
   // Disable the built-in memory search system (MemoryIndexManager).
@@ -111,8 +115,9 @@ for a clean deployment.
 | Field                                     | Required    | Default                      | Description                                                      |
 | ----------------------------------------- | ----------- | ---------------------------- | ---------------------------------------------------------------- |
 | `mcp.transport`                           | No          | `stdio`                      | `stdio` for managed local MCP process, `sse` for remote endpoint |
-| `mcp.stdio.command`                       | No          | bundled Node launcher        | Optional override for MongoDB MCP server command                 |
-| `mcp.stdio.args`                          | No          | resolved bundled entrypoint  | Optional override for MongoDB MCP server args                    |
+| `mcp.stdio.allowCustomLauncher`           | No          | `false`                      | Unsafe opt-in required before any custom MCP launcher override   |
+| `mcp.stdio.command`                       | No          | bundled Node launcher        | Privileged override for the MongoDB MCP executable               |
+| `mcp.stdio.args`                          | No          | resolved bundled entrypoint  | Privileged override for the MongoDB MCP entrypoint args          |
 | `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes (stdio) | -                            | MongoDB Atlas URI passed to MCP server                           |
 | `mcp.url`                                 | Yes (sse)   | -                            | Remote MCP SSE URL                                               |
 | `gemini.apiKey`                           | Yes         | -                            | Gemini API key                                                   |
@@ -126,6 +131,16 @@ for a clean deployment.
 | `captureTriggers`                         | No          | built-in defaults            | Regex patterns that trigger auto-capture                         |
 | `autoCapture`                             | No          | `true`                       | Auto-store significant memories from conversation                |
 | `autoRecall`                              | No          | `true`                       | Auto-inject relevant memories before agent execution             |
+
+`mcp.stdio.env` is validated, not passed through wholesale. The only supported
+child-process env keys are `MDB_MCP_CONNECTION_STRING` and approved TLS/cert
+settings such as `NODE_EXTRA_CA_CERTS`, `NODE_USE_SYSTEM_CA`, `SSL_CERT_FILE`,
+and `SSL_CERT_DIR`.
+
+If you must use a non-bundled launcher, set `mcp.stdio.allowCustomLauncher`
+explicitly and point `mcp.stdio.command` to an absolute executable path. Shell
+and package-manager wrappers such as `bash`, `cmd`, `powershell`, `npm`, `pnpm`,
+and `npx` are rejected.
 
 ## Atlas Setup
 

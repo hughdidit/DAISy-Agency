@@ -2,14 +2,23 @@ import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 
+type StdioEnv = {
+  MDB_MCP_CONNECTION_STRING: string;
+  NODE_EXTRA_CA_CERTS?: string;
+  NODE_USE_SYSTEM_CA?: string;
+  SSL_CERT_DIR?: string;
+  SSL_CERT_FILE?: string;
+};
+
 export type MemoryConfig = {
   mcp:
     | {
         transport: "stdio";
         stdio: {
+          allowCustomLauncher?: boolean;
           command: string;
           args: string[];
-          env: { MDB_MCP_CONNECTION_STRING: string } & Record<string, string>;
+          env: StdioEnv;
         };
       }
     | {
@@ -53,6 +62,36 @@ export const BUNDLED_MCP_SERVER_PACKAGE = "mongodb-mcp-server";
 export const BUNDLED_MCP_SERVER_VERSION = "1.2.0";
 
 const require = createRequire(import.meta.url);
+
+const STDIO_ENV_OVERRIDE_ALLOWLIST = [
+  "MDB_MCP_CONNECTION_STRING",
+  "NODE_EXTRA_CA_CERTS",
+  "NODE_USE_SYSTEM_CA",
+  "SSL_CERT_DIR",
+  "SSL_CERT_FILE",
+] as const;
+
+const DISALLOWED_STDIO_ENV_KEYS = new Set([
+  "NODE_OPTIONS",
+  "NODE_PATH",
+  "TS_NODE_PROJECT",
+  "TSX_TSCONFIG_PATH",
+]);
+
+const FORBIDDEN_CUSTOM_LAUNCHERS = new Set([
+  "bash",
+  "cmd",
+  "dash",
+  "fish",
+  "npm",
+  "npx",
+  "pnpm",
+  "powershell",
+  "pwsh",
+  "sh",
+  "yarn",
+  "zsh",
+]);
 
 export const DEFAULT_CAPTURE_TRIGGERS = [
   "remember",
@@ -140,6 +179,66 @@ function resolveStringRecordEnvVars(value: Record<string, unknown>): Record<stri
     resolved[key] = resolveEnvVars(raw);
   }
   return resolved;
+}
+
+function isAbsoluteFilePath(value: string): boolean {
+  return path.posix.isAbsolute(value) || path.win32.isAbsolute(value);
+}
+
+function executableBasename(value: string): string {
+  const normalized = value.replace(/[\\/]+$/, "");
+  const basename = normalized.includes("\\")
+    ? path.win32.basename(normalized)
+    : path.posix.basename(normalized);
+  return basename.replace(/\.(bat|cmd|exe|ps1)$/i, "").toLowerCase();
+}
+
+function validateStdioEnvKeys(rawEnv: Record<string, unknown> | undefined): void {
+  if (!rawEnv) {
+    return;
+  }
+
+  const disallowed = Object.keys(rawEnv).filter((key) =>
+    DISALLOWED_STDIO_ENV_KEYS.has(key.toUpperCase()),
+  );
+  if (disallowed.length > 0) {
+    throw new Error(
+      `mcp.stdio.env has disallowed keys: ${disallowed.join(", ")}. ` +
+        "Runtime-mutating Node or tsx env is not allowed for the MongoDB MCP child.",
+    );
+  }
+
+  assertAllowedKeys(rawEnv, [...STDIO_ENV_OVERRIDE_ALLOWLIST], "mcp.stdio.env");
+}
+
+function validateCustomLauncher(command: string, args: string[]): void {
+  if (!isAbsoluteFilePath(command)) {
+    throw new Error(
+      "mcp.stdio.command must be an absolute path when custom launcher overrides are enabled",
+    );
+  }
+
+  if (FORBIDDEN_CUSTOM_LAUNCHERS.has(executableBasename(command))) {
+    throw new Error(
+      "mcp.stdio.command cannot use a shell or package-manager launcher. " +
+        "Use the bundled default or an absolute executable path.",
+    );
+  }
+
+  if (args.length > 0) {
+    const firstArg = args[0];
+    if (firstArg.startsWith("-")) {
+      throw new Error(
+        "mcp.stdio.args cannot start with runtime flags when custom launcher overrides are enabled. " +
+          "Provide an absolute entrypoint path instead.",
+      );
+    }
+    if (!isAbsoluteFilePath(firstArg)) {
+      throw new Error(
+        "mcp.stdio.args[0] must be an absolute entrypoint path when custom launcher overrides are enabled",
+      );
+    }
+  }
 }
 
 function parsePositiveInt(value: unknown, label: string, defaultValue: number): number {
@@ -284,7 +383,7 @@ export const memoryConfigSchema = {
         throw new Error("mcp.stdio must be an object");
       }
       rawStdio = mcp.stdio as Record<string, unknown>;
-      assertAllowedKeys(rawStdio, ["command", "args", "env"], "mcp.stdio config");
+      assertAllowedKeys(rawStdio, ["allowCustomLauncher", "command", "args", "env"], "mcp.stdio config");
     }
 
     if (transport === "sse") {
@@ -323,7 +422,15 @@ export const memoryConfigSchema = {
       );
     }
 
+    if (
+      rawStdio.allowCustomLauncher !== undefined &&
+      typeof rawStdio.allowCustomLauncher !== "boolean"
+    ) {
+      throw new Error("mcp.stdio.allowCustomLauncher must be a boolean");
+    }
+
     const rawStdioEnv = rawStdio.env as Record<string, unknown> | undefined;
+    validateStdioEnvKeys(rawStdioEnv);
     const connectionUri = rawStdioEnv?.MDB_MCP_CONNECTION_STRING;
 
     if (
@@ -349,6 +456,31 @@ export const memoryConfigSchema = {
     }
 
     const resolvedStdioEnv = rawStdioEnv ? resolveStringRecordEnvVars(rawStdioEnv) : undefined;
+    const hasCustomLauncherOverrides = rawStdio.command !== undefined || rawStdio.args !== undefined;
+    const allowCustomLauncher = rawStdio.allowCustomLauncher === true;
+    if (hasCustomLauncherOverrides && !allowCustomLauncher) {
+      throw new Error(
+        "mcp.stdio.command and mcp.stdio.args are disabled by default. " +
+          "Set mcp.stdio.allowCustomLauncher=true only when you intentionally need a privileged custom launcher.",
+      );
+    }
+
+    const stdioCommand =
+      typeof rawStdio.command === "string" && rawStdio.command.length > 0
+        ? rawStdio.command
+        : DEFAULT_STDIO_COMMAND;
+    const stdioArgs = Array.isArray(rawStdio.args)
+      ? rawStdio.args.map((arg) => {
+          if (typeof arg !== "string") {
+            throw new Error("mcp.stdio.args must be an array of strings");
+          }
+          return arg;
+        })
+      : resolveBundledMongoMcpServerArgs();
+
+    if (hasCustomLauncherOverrides) {
+      validateCustomLauncher(stdioCommand, stdioArgs);
+    }
 
     return {
       mcp:
@@ -356,22 +488,10 @@ export const memoryConfigSchema = {
           ? {
               transport: "stdio",
               stdio: {
-                command:
-                  typeof rawStdio.command === "string" && rawStdio.command.length > 0
-                    ? rawStdio.command
-                    : DEFAULT_STDIO_COMMAND,
-                args: Array.isArray(rawStdio.args)
-                  ? rawStdio.args.map((arg) => {
-                      if (typeof arg !== "string") {
-                        throw new Error("mcp.stdio.args must be an array of strings");
-                      }
-                      return arg;
-                    })
-                  : resolveBundledMongoMcpServerArgs(),
-                env: resolvedStdioEnv as { MDB_MCP_CONNECTION_STRING: string } & Record<
-                  string,
-                  string
-                >,
+                allowCustomLauncher: allowCustomLauncher || undefined,
+                command: stdioCommand,
+                args: stdioArgs,
+                env: resolvedStdioEnv as StdioEnv,
               },
             }
           : {
@@ -418,19 +538,24 @@ export const memoryConfigSchema = {
     "mcp.stdio.command": {
       label: "MCP Command",
       placeholder: DEFAULT_STDIO_COMMAND_PLACEHOLDER,
-      help: "Optional override. Leave unset to launch the bundled MongoDB MCP server",
+      help: "Privileged override. Leave unset to launch the bundled pinned MongoDB MCP server",
     },
     "mcp.stdio.args": {
       label: "MCP Command Args",
       placeholder: DEFAULT_STDIO_ARGS_PLACEHOLDER,
       advanced: true,
-      help: "Optional override. Leave unset to use the bundled MongoDB MCP server entrypoint",
+      help: "Privileged override. Leave unset to use the bundled pinned MongoDB MCP server entrypoint",
+    },
+    "mcp.stdio.allowCustomLauncher": {
+      label: "Allow Custom Launcher",
+      advanced: true,
+      help: "Unsafe escape hatch. Enable only when you intentionally need a non-bundled MongoDB MCP launcher",
     },
     "mcp.stdio.env.MDB_MCP_CONNECTION_STRING": {
       label: "MongoDB Connection String",
       sensitive: true,
       placeholder: "${MONGODB_URI}",
-      help: "Atlas URI passed to MongoDB MCP server",
+      help: "Atlas URI passed to the MongoDB MCP child. Other child env keys are restricted to approved TLS settings",
     },
     "mcp.url": {
       label: "MCP SSE URL",

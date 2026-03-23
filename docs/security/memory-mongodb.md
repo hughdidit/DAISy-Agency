@@ -26,13 +26,17 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 ### MCP transport
 
 - `stdio` transport launches a local MongoDB MCP process using a bundled pinned server dependency by default.
-- Explicit `mcp.stdio.command` / `mcp.stdio.args` overrides remain available for operators who need a custom launcher.
+- Custom `mcp.stdio.command` / `mcp.stdio.args` overrides are privileged escape hatches and must be enabled explicitly with `mcp.stdio.allowCustomLauncher=true`.
+- Even in privileged mode, shell and package-manager launchers are rejected; the override must point to an absolute executable path.
 - `sse` transport requires explicit URL configuration.
 - No inbound listener is started by this extension.
 
 ### Least-privilege execution
 
+- The MCP child environment is a least-privilege boundary, not a wholesale inheritance of the DAISy gateway process environment.
 - The MCP child process receives an allowlisted environment instead of the full inherited gateway environment.
+- Operator-provided `mcp.stdio.env` values are validated against an approved allowlist before they are passed to the child process.
+- Runtime-mutating Node and tsx env such as `NODE_OPTIONS`, `NODE_PATH`, `TS_NODE_PROJECT`, and `TSX_TSCONFIG_PATH` are rejected.
 - Sensitive MongoDB credentials remain env-backed and are not passed via command-line arguments.
 - Operators should use MongoDB credentials or Atlas service accounts scoped to the minimum required database permissions for the configured memory collection.
 
