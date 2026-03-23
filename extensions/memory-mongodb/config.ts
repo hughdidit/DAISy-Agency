@@ -186,10 +186,8 @@ function isAbsoluteFilePath(value: string): boolean {
 }
 
 function executableBasename(value: string): string {
-  const normalized = value.replace(/[\\/]+$/, "");
-  const basename = normalized.includes("\\")
-    ? path.win32.basename(normalized)
-    : path.posix.basename(normalized);
+  const normalized = value.replace(/[\\/]+$/, "").replace(/\\/g, "/");
+  const basename = path.posix.basename(normalized);
   return basename.replace(/\.(bat|cmd|exe|ps1)$/i, "").toLowerCase();
 }
 
@@ -426,27 +424,44 @@ export const memoryConfigSchema = {
       );
     }
 
-    if (
-      rawStdio.allowCustomLauncher !== undefined &&
-      typeof rawStdio.allowCustomLauncher !== "boolean"
-    ) {
-      throw new Error("mcp.stdio.allowCustomLauncher must be a boolean");
-    }
 
-    const rawStdioEnv = rawStdio.env as Record<string, unknown> | undefined;
-    validateStdioEnvKeys(rawStdioEnv);
-    const connectionUri = rawStdioEnv?.MDB_MCP_CONNECTION_STRING;
+    let parsedMcp: MemoryConfig["mcp"];
+    if (transport === "stdio") {
+      if (
+        rawStdio.allowCustomLauncher !== undefined &&
+        typeof rawStdio.allowCustomLauncher !== "boolean"
+      ) {
+        throw new Error("mcp.stdio.allowCustomLauncher must be a boolean");
+      }
 
-    if (
-      transport === "stdio" &&
-      (typeof connectionUri !== "string" || connectionUri.length === 0)
-    ) {
-      throw new Error(
-        'mcp.stdio.env.MDB_MCP_CONNECTION_STRING is required when mcp.transport is "stdio"',
-      );
-    }
+      if (rawStdio.command !== undefined && typeof rawStdio.command !== "string") {
+        throw new Error("mcp.stdio.command must be a string");
+      }
 
-    if (typeof connectionUri === "string" && connectionUri.length > 0) {
+      if (rawStdio.args !== undefined && !Array.isArray(rawStdio.args)) {
+        throw new Error("mcp.stdio.args must be an array of strings");
+      }
+
+      const rawStdioEnvValue = rawStdio.env;
+      if (
+        rawStdioEnvValue !== undefined &&
+        (typeof rawStdioEnvValue !== "object" ||
+          rawStdioEnvValue === null ||
+          Array.isArray(rawStdioEnvValue))
+      ) {
+        throw new Error("mcp.stdio.env must be an object");
+      }
+
+      const rawStdioEnv = rawStdioEnvValue as Record<string, unknown> | undefined;
+      validateStdioEnvKeys(rawStdioEnv);
+      const connectionUri = rawStdioEnv?.MDB_MCP_CONNECTION_STRING;
+
+      if (!rawStdioEnv || typeof connectionUri !== "string" || connectionUri.length === 0) {
+        throw new Error(
+          'mcp.stdio.env.MDB_MCP_CONNECTION_STRING is required when mcp.transport is "stdio"',
+        );
+      }
+
       try {
         validateConnectionUriTls(resolveEnvVars(connectionUri));
       } catch (err) {
@@ -457,52 +472,54 @@ export const memoryConfigSchema = {
         }
         throw err;
       }
-    }
 
-    const resolvedStdioEnv = rawStdioEnv ? resolveStringRecordEnvVars(rawStdioEnv) : undefined;
-    const hasCustomLauncherOverrides =
-      rawStdio.command !== undefined || rawStdio.args !== undefined;
-    const allowCustomLauncher = rawStdio.allowCustomLauncher === true;
-    if (hasCustomLauncherOverrides && !allowCustomLauncher) {
-      throw new Error(
-        "mcp.stdio.command and mcp.stdio.args are disabled by default. " +
-          "Set mcp.stdio.allowCustomLauncher=true only when you intentionally need a privileged custom launcher.",
-      );
-    }
+      const rawStdioArgs = rawStdio.args;
+      const stdioArgs =
+        rawStdioArgs !== undefined
+          ? rawStdioArgs.map((arg) => {
+              if (typeof arg !== "string") {
+                throw new Error("mcp.stdio.args must be an array of strings");
+              }
+              return arg;
+            })
+          : resolveBundledMongoMcpServerArgs();
+      const hasCustomLauncherOverrides =
+        rawStdio.command !== undefined || rawStdio.args !== undefined;
+      const allowCustomLauncher = rawStdio.allowCustomLauncher === true;
+      if (hasCustomLauncherOverrides && !allowCustomLauncher) {
+        throw new Error(
+          "mcp.stdio.command and mcp.stdio.args are disabled by default. " +
+            "Set mcp.stdio.allowCustomLauncher=true only when you intentionally need a privileged custom launcher.",
+        );
+      }
 
-    const stdioCommand =
-      typeof rawStdio.command === "string" && rawStdio.command.length > 0
-        ? rawStdio.command
-        : DEFAULT_STDIO_COMMAND;
-    const stdioArgs = Array.isArray(rawStdio.args)
-      ? rawStdio.args.map((arg) => {
-          if (typeof arg !== "string") {
-            throw new Error("mcp.stdio.args must be an array of strings");
-          }
-          return arg;
-        })
-      : resolveBundledMongoMcpServerArgs();
+      const stdioCommand =
+        typeof rawStdio.command === "string" && rawStdio.command.length > 0
+          ? rawStdio.command
+          : DEFAULT_STDIO_COMMAND;
 
-    if (hasCustomLauncherOverrides) {
-      validateCustomLauncher(stdioCommand, stdioArgs);
+      if (hasCustomLauncherOverrides) {
+        validateCustomLauncher(stdioCommand, stdioArgs);
+      }
+
+      parsedMcp = {
+        transport: "stdio",
+        stdio: {
+          allowCustomLauncher: allowCustomLauncher || undefined,
+          command: stdioCommand,
+          args: stdioArgs,
+          env: resolveStringRecordEnvVars(rawStdioEnv) as StdioEnv,
+        },
+      };
+    } else {
+      parsedMcp = {
+        transport: "sse",
+        url: resolveEnvVars(mcp.url as string),
+      };
     }
 
     return {
-      mcp:
-        transport === "stdio"
-          ? {
-              transport: "stdio",
-              stdio: {
-                allowCustomLauncher: allowCustomLauncher || undefined,
-                command: stdioCommand,
-                args: stdioArgs,
-                env: resolvedStdioEnv as StdioEnv,
-              },
-            }
-          : {
-              transport: "sse",
-              url: resolveEnvVars(String(mcp.url)),
-            },
+      mcp: parsedMcp,
       gemini: {
         apiKey: resolveEnvVars(gemini.apiKey),
         embeddingModel,

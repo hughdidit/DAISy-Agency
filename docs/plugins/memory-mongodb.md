@@ -222,15 +222,21 @@ From prior Voyage-backed config:
 
 Leave `mcp.stdio.command` and `mcp.stdio.args` unset to use the bundled pinned MongoDB MCP server dependency (`mongodb-mcp-server@1.2.0`).
 
-If you need a custom launcher, you can still override both fields explicitly:
+If you must use a custom launcher, treat it as a privileged escape hatch:
+
+- set `mcp.stdio.allowCustomLauncher` to `true` explicitly
+- point `mcp.stdio.command` at an absolute executable path
+- pass an absolute entrypoint path as `mcp.stdio.args[0]`
+- do not use shell or package-manager wrappers such as `npx`, `npm`, `pnpm`, `bash`, or `powershell`
 
 ```jsonc
 {
   "mcp": {
     "transport": "stdio",
     "stdio": {
-      "command": "npx",
-      "args": ["-y", "mongodb-mcp-server@1.2.0"],
+      "allowCustomLauncher": true,
+      "command": "/opt/daisy/bin/node",
+      "args": ["/opt/daisy/vendor/mongodb-mcp-server/dist/index.js"],
       "env": {
         "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}",
       },
