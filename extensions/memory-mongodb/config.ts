@@ -80,7 +80,7 @@ export function resolveBundledMongoMcpServerEntrypoint(): string {
     const rawBin =
       typeof packageJson.bin === "string"
         ? packageJson.bin
-        : packageJson.bin?.["mongodb-mcp-server"];
+        : packageJson.bin?.[BUNDLED_MCP_SERVER_PACKAGE];
 
     if (typeof rawBin !== "string" || rawBin.length === 0) {
       throw new Error("missing mongodb-mcp-server bin entry");
@@ -92,10 +92,14 @@ export function resolveBundledMongoMcpServerEntrypoint(): string {
     }
 
     return entrypoint;
-  } catch {
+  } catch (error) {
+    const reason =
+      error instanceof Error && error.message ? ` Resolution failed: ${error.message}` : "";
     throw new Error(
-      `Bundled MongoDB MCP server (${BUNDLED_MCP_SERVER_PACKAGE}@${BUNDLED_MCP_SERVER_VERSION}) is not installed. ` +
-        "Install the bundled dependency or set mcp.stdio.command and mcp.stdio.args explicitly.",
+      `Bundled MongoDB MCP server (${BUNDLED_MCP_SERVER_PACKAGE}@${BUNDLED_MCP_SERVER_VERSION}) ` +
+        "is not installed or could not be resolved. " +
+        "Install the bundled dependency or set mcp.stdio.command and mcp.stdio.args explicitly." +
+        reason,
     );
   }
 }

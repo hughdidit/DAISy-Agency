@@ -37,58 +37,73 @@ describe("mcp client service", () => {
   });
 
   test("uses stdio transport and parses structured content", async () => {
-    process.env.PATH = process.env.PATH ?? "test-path";
-    process.env.MCP_TEST_INHERITED_ENV = "inherited";
-    const { McpClientService } = await import("./mcp-client-service.js");
-    const { memoryConfigSchema, resolveBundledMongoMcpServerEntrypoint } =
-      await import("./config.js");
+    const originalPath = process.env.PATH;
+    const originalInheritedEnv = process.env.MCP_TEST_INHERITED_ENV;
 
-    const bundledEntrypoint = resolveBundledMongoMcpServerEntrypoint();
-    const cfg = memoryConfigSchema.parse({
-      mcp: {
-        transport: "stdio",
-        stdio: {
-          env: {
-            MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+    try {
+      process.env.PATH = process.env.PATH ?? "test-path";
+      process.env.MCP_TEST_INHERITED_ENV = "inherited";
+      const { McpClientService } = await import("./mcp-client-service.js");
+      const { memoryConfigSchema, resolveBundledMongoMcpServerEntrypoint } =
+        await import("./config.js");
+
+      const bundledEntrypoint = resolveBundledMongoMcpServerEntrypoint();
+      const cfg = memoryConfigSchema.parse({
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
           },
         },
-      },
-      gemini: { apiKey: "test-key" },
-    });
-    if (cfg.mcp.transport !== "stdio") {
-      throw new Error("expected stdio config");
+        gemini: { apiKey: "test-key" },
+      });
+      if (cfg.mcp.transport !== "stdio") {
+        throw new Error("expected stdio config");
+      }
+
+      const service = new McpClientService(cfg.mcp);
+
+      const inserted = await service.insertMany("db", "memories", [{ text: "hello" }]);
+
+      expect(inserted).toBe(1);
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(StdioClientTransport).toHaveBeenCalledTimes(1);
+      const stdioArgs = StdioClientTransport.mock.calls[0]?.[0] as {
+        command: string;
+        args: string[];
+        env: Record<string, string | undefined>;
+      };
+      expect(stdioArgs.command).toBe(process.execPath);
+      expect(stdioArgs.args).toEqual([bundledEntrypoint]);
+      expect(stdioArgs.env.MDB_MCP_CONNECTION_STRING).toBe(
+        "mongodb+srv://user:pass@cluster.example.com/test",
+      );
+      expect(stdioArgs.env.PATH).toBe(process.env.PATH);
+      expect(stdioArgs.env.MCP_TEST_INHERITED_ENV).toBeUndefined();
+
+      expect(callTool).toHaveBeenCalledWith({
+        name: "insert-many",
+        arguments: {
+          database: "db",
+          collection: "memories",
+          documents: [{ text: "hello" }],
+        },
+      });
+    } finally {
+      if (originalPath === undefined) {
+        delete process.env.PATH;
+      } else {
+        process.env.PATH = originalPath;
+      }
+
+      if (originalInheritedEnv === undefined) {
+        delete process.env.MCP_TEST_INHERITED_ENV;
+      } else {
+        process.env.MCP_TEST_INHERITED_ENV = originalInheritedEnv;
+      }
     }
-
-    const service = new McpClientService(cfg.mcp);
-
-    const inserted = await service.insertMany("db", "memories", [{ text: "hello" }]);
-
-    expect(inserted).toBe(1);
-    expect(connect).toHaveBeenCalledTimes(1);
-    expect(StdioClientTransport).toHaveBeenCalledTimes(1);
-    const stdioArgs = StdioClientTransport.mock.calls[0]?.[0] as {
-      command: string;
-      args: string[];
-      env: Record<string, string | undefined>;
-    };
-    expect(stdioArgs.command).toBe(process.execPath);
-    expect(stdioArgs.args).toEqual([bundledEntrypoint]);
-    expect(stdioArgs.env.MDB_MCP_CONNECTION_STRING).toBe(
-      "mongodb+srv://user:pass@cluster.example.com/test",
-    );
-    expect(stdioArgs.env.PATH).toBe(process.env.PATH);
-    expect(stdioArgs.env.MCP_TEST_INHERITED_ENV).toBeUndefined();
-
-    delete process.env.MCP_TEST_INHERITED_ENV;
-
-    expect(callTool).toHaveBeenCalledWith({
-      name: "insert-many",
-      arguments: {
-        database: "db",
-        collection: "memories",
-        documents: [{ text: "hello" }],
-      },
-    });
   });
 
   test("preserves explicit custom command and args overrides", async () => {
