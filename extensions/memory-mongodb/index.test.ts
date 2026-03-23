@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { describe, expect, test, vi } from "vitest";
 
 vi.mock("./mcp-client-service.js", () => ({
@@ -35,7 +36,7 @@ describe("memory-mongodb plugin", () => {
         transport: "stdio",
         stdio: {
           command: "npx",
-          args: ["-y", "mongodb-mcp-server"],
+          args: ["-y", "mongodb-mcp-server@1.2.0"],
           env: {
             MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
           },
@@ -69,6 +70,7 @@ describe("memory-mongodb plugin", () => {
 
   test("config schema applies defaults", async () => {
     const { default: memoryPlugin } = await import("./index.js");
+    const { resolveBundledMongoMcpServerEntrypoint } = await import("./config.js");
 
     const config = memoryPlugin.configSchema.parse({
       mcp: {
@@ -90,6 +92,36 @@ describe("memory-mongodb plugin", () => {
     expect(config.retrieval.vectorLimit).toBe(8);
     expect(config.autoCapture).toBe(true);
     expect(config.autoRecall).toBe(true);
+    if (config.mcp.transport === "stdio") {
+      expect(config.mcp.stdio.command).toBe(process.execPath);
+      expect(config.mcp.stdio.args).toEqual([resolveBundledMongoMcpServerEntrypoint()]);
+    }
+  });
+  test("bundled MCP resolver rejects version drift", async () => {
+    const { BUNDLED_MCP_SERVER_VERSION, resolveBundledMongoMcpServerEntrypoint } =
+      await import("./config.js");
+    const originalReadFileSync = fs.readFileSync.bind(fs);
+    const readFileSyncSpy = vi.spyOn(fs, "readFileSync").mockImplementation(((
+      filePath: Parameters<typeof fs.readFileSync>[0],
+      options?: Parameters<typeof fs.readFileSync>[1],
+    ) => {
+      const rawPath = String(filePath);
+      if (rawPath.includes("mongodb-mcp-server") && rawPath.endsWith("package.json")) {
+        return JSON.stringify({
+          version: "9.9.9",
+          bin: { "mongodb-mcp-server": "dist/index.js" },
+        });
+      }
+      return originalReadFileSync(filePath, options);
+    }) as typeof fs.readFileSync);
+
+    try {
+      expect(() => resolveBundledMongoMcpServerEntrypoint()).toThrow(
+        `Bundled MongoDB MCP server (mongodb-mcp-server@${BUNDLED_MCP_SERVER_VERSION}) is not installed or could not be resolved. Install the bundled dependency or set mcp.stdio.command and mcp.stdio.args explicitly. Resolution failed: unexpected mongodb-mcp-server version: expected ${BUNDLED_MCP_SERVER_VERSION}, got 9.9.9`,
+      );
+    } finally {
+      readFileSyncSpy.mockRestore();
+    }
   });
 
   test("config schema resolves env vars", async () => {

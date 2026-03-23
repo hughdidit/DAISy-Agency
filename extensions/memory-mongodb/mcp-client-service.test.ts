@@ -37,43 +37,97 @@ describe("mcp client service", () => {
   });
 
   test("uses stdio transport and parses structured content", async () => {
-    process.env.MCP_TEST_INHERITED_ENV = "inherited";
+    const originalPath = process.env.PATH;
+    const originalInheritedEnv = process.env.MCP_TEST_INHERITED_ENV;
+
+    try {
+      process.env.PATH = process.env.PATH ?? "test-path";
+      process.env.MCP_TEST_INHERITED_ENV = "inherited";
+      const { McpClientService } = await import("./mcp-client-service.js");
+      const { memoryConfigSchema, resolveBundledMongoMcpServerEntrypoint } =
+        await import("./config.js");
+
+      const bundledEntrypoint = resolveBundledMongoMcpServerEntrypoint();
+      const cfg = memoryConfigSchema.parse({
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      });
+      if (cfg.mcp.transport !== "stdio") {
+        throw new Error("expected stdio config");
+      }
+
+      const service = new McpClientService(cfg.mcp);
+
+      const inserted = await service.insertMany("db", "memories", [{ text: "hello" }]);
+
+      expect(inserted).toBe(1);
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(StdioClientTransport).toHaveBeenCalledTimes(1);
+      const stdioArgs = StdioClientTransport.mock.calls[0]?.[0] as {
+        command: string;
+        args: string[];
+        env: Record<string, string | undefined>;
+      };
+      expect(stdioArgs.command).toBe(process.execPath);
+      expect(stdioArgs.args).toEqual([bundledEntrypoint]);
+      expect(stdioArgs.env.MDB_MCP_CONNECTION_STRING).toBe(
+        "mongodb+srv://user:pass@cluster.example.com/test",
+      );
+      expect(stdioArgs.env.PATH).toBe(process.env.PATH);
+      expect(stdioArgs.env.MCP_TEST_INHERITED_ENV).toBeUndefined();
+
+      expect(callTool).toHaveBeenCalledWith({
+        name: "insert-many",
+        arguments: {
+          database: "db",
+          collection: "memories",
+          documents: [{ text: "hello" }],
+        },
+      });
+    } finally {
+      if (originalPath === undefined) {
+        delete process.env.PATH;
+      } else {
+        process.env.PATH = originalPath;
+      }
+
+      if (originalInheritedEnv === undefined) {
+        delete process.env.MCP_TEST_INHERITED_ENV;
+      } else {
+        process.env.MCP_TEST_INHERITED_ENV = originalInheritedEnv;
+      }
+    }
+  });
+
+  test("preserves explicit custom command and args overrides", async () => {
     const { McpClientService } = await import("./mcp-client-service.js");
 
     const service = new McpClientService({
       transport: "stdio",
       stdio: {
         command: "npx",
-        args: ["-y", "mongodb-mcp-server"],
+        args: ["-y", "mongodb-mcp-server@1.2.0"],
         env: {
           MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
         },
       },
     });
 
-    const inserted = await service.insertMany("db", "memories", [{ text: "hello" }]);
+    await service.insertMany("db", "memories", [{ text: "hello" }]);
 
-    expect(inserted).toBe(1);
-    expect(connect).toHaveBeenCalledTimes(1);
-    expect(StdioClientTransport).toHaveBeenCalledTimes(1);
     const stdioArgs = StdioClientTransport.mock.calls[0]?.[0] as {
-      env: Record<string, string | undefined>;
+      command: string;
+      args: string[];
     };
-    expect(stdioArgs.env.MDB_MCP_CONNECTION_STRING).toBe(
-      "mongodb+srv://user:pass@cluster.example.com/test",
-    );
-    expect(stdioArgs.env.MCP_TEST_INHERITED_ENV).toBe("inherited");
-
-    delete process.env.MCP_TEST_INHERITED_ENV;
-
-    expect(callTool).toHaveBeenCalledWith({
-      name: "insert-many",
-      arguments: {
-        database: "db",
-        collection: "memories",
-        documents: [{ text: "hello" }],
-      },
-    });
+    expect(stdioArgs.command).toBe("npx");
+    expect(stdioArgs.args).toEqual(["-y", "mongodb-mcp-server@1.2.0"]);
   });
 
   test("parses aggregate response from text payload", async () => {
@@ -88,8 +142,8 @@ describe("mcp client service", () => {
     const service = new McpClientService({
       transport: "stdio",
       stdio: {
-        command: "npx",
-        args: ["-y", "mongodb-mcp-server"],
+        command: process.execPath,
+        args: ["/bundled/mongodb-mcp-server.js"],
         env: {
           MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
         },
@@ -127,8 +181,8 @@ describe("mcp client service", () => {
     const service = new McpClientService({
       transport: "stdio",
       stdio: {
-        command: "npx",
-        args: ["-y", "mongodb-mcp-server"],
+        command: process.execPath,
+        args: ["/bundled/mongodb-mcp-server.js"],
         env: {
           MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
         },
@@ -140,6 +194,59 @@ describe("mcp client service", () => {
     );
     await expect(service.insertMany("db", "memories", [{ text: "a" }])).rejects.not.toThrow(
       "mongodb+srv://user:pass@cluster.example.com/test",
+    );
+  });
+
+  test("reports EACCES startup failures without leaking command details", async () => {
+    const { McpClientService } = await import("./mcp-client-service.js");
+
+    connect.mockRejectedValue(
+      Object.assign(new Error("spawn /private/bin/mcp-runner EACCES"), {
+        code: "EACCES",
+      }),
+    );
+
+    const service = new McpClientService({
+      transport: "stdio",
+      stdio: {
+        command: "/private/bin/mcp-runner",
+        args: ["--stdio"],
+        env: {
+          MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+        },
+      },
+    });
+
+    await expect(service.insertMany("db", "memories", [{ text: "a" }])).rejects.toThrow(
+      "unable to execute the configured MongoDB MCP stdio command (EACCES)",
+    );
+    await expect(service.insertMany("db", "memories", [{ text: "a" }])).rejects.not.toThrow(
+      "/private/bin/mcp-runner",
+    );
+  });
+
+  test("reports ENOENT startup failures with actionable guidance", async () => {
+    const { McpClientService } = await import("./mcp-client-service.js");
+
+    connect.mockRejectedValue(
+      Object.assign(new Error("spawn missing-mcp ENOENT"), {
+        code: "ENOENT",
+      }),
+    );
+
+    const service = new McpClientService({
+      transport: "stdio",
+      stdio: {
+        command: "missing-mcp",
+        args: ["--stdio"],
+        env: {
+          MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+        },
+      },
+    });
+
+    await expect(service.insertMany("db", "memories", [{ text: "a" }])).rejects.toThrow(
+      "unable to locate the configured MongoDB MCP stdio command (ENOENT)",
     );
   });
 });

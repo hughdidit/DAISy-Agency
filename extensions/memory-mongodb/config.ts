@@ -1,3 +1,7 @@
+import fs from "node:fs";
+import { createRequire } from "node:module";
+import path from "node:path";
+
 export type MemoryConfig = {
   mcp:
     | {
@@ -35,8 +39,9 @@ export const MEMORY_CATEGORIES = ["preference", "fact", "decision", "entity", "o
 export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
 
 const DEFAULT_TRANSPORT = "stdio" as const;
-const DEFAULT_STDIO_COMMAND = "npx";
-const DEFAULT_STDIO_ARGS = ["-y", "mongodb-mcp-server"];
+const DEFAULT_STDIO_COMMAND = process.execPath;
+const DEFAULT_STDIO_COMMAND_PLACEHOLDER = "bundled default";
+const DEFAULT_STDIO_ARGS_PLACEHOLDER = '["<bundled mongodb-mcp-server entrypoint>"]';
 const DEFAULT_EMBEDDING_MODEL = "gemini-embedding-2-preview";
 const DEFAULT_DATABASE_NAME = "daisy_memory";
 const DEFAULT_COLLECTION_NAME = "memories";
@@ -44,6 +49,10 @@ const DEFAULT_VECTOR_SEARCH_INDEX_NAME = "vector_index";
 const DEFAULT_MIN_SCORE = 0.1;
 const DEFAULT_VECTOR_LIMIT = 8;
 const DEFAULT_NUM_CANDIDATES_MULTIPLIER = 10;
+export const BUNDLED_MCP_SERVER_PACKAGE = "mongodb-mcp-server";
+export const BUNDLED_MCP_SERVER_VERSION = "1.2.0";
+
+const require = createRequire(import.meta.url);
 
 export const DEFAULT_CAPTURE_TRIGGERS = [
   "remember",
@@ -59,6 +68,51 @@ export const DEFAULT_CAPTURE_TRIGGERS = [
 const GEMINI_EMBEDDING_DIMENSIONS: Record<string, number> = {
   "gemini-embedding-2-preview": 1536,
 };
+
+export function resolveBundledMongoMcpServerEntrypoint(): string {
+  try {
+    const packageMainPath = require.resolve(BUNDLED_MCP_SERVER_PACKAGE);
+    const packageRoot = path.resolve(path.dirname(packageMainPath), "..", "..");
+    const packageJsonPath = path.join(packageRoot, "package.json");
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
+      version?: string;
+      bin?: string | Record<string, string>;
+    };
+    if (packageJson.version !== BUNDLED_MCP_SERVER_VERSION) {
+      throw new Error(
+        `unexpected mongodb-mcp-server version: expected ${BUNDLED_MCP_SERVER_VERSION}, got ${packageJson.version ?? "unknown"}`,
+      );
+    }
+    const rawBin =
+      typeof packageJson.bin === "string"
+        ? packageJson.bin
+        : packageJson.bin?.[BUNDLED_MCP_SERVER_PACKAGE];
+
+    if (typeof rawBin !== "string" || rawBin.length === 0) {
+      throw new Error("missing mongodb-mcp-server bin entry");
+    }
+
+    const entrypoint = path.join(packageRoot, rawBin);
+    if (!fs.existsSync(entrypoint)) {
+      throw new Error("bundled mongodb-mcp-server entrypoint not found");
+    }
+
+    return entrypoint;
+  } catch (error) {
+    const reason =
+      error instanceof Error && error.message ? ` Resolution failed: ${error.message}` : "";
+    throw new Error(
+      `Bundled MongoDB MCP server (${BUNDLED_MCP_SERVER_PACKAGE}@${BUNDLED_MCP_SERVER_VERSION}) ` +
+        "is not installed or could not be resolved. " +
+        "Install the bundled dependency or set mcp.stdio.command and mcp.stdio.args explicitly." +
+        reason,
+    );
+  }
+}
+
+export function resolveBundledMongoMcpServerArgs(): string[] {
+  return [resolveBundledMongoMcpServerEntrypoint()];
+}
 
 function assertAllowedKeys(value: Record<string, unknown>, allowed: string[], label: string) {
   const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
@@ -313,7 +367,7 @@ export const memoryConfigSchema = {
                       }
                       return arg;
                     })
-                  : [...DEFAULT_STDIO_ARGS],
+                  : resolveBundledMongoMcpServerArgs(),
                 env: resolvedStdioEnv as { MDB_MCP_CONNECTION_STRING: string } & Record<
                   string,
                   string
@@ -363,13 +417,14 @@ export const memoryConfigSchema = {
     },
     "mcp.stdio.command": {
       label: "MCP Command",
-      placeholder: DEFAULT_STDIO_COMMAND,
-      help: "Executable used to launch the MongoDB MCP server",
+      placeholder: DEFAULT_STDIO_COMMAND_PLACEHOLDER,
+      help: "Optional override. Leave unset to launch the bundled MongoDB MCP server",
     },
     "mcp.stdio.args": {
       label: "MCP Command Args",
-      placeholder: JSON.stringify(DEFAULT_STDIO_ARGS),
+      placeholder: DEFAULT_STDIO_ARGS_PLACEHOLDER,
       advanced: true,
+      help: "Optional override. Leave unset to use the bundled MongoDB MCP server entrypoint",
     },
     "mcp.stdio.env.MDB_MCP_CONNECTION_STRING": {
       label: "MongoDB Connection String",
