@@ -383,7 +383,11 @@ export const memoryConfigSchema = {
         throw new Error("mcp.stdio must be an object");
       }
       rawStdio = mcp.stdio as Record<string, unknown>;
-      assertAllowedKeys(rawStdio, ["allowCustomLauncher", "command", "args", "env"], "mcp.stdio config");
+      assertAllowedKeys(
+        rawStdio,
+        ["allowCustomLauncher", "command", "args", "env"],
+        "mcp.stdio config",
+      );
     }
 
     if (transport === "sse") {
@@ -456,7 +460,8 @@ export const memoryConfigSchema = {
     }
 
     const resolvedStdioEnv = rawStdioEnv ? resolveStringRecordEnvVars(rawStdioEnv) : undefined;
-    const hasCustomLauncherOverrides = rawStdio.command !== undefined || rawStdio.args !== undefined;
+    const hasCustomLauncherOverrides =
+      rawStdio.command !== undefined || rawStdio.args !== undefined;
     const allowCustomLauncher = rawStdio.allowCustomLauncher === true;
     if (hasCustomLauncherOverrides && !allowCustomLauncher) {
       throw new Error(
