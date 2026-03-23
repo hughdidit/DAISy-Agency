@@ -40,9 +40,8 @@ describe("mcp client service", () => {
     process.env.PATH = process.env.PATH ?? "test-path";
     process.env.MCP_TEST_INHERITED_ENV = "inherited";
     const { McpClientService } = await import("./mcp-client-service.js");
-    const { memoryConfigSchema, resolveBundledMongoMcpServerEntrypoint } = await import(
-      "./config.js"
-    );
+    const { memoryConfigSchema, resolveBundledMongoMcpServerEntrypoint } =
+      await import("./config.js");
 
     const bundledEntrypoint = resolveBundledMongoMcpServerEntrypoint();
     const cfg = memoryConfigSchema.parse({

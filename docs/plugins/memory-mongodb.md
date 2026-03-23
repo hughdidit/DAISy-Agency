@@ -108,24 +108,24 @@ for a clean deployment.
 
 ### Config Fields
 
-| Field                                     | Required    | Default                     | Description                                                      |
-| ----------------------------------------- | ----------- | --------------------------- | ---------------------------------------------------------------- |
-| `mcp.transport`                           | No          | `stdio`                     | `stdio` for managed local MCP process, `sse` for remote endpoint |
-| `mcp.stdio.command`                       | No          | bundled Node launcher       | Optional override for MongoDB MCP server command                 |
-| `mcp.stdio.args`                          | No          | resolved bundled entrypoint | Optional override for MongoDB MCP server args                    |
-| `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes (stdio) | -                           | MongoDB Atlas URI passed to MCP server                           |
-| `mcp.url`                                 | Yes (sse)   | -                           | Remote MCP SSE URL                                               |
-| `gemini.apiKey`                           | Yes         | -                           | Gemini API key                                                   |
-| `gemini.embeddingModel`                   | No          | `gemini-embedding-2-preview`                | Gemini embedding model                                           |
-| `database.name`                           | No          | `daisy_memory`                              | MongoDB database name                                            |
-| `database.collection`                     | No          | `memories`                                  | MongoDB collection name                                          |
-| `database.indexName`                      | No          | `vector_index`                              | Atlas vector index name                                          |
-| `retrieval.minScore`                      | No          | `0.1`                                       | Minimum vector similarity score                                  |
-| `retrieval.vectorLimit`                   | No          | `8`                                         | Max candidates returned from vector search                       |
-| `retrieval.numCandidatesMultiplier`       | No          | `10`                                        | `numCandidates = vectorLimit * multiplier`                       |
-| `captureTriggers`                         | No          | built-in defaults                           | Regex patterns that trigger auto-capture                         |
-| `autoCapture`                             | No          | `true`                                      | Auto-store significant memories from conversation                |
-| `autoRecall`                              | No          | `true`                                      | Auto-inject relevant memories before agent execution             |
+| Field                                     | Required    | Default                      | Description                                                      |
+| ----------------------------------------- | ----------- | ---------------------------- | ---------------------------------------------------------------- |
+| `mcp.transport`                           | No          | `stdio`                      | `stdio` for managed local MCP process, `sse` for remote endpoint |
+| `mcp.stdio.command`                       | No          | bundled Node launcher        | Optional override for MongoDB MCP server command                 |
+| `mcp.stdio.args`                          | No          | resolved bundled entrypoint  | Optional override for MongoDB MCP server args                    |
+| `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes (stdio) | -                            | MongoDB Atlas URI passed to MCP server                           |
+| `mcp.url`                                 | Yes (sse)   | -                            | Remote MCP SSE URL                                               |
+| `gemini.apiKey`                           | Yes         | -                            | Gemini API key                                                   |
+| `gemini.embeddingModel`                   | No          | `gemini-embedding-2-preview` | Gemini embedding model                                           |
+| `database.name`                           | No          | `daisy_memory`               | MongoDB database name                                            |
+| `database.collection`                     | No          | `memories`                   | MongoDB collection name                                          |
+| `database.indexName`                      | No          | `vector_index`               | Atlas vector index name                                          |
+| `retrieval.minScore`                      | No          | `0.1`                        | Minimum vector similarity score                                  |
+| `retrieval.vectorLimit`                   | No          | `8`                          | Max candidates returned from vector search                       |
+| `retrieval.numCandidatesMultiplier`       | No          | `10`                         | `numCandidates = vectorLimit * multiplier`                       |
+| `captureTriggers`                         | No          | built-in defaults            | Regex patterns that trigger auto-capture                         |
+| `autoCapture`                             | No          | `true`                       | Auto-store significant memories from conversation                |
+| `autoRecall`                              | No          | `true`                       | Auto-inject relevant memories before agent execution             |
 
 ## Atlas Setup
 
@@ -217,10 +217,10 @@ If you need a custom launcher, you can still override both fields explicitly:
       "command": "npx",
       "args": ["-y", "mongodb-mcp-server@1.2.0"],
       "env": {
-        "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}"
-      }
-    }
-  }
+        "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}",
+      },
+    },
+  },
 }
 ```
 

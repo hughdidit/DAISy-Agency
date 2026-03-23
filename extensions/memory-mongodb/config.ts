@@ -95,7 +95,7 @@ export function resolveBundledMongoMcpServerEntrypoint(): string {
   } catch {
     throw new Error(
       `Bundled MongoDB MCP server (${BUNDLED_MCP_SERVER_PACKAGE}@${BUNDLED_MCP_SERVER_VERSION}) is not installed. ` +
-        'Install the bundled dependency or set mcp.stdio.command and mcp.stdio.args explicitly.',
+        "Install the bundled dependency or set mcp.stdio.command and mcp.stdio.args explicitly.",
     );
   }
 }
