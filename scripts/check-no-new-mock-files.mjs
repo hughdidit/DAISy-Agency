@@ -4,6 +4,8 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+const ALLOWED_MOCK_POLICY_FILES = new Set(["scripts/check-no-new-mock-files.mjs"]);
+
 function parseArgs(argv) {
   const args = { base: "HEAD", head: "HEAD" };
 
@@ -50,6 +52,10 @@ function isMockPath(filePath) {
   const normalizedPath = normalizePath(filePath);
   const baseName = path.posix.basename(normalizedPath);
 
+  if (ALLOWED_MOCK_POLICY_FILES.has(normalizedPath)) {
+    return false;
+  }
+
   if (/(^|\/)mocks?\//i.test(normalizedPath)) {
     return true;
   }
@@ -86,7 +92,7 @@ function main() {
   const { base, head } = parseArgs(process.argv.slice(2));
   const repoRoot = getRepoRoot();
   const addedPaths = getAddedOrRenamedPaths(repoRoot, base, head);
-  const violations = addedPaths.filter(isMockPath).sort();
+  const violations = addedPaths.filter(isMockPath).toSorted();
 
   if (violations.length === 0) {
     return;
