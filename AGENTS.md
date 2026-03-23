@@ -11,7 +11,12 @@ Fork of OpenClaw. Branded as **DAISy**.
 - Never commit directly to `daisy/dev` — always use a feature branch and PR
 - Always create feature branches from `daisy/dev` — fetch and checkout `daisy/dev` first, then `git checkout -b feature-branch daisy/dev` to avoid pulling in commits from other branches. Do your development on the feature branch, not on `daisy/dev`.
 - Commit all changes to the feature branch, push to origin, and submit a PR for merging back to `daisy/dev`. Following "Closing a PR (merge checklist)" to finish.
-- Fix errors by adjusting the codebase - not tests, CI checks or deployment scripts (last resort).
+- Tests are read-only unless the user explicitly asks to modify tests.
+- If production/staging code breaks tests, stop and ask before changing any test.
+- Prefer real-behavior tests over mocks, stubs, spies, fake harnesses, and fake service layers.
+- Do not add new mock-based tests, new `*.mock.*` or `*.mocks.*` files, or new `mocks/` directories unless the user explicitly asks for them.
+- Do not weaken real or integration coverage into mocked coverage to make tests pass; if mocks appear necessary, stop and ask before changing tests or adding mock infrastructure.
+- The anti-mock CI gate may only be bypassed with explicit maintainer approval via the `allow-new-mock-files` PR label.
 
 ## Branch Model
 

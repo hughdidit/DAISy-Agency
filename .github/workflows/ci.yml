@@ -115,6 +115,40 @@ jobs:
       - name: Check release contents
         run: pnpm release:check
 
+  anti-mock:
+    name: anti-mock
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Setup Node environment
+        uses: ./.github/actions/setup-node-env
+        with:
+          install-bun: "false"
+          use-sticky-disk: "false"
+          install-deps: "false"
+
+      - name: Block new mock-pattern files
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ contains(github.event.pull_request.labels.*.name, 'allow-new-mock-files') }}" = "true" ]; then
+            echo "Bypassing anti-mock gate because PR label allow-new-mock-files is present."
+            exit 0
+          fi
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="HEAD"
+          fi
+
+          node scripts/check-no-new-mock-files.mjs --base "$BASE" --head HEAD
+
   checks:
     needs: [docs-scope, changed-scope]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')

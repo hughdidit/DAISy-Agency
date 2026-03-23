@@ -1,0 +1,44 @@
+# Default owner
+
+* @hughdidit
+
+# Top-level test tree
+
+/test/ @hughdidit
+
+# Package- or extension-local test trees
+
+**/test/ @hughdidit
+
+# Common colocated test directories
+
+**/__tests__/ @hughdidit
+
+# Common test-only helper/support directories
+
+**/test-utils/ @hughdidit
+**/test-helpers/ @hughdidit
+
+# Test support assets typically coupled to tests
+
+**/fixtures/ @hughdidit
+**/mocks/ @hughdidit
+
+# Colocated test files
+
+**/*.test.ts @hughdidit
+**/*.test.tsx @hughdidit
+**/*.test.js @hughdidit
+**/*.test.jsx @hughdidit
+**/*.test.mts @hughdidit
+**/*.test.cts @hughdidit
+**/*.spec.ts @hughdidit
+**/*.spec.tsx @hughdidit
+**/*.spec.js @hughdidit
+**/*.spec.jsx @hughdidit
+**/*.spec.mts @hughdidit
+**/*.spec.cts @hughdidit
+
+# Kotlin/Java unit tests under Android
+
+**/src/test/ @hughdidit
