@@ -12,12 +12,20 @@ function parseArgs(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
     if (token === "--base") {
-      args.base = argv[index + 1];
+      const value = argv[index + 1];
+      if (!value || value.startsWith("--")) {
+        throw new Error("Missing value for --base");
+      }
+      args.base = value;
       index += 1;
       continue;
     }
     if (token === "--head") {
-      args.head = argv[index + 1];
+      const value = argv[index + 1];
+      if (!value || value.startsWith("--")) {
+        throw new Error("Missing value for --head");
+      }
+      args.head = value;
       index += 1;
       continue;
     }
