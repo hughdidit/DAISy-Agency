@@ -29,6 +29,9 @@ function parseArgs(argv) {
       index += 1;
       continue;
     }
+    if (token.startsWith("--")) {
+      throw new Error(`Unknown argument: ${token}`);
+    }
   }
 
   return args;
