@@ -44,6 +44,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   : "${GCP_ZONE:?GCP_ZONE is required for GCE verify}"
 
   container="${VERIFY_GCE_CONTAINER:-openclaw-gateway}"
+  container_escaped="$(printf '%q' "${container}")"
   health_timeout="${VERIFY_HEALTH_TIMEOUT:-30}"
 
   # Check 1: container is running
@@ -108,7 +109,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   checks_run=$((checks_run + 1))
   log "Checking mongodb-mcp-server startup smoke in ${container}..."
   mcp_smoke_output="$(
-    gce_ssh "sudo docker exec ${container} node -e 'const path=require(\"path\"); const { spawnSync } = require(\"child_process\"); const packageJsonPath=require.resolve(\"mongodb-mcp-server/package.json\"); const packageJson=require(packageJsonPath); const binPath=path.join(path.dirname(packageJsonPath), packageJson.bin[\"mongodb-mcp-server\"]); console.log(\"node_version=\" + process.version); console.log(\"mongodb_mcp_bin=\" + binPath); const result=spawnSync(process.execPath, [binPath, \"--version\"], { encoding: \"utf8\" }); if ((result.stdout || \"\").trim()) console.log(\"mongodb_mcp_version=\" + result.stdout.trim()); if (result.status !== 0) { if (result.stderr) process.stderr.write(result.stderr); process.exit(result.status ?? 1); }'"
+    gce_ssh "sudo docker exec ${container_escaped} node -e 'const path=require(\"path\"); const { spawnSync } = require(\"child_process\"); const packageJsonPath=require.resolve(\"mongodb-mcp-server/package.json\"); const packageJson=require(packageJsonPath); const binPath=path.join(path.dirname(packageJsonPath), packageJson.bin[\"mongodb-mcp-server\"]); console.log(\"node_version=\" + process.version); console.log(\"mongodb_mcp_bin=\" + binPath); const result=spawnSync(process.execPath, [binPath, \"--version\"], { encoding: \"utf8\" }); if ((result.stdout || \"\").trim()) console.log(\"mongodb_mcp_version=\" + result.stdout.trim()); if (result.status !== 0) { if (result.stderr) process.stderr.write(result.stderr); process.exit(result.status ?? 1); }'"
   )" || fail "mongodb-mcp-server startup smoke failed in ${container}"
   printf '%s\n' "${mcp_smoke_output}"
 
@@ -117,8 +118,8 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   checks_run=$((checks_run + 1))
   log "Checking ${container} logs for MongoDB MCP startup crash signatures..."
   crash_signatures="$(
-    gce_ssh "sudo docker logs ${container} 2>&1 | grep -F -e 'node:internal/modules/esm/translators:213' -e 'MongoDB MCP connection failed: MCP error -32000: Connection closed' || true"
-  )" || true
+    gce_ssh "sudo docker logs ${container_escaped} 2>&1 | grep -F -e 'node:internal/modules/esm/translators:213' -e 'MongoDB MCP connection failed: MCP error -32000: Connection closed' || true"
+  )" || fail "Failed to inspect ${container} logs on ${GCE_INSTANCE_NAME}"
   if [[ -n "${crash_signatures}" ]]; then
     printf '%s\n' "${crash_signatures}" >&2
     fail "Detected MongoDB MCP startup crash signatures in ${container} logs"
