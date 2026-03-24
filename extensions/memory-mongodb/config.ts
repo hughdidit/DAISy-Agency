@@ -81,6 +81,7 @@ const DISALLOWED_STDIO_ENV_KEYS = new Set([
 const FORBIDDEN_CUSTOM_LAUNCHERS = new Set([
   "bash",
   "cmd",
+  "corepack",
   "dash",
   "fish",
   "npm",
@@ -191,6 +192,10 @@ function executableBasename(value: string): string {
   return basename.replace(/\.(bat|cmd|exe|ps1)$/i, "").toLowerCase();
 }
 
+function launcherTargetBasename(value: string): string {
+  return executableBasename(value).replace(/\.(c|m)?js$/i, "").replace(/-cli$/i, "");
+}
+
 function validateStdioEnvKeys(rawEnv: Record<string, unknown> | undefined): void {
   if (!rawEnv) {
     return;
@@ -235,6 +240,9 @@ function validateCustomLauncher(command: string, args: string[]): void {
       throw new Error(
         "mcp.stdio.args[0] must be an absolute entrypoint path when custom launcher overrides are enabled",
       );
+    }
+    if (FORBIDDEN_CUSTOM_LAUNCHERS.has(launcherTargetBasename(firstArg))) {
+      throw new Error("mcp.stdio.args[0] cannot target a shell or package-manager wrapper.");
     }
   }
 }
@@ -482,8 +490,9 @@ export const memoryConfigSchema = {
               return arg;
             })
           : resolveBundledMongoMcpServerArgs();
-      const hasCustomLauncherOverrides =
-        rawStdio.command !== undefined || rawStdio.args !== undefined;
+      const hasCustomCommandOverride =
+        typeof rawStdio.command === "string" && rawStdio.command.length > 0;
+      const hasCustomLauncherOverrides = hasCustomCommandOverride || rawStdio.args !== undefined;
       const allowCustomLauncher = rawStdio.allowCustomLauncher === true;
       if (hasCustomLauncherOverrides && !allowCustomLauncher) {
         throw new Error(
@@ -492,10 +501,7 @@ export const memoryConfigSchema = {
         );
       }
 
-      const stdioCommand =
-        typeof rawStdio.command === "string" && rawStdio.command.length > 0
-          ? rawStdio.command
-          : DEFAULT_STDIO_COMMAND;
+      const stdioCommand = hasCustomCommandOverride ? rawStdio.command : DEFAULT_STDIO_COMMAND;
 
       if (hasCustomLauncherOverrides) {
         validateCustomLauncher(stdioCommand, stdioArgs);
@@ -559,13 +565,13 @@ export const memoryConfigSchema = {
     "mcp.stdio.command": {
       label: "MCP Command",
       placeholder: DEFAULT_STDIO_COMMAND_PLACEHOLDER,
-      help: "Privileged override. Leave unset to launch the bundled pinned MongoDB MCP server",
+      help: "Requires mcp.stdio.allowCustomLauncher=true; leave unset to launch the bundled pinned MongoDB MCP server",
     },
     "mcp.stdio.args": {
       label: "MCP Command Args",
       placeholder: DEFAULT_STDIO_ARGS_PLACEHOLDER,
       advanced: true,
-      help: "Privileged override. Leave unset to use the bundled pinned MongoDB MCP server entrypoint",
+      help: "Requires mcp.stdio.allowCustomLauncher=true; leave unset to use the bundled pinned MongoDB MCP server entrypoint",
     },
     "mcp.stdio.allowCustomLauncher": {
       label: "Allow Custom Launcher",

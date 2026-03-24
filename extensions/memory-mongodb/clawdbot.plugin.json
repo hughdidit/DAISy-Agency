@@ -10,13 +10,13 @@
     "mcp.stdio.command": {
       "label": "MCP Command",
       "placeholder": "bundled default",
-      "help": "Privileged override. Leave unset to launch the bundled pinned MongoDB MCP server"
+      "help": "Requires mcp.stdio.allowCustomLauncher=true; leave unset to launch the bundled pinned MongoDB MCP server"
     },
     "mcp.stdio.args": {
       "label": "MCP Command Args",
       "placeholder": "[\"<bundled mongodb-mcp-server entrypoint>\"]",
       "advanced": true,
-      "help": "Privileged override. Leave unset to use the bundled pinned MongoDB MCP server entrypoint"
+      "help": "Requires mcp.stdio.allowCustomLauncher=true; leave unset to use the bundled pinned MongoDB MCP server entrypoint"
     },
     "mcp.stdio.allowCustomLauncher": {
       "label": "Allow Custom Launcher",

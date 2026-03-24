@@ -140,7 +140,7 @@ and `SSL_CERT_DIR`.
 If you must use a non-bundled launcher, set `mcp.stdio.allowCustomLauncher`
 explicitly and point `mcp.stdio.command` to an absolute executable path. Shell
 and package-manager wrappers such as `bash`, `cmd`, `powershell`, `npm`, `pnpm`,
-and `npx` are rejected.
+and `npx` are rejected, as is `corepack`.
 
 ## Atlas Setup
 
@@ -226,8 +226,8 @@ If you must use a custom launcher, treat it as a privileged escape hatch:
 
 - set `mcp.stdio.allowCustomLauncher` to `true` explicitly
 - point `mcp.stdio.command` at an absolute executable path
-- pass an absolute entrypoint path as `mcp.stdio.args[0]`
-- do not use shell or package-manager wrappers such as `npx`, `npm`, `pnpm`, `bash`, or `powershell`
+- if you provide `mcp.stdio.args`, ensure `mcp.stdio.args[0]` is an absolute entrypoint path (an empty args array is also allowed)
+- do not use shell or package-manager wrappers such as `corepack`, `npx`, `npm`, `pnpm`, `bash`, or `powershell`
 
 ```jsonc
 {
