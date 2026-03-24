@@ -492,8 +492,11 @@ export const memoryConfigSchema = {
               return arg;
             })
           : resolveBundledMongoMcpServerArgs();
-      const hasCustomCommandOverride =
-        typeof rawStdio.command === "string" && rawStdio.command.length > 0;
+      const customCommand =
+        typeof rawStdio.command === "string" && rawStdio.command.length > 0
+          ? rawStdio.command
+          : undefined;
+      const hasCustomCommandOverride = customCommand !== undefined;
       const hasCustomLauncherOverrides = hasCustomCommandOverride || rawStdio.args !== undefined;
       const allowCustomLauncher = rawStdio.allowCustomLauncher === true;
       if (hasCustomLauncherOverrides && !allowCustomLauncher) {
@@ -503,7 +506,7 @@ export const memoryConfigSchema = {
         );
       }
 
-      const stdioCommand = hasCustomCommandOverride ? rawStdio.command : DEFAULT_STDIO_COMMAND;
+      const stdioCommand = customCommand ?? DEFAULT_STDIO_COMMAND;
 
       if (hasCustomLauncherOverrides) {
         validateCustomLauncher(stdioCommand, stdioArgs);
