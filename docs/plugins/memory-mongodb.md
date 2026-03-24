@@ -39,6 +39,10 @@ The plugin must be enabled, slotted as the active memory provider, and the
 built-in memory search system must be disabled. All three settings are required
 for a clean deployment.
 
+For `stdio` deployments, the MongoDB MCP child runs behind a least-privilege
+launcher boundary: only approved child env keys are accepted, and custom
+launchers are treated as privileged escape hatches instead of normal config.
+
 ```jsonc
 {
   // Disable the built-in memory search system (MemoryIndexManager).
@@ -111,8 +115,9 @@ for a clean deployment.
 | Field                                     | Required    | Default                      | Description                                                      |
 | ----------------------------------------- | ----------- | ---------------------------- | ---------------------------------------------------------------- |
 | `mcp.transport`                           | No          | `stdio`                      | `stdio` for managed local MCP process, `sse` for remote endpoint |
-| `mcp.stdio.command`                       | No          | bundled Node launcher        | Optional override for MongoDB MCP server command                 |
-| `mcp.stdio.args`                          | No          | resolved bundled entrypoint  | Optional override for MongoDB MCP server args                    |
+| `mcp.stdio.allowCustomLauncher`           | No          | `false`                      | Unsafe opt-in required before any custom MCP launcher override   |
+| `mcp.stdio.command`                       | No          | bundled Node launcher        | Privileged override for the MongoDB MCP executable               |
+| `mcp.stdio.args`                          | No          | resolved bundled entrypoint  | Privileged override for the MongoDB MCP entrypoint args          |
 | `mcp.stdio.env.MDB_MCP_CONNECTION_STRING` | Yes (stdio) | -                            | MongoDB Atlas URI passed to MCP server                           |
 | `mcp.url`                                 | Yes (sse)   | -                            | Remote MCP SSE URL                                               |
 | `gemini.apiKey`                           | Yes         | -                            | Gemini API key                                                   |
@@ -126,6 +131,16 @@ for a clean deployment.
 | `captureTriggers`                         | No          | built-in defaults            | Regex patterns that trigger auto-capture                         |
 | `autoCapture`                             | No          | `true`                       | Auto-store significant memories from conversation                |
 | `autoRecall`                              | No          | `true`                       | Auto-inject relevant memories before agent execution             |
+
+`mcp.stdio.env` is validated, not passed through wholesale. The only supported
+child-process env keys are `MDB_MCP_CONNECTION_STRING` and approved TLS/cert
+settings such as `NODE_EXTRA_CA_CERTS`, `NODE_USE_SYSTEM_CA`, `SSL_CERT_FILE`,
+and `SSL_CERT_DIR`.
+
+If you must use a non-bundled launcher, set `mcp.stdio.allowCustomLauncher`
+explicitly and point `mcp.stdio.command` to an absolute executable path. Shell
+and package-manager wrappers such as `bash`, `cmd`, `powershell`, `npm`, `pnpm`,
+and `npx` are rejected, as is `corepack`.
 
 ## Atlas Setup
 
@@ -207,15 +222,21 @@ From prior Voyage-backed config:
 
 Leave `mcp.stdio.command` and `mcp.stdio.args` unset to use the bundled pinned MongoDB MCP server dependency (`mongodb-mcp-server@1.2.0`).
 
-If you need a custom launcher, you can still override both fields explicitly:
+If you must use a custom launcher, treat it as a privileged escape hatch:
+
+- set `mcp.stdio.allowCustomLauncher` to `true` explicitly
+- point `mcp.stdio.command` at an absolute executable path
+- if you provide `mcp.stdio.args`, ensure `mcp.stdio.args[0]` is an absolute entrypoint path; an empty args array is only allowed for standalone MCP server executables, not the default Node launcher
+- do not use shell or package-manager wrappers such as `corepack`, `npx`, `npm`, `pnpm`, `bash`, or `powershell`
 
 ```jsonc
 {
   "mcp": {
     "transport": "stdio",
     "stdio": {
-      "command": "npx",
-      "args": ["-y", "mongodb-mcp-server@1.2.0"],
+      "allowCustomLauncher": true,
+      "command": "/opt/daisy/bin/node",
+      "args": ["/opt/daisy/vendor/mongodb-mcp-server/dist/index.js"],
       "env": {
         "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}",
       },

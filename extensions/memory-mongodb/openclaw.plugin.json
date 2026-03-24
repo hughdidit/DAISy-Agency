@@ -10,19 +10,24 @@
     "mcp.stdio.command": {
       "label": "MCP Command",
       "placeholder": "bundled default",
-      "help": "Optional override. Leave unset to launch the bundled MongoDB MCP server"
+      "help": "Requires mcp.stdio.allowCustomLauncher=true; leave unset to launch the bundled pinned MongoDB MCP server"
     },
     "mcp.stdio.args": {
       "label": "MCP Command Args",
       "placeholder": "[\"<bundled mongodb-mcp-server entrypoint>\"]",
       "advanced": true,
-      "help": "Optional override. Leave unset to use the bundled MongoDB MCP server entrypoint"
+      "help": "Requires mcp.stdio.allowCustomLauncher=true; leave unset to use the bundled pinned MongoDB MCP server entrypoint"
+    },
+    "mcp.stdio.allowCustomLauncher": {
+      "label": "Allow Custom Launcher",
+      "advanced": true,
+      "help": "Unsafe escape hatch. Enable only when you intentionally need a non-bundled MongoDB MCP launcher"
     },
     "mcp.stdio.env.MDB_MCP_CONNECTION_STRING": {
       "label": "MongoDB Connection String",
       "sensitive": true,
       "placeholder": "${MONGODB_URI}",
-      "help": "Use MDB_MCP_CONNECTION_STRING to pass Atlas URI to MCP"
+      "help": "Atlas URI passed to the MongoDB MCP child. Other child env keys are restricted to approved TLS settings"
     },
     "mcp.url": {
       "label": "MCP SSE URL",
@@ -100,6 +105,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "allowCustomLauncher": { "type": "boolean" },
               "command": { "type": "string" },
               "args": {
                 "type": "array",
@@ -107,7 +113,14 @@
               },
               "env": {
                 "type": "object",
-                "additionalProperties": { "type": "string" }
+                "additionalProperties": false,
+                "properties": {
+                  "MDB_MCP_CONNECTION_STRING": { "type": "string" },
+                  "NODE_EXTRA_CA_CERTS": { "type": "string" },
+                  "NODE_USE_SYSTEM_CA": { "type": "string" },
+                  "SSL_CERT_DIR": { "type": "string" },
+                  "SSL_CERT_FILE": { "type": "string" }
+                }
               }
             }
           },

@@ -26,6 +26,8 @@ const STDIO_ENV_ALLOWLIST = [
   "PATHEXT",
   "Path",
   "Pathext",
+  "SSL_CERT_DIR",
+  "SSL_CERT_FILE",
   "SYSTEMROOT",
   "SystemRoot",
   "TEMP",
@@ -34,7 +36,10 @@ const STDIO_ENV_ALLOWLIST = [
   "USERPROFILE",
 ] as const;
 
-function toStringEnv(source: NodeJS.ProcessEnv, keys?: readonly string[]): Record<string, string> {
+function toStringEnv(
+  source: Record<string, string | undefined>,
+  keys?: readonly string[],
+): Record<string, string> {
   const env: Record<string, string> = {};
   const entries = keys ? keys.map((key) => [key, source[key]] as const) : Object.entries(source);
   for (const [key, value] of entries) {
@@ -45,10 +50,11 @@ function toStringEnv(source: NodeJS.ProcessEnv, keys?: readonly string[]): Recor
   return env;
 }
 
-function buildStdioEnv(overrides: Record<string, string>): Record<string, string> {
+function buildStdioEnv(overrides: Record<string, string | undefined>): Record<string, string> {
   return {
+    // Launch the MCP child with a minimal trusted environment.
     ...toStringEnv(process.env, STDIO_ENV_ALLOWLIST),
-    ...overrides,
+    ...toStringEnv(overrides),
   };
 }
 
