@@ -184,7 +184,7 @@ The `deploy-staging-on-release` workflow reads a repo variable named `STAGING_DE
 
 ### Verify
 
-Smoke-check workflow (may be a stub initially). Prefer running Verify after staging deploy and after production promote.
+Runs post-deploy smoke checks against the target VM. On the GCE Docker path it verifies the gateway container is running, becomes healthy, matches the requested image ref when provided, and that the bundled mongodb-mcp-server CLI starts inside the live container without the known Node 22 translator crash signatures. Prefer running Verify after staging deploy and after production promote.
 
 ---
 

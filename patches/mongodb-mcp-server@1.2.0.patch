@@ -1,0 +1,35 @@
+diff --git a/dist/cjs/common/atlas/apiClient.js b/dist/cjs/common/atlas/apiClient.js
+index 325e879f3ec3df3beae64bab348b6c76dbd0378b..8a0e1d4ea0101e3f60c0d7b2909bc6dfe9248976 100644
+--- a/dist/cjs/common/atlas/apiClient.js
++++ b/dist/cjs/common/atlas/apiClient.js
+@@ -43,7 +43,7 @@ const packageInfo_js_1 = require("../packageInfo.js");
+ const logger_js_1 = require("../logger.js");
+ const devtools_proxy_support_1 = require("@mongodb-js/devtools-proxy-support");
+ const oauth = __importStar(require("oauth4webapi"));
+-const node_fetch_1 = require("node-fetch");
++const NodeFetchRequest = globalThis.Request;
+ const ATLAS_API_VERSION = "2025-03-12";
+ class ApiClient {
+     hasCredentials() {
+@@ -98,7 +98,7 @@ class ApiClient {
+             // NodeFetchRequest has more overloadings than the native Request
+             // so it complains here. However, the interfaces are actually compatible
+             // so it's not a real problem, just a type checking problem.
+-            Request: node_fetch_1.Request,
++            Request: NodeFetchRequest,
+         });
+         if (this.options.credentials?.clientId && this.options.credentials?.clientSecret) {
+             this.oauth2Issuer = {
+diff --git a/dist/esm/common/atlas/apiClient.js b/dist/esm/common/atlas/apiClient.js
+index 162e3058401f14a889f5adc96eae2e2b70d5a744..2af5457794036aea12635e1962424600f17be8c5 100644
+--- a/dist/esm/common/atlas/apiClient.js
++++ b/dist/esm/common/atlas/apiClient.js
+@@ -4,7 +4,7 @@ import { packageInfo } from "../packageInfo.js";
+ import { LogId } from "../logger.js";
+ import { createFetch } from "@mongodb-js/devtools-proxy-support";
+ import * as oauth from "oauth4webapi";
+-import { Request as NodeFetchRequest } from "node-fetch";
++const NodeFetchRequest = globalThis.Request;
+ const ATLAS_API_VERSION = "2025-03-12";
+ export class ApiClient {
+     hasCredentials() {
