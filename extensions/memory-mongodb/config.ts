@@ -223,10 +223,18 @@ function validateCustomLauncher(command: string, args: string[]): void {
     );
   }
 
-  if (FORBIDDEN_CUSTOM_LAUNCHERS.has(executableBasename(command))) {
+  const commandBasename = executableBasename(command);
+  if (FORBIDDEN_CUSTOM_LAUNCHERS.has(commandBasename)) {
     throw new Error(
       "mcp.stdio.command cannot use a shell or package-manager launcher. " +
         "Use the bundled default or an absolute executable path.",
+    );
+  }
+
+  if (args.length === 0 && (commandBasename === "node" || commandBasename === "nodejs")) {
+    throw new Error(
+      "mcp.stdio.args cannot be empty when mcp.stdio.command uses a Node launcher. " +
+        "Leave args unset to use the bundled defaults or provide a standalone MCP server executable.",
     );
   }
 

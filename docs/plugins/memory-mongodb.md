@@ -226,7 +226,7 @@ If you must use a custom launcher, treat it as a privileged escape hatch:
 
 - set `mcp.stdio.allowCustomLauncher` to `true` explicitly
 - point `mcp.stdio.command` at an absolute executable path
-- if you provide `mcp.stdio.args`, ensure `mcp.stdio.args[0]` is an absolute entrypoint path (an empty args array is also allowed)
+- if you provide `mcp.stdio.args`, ensure `mcp.stdio.args[0]` is an absolute entrypoint path; an empty args array is only allowed for standalone MCP server executables, not the default Node launcher
 - do not use shell or package-manager wrappers such as `corepack`, `npx`, `npm`, `pnpm`, `bash`, or `powershell`
 
 ```jsonc
