@@ -21,17 +21,22 @@ fi
 
 checks_run=0
 
-# Helper: run a command on the GCE instance via IAP SSH and return only the last
-# line of stdout. This filters out SSH keygen noise that gcloud emits on first
-# connection (key fingerprints, randomart) which would otherwise contaminate
-# captured output and leak key material into CI logs.
-gce_ssh_lastline() {
+# Helper: run a command on the GCE instance via IAP SSH.
+gce_ssh() {
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "$1" | tail -1
+    --command "$1"
+}
+
+# Helper: run a command on the GCE instance via IAP SSH and return only the last
+# line of stdout. This filters out SSH keygen noise that gcloud emits on first
+# connection (key fingerprints, randomart) which would otherwise contaminate
+# captured output and leak key material into CI logs.
+gce_ssh_lastline() {
+  gce_ssh "$1" | tail -1
 }
 
 if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
@@ -51,12 +56,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   running_state="$(echo "${running_state}" | tr -d '[:space:]')"
   if [[ "${running_state}" != "running" ]]; then
     log "DEBUG: Container '${container}' state='${running_state}'. Listing all containers..."
-    gcloud compute ssh "${GCE_INSTANCE_NAME}" \
-      --project "${GCP_PROJECT_ID}" \
-      --zone "${GCP_ZONE}" \
-      --tunnel-through-iap \
-      --quiet \
-      --command "sudo docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'" || true
+    gce_ssh "sudo docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'" || true
     fail "Container ${container} is not running on ${GCE_INSTANCE_NAME}"
   fi
   log "Container ${container} is running."
@@ -101,6 +101,29 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     fi
     log "Container image: ${image_ref}"
   fi
+
+  # Check 4: smoke-test the bundled mongodb-mcp-server CLI inside the deployed
+  # container. This catches the Node 22 startup crash that can occur before MCP
+  # stdio connects, even while the gateway health endpoint still reports healthy.
+  checks_run=$((checks_run + 1))
+  log "Checking mongodb-mcp-server startup smoke in ${container}..."
+  mcp_smoke_output="$(
+    gce_ssh "sudo docker exec ${container} node -e 'const path=require(\"path\"); const { spawnSync } = require(\"child_process\"); const packageJsonPath=require.resolve(\"mongodb-mcp-server/package.json\"); const packageJson=require(packageJsonPath); const binPath=path.join(path.dirname(packageJsonPath), packageJson.bin[\"mongodb-mcp-server\"]); console.log(\"node_version=\" + process.version); console.log(\"mongodb_mcp_bin=\" + binPath); const result=spawnSync(process.execPath, [binPath, \"--version\"], { encoding: \"utf8\" }); if ((result.stdout || \"\").trim()) console.log(\"mongodb_mcp_version=\" + result.stdout.trim()); if (result.status !== 0) { if (result.stderr) process.stderr.write(result.stderr); process.exit(result.status ?? 1); }'"
+  )" || fail "mongodb-mcp-server startup smoke failed in ${container}"
+  printf '%s\n' "${mcp_smoke_output}"
+
+  # Check 5: ensure the current container logs do not contain the known
+  # translator crash or the resulting MCP connection-closed failure.
+  checks_run=$((checks_run + 1))
+  log "Checking ${container} logs for MongoDB MCP startup crash signatures..."
+  crash_signatures="$(
+    gce_ssh "sudo docker logs ${container} 2>&1 | grep -F -e 'node:internal/modules/esm/translators:213' -e 'MongoDB MCP connection failed: MCP error -32000: Connection closed' || true"
+  )" || true
+  if [[ -n "${crash_signatures}" ]]; then
+    printf '%s\n' "${crash_signatures}" >&2
+    fail "Detected MongoDB MCP startup crash signatures in ${container} logs"
+  fi
+  log "No MongoDB MCP startup crash signatures found in ${container} logs."
 fi
 
 if [[ -n "${VERIFY_SSH_HOST:-}" ]]; then
