@@ -193,7 +193,9 @@ function executableBasename(value: string): string {
 }
 
 function launcherTargetBasename(value: string): string {
-  return executableBasename(value).replace(/\.(c|m)?js$/i, "").replace(/-cli$/i, "");
+  return executableBasename(value)
+    .replace(/\.(c|m)?js$/i, "")
+    .replace(/-cli$/i, "");
 }
 
 function validateStdioEnvKeys(rawEnv: Record<string, unknown> | undefined): void {
