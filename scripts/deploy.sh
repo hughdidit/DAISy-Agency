@@ -479,14 +479,19 @@ export OPENCLAW_CONFIG_FILE
 resolve_sandbox_browser_enabled() {
   local probe_script config_mount config_path
   probe_script="$(cat <<"NODE"
-import { readConfigFileSnapshot } from "./src/config/config.ts";
+import fs from "node:fs";
+import JSON5 from "json5";
+import { resolveConfigIncludes } from "./src/config/includes.ts";
 
-const snapshot = await readConfigFileSnapshot();
-if (!snapshot.valid) {
-  throw new Error(snapshot.issues?.[0]?.message ?? "Config is invalid.");
+const configPath = process.env.OPENCLAW_CONFIG_PATH;
+if (!configPath) {
+  throw new Error("OPENCLAW_CONFIG_PATH is required.");
 }
 
-const enabled = snapshot.config?.agents?.defaults?.sandbox?.browser?.enabled === true;
+const raw = fs.readFileSync(configPath, "utf8");
+const parsed = JSON5.parse(raw);
+const resolved = resolveConfigIncludes(parsed, configPath);
+const enabled = resolved?.agents?.defaults?.sandbox?.browser?.enabled === true;
 process.stdout.write(enabled ? "true" : "false");
 NODE
 )"
