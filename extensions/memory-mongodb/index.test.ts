@@ -191,7 +191,7 @@ describe("memory-mongodb plugin", () => {
       expect(services).toHaveLength(1);
       const service = services[0] as {
         required?: boolean;
-        start: (ctx: { stateDir: string }) => Promise<void>;
+        start: (ctx: { stateDir: string; config: unknown; logger: unknown }) => Promise<void>;
       };
       const homeDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "home");
       const tempDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "tmp");
