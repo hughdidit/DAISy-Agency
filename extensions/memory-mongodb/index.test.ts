@@ -194,8 +194,20 @@ describe("memory-mongodb plugin", () => {
         required?: boolean;
         start: (ctx: { stateDir: string; config: unknown; logger: unknown }) => Promise<void>;
       };
-      const homeDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "home");
-      const tempDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "tmp");
+      const homeDir = path.join(
+        stateDir,
+        "plugins",
+        "memory-mongodb",
+        "mcp-stdio",
+        "home",
+      );
+      const tempDir = path.join(
+        stateDir,
+        "plugins",
+        "memory-mongodb",
+        "mcp-stdio",
+        "tmp",
+      );
 
       await service.start({
         stateDir,
@@ -255,13 +267,31 @@ describe("memory-mongodb plugin", () => {
       } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
 
       expect(registerCli).toHaveBeenCalledOnce();
-      const cliRegistrar = registerCli.mock.calls[0]?.[0] as ({ program }: { program: Command }) => void;
+      const cliRegistrar = registerCli.mock.calls[0]?.[0] as ({
+        program,
+      }: {
+        program: Command;
+      }) => void;
 
       cliRegistrar({ program: cliProgram });
-      await cliProgram.parseAsync(["node", "test", "ltm", "list"], { from: "node" });
+      await cliProgram.parseAsync(["node", "test", "ltm", "list"], {
+        from: "node",
+      });
 
-      const homeDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "home");
-      const tempDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "tmp");
+      const homeDir = path.join(
+        stateDir,
+        "plugins",
+        "memory-mongodb",
+        "mcp-stdio",
+        "home",
+      );
+      const tempDir = path.join(
+        stateDir,
+        "plugins",
+        "memory-mongodb",
+        "mcp-stdio",
+        "tmp",
+      );
 
       expect(mcpClientMocks.setRuntimeEnvOverrides).toHaveBeenCalledWith({
         HOME: homeDir,
