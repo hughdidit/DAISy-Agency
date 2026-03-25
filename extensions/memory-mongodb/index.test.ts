@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { Command } from "commander";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const mcpClientMocks = vi.hoisted(() => ({
@@ -214,6 +215,77 @@ describe("memory-mongodb plugin", () => {
       fs.rmSync(stateDir, { recursive: true, force: true });
     }
   });
+
+  test("CLI commands prepare stdio runtime dirs before first DB access", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registerCli = vi.fn();
+    const logger = {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    };
+    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "memory-mongodb-cli-"));
+    const originalStateDir = process.env.OPENCLAW_STATE_DIR;
+    const originalHome = process.env.OPENCLAW_HOME;
+    const originalLog = console.log;
+    const cliProgram = new Command();
+
+    process.env.OPENCLAW_STATE_DIR = stateDir;
+    process.env.OPENCLAW_HOME = stateDir;
+    console.log = vi.fn();
+
+    try {
+      memoryPlugin.register({
+        pluginConfig: {
+          mcp: {
+            transport: "stdio",
+            stdio: {
+              env: {
+                MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+              },
+            },
+          },
+          gemini: { apiKey: "test-key" },
+        },
+        logger,
+        registerTool: vi.fn(),
+        registerCli,
+        registerService: vi.fn(),
+        on: vi.fn(),
+      } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+      expect(registerCli).toHaveBeenCalledOnce();
+      const cliRegistrar = registerCli.mock.calls[0]?.[0] as ({ program }: { program: Command }) => void;
+
+      cliRegistrar({ program: cliProgram });
+      await cliProgram.parseAsync(["node", "test", "ltm", "list"], { from: "node" });
+
+      const homeDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "home");
+      const tempDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "tmp");
+
+      expect(mcpClientMocks.setRuntimeEnvOverrides).toHaveBeenCalledWith({
+        HOME: homeDir,
+        TMPDIR: tempDir,
+      });
+      expect(mcpClientMocks.countDocuments).toHaveBeenCalledWith("daisy_memory", "memories");
+      expect(fs.existsSync(homeDir)).toBe(true);
+      expect(fs.existsSync(tempDir)).toBe(true);
+    } finally {
+      console.log = originalLog;
+      if (originalStateDir === undefined) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = originalStateDir;
+      }
+      if (originalHome === undefined) {
+        delete process.env.OPENCLAW_HOME;
+      } else {
+        process.env.OPENCLAW_HOME = originalHome;
+      }
+      fs.rmSync(stateDir, { recursive: true, force: true });
+    }
+  });
+
   test("bundled MCP resolver rejects version drift", async () => {
     const { BUNDLED_MCP_SERVER_VERSION, resolveBundledMongoMcpServerEntrypoint } =
       await import("./config.js");

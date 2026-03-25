@@ -61,6 +61,12 @@ export async function startGatewaySidecars(params: {
     params.log.warn(`session lock cleanup failed on startup: ${String(err)}`);
   }
 
+  const pluginServices = await startPluginServices({
+    registry: params.pluginRegistry,
+    config: params.cfg,
+    workspaceDir: params.defaultWorkspaceDir,
+  });
+
   // Start OpenClaw browser control server (unless disabled via config).
   let browserControl: Awaited<ReturnType<typeof startBrowserControlServerIfEnabled>> = null;
   try {
@@ -149,12 +155,6 @@ export async function startGatewaySidecars(params: {
       void triggerInternalHook(hookEvent);
     }, 250);
   }
-
-  const pluginServices = await startPluginServices({
-    registry: params.pluginRegistry,
-    config: params.cfg,
-    workspaceDir: params.defaultWorkspaceDir,
-  });
 
   if (params.cfg.acp?.enabled) {
     void getAcpSessionManager()
