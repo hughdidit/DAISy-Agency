@@ -445,6 +445,22 @@ if ! sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR
 fi
 unset GHCR_TOKEN
 
+if ! browser_enabled="$(
+  sudo docker run --rm \
+    --entrypoint node \
+    -v "${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}:/tmp/openclaw-config.json5:ro" \
+    "${DEPLOY_REF}" \
+    --input-type=module -e "import fs from \"node:fs\"; import JSON5 from \"json5\"; const cfg = JSON5.parse(fs.readFileSync(\"/tmp/openclaw-config.json5\", \"utf8\")); process.stdout.write(cfg?.agents?.defaults?.sandbox?.browser?.enabled === true ? \"true\" : \"false\");"
+)"; then
+  echo "ERROR: Failed to read sandbox browser enablement from ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH} using ${DEPLOY_REF}." >&2
+  exit 1
+fi
+browser_enabled="$(echo "${browser_enabled}" | tr -d '[:space:]')"
+if [[ "${browser_enabled}" != "true" ]]; then
+  browser_enabled="false"
+fi
+echo "Sandbox browser enabled in config: ${browser_enabled}"
+
 # Export app secrets for docker compose
 export OPENCLAW_IMAGE="${DEPLOY_REF}"
 export OPENCLAW_GATEWAY_TOKEN
@@ -551,6 +567,18 @@ else
   echo "WARNING: Failed to pull sandbox image. Sandbox may not function." >&2
 fi
 
+if [[ "${browser_enabled}" == "true" ]]; then
+  SANDBOX_BROWSER_GHCR_IMAGE="${SANDBOX_BASE}-sandbox-browser:bookworm-slim"
+  echo "Pulling sandbox browser image: ${SANDBOX_BROWSER_GHCR_IMAGE}"
+  if sudo docker pull "${SANDBOX_BROWSER_GHCR_IMAGE}"; then
+    sudo docker tag "${SANDBOX_BROWSER_GHCR_IMAGE}" "openclaw-sandbox-browser:bookworm-slim"
+    echo "Sandbox browser image ready: openclaw-sandbox-browser:bookworm-slim"
+  else
+    echo "ERROR: Failed to pull required sandbox browser image ${SANDBOX_BROWSER_GHCR_IMAGE}." >&2
+    exit 1
+  fi
+fi
+
 # Pull app images while existing containers remain running.
 # This reduces downtime if pull fails.
 sudo -E docker-compose ${COMPOSE_FILES} pull
@@ -615,4 +643,3 @@ unset GWS_CREDENTIALS
   --tunnel-through-iap \
   --quiet \
   --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
-

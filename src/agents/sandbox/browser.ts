@@ -104,7 +104,7 @@ async function ensureSandboxBrowserImage(image: string) {
     return;
   }
   throw new Error(
-    `Sandbox browser image not found: ${image}. Build it with scripts/sandbox-browser-setup.sh.`,
+    `Sandbox browser image not found: ${image}. Deployments are expected to provision this image automatically; for local/dev environments, build it with scripts/sandbox-browser-setup.sh.`,
   );
 }
 

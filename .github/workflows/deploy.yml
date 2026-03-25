@@ -291,6 +291,8 @@ jobs:
           if [[ "${{ inputs.with_monitoring }}" == "true" ]]; then
             MONITORING_FLAG="--with-monitoring"
           fi
+          # The deploy script now provisions the sandbox browser image from GHCR
+          # when the selected config enables agents.defaults.sandbox.browser.enabled.
           bash scripts/deploy.sh ${PROVISION_FLAG} ${MONITORING_FLAG} dist/release/release-metadata.json
 
       - name: Deploy summary

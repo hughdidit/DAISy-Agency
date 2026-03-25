@@ -661,7 +661,12 @@ This builds `openclaw-sandbox-common:bookworm-slim`. To use it:
 
 ### Sandbox browser image
 
-To run the browser tool inside the sandbox, build the browser image:
+Docker Release publishes the sandbox browser image to GHCR for staging and
+production deploys. The deploy routine pulls that image on the VM and retags it
+locally as `openclaw-sandbox-browser:bookworm-slim`, so normal staging/prod
+deployments no longer require a manual browser-image build step.
+
+For local/dev environments, build the browser image with:
 
 ```bash
 scripts/sandbox-browser-setup.sh

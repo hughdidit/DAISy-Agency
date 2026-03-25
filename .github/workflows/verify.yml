@@ -63,6 +63,7 @@ jobs:
       - name: Run verification
         run: |
           chmod +x scripts/verify.sh
+          # scripts/verify.sh validates any deploy-time sandbox browser image requirement.
           scripts/verify.sh
         env:
           VERIFY_ENV: ${{ inputs.environment }}
