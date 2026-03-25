@@ -184,7 +184,7 @@ The `deploy-staging-on-release` workflow reads a repo variable named `STAGING_DE
 
 ### Verify
 
-Runs post-deploy smoke checks against the target VM. On the GCE Docker path it verifies the gateway container is running, becomes healthy, matches the requested image ref when provided, and that the bundled mongodb-mcp-server CLI starts inside the live container without the known Node 22 translator crash signatures. Prefer running Verify after staging deploy and after production promote.
+Runs post-deploy smoke checks against the target VM. On the GCE Docker path it verifies the gateway container is running, becomes healthy, matches the requested image ref when provided, and that the bundled mongodb-mcp-server CLI starts inside the live container without the known Node 22 translator crash signatures. When `agents.defaults.sandbox.browser.enabled=true`, Verify also fails if `openclaw-sandbox-browser:bookworm-slim` is missing on the VM. Prefer running Verify after staging deploy and after production promote.
 
 ---
 
@@ -212,12 +212,14 @@ On a real deploy (dry_run=false), the deploy routine:
 1. Connects to the VM via IAP (`gcloud compute ssh --tunnel-through-iap`)
 2. Authenticates to GHCR:
    - `docker login ghcr.io -u $GHCR_USERNAME --password-stdin`
-3. Sets the image ref (digest preferred) via environment variable:
+3. Reads the selected deployed config and, when `agents.defaults.sandbox.browser.enabled=true`, pulls `ghcr.io/<owner>/daisy-agency-sandbox-browser:bookworm-slim` and retags it locally as `openclaw-sandbox-browser:bookworm-slim`
+4. Sets the image ref (digest preferred) via environment variable:
    - `export OPENCLAW_IMAGE=<image@digest>`
-4. Applies:
-   - `docker compose pull`
-   - `docker compose up -d --remove-orphans`
-5. Outputs deployment status
+5. Pulls the app and compose-managed images:
+   - `docker-compose pull`
+6. Applies:
+   - `docker-compose up -d --remove-orphans`
+7. Outputs deployment status
 
 ---
 

@@ -476,6 +476,31 @@ export OPENCLAW_GATEWAY_PORT
 export OPENCLAW_BRIDGE_PORT
 export OPENCLAW_CONFIG_FILE
 
+resolve_sandbox_browser_enabled() {
+  local probe_script config_mount config_path
+  probe_script="$(cat <<"NODE"
+import { readConfigFileSnapshot } from "./dist/config/config.js";
+
+const snapshot = await readConfigFileSnapshot();
+if (!snapshot.valid) {
+  throw new Error(snapshot.issues?.[0]?.message ?? "Config is invalid.");
+}
+
+const enabled = snapshot.config?.agents?.defaults?.sandbox?.browser?.enabled === true;
+process.stdout.write(enabled ? "true" : "false");
+NODE
+)"
+  config_mount="/tmp/openclaw-config"
+  config_path="${config_mount}/${OPENCLAW_CONFIG_FILE}"
+  sudo docker run --rm \
+    --entrypoint node \
+    -e OPENCLAW_CONFIG_PATH="${config_path}" \
+    -v "${DEPLOY_DIR}/config:${config_mount}:ro" \
+    "${DEPLOY_REF}" \
+    --input-type=module \
+    -e "${probe_script}"
+}
+
 # Compose file flags: use host networking overlay on Linux VMs
 COMPOSE_FILES="-f docker-compose.yml"
 if [[ -f docker-compose.host.yml ]]; then
@@ -531,6 +556,16 @@ if (( free_space_mb < MIN_FREE_SPACE_MB )); then
   fi
 fi
 
+if ! browser_enabled="$(resolve_sandbox_browser_enabled)"; then
+  echo "ERROR: Failed to read sandbox browser enablement from ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH} using ${DEPLOY_REF}." >&2
+  exit 1
+fi
+browser_enabled="$(echo "${browser_enabled}" | tr -d '[:space:]')"
+if [[ "${browser_enabled}" != "true" ]]; then
+  browser_enabled="false"
+fi
+echo "Sandbox browser enabled in config: ${browser_enabled}"
+
 # Pull sandbox image from GHCR and re-tag to the local name expected by the app.
 # The app references "openclaw-sandbox:bookworm-slim" (no registry prefix).
 # Extract base image name: strip digest first, then strip tag only from the
@@ -549,6 +584,18 @@ if sudo docker pull "${SANDBOX_GHCR_IMAGE}"; then
   echo "Sandbox image ready: openclaw-sandbox:bookworm-slim"
 else
   echo "WARNING: Failed to pull sandbox image. Sandbox may not function." >&2
+fi
+
+if [[ "${browser_enabled}" == "true" ]]; then
+  SANDBOX_BROWSER_GHCR_IMAGE="${SANDBOX_BASE}-sandbox-browser:bookworm-slim"
+  echo "Pulling sandbox browser image: ${SANDBOX_BROWSER_GHCR_IMAGE}"
+  if sudo docker pull "${SANDBOX_BROWSER_GHCR_IMAGE}"; then
+    sudo docker tag "${SANDBOX_BROWSER_GHCR_IMAGE}" "openclaw-sandbox-browser:bookworm-slim"
+    echo "Sandbox browser image ready: openclaw-sandbox-browser:bookworm-slim"
+  else
+    echo "ERROR: Failed to pull required sandbox browser image ${SANDBOX_BROWSER_GHCR_IMAGE}." >&2
+    exit 1
+  fi
 fi
 
 # Pull app images while existing containers remain running.
@@ -615,4 +662,3 @@ unset GWS_CREDENTIALS
   --tunnel-through-iap \
   --quiet \
   --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
-

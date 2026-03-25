@@ -145,6 +145,11 @@ Sandboxed browser image:
 scripts/sandbox-browser-setup.sh
 ```
 
+For staging and production, CI publishes the sandbox browser image to GHCR and
+deploy pulls and retags it automatically. The script above is only a local/dev
+fallback when you need to build `openclaw-sandbox-browser:bookworm-slim`
+yourself.
+
 By default, sandbox containers run with **no network**.
 Override with `agents.defaults.sandbox.docker.network`.
 

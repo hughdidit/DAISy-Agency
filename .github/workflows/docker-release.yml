@@ -266,6 +266,64 @@ jobs:
           provenance: false
           push: true
 
+  # Build sandbox browser image (amd64 only — VM target is always amd64)
+  build-sandbox-browser:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve sandbox browser image tags
+        id: tags
+        shell: bash
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-sandbox-browser
+        run: |
+          set -euo pipefail
+          tags=()
+          tags+=("${IMAGE}:bookworm-slim")
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/main" ]]; then
+            tags+=("${IMAGE}:main")
+          fi
+          if [[ "${GITHUB_REF}" == "refs/heads/daisy/dev" ]]; then
+            SHORTSHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
+            tags+=("${IMAGE}:dev-${SHORTSHA}")
+          fi
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            version="${GITHUB_REF#refs/tags/v}"
+            tags+=("${IMAGE}:${version}")
+          fi
+          {
+            echo "value<<EOF"
+            printf "%s\n" "${tags[@]}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and push sandbox browser image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: Dockerfile.sandbox-browser
+          platforms: linux/amd64
+          tags: ${{ steps.tags.outputs.value }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-sandbox-browser-cache:amd64
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-sandbox-browser-cache:amd64,mode=max
+          provenance: false
+          push: true
+
   # Create multi-platform manifest
   create-manifest:
     runs-on: ubuntu-latest
