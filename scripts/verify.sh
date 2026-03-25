@@ -90,8 +90,21 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   # Check 3: require the sandbox browser image when the deployed config enables it.
   checks_run=$((checks_run + 1))
   log "Checking sandbox browser image requirement from deployed config..."
+  browser_probe_js="$(cat <<'NODE'
+import { readConfigFileSnapshot } from "./dist/config/config.js";
+
+const snapshot = await readConfigFileSnapshot();
+if (!snapshot.valid) {
+  throw new Error(snapshot.issues?.[0]?.message ?? "Config is invalid.");
+}
+
+const enabled = snapshot.config?.agents?.defaults?.sandbox?.browser?.enabled === true;
+process.stdout.write(enabled ? "true" : "false");
+NODE
+)"
+  browser_probe_js_escaped="$(printf '%q' "${browser_probe_js}")"
   browser_enabled="$(
-    gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e 'import fs from \"node:fs\"; import JSON5 from \"json5\"; const configPath=process.env.OPENCLAW_CONFIG_PATH; if (!configPath) { throw new Error(\"OPENCLAW_CONFIG_PATH is not set\"); } const cfg = JSON5.parse(fs.readFileSync(configPath, \"utf8\")); process.stdout.write(cfg?.agents?.defaults?.sandbox?.browser?.enabled === true ? \"true\" : \"false\");'"
+    gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e ${browser_probe_js_escaped}"
   )" || fail "Failed to read sandbox browser config from ${container}"
   browser_enabled="$(echo "${browser_enabled}" | tr -d '[:space:]')"
   if [[ "${browser_enabled}" == "true" ]]; then

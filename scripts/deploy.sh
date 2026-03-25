@@ -445,22 +445,6 @@ if ! sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR
 fi
 unset GHCR_TOKEN
 
-if ! browser_enabled="$(
-  sudo docker run --rm \
-    --entrypoint node \
-    -v "${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}:/tmp/openclaw-config.json5:ro" \
-    "${DEPLOY_REF}" \
-    --input-type=module -e "import fs from \"node:fs\"; import JSON5 from \"json5\"; const cfg = JSON5.parse(fs.readFileSync(\"/tmp/openclaw-config.json5\", \"utf8\")); process.stdout.write(cfg?.agents?.defaults?.sandbox?.browser?.enabled === true ? \"true\" : \"false\");"
-)"; then
-  echo "ERROR: Failed to read sandbox browser enablement from ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH} using ${DEPLOY_REF}." >&2
-  exit 1
-fi
-browser_enabled="$(echo "${browser_enabled}" | tr -d '[:space:]')"
-if [[ "${browser_enabled}" != "true" ]]; then
-  browser_enabled="false"
-fi
-echo "Sandbox browser enabled in config: ${browser_enabled}"
-
 # Export app secrets for docker compose
 export OPENCLAW_IMAGE="${DEPLOY_REF}"
 export OPENCLAW_GATEWAY_TOKEN
@@ -491,6 +475,31 @@ export OPENCLAW_GATEWAY_BIND
 export OPENCLAW_GATEWAY_PORT
 export OPENCLAW_BRIDGE_PORT
 export OPENCLAW_CONFIG_FILE
+
+resolve_sandbox_browser_enabled() {
+  local probe_script config_mount config_path
+  probe_script="$(cat <<"NODE"
+import { readConfigFileSnapshot } from "./dist/config/config.js";
+
+const snapshot = await readConfigFileSnapshot();
+if (!snapshot.valid) {
+  throw new Error(snapshot.issues?.[0]?.message ?? "Config is invalid.");
+}
+
+const enabled = snapshot.config?.agents?.defaults?.sandbox?.browser?.enabled === true;
+process.stdout.write(enabled ? "true" : "false");
+NODE
+)"
+  config_mount="/tmp/openclaw-config"
+  config_path="${config_mount}/${OPENCLAW_CONFIG_FILE}"
+  sudo docker run --rm \
+    --entrypoint node \
+    -e OPENCLAW_CONFIG_PATH="${config_path}" \
+    -v "${DEPLOY_DIR}/config:${config_mount}:ro" \
+    "${DEPLOY_REF}" \
+    --input-type=module \
+    -e "${probe_script}"
+}
 
 # Compose file flags: use host networking overlay on Linux VMs
 COMPOSE_FILES="-f docker-compose.yml"
@@ -546,6 +555,16 @@ if (( free_space_mb < MIN_FREE_SPACE_MB )); then
     exit 1
   fi
 fi
+
+if ! browser_enabled="$(resolve_sandbox_browser_enabled)"; then
+  echo "ERROR: Failed to read sandbox browser enablement from ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH} using ${DEPLOY_REF}." >&2
+  exit 1
+fi
+browser_enabled="$(echo "${browser_enabled}" | tr -d '[:space:]')"
+if [[ "${browser_enabled}" != "true" ]]; then
+  browser_enabled="false"
+fi
+echo "Sandbox browser enabled in config: ${browser_enabled}"
 
 # Pull sandbox image from GHCR and re-tag to the local name expected by the app.
 # The app references "openclaw-sandbox:bookworm-slim" (no registry prefix).

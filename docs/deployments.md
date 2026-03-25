@@ -216,9 +216,9 @@ On a real deploy (dry_run=false), the deploy routine:
 4. Sets the image ref (digest preferred) via environment variable:
    - `export OPENCLAW_IMAGE=<image@digest>`
 5. Pulls the app and compose-managed images:
-   - `docker compose pull`
+   - `docker-compose pull`
 6. Applies:
-   - `docker compose up -d --remove-orphans`
+   - `docker-compose up -d --remove-orphans`
 7. Outputs deployment status
 
 ---
