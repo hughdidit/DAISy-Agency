@@ -194,20 +194,8 @@ describe("memory-mongodb plugin", () => {
         required?: boolean;
         start: (ctx: { stateDir: string; config: unknown; logger: unknown }) => Promise<void>;
       };
-      const homeDir = path.join(
-        stateDir,
-        "plugins",
-        "memory-mongodb",
-        "mcp-stdio",
-        "home",
-      );
-      const tempDir = path.join(
-        stateDir,
-        "plugins",
-        "memory-mongodb",
-        "mcp-stdio",
-        "tmp",
-      );
+      const homeDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "home");
+      const tempDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "tmp");
 
       await service.start({
         stateDir,
@@ -278,20 +266,8 @@ describe("memory-mongodb plugin", () => {
         from: "node",
       });
 
-      const homeDir = path.join(
-        stateDir,
-        "plugins",
-        "memory-mongodb",
-        "mcp-stdio",
-        "home",
-      );
-      const tempDir = path.join(
-        stateDir,
-        "plugins",
-        "memory-mongodb",
-        "mcp-stdio",
-        "tmp",
-      );
+      const homeDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "home");
+      const tempDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "tmp");
 
       expect(mcpClientMocks.setRuntimeEnvOverrides).toHaveBeenCalledWith({
         HOME: homeDir,
