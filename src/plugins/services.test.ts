@@ -84,7 +84,7 @@ describe("startPluginServices", () => {
     }
   });
 
-  it("logs start/stop failures and continues", async () => {
+  it("logs non-required start/stop failures and continues", async () => {
     const stopOk = vi.fn();
     const stopThrows = vi.fn(() => {
       throw new Error("stop failed");
@@ -123,5 +123,34 @@ describe("startPluginServices", () => {
     );
     expect(stopOk).toHaveBeenCalledOnce();
     expect(stopThrows).toHaveBeenCalledOnce();
+  });
+
+  it("throws for required service failures and stops previously started services", async () => {
+    const stopStarted = vi.fn();
+
+    await expect(
+      startPluginServices({
+        registry: createRegistry([
+          {
+            id: "service-started",
+            start: () => undefined,
+            stop: stopStarted,
+          },
+          {
+            id: "service-required",
+            required: true,
+            start: () => {
+              throw new Error("required failed");
+            },
+          },
+        ]),
+        config: {} as Parameters<typeof startPluginServices>[0]["config"],
+      }),
+    ).rejects.toThrow("required plugin service failed (service-required): Error: required failed");
+
+    expect(stopStarted).toHaveBeenCalledOnce();
+    expect(mockedLogger.error).toHaveBeenCalledWith(
+      expect.stringContaining("plugin service failed (service-required): Error: required failed"),
+    );
   });
 });

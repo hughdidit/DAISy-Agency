@@ -230,6 +230,7 @@ export type OpenClawPluginServiceContext = {
 
 export type OpenClawPluginService = {
   id: string;
+  required?: boolean;
   start: (ctx: OpenClawPluginServiceContext) => void | Promise<void>;
   stop?: (ctx: OpenClawPluginServiceContext) => void | Promise<void>;
 };

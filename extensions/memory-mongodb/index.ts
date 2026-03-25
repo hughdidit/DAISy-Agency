@@ -5,6 +5,8 @@
  * Uses MongoDB MCP server for data operations and Gemini embeddings.
  */
 
+import fs from "node:fs/promises";
+import path from "node:path";
 import { Type } from "@sinclair/typebox";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { stringEnum } from "openclaw/plugin-sdk";
@@ -102,6 +104,32 @@ function detectSubCategory(text: string): string | undefined {
   return undefined;
 }
 
+type McpRuntimeDirs = {
+  homeDir: string;
+  tempDir: string;
+};
+
+async function ensurePrivateDir(dir: string): Promise<void> {
+  await fs.mkdir(dir, { recursive: true, mode: 0o700 });
+  try {
+    await fs.chmod(dir, 0o700);
+  } catch {
+    // chmod may be a no-op or unsupported on some local dev filesystems.
+  }
+}
+
+async function prepareMcpRuntimeDirs(stateDir: string): Promise<McpRuntimeDirs> {
+  const rootDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio");
+  const homeDir = path.join(rootDir, "home");
+  const tempDir = path.join(rootDir, "tmp");
+
+  await ensurePrivateDir(rootDir);
+  await ensurePrivateDir(homeDir);
+  await ensurePrivateDir(tempDir);
+
+  return { homeDir, tempDir };
+}
+
 const multimodalPartSchema = Type.Union([
   Type.Object(
     {
@@ -158,6 +186,7 @@ const memoryPlugin = {
     );
 
     const triggers = compileTriggers(cfg.captureTriggers);
+    let runtimeDirs: McpRuntimeDirs | null = null;
 
     api.logger.info(
       `memory-mongodb: plugin registered (db: ${cfg.database.name}/${cfg.database.collection}, transport: ${cfg.mcp.transport})`,
@@ -542,12 +571,30 @@ const memoryPlugin = {
 
     api.registerService({
       id: "memory-mongodb",
-      start: () => {
+      required: true,
+      start: async (ctx) => {
+        try {
+          if (cfg.mcp.transport === "stdio") {
+            runtimeDirs = await prepareMcpRuntimeDirs(ctx.stateDir);
+            mcpService.setRuntimeEnvOverrides({
+              HOME: runtimeDirs.homeDir,
+              TMPDIR: runtimeDirs.tempDir,
+            });
+          }
+
+          await db.count();
+        } catch (error) {
+          await db.close().catch(() => undefined);
+          const reason = error instanceof Error ? error.message : String(error);
+          throw new Error(`memory-mongodb startup readiness check failed: ${reason}`);
+        }
+
         api.logger.info(
           `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, embeddingModel: ${cfg.gemini.embeddingModel})`,
         );
       },
       stop: async () => {
+        runtimeDirs = null;
         await db.close();
         api.logger.info("memory-mongodb: stopped");
       },
