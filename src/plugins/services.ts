@@ -76,7 +76,9 @@ export async function startPluginServices(params: {
       log.error(`plugin service failed (${service.id}): ${message}`);
       if (service.required) {
         await stopRunningServices(running);
-        throw new Error(`required plugin service failed (${service.id}): ${message}`);
+        throw new Error(`required plugin service failed (${service.id}): ${message}`, {
+          cause: err,
+        });
       }
     }
   }
