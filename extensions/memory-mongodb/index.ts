@@ -585,8 +585,11 @@ const memoryPlugin = {
           await db.count();
         } catch (error) {
           await db.close().catch(() => undefined);
-          const reason = error instanceof Error ? error.message : String(error);
-          throw new Error(`memory-mongodb startup readiness check failed: ${reason}`);
+          const cause = error instanceof Error ? error : new Error(String(error));
+          const reason = cause.message;
+          throw new Error(`memory-mongodb startup readiness check failed: ${reason}`, {
+            cause,
+          });
         }
 
         api.logger.info(
