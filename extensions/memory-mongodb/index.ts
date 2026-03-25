@@ -5,9 +5,12 @@
  * Uses MongoDB MCP server for data operations and Gemini embeddings.
  */
 
+import fs from "node:fs/promises";
+import path from "node:path";
 import { Type } from "@sinclair/typebox";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { stringEnum } from "openclaw/plugin-sdk";
+import { resolveStateDir } from "../../src/config/paths.js";
 import {
   MEMORY_CATEGORIES,
   type MemoryCategory,
@@ -102,6 +105,32 @@ function detectSubCategory(text: string): string | undefined {
   return undefined;
 }
 
+type McpRuntimeDirs = {
+  homeDir: string;
+  tempDir: string;
+};
+
+async function ensurePrivateDir(dir: string): Promise<void> {
+  await fs.mkdir(dir, { recursive: true, mode: 0o700 });
+  try {
+    await fs.chmod(dir, 0o700);
+  } catch {
+    // chmod may be a no-op or unsupported on some local dev filesystems.
+  }
+}
+
+async function prepareMcpRuntimeDirs(stateDir: string): Promise<McpRuntimeDirs> {
+  const rootDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio");
+  const homeDir = path.join(rootDir, "home");
+  const tempDir = path.join(rootDir, "tmp");
+
+  await ensurePrivateDir(rootDir);
+  await ensurePrivateDir(homeDir);
+  await ensurePrivateDir(tempDir);
+
+  return { homeDir, tempDir };
+}
+
 const multimodalPartSchema = Type.Union([
   Type.Object(
     {
@@ -158,6 +187,54 @@ const memoryPlugin = {
     );
 
     const triggers = compileTriggers(cfg.captureTriggers);
+    let runtimeDirs: McpRuntimeDirs | null = null;
+    let runtimeDirsPromise: Promise<McpRuntimeDirs> | null = null;
+
+    async function ensureMcpRuntimeDirs(stateDir?: string): Promise<void> {
+      if (cfg.mcp.transport !== "stdio") {
+        return;
+      }
+      if (runtimeDirs) {
+        return;
+      }
+      if (!runtimeDirsPromise) {
+        const resolvedStateDir = stateDir ?? resolveStateDir(process.env);
+        runtimeDirsPromise = prepareMcpRuntimeDirs(resolvedStateDir)
+          .then((dirs) => {
+            runtimeDirs = dirs;
+            mcpService.setRuntimeEnvOverrides({
+              HOME: dirs.homeDir,
+              TMPDIR: dirs.tempDir,
+            });
+            return dirs;
+          })
+          .catch((error) => {
+            runtimeDirsPromise = null;
+            throw error;
+          });
+      }
+      await runtimeDirsPromise;
+    }
+
+    async function countMemories(stateDir?: string): Promise<number> {
+      await ensureMcpRuntimeDirs(stateDir);
+      return db.count();
+    }
+
+    async function searchMemories(query: string, limit: number, minScore: number) {
+      await ensureMcpRuntimeDirs();
+      return db.searchByQuery(query, limit, minScore);
+    }
+
+    async function storeMemory(entry: Parameters<typeof db.store>[0]): Promise<MemoryEntry> {
+      await ensureMcpRuntimeDirs();
+      return db.store(entry);
+    }
+
+    async function deleteMemory(memoryId: string): Promise<boolean> {
+      await ensureMcpRuntimeDirs();
+      return db.delete(memoryId);
+    }
 
     api.logger.info(
       `memory-mongodb: plugin registered (db: ${cfg.database.name}/${cfg.database.collection}, transport: ${cfg.mcp.transport})`,
@@ -181,7 +258,7 @@ const memoryPlugin = {
         async execute(_toolCallId, params) {
           const { query, limit = 5 } = params as { query: string; limit?: number };
 
-          const results = await db.searchByQuery(query, limit, cfg.retrieval.minScore);
+          const results = await searchMemories(query, limit, cfg.retrieval.minScore);
 
           if (results.length === 0) {
             return {
@@ -270,7 +347,7 @@ const memoryPlugin = {
               : multimodalPartsToFallbackText(normalizedParts, 2_000);
 
           const inferredCategory = category ?? detectCategory(fallbackText);
-          const existing = await db.searchByQuery(fallbackText, 1, 0.95);
+          const existing = await searchMemories(fallbackText, 1, 0.95);
 
           if (existing.length > 0) {
             return {
@@ -288,7 +365,7 @@ const memoryPlugin = {
             };
           }
 
-          const entry = await db.store({
+          const entry = await storeMemory({
             text: fallbackText,
             parts: normalizedParts,
             importance,
@@ -327,7 +404,7 @@ const memoryPlugin = {
           const { query, memoryId } = params as { query?: string; memoryId?: string };
 
           if (memoryId) {
-            const deleted = await db.delete(memoryId);
+            const deleted = await deleteMemory(memoryId);
             if (!deleted) {
               return {
                 content: [{ type: "text", text: `Memory ${memoryId} not found.` }],
@@ -341,7 +418,7 @@ const memoryPlugin = {
           }
 
           if (query) {
-            const results = await db.searchByQuery(query, 5, 0.7);
+            const results = await searchMemories(query, 5, 0.7);
 
             if (results.length === 0) {
               return {
@@ -351,7 +428,7 @@ const memoryPlugin = {
             }
 
             if (results.length === 1 && results[0].score > 0.9) {
-              await db.delete(results[0].entry.id);
+              await deleteMemory(results[0].entry.id);
               return {
                 content: [{ type: "text", text: `Forgotten: "${results[0].entry.text}"` }],
                 details: { action: "deleted", id: results[0].entry.id },
@@ -401,7 +478,7 @@ const memoryPlugin = {
           .command("list")
           .description("List memories")
           .action(async () => {
-            const count = await db.count();
+            const count = await countMemories();
             console.log(`Total memories: ${count}`);
           });
 
@@ -411,7 +488,7 @@ const memoryPlugin = {
           .argument("<query>", "Search query")
           .option("--limit <n>", "Max results", "5")
           .action(async (query, opts) => {
-            const results = await db.searchByQuery(query, Number.parseInt(opts.limit, 10), 0.3);
+            const results = await searchMemories(query, Number.parseInt(opts.limit, 10), 0.3);
             const output = results.map((result) => ({
               id: result.entry.id,
               text: result.entry.text,
@@ -427,7 +504,7 @@ const memoryPlugin = {
           .command("stats")
           .description("Show memory statistics")
           .action(async () => {
-            const count = await db.count();
+            const count = await countMemories();
             console.log(`Total memories: ${count}`);
           });
       },
@@ -441,7 +518,7 @@ const memoryPlugin = {
         }
 
         try {
-          const results = await db.searchByQuery(event.prompt, 3, 0.3);
+          const results = await searchMemories(event.prompt, 3, 0.3);
           if (results.length === 0) {
             return;
           }
@@ -511,12 +588,12 @@ const memoryPlugin = {
 
           for (const text of toCapture.slice(0, 3)) {
             const category = detectCategory(text);
-            const existing = await db.searchByQuery(text, 1, 0.95);
+            const existing = await searchMemories(text, 1, 0.95);
             if (existing.length > 0) {
               continue;
             }
 
-            await db.store({
+            await storeMemory({
               text,
               parts: [{ text }],
               importance: 0.7,
@@ -542,12 +619,25 @@ const memoryPlugin = {
 
     api.registerService({
       id: "memory-mongodb",
-      start: () => {
+      required: true,
+      start: async (ctx) => {
+        try {
+          await countMemories(ctx.stateDir);
+        } catch (error) {
+          await db.close().catch(() => undefined);
+          const reason = error instanceof Error ? error.message : String(error);
+          throw new Error(`memory-mongodb startup readiness check failed: ${reason}`, {
+            cause: error,
+          });
+        }
+
         api.logger.info(
           `memory-mongodb: initialized (db: ${cfg.database.name}/${cfg.database.collection}, embeddingModel: ${cfg.gemini.embeddingModel})`,
         );
       },
       stop: async () => {
+        runtimeDirs = null;
+        runtimeDirsPromise = null;
         await db.close();
         api.logger.info("memory-mongodb: stopped");
       },

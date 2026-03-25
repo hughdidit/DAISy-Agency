@@ -64,6 +64,10 @@ describe("mcp client service", () => {
       }
 
       const service = new McpClientService(cfg.mcp);
+      service.setRuntimeEnvOverrides({
+        HOME: "/plugin-scoped/home",
+        TMPDIR: "/plugin-scoped/tmp",
+      });
 
       const inserted = await service.insertMany("db", "memories", [{ text: "hello" }]);
 
@@ -80,6 +84,8 @@ describe("mcp client service", () => {
       expect(stdioArgs.env.MDB_MCP_CONNECTION_STRING).toBe(
         "mongodb+srv://user:pass@cluster.example.com/test",
       );
+      expect(stdioArgs.env.HOME).toBe("/plugin-scoped/home");
+      expect(stdioArgs.env.TMPDIR).toBe("/plugin-scoped/tmp");
       expect(stdioArgs.env.PATH).toBe(process.env.PATH);
       expect(stdioArgs.env.MCP_TEST_INHERITED_ENV).toBeUndefined();
 
@@ -106,14 +112,14 @@ describe("mcp client service", () => {
     }
   });
 
-  test("preserves explicit custom command and args overrides", async () => {
+  test("preserves explicit absolute-path custom command and args overrides", async () => {
     const { McpClientService } = await import("./mcp-client-service.js");
 
     const service = new McpClientService({
       transport: "stdio",
       stdio: {
-        command: "npx",
-        args: ["-y", "mongodb-mcp-server@1.2.0"],
+        command: "/opt/mongodb-mcp/node",
+        args: ["/opt/mongodb-mcp/dist/index.js"],
         env: {
           MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
         },
@@ -126,8 +132,8 @@ describe("mcp client service", () => {
       command: string;
       args: string[];
     };
-    expect(stdioArgs.command).toBe("npx");
-    expect(stdioArgs.args).toEqual(["-y", "mongodb-mcp-server@1.2.0"]);
+    expect(stdioArgs.command).toBe("/opt/mongodb-mcp/node");
+    expect(stdioArgs.args).toEqual(["/opt/mongodb-mcp/dist/index.js"]);
   });
 
   test("parses aggregate response from text payload", async () => {

@@ -31,6 +31,31 @@ export type PluginServicesHandle = {
   stop: () => Promise<void>;
 };
 
+async function stopServiceEntry(entry: {
+  id: string;
+  stop?: () => void | Promise<void>;
+}): Promise<void> {
+  if (!entry.stop) {
+    return;
+  }
+  try {
+    await entry.stop();
+  } catch (err) {
+    log.warn(`plugin service stop failed (${entry.id}): ${String(err)}`);
+  }
+}
+
+async function stopRunningServices(
+  running: Array<{
+    id: string;
+    stop?: () => void | Promise<void>;
+  }>,
+): Promise<void> {
+  for (const entry of running.toReversed()) {
+    await stopServiceEntry(entry);
+  }
+}
+
 export async function startPluginServices(params: {
   registry: PluginRegistry;
   config: OpenClawConfig;
@@ -54,22 +79,24 @@ export async function startPluginServices(params: {
         stop: service.stop ? () => service.stop?.(serviceContext) : undefined,
       });
     } catch (err) {
-      log.error(`plugin service failed (${service.id}): ${String(err)}`);
+      const message = String(err);
+      log.error(`plugin service failed (${service.id}): ${message}`);
+      await stopServiceEntry({
+        id: service.id,
+        stop: service.stop ? () => service.stop?.(serviceContext) : undefined,
+      });
+      if (service.required) {
+        await stopRunningServices(running);
+        throw new Error(`required plugin service failed (${service.id}): ${message}`, {
+          cause: err,
+        });
+      }
     }
   }
 
   return {
     stop: async () => {
-      for (const entry of running.toReversed()) {
-        if (!entry.stop) {
-          continue;
-        }
-        try {
-          await entry.stop();
-        } catch (err) {
-          log.warn(`plugin service stop failed (${entry.id}): ${String(err)}`);
-        }
-      }
+      await stopRunningServices(running);
     },
   };
 }

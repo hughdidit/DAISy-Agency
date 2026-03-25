@@ -84,7 +84,8 @@ describe("startPluginServices", () => {
     }
   });
 
-  it("logs start/stop failures and continues", async () => {
+  it("logs non-required start/stop failures and continues", async () => {
+    const stopFailedStart = vi.fn();
     const stopOk = vi.fn();
     const stopThrows = vi.fn(() => {
       throw new Error("stop failed");
@@ -97,7 +98,7 @@ describe("startPluginServices", () => {
           start: () => {
             throw new Error("start failed");
           },
-          stop: vi.fn(),
+          stop: stopFailedStart,
         },
         {
           id: "service-ok",
@@ -118,10 +119,43 @@ describe("startPluginServices", () => {
     expect(mockedLogger.error).toHaveBeenCalledWith(
       expect.stringContaining("plugin service failed (service-start-fail):"),
     );
+    expect(stopFailedStart).toHaveBeenCalledOnce();
     expect(mockedLogger.warn).toHaveBeenCalledWith(
       expect.stringContaining("plugin service stop failed (service-stop-fail):"),
     );
     expect(stopOk).toHaveBeenCalledOnce();
     expect(stopThrows).toHaveBeenCalledOnce();
+  });
+
+  it("throws for required service failures and stops previously started services", async () => {
+    const stopStarted = vi.fn();
+    const stopRequired = vi.fn();
+
+    await expect(
+      startPluginServices({
+        registry: createRegistry([
+          {
+            id: "service-started",
+            start: () => undefined,
+            stop: stopStarted,
+          },
+          {
+            id: "service-required",
+            required: true,
+            start: () => {
+              throw new Error("required failed");
+            },
+            stop: stopRequired,
+          },
+        ]),
+        config: {} as Parameters<typeof startPluginServices>[0]["config"],
+      }),
+    ).rejects.toThrow("required plugin service failed (service-required): Error: required failed");
+
+    expect(stopStarted).toHaveBeenCalledOnce();
+    expect(stopRequired).toHaveBeenCalledOnce();
+    expect(mockedLogger.error).toHaveBeenCalledWith(
+      expect.stringContaining("plugin service failed (service-required): Error: required failed"),
+    );
   });
 });

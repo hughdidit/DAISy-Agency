@@ -21,7 +21,7 @@ import {
 import { loadInternalHooks } from "../hooks/loader.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import type { loadOpenClawPlugins } from "../plugins/loader.js";
-import { type PluginServicesHandle, startPluginServices } from "../plugins/services.js";
+import { startPluginServices } from "../plugins/services.js";
 import { startBrowserControlServerIfEnabled } from "./server-browser.js";
 import {
   scheduleRestartSentinelWake,
@@ -60,6 +60,12 @@ export async function startGatewaySidecars(params: {
   } catch (err) {
     params.log.warn(`session lock cleanup failed on startup: ${String(err)}`);
   }
+
+  const pluginServices = await startPluginServices({
+    registry: params.pluginRegistry,
+    config: params.cfg,
+    workspaceDir: params.defaultWorkspaceDir,
+  });
 
   // Start OpenClaw browser control server (unless disabled via config).
   let browserControl: Awaited<ReturnType<typeof startBrowserControlServerIfEnabled>> = null;
@@ -148,17 +154,6 @@ export async function startGatewaySidecars(params: {
       });
       void triggerInternalHook(hookEvent);
     }, 250);
-  }
-
-  let pluginServices: PluginServicesHandle | null = null;
-  try {
-    pluginServices = await startPluginServices({
-      registry: params.pluginRegistry,
-      config: params.cfg,
-      workspaceDir: params.defaultWorkspaceDir,
-    });
-  } catch (err) {
-    params.log.warn(`plugin services failed to start: ${String(err)}`);
   }
 
   if (params.cfg.acp?.enabled) {

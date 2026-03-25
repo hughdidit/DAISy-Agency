@@ -43,6 +43,13 @@ For `stdio` deployments, the MongoDB MCP child runs behind a least-privilege
 launcher boundary: only approved child env keys are accepted, and custom
 launchers are treated as privileged escape hatches instead of normal config.
 
+When the gateway runs with a read-only container root, the plugin provisions a
+plugin-scoped writable MCP runtime directory under the OpenClaw state dir and
+passes that path to the child as its `HOME`/`TMPDIR`. If an enabled
+`memory-mongodb` plugin cannot prepare that runtime directory or complete its
+startup readiness query, gateway startup now fails fast instead of leaving the
+memory tools partially registered but disconnected.
+
 ```jsonc
 {
   // Disable the built-in memory search system (MemoryIndexManager).

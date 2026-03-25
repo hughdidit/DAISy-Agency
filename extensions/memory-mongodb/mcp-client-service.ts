@@ -10,6 +10,10 @@ type Logger = {
 };
 
 type JsonObject = Record<string, unknown>;
+type RuntimeEnvOverrides = {
+  HOME?: string;
+  TMPDIR?: string;
+};
 
 const isObject = (value: unknown): value is JsonObject =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -61,6 +65,7 @@ function buildStdioEnv(overrides: Record<string, string | undefined>): Record<st
 export class McpClientService {
   private client: Client;
   private connectPromise: Promise<void> | null = null;
+  private runtimeEnvOverrides: RuntimeEnvOverrides = {};
 
   constructor(
     private readonly config: MemoryConfig["mcp"],
@@ -139,6 +144,13 @@ export class McpClientService {
     }
   }
 
+  setRuntimeEnvOverrides(overrides: RuntimeEnvOverrides): void {
+    this.runtimeEnvOverrides = {
+      ...this.runtimeEnvOverrides,
+      ...toStringEnv(overrides),
+    };
+  }
+
   private async ensureConnected(): Promise<void> {
     if (this.connectPromise) {
       return this.connectPromise;
@@ -150,7 +162,10 @@ export class McpClientService {
           const transport = new StdioClientTransport({
             command: this.config.stdio.command,
             args: this.config.stdio.args,
-            env: buildStdioEnv(this.config.stdio.env),
+            env: buildStdioEnv({
+              ...this.runtimeEnvOverrides,
+              ...this.config.stdio.env,
+            }),
           });
           await this.client.connect(transport);
           await this.tryConnectTool(this.config.stdio.env.MDB_MCP_CONNECTION_STRING);
