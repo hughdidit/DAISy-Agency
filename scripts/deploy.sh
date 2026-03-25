@@ -480,8 +480,131 @@ resolve_sandbox_browser_enabled() {
   local probe_script config_mount config_path
   probe_script="$(cat <<"NODE"
 import fs from "node:fs";
+import path from "node:path";
 import JSON5 from "json5";
-import { resolveConfigIncludes } from "./src/config/includes.ts";
+
+const INCLUDE_KEY = "$include";
+const MAX_INCLUDE_DEPTH = 10;
+const MAX_INCLUDE_FILE_BYTES = 2 * 1024 * 1024;
+const BLOCKED_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+function isPlainObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isBlockedObjectKey(key) {
+  return BLOCKED_KEYS.has(key);
+}
+
+function isPathInside(basePath, candidatePath) {
+  const base = path.resolve(basePath);
+  const candidate = path.resolve(candidatePath);
+  const relative = path.relative(base, candidate);
+  return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative));
+}
+
+function safeRealpath(target) {
+  try {
+    return path.normalize(fs.realpathSync(target));
+  } catch {
+    return path.normalize(target);
+  }
+}
+
+function deepMerge(target, source) {
+  if (Array.isArray(target) && Array.isArray(source)) {
+    return [...target, ...source];
+  }
+  if (isPlainObject(target) && isPlainObject(source)) {
+    const result = { ...target };
+    for (const [key, value] of Object.entries(source)) {
+      if (isBlockedObjectKey(key)) {
+        continue;
+      }
+      result[key] = key in result ? deepMerge(result[key], value) : value;
+    }
+    return result;
+  }
+  return source;
+}
+
+function resolveConfigIncludes(value, currentPath, rootDir, rootRealDir, visited, depth) {
+  if (Array.isArray(value)) {
+    return value.map((item) => resolveConfigIncludes(item, currentPath, rootDir, rootRealDir, visited, depth));
+  }
+  if (!isPlainObject(value)) {
+    return value;
+  }
+  if (!(INCLUDE_KEY in value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [
+        key,
+        resolveConfigIncludes(item, currentPath, rootDir, rootRealDir, visited, depth),
+      ]),
+    );
+  }
+
+  const includeValue = value[INCLUDE_KEY];
+  const rest = Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => key !== INCLUDE_KEY)
+      .map(([key, item]) => [
+        key,
+        resolveConfigIncludes(item, currentPath, rootDir, rootRealDir, visited, depth),
+      ]),
+  );
+
+  const loadInclude = (includePath) => {
+    if (depth >= MAX_INCLUDE_DEPTH) {
+      throw new Error(`Maximum include depth (${MAX_INCLUDE_DEPTH}) exceeded at: ${includePath}`);
+    }
+    const resolvedPath = path.normalize(
+      path.isAbsolute(includePath) ? includePath : path.resolve(path.dirname(currentPath), includePath),
+    );
+    if (!isPathInside(rootDir, resolvedPath)) {
+      throw new Error(`Include path escapes config directory: ${includePath}`);
+    }
+    const realPath = safeRealpath(resolvedPath);
+    if (!isPathInside(rootRealDir, realPath)) {
+      throw new Error(`Include path resolves outside config directory (symlink): ${includePath}`);
+    }
+    if (visited.has(resolvedPath)) {
+      throw new Error(`Circular include detected: ${[...visited, resolvedPath].join(" -> ")}`);
+    }
+    const stats = fs.statSync(resolvedPath);
+    if (!stats.isFile() || stats.size > MAX_INCLUDE_FILE_BYTES) {
+      throw new Error(
+        `Include file failed security checks (regular file, max ${MAX_INCLUDE_FILE_BYTES} bytes): ${includePath}`,
+      );
+    }
+    const nextVisited = new Set(visited);
+    nextVisited.add(resolvedPath);
+    const parsed = JSON5.parse(fs.readFileSync(resolvedPath, "utf8"));
+    return resolveConfigIncludes(parsed, resolvedPath, rootDir, rootRealDir, nextVisited, depth + 1);
+  };
+
+  let included;
+  if (typeof includeValue === "string") {
+    included = loadInclude(includeValue);
+  } else if (Array.isArray(includeValue)) {
+    included = includeValue.reduce((merged, includePath) => {
+      if (typeof includePath !== "string") {
+        throw new Error(`Invalid $include array item: expected string, got ${typeof includePath}`);
+      }
+      return deepMerge(merged, loadInclude(includePath));
+    }, {});
+  } else {
+    throw new Error(`Invalid $include value: expected string or array of strings, got ${typeof includeValue}`);
+  }
+
+  if (Object.keys(rest).length === 0) {
+    return included;
+  }
+  if (!isPlainObject(included)) {
+    throw new Error("Sibling keys require included content to be an object");
+  }
+  return deepMerge(included, rest);
+}
 
 const configPath = process.env.OPENCLAW_CONFIG_PATH;
 if (!configPath) {
@@ -490,7 +613,16 @@ if (!configPath) {
 
 const raw = fs.readFileSync(configPath, "utf8");
 const parsed = JSON5.parse(raw);
-const resolved = resolveConfigIncludes(parsed, configPath);
+const rootDir = path.normalize(path.dirname(configPath));
+const rootRealDir = safeRealpath(rootDir);
+const resolved = resolveConfigIncludes(
+  parsed,
+  configPath,
+  rootDir,
+  rootRealDir,
+  new Set([path.normalize(configPath)]),
+  0,
+);
 const enabled = resolved?.agents?.defaults?.sandbox?.browser?.enabled === true;
 process.stdout.write(enabled ? "true" : "false");
 NODE
@@ -502,7 +634,6 @@ NODE
     -e OPENCLAW_CONFIG_PATH="${config_path}" \
     -v "${DEPLOY_DIR}/config:${config_mount}:ro" \
     "${DEPLOY_REF}" \
-    --import tsx \
     --input-type=module \
     -e "${probe_script}"
 }
