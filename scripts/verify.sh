@@ -91,7 +91,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   checks_run=$((checks_run + 1))
   log "Checking sandbox browser image requirement from deployed config..."
   browser_probe_js="$(cat <<'NODE'
-import { readConfigFileSnapshot } from "./dist/config/config.js";
+import { readConfigFileSnapshot } from "./src/config/config.ts";
 
 const snapshot = await readConfigFileSnapshot();
 if (!snapshot.valid) {
@@ -104,7 +104,7 @@ NODE
 )"
   browser_probe_js_escaped="$(printf '%q' "${browser_probe_js}")"
   browser_enabled="$(
-    gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e ${browser_probe_js_escaped}"
+    gce_ssh_lastline "sudo docker exec ${container_escaped} node --import tsx --input-type=module -e ${browser_probe_js_escaped}"
   )" || fail "Failed to read sandbox browser config from ${container}"
   browser_enabled="$(echo "${browser_enabled}" | tr -d '[:space:]')"
   if [[ "${browser_enabled}" == "true" ]]; then

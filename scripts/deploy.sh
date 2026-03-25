@@ -479,7 +479,7 @@ export OPENCLAW_CONFIG_FILE
 resolve_sandbox_browser_enabled() {
   local probe_script config_mount config_path
   probe_script="$(cat <<"NODE"
-import { readConfigFileSnapshot } from "./dist/config/config.js";
+import { readConfigFileSnapshot } from "./src/config/config.ts";
 
 const snapshot = await readConfigFileSnapshot();
 if (!snapshot.valid) {
@@ -497,6 +497,7 @@ NODE
     -e OPENCLAW_CONFIG_PATH="${config_path}" \
     -v "${DEPLOY_DIR}/config:${config_mount}:ro" \
     "${DEPLOY_REF}" \
+    --import tsx \
     --input-type=module \
     -e "${probe_script}"
 }
