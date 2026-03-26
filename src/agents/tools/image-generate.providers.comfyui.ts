@@ -30,8 +30,8 @@ function resolveComfyUiBaseUrl(cfg?: OpenClawConfig): URL {
   let parsed: URL;
   try {
     parsed = new URL(raw);
-  } catch {
-    throw new Error(`Invalid ComfyUI base URL "${raw}".`);
+  } catch (error) {
+    throw new Error(`Invalid ComfyUI base URL "${raw}".`, { cause: error });
   }
   if (!["http:", "https:"].includes(parsed.protocol)) {
     throw new Error("ComfyUI base URL must use http or https.");
@@ -203,115 +203,106 @@ export async function generateImageWithComfyUi(params: {
     );
   }
 
-  try {
-    const submitResult = await guardedFetch({
-      url: new URL("/prompt", baseUrl).toString(),
-      timeoutMs,
+  const submitResult = await guardedFetch({
+    url: new URL("/prompt", baseUrl).toString(),
+    timeoutMs,
+    allowedHostnames,
+    fetchImpl: params.fetchImpl,
+    init: {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: submitBody,
+    },
+  });
+  if (!submitResult.response.ok) {
+    const text = (await readBytesAndRelease(submitResult, 256 * 1024)).toString("utf8").trim();
+    throw new Error(
+      `ComfyUI workflow submission failed (${submitResult.response.status} ${submitResult.response.statusText})${text ? `: ${text}` : ""}`,
+    );
+  }
+  const submitted = (await readJsonAndRelease(submitResult, 256 * 1024)) as Record<string, unknown>;
+  const promptId =
+    typeof submitted.prompt_id === "string"
+      ? submitted.prompt_id
+      : typeof submitted.promptId === "string"
+        ? submitted.promptId
+        : undefined;
+  if (!promptId) {
+    throw new Error("ComfyUI workflow submission did not return a prompt_id.");
+  }
+
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() <= deadline) {
+    const historyResult = await guardedFetch({
+      url: new URL(`/history/${encodeURIComponent(promptId)}`, baseUrl).toString(),
+      timeoutMs: Math.min(timeoutMs, pollIntervalMs * 4),
       allowedHostnames,
       fetchImpl: params.fetchImpl,
-      init: {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: submitBody,
-      },
     });
-    if (!submitResult.response.ok) {
-      const text = (await readBytesAndRelease(submitResult, 256 * 1024)).toString("utf8").trim();
+    if (!historyResult.response.ok) {
+      const text = (await readBytesAndRelease(historyResult, 256 * 1024)).toString("utf8").trim();
       throw new Error(
-        `ComfyUI workflow submission failed (${submitResult.response.status} ${submitResult.response.statusText})${text ? `: ${text}` : ""}`,
+        `ComfyUI history polling failed (${historyResult.response.status} ${historyResult.response.statusText})${text ? `: ${text}` : ""}`,
       );
     }
-    const submitted = (await readJsonAndRelease(submitResult, 256 * 1024)) as Record<
-      string,
-      unknown
-    >;
-    const promptId =
-      typeof submitted.prompt_id === "string"
-        ? submitted.prompt_id
-        : typeof submitted.promptId === "string"
-          ? submitted.promptId
-          : undefined;
-    if (!promptId) {
-      throw new Error("ComfyUI workflow submission did not return a prompt_id.");
-    }
-
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() <= deadline) {
-      const historyResult = await guardedFetch({
-        url: new URL(`/history/${encodeURIComponent(promptId)}`, baseUrl).toString(),
-        timeoutMs: Math.min(timeoutMs, pollIntervalMs * 4),
-        allowedHostnames,
-        fetchImpl: params.fetchImpl,
+    const historyJson = await readJsonAndRelease(historyResult, maxResponseBytes);
+    const historyEntry = extractHistoryEntry(historyJson, promptId);
+    if (historyEntry) {
+      if (historyEntry.outputs !== undefined && !isRecord(historyEntry.outputs)) {
+        throw new Error(`ComfyUI history result for prompt "${promptId}" is malformed.`);
+      }
+      const images = listComfyUiOutputImages({
+        historyEntry,
+        outputNodeId: workflow.outputNodeId,
+        outputImageIndex: workflow.outputImageIndex,
       });
-      if (!historyResult.response.ok) {
-        const text = (await readBytesAndRelease(historyResult, 256 * 1024)).toString("utf8").trim();
+      if (images.length > 1) {
         throw new Error(
-          `ComfyUI history polling failed (${historyResult.response.status} ${historyResult.response.statusText})${text ? `: ${text}` : ""}`,
+          `ComfyUI workflow "${presetId}" returned multiple image outputs; configure a deterministic output node/index for v1.`,
         );
       }
-      const historyJson = await readJsonAndRelease(historyResult, maxResponseBytes);
-      const historyEntry = extractHistoryEntry(historyJson, promptId);
-      if (historyEntry) {
-        if (historyEntry.outputs !== undefined && !isRecord(historyEntry.outputs)) {
-          throw new Error(`ComfyUI history result for prompt "${promptId}" is malformed.`);
+      if (images.length === 1) {
+        const image = images[0];
+        const viewUrl = new URL("/view", baseUrl);
+        viewUrl.searchParams.set("filename", image.filename);
+        if (image.subfolder) {
+          viewUrl.searchParams.set("subfolder", image.subfolder);
         }
-        const images = listComfyUiOutputImages({
-          historyEntry,
-          outputNodeId: workflow.outputNodeId,
-          outputImageIndex: workflow.outputImageIndex,
+        if (image.type) {
+          viewUrl.searchParams.set("type", image.type);
+        }
+        const imageResult = await guardedFetch({
+          url: viewUrl.toString(),
+          timeoutMs: Math.min(timeoutMs, 30_000),
+          allowedHostnames,
+          fetchImpl: params.fetchImpl,
         });
-        if (images.length > 1) {
+        if (!imageResult.response.ok) {
+          const text = (await readBytesAndRelease(imageResult, 256 * 1024)).toString("utf8").trim();
           throw new Error(
-            `ComfyUI workflow "${presetId}" returned multiple image outputs; configure a deterministic output node/index for v1.`,
+            `ComfyUI image retrieval failed (${imageResult.response.status} ${imageResult.response.statusText})${text ? `: ${text}` : ""}`,
           );
         }
-        if (images.length === 1) {
-          const image = images[0];
-          const viewUrl = new URL("/view", baseUrl);
-          viewUrl.searchParams.set("filename", image.filename);
-          if (image.subfolder) {
-            viewUrl.searchParams.set("subfolder", image.subfolder);
-          }
-          if (image.type) {
-            viewUrl.searchParams.set("type", image.type);
-          }
-          const imageResult = await guardedFetch({
-            url: viewUrl.toString(),
-            timeoutMs: Math.min(timeoutMs, 30_000),
-            allowedHostnames,
-            fetchImpl: params.fetchImpl,
-          });
-          if (!imageResult.response.ok) {
-            const text = (await readBytesAndRelease(imageResult, 256 * 1024))
-              .toString("utf8")
-              .trim();
-            throw new Error(
-              `ComfyUI image retrieval failed (${imageResult.response.status} ${imageResult.response.statusText})${text ? `: ${text}` : ""}`,
-            );
-          }
-          const bytes = await readBytesAndRelease(imageResult, maxResponseBytes);
-          return {
-            provider: "comfyui",
-            workflowId: presetId,
-            jobId: promptId,
-            outputs: [{ bytes }],
-          };
-        }
-        if (historyEntry.outputs !== undefined) {
-          throw new Error(
-            `ComfyUI history result for prompt "${promptId}" contained no usable image output.`,
-          );
-        }
+        const bytes = await readBytesAndRelease(imageResult, maxResponseBytes);
+        return {
+          provider: "comfyui",
+          workflowId: presetId,
+          jobId: promptId,
+          outputs: [{ bytes }],
+        };
       }
-      await sleep(pollIntervalMs);
+      if (historyEntry.outputs !== undefined) {
+        throw new Error(
+          `ComfyUI history result for prompt "${promptId}" contained no usable image output.`,
+        );
+      }
     }
-
-    throw new Error(
-      `ComfyUI image generation timed out after ${resolveComfyUiTimeoutSeconds(params.cfg)} seconds.`,
-    );
-  } catch (error) {
-    throw error;
+    await sleep(pollIntervalMs);
   }
+
+  throw new Error(
+    `ComfyUI image generation timed out after ${resolveComfyUiTimeoutSeconds(params.cfg)} seconds.`,
+  );
 }

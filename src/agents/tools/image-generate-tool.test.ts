@@ -470,7 +470,8 @@ describe("image_generate", () => {
   it("times out ComfyUI polling when no completed output arrives", async () => {
     vi.useFakeTimers();
     const fetchImpl = vi.fn((input: RequestInfo | URL) => {
-      const url = typeof input === "string" ? input : input.toString();
+      const url =
+        typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
       if (url.includes("/prompt")) {
         return Promise.resolve(
           new Response(JSON.stringify({ prompt_id: "job-stalled" }), {
