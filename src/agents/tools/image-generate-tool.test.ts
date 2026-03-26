@@ -2,11 +2,13 @@ import fs from "node:fs/promises";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
+import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import "./../test-helpers/fast-core-tools.js";
 import { createOpenClawTools } from "../openclaw-tools.js";
 import { createImageGenerateTool } from "./image-generate-tool.js";
+import { validateGeneratedImageOutput } from "./image-generate.output.js";
 import { generateImageWithComfyUi } from "./image-generate.providers.comfyui.js";
 import { generateImageWithGoogle } from "./image-generate.providers.google.js";
 import { saveGeneratedImage } from "./image-generate.storage.js";
@@ -14,6 +16,8 @@ import { saveGeneratedImage } from "./image-generate.storage.js";
 const PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9VE0Y6sAAAAASUVORK5CYII=";
 const PNG_BYTES = Buffer.from(PNG_BASE64, "base64");
+const GIF_BASE64 = "R0lGODlhAQABAIABAP///wAAACwAAAAAAQABAAACAkQBADs=";
+const GIF_BYTES = Buffer.from(GIF_BASE64, "base64");
 
 async function withTempDir<T>(prefix: string, run: (dir: string) => Promise<T>): Promise<T> {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
@@ -238,6 +242,8 @@ describe("image_generate", () => {
         await expect(fs.access(String(details.localPath))).resolves.toBeUndefined();
         expect(details.fileName).toMatch(/\.png$/);
         expect(details.sizeBytes).toBe(PNG_BYTES.length);
+        expect(details.width).toBe(1);
+        expect(details.height).toBe(1);
       });
     } finally {
       await server.close();
@@ -334,6 +340,70 @@ describe("image_generate", () => {
     }
   });
 
+  it("validates supported generated image formats and rejects truncated payloads", async () => {
+    const jpegBytes = await sharp({
+      create: {
+        width: 1,
+        height: 1,
+        channels: 3,
+        background: "#00ff00",
+      },
+    })
+      .jpeg()
+      .toBuffer();
+    const webpBytes = await sharp({
+      create: {
+        width: 1,
+        height: 1,
+        channels: 3,
+        background: "#0000ff",
+      },
+    })
+      .webp()
+      .toBuffer();
+
+    const validCases = [
+      { mimeType: "image/png", bytes: PNG_BYTES, extension: ".png" },
+      { mimeType: "image/gif", bytes: GIF_BYTES, extension: ".gif" },
+      { mimeType: "image/jpeg", bytes: jpegBytes, extension: ".jpg" },
+      { mimeType: "image/webp", bytes: webpBytes, extension: ".webp" },
+    ] as const;
+
+    for (const testCase of validCases) {
+      const validated = await validateGeneratedImageOutput({
+        provider: "test-provider",
+        output: {
+          bytes: testCase.bytes,
+          providerMimeType: testCase.mimeType,
+        },
+      });
+      expect(validated.mimeType).toBe(testCase.mimeType);
+      expect(validated.extension).toBe(testCase.extension);
+      expect(validated.sizeBytes).toBe(testCase.bytes.length);
+      expect(validated.width).toBe(1);
+      expect(validated.height).toBe(1);
+    }
+
+    const truncatedCases = [
+      { mimeType: "image/png", bytes: PNG_BYTES.subarray(0, PNG_BYTES.length - 12) },
+      { mimeType: "image/gif", bytes: GIF_BYTES.subarray(0, GIF_BYTES.length - 1) },
+      { mimeType: "image/jpeg", bytes: jpegBytes.subarray(0, jpegBytes.length - 2) },
+      { mimeType: "image/webp", bytes: webpBytes.subarray(0, webpBytes.length - 8) },
+    ] as const;
+
+    for (const testCase of truncatedCases) {
+      await expect(
+        validateGeneratedImageOutput({
+          provider: "test-provider",
+          output: {
+            bytes: testCase.bytes,
+            providerMimeType: testCase.mimeType,
+          },
+        }),
+      ).rejects.toThrow(/invalid image bytes/);
+    }
+  });
+
   it("saves a generated ComfyUI image and returns workflow metadata", async () => {
     let submittedWorkflow: Record<string, unknown> | null = null;
     const server = await startJsonServer(async (req, body) => {
@@ -394,6 +464,8 @@ describe("image_generate", () => {
           | undefined;
         expect(promptNode?.inputs?.text).toBe("Studio portrait");
         await expect(fs.access(String(details.localPath))).resolves.toBeUndefined();
+        expect(details.width).toBe(1);
+        expect(details.height).toBe(1);
       });
     } finally {
       await server.close();
