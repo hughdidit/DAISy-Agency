@@ -1621,10 +1621,10 @@ Local onboarding defaults new local configs to `tools.profile: "messaging"` when
 
 | Profile     | Includes                                                                                  |
 | ----------- | ----------------------------------------------------------------------------------------- |
-| `minimal`   | `session_status` only                                                                     |
-| `coding`    | `group:fs`, `group:runtime`, `group:sessions`, `group:memory`, `image`                    |
-| `messaging` | `group:messaging`, `sessions_list`, `sessions_history`, `sessions_send`, `session_status` |
-| `full`      | No restriction (same as unset)                                                            |
+| `minimal`   | `session_status` only                                                                             |
+| `coding`    | `group:fs`, `group:runtime`, `group:sessions`, `group:memory`, `image`, `image_generate`        |
+| `messaging` | `group:messaging`, `sessions_list`, `sessions_history`, `sessions_send`, `session_status`       |
+| `full`      | No restriction (same as unset)                                                                    |
 
 ### Tool groups
 
@@ -1650,6 +1650,16 @@ Global tool allow/deny policy (deny wins). Case-insensitive, supports `*` wildca
   tools: { deny: ["browser", "canvas"] },
 }
 ```
+
+### Image generation
+
+Built-in output image generation is configured under `tools.imageGeneration` and `agents.defaults.imageGenerationModel`.
+
+- Google Nano Banana uses direct Gemini API calls
+- ComfyUI uses a configured HTTP endpoint plus validated presets
+- generated files are written into `<workspace>/generated-images`
+
+See [Image Generation Configuration](/gateway/image-generation) for the full key reference and example config blocks.
 
 ### `tools.byProvider`
 

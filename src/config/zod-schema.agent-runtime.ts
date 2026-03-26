@@ -344,6 +344,71 @@ export const ToolsWebSchema = z
   .strict()
   .optional();
 
+const ComfyUiImageGenerationInputBindingSchema = z
+  .object({
+    nodeId: z.string(),
+    inputName: z.string(),
+  })
+  .strict();
+
+const ComfyUiImageGenerationPresetSchema = z
+  .object({
+    description: z.string().optional(),
+    workflow: z.record(z.string(), z.record(z.string(), z.unknown())),
+    inputs: z
+      .object({
+        prompt: ComfyUiImageGenerationInputBindingSchema,
+        negativePrompt: ComfyUiImageGenerationInputBindingSchema.optional(),
+        seed: ComfyUiImageGenerationInputBindingSchema.optional(),
+        steps: ComfyUiImageGenerationInputBindingSchema.optional(),
+        cfgScale: ComfyUiImageGenerationInputBindingSchema.optional(),
+        width: ComfyUiImageGenerationInputBindingSchema.optional(),
+        height: ComfyUiImageGenerationInputBindingSchema.optional(),
+        sampler: ComfyUiImageGenerationInputBindingSchema.optional(),
+        scheduler: ComfyUiImageGenerationInputBindingSchema.optional(),
+      })
+      .strict(),
+    output: z
+      .object({
+        nodeId: z.string().optional(),
+        imageIndex: z.number().int().nonnegative().optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();
+
+const ToolsImageGenerationSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    defaultProvider: z.union([z.literal("google"), z.literal("comfyui")]).optional(),
+    google: z
+      .object({
+        model: z.string().optional(),
+        timeoutSeconds: z.number().int().positive().optional(),
+        maxInputImages: z.number().int().positive().optional(),
+        maxResponseBytes: z.number().int().positive().optional(),
+      })
+      .strict()
+      .optional(),
+    comfyui: z
+      .object({
+        baseUrl: z.string().optional(),
+        defaultPreset: z.string().optional(),
+        timeoutSeconds: z.number().int().positive().optional(),
+        pollIntervalMs: z.number().int().positive().optional(),
+        allowRemote: z.boolean().optional(),
+        allowedHostnames: z.array(z.string()).optional(),
+        maxRequestBytes: z.number().int().positive().optional(),
+        maxResponseBytes: z.number().int().positive().optional(),
+        presets: z.record(z.string(), ComfyUiImageGenerationPresetSchema).optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict()
+  .optional();
+
 export const ToolProfileSchema = z
   .union([z.literal("minimal"), z.literal("coding"), z.literal("messaging"), z.literal("full")])
   .optional();
@@ -732,6 +797,7 @@ export const ToolsSchema = z
     ...CommonToolPolicyFields,
     web: ToolsWebSchema,
     media: ToolsMediaSchema,
+    imageGeneration: ToolsImageGenerationSchema,
     links: ToolsLinksSchema,
     sessions: z
       .object({
