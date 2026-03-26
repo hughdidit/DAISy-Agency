@@ -313,6 +313,8 @@ export const FIELD_LABELS: Record<string, string> = {
   "skills.load.watchDebounceMs": "Skills Watch Debounce (ms)",
   "agents.defaults.workspace": "Workspace",
   "agents.defaults.imageGenerationModel": "Image Generation Model",
+  "agents.defaults.imageGenerationModel.primary": "Image Generation Model",
+  "agents.defaults.imageGenerationModel.fallbacks": "Image Generation Model Fallbacks",
   "agents.defaults.repoRoot": "Repo Root",
   "agents.defaults.bootstrapMaxChars": "Bootstrap Max Chars",
   "agents.defaults.bootstrapTotalMaxChars": "Bootstrap Total Max Chars",

@@ -73,7 +73,7 @@ export function buildComfyUiWorkflow(params: {
         `ComfyUI preset references missing node "${mapping.nodeId}" for field "${field}".`,
       );
     }
-    const inputs = (node.inputs ??= {});
+    const inputs = node.inputs;
     if (!inputs || typeof inputs !== "object" || Array.isArray(inputs)) {
       throw new Error(
         `ComfyUI preset node "${mapping.nodeId}" does not expose an inputs object for field "${field}".`,

@@ -34,17 +34,6 @@ function buildBaseName(params: { date: Date; requestFingerprint: string; bytes: 
   return `${formatTimestampSlug(params.date)}-${hash}`;
 }
 
-async function sandboxPathExists(params: {
-  sandbox: ImageGenerateSandboxConfig;
-  relativeFilePath: string;
-}): Promise<boolean> {
-  const stat = await params.sandbox.bridge.stat({
-    filePath: params.relativeFilePath,
-    cwd: params.sandbox.root,
-  });
-  return Boolean(stat);
-}
-
 async function writeGeneratedImageSandboxed(params: {
   sandbox: ImageGenerateSandboxConfig;
   relativeFilePath: string;
@@ -64,6 +53,7 @@ async function writeGeneratedImageSandboxed(params: {
     cwd: params.sandbox.root,
     data: params.validated.bytes,
     mkdir: true,
+    exclusive: true,
   });
   return resolved.hostPath;
 }
@@ -90,22 +80,27 @@ export async function saveGeneratedImage(params: {
 
     if (params.sandbox) {
       const relativeFilePath = path.join(GENERATED_IMAGES_DIRNAME, fileName);
-      if (await sandboxPathExists({ sandbox: params.sandbox, relativeFilePath })) {
-        continue;
+      try {
+        const savedPath = await writeGeneratedImageSandboxed({
+          sandbox: params.sandbox,
+          relativeFilePath,
+          validated: params.validated,
+        });
+        return {
+          localPath: savedPath,
+          fileName,
+          mimeType: params.validated.mimeType,
+          sizeBytes: params.validated.sizeBytes,
+          width: params.validated.width,
+          height: params.validated.height,
+        };
+      } catch (error) {
+        const nodeError = error as NodeJS.ErrnoException;
+        if (nodeError?.code === "EEXIST") {
+          continue;
+        }
+        throw error;
       }
-      const savedPath = await writeGeneratedImageSandboxed({
-        sandbox: params.sandbox,
-        relativeFilePath,
-        validated: params.validated,
-      });
-      return {
-        localPath: savedPath,
-        fileName,
-        mimeType: params.validated.mimeType,
-        sizeBytes: params.validated.sizeBytes,
-        width: params.validated.width,
-        height: params.validated.height,
-      };
     }
 
     await fs.mkdir(outputDir, { recursive: true });

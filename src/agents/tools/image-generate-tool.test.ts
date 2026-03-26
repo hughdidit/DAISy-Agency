@@ -190,8 +190,11 @@ describe("image_generate", () => {
 
   it("saves a generated Google image and uses the configured model id", async () => {
     const requests: string[] = [];
+    const requestApiKeys: string[] = [];
     const server = await startJsonServer(async (req) => {
       requests.push(req.url ?? "");
+      const apiKeyHeader = req.headers["x-goog-api-key"];
+      requestApiKeys.push(Array.isArray(apiKeyHeader) ? apiKeyHeader[0] : (apiKeyHeader ?? ""));
       return {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -227,6 +230,8 @@ describe("image_generate", () => {
         } as never);
         const details = result.details as Record<string, unknown>;
         expect(requests[0]).toContain("/models/custom-google-model:generateContent");
+        expect(requests[0]).not.toContain("?key=");
+        expect(requestApiKeys[0]).toBe("test-gemini");
         expect(details.provider).toBe("google");
         expect(details.model).toBe("custom-google-model");
         expect(typeof details.localPath).toBe("string");
@@ -330,8 +335,10 @@ describe("image_generate", () => {
   });
 
   it("saves a generated ComfyUI image and returns workflow metadata", async () => {
-    const server = await startJsonServer(async (req) => {
+    let submittedWorkflow: Record<string, unknown> | null = null;
+    const server = await startJsonServer(async (req, body) => {
       if (req.url?.startsWith("/prompt")) {
+        submittedWorkflow = JSON.parse(body) as Record<string, unknown>;
         return {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt_id: "job-1" }),
@@ -381,6 +388,11 @@ describe("image_generate", () => {
         expect(details.provider).toBe("comfyui");
         expect(details.workflowId).toBe("portrait");
         expect(details.jobId).toBe("job-1");
+        const promptWorkflow = submittedWorkflow?.prompt as Record<string, unknown> | undefined;
+        const promptNode = promptWorkflow?.["1"] as
+          | { inputs?: Record<string, unknown> }
+          | undefined;
+        expect(promptNode?.inputs?.text).toBe("Studio portrait");
         await expect(fs.access(String(details.localPath))).resolves.toBeUndefined();
       });
     } finally {

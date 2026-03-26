@@ -259,6 +259,19 @@ describe("config schema regressions", () => {
 
     expect(res.ok).toBe(true);
   });
+
+  it("rejects enabled image generation without any provider config", () => {
+    const res = validateConfigObject({
+      tools: {
+        imageGeneration: {
+          enabled: true,
+        },
+      },
+    });
+
+    expect(res.ok).toBe(false);
+  });
+
   it("accepts browser.extraArgs for proxy and custom flags", () => {
     const res = validateConfigObject({
       browser: {

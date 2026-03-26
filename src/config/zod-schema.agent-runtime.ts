@@ -407,6 +407,39 @@ const ToolsImageGenerationSchema = z
       .optional(),
   })
   .strict()
+  .superRefine((value, ctx) => {
+    const hasGoogle = value.google !== undefined;
+    const hasComfyui = value.comfyui !== undefined;
+
+    if (
+      (value.enabled === true || value.defaultProvider !== undefined) &&
+      !hasGoogle &&
+      !hasComfyui
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["enabled"],
+        message:
+          "tools.imageGeneration requires at least one provider config (google or comfyui) when enabled or selecting a default provider.",
+      });
+    }
+
+    if (value.defaultProvider === "google" && !hasGoogle) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["defaultProvider"],
+        message: 'defaultProvider "google" requires tools.imageGeneration.google.',
+      });
+    }
+
+    if (value.defaultProvider === "comfyui" && !hasComfyui) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["defaultProvider"],
+        message: 'defaultProvider "comfyui" requires tools.imageGeneration.comfyui.',
+      });
+    }
+  })
   .optional();
 
 export const ToolProfileSchema = z

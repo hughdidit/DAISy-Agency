@@ -757,6 +757,10 @@ export const FIELD_HELP: Record<string, string> = {
     "Default workspace path exposed to agent runtime tools for filesystem context and repo-aware behavior. Set this explicitly when running from wrappers so path resolution stays deterministic.",
   "agents.defaults.imageGenerationModel":
     "Default image generation model selection for the image_generate tool. Use google/<model-id> for Nano Banana or comfyui/<preset-id> for preset-backed ComfyUI rendering.",
+  "agents.defaults.imageGenerationModel.primary":
+    "Primary image generation model (provider/model) for the image_generate tool. Use google/<model-id> for Nano Banana or comfyui/<preset-id> for a configured ComfyUI preset.",
+  "agents.defaults.imageGenerationModel.fallbacks":
+    "Ordered fallback image generation models (provider/model) checked after the primary imageGenerationModel.",
   "agents.defaults.bootstrapMaxChars":
     "Max characters of each workspace bootstrap file injected into the system prompt before truncation (default: 20000).",
   "agents.defaults.bootstrapTotalMaxChars":

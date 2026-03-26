@@ -126,7 +126,11 @@ export function resolveConfiguredImageGenerationProvider(
 export function parseImageGenerationModelRef(
   raw: string,
 ): { provider: ImageGenerationProvider; id: string } | null {
-  const parsed = parseModelRef(raw, "google");
+  const trimmed = raw.trim();
+  if (!trimmed.includes("/")) {
+    return null;
+  }
+  const parsed = parseModelRef(trimmed, "google");
   if (!parsed || !isImageGenerationProvider(parsed.provider)) {
     return null;
   }
@@ -284,7 +288,6 @@ export function resolveComfyUiPreset(params: {
 }
 
 export function resolveAvailableImageGenerationProviders(params: {
-  cfg?: OpenClawConfig;
   googleAvailable: boolean;
   comfyuiAvailable: boolean;
 }): ImageGenerationProvider[] {

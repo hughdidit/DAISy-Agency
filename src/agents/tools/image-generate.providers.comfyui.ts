@@ -36,6 +36,9 @@ function resolveComfyUiBaseUrl(cfg?: OpenClawConfig): URL {
   if (!["http:", "https:"].includes(parsed.protocol)) {
     throw new Error("ComfyUI base URL must use http or https.");
   }
+  if (!parsed.pathname.endsWith("/")) {
+    parsed.pathname = `${parsed.pathname}/`;
+  }
   return parsed;
 }
 
@@ -43,9 +46,9 @@ function resolveComfyUiAllowedHostnames(cfg?: OpenClawConfig): string[] {
   const comfy = cfg?.tools?.imageGeneration?.comfyui;
   const configured = comfy?.allowedHostnames?.map((entry) => entry.trim()).filter(Boolean) ?? [];
   if (comfy?.allowRemote === true) {
-    return configured;
+    return configured.length > 0 ? configured : DEFAULT_LOCAL_COMFYUI_HOSTNAMES;
   }
-  return configured.length > 0 ? configured : DEFAULT_LOCAL_COMFYUI_HOSTNAMES;
+  return DEFAULT_LOCAL_COMFYUI_HOSTNAMES;
 }
 
 function assertComfyUiTargetAllowed(baseUrl: URL, cfg?: OpenClawConfig): string[] {
@@ -204,7 +207,7 @@ export async function generateImageWithComfyUi(params: {
   }
 
   const submitResult = await guardedFetch({
-    url: new URL("/prompt", baseUrl).toString(),
+    url: new URL("prompt", baseUrl).toString(),
     timeoutMs,
     allowedHostnames,
     fetchImpl: params.fetchImpl,
@@ -222,7 +225,10 @@ export async function generateImageWithComfyUi(params: {
       `ComfyUI workflow submission failed (${submitResult.response.status} ${submitResult.response.statusText})${text ? `: ${text}` : ""}`,
     );
   }
-  const submitted = (await readJsonAndRelease(submitResult, 256 * 1024)) as Record<string, unknown>;
+  const submitted = await readJsonAndRelease(submitResult, 256 * 1024);
+  if (!isRecord(submitted)) {
+    throw new Error("ComfyUI workflow submission returned a malformed response.");
+  }
   const promptId =
     typeof submitted.prompt_id === "string"
       ? submitted.prompt_id
@@ -234,10 +240,14 @@ export async function generateImageWithComfyUi(params: {
   }
 
   const deadline = Date.now() + timeoutMs;
-  while (Date.now() <= deadline) {
+  while (true) {
+    const remainingMs = deadline - Date.now();
+    if (remainingMs <= 0) {
+      break;
+    }
     const historyResult = await guardedFetch({
-      url: new URL(`/history/${encodeURIComponent(promptId)}`, baseUrl).toString(),
-      timeoutMs: Math.min(timeoutMs, pollIntervalMs * 4),
+      url: new URL(`history/${encodeURIComponent(promptId)}`, baseUrl).toString(),
+      timeoutMs: Math.max(1, Math.min(remainingMs, pollIntervalMs * 4)),
       allowedHostnames,
       fetchImpl: params.fetchImpl,
     });
@@ -265,7 +275,7 @@ export async function generateImageWithComfyUi(params: {
       }
       if (images.length === 1) {
         const image = images[0];
-        const viewUrl = new URL("/view", baseUrl);
+        const viewUrl = new URL("view", baseUrl);
         viewUrl.searchParams.set("filename", image.filename);
         if (image.subfolder) {
           viewUrl.searchParams.set("subfolder", image.subfolder);
@@ -275,7 +285,7 @@ export async function generateImageWithComfyUi(params: {
         }
         const imageResult = await guardedFetch({
           url: viewUrl.toString(),
-          timeoutMs: Math.min(timeoutMs, 30_000),
+          timeoutMs: Math.max(1, Math.min(deadline - Date.now(), 30_000)),
           allowedHostnames,
           fetchImpl: params.fetchImpl,
         });
@@ -299,7 +309,10 @@ export async function generateImageWithComfyUi(params: {
         );
       }
     }
-    await sleep(pollIntervalMs);
+    const sleepMs = Math.min(pollIntervalMs, deadline - Date.now());
+    if (sleepMs > 0) {
+      await sleep(sleepMs);
+    }
   }
 
   throw new Error(

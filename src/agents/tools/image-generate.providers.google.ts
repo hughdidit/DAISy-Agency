@@ -19,6 +19,29 @@ type GeminiInlineData = {
   mime_type?: string;
 };
 
+function bufferLooksLikeImage(bytes: Buffer): boolean {
+  return (
+    (bytes.length >= 8 &&
+      bytes[0] === 0x89 &&
+      bytes[1] === 0x50 &&
+      bytes[2] === 0x4e &&
+      bytes[3] === 0x47 &&
+      bytes[4] === 0x0d &&
+      bytes[5] === 0x0a &&
+      bytes[6] === 0x1a &&
+      bytes[7] === 0x0a) ||
+    (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) ||
+    (bytes.length >= 4 &&
+      bytes[0] === 0x47 &&
+      bytes[1] === 0x49 &&
+      bytes[2] === 0x46 &&
+      bytes[3] === 0x38) ||
+    (bytes.length >= 12 &&
+      bytes.subarray(0, 4).equals(Buffer.from("RIFF")) &&
+      bytes.subarray(8, 12).equals(Buffer.from("WEBP")))
+  );
+}
+
 function withAbortTimeout(timeoutMs: number): {
   signal: AbortSignal;
   cleanup: () => void;
@@ -66,17 +89,25 @@ function collectInlineImageParts(value: unknown, output: GeminiInlineData[]): vo
 function extractGoogleInlineImages(json: unknown): Array<{ bytes: Buffer; mimeType?: string }> {
   const inlineImages: GeminiInlineData[] = [];
   collectInlineImageParts(json, inlineImages);
-  return inlineImages
-    .filter((entry) => typeof entry.data === "string" && entry.data.trim().length > 0)
-    .map((entry) => ({
-      bytes: Buffer.from(entry.data!.trim(), "base64"),
-      mimeType:
-        typeof entry.mimeType === "string"
-          ? entry.mimeType
-          : typeof entry.mime_type === "string"
-            ? entry.mime_type
-            : undefined,
-    }));
+  return inlineImages.flatMap((entry) => {
+    if (typeof entry.data !== "string") {
+      return [];
+    }
+    const data = entry.data.trim();
+    if (!data) {
+      return [];
+    }
+    const mimeType =
+      typeof entry.mimeType === "string"
+        ? entry.mimeType
+        : typeof entry.mime_type === "string"
+          ? entry.mime_type
+          : undefined;
+    const bytes = Buffer.from(data, "base64");
+    const declaredAsImage = mimeType ? mimeType.toLowerCase().startsWith("image/") : true;
+    const looksLikeImage = bufferLooksLikeImage(bytes);
+    return declaredAsImage && looksLikeImage && bytes.length > 0 ? [{ bytes, mimeType }] : [];
+  });
 }
 
 function extractGoogleErrorMessage(body: string): string | undefined {
@@ -140,11 +171,12 @@ export async function generateImageWithGoogle(params: {
   const { signal, cleanup } = withAbortTimeout(timeoutMs);
   try {
     const response = await fetchImpl(
-      `${baseUrl}/v1beta/models/${encodeURIComponent(modelId)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+      `${baseUrl}/v1beta/models/${encodeURIComponent(modelId)}:generateContent`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
         },
         body: JSON.stringify(requestBody),
         signal,

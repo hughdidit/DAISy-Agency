@@ -10,7 +10,6 @@ import {
   readStringParam,
   ToolInputError,
 } from "./common.js";
-import { buildComfyUiWorkflow } from "./image-generate.comfyui-preset.js";
 import {
   selectSingleGeneratedOutput,
   validateGeneratedImageOutput,
@@ -102,7 +101,7 @@ function resolveEffectiveProvider(params: {
 
   if (params.hasInputImages) {
     if (!params.availableProviders.includes("google")) {
-      throw new Error(
+      throw new ToolInputError(
         "Google image generation is required for input-image requests, but Google is not configured.",
       );
     }
@@ -118,7 +117,7 @@ function resolveEffectiveProvider(params: {
     return params.availableProviders[0];
   }
 
-  throw new Error(
+  throw new ToolInputError(
     "image_generate provider is ambiguous. Set tools.imageGeneration.defaultProvider, agents.defaults.imageGenerationModel, or pass provider/model explicitly.",
   );
 }
@@ -239,7 +238,6 @@ export function createImageGenerateTool(options?: {
     Boolean(comfyuiConfig?.presets && Object.keys(comfyuiConfig.presets).length > 0);
 
   const availableProviders = resolveAvailableImageGenerationProviders({
-    cfg: options?.config,
     googleAvailable,
     comfyuiAvailable,
   });
@@ -308,13 +306,15 @@ export function createImageGenerateTool(options?: {
       });
 
       if (provider === "comfyui" && imageInputs.length > 0) {
-        throw new Error("ComfyUI input-image editing is not supported in image_generate v1.");
+        throw new ToolInputError(
+          "ComfyUI input-image editing is not supported in image_generate v1.",
+        );
       }
 
       if (provider === "google") {
         const maxInputImages = resolveGoogleImageGenerationMaxInputImages(options?.config);
         if (imageInputs.length > maxInputImages) {
-          throw new Error(
+          throw new ToolInputError(
             `Too many input images: ${imageInputs.length}. Google image generation allows at most ${maxInputImages}.`,
           );
         }
@@ -339,17 +339,6 @@ export function createImageGenerateTool(options?: {
         inputImages,
         comfyui: parseComfyUiOverrides(params),
       };
-
-      if (provider === "comfyui") {
-        buildComfyUiWorkflow({
-          preset: resolveComfyUiPreset({
-            cfg: options?.config,
-            presetOverride: preset,
-            modelOverride: requestedModel,
-          }).preset,
-          request,
-        });
-      }
 
       const adapterResult =
         provider === "google"

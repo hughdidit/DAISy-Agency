@@ -52,6 +52,7 @@ export type SandboxFsBridge = {
     data: Buffer | string;
     encoding?: BufferEncoding;
     mkdir?: boolean;
+    exclusive?: boolean;
     signal?: AbortSignal;
   }): Promise<void>;
   mkdirp(params: { filePath: string; cwd?: string; signal?: AbortSignal }): Promise<void>;
@@ -117,6 +118,7 @@ class SandboxFsBridgeImpl implements SandboxFsBridge {
     data: Buffer | string;
     encoding?: BufferEncoding;
     mkdir?: boolean;
+    exclusive?: boolean;
     signal?: AbortSignal;
   }): Promise<void> {
     const target = this.resolveResolvedPath(params);
@@ -125,6 +127,59 @@ class SandboxFsBridgeImpl implements SandboxFsBridge {
     const buffer = Buffer.isBuffer(params.data)
       ? params.data
       : Buffer.from(params.data, params.encoding ?? "utf8");
+    if (params.exclusive === true) {
+      const result = await this.runCheckedCommand({
+        checks: [{ target, options: { action: "write files", requireWritable: true } }],
+        recheckBeforeCommand: true,
+        script: (params.mkdir
+          ? [
+              "set -eu",
+              'target="$1"',
+              'dir=$(dirname -- "$target")',
+              'if [ "$dir" != "." ]; then mkdir -p -- "$dir"; fi',
+              'base=$(basename -- "$target")',
+              'tmp=$(mktemp "$dir/.openclaw-write-$base.XXXXXX")',
+              'cleanup() { rm -f -- "$tmp"; }',
+              "trap cleanup EXIT",
+              'cat >"$tmp"',
+              'ln -- "$tmp" "$target"',
+              "trap - EXIT",
+              'rm -f -- "$tmp"',
+            ]
+          : [
+              "set -eu",
+              'target="$1"',
+              'dir=$(dirname -- "$target")',
+              'base=$(basename -- "$target")',
+              'tmp=$(mktemp "$dir/.openclaw-write-$base.XXXXXX")',
+              'cleanup() { rm -f -- "$tmp"; }',
+              "trap cleanup EXIT",
+              'cat >"$tmp"',
+              'ln -- "$tmp" "$target"',
+              "trap - EXIT",
+              'rm -f -- "$tmp"',
+            ]
+        ).join("\n"),
+        args: [target.containerPath],
+        stdin: buffer,
+        signal: params.signal,
+        allowFailure: true,
+      });
+      if (result.code !== 0) {
+        const stderr = result.stderr.toString("utf8").trim();
+        if (/File exists/i.test(stderr)) {
+          const error = new Error(
+            `Sandbox file already exists: ${target.containerPath}`,
+          ) as NodeJS.ErrnoException;
+          error.code = "EEXIST";
+          throw error;
+        }
+        throw new Error(
+          `Sandbox write failed for ${target.containerPath}: ${stderr || `exit code ${result.code}`}`,
+        );
+      }
+      return;
+    }
     const tempPath = await this.writeFileToTempPath({
       targetContainerPath: target.containerPath,
       mkdir: params.mkdir !== false,

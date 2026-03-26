@@ -55,11 +55,15 @@ export async function validateGeneratedImageOutput(params: {
     extension,
     sizeBytes: bytes.length,
     width:
-      typeof params.output.width === "number" && Number.isFinite(params.output.width)
+      typeof params.output.width === "number" &&
+      Number.isInteger(params.output.width) &&
+      params.output.width > 0
         ? params.output.width
         : (metadata.width ?? undefined),
     height:
-      typeof params.output.height === "number" && Number.isFinite(params.output.height)
+      typeof params.output.height === "number" &&
+      Number.isInteger(params.output.height) &&
+      params.output.height > 0
         ? params.output.height
         : (metadata.height ?? undefined),
   };
