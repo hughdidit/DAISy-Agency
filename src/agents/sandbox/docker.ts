@@ -244,7 +244,7 @@ async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | nul
       [
         "inspect",
         "-f",
-        '{{range .Mounts}}{{println .Type "|" .Source "|" .Destination}}{{end}}',
+        "{{json .Mounts}}",
         selfIdentifier,
       ],
       { allowFailure: true },
@@ -253,19 +253,23 @@ async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | nul
       return null;
     }
 
-    const mounts = result.stdout
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => {
-        const [type, source, destination] = line.split("|").map((part) => part.trim());
-        return { type, source, destination };
-      })
+    let parsed: Array<{ Type?: string; Source?: string; Destination?: string }>;
+    try {
+      parsed = JSON.parse(result.stdout.trim()) as Array<{
+        Type?: string;
+        Source?: string;
+        Destination?: string;
+      }>;
+    } catch {
+      return null;
+    }
+
+    const mounts = parsed
       .filter(
-        (entry): entry is { type: string; source: string; destination: string } =>
-          entry.type === "bind" && Boolean(entry.source) && Boolean(entry.destination),
+        (entry): entry is { Type: string; Source: string; Destination: string } =>
+          entry.Type === "bind" && Boolean(entry.Source) && Boolean(entry.Destination),
       )
-      .map(({ source, destination }) => ({ source, destination }));
+      .map(({ Source, Destination }) => ({ source: Source, destination: Destination }));
     return mounts;
   })();
 

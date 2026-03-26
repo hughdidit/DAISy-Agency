@@ -206,4 +206,20 @@ describe("ensureSandboxBrowser create args", () => {
     expect(createArgs).toContain("/tmp/workspace:/workspace");
     expect(createArgs).not.toContain("/tmp/workspace:/workspace:ro");
   });
+
+  it("adds custom browser binds only once", async () => {
+    const cfg = buildConfig(false);
+    cfg.docker.binds = ["/tmp/browser-cache:/cache:rw"];
+
+    await ensureSandboxBrowser({
+      scopeKey: "session:test",
+      workspaceDir: "/tmp/workspace",
+      agentWorkspaceDir: "/tmp/workspace",
+      cfg,
+    });
+
+    const createArgs = findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create");
+    const bindArgs = collectDockerFlagValues(createArgs ?? [], "-v");
+    expect(bindArgs.filter((entry) => entry === "/tmp/browser-cache:/cache:rw")).toHaveLength(1);
+  });
 });
