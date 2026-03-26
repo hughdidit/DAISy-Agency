@@ -207,7 +207,7 @@ export function remapContainerPathToHostPath(
       const destination = normalizeContainerMountPath(mount.destination);
       return normalizedTarget === destination || normalizedTarget.startsWith(`${destination}/`);
     })
-    .sort(
+    .toSorted(
       (left, right) =>
         normalizeContainerMountPath(right.destination).length -
         normalizeContainerMountPath(left.destination).length,
