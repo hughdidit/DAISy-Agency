@@ -109,6 +109,22 @@ describe("config schema regressions", () => {
         defaults: {
           model: "anthropic/claude-opus-4-6",
           imageModel: "openai/gpt-4.1-mini",
+          imageGenerationModel: "google/gemini-2.5-flash-image",
+        },
+      },
+    });
+
+    expect(res.ok).toBe(true);
+  });
+
+  it("accepts structured image generation default model config", () => {
+    const res = validateConfigObject({
+      agents: {
+        defaults: {
+          imageGenerationModel: {
+            primary: "comfyui/portrait",
+            fallbacks: ["google/gemini-2.5-flash-image"],
+          },
         },
       },
     });
@@ -191,6 +207,71 @@ describe("config schema regressions", () => {
 
     expect(res.ok).toBe(true);
   });
+
+  it("accepts image generation tool config for google and comfyui", () => {
+    const res = validateConfigObject({
+      tools: {
+        imageGeneration: {
+          enabled: true,
+          defaultProvider: "google",
+          google: {
+            model: "gemini-2.5-flash-image",
+            timeoutSeconds: 120,
+            maxInputImages: 4,
+            maxResponseBytes: 10485760,
+          },
+          comfyui: {
+            baseUrl: "http://127.0.0.1:8188",
+            defaultPreset: "portrait",
+            timeoutSeconds: 90,
+            pollIntervalMs: 1000,
+            allowRemote: false,
+            allowedHostnames: ["127.0.0.1"],
+            maxRequestBytes: 262144,
+            maxResponseBytes: 10485760,
+            presets: {
+              portrait: {
+                description: "Portrait preset",
+                workflow: {
+                  "1": {
+                    class_type: "CLIPTextEncode",
+                    inputs: {
+                      text: "placeholder",
+                    },
+                  },
+                },
+                inputs: {
+                  prompt: {
+                    nodeId: "1",
+                    inputName: "text",
+                  },
+                },
+                output: {
+                  nodeId: "1",
+                  imageIndex: 0,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(res.ok).toBe(true);
+  });
+
+  it("rejects enabled image generation without any provider config", () => {
+    const res = validateConfigObject({
+      tools: {
+        imageGeneration: {
+          enabled: true,
+        },
+      },
+    });
+
+    expect(res.ok).toBe(false);
+  });
+
   it("accepts browser.extraArgs for proxy and custom flags", () => {
     const res = validateConfigObject({
       browser: {

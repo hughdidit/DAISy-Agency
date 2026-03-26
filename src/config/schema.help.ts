@@ -550,6 +550,58 @@ export const FIELD_HELP: Record<string, string> = {
     "Ordered model preferences specifically for video understanding before shared media fallback applies. Prioritize models with strong multimodal video support to minimize degraded summaries.",
   "tools.media.video.scope":
     "Scope selector controlling when video understanding is attempted across incoming events. Narrow scope in noisy channels, and broaden only where video interpretation is core to workflow.",
+  "tools.imageGeneration":
+    "Output-oriented image generation settings for the built-in image_generate tool. This tool creates and saves image artifacts; it does not analyze existing images.",
+  "tools.imageGeneration.enabled":
+    "Enable the built-in image_generate tool when at least one provider is correctly configured. Set false to hide the tool entirely.",
+  "tools.imageGeneration.defaultProvider":
+    'Preferred provider when both Google and ComfyUI are available and the tool call does not specify one. Valid values: "google" or "comfyui".',
+  "tools.imageGeneration.google":
+    "Google Nano Banana image generation settings for direct Gemini API calls. Auth must resolve through the normal Google provider credential path; there is no skill fallback.",
+  "tools.imageGeneration.google.model":
+    "Default Google image-generation model id without the provider prefix. Keep this centrally configured so future Nano Banana model upgrades do not require code changes.",
+  "tools.imageGeneration.google.timeoutSeconds":
+    "Hard timeout for Google image generation requests in seconds. Values above 120 are clamped to 120 for fail-safe behavior.",
+  "tools.imageGeneration.google.maxInputImages":
+    "Maximum number of optional input images accepted for Google edit/composition requests. Keep this bounded to control request size and provider behavior.",
+  "tools.imageGeneration.google.maxResponseBytes":
+    "Maximum response payload size accepted from Google before parsing. Use a bounded value so image generation cannot return arbitrarily large bodies.",
+  "tools.imageGeneration.comfyui":
+    "ComfyUI integration settings for local or explicitly allowlisted remote rendering. v1 only supports validated presets, not arbitrary workflow JSON from tool calls.",
+  "tools.imageGeneration.comfyui.baseUrl":
+    "Base URL for the ComfyUI HTTP server reachable from the Linux VM, for example http://127.0.0.1:8188. This must be explicitly configured.",
+  "tools.imageGeneration.comfyui.defaultPreset":
+    "Default preset id used when the image_generate call does not pass preset or model. Keep this aligned with one of the configured presets below.",
+  "tools.imageGeneration.comfyui.timeoutSeconds":
+    "Bounded overall timeout for ComfyUI submit, poll, and retrieve flow in seconds. Values above 300 are clamped to 300.",
+  "tools.imageGeneration.comfyui.pollIntervalMs":
+    "Polling interval in milliseconds for ComfyUI history checks. Use a bounded value to avoid tight loops while still surfacing results quickly.",
+  "tools.imageGeneration.comfyui.allowRemote":
+    "Allow non-local ComfyUI targets only when you explicitly trust the remote host and have allowlisted it. Default false preserves least privilege.",
+  "tools.imageGeneration.comfyui.allowedHostnames":
+    "Exact hostnames allowed for ComfyUI requests. When allowRemote is false, keep this limited to loopback or other local hostnames only.",
+  "tools.imageGeneration.comfyui.maxRequestBytes":
+    "Maximum serialized workflow payload size in bytes accepted before submitting a ComfyUI job. This bounds preset expansion and override growth.",
+  "tools.imageGeneration.comfyui.maxResponseBytes":
+    "Maximum response payload size in bytes accepted from ComfyUI history and image retrieval endpoints.",
+  "tools.imageGeneration.comfyui.presets":
+    "Validated ComfyUI preset registry keyed by preset id. Each preset contains a workflow template plus explicit input mappings for the only runtime fields image_generate may patch in v1.",
+  "tools.imageGeneration.comfyui.presets.*.description":
+    "Human-readable description of the preset for operator documentation and config readability.",
+  "tools.imageGeneration.comfyui.presets.*.workflow":
+    "ComfyUI workflow JSON template submitted to /prompt after allowed inputs are patched. Keep this preset bounded and deterministic.",
+  "tools.imageGeneration.comfyui.presets.*.inputs":
+    "Mapping from image_generate request fields to specific ComfyUI node inputs. Only mapped fields can be modified at runtime.",
+  "tools.imageGeneration.comfyui.presets.*.inputs.*.nodeId":
+    "ComfyUI workflow node id that should receive the mapped runtime value.",
+  "tools.imageGeneration.comfyui.presets.*.inputs.*.inputName":
+    "Exact input key on the mapped ComfyUI node that will be overwritten at runtime.",
+  "tools.imageGeneration.comfyui.presets.*.output":
+    "Optional deterministic output selection for single-image v1 behavior. Use this when the workflow can emit more than one image candidate.",
+  "tools.imageGeneration.comfyui.presets.*.output.nodeId":
+    "Specific ComfyUI output node id to read from history when multiple nodes emit images.",
+  "tools.imageGeneration.comfyui.presets.*.output.imageIndex":
+    "Specific image index within the selected output node to use as the single v1 result.",
   "skills.load.watch":
     "Enable filesystem watching for skill-definition changes so updates can be applied without full process restart. Keep enabled in development workflows and disable in immutable production images.",
   "skills.load.watchDebounceMs":
@@ -703,6 +755,12 @@ export const FIELD_HELP: Record<string, string> = {
   "auth.cooldowns.failureWindowHours": "Failure window (hours) for backoff counters (default: 24).",
   "agents.defaults.workspace":
     "Default workspace path exposed to agent runtime tools for filesystem context and repo-aware behavior. Set this explicitly when running from wrappers so path resolution stays deterministic.",
+  "agents.defaults.imageGenerationModel":
+    "Default image generation model selection for the image_generate tool. Use google/<model-id> for Nano Banana or comfyui/<preset-id> for preset-backed ComfyUI rendering.",
+  "agents.defaults.imageGenerationModel.primary":
+    "Primary image generation model (provider/model) for the image_generate tool. Use google/<model-id> for Nano Banana or comfyui/<preset-id> for a configured ComfyUI preset.",
+  "agents.defaults.imageGenerationModel.fallbacks":
+    "Ordered fallback image generation models (provider/model) checked after the primary imageGenerationModel.",
   "agents.defaults.bootstrapMaxChars":
     "Max characters of each workspace bootstrap file injected into the system prompt before truncation (default: 20000).",
   "agents.defaults.bootstrapTotalMaxChars":

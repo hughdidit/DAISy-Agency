@@ -218,6 +218,14 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     includeInOpenClawGroup: true,
   },
   {
+    id: "image_generate",
+    label: "image_generate",
+    description: "Generate image artifacts",
+    sectionId: "media",
+    profiles: ["coding"],
+    includeInOpenClawGroup: true,
+  },
+  {
     id: "image",
     label: "image",
     description: "Image understanding",

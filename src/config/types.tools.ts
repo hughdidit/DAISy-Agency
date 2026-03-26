@@ -128,6 +128,72 @@ export type LinkToolsConfig = {
   models?: LinkModelConfig[];
 };
 
+export type ComfyUiImageGenerationInputBindingConfig = {
+  nodeId: string;
+  inputName: string;
+};
+
+export type ComfyUiImageGenerationPresetConfig = {
+  /** Human-readable description shown in config/docs. */
+  description?: string;
+  /** Validated ComfyUI workflow JSON template submitted to /prompt. */
+  workflow: Record<string, Record<string, unknown>>;
+  /** Allowed runtime field patches mapped to node input names. */
+  inputs: {
+    prompt: ComfyUiImageGenerationInputBindingConfig;
+    negativePrompt?: ComfyUiImageGenerationInputBindingConfig;
+    seed?: ComfyUiImageGenerationInputBindingConfig;
+    steps?: ComfyUiImageGenerationInputBindingConfig;
+    cfgScale?: ComfyUiImageGenerationInputBindingConfig;
+    width?: ComfyUiImageGenerationInputBindingConfig;
+    height?: ComfyUiImageGenerationInputBindingConfig;
+    sampler?: ComfyUiImageGenerationInputBindingConfig;
+    scheduler?: ComfyUiImageGenerationInputBindingConfig;
+  };
+  /** Optional deterministic output selection for single-image v1 behavior. */
+  output?: {
+    nodeId?: string;
+    imageIndex?: number;
+  };
+};
+
+export type ImageGenerationToolsConfig = {
+  /** Enable the built-in image_generate output tool. */
+  enabled?: boolean;
+  /** Default provider when both Google and ComfyUI are configured. */
+  defaultProvider?: "google" | "comfyui";
+  google?: {
+    /** Default Google Nano Banana model id (no provider prefix). */
+    model?: string;
+    /** Hard-capped at 120 seconds. */
+    timeoutSeconds?: number;
+    /** Bound optional input images for edit/composition requests. */
+    maxInputImages?: number;
+    /** Maximum response payload size accepted from Google. */
+    maxResponseBytes?: number;
+  };
+  comfyui?: {
+    /** Local ComfyUI HTTP endpoint reachable from the Linux VM. */
+    baseUrl?: string;
+    /** Default preset id used when the tool call does not supply one. */
+    defaultPreset?: string;
+    /** Total job timeout in seconds. */
+    timeoutSeconds?: number;
+    /** Poll interval for history checks in milliseconds. */
+    pollIntervalMs?: number;
+    /** Allow non-local ComfyUI targets when explicitly allowlisted. */
+    allowRemote?: boolean;
+    /** Exact hostnames allowed for ComfyUI fetches. */
+    allowedHostnames?: string[];
+    /** Maximum serialized workflow request size. */
+    maxRequestBytes?: number;
+    /** Maximum response payload size for history/view endpoints. */
+    maxResponseBytes?: number;
+    /** Preset registry keyed by preset id. */
+    presets?: Record<string, ComfyUiImageGenerationPresetConfig>;
+  };
+};
+
 export type MediaToolsConfig = {
   /** Shared model list applied across image/audio/video. */
   models?: MediaUnderstandingModelConfig[];
@@ -521,6 +587,7 @@ export type ToolsConfig = {
     };
   };
   media?: MediaToolsConfig;
+  imageGeneration?: ImageGenerationToolsConfig;
   links?: LinkToolsConfig;
   /** Message tool configuration. */
   message?: {

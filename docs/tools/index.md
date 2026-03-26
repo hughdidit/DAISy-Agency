@@ -37,7 +37,7 @@ Per-agent override: `agents.list[].tools.profile`.
 Profiles:
 
 - `minimal`: `session_status` only
-- `coding`: `group:fs`, `group:runtime`, `group:sessions`, `group:memory`, `image`
+- `coding`: `group:fs`, `group:runtime`, `group:sessions`, `group:memory`, `image`, `image_generate`
 - `messaging`: `group:messaging`, `sessions_list`, `sessions_history`, `sessions_send`, `session_status`
 - `full`: no restriction (same as unset)
 
@@ -396,6 +396,16 @@ Notes:
 
 - Only available when `agents.defaults.imageModel` is configured (primary or fallbacks), or when an implicit image model can be inferred from your default model + configured auth (best-effort pairing).
 - Uses the image model directly (independent of the main chat model).
+
+### `image_generate`
+
+Generate one image artifact and save it into the workspace.
+
+- Output-oriented tool, not an analysis tool
+- Supports Google Nano Banana and validated ComfyUI presets
+- Returns `MEDIA:<localPath>` plus file metadata for downstream delivery
+
+For full behavior, config, limits, and examples, see [Image Generate tool](/tools/image-generate).
 
 ### `pdf`
 

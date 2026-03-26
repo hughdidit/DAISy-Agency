@@ -10,6 +10,7 @@ import { createCanvasTool } from "./tools/canvas-tool.js";
 import type { AnyAgentTool } from "./tools/common.js";
 import { createCronTool } from "./tools/cron-tool.js";
 import { createGatewayTool } from "./tools/gateway-tool.js";
+import { createImageGenerateTool } from "./tools/image-generate-tool.js";
 import { createImageTool } from "./tools/image-tool.js";
 import { createMessageTool } from "./tools/message-tool.js";
 import { createNodesTool } from "./tools/nodes-tool.js";
@@ -87,6 +88,16 @@ export function createOpenClawTools(options?: {
         modelHasVision: options?.modelHasVision,
       })
     : null;
+  const imageGenerateTool = createImageGenerateTool({
+    config: options?.config,
+    agentDir: options?.agentDir,
+    workspaceDir,
+    sandbox:
+      options?.sandboxRoot && options?.sandboxFsBridge
+        ? { root: options.sandboxRoot, bridge: options.sandboxFsBridge }
+        : undefined,
+    fsPolicy: options?.fsPolicy,
+  });
   const pdfTool = options?.agentDir?.trim()
     ? createPdfTool({
         config: options?.config,
@@ -187,6 +198,7 @@ export function createOpenClawTools(options?: {
     }),
     ...(webSearchTool ? [webSearchTool] : []),
     ...(webFetchTool ? [webFetchTool] : []),
+    ...(imageGenerateTool ? [imageGenerateTool] : []),
     ...(imageTool ? [imageTool] : []),
     ...(pdfTool ? [pdfTool] : []),
   ];

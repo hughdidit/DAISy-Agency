@@ -994,6 +994,7 @@
                   "brave-search",
                   "perplexity",
                   "tools/diffs",
+                  "tools/image-generate",
                   "tools/pdf",
                   "tools/elevated",
                   "tools/exec",
@@ -1181,6 +1182,7 @@
                     "pages": [
                       "gateway/configuration",
                       "gateway/configuration-reference",
+                      "gateway/image-generation",
                       "gateway/configuration-examples",
                       "gateway/authentication",
                       "gateway/secrets",
