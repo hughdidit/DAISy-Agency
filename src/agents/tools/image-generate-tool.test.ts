@@ -77,6 +77,7 @@ function makeGoogleConfig(baseUrl: string, model = "gemini-2.5-flash-image"): Op
       providers: {
         google: {
           baseUrl,
+          models: [],
         },
       },
     },
@@ -88,7 +89,7 @@ function makeGoogleConfig(baseUrl: string, model = "gemini-2.5-flash-image"): Op
         },
       },
     },
-  } as OpenClawConfig;
+  } satisfies OpenClawConfig;
 }
 
 function makeComfyUiConfig(baseUrl: string): OpenClawConfig {
@@ -130,7 +131,17 @@ function makeComfyUiConfig(baseUrl: string): OpenClawConfig {
         },
       },
     },
-  } as OpenClawConfig;
+  } satisfies OpenClawConfig;
+}
+
+function makeImageGenerationConfig(enabled: boolean): OpenClawConfig {
+  return {
+    tools: {
+      imageGeneration: {
+        enabled,
+      },
+    },
+  } satisfies OpenClawConfig;
 }
 
 describe("image_generate", () => {
@@ -150,13 +161,7 @@ describe("image_generate", () => {
       const tool = createImageGenerateTool({
         agentDir,
         workspaceDir,
-        config: {
-          tools: {
-            imageGeneration: {
-              enabled: false,
-            },
-          },
-        } as OpenClawConfig,
+        config: makeImageGenerationConfig(false),
       });
       expect(tool).toBeNull();
     });
@@ -168,13 +173,7 @@ describe("image_generate", () => {
       const tools = createOpenClawTools({
         agentDir,
         workspaceDir,
-        config: {
-          tools: {
-            imageGeneration: {
-              enabled: true,
-            },
-          },
-        } as OpenClawConfig,
+        config: makeImageGenerationConfig(true),
       });
       expect(tools.some((tool) => tool.name === "image_generate")).toBe(true);
     });
@@ -184,13 +183,7 @@ describe("image_generate", () => {
     vi.stubEnv("GEMINI_API_KEY", "test-gemini");
     const tool = createImageGenerateTool({
       workspaceDir: os.tmpdir(),
-      config: {
-        tools: {
-          imageGeneration: {
-            enabled: true,
-          },
-        },
-      } as OpenClawConfig,
+      config: makeImageGenerationConfig(true),
     });
     expect(tool?.name).toBe("image_generate");
   });
@@ -511,7 +504,7 @@ describe("image_generate", () => {
             },
           },
         },
-      } as OpenClawConfig,
+      } satisfies OpenClawConfig,
       request: {
         prompt: "Studio portrait",
         provider: "comfyui",
@@ -627,13 +620,7 @@ describe("image_generate", () => {
       const tool = createImageGenerateTool({
         agentDir,
         workspaceDir,
-        config: {
-          tools: {
-            imageGeneration: {
-              enabled: true,
-            },
-          },
-        } as OpenClawConfig,
+        config: makeImageGenerationConfig(true),
       });
       await expect(
         tool!.execute("call-1", {
@@ -650,13 +637,7 @@ describe("image_generate", () => {
       const tool = createImageGenerateTool({
         agentDir,
         workspaceDir,
-        config: {
-          tools: {
-            imageGeneration: {
-              enabled: true,
-            },
-          },
-        } as OpenClawConfig,
+        config: makeImageGenerationConfig(true),
       });
       await expect(
         tool!.execute("call-1", {
