@@ -182,7 +182,9 @@ export async function generateImageWithGoogle(params: {
     };
   } catch (error) {
     if ((error as { name?: string } | null)?.name === "AbortError") {
-      throw new Error(`Google image generation timed out after ${timeoutSeconds} seconds.`);
+      throw new Error(`Google image generation timed out after ${timeoutSeconds} seconds.`, {
+        cause: error,
+      });
     }
     throw error;
   } finally {
