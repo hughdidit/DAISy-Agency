@@ -24,7 +24,6 @@ import {
   normalizeImageGenerationSize,
   parseImageGenerationModelRef,
   resolveAvailableImageGenerationProviders,
-  resolveComfyUiPreset,
   resolveConfiguredImageGenerationProvider,
   resolveGoogleImageGenerationMaxInputImages,
   type ImageGenerateToolRequest,
