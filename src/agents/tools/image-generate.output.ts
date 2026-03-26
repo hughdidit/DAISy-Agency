@@ -118,11 +118,7 @@ function readWebpDimensions(bytes: Buffer): ImageDimensions | null {
     if (bytes.length < 25 || bytes[20] !== 0x2f) {
       return null;
     }
-    const bits =
-      bytes[21] |
-      (bytes[22] << 8) |
-      (bytes[23] << 16) |
-      (bytes[24] << 24);
+    const bits = bytes[21] | (bytes[22] << 8) | (bytes[23] << 16) | (bytes[24] << 24);
     const width = (bits & 0x3fff) + 1;
     const height = ((bits >> 14) & 0x3fff) + 1;
     return isPositiveInteger(width) && isPositiveInteger(height) ? { width, height } : null;
