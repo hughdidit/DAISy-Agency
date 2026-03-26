@@ -238,6 +238,8 @@ describe("image_generate", () => {
         await expect(fs.access(String(details.localPath))).resolves.toBeUndefined();
         expect(details.fileName).toMatch(/\.png$/);
         expect(details.sizeBytes).toBe(PNG_BYTES.length);
+        expect(details.width).toBe(1);
+        expect(details.height).toBe(1);
       });
     } finally {
       await server.close();
@@ -394,6 +396,8 @@ describe("image_generate", () => {
           | undefined;
         expect(promptNode?.inputs?.text).toBe("Studio portrait");
         await expect(fs.access(String(details.localPath))).resolves.toBeUndefined();
+        expect(details.width).toBe(1);
+        expect(details.height).toBe(1);
       });
     } finally {
       await server.close();
