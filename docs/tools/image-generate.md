@@ -105,10 +105,7 @@ Google image edit/composition:
 {
   "prompt": "Turn these reference shots into one polished travel-poster composition",
   "provider": "google",
-  "images": [
-    "/workspace/media/inbound/ref-1.png",
-    "/workspace/media/inbound/ref-2.png"
-  ],
+  "images": ["/workspace/media/inbound/ref-1.png", "/workspace/media/inbound/ref-2.png"],
   "size": "2K"
 }
 ```

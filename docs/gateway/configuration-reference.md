@@ -1621,10 +1621,10 @@ Local onboarding defaults new local configs to `tools.profile: "messaging"` when
 
 | Profile     | Includes                                                                                  |
 | ----------- | ----------------------------------------------------------------------------------------- |
-| `minimal`   | `session_status` only                                                                             |
-| `coding`    | `group:fs`, `group:runtime`, `group:sessions`, `group:memory`, `image`, `image_generate`        |
-| `messaging` | `group:messaging`, `sessions_list`, `sessions_history`, `sessions_send`, `session_status`       |
-| `full`      | No restriction (same as unset)                                                                    |
+| `minimal`   | `session_status` only                                                                     |
+| `coding`    | `group:fs`, `group:runtime`, `group:sessions`, `group:memory`, `image`, `image_generate`  |
+| `messaging` | `group:messaging`, `sessions_list`, `sessions_history`, `sessions_send`, `session_status` |
+| `full`      | No restriction (same as unset)                                                            |
 
 ### Tool groups
 

@@ -37,7 +37,9 @@ export async function validateGeneratedImageOutput(params: {
     throw new Error(`${params.provider} image generation returned a non-image payload.`);
   }
 
-  const metadata = await sharp(bytes, { animated: true }).metadata().catch(() => null);
+  const metadata = await sharp(bytes, { animated: true })
+    .metadata()
+    .catch(() => null);
   if (!metadata?.format) {
     throw new Error(`${params.provider} image generation returned invalid image bytes.`);
   }
@@ -55,10 +57,10 @@ export async function validateGeneratedImageOutput(params: {
     width:
       typeof params.output.width === "number" && Number.isFinite(params.output.width)
         ? params.output.width
-        : metadata.width ?? undefined,
+        : (metadata.width ?? undefined),
     height:
       typeof params.output.height === "number" && Number.isFinite(params.output.height)
         ? params.output.height
-        : metadata.height ?? undefined,
+        : (metadata.height ?? undefined),
   };
 }

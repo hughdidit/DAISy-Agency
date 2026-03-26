@@ -99,7 +99,9 @@ export function normalizeImageGenerationSize(value: unknown): ImageGenerationSiz
   return IMAGE_GENERATION_SIZES.find((candidate) => candidate === normalized);
 }
 
-export function getImageGenerationConfig(cfg?: OpenClawConfig): ImageGenerationToolsConfig | undefined {
+export function getImageGenerationConfig(
+  cfg?: OpenClawConfig,
+): ImageGenerationToolsConfig | undefined {
   return cfg?.tools?.imageGeneration;
 }
 

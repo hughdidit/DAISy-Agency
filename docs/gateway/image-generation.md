@@ -146,29 +146,29 @@ Example:
               "1": {
                 class_type: "CLIPTextEncode",
                 inputs: {
-                  text: "placeholder"
-                }
+                  text: "placeholder",
+                },
               },
               "9": {
                 class_type: "SaveImage",
-                inputs: {}
-              }
+                inputs: {},
+              },
             },
             inputs: {
               prompt: {
                 nodeId: "1",
-                inputName: "text"
-              }
+                inputName: "text",
+              },
             },
             output: {
               nodeId: "9",
-              imageIndex: 0
-            }
-          }
-        }
-      }
-    }
-  }
+              imageIndex: 0,
+            },
+          },
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -199,29 +199,29 @@ Use both providers when you want managed cloud generation plus local rendering:
               "1": {
                 class_type: "CLIPTextEncode",
                 inputs: {
-                  text: "placeholder"
-                }
+                  text: "placeholder",
+                },
               },
               "9": {
                 class_type: "SaveImage",
-                inputs: {}
-              }
+                inputs: {},
+              },
             },
             inputs: {
               prompt: {
                 nodeId: "1",
-                inputName: "text"
-              }
+                inputName: "text",
+              },
             },
             output: {
               nodeId: "9",
-              imageIndex: 0
-            }
-          }
-        }
-      }
-    }
-  }
+              imageIndex: 0,
+            },
+          },
+        },
+      },
+    },
+  },
 }
 ```
 

@@ -35,7 +35,10 @@ async function withTempAgentAndWorkspace<T>(
 }
 
 async function startJsonServer(
-  handler: (req: http.IncomingMessage, body: string) => Promise<{
+  handler: (
+    req: http.IncomingMessage,
+    body: string,
+  ) => Promise<{
     status?: number;
     headers?: Record<string, string>;
     body?: string | Buffer;
@@ -503,7 +506,8 @@ describe("image_generate", () => {
               defaultPreset: "portrait",
               timeoutSeconds: 1,
               pollIntervalMs: 250,
-              presets: makeComfyUiConfig("http://127.0.0.1:8188").tools!.imageGeneration!.comfyui!.presets,
+              presets:
+                makeComfyUiConfig("http://127.0.0.1:8188").tools!.imageGeneration!.comfyui!.presets,
             },
           },
         },

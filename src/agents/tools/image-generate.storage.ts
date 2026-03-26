@@ -16,15 +16,14 @@ type ImageGenerateSandboxConfig = {
 };
 
 function formatTimestampSlug(date: Date): string {
-  const iso = date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  const iso = date
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
   return iso;
 }
 
-function buildBaseName(params: {
-  date: Date;
-  requestFingerprint: string;
-  bytes: Buffer;
-}): string {
+function buildBaseName(params: { date: Date; requestFingerprint: string; bytes: Buffer }): string {
   const hash = crypto
     .createHash("sha256")
     .update(params.requestFingerprint)

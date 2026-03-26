@@ -119,9 +119,7 @@ function listComfyUiOutputImages(params: {
     }
     const images = nodeValue.images.filter(
       (entry): entry is ComfyUiImageReference =>
-        isRecord(entry) &&
-        typeof entry.filename === "string" &&
-        entry.filename.trim().length > 0,
+        isRecord(entry) && typeof entry.filename === "string" && entry.filename.trim().length > 0,
     );
     if (
       typeof params.outputImageIndex === "number" &&
@@ -140,7 +138,10 @@ function listComfyUiOutputImages(params: {
   return results;
 }
 
-function extractHistoryEntry(historyJson: unknown, promptId: string): Record<string, unknown> | null {
+function extractHistoryEntry(
+  historyJson: unknown,
+  promptId: string,
+): Record<string, unknown> | null {
   if (!isRecord(historyJson)) {
     return null;
   }
@@ -217,9 +218,7 @@ export async function generateImageWithComfyUi(params: {
       },
     });
     if (!submitResult.response.ok) {
-      const text = (await readBytesAndRelease(submitResult, 256 * 1024))
-        .toString("utf8")
-        .trim();
+      const text = (await readBytesAndRelease(submitResult, 256 * 1024)).toString("utf8").trim();
       throw new Error(
         `ComfyUI workflow submission failed (${submitResult.response.status} ${submitResult.response.statusText})${text ? `: ${text}` : ""}`,
       );
@@ -247,9 +246,7 @@ export async function generateImageWithComfyUi(params: {
         fetchImpl: params.fetchImpl,
       });
       if (!historyResult.response.ok) {
-        const text = (await readBytesAndRelease(historyResult, 256 * 1024))
-          .toString("utf8")
-          .trim();
+        const text = (await readBytesAndRelease(historyResult, 256 * 1024)).toString("utf8").trim();
         throw new Error(
           `ComfyUI history polling failed (${historyResult.response.status} ${historyResult.response.statusText})${text ? `: ${text}` : ""}`,
         );
@@ -303,7 +300,9 @@ export async function generateImageWithComfyUi(params: {
           };
         }
         if (historyEntry.outputs !== undefined) {
-          throw new Error(`ComfyUI history result for prompt "${promptId}" contained no usable image output.`);
+          throw new Error(
+            `ComfyUI history result for prompt "${promptId}" contained no usable image output.`,
+          );
         }
       }
       await sleep(pollIntervalMs);

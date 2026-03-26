@@ -1,18 +1,8 @@
 import { Type } from "@sinclair/typebox";
 import type { OpenClawConfig } from "../../config/config.js";
-import { loadWebMediaRaw } from "../../web/media.js";
 import { resolveUserPath } from "../../utils.js";
+import { loadWebMediaRaw } from "../../web/media.js";
 import { resolveEnvApiKey } from "../model-auth.js";
-import { hasAuthForProvider } from "./model-config.helpers.js";
-import { resolveMediaToolLocalRoots } from "./media-tool-shared.js";
-import {
-  createSandboxBridgeReadFile,
-  resolveSandboxedBridgeMediaPath,
-  type AnyAgentTool,
-  type SandboxedBridgeMediaPathConfig,
-  type SandboxFsBridge,
-  type ToolFsPolicy,
-} from "./tool-runtime.helpers.js";
 import {
   imageResultFromFile,
   readNumberParam,
@@ -21,7 +11,10 @@ import {
   ToolInputError,
 } from "./common.js";
 import { buildComfyUiWorkflow } from "./image-generate.comfyui-preset.js";
-import { selectSingleGeneratedOutput, validateGeneratedImageOutput } from "./image-generate.output.js";
+import {
+  selectSingleGeneratedOutput,
+  validateGeneratedImageOutput,
+} from "./image-generate.output.js";
 import { generateImageWithComfyUi } from "./image-generate.providers.comfyui.js";
 import { generateImageWithGoogle } from "./image-generate.providers.google.js";
 import { saveGeneratedImage } from "./image-generate.storage.js";
@@ -39,13 +32,25 @@ import {
   type ImageGenerationProvider,
   type LoadedInputImage,
 } from "./image-generate.types.js";
+import { resolveMediaToolLocalRoots } from "./media-tool-shared.js";
+import { hasAuthForProvider } from "./model-config.helpers.js";
+import {
+  createSandboxBridgeReadFile,
+  resolveSandboxedBridgeMediaPath,
+  type AnyAgentTool,
+  type SandboxedBridgeMediaPathConfig,
+  type SandboxFsBridge,
+  type ToolFsPolicy,
+} from "./tool-runtime.helpers.js";
 
 type ImageGenerateSandboxConfig = {
   root: string;
   bridge: SandboxFsBridge;
 };
 
-function parseRequestedProvider(params: Record<string, unknown>): ImageGenerationProvider | undefined {
+function parseRequestedProvider(
+  params: Record<string, unknown>,
+): ImageGenerationProvider | undefined {
   const raw = readStringParam(params, "provider");
   if (!raw) {
     return undefined;
@@ -88,14 +93,18 @@ function resolveEffectiveProvider(params: {
     return params.requestedProvider;
   }
 
-  const parsedModel = params.requestedModel ? parseImageGenerationModelRef(params.requestedModel) : null;
+  const parsedModel = params.requestedModel
+    ? parseImageGenerationModelRef(params.requestedModel)
+    : null;
   if (parsedModel) {
     return parsedModel.provider;
   }
 
   if (params.hasInputImages) {
     if (!params.availableProviders.includes("google")) {
-      throw new Error("Google image generation is required for input-image requests, but Google is not configured.");
+      throw new Error(
+        "Google image generation is required for input-image requests, but Google is not configured.",
+      );
     }
     return "google";
   }
@@ -127,14 +136,13 @@ async function loadGoogleInputImages(params: {
   const localRoots = resolveMediaToolLocalRoots(params.workspaceDir, {
     workspaceOnly: params.fsPolicy?.workspaceOnly === true,
   });
-  const sandboxConfig: SandboxedBridgeMediaPathConfig | null =
-    params.sandbox?.root.trim()
-      ? {
-          root: params.sandbox.root.trim(),
-          bridge: params.sandbox.bridge,
-          workspaceOnly: params.fsPolicy?.workspaceOnly === true,
-        }
-      : null;
+  const sandboxConfig: SandboxedBridgeMediaPathConfig | null = params.sandbox?.root.trim()
+    ? {
+        root: params.sandbox.root.trim(),
+        bridge: params.sandbox.bridge,
+        workspaceOnly: params.fsPolicy?.workspaceOnly === true,
+      }
+    : null;
 
   const results: LoadedInputImage[] = [];
   for (const rawInput of params.imageInputs) {
@@ -247,10 +255,20 @@ export function createImageGenerateTool(options?: {
     parameters: Type.Object({
       prompt: Type.String(),
       provider: Type.Optional(Type.String({ description: "google or comfyui" })),
-      model: Type.Optional(Type.String({ description: "Provider/model override. Use google/<model-id> or comfyui/<preset-id>." })),
-      image: Type.Optional(Type.String({ description: "Optional Google input image path or URL." })),
-      images: Type.Optional(Type.Array(Type.String(), { description: "Optional Google input images." })),
-      size: Type.Optional(Type.String({ description: "Optional output size hint: 1K, 2K, or 4K." })),
+      model: Type.Optional(
+        Type.String({
+          description: "Provider/model override. Use google/<model-id> or comfyui/<preset-id>.",
+        }),
+      ),
+      image: Type.Optional(
+        Type.String({ description: "Optional Google input image path or URL." }),
+      ),
+      images: Type.Optional(
+        Type.Array(Type.String(), { description: "Optional Google input images." }),
+      ),
+      size: Type.Optional(
+        Type.String({ description: "Optional output size hint: 1K, 2K, or 4K." }),
+      ),
       resolution: Type.Optional(Type.String({ description: "Alias for size." })),
       preset: Type.Optional(Type.String({ description: "Optional ComfyUI preset override." })),
       negativePrompt: Type.Optional(Type.String()),
@@ -270,7 +288,8 @@ export function createImageGenerateTool(options?: {
       const requestedModel = readStringParam(params, "model");
       const preset = readStringParam(params, "preset");
       const size =
-        normalizeImageGenerationSize(params.size) ?? normalizeImageGenerationSize(params.resolution);
+        normalizeImageGenerationSize(params.size) ??
+        normalizeImageGenerationSize(params.resolution);
       if ((params.size || params.resolution) && !size) {
         throw new ToolInputError("size/resolution must be one of 1K, 2K, or 4K.");
       }
