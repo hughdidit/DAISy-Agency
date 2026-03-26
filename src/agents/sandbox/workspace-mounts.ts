@@ -13,16 +13,28 @@ export function appendWorkspaceMountArgs(params: {
   args: string[];
   workspaceDir: string;
   agentWorkspaceDir: string;
+  hostWorkspaceDir?: string;
+  hostAgentWorkspaceDir?: string;
   workdir: string;
   workspaceAccess: SandboxWorkspaceAccess;
 }) {
-  const { args, workspaceDir, agentWorkspaceDir, workdir, workspaceAccess } = params;
+  const {
+    args,
+    workspaceDir,
+    agentWorkspaceDir,
+    hostWorkspaceDir,
+    hostAgentWorkspaceDir,
+    workdir,
+    workspaceAccess,
+  } = params;
+  const mainMountSource = hostWorkspaceDir ?? workspaceDir;
+  const agentMountSource = hostAgentWorkspaceDir ?? agentWorkspaceDir;
 
-  args.push("-v", `${workspaceDir}:${workdir}${mainWorkspaceMountSuffix(workspaceAccess)}`);
+  args.push("-v", `${mainMountSource}:${workdir}${mainWorkspaceMountSuffix(workspaceAccess)}`);
   if (workspaceAccess !== "none" && workspaceDir !== agentWorkspaceDir) {
     args.push(
       "-v",
-      `${agentWorkspaceDir}:${SANDBOX_AGENT_WORKSPACE_MOUNT}${agentWorkspaceMountSuffix(workspaceAccess)}`,
+      `${agentMountSource}:${SANDBOX_AGENT_WORKSPACE_MOUNT}${agentWorkspaceMountSuffix(workspaceAccess)}`,
     );
   }
 }
