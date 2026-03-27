@@ -27,9 +27,15 @@ profile openclaw-container flags=(attach_disconnected,mediate_deleted) {
   # Native Node.js addons (.node) are loaded via dlopen() and require executable
   # memory mapping permission.
   /app/**/*.node mr,
-  # Sharp's bundled libvips runtime ships as shared objects under @img packages
-  # and also needs executable mappings when image resize/thumbnail paths run.
-  /app/node_modules/@img/**/*.so* mr,
+  # Sharp's bundled libvips runtime ships as shared objects under
+  # @img/sharp-libvips-* packages and also needs executable mappings when
+  # image resize/thumbnail paths run. AppArmor mediation follows resolved
+  # paths, so allow both the symlinked node_modules path and the underlying
+  # pnpm store target.
+  /app/node_modules/@img/sharp-libvips-*/**/*.so mr,
+  /app/node_modules/@img/sharp-libvips-*/**/*.so.* mr,
+  /app/node_modules/.pnpm/*/node_modules/@img/sharp-libvips-*/**/*.so mr,
+  /app/node_modules/.pnpm/*/node_modules/@img/sharp-libvips-*/**/*.so.* mr,
 
   # ── Deny Monitoring Paths ────────────────────────────────────────
   # Containers must NEVER read, write, or execute monitoring configs/logs.
