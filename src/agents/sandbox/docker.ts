@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -176,11 +177,30 @@ import { appendWorkspaceMountArgs } from "./workspace-mounts.js";
 const log = createSubsystemLogger("docker");
 
 const HOT_CONTAINER_WINDOW_MS = 5 * 60 * 1000;
-let currentContainerBindMountsPromise: Promise<DockerBindMount[] | null> | null = null;
+type CurrentContainerBindMountsResult = {
+  mounts: DockerBindMount[];
+  remapSucceeded: boolean;
+};
 
-type DockerBindMount = {
+let currentContainerBindMountsPromise: Promise<CurrentContainerBindMountsResult> | null = null;
+const DOCKER_CONTAINER_MOUNTINFO_PATTERN =
+  /(?:^|\/)containers\/([0-9a-f]{64})\/(?:hostname|hosts|resolv\.conf)\b/i;
+
+export type DockerBindMount = {
   source: string;
   destination: string;
+  mode?: string;
+  rw?: boolean;
+};
+
+export type DockerHostPathResolution = {
+  path: string;
+  remapSucceeded: boolean;
+};
+
+type DockerHostPathRemapResult = {
+  path: string;
+  matched: boolean;
 };
 
 function normalizeContainerMountPath(value: string): string {
@@ -193,12 +213,12 @@ function isWindowsStylePath(value: string): boolean {
   return /^[A-Za-z]:[\\/]/.test(value) || value.startsWith("\\\\");
 }
 
-export function remapContainerPathToHostPath(
+function remapContainerPathToHostPathInfo(
   containerPath: string,
   mounts: readonly DockerBindMount[],
-): string {
+): DockerHostPathRemapResult {
   if (!containerPath.trim() || mounts.length === 0) {
-    return containerPath;
+    return { path: containerPath, matched: false };
   }
 
   const normalizedTarget = normalizeContainerMountPath(containerPath);
@@ -219,61 +239,191 @@ export function remapContainerPathToHostPath(
     )[0];
 
   if (!matchedMount) {
-    return containerPath;
+    return { path: containerPath, matched: false };
   }
 
   const normalizedDestination = normalizeContainerMountPath(matchedMount.destination);
   const relative = path.posix.relative(normalizedDestination, normalizedTarget);
   if (!relative || relative === ".") {
-    return matchedMount.source;
+    return { path: matchedMount.source, matched: true };
   }
 
   const segments = relative.split("/").filter(Boolean);
-  return isWindowsStylePath(matchedMount.source)
-    ? path.win32.join(matchedMount.source, ...segments)
-    : path.posix.join(matchedMount.source, ...segments);
+  return {
+    path: isWindowsStylePath(matchedMount.source)
+      ? path.win32.join(matchedMount.source, ...segments)
+      : path.posix.join(matchedMount.source, ...segments),
+    matched: true,
+  };
 }
 
-async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | null> {
+export function remapContainerPathToHostPath(
+  containerPath: string,
+  mounts: readonly DockerBindMount[],
+): string {
+  return remapContainerPathToHostPathInfo(containerPath, mounts).path;
+}
+
+export function extractDockerContainerIdFromMountInfo(rawMountInfo: string): string | null {
+  for (const line of rawMountInfo.split(/\r?\n/)) {
+    const match = line.match(DOCKER_CONTAINER_MOUNTINFO_PATTERN);
+    if (match?.[1]) {
+      return match[1].toLowerCase();
+    }
+  }
+  return null;
+}
+
+function parseDockerBindMounts(rawMounts: string): DockerBindMount[] | null {
+  let parsed: Array<{
+    Type?: string;
+    Source?: string;
+    Destination?: string;
+    Mode?: string;
+    RW?: boolean;
+  }>;
+  try {
+    parsed = JSON.parse(rawMounts) as Array<{
+      Type?: string;
+      Source?: string;
+      Destination?: string;
+      Mode?: string;
+      RW?: boolean;
+    }>;
+  } catch {
+    return null;
+  }
+
+  return parsed
+    .filter(
+      (
+        entry,
+      ): entry is {
+        Type: string;
+        Source: string;
+        Destination: string;
+        Mode?: string;
+        RW?: boolean;
+      } => entry.Type === "bind" && Boolean(entry.Source) && Boolean(entry.Destination),
+    )
+    .map(({ Source, Destination, Mode, RW }) => ({
+      source: Source,
+      destination: Destination,
+      mode: Mode,
+      rw: RW,
+    }));
+}
+
+function normalizeHostPathForComparison(value: string): string {
+  if (isWindowsStylePath(value)) {
+    return path.win32.normalize(value).toLowerCase();
+  }
+  return path.posix.normalize(value);
+}
+
+function findDockerBindMountByDestination(
+  mounts: readonly DockerBindMount[],
+  destination: string,
+): DockerBindMount | null {
+  const normalizedDestination = normalizeContainerMountPath(destination);
+  return (
+    mounts.find(
+      (mount) => normalizeContainerMountPath(mount.destination) === normalizedDestination,
+    ) ?? null
+  );
+}
+
+function isDockerBindMountWritable(mount: DockerBindMount): boolean {
+  if (mount.rw === false) {
+    return false;
+  }
+  const flags = mount.mode
+    ?.split(",")
+    .map((flag) => flag.trim().toLowerCase())
+    .filter(Boolean);
+  return !flags?.includes("ro");
+}
+
+export function hasExpectedDockerBindMount(params: {
+  mounts: readonly DockerBindMount[];
+  destination: string;
+  expectedSource: string;
+  requireWritable?: boolean;
+}): boolean {
+  const mount = findDockerBindMountByDestination(params.mounts, params.destination);
+  if (!mount) {
+    return false;
+  }
+  if (
+    normalizeHostPathForComparison(mount.source) !==
+    normalizeHostPathForComparison(params.expectedSource)
+  ) {
+    return false;
+  }
+  if (params.requireWritable && !isDockerBindMountWritable(mount)) {
+    return false;
+  }
+  return true;
+}
+
+async function resolveCurrentContainerIdentifier(): Promise<string | null> {
+  try {
+    const mountInfo = await fs.readFile("/proc/self/mountinfo", "utf8");
+    const containerId = extractDockerContainerIdFromMountInfo(mountInfo);
+    if (containerId) {
+      return containerId;
+    }
+    log.warn(
+      "Could not derive the current Docker container ID from /proc/self/mountinfo; falling back to hostname-based sandbox host-path remap.",
+    );
+  } catch {
+    log.warn(
+      "Could not read /proc/self/mountinfo for sandbox host-path remap; falling back to hostname-based Docker self-inspection.",
+    );
+  }
+
+  const fallbackIdentifier = process.env.HOSTNAME?.trim() || os.hostname().trim();
+  return fallbackIdentifier || null;
+}
+
+export async function readDockerBindMounts(
+  containerIdentifier: string,
+): Promise<DockerBindMount[] | null> {
+  const result = await execDocker(["inspect", "-f", "{{json .Mounts}}", containerIdentifier], {
+    allowFailure: true,
+  });
+  if (result.code !== 0) {
+    return null;
+  }
+  const mounts = parseDockerBindMounts(result.stdout.trim());
+  if (mounts === null) {
+    log.debug(`Failed to parse Docker bind mounts for ${containerIdentifier}.`);
+  }
+  return mounts;
+}
+
+async function readCurrentContainerBindMounts(): Promise<CurrentContainerBindMountsResult> {
   if (currentContainerBindMountsPromise) {
     return currentContainerBindMountsPromise;
   }
 
   currentContainerBindMountsPromise = (async () => {
     try {
-      const selfIdentifier = process.env.HOSTNAME?.trim() || os.hostname().trim();
+      const selfIdentifier = await resolveCurrentContainerIdentifier();
       if (!selfIdentifier) {
         currentContainerBindMountsPromise = null;
-        return null;
+        return { mounts: [], remapSucceeded: false };
       }
 
-      const result = await execDocker(["inspect", "-f", "{{json .Mounts}}", selfIdentifier], {
-        allowFailure: true,
-      });
-      if (result.code !== 0) {
+      const mounts = await readDockerBindMounts(selfIdentifier);
+      if (!mounts) {
+        log.warn(
+          `Failed to inspect Docker bind mounts for the current gateway container (${selfIdentifier}); sandbox host-path remap will fall back to container paths.`,
+        );
         currentContainerBindMountsPromise = null;
-        return null;
+        return { mounts: [], remapSucceeded: false };
       }
-
-      let parsed: Array<{ Type?: string; Source?: string; Destination?: string }>;
-      try {
-        parsed = JSON.parse(result.stdout.trim()) as Array<{
-          Type?: string;
-          Source?: string;
-          Destination?: string;
-        }>;
-      } catch {
-        currentContainerBindMountsPromise = null;
-        return null;
-      }
-
-      const mounts = parsed
-        .filter(
-          (entry): entry is { Type: string; Source: string; Destination: string } =>
-            entry.Type === "bind" && Boolean(entry.Source) && Boolean(entry.Destination),
-        )
-        .map(({ Source, Destination }) => ({ source: Source, destination: Destination }));
-      return mounts;
+      return { mounts, remapSucceeded: true };
     } catch (error) {
       currentContainerBindMountsPromise = null;
       throw error;
@@ -284,8 +434,26 @@ async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | nul
 }
 
 export async function resolveDockerHostPath(pathToResolve: string): Promise<string> {
-  const mounts = await readCurrentContainerBindMounts();
-  return remapContainerPathToHostPath(pathToResolve, mounts ?? []);
+  const resolution = await resolveDockerHostPathInfo(pathToResolve);
+  return resolution.path;
+}
+
+export async function resolveDockerHostPathInfo(
+  pathToResolve: string,
+): Promise<DockerHostPathResolution> {
+  const result = await readCurrentContainerBindMounts();
+  if (!result.remapSucceeded) {
+    return { path: pathToResolve, remapSucceeded: false };
+  }
+  const remapped = remapContainerPathToHostPathInfo(pathToResolve, result.mounts);
+  return {
+    path: remapped.path,
+    remapSucceeded: remapped.matched,
+  };
+}
+
+export function resetDockerHostPathRemapCacheForTests() {
+  currentContainerBindMountsPromise = null;
 }
 
 export type ExecDockerOptions = ExecDockerRawOptions;
@@ -592,6 +760,47 @@ async function readContainerConfigHash(containerName: string): Promise<string | 
   return await readDockerContainerLabel(containerName, "openclaw.configHash");
 }
 
+export function hasUnsafeWorkspaceMount(params: {
+  mounts: readonly DockerBindMount[] | null;
+  containerName: string;
+  expectedSource: string;
+  destination: string;
+  workspaceAccess: SandboxWorkspaceAccess;
+  expectedSourceTrusted?: boolean;
+}): boolean {
+  if (params.workspaceAccess === "none") {
+    return false;
+  }
+  if (params.expectedSourceTrusted === false) {
+    log.warn(
+      `Skipping workspace mount safety check for ${params.containerName}: sandbox host-path remap did not resolve a trusted host source.`,
+    );
+    return false;
+  }
+  if (!params.mounts) {
+    log.warn(
+      `Skipping workspace mount safety check for ${params.containerName}: Docker mount inspection returned no bind data.`,
+    );
+    return false;
+  }
+  const matches = hasExpectedDockerBindMount({
+    mounts: params.mounts,
+    destination: params.destination,
+    expectedSource: params.expectedSource,
+    requireWritable: params.workspaceAccess === "rw",
+  });
+  if (!matches) {
+    const mount = findDockerBindMountByDestination(params.mounts, params.destination);
+    const actual = mount
+      ? `${mount.source}${isDockerBindMountWritable(mount) ? "" : " (not writable)"}`
+      : "missing";
+    log.warn(
+      `Recreating sandbox ${params.containerName}: expected ${params.destination} to bind ${params.expectedSource}${params.workspaceAccess === "rw" ? " writable" : ""}, found ${actual}.`,
+    );
+  }
+  return !matches;
+}
+
 function formatSandboxRecreateHint(params: { scope: SandboxConfig["scope"]; sessionKey: string }) {
   if (params.scope === "session") {
     return formatCliCommand(`openclaw sandbox recreate --session ${params.sessionKey}`);
@@ -609,8 +818,10 @@ export async function ensureSandboxContainer(params: {
   agentWorkspaceDir: string;
   cfg: SandboxConfig;
 }) {
-  const hostWorkspaceDir = await resolveDockerHostPath(params.workspaceDir);
-  const hostAgentWorkspaceDir = await resolveDockerHostPath(params.agentWorkspaceDir);
+  const workspaceDirResolution = await resolveDockerHostPathInfo(params.workspaceDir);
+  const agentWorkspaceDirResolution = await resolveDockerHostPathInfo(params.agentWorkspaceDir);
+  const hostWorkspaceDir = workspaceDirResolution.path;
+  const hostAgentWorkspaceDir = agentWorkspaceDirResolution.path;
   const scopeKey = resolveSandboxScopeKey(params.cfg.scope, params.sessionKey);
   const slug = params.cfg.scope === "shared" ? "shared" : slugifySessionKey(scopeKey);
   const name = `${params.cfg.docker.containerPrefix}${slug}`;
@@ -636,25 +847,43 @@ export async function ensureSandboxContainer(params: {
   if (hasContainer) {
     const registry = await readRegistry();
     registryEntry = registry.entries.find((entry) => entry.containerName === containerName);
-    currentHash = await readContainerConfigHash(containerName);
-    if (!currentHash) {
-      currentHash = registryEntry?.configHash ?? null;
-    }
-    hashMismatch = !currentHash || currentHash !== expectedHash;
-    if (hashMismatch) {
-      const lastUsedAtMs = registryEntry?.lastUsedAtMs;
-      const isHot =
-        running &&
-        (typeof lastUsedAtMs !== "number" || now - lastUsedAtMs < HOT_CONTAINER_WINDOW_MS);
-      if (isHot) {
-        const hint = formatSandboxRecreateHint({ scope: params.cfg.scope, sessionKey: scopeKey });
-        defaultRuntime.log(
-          `Sandbox config changed for ${containerName} (recently used). Recreate to apply: ${hint}`,
-        );
-      } else {
-        await execDocker(["rm", "-f", containerName], { allowFailure: true });
-        hasContainer = false;
-        running = false;
+    const existingMounts =
+      params.cfg.workspaceAccess !== "none" && workspaceDirResolution.remapSucceeded
+        ? await readDockerBindMounts(containerName)
+        : null;
+    const workspaceMountUnsafe = hasUnsafeWorkspaceMount({
+      mounts: existingMounts,
+      containerName,
+      expectedSource: hostWorkspaceDir,
+      destination: params.cfg.docker.workdir,
+      workspaceAccess: params.cfg.workspaceAccess,
+      expectedSourceTrusted: workspaceDirResolution.remapSucceeded,
+    });
+    if (workspaceMountUnsafe) {
+      await execDocker(["rm", "-f", containerName], { allowFailure: true });
+      hasContainer = false;
+      running = false;
+    } else {
+      currentHash = await readContainerConfigHash(containerName);
+      if (!currentHash) {
+        currentHash = registryEntry?.configHash ?? null;
+      }
+      hashMismatch = !currentHash || currentHash !== expectedHash;
+      if (hashMismatch) {
+        const lastUsedAtMs = registryEntry?.lastUsedAtMs;
+        const isHot =
+          running &&
+          (typeof lastUsedAtMs !== "number" || now - lastUsedAtMs < HOT_CONTAINER_WINDOW_MS);
+        if (isHot) {
+          const hint = formatSandboxRecreateHint({ scope: params.cfg.scope, sessionKey: scopeKey });
+          defaultRuntime.log(
+            `Sandbox config changed for ${containerName} (recently used). Recreate to apply: ${hint}`,
+          );
+        } else {
+          await execDocker(["rm", "-f", containerName], { allowFailure: true });
+          hasContainer = false;
+          running = false;
+        }
       }
     }
   }

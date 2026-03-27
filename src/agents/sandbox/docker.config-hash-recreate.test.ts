@@ -2,7 +2,7 @@ import { EventEmitter } from "node:events";
 import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computeSandboxConfigHash } from "./config-hash.js";
-import { ensureSandboxContainer } from "./docker.js";
+import { ensureSandboxContainer, resetDockerHostPathRemapCacheForTests } from "./docker.js";
 import { collectDockerFlagValues } from "./test-args.js";
 import type { SandboxConfig } from "./types.js";
 
@@ -15,11 +15,23 @@ const spawnState = vi.hoisted(() => ({
   calls: [] as SpawnCall[],
   inspectRunning: true,
   labelHash: "",
+  inspectMountsByTarget: {} as Record<string, string>,
+}));
+
+const fsPromisesMocks = vi.hoisted(() => ({
+  readFile: vi.fn(),
 }));
 
 const registryMocks = vi.hoisted(() => ({
   readRegistry: vi.fn(),
   updateRegistry: vi.fn(),
+}));
+
+vi.mock("node:fs/promises", () => ({
+  __esModule: true,
+  default: {
+    readFile: fsPromisesMocks.readFile,
+  },
 }));
 
 vi.mock("./registry.js", () => ({
@@ -50,6 +62,14 @@ vi.mock("node:child_process", async (importOriginal) => {
       if (command !== "docker") {
         code = 1;
         stderr = `unexpected command: ${command}`;
+      } else if (args[0] === "inspect" && args[1] === "-f" && args[2] === "{{json .Mounts}}") {
+        const target = args[3] ?? "";
+        if (target in spawnState.inspectMountsByTarget) {
+          stdout = `${spawnState.inspectMountsByTarget[target]}\n`;
+        } else {
+          code = 1;
+          stderr = `unexpected docker inspect target: ${target}`;
+        }
       } else if (args[0] === "inspect" && args[1] === "-f" && args[2] === "{{.State.Running}}") {
         stdout = spawnState.inspectRunning ? "true\n" : "false\n";
       } else if (
@@ -127,14 +147,26 @@ function createSandboxConfig(
   };
 }
 
+function lastWorkspaceBind(args: string[]): string | undefined {
+  return collectDockerFlagValues(args, "-v")
+    .filter((entry) => /:\/workspace(?:[:]|$)/.test(entry))
+    .at(-1);
+}
+
 describe("ensureSandboxContainer config-hash recreation", () => {
   beforeEach(() => {
     spawnState.calls.length = 0;
     spawnState.inspectRunning = true;
     spawnState.labelHash = "";
+    spawnState.inspectMountsByTarget = {};
+    fsPromisesMocks.readFile.mockReset();
+    // Default to the degraded path: mountinfo and bind-mount inspection are unavailable
+    // unless a test opts in with explicit fixture data.
+    fsPromisesMocks.readFile.mockRejectedValue(new Error("ENOENT"));
     registryMocks.readRegistry.mockClear();
     registryMocks.updateRegistry.mockClear();
     registryMocks.updateRegistry.mockResolvedValue(undefined);
+    resetDockerHostPathRemapCacheForTests();
   });
 
   it("recreates shared container when array-order change alters hash", async () => {
@@ -194,6 +226,40 @@ describe("ensureSandboxContainer config-hash recreation", () => {
         configHash: newHash,
       }),
     );
+  });
+
+  it("resolves host workspace bind sources from gateway mountinfo", async () => {
+    const workspaceDir = "/home/node/.openclaw/workspace";
+    const cfg = createSandboxConfig(["1.1.1.1"]);
+    const gatewayCid = "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c";
+    fsPromisesMocks.readFile.mockResolvedValue(
+      `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`,
+    );
+    spawnState.inspectMountsByTarget[gatewayCid] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/workspace",
+        Destination: "/home/node/.openclaw/workspace",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.inspectRunning = false;
+    registryMocks.readRegistry.mockResolvedValue({ entries: [] });
+
+    await ensureSandboxContainer({
+      sessionKey: "agent:main:session-1",
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+      cfg,
+    });
+
+    const createCall = spawnState.calls.find(
+      (call) => call.command === "docker" && call.args[0] === "create",
+    );
+    expect(createCall).toBeDefined();
+
+    expect(lastWorkspaceBind(createCall?.args ?? [])).toBe("/opt/DAISy/workspace:/workspace");
   });
 
   it("applies custom binds after workspace mounts so overlapping binds can override", async () => {
@@ -276,4 +342,315 @@ describe("ensureSandboxContainer config-hash recreation", () => {
       expect(bindArgs).toContain(expectedMainMount);
     },
   );
+
+  it("recreates a hot container when the existing workspace mount source is wrong", async () => {
+    const workspaceDir = "/home/node/.openclaw/workspace";
+    const cfg = createSandboxConfig([]);
+    const gatewayCid = "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c";
+    const expectedHash = computeSandboxConfigHash({
+      docker: cfg.docker,
+      workspaceAccess: cfg.workspaceAccess,
+      workspaceDir: "/opt/DAISy/workspace",
+      agentWorkspaceDir: "/opt/DAISy/workspace",
+    });
+
+    fsPromisesMocks.readFile.mockResolvedValue(
+      `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`,
+    );
+    spawnState.inspectMountsByTarget[gatewayCid] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/workspace",
+        Destination: "/home/node/.openclaw/workspace",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.inspectMountsByTarget["oc-test-shared"] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/home/node/.openclaw/workspace",
+        Destination: "/workspace",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.labelHash = expectedHash;
+    spawnState.inspectRunning = true;
+    registryMocks.readRegistry.mockResolvedValue({
+      entries: [
+        {
+          containerName: "oc-test-shared",
+          sessionKey: "shared",
+          createdAtMs: 1,
+          lastUsedAtMs: Date.now(),
+          image: cfg.docker.image,
+          configHash: expectedHash,
+        },
+      ],
+    });
+
+    await ensureSandboxContainer({
+      sessionKey: "agent:main:session-1",
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+      cfg,
+    });
+
+    const dockerCalls = spawnState.calls.filter((call) => call.command === "docker");
+    expect(
+      dockerCalls.some(
+        (call) =>
+          call.args[0] === "rm" && call.args[1] === "-f" && call.args[2] === "oc-test-shared",
+      ),
+    ).toBe(true);
+    const createCall = dockerCalls.find((call) => call.args[0] === "create");
+    expect(createCall).toBeDefined();
+    expect(lastWorkspaceBind(createCall?.args ?? [])).toBe("/opt/DAISy/workspace:/workspace");
+  });
+
+  it("recreates a hot read-only container when the existing workspace mount source is wrong", async () => {
+    const workspaceDir = "/home/node/.openclaw/workspace";
+    const cfg = createSandboxConfig([], undefined, "ro");
+    const gatewayCid = "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c";
+    const expectedHash = computeSandboxConfigHash({
+      docker: cfg.docker,
+      workspaceAccess: cfg.workspaceAccess,
+      workspaceDir: "/opt/DAISy/workspace",
+      agentWorkspaceDir: "/opt/DAISy/workspace",
+    });
+
+    fsPromisesMocks.readFile.mockResolvedValue(
+      `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`,
+    );
+    spawnState.inspectMountsByTarget[gatewayCid] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/workspace",
+        Destination: "/home/node/.openclaw/workspace",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.inspectMountsByTarget["oc-test-shared"] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/home/node/.openclaw/workspace",
+        Destination: "/workspace",
+        Mode: "ro",
+        RW: false,
+      },
+    ]);
+    spawnState.labelHash = expectedHash;
+    spawnState.inspectRunning = true;
+    registryMocks.readRegistry.mockResolvedValue({
+      entries: [
+        {
+          containerName: "oc-test-shared",
+          sessionKey: "shared",
+          createdAtMs: 1,
+          lastUsedAtMs: Date.now(),
+          image: cfg.docker.image,
+          configHash: expectedHash,
+        },
+      ],
+    });
+
+    await ensureSandboxContainer({
+      sessionKey: "agent:main:session-1",
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+      cfg,
+    });
+
+    const dockerCalls = spawnState.calls.filter((call) => call.command === "docker");
+    expect(
+      dockerCalls.some(
+        (call) =>
+          call.args[0] === "rm" && call.args[1] === "-f" && call.args[2] === "oc-test-shared",
+      ),
+    ).toBe(true);
+    const createCall = dockerCalls.find((call) => call.args[0] === "create");
+    expect(createCall).toBeDefined();
+    expect(lastWorkspaceBind(createCall?.args ?? [])).toBe("/opt/DAISy/workspace:/workspace:ro");
+  });
+
+  it("keeps a hot container when the existing workspace mount already matches", async () => {
+    const workspaceDir = "/home/node/.openclaw/workspace";
+    const cfg = createSandboxConfig([]);
+    const gatewayCid = "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c";
+    const expectedHash = computeSandboxConfigHash({
+      docker: cfg.docker,
+      workspaceAccess: cfg.workspaceAccess,
+      workspaceDir: "/opt/DAISy/workspace",
+      agentWorkspaceDir: "/opt/DAISy/workspace",
+    });
+
+    fsPromisesMocks.readFile.mockResolvedValue(
+      `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`,
+    );
+    spawnState.inspectMountsByTarget[gatewayCid] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/workspace",
+        Destination: "/home/node/.openclaw/workspace",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.inspectMountsByTarget["oc-test-shared"] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/workspace",
+        Destination: "/workspace",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.labelHash = expectedHash;
+    spawnState.inspectRunning = true;
+    registryMocks.readRegistry.mockResolvedValue({
+      entries: [
+        {
+          containerName: "oc-test-shared",
+          sessionKey: "shared",
+          createdAtMs: 1,
+          lastUsedAtMs: Date.now(),
+          image: cfg.docker.image,
+          configHash: expectedHash,
+        },
+      ],
+    });
+
+    await ensureSandboxContainer({
+      sessionKey: "agent:main:session-1",
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+      cfg,
+    });
+
+    const dockerCalls = spawnState.calls.filter((call) => call.command === "docker");
+    expect(
+      dockerCalls.some(
+        (call) =>
+          call.args[0] === "rm" && call.args[1] === "-f" && call.args[2] === "oc-test-shared",
+      ),
+    ).toBe(false);
+    expect(dockerCalls.some((call) => call.args[0] === "create")).toBe(false);
+  });
+
+  it("keeps a hot container when host-path remap is unresolved", async () => {
+    const workspaceDir = "/home/node/.openclaw/workspace";
+    const cfg = createSandboxConfig([]);
+    const expectedHash = computeSandboxConfigHash({
+      docker: cfg.docker,
+      workspaceAccess: cfg.workspaceAccess,
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+    });
+
+    spawnState.inspectMountsByTarget["oc-test-shared"] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/workspace",
+        Destination: "/workspace",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.labelHash = expectedHash;
+    spawnState.inspectRunning = true;
+    registryMocks.readRegistry.mockResolvedValue({
+      entries: [
+        {
+          containerName: "oc-test-shared",
+          sessionKey: "shared",
+          createdAtMs: 1,
+          lastUsedAtMs: Date.now(),
+          image: cfg.docker.image,
+          configHash: expectedHash,
+        },
+      ],
+    });
+
+    await ensureSandboxContainer({
+      sessionKey: "agent:main:session-1",
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+      cfg,
+    });
+
+    const dockerCalls = spawnState.calls.filter((call) => call.command === "docker");
+    expect(
+      dockerCalls.some(
+        (call) =>
+          call.args[0] === "rm" && call.args[1] === "-f" && call.args[2] === "oc-test-shared",
+      ),
+    ).toBe(false);
+    expect(dockerCalls.some((call) => call.args[0] === "create")).toBe(false);
+  });
+
+  it("keeps a hot container when gateway bind inspection succeeds but the workspace path is unmatched", async () => {
+    const workspaceDir = "/home/node/.openclaw/workspace";
+    const cfg = createSandboxConfig([]);
+    const gatewayCid = "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c";
+    const expectedHash = computeSandboxConfigHash({
+      docker: cfg.docker,
+      workspaceAccess: cfg.workspaceAccess,
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+    });
+
+    fsPromisesMocks.readFile.mockResolvedValue(
+      `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`,
+    );
+    spawnState.inspectMountsByTarget[gatewayCid] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/state",
+        Destination: "/home/node/.openclaw/state",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.inspectMountsByTarget["oc-test-shared"] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/workspace",
+        Destination: "/workspace",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.labelHash = expectedHash;
+    spawnState.inspectRunning = true;
+    registryMocks.readRegistry.mockResolvedValue({
+      entries: [
+        {
+          containerName: "oc-test-shared",
+          sessionKey: "shared",
+          createdAtMs: 1,
+          lastUsedAtMs: Date.now(),
+          image: cfg.docker.image,
+          configHash: expectedHash,
+        },
+      ],
+    });
+
+    await ensureSandboxContainer({
+      sessionKey: "agent:main:session-1",
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+      cfg,
+    });
+
+    const dockerCalls = spawnState.calls.filter((call) => call.command === "docker");
+    expect(
+      dockerCalls.some(
+        (call) =>
+          call.args[0] === "rm" && call.args[1] === "-f" && call.args[2] === "oc-test-shared",
+      ),
+    ).toBe(false);
+    expect(dockerCalls.some((call) => call.args[0] === "create")).toBe(false);
+  });
 });
