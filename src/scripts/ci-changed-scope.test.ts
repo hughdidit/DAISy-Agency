@@ -86,7 +86,7 @@ describe("detectChangedScope", () => {
     });
   });
 
-  it("keeps node lane off for non-runtime GitHub metadata files", () => {
+  it("enables node lane for non-runtime GitHub metadata files", () => {
     expect(detectChangedScope([".github/labeler.yml"])).toEqual({
       runNode: true,
       runMacos: false,

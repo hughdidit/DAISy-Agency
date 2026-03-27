@@ -4,7 +4,7 @@
 
 | Workflow file                          | Workflow name   | Triggers                                                    | Key jobs (job name strings)                                                                                                                                             | Classification | Notes / risks                                                                                                                                                                |
 | -------------------------------------- | --------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/workflows/ci.yml`             | CI              | `push` + `pull_request` (daisy/main, daisy/dev)             | `Install Check`, `Linux / <runtime> / <task>`, `Secrets Scan`, `Windows / <runtime> / <task>`, `macOS / node / <task>`, `macOS App / <task>`, `iOS`, `Android / <task>` | Needs refactor | Multi-OS matrix load; job names are matrix-derived (required-check churn); shared concurrency group with other workflows can cancel runs; iOS job is disabled (`if: false`). |
+| `.github/workflows/ci.yml`             | CI              | `push` + `pull_request` (daisy/main, daisy/dev)             | `Install Check`, `Linux / <runtime> / <task>`, `Secrets Scan`, `macOS / node / <task>`, `macOS App / <task>`, `iOS`, `Android / <task>` | Needs refactor | Multi-OS matrix load; job names are matrix-derived (required-check churn); shared concurrency group with other workflows can cancel runs; iOS job is disabled (`if: false`). |
 | `.github/workflows/codeql.yml`         | CodeQL Advanced | `push` + `pull_request` (daisy/main, daisy/dev), `schedule` | `Analyze (<language>)`                                                                                                                                                  | Needs refactor | Broad language matrix; macOS runners for Swift; scheduled load; actions not pinned to SHAs.                                                                                  |
 | `.github/workflows/docker-release.yml` | Docker Release  | `push` (main + tags `v*`)                                   | `build-amd64`, `build-arm64`, `create-manifest`                                                                                                                         | Needs refactor | Branch trigger uses `main` (not `daisy/main`); assumes GHCR publish with `GITHUB_TOKEN`; no workflow_dispatch; provenance + SBOM enabled on push.                            |
 
@@ -17,7 +17,7 @@
 
 **What it does**
 
-- Primary CI gate for the repo: installs deps, runs lint/tests/build/protocol/format on Linux and Windows, macOS tests, macOS app checks, Android unit tests/builds, plus detect-secrets scanning.
+- Primary CI gate for the repo: installs deps, runs lint/tests/build/protocol/format on Linux, macOS tests, macOS app checks, Android unit tests/builds, plus detect-secrets scanning.
 
 **When it runs**
 
@@ -37,7 +37,6 @@
   - Node tasks: `pnpm lint`, `pnpm test -- --no-file-parallelism`, `pnpm build`, `pnpm protocol:check`, `pnpm format`.
   - Bun tasks: `bunx vitest run --no-file-parallelism`, `bunx tsc -p tsconfig.json`.
 - `secrets` (`Secrets Scan`, `blacksmith-4vcpu-ubuntu-2404`): detect-secrets baseline scan.
-- `checks-windows` (`Windows / <runtime> / <task>`, `blacksmith-4vcpu-windows-2025`, matrix): node lint/test/build/protocol.
 - `checks-macos` (`macOS / node / <task>`, `macos-latest`, PR-only): node test.
 - `macos-app` (`macOS App / <task>`, `macos-latest`, PR-only): Swift lint/build/test for macOS app.
 - `ios` (`iOS`, `macos-latest`, **disabled via `if: false`**): XcodeGen + iOS sim tests + coverage gate.
@@ -47,13 +46,13 @@
 
 - **Required-check churn risk**: job names are matrix-derived (e.g., `Linux / node / test`), so changing matrix items can break required checks if those names are pinned in branch protection.
 - **Required-check deadlock risk**: if branch protection requires jobs that only run on PRs (`macOS / node / <task>`, `macOS App / <task>`) or the disabled `iOS` job, pushes to `daisy/main` could be blocked with pending checks.
-- **Runner load risk**: wide OS matrix (Linux + Windows + macOS + Android) makes every PR heavy; Swift + Android adds long runners.
+- **Runner load risk**: wide OS matrix (Linux + macOS + Android) makes every PR heavy; Swift + Android adds long runners.
 - **Concurrency cross-cancel**: shared `ci-` group with other workflows can cancel CI if another workflow starts with the same key.
 - **Unpinned actions**: `actions/checkout@v4`, `setup-node@v4`, `setup-bun@v2`, etc. use version tags not SHAs.
 
 **Recommendation**
 
-- **Needs refactor.** Keep Linux checks as the core required gate. Consider isolating Windows/macOS/Android/iOS into optional or scheduled workflows with explicit required-check policy to avoid deadlocks.
+- **Needs refactor.** Keep Linux checks as the core required gate. Consider isolating macOS/Android/iOS into optional or scheduled workflows with explicit required-check policy to avoid deadlocks.
 
 ### CodeQL Advanced (`.github/workflows/codeql.yml`)
 
@@ -211,7 +210,7 @@
 
 **Expected outcomes / acceptance criteria**
 
-- PRs run Linux gate by default; macOS/Windows/Android run as opt-in or scheduled.
+- PRs run Linux gate by default; macOS/Android run as opt-in or scheduled.
 - Release workflows do not run on every PR/push.
 
 **Commands (for Codex)**
@@ -275,7 +274,7 @@
 ## Patchbot next-PR checklist
 
 - [ ] Confirm required checks only include always-on Linux gate jobs.
-- [ ] Split CI into reusable workflows; make macOS/Windows/Android optional or scheduled.
+- [ ] Split CI into reusable workflows; make macOS/Android optional or scheduled.
 - [ ] Add explicit release/deploy workflows with `workflow_dispatch` and tag triggers.
 - [ ] Configure `staging`/`prod` environments with approvals and scoped secrets.
 - [ ] Define artifact storage/versioning and enable provenance.
