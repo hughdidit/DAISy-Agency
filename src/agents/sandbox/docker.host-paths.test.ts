@@ -65,9 +65,7 @@ describe("extractDockerContainerIdFromMountInfo", () => {
 
   it("returns null when mountinfo does not expose a docker container path", () => {
     expect(
-      extractDockerContainerIdFromMountInfo(
-        "24 19 259:2 / / rw,relatime - ext4 /dev/nvme0n1p2 rw",
-      ),
+      extractDockerContainerIdFromMountInfo("24 19 259:2 / / rw,relatime - ext4 /dev/nvme0n1p2 rw"),
     ).toBeNull();
   });
 });

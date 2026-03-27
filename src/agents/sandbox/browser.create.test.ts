@@ -269,10 +269,9 @@ describe("ensureSandboxBrowser create args", () => {
       cfg,
     });
 
-    expect(dockerMocks.execDocker).toHaveBeenCalledWith(
-      ["rm", "-f", containerName],
-      { allowFailure: true },
-    );
+    expect(dockerMocks.execDocker).toHaveBeenCalledWith(["rm", "-f", containerName], {
+      allowFailure: true,
+    });
     const createArgs = findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create");
     expect(createArgs).toContain("/opt/DAISy/workspace:/workspace");
   });
@@ -314,10 +313,9 @@ describe("ensureSandboxBrowser create args", () => {
       cfg,
     });
 
-    expect(dockerMocks.execDocker).not.toHaveBeenCalledWith(
-      ["rm", "-f", containerName],
-      { allowFailure: true },
-    );
+    expect(dockerMocks.execDocker).not.toHaveBeenCalledWith(["rm", "-f", containerName], {
+      allowFailure: true,
+    });
     expect(findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create")).toBeUndefined();
   });
 });
