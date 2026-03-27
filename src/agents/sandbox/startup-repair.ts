@@ -16,7 +16,6 @@ import {
 } from "./registry.js";
 import {
   resolveSandboxAgentId,
-  resolveSandboxScopeKey,
   resolveSandboxWorkspaceDir,
 } from "./shared.js";
 
@@ -26,19 +25,18 @@ type StartupRepairLog = {
 
 type StartupRepairEntry = {
   containerName: string;
-  sessionKey: string;
+  scopeKey: string;
 };
 
-function resolveExpectedWorkspace(params: { cfg: OpenClawConfig; sessionKey: string }) {
-  const agentId = resolveSandboxAgentId(params.sessionKey) ?? resolveDefaultAgentId(params.cfg);
+function resolveExpectedWorkspace(params: { cfg: OpenClawConfig; scopeKey: string }) {
+  const agentId = resolveSandboxAgentId(params.scopeKey) ?? resolveDefaultAgentId(params.cfg);
   const sandboxCfg = resolveSandboxConfigForAgent(params.cfg, agentId);
   const agentWorkspaceDir = resolveAgentWorkspaceDir(params.cfg, agentId);
-  const scopeKey = resolveSandboxScopeKey(sandboxCfg.scope, params.sessionKey);
   const workspaceRoot = resolveUserPath(sandboxCfg.workspaceRoot);
   const sandboxWorkspaceDir =
     sandboxCfg.scope === "shared"
       ? workspaceRoot
-      : resolveSandboxWorkspaceDir(workspaceRoot, scopeKey);
+      : resolveSandboxWorkspaceDir(workspaceRoot, params.scopeKey);
   const workspaceDir =
     sandboxCfg.workspaceAccess === "rw" ? agentWorkspaceDir : sandboxWorkspaceDir;
   return { sandboxCfg, workspaceDir };
@@ -54,7 +52,7 @@ async function repairRegistryEntries<TEntry extends StartupRepairEntry>(params: 
   for (const entry of params.entries) {
     const { sandboxCfg, workspaceDir } = resolveExpectedWorkspace({
       cfg: params.cfg,
-      sessionKey: entry.sessionKey,
+      scopeKey: entry.scopeKey,
     });
     const workspaceDirResolution = await resolveDockerHostPathInfo(workspaceDir);
     const existingMounts =
@@ -87,12 +85,12 @@ export async function repairSandboxWorkspaceMountsOnStartup(
   const [removedContainers, removedBrowsers] = await Promise.all([
     repairRegistryEntries<SandboxRegistryEntry>({
       cfg,
-      entries: registry.entries,
+      entries: registry.entries.map((entry) => ({ ...entry, scopeKey: entry.sessionKey })),
       remove: removeSandboxContainer,
     }),
     repairRegistryEntries<SandboxBrowserRegistryEntry>({
       cfg,
-      entries: browserRegistry.entries,
+      entries: browserRegistry.entries.map((entry) => ({ ...entry, scopeKey: entry.sessionKey })),
       remove: removeSandboxBrowserContainer,
     }),
   ]);

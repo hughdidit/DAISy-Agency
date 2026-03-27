@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { repairSandboxWorkspaceMountsOnStartup } from "./startup-repair.js";
+import { resolveSandboxWorkspaceDir } from "./shared.js";
 
 const mocks = vi.hoisted(() => ({
   readRegistry: vi.fn(),
@@ -149,5 +150,56 @@ describe("repairSandboxWorkspaceMountsOnStartup", () => {
     );
     expect(mocks.removeSandboxContainer).not.toHaveBeenCalled();
     expect(log.warn).not.toHaveBeenCalled();
+  });
+
+  it("keeps agent-scoped ro entries on their stored scope key", async () => {
+    mocks.readRegistry.mockResolvedValue({
+      entries: [
+        {
+          containerName: "openclaw-sbx-agent-other",
+          sessionKey: "agent:other",
+        },
+      ],
+    });
+    mocks.resolveSandboxConfigForAgent.mockReturnValue({
+      mode: "all",
+      scope: "agent",
+      workspaceAccess: "ro",
+      workspaceRoot: "~/.openclaw/sandboxes",
+      docker: {
+        image: "openclaw-sandbox:bookworm-slim",
+        containerPrefix: "openclaw-sbx-",
+        workdir: "/workspace",
+        readOnlyRoot: true,
+        tmpfs: ["/tmp"],
+        network: "none",
+        capDrop: ["ALL"],
+        env: { LANG: "C.UTF-8" },
+      },
+      browser: {
+        enabled: true,
+        image: "openclaw-sandbox-browser:bookworm-slim",
+        containerPrefix: "openclaw-sbx-browser-",
+        network: "openclaw-sandbox-browser",
+        cdpPort: 9222,
+        vncPort: 5900,
+        noVncPort: 6080,
+        headless: true,
+        enableNoVnc: false,
+        allowHostControl: false,
+        autoStart: false,
+        autoStartTimeoutMs: 5000,
+      },
+      tools: { allow: [], deny: [] },
+      prune: { idleHours: 24, maxAgeDays: 7 },
+    });
+
+    await repairSandboxWorkspaceMountsOnStartup({} as never);
+
+    expect(mocks.resolveSandboxConfigForAgent).toHaveBeenCalledWith(expect.anything(), "other");
+    expect(mocks.resolveDockerHostPathInfo).toHaveBeenCalledWith(
+      resolveSandboxWorkspaceDir("~/.openclaw/sandboxes", "agent:other"),
+    );
+    expect(mocks.removeSandboxContainer).not.toHaveBeenCalled();
   });
 });
