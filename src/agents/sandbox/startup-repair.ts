@@ -11,8 +11,6 @@ import { removeSandboxBrowserContainer, removeSandboxContainer } from "./manage.
 import {
   readBrowserRegistry,
   readRegistry,
-  type SandboxBrowserRegistryEntry,
-  type SandboxRegistryEntry,
 } from "./registry.js";
 import {
   resolveSandboxAgentId,
@@ -42,9 +40,9 @@ function resolveExpectedWorkspace(params: { cfg: OpenClawConfig; scopeKey: strin
   return { sandboxCfg, workspaceDir };
 }
 
-async function repairRegistryEntries<TEntry extends StartupRepairEntry>(params: {
+async function repairRegistryEntries(params: {
   cfg: OpenClawConfig;
-  entries: readonly TEntry[];
+  entries: readonly StartupRepairEntry[];
   remove: (containerName: string) => Promise<void>;
 }) {
   let removedCount = 0;
@@ -83,12 +81,12 @@ export async function repairSandboxWorkspaceMountsOnStartup(
 ) {
   const [registry, browserRegistry] = await Promise.all([readRegistry(), readBrowserRegistry()]);
   const [removedContainers, removedBrowsers] = await Promise.all([
-    repairRegistryEntries<SandboxRegistryEntry>({
+    repairRegistryEntries({
       cfg,
       entries: registry.entries.map((entry) => ({ ...entry, scopeKey: entry.sessionKey })),
       remove: removeSandboxContainer,
     }),
-    repairRegistryEntries<SandboxBrowserRegistryEntry>({
+    repairRegistryEntries({
       cfg,
       entries: browserRegistry.entries.map((entry) => ({ ...entry, scopeKey: entry.sessionKey })),
       remove: removeSandboxBrowserContainer,
