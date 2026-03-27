@@ -63,6 +63,24 @@ describe("extractDockerContainerIdFromMountInfo", () => {
     );
   });
 
+  it("extracts the container id when Docker uses a custom data-root", () => {
+    const mountInfo =
+      "1175 1165 8:1 /srv/docker-data/containers/c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw";
+
+    expect(extractDockerContainerIdFromMountInfo(mountInfo)).toBe(
+      "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c",
+    );
+  });
+
+  it("extracts the container id for rootless Docker mount paths", () => {
+    const mountInfo =
+      "1175 1165 8:1 /home/node/.local/share/docker/containers/c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c/resolv.conf /etc/resolv.conf ro,relatime - ext4 /dev/sda1 rw";
+
+    expect(extractDockerContainerIdFromMountInfo(mountInfo)).toBe(
+      "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c",
+    );
+  });
+
   it("returns null when mountinfo does not expose a docker container path", () => {
     expect(
       extractDockerContainerIdFromMountInfo("24 19 259:2 / / rw,relatime - ext4 /dev/nvme0n1p2 rw"),

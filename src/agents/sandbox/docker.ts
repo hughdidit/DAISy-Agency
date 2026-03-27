@@ -177,15 +177,25 @@ import { appendWorkspaceMountArgs } from "./workspace-mounts.js";
 const log = createSubsystemLogger("docker");
 
 const HOT_CONTAINER_WINDOW_MS = 5 * 60 * 1000;
-let currentContainerBindMountsPromise: Promise<DockerBindMount[] | null> | null = null;
+type CurrentContainerBindMountsResult = {
+  mounts: DockerBindMount[];
+  remapSucceeded: boolean;
+};
+
+let currentContainerBindMountsPromise: Promise<CurrentContainerBindMountsResult> | null = null;
 const DOCKER_CONTAINER_MOUNTINFO_PATTERN =
-  /\/var\/lib\/docker\/containers\/([0-9a-f]{64})\/(?:hostname|hosts|resolv\.conf)\b/i;
+  /(?:^|\/)containers\/([0-9a-f]{64})\/(?:hostname|hosts|resolv\.conf)\b/i;
 
 export type DockerBindMount = {
   source: string;
   destination: string;
   mode?: string;
   rw?: boolean;
+};
+
+export type DockerHostPathResolution = {
+  path: string;
+  remapSucceeded: boolean;
 };
 
 function normalizeContainerMountPath(value: string): string {
@@ -377,7 +387,7 @@ export async function readDockerBindMounts(
   return mounts;
 }
 
-async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | null> {
+async function readCurrentContainerBindMounts(): Promise<CurrentContainerBindMountsResult> {
   if (currentContainerBindMountsPromise) {
     return currentContainerBindMountsPromise;
   }
@@ -387,7 +397,7 @@ async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | nul
       const selfIdentifier = await resolveCurrentContainerIdentifier();
       if (!selfIdentifier) {
         currentContainerBindMountsPromise = null;
-        return null;
+        return { mounts: [], remapSucceeded: false };
       }
 
       const mounts = await readDockerBindMounts(selfIdentifier);
@@ -396,9 +406,9 @@ async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | nul
           `Failed to inspect Docker bind mounts for the current gateway container (${selfIdentifier}); sandbox host-path remap will fall back to container paths.`,
         );
         currentContainerBindMountsPromise = null;
-        return null;
+        return { mounts: [], remapSucceeded: false };
       }
-      return mounts;
+      return { mounts, remapSucceeded: true };
     } catch (error) {
       currentContainerBindMountsPromise = null;
       throw error;
@@ -409,8 +419,21 @@ async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | nul
 }
 
 export async function resolveDockerHostPath(pathToResolve: string): Promise<string> {
-  const mounts = await readCurrentContainerBindMounts();
-  return remapContainerPathToHostPath(pathToResolve, mounts ?? []);
+  const resolution = await resolveDockerHostPathInfo(pathToResolve);
+  return resolution.path;
+}
+
+export async function resolveDockerHostPathInfo(
+  pathToResolve: string,
+): Promise<DockerHostPathResolution> {
+  const result = await readCurrentContainerBindMounts();
+  if (!result.remapSucceeded) {
+    return { path: pathToResolve, remapSucceeded: false };
+  }
+  return {
+    path: remapContainerPathToHostPath(pathToResolve, result.mounts),
+    remapSucceeded: true,
+  };
 }
 
 export type ExecDockerOptions = ExecDockerRawOptions;
@@ -723,8 +746,15 @@ export function hasUnsafeWorkspaceMount(params: {
   expectedSource: string;
   destination: string;
   workspaceAccess: SandboxWorkspaceAccess;
+  expectedSourceTrusted?: boolean;
 }): boolean {
-  if (params.workspaceAccess !== "rw") {
+  if (params.workspaceAccess === "none") {
+    return false;
+  }
+  if (params.expectedSourceTrusted === false) {
+    log.warn(
+      `Skipping workspace mount safety check for ${params.containerName}: sandbox host-path remap did not resolve a trusted host source.`,
+    );
     return false;
   }
   if (!params.mounts) {
@@ -737,7 +767,7 @@ export function hasUnsafeWorkspaceMount(params: {
     mounts: params.mounts,
     destination: params.destination,
     expectedSource: params.expectedSource,
-    requireWritable: true,
+    requireWritable: params.workspaceAccess === "rw",
   });
   if (!matches) {
     const mount = findDockerBindMountByDestination(params.mounts, params.destination);
@@ -745,7 +775,7 @@ export function hasUnsafeWorkspaceMount(params: {
       ? `${mount.source}${isDockerBindMountWritable(mount) ? "" : " (not writable)"}`
       : "missing";
     log.warn(
-      `Recreating sandbox ${params.containerName}: expected ${params.destination} to bind ${params.expectedSource} writable, found ${actual}.`,
+      `Recreating sandbox ${params.containerName}: expected ${params.destination} to bind ${params.expectedSource}${params.workspaceAccess === "rw" ? " writable" : ""}, found ${actual}.`,
     );
   }
   return !matches;
@@ -768,8 +798,10 @@ export async function ensureSandboxContainer(params: {
   agentWorkspaceDir: string;
   cfg: SandboxConfig;
 }) {
-  const hostWorkspaceDir = await resolveDockerHostPath(params.workspaceDir);
-  const hostAgentWorkspaceDir = await resolveDockerHostPath(params.agentWorkspaceDir);
+  const workspaceDirResolution = await resolveDockerHostPathInfo(params.workspaceDir);
+  const agentWorkspaceDirResolution = await resolveDockerHostPathInfo(params.agentWorkspaceDir);
+  const hostWorkspaceDir = workspaceDirResolution.path;
+  const hostAgentWorkspaceDir = agentWorkspaceDirResolution.path;
   const scopeKey = resolveSandboxScopeKey(params.cfg.scope, params.sessionKey);
   const slug = params.cfg.scope === "shared" ? "shared" : slugifySessionKey(scopeKey);
   const name = `${params.cfg.docker.containerPrefix}${slug}`;
@@ -796,13 +828,16 @@ export async function ensureSandboxContainer(params: {
     const registry = await readRegistry();
     registryEntry = registry.entries.find((entry) => entry.containerName === containerName);
     const existingMounts =
-      params.cfg.workspaceAccess === "rw" ? await readDockerBindMounts(containerName) : null;
+      params.cfg.workspaceAccess !== "none" && workspaceDirResolution.remapSucceeded
+        ? await readDockerBindMounts(containerName)
+        : null;
     const workspaceMountUnsafe = hasUnsafeWorkspaceMount({
       mounts: existingMounts,
       containerName,
       expectedSource: hostWorkspaceDir,
       destination: params.cfg.docker.workdir,
       workspaceAccess: params.cfg.workspaceAccess,
+      expectedSourceTrusted: workspaceDirResolution.remapSucceeded,
     });
     if (workspaceMountUnsafe) {
       await execDocker(["rm", "-f", containerName], { allowFailure: true });

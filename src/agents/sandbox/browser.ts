@@ -21,7 +21,7 @@ import {
   readDockerContainerEnvVar,
   readDockerContainerLabel,
   readDockerPort,
-  resolveDockerHostPath,
+  resolveDockerHostPathInfo,
 } from "./docker.js";
 import {
   buildNoVncObserverTokenUrl,
@@ -150,8 +150,10 @@ export async function ensureSandboxBrowser(params: {
   const state = await dockerContainerState(containerName);
   const browserImage = params.cfg.browser.image ?? DEFAULT_SANDBOX_BROWSER_IMAGE;
   const cdpSourceRange = params.cfg.browser.cdpSourceRange?.trim() || undefined;
-  const hostWorkspaceDir = await resolveDockerHostPath(params.workspaceDir);
-  const hostAgentWorkspaceDir = await resolveDockerHostPath(params.agentWorkspaceDir);
+  const workspaceDirResolution = await resolveDockerHostPathInfo(params.workspaceDir);
+  const agentWorkspaceDirResolution = await resolveDockerHostPathInfo(params.agentWorkspaceDir);
+  const hostWorkspaceDir = workspaceDirResolution.path;
+  const hostAgentWorkspaceDir = agentWorkspaceDirResolution.path;
   const browserDockerCfg = resolveSandboxBrowserDockerCreateConfig({
     docker: params.cfg.docker,
     browser: { ...params.cfg.browser, image: browserImage },
@@ -188,13 +190,16 @@ export async function ensureSandboxBrowser(params: {
     const registry = await readBrowserRegistry();
     const registryEntry = registry.entries.find((entry) => entry.containerName === containerName);
     const existingMounts =
-      params.cfg.workspaceAccess === "rw" ? await readDockerBindMounts(containerName) : null;
+      params.cfg.workspaceAccess !== "none" && workspaceDirResolution.remapSucceeded
+        ? await readDockerBindMounts(containerName)
+        : null;
     const workspaceMountUnsafe = hasUnsafeWorkspaceMount({
       mounts: existingMounts,
       containerName,
       expectedSource: hostWorkspaceDir,
       destination: params.cfg.docker.workdir,
       workspaceAccess: params.cfg.workspaceAccess,
+      expectedSourceTrusted: workspaceDirResolution.remapSucceeded,
     });
     if (workspaceMountUnsafe) {
       await execDocker(["rm", "-f", containerName], { allowFailure: true });

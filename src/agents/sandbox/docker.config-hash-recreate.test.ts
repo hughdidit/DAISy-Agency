@@ -406,6 +406,74 @@ describe("ensureSandboxContainer config-hash recreation", () => {
     );
   });
 
+  it("recreates a hot read-only container when the existing workspace mount source is wrong", async () => {
+    const workspaceDir = "/home/node/.openclaw/workspace";
+    const cfg = createSandboxConfig([], undefined, "ro");
+    const gatewayCid = "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c";
+    const expectedHash = computeSandboxConfigHash({
+      docker: cfg.docker,
+      workspaceAccess: cfg.workspaceAccess,
+      workspaceDir: "/opt/DAISy/workspace",
+      agentWorkspaceDir: "/opt/DAISy/workspace",
+    });
+
+    fsPromisesMocks.readFile.mockResolvedValue(
+      `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`,
+    );
+    spawnState.inspectMountsByTarget[gatewayCid] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/workspace",
+        Destination: "/home/node/.openclaw/workspace",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.inspectMountsByTarget["oc-test-shared"] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/home/node/.openclaw/workspace",
+        Destination: "/workspace",
+        Mode: "ro",
+        RW: false,
+      },
+    ]);
+    spawnState.labelHash = expectedHash;
+    spawnState.inspectRunning = true;
+    registryMocks.readRegistry.mockResolvedValue({
+      entries: [
+        {
+          containerName: "oc-test-shared",
+          sessionKey: "shared",
+          createdAtMs: 1,
+          lastUsedAtMs: Date.now(),
+          image: cfg.docker.image,
+          configHash: expectedHash,
+        },
+      ],
+    });
+
+    await ensureSandboxContainer({
+      sessionKey: "agent:main:session-1",
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+      cfg,
+    });
+
+    const dockerCalls = spawnState.calls.filter((call) => call.command === "docker");
+    expect(
+      dockerCalls.some(
+        (call) =>
+          call.args[0] === "rm" && call.args[1] === "-f" && call.args[2] === "oc-test-shared",
+      ),
+    ).toBe(true);
+    const createCall = dockerCalls.find((call) => call.args[0] === "create");
+    expect(createCall).toBeDefined();
+    expect(collectDockerFlagValues(createCall?.args ?? [], "-v")).toContain(
+      "/opt/DAISy/workspace:/workspace:ro",
+    );
+  });
+
   it("keeps a hot container when the existing workspace mount already matches", async () => {
     const workspaceDir = "/home/node/.openclaw/workspace";
     const cfg = createSandboxConfig([]);
@@ -429,6 +497,57 @@ describe("ensureSandboxContainer config-hash recreation", () => {
         RW: true,
       },
     ]);
+    spawnState.inspectMountsByTarget["oc-test-shared"] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/workspace",
+        Destination: "/workspace",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+    spawnState.labelHash = expectedHash;
+    spawnState.inspectRunning = true;
+    registryMocks.readRegistry.mockResolvedValue({
+      entries: [
+        {
+          containerName: "oc-test-shared",
+          sessionKey: "shared",
+          createdAtMs: 1,
+          lastUsedAtMs: Date.now(),
+          image: cfg.docker.image,
+          configHash: expectedHash,
+        },
+      ],
+    });
+
+    await ensureSandboxContainer({
+      sessionKey: "agent:main:session-1",
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+      cfg,
+    });
+
+    const dockerCalls = spawnState.calls.filter((call) => call.command === "docker");
+    expect(
+      dockerCalls.some(
+        (call) =>
+          call.args[0] === "rm" && call.args[1] === "-f" && call.args[2] === "oc-test-shared",
+      ),
+    ).toBe(false);
+    expect(dockerCalls.some((call) => call.args[0] === "create")).toBe(false);
+  });
+
+  it("keeps a hot container when host-path remap is unresolved", async () => {
+    const workspaceDir = "/home/node/.openclaw/workspace";
+    const cfg = createSandboxConfig([]);
+    const expectedHash = computeSandboxConfigHash({
+      docker: cfg.docker,
+      workspaceAccess: cfg.workspaceAccess,
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+    });
+
     spawnState.inspectMountsByTarget["oc-test-shared"] = JSON.stringify([
       {
         Type: "bind",
