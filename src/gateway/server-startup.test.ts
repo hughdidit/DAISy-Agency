@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   clearInternalHooks: vi.fn(),
   createInternalHookEvent: vi.fn(),
   triggerInternalHook: vi.fn(),
+  repairSandboxWorkspaceMountsOnStartup: vi.fn().mockResolvedValue(undefined),
   loadModelCatalog: vi.fn(),
   getModelRefStatus: vi.fn(),
   resolveConfiguredModelRef: vi.fn(),
@@ -56,6 +57,10 @@ vi.mock("../hooks/internal-hooks.js", () => ({
   triggerInternalHook: mocks.triggerInternalHook,
 }));
 
+vi.mock("../agents/sandbox/startup-repair.js", () => ({
+  repairSandboxWorkspaceMountsOnStartup: mocks.repairSandboxWorkspaceMountsOnStartup,
+}));
+
 vi.mock("../agents/model-catalog.js", () => ({
   loadModelCatalog: mocks.loadModelCatalog,
 }));
@@ -98,6 +103,7 @@ describe("startGatewaySidecars", () => {
     mocks.isTruthyEnvValue.mockReturnValue(false);
     mocks.startGatewayMemoryBackend.mockResolvedValue(undefined);
     mocks.shouldWakeFromRestartSentinel.mockReturnValue(false);
+    mocks.repairSandboxWorkspaceMountsOnStartup.mockResolvedValue(undefined);
   });
 
   it("fails before launching sidecars when required plugin startup fails", async () => {
@@ -130,5 +136,31 @@ describe("startGatewaySidecars", () => {
     expect(startChannels).not.toHaveBeenCalled();
     expect(mocks.startGatewayMemoryBackend).not.toHaveBeenCalled();
     expect(mocks.createInternalHookEvent).not.toHaveBeenCalled();
+  });
+
+  it("repairs stale sandbox workspace mounts before launching sidecars", async () => {
+    const startChannels = vi.fn().mockResolvedValue(undefined);
+    const log = { warn: vi.fn() };
+    const logHooks = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+    const logChannels = { info: vi.fn(), error: vi.fn() };
+    const logBrowser = { error: vi.fn() };
+
+    await startGatewaySidecars({
+      cfg: { hooks: { internal: { enabled: false } } } as never,
+      pluginRegistry: { services: [] } as never,
+      defaultWorkspaceDir: "/tmp/workspace",
+      deps: {} as never,
+      startChannels,
+      log,
+      logHooks,
+      logChannels,
+      logBrowser,
+    });
+
+    expect(mocks.repairSandboxWorkspaceMountsOnStartup).toHaveBeenCalledWith(
+      expect.anything(),
+      log,
+    );
+    expect(mocks.startPluginServices).toHaveBeenCalled();
   });
 });
