@@ -1,4 +1,6 @@
 import { spawn } from "node:child_process";
+import os from "node:os";
+import path from "node:path";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import {
   materializeWindowsSpawnProgram,
@@ -174,6 +176,117 @@ import { appendWorkspaceMountArgs } from "./workspace-mounts.js";
 const log = createSubsystemLogger("docker");
 
 const HOT_CONTAINER_WINDOW_MS = 5 * 60 * 1000;
+let currentContainerBindMountsPromise: Promise<DockerBindMount[] | null> | null = null;
+
+type DockerBindMount = {
+  source: string;
+  destination: string;
+};
+
+function normalizeContainerMountPath(value: string): string {
+  const normalized = value.replace(/\\/g, "/");
+  const collapsed = path.posix.normalize(normalized);
+  return collapsed.startsWith("/") ? collapsed : `/${collapsed}`;
+}
+
+function isWindowsStylePath(value: string): boolean {
+  return /^[A-Za-z]:[\\/]/.test(value) || value.startsWith("\\\\");
+}
+
+export function remapContainerPathToHostPath(
+  containerPath: string,
+  mounts: readonly DockerBindMount[],
+): string {
+  if (!containerPath.trim() || mounts.length === 0) {
+    return containerPath;
+  }
+
+  const normalizedTarget = normalizeContainerMountPath(containerPath);
+  const matchedMount = mounts
+    .filter((mount) => {
+      const destination = normalizeContainerMountPath(mount.destination);
+      return (
+        normalizedTarget === destination ||
+        (destination === "/"
+          ? normalizedTarget.startsWith("/")
+          : normalizedTarget.startsWith(`${destination}/`))
+      );
+    })
+    .toSorted(
+      (left, right) =>
+        normalizeContainerMountPath(right.destination).length -
+        normalizeContainerMountPath(left.destination).length,
+    )[0];
+
+  if (!matchedMount) {
+    return containerPath;
+  }
+
+  const normalizedDestination = normalizeContainerMountPath(matchedMount.destination);
+  const relative = path.posix.relative(normalizedDestination, normalizedTarget);
+  if (!relative || relative === ".") {
+    return matchedMount.source;
+  }
+
+  const segments = relative.split("/").filter(Boolean);
+  return isWindowsStylePath(matchedMount.source)
+    ? path.win32.join(matchedMount.source, ...segments)
+    : path.posix.join(matchedMount.source, ...segments);
+}
+
+async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | null> {
+  if (currentContainerBindMountsPromise) {
+    return currentContainerBindMountsPromise;
+  }
+
+  currentContainerBindMountsPromise = (async () => {
+    try {
+      const selfIdentifier = process.env.HOSTNAME?.trim() || os.hostname().trim();
+      if (!selfIdentifier) {
+        currentContainerBindMountsPromise = null;
+        return null;
+      }
+
+      const result = await execDocker(["inspect", "-f", "{{json .Mounts}}", selfIdentifier], {
+        allowFailure: true,
+      });
+      if (result.code !== 0) {
+        currentContainerBindMountsPromise = null;
+        return null;
+      }
+
+      let parsed: Array<{ Type?: string; Source?: string; Destination?: string }>;
+      try {
+        parsed = JSON.parse(result.stdout.trim()) as Array<{
+          Type?: string;
+          Source?: string;
+          Destination?: string;
+        }>;
+      } catch {
+        currentContainerBindMountsPromise = null;
+        return null;
+      }
+
+      const mounts = parsed
+        .filter(
+          (entry): entry is { Type: string; Source: string; Destination: string } =>
+            entry.Type === "bind" && Boolean(entry.Source) && Boolean(entry.Destination),
+        )
+        .map(({ Source, Destination }) => ({ source: Source, destination: Destination }));
+      return mounts;
+    } catch (error) {
+      currentContainerBindMountsPromise = null;
+      throw error;
+    }
+  })();
+
+  return currentContainerBindMountsPromise;
+}
+
+export async function resolveDockerHostPath(pathToResolve: string): Promise<string> {
+  const mounts = await readCurrentContainerBindMounts();
+  return remapContainerPathToHostPath(pathToResolve, mounts ?? []);
+}
 
 export type ExecDockerOptions = ExecDockerRawOptions;
 
@@ -436,8 +549,10 @@ async function createSandboxContainer(params: {
   name: string;
   cfg: SandboxDockerConfig;
   workspaceDir: string;
+  hostWorkspaceDir: string;
   workspaceAccess: SandboxWorkspaceAccess;
   agentWorkspaceDir: string;
+  hostAgentWorkspaceDir: string;
   scopeKey: string;
   configHash?: string;
 }) {
@@ -450,13 +565,15 @@ async function createSandboxContainer(params: {
     scopeKey,
     configHash: params.configHash,
     includeBinds: false,
-    bindSourceRoots: [workspaceDir, params.agentWorkspaceDir],
+    bindSourceRoots: [params.hostWorkspaceDir, params.hostAgentWorkspaceDir],
   });
   args.push("--workdir", cfg.workdir);
   appendWorkspaceMountArgs({
     args,
     workspaceDir,
     agentWorkspaceDir: params.agentWorkspaceDir,
+    hostWorkspaceDir: params.hostWorkspaceDir,
+    hostAgentWorkspaceDir: params.hostAgentWorkspaceDir,
     workdir: cfg.workdir,
     workspaceAccess: params.workspaceAccess,
   });
@@ -492,6 +609,8 @@ export async function ensureSandboxContainer(params: {
   agentWorkspaceDir: string;
   cfg: SandboxConfig;
 }) {
+  const hostWorkspaceDir = await resolveDockerHostPath(params.workspaceDir);
+  const hostAgentWorkspaceDir = await resolveDockerHostPath(params.agentWorkspaceDir);
   const scopeKey = resolveSandboxScopeKey(params.cfg.scope, params.sessionKey);
   const slug = params.cfg.scope === "shared" ? "shared" : slugifySessionKey(scopeKey);
   const name = `${params.cfg.docker.containerPrefix}${slug}`;
@@ -499,8 +618,8 @@ export async function ensureSandboxContainer(params: {
   const expectedHash = computeSandboxConfigHash({
     docker: params.cfg.docker,
     workspaceAccess: params.cfg.workspaceAccess,
-    workspaceDir: params.workspaceDir,
-    agentWorkspaceDir: params.agentWorkspaceDir,
+    workspaceDir: hostWorkspaceDir,
+    agentWorkspaceDir: hostAgentWorkspaceDir,
   });
   const now = Date.now();
   const state = await dockerContainerState(containerName);
@@ -544,8 +663,10 @@ export async function ensureSandboxContainer(params: {
       name: containerName,
       cfg: params.cfg.docker,
       workspaceDir: params.workspaceDir,
+      hostWorkspaceDir,
       workspaceAccess: params.cfg.workspaceAccess,
       agentWorkspaceDir: params.agentWorkspaceDir,
+      hostAgentWorkspaceDir,
       scopeKey,
       configHash: expectedHash,
     });

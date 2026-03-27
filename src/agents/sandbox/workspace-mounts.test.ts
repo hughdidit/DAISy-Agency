@@ -46,4 +46,23 @@ describe("appendWorkspaceMountArgs", () => {
     const mounts = args.filter((arg) => arg.startsWith("/tmp/"));
     expect(mounts).toEqual(["/tmp/workspace:/workspace"]);
   });
+
+  it("prefers explicit host mount sources when provided", () => {
+    const args: string[] = [];
+    appendWorkspaceMountArgs({
+      args,
+      workspaceDir: "/home/node/.openclaw/workspace/session-a",
+      agentWorkspaceDir: "/home/node/.openclaw/workspace",
+      hostWorkspaceDir: "/opt/DAISy/workspace/session-a",
+      hostAgentWorkspaceDir: "/opt/DAISy/workspace",
+      workdir: "/workspace",
+      workspaceAccess: "rw",
+    });
+
+    const mounts = args.filter((arg) => arg.includes(":/workspace"));
+    expect(mounts).toEqual([
+      "/opt/DAISy/workspace/session-a:/workspace",
+      "/opt/DAISy/workspace:/.openclaw/agent-workspace",
+    ]);
+  });
 });

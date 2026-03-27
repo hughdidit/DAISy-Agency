@@ -103,6 +103,23 @@ describe("computeSandboxConfigHash", () => {
     });
     expect(left).not.toBe(right);
   });
+
+  it("changes when workspace bind source changes", () => {
+    const shared = {
+      workspaceAccess: "rw" as const,
+      agentWorkspaceDir: "/opt/DAISy/workspace",
+      docker: createDockerConfig(),
+    };
+    const left = computeSandboxConfigHash({
+      ...shared,
+      workspaceDir: "/home/node/.openclaw/workspace",
+    });
+    const right = computeSandboxConfigHash({
+      ...shared,
+      workspaceDir: "/opt/DAISy/workspace",
+    });
+    expect(left).not.toBe(right);
+  });
 });
 
 describe("computeSandboxBrowserConfigHash", () => {

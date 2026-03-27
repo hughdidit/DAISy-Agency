@@ -11,6 +11,7 @@ const dockerMocks = vi.hoisted(() => ({
   readDockerContainerEnvVar: vi.fn(),
   readDockerContainerLabel: vi.fn(),
   readDockerPort: vi.fn(),
+  resolveDockerHostPath: vi.fn(),
 }));
 
 const registryMocks = vi.hoisted(() => ({
@@ -32,6 +33,7 @@ vi.mock("./docker.js", async (importOriginal) => {
     readDockerContainerEnvVar: dockerMocks.readDockerContainerEnvVar,
     readDockerContainerLabel: dockerMocks.readDockerContainerLabel,
     readDockerPort: dockerMocks.readDockerPort,
+    resolveDockerHostPath: dockerMocks.resolveDockerHostPath,
   };
 });
 
@@ -95,6 +97,7 @@ describe("ensureSandboxBrowser create args", () => {
     dockerMocks.readDockerContainerEnvVar.mockClear();
     dockerMocks.readDockerContainerLabel.mockClear();
     dockerMocks.readDockerPort.mockClear();
+    dockerMocks.resolveDockerHostPath.mockClear();
     registryMocks.readBrowserRegistry.mockClear();
     registryMocks.updateBrowserRegistry.mockClear();
     bridgeMocks.startBrowserBridgeServer.mockClear();
@@ -109,6 +112,7 @@ describe("ensureSandboxBrowser create args", () => {
     });
     dockerMocks.readDockerContainerLabel.mockResolvedValue(null);
     dockerMocks.readDockerContainerEnvVar.mockResolvedValue(null);
+    dockerMocks.resolveDockerHostPath.mockImplementation(async (value: string) => value);
     dockerMocks.readDockerPort.mockImplementation(async (_containerName: string, port: number) => {
       if (port === 9222) {
         return 49100;
@@ -205,5 +209,21 @@ describe("ensureSandboxBrowser create args", () => {
     expect(createArgs).toBeDefined();
     expect(createArgs).toContain("/tmp/workspace:/workspace");
     expect(createArgs).not.toContain("/tmp/workspace:/workspace:ro");
+  });
+
+  it("adds custom browser binds only once", async () => {
+    const cfg = buildConfig(false);
+    cfg.docker.binds = ["/tmp/browser-cache:/cache:rw"];
+
+    await ensureSandboxBrowser({
+      scopeKey: "session:test",
+      workspaceDir: "/tmp/workspace",
+      agentWorkspaceDir: "/tmp/workspace",
+      cfg,
+    });
+
+    const createArgs = findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create");
+    const bindArgs = collectDockerFlagValues(createArgs ?? [], "-v");
+    expect(bindArgs.filter((entry) => entry === "/tmp/browser-cache:/cache:rw")).toHaveLength(1);
   });
 });

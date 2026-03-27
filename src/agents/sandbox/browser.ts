@@ -19,6 +19,7 @@ import {
   readDockerContainerEnvVar,
   readDockerContainerLabel,
   readDockerPort,
+  resolveDockerHostPath,
 } from "./docker.js";
 import {
   buildNoVncObserverTokenUrl,
@@ -147,6 +148,8 @@ export async function ensureSandboxBrowser(params: {
   const state = await dockerContainerState(containerName);
   const browserImage = params.cfg.browser.image ?? DEFAULT_SANDBOX_BROWSER_IMAGE;
   const cdpSourceRange = params.cfg.browser.cdpSourceRange?.trim() || undefined;
+  const hostWorkspaceDir = await resolveDockerHostPath(params.workspaceDir);
+  const hostAgentWorkspaceDir = await resolveDockerHostPath(params.agentWorkspaceDir);
   const browserDockerCfg = resolveSandboxBrowserDockerCreateConfig({
     docker: params.cfg.docker,
     browser: { ...params.cfg.browser, image: browserImage },
@@ -163,8 +166,8 @@ export async function ensureSandboxBrowser(params: {
     },
     securityEpoch: SANDBOX_BROWSER_SECURITY_HASH_EPOCH,
     workspaceAccess: params.cfg.workspaceAccess,
-    workspaceDir: params.workspaceDir,
-    agentWorkspaceDir: params.agentWorkspaceDir,
+    workspaceDir: hostWorkspaceDir,
+    agentWorkspaceDir: hostAgentWorkspaceDir,
   });
 
   const now = Date.now();
@@ -232,20 +235,17 @@ export async function ensureSandboxBrowser(params: {
       },
       configHash: expectedHash,
       includeBinds: false,
-      bindSourceRoots: [params.workspaceDir, params.agentWorkspaceDir],
+      bindSourceRoots: [hostWorkspaceDir, hostAgentWorkspaceDir],
     });
     appendWorkspaceMountArgs({
       args,
       workspaceDir: params.workspaceDir,
       agentWorkspaceDir: params.agentWorkspaceDir,
+      hostWorkspaceDir,
+      hostAgentWorkspaceDir,
       workdir: params.cfg.docker.workdir,
       workspaceAccess: params.cfg.workspaceAccess,
     });
-    if (browserDockerCfg.binds?.length) {
-      for (const bind of browserDockerCfg.binds) {
-        args.push("-v", bind);
-      }
-    }
     if (browserDockerCfg.binds?.length) {
       for (const bind of browserDockerCfg.binds) {
         args.push("-v", bind);
