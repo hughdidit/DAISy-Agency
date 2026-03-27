@@ -3,8 +3,10 @@ import { resolveUserPath } from "../../utils.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agent-scope.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
 import {
+  execDocker,
   hasUnsafeWorkspaceMount,
   readDockerBindMounts,
+  readDockerContainerLabel,
   resolveDockerHostPathInfo,
 } from "./docker.js";
 import { removeSandboxBrowserContainer, removeSandboxContainer } from "./manage.js";
@@ -19,6 +21,53 @@ type StartupRepairEntry = {
   containerName: string;
   scopeKey: string;
 };
+
+function dedupeStartupRepairEntries(
+  entries: readonly StartupRepairEntry[],
+): StartupRepairEntry[] {
+  const deduped = new Map<string, StartupRepairEntry>();
+  for (const entry of entries) {
+    deduped.set(entry.containerName, entry);
+  }
+  return [...deduped.values()];
+}
+
+async function readLiveSandboxEntries(): Promise<{
+  containers: StartupRepairEntry[];
+  browsers: StartupRepairEntry[];
+}> {
+  const result = await execDocker(
+    ["ps", "-a", "--filter", "label=openclaw.sandbox=1", "--format", "{{.Names}}"],
+    { allowFailure: true },
+  );
+  if (result.code !== 0) {
+    return { containers: [], browsers: [] };
+  }
+
+  const containers: StartupRepairEntry[] = [];
+  const browsers: StartupRepairEntry[] = [];
+  const names = result.stdout
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  for (const containerName of names) {
+    const scopeKey = await readDockerContainerLabel(containerName, "openclaw.sessionKey");
+    if (!scopeKey) {
+      continue;
+    }
+    const isBrowser =
+      (await readDockerContainerLabel(containerName, "openclaw.sandboxBrowser")) === "1";
+    const entry = { containerName, scopeKey };
+    if (isBrowser) {
+      browsers.push(entry);
+    } else {
+      containers.push(entry);
+    }
+  }
+
+  return { containers, browsers };
+}
 
 function resolveExpectedWorkspace(params: { cfg: OpenClawConfig; scopeKey: string }) {
   const agentId = resolveSandboxAgentId(params.scopeKey) ?? resolveDefaultAgentId(params.cfg);
@@ -73,16 +122,26 @@ export async function repairSandboxWorkspaceMountsOnStartup(
   cfg: OpenClawConfig,
   log?: StartupRepairLog,
 ) {
-  const [registry, browserRegistry] = await Promise.all([readRegistry(), readBrowserRegistry()]);
+  const [registry, browserRegistry, live] = await Promise.all([
+    readRegistry(),
+    readBrowserRegistry(),
+    readLiveSandboxEntries(),
+  ]);
   const [removedContainers, removedBrowsers] = await Promise.all([
     repairRegistryEntries({
       cfg,
-      entries: registry.entries.map((entry) => ({ ...entry, scopeKey: entry.sessionKey })),
+      entries: dedupeStartupRepairEntries([
+        ...registry.entries.map((entry) => ({ ...entry, scopeKey: entry.sessionKey })),
+        ...live.containers,
+      ]),
       remove: removeSandboxContainer,
     }),
     repairRegistryEntries({
       cfg,
-      entries: browserRegistry.entries.map((entry) => ({ ...entry, scopeKey: entry.sessionKey })),
+      entries: dedupeStartupRepairEntries([
+        ...browserRegistry.entries.map((entry) => ({ ...entry, scopeKey: entry.sessionKey })),
+        ...live.browsers,
+      ]),
       remove: removeSandboxBrowserContainer,
     }),
   ]);
