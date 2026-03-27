@@ -22,9 +22,7 @@ type StartupRepairEntry = {
   scopeKey: string;
 };
 
-function dedupeStartupRepairEntries(
-  entries: readonly StartupRepairEntry[],
-): StartupRepairEntry[] {
+function dedupeStartupRepairEntries(entries: readonly StartupRepairEntry[]): StartupRepairEntry[] {
   const deduped = new Map<string, StartupRepairEntry>();
   for (const entry of entries) {
     deduped.set(entry.containerName, entry);
