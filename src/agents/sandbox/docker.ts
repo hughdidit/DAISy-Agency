@@ -235,42 +235,44 @@ async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | nul
   }
 
   currentContainerBindMountsPromise = (async () => {
-    const selfIdentifier = process.env.HOSTNAME?.trim() || os.hostname().trim();
-    if (!selfIdentifier) {
-      return null;
-    }
-
-    const result = await execDocker(
-      [
-        "inspect",
-        "-f",
-        "{{json .Mounts}}",
-        selfIdentifier,
-      ],
-      { allowFailure: true },
-    );
-    if (result.code !== 0) {
-      return null;
-    }
-
-    let parsed: Array<{ Type?: string; Source?: string; Destination?: string }>;
     try {
-      parsed = JSON.parse(result.stdout.trim()) as Array<{
-        Type?: string;
-        Source?: string;
-        Destination?: string;
-      }>;
-    } catch {
-      return null;
-    }
+      const selfIdentifier = process.env.HOSTNAME?.trim() || os.hostname().trim();
+      if (!selfIdentifier) {
+        currentContainerBindMountsPromise = null;
+        return null;
+      }
 
-    const mounts = parsed
-      .filter(
-        (entry): entry is { Type: string; Source: string; Destination: string } =>
-          entry.Type === "bind" && Boolean(entry.Source) && Boolean(entry.Destination),
-      )
-      .map(({ Source, Destination }) => ({ source: Source, destination: Destination }));
-    return mounts;
+      const result = await execDocker(["inspect", "-f", "{{json .Mounts}}", selfIdentifier], {
+        allowFailure: true,
+      });
+      if (result.code !== 0) {
+        currentContainerBindMountsPromise = null;
+        return null;
+      }
+
+      let parsed: Array<{ Type?: string; Source?: string; Destination?: string }>;
+      try {
+        parsed = JSON.parse(result.stdout.trim()) as Array<{
+          Type?: string;
+          Source?: string;
+          Destination?: string;
+        }>;
+      } catch {
+        currentContainerBindMountsPromise = null;
+        return null;
+      }
+
+      const mounts = parsed
+        .filter(
+          (entry): entry is { Type: string; Source: string; Destination: string } =>
+            entry.Type === "bind" && Boolean(entry.Source) && Boolean(entry.Destination),
+        )
+        .map(({ Source, Destination }) => ({ source: Source, destination: Destination }));
+      return mounts;
+    } catch (error) {
+      currentContainerBindMountsPromise = null;
+      throw error;
+    }
   })();
 
   return currentContainerBindMountsPromise;

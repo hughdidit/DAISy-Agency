@@ -11,6 +11,7 @@ const dockerMocks = vi.hoisted(() => ({
   readDockerContainerEnvVar: vi.fn(),
   readDockerContainerLabel: vi.fn(),
   readDockerPort: vi.fn(),
+  resolveDockerHostPath: vi.fn(),
 }));
 
 const registryMocks = vi.hoisted(() => ({
@@ -32,6 +33,7 @@ vi.mock("./docker.js", async (importOriginal) => {
     readDockerContainerEnvVar: dockerMocks.readDockerContainerEnvVar,
     readDockerContainerLabel: dockerMocks.readDockerContainerLabel,
     readDockerPort: dockerMocks.readDockerPort,
+    resolveDockerHostPath: dockerMocks.resolveDockerHostPath,
   };
 });
 
@@ -95,6 +97,7 @@ describe("ensureSandboxBrowser create args", () => {
     dockerMocks.readDockerContainerEnvVar.mockClear();
     dockerMocks.readDockerContainerLabel.mockClear();
     dockerMocks.readDockerPort.mockClear();
+    dockerMocks.resolveDockerHostPath.mockClear();
     registryMocks.readBrowserRegistry.mockClear();
     registryMocks.updateBrowserRegistry.mockClear();
     bridgeMocks.startBrowserBridgeServer.mockClear();
@@ -109,6 +112,7 @@ describe("ensureSandboxBrowser create args", () => {
     });
     dockerMocks.readDockerContainerLabel.mockResolvedValue(null);
     dockerMocks.readDockerContainerEnvVar.mockResolvedValue(null);
+    dockerMocks.resolveDockerHostPath.mockImplementation(async (value: string) => value);
     dockerMocks.readDockerPort.mockImplementation(async (_containerName: string, port: number) => {
       if (port === 9222) {
         return 49100;
