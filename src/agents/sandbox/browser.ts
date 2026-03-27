@@ -16,6 +16,8 @@ import {
   buildSandboxCreateArgs,
   dockerContainerState,
   execDocker,
+  hasExpectedDockerBindMount,
+  readDockerBindMounts,
   readDockerContainerEnvVar,
   readDockerContainerLabel,
   readDockerPort,
@@ -185,34 +187,59 @@ export async function ensureSandboxBrowser(params: {
     }
     const registry = await readBrowserRegistry();
     const registryEntry = registry.entries.find((entry) => entry.containerName === containerName);
-    currentHash = await readDockerContainerLabel(containerName, "openclaw.configHash");
-    hashMismatch = !currentHash || currentHash !== expectedHash;
-    if (!currentHash) {
-      currentHash = registryEntry?.configHash ?? null;
+    const existingMounts = await readDockerBindMounts(containerName);
+    const workspaceMountUnsafe =
+      params.cfg.workspaceAccess === "rw" &&
+      existingMounts !== null &&
+      !hasExpectedDockerBindMount({
+        mounts: existingMounts,
+        destination: params.cfg.docker.workdir,
+        expectedSource: hostWorkspaceDir,
+        requireWritable: true,
+      });
+    if (workspaceMountUnsafe) {
+      const workspaceMount =
+        existingMounts?.find((mount) => mount.destination === params.cfg.docker.workdir) ?? null;
+      const actual = workspaceMount
+        ? `${workspaceMount.source}${workspaceMount.rw === false ? " (not writable)" : ""}`
+        : "missing";
+      defaultRuntime.log(
+        `Sandbox browser workspace mount for ${containerName} is unsafe (${actual}); recreating immediately.`,
+      );
+      await execDocker(["rm", "-f", containerName], { allowFailure: true });
+      hasContainer = false;
+      running = false;
+    } else {
+      currentHash = await readDockerContainerLabel(containerName, "openclaw.configHash");
       hashMismatch = !currentHash || currentHash !== expectedHash;
-    }
-    if (hashMismatch) {
-      const lastUsedAtMs = registryEntry?.lastUsedAtMs;
-      const isHot =
-        running && (typeof lastUsedAtMs !== "number" || now - lastUsedAtMs < HOT_BROWSER_WINDOW_MS);
-      if (isHot) {
-        const hint = (() => {
-          if (params.cfg.scope === "session") {
-            return `openclaw sandbox recreate --browser --session ${params.scopeKey}`;
-          }
-          if (params.cfg.scope === "agent") {
-            const agentId = resolveSandboxAgentId(params.scopeKey) ?? "main";
-            return `openclaw sandbox recreate --browser --agent ${agentId}`;
-          }
-          return "openclaw sandbox recreate --browser --all";
-        })();
-        defaultRuntime.log(
-          `Sandbox browser config changed for ${containerName} (recently used). Recreate to apply: ${hint}`,
-        );
-      } else {
-        await execDocker(["rm", "-f", containerName], { allowFailure: true });
-        hasContainer = false;
-        running = false;
+      if (!currentHash) {
+        currentHash = registryEntry?.configHash ?? null;
+        hashMismatch = !currentHash || currentHash !== expectedHash;
+      }
+      if (hashMismatch) {
+        const lastUsedAtMs = registryEntry?.lastUsedAtMs;
+        const isHot =
+          running &&
+          (typeof lastUsedAtMs !== "number" || now - lastUsedAtMs < HOT_BROWSER_WINDOW_MS);
+        if (isHot) {
+          const hint = (() => {
+            if (params.cfg.scope === "session") {
+              return `openclaw sandbox recreate --browser --session ${params.scopeKey}`;
+            }
+            if (params.cfg.scope === "agent") {
+              const agentId = resolveSandboxAgentId(params.scopeKey) ?? "main";
+              return `openclaw sandbox recreate --browser --agent ${agentId}`;
+            }
+            return "openclaw sandbox recreate --browser --all";
+          })();
+          defaultRuntime.log(
+            `Sandbox browser config changed for ${containerName} (recently used). Recreate to apply: ${hint}`,
+          );
+        } else {
+          await execDocker(["rm", "-f", containerName], { allowFailure: true });
+          hasContainer = false;
+          running = false;
+        }
       }
     }
   }

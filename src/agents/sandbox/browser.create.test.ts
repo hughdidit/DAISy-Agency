@@ -2,12 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { BROWSER_BRIDGES } from "./browser-bridges.js";
 import { ensureSandboxBrowser } from "./browser.js";
 import { resetNoVncObserverTokensForTests } from "./novnc-auth.js";
+import { slugifySessionKey } from "./shared.js";
 import { collectDockerFlagValues, findDockerArgsCall } from "./test-args.js";
 import type { SandboxConfig } from "./types.js";
 
 const dockerMocks = vi.hoisted(() => ({
   dockerContainerState: vi.fn(),
   execDocker: vi.fn(),
+  readDockerBindMounts: vi.fn(),
   readDockerContainerEnvVar: vi.fn(),
   readDockerContainerLabel: vi.fn(),
   readDockerPort: vi.fn(),
@@ -30,6 +32,7 @@ vi.mock("./docker.js", async (importOriginal) => {
     ...actual,
     dockerContainerState: dockerMocks.dockerContainerState,
     execDocker: dockerMocks.execDocker,
+    readDockerBindMounts: dockerMocks.readDockerBindMounts,
     readDockerContainerEnvVar: dockerMocks.readDockerContainerEnvVar,
     readDockerContainerLabel: dockerMocks.readDockerContainerLabel,
     readDockerPort: dockerMocks.readDockerPort,
@@ -94,6 +97,7 @@ describe("ensureSandboxBrowser create args", () => {
     resetNoVncObserverTokensForTests();
     dockerMocks.dockerContainerState.mockClear();
     dockerMocks.execDocker.mockClear();
+    dockerMocks.readDockerBindMounts.mockClear();
     dockerMocks.readDockerContainerEnvVar.mockClear();
     dockerMocks.readDockerContainerLabel.mockClear();
     dockerMocks.readDockerPort.mockClear();
@@ -110,6 +114,7 @@ describe("ensureSandboxBrowser create args", () => {
       }
       return { stdout: "", stderr: "", code: 0 };
     });
+    dockerMocks.readDockerBindMounts.mockResolvedValue(null);
     dockerMocks.readDockerContainerLabel.mockResolvedValue(null);
     dockerMocks.readDockerContainerEnvVar.mockResolvedValue(null);
     dockerMocks.resolveDockerHostPath.mockImplementation(async (value: string) => value);
@@ -225,5 +230,94 @@ describe("ensureSandboxBrowser create args", () => {
     const createArgs = findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create");
     const bindArgs = collectDockerFlagValues(createArgs ?? [], "-v");
     expect(bindArgs.filter((entry) => entry === "/tmp/browser-cache:/cache:rw")).toHaveLength(1);
+  });
+
+  it("recreates a hot browser container when the workspace mount source is wrong", async () => {
+    const cfg = buildConfig(false);
+    cfg.workspaceAccess = "rw";
+    const expectedHash = "expected-browser-hash";
+    const containerName = `openclaw-sbx-browser-${slugifySessionKey("session:test")}`.slice(0, 63);
+
+    dockerMocks.dockerContainerState.mockResolvedValue({ exists: true, running: true });
+    dockerMocks.readDockerContainerLabel.mockResolvedValue(expectedHash);
+    dockerMocks.readDockerBindMounts.mockResolvedValue([
+      {
+        source: "/home/node/.openclaw/workspace",
+        destination: "/workspace",
+        rw: true,
+      },
+    ]);
+    registryMocks.readBrowserRegistry.mockResolvedValue({
+      entries: [
+        {
+          containerName,
+          sessionKey: "session:test",
+          createdAtMs: 1,
+          lastUsedAtMs: Date.now(),
+          image: cfg.browser.image,
+          configHash: expectedHash,
+          cdpPort: 49100,
+        },
+      ],
+    });
+    dockerMocks.resolveDockerHostPath.mockResolvedValue("/opt/DAISy/workspace");
+
+    await ensureSandboxBrowser({
+      scopeKey: "session:test",
+      workspaceDir: "/home/node/.openclaw/workspace",
+      agentWorkspaceDir: "/home/node/.openclaw/workspace",
+      cfg,
+    });
+
+    expect(dockerMocks.execDocker).toHaveBeenCalledWith(
+      ["rm", "-f", containerName],
+      { allowFailure: true },
+    );
+    const createArgs = findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create");
+    expect(createArgs).toContain("/opt/DAISy/workspace:/workspace");
+  });
+
+  it("keeps a hot browser container when the workspace mount already matches", async () => {
+    const cfg = buildConfig(false);
+    cfg.workspaceAccess = "rw";
+    const expectedHash = "expected-browser-hash";
+    const containerName = `openclaw-sbx-browser-${slugifySessionKey("session:test")}`.slice(0, 63);
+
+    dockerMocks.dockerContainerState.mockResolvedValue({ exists: true, running: true });
+    dockerMocks.readDockerContainerLabel.mockResolvedValue(expectedHash);
+    dockerMocks.readDockerBindMounts.mockResolvedValue([
+      {
+        source: "/opt/DAISy/workspace",
+        destination: "/workspace",
+        rw: true,
+      },
+    ]);
+    registryMocks.readBrowserRegistry.mockResolvedValue({
+      entries: [
+        {
+          containerName,
+          sessionKey: "session:test",
+          createdAtMs: 1,
+          lastUsedAtMs: Date.now(),
+          image: cfg.browser.image,
+          configHash: expectedHash,
+          cdpPort: 49100,
+        },
+      ],
+    });
+    dockerMocks.resolveDockerHostPath.mockResolvedValue("/opt/DAISy/workspace");
+
+    await ensureSandboxBrowser({
+      scopeKey: "session:test",
+      workspaceDir: "/home/node/.openclaw/workspace",
+      agentWorkspaceDir: "/home/node/.openclaw/workspace",
+      cfg,
+    });
+
+    expect(dockerMocks.execDocker).not.toHaveBeenCalledWith(
+      ["rm", "-f", containerName],
+      { allowFailure: true },
+    );
+    expect(findDockerArgsCall(dockerMocks.execDocker.mock.calls, "create")).toBeUndefined();
   });
 });
