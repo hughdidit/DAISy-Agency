@@ -30,7 +30,7 @@ function dedupeStartupRepairEntries(entries: readonly StartupRepairEntry[]): Sta
   return [...deduped.values()];
 }
 
-async function readLiveSandboxEntries(): Promise<{
+async function readLiveSandboxEntries(log?: StartupRepairLog): Promise<{
   containers: StartupRepairEntry[];
   browsers: StartupRepairEntry[];
 }> {
@@ -39,6 +39,17 @@ async function readLiveSandboxEntries(): Promise<{
     { allowFailure: true },
   );
   if (result.code !== 0) {
+    const stderr = result.stderr.trim();
+    const stdout = result.stdout.trim();
+    const details = [stderr && `stderr=${stderr}`, stdout && `stdout=${stdout}`]
+      .filter(Boolean)
+      .join(" ");
+    const message = `Failed to scan live sandbox containers during startup repair (exit ${result.code})${details ? ` ${details}` : ""}.`;
+    if (log?.warn) {
+      log.warn(message);
+    } else {
+      console.warn(message);
+    }
     return { containers: [], browsers: [] };
   }
 
@@ -123,7 +134,7 @@ export async function repairSandboxWorkspaceMountsOnStartup(
   const [registry, browserRegistry, live] = await Promise.all([
     readRegistry(),
     readBrowserRegistry(),
-    readLiveSandboxEntries(),
+    readLiveSandboxEntries(log),
   ]);
   const [removedContainers, removedBrowsers] = await Promise.all([
     repairRegistryEntries({
