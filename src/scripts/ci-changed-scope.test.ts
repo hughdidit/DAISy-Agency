@@ -9,7 +9,6 @@ const { detectChangedScope, listChangedPaths } =
       runNode: boolean;
       runMacos: boolean;
       runAndroid: boolean;
-      runWindows: boolean;
     };
     listChangedPaths: (base: string, head?: string) => string[];
   };
@@ -31,7 +30,6 @@ describe("detectChangedScope", () => {
       runNode: true,
       runMacos: true,
       runAndroid: true,
-      runWindows: true,
     });
   });
 
@@ -40,7 +38,6 @@ describe("detectChangedScope", () => {
       runNode: false,
       runMacos: false,
       runAndroid: false,
-      runWindows: false,
     });
   });
 
@@ -49,7 +46,6 @@ describe("detectChangedScope", () => {
       runNode: true,
       runMacos: false,
       runAndroid: false,
-      runWindows: true,
     });
   });
 
@@ -58,13 +54,11 @@ describe("detectChangedScope", () => {
       runNode: false,
       runMacos: true,
       runAndroid: false,
-      runWindows: false,
     });
     expect(detectChangedScope(["apps/shared/OpenClawKit/Sources/Foo.swift"])).toEqual({
       runNode: false,
       runMacos: true,
       runAndroid: true,
-      runWindows: false,
     });
   });
 
@@ -74,7 +68,6 @@ describe("detectChangedScope", () => {
         runNode: false,
         runMacos: false,
         runAndroid: false,
-        runWindows: false,
       },
     );
   });
@@ -84,23 +77,20 @@ describe("detectChangedScope", () => {
       runNode: false,
       runMacos: false,
       runAndroid: false,
-      runWindows: false,
     });
 
     expect(detectChangedScope(["assets/icon.png"])).toEqual({
       runNode: true,
       runMacos: false,
       runAndroid: false,
-      runWindows: false,
     });
   });
 
-  it("keeps windows lane off for non-runtime GitHub metadata files", () => {
+  it("keeps node lane off for non-runtime GitHub metadata files", () => {
     expect(detectChangedScope([".github/labeler.yml"])).toEqual({
       runNode: true,
       runMacos: false,
       runAndroid: false,
-      runWindows: false,
     });
   });
 
