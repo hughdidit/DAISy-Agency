@@ -154,6 +154,8 @@ describe("ensureSandboxContainer config-hash recreation", () => {
     spawnState.labelHash = "";
     spawnState.inspectMountsByTarget = {};
     fsPromisesMocks.readFile.mockReset();
+    // Default to the degraded path: mountinfo and bind-mount inspection are unavailable
+    // unless a test opts in with explicit fixture data.
     fsPromisesMocks.readFile.mockRejectedValue(new Error("ENOENT"));
     registryMocks.readRegistry.mockClear();
     registryMocks.updateRegistry.mockClear();

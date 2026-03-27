@@ -370,7 +370,11 @@ export async function readDockerBindMounts(
   if (result.code !== 0) {
     return null;
   }
-  return parseDockerBindMounts(result.stdout.trim());
+  const mounts = parseDockerBindMounts(result.stdout.trim());
+  if (mounts === null) {
+    log.debug(`Failed to parse Docker bind mounts for ${containerIdentifier}.`);
+  }
+  return mounts;
 }
 
 async function readCurrentContainerBindMounts(): Promise<DockerBindMount[] | null> {
@@ -713,7 +717,7 @@ async function readContainerConfigHash(containerName: string): Promise<string | 
   return await readDockerContainerLabel(containerName, "openclaw.configHash");
 }
 
-function hasUnsafeWorkspaceMount(params: {
+export function hasUnsafeWorkspaceMount(params: {
   mounts: readonly DockerBindMount[] | null;
   containerName: string;
   expectedSource: string;
@@ -791,7 +795,8 @@ export async function ensureSandboxContainer(params: {
   if (hasContainer) {
     const registry = await readRegistry();
     registryEntry = registry.entries.find((entry) => entry.containerName === containerName);
-    const existingMounts = await readDockerBindMounts(containerName);
+    const existingMounts =
+      params.cfg.workspaceAccess === "rw" ? await readDockerBindMounts(containerName) : null;
     const workspaceMountUnsafe = hasUnsafeWorkspaceMount({
       mounts: existingMounts,
       containerName,

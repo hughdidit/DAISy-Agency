@@ -16,7 +16,7 @@ import {
   buildSandboxCreateArgs,
   dockerContainerState,
   execDocker,
-  hasExpectedDockerBindMount,
+  hasUnsafeWorkspaceMount,
   readDockerBindMounts,
   readDockerContainerEnvVar,
   readDockerContainerLabel,
@@ -187,25 +187,16 @@ export async function ensureSandboxBrowser(params: {
     }
     const registry = await readBrowserRegistry();
     const registryEntry = registry.entries.find((entry) => entry.containerName === containerName);
-    const existingMounts = await readDockerBindMounts(containerName);
-    const workspaceMountUnsafe =
-      params.cfg.workspaceAccess === "rw" &&
-      existingMounts !== null &&
-      !hasExpectedDockerBindMount({
-        mounts: existingMounts,
-        destination: params.cfg.docker.workdir,
-        expectedSource: hostWorkspaceDir,
-        requireWritable: true,
-      });
+    const existingMounts =
+      params.cfg.workspaceAccess === "rw" ? await readDockerBindMounts(containerName) : null;
+    const workspaceMountUnsafe = hasUnsafeWorkspaceMount({
+      mounts: existingMounts,
+      containerName,
+      expectedSource: hostWorkspaceDir,
+      destination: params.cfg.docker.workdir,
+      workspaceAccess: params.cfg.workspaceAccess,
+    });
     if (workspaceMountUnsafe) {
-      const workspaceMount =
-        existingMounts?.find((mount) => mount.destination === params.cfg.docker.workdir) ?? null;
-      const actual = workspaceMount
-        ? `${workspaceMount.source}${workspaceMount.rw === false ? " (not writable)" : ""}`
-        : "missing";
-      defaultRuntime.log(
-        `Sandbox browser workspace mount for ${containerName} is unsafe (${actual}); recreating immediately.`,
-      );
       await execDocker(["rm", "-f", containerName], { allowFailure: true });
       hasContainer = false;
       running = false;
