@@ -198,6 +198,11 @@ export type DockerHostPathResolution = {
   remapSucceeded: boolean;
 };
 
+type DockerHostPathRemapResult = {
+  path: string;
+  matched: boolean;
+};
+
 function normalizeContainerMountPath(value: string): string {
   const normalized = value.replace(/\\/g, "/");
   const collapsed = path.posix.normalize(normalized);
@@ -208,12 +213,12 @@ function isWindowsStylePath(value: string): boolean {
   return /^[A-Za-z]:[\\/]/.test(value) || value.startsWith("\\\\");
 }
 
-export function remapContainerPathToHostPath(
+function remapContainerPathToHostPathInfo(
   containerPath: string,
   mounts: readonly DockerBindMount[],
-): string {
+): DockerHostPathRemapResult {
   if (!containerPath.trim() || mounts.length === 0) {
-    return containerPath;
+    return { path: containerPath, matched: false };
   }
 
   const normalizedTarget = normalizeContainerMountPath(containerPath);
@@ -234,19 +239,29 @@ export function remapContainerPathToHostPath(
     )[0];
 
   if (!matchedMount) {
-    return containerPath;
+    return { path: containerPath, matched: false };
   }
 
   const normalizedDestination = normalizeContainerMountPath(matchedMount.destination);
   const relative = path.posix.relative(normalizedDestination, normalizedTarget);
   if (!relative || relative === ".") {
-    return matchedMount.source;
+    return { path: matchedMount.source, matched: true };
   }
 
   const segments = relative.split("/").filter(Boolean);
-  return isWindowsStylePath(matchedMount.source)
-    ? path.win32.join(matchedMount.source, ...segments)
-    : path.posix.join(matchedMount.source, ...segments);
+  return {
+    path: isWindowsStylePath(matchedMount.source)
+      ? path.win32.join(matchedMount.source, ...segments)
+      : path.posix.join(matchedMount.source, ...segments),
+    matched: true,
+  };
+}
+
+export function remapContainerPathToHostPath(
+  containerPath: string,
+  mounts: readonly DockerBindMount[],
+): string {
+  return remapContainerPathToHostPathInfo(containerPath, mounts).path;
 }
 
 export function extractDockerContainerIdFromMountInfo(rawMountInfo: string): string | null {
@@ -430,10 +445,15 @@ export async function resolveDockerHostPathInfo(
   if (!result.remapSucceeded) {
     return { path: pathToResolve, remapSucceeded: false };
   }
+  const remapped = remapContainerPathToHostPathInfo(pathToResolve, result.mounts);
   return {
-    path: remapContainerPathToHostPath(pathToResolve, result.mounts),
-    remapSucceeded: true,
+    path: remapped.path,
+    remapSucceeded: remapped.matched,
   };
+}
+
+export function resetDockerHostPathRemapCacheForTests() {
+  currentContainerBindMountsPromise = null;
 }
 
 export type ExecDockerOptions = ExecDockerRawOptions;
