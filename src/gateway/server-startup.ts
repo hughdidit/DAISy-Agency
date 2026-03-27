@@ -7,6 +7,7 @@ import {
   resolveConfiguredModelRef,
   resolveHooksGmailModel,
 } from "../agents/model-selection.js";
+import { repairSandboxWorkspaceMountsOnStartup } from "../agents/sandbox/startup-repair.js";
 import { resolveAgentSessionDirs } from "../agents/session-dirs.js";
 import { cleanStaleLockFiles } from "../agents/session-write-lock.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -59,6 +60,12 @@ export async function startGatewaySidecars(params: {
     }
   } catch (err) {
     params.log.warn(`session lock cleanup failed on startup: ${String(err)}`);
+  }
+
+  try {
+    await repairSandboxWorkspaceMountsOnStartup(params.cfg, params.log);
+  } catch (err) {
+    params.log.warn(`sandbox startup repair failed: ${String(err)}`);
   }
 
   const pluginServices = await startPluginServices({
