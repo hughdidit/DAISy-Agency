@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { repairSandboxWorkspaceMountsOnStartup } from "./startup-repair.js";
 import { resolveSandboxWorkspaceDir } from "./shared.js";
+import { repairSandboxWorkspaceMountsOnStartup } from "./startup-repair.js";
 
 const mocks = vi.hoisted(() => ({
   readRegistry: vi.fn(),

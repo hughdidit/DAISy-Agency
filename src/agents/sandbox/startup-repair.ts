@@ -8,14 +8,8 @@ import {
   resolveDockerHostPathInfo,
 } from "./docker.js";
 import { removeSandboxBrowserContainer, removeSandboxContainer } from "./manage.js";
-import {
-  readBrowserRegistry,
-  readRegistry,
-} from "./registry.js";
-import {
-  resolveSandboxAgentId,
-  resolveSandboxWorkspaceDir,
-} from "./shared.js";
+import { readBrowserRegistry, readRegistry } from "./registry.js";
+import { resolveSandboxAgentId, resolveSandboxWorkspaceDir } from "./shared.js";
 
 type StartupRepairLog = {
   warn?: (message: string) => void;
