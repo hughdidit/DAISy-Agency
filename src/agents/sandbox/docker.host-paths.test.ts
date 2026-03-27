@@ -38,4 +38,15 @@ describe("remapContainerPathToHostPath", () => {
     const original = "/tmp/openclaw-sandboxes/session-1";
     expect(remapContainerPathToHostPath(original, [])).toBe(original);
   });
+
+  it("maps paths correctly when the mount destination is root", () => {
+    const resolved = remapContainerPathToHostPath("/workspace/generated-images/out.png", [
+      {
+        source: "/var/lib/openclaw-root",
+        destination: "/",
+      },
+    ]);
+
+    expect(resolved).toBe("/var/lib/openclaw-root/workspace/generated-images/out.png");
+  });
 });

@@ -205,7 +205,12 @@ export function remapContainerPathToHostPath(
   const matchedMount = mounts
     .filter((mount) => {
       const destination = normalizeContainerMountPath(mount.destination);
-      return normalizedTarget === destination || normalizedTarget.startsWith(`${destination}/`);
+      return (
+        normalizedTarget === destination ||
+        (destination === "/"
+          ? normalizedTarget.startsWith("/")
+          : normalizedTarget.startsWith(`${destination}/`))
+      );
     })
     .toSorted(
       (left, right) =>
