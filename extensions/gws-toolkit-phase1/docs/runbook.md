@@ -124,6 +124,11 @@ openclaw gws doctor
 openclaw gws auth-status
 ```
 
+In hardened DAISy containers, use the packaged `openclaw` launcher or run
+`node /app/openclaw.mjs ...` directly. Do not rely on `./openclaw.mjs` from
+the app directory; the hardened AppArmor profile only permits execution from
+approved binary paths such as `/usr/local/bin`.
+
 Tool smoke checks:
 
 - `gws_status`
