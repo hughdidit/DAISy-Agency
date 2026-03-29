@@ -90,36 +90,47 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   # Check 3: required runtime binaries are present in the deployed app image.
   checks_run=$((checks_run + 1))
   log "Checking bundled runtime binaries in ${container}..."
-  runtime_bins="$(
+  if ! runtime_bins="$(
     gce_ssh "sudo docker exec ${container_escaped} bash -lc 'command -v jq && command -v rg'"
-  )" || fail "Required runtime binaries (jq, rg) are missing from ${container}"
+  )"; then
+    fail "Failed to check required runtime binaries in ${container} (SSH or docker exec error)"
+  fi
+  jq_path="$(printf '%s\n' "${runtime_bins}" | sed -n '1p')"
+  rg_path="$(printf '%s\n' "${runtime_bins}" | sed -n '2p')"
+  if [[ -z "${jq_path}" || -z "${rg_path}" ]]; then
+    fail "Required runtime binaries (jq, rg) are missing from ${container}"
+  fi
   printf '%s\n' "${runtime_bins}"
 
-  # Check 4: Trello skill is eligible inside the deployed container.
-  checks_run=$((checks_run + 1))
-  log "Checking Trello skill eligibility in ${container}..."
-  trello_skill_json="$(
-    gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js skills info trello --json'"
-  )" || fail "Failed to inspect Trello skill status in ${container}"
-  printf '%s\n' "${trello_skill_json}"
-  printf '%s\n' "${trello_skill_json}" | jq -e '.name == "trello" and .eligible == true' >/dev/null \
-    || fail "Trello skill is not eligible in ${container}"
-  log "Trello skill is eligible."
+  if [[ "${VERIFY_ENV:-}" == "staging" ]]; then
+    # Check 4: Trello skill is eligible inside the deployed container.
+    checks_run=$((checks_run + 1))
+    log "Checking Trello skill eligibility in ${container}..."
+    trello_skill_json="$(
+      gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js skills info trello --json'"
+    )" || fail "Failed to inspect Trello skill status in ${container}"
+    printf '%s\n' "${trello_skill_json}"
+    gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js skills info trello --json | jq -e \".name == \\\"trello\\\" and .eligible == true\" >/dev/null'" \
+      || fail "Trello skill is not eligible in ${container}"
+    log "Trello skill is eligible."
 
-  # Check 5: Trello secrets must be present and the live Trello API smoke must work.
-  checks_run=$((checks_run + 1))
-  log "Checking Trello secrets and live API smoke in ${container}..."
-  trello_smoke_output="$(
-    gce_ssh "sudo docker exec ${container_escaped} bash -lc 'set -e; if [[ -z \"\${TRELLO_API_KEY:-}\" || -z \"\${TRELLO_TOKEN:-}\" ]]; then echo \"missing_trello_env\"; exit 12; fi; curl -fsS \"https://api.trello.com/1/members/me/boards?key=\${TRELLO_API_KEY}&token=\${TRELLO_TOKEN}&fields=name,id\" | jq -e \"if type == \\\"array\\\" then {boardCount:length, sampleBoards:(.[0:3] | map({id, name}))} else error(\\\"unexpected_trello_payload\\\") end\"'"
-  )" || {
-    status=$?
-    if [[ "${status}" -eq 12 ]]; then
-      fail "TRELLO_API_KEY and TRELLO_TOKEN must be present in staging for Trello live verification."
-    fi
-    fail "Live Trello API smoke failed in ${container}"
-  }
-  printf '%s\n' "${trello_smoke_output}"
-  log "Live Trello API smoke passed."
+    # Check 5: Trello secrets must be present and the live Trello API smoke must work.
+    checks_run=$((checks_run + 1))
+    log "Checking Trello secrets and live API smoke in ${container}..."
+    trello_smoke_output="$(
+      gce_ssh "sudo docker exec ${container_escaped} bash -lc 'set -e; if [[ -z \"\${TRELLO_API_KEY:-}\" || -z \"\${TRELLO_TOKEN:-}\" ]]; then echo \"missing_trello_env\"; exit 12; fi; printf '\''url = \"https://api.trello.com/1/members/me/boards?key=%s&token=%s&fields=name,id\"\\n'\'' \"\${TRELLO_API_KEY}\" \"\${TRELLO_TOKEN}\" | curl -fsSK - | jq -e '\''if type == \"array\" then {boardCount:length, sampleBoards:(.[0:3] | map({id, name}))} else error(\"unexpected_trello_payload\") end'\'''"
+    )" || {
+      status=$?
+      if [[ "${status}" -eq 12 ]]; then
+        fail "TRELLO_API_KEY and TRELLO_TOKEN must be present in staging for Trello live verification."
+      fi
+      fail "Live Trello API smoke failed in ${container}"
+    }
+    printf '%s\n' "${trello_smoke_output}"
+    log "Live Trello API smoke passed."
+  else
+    log "VERIFY_ENV=${VERIFY_ENV:-<unset>}; skipping Trello-specific verification outside staging."
+  fi
 
   # Check 6: require the sandbox browser image when the deployed config enables it.
   checks_run=$((checks_run + 1))
