@@ -87,7 +87,41 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   fi
   log "Container health check passed (status: healthy)."
 
-  # Check 3: require the sandbox browser image when the deployed config enables it.
+  # Check 3: required runtime binaries are present in the deployed app image.
+  checks_run=$((checks_run + 1))
+  log "Checking bundled runtime binaries in ${container}..."
+  runtime_bins="$(
+    gce_ssh "sudo docker exec ${container_escaped} bash -lc 'command -v jq && command -v rg'"
+  )" || fail "Required runtime binaries (jq, rg) are missing from ${container}"
+  printf '%s\n' "${runtime_bins}"
+
+  # Check 4: Trello skill is eligible inside the deployed container.
+  checks_run=$((checks_run + 1))
+  log "Checking Trello skill eligibility in ${container}..."
+  trello_skill_json="$(
+    gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js skills info trello --json'"
+  )" || fail "Failed to inspect Trello skill status in ${container}"
+  printf '%s\n' "${trello_skill_json}"
+  printf '%s\n' "${trello_skill_json}" | jq -e '.name == "trello" and .eligible == true' >/dev/null \
+    || fail "Trello skill is not eligible in ${container}"
+  log "Trello skill is eligible."
+
+  # Check 5: Trello secrets must be present and the live Trello API smoke must work.
+  checks_run=$((checks_run + 1))
+  log "Checking Trello secrets and live API smoke in ${container}..."
+  trello_smoke_output="$(
+    gce_ssh "sudo docker exec ${container_escaped} bash -lc 'set -e; if [[ -z \"\${TRELLO_API_KEY:-}\" || -z \"\${TRELLO_TOKEN:-}\" ]]; then echo \"missing_trello_env\"; exit 12; fi; curl -fsS \"https://api.trello.com/1/members/me/boards?key=\${TRELLO_API_KEY}&token=\${TRELLO_TOKEN}&fields=name,id\" | jq -e \"if type == \\\"array\\\" then {boardCount:length, sampleBoards:(.[0:3] | map({id, name}))} else error(\\\"unexpected_trello_payload\\\") end\"'"
+  )" || {
+    status=$?
+    if [[ "${status}" -eq 12 ]]; then
+      fail "TRELLO_API_KEY and TRELLO_TOKEN must be present in staging for Trello live verification."
+    fi
+    fail "Live Trello API smoke failed in ${container}"
+  }
+  printf '%s\n' "${trello_smoke_output}"
+  log "Live Trello API smoke passed."
+
+  # Check 6: require the sandbox browser image when the deployed config enables it.
   checks_run=$((checks_run + 1))
   log "Checking sandbox browser image requirement from deployed config..."
   browser_probe_js="$(cat <<'NODE'
@@ -253,7 +287,7 @@ NODE
     log "Sandbox browser is disabled; skipping image presence check."
   fi
 
-  # Check 4: verify deployed image matches DEPLOYED_REF (if set)
+  # Check 7: verify deployed image matches DEPLOYED_REF (if set)
   if [[ -n "${DEPLOYED_REF:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking deployed image matches DEPLOYED_REF (${DEPLOYED_REF})..."
@@ -269,7 +303,7 @@ NODE
     log "Container image: ${image_ref}"
   fi
 
-  # Check 5: smoke-test the bundled mongodb-mcp-server CLI inside the deployed
+  # Check 8: smoke-test the bundled mongodb-mcp-server CLI inside the deployed
   # container. This catches the Node 22 startup crash that can occur before MCP
   # stdio connects, even while the gateway health endpoint still reports healthy.
   checks_run=$((checks_run + 1))
@@ -279,7 +313,7 @@ NODE
   )" || fail "mongodb-mcp-server startup smoke failed in ${container}"
   printf '%s\n' "${mcp_smoke_output}"
 
-  # Check 6: ensure the current container logs do not contain the known
+  # Check 9: ensure the current container logs do not contain the known
   # translator crash or the resulting MCP connection-closed failure.
   checks_run=$((checks_run + 1))
   log "Checking ${container} logs for MongoDB MCP startup crash signatures..."

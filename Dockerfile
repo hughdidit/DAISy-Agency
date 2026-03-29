@@ -24,6 +24,15 @@ RUN npm install -g --prefix=/usr/local --omit=dev @googleworkspace/cli@0.17.0 &&
 WORKDIR /app
 RUN chown node:node /app
 
+# Bundle jq and ripgrep in the default runtime image so skill eligibility and
+# shell-based skills do not depend on host-specific package installation.
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      jq \
+      ripgrep && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       apt-get update && \
