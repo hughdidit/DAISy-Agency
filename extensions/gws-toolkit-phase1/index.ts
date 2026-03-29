@@ -9,6 +9,7 @@ import { executeGmailRead } from "./src/commands/gmail-read.js";
 import { createRuntimeDeps } from "./src/commands/helpers.js";
 import { buildConfigResolutionDeniedEnvelope, executeStatus } from "./src/commands/status.js";
 import { resolveConfig } from "./src/config.js";
+import { PluginError } from "./src/errors.js";
 import { createRedactingLogger } from "./src/logger.js";
 import type { GwsToolkitConfig, InvocationContext, StructuredEnvelope } from "./src/types.js";
 
@@ -101,12 +102,16 @@ const plugin = {
     let runtimeEnv: GwsRuntimeEnv | null = null;
     let runtimeEnvPromise: Promise<GwsRuntimeEnv> | null = null;
 
-    async function ensureRuntimeEnv(): Promise<GwsRuntimeEnv> {
+    async function ensureRuntimeEnv(): Promise<GwsRuntimeEnv | undefined> {
+      const resolveStateDir = api.runtime?.state?.resolveStateDir;
+      if (typeof resolveStateDir !== "function") {
+        return undefined;
+      }
       if (runtimeEnv) {
         return runtimeEnv;
       }
       if (!runtimeEnvPromise) {
-        const stateDir = api.runtime.state.resolveStateDir(process.env);
+        const stateDir = resolveStateDir(process.env);
         runtimeEnvPromise = prepareRuntimeEnv(stateDir)
           .then((value) => {
             runtimeEnv = value;
@@ -117,7 +122,13 @@ const plugin = {
             throw error;
           });
       }
-      return await runtimeEnvPromise;
+      try {
+        return await runtimeEnvPromise;
+      } catch (error) {
+        throw new PluginError("INTERNAL_ERROR", "Failed to prepare gws runtime directories", {
+          cause: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
 
     api.registerTool({
@@ -138,7 +149,7 @@ const plugin = {
           audit,
           configResolution,
           rawParams: params,
-          runtimeEnv: resolvedConfig.ok ? await ensureRuntimeEnv() : undefined,
+          resolveRuntimeEnv: resolvedConfig.ok ? ensureRuntimeEnv : undefined,
         });
         return toToolResult(envelope);
       },
@@ -176,7 +187,7 @@ const plugin = {
           ctx: createContext(),
           deps: {
             ...baseDeps,
-            runtimeEnv: await ensureRuntimeEnv(),
+            resolveRuntimeEnv: ensureRuntimeEnv,
           },
           rawParams: params,
         });
@@ -214,7 +225,7 @@ const plugin = {
           ctx: createContext(),
           deps: {
             ...baseDeps,
-            runtimeEnv: await ensureRuntimeEnv(),
+            resolveRuntimeEnv: ensureRuntimeEnv,
           },
           rawParams: params,
         });
@@ -254,7 +265,7 @@ const plugin = {
           ctx: createContext(),
           deps: {
             ...baseDeps,
-            runtimeEnv: await ensureRuntimeEnv(),
+            resolveRuntimeEnv: ensureRuntimeEnv,
           },
           rawParams: params,
         });
@@ -273,7 +284,7 @@ const plugin = {
               ctx: createContext(),
               audit,
               configResolution,
-              runtimeEnv: resolvedConfig.ok ? await ensureRuntimeEnv() : undefined,
+              resolveRuntimeEnv: resolvedConfig.ok ? ensureRuntimeEnv : undefined,
             });
             console.log(JSON.stringify(payload, null, 2));
           });
@@ -287,7 +298,7 @@ const plugin = {
               audit,
               configResolution,
               rawParams: { includeVersion: false, includeAuthStatus: true },
-              runtimeEnv: resolvedConfig.ok ? await ensureRuntimeEnv() : undefined,
+              resolveRuntimeEnv: resolvedConfig.ok ? ensureRuntimeEnv : undefined,
             });
             console.log(JSON.stringify(payload, null, 2));
           });

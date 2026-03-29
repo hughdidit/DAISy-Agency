@@ -120,7 +120,6 @@ Phase 1 multi-agent pattern:
 ## 7) Verify Plugin and Read-Only Operation
 
 ```bash
-gws --version
 openclaw gws doctor
 openclaw gws auth-status
 ```
@@ -132,7 +131,18 @@ Tool smoke checks:
 - `gws_gmail_read` with `action=list_messages`
 - `gws_calendar_read` with `action=list_events`
 
-If `gws --version` fails with `EACCES` inside a hardened container, make sure
+For a low-level CLI probe inside a hardened container, replicate the plugin's
+runtime wrapper before invoking `gws` directly:
+
+```bash
+export HOME=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/home
+export TMPDIR=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/tmp
+export XDG_CONFIG_HOME=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/xdg-config
+export XDG_CACHE_HOME=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/xdg-cache
+gws --version
+```
+
+If the raw probe still fails with `EACCES`, make sure
 the execution profile permits the npm wrapper chain used by the global install:
 
 - `/usr/local/lib/node_modules/@googleworkspace/cli/run-gws.js`
