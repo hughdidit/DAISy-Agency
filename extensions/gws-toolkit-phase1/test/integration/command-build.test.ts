@@ -14,13 +14,31 @@ describe("integration: command build", () => {
     expect(drive).toEqual([
       "drive",
       "--auth",
-      "list-files",
+      "files",
+      "list",
       "--format",
       "json",
-      "--page-size",
-      "10",
+      "--params",
+      '{"pageSize":10}',
     ]);
-    expect(gmail).toEqual(["gmail", "list-messages", "--format", "json", "--max-results", "5"]);
-    expect(calendar).toEqual(["calendar", "list-events", "--format", "json", "--page-size", "7"]);
+    expect(gmail).toEqual([
+      "gmail",
+      "users",
+      "messages",
+      "list",
+      "--format",
+      "json",
+      "--params",
+      '{"userId":"me","maxResults":5}',
+    ]);
+    expect(calendar).toEqual([
+      "calendar",
+      "events",
+      "list",
+      "--format",
+      "json",
+      "--params",
+      '{"calendarId":"primary","maxResults":7,"singleEvents":true}',
+    ]);
   });
 });

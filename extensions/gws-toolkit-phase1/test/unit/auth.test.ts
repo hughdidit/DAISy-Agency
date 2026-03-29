@@ -56,6 +56,8 @@ describe("auth resolution", () => {
       }),
     );
     expect(ok.mode).toBe("credentials_file");
+    expect(ok.args).toEqual([]);
+    expect(ok.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE).toBe(allowedFile);
 
     expect(() =>
       resolveAuth(
