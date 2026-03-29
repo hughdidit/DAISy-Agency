@@ -29,7 +29,7 @@ describe("executor", () => {
     const result = await executeCommand({
       config,
       binaryPath: fixture,
-      argv: ["drive", "list-files", "--format", "json"],
+      argv: ["drive", "files", "list", "--format", "json"],
     });
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('"service":"drive"');
@@ -40,7 +40,7 @@ describe("executor", () => {
     const result = await executeCommand({
       config: { ...config, timeoutMs: 100 },
       binaryPath: fixture,
-      argv: ["drive", "list-files", "--format", "json"],
+      argv: ["drive", "files", "list", "--format", "json"],
     });
     expect(result.timedOut).toBe(true);
   });

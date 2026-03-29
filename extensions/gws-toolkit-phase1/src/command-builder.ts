@@ -7,46 +7,57 @@ export type GwsCommandSpec = {
   service: "drive" | "gmail" | "calendar";
 };
 
-function appendIfString(argv: string[], flag: string, value: unknown): void {
+type JsonParamValue = string | number | boolean;
+
+function appendIfString(params: Record<string, JsonParamValue>, key: string, value: unknown): void {
   if (typeof value === "string" && value.trim()) {
-    argv.push(flag, value.trim());
+    params[key] = value.trim();
   }
 }
 
-function appendIfInt(argv: string[], flag: string, value: unknown): void {
+function appendIfInt(params: Record<string, JsonParamValue>, key: string, value: unknown): void {
   if (typeof value === "number" && Number.isFinite(value)) {
-    argv.push(flag, String(Math.floor(value)));
+    params[key] = Math.floor(value);
+  }
+}
+
+function appendParamsArg(argv: string[], params: Record<string, JsonParamValue>): void {
+  if (Object.keys(params).length > 0) {
+    argv.push("--params", JSON.stringify(params));
   }
 }
 
 export function buildDriveReadCommand(params: DriveReadParams, authArgs: string[]): GwsCommandSpec {
   const argv = ["drive", ...authArgs];
   if (params.action === "list_files") {
-    argv.push("list-files", "--format", "json");
-    appendIfInt(argv, "--page-size", params.pageSize);
-    appendIfString(argv, "--query", params.query);
+    const requestParams: Record<string, JsonParamValue> = {};
+    appendIfInt(requestParams, "pageSize", params.pageSize);
+    appendIfString(requestParams, "q", params.query);
+    argv.push("files", "list", "--format", "json");
+    appendParamsArg(argv, requestParams);
     return { argv, action: params.action, service: "drive" };
   }
   if (params.action === "get_file_metadata") {
     if (!params.fileId) {
       throw new PluginError("VALIDATION_ERROR", "fileId is required for get_file_metadata");
     }
-    argv.push("get-file-metadata", "--file-id", params.fileId, "--format", "json");
+    const requestParams: Record<string, JsonParamValue> = {
+      fileId: params.fileId,
+    };
+    argv.push("files", "get", "--format", "json");
+    appendParamsArg(argv, requestParams);
     return { argv, action: params.action, service: "drive" };
   }
   if (params.action === "export_file") {
     if (!params.fileId || !params.mimeType) {
       throw new PluginError("VALIDATION_ERROR", "fileId and mimeType are required for export_file");
     }
-    argv.push(
-      "export-file",
-      "--file-id",
-      params.fileId,
-      "--mime-type",
-      params.mimeType,
-      "--format",
-      "json",
-    );
+    const requestParams: Record<string, JsonParamValue> = {
+      fileId: params.fileId,
+      mimeType: params.mimeType,
+    };
+    argv.push("files", "export", "--format", "json");
+    appendParamsArg(argv, requestParams);
     return { argv, action: params.action, service: "drive" };
   }
   throw new PluginError("DENY_POLICY", `Unsupported drive action: ${params.action}`);
@@ -55,16 +66,26 @@ export function buildDriveReadCommand(params: DriveReadParams, authArgs: string[
 export function buildGmailReadCommand(params: GmailReadParams, authArgs: string[]): GwsCommandSpec {
   const argv = ["gmail", ...authArgs];
   if (params.action === "list_messages") {
-    argv.push("list-messages", "--format", "json");
-    appendIfString(argv, "--query", params.query);
-    appendIfInt(argv, "--max-results", params.maxResults);
+    const requestParams: Record<string, JsonParamValue> = {
+      userId: "me",
+    };
+    appendIfString(requestParams, "q", params.query);
+    appendIfInt(requestParams, "maxResults", params.maxResults);
+    argv.push("users", "messages", "list", "--format", "json");
+    appendParamsArg(argv, requestParams);
     return { argv, action: params.action, service: "gmail" };
   }
   if (params.action === "get_message_metadata") {
     if (!params.messageId) {
       throw new PluginError("VALIDATION_ERROR", "messageId is required for get_message_metadata");
     }
-    argv.push("get-message-metadata", "--message-id", params.messageId, "--format", "json");
+    const requestParams: Record<string, JsonParamValue> = {
+      userId: "me",
+      id: params.messageId,
+      format: "metadata",
+    };
+    argv.push("users", "messages", "get", "--format", "json");
+    appendParamsArg(argv, requestParams);
     return { argv, action: params.action, service: "gmail" };
   }
   throw new PluginError("DENY_POLICY", `Unsupported gmail action: ${params.action}`);
@@ -76,19 +97,27 @@ export function buildCalendarReadCommand(
 ): GwsCommandSpec {
   const argv = ["calendar", ...authArgs];
   if (params.action === "list_events") {
-    argv.push("list-events", "--format", "json");
-    appendIfString(argv, "--calendar-id", params.calendarId);
-    appendIfInt(argv, "--page-size", params.pageSize);
-    appendIfString(argv, "--time-min", params.timeMin);
-    appendIfString(argv, "--time-max", params.timeMax);
+    const requestParams: Record<string, JsonParamValue> = {
+      calendarId: params.calendarId?.trim() || "primary",
+    };
+    appendIfInt(requestParams, "maxResults", params.pageSize);
+    appendIfString(requestParams, "timeMin", params.timeMin);
+    appendIfString(requestParams, "timeMax", params.timeMax);
+    requestParams.singleEvents = true;
+    argv.push("events", "list", "--format", "json");
+    appendParamsArg(argv, requestParams);
     return { argv, action: params.action, service: "calendar" };
   }
   if (params.action === "get_event") {
     if (!params.eventId) {
       throw new PluginError("VALIDATION_ERROR", "eventId is required for get_event");
     }
-    argv.push("get-event", "--event-id", params.eventId, "--format", "json");
-    appendIfString(argv, "--calendar-id", params.calendarId);
+    const requestParams: Record<string, JsonParamValue> = {
+      calendarId: params.calendarId?.trim() || "primary",
+      eventId: params.eventId,
+    };
+    argv.push("events", "get", "--format", "json");
+    appendParamsArg(argv, requestParams);
     return { argv, action: params.action, service: "calendar" };
   }
   throw new PluginError("DENY_POLICY", `Unsupported calendar action: ${params.action}`);
