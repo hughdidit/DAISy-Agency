@@ -115,7 +115,7 @@ RUN pnpm ui:build
 
 # Expose the CLI entrypoint from an AppArmor-approved binary path.
 USER root
-RUN install -m 0755 /app/scripts/docker/openclaw-wrapper.sh /usr/local/bin/openclaw \
+RUN install -m 0755 /app/scripts/docker/openclaw-wrapper.mjs /usr/local/bin/openclaw \
  && chmod 755 /app/openclaw.mjs
 
 ENV NODE_ENV=production
