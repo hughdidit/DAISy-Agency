@@ -176,7 +176,7 @@ export function resolveAuth(config: GwsToolkitConfig): AuthResolution {
       env: {
         GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE: filePath,
       },
-      args: ["--credentials-file", filePath],
+      args: [],
     };
   }
 
