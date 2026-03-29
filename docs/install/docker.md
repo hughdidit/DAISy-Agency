@@ -325,6 +325,7 @@ user. This keeps the attack surface small, but it means:
 - no system package installs at runtime
 - no Homebrew by default
 - no bundled Chromium/Playwright browsers
+- bundled CLI essentials `jq` and `rg` are available on `PATH` by default
 
 If you want a more full-featured container, use these opt-in knobs:
 
