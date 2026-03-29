@@ -110,21 +110,22 @@ const plugin = {
       if (runtimeEnv) {
         return runtimeEnv;
       }
-      if (!runtimeEnvPromise) {
-        const stateDir = resolveStateDir(process.env);
-        runtimeEnvPromise = prepareRuntimeEnv(stateDir)
-          .then((value) => {
-            runtimeEnv = value;
-            return value;
-          })
-          .catch((error) => {
-            runtimeEnvPromise = null;
-            throw error;
-          });
-      }
       try {
+        if (!runtimeEnvPromise) {
+          const stateDir = resolveStateDir(process.env);
+          runtimeEnvPromise = prepareRuntimeEnv(stateDir)
+            .then((value) => {
+              runtimeEnv = value;
+              return value;
+            })
+            .catch((error) => {
+              runtimeEnvPromise = null;
+              throw error;
+            });
+        }
         return await runtimeEnvPromise;
       } catch (error) {
+        runtimeEnvPromise = null;
         throw new PluginError("INTERNAL_ERROR", "Failed to prepare gws runtime directories", {
           cause: error instanceof Error ? error.message : String(error),
         });
