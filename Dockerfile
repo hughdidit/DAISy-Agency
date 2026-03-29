@@ -113,9 +113,9 @@ RUN pnpm build
 ENV OPENCLAW_PREFER_PNPM=1
 RUN pnpm ui:build
 
-# Expose the CLI binary without requiring npm global writes as non-root.
+# Expose the CLI entrypoint from an AppArmor-approved binary path.
 USER root
-RUN ln -sf /app/openclaw.mjs /usr/local/bin/openclaw \
+RUN install -m 0755 /app/scripts/docker/openclaw-wrapper.mjs /usr/local/bin/openclaw \
  && chmod 755 /app/openclaw.mjs
 
 ENV NODE_ENV=production
