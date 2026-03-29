@@ -65,6 +65,7 @@ export async function executeStatus(params: {
   audit: AuditLogger;
   configResolution: ConfigResolution;
   rawParams?: unknown;
+  runtimeEnv?: Record<string, string>;
 }): Promise<StructuredEnvelope> {
   const startedAt = Date.now();
 
@@ -155,6 +156,7 @@ export async function executeStatus(params: {
           config: activeConfig,
           binaryPath,
           argv: ["--version"],
+          env: params.runtimeEnv,
         }),
     });
 

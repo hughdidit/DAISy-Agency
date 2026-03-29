@@ -1,4 +1,7 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { Type } from "@sinclair/typebox";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { createAuditLogger } from "./src/audit.js";
 import { executeCalendarRead } from "./src/commands/calendar-read.js";
 import { executeDriveRead } from "./src/commands/drive-read.js";
@@ -8,26 +11,6 @@ import { buildConfigResolutionDeniedEnvelope, executeStatus } from "./src/comman
 import { resolveConfig } from "./src/config.js";
 import { createRedactingLogger } from "./src/logger.js";
 import type { GwsToolkitConfig, InvocationContext, StructuredEnvelope } from "./src/types.js";
-
-type PluginApi = {
-  logger: {
-    info: (message: string) => void;
-    warn: (message: string) => void;
-    error: (message: string) => void;
-    debug?: (message: string) => void;
-  };
-  config: Record<string, unknown>;
-  pluginConfig?: Record<string, unknown>;
-  registerTool: (tool: Record<string, unknown>) => void;
-  registerCli: (
-    registrar: (ctx: {
-      program: any;
-      config: Record<string, unknown>;
-      logger: PluginApi["logger"];
-    }) => void,
-    opts?: { commands?: string[] },
-  ) => void;
-};
 
 function toToolResult(payload: StructuredEnvelope) {
   return {
@@ -63,11 +46,43 @@ function createContext(overrides: Partial<InvocationContext> = {}): InvocationCo
   };
 }
 
+type GwsRuntimeEnv = Record<string, string>;
+
+async function ensurePrivateDir(dir: string): Promise<void> {
+  await fs.mkdir(dir, { recursive: true, mode: 0o700 });
+  try {
+    await fs.chmod(dir, 0o700);
+  } catch {
+    // chmod may be a no-op or unsupported on some local dev filesystems.
+  }
+}
+
+async function prepareRuntimeEnv(stateDir: string): Promise<GwsRuntimeEnv> {
+  const rootDir = path.join(stateDir, "plugins", "gws-toolkit-phase1", "runtime");
+  const homeDir = path.join(rootDir, "home");
+  const tempDir = path.join(rootDir, "tmp");
+  const configDir = path.join(rootDir, "xdg-config");
+  const cacheDir = path.join(rootDir, "xdg-cache");
+
+  await ensurePrivateDir(rootDir);
+  await ensurePrivateDir(homeDir);
+  await ensurePrivateDir(tempDir);
+  await ensurePrivateDir(configDir);
+  await ensurePrivateDir(cacheDir);
+
+  return {
+    HOME: homeDir,
+    TMPDIR: tempDir,
+    XDG_CONFIG_HOME: configDir,
+    XDG_CACHE_HOME: cacheDir,
+  };
+}
+
 const plugin = {
   id: "gws-toolkit-phase1",
   name: "GWS Toolkit (Phase 1)",
   description: "Security-hardened read-only Google Workspace integration via gws CLI.",
-  register(api: PluginApi) {
+  register(api: OpenClawPluginApi) {
     const logger = createRedactingLogger(api.logger);
     const resolvedConfig = resolveConfig(api.pluginConfig);
     const runtimeConfig = resolvedConfig.ok ? resolvedConfig.value.config : defaultConfig();
@@ -82,7 +97,28 @@ const plugin = {
         };
 
     const audit = createAuditLogger(logger);
-    const deps = createRuntimeDeps(runtimeConfig, audit);
+    const baseDeps = createRuntimeDeps(runtimeConfig, audit);
+    let runtimeEnv: GwsRuntimeEnv | null = null;
+    let runtimeEnvPromise: Promise<GwsRuntimeEnv> | null = null;
+
+    async function ensureRuntimeEnv(): Promise<GwsRuntimeEnv> {
+      if (runtimeEnv) {
+        return runtimeEnv;
+      }
+      if (!runtimeEnvPromise) {
+        const stateDir = api.runtime.state.resolveStateDir(process.env);
+        runtimeEnvPromise = prepareRuntimeEnv(stateDir)
+          .then((value) => {
+            runtimeEnv = value;
+            return value;
+          })
+          .catch((error) => {
+            runtimeEnvPromise = null;
+            throw error;
+          });
+      }
+      return await runtimeEnvPromise;
+    }
 
     api.registerTool({
       name: "gws_status",
@@ -102,6 +138,7 @@ const plugin = {
           audit,
           configResolution,
           rawParams: params,
+          runtimeEnv: resolvedConfig.ok ? await ensureRuntimeEnv() : undefined,
         });
         return toToolResult(envelope);
       },
@@ -137,7 +174,10 @@ const plugin = {
         }
         const envelope = await executeDriveRead({
           ctx: createContext(),
-          deps,
+          deps: {
+            ...baseDeps,
+            runtimeEnv: await ensureRuntimeEnv(),
+          },
           rawParams: params,
         });
         return toToolResult(envelope);
@@ -172,7 +212,10 @@ const plugin = {
         }
         const envelope = await executeGmailRead({
           ctx: createContext(),
-          deps,
+          deps: {
+            ...baseDeps,
+            runtimeEnv: await ensureRuntimeEnv(),
+          },
           rawParams: params,
         });
         return toToolResult(envelope);
@@ -209,7 +252,10 @@ const plugin = {
         }
         const envelope = await executeCalendarRead({
           ctx: createContext(),
-          deps,
+          deps: {
+            ...baseDeps,
+            runtimeEnv: await ensureRuntimeEnv(),
+          },
           rawParams: params,
         });
         return toToolResult(envelope);
@@ -227,6 +273,7 @@ const plugin = {
               ctx: createContext(),
               audit,
               configResolution,
+              runtimeEnv: resolvedConfig.ok ? await ensureRuntimeEnv() : undefined,
             });
             console.log(JSON.stringify(payload, null, 2));
           });
@@ -240,6 +287,7 @@ const plugin = {
               audit,
               configResolution,
               rawParams: { includeVersion: false, includeAuthStatus: true },
+              runtimeEnv: resolvedConfig.ok ? await ensureRuntimeEnv() : undefined,
             });
             console.log(JSON.stringify(payload, null, 2));
           });

@@ -20,6 +20,7 @@ import type {
 export type RuntimeDeps = {
   config: GwsToolkitConfig;
   audit: AuditLogger;
+  runtimeEnv?: Record<string, string>;
 };
 
 export function buildValidationDeniedEnvelope(params: {
@@ -119,6 +120,7 @@ export async function runReadOnlyCommand(params: {
           config: params.deps.config,
           binaryPath,
           argv: ["--version"],
+          env: params.deps.runtimeEnv,
         }),
     });
 
@@ -127,7 +129,10 @@ export async function runReadOnlyCommand(params: {
       config: params.deps.config,
       binaryPath: binary.binaryPath,
       argv,
-      env: auth.env,
+      env: {
+        ...(params.deps.runtimeEnv ?? {}),
+        ...auth.env,
+      },
     });
     const normalized = normalizeExecution(execution);
 

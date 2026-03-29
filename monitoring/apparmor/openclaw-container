@@ -67,6 +67,9 @@ profile openclaw-container flags=(attach_disconnected,mediate_deleted) {
   # The container runs Node.js, Python, bash, git, etc.
   /usr/bin/** ix,
   /usr/local/bin/** ix,
+  # The gws npm wrapper resolves into package-managed paths under /usr/local/lib.
+  /usr/local/lib/node_modules/@googleworkspace/cli/run-gws.js ix,
+  /usr/local/lib/node_modules/@googleworkspace/cli/node_modules/.bin_real/gws ix,
   /bin/** ix,
   /sbin/** ix,
   /usr/sbin/** ix,
