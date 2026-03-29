@@ -9,6 +9,11 @@ gws --version
 
 Set `binaryPath` in plugin config if `gws` is not on `PATH`.
 
+On hardened containers with a read-only root filesystem, the plugin prepares
+private runtime directories under the OpenClaw state directory and injects them
+into `HOME`, `TMPDIR`, `XDG_CONFIG_HOME`, and `XDG_CACHE_HOME` before invoking
+`gws`. Do not point those paths at a shared or broader writable location.
+
 ## 2) Enable Required Google APIs (minimum set)
 
 - Google Drive API (`drive.googleapis.com`)
@@ -42,9 +47,8 @@ Add plugin config in that file under `plugins.entries.gws-toolkit-phase1.config`
           timeoutMs: 15000,
           maxStdoutBytes: 1048576,
           maxStderrBytes: 262144,
-          allowedCredentialModes: ["oauth", "credentials_file", "token"],
+          allowedCredentialModes: ["credentials_file"],
           defaultScopesProfile: "minimal",
-          tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
           approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
           credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
         },
@@ -126,6 +130,23 @@ Tool smoke checks:
 - `gws_drive_read` with `action=list_files`
 - `gws_gmail_read` with `action=list_messages`
 - `gws_calendar_read` with `action=list_events`
+
+For a low-level CLI probe inside a hardened container, replicate the plugin's
+runtime wrapper before invoking `gws` directly:
+
+```bash
+export HOME=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/home
+export TMPDIR=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/tmp
+export XDG_CONFIG_HOME=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/xdg-config
+export XDG_CACHE_HOME=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/xdg-cache
+gws --version
+```
+
+If the raw probe still fails with `EACCES`, make sure
+the execution profile permits the npm wrapper chain used by the global install:
+
+- `/usr/local/lib/node_modules/@googleworkspace/cli/run-gws.js`
+- `/usr/local/lib/node_modules/@googleworkspace/cli/node_modules/.bin_real/gws`
 
 ## 8) Verify Deny Behavior
 

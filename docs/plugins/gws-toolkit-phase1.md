@@ -18,6 +18,8 @@ This plugin is intentionally constrained:
 - no raw passthrough tool
 - strict schema validation
 - argv-only subprocess execution to `gws` (no shell interpolation)
+- plugin-owned writable runtime dirs under the OpenClaw state directory for
+  hardened read-only container roots
 
 ## Upstream gws CLI references
 
@@ -64,9 +66,8 @@ Enable in your config file under `plugins.entries.gws-toolkit-phase1`:
           timeoutMs: 15000,
           maxStdoutBytes: 1048576,
           maxStderrBytes: 262144,
-          allowedCredentialModes: ["oauth", "credentials_file", "token"],
+          allowedCredentialModes: ["credentials_file"],
           defaultScopesProfile: "minimal",
-          tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
           approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
           credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
         },
@@ -85,6 +86,12 @@ This plugin supports:
 - `token` (short-lived env token, best for short-lived/manual flows)
 
 For autonomous operation, prefer `credentials_file` mode using exported credentials (see upstream export flow link above).
+
+On hardened container deployments, make sure the execution profile also permits
+the bundled npm wrapper chain used by `@googleworkspace/cli`:
+
+- `/usr/local/lib/node_modules/@googleworkspace/cli/run-gws.js`
+- `/usr/local/lib/node_modules/@googleworkspace/cli/node_modules/.bin_real/gws`
 
 ## Credential hardening
 

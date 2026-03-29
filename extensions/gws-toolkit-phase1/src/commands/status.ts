@@ -65,6 +65,7 @@ export async function executeStatus(params: {
   audit: AuditLogger;
   configResolution: ConfigResolution;
   rawParams?: unknown;
+  resolveRuntimeEnv?: () => Promise<Record<string, string> | undefined>;
 }): Promise<StructuredEnvelope> {
   const startedAt = Date.now();
 
@@ -113,6 +114,7 @@ export async function executeStatus(params: {
   const activeConfig = params.configResolution.config;
 
   try {
+    const runtimeEnv = params.resolveRuntimeEnv ? await params.resolveRuntimeEnv() : undefined;
     const policy = evaluatePolicy({
       tool: "gws_status",
       service: "status",
@@ -155,6 +157,7 @@ export async function executeStatus(params: {
           config: activeConfig,
           binaryPath,
           argv: ["--version"],
+          env: runtimeEnv,
         }),
     });
 

@@ -19,7 +19,7 @@ ENV PATH="/root/.bun/bin:${PATH}"
 
 RUN corepack enable
 # Install gws CLI for bundled gws-toolkit-phase1 read-only tools.
-RUN npm install -g --omit=dev @googleworkspace/cli@0.17.0 && gws --version
+RUN npm install -g --prefix=/usr/local --omit=dev @googleworkspace/cli@0.17.0 && gws --version
 
 WORKDIR /app
 RUN chown node:node /app

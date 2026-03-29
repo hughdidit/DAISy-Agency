@@ -20,6 +20,7 @@ import type {
 export type RuntimeDeps = {
   config: GwsToolkitConfig;
   audit: AuditLogger;
+  resolveRuntimeEnv?: () => Promise<Record<string, string> | undefined>;
 };
 
 export function buildValidationDeniedEnvelope(params: {
@@ -74,6 +75,9 @@ export async function runReadOnlyCommand(params: {
   const startedAt = Date.now();
 
   try {
+    const runtimeEnv = params.deps.resolveRuntimeEnv
+      ? await params.deps.resolveRuntimeEnv()
+      : undefined;
     const auth = resolveAuth(params.deps.config);
     const policy = evaluatePolicy({
       tool: params.tool,
@@ -119,6 +123,7 @@ export async function runReadOnlyCommand(params: {
           config: params.deps.config,
           binaryPath,
           argv: ["--version"],
+          env: runtimeEnv,
         }),
     });
 
@@ -127,7 +132,10 @@ export async function runReadOnlyCommand(params: {
       config: params.deps.config,
       binaryPath: binary.binaryPath,
       argv,
-      env: auth.env,
+      env: {
+        ...(runtimeEnv ?? {}),
+        ...auth.env,
+      },
     });
     const normalized = normalizeExecution(execution);
 
