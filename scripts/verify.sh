@@ -118,7 +118,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking Trello secrets and live API smoke in ${container}..."
     trello_smoke_output="$(
-      gce_ssh "sudo docker exec ${container_escaped} bash -lc 'set -e; if [[ -z \"\${TRELLO_API_KEY:-}\" || -z \"\${TRELLO_TOKEN:-}\" ]]; then echo \"missing_trello_env\"; exit 12; fi; printf '\''url = \"https://api.trello.com/1/members/me/boards?key=%s&token=%s&fields=name,id\"\\n'\'' \"\${TRELLO_API_KEY}\" \"\${TRELLO_TOKEN}\" | curl -fsSK - | jq -e '\''if type == \"array\" then {boardCount:length, sampleBoards:(.[0:3] | map({id, name}))} else error(\"unexpected_trello_payload\") end'\'''"
+      gce_ssh "sudo docker exec ${container_escaped} bash -lc 'set -euo pipefail; if [[ -z \"\${TRELLO_API_KEY:-}\" || -z \"\${TRELLO_TOKEN:-}\" ]]; then echo \"missing_trello_env\"; exit 12; fi; printf '\''url = \"https://api.trello.com/1/members/me/boards?key=%s&token=%s&fields=name,id\"\\n'\'' \"\${TRELLO_API_KEY}\" \"\${TRELLO_TOKEN}\" | curl -fsSK - | jq -e '\''if type == \"array\" then {boardCount:length, sampleBoards:(.[0:3] | map({id, name}))} else error(\"unexpected_trello_payload\") end'\'''"
     )" || {
       status=$?
       if [[ "${status}" -eq 12 ]]; then
