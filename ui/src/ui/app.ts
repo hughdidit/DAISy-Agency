@@ -65,6 +65,8 @@ import type { ResolvedTheme, ThemeMode } from "./theme.ts";
 import type {
   AgentsListResult,
   AgentsFilesListResult,
+  AgentsWorkspaceFilesListResult,
+  AgentWorkspaceFileDocument,
   AgentIdentityResult,
   ConfigSnapshot,
   ConfigUiHints,
@@ -230,6 +232,16 @@ export class OpenClawApp extends LitElement {
   @state() agentFileDrafts: Record<string, string> = {};
   @state() agentFileActive: string | null = null;
   @state() agentFileSaving = false;
+  @state() agentWorkspaceFilesLoading = false;
+  @state() agentWorkspaceFilesError: string | null = null;
+  @state() agentWorkspaceFilesList: AgentsWorkspaceFilesListResult | null = null;
+  @state() agentWorkspaceFileDocs: Record<string, AgentWorkspaceFileDocument> = {};
+  @state() agentWorkspaceFileDrafts: Record<
+    string,
+    import("./controllers/agent-file-manager.ts").AgentWorkspaceFileDraft
+  > = {};
+  @state() agentWorkspaceFileActivePath: string | null = null;
+  @state() agentWorkspaceFileSaving = false;
   @state() agentIdentityLoading = false;
   @state() agentIdentityError: string | null = null;
   @state() agentIdentityById: Record<string, AgentIdentityResult> = {};

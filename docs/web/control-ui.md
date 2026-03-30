@@ -75,6 +75,7 @@ you revoke it with `openclaw devices revoke --device <id> --role <role>`. See
 - Config: apply + restart with validation (`config.apply`) and wake the last active session
 - Config writes include a base-hash guard to prevent clobbering concurrent edits
 - Config schema + form rendering (`config.schema`, including plugin + channel schemas); Raw JSON editor remains available
+- Agents: edit protected `Core Files` and manage the sandbox workspace `media/inbound` File Manager with upload, folders, download, and text editing
 - Debug: status/health/models snapshots + event log + manual RPC calls (`status`, `health`, `models.list`)
 - Logs: live tail of gateway file logs with filter/export (`logs.tail`)
 - Update: run a package/git update + restart (`update.run`) with a restart report
@@ -245,6 +246,9 @@ Example:
   gateway: {
     controlUi: {
       allowedOrigins: ["http://localhost:5173"],
+      // Optional: hide the Agents -> Files File Manager card when
+      // gws-toolkit-phase1 has Google Drive enabled.
+      // hideAgentFileExchangeWhenGoogleDriveEnabled: true,
     },
   },
 }

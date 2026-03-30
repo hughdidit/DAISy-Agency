@@ -393,6 +393,48 @@ export type AgentsFilesSetResult = {
   file: AgentFileEntry;
 };
 
+export type SupportedTextFileEncoding = "utf-8" | "utf-16le" | "utf-16be";
+
+export type AgentWorkspaceFileEntry = {
+  path: string;
+  name: string;
+  kind: "file" | "directory";
+  size?: number;
+  updatedAtMs?: number;
+};
+
+export type AgentWorkspaceFileDocument = AgentWorkspaceFileEntry & {
+  contentBase64: string;
+  textEditable: boolean;
+  textContent?: string;
+  encoding?: SupportedTextFileEncoding;
+  includeBom?: boolean;
+  textError?: string;
+};
+
+export type AgentsWorkspaceFilesListResult = {
+  agentId: string;
+  workspace: string;
+  root: string;
+  dir: string;
+  entries: AgentWorkspaceFileEntry[];
+};
+
+export type AgentsWorkspaceFilesGetResult = {
+  agentId: string;
+  workspace: string;
+  root: string;
+  file: AgentWorkspaceFileDocument;
+};
+
+export type AgentsWorkspaceFilesSetResult = {
+  ok: true;
+  agentId: string;
+  workspace: string;
+  root: string;
+  file: AgentWorkspaceFileDocument;
+};
+
 export type GatewaySessionRow = {
   key: string;
   kind: "direct" | "group" | "global" | "unknown";

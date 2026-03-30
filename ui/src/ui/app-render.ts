@@ -6,6 +6,16 @@ import { renderUsageTab } from "./app-render-usage-tab.ts";
 import { renderChatControls, renderTab, renderThemeToggle } from "./app-render.helpers.ts";
 import type { AppViewState } from "./app-view-state.ts";
 import { loadAgentFileContent, loadAgentFiles, saveAgentFile } from "./controllers/agent-files.ts";
+import {
+  deleteAgentWorkspacePath,
+  downloadAgentWorkspaceFile,
+  loadAgentWorkspaceFile,
+  loadAgentWorkspaceFiles,
+  mkdirAgentWorkspacePath,
+  moveAgentWorkspacePath,
+  saveAgentWorkspaceFile,
+  stageAgentWorkspaceUpload,
+} from "./controllers/agent-file-manager.ts";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
 import { loadAgentSkills } from "./controllers/agent-skills.ts";
 import { loadAgents, loadToolsCatalog } from "./controllers/agents.ts";
@@ -563,6 +573,13 @@ export function renderApp(state: AppViewState) {
                 agentFileContents: state.agentFileContents,
                 agentFileDrafts: state.agentFileDrafts,
                 agentFileSaving: state.agentFileSaving,
+                agentWorkspaceFilesLoading: state.agentWorkspaceFilesLoading,
+                agentWorkspaceFilesError: state.agentWorkspaceFilesError,
+                agentWorkspaceFilesList: state.agentWorkspaceFilesList,
+                agentWorkspaceFileActivePath: state.agentWorkspaceFileActivePath,
+                agentWorkspaceFileDocs: state.agentWorkspaceFileDocs,
+                agentWorkspaceFileDrafts: state.agentWorkspaceFileDrafts,
+                agentWorkspaceFileSaving: state.agentWorkspaceFileSaving,
                 agentIdentityLoading: state.agentIdentityLoading,
                 agentIdentityError: state.agentIdentityError,
                 agentIdentityById: state.agentIdentityById,
@@ -598,6 +615,12 @@ export function renderApp(state: AppViewState) {
                   state.agentFileActive = null;
                   state.agentFileContents = {};
                   state.agentFileDrafts = {};
+                  state.agentWorkspaceFilesList = null;
+                  state.agentWorkspaceFilesError = null;
+                  state.agentWorkspaceFilesLoading = false;
+                  state.agentWorkspaceFileActivePath = null;
+                  state.agentWorkspaceFileDocs = {};
+                  state.agentWorkspaceFileDrafts = {};
                   state.agentSkillsReport = null;
                   state.agentSkillsError = null;
                   state.agentSkillsAgentId = null;
@@ -607,6 +630,7 @@ export function renderApp(state: AppViewState) {
                   }
                   if (state.agentsPanel === "files") {
                     void loadAgentFiles(state, agentId);
+                    void loadAgentWorkspaceFiles(state, agentId);
                   }
                   if (state.agentsPanel === "skills") {
                     void loadAgentSkills(state, agentId);
@@ -622,6 +646,14 @@ export function renderApp(state: AppViewState) {
                       state.agentFileContents = {};
                       state.agentFileDrafts = {};
                       void loadAgentFiles(state, resolvedAgentId);
+                    }
+                    if (state.agentWorkspaceFilesList?.agentId !== resolvedAgentId) {
+                      state.agentWorkspaceFilesList = null;
+                      state.agentWorkspaceFilesError = null;
+                      state.agentWorkspaceFileActivePath = null;
+                      state.agentWorkspaceFileDocs = {};
+                      state.agentWorkspaceFileDrafts = {};
+                      void loadAgentWorkspaceFiles(state, resolvedAgentId);
                     }
                   }
                   if (panel === "tools") {
@@ -661,6 +693,93 @@ export function renderApp(state: AppViewState) {
                   const content =
                     state.agentFileDrafts[name] ?? state.agentFileContents[name] ?? "";
                   void saveAgentFile(state, resolvedAgentId, name, content);
+                },
+                onLoadWorkspaceFiles: (agentId, dir) => {
+                  void loadAgentWorkspaceFiles(state, agentId, dir);
+                },
+                onSelectWorkspaceEntry: (entry) => {
+                  if (!resolvedAgentId) {
+                    return;
+                  }
+                  if (entry.kind === "directory") {
+                    state.agentWorkspaceFileActivePath = null;
+                    void loadAgentWorkspaceFiles(state, resolvedAgentId, entry.path);
+                    return;
+                  }
+                  state.agentWorkspaceFileActivePath = entry.path;
+                  if (
+                    state.agentWorkspaceFileDrafts[entry.path] &&
+                    !state.agentWorkspaceFileDocs[entry.path]
+                  ) {
+                    return;
+                  }
+                  void loadAgentWorkspaceFile(state, resolvedAgentId, entry.path);
+                },
+                onWorkspaceFileDraftChange: (filePath, content) => {
+                  const current = state.agentWorkspaceFileDrafts[filePath];
+                  if (!current || current.kind !== "text") {
+                    return;
+                  }
+                  state.agentWorkspaceFileDrafts = {
+                    ...state.agentWorkspaceFileDrafts,
+                    [filePath]: { ...current, textContent: content },
+                  };
+                },
+                onWorkspaceFileReset: (filePath) => {
+                  const doc = state.agentWorkspaceFileDocs[filePath];
+                  if (!doc) {
+                    return;
+                  }
+                  state.agentWorkspaceFileDrafts = {
+                    ...state.agentWorkspaceFileDrafts,
+                    [filePath]: doc.textEditable
+                      ? {
+                          kind: "text",
+                          path: filePath,
+                          textContent: doc.textContent ?? "",
+                          encoding: doc.encoding ?? "utf-8",
+                          includeBom: doc.includeBom === true,
+                        }
+                      : {
+                          kind: "binary",
+                          path: filePath,
+                          contentBase64: doc.contentBase64,
+                          textError: doc.textError ?? "File is not editable as text.",
+                        },
+                  };
+                },
+                onWorkspaceFileSave: (filePath) => {
+                  if (!resolvedAgentId) {
+                    return;
+                  }
+                  void saveAgentWorkspaceFile(state, resolvedAgentId, filePath);
+                },
+                onWorkspaceUpload: (filePath, file) => {
+                  void stageAgentWorkspaceUpload(state, filePath, file);
+                },
+                onWorkspaceDelete: (filePath) => {
+                  if (!resolvedAgentId) {
+                    return;
+                  }
+                  void deleteAgentWorkspacePath(state, resolvedAgentId, filePath);
+                },
+                onWorkspaceCreateDirectory: (filePath) => {
+                  if (!resolvedAgentId) {
+                    return;
+                  }
+                  void mkdirAgentWorkspacePath(state, resolvedAgentId, filePath);
+                },
+                onWorkspaceMove: (fromPath, toPath) => {
+                  if (!resolvedAgentId) {
+                    return;
+                  }
+                  void moveAgentWorkspacePath(state, resolvedAgentId, fromPath, toPath);
+                },
+                onWorkspaceDownload: (filePath) => {
+                  if (!resolvedAgentId) {
+                    return;
+                  }
+                  void downloadAgentWorkspaceFile(state, resolvedAgentId, filePath);
                 },
                 onToolsProfileChange: (agentId, profile, clearAllow) => {
                   if (!configValue) {

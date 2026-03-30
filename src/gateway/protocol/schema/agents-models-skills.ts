@@ -164,6 +164,158 @@ export const AgentsFilesSetResultSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const SupportedTextFileEncodingSchema = Type.Union([
+  Type.Literal("utf-8"),
+  Type.Literal("utf-16le"),
+  Type.Literal("utf-16be"),
+]);
+
+export const AgentsWorkspaceFileEntrySchema = Type.Object(
+  {
+    path: NonEmptyString,
+    name: NonEmptyString,
+    kind: Type.Union([Type.Literal("file"), Type.Literal("directory")]),
+    size: Type.Optional(Type.Integer({ minimum: 0 })),
+    updatedAtMs: Type.Optional(Type.Integer({ minimum: 0 })),
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesListParamsSchema = Type.Object(
+  {
+    agentId: NonEmptyString,
+    dir: Type.Optional(Type.String()),
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesListResultSchema = Type.Object(
+  {
+    agentId: NonEmptyString,
+    workspace: NonEmptyString,
+    root: NonEmptyString,
+    dir: Type.String(),
+    entries: Type.Array(AgentsWorkspaceFileEntrySchema),
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesGetParamsSchema = Type.Object(
+  {
+    agentId: NonEmptyString,
+    path: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFileDocumentSchema = Type.Intersect([
+  AgentsWorkspaceFileEntrySchema,
+  Type.Object(
+    {
+      contentBase64: Type.String(),
+      textEditable: Type.Boolean(),
+      textContent: Type.Optional(Type.String()),
+      encoding: Type.Optional(SupportedTextFileEncodingSchema),
+      includeBom: Type.Optional(Type.Boolean()),
+      textError: Type.Optional(Type.String()),
+    },
+    { additionalProperties: false },
+  ),
+]);
+
+export const AgentsWorkspaceFilesGetResultSchema = Type.Object(
+  {
+    agentId: NonEmptyString,
+    workspace: NonEmptyString,
+    root: NonEmptyString,
+    file: AgentsWorkspaceFileDocumentSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesSetParamsSchema = Type.Object(
+  {
+    agentId: NonEmptyString,
+    path: NonEmptyString,
+    content: Type.Optional(Type.String()),
+    contentBase64: Type.Optional(Type.String()),
+    encoding: Type.Optional(SupportedTextFileEncodingSchema),
+    includeBom: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesSetResultSchema = Type.Object(
+  {
+    ok: Type.Literal(true),
+    agentId: NonEmptyString,
+    workspace: NonEmptyString,
+    root: NonEmptyString,
+    file: AgentsWorkspaceFileDocumentSchema,
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesDeleteParamsSchema = Type.Object(
+  {
+    agentId: NonEmptyString,
+    path: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesDeleteResultSchema = Type.Object(
+  {
+    ok: Type.Literal(true),
+    agentId: NonEmptyString,
+    workspace: NonEmptyString,
+    root: NonEmptyString,
+    deletedPath: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesMkdirParamsSchema = Type.Object(
+  {
+    agentId: NonEmptyString,
+    path: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesMkdirResultSchema = Type.Object(
+  {
+    ok: Type.Literal(true),
+    agentId: NonEmptyString,
+    workspace: NonEmptyString,
+    root: NonEmptyString,
+    entry: AgentsWorkspaceFileEntrySchema,
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesMoveParamsSchema = Type.Object(
+  {
+    agentId: NonEmptyString,
+    fromPath: NonEmptyString,
+    toPath: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const AgentsWorkspaceFilesMoveResultSchema = Type.Object(
+  {
+    ok: Type.Literal(true),
+    agentId: NonEmptyString,
+    workspace: NonEmptyString,
+    root: NonEmptyString,
+    fromPath: NonEmptyString,
+    toPath: NonEmptyString,
+    entry: AgentsWorkspaceFileEntrySchema,
+  },
+  { additionalProperties: false },
+);
+
 export const ModelsListParamsSchema = Type.Object({}, { additionalProperties: false });
 
 export const ModelsListResultSchema = Type.Object(

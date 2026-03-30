@@ -104,6 +104,8 @@ export type GatewayControlUiConfig = {
   allowInsecureAuth?: boolean;
   /** DANGEROUS: Disable device identity checks for the Control UI (default: false). */
   dangerouslyDisableDeviceAuth?: boolean;
+  /** Hide the agent workspace File Manager when Google Drive is enabled (default: false). */
+  hideAgentFileExchangeWhenGoogleDriveEnabled?: boolean;
 };
 
 export type GatewayAuthMode = "none" | "token" | "password" | "trusted-proxy";
