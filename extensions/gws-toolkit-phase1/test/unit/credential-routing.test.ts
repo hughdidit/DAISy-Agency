@@ -59,4 +59,4 @@ describe("credential routing", () => {
     });
     expect(resolved.route.name).toBe("drive-writer");
   });
-}
+});

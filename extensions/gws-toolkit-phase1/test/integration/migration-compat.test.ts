@@ -19,4 +19,4 @@ describe("integration: migration compatibility", () => {
     expect(status.data.config.defaultCredentialRoute).toBe("legacy-default");
     expect(status.data.routes[0].name).toBe("legacy-default");
   });
-}
+});

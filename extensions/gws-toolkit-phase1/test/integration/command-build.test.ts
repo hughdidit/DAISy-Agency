@@ -124,4 +124,4 @@ describe("integration: command build", () => {
       '{"values":[["hello"]]}',
     ]);
   });
-}
+});

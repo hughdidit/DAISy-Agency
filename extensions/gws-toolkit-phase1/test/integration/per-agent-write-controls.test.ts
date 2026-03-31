@@ -61,4 +61,4 @@ describe("integration: per-agent write controls", () => {
     expect(denied.ok).toBe(false);
     expect(denied.error.code).toBe("DENY_POLICY");
   });
-}
+});

@@ -44,4 +44,4 @@ describe("audit", () => {
     expect(event.bindingSubject).toBe("agent:agent");
     expect(logs.join("\n")).toContain('"routeName":"ops-drive"');
   });
-}
+});

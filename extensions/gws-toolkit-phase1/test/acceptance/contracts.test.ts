@@ -175,4 +175,4 @@ describe("gws-toolkit-phase1 phase2 acceptance contracts", () => {
       },
     });
   });
-}
+});

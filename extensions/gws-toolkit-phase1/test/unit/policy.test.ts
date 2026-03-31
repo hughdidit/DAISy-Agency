@@ -115,4 +115,4 @@ describe("policy", () => {
     });
     expect(decision.allowed).toBe(true);
   });
-}
+});

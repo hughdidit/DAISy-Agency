@@ -52,4 +52,4 @@ describe("executor", () => {
     });
     expect(result.timedOut).toBe(true);
   });
-}
+});

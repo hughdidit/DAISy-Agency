@@ -22,4 +22,4 @@ describe("integration: plugin registration", () => {
     ]);
     expect(harness.cliCommands).toContain("gws");
   });
-}
+});
