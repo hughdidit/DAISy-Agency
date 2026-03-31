@@ -518,7 +518,7 @@ function renderWorkspaceManagerCard(
       <div class="row" style="justify-content: space-between; gap: 8px; flex-wrap: wrap;">
         <div>
           <div class="card-title">File Manager</div>
-          <div class="card-sub">Agent workspace sandbox exchange area at `media/inbound`.</div>
+          <div class="card-sub">Agent workspace sandbox exchange area at media/inbound.</div>
         </div>
         <div class="row" style="gap: 8px; flex-wrap: wrap;">
           <label class="btn btn--sm" style="cursor: pointer;">
