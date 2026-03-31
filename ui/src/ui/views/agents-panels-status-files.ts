@@ -686,8 +686,11 @@ function renderWorkspaceManagerCard(
                               </button>
                               <button
                                 class="btn btn--sm"
-                                ?disabled=${!activePath || isDirty}
-                                @click=${() => params.onWorkspaceDownload(activeDoc.path)}
+                                ?disabled=${!activeDoc || isDirty}
+                                @click=${() =>
+                                  activeDoc
+                                    ? params.onWorkspaceDownload(activeDoc.path)
+                                    : undefined}
                               >
                                 Download
                               </button>

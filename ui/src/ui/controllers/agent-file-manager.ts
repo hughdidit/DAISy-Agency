@@ -436,7 +436,11 @@ export async function downloadAgentWorkspaceFile(
     return;
   }
   const bytes = decodeBase64Bytes(file.contentBase64);
-  const blob = new Blob([bytes]);
+  const blobBuffer = bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength,
+  ) as ArrayBuffer;
+  const blob = new Blob([blobBuffer]);
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
