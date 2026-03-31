@@ -53,7 +53,13 @@ function joinRelativePath(dir: string, name: string): string {
 }
 
 function encodeBytesBase64(bytes: Uint8Array): string {
-  return btoa(new TextDecoder("latin1").decode(bytes));
+  const binaryChunks: string[] = [];
+  const chunkSize = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    const chunk = bytes.subarray(offset, offset + chunkSize);
+    binaryChunks.push(String.fromCharCode(...chunk));
+  }
+  return btoa(binaryChunks.join(""));
 }
 
 function decodeBase64Bytes(base64: string): Uint8Array {
