@@ -36,6 +36,34 @@ import {
   AgentsFilesSetParamsSchema,
   type AgentsFilesSetResult,
   AgentsFilesSetResultSchema,
+  type AgentsWorkspaceFileDocument,
+  AgentsWorkspaceFileDocumentSchema,
+  type AgentsWorkspaceFileEntry,
+  AgentsWorkspaceFileEntrySchema,
+  type AgentsWorkspaceFilesDeleteParams,
+  AgentsWorkspaceFilesDeleteParamsSchema,
+  type AgentsWorkspaceFilesDeleteResult,
+  AgentsWorkspaceFilesDeleteResultSchema,
+  type AgentsWorkspaceFilesGetParams,
+  AgentsWorkspaceFilesGetParamsSchema,
+  type AgentsWorkspaceFilesGetResult,
+  AgentsWorkspaceFilesGetResultSchema,
+  type AgentsWorkspaceFilesListParams,
+  AgentsWorkspaceFilesListParamsSchema,
+  type AgentsWorkspaceFilesListResult,
+  AgentsWorkspaceFilesListResultSchema,
+  type AgentsWorkspaceFilesMkdirParams,
+  AgentsWorkspaceFilesMkdirParamsSchema,
+  type AgentsWorkspaceFilesMkdirResult,
+  AgentsWorkspaceFilesMkdirResultSchema,
+  type AgentsWorkspaceFilesMoveParams,
+  AgentsWorkspaceFilesMoveParamsSchema,
+  type AgentsWorkspaceFilesMoveResult,
+  AgentsWorkspaceFilesMoveResultSchema,
+  type AgentsWorkspaceFilesSetParams,
+  AgentsWorkspaceFilesSetParamsSchema,
+  type AgentsWorkspaceFilesSetResult,
+  AgentsWorkspaceFilesSetResultSchema,
   type AgentsListParams,
   AgentsListParamsSchema,
   type AgentsListResult,
@@ -265,6 +293,23 @@ export const validateAgentsFilesGetParams = ajv.compile<AgentsFilesGetParams>(
 );
 export const validateAgentsFilesSetParams = ajv.compile<AgentsFilesSetParams>(
   AgentsFilesSetParamsSchema,
+);
+export const validateAgentsWorkspaceFilesListParams = ajv.compile<AgentsWorkspaceFilesListParams>(
+  AgentsWorkspaceFilesListParamsSchema,
+);
+export const validateAgentsWorkspaceFilesGetParams = ajv.compile<AgentsWorkspaceFilesGetParams>(
+  AgentsWorkspaceFilesGetParamsSchema,
+);
+export const validateAgentsWorkspaceFilesSetParams = ajv.compile<AgentsWorkspaceFilesSetParams>(
+  AgentsWorkspaceFilesSetParamsSchema,
+);
+export const validateAgentsWorkspaceFilesDeleteParams =
+  ajv.compile<AgentsWorkspaceFilesDeleteParams>(AgentsWorkspaceFilesDeleteParamsSchema);
+export const validateAgentsWorkspaceFilesMkdirParams = ajv.compile<AgentsWorkspaceFilesMkdirParams>(
+  AgentsWorkspaceFilesMkdirParamsSchema,
+);
+export const validateAgentsWorkspaceFilesMoveParams = ajv.compile<AgentsWorkspaceFilesMoveParams>(
+  AgentsWorkspaceFilesMoveParamsSchema,
 );
 export const validateNodePairRequestParams = ajv.compile<NodePairRequestParams>(
   NodePairRequestParamsSchema,
@@ -497,6 +542,14 @@ export {
   AgentsFilesGetResultSchema,
   AgentsFilesSetParamsSchema,
   AgentsFilesSetResultSchema,
+  AgentsWorkspaceFileDocumentSchema,
+  AgentsWorkspaceFileEntrySchema,
+  AgentsWorkspaceFilesDeleteResultSchema,
+  AgentsWorkspaceFilesGetResultSchema,
+  AgentsWorkspaceFilesListResultSchema,
+  AgentsWorkspaceFilesMkdirResultSchema,
+  AgentsWorkspaceFilesMoveResultSchema,
+  AgentsWorkspaceFilesSetResultSchema,
   AgentsListParamsSchema,
   AgentsListResultSchema,
   ModelsListParamsSchema,
@@ -587,6 +640,14 @@ export type {
   AgentsFilesGetResult,
   AgentsFilesSetParams,
   AgentsFilesSetResult,
+  AgentsWorkspaceFileDocument,
+  AgentsWorkspaceFileEntry,
+  AgentsWorkspaceFilesDeleteResult,
+  AgentsWorkspaceFilesGetResult,
+  AgentsWorkspaceFilesListResult,
+  AgentsWorkspaceFilesMkdirResult,
+  AgentsWorkspaceFilesMoveResult,
+  AgentsWorkspaceFilesSetResult,
   AgentsListParams,
   AgentsListResult,
   SkillsStatusParams,

@@ -3,6 +3,9 @@ import type {
   AgentIdentityResult,
   AgentsFilesListResult,
   AgentsListResult,
+  AgentWorkspaceFileDocument,
+  AgentWorkspaceFileEntry,
+  AgentsWorkspaceFilesListResult,
   ChannelsStatusSnapshot,
   CronJob,
   CronStatus,
@@ -56,6 +59,16 @@ export type AgentsProps = {
   agentFileContents: Record<string, string>;
   agentFileDrafts: Record<string, string>;
   agentFileSaving: boolean;
+  agentWorkspaceFilesLoading: boolean;
+  agentWorkspaceFilesError: string | null;
+  agentWorkspaceFilesList: AgentsWorkspaceFilesListResult | null;
+  agentWorkspaceFileActivePath: string | null;
+  agentWorkspaceFileDocs: Record<string, AgentWorkspaceFileDocument>;
+  agentWorkspaceFileDrafts: Record<
+    string,
+    import("../controllers/agent-file-manager.ts").AgentWorkspaceFileDraft
+  >;
+  agentWorkspaceFileSaving: boolean;
   agentIdentityLoading: boolean;
   agentIdentityError: string | null;
   agentIdentityById: Record<string, AgentIdentityResult>;
@@ -75,6 +88,16 @@ export type AgentsProps = {
   onFileDraftChange: (name: string, content: string) => void;
   onFileReset: (name: string) => void;
   onFileSave: (name: string) => void;
+  onLoadWorkspaceFiles: (agentId: string, dir?: string) => void;
+  onSelectWorkspaceEntry: (entry: AgentWorkspaceFileEntry) => void;
+  onWorkspaceFileDraftChange: (path: string, content: string) => void;
+  onWorkspaceFileReset: (path: string) => void;
+  onWorkspaceFileSave: (path: string) => void;
+  onWorkspaceUpload: (path: string, file: File) => void;
+  onWorkspaceDelete: (path: string) => void;
+  onWorkspaceCreateDirectory: (path: string) => void;
+  onWorkspaceMove: (fromPath: string, toPath: string) => void;
+  onWorkspaceDownload: (path: string) => void;
   onToolsProfileChange: (agentId: string, profile: string | null, clearAllow: boolean) => void;
   onToolsOverridesChange: (agentId: string, alsoAllow: string[], deny: string[]) => void;
   onConfigReload: () => void;
@@ -191,6 +214,7 @@ export function renderAgents(props: AgentsProps) {
                   props.activePanel === "files"
                     ? renderAgentFiles({
                         agentId: selectedAgent.id,
+                        configForm: props.configForm,
                         agentFilesList: props.agentFilesList,
                         agentFilesLoading: props.agentFilesLoading,
                         agentFilesError: props.agentFilesError,
@@ -198,11 +222,28 @@ export function renderAgents(props: AgentsProps) {
                         agentFileContents: props.agentFileContents,
                         agentFileDrafts: props.agentFileDrafts,
                         agentFileSaving: props.agentFileSaving,
+                        agentWorkspaceFilesList: props.agentWorkspaceFilesList,
+                        agentWorkspaceFilesLoading: props.agentWorkspaceFilesLoading,
+                        agentWorkspaceFilesError: props.agentWorkspaceFilesError,
+                        agentWorkspaceFileActivePath: props.agentWorkspaceFileActivePath,
+                        agentWorkspaceFileDocs: props.agentWorkspaceFileDocs,
+                        agentWorkspaceFileDrafts: props.agentWorkspaceFileDrafts,
+                        agentWorkspaceFileSaving: props.agentWorkspaceFileSaving,
                         onLoadFiles: props.onLoadFiles,
                         onSelectFile: props.onSelectFile,
                         onFileDraftChange: props.onFileDraftChange,
                         onFileReset: props.onFileReset,
                         onFileSave: props.onFileSave,
+                        onLoadWorkspaceFiles: props.onLoadWorkspaceFiles,
+                        onSelectWorkspaceEntry: props.onSelectWorkspaceEntry,
+                        onWorkspaceFileDraftChange: props.onWorkspaceFileDraftChange,
+                        onWorkspaceFileReset: props.onWorkspaceFileReset,
+                        onWorkspaceFileSave: props.onWorkspaceFileSave,
+                        onWorkspaceUpload: props.onWorkspaceUpload,
+                        onWorkspaceDelete: props.onWorkspaceDelete,
+                        onWorkspaceCreateDirectory: props.onWorkspaceCreateDirectory,
+                        onWorkspaceMove: props.onWorkspaceMove,
+                        onWorkspaceDownload: props.onWorkspaceDownload,
                       })
                     : nothing
                 }

@@ -75,6 +75,18 @@ describe("config schema regressions", () => {
     expect(res.ok).toBe(true);
   });
 
+  it("accepts gateway.controlUi.hideAgentFileExchangeWhenGoogleDriveEnabled", () => {
+    const res = validateConfigObject({
+      gateway: {
+        controlUi: {
+          hideAgentFileExchangeWhenGoogleDriveEnabled: true,
+        },
+      },
+    });
+
+    expect(res.ok).toBe(true);
+  });
+
   it("rejects unsafe iMessage remoteHost", () => {
     const res = validateConfigObject({
       channels: {

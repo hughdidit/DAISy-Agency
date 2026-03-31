@@ -2162,6 +2162,350 @@ public struct AgentsFilesSetResult: Codable, Sendable {
     }
 }
 
+public struct AgentsWorkspaceFileEntry: Codable, Sendable {
+    public let path: String
+    public let name: String
+    public let kind: AnyCodable
+    public let size: Int?
+    public let updatedatms: Int?
+
+    public init(
+        path: String,
+        name: String,
+        kind: AnyCodable,
+        size: Int?,
+        updatedatms: Int?)
+    {
+        self.path = path
+        self.name = name
+        self.kind = kind
+        self.size = size
+        self.updatedatms = updatedatms
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case path
+        case name
+        case kind
+        case size
+        case updatedatms = "updatedAtMs"
+    }
+}
+
+public struct AgentsWorkspaceFileDocument: Codable, Sendable {}
+
+public struct AgentsWorkspaceFilesListParams: Codable, Sendable {
+    public let agentid: String
+    public let dir: String?
+
+    public init(
+        agentid: String,
+        dir: String?)
+    {
+        self.agentid = agentid
+        self.dir = dir
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case dir
+    }
+}
+
+public struct AgentsWorkspaceFilesListResult: Codable, Sendable {
+    public let agentid: String
+    public let workspace: String
+    public let root: String
+    public let dir: String
+    public let entries: [AgentsWorkspaceFileEntry]
+
+    public init(
+        agentid: String,
+        workspace: String,
+        root: String,
+        dir: String,
+        entries: [AgentsWorkspaceFileEntry])
+    {
+        self.agentid = agentid
+        self.workspace = workspace
+        self.root = root
+        self.dir = dir
+        self.entries = entries
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case workspace
+        case root
+        case dir
+        case entries
+    }
+}
+
+public struct AgentsWorkspaceFilesGetParams: Codable, Sendable {
+    public let agentid: String
+    public let path: String
+
+    public init(
+        agentid: String,
+        path: String)
+    {
+        self.agentid = agentid
+        self.path = path
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case path
+    }
+}
+
+public struct AgentsWorkspaceFilesGetResult: Codable, Sendable {
+    public let agentid: String
+    public let workspace: String
+    public let root: String
+    public let file: AgentsWorkspaceFileDocument
+
+    public init(
+        agentid: String,
+        workspace: String,
+        root: String,
+        file: AgentsWorkspaceFileDocument)
+    {
+        self.agentid = agentid
+        self.workspace = workspace
+        self.root = root
+        self.file = file
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case workspace
+        case root
+        case file
+    }
+}
+
+public struct AgentsWorkspaceFilesSetParams: Codable, Sendable {
+    public let agentid: String
+    public let path: String
+    public let content: String?
+    public let contentbase64: String?
+    public let encoding: AnyCodable?
+    public let includebom: Bool?
+
+    public init(
+        agentid: String,
+        path: String,
+        content: String?,
+        contentbase64: String?,
+        encoding: AnyCodable?,
+        includebom: Bool?)
+    {
+        self.agentid = agentid
+        self.path = path
+        self.content = content
+        self.contentbase64 = contentbase64
+        self.encoding = encoding
+        self.includebom = includebom
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case path
+        case content
+        case contentbase64 = "contentBase64"
+        case encoding
+        case includebom = "includeBom"
+    }
+}
+
+public struct AgentsWorkspaceFilesSetResult: Codable, Sendable {
+    public let ok: Bool
+    public let agentid: String
+    public let workspace: String
+    public let root: String
+    public let file: AgentsWorkspaceFileDocument
+
+    public init(
+        ok: Bool,
+        agentid: String,
+        workspace: String,
+        root: String,
+        file: AgentsWorkspaceFileDocument)
+    {
+        self.ok = ok
+        self.agentid = agentid
+        self.workspace = workspace
+        self.root = root
+        self.file = file
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case ok
+        case agentid = "agentId"
+        case workspace
+        case root
+        case file
+    }
+}
+
+public struct AgentsWorkspaceFilesDeleteParams: Codable, Sendable {
+    public let agentid: String
+    public let path: String
+
+    public init(
+        agentid: String,
+        path: String)
+    {
+        self.agentid = agentid
+        self.path = path
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case path
+    }
+}
+
+public struct AgentsWorkspaceFilesDeleteResult: Codable, Sendable {
+    public let ok: Bool
+    public let agentid: String
+    public let workspace: String
+    public let root: String
+    public let deletedpath: String
+
+    public init(
+        ok: Bool,
+        agentid: String,
+        workspace: String,
+        root: String,
+        deletedpath: String)
+    {
+        self.ok = ok
+        self.agentid = agentid
+        self.workspace = workspace
+        self.root = root
+        self.deletedpath = deletedpath
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case ok
+        case agentid = "agentId"
+        case workspace
+        case root
+        case deletedpath = "deletedPath"
+    }
+}
+
+public struct AgentsWorkspaceFilesMkdirParams: Codable, Sendable {
+    public let agentid: String
+    public let path: String
+
+    public init(
+        agentid: String,
+        path: String)
+    {
+        self.agentid = agentid
+        self.path = path
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case path
+    }
+}
+
+public struct AgentsWorkspaceFilesMkdirResult: Codable, Sendable {
+    public let ok: Bool
+    public let agentid: String
+    public let workspace: String
+    public let root: String
+    public let entry: AgentsWorkspaceFileEntry
+
+    public init(
+        ok: Bool,
+        agentid: String,
+        workspace: String,
+        root: String,
+        entry: AgentsWorkspaceFileEntry)
+    {
+        self.ok = ok
+        self.agentid = agentid
+        self.workspace = workspace
+        self.root = root
+        self.entry = entry
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case ok
+        case agentid = "agentId"
+        case workspace
+        case root
+        case entry
+    }
+}
+
+public struct AgentsWorkspaceFilesMoveParams: Codable, Sendable {
+    public let agentid: String
+    public let frompath: String
+    public let topath: String
+
+    public init(
+        agentid: String,
+        frompath: String,
+        topath: String)
+    {
+        self.agentid = agentid
+        self.frompath = frompath
+        self.topath = topath
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case frompath = "fromPath"
+        case topath = "toPath"
+    }
+}
+
+public struct AgentsWorkspaceFilesMoveResult: Codable, Sendable {
+    public let ok: Bool
+    public let agentid: String
+    public let workspace: String
+    public let root: String
+    public let frompath: String
+    public let topath: String
+    public let entry: AgentsWorkspaceFileEntry
+
+    public init(
+        ok: Bool,
+        agentid: String,
+        workspace: String,
+        root: String,
+        frompath: String,
+        topath: String,
+        entry: AgentsWorkspaceFileEntry)
+    {
+        self.ok = ok
+        self.agentid = agentid
+        self.workspace = workspace
+        self.root = root
+        self.frompath = frompath
+        self.topath = topath
+        self.entry = entry
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case ok
+        case agentid = "agentId"
+        case workspace
+        case root
+        case frompath = "fromPath"
+        case topath = "toPath"
+        case entry
+    }
+}
+
 public struct AgentsListParams: Codable, Sendable {}
 
 public struct AgentsListResult: Codable, Sendable {

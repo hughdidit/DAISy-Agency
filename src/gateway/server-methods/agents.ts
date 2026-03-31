@@ -34,6 +34,15 @@ import { isNotFoundPathError } from "../../infra/path-guards.js";
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../../routing/session-key.js";
 import { resolveUserPath } from "../../utils.js";
 import {
+  deleteAgentWorkspaceFilePath,
+  getAgentWorkspaceFile,
+  listAgentWorkspaceFiles,
+  mkdirAgentWorkspaceFilePath,
+  moveAgentWorkspaceFilePath,
+  resolveAgentWorkspaceMediaInboundRoot,
+  setAgentWorkspaceFile,
+} from "../agent-workspace-file-manager.js";
+import {
   ErrorCodes,
   errorShape,
   formatValidationErrors,
@@ -42,6 +51,12 @@ import {
   validateAgentsFilesGetParams,
   validateAgentsFilesListParams,
   validateAgentsFilesSetParams,
+  validateAgentsWorkspaceFilesDeleteParams,
+  validateAgentsWorkspaceFilesGetParams,
+  validateAgentsWorkspaceFilesListParams,
+  validateAgentsWorkspaceFilesMkdirParams,
+  validateAgentsWorkspaceFilesMoveParams,
+  validateAgentsWorkspaceFilesSetParams,
   validateAgentsListParams,
   validateAgentsUpdateParams,
 } from "../protocol/index.js";
@@ -455,6 +470,40 @@ function respondWorkspaceFileMissing(params: {
   );
 }
 
+function resolveAgentWorkspaceInboundRootOrRespondError(
+  params: Record<string, unknown>,
+  respond: RespondFn,
+): {
+  agentId: string;
+  workspaceDir: string;
+  rootDir: string;
+} | null {
+  const cfg = loadConfig();
+  const rawAgentId = params.agentId;
+  const agentId = resolveAgentIdOrError(
+    typeof rawAgentId === "string" || typeof rawAgentId === "number" ? String(rawAgentId) : "",
+    cfg,
+  );
+  if (!agentId) {
+    respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "unknown agent id"));
+    return null;
+  }
+  const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId);
+  return {
+    agentId,
+    workspaceDir,
+    rootDir: resolveAgentWorkspaceMediaInboundRoot(workspaceDir),
+  };
+}
+
+function respondWorkspacePathUnsafe(respond: RespondFn, error: unknown): void {
+  const message = error instanceof Error ? error.message : String(error);
+  const normalized = message.toLowerCase().includes("unsafe workspace path")
+    ? message
+    : `unsafe workspace path (${message})`;
+  respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, normalized));
+}
+
 export const agentsHandlers: GatewayRequestHandlers = {
   "agents.list": ({ params, respond }) => {
     if (!validateAgentsListParams(params)) {
@@ -761,5 +810,218 @@ export const agentsHandlers: GatewayRequestHandlers = {
       },
       undefined,
     );
+  },
+  "agents.files.workspace.list": async ({ params, respond }) => {
+    if (!validateAgentsWorkspaceFilesListParams(params)) {
+      respondInvalidMethodParams(
+        respond,
+        "agents.files.workspace.list",
+        validateAgentsWorkspaceFilesListParams.errors,
+      );
+      return;
+    }
+    const resolved = resolveAgentWorkspaceInboundRootOrRespondError(params, respond);
+    if (!resolved) {
+      return;
+    }
+    const dir = typeof params.dir === "string" ? params.dir : "";
+    try {
+      const entries = await listAgentWorkspaceFiles({
+        rootDir: resolved.rootDir,
+        dir,
+      });
+      respond(
+        true,
+        {
+          agentId: resolved.agentId,
+          workspace: resolved.workspaceDir,
+          root: resolved.rootDir,
+          dir: dir.trim().replace(/\\/g, "/"),
+          entries,
+        },
+        undefined,
+      );
+    } catch (error) {
+      respondWorkspacePathUnsafe(respond, error);
+    }
+  },
+  "agents.files.workspace.get": async ({ params, respond }) => {
+    if (!validateAgentsWorkspaceFilesGetParams(params)) {
+      respondInvalidMethodParams(
+        respond,
+        "agents.files.workspace.get",
+        validateAgentsWorkspaceFilesGetParams.errors,
+      );
+      return;
+    }
+    const resolved = resolveAgentWorkspaceInboundRootOrRespondError(params, respond);
+    if (!resolved) {
+      return;
+    }
+    try {
+      const file = await getAgentWorkspaceFile({
+        rootDir: resolved.rootDir,
+        relativePath: String(params.path ?? ""),
+      });
+      respond(
+        true,
+        {
+          agentId: resolved.agentId,
+          workspace: resolved.workspaceDir,
+          root: resolved.rootDir,
+          file,
+        },
+        undefined,
+      );
+    } catch (error) {
+      respondWorkspacePathUnsafe(respond, error);
+    }
+  },
+  "agents.files.workspace.set": async ({ params, respond }) => {
+    if (!validateAgentsWorkspaceFilesSetParams(params)) {
+      respondInvalidMethodParams(
+        respond,
+        "agents.files.workspace.set",
+        validateAgentsWorkspaceFilesSetParams.errors,
+      );
+      return;
+    }
+    const resolved = resolveAgentWorkspaceInboundRootOrRespondError(params, respond);
+    if (!resolved) {
+      return;
+    }
+    try {
+      const file = await setAgentWorkspaceFile({
+        rootDir: resolved.rootDir,
+        relativePath: String(params.path ?? ""),
+        content: typeof params.content === "string" ? params.content : undefined,
+        contentBase64: typeof params.contentBase64 === "string" ? params.contentBase64 : undefined,
+        encoding:
+          params.encoding === "utf-8" ||
+          params.encoding === "utf-16le" ||
+          params.encoding === "utf-16be"
+            ? params.encoding
+            : undefined,
+        includeBom: params.includeBom === true,
+      });
+      respond(
+        true,
+        {
+          ok: true,
+          agentId: resolved.agentId,
+          workspace: resolved.workspaceDir,
+          root: resolved.rootDir,
+          file,
+        },
+        undefined,
+      );
+    } catch (error) {
+      respondWorkspacePathUnsafe(respond, error);
+    }
+  },
+  "agents.files.workspace.delete": async ({ params, respond }) => {
+    if (!validateAgentsWorkspaceFilesDeleteParams(params)) {
+      respondInvalidMethodParams(
+        respond,
+        "agents.files.workspace.delete",
+        validateAgentsWorkspaceFilesDeleteParams.errors,
+      );
+      return;
+    }
+    const resolved = resolveAgentWorkspaceInboundRootOrRespondError(params, respond);
+    if (!resolved) {
+      return;
+    }
+    const targetPath = String(params.path ?? "");
+    try {
+      await deleteAgentWorkspaceFilePath({
+        rootDir: resolved.rootDir,
+        relativePath: targetPath,
+      });
+      respond(
+        true,
+        {
+          ok: true,
+          agentId: resolved.agentId,
+          workspace: resolved.workspaceDir,
+          root: resolved.rootDir,
+          deletedPath: targetPath.trim().replace(/\\/g, "/"),
+        },
+        undefined,
+      );
+    } catch (error) {
+      respondWorkspacePathUnsafe(respond, error);
+    }
+  },
+  "agents.files.workspace.mkdir": async ({ params, respond }) => {
+    if (!validateAgentsWorkspaceFilesMkdirParams(params)) {
+      respondInvalidMethodParams(
+        respond,
+        "agents.files.workspace.mkdir",
+        validateAgentsWorkspaceFilesMkdirParams.errors,
+      );
+      return;
+    }
+    const resolved = resolveAgentWorkspaceInboundRootOrRespondError(params, respond);
+    if (!resolved) {
+      return;
+    }
+    try {
+      const entry = await mkdirAgentWorkspaceFilePath({
+        rootDir: resolved.rootDir,
+        relativePath: String(params.path ?? ""),
+      });
+      respond(
+        true,
+        {
+          ok: true,
+          agentId: resolved.agentId,
+          workspace: resolved.workspaceDir,
+          root: resolved.rootDir,
+          entry,
+        },
+        undefined,
+      );
+    } catch (error) {
+      respondWorkspacePathUnsafe(respond, error);
+    }
+  },
+  "agents.files.workspace.move": async ({ params, respond }) => {
+    if (!validateAgentsWorkspaceFilesMoveParams(params)) {
+      respondInvalidMethodParams(
+        respond,
+        "agents.files.workspace.move",
+        validateAgentsWorkspaceFilesMoveParams.errors,
+      );
+      return;
+    }
+    const resolved = resolveAgentWorkspaceInboundRootOrRespondError(params, respond);
+    if (!resolved) {
+      return;
+    }
+    const fromPath = String(params.fromPath ?? "");
+    const toPath = String(params.toPath ?? "");
+    try {
+      const entry = await moveAgentWorkspaceFilePath({
+        rootDir: resolved.rootDir,
+        fromRelativePath: fromPath,
+        toRelativePath: toPath,
+      });
+      respond(
+        true,
+        {
+          ok: true,
+          agentId: resolved.agentId,
+          workspace: resolved.workspaceDir,
+          root: resolved.rootDir,
+          fromPath: fromPath.trim().replace(/\\/g, "/"),
+          toPath: toPath.trim().replace(/\\/g, "/"),
+          entry,
+        },
+        undefined,
+      );
+    } catch (error) {
+      respondWorkspacePathUnsafe(respond, error);
+    }
   },
 };

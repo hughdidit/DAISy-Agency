@@ -2364,6 +2364,7 @@ See [Plugins](/tools/plugin).
       // dangerouslyAllowHostHeaderOriginFallback: false, // dangerous Host-header origin fallback mode
       // allowInsecureAuth: false,
       // dangerouslyDisableDeviceAuth: false,
+      // hideAgentFileExchangeWhenGoogleDriveEnabled: false,
     },
     remote: {
       url: "ws://gateway.tailnet:18789",
@@ -2401,6 +2402,7 @@ See [Plugins](/tools/plugin).
 - `tailscale.mode`: `serve` (tailnet only, loopback bind) or `funnel` (public, requires auth).
 - `controlUi.allowedOrigins`: explicit browser-origin allowlist for Gateway WebSocket connects. Required when browser clients are expected from non-loopback origins.
 - `controlUi.dangerouslyAllowHostHeaderOriginFallback`: dangerous mode that enables Host-header origin fallback for deployments that intentionally rely on Host-header origin policy.
+- `controlUi.hideAgentFileExchangeWhenGoogleDriveEnabled`: hide the Agents -> Files sandbox `media/inbound` File Manager when `plugins.entries["gws-toolkit-phase1"]` is enabled with Google Drive available. Defaults to `false`.
 - `remote.transport`: `ssh` (default) or `direct` (ws/wss). For `direct`, `remote.url` must be `ws://` or `wss://`.
 - `OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1`: client-side break-glass override that allows plaintext `ws://` to trusted private-network IPs; default remains loopback-only for plaintext.
 - `gateway.remote.token` / `.password` are remote-client credential fields. They do not configure gateway auth by themselves.

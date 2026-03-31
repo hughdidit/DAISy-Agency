@@ -13,6 +13,8 @@ import type { ThemeMode } from "./theme.ts";
 import type {
   AgentsListResult,
   AgentsFilesListResult,
+  AgentsWorkspaceFilesListResult,
+  AgentWorkspaceFileDocument,
   AgentIdentityResult,
   ChannelsStatusSnapshot,
   ConfigSnapshot,
@@ -139,6 +141,16 @@ export type AppViewState = {
   agentFileDrafts: Record<string, string>;
   agentFileActive: string | null;
   agentFileSaving: boolean;
+  agentWorkspaceFilesLoading: boolean;
+  agentWorkspaceFilesError: string | null;
+  agentWorkspaceFilesList: AgentsWorkspaceFilesListResult | null;
+  agentWorkspaceFileDocs: Record<string, AgentWorkspaceFileDocument>;
+  agentWorkspaceFileDrafts: Record<
+    string,
+    import("./controllers/agent-file-manager.ts").AgentWorkspaceFileDraft
+  >;
+  agentWorkspaceFileActivePath: string | null;
+  agentWorkspaceFileSaving: boolean;
   agentIdentityLoading: boolean;
   agentIdentityError: string | null;
   agentIdentityById: Record<string, AgentIdentityResult>;
