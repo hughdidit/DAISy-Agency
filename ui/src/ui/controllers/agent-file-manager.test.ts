@@ -10,7 +10,10 @@ import {
   type AgentWorkspaceFileManagerState,
 } from "./agent-file-manager.ts";
 
-function createState(): { state: AgentWorkspaceFileManagerState; request: ReturnType<typeof vi.fn> } {
+function createState(): {
+  state: AgentWorkspaceFileManagerState;
+  request: ReturnType<typeof vi.fn>;
+} {
   const request = vi.fn();
   const state: AgentWorkspaceFileManagerState = {
     client: { request } as unknown as AgentWorkspaceFileManagerState["client"],

@@ -3,7 +3,11 @@ import path from "node:path";
 import { sameFileIdentity } from "../infra/file-identity.js";
 import { readFileWithinRoot, writeFileWithinRoot } from "../infra/fs-safe.js";
 import { resolveBoundaryPath } from "../infra/boundary-path.js";
-import { decodeTextFile, encodeTextFile, type SupportedTextFileEncoding } from "../shared/text-file-codec.js";
+import {
+  decodeTextFile,
+  encodeTextFile,
+  type SupportedTextFileEncoding,
+} from "../shared/text-file-codec.js";
 
 export type AgentWorkspaceFileKind = "file" | "directory";
 
@@ -26,7 +30,10 @@ export type AgentWorkspaceFileDocument = AgentWorkspaceFileEntry & {
 
 export const AGENT_WORKSPACE_MEDIA_INBOUND_RELATIVE_PATH = path.join("media", "inbound");
 
-function normalizeRelativePath(input: string | undefined, options?: { allowEmpty?: boolean }): string {
+function normalizeRelativePath(
+  input: string | undefined,
+  options?: { allowEmpty?: boolean },
+): string {
   const raw = (input ?? "").trim().replace(/\\/g, "/");
   const parts = raw
     .split("/")
@@ -72,7 +79,10 @@ async function resolvePathInRoot(params: {
     throw new Error("unsafe workspace path (unsupported path type)");
   }
 
-  const [stat, lstat] = await Promise.all([fs.stat(resolved.canonicalPath), fs.lstat(absolutePath)]);
+  const [stat, lstat] = await Promise.all([
+    fs.stat(resolved.canonicalPath),
+    fs.lstat(absolutePath),
+  ]);
   if (lstat.isSymbolicLink()) {
     throw new Error("unsafe workspace path (symlinks are not allowed)");
   }

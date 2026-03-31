@@ -18,7 +18,9 @@ import type {
   CronStatus,
 } from "../types.ts";
 import { formatBytes, type AgentContext } from "./agents-utils.ts";
-import { resolveChannelExtras as resolveChannelExtrasFromConfig } from "./channel-config-extras.ts";
+import {
+  resolveChannelExtras as resolveChannelExtrasFromConfig,
+} from "./channel-config-extras.ts";
 import { stageUploadPathForCurrentDirectory } from "../controllers/agent-file-manager.ts";
 
 function renderAgentContextCard(context: AgentContext, subtitle: string) {
@@ -170,7 +172,9 @@ export function renderAgentChannels(params: {
         ${
           !params.snapshot
             ? html`
-                <div class="callout info" style="margin-top: 12px">Load channels to see live status.</div>
+                <div class="callout info" style="margin-top: 12px;">
+                  Load channels to see live status.
+                </div>
               `
             : nothing
         }
@@ -356,7 +360,9 @@ export function renderAgentFiles(params: {
   const draft = active ? (params.agentFileDrafts[active] ?? baseContent) : "";
   const isDirty = active ? draft !== baseContent : false;
   const workspaceList =
-    params.agentWorkspaceFilesList?.agentId === params.agentId ? params.agentWorkspaceFilesList : null;
+    params.agentWorkspaceFilesList?.agentId === params.agentId
+      ? params.agentWorkspaceFilesList
+      : null;
   const hideWorkspaceManager = shouldHideWorkspaceManager(params.configForm);
 
   return html`
@@ -377,12 +383,20 @@ export function renderAgentFiles(params: {
         </div>
         ${
           list
-            ? html`<div class="muted mono" style="margin-top: 8px;">Workspace: ${list.workspace}</div>`
+            ? html`
+                <div class="muted mono" style="margin-top: 8px;">
+                  Workspace: ${list.workspace}
+                </div>
+              `
             : nothing
         }
         ${
           params.agentFilesError
-            ? html`<div class="callout danger" style="margin-top: 12px;">${params.agentFilesError}</div>`
+            ? html`
+                <div class="callout danger" style="margin-top: 12px;">
+                  ${params.agentFilesError}
+                </div>
+              `
             : nothing
         }
         ${
@@ -434,7 +448,8 @@ export function renderAgentFiles(params: {
                               activeEntry.missing
                                 ? html`
                                     <div class="callout info" style="margin-top: 10px">
-                                      This file is missing. Saving will create it in the agent workspace.
+                                      This file is missing. Saving will create it in the agent
+                                      workspace.
                                     </div>
                                   `
                                 : nothing
@@ -532,7 +547,10 @@ function renderWorkspaceManagerCard(
                 if (!file) {
                   return;
                 }
-                params.onWorkspaceUpload(stageUploadPathForCurrentDirectory(currentDir, file.name), file);
+                params.onWorkspaceUpload(
+                  stageUploadPathForCurrentDirectory(currentDir, file.name),
+                  file,
+                );
                 input.value = "";
               }}
             />
@@ -544,7 +562,9 @@ function renderWorkspaceManagerCard(
               if (!name) {
                 return;
               }
-              params.onWorkspaceCreateDirectory(stageUploadPathForCurrentDirectory(currentDir, name));
+              params.onWorkspaceCreateDirectory(
+                stageUploadPathForCurrentDirectory(currentDir, name),
+              );
             }}
           >
             New Folder
@@ -627,19 +647,27 @@ function renderWorkspaceManagerCard(
                       : html`
                           <div class="agent-file-header">
                             <div>
-                              <div class="agent-file-title mono">${activeDoc?.name ?? activeName}</div>
-                              <div class="agent-file-sub mono">${activeDoc?.path ?? activePath}</div>
+                              <div class="agent-file-title mono">
+                                ${activeDoc?.name ?? activeName}
+                              </div>
+                              <div class="agent-file-sub mono">
+                                ${activeDoc?.path ?? activePath}
+                              </div>
                             </div>
                             <div class="agent-file-actions">
                               <button
                                 class="btn btn--sm"
                                 ?disabled=${!activeDoc}
                                 @click=${() => {
-                                  const nextPath = window.prompt("Rename or move to", activeDoc?.path ?? activePath);
-                                  if (!nextPath || nextPath === (activeDoc?.path ?? activePath)) {
+                                  const currentPath = activeDoc?.path ?? activePath;
+                                  const nextPath = window.prompt(
+                                    "Rename or move to",
+                                    currentPath,
+                                  );
+                                  if (!nextPath || nextPath === currentPath) {
                                     return;
                                   }
-                                  params.onWorkspaceMove(activeDoc?.path ?? activePath, nextPath);
+                                  params.onWorkspaceMove(currentPath, nextPath);
                                 }}
                               >
                                 Move
@@ -670,14 +698,17 @@ function renderWorkspaceManagerCard(
                                         class="btn btn--sm"
                                         ?disabled=${!isDirty || !activeDoc}
                                         @click=${() =>
-                                          activeDoc ? params.onWorkspaceFileReset(activeDoc.path) : undefined}
+                                          activeDoc
+                                            ? params.onWorkspaceFileReset(activeDoc.path)
+                                            : undefined}
                                       >
                                         Reset
                                       </button>
                                       <button
                                         class="btn btn--sm primary"
                                         ?disabled=${params.agentWorkspaceFileSaving || !isDirty}
-                                        @click=${() => params.onWorkspaceFileSave(activeDoc?.path ?? activePath)}
+                                        @click=${() =>
+                                          params.onWorkspaceFileSave(activeDoc?.path ?? activePath)}
                                       >
                                         ${params.agentWorkspaceFileSaving ? "Saving…" : "Save"}
                                       </button>
@@ -719,7 +750,11 @@ function renderWorkspaceManagerCard(
                                     ${activeDraft?.kind === "text"
                                       ? activeDraft.encoding
                                       : (activeDoc?.encoding ?? "utf-8")}
-                                    ${activeDraft?.kind === "text" && activeDraft.includeBom ? " · BOM" : ""}
+                                    ${
+                                      activeDraft?.kind === "text" && activeDraft.includeBom
+                                        ? " · BOM"
+                                        : ""
+                                    }
                                   </div>
                                 `
                           }
@@ -749,7 +784,9 @@ function renderWorkspaceEntryRow(
       @click=${onSelect}
     >
       <div>
-        <div class="agent-file-name mono">${entry.kind === "directory" ? `${entry.name}/` : entry.name}</div>
+        <div class="agent-file-name mono">
+          ${entry.kind === "directory" ? `${entry.name}/` : entry.name}
+        </div>
         <div class="agent-file-meta">${status}</div>
       </div>
     </button>

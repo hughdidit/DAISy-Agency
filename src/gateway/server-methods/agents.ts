@@ -37,7 +37,11 @@ import {
 import { loadConfig, writeConfigFile } from "../../config/config.js";
 import { resolveSessionTranscriptsDirForAgent } from "../../config/sessions/paths.js";
 import { sameFileIdentity } from "../../infra/file-identity.js";
-import { SafeOpenError, readLocalFileSafely, writeFileWithinRoot } from "../../infra/fs-safe.js";
+import {
+  SafeOpenError,
+  readLocalFileSafely,
+  writeFileWithinRoot,
+} from "../../infra/fs-safe.js";
 import { assertNoPathAliasEscape } from "../../infra/path-alias-guards.js";
 import { isNotFoundPathError } from "../../infra/path-guards.js";
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../../routing/session-key.js";
@@ -895,7 +899,10 @@ export const agentsHandlers: GatewayRequestHandlers = {
         rootDir: resolved.rootDir,
         relativePath: String(params.path ?? ""),
         content: typeof params.content === "string" ? params.content : undefined,
-        contentBase64: typeof params.contentBase64 === "string" ? params.contentBase64 : undefined,
+        contentBase64:
+          typeof params.contentBase64 === "string"
+            ? params.contentBase64
+            : undefined,
         encoding:
           params.encoding === "utf-8" ||
           params.encoding === "utf-16le" ||

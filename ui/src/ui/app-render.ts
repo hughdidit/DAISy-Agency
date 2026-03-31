@@ -3,9 +3,17 @@ import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
 import { t } from "../i18n/index.ts";
 import { refreshChatAvatar } from "./app-chat.ts";
 import { renderUsageTab } from "./app-render-usage-tab.ts";
-import { renderChatControls, renderTab, renderThemeToggle } from "./app-render.helpers.ts";
+import {
+  renderChatControls,
+  renderTab,
+  renderThemeToggle,
+} from "./app-render.helpers.ts";
 import type { AppViewState } from "./app-view-state.ts";
-import { loadAgentFileContent, loadAgentFiles, saveAgentFile } from "./controllers/agent-files.ts";
+import {
+  loadAgentFileContent,
+  loadAgentFiles,
+  saveAgentFile,
+} from "./controllers/agent-files.ts";
 import {
   deleteAgentWorkspacePath,
   downloadAgentWorkspaceFile,
@@ -230,8 +238,18 @@ export function renderApp(state: AppViewState) {
       ? rawDeliveryToSuggestions.filter((value) => isHttpUrl(value))
       : rawDeliveryToSuggestions;
 
+  const shellClass = [
+    "shell",
+    isChat ? "shell--chat" : "",
+    chatFocus ? "shell--chat-focus" : "",
+    state.settings.navCollapsed ? "shell--nav-collapsed" : "",
+    state.onboarding ? "shell--onboarding" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return html`
-    <div class="shell ${isChat ? "shell--chat" : ""} ${chatFocus ? "shell--chat-focus" : ""} ${state.settings.navCollapsed ? "shell--nav-collapsed" : ""} ${state.onboarding ? "shell--onboarding" : ""}">
+    <div class=${shellClass}>
       <header class="topbar">
         <div class="topbar-left">
           <button
@@ -275,7 +293,9 @@ export function renderApp(state: AppViewState) {
           const isGroupCollapsed = state.settings.navGroupsCollapsed[group.label] ?? false;
           const hasActiveTab = group.tabs.some((tab) => tab === state.tab);
           return html`
-            <div class="nav-group ${isGroupCollapsed && !hasActiveTab ? "nav-group--collapsed" : ""}">
+            <div
+              class="nav-group ${isGroupCollapsed && !hasActiveTab ? "nav-group--collapsed" : ""}"
+            >
               <button
                 class="nav-label"
                 @click=${() => {
@@ -331,8 +351,16 @@ export function renderApp(state: AppViewState) {
         }
         <section class="content-header">
           <div>
-            ${state.tab === "usage" ? nothing : html`<div class="page-title">${titleForTab(state.tab)}</div>`}
-            ${state.tab === "usage" ? nothing : html`<div class="page-sub">${subtitleForTab(state.tab)}</div>`}
+            ${
+              state.tab === "usage"
+                ? nothing
+                : html`<div class="page-title">${titleForTab(state.tab)}</div>`
+            }
+            ${
+              state.tab === "usage"
+                ? nothing
+                : html`<div class="page-sub">${subtitleForTab(state.tab)}</div>`
+            }
           </div>
           <div class="page-meta">
             ${state.lastError ? html`<div class="pill danger">${state.lastError}</div>` : nothing}

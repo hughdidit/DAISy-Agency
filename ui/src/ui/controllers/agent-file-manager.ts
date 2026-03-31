@@ -187,11 +187,17 @@ export async function loadAgentWorkspaceFile(
         ...state.agentWorkspaceFileDocs,
         [normalized]: res.file,
       };
-      state.agentWorkspaceFilesList = upsertWorkspaceEntry(state.agentWorkspaceFilesList, res.file);
+      state.agentWorkspaceFilesList = upsertWorkspaceEntry(
+        state.agentWorkspaceFilesList,
+        res.file,
+      );
+      const previousDraftBaseline = previousDoc
+        ? createAgentWorkspaceFileDraft(previousDoc)
+        : null;
       if (
         !opts?.preserveDraft ||
         !currentDraft ||
-        JSON.stringify(currentDraft) === JSON.stringify(previousDoc && createAgentWorkspaceFileDraft(previousDoc))
+        JSON.stringify(currentDraft) === JSON.stringify(previousDraftBaseline)
       ) {
         state.agentWorkspaceFileDrafts = {
           ...state.agentWorkspaceFileDrafts,
@@ -213,7 +219,13 @@ export async function saveAgentWorkspaceFile(
 ) {
   const normalized = normalizeRelativePath(relativePath);
   const draft = state.agentWorkspaceFileDrafts[normalized];
-  if (!normalized || !draft || !state.client || !state.connected || state.agentWorkspaceFileSaving) {
+  if (
+    !normalized ||
+    !draft ||
+    !state.client ||
+    !state.connected ||
+    state.agentWorkspaceFileSaving
+  ) {
     return;
   }
   state.agentWorkspaceFileSaving = true;
@@ -270,7 +282,10 @@ export async function deleteAgentWorkspacePath(
       agentId,
       path: normalized,
     });
-    state.agentWorkspaceFilesList = removeWorkspaceEntry(state.agentWorkspaceFilesList, normalized);
+    state.agentWorkspaceFilesList = removeWorkspaceEntry(
+      state.agentWorkspaceFilesList,
+      normalized,
+    );
     const nextDocs = { ...state.agentWorkspaceFileDocs };
     delete nextDocs[normalized];
     state.agentWorkspaceFileDocs = nextDocs;
@@ -304,7 +319,10 @@ export async function mkdirAgentWorkspacePath(
       path: normalized,
     });
     if (res?.entry) {
-      state.agentWorkspaceFilesList = upsertWorkspaceEntry(state.agentWorkspaceFilesList, res.entry);
+      state.agentWorkspaceFilesList = upsertWorkspaceEntry(
+        state.agentWorkspaceFilesList,
+        res.entry,
+      );
     }
   } catch (error) {
     state.agentWorkspaceFilesError = String(error);
@@ -334,12 +352,20 @@ export async function moveAgentWorkspacePath(
     });
     if (res?.entry) {
       state.agentWorkspaceFilesList = removeWorkspaceEntry(state.agentWorkspaceFilesList, fromPath);
-      state.agentWorkspaceFilesList = upsertWorkspaceEntry(state.agentWorkspaceFilesList, res.entry);
+      state.agentWorkspaceFilesList = upsertWorkspaceEntry(
+        state.agentWorkspaceFilesList,
+        res.entry,
+      );
       if (state.agentWorkspaceFileDocs[fromPath]) {
         const nextDocs = { ...state.agentWorkspaceFileDocs };
         const source = nextDocs[fromPath];
         delete nextDocs[fromPath];
-        nextDocs[toPath] = { ...source, ...("contentBase64" in source ? source : {}), path: toPath, name: res.entry.name };
+        nextDocs[toPath] = {
+          ...source,
+          ...("contentBase64" in source ? source : {}),
+          path: toPath,
+          name: res.entry.name,
+        };
         state.agentWorkspaceFileDocs = nextDocs;
       }
       if (state.agentWorkspaceFileDrafts[fromPath]) {
