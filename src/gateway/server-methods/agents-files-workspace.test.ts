@@ -24,7 +24,7 @@ function makeCall(method: string, params: Record<string, unknown>) {
   const promise = handler({
     params,
     respond,
-    context: {} as never,
+    context: undefined!,
     req: { type: "req", id: "1", method },
     client: null,
     isWebchatConnect: () => false,
@@ -262,7 +262,8 @@ describe("agents.files.workspace.*", () => {
       try {
         await fs.symlink(outsideFile, path.join(inboundRoot, "symlink.txt"));
       } catch (error) {
-        const code = (error as NodeJS.ErrnoException).code;
+        const code =
+          typeof error === "object" && error !== null && "code" in error ? error.code : undefined;
         if (code === "EPERM" || code === "EACCES") {
           return;
         }
