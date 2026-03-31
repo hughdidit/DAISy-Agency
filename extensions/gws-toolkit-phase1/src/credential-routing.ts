@@ -14,7 +14,7 @@ function normalizeAgentId(agentId: string | undefined): string {
 
 export function resolveBindingSubject(ctx: InvocationContext): string {
   const agentId = normalizeAgentId(ctx.agentId);
-  if (isSubagentSessionKey(ctx.sessionKey)) {
+  if (ctx.sessionKey && isSubagentSessionKey(ctx.sessionKey)) {
     return `subagent:${agentId}`;
   }
   return `agent:${agentId}`;
