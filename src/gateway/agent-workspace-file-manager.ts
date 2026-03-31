@@ -147,7 +147,7 @@ export async function listAgentWorkspaceFiles(params: {
     : {
         absolutePath: params.rootDir,
         canonicalPath: params.rootDir,
-        kind: "directory" as const,
+        kind: "directory",
       };
   if (target.kind !== "directory") {
     throw new Error("unsafe workspace path (directory expected)");
@@ -172,7 +172,7 @@ export async function listAgentWorkspaceFiles(params: {
     }
   }
 
-  return entries.sort((left, right) => {
+  return entries.toSorted((left, right) => {
     if (left.kind !== right.kind) {
       return left.kind === "directory" ? -1 : 1;
     }

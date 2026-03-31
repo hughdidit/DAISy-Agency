@@ -87,7 +87,7 @@ function upsertWorkspaceEntry(
       : [...list.entries, entry];
   return {
     ...list,
-    entries: entries.sort((left, right) => {
+    entries: entries.toSorted((left, right) => {
       if (left.kind !== right.kind) {
         return left.kind === "directory" ? -1 : 1;
       }
@@ -436,10 +436,7 @@ export async function downloadAgentWorkspaceFile(
     return;
   }
   const bytes = decodeBase64Bytes(file.contentBase64);
-  const blobBuffer = bytes.buffer.slice(
-    bytes.byteOffset,
-    bytes.byteOffset + bytes.byteLength,
-  ) as ArrayBuffer;
+  const blobBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
   const blob = new Blob([blobBuffer]);
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");

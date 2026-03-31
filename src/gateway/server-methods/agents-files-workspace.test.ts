@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { GatewayRequestHandlerOptions } from "./types.js";
 
 const testState = vi.hoisted(() => ({
   config: {} as Record<string, unknown>,
@@ -16,13 +17,15 @@ const { agentsHandlers } = await import("./agents.js");
 
 function makeCall(method: string, params: Record<string, unknown>) {
   const respond = vi.fn();
-  const handler = (agentsHandlers as Record<string, (args: any) => Promise<void> | void>)[method];
+  const handler = agentsHandlers[method] as
+    | ((args: GatewayRequestHandlerOptions) => Promise<void> | void)
+    | undefined;
   expect(handler, `missing handler ${method}`).toBeTypeOf("function");
   const promise = handler({
     params,
     respond,
     context: {} as never,
-    req: { type: "req" as const, id: "1", method },
+    req: { type: "req", id: "1", method },
     client: null,
     isWebchatConnect: () => false,
   });
