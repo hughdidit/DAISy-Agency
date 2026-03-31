@@ -42,7 +42,7 @@ function baseConfig(overrides: Partial<GwsToolkitConfig> = {}): GwsToolkitConfig
     warnings: [],
     ...overrides,
   };
-});
+}
 
 describe("auth resolution", () => {
   it("resolves token auth via bound agent route", () => {

@@ -175,7 +175,6 @@ export function defaultPluginConfig(
     maxStderrBytes: 256 * 1024,
     safeMode: true,
     allowWriteOperations: false,
-    allowUnboundAgents: false,
     allowedCredentialModes: ["token", "oauth"],
     defaultScopesProfile: "minimal",
     approvedCredentialDirs: [fixturesDir],
