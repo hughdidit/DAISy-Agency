@@ -155,6 +155,10 @@ export async function executeStatus(params: {
   }
 
   const activeConfig = params.configResolution.config;
+  const statusParams = validated.value as {
+    includeVersion?: boolean;
+    includeAuthStatus?: boolean;
+  };
 
   try {
     const runtimeEnv = params.resolveRuntimeEnv ? await params.resolveRuntimeEnv() : undefined;
@@ -207,8 +211,8 @@ export async function executeStatus(params: {
 
     const authStatus = getAuthSourceStatus(activeConfig);
     const latencyMs = Date.now() - startedAt;
-    const includeVersion = validated.value.includeVersion !== false;
-    const includeAuthStatus = validated.value.includeAuthStatus !== false;
+    const includeVersion = statusParams.includeVersion !== false;
+    const includeAuthStatus = statusParams.includeAuthStatus !== false;
 
     const result: StructuredSuccess<Record<string, unknown>> = {
       ok: true,

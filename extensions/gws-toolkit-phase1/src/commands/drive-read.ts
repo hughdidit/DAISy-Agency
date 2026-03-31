@@ -22,15 +22,16 @@ export async function executeDriveRead(params: {
     });
   }
 
+  const value = validated.value as Record<string, unknown> & { action: string };
+
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
     tool: "gws_drive_read",
     service: "drive",
-    action: validated.value.action,
-    payload: validated.value,
+    action: value.action,
+    payload: value,
     readOnly: true,
-    buildArgv: (auth) =>
-      buildDriveReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
+    buildArgv: (auth) => buildDriveReadCommand(value, auth.args).argv,
   });
 }

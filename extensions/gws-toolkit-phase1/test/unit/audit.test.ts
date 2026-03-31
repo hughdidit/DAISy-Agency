@@ -6,16 +6,16 @@ describe("audit", () => {
   it("emits normalized allow/deny events with route and binding metadata", () => {
     const logs: string[] = [];
     const logger = createRedactingLogger({
-      info(message, payload) {
-        logs.push(`${message} ${JSON.stringify(payload)}`);
-      },
-      warn(message) {
+      info(message: string) {
         logs.push(message);
       },
-      error(message) {
+      warn(message: string) {
         logs.push(message);
       },
-      debug(message) {
+      error(message: string) {
+        logs.push(message);
+      },
+      debug(message: string) {
         logs.push(message);
       },
     });

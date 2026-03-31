@@ -22,16 +22,20 @@ export async function executeDriveWrite(params: {
     });
   }
 
+  const value = validated.value as Record<string, unknown> & {
+    action: string;
+    confirm?: boolean;
+  };
+
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
     tool: "gws_drive_write",
     service: "drive",
-    action: validated.value.action,
-    payload: validated.value,
+    action: value.action,
+    payload: value,
     readOnly: false,
-    confirm: validated.value.confirm,
-    buildArgv: (auth) =>
-      buildDriveWriteCommand(validated.value as Record<string, unknown>, auth.args).argv,
+    confirm: value.confirm,
+    buildArgv: (auth) => buildDriveWriteCommand(value, auth.args).argv,
   });
 }

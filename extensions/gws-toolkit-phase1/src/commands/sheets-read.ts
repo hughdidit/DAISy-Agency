@@ -22,15 +22,16 @@ export async function executeSheetsRead(params: {
     });
   }
 
+  const value = validated.value as Record<string, unknown> & { action: string };
+
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
     tool: "gws_sheets_read",
     service: "sheets",
-    action: validated.value.action,
-    payload: validated.value,
+    action: value.action,
+    payload: value,
     readOnly: true,
-    buildArgv: (auth) =>
-      buildSheetsReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
+    buildArgv: (auth) => buildSheetsReadCommand(value, auth.args).argv,
   });
 }

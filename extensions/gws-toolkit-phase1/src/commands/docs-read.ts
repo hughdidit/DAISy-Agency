@@ -22,15 +22,16 @@ export async function executeDocsRead(params: {
     });
   }
 
+  const value = validated.value as Record<string, unknown> & { action: string };
+
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
     tool: "gws_docs_read",
     service: "docs",
-    action: validated.value.action,
-    payload: validated.value,
+    action: value.action,
+    payload: value,
     readOnly: true,
-    buildArgv: (auth) =>
-      buildDocsReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
+    buildArgv: (auth) => buildDocsReadCommand(value, auth.args).argv,
   });
 }

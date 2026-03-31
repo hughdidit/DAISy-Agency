@@ -22,15 +22,16 @@ export async function executeGmailRead(params: {
     });
   }
 
+  const value = validated.value as Record<string, unknown> & { action: string };
+
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
     tool: "gws_gmail_read",
     service: "gmail",
-    action: validated.value.action,
-    payload: validated.value,
+    action: value.action,
+    payload: value,
     readOnly: true,
-    buildArgv: (auth) =>
-      buildGmailReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
+    buildArgv: (auth) => buildGmailReadCommand(value, auth.args).argv,
   });
 }

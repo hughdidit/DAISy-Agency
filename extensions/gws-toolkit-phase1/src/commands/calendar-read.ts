@@ -22,15 +22,16 @@ export async function executeCalendarRead(params: {
     });
   }
 
+  const value = validated.value as Record<string, unknown> & { action: string };
+
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
     tool: "gws_calendar_read",
     service: "calendar",
-    action: validated.value.action,
-    payload: validated.value,
+    action: value.action,
+    payload: value,
     readOnly: true,
-    buildArgv: (auth) =>
-      buildCalendarReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
+    buildArgv: (auth) => buildCalendarReadCommand(value, auth.args).argv,
   });
 }

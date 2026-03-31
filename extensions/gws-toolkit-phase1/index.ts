@@ -39,6 +39,13 @@ function toToolResult(payload: StructuredEnvelope) {
   };
 }
 
+function withLabel<T extends { name: string }>(tool: T): T & { label: string } {
+  return {
+    ...tool,
+    label: tool.name,
+  };
+}
+
 function defaultConfig(): GwsToolkitConfig {
   return {
     enabledServices: ["drive", "gmail", "calendar"],
@@ -125,7 +132,7 @@ function createTools(params: {
   const ctx = createToolContext(params.toolCtx);
   const configResolution = params.configResolution;
 
-  const statusTool: AnyAgentTool = {
+  const statusTool: AnyAgentTool = withLabel({
     name: "gws_status",
     description:
       "Check gws binary/version/auth-source/config posture, route diagnostics, scope posture, and write readiness.",
@@ -147,7 +154,7 @@ function createTools(params: {
         }),
       );
     },
-  };
+  });
 
   const deps = {
     ...params.baseDeps,
@@ -179,7 +186,7 @@ function createTools(params: {
   const tools: AnyAgentTool[] = [
     statusTool,
     guarded(
-      {
+      withLabel({
         name: "gws_drive_read",
         description: "Read-only Google Drive operations.",
         parameters: Type.Object(
@@ -195,11 +202,11 @@ function createTools(params: {
         async execute(_id: string, rawParams: Record<string, unknown>) {
           return toToolResult(await executeDriveRead({ ctx, deps, rawParams }));
         },
-      },
+      }),
       "drive",
     ),
     guarded(
-      {
+      withLabel({
         name: "gws_gmail_read",
         description: "Read-only Gmail operations.",
         parameters: Type.Object(
@@ -214,11 +221,11 @@ function createTools(params: {
         async execute(_id: string, rawParams: Record<string, unknown>) {
           return toToolResult(await executeGmailRead({ ctx, deps, rawParams }));
         },
-      },
+      }),
       "gmail",
     ),
     guarded(
-      {
+      withLabel({
         name: "gws_calendar_read",
         description: "Read-only Calendar operations.",
         parameters: Type.Object(
@@ -235,11 +242,11 @@ function createTools(params: {
         async execute(_id: string, rawParams: Record<string, unknown>) {
           return toToolResult(await executeCalendarRead({ ctx, deps, rawParams }));
         },
-      },
+      }),
       "calendar",
     ),
     guarded(
-      {
+      withLabel({
         name: "gws_docs_read",
         description: "Read-only Google Docs operations.",
         parameters: Type.Object(
@@ -252,11 +259,11 @@ function createTools(params: {
         async execute(_id: string, rawParams: Record<string, unknown>) {
           return toToolResult(await executeDocsRead({ ctx, deps, rawParams }));
         },
-      },
+      }),
       "docs",
     ),
     guarded(
-      {
+      withLabel({
         name: "gws_sheets_read",
         description: "Read-only Google Sheets operations.",
         parameters: Type.Object(
@@ -270,11 +277,11 @@ function createTools(params: {
         async execute(_id: string, rawParams: Record<string, unknown>) {
           return toToolResult(await executeSheetsRead({ ctx, deps, rawParams }));
         },
-      },
+      }),
       "sheets",
     ),
     guarded(
-      {
+      withLabel({
         name: "gws_drive_write",
         description: "Write-capable Google Drive operations.",
         parameters: Type.Object(
@@ -295,11 +302,11 @@ function createTools(params: {
         async execute(_id: string, rawParams: Record<string, unknown>) {
           return toToolResult(await executeDriveWrite({ ctx, deps, rawParams }));
         },
-      },
+      }),
       "drive",
     ),
     guarded(
-      {
+      withLabel({
         name: "gws_gmail_write",
         description: "Write-capable Gmail operations.",
         parameters: Type.Object(
@@ -319,11 +326,11 @@ function createTools(params: {
         async execute(_id: string, rawParams: Record<string, unknown>) {
           return toToolResult(await executeGmailWrite({ ctx, deps, rawParams }));
         },
-      },
+      }),
       "gmail",
     ),
     guarded(
-      {
+      withLabel({
         name: "gws_calendar_write",
         description: "Write-capable Calendar operations.",
         parameters: Type.Object(
@@ -344,11 +351,11 @@ function createTools(params: {
         async execute(_id: string, rawParams: Record<string, unknown>) {
           return toToolResult(await executeCalendarWrite({ ctx, deps, rawParams }));
         },
-      },
+      }),
       "calendar",
     ),
     guarded(
-      {
+      withLabel({
         name: "gws_docs_write",
         description: "Write-capable Google Docs operations.",
         parameters: Type.Object(
@@ -367,11 +374,11 @@ function createTools(params: {
         async execute(_id: string, rawParams: Record<string, unknown>) {
           return toToolResult(await executeDocsWrite({ ctx, deps, rawParams }));
         },
-      },
+      }),
       "docs",
     ),
     guarded(
-      {
+      withLabel({
         name: "gws_sheets_write",
         description: "Write-capable Google Sheets operations.",
         parameters: Type.Object(
@@ -391,7 +398,7 @@ function createTools(params: {
         async execute(_id: string, rawParams: Record<string, unknown>) {
           return toToolResult(await executeSheetsWrite({ ctx, deps, rawParams }));
         },
-      },
+      }),
       "sheets",
     ),
   ];

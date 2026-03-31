@@ -22,16 +22,20 @@ export async function executeCalendarWrite(params: {
     });
   }
 
+  const value = validated.value as Record<string, unknown> & {
+    action: string;
+    confirm?: boolean;
+  };
+
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
     tool: "gws_calendar_write",
     service: "calendar",
-    action: validated.value.action,
-    payload: validated.value,
+    action: value.action,
+    payload: value,
     readOnly: false,
-    confirm: validated.value.confirm,
-    buildArgv: (auth) =>
-      buildCalendarWriteCommand(validated.value as Record<string, unknown>, auth.args).argv,
+    confirm: value.confirm,
+    buildArgv: (auth) => buildCalendarWriteCommand(value, auth.args).argv,
   });
 }

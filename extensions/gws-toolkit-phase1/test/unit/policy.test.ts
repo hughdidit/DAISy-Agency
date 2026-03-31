@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { evaluatePolicy } from "../../src/policy.js";
-import type { GwsToolkitConfig } from "../../src/types.js";
+import type { AuthResolution, GwsToolkitConfig } from "../../src/types.js";
 
 const config: GwsToolkitConfig = {
   enabledServices: ["drive", "gmail", "calendar", "docs", "sheets"],
@@ -22,7 +22,7 @@ const config: GwsToolkitConfig = {
   warnings: [],
 };
 
-const auth = {
+const auth: AuthResolution = {
   mode: "token" as const,
   env: {},
   args: [],
