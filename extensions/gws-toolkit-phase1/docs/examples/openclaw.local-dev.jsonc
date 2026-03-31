@@ -21,17 +21,17 @@
                 "gws_docs_read",
                 "gws_sheets_read",
                 "gws_docs_write",
-                "gws_sheets_write"
+                "gws_sheets_write",
               ],
               "allowedActions": ["docs:append_text", "sheets:update_values"],
-              "tokenEnvVar": "GOOGLE_WORKSPACE_CLI_TOKEN"
-            }
+              "tokenEnvVar": "GOOGLE_WORKSPACE_CLI_TOKEN",
+            },
           },
           "agentCredentialBindings": {
-            "agent:main": "local-main"
-          }
-        }
-      }
-    }
-  }
+            "agent:main": "local-main",
+          },
+        },
+      },
+    },
+  },
 }

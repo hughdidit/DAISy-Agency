@@ -1,3 +1,4 @@
+import type { AuditLogger } from "../audit.js";
 import { getAuthSourceStatus } from "../auth.js";
 import { discoverBinary } from "../binary.js";
 import { summarizeCredentialRoutes } from "../credential-routing.js";
@@ -18,7 +19,6 @@ import {
   type StructuredSuccess,
   type ToolName,
 } from "../types.js";
-import type { AuditLogger } from "../audit.js";
 
 type ConfigResolution =
   | { ok: true; config: GwsToolkitConfig; posture: ConfigPosture }
@@ -33,7 +33,10 @@ function buildScopesSummary(config: GwsToolkitConfig) {
   }
   const scopes = new Set<string>();
   for (const service of config.enabledServices) {
-    if (config.defaultScopesProfile === "service-set" && config.enabledWriteServices.includes(service)) {
+    if (
+      config.defaultScopesProfile === "service-set" &&
+      config.enabledWriteServices.includes(service)
+    ) {
       scopes.add(WRITE_SCOPES[service]);
     } else {
       scopes.add(READONLY_SCOPES[service]);

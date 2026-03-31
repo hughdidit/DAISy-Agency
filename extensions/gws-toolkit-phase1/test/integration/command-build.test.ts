@@ -48,7 +48,7 @@ describe("integration: command build", () => {
       "--format",
       "json",
       "--params",
-      '{"calendarId":"primary","maxResults":7,"singleEvents":true}',
+      '{"calendarId":"primary","singleEvents":true,"maxResults":7}',
     ]);
     expect(docs).toEqual([
       "docs",

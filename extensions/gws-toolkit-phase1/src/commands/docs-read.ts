@@ -30,6 +30,7 @@ export async function executeDocsRead(params: {
     action: validated.value.action,
     payload: validated.value,
     readOnly: true,
-    buildArgv: (auth) => buildDocsReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
+    buildArgv: (auth) =>
+      buildDocsReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
   });
 }

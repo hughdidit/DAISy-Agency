@@ -172,7 +172,10 @@ function resolveScopesProfile(config: {
   }
   const scopes = new Set<string>();
   for (const service of config.enabledServices) {
-    if (config.defaultScopesProfile === "service-set" && config.enabledWriteServices.includes(service)) {
+    if (
+      config.defaultScopesProfile === "service-set" &&
+      config.enabledWriteServices.includes(service)
+    ) {
       scopes.add(WRITE_SCOPES[service]);
       continue;
     }
@@ -283,7 +286,9 @@ export function resolveConfig(
     maxStderrBytes: sanitizeNumber(raw.maxStderrBytes, 262144, 1024, 1048576),
     safeMode: raw.safeMode !== false,
     allowedCredentialModes:
-      allowedCredentialModes.length > 0 ? allowedCredentialModes : [...DEFAULT_ALLOWED_CREDENTIAL_MODES],
+      allowedCredentialModes.length > 0
+        ? allowedCredentialModes
+        : [...DEFAULT_ALLOWED_CREDENTIAL_MODES],
     allowWriteOperations: raw.allowWriteOperations === true,
     allowUnboundAgents: raw.allowUnboundAgents === true,
     defaultCredentialRoute:
@@ -339,7 +344,9 @@ export function resolveConfig(
       if (typeof routeName !== "string" || !routeName.trim()) {
         return {
           ok: false,
-          error: buildConfigError(`agentCredentialBindings.${subject} must reference a route name.`),
+          error: buildConfigError(
+            `agentCredentialBindings.${subject} must reference a route name.`,
+          ),
           posture: {
             ...postureBase,
             pluginConfigProvided: true,
@@ -370,7 +377,9 @@ export function resolveConfig(
     if (!configBase.allowedCredentialModes.includes(route.mode)) {
       return {
         ok: false,
-        error: buildConfigError(`credential route ${routeName} uses denied auth mode ${route.mode}`),
+        error: buildConfigError(
+          `credential route ${routeName} uses denied auth mode ${route.mode}`,
+        ),
         posture: {
           ...postureBase,
           pluginConfigProvided: true,
@@ -401,7 +410,9 @@ export function resolveConfig(
     if (!Object.hasOwn(credentialRoutes, routeName)) {
       return {
         ok: false,
-        error: buildConfigError(`agentCredentialBindings.${subject} references unknown route ${routeName}`),
+        error: buildConfigError(
+          `agentCredentialBindings.${subject} references unknown route ${routeName}`,
+        ),
         posture: {
           ...postureBase,
           pluginConfigProvided: true,
@@ -412,7 +423,9 @@ export function resolveConfig(
   }
 
   if (!configBase.safeMode) {
-    warnings.push("safeMode=false is unsupported for this hardened toolkit and requests will fail closed.");
+    warnings.push(
+      "safeMode=false is unsupported for this hardened toolkit and requests will fail closed.",
+    );
   }
 
   if (synthesizedLegacyRoute && raw.allowUnboundAgents === false) {
@@ -429,7 +442,9 @@ export function resolveConfig(
   });
   if (defaultScopesProfile === "custom" && !configBase.allowWriteOperations) {
     const containsWriteScope = scopes.some((scope) =>
-      Object.values(WRITE_SCOPES).some((candidate) => candidate.toLowerCase() === scope.toLowerCase()),
+      Object.values(WRITE_SCOPES).some(
+        (candidate) => candidate.toLowerCase() === scope.toLowerCase(),
+      ),
     );
     if (containsWriteScope) {
       warnings.push(

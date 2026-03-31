@@ -18,14 +18,14 @@
                 "gws_drive_read",
                 "gws_calendar_read",
                 "gws_drive_write",
-                "gws_calendar_write"
+                "gws_calendar_write",
               ],
               "allowedActions": [
                 "drive:create_folder",
                 "drive:upload_file",
-                "calendar:create_event"
+                "calendar:create_event",
               ],
-              "credentialsFile": "/home/node/.openclaw/secrets/gws/ops.json"
+              "credentialsFile": "/home/node/.openclaw/secrets/gws/ops.json",
             },
             "ops-subagent-docs": {
               "mode": "credentials_file",
@@ -33,15 +33,15 @@
               "allowedServices": ["docs"],
               "allowedTools": ["gws_docs_read", "gws_docs_write"],
               "allowedActions": ["docs:append_text"],
-              "credentialsFile": "/home/node/.openclaw/secrets/gws/ops-subagent.json"
-            }
+              "credentialsFile": "/home/node/.openclaw/secrets/gws/ops-subagent.json",
+            },
           },
           "agentCredentialBindings": {
             "agent:ops": "ops-drive",
-            "subagent:ops": "ops-subagent-docs"
-          }
-        }
-      }
-    }
-  }
+            "subagent:ops": "ops-subagent-docs",
+          },
+        },
+      },
+    },
+  },
 }

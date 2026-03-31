@@ -13,12 +13,12 @@ import { executeDriveWrite } from "./src/commands/drive-write.js";
 import { executeGmailRead } from "./src/commands/gmail-read.js";
 import { executeGmailWrite } from "./src/commands/gmail-write.js";
 import { createRuntimeDeps } from "./src/commands/helpers.js";
+import { executeSheetsRead } from "./src/commands/sheets-read.js";
+import { executeSheetsWrite } from "./src/commands/sheets-write.js";
 import { buildConfigResolutionDeniedEnvelope, executeStatus } from "./src/commands/status.js";
 import { resolveConfig } from "./src/config.js";
 import { PluginError } from "./src/errors.js";
 import { createRedactingLogger } from "./src/logger.js";
-import { executeSheetsRead } from "./src/commands/sheets-read.js";
-import { executeSheetsWrite } from "./src/commands/sheets-write.js";
 import type {
   ConfigPosture,
   GwsToolkitConfig,
@@ -384,9 +384,7 @@ function createTools(params: {
             range: Type.Optional(Type.String()),
             values: Type.Optional(Type.Array(Type.Array(Type.Any()))),
             title: Type.Optional(Type.String()),
-            valueInputOption: Type.Optional(
-              Type.String({ enum: ["RAW", "USER_ENTERED"] }),
-            ),
+            valueInputOption: Type.Optional(Type.String({ enum: ["RAW", "USER_ENTERED"] })),
           },
           { additionalProperties: false },
         ),

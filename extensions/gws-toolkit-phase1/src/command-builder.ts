@@ -156,7 +156,10 @@ export function buildCalendarReadCommand(
   const argv = ["calendar", ...authArgs];
   if (params.action === "list_events") {
     const requestParams: Record<string, JsonParamValue> = {
-      calendarId: typeof params.calendarId === "string" && params.calendarId.trim() ? params.calendarId.trim() : "primary",
+      calendarId:
+        typeof params.calendarId === "string" && params.calendarId.trim()
+          ? params.calendarId.trim()
+          : "primary",
       singleEvents: true,
     };
     appendIfInt(requestParams, "maxResults", params.pageSize);
@@ -170,7 +173,9 @@ export function buildCalendarReadCommand(
     argv.push("events", "get", "--format", "json");
     appendParamsArg(argv, {
       calendarId:
-        typeof params.calendarId === "string" && params.calendarId.trim() ? params.calendarId.trim() : "primary",
+        typeof params.calendarId === "string" && params.calendarId.trim()
+          ? params.calendarId.trim()
+          : "primary",
       eventId: readString(params.eventId, "eventId"),
     });
     return { argv, action: "get_event", service: "calendar", isWrite: false };
@@ -178,7 +183,10 @@ export function buildCalendarReadCommand(
   throw new PluginError("DENY_POLICY", `Unsupported calendar action: ${String(params.action)}`);
 }
 
-export function buildDocsReadCommand(params: Record<string, unknown>, authArgs: string[]): GwsCommandSpec {
+export function buildDocsReadCommand(
+  params: Record<string, unknown>,
+  authArgs: string[],
+): GwsCommandSpec {
   const argv = ["docs", ...authArgs, "documents", "get", "--format", "json"];
   appendParamsArg(argv, { documentId: readString(params.documentId, "documentId") });
   return { argv, action: "get_document", service: "docs", isWrite: false };
@@ -247,7 +255,11 @@ export function buildDriveWriteCommand(
       body.description = params.description.trim();
     }
     appendIfStringArray(body as Record<string, JsonParamValue>, "addParents", params.addParents);
-    appendIfStringArray(body as Record<string, JsonParamValue>, "removeParents", params.removeParents);
+    appendIfStringArray(
+      body as Record<string, JsonParamValue>,
+      "removeParents",
+      params.removeParents,
+    );
     appendJsonArg(argv, body);
     return { argv, action: "update_file_metadata", service: "drive", isWrite: true };
   }
@@ -279,7 +291,9 @@ export function buildCalendarWriteCommand(
   authArgs: string[],
 ): GwsCommandSpec {
   const calendarId =
-    typeof params.calendarId === "string" && params.calendarId.trim() ? params.calendarId.trim() : "primary";
+    typeof params.calendarId === "string" && params.calendarId.trim()
+      ? params.calendarId.trim()
+      : "primary";
   const attendees =
     Array.isArray(params.attendees) && params.attendees.length > 0
       ? params.attendees
@@ -317,7 +331,10 @@ export function buildCalendarWriteCommand(
     appendJsonArg(argv, body);
     return { argv, action: "update_event", service: "calendar", isWrite: true };
   }
-  throw new PluginError("DENY_POLICY", `Unsupported calendar write action: ${String(params.action)}`);
+  throw new PluginError(
+    "DENY_POLICY",
+    `Unsupported calendar write action: ${String(params.action)}`,
+  );
 }
 
 export function buildDocsWriteCommand(

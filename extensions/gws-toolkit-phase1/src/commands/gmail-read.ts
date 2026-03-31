@@ -30,6 +30,7 @@ export async function executeGmailRead(params: {
     action: validated.value.action,
     payload: validated.value,
     readOnly: true,
-    buildArgv: (auth) => buildGmailReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
+    buildArgv: (auth) =>
+      buildGmailReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
   });
 }

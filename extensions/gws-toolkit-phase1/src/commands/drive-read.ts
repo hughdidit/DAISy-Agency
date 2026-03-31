@@ -30,6 +30,7 @@ export async function executeDriveRead(params: {
     action: validated.value.action,
     payload: validated.value,
     readOnly: true,
-    buildArgv: (auth) => buildDriveReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
+    buildArgv: (auth) =>
+      buildDriveReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
   });
 }

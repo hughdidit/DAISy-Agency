@@ -40,11 +40,20 @@ function hasWriteHint(value: unknown): boolean {
   return false;
 }
 
-function isActionAllowedForService(service: ServiceFamily, action: string, isWrite: boolean): boolean {
+function isActionAllowedForService(
+  service: ServiceFamily,
+  action: string,
+  isWrite: boolean,
+): boolean {
   return isWrite ? WRITE_ACTIONS[service].has(action) : READ_ACTIONS[service].has(action);
 }
 
-function routeAllowsAction(auth: AuthResolution, service: ServiceFamily, tool: ToolName, action: string) {
+function routeAllowsAction(
+  auth: AuthResolution,
+  service: ServiceFamily,
+  tool: ToolName,
+  action: string,
+) {
   if (!auth.route.allowedServices.includes(service)) {
     return false;
   }

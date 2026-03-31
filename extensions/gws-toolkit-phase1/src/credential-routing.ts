@@ -1,6 +1,11 @@
 import { isSubagentSessionKey } from "../../../src/routing/session-key.js";
 import { PluginError } from "./errors.js";
-import type { GwsToolkitConfig, InvocationContext, ResolvedRoute, RouteResolution } from "./types.js";
+import type {
+  GwsToolkitConfig,
+  InvocationContext,
+  ResolvedRoute,
+  RouteResolution,
+} from "./types.js";
 
 function normalizeAgentId(agentId: string | undefined): string {
   const trimmed = agentId?.trim().toLowerCase();
@@ -25,10 +30,14 @@ export function resolveCredentialRoute(
   if (boundRouteName) {
     const route = config.credentialRoutes[boundRouteName];
     if (!route) {
-      throw new PluginError("CONFIG_ERROR", `Credential route not found for binding ${bindingSubject}`, {
-        bindingSubject,
-        routeName: boundRouteName,
-      });
+      throw new PluginError(
+        "CONFIG_ERROR",
+        `Credential route not found for binding ${bindingSubject}`,
+        {
+          bindingSubject,
+          routeName: boundRouteName,
+        },
+      );
     }
     return {
       bindingSubject,
