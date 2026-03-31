@@ -53,11 +53,7 @@ function joinRelativePath(dir: string, name: string): string {
 }
 
 function encodeBytesBase64(bytes: Uint8Array): string {
-  let binary = "";
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-  return btoa(binary);
+  return btoa(new TextDecoder("latin1").decode(bytes));
 }
 
 function decodeBase64Bytes(base64: string): Uint8Array {
