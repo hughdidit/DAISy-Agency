@@ -24,6 +24,7 @@ const jsonValue = {
     { type: "string" },
     { type: "number" },
     { type: "boolean" },
+    { type: "null" },
     {
       type: "array",
       items: {

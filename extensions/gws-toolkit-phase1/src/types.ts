@@ -101,7 +101,7 @@ export type ResolvedRoute = CredentialRouteConfig & {
 export type RouteResolution = {
   bindingSubject: string;
   route: ResolvedRoute;
-  inherited: false;
+  inherited: boolean;
 };
 
 export type AuthResolution = {

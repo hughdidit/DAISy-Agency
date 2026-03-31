@@ -48,6 +48,12 @@ const fixtureBinaryPath = path.join(fixturesDir, "mock-gws.js");
 export function createHarness(params?: {
   pluginConfig?: Record<string, unknown>;
   config?: Record<string, unknown>;
+  agentId?: string;
+  sessionKey?: string;
+  sessionId?: string;
+  messageChannel?: string;
+  workspaceDir?: string;
+  agentDir?: string;
 }): Harness {
   const tools = new Map<string, RegisteredTool>();
   const logs: string[] = [];
@@ -79,12 +85,12 @@ export function createHarness(params?: {
       if (typeof tool === "function") {
         const produced = tool({
           config: params?.config ?? {},
-          workspaceDir: process.cwd(),
-          agentDir: process.cwd(),
-          agentId: "main",
-          sessionKey: "agent:main:main",
-          sessionId: "test-session",
-          messageChannel: "test",
+          workspaceDir: params?.workspaceDir ?? process.cwd(),
+          agentDir: params?.agentDir ?? process.cwd(),
+          agentId: params?.agentId ?? "main",
+          sessionKey: params?.sessionKey ?? "agent:main:main",
+          sessionId: params?.sessionId ?? "test-session",
+          messageChannel: params?.messageChannel ?? "test",
         });
         const list = Array.isArray(produced) ? produced : produced ? [produced] : [];
         for (const entry of list) {

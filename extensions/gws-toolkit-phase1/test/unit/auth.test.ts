@@ -135,6 +135,51 @@ describe("auth resolution", () => {
     expect(resolved.value.config.warnings.join("\n")).toContain("legacy single-credential");
   });
 
+  it("prefers oauth for synthesized legacy routes when no token is configured", () => {
+    delete process.env.GOOGLE_WORKSPACE_CLI_TOKEN;
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      allowedCredentialModes: ["oauth", "token"],
+      tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
+      approvedCredentialDirs: [],
+    });
+    expect(resolved.ok).toBe(true);
+    if (!resolved.ok) {
+      return;
+    }
+    expect(resolved.value.config.credentialRoutes["legacy-default"]?.mode).toBe("oauth");
+  });
+
+  it("does not let explicit routes inherit the legacy credentials file path", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-route-"));
+    const allowedFile = path.join(root, "cred.json");
+    await fs.writeFile(allowedFile, "{}", "utf8");
+    if (process.platform !== "win32") {
+      await fs.chmod(allowedFile, 0o600);
+    }
+
+    expect(() =>
+      resolveAuth(
+        baseConfig({
+          allowedCredentialModes: ["credentials_file"],
+          approvedCredentialDirs: [root],
+          credentialsFile: allowedFile,
+          credentialRoutes: {
+            isolated: {
+              mode: "credentials_file",
+              allowedServices: ["drive"],
+              allowedTools: ["gws_drive_read"],
+            },
+          },
+          agentCredentialBindings: {
+            "agent:main": "isolated",
+          },
+        }),
+        { agentId: "main", sessionKey: "agent:main:main" },
+      ),
+    ).toThrow(/requires credentialsFile/);
+  });
+
   it("reports route-level auth posture", () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "abc";
     const status = getAuthSourceStatus(baseConfig());

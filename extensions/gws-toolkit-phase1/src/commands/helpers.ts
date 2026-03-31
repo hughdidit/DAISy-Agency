@@ -78,9 +78,6 @@ export async function runToolkitCommand(params: {
   const startedAt = Date.now();
 
   try {
-    const runtimeEnv = params.deps.resolveRuntimeEnv
-      ? await params.deps.resolveRuntimeEnv()
-      : undefined;
     const auth = resolveAuth(params.deps.config, params.ctx);
     const policy = evaluatePolicy({
       tool: params.tool,
@@ -131,6 +128,10 @@ export async function runToolkitCommand(params: {
         },
       };
     }
+
+    const runtimeEnv = params.deps.resolveRuntimeEnv
+      ? await params.deps.resolveRuntimeEnv()
+      : undefined;
 
     const binary: DiscoveryResult = await discoverBinary({
       configuredPath: params.deps.config.binaryPath,

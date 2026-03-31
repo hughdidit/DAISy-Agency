@@ -75,7 +75,9 @@ export function ensureCredentialFileAllowed(
   filePathRaw: string | undefined,
   route?: ResolvedRoute,
 ): string {
-  const raw = filePathRaw?.trim() || config.credentialsFile;
+  const raw =
+    filePathRaw?.trim() ||
+    (route && route.name !== "legacy-default" ? undefined : config.credentialsFile);
   if (!raw) {
     throw new PluginError("AUTH_ERROR", "credentials_file mode requires credentialsFile", {
       routeName: route?.name,

@@ -63,7 +63,7 @@ export function resolveCredentialRoute(
         ...route,
         name: config.defaultCredentialRoute,
       } satisfies ResolvedRoute,
-      inherited: false,
+      inherited: true,
     };
   }
 

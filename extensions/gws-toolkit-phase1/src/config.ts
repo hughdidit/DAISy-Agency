@@ -78,6 +78,11 @@ function normalizeCredentialModes(input: unknown): CredentialMode[] {
   );
 }
 
+function hasConfiguredToken(envVar: string): boolean {
+  const value = process.env[envVar];
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 function buildConfigError(message: string): StructuredError {
   return {
     ok: false,
@@ -144,9 +149,13 @@ function synthesizeLegacyRoute(config: Omit<GwsToolkitConfig, "credentialRoutes"
 
   const mode: CredentialMode = config.credentialsFile
     ? "credentials_file"
-    : config.allowedCredentialModes.includes("token")
+    : config.allowedCredentialModes.includes("token") && hasConfiguredToken(config.tokenEnvVar)
       ? "token"
-      : "oauth";
+      : config.allowedCredentialModes.includes("oauth")
+        ? "oauth"
+        : config.allowedCredentialModes.includes("token")
+          ? "token"
+          : "credentials_file";
 
   return {
     routeName: "legacy-default",

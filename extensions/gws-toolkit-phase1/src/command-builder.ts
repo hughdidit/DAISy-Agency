@@ -69,28 +69,52 @@ function asStringArray(value: unknown): string[] | undefined {
   return values.length > 0 ? values : undefined;
 }
 
+function sanitizeHeaderValue(value: string, label: string): string {
+  if (/[\r\n]/.test(value)) {
+    throw new PluginError("VALIDATION_ERROR", `${label} cannot contain newlines`);
+  }
+  return value.trim();
+}
+
+function sanitizeAddressList(value: unknown, label: string): string[] | undefined {
+  const values = asStringArray(value);
+  return values?.map((entry) => sanitizeHeaderValue(entry, label));
+}
+
 function createMimeMessage(params: Record<string, unknown>): string {
-  const to = asStringArray(params.to);
+  const to = sanitizeAddressList(params.to, "to");
   if (!to || to.length === 0) {
     throw new PluginError("VALIDATION_ERROR", "to is required");
   }
 
+  const cc = sanitizeAddressList(params.cc, "cc");
+  const bcc = sanitizeAddressList(params.bcc, "bcc");
+  const replyTo =
+    typeof params.replyTo === "string" && params.replyTo.trim()
+      ? sanitizeHeaderValue(params.replyTo, "replyTo")
+      : undefined;
+  const subject =
+    typeof params.subject === "string" && params.subject.trim()
+      ? sanitizeHeaderValue(params.subject, "subject")
+      : "";
+  const bodyText =
+    typeof params.bodyText === "string" && params.bodyText.trim() ? params.bodyText : "";
+  const bodyHtml =
+    typeof params.bodyHtml === "string" && params.bodyHtml.trim() ? params.bodyHtml : "";
+  const contentType =
+    bodyText || !bodyHtml ? "text/plain; charset=UTF-8" : "text/html; charset=UTF-8";
+  const body = bodyText || bodyHtml;
+
   const headers = [
     `To: ${to.join(", ")}`,
-    ...(asStringArray(params.cc)?.length ? [`Cc: ${asStringArray(params.cc)?.join(", ")}`] : []),
-    ...(asStringArray(params.bcc)?.length ? [`Bcc: ${asStringArray(params.bcc)?.join(", ")}`] : []),
-    ...(typeof params.replyTo === "string" && params.replyTo.trim()
-      ? [`Reply-To: ${params.replyTo.trim()}`]
-      : []),
-    `Subject: ${typeof params.subject === "string" ? params.subject.trim() : ""}`,
+    ...(cc?.length ? [`Cc: ${cc.join(", ")}`] : []),
+    ...(bcc?.length ? [`Bcc: ${bcc.join(", ")}`] : []),
+    ...(replyTo ? [`Reply-To: ${replyTo}`] : []),
+    `Subject: ${subject}`,
     "MIME-Version: 1.0",
-    "Content-Type: text/plain; charset=UTF-8",
+    `Content-Type: ${contentType}`,
     "",
-    typeof params.bodyText === "string" && params.bodyText.trim()
-      ? params.bodyText
-      : typeof params.bodyHtml === "string" && params.bodyHtml.trim()
-        ? params.bodyHtml
-        : "",
+    body,
   ];
   return Buffer.from(headers.join("\r\n"), "utf8").toString("base64url");
 }
@@ -246,7 +270,12 @@ export function buildDriveWriteCommand(
   }
   if (params.action === "update_file_metadata") {
     const argv = ["drive", ...authArgs, "files", "update", "--format", "json"];
-    appendParamsArg(argv, { fileId: readString(params.fileId, "fileId") });
+    const requestParams: Record<string, JsonParamValue> = {
+      fileId: readString(params.fileId, "fileId"),
+    };
+    appendIfStringArray(requestParams, "addParents", params.addParents);
+    appendIfStringArray(requestParams, "removeParents", params.removeParents);
+    appendParamsArg(argv, requestParams);
     const body: Record<string, unknown> = {};
     if (typeof params.name === "string" && params.name.trim()) {
       body.name = params.name.trim();
@@ -254,12 +283,6 @@ export function buildDriveWriteCommand(
     if (typeof params.description === "string" && params.description.trim()) {
       body.description = params.description.trim();
     }
-    appendIfStringArray(body as Record<string, JsonParamValue>, "addParents", params.addParents);
-    appendIfStringArray(
-      body as Record<string, JsonParamValue>,
-      "removeParents",
-      params.removeParents,
-    );
     appendJsonArg(argv, body);
     return { argv, action: "update_file_metadata", service: "drive", isWrite: true };
   }

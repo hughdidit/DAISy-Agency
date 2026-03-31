@@ -6,9 +6,15 @@ import {
   buildDriveReadCommand,
   buildDriveWriteCommand,
   buildGmailReadCommand,
+  buildGmailWriteCommand,
   buildSheetsReadCommand,
   buildSheetsWriteCommand,
 } from "../../src/command-builder.js";
+
+function decodeBase64Url(input: string): string {
+  const paddingLength = (4 - (input.length % 4 || 4)) % 4;
+  return Buffer.from(`${input}${"=".repeat(paddingLength)}`, "base64url").toString("utf8");
+}
 
 describe("integration: command build", () => {
   it("builds deterministic read argv", () => {
@@ -123,5 +129,55 @@ describe("integration: command build", () => {
       "--json",
       '{"values":[["hello"]]}',
     ]);
+  });
+
+  it("uses query params for drive parent mutations and html mime bodies for gmail html messages", () => {
+    const drive = buildDriveWriteCommand(
+      {
+        action: "update_file_metadata",
+        confirm: true,
+        fileId: "file-1",
+        name: "Renamed",
+        addParents: ["parent-a"],
+        removeParents: ["parent-b"],
+      },
+      [],
+    ).argv;
+    const gmail = buildGmailWriteCommand(
+      {
+        action: "send_message",
+        confirm: true,
+        to: ["person@example.com"],
+        subject: "Hello",
+        bodyHtml: "<b>Hi</b>",
+      },
+      [],
+    ).argv;
+
+    expect(drive).toEqual([
+      "drive",
+      "files",
+      "update",
+      "--format",
+      "json",
+      "--params",
+      '{"fileId":"file-1","addParents":["parent-a"],"removeParents":["parent-b"]}',
+      "--json",
+      '{"name":"Renamed"}',
+    ]);
+    expect(gmail.slice(0, 8)).toEqual([
+      "gmail",
+      "users",
+      "messages",
+      "send",
+      "--format",
+      "json",
+      "--params",
+      '{"userId":"me"}',
+    ]);
+    expect(gmail[8]).toBe("--json");
+    const payload = JSON.parse(gmail[9] as string) as { raw: string };
+    expect(decodeBase64Url(payload.raw)).toContain("Content-Type: text/html; charset=UTF-8");
+    expect(decodeBase64Url(payload.raw)).toContain("<b>Hi</b>");
   });
 });
