@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { GatewayBrowserClient } from "../gateway.ts";
 import {
   createAgentWorkspaceFileDraft,
   deleteAgentWorkspacePath,
@@ -15,8 +16,10 @@ function createState(): {
   request: ReturnType<typeof vi.fn>;
 } {
   const request = vi.fn();
+  const client = new GatewayBrowserClient({ url: "ws://example.test" });
+  client.request = request;
   const state: AgentWorkspaceFileManagerState = {
-    client: { request } as unknown as AgentWorkspaceFileManagerState["client"],
+    client,
     connected: true,
     agentWorkspaceFilesLoading: false,
     agentWorkspaceFilesError: null,
