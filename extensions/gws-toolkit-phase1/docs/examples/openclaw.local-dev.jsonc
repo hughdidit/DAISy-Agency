@@ -1,0 +1,37 @@
+{
+  "plugins": {
+    "entries": {
+      "gws-toolkit-phase1": {
+        "enabled": true,
+        "config": {
+          "enabledServices": ["drive", "gmail", "calendar", "docs", "sheets"],
+          "enabledWriteServices": ["docs", "sheets"],
+          "allowWriteOperations": true,
+          "allowUnboundAgents": false,
+          "approvedCredentialDirs": ["./config/secrets/gws"],
+          "credentialRoutes": {
+            "local-main": {
+              "mode": "token",
+              "label": "Local dev token",
+              "allowedServices": ["drive", "gmail", "calendar", "docs", "sheets"],
+              "allowedTools": [
+                "gws_drive_read",
+                "gws_gmail_read",
+                "gws_calendar_read",
+                "gws_docs_read",
+                "gws_sheets_read",
+                "gws_docs_write",
+                "gws_sheets_write"
+              ],
+              "allowedActions": ["docs:append_text", "sheets:update_values"],
+              "tokenEnvVar": "GOOGLE_WORKSPACE_CLI_TOKEN"
+            }
+          },
+          "agentCredentialBindings": {
+            "agent:main": "local-main"
+          }
+        }
+      }
+    }
+  }
+}

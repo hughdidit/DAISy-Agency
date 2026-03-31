@@ -18,7 +18,7 @@ type PluginApi = {
     error: (message: string) => void;
     debug?: (message: string) => void;
   };
-  registerTool: (tool: unknown) => void;
+  registerTool: (tool: unknown, opts?: unknown) => void;
   registerHook: () => void;
   registerHttpRoute: () => void;
   registerChannel: () => void;
@@ -76,6 +76,25 @@ export function createHarness(params?: {
       },
     },
     registerTool(tool) {
+      if (typeof tool === "function") {
+        const produced = tool({
+          config: params?.config ?? {},
+          workspaceDir: process.cwd(),
+          agentDir: process.cwd(),
+          agentId: "main",
+          sessionKey: "agent:main:main",
+          sessionId: "test-session",
+          messageChannel: "test",
+        });
+        const list = Array.isArray(produced) ? produced : produced ? [produced] : [];
+        for (const entry of list) {
+          const maybeTool = entry as { name?: string; execute?: RegisteredTool["execute"] };
+          if (typeof maybeTool.name === "string" && typeof maybeTool.execute === "function") {
+            tools.set(maybeTool.name, maybeTool as RegisteredTool);
+          }
+        }
+        return;
+      }
       if (!tool || typeof tool !== "object") {
         return;
       }
@@ -148,12 +167,15 @@ export function defaultPluginConfig(
 ): Record<string, unknown> {
   return {
     enabledServices: ["drive", "gmail", "calendar"],
+    enabledWriteServices: [],
     binaryPath: fixtureBinaryPath,
     tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
     timeoutMs: 5000,
     maxStdoutBytes: 1024 * 1024,
     maxStderrBytes: 256 * 1024,
     safeMode: true,
+    allowWriteOperations: false,
+    allowUnboundAgents: false,
     allowedCredentialModes: ["token", "oauth"],
     defaultScopesProfile: "minimal",
     approvedCredentialDirs: [fixturesDir],

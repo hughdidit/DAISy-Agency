@@ -1,27 +1,27 @@
 # GWS Toolkit Skill (Guidance Only)
 
-This skill helps operators and agents use `gws-toolkit-phase1` safely.
+This skill helps operators and agents use `gws-toolkit-phase1` safely after the
+Phase 2 upgrade.
 
 ## Scope
 
-- Read-only Google Workspace access through typed tools.
-- Drive read: `list_files`, `get_file_metadata`, `export_file`.
-- Gmail read: `list_messages`, `get_message_metadata`.
-- Calendar read: `list_events`, `get_event`.
+- Read tools for Drive, Gmail, Calendar, Docs, and Sheets.
+- Write tools for the same families when the plugin, route, and confirmation
+  gates all allow the action.
 
 ## Guardrails
 
-- No write operations in Phase 1.
 - No raw passthrough mode.
 - Tool requests are policy-gated and schema-validated.
+- Writes require `confirm: true`.
 - Secrets are never supplied in prompts; use runtime env/secret injection.
 
 ## Recommended Flow
 
-1. Run `gws_status` before read calls.
-2. Use minimal params needed for each action.
-3. Handle structured deny/error codes and avoid retries on policy denials.
-4. Escalate to operators for auth or API enablement issues.
+1. Run `gws_status` before reads or writes.
+2. Prefer the narrowest tool and action needed.
+3. Treat route and policy denials as configuration issues, not retry candidates.
+4. Escalate auth or API enablement issues to operators.
 
 ## Important
 

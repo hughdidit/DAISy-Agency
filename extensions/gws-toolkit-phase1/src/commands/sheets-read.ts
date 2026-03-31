@@ -1,23 +1,23 @@
-import { buildCalendarReadCommand } from "../command-builder.js";
-import { validateCalendarReadParams } from "../schema.js";
+import { buildSheetsReadCommand } from "../command-builder.js";
+import { validateSheetsReadParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
 import { buildValidationDeniedEnvelope, runToolkitCommand, type RuntimeDeps } from "./helpers.js";
 
-export async function executeCalendarRead(params: {
+export async function executeSheetsRead(params: {
   ctx: InvocationContext;
   deps: RuntimeDeps;
   rawParams: unknown;
 }): Promise<StructuredEnvelope> {
-  const validated = validateCalendarReadParams(params.rawParams);
+  const validated = validateSheetsReadParams(params.rawParams);
   if (!validated.ok) {
     return buildValidationDeniedEnvelope({
       deps: params.deps,
       ctx: params.ctx,
-      tool: "gws_calendar_read",
-      service: "calendar",
+      tool: "gws_sheets_read",
+      service: "sheets",
       readOnly: true,
       action: "unknown",
-      message: "Invalid gws_calendar_read params",
+      message: "Invalid gws_sheets_read params",
       issues: validated.errors,
     });
   }
@@ -25,12 +25,12 @@ export async function executeCalendarRead(params: {
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
-    tool: "gws_calendar_read",
-    service: "calendar",
+    tool: "gws_sheets_read",
+    service: "sheets",
     action: validated.value.action,
     payload: validated.value,
     readOnly: true,
     buildArgv: (auth) =>
-      buildCalendarReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
+      buildSheetsReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
   });
 }

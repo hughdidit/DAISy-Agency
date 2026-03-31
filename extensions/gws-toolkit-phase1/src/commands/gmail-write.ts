@@ -1,23 +1,23 @@
-import { buildCalendarReadCommand } from "../command-builder.js";
-import { validateCalendarReadParams } from "../schema.js";
+import { buildGmailWriteCommand } from "../command-builder.js";
+import { validateGmailWriteParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
 import { buildValidationDeniedEnvelope, runToolkitCommand, type RuntimeDeps } from "./helpers.js";
 
-export async function executeCalendarRead(params: {
+export async function executeGmailWrite(params: {
   ctx: InvocationContext;
   deps: RuntimeDeps;
   rawParams: unknown;
 }): Promise<StructuredEnvelope> {
-  const validated = validateCalendarReadParams(params.rawParams);
+  const validated = validateGmailWriteParams(params.rawParams);
   if (!validated.ok) {
     return buildValidationDeniedEnvelope({
       deps: params.deps,
       ctx: params.ctx,
-      tool: "gws_calendar_read",
-      service: "calendar",
-      readOnly: true,
+      tool: "gws_gmail_write",
+      service: "gmail",
+      readOnly: false,
       action: "unknown",
-      message: "Invalid gws_calendar_read params",
+      message: "Invalid gws_gmail_write params",
       issues: validated.errors,
     });
   }
@@ -25,12 +25,13 @@ export async function executeCalendarRead(params: {
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
-    tool: "gws_calendar_read",
-    service: "calendar",
+    tool: "gws_gmail_write",
+    service: "gmail",
     action: validated.value.action,
     payload: validated.value,
-    readOnly: true,
+    readOnly: false,
+    confirm: validated.value.confirm,
     buildArgv: (auth) =>
-      buildCalendarReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
+      buildGmailWriteCommand(validated.value as Record<string, unknown>, auth.args).argv,
   });
 }

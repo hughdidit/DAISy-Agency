@@ -1,42 +1,35 @@
 import { buildDriveReadCommand } from "../command-builder.js";
-import { PluginError } from "../errors.js";
-import { validateDriveParams } from "../schema.js";
+import { validateDriveReadParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
-import { buildValidationDeniedEnvelope, runReadOnlyCommand, type RuntimeDeps } from "./helpers.js";
+import { buildValidationDeniedEnvelope, runToolkitCommand, type RuntimeDeps } from "./helpers.js";
 
 export async function executeDriveRead(params: {
   ctx: InvocationContext;
   deps: RuntimeDeps;
   rawParams: unknown;
 }): Promise<StructuredEnvelope> {
-  const validated = validateDriveParams(params.rawParams);
+  const validated = validateDriveReadParams(params.rawParams);
   if (!validated.ok) {
     return buildValidationDeniedEnvelope({
       deps: params.deps,
       ctx: params.ctx,
       tool: "gws_drive_read",
       service: "drive",
+      readOnly: true,
+      action: "unknown",
       message: "Invalid gws_drive_read params",
       issues: validated.errors,
     });
   }
 
-  const action = validated.value.action;
-  return await runReadOnlyCommand({
+  return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
     tool: "gws_drive_read",
     service: "drive",
-    action,
+    action: validated.value.action,
     payload: validated.value,
-    buildArgv: (auth) => {
-      try {
-        return buildDriveReadCommand(validated.value, auth.args).argv;
-      } catch (error) {
-        throw error instanceof PluginError
-          ? error
-          : new PluginError("VALIDATION_ERROR", "Invalid drive action arguments");
-      }
-    },
+    readOnly: true,
+    buildArgv: (auth) => buildDriveReadCommand(validated.value as Record<string, unknown>, auth.args).argv,
   });
 }

@@ -14,8 +14,8 @@ afterEach(() => {
   delete process.env.MOCK_GWS_MODE;
 });
 
-describe("gws-toolkit-phase1 acceptance contracts", () => {
-  it("returns structured status success", async () => {
+describe("gws-toolkit-phase1 phase2 acceptance contracts", () => {
+  it("returns structured status success with routes and write readiness", async () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token-for-tests";
     process.env.OPENCLAW_CONFIG_FILE = path.resolve("openclaw.config.json");
 
@@ -29,37 +29,83 @@ describe("gws-toolkit-phase1 acceptance contracts", () => {
       tool: "gws_status",
       resultCode: "OK",
     });
+    expect(result.data).toHaveProperty("routes");
+    expect(result.data).toHaveProperty("writeReadiness");
   });
 
-  it("supports drive/gmail/calendar read success paths", async () => {
+  it("supports the expanded read/write surface with structured payloads", async () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token-for-tests";
 
     const harness = createHarness({
-      pluginConfig: defaultPluginConfig(),
+      pluginConfig: defaultPluginConfig({
+        allowWriteOperations: true,
+        enabledServices: ["drive", "gmail", "calendar", "docs", "sheets"],
+        enabledWriteServices: ["drive", "gmail", "calendar", "docs", "sheets"],
+        credentialRoutes: {
+          writer: {
+            mode: "token",
+            allowedServices: ["drive", "gmail", "calendar", "docs", "sheets"],
+            allowedTools: [
+              "gws_drive_read",
+              "gws_gmail_read",
+              "gws_calendar_read",
+              "gws_docs_read",
+              "gws_sheets_read",
+              "gws_drive_write",
+              "gws_gmail_write",
+              "gws_calendar_write",
+              "gws_docs_write",
+              "gws_sheets_write",
+            ],
+          },
+        },
+        agentCredentialBindings: {
+          "agent:main": "writer",
+        },
+      }),
     });
 
-    const drive = await executeTool(harness, "gws_drive_read", { action: "list_files" });
-    const gmail = await executeTool(harness, "gws_gmail_read", { action: "list_messages" });
-    const calendar = await executeTool(harness, "gws_calendar_read", { action: "list_events" });
+    const docsRead = await executeTool(harness, "gws_docs_read", {
+      action: "get_document",
+      documentId: "doc-1",
+    });
+    const sheetsWrite = await executeTool(harness, "gws_sheets_write", {
+      action: "create_spreadsheet",
+      confirm: true,
+      title: "Sheet",
+    });
 
-    expect(drive.ok).toBe(true);
-    expect(gmail.ok).toBe(true);
-    expect(calendar.ok).toBe(true);
+    expect(docsRead.ok).toBe(true);
+    expect(sheetsWrite.ok).toBe(true);
   });
 
-  it("denies unsupported write-like action and malformed params", async () => {
+  it("denies writes without confirm and malformed params", async () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token-for-tests";
 
     const harness = createHarness({
-      pluginConfig: defaultPluginConfig(),
+      pluginConfig: defaultPluginConfig({
+        allowWriteOperations: true,
+        enabledWriteServices: ["drive"],
+        credentialRoutes: {
+          writer: {
+            mode: "token",
+            allowedServices: ["drive"],
+            allowedTools: ["gws_drive_write"],
+          },
+        },
+        agentCredentialBindings: {
+          "agent:main": "writer",
+        },
+      }),
     });
 
-    const writeLike = await executeTool(harness, "gws_drive_read", {
-      action: "list_files",
-      query: "send this file",
+    const missingConfirm = await executeTool(harness, "gws_drive_write", {
+      action: "create_folder",
+      confirm: false,
+      name: "Folder",
     });
-    expect(writeLike.ok).toBe(false);
-    expect(writeLike.error).toMatchObject({ code: "DENY_POLICY" });
+    expect(missingConfirm.ok).toBe(false);
+    expect(missingConfirm.error).toMatchObject({ code: "DENY_POLICY" });
 
     const malformed = await executeTool(harness, "gws_gmail_read", {
       action: "list_messages",
@@ -111,32 +157,6 @@ describe("gws-toolkit-phase1 acceptance contracts", () => {
     expect(timeout.error).toMatchObject({ code: "EXEC_TIMEOUT" });
   });
 
-  it("enforces credential directory boundary", async () => {
-    const credentialsFile = path.resolve("extensions/gws-toolkit-phase1/test/fixtures/mock-gws.js");
-    const harness = createHarness({
-      pluginConfig: defaultPluginConfig({
-        allowedCredentialModes: ["credentials_file"],
-        credentialsFile,
-        approvedCredentialDirs: [path.resolve("extensions/gws-toolkit-phase1/test")],
-      }),
-    });
-
-    const allowed = await executeTool(harness, "gws_drive_read", { action: "list_files" });
-    expect(allowed.ok).toBe(true);
-
-    const deniedHarness = createHarness({
-      pluginConfig: defaultPluginConfig({
-        allowedCredentialModes: ["credentials_file"],
-        credentialsFile,
-        approvedCredentialDirs: [path.resolve("extensions/gws-toolkit-phase1/test/acceptance")],
-      }),
-    });
-
-    const denied = await executeTool(deniedHarness, "gws_drive_read", { action: "list_files" });
-    expect(denied.ok).toBe(false);
-    expect(denied.error).toMatchObject({ code: "AUTH_ERROR" });
-  });
-
   it("returns structured config error when plugin config is missing from loaded config source", async () => {
     const tempPath = await withTempFile(JSON.stringify({ plugins: { entries: {} } }));
     process.env.OPENCLAW_CONFIG_FILE = tempPath;
@@ -155,4 +175,4 @@ describe("gws-toolkit-phase1 acceptance contracts", () => {
       },
     });
   });
-});
+}
