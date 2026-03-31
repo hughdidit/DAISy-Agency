@@ -350,7 +350,6 @@ export async function moveAgentWorkspacePath(
         delete nextDocs[fromPath];
         nextDocs[toPath] = {
           ...source,
-          ...("contentBase64" in source ? source : {}),
           path: toPath,
           name: res.entry.name,
         };
