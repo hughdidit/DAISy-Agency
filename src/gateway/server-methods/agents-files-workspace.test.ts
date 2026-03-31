@@ -21,6 +21,9 @@ function makeCall(method: string, params: Record<string, unknown>) {
     | ((args: GatewayRequestHandlerOptions) => Promise<void> | void)
     | undefined;
   expect(handler, `missing handler ${method}`).toBeTypeOf("function");
+  if (!handler) {
+    throw new Error(`missing handler ${method}`);
+  }
   const promise = handler({
     params,
     respond,
