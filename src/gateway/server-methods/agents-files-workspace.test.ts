@@ -2,10 +2,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { GatewayRequestHandlerOptions } from "./types.js";
 
-const testState = vi.hoisted(() => ({
-  config: {} as Record<string, unknown>,
+const testState = vi.hoisted((): { config: Record<string, unknown> } => ({
+  config: {},
 }));
 
 vi.mock("../../config/config.js", () => ({
@@ -17,9 +16,7 @@ const { agentsHandlers } = await import("./agents.js");
 
 function makeCall(method: string, params: Record<string, unknown>) {
   const respond = vi.fn();
-  const handler = agentsHandlers[method] as
-    | ((args: GatewayRequestHandlerOptions) => Promise<void> | void)
-    | undefined;
+  const handler = agentsHandlers[method];
   expect(handler, `missing handler ${method}`).toBeTypeOf("function");
   if (!handler) {
     throw new Error(`missing handler ${method}`);
@@ -57,8 +54,8 @@ function decodeUtf16Be(buffer: Buffer): string {
   const swapped = Buffer.from(buffer);
   for (let index = 0; index + 1 < swapped.length; index += 2) {
     const first = swapped[index];
-    swapped[index] = swapped[index + 1] as number;
-    swapped[index + 1] = first as number;
+    swapped[index] = swapped[index + 1];
+    swapped[index + 1] = first;
   }
   return swapped.toString("utf16le");
 }
