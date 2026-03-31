@@ -804,7 +804,7 @@ function shouldHideWorkspaceManager(configForm: Record<string, unknown> | null):
   if (!configForm || typeof configForm !== "object") {
     return false;
   }
-  const root = configForm as Record<string, unknown>;
+  const root = configForm;
   const gateway = asRecord(root.gateway);
   const controlUi = asRecord(gateway?.controlUi);
   if (controlUi?.hideAgentFileExchangeWhenGoogleDriveEnabled !== true) {

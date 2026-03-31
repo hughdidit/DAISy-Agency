@@ -83,10 +83,13 @@ describe("agent workspace file manager controller", () => {
 
     await loadAgentWorkspaceFile(state, "main", "notes.txt");
 
-    expect(state.agentWorkspaceFileDocs["notes.txt"]?.textContent).toBe("hello");
-    expect(state.agentWorkspaceFileDrafts["notes.txt"]).toEqual(
-      createAgentWorkspaceFileDraft(state.agentWorkspaceFileDocs["notes.txt"]!),
-    );
+    const doc = state.agentWorkspaceFileDocs["notes.txt"];
+    expect(doc?.textContent).toBe("hello");
+    expect(doc).toBeTruthy();
+    if (!doc) {
+      throw new Error("expected notes.txt doc");
+    }
+    expect(state.agentWorkspaceFileDrafts["notes.txt"]).toEqual(createAgentWorkspaceFileDraft(doc));
   });
 
   it("saves text drafts through the workspace RPC", async () => {
