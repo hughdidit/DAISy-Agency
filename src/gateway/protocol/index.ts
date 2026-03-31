@@ -304,17 +304,13 @@ export const validateAgentsWorkspaceFilesSetParams = ajv.compile<AgentsWorkspace
   AgentsWorkspaceFilesSetParamsSchema,
 );
 export const validateAgentsWorkspaceFilesDeleteParams =
-  ajv.compile<AgentsWorkspaceFilesDeleteParams>(
-    AgentsWorkspaceFilesDeleteParamsSchema,
-  );
-export const validateAgentsWorkspaceFilesMkdirParams =
-  ajv.compile<AgentsWorkspaceFilesMkdirParams>(
-    AgentsWorkspaceFilesMkdirParamsSchema,
-  );
-export const validateAgentsWorkspaceFilesMoveParams =
-  ajv.compile<AgentsWorkspaceFilesMoveParams>(
-    AgentsWorkspaceFilesMoveParamsSchema,
-  );
+  ajv.compile<AgentsWorkspaceFilesDeleteParams>(AgentsWorkspaceFilesDeleteParamsSchema);
+export const validateAgentsWorkspaceFilesMkdirParams = ajv.compile<AgentsWorkspaceFilesMkdirParams>(
+  AgentsWorkspaceFilesMkdirParamsSchema,
+);
+export const validateAgentsWorkspaceFilesMoveParams = ajv.compile<AgentsWorkspaceFilesMoveParams>(
+  AgentsWorkspaceFilesMoveParamsSchema,
+);
 export const validateNodePairRequestParams = ajv.compile<NodePairRequestParams>(
   NodePairRequestParamsSchema,
 );

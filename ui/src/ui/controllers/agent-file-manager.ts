@@ -187,13 +187,8 @@ export async function loadAgentWorkspaceFile(
         ...state.agentWorkspaceFileDocs,
         [normalized]: res.file,
       };
-      state.agentWorkspaceFilesList = upsertWorkspaceEntry(
-        state.agentWorkspaceFilesList,
-        res.file,
-      );
-      const previousDraftBaseline = previousDoc
-        ? createAgentWorkspaceFileDraft(previousDoc)
-        : null;
+      state.agentWorkspaceFilesList = upsertWorkspaceEntry(state.agentWorkspaceFilesList, res.file);
+      const previousDraftBaseline = previousDoc ? createAgentWorkspaceFileDraft(previousDoc) : null;
       if (
         !opts?.preserveDraft ||
         !currentDraft ||
@@ -282,10 +277,7 @@ export async function deleteAgentWorkspacePath(
       agentId,
       path: normalized,
     });
-    state.agentWorkspaceFilesList = removeWorkspaceEntry(
-      state.agentWorkspaceFilesList,
-      normalized,
-    );
+    state.agentWorkspaceFilesList = removeWorkspaceEntry(state.agentWorkspaceFilesList, normalized);
     const nextDocs = { ...state.agentWorkspaceFileDocs };
     delete nextDocs[normalized];
     state.agentWorkspaceFileDocs = nextDocs;
@@ -453,9 +445,6 @@ export async function downloadAgentWorkspaceFile(
   URL.revokeObjectURL(url);
 }
 
-export function stageUploadPathForCurrentDirectory(
-  currentDir: string,
-  fileName: string,
-): string {
+export function stageUploadPathForCurrentDirectory(currentDir: string, fileName: string): string {
   return joinRelativePath(currentDir, fileName);
 }

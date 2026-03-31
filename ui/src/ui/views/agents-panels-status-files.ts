@@ -1,4 +1,5 @@
 import { html, nothing } from "lit";
+import { stageUploadPathForCurrentDirectory } from "../controllers/agent-file-manager.ts";
 import { formatRelativeTimestamp } from "../format.ts";
 import {
   formatCronPayload,
@@ -18,10 +19,7 @@ import type {
   CronStatus,
 } from "../types.ts";
 import { formatBytes, type AgentContext } from "./agents-utils.ts";
-import {
-  resolveChannelExtras as resolveChannelExtrasFromConfig,
-} from "./channel-config-extras.ts";
-import { stageUploadPathForCurrentDirectory } from "../controllers/agent-file-manager.ts";
+import { resolveChannelExtras as resolveChannelExtrasFromConfig } from "./channel-config-extras.ts";
 
 function renderAgentContextCard(context: AgentContext, subtitle: string) {
   return html`
@@ -172,9 +170,7 @@ export function renderAgentChannels(params: {
         ${
           !params.snapshot
             ? html`
-                <div class="callout info" style="margin-top: 12px;">
-                  Load channels to see live status.
-                </div>
+                <div class="callout info" style="margin-top: 12px">Load channels to see live status.</div>
               `
             : nothing
         }
@@ -411,7 +407,9 @@ export function renderAgentFiles(params: {
                   <div class="agent-files-list">
                     ${
                       files.length === 0
-                        ? html`<div class="muted">No files found.</div>`
+                        ? html`
+                            <div class="muted">No files found.</div>
+                          `
                         : files.map((file) =>
                             renderAgentFileRow(file, active, () => params.onSelectFile(file.name)),
                           )
@@ -420,7 +418,9 @@ export function renderAgentFiles(params: {
                   <div class="agent-files-editor">
                     ${
                       !activeEntry
-                        ? html`<div class="muted">Select a file to edit.</div>`
+                        ? html`
+                            <div class="muted">Select a file to edit.</div>
+                          `
                         : html`
                             <div class="agent-file-header">
                               <div>
@@ -448,8 +448,7 @@ export function renderAgentFiles(params: {
                               activeEntry.missing
                                 ? html`
                                     <div class="callout info" style="margin-top: 10px">
-                                      This file is missing. Saving will create it in the agent
-                                      workspace.
+                                      This file is missing. Saving will create it in the agent workspace.
                                     </div>
                                   `
                                 : nothing
@@ -607,7 +606,7 @@ function renderWorkspaceManagerCard(
       ${
         !list
           ? html`
-              <div class="callout info" style="margin-top: 12px;">
+              <div class="callout info" style="margin-top: 12px">
                 Load the agent File Manager to browse sandbox workspace files.
               </div>
             `
@@ -632,7 +631,9 @@ function renderWorkspaceManagerCard(
                   }
                   ${
                     entries.length === 0
-                      ? html`<div class="muted">No files found.</div>`
+                      ? html`
+                          <div class="muted">No files found.</div>
+                        `
                       : entries.map((entry) =>
                           renderWorkspaceEntryRow(entry, activePath, () =>
                             params.onSelectWorkspaceEntry(entry),
@@ -643,7 +644,9 @@ function renderWorkspaceManagerCard(
                 <div class="agent-files-editor">
                   ${
                     !activePath
-                      ? html`<div class="muted">Select a file to inspect or edit.</div>`
+                      ? html`
+                          <div class="muted">Select a file to inspect or edit.</div>
+                        `
                       : html`
                           <div class="agent-file-header">
                             <div>
@@ -660,10 +663,7 @@ function renderWorkspaceManagerCard(
                                 ?disabled=${!activeDoc}
                                 @click=${() => {
                                   const currentPath = activeDoc?.path ?? activePath;
-                                  const nextPath = window.prompt(
-                                    "Rename or move to",
-                                    currentPath,
-                                  );
+                                  const nextPath = window.prompt("Rename or move to", currentPath);
                                   if (!nextPath || nextPath === currentPath) {
                                     return;
                                   }
@@ -728,9 +728,11 @@ function renderWorkspaceManagerCard(
                             activeDraft?.kind === "binary" || (activeDoc && !activeDoc.textEditable)
                               ? html`
                                   <div class="callout info" style="margin-top: 12px;">
-                                    ${activeDraft?.kind === "binary"
-                                      ? activeDraft.textError
-                                      : (activeDoc?.textError ?? "File is not editable as text.")}
+                                    ${
+                                      activeDraft?.kind === "binary"
+                                        ? activeDraft.textError
+                                        : (activeDoc?.textError ?? "File is not editable as text.")
+                                    }
                                   </div>
                                 `
                               : html`
@@ -747,9 +749,11 @@ function renderWorkspaceManagerCard(
                                   </label>
                                   <div class="muted mono" style="margin-top: 8px;">
                                     Encoding:
-                                    ${activeDraft?.kind === "text"
-                                      ? activeDraft.encoding
-                                      : (activeDoc?.encoding ?? "utf-8")}
+                                    ${
+                                      activeDraft?.kind === "text"
+                                        ? activeDraft.encoding
+                                        : (activeDoc?.encoding ?? "utf-8")
+                                    }
                                     ${
                                       activeDraft?.kind === "text" && activeDraft.includeBom
                                         ? " · BOM"

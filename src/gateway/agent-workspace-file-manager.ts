@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { resolveBoundaryPath } from "../infra/boundary-path.js";
 import { sameFileIdentity } from "../infra/file-identity.js";
 import { readFileWithinRoot, writeFileWithinRoot } from "../infra/fs-safe.js";
-import { resolveBoundaryPath } from "../infra/boundary-path.js";
 import {
   decodeTextFile,
   encodeTextFile,
