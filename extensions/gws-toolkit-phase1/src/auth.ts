@@ -188,6 +188,7 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
   }
 
   const routes = Object.entries(config.credentialRoutes).map(([routeName, route]) => {
+    const modeAllowed = config.allowedCredentialModes.includes(route.mode);
     if (route.mode === "token") {
       const envVar = route.tokenEnvVar ?? config.tokenEnvVar;
       const present = typeof process.env[envVar] === "string" && process.env[envVar]?.trim();
@@ -195,8 +196,8 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
         routeName,
         mode: route.mode,
         bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
-        available: Boolean(present),
-        details: { tokenEnvVar: envVar, tokenPresent: Boolean(present) },
+        available: modeAllowed && Boolean(present),
+        details: { tokenEnvVar: envVar, tokenPresent: Boolean(present), modeAllowed },
       } satisfies RouteAuthStatus;
     }
     if (route.mode === "credentials_file") {
@@ -209,8 +210,8 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
           routeName,
           mode: route.mode,
           bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
-          available: true,
-          details: { credentialsFile: path.basename(resolved) },
+          available: modeAllowed,
+          details: { credentialsFile: path.basename(resolved), modeAllowed },
         } satisfies RouteAuthStatus;
       } catch (error) {
         return {
@@ -220,6 +221,7 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
           available: false,
           details: {
             error: error instanceof Error ? error.message : String(error),
+            modeAllowed,
           },
         } satisfies RouteAuthStatus;
       }
@@ -228,9 +230,10 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
       routeName,
       mode: route.mode,
       bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
-      available: true,
+      available: modeAllowed,
       details: {
         oauthAllowed: config.allowedCredentialModes.includes("oauth"),
+        modeAllowed,
       },
     } satisfies RouteAuthStatus;
   });

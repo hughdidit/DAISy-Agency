@@ -190,4 +190,22 @@ describe("auth resolution", () => {
       available: true,
     });
   });
+
+  it("marks routes unavailable when their auth mode is globally disabled", () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "abc";
+    const status = getAuthSourceStatus(
+      baseConfig({
+        allowedCredentialModes: ["oauth"],
+      }),
+    );
+    expect(status.routes[0]).toMatchObject({
+      routeName: "default",
+      mode: "token",
+      available: false,
+      details: {
+        modeAllowed: false,
+        tokenPresent: true,
+      },
+    });
+  });
 });
