@@ -64,8 +64,15 @@ function resolveUploadFile(input: unknown): { cwd: string; relativePath: string 
   let stats: fs.Stats;
   try {
     stats = fs.statSync(resolvedPath);
-  } catch {
-    throw new PluginError("VALIDATION_ERROR", "filePath does not exist");
+  } catch (error) {
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? String((error as { code?: unknown }).code)
+        : undefined;
+    if (code === "ENOENT") {
+      throw new PluginError("VALIDATION_ERROR", "filePath does not exist");
+    }
+    throw new PluginError("VALIDATION_ERROR", "filePath could not be accessed");
   }
 
   if (!stats.isFile()) {
