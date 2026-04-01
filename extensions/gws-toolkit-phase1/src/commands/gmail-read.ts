@@ -32,6 +32,6 @@ export async function executeGmailRead(params: {
     action: value.action,
     payload: value,
     readOnly: true,
-    buildArgv: (auth) => buildGmailReadCommand(value, auth.args).argv,
+    buildCommand: (auth) => buildGmailReadCommand(value, auth.args),
   });
 }

@@ -36,6 +36,6 @@ export async function executeDriveWrite(params: {
     payload: value,
     readOnly: false,
     confirm: value.confirm,
-    buildArgv: (auth) => buildDriveWriteCommand(value, auth.args).argv,
+    buildCommand: (auth) => buildDriveWriteCommand(value, auth.args),
   });
 }

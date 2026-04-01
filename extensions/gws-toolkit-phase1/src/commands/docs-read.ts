@@ -32,6 +32,6 @@ export async function executeDocsRead(params: {
     action: value.action,
     payload: value,
     readOnly: true,
-    buildArgv: (auth) => buildDocsReadCommand(value, auth.args).argv,
+    buildCommand: (auth) => buildDocsReadCommand(value, auth.args),
   });
 }

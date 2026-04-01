@@ -32,6 +32,6 @@ export async function executeCalendarRead(params: {
     action: value.action,
     payload: value,
     readOnly: true,
-    buildArgv: (auth) => buildCalendarReadCommand(value, auth.args).argv,
+    buildCommand: (auth) => buildCalendarReadCommand(value, auth.args),
   });
 }
