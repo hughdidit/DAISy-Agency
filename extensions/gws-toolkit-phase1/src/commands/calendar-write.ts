@@ -36,6 +36,6 @@ export async function executeCalendarWrite(params: {
     payload: value,
     readOnly: false,
     confirm: value.confirm,
-    buildArgv: (auth) => buildCalendarWriteCommand(value, auth.args).argv,
+    buildCommand: (auth) => buildCalendarWriteCommand(value, auth.args),
   });
 }

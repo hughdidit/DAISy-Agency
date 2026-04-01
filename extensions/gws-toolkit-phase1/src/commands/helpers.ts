@@ -1,6 +1,7 @@
 import type { AuditLogger } from "../audit.js";
 import { resolveAuth } from "../auth.js";
 import { discoverBinary } from "../binary.js";
+import type { GwsCommandSpec } from "../command-builder.js";
 import { toStructuredError } from "../errors.js";
 import { executeCommand } from "../executor.js";
 import { normalizeExecution } from "../normalize.js";
@@ -73,7 +74,7 @@ export async function runToolkitCommand(params: {
   payload: Record<string, unknown>;
   readOnly: boolean;
   confirm?: boolean;
-  buildArgv: (auth: AuthResolution) => string[];
+  buildCommand: (auth: AuthResolution) => GwsCommandSpec;
 }): Promise<StructuredEnvelope> {
   const startedAt = Date.now();
 
@@ -144,11 +145,12 @@ export async function runToolkitCommand(params: {
         }),
     });
 
-    const argv = params.buildArgv(auth);
+    const command = params.buildCommand(auth);
     const execution = await executeCommand({
       config: params.deps.config,
       binaryPath: binary.binaryPath,
-      argv,
+      argv: command.argv,
+      cwd: command.cwd,
       env: {
         ...(runtimeEnv ?? {}),
         ...auth.env,

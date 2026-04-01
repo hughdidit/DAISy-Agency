@@ -36,6 +36,6 @@ export async function executeSheetsWrite(params: {
     payload: value,
     readOnly: false,
     confirm: value.confirm,
-    buildArgv: (auth) => buildSheetsWriteCommand(value, auth.args).argv,
+    buildCommand: (auth) => buildSheetsWriteCommand(value, auth.args),
   });
 }

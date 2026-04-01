@@ -1,3 +1,4 @@
+import path from "node:path";
 import { PluginError } from "./errors.js";
 import { MIN_SUPPORTED_GWS_VERSION } from "./types.js";
 import type { DiscoveryResult, ExecutionResult } from "./types.js";
@@ -40,7 +41,11 @@ function isVersionSupported(version: DiscoveryResult["version"]): boolean {
 
 export function resolveBinaryPath(configBinaryPath: string | undefined): string {
   if (typeof configBinaryPath === "string" && configBinaryPath.trim()) {
-    return configBinaryPath.trim();
+    const trimmed = configBinaryPath.trim();
+    if (path.isAbsolute(trimmed) || !/[\\/]/.test(trimmed)) {
+      return trimmed;
+    }
+    return path.resolve(trimmed);
   }
   return "gws";
 }

@@ -36,6 +36,6 @@ export async function executeDocsWrite(params: {
     payload: value,
     readOnly: false,
     confirm: value.confirm,
-    buildArgv: (auth) => buildDocsWriteCommand(value, auth.args).argv,
+    buildCommand: (auth) => buildDocsWriteCommand(value, auth.args),
   });
 }

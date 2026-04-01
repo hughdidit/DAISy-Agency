@@ -112,6 +112,7 @@ export async function executeCommand(params: {
   binaryPath: string;
   argv: string[];
   env?: Record<string, string>;
+  cwd?: string;
 }): Promise<ExecutionResult> {
   const startedAt = Date.now();
   const invocation = resolveInvocation(params.binaryPath, params.argv);
@@ -120,6 +121,7 @@ export async function executeCommand(params: {
     const child = spawn(invocation.command, invocation.argv, {
       shell: invocation.shell,
       windowsHide: invocation.windowsHide,
+      cwd: params.cwd,
       env: buildChildEnv(params.env),
       stdio: ["ignore", "pipe", "pipe"],
     });

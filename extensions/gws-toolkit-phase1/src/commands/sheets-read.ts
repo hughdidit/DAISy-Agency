@@ -32,6 +32,6 @@ export async function executeSheetsRead(params: {
     action: value.action,
     payload: value,
     readOnly: true,
-    buildArgv: (auth) => buildSheetsReadCommand(value, auth.args).argv,
+    buildCommand: (auth) => buildSheetsReadCommand(value, auth.args),
   });
 }

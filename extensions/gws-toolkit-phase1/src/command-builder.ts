@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { PluginError } from "./errors.js";
 
 export type GwsCommandSpec = {
@@ -5,6 +7,7 @@ export type GwsCommandSpec = {
   action: string;
   service: "drive" | "gmail" | "calendar" | "docs" | "sheets";
   isWrite: boolean;
+  cwd?: string;
 };
 
 type JsonParamValue = string | number | boolean | null | string[] | number[];
@@ -53,6 +56,33 @@ function readString(value: unknown, label: string): string {
     throw new PluginError("VALIDATION_ERROR", `${label} is required`);
   }
   return value.trim();
+}
+
+function resolveUploadFile(input: unknown): { cwd: string; relativePath: string } {
+  const rawPath = readString(input, "filePath");
+  const resolvedPath = path.resolve(rawPath);
+  let stats: fs.Stats;
+  try {
+    stats = fs.statSync(resolvedPath);
+  } catch (error) {
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? String((error as { code?: unknown }).code)
+        : undefined;
+    if (code === "ENOENT") {
+      throw new PluginError("VALIDATION_ERROR", "filePath does not exist");
+    }
+    throw new PluginError("VALIDATION_ERROR", "filePath could not be accessed");
+  }
+
+  if (!stats.isFile()) {
+    throw new PluginError("VALIDATION_ERROR", "filePath must reference a regular file");
+  }
+
+  return {
+    cwd: path.dirname(resolvedPath),
+    relativePath: path.basename(resolvedPath),
+  };
 }
 
 function asStringArray(value: unknown): string[] | undefined {
@@ -255,6 +285,7 @@ export function buildDriveWriteCommand(
   if (params.action === "upload_file") {
     const argv = ["drive", ...authArgs, "files", "create", "--format", "json"];
     const body: Record<string, unknown> = {};
+    const upload = resolveUploadFile(params.filePath);
     if (typeof params.name === "string" && params.name.trim()) {
       body.name = params.name.trim();
     }
@@ -265,8 +296,17 @@ export function buildDriveWriteCommand(
       body.mimeType = params.mimeType.trim();
     }
     appendJsonArg(argv, body);
-    argv.push("--file", readString(params.filePath, "filePath"));
-    return { argv, action: "upload_file", service: "drive", isWrite: true };
+    argv.push("--upload", upload.relativePath);
+    if (typeof params.mimeType === "string" && params.mimeType.trim()) {
+      argv.push("--upload-content-type", params.mimeType.trim());
+    }
+    return {
+      argv,
+      action: "upload_file",
+      service: "drive",
+      isWrite: true,
+      cwd: upload.cwd,
+    };
   }
   if (params.action === "update_file_metadata") {
     const argv = ["drive", ...authArgs, "files", "update", "--format", "json"];

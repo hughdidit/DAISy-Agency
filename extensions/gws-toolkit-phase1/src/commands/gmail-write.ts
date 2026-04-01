@@ -36,6 +36,6 @@ export async function executeGmailWrite(params: {
     payload: value,
     readOnly: false,
     confirm: value.confirm,
-    buildArgv: (auth) => buildGmailWriteCommand(value, auth.args).argv,
+    buildCommand: (auth) => buildGmailWriteCommand(value, auth.args),
   });
 }
