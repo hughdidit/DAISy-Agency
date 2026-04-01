@@ -1,6 +1,7 @@
 import type { AuditLogger } from "../audit.js";
 import { resolveAuth } from "../auth.js";
 import { discoverBinary } from "../binary.js";
+import type { GwsCommandSpec } from "../command-builder.js";
 import { toStructuredError } from "../errors.js";
 import { executeCommand } from "../executor.js";
 import { normalizeExecution } from "../normalize.js";
@@ -9,7 +10,6 @@ import type { ValidationIssue } from "../schema.js";
 import type {
   AuthResolution,
   DiscoveryResult,
-  GwsCommandSpec,
   GwsToolkitConfig,
   InvocationContext,
   ServiceFamily,
