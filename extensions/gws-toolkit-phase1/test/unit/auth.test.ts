@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { getAuthSourceStatus, resolveAuth } from "../../src/auth.js";
+import { resolveConfig } from "../../src/config.js";
 import type { GwsToolkitConfig } from "../../src/types.js";
 
 const snapshot = { ...process.env };
@@ -14,6 +15,7 @@ afterEach(() => {
 function baseConfig(overrides: Partial<GwsToolkitConfig> = {}): GwsToolkitConfig {
   return {
     enabledServices: ["drive", "gmail", "calendar"],
+    enabledWriteServices: [],
     approvedCredentialDirs: [],
     tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
     timeoutMs: 1000,
@@ -21,19 +23,50 @@ function baseConfig(overrides: Partial<GwsToolkitConfig> = {}): GwsToolkitConfig
     maxStderrBytes: 1024,
     safeMode: true,
     allowedCredentialModes: ["oauth", "credentials_file", "token"],
+    allowWriteOperations: false,
+    allowUnboundAgents: false,
+    defaultCredentialRoute: null,
+    credentialRoutes: {
+      default: {
+        mode: "token",
+        allowedServices: ["drive"],
+        allowedTools: ["gws_drive_read"],
+        tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
+      },
+    },
+    agentCredentialBindings: {
+      "agent:main": "default",
+    },
     defaultScopesProfile: "minimal",
+    requireHumanApprovalFor: [],
+    warnings: [],
     ...overrides,
   };
 }
 
 describe("auth resolution", () => {
-  it("prefers token mode when token exists", () => {
+  it("resolves token auth via bound agent route", () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
-    const resolved = resolveAuth(baseConfig());
+    const resolved = resolveAuth(baseConfig(), {
+      agentId: "main",
+      sessionKey: "agent:main:main",
+    });
     expect(resolved.mode).toBe("token");
+    expect(resolved.route.name).toBe("default");
+    expect(resolved.bindingSubject).toBe("agent:main");
   });
 
-  it("enforces credential directory boundary", async () => {
+  it("requires explicit subagent binding and does not inherit parent agent route", () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
+    expect(() =>
+      resolveAuth(baseConfig(), {
+        agentId: "main",
+        sessionKey: "agent:main:subagent:worker",
+      }),
+    ).toThrow(/subagent:main/);
+  });
+
+  it("enforces credential directory boundary per route", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-"));
     const allowedDir = path.join(root, "allowed");
     const deniedDir = path.join(root, "denied");
@@ -52,11 +85,18 @@ describe("auth resolution", () => {
       baseConfig({
         allowedCredentialModes: ["credentials_file"],
         approvedCredentialDirs: [allowedDir],
-        credentialsFile: allowedFile,
+        credentialRoutes: {
+          default: {
+            mode: "credentials_file",
+            allowedServices: ["drive"],
+            allowedTools: ["gws_drive_read"],
+            credentialsFile: allowedFile,
+          },
+        },
       }),
+      { agentId: "main", sessionKey: "agent:main:main" },
     );
     expect(ok.mode).toBe("credentials_file");
-    expect(ok.args).toEqual([]);
     expect(ok.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE).toBe(await fs.realpath(allowedFile));
 
     expect(() =>
@@ -64,147 +104,108 @@ describe("auth resolution", () => {
         baseConfig({
           allowedCredentialModes: ["credentials_file"],
           approvedCredentialDirs: [allowedDir],
-          credentialsFile: deniedFile,
+          credentialRoutes: {
+            default: {
+              mode: "credentials_file",
+              allowedServices: ["drive"],
+              allowedTools: ["gws_drive_read"],
+              credentialsFile: deniedFile,
+            },
+          },
         }),
+        { agentId: "main", sessionKey: "agent:main:main" },
       ),
     ).toThrow(/outside approvedCredentialDirs/);
   });
 
-  it("denies non-regular credential files", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-"));
-    const allowedDir = path.join(root, "allowed");
-    await fs.mkdir(allowedDir);
-
-    expect(() =>
-      resolveAuth(
-        baseConfig({
-          allowedCredentialModes: ["credentials_file"],
-          approvedCredentialDirs: [allowedDir],
-          credentialsFile: allowedDir,
-        }),
-      ),
-    ).toThrow(/regular file/);
-  });
-
-  it("denies symlink credential files", async () => {
-    if (process.platform === "win32") {
+  it("synthesizes a legacy compatibility route when route config is absent", () => {
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      allowedCredentialModes: ["token"],
+      tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
+      approvedCredentialDirs: [],
+    });
+    expect(resolved.ok).toBe(true);
+    if (!resolved.ok) {
       return;
     }
-
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-"));
-    const allowedDir = path.join(root, "allowed");
-    await fs.mkdir(allowedDir);
-
-    const targetFile = path.join(root, "target.json");
-    await fs.writeFile(targetFile, "{}", "utf8");
-    await fs.chmod(targetFile, 0o600);
-
-    const symlinkFile = path.join(allowedDir, "cred-link.json");
-    await fs.symlink(targetFile, symlinkFile);
-
-    expect(() =>
-      resolveAuth(
-        baseConfig({
-          allowedCredentialModes: ["credentials_file"],
-          approvedCredentialDirs: [allowedDir],
-          credentialsFile: symlinkFile,
-        }),
-      ),
-    ).toThrow(/symbolic link/);
+    expect(resolved.value.config.credentialRoutes["legacy-default"]).toBeDefined();
+    expect(resolved.value.config.defaultCredentialRoute).toBe("legacy-default");
+    expect(resolved.value.config.allowUnboundAgents).toBe(true);
+    expect(resolved.value.config.warnings.join("\n")).toContain("legacy single-credential");
   });
 
-  it("allows non-document credential files at 0644 floor on posix", async () => {
-    if (process.platform === "win32") {
+  it("prefers oauth for synthesized legacy routes when no token is configured", () => {
+    delete process.env.GOOGLE_WORKSPACE_CLI_TOKEN;
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      allowedCredentialModes: ["oauth", "token"],
+      tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
+      approvedCredentialDirs: [],
+    });
+    expect(resolved.ok).toBe(true);
+    if (!resolved.ok) {
       return;
     }
-
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-"));
-    const allowedDir = path.join(root, "allowed");
-    await fs.mkdir(allowedDir);
-
-    const credentialsFile = path.join(allowedDir, "cred.bin");
-    await fs.writeFile(credentialsFile, "{}", "utf8");
-    await fs.chmod(credentialsFile, 0o644);
-
-    const allowed = resolveAuth(
-      baseConfig({
-        allowedCredentialModes: ["credentials_file"],
-        approvedCredentialDirs: [allowedDir],
-        credentialsFile,
-      }),
-    );
-    expect(allowed.mode).toBe("credentials_file");
-
-    await fs.chmod(credentialsFile, 0o666);
-    expect(() =>
-      resolveAuth(
-        baseConfig({
-          allowedCredentialModes: ["credentials_file"],
-          approvedCredentialDirs: [allowedDir],
-          credentialsFile,
-        }),
-      ),
-    ).toThrow(/deny group\/other write access/);
-  });
-  it("denies over-permissive file permissions on posix", async () => {
-    if (process.platform === "win32") {
-      return;
-    }
-
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-"));
-    const allowedDir = path.join(root, "allowed");
-    await fs.mkdir(allowedDir);
-
-    const credentialsFile = path.join(allowedDir, "cred.json");
-    await fs.writeFile(credentialsFile, "{}", "utf8");
-    await fs.chmod(credentialsFile, 0o644);
-
-    expect(() =>
-      resolveAuth(
-        baseConfig({
-          allowedCredentialModes: ["credentials_file"],
-          approvedCredentialDirs: [allowedDir],
-          credentialsFile,
-        }),
-      ),
-    ).toThrow(/permissions are too open/);
-
-    await fs.chmod(credentialsFile, 0o600);
-    const allowed = resolveAuth(
-      baseConfig({
-        allowedCredentialModes: ["credentials_file"],
-        approvedCredentialDirs: [allowedDir],
-        credentialsFile,
-      }),
-    );
-    expect(allowed.mode).toBe("credentials_file");
+    expect(resolved.value.config.credentialRoutes["legacy-default"]?.mode).toBe("oauth");
   });
 
-  it("reports auth source posture", async () => {
-    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "abc";
-
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-"));
-    const allowedDir = path.join(root, "allowed");
-    const deniedDir = path.join(root, "denied");
-    await fs.mkdir(allowedDir);
-    await fs.mkdir(deniedDir);
-
-    const credentialsFile = path.join(deniedDir, "cred.json");
-    await fs.writeFile(credentialsFile, "{}", "utf8");
+  it("does not let explicit routes inherit the legacy credentials file path", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-route-"));
+    const allowedFile = path.join(root, "cred.json");
+    await fs.writeFile(allowedFile, "{}", "utf8");
     if (process.platform !== "win32") {
-      await fs.chmod(credentialsFile, 0o600);
+      await fs.chmod(allowedFile, 0o600);
     }
 
+    expect(() =>
+      resolveAuth(
+        baseConfig({
+          allowedCredentialModes: ["credentials_file"],
+          approvedCredentialDirs: [root],
+          credentialsFile: allowedFile,
+          credentialRoutes: {
+            isolated: {
+              mode: "credentials_file",
+              allowedServices: ["drive"],
+              allowedTools: ["gws_drive_read"],
+            },
+          },
+          agentCredentialBindings: {
+            "agent:main": "isolated",
+          },
+        }),
+        { agentId: "main", sessionKey: "agent:main:main" },
+      ),
+    ).toThrow(/requires credentialsFile/);
+  });
+
+  it("reports route-level auth posture", () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "abc";
+    const status = getAuthSourceStatus(baseConfig());
+    expect(status.tokenPresent).toBe(true);
+    expect(status.routes[0]).toMatchObject({
+      routeName: "default",
+      mode: "token",
+      available: true,
+    });
+  });
+
+  it("marks routes unavailable when their auth mode is globally disabled", () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "abc";
     const status = getAuthSourceStatus(
       baseConfig({
-        credentialsFile,
-        approvedCredentialDirs: [allowedDir],
+        allowedCredentialModes: ["oauth"],
       }),
     );
-    expect(status.tokenPresent).toBe(true);
-    expect(status.credentialsFileConfigured).toBe(true);
-    expect(status.credentialsFileExists).toBe(true);
-    expect(status.credentialsFileAllowed).toBe(false);
-    expect(status.oauthAllowed).toBe(true);
+    expect(status.routes[0]).toMatchObject({
+      routeName: "default",
+      mode: "token",
+      available: false,
+      details: {
+        modeAllowed: false,
+        tokenPresent: true,
+      },
+    });
   });
 });

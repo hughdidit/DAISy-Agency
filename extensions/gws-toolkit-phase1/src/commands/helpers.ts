@@ -28,17 +28,18 @@ export function buildValidationDeniedEnvelope(params: {
   ctx: InvocationContext;
   tool: ToolName;
   service: ServiceFamily;
+  readOnly: boolean;
+  action: string;
   message: string;
   issues: ValidationIssue[];
 }): StructuredEnvelope {
-  const startedAt = Date.now();
-  const latencyMs = Date.now() - startedAt;
-
+  const latencyMs = 0;
   params.deps.audit.emit({
     ctx: params.ctx,
     toolName: params.tool,
-    action: "unknown",
+    action: params.action,
     targetService: params.service,
+    readOnly: params.readOnly,
     decision: "deny",
     denyReason: params.message,
     latencyMs,
@@ -56,29 +57,28 @@ export function buildValidationDeniedEnvelope(params: {
     },
     meta: {
       tool: params.tool,
-      action: "unknown",
+      action: params.action,
       service: params.service,
       latencyMs,
     },
   };
 }
 
-export async function runReadOnlyCommand(params: {
+export async function runToolkitCommand(params: {
   deps: RuntimeDeps;
   ctx: InvocationContext;
   tool: ToolName;
   service: ServiceFamily;
   action: string;
-  payload: unknown;
+  payload: Record<string, unknown>;
+  readOnly: boolean;
+  confirm?: boolean;
   buildArgv: (auth: AuthResolution) => string[];
 }): Promise<StructuredEnvelope> {
   const startedAt = Date.now();
 
   try {
-    const runtimeEnv = params.deps.resolveRuntimeEnv
-      ? await params.deps.resolveRuntimeEnv()
-      : undefined;
-    const auth = resolveAuth(params.deps.config);
+    const auth = resolveAuth(params.deps.config, params.ctx);
     const policy = evaluatePolicy({
       tool: params.tool,
       service: params.service,
@@ -86,18 +86,27 @@ export async function runReadOnlyCommand(params: {
       payload: params.payload,
       config: params.deps.config,
       auth,
+      isWrite: !params.readOnly,
+      confirm: params.confirm,
     });
 
     if (!policy.allowed) {
       const latencyMs = Date.now() - startedAt;
       params.deps.audit.emit({
-        ctx: params.ctx,
+        ctx: {
+          ...params.ctx,
+          bindingSubject: auth.bindingSubject,
+          routeName: auth.route.name,
+        },
         toolName: params.tool,
         action: params.action,
         targetService: params.service,
+        readOnly: params.readOnly,
         decision: "deny",
         denyReason: policy.reason,
         credentialMode: auth.mode,
+        routeName: auth.route.name,
+        bindingSubject: auth.bindingSubject,
         latencyMs,
         resultCode: "DENY_POLICY",
       });
@@ -106,6 +115,10 @@ export async function runReadOnlyCommand(params: {
         error: {
           code: "DENY_POLICY",
           message: policy.reason ?? "Policy denied request",
+          details: {
+            routeName: auth.route.name,
+            bindingSubject: auth.bindingSubject,
+          },
         },
         meta: {
           tool: params.tool,
@@ -115,6 +128,10 @@ export async function runReadOnlyCommand(params: {
         },
       };
     }
+
+    const runtimeEnv = params.deps.resolveRuntimeEnv
+      ? await params.deps.resolveRuntimeEnv()
+      : undefined;
 
     const binary: DiscoveryResult = await discoverBinary({
       configuredPath: params.deps.config.binaryPath,
@@ -138,15 +155,22 @@ export async function runReadOnlyCommand(params: {
       },
     });
     const normalized = normalizeExecution(execution);
-
     const latencyMs = Date.now() - startedAt;
+
     params.deps.audit.emit({
-      ctx: params.ctx,
+      ctx: {
+        ...params.ctx,
+        bindingSubject: auth.bindingSubject,
+        routeName: auth.route.name,
+      },
       toolName: params.tool,
       action: params.action,
       targetService: params.service,
+      readOnly: params.readOnly,
       decision: "allow",
       credentialMode: auth.mode,
+      routeName: auth.route.name,
+      bindingSubject: auth.bindingSubject,
       latencyMs,
       exitCode: normalized.exitCode,
       resultCode: "OK",
@@ -157,6 +181,11 @@ export async function runReadOnlyCommand(params: {
       data: {
         service: params.service,
         action: params.action,
+        route: {
+          name: auth.route.name,
+          bindingSubject: auth.bindingSubject,
+          mode: auth.mode,
+        },
         payload: normalized.payload as Record<string, unknown>,
         output: {
           stdoutTruncated: normalized.stdoutTruncated,
@@ -187,6 +216,7 @@ export async function runReadOnlyCommand(params: {
       toolName: params.tool,
       action: params.action,
       targetService: params.service,
+      readOnly: params.readOnly,
       decision: "deny",
       denyReason: mapped.error.message,
       latencyMs,

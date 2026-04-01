@@ -1,7 +1,7 @@
 {
   "id": "gws-toolkit-phase1",
-  "name": "GWS Toolkit (Phase 1)",
-  "description": "Security-hardened read-only Google Workspace integration via gws CLI.",
+  "name": "GWS Toolkit",
+  "description": "Security-hardened Google Workspace integration via gws CLI with per-agent credential routing and policy-controlled writes.",
   "skills": ["./skills"],
   "configSchema": {
     "type": "object",
@@ -11,9 +11,17 @@
         "type": "array",
         "items": {
           "type": "string",
-          "enum": ["drive", "gmail", "calendar"]
+          "enum": ["drive", "gmail", "calendar", "docs", "sheets"]
         },
         "default": ["drive", "gmail", "calendar"]
+      },
+      "enabledWriteServices": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["drive", "gmail", "calendar", "docs", "sheets"]
+        },
+        "default": []
       },
       "binaryPath": {
         "type": "string"
@@ -59,14 +67,94 @@
         },
         "default": ["oauth", "credentials_file", "token"]
       },
+      "allowWriteOperations": {
+        "type": "boolean",
+        "default": false
+      },
+      "allowUnboundAgents": {
+        "type": "boolean",
+        "default": false
+      },
+      "defaultCredentialRoute": {
+        "type": ["string", "null"],
+        "default": null
+      },
       "defaultScopesProfile": {
         "type": "string",
-        "enum": ["minimal", "custom"],
+        "enum": ["minimal", "service-set", "custom"],
         "default": "minimal"
       },
       "customScopes": {
         "type": "array",
         "items": {
+          "type": "string"
+        }
+      },
+      "requireHumanApprovalFor": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": []
+      },
+      "credentialRoutes": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "allowedServices", "allowedTools"],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["oauth", "credentials_file", "token"]
+            },
+            "label": {
+              "type": "string"
+            },
+            "allowedServices": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["drive", "gmail", "calendar", "docs", "sheets"]
+              }
+            },
+            "allowedTools": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "gws_status",
+                  "gws_drive_read",
+                  "gws_gmail_read",
+                  "gws_calendar_read",
+                  "gws_docs_read",
+                  "gws_sheets_read",
+                  "gws_drive_write",
+                  "gws_gmail_write",
+                  "gws_calendar_write",
+                  "gws_docs_write",
+                  "gws_sheets_write"
+                ]
+              }
+            },
+            "allowedActions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "credentialsFile": {
+              "type": "string"
+            },
+            "tokenEnvVar": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "agentCredentialBindings": {
+        "type": "object",
+        "additionalProperties": {
           "type": "string"
         }
       }
@@ -75,7 +163,11 @@
   "uiHints": {
     "enabledServices": {
       "label": "Enabled Services",
-      "help": "Read-only Workspace service families available in Phase 1."
+      "help": "Workspace service families available to the toolkit."
+    },
+    "enabledWriteServices": {
+      "label": "Enabled Write Services",
+      "help": "Write-capable service families. Empty means read-only."
     },
     "binaryPath": {
       "label": "gws Binary Path",
@@ -86,8 +178,8 @@
       "help": "Credentials file path must remain inside one of these directories."
     },
     "credentialsFile": {
-      "label": "Credentials File Path",
-      "help": "Operator-managed credentials file path reference only.",
+      "label": "Legacy Credentials File",
+      "help": "Phase 1 compatibility credential path reference only.",
       "sensitive": true
     },
     "tokenEnvVar": {
@@ -96,15 +188,39 @@
     },
     "safeMode": {
       "label": "Safe Mode",
-      "help": "Phase 1 security baseline; keeps deny-by-default controls active."
+      "help": "Keep hardened deny-by-default protections active."
+    },
+    "allowWriteOperations": {
+      "label": "Allow Write Operations",
+      "help": "Global write gate. Writes remain denied unless this is true."
+    },
+    "allowUnboundAgents": {
+      "label": "Allow Unbound Agents",
+      "help": "Allow default route fallback when an agent/sub-agent has no explicit binding."
+    },
+    "defaultCredentialRoute": {
+      "label": "Default Credential Route",
+      "help": "Optional fallback route used only when allowUnboundAgents is true."
     },
     "defaultScopesProfile": {
       "label": "Scopes Profile",
-      "help": "Use minimal by default; custom scopes are validated as read-only only."
+      "help": "minimal for read-only defaults, service-set for enabled service scopes, or custom."
     },
     "customScopes": {
       "label": "Custom Scopes",
-      "help": "Optional read-only custom scopes when defaultScopesProfile is custom."
+      "help": "Optional scopes when defaultScopesProfile is custom."
+    },
+    "credentialRoutes": {
+      "label": "Credential Routes",
+      "help": "Named identity routes for agents and sub-agents."
+    },
+    "agentCredentialBindings": {
+      "label": "Agent Credential Bindings",
+      "help": "Bind subjects like agent:ops or subagent:research to named routes."
+    },
+    "requireHumanApprovalFor": {
+      "label": "Approval Hints",
+      "help": "Optional action labels to highlight as human-approval sensitive in diagnostics."
     }
   }
 }

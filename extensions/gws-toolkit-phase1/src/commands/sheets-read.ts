@@ -1,23 +1,23 @@
-import { buildGmailReadCommand } from "../command-builder.js";
-import { validateGmailReadParams } from "../schema.js";
+import { buildSheetsReadCommand } from "../command-builder.js";
+import { validateSheetsReadParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
 import { buildValidationDeniedEnvelope, runToolkitCommand, type RuntimeDeps } from "./helpers.js";
 
-export async function executeGmailRead(params: {
+export async function executeSheetsRead(params: {
   ctx: InvocationContext;
   deps: RuntimeDeps;
   rawParams: unknown;
 }): Promise<StructuredEnvelope> {
-  const validated = validateGmailReadParams(params.rawParams);
+  const validated = validateSheetsReadParams(params.rawParams);
   if (!validated.ok) {
     return buildValidationDeniedEnvelope({
       deps: params.deps,
       ctx: params.ctx,
-      tool: "gws_gmail_read",
-      service: "gmail",
+      tool: "gws_sheets_read",
+      service: "sheets",
       readOnly: true,
       action: "unknown",
-      message: "Invalid gws_gmail_read params",
+      message: "Invalid gws_sheets_read params",
       issues: validated.errors,
     });
   }
@@ -27,11 +27,11 @@ export async function executeGmailRead(params: {
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
-    tool: "gws_gmail_read",
-    service: "gmail",
+    tool: "gws_sheets_read",
+    service: "sheets",
     action: value.action,
     payload: value,
     readOnly: true,
-    buildArgv: (auth) => buildGmailReadCommand(value, auth.args).argv,
+    buildArgv: (auth) => buildSheetsReadCommand(value, auth.args).argv,
   });
 }

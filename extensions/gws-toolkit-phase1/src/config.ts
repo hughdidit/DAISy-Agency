@@ -1,14 +1,22 @@
 import path from "node:path";
 import {
-  ALLOWED_WRITE_SCOPE_MARKERS,
-  MINIMAL_SCOPE_PROFILE,
+  ALL_SERVICES,
+  DEFAULT_ALLOWED_CREDENTIAL_MODES,
+  DEFAULT_ENABLED_SERVICES,
+  READ_TOOLS_BY_SERVICE,
+  WRITE_SCOPES,
+  WRITE_TOOLS_BY_SERVICE,
   type ConfigPosture,
+  type CredentialMode,
+  type CredentialRouteConfig,
   type GwsToolkitConfig,
+  type ServiceFamily,
   type StructuredError,
 } from "./types.js";
 
 const ALLOWED_CONFIG_KEYS = new Set([
   "enabledServices",
+  "enabledWriteServices",
   "binaryPath",
   "approvedCredentialDirs",
   "credentialsFile",
@@ -18,8 +26,14 @@ const ALLOWED_CONFIG_KEYS = new Set([
   "maxStderrBytes",
   "safeMode",
   "allowedCredentialModes",
+  "allowWriteOperations",
+  "allowUnboundAgents",
+  "credentialRoutes",
+  "agentCredentialBindings",
+  "defaultCredentialRoute",
   "defaultScopesProfile",
   "customScopes",
+  "requireHumanApprovalFor",
 ]);
 
 function asObject(value: unknown): Record<string, unknown> | null {
@@ -33,11 +47,14 @@ function normalizeStringArray(input: unknown): string[] {
   if (!Array.isArray(input)) {
     return [];
   }
-  const out = input
-    .filter((entry) => typeof entry === "string")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-  return Array.from(new Set(out));
+  return Array.from(
+    new Set(
+      input
+        .filter((entry) => typeof entry === "string")
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+    ),
+  );
 }
 
 function sanitizeNumber(input: unknown, fallback: number, min: number, max: number): number {
@@ -47,11 +64,23 @@ function sanitizeNumber(input: unknown, fallback: number, min: number, max: numb
   return Math.max(min, Math.min(max, Math.floor(input)));
 }
 
-function containsWriteScope(scopes: string[]): string | undefined {
-  const lowered = scopes.map((scope) => scope.trim().toLowerCase());
-  return ALLOWED_WRITE_SCOPE_MARKERS.find((marker) =>
-    lowered.some((scope) => scope === marker.toLowerCase()),
+function normalizeServices(input: unknown): ServiceFamily[] {
+  const allowed = new Set<ServiceFamily>(ALL_SERVICES);
+  return normalizeStringArray(input).filter((value): value is ServiceFamily =>
+    allowed.has(value as ServiceFamily),
   );
+}
+
+function normalizeCredentialModes(input: unknown): CredentialMode[] {
+  const allowed = new Set<CredentialMode>(["oauth", "credentials_file", "token"]);
+  return normalizeStringArray(input).filter((value): value is CredentialMode =>
+    allowed.has(value as CredentialMode),
+  );
+}
+
+function hasConfiguredToken(envVar: string): boolean {
+  const value = process.env[envVar];
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 function buildConfigError(message: string): StructuredError {
@@ -68,6 +97,110 @@ function buildConfigError(message: string): StructuredError {
       latencyMs: 0,
     },
   };
+}
+
+function normalizeRouteConfig(
+  routeName: string,
+  raw: unknown,
+): CredentialRouteConfig | { error: string } {
+  const obj = asObject(raw);
+  if (!obj) {
+    return { error: `credential route ${routeName} must be an object` };
+  }
+  const mode = obj.mode;
+  if (mode !== "oauth" && mode !== "credentials_file" && mode !== "token") {
+    return { error: `credential route ${routeName} has invalid mode` };
+  }
+
+  const allowedServices = normalizeServices(obj.allowedServices);
+  const allowedTools = normalizeStringArray(obj.allowedTools).filter((value) =>
+    value.startsWith("gws_"),
+  );
+  const allowedActions = normalizeStringArray(obj.allowedActions);
+
+  return {
+    mode,
+    label: typeof obj.label === "string" && obj.label.trim() ? obj.label.trim() : undefined,
+    allowedServices,
+    allowedTools: allowedTools as CredentialRouteConfig["allowedTools"],
+    allowedActions: allowedActions.length > 0 ? allowedActions : undefined,
+    credentialsFile:
+      typeof obj.credentialsFile === "string" && obj.credentialsFile.trim()
+        ? obj.credentialsFile.trim()
+        : undefined,
+    tokenEnvVar:
+      typeof obj.tokenEnvVar === "string" && obj.tokenEnvVar.trim()
+        ? obj.tokenEnvVar.trim()
+        : undefined,
+  };
+}
+
+function synthesizeLegacyRoute(config: Omit<GwsToolkitConfig, "credentialRoutes" | "warnings">) {
+  const services = Array.from(
+    new Set<ServiceFamily>([...config.enabledServices, ...config.enabledWriteServices]),
+  );
+  const allowedTools = services.flatMap((service) => {
+    const readTool = READ_TOOLS_BY_SERVICE[service];
+    const writeTool = WRITE_TOOLS_BY_SERVICE[service];
+    return config.allowWriteOperations && config.enabledWriteServices.includes(service)
+      ? [readTool, writeTool]
+      : [readTool];
+  });
+
+  const mode: CredentialMode = config.credentialsFile
+    ? "credentials_file"
+    : config.allowedCredentialModes.includes("token") && hasConfiguredToken(config.tokenEnvVar)
+      ? "token"
+      : config.allowedCredentialModes.includes("oauth")
+        ? "oauth"
+        : config.allowedCredentialModes.includes("token")
+          ? "token"
+          : "credentials_file";
+
+  return {
+    routeName: "legacy-default",
+    route: {
+      mode,
+      label: "Legacy compatibility route",
+      allowedServices: services.length > 0 ? services : DEFAULT_ENABLED_SERVICES,
+      allowedTools,
+      credentialsFile: config.credentialsFile,
+      tokenEnvVar: config.tokenEnvVar,
+    } satisfies CredentialRouteConfig,
+  };
+}
+
+function resolveScopesProfile(config: {
+  enabledServices: ServiceFamily[];
+  enabledWriteServices: ServiceFamily[];
+  defaultScopesProfile: "minimal" | "service-set" | "custom";
+  customScopes?: string[];
+}) {
+  if (config.defaultScopesProfile === "custom") {
+    return config.customScopes ?? [];
+  }
+  const scopes = new Set<string>();
+  for (const service of config.enabledServices) {
+    if (
+      config.defaultScopesProfile === "service-set" &&
+      config.enabledWriteServices.includes(service)
+    ) {
+      scopes.add(WRITE_SCOPES[service]);
+      continue;
+    }
+    scopes.add(
+      service === "drive"
+        ? "https://www.googleapis.com/auth/drive.readonly"
+        : service === "gmail"
+          ? "https://www.googleapis.com/auth/gmail.readonly"
+          : service === "calendar"
+            ? "https://www.googleapis.com/auth/calendar.readonly"
+            : service === "docs"
+              ? "https://www.googleapis.com/auth/documents.readonly"
+              : "https://www.googleapis.com/auth/spreadsheets.readonly",
+    );
+  }
+  return [...scopes];
 }
 
 export type ResolvedConfig = {
@@ -118,16 +251,17 @@ export function resolveConfig(
     };
   }
 
-  const enabledServices = normalizeStringArray(raw.enabledServices).filter((value) =>
-    ["drive", "gmail", "calendar"].includes(value),
-  ) as GwsToolkitConfig["enabledServices"];
-
-  const allowedCredentialModes = normalizeStringArray(raw.allowedCredentialModes).filter((value) =>
-    ["oauth", "credentials_file", "token"].includes(value),
-  ) as GwsToolkitConfig["allowedCredentialModes"];
-
-  const defaultScopesProfile = raw.defaultScopesProfile === "custom" ? "custom" : "minimal";
+  const enabledServices = normalizeServices(raw.enabledServices);
+  const enabledWriteServices = normalizeServices(raw.enabledWriteServices);
+  const allowedCredentialModes = normalizeCredentialModes(raw.allowedCredentialModes);
+  const defaultScopesProfile =
+    raw.defaultScopesProfile === "custom"
+      ? "custom"
+      : raw.defaultScopesProfile === "service-set"
+        ? "service-set"
+        : "minimal";
   const customScopes = normalizeStringArray(raw.customScopes);
+
   if (defaultScopesProfile === "custom" && customScopes.length === 0) {
     return {
       ok: false,
@@ -140,23 +274,9 @@ export function resolveConfig(
     };
   }
 
-  const activeScopes =
-    defaultScopesProfile === "custom" ? customScopes : [...MINIMAL_SCOPE_PROFILE];
-  const writeScope = containsWriteScope(activeScopes);
-  if (writeScope) {
-    return {
-      ok: false,
-      error: buildConfigError(`Write-capable scope is not allowed in Phase 1: ${writeScope}`),
-      posture: {
-        ...postureBase,
-        pluginConfigProvided: true,
-        message: "write-capable scope denied",
-      },
-    };
-  }
-
-  const config: GwsToolkitConfig = {
-    enabledServices: enabledServices.length > 0 ? enabledServices : ["drive", "gmail", "calendar"],
+  const configBase: Omit<GwsToolkitConfig, "credentialRoutes" | "warnings"> = {
+    enabledServices: enabledServices.length > 0 ? enabledServices : [...DEFAULT_ENABLED_SERVICES],
+    enabledWriteServices,
     binaryPath:
       typeof raw.binaryPath === "string" && raw.binaryPath.trim()
         ? raw.binaryPath.trim()
@@ -177,16 +297,180 @@ export function resolveConfig(
     allowedCredentialModes:
       allowedCredentialModes.length > 0
         ? allowedCredentialModes
-        : ["oauth", "credentials_file", "token"],
+        : [...DEFAULT_ALLOWED_CREDENTIAL_MODES],
+    allowWriteOperations: raw.allowWriteOperations === true,
+    allowUnboundAgents: raw.allowUnboundAgents === true,
+    defaultCredentialRoute:
+      typeof raw.defaultCredentialRoute === "string" && raw.defaultCredentialRoute.trim()
+        ? raw.defaultCredentialRoute.trim()
+        : raw.defaultCredentialRoute === null
+          ? null
+          : null,
+    agentCredentialBindings: {},
     defaultScopesProfile,
     customScopes: defaultScopesProfile === "custom" ? customScopes : undefined,
+    requireHumanApprovalFor: normalizeStringArray(raw.requireHumanApprovalFor),
   };
+
+  const warnings: string[] = [];
+  const routeMapRaw = asObject(raw.credentialRoutes);
+  const credentialRoutes: Record<string, CredentialRouteConfig> = {};
+  let synthesizedLegacyRoute = false;
+
+  if (routeMapRaw) {
+    for (const [routeName, routeValue] of Object.entries(routeMapRaw)) {
+      const normalizedName = routeName.trim();
+      if (!normalizedName) {
+        return {
+          ok: false,
+          error: buildConfigError("credentialRoutes contains an empty route name."),
+          posture: {
+            ...postureBase,
+            pluginConfigProvided: true,
+            message: "credential route name invalid",
+          },
+        };
+      }
+      const normalizedRoute = normalizeRouteConfig(normalizedName, routeValue);
+      if ("error" in normalizedRoute) {
+        return {
+          ok: false,
+          error: buildConfigError(normalizedRoute.error),
+          posture: {
+            ...postureBase,
+            pluginConfigProvided: true,
+            message: "credential route invalid",
+          },
+        };
+      }
+      credentialRoutes[normalizedName] = normalizedRoute;
+    }
+  }
+
+  const bindingsRaw = asObject(raw.agentCredentialBindings);
+  if (bindingsRaw) {
+    for (const [subject, routeName] of Object.entries(bindingsRaw)) {
+      if (typeof routeName !== "string" || !routeName.trim()) {
+        return {
+          ok: false,
+          error: buildConfigError(
+            `agentCredentialBindings.${subject} must reference a route name.`,
+          ),
+          posture: {
+            ...postureBase,
+            pluginConfigProvided: true,
+            message: "binding invalid",
+          },
+        };
+      }
+      configBase.agentCredentialBindings[subject.trim()] = routeName.trim();
+    }
+  }
+
+  if (Object.keys(credentialRoutes).length === 0) {
+    const legacy = synthesizeLegacyRoute(configBase);
+    credentialRoutes[legacy.routeName] = legacy.route;
+    synthesizedLegacyRoute = true;
+    if (configBase.defaultCredentialRoute === null) {
+      configBase.defaultCredentialRoute = legacy.routeName;
+    }
+    if (raw.allowUnboundAgents === undefined) {
+      configBase.allowUnboundAgents = true;
+    }
+    warnings.push(
+      "Using legacy single-credential compatibility mode. A synthesized default route preserves existing deployments, but named credentialRoutes and agentCredentialBindings are recommended for explicit per-agent routing.",
+    );
+  }
+
+  for (const [routeName, route] of Object.entries(credentialRoutes)) {
+    if (!configBase.allowedCredentialModes.includes(route.mode)) {
+      return {
+        ok: false,
+        error: buildConfigError(
+          `credential route ${routeName} uses denied auth mode ${route.mode}`,
+        ),
+        posture: {
+          ...postureBase,
+          pluginConfigProvided: true,
+          message: "route mode denied",
+        },
+      };
+    }
+  }
+
+  if (
+    configBase.defaultCredentialRoute !== null &&
+    !Object.hasOwn(credentialRoutes, configBase.defaultCredentialRoute)
+  ) {
+    return {
+      ok: false,
+      error: buildConfigError(
+        `defaultCredentialRoute references unknown route: ${configBase.defaultCredentialRoute}`,
+      ),
+      posture: {
+        ...postureBase,
+        pluginConfigProvided: true,
+        message: "default route invalid",
+      },
+    };
+  }
+
+  for (const [subject, routeName] of Object.entries(configBase.agentCredentialBindings)) {
+    if (!Object.hasOwn(credentialRoutes, routeName)) {
+      return {
+        ok: false,
+        error: buildConfigError(
+          `agentCredentialBindings.${subject} references unknown route ${routeName}`,
+        ),
+        posture: {
+          ...postureBase,
+          pluginConfigProvided: true,
+          message: "binding references unknown route",
+        },
+      };
+    }
+  }
+
+  if (!configBase.safeMode) {
+    warnings.push(
+      "safeMode=false is unsupported for this hardened toolkit and requests will fail closed.",
+    );
+  }
+
+  if (synthesizedLegacyRoute && raw.allowUnboundAgents === false) {
+    warnings.push(
+      "Legacy compatibility route was synthesized, but allowUnboundAgents=false means unbound agents will still be denied until explicit bindings are configured.",
+    );
+  }
+
+  const scopes = resolveScopesProfile({
+    enabledServices: configBase.enabledServices,
+    enabledWriteServices: configBase.enabledWriteServices,
+    defaultScopesProfile,
+    customScopes,
+  });
+  if (defaultScopesProfile === "custom" && !configBase.allowWriteOperations) {
+    const containsWriteScope = scopes.some((scope) =>
+      Object.values(WRITE_SCOPES).some(
+        (candidate) => candidate.toLowerCase() === scope.toLowerCase(),
+      ),
+    );
+    if (containsWriteScope) {
+      warnings.push(
+        "customScopes includes write-capable scopes while allowWriteOperations=false; write requests still remain denied by policy.",
+      );
+    }
+  }
 
   return {
     ok: true,
     value: {
       pluginConfigProvided: true,
-      config,
+      config: {
+        ...configBase,
+        credentialRoutes,
+        warnings,
+      },
       posture: {
         ...postureBase,
         pluginConfigProvided: true,

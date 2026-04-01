@@ -98,10 +98,10 @@ on:
         description: Trello token (optional, for Trello integration)
         required: false
       GOOGLE_WORKSPACE_CLI_TOKEN:
-        description: Google Workspace CLI bearer token (optional, for gws-toolkit-phase1 token auth mode)
+        description: Google Workspace CLI bearer token (optional, for gws-toolkit-phase1 token route mode)
         required: false
       GWS_CREDENTIALS:
-        description: Google Workspace CLI exported credentials JSON (optional, for gws-toolkit-phase1 credentials_file mode)
+        description: Google Workspace CLI exported credentials JSON (optional, for gws-toolkit-phase1 credentials_file route mode)
         required: false
       GRAFANA_ADMIN_PASSWORD:
         description: Grafana admin password

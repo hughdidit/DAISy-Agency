@@ -36,7 +36,7 @@ specs are rejected.
 
 3. Restart the Gateway, then configure under `plugins.entries.<id>.config`.
 
-See [Voice Call](/plugins/voice-call) and [GWS Toolkit Phase 1](/plugins/gws-toolkit-phase1) for concrete plugin examples.
+See [Voice Call](/plugins/voice-call) and [GWS Toolkit](/plugins/gws-toolkit) for concrete plugin examples.
 Looking for third-party listings? See [Community plugins](/plugins/community).
 
 ## Available plugins (official)
@@ -45,7 +45,7 @@ Looking for third-party listings? See [Community plugins](/plugins/community).
 - Memory (Core) — bundled memory search plugin (enabled by default via `plugins.slots.memory`)
 - Memory (LanceDB) — bundled long-term memory plugin (auto-recall/capture; set `plugins.slots.memory = "memory-lancedb"`)
 - [Voice Call](/plugins/voice-call) — `@openclaw/voice-call`
-- [GWS Toolkit Phase 1](/plugins/gws-toolkit-phase1) — bundled as `gws-toolkit-phase1` (disabled by default)
+- [GWS Toolkit](/plugins/gws-toolkit) — bundled as `gws-toolkit-phase1` (disabled by default)
 - [Zalo Personal](/plugins/zalouser) — `@openclaw/zalouser`
 - [Matrix](/channels/matrix) — `@openclaw/matrix`
 - [Nostr](/channels/nostr) — `@openclaw/nostr`

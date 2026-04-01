@@ -1,6 +1,14 @@
-# GWS Toolkit Phase 1 Runbook
+# GWS Toolkit Runbook
 
-## 1) Install gws CLI
+## Purpose
+
+This runbook covers the unified `gws-toolkit-phase1` plugin after the Phase 2
+upgrade.
+
+Local test, lint, and build commands are for development iteration only.
+Authoritative acceptance remains in CI/CD workflow gates.
+
+## 1. Install or update `gws`
 
 ```bash
 npm install -g @googleworkspace/cli
@@ -9,31 +17,17 @@ gws --version
 
 Set `binaryPath` in plugin config if `gws` is not on `PATH`.
 
-On hardened containers with a read-only root filesystem, the plugin prepares
-private runtime directories under the OpenClaw state directory and injects them
-into `HOME`, `TMPDIR`, `XDG_CONFIG_HOME`, and `XDG_CACHE_HOME` before invoking
-`gws`. Do not point those paths at a shared or broader writable location.
+## 2. Choose auth mode
 
-## 2) Enable Required Google APIs (minimum set)
+Supported modes:
 
-- Google Drive API (`drive.googleapis.com`)
-- Gmail API (`gmail.googleapis.com`)
-- Google Calendar API (`calendar.googleapis.com`)
+- `credentials_file` for production-capable route bindings
+- `token` for controlled short-lived routes
+- `oauth` for local/dev convenience only
 
-## 3) Configure OpenClaw Through `OPENCLAW_CONFIG_FILE`
+## 3. Configure named routes and bindings
 
-In this repo/deploy flow, `OPENCLAW_CONFIG_FILE` is a filename (not an absolute path).
-The deployed container reads the config from:
-
-- `/home/node/.openclaw/${OPENCLAW_CONFIG_FILE}`
-
-Set GitHub environment variable example:
-
-```bash
-OPENCLAW_CONFIG_FILE=openclaw.json
-```
-
-Add plugin config in that file under `plugins.entries.gws-toolkit-phase1.config`:
+Example local/dev config:
 
 ```json5
 {
@@ -42,15 +36,32 @@ Add plugin config in that file under `plugins.entries.gws-toolkit-phase1.config`
       "gws-toolkit-phase1": {
         enabled: true,
         config: {
-          enabledServices: ["drive", "gmail", "calendar"],
+          enabledServices: ["drive", "gmail", "calendar", "docs", "sheets"],
+          enabledWriteServices: ["docs", "sheets"],
+          allowWriteOperations: true,
           safeMode: true,
-          timeoutMs: 15000,
-          maxStdoutBytes: 1048576,
-          maxStderrBytes: 262144,
-          allowedCredentialModes: ["credentials_file"],
-          defaultScopesProfile: "minimal",
-          approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
-          credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
+          approvedCredentialDirs: ["./config/secrets/gws"],
+          credentialRoutes: {
+            "local-main": {
+              mode: "token",
+              label: "Local dev token",
+              allowedServices: ["drive", "gmail", "calendar", "docs", "sheets"],
+              allowedTools: [
+                "gws_drive_read",
+                "gws_gmail_read",
+                "gws_calendar_read",
+                "gws_docs_read",
+                "gws_sheets_read",
+                "gws_docs_write",
+                "gws_sheets_write",
+              ],
+              allowedActions: ["docs:append_text", "sheets:update_values"],
+              tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
+            },
+          },
+          agentCredentialBindings: {
+            "agent:main": "local-main",
+          },
         },
       },
     },
@@ -58,107 +69,60 @@ Add plugin config in that file under `plugins.entries.gws-toolkit-phase1.config`
 }
 ```
 
-## 4) Agent Tool Restrictions (recommended)
+Example staging route pattern:
 
-Restrict agent-visible tools so only approved read-only GWS tools are exposed:
+- bind `agent:ops` and `subagent:ops` separately
+- prefer `credentials_file`
+- keep `allowUnboundAgents: false`
+- enable only the write services actually needed
 
-```json5
-{
-  tools: {
-    allow: ["gws_status", "gws_drive_read", "gws_gmail_read", "gws_calendar_read"],
-    deny: ["gws_raw", "gws_write"],
-  },
-}
-```
+## 4. Apply OpenClaw tool policy
 
-Use your existing tool policy model and keep deny-by-default posture for non-required tools.
+Use the standard OpenClaw tool allow/deny model to expose only the GWS tools a
+given agent should see. The plugin then applies route and write gates on top of
+that visibility.
 
-## 5) Secret Management (zero-trust)
+## 5. Verify reads
 
-- Keep all tokens/credentials in GitHub Secrets and runtime env/secret mounts.
-- Do not commit secrets, keys, tokens, or credential file contents.
-- Plugin config stores only references (env var names and paths), not secret values.
-
-For token mode, inject:
-
-- `GOOGLE_WORKSPACE_CLI_TOKEN` (GitHub Secret -> runtime env, token mode)
-
-For `credentials_file` mode, inject:
-
-- `GWS_CREDENTIALS` (GitHub Secret containing exported credentials JSON as raw JSON text)
-
-In DAISy deploy flow, `scripts/deploy.sh` can materialize `GWS_CREDENTIALS` into:
-
-- Host: `${DEPLOY_DIR}/config/secrets/gws/credentials.json`
-- Container: `/home/node/.openclaw/secrets/gws/credentials.json`
-
-Credential file hardening enforced by plugin:
-
-- Must be a regular file (not directory/device)
-- Must not be a symlink
-- Must resolve inside one of `approvedCredentialDirs`
-- On POSIX, must be owner-only permission (for example `0600`)
-
-## 6) Auth Modes (Phase 1)
-
-Supported:
-
-- `oauth` (interactive trusted workstation)
-- `credentials_file` (operator-managed file within approved dirs)
-- `token` (pre-obtained token via env var)
-
-Not implemented in Phase 1:
-
-- service-account key mode
-- multi-agent credential routing inside one plugin instance
-
-Phase 1 multi-agent pattern:
-
-- Use one runtime/config profile per agent identity.
-- Each agent deployment points to its own `OPENCLAW_CONFIG_FILE` and credentials secret material.
-
-## 7) Verify Plugin and Read-Only Operation
+Run:
 
 ```bash
 openclaw gws doctor
 openclaw gws auth-status
+openclaw gws routes
 ```
 
-In hardened DAISy containers, use the packaged `openclaw` launcher or run
-`node /app/openclaw.mjs ...` directly. Do not rely on `./openclaw.mjs` from
-the app directory; the hardened AppArmor profile only permits execution from
-approved binary paths such as `/usr/local/bin`.
-
-Tool smoke checks:
+Read smoke checks:
 
 - `gws_status`
-- `gws_drive_read` with `action=list_files`
-- `gws_gmail_read` with `action=list_messages`
-- `gws_calendar_read` with `action=list_events`
+- `gws_drive_read`
+- `gws_gmail_read`
+- `gws_calendar_read`
+- `gws_docs_read`
+- `gws_sheets_read`
 
-For a low-level CLI probe inside a hardened container, replicate the plugin's
-runtime wrapper before invoking `gws` directly:
+## 6. Verify writes intentionally
 
-```bash
-export HOME=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/home
-export TMPDIR=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/tmp
-export XDG_CONFIG_HOME=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/xdg-config
-export XDG_CACHE_HOME=/home/node/.openclaw/plugins/gws-toolkit-phase1/runtime/xdg-cache
-gws --version
-```
+Before any write succeeds, all of these must pass:
 
-If the raw probe still fails with `EACCES`, make sure
-the execution profile permits the npm wrapper chain used by the global install:
+1. plugin enabled
+2. service enabled
+3. global writes enabled
+4. service listed in `enabledWriteServices`
+5. route allows the service/tool/action
+6. `confirm: true`
 
-- `/usr/local/lib/node_modules/@googleworkspace/cli/run-gws.js`
-- `/usr/local/lib/node_modules/@googleworkspace/cli/node_modules/.bin_real/gws`
+Run deny checks as part of staging validation:
 
-## 8) Verify Deny Behavior
+- write with `confirm: false`
+- write from a subject with no binding
+- write from a route that only allows reads
+- credentials file outside approved directory
 
-- Unsupported action (for example send/create/update/delete)
-- Unknown parameter key
-- Raw/write-like request shape
-- Credentials file outside `approvedCredentialDirs`
-- Credentials file with permissive permissions (for example `0644`)
+## 7. Phase 1 migration
 
-Expected: structured JSON deny/error payloads, with normalized audit events.
+- keep the runtime id `gws-toolkit-phase1`
+- old `credentialsFile` config continues to work through a synthesized
+  compatibility route
+- migrate to named routes and explicit `agent:*` / `subagent:*` bindings
+- see `migration-phase1-to-phase2.md` for the exact cutover steps

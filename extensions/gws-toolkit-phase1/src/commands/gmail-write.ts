@@ -1,37 +1,41 @@
-import { buildGmailReadCommand } from "../command-builder.js";
-import { validateGmailReadParams } from "../schema.js";
+import { buildGmailWriteCommand } from "../command-builder.js";
+import { validateGmailWriteParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
 import { buildValidationDeniedEnvelope, runToolkitCommand, type RuntimeDeps } from "./helpers.js";
 
-export async function executeGmailRead(params: {
+export async function executeGmailWrite(params: {
   ctx: InvocationContext;
   deps: RuntimeDeps;
   rawParams: unknown;
 }): Promise<StructuredEnvelope> {
-  const validated = validateGmailReadParams(params.rawParams);
+  const validated = validateGmailWriteParams(params.rawParams);
   if (!validated.ok) {
     return buildValidationDeniedEnvelope({
       deps: params.deps,
       ctx: params.ctx,
-      tool: "gws_gmail_read",
+      tool: "gws_gmail_write",
       service: "gmail",
-      readOnly: true,
+      readOnly: false,
       action: "unknown",
-      message: "Invalid gws_gmail_read params",
+      message: "Invalid gws_gmail_write params",
       issues: validated.errors,
     });
   }
 
-  const value = validated.value as Record<string, unknown> & { action: string };
+  const value = validated.value as Record<string, unknown> & {
+    action: string;
+    confirm?: boolean;
+  };
 
   return runToolkitCommand({
     deps: params.deps,
     ctx: params.ctx,
-    tool: "gws_gmail_read",
+    tool: "gws_gmail_write",
     service: "gmail",
     action: value.action,
     payload: value,
-    readOnly: true,
-    buildArgv: (auth) => buildGmailReadCommand(value, auth.args).argv,
+    readOnly: false,
+    confirm: value.confirm,
+    buildArgv: (auth) => buildGmailWriteCommand(value, auth.args).argv,
   });
 }

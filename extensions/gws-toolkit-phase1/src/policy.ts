@@ -5,23 +5,21 @@ const READ_ACTIONS: Record<ServiceFamily, Set<string>> = {
   drive: new Set(["list_files", "get_file_metadata", "export_file"]),
   gmail: new Set(["list_messages", "get_message_metadata"]),
   calendar: new Set(["list_events", "get_event"]),
+  docs: new Set(["get_document"]),
+  sheets: new Set(["get_spreadsheet", "get_values"]),
+};
+
+const WRITE_ACTIONS: Record<ServiceFamily, Set<string>> = {
+  drive: new Set(["create_folder", "upload_file", "update_file_metadata"]),
+  gmail: new Set(["draft_message", "send_message"]),
+  calendar: new Set(["create_event", "update_event"]),
+  docs: new Set(["create_document", "append_text", "batch_update_document"]),
+  sheets: new Set(["append_values", "update_values", "create_spreadsheet"]),
 };
 
 const WRITE_HINTS = ["create", "update", "delete", "write", "send", "modify", "move", "upload"];
-
 const WRITE_HINT_PATTERN = new RegExp(`\\b(${WRITE_HINTS.join("|")})\\b`, "i");
-
-const WRITE_KEY_EXACT = new Set([
-  "raw",
-  "rawcommand",
-  "raw_command",
-  "allowwrite",
-  "allow_write",
-  "write",
-  "operation",
-  "method",
-  "mode",
-]);
+const RAW_KEY_EXACT = new Set(["raw", "rawcommand", "raw_command"]);
 
 function hasWriteHint(value: unknown): boolean {
   if (typeof value === "string") {
@@ -33,13 +31,40 @@ function hasWriteHint(value: unknown): boolean {
   if (value && typeof value === "object") {
     return Object.entries(value as Record<string, unknown>).some(([key, entry]) => {
       const normalizedKey = key.trim().toLowerCase();
-      if (WRITE_KEY_EXACT.has(normalizedKey)) {
-        return hasWriteHint(entry) || normalizedKey.includes("raw");
+      if (RAW_KEY_EXACT.has(normalizedKey)) {
+        return true;
       }
       return hasWriteHint(entry);
     });
   }
   return false;
+}
+
+function isActionAllowedForService(
+  service: ServiceFamily,
+  action: string,
+  isWrite: boolean,
+): boolean {
+  return isWrite ? WRITE_ACTIONS[service].has(action) : READ_ACTIONS[service].has(action);
+}
+
+function routeAllowsAction(
+  auth: AuthResolution,
+  service: ServiceFamily,
+  tool: ToolName,
+  action: string,
+) {
+  if (!auth.route.allowedServices.includes(service)) {
+    return false;
+  }
+  if (!auth.route.allowedTools.includes(tool)) {
+    return false;
+  }
+  if (!auth.route.allowedActions || auth.route.allowedActions.length === 0) {
+    return true;
+  }
+  const compound = `${service}:${action}`;
+  return auth.route.allowedActions.includes(action) || auth.route.allowedActions.includes(compound);
 }
 
 export function evaluatePolicy(params: {
@@ -49,7 +74,11 @@ export function evaluatePolicy(params: {
   payload: unknown;
   config: GwsToolkitConfig;
   auth?: AuthResolution;
+  isWrite?: boolean;
+  confirm?: boolean;
 }): PolicyDecision {
+  const isWrite = params.isWrite === true;
+
   if (!params.config.safeMode) {
     return {
       allowed: false,
@@ -59,7 +88,11 @@ export function evaluatePolicy(params: {
     };
   }
 
-  if (params.service !== "status" && !params.config.enabledServices.includes(params.service)) {
+  if (params.service === "status") {
+    return { allowed: true, action: params.action };
+  }
+
+  if (!params.config.enabledServices.includes(params.service)) {
     return {
       allowed: false,
       reason: `service disabled by config: ${params.service}`,
@@ -68,18 +101,16 @@ export function evaluatePolicy(params: {
     };
   }
 
-  if (params.service !== "status") {
-    if (!READ_ACTIONS[params.service].has(params.action)) {
-      return {
-        allowed: false,
-        reason: `action not allowed in phase1: ${params.action}`,
-        service: params.service,
-        action: params.action,
-      };
-    }
+  if (!isActionAllowedForService(params.service, params.action, isWrite)) {
+    return {
+      allowed: false,
+      reason: `action not allowed for ${isWrite ? "write" : "read"} tool: ${params.action}`,
+      service: params.service,
+      action: params.action,
+    };
   }
 
-  if (params.service !== "status" && hasWriteHint(params.payload)) {
+  if (!isWrite && hasWriteHint(params.payload)) {
     return {
       allowed: false,
       reason: "write/raw-like request shape denied",
@@ -88,7 +119,34 @@ export function evaluatePolicy(params: {
     };
   }
 
-  if (params.service !== "status" && params.auth) {
+  if (isWrite) {
+    if (!params.config.allowWriteOperations) {
+      return {
+        allowed: false,
+        reason: "write operations disabled by config",
+        service: params.service,
+        action: params.action,
+      };
+    }
+    if (!params.config.enabledWriteServices.includes(params.service)) {
+      return {
+        allowed: false,
+        reason: `write service disabled by config: ${params.service}`,
+        service: params.service,
+        action: params.action,
+      };
+    }
+    if (params.confirm !== true) {
+      return {
+        allowed: false,
+        reason: "write operations require confirm=true",
+        service: params.service,
+        action: params.action,
+      };
+    }
+  }
+
+  if (params.auth) {
     if (!params.config.allowedCredentialModes.includes(params.auth.mode)) {
       return {
         allowed: false,
@@ -97,11 +155,19 @@ export function evaluatePolicy(params: {
         action: params.action,
       };
     }
+    if (!routeAllowsAction(params.auth, params.service, params.tool, params.action)) {
+      return {
+        allowed: false,
+        reason: `route ${params.auth.route.name} does not allow ${params.service}:${params.action}`,
+        service: params.service,
+        action: params.action,
+      };
+    }
   }
 
   return {
     allowed: true,
-    service: params.service === "status" ? undefined : params.service,
+    service: params.service,
     action: params.action,
   };
 }

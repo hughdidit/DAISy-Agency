@@ -1,0 +1,47 @@
+{
+  "plugins": {
+    "entries": {
+      "gws-toolkit-phase1": {
+        "enabled": true,
+        "config": {
+          "enabledServices": ["drive", "gmail", "calendar", "docs", "sheets"],
+          "enabledWriteServices": ["drive", "calendar", "docs"],
+          "allowWriteOperations": true,
+          "allowUnboundAgents": false,
+          "approvedCredentialDirs": ["/home/node/.openclaw/secrets/gws"],
+          "credentialRoutes": {
+            "ops-drive": {
+              "mode": "credentials_file",
+              "label": "Ops Drive",
+              "allowedServices": ["drive", "calendar"],
+              "allowedTools": [
+                "gws_drive_read",
+                "gws_calendar_read",
+                "gws_drive_write",
+                "gws_calendar_write",
+              ],
+              "allowedActions": [
+                "drive:create_folder",
+                "drive:upload_file",
+                "calendar:create_event",
+              ],
+              "credentialsFile": "/home/node/.openclaw/secrets/gws/ops.json",
+            },
+            "ops-subagent-docs": {
+              "mode": "credentials_file",
+              "label": "Ops Subagent Docs",
+              "allowedServices": ["docs"],
+              "allowedTools": ["gws_docs_read", "gws_docs_write"],
+              "allowedActions": ["docs:append_text"],
+              "credentialsFile": "/home/node/.openclaw/secrets/gws/ops-subagent.json",
+            },
+          },
+          "agentCredentialBindings": {
+            "agent:ops": "ops-drive",
+            "subagent:ops": "ops-subagent-docs",
+          },
+        },
+      },
+    },
+  },
+}

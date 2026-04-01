@@ -2,7 +2,7 @@
   "name": "@openclaw/gws-toolkit-phase1",
   "version": "2026.3.2",
   "private": true,
-  "description": "Security-hardened read-only Google Workspace toolkit plugin",
+  "description": "Security-hardened Google Workspace toolkit plugin with route-aware writes",
   "type": "module",
   "scripts": {
     "lint": "oxlint --type-aware .",

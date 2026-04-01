@@ -18,7 +18,7 @@ type PluginApi = {
     error: (message: string) => void;
     debug?: (message: string) => void;
   };
-  registerTool: (tool: unknown) => void;
+  registerTool: (tool: unknown, opts?: unknown) => void;
   registerHook: () => void;
   registerHttpRoute: () => void;
   registerChannel: () => void;
@@ -48,6 +48,12 @@ const fixtureBinaryPath = path.join(fixturesDir, "mock-gws.js");
 export function createHarness(params?: {
   pluginConfig?: Record<string, unknown>;
   config?: Record<string, unknown>;
+  agentId?: string;
+  sessionKey?: string;
+  sessionId?: string;
+  messageChannel?: string;
+  workspaceDir?: string;
+  agentDir?: string;
 }): Harness {
   const tools = new Map<string, RegisteredTool>();
   const logs: string[] = [];
@@ -76,6 +82,25 @@ export function createHarness(params?: {
       },
     },
     registerTool(tool) {
+      if (typeof tool === "function") {
+        const produced = tool({
+          config: params?.config ?? {},
+          workspaceDir: params?.workspaceDir ?? process.cwd(),
+          agentDir: params?.agentDir ?? process.cwd(),
+          agentId: params?.agentId ?? "main",
+          sessionKey: params?.sessionKey ?? "agent:main:main",
+          sessionId: params?.sessionId ?? "test-session",
+          messageChannel: params?.messageChannel ?? "test",
+        });
+        const list = Array.isArray(produced) ? produced : produced ? [produced] : [];
+        for (const entry of list) {
+          const maybeTool = entry as { name?: string; execute?: RegisteredTool["execute"] };
+          if (typeof maybeTool.name === "string" && typeof maybeTool.execute === "function") {
+            tools.set(maybeTool.name, maybeTool as RegisteredTool);
+          }
+        }
+        return;
+      }
       if (!tool || typeof tool !== "object") {
         return;
       }
@@ -148,12 +173,14 @@ export function defaultPluginConfig(
 ): Record<string, unknown> {
   return {
     enabledServices: ["drive", "gmail", "calendar"],
+    enabledWriteServices: [],
     binaryPath: fixtureBinaryPath,
     tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
     timeoutMs: 5000,
     maxStdoutBytes: 1024 * 1024,
     maxStderrBytes: 256 * 1024,
     safeMode: true,
+    allowWriteOperations: false,
     allowedCredentialModes: ["token", "oauth"],
     defaultScopesProfile: "minimal",
     approvedCredentialDirs: [fixturesDir],

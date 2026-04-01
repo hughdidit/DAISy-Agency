@@ -1,7 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
+import { resolveCredentialRoute } from "./credential-routing.js";
 import { PluginError } from "./errors.js";
-import type { AuthResolution, CredentialMode, GwsToolkitConfig } from "./types.js";
+import type {
+  AuthResolution,
+  CredentialMode,
+  GwsToolkitConfig,
+  InvocationContext,
+  ResolvedRoute,
+} from "./types.js";
 
 function normalizePath(input: string): string {
   return path.resolve(input);
@@ -19,7 +26,6 @@ function isPathInside(parent: string, child: string): boolean {
   if (normalizedChild === normalizedParent) {
     return true;
   }
-
   const separator = process.platform === "win32" ? "\\" : "/";
   return normalizedChild.startsWith(`${normalizedParent}${separator}`);
 }
@@ -39,7 +45,6 @@ function ensurePosixPermissions(filePath: string, mode: number): void {
   }
 
   if (!shouldEnforceOwnerOnlyPermissions(filePath)) {
-    // For non-document fixture paths, enforce a 0644-like floor by denying group/other write.
     if ((mode & 0o022) !== 0) {
       throw new PluginError(
         "AUTH_ERROR",
@@ -53,7 +58,6 @@ function ensurePosixPermissions(filePath: string, mode: number): void {
     return;
   }
 
-  // Real credential document files require owner-only permissions.
   if ((mode & 0o077) !== 0) {
     throw new PluginError(
       "AUTH_ERROR",
@@ -66,23 +70,36 @@ function ensurePosixPermissions(filePath: string, mode: number): void {
   }
 }
 
-function ensureCredentialFileAllowed(config: GwsToolkitConfig): string {
-  const raw = config.credentialsFile;
+export function ensureCredentialFileAllowed(
+  config: GwsToolkitConfig,
+  filePathRaw: string | undefined,
+  route?: ResolvedRoute,
+): string {
+  const raw =
+    filePathRaw?.trim() ||
+    (route && route.name !== "legacy-default" ? undefined : config.credentialsFile);
   if (!raw) {
-    throw new PluginError("AUTH_ERROR", "credentials_file mode requires credentialsFile");
+    throw new PluginError("AUTH_ERROR", "credentials_file mode requires credentialsFile", {
+      routeName: route?.name,
+    });
   }
   const filePath = normalizePath(raw);
   if (!fs.existsSync(filePath)) {
-    throw new PluginError("AUTH_ERROR", "Configured credentials file does not exist");
+    throw new PluginError("AUTH_ERROR", "Configured credentials file does not exist", {
+      routeName: route?.name,
+    });
   }
 
   const lstat = fs.lstatSync(filePath);
   if (lstat.isSymbolicLink()) {
-    throw new PluginError("AUTH_ERROR", "Configured credentials file cannot be a symbolic link");
+    throw new PluginError("AUTH_ERROR", "Configured credentials file cannot be a symbolic link", {
+      routeName: route?.name,
+    });
   }
-
   if (!lstat.isFile()) {
-    throw new PluginError("AUTH_ERROR", "Configured credentials file must be a regular file");
+    throw new PluginError("AUTH_ERROR", "Configured credentials file must be a regular file", {
+      routeName: route?.name,
+    });
   }
 
   ensurePosixPermissions(filePath, lstat.mode);
@@ -91,12 +108,16 @@ function ensureCredentialFileAllowed(config: GwsToolkitConfig): string {
   try {
     realFilePath = resolveExistingPath(filePath);
   } catch {
-    throw new PluginError("AUTH_ERROR", "Configured credentials file path could not be resolved");
+    throw new PluginError("AUTH_ERROR", "Configured credentials file path could not be resolved", {
+      routeName: route?.name,
+    });
   }
 
   const approved = config.approvedCredentialDirs.map((entry) => normalizePath(entry));
   if (approved.length === 0) {
-    throw new PluginError("AUTH_ERROR", "approvedCredentialDirs must include at least one path");
+    throw new PluginError("AUTH_ERROR", "approvedCredentialDirs must include at least one path", {
+      routeName: route?.name,
+    });
   }
 
   const resolvedApproved = approved.map((dirPath) => {
@@ -104,34 +125,44 @@ function ensureCredentialFileAllowed(config: GwsToolkitConfig): string {
       throw new PluginError(
         "AUTH_ERROR",
         "approvedCredentialDirs contains a path that does not exist",
+        { routeName: route?.name },
       );
     }
-
     const dirStat = fs.statSync(dirPath);
     if (!dirStat.isDirectory()) {
-      throw new PluginError("AUTH_ERROR", "approvedCredentialDirs entries must be directories");
+      throw new PluginError("AUTH_ERROR", "approvedCredentialDirs entries must be directories", {
+        routeName: route?.name,
+      });
     }
-
     return resolveExistingPath(dirPath);
   });
 
   const inside = resolvedApproved.some((dirPath) => isPathInside(dirPath, realFilePath));
   if (!inside) {
-    throw new PluginError("AUTH_ERROR", "credentialsFile is outside approvedCredentialDirs");
+    throw new PluginError("AUTH_ERROR", "credentialsFile is outside approvedCredentialDirs", {
+      routeName: route?.name,
+    });
   }
 
   return realFilePath;
 }
 
-export type AuthSourceStatus = {
+export type RouteAuthStatus = {
+  routeName: string;
+  mode: CredentialMode;
+  bindingSubjects: string[];
+  available: boolean;
+  details: Record<string, unknown>;
+};
+
+export function getAuthSourceStatus(config: GwsToolkitConfig): {
   tokenPresent: boolean;
   credentialsFileConfigured: boolean;
   credentialsFileExists: boolean;
   credentialsFileAllowed: boolean;
   oauthAllowed: boolean;
-};
-
-export function getAuthSourceStatus(config: GwsToolkitConfig): AuthSourceStatus {
+  routes: RouteAuthStatus[];
+} {
   const tokenValue = process.env[config.tokenEnvVar];
   const tokenPresent = typeof tokenValue === "string" && tokenValue.trim().length > 0;
   const credentialsFileConfigured = Boolean(config.credentialsFile);
@@ -142,12 +173,70 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): AuthSourceStatus 
   let credentialsFileAllowed = false;
   if (credentialsFileConfigured && credentialsFileExists) {
     try {
-      ensureCredentialFileAllowed(config);
+      ensureCredentialFileAllowed(config, config.credentialsFile);
       credentialsFileAllowed = true;
     } catch {
       credentialsFileAllowed = false;
     }
   }
+
+  const bindingSubjectsByRoute = new Map<string, string[]>();
+  for (const [subject, routeName] of Object.entries(config.agentCredentialBindings)) {
+    const list = bindingSubjectsByRoute.get(routeName) ?? [];
+    list.push(subject);
+    bindingSubjectsByRoute.set(routeName, list);
+  }
+
+  const routes = Object.entries(config.credentialRoutes).map(([routeName, route]) => {
+    const modeAllowed = config.allowedCredentialModes.includes(route.mode);
+    if (route.mode === "token") {
+      const envVar = route.tokenEnvVar ?? config.tokenEnvVar;
+      const present = typeof process.env[envVar] === "string" && process.env[envVar]?.trim();
+      return {
+        routeName,
+        mode: route.mode,
+        bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
+        available: modeAllowed && Boolean(present),
+        details: { tokenEnvVar: envVar, tokenPresent: Boolean(present), modeAllowed },
+      } satisfies RouteAuthStatus;
+    }
+    if (route.mode === "credentials_file") {
+      try {
+        const resolved = ensureCredentialFileAllowed(config, route.credentialsFile, {
+          ...route,
+          name: routeName,
+        });
+        return {
+          routeName,
+          mode: route.mode,
+          bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
+          available: modeAllowed,
+          details: { credentialsFile: path.basename(resolved), modeAllowed },
+        } satisfies RouteAuthStatus;
+      } catch (error) {
+        return {
+          routeName,
+          mode: route.mode,
+          bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
+          available: false,
+          details: {
+            error: error instanceof Error ? error.message : String(error),
+            modeAllowed,
+          },
+        } satisfies RouteAuthStatus;
+      }
+    }
+    return {
+      routeName,
+      mode: route.mode,
+      bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
+      available: modeAllowed,
+      details: {
+        oauthAllowed: config.allowedCredentialModes.includes("oauth"),
+        modeAllowed,
+      },
+    } satisfies RouteAuthStatus;
+  });
 
   return {
     tokenPresent,
@@ -155,40 +244,64 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): AuthSourceStatus 
     credentialsFileExists,
     credentialsFileAllowed,
     oauthAllowed: config.allowedCredentialModes.includes("oauth"),
+    routes,
   };
 }
 
-export function resolveAuth(config: GwsToolkitConfig): AuthResolution {
-  const modes = new Set<CredentialMode>(config.allowedCredentialModes);
-  const tokenValue = process.env[config.tokenEnvVar];
-  if (modes.has("token") && typeof tokenValue === "string" && tokenValue.trim()) {
+export function resolveAuth(config: GwsToolkitConfig, ctx: InvocationContext): AuthResolution {
+  const resolved = resolveCredentialRoute(config, ctx);
+  const route = resolved.route;
+
+  if (!config.allowedCredentialModes.includes(route.mode)) {
+    throw new PluginError("AUTH_ERROR", `Auth mode denied by config: ${route.mode}`, {
+      routeName: route.name,
+      bindingSubject: resolved.bindingSubject,
+    });
+  }
+
+  if (route.mode === "token") {
+    const envVar = route.tokenEnvVar ?? config.tokenEnvVar;
+    const tokenValue = process.env[envVar];
+    if (typeof tokenValue !== "string" || !tokenValue.trim()) {
+      throw new PluginError("AUTH_ERROR", "No permitted token auth value available", {
+        routeName: route.name,
+        bindingSubject: resolved.bindingSubject,
+      });
+    }
     return {
       mode: "token",
-      env: { [config.tokenEnvVar]: tokenValue.trim() },
+      env: { [envVar]: tokenValue.trim() },
       args: [],
+      route,
+      bindingSubject: resolved.bindingSubject,
     };
   }
 
-  if (modes.has("credentials_file") && config.credentialsFile) {
-    const filePath = ensureCredentialFileAllowed(config);
+  if (route.mode === "credentials_file") {
+    const filePath = ensureCredentialFileAllowed(config, route.credentialsFile, route);
     return {
       mode: "credentials_file",
       env: {
         GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE: filePath,
       },
       args: [],
+      route,
+      bindingSubject: resolved.bindingSubject,
     };
   }
 
-  if (modes.has("oauth")) {
+  if (route.mode === "oauth") {
     return {
       mode: "oauth",
       env: {},
       args: [],
+      route,
+      bindingSubject: resolved.bindingSubject,
     };
   }
 
   throw new PluginError("AUTH_ERROR", "No permitted auth mode available", {
-    allowedCredentialModes: [...modes],
+    routeName: route.name,
+    bindingSubject: resolved.bindingSubject,
   });
 }

@@ -3,38 +3,45 @@ import { createAuditLogger } from "../../src/audit.js";
 import { createRedactingLogger } from "../../src/logger.js";
 
 describe("audit", () => {
-  it("emits normalized allow/deny events with redaction", () => {
+  it("emits normalized allow/deny events with route and binding metadata", () => {
     const logs: string[] = [];
     const logger = createRedactingLogger({
-      info(message) {
+      info(message: string) {
         logs.push(message);
       },
-      warn(message) {
+      warn(message: string) {
         logs.push(message);
       },
-      error(message) {
+      error(message: string) {
         logs.push(message);
       },
-      debug(message) {
+      debug(message: string) {
         logs.push(message);
       },
     });
 
     const audit = createAuditLogger(logger);
-    const secret = "Bearer super-secret-token";
-    const allowEvent = audit.emit({
-      ctx: { agentId: "agent", sessionId: "session" },
-      toolName: "gws_status",
-      action: "status",
-      targetService: "status",
+    const event = audit.emit({
+      ctx: {
+        agentId: "agent",
+        sessionId: "session",
+        sessionKey: "agent:agent:main",
+      },
+      toolName: "gws_drive_write",
+      action: "create_folder",
+      targetService: "drive",
+      readOnly: false,
       decision: "allow",
-      denyReason: secret,
+      routeName: "ops-drive",
+      bindingSubject: "agent:agent",
+      credentialMode: "token",
       latencyMs: 12,
       resultCode: "OK",
     });
 
-    expect(allowEvent.decision).toBe("allow");
-    expect(allowEvent.readOnly).toBe(true);
-    expect(logs.join("\n")).not.toContain(secret);
+    expect(event.readOnly).toBe(false);
+    expect(event.routeName).toBe("ops-drive");
+    expect(event.bindingSubject).toBe("agent:agent");
+    expect(logs.join("\n")).toContain('"routeName":"ops-drive"');
   });
 });

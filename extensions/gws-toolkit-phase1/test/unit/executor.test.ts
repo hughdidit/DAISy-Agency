@@ -7,6 +7,7 @@ const fixture = path.resolve("extensions/gws-toolkit-phase1/test/fixtures/mock-g
 
 const config: GwsToolkitConfig = {
   enabledServices: ["drive", "gmail", "calendar"],
+  enabledWriteServices: [],
   binaryPath: fixture,
   approvedCredentialDirs: [],
   tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
@@ -15,7 +16,14 @@ const config: GwsToolkitConfig = {
   maxStderrBytes: 1024,
   safeMode: true,
   allowedCredentialModes: ["oauth", "token", "credentials_file"],
+  allowWriteOperations: false,
+  allowUnboundAgents: false,
+  defaultCredentialRoute: null,
+  credentialRoutes: {},
+  agentCredentialBindings: {},
   defaultScopesProfile: "minimal",
+  requireHumanApprovalFor: [],
+  warnings: [],
 };
 
 const envSnapshot = { ...process.env };

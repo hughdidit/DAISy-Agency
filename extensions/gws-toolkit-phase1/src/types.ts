@@ -1,51 +1,70 @@
 export type CredentialMode = "oauth" | "credentials_file" | "token";
 
-export type ServiceFamily = "drive" | "gmail" | "calendar";
+export type ServiceFamily = "drive" | "gmail" | "calendar" | "docs" | "sheets";
+
+export type ReadToolName =
+  | "gws_drive_read"
+  | "gws_gmail_read"
+  | "gws_calendar_read"
+  | "gws_docs_read"
+  | "gws_sheets_read";
+
+export type WriteToolName =
+  | "gws_drive_write"
+  | "gws_gmail_write"
+  | "gws_calendar_write"
+  | "gws_docs_write"
+  | "gws_sheets_write";
+
+export type ToolName = "gws_status" | ReadToolName | WriteToolName;
 
 export type DriveReadAction = "list_files" | "get_file_metadata" | "export_file";
 export type GmailReadAction = "list_messages" | "get_message_metadata";
 export type CalendarReadAction = "list_events" | "get_event";
+export type DocsReadAction = "get_document";
+export type SheetsReadAction = "get_spreadsheet" | "get_values";
 
-export type ToolName = "gws_status" | "gws_drive_read" | "gws_gmail_read" | "gws_calendar_read";
+export type DriveWriteAction = "create_folder" | "upload_file" | "update_file_metadata";
+export type GmailWriteAction = "draft_message" | "send_message";
+export type CalendarWriteAction = "create_event" | "update_event";
+export type DocsWriteAction = "create_document" | "append_text" | "batch_update_document";
+export type SheetsWriteAction = "append_values" | "update_values" | "create_spreadsheet";
+
+export type AnyAction =
+  | DriveReadAction
+  | GmailReadAction
+  | CalendarReadAction
+  | DocsReadAction
+  | SheetsReadAction
+  | DriveWriteAction
+  | GmailWriteAction
+  | CalendarWriteAction
+  | DocsWriteAction
+  | SheetsWriteAction
+  | "status";
 
 export type InvocationContext = {
   agentId?: string;
   sessionId?: string;
+  sessionKey?: string;
+  messageChannel?: string;
+  bindingSubject?: string;
+  routeName?: string;
 };
 
-export type StatusParams = {
-  includeVersion?: boolean;
-  includeAuthStatus?: boolean;
+export type CredentialRouteConfig = {
+  mode: CredentialMode;
+  label?: string;
+  allowedServices: ServiceFamily[];
+  allowedTools: ToolName[];
+  allowedActions?: string[];
+  credentialsFile?: string;
+  tokenEnvVar?: string;
 };
-
-export type DriveReadParams = {
-  action: DriveReadAction;
-  pageSize?: number;
-  query?: string;
-  fileId?: string;
-  mimeType?: string;
-};
-
-export type GmailReadParams = {
-  action: GmailReadAction;
-  query?: string;
-  maxResults?: number;
-  messageId?: string;
-};
-
-export type CalendarReadParams = {
-  action: CalendarReadAction;
-  calendarId?: string;
-  eventId?: string;
-  pageSize?: number;
-  timeMin?: string;
-  timeMax?: string;
-};
-
-export type ToolParams = StatusParams | DriveReadParams | GmailReadParams | CalendarReadParams;
 
 export type GwsToolkitConfig = {
   enabledServices: ServiceFamily[];
+  enabledWriteServices: ServiceFamily[];
   binaryPath?: string;
   approvedCredentialDirs: string[];
   credentialsFile?: string;
@@ -55,8 +74,15 @@ export type GwsToolkitConfig = {
   maxStderrBytes: number;
   safeMode: boolean;
   allowedCredentialModes: CredentialMode[];
-  defaultScopesProfile: "minimal" | "custom";
+  allowWriteOperations: boolean;
+  allowUnboundAgents: boolean;
+  defaultCredentialRoute: string | null;
+  credentialRoutes: Record<string, CredentialRouteConfig>;
+  agentCredentialBindings: Record<string, string>;
+  defaultScopesProfile: "minimal" | "service-set" | "custom";
   customScopes?: string[];
+  requireHumanApprovalFor: string[];
+  warnings: string[];
 };
 
 export type ConfigPosture = {
@@ -68,10 +94,22 @@ export type ConfigPosture = {
   message: string;
 };
 
+export type ResolvedRoute = CredentialRouteConfig & {
+  name: string;
+};
+
+export type RouteResolution = {
+  bindingSubject: string;
+  route: ResolvedRoute;
+  inherited: boolean;
+};
+
 export type AuthResolution = {
   mode: CredentialMode;
   env: Record<string, string>;
   args: string[];
+  route: ResolvedRoute;
+  bindingSubject: string;
 };
 
 export type PolicyDecision = {
@@ -130,10 +168,13 @@ export type AuditEvent = {
   timestamp: string;
   agentId?: string;
   sessionId?: string;
+  sessionKey?: string;
+  bindingSubject?: string;
+  routeName?: string;
   toolName: ToolName;
   action: string;
   targetService: ServiceFamily | "status";
-  readOnly: true;
+  readOnly: boolean;
   decision: "allow" | "deny";
   denyReason?: string;
   credentialMode?: CredentialMode;
@@ -169,34 +210,47 @@ export const MIN_SUPPORTED_GWS_VERSION = {
   patch: 1,
 } as const;
 
-export const ALLOWED_WRITE_SCOPE_MARKERS = [
-  "https://mail.google.com/",
-  "https://www.googleapis.com/auth/drive",
-  "https://www.googleapis.com/auth/drive.file",
-  "https://www.googleapis.com/auth/drive.appdata",
-  "https://www.googleapis.com/auth/drive.scripts",
-  "https://www.googleapis.com/auth/gmail.modify",
-  "https://www.googleapis.com/auth/gmail.compose",
-  "https://www.googleapis.com/auth/gmail.send",
-  "https://www.googleapis.com/auth/gmail.insert",
-  "https://www.googleapis.com/auth/gmail.labels",
-  "https://www.googleapis.com/auth/gmail.settings.basic",
-  "https://www.googleapis.com/auth/gmail.settings.sharing",
-  "https://www.googleapis.com/auth/calendar",
-  "https://www.googleapis.com/auth/calendar.acls",
-  "https://www.googleapis.com/auth/calendar.calendarlist",
-  "https://www.googleapis.com/auth/calendar.calendars",
-  "https://www.googleapis.com/auth/calendar.events",
-  "https://www.googleapis.com/auth/calendar.events.owned",
-  "https://www.googleapis.com/auth/documents",
-  "https://www.googleapis.com/auth/spreadsheets",
-] as const;
+export const READONLY_SCOPES: Record<ServiceFamily, string> = {
+  drive: "https://www.googleapis.com/auth/drive.readonly",
+  gmail: "https://www.googleapis.com/auth/gmail.readonly",
+  calendar: "https://www.googleapis.com/auth/calendar.readonly",
+  docs: "https://www.googleapis.com/auth/documents.readonly",
+  sheets: "https://www.googleapis.com/auth/spreadsheets.readonly",
+};
 
-export const MINIMAL_SCOPE_PROFILE = [
-  "https://www.googleapis.com/auth/drive.readonly",
-  "https://www.googleapis.com/auth/gmail.readonly",
-  "https://www.googleapis.com/auth/calendar.readonly",
-] as const;
+export const WRITE_SCOPES: Record<ServiceFamily, string> = {
+  drive: "https://www.googleapis.com/auth/drive",
+  gmail: "https://mail.google.com/",
+  calendar: "https://www.googleapis.com/auth/calendar",
+  docs: "https://www.googleapis.com/auth/documents",
+  sheets: "https://www.googleapis.com/auth/spreadsheets",
+};
+
+export const ALL_SERVICES: ServiceFamily[] = ["drive", "gmail", "calendar", "docs", "sheets"];
+
+export const READ_TOOLS_BY_SERVICE: Record<ServiceFamily, ReadToolName> = {
+  drive: "gws_drive_read",
+  gmail: "gws_gmail_read",
+  calendar: "gws_calendar_read",
+  docs: "gws_docs_read",
+  sheets: "gws_sheets_read",
+};
+
+export const WRITE_TOOLS_BY_SERVICE: Record<ServiceFamily, WriteToolName> = {
+  drive: "gws_drive_write",
+  gmail: "gws_gmail_write",
+  calendar: "gws_calendar_write",
+  docs: "gws_docs_write",
+  sheets: "gws_sheets_write",
+};
+
+export const DEFAULT_ENABLED_SERVICES: ServiceFamily[] = ["drive", "gmail", "calendar"];
+
+export const DEFAULT_ALLOWED_CREDENTIAL_MODES: CredentialMode[] = [
+  "oauth",
+  "credentials_file",
+  "token",
+];
 
 export const SENSITIVE_KEY_PATTERNS = [
   /token/i,

@@ -247,7 +247,7 @@ Example:
     controlUi: {
       allowedOrigins: ["http://localhost:5173"],
       // Optional: hide the Agents -> Files File Manager card when
-      // gws-toolkit-phase1 has Google Drive enabled.
+      // the bundled GWS Toolkit (gws-toolkit-phase1) has Google Drive enabled.
       // hideAgentFileExchangeWhenGoogleDriveEnabled: true,
     },
   },
