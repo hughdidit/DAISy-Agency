@@ -18,13 +18,16 @@ import {
 import { ButtonStyle, Routes, TextInputStyle } from "discord-api-types/v10";
 import type { OpenClawConfig } from "../../../src/config/config.js";
 import { loadSessionStore, resolveStorePath } from "../../../src/config/sessions.js";
+import { createDiscordClient, stripUndefinedFields } from "../../../src/discord/send.shared.js";
+import { DiscordUiContainer } from "../../../src/discord/ui.js";
 import { buildGatewayConnectionDetails } from "../../../src/gateway/call.js";
 import { GatewayClient } from "../../../src/gateway/client.js";
 import type { EventFrame } from "../../../src/gateway/protocol/index.js";
-import { createDiscordClient, stripUndefinedFields } from "../../../src/discord/send.shared.js";
-import { DiscordUiContainer } from "../../../src/discord/ui.js";
 import { logDebug, logError } from "../../../src/logger.js";
-import { normalizeAccountId, resolveAgentIdFromSessionKey } from "../../../src/routing/session-key.js";
+import {
+  normalizeAccountId,
+  resolveAgentIdFromSessionKey,
+} from "../../../src/routing/session-key.js";
 import { compileSafeRegex, testRegexWithBoundedInput } from "../../../src/security/safe-regex.js";
 import {
   GATEWAY_CLIENT_MODES,
@@ -411,7 +414,9 @@ export function parseCronGuardButtonData(
     return null;
   }
   const requestId = coerceComponentValue((data as { id?: unknown }).id);
-  const action = coerceComponentValue((data as { action?: unknown }).action) as CronGuardButtonAction;
+  const action = coerceComponentValue(
+    (data as { action?: unknown }).action,
+  ) as CronGuardButtonAction;
   if (!requestId || (action !== "approve" && action !== "modify" && action !== "deny")) {
     return null;
   }
@@ -967,45 +972,55 @@ export class CronGuardApprovalButton extends Button {
   async run(interaction: ButtonInteraction, data: ComponentData): Promise<void> {
     const parsed = parseCronGuardButtonData(data);
     if (!parsed) {
-      await interaction.reply({
-        content: "This cron approval is no longer valid.",
-        ephemeral: true,
-      }).catch(() => undefined);
+      await interaction
+        .reply({
+          content: "This cron approval is no longer valid.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
       return;
     }
 
     const auth = this.ctx.handler.buildApprover(interaction.userId);
     if (!auth.ok) {
-      await interaction.reply({
-        content: "⛔ You are not authorized to approve cron requests.",
-        ephemeral: true,
-      }).catch(() => undefined);
+      await interaction
+        .reply({
+          content: "⛔ You are not authorized to approve cron requests.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
       return;
     }
 
     if (parsed.action === "modify") {
       const request = await this.ctx.handler.getRequest(parsed.requestId);
       if (!request) {
-        await interaction.reply({
-          content: "This cron approval is no longer available.",
-          ephemeral: true,
-        }).catch(() => undefined);
+        await interaction
+          .reply({
+            content: "This cron approval is no longer available.",
+            ephemeral: true,
+          })
+          .catch(() => undefined);
         return;
       }
       await interaction.showModal(this.ctx.handler.createModifyModal(request)).catch(async () => {
-        await interaction.reply({
-          content: "Failed to open the cron modify dialog.",
-          ephemeral: true,
-        }).catch(() => undefined);
+        await interaction
+          .reply({
+            content: "Failed to open the cron modify dialog.",
+            ephemeral: true,
+          })
+          .catch(() => undefined);
       });
       return;
     }
 
     const actionLabel = parsed.action === "approve" ? "approval" : "denial";
-    await interaction.reply({
-      content: `Submitting ${actionLabel} for ${parsed.requestId}...`,
-      ephemeral: true,
-    }).catch(() => undefined);
+    await interaction
+      .reply({
+        content: `Submitting ${actionLabel} for ${parsed.requestId}...`,
+        ephemeral: true,
+      })
+      .catch(() => undefined);
 
     const ok = await this.ctx.handler.resolveRequest(
       parsed.requestId,
@@ -1013,10 +1028,13 @@ export class CronGuardApprovalButton extends Button {
       auth.approver,
     );
     if (!ok) {
-      await interaction.followUp?.({
-        content: "Failed to submit the cron approval action. The request may already be resolved.",
-        ephemeral: true,
-      }).catch(() => undefined);
+      await interaction
+        .followUp?.({
+          content:
+            "Failed to submit the cron approval action. The request may already be resolved.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
     }
   }
 }
@@ -1034,19 +1052,23 @@ export class CronGuardApprovalModal extends Modal {
   async run(interaction: ModalInteraction, data: ComponentData): Promise<void> {
     const parsed = parseCronGuardModalData(data);
     if (!parsed) {
-      await interaction.reply({
-        content: "This cron modify form is no longer valid.",
-        ephemeral: true,
-      }).catch(() => undefined);
+      await interaction
+        .reply({
+          content: "This cron modify form is no longer valid.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
       return;
     }
 
     const auth = this.ctx.handler.buildApprover(interaction.user.id);
     if (!auth.ok) {
-      await interaction.reply({
-        content: "⛔ You are not authorized to modify cron requests.",
-        ephemeral: true,
-      }).catch(() => undefined);
+      await interaction
+        .reply({
+          content: "⛔ You are not authorized to modify cron requests.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
       return;
     }
 
@@ -1059,26 +1081,32 @@ export class CronGuardApprovalModal extends Modal {
       }
       payload = parsedPayload as Record<string, unknown>;
     } catch (err) {
-      await interaction.reply({
-        content: `Invalid JSON payload: ${String(err)}`,
-        ephemeral: true,
-      }).catch(() => undefined);
+      await interaction
+        .reply({
+          content: `Invalid JSON payload: ${String(err)}`,
+          ephemeral: true,
+        })
+        .catch(() => undefined);
       return;
     }
 
     const ok = await this.ctx.handler.modifyRequest(parsed.requestId, payload, auth.approver);
     if (!ok) {
-      await interaction.reply({
-        content: "Failed to submit the modified cron request. It may already be resolved.",
-        ephemeral: true,
-      }).catch(() => undefined);
+      await interaction
+        .reply({
+          content: "Failed to submit the modified cron request. It may already be resolved.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
       return;
     }
 
-    await interaction.reply({
-      content: `Submitted updated payload for ${parsed.requestId}.`,
-      ephemeral: true,
-    }).catch(() => undefined);
+    await interaction
+      .reply({
+        content: `Submitted updated payload for ${parsed.requestId}.`,
+        ephemeral: true,
+      })
+      .catch(() => undefined);
   }
 }
 

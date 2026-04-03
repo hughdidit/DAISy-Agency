@@ -48,10 +48,7 @@ describe("cron-guard gateway", () => {
       },
     });
 
-    let response:
-      | { ok: true; payload: unknown }
-      | { ok: false; error: unknown }
-      | undefined;
+    let response: { ok: true; payload: unknown } | { ok: false; error: unknown } | undefined;
 
     await cronGuardGatewayHandlers["cron.guard.list"]({
       params: {},

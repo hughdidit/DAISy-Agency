@@ -1,5 +1,9 @@
 import path from "node:path";
-import { readJsonFileWithFallback, withFileLock, writeJsonFileAtomically } from "openclaw/plugin-sdk";
+import {
+  readJsonFileWithFallback,
+  withFileLock,
+  writeJsonFileAtomically,
+} from "openclaw/plugin-sdk";
 import type {
   CronGuardApprovalRecord,
   CronGuardAuditEvent,
@@ -60,7 +64,9 @@ function normalizeStoreFile(value: unknown): CronGuardStoreFile {
   }
   return {
     version: STORE_VERSION,
-    requests: value.requests.filter((entry): entry is CronGuardApprovalRecord => isApprovalRecord(entry)),
+    requests: value.requests.filter((entry): entry is CronGuardApprovalRecord =>
+      isApprovalRecord(entry),
+    ),
   };
 }
 

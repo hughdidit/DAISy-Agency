@@ -21,8 +21,16 @@ const CronGuardListSchema = Type.Intersect([
       limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
       offset: Type.Optional(Type.Integer({ minimum: 0 })),
       query: Type.Optional(Type.String()),
-      enabled: Type.Optional(Type.Union([Type.Literal("all"), Type.Literal("enabled"), Type.Literal("disabled")])),
-      sortBy: Type.Optional(Type.Union([Type.Literal("nextRunAtMs"), Type.Literal("updatedAtMs"), Type.Literal("name")])),
+      enabled: Type.Optional(
+        Type.Union([Type.Literal("all"), Type.Literal("enabled"), Type.Literal("disabled")]),
+      ),
+      sortBy: Type.Optional(
+        Type.Union([
+          Type.Literal("nextRunAtMs"),
+          Type.Literal("updatedAtMs"),
+          Type.Literal("name"),
+        ]),
+      ),
       sortDir: Type.Optional(Type.Union([Type.Literal("asc"), Type.Literal("desc")])),
     },
     { additionalProperties: false },
@@ -144,7 +152,8 @@ export function createCronGuardTools(params: {
     },
     {
       name: "cron_guard_update_request",
-      description: "Create a pending cron.update approval request without mutating live cron state.",
+      description:
+        "Create a pending cron.update approval request without mutating live cron state.",
       parameters: CronGuardUpdateSchema,
       ownerOnly: true,
       execute: async (_toolCallId, rawParams) => {
@@ -161,7 +170,8 @@ export function createCronGuardTools(params: {
     },
     {
       name: "cron_guard_remove_request",
-      description: "Create a pending cron.remove approval request without mutating live cron state.",
+      description:
+        "Create a pending cron.remove approval request without mutating live cron state.",
       parameters: CronGuardRemoveSchema,
       ownerOnly: true,
       execute: async (_toolCallId, rawParams) => {

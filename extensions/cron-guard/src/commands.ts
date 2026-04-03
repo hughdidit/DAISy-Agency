@@ -1,5 +1,9 @@
+import type {
+  OpenClawPluginApi,
+  PluginCommandContext,
+  PluginCommandResult,
+} from "openclaw/plugin-sdk";
 import { callGateway } from "../../../src/gateway/call.js";
-import type { OpenClawPluginApi, PluginCommandContext, PluginCommandResult } from "openclaw/plugin-sdk";
 import { isCronGuardApproverAuthorized, type CronGuardPluginConfig } from "./config.js";
 
 function buildApprover(ctx: PluginCommandContext, config: CronGuardPluginConfig) {
@@ -45,8 +49,13 @@ function formatRequestsList(requests: Array<Record<string, unknown>>): string {
     .join("\n");
 }
 
-export function registerCronGuardCommands(api: OpenClawPluginApi, config: CronGuardPluginConfig): void {
-  const safeExecute = async (fn: () => Promise<PluginCommandResult>): Promise<PluginCommandResult> => {
+export function registerCronGuardCommands(
+  api: OpenClawPluginApi,
+  config: CronGuardPluginConfig,
+): void {
+  const safeExecute = async (
+    fn: () => Promise<PluginCommandResult>,
+  ): Promise<PluginCommandResult> => {
     try {
       return await fn();
     } catch (err) {

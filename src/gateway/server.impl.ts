@@ -425,9 +425,12 @@ export async function startGatewayServer(
   const defaultWorkspaceDir = resolveAgentWorkspaceDir(cfgAtStart, defaultAgentId);
   const baseMethods = listGatewayMethods();
   const emptyPluginRegistry = createEmptyPluginRegistry();
-  const { pluginRegistry, gatewayMethods: baseGatewayMethods, gatewayEvents: pluginGatewayEvents } =
-    minimalTestGateway
-      ? { pluginRegistry: emptyPluginRegistry, gatewayMethods: baseMethods, gatewayEvents: [] }
+  const {
+    pluginRegistry,
+    gatewayMethods: baseGatewayMethods,
+    gatewayEvents: pluginGatewayEvents,
+  } = minimalTestGateway
+    ? { pluginRegistry: emptyPluginRegistry, gatewayMethods: baseMethods, gatewayEvents: [] }
     : loadGatewayPlugins({
         cfg: cfgAtStart,
         workspaceDir: defaultWorkspaceDir,

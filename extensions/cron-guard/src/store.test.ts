@@ -8,9 +8,7 @@ import {
   type CronGuardRetentionPolicy,
 } from "./store.js";
 
-function createRecord(
-  overrides: Partial<CronGuardApprovalRecord> = {},
-): CronGuardApprovalRecord {
+function createRecord(overrides: Partial<CronGuardApprovalRecord> = {}): CronGuardApprovalRecord {
   return {
     requestId: "req-1",
     action: "add",

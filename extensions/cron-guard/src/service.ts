@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import type { CronJob, CronJobCreate, CronJobPatch } from "../../../src/cron/types.js";
-import type { CronService } from "../../../src/cron/service.js";
 import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../../src/cron/normalize.js";
+import type { CronService } from "../../../src/cron/service.js";
+import type { CronJob, CronJobCreate, CronJobPatch } from "../../../src/cron/types.js";
 import { validateScheduleTimestamp } from "../../../src/cron/validate-timestamp.js";
 import {
   ErrorCodes,
@@ -18,7 +18,11 @@ import type {
   CronGuardDiffSummary,
   CronGuardRequester,
 } from "./types.js";
-import { CRON_GUARD_EVENTS, isTerminalCronGuardStatus, type CronGuardAuditEventType } from "./types.js";
+import {
+  CRON_GUARD_EVENTS,
+  isTerminalCronGuardStatus,
+  type CronGuardAuditEventType,
+} from "./types.js";
 
 type RuntimeInit = {
   stateDir: string;
@@ -70,9 +74,14 @@ function cloneCronJob(job: CronJob): CronJob {
   return structuredClone(job);
 }
 
-function buildDiffSummary(before: Record<string, unknown>, after: Record<string, unknown>): CronGuardDiffSummary {
+function buildDiffSummary(
+  before: Record<string, unknown>,
+  after: Record<string, unknown>,
+): CronGuardDiffSummary {
   const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
-  const changedFields = [...keys].filter((key) => JSON.stringify(before[key]) !== JSON.stringify(after[key]));
+  const changedFields = [...keys].filter(
+    (key) => JSON.stringify(before[key]) !== JSON.stringify(after[key]),
+  );
   return { changedFields: changedFields.toSorted() };
 }
 
@@ -120,7 +129,10 @@ function appendAudit(
 function normalizeAddPayload(payload: Record<string, unknown>): CronJobCreate {
   const normalized = normalizeCronJobCreate(payload);
   if (!normalized || !validateCronAddParams(normalized)) {
-    throw makeValidationError("invalid cron_guard_add_request payload", validateCronAddParams.errors);
+    throw makeValidationError(
+      "invalid cron_guard_add_request payload",
+      validateCronAddParams.errors,
+    );
   }
   const timeCheck = validateScheduleTimestamp(normalized.schedule);
   if (!timeCheck.ok) {
@@ -133,7 +145,10 @@ function normalizeUpdatePatch(jobId: string, patch: Record<string, unknown>): Cr
   const normalizedPatch = normalizeCronJobPatch(patch);
   const candidate = normalizedPatch ? { id: jobId, patch: normalizedPatch } : { id: jobId, patch };
   if (!validateCronUpdateParams(candidate)) {
-    throw makeValidationError("invalid cron_guard_update_request patch", validateCronUpdateParams.errors);
+    throw makeValidationError(
+      "invalid cron_guard_update_request patch",
+      validateCronUpdateParams.errors,
+    );
   }
   const normalized = (candidate as { patch: CronJobPatch }).patch;
   if (normalized.schedule) {
@@ -150,7 +165,8 @@ function normalizeRemovePayload(payload: Record<string, unknown>): Record<string
   if (!jobId) {
     throw new Error("invalid cron_guard_remove_request payload: jobId required");
   }
-  const note = typeof payload.note === "string" && payload.note.trim() ? payload.note.trim() : undefined;
+  const note =
+    typeof payload.note === "string" && payload.note.trim() ? payload.note.trim() : undefined;
   return {
     jobId,
     ...(note ? { note } : {}),
@@ -196,11 +212,14 @@ export class CronGuardRuntime {
   }
 
   start(): void {
-    this.pruneTimer = setInterval(() => {
-      void this.prune().catch((err) => {
-        this.logger.warn(`cron-guard prune failed: ${String(err)}`);
-      });
-    }, Math.min(this.config.approvalTtlMs, 60_000));
+    this.pruneTimer = setInterval(
+      () => {
+        void this.prune().catch((err) => {
+          this.logger.warn(`cron-guard prune failed: ${String(err)}`);
+        });
+      },
+      Math.min(this.config.approvalTtlMs, 60_000),
+    );
     this.pruneTimer.unref?.();
   }
 
@@ -330,7 +349,10 @@ export class CronGuardRuntime {
     if (record.action === "add") {
       currentPayload = normalizeAddPayload(params.payload) as unknown as Record<string, unknown>;
     } else if (record.action === "update") {
-      currentPayload = normalizeUpdatePatch(record.targetJobId ?? "", params.payload) as unknown as Record<string, unknown>;
+      currentPayload = normalizeUpdatePatch(
+        record.targetJobId ?? "",
+        params.payload,
+      ) as unknown as Record<string, unknown>;
       if (record.currentJobSnapshot) {
         diffSummary = buildDiffSummary(
           record.currentJobSnapshot as unknown as Record<string, unknown>,
@@ -411,7 +433,13 @@ export class CronGuardRuntime {
     const now = this.now();
     if (record.action === "add") {
       const job = await cron.add(normalizeAddPayload(record.currentPayload));
-      const applied = appendAudit(record, "applied", record.approver?.principal ?? "system", now, "applied");
+      const applied = appendAudit(
+        record,
+        "applied",
+        record.approver?.principal ?? "system",
+        now,
+        "applied",
+      );
       applied.appliedAtMs = now;
       applied.applyResult = { ok: true, jobId: job.id };
       await this.store.put(applied);
@@ -430,7 +458,13 @@ export class CronGuardRuntime {
 
     if (record.action === "update") {
       await cron.update(jobId, normalizeUpdatePatch(jobId, record.currentPayload));
-      const applied = appendAudit(record, "applied", record.approver?.principal ?? "system", now, "applied");
+      const applied = appendAudit(
+        record,
+        "applied",
+        record.approver?.principal ?? "system",
+        now,
+        "applied",
+      );
       applied.appliedAtMs = now;
       applied.applyResult = { ok: true, jobId };
       await this.store.put(applied);
@@ -446,7 +480,13 @@ export class CronGuardRuntime {
     if (!result.removed) {
       throw new Error(`Cron job was not removed: ${jobId}`);
     }
-    const applied = appendAudit(record, "applied", record.approver?.principal ?? "system", now, "applied");
+    const applied = appendAudit(
+      record,
+      "applied",
+      record.approver?.principal ?? "system",
+      now,
+      "applied",
+    );
     applied.appliedAtMs = now;
     applied.applyResult = { ok: true, jobId, removed: true };
     await this.store.put(applied);

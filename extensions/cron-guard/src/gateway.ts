@@ -1,4 +1,3 @@
-import type { GatewayRequestHandlers } from "../../../src/gateway/server-methods/types.js";
 import {
   ErrorCodes,
   errorShape,
@@ -6,6 +5,7 @@ import {
   validateCronListParams,
   validateCronStatusParams,
 } from "../../../src/gateway/protocol/index.js";
+import type { GatewayRequestHandlers } from "../../../src/gateway/server-methods/types.js";
 import { redactCronGuardListPage } from "./redaction.js";
 import { getCronGuardRuntime } from "./service.js";
 
@@ -44,7 +44,8 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
     const runtime = getCronGuardRuntime();
     try {
       const payload = (params as { payload?: Record<string, unknown> }).payload ?? {};
-      const requester = ((params as { requester?: Record<string, unknown> }).requester ?? {}) as never;
+      const requester = ((params as { requester?: Record<string, unknown> }).requester ??
+        {}) as never;
       respond(true, await runtime.createAddRequest({ payload, requester }));
     } catch (err) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
@@ -56,8 +57,12 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
       const jobId =
         (params as { jobId?: string; id?: string }).jobId ?? (params as { id?: string }).id ?? "";
       const patch = (params as { patch?: Record<string, unknown> }).patch ?? {};
-      const requester = ((params as { requester?: Record<string, unknown> }).requester ?? {}) as never;
-      respond(true, await runtime.createUpdateRequest({ jobId, patch, requester, cron: context.cron }));
+      const requester = ((params as { requester?: Record<string, unknown> }).requester ??
+        {}) as never;
+      respond(
+        true,
+        await runtime.createUpdateRequest({ jobId, patch, requester, cron: context.cron }),
+      );
     } catch (err) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
     }
@@ -67,7 +72,8 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
     try {
       const jobId =
         (params as { jobId?: string; id?: string }).jobId ?? (params as { id?: string }).id ?? "";
-      const requester = ((params as { requester?: Record<string, unknown> }).requester ?? {}) as never;
+      const requester = ((params as { requester?: Record<string, unknown> }).requester ??
+        {}) as never;
       respond(true, await runtime.createRemoveRequest({ jobId, requester, cron: context.cron }));
     } catch (err) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
@@ -101,8 +107,10 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
         typeof (params as { requestId?: string }).requestId === "string"
           ? (params as { requestId: string }).requestId
           : "";
-      const payload =
-        ((params as { payload?: Record<string, unknown> }).payload ?? {}) as Record<string, unknown>;
+      const payload = ((params as { payload?: Record<string, unknown> }).payload ?? {}) as Record<
+        string,
+        unknown
+      >;
       const approver = ((params as { approver?: Record<string, unknown> }).approver ?? {}) as never;
       respond(true, await runtime.modifyRequest({ requestId, payload, approver }));
     } catch (err) {
@@ -117,7 +125,9 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
           ? (params as { requestId: string }).requestId
           : "";
       const disposition =
-        (params as { disposition?: "approve" | "deny" }).disposition === "deny" ? "deny" : "approve";
+        (params as { disposition?: "approve" | "deny" }).disposition === "deny"
+          ? "deny"
+          : "approve";
       const approver = ((params as { approver?: Record<string, unknown> }).approver ?? {}) as never;
       respond(
         true,
