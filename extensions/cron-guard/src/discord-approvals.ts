@@ -20,9 +20,11 @@ import type { OpenClawConfig } from "../../../src/config/config.js";
 import { loadSessionStore, resolveStorePath } from "../../../src/config/sessions.js";
 import { createDiscordClient, stripUndefinedFields } from "../../../src/discord/send.shared.js";
 import { DiscordUiContainer } from "../../../src/discord/ui.js";
-import { buildGatewayConnectionDetails } from "../../../src/gateway/call.js";
+import {
+  buildGatewayConnectionDetails,
+  resolveGatewayCredentialsWithSecretInputs,
+} from "../../../src/gateway/call.js";
 import { GatewayClient } from "../../../src/gateway/client.js";
-import { resolveGatewayCredentialsFromConfig } from "../../../src/gateway/credentials.js";
 import type { EventFrame } from "../../../src/gateway/protocol/index.js";
 import { logDebug, logError } from "../../../src/logger.js";
 import {
@@ -524,9 +526,10 @@ export class DiscordCronGuardApprovalHandler {
       config: this.opts.cfg,
       url: this.opts.gatewayUrl,
     });
-    const gatewayAuth = resolveGatewayCredentialsFromConfig({
-      cfg: this.opts.cfg,
-      modeOverride: "local",
+    const gatewayAuth = await resolveGatewayCredentialsWithSecretInputs({
+      config: this.opts.cfg,
+      urlOverride: this.opts.gatewayUrl,
+      env: process.env,
     });
 
     this.gatewayClient = new GatewayClient({
