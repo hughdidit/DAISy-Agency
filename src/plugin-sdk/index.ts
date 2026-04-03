@@ -105,6 +105,8 @@ export type {
   OpenClawPluginGatewayEvent,
   OpenClawPluginService,
   OpenClawPluginServiceContext,
+  PluginCommandContext,
+  PluginCommandResult,
   PluginLogger,
   ProviderAuthContext,
   ProviderAuthResult,

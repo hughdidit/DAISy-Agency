@@ -92,6 +92,7 @@ export function createCronGuardTools(params: {
   return [
     {
       name: "cron_guard_status",
+      label: "Cron Guard Status",
       description: "Read-only wrapper around cron.status with no approval required.",
       parameters: SharedGatewaySchema,
       ownerOnly: true,
@@ -102,6 +103,7 @@ export function createCronGuardTools(params: {
     },
     {
       name: "cron_guard_list",
+      label: "Cron Guard List",
       description: "Read-only wrapper around cron.list with webhook targets redacted by default.",
       parameters: CronGuardListSchema,
       ownerOnly: true,
@@ -123,6 +125,7 @@ export function createCronGuardTools(params: {
     },
     {
       name: "cron_guard_add_request",
+      label: "Cron Guard Add Request",
       description: "Create a pending cron.add approval request without mutating live cron state.",
       parameters: CronGuardAddSchema,
       ownerOnly: true,
@@ -139,6 +142,7 @@ export function createCronGuardTools(params: {
     },
     {
       name: "cron_guard_update_request",
+      label: "Cron Guard Update Request",
       description:
         "Create a pending cron.update approval request without mutating live cron state.",
       parameters: CronGuardUpdateSchema,
@@ -157,6 +161,7 @@ export function createCronGuardTools(params: {
     },
     {
       name: "cron_guard_remove_request",
+      label: "Cron Guard Remove Request",
       description:
         "Create a pending cron.remove approval request without mutating live cron state.",
       parameters: CronGuardRemoveSchema,

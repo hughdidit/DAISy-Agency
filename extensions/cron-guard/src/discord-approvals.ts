@@ -1001,7 +1001,18 @@ export class CronGuardApprovalButton extends Button {
       return;
     }
 
-    const auth = this.ctx.handler.buildApprover(interaction.userId);
+    const userId = interaction.userId;
+    if (!userId) {
+      await interaction
+        .reply({
+          content: "Unable to identify user for this interaction.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
+      return;
+    }
+
+    const auth = this.ctx.handler.buildApprover(userId);
     if (!auth.ok) {
       await interaction
         .reply({
@@ -1081,7 +1092,18 @@ export class CronGuardApprovalModal extends Modal {
       return;
     }
 
-    const auth = this.ctx.handler.buildApprover(interaction.user.id);
+    const userId = interaction.user?.id;
+    if (!userId) {
+      await interaction
+        .reply({
+          content: "Unable to identify user for this interaction.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
+      return;
+    }
+
+    const auth = this.ctx.handler.buildApprover(userId);
     if (!auth.ok) {
       await interaction
         .reply({

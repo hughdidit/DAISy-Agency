@@ -62,20 +62,24 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
     respond(true, await context.cron.status());
   },
   "cron.guard.list": async ({ params, respond, context }) => {
-    if (!validateCronListParams(params)) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          `invalid cron.guard.list params: ${formatValidationErrors(validateCronListParams.errors)}`,
-        ),
-      );
-      return;
+    try {
+      if (!validateCronListParams(params)) {
+        respond(
+          false,
+          undefined,
+          errorShape(
+            ErrorCodes.INVALID_REQUEST,
+            `invalid cron.guard.list params: ${formatValidationErrors(validateCronListParams.errors)}`,
+          ),
+        );
+        return;
+      }
+      const runtime = getCronGuardRuntime();
+      const page = await context.cron.listPage(params as never);
+      respond(true, redactCronGuardListPage(page, runtime.getConfig().read));
+    } catch (err) {
+      respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
     }
-    const runtime = getCronGuardRuntime();
-    const page = await context.cron.listPage(params as never);
-    respond(true, redactCronGuardListPage(page, runtime.getConfig().read));
   },
   "cron.guard.request.add": async ({ params, respond }) => {
     const runtime = getCronGuardRuntime();
@@ -117,25 +121,33 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
     }
   },
   "cron.guard.requests.list": ({ respond }) => {
-    const runtime = getCronGuardRuntime();
-    respond(true, { requests: runtime.listRequests() });
+    try {
+      const runtime = getCronGuardRuntime();
+      respond(true, { requests: runtime.listRequests() });
+    } catch (err) {
+      respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
+    }
   },
   "cron.guard.requests.get": ({ params, respond }) => {
-    const runtime = getCronGuardRuntime();
-    const requestId =
-      typeof (params as { requestId?: string }).requestId === "string"
-        ? (params as { requestId: string }).requestId
-        : "";
-    const request = runtime.getRequest(requestId);
-    if (!request) {
-      respond(
-        false,
-        undefined,
-        errorShape(ErrorCodes.INVALID_REQUEST, `Unknown requestId: ${requestId}`),
-      );
-      return;
+    try {
+      const runtime = getCronGuardRuntime();
+      const requestId =
+        typeof (params as { requestId?: string }).requestId === "string"
+          ? (params as { requestId: string }).requestId
+          : "";
+      const request = runtime.getRequest(requestId);
+      if (!request) {
+        respond(
+          false,
+          undefined,
+          errorShape(ErrorCodes.INVALID_REQUEST, `Unknown requestId: ${requestId}`),
+        );
+        return;
+      }
+      respond(true, request);
+    } catch (err) {
+      respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
     }
-    respond(true, request);
   },
   "cron.guard.modify": async ({ params, respond }) => {
     const runtime = getCronGuardRuntime();
@@ -186,8 +198,12 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
     }
   },
   "cron.guard.prune": async ({ respond }) => {
-    const runtime = getCronGuardRuntime();
-    await runtime.prune();
-    respond(true, { ok: true });
+    try {
+      const runtime = getCronGuardRuntime();
+      await runtime.prune();
+      respond(true, { ok: true });
+    } catch (err) {
+      respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
+    }
   },
 };

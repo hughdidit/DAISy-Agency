@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { RequestFrame } from "../../../src/gateway/protocol/index.js";
 import { cronGuardGatewayHandlers } from "./gateway.js";
 import {
   getCronGuardRuntime,
@@ -27,6 +28,18 @@ afterEach(async () => {
 });
 
 describe("cron-guard gateway", () => {
+  function createHandlerOptions(method: string, params: Record<string, unknown>) {
+    return {
+      req: {
+        id: `test-${method}`,
+        method,
+        params,
+      } as RequestFrame,
+      client: null,
+      isWebchatConnect: () => false,
+    };
+  }
+
   it("redacts webhook targets from guarded cron.list responses", async () => {
     const stateDir = tempRoots[0]!;
     await initializeCronGuardRuntime({
@@ -55,6 +68,7 @@ describe("cron-guard gateway", () => {
     let response: { ok: true; payload: unknown } | { ok: false; error: unknown } | undefined;
 
     await cronGuardGatewayHandlers["cron.guard.list"]({
+      ...createHandlerOptions("cron.guard.list", {}),
       params: {},
       respond: (ok, payload, error) => {
         response = ok ? { ok: true, payload } : { ok: false, error };
@@ -156,6 +170,10 @@ describe("cron-guard gateway", () => {
 
     let response: { ok: true; payload: unknown } | { ok: false; error: unknown } | undefined;
     await cronGuardGatewayHandlers["cron.guard.resolve"]({
+      ...createHandlerOptions("cron.guard.resolve", {
+        requestId: request.requestId,
+        disposition: "approve",
+      }),
       params: {
         requestId: request.requestId,
         disposition: "approve",

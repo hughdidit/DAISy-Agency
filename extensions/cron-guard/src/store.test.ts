@@ -2,11 +2,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import {
-  CronGuardStore,
-  type CronGuardApprovalRecord,
-  type CronGuardRetentionPolicy,
-} from "./store.js";
+import { CronGuardStore } from "./store.js";
+import type { CronGuardApprovalRecord, CronGuardRetentionPolicy } from "./types.js";
 
 function createRecord(overrides: Partial<CronGuardApprovalRecord> = {}): CronGuardApprovalRecord {
   return {
