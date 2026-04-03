@@ -35,7 +35,6 @@ export async function sanitizeSessionMessagesImages(
   options?: {
     sanitizeMode?: "full" | "images-only";
     sanitizeToolCallIds?: boolean;
-    preserveLatestAssistantTurn?: boolean;
     /**
      * Mode for tool call ID sanitization:
      * - "strict" (alphanumeric only)
@@ -59,9 +58,7 @@ export async function sanitizeSessionMessagesImages(
   // We sanitize historical session messages because Anthropic can reject a request
   // if the transcript contains oversized base64 images (default max side 1200px).
   const sanitizedIds = shouldSanitizeToolCallIds
-    ? sanitizeToolCallIdsForCloudCodeAssist(messages, options.toolCallIdMode, {
-        preserveLatestAssistantTurn: options?.preserveLatestAssistantTurn,
-      })
+    ? sanitizeToolCallIdsForCloudCodeAssist(messages, options.toolCallIdMode)
     : messages;
   const out: AgentMessage[] = [];
   for (const msg of sanitizedIds) {

@@ -106,13 +106,6 @@ external end-user instructions.
 - No synthetic tool results.
 - No thought signature stripping.
 
-**GitHub Copilot Claude**
-
-- Image sanitization plus the standard `openai-completions` transcript rules selected by policy.
-- Strip assistant `thinking` blocks from older assistant history turns.
-- Preserve the latest assistant turn verbatim, including `thinking` or `redacted_thinking` blocks.
-- Preserve any paired tool-result ids for that latest assistant turn so replayed tool calls stay matched.
-
 **Google (Generative AI / Gemini CLI / Antigravity)**
 
 - Tool call id sanitization: strict alphanumeric.
