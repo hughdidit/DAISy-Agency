@@ -1077,7 +1077,8 @@ export async function runEmbeddedAttempt(
       // format requirements (e.g. [a-zA-Z0-9]{9}). sanitizeSessionHistory only processes
       // historical messages at attempt start, but the agent loop's internal tool call →
       // tool result cycles bypass that path. Wrap streamFn so every outbound request
-      // sees sanitized tool call IDs.
+      // sees sanitized tool call IDs, while preserving the latest assistant turn verbatim
+      // for Copilot Claude.
       if (transcriptPolicy.sanitizeToolCallIds && transcriptPolicy.toolCallIdMode) {
         const inner = activeSession.agent.streamFn;
         const mode = transcriptPolicy.toolCallIdMode;
@@ -1087,7 +1088,13 @@ export async function runEmbeddedAttempt(
           if (!Array.isArray(messages)) {
             return inner(model, context, options);
           }
-          const sanitized = sanitizeToolCallIdsForCloudCodeAssist(messages as AgentMessage[], mode);
+          const sanitized = sanitizeToolCallIdsForCloudCodeAssist(
+            messages as AgentMessage[],
+            mode,
+            {
+              preserveLatestAssistantTurn: transcriptPolicy.preserveLatestAssistantTurn,
+            },
+          );
           if (sanitized === messages) {
             return inner(model, context, options);
           }
