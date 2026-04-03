@@ -16,7 +16,6 @@ export type TranscriptPolicy = {
   };
   sanitizeThinkingSignatures: boolean;
   dropThinkingBlocks: boolean;
-  preserveLatestAssistantTurn: boolean;
   applyGoogleTurnOrdering: boolean;
   validateGeminiTurns: boolean;
   validateAnthropicTurns: boolean;
@@ -97,13 +96,9 @@ export function resolveTranscriptPolicy(params: {
   const isCopilotClaude = provider === "github-copilot" && modelId.toLowerCase().includes("claude");
   const requiresOpenAiCompatibleToolIdSanitization = params.modelApi === "openai-completions";
 
-  // GitHub Copilot's Claude endpoints can reject persisted `thinking` blocks with
-  // non-binary/non-base64 signatures (e.g. thinkingSignature: "reasoning_text"),
-  // but the latest assistant turn must be replayed verbatim on follow-up requests.
-  // Strip only older assistant turns to keep sessions usable without mutating the
-  // most recent assistant content.
+  // GitHub Copilot's Claude endpoints can reject persisted assistant `thinking`
+  // blocks on follow-up requests. Drop them at send-time to keep sessions usable.
   const dropThinkingBlocks = isCopilotClaude;
-  const preserveLatestAssistantTurn = isCopilotClaude;
 
   const needsNonImageSanitize = isGoogle || isAnthropic || isMistral || isOpenRouterGemini;
 
@@ -131,7 +126,6 @@ export function resolveTranscriptPolicy(params: {
     sanitizeThoughtSignatures: isOpenAi ? undefined : sanitizeThoughtSignatures,
     sanitizeThinkingSignatures: false,
     dropThinkingBlocks,
-    preserveLatestAssistantTurn,
     applyGoogleTurnOrdering: !isOpenAi && isGoogle,
     validateGeminiTurns: !isOpenAi && isGoogle,
     validateAnthropicTurns: !isOpenAi && (isAnthropic || isStrictOpenAiCompatible),

@@ -2,9 +2,6 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 
 type AssistantContentBlock = Extract<AgentMessage, { role: "assistant" }>["content"][number];
 type AssistantMessage = Extract<AgentMessage, { role: "assistant" }>;
-type DropThinkingBlocksOptions = {
-  preserveLatestAssistantTurn?: boolean;
-};
 
 export function isAssistantMessageWithContent(message: AgentMessage): message is AssistantMessage {
   return (
@@ -17,7 +14,6 @@ export function isAssistantMessageWithContent(message: AgentMessage): message is
 
 /**
  * Strip all `type: "thinking"` content blocks from assistant messages.
- * Optionally preserve the latest assistant turn verbatim.
  *
  * If an assistant message becomes empty after stripping, it is replaced with
  * a synthetic `{ type: "text", text: "" }` block to preserve turn structure
@@ -26,28 +22,11 @@ export function isAssistantMessageWithContent(message: AgentMessage): message is
  * Returns the original array reference when nothing was changed (callers can
  * use reference equality to skip downstream work).
  */
-export function dropThinkingBlocks(
-  messages: AgentMessage[],
-  options?: DropThinkingBlocksOptions,
-): AgentMessage[] {
-  let latestAssistantIndex = -1;
-  if (options?.preserveLatestAssistantTurn) {
-    for (let i = messages.length - 1; i >= 0; i -= 1) {
-      if (isAssistantMessageWithContent(messages[i])) {
-        latestAssistantIndex = i;
-        break;
-      }
-    }
-  }
-
+export function dropThinkingBlocks(messages: AgentMessage[]): AgentMessage[] {
   let touched = false;
   const out: AgentMessage[] = [];
-  for (const [index, msg] of messages.entries()) {
+  for (const msg of messages) {
     if (!isAssistantMessageWithContent(msg)) {
-      out.push(msg);
-      continue;
-    }
-    if (index === latestAssistantIndex) {
       out.push(msg);
       continue;
     }

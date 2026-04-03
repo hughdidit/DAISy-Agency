@@ -433,7 +433,6 @@ export async function sanitizeSessionHistory(params: {
     {
       sanitizeMode: policy.sanitizeMode,
       sanitizeToolCallIds: policy.sanitizeToolCallIds,
-      preserveLatestAssistantTurn: policy.preserveLatestAssistantTurn,
       toolCallIdMode: policy.toolCallIdMode,
       preserveSignatures: policy.preserveSignatures,
       sanitizeThoughtSignatures: policy.sanitizeThoughtSignatures,
@@ -441,9 +440,7 @@ export async function sanitizeSessionHistory(params: {
     },
   );
   const droppedThinking = policy.dropThinkingBlocks
-    ? dropThinkingBlocks(sanitizedImages, {
-        preserveLatestAssistantTurn: policy.preserveLatestAssistantTurn,
-      })
+    ? dropThinkingBlocks(sanitizedImages)
     : sanitizedImages;
   const sanitizedToolCalls = sanitizeToolCallInputs(droppedThinking, {
     allowedToolNames: params.allowedToolNames,
