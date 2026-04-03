@@ -46,7 +46,6 @@ const CRON_GUARD_MODAL_PAYLOAD_FIELD_ID = "payload";
 type PendingApproval = {
   discordMessageId: string;
   discordChannelId: string;
-  timeoutId: NodeJS.Timeout;
 };
 
 type CronGuardGatewayEventPayload = {
@@ -92,7 +91,7 @@ function coerceComponentValue(value: unknown): string {
 
 function stringifyJsonForDiscord(value: unknown, maxChars = 1200): string {
   const text = JSON.stringify(value, null, 2) ?? "{}";
-  const clipped = text.length > maxChars ? `${text.slice(0, maxChars)}...` : text;
+  const clipped = text.length > maxChars ? `${text.slice(0, maxChars)}\n... (truncated)` : text;
   return clipped.replace(/`/g, "\u200b`");
 }
 
@@ -453,6 +452,7 @@ function parseCronGuardModalCustomIdForCarbon(id: string): ComponentParserResult
 export class DiscordCronGuardApprovalHandler {
   private gatewayClient: GatewayClient | null = null;
   private pending = new Map<CronGuardMessageKey, PendingApproval>();
+  private requestTimeouts = new Map<string, NodeJS.Timeout>();
   private requestCache = new Map<string, CronGuardApprovalRecord>();
   private started = false;
 
@@ -551,10 +551,11 @@ export class DiscordCronGuardApprovalHandler {
     }
     this.started = false;
 
-    for (const pending of this.pending.values()) {
-      clearTimeout(pending.timeoutId);
+    for (const timeoutId of this.requestTimeouts.values()) {
+      clearTimeout(timeoutId);
     }
     this.pending.clear();
+    this.requestTimeouts.clear();
     this.requestCache.clear();
 
     this.gatewayClient?.stop();
@@ -757,10 +758,10 @@ export class DiscordCronGuardApprovalHandler {
             "send-cron-approval-channel",
           )) as { id: string; channel_id: string };
           if (message?.id) {
+            this.ensureRequestTimeout(request);
             this.setPendingEntry(`${request.requestId}:channel`, {
               discordChannelId: channelId,
               discordMessageId: message.id,
-              timeoutId: this.createTimeout(request),
             });
           }
         } catch (err) {
@@ -796,10 +797,10 @@ export class DiscordCronGuardApprovalHandler {
           if (!message?.id) {
             continue;
           }
+          this.ensureRequestTimeout(request);
           this.setPendingEntry(`${request.requestId}:dm:${userId}`, {
             discordChannelId: dmChannel.id,
             discordMessageId: message.id,
-            timeoutId: this.createTimeout(request),
           });
         } catch (err) {
           logError(`discord cron approvals: failed to notify user ${userId}: ${String(err)}`);
@@ -841,7 +842,6 @@ export class DiscordCronGuardApprovalHandler {
     const entries = this.findPendingEntries(request.requestId);
     for (const [key, pending] of entries) {
       if (terminal) {
-        clearTimeout(pending.timeoutId);
         this.pending.delete(key);
       }
       await this.finalizeMessage(
@@ -852,6 +852,7 @@ export class DiscordCronGuardApprovalHandler {
       );
     }
     if (terminal) {
+      this.clearRequestTimeout(request.requestId);
       this.requestCache.delete(request.requestId);
     }
   }
@@ -919,33 +920,52 @@ export class DiscordCronGuardApprovalHandler {
     return timeoutId;
   }
 
-  private async handleApprovalTimeout(requestId: string): Promise<void> {
-    const request = this.requestCache.get(requestId);
-    if (!request) {
+  private ensureRequestTimeout(request: CronGuardApprovalRecord): void {
+    if (this.requestTimeouts.has(request.requestId)) {
       return;
     }
-    const expiredRequest: CronGuardApprovalRecord = {
-      ...request,
-      status: "expired",
-      resolvedAtMs: request.resolvedAtMs ?? Date.now(),
-    };
+    this.requestTimeouts.set(request.requestId, this.createTimeout(request));
+  }
+
+  private clearRequestTimeout(requestId: string): void {
+    const timeoutId = this.requestTimeouts.get(requestId);
+    if (!timeoutId) {
+      return;
+    }
+    clearTimeout(timeoutId);
+    this.requestTimeouts.delete(requestId);
+  }
+
+  private async handleApprovalTimeout(requestId: string): Promise<void> {
+    const request = await this.fetchRequest(requestId);
+    if (!request) {
+      this.clearRequestTimeout(requestId);
+      return;
+    }
+    this.requestCache.set(requestId, request);
+    const resolvedRequest = isTerminalCronGuardStatus(request.status)
+      ? request
+      : {
+          ...request,
+          status: "expired" as const,
+          resolvedAtMs: request.resolvedAtMs ?? Date.now(),
+        };
     const container = createResolvedContainer({
-      request: expiredRequest,
+      request: resolvedRequest,
       cfg: this.opts.cfg,
       accountId: this.opts.accountId,
     });
     for (const [key, pending] of this.findPendingEntries(requestId)) {
-      clearTimeout(pending.timeoutId);
       this.pending.delete(key);
       await this.updateMessage(pending.discordChannelId, pending.discordMessageId, container);
+    }
+    this.clearRequestTimeout(requestId);
+    if (isTerminalCronGuardStatus(resolvedRequest.status)) {
+      this.requestCache.delete(requestId);
     }
   }
 
   private setPendingEntry(key: CronGuardMessageKey, pending: PendingApproval): void {
-    const existing = this.pending.get(key);
-    if (existing) {
-      clearTimeout(existing.timeoutId);
-    }
     this.pending.set(key, pending);
   }
 

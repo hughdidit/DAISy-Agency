@@ -65,14 +65,15 @@ describe("CronGuardStore", () => {
   });
 
   it("expires pending requests and prunes resolved records beyond retention", async () => {
+    let nowMs = 1_500;
     const retention: CronGuardRetentionPolicy = {
       maxAgeMs: 5_000,
-      maxResolved: 1,
+      maxResolved: 2,
     };
     const store = await CronGuardStore.open({
       stateDir: tempRoot,
       retention,
-      now: () => 10_000,
+      now: () => nowMs,
     });
 
     await store.put(
@@ -102,6 +103,7 @@ describe("CronGuardStore", () => {
       }),
     );
 
+    nowMs = 10_000;
     const pruneResult = await store.prune();
     expect(pruneResult.expiredRequestIds).toEqual(["expired-pending"]);
     expect(pruneResult.prunedResolvedRequestIds).toEqual(["resolved-old"]);

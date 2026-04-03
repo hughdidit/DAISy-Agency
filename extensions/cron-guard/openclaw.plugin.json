@@ -9,8 +9,7 @@
       "enabled": { "type": "boolean" },
       "approvers": {
         "type": "array",
-        "items": { "type": "string" },
-        "minItems": 1
+        "items": { "type": "string" }
       },
       "approvalTtlMs": { "type": "integer", "minimum": 1 },
       "read": {
@@ -45,7 +44,6 @@
           }
         }
       }
-    },
-    "required": ["approvers"]
+    }
   }
 }

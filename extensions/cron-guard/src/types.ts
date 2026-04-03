@@ -1,12 +1,17 @@
 import type { CronJob } from "../../../src/cron/types.js";
 
 export const CRON_GUARD_PLUGIN_ID = "cron-guard";
+export const CRON_GUARD_EVENT_REQUESTED = "cron.guard.requested";
+export const CRON_GUARD_EVENT_MODIFIED = "cron.guard.modified";
+export const CRON_GUARD_EVENT_RESOLVED = "cron.guard.resolved";
+export const CRON_GUARD_EVENT_APPLIED = "cron.guard.applied";
+export const CRON_GUARD_EVENT_EXPIRED = "cron.guard.expired";
 export const CRON_GUARD_EVENTS = [
-  "cron.guard.requested",
-  "cron.guard.modified",
-  "cron.guard.resolved",
-  "cron.guard.applied",
-  "cron.guard.expired",
+  CRON_GUARD_EVENT_REQUESTED,
+  CRON_GUARD_EVENT_MODIFIED,
+  CRON_GUARD_EVENT_RESOLVED,
+  CRON_GUARD_EVENT_APPLIED,
+  CRON_GUARD_EVENT_EXPIRED,
 ] as const;
 
 export const CRON_GUARD_ACTIONS = ["add", "update", "remove"] as const;
@@ -39,14 +44,17 @@ export type CronGuardApprover = {
   from?: string;
 };
 
-export type CronGuardAuditEventType =
-  | "requested"
-  | "modified"
-  | "approved"
-  | "denied"
-  | "expired"
-  | "applied"
-  | "failed";
+export const CRON_GUARD_AUDIT_EVENT_TYPES = [
+  "requested",
+  "modified",
+  "approved",
+  "denied",
+  "expired",
+  "applied",
+  "failed",
+] as const;
+
+export type CronGuardAuditEventType = (typeof CRON_GUARD_AUDIT_EVENT_TYPES)[number];
 
 export type CronGuardAuditEvent = {
   type: CronGuardAuditEventType;

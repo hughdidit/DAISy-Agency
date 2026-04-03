@@ -6,8 +6,45 @@ import {
   validateCronStatusParams,
 } from "../../../src/gateway/protocol/index.js";
 import type { GatewayRequestHandlers } from "../../../src/gateway/server-methods/types.js";
+import { buildCronGuardApproverPrincipals } from "./config.js";
 import { redactCronGuardListPage } from "./redaction.js";
 import { getCronGuardRuntime } from "./service.js";
+
+function readApprover(
+  value: unknown,
+  approvers: string[],
+): {
+  id: string;
+  principal: string;
+  channel?: string;
+  from?: string;
+} {
+  const raw =
+    value && typeof value === "object" && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : {};
+  const id = typeof raw.id === "string" ? raw.id.trim() : "";
+  const principal = typeof raw.principal === "string" ? raw.principal.trim() : "";
+  const channel = typeof raw.channel === "string" ? raw.channel.trim() : undefined;
+  const from = typeof raw.from === "string" ? raw.from.trim() : undefined;
+  if (!id) {
+    throw new Error("Approver id required.");
+  }
+  if (!principal) {
+    throw new Error("Approver principal required.");
+  }
+  const allowedPrincipals = new Set(
+    buildCronGuardApproverPrincipals({
+      channel: channel ?? "unknown",
+      senderId: id,
+      from,
+    }),
+  );
+  if (!allowedPrincipals.has(principal) || !approvers.includes(principal)) {
+    throw new Error(`Approver is not authorized: ${principal}`);
+  }
+  return { id, principal, ...(channel ? { channel } : {}), ...(from ? { from } : {}) };
+}
 
 export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
   "cron.guard.status": async ({ params, respond, context }) => {
@@ -111,7 +148,10 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
         string,
         unknown
       >;
-      const approver = ((params as { approver?: Record<string, unknown> }).approver ?? {}) as never;
+      const approver = readApprover(
+        (params as { approver?: unknown }).approver,
+        runtime.getConfig().approvers,
+      );
       respond(true, await runtime.modifyRequest({ requestId, payload, approver }));
     } catch (err) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
@@ -124,11 +164,14 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
         typeof (params as { requestId?: string }).requestId === "string"
           ? (params as { requestId: string }).requestId
           : "";
-      const disposition =
-        (params as { disposition?: "approve" | "deny" }).disposition === "deny"
-          ? "deny"
-          : "approve";
-      const approver = ((params as { approver?: Record<string, unknown> }).approver ?? {}) as never;
+      const disposition = (params as { disposition?: unknown }).disposition;
+      if (disposition !== "approve" && disposition !== "deny") {
+        throw new Error(`Invalid disposition: ${String(disposition ?? "(missing)")}`);
+      }
+      const approver = readApprover(
+        (params as { approver?: unknown }).approver,
+        runtime.getConfig().approvers,
+      );
       respond(
         true,
         await runtime.resolveRequest({

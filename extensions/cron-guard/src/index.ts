@@ -50,10 +50,14 @@ export default {
       api.registerGatewayEvent(event);
     }
     api.registerDiscordMonitor(({ token, accountId, config: cfg }) => {
-      const currentConfig = resolveCronGuardPluginConfig(
-        cfg.plugins?.entries?.["cron-guard"]?.config,
-      );
-      if (!currentConfig.enabled || !currentConfig.discord.enabled) {
+      const entry = cfg.plugins?.entries?.["cron-guard"];
+      const currentConfig = resolveCronGuardPluginConfig(entry?.config);
+      if (
+        entry?.enabled === false ||
+        !currentConfig.enabled ||
+        !currentConfig.discord.enabled ||
+        currentConfig.approvers.length === 0
+      ) {
         return null;
       }
       const handler = new DiscordCronGuardApprovalHandler({

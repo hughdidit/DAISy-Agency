@@ -49,6 +49,35 @@ function formatRequestsList(requests: Array<Record<string, unknown>>): string {
     .join("\n");
 }
 
+function formatMutationResult(
+  action: "Approved" | "Denied" | "Modified",
+  requestId: string,
+  result: unknown,
+): string {
+  const record = result as {
+    requestId?: unknown;
+    status?: unknown;
+    applyResult?: { jobId?: unknown; error?: unknown } | undefined;
+  };
+  const resolvedRequestId =
+    typeof record?.requestId === "string" && record.requestId.trim() ? record.requestId : requestId;
+  const status = typeof record?.status === "string" ? record.status : "unknown";
+  const jobId =
+    record?.applyResult && typeof record.applyResult.jobId === "string"
+      ? record.applyResult.jobId
+      : undefined;
+  const applyError =
+    record?.applyResult && typeof record.applyResult.error === "string"
+      ? record.applyResult.error
+      : undefined;
+  return [
+    `✅ ${action} ${resolvedRequestId}.`,
+    `Status: ${status}`,
+    ...(jobId ? [`Job: ${jobId}`] : []),
+    ...(applyError ? [`Apply error: ${applyError}`] : []),
+  ].join("\n");
+}
+
 export function registerCronGuardCommands(
   api: OpenClawPluginApi,
   config: CronGuardPluginConfig,
@@ -81,7 +110,7 @@ export function registerCronGuardCommands(
             approver: buildApprover(ctx, config),
           },
         });
-        return { text: `✅ Approved ${requestId}.\n${JSON.stringify(result, null, 2)}` };
+        return { text: formatMutationResult("Approved", requestId, result) };
       }),
   });
 
@@ -103,7 +132,7 @@ export function registerCronGuardCommands(
             approver: buildApprover(ctx, config),
           },
         });
-        return { text: `✅ Denied ${requestId}.\n${JSON.stringify(result, null, 2)}` };
+        return { text: formatMutationResult("Denied", requestId, result) };
       }),
   });
 
@@ -128,15 +157,16 @@ export function registerCronGuardCommands(
             approver: buildApprover(ctx, config),
           },
         });
-        return { text: `✅ Modified ${requestId}.\n${JSON.stringify(result, null, 2)}` };
+        return { text: formatMutationResult("Modified", requestId, result) };
       }),
   });
 
   api.registerCommand({
     name: "cron-requests",
     description: "List cron-guard approval requests.",
-    handler: async () =>
+    handler: async (ctx) =>
       await safeExecute(async () => {
+        buildApprover(ctx, config);
         const result = (await callGateway({
           method: "cron.guard.requests.list",
           params: {},
@@ -151,6 +181,7 @@ export function registerCronGuardCommands(
     acceptsArgs: true,
     handler: async (ctx) =>
       await safeExecute(async () => {
+        buildApprover(ctx, config);
         const requestId = ctx.args?.trim();
         if (!requestId) {
           return { text: "Usage: /cron-request <requestId>" };

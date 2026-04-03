@@ -3,7 +3,11 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cronGuardGatewayHandlers } from "./gateway.js";
-import { initializeCronGuardRuntime, stopCronGuardRuntime } from "./service.js";
+import {
+  getCronGuardRuntime,
+  initializeCronGuardRuntime,
+  stopCronGuardRuntime,
+} from "./service.js";
 
 const tempRoots: string[] = [];
 
@@ -62,13 +66,28 @@ describe("cron-guard gateway", () => {
               {
                 id: "job-1",
                 name: "nightly",
-                schedule: "0 * * * *",
-                enabled: true,
-                delivery: { mode: "webhook", to: "https://example.invalid/hook" },
-                failureDestination: {
-                  mode: "webhook",
-                  to: "https://example.invalid/failure",
+                createdAtMs: 1_000,
+                updatedAtMs: 1_500,
+                schedule: {
+                  kind: "cron",
+                  expr: "0 * * * *",
                 },
+                sessionTarget: "main",
+                wakeMode: "next-heartbeat",
+                enabled: true,
+                payload: {
+                  kind: "systemEvent",
+                  text: "run nightly sync",
+                },
+                delivery: {
+                  mode: "webhook",
+                  to: "https://example.invalid/hook",
+                  failureDestination: {
+                    mode: "webhook",
+                    to: "https://example.invalid/failure",
+                  },
+                },
+                state: {},
               },
             ],
             total: 1,
@@ -85,10 +104,80 @@ describe("cron-guard gateway", () => {
       payload: {
         jobs: [
           {
-            delivery: { to: "[redacted]" },
-            failureDestination: { to: "[redacted]" },
+            delivery: {
+              to: "[redacted]",
+              failureDestination: { to: "[redacted]" },
+            },
           },
         ],
+      },
+    });
+  });
+
+  it("rejects unauthorized approvers for guarded resolution", async () => {
+    const stateDir = tempRoots[0]!;
+    await initializeCronGuardRuntime({
+      stateDir,
+      config: {
+        enabled: true,
+        approvers: ["discord:123"],
+        approvalTtlMs: 60_000,
+        read: { redactWebhookTargets: true },
+        discord: {
+          enabled: false,
+          target: "dm",
+          cleanupAfterResolve: false,
+          agentFilter: [],
+          sessionFilter: [],
+        },
+        audit: { retention: { maxAgeMs: 60_000, maxResolved: 10 } },
+      },
+      logger: {
+        info() {},
+        warn() {},
+        error() {},
+      },
+    });
+
+    const runtime = getCronGuardRuntime();
+    const request = await runtime.createAddRequest({
+      payload: {
+        name: "nightly",
+        enabled: true,
+        schedule: { kind: "cron", expr: "0 * * * *" },
+        sessionTarget: "main",
+        wakeMode: "next-heartbeat",
+        payload: { kind: "systemEvent", text: "run nightly sync" },
+      },
+      requester: {
+        toolName: "cron_guard_add_request",
+      },
+    });
+
+    let response: { ok: true; payload: unknown } | { ok: false; error: unknown } | undefined;
+    await cronGuardGatewayHandlers["cron.guard.resolve"]({
+      params: {
+        requestId: request.requestId,
+        disposition: "approve",
+        approver: {
+          id: "999",
+          principal: "discord:999",
+          channel: "discord",
+          from: "discord:999",
+        },
+      },
+      respond: (ok, payload, error) => {
+        response = ok ? { ok: true, payload } : { ok: false, error };
+      },
+      context: {
+        cron: {},
+      } as never,
+    });
+
+    expect(response).toMatchObject({
+      ok: false,
+      error: {
+        message: expect.stringContaining("not authorized"),
       },
     });
   });

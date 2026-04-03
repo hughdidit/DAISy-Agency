@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 import {
   readJsonFileWithFallback,
@@ -10,7 +11,12 @@ import type {
   CronGuardRetentionPolicy,
   CronGuardStoreFile,
 } from "./types.js";
-import { isTerminalCronGuardStatus } from "./types.js";
+import {
+  CRON_GUARD_ACTIONS,
+  CRON_GUARD_AUDIT_EVENT_TYPES,
+  CRON_GUARD_STATUSES,
+  isTerminalCronGuardStatus,
+} from "./types.js";
 
 const STORE_VERSION = 1;
 const LOCK_OPTIONS = {
@@ -32,13 +38,26 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+async function ensurePrivateDir(dir: string): Promise<void> {
+  await fs.mkdir(dir, { recursive: true, mode: 0o700 });
+  try {
+    await fs.chmod(dir, 0o700);
+  } catch {
+    // chmod may be ignored on some local filesystems.
+  }
+}
+
+function isAllowedString<T extends string>(value: unknown, allowed: readonly T[]): value is T {
+  return typeof value === "string" && (allowed as readonly string[]).includes(value);
+}
+
 function isAuditEvent(value: unknown): value is CronGuardAuditEvent {
   return (
     isRecord(value) &&
-    typeof value.type === "string" &&
+    isAllowedString(value.type, CRON_GUARD_AUDIT_EVENT_TYPES) &&
     typeof value.actor === "string" &&
     typeof value.atMs === "number" &&
-    typeof value.status === "string"
+    isAllowedString(value.status, CRON_GUARD_STATUSES)
   );
 }
 
@@ -46,8 +65,8 @@ function isApprovalRecord(value: unknown): value is CronGuardApprovalRecord {
   return (
     isRecord(value) &&
     typeof value.requestId === "string" &&
-    typeof value.action === "string" &&
-    typeof value.status === "string" &&
+    isAllowedString(value.action, CRON_GUARD_ACTIONS) &&
+    isAllowedString(value.status, CRON_GUARD_STATUSES) &&
     typeof value.createdAtMs === "number" &&
     typeof value.expiresAtMs === "number" &&
     isRecord(value.requester) &&
@@ -98,6 +117,7 @@ export class CronGuardStore {
     now?: () => number;
   }): Promise<CronGuardStore> {
     const filePath = resolveCronGuardStorePath(params.stateDir);
+    await ensurePrivateDir(path.dirname(filePath));
     const read = await readJsonFileWithFallback(filePath, { version: STORE_VERSION, requests: [] });
     const store = new CronGuardStore({
       filePath,
@@ -124,13 +144,16 @@ export class CronGuardStore {
     } else {
       this.records.push(record);
     }
-    await this.prune();
-    await this.persist();
+    const result = await this.prune();
+    if (!result.persisted) {
+      await this.persist();
+    }
   }
 
   async prune(): Promise<{
     expiredRequestIds: string[];
     prunedResolvedRequestIds: string[];
+    persisted: boolean;
   }> {
     const now = this.now();
     const expiredRequestIds: string[] = [];
@@ -140,15 +163,13 @@ export class CronGuardStore {
       }
       record.status = "expired";
       record.resolvedAtMs = now;
-      record.auditHistory = [
-        ...record.auditHistory,
-        {
-          type: "expired",
-          actor: "system",
-          atMs: now,
-          status: "expired",
-        },
-      ];
+      const expiredAuditEvent: CronGuardAuditEvent = {
+        type: "expired",
+        actor: "system",
+        atMs: now,
+        status: "expired",
+      };
+      record.auditHistory = [...record.auditHistory, expiredAuditEvent];
       expiredRequestIds.push(record.requestId);
     }
 
@@ -176,11 +197,13 @@ export class CronGuardStore {
       return false;
     });
 
+    let persisted = false;
     if (expiredRequestIds.length > 0 || prunedResolvedRequestIds.length > 0) {
       await this.persist();
+      persisted = true;
     }
 
-    return { expiredRequestIds, prunedResolvedRequestIds };
+    return { expiredRequestIds, prunedResolvedRequestIds, persisted };
   }
 
   async close(): Promise<void> {}
@@ -190,6 +213,7 @@ export class CronGuardStore {
       version: STORE_VERSION,
       requests: this.records,
     };
+    await ensurePrivateDir(path.dirname(this.filePath));
     await withFileLock(this.filePath, LOCK_OPTIONS, async () => {
       await writeJsonFileAtomically(this.filePath, value);
     });

@@ -52,5 +52,13 @@ describe("cron-guard commands", () => {
       args: "req-1",
     });
     expect(unauthorized.text).toContain("not authorized");
+
+    const listRequests = registered.find((entry) => entry.name === "cron-requests");
+    const unauthorizedList = await listRequests!.handler({
+      channel: "discord",
+      senderId: "999",
+      from: "discord:999",
+    });
+    expect(unauthorizedList.text).toContain("not authorized");
   });
 });

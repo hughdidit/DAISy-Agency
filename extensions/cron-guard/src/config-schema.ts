@@ -3,7 +3,7 @@ import { Type } from "@sinclair/typebox";
 export const CronGuardPluginConfigSchema = Type.Object(
   {
     enabled: Type.Optional(Type.Boolean()),
-    approvers: Type.Array(Type.String(), { minItems: 1 }),
+    approvers: Type.Optional(Type.Array(Type.String())),
     approvalTtlMs: Type.Optional(Type.Integer({ minimum: 1 })),
     read: Type.Optional(
       Type.Object(

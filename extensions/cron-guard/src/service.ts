@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import type { ErrorObject } from "ajv";
 import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../../src/cron/normalize.js";
 import type { CronService } from "../../../src/cron/service.js";
 import type { CronJob, CronJobCreate, CronJobPatch } from "../../../src/cron/types.js";
@@ -19,7 +20,11 @@ import type {
   CronGuardRequester,
 } from "./types.js";
 import {
-  CRON_GUARD_EVENTS,
+  CRON_GUARD_EVENT_APPLIED,
+  CRON_GUARD_EVENT_EXPIRED,
+  CRON_GUARD_EVENT_MODIFIED,
+  CRON_GUARD_EVENT_REQUESTED,
+  CRON_GUARD_EVENT_RESOLVED,
   isTerminalCronGuardStatus,
   type CronGuardAuditEventType,
 } from "./types.js";
@@ -64,8 +69,8 @@ type CreateRemoveRequestParams = CreateRequestBase & {
   cron: CronService;
 };
 
-function makeValidationError(prefix: string, errors: unknown): Error {
-  return new Error(`${prefix}: ${formatValidationErrors(errors as never)}`, {
+function makeValidationError(prefix: string, errors: ErrorObject[] | null | undefined): Error {
+  return new Error(`${prefix}: ${formatValidationErrors(errors)}`, {
     cause: { code: ErrorCodes.INVALID_REQUEST },
   });
 }
@@ -180,6 +185,7 @@ export class CronGuardRuntime {
   private readonly broadcast?: (event: string, payload: unknown) => void;
   private readonly store: CronGuardStore;
   private pruneTimer: NodeJS.Timeout | null = null;
+  private mutationChain: Promise<void> = Promise.resolve();
 
   private constructor(params: {
     config: CronGuardPluginConfig;
@@ -244,186 +250,198 @@ export class CronGuardRuntime {
   }
 
   async createAddRequest(params: CreateAddRequestParams): Promise<CronGuardApprovalRecord> {
-    const payload = normalizeAddPayload(params.payload);
-    const now = this.now();
-    const record: CronGuardApprovalRecord = {
-      requestId: randomUUID(),
-      action: "add",
-      status: "pending",
-      requester: params.requester,
-      createdAtMs: now,
-      expiresAtMs: now + this.config.approvalTtlMs,
-      originalPayload: payload as unknown as Record<string, unknown>,
-      currentPayload: payload as unknown as Record<string, unknown>,
-      auditHistory: [
-        {
-          type: "requested",
-          actor: params.requester.toolName ?? "unknown",
-          atMs: now,
-          status: "pending",
-        },
-      ],
-    };
-    await this.store.put(record);
-    this.emit(CRON_GUARD_EVENTS[0], record);
-    return record;
+    return await this.runExclusive(async () => {
+      const payload = normalizeAddPayload(params.payload);
+      const now = this.now();
+      const record: CronGuardApprovalRecord = {
+        requestId: randomUUID(),
+        action: "add",
+        status: "pending",
+        requester: params.requester,
+        createdAtMs: now,
+        expiresAtMs: now + this.config.approvalTtlMs,
+        originalPayload: payload as unknown as Record<string, unknown>,
+        currentPayload: payload as unknown as Record<string, unknown>,
+        auditHistory: [
+          {
+            type: "requested",
+            actor: params.requester.toolName ?? "unknown",
+            atMs: now,
+            status: "pending",
+          },
+        ],
+      };
+      await this.store.put(record);
+      this.emit(CRON_GUARD_EVENT_REQUESTED, record);
+      return record;
+    });
   }
 
   async createUpdateRequest(params: CreateUpdateRequestParams): Promise<CronGuardApprovalRecord> {
-    const snapshot = params.cron.getJob(params.jobId);
-    if (!snapshot) {
-      throw new Error(`Cron job not found: ${params.jobId}`);
-    }
-    const patch = normalizeUpdatePatch(params.jobId, params.patch);
-    const diffSummary = buildDiffSummary(snapshot as unknown as Record<string, unknown>, {
-      ...snapshot,
-      ...patch,
+    return await this.runExclusive(async () => {
+      const snapshot = params.cron.getJob(params.jobId);
+      if (!snapshot) {
+        throw new Error(`Cron job not found: ${params.jobId}`);
+      }
+      const patch = normalizeUpdatePatch(params.jobId, params.patch);
+      const diffSummary = buildDiffSummary(snapshot as unknown as Record<string, unknown>, {
+        ...snapshot,
+        ...patch,
+      });
+      const now = this.now();
+      const record: CronGuardApprovalRecord = {
+        requestId: randomUUID(),
+        action: "update",
+        status: "pending",
+        targetJobId: params.jobId,
+        requester: params.requester,
+        createdAtMs: now,
+        expiresAtMs: now + this.config.approvalTtlMs,
+        originalPayload: patch as unknown as Record<string, unknown>,
+        currentPayload: patch as unknown as Record<string, unknown>,
+        currentJobSnapshot: cloneCronJob(snapshot),
+        diffSummary,
+        auditHistory: [
+          {
+            type: "requested",
+            actor: params.requester.toolName ?? "unknown",
+            atMs: now,
+            status: "pending",
+          },
+        ],
+      };
+      await this.store.put(record);
+      this.emit(CRON_GUARD_EVENT_REQUESTED, record);
+      return record;
     });
-    const now = this.now();
-    const record: CronGuardApprovalRecord = {
-      requestId: randomUUID(),
-      action: "update",
-      status: "pending",
-      targetJobId: params.jobId,
-      requester: params.requester,
-      createdAtMs: now,
-      expiresAtMs: now + this.config.approvalTtlMs,
-      originalPayload: patch as unknown as Record<string, unknown>,
-      currentPayload: patch as unknown as Record<string, unknown>,
-      currentJobSnapshot: cloneCronJob(snapshot),
-      diffSummary,
-      auditHistory: [
-        {
-          type: "requested",
-          actor: params.requester.toolName ?? "unknown",
-          atMs: now,
-          status: "pending",
-        },
-      ],
-    };
-    await this.store.put(record);
-    this.emit(CRON_GUARD_EVENTS[0], record);
-    return record;
   }
 
   async createRemoveRequest(params: CreateRemoveRequestParams): Promise<CronGuardApprovalRecord> {
-    const snapshot = params.cron.getJob(params.jobId);
-    if (!snapshot) {
-      throw new Error(`Cron job not found: ${params.jobId}`);
-    }
-    const payload = normalizeRemovePayload({ jobId: params.jobId });
-    const now = this.now();
-    const record: CronGuardApprovalRecord = {
-      requestId: randomUUID(),
-      action: "remove",
-      status: "pending",
-      targetJobId: params.jobId,
-      requester: params.requester,
-      createdAtMs: now,
-      expiresAtMs: now + this.config.approvalTtlMs,
-      originalPayload: payload,
-      currentPayload: payload,
-      currentJobSnapshot: cloneCronJob(snapshot),
-      diffSummary: { changedFields: ["remove"] },
-      auditHistory: [
-        {
-          type: "requested",
-          actor: params.requester.toolName ?? "unknown",
-          atMs: now,
-          status: "pending",
-        },
-      ],
-    };
-    await this.store.put(record);
-    this.emit(CRON_GUARD_EVENTS[0], record);
-    return record;
+    return await this.runExclusive(async () => {
+      const snapshot = params.cron.getJob(params.jobId);
+      if (!snapshot) {
+        throw new Error(`Cron job not found: ${params.jobId}`);
+      }
+      const payload = normalizeRemovePayload({ jobId: params.jobId });
+      const now = this.now();
+      const record: CronGuardApprovalRecord = {
+        requestId: randomUUID(),
+        action: "remove",
+        status: "pending",
+        targetJobId: params.jobId,
+        requester: params.requester,
+        createdAtMs: now,
+        expiresAtMs: now + this.config.approvalTtlMs,
+        originalPayload: payload,
+        currentPayload: payload,
+        currentJobSnapshot: cloneCronJob(snapshot),
+        diffSummary: { changedFields: ["remove"] },
+        auditHistory: [
+          {
+            type: "requested",
+            actor: params.requester.toolName ?? "unknown",
+            atMs: now,
+            status: "pending",
+          },
+        ],
+      };
+      await this.store.put(record);
+      this.emit(CRON_GUARD_EVENT_REQUESTED, record);
+      return record;
+    });
   }
 
   async modifyRequest(params: ModifyParams): Promise<CronGuardApprovalRecord> {
-    const now = this.now();
-    const record = readRecordOrThrow(this.store, params.requestId);
-    assertMutable(record, now);
+    return await this.runExclusive(async () => {
+      const now = this.now();
+      const record = readRecordOrThrow(this.store, params.requestId);
+      assertMutable(record, now);
 
-    let currentPayload: Record<string, unknown>;
-    let diffSummary = record.diffSummary;
-    if (record.action === "add") {
-      currentPayload = normalizeAddPayload(params.payload) as unknown as Record<string, unknown>;
-    } else if (record.action === "update") {
-      currentPayload = normalizeUpdatePatch(
-        record.targetJobId ?? "",
-        params.payload,
-      ) as unknown as Record<string, unknown>;
-      if (record.currentJobSnapshot) {
-        diffSummary = buildDiffSummary(
-          record.currentJobSnapshot as unknown as Record<string, unknown>,
-          {
-            ...record.currentJobSnapshot,
-            ...currentPayload,
-          },
-        );
+      let currentPayload: Record<string, unknown>;
+      let diffSummary = record.diffSummary;
+      if (record.action === "add") {
+        currentPayload = normalizeAddPayload(params.payload) as unknown as Record<string, unknown>;
+      } else if (record.action === "update") {
+        currentPayload = normalizeUpdatePatch(
+          record.targetJobId ?? "",
+          params.payload,
+        ) as unknown as Record<string, unknown>;
+        if (record.currentJobSnapshot) {
+          diffSummary = buildDiffSummary(
+            record.currentJobSnapshot as unknown as Record<string, unknown>,
+            {
+              ...record.currentJobSnapshot,
+              ...currentPayload,
+            },
+          );
+        }
+      } else {
+        currentPayload = normalizeRemovePayload(params.payload);
       }
-    } else {
-      currentPayload = normalizeRemovePayload(params.payload);
-    }
 
-    const updated = appendAudit(record, "modified", params.approver.principal, now, "modified");
-    updated.currentPayload = currentPayload;
-    updated.approver = params.approver;
-    updated.diffSummary = diffSummary;
-    await this.store.put(updated);
-    this.emit(CRON_GUARD_EVENTS[1], updated);
-    return updated;
+      const updated = appendAudit(record, "modified", params.approver.principal, now, "modified");
+      updated.currentPayload = currentPayload;
+      updated.approver = params.approver;
+      updated.diffSummary = diffSummary;
+      await this.store.put(updated);
+      this.emit(CRON_GUARD_EVENT_MODIFIED, updated);
+      return updated;
+    });
   }
 
   async resolveRequest(params: ResolutionParams): Promise<CronGuardApprovalRecord> {
-    const now = this.now();
-    const record = readRecordOrThrow(this.store, params.requestId);
-    assertMutable(record, now);
+    return await this.runExclusive(async () => {
+      const now = this.now();
+      const record = readRecordOrThrow(this.store, params.requestId);
+      assertMutable(record, now);
 
-    if (params.disposition === "deny") {
-      const denied = appendAudit(record, "denied", params.approver.principal, now, "denied");
-      denied.approver = params.approver;
-      denied.resolvedAtMs = now;
-      await this.store.put(denied);
-      this.emit(CRON_GUARD_EVENTS[2], denied);
-      return denied;
-    }
+      if (params.disposition === "deny") {
+        const denied = appendAudit(record, "denied", params.approver.principal, now, "denied");
+        denied.approver = params.approver;
+        denied.resolvedAtMs = now;
+        await this.store.put(denied);
+        this.emit(CRON_GUARD_EVENT_RESOLVED, denied);
+        return denied;
+      }
 
-    const approved = appendAudit(record, "approved", params.approver.principal, now, "approved");
-    approved.approver = params.approver;
-    approved.resolvedAtMs = now;
-    await this.store.put(approved);
-    this.emit(CRON_GUARD_EVENTS[2], approved);
+      const approved = appendAudit(record, "approved", params.approver.principal, now, "approved");
+      approved.approver = params.approver;
+      approved.resolvedAtMs = now;
+      await this.store.put(approved);
+      this.emit(CRON_GUARD_EVENT_RESOLVED, approved);
 
-    try {
-      return await this.applyApprovedRequest(approved, params.cron);
-    } catch (err) {
-      const failed = appendAudit(
-        approved,
-        "failed",
-        params.approver.principal,
-        this.now(),
-        "failed",
-        String(err),
-      );
-      failed.applyResult = {
-        ok: false,
-        error: String(err),
-      };
-      await this.store.put(failed);
-      this.emit(CRON_GUARD_EVENTS[3], failed);
-      return failed;
-    }
+      try {
+        return await this.applyApprovedRequest(approved, params.cron);
+      } catch (err) {
+        const failed = appendAudit(
+          approved,
+          "failed",
+          params.approver.principal,
+          this.now(),
+          "failed",
+          String(err),
+        );
+        failed.applyResult = {
+          ok: false,
+          error: String(err),
+        };
+        await this.store.put(failed);
+        this.emit(CRON_GUARD_EVENT_APPLIED, failed);
+        return failed;
+      }
+    });
   }
 
   async prune(): Promise<void> {
-    const result = await this.store.prune();
-    for (const requestId of result.expiredRequestIds) {
-      const record = this.store.get(requestId);
-      if (record) {
-        this.emit(CRON_GUARD_EVENTS[4], record);
+    await this.runExclusive(async () => {
+      const result = await this.store.prune();
+      for (const requestId of result.expiredRequestIds) {
+        const record = this.store.get(requestId);
+        if (record) {
+          this.emit(CRON_GUARD_EVENT_EXPIRED, record);
+        }
       }
-    }
+    });
   }
 
   private async applyApprovedRequest(
@@ -443,7 +461,7 @@ export class CronGuardRuntime {
       applied.appliedAtMs = now;
       applied.applyResult = { ok: true, jobId: job.id };
       await this.store.put(applied);
-      this.emit(CRON_GUARD_EVENTS[3], applied);
+      this.emit(CRON_GUARD_EVENT_APPLIED, applied);
       return applied;
     }
 
@@ -468,7 +486,7 @@ export class CronGuardRuntime {
       applied.appliedAtMs = now;
       applied.applyResult = { ok: true, jobId };
       await this.store.put(applied);
-      this.emit(CRON_GUARD_EVENTS[3], applied);
+      this.emit(CRON_GUARD_EVENT_APPLIED, applied);
       return applied;
     }
 
@@ -490,8 +508,17 @@ export class CronGuardRuntime {
     applied.appliedAtMs = now;
     applied.applyResult = { ok: true, jobId, removed: true };
     await this.store.put(applied);
-    this.emit(CRON_GUARD_EVENTS[3], applied);
+    this.emit(CRON_GUARD_EVENT_APPLIED, applied);
     return applied;
+  }
+
+  private async runExclusive<T>(fn: () => Promise<T>): Promise<T> {
+    const next = this.mutationChain.then(fn, fn);
+    this.mutationChain = next.then(
+      () => undefined,
+      () => undefined,
+    );
+    return await next;
   }
 
   private emit(event: string, record: CronGuardApprovalRecord): void {

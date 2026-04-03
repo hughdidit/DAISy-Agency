@@ -77,8 +77,7 @@ export function resolveCronGuardPluginConfig(raw: unknown): CronGuardPluginConfi
           ? input.discord.target
           : DEFAULT_CRON_GUARD_CONFIG.discord.target,
       cleanupAfterResolve:
-        input.discord?.cleanupAfterResolve === true ||
-        DEFAULT_CRON_GUARD_CONFIG.discord.cleanupAfterResolve,
+        input.discord?.cleanupAfterResolve ?? DEFAULT_CRON_GUARD_CONFIG.discord.cleanupAfterResolve,
       agentFilter: normalizeStringList(input.discord?.agentFilter),
       sessionFilter: normalizeStringList(input.discord?.sessionFilter),
     },

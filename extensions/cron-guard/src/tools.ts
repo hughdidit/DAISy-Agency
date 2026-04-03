@@ -4,71 +4,58 @@ import { jsonResult, readStringParam } from "../../../src/agents/tools/common.js
 import { callGatewayTool, readGatewayCallOptions } from "../../../src/agents/tools/gateway.js";
 import type { CronGuardPluginConfig } from "./config.js";
 
-const SharedGatewaySchema = Type.Object(
+const SharedGatewayProps = {
+  gatewayUrl: Type.Optional(Type.String()),
+  gatewayToken: Type.Optional(Type.String()),
+  timeoutMs: Type.Optional(Type.Number({ minimum: 1 })),
+} as const;
+
+const SharedGatewaySchema = Type.Object(SharedGatewayProps, { additionalProperties: false });
+
+const CronGuardListSchema = Type.Object(
   {
-    gatewayUrl: Type.Optional(Type.String()),
-    gatewayToken: Type.Optional(Type.String()),
-    timeoutMs: Type.Optional(Type.Number({ minimum: 1 })),
+    ...SharedGatewayProps,
+    includeDisabled: Type.Optional(Type.Boolean()),
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
+    offset: Type.Optional(Type.Integer({ minimum: 0 })),
+    query: Type.Optional(Type.String()),
+    enabled: Type.Optional(
+      Type.Union([Type.Literal("all"), Type.Literal("enabled"), Type.Literal("disabled")]),
+    ),
+    sortBy: Type.Optional(
+      Type.Union([Type.Literal("nextRunAtMs"), Type.Literal("updatedAtMs"), Type.Literal("name")]),
+    ),
+    sortDir: Type.Optional(Type.Union([Type.Literal("asc"), Type.Literal("desc")])),
   },
-  { additionalProperties: true },
+  { additionalProperties: false },
 );
 
-const CronGuardListSchema = Type.Intersect([
-  SharedGatewaySchema,
-  Type.Object(
-    {
-      includeDisabled: Type.Optional(Type.Boolean()),
-      limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
-      offset: Type.Optional(Type.Integer({ minimum: 0 })),
-      query: Type.Optional(Type.String()),
-      enabled: Type.Optional(
-        Type.Union([Type.Literal("all"), Type.Literal("enabled"), Type.Literal("disabled")]),
-      ),
-      sortBy: Type.Optional(
-        Type.Union([
-          Type.Literal("nextRunAtMs"),
-          Type.Literal("updatedAtMs"),
-          Type.Literal("name"),
-        ]),
-      ),
-      sortDir: Type.Optional(Type.Union([Type.Literal("asc"), Type.Literal("desc")])),
-    },
-    { additionalProperties: false },
-  ),
-]);
+const CronGuardAddSchema = Type.Object(
+  {
+    ...SharedGatewayProps,
+    job: Type.Object({}, { additionalProperties: true }),
+  },
+  { additionalProperties: false },
+);
 
-const CronGuardAddSchema = Type.Intersect([
-  SharedGatewaySchema,
-  Type.Object(
-    {
-      job: Type.Object({}, { additionalProperties: true }),
-    },
-    { additionalProperties: false },
-  ),
-]);
+const CronGuardUpdateSchema = Type.Object(
+  {
+    ...SharedGatewayProps,
+    jobId: Type.Optional(Type.String()),
+    id: Type.Optional(Type.String()),
+    patch: Type.Object({}, { additionalProperties: true }),
+  },
+  { additionalProperties: false },
+);
 
-const CronGuardUpdateSchema = Type.Intersect([
-  SharedGatewaySchema,
-  Type.Object(
-    {
-      jobId: Type.Optional(Type.String()),
-      id: Type.Optional(Type.String()),
-      patch: Type.Object({}, { additionalProperties: true }),
-    },
-    { additionalProperties: false },
-  ),
-]);
-
-const CronGuardRemoveSchema = Type.Intersect([
-  SharedGatewaySchema,
-  Type.Object(
-    {
-      jobId: Type.Optional(Type.String()),
-      id: Type.Optional(Type.String()),
-    },
-    { additionalProperties: false },
-  ),
-]);
+const CronGuardRemoveSchema = Type.Object(
+  {
+    ...SharedGatewayProps,
+    jobId: Type.Optional(Type.String()),
+    id: Type.Optional(Type.String()),
+  },
+  { additionalProperties: false },
+);
 
 type ToolCtx = {
   agentId?: string;
