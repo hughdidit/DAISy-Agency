@@ -280,7 +280,9 @@ export function sanitizeToolCallIdsForCloudCodeAssist(
       return next;
     }
     if (role === "toolResult") {
-      const toolResultId = extractToolResultId(msg as Extract<AgentMessage, { role: "toolResult" }>);
+      const toolResultId = extractToolResultId(
+        msg as Extract<AgentMessage, { role: "toolResult" }>,
+      );
       if (toolResultId && preservedLatestToolCallIds.has(toolResultId)) {
         return msg;
       }
