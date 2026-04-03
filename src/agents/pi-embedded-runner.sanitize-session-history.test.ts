@@ -567,17 +567,24 @@ describe("sanitizeSessionHistory", () => {
     ).toBe(false);
   });
 
-  it("drops assistant thinking blocks for github-copilot models", async () => {
+  it("preserves thinking blocks on the latest assistant turn for github-copilot claude models", async () => {
     setNonGoogleModelApi();
 
     const messages = makeThinkingAndTextAssistantMessages("reasoning_text");
 
     const result = await sanitizeGithubCopilotHistory({ messages });
     const assistant = getAssistantMessage(result);
-    expect(assistant.content).toEqual([{ type: "text", text: "hi" }]);
+    expect(assistant.content).toEqual([
+      {
+        type: "thinking",
+        thinking: "internal",
+        thinkingSignature: "reasoning_text",
+      },
+      { type: "text", text: "hi" },
+    ]);
   });
 
-  it("preserves assistant turn when all content is thinking blocks (github-copilot)", async () => {
+  it("preserves a latest assistant turn that only contains thinking blocks (github-copilot)", async () => {
     setNonGoogleModelApi();
 
     const messages: AgentMessage[] = [
@@ -594,13 +601,18 @@ describe("sanitizeSessionHistory", () => {
 
     const result = await sanitizeGithubCopilotHistory({ messages });
 
-    // Assistant turn should be preserved (not dropped) to maintain turn alternation
     expect(result).toHaveLength(3);
     const assistant = getAssistantMessage(result);
-    expect(assistant.content).toEqual([{ type: "text", text: "" }]);
+    expect(assistant.content).toEqual([
+      {
+        type: "thinking",
+        thinking: "some reasoning",
+        thinkingSignature: "reasoning_text",
+      },
+    ]);
   });
 
-  it("preserves tool_use blocks when dropping thinking blocks (github-copilot)", async () => {
+  it("strips thinking blocks from older assistant turns but preserves the latest github-copilot claude assistant turn", async () => {
     setNonGoogleModelApi();
 
     const messages: AgentMessage[] = [
@@ -614,13 +626,32 @@ describe("sanitizeSessionHistory", () => {
         { type: "toolCall", id: "tool_123", name: "read", arguments: { path: "/tmp/test" } },
         { type: "text", text: "Let me read that file." },
       ]),
+      makeUserMessage("what happened?"),
+      makeAssistantMessage([
+        {
+          type: "thinking",
+          thinking: "I should summarize the result",
+          thinkingSignature: "reasoning_text",
+        },
+        { type: "text", text: "The file was read." },
+      ]),
     ];
 
     const result = await sanitizeGithubCopilotHistory({ messages });
-    const types = getAssistantContentTypes(result);
-    expect(types).toContain("toolCall");
-    expect(types).toContain("text");
-    expect(types).not.toContain("thinking");
+    const assistants = getAssistantMessages(result);
+    expect(assistants).toHaveLength(2);
+    expect(assistants[0]?.content).toEqual([
+      { type: "toolCall", id: "tool_123", name: "read", arguments: { path: "/tmp/test" } },
+      { type: "text", text: "Let me read that file." },
+    ]);
+    expect(assistants[1]?.content).toEqual([
+      {
+        type: "thinking",
+        thinking: "I should summarize the result",
+        thinkingSignature: "reasoning_text",
+      },
+      { type: "text", text: "The file was read." },
+    ]);
   });
 
   it("does not drop thinking blocks for non-copilot providers", async () => {

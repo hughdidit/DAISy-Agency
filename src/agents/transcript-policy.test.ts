@@ -54,6 +54,28 @@ describe("resolveTranscriptPolicy", () => {
     expect(policy.toolCallIdMode).toBe("strict");
   });
 
+  it("preserves the latest assistant turn for github-copilot claude models", () => {
+    const policy = resolveTranscriptPolicy({
+      provider: "github-copilot",
+      modelId: "claude-opus-4.6",
+      modelApi: "openai-completions",
+    });
+
+    expect(policy.dropThinkingBlocks).toBe(true);
+    expect(policy.preserveLatestAssistantTurn).toBe(true);
+  });
+
+  it("does not preserve the latest assistant turn for non-claude copilot models", () => {
+    const policy = resolveTranscriptPolicy({
+      provider: "github-copilot",
+      modelId: "gpt-5.2",
+      modelApi: "openai-completions",
+    });
+
+    expect(policy.dropThinkingBlocks).toBe(false);
+    expect(policy.preserveLatestAssistantTurn).toBe(false);
+  });
+
   it("enables user-turn merge for strict OpenAI-compatible providers", () => {
     const policy = resolveTranscriptPolicy({
       provider: "moonshot",

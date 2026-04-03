@@ -1048,8 +1048,9 @@ export async function runEmbeddedAttempt(
       }
 
       // Copilot/Claude can reject persisted `thinking` blocks (e.g. thinkingSignature:"reasoning_text")
-      // on *any* follow-up provider call (including tool continuations). Wrap the stream function
-      // so every outbound request sees sanitized messages.
+      // on follow-up provider calls, but the latest assistant turn must be replayed verbatim.
+      // Wrap the stream function so older assistant turns can still be sanitized without
+      // mutating the most recent assistant message.
       if (transcriptPolicy.dropThinkingBlocks) {
         const inner = activeSession.agent.streamFn;
         activeSession.agent.streamFn = (model, context, options) => {
@@ -1058,7 +1059,9 @@ export async function runEmbeddedAttempt(
           if (!Array.isArray(messages)) {
             return inner(model, context, options);
           }
-          const sanitized = dropThinkingBlocks(messages as unknown as AgentMessage[]) as unknown;
+          const sanitized = dropThinkingBlocks(messages as unknown as AgentMessage[], {
+            preserveLatestAssistantTurn: transcriptPolicy.preserveLatestAssistantTurn,
+          }) as unknown;
           if (sanitized === messages) {
             return inner(model, context, options);
           }

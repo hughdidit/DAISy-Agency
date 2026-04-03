@@ -440,7 +440,9 @@ export async function sanitizeSessionHistory(params: {
     },
   );
   const droppedThinking = policy.dropThinkingBlocks
-    ? dropThinkingBlocks(sanitizedImages)
+    ? dropThinkingBlocks(sanitizedImages, {
+        preserveLatestAssistantTurn: policy.preserveLatestAssistantTurn,
+      })
     : sanitizedImages;
   const sanitizedToolCalls = sanitizeToolCallInputs(droppedThinking, {
     allowedToolNames: params.allowedToolNames,
