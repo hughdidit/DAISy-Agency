@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+import type { BaseMessageInteractiveComponent, Modal } from "@buape/carbon";
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { Command } from "commander";
 import type { AuthProfileCredential, OAuthCredential } from "../agents/auth-profiles/types.js";
@@ -9,8 +10,8 @@ import type { ChannelId, ChannelPlugin } from "../channels/plugins/types.js";
 import type { createVpsAwareOAuthHandlers } from "../commands/oauth-flow.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { ModelProviderConfig } from "../config/types.js";
-import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 import type { GatewayBroadcastFn } from "../gateway/server-broadcast.js";
+import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 import type { InternalHookHandler } from "../hooks/internal-hooks.js";
 import type { HookEntry } from "../hooks/types.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -140,6 +141,28 @@ export type OpenClawPluginGatewayMethod = {
 export type OpenClawPluginGatewayEvent = {
   event: string;
 };
+
+export type OpenClawPluginDiscordLifecycleHandler = {
+  start: () => Promise<void>;
+  stop: () => Promise<void>;
+};
+
+export type OpenClawPluginDiscordMonitorContext = {
+  token: string;
+  accountId: string;
+  config: OpenClawConfig;
+  runtime: RuntimeEnv;
+};
+
+export type OpenClawPluginDiscordMonitorContribution = {
+  components?: BaseMessageInteractiveComponent[];
+  modals?: Modal[];
+  lifecycleHandlers?: OpenClawPluginDiscordLifecycleHandler[];
+};
+
+export type OpenClawPluginDiscordMonitorFactory = (
+  ctx: OpenClawPluginDiscordMonitorContext,
+) => OpenClawPluginDiscordMonitorContribution | null | undefined;
 
 // =============================================================================
 // Plugin Commands
@@ -284,6 +307,7 @@ export type OpenClawPluginApi = {
   registerChannel: (registration: OpenClawPluginChannelRegistration | ChannelPlugin) => void;
   registerGatewayMethod: (method: string, handler: GatewayRequestHandler) => void;
   registerGatewayEvent: (event: string) => void;
+  registerDiscordMonitor: (factory: OpenClawPluginDiscordMonitorFactory) => void;
   registerCli: (registrar: OpenClawPluginCliRegistrar, opts?: { commands?: string[] }) => void;
   registerService: (service: OpenClawPluginService) => void;
   registerProvider: (provider: ProviderPlugin) => void;

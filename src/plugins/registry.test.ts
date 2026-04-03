@@ -49,4 +49,53 @@ describe("createPluginRegistry", () => {
       "cron.guard.applied",
     ]);
   });
+
+  it("registers discord monitor contributions", () => {
+    const { registry, createApi } = createPluginRegistry({
+      logger: {
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+        debug: vi.fn(),
+      },
+      runtime: {} as never,
+    });
+
+    const record = {
+      id: "cron-guard",
+      name: "Cron Guard",
+      source: "/tmp/extensions/cron-guard/index.ts",
+      origin: "workspace" as const,
+      enabled: true,
+      status: "loaded" as const,
+      toolNames: [],
+      hookNames: [],
+      channelIds: [],
+      providerIds: [],
+      gatewayMethods: [],
+      gatewayEvents: [],
+      cliCommands: [],
+      services: [],
+      commands: [],
+      httpRoutes: 0,
+      hookCount: 0,
+      configSchema: false,
+    };
+    registry.plugins.push(record);
+
+    const api = createApi(record, {
+      config: {},
+    });
+    const factory = vi.fn(() => null);
+
+    api.registerDiscordMonitor(factory);
+
+    expect(registry.discordMonitors).toEqual([
+      {
+        pluginId: "cron-guard",
+        factory,
+        source: "/tmp/extensions/cron-guard/index.ts",
+      },
+    ]);
+  });
 });

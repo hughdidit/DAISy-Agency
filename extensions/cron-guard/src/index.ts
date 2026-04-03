@@ -1,7 +1,12 @@
 import type { OpenClawPluginApi, OpenClawPluginService } from "openclaw/plugin-sdk";
-import { resolveCronGuardPluginConfig } from "./config.js";
-import { CronGuardPluginConfigSchema } from "./config-schema.js";
 import { registerCronGuardCommands } from "./commands.js";
+import { CronGuardPluginConfigSchema } from "./config-schema.js";
+import { resolveCronGuardPluginConfig } from "./config.js";
+import {
+  createCronGuardApprovalButton,
+  createCronGuardApprovalModal,
+  DiscordCronGuardApprovalHandler,
+} from "./discord-approvals.js";
 import { cronGuardGatewayHandlers } from "./gateway.js";
 import { initializeCronGuardRuntime, stopCronGuardRuntime } from "./service.js";
 import { createCronGuardTools } from "./tools.js";
@@ -44,6 +49,25 @@ export default {
     for (const event of CRON_GUARD_EVENTS) {
       api.registerGatewayEvent(event);
     }
+    api.registerDiscordMonitor(({ token, accountId, config: cfg }) => {
+      const currentConfig = resolveCronGuardPluginConfig(
+        cfg.plugins?.entries?.["cron-guard"]?.config,
+      );
+      if (!currentConfig.enabled || !currentConfig.discord.enabled) {
+        return null;
+      }
+      const handler = new DiscordCronGuardApprovalHandler({
+        token,
+        accountId,
+        config: currentConfig,
+        cfg,
+      });
+      return {
+        components: [createCronGuardApprovalButton({ handler })],
+        modals: [createCronGuardApprovalModal({ handler })],
+        lifecycleHandlers: [handler],
+      };
+    });
 
     registerCronGuardCommands(api, pluginConfig);
     api.registerService({

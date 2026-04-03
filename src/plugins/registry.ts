@@ -17,6 +17,7 @@ import type {
   OpenClawPluginChannelRegistration,
   OpenClawPluginCliRegistrar,
   OpenClawPluginCommandDefinition,
+  OpenClawPluginDiscordMonitorFactory,
   OpenClawPluginHttpRouteAuth,
   OpenClawPluginHttpRouteMatch,
   OpenClawPluginHttpRouteHandler,
@@ -86,6 +87,12 @@ export type PluginServiceRegistration = {
   source: string;
 };
 
+export type PluginDiscordMonitorRegistration = {
+  pluginId: string;
+  factory: OpenClawPluginDiscordMonitorFactory;
+  source: string;
+};
+
 export type PluginCommandRegistration = {
   pluginId: string;
   command: OpenClawPluginCommandDefinition;
@@ -127,6 +134,7 @@ export type PluginRegistry = {
   typedHooks: TypedPluginHookRegistration[];
   channels: PluginChannelRegistration[];
   providers: PluginProviderRegistration[];
+  discordMonitors?: PluginDiscordMonitorRegistration[];
   gatewayHandlers: GatewayRequestHandlers;
   gatewayEvents: string[];
   httpRoutes: PluginHttpRouteRegistration[];
@@ -150,6 +158,7 @@ export function createEmptyPluginRegistry(): PluginRegistry {
     typedHooks: [],
     channels: [],
     providers: [],
+    discordMonitors: [],
     gatewayHandlers: {},
     gatewayEvents: [],
     httpRoutes: [],
@@ -433,6 +442,18 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     });
   };
 
+  const registerDiscordMonitor = (
+    record: PluginRecord,
+    factory: OpenClawPluginDiscordMonitorFactory,
+  ) => {
+    registry.discordMonitors ??= [];
+    registry.discordMonitors.push({
+      pluginId: record.id,
+      factory,
+      source: record.source,
+    });
+  };
+
   const registerCli = (
     record: PluginRecord,
     registrar: OpenClawPluginCliRegistrar,
@@ -541,6 +562,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
       registerProvider: (provider) => registerProvider(record, provider),
       registerGatewayMethod: (method, handler) => registerGatewayMethod(record, method, handler),
       registerGatewayEvent: (event) => registerGatewayEvent(record, event),
+      registerDiscordMonitor: (factory) => registerDiscordMonitor(record, factory),
       registerCli: (registrar, opts) => registerCli(record, registrar, opts),
       registerService: (service) => registerService(record, service),
       registerCommand: (command) => registerCommand(record, command),

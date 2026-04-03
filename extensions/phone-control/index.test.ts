@@ -37,6 +37,7 @@ function createApi(params: {
     registerChannel() {},
     registerGatewayMethod() {},
     registerGatewayEvent() {},
+    registerDiscordMonitor() {},
     registerCli() {},
     registerService() {},
     registerProvider() {},

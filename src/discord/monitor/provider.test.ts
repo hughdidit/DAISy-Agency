@@ -1,6 +1,8 @@
 import { EventEmitter } from "node:events";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
+import { createEmptyPluginRegistry } from "../../plugins/registry.js";
+import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import type { RuntimeEnv } from "../../runtime.js";
 
 const {
@@ -193,19 +195,6 @@ vi.mock("./exec-approvals.js", () => ({
   },
 }));
 
-vi.mock("../../../extensions/cron-guard/src/discord-approvals.js", () => ({
-  createCronGuardApprovalButton: () => ({ id: "cron-guard-approval" }),
-  createCronGuardApprovalModal: () => ({ id: "cron-guard-modal" }),
-  DiscordCronGuardApprovalHandler: class DiscordCronGuardApprovalHandler {
-    async start() {
-      return undefined;
-    }
-    async stop() {
-      return undefined;
-    }
-  },
-}));
-
 vi.mock("./gateway-plugin.js", () => ({
   createDiscordGatewayPlugin: () => ({ id: "gateway-plugin" }),
 }));
@@ -280,6 +269,7 @@ describe("monitorDiscordProvider", () => {
   };
 
   beforeEach(() => {
+    setActivePluginRegistry(createEmptyPluginRegistry(), "provider-test");
     clientConstructorOptionsMock.mockClear();
     clientFetchUserMock.mockClear().mockResolvedValue({ id: "bot-1" });
     clientGetPluginMock.mockClear().mockReturnValue(undefined);
@@ -401,6 +391,28 @@ describe("monitorDiscordProvider", () => {
 
   it("registers cron-guard approval handlers when the plugin enables Discord approvals", async () => {
     const { monitorDiscordProvider } = await import("./provider.js");
+    const registry = createEmptyPluginRegistry();
+    registry.discordMonitors = [
+      {
+        pluginId: "cron-guard",
+        source: "/tmp/extensions/cron-guard/index.ts",
+        factory: () => ({
+          components: [{ id: "cron-guard-approval" } as never],
+          modals: [{ id: "cron-guard-modal" } as never],
+          lifecycleHandlers: [
+            {
+              async start() {
+                return undefined;
+              },
+              async stop() {
+                return undefined;
+              },
+            },
+          ],
+        }),
+      },
+    ];
+    setActivePluginRegistry(registry, "provider-test-cron-guard");
 
     await monitorDiscordProvider({
       config: {

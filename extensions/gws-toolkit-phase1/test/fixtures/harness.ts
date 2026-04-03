@@ -24,6 +24,7 @@ type PluginApi = {
   registerChannel: () => void;
   registerGatewayMethod: () => void;
   registerGatewayEvent: () => void;
+  registerDiscordMonitor: () => void;
   registerCli: (registrar: (ctx: any) => void, opts?: { commands?: string[] }) => void;
   registerService: () => void;
   registerProvider: () => void;
@@ -115,6 +116,7 @@ export function createHarness(params?: {
     registerChannel() {},
     registerGatewayMethod() {},
     registerGatewayEvent() {},
+    registerDiscordMonitor() {},
     registerCli(registrar, opts) {
       if (opts?.commands) {
         cliCommands.push(...opts.commands);
