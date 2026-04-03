@@ -259,6 +259,9 @@ export function sanitizeToolCallIdsForCloudCodeAssist(
       break;
     }
   }
+  for (const preservedId of preservedLatestToolCallIds) {
+    used.add(preservedId);
+  }
 
   let changed = false;
   const out = messages.map((msg, index) => {
@@ -283,7 +286,11 @@ export function sanitizeToolCallIdsForCloudCodeAssist(
       const toolResultId = extractToolResultId(
         msg as Extract<AgentMessage, { role: "toolResult" }>,
       );
-      if (toolResultId && preservedLatestToolCallIds.has(toolResultId)) {
+      if (
+        index > latestAssistantIndex &&
+        toolResultId &&
+        preservedLatestToolCallIds.has(toolResultId)
+      ) {
         return msg;
       }
       const next = rewriteToolResultIds({
