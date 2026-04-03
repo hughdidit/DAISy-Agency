@@ -92,7 +92,6 @@ OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-${CLAWDBOT_GATEWAY_BIND:-loopbac
 
 # App secrets (passed to docker compose on the VM)
 : "${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required for real deploy}"
-: "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required for real deploy}"
 : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required for real deploy}"
 : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required for real deploy}"
 # OPENAI_API_KEY is optional (OpenAI-backed model/tool access)
@@ -100,9 +99,6 @@ OPENAI_API_KEY="${OPENAI_API_KEY:-}"
 # MONGODB_URI and GEMINI_API_KEY are optional (memory-mongodb plugin only)
 MONGODB_URI="${MONGODB_URI:-}"
 GEMINI_API_KEY="${GEMINI_API_KEY:-}"
-# CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
-CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
-CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
 # BRAVE_API_KEY is optional (web-search tool)
 BRAVE_API_KEY="${BRAVE_API_KEY:-}"
 # FIRECRAWL_API_KEY is optional (firecrawl tool)
@@ -383,14 +379,11 @@ esac
 # Read secrets from stdin (one per line, passed by outer script)
 read -r GHCR_TOKEN
 read -r OPENCLAW_GATEWAY_TOKEN
-read -r CLAUDE_AI_SESSION_KEY
 read -r DISCORD_BOT_TOKEN
 read -r ANTHROPIC_API_KEY
 read -r OPENAI_API_KEY || OPENAI_API_KEY=""
 read -r MONGODB_URI || MONGODB_URI=""
 read -r GEMINI_API_KEY || GEMINI_API_KEY=""
-read -r CLAUDE_WEB_SESSION_KEY || CLAUDE_WEB_SESSION_KEY=""
-read -r CLAUDE_WEB_COOKIE || CLAUDE_WEB_COOKIE=""
 read -r BRAVE_API_KEY || BRAVE_API_KEY=""
 read -r FIRECRAWL_API_KEY || FIRECRAWL_API_KEY=""
 read -r TRELLO_API_KEY || TRELLO_API_KEY=""
@@ -426,6 +419,90 @@ if [[ ! -f "${OPENCLAW_CONFIG_PATH}" ]]; then
   exit 6
 fi
 
+cleanup_anthropic_token_profiles() {
+  sudo python3 - "${DEPLOY_DIR}/config/agents" <<'PY'
+import json
+import os
+import stat
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+removed_profiles = []
+rewritten_files = []
+deleted_files = []
+
+if root.is_dir():
+  for auth_path in root.glob("*/agent/auth-profiles.json"):
+    try:
+      raw = auth_path.read_text(encoding="utf-8")
+      data = json.loads(raw)
+    except FileNotFoundError:
+      continue
+    except Exception as exc:
+      print(f"WARNING: failed to parse {auth_path}: {exc}", file=sys.stderr)
+      continue
+
+    profiles = data.get("profiles") or {}
+    kept = {}
+    removed_here = []
+    for profile_id, cred in profiles.items():
+      if cred.get("provider") == "anthropic" and cred.get("type") == "token":
+        removed_here.append(profile_id)
+      else:
+        kept[profile_id] = cred
+
+    if not removed_here:
+      continue
+
+    removed_profiles.extend(f"{auth_path}:{profile_id}" for profile_id in removed_here)
+
+    order = data.get("order")
+    if isinstance(order, dict) and "anthropic" in order:
+      filtered = [profile_id for profile_id in order["anthropic"] if profile_id in kept]
+      if filtered:
+        order["anthropic"] = filtered
+      else:
+        order.pop("anthropic", None)
+      if not order:
+        data.pop("order", None)
+
+    last_good = data.get("lastGood")
+    if isinstance(last_good, dict) and last_good.get("anthropic") not in kept:
+      last_good.pop("anthropic", None)
+      if not last_good:
+        data.pop("lastGood", None)
+
+    usage = data.get("usageStats")
+    if isinstance(usage, dict):
+      for profile_id in removed_here:
+        usage.pop(profile_id, None)
+      if not usage:
+        data.pop("usageStats", None)
+
+    if kept:
+      data["profiles"] = kept
+      st = auth_path.stat()
+      auth_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+      os.chown(auth_path, st.st_uid, st.st_gid)
+      os.chmod(auth_path, stat.S_IMODE(st.st_mode))
+      rewritten_files.append(str(auth_path))
+    else:
+      auth_path.unlink()
+      deleted_files.append(str(auth_path))
+
+summary = {
+  "removedProfiles": removed_profiles,
+  "rewrittenFiles": rewritten_files,
+  "deletedFiles": deleted_files,
+}
+print(json.dumps(summary, indent=2))
+PY
+}
+
+echo "Removing Anthropic setup-token auth profiles from persisted agent state..."
+cleanup_anthropic_token_profiles
+
 # Materialize optional gws credentials for credentials_file auth mode.
 if [[ -n "${GWS_CREDENTIALS_B64}" ]]; then
   GWS_CREDENTIALS_TMP="$(mktemp)"
@@ -448,14 +525,11 @@ unset GHCR_TOKEN
 # Export app secrets for docker compose
 export OPENCLAW_IMAGE="${DEPLOY_REF}"
 export OPENCLAW_GATEWAY_TOKEN
-export CLAUDE_AI_SESSION_KEY
 export DISCORD_BOT_TOKEN
 export ANTHROPIC_API_KEY
 export OPENAI_API_KEY
 export MONGODB_URI
 export GEMINI_API_KEY
-export CLAUDE_WEB_SESSION_KEY
-export CLAUDE_WEB_COOKIE
 export BRAVE_API_KEY
 export FIRECRAWL_API_KEY
 if [[ -n "${TRELLO_API_KEY}" ]]; then
@@ -749,7 +823,7 @@ sudo -E docker-compose ${COMPOSE_FILES} rm -f openclaw-gateway openclaw-cli || t
 sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans --force-recreate
 
 # Clear secrets from environment
-unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY OPENAI_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY FIRECRAWL_API_KEY TRELLO_API_KEY TRELLO_TOKEN GOOGLE_WORKSPACE_CLI_TOKEN GWS_CREDENTIALS_B64
+unset OPENCLAW_GATEWAY_TOKEN DISCORD_BOT_TOKEN ANTHROPIC_API_KEY OPENAI_API_KEY MONGODB_URI GEMINI_API_KEY BRAVE_API_KEY FIRECRAWL_API_KEY TRELLO_API_KEY TRELLO_TOKEN GOOGLE_WORKSPACE_CLI_TOKEN GWS_CREDENTIALS_B64
 
 echo "Deployment complete."
 '
@@ -779,14 +853,11 @@ unset GWS_CREDENTIALS
 {
   printf '%s\n' "${GHCR_TOKEN}"
   printf '%s\n' "${OPENCLAW_GATEWAY_TOKEN}"
-  printf '%s\n' "${CLAUDE_AI_SESSION_KEY}"
   printf '%s\n' "${DISCORD_BOT_TOKEN}"
   printf '%s\n' "${ANTHROPIC_API_KEY}"
   printf '%s\n' "${OPENAI_API_KEY}"
   printf '%s\n' "${MONGODB_URI}"
   printf '%s\n' "${GEMINI_API_KEY}"
-  printf '%s\n' "${CLAUDE_WEB_SESSION_KEY}"
-  printf '%s\n' "${CLAUDE_WEB_COOKIE}"
   printf '%s\n' "${BRAVE_API_KEY}"
   printf '%s\n' "${FIRECRAWL_API_KEY}"
   printf '%s\n' "${TRELLO_API_KEY}"
