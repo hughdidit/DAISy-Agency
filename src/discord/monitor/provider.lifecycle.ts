@@ -14,6 +14,11 @@ type ExecApprovalsHandler = {
   stop: () => Promise<void>;
 };
 
+type LifecycleHandler = {
+  start: () => Promise<void>;
+  stop: () => Promise<void>;
+};
+
 export async function runDiscordGatewayLifecycle(params: {
   accountId: string;
   client: Client;
@@ -23,6 +28,7 @@ export async function runDiscordGatewayLifecycle(params: {
   voiceManager: DiscordVoiceManager | null;
   voiceManagerRef: { current: DiscordVoiceManager | null };
   execApprovalsHandler: ExecApprovalsHandler | null;
+  approvalHandlers?: LifecycleHandler[];
   threadBindings: { stop: () => void };
   pendingGatewayErrors?: unknown[];
   releaseEarlyGatewayErrorGuard?: () => void;
@@ -281,9 +287,13 @@ export async function runDiscordGatewayLifecycle(params: {
       params.isDisallowedIntentsError(err)
     );
   };
+  const lifecycleHandlers = [
+    ...(params.execApprovalsHandler ? [params.execApprovalsHandler] : []),
+    ...(params.approvalHandlers ?? []),
+  ];
   try {
-    if (params.execApprovalsHandler) {
-      await params.execApprovalsHandler.start();
+    for (const handler of lifecycleHandlers) {
+      await handler.start();
     }
 
     // Drain gateway errors emitted before lifecycle listeners were attached.
@@ -339,8 +349,8 @@ export async function runDiscordGatewayLifecycle(params: {
       await params.voiceManager.destroy();
       params.voiceManagerRef.current = null;
     }
-    if (params.execApprovalsHandler) {
-      await params.execApprovalsHandler.stop();
+    for (const handler of lifecycleHandlers.toReversed()) {
+      await handler.stop();
     }
     params.threadBindings.stop();
   }

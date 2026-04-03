@@ -26,6 +26,7 @@ export function loadGatewayPlugins(params: {
     coreGatewayHandlers: params.coreGatewayHandlers,
   });
   const pluginMethods = Object.keys(pluginRegistry.gatewayHandlers);
+  const gatewayEvents = [...pluginRegistry.gatewayEvents];
   const gatewayMethods = Array.from(new Set([...params.baseMethods, ...pluginMethods]));
   if (pluginRegistry.diagnostics.length > 0) {
     for (const diag of pluginRegistry.diagnostics) {
@@ -45,5 +46,5 @@ export function loadGatewayPlugins(params: {
       }
     }
   }
-  return { pluginRegistry, gatewayMethods };
+  return { pluginRegistry, gatewayMethods, gatewayEvents };
 }

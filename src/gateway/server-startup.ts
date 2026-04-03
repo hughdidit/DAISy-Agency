@@ -46,6 +46,7 @@ export async function startGatewaySidecars(params: {
   };
   logChannels: { info: (msg: string) => void; error: (msg: string) => void };
   logBrowser: { error: (msg: string) => void };
+  broadcast?: import("./server-broadcast.js").GatewayBroadcastFn;
 }) {
   try {
     const stateDir = resolveStateDir(process.env);
@@ -72,6 +73,7 @@ export async function startGatewaySidecars(params: {
     registry: params.pluginRegistry,
     config: params.cfg,
     workspaceDir: params.defaultWorkspaceDir,
+    broadcast: params.broadcast,
   });
 
   // Start OpenClaw browser control server (unless disabled via config).

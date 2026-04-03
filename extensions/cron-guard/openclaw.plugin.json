@@ -1,0 +1,49 @@
+{
+  "id": "cron-guard",
+  "name": "Cron Guard Plugin",
+  "description": "Least-privilege cron visibility with approval-gated cron writes.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enabled": { "type": "boolean" },
+      "approvers": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "approvalTtlMs": { "type": "integer", "minimum": 1 },
+      "read": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "redactWebhookTargets": { "type": "boolean" }
+        }
+      },
+      "discord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "target": { "type": "string", "enum": ["dm", "channel", "both"] },
+          "cleanupAfterResolve": { "type": "boolean" },
+          "agentFilter": { "type": "array", "items": { "type": "string" } },
+          "sessionFilter": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "audit": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "retention": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "maxAgeMs": { "type": "integer", "minimum": 1 },
+              "maxResolved": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -37,6 +37,11 @@ import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
+import { getActivePluginRegistry } from "../../plugins/runtime.js";
+import type {
+  OpenClawPluginDiscordLifecycleHandler,
+  OpenClawPluginDiscordMonitorContribution,
+} from "../../plugins/types.js";
 import { createNonExitingRuntime, type RuntimeEnv } from "../../runtime.js";
 import { resolveDiscordAccount } from "../accounts.js";
 import { fetchDiscordApplicationId } from "../probe.js";
@@ -188,6 +193,30 @@ function formatDiscordDeployErrorDetails(err: unknown): string {
     }
   }
   return details.length > 0 ? ` (${details.join(", ")})` : "";
+}
+
+function resolveDiscordPluginContributions(params: {
+  token: string;
+  accountId: string;
+  config: OpenClawConfig;
+  runtime: RuntimeEnv;
+}): OpenClawPluginDiscordMonitorContribution[] {
+  const registry = getActivePluginRegistry();
+  const registrations = registry?.discordMonitors ?? [];
+  const contributions: OpenClawPluginDiscordMonitorContribution[] = [];
+  for (const entry of registrations) {
+    try {
+      const contribution = entry.factory(params);
+      if (contribution) {
+        contributions.push(contribution);
+      }
+    } catch (err) {
+      params.runtime.error?.(
+        danger(`discord: plugin monitor contribution failed (${entry.pluginId}): ${String(err)}`),
+      );
+    }
+  }
+  return contributions;
 }
 
 const DISCORD_DISALLOWED_INTENTS_CODE = GatewayCloseCodes.DisallowedIntents;
@@ -393,6 +422,12 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
           runtime,
         })
       : null;
+    const pluginContributions = resolveDiscordPluginContributions({
+      token,
+      accountId: account.accountId,
+      config: cfg,
+      runtime,
+    });
 
     const agentComponentsConfig = discordCfg.agentComponents ?? {};
     const agentComponentsEnabled = agentComponentsConfig.enabled ?? true;
@@ -424,6 +459,18 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
 
     if (execApprovalsHandler) {
       components.push(createExecApprovalButton({ handler: execApprovalsHandler }));
+    }
+    const pluginLifecycleHandlers: OpenClawPluginDiscordLifecycleHandler[] = [];
+    for (const contribution of pluginContributions) {
+      if (contribution.components) {
+        components.push(...contribution.components);
+      }
+      if (contribution.modals) {
+        modals.push(...contribution.modals);
+      }
+      if (contribution.lifecycleHandlers) {
+        pluginLifecycleHandlers.push(...contribution.lifecycleHandlers);
+      }
     }
 
     if (agentComponentsEnabled) {
@@ -610,6 +657,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       voiceManager,
       voiceManagerRef,
       execApprovalsHandler,
+      approvalHandlers: pluginLifecycleHandlers,
       threadBindings,
       pendingGatewayErrors: earlyGatewayErrorGuard.pendingErrors,
       releaseEarlyGatewayErrorGuard,

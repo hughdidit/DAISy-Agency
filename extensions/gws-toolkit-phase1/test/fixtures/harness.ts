@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { OpenClawPluginDiscordMonitorFactory } from "openclaw/plugin-sdk";
 import plugin from "../../index.js";
 
 type PluginApi = {
@@ -23,6 +24,8 @@ type PluginApi = {
   registerHttpRoute: () => void;
   registerChannel: () => void;
   registerGatewayMethod: () => void;
+  registerGatewayEvent: (event: string) => void;
+  registerDiscordMonitor: (factory: OpenClawPluginDiscordMonitorFactory) => void;
   registerCli: (registrar: (ctx: any) => void, opts?: { commands?: string[] }) => void;
   registerService: () => void;
   registerProvider: () => void;
@@ -113,6 +116,8 @@ export function createHarness(params?: {
     registerHttpRoute() {},
     registerChannel() {},
     registerGatewayMethod() {},
+    registerGatewayEvent(_event) {},
+    registerDiscordMonitor(_factory) {},
     registerCli(registrar, opts) {
       if (opts?.commands) {
         cliCommands.push(...opts.commands);

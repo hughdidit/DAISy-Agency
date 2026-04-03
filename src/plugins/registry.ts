@@ -17,6 +17,7 @@ import type {
   OpenClawPluginChannelRegistration,
   OpenClawPluginCliRegistrar,
   OpenClawPluginCommandDefinition,
+  OpenClawPluginDiscordMonitorFactory,
   OpenClawPluginHttpRouteAuth,
   OpenClawPluginHttpRouteMatch,
   OpenClawPluginHttpRouteHandler,
@@ -86,6 +87,12 @@ export type PluginServiceRegistration = {
   source: string;
 };
 
+export type PluginDiscordMonitorRegistration = {
+  pluginId: string;
+  factory: OpenClawPluginDiscordMonitorFactory;
+  source: string;
+};
+
 export type PluginCommandRegistration = {
   pluginId: string;
   command: OpenClawPluginCommandDefinition;
@@ -109,6 +116,7 @@ export type PluginRecord = {
   channelIds: string[];
   providerIds: string[];
   gatewayMethods: string[];
+  gatewayEvents: string[];
   cliCommands: string[];
   services: string[];
   commands: string[];
@@ -126,7 +134,9 @@ export type PluginRegistry = {
   typedHooks: TypedPluginHookRegistration[];
   channels: PluginChannelRegistration[];
   providers: PluginProviderRegistration[];
+  discordMonitors?: PluginDiscordMonitorRegistration[];
   gatewayHandlers: GatewayRequestHandlers;
+  gatewayEvents: string[];
   httpRoutes: PluginHttpRouteRegistration[];
   cliRegistrars: PluginCliRegistration[];
   services: PluginServiceRegistration[];
@@ -148,7 +158,9 @@ export function createEmptyPluginRegistry(): PluginRegistry {
     typedHooks: [],
     channels: [],
     providers: [],
+    discordMonitors: [],
     gatewayHandlers: {},
+    gatewayEvents: [],
     httpRoutes: [],
     cliRegistrars: [],
     services: [],
@@ -284,6 +296,21 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     record.gatewayMethods.push(trimmed);
   };
 
+  const registerGatewayEvent = (record: PluginRecord, event: string) => {
+    const trimmed = event.trim();
+    if (!trimmed) {
+      return;
+    }
+    if (registry.gatewayEvents.includes(trimmed)) {
+      if (!record.gatewayEvents.includes(trimmed)) {
+        record.gatewayEvents.push(trimmed);
+      }
+      return;
+    }
+    registry.gatewayEvents.push(trimmed);
+    record.gatewayEvents.push(trimmed);
+  };
+
   const describeHttpRouteOwner = (entry: PluginHttpRouteRegistration): string => {
     const plugin = entry.pluginId?.trim() || "unknown-plugin";
     const source = entry.source?.trim() || "unknown-source";
@@ -415,6 +442,18 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     });
   };
 
+  const registerDiscordMonitor = (
+    record: PluginRecord,
+    factory: OpenClawPluginDiscordMonitorFactory,
+  ) => {
+    registry.discordMonitors ??= [];
+    registry.discordMonitors.push({
+      pluginId: record.id,
+      factory,
+      source: record.source,
+    });
+  };
+
   const registerCli = (
     record: PluginRecord,
     registrar: OpenClawPluginCliRegistrar,
@@ -522,6 +561,8 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
       registerChannel: (registration) => registerChannel(record, registration),
       registerProvider: (provider) => registerProvider(record, provider),
       registerGatewayMethod: (method, handler) => registerGatewayMethod(record, method, handler),
+      registerGatewayEvent: (event) => registerGatewayEvent(record, event),
+      registerDiscordMonitor: (factory) => registerDiscordMonitor(record, factory),
       registerCli: (registrar, opts) => registerCli(record, registrar, opts),
       registerService: (service) => registerService(record, service),
       registerCommand: (command) => registerCommand(record, command),
@@ -538,6 +579,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     registerChannel,
     registerProvider,
     registerGatewayMethod,
+    registerGatewayEvent,
     registerCli,
     registerService,
     registerCommand,

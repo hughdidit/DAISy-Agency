@@ -40,6 +40,8 @@ function fakeApi(overrides: Partial<OpenClawPluginApi> = {}): OpenClawPluginApi 
     registerTool() {},
     registerChannel() {},
     registerGatewayMethod() {},
+    registerGatewayEvent() {},
+    registerDiscordMonitor() {},
     registerCli() {},
     registerService() {},
     registerProvider() {},

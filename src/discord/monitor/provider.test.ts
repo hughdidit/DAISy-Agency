@@ -1,6 +1,8 @@
 import { EventEmitter } from "node:events";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
+import { createEmptyPluginRegistry } from "../../plugins/registry.js";
+import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import type { RuntimeEnv } from "../../runtime.js";
 
 const {
@@ -267,6 +269,7 @@ describe("monitorDiscordProvider", () => {
   };
 
   beforeEach(() => {
+    setActivePluginRegistry(createEmptyPluginRegistry(), "provider-test");
     clientConstructorOptionsMock.mockClear();
     clientFetchUserMock.mockClear().mockResolvedValue({ id: "bot-1" });
     clientGetPluginMock.mockClear().mockReturnValue(undefined);
@@ -384,5 +387,58 @@ describe("monitorDiscordProvider", () => {
 
     const eventQueue = getConstructedEventQueue();
     expect(eventQueue?.listenerTimeout).toBe(300_000);
+  });
+
+  it("registers cron-guard approval handlers when the plugin enables Discord approvals", async () => {
+    const { monitorDiscordProvider } = await import("./provider.js");
+    const registry = createEmptyPluginRegistry();
+    registry.discordMonitors = [
+      {
+        pluginId: "cron-guard",
+        source: "/tmp/extensions/cron-guard/index.ts",
+        factory: () => ({
+          components: [{ id: "cron-guard-approval" } as never],
+          modals: [{ id: "cron-guard-modal" } as never],
+          lifecycleHandlers: [
+            {
+              async start() {
+                return undefined;
+              },
+              async stop() {
+                return undefined;
+              },
+            },
+          ],
+        }),
+      },
+    ];
+    setActivePluginRegistry(registry, "provider-test-cron-guard");
+
+    await monitorDiscordProvider({
+      config: {
+        ...baseConfig(),
+        plugins: {
+          entries: {
+            "cron-guard": {
+              enabled: true,
+              config: {
+                enabled: true,
+                approvers: ["discord:123"],
+                discord: {
+                  enabled: true,
+                },
+              },
+            },
+          },
+        },
+      } as OpenClawConfig,
+      runtime: baseRuntime(),
+    });
+
+    expect(monitorLifecycleMock).toHaveBeenCalledTimes(1);
+    const lifecycleArgs = monitorLifecycleMock.mock.calls[0]?.[0] as {
+      approvalHandlers?: unknown[];
+    };
+    expect(lifecycleArgs.approvalHandlers).toHaveLength(1);
   });
 });
