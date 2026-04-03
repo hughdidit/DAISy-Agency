@@ -22,6 +22,7 @@ import { createDiscordClient, stripUndefinedFields } from "../../../src/discord/
 import { DiscordUiContainer } from "../../../src/discord/ui.js";
 import { buildGatewayConnectionDetails } from "../../../src/gateway/call.js";
 import { GatewayClient } from "../../../src/gateway/client.js";
+import { resolveGatewayCredentialsFromConfig } from "../../../src/gateway/credentials.js";
 import type { EventFrame } from "../../../src/gateway/protocol/index.js";
 import { logDebug, logError } from "../../../src/logger.js";
 import {
@@ -523,9 +524,15 @@ export class DiscordCronGuardApprovalHandler {
       config: this.opts.cfg,
       url: this.opts.gatewayUrl,
     });
+    const gatewayAuth = resolveGatewayCredentialsFromConfig({
+      cfg: this.opts.cfg,
+      modeOverride: "local",
+    });
 
     this.gatewayClient = new GatewayClient({
       url: gatewayUrl,
+      token: gatewayAuth.token,
+      password: gatewayAuth.password,
       clientName: GATEWAY_CLIENT_NAMES.GATEWAY_CLIENT,
       clientDisplayName: "Discord Cron Approvals",
       mode: GATEWAY_CLIENT_MODES.BACKEND,
