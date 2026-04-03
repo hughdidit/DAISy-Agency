@@ -458,11 +458,15 @@ if root.is_dir():
     removed_profiles.extend(f"{auth_path}:{profile_id}" for profile_id in removed_here)
 
     order = data.get("order")
-    if isinstance(order, dict) and "anthropic" in order:
-      filtered = [profile_id for profile_id in order["anthropic"] if profile_id in kept]
-      if filtered:
-        order["anthropic"] = filtered
-      else:
+    if isinstance(order, dict):
+      anthropic_order = order.get("anthropic")
+      if isinstance(anthropic_order, list):
+        filtered = [profile_id for profile_id in anthropic_order if profile_id in kept]
+        if filtered:
+          order["anthropic"] = filtered
+        else:
+          order.pop("anthropic", None)
+      elif "anthropic" in order:
         order.pop("anthropic", None)
       if not order:
         data.pop("order", None)
