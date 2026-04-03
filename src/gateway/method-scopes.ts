@@ -31,6 +31,11 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "exec.approval.request",
     "exec.approval.waitDecision",
     "exec.approval.resolve",
+    "cron.guard.request.add",
+    "cron.guard.request.update",
+    "cron.guard.request.remove",
+    "cron.guard.resolve",
+    "cron.guard.modify",
   ],
   [PAIRING_SCOPE]: [
     "node.pair.request",
@@ -71,6 +76,10 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "cron.list",
     "cron.status",
     "cron.runs",
+    "cron.guard.status",
+    "cron.guard.list",
+    "cron.guard.requests.list",
+    "cron.guard.requests.get",
     "system-presence",
     "last-heartbeat",
     "node.list",
@@ -129,6 +138,7 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "agents.files.workspace.delete",
     "agents.files.workspace.mkdir",
     "agents.files.workspace.move",
+    "cron.guard.prune",
   ],
 };
 

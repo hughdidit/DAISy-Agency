@@ -38,6 +38,12 @@ import { formatErrorMessage } from "../../infra/errors.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { createNonExitingRuntime, type RuntimeEnv } from "../../runtime.js";
+import { resolveCronGuardPluginConfig } from "../../../extensions/cron-guard/src/config.js";
+import {
+  createCronGuardApprovalButton,
+  createCronGuardApprovalModal,
+  DiscordCronGuardApprovalHandler,
+} from "../../../extensions/cron-guard/src/discord-approvals.js";
 import { resolveDiscordAccount } from "../accounts.js";
 import { fetchDiscordApplicationId } from "../probe.js";
 import { normalizeDiscordToken } from "../token.js";
@@ -393,6 +399,19 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
           runtime,
         })
       : null;
+    const cronGuardPluginConfig = resolveCronGuardPluginConfig(
+      cfg.plugins?.entries?.["cron-guard"]?.config,
+    );
+    const cronGuardApprovalsHandler =
+      cronGuardPluginConfig.enabled && cronGuardPluginConfig.discord.enabled
+        ? new DiscordCronGuardApprovalHandler({
+            token,
+            accountId: account.accountId,
+            config: cronGuardPluginConfig,
+            cfg,
+            runtime,
+          })
+        : null;
 
     const agentComponentsConfig = discordCfg.agentComponents ?? {};
     const agentComponentsEnabled = agentComponentsConfig.enabled ?? true;
@@ -424,6 +443,10 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
 
     if (execApprovalsHandler) {
       components.push(createExecApprovalButton({ handler: execApprovalsHandler }));
+    }
+    if (cronGuardApprovalsHandler) {
+      components.push(createCronGuardApprovalButton({ handler: cronGuardApprovalsHandler }));
+      modals.push(createCronGuardApprovalModal({ handler: cronGuardApprovalsHandler }));
     }
 
     if (agentComponentsEnabled) {
@@ -610,6 +633,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       voiceManager,
       voiceManagerRef,
       execApprovalsHandler,
+      approvalHandlers: cronGuardApprovalsHandler ? [cronGuardApprovalsHandler] : [],
       threadBindings,
       pendingGatewayErrors: earlyGatewayErrorGuard.pendingErrors,
       releaseEarlyGatewayErrorGuard,

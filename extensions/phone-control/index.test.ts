@@ -36,6 +36,7 @@ function createApi(params: {
     registerHttpRoute() {},
     registerChannel() {},
     registerGatewayMethod() {},
+    registerGatewayEvent() {},
     registerCli() {},
     registerService() {},
     registerProvider() {},

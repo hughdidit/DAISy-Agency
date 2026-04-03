@@ -23,6 +23,7 @@ type PluginApi = {
   registerHttpRoute: () => void;
   registerChannel: () => void;
   registerGatewayMethod: () => void;
+  registerGatewayEvent: () => void;
   registerCli: (registrar: (ctx: any) => void, opts?: { commands?: string[] }) => void;
   registerService: () => void;
   registerProvider: () => void;
@@ -113,6 +114,7 @@ export function createHarness(params?: {
     registerHttpRoute() {},
     registerChannel() {},
     registerGatewayMethod() {},
+    registerGatewayEvent() {},
     registerCli(registrar, opts) {
       if (opts?.commands) {
         cliCommands.push(...opts.commands);

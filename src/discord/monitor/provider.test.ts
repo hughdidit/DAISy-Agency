@@ -193,6 +193,19 @@ vi.mock("./exec-approvals.js", () => ({
   },
 }));
 
+vi.mock("../../../extensions/cron-guard/src/discord-approvals.js", () => ({
+  createCronGuardApprovalButton: () => ({ id: "cron-guard-approval" }),
+  createCronGuardApprovalModal: () => ({ id: "cron-guard-modal" }),
+  DiscordCronGuardApprovalHandler: class DiscordCronGuardApprovalHandler {
+    async start() {
+      return undefined;
+    }
+    async stop() {
+      return undefined;
+    }
+  },
+}));
+
 vi.mock("./gateway-plugin.js", () => ({
   createDiscordGatewayPlugin: () => ({ id: "gateway-plugin" }),
 }));
@@ -384,5 +397,36 @@ describe("monitorDiscordProvider", () => {
 
     const eventQueue = getConstructedEventQueue();
     expect(eventQueue?.listenerTimeout).toBe(300_000);
+  });
+
+  it("registers cron-guard approval handlers when the plugin enables Discord approvals", async () => {
+    const { monitorDiscordProvider } = await import("./provider.js");
+
+    await monitorDiscordProvider({
+      config: {
+        ...baseConfig(),
+        plugins: {
+          entries: {
+            "cron-guard": {
+              enabled: true,
+              config: {
+                enabled: true,
+                approvers: ["discord:123"],
+                discord: {
+                  enabled: true,
+                },
+              },
+            },
+          },
+        },
+      } as OpenClawConfig,
+      runtime: baseRuntime(),
+    });
+
+    expect(monitorLifecycleMock).toHaveBeenCalledTimes(1);
+    const lifecycleArgs = monitorLifecycleMock.mock.calls[0]?.[0] as {
+      approvalHandlers?: unknown[];
+    };
+    expect(lifecycleArgs.approvalHandlers).toHaveLength(1);
   });
 });

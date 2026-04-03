@@ -437,6 +437,7 @@ function createApi(): OpenClawPluginApi {
     registerHttpRoute() {},
     registerChannel() {},
     registerGatewayMethod() {},
+    registerGatewayEvent() {},
     registerCli() {},
     registerService() {},
     registerProvider() {},

@@ -18,12 +18,14 @@ function createPluginLogger(): PluginLogger {
 function createServiceContext(params: {
   config: OpenClawConfig;
   workspaceDir?: string;
+  broadcast?: OpenClawPluginServiceContext["broadcast"];
 }): OpenClawPluginServiceContext {
   return {
     config: params.config,
     workspaceDir: params.workspaceDir,
     stateDir: STATE_DIR,
     logger: createPluginLogger(),
+    broadcast: params.broadcast,
   };
 }
 
@@ -60,6 +62,7 @@ export async function startPluginServices(params: {
   registry: PluginRegistry;
   config: OpenClawConfig;
   workspaceDir?: string;
+  broadcast?: OpenClawPluginServiceContext["broadcast"];
 }): Promise<PluginServicesHandle> {
   const running: Array<{
     id: string;
@@ -68,6 +71,7 @@ export async function startPluginServices(params: {
   const serviceContext = createServiceContext({
     config: params.config,
     workspaceDir: params.workspaceDir,
+    broadcast: params.broadcast,
   });
 
   for (const entry of params.registry.services) {

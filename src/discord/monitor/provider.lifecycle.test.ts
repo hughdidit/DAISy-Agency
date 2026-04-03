@@ -172,6 +172,29 @@ describe("runDiscordGatewayLifecycle", () => {
     });
   });
 
+  it("starts and stops additional approval handlers alongside exec approvals", async () => {
+    const { runDiscordGatewayLifecycle } = await import("./provider.lifecycle.js");
+    const extraStart = vi.fn(async () => undefined);
+    const extraStop = vi.fn(async () => undefined);
+    const { lifecycleParams, start, stop, threadStop, releaseEarlyGatewayErrorGuard } =
+      createLifecycleHarness();
+
+    await runDiscordGatewayLifecycle({
+      ...lifecycleParams,
+      approvalHandlers: [{ start: extraStart, stop: extraStop }],
+    });
+
+    expectLifecycleCleanup({
+      start,
+      stop,
+      threadStop,
+      waitCalls: 1,
+      releaseEarlyGatewayErrorGuard,
+    });
+    expect(extraStart).toHaveBeenCalledTimes(1);
+    expect(extraStop).toHaveBeenCalledTimes(1);
+  });
+
   it("cleans up when gateway wait fails after startup", async () => {
     const { runDiscordGatewayLifecycle } = await import("./provider.lifecycle.js");
     waitForDiscordGatewayStopMock.mockRejectedValueOnce(new Error("gateway wait failed"));

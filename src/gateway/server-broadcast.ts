@@ -9,6 +9,11 @@ const PAIRING_SCOPE = "operator.pairing";
 const EVENT_SCOPE_GUARDS: Record<string, string[]> = {
   "exec.approval.requested": [APPROVALS_SCOPE],
   "exec.approval.resolved": [APPROVALS_SCOPE],
+  "cron.guard.requested": [APPROVALS_SCOPE],
+  "cron.guard.modified": [APPROVALS_SCOPE],
+  "cron.guard.resolved": [APPROVALS_SCOPE],
+  "cron.guard.applied": [APPROVALS_SCOPE],
+  "cron.guard.expired": [APPROVALS_SCOPE],
   "device.pair.requested": [PAIRING_SCOPE],
   "device.pair.resolved": [PAIRING_SCOPE],
   "node.pair.requested": [PAIRING_SCOPE],

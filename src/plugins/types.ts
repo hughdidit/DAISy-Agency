@@ -10,6 +10,7 @@ import type { createVpsAwareOAuthHandlers } from "../commands/oauth-flow.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { ModelProviderConfig } from "../config/types.js";
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
+import type { GatewayBroadcastFn } from "../gateway/server-broadcast.js";
 import type { InternalHookHandler } from "../hooks/internal-hooks.js";
 import type { HookEntry } from "../hooks/types.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -136,6 +137,10 @@ export type OpenClawPluginGatewayMethod = {
   handler: GatewayRequestHandler;
 };
 
+export type OpenClawPluginGatewayEvent = {
+  event: string;
+};
+
 // =============================================================================
 // Plugin Commands
 // =============================================================================
@@ -226,6 +231,7 @@ export type OpenClawPluginServiceContext = {
   workspaceDir?: string;
   stateDir: string;
   logger: PluginLogger;
+  broadcast?: GatewayBroadcastFn;
 };
 
 export type OpenClawPluginService = {
@@ -277,6 +283,7 @@ export type OpenClawPluginApi = {
   registerHttpRoute: (params: OpenClawPluginHttpRouteParams) => void;
   registerChannel: (registration: OpenClawPluginChannelRegistration | ChannelPlugin) => void;
   registerGatewayMethod: (method: string, handler: GatewayRequestHandler) => void;
+  registerGatewayEvent: (event: string) => void;
   registerCli: (registrar: OpenClawPluginCliRegistrar, opts?: { commands?: string[] }) => void;
   registerService: (service: OpenClawPluginService) => void;
   registerProvider: (provider: ProviderPlugin) => void;

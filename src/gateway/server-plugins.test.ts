@@ -18,6 +18,7 @@ const createRegistry = (diagnostics: PluginDiagnostic[]): PluginRegistry => ({
   commands: [],
   providers: [],
   gatewayHandlers: {},
+  gatewayEvents: [],
   httpRoutes: [],
   cliRegistrars: [],
   services: [],
@@ -55,5 +56,33 @@ describe("loadGatewayPlugins", () => {
       "[plugins] failed to load plugin: boom (plugin=telegram, source=/tmp/telegram/index.ts)",
     );
     expect(log.warn).not.toHaveBeenCalled();
+  });
+
+  test("returns plugin gateway events alongside methods", () => {
+    loadOpenClawPlugins.mockReturnValue({
+      ...createRegistry([]),
+      gatewayHandlers: {
+        "cron.guard.status": vi.fn(),
+      },
+      gatewayEvents: ["cron.guard.requested", "cron.guard.applied"],
+    });
+
+    const log = {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn(),
+    };
+
+    const result = loadGatewayPlugins({
+      cfg: {},
+      workspaceDir: "/tmp",
+      log,
+      coreGatewayHandlers: {},
+      baseMethods: ["health"],
+    });
+
+    expect(result.gatewayMethods).toEqual(["health", "cron.guard.status"]);
+    expect(result.gatewayEvents).toEqual(["cron.guard.requested", "cron.guard.applied"]);
   });
 });

@@ -109,6 +109,7 @@ export type PluginRecord = {
   channelIds: string[];
   providerIds: string[];
   gatewayMethods: string[];
+  gatewayEvents: string[];
   cliCommands: string[];
   services: string[];
   commands: string[];
@@ -127,6 +128,7 @@ export type PluginRegistry = {
   channels: PluginChannelRegistration[];
   providers: PluginProviderRegistration[];
   gatewayHandlers: GatewayRequestHandlers;
+  gatewayEvents: string[];
   httpRoutes: PluginHttpRouteRegistration[];
   cliRegistrars: PluginCliRegistration[];
   services: PluginServiceRegistration[];
@@ -149,6 +151,7 @@ export function createEmptyPluginRegistry(): PluginRegistry {
     channels: [],
     providers: [],
     gatewayHandlers: {},
+    gatewayEvents: [],
     httpRoutes: [],
     cliRegistrars: [],
     services: [],
@@ -282,6 +285,21 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     }
     registry.gatewayHandlers[trimmed] = handler;
     record.gatewayMethods.push(trimmed);
+  };
+
+  const registerGatewayEvent = (record: PluginRecord, event: string) => {
+    const trimmed = event.trim();
+    if (!trimmed) {
+      return;
+    }
+    if (registry.gatewayEvents.includes(trimmed)) {
+      if (!record.gatewayEvents.includes(trimmed)) {
+        record.gatewayEvents.push(trimmed);
+      }
+      return;
+    }
+    registry.gatewayEvents.push(trimmed);
+    record.gatewayEvents.push(trimmed);
   };
 
   const describeHttpRouteOwner = (entry: PluginHttpRouteRegistration): string => {
@@ -522,6 +540,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
       registerChannel: (registration) => registerChannel(record, registration),
       registerProvider: (provider) => registerProvider(record, provider),
       registerGatewayMethod: (method, handler) => registerGatewayMethod(record, method, handler),
+      registerGatewayEvent: (event) => registerGatewayEvent(record, event),
       registerCli: (registrar, opts) => registerCli(record, registrar, opts),
       registerService: (service) => registerService(record, service),
       registerCommand: (command) => registerCommand(record, command),
@@ -538,6 +557,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
     registerChannel,
     registerProvider,
     registerGatewayMethod,
+    registerGatewayEvent,
     registerCli,
     registerService,
     registerCommand,

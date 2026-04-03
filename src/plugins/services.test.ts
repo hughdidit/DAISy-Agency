@@ -158,4 +158,29 @@ describe("startPluginServices", () => {
       expect.stringContaining("plugin service failed (service-required): Error: required failed"),
     );
   });
+
+  it("passes broadcast into the plugin service context when provided", async () => {
+    const seenBroadcast = vi.fn();
+    const starts: OpenClawPluginServiceContext[] = [];
+
+    const handle = await startPluginServices({
+      registry: createRegistry([
+        {
+          id: "service-broadcast",
+          start: (ctx) => {
+            starts.push(ctx);
+            ctx.broadcast?.("cron.guard.requested", { requestId: "req-1" });
+          },
+        },
+      ]),
+      config: {} as Parameters<typeof startPluginServices>[0]["config"],
+      broadcast: seenBroadcast,
+    });
+
+    await handle.stop();
+
+    expect(starts).toHaveLength(1);
+    expect(starts[0]?.broadcast).toBe(seenBroadcast);
+    expect(seenBroadcast).toHaveBeenCalledWith("cron.guard.requested", { requestId: "req-1" });
+  });
 });
