@@ -263,10 +263,12 @@ function resolveGatewayCallTimeout(timeoutValue: unknown): {
   return { timeoutMs, safeTimerTimeoutMs };
 }
 
-function resolveGatewayCallContext(opts: CallGatewayBaseOptions): ResolvedGatewayCallContext {
+function resolveGatewayCallContext(
+  opts: CallGatewayBaseOptions,
+  env: NodeJS.ProcessEnv = process.env,
+): ResolvedGatewayCallContext {
   const config = opts.config ?? loadConfig();
-  const configPath =
-    opts.configPath ?? resolveConfigPath(process.env, resolveStateDir(process.env));
+  const configPath = opts.configPath ?? resolveConfigPath(env, resolveStateDir(env));
   const isRemoteMode = config.gateway?.mode === "remote";
   const remote = isRemoteMode
     ? (config.gateway?.remote as GatewayRemoteSettings | undefined)
@@ -274,8 +276,7 @@ function resolveGatewayCallContext(opts: CallGatewayBaseOptions): ResolvedGatewa
   const cliUrlOverride = trimToUndefined(opts.url);
   const envUrlOverride = cliUrlOverride
     ? undefined
-    : (trimToUndefined(process.env.OPENCLAW_GATEWAY_URL) ??
-      trimToUndefined(process.env.CLAWDBOT_GATEWAY_URL));
+    : (trimToUndefined(env.OPENCLAW_GATEWAY_URL) ?? trimToUndefined(env.CLAWDBOT_GATEWAY_URL));
   const urlOverride = cliUrlOverride ?? envUrlOverride;
   const urlOverrideSource = cliUrlOverride ? "cli" : envUrlOverride ? "env" : undefined;
   const remoteUrl = trimToUndefined(remote?.url);
@@ -496,22 +497,18 @@ export async function resolveGatewayCredentialsWithSecretInputs(params: {
   urlOverride?: string;
   env?: NodeJS.ProcessEnv;
 }): Promise<{ token?: string; password?: string }> {
-  const context: ResolvedGatewayCallContext = {
-    config: params.config,
-    configPath: resolveConfigPath(process.env, resolveStateDir(process.env)),
-    isRemoteMode: params.config.gateway?.mode === "remote",
-    remote:
-      params.config.gateway?.mode === "remote"
-        ? (params.config.gateway?.remote as GatewayRemoteSettings | undefined)
-        : undefined,
-    urlOverride: trimToUndefined(params.urlOverride),
-    remoteUrl:
-      params.config.gateway?.mode === "remote"
-        ? trimToUndefined((params.config.gateway?.remote as GatewayRemoteSettings | undefined)?.url)
-        : undefined,
-    explicitAuth: resolveExplicitGatewayAuth(params.explicitAuth),
-  };
-  return resolveGatewayCredentialsWithEnv(context, params.env ?? process.env);
+  const env = params.env ?? process.env;
+  const context = resolveGatewayCallContext(
+    {
+      config: params.config,
+      url: params.urlOverride,
+      token: params.explicitAuth?.token,
+      password: params.explicitAuth?.password,
+      method: "gateway.credentials.resolve",
+    },
+    env,
+  );
+  return resolveGatewayCredentialsWithEnv(context, env);
 }
 
 async function resolveGatewayTlsFingerprint(params: {

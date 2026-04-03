@@ -13,7 +13,10 @@ import { ButtonStyle, Routes } from "discord-api-types/v10";
 import type { OpenClawConfig } from "../../config/config.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
-import { buildGatewayConnectionDetails } from "../../gateway/call.js";
+import {
+  buildGatewayConnectionDetails,
+  resolveGatewayCredentialsWithSecretInputs,
+} from "../../gateway/call.js";
 import { GatewayClient } from "../../gateway/client.js";
 import type { EventFrame } from "../../gateway/protocol/index.js";
 import type {
@@ -404,9 +407,16 @@ export class DiscordExecApprovalHandler {
       config: this.opts.cfg,
       url: this.opts.gatewayUrl,
     });
+    const gatewayAuth = await resolveGatewayCredentialsWithSecretInputs({
+      config: this.opts.cfg,
+      urlOverride: this.opts.gatewayUrl,
+      env: process.env,
+    });
 
     this.gatewayClient = new GatewayClient({
       url: gatewayUrl,
+      token: gatewayAuth.token,
+      password: gatewayAuth.password,
       clientName: GATEWAY_CLIENT_NAMES.GATEWAY_CLIENT,
       clientDisplayName: "Discord Exec Approvals",
       mode: GATEWAY_CLIENT_MODES.BACKEND,
