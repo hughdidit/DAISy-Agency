@@ -498,13 +498,16 @@ export async function resolveGatewayCredentialsWithSecretInputs(params: {
   env?: NodeJS.ProcessEnv;
 }): Promise<{ token?: string; password?: string }> {
   const env = params.env ?? process.env;
-  const context = resolveGatewayCallContext({
-    config: params.config,
-    url: params.urlOverride,
-    token: params.explicitAuth?.token,
-    password: params.explicitAuth?.password,
-    method: "gateway.credentials.resolve",
-  }, env);
+  const context = resolveGatewayCallContext(
+    {
+      config: params.config,
+      url: params.urlOverride,
+      token: params.explicitAuth?.token,
+      password: params.explicitAuth?.password,
+      method: "gateway.credentials.resolve",
+    },
+    env,
+  );
   return resolveGatewayCredentialsWithEnv(context, env);
 }
 
