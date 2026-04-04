@@ -92,7 +92,6 @@ OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-${CLAWDBOT_GATEWAY_BIND:-loopbac
 
 # App secrets (passed to docker compose on the VM)
 : "${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required for real deploy}"
-: "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required for real deploy}"
 : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required for real deploy}"
 : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required for real deploy}"
 # OPENAI_API_KEY is optional (OpenAI-backed model/tool access)
@@ -100,9 +99,6 @@ OPENAI_API_KEY="${OPENAI_API_KEY:-}"
 # MONGODB_URI and GEMINI_API_KEY are optional (memory-mongodb plugin only)
 MONGODB_URI="${MONGODB_URI:-}"
 GEMINI_API_KEY="${GEMINI_API_KEY:-}"
-# CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
-CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
-CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
 # BRAVE_API_KEY is optional (web-search tool)
 BRAVE_API_KEY="${BRAVE_API_KEY:-}"
 # FIRECRAWL_API_KEY is optional (firecrawl tool)
@@ -356,8 +352,7 @@ echo \"Per-deploy permissions applied.\"'"
 fi
 
 # Build the remote script as a variable (avoids heredoc/pipe conflict)
-# shellcheck disable=SC2016
-REMOTE_SCRIPT='
+REMOTE_SCRIPT="$(cat <<'REMOTE_SCRIPT_EOF'
 set -euo pipefail
 
 DEPLOY_REF="$1"
@@ -383,14 +378,11 @@ esac
 # Read secrets from stdin (one per line, passed by outer script)
 read -r GHCR_TOKEN
 read -r OPENCLAW_GATEWAY_TOKEN
-read -r CLAUDE_AI_SESSION_KEY
 read -r DISCORD_BOT_TOKEN
 read -r ANTHROPIC_API_KEY
 read -r OPENAI_API_KEY || OPENAI_API_KEY=""
 read -r MONGODB_URI || MONGODB_URI=""
 read -r GEMINI_API_KEY || GEMINI_API_KEY=""
-read -r CLAUDE_WEB_SESSION_KEY || CLAUDE_WEB_SESSION_KEY=""
-read -r CLAUDE_WEB_COOKIE || CLAUDE_WEB_COOKIE=""
 read -r BRAVE_API_KEY || BRAVE_API_KEY=""
 read -r FIRECRAWL_API_KEY || FIRECRAWL_API_KEY=""
 read -r TRELLO_API_KEY || TRELLO_API_KEY=""
@@ -426,6 +418,168 @@ if [[ ! -f "${OPENCLAW_CONFIG_PATH}" ]]; then
   exit 6
 fi
 
+cleanup_anthropic_token_profiles() {
+  sudo python3 - "${DEPLOY_DIR}/config/agents" <<'PY'
+import json
+import os
+import stat
+import sys
+import tempfile
+from pathlib import Path
+
+ANTHROPIC_SETUP_TOKEN_PREFIX = "sk-ant-oat01-"
+
+
+def is_path_within_root(path, root_path):
+  try:
+    path.relative_to(root_path)
+    return True
+  except ValueError:
+    return False
+
+
+def is_anthropic_setup_token_profile(profile_id, cred):
+  if not isinstance(cred, dict):
+    return False
+  if cred.get("provider") != "anthropic" or cred.get("type") != "token":
+    return False
+
+  token = cred.get("token")
+  if isinstance(token, str) and token.startswith(ANTHROPIC_SETUP_TOKEN_PREFIX):
+    return True
+
+  token_ref = cred.get("tokenRef")
+  if not isinstance(token_ref, dict):
+    return False
+  if token_ref.get("provider") == "anthropic-setup-token":
+    return True
+  return token_ref.get("id") == "ANTHROPIC_SETUP_TOKEN"
+
+
+def secure_read_auth_profile(auth_path, root_path):
+  try:
+    path_stat = os.lstat(auth_path)
+  except FileNotFoundError:
+    return None, None, None
+
+  if stat.S_ISLNK(path_stat.st_mode):
+    print(f"WARNING: refusing to follow symlink auth profile {auth_path}", file=sys.stderr)
+    return None, None, None
+
+  resolved_path = auth_path.resolve(strict=False)
+  if not is_path_within_root(resolved_path, root_path):
+    print(f"WARNING: refusing auth profile outside root {auth_path}", file=sys.stderr)
+    return None, None, None
+
+  fd = os.open(auth_path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+  try:
+    handle = os.fdopen(fd, "r", encoding="utf-8")
+  except Exception:
+    os.close(fd)
+    raise
+
+  with handle:
+    raw = handle.read()
+  return raw, path_stat, resolved_path
+
+
+def secure_write_auth_profile(auth_path, file_stat, payload):
+  temp_fd, temp_path = tempfile.mkstemp(
+    prefix=f".{auth_path.name}.",
+    suffix=".tmp",
+    dir=auth_path.parent,
+    text=True,
+  )
+  try:
+    with os.fdopen(temp_fd, "w", encoding="utf-8") as handle:
+      handle.write(payload)
+    os.chown(temp_path, file_stat.st_uid, file_stat.st_gid)
+    os.chmod(temp_path, stat.S_IMODE(file_stat.st_mode))
+    os.replace(temp_path, auth_path)
+  finally:
+    if os.path.exists(temp_path):
+      os.unlink(temp_path)
+
+
+root = Path(sys.argv[1])
+root_resolved = root.resolve(strict=False)
+removed_profiles = []
+rewritten_files = []
+deleted_files = []
+
+if root.is_dir():
+  for auth_path in root.glob("*/agent/auth-profiles.json"):
+    try:
+      raw, path_stat, resolved_path = secure_read_auth_profile(auth_path, root_resolved)
+      if raw is None:
+        continue
+      data = json.loads(raw)
+    except FileNotFoundError:
+      continue
+    except Exception as exc:
+      print(f"WARNING: failed to parse {auth_path}: {exc}", file=sys.stderr)
+      continue
+
+    profiles = data.get("profiles")
+    if not isinstance(profiles, dict):
+      continue
+    kept = {}
+    removed_here = []
+    for profile_id, cred in profiles.items():
+      if is_anthropic_setup_token_profile(profile_id, cred):
+        removed_here.append(profile_id)
+      else:
+        kept[profile_id] = cred
+
+    if not removed_here:
+      continue
+
+    removed_profiles.extend(f"{auth_path}:{profile_id}" for profile_id in removed_here)
+
+    order = data.get("order")
+    if isinstance(order, dict):
+      anthropic_order = order.get("anthropic")
+      if isinstance(anthropic_order, list):
+        filtered = [profile_id for profile_id in anthropic_order if profile_id in kept]
+        if filtered:
+          order["anthropic"] = filtered
+        else:
+          order.pop("anthropic", None)
+      elif "anthropic" in order:
+        order.pop("anthropic", None)
+      if not order:
+        data.pop("order", None)
+
+    last_good = data.get("lastGood")
+    if isinstance(last_good, dict) and last_good.get("anthropic") not in kept:
+      last_good.pop("anthropic", None)
+      if not last_good:
+        data.pop("lastGood", None)
+
+    usage = data.get("usageStats")
+    if isinstance(usage, dict):
+      for profile_id in removed_here:
+        usage.pop(profile_id, None)
+      if not usage:
+        data.pop("usageStats", None)
+
+    if kept:
+      data["profiles"] = kept
+      secure_write_auth_profile(auth_path, path_stat, json.dumps(data, indent=2) + "\n")
+      rewritten_files.append(str(resolved_path or auth_path))
+    else:
+      os.unlink(auth_path)
+      deleted_files.append(str(resolved_path or auth_path))
+
+summary = {
+  "removedProfiles": removed_profiles,
+  "rewrittenFiles": rewritten_files,
+  "deletedFiles": deleted_files,
+}
+print(json.dumps(summary, indent=2))
+PY
+}
+
 # Materialize optional gws credentials for credentials_file auth mode.
 if [[ -n "${GWS_CREDENTIALS_B64}" ]]; then
   GWS_CREDENTIALS_TMP="$(mktemp)"
@@ -448,14 +602,11 @@ unset GHCR_TOKEN
 # Export app secrets for docker compose
 export OPENCLAW_IMAGE="${DEPLOY_REF}"
 export OPENCLAW_GATEWAY_TOKEN
-export CLAUDE_AI_SESSION_KEY
 export DISCORD_BOT_TOKEN
 export ANTHROPIC_API_KEY
 export OPENAI_API_KEY
 export MONGODB_URI
 export GEMINI_API_KEY
-export CLAUDE_WEB_SESSION_KEY
-export CLAUDE_WEB_COOKIE
 export BRAVE_API_KEY
 export FIRECRAWL_API_KEY
 if [[ -n "${TRELLO_API_KEY}" ]]; then
@@ -748,11 +899,17 @@ sudo -E docker-compose ${COMPOSE_FILES} rm -f openclaw-gateway openclaw-cli || t
 # are applied even when the image reference is unchanged.
 sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans --force-recreate
 
+echo "Removing Anthropic setup-token auth profiles from persisted agent state..."
+if ! cleanup_anthropic_token_profiles; then
+  echo "WARNING: auth-profile cleanup failed after rollout; existing containers were left running." >&2
+fi
+
 # Clear secrets from environment
-unset OPENCLAW_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY OPENAI_API_KEY MONGODB_URI GEMINI_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE BRAVE_API_KEY FIRECRAWL_API_KEY TRELLO_API_KEY TRELLO_TOKEN GOOGLE_WORKSPACE_CLI_TOKEN GWS_CREDENTIALS_B64
+unset OPENCLAW_GATEWAY_TOKEN DISCORD_BOT_TOKEN ANTHROPIC_API_KEY OPENAI_API_KEY MONGODB_URI GEMINI_API_KEY BRAVE_API_KEY FIRECRAWL_API_KEY TRELLO_API_KEY TRELLO_TOKEN GOOGLE_WORKSPACE_CLI_TOKEN GWS_CREDENTIALS_B64
 
 echo "Deployment complete."
-'
+REMOTE_SCRIPT_EOF
+)"
 
 # Use gcloud compute ssh with IAP tunneling (enforces IAM before connection)
 # Pass GHCR_TOKEN via stdin; script passed as bash -c argument to avoid stdin conflict
@@ -767,6 +924,7 @@ printf -v BRIDGE_PORT_ESCAPED '%q' "${OPENCLAW_BRIDGE_PORT}"
 printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
 printf -v CONFIG_FILE_ESCAPED '%q' "${OPENCLAW_CONFIG_FILE:-openclaw.json}"
 printf -v MIN_FREE_SPACE_MB_ESCAPED '%q' "${MIN_FREE_SPACE_MB:-4096}"
+REMOTE_SCRIPT_B64="$(printf '%s' "${REMOTE_SCRIPT}" | base64 | tr -d '\n')"
 
 # Base64-wrap multiline credentials payload so stdin remains one-value-per-line.
 GWS_CREDENTIALS_B64=""
@@ -779,14 +937,11 @@ unset GWS_CREDENTIALS
 {
   printf '%s\n' "${GHCR_TOKEN}"
   printf '%s\n' "${OPENCLAW_GATEWAY_TOKEN}"
-  printf '%s\n' "${CLAUDE_AI_SESSION_KEY}"
   printf '%s\n' "${DISCORD_BOT_TOKEN}"
   printf '%s\n' "${ANTHROPIC_API_KEY}"
   printf '%s\n' "${OPENAI_API_KEY}"
   printf '%s\n' "${MONGODB_URI}"
   printf '%s\n' "${GEMINI_API_KEY}"
-  printf '%s\n' "${CLAUDE_WEB_SESSION_KEY}"
-  printf '%s\n' "${CLAUDE_WEB_COOKIE}"
   printf '%s\n' "${BRAVE_API_KEY}"
   printf '%s\n' "${FIRECRAWL_API_KEY}"
   printf '%s\n' "${TRELLO_API_KEY}"
@@ -798,4 +953,4 @@ unset GWS_CREDENTIALS
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
   --quiet \
-  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
+  --command "printf '%s' '${REMOTE_SCRIPT_B64}' | base64 -d | bash -s -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
