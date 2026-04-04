@@ -669,12 +669,12 @@ export MONGODB_URI
 export GEMINI_API_KEY
 export BRAVE_API_KEY
 export FIRECRAWL_API_KEY
-if [[ -n "${TRELLO_API_KEY}" ]]; then
+if [[ -n "${TRELLO_API_KEY:-}" ]]; then
   export TRELLO_API_KEY
 else
   unset TRELLO_API_KEY
 fi
-if [[ -n "${TRELLO_TOKEN}" ]]; then
+if [[ -n "${TRELLO_TOKEN:-}" ]]; then
   export TRELLO_TOKEN
 else
   unset TRELLO_TOKEN
