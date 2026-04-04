@@ -632,8 +632,16 @@ export MONGODB_URI
 export GEMINI_API_KEY
 export BRAVE_API_KEY
 export FIRECRAWL_API_KEY
-export TRELLO_API_KEY="${TRELLO_API_KEY:-}"
-export TRELLO_TOKEN="${TRELLO_TOKEN:-}"
+if [[ -n "${TRELLO_API_KEY}" ]]; then
+  export TRELLO_API_KEY
+else
+  unset TRELLO_API_KEY
+fi
+if [[ -n "${TRELLO_TOKEN}" ]]; then
+  export TRELLO_TOKEN
+else
+  unset TRELLO_TOKEN
+fi
 export GOOGLE_WORKSPACE_CLI_TOKEN
 export OPENCLAW_CONFIG_DIR="${DEPLOY_DIR}/config"
 export OPENCLAW_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
@@ -964,8 +972,8 @@ unset GWS_CREDENTIALS
   printf '%s\n' "${GEMINI_API_KEY}"
   printf '%s\n' "${BRAVE_API_KEY}"
   printf '%s\n' "${FIRECRAWL_API_KEY}"
-  printf '%s\n' "${TRELLO_API_KEY:-}"
-  printf '%s\n' "${TRELLO_TOKEN:-}"
+  printf '%s\n' "${TRELLO_API_KEY}"
+  printf '%s\n' "${TRELLO_TOKEN}"
   printf '%s\n' "${GOOGLE_WORKSPACE_CLI_TOKEN}"
   printf '%s\n' "${GWS_CREDENTIALS_B64}"
 } | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
