@@ -144,16 +144,12 @@ if [[ "${PROVISION}" == "true" ]]; then
 
   # Provision VM: install docker-compose, create directory structure, copy compose files
   # --quiet suppresses interactive prompts (SSH key generation) that would consume stdin
-  {
-    printf '%s\n' "${COMPOSE_B64}"
-    printf '%s\n' "${COMPOSE_HOST_B64}"
-    printf '%s\n' "${COMPOSE_SANDBOX_B64}"
-  } | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+  gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; read -r COMPOSE_B64; read -r COMPOSE_HOST_B64; read -r COMPOSE_SANDBOX_B64; if ! command -v docker-compose >/dev/null 2>&1; then echo \"Installing docker-compose...\"; sudo curl -fsSL \"https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; printf %s \"\${COMPOSE_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/docker-compose.yml\" > /dev/null; printf %s \"\${COMPOSE_HOST_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/docker-compose.host.yml\" > /dev/null; printf %s \"\${COMPOSE_SANDBOX_B64}\" | base64 -d | sudo tee \"\${DEPLOY_DIR}/docker-compose.sandbox.yml\" > /dev/null; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo chown 1000:1000 \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo find \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\" -mindepth 1 -exec chown 1000:1000 {} +; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker-compose version'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if ! command -v docker-compose >/dev/null 2>&1; then echo \"Installing docker-compose...\"; sudo curl -fsSL \"https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; echo \"${COMPOSE_HOST_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.host.yml\"; echo \"${COMPOSE_SANDBOX_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.sandbox.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo chown 1000:1000 \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo find \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\" -mindepth 1 -exec chown 1000:1000 {} + 2>/dev/null || true; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker-compose version'"
   echo "Provisioning complete."
 fi
 
@@ -584,86 +580,6 @@ print(json.dumps(summary, indent=2))
 PY
 }
 
-prepare_runtime_trello_config() {
-  local has_trello_api_key="false"
-  local has_trello_token="false"
-  local runtime_config_file=".runtime-${OPENCLAW_CONFIG_FILE}"
-  local runtime_config_path="config/${runtime_config_file}"
-
-  [[ -n "${TRELLO_API_KEY:-}" ]] && has_trello_api_key="true"
-  [[ -n "${TRELLO_TOKEN:-}" ]] && has_trello_token="true"
-
-  if [[ "${has_trello_api_key}" == "true" && "${has_trello_token}" == "true" ]]; then
-    echo "Trello credentials present; using source config ${OPENCLAW_CONFIG_PATH}."
-    return 0
-  fi
-
-  sudo cp --preserve=mode,ownership,timestamps "${OPENCLAW_CONFIG_PATH}" "${runtime_config_path}"
-  sudo python3 - "${runtime_config_path}" "${has_trello_api_key}" "${has_trello_token}" <<'PY'
-import os
-import re
-import stat
-import sys
-import tempfile
-from pathlib import Path
-
-config_path = Path(sys.argv[1])
-has_trello_api_key = sys.argv[2] == "true"
-has_trello_token = sys.argv[3] == "true"
-
-if not config_path.is_file():
-  print(f"ERROR: config file not found at {config_path}", file=sys.stderr)
-  sys.exit(1)
-
-patterns = []
-if not has_trello_api_key:
-  patterns.append((
-    "TRELLO_API_KEY",
-    re.compile(r'^[ \t]*(?:TRELLO_API_KEY|"TRELLO_API_KEY"|\'TRELLO_API_KEY\'):[ \t]*"\$\{TRELLO_API_KEY\}",?[ \t]*\r?\n?', re.MULTILINE),
-  ))
-if not has_trello_token:
-  patterns.append((
-    "TRELLO_TOKEN",
-    re.compile(r'^[ \t]*(?:TRELLO_TOKEN|"TRELLO_TOKEN"|\'TRELLO_TOKEN\'):[ \t]*"\$\{TRELLO_TOKEN\}",?[ \t]*\r?\n?', re.MULTILINE),
-  ))
-
-if not patterns:
-  print('{"removedRefs": []}')
-  sys.exit(0)
-
-raw = config_path.read_text(encoding="utf-8")
-updated = raw
-removed_refs = []
-for name, pattern in patterns:
-  updated, count = pattern.subn("", updated)
-  if count > 0:
-    removed_refs.extend([name] * count)
-
-if updated == raw:
-  print('{"removedRefs": []}')
-  sys.exit(0)
-
-path_stat = config_path.stat()
-fd, temp_path = tempfile.mkstemp(prefix=f'.{config_path.name}.', suffix='.tmp', dir=config_path.parent, text=True)
-try:
-  with os.fdopen(fd, 'w', encoding='utf-8', newline='') as handle:
-    handle.write(updated)
-  os.chown(temp_path, path_stat.st_uid, path_stat.st_gid)
-  os.chmod(temp_path, stat.S_IMODE(path_stat.st_mode))
-  os.replace(temp_path, config_path)
-finally:
-  if os.path.exists(temp_path):
-    os.unlink(temp_path)
-
-print('{"removedRefs": [' + ', '.join(f'"{name}"' for name in removed_refs) + ']}')
-PY
-
-  OPENCLAW_CONFIG_FILE="${runtime_config_file}"
-  OPENCLAW_CONFIG_PATH="${runtime_config_path}"
-  export OPENCLAW_CONFIG_FILE
-  echo "Prepared runtime config ${OPENCLAW_CONFIG_PATH} without unavailable Trello refs."
-}
-
 # Materialize optional gws credentials for credentials_file auth mode.
 if [[ -n "${GWS_CREDENTIALS_B64}" ]]; then
   GWS_CREDENTIALS_TMP="$(mktemp)"
@@ -676,29 +592,10 @@ else
 fi
 unset GWS_CREDENTIALS_B64
 
-image_exists_locally() {
-  local image_ref="$1"
-  sudo docker image inspect "${image_ref}" >/dev/null 2>&1
-}
-
-use_cached_image_or_fail() {
-  local image_ref="$1"
-  local description="$2"
-  local failure_reason="${3:-image pull failed}"
-  if image_exists_locally "${image_ref}"; then
-    echo "WARNING: Using cached ${description} image ${image_ref}; ${failure_reason}." >&2
-    return 0
-  fi
-  echo "ERROR: ${description} image ${image_ref} is not cached locally and ${failure_reason}." >&2
-  exit 1
-}
-
 # Authenticate to GHCR (use sudo for docker access)
-GHCR_AUTHENTICATED=false
-if sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
-  GHCR_AUTHENTICATED=true
-else
-  echo "WARNING: Failed to authenticate to GHCR. Will fall back to cached images when possible." >&2
+if ! sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
+  echo "ERROR: Failed to authenticate to GHCR. Check credentials and network." >&2
+  exit 1
 fi
 unset GHCR_TOKEN
 
@@ -712,8 +609,16 @@ export MONGODB_URI
 export GEMINI_API_KEY
 export BRAVE_API_KEY
 export FIRECRAWL_API_KEY
-export TRELLO_API_KEY="${TRELLO_API_KEY:-}"
-export TRELLO_TOKEN="${TRELLO_TOKEN:-}"
+if [[ -n "${TRELLO_API_KEY}" ]]; then
+  export TRELLO_API_KEY
+else
+  unset TRELLO_API_KEY
+fi
+if [[ -n "${TRELLO_TOKEN}" ]]; then
+  export TRELLO_TOKEN
+else
+  unset TRELLO_TOKEN
+fi
 export GOOGLE_WORKSPACE_CLI_TOKEN
 export OPENCLAW_CONFIG_DIR="${DEPLOY_DIR}/config"
 export OPENCLAW_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
@@ -721,12 +626,6 @@ export OPENCLAW_GATEWAY_BIND
 export OPENCLAW_GATEWAY_PORT
 export OPENCLAW_BRIDGE_PORT
 export OPENCLAW_CONFIG_FILE
-
-echo "Preparing deploy-time config from ${OPENCLAW_CONFIG_PATH}..."
-if ! prepare_runtime_trello_config; then
-  echo "ERROR: Failed to prepare deploy-time config from ${OPENCLAW_CONFIG_PATH}." >&2
-  exit 1
-fi
 
 resolve_sandbox_browser_enabled() {
   local probe_script config_mount config_path
@@ -972,7 +871,7 @@ if sudo docker pull "${SANDBOX_GHCR_IMAGE}"; then
   sudo docker tag "${SANDBOX_GHCR_IMAGE}" "openclaw-sandbox:bookworm-slim"
   echo "Sandbox image ready: openclaw-sandbox:bookworm-slim"
 else
-  use_cached_image_or_fail "openclaw-sandbox:bookworm-slim" "sandbox" "sandbox image pull failed"
+  echo "WARNING: Failed to pull sandbox image. Sandbox may not function." >&2
 fi
 
 if [[ "${browser_enabled}" == "true" ]]; then
@@ -982,19 +881,14 @@ if [[ "${browser_enabled}" == "true" ]]; then
     sudo docker tag "${SANDBOX_BROWSER_GHCR_IMAGE}" "openclaw-sandbox-browser:bookworm-slim"
     echo "Sandbox browser image ready: openclaw-sandbox-browser:bookworm-slim"
   else
-    use_cached_image_or_fail "openclaw-sandbox-browser:bookworm-slim" "sandbox browser" "sandbox browser image pull failed"
+    echo "ERROR: Failed to pull required sandbox browser image ${SANDBOX_BROWSER_GHCR_IMAGE}." >&2
+    exit 1
   fi
 fi
 
 # Pull app images while existing containers remain running.
 # This reduces downtime if pull fails.
-if ! sudo -E docker-compose ${COMPOSE_FILES} pull; then
-  if [[ "${GHCR_AUTHENTICATED}" == "true" ]]; then
-    echo "ERROR: Failed to pull application images after successful GHCR authentication." >&2
-    exit 1
-  fi
-  use_cached_image_or_fail "${DEPLOY_REF}" "application" "docker-compose pull failed after GHCR authentication was unavailable"
-fi
+sudo -E docker-compose ${COMPOSE_FILES} pull
 
 # Stop/remove app containers so a crash-looping gateway cannot block startup.
 # This avoids "container is restarting" races when openclaw-cli joins gateway network namespace.
@@ -1050,8 +944,8 @@ unset GWS_CREDENTIALS
   printf '%s\n' "${GEMINI_API_KEY}"
   printf '%s\n' "${BRAVE_API_KEY}"
   printf '%s\n' "${FIRECRAWL_API_KEY}"
-  printf '%s\n' "${TRELLO_API_KEY:-}"
-  printf '%s\n' "${TRELLO_TOKEN:-}"
+  printf '%s\n' "${TRELLO_API_KEY}"
+  printf '%s\n' "${TRELLO_TOKEN}"
   printf '%s\n' "${GOOGLE_WORKSPACE_CLI_TOKEN}"
   printf '%s\n' "${GWS_CREDENTIALS_B64}"
 } | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
