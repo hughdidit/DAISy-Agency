@@ -584,6 +584,72 @@ print(json.dumps(summary, indent=2))
 PY
 }
 
+cleanup_optional_trello_config_refs() {
+  if [[ -n "${TRELLO_API_KEY:-}" && -n "${TRELLO_TOKEN:-}" ]]; then
+    echo "Trello credentials present; keeping Trello config env refs." 
+    return 0
+  fi
+
+  sudo python3 - "${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}" "${TRELLO_API_KEY:-}" "${TRELLO_TOKEN:-}" <<'PY'
+import os
+import re
+import stat
+import sys
+import tempfile
+from pathlib import Path
+
+config_path = Path(sys.argv[1])
+trello_api_key = sys.argv[2]
+trello_token = sys.argv[3]
+
+if not config_path.is_file():
+  print(f"ERROR: config file not found at {config_path}", file=sys.stderr)
+  sys.exit(1)
+
+patterns = []
+if trello_api_key == "":
+  patterns.append((
+    "TRELLO_API_KEY",
+    re.compile(r'^[ \t]*TRELLO_API_KEY:[ \t]*"\$\{TRELLO_API_KEY\}",?[ \t]*\r?\n?', re.MULTILINE),
+  ))
+if trello_token == "":
+  patterns.append((
+    "TRELLO_TOKEN",
+    re.compile(r'^[ \t]*TRELLO_TOKEN:[ \t]*"\$\{TRELLO_TOKEN\}",?[ \t]*\r?\n?', re.MULTILINE),
+  ))
+
+if not patterns:
+  print('{"removedRefs": []}')
+  sys.exit(0)
+
+raw = config_path.read_text(encoding="utf-8")
+updated = raw
+removed_refs = []
+for name, pattern in patterns:
+  updated, count = pattern.subn("", updated)
+  if count > 0:
+    removed_refs.extend([name] * count)
+
+if updated == raw:
+  print('{"removedRefs": []}')
+  sys.exit(0)
+
+path_stat = config_path.stat()
+fd, temp_path = tempfile.mkstemp(prefix=f'.{config_path.name}.', suffix='.tmp', dir=config_path.parent, text=True)
+try:
+  with os.fdopen(fd, 'w', encoding='utf-8', newline='') as handle:
+    handle.write(updated)
+  os.chown(temp_path, path_stat.st_uid, path_stat.st_gid)
+  os.chmod(temp_path, stat.S_IMODE(path_stat.st_mode))
+  os.replace(temp_path, config_path)
+finally:
+  if os.path.exists(temp_path):
+    os.unlink(temp_path)
+
+print('{"removedRefs": [' + ', '.join(f'"{name}"' for name in removed_refs) + ']}')
+PY
+}
+
 # Materialize optional gws credentials for credentials_file auth mode.
 if [[ -n "${GWS_CREDENTIALS_B64}" ]]; then
   GWS_CREDENTIALS_TMP="$(mktemp)"
@@ -641,6 +707,12 @@ export OPENCLAW_GATEWAY_BIND
 export OPENCLAW_GATEWAY_PORT
 export OPENCLAW_BRIDGE_PORT
 export OPENCLAW_CONFIG_FILE
+
+echo "Sanitizing optional Trello config refs in ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}..."
+if ! cleanup_optional_trello_config_refs; then
+  echo "ERROR: Failed to sanitize optional Trello config refs in ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}." >&2
+  exit 1
+fi
 
 resolve_sandbox_browser_enabled() {
   local probe_script config_mount config_path
