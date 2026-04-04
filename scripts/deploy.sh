@@ -584,86 +584,6 @@ print(json.dumps(summary, indent=2))
 PY
 }
 
-prepare_runtime_trello_config() {
-  local has_trello_api_key="false"
-  local has_trello_token="false"
-  local runtime_config_file=".runtime-${OPENCLAW_CONFIG_FILE}"
-  local runtime_config_path="config/${runtime_config_file}"
-
-  [[ -n "${TRELLO_API_KEY:-}" ]] && has_trello_api_key="true"
-  [[ -n "${TRELLO_TOKEN:-}" ]] && has_trello_token="true"
-
-  if [[ "${has_trello_api_key}" == "true" && "${has_trello_token}" == "true" ]]; then
-    echo "Trello credentials present; using source config ${OPENCLAW_CONFIG_PATH}."
-    return 0
-  fi
-
-  sudo cp --preserve=mode,ownership,timestamps "${OPENCLAW_CONFIG_PATH}" "${runtime_config_path}"
-  sudo python3 - "${runtime_config_path}" "${has_trello_api_key}" "${has_trello_token}" <<'PY'
-import os
-import re
-import stat
-import sys
-import tempfile
-from pathlib import Path
-
-config_path = Path(sys.argv[1])
-has_trello_api_key = sys.argv[2] == "true"
-has_trello_token = sys.argv[3] == "true"
-
-if not config_path.is_file():
-  print(f"ERROR: config file not found at {config_path}", file=sys.stderr)
-  sys.exit(1)
-
-patterns = []
-if not has_trello_api_key:
-  patterns.append((
-    "TRELLO_API_KEY",
-    re.compile(r'^[ \t]*(?:TRELLO_API_KEY|"TRELLO_API_KEY"|\'TRELLO_API_KEY\'):[ \t]*"\$\{TRELLO_API_KEY\}",?[ \t]*\r?\n?', re.MULTILINE),
-  ))
-if not has_trello_token:
-  patterns.append((
-    "TRELLO_TOKEN",
-    re.compile(r'^[ \t]*(?:TRELLO_TOKEN|"TRELLO_TOKEN"|\'TRELLO_TOKEN\'):[ \t]*"\$\{TRELLO_TOKEN\}",?[ \t]*\r?\n?', re.MULTILINE),
-  ))
-
-if not patterns:
-  print('{"removedRefs": []}')
-  sys.exit(0)
-
-raw = config_path.read_text(encoding="utf-8")
-updated = raw
-removed_refs = []
-for name, pattern in patterns:
-  updated, count = pattern.subn("", updated)
-  if count > 0:
-    removed_refs.extend([name] * count)
-
-if updated == raw:
-  print('{"removedRefs": []}')
-  sys.exit(0)
-
-path_stat = config_path.stat()
-fd, temp_path = tempfile.mkstemp(prefix=f'.{config_path.name}.', suffix='.tmp', dir=config_path.parent, text=True)
-try:
-  with os.fdopen(fd, 'w', encoding='utf-8', newline='') as handle:
-    handle.write(updated)
-  os.chown(temp_path, path_stat.st_uid, path_stat.st_gid)
-  os.chmod(temp_path, stat.S_IMODE(path_stat.st_mode))
-  os.replace(temp_path, config_path)
-finally:
-  if os.path.exists(temp_path):
-    os.unlink(temp_path)
-
-print('{"removedRefs": [' + ', '.join(f'"{name}"' for name in removed_refs) + ']}')
-PY
-
-  OPENCLAW_CONFIG_FILE="${runtime_config_file}"
-  OPENCLAW_CONFIG_PATH="${runtime_config_path}"
-  export OPENCLAW_CONFIG_FILE
-  echo "Prepared runtime config ${OPENCLAW_CONFIG_PATH} without unavailable Trello refs."
-}
-
 # Materialize optional gws credentials for credentials_file auth mode.
 if [[ -n "${GWS_CREDENTIALS_B64}" ]]; then
   GWS_CREDENTIALS_TMP="$(mktemp)"
@@ -721,12 +641,6 @@ export OPENCLAW_GATEWAY_BIND
 export OPENCLAW_GATEWAY_PORT
 export OPENCLAW_BRIDGE_PORT
 export OPENCLAW_CONFIG_FILE
-
-echo "Preparing deploy-time config from ${OPENCLAW_CONFIG_PATH}..."
-if ! prepare_runtime_trello_config; then
-  echo "ERROR: Failed to prepare deploy-time config from ${OPENCLAW_CONFIG_PATH}." >&2
-  exit 1
-fi
 
 resolve_sandbox_browser_enabled() {
   local probe_script config_mount config_path

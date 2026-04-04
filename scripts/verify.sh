@@ -103,34 +103,31 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   printf '%s\n' "${runtime_bins}"
 
   if [[ "${VERIFY_ENV:-}" == "staging" ]]; then
-    trello_env_ready="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc 'if [[ -n \"\${TRELLO_API_KEY:-}\" && -n \"\${TRELLO_TOKEN:-}\" ]]; then echo true; else echo false; fi'"
-    )" || fail "Failed to check Trello credential state in ${container}"
-    trello_env_ready="$(echo "${trello_env_ready}" | tr -d '[:space:]')"
+    # Check 4: Trello skill is eligible inside the deployed container.
+    checks_run=$((checks_run + 1))
+    log "Checking Trello skill eligibility in ${container}..."
+    trello_skill_json="$(
+      gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js skills info trello --json'"
+    )" || fail "Failed to inspect Trello skill status in ${container}"
+    printf '%s\n' "${trello_skill_json}"
+    gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js skills info trello --json | jq -e \".name == \\\"trello\\\" and .eligible == true\" >/dev/null'" \
+      || fail "Trello skill is not eligible in ${container}"
+    log "Trello skill is eligible."
 
-    if [[ "${trello_env_ready}" == "true" ]]; then
-      # Check 4: Trello skill is eligible inside the deployed container.
-      checks_run=$((checks_run + 1))
-      log "Checking Trello skill eligibility in ${container}..."
-      trello_skill_json="$(
-        gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js skills info trello --json'"
-      )" || fail "Failed to inspect Trello skill status in ${container}"
-      printf '%s\n' "${trello_skill_json}"
-      gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js skills info trello --json | jq -e \".name == \\\"trello\\\" and .eligible == true\" >/dev/null'" \
-        || fail "Trello skill is not eligible in ${container}"
-      log "Trello skill is eligible."
-
-      # Check 5: Trello live API smoke must work when Trello is configured.
-      checks_run=$((checks_run + 1))
-      log "Checking Trello live API smoke in ${container}..."
-      trello_smoke_output="$(
-        gce_ssh "sudo docker exec ${container_escaped} bash -lc 'set -euo pipefail; printf '\''url = \"https://api.trello.com/1/members/me/boards?key=%s&token=%s&fields=name,id\"\\n'\'' \"\${TRELLO_API_KEY}\" \"\${TRELLO_TOKEN}\" | curl -fsSK - | jq -e '\''if type == \"array\" then {boardCount:length, sampleBoards:(.[0:3] | map({id, name}))} else error(\"unexpected_trello_payload\") end'\'''"
-      )" || fail "Live Trello API smoke failed in ${container}"
-      printf '%s\n' "${trello_smoke_output}"
-      log "Live Trello API smoke passed."
-    else
-      log "Trello credentials are not configured in ${container}; skipping Trello-specific verification."
-    fi
+    # Check 5: Trello secrets must be present and the live Trello API smoke must work.
+    checks_run=$((checks_run + 1))
+    log "Checking Trello secrets and live API smoke in ${container}..."
+    trello_smoke_output="$(
+      gce_ssh "sudo docker exec ${container_escaped} bash -lc 'set -euo pipefail; if [[ -z \"\${TRELLO_API_KEY:-}\" || -z \"\${TRELLO_TOKEN:-}\" ]]; then echo \"missing_trello_env\"; exit 12; fi; printf '\''url = \"https://api.trello.com/1/members/me/boards?key=%s&token=%s&fields=name,id\"\\n'\'' \"\${TRELLO_API_KEY}\" \"\${TRELLO_TOKEN}\" | curl -fsSK - | jq -e '\''if type == \"array\" then {boardCount:length, sampleBoards:(.[0:3] | map({id, name}))} else error(\"unexpected_trello_payload\") end'\'''"
+    )" || {
+      status=$?
+      if [[ "${status}" -eq 12 ]]; then
+        fail "TRELLO_API_KEY and TRELLO_TOKEN must be present in staging for Trello live verification."
+      fi
+      fail "Live Trello API smoke failed in ${container}"
+    }
+    printf '%s\n' "${trello_smoke_output}"
+    log "Live Trello API smoke passed."
   else
     log "VERIFY_ENV=${VERIFY_ENV:-<unset>}; skipping Trello-specific verification outside staging."
   fi
