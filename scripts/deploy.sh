@@ -352,8 +352,7 @@ echo \"Per-deploy permissions applied.\"'"
 fi
 
 # Build the remote script as a variable (avoids heredoc/pipe conflict)
-# shellcheck disable=SC2016
-REMOTE_SCRIPT='
+REMOTE_SCRIPT="$(cat <<'REMOTE_SCRIPT_EOF'
 set -euo pipefail
 
 DEPLOY_REF="$1"
@@ -855,7 +854,8 @@ fi
 unset OPENCLAW_GATEWAY_TOKEN DISCORD_BOT_TOKEN ANTHROPIC_API_KEY OPENAI_API_KEY MONGODB_URI GEMINI_API_KEY BRAVE_API_KEY FIRECRAWL_API_KEY TRELLO_API_KEY TRELLO_TOKEN GOOGLE_WORKSPACE_CLI_TOKEN GWS_CREDENTIALS_B64
 
 echo "Deployment complete."
-'
+REMOTE_SCRIPT_EOF
+)"
 
 # Use gcloud compute ssh with IAP tunneling (enforces IAM before connection)
 # Pass GHCR_TOKEN via stdin; script passed as bash -c argument to avoid stdin conflict
@@ -870,6 +870,7 @@ printf -v BRIDGE_PORT_ESCAPED '%q' "${OPENCLAW_BRIDGE_PORT}"
 printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
 printf -v CONFIG_FILE_ESCAPED '%q' "${OPENCLAW_CONFIG_FILE:-openclaw.json}"
 printf -v MIN_FREE_SPACE_MB_ESCAPED '%q' "${MIN_FREE_SPACE_MB:-4096}"
+printf -v REMOTE_SCRIPT_ESCAPED '%q' "${REMOTE_SCRIPT}"
 
 # Base64-wrap multiline credentials payload so stdin remains one-value-per-line.
 GWS_CREDENTIALS_B64=""
@@ -898,4 +899,4 @@ unset GWS_CREDENTIALS
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
   --quiet \
-  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
+  --command "bash -c ${REMOTE_SCRIPT_ESCAPED} -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
