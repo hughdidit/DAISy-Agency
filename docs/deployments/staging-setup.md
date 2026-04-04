@@ -158,6 +158,8 @@ The scrub script will:
 
 The easiest way to set up the deployment directory and start services is via the GitHub Actions workflow:
 
+For a brand-new staging VM, the real deploy requires the config file to exist at `/opt/DAISy/config/openclaw.json` before `scripts/deploy.sh` runs. Use the workflow with `provision: true` to create `/opt/DAISy`, then create or copy the config file onto the VM before the first non-dry-run deployment.
+
 1. **Add app secrets** to the `staging` environment in GitHub:
    - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
    - `DISCORD_BOT_TOKEN` - Required by the current deploy workflow and deploy script for real deploys
@@ -174,6 +176,12 @@ The easiest way to set up the deployment directory and start services is via the
    Note: These requirements reflect the current behavior of `.github/workflows/deploy.yml`
    and `scripts/deploy.sh`. If those validations are relaxed later, this list can
    be narrowed to only the secrets used by the selected config.
+
+First-time staging setup sequence:
+
+- Run the workflow once with `provision: true` so `${DEPLOY_DIR}` exists on the VM.
+- Create or copy `/opt/DAISy/config/openclaw.json` before the first real deploy.
+- Re-run the workflow with `dry_run: false` after the config file is in place.
 
 This provisions the VM, pulls the image, and starts the containers in one step.
 

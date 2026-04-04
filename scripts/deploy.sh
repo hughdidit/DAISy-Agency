@@ -424,9 +424,18 @@ import json
 import os
 import stat
 import sys
+import tempfile
 from pathlib import Path
 
 ANTHROPIC_SETUP_TOKEN_PREFIX = "sk-ant-oat01-"
+
+
+def is_path_within_root(path, root_path):
+  try:
+    path.relative_to(root_path)
+    return True
+  except ValueError:
+    return False
 
 
 def is_anthropic_setup_token_profile(profile_id, cred):
@@ -447,7 +456,53 @@ def is_anthropic_setup_token_profile(profile_id, cred):
   return token_ref.get("id") == "ANTHROPIC_SETUP_TOKEN"
 
 
+def secure_read_auth_profile(auth_path, root_path):
+  try:
+    path_stat = os.lstat(auth_path)
+  except FileNotFoundError:
+    return None, None, None
+
+  if stat.S_ISLNK(path_stat.st_mode):
+    print(f"WARNING: refusing to follow symlink auth profile {auth_path}", file=sys.stderr)
+    return None, None, None
+
+  resolved_path = auth_path.resolve(strict=False)
+  if not is_path_within_root(resolved_path, root_path):
+    print(f"WARNING: refusing auth profile outside root {auth_path}", file=sys.stderr)
+    return None, None, None
+
+  fd = os.open(auth_path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+  try:
+    handle = os.fdopen(fd, "r", encoding="utf-8")
+  except Exception:
+    os.close(fd)
+    raise
+
+  with handle:
+    raw = handle.read()
+  return raw, path_stat, resolved_path
+
+
+def secure_write_auth_profile(auth_path, file_stat, payload):
+  temp_fd, temp_path = tempfile.mkstemp(
+    prefix=f".{auth_path.name}.",
+    suffix=".tmp",
+    dir=auth_path.parent,
+    text=True,
+  )
+  try:
+    with os.fdopen(temp_fd, "w", encoding="utf-8") as handle:
+      handle.write(payload)
+    os.chown(temp_path, file_stat.st_uid, file_stat.st_gid)
+    os.chmod(temp_path, stat.S_IMODE(file_stat.st_mode))
+    os.replace(temp_path, auth_path)
+  finally:
+    if os.path.exists(temp_path):
+      os.unlink(temp_path)
+
+
 root = Path(sys.argv[1])
+root_resolved = root.resolve(strict=False)
 removed_profiles = []
 rewritten_files = []
 deleted_files = []
@@ -455,7 +510,9 @@ deleted_files = []
 if root.is_dir():
   for auth_path in root.glob("*/agent/auth-profiles.json"):
     try:
-      raw = auth_path.read_text(encoding="utf-8")
+      raw, path_stat, resolved_path = secure_read_auth_profile(auth_path, root_resolved)
+      if raw is None:
+        continue
       data = json.loads(raw)
     except FileNotFoundError:
       continue
@@ -508,14 +565,11 @@ if root.is_dir():
 
     if kept:
       data["profiles"] = kept
-      st = auth_path.stat()
-      auth_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-      os.chown(auth_path, st.st_uid, st.st_gid)
-      os.chmod(auth_path, stat.S_IMODE(st.st_mode))
-      rewritten_files.append(str(auth_path))
+      secure_write_auth_profile(auth_path, path_stat, json.dumps(data, indent=2) + "\n")
+      rewritten_files.append(str(resolved_path or auth_path))
     else:
-      auth_path.unlink()
-      deleted_files.append(str(auth_path))
+      os.unlink(auth_path)
+      deleted_files.append(str(resolved_path or auth_path))
 
 summary = {
   "removedProfiles": removed_profiles,
@@ -870,7 +924,7 @@ printf -v BRIDGE_PORT_ESCAPED '%q' "${OPENCLAW_BRIDGE_PORT}"
 printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
 printf -v CONFIG_FILE_ESCAPED '%q' "${OPENCLAW_CONFIG_FILE:-openclaw.json}"
 printf -v MIN_FREE_SPACE_MB_ESCAPED '%q' "${MIN_FREE_SPACE_MB:-4096}"
-printf -v REMOTE_SCRIPT_ESCAPED '%q' "${REMOTE_SCRIPT}"
+REMOTE_SCRIPT_B64="$(printf '%s' "${REMOTE_SCRIPT}" | base64 | tr -d '\n')"
 
 # Base64-wrap multiline credentials payload so stdin remains one-value-per-line.
 GWS_CREDENTIALS_B64=""
@@ -899,4 +953,4 @@ unset GWS_CREDENTIALS
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
   --quiet \
-  --command "bash -c ${REMOTE_SCRIPT_ESCAPED} -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
+  --command "printf '%s' '${REMOTE_SCRIPT_B64}' | base64 -d | bash -s -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
