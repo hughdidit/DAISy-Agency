@@ -158,13 +158,12 @@ The scrub script will:
 
 The easiest way to set up the deployment directory and start services is via the GitHub Actions workflow:
 
-For a brand-new staging VM, the real deploy requires the config file to exist at `/opt/DAISy/config/openclaw.json` before `scripts/deploy.sh` runs. Use the workflow with `provision: true` to create `/opt/DAISy`, then create or copy the config file onto the VM before the first non-dry-run deployment.
-
 1. **Add app secrets** to the `staging` environment in GitHub:
    - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
-   - `DISCORD_BOT_TOKEN` - Required by the current deploy workflow and deploy script for real deploys
-   - `ANTHROPIC_API_KEY` - Required by the current deploy workflow and deploy script for real deploys
+   - `CLAUDE_AI_SESSION_KEY` - From [Anthropic Console](https://console.anthropic.com/settings/keys)
    - `OPENAI_API_KEY` - Optional, for OpenAI-backed models, tools, and embeddings
+   - `CLAUDE_WEB_SESSION_KEY` - Optional, for usage monitoring (see below)
+   - `CLAUDE_WEB_COOKIE` - Optional, for usage monitoring (see below)
    - `FIRECRAWL_API_KEY` - Optional, for firecrawl-enabled environments
 
 2. **Run the Deploy workflow** with:
@@ -173,17 +172,18 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `provision`: `true` (creates `/opt/DAISy` and copies docker-compose.yml)
    - `dry_run`: `false`
 
-   Note: These requirements reflect the current behavior of `.github/workflows/deploy.yml`
-   and `scripts/deploy.sh`. If those validations are relaxed later, this list can
-   be narrowed to only the secrets used by the selected config.
-
-First-time staging setup sequence:
-
-- Run the workflow once with `provision: true` so `${DEPLOY_DIR}` exists on the VM.
-- Create or copy `/opt/DAISy/config/openclaw.json` before the first real deploy.
-- Re-run the workflow with `dry_run: false` after the config file is in place.
-
 This provisions the VM, pulls the image, and starts the containers in one step.
+
+#### Optional Usage Monitoring Secrets
+
+`CLAUDE_WEB_SESSION_KEY` and `CLAUDE_WEB_COOKIE` enable the **usage monitoring** feature, which displays your Claude rate limits and quota in the dashboard. These are optional fallback credentials used when the primary API token lacks the `user:profile` scope.
+
+To extract (if needed):
+
+1. Open [claude.ai](https://claude.ai) in your browser
+2. DevTools → Application → Cookies → copy `sessionKey` value
+
+If you don't need usage statistics, set these to any placeholder value (e.g., `unused`).
 
 ### 4b. Manual Setup (Alternative)
 
@@ -206,9 +206,9 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 #### Staging Secrets Checklist
 
 - [ ] `OPENCLAW_GATEWAY_TOKEN` - Generate new random token
-- [ ] `DISCORD_BOT_TOKEN` - Required by the current deploy workflow/script; use staging bot, not production
-- [ ] `ANTHROPIC_API_KEY` - Required by the current deploy workflow/script for real deploys
+- [ ] `CLAUDE_AI_SESSION_KEY` - Anthropic API key
 - [ ] `OPENAI_API_KEY` - Optional; set when staging should use OpenAI-backed features
+- [ ] Discord bot token - **Use staging bot, NOT production**
 - [ ] Discord allowlist - **Staging-only channels/users**
 - [ ] API keys - Use staging keys or shared keys with tracking
 - [ ] `FIRECRAWL_API_KEY` - Optional; set only for firecrawl-enabled environments
