@@ -604,11 +604,12 @@ image_exists_locally() {
 use_cached_image_or_fail() {
   local image_ref="$1"
   local description="$2"
+  local failure_reason="${3:-image pull failed}"
   if image_exists_locally "${image_ref}"; then
-    echo "WARNING: Using cached ${description} image ${image_ref}; GHCR pull unavailable." >&2
+    echo "WARNING: Using cached ${description} image ${image_ref}; ${failure_reason}." >&2
     return 0
   fi
-  echo "ERROR: ${description} image ${image_ref} is not cached locally and GHCR pull was unavailable." >&2
+  echo "ERROR: ${description} image ${image_ref} is not cached locally and ${failure_reason}." >&2
   exit 1
 }
 
@@ -889,32 +890,32 @@ else
 fi
 SANDBOX_GHCR_IMAGE="${SANDBOX_BASE}-sandbox:bookworm-slim"
 echo "Pulling sandbox image: ${SANDBOX_GHCR_IMAGE}"
-if [[ "${GHCR_AUTHENTICATED}" == "true" ]] && sudo docker pull "${SANDBOX_GHCR_IMAGE}"; then
+if sudo docker pull "${SANDBOX_GHCR_IMAGE}"; then
   sudo docker tag "${SANDBOX_GHCR_IMAGE}" "openclaw-sandbox:bookworm-slim"
   echo "Sandbox image ready: openclaw-sandbox:bookworm-slim"
 else
-  use_cached_image_or_fail "openclaw-sandbox:bookworm-slim" "sandbox"
+  use_cached_image_or_fail "openclaw-sandbox:bookworm-slim" "sandbox" "sandbox image pull failed"
 fi
 
 if [[ "${browser_enabled}" == "true" ]]; then
   SANDBOX_BROWSER_GHCR_IMAGE="${SANDBOX_BASE}-sandbox-browser:bookworm-slim"
   echo "Pulling sandbox browser image: ${SANDBOX_BROWSER_GHCR_IMAGE}"
-  if [[ "${GHCR_AUTHENTICATED}" == "true" ]] && sudo docker pull "${SANDBOX_BROWSER_GHCR_IMAGE}"; then
+  if sudo docker pull "${SANDBOX_BROWSER_GHCR_IMAGE}"; then
     sudo docker tag "${SANDBOX_BROWSER_GHCR_IMAGE}" "openclaw-sandbox-browser:bookworm-slim"
     echo "Sandbox browser image ready: openclaw-sandbox-browser:bookworm-slim"
   else
-    use_cached_image_or_fail "openclaw-sandbox-browser:bookworm-slim" "sandbox browser"
+    use_cached_image_or_fail "openclaw-sandbox-browser:bookworm-slim" "sandbox browser" "sandbox browser image pull failed"
   fi
 fi
 
 # Pull app images while existing containers remain running.
 # This reduces downtime if pull fails.
-if [[ "${GHCR_AUTHENTICATED}" == "true" ]]; then
-  if ! sudo -E docker-compose ${COMPOSE_FILES} pull; then
-    use_cached_image_or_fail "${DEPLOY_REF}" "application"
+if ! sudo -E docker-compose ${COMPOSE_FILES} pull; then
+  if [[ "${GHCR_AUTHENTICATED}" == "true" ]]; then
+    echo "ERROR: Failed to pull application images after successful GHCR authentication." >&2
+    exit 1
   fi
-else
-  use_cached_image_or_fail "${DEPLOY_REF}" "application"
+  use_cached_image_or_fail "${DEPLOY_REF}" "application" "docker-compose pull failed after GHCR authentication was unavailable"
 fi
 
 # Stop/remove app containers so a crash-looping gateway cannot block startup.
