@@ -249,7 +249,7 @@ jobs:
           fi
 
           manifest_output=""
-          if ! manifest_output="$(docker manifest inspect "${RESOLVED_REF}" 2>&1 >/dev/null)"; then
+          if ! manifest_output="$(docker manifest inspect "${RESOLVED_REF}" 2>&1)"; then
             if [[ -n "${manifest_output}" ]]; then
               printf '%s\n' "${manifest_output}" >&2
             fi
