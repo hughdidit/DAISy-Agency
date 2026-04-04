@@ -596,10 +596,29 @@ else
 fi
 unset GWS_CREDENTIALS_B64
 
-# Authenticate to GHCR (use sudo for docker access)
-if ! sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
-  echo "ERROR: Failed to authenticate to GHCR. Check credentials and network." >&2
+image_exists_locally() {
+  local image_ref="$1"
+  sudo docker image inspect "${image_ref}" >/dev/null 2>&1
+}
+
+use_cached_image_or_fail() {
+  local image_ref="$1"
+  local description="$2"
+  local failure_reason="${3:-image pull failed}"
+  if image_exists_locally "${image_ref}"; then
+    echo "WARNING: Using cached ${description} image ${image_ref}; ${failure_reason}." >&2
+    return 0
+  fi
+  echo "ERROR: ${description} image ${image_ref} is not cached locally and ${failure_reason}." >&2
   exit 1
+}
+
+# Authenticate to GHCR (use sudo for docker access)
+GHCR_AUTHENTICATED=false
+if sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
+  GHCR_AUTHENTICATED=true
+else
+  echo "WARNING: Failed to authenticate to GHCR. Will fall back to cached images when possible." >&2
 fi
 unset GHCR_TOKEN
 
@@ -875,7 +894,7 @@ if sudo docker pull "${SANDBOX_GHCR_IMAGE}"; then
   sudo docker tag "${SANDBOX_GHCR_IMAGE}" "openclaw-sandbox:bookworm-slim"
   echo "Sandbox image ready: openclaw-sandbox:bookworm-slim"
 else
-  echo "WARNING: Failed to pull sandbox image. Sandbox may not function." >&2
+  use_cached_image_or_fail "openclaw-sandbox:bookworm-slim" "sandbox" "sandbox image pull failed"
 fi
 
 if [[ "${browser_enabled}" == "true" ]]; then
@@ -885,14 +904,19 @@ if [[ "${browser_enabled}" == "true" ]]; then
     sudo docker tag "${SANDBOX_BROWSER_GHCR_IMAGE}" "openclaw-sandbox-browser:bookworm-slim"
     echo "Sandbox browser image ready: openclaw-sandbox-browser:bookworm-slim"
   else
-    echo "ERROR: Failed to pull required sandbox browser image ${SANDBOX_BROWSER_GHCR_IMAGE}." >&2
-    exit 1
+    use_cached_image_or_fail "openclaw-sandbox-browser:bookworm-slim" "sandbox browser" "sandbox browser image pull failed"
   fi
 fi
 
 # Pull app images while existing containers remain running.
 # This reduces downtime if pull fails.
-sudo -E docker-compose ${COMPOSE_FILES} pull
+if ! sudo -E docker-compose ${COMPOSE_FILES} pull; then
+  if [[ "${GHCR_AUTHENTICATED}" == "true" ]]; then
+    echo "ERROR: Failed to pull application images after successful GHCR authentication." >&2
+    exit 1
+  fi
+  use_cached_image_or_fail "${DEPLOY_REF}" "application" "docker-compose pull failed after GHCR authentication was unavailable"
+fi
 
 # Stop/remove app containers so a crash-looping gateway cannot block startup.
 # This avoids "container is restarting" races when openclaw-cli joins gateway network namespace.
