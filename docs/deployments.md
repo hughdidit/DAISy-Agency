@@ -87,8 +87,10 @@ These are **environment secrets** (set separately under `staging` and `productio
 
 **Registry pull (GHCR):**
 
-- `GHCR_USERNAME` - GitHub username for GHCR
-- `GHCR_TOKEN` - PAT with `read:packages` scope
+- `GHCR_USERNAME` - GitHub username that owns the GHCR token used for deploy pulls
+- `GHCR_TOKEN` - personal access token (classic) with at least `read:packages`
+
+If the owning account or organization enforces SSO, authorize `GHCR_TOKEN` for SSO before running Deploy.
 
 Note: Image reference comes from `release-metadata.json`, not a separate secret.
 
@@ -120,7 +122,7 @@ References:
 
 ## Workflows overview
 
-- Dry run exits successfully after printing the resolved image reference.
+- Dry run resolves the image ref, validates GHCR auth and image readability on the GitHub Actions runner, then exits without remote mutation.
 - Real deploy connects via IAP, sets `OPENCLAW_IMAGE` to the resolved ref, runs `docker compose pull`, then `docker compose up -d --remove-orphans`.
 - The deploy fails if Docker is missing or `docker-compose.yml` is not found under `DEPLOY_DIR`.
 
@@ -130,7 +132,7 @@ Builds and publishes the multi-arch image, then uploads an artifact:
 
 - Artifact name: `release-metadata`
 - File: `dist/release/release-metadata.json`
-- Contains: image name, canonical tags, digest (preferred), sha/ref, run id
+- Contains: image name, canonical tags, and digest when present
 
 Deployments should reference a specific `release_run_id` so the deploy is deterministic and rollbackable.
 
@@ -143,7 +145,7 @@ Inputs:
 - `environment`: `staging` | `production`
 - `release_run_id`: the Docker release run id that uploaded `release-metadata`
 - optional `image_ref`: emergency override (tag or digest ref)
-- `dry_run`: if true, does not perform remote changes
+- `dry_run`: if true, skips remote mutation, but still validates GHCR credentials and image readability on the GitHub Actions runner
 - `provision`: if true, provisions the VM before deploying (see below)
 
 #### VM Provisioning
@@ -197,16 +199,20 @@ gcloud compute ssh "$GCE_INSTANCE_NAME"   --project "$GCP_PROJECT_ID"   --zone "
 On a real deploy (dry_run=false), the deploy routine:
 
 1. Connects to the VM via IAP (`gcloud compute ssh --tunnel-through-iap`)
-2. Authenticates to GHCR:
+2. Clears any stale root GHCR auth on the VM, then authenticates to GHCR:
+   - `docker logout ghcr.io || true`
    - `docker login ghcr.io -u $GHCR_USERNAME --password-stdin`
-3. Reads the selected deployed config and, when `agents.defaults.sandbox.browser.enabled=true`, pulls `ghcr.io/<owner>/daisy-agency-sandbox-browser:bookworm-slim` and retags it locally as `openclaw-sandbox-browser:bookworm-slim`
-4. Sets the image ref (digest preferred) via environment variable:
-   - `export OPENCLAW_IMAGE=<image@digest>`
-5. Pulls the app and compose-managed images:
+3. Pulls the resolved app image ref explicitly so GHCR auth and package access fail early with a classified error.
+4. Reads the selected deployed config and, when `agents.defaults.sandbox.browser.enabled=true`, pulls `ghcr.io/<owner>/daisy-agency-sandbox-browser:bookworm-slim` and retags it locally as `openclaw-sandbox-browser:bookworm-slim`
+5. Sets the image ref via environment variable:
+   - `export OPENCLAW_IMAGE=<image@digest-or-tag>`
+6. Pulls the app and compose-managed images:
    - `docker-compose pull`
-6. Applies:
+7. Applies:
    - `docker-compose up -d --remove-orphans`
-7. Outputs deployment status
+8. Outputs deployment status
+
+Current `daisy/dev` deployments resolve by tag because the release metadata artifact currently emits an empty digest. Expect refs such as `ghcr.io/hughdidit/daisy-agency:dev-<sha7>` until digest population is restored.
 
 ---
 

@@ -225,6 +225,40 @@ jobs:
             echo "Resolved ref: ${RESOLVED}"
           fi
 
+      - name: GHCR preflight
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          RESOLVED_REF: ${{ steps.resolve.outputs.resolved_ref }}
+        run: |
+          : "${GHCR_USERNAME:?GHCR_USERNAME is required}"
+          : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
+          : "${RESOLVED_REF:?resolved_ref is required}"
+
+          docker logout ghcr.io >/dev/null 2>&1 || true
+          cleanup() {
+            docker logout ghcr.io >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          login_output=""
+          if ! login_output="$(printf '%s\n' "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin 2>&1)"; then
+            printf '%s\n' "${login_output}" >&2
+            echo "::error::GHCR login failed for '${GHCR_USERNAME}'. Rotate GHCR_TOKEN to a personal access token (classic) with at least read:packages, ensure GHCR_USERNAME matches the token owner, and authorize SSO if required."
+            exit 1
+          fi
+
+          manifest_output=""
+          if ! manifest_output="$(docker manifest inspect "${RESOLVED_REF}" 2>&1 >/dev/null)"; then
+            if [[ -n "${manifest_output}" ]]; then
+              printf '%s\n' "${manifest_output}" >&2
+            fi
+            echo "::error::GHCR login succeeded for '${GHCR_USERNAME}', but '${RESOLVED_REF}' is not readable. The token owner may lack package access, package visibility may have changed, or the expected tag is missing."
+            exit 1
+          fi
+
+          echo "GHCR preflight passed for ${RESOLVED_REF}"
+
       - name: Deploy
         env:
           DEPLOY_ENV: ${{ inputs.environment }}
