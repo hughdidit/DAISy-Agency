@@ -596,12 +596,68 @@ else
 fi
 unset GWS_CREDENTIALS_B64
 
-# Authenticate to GHCR (use sudo for docker access)
-if ! sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
-  echo "ERROR: Failed to authenticate to GHCR. Check credentials and network." >&2
-  exit 1
-fi
-unset GHCR_TOKEN
+ghcr_auth_failure_hint() {
+  cat >&2 <<EOF
+ERROR: Failed to authenticate to GHCR.
+Ensure GHCR_USERNAME ('${GHCR_USERNAME}') matches the GitHub user that owns GHCR_TOKEN.
+GHCR_TOKEN must be a personal access token (classic) with at least read:packages.
+If the owning account or organization enforces SSO, authorize GHCR_TOKEN for SSO access before retrying.
+EOF
+}
+
+ghcr_access_failure_hint() {
+  local image_ref="${1:?image ref required}"
+  cat >&2 <<EOF
+ERROR: Failed to pull ${image_ref} from GHCR.
+This may be caused by package access or tag issues, or by transient registry, network, or Docker daemon problems.
+If this is an access issue, ensure GHCR_USERNAME ('${GHCR_USERNAME}') matches the owner of GHCR_TOKEN and that GHCR_TOKEN is a personal access token (classic) with at least read:packages.
+Also verify that the package is visible to the token owner and that the expected tag exists.
+EOF
+}
+
+clear_ghcr_auth() {
+  sudo docker logout ghcr.io >/dev/null 2>&1 || true
+}
+
+authenticate_to_ghcr() {
+  local login_output=""
+
+  clear_ghcr_auth
+  if ! login_output="$(sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}" 2>&1)"; then
+    if [[ -n "${login_output}" ]]; then
+      printf '%s\n' "${login_output}" >&2
+    fi
+    ghcr_auth_failure_hint
+    return 1
+  fi
+}
+
+pull_ghcr_image() {
+  local image_ref="${1:?image ref required}"
+  local description="${2:?description required}"
+  local pull_output=""
+
+  echo "Pulling ${description}: ${image_ref}"
+  if pull_output="$(sudo docker pull "${image_ref}" 2>&1)"; then
+    printf '%s\n' "${pull_output}"
+    return 0
+  fi
+
+  if [[ -n "${pull_output}" ]]; then
+    printf '%s\n' "${pull_output}" >&2
+  fi
+  return 1
+}
+
+require_ghcr_image() {
+  local image_ref="${1:?image ref required}"
+  local description="${2:?description required}"
+
+  if ! pull_ghcr_image "${image_ref}" "${description}"; then
+    ghcr_access_failure_hint "${image_ref}"
+    exit 1
+  fi
+}
 
 # Export app secrets for docker compose
 export OPENCLAW_IMAGE="${DEPLOY_REF}"
@@ -848,6 +904,13 @@ if (( free_space_mb < MIN_FREE_SPACE_MB )); then
   fi
 fi
 
+if ! authenticate_to_ghcr; then
+  exit 1
+fi
+unset GHCR_TOKEN
+
+require_ghcr_image "${DEPLOY_REF}" "app image"
+
 if ! browser_enabled="$(resolve_sandbox_browser_enabled)"; then
   echo "ERROR: Failed to read sandbox browser enablement from ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH} using ${DEPLOY_REF}." >&2
   exit 1
@@ -870,8 +933,7 @@ else
   SANDBOX_BASE="${IMAGE_NO_DIGEST}"
 fi
 SANDBOX_GHCR_IMAGE="${SANDBOX_BASE}-sandbox:bookworm-slim"
-echo "Pulling sandbox image: ${SANDBOX_GHCR_IMAGE}"
-if sudo docker pull "${SANDBOX_GHCR_IMAGE}"; then
+if pull_ghcr_image "${SANDBOX_GHCR_IMAGE}" "sandbox image"; then
   sudo docker tag "${SANDBOX_GHCR_IMAGE}" "openclaw-sandbox:bookworm-slim"
   echo "Sandbox image ready: openclaw-sandbox:bookworm-slim"
 else
@@ -880,12 +942,11 @@ fi
 
 if [[ "${browser_enabled}" == "true" ]]; then
   SANDBOX_BROWSER_GHCR_IMAGE="${SANDBOX_BASE}-sandbox-browser:bookworm-slim"
-  echo "Pulling sandbox browser image: ${SANDBOX_BROWSER_GHCR_IMAGE}"
-  if sudo docker pull "${SANDBOX_BROWSER_GHCR_IMAGE}"; then
+  if pull_ghcr_image "${SANDBOX_BROWSER_GHCR_IMAGE}" "sandbox browser image"; then
     sudo docker tag "${SANDBOX_BROWSER_GHCR_IMAGE}" "openclaw-sandbox-browser:bookworm-slim"
     echo "Sandbox browser image ready: openclaw-sandbox-browser:bookworm-slim"
   else
-    echo "ERROR: Failed to pull required sandbox browser image ${SANDBOX_BROWSER_GHCR_IMAGE}." >&2
+    ghcr_access_failure_hint "${SANDBOX_BROWSER_GHCR_IMAGE}"
     exit 1
   fi
 fi
