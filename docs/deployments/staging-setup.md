@@ -159,16 +159,21 @@ The scrub script will:
 The easiest way to set up the deployment directory and start services is via the GitHub Actions workflow:
 
 1. **Add app secrets** to the `staging` environment in GitHub:
-  `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
-  `ANTHROPIC_API_KEY` - Only if the staging config uses Anthropic-backed models
-  `OPENAI_API_KEY` - Optional, for OpenAI-backed models, tools, and embeddings
-  `FIRECRAWL_API_KEY` - Optional, for firecrawl-enabled environments
+   - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
+   - `DISCORD_BOT_TOKEN` - Required by the current deploy workflow and deploy script for real deploys
+   - `ANTHROPIC_API_KEY` - Required by the current deploy workflow and deploy script for real deploys
+   - `OPENAI_API_KEY` - Optional, for OpenAI-backed models, tools, and embeddings
+   - `FIRECRAWL_API_KEY` - Optional, for firecrawl-enabled environments
 
 2. **Run the Deploy workflow** with:
-  `environment`: `staging`
-  `image_ref`: Your image reference (e.g., `ghcr.io/hughdidit/daisy-agency:latest`)
-  `provision`: `true` (creates `/opt/DAISy` and copies docker-compose.yml)
-  `dry_run`: `false`
+   - `environment`: `staging`
+   - `image_ref`: Your image reference (e.g., `ghcr.io/hughdidit/daisy-agency:latest`)
+   - `provision`: `true` (creates `/opt/DAISy` and copies docker-compose.yml)
+   - `dry_run`: `false`
+
+   Note: These requirements reflect the current behavior of `.github/workflows/deploy.yml`
+   and `scripts/deploy.sh`. If those validations are relaxed later, this list can
+   be narrowed to only the secrets used by the selected config.
 
 This provisions the VM, pulls the image, and starts the containers in one step.
 
@@ -193,9 +198,9 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 #### Staging Secrets Checklist
 
 - [ ] `OPENCLAW_GATEWAY_TOKEN` - Generate new random token
-- [ ] `ANTHROPIC_API_KEY` - Only when staging still runs Anthropic-backed models
+- [ ] `DISCORD_BOT_TOKEN` - Required by the current deploy workflow/script; use staging bot, not production
+- [ ] `ANTHROPIC_API_KEY` - Required by the current deploy workflow/script for real deploys
 - [ ] `OPENAI_API_KEY` - Optional; set when staging should use OpenAI-backed features
-- [ ] Discord bot token - **Use staging bot, NOT production**
 - [ ] Discord allowlist - **Staging-only channels/users**
 - [ ] API keys - Use staging keys or shared keys with tracking
 - [ ] `FIRECRAWL_API_KEY` - Optional; set only for firecrawl-enabled environments

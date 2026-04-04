@@ -427,6 +427,27 @@ import stat
 import sys
 from pathlib import Path
 
+ANTHROPIC_SETUP_TOKEN_PREFIX = "sk-ant-oat01-"
+
+
+def is_anthropic_setup_token_profile(profile_id, cred):
+  if not isinstance(cred, dict):
+    return False
+  if cred.get("provider") != "anthropic" or cred.get("type") != "token":
+    return False
+
+  token = cred.get("token")
+  if isinstance(token, str) and token.startswith(ANTHROPIC_SETUP_TOKEN_PREFIX):
+    return True
+
+  token_ref = cred.get("tokenRef")
+  if not isinstance(token_ref, dict):
+    return False
+  if token_ref.get("provider") == "anthropic-setup-token":
+    return True
+  return token_ref.get("id") == "ANTHROPIC_SETUP_TOKEN"
+
+
 root = Path(sys.argv[1])
 removed_profiles = []
 rewritten_files = []
@@ -443,11 +464,13 @@ if root.is_dir():
       print(f"WARNING: failed to parse {auth_path}: {exc}", file=sys.stderr)
       continue
 
-    profiles = data.get("profiles") or {}
+    profiles = data.get("profiles")
+    if not isinstance(profiles, dict):
+      continue
     kept = {}
     removed_here = []
     for profile_id, cred in profiles.items():
-      if cred.get("provider") == "anthropic" and cred.get("type") == "token":
+      if is_anthropic_setup_token_profile(profile_id, cred):
         removed_here.append(profile_id)
       else:
         kept[profile_id] = cred
@@ -503,9 +526,6 @@ summary = {
 print(json.dumps(summary, indent=2))
 PY
 }
-
-echo "Removing Anthropic setup-token auth profiles from persisted agent state..."
-cleanup_anthropic_token_profiles
 
 # Materialize optional gws credentials for credentials_file auth mode.
 if [[ -n "${GWS_CREDENTIALS_B64}" ]]; then
@@ -825,6 +845,11 @@ sudo -E docker-compose ${COMPOSE_FILES} rm -f openclaw-gateway openclaw-cli || t
 # Start fresh containers so updated host security profiles (seccomp/AppArmor)
 # are applied even when the image reference is unchanged.
 sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans --force-recreate
+
+echo "Removing Anthropic setup-token auth profiles from persisted agent state..."
+if ! cleanup_anthropic_token_profiles; then
+  echo "WARNING: auth-profile cleanup failed after rollout; existing containers were left running." >&2
+fi
 
 # Clear secrets from environment
 unset OPENCLAW_GATEWAY_TOKEN DISCORD_BOT_TOKEN ANTHROPIC_API_KEY OPENAI_API_KEY MONGODB_URI GEMINI_API_KEY BRAVE_API_KEY FIRECRAWL_API_KEY TRELLO_API_KEY TRELLO_TOKEN GOOGLE_WORKSPACE_CLI_TOKEN GWS_CREDENTIALS_B64

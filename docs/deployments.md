@@ -99,7 +99,8 @@ These secrets are passed to docker compose on the target VM.
 **Required:**
 
 - `OPENCLAW_GATEWAY_TOKEN` - Authentication token for the gateway API. Generate with `openssl rand -hex 32`. Secures communication between clients and the gateway.
-- `ANTHROPIC_API_KEY` - Anthropic API key for Anthropic-backed model access when the deployed config uses Anthropic models.
+- `DISCORD_BOT_TOKEN` - Discord bot token required by the current deployment workflow and deploy script for the bot runtime.
+- `ANTHROPIC_API_KEY` - Anthropic API key required by the current deployment workflow and deploy script for real deploys.
 
 **Optional (integrations):**
 
