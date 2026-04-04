@@ -976,11 +976,13 @@ echo "Deployment complete."
 REMOTE_SCRIPT_EOF
 )"
 
-# Use gcloud compute ssh with IAP tunneling (enforces IAM before connection)
-# Pass GHCR_TOKEN via stdin; script passed as bash -c argument to avoid stdin conflict
+# Use gcloud compute ssh with IAP tunneling (enforces IAM before connection).
+# Materialize the remote script into a temp file on the VM so stdin stays
+# attached to the secrets payload that the script reads line-by-line.
 #
-# PR #66 review: escape variables for safe shell interpolation to prevent injection
-# The gcloud --command arg is passed to remote shell, so we must escape user-controlled values
+# PR #66 review: escape variables for safe shell interpolation to prevent injection.
+# The gcloud --command arg is passed to the remote shell, so we must escape
+# user-controlled values before interpolation.
 printf -v RESOLVED_REF_ESCAPED '%q' "${RESOLVED_REF}"
 printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
 printf -v GHCR_USERNAME_ESCAPED '%q' "${GHCR_USERNAME}"
@@ -990,6 +992,8 @@ printf -v GATEWAY_BIND_ESCAPED '%q' "${OPENCLAW_GATEWAY_BIND}"
 printf -v CONFIG_FILE_ESCAPED '%q' "${OPENCLAW_CONFIG_FILE:-openclaw.json}"
 printf -v MIN_FREE_SPACE_MB_ESCAPED '%q' "${MIN_FREE_SPACE_MB:-4096}"
 REMOTE_SCRIPT_B64="$(printf '%s' "${REMOTE_SCRIPT}" | base64 | tr -d '\n')"
+REMOTE_COMMAND="set -euo pipefail; REMOTE_SCRIPT_PATH=\$(mktemp); trap 'rm -f \"\$REMOTE_SCRIPT_PATH\"' EXIT; printf '%s' '${REMOTE_SCRIPT_B64}' | base64 -d > \"\$REMOTE_SCRIPT_PATH\"; bash \"\$REMOTE_SCRIPT_PATH\" ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
+printf -v REMOTE_COMMAND_ESCAPED '%q' "${REMOTE_COMMAND}"
 
 # Base64-wrap multiline credentials payload so stdin remains one-value-per-line.
 GWS_CREDENTIALS_B64=""
@@ -1018,4 +1022,4 @@ unset GWS_CREDENTIALS
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
   --quiet \
-  --command "printf '%s' '${REMOTE_SCRIPT_B64}' | base64 -d | bash -s -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED}"
+  --command "bash -lc ${REMOTE_COMMAND_ESCAPED}"
