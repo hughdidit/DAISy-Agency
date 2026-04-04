@@ -584,13 +584,22 @@ print(json.dumps(summary, indent=2))
 PY
 }
 
-cleanup_optional_trello_config_refs() {
-  if [[ -n "${TRELLO_API_KEY:-}" && -n "${TRELLO_TOKEN:-}" ]]; then
-    echo "Trello credentials present; keeping Trello config env refs." 
+prepare_runtime_trello_config() {
+  local has_trello_api_key="false"
+  local has_trello_token="false"
+  local runtime_config_file=".runtime-${OPENCLAW_CONFIG_FILE}"
+  local runtime_config_path="config/${runtime_config_file}"
+
+  [[ -n "${TRELLO_API_KEY:-}" ]] && has_trello_api_key="true"
+  [[ -n "${TRELLO_TOKEN:-}" ]] && has_trello_token="true"
+
+  if [[ "${has_trello_api_key}" == "true" && "${has_trello_token}" == "true" ]]; then
+    echo "Trello credentials present; using source config ${OPENCLAW_CONFIG_PATH}."
     return 0
   fi
 
-  sudo python3 - "${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}" "${TRELLO_API_KEY:-}" "${TRELLO_TOKEN:-}" <<'PY'
+  sudo cp --preserve=mode,ownership,timestamps "${OPENCLAW_CONFIG_PATH}" "${runtime_config_path}"
+  sudo python3 - "${runtime_config_path}" "${has_trello_api_key}" "${has_trello_token}" <<'PY'
 import os
 import re
 import stat
@@ -599,23 +608,23 @@ import tempfile
 from pathlib import Path
 
 config_path = Path(sys.argv[1])
-trello_api_key = sys.argv[2]
-trello_token = sys.argv[3]
+has_trello_api_key = sys.argv[2] == "true"
+has_trello_token = sys.argv[3] == "true"
 
 if not config_path.is_file():
   print(f"ERROR: config file not found at {config_path}", file=sys.stderr)
   sys.exit(1)
 
 patterns = []
-if trello_api_key == "":
+if not has_trello_api_key:
   patterns.append((
     "TRELLO_API_KEY",
-    re.compile(r'^[ \t]*TRELLO_API_KEY:[ \t]*"\$\{TRELLO_API_KEY\}",?[ \t]*\r?\n?', re.MULTILINE),
+    re.compile(r'^[ \t]*(?:TRELLO_API_KEY|"TRELLO_API_KEY"|\'TRELLO_API_KEY\'):[ \t]*"\$\{TRELLO_API_KEY\}",?[ \t]*\r?\n?', re.MULTILINE),
   ))
-if trello_token == "":
+if not has_trello_token:
   patterns.append((
     "TRELLO_TOKEN",
-    re.compile(r'^[ \t]*TRELLO_TOKEN:[ \t]*"\$\{TRELLO_TOKEN\}",?[ \t]*\r?\n?', re.MULTILINE),
+    re.compile(r'^[ \t]*(?:TRELLO_TOKEN|"TRELLO_TOKEN"|\'TRELLO_TOKEN\'):[ \t]*"\$\{TRELLO_TOKEN\}",?[ \t]*\r?\n?', re.MULTILINE),
   ))
 
 if not patterns:
@@ -648,6 +657,11 @@ finally:
 
 print('{"removedRefs": [' + ', '.join(f'"{name}"' for name in removed_refs) + ']}')
 PY
+
+  OPENCLAW_CONFIG_FILE="${runtime_config_file}"
+  OPENCLAW_CONFIG_PATH="${runtime_config_path}"
+  export OPENCLAW_CONFIG_FILE
+  echo "Prepared runtime config ${OPENCLAW_CONFIG_PATH} without unavailable Trello refs."
 }
 
 # Materialize optional gws credentials for credentials_file auth mode.
@@ -708,9 +722,9 @@ export OPENCLAW_GATEWAY_PORT
 export OPENCLAW_BRIDGE_PORT
 export OPENCLAW_CONFIG_FILE
 
-echo "Sanitizing optional Trello config refs in ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}..."
-if ! cleanup_optional_trello_config_refs; then
-  echo "ERROR: Failed to sanitize optional Trello config refs in ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH}." >&2
+echo "Preparing deploy-time config from ${OPENCLAW_CONFIG_PATH}..."
+if ! prepare_runtime_trello_config; then
+  echo "ERROR: Failed to prepare deploy-time config from ${OPENCLAW_CONFIG_PATH}." >&2
   exit 1
 fi
 
