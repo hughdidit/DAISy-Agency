@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 import { DEFAULT_BROWSER_EVALUATE_ENABLED } from "../../browser/constants.js";
 import { ensureBrowserControlAuth, resolveBrowserControlAuth } from "../../browser/control-auth.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -16,6 +17,8 @@ import { resolveSandboxRuntimeStatus } from "./runtime-status.js";
 import { resolveSandboxScopeKey, resolveSandboxWorkspaceDir } from "./shared.js";
 import type { SandboxContext, SandboxDockerConfig, SandboxWorkspaceInfo } from "./types.js";
 import { ensureSandboxWorkspace } from "./workspace.js";
+
+const SANDBOX_SKILL_SNAPSHOT_DIR = path.join(".openclaw", "sandbox-skill-snapshot");
 
 async function ensureSandboxWorkspaceLayout(params: {
   cfg: ReturnType<typeof resolveSandboxConfigForAgent>;
@@ -196,7 +199,7 @@ export async function ensureSandboxWorkspaceForSession(params: {
   }
   const { rawSessionKey, cfg } = resolved;
 
-  const { workspaceDir } = await ensureSandboxWorkspaceLayout({
+  const { workspaceDir, agentWorkspaceDir } = await ensureSandboxWorkspaceLayout({
     cfg,
     rawSessionKey,
     config: params.config,
@@ -205,6 +208,8 @@ export async function ensureSandboxWorkspaceForSession(params: {
 
   return {
     workspaceDir,
+    agentWorkspaceDir,
+    workspaceAccess: cfg.workspaceAccess,
     containerWorkdir: cfg.docker.workdir,
   };
 }
@@ -215,5 +220,27 @@ export async function resolveSkillSnapshotWorkspaceDir(params: {
   workspaceDir?: string;
 }): Promise<string | undefined> {
   const sandboxWorkspace = await ensureSandboxWorkspaceForSession(params);
-  return sandboxWorkspace?.workspaceDir ?? params.workspaceDir;
+  if (!sandboxWorkspace) {
+    return params.workspaceDir;
+  }
+  if (sandboxWorkspace.workspaceAccess !== "rw") {
+    return sandboxWorkspace.workspaceDir;
+  }
+
+  const snapshotWorkspaceDir = path.join(
+    sandboxWorkspace.workspaceDir,
+    SANDBOX_SKILL_SNAPSHOT_DIR,
+  );
+  try {
+    await syncSkillsToWorkspace({
+      sourceWorkspaceDir: sandboxWorkspace.agentWorkspaceDir,
+      targetWorkspaceDir: snapshotWorkspaceDir,
+      config: params.config,
+    });
+    return snapshotWorkspaceDir;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : JSON.stringify(error);
+    defaultRuntime.error?.(`Sandbox skill snapshot sync failed: ${message}`);
+    return sandboxWorkspace.workspaceDir;
+  }
 }

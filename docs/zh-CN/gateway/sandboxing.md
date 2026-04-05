@@ -63,7 +63,7 @@ Gateway 网关保留在主机上；启用时工具执行在隔离的沙箱中运
 - `"rw"`：以读写方式在 `/workspace` 挂载智能体工作区。
 
 入站媒体被复制到活动沙箱工作区（`media/inbound/*`）。
-Skills 注意事项：`read` 工具以沙箱为根。使用 `workspaceAccess: "none"` 时，OpenClaw 将符合条件的 Skills 镜像到沙箱工作区（`.../skills`）以便可以读取。使用 `"rw"` 时，工作区 Skills 可从 `/workspace/skills` 读取。
+Skills 注意事项：`read` 工具以沙箱为根。使用 `workspaceAccess: "none"` 时，OpenClaw 将符合条件的 Skills 镜像到沙箱工作区（`.../skills`）以便可以读取。使用 `"rw"` 时，工作区 Skills 可从 `/workspace/skills` 读取，而 bundled/managed Skills 会先暂存到工作区内可被沙箱读取的子目录，再用于构建 skill snapshot。
 
 ## 自定义绑定挂载
 
