@@ -31,11 +31,17 @@ export async function resolveCommandsSystemPromptBundle(
   params: HandleCommandsParams,
 ): Promise<CommandsSystemPromptBundle> {
   const workspaceDir = params.workspaceDir;
+  const { sessionAgentId } = resolveSessionAgentIds({
+    sessionKey: params.sessionKey,
+    config: params.cfg,
+    agentId: params.agentId,
+  });
   const skillSnapshotWorkspaceDir =
     (await resolveSkillSnapshotWorkspaceDir({
       config: params.cfg,
       sessionKey: params.ctx.SessionKey ?? params.sessionKey,
       workspaceDir,
+      agentId: sessionAgentId,
     })) ?? workspaceDir;
   const { bootstrapFiles, contextFiles: injectedFiles } = await resolveBootstrapContextForRun({
     workspaceDir,
@@ -58,6 +64,7 @@ export async function resolveCommandsSystemPromptBundle(
   const sandboxRuntime = resolveSandboxRuntimeStatus({
     cfg: params.cfg,
     sessionKey: params.ctx.SessionKey ?? params.sessionKey,
+    agentId: sessionAgentId,
   });
   const tools = (() => {
     try {
@@ -81,11 +88,6 @@ export async function resolveCommandsSystemPromptBundle(
   })();
   const toolSummaries = buildToolSummaryMap(tools);
   const toolNames = tools.map((t) => t.name);
-  const { sessionAgentId } = resolveSessionAgentIds({
-    sessionKey: params.sessionKey,
-    config: params.cfg,
-    agentId: params.agentId,
-  });
   const defaultModelRef = resolveDefaultModelForAgent({
     cfg: params.cfg,
     agentId: sessionAgentId,

@@ -593,9 +593,11 @@ async function agentCommandInternal(
         config: cfg,
         sessionKey,
         workspaceDir,
+        agentId: sessionAgentId,
       })) ?? workspaceDir;
     const skillSnapshotWorkspaceRemapped =
       path.resolve(skillSnapshotWorkspaceDir) !== path.resolve(workspaceDir);
+    const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
 
     if (sessionKey) {
       registerAgentRunContext(runId, {
@@ -607,12 +609,12 @@ async function agentCommandInternal(
     const needsSkillsSnapshot =
       isNewSession ||
       !sessionEntry?.skillsSnapshot ||
+      sessionEntry.skillsSnapshot.version !== skillsSnapshotVersion ||
       (skillSnapshotWorkspaceRemapped &&
         !isSkillSnapshotCompatibleWithWorkspace({
           snapshot: sessionEntry?.skillsSnapshot,
           workspaceDir: skillSnapshotWorkspaceDir,
         }));
-    const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
     const skillFilter = resolveAgentSkillsFilter(cfg, sessionAgentId);
     const skillsSnapshot = needsSkillsSnapshot
       ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {

@@ -45,6 +45,7 @@ function resolveComparableSessionKeyForSandbox(params: {
 export function resolveSandboxRuntimeStatus(params: {
   cfg?: OpenClawConfig;
   sessionKey?: string;
+  agentId?: string;
 }): {
   agentId: string;
   sessionKey: string;
@@ -54,10 +55,12 @@ export function resolveSandboxRuntimeStatus(params: {
   toolPolicy: SandboxToolPolicyResolved;
 } {
   const sessionKey = params.sessionKey?.trim() ?? "";
-  const agentId = resolveSessionAgentId({
-    sessionKey,
-    config: params.cfg,
-  });
+  const agentId =
+    params.agentId?.trim() ||
+    resolveSessionAgentId({
+      sessionKey,
+      config: params.cfg,
+    });
   const cfg = params.cfg;
   const sandboxCfg = resolveSandboxConfigForAgent(cfg, agentId);
   const mainSessionKey = resolveMainSessionKeyForSandbox({ cfg, agentId });

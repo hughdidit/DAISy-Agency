@@ -90,7 +90,11 @@ export async function resolveSandboxDockerUser(params: {
   }
 }
 
-function resolveSandboxSession(params: { config?: OpenClawConfig; sessionKey?: string }) {
+function resolveSandboxSession(params: {
+  config?: OpenClawConfig;
+  sessionKey?: string;
+  agentId?: string;
+}) {
   const rawSessionKey = params.sessionKey?.trim();
   if (!rawSessionKey) {
     return null;
@@ -99,6 +103,7 @@ function resolveSandboxSession(params: { config?: OpenClawConfig; sessionKey?: s
   const runtime = resolveSandboxRuntimeStatus({
     cfg: params.config,
     sessionKey: rawSessionKey,
+    agentId: params.agentId,
   });
   if (!runtime.sandboxed) {
     return null;
@@ -112,6 +117,7 @@ export async function resolveSandboxContext(params: {
   config?: OpenClawConfig;
   sessionKey?: string;
   workspaceDir?: string;
+  agentId?: string;
 }): Promise<SandboxContext | null> {
   const resolved = resolveSandboxSession(params);
   if (!resolved) {
@@ -192,6 +198,7 @@ export async function ensureSandboxWorkspaceForSession(params: {
   config?: OpenClawConfig;
   sessionKey?: string;
   workspaceDir?: string;
+  agentId?: string;
 }): Promise<SandboxWorkspaceInfo | null> {
   const resolved = resolveSandboxSession(params);
   if (!resolved) {
@@ -214,10 +221,17 @@ export async function ensureSandboxWorkspaceForSession(params: {
   };
 }
 
+/**
+ * Resolve the workspace root that should be scanned when building a skills snapshot.
+ * Sandboxed non-rw sessions use the isolated sandbox workspace directly; rw sessions
+ * stage merged skills into a workspace-local mirror so snapshot prompt paths stay
+ * inside the sandbox-readable root.
+ */
 export async function resolveSkillSnapshotWorkspaceDir(params: {
   config?: OpenClawConfig;
   sessionKey?: string;
   workspaceDir?: string;
+  agentId?: string;
 }): Promise<string | undefined> {
   const sandboxWorkspace = await ensureSandboxWorkspaceForSession(params);
   if (!sandboxWorkspace) {

@@ -29,6 +29,7 @@ export async function resolveCronSkillsSnapshot(params: {
       config: params.config,
       sessionKey: params.sessionKey,
       workspaceDir: params.workspaceDir,
+      agentId: params.agentId,
     })) ?? params.workspaceDir;
   const skillSnapshotWorkspaceRemapped =
     path.resolve(skillSnapshotWorkspaceDir) !== path.resolve(params.workspaceDir);
