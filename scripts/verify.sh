@@ -148,12 +148,12 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking Google Workspace credentials_file materialization on ${GCE_INSTANCE_NAME}..."
     gws_credentials_required="$(
-      gce_ssh_lastline "if [ -f /opt/DAISy/config/.runtime-openclaw.json ] && grep -F 'allowedCredentialModes' /opt/DAISy/config/.runtime-openclaw.json >/dev/null 2>&1 && grep -F 'credentials_file' /opt/DAISy/config/.runtime-openclaw.json >/dev/null 2>&1; then echo true; else echo false; fi"
+      gce_ssh_lastline "if sudo test -f /opt/DAISy/config/.runtime-openclaw.json && sudo grep -F 'allowedCredentialModes' /opt/DAISy/config/.runtime-openclaw.json >/dev/null 2>&1 && sudo grep -F 'credentials_file' /opt/DAISy/config/.runtime-openclaw.json >/dev/null 2>&1; then echo true; else echo false; fi"
     )" || fail "Failed to inspect Google Workspace credential mode on ${GCE_INSTANCE_NAME}"
     gws_credentials_required="$(echo "${gws_credentials_required}" | tr -d '[:space:]')"
     if [[ "${gws_credentials_required}" == "true" ]]; then
       gws_credentials_status="$(
-        gce_ssh_lastline "if [ -f /opt/DAISy/config/secrets/gws/credentials.json ]; then stat -c 'present(size=%s)' /opt/DAISy/config/secrets/gws/credentials.json; else echo missing; fi"
+        gce_ssh_lastline "if sudo test -f /opt/DAISy/config/secrets/gws/credentials.json; then sudo stat -c 'present(size=%s)' /opt/DAISy/config/secrets/gws/credentials.json; else echo missing; fi"
       )" || fail "Failed to inspect Google Workspace credentials file on ${GCE_INSTANCE_NAME}"
       if [[ "${gws_credentials_status}" == "missing" ]]; then
         fail "gws-toolkit-phase1 requires credentials_file mode, but /opt/DAISy/config/secrets/gws/credentials.json is missing on ${GCE_INSTANCE_NAME}"
