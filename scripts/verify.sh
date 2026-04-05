@@ -184,14 +184,18 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
         fail "monitoring-alertmanager-1 health status is '${monitoring_health:-<empty>}' on ${GCE_INSTANCE_NAME}"
       fi
 
-      gce_ssh "sudo docker inspect monitoring-alertmanager-1 --format '{{range .Config.Env}}{{println .}}{{end}}' | grep -E '^(DISCORD_ALERTS_WEBHOOK_URL|GRAFANA_ADMIN_PASSWORD|ALERT_SMTP_USERNAME|ALERT_SMTP_PASSWORD)=' >/dev/null" \
-        || fail "monitoring-alertmanager-1 is missing expected monitoring env vars on ${GCE_INSTANCE_NAME}"
+      missing_monitoring_env="$(
+        gce_ssh "sudo docker inspect monitoring-alertmanager-1 --format '{{range .Config.Env}}{{println .}}{{end}}' | awk -F= 'BEGIN { required[\"DISCORD_ALERTS_WEBHOOK_URL\"]=1; required[\"GRAFANA_ADMIN_PASSWORD\"]=1; required[\"ALERT_SMTP_USERNAME\"]=1; required[\"ALERT_SMTP_PASSWORD\"]=1 } \$1 in required && length(substr(\$0, index(\$0, \"=\") + 1)) > 0 { seen[\$1]=1 } END { for (key in required) if (!(key in seen)) print key }'"
+      )" || fail "Failed to inspect Alertmanager env vars on ${GCE_INSTANCE_NAME}"
+      if [[ -n "${missing_monitoring_env}" ]]; then
+        fail "monitoring-alertmanager-1 is missing required monitoring env vars on ${GCE_INSTANCE_NAME}: ${missing_monitoring_env//$'\n'/, }"
+      fi
       log "Monitoring Alertmanager env delivery passed."
     else
       log "Monitoring env file is absent; skipping Alertmanager env delivery check."
     fi
   else
-    log "VERIFY_ENV=${VERIFY_ENV:-<unset>}; skipping Trello-specific verification outside staging."
+    log "VERIFY_ENV=${VERIFY_ENV:-<unset>}; skipping staging-specific verification."
   fi
 
   # Check 8: require the sandbox browser image when the deployed config enables it.

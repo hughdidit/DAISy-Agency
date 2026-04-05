@@ -164,10 +164,6 @@ To configure, add these **GitHub secrets** in **Settings > Secrets and variables
 | ---------------------------- | -------- | -------------------------------------------- |
 | `GRAFANA_ADMIN_PASSWORD`     | Yes      | (strong password)                            |
 | `DISCORD_ALERTS_WEBHOOK_URL` | No       | `https://discord.com/api/webhooks/.../slack` |
-| `ALERT_EMAIL_TO`             | No       | `alerts@example.com`                         |
-| `ALERT_SMTP_HOST`            | No       | `smtp.gmail.com`                             |
-| `ALERT_SMTP_PORT`            | No       | `587`                                        |
-| `ALERT_SMTP_FROM`            | No       | `daisy-alerts@example.com`                   |
 | `ALERT_SMTP_USERNAME`        | No       | SMTP username                                |
 | `ALERT_SMTP_PASSWORD`        | No       | SMTP password                                |
 
@@ -183,6 +179,10 @@ Configure these non-sensitive values as **GitHub variables**:
 | `ALERT_SMTP_HOST`    | No       | `smtp.gmail.com`            |
 | `ALERT_SMTP_PORT`    | No       | `587`                       |
 | `ALERT_SMTP_FROM`    | No       | `daisy-alerts@example.com`  |
+
+Email delivery needs `ALERT_EMAIL_TO`, `ALERT_SMTP_HOST`, `ALERT_SMTP_PORT`,
+and `ALERT_SMTP_FROM` as GitHub variables plus `ALERT_SMTP_USERNAME` and
+`ALERT_SMTP_PASSWORD` as GitHub secrets.
 
 ### VM Environment Variables
 

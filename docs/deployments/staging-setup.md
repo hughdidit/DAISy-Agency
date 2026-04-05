@@ -191,8 +191,9 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `ALERT_SMTP_FROM`
 
 3. **Run the Deploy workflow** with:
+   - `release_run_id`: Docker Release workflow run ID (required even when `image_ref` is used)
    - `environment`: `staging`
-   - `image_ref`: Your image reference (e.g., `ghcr.io/hughdidit/daisy-agency:latest`)
+   - `image_ref`: Optional emergency override (e.g., `ghcr.io/hughdidit/daisy-agency:latest`)
    - `provision`: `true` (creates `/opt/DAISy` and copies docker-compose.yml)
    - `dry_run`: `false`
 
