@@ -208,3 +208,12 @@ export async function ensureSandboxWorkspaceForSession(params: {
     containerWorkdir: cfg.docker.workdir,
   };
 }
+
+export async function resolveSkillSnapshotWorkspaceDir(params: {
+  config?: OpenClawConfig;
+  sessionKey?: string;
+  workspaceDir?: string;
+}): Promise<string | undefined> {
+  const sandboxWorkspace = await ensureSandboxWorkspaceForSession(params);
+  return sandboxWorkspace?.workspaceDir ?? params.workspaceDir;
+}

@@ -33,6 +33,7 @@ import {
   resolveThinkingDefault,
 } from "../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
+import { resolveSkillSnapshotWorkspaceDir } from "../agents/sandbox.js";
 import { buildWorkspaceSkillSnapshot } from "../agents/skills.js";
 import { getSkillsSnapshotVersion } from "../agents/skills/refresh.js";
 import { resolveAgentTimeoutMs } from "../agents/timeout.js";
@@ -586,6 +587,12 @@ async function agentCommandInternal(
     let resolvedThinkLevel = thinkOnce ?? thinkOverride ?? persistedThinking;
     const resolvedVerboseLevel =
       verboseOverride ?? persistedVerbose ?? (agentCfg?.verboseDefault as VerboseLevel | undefined);
+    const skillSnapshotWorkspaceDir =
+      (await resolveSkillSnapshotWorkspaceDir({
+        config: cfg,
+        sessionKey,
+        workspaceDir,
+      })) ?? workspaceDir;
 
     if (sessionKey) {
       registerAgentRunContext(runId, {
@@ -598,7 +605,7 @@ async function agentCommandInternal(
     const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
     const skillFilter = resolveAgentSkillsFilter(cfg, sessionAgentId);
     const skillsSnapshot = needsSkillsSnapshot
-      ? buildWorkspaceSkillSnapshot(workspaceDir, {
+      ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
           config: cfg,
           eligibility: { remote: getRemoteSkillEligibility() },
           snapshotVersion: skillsSnapshotVersion,

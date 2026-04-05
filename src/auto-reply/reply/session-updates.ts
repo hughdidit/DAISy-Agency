@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { resolveUserTimezone } from "../../agents/date-time.js";
+import { resolveSkillSnapshotWorkspaceDir } from "../../agents/sandbox.js";
 import { buildWorkspaceSkillSnapshot } from "../../agents/skills.js";
 import { ensureSkillsWatcher, getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -155,6 +156,12 @@ export async function ensureSkillSnapshot(params: {
   let nextEntry = sessionEntry;
   let systemSent = sessionEntry?.systemSent ?? false;
   const remoteEligibility = getRemoteSkillEligibility();
+  const skillSnapshotWorkspaceDir =
+    (await resolveSkillSnapshotWorkspaceDir({
+      config: cfg,
+      sessionKey,
+      workspaceDir,
+    })) ?? workspaceDir;
   const snapshotVersion = getSkillsSnapshotVersion(workspaceDir);
   ensureSkillsWatcher({ workspaceDir, config: cfg });
   const shouldRefreshSnapshot =
@@ -168,7 +175,7 @@ export async function ensureSkillSnapshot(params: {
       };
     const skillSnapshot =
       isFirstTurnInSession || !current.skillsSnapshot || shouldRefreshSnapshot
-        ? buildWorkspaceSkillSnapshot(workspaceDir, {
+        ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
             config: cfg,
             skillFilter,
             eligibility: { remote: remoteEligibility },
@@ -192,7 +199,7 @@ export async function ensureSkillSnapshot(params: {
   }
 
   const skillsSnapshot = shouldRefreshSnapshot
-    ? buildWorkspaceSkillSnapshot(workspaceDir, {
+    ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
         config: cfg,
         skillFilter,
         eligibility: { remote: remoteEligibility },
@@ -201,7 +208,7 @@ export async function ensureSkillSnapshot(params: {
     : (nextEntry?.skillsSnapshot ??
       (isFirstTurnInSession
         ? undefined
-        : buildWorkspaceSkillSnapshot(workspaceDir, {
+        : buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
             config: cfg,
             skillFilter,
             eligibility: { remote: remoteEligibility },
