@@ -62,9 +62,9 @@ Reference:
 
 ---
 
-## Secrets (IAP-only + Workload Identity Federation)
+## Secrets and Variables (IAP-only + Workload Identity Federation)
 
-### Required (both staging and production)
+### Environment Secrets
 
 These are **environment secrets** (set separately under `staging` and `production` environments).
 
@@ -106,10 +106,44 @@ These secrets are passed to docker compose on the target VM.
 
 **Optional (integrations):**
 
+- `OPENAI_API_KEY` - OpenAI-backed models, tools, and embeddings
+- `MONGODB_URI` - memory-mongodb connection URI
+- `GEMINI_API_KEY` - Gemini embeddings / Google provider access
+- `BRAVE_API_KEY` - Brave web search access
+- `FIRECRAWL_API_KEY` - Firecrawl access
 - `TRELLO_API_KEY` - Trello API key for Trello integration features
 - `TRELLO_TOKEN` - Trello token for Trello integration features
+- `GOOGLE_WORKSPACE_CLI_TOKEN` - optional bearer token for `gws-toolkit-phase1` token mode
+- `GWS_CREDENTIALS` - optional exported Google Workspace credentials JSON for `gws-toolkit-phase1` credentials-file mode
 
-Trello secrets are optional and only needed when Trello integration is enabled.
+Trello secrets are optional and only needed when Trello integration is enabled. Staging currently uses `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` can remain unset.
+
+### Monitoring Secrets
+
+These values are used to render `/opt/DAISy/monitoring/.env.monitoring` on the VM:
+
+- `GRAFANA_ADMIN_PASSWORD` - required to generate `.env.monitoring`
+- `DISCORD_ALERTS_WEBHOOK_URL` - sensitive Discord webhook for Alertmanager notifications
+- `ALERT_SMTP_USERNAME` - SMTP auth username
+- `ALERT_SMTP_PASSWORD` - SMTP auth password
+
+`DISCORD_ALERTS_WEBHOOK_URL` must be stored as an environment secret, not an Actions variable, because GitHub prints variables verbatim in workflow logs.
+
+### Environment Variables
+
+Use Actions **variables** only for non-sensitive deployment settings:
+
+- `OPENCLAW_GATEWAY_PORT`
+- `OPENCLAW_BRIDGE_PORT`
+- `OPENCLAW_GATEWAY_BIND`
+- `OPENCLAW_CONFIG_FILE`
+- `VERIFY_GCE_CONTAINER`
+- `VERIFY_HEALTH_TIMEOUT`
+- `ALERT_EMAIL_TO`
+- `ALERT_SMTP_HOST`
+- `ALERT_SMTP_PORT`
+- `ALERT_SMTP_FROM`
+- `STAGING_DEPLOY_DRY_RUN` (repo variable consumed by the staging auto-deploy workflow)
 
 References:
 
@@ -173,7 +207,7 @@ The `deploy-staging-on-release` workflow reads a repo variable named `STAGING_DE
 
 ### Verify
 
-Runs post-deploy smoke checks against the target VM. On the GCE Docker path it verifies the gateway container is running, becomes healthy, matches the requested image ref when provided, and that the bundled mongodb-mcp-server CLI starts inside the live container without the known Node 22 translator crash signatures. When `agents.defaults.sandbox.browser.enabled=true`, Verify also fails if `openclaw-sandbox-browser:bookworm-slim` is missing on the VM. Prefer running Verify after staging deploy and after production promote.
+Runs post-deploy smoke checks against the target VM. On the GCE Docker path it verifies the gateway container is running, becomes healthy, matches the requested image ref when provided, and that the bundled mongodb-mcp-server CLI starts inside the live container without the known Node 22 translator crash signatures. For staging, Verify also checks the active `gws-toolkit-phase1` credentials-file path on the VM and requires `monitoring-alertmanager-1` to be healthy when `.env.monitoring` is present. When `agents.defaults.sandbox.browser.enabled=true`, Verify also fails if `openclaw-sandbox-browser:bookworm-slim` is missing on the VM. Prefer running Verify after staging deploy and after production promote.
 
 ---
 

@@ -97,6 +97,9 @@ on:
       GRAFANA_ADMIN_PASSWORD:
         description: Grafana admin password
         required: false
+      DISCORD_ALERTS_WEBHOOK_URL:
+        description: Discord webhook URL for Alertmanager notifications
+        required: false
       ALERT_SMTP_USERNAME:
         description: SMTP authentication username
         required: false
@@ -291,10 +294,10 @@ jobs:
           GWS_CREDENTIALS: ${{ secrets.GWS_CREDENTIALS }}
           # Monitoring secrets (credentials)
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          DISCORD_ALERTS_WEBHOOK_URL: ${{ secrets.DISCORD_ALERTS_WEBHOOK_URL }}
           ALERT_SMTP_USERNAME: ${{ secrets.ALERT_SMTP_USERNAME }}
           ALERT_SMTP_PASSWORD: ${{ secrets.ALERT_SMTP_PASSWORD }}
           # Monitoring config (non-sensitive, from environment variables)
-          DISCORD_ALERTS_WEBHOOK_URL: ${{ vars.DISCORD_ALERTS_WEBHOOK_URL }}
           ALERT_EMAIL_TO: ${{ vars.ALERT_EMAIL_TO }}
           ALERT_SMTP_HOST: ${{ vars.ALERT_SMTP_HOST }}
           ALERT_SMTP_PORT: ${{ vars.ALERT_SMTP_PORT }}

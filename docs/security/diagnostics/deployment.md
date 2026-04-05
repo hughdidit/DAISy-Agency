@@ -158,7 +158,7 @@ All monitoring secrets are stored in `monitoring/.env.monitoring` on the VM. Thi
 
 When deploying via CI/CD, `.env.monitoring` is automatically generated from GitHub Secrets. The deploy script writes the file to the VM with `root:root 600` permissions.
 
-To configure, add these secrets in **Settings > Secrets and variables > Actions**:
+To configure, add these **GitHub secrets** in **Settings > Secrets and variables > Actions**:
 
 | Secret                       | Required | Example                                      |
 | ---------------------------- | -------- | -------------------------------------------- |
@@ -172,6 +172,17 @@ To configure, add these secrets in **Settings > Secrets and variables > Actions*
 | `ALERT_SMTP_PASSWORD`        | No       | SMTP password                                |
 
 If `GRAFANA_ADMIN_PASSWORD` is not set, the deploy script skips `.env.monitoring` generation and reuses any existing file on the VM.
+
+`DISCORD_ALERTS_WEBHOOK_URL` must be stored as a GitHub secret. Do not store it as an Actions variable, because workflow logs print variable values verbatim.
+
+Configure these non-sensitive values as **GitHub variables**:
+
+| Variable             | Required | Example                     |
+| -------------------- | -------- | --------------------------- |
+| `ALERT_EMAIL_TO`     | No       | `alerts@example.com`        |
+| `ALERT_SMTP_HOST`    | No       | `smtp.gmail.com`            |
+| `ALERT_SMTP_PORT`    | No       | `587`                       |
+| `ALERT_SMTP_FROM`    | No       | `daisy-alerts@example.com`  |
 
 ### VM Environment Variables
 

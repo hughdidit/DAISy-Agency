@@ -160,14 +160,37 @@ The easiest way to set up the deployment directory and start services is via the
 
 For a brand-new staging VM, the real deploy requires the config file to exist at `/opt/DAISy/config/openclaw.json` before `scripts/deploy.sh` runs. Use the workflow with `provision: true` to create `/opt/DAISy`, then create or copy the config file onto the VM before the first non-dry-run deployment.
 
-1. **Add app secrets** to the `staging` environment in GitHub:
+1. **Add staging environment secrets** in GitHub:
+   - `GHCR_USERNAME`
+   - `GHCR_TOKEN`
    - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
    - `DISCORD_BOT_TOKEN` - Required by the current deploy workflow and deploy script for real deploys
    - `ANTHROPIC_API_KEY` - Required by the current deploy workflow and deploy script for real deploys
    - `OPENAI_API_KEY` - Optional, for OpenAI-backed models, tools, and embeddings
+   - `MONGODB_URI` - Optional, for memory-mongodb
+   - `GEMINI_API_KEY` - Optional, for Gemini-backed embeddings/providers
+   - `BRAVE_API_KEY` - Optional, for Brave search
    - `FIRECRAWL_API_KEY` - Optional, for firecrawl-enabled environments
+   - `TRELLO_API_KEY` / `TRELLO_TOKEN` - Optional, for Trello integration
+   - `GWS_CREDENTIALS` - Optional, for `gws-toolkit-phase1` credentials-file mode
+   - `GOOGLE_WORKSPACE_CLI_TOKEN` - Optional, only if staging switches to token mode
+   - `GRAFANA_ADMIN_PASSWORD` - Required when monitoring `.env.monitoring` should be regenerated
+   - `DISCORD_ALERTS_WEBHOOK_URL` - Sensitive Discord webhook for Alertmanager; store as a secret, not a variable
+   - `ALERT_SMTP_USERNAME` / `ALERT_SMTP_PASSWORD` - Optional SMTP auth for email alerts
 
-2. **Run the Deploy workflow** with:
+   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes.
+
+2. **Add staging environment variables** in GitHub:
+   - `OPENCLAW_GATEWAY_PORT`
+   - `OPENCLAW_BRIDGE_PORT`
+   - `OPENCLAW_CONFIG_FILE`
+   - `VERIFY_GCE_CONTAINER`
+   - `ALERT_EMAIL_TO`
+   - `ALERT_SMTP_HOST`
+   - `ALERT_SMTP_PORT`
+   - `ALERT_SMTP_FROM`
+
+3. **Run the Deploy workflow** with:
    - `environment`: `staging`
    - `image_ref`: Your image reference (e.g., `ghcr.io/hughdidit/daisy-agency:latest`)
    - `provision`: `true` (creates `/opt/DAISy` and copies docker-compose.yml)
@@ -209,9 +232,18 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 - [ ] `DISCORD_BOT_TOKEN` - Required by the current deploy workflow/script; use staging bot, not production
 - [ ] `ANTHROPIC_API_KEY` - Required by the current deploy workflow/script for real deploys
 - [ ] `OPENAI_API_KEY` - Optional; set when staging should use OpenAI-backed features
+- [ ] `MONGODB_URI` - Optional; set when memory-mongodb is enabled
+- [ ] `GEMINI_API_KEY` - Optional; set when Gemini-backed embeddings/providers are enabled
+- [ ] `BRAVE_API_KEY` - Optional; set when Brave search is enabled
 - [ ] Discord allowlist - **Staging-only channels/users**
 - [ ] API keys - Use staging keys or shared keys with tracking
 - [ ] `FIRECRAWL_API_KEY` - Optional; set only for firecrawl-enabled environments
+- [ ] `TRELLO_API_KEY` / `TRELLO_TOKEN` - Optional; set when Trello integration is enabled
+- [ ] `GWS_CREDENTIALS` - Optional; required for the current staging `gws-toolkit-phase1` credentials-file path
+- [ ] `GOOGLE_WORKSPACE_CLI_TOKEN` - Optional; leave unset unless staging explicitly switches to token mode
+- [ ] `GRAFANA_ADMIN_PASSWORD` - Required if monitoring `.env.monitoring` should be regenerated on deploy
+- [ ] `DISCORD_ALERTS_WEBHOOK_URL` - Optional but sensitive; store as a GitHub secret, never as a GitHub variable
+- [ ] `ALERT_SMTP_USERNAME` / `ALERT_SMTP_PASSWORD` - Optional SMTP auth for email alerts
 - [ ] GHCR credentials - For pulling staging images
 - [ ] Cloudflare tunnel - **Disabled or staging-only tunnel**
 
