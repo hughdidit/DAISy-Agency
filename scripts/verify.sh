@@ -168,7 +168,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking monitoring Alertmanager env delivery on ${GCE_INSTANCE_NAME}..."
     monitoring_env_present="$(
-      gce_ssh_lastline "if [ -f /opt/DAISy/monitoring/.env.monitoring ]; then echo true; else echo false; fi"
+      gce_ssh_lastline "sudo -n sh -c 'if [ -f /opt/DAISy/monitoring/.env.monitoring ]; then echo true; else echo false; fi'"
     )" || fail "Failed to inspect monitoring env file on ${GCE_INSTANCE_NAME}"
     monitoring_env_present="$(echo "${monitoring_env_present}" | tr -d '[:space:]')"
     if [[ "${monitoring_env_present}" == "true" ]]; then
