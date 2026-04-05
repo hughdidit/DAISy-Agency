@@ -39,6 +39,20 @@ gce_ssh_lastline() {
   gce_ssh "$1" | tail -1
 }
 
+docker_container_state() {
+  local name="${1:?container name required}"
+  local escaped_name
+  escaped_name="$(printf '%q' "${name}")"
+  gce_ssh_lastline "sudo docker ps --filter 'name=^${escaped_name}\$' --format '{{.State}}'"
+}
+
+docker_container_health() {
+  local name="${1:?container name required}"
+  local escaped_name
+  escaped_name="$(printf '%q' "${name}")"
+  gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${escaped_name}\$' | head -1) && sudo docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{end}}' \"\$cid\" 2>/dev/null"
+}
+
 if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required for GCE verify}"
   : "${GCP_ZONE:?GCP_ZONE is required for GCE verify}"
@@ -128,11 +142,63 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     }
     printf '%s\n' "${trello_smoke_output}"
     log "Live Trello API smoke passed."
+
+    # Check 6: gws-toolkit-phase1 staging config requires credentials_file mode,
+    # so the deployed credentials file must exist on the VM.
+    checks_run=$((checks_run + 1))
+    log "Checking Google Workspace credentials_file materialization on ${GCE_INSTANCE_NAME}..."
+    gws_credentials_required="$(
+      gce_ssh_lastline "if [ -f /opt/DAISy/config/.runtime-openclaw.json ] && grep -F 'allowedCredentialModes' /opt/DAISy/config/.runtime-openclaw.json >/dev/null 2>&1 && grep -F 'credentials_file' /opt/DAISy/config/.runtime-openclaw.json >/dev/null 2>&1; then echo true; else echo false; fi"
+    )" || fail "Failed to inspect Google Workspace credential mode on ${GCE_INSTANCE_NAME}"
+    gws_credentials_required="$(echo "${gws_credentials_required}" | tr -d '[:space:]')"
+    if [[ "${gws_credentials_required}" == "true" ]]; then
+      gws_credentials_status="$(
+        gce_ssh_lastline "if [ -f /opt/DAISy/config/secrets/gws/credentials.json ]; then stat -c 'present(size=%s)' /opt/DAISy/config/secrets/gws/credentials.json; else echo missing; fi"
+      )" || fail "Failed to inspect Google Workspace credentials file on ${GCE_INSTANCE_NAME}"
+      if [[ "${gws_credentials_status}" == "missing" ]]; then
+        fail "gws-toolkit-phase1 requires credentials_file mode, but /opt/DAISy/config/secrets/gws/credentials.json is missing on ${GCE_INSTANCE_NAME}"
+      fi
+      log "Google Workspace credentials file status: ${gws_credentials_status}"
+    else
+      log "Google Workspace credentials_file mode is not active; skipping credentials file check."
+    fi
+
+    # Check 7: when monitoring env has been generated, Alertmanager must be
+    # running and receive the sensitive webhook/env payloads from .env.monitoring.
+    checks_run=$((checks_run + 1))
+    log "Checking monitoring Alertmanager env delivery on ${GCE_INSTANCE_NAME}..."
+    monitoring_env_present="$(
+      gce_ssh_lastline "if [ -f /opt/DAISy/monitoring/.env.monitoring ]; then echo true; else echo false; fi"
+    )" || fail "Failed to inspect monitoring env file on ${GCE_INSTANCE_NAME}"
+    monitoring_env_present="$(echo "${monitoring_env_present}" | tr -d '[:space:]')"
+    if [[ "${monitoring_env_present}" == "true" ]]; then
+      monitoring_state="$(docker_container_state "monitoring-alertmanager-1" | tr -d '[:space:]')" || true
+      if [[ "${monitoring_state}" != "running" ]]; then
+        gce_ssh "sudo docker ps -a --filter 'name=^monitoring-alertmanager-1\$' --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'" || true
+        fail "monitoring-alertmanager-1 is not running on ${GCE_INSTANCE_NAME}"
+      fi
+
+      monitoring_health="$(docker_container_health "monitoring-alertmanager-1" | tr -d '[:space:]')" || true
+      if [[ "${monitoring_health}" != "healthy" ]]; then
+        gce_ssh "sudo docker logs --tail 50 monitoring-alertmanager-1 2>&1" || true
+        fail "monitoring-alertmanager-1 health status is '${monitoring_health:-<empty>}' on ${GCE_INSTANCE_NAME}"
+      fi
+
+      missing_monitoring_env="$(
+        gce_ssh "sudo docker inspect monitoring-alertmanager-1 --format '{{range .Config.Env}}{{println .}}{{end}}' | awk -F= 'BEGIN { required[\"DISCORD_ALERTS_WEBHOOK_URL\"]=1; required[\"GRAFANA_ADMIN_PASSWORD\"]=1; required[\"ALERT_SMTP_USERNAME\"]=1; required[\"ALERT_SMTP_PASSWORD\"]=1 } \$1 in required && length(substr(\$0, index(\$0, \"=\") + 1)) > 0 { seen[\$1]=1 } END { for (key in required) if (!(key in seen)) print key }'"
+      )" || fail "Failed to inspect Alertmanager env vars on ${GCE_INSTANCE_NAME}"
+      if [[ -n "${missing_monitoring_env}" ]]; then
+        fail "monitoring-alertmanager-1 is missing required monitoring env vars on ${GCE_INSTANCE_NAME}: ${missing_monitoring_env//$'\n'/, }"
+      fi
+      log "Monitoring Alertmanager env delivery passed."
+    else
+      log "Monitoring env file is absent; skipping Alertmanager env delivery check."
+    fi
   else
-    log "VERIFY_ENV=${VERIFY_ENV:-<unset>}; skipping Trello-specific verification outside staging."
+    log "VERIFY_ENV=${VERIFY_ENV:-<unset>}; skipping staging-specific verification."
   fi
 
-  # Check 6: require the sandbox browser image when the deployed config enables it.
+  # Check 8: require the sandbox browser image when the deployed config enables it.
   checks_run=$((checks_run + 1))
   log "Checking sandbox browser image requirement from deployed config..."
   browser_probe_js="$(cat <<'NODE'
@@ -298,7 +364,7 @@ NODE
     log "Sandbox browser is disabled; skipping image presence check."
   fi
 
-  # Check 7: verify deployed image matches DEPLOYED_REF (if set)
+  # Check 9: verify deployed image matches DEPLOYED_REF (if set)
   if [[ -n "${DEPLOYED_REF:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking deployed image matches DEPLOYED_REF (${DEPLOYED_REF})..."
@@ -314,7 +380,7 @@ NODE
     log "Container image: ${image_ref}"
   fi
 
-  # Check 8: smoke-test the bundled mongodb-mcp-server CLI inside the deployed
+  # Check 10: smoke-test the bundled mongodb-mcp-server CLI inside the deployed
   # container. This catches the Node 22 startup crash that can occur before MCP
   # stdio connects, even while the gateway health endpoint still reports healthy.
   checks_run=$((checks_run + 1))
@@ -324,7 +390,7 @@ NODE
   )" || fail "mongodb-mcp-server startup smoke failed in ${container}"
   printf '%s\n' "${mcp_smoke_output}"
 
-  # Check 9: ensure the current container logs do not contain the known
+  # Check 11: ensure the current container logs do not contain the known
   # translator crash or the resulting MCP connection-closed failure.
   checks_run=$((checks_run + 1))
   log "Checking ${container} logs for MongoDB MCP startup crash signatures..."
