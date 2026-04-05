@@ -173,12 +173,12 @@ If `GRAFANA_ADMIN_PASSWORD` is not set, the deploy script skips `.env.monitoring
 
 Configure these non-sensitive values as **GitHub variables**:
 
-| Variable             | Required | Example                     |
-| -------------------- | -------- | --------------------------- |
-| `ALERT_EMAIL_TO`     | No       | `alerts@example.com`        |
-| `ALERT_SMTP_HOST`    | No       | `smtp.gmail.com`            |
-| `ALERT_SMTP_PORT`    | No       | `587`                       |
-| `ALERT_SMTP_FROM`    | No       | `daisy-alerts@example.com`  |
+| Variable          | Required | Example                    |
+| ----------------- | -------- | -------------------------- |
+| `ALERT_EMAIL_TO`  | No       | `alerts@example.com`       |
+| `ALERT_SMTP_HOST` | No       | `smtp.gmail.com`           |
+| `ALERT_SMTP_PORT` | No       | `587`                      |
+| `ALERT_SMTP_FROM` | No       | `daisy-alerts@example.com` |
 
 Email delivery needs `ALERT_EMAIL_TO`, `ALERT_SMTP_HOST`, `ALERT_SMTP_PORT`,
 and `ALERT_SMTP_FROM` as GitHub variables plus `ALERT_SMTP_USERNAME` and
