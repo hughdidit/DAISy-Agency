@@ -385,10 +385,11 @@ export async function runCronIsolatedAgentTurn(params: {
   }
 
   const existingSkillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
-  const skillsSnapshot = resolveCronSkillsSnapshot({
+  const skillsSnapshot = await resolveCronSkillsSnapshot({
     workspaceDir,
     config: cfgWithAgentDefaults,
     agentId,
+    sessionKey: agentSessionKey,
     existingSnapshot: existingSkillsSnapshot,
     isFastTestEnv,
   });

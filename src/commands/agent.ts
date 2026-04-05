@@ -1,3 +1,4 @@
+import path from "node:path";
 import { getAcpSessionManager } from "../acp/control-plane/manager.js";
 import { resolveAcpAgentPolicyError, resolveAcpDispatchPolicyError } from "../acp/policy.js";
 import { toAcpRuntimeError } from "../acp/runtime/errors.js";
@@ -34,7 +35,7 @@ import {
 } from "../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { resolveSkillSnapshotWorkspaceDir } from "../agents/sandbox.js";
-import { buildWorkspaceSkillSnapshot } from "../agents/skills.js";
+import { buildWorkspaceSkillSnapshot, isSkillSnapshotCompatibleWithWorkspace } from "../agents/skills.js";
 import { getSkillsSnapshotVersion } from "../agents/skills/refresh.js";
 import { resolveAgentTimeoutMs } from "../agents/timeout.js";
 import { ensureAgentWorkspace } from "../agents/workspace.js";
@@ -593,6 +594,8 @@ async function agentCommandInternal(
         sessionKey,
         workspaceDir,
       })) ?? workspaceDir;
+    const skillSnapshotWorkspaceRemapped =
+      path.resolve(skillSnapshotWorkspaceDir) !== path.resolve(workspaceDir);
 
     if (sessionKey) {
       registerAgentRunContext(runId, {
@@ -601,7 +604,14 @@ async function agentCommandInternal(
       });
     }
 
-    const needsSkillsSnapshot = isNewSession || !sessionEntry?.skillsSnapshot;
+    const needsSkillsSnapshot =
+      isNewSession ||
+      !sessionEntry?.skillsSnapshot ||
+      (skillSnapshotWorkspaceRemapped &&
+        !isSkillSnapshotCompatibleWithWorkspace({
+          snapshot: sessionEntry?.skillsSnapshot,
+          workspaceDir: skillSnapshotWorkspaceDir,
+        }));
     const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
     const skillFilter = resolveAgentSkillsFilter(cfg, sessionAgentId);
     const skillsSnapshot = needsSkillsSnapshot
