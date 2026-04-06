@@ -1,7 +1,8 @@
 import { formatCliCommand } from "../../cli/command-format.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { canonicalizeMainSessionAlias, resolveAgentMainSessionKey } from "../../config/sessions.js";
-import { resolveSessionAgentIds } from "../agent-scope.js";
+import { normalizeAgentId } from "../../routing/session-key.js";
+import { resolveSessionAgentId } from "../agent-scope.js";
 import { expandToolGroups } from "../tool-policy.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
 import { resolveSandboxToolPolicyForAgent } from "./tool-policy.js";
@@ -55,11 +56,13 @@ export function resolveSandboxRuntimeStatus(params: {
   toolPolicy: SandboxToolPolicyResolved;
 } {
   const sessionKey = params.sessionKey?.trim() ?? "";
-  const { sessionAgentId: agentId } = resolveSessionAgentIds({
-    sessionKey,
-    config: params.cfg,
-    agentId: params.agentId,
-  });
+  const explicitAgentId = params.agentId?.trim() ? normalizeAgentId(params.agentId) : undefined;
+  const agentId =
+    explicitAgentId ??
+    resolveSessionAgentId({
+      sessionKey,
+      config: params.cfg,
+    });
   const cfg = params.cfg;
   const sandboxCfg = resolveSandboxConfigForAgent(cfg, agentId);
   const mainSessionKey = resolveMainSessionKeyForSandbox({ cfg, agentId });
