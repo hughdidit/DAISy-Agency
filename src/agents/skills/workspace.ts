@@ -536,6 +536,44 @@ export function resolveSkillsPromptForRun(params: {
   return "";
 }
 
+function isPathInsideWorkspaceRoot(filePath: string, workspaceRoot: string): boolean {
+  const resolvedPath = path.resolve(resolveUserPath(filePath));
+  const relative = path.relative(workspaceRoot, resolvedPath);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function extractPromptSkillLocations(prompt?: string): string[] {
+  if (!prompt) {
+    return [];
+  }
+  return Array.from(prompt.matchAll(/<location>([^<]+)<\/location>/g))
+    .map((match) => match[1]?.trim() ?? "")
+    .filter(Boolean);
+}
+
+export function isSkillSnapshotCompatibleWithWorkspace(params: {
+  snapshot?: SkillSnapshot;
+  workspaceDir: string;
+}): boolean {
+  const snapshot = params.snapshot;
+  if (!snapshot) {
+    return false;
+  }
+
+  const workspaceRoot = path.resolve(resolveUserPath(params.workspaceDir));
+  const resolvedSkillPaths = (snapshot.resolvedSkills ?? [])
+    .map((skill) => (typeof skill?.filePath === "string" ? skill.filePath.trim() : ""))
+    .filter(Boolean);
+  const promptSkillPaths = extractPromptSkillLocations(snapshot.prompt);
+  const candidatePaths = [...resolvedSkillPaths, ...promptSkillPaths];
+
+  if (candidatePaths.length === 0) {
+    return true;
+  }
+
+  return candidatePaths.every((filePath) => isPathInsideWorkspaceRoot(filePath, workspaceRoot));
+}
+
 export function loadWorkspaceSkillEntries(
   workspaceDir: string,
   opts?: {

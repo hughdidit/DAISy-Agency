@@ -4,7 +4,10 @@ import { resolveBootstrapContextForRun } from "../../agents/bootstrap-files.js";
 import { resolveDefaultModelForAgent } from "../../agents/model-selection.js";
 import type { EmbeddedContextFile } from "../../agents/pi-embedded-helpers.js";
 import { createOpenClawCodingTools } from "../../agents/pi-tools.js";
-import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
+import {
+  resolveSandboxRuntimeStatus,
+  resolveSkillSnapshotWorkspaceDir,
+} from "../../agents/sandbox.js";
 import { buildWorkspaceSkillSnapshot } from "../../agents/skills.js";
 import { getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
 import { buildSystemPromptParams } from "../../agents/system-prompt-params.js";
@@ -28,6 +31,17 @@ export async function resolveCommandsSystemPromptBundle(
   params: HandleCommandsParams,
 ): Promise<CommandsSystemPromptBundle> {
   const workspaceDir = params.workspaceDir;
+  const { sessionAgentId } = resolveSessionAgentIds({
+    sessionKey: params.sessionKey,
+    config: params.cfg,
+    agentId: params.agentId,
+  });
+  const skillSnapshotWorkspaceDir = await resolveSkillSnapshotWorkspaceDir({
+    config: params.cfg,
+    sessionKey: params.ctx.SessionKey ?? params.sessionKey,
+    workspaceDir,
+    agentId: sessionAgentId,
+  });
   const { bootstrapFiles, contextFiles: injectedFiles } = await resolveBootstrapContextForRun({
     workspaceDir,
     config: params.cfg,
@@ -35,8 +49,11 @@ export async function resolveCommandsSystemPromptBundle(
     sessionId: params.sessionEntry?.sessionId,
   });
   const skillsSnapshot = (() => {
+    if (!skillSnapshotWorkspaceDir) {
+      return { prompt: "", skills: [], resolvedSkills: [] };
+    }
     try {
-      return buildWorkspaceSkillSnapshot(workspaceDir, {
+      return buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
         config: params.cfg,
         eligibility: { remote: getRemoteSkillEligibility() },
         snapshotVersion: getSkillsSnapshotVersion(workspaceDir),
@@ -49,6 +66,7 @@ export async function resolveCommandsSystemPromptBundle(
   const sandboxRuntime = resolveSandboxRuntimeStatus({
     cfg: params.cfg,
     sessionKey: params.ctx.SessionKey ?? params.sessionKey,
+    agentId: sessionAgentId,
   });
   const tools = (() => {
     try {
@@ -72,11 +90,6 @@ export async function resolveCommandsSystemPromptBundle(
   })();
   const toolSummaries = buildToolSummaryMap(tools);
   const toolNames = tools.map((t) => t.name);
-  const { sessionAgentId } = resolveSessionAgentIds({
-    sessionKey: params.sessionKey,
-    config: params.cfg,
-    agentId: params.agentId,
-  });
   const defaultModelRef = resolveDefaultModelForAgent({
     cfg: params.cfg,
     agentId: sessionAgentId,

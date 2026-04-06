@@ -66,7 +66,8 @@ Inbound media is copied into the active sandbox workspace (`media/inbound/*`).
 Skills note: the `read` tool is sandbox-rooted. With `workspaceAccess: "none"`,
 OpenClaw mirrors eligible skills into the sandbox workspace (`.../skills`) so
 they can be read. With `"rw"`, workspace skills are readable from
-`/workspace/skills`.
+`/workspace/skills`, and bundled/managed skills are staged into a
+sandbox-readable workspace subdirectory before skill snapshots are built.
 
 ## Custom bind mounts
 

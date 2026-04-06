@@ -86,5 +86,7 @@ export type SandboxContext = {
 
 export type SandboxWorkspaceInfo = {
   workspaceDir: string;
+  agentWorkspaceDir?: string;
+  workspaceAccess?: SandboxWorkspaceAccess;
   containerWorkdir: string;
 };

@@ -1,6 +1,7 @@
 import { formatCliCommand } from "../../cli/command-format.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { canonicalizeMainSessionAlias, resolveAgentMainSessionKey } from "../../config/sessions.js";
+import { normalizeAgentId } from "../../routing/session-key.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { expandToolGroups } from "../tool-policy.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
@@ -45,6 +46,7 @@ function resolveComparableSessionKeyForSandbox(params: {
 export function resolveSandboxRuntimeStatus(params: {
   cfg?: OpenClawConfig;
   sessionKey?: string;
+  agentId?: string;
 }): {
   agentId: string;
   sessionKey: string;
@@ -54,19 +56,22 @@ export function resolveSandboxRuntimeStatus(params: {
   toolPolicy: SandboxToolPolicyResolved;
 } {
   const sessionKey = params.sessionKey?.trim() ?? "";
-  const agentId = resolveSessionAgentId({
-    sessionKey,
-    config: params.cfg,
-  });
+  const explicitAgentId = params.agentId?.trim() ? normalizeAgentId(params.agentId) : undefined;
+  const agentId =
+    explicitAgentId ??
+    resolveSessionAgentId({
+      sessionKey,
+      config: params.cfg,
+    });
   const cfg = params.cfg;
   const sandboxCfg = resolveSandboxConfigForAgent(cfg, agentId);
   const mainSessionKey = resolveMainSessionKeyForSandbox({ cfg, agentId });
-  const sandboxed = sessionKey
-    ? shouldSandboxSession(
-        sandboxCfg,
-        resolveComparableSessionKeyForSandbox({ cfg, agentId, sessionKey }),
-        mainSessionKey,
-      )
+  let comparableSessionKey = sessionKey;
+  if (sessionKey && sandboxCfg.mode === "non-main") {
+    comparableSessionKey = resolveComparableSessionKeyForSandbox({ cfg, agentId, sessionKey });
+  }
+  const sandboxed = comparableSessionKey
+    ? shouldSandboxSession(sandboxCfg, comparableSessionKey, mainSessionKey)
     : false;
   return {
     agentId,

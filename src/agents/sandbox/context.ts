@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 import { DEFAULT_BROWSER_EVALUATE_ENABLED } from "../../browser/constants.js";
 import { ensureBrowserControlAuth, resolveBrowserControlAuth } from "../../browser/control-auth.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -16,6 +17,8 @@ import { resolveSandboxRuntimeStatus } from "./runtime-status.js";
 import { resolveSandboxScopeKey, resolveSandboxWorkspaceDir } from "./shared.js";
 import type { SandboxContext, SandboxDockerConfig, SandboxWorkspaceInfo } from "./types.js";
 import { ensureSandboxWorkspace } from "./workspace.js";
+
+const SANDBOX_SKILL_SNAPSHOT_DIR = path.join(".openclaw", "sandbox-skill-snapshot");
 
 async function ensureSandboxWorkspaceLayout(params: {
   cfg: ReturnType<typeof resolveSandboxConfigForAgent>;
@@ -87,7 +90,11 @@ export async function resolveSandboxDockerUser(params: {
   }
 }
 
-function resolveSandboxSession(params: { config?: OpenClawConfig; sessionKey?: string }) {
+function resolveSandboxSession(params: {
+  config?: OpenClawConfig;
+  sessionKey?: string;
+  agentId?: string;
+}) {
   const rawSessionKey = params.sessionKey?.trim();
   if (!rawSessionKey) {
     return null;
@@ -96,6 +103,7 @@ function resolveSandboxSession(params: { config?: OpenClawConfig; sessionKey?: s
   const runtime = resolveSandboxRuntimeStatus({
     cfg: params.config,
     sessionKey: rawSessionKey,
+    agentId: params.agentId,
   });
   if (!runtime.sandboxed) {
     return null;
@@ -109,6 +117,7 @@ export async function resolveSandboxContext(params: {
   config?: OpenClawConfig;
   sessionKey?: string;
   workspaceDir?: string;
+  agentId?: string;
 }): Promise<SandboxContext | null> {
   const resolved = resolveSandboxSession(params);
   if (!resolved) {
@@ -189,6 +198,7 @@ export async function ensureSandboxWorkspaceForSession(params: {
   config?: OpenClawConfig;
   sessionKey?: string;
   workspaceDir?: string;
+  agentId?: string;
 }): Promise<SandboxWorkspaceInfo | null> {
   const resolved = resolveSandboxSession(params);
   if (!resolved) {
@@ -196,7 +206,7 @@ export async function ensureSandboxWorkspaceForSession(params: {
   }
   const { rawSessionKey, cfg } = resolved;
 
-  const { workspaceDir } = await ensureSandboxWorkspaceLayout({
+  const { workspaceDir, agentWorkspaceDir } = await ensureSandboxWorkspaceLayout({
     cfg,
     rawSessionKey,
     config: params.config,
@@ -205,6 +215,75 @@ export async function ensureSandboxWorkspaceForSession(params: {
 
   return {
     workspaceDir,
+    agentWorkspaceDir,
+    workspaceAccess: cfg.workspaceAccess,
     containerWorkdir: cfg.docker.workdir,
   };
+}
+
+/**
+ * Resolve the expected workspace root used for skills snapshots without
+ * creating sandbox directories or syncing skills into them.
+ */
+export function peekSkillSnapshotWorkspaceDir(params: {
+  config?: OpenClawConfig;
+  sessionKey?: string;
+  workspaceDir?: string;
+  agentId?: string;
+}): string | undefined {
+  const resolved = resolveSandboxSession(params);
+  if (!resolved) {
+    return params.workspaceDir;
+  }
+  const { rawSessionKey, cfg } = resolved;
+  if (cfg.workspaceAccess === "rw") {
+    const agentWorkspaceDir = resolveUserPath(
+      params.workspaceDir?.trim() || DEFAULT_AGENT_WORKSPACE_DIR,
+    );
+    return path.join(agentWorkspaceDir, SANDBOX_SKILL_SNAPSHOT_DIR);
+  }
+
+  const workspaceRoot = resolveUserPath(cfg.workspaceRoot);
+  const scopeKey = resolveSandboxScopeKey(cfg.scope, rawSessionKey);
+  return cfg.scope === "shared"
+    ? workspaceRoot
+    : resolveSandboxWorkspaceDir(workspaceRoot, scopeKey);
+}
+
+/**
+ * Resolve the workspace root that should be scanned when building a skills snapshot.
+ * Returns `peekSkillSnapshotWorkspaceDir(params)` when no staging work is needed,
+ * and for rw sandboxes syncs merged skills into the expected snapshot workspace
+ * before returning it. Returns `undefined` when rw staging fails and no
+ * sandbox-readable snapshot workspace is available.
+ */
+export async function resolveSkillSnapshotWorkspaceDir(params: {
+  config?: OpenClawConfig;
+  sessionKey?: string;
+  workspaceDir?: string;
+  agentId?: string;
+}): Promise<string | undefined> {
+  const sandboxWorkspace = await ensureSandboxWorkspaceForSession(params);
+  if (!sandboxWorkspace) {
+    return params.workspaceDir;
+  }
+  if (sandboxWorkspace.workspaceAccess !== "rw" || !sandboxWorkspace.agentWorkspaceDir?.trim()) {
+    return sandboxWorkspace.workspaceDir;
+  }
+
+  const snapshotWorkspaceDir =
+    peekSkillSnapshotWorkspaceDir(params) ??
+    path.join(sandboxWorkspace.workspaceDir, SANDBOX_SKILL_SNAPSHOT_DIR);
+  try {
+    await syncSkillsToWorkspace({
+      sourceWorkspaceDir: sandboxWorkspace.agentWorkspaceDir,
+      targetWorkspaceDir: snapshotWorkspaceDir,
+      config: params.config,
+    });
+    return snapshotWorkspaceDir;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : JSON.stringify(error);
+    defaultRuntime.error?.(`Sandbox skill snapshot sync failed: ${message}`);
+    return undefined;
+  }
 }
