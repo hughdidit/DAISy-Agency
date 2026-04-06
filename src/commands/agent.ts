@@ -35,7 +35,10 @@ import {
 } from "../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { resolveSkillSnapshotWorkspaceDir } from "../agents/sandbox.js";
-import { buildWorkspaceSkillSnapshot, isSkillSnapshotCompatibleWithWorkspace } from "../agents/skills.js";
+import {
+  buildWorkspaceSkillSnapshot,
+  isSkillSnapshotCompatibleWithWorkspace,
+} from "../agents/skills.js";
 import { getSkillsSnapshotVersion } from "../agents/skills/refresh.js";
 import { resolveAgentTimeoutMs } from "../agents/timeout.js";
 import { ensureAgentWorkspace } from "../agents/workspace.js";

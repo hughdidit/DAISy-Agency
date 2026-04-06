@@ -1,6 +1,6 @@
 import path from "node:path";
-import { resolveSkillSnapshotWorkspaceDir } from "../../agents/sandbox.js";
 import { resolveAgentSkillsFilter } from "../../agents/agent-scope.js";
+import { resolveSkillSnapshotWorkspaceDir } from "../../agents/sandbox.js";
 import {
   buildWorkspaceSkillSnapshot,
   isSkillSnapshotCompatibleWithWorkspace,

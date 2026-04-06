@@ -241,10 +241,7 @@ export async function resolveSkillSnapshotWorkspaceDir(params: {
     return sandboxWorkspace.workspaceDir;
   }
 
-  const snapshotWorkspaceDir = path.join(
-    sandboxWorkspace.workspaceDir,
-    SANDBOX_SKILL_SNAPSHOT_DIR,
-  );
+  const snapshotWorkspaceDir = path.join(sandboxWorkspace.workspaceDir, SANDBOX_SKILL_SNAPSHOT_DIR);
   try {
     await syncSkillsToWorkspace({
       sourceWorkspaceDir: sandboxWorkspace.agentWorkspaceDir,

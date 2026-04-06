@@ -64,12 +64,12 @@ export function resolveSandboxRuntimeStatus(params: {
   const cfg = params.cfg;
   const sandboxCfg = resolveSandboxConfigForAgent(cfg, agentId);
   const mainSessionKey = resolveMainSessionKeyForSandbox({ cfg, agentId });
-  const sandboxed = sessionKey
-    ? shouldSandboxSession(
-        sandboxCfg,
-        resolveComparableSessionKeyForSandbox({ cfg, agentId, sessionKey }),
-        mainSessionKey,
-      )
+  let comparableSessionKey = sessionKey;
+  if (sessionKey && sandboxCfg.mode === "non-main") {
+    comparableSessionKey = resolveComparableSessionKeyForSandbox({ cfg, agentId, sessionKey });
+  }
+  const sandboxed = comparableSessionKey
+    ? shouldSandboxSession(sandboxCfg, comparableSessionKey, mainSessionKey)
     : false;
   return {
     agentId,
