@@ -237,7 +237,7 @@ export async function resolveSkillSnapshotWorkspaceDir(params: {
   if (!sandboxWorkspace) {
     return params.workspaceDir;
   }
-  if (sandboxWorkspace.workspaceAccess !== "rw") {
+  if (sandboxWorkspace.workspaceAccess !== "rw" || !sandboxWorkspace.agentWorkspaceDir?.trim()) {
     return sandboxWorkspace.workspaceDir;
   }
 
