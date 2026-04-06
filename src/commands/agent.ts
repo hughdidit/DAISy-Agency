@@ -34,7 +34,10 @@ import {
   resolveThinkingDefault,
 } from "../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
-import { resolveSkillSnapshotWorkspaceDir } from "../agents/sandbox.js";
+import {
+  peekSkillSnapshotWorkspaceDir,
+  resolveSkillSnapshotWorkspaceDir,
+} from "../agents/sandbox.js";
 import {
   buildWorkspaceSkillSnapshot,
   isSkillSnapshotCompatibleWithWorkspace,
@@ -591,15 +594,15 @@ async function agentCommandInternal(
     let resolvedThinkLevel = thinkOnce ?? thinkOverride ?? persistedThinking;
     const resolvedVerboseLevel =
       verboseOverride ?? persistedVerbose ?? (agentCfg?.verboseDefault as VerboseLevel | undefined);
-    const skillSnapshotWorkspaceDir = await resolveSkillSnapshotWorkspaceDir({
+    const expectedSkillSnapshotWorkspaceDir = peekSkillSnapshotWorkspaceDir({
       config: cfg,
       sessionKey,
       workspaceDir,
       agentId: sessionAgentId,
     });
     const skillSnapshotWorkspaceRemapped =
-      skillSnapshotWorkspaceDir !== undefined &&
-      path.resolve(skillSnapshotWorkspaceDir) !== path.resolve(workspaceDir);
+      expectedSkillSnapshotWorkspaceDir !== undefined &&
+      path.resolve(expectedSkillSnapshotWorkspaceDir) !== path.resolve(workspaceDir);
     const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
 
     if (sessionKey) {
@@ -616,18 +619,34 @@ async function agentCommandInternal(
       (skillSnapshotWorkspaceRemapped &&
         !isSkillSnapshotCompatibleWithWorkspace({
           snapshot: sessionEntry?.skillsSnapshot,
-          workspaceDir: skillSnapshotWorkspaceDir ?? workspaceDir,
+          workspaceDir: expectedSkillSnapshotWorkspaceDir ?? workspaceDir,
         }));
-    const needsSkillsSnapshot =
-      skillSnapshotWorkspaceDir !== undefined && shouldRefreshSkillsSnapshot;
+    const needsSkillsSnapshot = shouldRefreshSkillsSnapshot;
     const skillFilter = resolveAgentSkillsFilter(cfg, sessionAgentId);
-    const skillsSnapshot = needsSkillsSnapshot
-      ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
+    const remoteEligibility = { remote: getRemoteSkillEligibility() };
+    const skillSnapshotWorkspaceDir = needsSkillsSnapshot
+      ? await resolveSkillSnapshotWorkspaceDir({
           config: cfg,
-          eligibility: { remote: getRemoteSkillEligibility() },
-          snapshotVersion: skillsSnapshotVersion,
-          skillFilter,
+          sessionKey,
+          workspaceDir,
+          agentId: sessionAgentId,
         })
+      : undefined;
+    const skillsSnapshot = needsSkillsSnapshot
+      ? skillSnapshotWorkspaceDir
+        ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
+            config: cfg,
+            eligibility: remoteEligibility,
+            snapshotVersion: skillsSnapshotVersion,
+            skillFilter,
+          })
+        : buildWorkspaceSkillSnapshot(workspaceDir, {
+            config: cfg,
+            eligibility: remoteEligibility,
+            snapshotVersion: skillsSnapshotVersion,
+            skillFilter,
+            entries: [],
+          })
       : sessionEntry?.skillsSnapshot;
 
     if (skillsSnapshot && sessionStore && sessionKey && needsSkillsSnapshot) {

@@ -1,6 +1,9 @@
 import path from "node:path";
 import { resolveAgentSkillsFilter } from "../../agents/agent-scope.js";
-import { resolveSkillSnapshotWorkspaceDir } from "../../agents/sandbox.js";
+import {
+  peekSkillSnapshotWorkspaceDir,
+  resolveSkillSnapshotWorkspaceDir,
+} from "../../agents/sandbox.js";
 import {
   buildWorkspaceSkillSnapshot,
   isSkillSnapshotCompatibleWithWorkspace,
@@ -24,20 +27,18 @@ export async function resolveCronSkillsSnapshot(params: {
     return params.existingSnapshot ?? { prompt: "", skills: [] };
   }
 
-  const skillSnapshotWorkspaceDir = await resolveSkillSnapshotWorkspaceDir({
+  const snapshotVersion = getSkillsSnapshotVersion(params.workspaceDir);
+  const skillFilter = resolveAgentSkillsFilter(params.config, params.agentId);
+  const existingSnapshot = params.existingSnapshot;
+  const expectedSkillSnapshotWorkspaceDir = peekSkillSnapshotWorkspaceDir({
     config: params.config,
     sessionKey: params.sessionKey,
     workspaceDir: params.workspaceDir,
     agentId: params.agentId,
   });
-  if (!skillSnapshotWorkspaceDir) {
-    return params.existingSnapshot ?? { prompt: "", skills: [] };
-  }
   const skillSnapshotWorkspaceRemapped =
-    path.resolve(skillSnapshotWorkspaceDir) !== path.resolve(params.workspaceDir);
-  const snapshotVersion = getSkillsSnapshotVersion(params.workspaceDir);
-  const skillFilter = resolveAgentSkillsFilter(params.config, params.agentId);
-  const existingSnapshot = params.existingSnapshot;
+    expectedSkillSnapshotWorkspaceDir !== undefined &&
+    path.resolve(expectedSkillSnapshotWorkspaceDir) !== path.resolve(params.workspaceDir);
   const shouldRefresh =
     !existingSnapshot ||
     existingSnapshot.version !== snapshotVersion ||
@@ -45,10 +46,26 @@ export async function resolveCronSkillsSnapshot(params: {
     (skillSnapshotWorkspaceRemapped &&
       !isSkillSnapshotCompatibleWithWorkspace({
         snapshot: existingSnapshot,
-        workspaceDir: skillSnapshotWorkspaceDir,
+        workspaceDir: expectedSkillSnapshotWorkspaceDir ?? params.workspaceDir,
       }));
   if (!shouldRefresh) {
     return existingSnapshot;
+  }
+
+  const skillSnapshotWorkspaceDir = await resolveSkillSnapshotWorkspaceDir({
+    config: params.config,
+    sessionKey: params.sessionKey,
+    workspaceDir: params.workspaceDir,
+    agentId: params.agentId,
+  });
+  if (!skillSnapshotWorkspaceDir) {
+    return buildWorkspaceSkillSnapshot(params.workspaceDir, {
+      config: params.config,
+      skillFilter,
+      eligibility: { remote: getRemoteSkillEligibility() },
+      snapshotVersion,
+      entries: [],
+    });
   }
 
   return buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {

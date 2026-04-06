@@ -222,10 +222,39 @@ export async function ensureSandboxWorkspaceForSession(params: {
 }
 
 /**
+ * Resolve the expected workspace root used for skills snapshots without
+ * creating sandbox directories or syncing skills into them.
+ */
+export function peekSkillSnapshotWorkspaceDir(params: {
+  config?: OpenClawConfig;
+  sessionKey?: string;
+  workspaceDir?: string;
+  agentId?: string;
+}): string | undefined {
+  const resolved = resolveSandboxSession(params);
+  if (!resolved) {
+    return params.workspaceDir;
+  }
+  const { rawSessionKey, cfg } = resolved;
+  if (cfg.workspaceAccess === "rw") {
+    const agentWorkspaceDir = resolveUserPath(
+      params.workspaceDir?.trim() || DEFAULT_AGENT_WORKSPACE_DIR,
+    );
+    return path.join(agentWorkspaceDir, SANDBOX_SKILL_SNAPSHOT_DIR);
+  }
+
+  const workspaceRoot = resolveUserPath(cfg.workspaceRoot);
+  const scopeKey = resolveSandboxScopeKey(cfg.scope, rawSessionKey);
+  return cfg.scope === "shared"
+    ? workspaceRoot
+    : resolveSandboxWorkspaceDir(workspaceRoot, scopeKey);
+}
+
+/**
  * Resolve the workspace root that should be scanned when building a skills snapshot.
- * Returns `params.workspaceDir` when no sandbox applies, returns the sandbox workspace
- * for non-rw sandboxes, and returns a staged `.openclaw/sandbox-skill-snapshot`
- * subdirectory for rw sandboxes. Returns `undefined` when rw staging fails and no
+ * Returns `peekSkillSnapshotWorkspaceDir(params)` when no staging work is needed,
+ * and for rw sandboxes syncs merged skills into the expected snapshot workspace
+ * before returning it. Returns `undefined` when rw staging fails and no
  * sandbox-readable snapshot workspace is available.
  */
 export async function resolveSkillSnapshotWorkspaceDir(params: {
@@ -242,7 +271,9 @@ export async function resolveSkillSnapshotWorkspaceDir(params: {
     return sandboxWorkspace.workspaceDir;
   }
 
-  const snapshotWorkspaceDir = path.join(sandboxWorkspace.workspaceDir, SANDBOX_SKILL_SNAPSHOT_DIR);
+  const snapshotWorkspaceDir =
+    peekSkillSnapshotWorkspaceDir(params) ??
+    path.join(sandboxWorkspace.workspaceDir, SANDBOX_SKILL_SNAPSHOT_DIR);
   try {
     await syncSkillsToWorkspace({
       sourceWorkspaceDir: sandboxWorkspace.agentWorkspaceDir,

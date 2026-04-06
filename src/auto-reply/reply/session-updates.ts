@@ -1,7 +1,10 @@
 import crypto from "node:crypto";
 import path from "node:path";
 import { resolveUserTimezone } from "../../agents/date-time.js";
-import { resolveSkillSnapshotWorkspaceDir } from "../../agents/sandbox.js";
+import {
+  peekSkillSnapshotWorkspaceDir,
+  resolveSkillSnapshotWorkspaceDir,
+} from "../../agents/sandbox.js";
 import {
   buildWorkspaceSkillSnapshot,
   isSkillSnapshotCompatibleWithWorkspace,
@@ -160,24 +163,62 @@ export async function ensureSkillSnapshot(params: {
   let nextEntry = sessionEntry;
   let systemSent = sessionEntry?.systemSent ?? false;
   const remoteEligibility = getRemoteSkillEligibility();
-  const skillSnapshotWorkspaceDir = await resolveSkillSnapshotWorkspaceDir({
+  const expectedSkillSnapshotWorkspaceDir = peekSkillSnapshotWorkspaceDir({
     config: cfg,
     sessionKey,
     workspaceDir,
   });
   const skillSnapshotWorkspaceRemapped =
-    skillSnapshotWorkspaceDir !== undefined &&
-    path.resolve(skillSnapshotWorkspaceDir) !== path.resolve(workspaceDir);
+    expectedSkillSnapshotWorkspaceDir !== undefined &&
+    path.resolve(expectedSkillSnapshotWorkspaceDir) !== path.resolve(workspaceDir);
   const snapshotVersion = getSkillsSnapshotVersion(workspaceDir);
   ensureSkillsWatcher({ workspaceDir, config: cfg });
   const shouldRefreshSnapshot =
-    skillSnapshotWorkspaceDir !== undefined &&
-    ((snapshotVersion > 0 && (nextEntry?.skillsSnapshot?.version ?? 0) < snapshotVersion) ||
-      (skillSnapshotWorkspaceRemapped &&
-        !isSkillSnapshotCompatibleWithWorkspace({
-          snapshot: nextEntry?.skillsSnapshot,
-          workspaceDir: skillSnapshotWorkspaceDir ?? workspaceDir,
-        })));
+    (snapshotVersion > 0 && (nextEntry?.skillsSnapshot?.version ?? 0) < snapshotVersion) ||
+    (skillSnapshotWorkspaceRemapped &&
+      !isSkillSnapshotCompatibleWithWorkspace({
+        snapshot: nextEntry?.skillsSnapshot,
+        workspaceDir: expectedSkillSnapshotWorkspaceDir ?? workspaceDir,
+      }));
+  const needsSkillsSnapshot =
+    isFirstTurnInSession || !nextEntry?.skillsSnapshot || shouldRefreshSnapshot;
+  let snapshotWorkspaceResolved = false;
+  let resolvedSkillSnapshotWorkspaceDir: string | undefined;
+  const loadSkillSnapshotWorkspaceDir = async () => {
+    if (!snapshotWorkspaceResolved) {
+      snapshotWorkspaceResolved = true;
+      resolvedSkillSnapshotWorkspaceDir = await resolveSkillSnapshotWorkspaceDir({
+        config: cfg,
+        sessionKey,
+        workspaceDir,
+      });
+    }
+    return resolvedSkillSnapshotWorkspaceDir;
+  };
+  let builtSkillsSnapshotLoaded = false;
+  let builtSkillsSnapshot: SessionEntry["skillsSnapshot"];
+  const buildCurrentSkillsSnapshot = async () => {
+    if (builtSkillsSnapshotLoaded) {
+      return builtSkillsSnapshot;
+    }
+    builtSkillsSnapshotLoaded = true;
+    const skillSnapshotWorkspaceDir = await loadSkillSnapshotWorkspaceDir();
+    builtSkillsSnapshot = skillSnapshotWorkspaceDir
+      ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
+          config: cfg,
+          skillFilter,
+          eligibility: { remote: remoteEligibility },
+          snapshotVersion,
+        })
+      : buildWorkspaceSkillSnapshot(workspaceDir, {
+          config: cfg,
+          skillFilter,
+          eligibility: { remote: remoteEligibility },
+          snapshotVersion,
+          entries: [],
+        });
+    return builtSkillsSnapshot;
+  };
 
   if (isFirstTurnInSession && sessionStore && sessionKey) {
     const current = nextEntry ??
@@ -185,16 +226,9 @@ export async function ensureSkillSnapshot(params: {
         sessionId: sessionId ?? crypto.randomUUID(),
         updatedAt: Date.now(),
       };
-    const skillSnapshot =
-      skillSnapshotWorkspaceDir &&
-      (isFirstTurnInSession || !current.skillsSnapshot || shouldRefreshSnapshot)
-        ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
-            config: cfg,
-            skillFilter,
-            eligibility: { remote: remoteEligibility },
-            snapshotVersion,
-          })
-        : current.skillsSnapshot;
+    const skillSnapshot = needsSkillsSnapshot
+      ? await buildCurrentSkillsSnapshot()
+      : current.skillsSnapshot;
     nextEntry = {
       ...current,
       sessionId: sessionId ?? current.sessionId ?? crypto.randomUUID(),
@@ -211,23 +245,8 @@ export async function ensureSkillSnapshot(params: {
     systemSent = true;
   }
 
-  const skillsSnapshot = skillSnapshotWorkspaceDir
-    ? shouldRefreshSnapshot
-      ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
-          config: cfg,
-          skillFilter,
-          eligibility: { remote: remoteEligibility },
-          snapshotVersion,
-        })
-      : (nextEntry?.skillsSnapshot ??
-        (isFirstTurnInSession
-          ? undefined
-          : buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
-              config: cfg,
-              skillFilter,
-              eligibility: { remote: remoteEligibility },
-              snapshotVersion,
-            })))
+  const skillsSnapshot = needsSkillsSnapshot
+    ? await buildCurrentSkillsSnapshot()
     : nextEntry?.skillsSnapshot;
   if (
     skillsSnapshot &&

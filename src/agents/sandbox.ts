@@ -12,6 +12,7 @@ export {
 } from "./sandbox/constants.js";
 export {
   ensureSandboxWorkspaceForSession,
+  peekSkillSnapshotWorkspaceDir,
   resolveSandboxContext,
   resolveSkillSnapshotWorkspaceDir,
 } from "./sandbox/context.js";
