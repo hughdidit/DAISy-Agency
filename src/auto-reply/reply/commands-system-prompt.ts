@@ -36,13 +36,12 @@ export async function resolveCommandsSystemPromptBundle(
     config: params.cfg,
     agentId: params.agentId,
   });
-  const skillSnapshotWorkspaceDir =
-    (await resolveSkillSnapshotWorkspaceDir({
-      config: params.cfg,
-      sessionKey: params.ctx.SessionKey ?? params.sessionKey,
-      workspaceDir,
-      agentId: sessionAgentId,
-    })) ?? workspaceDir;
+  const skillSnapshotWorkspaceDir = await resolveSkillSnapshotWorkspaceDir({
+    config: params.cfg,
+    sessionKey: params.ctx.SessionKey ?? params.sessionKey,
+    workspaceDir,
+    agentId: sessionAgentId,
+  });
   const { bootstrapFiles, contextFiles: injectedFiles } = await resolveBootstrapContextForRun({
     workspaceDir,
     config: params.cfg,
@@ -50,6 +49,9 @@ export async function resolveCommandsSystemPromptBundle(
     sessionId: params.sessionEntry?.sessionId,
   });
   const skillsSnapshot = (() => {
+    if (!skillSnapshotWorkspaceDir) {
+      return { prompt: "", skills: [], resolvedSkills: [] };
+    }
     try {
       return buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
         config: params.cfg,

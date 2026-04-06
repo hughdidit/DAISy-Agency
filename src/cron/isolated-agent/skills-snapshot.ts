@@ -24,13 +24,15 @@ export async function resolveCronSkillsSnapshot(params: {
     return params.existingSnapshot ?? { prompt: "", skills: [] };
   }
 
-  const skillSnapshotWorkspaceDir =
-    (await resolveSkillSnapshotWorkspaceDir({
-      config: params.config,
-      sessionKey: params.sessionKey,
-      workspaceDir: params.workspaceDir,
-      agentId: params.agentId,
-    })) ?? params.workspaceDir;
+  const skillSnapshotWorkspaceDir = await resolveSkillSnapshotWorkspaceDir({
+    config: params.config,
+    sessionKey: params.sessionKey,
+    workspaceDir: params.workspaceDir,
+    agentId: params.agentId,
+  });
+  if (!skillSnapshotWorkspaceDir) {
+    return params.existingSnapshot ?? { prompt: "", skills: [] };
+  }
   const skillSnapshotWorkspaceRemapped =
     path.resolve(skillSnapshotWorkspaceDir) !== path.resolve(params.workspaceDir);
   const snapshotVersion = getSkillsSnapshotVersion(params.workspaceDir);

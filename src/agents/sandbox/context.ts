@@ -223,9 +223,10 @@ export async function ensureSandboxWorkspaceForSession(params: {
 
 /**
  * Resolve the workspace root that should be scanned when building a skills snapshot.
- * Sandboxed non-rw sessions use the isolated sandbox workspace directly; rw sessions
- * stage merged skills into a workspace-local mirror so snapshot prompt paths stay
- * inside the sandbox-readable root.
+ * Returns `params.workspaceDir` when no sandbox applies, returns the sandbox workspace
+ * for non-rw sandboxes, and returns a staged `.openclaw/sandbox-skill-snapshot`
+ * subdirectory for rw sandboxes. Returns `undefined` when rw staging fails and no
+ * sandbox-readable snapshot workspace is available.
  */
 export async function resolveSkillSnapshotWorkspaceDir(params: {
   config?: OpenClawConfig;
@@ -252,6 +253,6 @@ export async function resolveSkillSnapshotWorkspaceDir(params: {
   } catch (error) {
     const message = error instanceof Error ? error.message : JSON.stringify(error);
     defaultRuntime.error?.(`Sandbox skill snapshot sync failed: ${message}`);
-    return sandboxWorkspace.workspaceDir;
+    return undefined;
   }
 }

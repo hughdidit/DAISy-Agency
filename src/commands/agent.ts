@@ -591,14 +591,14 @@ async function agentCommandInternal(
     let resolvedThinkLevel = thinkOnce ?? thinkOverride ?? persistedThinking;
     const resolvedVerboseLevel =
       verboseOverride ?? persistedVerbose ?? (agentCfg?.verboseDefault as VerboseLevel | undefined);
-    const skillSnapshotWorkspaceDir =
-      (await resolveSkillSnapshotWorkspaceDir({
-        config: cfg,
-        sessionKey,
-        workspaceDir,
-        agentId: sessionAgentId,
-      })) ?? workspaceDir;
+    const skillSnapshotWorkspaceDir = await resolveSkillSnapshotWorkspaceDir({
+      config: cfg,
+      sessionKey,
+      workspaceDir,
+      agentId: sessionAgentId,
+    });
     const skillSnapshotWorkspaceRemapped =
+      skillSnapshotWorkspaceDir !== undefined &&
       path.resolve(skillSnapshotWorkspaceDir) !== path.resolve(workspaceDir);
     const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
 
@@ -609,15 +609,17 @@ async function agentCommandInternal(
       });
     }
 
-    const needsSkillsSnapshot =
+    const shouldRefreshSkillsSnapshot =
       isNewSession ||
       !sessionEntry?.skillsSnapshot ||
       sessionEntry.skillsSnapshot.version !== skillsSnapshotVersion ||
       (skillSnapshotWorkspaceRemapped &&
         !isSkillSnapshotCompatibleWithWorkspace({
           snapshot: sessionEntry?.skillsSnapshot,
-          workspaceDir: skillSnapshotWorkspaceDir,
+          workspaceDir: skillSnapshotWorkspaceDir ?? workspaceDir,
         }));
+    const needsSkillsSnapshot =
+      skillSnapshotWorkspaceDir !== undefined && shouldRefreshSkillsSnapshot;
     const skillFilter = resolveAgentSkillsFilter(cfg, sessionAgentId);
     const skillsSnapshot = needsSkillsSnapshot
       ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
