@@ -152,8 +152,14 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
 import fs from "node:fs";
 import JSON5 from "json5";
 
-const data = JSON5.parse(fs.readFileSync("/home/node/.openclaw/.runtime-openclaw.json", "utf8"));
-const cfg = data?.plugins?.entries?.["gws-toolkit-phase1"]?.config;
+const snapshot = JSON5.parse(fs.readFileSync("/home/node/.openclaw/.runtime-openclaw.json", "utf8"));
+const activeConfig =
+  snapshot?.config && typeof snapshot.config === "object"
+    ? snapshot.config
+    : snapshot?.resolved && typeof snapshot.resolved === "object"
+      ? snapshot.resolved
+      : snapshot;
+const cfg = activeConfig?.plugins?.entries?.["gws-toolkit-phase1"]?.config;
 const route =
   typeof cfg?.defaultCredentialRoute === "string" && cfg.defaultCredentialRoute.length > 0
     ? cfg.defaultCredentialRoute
