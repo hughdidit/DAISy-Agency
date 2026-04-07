@@ -614,9 +614,7 @@ export function isSkillSnapshotCompatibleWithWorkspace(params: {
   }
 
   const workspaceRoots = (
-    params.visibleWorkspaceDir?.trim()
-      ? [params.visibleWorkspaceDir]
-      : [params.workspaceDir]
+    params.visibleWorkspaceDir?.trim() ? [params.visibleWorkspaceDir] : [params.workspaceDir]
   )
     .map((root) => root?.trim() ?? "")
     .filter(Boolean);
