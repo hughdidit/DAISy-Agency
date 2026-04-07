@@ -166,7 +166,7 @@
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "0.14.1",
-    "@aws-sdk/client-bedrock": "^3.1000.0",
+    "@aws-sdk/client-bedrock": "3.1007.0",
     "@buape/carbon": "0.0.0-beta-20260216184201",
     "@clack/prompts": "^1.0.1",
     "@discordjs/voice": "^0.19.0",
@@ -264,6 +264,10 @@
     },
     "overrides": {
       "hono": "4.12.4",
+      "@aws-sdk/client-bedrock>@aws-sdk/core": "3.973.19",
+      "@aws-sdk/client-bedrock>@aws-sdk/token-providers": "3.1007.0",
+      "@aws-sdk/client-bedrock>@aws-sdk/types": "3.973.5",
+      "@aws-sdk/client-bedrock>@aws-sdk/util-user-agent-node": "3.973.5",
       "@hono/node-server": "1.19.10",
       "fast-xml-parser": "5.5.6",
       "request": "npm:@cypress/request@3.0.10",
