@@ -144,9 +144,9 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     log "Live Trello API smoke passed."
 
     # Check 6: gws-toolkit-phase1 staging config requires credentials_file mode,
-    # so the deployed credentials file must exist on the VM.
+    # so the deployed credentials file must exist on the VM and remain usable.
     checks_run=$((checks_run + 1))
-    log "Checking Google Workspace credentials_file materialization on ${GCE_INSTANCE_NAME}..."
+    log "Checking Google Workspace credentials_file materialization and auth health on ${GCE_INSTANCE_NAME}..."
     gws_credentials_required="$(
       gce_ssh_lastline "sudo -n sh -c 'if [ -f /opt/DAISy/config/.runtime-openclaw.json ] && grep -qF \"allowedCredentialModes\" /opt/DAISy/config/.runtime-openclaw.json && grep -qF \"credentials_file\" /opt/DAISy/config/.runtime-openclaw.json; then echo true; else echo false; fi'"
     )" || fail "Failed to inspect Google Workspace credential mode on ${GCE_INSTANCE_NAME}"
@@ -159,6 +159,20 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
         fail "gws-toolkit-phase1 requires credentials_file mode, but /opt/DAISy/config/secrets/gws/credentials.json is missing on ${GCE_INSTANCE_NAME}"
       fi
       log "Google Workspace credentials file status: ${gws_credentials_status}"
+
+      gws_auth_status="$(
+        gce_ssh "sudo docker exec ${container_escaped} bash -lc 'set -euo pipefail; export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=/home/node/.openclaw/secrets/gws/credentials.json; gws auth status | jq -c .'"
+      )" || fail "Failed to run gws auth status inside ${container}"
+      printf '%s\n' "${gws_auth_status}"
+
+      if ! jq -e '.plain_credentials_exists == true and .token_valid == true and ((.token_error // "") == "")' >/dev/null <<<"${gws_auth_status}"; then
+        gws_token_error="$(jq -r '.token_error // empty' <<<"${gws_auth_status}")"
+        if [[ -n "${gws_token_error}" ]]; then
+          fail "Google Workspace credentials are present but invalid in ${container}: ${gws_token_error}"
+        fi
+        fail "Google Workspace credentials are present but gws auth status is not healthy in ${container}"
+      fi
+      log "Google Workspace auth status is healthy."
     else
       log "Google Workspace credentials_file mode is not active; skipping credentials file check."
     fi

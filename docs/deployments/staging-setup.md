@@ -178,7 +178,7 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `DISCORD_ALERTS_WEBHOOK_URL` - Sensitive Discord webhook for Alertmanager; store as a secret, not a variable
    - `ALERT_SMTP_USERNAME` / `ALERT_SMTP_PASSWORD` - Optional SMTP auth for email alerts
 
-   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes.
+   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes. Verify now checks both file presence and `gws auth status` health inside the live gateway container, so a stale exported credential will fail deploy verification even if `credentials.json` still exists on disk.
 
 2. **Add staging environment variables** in GitHub:
    - `OPENCLAW_GATEWAY_PORT`
@@ -240,7 +240,7 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 - [ ] API keys - Use staging keys or shared keys with tracking
 - [ ] `FIRECRAWL_API_KEY` - Optional; set only for firecrawl-enabled environments
 - [ ] `TRELLO_API_KEY` / `TRELLO_TOKEN` - Optional; set when Trello integration is enabled
-- [ ] `GWS_CREDENTIALS` - Optional; required for the current staging `gws-toolkit-phase1` credentials-file path
+- [ ] `GWS_CREDENTIALS` - Optional; required for the current staging `gws-toolkit-phase1` credentials-file path and must pass `gws auth status` after deploy
 - [ ] `GOOGLE_WORKSPACE_CLI_TOKEN` - Optional; leave unset unless staging explicitly switches to token mode
 - [ ] `GRAFANA_ADMIN_PASSWORD` - Required if monitoring `.env.monitoring` should be regenerated on deploy
 - [ ] `DISCORD_ALERTS_WEBHOOK_URL` - Optional but sensitive; store as a GitHub secret, never as a GitHub variable
