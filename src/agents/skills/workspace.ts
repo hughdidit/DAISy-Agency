@@ -584,14 +584,15 @@ function isPathInsideWorkspaceRoot(filePath: string, workspaceRoot: string): boo
     (filePath.startsWith("/") || workspaceRoot.startsWith("/")) &&
     !filePath.includes("\\") &&
     !workspaceRoot.includes("\\");
+  const pathModule = usePosixPaths ? path.posix : path;
   const resolvedPath = usePosixPaths
-    ? path.posix.normalize(filePath)
-    : path.resolve(resolveUserPath(filePath));
+    ? pathModule.normalize(filePath)
+    : pathModule.resolve(resolveUserPath(filePath));
   const resolvedRoot = usePosixPaths
-    ? path.posix.normalize(workspaceRoot)
-    : path.resolve(resolveUserPath(workspaceRoot));
-  const relative = (usePosixPaths ? path.posix : path).relative(resolvedRoot, resolvedPath);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+    ? pathModule.normalize(workspaceRoot)
+    : pathModule.resolve(resolveUserPath(workspaceRoot));
+  const relative = pathModule.relative(resolvedRoot, resolvedPath);
+  return relative === "" || (!relative.startsWith("..") && !pathModule.isAbsolute(relative));
 }
 
 function extractPromptSkillLocations(prompt?: string): string[] {

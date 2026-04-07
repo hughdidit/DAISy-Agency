@@ -10,11 +10,24 @@ import { matchesSkillFilter } from "../../agents/skills/filter.js";
 import { getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
+import { resolveUserPath } from "../../utils.js";
 
 function isPathInsideWorkspaceRoot(filePath: string, workspaceRoot: string): boolean {
-  const resolvedPath = path.resolve(filePath);
-  const relative = path.relative(workspaceRoot, resolvedPath);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+  const usePosixPaths =
+    !filePath.startsWith("~") &&
+    !workspaceRoot.startsWith("~") &&
+    (filePath.startsWith("/") || workspaceRoot.startsWith("/")) &&
+    !filePath.includes("\\") &&
+    !workspaceRoot.includes("\\");
+  const pathModule = usePosixPaths ? path.posix : path;
+  const resolvedPath = usePosixPaths
+    ? pathModule.normalize(filePath)
+    : pathModule.resolve(resolveUserPath(filePath));
+  const resolvedRoot = usePosixPaths
+    ? pathModule.normalize(workspaceRoot)
+    : pathModule.resolve(resolveUserPath(workspaceRoot));
+  const relative = pathModule.relative(resolvedRoot, resolvedPath);
+  return relative === "" || (!relative.startsWith("..") && !pathModule.isAbsolute(relative));
 }
 
 function extractPromptSkillLocations(prompt?: string): string[] {
