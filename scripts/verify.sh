@@ -161,6 +161,9 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
           fail "Active Google Workspace credentials file path is outside the mounted OpenClaw config root in ${container}: ${gws_active_credentials_path}"
           ;;
       esac
+      if [[ ! "${gws_active_credentials_path}" =~ ^[A-Za-z0-9/_.-]+$ ]]; then
+        fail "Active Google Workspace credentials file path contains unsafe characters in ${container}: ${gws_active_credentials_path}"
+      fi
       gws_credentials_host_path="/opt/DAISy/config${gws_active_credentials_path#/home/node/.openclaw}"
       gws_credentials_status="$(
         gce_ssh_lastline "sudo -n sh -c 'if [ -f \"${gws_credentials_host_path}\" ]; then stat -c \"present(size=%s)\" \"${gws_credentials_host_path}\"; else echo missing; fi'"
