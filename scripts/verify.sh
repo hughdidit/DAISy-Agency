@@ -149,9 +149,10 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking Google Workspace active credential route materialization and auth health on ${GCE_INSTANCE_NAME}..."
     gws_route_probe_js="$(cat <<'NODE'
-const fs = require("node:fs");
+import fs from "node:fs";
+import JSON5 from "json5";
 
-const data = JSON.parse(fs.readFileSync("/home/node/.openclaw/.runtime-openclaw.json", "utf8"));
+const data = JSON5.parse(fs.readFileSync("/home/node/.openclaw/.runtime-openclaw.json", "utf8"));
 const cfg = data?.plugins?.entries?.["gws-toolkit-phase1"]?.config;
 const route =
   typeof cfg?.defaultCredentialRoute === "string" && cfg.defaultCredentialRoute.length > 0
@@ -177,7 +178,7 @@ NODE
 )"
     gws_route_probe_js_escaped="$(printf '%q' "${gws_route_probe_js}")"
     gws_active_route_json="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} node -e ${gws_route_probe_js_escaped}"
+      gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e ${gws_route_probe_js_escaped}"
     )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
     gws_active_route_mode="$(jq -r '.mode' <<<"${gws_active_route_json}" | tr -d '[:space:]')" \
       || fail "Failed to parse GWS active route JSON (mode field) in ${container}"
