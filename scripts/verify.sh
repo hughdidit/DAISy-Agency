@@ -153,12 +153,17 @@ import fs from "node:fs";
 import JSON5 from "json5";
 
 const snapshot = JSON5.parse(fs.readFileSync("/home/node/.openclaw/.runtime-openclaw.json", "utf8"));
-const activeConfig =
-  snapshot?.config && typeof snapshot.config === "object"
-    ? snapshot.config
-    : snapshot?.resolved && typeof snapshot.resolved === "object"
-      ? snapshot.resolved
-      : snapshot;
+function getActiveConfig(value) {
+  if (value?.resolved && typeof value.resolved === "object") {
+    return value.resolved;
+  }
+  if (value?.config && typeof value.config === "object") {
+    return value.config;
+  }
+  return value;
+}
+
+const activeConfig = getActiveConfig(snapshot);
 const cfg = activeConfig?.plugins?.entries?.["gws-toolkit-phase1"]?.config;
 const bindingSubject = "agent:main";
 const boundRoute =
