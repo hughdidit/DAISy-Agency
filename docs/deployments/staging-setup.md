@@ -240,7 +240,7 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 - [ ] API keys - Use staging keys or shared keys with tracking
 - [ ] `FIRECRAWL_API_KEY` - Optional; set only for firecrawl-enabled environments
 - [ ] `TRELLO_API_KEY` / `TRELLO_TOKEN` - Optional; set when Trello integration is enabled
-- [ ] `GWS_CREDENTIALS` - Optional; required for the current staging `gws-toolkit-phase1` credentials-file path and must pass `gws auth status` after deploy
+- [ ] `GWS_CREDENTIALS` - Required for the current staging `gws-toolkit-phase1` credentials-file path; must pass `gws auth status` after deploy
 - [ ] `GOOGLE_WORKSPACE_CLI_TOKEN` - Optional; leave unset unless staging explicitly switches to token mode
 - [ ] `GRAFANA_ADMIN_PASSWORD` - Required if monitoring `.env.monitoring` should be regenerated on deploy
 - [ ] `DISCORD_ALERTS_WEBHOOK_URL` - Optional but sensitive; store as a GitHub secret, never as a GitHub variable
