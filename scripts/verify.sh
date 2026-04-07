@@ -152,12 +152,32 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
 import fs from "node:fs";
 import JSON5 from "json5";
 
-const data = JSON5.parse(fs.readFileSync("/home/node/.openclaw/.runtime-openclaw.json", "utf8"));
-const cfg = data?.plugins?.entries?.["gws-toolkit-phase1"]?.config;
-const route =
-  typeof cfg?.defaultCredentialRoute === "string" && cfg.defaultCredentialRoute.length > 0
-    ? cfg.defaultCredentialRoute
+const snapshot = JSON5.parse(fs.readFileSync("/home/node/.openclaw/.runtime-openclaw.json", "utf8"));
+function getActiveConfig(value) {
+  if (value?.resolved && typeof value.resolved === "object") {
+    return value.resolved;
+  }
+  if (value?.config && typeof value.config === "object") {
+    return value.config;
+  }
+  return value;
+}
+
+const activeConfig = getActiveConfig(snapshot);
+const cfg = activeConfig?.plugins?.entries?.["gws-toolkit-phase1"]?.config;
+const bindingSubject = "agent:main";
+const boundRoute =
+  typeof cfg?.agentCredentialBindings?.[bindingSubject] === "string" &&
+  cfg.agentCredentialBindings[bindingSubject].length > 0
+    ? cfg.agentCredentialBindings[bindingSubject]
     : null;
+const route =
+  boundRoute ??
+  (cfg?.allowUnboundAgents === true &&
+  typeof cfg?.defaultCredentialRoute === "string" &&
+  cfg.defaultCredentialRoute.length > 0
+    ? cfg.defaultCredentialRoute
+    : null);
 const active =
   route && cfg?.credentialRoutes && typeof cfg.credentialRoutes[route] === "object"
     ? cfg.credentialRoutes[route]
@@ -169,6 +189,7 @@ if (!route || !active || typeof active.mode !== "string" || active.mode.length =
 
 process.stdout.write(
   JSON.stringify({
+    bindingSubject,
     route,
     mode: active.mode,
     credentialsFile: typeof active.credentialsFile === "string" ? active.credentialsFile : null,
