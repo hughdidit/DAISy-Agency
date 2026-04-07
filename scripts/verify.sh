@@ -148,18 +148,27 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     # and remain usable.
     checks_run=$((checks_run + 1))
     log "Checking Google Workspace active credential route materialization and auth health on ${GCE_INSTANCE_NAME}..."
-    gws_active_route_mode="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc 'jq -r '\''.plugins.entries[\"gws-toolkit-phase1\"].config as \$cfg | (\$cfg.defaultCredentialRoute // \"\") as \$route | if (\$route | type) == \"string\" and (\$route | length) > 0 then (\$cfg.credentialRoutes[\$route].mode // \"\") else \"\" end'\'' /home/node/.openclaw/.runtime-openclaw.json'"
+    gws_active_route_json="$(
+      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc 'jq -cer '\''.plugins.entries[\"gws-toolkit-phase1\"].config as \$cfg | (\$cfg.defaultCredentialRoute | select(type == \"string\" and length > 0)) as \$route | (\$cfg.credentialRoutes[\$route] | select(type == \"object\")) as \$active | { route: \$route, mode: (\$active.mode | select(type == \"string\" and length > 0)), credentialsFile: (\$active.credentialsFile // null) }'\'' /home/node/.openclaw/.runtime-openclaw.json'"
     )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
-    gws_active_route_mode="$(echo "${gws_active_route_mode}" | tr -d '[:space:]')"
+    gws_active_route_mode="$(jq -r '.mode' <<<"${gws_active_route_json}" | tr -d '[:space:]')"
     if [[ "${gws_active_route_mode}" == "credentials_file" ]]; then
+      gws_active_credentials_path="$(jq -r '.credentialsFile | select(type == "string" and length > 0)' <<<"${gws_active_route_json}")" \
+        || fail "Failed to inspect active Google Workspace credentials file path in ${container}"
+      case "${gws_active_credentials_path}" in
+        /home/node/.openclaw/*) ;;
+        *)
+          fail "Active Google Workspace credentials file path is outside the mounted OpenClaw config root in ${container}: ${gws_active_credentials_path}"
+          ;;
+      esac
+      gws_credentials_host_path="/opt/DAISy/config${gws_active_credentials_path#/home/node/.openclaw}"
       gws_credentials_status="$(
-        gce_ssh_lastline "sudo -n sh -c 'if [ -f /opt/DAISy/config/secrets/gws/credentials.json ]; then stat -c \"present(size=%s)\" /opt/DAISy/config/secrets/gws/credentials.json; else echo missing; fi'"
+        gce_ssh_lastline "sudo -n sh -c 'if [ -f \"${gws_credentials_host_path}\" ]; then stat -c \"present(size=%s)\" \"${gws_credentials_host_path}\"; else echo missing; fi'"
       )" || fail "Failed to inspect Google Workspace credentials file on ${GCE_INSTANCE_NAME}"
       if [[ "${gws_credentials_status}" == "missing" ]]; then
-        fail "gws-toolkit-phase1 requires credentials_file mode, but /opt/DAISy/config/secrets/gws/credentials.json is missing on ${GCE_INSTANCE_NAME}"
+        fail "gws-toolkit-phase1 requires credentials_file mode, but ${gws_credentials_host_path} is missing on ${GCE_INSTANCE_NAME}"
       fi
-      log "Google Workspace credentials file status: ${gws_credentials_status}"
+      log "Google Workspace credentials file status (${gws_credentials_host_path}): ${gws_credentials_status}"
 
       gws_binary_path="$(
         gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc 'command -v gws'"
@@ -170,7 +179,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
       fi
 
       gws_auth_status="$(
-        gce_ssh_lastline "sudo sh -c 'docker exec ${container_escaped} bash -lc \"set -euo pipefail; export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=/home/node/.openclaw/secrets/gws/credentials.json; gws auth status | jq -c .\"'"
+        gce_ssh_lastline "sudo sh -c 'docker exec ${container_escaped} bash -lc \"set -euo pipefail; export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=\\\"${gws_active_credentials_path}\\\"; gws auth status | jq -c .\"'"
       )" || fail "Failed to run gws auth status inside ${container}"
       printf '%s\n' "${gws_auth_status}"
 
