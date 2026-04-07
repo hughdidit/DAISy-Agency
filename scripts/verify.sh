@@ -149,7 +149,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking Google Workspace active credential route materialization and auth health on ${GCE_INSTANCE_NAME}..."
     gws_active_route_json="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc 'jq -cer '\''.plugins.entries[\"gws-toolkit-phase1\"].config as \$cfg | (\$cfg.defaultCredentialRoute | select(type == \"string\" and length > 0)) as \$route | (\$cfg.credentialRoutes[\$route] | select(type == \"object\")) as \$active | { route: \$route, mode: (\$active.mode | select(type == \"string\" and length > 0)), credentialsFile: (\$active.credentialsFile // null) }'\'' /home/node/.openclaw/.runtime-openclaw.json'"
+      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc 'node -e '\''const fs=require(\"node:fs\");const data=JSON.parse(fs.readFileSync(\"/home/node/.openclaw/.runtime-openclaw.json\",\"utf8\"));const cfg=data?.plugins?.entries?.[\"gws-toolkit-phase1\"]?.config;const route=typeof cfg?.defaultCredentialRoute===\"string\"&&cfg.defaultCredentialRoute.length>0?cfg.defaultCredentialRoute:null;const active=route&&cfg?.credentialRoutes&&typeof cfg.credentialRoutes[route]===\"object\"?cfg.credentialRoutes[route]:null;if(!route||!active||typeof active.mode!==\"string\"||active.mode.length===0){process.exit(1)}process.stdout.write(JSON.stringify({route,mode:active.mode,credentialsFile:typeof active.credentialsFile===\"string\"?active.credentialsFile:null}))'\'''"
     )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
     gws_active_route_mode="$(jq -r '.mode' <<<"${gws_active_route_json}" | tr -d '[:space:]')"
     if [[ "${gws_active_route_mode}" == "credentials_file" ]]; then
