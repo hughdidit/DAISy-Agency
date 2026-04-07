@@ -5,6 +5,7 @@ import { resolveDefaultModelForAgent } from "../../agents/model-selection.js";
 import type { EmbeddedContextFile } from "../../agents/pi-embedded-helpers.js";
 import { createOpenClawCodingTools } from "../../agents/pi-tools.js";
 import {
+  peekSkillSnapshotVisibleWorkspaceDir,
   resolveSandboxRuntimeStatus,
   resolveSkillSnapshotWorkspaceDir,
 } from "../../agents/sandbox.js";
@@ -42,6 +43,12 @@ export async function resolveCommandsSystemPromptBundle(
     workspaceDir,
     agentId: sessionAgentId,
   });
+  const skillSnapshotVisibleWorkspaceDir = peekSkillSnapshotVisibleWorkspaceDir({
+    config: params.cfg,
+    sessionKey: params.ctx.SessionKey ?? params.sessionKey,
+    workspaceDir,
+    agentId: sessionAgentId,
+  });
   const { bootstrapFiles, contextFiles: injectedFiles } = await resolveBootstrapContextForRun({
     workspaceDir,
     config: params.cfg,
@@ -57,6 +64,7 @@ export async function resolveCommandsSystemPromptBundle(
         config: params.cfg,
         eligibility: { remote: getRemoteSkillEligibility() },
         snapshotVersion: getSkillsSnapshotVersion(workspaceDir),
+        visibleWorkspaceDir: skillSnapshotVisibleWorkspaceDir,
       });
     } catch {
       return { prompt: "", skills: [], resolvedSkills: [] };

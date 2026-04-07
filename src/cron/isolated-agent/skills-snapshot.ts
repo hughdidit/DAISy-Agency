@@ -1,6 +1,7 @@
 import path from "node:path";
 import { resolveAgentSkillsFilter } from "../../agents/agent-scope.js";
 import {
+  peekSkillSnapshotVisibleWorkspaceDir,
   peekSkillSnapshotWorkspaceDir,
   resolveSkillSnapshotWorkspaceDir,
 } from "../../agents/sandbox.js";
@@ -28,13 +29,20 @@ function extractPromptSkillLocations(prompt?: string): string[] {
 function isCronSkillSnapshotCompatibleWithWorkspace(params: {
   snapshot?: SkillSnapshot;
   workspaceDir: string;
+  visibleWorkspaceDir?: string;
 }): boolean {
   const snapshot = params.snapshot;
   if (!snapshot) {
     return false;
   }
 
-  const workspaceRoot = path.resolve(params.workspaceDir);
+  const workspaceRoots = (
+    params.visibleWorkspaceDir?.trim()
+      ? [params.visibleWorkspaceDir]
+      : [params.workspaceDir]
+  )
+    .map((root) => root?.trim() ?? "")
+    .filter(Boolean);
   const resolvedSkillPaths = (snapshot.resolvedSkills ?? [])
     .map((skill) => (typeof skill?.filePath === "string" ? skill.filePath.trim() : ""))
     .filter(Boolean);
@@ -45,7 +53,9 @@ function isCronSkillSnapshotCompatibleWithWorkspace(params: {
     return true;
   }
 
-  return candidatePaths.every((filePath) => isPathInsideWorkspaceRoot(filePath, workspaceRoot));
+  return candidatePaths.every((filePath) =>
+    workspaceRoots.some((workspaceRoot) => isPathInsideWorkspaceRoot(filePath, workspaceRoot)),
+  );
 }
 
 export async function resolveCronSkillsSnapshot(params: {
@@ -70,6 +80,12 @@ export async function resolveCronSkillsSnapshot(params: {
     workspaceDir: params.workspaceDir,
     agentId: params.agentId,
   });
+  const expectedSkillSnapshotVisibleWorkspaceDir = peekSkillSnapshotVisibleWorkspaceDir({
+    config: params.config,
+    sessionKey: params.sessionKey,
+    workspaceDir: params.workspaceDir,
+    agentId: params.agentId,
+  });
   const skillSnapshotWorkspaceRemapped =
     expectedSkillSnapshotWorkspaceDir !== undefined &&
     path.resolve(expectedSkillSnapshotWorkspaceDir) !== path.resolve(params.workspaceDir);
@@ -81,6 +97,7 @@ export async function resolveCronSkillsSnapshot(params: {
       !isCronSkillSnapshotCompatibleWithWorkspace({
         snapshot: existingSnapshot,
         workspaceDir: expectedSkillSnapshotWorkspaceDir ?? params.workspaceDir,
+        visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
       }));
   if (!shouldRefresh) {
     return existingSnapshot;
@@ -99,6 +116,7 @@ export async function resolveCronSkillsSnapshot(params: {
       eligibility: { remote: getRemoteSkillEligibility() },
       snapshotVersion,
       entries: [],
+      visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
     });
   }
 
@@ -107,5 +125,6 @@ export async function resolveCronSkillsSnapshot(params: {
     skillFilter,
     eligibility: { remote: getRemoteSkillEligibility() },
     snapshotVersion,
+    visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
   });
 }

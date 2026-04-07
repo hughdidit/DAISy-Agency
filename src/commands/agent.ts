@@ -35,6 +35,7 @@ import {
 } from "../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import {
+  peekSkillSnapshotVisibleWorkspaceDir,
   peekSkillSnapshotWorkspaceDir,
   resolveSkillSnapshotWorkspaceDir,
 } from "../agents/sandbox.js";
@@ -600,6 +601,12 @@ async function agentCommandInternal(
       workspaceDir,
       agentId: sessionAgentId,
     });
+    const expectedSkillSnapshotVisibleWorkspaceDir = peekSkillSnapshotVisibleWorkspaceDir({
+      config: cfg,
+      sessionKey,
+      workspaceDir,
+      agentId: sessionAgentId,
+    });
     const skillSnapshotWorkspaceRemapped =
       expectedSkillSnapshotWorkspaceDir !== undefined &&
       path.resolve(expectedSkillSnapshotWorkspaceDir) !== path.resolve(workspaceDir);
@@ -620,6 +627,7 @@ async function agentCommandInternal(
         !isSkillSnapshotCompatibleWithWorkspace({
           snapshot: sessionEntry?.skillsSnapshot,
           workspaceDir: expectedSkillSnapshotWorkspaceDir ?? workspaceDir,
+          visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
         }));
     const needsSkillsSnapshot = shouldRefreshSkillsSnapshot;
     const skillFilter = resolveAgentSkillsFilter(cfg, sessionAgentId);
@@ -639,6 +647,7 @@ async function agentCommandInternal(
             eligibility: remoteEligibility,
             snapshotVersion: skillsSnapshotVersion,
             skillFilter,
+            visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
           })
         : buildWorkspaceSkillSnapshot(workspaceDir, {
             config: cfg,
@@ -646,6 +655,7 @@ async function agentCommandInternal(
             snapshotVersion: skillsSnapshotVersion,
             skillFilter,
             entries: [],
+            visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
           })
       : sessionEntry?.skillsSnapshot;
 
