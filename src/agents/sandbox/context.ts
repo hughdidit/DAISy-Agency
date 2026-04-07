@@ -10,6 +10,7 @@ import { syncSkillsToWorkspace } from "../skills.js";
 import { DEFAULT_AGENT_WORKSPACE_DIR } from "../workspace.js";
 import { ensureSandboxBrowser } from "./browser.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
+import { DEFAULT_SANDBOX_WORKDIR } from "./constants.js";
 import { ensureSandboxContainer } from "./docker.js";
 import { createSandboxFsBridge } from "./fs-bridge.js";
 import { maybePruneSandboxes } from "./prune.js";
@@ -248,6 +249,23 @@ export function peekSkillSnapshotWorkspaceDir(params: {
   return cfg.scope === "shared"
     ? workspaceRoot
     : resolveSandboxWorkspaceDir(workspaceRoot, scopeKey);
+}
+
+export function peekSkillSnapshotVisibleWorkspaceDir(params: {
+  config?: OpenClawConfig;
+  sessionKey?: string;
+  workspaceDir?: string;
+  agentId?: string;
+}): string | undefined {
+  const resolved = resolveSandboxSession(params);
+  if (!resolved) {
+    return undefined;
+  }
+  const workdir = resolved.cfg.docker.workdir?.trim() || DEFAULT_SANDBOX_WORKDIR;
+  if (resolved.cfg.workspaceAccess === "rw") {
+    return path.posix.join(workdir, SANDBOX_SKILL_SNAPSHOT_DIR.split(path.sep).join("/"));
+  }
+  return workdir;
 }
 
 /**

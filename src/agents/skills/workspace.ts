@@ -52,6 +52,41 @@ function compactSkillPaths(skills: Skill[]): Skill[] {
   }));
 }
 
+function toDisplayPath(relativePath: string, root: string): string {
+  const normalizedRoot = root.replace(/[\\/]+$/, "").replace(/\\/g, "/");
+  const normalizedRelative = relativePath.split(path.sep).join("/");
+  return normalizedRelative ? `${normalizedRoot}/${normalizedRelative}` : normalizedRoot;
+}
+
+function remapSkillPathsForDisplay(params: {
+  skills: Skill[];
+  hostWorkspaceDir: string;
+  visibleWorkspaceDir?: string;
+}): Skill[] {
+  const visibleWorkspaceDir = params.visibleWorkspaceDir?.trim();
+  if (!visibleWorkspaceDir) {
+    return params.skills;
+  }
+
+  const hostWorkspaceRoot = path.resolve(resolveUserPath(params.hostWorkspaceDir));
+  return params.skills.map((skill) => {
+    const next: Skill = { ...skill };
+    const resolvedFilePath = path.resolve(resolveUserPath(skill.filePath));
+    const fileRelative = path.relative(hostWorkspaceRoot, resolvedFilePath);
+    if (fileRelative === "" || (!fileRelative.startsWith("..") && !path.isAbsolute(fileRelative))) {
+      next.filePath = toDisplayPath(fileRelative, visibleWorkspaceDir);
+    }
+
+    const resolvedBaseDir = path.resolve(resolveUserPath(skill.baseDir));
+    const baseRelative = path.relative(hostWorkspaceRoot, resolvedBaseDir);
+    if (baseRelative === "" || (!baseRelative.startsWith("..") && !path.isAbsolute(baseRelative))) {
+      next.baseDir = toDisplayPath(baseRelative, visibleWorkspaceDir);
+    }
+
+    return next;
+  });
+}
+
 function debugSkillCommandOnce(
   messageKey: string,
   message: string,
@@ -474,6 +509,8 @@ type WorkspaceSkillBuildOptions = {
   managedSkillsDir?: string;
   bundledSkillsDir?: string;
   entries?: SkillEntry[];
+  /** Optional runtime-visible root to use in prompt file locations (for sandboxes). */
+  visibleWorkspaceDir?: string;
   /** If provided, only include skills with these names */
   skillFilter?: string[];
   eligibility?: SkillEligibilityContext;
@@ -498,7 +535,11 @@ function resolveWorkspaceSkillPromptState(
     (entry) => entry.invocation?.disableModelInvocation !== true,
   );
   const remoteNote = opts?.eligibility?.remote?.note?.trim();
-  const resolvedSkills = promptEntries.map((entry) => entry.skill);
+  const resolvedSkills = remapSkillPathsForDisplay({
+    skills: promptEntries.map((entry) => entry.skill),
+    hostWorkspaceDir: workspaceDir,
+    visibleWorkspaceDir: opts?.visibleWorkspaceDir,
+  });
   const { skillsForPrompt, truncated } = applySkillsPromptLimits({
     skills: resolvedSkills,
     config: opts?.config,
@@ -537,9 +578,21 @@ export function resolveSkillsPromptForRun(params: {
 }
 
 function isPathInsideWorkspaceRoot(filePath: string, workspaceRoot: string): boolean {
-  const resolvedPath = path.resolve(resolveUserPath(filePath));
-  const relative = path.relative(workspaceRoot, resolvedPath);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+  const usePosixPaths =
+    !filePath.startsWith("~") &&
+    !workspaceRoot.startsWith("~") &&
+    (filePath.startsWith("/") || workspaceRoot.startsWith("/")) &&
+    !filePath.includes("\\") &&
+    !workspaceRoot.includes("\\");
+  const pathModule = usePosixPaths ? path.posix : path;
+  const resolvedPath = usePosixPaths
+    ? pathModule.normalize(filePath)
+    : pathModule.resolve(resolveUserPath(filePath));
+  const resolvedRoot = usePosixPaths
+    ? pathModule.normalize(workspaceRoot)
+    : pathModule.resolve(resolveUserPath(workspaceRoot));
+  const relative = pathModule.relative(resolvedRoot, resolvedPath);
+  return relative === "" || (!relative.startsWith("..") && !pathModule.isAbsolute(relative));
 }
 
 function extractPromptSkillLocations(prompt?: string): string[] {
@@ -554,13 +607,18 @@ function extractPromptSkillLocations(prompt?: string): string[] {
 export function isSkillSnapshotCompatibleWithWorkspace(params: {
   snapshot?: SkillSnapshot;
   workspaceDir: string;
+  visibleWorkspaceDir?: string;
 }): boolean {
   const snapshot = params.snapshot;
   if (!snapshot) {
     return false;
   }
 
-  const workspaceRoot = path.resolve(resolveUserPath(params.workspaceDir));
+  const workspaceRoots = (
+    params.visibleWorkspaceDir?.trim() ? [params.visibleWorkspaceDir] : [params.workspaceDir]
+  )
+    .map((root) => root?.trim() ?? "")
+    .filter(Boolean);
   const resolvedSkillPaths = (snapshot.resolvedSkills ?? [])
     .map((skill) => (typeof skill?.filePath === "string" ? skill.filePath.trim() : ""))
     .filter(Boolean);
@@ -571,7 +629,9 @@ export function isSkillSnapshotCompatibleWithWorkspace(params: {
     return true;
   }
 
-  return candidatePaths.every((filePath) => isPathInsideWorkspaceRoot(filePath, workspaceRoot));
+  return candidatePaths.every((filePath) =>
+    workspaceRoots.some((workspaceRoot) => isPathInsideWorkspaceRoot(filePath, workspaceRoot)),
+  );
 }
 
 export function loadWorkspaceSkillEntries(

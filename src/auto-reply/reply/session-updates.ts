@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import { resolveUserTimezone } from "../../agents/date-time.js";
 import {
+  peekSkillSnapshotVisibleWorkspaceDir,
   peekSkillSnapshotWorkspaceDir,
   resolveSkillSnapshotWorkspaceDir,
 } from "../../agents/sandbox.js";
@@ -168,6 +169,11 @@ export async function ensureSkillSnapshot(params: {
     sessionKey,
     workspaceDir,
   });
+  const expectedSkillSnapshotVisibleWorkspaceDir = peekSkillSnapshotVisibleWorkspaceDir({
+    config: cfg,
+    sessionKey,
+    workspaceDir,
+  });
   const skillSnapshotWorkspaceRemapped =
     expectedSkillSnapshotWorkspaceDir !== undefined &&
     path.resolve(expectedSkillSnapshotWorkspaceDir) !== path.resolve(workspaceDir);
@@ -179,6 +185,7 @@ export async function ensureSkillSnapshot(params: {
       !isSkillSnapshotCompatibleWithWorkspace({
         snapshot: nextEntry?.skillsSnapshot,
         workspaceDir: expectedSkillSnapshotWorkspaceDir ?? workspaceDir,
+        visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
       }));
   const needsSkillsSnapshot =
     isFirstTurnInSession || !nextEntry?.skillsSnapshot || shouldRefreshSnapshot;
@@ -209,6 +216,7 @@ export async function ensureSkillSnapshot(params: {
           skillFilter,
           eligibility: { remote: remoteEligibility },
           snapshotVersion,
+          visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
         })
       : buildWorkspaceSkillSnapshot(workspaceDir, {
           config: cfg,
@@ -216,6 +224,7 @@ export async function ensureSkillSnapshot(params: {
           eligibility: { remote: remoteEligibility },
           snapshotVersion,
           entries: [],
+          visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
         });
     return builtSkillsSnapshot;
   };

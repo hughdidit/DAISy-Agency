@@ -1,6 +1,7 @@
 import path from "node:path";
 import { resolveAgentSkillsFilter } from "../../agents/agent-scope.js";
 import {
+  peekSkillSnapshotVisibleWorkspaceDir,
   peekSkillSnapshotWorkspaceDir,
   resolveSkillSnapshotWorkspaceDir,
 } from "../../agents/sandbox.js";
@@ -9,11 +10,24 @@ import { matchesSkillFilter } from "../../agents/skills/filter.js";
 import { getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
+import { resolveUserPath } from "../../utils.js";
 
 function isPathInsideWorkspaceRoot(filePath: string, workspaceRoot: string): boolean {
-  const resolvedPath = path.resolve(filePath);
-  const relative = path.relative(workspaceRoot, resolvedPath);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+  const usePosixPaths =
+    !filePath.startsWith("~") &&
+    !workspaceRoot.startsWith("~") &&
+    (filePath.startsWith("/") || workspaceRoot.startsWith("/")) &&
+    !filePath.includes("\\") &&
+    !workspaceRoot.includes("\\");
+  const pathModule = usePosixPaths ? path.posix : path;
+  const resolvedPath = usePosixPaths
+    ? pathModule.normalize(filePath)
+    : pathModule.resolve(resolveUserPath(filePath));
+  const resolvedRoot = usePosixPaths
+    ? pathModule.normalize(workspaceRoot)
+    : pathModule.resolve(resolveUserPath(workspaceRoot));
+  const relative = pathModule.relative(resolvedRoot, resolvedPath);
+  return relative === "" || (!relative.startsWith("..") && !pathModule.isAbsolute(relative));
 }
 
 function extractPromptSkillLocations(prompt?: string): string[] {
@@ -28,13 +42,18 @@ function extractPromptSkillLocations(prompt?: string): string[] {
 function isCronSkillSnapshotCompatibleWithWorkspace(params: {
   snapshot?: SkillSnapshot;
   workspaceDir: string;
+  visibleWorkspaceDir?: string;
 }): boolean {
   const snapshot = params.snapshot;
   if (!snapshot) {
     return false;
   }
 
-  const workspaceRoot = path.resolve(params.workspaceDir);
+  const workspaceRoots = (
+    params.visibleWorkspaceDir?.trim() ? [params.visibleWorkspaceDir] : [params.workspaceDir]
+  )
+    .map((root) => root?.trim() ?? "")
+    .filter(Boolean);
   const resolvedSkillPaths = (snapshot.resolvedSkills ?? [])
     .map((skill) => (typeof skill?.filePath === "string" ? skill.filePath.trim() : ""))
     .filter(Boolean);
@@ -45,7 +64,9 @@ function isCronSkillSnapshotCompatibleWithWorkspace(params: {
     return true;
   }
 
-  return candidatePaths.every((filePath) => isPathInsideWorkspaceRoot(filePath, workspaceRoot));
+  return candidatePaths.every((filePath) =>
+    workspaceRoots.some((workspaceRoot) => isPathInsideWorkspaceRoot(filePath, workspaceRoot)),
+  );
 }
 
 export async function resolveCronSkillsSnapshot(params: {
@@ -70,6 +91,12 @@ export async function resolveCronSkillsSnapshot(params: {
     workspaceDir: params.workspaceDir,
     agentId: params.agentId,
   });
+  const expectedSkillSnapshotVisibleWorkspaceDir = peekSkillSnapshotVisibleWorkspaceDir({
+    config: params.config,
+    sessionKey: params.sessionKey,
+    workspaceDir: params.workspaceDir,
+    agentId: params.agentId,
+  });
   const skillSnapshotWorkspaceRemapped =
     expectedSkillSnapshotWorkspaceDir !== undefined &&
     path.resolve(expectedSkillSnapshotWorkspaceDir) !== path.resolve(params.workspaceDir);
@@ -81,6 +108,7 @@ export async function resolveCronSkillsSnapshot(params: {
       !isCronSkillSnapshotCompatibleWithWorkspace({
         snapshot: existingSnapshot,
         workspaceDir: expectedSkillSnapshotWorkspaceDir ?? params.workspaceDir,
+        visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
       }));
   if (!shouldRefresh) {
     return existingSnapshot;
@@ -99,6 +127,7 @@ export async function resolveCronSkillsSnapshot(params: {
       eligibility: { remote: getRemoteSkillEligibility() },
       snapshotVersion,
       entries: [],
+      visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
     });
   }
 
@@ -107,5 +136,6 @@ export async function resolveCronSkillsSnapshot(params: {
     skillFilter,
     eligibility: { remote: getRemoteSkillEligibility() },
     snapshotVersion,
+    visibleWorkspaceDir: expectedSkillSnapshotVisibleWorkspaceDir,
   });
 }
