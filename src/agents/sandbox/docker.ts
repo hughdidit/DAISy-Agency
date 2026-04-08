@@ -897,9 +897,7 @@ export async function ensureSandboxContainer(params: {
       const expectedImageId = await readDockerImageId(params.cfg.docker.image);
       const currentImageId = await readDockerContainerImageId(containerName);
       imageMismatch =
-        Boolean(expectedImageId) &&
-        Boolean(currentImageId) &&
-        expectedImageId !== currentImageId;
+        Boolean(expectedImageId) && Boolean(currentImageId) && expectedImageId !== currentImageId;
       if (hashMismatch || imageMismatch) {
         const lastUsedAtMs = registryEntry?.lastUsedAtMs;
         const isHot =
