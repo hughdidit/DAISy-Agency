@@ -12,7 +12,7 @@ RUN apt-get update \
     python3 \
     ripgrep \
   && rm -rf /var/lib/apt/lists/*
-ARG OPENCLAW_SUMMARIZE_VERSION="0.12.1"
+ARG OPENCLAW_SUMMARIZE_VERSION="0.13.0"
 RUN npm install -g --prefix=/usr/local --omit=dev @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \
  && summarize --version
 
