@@ -39,11 +39,11 @@ Fork of OpenClaw. Branded as **DAISy**.
    - Leave a reply comment detailing your action, with references to relevant commits, then resolve the conversation.
 3. Iterate until CI/CD checks all pass "green" and all review conversations are resolved.
 4. REQUIRED STEP: Hold for human approval before proceeding to merge code.
-4. Squash-merge the PR with a comment briefly summarising the corrections made during review.
-5. Checkout `daisy/dev` and pull to get the merged code and clean the local branch.
-6. Trigger a dry-run deploy to staging (`dry_run: true`) with provisioning. Fix any errors and iterate until deploy succeeds.
-7. When dry-run succeeds, perform a real deploy to staging (`dry_run: false`) with provisioning and run the `verify.yml` workflow to confirm deployment. Fix any errors and iterate until deploy succeeds.
-8. Print a "Synopsis" report with details of the development run, changes made, and deployment results to the terminal.
+5. Squash-merge the PR with a comment briefly summarising the corrections made during review.
+6. Checkout `daisy/dev` and pull to get the merged code and clean the local branch.
+7. Trigger a dry-run deploy to staging (`dry_run: true`) with provisioning. Fix any errors and iterate until deploy succeeds.
+8. When dry-run succeeds, perform a real deploy to staging (`dry_run: false`) with provisioning and run the `verify.yml` workflow to confirm deployment. Fix any errors and iterate until deploy succeeds.
+9. Print a "Synopsis" report with details of the development run, changes made, and deployment results to the terminal.
 
 ## Upstream Upgrades
 
