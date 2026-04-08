@@ -20,6 +20,10 @@ ENV PATH="/root/.bun/bin:${PATH}"
 RUN corepack enable
 # Install gws CLI for bundled gws-toolkit-phase1 read-only tools.
 RUN npm install -g --prefix=/usr/local --omit=dev @googleworkspace/cli@0.17.0 && gws --version
+ARG OPENCLAW_SUMMARIZE_VERSION="0.12.1"
+# Bake required skill CLIs into the image so staging/prod deploys stay deterministic.
+RUN npm install -g --prefix=/usr/local --omit=dev @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \
+ && summarize --version
 
 WORKDIR /app
 RUN chown node:node /app
