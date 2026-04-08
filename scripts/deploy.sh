@@ -204,14 +204,34 @@ if [[ "${WITH_MONITORING}" == "true" ]]; then
 
   # Generate .env.monitoring from environment variables (populated by GitHub Secrets)
   if [[ -n "${GRAFANA_ADMIN_PASSWORD:-}" ]]; then
-    ENV_CONTENT="GRAFANA_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-DISCORD_ALERTS_WEBHOOK_URL=${DISCORD_ALERTS_WEBHOOK_URL:-}
-ALERT_EMAIL_TO=${ALERT_EMAIL_TO:-}
-ALERT_SMTP_HOST=${ALERT_SMTP_HOST:-}
+    required_monitoring_vars=(
+      GRAFANA_ADMIN_PASSWORD
+      DISCORD_ALERTS_WEBHOOK_URL
+      ALERT_EMAIL_TO
+      ALERT_SMTP_HOST
+      ALERT_SMTP_FROM
+      ALERT_SMTP_USERNAME
+      ALERT_SMTP_PASSWORD
+    )
+    missing_monitoring_vars=()
+    for var_name in "${required_monitoring_vars[@]}"; do
+      if [[ -z "${!var_name:-}" ]]; then
+        missing_monitoring_vars+=("${var_name}")
+      fi
+    done
+    if (( ${#missing_monitoring_vars[@]} > 0 )); then
+      printf 'ERROR: Missing required monitoring config values: %s\n' "${missing_monitoring_vars[*]}" >&2
+      exit 1
+    fi
+
+    ENV_CONTENT="GRAFANA_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?}
+DISCORD_ALERTS_WEBHOOK_URL=${DISCORD_ALERTS_WEBHOOK_URL:?}
+ALERT_EMAIL_TO=${ALERT_EMAIL_TO:?}
+ALERT_SMTP_HOST=${ALERT_SMTP_HOST:?}
 ALERT_SMTP_PORT=${ALERT_SMTP_PORT:-587}
-ALERT_SMTP_FROM=${ALERT_SMTP_FROM:-}
-ALERT_SMTP_USERNAME=${ALERT_SMTP_USERNAME:-}
-ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
+ALERT_SMTP_FROM=${ALERT_SMTP_FROM:?}
+ALERT_SMTP_USERNAME=${ALERT_SMTP_USERNAME:?}
+ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:?}"
 
     ENV_B64="$(printf '%s' "${ENV_CONTENT}" | base64 -w0)"
 
@@ -301,7 +321,7 @@ find \"\${MONITORING_DIR}\" -name \"*.sh\" -exec chmod 750 {} +
 find \"\${MONITORING_DIR}\" -name \"*.py\" -exec chmod 750 {} +
 
 # -- Allow container UIDs to read mounted config files --
-for dir in grafana loki prometheus alertmanager promtail; do
+for dir in grafana loki prometheus otel-collector promtail; do
   d=\"\${MONITORING_DIR}/\${dir}\"
   if [[ -d \"\$d\" ]]; then
     find \"\$d\" -type d -exec chmod 755 {} +
@@ -343,6 +363,71 @@ for f in \"\${IMMUTABLE_FILES[@]}\"; do
 done
 
 echo \"Per-deploy permissions applied.\"'"
+
+  # Render secret-bearing Alertmanager config outside the tracked monitoring tree.
+  gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+    --project "${GCP_PROJECT_ID}" \
+    --zone "${GCP_ZONE}" \
+    --tunnel-through-iap \
+    --quiet \
+    --command "sudo bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; MONITORING_DIR=\"\${DEPLOY_DIR}/monitoring\"; RUNTIME_DIR=\"\${DEPLOY_DIR}/monitoring-runtime/alertmanager\"; ENV_FILE=\"\${MONITORING_DIR}/.env.monitoring\"; TEMPLATE_FILE=\"\${MONITORING_DIR}/alertmanager/alertmanager.yml\"; RUNTIME_FILE=\"\${RUNTIME_DIR}/alertmanager.yml\"; if [[ ! -f \"\${ENV_FILE}\" ]]; then echo \"WARNING: monitoring/.env.monitoring not found. Skipping Alertmanager runtime render.\"; exit 0; fi; if [[ ! -f \"\${TEMPLATE_FILE}\" ]]; then echo \"ERROR: Alertmanager template not found at \${TEMPLATE_FILE}.\" >&2; exit 1; fi; install -d -o root -g root -m 700 \"\${RUNTIME_DIR}\"; /usr/bin/python3 - \"\${ENV_FILE}\" \"\${TEMPLATE_FILE}\" \"\${RUNTIME_FILE}\" <<'\''PY'\''
+import pathlib
+import re
+import sys
+
+env_path = pathlib.Path(sys.argv[1])
+template_path = pathlib.Path(sys.argv[2])
+runtime_path = pathlib.Path(sys.argv[3])
+
+required_keys = [
+    \"DISCORD_ALERTS_WEBHOOK_URL\",
+    \"ALERT_EMAIL_TO\",
+    \"ALERT_SMTP_HOST\",
+    \"ALERT_SMTP_FROM\",
+    \"ALERT_SMTP_USERNAME\",
+    \"ALERT_SMTP_PASSWORD\",
+]
+
+values = {}
+for raw_line in env_path.read_text(encoding=\"utf-8\").splitlines():
+    line = raw_line.strip()
+    if not line or line.startswith(\"#\"):
+        continue
+    if \"=\" not in line:
+        raise SystemExit(f\"Invalid monitoring env line: {line!r}\")
+    key, value = line.split(\"=\", 1)
+    key = key.removeprefix(\"export \").strip()
+    values[key] = value.strip()
+
+values.setdefault(\"ALERT_SMTP_PORT\", \"587\")
+
+missing = [key for key in required_keys if not values.get(key)]
+if missing:
+    raise SystemExit(
+        \"Missing required Alertmanager runtime values in .env.monitoring: \"
+        + \", \".join(missing)
+    )
+
+template = template_path.read_text(encoding=\"utf-8\")
+pattern = re.compile(r\"\\$(ALERT_SMTP_HOST|ALERT_SMTP_PORT|ALERT_SMTP_FROM|ALERT_SMTP_USERNAME|ALERT_SMTP_PASSWORD|DISCORD_ALERTS_WEBHOOK_URL|ALERT_EMAIL_TO)\")
+
+def yaml_escape(value: str) -> str:
+    return (
+        value
+        .replace(\"\\\\\", \"\\\\\\\\\")
+        .replace(\"\\\"\", \"\\\\\\\"\")
+        .replace(\"\\n\", \"\\\\n\")
+        .replace(\"\\r\", \"\\\\r\")
+        .replace(\"\\t\", \"\\\\t\")
+    )
+
+rendered = pattern.sub(lambda match: yaml_escape(values.get(match.group(1), \"\")), template)
+
+runtime_path.write_text(rendered, encoding=\"utf-8\")
+PY
+chmod 600 \"\${RUNTIME_FILE}\"
+chown root:root \"\${RUNTIME_FILE}\"
+echo \"Alertmanager runtime config rendered to \${RUNTIME_FILE} (root:root 600)\"'"
 
   # Start/restart monitoring compose stack using docker-compose (standalone binary)
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \

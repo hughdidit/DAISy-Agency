@@ -48,16 +48,9 @@ extensions:
 
 service:
   extensions: [health_check]
+  # Metrics-only until a real traces/logs backend exists; set otel.traces: false in apps until then.
   pipelines:
     metrics:
       receivers: [otlp]
       processors: [attributes/redact, batch]
       exporters: [prometheus]
-    traces:
-      receivers: [otlp]
-      processors: [attributes/redact, batch]
-      exporters: []
-    logs:
-      receivers: [otlp]
-      processors: [attributes/redact, batch]
-      exporters: []

@@ -1,7 +1,7 @@
 # Alertmanager configuration for DAISy-Agency
 # Routes alerts to Discord webhook and email.
 #
-# Env vars are rendered into a temporary config by docker-compose.monitoring.yml.
+# This file is a deploy-time template rendered into the runtime config directory.
 # Credentials come from .env.monitoring (never hardcoded).
 
 global:
