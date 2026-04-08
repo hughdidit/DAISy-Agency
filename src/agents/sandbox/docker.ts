@@ -540,9 +540,11 @@ export async function ensureDockerImage(image: string) {
     return;
   }
   if (image === DEFAULT_SANDBOX_IMAGE) {
-    await execDocker(["pull", "debian:bookworm-slim"]);
-    await execDocker(["tag", "debian:bookworm-slim", DEFAULT_SANDBOX_IMAGE]);
-    return;
+    throw new Error(
+      `Sandbox image not found: ${image}. Build the default sandbox image with ${formatCliCommand(
+        "bash scripts/sandbox-setup.sh",
+      )} or pull the published sandbox image before running sandboxed agents.`,
+    );
   }
   throw new Error(`Sandbox image not found: ${image}. Build or pull it first.`);
 }
