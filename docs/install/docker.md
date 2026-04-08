@@ -325,7 +325,8 @@ user. This keeps the attack surface small, but it means:
 - no system package installs at runtime
 - no Homebrew by default
 - no bundled Chromium/Playwright browsers
-- bundled CLI essentials `jq` and `rg` are available on `PATH` by default
+- bundled CLI essentials and pinned skill binaries are available on `PATH` by default, including `jq`, `rg`, `ffmpeg`, `uv`, `gh`, `gemini`, `openhue`, `xurl`, `mcporter`, and `goplaces` (plus `sag` and `blogwatcher` on `amd64`)
+- `codexbar` is intentionally not bundled yet because current upstream Linux releases require `GLIBC_2.38`, which is newer than the Debian Bookworm base image used by the deploy containers
 
 If you want a more full-featured container, use these opt-in knobs:
 
@@ -642,7 +643,7 @@ This builds `openclaw-sandbox:bookworm-slim` using `Dockerfile.sandbox`.
 
 ### Sandbox common image (optional)
 
-If you want a sandbox image with common build tooling (Node, Go, Rust, etc.), build the common image:
+If you want a sandbox image with common build tooling (Node, Go, Rust, etc.), build the common image. The default sandbox image now also includes the pinned runtime binary set used by deploy verification, while the common image adds broader build tooling on top:
 
 ```bash
 scripts/sandbox-common-setup.sh
