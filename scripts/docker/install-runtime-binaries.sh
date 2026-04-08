@@ -126,7 +126,7 @@ verify_archive_checksum() {
 
 install_from_github_release() {
   local entry_json="${1:?entry json required}"
-  local asset_name archive_path extract_dir source_path binary
+  local asset_name archive_path extract_dir source_path binary fallback_source_path
 
   asset_name="$(jq -r --arg arch "${TARGET_ARCH}" '.install.asset_by_arch[$arch]' <<<"${entry_json}")"
   binary="$(json_field "${entry_json}" '.binary')"
@@ -146,7 +146,24 @@ install_from_github_release() {
   verify_archive_checksum "${entry_json}" "${archive_path}" "${asset_name}"
 
   tar -xzf "${archive_path}" -C "${extract_dir}"
-  source_path="$(find "${extract_dir}" -type f -name "${binary}" | head -1)"
+  while IFS= read -r candidate_path; do
+    if [[ -z "${fallback_source_path}" ]]; then
+      fallback_source_path="${candidate_path}"
+    fi
+    if [[ -x "${candidate_path}" ]]; then
+      source_path="${candidate_path}"
+      break
+    fi
+  done < <(
+    {
+      find "${extract_dir}" \( -type f -o -type l \) -name "${binary}" \
+        \( -path '*/bin/*' -o -path '*/sbin/*' -o -path '*/usr/bin/*' -o -path '*/usr/local/bin/*' \)
+      find "${extract_dir}" \( -type f -o -type l \) -name "${binary}"
+    } | awk '!seen[$0]++'
+  )
+  if [[ -z "${source_path}" ]]; then
+    source_path="${fallback_source_path:-}"
+  fi
   if [[ -z "${source_path}" ]]; then
     printf 'Unable to locate binary %s in archive %s\n' "${binary}" "${asset_name}" >&2
     return 1
@@ -194,7 +211,7 @@ install_entry() {
 
 validate_entry() {
   local entry_json="${1:?entry json required}"
-  local binary smoke_command binary_path
+  local binary smoke_command binary_path smoke_stderr smoke_stderr_path
 
   binary="$(json_field "${entry_json}" '.binary')"
   smoke_command="$(json_field "${entry_json}" '.smoke')"
@@ -204,10 +221,17 @@ validate_entry() {
     return 1
   fi
 
-  if ! bash -lc "${smoke_command}" >/dev/null 2>&1; then
+  smoke_stderr_path="$(mktemp "${INSTALL_TMP}/smoke-${binary}.XXXXXX.log")"
+  if ! bash -lc "${smoke_command}" >/dev/null 2>"${smoke_stderr_path}"; then
+    smoke_stderr="$(cat "${smoke_stderr_path}")"
     printf 'Smoke check failed for %s using command: %s\n' "${binary}" "${smoke_command}" >&2
+    if [[ -n "${smoke_stderr}" ]]; then
+      printf 'Smoke stderr for %s: %s\n' "${binary}" "${smoke_stderr}" >&2
+    fi
+    rm -f "${smoke_stderr_path}"
     return 1
   fi
+  rm -f "${smoke_stderr_path}"
 
   log "Validated ${binary} at ${binary_path}"
 }

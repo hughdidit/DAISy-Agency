@@ -501,12 +501,17 @@ const sandboxImage =
     ? sandboxConfig.docker.image
     : "openclaw-sandbox:bookworm-slim";
 const browserEnabled = sandboxConfig?.browser?.enabled === true;
+const sandboxBrowserImage =
+  typeof sandboxConfig?.browser?.image === "string" && sandboxConfig.browser.image.length > 0
+    ? sandboxConfig.browser.image
+    : "openclaw-sandbox-browser:bookworm-slim";
 
 process.stdout.write(
   JSON.stringify({
     sandboxEnabled,
     sandboxImage,
     browserEnabled,
+    sandboxBrowserImage,
   }),
 );
 NODE
@@ -521,6 +526,8 @@ NODE
     || fail "Failed to parse sandboxImage from deployed config"
   browser_enabled="$(jq -r '.browserEnabled' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
     || fail "Failed to parse browserEnabled from deployed config"
+  sandbox_browser_image="$(jq -r '.sandboxBrowserImage' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
+    || fail "Failed to parse sandboxBrowserImage from deployed config"
   if [[ "${sandbox_enabled}" == "true" ]]; then
     sandbox_image_escaped="$(printf '%q' "${sandbox_image}")"
     gce_ssh "sudo docker image inspect ${sandbox_image_escaped} >/dev/null" \
@@ -533,9 +540,10 @@ NODE
     log "Sandboxing is disabled; skipping sandbox image runtime binary smoke."
   fi
   if [[ "${browser_enabled}" == "true" ]]; then
+    sandbox_browser_image_escaped="$(printf '%q' "${sandbox_browser_image}")"
     log "Sandbox browser is enabled; checking required image..."
-    gce_ssh "sudo docker image inspect openclaw-sandbox-browser:bookworm-slim >/dev/null" \
-      || fail "Sandbox browser is enabled, but image openclaw-sandbox-browser:bookworm-slim is missing on ${GCE_INSTANCE_NAME}"
+    gce_ssh "sudo docker image inspect ${sandbox_browser_image_escaped} >/dev/null" \
+      || fail "Sandbox browser is enabled, but image ${sandbox_browser_image} is missing on ${GCE_INSTANCE_NAME}"
     log "Sandbox browser image is present."
   else
     log "Sandbox browser is disabled; skipping image presence check."
