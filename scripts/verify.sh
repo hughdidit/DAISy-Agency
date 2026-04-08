@@ -53,13 +53,22 @@ docker_container_health() {
   gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${escaped_name}\$' | head -1) && sudo docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{end}}' \"\$cid\" 2>/dev/null"
 }
 
+shell_single_quote() {
+  printf "'%s'" "$(printf '%s' "${1}" | sed "s/'/'\\\\''/g")"
+}
+
 runtime_binary_probe_script() {
-  cat <<'BASH'
-set -euo pipefail
+  cat <<'SH'
+set -eu
 
 manifest_path="__MANIFEST_PATH__"
-if [[ ! -f "${manifest_path}" ]]; then
+if [ ! -f "${manifest_path}" ]; then
   echo "missing_manifest:${manifest_path}" >&2
+  exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "missing_binary:jq" >&2
   exit 1
 fi
 
@@ -78,21 +87,36 @@ case "${raw_arch}" in
 esac
 
 printf 'arch=%s\n' "${arch}"
+entries_file="$(mktemp)"
+cleanup() {
+  rm -f "${entries_file}"
+}
+trap cleanup EXIT HUP INT TERM
+
+if ! jq -ec --arg arch "${arch}" '.[] | select(.architectures | index($arch))' "${manifest_path}" > "${entries_file}"; then
+  echo "failed_manifest_query:${manifest_path}" >&2
+  exit 1
+fi
+if [ ! -s "${entries_file}" ]; then
+  echo "no_manifest_entries:${arch}" >&2
+  exit 1
+fi
+
 while IFS= read -r entry_json; do
-  binary="$(jq -r '.binary' <<<"${entry_json}")"
-  smoke_command="$(jq -r '.smoke' <<<"${entry_json}")"
+  binary="$(printf '%s\n' "${entry_json}" | jq -r '.binary')"
+  smoke_command="$(printf '%s\n' "${entry_json}" | jq -r '.smoke')"
   binary_path="$(command -v "${binary}" || true)"
-  if [[ -z "${binary_path}" ]]; then
+  if [ -z "${binary_path}" ]; then
     echo "missing_binary:${binary}" >&2
     exit 1
   fi
-  if ! bash -lc "${smoke_command}" >/dev/null 2>&1; then
+  if ! sh -lc "${smoke_command}" >/dev/null 2>&1; then
     echo "failed_smoke:${binary}:${smoke_command}" >&2
     exit 1
   fi
   printf '%s\t%s\n' "${binary}" "${binary_path}"
-done < <(jq -c --arg arch "${arch}" '.[] | select(.architectures | index($arch))' "${manifest_path}")
-BASH
+done < "${entries_file}"
+SH
 }
 
 if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
@@ -146,13 +170,13 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   runtime_binary_manifest_in_image="/usr/local/share/openclaw/runtime-binaries.json"
   runtime_binary_probe="$(runtime_binary_probe_script)"
   runtime_binary_probe="${runtime_binary_probe//__MANIFEST_PATH__/${runtime_binary_manifest_in_image}}"
-  runtime_binary_probe_escaped="$(printf '%q' "${runtime_binary_probe}")"
+  runtime_binary_probe_escaped="$(shell_single_quote "${runtime_binary_probe}")"
 
   # Check 3: required runtime binaries are present in the deployed app image.
   checks_run=$((checks_run + 1))
   log "Checking bundled runtime binaries in ${container}..."
   if ! runtime_bins="$(
-    gce_ssh "sudo docker exec ${container_escaped} bash -lc ${runtime_binary_probe_escaped}"
+    gce_ssh "sudo docker exec ${container_escaped} sh -lc ${runtime_binary_probe_escaped}"
   )"; then
     fail "Failed to check required runtime binaries in ${container} (SSH or docker exec error)"
   fi
@@ -349,162 +373,14 @@ NODE
   checks_run=$((checks_run + 1))
   log "Checking sandbox runtime config and image requirements from deployed config..."
   sandbox_probe_js="$(cat <<'NODE'
-import fs from "node:fs";
-import path from "node:path";
-import JSON5 from "json5";
+import { loadConfig } from "/app/dist/config/config.js";
+import { resolveSandboxConfigForAgent } from "/app/dist/agents/sandbox/config.js";
 
-const INCLUDE_KEY = "$include";
-const MAX_INCLUDE_DEPTH = 10;
-const MAX_INCLUDE_FILE_BYTES = 2 * 1024 * 1024;
-const BLOCKED_KEYS = new Set(["__proto__", "constructor", "prototype"]);
-
-function isPlainObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function isBlockedObjectKey(key) {
-  return BLOCKED_KEYS.has(key);
-}
-
-function isPathInside(basePath, candidatePath) {
-  const base = path.resolve(basePath);
-  const candidate = path.resolve(candidatePath);
-  const relative = path.relative(base, candidate);
-  return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative));
-}
-
-function safeRealpath(target) {
-  try {
-    return path.normalize(fs.realpathSync(target));
-  } catch {
-    return path.normalize(target);
-  }
-}
-
-function deepMerge(target, source) {
-  if (Array.isArray(target) && Array.isArray(source)) {
-    return [...target, ...source];
-  }
-  if (isPlainObject(target) && isPlainObject(source)) {
-    const result = { ...target };
-    for (const [key, value] of Object.entries(source)) {
-      if (isBlockedObjectKey(key)) {
-        continue;
-      }
-      result[key] = key in result ? deepMerge(result[key], value) : value;
-    }
-    return result;
-  }
-  return source;
-}
-
-function resolveConfigIncludes(value, currentPath, rootDir, rootRealDir, visited, depth) {
-  if (Array.isArray(value)) {
-    return value.map((item) => resolveConfigIncludes(item, currentPath, rootDir, rootRealDir, visited, depth));
-  }
-  if (!isPlainObject(value)) {
-    return value;
-  }
-  if (!(INCLUDE_KEY in value)) {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, item]) => [
-        key,
-        resolveConfigIncludes(item, currentPath, rootDir, rootRealDir, visited, depth),
-      ]),
-    );
-  }
-
-  const includeValue = value[INCLUDE_KEY];
-  const rest = Object.fromEntries(
-    Object.entries(value)
-      .filter(([key]) => key !== INCLUDE_KEY)
-      .map(([key, item]) => [
-        key,
-        resolveConfigIncludes(item, currentPath, rootDir, rootRealDir, visited, depth),
-      ]),
-  );
-
-  const loadInclude = (includePath) => {
-    if (depth >= MAX_INCLUDE_DEPTH) {
-      throw new Error(`Maximum include depth (${MAX_INCLUDE_DEPTH}) exceeded at: ${includePath}`);
-    }
-    const resolvedPath = path.normalize(
-      path.isAbsolute(includePath) ? includePath : path.resolve(path.dirname(currentPath), includePath),
-    );
-    if (!isPathInside(rootDir, resolvedPath)) {
-      throw new Error(`Include path escapes config directory: ${includePath}`);
-    }
-    const realPath = safeRealpath(resolvedPath);
-    if (!isPathInside(rootRealDir, realPath)) {
-      throw new Error(`Include path resolves outside config directory (symlink): ${includePath}`);
-    }
-    if (visited.has(resolvedPath)) {
-      throw new Error(`Circular include detected: ${[...visited, resolvedPath].join(" -> ")}`);
-    }
-    const stats = fs.statSync(resolvedPath);
-    if (!stats.isFile() || stats.size > MAX_INCLUDE_FILE_BYTES) {
-      throw new Error(
-        `Include file failed security checks (regular file, max ${MAX_INCLUDE_FILE_BYTES} bytes): ${includePath}`,
-      );
-    }
-    const nextVisited = new Set(visited);
-    nextVisited.add(resolvedPath);
-    const parsed = JSON5.parse(fs.readFileSync(resolvedPath, "utf8"));
-    return resolveConfigIncludes(parsed, resolvedPath, rootDir, rootRealDir, nextVisited, depth + 1);
-  };
-
-  let included;
-  if (typeof includeValue === "string") {
-    included = loadInclude(includeValue);
-  } else if (Array.isArray(includeValue)) {
-    included = includeValue.reduce((merged, includePath) => {
-      if (typeof includePath !== "string") {
-        throw new Error(`Invalid $include array item: expected string, got ${typeof includePath}`);
-      }
-      return deepMerge(merged, loadInclude(includePath));
-    }, {});
-  } else {
-    throw new Error(`Invalid $include value: expected string or array of strings, got ${typeof includeValue}`);
-  }
-
-  if (Object.keys(rest).length === 0) {
-    return included;
-  }
-  if (!isPlainObject(included)) {
-    throw new Error("Sibling keys require included content to be an object");
-  }
-  return deepMerge(included, rest);
-}
-
-const configPath = process.env.OPENCLAW_CONFIG_PATH;
-if (!configPath) {
-  throw new Error("OPENCLAW_CONFIG_PATH is required.");
-}
-
-const raw = fs.readFileSync(configPath, "utf8");
-const parsed = JSON5.parse(raw);
-const rootDir = path.normalize(path.dirname(configPath));
-const rootRealDir = safeRealpath(rootDir);
-const resolved = resolveConfigIncludes(
-  parsed,
-  configPath,
-  rootDir,
-  rootRealDir,
-  new Set([path.normalize(configPath)]),
-  0,
-);
-const sandboxConfig = resolved?.agents?.defaults?.sandbox ?? {};
-const sandboxMode = typeof sandboxConfig.mode === "string" ? sandboxConfig.mode : "off";
-const sandboxEnabled = sandboxMode !== "off";
-const sandboxImage =
-  typeof sandboxConfig?.docker?.image === "string" && sandboxConfig.docker.image.length > 0
-    ? sandboxConfig.docker.image
-    : "openclaw-sandbox:bookworm-slim";
-const browserEnabled = sandboxConfig?.browser?.enabled === true;
-const sandboxBrowserImage =
-  typeof sandboxConfig?.browser?.image === "string" && sandboxConfig.browser.image.length > 0
-    ? sandboxConfig.browser.image
-    : "openclaw-sandbox-browser:bookworm-slim";
+const sandboxConfig = resolveSandboxConfigForAgent(loadConfig());
+const sandboxEnabled = sandboxConfig.mode !== "off";
+const sandboxImage = sandboxConfig.docker.image;
+const browserEnabled = sandboxConfig.browser.enabled === true;
+const sandboxBrowserImage = sandboxConfig.browser.image;
 
 process.stdout.write(
   JSON.stringify({
@@ -516,7 +392,7 @@ process.stdout.write(
 );
 NODE
 )"
-  sandbox_probe_js_escaped="$(printf '%q' "${sandbox_probe_js}")"
+  sandbox_probe_js_escaped="$(shell_single_quote "${sandbox_probe_js}")"
   sandbox_config_json="$(
     gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e ${sandbox_probe_js_escaped}"
   )" || fail "Failed to read sandbox config from ${container}"
@@ -533,7 +409,7 @@ NODE
     gce_ssh "sudo docker image inspect ${sandbox_image_escaped} >/dev/null" \
       || fail "Sandboxing is enabled, but image ${sandbox_image} is missing on ${GCE_INSTANCE_NAME}"
     sandbox_runtime_bins="$(
-      gce_ssh "sudo docker run --rm --entrypoint bash ${sandbox_image_escaped} -lc ${runtime_binary_probe_escaped}"
+      gce_ssh "sudo docker run --rm --entrypoint sh ${sandbox_image_escaped} -lc ${runtime_binary_probe_escaped}"
     )" || fail "Sandbox runtime binary smoke failed for image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
     printf '%s\n' "${sandbox_runtime_bins}"
   else
