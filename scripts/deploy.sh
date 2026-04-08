@@ -970,16 +970,19 @@ wait_for_gateway_health() {
   local cid=""
   local health_status=""
 
-  while (( elapsed < timeout_seconds )); do
+  while (( elapsed <= timeout_seconds )); do
     cid="$(sudo -E docker-compose ${COMPOSE_FILES} ps -q openclaw-gateway | head -1)"
     if [[ -n "${cid}" ]]; then
       health_status="$(
         sudo docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "${cid}" 2>/dev/null || true
       )"
-      health_status="$(echo "${health_status}" | tr -d '[:space:]')"
-      if [[ "${health_status}" == "healthy" || "${health_status}" == "running" ]]; then
+      health_status="${health_status//[[:space:]]/}"
+      if [[ "${health_status}" == "healthy" ]]; then
         return 0
       fi
+    fi
+    if (( elapsed >= timeout_seconds )); then
+      break
     fi
     sleep 5
     elapsed=$((elapsed + 5))
@@ -992,7 +995,8 @@ wait_for_gateway_health() {
 refresh_recent_channel_sessions() {
   local active_minutes="${1:?active minutes required}"
   local max_sessions="${2:?max sessions required}"
-  local selected_keys=""
+  local selected_params=""
+  local selector_py=""
   local refreshed=0
   local failed=0
 
@@ -1001,10 +1005,7 @@ refresh_recent_channel_sessions() {
     return 0
   fi
 
-  selected_keys="$(
-    sudo -E docker-compose ${COMPOSE_FILES} exec -T openclaw-cli \
-      node dist/index.js sessions --all-agents --active "${active_minutes}" --json \
-      | /usr/bin/python3 - "${max_sessions}" <<'PY'
+  selector_py="$(cat <<'PY'
 import json
 import sys
 
@@ -1024,36 +1025,42 @@ for session in payload.get("sessions", []):
     if not key or key in seen:
         continue
     seen.add(key)
-    selected.append(key)
+    selected.append(json.dumps({"key": key, "reason": "reset"}))
     if len(selected) >= max_sessions:
         break
 
 print("\n".join(selected))
 PY
+)"
+
+  selected_params="$(
+    sudo -E docker-compose ${COMPOSE_FILES} exec -T openclaw-cli \
+      node dist/index.js sessions --all-agents --active "${active_minutes}" --json \
+      | /usr/bin/python3 -c "${selector_py}" "${max_sessions}"
   )" || {
     echo "WARNING: Failed to enumerate recent routed sessions for silent refresh." >&2
     return 0
   }
 
-  if [[ -z "${selected_keys}" ]]; then
+  if [[ -z "${selected_params}" ]]; then
     echo "No recent routed sessions found for silent refresh."
     return 0
   fi
 
   echo "Silently refreshing up to ${max_sessions} routed sessions active within the last ${active_minutes} minute(s)..."
-  while IFS= read -r session_key; do
-    [[ -z "${session_key}" ]] && continue
+  while IFS= read -r params_json; do
+    [[ -z "${params_json}" ]] && continue
     if sudo -E docker-compose ${COMPOSE_FILES} exec -T openclaw-cli \
       node dist/index.js gateway call sessions.reset \
         --timeout 15000 \
         --json \
-        --params "{\"key\":\"${session_key}\",\"reason\":\"reset\"}" >/dev/null; then
+        --params "${params_json}" >/dev/null; then
       refreshed=$((refreshed + 1))
     else
-      echo "WARNING: Silent refresh failed for session key ${session_key}." >&2
+      echo "WARNING: Silent refresh failed for a selected session." >&2
       failed=$((failed + 1))
     fi
-  done <<< "${selected_keys}"
+  done <<< "${selected_params}"
 
   echo "Silent session refresh complete: refreshed=${refreshed} failed=${failed}."
 }
