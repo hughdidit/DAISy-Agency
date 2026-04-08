@@ -949,6 +949,115 @@ if [[ -f docker-compose.sandbox.yml ]]; then
   fi
 fi
 
+POST_DEPLOY_SESSION_REFRESH_ACTIVE_MINUTES="${POST_DEPLOY_SESSION_REFRESH_ACTIVE_MINUTES:-1440}"
+POST_DEPLOY_SESSION_REFRESH_MAX_SESSIONS="${POST_DEPLOY_SESSION_REFRESH_MAX_SESSIONS:-10}"
+POST_DEPLOY_SESSION_REFRESH_HEALTH_TIMEOUT_SECONDS="${POST_DEPLOY_SESSION_REFRESH_HEALTH_TIMEOUT_SECONDS:-90}"
+
+for numeric_var in \
+  POST_DEPLOY_SESSION_REFRESH_ACTIVE_MINUTES \
+  POST_DEPLOY_SESSION_REFRESH_MAX_SESSIONS \
+  POST_DEPLOY_SESSION_REFRESH_HEALTH_TIMEOUT_SECONDS; do
+  value="${!numeric_var}"
+  if ! [[ "${value}" =~ ^[0-9]+$ ]]; then
+    echo "ERROR: ${numeric_var} must be a non-negative integer (got: ${value})" >&2
+    exit 1
+  fi
+done
+
+wait_for_gateway_health() {
+  local timeout_seconds="${1:?timeout required}"
+  local elapsed=0
+  local cid=""
+  local health_status=""
+
+  while (( elapsed < timeout_seconds )); do
+    cid="$(sudo -E docker-compose ${COMPOSE_FILES} ps -q openclaw-gateway | head -1)"
+    if [[ -n "${cid}" ]]; then
+      health_status="$(
+        sudo docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "${cid}" 2>/dev/null || true
+      )"
+      health_status="$(echo "${health_status}" | tr -d '[:space:]')"
+      if [[ "${health_status}" == "healthy" || "${health_status}" == "running" ]]; then
+        return 0
+      fi
+    fi
+    sleep 5
+    elapsed=$((elapsed + 5))
+  done
+
+  echo "WARNING: openclaw-gateway did not become healthy within ${timeout_seconds}s (last status: ${health_status:-<empty>}). Skipping silent session refresh." >&2
+  return 1
+}
+
+refresh_recent_channel_sessions() {
+  local active_minutes="${1:?active minutes required}"
+  local max_sessions="${2:?max sessions required}"
+  local selected_keys=""
+  local refreshed=0
+  local failed=0
+
+  if (( active_minutes == 0 || max_sessions == 0 )); then
+    echo "Post-deploy silent session refresh disabled (active_minutes=${active_minutes}, max_sessions=${max_sessions})."
+    return 0
+  fi
+
+  selected_keys="$(
+    sudo -E docker-compose ${COMPOSE_FILES} exec -T openclaw-cli \
+      node dist/index.js sessions --all-agents --active "${active_minutes}" --json \
+      | /usr/bin/python3 - "${max_sessions}" <<'PY'
+import json
+import sys
+
+max_sessions = int(sys.argv[1])
+payload = json.load(sys.stdin)
+seen = set()
+selected = []
+
+for session in payload.get("sessions", []):
+    key = session.get("key")
+    kind = session.get("kind")
+    if kind not in {"direct", "group"}:
+        continue
+    if not isinstance(key, str):
+        continue
+    key = key.strip()
+    if not key or key in seen:
+        continue
+    seen.add(key)
+    selected.append(key)
+    if len(selected) >= max_sessions:
+        break
+
+print("\n".join(selected))
+PY
+  )" || {
+    echo "WARNING: Failed to enumerate recent routed sessions for silent refresh." >&2
+    return 0
+  }
+
+  if [[ -z "${selected_keys}" ]]; then
+    echo "No recent routed sessions found for silent refresh."
+    return 0
+  fi
+
+  echo "Silently refreshing up to ${max_sessions} routed sessions active within the last ${active_minutes} minute(s)..."
+  while IFS= read -r session_key; do
+    [[ -z "${session_key}" ]] && continue
+    if sudo -E docker-compose ${COMPOSE_FILES} exec -T openclaw-cli \
+      node dist/index.js gateway call sessions.reset \
+        --timeout 15000 \
+        --json \
+        --params "{\"key\":\"${session_key}\",\"reason\":\"reset\"}" >/dev/null; then
+      refreshed=$((refreshed + 1))
+    else
+      echo "WARNING: Silent refresh failed for session key ${session_key}." >&2
+      failed=$((failed + 1))
+    fi
+  done <<< "${selected_keys}"
+
+  echo "Silent session refresh complete: refreshed=${refreshed} failed=${failed}."
+}
+
 # Ensure the host has enough free disk space before pulling images.
 # Check the filesystem that backs Docker storage, not DEPLOY_DIR.
 if ! [[ "${MIN_FREE_SPACE_MB}" =~ ^[0-9]+$ ]]; then
@@ -1048,6 +1157,12 @@ sudo -E docker-compose ${COMPOSE_FILES} rm -f openclaw-gateway openclaw-cli || t
 # Start fresh containers so updated host security profiles (seccomp/AppArmor)
 # are applied even when the image reference is unchanged.
 sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans --force-recreate
+
+if wait_for_gateway_health "${POST_DEPLOY_SESSION_REFRESH_HEALTH_TIMEOUT_SECONDS}"; then
+  refresh_recent_channel_sessions \
+    "${POST_DEPLOY_SESSION_REFRESH_ACTIVE_MINUTES}" \
+    "${POST_DEPLOY_SESSION_REFRESH_MAX_SESSIONS}"
+fi
 
 echo "Removing Anthropic setup-token auth profiles from persisted agent state..."
 if ! cleanup_anthropic_token_profiles; then
