@@ -220,18 +220,18 @@ if [[ "${WITH_MONITORING}" == "true" ]]; then
       fi
     done
     if (( ${#missing_monitoring_vars[@]} > 0 )); then
-      printf 'ERROR: Missing required monitoring secrets for Alertmanager: %s\n' "${missing_monitoring_vars[*]}" >&2
+      printf 'ERROR: Missing required monitoring config values: %s\n' "${missing_monitoring_vars[*]}" >&2
       exit 1
     fi
 
-    ENV_CONTENT="GRAFANA_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-DISCORD_ALERTS_WEBHOOK_URL=${DISCORD_ALERTS_WEBHOOK_URL:-}
-ALERT_EMAIL_TO=${ALERT_EMAIL_TO:-}
-ALERT_SMTP_HOST=${ALERT_SMTP_HOST:-}
+    ENV_CONTENT="GRAFANA_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?}
+DISCORD_ALERTS_WEBHOOK_URL=${DISCORD_ALERTS_WEBHOOK_URL:?}
+ALERT_EMAIL_TO=${ALERT_EMAIL_TO:?}
+ALERT_SMTP_HOST=${ALERT_SMTP_HOST:?}
 ALERT_SMTP_PORT=${ALERT_SMTP_PORT:-587}
-ALERT_SMTP_FROM=${ALERT_SMTP_FROM:-}
-ALERT_SMTP_USERNAME=${ALERT_SMTP_USERNAME:-}
-ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:-}"
+ALERT_SMTP_FROM=${ALERT_SMTP_FROM:?}
+ALERT_SMTP_USERNAME=${ALERT_SMTP_USERNAME:?}
+ALERT_SMTP_PASSWORD=${ALERT_SMTP_PASSWORD:?}"
 
     ENV_B64="$(printf '%s' "${ENV_CONTENT}" | base64 -w0)"
 
@@ -380,7 +380,6 @@ template_path = pathlib.Path(sys.argv[2])
 runtime_path = pathlib.Path(sys.argv[3])
 
 required_keys = [
-    \"GRAFANA_ADMIN_PASSWORD\",
     \"DISCORD_ALERTS_WEBHOOK_URL\",
     \"ALERT_EMAIL_TO\",
     \"ALERT_SMTP_HOST\",
@@ -394,10 +393,13 @@ for raw_line in env_path.read_text(encoding=\"utf-8\").splitlines():
     line = raw_line.strip()
     if not line or line.startswith(\"#\"):
         continue
-    if \"=\" not in raw_line:
-        raise SystemExit(f\"Invalid monitoring env line: {raw_line!r}\")
-    key, value = raw_line.split(\"=\", 1)
-    values[key] = value
+    if \"=\" not in line:
+        raise SystemExit(f\"Invalid monitoring env line: {line!r}\")
+    key, value = line.split(\"=\", 1)
+    key = key.removeprefix(\"export \").strip()
+    values[key] = value.strip()
+
+values.setdefault(\"ALERT_SMTP_PORT\", \"587\")
 
 missing = [key for key in required_keys if not values.get(key)]
 if missing:
@@ -408,7 +410,18 @@ if missing:
 
 template = template_path.read_text(encoding=\"utf-8\")
 pattern = re.compile(r\"\\$(ALERT_SMTP_HOST|ALERT_SMTP_PORT|ALERT_SMTP_FROM|ALERT_SMTP_USERNAME|ALERT_SMTP_PASSWORD|DISCORD_ALERTS_WEBHOOK_URL|ALERT_EMAIL_TO)\")
-rendered = pattern.sub(lambda match: values.get(match.group(1), \"\"), template)
+
+def yaml_escape(value: str) -> str:
+    return (
+        value
+        .replace(\"\\\\\", \"\\\\\\\\\")
+        .replace(\"\\\"\", \"\\\\\\\"\")
+        .replace(\"\\n\", \"\\\\n\")
+        .replace(\"\\r\", \"\\\\r\")
+        .replace(\"\\t\", \"\\\\t\")
+    )
+
+rendered = pattern.sub(lambda match: yaml_escape(values.get(match.group(1), \"\")), template)
 
 runtime_path.write_text(rendered, encoding=\"utf-8\")
 PY
