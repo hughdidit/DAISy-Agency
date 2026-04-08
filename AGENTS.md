@@ -9,7 +9,7 @@ Fork of OpenClaw. Branded as **DAISy**.
 - Never use WSL git on /mnt/g/ paths (causes NTFS corruption)
 - Never build, install, or run the bot locally — all dev/build/test happens on the GCP VM, containerized
 - Never commit directly to `daisy/dev` — always use a feature branch and PR.
-- Never work in the `daisy/main` branch. That is reserved solely for promoted branches from `daisy/dev`.
+- Never work in the `daisy/main` branch. That is reserved solely for promoted branches from `daisy/dev`. 
 - Do not dirty the development branch. Always create feature branches from `daisy/dev` — fetch and checkout `daisy/dev` first, then `git checkout -b feature-branch daisy/dev` to avoid pulling in commits from other branches. Do your development on the feature branch, not on `daisy/dev`.
 - Commit all changes to the feature branch, push to origin, and submit a PR for merging back to `daisy/dev`. Always follow the "Closing a PR (merge checklist)" instructions to merge and deploy any code.
 - Do not attempt to work around the GitHub CI/CD workflow. It is required.
@@ -39,11 +39,11 @@ Fork of OpenClaw. Branded as **DAISy**.
    - Leave a reply comment detailing your action, with references to relevant commits, then resolve the conversation.
 3. Iterate until CI/CD checks all pass "green" and all review conversations are resolved.
 4. REQUIRED STEP: Hold for human approval before proceeding to merge code.
-5. Squash-merge the PR with a comment briefly summarising the corrections made during review.
-6. Checkout `daisy/dev` and pull to get the merged code and clean the local branch.
-7. Trigger a dry-run deploy to staging (`dry_run: true`) with provisioning. Fix any errors and iterate until deploy succeeds.
-8. When dry-run succeeds, perform a real deploy to staging (`dry_run: false`) with provisioning and run the `verify.yml` workflow to confirm deployment. Fix any errors and iterate until deploy succeeds.
-9. Print a "Synopsis" report with details of the development run, changes made, and deployment results to the terminal.
+4. Squash-merge the PR with a comment briefly summarising the corrections made during review.
+5. Checkout `daisy/dev` and pull to get the merged code and clean the local branch.
+6. Trigger a dry-run deploy to staging (`dry_run: true`) with provisioning. Fix any errors and iterate until deploy succeeds.
+7. When dry-run succeeds, perform a real deploy to staging (`dry_run: false`) with provisioning and run the `verify.yml` workflow to confirm deployment. Fix any errors and iterate until deploy succeeds.
+8. Print a "Synopsis" report with details of the development run, changes made, and deployment results to the terminal.
 
 ## Upstream Upgrades
 
