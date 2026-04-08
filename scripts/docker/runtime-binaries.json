@@ -1,0 +1,217 @@
+[
+  {
+    "name": "jq",
+    "binary": "jq",
+    "version": "debian-bookworm",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "system"
+    },
+    "smoke": "jq --version"
+  },
+  {
+    "name": "rg",
+    "binary": "rg",
+    "version": "debian-bookworm",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "system"
+    },
+    "smoke": "rg --version"
+  },
+  {
+    "name": "ffmpeg",
+    "binary": "ffmpeg",
+    "version": "debian-bookworm",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "system"
+    },
+    "smoke": "ffmpeg -version"
+  },
+  {
+    "name": "uv",
+    "binary": "uv",
+    "version": "0.11.5",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "github-release",
+      "repo": "astral-sh/uv",
+      "tag": "0.11.5",
+      "asset_by_arch": {
+        "amd64": "uv-x86_64-unknown-linux-gnu.tar.gz",
+        "arm64": "uv-aarch64-unknown-linux-gnu.tar.gz"
+      },
+      "checksum": {
+        "type": "sha256sum-file",
+        "asset": "sha256.sum"
+      }
+    },
+    "smoke": "uv --version"
+  },
+  {
+    "name": "gh",
+    "binary": "gh",
+    "version": "2.89.0",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "github-release",
+      "repo": "cli/cli",
+      "tag": "v2.89.0",
+      "asset_by_arch": {
+        "amd64": "gh_2.89.0_linux_amd64.tar.gz",
+        "arm64": "gh_2.89.0_linux_arm64.tar.gz"
+      },
+      "checksum": {
+        "type": "sha256sum-file",
+        "asset": "gh_2.89.0_checksums.txt"
+      }
+    },
+    "smoke": "gh --version"
+  },
+  {
+    "name": "gemini",
+    "binary": "gemini",
+    "version": "0.37.0",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "npm",
+      "package": "@google/gemini-cli",
+      "version": "0.37.0"
+    },
+    "smoke": "gemini --version"
+  },
+  {
+    "name": "openhue",
+    "binary": "openhue",
+    "version": "0.23",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "github-release",
+      "repo": "openhue/openhue-cli",
+      "tag": "0.23",
+      "asset_by_arch": {
+        "amd64": "openhue_Linux_x86_64.tar.gz",
+        "arm64": "openhue_Linux_arm64.tar.gz"
+      },
+      "checksum": {
+        "type": "sha256sum-file",
+        "asset": "openhue_0.23_checksums.txt"
+      }
+    },
+    "smoke": "openhue --version"
+  },
+  {
+    "name": "xurl",
+    "binary": "xurl",
+    "version": "1.0.3",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "github-release",
+      "repo": "xdevplatform/xurl",
+      "tag": "v1.0.3",
+      "asset_by_arch": {
+        "amd64": "xurl_Linux_x86_64.tar.gz",
+        "arm64": "xurl_Linux_arm64.tar.gz"
+      },
+      "checksum": {
+        "type": "sha256sum-file",
+        "asset": "xurl_1.0.3_checksums.txt"
+      }
+    },
+    "smoke": "xurl --version"
+  },
+  {
+    "name": "mcporter",
+    "binary": "mcporter",
+    "version": "0.8.1",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "npm",
+      "package": "mcporter",
+      "version": "0.8.1"
+    },
+    "smoke": "mcporter --version"
+  },
+  {
+    "name": "codexbar",
+    "binary": "codexbar",
+    "version": "0.20",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "github-release",
+      "repo": "steipete/CodexBar",
+      "tag": "v0.20",
+      "asset_by_arch": {
+        "amd64": "CodexBarCLI-v0.20-linux-x86_64.tar.gz",
+        "arm64": "CodexBarCLI-v0.20-linux-aarch64.tar.gz"
+      },
+      "checksum": {
+        "type": "sidecar",
+        "asset_by_arch": {
+          "amd64": "CodexBarCLI-v0.20-linux-x86_64.tar.gz.sha256",
+          "arm64": "CodexBarCLI-v0.20-linux-aarch64.tar.gz.sha256"
+        }
+      }
+    },
+    "smoke": "codexbar --help >/dev/null"
+  },
+  {
+    "name": "goplaces",
+    "binary": "goplaces",
+    "version": "0.3.0",
+    "architectures": ["amd64", "arm64"],
+    "install": {
+      "method": "github-release",
+      "repo": "steipete/goplaces",
+      "tag": "v0.3.0",
+      "asset_by_arch": {
+        "amd64": "goplaces_0.3.0_linux_amd64.tar.gz",
+        "arm64": "goplaces_0.3.0_linux_arm64.tar.gz"
+      },
+      "checksum": {
+        "type": "sha256sum-file",
+        "asset": "goplaces_checksums.txt"
+      }
+    },
+    "smoke": "goplaces --help >/dev/null"
+  },
+  {
+    "name": "sag",
+    "binary": "sag",
+    "version": "0.2.2",
+    "architectures": ["amd64"],
+    "install": {
+      "method": "github-release",
+      "repo": "steipete/sag",
+      "tag": "v0.2.2",
+      "asset_by_arch": {
+        "amd64": "sag_0.2.2_linux_amd64.tar.gz"
+      },
+      "checksum": {
+        "type": "sha256sum-file",
+        "asset": "sag_0.2.2_checksums.txt"
+      }
+    },
+    "smoke": "sag --help >/dev/null"
+  },
+  {
+    "name": "blogwatcher",
+    "binary": "blogwatcher",
+    "version": "0.0.2",
+    "architectures": ["amd64"],
+    "install": {
+      "method": "github-release",
+      "repo": "Hyaxia/blogwatcher",
+      "tag": "v0.0.2",
+      "asset_by_arch": {
+        "amd64": "blogwatcher_0.0.2_linux_amd64.tar.gz"
+      },
+      "checksum": {
+        "type": "sha256sum-file",
+        "asset": "blogwatcher_checksums.txt"
+      }
+    },
+    "smoke": "blogwatcher --help >/dev/null"
+  }
+]

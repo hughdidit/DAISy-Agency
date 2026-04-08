@@ -53,6 +53,48 @@ docker_container_health() {
   gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${escaped_name}\$' | head -1) && sudo docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{end}}' \"\$cid\" 2>/dev/null"
 }
 
+runtime_binary_probe_script() {
+  cat <<'BASH'
+set -euo pipefail
+
+manifest_path="__MANIFEST_PATH__"
+if [[ ! -f "${manifest_path}" ]]; then
+  echo "missing_manifest:${manifest_path}" >&2
+  exit 1
+fi
+
+raw_arch="$(dpkg --print-architecture)"
+case "${raw_arch}" in
+  amd64|x86_64)
+    arch="amd64"
+    ;;
+  arm64|aarch64)
+    arch="arm64"
+    ;;
+  *)
+    echo "unsupported_arch:${raw_arch}" >&2
+    exit 1
+    ;;
+esac
+
+printf 'arch=%s\n' "${arch}"
+while IFS= read -r entry_json; do
+  binary="$(jq -r '.binary' <<<"${entry_json}")"
+  smoke_command="$(jq -r '.smoke' <<<"${entry_json}")"
+  binary_path="$(command -v "${binary}" || true)"
+  if [[ -z "${binary_path}" ]]; then
+    echo "missing_binary:${binary}" >&2
+    exit 1
+  fi
+  if ! bash -lc "${smoke_command}" >/dev/null 2>&1; then
+    echo "failed_smoke:${binary}:${smoke_command}" >&2
+    exit 1
+  fi
+  printf '%s\t%s\n' "${binary}" "${binary_path}"
+done < <(jq -c --arg arch "${arch}" '.[] | select(.architectures | index($arch))' "${manifest_path}")
+BASH
+}
+
 if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required for GCE verify}"
   : "${GCP_ZONE:?GCP_ZONE is required for GCE verify}"
@@ -101,18 +143,18 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   fi
   log "Container health check passed (status: healthy)."
 
+  runtime_binary_manifest_in_image="/usr/local/share/openclaw/runtime-binaries.json"
+  runtime_binary_probe="$(runtime_binary_probe_script)"
+  runtime_binary_probe="${runtime_binary_probe//__MANIFEST_PATH__/${runtime_binary_manifest_in_image}}"
+  runtime_binary_probe_escaped="$(printf '%q' "${runtime_binary_probe}")"
+
   # Check 3: required runtime binaries are present in the deployed app image.
   checks_run=$((checks_run + 1))
   log "Checking bundled runtime binaries in ${container}..."
   if ! runtime_bins="$(
-    gce_ssh "sudo docker exec ${container_escaped} bash -lc 'command -v jq && command -v rg'"
+    gce_ssh "sudo docker exec ${container_escaped} bash -lc ${runtime_binary_probe_escaped}"
   )"; then
     fail "Failed to check required runtime binaries in ${container} (SSH or docker exec error)"
-  fi
-  jq_path="$(printf '%s\n' "${runtime_bins}" | sed -n '1p')"
-  rg_path="$(printf '%s\n' "${runtime_bins}" | sed -n '2p')"
-  if [[ -z "${jq_path}" || -z "${rg_path}" ]]; then
-    fail "Required runtime binaries (jq, rg) are missing from ${container}"
   fi
   printf '%s\n' "${runtime_bins}"
 
@@ -302,10 +344,11 @@ NODE
     log "VERIFY_ENV=${VERIFY_ENV:-<unset>}; skipping staging-specific verification."
   fi
 
-  # Check 8: require the sandbox browser image when the deployed config enables it.
+  # Check 8: when sandboxing is enabled, the deployed sandbox image must exist
+  # locally and include the required runtime binaries.
   checks_run=$((checks_run + 1))
-  log "Checking sandbox browser image requirement from deployed config..."
-  browser_probe_js="$(cat <<'NODE'
+  log "Checking sandbox runtime config and image requirements from deployed config..."
+  sandbox_probe_js="$(cat <<'NODE'
 import fs from "node:fs";
 import path from "node:path";
 import JSON5 from "json5";
@@ -450,15 +493,45 @@ const resolved = resolveConfigIncludes(
   new Set([path.normalize(configPath)]),
   0,
 );
-const enabled = resolved?.agents?.defaults?.sandbox?.browser?.enabled === true;
-process.stdout.write(enabled ? "true" : "false");
+const sandboxConfig = resolved?.agents?.defaults?.sandbox ?? {};
+const sandboxMode = typeof sandboxConfig.mode === "string" ? sandboxConfig.mode : "off";
+const sandboxEnabled = sandboxMode !== "off";
+const sandboxImage =
+  typeof sandboxConfig?.docker?.image === "string" && sandboxConfig.docker.image.length > 0
+    ? sandboxConfig.docker.image
+    : "openclaw-sandbox:bookworm-slim";
+const browserEnabled = sandboxConfig?.browser?.enabled === true;
+
+process.stdout.write(
+  JSON.stringify({
+    sandboxEnabled,
+    sandboxImage,
+    browserEnabled,
+  }),
+);
 NODE
 )"
-  browser_probe_js_escaped="$(printf '%q' "${browser_probe_js}")"
-  browser_enabled="$(
-    gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e ${browser_probe_js_escaped}"
-  )" || fail "Failed to read sandbox browser config from ${container}"
-  browser_enabled="$(echo "${browser_enabled}" | tr -d '[:space:]')"
+  sandbox_probe_js_escaped="$(printf '%q' "${sandbox_probe_js}")"
+  sandbox_config_json="$(
+    gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e ${sandbox_probe_js_escaped}"
+  )" || fail "Failed to read sandbox config from ${container}"
+  sandbox_enabled="$(jq -r '.sandboxEnabled' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
+    || fail "Failed to parse sandboxEnabled from deployed config"
+  sandbox_image="$(jq -r '.sandboxImage' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
+    || fail "Failed to parse sandboxImage from deployed config"
+  browser_enabled="$(jq -r '.browserEnabled' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
+    || fail "Failed to parse browserEnabled from deployed config"
+  if [[ "${sandbox_enabled}" == "true" ]]; then
+    sandbox_image_escaped="$(printf '%q' "${sandbox_image}")"
+    gce_ssh "sudo docker image inspect ${sandbox_image_escaped} >/dev/null" \
+      || fail "Sandboxing is enabled, but image ${sandbox_image} is missing on ${GCE_INSTANCE_NAME}"
+    sandbox_runtime_bins="$(
+      gce_ssh "sudo docker run --rm --entrypoint bash ${sandbox_image_escaped} -lc ${runtime_binary_probe_escaped}"
+    )" || fail "Sandbox runtime binary smoke failed for image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
+    printf '%s\n' "${sandbox_runtime_bins}"
+  else
+    log "Sandboxing is disabled; skipping sandbox image runtime binary smoke."
+  fi
   if [[ "${browser_enabled}" == "true" ]]; then
     log "Sandbox browser is enabled; checking required image..."
     gce_ssh "sudo docker image inspect openclaw-sandbox-browser:bookworm-slim >/dev/null" \

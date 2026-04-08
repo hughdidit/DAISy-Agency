@@ -7,11 +7,20 @@ RUN apt-get update \
     bash \
     ca-certificates \
     curl \
+    ffmpeg \
     git \
     jq \
     python3 \
     ripgrep \
   && rm -rf /var/lib/apt/lists/*
+COPY scripts/docker/install-runtime-binaries.sh /tmp/install-runtime-binaries.sh
+COPY scripts/docker/runtime-binaries.json /tmp/runtime-binaries.json
+ARG TARGETARCH=""
+RUN chmod 755 /tmp/install-runtime-binaries.sh \
+  && mkdir -p /usr/local/share/openclaw \
+  && install -m 644 /tmp/runtime-binaries.json /usr/local/share/openclaw/runtime-binaries.json \
+  && TARGETARCH="${TARGETARCH}" /tmp/install-runtime-binaries.sh \
+  && rm -f /tmp/install-runtime-binaries.sh /tmp/runtime-binaries.json
 ARG OPENCLAW_SUMMARIZE_VERSION="0.13.0"
 RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \
  && /usr/local/bin/node /usr/local/lib/node_modules/@steipete/summarize/dist/cli.js --version \

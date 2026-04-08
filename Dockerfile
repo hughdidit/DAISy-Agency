@@ -34,6 +34,7 @@ RUN chown node:node /app
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      ffmpeg \
       jq \
       ripgrep \
       $OPENCLAW_DOCKER_APT_PACKAGES && \
@@ -45,6 +46,10 @@ COPY --chown=node:node ui/package.json ./ui/package.json
 COPY --chown=node:node extensions/memory-mongodb/package.json ./extensions/memory-mongodb/package.json
 COPY --chown=node:node patches ./patches
 COPY --chown=node:node scripts ./scripts
+
+ARG TARGETARCH=""
+RUN chmod 755 /app/scripts/docker/install-runtime-binaries.sh \
+ && TARGETARCH="${TARGETARCH}" /app/scripts/docker/install-runtime-binaries.sh
 
 USER node
 # Reduce OOM risk on low-memory hosts during dependency installation.
@@ -125,6 +130,7 @@ RUN pnpm ui:build
 USER root
 RUN install -m 0755 /app/scripts/docker/openclaw-wrapper.mjs /usr/local/bin/openclaw \
  && install -m 0755 /app/scripts/docker/summarize-wrapper.sh /usr/local/bin/summarize \
+ && install -Dm644 /app/scripts/docker/runtime-binaries.json /usr/local/share/openclaw/runtime-binaries.json \
  && chmod 755 /app/openclaw.mjs \
  && summarize --version
 
