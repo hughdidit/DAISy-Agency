@@ -409,7 +409,7 @@ if missing:
     )
 
 template = template_path.read_text(encoding=\"utf-8\")
-pattern = re.compile(r\"\\$(ALERT_SMTP_HOST|ALERT_SMTP_PORT|ALERT_SMTP_FROM|ALERT_SMTP_USERNAME|ALERT_SMTP_PASSWORD|DISCORD_ALERTS_WEBHOOK_URL|ALERT_EMAIL_TO)\")
+pattern = re.compile(r\"[$](ALERT_SMTP_HOST|ALERT_SMTP_PORT|ALERT_SMTP_FROM|ALERT_SMTP_USERNAME|ALERT_SMTP_PASSWORD|DISCORD_ALERTS_WEBHOOK_URL|ALERT_EMAIL_TO)\\b\")
 
 def yaml_escape(value: str) -> str:
     return (
