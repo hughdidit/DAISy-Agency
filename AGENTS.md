@@ -9,7 +9,7 @@ Fork of OpenClaw. Branded as **DAISy**.
 - Never use WSL git on /mnt/g/ paths (causes NTFS corruption)
 - Never build, install, or run the bot locally — all dev/build/test happens on the GCP VM, containerized
 - Never commit directly to `daisy/dev` — always use a feature branch and PR.
-- Never work in the `daisy/main` branch. That is reserved solely for promoted branches from `daisy/dev`. 
+- Never work in the `daisy/main` branch. That is reserved solely for promoted branches from `daisy/dev`.
 - Do not dirty the development branch. Always create feature branches from `daisy/dev` — fetch and checkout `daisy/dev` first, then `git checkout -b feature-branch daisy/dev` to avoid pulling in commits from other branches. Do your development on the feature branch, not on `daisy/dev`.
 - Commit all changes to the feature branch, push to origin, and submit a PR for merging back to `daisy/dev`. Always follow the "Closing a PR (merge checklist)" instructions to merge and deploy any code.
 - Do not attempt to work around the GitHub CI/CD workflow. It is required.
