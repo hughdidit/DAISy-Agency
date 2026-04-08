@@ -126,7 +126,7 @@ verify_archive_checksum() {
 
 install_from_github_release() {
   local entry_json="${1:?entry json required}"
-  local asset_name archive_path extract_dir source_path binary fallback_source_path
+  local asset_name archive_path extract_dir source_path="" binary fallback_source_path=""
 
   asset_name="$(jq -r --arg arch "${TARGET_ARCH}" '.install.asset_by_arch[$arch]' <<<"${entry_json}")"
   binary="$(json_field "${entry_json}" '.binary')"
