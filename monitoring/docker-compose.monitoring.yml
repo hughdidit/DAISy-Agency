@@ -157,38 +157,16 @@ services:
     image: prom/alertmanager:v0.27.0
     network_mode: host
     restart: unless-stopped
-    entrypoint: ["/bin/sh", "-ec"]
+    user: "0"
     volumes:
-      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ../monitoring-runtime/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - ./alertmanager/discord.tmpl:/etc/alertmanager/discord.tmpl:ro
       - alertmanager-data:/alertmanager
-    env_file:
-      - .env.monitoring
     command:
-      - |
-        escape_sed_replacement() {
-          printf -- '%s' "$$1" \
-            | sed \
-              -e ':a;N;$!ba;s/\n/\\n/g' \
-              -e 's/\\/\\\\/g' \
-              -e 's/"/\\"/g' \
-              -e 's/[\/&|]/\\&/g'
-        }
-        rendered_config="/tmp/alertmanager.rendered.yml"
-        sed \
-          -e "s|\$$ALERT_SMTP_HOST|$$(escape_sed_replacement "$${ALERT_SMTP_HOST:-}")|g" \
-          -e "s|\$$ALERT_SMTP_PORT|$$(escape_sed_replacement "$${ALERT_SMTP_PORT:-}")|g" \
-          -e "s|\$$ALERT_SMTP_FROM|$$(escape_sed_replacement "$${ALERT_SMTP_FROM:-}")|g" \
-          -e "s|\$$ALERT_SMTP_USERNAME|$$(escape_sed_replacement "$${ALERT_SMTP_USERNAME:-}")|g" \
-          -e "s|\$$ALERT_SMTP_PASSWORD|$$(escape_sed_replacement "$${ALERT_SMTP_PASSWORD:-}")|g" \
-          -e "s|\$$DISCORD_ALERTS_WEBHOOK_URL|$$(escape_sed_replacement "$${DISCORD_ALERTS_WEBHOOK_URL:-}")|g" \
-          -e "s|\$$ALERT_EMAIL_TO|$$(escape_sed_replacement "$${ALERT_EMAIL_TO:-}")|g" \
-          /etc/alertmanager/alertmanager.yml > "$${rendered_config}"
-        exec alertmanager \
-          --config.file="$${rendered_config}" \
-          --storage.path=/alertmanager \
-          --web.listen-address=:9093 \
-          --cluster.listen-address=
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+      - "--web.listen-address=:9093"
+      - "--cluster.listen-address="
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:9093/-/healthy"]
       interval: 30s
