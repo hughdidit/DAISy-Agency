@@ -13,8 +13,9 @@ RUN apt-get update \
     ripgrep \
   && rm -rf /var/lib/apt/lists/*
 ARG OPENCLAW_SUMMARIZE_VERSION="0.13.0"
-RUN npm install -g --prefix=/usr/local --omit=dev @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \
- && summarize --version
+RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \
+ && summarize --version \
+ && npm cache clean --force
 
 RUN useradd --create-home --shell /bin/bash sandbox
 USER sandbox
