@@ -250,9 +250,9 @@ NODE
     fi
 
     # Check 7: when monitoring env has been generated, Alertmanager must be
-    # running and receive the sensitive webhook/env payloads from .env.monitoring.
+    # running from the host-rendered runtime config with locked-down permissions.
     checks_run=$((checks_run + 1))
-    log "Checking monitoring Alertmanager env delivery on ${GCE_INSTANCE_NAME}..."
+    log "Checking monitoring Alertmanager runtime config delivery on ${GCE_INSTANCE_NAME}..."
     monitoring_env_present="$(
       gce_ssh_lastline "sudo -n sh -c 'if [ -f /opt/DAISy/monitoring/.env.monitoring ]; then echo true; else echo false; fi'"
     )" || fail "Failed to inspect monitoring env file on ${GCE_INSTANCE_NAME}"
@@ -270,15 +270,33 @@ NODE
         fail "monitoring-alertmanager-1 health status is '${monitoring_health:-<empty>}' on ${GCE_INSTANCE_NAME}"
       fi
 
-      missing_monitoring_env="$(
-        gce_ssh "sudo docker inspect monitoring-alertmanager-1 --format '{{range .Config.Env}}{{println .}}{{end}}' | awk -F= 'BEGIN { required[\"DISCORD_ALERTS_WEBHOOK_URL\"]=1; required[\"GRAFANA_ADMIN_PASSWORD\"]=1; required[\"ALERT_SMTP_USERNAME\"]=1; required[\"ALERT_SMTP_PASSWORD\"]=1 } \$1 in required && length(substr(\$0, index(\$0, \"=\") + 1)) > 0 { seen[\$1]=1 } END { for (key in required) if (!(key in seen)) print key }'"
-      )" || fail "Failed to inspect Alertmanager env vars on ${GCE_INSTANCE_NAME}"
-      if [[ -n "${missing_monitoring_env}" ]]; then
-        fail "monitoring-alertmanager-1 is missing required monitoring env vars on ${GCE_INSTANCE_NAME}: ${missing_monitoring_env//$'\n'/, }"
+      runtime_config_status="$(
+        gce_ssh_lastline "sudo -n sh -c 'if [ -f /opt/DAISy/monitoring-runtime/alertmanager/alertmanager.yml ]; then stat -c \"%U:%G %a\" /opt/DAISy/monitoring-runtime/alertmanager/alertmanager.yml; else echo missing; fi'"
+      )" || fail "Failed to inspect rendered Alertmanager runtime config on ${GCE_INSTANCE_NAME}"
+      runtime_config_status="$(printf '%s' "${runtime_config_status}" | sed 's/[[:space:]]*$//')"
+      if [[ "${runtime_config_status}" != "root:root 600" ]]; then
+        fail "Rendered Alertmanager runtime config has unexpected ownership or mode on ${GCE_INSTANCE_NAME}: ${runtime_config_status:-<missing>} (expected root:root 600)"
       fi
-      log "Monitoring Alertmanager env delivery passed."
+
+      runtime_config_mount="$(
+        gce_ssh_lastline "sudo docker inspect monitoring-alertmanager-1 --format '{{range .Mounts}}{{if eq .Destination \"/etc/alertmanager/alertmanager.yml\"}}{{.Source}}{{end}}{{end}}'"
+      )" || fail "Failed to inspect Alertmanager runtime config mount on ${GCE_INSTANCE_NAME}"
+      runtime_config_mount="$(echo "${runtime_config_mount}" | tr -d '[:space:]')"
+      if [[ "${runtime_config_mount}" != "/opt/DAISy/monitoring-runtime/alertmanager/alertmanager.yml" ]]; then
+        fail "monitoring-alertmanager-1 is not mounted from the rendered runtime config on ${GCE_INSTANCE_NAME}: ${runtime_config_mount:-<empty>}"
+      fi
+
+      unresolved_runtime_placeholders="$(
+        gce_ssh_lastline "sudo -n sh -c 'if grep -Eq '\''[$](ALERT_SMTP_HOST|ALERT_SMTP_PORT|ALERT_SMTP_FROM|ALERT_SMTP_USERNAME|ALERT_SMTP_PASSWORD|DISCORD_ALERTS_WEBHOOK_URL|ALERT_EMAIL_TO)([^[:alnum:]_]|$)'\'' /opt/DAISy/monitoring-runtime/alertmanager/alertmanager.yml; then echo unresolved; else echo clean; fi'"
+      )" || fail "Failed to inspect rendered Alertmanager runtime config placeholders on ${GCE_INSTANCE_NAME}"
+      unresolved_runtime_placeholders="$(echo "${unresolved_runtime_placeholders}" | tr -d '[:space:]')"
+      if [[ "${unresolved_runtime_placeholders}" != "clean" ]]; then
+        fail "Rendered Alertmanager runtime config still contains unresolved placeholders on ${GCE_INSTANCE_NAME}"
+      fi
+
+      log "Monitoring Alertmanager runtime config delivery passed."
     else
-      log "Monitoring env file is absent; skipping Alertmanager env delivery check."
+      log "Monitoring env file is absent; skipping Alertmanager runtime config delivery check."
     fi
   else
     log "VERIFY_ENV=${VERIFY_ENV:-<unset>}; skipping staging-specific verification."
