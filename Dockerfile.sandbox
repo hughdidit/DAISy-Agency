@@ -16,8 +16,10 @@ ARG OPENCLAW_SUMMARIZE_VERSION="0.13.0"
 RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \
  && /usr/local/bin/node /usr/local/lib/node_modules/@steipete/summarize/dist/cli.js --version \
  && npm cache clean --force
-COPY scripts/docker/summarize-wrapper.sh /usr/local/bin/summarize
-RUN chmod 0755 /usr/local/bin/summarize \
+COPY scripts/docker/summarize-wrapper.sh /tmp/summarize-wrapper.sh
+RUN rm -f /usr/local/bin/summarize \
+  && install -m 0755 /tmp/summarize-wrapper.sh /usr/local/bin/summarize \
+  && rm -f /tmp/summarize-wrapper.sh \
   && /usr/local/bin/summarize --version
 
 RUN useradd --create-home --shell /bin/bash sandbox
