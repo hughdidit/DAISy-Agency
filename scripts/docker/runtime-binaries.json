@@ -119,7 +119,7 @@
         "asset": "xurl_1.0.3_checksums.txt"
       }
     },
-    "smoke": "xurl --version"
+    "smoke": "xurl version >/dev/null"
   },
   {
     "name": "mcporter",
