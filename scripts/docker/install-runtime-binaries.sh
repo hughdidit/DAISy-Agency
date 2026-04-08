@@ -58,6 +58,7 @@ expected_checksum_from_file() {
         {
           candidate = $2
           sub(/^\*/, "", candidate)
+          sub(/^.*\//, "", candidate)
           if (candidate == asset) {
             print $1
             exit
