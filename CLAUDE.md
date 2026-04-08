@@ -1,1 +1,1 @@
-see [AGENTS.md](/AGENTS.md)
+read [AGENTS.md](/AGENTS.md)
