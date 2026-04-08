@@ -245,7 +245,7 @@ On a real deploy (dry_run=false), the deploy routine:
 7. Applies:
    - `docker-compose up -d --remove-orphans`
 8. Waits for `openclaw-gateway` to become healthy, then silently refreshes recent routed chat sessions by issuing `sessions.reset` through the live Gateway for the most recent `direct`/`group` session keys from `openclaw sessions --all-agents --active <minutes> --json`
-   - Defaults: last `1440` minutes, cap `10` sessions, `90s` health wait
+   - Defaults: last `1440` minutes, cap `10` sessions, `180s` health wait
    - Tunables: `POST_DEPLOY_SESSION_REFRESH_ACTIVE_MINUTES`, `POST_DEPLOY_SESSION_REFRESH_MAX_SESSIONS`, `POST_DEPLOY_SESSION_REFRESH_HEALTH_TIMEOUT_SECONDS`
    - Silent means no outbound chat message is sent; it refreshes persisted session state without spamming channels
 9. Outputs deployment status
