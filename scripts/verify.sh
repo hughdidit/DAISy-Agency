@@ -273,8 +273,8 @@ NODE
       runtime_config_status="$(
         gce_ssh_lastline "sudo -n sh -c 'if [ -f /opt/DAISy/monitoring-runtime/alertmanager/alertmanager.yml ]; then stat -c \"%U:%G %a\" /opt/DAISy/monitoring-runtime/alertmanager/alertmanager.yml; else echo missing; fi'"
       )" || fail "Failed to inspect rendered Alertmanager runtime config on ${GCE_INSTANCE_NAME}"
-      runtime_config_status="$(echo "${runtime_config_status}" | tr -d '[:space:]')"
-      if [[ "${runtime_config_status}" != "root:root600" ]]; then
+      runtime_config_status="$(printf '%s' "${runtime_config_status}" | sed 's/[[:space:]]*$//')"
+      if [[ "${runtime_config_status}" != "root:root 600" ]]; then
         fail "Rendered Alertmanager runtime config has unexpected ownership or mode on ${GCE_INSTANCE_NAME}: ${runtime_config_status:-<missing>} (expected root:root 600)"
       fi
 
@@ -287,7 +287,7 @@ NODE
       fi
 
       unresolved_runtime_placeholders="$(
-        gce_ssh_lastline "sudo -n sh -c 'if grep -Eq '\''[$](ALERT_SMTP_HOST|ALERT_SMTP_PORT|ALERT_SMTP_FROM|ALERT_SMTP_USERNAME|ALERT_SMTP_PASSWORD|DISCORD_ALERTS_WEBHOOK_URL|ALERT_EMAIL_TO)\\b'\'' /opt/DAISy/monitoring-runtime/alertmanager/alertmanager.yml; then echo unresolved; else echo clean; fi'"
+        gce_ssh_lastline "sudo -n sh -c 'if grep -Eq '\''[$](ALERT_SMTP_HOST|ALERT_SMTP_PORT|ALERT_SMTP_FROM|ALERT_SMTP_USERNAME|ALERT_SMTP_PASSWORD|DISCORD_ALERTS_WEBHOOK_URL|ALERT_EMAIL_TO)([^[:alnum:]_]|$)'\'' /opt/DAISy/monitoring-runtime/alertmanager/alertmanager.yml; then echo unresolved; else echo clean; fi'"
       )" || fail "Failed to inspect rendered Alertmanager runtime config placeholders on ${GCE_INSTANCE_NAME}"
       unresolved_runtime_placeholders="$(echo "${unresolved_runtime_placeholders}" | tr -d '[:space:]')"
       if [[ "${unresolved_runtime_placeholders}" != "clean" ]]; then
