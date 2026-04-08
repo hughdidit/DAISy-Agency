@@ -25,7 +25,7 @@ RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @googlewo
 ARG OPENCLAW_SUMMARIZE_VERSION="0.13.0"
 # Bake required skill CLIs into the image so staging/prod deploys stay deterministic.
 RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \
- && summarize --version \
+ && /usr/local/bin/node /usr/local/lib/node_modules/@steipete/summarize/dist/cli.js --version \
  && npm cache clean --force
 
 WORKDIR /app
@@ -124,6 +124,7 @@ RUN pnpm ui:build
 # Expose the CLI entrypoint from an AppArmor-approved binary path.
 USER root
 RUN install -m 0755 /app/scripts/docker/openclaw-wrapper.mjs /usr/local/bin/openclaw \
+ && install -m 0755 /app/scripts/docker/summarize-wrapper.sh /usr/local/bin/summarize \
  && chmod 755 /app/openclaw.mjs
 
 ENV NODE_ENV=production

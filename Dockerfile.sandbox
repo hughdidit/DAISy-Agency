@@ -14,8 +14,9 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 ARG OPENCLAW_SUMMARIZE_VERSION="0.13.0"
 RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \
- && summarize --version \
+ && /usr/local/bin/node /usr/local/lib/node_modules/@steipete/summarize/dist/cli.js --version \
  && npm cache clean --force
+COPY --chmod=0755 scripts/docker/summarize-wrapper.sh /usr/local/bin/summarize
 
 RUN useradd --create-home --shell /bin/bash sandbox
 USER sandbox

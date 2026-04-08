@@ -534,6 +534,28 @@ async function dockerImageExists(image: string) {
   throw new Error(`Failed to inspect sandbox image: ${stderr}`);
 }
 
+async function readDockerImageId(image: string): Promise<string | null> {
+  const result = await execDocker(["image", "inspect", "-f", "{{.Id}}", image], {
+    allowFailure: true,
+  });
+  if (result.code !== 0) {
+    return null;
+  }
+  const imageId = result.stdout.trim();
+  return imageId || null;
+}
+
+async function readDockerContainerImageId(containerName: string): Promise<string | null> {
+  const result = await execDocker(["inspect", "-f", "{{.Image}}", containerName], {
+    allowFailure: true,
+  });
+  if (result.code !== 0) {
+    return null;
+  }
+  const imageId = result.stdout.trim();
+  return imageId || null;
+}
+
 export async function ensureDockerImage(image: string) {
   const exists = await dockerImageExists(image);
   if (exists) {
@@ -840,6 +862,7 @@ export async function ensureSandboxContainer(params: {
   let running = state.running;
   let currentHash: string | null = null;
   let hashMismatch = false;
+  let imageMismatch = false;
   let registryEntry:
     | {
         lastUsedAtMs: number;
@@ -871,15 +894,24 @@ export async function ensureSandboxContainer(params: {
         currentHash = registryEntry?.configHash ?? null;
       }
       hashMismatch = !currentHash || currentHash !== expectedHash;
-      if (hashMismatch) {
+      const expectedImageId = await readDockerImageId(params.cfg.docker.image);
+      const currentImageId = await readDockerContainerImageId(containerName);
+      imageMismatch =
+        Boolean(expectedImageId) &&
+        Boolean(currentImageId) &&
+        expectedImageId !== currentImageId;
+      if (hashMismatch || imageMismatch) {
         const lastUsedAtMs = registryEntry?.lastUsedAtMs;
         const isHot =
           running &&
           (typeof lastUsedAtMs !== "number" || now - lastUsedAtMs < HOT_CONTAINER_WINDOW_MS);
         if (isHot) {
           const hint = formatSandboxRecreateHint({ scope: params.cfg.scope, sessionKey: scopeKey });
+          const reason = hashMismatch
+            ? "Sandbox config changed"
+            : `Sandbox image updated for ${params.cfg.docker.image}`;
           defaultRuntime.log(
-            `Sandbox config changed for ${containerName} (recently used). Recreate to apply: ${hint}`,
+            `${reason} for ${containerName} (recently used). Recreate to apply: ${hint}`,
           );
         } else {
           await execDocker(["rm", "-f", containerName], { allowFailure: true });
