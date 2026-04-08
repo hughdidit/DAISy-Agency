@@ -539,6 +539,11 @@ async function readDockerImageId(image: string): Promise<string | null> {
     allowFailure: true,
   });
   if (result.code !== 0) {
+    const stderr = result.stderr.trim();
+    const stdout = result.stdout.trim();
+    log.warn(
+      `Failed to inspect sandbox image ${image} for image-drift detection (stdout=${stdout || "<empty>"}, stderr=${stderr || "<empty>"}).`,
+    );
     return null;
   }
   const imageId = result.stdout.trim();
@@ -550,6 +555,11 @@ async function readDockerContainerImageId(containerName: string): Promise<string
     allowFailure: true,
   });
   if (result.code !== 0) {
+    const stderr = result.stderr.trim();
+    const stdout = result.stdout.trim();
+    log.warn(
+      `Failed to inspect sandbox container ${containerName} image for image-drift detection (stdout=${stdout || "<empty>"}, stderr=${stderr || "<empty>"}).`,
+    );
     return null;
   }
   const imageId = result.stdout.trim();

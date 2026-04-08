@@ -125,7 +125,8 @@ RUN pnpm ui:build
 USER root
 RUN install -m 0755 /app/scripts/docker/openclaw-wrapper.mjs /usr/local/bin/openclaw \
  && install -m 0755 /app/scripts/docker/summarize-wrapper.sh /usr/local/bin/summarize \
- && chmod 755 /app/openclaw.mjs
+ && chmod 755 /app/openclaw.mjs \
+ && summarize --version
 
 ENV NODE_ENV=production
 
