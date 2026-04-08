@@ -134,29 +134,6 @@
     "smoke": "mcporter --version"
   },
   {
-    "name": "codexbar",
-    "binary": "codexbar",
-    "version": "0.20",
-    "architectures": ["amd64", "arm64"],
-    "install": {
-      "method": "github-release",
-      "repo": "steipete/CodexBar",
-      "tag": "v0.20",
-      "asset_by_arch": {
-        "amd64": "CodexBarCLI-v0.20-linux-x86_64.tar.gz",
-        "arm64": "CodexBarCLI-v0.20-linux-aarch64.tar.gz"
-      },
-      "checksum": {
-        "type": "sidecar",
-        "asset_by_arch": {
-          "amd64": "CodexBarCLI-v0.20-linux-x86_64.tar.gz.sha256",
-          "arm64": "CodexBarCLI-v0.20-linux-aarch64.tar.gz.sha256"
-        }
-      }
-    },
-    "smoke": "codexbar --help >/dev/null"
-  },
-  {
     "name": "goplaces",
     "binary": "goplaces",
     "version": "0.3.0",
