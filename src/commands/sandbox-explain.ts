@@ -241,6 +241,13 @@ export async function sandboxExplainCommand(
       workspaceAccess: sandboxCfg.workspaceAccess,
       workspaceRoot: sandboxCfg.workspaceRoot,
       sessionIsSandboxed,
+      docker: {
+        image: sandboxCfg.docker.image,
+      },
+      browser: {
+        enabled: sandboxCfg.browser.enabled,
+        image: sandboxCfg.browser.image,
+      },
       tools: {
         allow: toolPolicy.allow,
         deny: toolPolicy.deny,

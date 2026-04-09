@@ -520,38 +520,17 @@ NODE
   # locally and include the required runtime binaries.
   checks_run=$((checks_run + 1))
   log "Checking sandbox runtime config and image requirements from deployed config..."
-  sandbox_probe_js="$(cat <<'NODE'
-import { loadConfig } from "/app/dist/config/config.js";
-import { resolveSandboxConfigForAgent } from "/app/dist/agents/sandbox/config.js";
-
-const sandboxConfig = resolveSandboxConfigForAgent(loadConfig());
-const sandboxEnabled = sandboxConfig.mode !== "off";
-const sandboxImage = sandboxConfig.docker.image;
-const browserEnabled = sandboxConfig.browser.enabled === true;
-const sandboxBrowserImage = sandboxConfig.browser.image;
-
-process.stdout.write(
-  JSON.stringify({
-    sandboxEnabled,
-    sandboxImage,
-    browserEnabled,
-    sandboxBrowserImage,
-  }),
-);
-NODE
-)"
-  sandbox_probe_js_escaped="$(shell_single_quote "${sandbox_probe_js}")"
   sandbox_config_json="$(
-    gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e ${sandbox_probe_js_escaped}"
+    gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js sandbox explain --json | jq -c .'"
   )" || fail "Failed to read sandbox config from ${container}"
-  sandbox_enabled="$(jq -r '.sandboxEnabled' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
-    || fail "Failed to parse sandboxEnabled from deployed config"
-  sandbox_image="$(jq -r '.sandboxImage' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
-    || fail "Failed to parse sandboxImage from deployed config"
-  browser_enabled="$(jq -r '.browserEnabled' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
-    || fail "Failed to parse browserEnabled from deployed config"
-  sandbox_browser_image="$(jq -r '.sandboxBrowserImage' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
-    || fail "Failed to parse sandboxBrowserImage from deployed config"
+  sandbox_enabled="$(jq -r '.sandbox.mode != "off"' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
+    || fail "Failed to parse sandbox mode from deployed config"
+  sandbox_image="$(jq -r '.sandbox.docker.image' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
+    || fail "Failed to parse sandbox image from deployed config"
+  browser_enabled="$(jq -r '.sandbox.browser.enabled' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
+    || fail "Failed to parse sandbox browser enabled flag from deployed config"
+  sandbox_browser_image="$(jq -r '.sandbox.browser.image' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
+    || fail "Failed to parse sandbox browser image from deployed config"
   if [[ "${sandbox_enabled}" == "true" ]]; then
     sandbox_image_escaped="$(printf '%q' "${sandbox_image}")"
     gce_ssh "sudo docker image inspect ${sandbox_image_escaped} >/dev/null" \
