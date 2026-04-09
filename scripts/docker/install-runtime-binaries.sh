@@ -176,7 +176,7 @@ install_from_github_release() {
 
 install_from_npm() {
   local entry_json="${1:?entry json required}"
-  local package_name package_version wrapper_type entrypoint binary package_root wrapper_path node_binary
+  local package_name package_version wrapper_type entrypoint binary package_root wrapper_path node_binary node_q package_entry_q
 
   package_name="$(json_field "${entry_json}" '.install.package')"
   package_version="$(json_field "${entry_json}" '.install.version')"
@@ -196,6 +196,8 @@ install_from_npm() {
       return 1
     fi
     package_root="${NPM_INSTALL_ROOT}/lib/node_modules/${package_name}"
+    node_q="$(jq -n --arg x "${node_binary}" '$x')"
+    package_entry_q="$(jq -n --arg p "${package_root}" --arg e "${entrypoint}" '$p + "/" + $e')"
     wrapper_path="${WRAPPER_PREFIX}/${binary}"
     install -d "${WRAPPER_PREFIX}"
     rm -f "${wrapper_path}"
@@ -204,8 +206,8 @@ install_from_npm() {
 const { spawnSync } = require("node:child_process");
 
 const result = spawnSync(
-  ${node_binary@Q},
-  [${package_root@Q} + "/" + ${entrypoint@Q}, ...process.argv.slice(2)],
+  ${node_q},
+  [${package_entry_q}, ...process.argv.slice(2)],
   { stdio: "inherit" },
 );
 
@@ -251,20 +253,35 @@ install_entry() {
 
 validate_entry() {
   local entry_json="${1:?entry json required}"
-  local binary smoke_command binary_path smoke_stderr smoke_stderr_path
+  local binary smoke_command binary_path smoke_stderr smoke_stderr_path wrapper_type resolved_smoke_command
 
   binary="$(json_field "${entry_json}" '.binary')"
   smoke_command="$(json_field "${entry_json}" '.smoke')"
-  binary_path="$(command -v "${binary}" || true)"
+  wrapper_type="$(json_field "${entry_json}" '.install.wrapper.type // empty')"
+  if [[ "${wrapper_type}" == "node-entrypoint" ]]; then
+    binary_path="${WRAPPER_PREFIX}/${binary}"
+    if [[ ! -x "${binary_path}" ]]; then
+      printf 'Binary missing after install: %s (expected wrapper at %s)\n' "${binary}" "${binary_path}" >&2
+      return 1
+    fi
+  else
+    binary_path="$(command -v "${binary}" || true)"
+  fi
   if [[ -z "${binary_path}" ]]; then
     printf 'Binary missing after install: %s\n' "${binary}" >&2
     return 1
   fi
+  resolved_smoke_command="${smoke_command}"
+  case "${resolved_smoke_command}" in
+    "${binary}"|"${binary} "*)
+      resolved_smoke_command="${binary_path}${resolved_smoke_command#${binary}}"
+      ;;
+  esac
 
   smoke_stderr_path="$(mktemp "${INSTALL_TMP}/smoke-${binary}.XXXXXX.log")"
-  if ! bash -lc "${smoke_command}" >/dev/null 2>"${smoke_stderr_path}"; then
+  if ! bash -c "${resolved_smoke_command}" >/dev/null 2>"${smoke_stderr_path}"; then
     smoke_stderr="$(cat "${smoke_stderr_path}")"
-    printf 'Smoke check failed for %s using command: %s\n' "${binary}" "${smoke_command}" >&2
+    printf 'Smoke check failed for %s using command: %s\n' "${binary}" "${resolved_smoke_command}" >&2
     if [[ -n "${smoke_stderr}" ]]; then
       printf 'Smoke stderr for %s: %s\n' "${binary}" "${smoke_stderr}" >&2
     fi

@@ -87,10 +87,6 @@ case "${raw_arch}" in
 esac
 
 runtime_wrapper_bin="${OPENCLAW_RUNTIME_WRAPPER_BIN:-/opt/daisy/bin}"
-if [ -d "${runtime_wrapper_bin}" ]; then
-  PATH="${runtime_wrapper_bin}:${PATH}"
-  export PATH
-fi
 
 printf 'arch=%s\n' "${arch}"
 entries_file="$(mktemp)"
@@ -111,13 +107,28 @@ fi
 while IFS= read -r entry_json; do
   binary="$(printf '%s\n' "${entry_json}" | jq -r '.binary')"
   smoke_command="$(printf '%s\n' "${entry_json}" | jq -r '.smoke')"
-  binary_path="$(command -v "${binary}" || true)"
+  wrapper_type="$(printf '%s\n' "${entry_json}" | jq -r '.install.wrapper.type // empty')"
+  if [ "${wrapper_type}" = "node-entrypoint" ]; then
+    binary_path="${runtime_wrapper_bin}/${binary}"
+    if [ ! -x "${binary_path}" ]; then
+      echo "missing_wrapper:${binary_path}" >&2
+      exit 1
+    fi
+  else
+    binary_path="$(command -v "${binary}" || true)"
+  fi
   if [ -z "${binary_path}" ]; then
     echo "missing_binary:${binary}" >&2
     exit 1
   fi
-  if ! eval "${smoke_command}" >/dev/null 2>&1; then
-    echo "failed_smoke:${binary}:${smoke_command}" >&2
+  resolved_smoke_command="${smoke_command}"
+  case "${resolved_smoke_command}" in
+    "${binary}"|"${binary} "*)
+      resolved_smoke_command="${binary_path}${resolved_smoke_command#${binary}}"
+      ;;
+  esac
+  if ! sh -c "${resolved_smoke_command}" >/dev/null 2>&1; then
+    echo "failed_smoke:${binary}:${resolved_smoke_command}" >&2
     exit 1
   fi
   printf '%s\t%s\n' "${binary}" "${binary_path}"
