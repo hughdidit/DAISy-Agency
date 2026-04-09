@@ -176,7 +176,7 @@ install_from_github_release() {
 
 install_from_npm() {
   local entry_json="${1:?entry json required}"
-  local package_name package_version wrapper_type entrypoint binary package_root wrapper_path
+  local package_name package_version wrapper_type entrypoint binary package_root wrapper_path node_binary
 
   package_name="$(json_field "${entry_json}" '.install.package')"
   package_version="$(json_field "${entry_json}" '.install.version')"
@@ -190,13 +190,31 @@ install_from_npm() {
       printf 'Wrapper metadata missing for npm package %s\n' "${package_name:-<unknown>}" >&2
       return 1
     fi
+    node_binary="$(command -v node)"
+    if [[ -z "${node_binary}" ]]; then
+      printf 'Unable to locate node while generating wrapper for %s\n' "${binary}" >&2
+      return 1
+    fi
     package_root="${NPM_INSTALL_ROOT}/lib/node_modules/${package_name}"
     wrapper_path="${WRAPPER_PREFIX}/${binary}"
     install -d "${WRAPPER_PREFIX}"
     rm -f "${wrapper_path}"
     cat >"${wrapper_path}" <<EOF
-#!/usr/bin/env sh
-exec node "${package_root}/${entrypoint}" "\$@"
+#!${node_binary}
+const { spawnSync } = require("node:child_process");
+
+const result = spawnSync(
+  ${node_binary@Q},
+  [${package_root@Q} + "/" + ${entrypoint@Q}, ...process.argv.slice(2)],
+  { stdio: "inherit" },
+);
+
+if (result.error) {
+  console.error(result.error);
+  process.exit(1);
+}
+
+process.exit(result.status ?? 1);
 EOF
     chmod 755 "${wrapper_path}"
   fi

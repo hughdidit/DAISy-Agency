@@ -86,6 +86,12 @@ case "${raw_arch}" in
     ;;
 esac
 
+runtime_wrapper_bin="${OPENCLAW_RUNTIME_WRAPPER_BIN:-/opt/daisy/bin}"
+if [ -d "${runtime_wrapper_bin}" ]; then
+  PATH="${runtime_wrapper_bin}:${PATH}"
+  export PATH
+fi
+
 printf 'arch=%s\n' "${arch}"
 entries_file="$(mktemp)"
 cleanup() {
@@ -110,7 +116,7 @@ while IFS= read -r entry_json; do
     echo "missing_binary:${binary}" >&2
     exit 1
   fi
-  if ! sh -lc "${smoke_command}" >/dev/null 2>&1; then
+  if ! eval "${smoke_command}" >/dev/null 2>&1; then
     echo "failed_smoke:${binary}:${smoke_command}" >&2
     exit 1
   fi
@@ -176,7 +182,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   checks_run=$((checks_run + 1))
   log "Checking bundled runtime binaries in ${container}..."
   if ! runtime_bins="$(
-    gce_ssh "sudo docker exec ${container_escaped} sh -lc ${runtime_binary_probe_escaped}"
+    gce_ssh "sudo docker exec ${container_escaped} sh -c ${runtime_binary_probe_escaped}"
   )"; then
     fail "Failed to check required runtime binaries in ${container} (SSH or docker exec error)"
   fi
