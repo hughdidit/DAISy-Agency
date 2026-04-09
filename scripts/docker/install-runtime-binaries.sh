@@ -175,11 +175,27 @@ install_from_github_release() {
 
 install_from_npm() {
   local entry_json="${1:?entry json required}"
-  local package_name package_version
+  local package_name package_version wrapper_type entrypoint binary package_root wrapper_path
 
   package_name="$(json_field "${entry_json}" '.install.package')"
   package_version="$(json_field "${entry_json}" '.install.version')"
   npm install -g --prefix="${NPM_INSTALL_ROOT}" --omit=dev --no-audit --no-fund "${package_name}@${package_version}"
+
+  wrapper_type="$(json_field "${entry_json}" '.install.wrapper.type')"
+  if [[ "${wrapper_type}" == "node-entrypoint" ]]; then
+    entrypoint="$(json_field "${entry_json}" '.install.wrapper.entrypoint')"
+    binary="$(json_field "${entry_json}" '.binary')"
+    package_root="${NPM_INSTALL_ROOT}/lib/node_modules/${package_name}"
+    wrapper_path="${INSTALL_PREFIX}/${binary}"
+    install -d "${INSTALL_PREFIX}"
+    rm -f "${wrapper_path}"
+    cat >"${wrapper_path}" <<EOF
+#!/usr/bin/env sh
+exec node "${package_root}/${entrypoint}" "\$@"
+EOF
+    chmod 755 "${wrapper_path}"
+  fi
+
   NPM_INSTALL_OCCURRED=1
 }
 
