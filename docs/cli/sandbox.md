@@ -17,7 +17,7 @@ OpenClaw can run agents in isolated Docker containers for security. The `sandbox
 
 ### `openclaw sandbox explain`
 
-Inspect the **effective** sandbox mode/scope/workspace access, sandbox tool policy, and elevated gates (with fix-it config key paths).
+Inspect the **effective** sandbox mode/scope/workspace access, resolved sandbox and browser images, sandbox tool policy, and elevated gates (with fix-it config key paths).
 
 ```bash
 openclaw sandbox explain
