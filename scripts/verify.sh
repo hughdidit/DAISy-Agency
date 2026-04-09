@@ -53,6 +53,10 @@ docker_container_health() {
   gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${escaped_name}\$' | head -1) && sudo docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{end}}' \"\$cid\" 2>/dev/null"
 }
 
+shell_single_quote() {
+  printf "'%s'" "$(printf '%s' "${1}" | sed "s/'/'\\\\''/g")"
+}
+
 normalize_runtime_arch() {
   case "${1}" in
     amd64|x86_64)
