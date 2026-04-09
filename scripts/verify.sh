@@ -521,7 +521,7 @@ NODE
   checks_run=$((checks_run + 1))
   log "Checking sandbox runtime config and image requirements from deployed config..."
   sandbox_config_json="$(
-    gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js sandbox explain --json'"
+    gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js sandbox explain --json | jq -c .'"
   )" || fail "Failed to read sandbox config from ${container}"
   sandbox_enabled="$(jq -r '.sandbox.mode != "off"' <<<"${sandbox_config_json}" | tr -d '[:space:]')" \
     || fail "Failed to parse sandbox mode from deployed config"
