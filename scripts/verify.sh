@@ -276,7 +276,7 @@ verify_runtime_binaries_for_target() {
 
     nonwrapper_probe="$(cat <<SH
 set -eu
-binary_path="\$(command -v ${binary} || true)"
+binary_path="\$(command -v \"${binary}\" || true)"
 if [ -z "\${binary_path}" ]; then
   echo "missing_binary:${binary}" >&2
   exit 1
