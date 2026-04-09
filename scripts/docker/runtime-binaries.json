@@ -123,7 +123,7 @@
         "asset": "xurl_1.0.3_checksums.txt"
       }
     },
-    "smoke": "xurl version >/dev/null"
+    "smoke": "xurl version"
   },
   {
     "name": "mcporter",
@@ -155,7 +155,7 @@
         "asset": "goplaces_checksums.txt"
       }
     },
-    "smoke": "goplaces --help >/dev/null"
+    "smoke": "goplaces --help"
   },
   {
     "name": "sag",
@@ -174,7 +174,7 @@
         "asset": "sag_0.2.2_checksums.txt"
       }
     },
-    "smoke": "sag --help >/dev/null"
+    "smoke": "sag --help"
   },
   {
     "name": "blogwatcher",
@@ -193,6 +193,6 @@
         "asset": "blogwatcher_checksums.txt"
       }
     },
-    "smoke": "blogwatcher --help >/dev/null"
+    "smoke": "blogwatcher --help"
   }
 ]
