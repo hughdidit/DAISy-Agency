@@ -249,7 +249,7 @@ verify_runtime_binaries_for_target() {
   runtime_arch="$(normalize_runtime_arch "$(echo "${runtime_arch_raw}" | tr -d '[:space:]')")" \
     || fail "Unsupported deployed architecture reported by ${target_label}: ${runtime_arch_raw}"
 
-  entries_json="$(jq -ec --arg arch "${runtime_arch}" '.[] | select(.architectures | index($arch))' "${runtime_binary_manifest_in_repo}")" \
+  entries_json="$(jq -c --arg arch "${runtime_arch}" '.[] | select(.architectures | index($arch))' "${runtime_binary_manifest_in_repo}")" \
     || fail "Failed to load runtime binary manifest entries for ${runtime_arch} from ${runtime_binary_manifest_in_repo}"
   [[ -n "${entries_json}" ]] \
     || fail "No runtime binary manifest entries defined for ${runtime_arch} in ${runtime_binary_manifest_in_repo}"
