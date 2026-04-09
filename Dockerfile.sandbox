@@ -1,6 +1,8 @@
 FROM node:22-bookworm-slim@sha256:db9a3a15e8e8e2adbaf1e1c3d93dfb04c2e294bdd027490addb2391b8e61cc6a
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV OPENCLAW_RUNTIME_WRAPPER_BIN=/opt/daisy/bin
+ENV PATH="${OPENCLAW_RUNTIME_WRAPPER_BIN}:${PATH}"
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
@@ -19,7 +21,7 @@ ARG TARGETARCH=""
 RUN chmod 755 /tmp/install-runtime-binaries.sh \
   && mkdir -p /usr/local/share/openclaw \
   && install -m 644 /tmp/runtime-binaries.json /usr/local/share/openclaw/runtime-binaries.json \
-  && TARGETARCH="${TARGETARCH}" /tmp/install-runtime-binaries.sh \
+  && TARGETARCH="${TARGETARCH}" WRAPPER_PREFIX="${OPENCLAW_RUNTIME_WRAPPER_BIN}" /tmp/install-runtime-binaries.sh \
   && rm -f /tmp/install-runtime-binaries.sh /tmp/runtime-binaries.json
 ARG OPENCLAW_SUMMARIZE_VERSION="0.13.0"
 RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \

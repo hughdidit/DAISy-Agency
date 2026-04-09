@@ -77,7 +77,11 @@
     "install": {
       "method": "npm",
       "package": "@google/gemini-cli",
-      "version": "0.37.0"
+      "version": "0.37.0",
+      "wrapper": {
+        "type": "node-entrypoint",
+        "entrypoint": "bundle/gemini.js"
+      }
     },
     "smoke": "gemini --version"
   },

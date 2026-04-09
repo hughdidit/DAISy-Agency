@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MANIFEST_PATH="${SCRIPT_DIR}/runtime-binaries.json"
 INSTALL_PREFIX="${INSTALL_PREFIX:-/usr/local/bin}"
+WRAPPER_PREFIX="${WRAPPER_PREFIX:-${INSTALL_PREFIX}}"
 TARGET_ARCH_RAW="${TARGETARCH:-$(dpkg --print-architecture)}"
 NPM_INSTALL_ROOT="${NPM_INSTALL_ROOT:-/usr/local}"
 
@@ -175,11 +176,31 @@ install_from_github_release() {
 
 install_from_npm() {
   local entry_json="${1:?entry json required}"
-  local package_name package_version
+  local package_name package_version wrapper_type entrypoint binary package_root wrapper_path
 
   package_name="$(json_field "${entry_json}" '.install.package')"
   package_version="$(json_field "${entry_json}" '.install.version')"
   npm install -g --prefix="${NPM_INSTALL_ROOT}" --omit=dev --no-audit --no-fund "${package_name}@${package_version}"
+
+  wrapper_type="$(json_field "${entry_json}" '.install.wrapper.type')"
+  if [[ "${wrapper_type}" == "node-entrypoint" ]]; then
+    entrypoint="$(json_field "${entry_json}" '.install.wrapper.entrypoint')"
+    binary="$(json_field "${entry_json}" '.binary')"
+    if [[ -z "${entrypoint}" || "${entrypoint}" == "null" || -z "${binary}" || "${binary}" == "null" ]]; then
+      printf 'Wrapper metadata missing for npm package %s\n' "${package_name:-<unknown>}" >&2
+      return 1
+    fi
+    package_root="${NPM_INSTALL_ROOT}/lib/node_modules/${package_name}"
+    wrapper_path="${WRAPPER_PREFIX}/${binary}"
+    install -d "${WRAPPER_PREFIX}"
+    rm -f "${wrapper_path}"
+    cat >"${wrapper_path}" <<EOF
+#!/usr/bin/env sh
+exec node "${package_root}/${entrypoint}" "\$@"
+EOF
+    chmod 755 "${wrapper_path}"
+  fi
+
   NPM_INSTALL_OCCURRED=1
 }
 
