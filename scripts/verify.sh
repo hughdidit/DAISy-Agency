@@ -57,83 +57,247 @@ shell_single_quote() {
   printf "'%s'" "$(printf '%s' "${1}" | sed "s/'/'\\\\''/g")"
 }
 
-runtime_binary_probe_script() {
-  cat <<'SH'
-set -eu
-
-manifest_path="__MANIFEST_PATH__"
-if [ ! -f "${manifest_path}" ]; then
-  echo "missing_manifest:${manifest_path}" >&2
-  exit 1
-fi
-
-if ! command -v jq >/dev/null 2>&1; then
-  echo "missing_binary:jq" >&2
-  exit 1
-fi
-
-raw_arch="$(dpkg --print-architecture)"
-case "${raw_arch}" in
-  amd64|x86_64)
-    arch="amd64"
-    ;;
-  arm64|aarch64)
-    arch="arm64"
-    ;;
-  *)
-    echo "unsupported_arch:${raw_arch}" >&2
-    exit 1
-    ;;
-esac
-
-runtime_wrapper_bin="${OPENCLAW_RUNTIME_WRAPPER_BIN:-/opt/daisy/bin}"
-
-printf 'arch=%s\n' "${arch}"
-entries_file="$(mktemp)"
-cleanup() {
-  rm -f "${entries_file}"
-}
-trap cleanup EXIT HUP INT TERM
-
-if ! jq -ec --arg arch "${arch}" '.[] | select(.architectures | index($arch))' "${manifest_path}" > "${entries_file}"; then
-  echo "failed_manifest_query:${manifest_path}" >&2
-  exit 1
-fi
-if [ ! -s "${entries_file}" ]; then
-  echo "no_manifest_entries:${arch}" >&2
-  exit 1
-fi
-
-while IFS= read -r entry_json; do
-  binary="$(printf '%s\n' "${entry_json}" | jq -r '.binary')"
-  smoke_command="$(printf '%s\n' "${entry_json}" | jq -r '.smoke')"
-  wrapper_type="$(printf '%s\n' "${entry_json}" | jq -r '.install.wrapper.type // empty')"
-  if [ "${wrapper_type}" = "node-entrypoint" ]; then
-    binary_path="${runtime_wrapper_bin}/${binary}"
-    if [ ! -x "${binary_path}" ]; then
-      echo "missing_wrapper:${binary_path}" >&2
-      exit 1
-    fi
-  else
-    binary_path="$(command -v "${binary}" || true)"
-  fi
-  if [ -z "${binary_path}" ]; then
-    echo "missing_binary:${binary}" >&2
-    exit 1
-  fi
-  resolved_smoke_command="${smoke_command}"
-  case "${resolved_smoke_command}" in
-    "${binary}"|"${binary} "*)
-      resolved_smoke_command="${binary_path}${resolved_smoke_command#${binary}}"
+normalize_runtime_arch() {
+  case "${1}" in
+    amd64|x86_64)
+      printf 'amd64\n'
+      ;;
+    arm64|aarch64)
+      printf 'arm64\n'
+      ;;
+    *)
+      return 1
       ;;
   esac
-  if ! sh -c "${resolved_smoke_command}" >/dev/null 2>&1; then
-    echo "failed_smoke:${binary}:${resolved_smoke_command}" >&2
-    exit 1
+}
+
+append_runtime_bin_line() {
+  local binary="${1:?binary required}"
+  local binary_path="${2:?binary path required}"
+  if [[ -n "${runtime_bins:-}" ]]; then
+    runtime_bins+=$'\n'
   fi
-  printf '%s\t%s\n' "${binary}" "${binary_path}"
-done < "${entries_file}"
+  runtime_bins+="${binary}"$'\t'"${binary_path}"
+}
+
+build_direct_exec_smoke_command() {
+  local command_prefix="${1:?command prefix required}"
+  local binary_path="${2:?binary path required}"
+  local binary="${3:?binary required}"
+  local smoke_command="${4:?smoke command required}"
+  local smoke_suffix smoke_command_remote arg
+  local -a smoke_args=()
+
+  case "${smoke_command}" in
+    "${binary}"|"${binary} "*)
+      smoke_suffix="${smoke_command#${binary}}"
+      smoke_suffix="${smoke_suffix# }"
+      ;;
+    *)
+      printf 'Unsupported direct smoke command for %s: %s\n' "${binary}" "${smoke_command}" >&2
+      return 1
+      ;;
+  esac
+
+  if [[ "${smoke_suffix}" == *"'"* || "${smoke_suffix}" == *'"'* || "${smoke_suffix}" == *'\\'* || "${smoke_suffix}" == *'|'* || "${smoke_suffix}" == *'>'* || "${smoke_suffix}" == *'<'* || "${smoke_suffix}" == *';'* || "${smoke_suffix}" == *'&'* ]]; then
+    printf 'Unsupported complex direct smoke suffix for %s: %s\n' "${binary}" "${smoke_suffix}" >&2
+    return 1
+  fi
+
+  smoke_command_remote="${command_prefix} $(printf '%q' "${binary_path}")"
+  if [[ -n "${smoke_suffix}" ]]; then
+    read -r -a smoke_args <<< "${smoke_suffix}"
+    for arg in "${smoke_args[@]}"; do
+      smoke_command_remote+=" $(printf '%q' "${arg}")"
+    done
+  fi
+
+  printf '%s\n' "${smoke_command_remote}"
+}
+
+build_target_manifest_check_command() {
+  local mode="${1:?mode required}"
+  local target_escaped="${2:?target required}"
+  local manifest_path="${3:?manifest path required}"
+  local manifest_path_escaped
+  manifest_path_escaped="$(printf '%q' "${manifest_path}")"
+  case "${mode}" in
+    container)
+      printf 'sudo docker exec %s test -f %s\n' "${target_escaped}" "${manifest_path_escaped}"
+      ;;
+    image)
+      printf 'sudo docker run --rm --entrypoint test %s -f %s\n' "${target_escaped}" "${manifest_path_escaped}"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+build_target_arch_command() {
+  local mode="${1:?mode required}"
+  local target_escaped="${2:?target required}"
+  case "${mode}" in
+    container)
+      printf 'sudo docker exec %s dpkg --print-architecture\n' "${target_escaped}"
+      ;;
+    image)
+      printf 'sudo docker run --rm --entrypoint dpkg %s --print-architecture\n' "${target_escaped}"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+build_target_wrapper_test_command() {
+  local mode="${1:?mode required}"
+  local target_escaped="${2:?target required}"
+  local binary_path="${3:?binary path required}"
+  local binary_path_escaped
+  binary_path_escaped="$(printf '%q' "${binary_path}")"
+  case "${mode}" in
+    container)
+      printf 'sudo docker exec %s test -x %s\n' "${target_escaped}" "${binary_path_escaped}"
+      ;;
+    image)
+      printf 'sudo docker run --rm --entrypoint test %s -x %s\n' "${target_escaped}" "${binary_path_escaped}"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+build_target_direct_exec_command() {
+  local mode="${1:?mode required}"
+  local target_escaped="${2:?target required}"
+  local binary_path="${3:?binary path required}"
+  local binary="${4:?binary required}"
+  local smoke_command="${5:?smoke command required}"
+  local command_prefix smoke_suffix arg
+  local -a smoke_args=()
+  case "${mode}" in
+    container)
+      command_prefix="sudo docker exec ${target_escaped}"
+      build_direct_exec_smoke_command "${command_prefix}" "${binary_path}" "${binary}" "${smoke_command}"
+      ;;
+    image)
+      case "${smoke_command}" in
+        "${binary}"|"${binary} "*)
+          smoke_suffix="${smoke_command#${binary}}"
+          smoke_suffix="${smoke_suffix# }"
+          ;;
+        *)
+          printf 'Unsupported direct smoke command for %s: %s\n' "${binary}" "${smoke_command}" >&2
+          return 1
+          ;;
+      esac
+      if [[ "${smoke_suffix}" == *"'"* || "${smoke_suffix}" == *'"'* || "${smoke_suffix}" == *'\\'* || "${smoke_suffix}" == *'|'* || "${smoke_suffix}" == *'>'* || "${smoke_suffix}" == *'<'* || "${smoke_suffix}" == *';'* || "${smoke_suffix}" == *'&'* ]]; then
+        printf 'Unsupported complex direct smoke suffix for %s: %s\n' "${binary}" "${smoke_suffix}" >&2
+        return 1
+      fi
+      command_prefix="sudo docker run --rm --entrypoint $(printf '%q' "${binary_path}") ${target_escaped}"
+      if [[ -n "${smoke_suffix}" ]]; then
+        read -r -a smoke_args <<< "${smoke_suffix}"
+        for arg in "${smoke_args[@]}"; do
+          command_prefix+=" $(printf '%q' "${arg}")"
+        done
+      fi
+      printf '%s\n' "${command_prefix}"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+build_target_shell_command() {
+  local mode="${1:?mode required}"
+  local target_escaped="${2:?target required}"
+  local probe_escaped="${3:?probe required}"
+  case "${mode}" in
+    container)
+      printf 'sudo docker exec %s sh -c %s\n' "${target_escaped}" "${probe_escaped}"
+      ;;
+    image)
+      printf 'sudo docker run --rm --entrypoint sh %s -c %s\n' "${target_escaped}" "${probe_escaped}"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+verify_runtime_binaries_for_target() {
+  local mode="${1:?mode required}"
+  local target_escaped="${2:?target required}"
+  local target_label="${3:?target label required}"
+  local runtime_arch_raw runtime_arch entries_json binary smoke_command wrapper_type binary_path
+  local smoke_command_remote nonwrapper_probe nonwrapper_probe_escaped
+  local manifest_check_command arch_command wrapper_test_command nonwrapper_command
+
+  manifest_check_command="$(build_target_manifest_check_command "${mode}" "${target_escaped}" "${runtime_binary_manifest_in_image}")" \
+    || fail "Failed to build manifest check command for ${target_label}"
+  gce_ssh "${manifest_check_command}" \
+    || fail "Runtime binary manifest missing in ${target_label} at ${runtime_binary_manifest_in_image}"
+
+  arch_command="$(build_target_arch_command "${mode}" "${target_escaped}")" \
+    || fail "Failed to build architecture check command for ${target_label}"
+  runtime_arch_raw="$(gce_ssh_lastline "${arch_command}")" \
+    || fail "Failed to detect deployed architecture in ${target_label}"
+  runtime_arch="$(normalize_runtime_arch "$(echo "${runtime_arch_raw}" | tr -d '[:space:]')")" \
+    || fail "Unsupported deployed architecture reported by ${target_label}: ${runtime_arch_raw}"
+
+  entries_json="$(jq -c --arg arch "${runtime_arch}" '.[] | select(.architectures | index($arch))' "${runtime_binary_manifest_in_repo}")" \
+    || fail "Failed to load runtime binary manifest entries for ${runtime_arch} from ${runtime_binary_manifest_in_repo}"
+  [[ -n "${entries_json}" ]] \
+    || fail "No runtime binary manifest entries defined for ${runtime_arch} in ${runtime_binary_manifest_in_repo}"
+
+  runtime_bins="arch=${runtime_arch}"
+  while IFS= read -r entry_json; do
+    binary="$(printf '%s\n' "${entry_json}" | jq -r '.binary')"
+    smoke_command="$(printf '%s\n' "${entry_json}" | jq -r '.smoke')"
+    wrapper_type="$(printf '%s\n' "${entry_json}" | jq -r '.install.wrapper.type // empty')"
+
+    if [[ "${wrapper_type}" == "node-entrypoint" ]]; then
+      binary_path="${runtime_wrapper_bin}/${binary}"
+      wrapper_test_command="$(build_target_wrapper_test_command "${mode}" "${target_escaped}" "${binary_path}")" \
+        || fail "Failed to build wrapper existence command for ${binary} in ${target_label}"
+      gce_ssh "${wrapper_test_command}" \
+        || fail "Missing wrapper-backed runtime binary ${binary} at ${binary_path} in ${target_label}"
+      smoke_command_remote="$(build_target_direct_exec_command "${mode}" "${target_escaped}" "${binary_path}" "${binary}" "${smoke_command}")" \
+        || fail "Failed to build direct smoke command for ${binary} in ${target_label}"
+      gce_ssh "${smoke_command_remote}" >/dev/null \
+        || fail "Failed smoke check for ${binary} using direct exec path ${binary_path} in ${target_label}"
+      append_runtime_bin_line "${binary}" "${binary_path}"
+      continue
+    fi
+
+    nonwrapper_probe="$(cat <<SH
+set -eu
+binary_path="\$(command -v \"${binary}\" || true)"
+if [ -z "\${binary_path}" ]; then
+  echo "missing_binary:${binary}" >&2
+  exit 1
+fi
+if ! ${smoke_command} >/dev/null 2>&1; then
+  echo "failed_smoke:${binary}:${smoke_command}" >&2
+  exit 1
+fi
+printf '%s\n' "\${binary_path}"
 SH
+)"
+    nonwrapper_probe_escaped="$(shell_single_quote "${nonwrapper_probe}")"
+    nonwrapper_command="$(build_target_shell_command "${mode}" "${target_escaped}" "${nonwrapper_probe_escaped}")" \
+      || fail "Failed to build shell probe command for ${binary} in ${target_label}"
+    binary_path="$(
+      gce_ssh "${nonwrapper_command}"
+    )" || fail "Failed to validate runtime binary ${binary} in ${target_label}"
+    append_runtime_bin_line "${binary}" "$(echo "${binary_path}" | tail -1)"
+  done <<< "${entries_json}"
+
+  printf '%s\n' "${runtime_bins}"
 }
 
 if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
@@ -184,19 +348,19 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   fi
   log "Container health check passed (status: healthy)."
 
-  runtime_binary_manifest_in_image="/usr/local/share/openclaw/runtime-binaries.json"
-  runtime_binary_probe="$(runtime_binary_probe_script)"
-  runtime_binary_probe="${runtime_binary_probe//__MANIFEST_PATH__/${runtime_binary_manifest_in_image}}"
-  runtime_binary_probe_escaped="$(shell_single_quote "${runtime_binary_probe}")"
-
+  script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+  repo_root="$(cd -- "${script_dir}/.." && pwd)"
   # Check 3: required runtime binaries are present in the deployed app image.
   checks_run=$((checks_run + 1))
   log "Checking bundled runtime binaries in ${container}..."
-  if ! runtime_bins="$(
-    gce_ssh "sudo docker exec ${container_escaped} sh -c ${runtime_binary_probe_escaped}"
-  )"; then
-    fail "Failed to check required runtime binaries in ${container} (SSH or docker exec error)"
-  fi
+  runtime_binary_manifest_in_image="/usr/local/share/openclaw/runtime-binaries.json"
+  runtime_binary_manifest_in_repo="${repo_root}/scripts/docker/runtime-binaries.json"
+  runtime_wrapper_bin="${OPENCLAW_RUNTIME_WRAPPER_BIN:-/opt/daisy/bin}"
+  [[ -r "${runtime_binary_manifest_in_repo}" ]] \
+    || fail "Runtime binary manifest missing or unreadable at ${runtime_binary_manifest_in_repo}"
+  runtime_bins="$(
+    verify_runtime_binaries_for_target "container" "${container_escaped}" "${container}"
+  )" || fail "Failed to check required runtime binaries in ${container}"
   printf '%s\n' "${runtime_bins}"
 
   if [[ "${VERIFY_ENV:-}" == "staging" ]]; then
@@ -426,7 +590,7 @@ NODE
     gce_ssh "sudo docker image inspect ${sandbox_image_escaped} >/dev/null" \
       || fail "Sandboxing is enabled, but image ${sandbox_image} is missing on ${GCE_INSTANCE_NAME}"
     sandbox_runtime_bins="$(
-      gce_ssh "sudo docker run --rm --entrypoint sh ${sandbox_image_escaped} -lc ${runtime_binary_probe_escaped}"
+      verify_runtime_binaries_for_target "image" "${sandbox_image_escaped}" "sandbox image ${sandbox_image}"
     )" || fail "Sandbox runtime binary smoke failed for image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
     printf '%s\n' "${sandbox_runtime_bins}"
   else
