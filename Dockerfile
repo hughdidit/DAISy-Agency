@@ -22,6 +22,8 @@ RUN corepack enable
 RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @googleworkspace/cli@0.17.0 \
  && gws --version \
  && npm cache clean --force
+ENV OPENCLAW_RUNTIME_WRAPPER_BIN=/opt/daisy/bin
+ENV PATH="${OPENCLAW_RUNTIME_WRAPPER_BIN}:${PATH}"
 ARG OPENCLAW_SUMMARIZE_VERSION="0.13.0"
 # Bake required skill CLIs into the image so staging/prod deploys stay deterministic.
 RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \
@@ -49,7 +51,7 @@ COPY --chown=node:node scripts ./scripts
 
 ARG TARGETARCH=""
 RUN chmod 755 /app/scripts/docker/install-runtime-binaries.sh \
- && TARGETARCH="${TARGETARCH}" /app/scripts/docker/install-runtime-binaries.sh
+ && TARGETARCH="${TARGETARCH}" WRAPPER_PREFIX="${OPENCLAW_RUNTIME_WRAPPER_BIN}" /app/scripts/docker/install-runtime-binaries.sh
 
 USER node
 # Reduce OOM risk on low-memory hosts during dependency installation.

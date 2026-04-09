@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MANIFEST_PATH="${SCRIPT_DIR}/runtime-binaries.json"
 INSTALL_PREFIX="${INSTALL_PREFIX:-/usr/local/bin}"
+WRAPPER_PREFIX="${WRAPPER_PREFIX:-${INSTALL_PREFIX}}"
 TARGET_ARCH_RAW="${TARGETARCH:-$(dpkg --print-architecture)}"
 NPM_INSTALL_ROOT="${NPM_INSTALL_ROOT:-/usr/local}"
 
@@ -175,12 +176,11 @@ install_from_github_release() {
 
 install_from_npm() {
   local entry_json="${1:?entry json required}"
-  local package_name package_version wrapper_type entrypoint binary package_root wrapper_path npm_global_bin
+  local package_name package_version wrapper_type entrypoint binary package_root wrapper_path
 
   package_name="$(json_field "${entry_json}" '.install.package')"
   package_version="$(json_field "${entry_json}" '.install.version')"
   npm install -g --prefix="${NPM_INSTALL_ROOT}" --omit=dev --no-audit --no-fund "${package_name}@${package_version}"
-  npm_global_bin="${NPM_INSTALL_ROOT}/bin"
 
   wrapper_type="$(json_field "${entry_json}" '.install.wrapper.type')"
   if [[ "${wrapper_type}" == "node-entrypoint" ]]; then
@@ -191,8 +191,8 @@ install_from_npm() {
       return 1
     fi
     package_root="${NPM_INSTALL_ROOT}/lib/node_modules/${package_name}"
-    wrapper_path="${npm_global_bin}/${binary}"
-    install -d "${npm_global_bin}"
+    wrapper_path="${WRAPPER_PREFIX}/${binary}"
+    install -d "${WRAPPER_PREFIX}"
     rm -f "${wrapper_path}"
     cat >"${wrapper_path}" <<EOF
 #!/usr/bin/env sh
