@@ -53,10 +53,6 @@ docker_container_health() {
   gce_ssh_lastline "cid=\$(sudo docker ps -qf 'name=^${escaped_name}\$' | head -1) && sudo docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{end}}' \"\$cid\" 2>/dev/null"
 }
 
-shell_single_quote() {
-  printf "'%s'" "$(printf '%s' "${1}" | sed "s/'/'\\\\''/g")"
-}
-
 normalize_runtime_arch() {
   case "${1}" in
     amd64|x86_64)
@@ -212,30 +208,13 @@ build_target_direct_exec_command() {
   esac
 }
 
-build_target_shell_command() {
-  local mode="${1:?mode required}"
-  local target_escaped="${2:?target required}"
-  local probe_escaped="${3:?probe required}"
-  case "${mode}" in
-    container)
-      printf 'sudo docker exec %s sh -c %s\n' "${target_escaped}" "${probe_escaped}"
-      ;;
-    image)
-      printf 'sudo docker run --rm --entrypoint sh %s -c %s\n' "${target_escaped}" "${probe_escaped}"
-      ;;
-    *)
-      return 1
-      ;;
-  esac
-}
-
 verify_runtime_binaries_for_target() {
   local mode="${1:?mode required}"
   local target_escaped="${2:?target required}"
   local target_label="${3:?target label required}"
   local runtime_arch_raw runtime_arch entries_json binary smoke_command wrapper_type binary_path
-  local smoke_command_remote nonwrapper_probe nonwrapper_probe_escaped
-  local manifest_check_command arch_command wrapper_test_command nonwrapper_command
+  local smoke_command_remote
+  local manifest_check_command arch_command wrapper_test_command
 
   manifest_check_command="$(build_target_manifest_check_command "${mode}" "${target_escaped}" "${runtime_binary_manifest_in_image}")" \
     || fail "Failed to build manifest check command for ${target_label}"
@@ -274,27 +253,11 @@ verify_runtime_binaries_for_target() {
       continue
     fi
 
-    nonwrapper_probe="$(cat <<SH
-set -eu
-binary_path="\$(command -v \"${binary}\" || true)"
-if [ -z "\${binary_path}" ]; then
-  echo "missing_binary:${binary}" >&2
-  exit 1
-fi
-if ! ${smoke_command} >/dev/null 2>&1; then
-  echo "failed_smoke:${binary}:${smoke_command}" >&2
-  exit 1
-fi
-printf '%s\n' "\${binary_path}"
-SH
-)"
-    nonwrapper_probe_escaped="$(shell_single_quote "${nonwrapper_probe}")"
-    nonwrapper_command="$(build_target_shell_command "${mode}" "${target_escaped}" "${nonwrapper_probe_escaped}")" \
-      || fail "Failed to build shell probe command for ${binary} in ${target_label}"
-    binary_path="$(
-      gce_ssh "${nonwrapper_command}"
-    )" || fail "Failed to validate runtime binary ${binary} in ${target_label}"
-    append_runtime_bin_line "${binary}" "$(echo "${binary_path}" | tail -1)"
+    smoke_command_remote="$(build_target_direct_exec_command "${mode}" "${target_escaped}" "${binary}" "${binary}" "${smoke_command}")" \
+      || fail "Failed to build direct smoke command for ${binary} in ${target_label}"
+    gce_ssh "${smoke_command_remote}" >/dev/null \
+      || fail "Failed smoke check for ${binary} using direct exec path ${binary} in ${target_label}"
+    append_runtime_bin_line "${binary}" "${binary}"
   done <<< "${entries_json}"
 
   printf '%s\n' "${runtime_bins}"
