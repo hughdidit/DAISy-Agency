@@ -9,14 +9,20 @@ import { resolveUserPath } from "../../utils.js";
 import { syncSkillsToWorkspace } from "../skills.js";
 import { DEFAULT_AGENT_WORKSPACE_DIR } from "../workspace.js";
 import { ensureSandboxBrowser } from "./browser.js";
+import { resolveSandboxCapabilityMounts } from "./capability-mounts.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
 import { DEFAULT_SANDBOX_WORKDIR } from "./constants.js";
-import { ensureSandboxContainer } from "./docker.js";
+import { ensureSandboxContainer, resolveDockerHostPathInfo } from "./docker.js";
 import { createSandboxFsBridge } from "./fs-bridge.js";
 import { maybePruneSandboxes } from "./prune.js";
 import { resolveSandboxRuntimeStatus } from "./runtime-status.js";
 import { resolveSandboxScopeKey, resolveSandboxWorkspaceDir } from "./shared.js";
-import type { SandboxContext, SandboxDockerConfig, SandboxWorkspaceInfo } from "./types.js";
+import type {
+  SandboxCapabilityMount,
+  SandboxContext,
+  SandboxDockerConfig,
+  SandboxWorkspaceInfo,
+} from "./types.js";
 import { ensureSandboxWorkspace } from "./workspace.js";
 
 const SANDBOX_SKILL_SNAPSHOT_DIR = path.join(".openclaw", "sandbox-skill-snapshot");
@@ -124,14 +130,15 @@ export async function resolveSandboxContext(params: {
   if (!resolved) {
     return null;
   }
-  const { rawSessionKey, cfg } = resolved;
+  const { rawSessionKey, cfg, runtime } = resolved;
+  const effectiveConfig = params.config ?? loadConfig();
 
   await maybePruneSandboxes(cfg);
 
   const { agentWorkspaceDir, scopeKey, workspaceDir } = await ensureSandboxWorkspaceLayout({
     cfg,
     rawSessionKey,
-    config: params.config,
+    config: effectiveConfig,
     workspaceDir: params.workspaceDir,
   });
 
@@ -140,12 +147,64 @@ export async function resolveSandboxContext(params: {
     workspaceDir,
   });
   const resolvedCfg = docker === cfg.docker ? cfg : { ...cfg, docker };
+  const additionalSandboxBinds: string[] = [];
+  const additionalBindSourceRoots: string[] = [];
+  const appliedCapabilityMounts: SandboxCapabilityMount[] = [];
+  const capabilityMounts = resolveSandboxCapabilityMounts({
+    config: effectiveConfig,
+    agentId: runtime.agentId,
+    sessionKey: rawSessionKey,
+  });
+  for (const mount of capabilityMounts) {
+    const hostPath = await resolveDockerHostPathInfo(mount.sourceContainerPath);
+    if (hostPath.remapSucceeded) {
+      try {
+        await fs.access(hostPath.path);
+      } catch {
+        defaultRuntime.log(
+          `Skipping derived ${mount.capabilityId} sandbox bind for ${mount.bindingSubject}: remapped host path ${hostPath.path} does not exist.`,
+        );
+        continue;
+      }
+      additionalSandboxBinds.push(`${hostPath.path}:${mount.targetContainerPath}:${mount.mode}`);
+      additionalBindSourceRoots.push(hostPath.path);
+      appliedCapabilityMounts.push(mount);
+      continue;
+    }
+    defaultRuntime.log(
+      `Skipping derived ${mount.capabilityId} sandbox bind for ${mount.bindingSubject}: could not remap ${mount.sourceContainerPath} to a trusted host path.`,
+    );
+  }
+  const effectiveDocker =
+    additionalSandboxBinds.length > 0
+      ? {
+          ...resolvedCfg.docker,
+          binds: Array.from(
+            new Set([...(resolvedCfg.docker.binds ?? []), ...additionalSandboxBinds]),
+          ),
+        }
+      : resolvedCfg.docker;
+  const derivedBindRequiresIsolatedContainer =
+    resolvedCfg.scope === "shared" &&
+    appliedCapabilityMounts.some((mount) => mount.containerScopeKey);
+  const scopedCapabilityMount = appliedCapabilityMounts.find((mount) => mount.containerScopeKey);
+  const containerSessionKey = derivedBindRequiresIsolatedContainer
+    ? (scopedCapabilityMount?.containerScopeKey ?? rawSessionKey)
+    : rawSessionKey;
+  // Keep a shared workspace if configured, but isolate the main container when a
+  // subject-scoped capability bind is present so one subject cannot reuse
+  // another subject's secret-bearing shared container.
+  const containerCfg = derivedBindRequiresIsolatedContainer
+    ? { ...resolvedCfg, scope: "session" as const }
+    : resolvedCfg;
 
   const containerName = await ensureSandboxContainer({
-    sessionKey: rawSessionKey,
+    sessionKey: containerSessionKey,
     workspaceDir,
     agentWorkspaceDir,
-    cfg: resolvedCfg,
+    cfg: containerCfg,
+    extraBinds: additionalSandboxBinds,
+    additionalBindSourceRoots,
   });
 
   const evaluateEnabled =
@@ -155,10 +214,9 @@ export async function resolveSandboxContext(params: {
     ? await (async () => {
         // Sandbox browser bridge server runs on a loopback TCP port; always wire up
         // the same auth that loopback browser clients will send (token/password).
-        const cfgForAuth = params.config ?? loadConfig();
-        let browserAuth = resolveBrowserControlAuth(cfgForAuth);
+        let browserAuth = resolveBrowserControlAuth(effectiveConfig);
         try {
-          const ensured = await ensureBrowserControlAuth({ cfg: cfgForAuth });
+          const ensured = await ensureBrowserControlAuth({ cfg: effectiveConfig });
           browserAuth = ensured.auth;
         } catch (error) {
           const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -184,7 +242,7 @@ export async function resolveSandboxContext(params: {
     workspaceAccess: resolvedCfg.workspaceAccess,
     containerName,
     containerWorkdir: resolvedCfg.docker.workdir,
-    docker: resolvedCfg.docker,
+    docker: effectiveDocker,
     tools: resolvedCfg.tools,
     browserAllowHostControl: resolvedCfg.browser.allowHostControl,
     browser: browser ?? undefined,

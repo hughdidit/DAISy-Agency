@@ -747,6 +747,19 @@ function appendCustomBinds(args: string[], cfg: SandboxDockerConfig): void {
   }
 }
 
+function mergeDockerBinds(
+  cfg: SandboxDockerConfig,
+  extraBinds: string[] | undefined,
+): SandboxDockerConfig {
+  if (!extraBinds?.length) {
+    return cfg;
+  }
+  return {
+    ...cfg,
+    binds: Array.from(new Set([...(cfg.binds ?? []), ...extraBinds])),
+  };
+}
+
 async function createSandboxContainer(params: {
   name: string;
   cfg: SandboxDockerConfig;
@@ -755,6 +768,7 @@ async function createSandboxContainer(params: {
   workspaceAccess: SandboxWorkspaceAccess;
   agentWorkspaceDir: string;
   hostAgentWorkspaceDir: string;
+  additionalBindSourceRoots?: string[];
   scopeKey: string;
   configHash?: string;
 }) {
@@ -767,7 +781,11 @@ async function createSandboxContainer(params: {
     scopeKey,
     configHash: params.configHash,
     includeBinds: false,
-    bindSourceRoots: [params.hostWorkspaceDir, params.hostAgentWorkspaceDir],
+    bindSourceRoots: [
+      params.hostWorkspaceDir,
+      params.hostAgentWorkspaceDir,
+      ...(params.additionalBindSourceRoots ?? []),
+    ],
   });
   args.push("--workdir", cfg.workdir);
   appendWorkspaceMountArgs({
@@ -851,6 +869,8 @@ export async function ensureSandboxContainer(params: {
   workspaceDir: string;
   agentWorkspaceDir: string;
   cfg: SandboxConfig;
+  extraBinds?: string[];
+  additionalBindSourceRoots?: string[];
 }) {
   const workspaceDirResolution = await resolveDockerHostPathInfo(params.workspaceDir);
   const agentWorkspaceDirResolution = await resolveDockerHostPathInfo(params.agentWorkspaceDir);
@@ -860,8 +880,9 @@ export async function ensureSandboxContainer(params: {
   const slug = params.cfg.scope === "shared" ? "shared" : slugifySessionKey(scopeKey);
   const name = `${params.cfg.docker.containerPrefix}${slug}`;
   const containerName = name.slice(0, 63);
+  const effectiveDocker = mergeDockerBinds(params.cfg.docker, params.extraBinds);
   const expectedHash = computeSandboxConfigHash({
-    docker: params.cfg.docker,
+    docker: effectiveDocker,
     workspaceAccess: params.cfg.workspaceAccess,
     workspaceDir: hostWorkspaceDir,
     agentWorkspaceDir: hostAgentWorkspaceDir,
@@ -904,7 +925,7 @@ export async function ensureSandboxContainer(params: {
         currentHash = registryEntry?.configHash ?? null;
       }
       hashMismatch = !currentHash || currentHash !== expectedHash;
-      const expectedImageId = await readDockerImageId(params.cfg.docker.image);
+      const expectedImageId = await readDockerImageId(effectiveDocker.image);
       const currentImageId = await readDockerContainerImageId(containerName);
       imageMismatch =
         Boolean(expectedImageId) && Boolean(currentImageId) && expectedImageId !== currentImageId;
@@ -917,7 +938,7 @@ export async function ensureSandboxContainer(params: {
           const hint = formatSandboxRecreateHint({ scope: params.cfg.scope, sessionKey: scopeKey });
           const reason = hashMismatch
             ? "Sandbox config changed"
-            : `Sandbox image updated for ${params.cfg.docker.image}`;
+            : `Sandbox image updated for ${effectiveDocker.image}`;
           defaultRuntime.log(
             `${reason} for ${containerName} (recently used). Recreate to apply: ${hint}`,
           );
@@ -932,12 +953,13 @@ export async function ensureSandboxContainer(params: {
   if (!hasContainer) {
     await createSandboxContainer({
       name: containerName,
-      cfg: params.cfg.docker,
+      cfg: effectiveDocker,
       workspaceDir: params.workspaceDir,
       hostWorkspaceDir,
       workspaceAccess: params.cfg.workspaceAccess,
       agentWorkspaceDir: params.agentWorkspaceDir,
       hostAgentWorkspaceDir,
+      additionalBindSourceRoots: params.additionalBindSourceRoots,
       scopeKey,
       configHash: expectedHash,
     });
@@ -949,7 +971,7 @@ export async function ensureSandboxContainer(params: {
     sessionKey: scopeKey,
     createdAtMs: now,
     lastUsedAtMs: now,
-    image: params.cfg.docker.image,
+    image: effectiveDocker.image,
     configHash: hashMismatch && running ? (currentHash ?? undefined) : expectedHash,
   });
   return containerName;

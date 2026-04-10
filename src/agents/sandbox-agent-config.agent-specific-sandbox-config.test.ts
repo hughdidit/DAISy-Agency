@@ -10,7 +10,23 @@ type SpawnCall = {
   args: string[];
 };
 
+const spawnState = vi.hoisted(() => ({
+  inspectMountsByTarget: {} as Record<string, string>,
+}));
+
+const fsPromisesMocks = vi.hoisted(() => ({
+  readFile: vi.fn(),
+}));
+
 const spawnCalls: SpawnCall[] = [];
+
+vi.mock("node:fs/promises", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs/promises")>();
+  return {
+    ...actual,
+    readFile: fsPromisesMocks.readFile,
+  };
+});
 
 vi.mock("node:child_process", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:child_process")>();
@@ -28,15 +44,37 @@ vi.mock("node:child_process", async (importOriginal) => {
       child.stderr = new Readable({ read() {} });
 
       const dockerArgs = command === "docker" ? args : [];
-      const shouldFailContainerInspect =
+      let code = 0;
+      let stdout = "";
+      if (command !== "docker") {
+        code = 1;
+      } else if (
         dockerArgs[0] === "inspect" &&
         dockerArgs[1] === "-f" &&
-        dockerArgs[2] === "{{.State.Running}}";
-      const shouldSucceedImageInspect = dockerArgs[0] === "image" && dockerArgs[1] === "inspect";
+        dockerArgs[2] === "{{json .Mounts}}"
+      ) {
+        const target = dockerArgs[3] ?? "";
+        if (target in spawnState.inspectMountsByTarget) {
+          stdout = `${spawnState.inspectMountsByTarget[target]}\n`;
+        } else {
+          code = 1;
+        }
+      } else if (
+        dockerArgs[0] === "inspect" &&
+        dockerArgs[1] === "-f" &&
+        dockerArgs[2] === "{{.State.Running}}"
+      ) {
+        code = 1;
+      } else if (dockerArgs[0] === "image" && dockerArgs[1] === "inspect") {
+        code = 0;
+      }
 
-      queueMicrotask(() =>
-        child.emit("close", shouldFailContainerInspect && !shouldSucceedImageInspect ? 1 : 0),
-      );
+      queueMicrotask(() => {
+        if (stdout) {
+          child.stdout?.emit("data", Buffer.from(stdout));
+        }
+        child.emit("close", code);
+      });
       return child;
     },
   };
@@ -132,6 +170,11 @@ describe("Agent-specific sandbox config", () => {
 
   beforeEach(() => {
     spawnCalls.length = 0;
+    spawnState.inspectMountsByTarget = {};
+    fsPromisesMocks.readFile.mockReset();
+    fsPromisesMocks.readFile.mockImplementation(async () => {
+      throw Object.assign(new Error("ENOENT"), { code: "ENOENT" });
+    });
   });
 
   it("should use agent-specific workspaceRoot", async () => {
@@ -275,6 +318,62 @@ describe("Agent-specific sandbox config", () => {
       expectDockerSetupCommand(scenario.expectedSetup);
       spawnCalls.length = 0;
     }
+  });
+
+  it("isolates shared-scope sandbox containers when a subject-scoped GWS bind is derived", async () => {
+    const gatewayCid = "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c";
+    fsPromisesMocks.readFile.mockImplementation(async (filePath: unknown) => {
+      if (String(filePath) === "/proc/self/mountinfo") {
+        return `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`;
+      }
+      throw Object.assign(new Error("ENOENT"), { code: "ENOENT" });
+    });
+    spawnState.inspectMountsByTarget[gatewayCid] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/config/secrets/gws",
+        Destination: "/home/node/.openclaw/secrets/gws",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
+
+    const cfg: OpenClawConfig = {
+      plugins: {
+        entries: {
+          "gws-toolkit-phase1": {
+            enabled: true,
+            config: {
+              approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
+              allowUnboundAgents: false,
+              credentialRoutes: {
+                "ops-main": {
+                  mode: "credentials_file",
+                  credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
+                },
+              },
+              agentCredentialBindings: {
+                "agent:main": "ops-main",
+              },
+            },
+          },
+        },
+      },
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "all",
+            scope: "shared",
+          },
+        },
+      },
+    };
+
+    const context = await resolveContext(cfg, "agent:main:discord:channel:123", "/tmp/test-main");
+
+    expect(context).toBeDefined();
+    expect(context?.containerName).toContain("agent-main");
+    expect(context?.containerName).not.toContain("shared");
   });
 
   it("should allow agent-specific docker settings beyond setupCommand", () => {

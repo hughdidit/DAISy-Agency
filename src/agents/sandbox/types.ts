@@ -28,6 +28,15 @@ export type SandboxToolPolicyResolved = {
 
 export type SandboxWorkspaceAccess = "none" | "ro" | "rw";
 
+export type SandboxCapabilityMount = {
+  capabilityId: string;
+  bindingSubject: string;
+  sourceContainerPath: string;
+  targetContainerPath: string;
+  mode: "ro";
+  containerScopeKey?: string;
+};
+
 export type SandboxBrowserConfig = {
   enabled: boolean;
   image: string;

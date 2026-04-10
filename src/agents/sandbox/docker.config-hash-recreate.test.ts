@@ -311,6 +311,43 @@ describe("ensureSandboxContainer config-hash recreation", () => {
     expect(customMountIdx).toBeGreaterThan(workspaceMountIdx);
   });
 
+  it("includes derived allowlisted binds in create args and config hash", async () => {
+    const workspaceDir = "/tmp/workspace";
+    const cfg = createSandboxConfig([]);
+    const derivedBind =
+      "/opt/DAISy/config/secrets/gws/credentials.json:/home/node/.openclaw/secrets/gws/credentials.json:ro";
+    const expectedHash = computeSandboxConfigHash({
+      docker: {
+        ...cfg.docker,
+        binds: [...(cfg.docker.binds ?? []), derivedBind],
+      },
+      workspaceAccess: cfg.workspaceAccess,
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+    });
+
+    spawnState.inspectRunning = false;
+    registryMocks.readRegistry.mockResolvedValue({ entries: [] });
+    registryMocks.updateRegistry.mockResolvedValue(undefined);
+
+    await ensureSandboxContainer({
+      sessionKey: "agent:main:session-1",
+      workspaceDir,
+      agentWorkspaceDir: workspaceDir,
+      cfg,
+      extraBinds: [derivedBind],
+      additionalBindSourceRoots: ["/opt/DAISy/config/secrets/gws/credentials.json"],
+    });
+
+    const createCall = spawnState.calls.find(
+      (call) => call.command === "docker" && call.args[0] === "create",
+    );
+    expect(createCall).toBeDefined();
+    expect(createCall?.args).toContain(`openclaw.configHash=${expectedHash}`);
+    const bindArgs = collectDockerFlagValues(createCall?.args ?? [], "-v");
+    expect(bindArgs).toContain(derivedBind);
+  });
+
   it.each([
     { workspaceAccess: "rw" as const, expectedMainMount: "/tmp/workspace:/workspace" },
     { workspaceAccess: "ro" as const, expectedMainMount: "/tmp/workspace:/workspace:ro" },
