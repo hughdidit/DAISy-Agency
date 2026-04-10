@@ -230,11 +230,6 @@ export function resolveSandboxGwsCredentialMount(params: {
   if (!approvedCredentialDir) {
     return null;
   }
-
-  const credentialDir = path.posix.dirname(credentialsFile);
-  if (!isPathInsidePosix(approvedCredentialDir, credentialDir)) {
-    return null;
-  }
   return {
     capabilityId: "gws",
     bindingSubject,

@@ -138,7 +138,7 @@ export async function resolveSandboxContext(params: {
   const { agentWorkspaceDir, scopeKey, workspaceDir } = await ensureSandboxWorkspaceLayout({
     cfg,
     rawSessionKey,
-    config: params.config,
+    config: effectiveConfig,
     workspaceDir: params.workspaceDir,
   });
 
@@ -158,6 +158,14 @@ export async function resolveSandboxContext(params: {
   for (const mount of capabilityMounts) {
     const hostPath = await resolveDockerHostPathInfo(mount.sourceContainerPath);
     if (hostPath.remapSucceeded) {
+      try {
+        await fs.access(hostPath.path);
+      } catch {
+        defaultRuntime.log(
+          `Skipping derived ${mount.capabilityId} sandbox bind for ${mount.bindingSubject}: remapped host path ${hostPath.path} does not exist.`,
+        );
+        continue;
+      }
       additionalSandboxBinds.push(`${hostPath.path}:${mount.targetContainerPath}:${mount.mode}`);
       additionalBindSourceRoots.push(hostPath.path);
       appliedCapabilityMounts.push(mount);

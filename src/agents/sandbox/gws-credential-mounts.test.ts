@@ -197,7 +197,7 @@ describe("resolveSandboxGwsCredentialProjection", () => {
     expect(projection).toBeNull();
   });
 
-  it("rejects approved paths that are narrower than the mounted credential directory", () => {
+  it("allows exact-file approved credential paths for exact-file mounts", () => {
     const projection = resolveSandboxGwsCredentialProjection({
       config: createConfig(
         createBasePluginConfig({
@@ -208,6 +208,13 @@ describe("resolveSandboxGwsCredentialProjection", () => {
       sessionKey: "agent:main:discord:channel:123",
     });
 
-    expect(projection).toBeNull();
+    expect(projection).toEqual({
+      bindingSubject: "agent:main",
+      routeName: "ops-main",
+      credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
+      approvedCredentialDir: "/home/node/.openclaw/secrets/gws/credentials.json",
+      sourceContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
+      targetContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
+    });
   });
 });
