@@ -77,6 +77,29 @@ describe("resolveSandboxGwsCredentialProjection", () => {
     expect(projection).toBeNull();
   });
 
+  it("returns a projection for a route-bound delegated subagent subject", () => {
+    const projection = resolveSandboxGwsCredentialProjection({
+      config: createConfig(
+        createBasePluginConfig({
+          agentCredentialBindings: {
+            "subagent:main": "ops-main",
+          },
+        }),
+      ),
+      agentId: "main",
+      sessionKey: "agent:main:subagent:worker-1",
+    });
+
+    expect(projection).toEqual({
+      bindingSubject: "subagent:main",
+      routeName: "ops-main",
+      credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
+      approvedCredentialDir: "/home/node/.openclaw/secrets/gws",
+      sourceContainerDir: "/home/node/.openclaw/secrets/gws",
+      targetContainerDir: "/home/node/.openclaw/secrets/gws",
+    });
+  });
+
   it("does not project credentials when plugin loading is globally disabled or excluded", () => {
     const pluginConfig = createBasePluginConfig();
 
