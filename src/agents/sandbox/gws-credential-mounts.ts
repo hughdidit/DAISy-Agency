@@ -94,7 +94,7 @@ function findNarrowestApprovedCredentialDir(
       .map((entry) => normalizePosixPath(entry))
       .filter((entry): entry is string => Boolean(entry))
       .filter((entry) => isPathInsidePosix(entry, credentialsFile))
-      .sort((left, right) => right.length - left.length)[0] ?? null
+      .toSorted((left, right) => right.length - left.length)[0] ?? null
   );
 }
 
