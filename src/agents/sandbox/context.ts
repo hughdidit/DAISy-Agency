@@ -9,15 +9,20 @@ import { resolveUserPath } from "../../utils.js";
 import { syncSkillsToWorkspace } from "../skills.js";
 import { DEFAULT_AGENT_WORKSPACE_DIR } from "../workspace.js";
 import { ensureSandboxBrowser } from "./browser.js";
+import { resolveSandboxCapabilityMounts } from "./capability-mounts.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
 import { DEFAULT_SANDBOX_WORKDIR } from "./constants.js";
 import { ensureSandboxContainer, resolveDockerHostPathInfo } from "./docker.js";
 import { createSandboxFsBridge } from "./fs-bridge.js";
-import { resolveSandboxGwsCredentialProjection } from "./gws-credential-mounts.js";
 import { maybePruneSandboxes } from "./prune.js";
 import { resolveSandboxRuntimeStatus } from "./runtime-status.js";
 import { resolveSandboxScopeKey, resolveSandboxWorkspaceDir } from "./shared.js";
-import type { SandboxContext, SandboxDockerConfig, SandboxWorkspaceInfo } from "./types.js";
+import type {
+  SandboxCapabilityMount,
+  SandboxContext,
+  SandboxDockerConfig,
+  SandboxWorkspaceInfo,
+} from "./types.js";
 import { ensureSandboxWorkspace } from "./workspace.js";
 
 const SANDBOX_SKILL_SNAPSHOT_DIR = path.join(".openclaw", "sandbox-skill-snapshot");
@@ -144,21 +149,23 @@ export async function resolveSandboxContext(params: {
   const resolvedCfg = docker === cfg.docker ? cfg : { ...cfg, docker };
   const additionalSandboxBinds: string[] = [];
   const additionalBindSourceRoots: string[] = [];
-  const gwsProjection = resolveSandboxGwsCredentialProjection({
+  const appliedCapabilityMounts: SandboxCapabilityMount[] = [];
+  const capabilityMounts = resolveSandboxCapabilityMounts({
     config: effectiveConfig,
     agentId: runtime.agentId,
     sessionKey: rawSessionKey,
   });
-  if (gwsProjection) {
-    const hostGwsDir = await resolveDockerHostPathInfo(gwsProjection.sourceContainerDir);
-    if (hostGwsDir.remapSucceeded) {
-      additionalSandboxBinds.push(`${hostGwsDir.path}:${gwsProjection.targetContainerDir}:ro`);
-      additionalBindSourceRoots.push(hostGwsDir.path);
-    } else {
-      defaultRuntime.log(
-        `Skipping derived GWS sandbox bind for ${gwsProjection.bindingSubject}: could not remap ${gwsProjection.sourceContainerDir} to a trusted host path.`,
-      );
+  for (const mount of capabilityMounts) {
+    const hostDir = await resolveDockerHostPathInfo(mount.sourceContainerDir);
+    if (hostDir.remapSucceeded) {
+      additionalSandboxBinds.push(`${hostDir.path}:${mount.targetContainerDir}:${mount.mode}`);
+      additionalBindSourceRoots.push(hostDir.path);
+      appliedCapabilityMounts.push(mount);
+      continue;
     }
+    defaultRuntime.log(
+      `Skipping derived ${mount.capabilityId} sandbox bind for ${mount.bindingSubject}: could not remap ${mount.sourceContainerDir} to a trusted host path.`,
+    );
   }
   const effectiveDocker =
     additionalSandboxBinds.length > 0
@@ -170,12 +177,14 @@ export async function resolveSandboxContext(params: {
         }
       : resolvedCfg.docker;
   const derivedBindRequiresIsolatedContainer =
-    additionalSandboxBinds.length > 0 && resolvedCfg.scope === "shared";
+    resolvedCfg.scope === "shared" &&
+    appliedCapabilityMounts.some((mount) => mount.containerScopeKey);
+  const scopedCapabilityMount = appliedCapabilityMounts.find((mount) => mount.containerScopeKey);
   const containerSessionKey = derivedBindRequiresIsolatedContainer
-    ? (gwsProjection?.bindingSubject ?? rawSessionKey)
+    ? (scopedCapabilityMount?.containerScopeKey ?? rawSessionKey)
     : rawSessionKey;
   // Keep a shared workspace if configured, but isolate the main container when a
-  // subject-scoped credential bind is present so one subject cannot reuse
+  // subject-scoped capability bind is present so one subject cannot reuse
   // another subject's secret-bearing shared container.
   const containerCfg = derivedBindRequiresIsolatedContainer
     ? { ...resolvedCfg, scope: "session" as const }

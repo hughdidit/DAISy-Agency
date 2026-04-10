@@ -24,10 +24,6 @@ vi.mock("node:fs/promises", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:fs/promises")>();
   return {
     ...actual,
-    default: {
-      ...actual.default,
-      readFile: fsPromisesMocks.readFile,
-    },
     readFile: fsPromisesMocks.readFile,
   };
 });

@@ -1,6 +1,7 @@
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
 import { isSubagentSessionKey } from "../../routing/session-key.js";
+import type { SandboxCapabilityMount } from "./types.js";
 
 const GWS_PLUGIN_ID = "gws-toolkit-phase1";
 const LEGACY_ROUTE_NAME = "legacy-default";
@@ -22,13 +23,11 @@ type RawCredentialsFileRoute = {
   credentialsFile: string;
 };
 
-export type SandboxGwsCredentialProjection = {
-  bindingSubject: string;
+export type SandboxGwsCredentialMount = SandboxCapabilityMount & {
+  capabilityId: "gws";
   routeName: string;
   credentialsFile: string;
   approvedCredentialDir: string;
-  sourceContainerDir: string;
-  targetContainerDir: string;
 };
 
 function asObject(value: unknown): Record<string, unknown> | null {
@@ -175,11 +174,11 @@ function resolveBindingSubject(params: { agentId?: string; sessionKey: string })
   return isSubagentSessionKey(params.sessionKey) ? `subagent:${agentId}` : `agent:${agentId}`;
 }
 
-export function resolveSandboxGwsCredentialProjection(params: {
+export function resolveSandboxGwsCredentialMount(params: {
   config?: OpenClawConfig;
   agentId?: string;
   sessionKey: string;
-}): SandboxGwsCredentialProjection | null {
+}): SandboxGwsCredentialMount | null {
   const pluginEntry = resolveEnabledGwsPluginEntry(params.config);
   if (!pluginEntry) {
     return null;
@@ -237,11 +236,16 @@ export function resolveSandboxGwsCredentialProjection(params: {
     return null;
   }
   return {
+    capabilityId: "gws",
     bindingSubject,
     routeName,
     credentialsFile,
     approvedCredentialDir,
     sourceContainerDir: credentialDir,
     targetContainerDir: credentialDir,
+    mode: "ro",
+    containerScopeKey: bindingSubject,
   };
 }
+
+export const resolveSandboxGwsCredentialProjection = resolveSandboxGwsCredentialMount;
