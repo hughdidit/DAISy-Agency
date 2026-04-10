@@ -161,7 +161,8 @@ export async function resolveSandboxContext(params: {
       try {
         await fs.access(mount.sourceContainerPath);
       } catch (error) {
-        const code = error instanceof Error && "code" in error ? error.code : undefined;
+        const rawCode = error instanceof Error && "code" in error ? error.code : undefined;
+        const code = typeof rawCode === "string" ? rawCode : undefined;
         const reason =
           code === "ENOENT"
             ? "does not exist inside the gateway container"
