@@ -1,5 +1,5 @@
 import type { AuditLogger } from "../audit.js";
-import { getAuthSourceStatus } from "../auth.js";
+import { getActiveRouteAuthStatus, getAuthSourceStatus } from "../auth.js";
 import { discoverBinary } from "../binary.js";
 import { summarizeCredentialRoutes } from "../credential-routing.js";
 import { toStructuredError } from "../errors.js";
@@ -210,6 +210,7 @@ export async function executeStatus(params: {
     });
 
     const authStatus = getAuthSourceStatus(activeConfig);
+    const activeRoute = getActiveRouteAuthStatus(activeConfig, params.ctx);
     const latencyMs = Date.now() - startedAt;
     const includeVersion = statusParams.includeVersion !== false;
     const includeAuthStatus = statusParams.includeAuthStatus !== false;
@@ -223,6 +224,7 @@ export async function executeStatus(params: {
           ...(includeVersion ? { version: discovery.versionText } : {}),
         },
         ...(includeAuthStatus ? { auth: authStatus } : {}),
+        currentRoute: activeRoute,
         config: {
           posture: params.configResolution.posture,
           enabledServices: activeConfig.enabledServices,

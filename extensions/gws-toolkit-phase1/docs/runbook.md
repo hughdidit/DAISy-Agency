@@ -92,6 +92,10 @@ openclaw gws auth-status
 openclaw gws routes
 ```
 
+`gws_status` and the CLI wrappers now include current-session route diagnostics,
+including the resolved `bindingSubject`, active route name, and resolved
+credentials-file path for `credentials_file` routes when available.
+
 Read smoke checks:
 
 - `gws_status`
