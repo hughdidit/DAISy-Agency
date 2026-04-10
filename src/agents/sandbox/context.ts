@@ -156,15 +156,15 @@ export async function resolveSandboxContext(params: {
     sessionKey: rawSessionKey,
   });
   for (const mount of capabilityMounts) {
-    const hostDir = await resolveDockerHostPathInfo(mount.sourceContainerDir);
-    if (hostDir.remapSucceeded) {
-      additionalSandboxBinds.push(`${hostDir.path}:${mount.targetContainerDir}:${mount.mode}`);
-      additionalBindSourceRoots.push(hostDir.path);
+    const hostPath = await resolveDockerHostPathInfo(mount.sourceContainerPath);
+    if (hostPath.remapSucceeded) {
+      additionalSandboxBinds.push(`${hostPath.path}:${mount.targetContainerPath}:${mount.mode}`);
+      additionalBindSourceRoots.push(hostPath.path);
       appliedCapabilityMounts.push(mount);
       continue;
     }
     defaultRuntime.log(
-      `Skipping derived ${mount.capabilityId} sandbox bind for ${mount.bindingSubject}: could not remap ${mount.sourceContainerDir} to a trusted host path.`,
+      `Skipping derived ${mount.capabilityId} sandbox bind for ${mount.bindingSubject}: could not remap ${mount.sourceContainerPath} to a trusted host path.`,
     );
   }
   const effectiveDocker =

@@ -241,8 +241,8 @@ export function resolveSandboxGwsCredentialMount(params: {
     routeName,
     credentialsFile,
     approvedCredentialDir,
-    sourceContainerDir: credentialDir,
-    targetContainerDir: credentialDir,
+    sourceContainerPath: credentialsFile,
+    targetContainerPath: credentialsFile,
     mode: "ro",
     containerScopeKey: bindingSubject,
   };

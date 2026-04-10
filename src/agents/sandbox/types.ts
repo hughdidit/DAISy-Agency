@@ -31,8 +31,8 @@ export type SandboxWorkspaceAccess = "none" | "ro" | "rw";
 export type SandboxCapabilityMount = {
   capabilityId: string;
   bindingSubject: string;
-  sourceContainerDir: string;
-  targetContainerDir: string;
+  sourceContainerPath: string;
+  targetContainerPath: string;
   mode: "ro";
   containerScopeKey?: string;
 };

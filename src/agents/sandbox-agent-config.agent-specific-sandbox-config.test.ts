@@ -172,7 +172,9 @@ describe("Agent-specific sandbox config", () => {
     spawnCalls.length = 0;
     spawnState.inspectMountsByTarget = {};
     fsPromisesMocks.readFile.mockReset();
-    fsPromisesMocks.readFile.mockRejectedValue(new Error("ENOENT"));
+    fsPromisesMocks.readFile.mockImplementation(async () => {
+      throw Object.assign(new Error("ENOENT"), { code: "ENOENT" });
+    });
   });
 
   it("should use agent-specific workspaceRoot", async () => {
@@ -320,9 +322,12 @@ describe("Agent-specific sandbox config", () => {
 
   it("isolates shared-scope sandbox containers when a subject-scoped GWS bind is derived", async () => {
     const gatewayCid = "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c";
-    fsPromisesMocks.readFile.mockResolvedValue(
-      `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`,
-    );
+    fsPromisesMocks.readFile.mockImplementation(async (filePath: unknown) => {
+      if (String(filePath) === "/proc/self/mountinfo") {
+        return `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`;
+      }
+      throw Object.assign(new Error("ENOENT"), { code: "ENOENT" });
+    });
     spawnState.inspectMountsByTarget[gatewayCid] = JSON.stringify([
       {
         Type: "bind",

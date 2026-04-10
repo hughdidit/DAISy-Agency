@@ -314,7 +314,8 @@ describe("ensureSandboxContainer config-hash recreation", () => {
   it("includes derived allowlisted binds in create args and config hash", async () => {
     const workspaceDir = "/tmp/workspace";
     const cfg = createSandboxConfig([]);
-    const derivedBind = "/opt/DAISy/config/secrets/gws:/home/node/.openclaw/secrets/gws:ro";
+    const derivedBind =
+      "/opt/DAISy/config/secrets/gws/credentials.json:/home/node/.openclaw/secrets/gws/credentials.json:ro";
     const expectedHash = computeSandboxConfigHash({
       docker: {
         ...cfg.docker,
@@ -335,7 +336,7 @@ describe("ensureSandboxContainer config-hash recreation", () => {
       agentWorkspaceDir: workspaceDir,
       cfg,
       extraBinds: [derivedBind],
-      additionalBindSourceRoots: ["/opt/DAISy/config/secrets/gws"],
+      additionalBindSourceRoots: ["/opt/DAISy/config/secrets/gws/credentials.json"],
     });
 
     const createCall = spawnState.calls.find(

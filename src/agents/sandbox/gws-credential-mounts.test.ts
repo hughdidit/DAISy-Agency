@@ -57,8 +57,8 @@ describe("resolveSandboxGwsCredentialProjection", () => {
       routeName: "ops-main",
       credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
       approvedCredentialDir: "/home/node/.openclaw/secrets/gws",
-      sourceContainerDir: "/home/node/.openclaw/secrets/gws",
-      targetContainerDir: "/home/node/.openclaw/secrets/gws",
+      sourceContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
+      targetContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
     });
   });
 
@@ -90,8 +90,8 @@ describe("resolveSandboxGwsCredentialProjection", () => {
       routeName: "ops-main",
       credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
       approvedCredentialDir: "/home/node/.openclaw/secrets/gws",
-      sourceContainerDir: "/home/node/.openclaw/secrets/gws",
-      targetContainerDir: "/home/node/.openclaw/secrets/gws",
+      sourceContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
+      targetContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
     });
   });
 
