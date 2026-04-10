@@ -90,6 +90,7 @@ USER.md
 .tgz
 .idea
 .codex/
+prd/**
 
 # local tooling
 .serena/
@@ -138,6 +139,6 @@ dist/protocol.schema.json
 
 # Synthing
 **/.stfolder/
-generated-images/*
+generated-images/**
 .playwright-cli/**
 output/**

@@ -155,6 +155,75 @@ export type RouteAuthStatus = {
   details: Record<string, unknown>;
 };
 
+export type ActiveRouteAuthStatus = {
+  bindingSubject: string;
+  inherited: boolean;
+  routeName?: string;
+  mode?: CredentialMode;
+  available: boolean;
+  details: Record<string, unknown>;
+};
+
+type CredentialFileProbe = {
+  configured: boolean;
+  exists: boolean;
+  allowed: boolean;
+  configuredPath?: string;
+  resolvedPath?: string;
+  error?: string;
+};
+
+function probeCredentialFile(
+  config: GwsToolkitConfig,
+  filePathRaw: string | undefined,
+  route?: ResolvedRoute,
+): CredentialFileProbe {
+  const raw =
+    filePathRaw?.trim() ||
+    (route && route.name !== "legacy-default" ? undefined : config.credentialsFile?.trim());
+  if (!raw) {
+    return {
+      configured: false,
+      exists: false,
+      allowed: false,
+      ...(route?.mode === "credentials_file"
+        ? {
+            error: "Credentials file route is missing a configured credentials file path",
+          }
+        : {}),
+    };
+  }
+  const configuredPath = normalizePath(raw);
+  const exists = fs.existsSync(configuredPath);
+  if (!exists) {
+    return {
+      configured: true,
+      exists: false,
+      allowed: false,
+      configuredPath,
+      error: "Configured credentials file does not exist",
+    };
+  }
+  try {
+    const resolvedPath = ensureCredentialFileAllowed(config, raw, route);
+    return {
+      configured: true,
+      exists: true,
+      allowed: true,
+      configuredPath,
+      resolvedPath,
+    };
+  } catch (error) {
+    return {
+      configured: true,
+      exists: true,
+      allowed: false,
+      configuredPath,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
 export function getAuthSourceStatus(config: GwsToolkitConfig): {
   tokenPresent: boolean;
   credentialsFileConfigured: boolean;
@@ -165,20 +234,20 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
 } {
   const tokenValue = process.env[config.tokenEnvVar];
   const tokenPresent = typeof tokenValue === "string" && tokenValue.trim().length > 0;
-  const credentialsFileConfigured = Boolean(config.credentialsFile);
-  const credentialsFileExists =
-    credentialsFileConfigured && config.credentialsFile
-      ? fs.existsSync(normalizePath(config.credentialsFile))
-      : false;
-  let credentialsFileAllowed = false;
-  if (credentialsFileConfigured && credentialsFileExists) {
-    try {
-      ensureCredentialFileAllowed(config, config.credentialsFile);
-      credentialsFileAllowed = true;
-    } catch {
-      credentialsFileAllowed = false;
-    }
-  }
+  const credentialFileProbes = [
+    ...(config.credentialsFile ? [probeCredentialFile(config, config.credentialsFile)] : []),
+    ...Object.entries(config.credentialRoutes)
+      .filter(([, route]) => route.mode === "credentials_file")
+      .map(([routeName, route]) =>
+        probeCredentialFile(config, route.credentialsFile, {
+          ...route,
+          name: routeName,
+        }),
+      ),
+  ];
+  const credentialsFileConfigured = credentialFileProbes.some((probe) => probe.configured);
+  const credentialsFileExists = credentialFileProbes.some((probe) => probe.exists);
+  const credentialsFileAllowed = credentialFileProbes.some((probe) => probe.allowed);
 
   const bindingSubjectsByRoute = new Map<string, string[]>();
   for (const [subject, routeName] of Object.entries(config.agentCredentialBindings)) {
@@ -201,30 +270,35 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
       } satisfies RouteAuthStatus;
     }
     if (route.mode === "credentials_file") {
-      try {
-        const resolved = ensureCredentialFileAllowed(config, route.credentialsFile, {
-          ...route,
-          name: routeName,
-        });
+      const probe = probeCredentialFile(config, route.credentialsFile, {
+        ...route,
+        name: routeName,
+      });
+      if (probe.allowed && probe.resolvedPath) {
         return {
           routeName,
           mode: route.mode,
           bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
           available: modeAllowed,
-          details: { credentialsFile: path.basename(resolved), modeAllowed },
-        } satisfies RouteAuthStatus;
-      } catch (error) {
-        return {
-          routeName,
-          mode: route.mode,
-          bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
-          available: false,
           details: {
-            error: error instanceof Error ? error.message : String(error),
+            credentialsFile: path.basename(probe.resolvedPath),
+            configuredCredentialsFile: probe.configuredPath,
+            resolvedCredentialsFile: probe.resolvedPath,
             modeAllowed,
           },
         } satisfies RouteAuthStatus;
       }
+      return {
+        routeName,
+        mode: route.mode,
+        bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
+        available: false,
+        details: {
+          configuredCredentialsFile: probe.configuredPath,
+          error: probe.error ?? "Configured credentials file is unavailable",
+          modeAllowed,
+        },
+      } satisfies RouteAuthStatus;
     }
     return {
       routeName,
@@ -246,6 +320,73 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
     oauthAllowed: config.allowedCredentialModes.includes("oauth"),
     routes,
   };
+}
+
+export function getActiveRouteAuthStatus(
+  config: GwsToolkitConfig,
+  ctx: InvocationContext,
+): ActiveRouteAuthStatus {
+  try {
+    const resolved = resolveCredentialRoute(config, ctx);
+    const route = resolved.route;
+    const modeAllowed = config.allowedCredentialModes.includes(route.mode);
+    if (route.mode === "credentials_file") {
+      const probe = probeCredentialFile(config, route.credentialsFile, route);
+      return {
+        bindingSubject: resolved.bindingSubject,
+        inherited: resolved.inherited,
+        routeName: route.name,
+        mode: route.mode,
+        available: modeAllowed && probe.allowed,
+        details: {
+          ...(probe.resolvedPath ? { credentialsFile: path.basename(probe.resolvedPath) } : {}),
+          configuredCredentialsFile: probe.configuredPath,
+          resolvedCredentialsFile: probe.resolvedPath,
+          modeAllowed,
+          ...(probe.allowed
+            ? {}
+            : { error: probe.error ?? "Configured credentials file is unavailable" }),
+        },
+      };
+    }
+    if (route.mode === "token") {
+      const envVar = route.tokenEnvVar ?? config.tokenEnvVar;
+      const tokenPresent =
+        typeof process.env[envVar] === "string" && Boolean(process.env[envVar]?.trim());
+      return {
+        bindingSubject: resolved.bindingSubject,
+        inherited: resolved.inherited,
+        routeName: route.name,
+        mode: route.mode,
+        available: modeAllowed && tokenPresent,
+        details: {
+          tokenEnvVar: envVar,
+          tokenPresent,
+          modeAllowed,
+        },
+      };
+    }
+    return {
+      bindingSubject: resolved.bindingSubject,
+      inherited: resolved.inherited,
+      routeName: route.name,
+      mode: route.mode,
+      available: modeAllowed,
+      details: {
+        oauthAllowed: config.allowedCredentialModes.includes("oauth"),
+        modeAllowed,
+      },
+    };
+  } catch (error) {
+    return {
+      bindingSubject: ctx.bindingSubject ?? "unknown",
+      inherited: false,
+      available: false,
+      details: {
+        error: error instanceof Error ? error.message : String(error),
+      },
+    };
+  }
 }
 
 export function resolveAuth(config: GwsToolkitConfig, ctx: InvocationContext): AuthResolution {
