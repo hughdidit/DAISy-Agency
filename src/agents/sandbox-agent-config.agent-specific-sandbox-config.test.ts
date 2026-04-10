@@ -277,6 +277,52 @@ describe("Agent-specific sandbox config", () => {
     }
   });
 
+  it(
+    "isolates shared-scope sandbox containers when a subject-scoped GWS bind is derived",
+    async () => {
+    const cfg: OpenClawConfig = {
+      plugins: {
+        entries: {
+          "gws-toolkit-phase1": {
+            enabled: true,
+            config: {
+              approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
+              allowUnboundAgents: false,
+              credentialRoutes: {
+                "ops-main": {
+                  mode: "credentials_file",
+                  credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
+                },
+              },
+              agentCredentialBindings: {
+                "agent:main": "ops-main",
+              },
+            },
+          },
+        },
+      },
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "all",
+            scope: "shared",
+          },
+        },
+      },
+    };
+
+      const context = await resolveContext(
+        cfg,
+        "agent:main:discord:channel:123",
+        "/tmp/test-main",
+      );
+
+      expect(context).toBeDefined();
+      expect(context?.containerName).toContain("agent-main");
+      expect(context?.containerName).not.toContain("shared");
+    },
+  );
+
   it("should allow agent-specific docker settings beyond setupCommand", () => {
     const cfg: OpenClawConfig = {
       agents: {

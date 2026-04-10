@@ -77,6 +77,64 @@ describe("resolveSandboxGwsCredentialProjection", () => {
     expect(projection).toBeNull();
   });
 
+  it("does not project credentials when plugin loading is globally disabled or excluded", () => {
+    const pluginConfig = createBasePluginConfig();
+
+    expect(
+      resolveSandboxGwsCredentialProjection({
+        config: {
+          plugins: {
+            enabled: false,
+            entries: {
+              "gws-toolkit-phase1": {
+                enabled: true,
+                config: pluginConfig,
+              },
+            },
+          },
+        } as unknown as OpenClawConfig,
+        agentId: "main",
+        sessionKey: "agent:main:discord:channel:123",
+      }),
+    ).toBeNull();
+
+    expect(
+      resolveSandboxGwsCredentialProjection({
+        config: {
+          plugins: {
+            allow: ["other-plugin"],
+            entries: {
+              "gws-toolkit-phase1": {
+                enabled: true,
+                config: pluginConfig,
+              },
+            },
+          },
+        } as unknown as OpenClawConfig,
+        agentId: "main",
+        sessionKey: "agent:main:discord:channel:123",
+      }),
+    ).toBeNull();
+
+    expect(
+      resolveSandboxGwsCredentialProjection({
+        config: {
+          plugins: {
+            deny: ["gws-toolkit-phase1"],
+            entries: {
+              "gws-toolkit-phase1": {
+                enabled: true,
+                config: pluginConfig,
+              },
+            },
+          },
+        } as unknown as OpenClawConfig,
+        agentId: "main",
+        sessionKey: "agent:main:discord:channel:123",
+      }),
+    ).toBeNull();
+  });
+
   it("does not project credentials for non-credentials_file routes", () => {
     const projection = resolveSandboxGwsCredentialProjection({
       config: createConfig(
@@ -112,6 +170,20 @@ describe("resolveSandboxGwsCredentialProjection", () => {
               credentialsFile: "/home/node/.openclaw/other/credentials.json",
             },
           },
+        }),
+      ),
+      agentId: "main",
+      sessionKey: "agent:main:discord:channel:123",
+    });
+
+    expect(projection).toBeNull();
+  });
+
+  it("rejects approved paths that are narrower than the mounted credential directory", () => {
+    const projection = resolveSandboxGwsCredentialProjection({
+      config: createConfig(
+        createBasePluginConfig({
+          approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws/credentials.json"],
         }),
       ),
       agentId: "main",

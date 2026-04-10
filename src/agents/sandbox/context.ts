@@ -169,12 +169,23 @@ export async function resolveSandboxContext(params: {
           ),
         }
       : resolvedCfg.docker;
+  const derivedBindRequiresIsolatedContainer =
+    additionalSandboxBinds.length > 0 && resolvedCfg.scope === "shared";
+  const containerSessionKey = derivedBindRequiresIsolatedContainer
+    ? gwsProjection?.bindingSubject ?? rawSessionKey
+    : rawSessionKey;
+  // Keep a shared workspace if configured, but isolate the main container when a
+  // subject-scoped credential bind is present so one subject cannot reuse
+  // another subject's secret-bearing shared container.
+  const containerCfg = derivedBindRequiresIsolatedContainer
+    ? { ...resolvedCfg, scope: "session" as const }
+    : resolvedCfg;
 
   const containerName = await ensureSandboxContainer({
-    sessionKey: rawSessionKey,
+    sessionKey: containerSessionKey,
     workspaceDir,
     agentWorkspaceDir,
-    cfg: resolvedCfg,
+    cfg: containerCfg,
     extraBinds: additionalSandboxBinds,
     additionalBindSourceRoots,
   });

@@ -10,6 +10,13 @@ type RawPluginEntry = {
   config?: unknown;
 };
 
+type RawPluginsConfig = {
+  enabled?: boolean;
+  allow?: string[];
+  deny?: string[];
+  entries?: Record<string, RawPluginEntry>;
+};
+
 type RawCredentialsFileRoute = {
   mode: "credentials_file";
   credentialsFile: string;
@@ -32,14 +39,14 @@ function asObject(value: unknown): Record<string, unknown> | null {
 }
 
 function normalizePosixPath(value: string | undefined | null): string | null {
-  const trimmed = value?.trim();
-  if (!trimmed || !trimmed.startsWith("/")) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("/")) {
     return null;
   }
   const normalized = path.posix.normalize(trimmed);
-  if (!normalized.startsWith("/")) {
-    return null;
-  }
   return normalized === "/" ? normalized : normalized.replace(/\/+$/, "");
 }
 
@@ -59,6 +66,24 @@ function normalizeStringArray(value: unknown): string[] {
         .filter(Boolean),
     ),
   );
+}
+
+function resolveEnabledGwsPluginEntry(config?: OpenClawConfig): RawPluginEntry | null {
+  const pluginsConfig = config?.plugins as RawPluginsConfig | undefined;
+  if (!pluginsConfig || pluginsConfig.enabled === false) {
+    return null;
+  }
+  if (pluginsConfig.deny?.includes(GWS_PLUGIN_ID)) {
+    return null;
+  }
+  if (pluginsConfig.allow && !pluginsConfig.allow.includes(GWS_PLUGIN_ID)) {
+    return null;
+  }
+  const pluginEntry = pluginsConfig.entries?.[GWS_PLUGIN_ID];
+  if (!pluginEntry || pluginEntry.enabled === false) {
+    return null;
+  }
+  return pluginEntry;
 }
 
 function findNarrowestApprovedCredentialDir(
@@ -160,11 +185,8 @@ export function resolveSandboxGwsCredentialProjection(params: {
   agentId?: string;
   sessionKey: string;
 }): SandboxGwsCredentialProjection | null {
-  const pluginEntries = params.config?.plugins?.entries as
-    | Record<string, RawPluginEntry>
-    | undefined;
-  const pluginEntry = pluginEntries?.[GWS_PLUGIN_ID];
-  if (!pluginEntry || pluginEntry.enabled === false) {
+  const pluginEntry = resolveEnabledGwsPluginEntry(params.config);
+  if (!pluginEntry) {
     return null;
   }
 
@@ -216,6 +238,9 @@ export function resolveSandboxGwsCredentialProjection(params: {
   }
 
   const credentialDir = path.posix.dirname(credentialsFile);
+  if (!isPathInsidePosix(approvedCredentialDir, credentialDir)) {
+    return null;
+  }
   return {
     bindingSubject,
     routeName,
