@@ -322,26 +322,24 @@ describe("Agent-specific sandbox config", () => {
     }
   });
 
-  it(
-    "isolates shared-scope sandbox containers when a subject-scoped GWS bind is derived",
-    async () => {
-      const gatewayCid = "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c";
-      fsPromisesMocks.readFile.mockResolvedValue(
-        `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`,
-      );
-      spawnState.inspectMountsByTarget[gatewayCid] = JSON.stringify([
-        {
-          Type: "bind",
-          Source: "/opt/DAISy/config/secrets/gws",
-          Destination: "/home/node/.openclaw/secrets/gws",
-          Mode: "rw",
-          RW: true,
-        },
-      ]);
+  it("isolates shared-scope sandbox containers when a subject-scoped GWS bind is derived", async () => {
+    const gatewayCid = "c54802201537ffdc3b8d8af32de3aacd3091de94d8f52ba343aa8f9ed3c6045c";
+    fsPromisesMocks.readFile.mockResolvedValue(
+      `1176 1165 8:1 /var/lib/docker/containers/${gatewayCid}/hostname /etc/hostname ro,relatime - ext4 /dev/sda1 rw`,
+    );
+    spawnState.inspectMountsByTarget[gatewayCid] = JSON.stringify([
+      {
+        Type: "bind",
+        Source: "/opt/DAISy/config/secrets/gws",
+        Destination: "/home/node/.openclaw/secrets/gws",
+        Mode: "rw",
+        RW: true,
+      },
+    ]);
 
-      const cfg: OpenClawConfig = {
-        plugins: {
-          entries: {
+    const cfg: OpenClawConfig = {
+      plugins: {
+        entries: {
           "gws-toolkit-phase1": {
             enabled: true,
             config: {
@@ -370,17 +368,12 @@ describe("Agent-specific sandbox config", () => {
       },
     };
 
-      const context = await resolveContext(
-        cfg,
-        "agent:main:discord:channel:123",
-        "/tmp/test-main",
-      );
+    const context = await resolveContext(cfg, "agent:main:discord:channel:123", "/tmp/test-main");
 
-      expect(context).toBeDefined();
-      expect(context?.containerName).toContain("agent-main");
-      expect(context?.containerName).not.toContain("shared");
-    },
-  );
+    expect(context).toBeDefined();
+    expect(context?.containerName).toContain("agent-main");
+    expect(context?.containerName).not.toContain("shared");
+  });
 
   it("should allow agent-specific docker settings beyond setupCommand", () => {
     const cfg: OpenClawConfig = {

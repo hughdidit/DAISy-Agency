@@ -170,14 +170,9 @@ function resolveAllowUnboundAgents(params: {
   );
 }
 
-function resolveBindingSubject(params: {
-  agentId?: string;
-  sessionKey: string;
-}): string {
+function resolveBindingSubject(params: { agentId?: string; sessionKey: string }): string {
   const agentId = params.agentId?.trim().toLowerCase() || "main";
-  return isSubagentSessionKey(params.sessionKey)
-    ? `subagent:${agentId}`
-    : `agent:${agentId}`;
+  return isSubagentSessionKey(params.sessionKey) ? `subagent:${agentId}` : `agent:${agentId}`;
 }
 
 export function resolveSandboxGwsCredentialProjection(params: {

@@ -2,10 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import { resolveSandboxGwsCredentialProjection } from "./gws-credential-mounts.js";
 
-function createConfig(
-  pluginConfig: Record<string, unknown>,
-  enabled = true,
-): OpenClawConfig {
+function createConfig(pluginConfig: Record<string, unknown>, enabled = true): OpenClawConfig {
   return {
     plugins: {
       entries: {
@@ -18,9 +15,7 @@ function createConfig(
   } as unknown as OpenClawConfig;
 }
 
-function createBasePluginConfig(
-  overrides?: Record<string, unknown>,
-): Record<string, unknown> {
+function createBasePluginConfig(overrides?: Record<string, unknown>): Record<string, unknown> {
   return {
     enabledServices: ["drive"],
     enabledWriteServices: [],
