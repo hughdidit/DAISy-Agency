@@ -186,6 +186,11 @@ function probeCredentialFile(
       configured: false,
       exists: false,
       allowed: false,
+      ...(route?.mode === "credentials_file"
+        ? {
+            error: "Credentials file route is missing a configured credentials file path",
+          }
+        : {}),
     };
   }
   const configuredPath = normalizePath(raw);
@@ -277,8 +282,8 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
           available: modeAllowed,
           details: {
             credentialsFile: path.basename(probe.resolvedPath),
-            credentialsPath: probe.resolvedPath,
             configuredCredentialsFile: probe.configuredPath,
+            resolvedCredentialsFile: probe.resolvedPath,
             modeAllowed,
           },
         } satisfies RouteAuthStatus;
@@ -334,10 +339,13 @@ export function getActiveRouteAuthStatus(
         mode: route.mode,
         available: modeAllowed && probe.allowed,
         details: {
+          ...(probe.resolvedPath ? { credentialsFile: path.basename(probe.resolvedPath) } : {}),
           configuredCredentialsFile: probe.configuredPath,
           resolvedCredentialsFile: probe.resolvedPath,
           modeAllowed,
-          ...(probe.error ? { error: probe.error } : {}),
+          ...(probe.allowed
+            ? {}
+            : { error: probe.error ?? "Configured credentials file is unavailable" }),
         },
       };
     }

@@ -224,7 +224,7 @@ export async function executeStatus(params: {
           ...(includeVersion ? { version: discovery.versionText } : {}),
         },
         ...(includeAuthStatus ? { auth: authStatus } : {}),
-        currentRoute: activeRoute,
+        ...(includeAuthStatus ? { currentRoute: activeRoute } : {}),
         config: {
           posture: params.configResolution.posture,
           enabledServices: activeConfig.enabledServices,
