@@ -23,6 +23,10 @@ RUN chmod 755 /tmp/install-runtime-binaries.sh \
   && install -m 644 /tmp/runtime-binaries.json /usr/local/share/openclaw/runtime-binaries.json \
   && TARGETARCH="${TARGETARCH}" WRAPPER_PREFIX="${OPENCLAW_RUNTIME_WRAPPER_BIN}" /tmp/install-runtime-binaries.sh \
   && rm -f /tmp/install-runtime-binaries.sh /tmp/runtime-binaries.json
+ARG OPENCLAW_GWS_VERSION="0.17.0"
+RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @googleworkspace/cli@${OPENCLAW_GWS_VERSION} \
+ && gws --version \
+ && npm cache clean --force
 ARG OPENCLAW_SUMMARIZE_VERSION="0.13.0"
 RUN npm install -g --prefix=/usr/local --omit=dev --no-audit --no-fund @steipete/summarize@${OPENCLAW_SUMMARIZE_VERSION} \
  && /usr/local/bin/node /usr/local/lib/node_modules/@steipete/summarize/dist/cli.js --version \

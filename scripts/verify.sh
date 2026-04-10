@@ -539,6 +539,16 @@ NODE
       verify_runtime_binaries_for_target "image" "${sandbox_image_escaped}" "sandbox image ${sandbox_image}"
     )" || fail "Sandbox runtime binary smoke failed for image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
     printf '%s\n' "${sandbox_runtime_bins}"
+    sandbox_gws_bin="$(
+      gce_ssh_lastline "sudo docker run --rm --entrypoint sh ${sandbox_image_escaped} -lc 'command -v gws'"
+    )" || fail "gws binary is not available in sandbox image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
+    sandbox_gws_bin="$(echo "${sandbox_gws_bin}" | tr -d '[:space:]')"
+    if [[ -z "${sandbox_gws_bin}" ]]; then
+      fail "gws binary is not available in sandbox image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
+    fi
+    gce_ssh "sudo docker run --rm --entrypoint sh ${sandbox_image_escaped} -lc 'gws --version >/dev/null'" \
+      || fail "gws --version failed in sandbox image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
+    log "Sandbox image exposes gws at ${sandbox_gws_bin}."
   else
     log "Sandboxing is disabled; skipping sandbox image runtime binary smoke."
   fi
