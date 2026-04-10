@@ -59,10 +59,6 @@ export function buildSystemdUnit({
     `ExecStart=${execStart}`,
     "Restart=always",
     "RestartSec=5",
-    // KillMode=process ensures systemd only waits for the main process to exit.
-    // Without this, child monitor processes can block shutdown while staying
-    // in the same cgroup as the gateway process.
-    "KillMode=process",
     workingDirLine,
     ...envLines,
     "",

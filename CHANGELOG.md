@@ -471,6 +471,7 @@ Docs: https://docs.openclaw.ai
 - Cron/Reminder session routing: preserve `job.sessionKey` for `sessionTarget="main"` runs so queued reminders wake and deliver in the originating scoped session/channel instead of being forced to the agent main session.
 - Cron/Timezone regression guard: add explicit schedule coverage for `0 8 * * *` with `Asia/Shanghai` to ensure `nextRunAtMs` never rolls back to a past year and always advances to the next valid occurrence. (#30351)
 - Agents/Sessions list transcript paths: resolve `sessions_list` `transcriptPath` via agent-aware session path options and ignore combined-store sentinel paths (`(multiple)`) so listed transcript paths always point to the state directory. (#28379) Thanks @fafuzuoluo.
+- Podman/Quadlet setup: fix `sed` escaping and UID mismatch in Podman Quadlet setup. (#26414) Thanks @KnHack and @vincentkoc.
 - Browser/Navigate: resolve the correct `targetId` in navigate responses after renderer swaps. (#25326) Thanks @stone-jin and @vincentkoc.
 - Agents/Ollama discovery: skip Ollama discovery when explicit models are configured. (#28827) Thanks @Kansodata and @vincentkoc.
 - Issues/triage labeling: consolidate bug intake to a single bug issue form with required bug-type classification (regression/crash/behavior), auto-apply matching subtype labels from issue form content, and retire the separate regression template to reduce misfiled issue types and improve queue filtering. Thanks @vincentkoc.
@@ -550,6 +551,7 @@ Docs: https://docs.openclaw.ai
 - CLI/Gateway status: force local `gateway status` probe host to `127.0.0.1` for `bind=lan` so co-located probes do not trip non-loopback plaintext WebSocket checks. (#26997) thanks @chikko80.
 - CLI/Gateway auth: align `gateway run --auth` parsing/help text with supported gateway auth modes by accepting `none` and `trusted-proxy` (in addition to `token`/`password`) for CLI overrides. (#27469) thanks @s1korrrr.
 - CLI/Daemon status TLS probe: use `wss://` and forward local TLS certificate fingerprint for TLS-enabled gateway daemon probes so `openclaw daemon status` works with `gateway.bind=lan` + `gateway.tls.enabled=true`. (#24234) thanks @liuy.
+- Podman/Default bind: change `run-openclaw-podman.sh` default gateway bind from `lan` to `loopback` and document explicit LAN opt-in with Control UI origin configuration. (#27491) thanks @robbyczgw-cla.
 - Daemon/macOS launchd: forward proxy env vars into supervised service environments, keep LaunchAgent `KeepAlive=true` semantics, and harden restart sequencing to `print -> bootout -> wait old pid exit -> bootstrap -> kickstart`. (#27276) thanks @frankekn.
 - Gateway/macOS restart-loop hardening: detect OpenClaw-managed supervisor markers during SIGUSR1 restart handoff, clean stale gateway PIDs before `/restart` launchctl/systemctl triggers, and set LaunchAgent `ThrottleInterval=60` to bound launchd retry storms during lock-release races. Landed from contributor PRs #27655 (@taw0002), #27448 (@Sid-Qin), and #27650 (@kevinWangSheng). (#27605, #27590, #26904, #26736)
 - Models/MiniMax auth header defaults: set `authHeader: true` for both onboarding-generated MiniMax API providers and implicit built-in MiniMax (`minimax`, `minimax-portal`) provider templates so first requests no longer fail with MiniMax `401 authentication_error` due to missing `Authorization` header. Landed from contributor PRs #27622 by @riccoyuanft and #27631 by @kevinWangSheng. (#27600, #15303)
@@ -1714,6 +1716,7 @@ Docs: https://docs.openclaw.ai
 
 ### Changes
 
+- Install: add optional Podman-based setup: `setup-podman.sh` for one-time host setup (openclaw user, image, launch script, systemd quadlet), `run-openclaw-podman.sh launch` / `launch setup`; systemd Quadlet unit for openclaw user service; docs for rootless container, openclaw user (subuid/subgid), and quadlet (troubleshooting). (#16273) Thanks @DarwinsBuddy.
 - Discord: send voice messages with waveform previews from local audio files (including silent delivery). (#7253) Thanks @nyanjou.
 - Discord: add configurable presence status/activity/type/url (custom status defaults to activity text). (#10855) Thanks @h0tp-ftw.
 - Slack/Plugins: add thread-ownership outbound gating via `message_sending` hooks, including @-mention bypass tracking and Slack outbound hook wiring for cancel/modify behavior. (#15775) Thanks @DarlingtonDeveloper.
