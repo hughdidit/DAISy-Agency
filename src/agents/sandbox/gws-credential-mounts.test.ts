@@ -18,7 +18,9 @@ function createConfig(
   } as unknown as OpenClawConfig;
 }
 
-function createBasePluginConfig(overrides?: Record<string, unknown>): Record<string, unknown> {
+function createBasePluginConfig(
+  overrides?: Record<string, unknown>,
+): Record<string, unknown> {
   return {
     enabledServices: ["drive"],
     enabledWriteServices: [],

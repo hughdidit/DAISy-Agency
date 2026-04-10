@@ -126,6 +126,7 @@ export async function resolveSandboxContext(params: {
     return null;
   }
   const { rawSessionKey, cfg, runtime } = resolved;
+  const effectiveConfig = params.config ?? loadConfig();
 
   await maybePruneSandboxes(cfg);
 
@@ -144,7 +145,7 @@ export async function resolveSandboxContext(params: {
   const additionalSandboxBinds: string[] = [];
   const additionalBindSourceRoots: string[] = [];
   const gwsProjection = resolveSandboxGwsCredentialProjection({
-    config: params.config,
+    config: effectiveConfig,
     agentId: runtime.agentId,
     sessionKey: rawSessionKey,
   });
@@ -154,7 +155,7 @@ export async function resolveSandboxContext(params: {
       additionalSandboxBinds.push(`${hostGwsDir.path}:${gwsProjection.targetContainerDir}:ro`);
       additionalBindSourceRoots.push(hostGwsDir.path);
     } else {
-      defaultRuntime.warn?.(
+      defaultRuntime.log(
         `Skipping derived GWS sandbox bind for ${gwsProjection.bindingSubject}: could not remap ${gwsProjection.sourceContainerDir} to a trusted host path.`,
       );
     }
@@ -185,10 +186,9 @@ export async function resolveSandboxContext(params: {
     ? await (async () => {
         // Sandbox browser bridge server runs on a loopback TCP port; always wire up
         // the same auth that loopback browser clients will send (token/password).
-        const cfgForAuth = params.config ?? loadConfig();
-        let browserAuth = resolveBrowserControlAuth(cfgForAuth);
+        let browserAuth = resolveBrowserControlAuth(effectiveConfig);
         try {
-          const ensured = await ensureBrowserControlAuth({ cfg: cfgForAuth });
+          const ensured = await ensureBrowserControlAuth({ cfg: effectiveConfig });
           browserAuth = ensured.auth;
         } catch (error) {
           const message = error instanceof Error ? error.message : JSON.stringify(error);

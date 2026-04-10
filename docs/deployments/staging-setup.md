@@ -180,6 +180,8 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
 
    Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes. Verify now checks both file presence and `gws auth status` health inside the live gateway container, so a stale exported credential will fail deploy verification even if `credentials.json` still exists on disk. Delegated sandbox containers do not receive `/opt/DAISy/config`; they only receive explicit capability projections, so GWS availability in sandboxed delegated runs depends on the route-authorized credential mount being derived into the sandbox at container creation time.
 
+   After any GWS route, approved-directory, or credential-file change, recreate the affected sandbox containers before validating delegated runs. The projection is computed at sandbox container creation, so existing hot sandboxes keep their previous bind set until they are explicitly recreated.
+
 2. **Add staging environment variables** in GitHub:
    - `OPENCLAW_GATEWAY_PORT`
    - `OPENCLAW_BRIDGE_PORT`

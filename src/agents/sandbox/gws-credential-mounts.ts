@@ -1,9 +1,19 @@
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
-import { resolveConfig } from "../../../extensions/gws-toolkit-phase1/src/config.js";
-import { resolveCredentialRoute } from "../../../extensions/gws-toolkit-phase1/src/credential-routing.js";
+import { isSubagentSessionKey } from "../../routing/session-key.js";
 
 const GWS_PLUGIN_ID = "gws-toolkit-phase1";
+const LEGACY_ROUTE_NAME = "legacy-default";
+
+type RawPluginEntry = {
+  enabled?: boolean;
+  config?: unknown;
+};
+
+type RawCredentialsFileRoute = {
+  mode: "credentials_file";
+  credentialsFile: string;
+};
 
 export type SandboxGwsCredentialProjection = {
   bindingSubject: string;
@@ -13,6 +23,13 @@ export type SandboxGwsCredentialProjection = {
   sourceContainerDir: string;
   targetContainerDir: string;
 };
+
+function asObject(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+  return value as Record<string, unknown>;
+}
 
 function normalizePosixPath(value: string | undefined | null): string | null {
   const trimmed = value?.trim();
@@ -30,15 +47,112 @@ function isPathInsidePosix(parent: string, target: string): boolean {
   return target === parent || target.startsWith(`${parent}/`);
 }
 
+function normalizeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return Array.from(
+    new Set(
+      value
+        .filter((entry) => typeof entry === "string")
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
 function findNarrowestApprovedCredentialDir(
   approvedDirs: readonly string[],
   credentialsFile: string,
 ): string | null {
-  return approvedDirs
-    .map((entry) => normalizePosixPath(entry))
-    .filter((entry): entry is string => Boolean(entry))
-    .filter((entry) => isPathInsidePosix(entry, credentialsFile))
-    .sort((left, right) => right.length - left.length)[0] ?? null;
+  return (
+    approvedDirs
+      .map((entry) => normalizePosixPath(entry))
+      .filter((entry): entry is string => Boolean(entry))
+      .filter((entry) => isPathInsidePosix(entry, credentialsFile))
+      .sort((left, right) => right.length - left.length)[0] ?? null
+  );
+}
+
+function normalizeCredentialsFileRoute(raw: unknown): RawCredentialsFileRoute | null {
+  const route = asObject(raw);
+  if (!route || route.mode !== "credentials_file") {
+    return null;
+  }
+  const credentialsFile =
+    typeof route.credentialsFile === "string" ? normalizePosixPath(route.credentialsFile) : null;
+  if (!credentialsFile) {
+    return null;
+  }
+  return {
+    mode: "credentials_file",
+    credentialsFile,
+  };
+}
+
+function resolveCredentialRoutes(
+  rawPluginConfig: Record<string, unknown>,
+): Record<string, RawCredentialsFileRoute> {
+  const routes: Record<string, RawCredentialsFileRoute> = {};
+  const rawRoutes = asObject(rawPluginConfig.credentialRoutes);
+  if (rawRoutes) {
+    for (const [routeName, routeValue] of Object.entries(rawRoutes)) {
+      const normalizedRoute = normalizeCredentialsFileRoute(routeValue);
+      if (normalizedRoute) {
+        routes[routeName.trim()] = normalizedRoute;
+      }
+    }
+    return routes;
+  }
+
+  const legacyCredentialsFile =
+    typeof rawPluginConfig.credentialsFile === "string"
+      ? normalizePosixPath(rawPluginConfig.credentialsFile)
+      : null;
+  if (legacyCredentialsFile) {
+    routes[LEGACY_ROUTE_NAME] = {
+      mode: "credentials_file",
+      credentialsFile: legacyCredentialsFile,
+    };
+  }
+  return routes;
+}
+
+function resolveDefaultCredentialRouteName(params: {
+  rawPluginConfig: Record<string, unknown>;
+  routes: Record<string, RawCredentialsFileRoute>;
+}): string | null {
+  const explicitDefault =
+    typeof params.rawPluginConfig.defaultCredentialRoute === "string"
+      ? params.rawPluginConfig.defaultCredentialRoute.trim()
+      : null;
+  if (explicitDefault) {
+    return explicitDefault;
+  }
+  return Object.hasOwn(params.routes, LEGACY_ROUTE_NAME) ? LEGACY_ROUTE_NAME : null;
+}
+
+function resolveAllowUnboundAgents(params: {
+  rawPluginConfig: Record<string, unknown>;
+  routes: Record<string, RawCredentialsFileRoute>;
+}): boolean {
+  if (params.rawPluginConfig.allowUnboundAgents === true) {
+    return true;
+  }
+  return (
+    params.rawPluginConfig.allowUnboundAgents === undefined &&
+    Object.hasOwn(params.routes, LEGACY_ROUTE_NAME)
+  );
+}
+
+function resolveBindingSubject(params: {
+  agentId?: string;
+  sessionKey: string;
+}): string {
+  const agentId = params.agentId?.trim().toLowerCase() || "main";
+  return isSubagentSessionKey(params.sessionKey)
+    ? `subagent:${agentId}`
+    : `agent:${agentId}`;
 }
 
 export function resolveSandboxGwsCredentialProjection(params: {
@@ -47,39 +161,54 @@ export function resolveSandboxGwsCredentialProjection(params: {
   sessionKey: string;
 }): SandboxGwsCredentialProjection | null {
   const pluginEntries = params.config?.plugins?.entries as
-    | Record<string, { enabled?: boolean; config?: unknown }>
+    | Record<string, RawPluginEntry>
     | undefined;
   const pluginEntry = pluginEntries?.[GWS_PLUGIN_ID];
   if (!pluginEntry || pluginEntry.enabled === false) {
     return null;
   }
 
-  const resolvedConfig = resolveConfig(pluginEntry.config);
-  if (!resolvedConfig.ok) {
+  const rawPluginConfig = asObject(pluginEntry.config);
+  if (!rawPluginConfig) {
     return null;
   }
 
-  let routeResolution;
-  try {
-    routeResolution = resolveCredentialRoute(resolvedConfig.value.config, {
-      agentId: params.agentId,
-      sessionKey: params.sessionKey,
-    });
-  } catch {
+  const routes = resolveCredentialRoutes(rawPluginConfig);
+  if (Object.keys(routes).length === 0) {
     return null;
   }
 
-  if (routeResolution.route.mode !== "credentials_file") {
+  const bindingSubject = resolveBindingSubject({
+    agentId: params.agentId,
+    sessionKey: params.sessionKey,
+  });
+  const rawBindings = asObject(rawPluginConfig.agentCredentialBindings);
+  const boundRouteName =
+    rawBindings && typeof rawBindings[bindingSubject] === "string"
+      ? rawBindings[bindingSubject].trim()
+      : null;
+
+  const routeName =
+    boundRouteName ||
+    (resolveAllowUnboundAgents({ rawPluginConfig, routes })
+      ? resolveDefaultCredentialRouteName({ rawPluginConfig, routes })
+      : null);
+  if (!routeName) {
     return null;
   }
 
-  const credentialsFile = normalizePosixPath(routeResolution.route.credentialsFile);
+  const route = routes[routeName];
+  if (!route) {
+    return null;
+  }
+
+  const credentialsFile = normalizePosixPath(route.credentialsFile);
   if (!credentialsFile) {
     return null;
   }
 
   const approvedCredentialDir = findNarrowestApprovedCredentialDir(
-    resolvedConfig.value.config.approvedCredentialDirs,
+    normalizeStringArray(rawPluginConfig.approvedCredentialDirs),
     credentialsFile,
   );
   if (!approvedCredentialDir) {
@@ -88,8 +217,8 @@ export function resolveSandboxGwsCredentialProjection(params: {
 
   const credentialDir = path.posix.dirname(credentialsFile);
   return {
-    bindingSubject: routeResolution.bindingSubject,
-    routeName: routeResolution.route.name,
+    bindingSubject,
+    routeName,
     credentialsFile,
     approvedCredentialDir,
     sourceContainerDir: credentialDir,
