@@ -60,8 +60,8 @@ export function buildSystemdUnit({
     "Restart=always",
     "RestartSec=5",
     // KillMode=process ensures systemd only waits for the main process to exit.
-    // Without this, podman's conmon (container monitor) processes block shutdown
-    // since they run as children of the gateway and stay in the same cgroup.
+    // Without this, child monitor processes can block shutdown while staying
+    // in the same cgroup as the gateway process.
     "KillMode=process",
     workingDirLine,
     ...envLines,
