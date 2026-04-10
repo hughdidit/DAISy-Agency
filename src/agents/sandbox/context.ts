@@ -159,10 +159,16 @@ export async function resolveSandboxContext(params: {
     const hostPath = await resolveDockerHostPathInfo(mount.sourceContainerPath);
     if (hostPath.remapSucceeded) {
       try {
-        await fs.access(hostPath.path);
-      } catch {
+        await fs.access(mount.sourceContainerPath);
+      } catch (error) {
+        const rawCode = error instanceof Error && "code" in error ? error.code : undefined;
+        const code = typeof rawCode === "string" ? rawCode : undefined;
+        const reason =
+          code === "ENOENT"
+            ? "does not exist inside the gateway container"
+            : `is not accessible inside the gateway container (code: ${code ?? "unknown"})`;
         defaultRuntime.log(
-          `Skipping derived ${mount.capabilityId} sandbox bind for ${mount.bindingSubject}: remapped host path ${hostPath.path} does not exist.`,
+          `Skipping derived ${mount.capabilityId} sandbox bind for ${mount.bindingSubject}: source path ${mount.sourceContainerPath} ${reason}.`,
         );
         continue;
       }
