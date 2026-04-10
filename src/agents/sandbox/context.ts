@@ -11,8 +11,9 @@ import { DEFAULT_AGENT_WORKSPACE_DIR } from "../workspace.js";
 import { ensureSandboxBrowser } from "./browser.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
 import { DEFAULT_SANDBOX_WORKDIR } from "./constants.js";
-import { ensureSandboxContainer } from "./docker.js";
+import { ensureSandboxContainer, resolveDockerHostPathInfo } from "./docker.js";
 import { createSandboxFsBridge } from "./fs-bridge.js";
+import { resolveSandboxGwsCredentialProjection } from "./gws-credential-mounts.js";
 import { maybePruneSandboxes } from "./prune.js";
 import { resolveSandboxRuntimeStatus } from "./runtime-status.js";
 import { resolveSandboxScopeKey, resolveSandboxWorkspaceDir } from "./shared.js";
@@ -124,7 +125,7 @@ export async function resolveSandboxContext(params: {
   if (!resolved) {
     return null;
   }
-  const { rawSessionKey, cfg } = resolved;
+  const { rawSessionKey, cfg, runtime } = resolved;
 
   await maybePruneSandboxes(cfg);
 
@@ -140,12 +141,41 @@ export async function resolveSandboxContext(params: {
     workspaceDir,
   });
   const resolvedCfg = docker === cfg.docker ? cfg : { ...cfg, docker };
+  const additionalSandboxBinds: string[] = [];
+  const additionalBindSourceRoots: string[] = [];
+  const gwsProjection = resolveSandboxGwsCredentialProjection({
+    config: params.config,
+    agentId: runtime.agentId,
+    sessionKey: rawSessionKey,
+  });
+  if (gwsProjection) {
+    const hostGwsDir = await resolveDockerHostPathInfo(gwsProjection.sourceContainerDir);
+    if (hostGwsDir.remapSucceeded) {
+      additionalSandboxBinds.push(`${hostGwsDir.path}:${gwsProjection.targetContainerDir}:ro`);
+      additionalBindSourceRoots.push(hostGwsDir.path);
+    } else {
+      defaultRuntime.warn?.(
+        `Skipping derived GWS sandbox bind for ${gwsProjection.bindingSubject}: could not remap ${gwsProjection.sourceContainerDir} to a trusted host path.`,
+      );
+    }
+  }
+  const effectiveDocker =
+    additionalSandboxBinds.length > 0
+      ? {
+          ...resolvedCfg.docker,
+          binds: Array.from(
+            new Set([...(resolvedCfg.docker.binds ?? []), ...additionalSandboxBinds]),
+          ),
+        }
+      : resolvedCfg.docker;
 
   const containerName = await ensureSandboxContainer({
     sessionKey: rawSessionKey,
     workspaceDir,
     agentWorkspaceDir,
     cfg: resolvedCfg,
+    extraBinds: additionalSandboxBinds,
+    additionalBindSourceRoots,
   });
 
   const evaluateEnabled =
@@ -184,7 +214,7 @@ export async function resolveSandboxContext(params: {
     workspaceAccess: resolvedCfg.workspaceAccess,
     containerName,
     containerWorkdir: resolvedCfg.docker.workdir,
-    docker: resolvedCfg.docker,
+    docker: effectiveDocker,
     tools: resolvedCfg.tools,
     browserAllowHostControl: resolvedCfg.browser.allowHostControl,
     browser: browser ?? undefined,

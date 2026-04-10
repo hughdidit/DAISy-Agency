@@ -178,7 +178,7 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `DISCORD_ALERTS_WEBHOOK_URL` - Sensitive Discord webhook for Alertmanager; store as a secret, not a variable
    - `ALERT_SMTP_USERNAME` / `ALERT_SMTP_PASSWORD` - Optional SMTP auth for email alerts
 
-   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes. Verify now checks both file presence and `gws auth status` health inside the live gateway container, so a stale exported credential will fail deploy verification even if `credentials.json` still exists on disk.
+   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes. Verify now checks both file presence and `gws auth status` health inside the live gateway container, so a stale exported credential will fail deploy verification even if `credentials.json` still exists on disk. Delegated sandbox containers do not receive `/opt/DAISy/config`; they only receive explicit capability projections, so GWS availability in sandboxed delegated runs depends on the route-authorized credential mount being derived into the sandbox at container creation time.
 
 2. **Add staging environment variables** in GitHub:
    - `OPENCLAW_GATEWAY_PORT`
