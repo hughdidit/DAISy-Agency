@@ -852,12 +852,7 @@
               },
               {
                 "group": "Other install methods",
-                "pages": [
-                  "install/docker",
-                  "install/nix",
-                  "install/ansible",
-                  "install/bun"
-                ]
+                "pages": ["install/docker", "install/nix", "install/ansible", "install/bun"]
               },
               {
                 "group": "Maintenance",
