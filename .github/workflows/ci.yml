@@ -578,7 +578,8 @@ jobs:
   linux-required:
     name: CI / Linux Required
     if: always() && github.event_name == 'pull_request'
-    needs: [docs-scope, changed-scope, anti-mock, secrets, build-artifacts, check, checks, skills-python]
+    needs:
+      [docs-scope, changed-scope, anti-mock, secrets, build-artifacts, check, checks, skills-python]
     runs-on: ubuntu-latest
     permissions: {}
     steps:
