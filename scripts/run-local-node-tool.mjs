@@ -14,6 +14,7 @@ if (!tool) {
 
 const scriptPath = fileURLToPath(import.meta.url);
 const rootDir = path.resolve(path.dirname(scriptPath), "..");
+const invocationCwd = process.cwd();
 
 const packageJsonPath = findPackageJsonPath(tool);
 if (!packageJsonPath) {
@@ -36,7 +37,7 @@ if (!binPath) {
 }
 
 const result = spawnSync(process.execPath, [binPath, ...toolArgs], {
-  cwd: rootDir,
+  cwd: invocationCwd,
   stdio: "inherit",
 });
 
@@ -109,7 +110,7 @@ function resolveBinPath(toolName, packageJsonPath, packageJson) {
   return path.resolve(path.dirname(packageJsonPath), selectedBin);
 }
 
-function shouldUsePackageManagerFallback(toolName, packageJson) {
+function shouldUsePackageManagerFallback(toolName, _packageJson) {
   if (toolName !== "oxlint" || process.platform !== "win32") {
     return false;
   }
@@ -145,14 +146,22 @@ function runPackageManagerTool(toolName, packageJson, args) {
     candidates.push({ command: "pnpm", args: ["dlx", packageSpec, ...args] });
   }
 
+  if (existsSync(path.join(rootDir, "bun.lockb")) || existsSync(path.join(rootDir, "bun.lock"))) {
+    candidates.push({ command: "bun", args: ["x", "--bun", packageSpec, ...args] });
+  }
+
   candidates.push({
     command: "npm",
     args: ["exec", "--yes", `--package=${packageSpec}`, "--", toolName, ...args],
   });
 
   for (const candidate of candidates) {
+    if (!isCommandAvailable(candidate.command)) {
+      continue;
+    }
+
     const result = spawnSync(candidate.command, candidate.args, {
-      cwd: rootDir,
+      cwd: invocationCwd,
       stdio: "inherit",
       shell: process.platform === "win32",
     });
@@ -164,8 +173,14 @@ function runPackageManagerTool(toolName, packageJson, args) {
     return result;
   }
 
-  console.error("Missing package manager: pnpm or npm required.");
+  console.error("Missing package manager: pnpm, bun, or npm required.");
   return { status: 1 };
+}
+
+function isCommandAvailable(command) {
+  const checker = process.platform === "win32" ? "where.exe" : "which";
+  const result = spawnSync(checker, [command], { stdio: "ignore" });
+  return result.status === 0;
 }
 
 function exitWithResult(result) {
