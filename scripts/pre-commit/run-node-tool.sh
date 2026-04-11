@@ -11,6 +11,10 @@ fi
 tool="$1"
 shift
 
+if [[ "$tool" =~ ^ox(fmt|lint)$ ]] && [[ -f "$ROOT_DIR/scripts/run-local-node-tool.mjs" ]]; then
+  exec node "$ROOT_DIR/scripts/run-local-node-tool.mjs" "$tool" "$@"
+fi
+
 if [[ -f "$ROOT_DIR/pnpm-lock.yaml" ]] && command -v pnpm >/dev/null 2>&1; then
   exec pnpm exec "$tool" "$@"
 fi
