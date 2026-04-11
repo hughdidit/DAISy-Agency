@@ -1,12 +1,10 @@
 import { execFileSync } from "node:child_process";
 import { appendFileSync } from "node:fs";
 
-/** @typedef {{ runNode: boolean; runMacos: boolean; runAndroid: boolean }} ChangedScope */
+/** @typedef {{ runNode: boolean; runIos: boolean; runAndroid: boolean }} ChangedScope */
 
 const DOCS_PATH_RE = /^(docs\/|.*\.mdx?$)/;
-const MACOS_PROTOCOL_GEN_RE =
-  /^(apps\/macos\/Sources\/OpenClawProtocol\/|apps\/shared\/OpenClawKit\/Sources\/OpenClawProtocol\/)/;
-const MACOS_NATIVE_RE = /^(apps\/macos\/|apps\/ios\/|apps\/shared\/|Swabble\/)/;
+const IOS_NATIVE_RE = /^(apps\/ios\/|apps\/shared\/|Swabble\/)/;
 const ANDROID_NATIVE_RE = /^(apps\/android\/|apps\/shared\/)/;
 const NODE_SCOPE_RE =
   /^(src\/|test\/|extensions\/|packages\/|scripts\/|ui\/|\.github\/|openclaw\.mjs$|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|tsconfig.*\.json$|vitest.*\.ts$|tsdown\.config\.ts$|\.oxlintrc\.json$|\.oxfmtrc\.jsonc$)/;
@@ -20,11 +18,11 @@ const NATIVE_ONLY_RE =
  */
 export function detectChangedScope(changedPaths) {
   if (!Array.isArray(changedPaths) || changedPaths.length === 0) {
-    return { runNode: true, runMacos: true, runAndroid: true };
+    return { runNode: true, runIos: true, runAndroid: true };
   }
 
   let runNode = false;
-  let runMacos = false;
+  let runIos = false;
   let runAndroid = false;
   let hasNonDocs = false;
   let hasNonNativeNonDocs = false;
@@ -41,8 +39,8 @@ export function detectChangedScope(changedPaths) {
 
     hasNonDocs = true;
 
-    if (!MACOS_PROTOCOL_GEN_RE.test(path) && MACOS_NATIVE_RE.test(path)) {
-      runMacos = true;
+    if (IOS_NATIVE_RE.test(path)) {
+      runIos = true;
     }
 
     if (ANDROID_NATIVE_RE.test(path)) {
@@ -62,7 +60,7 @@ export function detectChangedScope(changedPaths) {
     runNode = true;
   }
 
-  return { runNode, runMacos, runAndroid };
+  return { runNode, runIos, runAndroid };
 }
 
 /**
@@ -93,7 +91,7 @@ export function writeGitHubOutput(scope, outputPath = process.env.GITHUB_OUTPUT)
     throw new Error("GITHUB_OUTPUT is required");
   }
   appendFileSync(outputPath, `run_node=${scope.runNode}\n`, "utf8");
-  appendFileSync(outputPath, `run_macos=${scope.runMacos}\n`, "utf8");
+  appendFileSync(outputPath, `run_ios=${scope.runIos}\n`, "utf8");
   appendFileSync(outputPath, `run_android=${scope.runAndroid}\n`, "utf8");
 }
 
@@ -124,11 +122,11 @@ if (isDirectRun()) {
   try {
     const changedPaths = listChangedPaths(args.base, args.head);
     if (changedPaths.length === 0) {
-      writeGitHubOutput({ runNode: true, runMacos: true, runAndroid: true });
+      writeGitHubOutput({ runNode: true, runIos: true, runAndroid: true });
       process.exit(0);
     }
     writeGitHubOutput(detectChangedScope(changedPaths));
   } catch {
-    writeGitHubOutput({ runNode: true, runMacos: true, runAndroid: true });
+    writeGitHubOutput({ runNode: true, runIos: true, runAndroid: true });
   }
 }
