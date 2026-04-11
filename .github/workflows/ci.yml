@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   # Detect docs-only changes to skip heavy jobs (test, build, iOS, Android).
-  # Lint and format always run. Fail-safe: if detection fails, run everything.
+  # Node lint/format stays scoped with the Node lane; fail-safe is to run everything.
   docs-scope:
     runs-on: ubuntu-latest
     outputs:
@@ -69,7 +69,7 @@ jobs:
 
           node scripts/ci-changed-scope.mjs --base "$BASE" --head HEAD
 
-  # Build dist once for Node-relevant changes and share it with downstream jobs.
+  # Keep a dedicated Linux build smoke gate for Node-relevant changes.
   build-artifacts:
     needs: [docs-scope, changed-scope]
     if: needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_node == 'true'
@@ -88,13 +88,6 @@ jobs:
 
       - name: Build dist
         run: pnpm build
-
-      - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-build
-          path: dist/
-          retention-days: 1
 
   anti-mock:
     name: anti-mock
@@ -585,8 +578,9 @@ jobs:
   linux-required:
     name: CI / Linux Required
     if: always() && github.event_name == 'pull_request'
-    needs: [docs-scope, changed-scope, build-artifacts, check, checks, skills-python]
+    needs: [docs-scope, changed-scope, anti-mock, secrets, build-artifacts, check, checks, skills-python]
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Validate Linux required jobs
         shell: bash
@@ -614,6 +608,8 @@ jobs:
           fi
 
           for result in \
+            "${{ needs.anti-mock.result }}" \
+            "${{ needs.secrets.result }}" \
             "${{ needs.build-artifacts.result }}" \
             "${{ needs.check.result }}" \
             "${{ needs.checks.result }}" \
@@ -629,6 +625,7 @@ jobs:
     if: always() && github.event_name == 'pull_request'
     needs: [docs-scope, changed-scope, ios]
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Validate iOS required job
         shell: bash
@@ -665,6 +662,7 @@ jobs:
     if: always() && github.event_name == 'pull_request'
     needs: [docs-scope, changed-scope, android]
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Validate Android required job
         shell: bash

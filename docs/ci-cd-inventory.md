@@ -34,7 +34,7 @@
 
 - `docs-scope` / `changed-scope` (`ubuntu-latest`): cheap front-door gating for docs-only, Node, iOS, and Android scope.
 - `check` (`check`, `ubuntu-latest`): TypeScript lint/type/build-smoke gate for Node-relevant changes.
-- `build-artifacts` (`ubuntu-latest`): builds `dist/` once for Linux downstream jobs.
+- `build-artifacts` (`ubuntu-latest`): dedicated Linux build smoke gate for `dist/`.
 - `checks` (`ubuntu-latest`, matrix): two Node test shards plus protocol, GWS toolkit, and Bun validation.
 - `skills-python` (`ubuntu-latest`): `ruff` + `pytest` for Python skill scripts.
 - `secrets` (`ubuntu-latest`): detect-secrets, private-key checks, workflow audit, and production dependency audit.
@@ -51,7 +51,7 @@
 
 **Recommendation**
 
-- **Active.** Required checks should point at the stable gate jobs (`CI / Linux Required`, `CI / iOS Required`, `CI / Android Required`) plus any always-on non-gate checks such as `anti-mock` and `secrets`.
+- **Active.** Required checks should point at the stable gate jobs (`CI / Linux Required`, `CI / iOS Required`, `CI / Android Required`). `CI / Linux Required` now covers `anti-mock`, `secrets`, and the scoped Linux validation jobs, so branch protection does not need separate raw job names from this workflow.
 
 ### CodeQL Advanced (`.github/workflows/codeql.yml`)
 

@@ -20,7 +20,7 @@ The CI workflow runs on pull requests targeting `daisy/dev` or `daisy/main`, plu
 | `anti-mock`             | Block new mock-pattern files                             | Always                              |
 | `check-docs`            | Markdown lint + broken link check                        | Docs changed                        |
 | `check`                 | TypeScript types, lint, format, strict build smoke       | Node-relevant changes               |
-| `build-artifacts`       | Build dist once, share with downstream Linux jobs        | Node-relevant changes               |
+| `build-artifacts`       | Dedicated Linux build smoke for `dist/`                  | Node-relevant changes               |
 | `checks`                | Node test shards, protocol check, GWS toolkit, Bun tests | Node-relevant changes               |
 | `skills-python`         | Lint and test Python skill scripts                       | Node-relevant changes               |
 | `secrets`               | Detect leaked secrets and audit workflow changes         | Always                              |
