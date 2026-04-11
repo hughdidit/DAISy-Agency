@@ -13,22 +13,22 @@ The CI workflow runs on pull requests targeting `daisy/dev` or `daisy/main`, plu
 
 ## Job Overview
 
-| Job                  | Purpose                                                  | When it runs                                |
-| -------------------- | -------------------------------------------------------- | ------------------------------------------- |
-| `docs-scope`         | Detect docs-only changes                                 | Always                                      |
-| `changed-scope`      | Detect which areas changed (`node` / `ios` / `android`) | Non-doc changes and manual dispatch         |
-| `anti-mock`          | Block new mock-pattern files                             | Always                                      |
-| `check-docs`         | Markdown lint + broken link check                        | Docs changed                                |
-| `check`              | TypeScript types, lint, format, strict build smoke       | Node-relevant changes                       |
-| `build-artifacts`    | Build dist once, share with downstream Linux jobs        | Node-relevant changes                       |
-| `checks`             | Node test shards, protocol check, GWS toolkit, Bun tests | Node-relevant changes                       |
-| `skills-python`      | Lint and test Python skill scripts                       | Node-relevant changes                       |
-| `secrets`            | Detect leaked secrets and audit workflow changes         | Always                                      |
-| `ios`                | Supported Apple mobile validation                        | iOS / shared / Swabble changes              |
-| `android`            | Supported Android validation                             | Android / shared changes                    |
-| `CI / Linux Required`| Stable required gate for Linux validation                | Every pull request                          |
-| `CI / iOS Required`  | Stable required gate for supported Apple mobile changes  | Every pull request                          |
-| `CI / Android Required` | Stable required gate for Android changes              | Every pull request                          |
+| Job                     | Purpose                                                  | When it runs                        |
+| ----------------------- | -------------------------------------------------------- | ----------------------------------- |
+| `docs-scope`            | Detect docs-only changes                                 | Always                              |
+| `changed-scope`         | Detect which areas changed (`node` / `ios` / `android`)  | Non-doc changes and manual dispatch |
+| `anti-mock`             | Block new mock-pattern files                             | Always                              |
+| `check-docs`            | Markdown lint + broken link check                        | Docs changed                        |
+| `check`                 | TypeScript types, lint, format, strict build smoke       | Node-relevant changes               |
+| `build-artifacts`       | Build dist once, share with downstream Linux jobs        | Node-relevant changes               |
+| `checks`                | Node test shards, protocol check, GWS toolkit, Bun tests | Node-relevant changes               |
+| `skills-python`         | Lint and test Python skill scripts                       | Node-relevant changes               |
+| `secrets`               | Detect leaked secrets and audit workflow changes         | Always                              |
+| `ios`                   | Supported Apple mobile validation                        | iOS / shared / Swabble changes      |
+| `android`               | Supported Android validation                             | Android / shared changes            |
+| `CI / Linux Required`   | Stable required gate for Linux validation                | Every pull request                  |
+| `CI / iOS Required`     | Stable required gate for supported Apple mobile changes  | Every pull request                  |
+| `CI / Android Required` | Stable required gate for Android changes                 | Every pull request                  |
 
 ## Fail-Fast Order
 
@@ -43,10 +43,10 @@ Scope logic lives in `scripts/ci-changed-scope.mjs` and is covered by unit tests
 
 ## Runners
 
-| Runner          | Jobs                                                          |
-| --------------- | ------------------------------------------------------------- |
-| `ubuntu-latest` | Scope detection, Linux validation, stable gate jobs, secrets  |
-| `macos-latest`  | `ios`                                                         |
+| Runner          | Jobs                                                         |
+| --------------- | ------------------------------------------------------------ |
+| `ubuntu-latest` | Scope detection, Linux validation, stable gate jobs, secrets |
+| `macos-latest`  | `ios`                                                        |
 
 ## Local Equivalents
 
