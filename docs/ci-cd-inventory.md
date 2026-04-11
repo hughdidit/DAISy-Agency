@@ -2,11 +2,11 @@
 
 ## At a glance
 
-| Workflow file                          | Workflow name   | Triggers                                                    | Key jobs (job name strings)                                                                                                             | Classification | Notes / risks                                                                                                                                                                |
-| -------------------------------------- | --------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/workflows/ci.yml`             | CI              | `push` + `pull_request` (daisy/main, daisy/dev)             | `Install Check`, `Linux / <runtime> / <task>`, `Secrets Scan`, `macOS / node / <task>`, `macOS App / <task>`, `iOS`, `Android / <task>` | Needs refactor | Multi-OS matrix load; job names are matrix-derived (required-check churn); shared concurrency group with other workflows can cancel runs; iOS job is disabled (`if: false`). |
-| `.github/workflows/codeql.yml`         | CodeQL Advanced | `push` + `pull_request` (daisy/main, daisy/dev), `schedule` | `Analyze (<language>)`                                                                                                                  | Needs refactor | Broad language matrix; macOS runners for Swift; scheduled load; actions not pinned to SHAs.                                                                                  |
-| `.github/workflows/docker-release.yml` | Docker Release  | `push` (main + tags `v*`)                                   | `build-amd64`, `build-arm64`, `create-manifest`                                                                                         | Needs refactor | Branch trigger uses `main` (not `daisy/main`); assumes GHCR publish with `GITHUB_TOKEN`; no workflow_dispatch; provenance + SBOM enabled on push.                            |
+| Workflow file                          | Workflow name   | Triggers                                                     | Key jobs (job name strings)                                                                                               | Classification | Notes / risks                                                                                                                                          |
+| -------------------------------------- | --------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.github/workflows/ci.yml`             | CI              | `pull_request` (daisy/main, daisy/dev) + `workflow_dispatch` | `check`, `checks`, `skills-python`, `ios`, `android`, `CI / Linux Required`, `CI / iOS Required`, `CI / Android Required` | Active         | PR-only CI with docs/scope front door, iOS and Android as supported mobile lanes, and stable required-check names that do not depend on matrix labels. |
+| `.github/workflows/codeql.yml`         | CodeQL Advanced | `push` + `pull_request` (daisy/main, daisy/dev), `schedule`  | `Analyze (<language>)`                                                                                                    | Needs refactor | Broad language matrix; macOS runners for Swift; scheduled load; actions not pinned to SHAs.                                                            |
+| `.github/workflows/docker-release.yml` | Docker Release  | `push` (main + tags `v*`)                                    | `build-amd64`, `build-arm64`, `create-manifest`                                                                           | Needs refactor | Branch trigger uses `main` (not `daisy/main`); assumes GHCR publish with `GITHUB_TOKEN`; no workflow_dispatch; provenance + SBOM enabled on push.      |
 
 | `.github/workflows/auto-response.yml` | Auto response | `issues` + `pull_request_target` (labeled) | `auto-response` | Useful | Requires `GH_APP_PRIVATE_KEY`; closes issues/PRs based on labels; action versions not SHA-pinned. |
 | `.github/workflows/workflow-sanity.yml` | Workflow Sanity | `push` + `pull_request` (daisy/main, daisy/dev) | `no-tabs` | Useful | Shares `ci-` concurrency group with other workflows (risk of cross-cancel). |
@@ -17,12 +17,12 @@
 
 **What it does**
 
-- Primary CI gate for the repo: installs deps, runs lint/tests/build/protocol/format on Linux, macOS tests, macOS app checks, Android unit tests/builds, plus detect-secrets scanning.
+- Primary PR validation gate for the repo: runs Linux lint/build/test/protocol checks, iOS validation, Android validation, anti-mock enforcement, and detect-secrets scanning.
 
 **When it runs**
 
-- `push` to `daisy/main` or `daisy/dev`.
 - `pull_request` targeting `daisy/main` or `daisy/dev`.
+- `workflow_dispatch` for manual runs.
 - Concurrency group: `ci-${{ github.event.pull_request.number || github.ref }}` with cancel-in-progress.
 
 **Permissions / secrets / environment**
@@ -32,27 +32,26 @@
 
 **Jobs inventory**
 
-- `install-check` (`Install Check`, `blacksmith-4vcpu-ubuntu-2404`): checkout + submodules, setup node 22 + pnpm, install deps.
-- `checks` (`Linux / <runtime> / <task>`, `blacksmith-4vcpu-ubuntu-2404`, matrix):
-  - Node tasks: `pnpm lint`, `pnpm test -- --no-file-parallelism`, `pnpm build`, `pnpm protocol:check`, `pnpm format`.
-  - Bun tasks: `bunx vitest run --no-file-parallelism`, `bunx tsc -p tsconfig.json`.
-- `secrets` (`Secrets Scan`, `blacksmith-4vcpu-ubuntu-2404`): detect-secrets baseline scan.
-- `checks-macos` (`macOS / node / <task>`, `macos-latest`, PR-only): node test.
-- `macos-app` (`macOS App / <task>`, `macos-latest`, PR-only): Swift lint/build/test for macOS app.
-- `ios` (`iOS`, `macos-latest`, **disabled via `if: false`**): XcodeGen + iOS sim tests + coverage gate.
-- `android` (`Android / <task>`, `blacksmith-4vcpu-ubuntu-2404`, matrix): gradle unit tests + assemble.
+- `docs-scope` / `changed-scope` (`ubuntu-latest`): cheap front-door gating for docs-only, Node, iOS, and Android scope.
+- `check` (`check`, `ubuntu-latest`): TypeScript lint/type/build-smoke gate for Node-relevant changes.
+- `build-artifacts` (`ubuntu-latest`): dedicated Linux build smoke gate for `dist/`.
+- `checks` (`ubuntu-latest`, matrix): two Node test shards plus protocol, GWS toolkit, and Bun validation.
+- `skills-python` (`ubuntu-latest`): `ruff` + `pytest` for Python skill scripts.
+- `secrets` (`ubuntu-latest`): detect-secrets, private-key checks, workflow audit, and production dependency audit.
+- `ios` (`macos-latest`): XcodeGen + iOS simulator tests + coverage gate for supported Apple mobile changes.
+- `android` (`ubuntu-latest`, matrix): gradle unit tests + assemble for Android changes.
+- `CI / Linux Required`, `CI / iOS Required`, `CI / Android Required` (`ubuntu-latest`): stable PR gate jobs for branch protection.
 
 **Risks / issues found**
 
-- **Required-check churn risk**: job names are matrix-derived (e.g., `Linux / node / test`), so changing matrix items can break required checks if those names are pinned in branch protection.
-- **Required-check deadlock risk**: if branch protection requires jobs that only run on PRs (`macOS / node / <task>`, `macOS App / <task>`) or the disabled `iOS` job, pushes to `daisy/main` could be blocked with pending checks.
-- **Runner load risk**: wide OS matrix (Linux + macOS + Android) makes every PR heavy; Swift + Android adds long runners.
+- **Runner load risk**: iOS still requires `macos-latest`, so Apple-mobile coverage remains the slowest and most capacity-constrained lane.
+- **Minutes tradeoff**: two Node test shards reduce wall-clock time but can increase total Actions minutes.
 - **Concurrency cross-cancel**: shared `ci-` group with other workflows can cancel CI if another workflow starts with the same key.
 - **Unpinned actions**: `actions/checkout@v4`, `setup-node@v4`, `setup-bun@v2`, etc. use version tags not SHAs.
 
 **Recommendation**
 
-- **Needs refactor.** Keep Linux checks as the core required gate. Consider isolating macOS/Android/iOS into optional or scheduled workflows with explicit required-check policy to avoid deadlocks.
+- **Active.** Required checks should point at the stable gate jobs (`CI / Linux Required`, `CI / iOS Required`, `CI / Android Required`). `CI / Linux Required` now covers `anti-mock`, `secrets`, and the scoped Linux validation jobs, so branch protection does not need separate raw job names from this workflow.
 
 ### CodeQL Advanced (`.github/workflows/codeql.yml`)
 
@@ -174,24 +173,24 @@
 
 ## Required-check notes
 
-- **Linux gate model (current)**: The closest required-check candidate is the Linux `checks` matrix in `ci.yml`. This is the likely required gate for PRs into `daisy/dev` and `daisy/main` and should remain the single required gate in Phase 1.
-- **Deadlock risks**: If branch protection requires any of the PR-only jobs (`macOS / node / <task>`, `macOS App / <task>`) or the disabled `iOS` job, pushes to `daisy/main` will hang with pending checks. Ensure required checks are limited to always-running jobs.
+- **Stable gate model (current)**: Branch protection should require the stable jobs `CI / Linux Required`, `CI / iOS Required`, and `CI / Android Required` instead of matrix-derived task names.
+- **Deadlock avoidance**: Do not require conditionally absent task labels or unsupported product lanes. The stable gate jobs are always present on pull requests and short-circuit success when a platform is out of scope.
 
 ## Patchbot refactor roadmap
 
 ### Phase 1: Normalize CI (done/verified)
 
-**Objective**: Document the existing Linux gate and ensure required checks map to stable job names.
+**Objective**: Align CI with shipped platforms and ensure required checks map to stable job names.
 
 **Concrete next PR tasks**
 
-- Document required checks tied to Linux matrix job names (no workflow changes in this PR).
+- Keep required checks on the stable gate jobs instead of matrix-derived task names.
 - Capture current branch model: `daisy/dev` (integration) and `daisy/main` (production).
 
 **Expected outcomes / acceptance criteria**
 
-- Required checks point to Linux jobs that run on both PRs and pushes.
-- No workflow changes; inventory doc accepted.
+- Required checks point to stable gate jobs that are always present on pull requests.
+- CI reflects the supported mobile platforms: iOS and Android.
 
 **Commands (for Codex)**
 
@@ -200,17 +199,17 @@
 
 ### Phase 2: Split CI from CD
 
-**Objective**: Separate PR validation (CI) from release/build (CD) and reduce runner load.
+**Objective**: Separate PR validation (CI) from release/build (CD) and reduce runner load further.
 
 **Concrete next PR tasks**
 
 - Split `ci.yml` into reusable workflows (e.g., `ci-linux.yml`, `ci-platform.yml`) using `workflow_call`.
-- Add explicit required Linux gate with stable, non-matrix job name to avoid required-check churn.
+- Keep the existing stable required gate jobs and evaluate whether any should move into reusable workflows.
 - Move release-related jobs (Docker build, app packaging) into CD workflows triggered by `workflow_dispatch` or tags.
 
 **Expected outcomes / acceptance criteria**
 
-- PRs run Linux gate by default; macOS/Android run as opt-in or scheduled.
+- PRs keep Linux, iOS, and Android validation under the scoped CI workflow.
 - Release workflows do not run on every PR/push.
 
 **Commands (for Codex)**

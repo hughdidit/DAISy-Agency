@@ -9,40 +9,44 @@ read_when:
 
 # CI Pipeline
 
-The CI runs on every push to `main` and every pull request. It uses smart scoping to skip expensive jobs when only docs or native code changed.
+The CI workflow runs on pull requests targeting `daisy/dev` or `daisy/main`, plus manual `workflow_dispatch`. It uses docs and changed-scope gates to keep expensive Linux, iOS, and Android validation scoped to the changes in the PR.
 
 ## Job Overview
 
-| Job               | Purpose                                         | When it runs                                      |
-| ----------------- | ----------------------------------------------- | ------------------------------------------------- |
-| `docs-scope`      | Detect docs-only changes                        | Always                                            |
-| `changed-scope`   | Detect which areas changed (node/macos/android) | Non-docs PRs                                      |
-| `check`           | TypeScript types, lint, format                  | Push to `main`, or PRs with Node-relevant changes |
-| `check-docs`      | Markdown lint + broken link check               | Docs changed                                      |
-| `code-analysis`   | LOC threshold check (1000 lines)                | PRs only                                          |
-| `secrets`         | Detect leaked secrets                           | Always                                            |
-| `build-artifacts` | Build dist once, share with other jobs          | Non-docs, node changes                            |
-| `release-check`   | Validate npm pack contents                      | After build                                       |
-| `checks`          | Node/Bun tests + protocol check                 | Non-docs, node changes                            |
-| `macos`           | Swift lint/build/test + TS tests                | PRs with macos changes                            |
-| `android`         | Gradle build + tests                            | Non-docs, android changes                         |
+| Job                     | Purpose                                                  | When it runs                        |
+| ----------------------- | -------------------------------------------------------- | ----------------------------------- |
+| `docs-scope`            | Detect docs-only changes                                 | Always                              |
+| `changed-scope`         | Detect which areas changed (`node` / `ios` / `android`)  | Non-doc changes and manual dispatch |
+| `anti-mock`             | Block new mock-pattern files                             | Always                              |
+| `check-docs`            | Markdown lint + broken link check                        | Docs changed                        |
+| `check`                 | TypeScript types, lint, format, strict build smoke       | Node-relevant changes               |
+| `build-artifacts`       | Dedicated Linux build smoke for `dist/`                  | Node-relevant changes               |
+| `checks`                | Node test shards, protocol check, GWS toolkit, Bun tests | Node-relevant changes               |
+| `skills-python`         | Lint and test Python skill scripts                       | Node-relevant changes               |
+| `secrets`               | Detect leaked secrets and audit workflow changes         | Always                              |
+| `ios`                   | Supported Apple mobile validation                        | iOS / shared / Swabble changes      |
+| `android`               | Supported Android validation                             | Android / shared changes            |
+| `CI / Linux Required`   | Stable required gate for Linux validation                | Every pull request                  |
+| `CI / iOS Required`     | Stable required gate for supported Apple mobile changes  | Every pull request                  |
+| `CI / Android Required` | Stable required gate for Android changes                 | Every pull request                  |
 
 ## Fail-Fast Order
 
 Jobs are ordered so cheap checks fail before expensive ones run:
 
-1. `docs-scope` + `code-analysis` + `check` (parallel, ~1-2 min)
-2. `build-artifacts` (blocked on above)
-3. `checks`, `macos`, `android` (blocked on build)
+1. `docs-scope`, `anti-mock`, and `secrets`
+2. `changed-scope`, `check-docs`, and `check`
+3. `build-artifacts`, `checks`, `skills-python`, `ios`, and `android`
+4. Stable gate jobs (`CI / Linux Required`, `CI / iOS Required`, `CI / Android Required`)
 
 Scope logic lives in `scripts/ci-changed-scope.mjs` and is covered by unit tests in `src/scripts/ci-changed-scope.test.ts`.
 
 ## Runners
 
-| Runner                          | Jobs                                       |
-| ------------------------------- | ------------------------------------------ |
-| `blacksmith-16vcpu-ubuntu-2404` | Most Linux jobs, including scope detection |
-| `macos-latest`                  | `macos`, `ios`                             |
+| Runner          | Jobs                                                         |
+| --------------- | ------------------------------------------------------------ |
+| `ubuntu-latest` | Scope detection, Linux validation, stable gate jobs, secrets |
+| `macos-latest`  | `ios`                                                        |
 
 ## Local Equivalents
 
@@ -50,5 +54,4 @@ Scope logic lives in `scripts/ci-changed-scope.mjs` and is covered by unit tests
 pnpm check          # types + lint + format
 pnpm test           # vitest tests
 pnpm check:docs     # docs format + lint + broken links
-pnpm release:check  # validate npm pack
 ```

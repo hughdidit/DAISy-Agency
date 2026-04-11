@@ -1,3 +1,13 @@
+# CI/CD critical paths
+
+/.github/CODEOWNERS @hughdidit
+/.github/actions/ @hughdidit
+/.github/workflows/ @hughdidit
+/docs/ci.md @hughdidit
+/docs/ci-cd-inventory.md @hughdidit
+/scripts/deploy.sh @hughdidit
+/scripts/verify.sh @hughdidit
+
 # Package- or extension-local test trees
 
 **/test/ @hughdidit

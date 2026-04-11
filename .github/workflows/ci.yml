@@ -19,8 +19,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Detect docs-only changes to skip heavy jobs (test, build, macOS, Android).
-  # Lint and format always run. Fail-safe: if detection fails, run everything.
+  # Detect docs-only changes to skip heavy jobs (test, build, iOS, Android).
+  # Node lint/format stays scoped with the Node lane; fail-safe is to run everything.
   docs-scope:
     runs-on: ubuntu-latest
     outputs:
@@ -38,14 +38,14 @@ jobs:
         uses: ./.github/actions/detect-docs-changes
 
   # Detect which heavy areas are touched so PRs can skip unrelated expensive jobs.
-  # Push to main keeps broad coverage.
+  # Manual dispatch falls back to broad coverage.
   changed-scope:
     needs: [docs-scope]
-    if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true'
+    if: needs.docs-scope.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     outputs:
       run_node: ${{ steps.scope.outputs.run_node }}
-      run_macos: ${{ steps.scope.outputs.run_macos }}
+      run_ios: ${{ steps.scope.outputs.run_ios }}
       run_android: ${{ steps.scope.outputs.run_android }}
 
     steps:
@@ -61,18 +61,18 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [ "${{ github.event_name }}" = "push" ]; then
-            BASE="${{ github.event.before }}"
-          else
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
             BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE=""
           fi
 
           node scripts/ci-changed-scope.mjs --base "$BASE" --head HEAD
 
-  # Build dist once for Node-relevant changes and share it with downstream jobs.
+  # Keep a dedicated Linux build smoke gate for Node-relevant changes.
   build-artifacts:
     needs: [docs-scope, changed-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
+    if: needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_node == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -88,39 +88,6 @@ jobs:
 
       - name: Build dist
         run: pnpm build
-
-      - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-build
-          path: dist/
-          retention-days: 1
-
-  # Validate npm pack contents after build (only on push to main, not PRs).
-  release-check:
-    needs: [docs-scope, build-artifacts]
-    if: github.event_name == 'push' && needs.docs-scope.outputs.docs_only != 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-
-      - name: Setup Node environment
-        uses: ./.github/actions/setup-node-env
-        with:
-          install-bun: "false"
-          use-sticky-disk: "false"
-
-      - name: Download dist artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-build
-          path: dist/
-
-      - name: Check release contents
-        run: pnpm release:check
 
   anti-mock:
     name: anti-mock
@@ -160,7 +127,7 @@ jobs:
 
   checks:
     needs: [docs-scope, changed-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
+    if: needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_node == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -168,7 +135,12 @@ jobs:
       matrix:
         include:
           - runtime: node
-            task: test
+            task: test shard 1/2
+            shard_index: 1
+            command: pnpm canvas:a2ui:bundle && pnpm test
+          - runtime: node
+            task: test shard 2/2
+            shard_index: 2
             command: pnpm canvas:a2ui:bundle && pnpm test
           - runtime: node
             task: protocol
@@ -180,28 +152,24 @@ jobs:
             task: test
             command: pnpm canvas:a2ui:bundle && bunx vitest run --config vitest.unit.config.ts
     steps:
-      - name: Skip bun lane on push
-        if: github.event_name == 'push' && matrix.runtime == 'bun'
-        run: echo "Skipping bun test lane on push events."
-
       - name: Checkout
-        if: github.event_name != 'push' || matrix.runtime != 'bun'
         uses: actions/checkout@v4
         with:
           submodules: false
 
       - name: Setup Node environment
-        if: matrix.runtime != 'bun' || github.event_name != 'push'
         uses: ./.github/actions/setup-node-env
         with:
           install-bun: "${{ matrix.runtime == 'bun' }}"
           use-sticky-disk: "false"
 
       - name: Configure Node test resources
-        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
+        if: startsWith(matrix.task, 'test shard') && matrix.runtime == 'node'
         run: |
           # `pnpm test` runs `scripts/test-parallel.mjs`, which spawns multiple Node processes.
           # ubuntu-latest has ~7GB RAM; single worker avoids OOM (test suite needs ~3.5GB).
+          echo "OPENCLAW_TEST_SHARDS=2" >> "$GITHUB_ENV"
+          echo "OPENCLAW_TEST_SHARD_INDEX=${{ matrix.shard_index }}" >> "$GITHUB_ENV"
           echo "OPENCLAW_TEST_WORKERS=1" >> "$GITHUB_ENV"
           echo "OPENCLAW_TEST_MAX_OLD_SPACE_SIZE_MB=5120" >> "$GITHUB_ENV"
           # Disable vmForks: with 1 worker, vmForks spawns 2 parallel vitest processes
@@ -210,14 +178,13 @@ jobs:
           echo "OPENCLAW_TEST_VM_FORKS=0" >> "$GITHUB_ENV"
 
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
-        if: matrix.runtime != 'bun' || github.event_name != 'push'
         run: ${{ matrix.command }}
 
   # Types, lint, and format check.
   check:
     name: "check"
     needs: [docs-scope, changed-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
+    if: needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_node == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -246,7 +213,7 @@ jobs:
   deadcode:
     name: dead-code report
     needs: [docs-scope, changed-scope]
-    # if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
+    # if: needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_node == 'true'
     if: false
     runs-on: ubuntu-latest
     strategy:
@@ -302,7 +269,7 @@ jobs:
 
   skills-python:
     needs: [docs-scope, changed-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
+    if: needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_node == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -365,10 +332,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [ "${{ github.event_name }}" = "push" ]; then
-            BASE="${{ github.event.before }}"
-          else
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
             BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            git fetch --no-tags --depth=1 origin daisy/dev
+            BASE="$(git merge-base HEAD origin/daisy/dev)"
           fi
 
           mapfile -t workflow_files < <(git diff --name-only "$BASE" HEAD -- '.github/workflows/*.yml' '.github/workflows/*.yaml')
@@ -392,13 +360,9 @@ jobs:
             echo "Skipping dependency audit (APP_ENV=${APP_ENV})"
           fi
 
-  # Consolidated macOS job: runs TS tests + Swift lint/build/test sequentially
-  # on a single runner. GitHub limits macOS concurrent jobs to 5 per org;
-  # running 4 separate jobs per PR (as before) starved the queue. One job
-  # per PR allows 5 PRs to run macOS checks simultaneously.
-  macos:
+  ios:
     needs: [docs-scope, changed-scope, check]
-    if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_macos == 'true'
+    if: always() && needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_ios == 'true' && needs.check.result != 'failure' && needs.check.result != 'cancelled'
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
@@ -412,67 +376,6 @@ jobs:
         with:
           install-bun: "false"
           install-deps: "false"
-
-      # --- Xcode/Swift setup ---
-      - name: Select Xcode 26.1
-        run: |
-          sudo xcode-select -s /Applications/Xcode_26.1.app
-          xcodebuild -version
-
-      - name: Install XcodeGen / SwiftLint / SwiftFormat
-        run: brew install xcodegen swiftlint swiftformat
-
-      - name: Show toolchain
-        run: |
-          sw_vers
-          xcodebuild -version
-          swift --version
-
-      - name: Swift lint
-        run: |
-          swiftlint --config .swiftlint.yml
-          swiftformat --lint apps/macos/Sources --config .swiftformat
-
-      - name: Cache SwiftPM
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Caches/org.swift.swiftpm
-          key: ${{ runner.os }}-swiftpm-${{ hashFiles('apps/macos/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-swiftpm-
-
-      - name: Swift build (release)
-        run: |
-          set -euo pipefail
-          for attempt in 1 2 3; do
-            if swift build --package-path apps/macos --configuration release; then
-              exit 0
-            fi
-            echo "swift build failed (attempt $attempt/3). Retrying…"
-            sleep $((attempt * 20))
-          done
-          exit 1
-
-      - name: Swift test
-        run: |
-          set -euo pipefail
-          for attempt in 1 2 3; do
-            if swift test --package-path apps/macos --parallel --enable-code-coverage --show-codecov-path; then
-              exit 0
-            fi
-            echo "swift test failed (attempt $attempt/3). Retrying…"
-            sleep $((attempt * 20))
-          done
-          exit 1
-
-  ios:
-    if: false # DAISy does not ship an iOS app; skip to save CI minutes
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: false
 
       - name: Select Xcode 26.1
         run: |
@@ -627,7 +530,7 @@ jobs:
 
   android:
     needs: [docs-scope, changed-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_android == 'true')
+    if: needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_android == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -671,3 +574,123 @@ jobs:
       - name: Run Android ${{ matrix.task }}
         working-directory: apps/android
         run: ${{ matrix.command }}
+
+  linux-required:
+    name: CI / Linux Required
+    if: always() && github.event_name == 'pull_request'
+    needs:
+      [docs-scope, changed-scope, anti-mock, secrets, build-artifacts, check, checks, skills-python]
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Validate Linux required jobs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ needs.docs-scope.result }}" != "success" ]; then
+            echo "docs-scope did not succeed: ${{ needs.docs-scope.result }}"
+            exit 1
+          fi
+
+          if [ "${{ needs.docs-scope.outputs.docs_only }}" = "true" ]; then
+            echo "Docs-only PR; Linux gate not required."
+            exit 0
+          fi
+
+          if [ "${{ needs.changed-scope.result }}" != "success" ]; then
+            echo "changed-scope did not succeed: ${{ needs.changed-scope.result }}"
+            exit 1
+          fi
+
+          if [ "${{ needs.changed-scope.outputs.run_node }}" != "true" ]; then
+            echo "No Node-relevant changes; Linux gate not required."
+            exit 0
+          fi
+
+          for result in \
+            "${{ needs.anti-mock.result }}" \
+            "${{ needs.secrets.result }}" \
+            "${{ needs.build-artifacts.result }}" \
+            "${{ needs.check.result }}" \
+            "${{ needs.checks.result }}" \
+            "${{ needs.skills-python.result }}"; do
+            if [ "$result" != "success" ]; then
+              echo "Required Linux job did not succeed: $result"
+              exit 1
+            fi
+          done
+
+  ios-required:
+    name: CI / iOS Required
+    if: always() && github.event_name == 'pull_request'
+    needs: [docs-scope, changed-scope, ios]
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Validate iOS required job
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ needs.docs-scope.result }}" != "success" ]; then
+            echo "docs-scope did not succeed: ${{ needs.docs-scope.result }}"
+            exit 1
+          fi
+
+          if [ "${{ needs.docs-scope.outputs.docs_only }}" = "true" ]; then
+            echo "Docs-only PR; iOS gate not required."
+            exit 0
+          fi
+
+          if [ "${{ needs.changed-scope.result }}" != "success" ]; then
+            echo "changed-scope did not succeed: ${{ needs.changed-scope.result }}"
+            exit 1
+          fi
+
+          if [ "${{ needs.changed-scope.outputs.run_ios }}" != "true" ]; then
+            echo "No iOS-relevant changes; iOS gate not required."
+            exit 0
+          fi
+
+          if [ "${{ needs.ios.result }}" != "success" ]; then
+            echo "Required iOS job did not succeed: ${{ needs.ios.result }}"
+            exit 1
+          fi
+
+  android-required:
+    name: CI / Android Required
+    if: always() && github.event_name == 'pull_request'
+    needs: [docs-scope, changed-scope, android]
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Validate Android required job
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ needs.docs-scope.result }}" != "success" ]; then
+            echo "docs-scope did not succeed: ${{ needs.docs-scope.result }}"
+            exit 1
+          fi
+
+          if [ "${{ needs.docs-scope.outputs.docs_only }}" = "true" ]; then
+            echo "Docs-only PR; Android gate not required."
+            exit 0
+          fi
+
+          if [ "${{ needs.changed-scope.result }}" != "success" ]; then
+            echo "changed-scope did not succeed: ${{ needs.changed-scope.result }}"
+            exit 1
+          fi
+
+          if [ "${{ needs.changed-scope.outputs.run_android }}" != "true" ]; then
+            echo "No Android-relevant changes; Android gate not required."
+            exit 0
+          fi
+
+          if [ "${{ needs.android.result }}" != "success" ]; then
+            echo "Required Android job did not succeed: ${{ needs.android.result }}"
+            exit 1
+          fi
