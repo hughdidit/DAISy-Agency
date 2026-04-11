@@ -1,6 +1,6 @@
 export type ChangedScope = {
   runNode: boolean;
-  runMacos: boolean;
+  runIos: boolean;
   runAndroid: boolean;
 };
 
