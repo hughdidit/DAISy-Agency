@@ -15,6 +15,7 @@ if (!tool) {
 const scriptPath = fileURLToPath(import.meta.url);
 const rootDir = path.resolve(path.dirname(scriptPath), "..");
 const invocationCwd = process.cwd();
+const rootPackageManager = getRootPackageManager();
 
 const packageJsonPath = findPackageJsonPath(tool);
 if (!packageJsonPath) {
@@ -142,11 +143,15 @@ function runPackageManagerTool(toolName, packageJson, args) {
   const packageSpec = `${packageJson.name}@${packageJson.version}`;
   const candidates = [];
 
-  if (existsSync(path.join(rootDir, "pnpm-lock.yaml"))) {
+  if (rootPackageManager?.startsWith("pnpm@") || existsSync(path.join(rootDir, "pnpm-lock.yaml"))) {
     candidates.push({ command: "pnpm", args: ["dlx", packageSpec, ...args] });
   }
 
-  if (existsSync(path.join(rootDir, "bun.lockb")) || existsSync(path.join(rootDir, "bun.lock"))) {
+  if (
+    rootPackageManager?.startsWith("bun@") ||
+    existsSync(path.join(rootDir, "bun.lockb")) ||
+    existsSync(path.join(rootDir, "bun.lock"))
+  ) {
     candidates.push({ command: "bun", args: ["x", "--bun", packageSpec, ...args] });
   }
 
@@ -183,9 +188,37 @@ function isCommandAvailable(command) {
   return result.status === 0;
 }
 
+function getRootPackageManager() {
+  const rootPackageJsonPath = path.join(rootDir, "package.json");
+  if (!existsSync(rootPackageJsonPath)) {
+    return null;
+  }
+
+  try {
+    const rootPackageJson = JSON.parse(readFileSync(rootPackageJsonPath, "utf8"));
+    return typeof rootPackageJson.packageManager === "string"
+      ? rootPackageJson.packageManager
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 function exitWithResult(result) {
   if (result.error) {
-    throw result.error;
+    const attemptedCommand = [
+      result.error.path,
+      ...(Array.isArray(result.error.spawnargs) ? result.error.spawnargs : []),
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    console.error(
+      attemptedCommand
+        ? `Failed to start command: ${attemptedCommand} (${result.error.message})`
+        : `Failed to start command: ${result.error.message}`,
+    );
+    process.exit(1);
   }
 
   if (typeof result.status === "number") {
