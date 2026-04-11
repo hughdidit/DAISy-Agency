@@ -81,15 +81,15 @@ apps/ios/*.dSYM.zip
 apps/ios/*.mobileprovision
 
 # Local untracked files
-.local/
-.vscode/
-.githooks/
-docs/.local/
+.local/**
+.vscode/**
+.githooks/**
+docs/.local/**
 IDENTITY.md
 USER.md
 .tgz
 .idea
-.codex/
+.codex/**
 prd/**
 
 # local tooling
