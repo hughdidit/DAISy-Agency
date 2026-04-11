@@ -5,7 +5,7 @@
   "description": "Security-hardened Google Workspace toolkit plugin with route-aware writes",
   "type": "module",
   "scripts": {
-    "lint": "oxlint --type-aware .",
+    "lint": "node ../../scripts/run-local-node-tool.mjs oxlint --type-aware .",
     "test": "cd ../.. && vitest run --config vitest.extensions.config.ts extensions/gws-toolkit-phase1/test",
     "test:acceptance": "cd ../.. && vitest run --config vitest.extensions.config.ts extensions/gws-toolkit-phase1/test/acceptance",
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
