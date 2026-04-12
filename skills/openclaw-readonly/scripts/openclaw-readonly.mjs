@@ -6,8 +6,9 @@ import { fileURLToPath } from "node:url";
 
 export function resolveOpenClawReadonlyBinary(params = {}) {
   const env = params.env ?? process.env;
-  const pathValue = params.pathValue ?? env.PATH ?? "";
   const platform = params.platform ?? process.platform;
+  const pathValue =
+    params.pathValue ?? (platform === "win32" ? (env.Path ?? env.PATH) : env.PATH) ?? "";
   const pathext = platform === "win32" ? (env.PATHEXT ?? ".EXE;.CMD;.BAT;.COM") : "";
   const extensions =
     platform === "win32"

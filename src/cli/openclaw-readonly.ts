@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { isMainModule } from "../infra/is-main.js";
+import type { RuntimeEnv } from "../runtime.js";
 
 export type OpenClawReadonlyCommand =
   | {
@@ -33,11 +34,7 @@ export type OpenClawReadonlyResolvedEnv = {
   workspaceDir?: string;
 };
 
-export type OpenClawReadonlyRuntime = {
-  log: (message: string) => void;
-  error: (message: string) => void;
-  exit: (code: number) => void;
-};
+export type OpenClawReadonlyRuntime = RuntimeEnv;
 
 type OpenClawReadonlyDeps = {
   env: NodeJS.ProcessEnv;
@@ -228,8 +225,8 @@ export function applyOpenClawReadonlyEnv(env: NodeJS.ProcessEnv = process.env): 
 
 function createDefaultReadonlyRuntime(): OpenClawReadonlyRuntime {
   return {
-    log: (message) => console.log(message),
-    error: (message) => console.error(message),
+    log: (...args) => console.log(...args),
+    error: (...args) => console.error(...args),
     exit: (code) => process.exit(code),
   };
 }
@@ -277,7 +274,12 @@ async function runOpenClawReadonlyResolved(
       const { loadConfig, buildWorkspaceSkillStatus, formatSkillsCheck, formatSkillsList } =
         await deps.importSkillsModules();
       const config = loadConfig();
-      const report = buildWorkspaceSkillStatus(resolved.workspaceDir ?? "", { config });
+      if (!resolved.workspaceDir) {
+        throw new Error(
+          `Missing readonly workspace mount for ${resolved.command.args.join(" ")}.`,
+        );
+      }
+      const report = buildWorkspaceSkillStatus(resolved.workspaceDir, { config });
       deps.runtime.log(
         resolved.command.key === "skills-list"
           ? formatSkillsList(report, {})

@@ -19,10 +19,10 @@ describe("openclaw-readonly CLI", () => {
   });
 
   it.each([
-    ["status"],
-    ["sandbox", "explain"],
-    ["skills", "list"],
-    ["skills", "check"],
+    [["status"]],
+    [["sandbox", "explain"]],
+    [["skills", "list"]],
+    [["skills", "check"]],
   ])("allows the exact tuple %j", (argv) => {
     expect(parseOpenClawReadonlyCommand(argv)).toBeDefined();
   });

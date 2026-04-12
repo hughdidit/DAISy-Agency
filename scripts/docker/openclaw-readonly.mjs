@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import module from "node:module";
+import { pathToFileURL } from "node:url";
 
 const MIN_NODE_MAJOR = 22;
 const MIN_NODE_MINOR = 12;
@@ -43,28 +44,39 @@ if (module.enableCompileCache && !process.env.NODE_DISABLE_COMPILE_CACHE) {
 process.env.OPENCLAW_BUNDLED_SKILLS_DIR ||= `${RUNTIME_ROOT}/skills`;
 
 const tryImport = async (specifier) => {
+  const expectedUrl = pathToFileURL(specifier).href;
   try {
-    await import(specifier);
-    return true;
+    const imported = await import(specifier);
+    return imported;
   } catch (error) {
     if (
       error &&
       typeof error === "object" &&
       "code" in error &&
-      error.code === "ERR_MODULE_NOT_FOUND"
+      error.code === "ERR_MODULE_NOT_FOUND" &&
+      "url" in error &&
+      error.url === expectedUrl
     ) {
-      return false;
+      return null;
     }
     throw error;
   }
 };
 
-if (await tryImport(`${RUNTIME_ROOT}/dist/openclaw-readonly.js`)) {
-  // OK
-} else if (await tryImport(`${RUNTIME_ROOT}/dist/openclaw-readonly.mjs`)) {
-  // OK
-} else {
+const importedRuntime =
+  (await tryImport(`${RUNTIME_ROOT}/dist/openclaw-readonly.js`)) ??
+  (await tryImport(`${RUNTIME_ROOT}/dist/openclaw-readonly.mjs`));
+
+if (!importedRuntime) {
   throw new Error(
     "openclaw-readonly: missing dist/openclaw-readonly.(m)js in the sandbox image.",
   );
 }
+
+if (typeof importedRuntime.runOpenClawReadonly !== "function") {
+  throw new Error(
+    "openclaw-readonly: dist runtime does not export runOpenClawReadonly().",
+  );
+}
+
+await importedRuntime.runOpenClawReadonly();

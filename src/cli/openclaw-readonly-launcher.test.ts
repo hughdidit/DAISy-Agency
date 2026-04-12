@@ -48,16 +48,41 @@ describe("openclaw-readonly launcher", () => {
   it("resolves openclaw-readonly from PATH", async () => {
     const { resolveOpenClawReadonlyBinary } = await loadLauncherModule();
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-readonly-path-"));
-    const binaryPath = path.join(tempDir, "openclaw-readonly");
-    await fs.writeFile(binaryPath, "#!/usr/bin/env node\n", { mode: 0o755 });
+    try {
+      const binaryPath = path.join(tempDir, "openclaw-readonly");
+      await fs.writeFile(binaryPath, "#!/usr/bin/env node\n", { mode: 0o755 });
 
-    expect(
-      resolveOpenClawReadonlyBinary({
-        pathValue: `${tempDir}${path.delimiter}${process.env.PATH ?? ""}`,
-        env: process.env,
-        platform: process.platform,
-      }),
-    ).toBe(binaryPath);
+      expect(
+        resolveOpenClawReadonlyBinary({
+          pathValue: `${tempDir}${path.delimiter}${process.env.PATH ?? ""}`,
+          env: process.env,
+          platform: process.platform,
+        }),
+      ).toBe(binaryPath);
+    } finally {
+      await fs.rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("resolves openclaw-readonly from Path on Windows env objects", async () => {
+    const { resolveOpenClawReadonlyBinary } = await loadLauncherModule();
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-readonly-win-path-"));
+    try {
+      const binaryPath = path.join(tempDir, "openclaw-readonly.CMD");
+      await fs.writeFile(binaryPath, "@echo off\r\n", { mode: 0o755 });
+
+      expect(
+        resolveOpenClawReadonlyBinary({
+          env: {
+            Path: `${tempDir};C:\\Windows\\System32`,
+            PATHEXT: ".EXE;.CMD",
+          },
+          platform: "win32",
+        }),
+      ).toBe(binaryPath);
+    } finally {
+      await fs.rm(tempDir, { recursive: true, force: true });
+    }
   });
 
   it("spawns the readonly runtime with the exact verb tuple", async () => {
