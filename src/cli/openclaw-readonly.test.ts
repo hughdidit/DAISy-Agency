@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { SkillStatusReport } from "../agents/skills-status.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { captureFullEnv } from "../test-utils/env.js";
 import {
   applyOpenClawReadonlyEnv,
@@ -7,6 +9,12 @@ import {
   resolveOpenClawReadonlyEnv,
   runOpenClawReadonly,
 } from "./openclaw-readonly.js";
+
+type TestLoadConfig = typeof import("../config/config.js").loadConfig;
+type TestBuildWorkspaceSkillStatus =
+  typeof import("../agents/skills-status.js").buildWorkspaceSkillStatus;
+type TestFormatSkillsList = typeof import("./skills-cli.format.js").formatSkillsList;
+type TestFormatSkillsCheck = typeof import("./skills-cli.format.js").formatSkillsCheck;
 
 describe("openclaw-readonly CLI", () => {
   const runtime: OpenClawReadonlyRuntime = {
@@ -92,10 +100,16 @@ describe("openclaw-readonly CLI", () => {
   it("dispatches skills list with the sandbox-visible workspace override", async () => {
     const snapshot = captureFullEnv();
     try {
-      const buildWorkspaceSkillStatus = vi.fn(() => ({ skills: [] }));
-      const formatSkillsList = vi.fn(() => "skills list output");
-      const formatSkillsCheck = vi.fn(() => "skills check output");
-      const loadConfig = vi.fn(() => ({ agents: {} }));
+      const config = { agents: {} } as OpenClawConfig;
+      const report = {
+        skills: [],
+        workspaceDir: "/agent",
+        managedSkillsDir: "/managed-skills",
+      } satisfies SkillStatusReport;
+      const buildWorkspaceSkillStatus = vi.fn<TestBuildWorkspaceSkillStatus>(() => report);
+      const formatSkillsList = vi.fn<TestFormatSkillsList>(() => "skills list output");
+      const formatSkillsCheck = vi.fn<TestFormatSkillsCheck>(() => "skills check output");
+      const loadConfig = vi.fn<TestLoadConfig>(() => config);
 
       await runOpenClawReadonly(["skills", "list"], {
         env: {
@@ -120,7 +134,7 @@ describe("openclaw-readonly CLI", () => {
       });
 
       expect(buildWorkspaceSkillStatus).toHaveBeenCalledWith("/agent", {
-        config: { agents: {} },
+        config,
       });
       expect(formatSkillsList).toHaveBeenCalled();
       expect(runtime.log).toHaveBeenCalledWith("skills list output");
