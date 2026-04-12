@@ -128,7 +128,7 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.openclaw.ai/cli/age
     .option("--agent <id>", "Agent id (defaults to current default agent)")
     .option(
       "--bind <channel[:accountId]>",
-      "Binding to add (repeatable). When omitted, accountId comes from channel defaults/hooks.",
+      "Binding to add (repeatable). accountId is resolved by channel defaults/hooks when omitted.",
       collectOption,
       [],
     )
