@@ -174,7 +174,7 @@ Deployments should reference a specific `release_run_id` so the deploy is determ
 
 Self-hosted build runners are pre-provisioned infrastructure and are not reused
 from the staging or production deploy VM. See
-[`docs/deployments/docker-release-runners.md`](/deployments/docker-release-runners)
+[`docs/deployments/docker-release-runners.md`](./deployments/docker-release-runners.md)
 for runner labels, trust boundaries, and rollout requirements.
 
 ### Deploy
