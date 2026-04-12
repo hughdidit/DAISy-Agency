@@ -6,7 +6,7 @@
 | -------------------------------------- | --------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `.github/workflows/ci.yml`             | CI              | `pull_request` (daisy/main, daisy/dev) + `workflow_dispatch` | `check`, `checks`, `skills-python`, `ios`, `android`, `CI / Linux Required`, `CI / iOS Required`, `CI / Android Required` | Active         | PR-only CI with docs/scope front door, iOS and Android as supported mobile lanes, and stable required-check names that do not depend on matrix labels. |
 | `.github/workflows/codeql.yml`         | CodeQL Advanced | `push` + `pull_request` (daisy/main, daisy/dev), `schedule`  | `Analyze (<language>)`                                                                                                    | Needs refactor | Broad language matrix; macOS runners for Swift; scheduled load; actions not pinned to SHAs.                                                            |
-| `.github/workflows/docker-release.yml` | Docker Release  | `push` (main + tags `v*`)                                    | `build-amd64`, `build-arm64`, `create-manifest`                                                                           | Needs refactor | Branch trigger uses `main` (not `daisy/main`); assumes GHCR publish with `GITHUB_TOKEN`; no workflow_dispatch; provenance + SBOM enabled on push.      |
+| `.github/workflows/docker-release.yml` | Docker Release  | `push` (daisy/main, daisy/dev, tags `v*`)                    | `build-amd64`, `build-arm64`, `build-sandbox`, `build-sandbox-browser`, `create-manifest`                                | Needs refactor | Heavy build jobs now require dedicated self-hosted GCP runner pools; `create-manifest` stays GitHub-hosted; no `workflow_dispatch`; docker actions are SHA-pinned. |
 
 | `.github/workflows/auto-response.yml` | Auto response | `issues` + `pull_request_target` (labeled) | `auto-response` | Useful | Requires `GH_APP_PRIVATE_KEY`; closes issues/PRs based on labels; action versions not SHA-pinned. |
 | `.github/workflows/workflow-sanity.yml` | Workflow Sanity | `push` + `pull_request` (daisy/main, daisy/dev) | `no-tabs` | Useful | Shares `ci-` concurrency group with other workflows (risk of cross-cancel). |
@@ -88,31 +88,36 @@
 **What it does**
 
 - Builds and publishes multi-arch container images to GHCR, then creates a manifest.
+- Heavy image builds run on dedicated self-hosted GCP runners split by architecture.
+- Manifest publication and `release-metadata` upload stay GitHub-hosted in phase one.
 
 **When it runs**
 
-- `push` to `main` and tags `v*`.
+- `push` to `daisy/main`, `daisy/dev`, and tags `v*`.
 
 **Permissions / secrets / environment**
 
 - Job-level permissions: `packages: write`, `contents: read`.
 - Uses `GITHUB_TOKEN` for registry auth.
+- Build jobs require pre-provisioned self-hosted runner labels.
 
 **Jobs inventory**
 
-- `build-amd64` (ubuntu-latest): build/push amd64 image via Buildx.
-- `build-arm64` (ubuntu-24.04-arm): build/push arm64 image via Buildx.
+- `build-amd64` (self-hosted x64): build/push amd64 app image via Buildx.
+- `build-arm64` (self-hosted arm64): build/push arm64 app image via native Buildx, no QEMU.
+- `build-sandbox` (self-hosted x64): build/push amd64 sandbox image.
+- `build-sandbox-browser` (self-hosted x64): build/push amd64 sandbox browser image.
 - `create-manifest` (ubuntu-latest): create multi-arch manifest.
 
 **Risks / issues found**
 
-- **Branch model mismatch**: triggers on `main`, while repo uses `daisy/main` and `daisy/dev` for integration/production branches.
+- **Self-hosted prerequisite**: merge is unsafe until the `docker-release-amd64` and `docker-release-arm64` runner pools exist with the expected labels.
+- **Self-hosted runner trust**: these pools can publish release images to GHCR and must stay isolated from deploy secrets and the production VM.
 - **Missing manual trigger**: no `workflow_dispatch` for controlled releases.
-- **Unpinned actions**: docker actions pinned to tags only.
 
 **Recommendation**
 
-- **Needs refactor.** Align triggers with `daisy/main` (production) and/or tag-based releases, add manual dispatch for controlled deploys, and align with CD phase split.
+- **Needs refactor.** Current branch triggers are correct for DAISy, and the heavy build work now sits on dedicated self-hosted GCP runners. A later pass can add `workflow_dispatch`, revisit whether `create-manifest` should also move, and further tighten self-hosted operations.
 
 ### Auto response (`.github/workflows/auto-response.yml`)
 
