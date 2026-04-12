@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   buildDelegatePreset,
   resolveAgentAuthIsolation,
@@ -20,7 +21,7 @@ describe("delegate config helpers", () => {
           },
         ],
       },
-    };
+    } satisfies OpenClawConfig;
 
     expect(resolveDelegateConfig(cfg, "ops")).toMatchObject({
       enabled: true,

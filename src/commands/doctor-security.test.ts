@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+import type { CronStoreFile } from "../cron/types.js";
 
 const note = vi.hoisted(() => vi.fn());
 const pluginRegistry = vi.hoisted(() => ({ list: [] as unknown[] }));
@@ -136,7 +137,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
   });
 
   it("emits delegate hardening warnings for unsafe posture", async () => {
-    cronStoreMocks.loadCronStore.mockResolvedValue({
+    const cronStore = {
       version: 1,
       jobs: [
         {
@@ -146,7 +147,8 @@ describe("noteSecurityWarnings gateway exposure", () => {
           payload: { kind: "systemEvent", text: "unsafe" },
         },
       ],
-    });
+    } satisfies CronStoreFile;
+    cronStoreMocks.loadCronStore.mockResolvedValue(cronStore);
     const cfg = {
       agents: {
         defaults: {
