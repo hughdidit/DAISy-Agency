@@ -164,11 +164,18 @@ References:
 
 Builds and publishes the multi-arch image, then uploads an artifact:
 
+- `build-amd64`, `build-arm64`, `build-sandbox`, and `build-sandbox-browser` run on dedicated self-hosted GCP runner pools
+- `create-manifest` stays on `ubuntu-latest` in phase one so manifest publication and `release-metadata` generation remain GitHub-hosted
 - Artifact name: `release-metadata`
 - File: `dist/release/release-metadata.json`
 - Contains: image name, canonical tags, and digest when present
 
 Deployments should reference a specific `release_run_id` so the deploy is deterministic and rollbackable.
+
+Self-hosted build runners are pre-provisioned infrastructure and are not reused
+from the staging or production deploy VM. See
+[`docs/deployments/docker-release-runners.md`](/deployments/docker-release-runners)
+for runner labels, trust boundaries, and rollout requirements.
 
 ### Deploy
 

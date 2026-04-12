@@ -25,7 +25,7 @@ env:
 jobs:
   # Build amd64 image
   build-amd64:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, docker-release, docker-release-amd64]
     permissions:
       packages: write
       contents: read
@@ -114,7 +114,7 @@ jobs:
 
   # Build arm64 image
   build-arm64:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64, docker-release, docker-release-arm64]
     permissions:
       packages: write
       contents: read
@@ -123,11 +123,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-
-      - name: Set up QEMU (arm64 emulation on x86 runner)
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
-        with:
-          platforms: arm64
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
@@ -208,7 +203,7 @@ jobs:
 
   # Build sandbox image (amd64 only — VM target is always amd64)
   build-sandbox:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, docker-release, docker-release-amd64]
     permissions:
       packages: write
       contents: read
@@ -268,7 +263,7 @@ jobs:
 
   # Build sandbox browser image (amd64 only — VM target is always amd64)
   build-sandbox-browser:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, docker-release, docker-release-amd64]
     permissions:
       packages: write
       contents: read
@@ -324,7 +319,9 @@ jobs:
           provenance: false
           push: true
 
-  # Create multi-platform manifest
+  # Keep manifest publication on GitHub-hosted runners in phase one.
+  # This keeps the trust boundary narrow while the heavy build jobs move to
+  # dedicated self-hosted pools.
   create-manifest:
     runs-on: ubuntu-latest
     permissions:
