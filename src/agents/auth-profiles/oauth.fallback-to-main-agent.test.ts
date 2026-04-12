@@ -12,10 +12,12 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
     "OPENCLAW_STATE_DIR",
     "OPENCLAW_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
+    "OPENCLAW_CONFIG_FILE",
   ]);
   let tmpDir: string;
   let mainAgentDir: string;
   let secondaryAgentDir: string;
+  let configPath: string;
 
   beforeEach(async () => {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "oauth-fallback-test-"));
@@ -23,11 +25,38 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
     secondaryAgentDir = path.join(tmpDir, "agents", "kids", "agent");
     await fs.mkdir(mainAgentDir, { recursive: true });
     await fs.mkdir(secondaryAgentDir, { recursive: true });
+    configPath = path.join(tmpDir, "openclaw.json");
 
     // Set environment variables so resolveOpenClawAgentDir() returns mainAgentDir
     process.env.OPENCLAW_STATE_DIR = tmpDir;
     process.env.OPENCLAW_AGENT_DIR = mainAgentDir;
     process.env.PI_CODING_AGENT_DIR = mainAgentDir;
+    process.env.OPENCLAW_CONFIG_FILE = configPath;
+
+    await fs.writeFile(
+      configPath,
+      JSON.stringify(
+        {
+          agents: {
+            list: [
+              {
+                id: "main",
+                workspace: path.join(tmpDir, "agents", "main", "workspace"),
+                agentDir: mainAgentDir,
+              },
+              {
+                id: "kids",
+                workspace: path.join(tmpDir, "agents", "kids", "workspace"),
+                agentDir: secondaryAgentDir,
+              },
+            ],
+          },
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
   });
 
   function createOauthStore(params: {
@@ -201,6 +230,75 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
     expect(updatedSecondaryStore.profiles[profileId]).toMatchObject({
       access: "main-newer-access-token",
       expires: mainExpiry,
+    });
+  });
+
+  it("does not inherit or adopt main OAuth credentials for strict delegate agents", async () => {
+    const profileId = "anthropic:claude-cli";
+    const now = Date.now();
+    const secondaryExpiry = now + 30 * 60 * 1000;
+    const mainExpiry = now + 2 * 60 * 60 * 1000;
+
+    await fs.writeFile(
+      configPath,
+      JSON.stringify(
+        {
+          agents: {
+            list: [
+              {
+                id: "main",
+                workspace: path.join(tmpDir, "agents", "main", "workspace"),
+                agentDir: mainAgentDir,
+              },
+              {
+                id: "kids",
+                workspace: path.join(tmpDir, "agents", "kids", "workspace"),
+                agentDir: secondaryAgentDir,
+                delegate: {
+                  enabled: true,
+                  tier: "tier1",
+                  authIsolation: "strict",
+                },
+              },
+            ],
+          },
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+
+    await writeAuthProfilesStore(
+      secondaryAgentDir,
+      createOauthStore({
+        profileId,
+        access: "secondary-access-token",
+        refresh: "secondary-refresh-token",
+        expires: secondaryExpiry,
+      }),
+    );
+
+    await writeAuthProfilesStore(
+      mainAgentDir,
+      createOauthStore({
+        profileId,
+        access: "main-newer-access-token",
+        refresh: "main-newer-refresh-token",
+        expires: mainExpiry,
+      }),
+    );
+
+    const result = await resolveFromSecondaryAgent(profileId);
+
+    expect(result?.apiKey).toBe("secondary-access-token");
+
+    const updatedSecondaryStore = JSON.parse(
+      await fs.readFile(path.join(secondaryAgentDir, "auth-profiles.json"), "utf8"),
+    ) as AuthProfileStore;
+    expect(updatedSecondaryStore.profiles[profileId]).toMatchObject({
+      access: "secondary-access-token",
+      expires: secondaryExpiry,
     });
   });
 

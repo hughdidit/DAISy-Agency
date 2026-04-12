@@ -82,6 +82,104 @@ describe("agents bind/unbind commands", () => {
     expect(runtime.exit).not.toHaveBeenCalled();
   });
 
+  it("writes both agent and subagent GWS bindings by default", async () => {
+    readConfigFileSnapshotMock.mockResolvedValue({
+      ...baseConfigSnapshot,
+      config: {
+        agents: { list: [{ id: "ops", workspace: "/tmp/ops" }] },
+        plugins: {
+          entries: {
+            "gws-toolkit-phase1": {
+              enabled: true,
+              config: {
+                credentialRoutes: {
+                  "ops-main": {
+                    mode: "oauth",
+                    allowedServices: ["gmail"],
+                    allowedTools: ["gws_gmail_read", "gws_gmail_write"],
+                    allowedActions: ["draft_message"],
+                  },
+                },
+                agentCredentialBindings: {},
+              },
+            },
+          },
+        },
+      },
+    });
+
+    await agentsBindCommand({ agent: "ops", gwsRoute: "ops-main" }, runtime);
+
+    expect(writeConfigFileMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        plugins: expect.objectContaining({
+          entries: expect.objectContaining({
+            "gws-toolkit-phase1": expect.objectContaining({
+              config: expect.objectContaining({
+                agentCredentialBindings: {
+                  "agent:ops": "ops-main",
+                  "subagent:ops": "ops-main",
+                },
+              }),
+            }),
+          }),
+        }),
+      }),
+    );
+    expect(runtime.log).toHaveBeenCalledWith("Added GWS bindings:");
+    expect(runtime.exit).not.toHaveBeenCalled();
+  });
+
+  it("supports a distinct subagent GWS route override", async () => {
+    readConfigFileSnapshotMock.mockResolvedValue({
+      ...baseConfigSnapshot,
+      config: {
+        agents: { list: [{ id: "ops", workspace: "/tmp/ops" }] },
+        plugins: {
+          entries: {
+            "gws-toolkit-phase1": {
+              enabled: true,
+              config: {
+                credentialRoutes: {
+                  "ops-main": { mode: "oauth", allowedServices: ["gmail"], allowedTools: [] },
+                  "ops-subagent": { mode: "oauth", allowedServices: ["calendar"], allowedTools: [] },
+                },
+                agentCredentialBindings: {},
+              },
+            },
+          },
+        },
+      },
+    });
+
+    await agentsBindCommand(
+      {
+        agent: "ops",
+        gwsRoute: "ops-main",
+        subagentGwsRoute: "ops-subagent",
+      },
+      runtime,
+    );
+
+    expect(writeConfigFileMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        plugins: expect.objectContaining({
+          entries: expect.objectContaining({
+            "gws-toolkit-phase1": expect.objectContaining({
+              config: expect.objectContaining({
+                agentCredentialBindings: {
+                  "agent:ops": "ops-main",
+                  "subagent:ops": "ops-subagent",
+                },
+              }),
+            }),
+          }),
+        }),
+      }),
+    );
+    expect(runtime.exit).not.toHaveBeenCalled();
+  });
+
   it("defaults matrix-js accountId to the target agent id when omitted", async () => {
     readConfigFileSnapshotMock.mockResolvedValue({
       ...baseConfigSnapshot,

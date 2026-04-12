@@ -19,8 +19,10 @@ Related:
 ```bash
 openclaw agents list
 openclaw agents add work --workspace ~/.openclaw/workspace-work
+openclaw agents add ops --workspace ~/.openclaw/workspace-ops --preset delegate --delegate-tier tier1
 openclaw agents bindings
 openclaw agents bind --agent work --bind telegram:ops
+openclaw agents bind --agent ops --gws-route ops-main
 openclaw agents unbind --agent work --bind telegram:ops
 openclaw agents set-identity --workspace ~/.openclaw/workspace --from-identity
 openclaw agents set-identity --agent main --avatar avatars/openclaw.png
@@ -43,9 +45,18 @@ Add bindings:
 
 ```bash
 openclaw agents bind --agent work --bind telegram:ops --bind discord:guild-a
+openclaw agents bind --agent ops --gws-route ops-main
+openclaw agents bind --agent ops --gws-route ops-main --subagent-gws-route ops-subagent
 ```
 
 If you omit `accountId` (`--bind <channel>`), OpenClaw resolves it from channel defaults and plugin setup hooks when available.
+
+`--gws-route` writes explicit Google Workspace bindings for both:
+
+- `agent:<agentId>`
+- `subagent:<agentId>`
+
+Use `--subagent-gws-route` only when the subagent route must differ from the top-level agent route.
 
 ### Binding scope behavior
 
@@ -80,6 +91,28 @@ Each agent workspace can include an `IDENTITY.md` at the workspace root:
 - `set-identity --from-identity` reads from the workspace root (or an explicit `--identity-file`)
 
 Avatar paths resolve relative to the workspace root.
+
+## Delegate preset
+
+Use the delegate preset when you want a hardened per-agent posture:
+
+```bash
+openclaw agents add ops --workspace ~/.openclaw/workspace-ops --preset delegate --delegate-tier tier1
+```
+
+What the preset does:
+
+- adds `agents.list[].delegate`
+- defaults delegate auth isolation to `strict`
+- forces agent-scoped sandbox defaults
+- scaffolds delegate-specific `AGENTS.md` and `IDENTITY.md` when missing
+- applies tier-based tool defaults
+
+Delegate tiers:
+
+- `tier1`: read-mostly plus Gmail drafting
+- `tier2`: explicit send-on-behalf posture
+- `tier3`: proactive delegate posture with cron enabled
 
 ## Set identity
 

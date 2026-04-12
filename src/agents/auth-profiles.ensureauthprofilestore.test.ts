@@ -123,6 +123,84 @@ describe("ensureAuthProfileStore", () => {
     }
   });
 
+  it("does not merge main auth profiles for strict delegate agents", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-auth-delegate-"));
+    const previousAgentDir = process.env.OPENCLAW_AGENT_DIR;
+    const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
+    const previousConfigFile = process.env.OPENCLAW_CONFIG_FILE;
+    try {
+      const mainDir = path.join(root, "agents", "main", "agent");
+      const agentDir = path.join(root, "agents", "delegate", "agent");
+      fs.mkdirSync(mainDir, { recursive: true });
+      fs.mkdirSync(agentDir, { recursive: true });
+
+      process.env.OPENCLAW_AGENT_DIR = mainDir;
+      process.env.PI_CODING_AGENT_DIR = mainDir;
+      process.env.OPENCLAW_CONFIG_FILE = path.join(root, "openclaw.json");
+      fs.writeFileSync(
+        process.env.OPENCLAW_CONFIG_FILE,
+        JSON.stringify(
+          {
+            agents: {
+              list: [
+                { id: "main", workspace: path.join(root, "agents", "main", "workspace"), agentDir: mainDir },
+                {
+                  id: "delegate",
+                  workspace: path.join(root, "agents", "delegate", "workspace"),
+                  agentDir,
+                  delegate: {
+                    enabled: true,
+                    tier: "tier1",
+                    authIsolation: "strict",
+                  },
+                },
+              ],
+            },
+          },
+          null,
+          2,
+        ),
+        "utf8",
+      );
+
+      const mainStore = {
+        version: AUTH_STORE_VERSION,
+        profiles: {
+          "anthropic:default": {
+            type: "api_key",
+            provider: "anthropic",
+            key: "main-only-key",
+          },
+        },
+      };
+      fs.writeFileSync(
+        path.join(mainDir, "auth-profiles.json"),
+        `${JSON.stringify(mainStore, null, 2)}\n`,
+        "utf8",
+      );
+
+      const store = ensureAuthProfileStore(agentDir);
+      expect(store.profiles["anthropic:default"]).toBeUndefined();
+    } finally {
+      if (previousAgentDir === undefined) {
+        delete process.env.OPENCLAW_AGENT_DIR;
+      } else {
+        process.env.OPENCLAW_AGENT_DIR = previousAgentDir;
+      }
+      if (previousPiAgentDir === undefined) {
+        delete process.env.PI_CODING_AGENT_DIR;
+      } else {
+        process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
+      }
+      if (previousConfigFile === undefined) {
+        delete process.env.OPENCLAW_CONFIG_FILE;
+      } else {
+        process.env.OPENCLAW_CONFIG_FILE = previousConfigFile;
+      }
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("normalizes auth-profiles credential aliases with canonical-field precedence", () => {
     const cases = [
       {

@@ -10,6 +10,7 @@ import { withFileLock } from "../../infra/file-lock.js";
 import { refreshQwenPortalCredentials } from "../../providers/qwen-portal-oauth.js";
 import { resolveSecretRefString, type SecretRefResolveCache } from "../../secrets/resolve.js";
 import { refreshChutesTokens } from "../chutes-oauth.js";
+import { resolveAgentAuthIsolationByDir } from "../delegate-config.js";
 import { AUTH_STORE_LOCK_OPTIONS, log } from "./constants.js";
 import { formatAuthDoctorHint } from "./doctor.js";
 import { ensureAuthStoreFile, resolveAuthStorePath } from "./paths.js";
@@ -108,6 +109,9 @@ function adoptNewerMainOAuthCredential(params: {
   cred: OAuthCredentials & { type: "oauth"; provider: string; email?: string };
 }): (OAuthCredentials & { type: "oauth"; provider: string; email?: string }) | null {
   if (!params.agentDir) {
+    return null;
+  }
+  if (resolveAgentAuthIsolationByDir(params.agentDir) === "strict") {
     return null;
   }
   try {
@@ -414,7 +418,7 @@ export async function resolveApiKeyForProfile(
     }
 
     // Fallback: if this is a secondary agent, try using the main agent's credentials
-    if (params.agentDir) {
+    if (params.agentDir && resolveAgentAuthIsolationByDir(params.agentDir) !== "strict") {
       try {
         const mainStore = ensureAuthProfileStore(undefined); // main agent (no agentDir)
         const mainCred = mainStore.profiles[profileId];

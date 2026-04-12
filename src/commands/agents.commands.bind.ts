@@ -12,6 +12,7 @@ import {
   removeAgentBindings,
 } from "./agents.bindings.js";
 import { requireValidConfig } from "./agents.command-shared.js";
+import { applyAgentGwsBindings } from "./agents.gws-bindings.js";
 import { buildAgentSummaries } from "./agents.config.js";
 
 type AgentsBindingsListOptions = {
@@ -22,6 +23,8 @@ type AgentsBindingsListOptions = {
 type AgentsBindOptions = {
   agent?: string;
   bind?: string[];
+  gwsRoute?: string;
+  subagentGwsRoute?: string;
   json?: boolean;
 };
 
@@ -217,20 +220,60 @@ export async function agentsBindCommand(
   }
   const { cfg, agentId } = resolved;
 
-  const parsed = resolveParsedBindingsOrExit({
-    runtime,
-    cfg,
-    agentId,
-    bindValues: opts.bind,
-    emptyMessage: "Provide at least one --bind <channel[:accountId]>.",
-  });
+  const hasChannelBindings = (opts.bind ?? []).some((value) => value.trim().length > 0);
+  const gwsRoute = opts.gwsRoute?.trim();
+  const subagentGwsRoute = opts.subagentGwsRoute?.trim();
+  if (!hasChannelBindings && !gwsRoute) {
+    runtime.error("Provide at least one --bind <channel[:accountId]> or --gws-route <routeName>.");
+    runtime.exit(1);
+    return;
+  }
+  if (subagentGwsRoute && !gwsRoute) {
+    runtime.error("--subagent-gws-route requires --gws-route.");
+    runtime.exit(1);
+    return;
+  }
+
+  const parsed = hasChannelBindings
+    ? resolveParsedBindingsOrExit({
+        runtime,
+        cfg,
+        agentId,
+        bindValues: opts.bind,
+        emptyMessage: "Provide at least one --bind <channel[:accountId]>.",
+      })
+    : { bindings: [], errors: [] };
   if (!parsed) {
     return;
   }
 
   const result = applyAgentBindings(cfg, parsed.bindings);
-  if (result.added.length > 0 || result.updated.length > 0) {
-    await writeConfigFile(result.config);
+  const gwsResult = gwsRoute
+    ? applyAgentGwsBindings(result.config, {
+        agentId,
+        routeName: gwsRoute,
+        ...(subagentGwsRoute ? { subagentRouteName: subagentGwsRoute } : {}),
+      })
+    : {
+        ok: true as const,
+        config: result.config,
+        added: [],
+        updated: [],
+        skipped: [],
+      };
+  if (!gwsResult.ok) {
+    runtime.error(gwsResult.errors.join("\n"));
+    runtime.exit(1);
+    return;
+  }
+
+  if (
+    result.added.length > 0 ||
+    result.updated.length > 0 ||
+    gwsResult.added.length > 0 ||
+    gwsResult.updated.length > 0
+  ) {
+    await writeConfigFile(gwsResult.config);
     if (!opts.json) {
       logConfigUpdated(runtime);
     }
@@ -242,6 +285,11 @@ export async function agentsBindCommand(
     updated: result.updated.map(describeBinding),
     skipped: result.skipped.map(describeBinding),
     conflicts: formatBindingConflicts(result.conflicts),
+    gwsBindings: {
+      added: gwsResult.added,
+      updated: gwsResult.updated,
+      skipped: gwsResult.skipped,
+    },
   };
   if (
     emitJsonPayload({ runtime, json: opts.json, payload, conflictCount: result.conflicts.length })
@@ -254,7 +302,7 @@ export async function agentsBindCommand(
     for (const binding of result.added) {
       runtime.log(`- ${describeBinding(binding)}`);
     }
-  } else if (result.updated.length === 0) {
+  } else if (result.updated.length === 0 && gwsResult.added.length === 0 && gwsResult.updated.length === 0) {
     runtime.log("No new bindings added.");
   }
 
@@ -269,6 +317,27 @@ export async function agentsBindCommand(
     runtime.log("Already present:");
     for (const binding of result.skipped) {
       runtime.log(`- ${describeBinding(binding)}`);
+    }
+  }
+
+  if (gwsResult.added.length > 0) {
+    runtime.log("Added GWS bindings:");
+    for (const binding of gwsResult.added) {
+      runtime.log(`- ${binding.subject} -> ${binding.routeName}`);
+    }
+  }
+
+  if (gwsResult.updated.length > 0) {
+    runtime.log("Updated GWS bindings:");
+    for (const binding of gwsResult.updated) {
+      runtime.log(`- ${binding.subject} -> ${binding.routeName}`);
+    }
+  }
+
+  if (gwsResult.skipped.length > 0) {
+    runtime.log("Existing GWS bindings:");
+    for (const binding of gwsResult.skipped) {
+      runtime.log(`- ${binding.subject} -> ${binding.routeName}`);
     }
   }
 

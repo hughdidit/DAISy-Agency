@@ -132,6 +132,8 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.openclaw.ai/cli/age
       collectOption,
       [],
     )
+    .option("--gws-route <routeName>", "Bind agent:<id> and subagent:<id> to a GWS credential route")
+    .option("--subagent-gws-route <routeName>", "Override the GWS route used for subagent:<id>")
     .option("--json", "Output JSON summary", false)
     .action(async (opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
@@ -139,6 +141,8 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.openclaw.ai/cli/age
           {
             agent: opts.agent as string | undefined,
             bind: Array.isArray(opts.bind) ? (opts.bind as string[]) : undefined,
+            gwsRoute: opts.gwsRoute as string | undefined,
+            subagentGwsRoute: opts.subagentGwsRoute as string | undefined,
             json: Boolean(opts.json),
           },
           defaultRuntime,
@@ -173,7 +177,11 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.openclaw.ai/cli/age
     .option("--workspace <dir>", "Workspace directory for the new agent")
     .option("--model <id>", "Model id for this agent")
     .option("--agent-dir <dir>", "Agent state directory for this agent")
+    .option("--preset <name>", "Creation preset (delegate)")
+    .option("--delegate-tier <tier>", "Delegate preset tier: tier1 | tier2 | tier3")
     .option("--bind <channel[:accountId]>", "Route channel binding (repeatable)", collectOption, [])
+    .option("--gws-route <routeName>", "Bind agent:<id> and subagent:<id> to a GWS credential route")
+    .option("--subagent-gws-route <routeName>", "Override the GWS route used for subagent:<id>")
     .option("--non-interactive", "Disable prompts; requires --workspace", false)
     .option("--json", "Output JSON summary", false)
     .action(async (name, opts, command) => {
@@ -182,7 +190,11 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.openclaw.ai/cli/age
           "workspace",
           "model",
           "agentDir",
+          "preset",
+          "delegateTier",
           "bind",
+          "gwsRoute",
+          "subagentGwsRoute",
           "nonInteractive",
         ]);
         await agentsAddCommand(
@@ -191,7 +203,11 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.openclaw.ai/cli/age
             workspace: opts.workspace as string | undefined,
             model: opts.model as string | undefined,
             agentDir: opts.agentDir as string | undefined,
+            preset: opts.preset as string | undefined,
+            delegateTier: opts.delegateTier as string | undefined,
             bind: Array.isArray(opts.bind) ? (opts.bind as string[]) : undefined,
+            gwsRoute: opts.gwsRoute as string | undefined,
+            subagentGwsRoute: opts.subagentGwsRoute as string | undefined,
             nonInteractive: Boolean(opts.nonInteractive),
             json: Boolean(opts.json),
           },
