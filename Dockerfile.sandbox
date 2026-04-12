@@ -101,7 +101,8 @@ RUN bash -o pipefail -lc '\
      OPENCLAW_READONLY_AGENT_ID=main \
      /usr/local/bin/openclaw-readonly sandbox explain \
        >/tmp/openclaw-readonly-smoke/sandbox-explain.txt \
-  && grep -q "mode:" /tmp/openclaw-readonly-smoke/sandbox-explain.txt'
+  && grep -q "mode:" /tmp/openclaw-readonly-smoke/sandbox-explain.txt \
+  && rm -rf /tmp/openclaw-readonly-smoke'
 
 RUN useradd --create-home --shell /bin/bash sandbox
 USER sandbox
