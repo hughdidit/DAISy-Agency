@@ -2,15 +2,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { captureFullEnv } from "../test-utils/env.js";
 import {
   applyOpenClawReadonlyEnv,
+  type OpenClawReadonlyRuntime,
   parseOpenClawReadonlyCommand,
   resolveOpenClawReadonlyEnv,
   runOpenClawReadonly,
 } from "./openclaw-readonly.js";
 
 describe("openclaw-readonly CLI", () => {
-  const runtime = {
-    log: vi.fn<(message: string) => void>(),
-    error: vi.fn<(message: string) => void>(),
+  const runtime: OpenClawReadonlyRuntime = {
+    log: vi.fn<(...args: unknown[]) => void>(),
+    error: vi.fn<(...args: unknown[]) => void>(),
     exit: vi.fn<(code: number) => void>(),
   };
 

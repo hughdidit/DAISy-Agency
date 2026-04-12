@@ -4,6 +4,12 @@ import { fileURLToPath } from "node:url";
 import { isMainModule } from "../infra/is-main.js";
 import type { RuntimeEnv } from "../runtime.js";
 
+type ReadonlyLoadConfig = typeof import("../config/config.js").loadConfig;
+type ReadonlyBuildWorkspaceSkillStatus =
+  typeof import("../agents/skills-status.js").buildWorkspaceSkillStatus;
+type ReadonlyFormatSkillsList = typeof import("./skills-cli.format.js").formatSkillsList;
+type ReadonlyFormatSkillsCheck = typeof import("./skills-cli.format.js").formatSkillsCheck;
+
 export type OpenClawReadonlyCommand =
   | {
       key: "status";
@@ -60,10 +66,10 @@ type OpenClawReadonlyDeps = {
     ) => Promise<void>;
   }>;
   importSkillsModules: () => Promise<{
-    loadConfig: () => unknown;
-    buildWorkspaceSkillStatus: (workspaceDir: string, opts?: { config?: unknown }) => unknown;
-    formatSkillsList: (report: unknown, opts: Record<string, unknown>) => string;
-    formatSkillsCheck: (report: unknown, opts: Record<string, unknown>) => string;
+    loadConfig: ReadonlyLoadConfig;
+    buildWorkspaceSkillStatus: ReadonlyBuildWorkspaceSkillStatus;
+    formatSkillsList: ReadonlyFormatSkillsList;
+    formatSkillsCheck: ReadonlyFormatSkillsCheck;
   }>;
 };
 
