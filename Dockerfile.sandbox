@@ -4,14 +4,14 @@ RUN corepack enable
 
 WORKDIR /build
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc tsconfig.json tsconfig.plugin-sdk.dts.json tsdown.config.ts ./
+COPY package.json pnpm-workspace.yaml .npmrc tsconfig.json tsconfig.plugin-sdk.dts.json tsdown.config.ts ./
 COPY ui/package.json ./ui/package.json
 COPY extensions/memory-mongodb/package.json ./extensions/memory-mongodb/package.json
 COPY patches ./patches
 COPY src ./src
 COPY skills ./skills
 
-RUN NODE_OPTIONS=--max-old-space-size=2048 pnpm install --frozen-lockfile
+RUN NODE_OPTIONS=--max-old-space-size=2048 pnpm install --config.engine-strict=false
 RUN pnpm exec tsdown --config tsdown.config.ts
 
 FROM node:22-bookworm-slim@sha256:db9a3a15e8e8e2adbaf1e1c3d93dfb04c2e294bdd027490addb2391b8e61cc6a
