@@ -112,7 +112,7 @@ export function resolveDelegateConfig(
     tier,
     authIsolation: delegate.authIsolation === "legacy" ? "legacy" : "strict",
     gwsRouting: {
-      requireExplicitBindings: delegate.gwsRouting?.requireExplicitBindings !== false,
+      requireExplicitBindings: true,
     },
     cron: {
       allowed: delegate.cron?.allowed ?? tier === "tier3",

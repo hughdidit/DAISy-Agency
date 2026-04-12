@@ -13,7 +13,7 @@ export type DelegateConfig = {
   tier?: DelegateTier;
   authIsolation?: DelegateAuthIsolation;
   gwsRouting?: {
-    requireExplicitBindings?: boolean;
+    requireExplicitBindings?: true;
   };
   cron?: {
     allowed?: boolean;
