@@ -142,3 +142,4 @@ dist/protocol.schema.json
 generated-images/**
 .playwright-cli/**
 output/**
+.vscode/settings.json
