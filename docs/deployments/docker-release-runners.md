@@ -84,7 +84,7 @@ Trust boundary:
 
 ## Network and bootstrap hardening
 
-- Restrict egress to GitHub, GHCR, and required OS package/bootstrap endpoints
+- Restrict egress to GitHub, GHCR, Docker Hub (`docker.io` and its backing registry endpoints for public base-image pulls), and required OS package/bootstrap endpoints
 - Limit SSH to administrators, or disable routine SSH access entirely
 - Use trusted base images or startup scripts only
 - Prefer short-lived registration and teardown over long-lived pets
