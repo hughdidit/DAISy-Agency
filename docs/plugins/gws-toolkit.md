@@ -55,6 +55,8 @@ Write tools:
 - unbound agents are denied unless `allowUnboundAgents: true` and
   `defaultCredentialRoute` is configured
 - no parent-agent route inheritance for sub-agents
+- delegate agents should use `allowUnboundAgents: false` plus explicit
+  bindings for both `agent:<id>` and `subagent:<id>`
 - credential files must exist, be regular files, stay inside approved
   credential directories, and cannot be symlinks
 - legacy single-credential compatibility mode synthesizes a default route to
@@ -66,6 +68,9 @@ Bindings use explicit subjects:
 
 - `agent:<agentId>`
 - `subagent:<agentId>`
+
+Delegate posture requires both bindings to exist, even when they point to the
+same named route.
 
 Each subject resolves to exactly one named route. A route declares:
 
@@ -110,6 +115,7 @@ Core Phase 2 fields:
 - old read-only deployments continue to work with legacy single-credential
   config through a synthesized default route
 - move toward named routes and explicit `agent:*` / `subagent:*` bindings
+- for delegates, treat named routes plus dual explicit bindings as required
 - use the extension-local migration notes for the exact Phase 1 to Phase 2
   conversion steps
 

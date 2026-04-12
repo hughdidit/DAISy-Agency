@@ -233,6 +233,27 @@ export const SandboxBrowserSchema = z
   .strict()
   .optional();
 
+const DelegateSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    tier: z.union([z.literal("tier1"), z.literal("tier2"), z.literal("tier3")]).optional(),
+    authIsolation: z.union([z.literal("strict"), z.literal("legacy")]).optional(),
+    gwsRouting: z
+      .object({
+        requireExplicitBindings: z.literal(true).optional(),
+      })
+      .strict()
+      .optional(),
+    cron: z
+      .object({
+        allowed: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict()
+  .optional();
+
 export const SandboxPruneSchema = z
   .object({
     idleHours: z.number().int().nonnegative().optional(),
@@ -800,6 +821,7 @@ export const AgentEntrySchema = z
     memorySearch: MemorySearchSchema,
     humanDelay: HumanDelaySchema.optional(),
     heartbeat: HeartbeatSchema,
+    delegate: DelegateSchema,
     identity: IdentitySchema,
     groupChat: GroupChatSchema,
     subagents: z

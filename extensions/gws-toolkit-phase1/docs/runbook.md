@@ -76,6 +76,13 @@ Example staging route pattern:
 - keep `allowUnboundAgents: false`
 - enable only the write services actually needed
 
+Delegate reference posture:
+
+- create the agent with `openclaw agents add --preset delegate`
+- bind both `agent:<id>` and `subagent:<id>` even when they use the same route
+- keep tier1 routes restricted to read actions plus `draft_message`
+- treat missing explicit bindings as a configuration failure, not a convenience fallback
+
 ## 4. Apply OpenClaw tool policy
 
 Use the standard OpenClaw tool allow/deny model to expose only the GWS tools a

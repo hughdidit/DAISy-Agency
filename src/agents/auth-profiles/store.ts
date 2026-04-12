@@ -3,6 +3,7 @@ import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { resolveOAuthPath } from "../../config/paths.js";
 import { withFileLock } from "../../infra/file-lock.js";
 import { loadJsonFile, saveJsonFile } from "../../infra/json-file.js";
+import { resolveAgentAuthIsolationByDir } from "../delegate-config.js";
 import { AUTH_STORE_LOCK_OPTIONS, AUTH_STORE_VERSION, log } from "./constants.js";
 import { syncExternalCliCredentials } from "./external-cli-sync.js";
 import { ensureAuthStoreFile, resolveAuthStorePath, resolveLegacyAuthStorePath } from "./paths.js";
@@ -43,6 +44,14 @@ function resolveRuntimeAuthProfileStore(agentDir?: string): AuthProfileStore | n
       return null;
     }
     return cloneAuthProfileStore(mainStore);
+  }
+
+  const authIsolation = resolveAgentAuthIsolationByDir(agentDir);
+  if (authIsolation === "strict") {
+    if (!requestedStore) {
+      return null;
+    }
+    return cloneAuthProfileStore(requestedStore);
   }
 
   if (mainStore && requestedStore) {
@@ -376,6 +385,7 @@ function loadAuthProfileStoreForAgent(
   options?: LoadAuthProfileStoreOptions,
 ): AuthProfileStore {
   const readOnly = options?.readOnly === true;
+  const authIsolation = resolveAgentAuthIsolationByDir(agentDir);
   const authPath = resolveAuthStorePath(agentDir);
   const asStore = loadCoercedStore(authPath);
   if (asStore) {
@@ -389,7 +399,7 @@ function loadAuthProfileStoreForAgent(
   }
 
   // Fallback: inherit auth-profiles from main agent if subagent has none
-  if (agentDir && !readOnly) {
+  if (agentDir && !readOnly && authIsolation !== "strict") {
     const mainAuthPath = resolveAuthStorePath(); // without agentDir = main
     const mainRaw = loadJsonFile(mainAuthPath);
     const mainStore = coerceAuthStore(mainRaw);
@@ -450,6 +460,9 @@ export function loadAuthProfileStoreForRuntime(
   if (!agentDir || authPath === mainAuthPath) {
     return store;
   }
+  if (resolveAgentAuthIsolationByDir(agentDir) === "strict") {
+    return store;
+  }
 
   const mainStore = loadAuthProfileStoreForAgent(undefined, options);
   return mergeAuthProfileStores(mainStore, store);
@@ -472,6 +485,9 @@ export function ensureAuthProfileStore(
   const authPath = resolveAuthStorePath(agentDir);
   const mainAuthPath = resolveAuthStorePath();
   if (!agentDir || authPath === mainAuthPath) {
+    return store;
+  }
+  if (resolveAgentAuthIsolationByDir(agentDir) === "strict") {
     return store;
   }
 

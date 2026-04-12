@@ -40,8 +40,11 @@ export const getCliSessionIdMock = createMock();
 export const updateSessionStoreMock = createMock();
 export const resolveCronSessionMock = createMock();
 export const logWarnMock = createMock();
+export const listAgentIdsMock = createMock();
+listAgentIdsMock.mockReturnValue([]);
 
 vi.mock("../../agents/agent-scope.js", () => ({
+  listAgentIds: listAgentIdsMock,
   resolveAgentConfig: resolveAgentConfigMock,
   resolveAgentDir: vi.fn().mockReturnValue("/tmp/agent-dir"),
   resolveAgentModelFallbacksOverride: resolveAgentModelFallbacksOverrideMock,

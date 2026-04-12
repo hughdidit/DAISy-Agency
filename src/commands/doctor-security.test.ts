@@ -1,8 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+import type { CronStoreFile } from "../cron/types.js";
+
+function createEmptyCronStore(): CronStoreFile {
+  return { version: 1, jobs: [] };
+}
 
 const note = vi.hoisted(() => vi.fn());
 const pluginRegistry = vi.hoisted(() => ({ list: [] as unknown[] }));
+const cronStoreMocks = vi.hoisted(() => ({
+  loadCronStore: vi.fn(async (_value?: string): Promise<CronStoreFile> => createEmptyCronStore()),
+  resolveCronStorePath: vi.fn((value?: string) => value ?? "/tmp/cron/jobs.json"),
+}));
 
 vi.mock("../terminal/note.js", () => ({
   note,
@@ -10,6 +19,11 @@ vi.mock("../terminal/note.js", () => ({
 
 vi.mock("../channels/plugins/index.js", () => ({
   listChannelPlugins: () => pluginRegistry.list,
+}));
+
+vi.mock("../cron/store.js", () => ({
+  loadCronStore: cronStoreMocks.loadCronStore,
+  resolveCronStorePath: cronStoreMocks.resolveCronStorePath,
 }));
 
 import { noteSecurityWarnings } from "./doctor-security.js";
@@ -21,6 +35,12 @@ describe("noteSecurityWarnings gateway exposure", () => {
   beforeEach(() => {
     note.mockClear();
     pluginRegistry.list = [];
+    cronStoreMocks.loadCronStore.mockReset();
+    cronStoreMocks.loadCronStore.mockResolvedValue(createEmptyCronStore());
+    cronStoreMocks.resolveCronStorePath.mockReset();
+    cronStoreMocks.resolveCronStorePath.mockImplementation(
+      (value?: string) => value ?? "/tmp/cron/jobs.json",
+    );
     prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
     prevPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
     delete process.env.OPENCLAW_GATEWAY_TOKEN;
@@ -118,5 +138,172 @@ describe("noteSecurityWarnings gateway exposure", () => {
     expect(message).toContain("disables approval forwarding only");
     expect(message).toContain("exec-approvals.json");
     expect(message).toContain("openclaw approvals get --gateway");
+  });
+
+  it("emits delegate hardening warnings for unsafe posture", async () => {
+    const cronStore = {
+      version: 1,
+      jobs: [
+        {
+          id: "job-1",
+          agentId: "ops",
+          name: "Unsafe delegate cron",
+          enabled: true,
+          createdAtMs: 1,
+          updatedAtMs: 1,
+          schedule: { kind: "every", everyMs: 60_000 },
+          sessionTarget: "main",
+          wakeMode: "next-heartbeat",
+          payload: { kind: "systemEvent", text: "unsafe" },
+          state: {},
+        },
+      ],
+    } satisfies CronStoreFile;
+    cronStoreMocks.loadCronStore.mockResolvedValue(cronStore);
+    const cfg = {
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "all",
+            scope: "shared",
+          },
+        },
+        list: [
+          {
+            id: "ops",
+            workspace: "/tmp/ops",
+            delegate: {
+              enabled: true,
+              tier: "tier3",
+              authIsolation: "legacy",
+            },
+            sandbox: {
+              mode: "non-main",
+              scope: "shared",
+            },
+            tools: {
+              allow: ["read"],
+            },
+          },
+        ],
+      },
+      plugins: {
+        entries: {
+          "gws-toolkit-phase1": {
+            enabled: true,
+            config: {
+              allowUnboundAgents: true,
+              credentialRoutes: {
+                "ops-main": {
+                  mode: "oauth",
+                  allowedServices: ["gmail"],
+                  allowedTools: ["gws_gmail_read"],
+                },
+              },
+              agentCredentialBindings: {
+                "agent:ops": "ops-main",
+              },
+              enabledWriteServices: [],
+              allowWriteOperations: false,
+            },
+          },
+        },
+      },
+      cron: {
+        enabled: false,
+      },
+    } as OpenClawConfig;
+
+    await noteSecurityWarnings(cfg);
+    const message = lastMessage();
+    expect(message).toContain('Delegate agent "ops" is using legacy auth isolation');
+    expect(message).toContain('Delegate agent "ops" must run with sandbox.mode="all"');
+    expect(message).toContain("missing an explicit GWS binding for subagent:ops");
+    expect(message).toContain("allowUnboundAgents=false");
+    expect(message).toContain("tier3 but global cron is disabled");
+    expect(message).toContain("job-1");
+  });
+
+  it("passes a hardened delegate reference posture", async () => {
+    const cfg = {
+      agents: {
+        list: [
+          {
+            id: "ops",
+            workspace: "/tmp/ops",
+            delegate: {
+              enabled: true,
+              tier: "tier1",
+              authIsolation: "strict",
+              gwsRouting: { requireExplicitBindings: true },
+              cron: { allowed: false },
+            },
+            sandbox: {
+              mode: "all",
+              scope: "agent",
+            },
+            tools: {
+              allow: [
+                "read",
+                "web_fetch",
+                "web_search",
+                "session_status",
+                "sessions_history",
+                "sessions_list",
+                "sessions_send",
+                "sessions_spawn",
+                "gws_status",
+                "gws_drive_read",
+                "gws_gmail_read",
+                "gws_calendar_read",
+                "gws_docs_read",
+                "gws_sheets_read",
+                "gws_gmail_write",
+              ],
+              deny: [
+                "apply_patch",
+                "browser",
+                "canvas",
+                "edit",
+                "exec",
+                "gateway",
+                "nodes",
+                "write",
+                "cron",
+              ],
+            },
+          },
+        ],
+      },
+      plugins: {
+        entries: {
+          "gws-toolkit-phase1": {
+            enabled: true,
+            config: {
+              allowUnboundAgents: false,
+              allowWriteOperations: true,
+              enabledWriteServices: ["gmail"],
+              credentialRoutes: {
+                "ops-main": {
+                  mode: "oauth",
+                  allowedServices: ["gmail", "calendar"],
+                  allowedTools: ["gws_gmail_read", "gws_calendar_read", "gws_gmail_write"],
+                  allowedActions: ["draft_message"],
+                },
+              },
+              agentCredentialBindings: {
+                "agent:ops": "ops-main",
+                "subagent:ops": "ops-main",
+              },
+            },
+          },
+        },
+      },
+    } as OpenClawConfig;
+
+    await noteSecurityWarnings(cfg);
+    const message = lastMessage();
+    expect(message).toContain("No channel security warnings detected");
+    expect(message).not.toContain('Delegate agent "ops"');
   });
 });

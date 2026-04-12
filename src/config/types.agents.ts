@@ -5,6 +5,21 @@ import type { HumanDelayConfig, IdentityConfig } from "./types.base.js";
 import type { GroupChatConfig } from "./types.messages.js";
 import type { AgentToolsConfig, MemorySearchConfig } from "./types.tools.js";
 
+export type DelegateTier = "tier1" | "tier2" | "tier3";
+export type DelegateAuthIsolation = "strict" | "legacy";
+
+export type DelegateConfig = {
+  enabled?: boolean;
+  tier?: DelegateTier;
+  authIsolation?: DelegateAuthIsolation;
+  gwsRouting?: {
+    requireExplicitBindings?: true;
+  };
+  cron?: {
+    allowed?: boolean;
+  };
+};
+
 export type AgentConfig = {
   id: string;
   default?: boolean;
@@ -19,6 +34,8 @@ export type AgentConfig = {
   humanDelay?: HumanDelayConfig;
   /** Optional per-agent heartbeat overrides. */
   heartbeat?: AgentDefaultsConfig["heartbeat"];
+  /** Optional delegate posture and hardening settings. */
+  delegate?: DelegateConfig;
   identity?: IdentityConfig;
   groupChat?: GroupChatConfig;
   subagents?: {

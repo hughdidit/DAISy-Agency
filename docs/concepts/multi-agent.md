@@ -27,6 +27,10 @@ Main agent credentials are **not** shared automatically. Never reuse `agentDir`
 across agents (it causes auth/session collisions). If you want to share creds,
 copy `auth-profiles.json` into the other agent's `agentDir`.
 
+Delegate agents make this stricter: `delegate.authIsolation: "strict"` disables
+all implicit main-agent auth fallback, cloning, and OAuth adoption. See
+[Delegate Architecture](/concepts/delegate-architecture).
+
 Skills are per-agent via each workspace’s `skills/` folder, with shared skills
 available from `~/.openclaw/skills`. See [Skills: per-agent vs shared](/tools/skills#per-agent-vs-shared-skills).
 
@@ -60,6 +64,12 @@ Use the agent wizard to add a new isolated agent:
 
 ```bash
 openclaw agents add work
+```
+
+Create a hardened delegate agent:
+
+```bash
+openclaw agents add ops --workspace ~/.openclaw/workspace-ops --preset delegate --delegate-tier tier1
 ```
 
 Then add `bindings` (or let the wizard do it) to route inbound messages.

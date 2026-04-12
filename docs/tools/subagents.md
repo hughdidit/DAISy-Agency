@@ -204,9 +204,13 @@ Sub-agent auth is resolved by **agent id**, not by session type:
 
 - The sub-agent session key is `agent:<agentId>:subagent:<uuid>`.
 - The auth store is loaded from that agent's `agentDir`.
-- The main agent's auth profiles are merged in as a **fallback**; agent profiles override main profiles on conflicts.
+- Non-delegate agents keep legacy compatibility: if `authIsolation` remains
+  legacy, the runtime may still fall back to the main agent's auth profiles.
+- Delegate agents default to `delegate.authIsolation: "strict"`, which disables
+  main-agent auth fallback, store cloning, and OAuth credential adoption.
 
-Note: the merge is additive, so main profiles are always available as fallbacks. Fully isolated auth per agent is not supported yet.
+If you need a hardened delegate posture, do not rely on inherited auth. Create
+the credential material directly in that delegate's `agentDir`.
 
 ## Announce
 

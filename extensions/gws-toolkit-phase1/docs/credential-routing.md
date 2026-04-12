@@ -14,9 +14,22 @@ The plugin routes requests by explicit subject:
 
 There is no implicit parent-route inheritance for subagents.
 
+Delegate posture should treat step 3 as disabled:
+
+- keep `allowUnboundAgents: false`
+- bind both `agent:<agentId>` and `subagent:<agentId>`
+- avoid synthesized legacy routing
+
 Legacy compatibility mode synthesizes `legacy-default` and enables default
 fallback for older single-credential deployments when no explicit routing
 config exists.
+
+Recommended CLI flow:
+
+```bash
+openclaw agents bind --agent ops --gws-route ops-main
+openclaw agents bind --agent ops --gws-route ops-main --subagent-gws-route ops-subagent
+```
 
 ## Route fields
 

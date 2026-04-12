@@ -1,12 +1,260 @@
+import {
+  buildDelegateGwsBindingSubjects,
+  resolveDelegateConfig,
+  resolveAgentAuthIsolation,
+} from "../agents/delegate-config.js";
+import { resolveSandboxConfigForAgent } from "../agents/sandbox.js";
+import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig, GatewayBindMode } from "../config/config.js";
+import { loadCronStore, resolveCronStorePath } from "../cron/store.js";
+import type { CronStoreFile } from "../cron/types.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { isLoopbackHost, resolveGatewayBindHost } from "../gateway/net.js";
 import { resolveDmAllowState } from "../security/dm-policy-shared.js";
 import { note } from "../terminal/note.js";
 import { resolveDefaultChannelAccountContext } from "./channel-account-context.js";
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean)
+    : [];
+}
+
+function hasWriteTool(entries: string[]): boolean {
+  return entries.some((entry) => entry.endsWith("_write"));
+}
+
+function hasAllowedDraftOrSendAction(entries: string[]): boolean {
+  return entries.includes("draft_message") || entries.includes("send_message");
+}
+
+function normalizeEntries(entries: string[]): string[] {
+  return entries.map((entry) => entry.trim().toLowerCase()).filter(Boolean);
+}
+
+function getEffectiveAgentAllowedTools(
+  agentTools: { allow?: string[]; alsoAllow?: string[]; profile?: string } | undefined,
+): string[] {
+  const profileAllow = resolveToolProfilePolicy(agentTools?.profile)?.allow ?? [];
+  return Array.from(
+    new Set(
+      normalizeEntries([
+        ...profileAllow,
+        ...asStringArray(agentTools?.allow),
+        ...asStringArray(agentTools?.alsoAllow),
+      ]),
+    ),
+  );
+}
+
+async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
+  const warnings: string[] = [];
+  const agents = cfg.agents?.list ?? [];
+  const rawPluginEntry = cfg.plugins?.entries?.["gws-toolkit-phase1"];
+  const rawPluginConfig = asRecord(rawPluginEntry?.config);
+  const credentialRoutes = asRecord(rawPluginConfig?.credentialRoutes);
+  const agentCredentialBindings = asRecord(rawPluginConfig?.agentCredentialBindings);
+  const allowUnboundAgents =
+    typeof rawPluginConfig?.allowUnboundAgents === "boolean" && rawPluginConfig.allowUnboundAgents;
+  const cronStorePath = resolveCronStorePath(cfg.cron?.store);
+  let cronStore: CronStoreFile = { version: 1, jobs: [] };
+  try {
+    cronStore = await loadCronStore(cronStorePath);
+  } catch (error) {
+    warnings.push(`- WARNING: Failed to load cron store "${cronStorePath}": ${String(error)}.`);
+  }
+
+  for (const agent of agents) {
+    const delegate = resolveDelegateConfig(cfg, agent.id);
+    if (!delegate) {
+      continue;
+    }
+
+    const authIsolation = resolveAgentAuthIsolation(cfg, agent.id);
+    if (authIsolation !== "strict") {
+      warnings.push(
+        `- ERROR: Delegate agent "${agent.id}" is using legacy auth isolation. Set agents.list[].delegate.authIsolation to "strict".`,
+      );
+    }
+
+    const sandbox = resolveSandboxConfigForAgent(cfg, agent.id);
+    if (sandbox.mode !== "all") {
+      warnings.push(
+        `- ERROR: Delegate agent "${agent.id}" must run with sandbox.mode="all" (current: "${sandbox.mode}").`,
+      );
+    }
+    if (sandbox.scope !== "agent") {
+      warnings.push(
+        `- ERROR: Delegate agent "${agent.id}" must use sandbox.scope="agent" (current: "${sandbox.scope}").`,
+      );
+    }
+
+    if (!rawPluginEntry) {
+      warnings.push(
+        `- ERROR: Delegate agent "${agent.id}" requires plugins.entries.gws-toolkit-phase1 with explicit credentialRoutes and agentCredentialBindings.`,
+      );
+    }
+    if (!credentialRoutes || Object.keys(credentialRoutes).length === 0) {
+      warnings.push(
+        `- ERROR: Delegate agent "${agent.id}" is using synthesized legacy GWS credential routing. Configure named credentialRoutes and explicit bindings.`,
+      );
+    }
+    if (allowUnboundAgents) {
+      warnings.push(
+        `- ERROR: Delegate agent "${agent.id}" requires allowUnboundAgents=false in gws-toolkit-phase1.`,
+      );
+    }
+
+    const subjects = buildDelegateGwsBindingSubjects(agent.id);
+    const agentSubject = subjects.agent;
+    const subagentSubject = subjects.subagent;
+    const agentRouteName =
+      typeof agentCredentialBindings?.[agentSubject] === "string"
+        ? String(agentCredentialBindings[agentSubject]).trim()
+        : "";
+    const subagentRouteName =
+      typeof agentCredentialBindings?.[subagentSubject] === "string"
+        ? String(agentCredentialBindings[subagentSubject]).trim()
+        : "";
+
+    if (!agentRouteName) {
+      warnings.push(
+        `- ERROR: Delegate agent "${agent.id}" is missing an explicit GWS binding for ${agentSubject}.`,
+      );
+    }
+    if (!subagentRouteName) {
+      warnings.push(
+        `- ERROR: Delegate agent "${agent.id}" is missing an explicit GWS binding for ${subagentSubject}.`,
+      );
+    }
+
+    const routeNames = [agentRouteName, subagentRouteName].filter(Boolean);
+    const boundRoutes = credentialRoutes
+      ? (routeNames
+          .map((routeName) => {
+            const route = asRecord(credentialRoutes[routeName]);
+            return route ? { routeName, route } : null;
+          })
+          .filter(Boolean) as Array<{ routeName: string; route: Record<string, unknown> }>)
+      : [];
+
+    if (credentialRoutes) {
+      for (const routeName of routeNames) {
+        if (!Object.hasOwn(credentialRoutes, routeName)) {
+          warnings.push(
+            `- ERROR: Delegate agent "${agent.id}" references unknown GWS route "${routeName}".`,
+          );
+        }
+      }
+    }
+
+    const enabledWriteServices = asStringArray(rawPluginConfig?.enabledWriteServices);
+    const routeWriteTools = normalizeEntries(
+      boundRoutes.flatMap(({ route }) => asStringArray(route.allowedTools)),
+    );
+    const routeActions = normalizeEntries(
+      boundRoutes.flatMap(({ route }) => asStringArray(route.allowedActions)),
+    );
+    const agentAllowedTools = getEffectiveAgentAllowedTools(agent.tools);
+
+    if (delegate.tier === "tier1") {
+      const disallowedTier1WriteTools = [...routeWriteTools, ...agentAllowedTools].filter(
+        (tool) => tool.endsWith("_write") && tool !== "gws_gmail_write",
+      );
+      if (agentAllowedTools.includes("cron")) {
+        warnings.push(
+          `- ERROR: Delegate agent "${agent.id}" is tier1 but still allows the cron tool.`,
+        );
+      }
+      if (disallowedTier1WriteTools.length > 0) {
+        warnings.push(
+          `- ERROR: Delegate agent "${agent.id}" is tier1 but exposes write-capable tools beyond Gmail draft posture (${Array.from(new Set(disallowedTier1WriteTools)).join(", ")}).`,
+        );
+      }
+      if (agentAllowedTools.includes("gws_gmail_write") && boundRoutes.length === 0) {
+        warnings.push(
+          `- ERROR: Delegate agent "${agent.id}" is tier1 but lacks a bound GWS route restricting Gmail write actions to draft_message.`,
+        );
+      }
+      for (const { routeName, route } of boundRoutes) {
+        const routeAllowedTools = normalizeEntries(asStringArray(route.allowedTools));
+        const routeAllowedActions = normalizeEntries(asStringArray(route.allowedActions));
+        if (
+          routeAllowedTools.includes("gws_gmail_write") &&
+          (routeAllowedActions.length === 0 ||
+            routeAllowedActions.some((action) => action !== "draft_message"))
+        ) {
+          warnings.push(
+            `- ERROR: Delegate agent "${agent.id}" is tier1 but its GWS route "${routeName}" does not restrict Gmail write actions to draft_message.`,
+          );
+        }
+      }
+    }
+
+    if (delegate.tier === "tier2" || delegate.tier === "tier3") {
+      const pluginAllowsWrites =
+        typeof rawPluginConfig?.allowWriteOperations === "boolean" &&
+        rawPluginConfig.allowWriteOperations;
+      const routeAllowsWriteTool = hasWriteTool(routeWriteTools);
+      const routeAllowsDraftOrSend = hasAllowedDraftOrSendAction(routeActions);
+      const gmailWriteEnabled =
+        agentAllowedTools.includes("gws_gmail_write") ||
+        routeWriteTools.includes("gws_gmail_write");
+      const agentAllowsWriteTool = hasWriteTool(agentAllowedTools);
+      if (
+        !pluginAllowsWrites ||
+        enabledWriteServices.length === 0 ||
+        !routeAllowsWriteTool ||
+        !agentAllowsWriteTool ||
+        (gmailWriteEnabled && !routeAllowsDraftOrSend && routeActions.length > 0)
+      ) {
+        warnings.push(
+          `- WARNING: Delegate agent "${agent.id}" is ${delegate.tier} but its write-capable GWS/tool posture is incomplete. Confirm allowWriteOperations, enabledWriteServices, route allowedTools, and agent tools.allow.`,
+        );
+      }
+    }
+
+    if (delegate.tier === "tier3") {
+      if (!delegate.cron.allowed) {
+        warnings.push(
+          `- ERROR: Delegate agent "${agent.id}" is tier3 but delegate.cron.allowed is not enabled.`,
+        );
+      }
+      if (!agentAllowedTools.includes("cron")) {
+        warnings.push(
+          `- WARNING: Delegate agent "${agent.id}" is tier3 but does not allow the cron tool.`,
+        );
+      }
+      if (cfg.cron?.enabled === false) {
+        warnings.push(
+          `- WARNING: Delegate agent "${agent.id}" is tier3 but global cron is disabled.`,
+        );
+      }
+      const misScopedJobs = cronStore.jobs.filter(
+        (job) =>
+          (job.agentId?.trim() || "main") === agent.id &&
+          (job.sessionTarget !== "isolated" ||
+            ((job.payload as { kind?: unknown } | undefined)?.kind ?? "") !== "agentTurn"),
+      );
+      if (misScopedJobs.length > 0) {
+        warnings.push(
+          `- ERROR: Delegate agent "${agent.id}" has cron jobs that are not isolated agentTurn runs (${misScopedJobs.map((job) => job.id).join(", ")}).`,
+        );
+      }
+    }
+  }
+
+  return warnings;
+}
 
 export async function noteSecurityWarnings(cfg: OpenClawConfig) {
   const warnings: string[] = [];
@@ -180,6 +428,8 @@ export async function noteSecurityWarnings(cfg: OpenClawConfig) {
       }
     }
   }
+
+  warnings.push(...(await collectDelegateWarnings(cfg)));
 
   const lines = warnings.length > 0 ? warnings : ["- No channel security warnings detected."];
   lines.push(auditHint);
