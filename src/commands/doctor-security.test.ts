@@ -2,10 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 import type { CronStoreFile } from "../cron/types.js";
 
+function createEmptyCronStore(): CronStoreFile {
+  return { version: 1, jobs: [] };
+}
+
 const note = vi.hoisted(() => vi.fn());
 const pluginRegistry = vi.hoisted(() => ({ list: [] as unknown[] }));
 const cronStoreMocks = vi.hoisted(() => ({
-  loadCronStore: vi.fn(async () => ({ version: 1, jobs: [] })),
+  loadCronStore: vi.fn(async (_value?: string): Promise<CronStoreFile> => createEmptyCronStore()),
   resolveCronStorePath: vi.fn((value?: string) => value ?? "/tmp/cron/jobs.json"),
 }));
 
@@ -32,7 +36,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
     note.mockClear();
     pluginRegistry.list = [];
     cronStoreMocks.loadCronStore.mockReset();
-    cronStoreMocks.loadCronStore.mockResolvedValue({ version: 1, jobs: [] });
+    cronStoreMocks.loadCronStore.mockResolvedValue(createEmptyCronStore());
     cronStoreMocks.resolveCronStorePath.mockReset();
     cronStoreMocks.resolveCronStorePath.mockImplementation(
       (value?: string) => value ?? "/tmp/cron/jobs.json",
@@ -143,8 +147,15 @@ describe("noteSecurityWarnings gateway exposure", () => {
         {
           id: "job-1",
           agentId: "ops",
+          name: "Unsafe delegate cron",
+          enabled: true,
+          createdAtMs: 1,
+          updatedAtMs: 1,
+          schedule: { kind: "every", everyMs: 60_000 },
           sessionTarget: "main",
+          wakeMode: "next-heartbeat",
           payload: { kind: "systemEvent", text: "unsafe" },
+          state: {},
         },
       ],
     } satisfies CronStoreFile;
