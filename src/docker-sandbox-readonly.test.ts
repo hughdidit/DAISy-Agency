@@ -18,9 +18,7 @@ describe("Dockerfile.sandbox", () => {
     expect(dockerfile).toContain(
       '/usr/local/bin/openclaw-readonly skills list | grep -q "openclaw-readonly"',
     );
-    expect(dockerfile).toContain(
-      'OPENCLAW_READONLY_AGENT_ID=main',
-    );
+    expect(dockerfile).toContain("OPENCLAW_READONLY_AGENT_ID=main");
     expect(dockerfile).toContain(
       '/usr/local/bin/openclaw-readonly sandbox explain | grep -q "mode:"',
     );
