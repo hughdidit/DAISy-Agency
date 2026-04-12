@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 import { captureFullEnv } from "../test-utils/env.js";
@@ -76,4 +77,26 @@ describe("sandbox skill mirroring", () => {
     },
     20_000,
   );
+
+  it("copies the bundled openclaw-readonly launcher into ro sandboxes", async () => {
+    process.env.OPENCLAW_BUNDLED_SKILLS_DIR = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "..",
+      "..",
+      "skills",
+    );
+    const { context } = await runContext("ro");
+
+    expect(context?.enabled).toBe(true);
+    const launcherPath = path.join(
+      context?.workspaceDir ?? "",
+      "skills",
+      "openclaw-readonly",
+      "scripts",
+      "openclaw-readonly.mjs",
+    );
+    await expect(fs.readFile(launcherPath, "utf-8")).resolves.toContain(
+      "runOpenClawReadonlyLauncher",
+    );
+  });
 });

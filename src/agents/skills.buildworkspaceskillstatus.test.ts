@@ -1,5 +1,7 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { withEnv } from "../test-utils/env.js";
+import { captureFullEnv, withEnv } from "../test-utils/env.js";
 import { buildWorkspaceSkillStatus } from "./skills-status.js";
 import type { SkillEntry } from "./skills/types.js";
 
@@ -152,6 +154,29 @@ describe("buildWorkspaceSkillStatus", () => {
       expect(skill?.install.map((opt) => opt.id)).toEqual(["win"]);
     } else {
       expect(skill?.install).toEqual([]);
+    }
+  });
+
+  it("includes the bundled openclaw-readonly skill in status output", () => {
+    const snapshot = captureFullEnv();
+    try {
+      process.env.OPENCLAW_BUNDLED_SKILLS_DIR = path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "..",
+        "..",
+        "skills",
+      );
+
+      const report = buildWorkspaceSkillStatus("/tmp/ws", {
+        config: {},
+      });
+      const skill = report.skills.find((entry) => entry.name === "openclaw-readonly");
+
+      expect(skill).toBeDefined();
+      expect(skill?.bundled).toBe(true);
+      expect(skill?.filePath).toContain(path.join("skills", "openclaw-readonly", "SKILL.md"));
+    } finally {
+      snapshot.restore();
     }
   });
 });

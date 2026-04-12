@@ -130,6 +130,63 @@ other runtimes), either bake a custom image or install via
 `sandbox.docker.setupCommand` (requires network egress + writable root +
 root user).
 
+### `openclaw-readonly` sandbox skill
+
+`openclaw-readonly` is a bundled sandbox-only diagnostic skill. It is designed
+for least-privilege troubleshooting and exposes only four exact commands inside
+the sandbox:
+
+- `status`
+- `sandbox explain`
+- `skills list`
+- `skills check`
+
+It does **not** expose the generic `openclaw` CLI in the sandbox, and it does
+not support flags, `doctor`, auth flows, config writes, or repair commands.
+
+Minimal example:
+
+```json5
+{
+  agents: {
+    list: [{ id: "main", skills: ["openclaw-readonly"] }],
+    defaults: {
+      sandbox: {
+        mode: "all",
+        scope: "agent",
+        workspaceAccess: "ro",
+        docker: {
+          network: "none",
+          binds: [
+            "/srv/openclaw/readonly/openclaw.json:/readonly/openclaw.json:ro",
+            "/srv/openclaw/readonly/state:/readonly/state:ro",
+          ],
+          env: {
+            OPENCLAW_READONLY_CONFIG_PATH: "/readonly/openclaw.json",
+            OPENCLAW_READONLY_STATE_DIR: "/readonly/state",
+            OPENCLAW_READONLY_AGENT_ID: "main",
+            OPENCLAW_READONLY_WORKSPACE_DIR: "/agent",
+          },
+        },
+      },
+    },
+  },
+  tools: {
+    sandbox: {
+      tools: {
+        allow: ["read", "exec"],
+      },
+    },
+    elevated: {
+      enabled: false,
+    },
+  },
+}
+```
+
+Keep the binds read-only and synthetic. Do not mount the full host config tree
+or a writable state directory just to make diagnostics work.
+
 If you want a more functional sandbox image with common tooling (for example
 `curl`, `jq`, `nodejs`, `python3`, `git`), build:
 
