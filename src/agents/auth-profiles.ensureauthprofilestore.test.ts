@@ -143,7 +143,11 @@ describe("ensureAuthProfileStore", () => {
           {
             agents: {
               list: [
-                { id: "main", workspace: path.join(root, "agents", "main", "workspace"), agentDir: mainDir },
+                {
+                  id: "main",
+                  workspace: path.join(root, "agents", "main", "workspace"),
+                  agentDir: mainDir,
+                },
                 {
                   id: "delegate",
                   workspace: path.join(root, "agents", "delegate", "workspace"),

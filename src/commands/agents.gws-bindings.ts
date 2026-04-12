@@ -1,6 +1,6 @@
+import { buildDelegateGwsBindingSubjects } from "../agents/delegate-config.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { normalizeAgentId } from "../routing/session-key.js";
-import { buildDelegateGwsBindingSubjects } from "../agents/delegate-config.js";
 
 const GWS_PLUGIN_ID = "gws-toolkit-phase1";
 

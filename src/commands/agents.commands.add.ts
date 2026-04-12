@@ -5,10 +5,10 @@ import {
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
 } from "../agents/agent-scope.js";
-import { buildDelegatePreset, isDelegateTier } from "../agents/delegate-config.js";
-import { DEFAULT_AGENTS_FILENAME, DEFAULT_IDENTITY_FILENAME } from "../agents/workspace.js";
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import { resolveAuthStorePath } from "../agents/auth-profiles/paths.js";
+import { buildDelegatePreset, isDelegateTier } from "../agents/delegate-config.js";
+import { DEFAULT_AGENTS_FILENAME, DEFAULT_IDENTITY_FILENAME } from "../agents/workspace.js";
 import { writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../routing/session-key.js";
@@ -24,8 +24,8 @@ import {
   parseBindingSpecs,
 } from "./agents.bindings.js";
 import { createQuietRuntime, requireValidConfig } from "./agents.command-shared.js";
-import { applyAgentGwsBindings } from "./agents.gws-bindings.js";
 import { applyAgentConfig, findAgentEntryIndex, listAgentEntries } from "./agents.config.js";
+import { applyAgentGwsBindings } from "./agents.gws-bindings.js";
 import { promptAuthChoiceGrouped } from "./auth-choice-prompt.js";
 import { applyAuthChoice, warnIfModelConfigLooksOff } from "./auth-choice.js";
 import { setupChannels } from "./onboard-channels.js";

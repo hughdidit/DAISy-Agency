@@ -153,7 +153,10 @@ export function resolveAgentAuthIsolationByDir(
   return "legacy";
 }
 
-export function buildDelegatePreset(agentId: string, tier: DelegateTier): {
+export function buildDelegatePreset(
+  agentId: string,
+  tier: DelegateTier,
+): {
   delegate: DelegateConfig;
   sandbox: AgentSandboxConfig;
   subagents: NonNullable<AgentConfig["subagents"]>;
@@ -183,10 +186,7 @@ export function buildDelegatePreset(agentId: string, tier: DelegateTier): {
     },
     tools: {
       allow: buildTierAllowList(tier),
-      deny: dedupe([
-        ...DELEGATE_COMMON_DENY,
-        ...(tier === "tier3" ? [] : ["cron"]),
-      ]),
+      deny: dedupe([...DELEGATE_COMMON_DENY, ...(tier === "tier3" ? [] : ["cron"])]),
     },
   };
 }

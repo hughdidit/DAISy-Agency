@@ -128,13 +128,22 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.openclaw.ai/cli/age
     .option("--agent <id>", "Agent id (defaults to current default agent)")
     .option(
       "--bind <channel[:accountId]>",
-      "Binding to add (repeatable). If omitted, accountId is resolved by channel defaults/hooks.",
+      "Binding to add (repeatable). When omitted, accountId comes from channel defaults/hooks.",
       collectOption,
       [],
     )
-    .option("--gws-route <routeName>", "Bind agent:<id> and subagent:<id> to a GWS credential route")
+    .option(
+      "--gws-route <routeName>",
+      "Bind agent:<id> and subagent:<id> to a GWS credential route",
+    )
     .option("--subagent-gws-route <routeName>", "Override the GWS route used for subagent:<id>")
     .option("--json", "Output JSON summary", false)
+    .addHelpText(
+      "after",
+      `
+accountId is resolved by channel defaults/hooks when omitted.
+`,
+    )
     .action(async (opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         await agentsBindCommand(
@@ -180,7 +189,10 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.openclaw.ai/cli/age
     .option("--preset <name>", "Creation preset (delegate)")
     .option("--delegate-tier <tier>", "Delegate preset tier: tier1 | tier2 | tier3")
     .option("--bind <channel[:accountId]>", "Route channel binding (repeatable)", collectOption, [])
-    .option("--gws-route <routeName>", "Bind agent:<id> and subagent:<id> to a GWS credential route")
+    .option(
+      "--gws-route <routeName>",
+      "Bind agent:<id> and subagent:<id> to a GWS credential route",
+    )
     .option("--subagent-gws-route <routeName>", "Override the GWS route used for subagent:<id>")
     .option("--non-interactive", "Disable prompts; requires --workspace", false)
     .option("--json", "Output JSON summary", false)

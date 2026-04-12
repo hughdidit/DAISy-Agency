@@ -142,7 +142,11 @@ describe("agents bind/unbind commands", () => {
               config: {
                 credentialRoutes: {
                   "ops-main": { mode: "oauth", allowedServices: ["gmail"], allowedTools: [] },
-                  "ops-subagent": { mode: "oauth", allowedServices: ["calendar"], allowedTools: [] },
+                  "ops-subagent": {
+                    mode: "oauth",
+                    allowedServices: ["calendar"],
+                    allowedTools: [],
+                  },
                 },
                 agentCredentialBindings: {},
               },

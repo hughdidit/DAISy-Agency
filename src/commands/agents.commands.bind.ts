@@ -12,8 +12,8 @@ import {
   removeAgentBindings,
 } from "./agents.bindings.js";
 import { requireValidConfig } from "./agents.command-shared.js";
-import { applyAgentGwsBindings } from "./agents.gws-bindings.js";
 import { buildAgentSummaries } from "./agents.config.js";
+import { applyAgentGwsBindings } from "./agents.gws-bindings.js";
 
 type AgentsBindingsListOptions = {
   agent?: string;
@@ -302,7 +302,11 @@ export async function agentsBindCommand(
     for (const binding of result.added) {
       runtime.log(`- ${describeBinding(binding)}`);
     }
-  } else if (result.updated.length === 0 && gwsResult.added.length === 0 && gwsResult.updated.length === 0) {
+  } else if (
+    result.updated.length === 0 &&
+    gwsResult.added.length === 0 &&
+    gwsResult.updated.length === 0
+  ) {
     runtime.log("No new bindings added.");
   }
 

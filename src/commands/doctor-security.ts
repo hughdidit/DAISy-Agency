@@ -19,9 +19,7 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 
 function asStringArray(value: unknown): string[] {
   return Array.isArray(value)
-    ? value
-        .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
-        .filter(Boolean)
+    ? value.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean)
     : [];
 }
 

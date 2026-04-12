@@ -161,9 +161,9 @@ describe("agents add command", () => {
       await expect(fs.readFile(path.join(workspaceDir, "AGENTS.md"), "utf8")).resolves.toContain(
         "Delegate Workspace",
       );
-      await expect(
-        fs.readFile(path.join(workspaceDir, "IDENTITY.md"), "utf8"),
-      ).resolves.toContain("Ops Delegate");
+      await expect(fs.readFile(path.join(workspaceDir, "IDENTITY.md"), "utf8")).resolves.toContain(
+        "Ops Delegate",
+      );
     } finally {
       await fs.rm(workspaceDir, { recursive: true, force: true });
     }
