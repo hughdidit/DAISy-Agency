@@ -18,10 +18,11 @@ describe("Dockerfile.sandbox", () => {
     expect(dockerfile).toContain(
       '/usr/local/bin/openclaw-readonly skills list | grep -q "openclaw-readonly"',
     );
-    expect(dockerfile).toContain("OPENCLAW_READONLY_AGENT_ID=main");
+    expect(dockerfile.match(/OPENCLAW_READONLY_AGENT_ID=main/g)).toHaveLength(2);
     expect(dockerfile).toContain(
       '/usr/local/bin/openclaw-readonly sandbox explain | grep -q "mode:"',
     );
+    expect(dockerfile).toContain("RUN bash -o pipefail -lc");
   });
 
   it("does not expose the generic openclaw CLI in the sandbox image", async () => {
