@@ -14,6 +14,7 @@ const ALLOWED_OPENCLAW_READONLY_ARGS = [
 export function resolveOpenClawReadonlyBinary(params = {}) {
   const env = params.env ?? process.env;
   const platform = params.platform ?? process.platform;
+  const pathDelimiter = platform === "win32" ? ";" : path.delimiter;
   const pathValue =
     params.pathValue ?? (platform === "win32" ? (env.Path ?? env.PATH) : env.PATH) ?? "";
   const pathext = platform === "win32" ? (env.PATHEXT ?? ".EXE;.CMD;.BAT;.COM") : "";
@@ -25,7 +26,7 @@ export function resolveOpenClawReadonlyBinary(params = {}) {
           .filter(Boolean)
       : [""];
 
-  for (const rawDir of pathValue.split(path.delimiter)) {
+  for (const rawDir of pathValue.split(pathDelimiter)) {
     const dir = rawDir.trim();
     if (!dir) {
       continue;
