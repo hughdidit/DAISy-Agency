@@ -25,6 +25,12 @@ export default defineConfig([
     platform: "node",
   },
   {
+    entry: "src/cli/openclaw-readonly.ts",
+    env,
+    fixedExtension: false,
+    platform: "node",
+  },
+  {
     entry: "src/infra/warning-filter.ts",
     env,
     fixedExtension: false,

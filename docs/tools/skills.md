@@ -144,6 +144,24 @@ Note on sandboxing:
   Example: the `summarize` skill (`skills/summarize/SKILL.md`) needs the `summarize` CLI
   in the sandbox container to run there.
 
+The bundled `openclaw-readonly` skill is a special-case sandbox diagnostic
+skill. It uses the sandbox-local `openclaw-readonly` runtime instead of the
+full `openclaw` CLI and only supports:
+
+- `status`
+- `sandbox explain`
+- `skills list`
+- `skills check`
+
+Use the bundled launcher from the mirrored skill directory:
+
+```bash
+node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status
+```
+
+If the readonly config, state, or workspace mounts are missing, the launcher
+fails closed with a setup error instead of trying a host-side fallback.
+
 Installer example:
 
 ```markdown

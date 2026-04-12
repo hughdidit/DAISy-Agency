@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 import { captureFullEnv } from "../test-utils/env.js";
@@ -21,22 +22,40 @@ vi.mock("./sandbox/prune.js", () => ({
 
 describe("sandbox skill mirroring", () => {
   let envSnapshot: ReturnType<typeof captureFullEnv>;
+  const cleanupDirs = new Set<string>();
 
   beforeEach(() => {
     envSnapshot = captureFullEnv();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     envSnapshot.restore();
+    await Promise.all(
+      Array.from(cleanupDirs, async (dir) => {
+        await fs.rm(dir, { recursive: true, force: true });
+      }),
+    );
+    cleanupDirs.clear();
   });
 
-  const runContext = async (workspaceAccess: "none" | "ro") => {
-    const bundledDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-bundled-skills-"));
-    await fs.mkdir(bundledDir, { recursive: true });
+  const runContext = async (
+    workspaceAccess: "none" | "ro",
+    options: { bundledDir?: string } = {},
+  ) => {
+    const bundledDir = options.bundledDir;
+    const effectiveBundledDir =
+      bundledDir ?? (await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-bundled-skills-")));
+    if (!bundledDir) {
+      cleanupDirs.add(effectiveBundledDir);
+    }
+    await fs.mkdir(effectiveBundledDir, { recursive: true });
 
-    process.env.OPENCLAW_BUNDLED_SKILLS_DIR = bundledDir;
+    const sandboxRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sandbox-root-"));
+    cleanupDirs.add(sandboxRoot);
+    process.env.OPENCLAW_BUNDLED_SKILLS_DIR = effectiveBundledDir;
 
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    cleanupDirs.add(workspaceDir);
     await writeSkill({
       dir: path.join(workspaceDir, "skills", "demo-skill"),
       name: "demo-skill",
@@ -50,7 +69,7 @@ describe("sandbox skill mirroring", () => {
             mode: "all",
             scope: "session",
             workspaceAccess,
-            workspaceRoot: path.join(bundledDir, "sandboxes"),
+            workspaceRoot: sandboxRoot,
           },
         },
       },
@@ -76,4 +95,27 @@ describe("sandbox skill mirroring", () => {
     },
     20_000,
   );
+
+  it("copies the bundled openclaw-readonly launcher into ro sandboxes", async () => {
+    const bundledDir = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "..",
+      "..",
+      "skills",
+    );
+    process.env.OPENCLAW_BUNDLED_SKILLS_DIR = bundledDir;
+    const { context } = await runContext("ro", { bundledDir });
+
+    expect(context?.enabled).toBe(true);
+    const launcherPath = path.join(
+      context?.workspaceDir ?? "",
+      "skills",
+      "openclaw-readonly",
+      "scripts",
+      "openclaw-readonly.mjs",
+    );
+    await expect(fs.readFile(launcherPath, "utf-8")).resolves.toContain(
+      "runOpenClawReadonlyLauncher",
+    );
+  });
 });

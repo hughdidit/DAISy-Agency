@@ -75,3 +75,14 @@ Use one of:
 - bake the env into your custom sandbox image
 
 Global `env` and `skills.entries.<skill>.env/apiKey` apply to **host** runs only.
+
+For the bundled `openclaw-readonly` sandbox skill, use sandbox Docker env vars
+instead of `skills.entries` overrides:
+
+- `OPENCLAW_READONLY_CONFIG_PATH`
+- `OPENCLAW_READONLY_STATE_DIR`
+- `OPENCLAW_READONLY_AGENT_ID`
+- `OPENCLAW_READONLY_WORKSPACE_DIR`
+
+Those env vars are consumed by the sandbox-local `openclaw-readonly` runtime and
+should point only at read-only binds or sandbox-visible workspace mounts.
