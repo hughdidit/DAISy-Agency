@@ -69,7 +69,7 @@ export function applyAgentGwsBindings(
   if (!Object.hasOwn(credentialRoutes, routeName)) {
     errors.push(`Unknown GWS route "${routeName}".`);
   }
-  if (!Object.hasOwn(credentialRoutes, subagentRouteName)) {
+  if (subagentRouteName !== routeName && !Object.hasOwn(credentialRoutes, subagentRouteName)) {
     errors.push(`Unknown subagent GWS route "${subagentRouteName}".`);
   }
   if (errors.length > 0) {

@@ -1,10 +1,16 @@
-import { resolveDelegateConfig, resolveAgentAuthIsolation } from "../agents/delegate-config.js";
+import {
+  buildDelegateGwsBindingSubjects,
+  resolveDelegateConfig,
+  resolveAgentAuthIsolation,
+} from "../agents/delegate-config.js";
 import { resolveSandboxConfigForAgent } from "../agents/sandbox.js";
+import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig, GatewayBindMode } from "../config/config.js";
 import { loadCronStore, resolveCronStorePath } from "../cron/store.js";
+import type { CronStoreFile } from "../cron/types.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { isLoopbackHost, resolveGatewayBindHost } from "../gateway/net.js";
 import { resolveDmAllowState } from "../security/dm-policy-shared.js";
@@ -31,6 +37,25 @@ function hasAllowedDraftOrSendAction(entries: string[]): boolean {
   return entries.includes("draft_message") || entries.includes("send_message");
 }
 
+function normalizeEntries(entries: string[]): string[] {
+  return entries.map((entry) => entry.trim().toLowerCase()).filter(Boolean);
+}
+
+function getEffectiveAgentAllowedTools(
+  agentTools: { allow?: string[]; alsoAllow?: string[]; profile?: string } | undefined,
+): string[] {
+  const profileAllow = resolveToolProfilePolicy(agentTools?.profile)?.allow ?? [];
+  return Array.from(
+    new Set(
+      normalizeEntries([
+        ...profileAllow,
+        ...asStringArray(agentTools?.allow),
+        ...asStringArray(agentTools?.alsoAllow),
+      ]),
+    ),
+  );
+}
+
 async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
   const warnings: string[] = [];
   const agents = cfg.agents?.list ?? [];
@@ -40,7 +65,13 @@ async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
   const agentCredentialBindings = asRecord(rawPluginConfig?.agentCredentialBindings);
   const allowUnboundAgents =
     typeof rawPluginConfig?.allowUnboundAgents === "boolean" && rawPluginConfig.allowUnboundAgents;
-  const cronStore = await loadCronStore(resolveCronStorePath(cfg.cron?.store));
+  const cronStorePath = resolveCronStorePath(cfg.cron?.store);
+  let cronStore: CronStoreFile = { version: 1, jobs: [] };
+  try {
+    cronStore = await loadCronStore(cronStorePath);
+  } catch (error) {
+    warnings.push(`- WARNING: Failed to load cron store "${cronStorePath}": ${String(error)}.`);
+  }
 
   for (const agent of agents) {
     const delegate = resolveDelegateConfig(cfg, agent.id);
@@ -71,13 +102,11 @@ async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
       warnings.push(
         `- ERROR: Delegate agent "${agent.id}" requires plugins.entries.gws-toolkit-phase1 with explicit credentialRoutes and agentCredentialBindings.`,
       );
-      continue;
     }
     if (!credentialRoutes || Object.keys(credentialRoutes).length === 0) {
       warnings.push(
         `- ERROR: Delegate agent "${agent.id}" is using synthesized legacy GWS credential routing. Configure named credentialRoutes and explicit bindings.`,
       );
-      continue;
     }
     if (allowUnboundAgents) {
       warnings.push(
@@ -85,8 +114,9 @@ async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
       );
     }
 
-    const agentSubject = `agent:${agent.id}`;
-    const subagentSubject = `subagent:${agent.id}`;
+    const subjects = buildDelegateGwsBindingSubjects(agent.id);
+    const agentSubject = subjects.agent;
+    const subagentSubject = subjects.subagent;
     const agentRouteName =
       typeof agentCredentialBindings?.[agentSubject] === "string"
         ? String(agentCredentialBindings[agentSubject]).trim()
@@ -108,25 +138,33 @@ async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
     }
 
     const routeNames = [agentRouteName, subagentRouteName].filter(Boolean);
-    const boundRoutes = routeNames
-      .map((routeName) => {
-        const route = asRecord(credentialRoutes[routeName]);
-        return route ? { routeName, route } : null;
-      })
-      .filter(Boolean) as Array<{ routeName: string; route: Record<string, unknown> }>;
+    const boundRoutes = credentialRoutes
+      ? (routeNames
+          .map((routeName) => {
+            const route = asRecord(credentialRoutes[routeName]);
+            return route ? { routeName, route } : null;
+          })
+          .filter(Boolean) as Array<{ routeName: string; route: Record<string, unknown> }>)
+      : [];
 
-    for (const routeName of routeNames) {
-      if (!Object.hasOwn(credentialRoutes, routeName)) {
-        warnings.push(
-          `- ERROR: Delegate agent "${agent.id}" references unknown GWS route "${routeName}".`,
-        );
+    if (credentialRoutes) {
+      for (const routeName of routeNames) {
+        if (!Object.hasOwn(credentialRoutes, routeName)) {
+          warnings.push(
+            `- ERROR: Delegate agent "${agent.id}" references unknown GWS route "${routeName}".`,
+          );
+        }
       }
     }
 
     const enabledWriteServices = asStringArray(rawPluginConfig?.enabledWriteServices);
-    const routeWriteTools = boundRoutes.flatMap(({ route }) => asStringArray(route.allowedTools));
-    const routeActions = boundRoutes.flatMap(({ route }) => asStringArray(route.allowedActions));
-    const agentAllowedTools = asStringArray(agent.tools?.allow);
+    const routeWriteTools = normalizeEntries(
+      boundRoutes.flatMap(({ route }) => asStringArray(route.allowedTools)),
+    );
+    const routeActions = normalizeEntries(
+      boundRoutes.flatMap(({ route }) => asStringArray(route.allowedActions)),
+    );
+    const agentAllowedTools = getEffectiveAgentAllowedTools(agent.tools);
 
     if (delegate.tier === "tier1") {
       const disallowedTier1WriteTools = [...routeWriteTools, ...agentAllowedTools].filter(
@@ -142,13 +180,23 @@ async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
           `- ERROR: Delegate agent "${agent.id}" is tier1 but exposes write-capable tools beyond Gmail draft posture (${Array.from(new Set(disallowedTier1WriteTools)).join(", ")}).`,
         );
       }
-      if (
-        agentAllowedTools.includes("gws_gmail_write") &&
-        (routeActions.length === 0 || routeActions.some((action) => action !== "draft_message"))
-      ) {
+      if (agentAllowedTools.includes("gws_gmail_write") && boundRoutes.length === 0) {
         warnings.push(
-          `- ERROR: Delegate agent "${agent.id}" is tier1 but its bound GWS route does not restrict Gmail write actions to draft_message.`,
+          `- ERROR: Delegate agent "${agent.id}" is tier1 but lacks a bound GWS route restricting Gmail write actions to draft_message.`,
         );
+      }
+      for (const { routeName, route } of boundRoutes) {
+        const routeAllowedTools = normalizeEntries(asStringArray(route.allowedTools));
+        const routeAllowedActions = normalizeEntries(asStringArray(route.allowedActions));
+        if (
+          routeAllowedTools.includes("gws_gmail_write") &&
+          (routeAllowedActions.length === 0 ||
+            routeAllowedActions.some((action) => action !== "draft_message"))
+        ) {
+          warnings.push(
+            `- ERROR: Delegate agent "${agent.id}" is tier1 but its GWS route "${routeName}" does not restrict Gmail write actions to draft_message.`,
+          );
+        }
       }
     }
 
@@ -158,13 +206,16 @@ async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
         rawPluginConfig.allowWriteOperations;
       const routeAllowsWriteTool = hasWriteTool(routeWriteTools);
       const routeAllowsDraftOrSend = hasAllowedDraftOrSendAction(routeActions);
+      const gmailWriteEnabled =
+        agentAllowedTools.includes("gws_gmail_write") ||
+        routeWriteTools.includes("gws_gmail_write");
       const agentAllowsWriteTool = hasWriteTool(agentAllowedTools);
       if (
         !pluginAllowsWrites ||
         enabledWriteServices.length === 0 ||
         !routeAllowsWriteTool ||
         !agentAllowsWriteTool ||
-        (!routeAllowsDraftOrSend && routeActions.length > 0)
+        (gmailWriteEnabled && !routeAllowsDraftOrSend && routeActions.length > 0)
       ) {
         warnings.push(
           `- WARNING: Delegate agent "${agent.id}" is ${delegate.tier} but its write-capable GWS/tool posture is incomplete. Confirm allowWriteOperations, enabledWriteServices, route allowedTools, and agent tools.allow.`,

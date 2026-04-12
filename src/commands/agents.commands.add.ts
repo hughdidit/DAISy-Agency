@@ -298,17 +298,17 @@ export async function agentsAddCommand(
       logConfigUpdated(runtime);
     }
     const quietRuntime = opts.json ? createQuietRuntime(runtime) : runtime;
-    const missingDelegateAgentsFile = delegatePreset.enabled
-      ? !(await fileExists(path.join(workspaceDir, DEFAULT_AGENTS_FILENAME)))
-      : false;
-    const missingDelegateIdentityFile = delegatePreset.enabled
-      ? !(await fileExists(path.join(workspaceDir, DEFAULT_IDENTITY_FILENAME)))
-      : false;
     await ensureWorkspaceAndSessions(workspaceDir, quietRuntime, {
       skipBootstrap: Boolean(gwsBindingResult.config.agents?.defaults?.skipBootstrap),
       agentId,
     });
     if (delegatePreset.enabled) {
+      const missingDelegateAgentsFile = !(await fileExists(
+        path.join(workspaceDir, DEFAULT_AGENTS_FILENAME),
+      ));
+      const missingDelegateIdentityFile = !(await fileExists(
+        path.join(workspaceDir, DEFAULT_IDENTITY_FILENAME),
+      ));
       await scaffoldDelegateWorkspace({
         workspaceDir,
         agentName: nameInput,
@@ -557,17 +557,17 @@ export async function agentsAddCommand(
 
     await writeConfigFile(nextConfig);
     logConfigUpdated(runtime);
-    const missingDelegateAgentsFile = delegatePreset.enabled
-      ? !(await fileExists(path.join(workspaceDir, DEFAULT_AGENTS_FILENAME)))
-      : false;
-    const missingDelegateIdentityFile = delegatePreset.enabled
-      ? !(await fileExists(path.join(workspaceDir, DEFAULT_IDENTITY_FILENAME)))
-      : false;
     await ensureWorkspaceAndSessions(workspaceDir, runtime, {
       skipBootstrap: Boolean(nextConfig.agents?.defaults?.skipBootstrap),
       agentId,
     });
     if (delegatePreset.enabled) {
+      const missingDelegateAgentsFile = !(await fileExists(
+        path.join(workspaceDir, DEFAULT_AGENTS_FILENAME),
+      ));
+      const missingDelegateIdentityFile = !(await fileExists(
+        path.join(workspaceDir, DEFAULT_IDENTITY_FILENAME),
+      ));
       await scaffoldDelegateWorkspace({
         workspaceDir,
         agentName,

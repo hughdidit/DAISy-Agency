@@ -248,6 +248,32 @@ export async function agentsBindCommand(
   }
 
   const result = applyAgentBindings(cfg, parsed.bindings);
+  if (gwsRoute && result.conflicts.length > 0) {
+    const payload = {
+      agentId,
+      added: result.added.map(describeBinding),
+      updated: result.updated.map(describeBinding),
+      skipped: result.skipped.map(describeBinding),
+      conflicts: formatBindingConflicts(result.conflicts),
+      gwsBindings: {
+        added: [] as string[],
+        updated: [] as string[],
+        skipped: [] as string[],
+      },
+    };
+    if (
+      emitJsonPayload({ runtime, json: opts.json, payload, conflictCount: result.conflicts.length })
+    ) {
+      return;
+    }
+    runtime.error("Skipped bindings already claimed by another agent:");
+    for (const conflict of result.conflicts) {
+      runtime.error(`- ${describeBinding(conflict.binding)} (agent=${conflict.existingAgentId})`);
+    }
+    runtime.error("GWS bindings were not written because the bind request has channel conflicts.");
+    runtime.exit(1);
+    return;
+  }
   const gwsResult = (() => {
     if (!gwsRoute) {
       return {

@@ -150,7 +150,7 @@ export function resolveAgentAuthIsolationByDir(
     }
     return resolveAgentAuthIsolation(cfg, agentId);
   }
-  return "legacy";
+  return "strict";
 }
 
 export function buildDelegatePreset(
