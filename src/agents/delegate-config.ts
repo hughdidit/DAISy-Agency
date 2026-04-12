@@ -102,7 +102,7 @@ export function resolveDelegateConfig(
   agentId: string,
 ): ResolvedDelegateConfig | null {
   const delegate = resolveAgentConfig(cfg, agentId)?.delegate;
-  if (!delegate || delegate.enabled !== true) {
+  if (!delegate?.enabled) {
     return null;
   }
 

@@ -38,7 +38,8 @@ async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
   const rawPluginConfig = asRecord(rawPluginEntry?.config);
   const credentialRoutes = asRecord(rawPluginConfig?.credentialRoutes);
   const agentCredentialBindings = asRecord(rawPluginConfig?.agentCredentialBindings);
-  const allowUnboundAgents = rawPluginConfig?.allowUnboundAgents === true;
+  const allowUnboundAgents =
+    typeof rawPluginConfig?.allowUnboundAgents === "boolean" && rawPluginConfig.allowUnboundAgents;
   const cronStore = await loadCronStore(resolveCronStorePath(cfg.cron?.store));
 
   for (const agent of agents) {
@@ -152,7 +153,9 @@ async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
     }
 
     if (delegate.tier === "tier2" || delegate.tier === "tier3") {
-      const pluginAllowsWrites = rawPluginConfig?.allowWriteOperations === true;
+      const pluginAllowsWrites =
+        typeof rawPluginConfig?.allowWriteOperations === "boolean" &&
+        rawPluginConfig.allowWriteOperations;
       const routeAllowsWriteTool = hasWriteTool(routeWriteTools);
       const routeAllowsDraftOrSend = hasAllowedDraftOrSendAction(routeActions);
       const agentAllowsWriteTool = hasWriteTool(agentAllowedTools);
@@ -170,7 +173,7 @@ async function collectDelegateWarnings(cfg: OpenClawConfig): Promise<string[]> {
     }
 
     if (delegate.tier === "tier3") {
-      if (delegate.cron.allowed !== true) {
+      if (!delegate.cron.allowed) {
         warnings.push(
           `- ERROR: Delegate agent "${agent.id}" is tier3 but delegate.cron.allowed is not enabled.`,
         );

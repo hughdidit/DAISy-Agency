@@ -248,19 +248,25 @@ export async function agentsBindCommand(
   }
 
   const result = applyAgentBindings(cfg, parsed.bindings);
-  const gwsResult = gwsRoute
-    ? applyAgentGwsBindings(result.config, {
-        agentId,
-        routeName: gwsRoute,
-        ...(subagentGwsRoute ? { subagentRouteName: subagentGwsRoute } : {}),
-      })
-    : {
+  const gwsResult = (() => {
+    if (!gwsRoute) {
+      return {
         ok: true as const,
         config: result.config,
         added: [],
         updated: [],
         skipped: [],
       };
+    }
+    const gwsBindingOptions: Parameters<typeof applyAgentGwsBindings>[1] = {
+      agentId,
+      routeName: gwsRoute,
+    };
+    if (subagentGwsRoute) {
+      gwsBindingOptions.subagentRouteName = subagentGwsRoute;
+    }
+    return applyAgentGwsBindings(result.config, gwsBindingOptions);
+  })();
   if (!gwsResult.ok) {
     runtime.error(gwsResult.errors.join("\n"));
     runtime.exit(1);

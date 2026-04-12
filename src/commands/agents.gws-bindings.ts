@@ -128,10 +128,14 @@ export function applyAgentGwsBindings(
           ...cfg.plugins?.entries,
           [GWS_PLUGIN_ID]: {
             ...pluginEntry,
-            config: {
-              ...(rawPluginConfig ?? {}),
-              agentCredentialBindings: nextBindings,
-            },
+            config: rawPluginConfig
+              ? {
+                  ...rawPluginConfig,
+                  agentCredentialBindings: nextBindings,
+                }
+              : {
+                  agentCredentialBindings: nextBindings,
+                },
           },
         },
       },
