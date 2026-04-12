@@ -79,10 +79,10 @@ RUN chmod 755 /opt/daisy/openclaw-readonly/openclaw-readonly.mjs /usr/local/bin/
   && OPENCLAW_READONLY_CONFIG_PATH=/tmp/openclaw-readonly-smoke/openclaw.json \
      OPENCLAW_READONLY_STATE_DIR=/tmp/openclaw-readonly-smoke/state \
      OPENCLAW_READONLY_WORKSPACE_DIR=/tmp/openclaw-readonly-smoke/workspace \
-     /usr/local/bin/openclaw-readonly skills list >/dev/null \
+     /usr/local/bin/openclaw-readonly skills list | grep -q "openclaw-readonly" \
   && OPENCLAW_READONLY_CONFIG_PATH=/tmp/openclaw-readonly-smoke/openclaw.json \
      OPENCLAW_READONLY_STATE_DIR=/tmp/openclaw-readonly-smoke/state \
-     /usr/local/bin/openclaw-readonly sandbox explain >/dev/null
+     /usr/local/bin/openclaw-readonly sandbox explain | grep -q "Effective sandbox:"
 
 RUN useradd --create-home --shell /bin/bash sandbox
 USER sandbox
