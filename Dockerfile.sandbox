@@ -93,11 +93,16 @@ RUN bash -o pipefail -lc '\
      OPENCLAW_READONLY_STATE_DIR=/tmp/openclaw-readonly-smoke/state \
      OPENCLAW_READONLY_AGENT_ID=main \
      OPENCLAW_READONLY_WORKSPACE_DIR=/tmp/openclaw-readonly-smoke/workspace \
-     /usr/local/bin/openclaw-readonly skills list | grep -q "openclaw-readonly" \
+     /usr/local/bin/openclaw-readonly skills list \
+       >/tmp/openclaw-readonly-smoke/skills-list.txt \
+  && grep -q "openclaw-readonly" /tmp/openclaw-readonly-smoke/skills-list.txt \
   && OPENCLAW_READONLY_CONFIG_PATH=/tmp/openclaw-readonly-smoke/openclaw.json \
      OPENCLAW_READONLY_STATE_DIR=/tmp/openclaw-readonly-smoke/state \
      OPENCLAW_READONLY_AGENT_ID=main \
-     /usr/local/bin/openclaw-readonly sandbox explain | grep -q "mode:"'
+     /usr/local/bin/openclaw-readonly sandbox explain \
+       >/tmp/openclaw-readonly-smoke/sandbox-explain.txt \
+  && grep -q "mode:" /tmp/openclaw-readonly-smoke/sandbox-explain.txt \
+  && rm -rf /tmp/openclaw-readonly-smoke'
 
 RUN useradd --create-home --shell /bin/bash sandbox
 USER sandbox

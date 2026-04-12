@@ -15,14 +15,19 @@ describe("Dockerfile.sandbox", () => {
     expect(dockerfile).toContain(
       "COPY --from=openclaw-readonly-build /build/dist /opt/daisy/openclaw-readonly/dist",
     );
-    expect(dockerfile).toContain(
-      '/usr/local/bin/openclaw-readonly skills list | grep -q "openclaw-readonly"',
-    );
+    expect(dockerfile).toContain("/usr/local/bin/openclaw-readonly skills list \\");
+    expect(dockerfile).toContain(">/tmp/openclaw-readonly-smoke/skills-list.txt");
     expect(dockerfile.match(/OPENCLAW_READONLY_AGENT_ID=main/g)).toHaveLength(2);
     expect(dockerfile).toContain(
-      '/usr/local/bin/openclaw-readonly sandbox explain | grep -q "mode:"',
+      'grep -q "openclaw-readonly" /tmp/openclaw-readonly-smoke/skills-list.txt',
+    );
+    expect(dockerfile).toContain("/usr/local/bin/openclaw-readonly sandbox explain \\");
+    expect(dockerfile).toContain(">/tmp/openclaw-readonly-smoke/sandbox-explain.txt");
+    expect(dockerfile).toContain(
+      'grep -q "mode:" /tmp/openclaw-readonly-smoke/sandbox-explain.txt',
     );
     expect(dockerfile).toContain("RUN bash -o pipefail -lc");
+    expect(dockerfile).toContain("rm -rf /tmp/openclaw-readonly-smoke");
   });
 
   it("does not expose the generic openclaw CLI in the sandbox image", async () => {
