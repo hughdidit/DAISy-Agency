@@ -110,10 +110,7 @@ export function validateOpenClawReadonlyLauncher(params = {}) {
   return { binaryPath, args };
 }
 
-export function runOpenClawReadonlyLauncher(
-  params = {},
-  deps = {},
-) {
+export function runOpenClawReadonlyLauncher(params = {}, deps = {}) {
   const env = params.env ?? process.env;
   const args = (params.args ?? process.argv.slice(2)).map((value) => value.trim()).filter(Boolean);
   const spawnSyncImpl = deps.spawnSyncImpl ?? spawnSync;

@@ -68,15 +68,11 @@ const importedRuntime =
   (await tryImport(`${RUNTIME_ROOT}/dist/openclaw-readonly.mjs`));
 
 if (!importedRuntime) {
-  throw new Error(
-    "openclaw-readonly: missing dist/openclaw-readonly.(m)js in the sandbox image.",
-  );
+  throw new Error("openclaw-readonly: missing dist/openclaw-readonly.(m)js in the sandbox image.");
 }
 
 if (typeof importedRuntime.runOpenClawReadonly !== "function") {
-  throw new Error(
-    "openclaw-readonly: dist runtime does not export runOpenClawReadonly().",
-  );
+  throw new Error("openclaw-readonly: dist runtime does not export runOpenClawReadonly().");
 }
 
 await importedRuntime.runOpenClawReadonly();

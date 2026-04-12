@@ -61,10 +61,7 @@ type OpenClawReadonlyDeps = {
   }>;
   importSkillsModules: () => Promise<{
     loadConfig: () => unknown;
-    buildWorkspaceSkillStatus: (
-      workspaceDir: string,
-      opts?: { config?: unknown },
-    ) => unknown;
+    buildWorkspaceSkillStatus: (workspaceDir: string, opts?: { config?: unknown }) => unknown;
     formatSkillsList: (report: unknown, opts: Record<string, unknown>) => string;
     formatSkillsCheck: (report: unknown, opts: Record<string, unknown>) => string;
   }>;
@@ -85,9 +82,7 @@ function formatUnsupportedCommandDetails(): string {
   ].join("\n");
 }
 
-export function parseOpenClawReadonlyCommand(
-  argv: readonly string[],
-): OpenClawReadonlyCommand {
+export function parseOpenClawReadonlyCommand(argv: readonly string[]): OpenClawReadonlyCommand {
   const args = argv.map((value) => value.trim()).filter(Boolean);
 
   if (args.length === 0) {
@@ -132,16 +127,10 @@ export function parseOpenClawReadonlyCommand(
     };
   }
 
-  throw new Error(
-    `Unsupported command: ${args.join(" ")}\n${formatUnsupportedCommandDetails()}`,
-  );
+  throw new Error(`Unsupported command: ${args.join(" ")}\n${formatUnsupportedCommandDetails()}`);
 }
 
-function requireEnvValue(
-  env: NodeJS.ProcessEnv,
-  key: string,
-  label: string,
-): string {
+function requireEnvValue(env: NodeJS.ProcessEnv, key: string, label: string): string {
   const value = env[key]?.trim();
   if (!value) {
     throw new Error(
@@ -275,9 +264,7 @@ async function runOpenClawReadonlyResolved(
         await deps.importSkillsModules();
       const config = loadConfig();
       if (!resolved.workspaceDir) {
-        throw new Error(
-          `Missing readonly workspace mount for ${resolved.command.args.join(" ")}.`,
-        );
+        throw new Error(`Missing readonly workspace mount for ${resolved.command.args.join(" ")}.`);
       }
       const report = buildWorkspaceSkillStatus(resolved.workspaceDir, { config });
       deps.runtime.log(

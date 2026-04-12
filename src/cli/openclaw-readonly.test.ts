@@ -18,14 +18,12 @@ describe("openclaw-readonly CLI", () => {
     vi.clearAllMocks();
   });
 
-  it.each([
-    [["status"]],
-    [["sandbox", "explain"]],
-    [["skills", "list"]],
-    [["skills", "check"]],
-  ])("allows the exact tuple %j", (argv) => {
-    expect(parseOpenClawReadonlyCommand(argv)).toBeDefined();
-  });
+  it.each([[["status"]], [["sandbox", "explain"]], [["skills", "list"]], [["skills", "check"]]])(
+    "allows the exact tuple %j",
+    (argv) => {
+      expect(parseOpenClawReadonlyCommand(argv)).toBeDefined();
+    },
+  );
 
   it.each([
     [["status", "--all"], "Flags are not supported"],
@@ -43,9 +41,9 @@ describe("openclaw-readonly CLI", () => {
 
   it("requires readonly config and state mounts", () => {
     const command = parseOpenClawReadonlyCommand(["status"]);
-    expect(() =>
-      resolveOpenClawReadonlyEnv(command, {}, () => true),
-    ).toThrow("Missing OPENCLAW_READONLY_CONFIG_PATH");
+    expect(() => resolveOpenClawReadonlyEnv(command, {}, () => true)).toThrow(
+      "Missing OPENCLAW_READONLY_CONFIG_PATH",
+    );
   });
 
   it("requires a workspace mount for skills diagnostics", () => {
@@ -142,7 +140,9 @@ describe("openclaw-readonly CLI", () => {
       pathExists: (targetPath) => targetPath !== "/missing-agent",
     });
 
-    expect(runtime.error).toHaveBeenCalledWith(expect.stringContaining("Missing readonly workspace"));
+    expect(runtime.error).toHaveBeenCalledWith(
+      expect.stringContaining("Missing readonly workspace"),
+    );
     expect(runtime.exit).toHaveBeenCalledWith(1);
   });
 });
