@@ -60,8 +60,8 @@ RUN rm -f /usr/local/bin/summarize \
   && /usr/local/bin/summarize --version
 
 COPY --from=openclaw-readonly-build /build/package.json /opt/daisy/openclaw-readonly/package.json
-COPY --from=openclaw-readonly-build /build/dist /opt/daisy/openclaw-readonly/dist
 COPY --from=openclaw-readonly-build /build/node_modules /opt/daisy/openclaw-readonly/node_modules
+COPY --from=openclaw-readonly-build /build/dist /opt/daisy/openclaw-readonly/dist
 COPY --from=openclaw-readonly-build /build/skills /opt/daisy/openclaw-readonly/skills
 COPY scripts/docker/openclaw-readonly.mjs /opt/daisy/openclaw-readonly/openclaw-readonly.mjs
 COPY scripts/docker/openclaw-readonly-wrapper.mjs /usr/local/bin/openclaw-readonly
