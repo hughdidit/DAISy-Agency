@@ -4,6 +4,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+const ALLOWED_OPENCLAW_READONLY_ARGS = [
+  ["status"],
+  ["sandbox", "explain"],
+  ["skills", "list"],
+  ["skills", "check"],
+];
+
 export function resolveOpenClawReadonlyBinary(params = {}) {
   const env = params.env ?? process.env;
   const platform = params.platform ?? process.platform;
@@ -44,6 +51,18 @@ export function validateOpenClawReadonlyLauncher(params = {}) {
   const pathExists = params.pathExists ?? ((targetPath) => fs.existsSync(targetPath));
   const binaryPath =
     params.binaryPath ?? resolveOpenClawReadonlyBinary({ env, platform: params.platform });
+  const commandAllowed = ALLOWED_OPENCLAW_READONLY_ARGS.some(
+    (allowedArgs) =>
+      allowedArgs.length === args.length &&
+      allowedArgs.every((allowedArg, index) => allowedArg === args[index]),
+  );
+
+  if (!commandAllowed) {
+    throw new Error(
+      `Unsupported openclaw-readonly launcher command: ${args.join(" ") || "(none)"}. ` +
+        "Allowed commands: status | sandbox explain | skills list | skills check.",
+    );
+  }
 
   if (!binaryPath) {
     throw new Error(

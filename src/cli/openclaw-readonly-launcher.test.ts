@@ -45,6 +45,22 @@ describe("openclaw-readonly launcher", () => {
     ).toThrow("Missing OPENCLAW_READONLY_WORKSPACE_DIR");
   });
 
+  it("rejects unsupported launcher commands", async () => {
+    const { validateOpenClawReadonlyLauncher } = await loadLauncherModule();
+
+    expect(() =>
+      validateOpenClawReadonlyLauncher({
+        args: ["doctor", "--plain"],
+        env: {
+          OPENCLAW_READONLY_CONFIG_PATH: "/readonly/openclaw.json",
+          OPENCLAW_READONLY_STATE_DIR: "/readonly/state",
+        },
+        pathExists: () => true,
+        binaryPath: "/usr/local/bin/openclaw-readonly",
+      }),
+    ).toThrow("Unsupported openclaw-readonly launcher command");
+  });
+
   it("resolves openclaw-readonly from PATH", async () => {
     const { resolveOpenClawReadonlyBinary } = await loadLauncherModule();
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-readonly-path-"));
