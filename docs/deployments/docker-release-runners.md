@@ -51,9 +51,10 @@ Recommended job mapping:
 
 - Runner hosts must be dedicated GCP VMs, not local workstations.
 - The staging or production deploy VM must never be registered as a runner.
-- Runners must be ephemeral or functionally equivalent to ephemeral.
-- One runner instance should serve one job, then deregister and be destroyed or reset.
-- Local Docker state, Buildx state, workspace contents, and temp files must be discarded between jobs.
+- Target model: runners are ephemeral, with one runner instance serving one job before deregistration and teardown.
+- Phase one may use dedicated persistent GCP runner VMs only if they provide equivalent isolation between jobs.
+- Before a persistent runner accepts another job, it must fully reset runner state and discard local Docker state, Buildx state, workspace contents, temp files, and any residual credentials from the previous job.
+- Whether the host is destroyed or reused, no job may inherit credentials, filesystem contents, container state, caches, or other mutable state from a previous job unless that state is intentionally managed and documented for the runner pool.
 
 Recommended host shape:
 
