@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT } from "./agents/sandbox/openclaw-readonly-projection.js";
 import { isTruthyEnvValue } from "./infra/env.js";
 
 const DOCKER_SMOKE = isTruthyEnvValue(process.env.OPENCLAW_DOCKER_SMOKE);
@@ -117,7 +118,9 @@ describe("openclaw-readonly sandbox smoke", () => {
           "--network",
           "none",
           "-v",
-          `${projectionDir}:/workspace/.openclaw-readonly:ro`,
+          `${path.join(projectionDir, "agents", "main")}:${OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT}/agents/main:ro`,
+          "-e",
+          `OPENCLAW_READONLY_PROJECTION_ROOT=${OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT}/agents/main`,
           imageTag,
           "openclaw-readonly",
           "status",

@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 import { captureFullEnv } from "../test-utils/env.js";
+import { OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT } from "./sandbox/openclaw-readonly-projection.js";
 import { resolveSandboxWorkspaceDir } from "./sandbox/shared.js";
 
 const dockerMocks = vi.hoisted(() => ({
@@ -84,7 +85,7 @@ describe("resolveSandboxContext openclaw-readonly wiring", () => {
     expect(context?.workspaceAccess).toBe("rw");
     expect(context?.workspaceDir).toBe(workspaceDir);
     expect(context?.docker.env?.OPENCLAW_READONLY_PROJECTION_ROOT).toBe(
-      "/workspace/.openclaw-readonly/agents/main",
+      `${OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT}/agents/main`,
     );
     expect(dockerMocks.resolveDockerHostPathInfo).toHaveBeenCalledWith(
       path.join(
@@ -99,10 +100,17 @@ describe("resolveSandboxContext openclaw-readonly wiring", () => {
         workspaceDir,
         agentWorkspaceDir: workspaceDir,
         extraBinds: [
-          "/host/openclaw-readonly-projection:/workspace/.openclaw-readonly/agents/main:ro",
+          `/host/openclaw-readonly-projection:${OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT}/agents/main:ro`,
         ],
         additionalBindSourceRoots: ["/host/openclaw-readonly-projection"],
       }),
+    );
+    const ensureCalls = dockerMocks.ensureSandboxContainer.mock.calls as unknown as Array<
+      Array<{ extraBinds?: string[] }>
+    >;
+    const extraBinds = ensureCalls[0]?.[0]?.extraBinds ?? [];
+    expect(extraBinds).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/:(\/workspace|\/agent)(\/|:|$)/)]),
     );
     await expect(fs.access(path.join(workspaceDir, ".openclaw-readonly"))).rejects.toThrow();
     expect(context?.workspaceDir).toBeTruthy();
@@ -145,11 +153,13 @@ describe("resolveSandboxContext openclaw-readonly wiring", () => {
 
     expect(context).toBeDefined();
     expect(context?.docker.env?.OPENCLAW_READONLY_PROJECTION_ROOT).toBe(
-      "/workspace/.openclaw-readonly/agents/main",
+      `${OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT}/agents/main`,
     );
     expect(dockerMocks.ensureSandboxContainer).toHaveBeenCalledWith(
       expect.objectContaining({
-        extraBinds: [`${directProjectionPath}:/workspace/.openclaw-readonly/agents/main:ro`],
+        extraBinds: [
+          `${directProjectionPath}:${OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT}/agents/main:ro`,
+        ],
         additionalBindSourceRoots: [directProjectionPath],
       }),
     );

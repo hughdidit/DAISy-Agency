@@ -88,9 +88,9 @@ Those env vars are consumed by the sandbox-local `openclaw-readonly` runtime and
 should point only at read-only binds or sandbox-visible workspace mounts.
 
 If they are omitted, `openclaw-readonly` falls back to `OPENCLAW_CONFIG_PATH`
-and `OPENCLAW_STATE_DIR`, then to
-`<sandbox workdir>/.openclaw-readonly/agents/<agentId>/` (usually
-`/workspace/.openclaw-readonly/agents/main/`) when the sandbox has projected a
-readonly snapshot there. That fallback works in `rw`, `ro`, and `none`
-sandboxes; `rw` uses a synthetic read-only bind so the projection is not
-written into the real workspace.
+and `OPENCLAW_STATE_DIR`, then to the sandbox projection root advertised
+through `OPENCLAW_READONLY_PROJECTION_ROOT`. In `ro` and `none` sandboxes that
+is usually `<sandbox workdir>/.openclaw-readonly/agents/<agentId>/` (for
+example `/workspace/.openclaw-readonly/agents/main/`). In `rw` sandboxes the
+projection is exposed through a synthetic read-only bind so it is not written
+into the real workspace.
