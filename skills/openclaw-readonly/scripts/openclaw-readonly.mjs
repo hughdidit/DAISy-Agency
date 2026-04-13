@@ -10,13 +10,16 @@ const ALLOWED_OPENCLAW_READONLY_ARGS = [
   ["skills", "list"],
   ["skills", "check"],
 ];
-const OPENCLAW_READONLY_PROJECTION_ROOT = "/workspace/.openclaw-readonly";
+
+function resolveReadonlyProjectionRoot(env) {
+  return env.OPENCLAW_READONLY_PROJECTION_ROOT?.trim() || path.posix.join("/workspace", ".openclaw-readonly");
+}
 
 function resolveReadonlyConfigPath(env) {
   return (
     env.OPENCLAW_READONLY_CONFIG_PATH?.trim() ||
     env.OPENCLAW_CONFIG_PATH?.trim() ||
-    path.posix.join(OPENCLAW_READONLY_PROJECTION_ROOT, "openclaw.json")
+    path.posix.join(resolveReadonlyProjectionRoot(env), "openclaw.json")
   );
 }
 
@@ -24,7 +27,7 @@ function resolveReadonlyStateDir(env) {
   return (
     env.OPENCLAW_READONLY_STATE_DIR?.trim() ||
     env.OPENCLAW_STATE_DIR?.trim() ||
-    path.posix.join(OPENCLAW_READONLY_PROJECTION_ROOT, "state")
+    path.posix.join(resolveReadonlyProjectionRoot(env), "state")
   );
 }
 
@@ -39,7 +42,7 @@ function resolveReadonlyWorkspaceDir(env, pathExists) {
   if (pathExists("/workspace")) {
     return "/workspace";
   }
-  return "";
+  return undefined;
 }
 
 export function resolveOpenClawReadonlyBinary(params = {}) {
@@ -102,17 +105,18 @@ export function validateOpenClawReadonlyLauncher(params = {}) {
     );
   }
 
+  const projectionRoot = resolveReadonlyProjectionRoot(env);
   const configPath = resolveReadonlyConfigPath(env);
   if (!pathExists(configPath)) {
     throw new Error(
-      `Missing readonly config mount: ${configPath}. Set OPENCLAW_READONLY_CONFIG_PATH explicitly, keep OPENCLAW_CONFIG_PATH available in the sandbox, or let the sandbox project /workspace/.openclaw-readonly/openclaw.json before using this skill.`,
+      `Missing readonly config mount: ${configPath}. Set OPENCLAW_READONLY_CONFIG_PATH explicitly, keep OPENCLAW_CONFIG_PATH available in the sandbox, or let the sandbox project ${path.posix.join(projectionRoot, "openclaw.json")} before using this skill.`,
     );
   }
 
   const stateDir = resolveReadonlyStateDir(env);
   if (!pathExists(stateDir)) {
     throw new Error(
-      `Missing readonly state mount: ${stateDir}. Set OPENCLAW_READONLY_STATE_DIR explicitly, keep OPENCLAW_STATE_DIR available in the sandbox, or let the sandbox project /workspace/.openclaw-readonly/state before using this skill.`,
+      `Missing readonly state mount: ${stateDir}. Set OPENCLAW_READONLY_STATE_DIR explicitly, keep OPENCLAW_STATE_DIR available in the sandbox, or let the sandbox project ${path.posix.join(projectionRoot, "state")} before using this skill.`,
     );
   }
 

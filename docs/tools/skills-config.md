@@ -88,5 +88,6 @@ Those env vars are consumed by the sandbox-local `openclaw-readonly` runtime and
 should point only at read-only binds or sandbox-visible workspace mounts.
 
 If they are omitted, `openclaw-readonly` falls back to `OPENCLAW_CONFIG_PATH`
-and `OPENCLAW_STATE_DIR`, then to `/workspace/.openclaw-readonly/` when the
-sandbox has projected a readonly snapshot there.
+and `OPENCLAW_STATE_DIR`, then to `<sandbox workdir>/.openclaw-readonly/`
+(usually `/workspace/.openclaw-readonly/`) when the sandbox has projected a
+readonly snapshot there.

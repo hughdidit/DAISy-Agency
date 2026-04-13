@@ -80,7 +80,13 @@ const SUPPORTED_INVOCATIONS = [
   "openclaw-readonly skills list",
   "openclaw-readonly skills check",
 ] as const;
-const OPENCLAW_READONLY_PROJECTION_ROOT = "/workspace/.openclaw-readonly";
+
+function resolveReadonlyProjectionRoot(env: NodeJS.ProcessEnv): string {
+  return (
+    env.OPENCLAW_READONLY_PROJECTION_ROOT?.trim() ||
+    path.posix.join("/workspace", ".openclaw-readonly")
+  );
+}
 
 function formatUnsupportedCommandDetails(): string {
   return [
@@ -142,7 +148,7 @@ function resolveReadonlyConfigPath(env: NodeJS.ProcessEnv): string {
   return (
     env.OPENCLAW_READONLY_CONFIG_PATH?.trim() ||
     env.OPENCLAW_CONFIG_PATH?.trim() ||
-    path.posix.join(OPENCLAW_READONLY_PROJECTION_ROOT, "openclaw.json")
+    path.posix.join(resolveReadonlyProjectionRoot(env), "openclaw.json")
   );
 }
 
@@ -150,7 +156,7 @@ function resolveReadonlyStateDir(env: NodeJS.ProcessEnv): string {
   return (
     env.OPENCLAW_READONLY_STATE_DIR?.trim() ||
     env.OPENCLAW_STATE_DIR?.trim() ||
-    path.posix.join(OPENCLAW_READONLY_PROJECTION_ROOT, "state")
+    path.posix.join(resolveReadonlyProjectionRoot(env), "state")
   );
 }
 
@@ -176,11 +182,12 @@ export function resolveOpenClawReadonlyEnv(
   env: NodeJS.ProcessEnv = process.env,
   pathExists: (targetPath: string) => boolean = (targetPath) => fs.existsSync(targetPath),
 ): OpenClawReadonlyResolvedEnv {
+  const projectionRoot = resolveReadonlyProjectionRoot(env);
   const configPath = resolveReadonlyConfigPath(env);
   if (!pathExists(configPath)) {
     throw new Error(
       `Missing readonly config mount: ${configPath}\n` +
-        "Set OPENCLAW_READONLY_CONFIG_PATH explicitly, keep OPENCLAW_CONFIG_PATH available in the sandbox, or let the sandbox project /workspace/.openclaw-readonly/openclaw.json.",
+        `Set OPENCLAW_READONLY_CONFIG_PATH explicitly, keep OPENCLAW_CONFIG_PATH available in the sandbox, or let the sandbox project ${path.posix.join(projectionRoot, "openclaw.json")}.`,
     );
   }
 
@@ -188,7 +195,7 @@ export function resolveOpenClawReadonlyEnv(
   if (!pathExists(stateDir)) {
     throw new Error(
       `Missing readonly state mount: ${stateDir}\n` +
-        "Set OPENCLAW_READONLY_STATE_DIR explicitly, keep OPENCLAW_STATE_DIR available in the sandbox, or let the sandbox project /workspace/.openclaw-readonly/state.",
+        `Set OPENCLAW_READONLY_STATE_DIR explicitly, keep OPENCLAW_STATE_DIR available in the sandbox, or let the sandbox project ${path.posix.join(projectionRoot, "state")}.`,
     );
   }
 
@@ -224,12 +231,8 @@ export function applyOpenClawReadonlyEnv(env: NodeJS.ProcessEnv = process.env): 
   const configPath = resolveReadonlyConfigPath(env);
   const stateDir = resolveReadonlyStateDir(env);
 
-  if (configPath) {
-    env.OPENCLAW_CONFIG_PATH = configPath;
-  }
-  if (stateDir) {
-    env.OPENCLAW_STATE_DIR = stateDir;
-  }
+  env.OPENCLAW_CONFIG_PATH = configPath;
+  env.OPENCLAW_STATE_DIR = stateDir;
   env.OPENCLAW_AUTH_STORE_READONLY = "1";
   env.OPENCLAW_DISABLE_CONFIG_CACHE = "1";
 }

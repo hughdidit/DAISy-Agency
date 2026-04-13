@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { listAgentIds, resolveAgentSkillsFilter } from "../agent-scope.js";
+import { resolveAgentSkillsFilter } from "../agent-scope.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { redactConfigObject } from "../../config/redact-snapshot.js";
 import { resolveStorePath } from "../../config/sessions.js";
@@ -30,12 +30,18 @@ function resolveProjectionPaths(sandboxWorkspaceDir: string) {
 
 async function copyIfExists(sourcePath: string, targetPath: string): Promise<void> {
   try {
-    await fs.access(sourcePath);
-  } catch {
-    return;
+    await fs.mkdir(path.dirname(targetPath), { recursive: true });
+    await fs.copyFile(sourcePath, targetPath);
+  } catch (error) {
+    const code =
+      error instanceof Error && "code" in error && typeof error.code === "string"
+        ? error.code
+        : undefined;
+    if (code === "ENOENT") {
+      return;
+    }
+    throw error;
   }
-  await fs.mkdir(path.dirname(targetPath), { recursive: true });
-  await fs.copyFile(sourcePath, targetPath);
 }
 
 function buildProjectedConfig(config: OpenClawConfig): OpenClawConfig {
@@ -71,17 +77,17 @@ export async function syncOpenClawReadonlyProjection(params: {
   const projectedConfig = buildProjectedConfig(params.config);
   await fs.writeFile(configPath, `${JSON.stringify(projectedConfig, null, 2)}\n`, "utf8");
 
-  for (const agentId of listAgentIds(params.config)) {
-    const sourceStorePath = resolveStorePath(params.config.session?.store, { agentId });
-    const targetStorePath = path.join(
-      stateDir,
-      "agents",
-      agentId,
-      "sessions",
-      "sessions.json",
-    );
-    await copyIfExists(sourceStorePath, targetStorePath);
-  }
+  const sourceStorePath = resolveStorePath(params.config.session?.store, {
+    agentId: params.agentId,
+  });
+  const targetStorePath = path.join(
+    stateDir,
+    "agents",
+    params.agentId,
+    "sessions",
+    "sessions.json",
+  );
+  await copyIfExists(sourceStorePath, targetStorePath);
 
   log.debug?.(
     `Projected readonly snapshot for ${params.agentId} into ${projectionRoot} for sandbox diagnostics.`,

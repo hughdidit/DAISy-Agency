@@ -27,6 +27,7 @@ import type {
 import { ensureSandboxWorkspace } from "./workspace.js";
 
 const SANDBOX_SKILL_SNAPSHOT_DIR = path.join(".openclaw", "sandbox-skill-snapshot");
+const OPENCLAW_READONLY_PROJECTION_ROOT_ENV = "OPENCLAW_READONLY_PROJECTION_ROOT";
 
 async function ensureSandboxWorkspaceLayout(params: {
   cfg: ReturnType<typeof resolveSandboxConfigForAgent>;
@@ -144,12 +145,17 @@ export async function resolveSandboxContext(params: {
       workspaceDir: params.workspaceDir,
     });
 
-  await syncOpenClawReadonlyProjection({
-    config: effectiveConfig,
-    agentId: runtime.agentId,
-    workspaceDir,
-    sandboxWorkspaceDir,
-  });
+  try {
+    await syncOpenClawReadonlyProjection({
+      config: effectiveConfig,
+      agentId: runtime.agentId,
+      workspaceDir,
+      sandboxWorkspaceDir,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : JSON.stringify(error);
+    defaultRuntime.error?.(`Sandbox openclaw-readonly projection failed: ${message}`);
+  }
 
   const docker = await resolveSandboxDockerUser({
     docker: cfg.docker,
@@ -199,6 +205,17 @@ export async function resolveSandboxContext(params: {
           ),
         }
       : resolvedCfg.docker;
+  const projectionRoot = path.posix.join(
+    resolvedCfg.docker.workdir?.trim() || DEFAULT_SANDBOX_WORKDIR,
+    ".openclaw-readonly",
+  );
+  const dockerEnv = {
+    ...(effectiveDocker.env ?? {}),
+    [OPENCLAW_READONLY_PROJECTION_ROOT_ENV]:
+      effectiveDocker.env?.[OPENCLAW_READONLY_PROJECTION_ROOT_ENV] ?? projectionRoot,
+  };
+  const sandboxDocker =
+    dockerEnv === effectiveDocker.env ? effectiveDocker : { ...effectiveDocker, env: dockerEnv };
   const derivedBindRequiresIsolatedContainer =
     resolvedCfg.scope === "shared" &&
     appliedCapabilityMounts.some((mount) => mount.containerScopeKey);
@@ -210,8 +227,8 @@ export async function resolveSandboxContext(params: {
   // subject-scoped capability bind is present so one subject cannot reuse
   // another subject's secret-bearing shared container.
   const containerCfg = derivedBindRequiresIsolatedContainer
-    ? { ...resolvedCfg, scope: "session" as const }
-    : resolvedCfg;
+    ? { ...resolvedCfg, scope: "session" as const, docker: sandboxDocker }
+    : { ...resolvedCfg, docker: sandboxDocker };
 
   const containerName = await ensureSandboxContainer({
     sessionKey: containerSessionKey,
@@ -257,7 +274,7 @@ export async function resolveSandboxContext(params: {
     workspaceAccess: resolvedCfg.workspaceAccess,
     containerName,
     containerWorkdir: resolvedCfg.docker.workdir,
-    docker: effectiveDocker,
+    docker: sandboxDocker,
     tools: resolvedCfg.tools,
     browserAllowHostControl: resolvedCfg.browser.allowHostControl,
     browser: browser ?? undefined,
