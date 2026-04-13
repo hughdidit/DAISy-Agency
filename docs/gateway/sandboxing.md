@@ -188,16 +188,16 @@ Keep the binds read-only and synthetic. Do not mount the full host config tree
 or a writable state directory just to make diagnostics work.
 
 When `openclaw-readonly` runs in a sandbox, the gateway also projects a redacted
-readonly snapshot under `<sandbox workdir>/.openclaw-readonly/agents/<agentId>/`
-(usually `/workspace/.openclaw-readonly/agents/main/`). The launcher falls
-back to that projection when the explicit `OPENCLAW_READONLY_*` env vars are
-not present.
+readonly snapshot and points the launcher at it with
+`OPENCLAW_READONLY_PROJECTION_ROOT`. The launcher falls back to that projection
+when the explicit `OPENCLAW_READONLY_*` env vars are not present.
 
 For `workspaceAccess: "rw"`, the projection is staged under synthetic sandbox
-state and bind-mounted read-only into the sandbox workdir, so diagnostics stay
-available without writing `.openclaw-readonly` into the real agent workspace.
-For `workspaceAccess: "ro"` and `"none"`, the projection is written directly
-into the mounted sandbox workspace snapshot.
+state and bind-mounted read-only at an internal sandbox path, so diagnostics
+stay available without writing `.openclaw-readonly` into the real agent
+workspace. For `workspaceAccess: "ro"` and `"none"`, the projection is written
+directly into the mounted sandbox workspace snapshot, usually under
+`/workspace/.openclaw-readonly/agents/main/`.
 
 If you want a more functional sandbox image with common tooling (for example
 `curl`, `jq`, `nodejs`, `python3`, `git`), build:

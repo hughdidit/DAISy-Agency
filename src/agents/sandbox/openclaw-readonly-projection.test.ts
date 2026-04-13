@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import {
+  OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT,
   resolveOpenClawReadonlyProjection,
   syncOpenClawReadonlyProjection,
 } from "./openclaw-readonly-projection.js";
@@ -62,7 +63,9 @@ describe("openclaw-readonly projection", () => {
     expect(projection.hostProjectionRoot).toBe(
       path.join("/tmp/sandbox-workspace", ".openclaw-readonly", "agents", "main"),
     );
-    expect(projection.containerProjectionRoot).toBe("/workspace/.openclaw-readonly/agents/main");
+    expect(projection.containerProjectionRoot).toBe(
+      `${OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT}/agents/main`,
+    );
   });
 
   it("disables projection when the agent does not expose the readonly skill", () => {

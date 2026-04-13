@@ -10,6 +10,7 @@ const log = createSubsystemLogger("sandbox/openclaw-readonly");
 
 const OPENCLAW_READONLY_SKILL = "openclaw-readonly";
 export const OPENCLAW_READONLY_PROJECTION_DIRNAME = ".openclaw-readonly";
+export const OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT = "/tmp/.openclaw-readonly";
 
 export type OpenClawReadonlyProjection = {
   enabled: boolean;
@@ -48,6 +49,19 @@ function resolveContainerProjectionPaths(containerWorkdir: string, agentId: stri
   const projectionRoot = path.posix.join(
     containerWorkdir,
     OPENCLAW_READONLY_PROJECTION_DIRNAME,
+    "agents",
+    agentId,
+  );
+  return {
+    projectionRoot,
+    configPath: path.posix.join(projectionRoot, "openclaw.json"),
+    stateDir: path.posix.join(projectionRoot, "state"),
+  };
+}
+
+function resolveSyntheticContainerProjectionPaths(agentId: string) {
+  const projectionRoot = path.posix.join(
+    OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT,
     "agents",
     agentId,
   );
@@ -101,10 +115,13 @@ export function resolveOpenClawReadonlyProjection(params: {
   containerWorkdir: string;
 }): OpenClawReadonlyProjection {
   const hostPaths = resolveHostProjectionPaths(params.sandboxWorkspaceDir, params.agentId);
-  const containerPaths = resolveContainerProjectionPaths(params.containerWorkdir, params.agentId);
+  const needsSyntheticBind = params.workspaceDir !== params.sandboxWorkspaceDir;
+  const containerPaths = needsSyntheticBind
+    ? resolveSyntheticContainerProjectionPaths(params.agentId)
+    : resolveContainerProjectionPaths(params.containerWorkdir, params.agentId);
   return {
     enabled: shouldProjectOpenClawReadonly({ config: params.config, agentId: params.agentId }),
-    needsSyntheticBind: params.workspaceDir !== params.sandboxWorkspaceDir,
+    needsSyntheticBind,
     hostProjectionRoot: hostPaths.projectionRoot,
     hostConfigPath: hostPaths.configPath,
     hostStateDir: hostPaths.stateDir,
