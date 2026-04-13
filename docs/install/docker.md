@@ -540,9 +540,9 @@ precedence, and troubleshooting.
 
 - Image: `openclaw-sandbox:bookworm-slim`
 - One container per agent
-- Agent workspace access: `workspaceAccess: "none"` (default) uses `~/.openclaw/sandboxes`
+- Agent workspace access: `workspaceAccess: "rw"` (default) mounts the agent workspace read/write at `/workspace`
   - `"ro"` keeps the sandbox workspace at `/workspace` and mounts the agent workspace read-only at `/agent` (disables `write`/`edit`/`apply_patch`)
-  - `"rw"` mounts the agent workspace read/write at `/workspace`
+  - `"none"` keeps tools on the sandbox workspace under `~/.openclaw/sandboxes`
 - Auto-prune: idle > 24h OR age > 7d
 - Network: `none` by default (explicitly opt-in if you need egress)
   - `host` is blocked.
@@ -571,7 +571,7 @@ If you plan to install packages in `setupCommand`, note:
       sandbox: {
         mode: "non-main", // off | non-main | all
         scope: "agent", // session | agent | shared (agent is default)
-        workspaceAccess: "none", // none | ro | rw
+        workspaceAccess: "rw", // rw | ro | none
         workspaceRoot: "~/.openclaw/sandboxes",
         docker: {
           image: "openclaw-sandbox:bookworm-slim",
