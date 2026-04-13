@@ -212,7 +212,7 @@ export async function resolveSandboxContext(params: {
     runtime.agentId,
   );
   const dockerEnv = {
-    ...(effectiveDocker.env ?? {}),
+    ...effectiveDocker.env,
     [OPENCLAW_READONLY_PROJECTION_ROOT_ENV]:
       effectiveDocker.env?.[OPENCLAW_READONLY_PROJECTION_ROOT_ENV] ?? projectionRoot,
   };
