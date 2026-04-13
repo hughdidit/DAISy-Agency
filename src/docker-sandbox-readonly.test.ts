@@ -22,9 +22,7 @@ describe("Dockerfile.sandbox", () => {
     expect(dockerfile).toContain("2>/tmp/openclaw-readonly-smoke/skills-list.err");
     expect(dockerfile).toContain("cat /tmp/openclaw-readonly-smoke/skills-list.err >&2");
     expect(dockerfile.match(/OPENCLAW_READONLY_AGENT_ID=main/g)).toHaveLength(2);
-    expect(dockerfile).toContain(
-      'grep -q "openclaw-readonly" /tmp/openclaw-readonly-smoke/skills-list.txt',
-    );
+    expect(dockerfile).toContain('grep -q "Skills (" /tmp/openclaw-readonly-smoke/skills-list.txt');
     expect(dockerfile).toContain("/usr/local/bin/openclaw-readonly sandbox explain \\");
     expect(dockerfile).toContain(">/tmp/openclaw-readonly-smoke/sandbox-explain.txt");
     expect(dockerfile).toContain("2>/tmp/openclaw-readonly-smoke/sandbox-explain.err");

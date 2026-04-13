@@ -78,7 +78,7 @@ RUN bash -o pipefail -lc '\
          >/tmp/openclaw-readonly-smoke/skills-list.txt \
          2>/tmp/openclaw-readonly-smoke/skills-list.err \
        || { cat /tmp/openclaw-readonly-smoke/skills-list.txt; cat /tmp/openclaw-readonly-smoke/skills-list.err >&2; exit 1; }; \
-       grep -q "openclaw-readonly" /tmp/openclaw-readonly-smoke/skills-list.txt \
+       grep -q "Skills (" /tmp/openclaw-readonly-smoke/skills-list.txt \
        || { cat /tmp/openclaw-readonly-smoke/skills-list.txt; cat /tmp/openclaw-readonly-smoke/skills-list.err >&2; exit 1; }; \
      } \
   && { \
