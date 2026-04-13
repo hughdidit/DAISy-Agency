@@ -7,11 +7,13 @@ on:
       - daisy/dev
     tags:
       - "v*"
-    paths-ignore:
-      - "docs/**"
-      - "**/*.md"
-      - "**/*.mdx"
-      - ".agents/**"
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!.agents/**"
+      - "!**/*.md"
+      - "!**/*.mdx"
+      - "skills/**"
 
 concurrency:
   group: docker-release-${{ github.workflow }}-${{ github.ref }}
