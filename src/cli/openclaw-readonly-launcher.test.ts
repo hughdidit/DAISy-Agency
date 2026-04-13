@@ -39,7 +39,7 @@ describe("openclaw-readonly launcher", () => {
           OPENCLAW_READONLY_CONFIG_PATH: "/readonly/openclaw.json",
           OPENCLAW_READONLY_STATE_DIR: "/readonly/state",
         },
-        pathExists: (targetPath) =>
+        pathExists: (targetPath: string) =>
           targetPath === "/readonly/openclaw.json" || targetPath === "/readonly/state",
         binaryPath: "/usr/local/bin/openclaw-readonly",
       }),
@@ -56,7 +56,7 @@ describe("openclaw-readonly launcher", () => {
           OPENCLAW_READONLY_CONFIG_PATH: "/readonly/openclaw.json",
           OPENCLAW_READONLY_STATE_DIR: "/readonly/state",
         },
-        pathExists: (targetPath) =>
+        pathExists: (targetPath: string) =>
           targetPath === "/readonly/openclaw.json" ||
           targetPath === "/readonly/state" ||
           targetPath === "/workspace",
@@ -74,7 +74,7 @@ describe("openclaw-readonly launcher", () => {
         env: {
           OPENCLAW_READONLY_PROJECTION_ROOT: "/sandbox-root/.openclaw-readonly",
         },
-        pathExists: (targetPath) =>
+        pathExists: (targetPath: string) =>
           targetPath === "/sandbox-root/.openclaw-readonly/openclaw.json" ||
           targetPath === "/sandbox-root/.openclaw-readonly/state",
         binaryPath: "/usr/local/bin/openclaw-readonly",
