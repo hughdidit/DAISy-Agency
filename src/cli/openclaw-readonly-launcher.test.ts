@@ -29,7 +29,7 @@ describe("openclaw-readonly launcher", () => {
     ).toThrow('The sandbox runtime command "openclaw-readonly" is not on PATH.');
   });
 
-  it("requires workspace mounts for skills diagnostics", async () => {
+  it("requires workspace mounts for skills diagnostics when no fallback is available", async () => {
     const { validateOpenClawReadonlyLauncher } = await loadLauncherModule();
 
     expect(() =>
@@ -39,10 +39,47 @@ describe("openclaw-readonly launcher", () => {
           OPENCLAW_READONLY_CONFIG_PATH: "/readonly/openclaw.json",
           OPENCLAW_READONLY_STATE_DIR: "/readonly/state",
         },
-        pathExists: () => true,
+        pathExists: (targetPath) =>
+          targetPath === "/readonly/openclaw.json" || targetPath === "/readonly/state",
         binaryPath: "/usr/local/bin/openclaw-readonly",
       }),
     ).toThrow("Missing OPENCLAW_READONLY_WORKSPACE_DIR");
+  });
+
+  it("accepts the workspace fallback for skills diagnostics", async () => {
+    const { validateOpenClawReadonlyLauncher } = await loadLauncherModule();
+
+    expect(() =>
+      validateOpenClawReadonlyLauncher({
+        args: ["skills", "check"],
+        env: {
+          OPENCLAW_READONLY_CONFIG_PATH: "/readonly/openclaw.json",
+          OPENCLAW_READONLY_STATE_DIR: "/readonly/state",
+        },
+        pathExists: (targetPath) =>
+          targetPath === "/readonly/openclaw.json" ||
+          targetPath === "/readonly/state" ||
+          targetPath === "/workspace",
+        binaryPath: "/usr/local/bin/openclaw-readonly",
+      }),
+    ).not.toThrow();
+  });
+
+  it("uses OPENCLAW_READONLY_PROJECTION_ROOT for projection fallback", async () => {
+    const { validateOpenClawReadonlyLauncher } = await loadLauncherModule();
+
+    expect(() =>
+      validateOpenClawReadonlyLauncher({
+        args: ["status"],
+        env: {
+          OPENCLAW_READONLY_PROJECTION_ROOT: "/sandbox-root/.openclaw-readonly",
+        },
+        pathExists: (targetPath) =>
+          targetPath === "/sandbox-root/.openclaw-readonly/openclaw.json" ||
+          targetPath === "/sandbox-root/.openclaw-readonly/state",
+        binaryPath: "/usr/local/bin/openclaw-readonly",
+      }),
+    ).not.toThrow();
   });
 
   it("rejects unsupported launcher commands", async () => {
