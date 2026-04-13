@@ -11,6 +11,17 @@ const log = createSubsystemLogger("sandbox/openclaw-readonly");
 const OPENCLAW_READONLY_SKILL = "openclaw-readonly";
 export const OPENCLAW_READONLY_PROJECTION_DIRNAME = ".openclaw-readonly";
 
+export type OpenClawReadonlyProjection = {
+  enabled: boolean;
+  needsSyntheticBind: boolean;
+  hostProjectionRoot: string;
+  hostConfigPath: string;
+  hostStateDir: string;
+  containerProjectionRoot: string;
+  containerConfigPath: string;
+  containerStateDir: string;
+};
+
 function shouldProjectOpenClawReadonly(params: {
   config: OpenClawConfig;
   agentId: string;
@@ -19,7 +30,7 @@ function shouldProjectOpenClawReadonly(params: {
   return skillFilter === undefined || skillFilter.includes(OPENCLAW_READONLY_SKILL);
 }
 
-function resolveProjectionPaths(sandboxWorkspaceDir: string, agentId: string) {
+function resolveHostProjectionPaths(sandboxWorkspaceDir: string, agentId: string) {
   const projectionRoot = path.join(
     sandboxWorkspaceDir,
     OPENCLAW_READONLY_PROJECTION_DIRNAME,
@@ -30,6 +41,20 @@ function resolveProjectionPaths(sandboxWorkspaceDir: string, agentId: string) {
     projectionRoot,
     configPath: path.join(projectionRoot, "openclaw.json"),
     stateDir: path.join(projectionRoot, "state"),
+  };
+}
+
+function resolveContainerProjectionPaths(containerWorkdir: string, agentId: string) {
+  const projectionRoot = path.posix.join(
+    containerWorkdir,
+    OPENCLAW_READONLY_PROJECTION_DIRNAME,
+    "agents",
+    agentId,
+  );
+  return {
+    projectionRoot,
+    configPath: path.posix.join(projectionRoot, "openclaw.json"),
+    stateDir: path.posix.join(projectionRoot, "state"),
   };
 }
 
@@ -58,35 +83,61 @@ function buildProjectedConfig(config: OpenClawConfig): OpenClawConfig {
   return projected;
 }
 
-export async function syncOpenClawReadonlyProjection(params: {
+async function clearDirectoryContents(dirPath: string): Promise<void> {
+  await fs.mkdir(dirPath, { recursive: true });
+  const entries = await fs.readdir(dirPath);
+  await Promise.all(
+    entries.map(async (entry) => {
+      await fs.rm(path.join(dirPath, entry), { recursive: true, force: true });
+    }),
+  );
+}
+
+export function resolveOpenClawReadonlyProjection(params: {
   config: OpenClawConfig;
   agentId: string;
   workspaceDir: string;
   sandboxWorkspaceDir: string;
-}): Promise<void> {
-  const { projectionRoot, configPath, stateDir } = resolveProjectionPaths(
-    params.sandboxWorkspaceDir,
-    params.agentId,
-  );
-  const enabled =
-    params.workspaceDir === params.sandboxWorkspaceDir &&
-    shouldProjectOpenClawReadonly({ config: params.config, agentId: params.agentId });
+  containerWorkdir: string;
+}): OpenClawReadonlyProjection {
+  const hostPaths = resolveHostProjectionPaths(params.sandboxWorkspaceDir, params.agentId);
+  const containerPaths = resolveContainerProjectionPaths(params.containerWorkdir, params.agentId);
+  return {
+    enabled: shouldProjectOpenClawReadonly({ config: params.config, agentId: params.agentId }),
+    needsSyntheticBind: params.workspaceDir !== params.sandboxWorkspaceDir,
+    hostProjectionRoot: hostPaths.projectionRoot,
+    hostConfigPath: hostPaths.configPath,
+    hostStateDir: hostPaths.stateDir,
+    containerProjectionRoot: containerPaths.projectionRoot,
+    containerConfigPath: containerPaths.configPath,
+    containerStateDir: containerPaths.stateDir,
+  };
+}
 
-  await fs.rm(projectionRoot, { recursive: true, force: true });
-  if (!enabled) {
+export async function syncOpenClawReadonlyProjection(params: {
+  config: OpenClawConfig;
+  agentId: string;
+  projection: OpenClawReadonlyProjection;
+}): Promise<void> {
+  await clearDirectoryContents(params.projection.hostProjectionRoot);
+  if (!params.projection.enabled) {
     return;
   }
 
-  await fs.mkdir(stateDir, { recursive: true });
+  await fs.mkdir(params.projection.hostStateDir, { recursive: true });
 
   const projectedConfig = buildProjectedConfig(params.config);
-  await fs.writeFile(configPath, `${JSON.stringify(projectedConfig, null, 2)}\n`, "utf8");
+  await fs.writeFile(
+    params.projection.hostConfigPath,
+    `${JSON.stringify(projectedConfig, null, 2)}\n`,
+    "utf8",
+  );
 
   const sourceStorePath = resolveStorePath(params.config.session?.store, {
     agentId: params.agentId,
   });
   const targetStorePath = path.join(
-    stateDir,
+    params.projection.hostStateDir,
     "agents",
     params.agentId,
     "sessions",
@@ -95,6 +146,6 @@ export async function syncOpenClawReadonlyProjection(params: {
   await copyIfExists(sourceStorePath, targetStorePath);
 
   log.debug?.(
-    `Projected readonly snapshot for ${params.agentId} into ${projectionRoot} for sandbox diagnostics.`,
+    `Projected readonly snapshot for ${params.agentId} into ${params.projection.hostProjectionRoot} for sandbox diagnostics.`,
   );
 }

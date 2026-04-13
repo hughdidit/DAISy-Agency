@@ -91,4 +91,6 @@ If they are omitted, `openclaw-readonly` falls back to `OPENCLAW_CONFIG_PATH`
 and `OPENCLAW_STATE_DIR`, then to
 `<sandbox workdir>/.openclaw-readonly/agents/<agentId>/` (usually
 `/workspace/.openclaw-readonly/agents/main/`) when the sandbox has projected a
-readonly snapshot there.
+readonly snapshot there. That fallback works in `rw`, `ro`, and `none`
+sandboxes; `rw` uses a synthetic read-only bind so the projection is not
+written into the real workspace.

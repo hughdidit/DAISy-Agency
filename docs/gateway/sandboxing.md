@@ -58,9 +58,9 @@ Not sandboxed:
 
 `agents.defaults.sandbox.workspaceAccess` controls **what the sandbox can see**:
 
-- `"none"` (default): tools see a sandbox workspace under `~/.openclaw/sandboxes`.
+- `"rw"` (default): mounts the agent workspace read/write at `/workspace`.
 - `"ro"`: mounts the agent workspace read-only at `/agent` (disables `write`/`edit`/`apply_patch`).
-- `"rw"`: mounts the agent workspace read/write at `/workspace`.
+- `"none"`: tools see a sandbox workspace under `~/.openclaw/sandboxes`.
 
 Inbound media is copied into the active sandbox workspace (`media/inbound/*`).
 Skills note: the `read` tool is sandbox-rooted. With `workspaceAccess: "none"`,
@@ -154,7 +154,7 @@ Minimal example:
       sandbox: {
         mode: "all",
         scope: "agent",
-        workspaceAccess: "ro",
+        workspaceAccess: "rw",
         docker: {
           network: "none",
           binds: [
@@ -165,7 +165,7 @@ Minimal example:
             OPENCLAW_READONLY_CONFIG_PATH: "/readonly/openclaw.json",
             OPENCLAW_READONLY_STATE_DIR: "/readonly/state",
             OPENCLAW_READONLY_AGENT_ID: "main",
-            OPENCLAW_READONLY_WORKSPACE_DIR: "/agent",
+            OPENCLAW_READONLY_WORKSPACE_DIR: "/workspace",
           },
         },
       },
@@ -187,12 +187,17 @@ Minimal example:
 Keep the binds read-only and synthetic. Do not mount the full host config tree
 or a writable state directory just to make diagnostics work.
 
-When `openclaw-readonly` runs in a sandbox workspace snapshot
-(`workspaceAccess: "ro"` or `"none"`), the gateway also projects a redacted
+When `openclaw-readonly` runs in a sandbox, the gateway also projects a redacted
 readonly snapshot under `<sandbox workdir>/.openclaw-readonly/agents/<agentId>/`
 (usually `/workspace/.openclaw-readonly/agents/main/`). The launcher falls
 back to that projection when the explicit `OPENCLAW_READONLY_*` env vars are
 not present.
+
+For `workspaceAccess: "rw"`, the projection is staged under synthetic sandbox
+state and bind-mounted read-only into the sandbox workdir, so diagnostics stay
+available without writing `.openclaw-readonly` into the real agent workspace.
+For `workspaceAccess: "ro"` and `"none"`, the projection is written directly
+into the mounted sandbox workspace snapshot.
 
 If you want a more functional sandbox image with common tooling (for example
 `curl`, `jq`, `nodejs`, `python3`, `git`), build:

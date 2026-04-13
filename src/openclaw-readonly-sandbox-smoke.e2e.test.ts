@@ -21,10 +21,12 @@ describe("openclaw-readonly sandbox smoke", () => {
 
       tempRoot = await mkdtemp(path.join(os.tmpdir(), "openclaw-readonly-smoke-"));
       const configDir = path.join(tempRoot, "config");
+      const projectionDir = path.join(tempRoot, "projection");
       const stateDir = path.join(tempRoot, "state");
       const workspaceDir = path.join(tempRoot, "workspace");
 
       await mkdir(configDir, { recursive: true });
+      await mkdir(path.join(projectionDir, "agents", "main", "state"), { recursive: true });
       await mkdir(stateDir, { recursive: true });
       await mkdir(workspaceDir, { recursive: true });
       await writeFile(
@@ -37,7 +39,7 @@ describe("openclaw-readonly sandbox smoke", () => {
                 sandbox: {
                   mode: "all",
                   scope: "agent",
-                  workspaceAccess: "ro",
+                  workspaceAccess: "rw",
                   workspaceRoot: "/tmp/openclaw-readonly-sandbox",
                   docker: {
                     network: "none",
@@ -54,6 +56,18 @@ describe("openclaw-readonly sandbox smoke", () => {
               elevated: {
                 enabled: false,
               },
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFile(
+        path.join(projectionDir, "agents", "main", "openclaw.json"),
+        JSON.stringify(
+          {
+            agents: {
+              list: [{ id: "main", skills: ["openclaw-readonly"] }],
             },
           },
           null,
@@ -88,11 +102,32 @@ describe("openclaw-readonly sandbox smoke", () => {
   });
 
   it.skipIf(!DOCKER_SMOKE)(
-    "runs skills list and sandbox explain read-only inside the sandbox image",
+    "runs status via projection fallback plus skills diagnostics inside the sandbox image",
     async () => {
       const configPath = path.join(tempRoot, "config", "openclaw.json");
+      const projectionDir = path.join(tempRoot, "projection");
       const stateDir = path.join(tempRoot, "state");
       const workspaceDir = path.join(tempRoot, "workspace");
+
+      const status = spawnSync(
+        "docker",
+        [
+          "run",
+          "--rm",
+          "--network",
+          "none",
+          "-v",
+          `${projectionDir}:/workspace/.openclaw-readonly:ro`,
+          imageTag,
+          "openclaw-readonly",
+          "status",
+        ],
+        {
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+        },
+      );
+      expect(status.status, status.stderr || status.stdout).toBe(0);
 
       const skillsList = spawnSync(
         "docker",

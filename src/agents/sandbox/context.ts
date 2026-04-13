@@ -14,7 +14,10 @@ import { resolveSandboxConfigForAgent } from "./config.js";
 import { DEFAULT_SANDBOX_WORKDIR } from "./constants.js";
 import { ensureSandboxContainer, resolveDockerHostPathInfo } from "./docker.js";
 import { createSandboxFsBridge } from "./fs-bridge.js";
-import { syncOpenClawReadonlyProjection } from "./openclaw-readonly-projection.js";
+import {
+  resolveOpenClawReadonlyProjection,
+  syncOpenClawReadonlyProjection,
+} from "./openclaw-readonly-projection.js";
 import { maybePruneSandboxes } from "./prune.js";
 import { resolveSandboxRuntimeStatus } from "./runtime-status.js";
 import { resolveSandboxScopeKey, resolveSandboxWorkspaceDir } from "./shared.js";
@@ -145,26 +148,67 @@ export async function resolveSandboxContext(params: {
       workspaceDir: params.workspaceDir,
     });
 
+  const docker = await resolveSandboxDockerUser({
+    docker: cfg.docker,
+    workspaceDir,
+  });
+  const resolvedCfg = docker === cfg.docker ? cfg : { ...cfg, docker };
+  const containerWorkdir = resolvedCfg.docker.workdir?.trim() || DEFAULT_SANDBOX_WORKDIR;
+  const openclawReadonlyProjection = resolveOpenClawReadonlyProjection({
+    config: effectiveConfig,
+    agentId: runtime.agentId,
+    workspaceDir,
+    sandboxWorkspaceDir,
+    containerWorkdir,
+  });
+
   try {
     await syncOpenClawReadonlyProjection({
       config: effectiveConfig,
       agentId: runtime.agentId,
-      workspaceDir,
-      sandboxWorkspaceDir,
+      projection: openclawReadonlyProjection,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : JSON.stringify(error);
     defaultRuntime.error?.(`Sandbox openclaw-readonly projection failed: ${message}`);
   }
 
-  const docker = await resolveSandboxDockerUser({
-    docker: cfg.docker,
-    workspaceDir,
-  });
-  const resolvedCfg = docker === cfg.docker ? cfg : { ...cfg, docker };
   const additionalSandboxBinds: string[] = [];
   const additionalBindSourceRoots: string[] = [];
   const appliedCapabilityMounts: SandboxCapabilityMount[] = [];
+  let openclawReadonlyProjectionVisible = !openclawReadonlyProjection.needsSyntheticBind;
+
+  if (openclawReadonlyProjection.enabled && openclawReadonlyProjection.needsSyntheticBind) {
+    const projectionHostPath = await resolveDockerHostPathInfo(
+      openclawReadonlyProjection.hostProjectionRoot,
+    );
+    try {
+      await fs.access(openclawReadonlyProjection.hostProjectionRoot);
+      const bindSourcePath = projectionHostPath.path.trim();
+      if (bindSourcePath) {
+        additionalSandboxBinds.push(
+          `${bindSourcePath}:${openclawReadonlyProjection.containerProjectionRoot}:ro`,
+        );
+        additionalBindSourceRoots.push(bindSourcePath);
+        openclawReadonlyProjectionVisible = true;
+      } else {
+        defaultRuntime.log(
+          `Skipping derived openclaw-readonly sandbox bind for ${runtime.agentId}: resolved bind source for ${openclawReadonlyProjection.hostProjectionRoot} was empty.`,
+        );
+      }
+    } catch (error) {
+      const rawCode = error instanceof Error && "code" in error ? error.code : undefined;
+      const code = typeof rawCode === "string" ? rawCode : undefined;
+      const reason =
+        code === "ENOENT"
+          ? "does not exist on the current runtime"
+          : `is not accessible on the current runtime (code: ${code ?? "unknown"})`;
+      defaultRuntime.log(
+        `Skipping derived openclaw-readonly sandbox bind for ${runtime.agentId}: source path ${openclawReadonlyProjection.hostProjectionRoot} ${reason}.`,
+      );
+    }
+  }
+
   const capabilityMounts = resolveSandboxCapabilityMounts({
     config: effectiveConfig,
     agentId: runtime.agentId,
@@ -205,17 +249,16 @@ export async function resolveSandboxContext(params: {
           ),
         }
       : resolvedCfg.docker;
-  const projectionRoot = path.posix.join(
-    resolvedCfg.docker.workdir?.trim() || DEFAULT_SANDBOX_WORKDIR,
-    ".openclaw-readonly",
-    "agents",
-    runtime.agentId,
-  );
-  const dockerEnv = {
-    ...effectiveDocker.env,
-    [OPENCLAW_READONLY_PROJECTION_ROOT_ENV]:
-      effectiveDocker.env?.[OPENCLAW_READONLY_PROJECTION_ROOT_ENV] ?? projectionRoot,
-  };
+  const dockerEnv =
+    effectiveDocker.env?.[OPENCLAW_READONLY_PROJECTION_ROOT_ENV] !== undefined
+      ? effectiveDocker.env
+      : openclawReadonlyProjection.enabled && openclawReadonlyProjectionVisible
+        ? {
+            ...effectiveDocker.env,
+            [OPENCLAW_READONLY_PROJECTION_ROOT_ENV]:
+              openclawReadonlyProjection.containerProjectionRoot,
+          }
+        : effectiveDocker.env;
   const sandboxDocker =
     dockerEnv === effectiveDocker.env ? effectiveDocker : { ...effectiveDocker, env: dockerEnv };
   const derivedBindRequiresIsolatedContainer =
