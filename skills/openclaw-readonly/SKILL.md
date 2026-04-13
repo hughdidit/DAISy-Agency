@@ -51,8 +51,8 @@ The launcher prefers this order:
 - standard OpenClaw sandbox env when present:
   - `OPENCLAW_CONFIG_PATH`
   - `OPENCLAW_STATE_DIR`
-- the sandbox readonly projection under `<sandbox workdir>/.openclaw-readonly/`
-  - usually `/workspace/.openclaw-readonly/`
+- the sandbox readonly projection under `<sandbox workdir>/.openclaw-readonly/agents/<agentId>/`
+  - usually `/workspace/.openclaw-readonly/agents/main/`
 
 For skills diagnostics, the launcher will prefer `/agent` and then `/workspace` when `OPENCLAW_READONLY_WORKSPACE_DIR` is unset.
 

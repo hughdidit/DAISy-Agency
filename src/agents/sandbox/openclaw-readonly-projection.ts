@@ -19,8 +19,13 @@ function shouldProjectOpenClawReadonly(params: {
   return skillFilter === undefined || skillFilter.includes(OPENCLAW_READONLY_SKILL);
 }
 
-function resolveProjectionPaths(sandboxWorkspaceDir: string) {
-  const projectionRoot = path.join(sandboxWorkspaceDir, OPENCLAW_READONLY_PROJECTION_DIRNAME);
+function resolveProjectionPaths(sandboxWorkspaceDir: string, agentId: string) {
+  const projectionRoot = path.join(
+    sandboxWorkspaceDir,
+    OPENCLAW_READONLY_PROJECTION_DIRNAME,
+    "agents",
+    agentId,
+  );
   return {
     projectionRoot,
     configPath: path.join(projectionRoot, "openclaw.json"),
@@ -61,6 +66,7 @@ export async function syncOpenClawReadonlyProjection(params: {
 }): Promise<void> {
   const { projectionRoot, configPath, stateDir } = resolveProjectionPaths(
     params.sandboxWorkspaceDir,
+    params.agentId,
   );
   const enabled =
     params.workspaceDir === params.sandboxWorkspaceDir &&

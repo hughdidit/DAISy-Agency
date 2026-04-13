@@ -208,6 +208,8 @@ export async function resolveSandboxContext(params: {
   const projectionRoot = path.posix.join(
     resolvedCfg.docker.workdir?.trim() || DEFAULT_SANDBOX_WORKDIR,
     ".openclaw-readonly",
+    "agents",
+    runtime.agentId,
   );
   const dockerEnv = {
     ...(effectiveDocker.env ?? {}),

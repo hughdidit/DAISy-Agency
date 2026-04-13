@@ -82,9 +82,10 @@ const SUPPORTED_INVOCATIONS = [
 ] as const;
 
 function resolveReadonlyProjectionRoot(env: NodeJS.ProcessEnv): string {
+  const agentId = env.OPENCLAW_READONLY_AGENT_ID?.trim() || "main";
   return (
     env.OPENCLAW_READONLY_PROJECTION_ROOT?.trim() ||
-    path.posix.join("/workspace", ".openclaw-readonly")
+    path.posix.join("/workspace", ".openclaw-readonly", "agents", agentId)
   );
 }
 

@@ -12,7 +12,11 @@ const ALLOWED_OPENCLAW_READONLY_ARGS = [
 ];
 
 function resolveReadonlyProjectionRoot(env) {
-  return env.OPENCLAW_READONLY_PROJECTION_ROOT?.trim() || path.posix.join("/workspace", ".openclaw-readonly");
+  const agentId = env.OPENCLAW_READONLY_AGENT_ID?.trim() || "main";
+  return (
+    env.OPENCLAW_READONLY_PROJECTION_ROOT?.trim() ||
+    path.posix.join("/workspace", ".openclaw-readonly", "agents", agentId)
+  );
 }
 
 function resolveReadonlyConfigPath(env) {

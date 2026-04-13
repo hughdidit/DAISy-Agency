@@ -53,7 +53,7 @@ describe("openclaw-readonly CLI", () => {
     expect(() =>
       resolveOpenClawReadonlyEnv(command, {}, () => false),
     ).toThrow(
-      "Missing readonly config mount: /workspace/.openclaw-readonly/openclaw.json",
+      "Missing readonly config mount: /workspace/.openclaw-readonly/agents/main/openclaw.json",
     );
   });
 
@@ -63,12 +63,12 @@ describe("openclaw-readonly CLI", () => {
       command,
       {},
       (targetPath) =>
-        targetPath === "/workspace/.openclaw-readonly/openclaw.json" ||
-        targetPath === "/workspace/.openclaw-readonly/state",
+        targetPath === "/workspace/.openclaw-readonly/agents/main/openclaw.json" ||
+        targetPath === "/workspace/.openclaw-readonly/agents/main/state",
     );
 
-    expect(resolved.configPath).toBe("/workspace/.openclaw-readonly/openclaw.json");
-    expect(resolved.stateDir).toBe("/workspace/.openclaw-readonly/state");
+    expect(resolved.configPath).toBe("/workspace/.openclaw-readonly/agents/main/openclaw.json");
+    expect(resolved.stateDir).toBe("/workspace/.openclaw-readonly/agents/main/state");
   });
 
   it("requires a workspace mount for skills diagnostics when no fallback is available", () => {

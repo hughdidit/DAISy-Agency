@@ -161,9 +161,10 @@ node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status
 
 The launcher first uses explicit `OPENCLAW_READONLY_*` env, then standard
 `OPENCLAW_CONFIG_PATH` / `OPENCLAW_STATE_DIR`, then the sandbox projection at
-`<sandbox workdir>/.openclaw-readonly/` (usually `/workspace/.openclaw-readonly/`)
-when present. If those paths are still missing, it fails closed with a setup
-error instead of trying a host-side fallback.
+`<sandbox workdir>/.openclaw-readonly/agents/<agentId>/` (usually
+`/workspace/.openclaw-readonly/agents/main/`) when present. If those paths are
+still missing, it fails closed with a setup error instead of trying a host-side
+fallback.
 
 Installer example:
 
