@@ -105,10 +105,10 @@ describe("resolveSandboxContext openclaw-readonly wiring", () => {
         additionalBindSourceRoots: ["/host/openclaw-readonly-projection"],
       }),
     );
-    const firstEnsureCall = dockerMocks.ensureSandboxContainer.mock.calls[0] as
-      | [{ extraBinds?: string[] }]
-      | undefined;
-    const extraBinds = firstEnsureCall?.[0]?.extraBinds ?? [];
+    const ensureCalls = dockerMocks.ensureSandboxContainer.mock.calls as unknown as Array<
+      Array<{ extraBinds?: string[] }>
+    >;
+    const extraBinds = ensureCalls[0]?.[0]?.extraBinds ?? [];
     expect(extraBinds).not.toEqual(
       expect.arrayContaining([expect.stringMatching(/:(\/workspace|\/agent)(\/|:|$)/)]),
     );
