@@ -72,12 +72,11 @@ export async function syncOpenClawReadonlyProjection(params: {
     params.workspaceDir === params.sandboxWorkspaceDir &&
     shouldProjectOpenClawReadonly({ config: params.config, agentId: params.agentId });
 
+  await fs.rm(projectionRoot, { recursive: true, force: true });
   if (!enabled) {
-    await fs.rm(projectionRoot, { recursive: true, force: true });
     return;
   }
 
-  await fs.rm(projectionRoot, { recursive: true, force: true });
   await fs.mkdir(stateDir, { recursive: true });
 
   const projectedConfig = buildProjectedConfig(params.config);
