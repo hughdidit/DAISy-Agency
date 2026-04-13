@@ -159,8 +159,12 @@ Use the bundled launcher from the mirrored skill directory:
 node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status
 ```
 
-If the readonly config, state, or workspace mounts are missing, the launcher
-fails closed with a setup error instead of trying a host-side fallback.
+The launcher first uses explicit `OPENCLAW_READONLY_*` env, then standard
+`OPENCLAW_CONFIG_PATH` / `OPENCLAW_STATE_DIR`, then the sandbox projection at
+`<sandbox workdir>/.openclaw-readonly/agents/<agentId>/` (usually
+`/workspace/.openclaw-readonly/agents/main/`) when present. If those paths are
+still missing, it fails closed with a setup error instead of trying a host-side
+fallback.
 
 Installer example:
 

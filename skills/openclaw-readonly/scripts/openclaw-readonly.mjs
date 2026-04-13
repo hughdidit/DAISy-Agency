@@ -11,6 +11,44 @@ const ALLOWED_OPENCLAW_READONLY_ARGS = [
   ["skills", "check"],
 ];
 
+function resolveReadonlyProjectionRoot(env) {
+  const agentId = env.OPENCLAW_READONLY_AGENT_ID?.trim() || "main";
+  return (
+    env.OPENCLAW_READONLY_PROJECTION_ROOT?.trim() ||
+    path.posix.join("/workspace", ".openclaw-readonly", "agents", agentId)
+  );
+}
+
+function resolveReadonlyConfigPath(env) {
+  return (
+    env.OPENCLAW_READONLY_CONFIG_PATH?.trim() ||
+    env.OPENCLAW_CONFIG_PATH?.trim() ||
+    path.posix.join(resolveReadonlyProjectionRoot(env), "openclaw.json")
+  );
+}
+
+function resolveReadonlyStateDir(env) {
+  return (
+    env.OPENCLAW_READONLY_STATE_DIR?.trim() ||
+    env.OPENCLAW_STATE_DIR?.trim() ||
+    path.posix.join(resolveReadonlyProjectionRoot(env), "state")
+  );
+}
+
+function resolveReadonlyWorkspaceDir(env, pathExists) {
+  const explicit = env.OPENCLAW_READONLY_WORKSPACE_DIR?.trim();
+  if (explicit) {
+    return explicit;
+  }
+  if (pathExists("/agent")) {
+    return "/agent";
+  }
+  if (pathExists("/workspace")) {
+    return "/workspace";
+  }
+  return undefined;
+}
+
 export function resolveOpenClawReadonlyBinary(params = {}) {
   const env = params.env ?? process.env;
   const platform = params.platform ?? process.platform;
@@ -71,35 +109,26 @@ export function validateOpenClawReadonlyLauncher(params = {}) {
     );
   }
 
-  const configPath = env.OPENCLAW_READONLY_CONFIG_PATH?.trim();
-  if (!configPath) {
-    throw new Error(
-      "Missing OPENCLAW_READONLY_CONFIG_PATH. Mount the readonly OpenClaw config file into the sandbox before running this skill.",
-    );
-  }
+  const projectionRoot = resolveReadonlyProjectionRoot(env);
+  const configPath = resolveReadonlyConfigPath(env);
   if (!pathExists(configPath)) {
     throw new Error(
-      `Missing readonly config mount: ${configPath}. Bind the config file read-only and keep OPENCLAW_READONLY_CONFIG_PATH pointed at that file.`,
+      `Missing readonly config mount: ${configPath}. Set OPENCLAW_READONLY_CONFIG_PATH explicitly, keep OPENCLAW_CONFIG_PATH available in the sandbox, or let the sandbox project ${path.posix.join(projectionRoot, "openclaw.json")} before using this skill.`,
     );
   }
 
-  const stateDir = env.OPENCLAW_READONLY_STATE_DIR?.trim();
-  if (!stateDir) {
-    throw new Error(
-      "Missing OPENCLAW_READONLY_STATE_DIR. Mount a synthetic readonly state root into the sandbox before running this skill.",
-    );
-  }
+  const stateDir = resolveReadonlyStateDir(env);
   if (!pathExists(stateDir)) {
     throw new Error(
-      `Missing readonly state mount: ${stateDir}. Bind the readonly state directory and keep OPENCLAW_READONLY_STATE_DIR pointed at that directory.`,
+      `Missing readonly state mount: ${stateDir}. Set OPENCLAW_READONLY_STATE_DIR explicitly, keep OPENCLAW_STATE_DIR available in the sandbox, or let the sandbox project ${path.posix.join(projectionRoot, "state")} before using this skill.`,
     );
   }
 
   const needsWorkspace = args[0] === "skills" && (args[1] === "list" || args[1] === "check");
-  const workspaceDir = env.OPENCLAW_READONLY_WORKSPACE_DIR?.trim();
+  const workspaceDir = resolveReadonlyWorkspaceDir(env, pathExists);
   if (needsWorkspace && !workspaceDir) {
     throw new Error(
-      'Missing OPENCLAW_READONLY_WORKSPACE_DIR. Mount the sandbox-visible workspace (for example "/agent") before using skills diagnostics.',
+      'Missing OPENCLAW_READONLY_WORKSPACE_DIR. Mount the sandbox-visible workspace (for example "/agent") or keep /workspace available before using skills diagnostics.',
     );
   }
   if (needsWorkspace && workspaceDir && !pathExists(workspaceDir)) {

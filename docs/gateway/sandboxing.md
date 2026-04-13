@@ -187,6 +187,13 @@ Minimal example:
 Keep the binds read-only and synthetic. Do not mount the full host config tree
 or a writable state directory just to make diagnostics work.
 
+When `openclaw-readonly` runs in a sandbox workspace snapshot
+(`workspaceAccess: "ro"` or `"none"`), the gateway also projects a redacted
+readonly snapshot under `<sandbox workdir>/.openclaw-readonly/agents/<agentId>/`
+(usually `/workspace/.openclaw-readonly/agents/main/`). The launcher falls
+back to that projection when the explicit `OPENCLAW_READONLY_*` env vars are
+not present.
+
 If you want a more functional sandbox image with common tooling (for example
 `curl`, `jq`, `nodejs`, `python3`, `git`), build:
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { isMainModule } from "../infra/is-main.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -80,6 +81,14 @@ const SUPPORTED_INVOCATIONS = [
   "openclaw-readonly skills check",
 ] as const;
 
+function resolveReadonlyProjectionRoot(env: NodeJS.ProcessEnv): string {
+  const agentId = env.OPENCLAW_READONLY_AGENT_ID?.trim() || "main";
+  return (
+    env.OPENCLAW_READONLY_PROJECTION_ROOT?.trim() ||
+    path.posix.join("/workspace", ".openclaw-readonly", "agents", agentId)
+  );
+}
+
 function formatUnsupportedCommandDetails(): string {
   return [
     "Allowed commands:",
@@ -136,15 +145,37 @@ export function parseOpenClawReadonlyCommand(argv: readonly string[]): OpenClawR
   throw new Error(`Unsupported command: ${args.join(" ")}\n${formatUnsupportedCommandDetails()}`);
 }
 
-function requireEnvValue(env: NodeJS.ProcessEnv, key: string, label: string): string {
-  const value = env[key]?.trim();
-  if (!value) {
-    throw new Error(
-      `Missing ${key}. ${label} must be mounted read-only into the sandbox before ` +
-        "running openclaw-readonly.",
-    );
+function resolveReadonlyConfigPath(env: NodeJS.ProcessEnv): string {
+  return (
+    env.OPENCLAW_READONLY_CONFIG_PATH?.trim() ||
+    env.OPENCLAW_CONFIG_PATH?.trim() ||
+    path.posix.join(resolveReadonlyProjectionRoot(env), "openclaw.json")
+  );
+}
+
+function resolveReadonlyStateDir(env: NodeJS.ProcessEnv): string {
+  return (
+    env.OPENCLAW_READONLY_STATE_DIR?.trim() ||
+    env.OPENCLAW_STATE_DIR?.trim() ||
+    path.posix.join(resolveReadonlyProjectionRoot(env), "state")
+  );
+}
+
+function resolveReadonlyWorkspaceDir(
+  env: NodeJS.ProcessEnv,
+  pathExists: (targetPath: string) => boolean,
+): string | undefined {
+  const explicit = env.OPENCLAW_READONLY_WORKSPACE_DIR?.trim();
+  if (explicit) {
+    return explicit;
   }
-  return value;
+  if (pathExists("/agent")) {
+    return "/agent";
+  }
+  if (pathExists("/workspace")) {
+    return "/workspace";
+  }
+  return undefined;
 }
 
 export function resolveOpenClawReadonlyEnv(
@@ -152,38 +183,31 @@ export function resolveOpenClawReadonlyEnv(
   env: NodeJS.ProcessEnv = process.env,
   pathExists: (targetPath: string) => boolean = (targetPath) => fs.existsSync(targetPath),
 ): OpenClawReadonlyResolvedEnv {
-  const configPath = requireEnvValue(
-    env,
-    "OPENCLAW_READONLY_CONFIG_PATH",
-    "The readonly config file",
-  );
+  const projectionRoot = resolveReadonlyProjectionRoot(env);
+  const configPath = resolveReadonlyConfigPath(env);
   if (!pathExists(configPath)) {
     throw new Error(
       `Missing readonly config mount: ${configPath}\n` +
-        "Bind the config file into the sandbox and set OPENCLAW_READONLY_CONFIG_PATH to that file path.",
+        `Set OPENCLAW_READONLY_CONFIG_PATH explicitly, keep OPENCLAW_CONFIG_PATH available in the sandbox, or let the sandbox project ${path.posix.join(projectionRoot, "openclaw.json")}.`,
     );
   }
 
-  const stateDir = requireEnvValue(
-    env,
-    "OPENCLAW_READONLY_STATE_DIR",
-    "The readonly state directory",
-  );
+  const stateDir = resolveReadonlyStateDir(env);
   if (!pathExists(stateDir)) {
     throw new Error(
       `Missing readonly state mount: ${stateDir}\n` +
-        "Bind a synthetic read-only state root into the sandbox and set OPENCLAW_READONLY_STATE_DIR to that directory.",
+        `Set OPENCLAW_READONLY_STATE_DIR explicitly, keep OPENCLAW_STATE_DIR available in the sandbox, or let the sandbox project ${path.posix.join(projectionRoot, "state")}.`,
     );
   }
 
   const agentId = env.OPENCLAW_READONLY_AGENT_ID?.trim() || "main";
-  const workspaceDir = env.OPENCLAW_READONLY_WORKSPACE_DIR?.trim() || undefined;
+  const workspaceDir = resolveReadonlyWorkspaceDir(env, pathExists);
 
   if (command.requiresWorkspace) {
     if (!workspaceDir) {
       throw new Error(
         "Missing OPENCLAW_READONLY_WORKSPACE_DIR. Mount the sandbox-visible workspace " +
-          '(for example "/agent") and set OPENCLAW_READONLY_WORKSPACE_DIR before running ' +
+          '(for example "/agent") or keep /workspace available before running ' +
           `${command.args.join(" ")}.`,
       );
     }
@@ -205,15 +229,11 @@ export function resolveOpenClawReadonlyEnv(
 }
 
 export function applyOpenClawReadonlyEnv(env: NodeJS.ProcessEnv = process.env): void {
-  const configPath = env.OPENCLAW_READONLY_CONFIG_PATH?.trim();
-  const stateDir = env.OPENCLAW_READONLY_STATE_DIR?.trim();
+  const configPath = resolveReadonlyConfigPath(env);
+  const stateDir = resolveReadonlyStateDir(env);
 
-  if (configPath) {
-    env.OPENCLAW_CONFIG_PATH = configPath;
-  }
-  if (stateDir) {
-    env.OPENCLAW_STATE_DIR = stateDir;
-  }
+  env.OPENCLAW_CONFIG_PATH = configPath;
+  env.OPENCLAW_STATE_DIR = stateDir;
   env.OPENCLAW_AUTH_STORE_READONLY = "1";
   env.OPENCLAW_DISABLE_CONFIG_CACHE = "1";
 }

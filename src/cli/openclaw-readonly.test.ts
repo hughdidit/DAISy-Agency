@@ -48,14 +48,28 @@ describe("openclaw-readonly CLI", () => {
     expect(() => parseOpenClawReadonlyCommand(argv)).toThrow(expected);
   });
 
-  it("requires readonly config and state mounts", () => {
+  it("requires readonly config and state mounts when no fallback is available", () => {
     const command = parseOpenClawReadonlyCommand(["status"]);
-    expect(() => resolveOpenClawReadonlyEnv(command, {}, () => true)).toThrow(
-      "Missing OPENCLAW_READONLY_CONFIG_PATH",
+    expect(() => resolveOpenClawReadonlyEnv(command, {}, () => false)).toThrow(
+      "Missing readonly config mount: /workspace/.openclaw-readonly/agents/main/openclaw.json",
     );
   });
 
-  it("requires a workspace mount for skills diagnostics", () => {
+  it("accepts the projected readonly fallback without explicit readonly env vars", () => {
+    const command = parseOpenClawReadonlyCommand(["status"]);
+    const resolved = resolveOpenClawReadonlyEnv(
+      command,
+      {},
+      (targetPath) =>
+        targetPath === "/workspace/.openclaw-readonly/agents/main/openclaw.json" ||
+        targetPath === "/workspace/.openclaw-readonly/agents/main/state",
+    );
+
+    expect(resolved.configPath).toBe("/workspace/.openclaw-readonly/agents/main/openclaw.json");
+    expect(resolved.stateDir).toBe("/workspace/.openclaw-readonly/agents/main/state");
+  });
+
+  it("requires a workspace mount for skills diagnostics when no fallback is available", () => {
     const command = parseOpenClawReadonlyCommand(["skills", "list"]);
     expect(() =>
       resolveOpenClawReadonlyEnv(
@@ -64,9 +78,27 @@ describe("openclaw-readonly CLI", () => {
           OPENCLAW_READONLY_CONFIG_PATH: "/readonly/openclaw.json",
           OPENCLAW_READONLY_STATE_DIR: "/readonly/state",
         },
-        () => true,
+        (targetPath) =>
+          targetPath === "/readonly/openclaw.json" || targetPath === "/readonly/state",
       ),
     ).toThrow("Missing OPENCLAW_READONLY_WORKSPACE_DIR");
+  });
+
+  it("prefers the sandbox workspace fallback for skills diagnostics", () => {
+    const command = parseOpenClawReadonlyCommand(["skills", "list"]);
+    const resolved = resolveOpenClawReadonlyEnv(
+      command,
+      {
+        OPENCLAW_READONLY_CONFIG_PATH: "/readonly/openclaw.json",
+        OPENCLAW_READONLY_STATE_DIR: "/readonly/state",
+      },
+      (targetPath) =>
+        targetPath === "/readonly/openclaw.json" ||
+        targetPath === "/readonly/state" ||
+        targetPath === "/workspace",
+    );
+
+    expect(resolved.workspaceDir).toBe("/workspace");
   });
 
   it("maps readonly env vars into the runtime env contract", () => {
@@ -81,6 +113,17 @@ describe("openclaw-readonly CLI", () => {
     expect(env.OPENCLAW_STATE_DIR).toBe("/readonly/state");
     expect(env.OPENCLAW_AUTH_STORE_READONLY).toBe("1");
     expect(env.OPENCLAW_DISABLE_CONFIG_CACHE).toBe("1");
+  });
+
+  it("uses OPENCLAW_READONLY_PROJECTION_ROOT when deriving fallback paths", () => {
+    const env: NodeJS.ProcessEnv = {
+      OPENCLAW_READONLY_PROJECTION_ROOT: "/sandbox-root/.openclaw-readonly",
+    };
+
+    applyOpenClawReadonlyEnv(env);
+
+    expect(env.OPENCLAW_CONFIG_PATH).toBe("/sandbox-root/.openclaw-readonly/openclaw.json");
+    expect(env.OPENCLAW_STATE_DIR).toBe("/sandbox-root/.openclaw-readonly/state");
   });
 
   it("defaults OPENCLAW_READONLY_AGENT_ID to main", () => {

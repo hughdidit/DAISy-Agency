@@ -41,11 +41,19 @@ Do not substitute nearby commands like `doctor`, `skills info`, `gateway`, `conf
 
 ## Environment contract
 
-This skill expects the sandbox to already provide:
+The launcher prefers this order:
 
-- `OPENCLAW_READONLY_CONFIG_PATH`
-- `OPENCLAW_READONLY_STATE_DIR`
-- `OPENCLAW_READONLY_AGENT_ID` (optional; defaults to `main`)
-- `OPENCLAW_READONLY_WORKSPACE_DIR` for `skills list` and `skills check`
+- explicit readonly env from the sandbox:
+  - `OPENCLAW_READONLY_CONFIG_PATH`
+  - `OPENCLAW_READONLY_STATE_DIR`
+  - `OPENCLAW_READONLY_AGENT_ID` (optional; defaults to `main`)
+  - `OPENCLAW_READONLY_WORKSPACE_DIR` for `skills list` and `skills check`
+- standard OpenClaw sandbox env when present:
+  - `OPENCLAW_CONFIG_PATH`
+  - `OPENCLAW_STATE_DIR`
+- the sandbox readonly projection under `<sandbox workdir>/.openclaw-readonly/agents/<agentId>/`
+  - usually `/workspace/.openclaw-readonly/agents/main/`
 
-If those mounts are missing, report the launcher error as a sandbox setup issue instead of guessing.
+For skills diagnostics, the launcher will prefer `/agent` and then `/workspace` when `OPENCLAW_READONLY_WORKSPACE_DIR` is unset.
+
+If those paths are still missing, report the launcher error as a sandbox setup issue instead of guessing.
