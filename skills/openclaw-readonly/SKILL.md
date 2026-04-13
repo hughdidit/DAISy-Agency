@@ -1,7 +1,7 @@
 ---
 name: openclaw-readonly
 description: Sandbox-safe OpenClaw diagnostics through a tightly scoped read-only launcher.
-metadata: { "openclaw": { "emoji": "🔒", "requires": { "bins": ["node", "openclaw-readonly"] } } }
+metadata: { "openclaw": { "emoji": "🔒", "requires": { "bins": ["node"] } } }
 ---
 
 # OpenClaw Readonly
