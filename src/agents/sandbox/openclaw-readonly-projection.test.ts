@@ -68,6 +68,23 @@ describe("openclaw-readonly projection", () => {
     );
   });
 
+  it("normalizes agent ids before building projection paths", () => {
+    const projection = resolveOpenClawReadonlyProjection({
+      config: createConfig(["openclaw-readonly"]),
+      agentId: "../../../etc/passwd",
+      workspaceDir: "/tmp/agent-workspace",
+      sandboxWorkspaceDir: "/tmp/sandbox-workspace",
+      containerWorkdir: "/workspace",
+    });
+
+    expect(projection.hostProjectionRoot).toBe(
+      path.join("/tmp/sandbox-workspace", ".openclaw-readonly", "agents", "etc-passwd"),
+    );
+    expect(projection.containerProjectionRoot).toBe(
+      `${OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT}/agents/etc-passwd`,
+    );
+  });
+
   it("disables projection when the agent does not expose the readonly skill", () => {
     const projection = resolveOpenClawReadonlyProjection({
       config: createConfig(["demo-skill"]),
