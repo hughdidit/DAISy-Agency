@@ -14,6 +14,7 @@ import { resolveSandboxConfigForAgent } from "./config.js";
 import { DEFAULT_SANDBOX_WORKDIR } from "./constants.js";
 import { ensureSandboxContainer, resolveDockerHostPathInfo } from "./docker.js";
 import { createSandboxFsBridge } from "./fs-bridge.js";
+import { syncOpenClawReadonlyProjection } from "./openclaw-readonly-projection.js";
 import { maybePruneSandboxes } from "./prune.js";
 import { resolveSandboxRuntimeStatus } from "./runtime-status.js";
 import { resolveSandboxScopeKey, resolveSandboxWorkspaceDir } from "./shared.js";
@@ -135,11 +136,19 @@ export async function resolveSandboxContext(params: {
 
   await maybePruneSandboxes(cfg);
 
-  const { agentWorkspaceDir, scopeKey, workspaceDir } = await ensureSandboxWorkspaceLayout({
-    cfg,
-    rawSessionKey,
+  const { agentWorkspaceDir, scopeKey, sandboxWorkspaceDir, workspaceDir } =
+    await ensureSandboxWorkspaceLayout({
+      cfg,
+      rawSessionKey,
+      config: effectiveConfig,
+      workspaceDir: params.workspaceDir,
+    });
+
+  await syncOpenClawReadonlyProjection({
     config: effectiveConfig,
-    workspaceDir: params.workspaceDir,
+    agentId: runtime.agentId,
+    workspaceDir,
+    sandboxWorkspaceDir,
   });
 
   const docker = await resolveSandboxDockerUser({
