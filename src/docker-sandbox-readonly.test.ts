@@ -15,8 +15,8 @@ describe("Dockerfile.sandbox", () => {
     expect(dockerfile).toContain(
       "COPY --from=openclaw-readonly-build /build/dist /opt/daisy/openclaw-readonly/dist",
     );
-    expect(dockerfile).toContain('"allow": ["read", "exec"]');
-    expect(dockerfile).toContain('"network": "none"');
+    expect(dockerfile).toContain('"allow\\":[\\"read\\",\\"exec\\"]');
+    expect(dockerfile).toContain('"network\\":\\"none\\"');
     expect(dockerfile).toContain("/usr/local/bin/openclaw-readonly skills list \\");
     expect(dockerfile).toContain(">/tmp/openclaw-readonly-smoke/skills-list.txt");
     expect(dockerfile).toContain("2>/tmp/openclaw-readonly-smoke/skills-list.err");
