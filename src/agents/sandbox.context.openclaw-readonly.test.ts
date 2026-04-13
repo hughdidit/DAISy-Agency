@@ -14,22 +14,14 @@ const dockerMocks = vi.hoisted(() => ({
   })),
 }));
 
-vi.mock("./sandbox/docker.js", () => ({
-  ensureSandboxContainer: dockerMocks.ensureSandboxContainer,
-  resolveDockerHostPathInfo: dockerMocks.resolveDockerHostPathInfo,
-}));
-
-vi.mock("./sandbox/browser.js", () => ({
-  ensureSandboxBrowser: vi.fn(async () => null),
-}));
-
-vi.mock("./sandbox/prune.js", () => ({
-  maybePruneSandboxes: vi.fn(async () => undefined),
-}));
-
-vi.mock("./sandbox/capability-mounts.js", () => ({
-  resolveSandboxCapabilityMounts: vi.fn(() => []),
-}));
+vi.mock("./sandbox/docker.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./sandbox/docker.js")>();
+  return {
+    ...actual,
+    ensureSandboxContainer: dockerMocks.ensureSandboxContainer,
+    resolveDockerHostPathInfo: dockerMocks.resolveDockerHostPathInfo,
+  };
+});
 
 import { resolveSandboxContext } from "./sandbox/context.js";
 
@@ -88,6 +80,7 @@ describe("resolveSandboxContext openclaw-readonly wiring", () => {
       workspaceDir,
     });
 
+    expect(context).toBeDefined();
     expect(context?.workspaceAccess).toBe("rw");
     expect(context?.workspaceDir).toBe(workspaceDir);
     expect(context?.docker.env?.OPENCLAW_READONLY_PROJECTION_ROOT).toBe(
@@ -112,6 +105,7 @@ describe("resolveSandboxContext openclaw-readonly wiring", () => {
       }),
     );
     await expect(fs.access(path.join(workspaceDir, ".openclaw-readonly"))).rejects.toThrow();
+    expect(context?.workspaceDir).toBeTruthy();
     await expect(
       fs.readFile(
         path.join(
@@ -140,6 +134,7 @@ describe("resolveSandboxContext openclaw-readonly wiring", () => {
         workspaceDir,
       });
 
+      expect(context).toBeDefined();
       expect(context?.workspaceAccess).toBe(workspaceAccess);
       expect(context?.docker.env?.OPENCLAW_READONLY_PROJECTION_ROOT).toBe(
         "/workspace/.openclaw-readonly/agents/main",
@@ -151,6 +146,7 @@ describe("resolveSandboxContext openclaw-readonly wiring", () => {
           additionalBindSourceRoots: [],
         }),
       );
+      expect(context?.workspaceDir).toBeTruthy();
       await expect(
         fs.readFile(
           path.join(

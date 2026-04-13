@@ -83,6 +83,16 @@ function buildProjectedConfig(config: OpenClawConfig): OpenClawConfig {
   return projected;
 }
 
+async function clearDirectoryContents(dirPath: string): Promise<void> {
+  await fs.mkdir(dirPath, { recursive: true });
+  const entries = await fs.readdir(dirPath);
+  await Promise.all(
+    entries.map(async (entry) => {
+      await fs.rm(path.join(dirPath, entry), { recursive: true, force: true });
+    }),
+  );
+}
+
 export function resolveOpenClawReadonlyProjection(params: {
   config: OpenClawConfig;
   agentId: string;
@@ -109,7 +119,7 @@ export async function syncOpenClawReadonlyProjection(params: {
   agentId: string;
   projection: OpenClawReadonlyProjection;
 }): Promise<void> {
-  await fs.rm(params.projection.hostProjectionRoot, { recursive: true, force: true });
+  await clearDirectoryContents(params.projection.hostProjectionRoot);
   if (!params.projection.enabled) {
     return;
   }

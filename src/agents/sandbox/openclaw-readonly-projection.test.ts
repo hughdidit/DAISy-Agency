@@ -158,6 +158,6 @@ describe("openclaw-readonly projection", () => {
       projection,
     });
 
-    await expect(fs.access(projection.hostProjectionRoot)).rejects.toThrow();
+    await expect(fs.readdir(projection.hostProjectionRoot)).resolves.toEqual([]);
   });
 });
