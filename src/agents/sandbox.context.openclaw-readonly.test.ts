@@ -120,6 +120,41 @@ describe("resolveSandboxContext openclaw-readonly wiring", () => {
     ).resolves.toContain('"agents"');
   });
 
+  it("uses the resolved host path directly when rw projection remap is unavailable", async () => {
+    const sandboxRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sandbox-root-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    cleanupDirs.add(sandboxRoot);
+    cleanupDirs.add(workspaceDir);
+
+    const directProjectionPath = path.join(
+      resolveSandboxWorkspaceDir(sandboxRoot, "agent:main:main"),
+      ".openclaw-readonly",
+      "agents",
+      "main",
+    );
+    dockerMocks.resolveDockerHostPathInfo.mockResolvedValue({
+      path: directProjectionPath,
+      remapSucceeded: false,
+    });
+
+    const context = await resolveSandboxContext({
+      config: createConfig(sandboxRoot, "rw"),
+      sessionKey: "agent:main:main",
+      workspaceDir,
+    });
+
+    expect(context).toBeDefined();
+    expect(context?.docker.env?.OPENCLAW_READONLY_PROJECTION_ROOT).toBe(
+      "/workspace/.openclaw-readonly/agents/main",
+    );
+    expect(dockerMocks.ensureSandboxContainer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        extraBinds: [`${directProjectionPath}:/workspace/.openclaw-readonly/agents/main:ro`],
+        additionalBindSourceRoots: [directProjectionPath],
+      }),
+    );
+  });
+
   it.each(["ro", "none"] as const)(
     "projects directly into the mounted sandbox workspace when workspaceAccess=%s",
     async (workspaceAccess) => {

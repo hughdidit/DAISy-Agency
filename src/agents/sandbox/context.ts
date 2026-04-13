@@ -176,32 +176,35 @@ export async function resolveSandboxContext(params: {
   const additionalSandboxBinds: string[] = [];
   const additionalBindSourceRoots: string[] = [];
   const appliedCapabilityMounts: SandboxCapabilityMount[] = [];
+  let openclawReadonlyProjectionVisible = !openclawReadonlyProjection.needsSyntheticBind;
 
   if (openclawReadonlyProjection.enabled && openclawReadonlyProjection.needsSyntheticBind) {
     const projectionHostPath = await resolveDockerHostPathInfo(
       openclawReadonlyProjection.hostProjectionRoot,
     );
-    if (projectionHostPath.remapSucceeded) {
-      try {
-        await fs.access(openclawReadonlyProjection.hostProjectionRoot);
+    try {
+      await fs.access(openclawReadonlyProjection.hostProjectionRoot);
+      const bindSourcePath = projectionHostPath.path.trim();
+      if (bindSourcePath) {
         additionalSandboxBinds.push(
-          `${projectionHostPath.path}:${openclawReadonlyProjection.containerProjectionRoot}:ro`,
+          `${bindSourcePath}:${openclawReadonlyProjection.containerProjectionRoot}:ro`,
         );
-        additionalBindSourceRoots.push(projectionHostPath.path);
-      } catch (error) {
-        const rawCode = error instanceof Error && "code" in error ? error.code : undefined;
-        const code = typeof rawCode === "string" ? rawCode : undefined;
-        const reason =
-          code === "ENOENT"
-            ? "does not exist inside the gateway container"
-            : `is not accessible inside the gateway container (code: ${code ?? "unknown"})`;
+        additionalBindSourceRoots.push(bindSourcePath);
+        openclawReadonlyProjectionVisible = true;
+      } else {
         defaultRuntime.log(
-          `Skipping derived openclaw-readonly sandbox bind for ${runtime.agentId}: source path ${openclawReadonlyProjection.hostProjectionRoot} ${reason}.`,
+          `Skipping derived openclaw-readonly sandbox bind for ${runtime.agentId}: resolved bind source for ${openclawReadonlyProjection.hostProjectionRoot} was empty.`,
         );
       }
-    } else {
+    } catch (error) {
+      const rawCode = error instanceof Error && "code" in error ? error.code : undefined;
+      const code = typeof rawCode === "string" ? rawCode : undefined;
+      const reason =
+        code === "ENOENT"
+          ? "does not exist on the current runtime"
+          : `is not accessible on the current runtime (code: ${code ?? "unknown"})`;
       defaultRuntime.log(
-        `Skipping derived openclaw-readonly sandbox bind for ${runtime.agentId}: could not remap ${openclawReadonlyProjection.hostProjectionRoot} to a trusted host path.`,
+        `Skipping derived openclaw-readonly sandbox bind for ${runtime.agentId}: source path ${openclawReadonlyProjection.hostProjectionRoot} ${reason}.`,
       );
     }
   }
@@ -246,12 +249,16 @@ export async function resolveSandboxContext(params: {
           ),
         }
       : resolvedCfg.docker;
-  const dockerEnv = {
-    ...effectiveDocker.env,
-    [OPENCLAW_READONLY_PROJECTION_ROOT_ENV]:
-      effectiveDocker.env?.[OPENCLAW_READONLY_PROJECTION_ROOT_ENV] ??
-      openclawReadonlyProjection.containerProjectionRoot,
-  };
+  const dockerEnv =
+    effectiveDocker.env?.[OPENCLAW_READONLY_PROJECTION_ROOT_ENV] !== undefined
+      ? effectiveDocker.env
+      : openclawReadonlyProjection.enabled && openclawReadonlyProjectionVisible
+        ? {
+            ...effectiveDocker.env,
+            [OPENCLAW_READONLY_PROJECTION_ROOT_ENV]:
+              openclawReadonlyProjection.containerProjectionRoot,
+          }
+        : effectiveDocker.env;
   const sandboxDocker =
     dockerEnv === effectiveDocker.env ? effectiveDocker : { ...effectiveDocker, env: dockerEnv };
   const derivedBindRequiresIsolatedContainer =
