@@ -50,9 +50,7 @@ describe("openclaw-readonly CLI", () => {
 
   it("requires readonly config and state mounts when no fallback is available", () => {
     const command = parseOpenClawReadonlyCommand(["status"]);
-    expect(() =>
-      resolveOpenClawReadonlyEnv(command, {}, () => false),
-    ).toThrow(
+    expect(() => resolveOpenClawReadonlyEnv(command, {}, () => false)).toThrow(
       "Missing readonly config mount: /workspace/.openclaw-readonly/agents/main/openclaw.json",
     );
   });

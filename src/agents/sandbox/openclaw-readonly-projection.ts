@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolveAgentSkillsFilter } from "../agent-scope.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { redactConfigObject } from "../../config/redact-snapshot.js";
 import { resolveStorePath } from "../../config/sessions.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
+import { resolveAgentSkillsFilter } from "../agent-scope.js";
 
 const log = createSubsystemLogger("sandbox/openclaw-readonly");
 
