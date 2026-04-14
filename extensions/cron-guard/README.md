@@ -22,5 +22,4 @@ Cron Guard provides read-only cron visibility for agents and routes cron write i
 1. Agent creates a guarded request.
 2. Request is persisted under the gateway state directory.
 3. Human approver reviews, optionally modifies, then approves or denies.
-4. In Discord, the `Modify` modal immediately resubmits the edited payload for approval and apply in one step.
-5. Approved requests apply through the existing live cron service.
+4. Approved requests apply through the existing live cron service.
