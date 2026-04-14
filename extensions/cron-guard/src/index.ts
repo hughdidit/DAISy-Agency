@@ -80,9 +80,7 @@ export default {
         approverCount: currentConfig.approvers.length,
       });
       if (skipReason) {
-        runtime.log(
-          `[cron-guard] discord monitor skipped for account ${accountId}: ${skipReason}`,
-        );
+        runtime.log(`[cron-guard] discord monitor skipped for account ${accountId}: ${skipReason}`);
         return null;
       }
       const handler = new DiscordCronGuardApprovalHandler({

@@ -273,14 +273,18 @@ class PluginModalBridge extends CarbonModal {
 
   async run(...args: Parameters<CarbonModal["run"]>): Promise<void> {
     await (
-      this[pluginDelegateSymbol].run as (this: Modal, ...args: Parameters<CarbonModal["run"]>) => unknown
+      this[pluginDelegateSymbol].run as (
+        this: Modal,
+        ...args: Parameters<CarbonModal["run"]>
+      ) => unknown
     ).call(this[pluginDelegateSymbol], ...args);
   }
 }
 
-function normalizeDiscordPluginComponent(
-  component: BaseMessageInteractiveComponent,
-): { component: BaseMessageInteractiveComponent; bridged: boolean } {
+function normalizeDiscordPluginComponent(component: BaseMessageInteractiveComponent): {
+  component: BaseMessageInteractiveComponent;
+  bridged: boolean;
+} {
   if (
     component instanceof Button ||
     component instanceof StringSelectMenu ||
