@@ -344,7 +344,7 @@ class CronGuardApprovalActionRow extends Row<Button> {
         requestId,
         action: "modify",
         runtimeId,
-        label: "Modify",
+        label: "Modify & Apply",
         style: ButtonStyle.Primary,
       }),
       new CronGuardApprovalActionButton({
@@ -374,7 +374,8 @@ class CronGuardModifyPayloadInput extends TextInput {
 
 class CronGuardModifyModalLabel extends Label {
   label = "Edited JSON payload";
-  description = "Submit a valid JSON object. The payload will be revalidated before apply.";
+  description =
+    "Submit a valid JSON object. Sending this form approves the request and applies the edited payload.";
   component: TextInput;
   customId = CRON_GUARD_MODAL_PAYLOAD_FIELD_ID;
 
@@ -392,7 +393,7 @@ class CronGuardModifyPromptModal extends Modal {
 
   constructor(params: { request: CronGuardApprovalRecord; runtimeId?: string }) {
     super();
-    this.title = `Modify cron ${params.request.action}`;
+    this.title = `Modify & Apply cron ${params.request.action}`;
     this.customId = buildCronGuardModalCustomId(params.request.requestId, params.runtimeId);
     this.components = [
       new CronGuardModifyModalLabel(JSON.stringify(params.request.currentPayload, null, 2)),
@@ -661,18 +662,18 @@ export class DiscordCronGuardApprovalHandler {
     }
   }
 
-  async modifyRequest(
+  async modifyAndResolveRequest(
     requestId: string,
     payload: Record<string, unknown>,
     approver: CronGuardApprover,
-  ): Promise<boolean> {
+  ): Promise<CronGuardApprovalRecord | null> {
     if (!this.gatewayClient) {
       logError("discord cron approvals: gateway client not connected");
-      return false;
+      return null;
     }
     try {
       const request = await this.gatewayClient.request<CronGuardApprovalRecord>(
-        "cron.guard.modify",
+        "cron.guard.modify.resolve",
         {
           requestId,
           payload,
@@ -682,10 +683,10 @@ export class DiscordCronGuardApprovalHandler {
       if (request?.requestId) {
         this.requestCache.set(request.requestId, request);
       }
-      return true;
+      return request ?? null;
     } catch (err) {
-      logError(`discord cron approvals: modify failed: ${String(err)}`);
-      return false;
+      logError(`discord cron approvals: modify+approve failed: ${String(err)}`);
+      return null;
     }
   }
 
@@ -1146,7 +1147,7 @@ export class CronGuardApprovalButton extends Button {
 }
 
 export class CronGuardApprovalModal extends Modal {
-  title = "Cron Guard Modify";
+  title = "Cron Guard Modify & Apply";
   customId = CRON_GUARD_MODAL_KEY;
   components: Label[] = [];
 
@@ -1227,11 +1228,27 @@ export class CronGuardApprovalModal extends Modal {
       return;
     }
 
-    const ok = await this.ctx.handler.modifyRequest(parsed.requestId, payload, auth.approver);
-    if (!ok) {
+    const result = await this.ctx.handler.modifyAndResolveRequest(
+      parsed.requestId,
+      payload,
+      auth.approver,
+    );
+    if (!result) {
       await interaction
         .reply({
-          content: "Failed to submit the modified cron request. It may already be resolved.",
+          content:
+            "Failed to submit and apply the modified cron request. It may already be resolved.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
+      return;
+    }
+    if (result.status === "failed" || result.applyResult?.ok === false) {
+      await interaction
+        .reply({
+          content: result.applyResult?.error
+            ? `The request was approved, but apply failed: ${result.applyResult.error}`
+            : "The request was approved, but apply failed.",
           ephemeral: true,
         })
         .catch(() => undefined);
@@ -1240,7 +1257,7 @@ export class CronGuardApprovalModal extends Modal {
 
     await interaction
       .reply({
-        content: `Submitted updated payload for ${parsed.requestId}.`,
+        content: `Approved and applied the updated payload for ${parsed.requestId}.`,
         ephemeral: true,
       })
       .catch(() => undefined);
