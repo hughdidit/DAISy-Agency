@@ -403,24 +403,16 @@ export class CronGuardRuntime {
 
   async modifyAndResolveRequest(params: ModifyAndResolveParams): Promise<CronGuardApprovalRecord> {
     return await this.runExclusive(async () => {
-      const modifiedAt = this.now();
+      const now = this.now();
       const record = readRecordOrThrow(this.store, params.requestId);
-      assertMutable(record, modifiedAt);
+      assertMutable(record, now);
 
-      const updated = buildModifiedRecord(record, params, modifiedAt);
+      const updated = buildModifiedRecord(record, params, now);
       await this.store.put(updated);
       this.emit(CRON_GUARD_EVENT_MODIFIED, updated);
 
-      const approvedAt = this.now();
-      const approved = appendAudit(
-        updated,
-        "approved",
-        params.approver.principal,
-        approvedAt,
-        "approved",
-      );
-      approved.approver = params.approver;
-      approved.resolvedAtMs = approvedAt;
+      const approved = appendAudit(updated, "approved", params.approver.principal, now, "approved");
+      approved.resolvedAtMs = now;
       await this.store.put(approved);
       this.emit(CRON_GUARD_EVENT_RESOLVED, approved);
 
@@ -431,7 +423,7 @@ export class CronGuardRuntime {
           approved,
           "failed",
           params.approver.principal,
-          this.now(),
+          now,
           "failed",
           String(err),
         );

@@ -36,6 +36,7 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "cron.guard.request.remove",
     "cron.guard.resolve",
     "cron.guard.modify",
+    "cron.guard.modify.resolve",
   ],
   [PAIRING_SCOPE]: [
     "node.pair.request",
