@@ -134,6 +134,12 @@ type ResolvedDiscordPluginContribution = {
 };
 
 const pluginDelegateSymbol = Symbol("pluginDiscordMonitorDelegate");
+const discordButtonType = Number(ComponentType.Button);
+const discordStringSelectType = Number(ComponentType.StringSelect);
+const discordUserSelectType = Number(ComponentType.UserSelect);
+const discordRoleSelectType = Number(ComponentType.RoleSelect);
+const discordMentionableSelectType = Number(ComponentType.MentionableSelect);
+const discordChannelSelectType = Number(ComponentType.ChannelSelect);
 
 // Plugin monitors can be loaded through a different module instance than the
 // Discord runtime. Re-wrap interactive components in local Carbon classes so
@@ -298,22 +304,22 @@ function normalizeDiscordPluginComponent(component: BaseMessageInteractiveCompon
 
   const componentType = Number(component.type);
 
-  if (componentType === ComponentType.Button) {
+  if (componentType === discordButtonType) {
     return { component: new PluginButtonBridge(component), bridged: true };
   }
-  if (componentType === ComponentType.StringSelect) {
+  if (componentType === discordStringSelectType) {
     return { component: new PluginStringSelectBridge(component), bridged: true };
   }
-  if (componentType === ComponentType.UserSelect) {
+  if (componentType === discordUserSelectType) {
     return { component: new PluginUserSelectBridge(component), bridged: true };
   }
-  if (componentType === ComponentType.RoleSelect) {
+  if (componentType === discordRoleSelectType) {
     return { component: new PluginRoleSelectBridge(component), bridged: true };
   }
-  if (componentType === ComponentType.MentionableSelect) {
+  if (componentType === discordMentionableSelectType) {
     return { component: new PluginMentionableSelectBridge(component), bridged: true };
   }
-  if (componentType === ComponentType.ChannelSelect) {
+  if (componentType === discordChannelSelectType) {
     return { component: new PluginChannelSelectBridge(component), bridged: true };
   }
   return { component, bridged: false };
