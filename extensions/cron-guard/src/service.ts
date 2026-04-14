@@ -50,10 +50,6 @@ type ModifyParams = {
   approver: CronGuardApprover;
 };
 
-type ModifyAndResolveParams = ModifyParams & {
-  cron: CronService;
-};
-
 type CreateRequestBase = {
   requester: CronGuardRequester;
 };
@@ -109,40 +105,6 @@ function assertMutable(record: CronGuardApprovalRecord, now: number): void {
   if (record.expiresAtMs <= now) {
     throw new Error(`Request ${record.requestId} has expired.`);
   }
-}
-
-function buildModifiedRecord(
-  record: CronGuardApprovalRecord,
-  params: ModifyParams,
-  now: number,
-): CronGuardApprovalRecord {
-  let currentPayload: Record<string, unknown>;
-  let diffSummary = record.diffSummary;
-  if (record.action === "add") {
-    currentPayload = normalizeAddPayload(params.payload) as unknown as Record<string, unknown>;
-  } else if (record.action === "update") {
-    currentPayload = normalizeUpdatePatch(
-      record.targetJobId ?? "",
-      params.payload,
-    ) as unknown as Record<string, unknown>;
-    if (record.currentJobSnapshot) {
-      diffSummary = buildDiffSummary(
-        record.currentJobSnapshot as unknown as Record<string, unknown>,
-        {
-          ...record.currentJobSnapshot,
-          ...currentPayload,
-        },
-      );
-    }
-  } else {
-    currentPayload = normalizeRemovePayload(params.payload);
-  }
-
-  const updated = appendAudit(record, "modified", params.approver.principal, now, "modified");
-  updated.currentPayload = currentPayload;
-  updated.approver = params.approver;
-  updated.diffSummary = diffSummary;
-  return updated;
 }
 
 function appendAudit(
@@ -394,47 +356,36 @@ export class CronGuardRuntime {
       const now = this.now();
       const record = readRecordOrThrow(this.store, params.requestId);
       assertMutable(record, now);
-      const updated = buildModifiedRecord(record, params, now);
+
+      let currentPayload: Record<string, unknown>;
+      let diffSummary = record.diffSummary;
+      if (record.action === "add") {
+        currentPayload = normalizeAddPayload(params.payload) as unknown as Record<string, unknown>;
+      } else if (record.action === "update") {
+        currentPayload = normalizeUpdatePatch(
+          record.targetJobId ?? "",
+          params.payload,
+        ) as unknown as Record<string, unknown>;
+        if (record.currentJobSnapshot) {
+          diffSummary = buildDiffSummary(
+            record.currentJobSnapshot as unknown as Record<string, unknown>,
+            {
+              ...record.currentJobSnapshot,
+              ...currentPayload,
+            },
+          );
+        }
+      } else {
+        currentPayload = normalizeRemovePayload(params.payload);
+      }
+
+      const updated = appendAudit(record, "modified", params.approver.principal, now, "modified");
+      updated.currentPayload = currentPayload;
+      updated.approver = params.approver;
+      updated.diffSummary = diffSummary;
       await this.store.put(updated);
       this.emit(CRON_GUARD_EVENT_MODIFIED, updated);
       return updated;
-    });
-  }
-
-  async modifyAndResolveRequest(params: ModifyAndResolveParams): Promise<CronGuardApprovalRecord> {
-    return await this.runExclusive(async () => {
-      const now = this.now();
-      const record = readRecordOrThrow(this.store, params.requestId);
-      assertMutable(record, now);
-
-      const updated = buildModifiedRecord(record, params, now);
-      await this.store.put(updated);
-      this.emit(CRON_GUARD_EVENT_MODIFIED, updated);
-
-      const approved = appendAudit(updated, "approved", params.approver.principal, now, "approved");
-      approved.resolvedAtMs = now;
-      await this.store.put(approved);
-      this.emit(CRON_GUARD_EVENT_RESOLVED, approved);
-
-      try {
-        return await this.applyApprovedRequest(approved, params.cron);
-      } catch (err) {
-        const failed = appendAudit(
-          approved,
-          "failed",
-          params.approver.principal,
-          this.now(),
-          "failed",
-          String(err),
-        );
-        failed.applyResult = {
-          ok: false,
-          error: String(err),
-        };
-        await this.store.put(failed);
-        this.emit(CRON_GUARD_EVENT_APPLIED, failed);
-        return failed;
-      }
     });
   }
 
