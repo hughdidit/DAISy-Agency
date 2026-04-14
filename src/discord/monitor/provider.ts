@@ -1,5 +1,6 @@
 import { inspect } from "node:util";
 import {
+  type APIStringSelectComponent,
   Button,
   ChannelSelectMenu,
   Client,
@@ -132,136 +133,148 @@ type ResolvedDiscordPluginContribution = {
   contribution: OpenClawPluginDiscordMonitorContribution;
 };
 
+const pluginDelegateSymbol = Symbol("pluginDiscordMonitorDelegate");
+
 // Plugin monitors can be loaded through a different module instance than the
 // Discord runtime. Re-wrap interactive components in local Carbon classes so
 // Carbon's instanceof-based dispatch still recognizes them.
 class PluginButtonBridge extends Button {
-  private readonly delegate: BaseMessageInteractiveComponent;
+  declare label: string;
+  declare customId: string;
+  private readonly [pluginDelegateSymbol]: BaseMessageInteractiveComponent;
 
   constructor(delegate: BaseMessageInteractiveComponent) {
     super();
-    this.delegate = delegate;
+    this[pluginDelegateSymbol] = delegate;
     Object.assign(this, delegate);
   }
 
   async run(...args: Parameters<Button["run"]>): Promise<void> {
     await (
-      this.delegate.run as (
+      this[pluginDelegateSymbol].run as (
         this: BaseMessageInteractiveComponent,
         ...args: Parameters<Button["run"]>
       ) => unknown
-    ).call(this.delegate, ...args);
+    ).call(this[pluginDelegateSymbol], ...args);
   }
 }
 
 class PluginStringSelectBridge extends StringSelectMenu {
-  private readonly delegate: BaseMessageInteractiveComponent;
+  declare options: APIStringSelectComponent["options"];
+  declare customId: string;
+  private readonly [pluginDelegateSymbol]: BaseMessageInteractiveComponent;
 
   constructor(delegate: BaseMessageInteractiveComponent) {
     super();
-    this.delegate = delegate;
+    this[pluginDelegateSymbol] = delegate;
     Object.assign(this, delegate);
   }
 
   async run(...args: Parameters<StringSelectMenu["run"]>): Promise<void> {
     await (
-      this.delegate.run as (
+      this[pluginDelegateSymbol].run as (
         this: BaseMessageInteractiveComponent,
         ...args: Parameters<StringSelectMenu["run"]>
       ) => unknown
-    ).call(this.delegate, ...args);
+    ).call(this[pluginDelegateSymbol], ...args);
   }
 }
 
 class PluginUserSelectBridge extends UserSelectMenu {
-  private readonly delegate: BaseMessageInteractiveComponent;
+  declare customId: string;
+  private readonly [pluginDelegateSymbol]: BaseMessageInteractiveComponent;
 
   constructor(delegate: BaseMessageInteractiveComponent) {
     super();
-    this.delegate = delegate;
+    this[pluginDelegateSymbol] = delegate;
     Object.assign(this, delegate);
   }
 
   async run(...args: Parameters<UserSelectMenu["run"]>): Promise<void> {
     await (
-      this.delegate.run as (
+      this[pluginDelegateSymbol].run as (
         this: BaseMessageInteractiveComponent,
         ...args: Parameters<UserSelectMenu["run"]>
       ) => unknown
-    ).call(this.delegate, ...args);
+    ).call(this[pluginDelegateSymbol], ...args);
   }
 }
 
 class PluginRoleSelectBridge extends RoleSelectMenu {
-  private readonly delegate: BaseMessageInteractiveComponent;
+  declare customId: string;
+  private readonly [pluginDelegateSymbol]: BaseMessageInteractiveComponent;
 
   constructor(delegate: BaseMessageInteractiveComponent) {
     super();
-    this.delegate = delegate;
+    this[pluginDelegateSymbol] = delegate;
     Object.assign(this, delegate);
   }
 
   async run(...args: Parameters<RoleSelectMenu["run"]>): Promise<void> {
     await (
-      this.delegate.run as (
+      this[pluginDelegateSymbol].run as (
         this: BaseMessageInteractiveComponent,
         ...args: Parameters<RoleSelectMenu["run"]>
       ) => unknown
-    ).call(this.delegate, ...args);
+    ).call(this[pluginDelegateSymbol], ...args);
   }
 }
 
 class PluginMentionableSelectBridge extends MentionableSelectMenu {
-  private readonly delegate: BaseMessageInteractiveComponent;
+  declare customId: string;
+  private readonly [pluginDelegateSymbol]: BaseMessageInteractiveComponent;
 
   constructor(delegate: BaseMessageInteractiveComponent) {
     super();
-    this.delegate = delegate;
+    this[pluginDelegateSymbol] = delegate;
     Object.assign(this, delegate);
   }
 
   async run(...args: Parameters<MentionableSelectMenu["run"]>): Promise<void> {
     await (
-      this.delegate.run as (
+      this[pluginDelegateSymbol].run as (
         this: BaseMessageInteractiveComponent,
         ...args: Parameters<MentionableSelectMenu["run"]>
       ) => unknown
-    ).call(this.delegate, ...args);
+    ).call(this[pluginDelegateSymbol], ...args);
   }
 }
 
 class PluginChannelSelectBridge extends ChannelSelectMenu {
-  private readonly delegate: BaseMessageInteractiveComponent;
+  declare customId: string;
+  private readonly [pluginDelegateSymbol]: BaseMessageInteractiveComponent;
 
   constructor(delegate: BaseMessageInteractiveComponent) {
     super();
-    this.delegate = delegate;
+    this[pluginDelegateSymbol] = delegate;
     Object.assign(this, delegate);
   }
 
   async run(...args: Parameters<ChannelSelectMenu["run"]>): Promise<void> {
     await (
-      this.delegate.run as (
+      this[pluginDelegateSymbol].run as (
         this: BaseMessageInteractiveComponent,
         ...args: Parameters<ChannelSelectMenu["run"]>
       ) => unknown
-    ).call(this.delegate, ...args);
+    ).call(this[pluginDelegateSymbol], ...args);
   }
 }
 
 class PluginModalBridge extends CarbonModal {
-  private readonly delegate: Modal;
+  declare title: string;
+  declare customId: string;
+  private readonly [pluginDelegateSymbol]: Modal;
 
   constructor(delegate: Modal) {
     super();
-    this.delegate = delegate;
+    this[pluginDelegateSymbol] = delegate;
     Object.assign(this, delegate);
   }
 
   async run(...args: Parameters<CarbonModal["run"]>): Promise<void> {
     await (
-      this.delegate.run as (this: Modal, ...args: Parameters<CarbonModal["run"]>) => unknown
-    ).call(this.delegate, ...args);
+      this[pluginDelegateSymbol].run as (this: Modal, ...args: Parameters<CarbonModal["run"]>) => unknown
+    ).call(this[pluginDelegateSymbol], ...args);
   }
 }
 

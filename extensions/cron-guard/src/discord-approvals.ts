@@ -7,11 +7,9 @@ import {
   Separator,
   TextDisplay,
   TextInput,
-  parseCustomId,
   serializePayload,
   type ButtonInteraction,
   type ComponentData,
-  type ComponentParserResult,
   type MessagePayloadObject,
   type ModalInteraction,
   type TopLevelComponents,
@@ -44,7 +42,6 @@ import { isTerminalCronGuardStatus } from "./types.js";
 
 const CRON_GUARD_COMPONENT_KEY = "cronguard";
 const CRON_GUARD_MODAL_KEY = "cronguardmodal";
-const CRON_GUARD_MODAL_HANDLER_WILDCARD = "__cron_guard_modal_wildcard__";
 const CRON_GUARD_MODAL_PAYLOAD_FIELD_ID = "payload";
 
 type PendingApproval = {
@@ -435,11 +432,14 @@ export function parseCronGuardButtonData(
   if (!requestId || (action !== "approve" && action !== "modify" && action !== "deny")) {
     return null;
   }
-  return {
+  const parsed: { requestId: string; action: CronGuardButtonAction; runtimeId?: string } = {
     requestId: decodeCustomIdValue(requestId),
     action,
-    runtimeId: runtimeId ? decodeCustomIdValue(runtimeId) : undefined,
   };
+  if (runtimeId) {
+    parsed.runtimeId = decodeCustomIdValue(runtimeId);
+  }
+  return parsed;
 }
 
 export function parseCronGuardModalData(
@@ -453,21 +453,13 @@ export function parseCronGuardModalData(
   if (!requestId) {
     return null;
   }
-  return {
+  const parsed: { requestId: string; runtimeId?: string } = {
     requestId: decodeCustomIdValue(requestId),
-    runtimeId: runtimeId ? decodeCustomIdValue(runtimeId) : undefined,
   };
-}
-
-function parseCronGuardModalCustomIdForCarbon(id: string): ComponentParserResult {
-  if (id === "*" || id === CRON_GUARD_MODAL_HANDLER_WILDCARD) {
-    return { key: "*", data: {} };
+  if (runtimeId) {
+    parsed.runtimeId = decodeCustomIdValue(runtimeId);
   }
-  const parsed = parseCustomId(id);
-  if (parsed.key !== CRON_GUARD_MODAL_KEY) {
-    return parsed;
-  }
-  return { key: "*", data: parsed.data };
+  return parsed;
 }
 
 export class DiscordCronGuardApprovalHandler {
@@ -1155,9 +1147,8 @@ export class CronGuardApprovalButton extends Button {
 
 export class CronGuardApprovalModal extends Modal {
   title = "Cron Guard Modify";
-  customId = CRON_GUARD_MODAL_HANDLER_WILDCARD;
+  customId = CRON_GUARD_MODAL_KEY;
   components: Label[] = [];
-  customIdParser = parseCronGuardModalCustomIdForCarbon;
 
   constructor(private readonly ctx: { handler: DiscordCronGuardApprovalHandler }) {
     super();
