@@ -71,11 +71,20 @@ function normalizeServices(input: unknown): ServiceFamily[] {
   );
 }
 
-function normalizeCredentialModes(input: unknown): CredentialMode[] {
-  const allowed = new Set<CredentialMode>(["oauth", "credentials_file", "token"]);
-  return normalizeStringArray(input).filter((value): value is CredentialMode =>
-    allowed.has(value as CredentialMode),
-  );
+function normalizeCredentialModes(input: unknown): {
+  modes: CredentialMode[];
+  rejected: string[];
+} {
+  const allowed = new Set<CredentialMode>(["credentials_file", "token"]);
+  const normalized = normalizeStringArray(input);
+  return {
+    modes: normalized.filter((value): value is CredentialMode => allowed.has(value as CredentialMode)),
+    rejected: normalized.filter((value) => !allowed.has(value as CredentialMode)),
+  };
+}
+
+function isValidEnvVarName(value: string): boolean {
+  return /^[A-Z_][A-Z0-9_]*$/.test(value);
 }
 
 function hasConfiguredToken(envVar: string): boolean {
@@ -108,7 +117,12 @@ function normalizeRouteConfig(
     return { error: `credential route ${routeName} must be an object` };
   }
   const mode = obj.mode;
-  if (mode !== "oauth" && mode !== "credentials_file" && mode !== "token") {
+  if (mode === "oauth") {
+    return {
+      error: `credential route ${routeName} uses unsupported mode oauth. Migrate to credentials_file (Headless OAuth2 exported credentials or service-account JSON) or token.`,
+    };
+  }
+  if (mode !== "credentials_file" && mode !== "token") {
     return { error: `credential route ${routeName} has invalid mode` };
   }
 
@@ -117,6 +131,30 @@ function normalizeRouteConfig(
     value.startsWith("gws_"),
   );
   const allowedActions = normalizeStringArray(obj.allowedActions);
+  const impersonatedUser =
+    typeof obj.impersonatedUser === "string" && obj.impersonatedUser.trim()
+      ? obj.impersonatedUser.trim()
+      : undefined;
+  const impersonatedUserEnvVar =
+    typeof obj.impersonatedUserEnvVar === "string" && obj.impersonatedUserEnvVar.trim()
+      ? obj.impersonatedUserEnvVar.trim()
+      : undefined;
+
+  if (impersonatedUser && impersonatedUserEnvVar) {
+    return {
+      error: `credential route ${routeName} must set only one impersonation source (impersonatedUser or impersonatedUserEnvVar).`,
+    };
+  }
+  if (mode !== "credentials_file" && (impersonatedUser || impersonatedUserEnvVar)) {
+    return {
+      error: `credential route ${routeName} can only configure impersonation for credentials_file mode.`,
+    };
+  }
+  if (impersonatedUserEnvVar && !isValidEnvVarName(impersonatedUserEnvVar)) {
+    return {
+      error: `credential route ${routeName} has invalid impersonatedUserEnvVar "${impersonatedUserEnvVar}". Use an uppercase environment variable name like ORG_DELEGATE_USER.`,
+    };
+  }
 
   return {
     mode,
@@ -132,6 +170,8 @@ function normalizeRouteConfig(
       typeof obj.tokenEnvVar === "string" && obj.tokenEnvVar.trim()
         ? obj.tokenEnvVar.trim()
         : undefined,
+    impersonatedUser,
+    impersonatedUserEnvVar,
   };
 }
 
@@ -147,12 +187,11 @@ function synthesizeLegacyRoute(config: Omit<GwsToolkitConfig, "credentialRoutes"
       : [readTool];
   });
 
-  const mode: CredentialMode = config.credentialsFile
-    ? "credentials_file"
-    : config.allowedCredentialModes.includes("token") && hasConfiguredToken(config.tokenEnvVar)
+  const mode: CredentialMode =
+    config.allowedCredentialModes.includes("token") && hasConfiguredToken(config.tokenEnvVar)
       ? "token"
-      : config.allowedCredentialModes.includes("oauth")
-        ? "oauth"
+      : config.credentialsFile
+        ? "credentials_file"
         : config.allowedCredentialModes.includes("token")
           ? "token"
           : "credentials_file";
@@ -253,7 +292,20 @@ export function resolveConfig(
 
   const enabledServices = normalizeServices(raw.enabledServices);
   const enabledWriteServices = normalizeServices(raw.enabledWriteServices);
-  const allowedCredentialModes = normalizeCredentialModes(raw.allowedCredentialModes);
+  const normalizedCredentialModes = normalizeCredentialModes(raw.allowedCredentialModes);
+  if (normalizedCredentialModes.rejected.includes("oauth")) {
+    return {
+      ok: false,
+      error: buildConfigError(
+        "allowedCredentialModes includes unsupported mode oauth. Migrate to credentials_file (Headless OAuth2 exported credentials or service-account JSON) or token for short-lived access.",
+      ),
+      posture: {
+        ...postureBase,
+        pluginConfigProvided: true,
+        message: "oauth mode removed",
+      },
+    };
+  }
   const defaultScopesProfile =
     raw.defaultScopesProfile === "custom"
       ? "custom"
@@ -295,8 +347,8 @@ export function resolveConfig(
     maxStderrBytes: sanitizeNumber(raw.maxStderrBytes, 262144, 1024, 1048576),
     safeMode: raw.safeMode !== false,
     allowedCredentialModes:
-      allowedCredentialModes.length > 0
-        ? allowedCredentialModes
+      normalizedCredentialModes.modes.length > 0
+        ? normalizedCredentialModes.modes
         : [...DEFAULT_ALLOWED_CREDENTIAL_MODES],
     allowWriteOperations: raw.allowWriteOperations === true,
     allowUnboundAgents: raw.allowUnboundAgents === true,
@@ -440,6 +492,11 @@ export function resolveConfig(
   if (synthesizedLegacyRoute && raw.allowUnboundAgents === false) {
     warnings.push(
       "Legacy compatibility route was synthesized, but allowUnboundAgents=false means unbound agents will still be denied until explicit bindings are configured.",
+    );
+  }
+  if (synthesizedLegacyRoute && configBase.allowUnboundAgents) {
+    warnings.push(
+      "Legacy compatibility mode keeps unbound fallback active. For delegate-grade posture, configure explicit agentCredentialBindings and set allowUnboundAgents=false.",
     );
   }
 

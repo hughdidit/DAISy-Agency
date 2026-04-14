@@ -407,6 +407,15 @@ process.stdout.write(
     route,
     mode: active.mode,
     credentialsFile: typeof active.credentialsFile === "string" ? active.credentialsFile : null,
+    impersonatedUser:
+      typeof active.impersonatedUser === "string" && active.impersonatedUser.length > 0
+        ? active.impersonatedUser
+        : typeof active.impersonatedUserEnvVar === "string" &&
+            active.impersonatedUserEnvVar.length > 0 &&
+            typeof process.env[active.impersonatedUserEnvVar] === "string" &&
+            process.env[active.impersonatedUserEnvVar].length > 0
+          ? process.env[active.impersonatedUserEnvVar]
+          : null,
   }),
 );
 NODE
@@ -417,6 +426,12 @@ NODE
     )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
     gws_active_route_mode="$(jq -r '.mode' <<<"${gws_active_route_json}" | tr -d '[:space:]')" \
       || fail "Failed to parse GWS active route JSON (mode field) in ${container}"
+    gws_active_impersonated_user="$(jq -r '.impersonatedUser // empty' <<<"${gws_active_route_json}")" \
+      || fail "Failed to parse GWS active route JSON (impersonatedUser field) in ${container}"
+    gws_impersonation_export=""
+    if [[ -n "${gws_active_impersonated_user}" ]]; then
+      gws_impersonation_export="export GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER=$(shell_single_quote "${gws_active_impersonated_user}"); "
+    fi
     if [[ "${gws_active_route_mode}" == "credentials_file" ]]; then
       gws_active_credentials_path="$(jq -r '.credentialsFile | select(type == "string" and length > 0)' <<<"${gws_active_route_json}")" \
         || fail "Failed to inspect active Google Workspace credentials file path in ${container}"
@@ -447,7 +462,7 @@ NODE
       fi
 
       gws_auth_status="$(
-        gce_ssh_lastline "sudo sh -c 'docker exec ${container_escaped} bash -lc \"set -euo pipefail; export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=\\\"${gws_active_credentials_path}\\\"; gws auth status | jq -c .\"'"
+        gce_ssh_lastline "sudo sh -c 'docker exec ${container_escaped} bash -lc \"set -euo pipefail; export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=\\\"${gws_active_credentials_path}\\\"; ${gws_impersonation_export}gws auth status | jq -c .\"'"
       )" || fail "Failed to run gws auth status inside ${container}"
       printf '%s\n' "${gws_auth_status}"
 

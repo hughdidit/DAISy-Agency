@@ -22,7 +22,7 @@ function baseConfig(overrides: Partial<GwsToolkitConfig> = {}): GwsToolkitConfig
     maxStdoutBytes: 1024,
     maxStderrBytes: 1024,
     safeMode: true,
-    allowedCredentialModes: ["oauth", "credentials_file", "token"],
+    allowedCredentialModes: ["credentials_file", "token"],
     allowWriteOperations: false,
     allowUnboundAgents: false,
     defaultCredentialRoute: null,
@@ -135,19 +135,18 @@ describe("auth resolution", () => {
     expect(resolved.value.config.warnings.join("\n")).toContain("legacy single-credential");
   });
 
-  it("prefers oauth for synthesized legacy routes when no token is configured", () => {
-    delete process.env.GOOGLE_WORKSPACE_CLI_TOKEN;
+  it("rejects oauth in allowedCredentialModes with a migration error", () => {
     const resolved = resolveConfig({
       enabledServices: ["drive"],
       allowedCredentialModes: ["oauth", "token"],
       tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
       approvedCredentialDirs: [],
     });
-    expect(resolved.ok).toBe(true);
-    if (!resolved.ok) {
+    expect(resolved.ok).toBe(false);
+    if (resolved.ok) {
       return;
     }
-    expect(resolved.value.config.credentialRoutes["legacy-default"]?.mode).toBe("oauth");
+    expect(resolved.error.error.message).toContain("unsupported mode oauth");
   });
 
   it("does not let explicit routes inherit the legacy credentials file path", async () => {
@@ -195,7 +194,7 @@ describe("auth resolution", () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "abc";
     const status = getAuthSourceStatus(
       baseConfig({
-        allowedCredentialModes: ["oauth"],
+        allowedCredentialModes: ["credentials_file"],
       }),
     );
     expect(status.routes[0]).toMatchObject({
@@ -207,5 +206,154 @@ describe("auth resolution", () => {
         tokenPresent: true,
       },
     });
+  });
+
+  it("prefers token over credentials_file for synthesized legacy route precedence", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-legacy-"));
+    const allowedFile = path.join(root, "cred.json");
+    await fs.writeFile(allowedFile, "{}", "utf8");
+    if (process.platform !== "win32") {
+      await fs.chmod(allowedFile, 0o600);
+    }
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      allowedCredentialModes: ["credentials_file", "token"],
+      tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
+      credentialsFile: allowedFile,
+      approvedCredentialDirs: [root],
+    });
+    expect(resolved.ok).toBe(true);
+    if (!resolved.ok) {
+      return;
+    }
+    expect(resolved.value.config.credentialRoutes["legacy-default"]?.mode).toBe("token");
+  });
+
+  it("propagates literal impersonated user for credentials_file routes", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-impersonate-"));
+    const allowedFile = path.join(root, "cred.json");
+    await fs.writeFile(allowedFile, "{}", "utf8");
+    if (process.platform !== "win32") {
+      await fs.chmod(allowedFile, 0o600);
+    }
+
+    const resolved = resolveAuth(
+      baseConfig({
+        allowedCredentialModes: ["credentials_file"],
+        approvedCredentialDirs: [root],
+        credentialRoutes: {
+          default: {
+            mode: "credentials_file",
+            allowedServices: ["drive"],
+            allowedTools: ["gws_drive_read"],
+            credentialsFile: allowedFile,
+            impersonatedUser: "delegate@example.com",
+          },
+        },
+      }),
+      { agentId: "main", sessionKey: "agent:main:main" },
+    );
+    expect(resolved.env.GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER).toBe("delegate@example.com");
+  });
+
+  it("resolves env-var impersonated user and fails if missing", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-impersonate-env-"));
+    const allowedFile = path.join(root, "cred.json");
+    await fs.writeFile(allowedFile, "{}", "utf8");
+    if (process.platform !== "win32") {
+      await fs.chmod(allowedFile, 0o600);
+    }
+    const config = baseConfig({
+      allowedCredentialModes: ["credentials_file"],
+      approvedCredentialDirs: [root],
+      credentialRoutes: {
+        default: {
+          mode: "credentials_file",
+          allowedServices: ["drive"],
+          allowedTools: ["gws_drive_read"],
+          credentialsFile: allowedFile,
+          impersonatedUserEnvVar: "ORG_DELEGATE_USER",
+        },
+      },
+    });
+
+    delete process.env.ORG_DELEGATE_USER;
+    expect(() =>
+      resolveAuth(config, {
+        agentId: "main",
+        sessionKey: "agent:main:main",
+      }),
+    ).toThrow(/no impersonated user value is available/i);
+
+    process.env.ORG_DELEGATE_USER = "delegate2@example.com";
+    const resolved = resolveAuth(config, {
+      agentId: "main",
+      sessionKey: "agent:main:main",
+    });
+    expect(resolved.env.GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER).toBe("delegate2@example.com");
+  });
+
+  it("rejects oauth credential route mode during config resolution", () => {
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      approvedCredentialDirs: [],
+      credentialRoutes: {
+        "ops-main": {
+          mode: "oauth",
+          allowedServices: ["drive"],
+          allowedTools: ["gws_drive_read"],
+        },
+      },
+    });
+    expect(resolved.ok).toBe(false);
+    if (resolved.ok) {
+      return;
+    }
+    expect(resolved.error.error.message).toContain("unsupported mode oauth");
+  });
+
+  it("rejects routes that set both impersonation sources", () => {
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      approvedCredentialDirs: [],
+      credentialRoutes: {
+        "ops-main": {
+          mode: "credentials_file",
+          allowedServices: ["drive"],
+          allowedTools: ["gws_drive_read"],
+          credentialsFile: "/tmp/cred.json",
+          impersonatedUser: "delegate@example.com",
+          impersonatedUserEnvVar: "ORG_DELEGATE_USER",
+        },
+      },
+    });
+    expect(resolved.ok).toBe(false);
+    if (resolved.ok) {
+      return;
+    }
+    expect(resolved.error.error.message).toContain("only one impersonation source");
+  });
+
+  it("rejects impersonation fields on token routes", () => {
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      approvedCredentialDirs: [],
+      credentialRoutes: {
+        "ops-main": {
+          mode: "token",
+          allowedServices: ["drive"],
+          allowedTools: ["gws_drive_read"],
+          impersonatedUserEnvVar: "ORG_DELEGATE_USER",
+        },
+      },
+    });
+    expect(resolved.ok).toBe(false);
+    if (resolved.ok) {
+      return;
+    }
+    expect(resolved.error.error.message).toContain(
+      "can only configure impersonation for credentials_file mode",
+    );
   });
 });

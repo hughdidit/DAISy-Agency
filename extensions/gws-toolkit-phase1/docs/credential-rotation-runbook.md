@@ -9,7 +9,7 @@
 
 1. provision the new secret material outside plugin config
 2. update the route pointer or referenced env var
-3. verify `openclaw gws routes` and `openclaw gws auth-status`
+3. verify `openclaw gws routes` and `openclaw gws auth-health`
 4. run read smoke checks first
 5. run write smoke checks only for the routes and services that require them
 6. remove old secret material after staged verification

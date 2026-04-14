@@ -21,9 +21,11 @@ Set `binaryPath` in plugin config if `gws` is not on `PATH`.
 
 Supported modes:
 
-- `credentials_file` for production-capable route bindings
+- `credentials_file` for production-capable route bindings (Headless OAuth2 exports or service-account JSON)
 - `token` for controlled short-lived routes
-- `oauth` for local/dev convenience only
+
+`oauth` remains an upstream `gws` capability, but it is intentionally not a
+first-class route mode in plugin runtime.
 
 ## 3. Configure named routes and bindings
 
@@ -95,9 +97,19 @@ Run:
 
 ```bash
 openclaw gws doctor
-openclaw gws auth-status
+openclaw gws auth-posture
+openclaw gws auth-health
 openclaw gws routes
 ```
+
+Optional deeper doctor path:
+
+```bash
+openclaw gws doctor --auth-health
+```
+
+`openclaw gws auth-status` remains a deprecated alias to `auth-health` for one
+release cycle.
 
 `gws_status` and the CLI wrappers now include current-session route diagnostics,
 including the resolved `bindingSubject`, active route name, and resolved

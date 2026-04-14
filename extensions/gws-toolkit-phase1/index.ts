@@ -15,7 +15,12 @@ import { executeGmailWrite } from "./src/commands/gmail-write.js";
 import { createRuntimeDeps } from "./src/commands/helpers.js";
 import { executeSheetsRead } from "./src/commands/sheets-read.js";
 import { executeSheetsWrite } from "./src/commands/sheets-write.js";
-import { buildConfigResolutionDeniedEnvelope, executeStatus } from "./src/commands/status.js";
+import {
+  buildConfigResolutionDeniedEnvelope,
+  executeAuthHealth,
+  executeAuthPosture,
+  executeStatus,
+} from "./src/commands/status.js";
 import { resolveConfig } from "./src/config.js";
 import { PluginError } from "./src/errors.js";
 import { createRedactingLogger } from "./src/logger.js";
@@ -56,7 +61,7 @@ function defaultConfig(): GwsToolkitConfig {
     maxStdoutBytes: 1048576,
     maxStderrBytes: 262144,
     safeMode: true,
-    allowedCredentialModes: ["oauth", "credentials_file", "token"],
+    allowedCredentialModes: ["credentials_file", "token"],
     allowWriteOperations: false,
     allowUnboundAgents: false,
     defaultCredentialRoute: null,
@@ -491,9 +496,55 @@ const plugin = {
 
         gws
           .command("doctor")
-          .description("Run toolkit health checks")
+          .description("Run toolkit posture checks; use --auth-health for real route-bound auth health")
+          .option("--auth-health", "Run real gws auth status under the resolved route environment")
+          .action(async (opts?: { authHealth?: boolean }) => {
+            const posturePayload = await executeStatus({
+              ctx: createContext(),
+              audit,
+              configResolution,
+              resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
+            });
+            if (!opts?.authHealth) {
+              console.log(JSON.stringify(posturePayload, null, 2));
+              return;
+            }
+            const healthPayload = await executeAuthHealth({
+              ctx: createContext(),
+              audit,
+              configResolution,
+              resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
+            });
+            console.log(
+              JSON.stringify(
+                {
+                  posture: posturePayload,
+                  health: healthPayload,
+                },
+                null,
+                2,
+              ),
+            );
+          });
+
+        gws
+          .command("auth-posture")
+          .description("Report route-bound auth posture without executing gws auth status")
           .action(async () => {
-            const payload = await executeStatus({
+            const payload = await executeAuthPosture({
+              ctx: createContext(),
+              audit,
+              configResolution,
+              resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
+            });
+            console.log(JSON.stringify(payload, null, 2));
+          });
+
+        gws
+          .command("auth-health")
+          .description("Report real gws auth status health under resolved route credentials")
+          .action(async () => {
+            const payload = await executeAuthHealth({
               ctx: createContext(),
               audit,
               configResolution,
@@ -504,14 +555,14 @@ const plugin = {
 
         gws
           .command("auth-status")
-          .description("Report auth-source posture for gws toolkit")
+          .description("Deprecated alias for auth-health")
           .action(async () => {
-            const payload = await executeStatus({
+            const payload = await executeAuthHealth({
               ctx: createContext(),
               audit,
               configResolution,
-              rawParams: { includeVersion: false, includeAuthStatus: true },
               resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
+              deprecatedAliasUsed: true,
             });
             console.log(JSON.stringify(payload, null, 2));
           });
@@ -520,11 +571,10 @@ const plugin = {
           .command("routes")
           .description("Report credential-route bindings and posture")
           .action(async () => {
-            const payload = await executeStatus({
+            const payload = await executeAuthPosture({
               ctx: createContext(),
               audit,
               configResolution,
-              rawParams: { includeVersion: false, includeAuthStatus: true },
               resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
             });
             console.log(JSON.stringify(payload, null, 2));

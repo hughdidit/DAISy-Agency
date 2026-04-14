@@ -26,6 +26,7 @@
                 "calendar:create_event",
               ],
               "credentialsFile": "/home/node/.openclaw/secrets/gws/ops.json",
+              "impersonatedUserEnvVar": "GWS_OPS_IMPERSONATED_USER",
             },
             "ops-subagent-docs": {
               "mode": "credentials_file",
