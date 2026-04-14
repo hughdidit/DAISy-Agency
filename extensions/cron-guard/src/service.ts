@@ -423,7 +423,7 @@ export class CronGuardRuntime {
           approved,
           "failed",
           params.approver.principal,
-          now,
+          this.now(),
           "failed",
           String(err),
         );
