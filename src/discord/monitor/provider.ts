@@ -296,22 +296,24 @@ function normalizeDiscordPluginComponent(component: BaseMessageInteractiveCompon
     return { component, bridged: false };
   }
 
-  if (component.type === ComponentType.Button) {
+  const componentType = Number(component.type);
+
+  if (componentType === ComponentType.Button) {
     return { component: new PluginButtonBridge(component), bridged: true };
   }
-  if (component.type === ComponentType.StringSelect) {
+  if (componentType === ComponentType.StringSelect) {
     return { component: new PluginStringSelectBridge(component), bridged: true };
   }
-  if (component.type === ComponentType.UserSelect) {
+  if (componentType === ComponentType.UserSelect) {
     return { component: new PluginUserSelectBridge(component), bridged: true };
   }
-  if (component.type === ComponentType.RoleSelect) {
+  if (componentType === ComponentType.RoleSelect) {
     return { component: new PluginRoleSelectBridge(component), bridged: true };
   }
-  if (component.type === ComponentType.MentionableSelect) {
+  if (componentType === ComponentType.MentionableSelect) {
     return { component: new PluginMentionableSelectBridge(component), bridged: true };
   }
-  if (component.type === ComponentType.ChannelSelect) {
+  if (componentType === ComponentType.ChannelSelect) {
     return { component: new PluginChannelSelectBridge(component), bridged: true };
   }
   return { component, bridged: false };
