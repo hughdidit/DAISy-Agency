@@ -169,6 +169,34 @@ export const cronGuardGatewayHandlers: GatewayRequestHandlers = {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
     }
   },
+  "cron.guard.modify.resolve": async ({ params, respond, context }) => {
+    const runtime = getCronGuardRuntime();
+    try {
+      const requestId =
+        typeof (params as { requestId?: string }).requestId === "string"
+          ? (params as { requestId: string }).requestId
+          : "";
+      const payload = ((params as { payload?: Record<string, unknown> }).payload ?? {}) as Record<
+        string,
+        unknown
+      >;
+      const approver = readApprover(
+        (params as { approver?: unknown }).approver,
+        runtime.getConfig().approvers,
+      );
+      respond(
+        true,
+        await runtime.modifyAndResolveRequest({
+          requestId,
+          payload,
+          approver,
+          cron: context.cron,
+        }),
+      );
+    } catch (err) {
+      respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
+    }
+  },
   "cron.guard.resolve": async ({ params, respond, context }) => {
     const runtime = getCronGuardRuntime();
     try {

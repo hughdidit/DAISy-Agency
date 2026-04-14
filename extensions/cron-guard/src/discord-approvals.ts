@@ -661,7 +661,7 @@ export class DiscordCronGuardApprovalHandler {
     }
   }
 
-  async modifyRequest(
+  async modifyAndResolveRequest(
     requestId: string,
     payload: Record<string, unknown>,
     approver: CronGuardApprover,
@@ -672,7 +672,7 @@ export class DiscordCronGuardApprovalHandler {
     }
     try {
       const request = await this.gatewayClient.request<CronGuardApprovalRecord>(
-        "cron.guard.modify",
+        "cron.guard.modify.resolve",
         {
           requestId,
           payload,
@@ -684,7 +684,7 @@ export class DiscordCronGuardApprovalHandler {
       }
       return true;
     } catch (err) {
-      logError(`discord cron approvals: modify failed: ${String(err)}`);
+      logError(`discord cron approvals: modify+approve failed: ${String(err)}`);
       return false;
     }
   }
@@ -1227,11 +1227,16 @@ export class CronGuardApprovalModal extends Modal {
       return;
     }
 
-    const ok = await this.ctx.handler.modifyRequest(parsed.requestId, payload, auth.approver);
+    const ok = await this.ctx.handler.modifyAndResolveRequest(
+      parsed.requestId,
+      payload,
+      auth.approver,
+    );
     if (!ok) {
       await interaction
         .reply({
-          content: "Failed to submit the modified cron request. It may already be resolved.",
+          content:
+            "Failed to submit and apply the modified cron request. It may already be resolved.",
           ephemeral: true,
         })
         .catch(() => undefined);
@@ -1240,7 +1245,7 @@ export class CronGuardApprovalModal extends Modal {
 
     await interaction
       .reply({
-        content: `Submitted updated payload for ${parsed.requestId}.`,
+        content: `Submitted updated payload and approval for ${parsed.requestId}.`,
         ephemeral: true,
       })
       .catch(() => undefined);
