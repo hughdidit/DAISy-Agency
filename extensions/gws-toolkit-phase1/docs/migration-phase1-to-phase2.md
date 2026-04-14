@@ -10,6 +10,7 @@
 
 - writes are now available through separate write tools
 - per-agent and per-sub-agent credential routing is supported
+- plugin route mode `oauth` is removed; use `credentials_file` or `token`
 - one canonical plugin doc replaces the old split Phase 1-only docs
 
 ## Recommended migration steps

@@ -80,5 +80,7 @@ export function summarizeCredentialRoutes(config: GwsToolkitConfig) {
     allowedServices: route.allowedServices,
     allowedTools: route.allowedTools,
     allowedActions: route.allowedActions ?? [],
+    impersonatedUser: route.impersonatedUser,
+    impersonatedUserEnvVar: route.impersonatedUserEnvVar,
   }));
 }

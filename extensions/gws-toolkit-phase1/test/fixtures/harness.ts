@@ -128,6 +128,9 @@ export function createHarness(params?: {
             description() {
               return this;
             },
+            option() {
+              return this;
+            },
             action() {
               return this;
             },
@@ -186,7 +189,7 @@ export function defaultPluginConfig(
     maxStderrBytes: 256 * 1024,
     safeMode: true,
     allowWriteOperations: false,
-    allowedCredentialModes: ["token", "oauth"],
+    allowedCredentialModes: ["token", "credentials_file"],
     defaultScopesProfile: "minimal",
     approvedCredentialDirs: [fixturesDir],
     ...overrides,

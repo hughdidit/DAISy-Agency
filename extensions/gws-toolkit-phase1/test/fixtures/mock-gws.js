@@ -32,6 +32,33 @@ if (mode === "timeout") {
   if (!service || !action) {
     writeJson({ ok: false, error: "missing command" }, 2);
   }
+  if (service === "auth" && action === "status") {
+    if (mode === "auth_unhealthy") {
+      writeJson(
+        {
+          plain_credentials_exists: true,
+          token_valid: false,
+          token_error: "invalid_grant",
+          credential_source: process.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE
+            ? "credentials_file"
+            : "token",
+        },
+        0,
+      );
+    }
+    writeJson(
+      {
+        plain_credentials_exists: Boolean(process.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE),
+        token_valid: true,
+        token_error: "",
+        credential_source: process.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE
+          ? "credentials_file"
+          : "token",
+        impersonated_user: process.env.GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER || null,
+      },
+      0,
+    );
+  }
 
   const payload = {
     ok: true,

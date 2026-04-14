@@ -1,9 +1,16 @@
+import fs from "node:fs";
 import type { AuditLogger } from "../audit.js";
-import { getActiveRouteAuthStatus, getAuthSourceStatus } from "../auth.js";
+import {
+  getActiveRouteAuthStatus,
+  getAuthSourceStatus,
+  getRouteImpersonationStatus,
+  resolveAuth,
+} from "../auth.js";
 import { discoverBinary } from "../binary.js";
 import { summarizeCredentialRoutes } from "../credential-routing.js";
-import { toStructuredError } from "../errors.js";
+import { PluginError, toStructuredError } from "../errors.js";
 import { executeCommand } from "../executor.js";
+import { normalizeExecution } from "../normalize.js";
 import { evaluatePolicy } from "../policy.js";
 import { validateStatusParams } from "../schema.js";
 import {
@@ -58,6 +65,60 @@ function buildWriteReadiness(config: GwsToolkitConfig) {
   }));
 }
 
+function classifyCredentialsFileType(credentialsFile: string): string {
+  try {
+    const fileText = fs.readFileSync(credentialsFile, "utf8");
+    const parsed = JSON.parse(fileText) as Record<string, unknown>;
+    if (parsed.type === "service_account") {
+      return "service_account_json";
+    }
+    if (
+      typeof parsed.refresh_token === "string" ||
+      typeof parsed.client_id === "string" ||
+      typeof parsed.client_secret === "string"
+    ) {
+      return "headless_oauth_export";
+    }
+    return "credentials_file_unknown";
+  } catch {
+    return "credentials_file_unknown";
+  }
+}
+
+function parseAuthHealthResult(params: {
+  mode: "token" | "credentials_file";
+  credentialsFile?: string;
+  payload: unknown;
+}): {
+  tokenValid: boolean;
+  tokenError: string | null;
+  credentialSourceType: string;
+  plainCredentialsExists: boolean | null;
+} {
+  const payload = (params.payload ?? {}) as Record<string, unknown>;
+  const tokenValid = payload.token_valid === true;
+  const tokenError =
+    typeof payload.token_error === "string" && payload.token_error.trim()
+      ? payload.token_error.trim()
+      : null;
+  const plainCredentialsExists =
+    typeof payload.plain_credentials_exists === "boolean" ? payload.plain_credentials_exists : null;
+
+  const credentialSourceType =
+    params.mode === "token"
+      ? "pre_obtained_token"
+      : params.credentialsFile
+        ? classifyCredentialsFileType(params.credentialsFile)
+        : "credentials_file_unknown";
+
+  return {
+    tokenValid,
+    tokenError,
+    credentialSourceType,
+    plainCredentialsExists,
+  };
+}
+
 export function buildConfigResolutionDeniedEnvelope(params: {
   tool: ToolName;
   service: "status" | ServiceFamily;
@@ -107,9 +168,12 @@ export async function executeStatus(params: {
   audit: AuditLogger;
   configResolution: ConfigResolution;
   rawParams?: unknown;
+  action?: string;
+  skipBinaryDiscovery?: boolean;
   resolveRuntimeEnv?: () => Promise<Record<string, string> | undefined>;
 }): Promise<StructuredEnvelope> {
   const startedAt = Date.now();
+  const action = params.action ?? "status";
   const validated = validateStatusParams(params.rawParams ?? {});
 
   if (!validated.ok) {
@@ -117,7 +181,7 @@ export async function executeStatus(params: {
     params.audit.emit({
       ctx: params.ctx,
       toolName: "gws_status",
-      action: "status",
+      action,
       targetService: "status",
       readOnly: true,
       decision: "deny",
@@ -136,7 +200,7 @@ export async function executeStatus(params: {
       },
       meta: {
         tool: "gws_status",
-        action: "status",
+        action,
         service: "status",
         latencyMs,
       },
@@ -147,7 +211,7 @@ export async function executeStatus(params: {
     return buildConfigResolutionDeniedEnvelope({
       tool: "gws_status",
       service: "status",
-      action: "status",
+      action,
       configResolution: params.configResolution,
       ctx: params.ctx,
       audit: params.audit,
@@ -175,7 +239,7 @@ export async function executeStatus(params: {
       params.audit.emit({
         ctx: params.ctx,
         toolName: "gws_status",
-        action: "status",
+        action,
         targetService: "status",
         readOnly: true,
         decision: "deny",
@@ -191,23 +255,25 @@ export async function executeStatus(params: {
         },
         meta: {
           tool: "gws_status",
-          action: "status",
+          action,
           service: "status",
           latencyMs,
         },
       };
     }
 
-    const discovery = await discoverBinary({
-      configuredPath: activeConfig.binaryPath,
-      runVersion: async (binaryPath) =>
-        executeCommand({
-          config: activeConfig,
-          binaryPath,
-          argv: ["--version"],
-          env: runtimeEnv,
-        }),
-    });
+    const discovery = params.skipBinaryDiscovery
+      ? null
+      : await discoverBinary({
+          configuredPath: activeConfig.binaryPath,
+          runVersion: async (binaryPath) =>
+            executeCommand({
+              config: activeConfig,
+              binaryPath,
+              argv: ["--version"],
+              env: runtimeEnv,
+            }),
+        });
 
     const authStatus = getAuthSourceStatus(activeConfig);
     const activeRoute = getActiveRouteAuthStatus(activeConfig, params.ctx);
@@ -219,9 +285,13 @@ export async function executeStatus(params: {
       ok: true,
       data: {
         binary: {
-          found: true,
-          binaryPath: discovery.binaryPath,
-          ...(includeVersion ? { version: discovery.versionText } : {}),
+          ...(discovery
+            ? {
+                found: true,
+                binaryPath: discovery.binaryPath,
+                ...(includeVersion ? { version: discovery.versionText } : {}),
+              }
+            : { found: false, skipped: true }),
         },
         ...(includeAuthStatus ? { auth: authStatus } : {}),
         ...(includeAuthStatus ? { currentRoute: activeRoute } : {}),
@@ -242,7 +312,7 @@ export async function executeStatus(params: {
       },
       meta: {
         tool: "gws_status",
-        action: "status",
+        action,
         service: "status",
         resultCode: "OK",
         latencyMs,
@@ -252,7 +322,7 @@ export async function executeStatus(params: {
     params.audit.emit({
       ctx: params.ctx,
       toolName: "gws_status",
-      action: "status",
+      action,
       targetService: "status",
       readOnly: true,
       decision: "allow",
@@ -266,14 +336,233 @@ export async function executeStatus(params: {
     const mapped = toStructuredError({
       error,
       tool: "gws_status",
-      action: "status",
+      action,
       service: "status",
       latencyMs,
     });
     params.audit.emit({
       ctx: params.ctx,
       toolName: "gws_status",
+      action,
+      targetService: "status",
+      readOnly: true,
+      decision: "deny",
+      denyReason: mapped.error.message,
+      latencyMs,
+      resultCode: mapped.error.code,
+    });
+    return mapped;
+  }
+}
+
+export async function executeAuthPosture(params: {
+  ctx: InvocationContext;
+  audit: AuditLogger;
+  configResolution: ConfigResolution;
+  resolveRuntimeEnv?: () => Promise<Record<string, string> | undefined>;
+}): Promise<StructuredEnvelope> {
+  const status = await executeStatus({
+    ...params,
+    action: "auth-posture",
+    skipBinaryDiscovery: true,
+    rawParams: {
+      includeVersion: false,
+      includeAuthStatus: true,
+    },
+  });
+  if (!status.ok) {
+    return status;
+  }
+  const data = status.data as Record<string, unknown>;
+  const latencyMs = status.meta.latencyMs;
+  return {
+    ok: true,
+    data: {
+      auth: data.auth,
+      currentRoute: data.currentRoute,
+      routes: data.routes,
+      config: data.config,
+    },
+    meta: {
+      tool: "gws_status",
+      action: "auth-posture",
+      service: "status",
+      resultCode: "OK",
+      latencyMs,
+    },
+  };
+}
+
+export async function executeAuthHealth(params: {
+  ctx: InvocationContext;
+  audit: AuditLogger;
+  configResolution: ConfigResolution;
+  resolveRuntimeEnv?: () => Promise<Record<string, string> | undefined>;
+  deprecatedAliasUsed?: boolean;
+}): Promise<StructuredEnvelope> {
+  const startedAt = Date.now();
+  if (!params.configResolution.ok) {
+    return buildConfigResolutionDeniedEnvelope({
+      tool: "gws_status",
+      service: "status",
+      action: "auth-health",
+      configResolution: params.configResolution,
+      ctx: params.ctx,
+      audit: params.audit,
+    });
+  }
+
+  const activeConfig = params.configResolution.config;
+
+  try {
+    const runtimeEnv = params.resolveRuntimeEnv ? await params.resolveRuntimeEnv() : undefined;
+    const policy = evaluatePolicy({
+      tool: "gws_status",
+      service: "status",
       action: "status",
+      payload: {},
+      config: activeConfig,
+    });
+    if (!policy.allowed) {
+      const latencyMs = Date.now() - startedAt;
+      params.audit.emit({
+        ctx: params.ctx,
+        toolName: "gws_status",
+        action: "auth-health",
+        targetService: "status",
+        readOnly: true,
+        decision: "deny",
+        denyReason: policy.reason,
+        latencyMs,
+        resultCode: "DENY_POLICY",
+      });
+      return {
+        ok: false,
+        error: {
+          code: "DENY_POLICY",
+          message: policy.reason ?? "auth health denied by policy",
+        },
+        meta: {
+          tool: "gws_status",
+          action: "auth-health",
+          service: "status",
+          latencyMs,
+        },
+      };
+    }
+
+    const auth = resolveAuth(activeConfig, params.ctx);
+    const discovery = await discoverBinary({
+      configuredPath: activeConfig.binaryPath,
+      runVersion: async (binaryPath) =>
+        executeCommand({
+          config: activeConfig,
+          binaryPath,
+          argv: ["--version"],
+          env: runtimeEnv,
+        }),
+    });
+    const execution = await executeCommand({
+      config: activeConfig,
+      binaryPath: discovery.binaryPath,
+      argv: ["auth", "status"],
+      env: {
+        ...(runtimeEnv ?? {}),
+        ...auth.env,
+      },
+    });
+    const normalized = normalizeExecution(execution);
+    const health = parseAuthHealthResult({
+      mode: auth.mode,
+      credentialsFile: auth.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE,
+      payload: normalized.payload,
+    });
+
+    if (!health.tokenValid || health.tokenError) {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Route auth health is unhealthy. Reauthenticate the route credential source and retry.",
+        {
+          routeName: auth.route.name,
+          bindingSubject: auth.bindingSubject,
+          tokenValid: health.tokenValid,
+          tokenError: health.tokenError,
+          credentialSourceType: health.credentialSourceType,
+        },
+      );
+    }
+
+    const impersonation = getRouteImpersonationStatus(auth.route);
+    const latencyMs = Date.now() - startedAt;
+    params.audit.emit({
+      ctx: {
+        ...params.ctx,
+        bindingSubject: auth.bindingSubject,
+        routeName: auth.route.name,
+      },
+      toolName: "gws_status",
+      action: "auth-health",
+      targetService: "status",
+      readOnly: true,
+      decision: "allow",
+      credentialMode: auth.mode,
+      routeName: auth.route.name,
+      bindingSubject: auth.bindingSubject,
+      latencyMs,
+      resultCode: "OK",
+    });
+    return {
+      ok: true,
+      data: {
+        route: {
+          name: auth.route.name,
+          bindingSubject: auth.bindingSubject,
+          mode: auth.mode,
+        },
+        impersonation: {
+          configured: impersonation.configured,
+          source: impersonation.source,
+          envVar: impersonation.envVar,
+          impersonatedUser: impersonation.value,
+        },
+        authHealth: {
+          credentialSourceType: health.credentialSourceType,
+          tokenValid: health.tokenValid,
+          tokenError: health.tokenError,
+          plainCredentialsExists: health.plainCredentialsExists,
+          raw: normalized.payload,
+        },
+        ...(params.deprecatedAliasUsed
+          ? {
+              deprecation: {
+                command: "auth-status",
+                message:
+                  "auth-status is deprecated and currently aliases auth-health. Migrate to openclaw gws auth-health.",
+              },
+            }
+          : {}),
+      },
+      meta: {
+        tool: "gws_status",
+        action: "auth-health",
+        service: "status",
+        resultCode: "OK",
+        latencyMs,
+      },
+    };
+  } catch (error) {
+    const latencyMs = Date.now() - startedAt;
+    const mapped = toStructuredError({
+      error,
+      tool: "gws_status",
+      action: "auth-health",
+      service: "status",
+      latencyMs,
+    });
+    params.audit.emit({
+      ctx: params.ctx,
+      toolName: "gws_status",
+      action: "auth-health",
       targetService: "status",
       readOnly: true,
       decision: "deny",

@@ -94,7 +94,7 @@ describe("agents bind/unbind commands", () => {
               config: {
                 credentialRoutes: {
                   "ops-main": {
-                    mode: "oauth",
+                    mode: "token",
                     allowedServices: ["gmail"],
                     allowedTools: ["gws_gmail_read", "gws_gmail_write"],
                     allowedActions: ["draft_message"],
@@ -141,9 +141,9 @@ describe("agents bind/unbind commands", () => {
               enabled: true,
               config: {
                 credentialRoutes: {
-                  "ops-main": { mode: "oauth", allowedServices: ["gmail"], allowedTools: [] },
+                  "ops-main": { mode: "token", allowedServices: ["gmail"], allowedTools: [] },
                   "ops-subagent": {
-                    mode: "oauth",
+                    mode: "token",
                     allowedServices: ["calendar"],
                     allowedTools: [],
                   },

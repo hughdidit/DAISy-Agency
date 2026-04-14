@@ -15,7 +15,7 @@ const config: GwsToolkitConfig = {
   maxStdoutBytes: 1024,
   maxStderrBytes: 1024,
   safeMode: true,
-  allowedCredentialModes: ["oauth", "token", "credentials_file"],
+  allowedCredentialModes: ["token", "credentials_file"],
   allowWriteOperations: false,
   allowUnboundAgents: false,
   defaultCredentialRoute: null,

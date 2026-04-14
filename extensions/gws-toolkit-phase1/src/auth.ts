@@ -147,6 +147,50 @@ export function ensureCredentialFileAllowed(
   return realFilePath;
 }
 
+export type RouteImpersonationStatus = {
+  configured: boolean;
+  source: "literal" | "env_var" | null;
+  value?: string;
+  envVar?: string;
+  missing: boolean;
+};
+
+export function getRouteImpersonationStatus(route: ResolvedRoute): RouteImpersonationStatus {
+  if (route.mode !== "credentials_file") {
+    return {
+      configured: false,
+      source: null,
+      missing: false,
+    };
+  }
+  if (typeof route.impersonatedUser === "string") {
+    const value = route.impersonatedUser.trim() || undefined;
+    return {
+      configured: true,
+      source: "literal",
+      value,
+      missing: !value,
+    };
+  }
+  if (route.impersonatedUserEnvVar) {
+    const envVar = route.impersonatedUserEnvVar;
+    const envValue = process.env[envVar];
+    const value = typeof envValue === "string" && envValue.trim() ? envValue.trim() : undefined;
+    return {
+      configured: true,
+      source: "env_var",
+      envVar,
+      value,
+      missing: !value,
+    };
+  }
+  return {
+    configured: false,
+    source: null,
+    missing: false,
+  };
+}
+
 export type RouteAuthStatus = {
   routeName: string;
   mode: CredentialMode;
@@ -229,7 +273,6 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
   credentialsFileConfigured: boolean;
   credentialsFileExists: boolean;
   credentialsFileAllowed: boolean;
-  oauthAllowed: boolean;
   routes: RouteAuthStatus[];
 } {
   const tokenValue = process.env[config.tokenEnvVar];
@@ -266,37 +309,37 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
         mode: route.mode,
         bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
         available: modeAllowed && Boolean(present),
-        details: { tokenEnvVar: envVar, tokenPresent: Boolean(present), modeAllowed },
+        details: {
+          tokenEnvVar: envVar,
+          tokenPresent: Boolean(present),
+          modeAllowed,
+          impersonationConfigured: false,
+        },
       } satisfies RouteAuthStatus;
     }
-    if (route.mode === "credentials_file") {
-      const probe = probeCredentialFile(config, route.credentialsFile, {
-        ...route,
-        name: routeName,
-      });
-      if (probe.allowed && probe.resolvedPath) {
-        return {
-          routeName,
-          mode: route.mode,
-          bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
-          available: modeAllowed,
-          details: {
-            credentialsFile: path.basename(probe.resolvedPath),
-            configuredCredentialsFile: probe.configuredPath,
-            resolvedCredentialsFile: probe.resolvedPath,
-            modeAllowed,
-          },
-        } satisfies RouteAuthStatus;
-      }
+
+    const routeWithName = {
+      ...route,
+      name: routeName,
+    };
+    const probe = probeCredentialFile(config, route.credentialsFile, routeWithName);
+    const impersonation = getRouteImpersonationStatus(routeWithName);
+    if (probe.allowed && probe.resolvedPath) {
       return {
         routeName,
         mode: route.mode,
         bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
-        available: false,
+        available: modeAllowed && !impersonation.missing,
         details: {
+          credentialsFile: path.basename(probe.resolvedPath),
           configuredCredentialsFile: probe.configuredPath,
-          error: probe.error ?? "Configured credentials file is unavailable",
+          resolvedCredentialsFile: probe.resolvedPath,
           modeAllowed,
+          impersonationConfigured: impersonation.configured,
+          impersonationSource: impersonation.source,
+          impersonatedUserEnvVar: impersonation.envVar,
+          impersonatedUser: impersonation.value,
+          impersonatedUserMissing: impersonation.missing,
         },
       } satisfies RouteAuthStatus;
     }
@@ -304,10 +347,16 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
       routeName,
       mode: route.mode,
       bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
-      available: modeAllowed,
+      available: false,
       details: {
-        oauthAllowed: config.allowedCredentialModes.includes("oauth"),
+        configuredCredentialsFile: probe.configuredPath,
+        error: probe.error ?? "Configured credentials file is unavailable",
         modeAllowed,
+        impersonationConfigured: impersonation.configured,
+        impersonationSource: impersonation.source,
+        impersonatedUserEnvVar: impersonation.envVar,
+        impersonatedUser: impersonation.value,
+        impersonatedUserMissing: impersonation.missing,
       },
     } satisfies RouteAuthStatus;
   });
@@ -317,7 +366,6 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
     credentialsFileConfigured,
     credentialsFileExists,
     credentialsFileAllowed,
-    oauthAllowed: config.allowedCredentialModes.includes("oauth"),
     routes,
   };
 }
@@ -330,25 +378,6 @@ export function getActiveRouteAuthStatus(
     const resolved = resolveCredentialRoute(config, ctx);
     const route = resolved.route;
     const modeAllowed = config.allowedCredentialModes.includes(route.mode);
-    if (route.mode === "credentials_file") {
-      const probe = probeCredentialFile(config, route.credentialsFile, route);
-      return {
-        bindingSubject: resolved.bindingSubject,
-        inherited: resolved.inherited,
-        routeName: route.name,
-        mode: route.mode,
-        available: modeAllowed && probe.allowed,
-        details: {
-          ...(probe.resolvedPath ? { credentialsFile: path.basename(probe.resolvedPath) } : {}),
-          configuredCredentialsFile: probe.configuredPath,
-          resolvedCredentialsFile: probe.resolvedPath,
-          modeAllowed,
-          ...(probe.allowed
-            ? {}
-            : { error: probe.error ?? "Configured credentials file is unavailable" }),
-        },
-      };
-    }
     if (route.mode === "token") {
       const envVar = route.tokenEnvVar ?? config.tokenEnvVar;
       const tokenPresent =
@@ -363,18 +392,32 @@ export function getActiveRouteAuthStatus(
           tokenEnvVar: envVar,
           tokenPresent,
           modeAllowed,
+          impersonationConfigured: false,
         },
       };
     }
+
+    const probe = probeCredentialFile(config, route.credentialsFile, route);
+    const impersonation = getRouteImpersonationStatus(route);
     return {
       bindingSubject: resolved.bindingSubject,
       inherited: resolved.inherited,
       routeName: route.name,
       mode: route.mode,
-      available: modeAllowed,
+      available: modeAllowed && probe.allowed && !impersonation.missing,
       details: {
-        oauthAllowed: config.allowedCredentialModes.includes("oauth"),
+        ...(probe.resolvedPath ? { credentialsFile: path.basename(probe.resolvedPath) } : {}),
+        configuredCredentialsFile: probe.configuredPath,
+        resolvedCredentialsFile: probe.resolvedPath,
         modeAllowed,
+        ...(probe.allowed
+          ? {}
+          : { error: probe.error ?? "Configured credentials file is unavailable" }),
+        impersonationConfigured: impersonation.configured,
+        impersonationSource: impersonation.source,
+        impersonatedUserEnvVar: impersonation.envVar,
+        impersonatedUser: impersonation.value,
+        impersonatedUserMissing: impersonation.missing,
       },
     };
   } catch (error) {
@@ -418,31 +461,31 @@ export function resolveAuth(config: GwsToolkitConfig, ctx: InvocationContext): A
     };
   }
 
-  if (route.mode === "credentials_file") {
-    const filePath = ensureCredentialFileAllowed(config, route.credentialsFile, route);
-    return {
-      mode: "credentials_file",
-      env: {
-        GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE: filePath,
-      },
-      args: [],
-      route,
-      bindingSubject: resolved.bindingSubject,
-    };
+  const filePath = ensureCredentialFileAllowed(config, route.credentialsFile, route);
+  const env: Record<string, string> = {
+    GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE: filePath,
+  };
+  const impersonation = getRouteImpersonationStatus(route);
+  if (impersonation.configured) {
+    if (!impersonation.value) {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Route impersonation is configured but no impersonated user value is available.",
+        {
+          routeName: route.name,
+          bindingSubject: resolved.bindingSubject,
+          impersonatedUserEnvVar: impersonation.envVar,
+        },
+      );
+    }
+    env.GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER = impersonation.value;
   }
-
-  if (route.mode === "oauth") {
-    return {
-      mode: "oauth",
-      env: {},
-      args: [],
-      route,
-      bindingSubject: resolved.bindingSubject,
-    };
-  }
-
-  throw new PluginError("AUTH_ERROR", "No permitted auth mode available", {
-    routeName: route.name,
+  return {
+    mode: "credentials_file",
+    env,
+    args: [],
+    route,
     bindingSubject: resolved.bindingSubject,
-  });
+    impersonatedUser: impersonation.value,
+  };
 }

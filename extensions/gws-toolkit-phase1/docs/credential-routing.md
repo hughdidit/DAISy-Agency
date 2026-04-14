@@ -39,3 +39,5 @@ openclaw agents bind --agent ops --gws-route ops-main --subagent-gws-route ops-s
 - `allowedTools`
 - optional `allowedActions`
 - credential pointer field for the chosen auth mode
+- optional impersonation field (`impersonatedUser` or `impersonatedUserEnvVar`)
+  for `credentials_file` routes

@@ -15,7 +15,12 @@ import { executeGmailWrite } from "./src/commands/gmail-write.js";
 import { createRuntimeDeps } from "./src/commands/helpers.js";
 import { executeSheetsRead } from "./src/commands/sheets-read.js";
 import { executeSheetsWrite } from "./src/commands/sheets-write.js";
-import { buildConfigResolutionDeniedEnvelope, executeStatus } from "./src/commands/status.js";
+import {
+  buildConfigResolutionDeniedEnvelope,
+  executeAuthHealth,
+  executeAuthPosture,
+  executeStatus,
+} from "./src/commands/status.js";
 import { resolveConfig } from "./src/config.js";
 import { PluginError } from "./src/errors.js";
 import { createRedactingLogger } from "./src/logger.js";
@@ -56,7 +61,7 @@ function defaultConfig(): GwsToolkitConfig {
     maxStdoutBytes: 1048576,
     maxStderrBytes: 262144,
     safeMode: true,
-    allowedCredentialModes: ["oauth", "credentials_file", "token"],
+    allowedCredentialModes: ["credentials_file", "token"],
     allowWriteOperations: false,
     allowUnboundAgents: false,
     defaultCredentialRoute: null,
@@ -89,6 +94,50 @@ function createToolContext(ctx: OpenClawPluginToolContext): InvocationContext {
 type ConfigResolution =
   | { ok: true; config: GwsToolkitConfig; posture: ConfigPosture }
   | { ok: false; posture: ConfigPosture; message: string; fallbackConfig: GwsToolkitConfig };
+
+function normalizeDiagnosticAgentId(value: string | undefined): string {
+  const trimmed = value?.trim().toLowerCase();
+  return trimmed || "main";
+}
+
+function createCliDiagnosticContext(configResolution: ConfigResolution): InvocationContext {
+  const makeAgentContext = (agentId: string): InvocationContext =>
+    createContext({
+      agentId,
+      sessionId: "cli-diagnostics",
+      sessionKey: `agent:${agentId}:main`,
+    });
+
+  const makeSubagentContext = (agentId: string): InvocationContext =>
+    createContext({
+      agentId,
+      sessionId: "cli-diagnostics",
+      sessionKey: `subagent:${agentId}`,
+    });
+
+  if (!configResolution.ok) {
+    return makeAgentContext("main");
+  }
+
+  const subjects = Object.keys(configResolution.config.agentCredentialBindings);
+  if (subjects.includes("agent:main")) {
+    return makeAgentContext("main");
+  }
+
+  const firstAgentSubject = subjects.find((subject) => subject.startsWith("agent:"));
+  if (firstAgentSubject) {
+    return makeAgentContext(normalizeDiagnosticAgentId(firstAgentSubject.slice("agent:".length)));
+  }
+
+  const firstSubagentSubject = subjects.find((subject) => subject.startsWith("subagent:"));
+  if (firstSubagentSubject) {
+    return makeSubagentContext(
+      normalizeDiagnosticAgentId(firstSubagentSubject.slice("subagent:".length)),
+    );
+  }
+
+  return makeAgentContext("main");
+}
 
 type GwsRuntimeEnv = Record<string, string>;
 
@@ -488,46 +537,112 @@ const plugin = {
     api.registerCli(
       ({ program }) => {
         const gws = program.command("gws").description("GWS Toolkit diagnostics");
+        const diagnosticsCtx = createCliDiagnosticContext(configResolution);
 
         gws
           .command("doctor")
-          .description("Run toolkit health checks")
+          .description(
+            "Run toolkit posture checks; use --auth-health for real route-bound auth health",
+          )
+          .option("--auth-health", "Run real gws auth status under the resolved route environment")
+          .action(async (opts?: { authHealth?: boolean }) => {
+            const posturePayload = await executeStatus({
+              ctx: diagnosticsCtx,
+              audit,
+              configResolution,
+              resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
+            });
+            if (!opts?.authHealth) {
+              console.log(JSON.stringify(posturePayload, null, 2));
+              if (!posturePayload.ok) {
+                process.exitCode = 1;
+              }
+              return;
+            }
+            const healthPayload = await executeAuthHealth({
+              ctx: diagnosticsCtx,
+              audit,
+              configResolution,
+              resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
+            });
+            console.log(
+              JSON.stringify(
+                {
+                  posture: posturePayload,
+                  health: healthPayload,
+                },
+                null,
+                2,
+              ),
+            );
+            if (!posturePayload.ok || !healthPayload.ok) {
+              process.exitCode = 1;
+            }
+          });
+
+        gws
+          .command("auth-posture")
+          .description("Report route-bound auth posture without executing gws auth status")
           .action(async () => {
-            const payload = await executeStatus({
-              ctx: createContext(),
+            const payload = await executeAuthPosture({
+              ctx: diagnosticsCtx,
               audit,
               configResolution,
               resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
             });
             console.log(JSON.stringify(payload, null, 2));
+            if (!payload.ok) {
+              process.exitCode = 1;
+            }
+          });
+
+        gws
+          .command("auth-health")
+          .description("Report real gws auth status health under resolved route credentials")
+          .action(async () => {
+            const payload = await executeAuthHealth({
+              ctx: diagnosticsCtx,
+              audit,
+              configResolution,
+              resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
+            });
+            console.log(JSON.stringify(payload, null, 2));
+            if (!payload.ok) {
+              process.exitCode = 1;
+            }
           });
 
         gws
           .command("auth-status")
-          .description("Report auth-source posture for gws toolkit")
+          .description("Deprecated alias for auth-health")
           .action(async () => {
-            const payload = await executeStatus({
-              ctx: createContext(),
+            const payload = await executeAuthHealth({
+              ctx: diagnosticsCtx,
               audit,
               configResolution,
-              rawParams: { includeVersion: false, includeAuthStatus: true },
               resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
+              deprecatedAliasUsed: true,
             });
             console.log(JSON.stringify(payload, null, 2));
+            if (!payload.ok) {
+              process.exitCode = 1;
+            }
           });
 
         gws
           .command("routes")
           .description("Report credential-route bindings and posture")
           .action(async () => {
-            const payload = await executeStatus({
-              ctx: createContext(),
+            const payload = await executeAuthPosture({
+              ctx: diagnosticsCtx,
               audit,
               configResolution,
-              rawParams: { includeVersion: false, includeAuthStatus: true },
               resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
             });
             console.log(JSON.stringify(payload, null, 2));
+            if (!payload.ok) {
+              process.exitCode = 1;
+            }
           });
 
         gws
@@ -535,13 +650,16 @@ const plugin = {
           .description("Report per-service write readiness without executing a write")
           .action(async () => {
             const payload = await executeStatus({
-              ctx: createContext(),
+              ctx: diagnosticsCtx,
               audit,
               configResolution,
               rawParams: { includeVersion: false, includeAuthStatus: false },
               resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
             });
             console.log(JSON.stringify(payload, null, 2));
+            if (!payload.ok) {
+              process.exitCode = 1;
+            }
           });
       },
       { commands: ["gws"] },

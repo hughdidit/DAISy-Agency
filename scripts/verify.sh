@@ -407,6 +407,39 @@ process.stdout.write(
     route,
     mode: active.mode,
     credentialsFile: typeof active.credentialsFile === "string" ? active.credentialsFile : null,
+    impersonationConfigured:
+      (typeof active.impersonatedUser === "string" && active.impersonatedUser.length > 0) ||
+      (typeof active.impersonatedUserEnvVar === "string" && active.impersonatedUserEnvVar.length > 0),
+    impersonationSource:
+      typeof active.impersonatedUser === "string" && active.impersonatedUser.trim().length > 0
+        ? "literal"
+        : typeof active.impersonatedUserEnvVar === "string" &&
+            active.impersonatedUserEnvVar.length > 0
+          ? "env_var"
+          : null,
+    impersonatedUserEnvVar:
+      typeof active.impersonatedUserEnvVar === "string" && active.impersonatedUserEnvVar.length > 0
+        ? active.impersonatedUserEnvVar
+        : null,
+    impersonatedUser:
+      typeof active.impersonatedUser === "string" && active.impersonatedUser.trim().length > 0
+        ? active.impersonatedUser.trim()
+        : typeof active.impersonatedUserEnvVar === "string" &&
+            active.impersonatedUserEnvVar.length > 0 &&
+            typeof process.env[active.impersonatedUserEnvVar] === "string" &&
+            process.env[active.impersonatedUserEnvVar].trim().length > 0
+          ? process.env[active.impersonatedUserEnvVar].trim()
+          : null,
+    impersonationMissing:
+      (typeof active.impersonatedUser === "string" && active.impersonatedUser.length > 0
+        ? active.impersonatedUser.trim().length === 0
+        : typeof active.impersonatedUserEnvVar === "string" &&
+            active.impersonatedUserEnvVar.length > 0
+          ? !(
+              typeof process.env[active.impersonatedUserEnvVar] === "string" &&
+              process.env[active.impersonatedUserEnvVar].trim().length > 0
+            )
+          : false),
   }),
 );
 NODE
@@ -417,6 +450,27 @@ NODE
     )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
     gws_active_route_mode="$(jq -r '.mode' <<<"${gws_active_route_json}" | tr -d '[:space:]')" \
       || fail "Failed to parse GWS active route JSON (mode field) in ${container}"
+    gws_impersonation_configured="$(jq -r '.impersonationConfigured // false' <<<"${gws_active_route_json}")" \
+      || fail "Failed to parse GWS active route JSON (impersonationConfigured field) in ${container}"
+    gws_impersonation_source="$(jq -r '.impersonationSource // empty' <<<"${gws_active_route_json}")" \
+      || fail "Failed to parse GWS active route JSON (impersonationSource field) in ${container}"
+    gws_impersonated_user_env_var="$(jq -r '.impersonatedUserEnvVar // empty' <<<"${gws_active_route_json}")" \
+      || fail "Failed to parse GWS active route JSON (impersonatedUserEnvVar field) in ${container}"
+    gws_impersonation_missing="$(jq -r '.impersonationMissing // false' <<<"${gws_active_route_json}")" \
+      || fail "Failed to parse GWS active route JSON (impersonationMissing field) in ${container}"
+    gws_active_impersonated_user="$(jq -r '.impersonatedUser // empty' <<<"${gws_active_route_json}")" \
+      || fail "Failed to parse GWS active route JSON (impersonatedUser field) in ${container}"
+    if [[ "${gws_impersonation_configured}" == "true" && "${gws_impersonation_missing}" == "true" ]]; then
+      fail "Google Workspace impersonation is configured but unresolved for ${container} (source=${gws_impersonation_source:-unknown} envVar=${gws_impersonated_user_env_var:-n/a})"
+    fi
+    if [[ -n "${gws_active_impersonated_user}" ]] && \
+      [[ ! "${gws_active_impersonated_user}" =~ ^[A-Za-z0-9_.@+-]+$ ]]; then
+      fail "Impersonated user value contains unsafe characters in ${container}: ${gws_active_impersonated_user}"
+    fi
+    gws_impersonation_export=""
+    if [[ -n "${gws_active_impersonated_user}" ]]; then
+      gws_impersonation_export="export GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER=${gws_active_impersonated_user}; "
+    fi
     if [[ "${gws_active_route_mode}" == "credentials_file" ]]; then
       gws_active_credentials_path="$(jq -r '.credentialsFile | select(type == "string" and length > 0)' <<<"${gws_active_route_json}")" \
         || fail "Failed to inspect active Google Workspace credentials file path in ${container}"
@@ -447,7 +501,7 @@ NODE
       fi
 
       gws_auth_status="$(
-        gce_ssh_lastline "sudo sh -c 'docker exec ${container_escaped} bash -lc \"set -euo pipefail; export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=\\\"${gws_active_credentials_path}\\\"; gws auth status | jq -c .\"'"
+        gce_ssh_lastline "sudo sh -c 'docker exec ${container_escaped} bash -lc \"set -euo pipefail; export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=\\\"${gws_active_credentials_path}\\\"; ${gws_impersonation_export}gws auth status | jq -c .\"'"
       )" || fail "Failed to run gws auth status inside ${container}"
       printf '%s\n' "${gws_auth_status}"
 

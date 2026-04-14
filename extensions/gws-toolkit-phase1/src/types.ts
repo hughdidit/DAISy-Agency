@@ -1,4 +1,4 @@
-export type CredentialMode = "oauth" | "credentials_file" | "token";
+export type CredentialMode = "credentials_file" | "token";
 
 export type ServiceFamily = "drive" | "gmail" | "calendar" | "docs" | "sheets";
 
@@ -60,6 +60,8 @@ export type CredentialRouteConfig = {
   allowedActions?: string[];
   credentialsFile?: string;
   tokenEnvVar?: string;
+  impersonatedUser?: string;
+  impersonatedUserEnvVar?: string;
 };
 
 export type GwsToolkitConfig = {
@@ -110,6 +112,7 @@ export type AuthResolution = {
   args: string[];
   route: ResolvedRoute;
   bindingSubject: string;
+  impersonatedUser?: string;
 };
 
 export type PolicyDecision = {
@@ -246,11 +249,7 @@ export const WRITE_TOOLS_BY_SERVICE: Record<ServiceFamily, WriteToolName> = {
 
 export const DEFAULT_ENABLED_SERVICES: ServiceFamily[] = ["drive", "gmail", "calendar"];
 
-export const DEFAULT_ALLOWED_CREDENTIAL_MODES: CredentialMode[] = [
-  "oauth",
-  "credentials_file",
-  "token",
-];
+export const DEFAULT_ALLOWED_CREDENTIAL_MODES: CredentialMode[] = ["credentials_file", "token"];
 
 export const SENSITIVE_KEY_PATTERNS = [
   /token/i,

@@ -195,7 +195,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
               allowUnboundAgents: true,
               credentialRoutes: {
                 "ops-main": {
-                  mode: "oauth",
+                  mode: "token",
                   allowedServices: ["gmail"],
                   allowedTools: ["gws_gmail_read"],
                 },
@@ -285,7 +285,7 @@ describe("noteSecurityWarnings gateway exposure", () => {
               enabledWriteServices: ["gmail"],
               credentialRoutes: {
                 "ops-main": {
-                  mode: "oauth",
+                  mode: "token",
                   allowedServices: ["gmail", "calendar"],
                   allowedTools: ["gws_gmail_read", "gws_calendar_read", "gws_gmail_write"],
                   allowedActions: ["draft_message"],

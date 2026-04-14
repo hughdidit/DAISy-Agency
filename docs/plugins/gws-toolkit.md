@@ -80,6 +80,35 @@ Each subject resolves to exactly one named route. A route declares:
 - allowed tools
 - optional allowed actions
 - credential source pointer
+- optional impersonation pointer (`impersonatedUser` or `impersonatedUserEnvVar`)
+
+## Auth Workflow Matrix
+
+Upstream `gws` workflows:
+
+- Interactive OAuth2
+- Headless OAuth2
+- Service Account
+- Pre-obtained Access Token
+
+Repository posture for `gws-toolkit-phase1`:
+
+- `credentials_file`: first-class for Headless OAuth2 exported credentials
+- `credentials_file`: first-class for service-account JSON
+- route-level impersonation: supported via `impersonatedUser` or
+  `impersonatedUserEnvVar` on `credentials_file` routes
+- `token`: supported for transient pre-obtained token routes
+- interactive OAuth2: upstream capability, not first-class in plugin runtime
+
+## Diagnostics Commands
+
+- `openclaw gws auth-posture`: route posture and auth-source diagnostics
+- `openclaw gws auth-health`: real `gws auth status` health under resolved route
+  environment
+- `openclaw gws auth-status`: deprecated alias to `auth-health` for one release
+  cycle
+- `openclaw gws doctor`: posture-first checks; pass `--auth-health` for live
+  auth health probing
 
 Phase 1 single-credential config still works through an auto-generated legacy
 compatibility route. When no explicit routing config exists, the plugin
