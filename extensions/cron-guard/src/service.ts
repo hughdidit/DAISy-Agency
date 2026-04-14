@@ -401,9 +401,7 @@ export class CronGuardRuntime {
     });
   }
 
-  async modifyAndResolveRequest(
-    params: ModifyAndResolveParams,
-  ): Promise<CronGuardApprovalRecord> {
+  async modifyAndResolveRequest(params: ModifyAndResolveParams): Promise<CronGuardApprovalRecord> {
     return await this.runExclusive(async () => {
       const modifiedAt = this.now();
       const record = readRecordOrThrow(this.store, params.requestId);
