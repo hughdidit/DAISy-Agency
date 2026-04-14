@@ -296,22 +296,25 @@ function normalizeDiscordPluginComponent(component: BaseMessageInteractiveCompon
     return { component, bridged: false };
   }
 
-  switch (component.type) {
-    case ComponentType.Button:
-      return { component: new PluginButtonBridge(component), bridged: true };
-    case ComponentType.StringSelect:
-      return { component: new PluginStringSelectBridge(component), bridged: true };
-    case ComponentType.UserSelect:
-      return { component: new PluginUserSelectBridge(component), bridged: true };
-    case ComponentType.RoleSelect:
-      return { component: new PluginRoleSelectBridge(component), bridged: true };
-    case ComponentType.MentionableSelect:
-      return { component: new PluginMentionableSelectBridge(component), bridged: true };
-    case ComponentType.ChannelSelect:
-      return { component: new PluginChannelSelectBridge(component), bridged: true };
-    default:
-      return { component, bridged: false };
+  if (component.type === ComponentType.Button) {
+    return { component: new PluginButtonBridge(component), bridged: true };
   }
+  if (component.type === ComponentType.StringSelect) {
+    return { component: new PluginStringSelectBridge(component), bridged: true };
+  }
+  if (component.type === ComponentType.UserSelect) {
+    return { component: new PluginUserSelectBridge(component), bridged: true };
+  }
+  if (component.type === ComponentType.RoleSelect) {
+    return { component: new PluginRoleSelectBridge(component), bridged: true };
+  }
+  if (component.type === ComponentType.MentionableSelect) {
+    return { component: new PluginMentionableSelectBridge(component), bridged: true };
+  }
+  if (component.type === ComponentType.ChannelSelect) {
+    return { component: new PluginChannelSelectBridge(component), bridged: true };
+  }
+  return { component, bridged: false };
 }
 
 function normalizeDiscordPluginModal(modal: Modal): { modal: Modal; bridged: boolean } {
