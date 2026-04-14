@@ -496,7 +496,9 @@ const plugin = {
 
         gws
           .command("doctor")
-          .description("Run toolkit posture checks; use --auth-health for real route-bound auth health")
+          .description(
+            "Run toolkit posture checks; use --auth-health for real route-bound auth health",
+          )
           .option("--auth-health", "Run real gws auth status under the resolved route environment")
           .action(async (opts?: { authHealth?: boolean }) => {
             const posturePayload = await executeStatus({

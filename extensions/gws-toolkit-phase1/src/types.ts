@@ -249,10 +249,7 @@ export const WRITE_TOOLS_BY_SERVICE: Record<ServiceFamily, WriteToolName> = {
 
 export const DEFAULT_ENABLED_SERVICES: ServiceFamily[] = ["drive", "gmail", "calendar"];
 
-export const DEFAULT_ALLOWED_CREDENTIAL_MODES: CredentialMode[] = [
-  "credentials_file",
-  "token",
-];
+export const DEFAULT_ALLOWED_CREDENTIAL_MODES: CredentialMode[] = ["credentials_file", "token"];
 
 export const SENSITIVE_KEY_PATTERNS = [
   /token/i,

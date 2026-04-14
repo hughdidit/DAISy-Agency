@@ -409,7 +409,9 @@ export function getActiveRouteAuthStatus(
         configuredCredentialsFile: probe.configuredPath,
         resolvedCredentialsFile: probe.resolvedPath,
         modeAllowed,
-        ...(probe.allowed ? {} : { error: probe.error ?? "Configured credentials file is unavailable" }),
+        ...(probe.allowed
+          ? {}
+          : { error: probe.error ?? "Configured credentials file is unavailable" }),
         impersonationConfigured: impersonation.configured,
         impersonationSource: impersonation.source,
         impersonatedUserEnvVar: impersonation.envVar,

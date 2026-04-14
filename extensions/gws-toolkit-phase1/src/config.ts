@@ -78,7 +78,9 @@ function normalizeCredentialModes(input: unknown): {
   const allowed = new Set<CredentialMode>(["credentials_file", "token"]);
   const normalized = normalizeStringArray(input);
   return {
-    modes: normalized.filter((value): value is CredentialMode => allowed.has(value as CredentialMode)),
+    modes: normalized.filter((value): value is CredentialMode =>
+      allowed.has(value as CredentialMode),
+    ),
     rejected: normalized.filter((value) => !allowed.has(value as CredentialMode)),
   };
 }
