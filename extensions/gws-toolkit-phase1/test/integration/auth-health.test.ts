@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { createAuditLogger } from "../../src/audit.js";
 import { executeAuthHealth, executeAuthPosture } from "../../src/commands/status.js";
 import { resolveConfig } from "../../src/config.js";
 import type { ConfigPosture, GwsToolkitConfig, InvocationContext } from "../../src/types.js";
@@ -37,18 +38,12 @@ const ctx: InvocationContext = {
   sessionKey: "agent:main:main",
 };
 
-const audit = {
-  emit: () => ({
-    timestamp: new Date().toISOString(),
-    toolName: "gws_status",
-    action: "status",
-    targetService: "status",
-    readOnly: true,
-    decision: "allow",
-    latencyMs: 0,
-    resultCode: "OK",
-  }),
-};
+const audit = createAuditLogger({
+  info: () => undefined,
+  warn: () => undefined,
+  error: () => undefined,
+  debug: () => undefined,
+});
 
 describe("integration: auth health and posture", () => {
   it("returns healthy token route auth-health output", async () => {
