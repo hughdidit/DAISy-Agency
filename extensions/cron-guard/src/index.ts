@@ -12,6 +12,27 @@ import { initializeCronGuardRuntime, stopCronGuardRuntime } from "./service.js";
 import { createCronGuardTools } from "./tools.js";
 import { CRON_GUARD_EVENTS } from "./types.js";
 
+function resolveCronGuardDiscordMonitorSkipReason(params: {
+  entryEnabled: boolean;
+  configEnabled: boolean;
+  discordEnabled: boolean;
+  approverCount: number;
+}): string | null {
+  if (!params.entryEnabled) {
+    return "plugins.entries.cron-guard.enabled=false";
+  }
+  if (!params.configEnabled) {
+    return "plugins.entries.cron-guard.config.enabled=false";
+  }
+  if (!params.discordEnabled) {
+    return "plugins.entries.cron-guard.config.discord.enabled=false";
+  }
+  if (params.approverCount === 0) {
+    return "plugins.entries.cron-guard.config.approvers is empty";
+  }
+  return null;
+}
+
 const cronGuardService: OpenClawPluginService = {
   id: "cron-guard-runtime",
   required: true,
@@ -49,15 +70,17 @@ export default {
     for (const event of CRON_GUARD_EVENTS) {
       api.registerGatewayEvent(event);
     }
-    api.registerDiscordMonitor(({ token, accountId, config: cfg }) => {
+    api.registerDiscordMonitor(({ token, accountId, config: cfg, runtime }) => {
       const entry = cfg.plugins?.entries?.["cron-guard"];
       const currentConfig = resolveCronGuardPluginConfig(entry?.config);
-      if (
-        entry?.enabled === false ||
-        !currentConfig.enabled ||
-        !currentConfig.discord.enabled ||
-        currentConfig.approvers.length === 0
-      ) {
+      const skipReason = resolveCronGuardDiscordMonitorSkipReason({
+        entryEnabled: entry?.enabled !== false,
+        configEnabled: currentConfig.enabled,
+        discordEnabled: currentConfig.discord.enabled,
+        approverCount: currentConfig.approvers.length,
+      });
+      if (skipReason) {
+        runtime.log(`[cron-guard] discord monitor skipped for account ${accountId}: ${skipReason}`);
         return null;
       }
       const handler = new DiscordCronGuardApprovalHandler({
@@ -66,6 +89,9 @@ export default {
         config: currentConfig,
         cfg,
       });
+      runtime.log(
+        `[cron-guard] discord monitor active for account ${accountId}: components=1 modals=1 lifecycleHandlers=1 target=${currentConfig.discord.target} approvers=${currentConfig.approvers.length} runtimeId=${handler.getRuntimeId()}`,
+      );
       return {
         components: [createCronGuardApprovalButton({ handler })],
         modals: [createCronGuardApprovalModal({ handler })],

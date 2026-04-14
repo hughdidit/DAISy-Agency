@@ -12,7 +12,10 @@ Cron Guard provides read-only cron visibility for agents and routes cron write i
 
 1. Enable the plugin under `plugins.entries.cron-guard`.
 2. Configure `approvers` with channel-scoped principals such as `discord:123456789`.
-3. Deny raw `cron` for the target agent and allow only the `cron_guard_*` tools.
+3. For Discord buttons, set `plugins.entries.cron-guard.config.discord.enabled=true`.
+4. Restart the full gateway after any `plugins.*` config change. Hot reload is not enough for Discord component registration.
+5. Ensure only one authoritative Discord gateway runtime is active per bot token/account.
+6. Deny raw `cron` for the target agent and allow only the `cron_guard_*` tools.
 
 ## Operating Model
 

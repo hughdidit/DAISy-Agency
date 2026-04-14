@@ -27,7 +27,11 @@
       "cron-guard": {
         "enabled": true,
         "config": {
-          "approvers": ["discord:123456789"]
+          "approvers": ["discord:123456789"],
+          "discord": {
+            "enabled": true,
+            "target": "dm"
+          }
         }
       }
     }
@@ -36,3 +40,4 @@
 ```
 
 Configure the target agent to deny raw `cron` access and allow only the `cron_guard_*` tools.
+After changing `plugins.entries.cron-guard`, restart the full gateway so the active Discord runtime reloads the cron approval components.
