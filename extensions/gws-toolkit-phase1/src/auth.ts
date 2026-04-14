@@ -163,12 +163,13 @@ export function getRouteImpersonationStatus(route: ResolvedRoute): RouteImperson
       missing: false,
     };
   }
-  if (route.impersonatedUser) {
+  if (typeof route.impersonatedUser === "string") {
+    const value = route.impersonatedUser.trim() || undefined;
     return {
       configured: true,
       source: "literal",
-      value: route.impersonatedUser,
-      missing: false,
+      value,
+      missing: !value,
     };
   }
   if (route.impersonatedUserEnvVar) {

@@ -168,9 +168,12 @@ export async function executeStatus(params: {
   audit: AuditLogger;
   configResolution: ConfigResolution;
   rawParams?: unknown;
+  action?: string;
+  skipBinaryDiscovery?: boolean;
   resolveRuntimeEnv?: () => Promise<Record<string, string> | undefined>;
 }): Promise<StructuredEnvelope> {
   const startedAt = Date.now();
+  const action = params.action ?? "status";
   const validated = validateStatusParams(params.rawParams ?? {});
 
   if (!validated.ok) {
@@ -178,7 +181,7 @@ export async function executeStatus(params: {
     params.audit.emit({
       ctx: params.ctx,
       toolName: "gws_status",
-      action: "status",
+      action,
       targetService: "status",
       readOnly: true,
       decision: "deny",
@@ -197,7 +200,7 @@ export async function executeStatus(params: {
       },
       meta: {
         tool: "gws_status",
-        action: "status",
+        action,
         service: "status",
         latencyMs,
       },
@@ -208,7 +211,7 @@ export async function executeStatus(params: {
     return buildConfigResolutionDeniedEnvelope({
       tool: "gws_status",
       service: "status",
-      action: "status",
+      action,
       configResolution: params.configResolution,
       ctx: params.ctx,
       audit: params.audit,
@@ -236,7 +239,7 @@ export async function executeStatus(params: {
       params.audit.emit({
         ctx: params.ctx,
         toolName: "gws_status",
-        action: "status",
+        action,
         targetService: "status",
         readOnly: true,
         decision: "deny",
@@ -252,23 +255,25 @@ export async function executeStatus(params: {
         },
         meta: {
           tool: "gws_status",
-          action: "status",
+          action,
           service: "status",
           latencyMs,
         },
       };
     }
 
-    const discovery = await discoverBinary({
-      configuredPath: activeConfig.binaryPath,
-      runVersion: async (binaryPath) =>
-        executeCommand({
-          config: activeConfig,
-          binaryPath,
-          argv: ["--version"],
-          env: runtimeEnv,
-        }),
-    });
+    const discovery = params.skipBinaryDiscovery
+      ? null
+      : await discoverBinary({
+          configuredPath: activeConfig.binaryPath,
+          runVersion: async (binaryPath) =>
+            executeCommand({
+              config: activeConfig,
+              binaryPath,
+              argv: ["--version"],
+              env: runtimeEnv,
+            }),
+        });
 
     const authStatus = getAuthSourceStatus(activeConfig);
     const activeRoute = getActiveRouteAuthStatus(activeConfig, params.ctx);
@@ -280,9 +285,13 @@ export async function executeStatus(params: {
       ok: true,
       data: {
         binary: {
-          found: true,
-          binaryPath: discovery.binaryPath,
-          ...(includeVersion ? { version: discovery.versionText } : {}),
+          ...(discovery
+            ? {
+                found: true,
+                binaryPath: discovery.binaryPath,
+                ...(includeVersion ? { version: discovery.versionText } : {}),
+              }
+            : { found: false, skipped: true }),
         },
         ...(includeAuthStatus ? { auth: authStatus } : {}),
         ...(includeAuthStatus ? { currentRoute: activeRoute } : {}),
@@ -303,7 +312,7 @@ export async function executeStatus(params: {
       },
       meta: {
         tool: "gws_status",
-        action: "status",
+        action,
         service: "status",
         resultCode: "OK",
         latencyMs,
@@ -313,7 +322,7 @@ export async function executeStatus(params: {
     params.audit.emit({
       ctx: params.ctx,
       toolName: "gws_status",
-      action: "status",
+      action,
       targetService: "status",
       readOnly: true,
       decision: "allow",
@@ -327,14 +336,14 @@ export async function executeStatus(params: {
     const mapped = toStructuredError({
       error,
       tool: "gws_status",
-      action: "status",
+      action,
       service: "status",
       latencyMs,
     });
     params.audit.emit({
       ctx: params.ctx,
       toolName: "gws_status",
-      action: "status",
+      action,
       targetService: "status",
       readOnly: true,
       decision: "deny",
@@ -354,6 +363,8 @@ export async function executeAuthPosture(params: {
 }): Promise<StructuredEnvelope> {
   const status = await executeStatus({
     ...params,
+    action: "auth-posture",
+    skipBinaryDiscovery: true,
     rawParams: {
       includeVersion: false,
       includeAuthStatus: true,

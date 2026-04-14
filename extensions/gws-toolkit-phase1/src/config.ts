@@ -295,16 +295,22 @@ export function resolveConfig(
   const enabledServices = normalizeServices(raw.enabledServices);
   const enabledWriteServices = normalizeServices(raw.enabledWriteServices);
   const normalizedCredentialModes = normalizeCredentialModes(raw.allowedCredentialModes);
-  if (normalizedCredentialModes.rejected.includes("oauth")) {
+  if (raw.allowedCredentialModes !== undefined && normalizedCredentialModes.rejected.length > 0) {
+    const rejectedModes = normalizedCredentialModes.rejected.join(", ");
+    const includesOauth = normalizedCredentialModes.rejected.includes("oauth");
     return {
       ok: false,
       error: buildConfigError(
-        "allowedCredentialModes includes unsupported mode oauth. Migrate to credentials_file (Headless OAuth2 exported credentials or service-account JSON) or token for short-lived access.",
+        includesOauth
+          ? `allowedCredentialModes includes unsupported mode oauth${
+              normalizedCredentialModes.rejected.length > 1 ? ` (rejected: ${rejectedModes})` : ""
+            }. Migrate to credentials_file (Headless OAuth2 exported credentials or service-account JSON) or token for short-lived access.`
+          : `allowedCredentialModes contains invalid mode(s): ${rejectedModes}. Supported modes are credentials_file and token.`,
       ),
       posture: {
         ...postureBase,
         pluginConfigProvided: true,
-        message: "oauth mode removed",
+        message: includesOauth ? "oauth mode removed" : "credential modes invalid",
       },
     };
   }

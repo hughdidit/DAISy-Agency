@@ -149,6 +149,20 @@ describe("auth resolution", () => {
     expect(resolved.error.error.message).toContain("unsupported mode oauth");
   });
 
+  it("rejects invalid allowedCredentialModes values", () => {
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      allowedCredentialModes: ["token", "tokn"],
+      tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
+      approvedCredentialDirs: [],
+    });
+    expect(resolved.ok).toBe(false);
+    if (resolved.ok) {
+      return;
+    }
+    expect(resolved.error.error.message).toContain("invalid mode(s): tokn");
+  });
+
   it("does not let explicit routes inherit the legacy credentials file path", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-route-"));
     const allowedFile = path.join(root, "cred.json");
