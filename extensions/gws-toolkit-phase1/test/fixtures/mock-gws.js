@@ -45,7 +45,6 @@ if (mode === "timeout") {
         },
         0,
       );
-      return;
     }
     writeJson(
       {
