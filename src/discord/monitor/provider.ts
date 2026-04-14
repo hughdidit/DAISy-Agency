@@ -1,7 +1,14 @@
 import { inspect } from "node:util";
 import {
+  Button,
+  ChannelSelectMenu,
   Client,
+  MentionableSelectMenu,
+  Modal as CarbonModal,
   ReadyListener,
+  RoleSelectMenu,
+  StringSelectMenu,
+  UserSelectMenu,
   type BaseCommand,
   type BaseMessageInteractiveComponent,
   type Modal,
@@ -9,7 +16,7 @@ import {
 } from "@buape/carbon";
 import { GatewayCloseCodes, type GatewayPlugin } from "@buape/carbon/gateway";
 import { VoicePlugin } from "@buape/carbon/voice";
-import { Routes } from "discord-api-types/v10";
+import { ComponentType, Routes } from "discord-api-types/v10";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { listNativeCommandSpecsForConfig } from "../../auto-reply/commands-registry.js";
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
@@ -120,6 +127,183 @@ function summarizeGuilds(entries?: Record<string, unknown>) {
   return `${sample.join(", ")}${suffix}`;
 }
 
+type ResolvedDiscordPluginContribution = {
+  pluginId: string;
+  contribution: OpenClawPluginDiscordMonitorContribution;
+};
+
+// Plugin monitors can be loaded through a different module instance than the
+// Discord runtime. Re-wrap interactive components in local Carbon classes so
+// Carbon's instanceof-based dispatch still recognizes them.
+class PluginButtonBridge extends Button {
+  private readonly delegate: BaseMessageInteractiveComponent;
+
+  constructor(delegate: BaseMessageInteractiveComponent) {
+    super();
+    this.delegate = delegate;
+    Object.assign(this, delegate);
+  }
+
+  async run(...args: Parameters<Button["run"]>): Promise<void> {
+    await (
+      this.delegate.run as (
+        this: BaseMessageInteractiveComponent,
+        ...args: Parameters<Button["run"]>
+      ) => unknown
+    ).call(this.delegate, ...args);
+  }
+}
+
+class PluginStringSelectBridge extends StringSelectMenu {
+  private readonly delegate: BaseMessageInteractiveComponent;
+
+  constructor(delegate: BaseMessageInteractiveComponent) {
+    super();
+    this.delegate = delegate;
+    Object.assign(this, delegate);
+  }
+
+  async run(...args: Parameters<StringSelectMenu["run"]>): Promise<void> {
+    await (
+      this.delegate.run as (
+        this: BaseMessageInteractiveComponent,
+        ...args: Parameters<StringSelectMenu["run"]>
+      ) => unknown
+    ).call(this.delegate, ...args);
+  }
+}
+
+class PluginUserSelectBridge extends UserSelectMenu {
+  private readonly delegate: BaseMessageInteractiveComponent;
+
+  constructor(delegate: BaseMessageInteractiveComponent) {
+    super();
+    this.delegate = delegate;
+    Object.assign(this, delegate);
+  }
+
+  async run(...args: Parameters<UserSelectMenu["run"]>): Promise<void> {
+    await (
+      this.delegate.run as (
+        this: BaseMessageInteractiveComponent,
+        ...args: Parameters<UserSelectMenu["run"]>
+      ) => unknown
+    ).call(this.delegate, ...args);
+  }
+}
+
+class PluginRoleSelectBridge extends RoleSelectMenu {
+  private readonly delegate: BaseMessageInteractiveComponent;
+
+  constructor(delegate: BaseMessageInteractiveComponent) {
+    super();
+    this.delegate = delegate;
+    Object.assign(this, delegate);
+  }
+
+  async run(...args: Parameters<RoleSelectMenu["run"]>): Promise<void> {
+    await (
+      this.delegate.run as (
+        this: BaseMessageInteractiveComponent,
+        ...args: Parameters<RoleSelectMenu["run"]>
+      ) => unknown
+    ).call(this.delegate, ...args);
+  }
+}
+
+class PluginMentionableSelectBridge extends MentionableSelectMenu {
+  private readonly delegate: BaseMessageInteractiveComponent;
+
+  constructor(delegate: BaseMessageInteractiveComponent) {
+    super();
+    this.delegate = delegate;
+    Object.assign(this, delegate);
+  }
+
+  async run(...args: Parameters<MentionableSelectMenu["run"]>): Promise<void> {
+    await (
+      this.delegate.run as (
+        this: BaseMessageInteractiveComponent,
+        ...args: Parameters<MentionableSelectMenu["run"]>
+      ) => unknown
+    ).call(this.delegate, ...args);
+  }
+}
+
+class PluginChannelSelectBridge extends ChannelSelectMenu {
+  private readonly delegate: BaseMessageInteractiveComponent;
+
+  constructor(delegate: BaseMessageInteractiveComponent) {
+    super();
+    this.delegate = delegate;
+    Object.assign(this, delegate);
+  }
+
+  async run(...args: Parameters<ChannelSelectMenu["run"]>): Promise<void> {
+    await (
+      this.delegate.run as (
+        this: BaseMessageInteractiveComponent,
+        ...args: Parameters<ChannelSelectMenu["run"]>
+      ) => unknown
+    ).call(this.delegate, ...args);
+  }
+}
+
+class PluginModalBridge extends CarbonModal {
+  private readonly delegate: Modal;
+
+  constructor(delegate: Modal) {
+    super();
+    this.delegate = delegate;
+    Object.assign(this, delegate);
+  }
+
+  async run(...args: Parameters<CarbonModal["run"]>): Promise<void> {
+    await (
+      this.delegate.run as (this: Modal, ...args: Parameters<CarbonModal["run"]>) => unknown
+    ).call(this.delegate, ...args);
+  }
+}
+
+function normalizeDiscordPluginComponent(
+  component: BaseMessageInteractiveComponent,
+): { component: BaseMessageInteractiveComponent; bridged: boolean } {
+  if (
+    component instanceof Button ||
+    component instanceof StringSelectMenu ||
+    component instanceof UserSelectMenu ||
+    component instanceof RoleSelectMenu ||
+    component instanceof MentionableSelectMenu ||
+    component instanceof ChannelSelectMenu
+  ) {
+    return { component, bridged: false };
+  }
+
+  switch (component.type) {
+    case ComponentType.Button:
+      return { component: new PluginButtonBridge(component), bridged: true };
+    case ComponentType.StringSelect:
+      return { component: new PluginStringSelectBridge(component), bridged: true };
+    case ComponentType.UserSelect:
+      return { component: new PluginUserSelectBridge(component), bridged: true };
+    case ComponentType.RoleSelect:
+      return { component: new PluginRoleSelectBridge(component), bridged: true };
+    case ComponentType.MentionableSelect:
+      return { component: new PluginMentionableSelectBridge(component), bridged: true };
+    case ComponentType.ChannelSelect:
+      return { component: new PluginChannelSelectBridge(component), bridged: true };
+    default:
+      return { component, bridged: false };
+  }
+}
+
+function normalizeDiscordPluginModal(modal: Modal): { modal: Modal; bridged: boolean } {
+  if (modal instanceof CarbonModal) {
+    return { modal, bridged: false };
+  }
+  return { modal: new PluginModalBridge(modal), bridged: true };
+}
+
 function formatThreadBindingDurationForConfigLabel(durationMs: number): string {
   const label = formatThreadBindingDurationLabel(durationMs);
   return label === "disabled" ? "off" : label;
@@ -200,15 +384,41 @@ function resolveDiscordPluginContributions(params: {
   accountId: string;
   config: OpenClawConfig;
   runtime: RuntimeEnv;
-}): OpenClawPluginDiscordMonitorContribution[] {
+}): ResolvedDiscordPluginContribution[] {
   const registry = getActivePluginRegistry();
   const registrations = registry?.discordMonitors ?? [];
-  const contributions: OpenClawPluginDiscordMonitorContribution[] = [];
+  const contributions: ResolvedDiscordPluginContribution[] = [];
   for (const entry of registrations) {
     try {
       const contribution = entry.factory(params);
       if (contribution) {
-        contributions.push(contribution);
+        let bridgedComponents = 0;
+        const components = (contribution.components ?? []).map((component) => {
+          const normalized = normalizeDiscordPluginComponent(component);
+          if (normalized.bridged) {
+            bridgedComponents += 1;
+          }
+          return normalized.component;
+        });
+        let bridgedModals = 0;
+        const modals = (contribution.modals ?? []).map((modal) => {
+          const normalized = normalizeDiscordPluginModal(modal);
+          if (normalized.bridged) {
+            bridgedModals += 1;
+          }
+          return normalized.modal;
+        });
+        params.runtime.log(
+          `discord: plugin monitor contribution active (${entry.pluginId}, account=${params.accountId}, components=${components.length}, modals=${modals.length}, lifecycleHandlers=${contribution.lifecycleHandlers?.length ?? 0}, bridgedComponents=${bridgedComponents}, bridgedModals=${bridgedModals})`,
+        );
+        contributions.push({
+          pluginId: entry.pluginId,
+          contribution: {
+            ...contribution,
+            components,
+            modals,
+          },
+        });
       }
     } catch (err) {
       params.runtime.error?.(
@@ -461,7 +671,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       components.push(createExecApprovalButton({ handler: execApprovalsHandler }));
     }
     const pluginLifecycleHandlers: OpenClawPluginDiscordLifecycleHandler[] = [];
-    for (const contribution of pluginContributions) {
+    for (const { contribution } of pluginContributions) {
       if (contribution.components) {
         components.push(...contribution.components);
       }

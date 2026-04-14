@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import {
   Button,
   Label,
@@ -75,6 +76,10 @@ type CronGuardApprovalHandlerOpts = {
 };
 
 type BuildApproverResult = { ok: true; approver: CronGuardApprover } | { ok: false };
+
+function createCronGuardRuntimeId(): string {
+  return randomBytes(6).toString("hex");
+}
 
 function encodeCustomIdValue(value: string): string {
   return encodeURIComponent(value);
@@ -317,34 +322,38 @@ class CronGuardApprovalActionButton extends Button {
   constructor(params: {
     requestId: string;
     action: CronGuardButtonAction;
+    runtimeId?: string;
     label: string;
     style: ButtonStyle;
   }) {
     super();
-    this.customId = buildCronGuardButtonCustomId(params.requestId, params.action);
+    this.customId = buildCronGuardButtonCustomId(params.requestId, params.action, params.runtimeId);
     this.label = params.label;
     this.style = params.style;
   }
 }
 
 class CronGuardApprovalActionRow extends Row<Button> {
-  constructor(requestId: string) {
+  constructor(requestId: string, runtimeId?: string) {
     super([
       new CronGuardApprovalActionButton({
         requestId,
         action: "approve",
+        runtimeId,
         label: "Approve",
         style: ButtonStyle.Success,
       }),
       new CronGuardApprovalActionButton({
         requestId,
         action: "modify",
+        runtimeId,
         label: "Modify",
         style: ButtonStyle.Primary,
       }),
       new CronGuardApprovalActionButton({
         requestId,
         action: "deny",
+        runtimeId,
         label: "Deny",
         style: ButtonStyle.Danger,
       }),
@@ -384,10 +393,10 @@ class CronGuardModifyPromptModal extends Modal {
   customId: string;
   components: [Label];
 
-  constructor(params: { request: CronGuardApprovalRecord }) {
+  constructor(params: { request: CronGuardApprovalRecord; runtimeId?: string }) {
     super();
     this.title = `Modify cron ${params.request.action}`;
-    this.customId = buildCronGuardModalCustomId(params.request.requestId);
+    this.customId = buildCronGuardModalCustomId(params.request.requestId, params.runtimeId);
     this.components = [
       new CronGuardModifyModalLabel(JSON.stringify(params.request.currentPayload, null, 2)),
     ];
@@ -401,17 +410,20 @@ class CronGuardModifyPromptModal extends Modal {
 export function buildCronGuardButtonCustomId(
   requestId: string,
   action: CronGuardButtonAction,
+  runtimeId?: string,
 ): string {
-  return `${CRON_GUARD_COMPONENT_KEY}:id=${encodeCustomIdValue(requestId)};action=${action}`;
+  const runtimePart = runtimeId ? `;rt=${encodeCustomIdValue(runtimeId)}` : "";
+  return `${CRON_GUARD_COMPONENT_KEY}:id=${encodeCustomIdValue(requestId)};action=${action}${runtimePart}`;
 }
 
-export function buildCronGuardModalCustomId(requestId: string): string {
-  return `${CRON_GUARD_MODAL_KEY}:id=${encodeCustomIdValue(requestId)}`;
+export function buildCronGuardModalCustomId(requestId: string, runtimeId?: string): string {
+  const runtimePart = runtimeId ? `;rt=${encodeCustomIdValue(runtimeId)}` : "";
+  return `${CRON_GUARD_MODAL_KEY}:id=${encodeCustomIdValue(requestId)}${runtimePart}`;
 }
 
 export function parseCronGuardButtonData(
   data: ComponentData,
-): { requestId: string; action: CronGuardButtonAction } | null {
+): { requestId: string; action: CronGuardButtonAction; runtimeId?: string } | null {
   if (!data || typeof data !== "object") {
     return null;
   }
@@ -419,25 +431,31 @@ export function parseCronGuardButtonData(
   const action = coerceComponentValue(
     (data as { action?: unknown }).action,
   ) as CronGuardButtonAction;
+  const runtimeId = coerceComponentValue((data as { rt?: unknown }).rt);
   if (!requestId || (action !== "approve" && action !== "modify" && action !== "deny")) {
     return null;
   }
   return {
     requestId: decodeCustomIdValue(requestId),
     action,
+    runtimeId: runtimeId ? decodeCustomIdValue(runtimeId) : undefined,
   };
 }
 
-export function parseCronGuardModalData(data: ComponentData): { requestId: string } | null {
+export function parseCronGuardModalData(
+  data: ComponentData,
+): { requestId: string; runtimeId?: string } | null {
   if (!data || typeof data !== "object") {
     return null;
   }
   const requestId = coerceComponentValue((data as { id?: unknown }).id);
+  const runtimeId = coerceComponentValue((data as { rt?: unknown }).rt);
   if (!requestId) {
     return null;
   }
   return {
     requestId: decodeCustomIdValue(requestId),
+    runtimeId: runtimeId ? decodeCustomIdValue(runtimeId) : undefined,
   };
 }
 
@@ -457,9 +475,18 @@ export class DiscordCronGuardApprovalHandler {
   private pending = new Map<CronGuardMessageKey, PendingApproval>();
   private requestTimeouts = new Map<string, NodeJS.Timeout>();
   private requestCache = new Map<string, CronGuardApprovalRecord>();
+  private readonly runtimeId = createCronGuardRuntimeId();
   private started = false;
 
   constructor(private readonly opts: CronGuardApprovalHandlerOpts) {}
+
+  getRuntimeId(): string {
+    return this.runtimeId;
+  }
+
+  isLocallyActive(): boolean {
+    return this.started && this.gatewayClient !== null;
+  }
 
   shouldHandle(request: CronGuardApprovalRecord): boolean {
     if (!this.opts.config.enabled || !this.opts.config.discord.enabled) {
@@ -521,6 +548,9 @@ export class DiscordCronGuardApprovalHandler {
       logDebug("discord cron approvals: no approvers configured");
       return;
     }
+    logDebug(
+      `discord cron approvals: starting account=${this.opts.accountId} runtime=${this.runtimeId} target=${this.opts.config.discord.target} approvers=${this.opts.config.approvers.length}`,
+    );
 
     const { url: gatewayUrl } = buildGatewayConnectionDetails({
       config: this.opts.cfg,
@@ -542,13 +572,19 @@ export class DiscordCronGuardApprovalHandler {
       scopes: ["operator.read", "operator.approvals"],
       onEvent: (evt) => this.handleGatewayEvent(evt),
       onHelloOk: () => {
-        logDebug("discord cron approvals: connected to gateway");
+        logDebug(
+          `discord cron approvals: connected to gateway account=${this.opts.accountId} runtime=${this.runtimeId}`,
+        );
       },
       onConnectError: (err) => {
-        logError(`discord cron approvals: connect error: ${err.message}`);
+        logError(
+          `discord cron approvals: connect error account=${this.opts.accountId} runtime=${this.runtimeId}: ${err.message}`,
+        );
       },
       onClose: (code, reason) => {
-        logDebug(`discord cron approvals: gateway closed: ${code} ${reason}`);
+        logDebug(
+          `discord cron approvals: gateway closed account=${this.opts.accountId} runtime=${this.runtimeId}: ${code} ${reason}`,
+        );
       },
     });
 
@@ -602,7 +638,7 @@ export class DiscordCronGuardApprovalHandler {
   }
 
   createModifyModal(request: CronGuardApprovalRecord): Modal {
-    return new CronGuardModifyPromptModal({ request });
+    return new CronGuardModifyPromptModal({ request, runtimeId: this.runtimeId });
   }
 
   async resolveRequest(
@@ -736,6 +772,12 @@ export class DiscordCronGuardApprovalHandler {
       await this.updatePendingMessages(request);
       return;
     }
+    if (!this.isLocallyActive()) {
+      logError(
+        `discord cron approvals: refusing delivery on inactive runtime account=${this.opts.accountId} runtime=${this.runtimeId} request=${request.requestId}`,
+      );
+      return;
+    }
 
     const { rest, request: discordRequest } = createDiscordClient(
       { token: this.opts.token, accountId: this.opts.accountId },
@@ -746,7 +788,7 @@ export class DiscordCronGuardApprovalHandler {
         request,
         cfg: this.opts.cfg,
         accountId: this.opts.accountId,
-        actionRow: new CronGuardApprovalActionRow(request.requestId),
+        actionRow: new CronGuardApprovalActionRow(request.requestId, this.runtimeId),
       }),
     );
     const body = stripUndefinedFields(serializePayload(payload));
@@ -773,9 +815,14 @@ export class DiscordCronGuardApprovalHandler {
               discordChannelId: channelId,
               discordMessageId: message.id,
             });
+            logDebug(
+              `discord cron approvals: delivered channel request=${request.requestId} account=${this.opts.accountId} runtime=${this.runtimeId} channel=${channelId} message=${message.id}`,
+            );
           }
         } catch (err) {
-          logError(`discord cron approvals: failed to send to channel: ${String(err)}`);
+          logError(
+            `discord cron approvals: failed to send to channel account=${this.opts.accountId} runtime=${this.runtimeId}: ${String(err)}`,
+          );
           fallbackToDm = true;
         }
       } else {
@@ -812,8 +859,13 @@ export class DiscordCronGuardApprovalHandler {
             discordChannelId: dmChannel.id,
             discordMessageId: message.id,
           });
+          logDebug(
+            `discord cron approvals: delivered dm request=${request.requestId} account=${this.opts.accountId} runtime=${this.runtimeId} approver=${userId} channel=${dmChannel.id} message=${message.id}`,
+          );
         } catch (err) {
-          logError(`discord cron approvals: failed to notify user ${userId}: ${String(err)}`);
+          logError(
+            `discord cron approvals: failed to notify user ${userId} account=${this.opts.accountId} runtime=${this.runtimeId}: ${String(err)}`,
+          );
         }
       }
     }
@@ -826,7 +878,7 @@ export class DiscordCronGuardApprovalHandler {
         request,
         cfg: this.opts.cfg,
         accountId: this.opts.accountId,
-        actionRow: new CronGuardApprovalActionRow(request.requestId),
+        actionRow: new CronGuardApprovalActionRow(request.requestId, this.runtimeId),
       }),
     );
   }
@@ -1021,6 +1073,27 @@ export class CronGuardApprovalButton extends Button {
         .catch(() => undefined);
       return;
     }
+    if (parsed.runtimeId && parsed.runtimeId !== this.ctx.handler.getRuntimeId()) {
+      logError(
+        `discord cron approvals: runtime mismatch on button click request=${parsed.requestId} expected=${parsed.runtimeId} actual=${this.ctx.handler.getRuntimeId()} continuingWithActiveHandler=true`,
+      );
+    }
+    if (!this.ctx.handler.isLocallyActive()) {
+      logError(
+        `discord cron approvals: inactive handler on button click request=${parsed.requestId} runtime=${this.ctx.handler.getRuntimeId()}`,
+      );
+      await interaction
+        .reply({
+          content:
+            "Cron approvals are not active in this bot session. Ask the bot to resend the approval prompt.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
+      return;
+    }
+    logDebug(
+      `discord cron approvals: button click request=${parsed.requestId} action=${parsed.action} runtime=${this.ctx.handler.getRuntimeId()} user=${userId}`,
+    );
 
     const auth = this.ctx.handler.buildApprover(userId);
     if (!auth.ok) {
@@ -1112,6 +1185,27 @@ export class CronGuardApprovalModal extends Modal {
         .catch(() => undefined);
       return;
     }
+    if (parsed.runtimeId && parsed.runtimeId !== this.ctx.handler.getRuntimeId()) {
+      logError(
+        `discord cron approvals: runtime mismatch on modal submit request=${parsed.requestId} expected=${parsed.runtimeId} actual=${this.ctx.handler.getRuntimeId()} continuingWithActiveHandler=true`,
+      );
+    }
+    if (!this.ctx.handler.isLocallyActive()) {
+      logError(
+        `discord cron approvals: inactive handler on modal submit request=${parsed.requestId} runtime=${this.ctx.handler.getRuntimeId()}`,
+      );
+      await interaction
+        .reply({
+          content:
+            "Cron approvals are not active in this bot session. Ask the bot to resend the approval prompt.",
+          ephemeral: true,
+        })
+        .catch(() => undefined);
+      return;
+    }
+    logDebug(
+      `discord cron approvals: modal submit request=${parsed.requestId} runtime=${this.ctx.handler.getRuntimeId()} user=${userId}`,
+    );
 
     const auth = this.ctx.handler.buildApprover(userId);
     if (!auth.ok) {
