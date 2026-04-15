@@ -1,16 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
-  "required": [
-    "_id",
-    "category",
-    "createdAt",
-    "importance",
-    "text",
-    "type",
-    "updatedAt",
-    "vector"
-  ],
+  "required": ["_id", "category", "createdAt", "importance", "text", "type", "updatedAt", "vector"],
   "properties": {
     "_id": {
       "type": "string"

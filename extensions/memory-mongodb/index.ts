@@ -589,7 +589,8 @@ const memoryPlugin = {
               }
               if (outcome.status === "duplicate") {
                 const existingText =
-                  outcome.existingId && (await db.getById(outcome.existingId).catch(() => null))?.text;
+                  outcome.existingId &&
+                  (await db.getById(outcome.existingId).catch(() => null))?.text;
                 return {
                   content: [
                     {
@@ -730,7 +731,9 @@ const memoryPlugin = {
                   : undefined;
 
               const allowLegacyUnscopedDelete = cfg.ops.schemaMode === "additive";
-              const scopeMismatch = entryScope ? entryScope !== scopeSubject : !allowLegacyUnscopedDelete;
+              const scopeMismatch = entryScope
+                ? entryScope !== scopeSubject
+                : !allowLegacyUnscopedDelete;
               if (!entry || scopeMismatch) {
                 return {
                   content: [{ type: "text", text: `Memory ${memoryId} not found in scope.` }],
