@@ -97,6 +97,7 @@ const SECRET_PATTERNS = [
 ];
 
 const DEFAULT_DEDUPE_THRESHOLD = 0.95;
+const DEFAULT_RECALL_MIN_SCORE = 0.1;
 const ATTACHMENT_ONLY_FALLBACK_RE = /^\[attachment:[^\]]+\]$/i;
 
 export class MemoryOpsService {
@@ -133,7 +134,7 @@ export class MemoryOpsService {
     memories: Array<Record<string, unknown>>;
   }> {
     const limit = Math.max(1, Math.min(input.limit ?? 5, 20));
-    const results = await this.db.searchByQuery(input.query, limit, 0, {
+    const results = await this.db.searchByQuery(input.query, limit, DEFAULT_RECALL_MIN_SCORE, {
       scopeSubject: input.scopeSubject,
       kinds: input.filters?.kinds,
       modalities: input.filters?.modalities,

@@ -655,7 +655,7 @@ const memoryPlugin = {
                 };
               }
 
-              if (results.length === 1 && results[0].score > 0.9) {
+              if (results.length === 1 && results[0].score >= 0.95) {
                 await deleteMemory(results[0].entry.id);
                 return {
                   content: [{ type: "text", text: `Forgotten: "${results[0].entry.text}"` }],
