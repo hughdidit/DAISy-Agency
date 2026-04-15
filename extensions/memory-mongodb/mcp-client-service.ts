@@ -91,11 +91,9 @@ export class McpClientService {
       documents,
     });
 
-    const insertedCount = this.firstNumber(
-      response,
-      ["insertedCount", "inserted_count", "count"],
-      INSERTED_COUNT_TEXT_PATTERNS,
-    );
+    const insertedCount =
+      this.firstNumber(response, ["insertedCount", "inserted_count", "count"]) ??
+      this.firstPatternNumberFromResponse(response, INSERTED_COUNT_TEXT_PATTERNS);
     if (insertedCount === null) {
       throw new Error("MongoDB MCP insert-many response did not confirm insertedCount");
     }
@@ -128,11 +126,9 @@ export class McpClientService {
       filter,
     });
 
-    const deletedCount = this.firstNumber(
-      response,
-      ["deletedCount", "deleted_count", "count"],
-      DELETED_COUNT_TEXT_PATTERNS,
-    );
+    const deletedCount =
+      this.firstNumber(response, ["deletedCount", "deleted_count", "count"]) ??
+      this.firstPatternNumberFromResponse(response, DELETED_COUNT_TEXT_PATTERNS);
     return Boolean(deletedCount && deletedCount > 0);
   }
 
@@ -337,25 +333,20 @@ export class McpClientService {
     return [];
   }
 
-  private firstNumber(source: unknown, keys: string[], textPatterns: RegExp[] = []): number | null {
+  private firstNumber(source: unknown, keys: string[]): number | null {
     const queue: unknown[] = [source];
     const seen = new Set<object>();
-
-    while (queue.length > 0) {
-      const current = queue.shift();
+    for (let index = 0; index < queue.length; index += 1) {
+      const current = queue[index];
       if (current === undefined || current === null) {
         continue;
       }
 
-      if (typeof current === "string") {
-        const match = this.firstPatternNumber(current, textPatterns);
-        if (match !== null) {
-          return match;
-        }
-        continue;
-      }
-
       if (Array.isArray(current)) {
+        if (seen.has(current)) {
+          continue;
+        }
+        seen.add(current);
         queue.push(...current);
         continue;
       }
@@ -375,7 +366,11 @@ export class McpClientService {
           return value;
         }
         if (typeof value === "string") {
-          const maybeNumber = Number(value);
+          const trimmed = value.trim();
+          if (!trimmed) {
+            continue;
+          }
+          const maybeNumber = Number(trimmed);
           if (Number.isFinite(maybeNumber)) {
             return maybeNumber;
           }
@@ -384,6 +379,35 @@ export class McpClientService {
 
       for (const value of Object.values(current)) {
         queue.push(value);
+      }
+    }
+
+    return null;
+  }
+
+  private firstPatternNumberFromResponse(source: unknown, patterns: RegExp[]): number | null {
+    if (!isObject(source)) {
+      return null;
+    }
+
+    const candidates: string[] = [];
+    if (typeof source.message === "string") {
+      candidates.push(source.message);
+    }
+
+    const textBlocks = source.textBlocks;
+    if (Array.isArray(textBlocks)) {
+      for (const block of textBlocks) {
+        if (typeof block === "string") {
+          candidates.push(block);
+        }
+      }
+    }
+
+    for (const candidate of candidates) {
+      const match = this.firstPatternNumber(candidate, patterns);
+      if (match !== null) {
+        return match;
       }
     }
 

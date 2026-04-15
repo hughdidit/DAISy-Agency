@@ -300,6 +300,28 @@ Inserted IDs: 67f95b35e806f530791211eb
     ).rejects.toThrow("confirmed 1 inserts for 2 requested document(s)");
   });
 
+  test("insert-many does not trust inserted count phrases embedded in parsed JSON payloads", async () => {
+    const { McpClientService } = await import("./mcp-client-service.js");
+
+    callTool.mockResolvedValue({
+      content: [
+        {
+          type: "text",
+          text: '{"note":"Inserted `1` document(s) into db.memories.","details":{"text":"Deleted `1` document(s) from collection \\"memories\\""}}',
+        },
+      ],
+    });
+
+    const service = new McpClientService({
+      transport: "sse",
+      url: "https://example.com/sse",
+    });
+
+    await expect(service.insertMany("db", "memories", [{ text: "hello" }])).rejects.toThrow(
+      "insert-many response did not confirm insertedCount",
+    );
+  });
+
   test("supports sse transport", async () => {
     const { McpClientService } = await import("./mcp-client-service.js");
 
