@@ -100,8 +100,11 @@ function collectProdDependencyVersions() {
 
   return Object.fromEntries(
     [...versionsByPackage.entries()]
-      .map(([packageName, versions]) => [packageName, [...versions].sort()])
-      .sort((a, b) => a[0].localeCompare(b[0])),
+      .map(([packageName, versions]) => [
+        packageName,
+        [...versions].toSorted((a, b) => a.localeCompare(b)),
+      ])
+      .toSorted((a, b) => a[0].localeCompare(b[0])),
   );
 }
 
@@ -232,7 +235,7 @@ function extractFindings(advisoriesByPackage) {
     }
   }
 
-  findings.sort((a, b) => {
+  const sortedFindings = findings.toSorted((a, b) => {
     const severityDiff = severityRank(b.severity) - severityRank(a.severity);
     if (severityDiff !== 0) {
       return severityDiff;
@@ -240,7 +243,7 @@ function extractFindings(advisoriesByPackage) {
     return a.packageName.localeCompare(b.packageName);
   });
 
-  return { findings, bySeverity };
+  return { findings: sortedFindings, bySeverity };
 }
 
 async function main() {
