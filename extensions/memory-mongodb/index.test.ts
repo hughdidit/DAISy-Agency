@@ -14,13 +14,17 @@ const mcpClientMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("./mcp-client-service.js", () => ({
-  McpClientService: vi.fn().mockImplementation(() => mcpClientMocks),
+  McpClientService: vi.fn(function MockMcpClientService() {
+    return mcpClientMocks;
+  }),
 }));
 
 vi.mock("./gemini-service.js", () => ({
-  GeminiService: vi.fn().mockImplementation(() => ({
-    embed: vi.fn().mockResolvedValue([0.1, 0.2]),
-  })),
+  GeminiService: vi.fn(function MockGeminiService() {
+    return {
+      embed: vi.fn().mockResolvedValue([0.1, 0.2]),
+    };
+  }),
 }));
 
 describe("memory-mongodb plugin", () => {
