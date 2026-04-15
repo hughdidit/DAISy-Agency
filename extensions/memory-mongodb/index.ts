@@ -19,8 +19,16 @@ import {
   vectorDimsForModel,
 } from "./config.js";
 import { GeminiService } from "./gemini-service.js";
-import { MemoryOpsService, resolveScopeSubjectFromContext } from "./memory-ops-service.js";
 import { McpClientService } from "./mcp-client-service.js";
+import { MemoryOpsService, resolveScopeSubjectFromContext } from "./memory-ops-service.js";
+import {
+  MEMORY_OPS_KINDS,
+  MEMORY_OPS_MODALITIES,
+  type CommitmentTrackerMode,
+  type MemoryCaptureCandidate,
+  type MemoryHygieneStrategy,
+  type PreferenceMinerMode,
+} from "./memory-ops-types.js";
 import {
   buildVectorIndexDefinition,
   type MemoryEntry,
@@ -32,14 +40,6 @@ import {
   multimodalPartsToFallbackText,
   type MultimodalPart,
 } from "./payload-chunker.js";
-import {
-  MEMORY_OPS_KINDS,
-  MEMORY_OPS_MODALITIES,
-  type CommitmentTrackerMode,
-  type MemoryCaptureCandidate,
-  type MemoryHygieneStrategy,
-  type PreferenceMinerMode,
-} from "./memory-ops-types.js";
 
 function compileTriggers(patterns: string[]): RegExp[] {
   return patterns.map((pattern) => new RegExp(pattern, "i"));
@@ -466,7 +466,9 @@ const memoryPlugin = {
                   "Optional multimodal parts for embedding (text and/or inline base64 media)",
               }),
             ),
-            importance: Type.Optional(Type.Number({ description: "Importance 0-1 (default: 0.7)" })),
+            importance: Type.Optional(
+              Type.Number({ description: "Importance 0-1 (default: 0.7)" }),
+            ),
             category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
           }),
           async execute(_toolCallId, params) {
@@ -736,7 +738,9 @@ const memoryPlugin = {
           parameters: Type.Object({
             mode: stringEnum(["plan", "apply"] as const),
             strategies: Type.Optional(
-              Type.Array(stringEnum(["dedupe", "stale-prune", "promote", "conflict-review"] as const)),
+              Type.Array(
+                stringEnum(["dedupe", "stale-prune", "promote", "conflict-review"] as const),
+              ),
             ),
             maxCandidates: Type.Optional(Type.Number({ minimum: 1 })),
             planId: Type.Optional(Type.String()),
@@ -1050,7 +1054,8 @@ const memoryPlugin = {
             const category = detectCategory(text);
             return {
               text,
-              kind: category === "preference" ? "preference" : category === "fact" ? "fact" : "note",
+              kind:
+                category === "preference" ? "preference" : category === "fact" ? "fact" : "note",
               importance: 0.7,
               category,
               subCategory: detectSubCategory(text),

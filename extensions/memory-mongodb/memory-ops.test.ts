@@ -1,6 +1,6 @@
+import { randomUUID } from "node:crypto";
 import { describe, expect, test, vi } from "vitest";
 import { MemoryOpsService, resolveScopeSubjectFromContext } from "./memory-ops-service.js";
-import { randomUUID } from "node:crypto";
 
 function createService(overrides?: Partial<Record<string, any>>) {
   const db = {
@@ -24,23 +24,20 @@ function createService(overrides?: Partial<Record<string, any>>) {
     ...overrides,
   };
 
-  const service = new MemoryOpsService(
-    db as any,
-    {
-      enabled: true,
-      preferenceMinObservations: 2,
-      preferenceMinStabilityScore: 0.8,
-      captureMinConfidence: 0.7,
-      hygieneMaxCandidates: 25,
-      auditCleanup: true,
-      supportedDocumentMimeTypes: ["application/pdf", "text/markdown"],
-      maxInlineDocumentBytesByMime: {
-        "application/pdf": 2000000,
-        "text/markdown": 2000000,
-      },
-      schemaMode: "additive",
+  const service = new MemoryOpsService(db as any, {
+    enabled: true,
+    preferenceMinObservations: 2,
+    preferenceMinStabilityScore: 0.8,
+    captureMinConfidence: 0.7,
+    hygieneMaxCandidates: 25,
+    auditCleanup: true,
+    supportedDocumentMimeTypes: ["application/pdf", "text/markdown"],
+    maxInlineDocumentBytesByMime: {
+      "application/pdf": 2000000,
+      "text/markdown": 2000000,
     },
-  );
+    schemaMode: "additive",
+  });
 
   return { db, service };
 }

@@ -160,7 +160,8 @@ describe("gemini service", () => {
     const result = await service.embed([
       {
         inlineData: {
-          mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation" as const,
+          mimeType:
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation" as const,
           data: "cHB0eA==",
         },
       },

@@ -34,9 +34,7 @@
     },
     "metadata": {
       "type": "object",
-      "required": [
-        "source"
-      ],
+      "required": ["source"],
       "properties": {
         "source": {
           "type": "string"
@@ -168,11 +166,7 @@
           "type": "object",
           "properties": {
             "$numberDouble": {
-              "enum": [
-                "Infinity",
-                "-Infinity",
-                "NaN"
-              ]
+              "enum": ["Infinity", "-Infinity", "NaN"]
             }
           }
         }

@@ -85,7 +85,9 @@ export const BUNDLED_MCP_SERVER_VERSION = "1.2.0";
 
 const DEFAULT_SUPPORTED_DOCUMENT_MIME_TYPES = defaultSupportedMimeTypes.filter(
   (mimeType) =>
-    !mimeType.startsWith("image/") && !mimeType.startsWith("audio/") && !mimeType.startsWith("video/"),
+    !mimeType.startsWith("image/") &&
+    !mimeType.startsWith("audio/") &&
+    !mimeType.startsWith("video/"),
 );
 
 const require = createRequire(import.meta.url);
@@ -321,11 +323,7 @@ function parseSchemaMode(
   if (value === undefined) {
     return DEFAULT_OPS_SCHEMA_MODE;
   }
-  if (
-    value !== "migrate-in-place" &&
-    value !== "strict-validator" &&
-    value !== "additive"
-  ) {
+  if (value !== "migrate-in-place" && value !== "strict-validator" && value !== "additive") {
     throw new Error(`${label} must be one of: migrate-in-place, strict-validator, additive`);
   }
   return value;
@@ -722,7 +720,11 @@ export const memoryConfigSchema = {
           "ops.hygieneMaxCandidates",
           DEFAULT_OPS_HYGIENE_MAX_CANDIDATES,
         ),
-        auditCleanup: parseBoolean(rawOps?.auditCleanup, "ops.auditCleanup", DEFAULT_OPS_AUDIT_CLEANUP),
+        auditCleanup: parseBoolean(
+          rawOps?.auditCleanup,
+          "ops.auditCleanup",
+          DEFAULT_OPS_AUDIT_CLEANUP,
+        ),
         supportedDocumentMimeTypes: parseSupportedDocumentMimeTypes(
           rawOps?.supportedDocumentMimeTypes,
         ),

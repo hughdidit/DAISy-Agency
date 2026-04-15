@@ -243,7 +243,8 @@ export function buildInlineAttachmentManifest(part: MultimodalInlineDataPart): A
     storageMode: "inline",
     transcriptStatus:
       mimeType.startsWith("audio/") || mimeType.startsWith("video/") ? "deferred" : undefined,
-    ocrStatus: mimeType.startsWith("image/") || mimeType === "application/pdf" ? "deferred" : undefined,
+    ocrStatus:
+      mimeType.startsWith("image/") || mimeType === "application/pdf" ? "deferred" : undefined,
   };
 }
 

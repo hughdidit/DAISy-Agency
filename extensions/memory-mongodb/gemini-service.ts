@@ -1,4 +1,8 @@
-import { PayloadChunker, preparePartsForEmbedding, type MultimodalPart } from "./payload-chunker.js";
+import {
+  PayloadChunker,
+  preparePartsForEmbedding,
+  type MultimodalPart,
+} from "./payload-chunker.js";
 
 const DEFAULT_EMBEDDING_MODEL = "gemini-embedding-2-preview";
 const DEFAULT_OUTPUT_DIMENSIONALITY = 1536;

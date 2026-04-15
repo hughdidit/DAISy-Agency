@@ -96,7 +96,8 @@ describe("payload chunker", () => {
       },
       {
         inlineData: {
-          mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" as const,
+          mimeType:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" as const,
           data: "ZG9jeA==",
         },
       },

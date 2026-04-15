@@ -2,12 +2,6 @@ import { createHash, randomUUID } from "node:crypto";
 import type { OpenClawPluginToolContext } from "../../src/plugins/types.js";
 import { isSubagentSessionKey } from "../../src/routing/session-key.js";
 import type { MemoryCategory, MemoryConfig } from "./config.js";
-import type { MemoryEntry, MongoMemoryDB } from "./mongodb-provider.js";
-import {
-  buildAttachmentManifests,
-  multimodalPartsToFallbackText,
-  type MultimodalPart,
-} from "./payload-chunker.js";
 import type {
   CommitmentTrackerMode,
   MemoryCaptureCandidate,
@@ -20,6 +14,12 @@ import type {
   MemoryOpsMetadata,
   PreferenceMinerMode,
 } from "./memory-ops-types.js";
+import type { MemoryEntry, MongoMemoryDB } from "./mongodb-provider.js";
+import {
+  buildAttachmentManifests,
+  multimodalPartsToFallbackText,
+  type MultimodalPart,
+} from "./payload-chunker.js";
 
 type Logger = {
   info?: (message: string) => void;
@@ -659,8 +659,7 @@ export class MemoryOpsService {
       for (const entry of entries) {
         const ops = readOpsMetadata(entry);
         const expiresAt = typeof ops?.expiresAt === "number" ? ops.expiresAt : undefined;
-        const staleAudit =
-          ops?.kind === "audit" && entry.updatedAt < now - 1000 * 60 * 60 * 24;
+        const staleAudit = ops?.kind === "audit" && entry.updatedAt < now - 1000 * 60 * 60 * 24;
         if ((typeof expiresAt === "number" && expiresAt < now) || staleAudit) {
           actions.push({
             id: `stale:${entry.id}`,
@@ -915,7 +914,13 @@ function clampScore(value: number): number {
 }
 
 function resolveCategory(kind: string, requested?: string): MemoryCategory {
-  if (requested === "preference" || requested === "fact" || requested === "decision" || requested === "entity" || requested === "other") {
+  if (
+    requested === "preference" ||
+    requested === "fact" ||
+    requested === "decision" ||
+    requested === "entity" ||
+    requested === "other"
+  ) {
     return requested;
   }
   switch (kind) {
@@ -931,13 +936,9 @@ function resolveCategory(kind: string, requested?: string): MemoryCategory {
   }
 }
 
-function resolveMemoryType(kind: string):
-  | "working"
-  | "cache"
-  | "episodic"
-  | "semantic"
-  | "procedural"
-  | "associative" {
+function resolveMemoryType(
+  kind: string,
+): "working" | "cache" | "episodic" | "semantic" | "procedural" | "associative" {
   switch (kind) {
     case "fact":
       return "semantic";

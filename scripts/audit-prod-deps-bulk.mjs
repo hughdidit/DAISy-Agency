@@ -7,7 +7,9 @@ const SEVERITY_ORDER = ["low", "moderate", "high", "critical"];
 const DEFAULT_LEVEL = "high";
 
 function printUsage() {
-  console.log("Usage: node scripts/audit-prod-deps-bulk.mjs [--level <low|moderate|high|critical>]");
+  console.log(
+    "Usage: node scripts/audit-prod-deps-bulk.mjs [--level <low|moderate|high|critical>]",
+  );
 }
 
 /**
