@@ -97,6 +97,7 @@ const SECRET_PATTERNS = [
 ];
 
 const DEFAULT_DEDUPE_THRESHOLD = 0.95;
+const ATTACHMENT_ONLY_FALLBACK_RE = /^\[attachment:[^\]]+\]$/i;
 
 export class MemoryOpsService {
   private readonly hygienePlans = new Map<string, MemoryHygienePlan>();
@@ -189,8 +190,15 @@ export class MemoryOpsService {
       return { mode: "plan", plan };
     }
 
+    const cachedPlan = input.planId ? this.hygienePlans.get(input.planId) : undefined;
+    if (input.planId && !cachedPlan) {
+      throw new Error("planId not found or expired");
+    }
+    if (cachedPlan && cachedPlan.scopeSubject !== input.scopeSubject) {
+      throw new Error("planId is not valid for the current scope");
+    }
     const plan =
-      (input.planId ? this.hygienePlans.get(input.planId) : undefined) ??
+      cachedPlan ??
       (await this.buildHygienePlan(input.scopeSubject, input.strategies, input.maxCandidates));
 
     const deletedIds: string[] = [];
@@ -219,9 +227,10 @@ export class MemoryOpsService {
               kind: "preference",
               importance: 0.8,
               confidence: 0.95,
+              status: "promoted",
               preference: {
                 key: action.id,
-                value: action.candidateText ?? "promoted",
+                value: action.candidateValue ?? action.candidateText ?? "promoted",
               },
             },
           ],
@@ -237,7 +246,9 @@ export class MemoryOpsService {
       reviewCount += 1;
     }
 
-    this.hygienePlans.delete(plan.planId);
+    if (input.planId) {
+      this.hygienePlans.delete(input.planId);
+    }
 
     return {
       mode: "apply",
@@ -388,6 +399,7 @@ export class MemoryOpsService {
               kind: "preference",
               importance: 0.85,
               confidence: Math.max(plan.stabilityScore, this.cfg.preferenceMinStabilityScore),
+              status,
               preference: {
                 key: plan.key,
                 value: plan.value,
@@ -464,7 +476,7 @@ export class MemoryOpsService {
     const cleanupRequested = input.cleanupOnSuccess ?? this.cfg.auditCleanup;
     let cleanupResult: "skipped" | "deleted" | "failed" = "skipped";
 
-    if (cleanupRequested) {
+    if (cleanupRequested && pass) {
       const deleted = await this.db.delete(created.id).catch(() => false);
       cleanupResult = deleted ? "deleted" : "failed";
     }
@@ -538,10 +550,35 @@ export class MemoryOpsService {
           reason: `unsupported document MIME type: ${attachment.mimeType}`,
         };
       }
+      if (attachment.modality === "document") {
+        const maxInlineBytes = this.cfg.maxInlineDocumentBytesByMime[attachment.mimeType];
+        if (
+          typeof maxInlineBytes === "number" &&
+          maxInlineBytes >= 0 &&
+          typeof attachment.byteLength === "number" &&
+          attachment.byteLength > maxInlineBytes
+        ) {
+          return {
+            status: "invalid",
+            reason:
+              `inline document exceeds maximum size for ${attachment.mimeType}: ` +
+              `${attachment.byteLength} bytes > ${maxInlineBytes} bytes`,
+          };
+        }
+      }
     }
 
+    const status = deriveStatus(input.candidate);
+    const attachmentsChecksum = attachmentFingerprint(combinedAttachments);
     const contentHash = createHash("sha256")
-      .update(`${fallbackText}\n${JSON.stringify(combinedAttachments)}`)
+      .update(
+        JSON.stringify({
+          fallbackText,
+          attachmentsChecksum,
+          status,
+          supersedesId: input.candidate.supersedesId ?? null,
+        }),
+      )
       .digest("hex");
 
     const existing = await this.db.searchByQuery(fallbackText, 3, 0, {
@@ -559,6 +596,16 @@ export class MemoryOpsService {
         };
       }
       if (candidate.score >= input.dedupeThreshold) {
+        if (isAttachmentOnlyFallbackText(fallbackText)) {
+          const existingChecksum = attachmentFingerprint(
+            Array.isArray(ops?.attachments)
+              ? (ops.attachments.filter((item) => isObject(item)) as MemoryOpsAttachmentManifest[])
+              : [],
+          );
+          if (existingChecksum !== attachmentsChecksum) {
+            continue;
+          }
+        }
         return {
           status: "duplicate",
           existingId: candidate.entry.id,
@@ -573,7 +620,7 @@ export class MemoryOpsService {
       source: input.source,
       confidence,
       sourceMessageIds: input.candidate.sourceMessageIds,
-      status: deriveStatus(input.candidate),
+      status,
       owner: input.candidate.commitment?.owner,
       dueAt: input.candidate.commitment?.dueAt,
       followUpAt: input.candidate.commitment?.followUpAt,
@@ -715,6 +762,7 @@ export class MemoryOpsService {
           reason: `stable preference candidate (${promotion.observations} observations)`,
           memoryIds: promotion.supportingIds,
           candidateText: `${promotion.key}: ${promotion.value}`,
+          candidateValue: promotion.value,
         });
       }
     }
@@ -877,7 +925,8 @@ export function resolveScopeSubjectFromContext(ctx: OpenClawPluginToolContext): 
   }
 
   if (ctx.sessionKey && isSubagentSessionKey(ctx.sessionKey)) {
-    return `subagent:${normalizedAgentId}`;
+    const subagentId = resolveSubagentIdFromSessionKey(ctx.sessionKey);
+    return `subagent:${subagentId ?? normalizedAgentId}`;
   }
 
   return `agent:${normalizedAgentId}`;
@@ -896,6 +945,52 @@ function normalizeParts(parts: unknown, text: string | undefined): MultimodalPar
     return [{ text: normalizedText }, ...normalizedParts];
   }
   return normalizedParts;
+}
+
+function resolveSubagentIdFromSessionKey(sessionKey: string): string | null {
+  const tokens = sessionKey
+    .trim()
+    .toLowerCase()
+    .split(":")
+    .filter((token) => token.length > 0);
+  const subagentIndex = tokens.lastIndexOf("subagent");
+  const candidate = subagentIndex >= 0 ? tokens[subagentIndex + 1] : undefined;
+  if (!candidate) {
+    return null;
+  }
+  return candidate.trim().length > 0 ? candidate.trim() : null;
+}
+
+function isAttachmentOnlyFallbackText(text: string): boolean {
+  const normalized = text.trim();
+  if (!normalized) {
+    return false;
+  }
+  const lines = normalized
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  if (lines.length === 0) {
+    return false;
+  }
+  return lines.every((line) => ATTACHMENT_ONLY_FALLBACK_RE.test(line));
+}
+
+function attachmentFingerprint(attachments: MemoryOpsAttachmentManifest[]): string {
+  if (!Array.isArray(attachments) || attachments.length === 0) {
+    return "none";
+  }
+  const normalized = attachments
+    .map((attachment) => ({
+      modality: attachment.modality,
+      mimeType: attachment.mimeType,
+      contentHash: attachment.contentHash,
+      byteLength: attachment.byteLength ?? null,
+      storageMode: attachment.storageMode,
+      externalRef: attachment.externalRef ?? null,
+    }))
+    .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  return createHash("sha256").update(JSON.stringify(normalized)).digest("hex");
 }
 
 function looksLikeSecret(text: string): boolean {

@@ -168,7 +168,7 @@ describe("mongodb provider via MCP", () => {
           path: "vector",
           queryVector: [0.9, 0.1],
           numCandidates: 40,
-          limit: 4,
+          limit: 40,
         },
       },
       {

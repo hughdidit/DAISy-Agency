@@ -150,7 +150,7 @@ export class MongoMemoryDB {
           path: "vector",
           queryVector: vector,
           numCandidates,
-          limit: boundedLimit,
+          limit: numCandidates,
         },
       },
       {

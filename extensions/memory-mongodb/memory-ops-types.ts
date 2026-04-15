@@ -113,6 +113,7 @@ export type MemoryHygieneAction = {
   reason: string;
   memoryIds: string[];
   candidateText?: string;
+  candidateValue?: string;
 };
 
 export type MemoryHygienePlan = {

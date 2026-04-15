@@ -56,7 +56,7 @@ describe("memory ops service", () => {
         agentId: "ops",
         sessionKey: "agent:ops:subagent:investigate",
       } as any),
-    ).toBe("subagent:ops");
+    ).toBe("subagent:investigate");
   });
 
   test("capture rejects low confidence and secret-like content", async () => {
@@ -254,5 +254,6 @@ describe("memory ops service", () => {
 
     expect(result.pass).toBe(false);
     expect(db.store).toHaveBeenCalled();
+    expect(db.delete).not.toHaveBeenCalled();
   });
 });

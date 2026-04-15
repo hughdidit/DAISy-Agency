@@ -168,6 +168,14 @@ describe("gemini service", () => {
     ]);
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(requestInit.body)) as {
+      content?: { parts?: Array<Record<string, unknown>> };
+    };
+    const sentPart = body.content?.parts?.[0] ?? {};
+    expect(typeof sentPart.text).toBe("string");
+    expect(String(sentPart.text)).toContain("[attachment:");
+    expect("inlineData" in sentPart).toBe(false);
     expect(result[0]).toBeCloseTo(1, 6);
     expect(result[1]).toBeCloseTo(0, 6);
     expect(result[2]).toBeCloseTo(0, 6);

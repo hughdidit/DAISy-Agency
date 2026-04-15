@@ -3,6 +3,7 @@
 import { execFileSync } from "node:child_process";
 
 const BULK_ADVISORY_ENDPOINT = "https://registry.npmjs.org/-/npm/v1/security/advisories/bulk";
+const BULK_ADVISORY_TIMEOUT_MS = 30_000;
 const SEVERITY_ORDER = ["low", "moderate", "high", "critical"];
 const DEFAULT_LEVEL = "high";
 
@@ -86,10 +87,23 @@ function walkDependencyNode(node, versionsByPackage) {
  * @returns {Record<string, string[]>}
  */
 function collectProdDependencyVersions() {
-  const rawJson = execFileSync("pnpm", ["list", "--prod", "--json", "--depth=Infinity"], {
-    encoding: "utf8",
-    maxBuffer: 1024 * 1024 * 64,
-  });
+  let rawJson;
+  try {
+    rawJson = execFileSync(
+      "pnpm",
+      ["list", "--prod", "--json", "--depth=Infinity", "--lockfile-only"],
+      {
+        encoding: "utf8",
+        maxBuffer: 1024 * 1024 * 64,
+      },
+    );
+  } catch {
+    // Fallback for pnpm versions that do not support --lockfile-only on list.
+    rawJson = execFileSync("pnpm", ["list", "--prod", "--json", "--depth=Infinity"], {
+      encoding: "utf8",
+      maxBuffer: 1024 * 1024 * 64,
+    });
+  }
   const parsed = JSON.parse(rawJson);
   const roots = Array.isArray(parsed) ? parsed : [parsed];
   const versionsByPackage = new Map();
@@ -113,13 +127,28 @@ function collectProdDependencyVersions() {
  * @returns {Promise<Record<string, unknown>>}
  */
 async function fetchBulkAdvisories(payload) {
-  const response = await fetch(BULK_ADVISORY_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), BULK_ADVISORY_TIMEOUT_MS);
+  let response;
+  try {
+    response = await fetch(BULK_ADVISORY_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(
+        `Bulk advisory endpoint request timed out after ${BULK_ADVISORY_TIMEOUT_MS}ms.`,
+      );
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   const text = await response.text();
   if (!response.ok) {
