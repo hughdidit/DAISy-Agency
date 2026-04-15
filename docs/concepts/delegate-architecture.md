@@ -136,3 +136,14 @@ Tier 3 delegates may use cron only when:
 The delegate preset seeds a delegate-specific `AGENTS.md` and `IDENTITY.md`
 when those files do not already exist in the target workspace. Existing
 workspace content is left in place.
+
+## Memory scope alignment
+
+Delegate-safe memory tooling follows the same subject model:
+
+- `agent:<id>` scope for main delegate sessions
+- `subagent:<id>` scope for delegated subagent sessions
+- no implicit main-agent memory fallback
+- fail-closed behavior when scope identity is unavailable
+
+This keeps durable memory isolation aligned with auth and sandbox isolation.

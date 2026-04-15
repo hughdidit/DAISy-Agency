@@ -139,6 +139,18 @@ memory tools partially registered but disconnected.
 | `autoCapture`                             | No          | `true`                       | Auto-store significant memories from conversation                |
 | `autoRecall`                              | No          | `true`                       | Auto-inject relevant memories before agent execution             |
 
+`ops` block (all optional, safe defaults):
+
+- `ops.enabled` (default `true`)
+- `ops.preferenceMinObservations` (default `2`)
+- `ops.preferenceMinStabilityScore` (default `0.8`)
+- `ops.captureMinConfidence` (default `0.7`)
+- `ops.hygieneMaxCandidates` (default `25`)
+- `ops.auditCleanup` (default `true`)
+- `ops.supportedDocumentMimeTypes` (document MIME allowlist)
+- `ops.maxInlineDocumentBytesByMime` (per-MIME inline byte caps)
+- `ops.schemaMode` (`additive` default; also `migrate-in-place` / `strict-validator`)
+
 `mcp.stdio.env` is validated, not passed through wholesale. The only supported
 child-process env keys are `MDB_MCP_CONNECTION_STRING` and approved TLS/cert
 settings such as `NODE_EXTRA_CA_CERTS`, `NODE_USE_SYSTEM_CA`, `SSL_CERT_FILE`,
@@ -207,6 +219,48 @@ Each stored memory includes:
 - `memory_store({ text, importance, category })`
 - `memory_store({ parts, text?, importance, category })` for multimodal embedding
 - `memory_forget({ memoryId })` or `memory_forget({ query })`
+- `memory_capture({ entries[], dedupeThreshold?, rejectSecrets? })`
+- `memory_hygiene({ mode: "plan"|"apply", strategies?, maxCandidates?, planId? })`
+- `commitment_tracker({ mode: "capture"|"list_open"|"resolve"|"cancel", ... })`
+- `preference_miner({ mode: "observe"|"plan_promotions"|"apply_promotions"|"list", ... })`
+- `memory_audit({ runId?, cleanupOnSuccess? })`
+
+### Delegate Scope Rules
+
+- Tool reads and writes are scoped by default to the invoking subject:
+  - `agent:<id>` for main agent sessions
+  - `subagent:<id>` for sub-agent sessions
+- If scope identity is missing, tool execution fails closed.
+- No implicit fallback to another agent scope is performed.
+
+### Memory-Ops Metadata
+
+Memory records remain in the same `daisy_memory.memories` collection and use additive metadata:
+
+- `metadata.source` remains required and preserved.
+- `metadata.ops` includes:
+  - `kind`, `scopeSubject`, `status`, `confidence`
+  - `sourceMessageIds`, `observationCount`, `stabilityScore`
+  - commitment fields (`owner`, `dueAt`, `followUpAt`, `supersedesId`)
+  - audit fields (`auditRunId`, ephemeral probe state)
+  - attachment manifest summary and per-attachment descriptors
+
+### Document MIME Matrix (Phased)
+
+Immediate support (inline capture + deterministic retrieval eligibility):
+
+- `application/pdf`
+- text-like formats: `text/plain`, `text/markdown`, `text/csv`, `application/json`, YAML, XML, HTML, RTF, TOML, code text formats
+- office-family and workspace docs are accepted as first-class manifests and stored deterministically:
+  - DOC/DOCX, XLS/XLSX, PPT/PPTX
+  - Google Docs/Sheets/Slides MIME variants
+  - Apple Pages/Numbers/Keynote MIME variants
+
+Phased extraction behavior:
+
+- text-like formats are decoded and embedded immediately as text
+- PDF and media-compatible formats keep inline multimodal embedding paths
+- heavier office formats use deterministic deferred-text embedding fallbacks plus durable manifest metadata
 
 ## CLI
 

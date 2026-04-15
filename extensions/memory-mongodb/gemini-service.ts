@@ -1,4 +1,4 @@
-import { PayloadChunker, type MultimodalPart } from "./payload-chunker.js";
+import { PayloadChunker, preparePartsForEmbedding, type MultimodalPart } from "./payload-chunker.js";
 
 const DEFAULT_EMBEDDING_MODEL = "gemini-embedding-2-preview";
 const DEFAULT_OUTPUT_DIMENSIONALITY = 1536;
@@ -148,7 +148,7 @@ export class GeminiService {
   }
 
   async embed(parts: MultimodalPart[]): Promise<number[]> {
-    const chunks = PayloadChunker.chunk(parts);
+    const chunks = PayloadChunker.chunk(preparePartsForEmbedding(parts));
     const vectors: number[][] = [];
 
     for (const chunk of chunks) {

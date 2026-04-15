@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { defaultSupportedMimeTypes } from "./payload-chunker.js";
 
 type StdioEnv = {
   MDB_MCP_CONNECTION_STRING: string;
@@ -42,6 +43,19 @@ export type MemoryConfig = {
   captureTriggers: string[];
   autoCapture?: boolean;
   autoRecall?: boolean;
+  ops: MemoryOpsConfig;
+};
+
+export type MemoryOpsConfig = {
+  enabled: boolean;
+  preferenceMinObservations: number;
+  preferenceMinStabilityScore: number;
+  captureMinConfidence: number;
+  hygieneMaxCandidates: number;
+  auditCleanup: boolean;
+  supportedDocumentMimeTypes: string[];
+  maxInlineDocumentBytesByMime: Record<string, number>;
+  schemaMode: "migrate-in-place" | "strict-validator" | "additive";
 };
 
 export const MEMORY_CATEGORIES = ["preference", "fact", "decision", "entity", "other"] as const;
@@ -58,8 +72,21 @@ const DEFAULT_VECTOR_SEARCH_INDEX_NAME = "vector_index";
 const DEFAULT_MIN_SCORE = 0.1;
 const DEFAULT_VECTOR_LIMIT = 8;
 const DEFAULT_NUM_CANDIDATES_MULTIPLIER = 10;
+const DEFAULT_OPS_ENABLED = true;
+const DEFAULT_OPS_PREFERENCE_MIN_OBSERVATIONS = 2;
+const DEFAULT_OPS_PREFERENCE_MIN_STABILITY_SCORE = 0.8;
+const DEFAULT_OPS_CAPTURE_MIN_CONFIDENCE = 0.7;
+const DEFAULT_OPS_HYGIENE_MAX_CANDIDATES = 25;
+const DEFAULT_OPS_AUDIT_CLEANUP = true;
+const DEFAULT_OPS_SCHEMA_MODE = "additive" as const;
+const DEFAULT_MAX_INLINE_DOCUMENT_BYTES = 2_000_000;
 export const BUNDLED_MCP_SERVER_PACKAGE = "mongodb-mcp-server";
 export const BUNDLED_MCP_SERVER_VERSION = "1.2.0";
+
+const DEFAULT_SUPPORTED_DOCUMENT_MIME_TYPES = defaultSupportedMimeTypes.filter(
+  (mimeType) =>
+    !mimeType.startsWith("image/") && !mimeType.startsWith("audio/") && !mimeType.startsWith("video/"),
+);
 
 const require = createRequire(import.meta.url);
 
@@ -277,6 +304,81 @@ function parseScore(value: unknown, label: string, defaultValue: number): number
   return value;
 }
 
+function parseBoolean(value: unknown, label: string, defaultValue: boolean): boolean {
+  if (value === undefined) {
+    return defaultValue;
+  }
+  if (typeof value !== "boolean") {
+    throw new Error(`${label} must be a boolean`);
+  }
+  return value;
+}
+
+function parseSchemaMode(
+  value: unknown,
+  label: string,
+): "migrate-in-place" | "strict-validator" | "additive" {
+  if (value === undefined) {
+    return DEFAULT_OPS_SCHEMA_MODE;
+  }
+  if (
+    value !== "migrate-in-place" &&
+    value !== "strict-validator" &&
+    value !== "additive"
+  ) {
+    throw new Error(`${label} must be one of: migrate-in-place, strict-validator, additive`);
+  }
+  return value;
+}
+
+function parseSupportedDocumentMimeTypes(value: unknown): string[] {
+  if (value === undefined) {
+    return [...DEFAULT_SUPPORTED_DOCUMENT_MIME_TYPES];
+  }
+  if (!Array.isArray(value)) {
+    throw new Error("ops.supportedDocumentMimeTypes must be an array of strings");
+  }
+  const normalized = value
+    .map((entry) => {
+      if (typeof entry !== "string") {
+        throw new Error("ops.supportedDocumentMimeTypes must be an array of strings");
+      }
+      return entry.trim().toLowerCase();
+    })
+    .filter(Boolean);
+
+  if (normalized.length === 0) {
+    throw new Error("ops.supportedDocumentMimeTypes must include at least one MIME type");
+  }
+
+  return Array.from(new Set(normalized));
+}
+
+function parseInlineDocumentBytesByMime(value: unknown): Record<string, number> {
+  if (value === undefined) {
+    const defaults: Record<string, number> = {};
+    for (const mime of DEFAULT_SUPPORTED_DOCUMENT_MIME_TYPES) {
+      defaults[mime] = DEFAULT_MAX_INLINE_DOCUMENT_BYTES;
+    }
+    return defaults;
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("ops.maxInlineDocumentBytesByMime must be an object");
+  }
+  const result: Record<string, number> = {};
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    const mimeType = key.trim().toLowerCase();
+    if (!mimeType) {
+      throw new Error("ops.maxInlineDocumentBytesByMime cannot include empty MIME type keys");
+    }
+    if (typeof raw !== "number" || !Number.isFinite(raw) || raw <= 0) {
+      throw new Error(`ops.maxInlineDocumentBytesByMime.${key} must be a positive number`);
+    }
+    result[mimeType] = Math.floor(raw);
+  }
+  return result;
+}
+
 export function vectorDimsForModel(model: string): number {
   const dims = GEMINI_EMBEDDING_DIMENSIONS[model];
   if (!dims) {
@@ -378,7 +480,16 @@ export const memoryConfigSchema = {
     const cfg = value as Record<string, unknown>;
     assertAllowedKeys(
       cfg,
-      ["mcp", "gemini", "database", "retrieval", "captureTriggers", "autoCapture", "autoRecall"],
+      [
+        "mcp",
+        "gemini",
+        "database",
+        "retrieval",
+        "captureTriggers",
+        "autoCapture",
+        "autoRecall",
+        "ops",
+      ],
       "memory config",
     );
 
@@ -439,6 +550,28 @@ export const memoryConfigSchema = {
         retrieval,
         ["minScore", "vectorLimit", "numCandidatesMultiplier"],
         "retrieval config",
+      );
+    }
+
+    const rawOps = cfg.ops as Record<string, unknown> | undefined;
+    if (rawOps && typeof rawOps !== "object") {
+      throw new Error("ops must be an object");
+    }
+    if (rawOps) {
+      assertAllowedKeys(
+        rawOps,
+        [
+          "enabled",
+          "preferenceMinObservations",
+          "preferenceMinStabilityScore",
+          "captureMinConfidence",
+          "hygieneMaxCandidates",
+          "auditCleanup",
+          "supportedDocumentMimeTypes",
+          "maxInlineDocumentBytesByMime",
+          "schemaMode",
+        ],
+        "ops config",
       );
     }
 
@@ -567,6 +700,37 @@ export const memoryConfigSchema = {
       captureTriggers: parseCaptureTriggers(cfg.captureTriggers),
       autoCapture: cfg.autoCapture !== false,
       autoRecall: cfg.autoRecall !== false,
+      ops: {
+        enabled: parseBoolean(rawOps?.enabled, "ops.enabled", DEFAULT_OPS_ENABLED),
+        preferenceMinObservations: parsePositiveInt(
+          rawOps?.preferenceMinObservations,
+          "ops.preferenceMinObservations",
+          DEFAULT_OPS_PREFERENCE_MIN_OBSERVATIONS,
+        ),
+        preferenceMinStabilityScore: parseScore(
+          rawOps?.preferenceMinStabilityScore,
+          "ops.preferenceMinStabilityScore",
+          DEFAULT_OPS_PREFERENCE_MIN_STABILITY_SCORE,
+        ),
+        captureMinConfidence: parseScore(
+          rawOps?.captureMinConfidence,
+          "ops.captureMinConfidence",
+          DEFAULT_OPS_CAPTURE_MIN_CONFIDENCE,
+        ),
+        hygieneMaxCandidates: parsePositiveInt(
+          rawOps?.hygieneMaxCandidates,
+          "ops.hygieneMaxCandidates",
+          DEFAULT_OPS_HYGIENE_MAX_CANDIDATES,
+        ),
+        auditCleanup: parseBoolean(rawOps?.auditCleanup, "ops.auditCleanup", DEFAULT_OPS_AUDIT_CLEANUP),
+        supportedDocumentMimeTypes: parseSupportedDocumentMimeTypes(
+          rawOps?.supportedDocumentMimeTypes,
+        ),
+        maxInlineDocumentBytesByMime: parseInlineDocumentBytesByMime(
+          rawOps?.maxInlineDocumentBytesByMime,
+        ),
+        schemaMode: parseSchemaMode(rawOps?.schemaMode, "ops.schemaMode"),
+      },
     };
   },
   uiHints: {
@@ -658,6 +822,51 @@ export const memoryConfigSchema = {
     autoRecall: {
       label: "Auto-Recall",
       help: "Automatically inject relevant memories into context",
+    },
+    "ops.enabled": {
+      label: "Memory Ops Enabled",
+      help: "Enable deterministic memory-ops primitives and metadata contracts",
+    },
+    "ops.preferenceMinObservations": {
+      label: "Preference Min Observations",
+      placeholder: String(DEFAULT_OPS_PREFERENCE_MIN_OBSERVATIONS),
+      advanced: true,
+    },
+    "ops.preferenceMinStabilityScore": {
+      label: "Preference Min Stability",
+      placeholder: String(DEFAULT_OPS_PREFERENCE_MIN_STABILITY_SCORE),
+      advanced: true,
+    },
+    "ops.captureMinConfidence": {
+      label: "Capture Min Confidence",
+      placeholder: String(DEFAULT_OPS_CAPTURE_MIN_CONFIDENCE),
+      advanced: true,
+    },
+    "ops.hygieneMaxCandidates": {
+      label: "Hygiene Max Candidates",
+      placeholder: String(DEFAULT_OPS_HYGIENE_MAX_CANDIDATES),
+      advanced: true,
+    },
+    "ops.auditCleanup": {
+      label: "Audit Cleanup",
+      advanced: true,
+      help: "Clean up memory_audit probe records automatically",
+    },
+    "ops.supportedDocumentMimeTypes": {
+      label: "Supported Document MIME Types",
+      advanced: true,
+      help: "Document MIME types accepted for capture and manifest tracking",
+    },
+    "ops.maxInlineDocumentBytesByMime": {
+      label: "Max Inline Document Bytes By MIME",
+      advanced: true,
+      help: "Per-MIME inline byte limits for document capture payloads",
+    },
+    "ops.schemaMode": {
+      label: "Schema Mode",
+      placeholder: DEFAULT_OPS_SCHEMA_MODE,
+      advanced: true,
+      help: "Schema rollout mode for memory-ops metadata contracts",
     },
   },
 };

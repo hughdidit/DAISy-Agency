@@ -13,6 +13,30 @@ const mcpClientMocks = vi.hoisted(() => ({
   setRuntimeEnvOverrides: vi.fn(),
 }));
 
+const defaultToolContext = {
+  agentId: "main",
+  sessionKey: "agent:main:main",
+};
+
+function materializeTool(
+  toolOrFactory: unknown,
+  opts?: { name?: string },
+  ctx: Record<string, unknown> = defaultToolContext,
+) {
+  if (typeof toolOrFactory === "function") {
+    const built = (toolOrFactory as (ctx: Record<string, unknown>) => unknown)(ctx);
+    if (!built || typeof built !== "object") {
+      throw new Error("tool factory did not return a tool");
+    }
+    const named = built as { name?: string };
+    if (!named.name && opts?.name) {
+      named.name = opts.name;
+    }
+    return built;
+  }
+  return toolOrFactory;
+}
+
 vi.mock("./mcp-client-service.js", () => ({
   McpClientService: vi.fn(function MockMcpClientService() {
     return mcpClientMocks;
@@ -95,8 +119,9 @@ describe("memory-mongodb plugin", () => {
         gemini: { apiKey: "test-key" },
       },
       logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
-      registerTool: (tool: { name: string }) => {
-        registeredTools.set(tool.name, tool);
+      registerTool: (tool: unknown, opts?: { name?: string }) => {
+        const resolved = materializeTool(tool, opts) as { name: string };
+        registeredTools.set(resolved.name, resolved);
       },
       registerCli: vi.fn(),
       registerService: vi.fn(),
@@ -138,6 +163,101 @@ describe("memory-mongodb plugin", () => {
     expect(recallAfterForget.details?.count).toBe(0);
   });
 
+  test("registers memory-ops primitives and supports scoped execution", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([]);
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+      registerTool: (tool: unknown, opts?: { name?: string }) => {
+        const resolved = materializeTool(tool, opts) as { name: string };
+        registeredTools.set(resolved.name, resolved);
+      },
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: vi.fn(),
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const required = [
+      "memory_capture",
+      "memory_hygiene",
+      "commitment_tracker",
+      "preference_miner",
+      "memory_audit",
+    ];
+    for (const name of required) {
+      expect(registeredTools.has(name)).toBe(true);
+    }
+
+    const memoryCapture = registeredTools.get("memory_capture");
+    const captureResult = await memoryCapture.execute("tc_capture", {
+      entries: [
+        {
+          text: "I prefer concise responses",
+          kind: "preference",
+          importance: 0.8,
+          confidence: 0.9,
+          preference: {
+            key: "response_style",
+            value: "concise",
+          },
+        },
+      ],
+    });
+    expect(Array.isArray(captureResult.details?.outcomes)).toBe(true);
+
+    const memoryHygiene = registeredTools.get("memory_hygiene");
+    const hygieneResult = await memoryHygiene.execute("tc_hygiene", {
+      mode: "plan",
+    });
+    expect(hygieneResult.details?.mode).toBe("plan");
+  });
+
+  test("scoped tools fail closed when agent scope cannot be derived", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+      registerTool: (tool: unknown, opts?: { name?: string }) => {
+        const resolved = materializeTool(tool, opts, {}) as { name: string };
+        registeredTools.set(resolved.name, resolved);
+      },
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: vi.fn(),
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const recall = registeredTools.get("memory_recall");
+    const result = await recall.execute("tc_recall_scope_missing", { query: "anything" });
+    expect(result.details?.error).toBe("missing_scope_subject");
+  });
+
   test("config schema parses valid absolute-path custom stdio launcher", async () => {
     const { default: memoryPlugin } = await import("./index.js");
 
@@ -169,6 +289,11 @@ describe("memory-mongodb plugin", () => {
       },
       autoCapture: true,
       autoRecall: true,
+      ops: {
+        enabled: true,
+        schemaMode: "strict-validator",
+        supportedDocumentMimeTypes: ["application/pdf"],
+      },
     });
 
     expect(config.gemini.apiKey).toBe("test-key");
@@ -177,6 +302,7 @@ describe("memory-mongodb plugin", () => {
     expect(config.database.indexName).toBe("my_index");
     expect(config.retrieval.minScore).toBe(0.2);
     expect(config.retrieval.vectorLimit).toBe(6);
+    expect(config.ops.schemaMode).toBe("strict-validator");
     if (config.mcp.transport === "stdio") {
       expect(config.mcp.stdio.command).toBe("/opt/mongodb-mcp/node");
       expect(config.mcp.stdio.args).toEqual(["/opt/mongodb-mcp/dist/index.js"]);
@@ -207,6 +333,9 @@ describe("memory-mongodb plugin", () => {
     expect(config.retrieval.vectorLimit).toBe(8);
     expect(config.autoCapture).toBe(true);
     expect(config.autoRecall).toBe(true);
+    expect(config.ops.enabled).toBe(true);
+    expect(config.ops.schemaMode).toBe("additive");
+    expect(config.ops.preferenceMinObservations).toBe(2);
     if (config.mcp.transport === "stdio") {
       expect(config.mcp.stdio.command).toBe(process.execPath);
       expect(config.mcp.stdio.args).toEqual([resolveBundledMongoMcpServerEntrypoint()]);

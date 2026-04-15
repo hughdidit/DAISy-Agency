@@ -8,9 +8,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Type } from "@sinclair/typebox";
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+import type { OpenClawPluginApi, OpenClawPluginToolContext } from "openclaw/plugin-sdk";
 import { stringEnum } from "openclaw/plugin-sdk";
 import { resolveStateDir } from "../../src/config/paths.js";
+import { isSubagentSessionKey } from "../../src/routing/session-key.js";
 import {
   MEMORY_CATEGORIES,
   type MemoryCategory,
@@ -18,6 +19,7 @@ import {
   vectorDimsForModel,
 } from "./config.js";
 import { GeminiService } from "./gemini-service.js";
+import { MemoryOpsService, resolveScopeSubjectFromContext } from "./memory-ops-service.js";
 import { McpClientService } from "./mcp-client-service.js";
 import {
   buildVectorIndexDefinition,
@@ -25,7 +27,19 @@ import {
   type MemoryType,
   MongoMemoryDB,
 } from "./mongodb-provider.js";
-import { multimodalPartsToFallbackText, type MultimodalPart } from "./payload-chunker.js";
+import {
+  buildAttachmentManifests,
+  multimodalPartsToFallbackText,
+  type MultimodalPart,
+} from "./payload-chunker.js";
+import {
+  MEMORY_OPS_KINDS,
+  MEMORY_OPS_MODALITIES,
+  type CommitmentTrackerMode,
+  type MemoryCaptureCandidate,
+  type MemoryHygieneStrategy,
+  type PreferenceMinerMode,
+} from "./memory-ops-types.js";
 
 function compileTriggers(patterns: string[]): RegExp[] {
   return patterns.map((pattern) => new RegExp(pattern, "i"));
@@ -105,6 +119,33 @@ function detectSubCategory(text: string): string | undefined {
   return undefined;
 }
 
+function resolveScopeSubject(ctx: OpenClawPluginToolContext): string | null {
+  return resolveScopeSubjectFromContext(ctx);
+}
+
+function resolveScopeSubjectFromHookEvent(event: unknown): string | null {
+  if (!event || typeof event !== "object") {
+    return null;
+  }
+  const record = event as Record<string, unknown>;
+  const agentId = typeof record.agentId === "string" ? record.agentId : undefined;
+  const sessionKey = typeof record.sessionKey === "string" ? record.sessionKey : undefined;
+  if (!agentId || agentId.trim().length === 0) {
+    return null;
+  }
+  if (sessionKey && isSubagentSessionKey(sessionKey)) {
+    return `subagent:${agentId.trim().toLowerCase()}`;
+  }
+  return `agent:${agentId.trim().toLowerCase()}`;
+}
+
+function scopeErrorResult() {
+  return {
+    content: [{ type: "text" as const, text: "Memory scope unavailable for this context." }],
+    details: { error: "missing_scope_subject" },
+  };
+}
+
 type McpRuntimeDirs = {
   homeDir: string;
   tempDir: string;
@@ -162,6 +203,67 @@ const multimodalPartSchema = Type.Union([
   ),
 ]);
 
+const memoryCaptureEntrySchema = Type.Object(
+  {
+    text: Type.Optional(Type.String()),
+    kind: stringEnum(MEMORY_OPS_KINDS),
+    importance: Type.Number({ minimum: 0, maximum: 1 }),
+    parts: Type.Optional(Type.Array(multimodalPartSchema)),
+    attachments: Type.Optional(
+      Type.Array(
+        Type.Object(
+          {
+            modality: stringEnum(MEMORY_OPS_MODALITIES),
+            mimeType: Type.String(),
+            filename: Type.Optional(Type.String()),
+            contentHash: Type.String(),
+            byteLength: Type.Optional(Type.Number({ minimum: 0 })),
+            durationMs: Type.Optional(Type.Number({ minimum: 0 })),
+            pageCount: Type.Optional(Type.Number({ minimum: 0 })),
+            transcriptStatus: Type.Optional(
+              stringEnum(["available", "missing", "deferred"] as const),
+            ),
+            ocrStatus: Type.Optional(stringEnum(["available", "missing", "deferred"] as const)),
+            storageMode: stringEnum(["inline", "external_ref"] as const),
+            externalRef: Type.Optional(Type.String()),
+          },
+          { additionalProperties: false },
+        ),
+      ),
+    ),
+    confidence: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+    category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
+    subCategory: Type.Optional(Type.String()),
+    tags: Type.Optional(Type.Array(Type.String())),
+    sourceMessageIds: Type.Optional(Type.Array(Type.String())),
+    status: Type.Optional(Type.String()),
+    supersedesId: Type.Optional(Type.String()),
+    commitment: Type.Optional(
+      Type.Object(
+        {
+          owner: Type.String(),
+          dueAt: Type.Optional(Type.Number()),
+          followUpAt: Type.Optional(Type.Number()),
+          priority: Type.Optional(stringEnum(["low", "medium", "high"] as const)),
+        },
+        { additionalProperties: false },
+      ),
+    ),
+    preference: Type.Optional(
+      Type.Object(
+        {
+          key: Type.String(),
+          value: Type.String(),
+        },
+        { additionalProperties: false },
+      ),
+    ),
+  },
+  {
+    additionalProperties: false,
+  },
+);
+
 const memoryPlugin = {
   id: "memory-mongodb",
   name: "Memory (MongoDB MCP + Gemini)",
@@ -185,6 +287,7 @@ const memoryPlugin = {
       cfg.retrieval,
       api.logger,
     );
+    const opsService = new MemoryOpsService(db, cfg.ops, api.logger);
 
     const triggers = compileTriggers(cfg.captureTriggers);
     let runtimeDirs: McpRuntimeDirs | null = null;
@@ -221,9 +324,26 @@ const memoryPlugin = {
       return db.count();
     }
 
-    async function searchMemories(query: string, limit: number, minScore: number) {
+    async function searchMemories(
+      query: string,
+      scopeSubject: string,
+      limit: number,
+      minScore: number,
+      filters?: {
+        kinds?: string[];
+        modalities?: string[];
+        openCommitmentsOnly?: boolean;
+        preferencesOnly?: boolean;
+      },
+    ) {
       await ensureMcpRuntimeDirs();
-      return db.searchByQuery(query, limit, minScore);
+      return db.searchByQuery(query, limit, minScore, {
+        scopeSubject,
+        kinds: filters?.kinds,
+        modalities: filters?.modalities,
+        openCommitmentsOnly: filters?.openCommitmentsOnly,
+        preferencesOnly: filters?.preferencesOnly,
+      });
     }
 
     async function storeMemory(entry: Parameters<typeof db.store>[0]): Promise<MemoryEntry> {
@@ -246,228 +366,560 @@ const memoryPlugin = {
     );
 
     api.registerTool(
-      {
-        name: "memory_recall",
-        label: "Memory Recall",
-        description:
-          "Search through long-term memories. Use when you need context about user preferences, past decisions, or previously discussed topics.",
-        parameters: Type.Object({
-          query: Type.String({ description: "Search query" }),
-          limit: Type.Optional(Type.Number({ description: "Max results (default: 5)" })),
-        }),
-        async execute(_toolCallId, params) {
-          const { query, limit = 5 } = params as { query: string; limit?: number };
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "memory_recall",
+          label: "Memory Recall",
+          description:
+            "Search through long-term memories. Use before answering continuity-sensitive prompts.",
+          parameters: Type.Object({
+            query: Type.String({ description: "Search query" }),
+            limit: Type.Optional(Type.Number({ description: "Max results (default: 5)" })),
+            kinds: Type.Optional(Type.Array(stringEnum(MEMORY_OPS_KINDS))),
+            openCommitmentsOnly: Type.Optional(Type.Boolean()),
+            preferencesOnly: Type.Optional(Type.Boolean()),
+            modalities: Type.Optional(Type.Array(stringEnum(MEMORY_OPS_MODALITIES))),
+            includeMetadata: Type.Optional(Type.Boolean()),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
 
-          const results = await searchMemories(query, limit, cfg.retrieval.minScore);
-
-          if (results.length === 0) {
-            return {
-              content: [{ type: "text", text: "No relevant memories found." }],
-              details: { count: 0 },
+            const {
+              query,
+              limit = 5,
+              kinds,
+              openCommitmentsOnly,
+              preferencesOnly,
+              modalities,
+              includeMetadata,
+            } = params as {
+              query: string;
+              limit?: number;
+              kinds?: string[];
+              openCommitmentsOnly?: boolean;
+              preferencesOnly?: boolean;
+              modalities?: string[];
+              includeMetadata?: boolean;
             };
-          }
 
-          const text = results
-            .map(
-              (result, index) =>
-                `${index + 1}. [${result.entry.category}] ${result.entry.text} (${(result.score * 100).toFixed(0)}%)`,
-            )
-            .join("\n");
+            const recalled = await opsService.recall({
+              query,
+              scopeSubject,
+              limit,
+              filters: {
+                kinds: kinds as any,
+                openCommitmentsOnly,
+                preferencesOnly,
+                modalities: modalities as any,
+                includeMetadata,
+              },
+            });
 
-          const sanitizedResults = results.map((result) => ({
-            id: result.entry.id,
-            text: result.entry.text,
-            category: result.entry.category,
-            subCategory: result.entry.subCategory,
-            type: result.entry.type,
-            importance: result.entry.importance,
-            score: result.score,
-            vectorScore: result.vectorScore,
-          }));
+            if (recalled.noResult) {
+              return {
+                content: [{ type: "text", text: "No relevant memories found." }],
+                details: { count: 0, scopeSubject },
+              };
+            }
 
-          return {
-            content: [{ type: "text", text: `Found ${results.length} memories:\n\n${text}` }],
-            details: { count: results.length, memories: sanitizedResults },
-          };
-        },
+            const text = recalled.memories
+              .map((memory, index) => {
+                const kind = typeof memory.kind === "string" ? memory.kind : "memory";
+                const label = typeof memory.text === "string" ? memory.text : "(empty)";
+                const score =
+                  typeof memory.score === "number" ? ` ${(memory.score * 100).toFixed(0)}%` : "";
+                return `${index + 1}. [${kind}] ${label}${score}`;
+              })
+              .join("\n");
+
+            return {
+              content: [{ type: "text", text: `Found ${recalled.count} memories:\n\n${text}` }],
+              details: {
+                count: recalled.count,
+                scopeSubject,
+                memories: recalled.memories,
+              },
+            };
+          },
+        };
       },
       { name: "memory_recall" },
     );
 
     api.registerTool(
-      {
-        name: "memory_store",
-        label: "Memory Store",
-        description:
-          "Save important information in long-term memory. Supports plain text or Gemini-compatible multimodal parts.",
-        parameters: Type.Object({
-          text: Type.Optional(Type.String({ description: "Information to remember" })),
-          parts: Type.Optional(
-            Type.Array(multimodalPartSchema, {
-              description:
-                "Optional multimodal parts for embedding (text and/or inline base64 media)",
-            }),
-          ),
-          importance: Type.Optional(Type.Number({ description: "Importance 0-1 (default: 0.7)" })),
-          category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
-        }),
-        async execute(_toolCallId, params) {
-          const {
-            text,
-            parts,
-            importance = 0.7,
-            category,
-          } = params as {
-            text?: string;
-            parts?: MultimodalPart[];
-            importance?: number;
-            category?: MemoryEntry["category"];
-          };
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "memory_store",
+          label: "Memory Store",
+          description:
+            "Save important information in long-term memory. Supports plain text or multimodal parts.",
+          parameters: Type.Object({
+            text: Type.Optional(Type.String({ description: "Information to remember" })),
+            parts: Type.Optional(
+              Type.Array(multimodalPartSchema, {
+                description:
+                  "Optional multimodal parts for embedding (text and/or inline base64 media)",
+              }),
+            ),
+            importance: Type.Optional(Type.Number({ description: "Importance 0-1 (default: 0.7)" })),
+            category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
 
-          const normalizedText = typeof text === "string" ? text.trim() : "";
-          const normalizedParts =
-            Array.isArray(parts) && parts.length > 0
-              ? normalizedText.length > 0
-                ? [{ text: normalizedText }, ...parts]
-                : parts
-              : normalizedText.length > 0
-                ? [{ text: normalizedText }]
-                : [];
-
-          if (normalizedParts.length === 0) {
-            return {
-              content: [{ type: "text", text: "Provide text or parts to store memory." }],
-              details: { error: "missing_param" },
+            const {
+              text,
+              parts,
+              importance = 0.7,
+              category,
+            } = params as {
+              text?: string;
+              parts?: MultimodalPart[];
+              importance?: number;
+              category?: MemoryEntry["category"];
             };
-          }
 
-          const fallbackText =
-            normalizedText.length > 0
-              ? normalizedText
-              : multimodalPartsToFallbackText(normalizedParts, 2_000);
+            const normalizedText = typeof text === "string" ? text.trim() : "";
+            const normalizedParts =
+              Array.isArray(parts) && parts.length > 0
+                ? normalizedText.length > 0
+                  ? [{ text: normalizedText }, ...parts]
+                  : parts
+                : normalizedText.length > 0
+                  ? [{ text: normalizedText }]
+                  : [];
 
-          const inferredCategory = category ?? detectCategory(fallbackText);
-          const existing = await searchMemories(fallbackText, 1, 0.95);
+            if (normalizedParts.length === 0) {
+              return {
+                content: [{ type: "text", text: "Provide text or parts to store memory." }],
+                details: { error: "missing_param" },
+              };
+            }
 
-          if (existing.length > 0) {
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `Similar memory already exists: "${existing[0].entry.text}"`,
+            const fallbackText =
+              normalizedText.length > 0
+                ? normalizedText
+                : multimodalPartsToFallbackText(normalizedParts, 2_000);
+
+            const inferredCategory = category ?? detectCategory(fallbackText);
+            const existing = await searchMemories(fallbackText, scopeSubject, 1, 0.95);
+
+            if (existing.length > 0) {
+              return {
+                content: [
+                  {
+                    type: "text",
+                    text: `Similar memory already exists: "${existing[0].entry.text}"`,
+                  },
+                ],
+                details: {
+                  action: "duplicate",
+                  existingId: existing[0].entry.id,
+                  existingText: existing[0].entry.text,
+                  scopeSubject,
                 },
-              ],
+              };
+            }
+
+            const attachments = buildAttachmentManifests(normalizedParts);
+            const entry = await storeMemory({
+              text: fallbackText,
+              parts: normalizedParts,
+              importance,
+              category: inferredCategory,
+              subCategory: detectSubCategory(fallbackText),
+              type: detectMemoryType(inferredCategory, fallbackText),
+              metadata: {
+                source: "memory_store",
+                ops: {
+                  kind: inferredCategory === "preference" ? "preference" : "note",
+                  scopeSubject,
+                  source: "memory_store",
+                  status: "recorded",
+                  attachmentSummary: {
+                    modalities: Array.from(new Set(attachments.map((item) => item.modality))),
+                    totalCount: attachments.length,
+                  },
+                  attachments,
+                },
+              },
+            });
+
+            return {
+              content: [{ type: "text", text: `Stored: "${fallbackText.slice(0, 100)}..."` }],
               details: {
-                action: "duplicate",
-                existingId: existing[0].entry.id,
-                existingText: existing[0].entry.text,
+                action: "created",
+                id: entry.id,
+                category: inferredCategory,
+                type: entry.type,
+                scopeSubject,
               },
             };
-          }
-
-          const entry = await storeMemory({
-            text: fallbackText,
-            parts: normalizedParts,
-            importance,
-            category: inferredCategory,
-            subCategory: detectSubCategory(fallbackText),
-            type: detectMemoryType(inferredCategory, fallbackText),
-            metadata: {
-              source: "memory_store",
-            },
-          });
-
-          return {
-            content: [{ type: "text", text: `Stored: "${fallbackText.slice(0, 100)}..."` }],
-            details: {
-              action: "created",
-              id: entry.id,
-              category: inferredCategory,
-              type: entry.type,
-            },
-          };
-        },
+          },
+        };
       },
       { name: "memory_store" },
     );
 
     api.registerTool(
-      {
-        name: "memory_forget",
-        label: "Memory Forget",
-        description: "Delete specific memories. GDPR-compliant.",
-        parameters: Type.Object({
-          query: Type.Optional(Type.String({ description: "Search to find memory" })),
-          memoryId: Type.Optional(Type.String({ description: "Specific memory ID" })),
-        }),
-        async execute(_toolCallId, params) {
-          const { query, memoryId } = params as { query?: string; memoryId?: string };
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "memory_forget",
+          label: "Memory Forget",
+          description: "Delete specific memories within the current agent scope.",
+          parameters: Type.Object({
+            query: Type.Optional(Type.String({ description: "Search to find memory" })),
+            memoryId: Type.Optional(Type.String({ description: "Specific memory ID" })),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const { query, memoryId } = params as { query?: string; memoryId?: string };
 
-          if (memoryId) {
-            const deleted = await deleteMemory(memoryId);
-            if (!deleted) {
+            if (memoryId) {
+              const entry = await db.getById(memoryId).catch(() => null);
+              const entryScope =
+                entry &&
+                entry.metadata &&
+                typeof entry.metadata === "object" &&
+                !Array.isArray(entry.metadata) &&
+                typeof (entry.metadata as Record<string, unknown>).ops === "object" &&
+                (entry.metadata as Record<string, unknown>).ops &&
+                typeof ((entry.metadata as Record<string, unknown>).ops as Record<string, unknown>)
+                  .scopeSubject === "string"
+                  ? (((entry.metadata as Record<string, unknown>).ops as Record<string, unknown>)
+                      .scopeSubject as string)
+                  : undefined;
+
+              if (!entry || entryScope !== scopeSubject) {
+                return {
+                  content: [{ type: "text", text: `Memory ${memoryId} not found in scope.` }],
+                  details: { action: "not_found", id: memoryId, scopeSubject },
+                };
+              }
+
+              const deleted = await deleteMemory(memoryId);
+              if (!deleted) {
+                return {
+                  content: [{ type: "text", text: `Memory ${memoryId} not found.` }],
+                  details: { action: "not_found", id: memoryId, scopeSubject },
+                };
+              }
               return {
-                content: [{ type: "text", text: `Memory ${memoryId} not found.` }],
-                details: { action: "not_found", id: memoryId },
+                content: [{ type: "text", text: `Memory ${memoryId} forgotten.` }],
+                details: { action: "deleted", id: memoryId, scopeSubject },
               };
             }
+
+            if (query) {
+              const results = await searchMemories(query, scopeSubject, 5, 0.7);
+
+              if (results.length === 0) {
+                return {
+                  content: [{ type: "text", text: "No matching memories found." }],
+                  details: { found: 0, scopeSubject },
+                };
+              }
+
+              if (results.length === 1 && results[0].score > 0.9) {
+                await deleteMemory(results[0].entry.id);
+                return {
+                  content: [{ type: "text", text: `Forgotten: "${results[0].entry.text}"` }],
+                  details: { action: "deleted", id: results[0].entry.id, scopeSubject },
+                };
+              }
+
+              const list = results
+                .map(
+                  (result) =>
+                    `- [${result.entry.id.slice(0, 8)}] ${result.entry.text.slice(0, 60)}...`,
+                )
+                .join("\n");
+
+              const sanitizedCandidates = results.map((result) => ({
+                id: result.entry.id,
+                text: result.entry.text,
+                category: result.entry.category,
+                type: result.entry.type,
+                score: result.score,
+              }));
+
+              return {
+                content: [
+                  {
+                    type: "text",
+                    text: `Found ${results.length} candidates. Specify memoryId:\n${list}`,
+                  },
+                ],
+                details: { action: "candidates", candidates: sanitizedCandidates, scopeSubject },
+              };
+            }
+
             return {
-              content: [{ type: "text", text: `Memory ${memoryId} forgotten.` }],
-              details: { action: "deleted", id: memoryId },
+              content: [{ type: "text", text: "Provide query or memoryId." }],
+              details: { error: "missing_param" },
             };
-          }
+          },
+        };
+      },
+      { name: "memory_forget" },
+    );
 
-          if (query) {
-            const results = await searchMemories(query, 5, 0.7);
-
-            if (results.length === 0) {
-              return {
-                content: [{ type: "text", text: "No matching memories found." }],
-                details: { found: 0 },
-              };
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "memory_capture",
+          label: "Memory Capture",
+          description:
+            "Create durable, deduplicated memory records with typed metadata and multimodal manifests.",
+          parameters: Type.Object({
+            entries: Type.Array(memoryCaptureEntrySchema, { minItems: 1 }),
+            dedupeThreshold: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+            rejectSecrets: Type.Optional(Type.Boolean()),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
             }
+            await ensureMcpRuntimeDirs();
+            const { entries, dedupeThreshold, rejectSecrets } = params as {
+              entries: MemoryCaptureCandidate[];
+              dedupeThreshold?: number;
+              rejectSecrets?: boolean;
+            };
 
-            if (results.length === 1 && results[0].score > 0.9) {
-              await deleteMemory(results[0].entry.id);
-              return {
-                content: [{ type: "text", text: `Forgotten: "${results[0].entry.text}"` }],
-                details: { action: "deleted", id: results[0].entry.id },
-              };
-            }
-
-            const list = results
-              .map(
-                (result) =>
-                  `- [${result.entry.id.slice(0, 8)}] ${result.entry.text.slice(0, 60)}...`,
-              )
-              .join("\n");
-
-            const sanitizedCandidates = results.map((result) => ({
-              id: result.entry.id,
-              text: result.entry.text,
-              category: result.entry.category,
-              type: result.entry.type,
-              score: result.score,
-            }));
+            const result = await opsService.capture({
+              scopeSubject,
+              entries,
+              source: "memory_capture",
+              dedupeThreshold,
+              rejectSecrets,
+            });
 
             return {
               content: [
                 {
                   type: "text",
-                  text: `Found ${results.length} candidates. Specify memoryId:\n${list}`,
+                  text: `Processed ${result.outcomes.length} capture entries.`,
                 },
               ],
-              details: { action: "candidates", candidates: sanitizedCandidates },
+              details: {
+                scopeSubject,
+                outcomes: result.outcomes,
+              },
             };
-          }
-
-          return {
-            content: [{ type: "text", text: "Provide query or memoryId." }],
-            details: { error: "missing_param" },
-          };
-        },
+          },
+        };
       },
-      { name: "memory_forget" },
+      { name: "memory_capture" },
+    );
+
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "memory_hygiene",
+          label: "Memory Hygiene",
+          description:
+            "Plan or apply safe memory hygiene actions (dedupe, stale prune, conflict review, preference promotion).",
+          parameters: Type.Object({
+            mode: stringEnum(["plan", "apply"] as const),
+            strategies: Type.Optional(
+              Type.Array(stringEnum(["dedupe", "stale-prune", "promote", "conflict-review"] as const)),
+            ),
+            maxCandidates: Type.Optional(Type.Number({ minimum: 1 })),
+            planId: Type.Optional(Type.String()),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const { mode, strategies, maxCandidates, planId } = params as {
+              mode: "plan" | "apply";
+              strategies?: MemoryHygieneStrategy[];
+              maxCandidates?: number;
+              planId?: string;
+            };
+
+            const result = await opsService.memoryHygiene({
+              mode,
+              scopeSubject,
+              strategies,
+              maxCandidates,
+              planId,
+            });
+
+            return {
+              content: [
+                {
+                  type: "text",
+                  text:
+                    mode === "plan"
+                      ? `Generated hygiene plan with ${result.plan.actions.length} actions.`
+                      : `Applied hygiene plan with ${result.plan.actions.length} actions.`,
+                },
+              ],
+              details: {
+                scopeSubject,
+                ...result,
+              },
+            };
+          },
+        };
+      },
+      { name: "memory_hygiene" },
+    );
+
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "commitment_tracker",
+          label: "Commitment Tracker",
+          description:
+            "Capture, list, resolve, or cancel commitments with durable status metadata.",
+          parameters: Type.Object({
+            mode: stringEnum(["capture", "list_open", "resolve", "cancel"] as const),
+            text: Type.Optional(Type.String()),
+            owner: Type.Optional(Type.String()),
+            dueAt: Type.Optional(Type.Number()),
+            followUpAt: Type.Optional(Type.Number()),
+            priority: Type.Optional(stringEnum(["low", "medium", "high"] as const)),
+            commitmentId: Type.Optional(Type.String()),
+            note: Type.Optional(Type.String()),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const result = await opsService.commitmentTracker({
+              ...(params as {
+                mode: CommitmentTrackerMode;
+                text?: string;
+                owner?: string;
+                dueAt?: number;
+                followUpAt?: number;
+                priority?: "low" | "medium" | "high";
+                commitmentId?: string;
+                note?: string;
+              }),
+              scopeSubject,
+            });
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `commitment_tracker mode ${(params as { mode: string }).mode} completed.`,
+                },
+              ],
+              details: {
+                scopeSubject,
+                ...result,
+              },
+            };
+          },
+        };
+      },
+      { name: "commitment_tracker" },
+    );
+
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "preference_miner",
+          label: "Preference Miner",
+          description:
+            "Observe preference evidence and promote stable preferences when evidence is repeated and consistent.",
+          parameters: Type.Object({
+            mode: stringEnum(["observe", "plan_promotions", "apply_promotions", "list"] as const),
+            key: Type.Optional(Type.String()),
+            value: Type.Optional(Type.String()),
+            confidence: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const result = await opsService.preferenceMiner({
+              ...(params as {
+                mode: PreferenceMinerMode;
+                key?: string;
+                value?: string;
+                confidence?: number;
+              }),
+              scopeSubject,
+            });
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `preference_miner mode ${(params as { mode: string }).mode} completed.`,
+                },
+              ],
+              details: {
+                scopeSubject,
+                ...result,
+              },
+            };
+          },
+        };
+      },
+      { name: "preference_miner" },
+    );
+
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "memory_audit",
+          label: "Memory Audit",
+          description:
+            "Store and recall a throwaway probe token to validate memory reliability, then clean up.",
+          parameters: Type.Object({
+            runId: Type.Optional(Type.String()),
+            cleanupOnSuccess: Type.Optional(Type.Boolean()),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const result = await opsService.memoryAudit({
+              scopeSubject,
+              runId: (params as { runId?: string }).runId,
+              cleanupOnSuccess: (params as { cleanupOnSuccess?: boolean }).cleanupOnSuccess,
+            });
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: result.pass ? "Memory audit passed." : "Memory audit failed.",
+                },
+              ],
+              details: {
+                scopeSubject,
+                ...result,
+              },
+            };
+          },
+        };
+      },
+      { name: "memory_audit" },
     );
 
     api.registerCli(
@@ -488,7 +940,7 @@ const memoryPlugin = {
           .argument("<query>", "Search query")
           .option("--limit <n>", "Max results", "5")
           .action(async (query, opts) => {
-            const results = await searchMemories(query, Number.parseInt(opts.limit, 10), 0.3);
+            const results = await db.searchByQuery(query, Number.parseInt(opts.limit, 10), 0.3);
             const output = results.map((result) => ({
               id: result.entry.id,
               text: result.entry.text,
@@ -516,9 +968,14 @@ const memoryPlugin = {
         if (!event.prompt || event.prompt.length < 5) {
           return;
         }
+        const scopeSubject = resolveScopeSubjectFromHookEvent(event);
+        if (!scopeSubject) {
+          api.logger.warn("memory-mongodb: auto-recall skipped due to missing scope");
+          return;
+        }
 
         try {
-          const results = await searchMemories(event.prompt, 3, 0.3);
+          const results = await searchMemories(event.prompt, scopeSubject, 3, 0.3);
           if (results.length === 0) {
             return;
           }
@@ -543,8 +1000,14 @@ const memoryPlugin = {
         if (!event.success || !event.messages || event.messages.length === 0) {
           return;
         }
+        const scopeSubject = resolveScopeSubjectFromHookEvent(event);
+        if (!scopeSubject) {
+          api.logger.warn("memory-mongodb: auto-capture skipped due to missing scope");
+          return;
+        }
 
         try {
+          await ensureMcpRuntimeDirs();
           const texts: string[] = [];
 
           for (const message of event.messages) {
@@ -583,33 +1046,26 @@ const memoryPlugin = {
           if (toCapture.length === 0) {
             return;
           }
-
-          let stored = 0;
-
-          for (const text of toCapture.slice(0, 3)) {
+          const entries: MemoryCaptureCandidate[] = toCapture.slice(0, 3).map((text) => {
             const category = detectCategory(text);
-            const existing = await searchMemories(text, 1, 0.95);
-            if (existing.length > 0) {
-              continue;
-            }
-
-            await storeMemory({
+            return {
               text,
-              parts: [{ text }],
+              kind: category === "preference" ? "preference" : category === "fact" ? "fact" : "note",
               importance: 0.7,
               category,
               subCategory: detectSubCategory(text),
-              type: detectMemoryType(category, text),
-              metadata: {
-                source: "auto_capture",
-              },
-            });
-
-            stored += 1;
-          }
-
-          if (stored > 0) {
-            api.logger.info(`memory-mongodb: auto-captured ${stored} memories`);
+              confidence: 0.8,
+            };
+          });
+          const result = await opsService.capture({
+            scopeSubject,
+            entries,
+            source: "auto_capture",
+            rejectSecrets: true,
+          });
+          const created = result.outcomes.filter((item) => item.status === "created").length;
+          if (created > 0) {
+            api.logger.info(`memory-mongodb: auto-captured ${created} memories`);
           }
         } catch (error) {
           api.logger.warn(`memory-mongodb: capture failed: ${String(error)}`);

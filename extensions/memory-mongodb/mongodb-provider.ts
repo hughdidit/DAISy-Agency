@@ -40,6 +40,14 @@ export type MemorySearchResult = {
   vectorScore: number;
 };
 
+export type MemoryQueryFilters = {
+  scopeSubject?: string;
+  kinds?: string[];
+  modalities?: string[];
+  openCommitmentsOnly?: boolean;
+  preferencesOnly?: boolean;
+};
+
 export type RetrievalOptions = {
   minScore: number;
   vectorLimit: number;
@@ -117,15 +125,17 @@ export class MongoMemoryDB {
     query: string,
     limit = 5,
     minScore = this.retrieval.minScore,
+    filters?: MemoryQueryFilters,
   ): Promise<MemorySearchResult[]> {
     const vector = await this.gemini.embed([{ text: query }]);
-    return this.searchByVector(vector, limit, minScore);
+    return this.searchByVector(vector, limit, minScore, filters);
   }
 
   async searchByVector(
     vector: number[],
     limit = 5,
     minScore = this.retrieval.minScore,
+    filters?: MemoryQueryFilters,
   ): Promise<MemorySearchResult[]> {
     const boundedLimit = Math.max(1, Math.min(limit, this.retrieval.vectorLimit));
     const numCandidates = Math.max(
@@ -176,6 +186,9 @@ export class MongoMemoryDB {
       if (parsed.score < minScore) {
         continue;
       }
+      if (!matchesFilters(parsed.entry, filters)) {
+        continue;
+      }
 
       results.push({
         entry: parsed.entry,
@@ -196,6 +209,93 @@ export class MongoMemoryDB {
 
   async count(): Promise<number> {
     return this.mcp.countDocuments(this.databaseName, this.collectionName);
+  }
+
+  async getById(id: string): Promise<MemoryEntry | null> {
+    if (!UUID_REGEX.test(id)) {
+      throw new Error(`Invalid memory ID format: ${id}`);
+    }
+
+    const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, [
+      {
+        $match: {
+          _id: id,
+        },
+      },
+      {
+        $limit: 1,
+      },
+      {
+        $project: {
+          _id: 1,
+          text: 1,
+          vector: 1,
+          importance: 1,
+          category: 1,
+          subCategory: 1,
+          type: 1,
+          metadata: 1,
+          tags: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
+
+    const first = documents[0];
+    if (!first) {
+      return null;
+    }
+
+    const parsed = this.documentToEntry(first);
+    return parsed?.entry ?? null;
+  }
+
+  async listByScope(scopeSubject: string, limit = 50): Promise<MemoryEntry[]> {
+    if (!scopeSubject.trim()) {
+      throw new Error("scopeSubject required");
+    }
+    const boundedLimit = Math.max(1, Math.min(limit, 200));
+
+    const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, [
+      {
+        $match: {
+          "metadata.ops.scopeSubject": scopeSubject,
+        },
+      },
+      {
+        $sort: {
+          updatedAt: -1,
+        },
+      },
+      {
+        $limit: boundedLimit,
+      },
+      {
+        $project: {
+          _id: 1,
+          text: 1,
+          vector: 1,
+          importance: 1,
+          category: 1,
+          subCategory: 1,
+          type: 1,
+          metadata: 1,
+          tags: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
+
+    const entries: MemoryEntry[] = [];
+    for (const doc of documents) {
+      const parsed = this.documentToEntry(doc);
+      if (parsed?.entry) {
+        entries.push(parsed.entry);
+      }
+    }
+    return entries;
   }
 
   async close(): Promise<void> {
@@ -276,6 +376,80 @@ function isMemoryType(value: unknown): value is MemoryType {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function matchesFilters(entry: MemoryEntry, filters: MemoryQueryFilters | undefined): boolean {
+  if (!filters) {
+    return true;
+  }
+  const ops = extractOpsMetadata(entry);
+  if (filters.scopeSubject) {
+    if (ops?.scopeSubject !== filters.scopeSubject) {
+      return false;
+    }
+  }
+  if (filters.preferencesOnly && ops?.kind !== "preference") {
+    return false;
+  }
+  if (filters.openCommitmentsOnly) {
+    if (ops?.kind !== "commitment" || ops.status !== "open") {
+      return false;
+    }
+  }
+  if (Array.isArray(filters.kinds) && filters.kinds.length > 0) {
+    if (!ops?.kind || !filters.kinds.includes(ops.kind)) {
+      return false;
+    }
+  }
+  if (Array.isArray(filters.modalities) && filters.modalities.length > 0) {
+    const entryModalities = extractEntryModalities(entry);
+    if (!entryModalities.some((modality) => filters.modalities?.includes(modality))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function extractOpsMetadata(
+  entry: MemoryEntry,
+): { scopeSubject?: string; kind?: string; status?: string } | null {
+  if (!isObject(entry.metadata)) {
+    return null;
+  }
+  const rawOps = entry.metadata.ops;
+  if (!isObject(rawOps)) {
+    return null;
+  }
+  return {
+    scopeSubject: typeof rawOps.scopeSubject === "string" ? rawOps.scopeSubject : undefined,
+    kind: typeof rawOps.kind === "string" ? rawOps.kind : undefined,
+    status: typeof rawOps.status === "string" ? rawOps.status : undefined,
+  };
+}
+
+function extractEntryModalities(entry: MemoryEntry): string[] {
+  if (!isObject(entry.metadata)) {
+    return ["text"];
+  }
+  const rawOps = entry.metadata.ops;
+  if (!isObject(rawOps)) {
+    return ["text"];
+  }
+  const rawAttachments = rawOps.attachments;
+  if (!Array.isArray(rawAttachments) || rawAttachments.length === 0) {
+    return ["text"];
+  }
+
+  const modalities = rawAttachments
+    .map((attachment) => {
+      if (!isObject(attachment)) {
+        return null;
+      }
+      return typeof attachment.modality === "string" ? attachment.modality : null;
+    })
+    .filter((value): value is string => typeof value === "string");
+
+  return modalities.length > 0 ? modalities : ["text"];
 }
 
 export function buildVectorIndexDefinition(indexName: string, numDimensions: number): object {

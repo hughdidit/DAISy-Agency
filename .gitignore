@@ -143,3 +143,4 @@ generated-images/**
 .playwright-cli/**
 output/**
 .vscode/settings.json
+schema-daisy_memory-memories-standardJSON.json
