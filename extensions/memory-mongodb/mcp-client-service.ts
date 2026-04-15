@@ -228,7 +228,7 @@ export class McpClientService {
           }
           const parsed = this.tryParseTextPayload(text);
           if (parsed !== null) {
-            return parsed;
+            return parsed.value;
           }
           if (fallbackMessage === null) {
             fallbackMessage = text;
@@ -243,9 +243,9 @@ export class McpClientService {
     return response;
   }
 
-  private tryParseTextPayload(text: string): unknown | null {
+  private tryParseTextPayload(text: string): { ok: true; value: unknown } | null {
     try {
-      return JSON.parse(text);
+      return { ok: true, value: JSON.parse(text) };
     } catch {
       return null;
     }
