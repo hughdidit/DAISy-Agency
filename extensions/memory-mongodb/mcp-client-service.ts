@@ -18,6 +18,8 @@ type RuntimeEnvOverrides = {
 const isObject = (value: unknown): value is JsonObject =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
+const AGGREGATE_DOCUMENT_KEYS = ["documents", "results", "items", "result"] as const;
+
 const STDIO_ENV_ALLOWLIST = [
   "APPDATA",
   "COMSPEC",
@@ -85,7 +87,15 @@ export class McpClientService {
     });
 
     const insertedCount = this.firstNumber(response, ["insertedCount", "inserted_count", "count"]);
-    return insertedCount ?? documents.length;
+    if (insertedCount === null) {
+      throw new Error("MongoDB MCP insert-many response did not confirm insertedCount");
+    }
+    if (insertedCount < documents.length) {
+      throw new Error(
+        `MongoDB MCP insert-many confirmed ${insertedCount} inserts for ${documents.length} requested document(s)`,
+      );
+    }
+    return insertedCount;
   }
 
   async aggregate(
@@ -99,22 +109,11 @@ export class McpClientService {
       pipeline,
     });
 
-    if (Array.isArray(response)) {
-      return response.filter(isObject);
-    }
-
-    if (isObject(response)) {
-      const docs = this.firstArray(response, ["documents", "results", "items", "result"]);
-      if (docs) {
-        return docs.filter(isObject);
-      }
-    }
-
-    return [];
+    return this.extractAggregateDocuments(response);
   }
 
   async deleteOne(database: string, collection: string, filter: JsonObject): Promise<boolean> {
-    const response = await this.callMongoTool("delete-one", {
+    const response = await this.callMongoTool("delete-many", {
       database,
       collection,
       filter,
@@ -218,6 +217,7 @@ export class McpClientService {
 
       const content = response.content;
       if (Array.isArray(content)) {
+        let fallbackMessage: string | null = null;
         for (const item of content) {
           if (!isObject(item) || typeof item.text !== "string") {
             continue;
@@ -226,16 +226,51 @@ export class McpClientService {
           if (!text) {
             continue;
           }
-          try {
-            return JSON.parse(text);
-          } catch {
-            return { message: text };
+          const parsed = this.tryParseTextPayload(text);
+          if (parsed !== null) {
+            return parsed.value;
           }
+          if (fallbackMessage === null) {
+            fallbackMessage = text;
+          }
+        }
+        if (fallbackMessage !== null) {
+          return { message: fallbackMessage };
         }
       }
     }
 
     return response;
+  }
+
+  private tryParseTextPayload(text: string): { ok: true; value: unknown } | null {
+    try {
+      return { ok: true, value: JSON.parse(text) };
+    } catch {
+      return null;
+    }
+  }
+
+  private extractAggregateDocuments(payload: unknown): JsonObject[] {
+    if (Array.isArray(payload)) {
+      return payload.filter(isObject);
+    }
+
+    if (!isObject(payload)) {
+      return [];
+    }
+
+    for (const key of AGGREGATE_DOCUMENT_KEYS) {
+      const value = payload[key];
+      if (Array.isArray(value)) {
+        return value.filter(isObject);
+      }
+      if (isObject(value)) {
+        return [value];
+      }
+    }
+
+    return [];
   }
 
   private firstNumber(source: unknown, keys: string[]): number | null {
@@ -246,21 +281,6 @@ export class McpClientService {
     for (const key of keys) {
       const value = source[key];
       if (typeof value === "number") {
-        return value;
-      }
-    }
-
-    return null;
-  }
-
-  private firstArray(source: unknown, keys: string[]): unknown[] | null {
-    if (!isObject(source)) {
-      return null;
-    }
-
-    for (const key of keys) {
-      const value = source[key];
-      if (Array.isArray(value)) {
         return value;
       }
     }

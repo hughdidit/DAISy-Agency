@@ -14,13 +14,17 @@ const mcpClientMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("./mcp-client-service.js", () => ({
-  McpClientService: vi.fn().mockImplementation(() => mcpClientMocks),
+  McpClientService: vi.fn(function MockMcpClientService() {
+    return mcpClientMocks;
+  }),
 }));
 
 vi.mock("./gemini-service.js", () => ({
-  GeminiService: vi.fn().mockImplementation(() => ({
-    embed: vi.fn().mockResolvedValue([0.1, 0.2]),
-  })),
+  GeminiService: vi.fn(function MockGeminiService() {
+    return {
+      embed: vi.fn().mockResolvedValue([0.1, 0.2]),
+    };
+  }),
 }));
 
 describe("memory-mongodb plugin", () => {
@@ -39,6 +43,99 @@ describe("memory-mongodb plugin", () => {
     expect(memoryPlugin.kind).toBe("memory");
     expect(memoryPlugin.configSchema).toBeDefined();
     expect(memoryPlugin.register).toBeInstanceOf(Function);
+  });
+
+  test("tools support store -> recall -> forget -> recall round-trip behavior", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+    let storedDocument: Record<string, unknown> | null = null;
+    const deletedIds = new Set<string>();
+
+    mcpClientMocks.insertMany.mockImplementation(async (_database, _collection, documents) => {
+      storedDocument = documents[0] as Record<string, unknown>;
+      return 1;
+    });
+    mcpClientMocks.aggregate.mockImplementation(async () => {
+      if (!storedDocument) {
+        return [];
+      }
+      const id = storedDocument._id;
+      if (typeof id === "string" && deletedIds.has(id)) {
+        return [];
+      }
+      return [
+        {
+          ...storedDocument,
+          score: 0.99,
+        },
+      ];
+    });
+    mcpClientMocks.deleteOne.mockImplementation(async (_database, _collection, filter) => {
+      const id = filter?._id;
+      if (typeof id !== "string") {
+        return false;
+      }
+      if (!storedDocument || storedDocument._id !== id || deletedIds.has(id)) {
+        return false;
+      }
+      deletedIds.add(id);
+      return true;
+    });
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+      registerTool: (tool: { name: string }) => {
+        registeredTools.set(tool.name, tool);
+      },
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: vi.fn(),
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const memoryStore = registeredTools.get("memory_store");
+    const memoryRecall = registeredTools.get("memory_recall");
+    const memoryForget = registeredTools.get("memory_forget");
+    expect(memoryStore).toBeDefined();
+    expect(memoryRecall).toBeDefined();
+    expect(memoryForget).toBeDefined();
+
+    const storeResult = await memoryStore.execute("tc_store", {
+      text: "mcp round trip probe",
+      importance: 0.7,
+      category: "fact",
+    });
+    const storedId = storeResult.details?.id as string;
+    expect(storeResult.details?.action).toBe("created");
+    expect(typeof storedId).toBe("string");
+    expect(storedId.length).toBeGreaterThan(0);
+
+    const recallBeforeForget = await memoryRecall.execute("tc_recall_1", {
+      query: "mcp round trip probe",
+      limit: 5,
+    });
+    expect(recallBeforeForget.details?.count).toBe(1);
+
+    const forgetResult = await memoryForget.execute("tc_forget", {
+      memoryId: storedId,
+    });
+    expect(forgetResult.details?.action).toBe("deleted");
+
+    const recallAfterForget = await memoryRecall.execute("tc_recall_2", {
+      query: "mcp round trip probe",
+      limit: 5,
+    });
+    expect(recallAfterForget.details?.count).toBe(0);
   });
 
   test("config schema parses valid absolute-path custom stdio launcher", async () => {

@@ -7,7 +7,7 @@ Persistent long-term memory for DAISy using MongoDB Atlas through the official M
 ### Components
 
 - `memory-mongodb` plugin: registers memory tools, CLI commands, and lifecycle hooks.
-- `McpClientService`: MCP client wrapper for MongoDB tool calls (`connect`, `insert-many`, `aggregate`, `delete-one`).
+- `McpClientService`: MCP client wrapper for MongoDB tool calls (`connect`, `insert-many`, `aggregate`, `delete-many` with exact `_id` filters for single-memory deletes).
 - `PayloadChunker`: validates multimodal parts, enforces supported MIME types, shards oversized payloads into Gemini-safe request chunks.
 - `GeminiService`: native `fetch`-based embedding client using `gemini-embedding-2-preview` with output dimensionality fixed to `1536` and manual L2 normalization.
 - `MongoMemoryDB`: memory store/search manager built on MCP + Gemini services.
