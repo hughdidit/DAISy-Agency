@@ -94,7 +94,9 @@ describe("mongodb provider via MCP", () => {
 
   test("store propagates insert confirmation failures", async () => {
     const mcp = {
-      insertMany: vi.fn().mockRejectedValue(new Error("insert-many response did not confirm insertedCount")),
+      insertMany: vi
+        .fn()
+        .mockRejectedValue(new Error("insert-many response did not confirm insertedCount")),
       aggregate: vi.fn(),
       deleteOne: vi.fn(),
       countDocuments: vi.fn(),
