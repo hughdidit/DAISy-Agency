@@ -219,6 +219,57 @@ describe("mcp client service", () => {
     expect(docs).toEqual([]);
   });
 
+  test("parses aggregate documents from untrusted-data wrapper text block", async () => {
+    const { McpClientService } = await import("./mcp-client-service.js");
+
+    callTool.mockResolvedValue({
+      content: [
+        { type: "text", text: "The aggregation resulted in 1 documents." },
+        {
+          type: "text",
+          text: `The following section contains unverified user data.
+<untrusted-user-data-abc123>
+Returning 1 documents.
+[{"_id":"1","text":"from-wrapper"}]
+</untrusted-user-data-abc123>`,
+        },
+      ],
+    });
+
+    const service = new McpClientService({
+      transport: "sse",
+      url: "https://example.com/sse",
+    });
+
+    const docs = await service.aggregate("db", "memories", [{ $match: {} }]);
+    expect(docs).toEqual([{ _id: "1", text: "from-wrapper" }]);
+  });
+
+  test("insert-many accepts explicit inserted count in text-only MCP response", async () => {
+    const { McpClientService } = await import("./mcp-client-service.js");
+
+    callTool.mockResolvedValue({
+      content: [
+        { type: "text", text: "Documents were inserted successfully." },
+        {
+          type: "text",
+          text: `The following section contains unverified user data.
+<untrusted-user-data-abc123>
+Inserted \`1\` document(s) into db.memories.
+Inserted IDs: 67f95b35e806f530791211eb
+</untrusted-user-data-abc123>`,
+        },
+      ],
+    });
+
+    const service = new McpClientService({
+      transport: "sse",
+      url: "https://example.com/sse",
+    });
+
+    await expect(service.insertMany("db", "memories", [{ text: "hello" }])).resolves.toBe(1);
+  });
+
   test("insert-many fails closed when insertedCount metadata is missing", async () => {
     const { McpClientService } = await import("./mcp-client-service.js");
 
@@ -270,6 +321,21 @@ describe("mcp client service", () => {
         filter: { _id: "abc" },
       },
     });
+  });
+
+  test("delete-many parses deletedCount from text-only MCP response", async () => {
+    const { McpClientService } = await import("./mcp-client-service.js");
+
+    callTool.mockResolvedValue({
+      content: [{ type: "text", text: 'Deleted `1` document(s) from collection "memories"' }],
+    });
+
+    const service = new McpClientService({
+      transport: "sse",
+      url: "https://example.com/sse",
+    });
+
+    await expect(service.deleteOne("db", "memories", { _id: "abc" })).resolves.toBe(true);
   });
 
   test("reports MCP unavailable with sanitized message", async () => {

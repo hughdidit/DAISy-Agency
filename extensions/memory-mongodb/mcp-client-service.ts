@@ -1,6 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { EJSON } from "bson";
 import type { MemoryConfig } from "./config.js";
 
 type Logger = {
@@ -19,6 +20,10 @@ const isObject = (value: unknown): value is JsonObject =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 const AGGREGATE_DOCUMENT_KEYS = ["documents", "results", "items", "result"] as const;
+const INSERTED_COUNT_TEXT_PATTERNS = [/\bInserted\s+`?(\d+)`?\s+document\(s\)\b/i];
+const DELETED_COUNT_TEXT_PATTERNS = [/\bDeleted\s+`?(\d+)`?\s+document\(s\)\b/i];
+const UNTRUSTED_DATA_BLOCK_REGEX = /<untrusted-user-data-[^>]+>([\s\S]*?)<\/untrusted-user-data-[^>]+>/gi;
+const MARKDOWN_CODE_FENCE_REGEX = /```(?:json|javascript|js|ejson|mongodb)?\s*([\s\S]*?)```/gi;
 
 const STDIO_ENV_ALLOWLIST = [
   "APPDATA",
@@ -86,7 +91,11 @@ export class McpClientService {
       documents,
     });
 
-    const insertedCount = this.firstNumber(response, ["insertedCount", "inserted_count", "count"]);
+    const insertedCount = this.firstNumber(
+      response,
+      ["insertedCount", "inserted_count", "count"],
+      INSERTED_COUNT_TEXT_PATTERNS,
+    );
     if (insertedCount === null) {
       throw new Error("MongoDB MCP insert-many response did not confirm insertedCount");
     }
@@ -119,7 +128,11 @@ export class McpClientService {
       filter,
     });
 
-    const deletedCount = this.firstNumber(response, ["deletedCount", "deleted_count", "count"]);
+    const deletedCount = this.firstNumber(
+      response,
+      ["deletedCount", "deleted_count", "count"],
+      DELETED_COUNT_TEXT_PATTERNS,
+    );
     return Boolean(deletedCount && deletedCount > 0);
   }
 
@@ -218,6 +231,7 @@ export class McpClientService {
       const content = response.content;
       if (Array.isArray(content)) {
         let fallbackMessage: string | null = null;
+        const textBlocks: string[] = [];
         for (const item of content) {
           if (!isObject(item) || typeof item.text !== "string") {
             continue;
@@ -226,16 +240,20 @@ export class McpClientService {
           if (!text) {
             continue;
           }
-          const parsed = this.tryParseTextPayload(text);
-          if (parsed !== null) {
-            return parsed.value;
+          textBlocks.push(text);
+
+          for (const candidate of this.payloadCandidatesFromText(text)) {
+            const parsed = this.tryParseTextPayload(candidate);
+            if (parsed !== null) {
+              return parsed.value;
+            }
           }
           if (fallbackMessage === null) {
             fallbackMessage = text;
           }
         }
         if (fallbackMessage !== null) {
-          return { message: fallbackMessage };
+          return { message: fallbackMessage, textBlocks };
         }
       }
     }
@@ -244,10 +262,62 @@ export class McpClientService {
   }
 
   private tryParseTextPayload(text: string): { ok: true; value: unknown } | null {
+    const candidate = text.trim();
+    if (!candidate) {
+      return null;
+    }
+
     try {
-      return { ok: true, value: JSON.parse(text) };
+      return { ok: true, value: JSON.parse(candidate) };
+    } catch {
+      // Fall through and try EJSON.
+    }
+
+    try {
+      return { ok: true, value: EJSON.parse(candidate) };
     } catch {
       return null;
+    }
+  }
+
+  private payloadCandidatesFromText(text: string): string[] {
+    const candidates: string[] = [];
+    const pushCandidate = (value: string): void => {
+      const trimmed = value.trim();
+      if (!trimmed || candidates.includes(trimmed)) {
+        return;
+      }
+      candidates.push(trimmed);
+    };
+
+    pushCandidate(text);
+
+    MARKDOWN_CODE_FENCE_REGEX.lastIndex = 0;
+    for (const match of text.matchAll(MARKDOWN_CODE_FENCE_REGEX)) {
+      const block = match[1];
+      if (typeof block !== "string") {
+        continue;
+      }
+      pushCandidate(block);
+      this.pushLineCandidates(block, pushCandidate);
+    }
+
+    UNTRUSTED_DATA_BLOCK_REGEX.lastIndex = 0;
+    for (const match of text.matchAll(UNTRUSTED_DATA_BLOCK_REGEX)) {
+      const block = match[1];
+      if (typeof block !== "string") {
+        continue;
+      }
+      pushCandidate(block);
+      this.pushLineCandidates(block, pushCandidate);
+    }
+
+    return candidates;
+  }
+
+  private pushLineCandidates(block: string, pushCandidate: (value: string) => void): void {
+    for (const line of block.split(/\r?\n/)) {
+      pushCandidate(line);
     }
   }
 
@@ -273,14 +343,68 @@ export class McpClientService {
     return [];
   }
 
-  private firstNumber(source: unknown, keys: string[]): number | null {
-    if (!isObject(source)) {
-      return null;
+  private firstNumber(source: unknown, keys: string[], textPatterns: RegExp[] = []): number | null {
+    const queue: unknown[] = [source];
+    const seen = new Set<object>();
+
+    while (queue.length > 0) {
+      const current = queue.shift();
+      if (current === undefined || current === null) {
+        continue;
+      }
+
+      if (typeof current === "string") {
+        const match = this.firstPatternNumber(current, textPatterns);
+        if (match !== null) {
+          return match;
+        }
+        continue;
+      }
+
+      if (Array.isArray(current)) {
+        queue.push(...current);
+        continue;
+      }
+
+      if (!isObject(current)) {
+        continue;
+      }
+
+      if (seen.has(current)) {
+        continue;
+      }
+      seen.add(current);
+
+      for (const key of keys) {
+        const value = current[key];
+        if (typeof value === "number") {
+          return value;
+        }
+        if (typeof value === "string") {
+          const maybeNumber = Number(value);
+          if (Number.isFinite(maybeNumber)) {
+            return maybeNumber;
+          }
+        }
+      }
+
+      for (const value of Object.values(current)) {
+        queue.push(value);
+      }
     }
 
-    for (const key of keys) {
-      const value = source[key];
-      if (typeof value === "number") {
+    return null;
+  }
+
+  private firstPatternNumber(text: string, patterns: RegExp[]): number | null {
+    for (const pattern of patterns) {
+      pattern.lastIndex = 0;
+      const match = pattern.exec(text);
+      if (!match || match[1] === undefined) {
+        continue;
+      }
+      const value = Number(match[1]);
+      if (Number.isFinite(value)) {
         return value;
       }
     }
