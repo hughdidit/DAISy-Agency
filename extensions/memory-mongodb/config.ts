@@ -572,6 +572,12 @@ export const memoryConfigSchema = {
         "ops config",
       );
     }
+    const parsedOpsEnabled = parseBoolean(rawOps?.enabled, "ops.enabled", DEFAULT_OPS_ENABLED);
+    if (!parsedOpsEnabled) {
+      throw new Error(
+        "ops.enabled=false is not supported; memory-ops is required for memory-mongodb",
+      );
+    }
 
     let parsedMcp: MemoryConfig["mcp"];
     if (transport === "stdio") {
@@ -699,7 +705,7 @@ export const memoryConfigSchema = {
       autoCapture: cfg.autoCapture !== false,
       autoRecall: cfg.autoRecall !== false,
       ops: {
-        enabled: parseBoolean(rawOps?.enabled, "ops.enabled", DEFAULT_OPS_ENABLED),
+        enabled: true,
         preferenceMinObservations: parsePositiveInt(
           rawOps?.preferenceMinObservations,
           "ops.preferenceMinObservations",

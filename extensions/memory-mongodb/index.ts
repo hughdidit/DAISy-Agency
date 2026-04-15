@@ -30,17 +30,8 @@ import {
   type MemoryHygieneStrategy,
   type PreferenceMinerMode,
 } from "./memory-ops-types.js";
-import {
-  buildVectorIndexDefinition,
-  type MemoryEntry,
-  type MemoryType,
-  MongoMemoryDB,
-} from "./mongodb-provider.js";
-import {
-  buildAttachmentManifests,
-  multimodalPartsToFallbackText,
-  type MultimodalPart,
-} from "./payload-chunker.js";
+import { buildVectorIndexDefinition, type MemoryEntry, MongoMemoryDB } from "./mongodb-provider.js";
+import { multimodalPartsToFallbackText, type MultimodalPart } from "./payload-chunker.js";
 
 function compileTriggers(patterns: string[]): RegExp[] {
   return patterns.map((pattern) => new RegExp(pattern, "i"));
@@ -82,26 +73,6 @@ function detectCategory(text: string): MemoryCategory {
     return "fact";
   }
   return "other";
-}
-
-function detectMemoryType(category: MemoryCategory, text: string): MemoryType {
-  const lower = text.toLowerCase();
-  if (/(current|this session|for now)/i.test(lower)) {
-    return "working";
-  }
-  if (/(cache|temporary|ttl)/i.test(lower)) {
-    return "cache";
-  }
-  if (category === "decision") {
-    return "procedural";
-  }
-  if (category === "fact") {
-    return "semantic";
-  }
-  if (category === "entity") {
-    return "associative";
-  }
-  return "episodic";
 }
 
 function detectSubCategory(text: string): string | undefined {
@@ -303,8 +274,7 @@ const memoryPlugin = {
       cfg.retrieval,
       api.logger,
     );
-    const opsEnabled = cfg.ops.enabled === true;
-    const opsService = opsEnabled ? new MemoryOpsService(db, cfg.ops, api.logger) : null;
+    const opsService = new MemoryOpsService(db, cfg.ops, api.logger);
 
     const triggers = compileTriggers(cfg.captureTriggers);
     let runtimeDirs: McpRuntimeDirs | null = null;
@@ -363,11 +333,6 @@ const memoryPlugin = {
       });
     }
 
-    async function storeMemory(entry: Parameters<typeof db.store>[0]): Promise<MemoryEntry> {
-      await ensureMcpRuntimeDirs();
-      return db.store(entry);
-    }
-
     async function deleteMemory(memoryId: string): Promise<boolean> {
       await ensureMcpRuntimeDirs();
       return db.delete(memoryId);
@@ -376,9 +341,6 @@ const memoryPlugin = {
     api.logger.info(
       `memory-mongodb: plugin registered (db: ${cfg.database.name}/${cfg.database.collection}, transport: ${cfg.mcp.transport})`,
     );
-    if (!opsEnabled) {
-      api.logger.info("memory-mongodb: memory-ops primitives disabled by ops.enabled=false");
-    }
 
     const indexDef = buildVectorIndexDefinition(cfg.database.indexName, vectorDim);
     api.logger.info(
@@ -426,42 +388,18 @@ const memoryPlugin = {
               includeMetadata?: boolean;
             };
 
-            const recalled = opsService
-              ? await opsService.recall({
-                  query,
-                  scopeSubject,
-                  limit,
-                  filters: {
-                    kinds: kinds as any,
-                    openCommitmentsOnly,
-                    preferencesOnly,
-                    modalities: modalities as any,
-                    includeMetadata,
-                  },
-                })
-              : await (async () => {
-                  const fallbackResults = await searchMemories(query, scopeSubject, limit, 0.3, {
-                    kinds,
-                    openCommitmentsOnly,
-                    preferencesOnly,
-                    modalities,
-                  });
-                  const memories = fallbackResults.map((result) => ({
-                    id: result.entry.id,
-                    text: result.entry.text,
-                    category: result.entry.category,
-                    type: result.entry.type,
-                    importance: result.entry.importance,
-                    score: result.score,
-                    vectorScore: result.vectorScore,
-                    metadata: includeMetadata ? result.entry.metadata : undefined,
-                  }));
-                  return {
-                    count: memories.length,
-                    noResult: memories.length === 0,
-                    memories,
-                  };
-                })();
+            const recalled = await opsService.recall({
+              query,
+              scopeSubject,
+              limit,
+              filters: {
+                kinds: kinds as any,
+                openCommitmentsOnly,
+                preferencesOnly,
+                modalities: modalities as any,
+                includeMetadata,
+              },
+            });
 
             if (recalled.noResult) {
               return {
@@ -555,139 +493,84 @@ const memoryPlugin = {
                 : multimodalPartsToFallbackText(normalizedParts, 2_000);
 
             const inferredCategory = category ?? detectCategory(fallbackText);
-            if (opsService) {
-              const inferredKind =
-                inferredCategory === "preference"
-                  ? "preference"
-                  : inferredCategory === "fact"
-                    ? "fact"
-                    : inferredCategory === "decision"
-                      ? "decision"
-                      : "note";
-              const capture = await opsService.capture({
-                scopeSubject,
-                source: "memory_store",
-                rejectSecrets: false,
-                entries: [
-                  {
-                    text: normalizedText.length > 0 ? normalizedText : undefined,
-                    parts: normalizedParts,
-                    kind: inferredKind,
-                    importance,
-                    confidence: 0.9,
-                    category: inferredCategory,
-                    subCategory: detectSubCategory(fallbackText),
-                  },
-                ],
-              });
-              const outcome = capture.outcomes[0];
-              if (!outcome) {
-                return {
-                  content: [{ type: "text", text: "Memory capture produced no outcome." }],
-                  details: { error: "capture_failed", scopeSubject },
-                };
-              }
-              if (outcome.status === "duplicate") {
-                const existingText =
-                  outcome.existingId &&
-                  (await db.getById(outcome.existingId).catch(() => null))?.text;
-                return {
-                  content: [
-                    {
-                      type: "text",
-                      text: existingText
-                        ? `Similar memory already exists: "${existingText}"`
-                        : "Similar memory already exists.",
-                    },
-                  ],
-                  details: {
-                    action: "duplicate",
-                    existingId: outcome.existingId,
-                    existingText,
-                    reason: outcome.reason,
-                    scopeSubject,
-                  },
-                };
-              }
-              if (outcome.status !== "created" || !outcome.id) {
-                return {
-                  content: [
-                    {
-                      type: "text",
-                      text:
-                        outcome.reason && outcome.reason.length > 0
-                          ? `Memory was not stored: ${outcome.reason}`
-                          : "Memory was not stored.",
-                    },
-                  ],
-                  details: {
-                    action: outcome.status,
-                    reason: outcome.reason,
-                    scopeSubject,
-                  },
-                };
-              }
-              return {
-                content: [{ type: "text", text: `Stored: "${fallbackText.slice(0, 100)}..."` }],
-                details: {
-                  action: "created",
-                  id: outcome.id,
+            const inferredKind =
+              inferredCategory === "preference"
+                ? "preference"
+                : inferredCategory === "fact"
+                  ? "fact"
+                  : inferredCategory === "decision"
+                    ? "decision"
+                    : "note";
+            const capture = await opsService.capture({
+              scopeSubject,
+              source: "memory_store",
+              rejectSecrets: false,
+              entries: [
+                {
+                  text: normalizedText.length > 0 ? normalizedText : undefined,
+                  parts: normalizedParts,
+                  kind: inferredKind,
+                  importance,
+                  confidence: 0.9,
                   category: inferredCategory,
-                  scopeSubject,
+                  subCategory: detectSubCategory(fallbackText),
                 },
+              ],
+            });
+            const outcome = capture.outcomes[0];
+            if (!outcome) {
+              return {
+                content: [{ type: "text", text: "Memory capture produced no outcome." }],
+                details: { error: "capture_failed", scopeSubject },
               };
             }
-
-            const attachments = buildAttachmentManifests(normalizedParts);
-            const existing = await searchMemories(fallbackText, scopeSubject, 1, 0.95);
-
-            if (existing.length > 0) {
+            if (outcome.status === "duplicate") {
+              const existingText =
+                outcome.existingId &&
+                (await db.getById(outcome.existingId).catch(() => null))?.text;
               return {
                 content: [
                   {
                     type: "text",
-                    text: `Similar memory already exists: "${existing[0].entry.text}"`,
+                    text: existingText
+                      ? `Similar memory already exists: "${existingText}"`
+                      : "Similar memory already exists.",
                   },
                 ],
                 details: {
                   action: "duplicate",
-                  existingId: existing[0].entry.id,
-                  existingText: existing[0].entry.text,
+                  existingId: outcome.existingId,
+                  existingText,
+                  reason: outcome.reason,
                   scopeSubject,
                 },
               };
             }
-
-            const entry = await storeMemory({
-              text: fallbackText,
-              parts: normalizedParts,
-              importance,
-              category: inferredCategory,
-              subCategory: detectSubCategory(fallbackText),
-              type: detectMemoryType(inferredCategory, fallbackText),
-              metadata: {
-                source: "memory_store",
-                ops: {
-                  kind: inferredCategory === "preference" ? "preference" : "note",
-                  scopeSubject,
-                  source: "memory_store",
-                  status: "recorded",
-                  attachmentSummary: {
-                    modalities: Array.from(new Set(attachments.map((item) => item.modality))),
-                    totalCount: attachments.length,
+            if (outcome.status !== "created" || !outcome.id) {
+              return {
+                content: [
+                  {
+                    type: "text",
+                    text:
+                      outcome.reason && outcome.reason.length > 0
+                        ? `Memory was not stored: ${outcome.reason}`
+                        : "Memory was not stored.",
                   },
-                  attachments,
+                ],
+                details: {
+                  action: outcome.status,
+                  reason: outcome.reason,
+                  scopeSubject,
                 },
-              },
-            });
+              };
+            }
 
             return {
               content: [{ type: "text", text: `Stored: "${fallbackText.slice(0, 100)}..."` }],
               details: {
                 action: "created",
-                id: entry.id,
+                id: outcome.id,
                 category: inferredCategory,
-                type: entry.type,
                 scopeSubject,
               },
             };
@@ -816,257 +699,254 @@ const memoryPlugin = {
       { name: "memory_forget" },
     );
 
-    if (opsService) {
-      api.registerTool(
-        (ctx) => {
-          const scopeSubject = resolveScopeSubject(ctx);
-          return {
-            name: "memory_capture",
-            label: "Memory Capture",
-            description:
-              "Create durable, deduplicated memory records with typed metadata and multimodal manifests.",
-            parameters: Type.Object({
-              entries: Type.Array(memoryCaptureEntrySchema, { minItems: 1 }),
-              dedupeThreshold: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-              rejectSecrets: Type.Optional(Type.Boolean()),
-            }),
-            async execute(_toolCallId, params) {
-              if (!scopeSubject) {
-                return scopeErrorResult();
-              }
-              await ensureMcpRuntimeDirs();
-              const { entries, dedupeThreshold, rejectSecrets } = params as {
-                entries: MemoryCaptureCandidate[];
-                dedupeThreshold?: number;
-                rejectSecrets?: boolean;
-              };
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "memory_capture",
+          label: "Memory Capture",
+          description:
+            "Create durable, deduplicated memory records with typed metadata and multimodal manifests.",
+          parameters: Type.Object({
+            entries: Type.Array(memoryCaptureEntrySchema, { minItems: 1 }),
+            dedupeThreshold: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+            rejectSecrets: Type.Optional(Type.Boolean()),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const { entries, dedupeThreshold, rejectSecrets } = params as {
+              entries: MemoryCaptureCandidate[];
+              dedupeThreshold?: number;
+              rejectSecrets?: boolean;
+            };
 
-              const result = await opsService.capture({
-                scopeSubject,
-                entries,
-                source: "memory_capture",
-                dedupeThreshold,
-                rejectSecrets,
-              });
+            const result = await opsService.capture({
+              scopeSubject,
+              entries,
+              source: "memory_capture",
+              dedupeThreshold,
+              rejectSecrets,
+            });
 
-              return {
-                content: [
-                  {
-                    type: "text",
-                    text: `Processed ${result.outcomes.length} capture entries.`,
-                  },
-                ],
-                details: {
-                  scopeSubject,
-                  outcomes: result.outcomes,
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Processed ${result.outcomes.length} capture entries.`,
                 },
-              };
-            },
-          };
-        },
-        { name: "memory_capture" },
-      );
+              ],
+              details: {
+                scopeSubject,
+                outcomes: result.outcomes,
+              },
+            };
+          },
+        };
+      },
+      { name: "memory_capture" },
+    );
 
-      api.registerTool(
-        (ctx) => {
-          const scopeSubject = resolveScopeSubject(ctx);
-          return {
-            name: "memory_hygiene",
-            label: "Memory Hygiene",
-            description:
-              "Plan or apply safe memory hygiene actions (dedupe, stale prune, conflict review, preference promotion).",
-            parameters: Type.Object({
-              mode: stringEnum(["plan", "apply"] as const),
-              strategies: Type.Optional(
-                Type.Array(
-                  stringEnum(["dedupe", "stale-prune", "promote", "conflict-review"] as const),
-                ),
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "memory_hygiene",
+          label: "Memory Hygiene",
+          description:
+            "Plan or apply safe memory hygiene actions (dedupe, stale prune, conflict review, preference promotion).",
+          parameters: Type.Object({
+            mode: stringEnum(["plan", "apply"] as const),
+            strategies: Type.Optional(
+              Type.Array(
+                stringEnum(["dedupe", "stale-prune", "promote", "conflict-review"] as const),
               ),
-              maxCandidates: Type.Optional(Type.Number({ minimum: 1 })),
-              planId: Type.Optional(Type.String()),
-            }),
-            async execute(_toolCallId, params) {
-              if (!scopeSubject) {
-                return scopeErrorResult();
-              }
-              await ensureMcpRuntimeDirs();
-              const { mode, strategies, maxCandidates, planId } = params as {
-                mode: "plan" | "apply";
-                strategies?: MemoryHygieneStrategy[];
-                maxCandidates?: number;
-                planId?: string;
-              };
+            ),
+            maxCandidates: Type.Optional(Type.Number({ minimum: 1 })),
+            planId: Type.Optional(Type.String()),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const { mode, strategies, maxCandidates, planId } = params as {
+              mode: "plan" | "apply";
+              strategies?: MemoryHygieneStrategy[];
+              maxCandidates?: number;
+              planId?: string;
+            };
 
-              const result = await opsService.memoryHygiene({
-                mode,
-                scopeSubject,
-                strategies,
-                maxCandidates,
-                planId,
-              });
+            const result = await opsService.memoryHygiene({
+              mode,
+              scopeSubject,
+              strategies,
+              maxCandidates,
+              planId,
+            });
 
-              return {
-                content: [
-                  {
-                    type: "text",
-                    text:
-                      mode === "plan"
-                        ? `Generated hygiene plan with ${result.plan.actions.length} actions.`
-                        : `Applied hygiene plan with ${result.plan.actions.length} actions.`,
-                  },
-                ],
-                details: {
-                  scopeSubject,
-                  ...result,
+            return {
+              content: [
+                {
+                  type: "text",
+                  text:
+                    mode === "plan"
+                      ? `Generated hygiene plan with ${result.plan.actions.length} actions.`
+                      : `Applied hygiene plan with ${result.plan.actions.length} actions.`,
                 },
-              };
-            },
-          };
-        },
-        { name: "memory_hygiene" },
-      );
-
-      api.registerTool(
-        (ctx) => {
-          const scopeSubject = resolveScopeSubject(ctx);
-          return {
-            name: "commitment_tracker",
-            label: "Commitment Tracker",
-            description:
-              "Capture, list, resolve, or cancel commitments with durable status metadata.",
-            parameters: Type.Object({
-              mode: stringEnum(["capture", "list_open", "resolve", "cancel"] as const),
-              text: Type.Optional(Type.String()),
-              owner: Type.Optional(Type.String()),
-              dueAt: Type.Optional(Type.Number()),
-              followUpAt: Type.Optional(Type.Number()),
-              priority: Type.Optional(stringEnum(["low", "medium", "high"] as const)),
-              commitmentId: Type.Optional(Type.String()),
-              note: Type.Optional(Type.String()),
-            }),
-            async execute(_toolCallId, params) {
-              if (!scopeSubject) {
-                return scopeErrorResult();
-              }
-              await ensureMcpRuntimeDirs();
-              const result = await opsService.commitmentTracker({
-                ...(params as {
-                  mode: CommitmentTrackerMode;
-                  text?: string;
-                  owner?: string;
-                  dueAt?: number;
-                  followUpAt?: number;
-                  priority?: "low" | "medium" | "high";
-                  commitmentId?: string;
-                  note?: string;
-                }),
+              ],
+              details: {
                 scopeSubject,
-              });
-              return {
-                content: [
-                  {
-                    type: "text",
-                    text: `commitment_tracker mode ${(params as { mode: string }).mode} completed.`,
-                  },
-                ],
-                details: {
-                  scopeSubject,
-                  ...result,
-                },
-              };
-            },
-          };
-        },
-        { name: "commitment_tracker" },
-      );
+                ...result,
+              },
+            };
+          },
+        };
+      },
+      { name: "memory_hygiene" },
+    );
 
-      api.registerTool(
-        (ctx) => {
-          const scopeSubject = resolveScopeSubject(ctx);
-          return {
-            name: "preference_miner",
-            label: "Preference Miner",
-            description:
-              "Observe preference evidence and promote stable preferences when evidence is repeated and consistent.",
-            parameters: Type.Object({
-              mode: stringEnum(["observe", "plan_promotions", "apply_promotions", "list"] as const),
-              key: Type.Optional(Type.String()),
-              value: Type.Optional(Type.String()),
-              confidence: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-            }),
-            async execute(_toolCallId, params) {
-              if (!scopeSubject) {
-                return scopeErrorResult();
-              }
-              await ensureMcpRuntimeDirs();
-              const result = await opsService.preferenceMiner({
-                ...(params as {
-                  mode: PreferenceMinerMode;
-                  key?: string;
-                  value?: string;
-                  confidence?: number;
-                }),
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "commitment_tracker",
+          label: "Commitment Tracker",
+          description:
+            "Capture, list, resolve, or cancel commitments with durable status metadata.",
+          parameters: Type.Object({
+            mode: stringEnum(["capture", "list_open", "resolve", "cancel"] as const),
+            text: Type.Optional(Type.String()),
+            owner: Type.Optional(Type.String()),
+            dueAt: Type.Optional(Type.Number()),
+            followUpAt: Type.Optional(Type.Number()),
+            priority: Type.Optional(stringEnum(["low", "medium", "high"] as const)),
+            commitmentId: Type.Optional(Type.String()),
+            note: Type.Optional(Type.String()),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const result = await opsService.commitmentTracker({
+              ...(params as {
+                mode: CommitmentTrackerMode;
+                text?: string;
+                owner?: string;
+                dueAt?: number;
+                followUpAt?: number;
+                priority?: "low" | "medium" | "high";
+                commitmentId?: string;
+                note?: string;
+              }),
+              scopeSubject,
+            });
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `commitment_tracker mode ${(params as { mode: string }).mode} completed.`,
+                },
+              ],
+              details: {
                 scopeSubject,
-              });
-              return {
-                content: [
-                  {
-                    type: "text",
-                    text: `preference_miner mode ${(params as { mode: string }).mode} completed.`,
-                  },
-                ],
-                details: {
-                  scopeSubject,
-                  ...result,
-                },
-              };
-            },
-          };
-        },
-        { name: "preference_miner" },
-      );
+                ...result,
+              },
+            };
+          },
+        };
+      },
+      { name: "commitment_tracker" },
+    );
 
-      api.registerTool(
-        (ctx) => {
-          const scopeSubject = resolveScopeSubject(ctx);
-          return {
-            name: "memory_audit",
-            label: "Memory Audit",
-            description:
-              "Store and recall a throwaway probe token to validate memory reliability, then clean up.",
-            parameters: Type.Object({
-              runId: Type.Optional(Type.String()),
-              cleanupOnSuccess: Type.Optional(Type.Boolean()),
-            }),
-            async execute(_toolCallId, params) {
-              if (!scopeSubject) {
-                return scopeErrorResult();
-              }
-              await ensureMcpRuntimeDirs();
-              const result = await opsService.memoryAudit({
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "preference_miner",
+          label: "Preference Miner",
+          description:
+            "Observe preference evidence and promote stable preferences when evidence is repeated and consistent.",
+          parameters: Type.Object({
+            mode: stringEnum(["observe", "plan_promotions", "apply_promotions", "list"] as const),
+            key: Type.Optional(Type.String()),
+            value: Type.Optional(Type.String()),
+            confidence: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const result = await opsService.preferenceMiner({
+              ...(params as {
+                mode: PreferenceMinerMode;
+                key?: string;
+                value?: string;
+                confidence?: number;
+              }),
+              scopeSubject,
+            });
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `preference_miner mode ${(params as { mode: string }).mode} completed.`,
+                },
+              ],
+              details: {
                 scopeSubject,
-                runId: (params as { runId?: string }).runId,
-                cleanupOnSuccess: (params as { cleanupOnSuccess?: boolean }).cleanupOnSuccess,
-              });
-              return {
-                content: [
-                  {
-                    type: "text",
-                    text: result.pass ? "Memory audit passed." : "Memory audit failed.",
-                  },
-                ],
-                details: {
-                  scopeSubject,
-                  ...result,
-                },
-              };
-            },
-          };
-        },
-        { name: "memory_audit" },
-      );
-    }
+                ...result,
+              },
+            };
+          },
+        };
+      },
+      { name: "preference_miner" },
+    );
 
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "memory_audit",
+          label: "Memory Audit",
+          description:
+            "Store and recall a throwaway probe token to validate memory reliability, then clean up.",
+          parameters: Type.Object({
+            runId: Type.Optional(Type.String()),
+            cleanupOnSuccess: Type.Optional(Type.Boolean()),
+          }),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const result = await opsService.memoryAudit({
+              scopeSubject,
+              runId: (params as { runId?: string }).runId,
+              cleanupOnSuccess: (params as { cleanupOnSuccess?: boolean }).cleanupOnSuccess,
+            });
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: result.pass ? "Memory audit passed." : "Memory audit failed.",
+                },
+              ],
+              details: {
+                scopeSubject,
+                ...result,
+              },
+            };
+          },
+        };
+      },
+      { name: "memory_audit" },
+    );
     api.registerCli(
       ({ program }) => {
         const memory = program.command("ltm").description("MongoDB MCP memory plugin commands");
@@ -1140,7 +1020,7 @@ const memoryPlugin = {
       });
     }
 
-    if (cfg.autoCapture && opsService) {
+    if (cfg.autoCapture) {
       api.on("agent_end", async (event) => {
         if (!event.success || !event.messages || event.messages.length === 0) {
           return;

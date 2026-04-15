@@ -227,48 +227,6 @@ describe("memory-mongodb plugin", () => {
     expect(hygieneResult.details?.mode).toBe("plan");
   });
 
-  test("does not register memory-ops-only tools when ops.enabled is false", async () => {
-    const { default: memoryPlugin } = await import("./index.js");
-    const registeredTools = new Map<string, any>();
-
-    mcpClientMocks.insertMany.mockResolvedValue(1);
-    mcpClientMocks.aggregate.mockResolvedValue([]);
-
-    memoryPlugin.register({
-      pluginConfig: {
-        mcp: {
-          transport: "stdio",
-          stdio: {
-            env: {
-              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
-            },
-          },
-        },
-        gemini: { apiKey: "test-key" },
-        ops: {
-          enabled: false,
-        },
-      },
-      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
-      registerTool: (tool: unknown, opts?: { name?: string }) => {
-        const resolved = materializeTool(tool, opts) as { name: string };
-        registeredTools.set(resolved.name, resolved);
-      },
-      registerCli: vi.fn(),
-      registerService: vi.fn(),
-      on: vi.fn(),
-    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
-
-    expect(registeredTools.has("memory_recall")).toBe(true);
-    expect(registeredTools.has("memory_store")).toBe(true);
-    expect(registeredTools.has("memory_forget")).toBe(true);
-    expect(registeredTools.has("memory_capture")).toBe(false);
-    expect(registeredTools.has("memory_hygiene")).toBe(false);
-    expect(registeredTools.has("commitment_tracker")).toBe(false);
-    expect(registeredTools.has("preference_miner")).toBe(false);
-    expect(registeredTools.has("memory_audit")).toBe(false);
-  });
-
   test("scoped tools fail closed when agent scope cannot be derived", async () => {
     const { default: memoryPlugin } = await import("./index.js");
     const registeredTools = new Map<string, any>();
@@ -382,6 +340,27 @@ describe("memory-mongodb plugin", () => {
       expect(config.mcp.stdio.command).toBe(process.execPath);
       expect(config.mcp.stdio.args).toEqual([resolveBundledMongoMcpServerEntrypoint()]);
     }
+  });
+
+  test("config schema rejects ops.enabled=false", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+
+    expect(() => {
+      memoryPlugin.configSchema.parse({
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+        ops: {
+          enabled: false,
+        },
+      });
+    }).toThrow("ops.enabled=false is not supported");
   });
 
   test("config schema rejects custom launcher overrides without explicit allowCustomLauncher", async () => {
