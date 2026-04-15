@@ -42,7 +42,7 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 
 ## Query and Data Safety
 
-- Database operations are executed through MongoDB MCP tools (`insert-many`, `aggregate`, `delete-one`).
+- Database operations are executed through MongoDB MCP tools (`insert-many`, `aggregate`, `delete-many` with exact `_id` filters for single-memory deletes).
 - The plugin does not use a direct MongoDB driver path for runtime reads or writes.
 - `memory_forget` enforces UUID validation before delete operations.
 - Vector embeddings are not returned in tool output payloads.

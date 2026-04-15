@@ -92,6 +92,39 @@ describe("mongodb provider via MCP", () => {
     expect(record.text).toBe("[attachment:application/pdf]");
   });
 
+  test("store propagates insert confirmation failures", async () => {
+    const mcp = {
+      insertMany: vi.fn().mockRejectedValue(new Error("insert-many response did not confirm insertedCount")),
+      aggregate: vi.fn(),
+      deleteOne: vi.fn(),
+      countDocuments: vi.fn(),
+      close: vi.fn(),
+    };
+
+    const embeddings = {
+      embed: vi.fn().mockResolvedValue([0.1, 0.2]),
+    };
+
+    const provider = new MongoMemoryDB(
+      mcp as any,
+      embeddings as any,
+      "memdb",
+      "memories",
+      "vector_idx",
+      baseRetrieval,
+    );
+
+    await expect(
+      provider.store({
+        text: "remember this",
+        parts: [{ text: "remember this" }],
+        importance: 0.7,
+        category: "fact",
+        type: "semantic",
+      }),
+    ).rejects.toThrow("insert-many response did not confirm insertedCount");
+  });
+
   test("searchByVector uses $vectorSearch aggregation pipeline", async () => {
     const aggregate = vi.fn().mockResolvedValue([
       {
@@ -255,10 +288,11 @@ describe("mongodb provider via MCP", () => {
   });
 
   test("delete validates UUID format", async () => {
+    const deleteOne = vi.fn().mockResolvedValue(true);
     const mcp = {
       insertMany: vi.fn(),
       aggregate: vi.fn(),
-      deleteOne: vi.fn().mockResolvedValue(true),
+      deleteOne,
       countDocuments: vi.fn(),
       close: vi.fn(),
     };
@@ -274,5 +308,29 @@ describe("mongodb provider via MCP", () => {
 
     await expect(provider.delete("not-a-uuid")).rejects.toThrow("Invalid memory ID format");
     await expect(provider.delete("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")).resolves.toBe(true);
+    expect(deleteOne).toHaveBeenCalledWith("memdb", "memories", {
+      _id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    });
+  });
+
+  test("delete returns false when MCP delete count is zero", async () => {
+    const mcp = {
+      insertMany: vi.fn(),
+      aggregate: vi.fn(),
+      deleteOne: vi.fn().mockResolvedValue(false),
+      countDocuments: vi.fn(),
+      close: vi.fn(),
+    };
+
+    const provider = new MongoMemoryDB(
+      mcp as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "vector_idx",
+      baseRetrieval,
+    );
+
+    await expect(provider.delete("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")).resolves.toBe(false);
   });
 });
