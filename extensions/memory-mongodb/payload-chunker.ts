@@ -232,7 +232,7 @@ export function isDocumentMimeType(mimeType: string): boolean {
 export function buildInlineAttachmentManifest(part: MultimodalInlineDataPart): AttachmentManifest {
   const mimeType = part.inlineData.mimeType;
   const decoded = safeDecodeBase64(part.inlineData.data);
-  const bytes = decoded ? decoded.length : undefined;
+  const bytes = decoded ? decoded.length : Buffer.byteLength(part.inlineData.data, "utf8");
   const hashInput = decoded ?? Buffer.from(part.inlineData.data, "utf8");
 
   return {
