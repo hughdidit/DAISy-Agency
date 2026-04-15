@@ -1,7 +1,6 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { EJSON } from "bson";
 import type { MemoryConfig } from "./config.js";
 
 type Logger = {
@@ -269,12 +268,6 @@ export class McpClientService {
 
     try {
       return { ok: true, value: JSON.parse(candidate) };
-    } catch {
-      // Fall through and try EJSON.
-    }
-
-    try {
-      return { ok: true, value: EJSON.parse(candidate) };
     } catch {
       return null;
     }
