@@ -19,8 +19,8 @@ const isObject = (value: unknown): value is JsonObject =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 const AGGREGATE_DOCUMENT_KEYS = ["documents", "results", "items", "result"] as const;
-const INSERTED_COUNT_TEXT_PATTERNS = [/\bInserted\s+`?(\d+)`?\s+document\(s\)\b/i];
-const DELETED_COUNT_TEXT_PATTERNS = [/\bDeleted\s+`?(\d+)`?\s+document\(s\)\b/i];
+const INSERTED_COUNT_TEXT_PATTERNS = [/Inserted\s+`?(\d+)`?\s+document\(s\)/i];
+const DELETED_COUNT_TEXT_PATTERNS = [/Deleted\s+`?(\d+)`?\s+document\(s\)/i];
 const UNTRUSTED_DATA_BLOCK_REGEX = /<untrusted-user-data-[^>]+>([\s\S]*?)<\/untrusted-user-data-[^>]+>/gi;
 const MARKDOWN_CODE_FENCE_REGEX = /```(?:json|javascript|js|ejson|mongodb)?\s*([\s\S]*?)```/gi;
 
