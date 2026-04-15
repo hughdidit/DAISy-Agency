@@ -143,6 +143,7 @@ async function fetchBulkAdvisories(payload) {
     if (error instanceof Error && error.name === "AbortError") {
       throw new Error(
         `Bulk advisory endpoint request timed out after ${BULK_ADVISORY_TIMEOUT_MS}ms.`,
+        { cause: error },
       );
     }
     throw error;
