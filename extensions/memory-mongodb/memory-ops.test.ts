@@ -236,8 +236,9 @@ describe("memory ops service", () => {
       scopeSubject: "agent:main",
     });
 
-    expect(Array.isArray(plan.promotions)).toBe(true);
-    expect(plan.promotions.length).toBe(1);
+    const promotions = (plan as { promotions?: unknown }).promotions;
+    expect(Array.isArray(promotions)).toBe(true);
+    expect(promotions).toHaveLength(1);
   });
 
   test("memory audit reports failure when recall misses probe", async () => {

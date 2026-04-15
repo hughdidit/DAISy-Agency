@@ -8,9 +8,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Type } from "@sinclair/typebox";
-import type { OpenClawPluginApi, OpenClawPluginToolContext } from "openclaw/plugin-sdk";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { stringEnum } from "openclaw/plugin-sdk";
 import { resolveStateDir } from "../../src/config/paths.js";
+import type { OpenClawPluginToolContext } from "../../src/plugins/types.js";
 import { isSubagentSessionKey } from "../../src/routing/session-key.js";
 import {
   MEMORY_CATEGORIES,
