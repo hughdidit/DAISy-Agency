@@ -198,10 +198,26 @@ describe("memory-mongodb plugin", () => {
       "commitment_tracker",
       "preference_miner",
       "memory_audit",
+      "memory_recallx",
     ];
     for (const name of required) {
       expect(registeredTools.has(name)).toBe(true);
     }
+
+    const memoryRecall = registeredTools.get("memory_recall");
+    const memoryRecallX = registeredTools.get("memory_recallx");
+    expect(memoryRecall).toBeDefined();
+    expect(memoryRecallX).toBeDefined();
+
+    const memoryRecallProps = Object.keys(memoryRecall.parameters?.properties ?? {}).sort();
+    expect(memoryRecallProps).toEqual(["limit", "query"]);
+
+    const memoryRecallXProps = Object.keys(memoryRecallX.parameters?.properties ?? {});
+    expect(memoryRecallXProps).toContain("kinds");
+    expect(memoryRecallXProps).toContain("openCommitmentsOnly");
+    expect(memoryRecallXProps).toContain("preferencesOnly");
+    expect(memoryRecallXProps).toContain("modalities");
+    expect(memoryRecallXProps).toContain("includeMetadata");
 
     const memoryCapture = registeredTools.get("memory_capture");
     const captureResult = await memoryCapture.execute("tc_capture", {
