@@ -370,7 +370,12 @@ const memoryPlugin = {
               limit?: number;
             };
 
-            const results = await searchMemories(query, scopeSubject, limit, cfg.retrieval.minScore);
+            const results = await searchMemories(
+              query,
+              scopeSubject,
+              limit,
+              cfg.retrieval.minScore,
+            );
             if (results.length === 0) {
               return {
                 content: [{ type: "text", text: "No relevant memories found." }],
