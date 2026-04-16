@@ -355,7 +355,9 @@ jobs:
           echo "APP_ENV=${APP_ENV}"
           if [ "$APP_ENV" = "staging" ] || [ "$APP_ENV" = "production" ]; then
             pnpm install --lockfile-only --ignore-scripts
-            pnpm audit --prod --audit-level=high
+            # npm retired legacy audit endpoints used by pnpm audit in current stable.
+            # Use npm's bulk advisory endpoint directly until pnpm endpoint migration is complete.
+            node ./scripts/audit-prod-deps-bulk.mjs --level high
           else
             echo "Skipping dependency audit (APP_ENV=${APP_ENV})"
           fi

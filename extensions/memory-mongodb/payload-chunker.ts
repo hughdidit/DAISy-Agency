@@ -1,9 +1,56 @@
+import { createHash } from "node:crypto";
+
 export const payloadChunkerLimits = {
   maxImageOrPdfPartsPerChunk: 6,
   maxTextCharsPerPart: 28_000,
+  maxDecodedTextLikeDocumentChars: 8_000,
 } as const;
 
-const allowedMimeTypes = new Set([
+export const defaultSupportedMimeTypes = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "video/mp4",
+  "video/quicktime",
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/wav",
+  "application/pdf",
+  "text/plain",
+  "text/markdown",
+  "text/csv",
+  "application/json",
+  "application/ld+json",
+  "application/x-ndjson",
+  "application/x-yaml",
+  "text/yaml",
+  "text/x-yaml",
+  "application/xml",
+  "text/xml",
+  "text/html",
+  "application/rtf",
+  "text/rtf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.apple.pages",
+  "application/vnd.apple.numbers",
+  "application/vnd.apple.keynote",
+  "application/vnd.google-apps.document",
+  "application/vnd.google-apps.spreadsheet",
+  "application/vnd.google-apps.presentation",
+  "text/x-python",
+  "text/x-typescript",
+  "application/x-sh",
+  "text/x-shellscript",
+  "application/toml",
+  "text/x-toml",
+] as const;
+
+const geminiInlineEmbeddableMimeTypes = new Set([
   "image/png",
   "image/jpeg",
   "image/jpg",
@@ -15,16 +62,32 @@ const allowedMimeTypes = new Set([
   "application/pdf",
 ]);
 
-export type SupportedMimeType =
-  | "image/png"
-  | "image/jpeg"
-  | "image/jpg"
-  | "video/mp4"
-  | "video/quicktime"
-  | "audio/mpeg"
-  | "audio/mp3"
-  | "audio/wav"
-  | "application/pdf";
+const textLikeDocumentMimeTypes = new Set([
+  "text/plain",
+  "text/markdown",
+  "text/csv",
+  "application/json",
+  "application/ld+json",
+  "application/x-ndjson",
+  "application/x-yaml",
+  "text/yaml",
+  "text/x-yaml",
+  "application/xml",
+  "text/xml",
+  "text/html",
+  "application/rtf",
+  "text/rtf",
+  "text/x-python",
+  "text/x-typescript",
+  "application/x-sh",
+  "text/x-shellscript",
+  "application/toml",
+  "text/x-toml",
+]);
+
+const allowedMimeTypes = new Set<string>(defaultSupportedMimeTypes);
+
+export type SupportedMimeType = (typeof defaultSupportedMimeTypes)[number];
 
 export type MultimodalTextPart = {
   text: string;
@@ -38,6 +101,20 @@ export type MultimodalInlineDataPart = {
 };
 
 export type MultimodalPart = MultimodalTextPart | MultimodalInlineDataPart;
+
+export type AttachmentManifest = {
+  modality: "text" | "image" | "audio" | "video" | "document";
+  mimeType: string;
+  filename?: string;
+  contentHash: string;
+  byteLength: number;
+  durationMs?: number;
+  pageCount?: number;
+  transcriptStatus?: "available" | "missing" | "deferred";
+  ocrStatus?: "available" | "missing" | "deferred";
+  storageMode: "inline" | "external_ref";
+  externalRef?: string;
+};
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -116,6 +193,102 @@ function normalizePart(rawPart: unknown, index: number): MultimodalPart {
       data,
     },
   };
+}
+
+function safeDecodeBase64(data: string): Buffer | null {
+  try {
+    return Buffer.from(data, "base64");
+  } catch {
+    return null;
+  }
+}
+
+function decodeTextLikeDocument(data: string): string {
+  const decoded = safeDecodeBase64(data);
+  if (!decoded) {
+    return "";
+  }
+
+  return decoded.toString("utf8").slice(0, payloadChunkerLimits.maxDecodedTextLikeDocumentChars);
+}
+
+function inferModality(mimeType: string): AttachmentManifest["modality"] {
+  if (mimeType.startsWith("image/")) {
+    return "image";
+  }
+  if (mimeType.startsWith("audio/")) {
+    return "audio";
+  }
+  if (mimeType.startsWith("video/")) {
+    return "video";
+  }
+  return "document";
+}
+
+export function isDocumentMimeType(mimeType: string): boolean {
+  return inferModality(mimeType) === "document";
+}
+
+export function buildInlineAttachmentManifest(part: MultimodalInlineDataPart): AttachmentManifest {
+  const mimeType = part.inlineData.mimeType;
+  const decoded = safeDecodeBase64(part.inlineData.data);
+  const bytes = decoded ? decoded.length : Buffer.byteLength(part.inlineData.data, "utf8");
+  const hashInput = decoded ?? Buffer.from(part.inlineData.data, "utf8");
+
+  return {
+    modality: inferModality(mimeType),
+    mimeType,
+    contentHash: createHash("sha256").update(hashInput).digest("hex"),
+    byteLength: bytes,
+    storageMode: "inline",
+    transcriptStatus:
+      mimeType.startsWith("audio/") || mimeType.startsWith("video/") ? "deferred" : undefined,
+    ocrStatus:
+      mimeType.startsWith("image/") || mimeType === "application/pdf" ? "deferred" : undefined,
+  };
+}
+
+export function buildAttachmentManifests(parts: MultimodalPart[]): AttachmentManifest[] {
+  const manifests: AttachmentManifest[] = [];
+  for (let i = 0; i < parts.length; i += 1) {
+    const normalized = normalizePart(parts[i], i);
+    if (isInlineDataPart(normalized)) {
+      manifests.push(buildInlineAttachmentManifest(normalized));
+    }
+  }
+  return manifests;
+}
+
+export function preparePartsForEmbedding(parts: MultimodalPart[]): MultimodalPart[] {
+  const prepared: MultimodalPart[] = [];
+
+  for (let i = 0; i < parts.length; i += 1) {
+    const normalized = normalizePart(parts[i], i);
+    if (isTextPart(normalized)) {
+      prepared.push(normalized);
+      continue;
+    }
+
+    const mimeType = normalized.inlineData.mimeType;
+    if (geminiInlineEmbeddableMimeTypes.has(mimeType)) {
+      prepared.push(normalized);
+      continue;
+    }
+
+    if (textLikeDocumentMimeTypes.has(mimeType)) {
+      const decoded = decodeTextLikeDocument(normalized.inlineData.data).trim();
+      if (decoded.length > 0) {
+        prepared.push({ text: `[attachment:${mimeType}]\n${decoded}` });
+      } else {
+        prepared.push({ text: `[attachment:${mimeType}]` });
+      }
+      continue;
+    }
+
+    prepared.push({ text: `[attachment:${mimeType}] extracted_text=deferred` });
+  }
+
+  return prepared;
 }
 
 export class PayloadChunker {

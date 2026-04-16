@@ -143,4 +143,41 @@ describe("gemini service", () => {
 
     await expect(service.embed([{ text: "hello" }])).rejects.toThrow("dimensionality mismatch");
   });
+
+  test("falls back to text embedding for deferred document formats", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          embedding: {
+            values: [1, 0, 0],
+          },
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      ),
+    );
+
+    const service = new GeminiService("api-key", "gemini-embedding-2-preview", 3);
+    const result = await service.embed([
+      {
+        inlineData: {
+          mimeType:
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation" as const,
+          data: "cHB0eA==",
+        },
+      },
+    ]);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(requestInit.body)) as {
+      content?: { parts?: Array<Record<string, unknown>> };
+    };
+    const sentPart = body.content?.parts?.[0] ?? {};
+    expect(typeof sentPart.text).toBe("string");
+    expect(String(sentPart.text)).toContain("[attachment:");
+    expect("inlineData" in sentPart).toBe(false);
+    expect(result[0]).toBeCloseTo(1, 6);
+    expect(result[1]).toBeCloseTo(0, 6);
+    expect(result[2]).toBeCloseTo(0, 6);
+  });
 });

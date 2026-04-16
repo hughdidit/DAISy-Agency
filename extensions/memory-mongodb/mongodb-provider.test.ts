@@ -168,7 +168,7 @@ describe("mongodb provider via MCP", () => {
           path: "vector",
           queryVector: [0.9, 0.1],
           numCandidates: 40,
-          limit: 4,
+          limit: 40,
         },
       },
       {
@@ -334,5 +334,142 @@ describe("mongodb provider via MCP", () => {
     );
 
     await expect(provider.delete("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")).resolves.toBe(false);
+  });
+
+  test("searchByQuery supports scope and kind filters", async () => {
+    const now = Date.now();
+    const mcp = {
+      insertMany: vi.fn(),
+      aggregate: vi.fn().mockResolvedValue([
+        {
+          _id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          text: "prefers concise",
+          vector: [0.1, 0.2],
+          category: "preference",
+          type: "associative",
+          metadata: {
+            source: "memory_capture",
+            ops: {
+              scopeSubject: "agent:main",
+              kind: "preference",
+              status: "observed",
+            },
+          },
+          createdAt: now,
+          updatedAt: now,
+          score: 0.9,
+        },
+        {
+          _id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          text: "other scope",
+          vector: [0.1, 0.2],
+          category: "fact",
+          type: "semantic",
+          metadata: {
+            source: "memory_capture",
+            ops: {
+              scopeSubject: "agent:other",
+              kind: "fact",
+            },
+          },
+          createdAt: now,
+          updatedAt: now,
+          score: 0.95,
+        },
+      ]),
+      deleteOne: vi.fn(),
+      countDocuments: vi.fn(),
+      close: vi.fn(),
+    };
+
+    const provider = new MongoMemoryDB(
+      mcp as any,
+      { embed: vi.fn().mockResolvedValue([0.1, 0.2]) } as any,
+      "memdb",
+      "memories",
+      "vector_idx",
+      baseRetrieval,
+    );
+
+    const results = await provider.searchByQuery("concise", 5, 0.1, {
+      scopeSubject: "agent:main",
+      kinds: ["preference"],
+    });
+
+    expect(results).toHaveLength(1);
+    expect(results[0]?.entry.id).toBe("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+  });
+
+  test("listByScope returns scoped entries sorted by recency", async () => {
+    const now = Date.now();
+    const aggregate = vi.fn().mockResolvedValue([
+      {
+        _id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+        text: "newer",
+        vector: [0.1, 0.2],
+        category: "fact",
+        type: "semantic",
+        metadata: { source: "memory_store", ops: { scopeSubject: "agent:main", kind: "fact" } },
+        createdAt: now - 1000,
+        updatedAt: now,
+      },
+      {
+        _id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+        text: "older",
+        vector: [0.1, 0.2],
+        category: "fact",
+        type: "semantic",
+        metadata: { source: "memory_store", ops: { scopeSubject: "agent:main", kind: "fact" } },
+        createdAt: now - 5000,
+        updatedAt: now - 2000,
+      },
+    ]);
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn(),
+        aggregate,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "vector_idx",
+      baseRetrieval,
+    );
+
+    const results = await provider.listByScope("agent:main", 10);
+    expect(results).toHaveLength(2);
+    expect(aggregate).toHaveBeenCalledWith(
+      "memdb",
+      "memories",
+      expect.arrayContaining([
+        {
+          $match: {
+            "metadata.ops.scopeSubject": "agent:main",
+          },
+        },
+      ]),
+    );
+  });
+
+  test("getById returns null when no matching record exists", async () => {
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn(),
+        aggregate: vi.fn().mockResolvedValue([]),
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "vector_idx",
+      baseRetrieval,
+    );
+
+    await expect(provider.getById("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")).resolves.toBeNull();
   });
 });

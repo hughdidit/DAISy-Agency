@@ -1,6 +1,7 @@
 {
   "id": "memory-mongodb",
   "kind": "memory",
+  "skills": ["./skills"],
   "uiHints": {
     "mcp.transport": {
       "label": "MCP Transport",
@@ -87,6 +88,47 @@
     "autoRecall": {
       "label": "Auto-Recall",
       "help": "Automatically inject relevant memories into context"
+    },
+    "ops.enabled": {
+      "label": "Memory Ops Enabled",
+      "help": "Enable deterministic memory-ops primitive tools"
+    },
+    "ops.preferenceMinObservations": {
+      "label": "Preference Min Observations",
+      "placeholder": "2",
+      "advanced": true
+    },
+    "ops.preferenceMinStabilityScore": {
+      "label": "Preference Min Stability",
+      "placeholder": "0.8",
+      "advanced": true
+    },
+    "ops.captureMinConfidence": {
+      "label": "Capture Min Confidence",
+      "placeholder": "0.7",
+      "advanced": true
+    },
+    "ops.hygieneMaxCandidates": {
+      "label": "Hygiene Max Candidates",
+      "placeholder": "25",
+      "advanced": true
+    },
+    "ops.auditCleanup": {
+      "label": "Audit Cleanup",
+      "advanced": true
+    },
+    "ops.supportedDocumentMimeTypes": {
+      "label": "Supported Document MIME Types",
+      "advanced": true
+    },
+    "ops.maxInlineDocumentBytesByMime": {
+      "label": "Max Inline Document Bytes By MIME",
+      "advanced": true
+    },
+    "ops.schemaMode": {
+      "label": "Schema Mode",
+      "placeholder": "additive",
+      "advanced": true
     }
   },
   "configSchema": {
@@ -166,7 +208,31 @@
         "description": "Regex patterns (case-insensitive) that trigger auto-capture"
       },
       "autoCapture": { "type": "boolean" },
-      "autoRecall": { "type": "boolean" }
+      "autoRecall": { "type": "boolean" },
+      "ops": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "preferenceMinObservations": { "type": "number", "minimum": 1 },
+          "preferenceMinStabilityScore": { "type": "number", "minimum": 0, "maximum": 1 },
+          "captureMinConfidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "hygieneMaxCandidates": { "type": "number", "minimum": 1 },
+          "auditCleanup": { "type": "boolean" },
+          "supportedDocumentMimeTypes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "maxInlineDocumentBytesByMime": {
+            "type": "object",
+            "additionalProperties": { "type": "number", "minimum": 1 }
+          },
+          "schemaMode": {
+            "type": "string",
+            "enum": ["migrate-in-place", "strict-validator", "additive"]
+          }
+        }
+      }
     },
     "required": ["mcp", "gemini"]
   }
