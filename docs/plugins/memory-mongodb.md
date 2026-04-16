@@ -216,6 +216,7 @@ Each stored memory includes:
 ## Tools
 
 - `memory_recall({ query, limit })`
+- `memory_recallx({ query, limit?, kinds?, openCommitmentsOnly?, preferencesOnly?, modalities?, includeMetadata? })`
 - `memory_store({ text, importance, category })`
 - `memory_store({ parts, text?, importance, category })` for multimodal embedding
 - `memory_forget({ memoryId })` or `memory_forget({ query })`

@@ -10,7 +10,7 @@ Use this skill when a reply depends on prior user history, preferences, commitme
 
 ## Operating Rules
 
-1. Run `memory_recall` before answering continuity-sensitive prompts.
+1. Run `memory_recallx` before answering continuity-sensitive prompts.
 2. Use `memory_capture` only for durable information, not every turn.
 3. Use `commitment_tracker` for tasks, deadlines, and promises.
 4. Use `preference_miner` for repeated behavior; do not promote one-off observations.
