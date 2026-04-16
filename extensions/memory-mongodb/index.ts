@@ -478,6 +478,7 @@ const memoryPlugin = {
               query,
               scopeSubject,
               limit,
+              maxLimit: cfg.retrieval.vectorLimit,
               minScore: cfg.retrieval.minScore,
               filters: {
                 kinds: kinds as any,

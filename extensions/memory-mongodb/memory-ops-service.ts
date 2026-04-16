@@ -67,6 +67,7 @@ type RecallInput = {
   query: string;
   scopeSubject: string;
   limit?: number;
+  maxLimit?: number;
   minScore?: number;
   filters?: MemoryRecallFilters;
 };
@@ -134,7 +135,8 @@ export class MemoryOpsService {
     noResult: boolean;
     memories: Array<Record<string, unknown>>;
   }> {
-    const limit = clampPositiveInt(input.limit, 5, 20);
+    const maxLimit = clampPositiveInt(input.maxLimit, 20, 200);
+    const limit = clampPositiveInt(input.limit, 5, maxLimit);
     const minScore =
       typeof input.minScore === "number" ? clampScore(input.minScore) : DEFAULT_RECALL_MIN_SCORE;
     const results = await this.db.searchByQuery(input.query, limit, minScore, {
