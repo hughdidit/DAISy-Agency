@@ -457,6 +457,7 @@ const memoryPlugin = {
             if (!scopeSubject) {
               return scopeErrorResult();
             }
+            await ensureMcpRuntimeDirs();
 
             const {
               text,
