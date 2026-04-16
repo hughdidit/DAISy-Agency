@@ -67,6 +67,7 @@ type RecallInput = {
   query: string;
   scopeSubject: string;
   limit?: number;
+  minScore?: number;
   filters?: MemoryRecallFilters;
 };
 
@@ -133,8 +134,10 @@ export class MemoryOpsService {
     noResult: boolean;
     memories: Array<Record<string, unknown>>;
   }> {
-    const limit = Math.max(1, Math.min(input.limit ?? 5, 20));
-    const results = await this.db.searchByQuery(input.query, limit, DEFAULT_RECALL_MIN_SCORE, {
+    const limit = clampPositiveInt(input.limit, 5, 20);
+    const minScore =
+      typeof input.minScore === "number" ? clampScore(input.minScore) : DEFAULT_RECALL_MIN_SCORE;
+    const results = await this.db.searchByQuery(input.query, limit, minScore, {
       scopeSubject: input.scopeSubject,
       kinds: input.filters?.kinds,
       modalities: input.filters?.modalities,
@@ -1007,6 +1010,15 @@ function clampScore(value: number): number {
     return 0;
   }
   return Math.max(0, Math.min(1, value));
+}
+
+function clampPositiveInt(value: number | undefined, fallback: number, max: number): number {
+  const raw = Number.isFinite(value) ? (value as number) : fallback;
+  const normalized = Math.trunc(raw);
+  if (!Number.isFinite(normalized)) {
+    return fallback;
+  }
+  return Math.max(1, Math.min(normalized, max));
 }
 
 function resolveCategory(kind: string, requested?: string): MemoryCategory {

@@ -215,7 +215,7 @@ Each stored memory includes:
 
 ## Tools
 
-- `memory_recall({ query, limit })`
+- `memory_recall({ query, limit? })` (`limit` defaults to `5`)
 - `memory_recallx({ query, limit?, kinds?, openCommitmentsOnly?, preferencesOnly?, modalities?, includeMetadata? })`
 - `memory_store({ text, importance, category })`
 - `memory_store({ parts, text?, importance, category })` for multimodal embedding
@@ -225,6 +225,12 @@ Each stored memory includes:
 - `commitment_tracker({ mode: "capture"|"list_open"|"resolve"|"cancel", ... })`
 - `preference_miner({ mode: "observe"|"plan_promotions"|"apply_promotions"|"list", ... })`
 - `memory_audit({ runId?, cleanupOnSuccess? })`
+
+Migration note:
+
+- Advanced recall fields moved from `memory_recall` to `memory_recallx`.
+- Mapping example: `memory_recall({ query, kinds, modalities, includeMetadata })` -> `memory_recallx({ query, kinds, modalities, includeMetadata })`.
+- If you use explicit tool allowlists/registries, add `memory_recallx` alongside `memory_recall`.
 
 ### Delegate Scope Rules
 

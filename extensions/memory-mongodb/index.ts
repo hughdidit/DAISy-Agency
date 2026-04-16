@@ -133,6 +133,15 @@ function scopeErrorResult() {
   };
 }
 
+function clampPositiveInt(value: number | undefined, fallback: number, max: number): number {
+  const raw = Number.isFinite(value) ? (value as number) : fallback;
+  const normalized = Math.trunc(raw);
+  if (!Number.isFinite(normalized)) {
+    return fallback;
+  }
+  return Math.max(1, Math.min(normalized, max));
+}
+
 type McpRuntimeDirs = {
   homeDir: string;
   tempDir: string;
@@ -355,20 +364,26 @@ const memoryPlugin = {
           label: "Memory Recall",
           description:
             "Basic memory recall using only query and limit. Returns simple results for downstream skill wrappers.",
-          parameters: Type.Object({
-            query: Type.String({ description: "Search query" }),
-            limit: Type.Optional(Type.Number({ description: "Max results (default: 5)" })),
-          }),
+          parameters: Type.Object(
+            {
+              query: Type.String({ description: "Search query" }),
+              limit: Type.Optional(
+                Type.Integer({ minimum: 1, description: "Max results (default: 5)" }),
+              ),
+            },
+            { additionalProperties: false },
+          ),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
             }
             await ensureMcpRuntimeDirs();
 
-            const { query, limit = 5 } = params as {
+            const { query, limit: rawLimit } = params as {
               query: string;
               limit?: number;
             };
+            const limit = clampPositiveInt(rawLimit, 5, cfg.retrieval.vectorLimit);
 
             const results = await searchMemories(
               query,
@@ -420,15 +435,20 @@ const memoryPlugin = {
           label: "Memory Recall X",
           description:
             "Advanced memory recall wrapper with typed filters, modality selection, and optional metadata in results.",
-          parameters: Type.Object({
-            query: Type.String({ description: "Search query" }),
-            limit: Type.Optional(Type.Number({ description: "Max results (default: 5)" })),
-            kinds: Type.Optional(Type.Array(stringEnum(MEMORY_OPS_KINDS))),
-            openCommitmentsOnly: Type.Optional(Type.Boolean()),
-            preferencesOnly: Type.Optional(Type.Boolean()),
-            modalities: Type.Optional(Type.Array(stringEnum(MEMORY_OPS_MODALITIES))),
-            includeMetadata: Type.Optional(Type.Boolean()),
-          }),
+          parameters: Type.Object(
+            {
+              query: Type.String({ description: "Search query" }),
+              limit: Type.Optional(
+                Type.Integer({ minimum: 1, description: "Max results (default: 5)" }),
+              ),
+              kinds: Type.Optional(Type.Array(stringEnum(MEMORY_OPS_KINDS))),
+              openCommitmentsOnly: Type.Optional(Type.Boolean()),
+              preferencesOnly: Type.Optional(Type.Boolean()),
+              modalities: Type.Optional(Type.Array(stringEnum(MEMORY_OPS_MODALITIES))),
+              includeMetadata: Type.Optional(Type.Boolean()),
+            },
+            { additionalProperties: false },
+          ),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
@@ -437,7 +457,7 @@ const memoryPlugin = {
 
             const {
               query,
-              limit = 5,
+              limit: rawLimit,
               kinds,
               openCommitmentsOnly,
               preferencesOnly,
@@ -452,11 +472,13 @@ const memoryPlugin = {
               modalities?: string[];
               includeMetadata?: boolean;
             };
+            const limit = clampPositiveInt(rawLimit, 5, cfg.retrieval.vectorLimit);
 
             const recalled = await opsService.recall({
               query,
               scopeSubject,
               limit,
+              minScore: cfg.retrieval.minScore,
               filters: {
                 kinds: kinds as any,
                 openCommitmentsOnly,
