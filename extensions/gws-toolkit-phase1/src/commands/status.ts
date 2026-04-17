@@ -77,7 +77,6 @@ function parseAuthHealthResult(params: {
   plainCredentialsExists: boolean | null;
 } {
   const payload = (params.payload ?? {}) as Record<string, unknown>;
-  const tokenValid = payload.token_valid === true;
   const tokenError =
     typeof payload.token_error === "string" && payload.token_error.trim()
       ? payload.token_error.trim()
@@ -91,6 +90,13 @@ function parseAuthHealthResult(params: {
       : params.credentialsFile
         ? classifyCredentialSourceType(params.credentialsFile)
         : "credentials_file_unknown";
+  const tokenValidFieldPresent = Object.hasOwn(payload, "token_valid");
+  const tokenValid =
+    payload.token_valid === true ||
+    (!tokenValidFieldPresent &&
+      credentialSourceType === "service_account_json" &&
+      plainCredentialsExists === true &&
+      tokenError === null);
 
   return {
     tokenValid,
