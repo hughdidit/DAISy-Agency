@@ -466,22 +466,6 @@ export async function executeAuthHealth(params: {
       !serviceAccountPolicyEnforced ||
       health.credentialSourceType === "service_account_json";
 
-    if (!serviceAccountPolicyCompliant) {
-      throw new PluginError(
-        "AUTH_ERROR",
-        "Route auth health failed credential policy. Enforced environments require service-account JSON for impersonated routes.",
-        {
-          routeName: auth.route.name,
-          bindingSubject: auth.bindingSubject,
-          credentialSourceType: health.credentialSourceType,
-          serviceAccountPolicyEnforced,
-          failureCategory: "CREDENTIAL_POLICY",
-          impersonatedUser: impersonation.value,
-          impersonationSource: impersonation.source,
-        },
-      );
-    }
-
     if (!health.tokenValid || health.tokenError) {
       throw new PluginError(
         "AUTH_ERROR",

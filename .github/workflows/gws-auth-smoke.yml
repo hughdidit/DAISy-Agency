@@ -87,72 +87,93 @@ jobs:
             exit 1
           }
 
-          delegate_subject_js="$(cat <<'NODE'
-          import fs from "node:fs";
-          import JSON5 from "json5";
-
-          const snapshot = JSON5.parse(fs.readFileSync("/home/node/.openclaw/.runtime-openclaw.json", "utf8"));
-          function getActiveConfig(value) {
-            if (value?.resolved && typeof value.resolved === "object") {
-              return value.resolved;
-            }
-            if (value?.config && typeof value.config === "object") {
-              return value.config;
-            }
-            return value;
+          delegate_subject_selector_path="${GITHUB_WORKSPACE}/scripts/gws/select-delegate-subject.mjs"
+          [[ -r "${delegate_subject_selector_path}" ]] || {
+            echo "Missing delegate subject selector script at ${delegate_subject_selector_path}" >&2
+            exit 1
           }
-
-          const activeConfig = getActiveConfig(snapshot);
-          const cfg = activeConfig?.plugins?.entries?.["gws-toolkit-phase1"]?.config;
-          const bindings = cfg?.agentCredentialBindings && typeof cfg.agentCredentialBindings === "object"
-            ? cfg.agentCredentialBindings
-            : {};
-          const subjects = Object.keys(bindings);
-          const delegateSubject =
-            subjects.find((subject) => subject.startsWith("subagent:")) ??
-            subjects.find((subject) => subject.startsWith("agent:") && subject !== "agent:main") ??
-            "";
-          if (!delegateSubject) {
-            process.exit(1);
-          }
-          process.stdout.write(delegateSubject);
-          NODE
-          )"
+          delegate_subject_js="$(cat "${delegate_subject_selector_path}")"
           printf -v delegate_subject_js_escaped '%q' "${delegate_subject_js}"
-          delegate_subject="$(gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e ${delegate_subject_js_escaped}")" || {
-            echo "No delegated GWS binding subject found in ${container}" >&2
+          delegate_subjects_json="$(gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node --input-type=module -e ${delegate_subject_js_escaped}\"")" || {
+            echo "No delegated GWS binding subjects found in ${container}" >&2
             exit 1
           }
-          delegate_subject="$(echo "${delegate_subject}" | tr -d '[:space:]')"
-          [[ "${delegate_subject}" =~ ^(agent|subagent):[A-Za-z0-9._-]+$ ]] || {
-            echo "Invalid delegated subject: ${delegate_subject:-<empty>}" >&2
+          mapfile -t delegate_subject_candidates < <(jq -r '.delegateSubjects[]?' <<<"${delegate_subjects_json}")
+          [[ "${#delegate_subject_candidates[@]}" -gt 0 ]] || {
+            echo "No delegated GWS binding subject candidates found in ${container}" >&2
             exit 1
           }
 
-          run_gate() {
+          run_auth_health_payload() {
             local subject="${1:?subject required}"
             local subject_escaped payload
             [[ "${subject}" =~ ^(agent|subagent):[A-Za-z0-9._-]+$ ]] || {
-              echo "Invalid subject for auth-health gate: ${subject}" >&2
-              exit 1
+              return 2
             }
             printf -v subject_escaped '%q' "${subject}"
             payload="$(
               gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node dist/index.js gws auth-health --subject ${subject_escaped} | jq -c .\""
-            )"
+            )" || return 1
             printf '%s\n' "${payload}"
-            jq -e '.ok == true' >/dev/null <<<"${payload}" \
-              || { echo "auth-health returned unhealthy payload for ${subject}" >&2; exit 1; }
-            jq -e --arg subject "${subject}" '.data.route.bindingSubject == $subject' >/dev/null <<<"${payload}" \
-              || { echo "auth-health route subject mismatch for ${subject}" >&2; exit 1; }
-            jq -e '.data.authHealth.tokenValid == true and ((.data.authHealth.tokenError // "") == "")' >/dev/null <<<"${payload}" \
-              || { echo "auth-health token health failed for ${subject}" >&2; exit 1; }
-            jq -e '.data.authHealth.credentialSourceType == "service_account_json"' >/dev/null <<<"${payload}" \
-              || { echo "auth-health credential source drifted for ${subject}" >&2; exit 1; }
-            jq -e '.data.authHealth.serviceAccountPolicyEnforced == true and .data.authHealth.serviceAccountPolicyCompliant == true' >/dev/null <<<"${payload}" \
-              || { echo "auth-health service-account policy check failed for ${subject}" >&2; exit 1; }
           }
 
-          run_gate "agent:main"
-          run_gate "${delegate_subject}"
+          validate_auth_health_payload() {
+            local subject="${1:?subject required}"
+            local payload="${2:?payload required}"
+            printf '%s\n' "${payload}"
+            jq -e '.ok == true' >/dev/null <<<"${payload}" \
+              || return 1
+            jq -e --arg subject "${subject}" '.data.route.bindingSubject == $subject' >/dev/null <<<"${payload}" \
+              || return 1
+            jq -e '.data.authHealth.tokenValid == true and ((.data.authHealth.tokenError // "") == "")' >/dev/null <<<"${payload}" \
+              || return 1
+          }
+
+          main_payload="$(run_auth_health_payload "agent:main")" || {
+            echo "auth-health command failed for agent:main" >&2
+            exit 1
+          }
+          validate_auth_health_payload "agent:main" "${main_payload}" || {
+            echo "auth-health baseline checks failed for agent:main" >&2
+            exit 1
+          }
+          jq -e '.data.authHealth.credentialSourceType == "service_account_json"' >/dev/null <<<"${main_payload}" \
+            || { echo "auth-health credential source drifted for agent:main" >&2; exit 1; }
+          jq -e '.data.authHealth.serviceAccountPolicyEnforced == true and .data.authHealth.serviceAccountPolicyCompliant == true' >/dev/null <<<"${main_payload}" \
+            || { echo "auth-health service-account policy check failed for agent:main" >&2; exit 1; }
+
+          delegate_subject=""
+          for candidate_subject in "${delegate_subject_candidates[@]}"; do
+            candidate_subject="$(echo "${candidate_subject}" | tr -d '[:space:]')"
+            [[ "${candidate_subject}" =~ ^(agent|subagent):[A-Za-z0-9._-]+$ ]] || {
+              echo "Skipping invalid delegated subject candidate: ${candidate_subject:-<empty>}" >&2
+              continue
+            }
+
+            candidate_payload="$(run_auth_health_payload "${candidate_subject}")" || {
+              echo "auth-health command failed for ${candidate_subject}; trying next candidate" >&2
+              continue
+            }
+            if ! validate_auth_health_payload "${candidate_subject}" "${candidate_payload}"; then
+              echo "auth-health baseline checks failed for ${candidate_subject}; trying next candidate" >&2
+              continue
+            fi
+            if ! jq -e '.data.authHealth.credentialSourceType == "service_account_json"' >/dev/null <<<"${candidate_payload}"; then
+              echo "auth-health credential source is not service_account_json for ${candidate_subject}; trying next candidate" >&2
+              continue
+            fi
+            if ! jq -e '.data.authHealth.serviceAccountPolicyEnforced == true and .data.authHealth.serviceAccountPolicyCompliant == true' >/dev/null <<<"${candidate_payload}"; then
+              echo "auth-health service-account policy check failed for ${candidate_subject}; trying next candidate" >&2
+              continue
+            fi
+
+            delegate_subject="${candidate_subject}"
+            break
+          done
+
+          [[ -n "${delegate_subject}" ]] || {
+            echo "No delegated GWS binding subject passed service-account auth-health policy gates" >&2
+            exit 1
+          }
+
           echo "GWS auth-health smoke passed for agent:main and ${delegate_subject}"

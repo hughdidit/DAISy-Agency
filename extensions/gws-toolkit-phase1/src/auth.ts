@@ -17,6 +17,8 @@ export type CredentialSourceType =
   | "headless_oauth_export"
   | "credentials_file_unknown";
 
+const credentialSourceTypeCache = new Map<string, CredentialSourceType>();
+
 const ENFORCED_RUNTIME_ENVIRONMENTS = new Set(["staging", "production"]);
 const RUNTIME_ENVIRONMENT_KEYS = [
   "DAISY_ENVIRONMENT",
@@ -48,26 +50,37 @@ export function isServiceAccountPolicyEnforced(): boolean {
 }
 
 export function classifyCredentialSourceType(credentialsFile: string): CredentialSourceType {
+  let cacheKey = credentialsFile;
+  try {
+    cacheKey = fs.realpathSync(credentialsFile);
+  } catch {
+    cacheKey = credentialsFile;
+  }
+  const cached = credentialSourceTypeCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  let classified: CredentialSourceType = "credentials_file_unknown";
   try {
     const fileText = fs.readFileSync(credentialsFile, "utf8");
     const parsed = JSON.parse(fileText) as Record<string, unknown>;
     if (parsed.type === "service_account") {
-      return "service_account_json";
-    }
-    if (parsed.type === "authorized_user") {
-      return "authorized_user";
-    }
-    if (
+      classified = "service_account_json";
+    } else if (parsed.type === "authorized_user") {
+      classified = "authorized_user";
+    } else if (
       typeof parsed.refresh_token === "string" ||
       typeof parsed.client_id === "string" ||
       typeof parsed.client_secret === "string"
     ) {
-      return "headless_oauth_export";
+      classified = "headless_oauth_export";
     }
-    return "credentials_file_unknown";
   } catch {
-    return "credentials_file_unknown";
+    classified = "credentials_file_unknown";
   }
+  credentialSourceTypeCache.set(cacheKey, classified);
+  return classified;
 }
 
 function normalizePath(input: string): string {
@@ -401,7 +414,7 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
         available:
           modeAllowed &&
           !impersonation.missing &&
-          (!serviceAccountPolicyEnforced || serviceAccountPolicyCompliant),
+          serviceAccountPolicyCompliant,
         details: {
           credentialsFile: path.basename(probe.resolvedPath),
           configuredCredentialsFile: probe.configuredPath,
@@ -495,7 +508,7 @@ export function getActiveRouteAuthStatus(
         modeAllowed &&
         probe.allowed &&
         !impersonation.missing &&
-        (!serviceAccountPolicyEnforced || serviceAccountPolicyCompliant),
+        serviceAccountPolicyCompliant,
       details: {
         ...(probe.resolvedPath ? { credentialsFile: path.basename(probe.resolvedPath) } : {}),
         configuredCredentialsFile: probe.configuredPath,
@@ -572,6 +585,11 @@ export function resolveAuth(config: GwsToolkitConfig, ctx: InvocationContext): A
           bindingSubject: resolved.bindingSubject,
           runtimeEnvironment: getRuntimeEnvironmentMarker(),
           credentialSourceType,
+          failureCategory: "CREDENTIAL_POLICY",
+          serviceAccountPolicyEnforced,
+          serviceAccountPolicyCompliant: false,
+          impersonatedUser: impersonation.value,
+          impersonationSource: impersonation.source,
         },
       );
     }
@@ -584,6 +602,11 @@ export function resolveAuth(config: GwsToolkitConfig, ctx: InvocationContext): A
           bindingSubject: resolved.bindingSubject,
           runtimeEnvironment: getRuntimeEnvironmentMarker(),
           credentialSourceType,
+          failureCategory: "CREDENTIAL_POLICY",
+          serviceAccountPolicyEnforced,
+          serviceAccountPolicyCompliant: false,
+          impersonatedUser: impersonation.value,
+          impersonationSource: impersonation.source,
         },
       );
     }
