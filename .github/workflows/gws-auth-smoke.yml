@@ -93,8 +93,8 @@ jobs:
             exit 1
           }
           delegate_subject_js="$(cat "${delegate_subject_selector_path}")"
-          printf -v delegate_subject_js_escaped '%q' "${delegate_subject_js}"
-          delegate_subjects_json="$(gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node --input-type=module -e ${delegate_subject_js_escaped}\"")" || {
+          delegate_subject_js_b64="$(printf '%s' "${delegate_subject_js}" | base64 | tr -d '\n')"
+          delegate_subjects_json="$(gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; printf '%s' '${delegate_subject_js_b64}' | base64 -d | node --input-type=module\"")" || {
             echo "No delegated GWS binding subjects found in ${container}" >&2
             exit 1
           }

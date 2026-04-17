@@ -444,9 +444,9 @@ process.stdout.write(
 );
 NODE
 )"
-    gws_route_probe_js_escaped="$(printf '%q' "${gws_route_probe_js}")"
+    gws_route_probe_js_b64="$(printf '%s' "${gws_route_probe_js}" | base64 | tr -d '\n')"
     gws_active_route_json="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node --input-type=module -e ${gws_route_probe_js_escaped}\""
+      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; printf '%s' '${gws_route_probe_js_b64}' | base64 -d | node --input-type=module\""
     )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
     gws_active_route_mode="$(jq -r '.mode' <<<"${gws_active_route_json}" | tr -d '[:space:]')" \
       || fail "Failed to parse GWS active route JSON (mode field) in ${container}"
@@ -525,9 +525,9 @@ NODE
     [[ -r "${gws_delegate_subject_selector_path}" ]] \
       || fail "Missing delegate subject selector script at ${gws_delegate_subject_selector_path}"
     gws_delegate_subject_js="$(cat "${gws_delegate_subject_selector_path}")"
-    gws_delegate_subject_js_escaped="$(printf '%q' "${gws_delegate_subject_js}")"
+    gws_delegate_subject_js_b64="$(printf '%s' "${gws_delegate_subject_js}" | base64 | tr -d '\n')"
     gws_delegate_subjects_json="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node --input-type=module -e ${gws_delegate_subject_js_escaped}\""
+      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; printf '%s' '${gws_delegate_subject_js_b64}' | base64 -d | node --input-type=module\""
     )" || fail "No delegated GWS binding subjects found for auth-health verification in ${container}."
     mapfile -t gws_delegate_subject_candidates < <(jq -r '.delegateSubjects[]?' <<<"${gws_delegate_subjects_json}")
     [[ "${#gws_delegate_subject_candidates[@]}" -gt 0 ]] \

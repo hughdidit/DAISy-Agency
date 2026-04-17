@@ -50,12 +50,21 @@ export function isServiceAccountPolicyEnforced(): boolean {
 }
 
 export function classifyCredentialSourceType(credentialsFile: string): CredentialSourceType {
-  let cacheKey = credentialsFile;
+  let realPath = credentialsFile;
   try {
-    cacheKey = fs.realpathSync(credentialsFile);
+    realPath = fs.realpathSync(credentialsFile);
   } catch {
-    cacheKey = credentialsFile;
+    realPath = credentialsFile;
   }
+
+  let cacheKey = realPath;
+  try {
+    const stat = fs.statSync(realPath);
+    cacheKey = `${realPath}\0${stat.mtimeMs}\0${stat.size}`;
+  } catch {
+    cacheKey = realPath;
+  }
+
   const cached = credentialSourceTypeCache.get(cacheKey);
   if (cached) {
     return cached;
