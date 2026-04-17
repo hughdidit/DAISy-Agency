@@ -515,7 +515,11 @@ NODE
         || fail "Failed to parse gws auth status has_refresh_token in ${container}"
       gws_token_error="$(jq -r '.token_error // empty' <<<"${gws_auth_status}")" \
         || fail "Failed to parse gws auth status token_error in ${container}"
-      gws_credentials_type="$(jq -r '.type // empty' "${gws_credentials_host_path}" 2>/dev/null)" \
+      gws_credentials_host_path_quoted="$(shell_single_quote "${gws_credentials_host_path}")"
+      gws_credentials_json_b64="$(
+        gce_ssh_lastline "sudo base64 -w0 ${gws_credentials_host_path_quoted}"
+      )" || fail "Failed to read Google Workspace credentials file at ${gws_credentials_host_path} from ${GCE_INSTANCE_NAME}"
+      gws_credentials_type="$(printf '%s' "${gws_credentials_json_b64}" | base64 -d | jq -r '.type // empty' 2>/dev/null)" \
         || fail "Failed to parse Google Workspace credentials file type at ${gws_credentials_host_path}"
 
       if [[ "${gws_plain_credentials_exists}" != "true" ]]; then
