@@ -90,7 +90,7 @@ function parseAuthHealthResult(params: {
       : params.credentialsFile
         ? classifyCredentialSourceType(params.credentialsFile)
         : "credentials_file_unknown";
-  const tokenValidFieldPresent = typeof payload.token_valid === "boolean";
+  const tokenValidFieldPresent = Object.hasOwn(payload, "token_valid");
   const tokenValid =
     payload.token_valid === true ||
     (!tokenValidFieldPresent &&

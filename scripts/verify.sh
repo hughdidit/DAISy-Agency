@@ -515,6 +515,8 @@ NODE
         || fail "Failed to parse gws auth status has_refresh_token in ${container}"
       gws_token_error="$(jq -r '.token_error // empty' <<<"${gws_auth_status}")" \
         || fail "Failed to parse gws auth status token_error in ${container}"
+      gws_credentials_type="$(jq -r '.type // empty' "${gws_credentials_host_path}" 2>/dev/null)" \
+        || fail "Failed to parse Google Workspace credentials file type at ${gws_credentials_host_path}"
 
       if [[ "${gws_plain_credentials_exists}" != "true" ]]; then
         fail "Google Workspace credentials file is not visible to gws inside ${container}"
@@ -523,7 +525,7 @@ NODE
         fail "Google Workspace credentials are present but invalid in ${container}: ${gws_token_error}"
       fi
       if [[ "${gws_token_valid}" != "true" ]]; then
-        if [[ "${gws_token_valid_present}" == "false" && "${gws_has_refresh_token}" == "false" ]]; then
+        if [[ "${gws_token_valid_present}" == "false" && "${gws_has_refresh_token}" == "false" && "${gws_credentials_type}" == "service_account" ]]; then
           log "Google Workspace auth status omitted token_valid for non-refresh-token credentials; treating service-account posture as healthy."
         else
           fail "Google Workspace credentials are present but gws auth status is not healthy in ${container}"
