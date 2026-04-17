@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { getAuthSourceStatus, resolveAuth } from "../../src/auth.js";
 import { resolveConfig } from "../../src/config.js";
+import { PluginError } from "../../src/errors.js";
 import type { GwsToolkitConfig } from "../../src/types.js";
 
 const snapshot = { ...process.env };
@@ -369,5 +370,150 @@ describe("auth resolution", () => {
     expect(resolved.error.error.message).toContain(
       "can only configure impersonation for credentials_file mode",
     );
+  });
+
+  it("fails closed in enforced environments when impersonated route uses authorized_user credentials", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-enforced-authorized-user-"));
+    const credentialsFile = path.join(root, "authorized-user.json");
+    await fs.writeFile(
+      credentialsFile,
+      JSON.stringify({
+        type: "authorized_user",
+        client_id: "client-id",
+        client_secret: "client-secret",
+        refresh_token: "refresh-token",
+      }),
+      "utf8",
+    );
+    if (process.platform !== "win32") {
+      await fs.chmod(credentialsFile, 0o600);
+    }
+    process.env.DAISY_ENVIRONMENT = "staging";
+
+    const config = baseConfig({
+      allowedCredentialModes: ["credentials_file"],
+      approvedCredentialDirs: [root],
+      credentialRoutes: {
+        default: {
+          mode: "credentials_file",
+          allowedServices: ["drive"],
+          allowedTools: ["gws_drive_read"],
+          credentialsFile,
+          impersonatedUser: "delegate@example.com",
+        },
+      },
+    });
+
+    try {
+      resolveAuth(config, {
+        agentId: "main",
+        sessionKey: "agent:main:main",
+      });
+      expect.unreachable(
+        "resolveAuth should fail for authorized_user in enforced impersonated route",
+      );
+    } catch (error) {
+      expect(error).toBeInstanceOf(PluginError);
+      const pluginError = error as PluginError;
+      expect(pluginError.code).toBe("AUTH_ERROR");
+      expect(pluginError.details).toMatchObject({
+        credentialSourceType: "authorized_user",
+        runtimeEnvironment: "staging",
+        failureCategory: "CREDENTIAL_POLICY",
+      });
+    }
+  });
+
+  it("fails closed in enforced environments when impersonated route uses headless export credentials", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-enforced-headless-"));
+    const credentialsFile = path.join(root, "headless.json");
+    await fs.writeFile(
+      credentialsFile,
+      JSON.stringify({
+        client_id: "client-id",
+        client_secret: "client-secret",
+        refresh_token: "refresh-token",
+      }),
+      "utf8",
+    );
+    if (process.platform !== "win32") {
+      await fs.chmod(credentialsFile, 0o600);
+    }
+    process.env.DAISY_ENVIRONMENT = "staging";
+
+    const config = baseConfig({
+      allowedCredentialModes: ["credentials_file"],
+      approvedCredentialDirs: [root],
+      credentialRoutes: {
+        default: {
+          mode: "credentials_file",
+          allowedServices: ["drive"],
+          allowedTools: ["gws_drive_read"],
+          credentialsFile,
+          impersonatedUser: "delegate@example.com",
+        },
+      },
+    });
+
+    try {
+      resolveAuth(config, {
+        agentId: "main",
+        sessionKey: "agent:main:main",
+      });
+      expect.unreachable(
+        "resolveAuth should fail for headless export in enforced impersonated route",
+      );
+    } catch (error) {
+      expect(error).toBeInstanceOf(PluginError);
+      const pluginError = error as PluginError;
+      expect(pluginError.code).toBe("AUTH_ERROR");
+      expect(pluginError.details).toMatchObject({
+        credentialSourceType: "headless_oauth_export",
+        runtimeEnvironment: "staging",
+        failureCategory: "CREDENTIAL_POLICY",
+      });
+    }
+  });
+
+  it("allows non-impersonated authorized_user credentials in enforced environments", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-enforced-no-impersonation-"));
+    const credentialsFile = path.join(root, "authorized-user.json");
+    await fs.writeFile(
+      credentialsFile,
+      JSON.stringify({
+        type: "authorized_user",
+        client_id: "client-id",
+        client_secret: "client-secret",
+        refresh_token: "refresh-token",
+      }),
+      "utf8",
+    );
+    if (process.platform !== "win32") {
+      await fs.chmod(credentialsFile, 0o600);
+    }
+    process.env.DAISY_ENVIRONMENT = "staging";
+
+    const config = baseConfig({
+      allowedCredentialModes: ["credentials_file"],
+      approvedCredentialDirs: [root],
+      credentialRoutes: {
+        default: {
+          mode: "credentials_file",
+          allowedServices: ["drive"],
+          allowedTools: ["gws_drive_read"],
+          credentialsFile,
+        },
+      },
+    });
+
+    const resolved = resolveAuth(config, {
+      agentId: "main",
+      sessionKey: "agent:main:main",
+    });
+    expect(resolved.mode).toBe("credentials_file");
+    expect(resolved.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE).toBe(
+      await fs.realpath(credentialsFile),
+    );
+    expect(resolved.env.GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER).toBeUndefined();
   });
 });

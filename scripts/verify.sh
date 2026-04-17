@@ -444,9 +444,9 @@ process.stdout.write(
 );
 NODE
 )"
-    gws_route_probe_js_escaped="$(printf '%q' "${gws_route_probe_js}")"
+    gws_route_probe_js_b64="$(printf '%s' "${gws_route_probe_js}" | base64 | tr -d '\n')"
     gws_active_route_json="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e ${gws_route_probe_js_escaped}"
+      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; printf '%s' '${gws_route_probe_js_b64}' | base64 -d | node --input-type=module\""
     )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
     gws_active_route_mode="$(jq -r '.mode' <<<"${gws_active_route_json}" | tr -d '[:space:]')" \
       || fail "Failed to parse GWS active route JSON (mode field) in ${container}"
@@ -517,7 +517,94 @@ NODE
       log "Google Workspace active credential route mode is ${gws_active_route_mode:-<unset>}; skipping credentials file check."
     fi
 
-    # Check 7: when monitoring env has been generated, Alertmanager must be
+    # Check 7: route-bound auth-health policy gates for agent:main and one
+    # delegated subject. Both must stay healthy and service-account-backed.
+    checks_run=$((checks_run + 1))
+    log "Checking route-bound Google Workspace auth-health policy gates on ${GCE_INSTANCE_NAME}..."
+    gws_delegate_subject_selector_path="${repo_root}/scripts/gws/select-delegate-subject.mjs"
+    [[ -r "${gws_delegate_subject_selector_path}" ]] \
+      || fail "Missing delegate subject selector script at ${gws_delegate_subject_selector_path}"
+    gws_delegate_subject_js="$(cat "${gws_delegate_subject_selector_path}")"
+    gws_delegate_subject_js_b64="$(printf '%s' "${gws_delegate_subject_js}" | base64 | tr -d '\n')"
+    gws_delegate_subjects_json="$(
+      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; printf '%s' '${gws_delegate_subject_js_b64}' | base64 -d | node --input-type=module\""
+    )" || fail "No delegated GWS binding subjects found for auth-health verification in ${container}."
+    mapfile -t gws_delegate_subject_candidates < <(jq -r '.delegateSubjects[]?' <<<"${gws_delegate_subjects_json}")
+    [[ "${#gws_delegate_subject_candidates[@]}" -gt 0 ]] \
+      || fail "No delegated GWS binding subject candidates found for auth-health verification in ${container}."
+
+    run_gws_auth_health_payload() {
+      local subject="${1:?binding subject required}"
+      local subject_escaped auth_health_json
+      if [[ ! "${subject}" =~ ^(agent|subagent):[A-Za-z0-9._-]+$ ]]; then
+        return 2
+      fi
+      printf -v subject_escaped '%q' "${subject}"
+      auth_health_json="$(
+        gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node dist/index.js gws auth-health --subject ${subject_escaped} | jq -c .\""
+      )" || return 1
+      printf '%s\n' "${auth_health_json}"
+    }
+
+    validate_gws_auth_health_payload() {
+      local subject="${1:?binding subject required}"
+      local auth_health_json="${2:?auth health payload required}"
+      jq -e '.ok == true' >/dev/null <<<"${auth_health_json}" \
+        || return 1
+      jq -e --arg subject "${subject}" '.data.route.bindingSubject == $subject' >/dev/null <<<"${auth_health_json}" \
+        || return 1
+      jq -e '.data.authHealth.tokenValid == true and ((.data.authHealth.tokenError // "") == "")' >/dev/null <<<"${auth_health_json}" \
+        || return 1
+    }
+
+    gws_main_auth_health_json="$(
+      run_gws_auth_health_payload "agent:main"
+    )" || fail "Route-bound auth-health command failed for subject agent:main in ${container}"
+    printf '%s\n' "${gws_main_auth_health_json}"
+    validate_gws_auth_health_payload "agent:main" "${gws_main_auth_health_json}" \
+      || fail "Auth-health baseline checks failed for subject agent:main in ${container}"
+    jq -e '.data.authHealth.credentialSourceType == "service_account_json"' >/dev/null <<<"${gws_main_auth_health_json}" \
+      || fail "Auth-health credential source drifted from service_account_json for subject agent:main in ${container}"
+    jq -e '.data.authHealth.serviceAccountPolicyEnforced == true and .data.authHealth.serviceAccountPolicyCompliant == true' >/dev/null <<<"${gws_main_auth_health_json}" \
+      || fail "Auth-health service-account policy gate failed for subject agent:main in ${container}"
+
+    gws_delegate_subject=""
+    for candidate_subject in "${gws_delegate_subject_candidates[@]}"; do
+      candidate_subject="$(echo "${candidate_subject}" | tr -d '[:space:]')"
+      if [[ ! "${candidate_subject}" =~ ^(agent|subagent):[A-Za-z0-9._-]+$ ]]; then
+        log "Skipping invalid delegated subject candidate: ${candidate_subject:-<empty>}"
+        continue
+      fi
+
+      candidate_auth_health_json="$(
+        run_gws_auth_health_payload "${candidate_subject}"
+      )" || {
+        log "Delegated auth-health command failed for ${candidate_subject}; trying next candidate."
+        continue
+      }
+      printf '%s\n' "${candidate_auth_health_json}"
+      if ! validate_gws_auth_health_payload "${candidate_subject}" "${candidate_auth_health_json}"; then
+        log "Delegated auth-health baseline checks failed for ${candidate_subject}; trying next candidate."
+        continue
+      fi
+      if ! jq -e '.data.authHealth.credentialSourceType == "service_account_json"' >/dev/null <<<"${candidate_auth_health_json}"; then
+        log "Delegated auth-health credential source is not service_account_json for ${candidate_subject}; trying next candidate."
+        continue
+      fi
+      if ! jq -e '.data.authHealth.serviceAccountPolicyEnforced == true and .data.authHealth.serviceAccountPolicyCompliant == true' >/dev/null <<<"${candidate_auth_health_json}"; then
+        log "Delegated auth-health service-account policy gate failed for ${candidate_subject}; trying next candidate."
+        continue
+      fi
+
+      gws_delegate_subject="${candidate_subject}"
+      break
+    done
+
+    [[ -n "${gws_delegate_subject}" ]] \
+      || fail "No delegated GWS binding subject passed service-account auth-health policy gates in ${container}."
+    log "Route-bound Google Workspace auth-health policy gates passed for agent:main and ${gws_delegate_subject}."
+
+    # Check 8: when monitoring env has been generated, Alertmanager must be
     # running from the host-rendered runtime config with locked-down permissions.
     checks_run=$((checks_run + 1))
     log "Checking monitoring Alertmanager runtime config delivery on ${GCE_INSTANCE_NAME}..."
@@ -570,7 +657,7 @@ NODE
     log "VERIFY_ENV=${VERIFY_ENV:-<unset>}; skipping staging-specific verification."
   fi
 
-  # Check 8: when sandboxing is enabled, the deployed sandbox image must exist
+  # Check 9: when sandboxing is enabled, the deployed sandbox image must exist
   # locally and include the required runtime binaries.
   checks_run=$((checks_run + 1))
   log "Checking sandbox runtime config and image requirements from deployed config..."
@@ -616,7 +703,7 @@ NODE
     log "Sandbox browser is disabled; skipping image presence check."
   fi
 
-  # Check 9: verify deployed image matches DEPLOYED_REF (if set)
+  # Check 10: verify deployed image matches DEPLOYED_REF (if set)
   if [[ -n "${DEPLOYED_REF:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking deployed image matches DEPLOYED_REF (${DEPLOYED_REF})..."
@@ -632,7 +719,7 @@ NODE
     log "Container image: ${image_ref}"
   fi
 
-  # Check 10: smoke-test the bundled mongodb-mcp-server CLI inside the deployed
+  # Check 11: smoke-test the bundled mongodb-mcp-server CLI inside the deployed
   # container. This catches the Node 22 startup crash that can occur before MCP
   # stdio connects, even while the gateway health endpoint still reports healthy.
   checks_run=$((checks_run + 1))
@@ -642,7 +729,7 @@ NODE
   )" || fail "mongodb-mcp-server startup smoke failed in ${container}"
   printf '%s\n' "${mcp_smoke_output}"
 
-  # Check 11: ensure the current container logs do not contain the known
+  # Check 12: ensure the current container logs do not contain the known
   # translator crash or the resulting MCP connection-closed failure.
   checks_run=$((checks_run + 1))
   log "Checking ${container} logs for MongoDB MCP startup crash signatures..."

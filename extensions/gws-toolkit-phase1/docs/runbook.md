@@ -21,11 +21,15 @@ Set `binaryPath` in plugin config if `gws` is not on `PATH`.
 
 Supported modes:
 
-- `credentials_file` for production-capable route bindings (Headless OAuth2 exports or service-account JSON)
-- `token` for controlled short-lived routes
+- `credentials_file` for production-capable route bindings
+- `token` for controlled short-lived break-glass routes
 
 `oauth` remains an upstream `gws` capability, but it is intentionally not a
 first-class route mode in plugin runtime.
+
+For delegate routes with impersonation, use service-account JSON credentials
+with Domain-Wide Delegation. First-class impersonation controls delegated
+identity routing; it does not automate user OAuth reauthentication.
 
 ## 3. Configure named routes and bindings
 
@@ -100,6 +104,8 @@ openclaw gws doctor
 openclaw gws auth-posture
 openclaw gws auth-health
 openclaw gws routes
+openclaw gws auth-health --subject agent:main
+openclaw gws auth-health --subject subagent:ops
 ```
 
 Optional deeper doctor path:
