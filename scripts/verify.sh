@@ -515,8 +515,9 @@ NODE
         || fail "Failed to parse gws auth status has_refresh_token in ${container}"
       gws_token_error="$(jq -r '.token_error // empty' <<<"${gws_auth_status}")" \
         || fail "Failed to parse gws auth status token_error in ${container}"
-      gws_credentials_type="$(jq -r '.type // empty' "${gws_credentials_host_path}" 2>/dev/null)" \
-        || fail "Failed to parse Google Workspace credentials file type at ${gws_credentials_host_path}"
+      gws_credentials_type="$(
+        gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; jq -r '.type // empty' \\\"${gws_active_credentials_path}\\\" 2>/dev/null\""
+      )" || fail "Failed to parse Google Workspace credentials file type inside ${container}"
 
       if [[ "${gws_plain_credentials_exists}" != "true" ]]; then
         fail "Google Workspace credentials file is not visible to gws inside ${container}"
